@@ -382,7 +382,7 @@ void Window::updateDraw( const uint32_t frameID,
 }
 
 void Window::updatePost( const uint32_t frameID, 
-                              const uint32_t frameNumber )
+                         const uint32_t frameNumber )
 {
     for( vector< Channel* >::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
@@ -392,7 +392,7 @@ void Window::updatePost( const uint32_t frameID,
             channel->updatePost( frameID, frameNumber );
     }
 
-    _updateSwap();
+    _updateSwap( frameNumber );
 
     eq::WindowFrameFinishPacket finishPacket;
     finishPacket.frameID     = frameID;
@@ -403,9 +403,9 @@ void Window::updatePost( const uint32_t frameID,
     _lastDrawCompound = 0;
 }
 
-void Window::_updateSwap()
+void Window::_updateSwap( const uint32_t frameNumber )
 {
-    bool finishSent = false;
+    bool firstBarrier = false;
 
     for( vector<eqNet::Barrier*>::iterator iter = _swapBarriers.begin();
          iter != _swapBarriers.end(); ++iter )
@@ -418,12 +418,14 @@ void Window::_updateSwap()
             continue;
         }
 
-        if( !finishSent )
+        if( !firstBarrier )
         {
             eq::WindowFinishPacket packet;
             _send( packet );
             EQLOG( eq::LOG_TASKS ) << "TASK finish  " << &packet << endl;
-            finishSent = true;
+
+            updateFrameFinishNT( frameNumber );
+            firstBarrier = true;
         }
 
         eq::WindowBarrierPacket packet;
@@ -443,6 +445,20 @@ void Window::_updateSwap()
     _resetSwapBarriers();
 }
 
+void Window::updateFrameFinishNT( const uint32_t currentFrame )
+{
+    Pipe* pipe = getPipe();
+    if( pipe->isThreaded( ))
+        return;
+
+    const Config*  config  = pipe->getConfig();
+    const uint32_t latency = config->getLatency();
+    if( latency > 0 && currentFrame > 1 )
+    {
+        Node* node = pipe->getNode();
+        node->sendFrameFinishNT( currentFrame - 1 );
+    }
+}
 
 //===========================================================================
 // command handling

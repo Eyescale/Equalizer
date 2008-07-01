@@ -31,16 +31,18 @@ namespace eqNet
      */
     struct Packet
     {
-        Packet() : hasPriority( false ) {}
+        Packet(){}
         uint64_t size;
         uint32_t datatype;
         uint32_t command;
         
+#if 0
         union
         {
-            bool     hasPriority;
+            Foo foo;
             uint64_t paddingPacket; // pad to multiple-of-8
         };
+#endif
 
         static size_t minSize;
         bool exceedsMinSize() const { return (size > minSize); }

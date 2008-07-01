@@ -39,6 +39,8 @@ namespace eqs
 
         eqNet::NodePtr getNode() const { return _node; }
         void setNode( eqNet::NodePtr node ) { _node = node; }
+        bool isApplicationNode() const
+            { return (this == _config->getApplicationNode( )); }
 
         eqNet::CommandQueue* getServerThreadQueue()
             { return _config->getServerThreadQueue(); }
@@ -135,9 +137,6 @@ namespace eqs
          */
         void update( const uint32_t frameID, const uint32_t frameNumber );
 
-        /** Notify that a pipe of this node has finished a frame. */
-        void notifyPipeFrameFinished( const uint32_t frameNumber );
-
         /** 
          * Flush the processing of frames, including frameNumber.
          *
@@ -145,12 +144,11 @@ namespace eqs
          */
         void flushFrames( const uint32_t frameNumber );
 
-        /** 
-         * Synchronize the completion of the rendering of a frame.
-         * 
-         * @param frame 
-         */
+        /** Synchronize the completion of the rendering of a frame. */
         void finishFrame( const uint32_t frame );
+
+        /** Invoke non-threaded rendering synchronization. */
+        void sendFrameFinishNT( const uint32_t frameNumber );
         //*}
 
         /**
@@ -263,6 +261,9 @@ namespace eqs
 
         /** The number of the last finished frame. */
         uint32_t _finishedFrame;
+
+        /** The non-threaded synchronization has been sent this frame. */
+        bool _frameFinishNTDone;
 
         enum State
         {

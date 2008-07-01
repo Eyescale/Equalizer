@@ -59,7 +59,8 @@ namespace eq
 
         const std::string& getName() const { return _name; }
         bool isThreaded() const { return ( _thread != 0 ); }
-        uint32_t getCurrentFrame() const { return _currentFrame; }
+        uint32_t getCurrentFrame()  const { return _currentFrame; }
+        uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
 
         /** 
          * @return the pipe's pixel viewport

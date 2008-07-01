@@ -76,13 +76,7 @@ bool Base::dispatchCommand( Command& command )
 
     CommandQueue* queue = _qTable[which];
     if( queue )
-    {
-        // unlikely, use http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
-        if( command->hasPriority ) 
-            queue->pushFront( command );
-        else
-            queue->push( command );
-    }
+        queue->push( command );
     else
     {
         const CommandResult result = _vTable[which]( command );

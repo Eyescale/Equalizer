@@ -126,6 +126,10 @@ namespace eq
          */
         void releaseFrameLocal( const uint32_t frameNumber )
             { _unlockedFrame = frameNumber; }
+
+        /** Wait for a frame to be finished */
+        void waitFrameFinished( const uint32_t frameNumber ) const
+            { _finishedFrame.waitGE( frameNumber ); }
         //*}
 
         /** @name Event handling. */

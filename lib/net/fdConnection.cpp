@@ -46,7 +46,8 @@ int64_t FDConnection::read( void* buffer, const uint64_t bytes )
         if( errno == EINTR ) // if interrupted, try again
             return 0;
 
-        EQWARN << "Error during read: " << strerror( errno ) << endl;
+        EQWARN << "Error during read: " << strerror( errno ) << ", " << bytes
+               << " bytes on fd " << _readFD << endl;
         return -1;
     }
 

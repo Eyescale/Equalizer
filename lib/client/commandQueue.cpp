@@ -92,6 +92,9 @@ eqNet::Command* CommandQueue::pop()
 {
     while( true )
     {
+        if( _messagePump )
+            _messagePump->dispatchAll(); // non-blocking
+
         // Poll for a command
         if( !empty( ))
             return eqNet::CommandQueue::pop();

@@ -54,7 +54,7 @@ Config::Config( eqBase::RefPtr< Server > server )
                      queue );
     registerCommand( CMD_CONFIG_START_FRAME_REPLY, 
                      CommandFunc<Config>( this, &Config::_cmdStartFrameReply ),
-                     queue );
+                     0 );
     registerCommand( CMD_CONFIG_FRAME_FINISH, 
                      CommandFunc<Config>( this, &Config::_cmdFrameFinish ), 0 );
     registerCommand( CMD_CONFIG_EVENT, 
@@ -202,10 +202,6 @@ uint32_t Config::startFrame( const uint32_t frameID )
 
     const uint32_t frameNumber = _currentFrame + 1;
     send( packet );
-
-    RefPtr< Client > client = getClient();
-    while( !_requestHandler.isServed( packet.requestID ))
-        client->processCommand();
 
     _requestHandler.waitRequest( packet.requestID );
     EQASSERT( frameNumber == _currentFrame );

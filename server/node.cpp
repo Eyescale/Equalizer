@@ -27,12 +27,12 @@ namespace eqs
 
 void Node::_construct()
 {
-    _used             = 0;
-    _config           = NULL;
-    _lastDrawCompound = 0;
-    _flushedFrame     = 0;
-    _finishedFrame    = 0;
-
+    _used              = 0;
+    _config            = NULL;
+    _lastDrawCompound  = 0;
+    _flushedFrame      = 0;
+    _finishedFrame     = 0;
+    _frameFinishNTDone = false;
     EQINFO << "New node @" << (void*)this << endl;
 }
 
@@ -253,6 +253,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
 {
     EQVERB << "Start frame " << frameNumber << endl;
     _frameIDs[ frameNumber ] = frameID;
+    _frameFinishNTDone       = false;
     
     if( !_lastDrawCompound )
     {
@@ -266,8 +267,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     _send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK node start frame " << &startPacket << endl;
 
-    for( vector< Pipe* >::const_iterator i = _pipes.begin();
-         i != _pipes.end(); ++i )
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         if( pipe->isUsed( ))
@@ -277,10 +277,6 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     const Config*  config  = getConfig();
     const uint32_t latency = config->getLatency();
 
-    // Note: we could always wait for the pipes to return the finish, and then
-    // send the node finish. This is an optimisation to queue the command on the
-    // node when the latency is exhausted, in order to avoid the round-trip at
-    // the end of a frame.
     if( frameNumber > latency )
         flushFrames( frameNumber - latency );
 
@@ -288,28 +284,19 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     _lastDrawCompound = 0;
 }
 
-void Node::notifyPipeFrameFinished( const uint32_t frameNumber )
+void Node::sendFrameFinishNT( const uint32_t frameNumber )
 {
-    if( _finishedFrame >= frameNumber ) // node finish already done
+    if( _frameFinishNTDone )
         return;
 
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
-    {
-        const Pipe* pipe = *i;
-        if( pipe->isUsed() && pipe->getFinishedFrame() < frameNumber )
-            return;
-    }
+    eq::NodeFrameFinishNTPacket packet;
+    packet.frameID     = _frameIDs[ frameNumber ];
+    packet.frameNumber = frameNumber;
+    _send( packet );
 
-    // All pipes have finished the frame. Send a priority packet to the node, so
-    // that the node can finish the frame early.
-    eq::NodeFrameFinishEarlyPacket finishPacket;
-    finishPacket.frameID     = _frameIDs[ frameNumber ];
-    finishPacket.frameNumber = frameNumber;
-
-    // do not used _send/_bufferedTasks, not thread-safe!
-    finishPacket.sessionID   = _config->getID();
-    finishPacket.objectID    = getID();
-    _node->send( finishPacket );
+    _frameFinishNTDone = true;
+    EQLOG( eq::LOG_TASKS ) << "TASK node finish frame non-threaded " << &packet
+                           << endl;
 }
 
 void Node::flushFrames( const uint32_t frameNumber )
@@ -326,15 +313,14 @@ void Node::flushFrames( const uint32_t frameNumber )
     _frameIDs.erase( frameNumber );
 }
 
-void Node::_sendFrameFinish( const uint32_t frameNumber)
+void Node::_sendFrameFinish( const uint32_t frameNumber )
 {
-    eq::NodeFrameFinishPacket finishPacket;
-    finishPacket.frameID     = _frameIDs[ frameNumber ];
-    finishPacket.frameNumber = frameNumber;
+    eq::NodeFrameFinishPacket packet;
+    packet.frameID     = _frameIDs[ frameNumber ];
+    packet.frameNumber = frameNumber;
 
-    _send( finishPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK node finish frame  " << &finishPacket
-                           << endl;
+    _send( packet );
+    EQLOG( eq::LOG_TASKS ) << "TASK node finish frame  " << &packet << endl;
 }
 
 //---------------------------------------------------------------------------

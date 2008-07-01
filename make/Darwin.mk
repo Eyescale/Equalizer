@@ -32,10 +32,6 @@ else
   ARCHFLAGS ?= -arch ppc
 endif
 
-ifeq ($(findstring g++-4.2, $(CXX)),g++-4.2)
-  USE_OPENMP = 1
-endif # g++ 4.2
-
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
   WINDOW_SYSTEM_INCS += -I/usr/X11R6/include

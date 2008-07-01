@@ -45,11 +45,11 @@ Node::Node( Config* parent )
                      CommandFunc<Node>( this, &Node::_cmdFrameStart ), queue );
     registerCommand( CMD_NODE_FRAME_FINISH,
                      CommandFunc<Node>( this, &Node::_cmdFrameFinish ), queue );
-    registerCommand( CMD_NODE_FRAME_FINISH_EARLY,
-                     CommandFunc<Node>( this, &Node::_cmdFrameFinishEarly ), 
-                     queue );
     registerCommand( CMD_NODE_FRAME_DRAW_FINISH, 
                      CommandFunc<Node>( this, &Node::_cmdFrameDrawFinish ),
+                     queue );
+    registerCommand( CMD_NODE_FRAME_FINISH_NT, 
+                     CommandFunc<Node>( this, &Node::_cmdFrameFinishNT ),
                      queue );
 
     parent->_addNode( this );
@@ -136,10 +136,12 @@ FrameData* Node::getFrameData( const eqNet::ObjectVersion& dataVersion )
 
 void Node::_finishFrame( const uint32_t frameNumber ) const
 {
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
-         ++i )
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
+        EQASSERT( pipe->isThreaded() || 
+                  pipe->getFinishedFrame() >= frameNumber );
+
         pipe->waitFrameLocal( frameNumber );
         pipe->waitFrameFinished( frameNumber );
     }
@@ -164,12 +166,22 @@ void Node::_frameFinish( const uint32_t frameID, const uint32_t frameNumber )
     }
 }
 
+void Node::frameFinishNT( const uint32_t frameID, const uint32_t frameNumber )
+{
+    _finishFrame( frameNumber );
+    _frameFinish( frameID, frameNumber );
+
+    const Config* config = getConfig();
+    config->waitFrameFinished( frameNumber );
+}
+
 void Node::releaseFrame( const uint32_t frameNumber )
 {
     EQASSERTINFO( _currentFrame >= frameNumber, 
                   "current " << _currentFrame << " release " << frameNumber );
-    EQASSERTINFO( _finishedFrame < frameNumber, 
-                  "finished " << _currentFrame << " release " << frameNumber );
+
+    if( _finishedFrame >= frameNumber )
+        return;
     _finishedFrame = frameNumber;
 
     NodeFrameFinishReplyPacket packet;
@@ -360,8 +372,7 @@ eqNet::CommandResult Node::_cmdFrameStart( eqNet::Command& command )
     EQVERB << "handle node frame start " << packet << endl;
 
     const uint32_t frameNumber = packet->frameNumber;
-    if( _currentFrame >= frameNumber ) // already done be finish early (below)
-        return eqNet::COMMAND_HANDLED;
+    EQASSERT( _currentFrame == frameNumber-1 );
 
     EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber << endl;
 
@@ -382,39 +393,10 @@ eqNet::CommandResult Node::_cmdFrameFinish( eqNet::Command& command )
     if( _finishedFrame >= packet->frameNumber ) // already done
         return eqNet::COMMAND_HANDLED;
 
+    EQASSERT( _finishedFrame+1 == packet->frameNumber );
+
     _finishFrame( packet->frameNumber );
     _frameFinish( packet->frameID, packet->frameNumber );
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Node::_cmdFrameFinishEarly( eqNet::Command& command )
-{
-    CHECK_THREAD( _nodeThread );
-    EQASSERT( _currentFrame >= _finishedFrame );
-
-    const NodeFrameFinishEarlyPacket* packet = 
-        command.getPacket<NodeFrameFinishEarlyPacket>();
-    EQVERB << "handle node frame finish early " << packet << endl;
-
-    const uint32_t frameNumber = packet->frameNumber;
-    if( _finishedFrame >= frameNumber ) // already done
-        return eqNet::COMMAND_HANDLED;
-
-    if( _currentFrame < frameNumber )
-    {
-        // It is possible that the finishEarly arrives before the corresponding
-        // frameStart, e.g., in eqPly where pipe threads are not synchronized
-        // and send their finish to the server, which sends the node finishEarly
-        // _before_ the node thread managed to process the startFrame.
-        EQASSERTINFO( _currentFrame.get() + 1 == frameNumber,
-                      _currentFrame << ", " << frameNumber );
-        
-        // Make sure frameStart is called before frameFinish
-        frameStart( packet->frameID, frameNumber );
-    }
-
-    // Not needed: _finishFrame( frameNumber );
-    _frameFinish( packet->frameID, frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -426,6 +408,22 @@ eqNet::CommandResult Node::_cmdFrameDrawFinish( eqNet::Command& command )
                        << endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Node::_cmdFrameFinishNT( eqNet::Command& command )
+{
+    NodeFrameFinishNTPacket* packet = 
+        command.getPacket< NodeFrameFinishNTPacket >();
+    EQLOG( LOG_TASKS ) << "TASK frame finish non-threaded " << getName() 
+                       <<  ' ' << packet << endl;
+
+    if( _finishedFrame >= packet->frameNumber ) // already done
+        return eqNet::COMMAND_HANDLED;
+
+    EQASSERT( _finishedFrame+1 == packet->frameNumber );
+
+    frameFinishNT( packet->frameID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 }

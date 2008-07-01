@@ -326,7 +326,6 @@ namespace eq
                 size        = sizeof( ConfigStartFrameReplyPacket );
                 sessionID   = requestPacket->sessionID;
                 requestID   = requestPacket->requestID;
-                hasPriority = true;
             }
         uint32_t requestID;
         uint32_t frameNumber;
@@ -340,7 +339,6 @@ namespace eq
             {
                 command     = CMD_CONFIG_FRAME_FINISH;
                 size        = sizeof( ConfigFrameFinishPacket );
-                hasPriority = true;
             }
         uint32_t frameNumber;
     };
@@ -472,19 +470,6 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct NodeFrameFinishEarlyPacket : public eqNet::ObjectPacket
-    {
-        NodeFrameFinishEarlyPacket()
-            {
-                command        = CMD_NODE_FRAME_FINISH_EARLY;
-                size           = sizeof( NodeFrameFinishEarlyPacket );
-                hasPriority    = true;
-            }
-
-        uint32_t frameID;
-        uint32_t frameNumber;
-    };
-
     struct NodeFrameFinishReplyPacket : public eqNet::ObjectPacket
     {
         NodeFrameFinishReplyPacket()
@@ -502,6 +487,17 @@ namespace eq
             {
                 command       = CMD_NODE_FRAME_DRAW_FINISH;
                 size          = sizeof( NodeFrameDrawFinishPacket );
+            }
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
+
+    struct NodeFrameFinishNTPacket : public eqNet::ObjectPacket
+    {
+        NodeFrameFinishNTPacket()
+            {
+                command       = CMD_NODE_FRAME_FINISH_NT;
+                size          = sizeof( NodeFrameFinishNTPacket );
             }
         uint32_t frameID;
         uint32_t frameNumber;
@@ -1132,10 +1128,12 @@ namespace eq
            << " id " << packet->frameID;
         return os;
     }
+
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const NodeFrameFinishEarlyPacket* packet)
+                                       const NodeFrameFinishNTPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber;
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
         return os;
     }
 

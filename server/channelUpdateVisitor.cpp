@@ -378,6 +378,9 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     if( frameIDs.empty() )
         return;
 
+    Window* window = _channel->getWindow();
+    window->updateFrameFinishNT( _frameNumber );
+
     // assemble task
     eq::ChannelFrameAssemblePacket packet;
     packet.context   = context;
@@ -413,6 +416,9 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 
     if( frames.empty() )
         return;
+
+    Window* window = _channel->getWindow();
+    window->updateFrameFinishNT( _frameNumber );
 
     // readback task
     eq::ChannelFrameReadbackPacket packet;

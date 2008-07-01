@@ -373,12 +373,12 @@ eqNet::CommandResult Pipe::_cmdConfigExitReply( eqNet::Command& command )
 
 eqNet::CommandResult Pipe::_cmdFrameFinishReply( eqNet::Command& command ) 
 {
+    // TODO remove me?
     const eq::PipeFrameFinishReplyPacket* packet = 
         command.getPacket< eq::PipeFrameFinishReplyPacket >();
     EQVERB << "handle pipe frameFinish reply " << packet << endl;
 
     _finishedFrame = packet->frameNumber;
-    _node->notifyPipeFrameFinished( packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 

@@ -558,10 +558,6 @@ void Config::_updateHead()
 
 void Config::_prepareFrame( vector< eqNet::NodeID >& nodeIDs )
 {
-    // Note: If you add sending commands to the app node, please consider that
-    // the start frame reply sent directly after this function is a priority
-    // packet!
-
     EQASSERT( _state == STATE_INITIALIZED );
     ++_currentFrame;
     EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
@@ -611,8 +607,8 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
             return;
     }
 
-    // All nodes have finished the frame. Notify the app-node config that the
-    // frame is finished
+    // All nodes have finished the frame. Notify the application's config that
+    // the frame is finished
     eq::ConfigFrameFinishPacket finishPacket;
     finishPacket.frameNumber = frameNumber;
 

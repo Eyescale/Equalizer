@@ -207,6 +207,9 @@ namespace eqs
          * @param frameNumber the number of the frame.
          */
         void updatePost( const uint32_t frameID, const uint32_t frameNumber );
+
+        /** Trigger the synchronization for non-threaded rendering. */
+        void updateFrameFinishNT( const uint32_t currentFrame );
         //*}
 
         /**
@@ -295,7 +298,7 @@ namespace eqs
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();
 
-        void _updateSwap();
+        void _updateSwap( const uint32_t frameNumber );
 
         /* command handler functions. */
         eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command ); 

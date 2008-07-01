@@ -6,6 +6,7 @@
 #define EQS_PIPE_H
 
 #include "node.h"                       // used in inline method
+#include <eq/client/global.h>           // eq::OFF enum
 #include <eq/net/object.h>              // base class
 
 #include <ostream>
@@ -184,6 +185,9 @@ namespace eqs
             { return _iAttributes[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
             { return _iAttributeStrings[attr]; }
+
+        bool isThreaded() const
+            { return (getIAttribute( IATTR_HINT_THREAD ) != eq::OFF ); }
         //*}
 
         /** @name Error information. */
