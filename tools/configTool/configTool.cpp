@@ -36,8 +36,8 @@ ConfigTool::ConfigTool()
           _nPipes( 1 ),
           _nChannels( 4 ),
           _useDestination( true ),
-          _wallW( 3 ),
-          _wallH( 2 ),
+          _columns( 3 ),
+          _rows( 2 ),
           _nodesFile( "" )
 {}
 
@@ -45,35 +45,39 @@ bool ConfigTool::parseArguments( int argc, char** argv )
 {
     try
     {
-        TCLAP::CmdLine command( "configTool - Equalizer config file generator" );
+        TCLAP::CmdLine command( "configTool - Equalizer config file generator");
 
         TCLAP::SwitchArg fullScreenArg( "f", "fullScreen",
-                            "Full screen rendering", command, false );
+                                        "Full screen rendering", command, 
+                                        false );
 
-        TCLAP::ValueArg<string> modeArg( "m", "mode", "Compound mode (default 2D)",
-                                         false, "2D", "2D|DB|DB_ds|DB_ds_ac|Wall", command );
+        TCLAP::ValueArg<string> modeArg( "m", "mode",
+                                         "Compound mode (default 2D)",
+                                         false, "2D",
+                                         "2D|DB|DB_ds|DB_ds_ac|Wall", command );
 
         TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes",
-                                           "Number of pipes per node (default 1)",
+                                         "Number of pipes per node (default 1)",
                                            false, 1, "unsigned", command );
 
         TCLAP::ValueArg<unsigned> channelArg( "c", "numChannels", 
-                                             "Total number of channels (default 4)",
+                                         "Total number of channels (default 4)",
                                               false, 4, "unsigned", command );
 
-        TCLAP::ValueArg<unsigned> wallWArg( "W", "wallWidth", 
-                                             "number of displays in a raw in a display wall",
+        TCLAP::ValueArg<unsigned> columnsArg( "C", "columns", 
+                                          "number of columns in a display wall",
                                               false, 3, "unsigned", command );
 
-        TCLAP::ValueArg<unsigned> wallHArg( "H", "wallHeight",
-                                             "number of displays' raws in a display wall",
-                                              false, 2, "unsigned", command );
+        TCLAP::ValueArg<unsigned> rowsArg( "R", "rows",
+                                           "number of rows in a display wall",
+                                           false, 2, "unsigned", command );
 
         TCLAP::SwitchArg destArg( "a", "assembleOnly", 
-                            "Destination channel does not contribute to rendering", 
+                        "Destination channel does not contribute to rendering", 
                                   command, false );
 
-        TCLAP::ValueArg<string> nodesArg( "n", "nodes", "file with list of node-names",
+        TCLAP::ValueArg<string> nodesArg( "n", "nodes", 
+                                          "file with list of node-names",
                                          false, "", "", command );
 
         command.parse( argc, argv );
@@ -89,10 +93,10 @@ bool ConfigTool::parseArguments( int argc, char** argv )
         if( channelArg.isSet( ))
             _nChannels = channelArg.getValue();
 
-        if( wallWArg.isSet( ))
-            _wallW = wallWArg.getValue();
-        if( wallHArg.isSet( ))
-            _wallH = wallHArg.getValue();
+        if( columnsArg.isSet( ))
+            _columns = columnsArg.getValue();
+        if( rowsArg.isSet( ))
+            _rows = rowsArg.getValue();
 
         _useDestination = !destArg.isSet();
         _fullScreen     = fullScreenArg.isSet();
@@ -120,7 +124,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
             else if( mode == "Wall" )
             {
                 _mode   = MODE_WALL;
-                _nChannels = _wallW * _wallH;
+                _nChannels = _columns * _rows;
             }
             else
             {
@@ -555,25 +559,25 @@ void ConfigTool::_writeWall() const
 
     const float screenW =  0.60;       //screen width in meters
     const float screenH =  0.48;       //screen height in meters
-    const float screenD = -0.41*_wallH; //screen distance to viewer in meters
+    const float screenD = -0.41*_rows; //screen distance to viewer in meters
 
-    float utmostLeft = -screenW*_wallW / 2;
-    float utmostLow  = -screenH*_wallH / 2;
+    const float utmostLeft    = -screenW*_columns / 2;
+    const float utmostBottom  = -screenH*_rows / 2;
 
     cout << setiosflags(ios::fixed) << setprecision(5);
 
-    for( uint h = 0; h < _wallH; h++ )
-        for( uint w = 0; w < _wallW; w++ )
+    for( unsigned row = 0; row < _rows; ++row )
+        for( unsigned column = 0; column < _columns; ++column )
         {
-            float b = utmostLow  + screenH*h; //bottom
-            float l = utmostLeft + screenW*w; //left
-            float r = l + screenW;            //right
-            float t = b + screenH;            //top
-            float d = screenD;                //depth
+            const float b = utmostBottom  + screenH*row; //bottom
+            const float l = utmostLeft + screenW*column; //left
+            const float r = l + screenW;            //right
+            const float t = b + screenH;            //top
+            const float d = screenD;                //distance
             cout
             << "            compound" << endl
             << "            {"        << endl
-            << "                channel   \"channel" << h*_wallW + w << "\"" << endl
+            << "                channel   \"channel" << row*_columns + column << "\"" << endl
             << "                wall" << endl
             << "                {" << endl
             << "                    bottom_left  [ "<< l <<" "<< b <<" "<< d <<"]" << endl

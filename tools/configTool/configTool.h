@@ -30,7 +30,7 @@ private:
     unsigned _nChannels;
     bool     _useDestination;
     bool     _fullScreen;
-    unsigned _wallW, _wallH;
+    unsigned _columns, _rows;
 
     std::string _nodesFile;
 
