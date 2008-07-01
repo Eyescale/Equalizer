@@ -57,6 +57,7 @@
 %token EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE
 %token EQTOKEN_CONNECTION_IATTR_TYPE
 %token EQTOKEN_CONNECTION_IATTR_TCPIP_PORT
+%token EQTOKEN_CONNECTION_IATTR_PORT
 %token EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
 %token EQTOKEN_PIPE_IATTR_HINT_THREAD
@@ -215,6 +216,11 @@ global:
              eqs::ConnectionDescription::IATTR_TYPE, $2 ); 
      }
      | EQTOKEN_CONNECTION_IATTR_TCPIP_PORT UNSIGNED
+     {
+         eqs::Global::instance()->setConnectionIAttribute(
+             eqs::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
+     }
+     | EQTOKEN_CONNECTION_IATTR_PORT UNSIGNED
      {
          eqs::Global::instance()->setConnectionIAttribute(
              eqs::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
@@ -394,6 +400,7 @@ connectionField:
     | EQTOKEN_COMMAND_QUOTE CHARACTER { connectionDescription->launchCommandQuote = $2; }
     | EQTOKEN_TIMEOUT   UNSIGNED  { connectionDescription->launchTimeout = $2; }
     | EQTOKEN_TCPIP_PORT UNSIGNED { connectionDescription->TCPIP.port = $2; }
+    | EQTOKEN_PORT UNSIGNED       { connectionDescription->TCPIP.port = $2; }
 
 
 pipes: pipe | pipes pipe
