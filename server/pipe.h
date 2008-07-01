@@ -46,9 +46,6 @@ namespace eqs
         /** @return the state of this pipe. */
         State getState()    const { return _state.get(); }
 
-        /** @return the number of the last finished frame. */
-        uint32_t getFinishedFrame() const { return _finishedFrame; }
-
         /** 
          * Adds a new window to this config.
          * 
@@ -246,9 +243,6 @@ namespace eqs
         /** The last draw compound for this entity */
         const Compound* _lastDrawCompound;
 
-        /** The number of the last finished frame. */
-        uint32_t _finishedFrame;
-
         /** common code for all constructors */
         void _construct();
 
@@ -263,7 +257,6 @@ namespace eqs
         /* command handler functions. */
         eqNet::CommandResult _cmdConfigInitReply(eqNet::Command& command );
         eqNet::CommandResult _cmdConfigExitReply(eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameFinishReply(eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Pipe* pipe );

@@ -611,18 +611,6 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct PipeFrameFinishReplyPacket : public eqNet::ObjectPacket
-    {
-        PipeFrameFinishReplyPacket( const PipeFrameFinishPacket* request )
-            {
-                command        = CMD_PIPE_FRAME_FINISH_REPLY;
-                size           = sizeof( PipeFrameFinishReplyPacket );
-                frameNumber    = request->frameNumber;
-            }
-
-        uint32_t frameNumber;
-    };
-        
     struct PipeFrameDrawFinishPacket : public eqNet::ObjectPacket
     {
         PipeFrameDrawFinishPacket()

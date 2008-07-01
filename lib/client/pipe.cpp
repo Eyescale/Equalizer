@@ -986,8 +986,6 @@ eqNet::CommandResult Pipe::_cmdFrameFinish( eqNet::Command& command )
                   "current " << _currentFrame << " finish " << frameNumber );
 
     frameFinish( packet->frameID, frameNumber );
-    PipeFrameFinishReplyPacket reply( packet );
-    send( command.getNode(), reply );
     
     EQASSERTINFO( _finishedFrame >= frameNumber, 
                   "Pipe::frameFinish() did not release frame " << frameNumber );
