@@ -31,6 +31,10 @@
 namespace eqBase
 {
 
+#if (defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )) || defined(_MSC_VER) || defined(_WIN32) || defined(__APPLE__) || defined(AO_HAVE_compare_and_swap_full)
+#  define EQ_HAS_COMPARE_AND_SWAP
+#endif
+
 inline void memoryBarrier()
 {
 #if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )

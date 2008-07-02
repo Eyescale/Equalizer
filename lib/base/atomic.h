@@ -17,6 +17,7 @@
 
 #include <eq/base/nonCopyable.h>    // base class
 #include <eq/base/compareAndSwap.h> // used in inline methods
+#include <eq/base/spinLock.h>       // used in inline methods
 
 namespace eqBase
 {
@@ -137,7 +138,7 @@ private:
     mutable _Atomic_word _value;
 };
 
-#else /* emulate via compareAndSwap */
+#elif defined (EQ_HAS_COMPARE_AND_SWAP) /* emulate via compareAndSwap */
 
 template <typename T>
 class Atomic: public NonCopyable
@@ -217,6 +218,89 @@ public:
 private:
     T _value;
 };
+
+#else
+
+template <typename T>
+class Atomic: public NonCopyable
+{
+public:
+    explicit Atomic(T v = 0)
+    {
+        *this = v;
+    }
+
+    operator T(void) const
+    {
+        return _value;
+    }
+
+    void operator =(T v)
+    {
+        _lock.set();
+        _value = v;
+        _lock.unset();
+    }
+
+    /* prefix operator */
+    T operator ++()
+    {
+        return *this += 1;
+    }
+
+    /* prefix operator */
+    T operator --()
+    {
+        return *this -= 1;
+    }
+
+    T operator +=(T v)
+    {
+        _lock.set();
+        _value += v;
+        T newv = _value;
+        _lock.unset();
+
+        return newv;
+    }
+
+    T operator -=(T v)
+    {
+        _lock.set();
+        _value -= v;
+        T newv = _value;
+        _lock.unset();
+
+        return newv;
+    }
+
+    /* postfix operator */
+    T operator ++(int)
+    {
+        _lock.set();
+        T oldv = _value;
+        ++_value;
+        _lock.unset();
+        
+        return oldv;
+    }
+
+    /* postfix operator */
+    T operator --(int)
+    {
+        _lock.set();
+        T oldv = _value;
+        --_value;
+        _lock.unset();
+
+        return oldv;
+    }
+
+private:
+    T        _value;
+    SpinLock _lock;
+};
+
 #endif
 }
 
