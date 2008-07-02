@@ -10,10 +10,10 @@
 #include <eq/net/types.h>                 // ConnectionVector type
 
 #include <eq/base/base.h>
-#include <eq/base/lock.h>
-#include <eq/base/referenced.h>
 #include <eq/base/refPtr.h>
+#include <eq/base/referenced.h>
 #include <eq/base/scopedMutex.h>
+#include <eq/base/spinLock.h>
 
 #include <sys/types.h>
 #include <vector>

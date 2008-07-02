@@ -62,7 +62,7 @@ Pipe::~Pipe()
 }
 
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
-                                 eqNet::Session* session )
+                            eqNet::Session* session )
 {
     eqNet::Object::attachToSession( id, instanceID, session );
     

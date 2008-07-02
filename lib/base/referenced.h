@@ -7,7 +7,7 @@
 
 #include <eq/base/base.h>     // for EQ_EXPORT
 #include <eq/base/debug.h>    // for EQERROR
-#include <eq/base/spinLock.h> // member
+#include <eq/base/atomic.h>   // member
 
 namespace eqBase
 {
@@ -24,7 +24,7 @@ namespace eqBase
 #ifndef NDEBUG
             EQASSERTINFO( !_hasBeenDeleted, typeid( *this ).name( ));
 #endif
-            _mutex.set(); ++_refCount; _mutex.unset();
+            ++_refCount;
         }
         void unref() 
             { 
@@ -32,10 +32,7 @@ namespace eqBase
                 EQASSERT( !_hasBeenDeleted );
 #endif
                 EQASSERT( _refCount > 0 ); 
-                _mutex.set();
-                --_refCount;
-                const bool deleteMe = (_refCount==0);
-                _mutex.unset();
+                const bool deleteMe = (--_refCount==0);
                 if( deleteMe )
                     delete this;
             }
@@ -70,8 +67,7 @@ namespace eqBase
                 EQASSERT( _refCount == 0 );
             }
 
-        uint32_t _refCount;
-        SpinLock _mutex;
+        Atomic< uint32_t > _refCount;
 #ifndef NDEBUG
         bool _hasBeenDeleted;
 #endif

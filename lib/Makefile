@@ -5,10 +5,12 @@ MODULE = eq
 
 HEADER_SRC = \
 	eq.h \
+	base/atomic.h \
 	base/barrier.h \
 	base/base.h \
 	base/buffer.h \
 	base/clock.h \
+	base/compareAndSwap.h \
 	base/debug.h \
 	base/defines.h \
 	base/executionListener.h \

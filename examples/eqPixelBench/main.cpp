@@ -76,12 +76,12 @@ int main( int argc, char** argv )
     EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
                             << endl;
 
-    // 5. render three framesr
+    // 5. render three frames
     clock.reset();
     config->startFrame( 0 );
-    config->finishFrame();
+    config->finishAllFrames();
     config->startFrame( 0 );
-    config->finishFrame();
+    config->finishAllFrames();
     config->startFrame( 0 );
     config->finishAllFrames();
     EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
