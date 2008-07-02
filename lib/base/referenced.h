@@ -67,7 +67,7 @@ namespace eqBase
                 EQASSERT( _refCount == 0 );
             }
 
-        Atomic< uint32_t > _refCount;
+        Atomic< long > _refCount;
 #ifndef NDEBUG
         bool _hasBeenDeleted;
 #endif

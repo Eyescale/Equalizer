@@ -16,6 +16,13 @@
 #define EQBASE_COMPAREANDSWAP_H
 
 #include <eq/base/base.h>
+#include <eq/base/spinLock.h>       // used in inline function
+#include <eq/base/scopedMutex.h>    // used in inline function
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+#  include <intrin.h>
+#  pragma intrinsic(_ReadWriteBarrier)
+#endif
 
 namespace eqBase
 {
@@ -41,9 +48,9 @@ inline bool compareAndSwap(volatile C * addr, D old, D nw)
 #if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
     return __sync_bool_compare_and_swap(addr, old, nw);
 #elif defined(_MSC_VER)
-    return _InterlockedCompareExchange(addr,old,nw) == old;
+    return _InterlockedCompareExchange(addr,nw,old) == old;
 #elif defined(_WIN32)
-    return InterlockedCompareExchange(addr,old,nw) == old;
+    return InterlockedCompareExchange(addr,nw,old) == old;
 #elif defined(__APPLE__)
     return OSAtomicCompareAndSwap32((int32_t) old, (int32_t)nw, (int32_t*)addr);
 #elif defined(AO_HAVE_compare_and_swap_full)
@@ -51,9 +58,6 @@ inline bool compareAndSwap(volatile C * addr, D old, D nw)
                                     reinterpret_cast<AO_t>(old),
                                     reinterpret_cast<AO_t>(nw));
 #else
-#  include <eq/base/spinLock.h>
-#  include <eq/base/scopedMutex.h>
-
 #  warning ("CompareAndSwap emulation")
 
     static SpinLock guard;

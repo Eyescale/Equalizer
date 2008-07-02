@@ -137,7 +137,7 @@ private:
     mutable _Atomic_word _value;
 };
 
-#else /* emulate via CAS */
+#else /* emulate via compareAndSwap */
 
 template <typename T>
 class Atomic: public NonCopyable
@@ -150,14 +150,14 @@ public:
 
     operator T(void) const
     {
-        memory_barrier();
+        memoryBarrier();
         return _value;
     }
 
     void operator =(T v)
     {
         _value = v;
-        memory_barrier();
+        memoryBarrier();
     }
 
     /* prefix operator */
@@ -177,7 +177,7 @@ public:
         for(;;)
         {
             T newv = _value+v;
-            if(CAS(&_value,_value,newv))
+            if(compareAndSwap(&_value,_value,newv))
                 return newv;
         }
     }
@@ -187,7 +187,7 @@ public:
         for(;;)
         {
             T newv = _value-v;
-            if(CAS(&_value,_value,newv))
+            if(compareAndSwap(&_value,_value,newv))
                 return newv;
         }
     }
@@ -198,7 +198,7 @@ public:
         for(;;)
         {
             T oldv = _value;
-            if(CAS(&_value,oldv,oldv+1))
+            if(compareAndSwap(&_value,oldv,oldv+1))
                 return oldv;
         }
     }
@@ -209,7 +209,7 @@ public:
         for(;;)
         {
             T oldv = _value;
-            if(CAS(&_value,oldv,oldv-1))
+            if(compareAndSwap(&_value,oldv,oldv-1))
                 return oldv;
         }
     }
