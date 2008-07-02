@@ -46,8 +46,8 @@ void Command::swap( Command& rhs )
     rhs._packetAllocSize = packetAllocSize;
 }
 
-void Command::allocate( eqBase::RefPtr<Node> node, 
-                        eqBase::RefPtr<Node> localNode, 
+void Command::allocate( NodePtr node, 
+                        NodePtr localNode, 
                         const uint64_t       packetSize )
 {
     if( !_packet )

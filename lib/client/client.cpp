@@ -249,7 +249,7 @@ bool Client::disconnectServer( RefPtr<Server> server )
 }
 
 
-eqBase::RefPtr<eqNet::Node> Client::createNode( const uint32_t type )
+eqNet::NodePtr Client::createNode( const uint32_t type )
 { 
     switch( type )
     {
@@ -315,7 +315,7 @@ bool Client::dispatchCommand( eqNet::Command& command )
 
         case DATATYPE_EQ_SERVER:
         {
-            RefPtr<eqNet::Node> node = command.getNode();
+            eqNet::NodePtr node = command.getNode();
 
             EQASSERT( dynamic_cast<Server*>( node.get( )) );
             RefPtr<Server> server = 
@@ -340,7 +340,7 @@ eqNet::CommandResult Client::invokeCommand( eqNet::Command& command )
 
         case DATATYPE_EQ_SERVER:
         {
-            RefPtr<eqNet::Node> node = command.getNode();
+            eqNet::NodePtr node = command.getNode();
 
             EQASSERT( dynamic_cast<Server*>( node.get( )) );
             RefPtr<Server> server = 

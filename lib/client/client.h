@@ -92,7 +92,7 @@ namespace eq
         bool _running;
 
         /** @sa eqNet::Node::createNode */
-        virtual eqBase::RefPtr<eqNet::Node> createNode( const uint32_t type );
+        virtual eqNet::NodePtr createNode( const uint32_t type );
         
         /** @sa eqNet::Node::dispatchCommand */
         virtual bool dispatchCommand( eqNet::Command& command );

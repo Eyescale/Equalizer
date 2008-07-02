@@ -79,7 +79,7 @@ void Frame::syncReadback()
     _frameData->syncReadback();
 }
 
-void Frame::transmit( eqBase::RefPtr<eqNet::Node> toNode )
+void Frame::transmit( eqNet::NodePtr toNode )
 {
     EQASSERT( _frameData );
     _frameData->transmit( toNode );

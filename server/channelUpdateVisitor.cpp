@@ -432,7 +432,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     
     // transmit tasks
     Node*                 node         = _channel->getNode();
-    RefPtr<eqNet::Node>   netNode      = node->getNode();
+    eqNet::NodePtr   netNode      = node->getNode();
     const eqNet::NodeID&  outputNodeID = netNode->getNodeID();
     for( vector<Frame*>::const_iterator i = frames.begin(); 
          i != frames.end(); ++i )
@@ -448,7 +448,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         {
             const Frame*        inputFrame   = *j;
             const Node*         inputNode    = inputFrame->getNode();
-            RefPtr<eqNet::Node> inputNetNode = inputNode->getNode();
+            eqNet::NodePtr inputNetNode = inputNode->getNode();
             eqNet::NodeID       nodeID       = inputNetNode->getNodeID();
             EQASSERT( node );
 

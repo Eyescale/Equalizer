@@ -11,6 +11,7 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "packets.h"
+#include "types.h"
 
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
@@ -18,6 +19,7 @@
 using namespace eqBase;
 using namespace std;
 using eqNet::CommandFunc;
+using eqNet::NodePtr;
 
 namespace eq
 {
@@ -166,8 +168,8 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
     EQINFO << "Handle create config " << packet << ", name " << packet->name 
            << endl;
     
-    RefPtr<Node> localNode = command.getLocalNode();
-    Config*      config    = Global::getNodeFactory()->createConfig( this );
+    NodePtr localNode = command.getLocalNode();
+    Config* config    = Global::getNodeFactory()->createConfig( this );
 
     EQASSERT( localNode->getSession( packet->configID ) == 0 );
     config->_appNodeID = packet->appNodeID;
@@ -191,7 +193,7 @@ eqNet::CommandResult Server::_cmdDestroyConfig( eqNet::Command& command )
         command.getPacket<ServerDestroyConfigPacket>();
     EQINFO << "Handle destroy config " << packet << endl;
     
-    RefPtr<Node>    localNode  = command.getLocalNode();
+    NodePtr         localNode  = command.getLocalNode();
     eqNet::Session* session    = localNode->getSession( packet->configID );
 
     EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
@@ -215,7 +217,7 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
         return eqNet::COMMAND_HANDLED;
     }
 
-    RefPtr<Node>    localNode = command.getLocalNode();
+    NodePtr    localNode = command.getLocalNode();
     eqNet::Session* session   = localNode->getSession( packet->configID );
     Config*         config    = static_cast< Config* >( session );
     EQASSERTINFO( dynamic_cast< Config* >( session ), 

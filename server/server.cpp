@@ -154,7 +154,7 @@ eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Command& command )
     Config* config = _configs.empty() ? 0 : _configs[0];
     
     eq::ServerChooseConfigReplyPacket reply( packet );
-    RefPtr<eqNet::Node>               node = command.getNode();
+    eqNet::NodePtr               node = command.getNode();
 
     if( !config )
     {
@@ -212,7 +212,7 @@ eqNet::CommandResult Server::_cmdUseConfig( eqNet::Command& command )
     Config* config = loader.parseConfig( configData.c_str( ));
 
     eq::ServerChooseConfigReplyPacket reply( packet );
-    RefPtr<eqNet::Node>               node = command.getNode();
+    eqNet::NodePtr               node = command.getNode();
 
     if( !config )
     {
@@ -251,7 +251,7 @@ eqNet::CommandResult Server::_cmdReleaseConfig( eqNet::Command& command )
 
     eq::ServerReleaseConfigReplyPacket reply( packet );
     Config*                            config = _appConfigs[packet->configID];
-    RefPtr<eqNet::Node>                node   = command.getNode();
+    eqNet::NodePtr                node   = command.getNode();
 
     if( !config )
     {
@@ -297,7 +297,7 @@ eqNet::CommandResult Server::_cmdShutdown( eqNet::Command& command )
         EQWARN << "Ignoring shutdown request, " << _appConfigs.size() 
                << " configs still active" << endl;
 
-    RefPtr<eqNet::Node> node = command.getNode();
+    eqNet::NodePtr node = command.getNode();
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }

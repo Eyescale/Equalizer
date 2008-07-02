@@ -24,7 +24,7 @@ namespace eqNet
         /** 
          * Constructs a new barrier.
          */
-        Barrier(eqBase::RefPtr<Node> master, const uint32_t height=0);
+        Barrier(NodePtr master, const uint32_t height=0);
 
         /** 
          * Constructs a new barrier.
@@ -79,7 +79,7 @@ namespace eqNet
         }
             _data;
 
-        eqBase::RefPtr<Node> _master;
+        NodePtr _master;
 
         /** Slave nodes which have entered the barrier, index per version. */
         std::map< uint32_t, NodeVector > _enteredNodes;

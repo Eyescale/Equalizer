@@ -805,8 +805,8 @@ eqNet::CommandResult Channel::_cmdFrameTransmit( eqNet::Command& command )
     ChannelStatistics event( Statistic::CHANNEL_TRANSMIT, this );
 
     eqNet::Session*     session   = getSession();
-    RefPtr<eqNet::Node> localNode = session->getLocalNode();
-    RefPtr<eqNet::Node> server    = session->getServer();
+    eqNet::NodePtr localNode = session->getLocalNode();
+    eqNet::NodePtr server    = session->getServer();
     Pipe*               pipe      = getPipe();
     Frame*              frame     = pipe->getFrame( packet->frame, 
                                                     packet->context.eye );
@@ -816,8 +816,8 @@ eqNet::CommandResult Channel::_cmdFrameTransmit( eqNet::Command& command )
         eqNet::NodeID nodeID = packet->nodes[i];
         nodeID.convertToHost();
 
-        RefPtr<eqNet::Node> node   = command.getNode();
-        RefPtr<eqNet::Node> toNode = localNode->connect( nodeID, node );
+        eqNet::NodePtr node   = command.getNode();
+        eqNet::NodePtr toNode = localNode->connect( nodeID, node );
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
 

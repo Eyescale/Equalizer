@@ -12,6 +12,7 @@
 
 #include <eq/net/command.h>
 #include <eq/net/global.h>
+#include <eq/base/sleep.h>
 
 using namespace eqBase;
 using namespace std;
@@ -216,7 +217,7 @@ void Config::addApplicationNode( Node* node )
     addNode( node );
 }
 
-void Config::setApplicationNetNode( eqBase::RefPtr<eqNet::Node> node )
+void Config::setApplicationNetNode( eqNet::NodePtr node )
 {
     EQASSERT( _state == STATE_STOPPED );
     EQASSERT( !_appNetNode );
@@ -255,9 +256,9 @@ bool Config::_startInit( const uint32_t initID,
     return true;
 }
 
-static RefPtr<eqNet::Node> _createNode( Node* node )
+static eqNet::NodePtr _createNode( Node* node )
 {
-    RefPtr<eqNet::Node> netNode = new eqNet::Node;
+    eqNet::NodePtr netNode = new eqNet::Node;
 
     const ConnectionDescriptionVector& descriptions = 
         node->getConnectionDescriptions();
@@ -285,7 +286,7 @@ bool Config::_connectNodes()
         if( !node->isUsed( ))
             continue;
 
-        RefPtr<eqNet::Node> netNode;
+        eqNet::NodePtr netNode;
 
         if( node == _appNode )
             netNode = _appNetNode;
@@ -336,7 +337,7 @@ bool Config::_initNodes( const uint32_t initID,
         if( !node->isUsed( ))
             continue;
         
-        RefPtr<eqNet::Node> netNode = node->getNode();
+        eqNet::NodePtr netNode = node->getNode();
 
         if( !localNode->syncConnect( netNode ))
         {
@@ -391,7 +392,7 @@ bool Config::_initNodes( const uint32_t initID,
             createConfigRequests.pop_front();
         }
 
-        RefPtr<eqNet::Node> netNode = node->getNode();
+        eqNet::NodePtr netNode = node->getNode();
 
         createNodePacket.nodeID = node->getID();
         createNodePacket.requestID = _requestHandler.registerRequest();
@@ -422,7 +423,7 @@ bool Config::_finishInit()
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node*               node    = *i;
-        RefPtr<eqNet::Node> netNode = node->getNode();
+        eqNet::NodePtr netNode = node->getNode();
         if( !node->isUsed() || !netNode->isConnected( ))
             continue;
         
@@ -440,7 +441,7 @@ bool Config::_finishInit()
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node*               node    = *i;
-        RefPtr<eqNet::Node> netNode = node->getNode();
+        eqNet::NodePtr netNode = node->getNode();
         if( !node->isUsed() || !netNode->isConnected( ))
             continue;
 
@@ -477,11 +478,12 @@ bool Config::exit()
 
 bool Config::_exitNodes()
 {
+    // invoke configExit task methods and delete resource instances on clients 
     NodeVector exitingNodes;
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        Node*               node = *i;
-        RefPtr<eqNet::Node> netNode = node->getNode();
+        Node*          node = *i;
+        eqNet::NodePtr netNode = node->getNode();
 
         if( !node->isUsed() || !netNode.isValid() ||
             netNode->getState() == eqNet::Node::STATE_STOPPED )
@@ -492,6 +494,7 @@ bool Config::_exitNodes()
         node->startConfigExit();
     }
 
+    // wait for the above and then delete the config and request disconnect
     eq::ServerDestroyConfigPacket destroyConfigPacket;
     destroyConfigPacket.configID  = getID();
 
@@ -504,8 +507,8 @@ bool Config::_exitNodes()
     for( NodeVector::const_iterator i = exitingNodes.begin();
          i != exitingNodes.end(); ++i )
     {
-        Node*               node    = *i;
-        RefPtr<eqNet::Node> netNode = node->getNode();
+        Node*          node    = *i;
+        eqNet::NodePtr netNode = node->getNode();
 
         if( !node->syncConfigExit( ))
         {
@@ -515,17 +518,40 @@ bool Config::_exitNodes()
         
         destroyNodePacket.nodeID = node->getID();
         send( netNode, destroyNodePacket );
-        node->setNode( 0 );
 
         if( node != _appNode )
         {
             netNode->send( destroyConfigPacket );
             netNode->send( clientExitPacket );
-            
-            getLocalNode()->disconnect( netNode );
         }
 
         deregisterObject( node );
+    }
+
+    // now wait that the clients disconnect
+    bool hasSlept = false;
+    for( NodeVector::const_iterator i = exitingNodes.begin();
+        i != exitingNodes.end(); ++i )
+    {
+        Node*          node    = *i;
+        eqNet::NodePtr netNode = node->getNode();
+
+        node->setNode( 0 );
+
+        if( node != _appNode )
+        {
+            if( netNode->getState() == eqNet::Node::STATE_CONNECTED )
+            {
+                if( !hasSlept )
+                {
+                    eqBase::sleep( 1 );
+                    hasSlept = true;
+                }
+
+                if( netNode->getState() == eqNet::Node::STATE_CONNECTED )
+                    getLocalNode()->disconnect( netNode );
+            }
+        }
     }
     return success;
 }

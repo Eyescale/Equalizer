@@ -108,7 +108,7 @@ namespace eq
          * 
          * @param toNode the receiving node.
          */
-        void transmit( eqBase::RefPtr<eqNet::Node> toNode );
+        void transmit( eqNet::NodePtr toNode );
 
         /** 
          * Test the readiness of the frame.

@@ -21,7 +21,7 @@ void Barrier::_construct()
     setDeltaData( &_data.height, sizeof( _data.height ));
 }
 
-Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
+Barrier::Barrier( NodePtr master, const uint32_t height )
         : _master( master )
 {
     _data.master = master->getNodeID();
@@ -68,7 +68,7 @@ void Barrier::enter()
     if( !_master )
     {
         Session*     session   = getSession();
-        RefPtr<Node> localNode = session->getLocalNode();
+        NodePtr localNode = session->getLocalNode();
         _master = localNode->connect( _data.master, session->getServer( ));
     }
 

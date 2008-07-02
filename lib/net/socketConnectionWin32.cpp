@@ -242,7 +242,6 @@ void SocketConnection::_startReceive()
     if( _overlappedPending )
         return;
 
-    _overlappedPending = true;
     _pendingBuffer.resize( _pendingBuffer.getMaxSize( ));
 
     WSABUF wsaBuffer = { _pendingBuffer.size, _pendingBuffer.data };
@@ -252,12 +251,11 @@ void SocketConnection::_startReceive()
     if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 0 )==0 ||
         GetLastError() == WSA_IO_PENDING )
     {
+        _overlappedPending = true;
         return;
     }
 
-    EQERROR << "Could not start overlapped receive: " << EQ_SOCKET_ERROR 
-            << ", closing socket" << endl;
-    close();
+    EQWARN << "Could not start overlapped receive: " << EQ_SOCKET_ERROR << endl;
 }
 
 void SocketConnection::_startAccept()
@@ -299,7 +297,7 @@ void SocketConnection::_startAccept()
          GetLastError() != WSA_IO_PENDING )
     {
         EQERROR << "Could not start accept operation: " << EQ_SOCKET_ERROR 
-                << ", closing socket" << endl;
+                << ", closing connection" << endl;
         close();
     }
 }
@@ -307,7 +305,6 @@ void SocketConnection::_startAccept()
 int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
 {
     CHECK_THREAD( _recvThread );
-    EQASSERT( _overlappedPending );
 
     int64_t bytesCopied = 0;
 
@@ -327,6 +324,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
     }
     else // then complete the pending read operation
     {
+        EQASSERT( _overlappedPending );
         if( _readFD == INVALID_SOCKET )
         {
             EQERROR << "Invalid read handle" << endl;
@@ -373,6 +371,13 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
 
         if( _receivedUsedBytes < _receivedBuffer.size )
             _fireStateChanged(); // the read notifier changed (nw->internal)
+    }
+
+    if( _receivedUsedBytes >= _receivedBuffer.size && !_overlappedPending )
+    {
+        EQERROR << "Internal buffer exhausted and no read operation "
+                << "is pending, closing connection" << endl;
+        close();
     }
 
     SetEvent( _receivedDataEvent ); // WaitForMultipleObjects resets the event

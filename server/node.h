@@ -248,7 +248,7 @@ namespace eqs
         uint32_t _used;
 
         /** The network node on which this Equalizer node is running. */
-        eqBase::RefPtr<eqNet::Node> _node;
+        eqNet::NodePtr _node;
 
         /** The list of descriptions on how this node is reachable. */
         eqNet::ConnectionDescriptionVector _connectionDescriptions;

@@ -2105,7 +2105,7 @@ eqNet::CommandResult Window::_cmdConfigInit( eqNet::Command& command )
     reply.result = configInit( packet->initID );
     EQLOG( LOG_TASKS ) << "TASK window config init reply " << &reply << endl;
 
-    RefPtr<eqNet::Node> node = command.getNode();
+    eqNet::NodePtr node = command.getNode();
     if( !reply.result )
     {
         send( node, reply, _error );

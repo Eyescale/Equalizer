@@ -97,7 +97,7 @@ namespace eq
          * 
          * @param toNode the receiving node.
          */        
-        void transmit( eqBase::RefPtr<eqNet::Node> toNode );
+        void transmit( eqNet::NodePtr toNode );
 
         /** @return true if the frame data is ready, false if not. */
         bool isReady() const   { return _readyVersion >= getVersion(); }
@@ -193,7 +193,7 @@ namespace eq
          */
         void _setReady( const uint32_t version );
 
-        void _transmit( eqBase::RefPtr<eqNet::Node> toNode,
+        void _transmit( eqNet::NodePtr toNode,
                         FrameDataTransmitPacket& packet,
                         const Frame::Buffer buffers );
 

@@ -65,7 +65,7 @@ namespace eqNet
         /** 
          * @return the server hosting this session. 
          */
-        eqBase::RefPtr<Node> getServer(){ return _server; }
+        NodePtr getServer(){ return _server; }
 
         /** 
          * Dispatches a command packet to the appropriate command queue.
@@ -229,20 +229,20 @@ namespace eqNet
          * @param packet the packet.
          * @return the success status of the transaction.
          */
-        void send( eqBase::RefPtr<Node> node, SessionPacket& packet )
+        void send( NodePtr node, SessionPacket& packet )
             {
                 packet.sessionID = _id;
                 node->send( packet );
             }
 
-        void send( eqBase::RefPtr<Node> node, SessionPacket& packet, 
+        void send( NodePtr node, SessionPacket& packet, 
                    const std::string& text )
             {
                 packet.sessionID = _id;
                 node->send( packet, text );
             }
 
-        void send( eqBase::RefPtr<Node> node, SessionPacket& packet, 
+        void send( NodePtr node, SessionPacket& packet, 
                    const void* data, const uint64_t size )
             {
                 packet.sessionID = _id;
@@ -258,7 +258,7 @@ namespace eqNet
         NodePtr _localNode;
 
         /** The node hosting the session. */
-        eqBase::RefPtr<Node> _server;
+        NodePtr _server;
 
         /** The session's identifier. */
         uint32_t _id;
@@ -294,7 +294,7 @@ namespace eqNet
         eqBase::SpinLock       _objectsMutex;
 
         const NodeID& _pollIDMaster( const uint32_t id ) const;
-        eqBase::RefPtr<Node> _pollIDMasterNode( const uint32_t id ) const;
+        NodePtr _pollIDMasterNode( const uint32_t id ) const;
 
         void _registerThreadObject( Object* object, const uint32_t id );
 

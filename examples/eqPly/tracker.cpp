@@ -88,7 +88,7 @@ bool Tracker::init( const string& port )
    if( k==-1 )
       EQERROR << "Write error: " << strerror( errno ) << endl;
 
-   usleep( 10000 ); //give enough time for initialising
+   usleep( 10000 ); //give enough time for initializing
    
    if( _update( )) //try an update to see if it works
        _running = true;

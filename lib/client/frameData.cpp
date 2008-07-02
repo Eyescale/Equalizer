@@ -173,7 +173,7 @@ void FrameData::_setReady( const uint32_t version )
     _listenersMutex.unset();
 }
 
-void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
+void FrameData::transmit( eqNet::NodePtr toNode )
 {
     if( _data.buffers == 0 )
     {

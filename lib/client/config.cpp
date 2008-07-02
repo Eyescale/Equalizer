@@ -84,7 +84,7 @@ Config::~Config()
 
 eqBase::RefPtr<Server> Config::getServer()
 { 
-    RefPtr<eqNet::Node> node = eqNet::Session::getServer();
+    eqNet::NodePtr node = eqNet::Session::getServer();
     EQASSERT( dynamic_cast< Server* >( node.get( )));
     return RefPtr_static_cast< eqNet::Node, Server >( node );
 }
@@ -269,8 +269,8 @@ void Config::sendEvent( ConfigEvent& event )
 
     if( !_appNode )
     {
-        RefPtr<eqNet::Node> localNode = getLocalNode();
-        RefPtr<eqNet::Node> server    = eqNet::Session::getServer();
+        eqNet::NodePtr localNode = getLocalNode();
+        eqNet::NodePtr server    = eqNet::Session::getServer();
         _appNode = localNode->connect( _appNodeID, server );
     }
     EQASSERT( _appNode );
@@ -424,7 +424,7 @@ void Config::broadcastData( const void* data, uint64_t size )
     packet.sessionID = getID();
     packet.dataSize  = size;
 
-    for( vector< RefPtr<eqNet::Node> >::iterator i = _clientNodes.begin();
+    for( vector< eqNet::NodePtr >::iterator i = _clientNodes.begin();
          i != _clientNodes.end(); ++i )
     {
         (*i)->send( packet, data, size );

@@ -137,7 +137,7 @@ namespace eqs
          * 
          * @param node the application node.
          */
-        void setApplicationNetNode( eqBase::RefPtr<eqNet::Node> node );
+        void setApplicationNetNode( eqNet::NodePtr node );
 
         /** 
          * Set the name of the render client executable. 
@@ -220,7 +220,7 @@ namespace eqs
         Node*       _appNode;
 
         /** The network node running the application thread. */
-        eqBase::RefPtr<eqNet::Node> _appNetNode;
+        eqNet::NodePtr _appNetNode;
 
         /** The name of the render client executable. */
         std::string _renderClient;

@@ -40,8 +40,8 @@ namespace eqNet
         template< class P > const P* getPacket() const
             { EQASSERT( _packet ); return reinterpret_cast<P*>( _packet ); }
 
-        eqBase::RefPtr<Node> getNode()      const { return _node; }
-        eqBase::RefPtr<Node> getLocalNode() const { return _localNode; }
+        NodePtr getNode()      const { return _node; }
+        NodePtr getLocalNode() const { return _localNode; }
 
         bool     operator ! () const     { return ( _packet==0 ); }
 

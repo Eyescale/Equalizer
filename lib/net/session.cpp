@@ -181,7 +181,7 @@ const NodeID& Session::_pollIDMaster( const uint32_t id ) const
     return NodeID::ZERO;
 }
 
-RefPtr<Node> Session::_pollIDMasterNode( const uint32_t id ) const
+NodePtr Session::_pollIDMasterNode( const uint32_t id ) const
 {
     const NodeID& nodeID = _pollIDMaster( id );
     return _localNode->getNode( nodeID );
@@ -306,7 +306,7 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id )
     EQASSERT( id != EQ_ID_INVALID );
     EQASSERT( !_localNode->inCommandThread( ));
         
-    RefPtr<Node> master;
+    NodePtr master;
     if( !object->isMaster( ))
     {
         // Connect master node, can't do that from the command thread!
@@ -370,7 +370,7 @@ void Session::unmapObject( Object* object )
         const uint32_t masterInstanceID = object->getMasterInstanceID();
         if( masterInstanceID != EQ_ID_INVALID )
         {
-            RefPtr<Node> master = _pollIDMasterNode( id );
+            NodePtr master = _pollIDMasterNode( id );
             if( master.isValid( ))
             {
                 SessionUnsubscribeObjectPacket packet;
@@ -601,7 +601,7 @@ CommandResult Session::_cmdGetIDMaster( Command& command )
     // TODO thread-safety: _idMasterInfos is also read & written by app
     const uint32_t id     = packet->id;
     const uint32_t nInfos = _idMasterInfos.size();
-    RefPtr<Node>   node   = command.getNode();
+    NodePtr   node   = command.getNode();
     for( uint32_t i=0; i<nInfos; ++i )
     {
         IDMasterInfo& info = _idMasterInfos[i];
@@ -699,7 +699,7 @@ CommandResult Session::_cmdMapObject( Command& command )
 
     if( !object->isMaster( ))
     { 
-        RefPtr<Node> master = _pollIDMasterNode( object->getID( ));
+        NodePtr master = _pollIDMasterNode( object->getID( ));
         EQASSERTINFO( master.isValid(), "Master node for object id " << id
                       << " not connected" );
 
@@ -732,7 +732,7 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
         command.getPacket<SessionSubscribeObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd subscribe object " << packet << endl;
 
-    RefPtr<Node>   node = command.getNode();
+    NodePtr   node = command.getNode();
     const uint32_t id   = packet->objectID;
 
     Object* master = 0;
@@ -837,7 +837,7 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
         command.getPacket<SessionUnsubscribeObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << endl;
 
-    RefPtr<Node>   node = command.getNode();
+    NodePtr        node = command.getNode();
     const uint32_t id   = packet->objectID;
 
     if( _objects.find( id ) != _objects.end( ))
