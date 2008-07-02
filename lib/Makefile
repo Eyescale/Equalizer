@@ -32,6 +32,7 @@ HEADER_SRC = \
 	base/rng.h \
 	base/scopedMutex.h \
 	base/sema.h \
+	base/sleep.h \
 	base/spinLock.h \
 	base/stdExt.h \
 	base/thread.h \

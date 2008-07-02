@@ -39,8 +39,7 @@ namespace eqNet
     class EQ_EXPORT Connection : public eqBase::Referenced
     {
     public:
-        enum State
-        {
+        enum State {
             STATE_CLOSED,
             STATE_CONNECTING,
             STATE_CONNECTED,
@@ -70,7 +69,8 @@ namespace eqNet
          * @return <code>true</code> if the connection was successfully
          *         connected, <code>false</code> if not.
          */
-        virtual bool connect() { return false; }
+        virtual bool connect()
+            { return false; }
         
         /** 
          * Put the connection into the listening state for a new incoming
@@ -79,7 +79,8 @@ namespace eqNet
          * @return <code>true</code> if the connection is listening for new
          *         incoming connections, <code>false</code> if not.
          */
-        virtual bool listen() { return false; }
+        virtual bool listen()
+            { return false; }
 
         /** 
          * Accepts the next incoming connection.
@@ -87,7 +88,7 @@ namespace eqNet
          * @return the accepted connection, or an invalid pointer if no
          *         connection was accepted.
          */
-        virtual ConnectionPtr accept() { return 0; }
+        virtual ConnectionPtr accept(){ return 0; }
 
         /** 
          * Accepts the next incoming connection with a timeout.
