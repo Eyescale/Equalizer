@@ -12,7 +12,6 @@
 
 #include <eq/net/command.h>
 #include <eq/net/global.h>
-#include <eq/base/sleep.h>
 
 using namespace eqBase;
 using namespace std;
@@ -494,7 +493,7 @@ bool Config::_exitNodes()
         node->startConfigExit();
     }
 
-    // wait for the above and then delete the config and request disconnect
+    // wait for the above and then delete the config and disconnect
     eq::ServerDestroyConfigPacket destroyConfigPacket;
     destroyConfigPacket.configID  = getID();
 
@@ -518,41 +517,18 @@ bool Config::_exitNodes()
         
         destroyNodePacket.nodeID = node->getID();
         send( netNode, destroyNodePacket );
+        node->setNode( 0 );
 
         if( node != _appNode )
         {
             netNode->send( destroyConfigPacket );
             netNode->send( clientExitPacket );
+            localNode->disconnect( netNode );
         }
 
         deregisterObject( node );
     }
 
-    // now wait that the clients disconnect
-    bool hasSlept = false;
-    for( NodeVector::const_iterator i = exitingNodes.begin();
-        i != exitingNodes.end(); ++i )
-    {
-        Node*          node    = *i;
-        eqNet::NodePtr netNode = node->getNode();
-
-        node->setNode( 0 );
-
-        if( node != _appNode )
-        {
-            if( netNode->getState() == eqNet::Node::STATE_CONNECTED )
-            {
-                if( !hasSlept )
-                {
-                    eqBase::sleep( 1 );
-                    hasSlept = true;
-                }
-
-                if( netNode->getState() == eqNet::Node::STATE_CONNECTED )
-                    getLocalNode()->disconnect( netNode );
-            }
-        }
-    }
     return success;
 }
 

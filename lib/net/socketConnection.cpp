@@ -72,6 +72,22 @@ bool SocketConnection::_createSocket()
     return true;
 }
 
+void SocketConnection::_tuneSocket( const Socket fd )
+{
+    const int on         = 1;
+    setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, 
+                reinterpret_cast<const char*>( &on ), sizeof( on ));
+    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
+                reinterpret_cast<const char*>( &on ), sizeof( on ));
+
+
+    struct linger l;
+    l.l_onoff  = 1;
+    l.l_linger = 1000; // ticks
+    setsockopt( fd, SOL_SOCKET, SO_LINGER, 
+                reinterpret_cast<const char*>( &l ), sizeof( l ));
+}
+
 bool SocketConnection::_parseAddress( sockaddr_in& socketAddress )
 {
     socketAddress.sin_family      = AF_INET;
