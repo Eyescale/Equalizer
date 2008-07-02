@@ -14,7 +14,7 @@ namespace eqBase
 #ifdef WIN32_VC
         Sleep( seconds * 1000 );
 #else
-        sleep( seconds );
+        ::sleep( seconds );
 #endif
     }
 }

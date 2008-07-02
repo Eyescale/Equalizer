@@ -19,7 +19,8 @@ namespace eqNet
 {
     class Message;
     class Network;
-        
+    class PipeConnection;
+
     /**
      * A set of connections. 
      *
@@ -91,12 +92,11 @@ namespace eqNet
 
         enum SelfCommands
         {
-            SELF_MODIFIED = 1,
-            SELF_INTERRUPT
+            SELF_INTERRUPT = 42
         };
 
         /** The connection to reset a running select, see constructor. */
-        ConnectionPtr _selfConnection;
+        eqBase::RefPtr< PipeConnection > _selfConnection;
 
         // result values
         ConnectionPtr _connection;

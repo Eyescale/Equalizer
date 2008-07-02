@@ -24,7 +24,7 @@ namespace eqNet
         virtual bool connect();
         virtual void close();
 
-        virtual ReadNotifier getReadNotifier() 
+        virtual ReadNotifier getReadNotifier() const
             { return _readConnection->getReadNotifier(); }
 
     protected:

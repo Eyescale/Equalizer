@@ -21,8 +21,10 @@ namespace eqNet
         virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
 
 #ifndef WIN32
-        virtual ReadNotifier getReadNotifier() { return _readFD; }
+        virtual ReadNotifier getReadNotifier() const { return _readFD; }
 #endif
+
+        bool hasData() const;
 
     protected:
         FDConnection();

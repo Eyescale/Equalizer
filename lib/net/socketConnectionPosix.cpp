@@ -70,13 +70,6 @@ bool SocketConnection::connect()
     return true;
 }
 
-void SocketConnection::_tuneSocket( const Socket fd )
-{
-    const int on         = 1;
-    setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof( on ));
-    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof( on ));
-}
-
 void SocketConnection::close()
 {
     if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))

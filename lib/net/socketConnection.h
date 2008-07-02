@@ -43,7 +43,7 @@ namespace eqNet
         uint16_t getPort() const;
 
 #ifdef WIN32
-        virtual ReadNotifier getReadNotifier();
+        virtual ReadNotifier getReadNotifier() const;
 #endif
 
     protected:

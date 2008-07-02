@@ -54,14 +54,25 @@ ConnectionSet::~ConnectionSet()
 
 void ConnectionSet::_dirtyFDSet()
 {
-    const char c = SELF_MODIFIED;
-    _selfConnection->send( &c, 1, true );
+    if( _dirty )
+        return;
+
+    EQINFO << "FD set modified, restarting select" << endl;
+    _dirty = true;
+    if( !_selfConnection->hasData( ))
+    {
+        const char c = SELF_INTERRUPT;
+        _selfConnection->send( &c, 1, true );
+    }
 }
 
 void ConnectionSet::interrupt()
 {
-    const char c = SELF_INTERRUPT;
-    _selfConnection->send( &c, 1, true );
+    if( !_selfConnection->hasData( ))
+    {
+        const char c = SELF_INTERRUPT;
+        _selfConnection->send( &c, 1, true );
+    }
 }
 
 void ConnectionSet::addConnection( ConnectionPtr connection )
@@ -159,7 +170,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     if( event == EVENT_NONE )
                          break;
 
-                    if( _connection == _selfConnection )
+                    if( _connection == _selfConnection.get( ))
                     {
                         EQASSERT( event == EVENT_DATA );
                         event = _handleSelfCommand();
@@ -245,13 +256,6 @@ ConnectionSet::Event ConnectionSet::_handleSelfCommand()
 
     switch( c ) 
     {
-        case SELF_MODIFIED:
-            // The connection set was modified in the select, restart selection
-            // TODO: decrease timeout accordingly.
-            EQINFO << "FD set modified, restarting select" << endl;
-            _dirty = true;
-            return EVENT_NONE; // handled
-
         case SELF_INTERRUPT:
             return EVENT_INTERRUPT;
 
@@ -273,6 +277,7 @@ bool ConnectionSet::_setupFDSet()
         return true;
     }
 
+    _dirty = false;
     _fdSetConnections.clear();
 
 #ifdef WIN32
@@ -315,7 +320,8 @@ bool ConnectionSet::_setupFDSet()
     fd.fd      = _selfConnection->getReadNotifier();
     EQASSERT( fd.fd > 0 );
     fd.revents = 0;
-    _fdSetConnections[fd.fd] = _selfConnection;
+    _fdSetConnections[fd.fd] =
+        RefPtr_static_cast< PipeConnection, Connection >( _selfConnection );
     _fdSet.push_back( fd );
 
     // add regular connections
@@ -346,7 +352,6 @@ bool ConnectionSet::_setupFDSet()
     _fdSetCopy = _fdSet;
 #endif
 
-    _dirty = false;
     return true;
 }   
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef WIN32
@@ -9,10 +9,15 @@
 #include <eq/base/base.h>
 #include <errno.h>
 
+#ifndef WIN32
+#  include <poll.h>
+#endif
+
 using namespace eqBase;
-using namespace eqNet;
 using namespace std;
 
+namespace eqNet
+{
 FDConnection::FDConnection()
         : _readFD( 0 ),
           _writeFD( 0 )
@@ -76,4 +81,16 @@ int64_t FDConnection::write( const void* buffer, const uint64_t bytes ) const
     return bytesWritten;
 }
 
+bool FDConnection::hasData() const
+{
+    pollfd fd;
+    fd.events  = POLLIN;
+    fd.fd      = getReadNotifier();
+    EQASSERT( fd.fd > 0 );
+
+    const int nReady = poll( &fd, 1, 0 );
+    return nReady > 0;
+}
+
+}
 #endif // WIN32

@@ -86,23 +86,6 @@ bool SocketConnection::connect()
     return true;
 }
 
-void SocketConnection::_tuneSocket( const Socket fd )
-{
-    const int on         = 1;
-    setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, 
-                reinterpret_cast<const char*>( &on ), sizeof( on ));
-    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
-                reinterpret_cast<const char*>( &on ), sizeof( on ));
-
-#if 0
-    const int bufferSize = 1*1024*1024;
-    setsockopt( fd, SOL_SOCKET, SO_SNDBUF, 
-        reinterpret_cast<const char*>( &bufferSize ), sizeof( bufferSize ));
-    setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 
-        reinterpret_cast<const char*>( &bufferSize ), sizeof( bufferSize ));
-#endif
-}
-
 void SocketConnection::close()
 {
     if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
@@ -221,7 +204,7 @@ bool SocketConnection::_createReadEvents()
     return true;
 }
 
-Connection::ReadNotifier SocketConnection::getReadNotifier()
+Connection::ReadNotifier SocketConnection::getReadNotifier() const
 {
     CHECK_THREAD( _recvThread );
 

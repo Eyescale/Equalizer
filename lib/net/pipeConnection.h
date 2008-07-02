@@ -33,7 +33,9 @@ namespace eqNet
         virtual void close();
 
 #ifdef WIN32
-        virtual ReadNotifier getReadNotifier() { return _dataPending; }
+        virtual ReadNotifier getReadNotifier() const { return _dataPending; }
+        bool hasData() const 
+            { return WaitForSingleObject( _dataPending, 0 ) == WAIT_OBJECT_0; }
 #endif
 
     protected:
