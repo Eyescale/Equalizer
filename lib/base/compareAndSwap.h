@@ -24,6 +24,10 @@
 #  pragma intrinsic(_ReadWriteBarrier)
 #endif
 
+#ifdef Darwin
+#  include <libkern/OSAtomic.h>
+#endif
+
 namespace eqBase
 {
 
@@ -37,6 +41,10 @@ inline void memoryBarrier()
     OSMemoryBarrier();
 #elif defined(AO_HAVE_nop_full)
     AO_nop_full();
+#elif defined( __PPC__ )
+    asm volatile("sync":::"memory");
+#elif defined( __i386__ ) || defined( __i486__ ) || defined( __i586__ ) || defined( __i686__ ) || defined( __x86_64__ )
+    asm volatile("mfence":::"memory");
 #else
 #   warning "no memory barrier implemented for this platform"
 #endif
