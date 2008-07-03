@@ -35,9 +35,20 @@ namespace mesh
         virtual RenderMode getRenderMode() const { return _renderMode; }
         virtual void setRenderMode( const RenderMode mode ) 
         { 
+            if( _renderMode == mode )
+                return;
+
             _renderMode = mode;
+
+            // Check if VBO funcs available, else fall back to display lists
+            if( _renderMode == RENDER_MODE_BUFFER_OBJECT && !GLEW_VERSION_1_5 )
+            {
+                MESHINFO << "VBO not available, using display lists"
+                         << std::endl;
+                _renderMode = RENDER_MODE_DISPLAY_LIST;
+            }
         }
-        
+
         virtual GLuint getDisplayList( const void* key ) = 0;
         virtual GLuint newDisplayList( const void* key ) = 0;
         virtual GLuint getBufferObject( const void* key ) = 0;
@@ -50,7 +61,7 @@ namespace mesh
     protected:
         VertexBufferState( GLEWContext* glewContext ) 
             : _glewContext( glewContext ), _useColors( false ), 
-              _renderMode( DISPLAY_LIST_MODE ) 
+              _renderMode( RENDER_MODE_DISPLAY_LIST ) 
         {
             MESHASSERT( glewContext );
         } 

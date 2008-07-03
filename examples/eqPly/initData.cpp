@@ -21,7 +21,7 @@ InitData::InitData()
         : _frameDataID( EQ_ID_INVALID )
         , _modelID( EQ_ID_INVALID )
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
-        , _useVBOs( false )
+        , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _useGLSL( false )
         , _invFaces( false )
 {}
@@ -33,13 +33,13 @@ InitData::~InitData()
 
 void InitData::getInstanceData( eqNet::DataOStream& os )
 {
-    os << _frameDataID << _modelID << _windowSystem << _useVBOs << _useGLSL
+    os << _frameDataID << _modelID << _windowSystem << _renderMode << _useGLSL
        << _invFaces ;
 }
 
 void InitData::applyInstanceData( eqNet::DataIStream& is )
 {
-    is >> _frameDataID >> _modelID >> _windowSystem >> _useVBOs >> _useGLSL
+    is >> _frameDataID >> _modelID >> _windowSystem >> _renderMode >> _useGLSL
        >> _invFaces;
 
     EQASSERT( _frameDataID != EQ_ID_INVALID );

@@ -137,10 +137,18 @@ namespace mesh
     // enumeration for the render modes
     enum RenderMode
     {
-        IMMEDIATE_MODE,
-        DISPLAY_LIST_MODE,
-        BUFFER_OBJECT_MODE
+        RENDER_MODE_IMMEDIATE = 0,
+        RENDER_MODE_DISPLAY_LIST,
+        RENDER_MODE_BUFFER_OBJECT,
+        RENDER_MODE_ALL // must be last
     };
+    inline std::ostream& operator << ( std::ostream& os, const RenderMode mode )
+    {
+        os << ( mode == RENDER_MODE_IMMEDIATE     ? "immediate mode" : 
+                mode == RENDER_MODE_DISPLAY_LIST  ? "display list mode" : 
+                mode == RENDER_MODE_BUFFER_OBJECT ? "VBO mode" : "ERROR" );
+        return os;
+    }
     
     // enumeration for kd-tree node types
     enum NodeType

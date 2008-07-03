@@ -177,10 +177,10 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
 {
     switch( state.getRenderMode() )
     {
-    case IMMEDIATE_MODE:
+    case RENDER_MODE_IMMEDIATE:
         break;
 
-    case BUFFER_OBJECT_MODE:
+    case RENDER_MODE_BUFFER_OBJECT:
     {
         MESHINFO << "Setting up VBO rendering for leaf " << this << "." << endl;
         const char* charThis = reinterpret_cast< const char* >( this );
@@ -215,7 +215,7 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
         
         break;
     }        
-    case DISPLAY_LIST_MODE:
+    case RENDER_MODE_DISPLAY_LIST:
     default:
     {
         MESHINFO << "Setting up display list rendering for leaf " << this
@@ -239,13 +239,13 @@ void VertexBufferLeaf::render( VertexBufferState& state ) const
 {
     switch( state.getRenderMode() )
     {
-    case IMMEDIATE_MODE:
+    case RENDER_MODE_IMMEDIATE:
         renderImmediate( state );
         return;
-    case BUFFER_OBJECT_MODE:
+    case RENDER_MODE_BUFFER_OBJECT:
         renderBufferObject( state );
         return;
-    case DISPLAY_LIST_MODE:
+    case RENDER_MODE_DISPLAY_LIST:
     default:
         renderDisplayList( state );
         return;
@@ -265,6 +265,7 @@ void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
         buffers[NORMAL_OBJECT] == state.FAILED || 
         buffers[COLOR_OBJECT] == state.FAILED || 
         buffers[INDEX_OBJECT] == state.FAILED )
+
         setupRendering( state, buffers );
     
     if( state.useColors() )

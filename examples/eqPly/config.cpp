@@ -32,7 +32,8 @@ bool Config::init()
     _loadModel();
 
     // init distributed objects
-    _frameData.data.color = _initData.useColor();
+    _frameData.data.color      = _initData.useColor();
+    _frameData.data.renderMode = _initData.getRenderMode();
     registerObject( &_frameData );
     
     _initData.setFrameDataID( _frameData.getID( ));
@@ -182,6 +183,14 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 case 's':
                 case 'S':
                     _frameData.data.statistics = !_frameData.data.statistics;
+                    return true;
+
+                case 'm':
+                case 'M':
+                    _frameData.data.renderMode = static_cast<mesh::RenderMode>
+                        ((_frameData.data.renderMode+1)%mesh::RENDER_MODE_ALL);
+                    EQINFO << "Switched to " << _frameData.data.renderMode
+                           << endl;
                     return true;
 
                 default:

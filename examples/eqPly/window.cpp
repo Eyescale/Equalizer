@@ -29,25 +29,10 @@ bool Window::configInitGL( const uint32_t initID )
 
     EQASSERT( !_state );
     _state = new VertexBufferState( getObjectManager( ));
+    _loadLogo();
 
     const Config*   config   = static_cast< const Config* >( getConfig( ));
     const InitData& initData = config->getInitData();
-
-    if( initData.useVBOs() )
-    {
-        // Check if VBO funcs available, else leave DISPLAY_LIST_MODE on
-        if( GLEW_VERSION_1_5 )
-        {
-            _state->setRenderMode( mesh::BUFFER_OBJECT_MODE );
-            EQINFO << "VBO rendering enabled" << endl;
-        }
-        else
-            EQWARN << "VBO function pointers missing, using display lists" 
-                   << endl;
-    }
-
-    _loadLogo();
-
     if( initData.useGLSL() )
         _loadShaders();
 
@@ -168,6 +153,15 @@ void Window::_loadShaders()
     glDisable( GL_LIGHTING );
 
     EQINFO << "Shaders loaded successfully" << endl;
+}
+
+void Window::frameStart( const uint32_t frameID, const uint32_t frameNumber )
+{
+    const Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData::Data& frameData = pipe->getFrameData();
+
+    _state->setRenderMode( frameData.renderMode );
+    eq::Window::frameStart( frameID, frameNumber );
 }
 
 void Window::swapBuffers()

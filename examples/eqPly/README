@@ -52,45 +52,68 @@ Application Structure
 
 Usage
 
- USAGE:
+   ./build/Darwin/bin/eqPly.app/Contents/MacOS/eqPly  [-i] [-g] [-c
+                                        <string>] [-w <string>] [-n
+                                        <unsigned>] [-r] [-b] [-p <string>]
+                                        [-m <string>] [--] [--version]
+                                        [-h]
 
-    ./examples/eqPly/eqPly  [-g] [-v] [-w ] [-n ] [-r]
-                            [-b] [-p ] [-m ] [--]
-                            [--version] [-h]
+
+Where: 
+
+   -i,  --iface
+     Invert faces (valid during binary file creation)
+
+   -g,  --glsl
+     Enable GLSL shaders
+
+   -c <string>,  --renderMode <string>
+     Rendering Mode (immediate, displayList, VBO)
+
+   -w <string>,  --windowSystem <string>
+     Window System API ( one of: AGL glX )
+
+   -n <unsigned>,  --numFrames <unsigned>
+     Maximum number of rendered frames
+
+   -r,  --resident
+     Keep client resident (see resident node documentation on website)
+
+   -b,  --bw
+     Don't use colors from ply file
+
+   -p <string>,  --port <string>
+     tracking device port
+
+   -m <string>,  --model <string>
+     ply model file name
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
 
 
- Where:
+   eqPly - Equalizer polygonal rendering example
 
-    -g,  --glsl
-      Enable GLSL shaders
+        Run-time commands:
 
-    -v,  --vbo
-      Use the new VBO rendering
+                Left Mouse Button:         Rotate model
 
-    -w ,  --windowSystem
-      Window System API ( one of: AGL glX )
+                Middle Mouse Button:       Move model in X, Y
 
-    -n ,  --numFrames
-      Maximum number of rendered frames
+                Right Mouse Button:        Move model in Z
 
-    -r,  --resident
-      Keep client resident (see resident node documentation on website)
+                <Esc>, All Mouse Buttons:  Exit program
 
-    -b,  --bw
-      Don't use colors from ply file
+                <Space>, r:                Reset camera
 
-    -p ,  --port
-      tracking device port
+                o:                         Toggle perspective/orthographic
 
-    -m ,  --model
-      ply model file name
+                s:                         Toggle statistics overlay
 
-    --,  --ignore_rest
-      Ignores the rest of the labeled arguments following this flag.
-
-    --version
-      Displays version information and exits.
-
-    -h,  --help
-      Displays usage information and exits.
-  
+                m:                         Switch rendering mode

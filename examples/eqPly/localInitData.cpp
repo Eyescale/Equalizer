@@ -39,8 +39,7 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _filename    = from._filename;
 
     setWindowSystem( from.getWindowSystem( ));
-    if( from.useVBOs( )) 
-        enableVBOs();
+    setRenderMode( from.getRenderMode( ));
     if( from.useGLSL( )) 
         enableGLSL();
     if( from.useInvertedFaces( )) 
@@ -72,8 +71,9 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
             string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
             string( "\t\t<Space>, r:                Reset camera\n" ) +
-            string( "\t\to:                         Toggle perspective/orthographic\n" );
-            string( "\t\ts:                         Toggle statistics overlay\n" );
+            string( "\t\to:                         Toggle perspective/orthographic\n" ) +
+            string( "\t\ts:                         Toggle statistics overlay\n" ) +
+            string( "\t\tm:                         Switch rendering mode\n" );
 
         TCLAP::CmdLine command( desc );
         TCLAP::ValueArg<string> modelArg( "m", "model", "ply model file name", 
@@ -93,8 +93,9 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                              command );
         TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
                                        false, "auto", "string", command );
-        TCLAP::SwitchArg vboArg( "v", "vbo", "Use the new VBO rendering", 
-                                 command, false );
+        TCLAP::ValueArg<string> modeArg( "c", "renderMode", 
+                                 "Rendering Mode (immediate, displayList, VBO)",
+                                       false, "auto", "string", command );
         TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
                                     command, false );
         TCLAP::SwitchArg invFacesArg( "i", "iface",
@@ -129,8 +130,20 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         if( residentArg.isSet( ))
             _isResident = true;
         
-        if( vboArg.isSet() )
-            enableVBOs();
+        if( modeArg.isSet() )
+        {
+            string mode = modeArg.getValue();
+            transform( mode.begin(), mode.end(), mode.begin(),
+                       (int(*)(int))std::tolower );
+            
+            if( mode == "immediate" )
+                setRenderMode( mesh::RENDER_MODE_IMMEDIATE );
+            else if( mode == "displaylist" )
+                setRenderMode( mesh::RENDER_MODE_DISPLAY_LIST );
+            else if( mode == "vbo" )
+                setRenderMode( mesh::RENDER_MODE_BUFFER_OBJECT );
+        }
+
         if( glslArg.isSet() )
             enableGLSL();
         if( invFacesArg.isSet() )

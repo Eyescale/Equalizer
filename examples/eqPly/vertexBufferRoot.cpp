@@ -42,15 +42,15 @@ void VertexBufferRoot::beginRendering( VertexBufferState& state ) const
     switch( state.getRenderMode() )
     {
 #ifdef GL_ARB_vertex_buffer_object
-    case BUFFER_OBJECT_MODE:
+    case RENDER_MODE_BUFFER_OBJECT:
         glPushClientAttrib( GL_CLIENT_VERTEX_ARRAY_BIT );
         glEnableClientState( GL_VERTEX_ARRAY );
         glEnableClientState( GL_NORMAL_ARRAY );
         if( state.useColors() )
             glEnableClientState( GL_COLOR_ARRAY );
 #endif
-    case DISPLAY_LIST_MODE:
-    case IMMEDIATE_MODE:
+    case RENDER_MODE_DISPLAY_LIST:
+    case RENDER_MODE_IMMEDIATE:
     default:
         ;
     }
@@ -70,7 +70,7 @@ void VertexBufferRoot::endRendering( VertexBufferState& state ) const
     switch( state.getRenderMode() )
     {
 #ifdef GL_ARB_vertex_buffer_object
-    case BUFFER_OBJECT_MODE:
+    case RENDER_MODE_BUFFER_OBJECT:
     {
         // deactivate VBO and EBO use
 #define glewGetContext state.glewGetContext
@@ -79,8 +79,8 @@ void VertexBufferRoot::endRendering( VertexBufferState& state ) const
         glPopClientAttrib();
     }
 #endif
-    case DISPLAY_LIST_MODE:
-    case IMMEDIATE_MODE:
+    case RENDER_MODE_DISPLAY_LIST:
+    case RENDER_MODE_IMMEDIATE:
     default:
         ;
     }
