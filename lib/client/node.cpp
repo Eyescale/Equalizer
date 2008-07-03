@@ -26,31 +26,31 @@ using eqNet::CommandFunc;
 
 namespace eq
 {
+typedef eqNet::CommandFunc<Node> NodeFunc;
+
 Node::Node( Config* parent )
         : _config( parent )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
 {
-    eqNet::CommandQueue* queue        = parent->getNodeThreadQueue();
+    eqNet::CommandQueue* queue = parent->getNodeThreadQueue();
 
     registerCommand( CMD_NODE_CREATE_PIPE, 
-                     CommandFunc<Node>( this, &Node::_cmdCreatePipe ), queue );
+                     NodeFunc( this, &Node::_cmdCreatePipe ), queue );
     registerCommand( CMD_NODE_DESTROY_PIPE,
-                     CommandFunc<Node>( this, &Node::_cmdDestroyPipe ), queue );
+                     NodeFunc( this, &Node::_cmdDestroyPipe ), queue );
     registerCommand( CMD_NODE_CONFIG_INIT, 
-                     CommandFunc<Node>( this, &Node::_cmdConfigInit ), queue );
+                     NodeFunc( this, &Node::_cmdConfigInit ), queue );
     registerCommand( CMD_NODE_CONFIG_EXIT,
-                     CommandFunc<Node>( this, &Node::_cmdConfigExit ), queue );
+                     NodeFunc( this, &Node::_cmdConfigExit ), queue );
     registerCommand( CMD_NODE_FRAME_START,
-                     CommandFunc<Node>( this, &Node::_cmdFrameStart ), queue );
+                     NodeFunc( this, &Node::_cmdFrameStart ), queue );
     registerCommand( CMD_NODE_FRAME_FINISH,
-                     CommandFunc<Node>( this, &Node::_cmdFrameFinish ), queue );
+                     NodeFunc( this, &Node::_cmdFrameFinish ), queue );
     registerCommand( CMD_NODE_FRAME_DRAW_FINISH, 
-                     CommandFunc<Node>( this, &Node::_cmdFrameDrawFinish ),
-                     queue );
+                     NodeFunc( this, &Node::_cmdFrameDrawFinish ), queue );
     registerCommand( CMD_NODE_FRAME_FINISH_NT, 
-                     CommandFunc<Node>( this, &Node::_cmdFrameFinishNT ),
-                     queue );
+                     NodeFunc( this, &Node::_cmdFrameFinishNT ), queue );
 
     parent->_addNode( this );
     EQINFO << " New eq::Node @" << (void*)this << endl;

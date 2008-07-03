@@ -6,9 +6,10 @@
 #include "config.h"
 
 #include "compound.h"
+#include "global.h"
+#include "log.h"
 #include "node.h"
 #include "server.h"
-#include "global.h"
 
 #include <eq/net/command.h>
 #include <eq/net/global.h>
@@ -635,13 +636,14 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
 
     // All nodes have finished the frame. Notify the application's config that
     // the frame is finished
-    eq::ConfigFrameFinishPacket finishPacket;
-    finishPacket.frameNumber = frameNumber;
+    eq::ConfigFrameFinishPacket packet;
+    packet.frameNumber = frameNumber;
 
     // do not use send/_bufferedTasks, not thread-safe!
-    finishPacket.sessionID   = getID();
-    _appNetNode->send( finishPacket );
- }
+    packet.sessionID   = getID();
+    _appNetNode->send( packet );
+    EQLOG( eq::LOG_TASKS ) << "TASK config frame finished  " << &packet << endl;
+}
 
 void Config::_flushFrames()
 {

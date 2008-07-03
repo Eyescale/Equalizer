@@ -286,7 +286,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
 
 void Node::sendFrameFinishNT( const uint32_t frameNumber )
 {
-    if( _frameFinishNTDone )
+    if( _frameFinishNTDone || !isApplicationNode( ))
         return;
 
     eq::NodeFrameFinishNTPacket packet;
