@@ -6,6 +6,7 @@
 #define EQNET_CONNECTION_SET_H
 
 #include <eq/net/connectionListener.h> // base class
+#include <eq/net/pipeConnection.h>     // RefPtr member
 
 #include <eq/base/base.h>
 #include <eq/base/hash.h>

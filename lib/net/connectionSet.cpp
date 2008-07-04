@@ -286,7 +286,8 @@ bool ConnectionSet::_setupFDSet()
     HANDLE readHandle = _selfConnection->getReadNotifier();
     EQASSERT( readHandle );
 
-    _fdSetConnections[readHandle] = _selfConnection;
+    _fdSetConnections[readHandle] = 
+        RefPtr_static_cast< PipeConnection, Connection >( _selfConnection );
     _fdSet.push_back( readHandle );
 
     // add regular connections
