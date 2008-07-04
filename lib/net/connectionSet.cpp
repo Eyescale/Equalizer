@@ -135,10 +135,10 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
         // poll for a result
 #ifdef WIN32
         const DWORD waitTime = timeout > 0 ? timeout : INFINITE;
-        const DWORD ret = WaitForMultipleObjectsEx( _fdSet.size(), &_fdSet[0],
+        const DWORD ret = WaitForMultipleObjectsEx( _fdSet.size, _fdSet.data,
                                                     FALSE, waitTime, TRUE );
 #else
-        const int ret = poll( &_fdSet[0], _fdSet.size(), timeout );
+        const int ret = poll( _fdSet.data, _fdSet.size, timeout );
 #endif
         switch( ret )
         {
@@ -197,16 +197,15 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 {
 #ifdef WIN32
     const uint32_t i      = index - WAIT_OBJECT_0;
-    const HANDLE   handle = _fdSet[i];
+    const HANDLE   handle = _fdSet.data[i];
 
     _connection = _fdSetConnections[handle];
 
     return EVENT_DATA;
 #else
-    for( vector< pollfd >::const_iterator i = _fdSet.begin();
-         i != _fdSet.end(); ++i )
+    for( size_t i = 0; i < _fdSet.size; ++i )
     {
-        const pollfd& pollFD = *i;
+        const pollfd& pollFD = _fdSet.data[i];
         if( pollFD.revents == 0 )
             continue;
 
@@ -281,14 +280,14 @@ bool ConnectionSet::_setupFDSet()
     _fdSetConnections.clear();
 
 #ifdef WIN32
-    _fdSet.clear();
+    _fdSet.size = 0;
     // add self connection
     HANDLE readHandle = _selfConnection->getReadNotifier();
     EQASSERT( readHandle );
 
     _fdSetConnections[readHandle] = 
         RefPtr_static_cast< PipeConnection, Connection >( _selfConnection );
-    _fdSet.push_back( readHandle );
+    _fdSet.append( readHandle );
 
     // add regular connections
     _mutex.set();
@@ -308,11 +307,11 @@ bool ConnectionSet::_setupFDSet()
         }
         
         _fdSetConnections[readHandle] = connection;
-        _fdSet.push_back( readHandle );
+        _fdSet.append( readHandle );
     }
     _mutex.unset();
 #else
-    _fdSet.clear();
+    _fdSet.size = 0;
 
     pollfd fd;
     fd.events = POLLIN; // | POLLPRI;
@@ -323,7 +322,7 @@ bool ConnectionSet::_setupFDSet()
     fd.revents = 0;
     _fdSetConnections[fd.fd] =
         RefPtr_static_cast< PipeConnection, Connection >( _selfConnection );
-    _fdSet.push_back( fd );
+    _fdSet.append( fd );
 
     // add regular connections
     _mutex.set();
@@ -347,7 +346,7 @@ bool ConnectionSet::_setupFDSet()
                << " @" << (void*)connection.get() << endl;
         _fdSetConnections[fd.fd] = connection;
         fd.revents = 0;
-        _fdSet.push_back( fd );
+        _fdSet.append( fd );
     }
     _mutex.unset();
     _fdSetCopy = _fdSet;

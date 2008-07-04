@@ -9,6 +9,7 @@
 #include <eq/net/pipeConnection.h>     // RefPtr member
 
 #include <eq/base/base.h>
+#include <eq/base/buffer.h>
 #include <eq/base/hash.h>
 #include <eq/base/refPtr.h>
 
@@ -82,11 +83,12 @@ namespace eqNet
         /** The connections to handle */
         ConnectionVector _connections;
 
+        // Note: std::vector had to much overhead here
 #ifdef WIN32
-        std::vector<HANDLE> _fdSet;
+        eqBase::Buffer< HANDLE > _fdSet;
 #else
-        std::vector<pollfd> _fdSetCopy; // 'const' set
-        std::vector<pollfd> _fdSet;     // copy of _fdSetCopy used to poll()
+        eqBase::Buffer< pollfd > _fdSetCopy; // 'const' set
+        eqBase::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
 #endif
         stde::hash_map<Connection::ReadNotifier, ConnectionPtr>
             _fdSetConnections;

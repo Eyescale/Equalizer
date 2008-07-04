@@ -29,22 +29,24 @@ namespace eqBase
         /** Flush the buffer, deleting all data. */
         void clear() { if( data ) free( data ); data=0; size=0; _maxSize=0; }
 
-        /** Copy constructor - transfer ownership. */
+        /** Copy constructor - transfers ownership! */
         Buffer( Buffer& from )
             {
                 data = from.data; size = from.size; _maxSize = from._maxSize;
                 from.data = 0; from.size = 0; from._maxSize = 0;
             }
 
-        /** Assignment operator - transfer ownership. */
+        /** Assignment operator */
         const Buffer& operator = ( Buffer& from )
             {
-                data = from.data; size = from.size; _maxSize = from._maxSize;
-                from.data = 0; from.size = 0; from._maxSize = 0;
+                replace( from.data, from.size );
                 return *this;
             }
 
-        /** Ensure that the buffer contains at least newSize elements. */
+        /** 
+         * Ensure that the buffer contains at least newSize elements, retains
+         * existing data.
+         */
         void resize( const uint64_t newSize )
             { 
                 size = newSize;
@@ -60,14 +62,38 @@ namespace eqBase
                 _maxSize = newSize;
             }
 
-        /** Append addSize bytes to the buffer, increasing its size. */
+        /** 
+         * Ensure that the buffer contains at least newSize elements, deletes
+         * existing data.
+         */
+        void reserve( const uint64_t newSize )
+            { 
+                if( newSize <= _maxSize )
+                    return;
+
+                if( data )
+                    free( data );
+                
+                data = static_cast< T* >( malloc( newSize * sizeof( T )));
+                _maxSize = size;
+            }
+
+        /** Append addSize elements to the buffer, increasing its size. */
         void append( const T* addData, const uint64_t addSize )
             {
                 EQASSERT( addData );
                 EQASSERT( addSize );
+
                 const uint64_t oldSize = size;
                 resize( oldSize + addSize );
                 memcpy( data + oldSize, addData, addSize * sizeof( T ));
+            }
+
+        /** Append one elements to the buffer, increasing its size. */
+        void append( const T& element )
+            {
+                resize( size + 1 );
+                data[ size - 1 ] = element;
             }
 
         /** Replace the existing data. */
@@ -75,16 +101,8 @@ namespace eqBase
             {
                 EQASSERT( newData );
                 EQASSERT( newSize );
-                
-                if( newSize > _maxSize )
-                {
-                    if( data )
-                        free( data );
-            
-                    data = static_cast< T* >( malloc( newSize * sizeof( T )));
-                    _maxSize = size;
-                }
 
+                reserve( newSize );
                 memcpy( data, newData, newSize * sizeof( T ));
                 size = newSize;
             }
