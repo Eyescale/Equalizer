@@ -148,7 +148,7 @@ namespace eqs
         void finishFrame( const uint32_t frame );
 
         /** Invoke non-threaded rendering synchronization. */
-        void sendFrameFinishNT( const uint32_t frameNumber );
+        void updateFrameFinishNT( const uint32_t currentFrame );
         //*}
 
         /**
@@ -261,9 +261,6 @@ namespace eqs
 
         /** The number of the last finished frame. */
         uint32_t _finishedFrame;
-
-        /** The non-threaded synchronization has been sent this frame. */
-        bool _frameFinishNTDone;
 
         enum State
         {

@@ -462,12 +462,14 @@ namespace eq
     {
         NodeFrameFinishPacket()
             {
-                command        = CMD_NODE_FRAME_FINISH;
-                size           = sizeof( NodeFrameFinishPacket );
+                command          = CMD_NODE_FRAME_FINISH;
+                size             = sizeof( NodeFrameFinishPacket );
+                syncGlobalFinish = false;
             }
 
         uint32_t frameID;
         uint32_t frameNumber;
+        bool     syncGlobalFinish;
     };
 
     struct NodeFrameFinishReplyPacket : public eqNet::ObjectPacket
@@ -487,17 +489,6 @@ namespace eq
             {
                 command       = CMD_NODE_FRAME_DRAW_FINISH;
                 size          = sizeof( NodeFrameDrawFinishPacket );
-            }
-        uint32_t frameID;
-        uint32_t frameNumber;
-    };
-
-    struct NodeFrameFinishNTPacket : public eqNet::ObjectPacket
-    {
-        NodeFrameFinishNTPacket()
-            {
-                command       = CMD_NODE_FRAME_FINISH_NT;
-                size          = sizeof( NodeFrameFinishNTPacket );
             }
         uint32_t frameID;
         uint32_t frameNumber;
@@ -1113,15 +1104,7 @@ namespace eq
                                        const NodeFrameFinishPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
-           << " id " << packet->frameID;
-        return os;
-    }
-
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const NodeFrameFinishNTPacket* packet )
-    {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
-           << " id " << packet->frameID;
+           << " id " << packet->frameID << " sync " << packet->syncGlobalFinish;
         return os;
     }
 

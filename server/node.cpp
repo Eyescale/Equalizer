@@ -32,7 +32,6 @@ void Node::_construct()
     _lastDrawCompound  = 0;
     _flushedFrame      = 0;
     _finishedFrame     = 0;
-    _frameFinishNTDone = false;
     EQINFO << "New node @" << (void*)this << endl;
 }
 
@@ -253,7 +252,6 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
 {
     EQVERB << "Start frame " << frameNumber << endl;
     _frameIDs[ frameNumber ] = frameID;
-    _frameFinishNTDone       = false;
     
     if( !_lastDrawCompound )
     {
@@ -284,17 +282,25 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     _lastDrawCompound = 0;
 }
 
-void Node::sendFrameFinishNT( const uint32_t frameNumber )
+void Node::updateFrameFinishNT( const uint32_t currentFrame )
 {
-    if( _frameFinishNTDone || !isApplicationNode( ))
+    const Config*  config  = getConfig();
+    const uint32_t latency = config->getLatency();
+    if( latency == 0 || currentFrame <= latency )
         return;
 
-    eq::NodeFrameFinishNTPacket packet;
-    packet.frameID     = _frameIDs[ frameNumber ];
-    packet.frameNumber = frameNumber;
-    _send( packet );
+    const uint32_t            frameNumber = currentFrame - latency;
+    if( _frameIDs.find( frameNumber ) == _frameIDs.end( ))
+        return; // finish already send by previous updateFrameFinishNT
 
-    _frameFinishNTDone = true;
+    eq::NodeFrameFinishPacket packet;
+    packet.frameID          = _frameIDs[ frameNumber ];
+    packet.frameNumber      = frameNumber;
+    packet.syncGlobalFinish = isApplicationNode();
+
+    _send( packet );
+    _frameIDs.erase( frameNumber );
+
     EQLOG( eq::LOG_TASKS ) << "TASK node finish frame non-threaded " << &packet
                            << endl;
 }
@@ -310,16 +316,19 @@ void Node::flushFrames( const uint32_t frameNumber )
     }
 
     _bufferedTasks.sendBuffer( _node->getConnection( ));
-    _frameIDs.erase( frameNumber );
 }
 
 void Node::_sendFrameFinish( const uint32_t frameNumber )
 {
+    if( _frameIDs.find( frameNumber ) == _frameIDs.end( ))
+        return; // finish already send by updateFrameFinishNT
+
     eq::NodeFrameFinishPacket packet;
     packet.frameID     = _frameIDs[ frameNumber ];
     packet.frameNumber = frameNumber;
 
     _send( packet );
+    _frameIDs.erase( frameNumber );
     EQLOG( eq::LOG_TASKS ) << "TASK node finish frame  " << &packet << endl;
 }
 

@@ -49,8 +49,6 @@ Node::Node( Config* parent )
                      NodeFunc( this, &Node::_cmdFrameFinish ), queue );
     registerCommand( CMD_NODE_FRAME_DRAW_FINISH, 
                      NodeFunc( this, &Node::_cmdFrameDrawFinish ), queue );
-    registerCommand( CMD_NODE_FRAME_FINISH_NT, 
-                     NodeFunc( this, &Node::_cmdFrameFinishNT ), queue );
 
     parent->_addNode( this );
     EQINFO << " New eq::Node @" << (void*)this << endl;
@@ -164,15 +162,6 @@ void Node::_frameFinish( const uint32_t frameID, const uint32_t frameNumber )
         EQWARN << "Finished frame was not released, enforcing unlock" << endl;
         releaseFrame( frameNumber );
     }
-}
-
-void Node::frameFinishNT( const uint32_t frameID, const uint32_t frameNumber )
-{
-    _finishFrame( frameNumber );
-    _frameFinish( frameID, frameNumber );
-
-    const Config* config = getConfig();
-    config->waitFrameFinished( frameNumber );
 }
 
 void Node::releaseFrame( const uint32_t frameNumber )
@@ -390,13 +379,20 @@ eqNet::CommandResult Node::_cmdFrameFinish( eqNet::Command& command )
         command.getPacket<NodeFrameFinishPacket>();
     EQVERB << "handle node frame finish " << packet << endl;
 
-    if( _finishedFrame >= packet->frameNumber ) // already done
-        return eqNet::COMMAND_HANDLED;
+    const uint32_t frameNumber = packet->frameNumber;
+    EQASSERTINFO( _finishedFrame+1 == frameNumber,
+                  _finishedFrame << ", " << frameNumber );
 
-    EQASSERT( _finishedFrame+1 == packet->frameNumber );
+    _finishFrame( frameNumber );
+    _frameFinish( packet->frameID, frameNumber );
 
-    _finishFrame( packet->frameNumber );
-    _frameFinish( packet->frameID, packet->frameNumber );
+    if( packet->syncGlobalFinish )
+    {
+        // special sync for appNode with non-threaded pipes.
+        const Config* config = getConfig();
+        config->waitFrameFinished( frameNumber );
+    }
+
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -408,22 +404,6 @@ eqNet::CommandResult Node::_cmdFrameDrawFinish( eqNet::Command& command )
                        << endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Node::_cmdFrameFinishNT( eqNet::Command& command )
-{
-    NodeFrameFinishNTPacket* packet = 
-        command.getPacket< NodeFrameFinishNTPacket >();
-    EQLOG( LOG_TASKS ) << "TASK frame finish non-threaded " << getName() 
-                       <<  ' ' << packet << endl;
-
-    if( _finishedFrame >= packet->frameNumber ) // already done
-        return eqNet::COMMAND_HANDLED;
-
-    EQASSERT( _finishedFrame+1 == packet->frameNumber );
-
-    frameFinishNT( packet->frameID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 }

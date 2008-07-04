@@ -2225,6 +2225,7 @@ eqNet::CommandResult Window::_cmdBarrier( eqNet::Command& command )
     const WindowBarrierPacket* packet = 
         command.getPacket<WindowBarrierPacket>();
     EQVERB << "handle barrier " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << endl;
     EQLOG( eqNet::LOG_BARRIER ) << "swap barrier " << packet->barrierID
                                 << " v" << packet->barrierVersion <<endl;
     
@@ -2237,9 +2238,9 @@ eqNet::CommandResult Window::_cmdBarrier( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdSwap(eqNet::Command& command ) 
+eqNet::CommandResult Window::_cmdSwap( eqNet::Command& command ) 
 {
-    EQLOG( LOG_TASKS ) << "TASK swap  " << getName() << endl;
+    EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << endl;
     EQ_GL_CALL( makeCurrent( ));
 
     WindowStatistics stat( Statistic::WINDOW_SWAP, this );

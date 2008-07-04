@@ -197,35 +197,6 @@ namespace eq
          */
         virtual void frameDrawFinish( const uint32_t frameID, 
                                       const uint32_t frameNumber );
-
-        /** 
-         * Finish rendering a frame on an appNode with at least one non-threaded
-         * pipe.
-         *
-         * Called once per frame after startFrame() if latency > 0, with
-         * frameNumber = current-latency on an appNode with at least one
-         * non-threaded pipe.
-         * 
-         * This function does:
-         * <ul>
-         *   <li> assert if one non-threaded pipe has not released frameNumber.
-         *   <li> wait for all threaded pipes to finish using
-         *        Pipe::waitFrameFinished( frameNumber )
-         *   <li> release the frame earlier than normal using
-         *        frameFinish( frameNumber )
-         *   <li> wait for the frame to be finished using
-         *        config->waitFrameFinished( frameNumber )
-         * </ul>
-         *
-         * This ensures that the config can issue a new frame before potentially
-         * entering a locking Channel::frameAssemble or window swap barrier.
-         *
-         * @param frameID the per-frame identifier.
-         * @param frameNumber the frame to finish.
-         */
-        virtual void frameFinishNT( const uint32_t frameID, 
-                                    const uint32_t frameNumber );
-        
         //*}
 
         /** @name Error information. */
@@ -294,7 +265,6 @@ namespace eq
         eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameFinishNT( eqNet::Command& command);
 
         CHECK_THREAD_DECLARE( _nodeThread );
     };

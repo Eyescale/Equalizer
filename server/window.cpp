@@ -451,13 +451,8 @@ void Window::updateFrameFinishNT( const uint32_t currentFrame )
     if( pipe->isThreaded( ))
         return;
 
-    const Config*  config  = pipe->getConfig();
-    const uint32_t latency = config->getLatency();
-    if( latency > 0 && currentFrame > 1 )
-    {
-        Node* node = pipe->getNode();
-        node->sendFrameFinishNT( currentFrame - 1 );
-    }
+    Node* node = pipe->getNode();
+    node->updateFrameFinishNT( currentFrame );
 }
 
 //===========================================================================
