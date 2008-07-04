@@ -90,8 +90,7 @@ namespace eqNet
         eqBase::Buffer< pollfd > _fdSetCopy; // 'const' set
         eqBase::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
 #endif
-        stde::hash_map<Connection::ReadNotifier, ConnectionPtr>
-            _fdSetConnections;
+        eqBase::Buffer< Connection* > _fdSetConnections;
 
         enum SelfCommands
         {

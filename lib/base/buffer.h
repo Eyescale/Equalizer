@@ -43,6 +43,11 @@ namespace eqBase
                 return *this;
             }
 
+        T&       operator[]( const size_t position )
+            { EQASSERT( size > position ); return data[ position ]; }
+        const T& operator[]( const size_t position) const
+            { EQASSERT( size > position ); return data[ position ]; }
+
         /** 
          * Ensure that the buffer contains at least newSize elements, retains
          * existing data.

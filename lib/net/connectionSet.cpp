@@ -91,13 +91,12 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
 {
     {
         ScopedMutex< SpinLock > mutex( _mutex );
-        connection->removeListener( this );
-
         ConnectionVector::iterator i = find( _connections.begin(),
                                              _connections.end(), connection );
         if( i == _connections.end( ))
             return false;
 
+        connection->removeListener( this );
         _connections.erase( i );
     }
 
@@ -185,7 +184,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                         event = EVENT_CONNECT;
 
                     EQVERB << "selected connection " << _connection << " of "
-                           << _fdSetConnections.size()+1 << ", event " << event
+                           << _fdSetConnections.size << ", event " << event
                            << endl;
                     return event;
                 }
@@ -197,26 +196,23 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 {
 #ifdef WIN32
     const uint32_t i      = index - WAIT_OBJECT_0;
-    const HANDLE   handle = _fdSet.data[i];
+    const HANDLE   handle = _fdSet[i];
 
-    _connection = _fdSetConnections[handle];
+    _connection = _fdSetConnections[i];
 
     return EVENT_DATA;
 #else
     for( size_t i = 0; i < _fdSet.size; ++i )
     {
-        const pollfd& pollFD = _fdSet.data[i];
+        const pollfd& pollFD = _fdSet[i];
         if( pollFD.revents == 0 )
             continue;
 
         const int fd         = pollFD.fd;
         const int pollEvents = pollFD.revents;
-
         EQASSERT( fd > 0 );
-        EQASSERT( _fdSetConnections.find( fd ) != _fdSetConnections.end( ));
-        EQASSERT( _fdSetConnections[ fd ].isValid( ));
 
-        _connection = _fdSetConnections[ fd ];
+        _connection = _fdSetConnections[i];
         EQASSERT( _connection.isValid( ));
 
         EQVERB << "Got event on connection @" << (void*)_connection.get()<<endl;
@@ -277,17 +273,16 @@ bool ConnectionSet::_setupFDSet()
     }
 
     _dirty = false;
-    _fdSetConnections.clear();
+    _fdSet.size = 0;
+    _fdSetConnections.size = 0;
 
 #ifdef WIN32
-    _fdSet.size = 0;
     // add self connection
     HANDLE readHandle = _selfConnection->getReadNotifier();
     EQASSERT( readHandle );
 
-    _fdSetConnections[readHandle] = 
-        RefPtr_static_cast< PipeConnection, Connection >( _selfConnection );
     _fdSet.append( readHandle );
+    _fdSetConnections.append( _selfConnection.get( ));
 
     // add regular connections
     _mutex.set();
@@ -306,13 +301,11 @@ bool ConnectionSet::_setupFDSet()
             return false;
         }
         
-        _fdSetConnections[readHandle] = connection;
         _fdSet.append( readHandle );
+        _fdSetConnections.append( connection.get( ));
     }
     _mutex.unset();
 #else
-    _fdSet.size = 0;
-
     pollfd fd;
     fd.events = POLLIN; // | POLLPRI;
 
@@ -320,9 +313,9 @@ bool ConnectionSet::_setupFDSet()
     fd.fd      = _selfConnection->getReadNotifier();
     EQASSERT( fd.fd > 0 );
     fd.revents = 0;
-    _fdSetConnections[fd.fd] =
-        RefPtr_static_cast< PipeConnection, Connection >( _selfConnection );
+
     _fdSet.append( fd );
+    _fdSetConnections.append( _selfConnection.get( ));
 
     // add regular connections
     _mutex.set();
@@ -344,9 +337,10 @@ bool ConnectionSet::_setupFDSet()
 
         EQVERB << "Listening on " << typeid( *connection.get( )).name() 
                << " @" << (void*)connection.get() << endl;
-        _fdSetConnections[fd.fd] = connection;
         fd.revents = 0;
+
         _fdSet.append( fd );
+        _fdSetConnections.append( connection.get( ));
     }
     _mutex.unset();
     _fdSetCopy = _fdSet;
