@@ -2,14 +2,16 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_LOADER_H
-#define EQS_LOADER_H
+#ifndef EQSERVER_LOADER_H
+#define EQSERVER_LOADER_H
 
 #include "base.h"
 
 #include <iostream>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class Channel; 
     class Compound;
@@ -22,7 +24,7 @@ namespace eqs
     /**
      * The config file loader.
      */
-    class EQS_EXPORT Loader
+    class EQSERVER_EXPORT Loader
     {
     public:
         /** 
@@ -74,6 +76,6 @@ namespace eqs
     private:
         void _parseString( const char* config );
     };
-};
-
-#endif // EQS_LOADER_H
+}
+}
+#endif // EQSERVER_LOADER_H

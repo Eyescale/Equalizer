@@ -26,19 +26,19 @@
    // Need to predefine server library exports for forward declaration of 
    // eqsStartLocalServer
 #  ifdef EQUALIZERSERVERLIBRARY_EXPORTS
-#    define EQS_EXPORT EQ_DLLEXPORT
-#    define EQS_STLEXTERN 
+#    define EQSERVER_EXPORT EQ_DLLEXPORT
+#    define EQSERVER_STLEXTERN 
 #  else
-#    define EQS_EXPORT EQ_DLLIMPORT
-#    define EQS_STLEXTERN extern
+#    define EQSERVER_EXPORT EQ_DLLIMPORT
+#    define EQSERVER_STLEXTERN extern
 #  endif
 #else // WIN32
 #  define EQ_DLLEXPORT
 #  define EQ_DLLIMPORT
 #  define EQ_EXPORT
-#  define EQS_DLLEXPORT
-#  define EQS_DLLIMPORT
-#  define EQS_EXPORT
+#  define EQSERVER_DLLEXPORT
+#  define EQSERVER_DLLIMPORT
+#  define EQSERVER_EXPORT
 #endif
 
 // Defining our own min/max macros seems to be the only sane way to get this

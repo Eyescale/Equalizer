@@ -10,7 +10,7 @@
 #include <eq/net/pairConnection.h>
 #include <eq/net/pipeConnection.h>
 
-using namespace eqs;
+using namespace eq::server;
 using namespace eq::base;
 using namespace std;
 
@@ -52,7 +52,7 @@ private:
 static ServerThread _serverThread;
 }
 
-EQS_EXPORT eq::net::ConnectionPtr eqsStartLocalServer()
+EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer()
 {
     if( _serverThread.isRunning( ))
     {
@@ -94,7 +94,7 @@ EQS_EXPORT eq::net::ConnectionPtr eqsStartLocalServer()
     return conn;
 }
 
-EQS_EXPORT void eqsJoinLocalServer()
+EQSERVER_EXPORT void eqsJoinLocalServer()
 {
     _serverThread.join();
 }

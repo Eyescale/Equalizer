@@ -2,12 +2,14 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_COMPOUNDUPDATEOUTPUTVISITOR_H
-#define EQS_COMPOUNDUPDATEOUTPUTVISITOR_H
+#ifndef EQSERVER_COMPOUNDUPDATEOUTPUTVISITOR_H
+#define EQSERVER_COMPOUNDUPDATEOUTPUTVISITOR_H
 
 #include "compoundVisitor.h" // base class
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class Channel;
     
@@ -41,5 +43,6 @@ namespace eqs
         void _updateOutput( Compound* compound );
         void _updateSwapBarriers( Compound* compound );
     };
-};
-#endif // EQS_CONSTCOMPOUNDVISITOR_H
+}
+}
+#endif // EQSERVER_CONSTCOMPOUNDVISITOR_H

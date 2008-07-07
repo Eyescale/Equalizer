@@ -6,9 +6,13 @@
 
 #include "colorMask.h"
 
-using namespace eqs;
 using namespace eq::base;
 using namespace std;
+
+namespace eq
+{
+namespace server
+{
 
 static Global *_instance = NULL;
 
@@ -173,7 +177,7 @@ void Global::_readEnvironment()
 
 #define GLOBAL_ATTR_LENGTH 50
 
-std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
+std::ostream& operator << ( std::ostream& os, const Global* global )
 {
     Global reference;
     reference._setupDefaults(); // ignore environment variables
@@ -310,3 +314,5 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
     return os;
 }
 
+}
+}

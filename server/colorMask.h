@@ -2,15 +2,17 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_COLORMASK_H
-#define EQS_COLORMASK_H
+#ifndef EQSERVER_COLORMASK_H
+#define EQSERVER_COLORMASK_H
 
 #include "compound.h"
 
 #include <eq/client/colorMask.h>
 #include <iostream>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * Extends eq::Colormask with functionality needed only by the server.
@@ -27,5 +29,5 @@ namespace eqs
         }     
     };
 }
-
+}
 #endif // EQ_COLORMASK_H

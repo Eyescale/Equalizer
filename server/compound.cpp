@@ -36,7 +36,9 @@ using namespace eq::base;
 using namespace std;
 using namespace stde;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_COMPOUND_") + #attr )
 std::string Compound::_iAttributeStrings[IATTR_ALL] = {
@@ -872,5 +874,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
 
     os << exdent << "}" << endl << enableFlush;
     return os;
+}
+
 }
 }

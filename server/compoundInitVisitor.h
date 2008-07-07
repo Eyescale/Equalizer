@@ -2,12 +2,14 @@
 /* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_COMPOUNDINITVISITOR_H
-#define EQS_COMPOUNDINITVISITOR_H
+#ifndef EQSERVER_COMPOUNDINITVISITOR_H
+#define EQSERVER_COMPOUNDINITVISITOR_H
 
 #include "compoundVisitor.h" // base class
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * The compound visitor initializing a compound tree.
@@ -26,5 +28,6 @@ namespace eqs
 
     private:
     };
-};
-#endif // EQS_CONSTCOMPOUNDVISITOR_H
+}
+}
+#endif // EQSERVER_CONSTCOMPOUNDVISITOR_H

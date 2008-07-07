@@ -2,15 +2,17 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_PROJECTION_H
-#define EQS_PROJECTION_H
+#ifndef EQSERVER_PROJECTION_H
+#define EQSERVER_PROJECTION_H
 
 #include <eq/base/base.h>
 #include <vmmlib/vmmlib.h>
  
 #include <iostream>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * A projection definition defining a view frustum.
@@ -47,6 +49,6 @@ namespace eqs
 
     std::ostream& operator << ( std::ostream& os, const Projection& );
 }
-
-#endif // EQS_PROJECTION_H
+}
+#endif // EQSERVER_PROJECTION_H
 

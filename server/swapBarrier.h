@@ -2,12 +2,14 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_SWAPBARRIER_H
-#define EQS_SWAPBARRIER_H
+#ifndef EQSERVER_SWAPBARRIER_H
+#define EQSERVER_SWAPBARRIER_H
 
 #include <eq/net/node.h>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class Barrier;
 
@@ -40,5 +42,5 @@ namespace eqs
 
     std::ostream& operator << ( std::ostream& os, const SwapBarrier* barrier );
 }
-
-#endif // EQS_SWAPBARRIER_H
+}
+#endif // EQSERVER_SWAPBARRIER_H

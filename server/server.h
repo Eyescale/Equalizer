@@ -2,8 +2,8 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_SERVER_H
-#define EQS_SERVER_H
+#ifndef EQSERVER_SERVER_H
+#define EQSERVER_SERVER_H
 
 #include "base.h"
 #include "types.h"
@@ -14,19 +14,21 @@
 #include <eq/net/idHash.h>       // member
 #include <eq/net/node.h>         // base class & eqsStartLocalServer declaration
 
+namespace eq
+{
 /** 
- * @namespace eqs
+ * @namespace eq::server
  * @brief The Equalizer server library.
  *
  * This namespace implements the server-side functionality for the Equalizer
  * framework.
  */
-namespace eqs
+namespace server
 {
     /**
      * The Equalizer server.
      */
-    class EQS_EXPORT Server : public eq::net::Node
+    class EQSERVER_EXPORT Server : public eq::net::Node
     {
     public:
         /** 
@@ -112,5 +114,6 @@ namespace eqs
     };
 
     std::ostream& operator << ( std::ostream& os, const Server* server );
-};
-#endif // EQS_SERVER_H
+}
+}
+#endif // EQSERVER_SERVER_H

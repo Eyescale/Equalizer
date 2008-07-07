@@ -2,12 +2,14 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_FRAMEDATA_H
-#define EQS_FRAMEDATA_H
+#ifndef EQSERVER_FRAMEDATA_H
+#define EQSERVER_FRAMEDATA_H
 
 #include <eq/client/frameData.h>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * A holder for a Frame Data and parameters.
@@ -63,5 +65,6 @@ namespace eqs
         /** The number of the config frame when this data was last used. */
         uint32_t _frameNumber;
     };
-};
-#endif // EQS_FRAMEDATA_H
+}
+}
+#endif // EQSERVER_FRAMEDATA_H

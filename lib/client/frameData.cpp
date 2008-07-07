@@ -455,4 +455,5 @@ std::ostream& operator << ( std::ostream& os, const FrameData* data )
        << " images, ready " << ( data->isReady() ? 'y' :'n' );
     return os;
 }
+
 }

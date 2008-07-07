@@ -2,12 +2,14 @@
 /* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_COMPOUND_LISTENER_H
-#define EQS_COMPOUND_LISTENER_H
+#ifndef EQSERVER_COMPOUND_LISTENER_H
+#define EQSERVER_COMPOUND_LISTENER_H
 
 #include <eq/base/base.h>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class Compound;
 
@@ -30,4 +32,5 @@ namespace eqs
                                       const uint32_t frameNumber ) {}
     };
 }
-#endif // EQS_COMPOUND_LISTENER_H
+}
+#endif // EQSERVER_COMPOUND_LISTENER_H

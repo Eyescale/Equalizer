@@ -2,8 +2,8 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_WINDOW_H
-#define EQS_WINDOW_H
+#ifndef EQSERVER_WINDOW_H
+#define EQSERVER_WINDOW_H
 
 #include "pipe.h"
 
@@ -14,12 +14,14 @@
 #include <iostream>
 #include <vector>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * The window.
      */
-    class EQS_EXPORT Window : public eq::net::Object
+    class EQSERVER_EXPORT Window : public eq::net::Object
     {
     public:
         enum State
@@ -310,5 +312,7 @@ namespace eqs
     };
 
     std::ostream& operator << ( std::ostream& os, const Window* window );
-};
-#endif // EQS_WINDOW_H
+}
+}
+
+#endif // EQSERVER_WINDOW_H

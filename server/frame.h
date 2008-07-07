@@ -2,15 +2,17 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_FRAME_H
-#define EQS_FRAME_H
+#ifndef EQSERVER_FRAME_H
+#define EQSERVER_FRAME_H
 
 #include "compound.h"
 
 #include <eq/client/frame.h>
 #include <eq/client/packets.h>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class Compound;
     class FrameData;
@@ -154,5 +156,6 @@ namespace eqs
     };
 
     std::ostream& operator << ( std::ostream& os, const Frame* frame );
-};
-#endif // EQS_FRAME_H
+}
+}
+#endif // EQSERVER_FRAME_H

@@ -9,7 +9,9 @@
 
 #define DEG2RAD( angle ) ( (angle) * static_cast<float>(M_PI) / 180.f )
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 void View::applyWall( const Wall& wall )
 {
@@ -104,4 +106,5 @@ std::ostream& operator << ( std::ostream& os, const View& view )
     return os;
 }
 
+}
 }

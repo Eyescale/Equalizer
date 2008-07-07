@@ -20,8 +20,8 @@
 #include <list>
 
 #pragma warning(disable : 4190)
-extern "C" EQS_EXPORT eq::net::ConnectionPtr eqsStartLocalServer();
-extern "C" EQS_EXPORT void                 eqsJoinLocalServer();
+extern "C" EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer();
+extern "C" EQSERVER_EXPORT void                   eqsJoinLocalServer();
 #pragma warning(default : 4190)
 
 namespace eq

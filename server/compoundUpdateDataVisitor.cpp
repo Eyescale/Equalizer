@@ -9,7 +9,9 @@
 using namespace std;
 using namespace eq::base;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 CompoundUpdateDataVisitor::CompoundUpdateDataVisitor(
     const uint32_t frameNumber )
@@ -40,4 +42,4 @@ void CompoundUpdateDataVisitor::_updateDrawFinish( Compound* compound )
 }
 
 }
-
+}

@@ -2,15 +2,17 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_WALL_H
-#define EQS_WALL_H
+#ifndef EQSERVER_WALL_H
+#define EQSERVER_WALL_H
 
 #include <eq/base/base.h>
 #include <vmmlib/vmmlib.h>
 
 #include <iostream>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * A wall defining a view frustum.
@@ -18,7 +20,7 @@ namespace eqs
      * The three points describe the bottom left, bottom right and top left
      * coordinate of the wall in real-world coordinates.
      */
-    class EQS_EXPORT Wall
+    class EQSERVER_EXPORT Wall
     {
     public:
         Wall();
@@ -47,6 +49,6 @@ namespace eqs
 
     std::ostream& operator << ( std::ostream& os, const Wall& wall );
 }
-
-#endif // EQS_WALL_H
+}
+#endif // EQSERVER_WALL_H
 

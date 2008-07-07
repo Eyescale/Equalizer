@@ -12,13 +12,14 @@
 #include <eq/net/object.h>
 #include <vmmlib/vector2.h>
 
-namespace eqs
+namespace eq
+{
+
+namespace server
 {
     class Frame;
 }
 
-namespace eq
-{
     class FrameData;
     class Image;
     class Pipe;
@@ -152,8 +153,8 @@ namespace eq
         std::string _name;
         FrameData*  _frameData;
 
-        /** The distributed data shared between eq::Frame and eqs::Frame. */
-        friend class eqs::Frame;
+        /** The distributed data shared between Frame and server::Frame. */
+        friend class eq::server::Frame;
         struct Data
         {
             Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 ) {}

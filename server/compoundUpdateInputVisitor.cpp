@@ -13,7 +13,9 @@ using namespace std;
 using namespace stde;
 using namespace eq::base;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 CompoundUpdateInputVisitor::CompoundUpdateInputVisitor(
     const stde::hash_map<std::string, Frame*>& outputFrames )
@@ -83,4 +85,4 @@ Compound::VisitorResult CompoundUpdateInputVisitor::visitLeaf(
 }
 
 }
-
+}

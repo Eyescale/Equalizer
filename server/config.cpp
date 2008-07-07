@@ -20,7 +20,9 @@ using namespace std;
 using eq::net::ConnectionDescriptionVector;
 using eq::net::CommandFunc;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
@@ -76,7 +78,7 @@ Config::Config( const Config& from )
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         const Node* node      = *i;
-        Node*       nodeClone = new eqs::Node( *node, _compounds );
+        Node*       nodeClone = new Node( *node, _compounds );
         
         (node == from._appNode) ? 
             addApplicationNode( nodeClone ) : addNode( nodeClone );
@@ -806,5 +808,7 @@ ostream& operator << ( ostream& os, const Config* config )
     os << exdent << "}" << endl << enableHeader << enableFlush;
 
     return os;
+}
+
 }
 }

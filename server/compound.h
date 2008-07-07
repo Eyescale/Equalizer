@@ -2,8 +2,8 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_COMPOUND_H
-#define EQS_COMPOUND_H
+#ifndef EQSERVER_COMPOUND_H
+#define EQSERVER_COMPOUND_H
 
 #include "channel.h"               // used in inline method
 #include "pixelViewportListener.h" // base class
@@ -23,7 +23,9 @@
 #include <iostream>
 #include <vector>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class ConstCompoundVisitor;
     class CompoundListener;
@@ -34,7 +36,7 @@ namespace eqs
     /**
      * The compound.
      */
-    class EQS_EXPORT Compound : private PixelViewportListener
+    class EQSERVER_EXPORT Compound : private PixelViewportListener
     {
     public:
         /** 
@@ -501,5 +503,6 @@ namespace eqs
     };
 
     std::ostream& operator << ( std::ostream& os,const Compound* compound );
-};
-#endif // EQS_COMPOUND_H
+}
+}
+#endif // EQSERVER_COMPOUND_H

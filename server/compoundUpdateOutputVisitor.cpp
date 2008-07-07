@@ -14,7 +14,9 @@ using namespace std;
 using namespace stde;
 using namespace eq::base;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 CompoundUpdateOutputVisitor::CompoundUpdateOutputVisitor(  
     const uint32_t frameNumber )
@@ -131,4 +133,4 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
 }
 
 }
-
+}

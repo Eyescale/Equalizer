@@ -2,8 +2,8 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_CONFIG_H
-#define EQS_CONFIG_H
+#ifndef EQSERVER_CONFIG_H
+#define EQSERVER_CONFIG_H
 
 #include "base.h"
 #include "types.h"
@@ -16,7 +16,9 @@
 #include <iostream>
 #include <vector>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * The config.
@@ -284,5 +286,6 @@ namespace eqs
     };
 
     std::ostream& operator << ( std::ostream& os, const Config* config );
-};
-#endif // EQS_CONFIG_H
+}
+}
+#endif // EQSERVER_CONFIG_H

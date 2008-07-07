@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-using namespace eqs;
+using namespace eq::server;
 using namespace eq::base;
 using namespace std;
 

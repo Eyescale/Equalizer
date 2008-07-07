@@ -6,7 +6,7 @@
 
 #include <wall.h>
 
-using namespace eqs;
+using namespace eq::server;
 using namespace std;
 
 // Tests the wall description

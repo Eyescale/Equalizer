@@ -16,29 +16,31 @@
 #include <eq/base/base.h>
 #include <string>
 
-    namespace eqLoader
+    namespace eq
     {
-        static eqs::Loader* loader = 0;
-        static std::string  stringBuf;
+    namespace loader
+    {
+        static eq::server::Loader*      loader = 0;
         
-        static eqs::Server*      server = 0;
-        static eqs::Config*      config = 0;
-        static eqs::Node*        node = 0;
-        static eqs::Pipe*        eqPipe = 0; // avoid name clash with pipe()
-        static eqs::Window*      window = 0;
-        static eqs::Channel*     channel = 0;
-        static eqs::Compound*    eqCompound = 0; // avoid name clash on Darwin
-        static eqs::SwapBarrier* swapBarrier = 0;
-        static eqs::Frame*       frame = 0;
+        static eq::server::Server*      server = 0;
+        static eq::server::Config*      config = 0;
+        static eq::server::Node*        node = 0;
+        static eq::server::Pipe*        eqPipe = 0; // avoid name clash
+        static eq::server::Window*      window = 0;
+        static eq::server::Channel*     channel = 0;
+        static eq::server::Compound*    eqCompound = 0; // avoid name clash
+        static eq::server::SwapBarrier* swapBarrier = 0;
+        static eq::server::Frame*       frame = 0;
         static eq::net::ConnectionDescriptionPtr connectionDescription;
-        static eqs::Wall         wall;
-        static eqs::Projection   projection;
+        static eq::server::Wall         wall;
+        static eq::server::Projection   projection;
         static uint32_t          flags = 0;
+    }
     }
 
     using namespace std;
-    using namespace eqLoader;
     using namespace eq::base;
+    using namespace eq::loader;
 
     int eqLoader_lex();
 
@@ -196,128 +198,128 @@ globals: global | globals global;
 global:
      EQTOKEN_CONNECTION_SATTR_HOSTNAME STRING
      {
-         eqs::Global::instance()->setConnectionSAttribute(
-             eqs::ConnectionDescription::SATTR_HOSTNAME, $2 );
+         eq::server::Global::instance()->setConnectionSAttribute(
+             eq::server::ConnectionDescription::SATTR_HOSTNAME, $2 );
      }
      | EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND STRING
      {
-         eqs::Global::instance()->setConnectionSAttribute(
-             eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND, $2 );
+         eq::server::Global::instance()->setConnectionSAttribute(
+             eq::server::ConnectionDescription::SATTR_LAUNCH_COMMAND, $2 );
      }
      | EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE CHARACTER
      {
-         eqs::Global::instance()->setConnectionCAttribute(
-             eqs::ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE, $2 );
+         eq::server::Global::instance()->setConnectionCAttribute(
+             eq::server::ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE, $2 );
      }
      | EQTOKEN_CONNECTION_IATTR_TYPE connectionType 
      { 
-         eqs::Global::instance()->setConnectionIAttribute( 
-             eqs::ConnectionDescription::IATTR_TYPE, $2 ); 
+         eq::server::Global::instance()->setConnectionIAttribute( 
+             eq::server::ConnectionDescription::IATTR_TYPE, $2 ); 
      }
      | EQTOKEN_CONNECTION_IATTR_TCPIP_PORT UNSIGNED
      {
-         eqs::Global::instance()->setConnectionIAttribute(
-             eqs::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
+         eq::server::Global::instance()->setConnectionIAttribute(
+             eq::server::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
      }
      | EQTOKEN_CONNECTION_IATTR_PORT UNSIGNED
      {
-         eqs::Global::instance()->setConnectionIAttribute(
-             eqs::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
+         eq::server::Global::instance()->setConnectionIAttribute(
+             eq::server::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
      }
      | EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT UNSIGNED
      {
-         eqs::Global::instance()->setConnectionIAttribute(
-             eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT, $2 );
+         eq::server::Global::instance()->setConnectionIAttribute(
+             eq::server::ConnectionDescription::IATTR_LAUNCH_TIMEOUT, $2 );
      }
      | EQTOKEN_CONFIG_FATTR_EYE_BASE FLOAT
      {
-         eqs::Global::instance()->setConfigFAttribute(
-             eqs::Config::FATTR_EYE_BASE, $2 );
+         eq::server::Global::instance()->setConfigFAttribute(
+             eq::server::Config::FATTR_EYE_BASE, $2 );
      }
      | EQTOKEN_PIPE_IATTR_HINT_THREAD IATTR
      {
-         eqs::Global::instance()->setPipeIAttribute(
-             eqs::Pipe::IATTR_HINT_THREAD, $2 );
+         eq::server::Global::instance()->setPipeIAttribute(
+             eq::server::Pipe::IATTR_HINT_THREAD, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_STEREO IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINT_STEREO, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINT_DOUBLEBUFFER, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINT_FULLSCREEN, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_DECORATION IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINT_DECORATION, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_SWAPSYNC IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINT_SWAPSYNC, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_DRAWABLE IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINT_DRAWABLE, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_STATISTICS IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINT_STATISTICS, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_COLOR IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_PLANES_COLOR, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_ALPHA IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_PLANES_ALPHA, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_DEPTH IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_PLANES_DEPTH, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_STENCIL IATTR
      {
-         eqs::Global::instance()->setWindowIAttribute(
+         eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_PLANES_STENCIL, $2 );
      }
      | EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS IATTR
      {
-         eqs::Global::instance()->setChannelIAttribute(
+         eq::server::Global::instance()->setChannelIAttribute(
              eq::Channel::IATTR_HINT_STATISTICS, $2 );
      }
      | EQTOKEN_COMPOUND_IATTR_STEREO_MODE IATTR 
      { 
-         eqs::Global::instance()->setCompoundIAttribute( 
-             eqs::Compound::IATTR_STEREO_MODE, $2 ); 
+         eq::server::Global::instance()->setCompoundIAttribute( 
+             eq::server::Compound::IATTR_STEREO_MODE, $2 ); 
      }
      | EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK colorMask 
      { 
-         eqs::Global::instance()->setCompoundIAttribute( 
-             eqs::Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK, $2 ); 
+         eq::server::Global::instance()->setCompoundIAttribute( 
+             eq::server::Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK, $2 ); 
      }
      | EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK colorMask 
      { 
-         eqs::Global::instance()->setCompoundIAttribute( 
-             eqs::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); 
+         eq::server::Global::instance()->setCompoundIAttribute( 
+             eq::server::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); 
      }
      | EQTOKEN_COMPOUND_IATTR_UPDATE_FOV IATTR
      {
-         eqs::Global::instance()->setCompoundIAttribute(
-             eqs::Compound::IATTR_UPDATE_FOV, $2 );
+         eq::server::Global::instance()->setCompoundIAttribute(
+             eq::server::Compound::IATTR_UPDATE_FOV, $2 );
      }
 
 connectionType: 
@@ -332,7 +334,7 @@ serverConnections: /*null*/
              | serverConnection | serverConnections serverConnection
 serverConnection: EQTOKEN_CONNECTION 
         '{' { 
-                connectionDescription = new eqs::ConnectionDescription;
+                connectionDescription = new eq::server::ConnectionDescription;
                 connectionDescription->setHostname( "" );
                 connectionDescription->TCPIP.port = EQ_DEFAULT_PORT;
             }
@@ -361,7 +363,7 @@ configField:
 configAttributes: /*null*/ | configAttribute | configAttributes configAttribute
 configAttribute:
     EQTOKEN_EYE_BASE FLOAT { config->setFAttribute( 
-                             eqs::Config::FATTR_EYE_BASE, $2 ); }
+                             eq::server::Config::FATTR_EYE_BASE, $2 ); }
 
 nodes: node | nodes node
 node: appNode | renderNode
@@ -370,7 +372,7 @@ renderNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
                '}' { 
                         if( node->getConnectionDescriptions().empty( ))
                             node->addConnectionDescription(
-                                new eqs::ConnectionDescription );
+                                new eq::server::ConnectionDescription );
 
                         config->addNode( node );
                         node = 0; 
@@ -384,7 +386,7 @@ nodeField: EQTOKEN_NAME STRING            { node->setName( $2 ); }
     | pipes                
 connections: /*null*/ | connection | connections connection
 connection: EQTOKEN_CONNECTION 
-            '{' { connectionDescription = new eqs::ConnectionDescription; }
+            '{' { connectionDescription = new eq::server::ConnectionDescription; }
             connectionFields '}' 
              { 
                  node->addConnectionDescription( connectionDescription );
@@ -421,7 +423,7 @@ pipeField:
 pipeAttributes: /*null*/ | pipeAttribute | pipeAttributes pipeAttribute
 pipeAttribute:
     EQTOKEN_HINT_THREAD IATTR
-        { eqPipe->setIAttribute( eqs::Pipe::IATTR_HINT_THREAD, $2 ); }
+        { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_THREAD, $2 ); }
 
 windows: window | windows window
 window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
@@ -492,7 +494,7 @@ channelAttribute:
 compounds: compound | compounds compound
 compound: EQTOKEN_COMPOUND '{' 
               {
-                  eqs::Compound* child = loader->createCompound();
+                  eq::server::Compound* child = loader->createCompound();
                   if( eqCompound )
                       eqCompound->addChild( child );
                   else
@@ -509,15 +511,15 @@ compoundField:
     | EQTOKEN_NAME STRING { eqCompound->setName( $2 ); }
     | EQTOKEN_CHANNEL STRING
     {
-         eqs::Channel* channel = config->findChannel( $2 );
+         eq::server::Channel* channel = config->findChannel( $2 );
          if( !channel )
              yyerror( "No channel of the given name" );
          else
              eqCompound->setChannel( channel );
     }
-    | EQTOKEN_TASK '['   { eqCompound->setTasks( eqs::Compound::TASK_NONE ); }
+    | EQTOKEN_TASK '['   { eqCompound->setTasks( eq::server::Compound::TASK_NONE ); }
         compoundTasks ']'
-    | EQTOKEN_EYE  '['   { eqCompound->setEyes( eqs::Compound::EYE_UNDEFINED );}
+    | EQTOKEN_EYE  '['   { eqCompound->setEyes( eq::server::Compound::EYE_UNDEFINED );}
         compoundEyes  ']'
     | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_NONE; }
         buffers ']' { eqCompound->setBuffers( flags ); flags = 0; }
@@ -538,23 +540,23 @@ compoundField:
 
 compoundTasks: /*null*/ | compoundTask | compoundTasks compoundTask
 compoundTask:
-    EQTOKEN_CLEAR      { eqCompound->enableTask( eqs::Compound::TASK_CLEAR ); }
-    | EQTOKEN_DRAW     { eqCompound->enableTask( eqs::Compound::TASK_DRAW ); }
-    | EQTOKEN_ASSEMBLE { eqCompound->enableTask( eqs::Compound::TASK_ASSEMBLE);}
-    | EQTOKEN_READBACK { eqCompound->enableTask( eqs::Compound::TASK_READBACK);}
+    EQTOKEN_CLEAR      { eqCompound->enableTask( eq::server::Compound::TASK_CLEAR ); }
+    | EQTOKEN_DRAW     { eqCompound->enableTask( eq::server::Compound::TASK_DRAW ); }
+    | EQTOKEN_ASSEMBLE { eqCompound->enableTask( eq::server::Compound::TASK_ASSEMBLE);}
+    | EQTOKEN_READBACK { eqCompound->enableTask( eq::server::Compound::TASK_READBACK);}
 
 compoundEyes: /*null*/ | compoundEye | compoundEyes compoundEye
 compoundEye:
-    EQTOKEN_CYCLOP  { eqCompound->enableEye( eqs::Compound::EYE_CYCLOP_BIT ); }
-    | EQTOKEN_LEFT  { eqCompound->enableEye( eqs::Compound::EYE_LEFT_BIT ); }
-    | EQTOKEN_RIGHT { eqCompound->enableEye( eqs::Compound::EYE_RIGHT_BIT ); }
+    EQTOKEN_CYCLOP  { eqCompound->enableEye( eq::server::Compound::EYE_CYCLOP_BIT ); }
+    | EQTOKEN_LEFT  { eqCompound->enableEye( eq::server::Compound::EYE_LEFT_BIT ); }
+    | EQTOKEN_RIGHT { eqCompound->enableEye( eq::server::Compound::EYE_RIGHT_BIT ); }
 
 buffers: /*null*/ | buffer | buffers buffer
 buffer:
     EQTOKEN_COLOR    { flags |= eq::Frame::BUFFER_COLOR; }
     | EQTOKEN_DEPTH  { flags |= eq::Frame::BUFFER_DEPTH; }
 
-wall: EQTOKEN_WALL '{' { wall = eqs::Wall(); } 
+wall: EQTOKEN_WALL '{' { wall = eq::server::Wall(); } 
     wallFields '}' { eqCompound->setWall( wall ); }
 
 wallFields:  /*null*/ | wallField | wallFields wallField
@@ -566,7 +568,7 @@ wallField:
    |  EQTOKEN_TOP_LEFT  '[' FLOAT FLOAT FLOAT ']'
         { wall.topLeft = vmml::Vector3f( $3, $4, $5 ); }
 
-projection: EQTOKEN_PROJECTION '{' { projection = eqs::Projection(); } 
+projection: EQTOKEN_PROJECTION '{' { projection = eq::server::Projection(); } 
     projectionFields '}' { eqCompound->setProjection( projection ); }
 
 projectionFields:  /*null*/ | projectionField | projectionFields projectionField
@@ -580,7 +582,7 @@ projectionField:
     | EQTOKEN_HPR  '[' FLOAT FLOAT FLOAT ']'
         { projection.hpr = vmml::Vector3f( $3, $4, $5 ); }
 
-swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eqs::SwapBarrier; }
+swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
     swapBarrierFields '}'
         { 
             eqCompound->setSwapBarrier( swapBarrier );
@@ -591,13 +593,13 @@ swapBarrierFields: /*null*/ | swapBarrierField
 swapBarrierField: 
     EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
 
-outputFrame : EQTOKEN_OUTPUTFRAME '{' { frame = new eqs::Frame; }
+outputFrame : EQTOKEN_OUTPUTFRAME '{' { frame = new eq::server::Frame; }
     frameFields '}'
         { 
             eqCompound->addOutputFrame( frame );
             frame = 0;
         } 
-inputFrame: EQTOKEN_INPUTFRAME '{' { frame = new eqs::Frame; }
+inputFrame: EQTOKEN_INPUTFRAME '{' { frame = new eq::server::Frame; }
     frameFields '}'
         { 
             eqCompound->addInputFrame( frame );
@@ -614,15 +616,15 @@ frameField:
 compoundAttributes: /*null*/ | compoundAttribute | compoundAttributes compoundAttribute
 compoundAttribute:
     EQTOKEN_STEREO_MODE IATTR 
-        { eqCompound->setIAttribute( eqs::Compound::IATTR_STEREO_MODE, $2 ); }
+        { eqCompound->setIAttribute( eq::server::Compound::IATTR_STEREO_MODE, $2 ); }
     | EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK colorMask
         { eqCompound->setIAttribute( 
-                eqs::Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK, $2 ); }
+                eq::server::Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK, $2 ); }
     | EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK colorMask
         { eqCompound->setIAttribute( 
-                eqs::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); }
+                eq::server::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); }
     | EQTOKEN_UPDATE_FOV IATTR
-        { eqCompound->setIAttribute(eqs::Compound::IATTR_UPDATE_FOV, $2 ); }
+        { eqCompound->setIAttribute(eq::server::Compound::IATTR_UPDATE_FOV, $2 ); }
 
 viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
      { 
@@ -634,13 +636,13 @@ viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
 
 colorMask: '[' colorMaskBits ']' { $$ = $2; }
 colorMaskBits: 
-    /*null*/ { $$ =eqs::Compound::COLOR_MASK_NONE; }
+    /*null*/ { $$ =eq::server::Compound::COLOR_MASK_NONE; }
     | colorMaskBit { $$ = $1; }
     | colorMaskBits colorMaskBit { $$ = ($1 | $2);}
 colorMaskBit:
-    EQTOKEN_RED     { $$ = eqs::Compound::COLOR_MASK_RED; }
-    | EQTOKEN_GREEN { $$ = eqs::Compound::COLOR_MASK_GREEN; }
-    | EQTOKEN_BLUE  { $$ = eqs::Compound::COLOR_MASK_BLUE; }
+    EQTOKEN_RED     { $$ = eq::server::Compound::COLOR_MASK_RED; }
+    | EQTOKEN_GREEN { $$ = eq::server::Compound::COLOR_MASK_GREEN; }
+    | EQTOKEN_BLUE  { $$ = eq::server::Compound::COLOR_MASK_BLUE; }
 
 IATTR:
     EQTOKEN_ON           { $$ = eq::ON; }
@@ -658,6 +660,7 @@ IATTR:
 
 STRING: EQTOKEN_STRING
      {
+         static std::string stringBuf;
          stringBuf = yytext;
          stringBuf.erase( 0, 1 );                  // Leading '"'
          stringBuf.erase( stringBuf.size()-1, 1 ); // Trailing '"'
@@ -680,13 +683,18 @@ void yyerror( char *errmsg )
             << " at '" << yytext << "'" << endl;
 }
 
+namespace eq
+{
+namespace server
+{
+
 //---------------------------------------------------------------------------
 // loader
 //---------------------------------------------------------------------------
-eqs::Server* eqs::Loader::loadFile( const string& filename )
+Server* Loader::loadFile( const string& filename )
 {
-    EQASSERTINFO( !loader, "Config file loader is not reentrant" );
-    loader = this;
+    EQASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
+    eq::loader::loader = this;
 
     yyin       = fopen( filename.c_str(), "r" );
     yyinString = 0;
@@ -694,42 +702,45 @@ eqs::Server* eqs::Loader::loadFile( const string& filename )
     if( !yyin )
     {
         EQERROR << "Can't open config file " << filename << endl;
-        loader = 0;
+        eq::loader::loader = 0;
         return 0;
     }
 
-    server = 0;
+    loader::server = 0;
     config = 0;
     eqLoader_parse();
 
     fclose( yyin );
-    loader = 0;
-    return server;
+    eq::loader::loader = 0;
+    return loader::server;
 }
 
-void eqs::Loader::_parseString( const char* data )
+void Loader::_parseString( const char* data )
 {
-    EQASSERTINFO( !loader, "Config file loader is not reentrant" );
-    loader = this;
+    EQASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
+    eq::loader::loader = this;
 
     yyin       = 0;
     yyinString = data;
 
-    server = 0;
+    loader::server = 0;
     config = 0;
     eqLoader_parse();
 
-    loader = 0;
+    eq::loader::loader = 0;
 }
 
-eqs::Config* eqs::Loader::parseConfig( const char* data )
+Config* Loader::parseConfig( const char* data )
 {
     _parseString( data );
     return config;
 }
 
-eqs::Server* eqs::Loader::parseServer( const char* data )
+Server* Loader::parseServer( const char* data )
 {
     _parseString( data );
-    return server;
+    return loader::server;
+}
+
+}
 }

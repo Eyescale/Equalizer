@@ -25,7 +25,9 @@ using namespace eq::base;
 using namespace std;
 using eq::net::CommandFunc;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 
 namespace
@@ -475,5 +477,7 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
     os << exdent << "}" << endl << enableHeader << enableFlush;
 
     return os;
+}
+
 }
 }

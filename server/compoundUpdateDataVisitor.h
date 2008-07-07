@@ -2,12 +2,14 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_COMPOUNDUPDATEDATAVISITOR_H
-#define EQS_COMPOUNDUPDATEDATAVISITOR_H
+#ifndef EQSERVER_COMPOUNDUPDATEDATAVISITOR_H
+#define EQSERVER_COMPOUNDUPDATEDATAVISITOR_H
 
 #include "compoundVisitor.h" // base class
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class Channel;
     
@@ -31,5 +33,6 @@ namespace eqs
 
         void _updateDrawFinish( Compound* compound );
     };
-};
-#endif // EQS_CONSTCOMPOUNDVISITOR_H
+}
+}
+#endif // EQSERVER_CONSTCOMPOUNDVISITOR_H

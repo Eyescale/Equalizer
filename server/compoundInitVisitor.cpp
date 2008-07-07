@@ -11,7 +11,9 @@
 using namespace std;
 using namespace eq::base;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 CompoundInitVisitor::CompoundInitVisitor()
 {}
@@ -53,4 +55,4 @@ Compound::VisitorResult CompoundInitVisitor::visitLeaf( Compound* compound )
 }
 
 }
-
+}

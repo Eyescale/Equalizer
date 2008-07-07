@@ -2,12 +2,14 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_CONNECTION_DESCRIPTION_H
-#define EQS_CONNECTION_DESCRIPTION_H
+#ifndef EQSERVER_CONNECTION_DESCRIPTION_H
+#define EQSERVER_CONNECTION_DESCRIPTION_H
 
 #include <eq/net/connectionDescription.h>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class ConnectionDescription : public eq::net::ConnectionDescription
     {
@@ -61,6 +63,6 @@ namespace eqs
 
     std::ostream& operator << ( std::ostream& os, 
                                 const eq::net::ConnectionDescription* desc );
-};
-
+}
+}
 #endif // EQNET_CONNECTION_DESCRIPTION_H

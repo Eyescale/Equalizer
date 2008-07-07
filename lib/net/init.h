@@ -7,6 +7,8 @@
 
 #include <eq/base/init.h>
 
+namespace eq
+{
 /** 
  * @namespace eq::net
  * @brief The Equalizer networking abstraction layer.
@@ -14,8 +16,6 @@
  * The Equalizer network abstraction layer provides the basic functionality to
  * enable execution on distributed and shared memory machines.
  */
-namespace eq
-{
 namespace net
 {
     class Node;

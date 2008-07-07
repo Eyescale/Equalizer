@@ -2,8 +2,8 @@
 /* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_CHANNELUPDATEVISITOR_H
-#define EQS_CHANNELUPDATEVISITOR_H
+#ifndef EQSERVER_CHANNELUPDATEVISITOR_H
+#define EQSERVER_CHANNELUPDATEVISITOR_H
 
 #include "constCompoundVisitor.h" // base class
 
@@ -12,7 +12,9 @@
 #include <eq/client/renderContext.h>
 #include <eq/client/windowSystem.h>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class Channel;
     
@@ -62,5 +64,6 @@ namespace eqs
         void _updateReadback( const Compound* compound,
                               const eq::RenderContext& context );  
     };
-};
-#endif // EQS_CONSTCOMPOUNDVISITOR_H
+}
+}
+#endif // EQSERVER_CONSTCOMPOUNDVISITOR_H

@@ -14,13 +14,15 @@
 #include <eq/net/object.h>           // base class
 
 #include <set>                       // member
-namespace eqs
+
+namespace eq
+{
+
+namespace server
 {
     class FrameData;
 }
 
-namespace eq
-{
     class  Image;
     struct FrameDataTransmitPacket;
 
@@ -155,7 +157,7 @@ namespace eq
         }
             _data;
 
-        friend class eqs::FrameData;
+        friend class eq::server::FrameData;
 
         ImageVector _images;
         ImageVector _imageCache;

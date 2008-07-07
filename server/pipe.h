@@ -2,8 +2,8 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_PIPE_H
-#define EQS_PIPE_H
+#ifndef EQSERVER_PIPE_H
+#define EQSERVER_PIPE_H
 
 #include "node.h"                       // used in inline method
 #include <eq/client/global.h>           // eq::OFF enum
@@ -12,7 +12,9 @@
 #include <ostream>
 #include <vector>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * The pipe.
@@ -260,5 +262,6 @@ namespace eqs
     };
 
     std::ostream& operator << ( std::ostream& os, const Pipe* pipe );
-};
-#endif // EQS_PIPE_H
+}
+}
+#endif // EQSERVER_PIPE_H

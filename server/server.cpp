@@ -26,7 +26,9 @@ using namespace eq::base;
 using namespace std;
 using eq::net::CommandFunc;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 Server::Server()
         : _configID(0)
@@ -326,5 +328,7 @@ std::ostream& operator << ( std::ostream& os, const Server* server )
     os << exdent << "}"  << enableHeader << enableFlush << endl;
 
     return os;
+}
+
 }
 }

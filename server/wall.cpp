@@ -9,7 +9,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 Wall::Wall()
         : bottomLeft( -.8f, -.5f, -1.f ),
@@ -65,5 +67,7 @@ ostream& operator << ( ostream& os, const Wall& wall )
     os << "top_left     " << wall.topLeft << endl;
     os << exdent << "}";
     return os;
+}
+
 }
 }

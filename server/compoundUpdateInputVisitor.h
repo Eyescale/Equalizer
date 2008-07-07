@@ -2,12 +2,14 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_COMPOUNDUPDATEINPUTVISITOR_H
-#define EQS_COMPOUNDUPDATEINPUTVISITOR_H
+#ifndef EQSERVER_COMPOUNDUPDATEINPUTVISITOR_H
+#define EQSERVER_COMPOUNDUPDATEINPUTVISITOR_H
 
 #include "compoundVisitor.h" // base class
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class Channel;
     
@@ -30,5 +32,6 @@ namespace eqs
     private:
         const stde::hash_map<std::string, Frame*>& _outputFrames;
     };
-};
-#endif // EQS_CONSTCOMPOUNDVISITOR_H
+}
+}
+#endif // EQSERVER_CONSTCOMPOUNDVISITOR_H

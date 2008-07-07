@@ -2,12 +2,14 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_COMPOUNDVISITOR_H
-#define EQS_COMPOUNDVISITOR_H
+#ifndef EQSERVER_COMPOUNDVISITOR_H
+#define EQSERVER_COMPOUNDVISITOR_H
 
 #include "compound.h"  // nested enum
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * A visitor to traverse a non-const compound tree.
@@ -31,5 +33,6 @@ namespace eqs
         virtual Compound::VisitorResult visitPost( Compound* compound )
             { return Compound::TRAVERSE_CONTINUE; }
     };
-};
-#endif // EQS_COMPOUNDVISITOR_H
+}
+}
+#endif // EQSERVER_COMPOUNDVISITOR_H

@@ -12,7 +12,9 @@ using namespace std;
 #define DEG2RAD( angle ) ((angle) * static_cast<float>(M_PI) / 180.f)
 #define RAD2DEG( angle ) ((angle) * 180.f / static_cast<float>(M_PI))
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 Projection::Projection()
         : origin( 0.f, 0.f, 0.f ),
@@ -51,5 +53,7 @@ ostream& operator << ( ostream& os, const Projection& projection )
     os << "hpr      " << projection.hpr << endl;
     os << exdent << "}";
     return os;
+}
+
 }
 }

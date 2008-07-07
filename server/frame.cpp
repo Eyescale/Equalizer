@@ -9,9 +9,13 @@
 
 #include <eq/net/session.h>
 
-using namespace eqs;
 using namespace eq::base;
 using namespace std;
+
+namespace eq
+{
+namespace server
+{
 
 Frame::Frame()
         : _compound( 0 ),
@@ -160,7 +164,7 @@ void Frame::addInputFrame( Frame* frame, const uint32_t eyes )
     }
 }
 
-std::ostream& eqs::operator << ( std::ostream& os, const Frame* frame )
+std::ostream& operator << ( std::ostream& os, const Frame* frame )
 {
     if( !frame )
         return os;
@@ -186,4 +190,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Frame* frame )
 
     os << exdent << "}" << endl << enableFlush;
     return os;
+}
+
+}
 }

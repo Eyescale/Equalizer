@@ -13,7 +13,9 @@
 using namespace std;
 using namespace eq::base;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel, 
                                             const uint32_t frameID,
@@ -242,11 +244,11 @@ eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
     switch( _eye )
     {
         case eq::EYE_LEFT:
-            return eqs::ColorMask( 
+            return ColorMask( 
                 compound->getInheritIAttribute(
                     Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK ));
         case eq::EYE_RIGHT:
-            return eqs::ColorMask( 
+            return ColorMask( 
                 compound->getInheritIAttribute( 
                     Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK ));
         default:
@@ -479,6 +481,8 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 
         _channel->send<eq::net::NodeID>( transmitPacket, nodeIDs );
     }        
+}
+
 }
 }
 

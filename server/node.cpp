@@ -22,7 +22,9 @@ using namespace std;
 using eq::net::ConnectionDescriptionVector;
 using eq::net::CommandFunc;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 
 void Node::_construct()
@@ -447,4 +449,5 @@ ostream& operator << ( ostream& os, const Node* node )
     return os;
 }
 
+}
 }

@@ -17,7 +17,9 @@ using namespace eq::base;
 using namespace std;
 using eq::net::CommandFunc;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 void Window::_construct()
 {
@@ -582,5 +584,7 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
 
     os << exdent << "}" << endl << enableHeader << enableFlush;
     return os;
+}
+
 }
 }

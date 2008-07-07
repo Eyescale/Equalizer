@@ -2,8 +2,8 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_NODE_H
-#define EQS_NODE_H
+#ifndef EQSERVER_NODE_H
+#define EQSERVER_NODE_H
 
 #include "config.h" // used in inline method
 
@@ -13,7 +13,9 @@
 
 #include <vector>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * The node.
@@ -304,5 +306,6 @@ namespace eqs
     };
 
     std::ostream& operator << ( std::ostream& os, const Node* node );
-};
-#endif // EQS_NODE_H
+}
+}
+#endif // EQSERVER_NODE_H

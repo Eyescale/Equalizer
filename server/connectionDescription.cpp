@@ -11,7 +11,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CONNECTION_") + #attr )
 
@@ -62,7 +64,7 @@ std::ostream& operator << ( std::ostream& os,
     const Global* global = Global::instance();
 
     if( desc->type != global->getConnectionIAttribute( 
-            eqs::ConnectionDescription::IATTR_TYPE ))
+            ConnectionDescription::IATTR_TYPE ))
         os << "type          " 
            << ( desc->type == eq::net::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
                 desc->type == eq::net::CONNECTIONTYPE_SDP   ? "SDP" : 
@@ -70,27 +72,29 @@ std::ostream& operator << ( std::ostream& os,
                 "ERROR" ) << endl;
     
     if( desc->TCPIP.port != global->getConnectionIAttribute( 
-            eqs::ConnectionDescription::IATTR_TCPIP_PORT ))
+            ConnectionDescription::IATTR_TCPIP_PORT ))
         os << "TCPIP_port    " << desc->TCPIP.port << endl;
 
     if( desc->launchTimeout != global->getConnectionIAttribute( 
-            eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT ))
+            ConnectionDescription::IATTR_LAUNCH_TIMEOUT ))
         os << "timeout       " << desc->launchTimeout << endl;
 
     if( desc->getHostname() != global->getConnectionSAttribute( 
-            eqs::ConnectionDescription::SATTR_HOSTNAME ))
+            ConnectionDescription::SATTR_HOSTNAME ))
         os << "hostname      \"" << desc->getHostname() << "\"" << endl;
 
     if( desc->getLaunchCommand() != global->getConnectionSAttribute( 
-            eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND ))
+            ConnectionDescription::SATTR_LAUNCH_COMMAND ))
         os << "command       \"" << desc->getLaunchCommand() << "\"" << endl;
     
     if( desc->launchCommandQuote != global->getConnectionCAttribute( 
-            eqs::ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE ))
+            ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE ))
         os << "command_quote '" << desc->launchCommandQuote << "'" << endl;
     
     os << exdent << "}" << enableFlush << endl;
 
     return os;
+}
+
 }
 }

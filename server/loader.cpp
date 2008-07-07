@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "loader.h" 
@@ -11,8 +11,12 @@
 #include "server.h"
 #include "window.h"  
 
-using namespace eqs;
 using namespace std;
+
+namespace eq
+{
+namespace server
+{
 
 //---------------------------------------------------------------------------
 // factory methods
@@ -37,7 +41,7 @@ Pipe*     Loader::createPipe()
     return new Pipe;
 }
 
-eqs::Window*   Loader::createWindow()
+Window*   Loader::createWindow()
 {
     return new Window;
 }
@@ -52,3 +56,5 @@ Compound* Loader::createCompound()
     return new Compound;
 }
 
+}
+}

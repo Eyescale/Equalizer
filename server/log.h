@@ -2,16 +2,19 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_LOG_H
-#define EQS_LOG_H
+#ifndef EQSERVER_LOG_H
+#define EQSERVER_LOG_H
 
 #include <eq/client/log.h>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     enum LogTopics
     {
         //LOG_STATS    = eq::LOG_SERVER  // 4096
     };
 }
-#endif // EQS_LOG_H
+}
+#endif // EQSERVER_LOG_H

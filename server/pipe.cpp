@@ -19,7 +19,9 @@ using namespace eq::base;
 using namespace std;
 using eq::net::CommandFunc;
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_PIPE_") + #attr )
 std::string Pipe::_iAttributeStrings[IATTR_ALL] = 
@@ -422,5 +424,7 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
 
     os << exdent << "}" << endl << enableHeader << enableFlush;
     return os;
+}
+
 }
 }

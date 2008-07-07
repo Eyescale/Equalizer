@@ -2,13 +2,15 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_VIEW_H
-#define EQS_VIEW_H
+#ifndef EQSERVER_VIEW_H
+#define EQSERVER_VIEW_H
 
 #include <eq/base/base.h>
 #include <vmmlib/matrix4.h>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class Projection;
     class Wall;
@@ -36,5 +38,5 @@ namespace eqs
 
     std::ostream& operator << ( std::ostream& os, const View& view ); 
 }
-
+}
 #endif // EQ_VIEW_H

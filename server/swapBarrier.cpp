@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "swapBarrier.h"
@@ -7,7 +7,12 @@
 using namespace std;
 using namespace eq::base;
 
-ostream& eqs::operator << ( ostream& os, const SwapBarrier* swapBarrier )
+namespace eq
+{
+namespace server
+{
+
+ostream& operator << ( ostream& os, const SwapBarrier* swapBarrier )
 {
     if( !swapBarrier )
         return os;
@@ -16,4 +21,7 @@ ostream& eqs::operator << ( ostream& os, const SwapBarrier* swapBarrier )
        << swapBarrier->getName() << "\" }" << enableFlush << endl;
 
     return os;
+}
+
+}
 }

@@ -2,13 +2,15 @@
 /* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_TYPES_H
-#define EQS_TYPES_H
+#ifndef EQSERVER_TYPES_H
+#define EQSERVER_TYPES_H
 
 #include <eq/base/refPtr.h>
 #include <vector>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
 
 class Server;
@@ -30,7 +32,8 @@ typedef std::vector< Channel* >  ChannelVector;
 typedef std::vector< Compound* > CompoundVector;
 typedef std::vector< Frame* >    FrameVector;
 
-typedef eq::base::RefPtr< eqs::Server > ServerPtr;
+typedef eq::base::RefPtr< Server > ServerPtr;
 
 }
-#endif // EQS_TYPES_H
+}
+#endif // EQSERVER_TYPES_H

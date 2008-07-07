@@ -2,8 +2,8 @@
 /* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_GLOBAL_H
-#define EQS_GLOBAL_H
+#ifndef EQSERVER_GLOBAL_H
+#define EQSERVER_GLOBAL_H
 
 #include "channel.h"
 #include "compound.h"
@@ -13,12 +13,14 @@
 
 #include <eq/client/global.h>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * The global default attributes.
      */
-    class EQS_EXPORT Global
+    class EQSERVER_EXPORT Global
     {
     public:
         static Global* instance();
@@ -116,5 +118,6 @@ namespace eqs
     };
 
     std::ostream& operator << ( std::ostream& os, const Global* global );
-};
-#endif // EQS_GLOBAL_H
+}
+}
+#endif // EQSERVER_GLOBAL_H

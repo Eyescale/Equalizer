@@ -2,12 +2,14 @@
 /* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_PIXELVIEWPORT_LISTENER_H
-#define EQS_PIXELVIEWPORT_LISTENER_H
+#ifndef EQSERVER_PIXELVIEWPORT_LISTENER_H
+#define EQSERVER_PIXELVIEWPORT_LISTENER_H
 
 #include <eq/client/pixelViewport.h>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     /**
      * A generic listener on pixel viewport changes.
@@ -20,4 +22,5 @@ namespace eqs
         virtual void notifyPVPChanged( const eq::PixelViewport& pvp ){}
     };
 }
-#endif // EQS_PIXELVIEWPORT_LISTENER_H
+}
+#endif // EQSERVER_PIXELVIEWPORT_LISTENER_H

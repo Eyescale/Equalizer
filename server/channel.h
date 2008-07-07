@@ -2,8 +2,8 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQS_CHANNEL_H
-#define EQS_CHANNEL_H
+#ifndef EQSERVER_CHANNEL_H
+#define EQSERVER_CHANNEL_H
 
 #include "base.h"
 #include "node.h"
@@ -17,14 +17,16 @@
 #include <iostream>
 #include <vector>
 
-namespace eqs
+namespace eq
+{
+namespace server
 {
     class PixelViewportListener;
 
     /**
      * The channel.
      */
-    class EQS_EXPORT Channel : public eq::net::Object
+    class EQSERVER_EXPORT Channel : public eq::net::Object
     {
     public:
         enum State
@@ -313,5 +315,6 @@ namespace eqs
     };
 
     std::ostream& operator << ( std::ostream& os, const Channel* channel);
-};
-#endif // EQS_CHANNEL_H
+}
+}
+#endif // EQSERVER_CHANNEL_H
