@@ -17,7 +17,7 @@ namespace eq
     class Node;
     struct ServerPacket;
 
-    class EQ_EXPORT Server : public eq::net::Node
+    class EQ_EXPORT Server : public net::Node
     {
     public:
         /** 
@@ -29,9 +29,9 @@ namespace eq
         //*{
         void setClient( eq::base::RefPtr<Client> client );
         eq::base::RefPtr<Client> getClient(){ return _client; }
-        eq::net::CommandQueue* getNodeThreadQueue() 
+        net::CommandQueue* getNodeThreadQueue() 
             { return _client->getNodeThreadQueue(); }
-        eq::net::CommandQueue* getCommandThreadQueue() 
+        net::CommandQueue* getCommandThreadQueue() 
             { return _client->getCommandThreadQueue(); }
         //*}
 
@@ -76,15 +76,15 @@ namespace eq
         /** Process-local server */
         bool _localServer;
 
-        /** @sa eq::net::Node::getType */
+        /** @sa net::Node::getType */
         virtual uint32_t getType() const { return TYPE_EQ_SERVER; }
 
         /* The command handler functions. */
-        eq::net::CommandResult _cmdCreateConfig( eq::net::Command& command );
-        eq::net::CommandResult _cmdDestroyConfig( eq::net::Command& command );
-        eq::net::CommandResult _cmdChooseConfigReply( eq::net::Command& command );
-        eq::net::CommandResult _cmdReleaseConfigReply( eq::net::Command& command );
-        eq::net::CommandResult _cmdShutdownReply( eq::net::Command& command );
+        net::CommandResult _cmdCreateConfig( net::Command& command );
+        net::CommandResult _cmdDestroyConfig( net::Command& command );
+        net::CommandResult _cmdChooseConfigReply( net::Command& command );
+        net::CommandResult _cmdReleaseConfigReply( net::Command& command );
+        net::CommandResult _cmdShutdownReply( net::Command& command );
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Server* server )

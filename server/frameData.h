@@ -14,7 +14,7 @@ namespace server
     /**
      * A holder for a Frame Data and parameters.
      */
-    class FrameData : public eq::net::Object
+    class FrameData : public net::Object
     {
     public:
         /** 

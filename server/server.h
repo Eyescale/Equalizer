@@ -28,7 +28,7 @@ namespace server
     /**
      * The Equalizer server.
      */
-    class EQSERVER_EXPORT Server : public eq::net::Node
+    class EQSERVER_EXPORT Server : public net::Node
     {
     public:
         /** 
@@ -51,7 +51,7 @@ namespace server
          */
         void mapConfig( Config* config );
         void unmapConfig( Config* config )
-            { unmapSession( (eq::net::Session*)config ); }
+            { unmapSession( (net::Session*)config ); }
         
         /** 
          * Add a new config to this server.
@@ -73,17 +73,17 @@ namespace server
         const ConfigVector& getConfigs() const { return _configs; }
 
         /** @return the command queue to the server thread */
-        eq::net::CommandQueue* getServerThreadQueue() 
+        net::CommandQueue* getServerThreadQueue() 
             { return &_serverThreadQueue; }
 
     protected:
         virtual ~Server();
 
-        /** @sa eq::net::Node::dispatchCommand */
-        virtual bool dispatchCommand( eq::net::Command& command );
+        /** @sa net::Node::dispatchCommand */
+        virtual bool dispatchCommand( net::Command& command );
 
-        /** @sa eq::net::Node::invokeCommand */
-        virtual eq::net::CommandResult invokeCommand( eq::net::Command& command );
+        /** @sa net::Node::invokeCommand */
+        virtual net::CommandResult invokeCommand( net::Command& command );
         
     private:
         /** The unique config identifier. */
@@ -93,24 +93,24 @@ namespace server
         ConfigVector   _configs;
 
         /** The application-allocated configurations, mapped by identifier. */
-        eq::net::IDHash<Config*> _appConfigs;
+        net::IDHash<Config*> _appConfigs;
 
         /** The receiver->main command queue. */
-        eq::net::CommandQueue    _serverThreadQueue;
+        net::CommandQueue    _serverThreadQueue;
 
         /** The current state. */
         bool _running;
 
-        /** @sa eq::net::Node::getType */
+        /** @sa net::Node::getType */
         virtual uint32_t getType() const { return eq::TYPE_EQ_SERVER; }
 
         void        _handleCommands(); 
 
         /** The command functions. */
-        eq::net::CommandResult _cmdChooseConfig( eq::net::Command& command );
-        eq::net::CommandResult _cmdUseConfig( eq::net::Command& command );
-        eq::net::CommandResult _cmdReleaseConfig( eq::net::Command& command );
-        eq::net::CommandResult _cmdShutdown( eq::net::Command& command );
+        net::CommandResult _cmdChooseConfig( net::Command& command );
+        net::CommandResult _cmdUseConfig( net::Command& command );
+        net::CommandResult _cmdReleaseConfig( net::Command& command );
+        net::CommandResult _cmdShutdown( net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Server* server );

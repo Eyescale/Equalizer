@@ -40,7 +40,7 @@ void Server::setClient( eq::base::RefPtr<Client> client )
     if( !_client )
         return;
 
-    eq::net::CommandQueue* queue = client->getNodeThreadQueue();
+    net::CommandQueue* queue = client->getNodeThreadQueue();
 
     registerCommand( CMD_SERVER_CREATE_CONFIG, 
                      CommandFunc<Server>( this, &Server::_cmdCreateConfig ),
@@ -161,7 +161,7 @@ bool Server::shutdown()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eq::net::CommandResult Server::_cmdCreateConfig( eq::net::Command& command )
+net::CommandResult Server::_cmdCreateConfig( net::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
@@ -184,17 +184,17 @@ eq::net::CommandResult Server::_cmdCreateConfig( eq::net::Command& command )
         command.getNode()->send( reply );
     }
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Server::_cmdDestroyConfig( eq::net::Command& command )
+net::CommandResult Server::_cmdDestroyConfig( net::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.getPacket<ServerDestroyConfigPacket>();
     EQINFO << "Handle destroy config " << packet << endl;
     
     NodePtr         localNode  = command.getLocalNode();
-    eq::net::Session* session    = localNode->getSession( packet->configID );
+    net::Session* session    = localNode->getSession( packet->configID );
 
     EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
     Config* config = static_cast<Config*>( session );
@@ -202,10 +202,10 @@ eq::net::CommandResult Server::_cmdDestroyConfig( eq::net::Command& command )
     localNode->removeSession( config );
     delete config;
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Server::_cmdChooseConfigReply( eq::net::Command& command )
+net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
         command.getPacket<ServerChooseConfigReplyPacket>();
@@ -214,34 +214,34 @@ eq::net::CommandResult Server::_cmdChooseConfigReply( eq::net::Command& command 
     if( packet->configID == EQ_ID_INVALID )
     {
         _requestHandler.serveRequest( packet->requestID, (void*)0 );
-        return eq::net::COMMAND_HANDLED;
+        return net::COMMAND_HANDLED;
     }
 
     NodePtr    localNode = command.getLocalNode();
-    eq::net::Session* session   = localNode->getSession( packet->configID );
+    net::Session* session   = localNode->getSession( packet->configID );
     Config*         config    = static_cast< Config* >( session );
     EQASSERTINFO( dynamic_cast< Config* >( session ), 
                   "Session id " << packet->configID << " @" << (void*)session );
 
     _requestHandler.serveRequest( packet->requestID, config );
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Server::_cmdReleaseConfigReply( eq::net::Command& command )
+net::CommandResult Server::_cmdReleaseConfigReply( net::Command& command )
 {
     const ServerReleaseConfigReplyPacket* packet = 
         command.getPacket<ServerReleaseConfigReplyPacket>();
 
     _requestHandler.serveRequest( packet->requestID );
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Server::_cmdShutdownReply( eq::net::Command& command )
+net::CommandResult Server::_cmdShutdownReply( net::Command& command )
 {
     const ServerShutdownReplyPacket* packet = 
         command.getPacket<ServerShutdownReplyPacket>();
 
     _requestHandler.serveRequest( packet->requestID, packet->result );
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 }

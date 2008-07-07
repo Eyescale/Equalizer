@@ -21,7 +21,7 @@ namespace eq
     class GLXEventHandler : public EventHandler
     {
     public:
-        class EventSet : public eq::net::ConnectionSet, public eq::base::Referenced
+        class EventSet : public net::ConnectionSet, public base::Referenced
         {
         public:
             void notifyPerThreadDelete() { unref(); }

@@ -12,29 +12,29 @@
 namespace eq
 {
     /**
-     * Augments an eq::net::CommandQueue to pump system-specific events where
+     * Augments an net::CommandQueue to pump system-specific events where
      * required by the underlying window/operating system.
      */
-    class CommandQueue : public eq::net::CommandQueue
+    class CommandQueue : public net::CommandQueue
     {
     public:
         CommandQueue();
         virtual ~CommandQueue();
 
-        /** @sa eq::net::CommandQueue::push(). */
-        virtual void push( eq::net::Command& packet );
+        /** @sa net::CommandQueue::push(). */
+        virtual void push( net::Command& packet );
 
-        /** @sa eq::net::CommandQueue::pushFront(). */
-        virtual void pushFront( eq::net::Command& packet );
+        /** @sa net::CommandQueue::pushFront(). */
+        virtual void pushFront( net::Command& packet );
 
-        /** @sa eq::net::CommandQueue::wakeup(). */
+        /** @sa net::CommandQueue::wakeup(). */
         virtual void wakeup();
 
-        /** @sa eq::net::CommandQueue::pop(). */
-        virtual eq::net::Command* pop();
+        /** @sa net::CommandQueue::pop(). */
+        virtual net::Command* pop();
 
-        /** @sa eq::net::CommandQueue::tryPop(). */
-        virtual eq::net::Command* tryPop();
+        /** @sa net::CommandQueue::tryPop(). */
+        virtual net::Command* tryPop();
 
         void         setWindowSystem( const WindowSystem windowSystem );
         WindowSystem getWindowSystem() const { return _windowSystem; }

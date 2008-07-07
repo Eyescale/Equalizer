@@ -43,14 +43,14 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
 {
     EQASSERT( _pipeConnections.isValid( ));
 
-    const eq::net::ConnectionVector& connections = 
+    const net::ConnectionVector& connections = 
         _pipeConnections->getConnections();
 
-    for( eq::net::ConnectionVector::const_iterator i = connections.begin(); 
+    for( net::ConnectionVector::const_iterator i = connections.begin(); 
          i != connections.end(); ++i )
     {
         X11ConnectionPtr connection = 
-            RefPtr_static_cast< eq::net::Connection, X11Connection >( *i );
+            RefPtr_static_cast< net::Connection, X11Connection >( *i );
         
         if( connection->pipe == pipe )
         {
@@ -77,27 +77,27 @@ void GLXEventHandler::dispatchOne()
 
     GLXEventSetPtr connections = _pipeConnections.get();
 
-    const eq::net::ConnectionSet::Event event = connections->select( );
+    const net::ConnectionSet::Event event = connections->select( );
     switch( event )
     {
-        case eq::net::ConnectionSet::EVENT_DISCONNECT:
+        case net::ConnectionSet::EVENT_DISCONNECT:
         {
-            RefPtr<eq::net::Connection> connection = connections->getConnection();
+            RefPtr<net::Connection> connection = connections->getConnection();
             connections->removeConnection( connection );
             EQERROR << "Display connection shut down" << endl;
             break;
         }
             
-        case eq::net::ConnectionSet::EVENT_DATA:
+        case net::ConnectionSet::EVENT_DATA:
             GLXEventHandler::dispatchAll();
             break;
                 
-        case eq::net::ConnectionSet::EVENT_INTERRUPT:      
+        case net::ConnectionSet::EVENT_INTERRUPT:      
             break;
 
-        case eq::net::ConnectionSet::EVENT_CONNECT:
-        case eq::net::ConnectionSet::EVENT_TIMEOUT:   
-        case eq::net::ConnectionSet::EVENT_ERROR:      
+        case net::ConnectionSet::EVENT_CONNECT:
+        case net::ConnectionSet::EVENT_TIMEOUT:   
+        case net::ConnectionSet::EVENT_ERROR:      
         default:
             EQWARN << "Error during select" << endl;
             break;
@@ -110,14 +110,14 @@ void GLXEventHandler::dispatchAll()
     if( !_pipeConnections )
         _pipeConnections = new GLXEventHandler::EventSet;
 
-    const eq::net::ConnectionVector& connections =
+    const net::ConnectionVector& connections =
         _pipeConnections->getConnections();
 
-    for( eq::net::ConnectionVector::const_iterator i = connections.begin(); 
+    for( net::ConnectionVector::const_iterator i = connections.begin(); 
          i != connections.end(); ++i )
     {
         X11ConnectionPtr connection = 
-            RefPtr_static_cast< eq::net::Connection, X11Connection >( *i );
+            RefPtr_static_cast< net::Connection, X11Connection >( *i );
         
         _handleEvents( connection );
     }

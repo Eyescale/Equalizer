@@ -26,7 +26,7 @@ namespace server
     /**
      * The channel.
      */
-    class EQSERVER_EXPORT Channel : public eq::net::Object
+    class EQSERVER_EXPORT Channel : public net::Object
     {
     public:
         enum State
@@ -79,9 +79,9 @@ namespace server
         const CompoundVector& getCompounds() const
             { return getConfig()->getCompounds(); }
 
-        eq::net::CommandQueue* getServerThreadQueue()
+        net::CommandQueue* getServerThreadQueue()
             { return _window->getServerThreadQueue(); }
-        eq::net::CommandQueue* getCommandThreadQueue()
+        net::CommandQueue* getCommandThreadQueue()
             { return _window->getCommandThreadQueue(); }
 
         /** 
@@ -219,12 +219,12 @@ namespace server
          */
         void updatePost( const uint32_t frameID, const uint32_t frameNumber );
 
-        void send( eq::net::ObjectPacket& packet ) 
+        void send( net::ObjectPacket& packet ) 
             { packet.objectID = getID(); getNode()->send( packet ); }
-        void send( eq::net::ObjectPacket& packet, const std::string& string ) 
+        void send( net::ObjectPacket& packet, const std::string& string ) 
             { packet.objectID = getID(); getNode()->send( packet, string ); }
         template< typename T >
-        void send( eq::net::ObjectPacket &packet, const std::vector<T>& data )
+        void send( net::ObjectPacket &packet, const std::vector<T>& data )
             { packet.objectID = getID(); getNode()->send( packet, data ); }
         //*}
 
@@ -249,10 +249,10 @@ namespace server
         /** Registers request packets waiting for a return value. */
         eq::base::RequestHandler _requestHandler;
 
-        /** @sa eq::net::Object::attachToSession. */
+        /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
-                                      eq::net::Session* session );
+                                      net::Session* session );
     private:
         //-------------------- Members --------------------
         /** Number of entitities actively using this channel. */
@@ -305,10 +305,10 @@ namespace server
         void _firePVPChanged();
 
         /* command handler functions. */
-        eq::net::CommandResult _cmdConfigInitReply( eq::net::Command& command );
-        eq::net::CommandResult _cmdConfigExitReply( eq::net::Command& command );
-        eq::net::CommandResult _cmdSetNearFar( eq::net::Command& command );
-        eq::net::CommandResult _cmdFrameFinishReply( eq::net::Command& command );
+        net::CommandResult _cmdConfigInitReply( net::Command& command );
+        net::CommandResult _cmdConfigExitReply( net::Command& command );
+        net::CommandResult _cmdSetNearFar( net::Command& command );
+        net::CommandResult _cmdFrameFinishReply( net::Command& command );
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Channel*);

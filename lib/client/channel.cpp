@@ -21,10 +21,10 @@
 
 using namespace eq::base;
 using namespace std;
-using eq::net::CommandFunc;
 
 namespace eq
 {
+typedef net::CommandFunc<Channel> ChannelFunc;
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CHANNEL_") + #attr )
 std::string eq::Channel::_iAttributeStrings[IATTR_ALL] = {
@@ -37,38 +37,28 @@ Channel::Channel( Window* parent )
         , _frustum( vmml::Frustumf::DEFAULT )
         , _ortho( vmml::Frustumf::DEFAULT )
 {
-    eq::net::CommandQueue* queue = parent->getPipeThreadQueue();
+    net::CommandQueue* queue = parent->getPipeThreadQueue();
 
     registerCommand( CMD_CHANNEL_CONFIG_INIT, 
-                     CommandFunc<Channel>( this, &Channel::_cmdConfigInit ),
-                     queue );
+                     ChannelFunc( this, &Channel::_cmdConfigInit ), queue );
     registerCommand( CMD_CHANNEL_CONFIG_EXIT, 
-                     CommandFunc<Channel>( this, &Channel::_cmdConfigExit ),
-                     queue );
+                     ChannelFunc( this, &Channel::_cmdConfigExit ), queue );
     registerCommand( CMD_CHANNEL_FRAME_START,
-                     CommandFunc<Channel>( this, &Channel::_cmdFrameStart ),
-                     queue );
+                     ChannelFunc( this, &Channel::_cmdFrameStart ), queue );
     registerCommand( CMD_CHANNEL_FRAME_FINISH,
-                     CommandFunc<Channel>( this, &Channel::_cmdFrameFinish ),
-                     queue );
+                     ChannelFunc( this, &Channel::_cmdFrameFinish ), queue );
     registerCommand( CMD_CHANNEL_FRAME_CLEAR, 
-                     CommandFunc<Channel>( this, &Channel::_cmdFrameClear ),
-                     queue );
+                     ChannelFunc( this, &Channel::_cmdFrameClear ), queue );
     registerCommand( CMD_CHANNEL_FRAME_DRAW, 
-                     CommandFunc<Channel>( this, &Channel::_cmdFrameDraw ),
-                     queue );
+                     ChannelFunc( this, &Channel::_cmdFrameDraw ), queue );
     registerCommand( CMD_CHANNEL_FRAME_DRAW_FINISH, 
-                    CommandFunc<Channel>( this, &Channel::_cmdFrameDrawFinish ),
-                     queue );
+                    ChannelFunc( this, &Channel::_cmdFrameDrawFinish ), queue );
     registerCommand( CMD_CHANNEL_FRAME_ASSEMBLE, 
-                     CommandFunc<Channel>( this, &Channel::_cmdFrameAssemble ),
-                     queue );
+                     ChannelFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( CMD_CHANNEL_FRAME_READBACK, 
-                     CommandFunc<Channel>( this, &Channel::_cmdFrameReadback ),
-                     queue );
+                     ChannelFunc( this, &Channel::_cmdFrameReadback ), queue );
     registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
-                     CommandFunc<Channel>( this, &Channel::_cmdFrameTransmit ),
-                     queue );
+                     ChannelFunc( this, &Channel::_cmdFrameTransmit ), queue );
 
     parent->_addChannel( this );
     EQINFO << " New eq::Channel @" << (void*)this << endl;
@@ -144,8 +134,7 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
     packet.nearPlane = nearPlane;
     packet.farPlane  = farPlane;
     
-    RefPtr< eq::net::Node > node = 
-        RefPtr_static_cast< Server, eq::net::Node >( getServer( ));
+    net::NodePtr node = RefPtr_static_cast< Server, net::Node >( getServer( ));
     send( node, packet );
 }
 
@@ -625,7 +614,7 @@ void Channel::outlineViewport()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eq::net::CommandResult Channel::_cmdConfigInit( eq::net::Command& command )
+net::CommandResult Channel::_cmdConfigInit( net::Command& command )
 {
     const ChannelConfigInitPacket* packet = 
         command.getPacket<ChannelConfigInitPacket>();
@@ -650,10 +639,10 @@ eq::net::CommandResult Channel::_cmdConfigInit( eq::net::Command& command )
 
     EQLOG( LOG_TASKS ) << "TASK channel config init reply " << &reply << endl;
     send( command.getNode(), reply, _error );
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Channel::_cmdConfigExit( eq::net::Command& command )
+net::CommandResult Channel::_cmdConfigExit( net::Command& command )
 {
     const ChannelConfigExitPacket* packet =
         command.getPacket<ChannelConfigExitPacket>();
@@ -664,10 +653,10 @@ eq::net::CommandResult Channel::_cmdConfigExit( eq::net::Command& command )
     reply.result = configExit();
 
     send( command.getNode(), reply );
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Channel::_cmdFrameStart( eq::net::Command& command )
+net::CommandResult Channel::_cmdFrameStart( net::Command& command )
 {
     const ChannelFrameStartPacket* packet = 
         command.getPacket<ChannelFrameStartPacket>();
@@ -676,10 +665,10 @@ eq::net::CommandResult Channel::_cmdFrameStart( eq::net::Command& command )
     //_grabFrame( packet->frameNumber ); single-threaded
     frameStart( packet->frameID, packet->frameNumber );
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Channel::_cmdFrameFinish( eq::net::Command& command )
+net::CommandResult Channel::_cmdFrameFinish( net::Command& command )
 {
     const ChannelFrameFinishPacket* packet =
         command.getPacket<ChannelFrameFinishPacket>();
@@ -693,10 +682,10 @@ eq::net::CommandResult Channel::_cmdFrameFinish( eq::net::Command& command )
     command.getNode()->send( reply, _statistics );
 
     _statistics.clear();
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Channel::_cmdFrameClear( eq::net::Command& command )
+net::CommandResult Channel::_cmdFrameClear( net::Command& command )
 {
     ChannelFrameClearPacket* packet = 
         command.getPacket<ChannelFrameClearPacket>();
@@ -708,10 +697,10 @@ eq::net::CommandResult Channel::_cmdFrameClear( eq::net::Command& command )
     frameClear( packet->context.frameID );
     _context = NULL;
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Channel::_cmdFrameDraw( eq::net::Command& command )
+net::CommandResult Channel::_cmdFrameDraw( net::Command& command )
 {
     ChannelFrameDrawPacket* packet = 
         command.getPacket<ChannelFrameDrawPacket>();
@@ -723,10 +712,10 @@ eq::net::CommandResult Channel::_cmdFrameDraw( eq::net::Command& command )
     frameDraw( packet->context.frameID );
     _context = NULL;
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Channel::_cmdFrameDrawFinish( eq::net::Command& command )
+net::CommandResult Channel::_cmdFrameDrawFinish( net::Command& command )
 {
     ChannelFrameDrawFinishPacket* packet = 
         command.getPacket< ChannelFrameDrawFinishPacket >();
@@ -736,10 +725,10 @@ eq::net::CommandResult Channel::_cmdFrameDrawFinish( eq::net::Command& command )
     ChannelStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
     frameDrawFinish( packet->frameID, packet->frameNumber );
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Channel::_cmdFrameAssemble( eq::net::Command& command )
+net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
 {
     ChannelFrameAssemblePacket* packet = 
         command.getPacket<ChannelFrameAssemblePacket>();
@@ -761,10 +750,10 @@ eq::net::CommandResult Channel::_cmdFrameAssemble( eq::net::Command& command )
     _inputFrames.clear();
     _context = NULL;
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Channel::_cmdFrameReadback( eq::net::Command& command )
+net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
         command.getPacket<ChannelFrameReadbackPacket>();
@@ -792,10 +781,10 @@ eq::net::CommandResult Channel::_cmdFrameReadback( eq::net::Command& command )
 
     _outputFrames.clear();
     _context = NULL;
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Channel::_cmdFrameTransmit( eq::net::Command& command )
+net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
 {
     const ChannelFrameTransmitPacket* packet = 
         command.getPacket<ChannelFrameTransmitPacket>();
@@ -804,20 +793,20 @@ eq::net::CommandResult Channel::_cmdFrameTransmit( eq::net::Command& command )
 
     ChannelStatistics event( Statistic::CHANNEL_TRANSMIT, this );
 
-    eq::net::Session*     session   = getSession();
-    eq::net::NodePtr localNode = session->getLocalNode();
-    eq::net::NodePtr server    = session->getServer();
+    net::Session*     session   = getSession();
+    net::NodePtr localNode = session->getLocalNode();
+    net::NodePtr server    = session->getServer();
     Pipe*               pipe      = getPipe();
     Frame*              frame     = pipe->getFrame( packet->frame, 
                                                     packet->context.eye );
 
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {
-        eq::net::NodeID nodeID = packet->nodes[i];
+        net::NodeID nodeID = packet->nodes[i];
         nodeID.convertToHost();
 
-        eq::net::NodePtr node   = command.getNode();
-        eq::net::NodePtr toNode = localNode->connect( nodeID, node );
+        net::NodePtr node   = command.getNode();
+        net::NodePtr toNode = localNode->connect( nodeID, node );
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
 
@@ -825,6 +814,6 @@ eq::net::CommandResult Channel::_cmdFrameTransmit( eq::net::Command& command )
         frame->transmit( toNode );
     }
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 }

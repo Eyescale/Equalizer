@@ -23,11 +23,12 @@
 
 using namespace eq::base;
 using namespace std;
-using eq::net::CommandFunc;
 
 namespace eq
 {
-static RefPtr< eq::net::Connection > _startLocalServer();
+typedef net::CommandFunc<Client> ClientFunc;
+
+static net::ConnectionPtr _startLocalServer();
 
 Client::Client()
         : _nodeThreadQueue( 0 )
@@ -46,11 +47,10 @@ bool Client::listen()
 {
     EQASSERT( !_nodeThreadQueue );
     _nodeThreadQueue = new CommandQueue;
-    registerCommand( CMD_CLIENT_EXIT,
-                     CommandFunc<Client>( this, &Client::_cmdExit ),
+    registerCommand( CMD_CLIENT_EXIT, ClientFunc( this, &Client::_cmdExit ),
                      _nodeThreadQueue );
 
-    return eq::net::Node::listen();
+    return net::Node::listen();
 }
 
 void Client::setWindowSystem( const WindowSystem windowSystem )
@@ -75,7 +75,7 @@ void Client::setWindowSystem( const WindowSystem windowSystem )
 
 bool Client::stopListening()
 {
-    if( !eq::net::Node::stopListening( ))
+    if( !net::Node::stopListening( ))
         return false;
 
     delete _nodeThreadQueue;
@@ -91,8 +91,8 @@ bool Client::connectServer( RefPtr<Server> server )
 
     if( server->getConnectionDescriptions().empty( ))
     {
-        RefPtr<eq::net::ConnectionDescription> connDesc = 
-            new eq::net::ConnectionDescription;
+        net::ConnectionDescriptionPtr connDesc = 
+            new net::ConnectionDescription;
         connDesc->TCPIP.port = EQ_DEFAULT_PORT;
     
         const string globalServer = Global::getServer();
@@ -112,7 +112,7 @@ bool Client::connectServer( RefPtr<Server> server )
             explicitAddress = false;
     }
 
-    if( connect( RefPtr_static_cast< Server, eq::net::Node >( server )))
+    if( connect( RefPtr_static_cast< Server, net::Node >( server )))
     {
         server->setClient( this );
         return true;
@@ -122,11 +122,11 @@ bool Client::connectServer( RefPtr<Server> server )
         return false;
 
     // Use app-local server if no explicit server was set
-    RefPtr< eq::net::Connection > connection = _startLocalServer();
+    net::ConnectionPtr connection = _startLocalServer();
     if( !connection )
         return false;
 
-    if( connect( RefPtr_static_cast< Server, eq::net::Node >( server ),
+    if( connect( RefPtr_static_cast< Server, net::Node >( server ),
                  connection ))
     {
         server->setClient( this );
@@ -151,9 +151,9 @@ static void* _libeqserver = 0;
 #endif
 }
 
-typedef eq::base::RefPtr< eq::net::Connection > (*eqsStartLocalServer_t)();
+typedef net::ConnectionPtr (*eqsStartLocalServer_t)();
 
-RefPtr< eq::net::Connection > _startLocalServer()
+net::ConnectionPtr _startLocalServer()
 {
     if( !_libeqserver )
     {
@@ -239,7 +239,7 @@ bool Client::disconnectServer( RefPtr<Server> server )
     server->_localServer = false;
 
     const int success = disconnect( 
-        RefPtr_static_cast< Server, eq::net::Node >( server ));
+        RefPtr_static_cast< Server, net::Node >( server ));
     if( !success )
         EQWARN << "Server disconnect failed" << endl;
 
@@ -249,7 +249,7 @@ bool Client::disconnectServer( RefPtr<Server> server )
 }
 
 
-eq::net::NodePtr Client::createNode( const uint32_t type )
+net::NodePtr Client::createNode( const uint32_t type )
 { 
     switch( type )
     {
@@ -261,7 +261,7 @@ eq::net::NodePtr Client::createNode( const uint32_t type )
         }
 
         default:
-            return eq::net::Node::createNode( type );
+            return net::Node::createNode( type );
     }
 }
 
@@ -282,82 +282,82 @@ bool Client::clientLoop()
 
 bool Client::exitClient()
 {
-    return (eq::net::Node::exitClient() & eq::exit( ));
+    return (net::Node::exitClient() & eq::exit( ));
 }
 
 void Client::processCommand()
 {
-    eq::net::Command* command = _nodeThreadQueue->pop();
+    net::Command* command = _nodeThreadQueue->pop();
     if( !command ) // just a wakeup()
         return;
 
     switch( invokeCommand( *command ))
     {
-        case eq::net::COMMAND_HANDLED:
-        case eq::net::COMMAND_DISCARD:
+        case net::COMMAND_HANDLED:
+        case net::COMMAND_DISCARD:
             break;
             
-        case eq::net::COMMAND_ERROR:
+        case net::COMMAND_ERROR:
             EQERROR << "Error handling command packet" << endl;
             abort();
     }
     _nodeThreadQueue->release( command );
 }
 
-bool Client::dispatchCommand( eq::net::Command& command )
+bool Client::dispatchCommand( net::Command& command )
 {
     EQVERB << "dispatchCommand " << command << endl;
 
     switch( command->datatype )
     {
         case DATATYPE_EQ_CLIENT:
-            return eq::net::Base::dispatchCommand( command );
+            return net::Base::dispatchCommand( command );
 
         case DATATYPE_EQ_SERVER:
         {
-            eq::net::NodePtr node = command.getNode();
+            net::NodePtr node = command.getNode();
 
             EQASSERT( dynamic_cast<Server*>( node.get( )) );
             RefPtr<Server> server = 
-                RefPtr_static_cast<eq::net::Node, Server>( node );
+                RefPtr_static_cast<net::Node, Server>( node );
 
-            return server->eq::net::Base::dispatchCommand( command );
+            return server->net::Base::dispatchCommand( command );
         }
 
         default:
-            return eq::net::Node::dispatchCommand( command );
+            return net::Node::dispatchCommand( command );
     }
 }
 
-eq::net::CommandResult Client::invokeCommand( eq::net::Command& command )
+net::CommandResult Client::invokeCommand( net::Command& command )
 {
     EQVERB << "invokeCommand " << command << endl;
 
     switch( command->datatype )
     {
         case DATATYPE_EQ_CLIENT:
-            return eq::net::Base::invokeCommand( command );
+            return net::Base::invokeCommand( command );
 
         case DATATYPE_EQ_SERVER:
         {
-            eq::net::NodePtr node = command.getNode();
+            net::NodePtr node = command.getNode();
 
             EQASSERT( dynamic_cast<Server*>( node.get( )) );
             RefPtr<Server> server = 
-                RefPtr_static_cast<eq::net::Node, Server>( node );
+                RefPtr_static_cast<net::Node, Server>( node );
 
-            return server->eq::net::Base::invokeCommand( command );
+            return server->net::Base::invokeCommand( command );
         }
         default:
-            return eq::net::Node::invokeCommand( command );
+            return net::Node::invokeCommand( command );
     }
 }
 
-eq::net::CommandResult Client::_cmdExit( eq::net::Command& command )
+net::CommandResult Client::_cmdExit( net::Command& command )
 {
     _running = false;
     // Close connection here, this is the last packet we'll get on it
     command.getLocalNode()->disconnect( command.getNode( ));
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 }

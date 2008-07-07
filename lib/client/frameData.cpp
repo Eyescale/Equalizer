@@ -31,11 +31,11 @@ FrameData::~FrameData()
 }
 
 void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID, 
-                                 eq::net::Session* session )
+                                 net::Session* session )
 {
-    eq::net::Object::attachToSession( id, instanceID, session );
+    net::Object::attachToSession( id, instanceID, session );
     
-    eq::net::CommandQueue* queue = session->getCommandThreadQueue();
+    net::CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( CMD_FRAMEDATA_TRANSMIT,
                      CommandFunc<FrameData>( this, &FrameData::_cmdTransmit ),
@@ -48,10 +48,10 @@ void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID,
                      queue );
 }
 
-void FrameData::applyInstanceData( eq::net::DataIStream& is )
+void FrameData::applyInstanceData( net::DataIStream& is )
 { 
     clear();
-    eq::net::Object::applyInstanceData( is ); 
+    net::Object::applyInstanceData( is ); 
 
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << endl;
 
@@ -146,7 +146,7 @@ void FrameData::syncReadback()
 
 void FrameData::_setReady( const uint32_t version )
 { 
-    EQASSERT( getVersion() == eq::net::Object::VERSION_NONE || 
+    EQASSERT( getVersion() == net::Object::VERSION_NONE || 
               _readyVersion < version );
 
     _listenersMutex.set();
@@ -173,7 +173,7 @@ void FrameData::_setReady( const uint32_t version )
     _listenersMutex.unset();
 }
 
-void FrameData::transmit( eq::net::NodePtr toNode )
+void FrameData::transmit( net::NodePtr toNode )
 {
     if( _data.buffers == 0 )
     {
@@ -183,7 +183,7 @@ void FrameData::transmit( eq::net::NodePtr toNode )
 
     FrameDataTransmitPacket packet;
     const uint64_t          packetSize = sizeof( packet ) - 8*sizeof( uint8_t );
-    const eq::net::Session*   session    = getSession();
+    const net::Session*   session    = getSession();
     EQASSERT( session );
 
     packet.sessionID = session->getID();
@@ -255,7 +255,7 @@ void FrameData::transmit( eq::net::NodePtr toNode )
         if( pixelDatas.empty( ))
             continue;
 
-        RefPtr<eq::net::Connection> connection = toNode->getConnection();
+        RefPtr<net::Connection> connection = toNode->getConnection();
         connection->lockSend();
         connection->send( &packet, packetSize, true );
         
@@ -303,7 +303,7 @@ void FrameData::removeListener( eq::base::Monitor<uint32_t>& listener )
 
 //----- Command handlers
 
-eq::net::CommandResult FrameData::_cmdTransmit( eq::net::Command& command )
+net::CommandResult FrameData::_cmdTransmit( net::Command& command )
 {
     CHECK_THREAD( _commandThread );
     const FrameDataTransmitPacket* packet = 
@@ -364,10 +364,10 @@ eq::net::CommandResult FrameData::_cmdTransmit( eq::net::Command& command )
         _pendingImages.push_back( ImageVersion( image, packet->version ));
     }
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult FrameData::_cmdReady( eq::net::Command& command )
+net::CommandResult FrameData::_cmdReady( net::Command& command )
 {
     CHECK_THREAD( _commandThread );
     const FrameDataReadyPacket* packet = 
@@ -383,10 +383,10 @@ eq::net::CommandResult FrameData::_cmdReady( eq::net::Command& command )
 
     EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version << endl;
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult FrameData::_cmdUpdate( eq::net::Command& command )
+net::CommandResult FrameData::_cmdUpdate( net::Command& command )
 {
     CHECK_THREAD( _commandThread );
     const FrameDataUpdatePacket* packet = 
@@ -401,7 +401,7 @@ eq::net::CommandResult FrameData::_cmdUpdate( eq::net::Command& command )
         _setReady( packet->version );
     }
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
 void FrameData::_applyVersion( const uint32_t version )

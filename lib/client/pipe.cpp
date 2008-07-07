@@ -62,11 +62,11 @@ Pipe::~Pipe()
 }
 
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
-                            eq::net::Session* session )
+                            net::Session* session )
 {
-    eq::net::Object::attachToSession( id, instanceID, session );
+    net::Object::attachToSession( id, instanceID, session );
     
-    eq::net::CommandQueue* queue = getPipeThreadQueue();
+    net::CommandQueue* queue = getPipeThreadQueue();
 
     registerCommand( CMD_PIPE_CONFIG_INIT, 
                      CommandFunc<Pipe>( this, &Pipe::_cmdConfigInit ), queue );
@@ -310,14 +310,14 @@ void* Pipe::_runThread()
 
     while( _thread->isRunning( ))
     {
-        eq::net::Command* command = _pipeThreadQueue->pop();
+        net::Command* command = _pipeThreadQueue->pop();
         switch( config->invokeCommand( *command ))
         {
-            case eq::net::COMMAND_HANDLED:
-            case eq::net::COMMAND_DISCARD:
+            case net::COMMAND_HANDLED:
+            case net::COMMAND_DISCARD:
                 break;
 
-            case eq::net::COMMAND_ERROR:
+            case net::COMMAND_ERROR:
                 EQERROR << "Error handling command packet" << endl;
                 abort();
             default:
@@ -331,7 +331,7 @@ void* Pipe::_runThread()
     return EXIT_SUCCESS;
 }
 
-eq::net::CommandQueue* Pipe::getPipeThreadQueue()
+net::CommandQueue* Pipe::getPipeThreadQueue()
 {
     if( !_thread )
         return _node->getNodeThreadQueue();
@@ -339,13 +339,13 @@ eq::net::CommandQueue* Pipe::getPipeThreadQueue()
     return _pipeThreadQueue;
 }
 
-Frame* Pipe::getFrame( const eq::net::ObjectVersion& frameVersion, const Eye eye )
+Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
 {
     Frame* frame = _frames[ frameVersion.id ];
 
     if( !frame )
     {
-        eq::net::Session* session = getSession();
+        net::Session* session = getSession();
         frame = new Frame();
 
         const bool mapped = session->mapObject( frame, frameVersion.id );
@@ -355,7 +355,7 @@ Frame* Pipe::getFrame( const eq::net::ObjectVersion& frameVersion, const Eye eye
     
     frame->sync( frameVersion.version );
 
-    const eq::net::ObjectVersion& data = frame->getDataVersion( eye );
+    const net::ObjectVersion& data = frame->getDataVersion( eye );
     EQASSERT( data.id != EQ_ID_INVALID );
     FrameData* frameData = getNode()->getFrameData( data ); 
     EQASSERT( frameData );
@@ -366,9 +366,9 @@ Frame* Pipe::getFrame( const eq::net::ObjectVersion& frameVersion, const Eye eye
 
 void Pipe::_flushFrames()
 {
-    eq::net::Session* session = getSession();
+    net::Session* session = getSession();
 
-    for( eq::net::IDHash< Frame* >::const_iterator i = _frames.begin(); 
+    for( net::IDHash< Frame* >::const_iterator i = _frames.begin(); 
          i != _frames.end(); ++ i )
     {
         Frame* frame = i->second;
@@ -804,7 +804,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eq::net::CommandResult Pipe::_cmdCreateWindow(  eq::net::Command& command  )
+net::CommandResult Pipe::_cmdCreateWindow(  net::Command& command  )
 {
     const PipeCreateWindowPacket* packet = 
         command.getPacket<PipeCreateWindowPacket>();
@@ -817,10 +817,10 @@ eq::net::CommandResult Pipe::_cmdCreateWindow(  eq::net::Command& command  )
     if( window != _windows[0] )
         window->setSharedContextWindow( _windows[0] );
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Pipe::_cmdDestroyWindow(  eq::net::Command& command  )
+net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
 {
     const PipeDestroyWindowPacket* packet =
         command.getPacket<PipeDestroyWindowPacket>();
@@ -833,10 +833,10 @@ eq::net::CommandResult Pipe::_cmdDestroyWindow(  eq::net::Command& command  )
     config->detachObject( window );
 
     delete window;
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Pipe::_cmdConfigInit( eq::net::Command& command )
+net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
@@ -864,11 +864,11 @@ eq::net::CommandResult Pipe::_cmdConfigInit( eq::net::Command& command )
     reply.result  = configInit( packet->initID );
     EQLOG( LOG_TASKS ) << "TASK pipe config init reply " << &reply << endl;
 
-    eq::net::NodePtr node = command.getNode();
+    net::NodePtr node = command.getNode();
     if( !reply.result )
     {
         send( node, reply, _error );
-        return eq::net::COMMAND_HANDLED;
+        return net::COMMAND_HANDLED;
     }
 
     switch( _windowSystem )
@@ -881,7 +881,7 @@ eq::net::CommandResult Pipe::_cmdConfigInit( eq::net::Command& command )
                         << endl;
                 reply.result = false;
                 send( node, reply, _error );
-                return eq::net::COMMAND_HANDLED;
+                return net::COMMAND_HANDLED;
             }
 
             // TODO: gather and send back display information
@@ -895,7 +895,7 @@ eq::net::CommandResult Pipe::_cmdConfigInit( eq::net::Command& command )
                 EQERROR << "configInit() did not set a display id" << endl;
                 reply.result = false;
                 send( node, reply, _error );
-                return eq::net::COMMAND_HANDLED;
+                return net::COMMAND_HANDLED;
             }
                 
             // TODO: gather and send back display information
@@ -909,7 +909,7 @@ eq::net::CommandResult Pipe::_cmdConfigInit( eq::net::Command& command )
                 EQERROR << "configInit() did not setup pixel viewport" << endl;
                 reply.result = false;
                 send( node, reply, _error );
-                return eq::net::COMMAND_HANDLED;
+                return net::COMMAND_HANDLED;
             }
             break;
 #endif
@@ -920,10 +920,10 @@ eq::net::CommandResult Pipe::_cmdConfigInit( eq::net::Command& command )
 
     reply.pvp = _pvp;
     send( node, reply );
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Pipe::_cmdConfigExit( eq::net::Command& command )
+net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
@@ -938,19 +938,19 @@ eq::net::CommandResult Pipe::_cmdConfigExit( eq::net::Command& command )
     _flushFrames();
 
     send( command.getNode(), reply );
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Pipe::_cmdFrameStartClock( eq::net::Command& command )
+net::CommandResult Pipe::_cmdFrameStartClock( net::Command& command )
 {
 	EQVERB << "start frame clock" << endl;
     _frameTimeMutex.set();
     _frameTimes.push_back( getConfig()->getTime( ));
     _frameTimeMutex.unset();
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Pipe::_cmdFrameStart( eq::net::Command& command )
+net::CommandResult Pipe::_cmdFrameStart( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
@@ -970,10 +970,10 @@ eq::net::CommandResult Pipe::_cmdFrameStart( eq::net::Command& command )
     _frameTimeMutex.unset();
 
     frameStart( packet->frameID, frameNumber );
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Pipe::_cmdFrameFinish( eq::net::Command& command )
+net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
@@ -1004,10 +1004,10 @@ eq::net::CommandResult Pipe::_cmdFrameFinish( eq::net::Command& command )
         releaseFrame( frameNumber );
     }
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Pipe::_cmdFrameDrawFinish( eq::net::Command& command )
+net::CommandResult Pipe::_cmdFrameDrawFinish( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     PipeFrameDrawFinishPacket* packet = 
@@ -1016,10 +1016,10 @@ eq::net::CommandResult Pipe::_cmdFrameDrawFinish( eq::net::Command& command )
                        << endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Pipe::_cmdStopThread( eq::net::Command& command )
+net::CommandResult Pipe::_cmdStopThread( net::Command& command )
 {
     EQASSERT( _thread );
 
@@ -1029,6 +1029,6 @@ eq::net::CommandResult Pipe::_cmdStopThread( eq::net::Command& command )
     EQINFO << "Leaving pipe thread" << endl;
     _thread->exit( EXIT_SUCCESS );
     EQUNREACHABLE;
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 }

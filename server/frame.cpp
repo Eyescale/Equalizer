@@ -29,7 +29,7 @@ Frame::Frame()
 }
 
 Frame::Frame( const Frame& from )
-        : eq::net::Object()
+        : net::Object()
         , _compound( 0 )
 {
     _data = from._data;
@@ -51,7 +51,7 @@ void Frame::flush()
 {
     unsetData();
 
-    eq::net::Session* session = getSession();
+    net::Session* session = getSession();
     EQASSERT( session );
     while( !_datas.empty( ))
     {
@@ -131,7 +131,7 @@ void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
         {
             data = new FrameData;
         
-            eq::net::Session* session = getSession();
+            net::Session* session = getSession();
             EQASSERT( session );
 
             session->registerObject( data );

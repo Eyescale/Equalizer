@@ -29,7 +29,7 @@ namespace server
     /**
      * A holder for a frame data and parameters.
      */
-    class EQ_EXPORT Frame : public eq::net::Object
+    class EQ_EXPORT Frame : public net::Object
     {
     public:
         /** 
@@ -77,7 +77,7 @@ namespace server
         /** Set the pixel viewport of the frame's data */
         void setPixelViewport( const PixelViewport& pvp );
 
-        const eq::net::ObjectVersion& getDataVersion( const Eye eye ) const
+        const net::ObjectVersion& getDataVersion( const Eye eye ) const
             { return _data.frameData[ eye ]; }
         //*}
 
@@ -109,7 +109,7 @@ namespace server
          * 
          * @param toNode the receiving node.
          */
-        void transmit( eq::net::NodePtr toNode );
+        void transmit( net::NodePtr toNode );
 
         /** 
          * Test the readiness of the frame.
@@ -159,9 +159,9 @@ namespace server
         {
             Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 ) {}
 
-            vmml::Vector2i       offset;
-            uint32_t             buffers;
-            eq::net::ObjectVersion frameData[EYE_ALL];
+            vmml::Vector2i     offset;
+            uint32_t           buffers;
+            net::ObjectVersion frameData[EYE_ALL];
         }
         _data;
 

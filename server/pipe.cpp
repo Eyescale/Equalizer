@@ -17,12 +17,13 @@
 
 using namespace eq::base;
 using namespace std;
-using eq::net::CommandFunc;
 
 namespace eq
 {
 namespace server
 {
+typedef net::CommandFunc<Pipe> PipeFunc;
+
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_PIPE_") + #attr )
 std::string Pipe::_iAttributeStrings[IATTR_ALL] = 
 {
@@ -100,11 +101,9 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
     eq::net::CommandQueue* queue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_PIPE_CONFIG_INIT_REPLY,
-                     CommandFunc<Pipe>( this, &Pipe::_cmdConfigInitReply ),
-                     queue );
+                     PipeFunc( this, &Pipe::_cmdConfigInitReply ), queue );
     registerCommand( eq::CMD_PIPE_CONFIG_EXIT_REPLY, 
-                     CommandFunc<Pipe>( this, &Pipe::_cmdConfigExitReply ),
-                     queue );
+                     PipeFunc( this, &Pipe::_cmdConfigExitReply ), queue );
 }
 
 void Pipe::addWindow( Window* window )

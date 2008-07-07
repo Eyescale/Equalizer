@@ -11,7 +11,7 @@ namespace eq
 {
 namespace server
 {
-    class ConnectionDescription : public eq::net::ConnectionDescription
+    class ConnectionDescription : public net::ConnectionDescription
     {
     public:
         ConnectionDescription();
@@ -62,7 +62,7 @@ namespace server
     };
 
     std::ostream& operator << ( std::ostream& os, 
-                                const eq::net::ConnectionDescription* desc );
+                                const net::ConnectionDescription* desc );
 }
 }
 #endif // EQNET_CONNECTION_DESCRIPTION_H

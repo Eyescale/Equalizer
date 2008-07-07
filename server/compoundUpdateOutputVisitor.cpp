@@ -123,7 +123,7 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
         return;
 
     const std::string& barrierName = swapBarrier->getName();
-    hash_map<string, eq::net::Barrier*>::const_iterator iter = 
+    hash_map<string, net::Barrier*>::const_iterator iter = 
         _swapBarriers.find( barrierName );
 
     if( iter == _swapBarriers.end( ))

@@ -24,7 +24,7 @@ namespace eq
      *
      * Each node is executed in a seperate process.
      */
-    class EQ_EXPORT Node : public eq::net::Object
+    class EQ_EXPORT Node : public net::Object
     {
     public:
         /** 
@@ -55,7 +55,7 @@ namespace eq
          * @param version the barrier version.
          * @return the barrier.
          */
-        eq::net::Barrier* getBarrier( const uint32_t id, const uint32_t version );
+        net::Barrier* getBarrier( const uint32_t id, const uint32_t version );
 
         /** 
          * Get a frame data instance.
@@ -63,7 +63,7 @@ namespace eq
          * @param dataVersion the frame data identifier and version.
          * @return the frame.
          */
-        FrameData* getFrameData( const eq::net::ObjectVersion& dataVersion );
+        FrameData* getFrameData( const net::ObjectVersion& dataVersion );
 
         /** Wait for the node to be initialized. */
         void waitInitialized() const { _initialized.waitEQ( true ); }
@@ -237,7 +237,7 @@ namespace eq
         uint32_t                  _finishedFrame;
 
         /** All barriers mapped by the node. */
-        eq::net::IDHash< eq::net::Barrier* > _barriers;
+        net::IDHash< net::Barrier* > _barriers;
         eq::base::Lock                     _barriersMutex;
 
         /** All frame datas used by the node during rendering. */
@@ -258,13 +258,13 @@ namespace eq
         void _flushObjects();
 
         /** The command functions. */
-        eq::net::CommandResult _cmdCreatePipe( eq::net::Command& command );
-        eq::net::CommandResult _cmdDestroyPipe( eq::net::Command& command );
-        eq::net::CommandResult _cmdConfigInit( eq::net::Command& command );
-        eq::net::CommandResult _cmdConfigExit( eq::net::Command& command );
-        eq::net::CommandResult _cmdFrameStart( eq::net::Command& command );
-        eq::net::CommandResult _cmdFrameFinish( eq::net::Command& command );
-        eq::net::CommandResult _cmdFrameDrawFinish( eq::net::Command& command );
+        net::CommandResult _cmdCreatePipe( net::Command& command );
+        net::CommandResult _cmdDestroyPipe( net::Command& command );
+        net::CommandResult _cmdConfigInit( net::Command& command );
+        net::CommandResult _cmdConfigExit( net::Command& command );
+        net::CommandResult _cmdFrameStart( net::Command& command );
+        net::CommandResult _cmdFrameFinish( net::Command& command );
+        net::CommandResult _cmdFrameDrawFinish( net::Command& command );
 
         CHECK_THREAD_DECLARE( _nodeThread );
     };

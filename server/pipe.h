@@ -19,7 +19,7 @@ namespace server
     /**
      * The pipe.
      */
-    class Pipe : public eq::net::Object
+    class Pipe : public net::Object
     {
     public:
         enum State
@@ -70,9 +70,9 @@ namespace server
         Node*   getNode()   const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
 
-        eq::net::CommandQueue* getServerThreadQueue()
+        net::CommandQueue* getServerThreadQueue()
             { return _node->getServerThreadQueue(); }
-        eq::net::CommandQueue* getCommandThreadQueue()
+        net::CommandQueue* getCommandThreadQueue()
             { return _node->getCommandThreadQueue(); }
 
         /** 
@@ -201,10 +201,10 @@ namespace server
         /** Registers request packets waiting for a return value. */
         eq::base::RequestHandler _requestHandler;
 
-        /** @sa eq::net::Object::attachToSession. */
+        /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
-                                      eq::net::Session* session );
+                                      net::Session* session );
     private:
         /** The pipe's name */
         std::string _name;
@@ -248,17 +248,17 @@ namespace server
         /** common code for all constructors */
         void _construct();
 
-        void _send( eq::net::ObjectPacket& packet )
+        void _send( net::ObjectPacket& packet )
             { packet.objectID = getID(); _node->send( packet ); }
-        void _send( eq::net::ObjectPacket& packet, const std::string& string ) 
+        void _send( net::ObjectPacket& packet, const std::string& string ) 
             { packet.objectID = getID(); _node->send( packet, string ); }
 
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();
 
         /* command handler functions. */
-        eq::net::CommandResult _cmdConfigInitReply(eq::net::Command& command );
-        eq::net::CommandResult _cmdConfigExitReply(eq::net::Command& command );
+        net::CommandResult _cmdConfigInitReply( net::Command& command );
+        net::CommandResult _cmdConfigExitReply( net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Pipe* pipe );

@@ -11,7 +11,7 @@ namespace eq
 {
     enum ServerCommand
     {
-        CMD_SERVER_CHOOSE_CONFIG        = eq::net::CMD_NODE_CUSTOM,
+        CMD_SERVER_CHOOSE_CONFIG        = net::CMD_NODE_CUSTOM,
         CMD_SERVER_USE_CONFIG,
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
         CMD_SERVER_CREATE_CONFIG,
@@ -27,13 +27,13 @@ namespace eq
 
     enum ClientCommand
     {
-        CMD_CLIENT_EXIT               = eq::net::CMD_NODE_CUSTOM,
+        CMD_CLIENT_EXIT               = net::CMD_NODE_CUSTOM,
         CMD_CLIENT_CUSTOM
     };
 
     enum ConfigCommand
     {
-        CMD_CONFIG_START_INIT                 = eq::net::CMD_SESSION_CUSTOM,
+        CMD_CONFIG_START_INIT                 = net::CMD_SESSION_CUSTOM,
         CMD_CONFIG_START_INIT_REPLY,
         CMD_CONFIG_FINISH_INIT,
         CMD_CONFIG_FINISH_INIT_REPLY,
@@ -55,7 +55,7 @@ namespace eq
 
     enum NodeCommand
     {
-        CMD_NODE_CONFIG_INIT = eq::net::CMD_OBJECT_CUSTOM,
+        CMD_NODE_CONFIG_INIT = net::CMD_OBJECT_CUSTOM,
         CMD_NODE_CONFIG_INIT_REPLY,
         CMD_NODE_CONFIG_EXIT,
         CMD_NODE_CONFIG_EXIT_REPLY,
@@ -70,7 +70,7 @@ namespace eq
 
     enum PipeCommand
     {
-        CMD_PIPE_CONFIG_INIT = eq::net::CMD_OBJECT_CUSTOM,
+        CMD_PIPE_CONFIG_INIT = net::CMD_OBJECT_CUSTOM,
         CMD_PIPE_CONFIG_INIT_REPLY,
         CMD_PIPE_CONFIG_EXIT,
         CMD_PIPE_CONFIG_EXIT_REPLY, 
@@ -86,7 +86,7 @@ namespace eq
 
     enum WindowCommand
     {
-        CMD_WINDOW_CONFIG_INIT = eq::net::CMD_OBJECT_CUSTOM,
+        CMD_WINDOW_CONFIG_INIT = net::CMD_OBJECT_CUSTOM,
         CMD_WINDOW_CONFIG_INIT_REPLY,
         CMD_WINDOW_CONFIG_EXIT,
         CMD_WINDOW_CONFIG_EXIT_REPLY,
@@ -104,7 +104,7 @@ namespace eq
 
     enum ChannelCommand
     {
-        CMD_CHANNEL_CONFIG_INIT = eq::net::CMD_OBJECT_CUSTOM,
+        CMD_CHANNEL_CONFIG_INIT = net::CMD_OBJECT_CUSTOM,
         CMD_CHANNEL_CONFIG_INIT_REPLY,
         CMD_CHANNEL_CONFIG_EXIT,
         CMD_CHANNEL_CONFIG_EXIT_REPLY,
@@ -123,7 +123,7 @@ namespace eq
 
     enum FrameDataCommand
     {
-        CMD_FRAMEDATA_TRANSMIT = eq::net::CMD_OBJECT_CUSTOM,
+        CMD_FRAMEDATA_TRANSMIT = net::CMD_OBJECT_CUSTOM,
         CMD_FRAMEDATA_READY,
         CMD_FRAMEDATA_UPDATE,
         CMD_FRAMEDATA_CUSTOM

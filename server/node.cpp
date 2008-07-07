@@ -20,12 +20,12 @@
 using namespace eq::base;
 using namespace std;
 using eq::net::ConnectionDescriptionVector;
-using eq::net::CommandFunc;
 
 namespace eq
 {
 namespace server
 {
+typedef net::CommandFunc<Node> NodeFunc;
 
 void Node::_construct()
 {
@@ -43,7 +43,7 @@ Node::Node()
 }
 
 Node::Node( const Node& from, const CompoundVector& compounds )
-        : eq::net::Object()
+        : net::Object()
 {
     _construct();
 
@@ -55,8 +55,8 @@ Node::Node( const Node& from, const CompoundVector& compounds )
     for( ConnectionDescriptionVector::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        const eq::net::ConnectionDescription* desc = (*i).get();
-        addConnectionDescription( new eq::net::ConnectionDescription( *desc ));
+        const net::ConnectionDescription* desc = (*i).get();
+        addConnectionDescription( new net::ConnectionDescription( *desc ));
     }
 
     const PipeVector& pipes = from.getPipes();
@@ -87,21 +87,18 @@ Node::~Node()
 }
 
 void Node::attachToSession( const uint32_t id, const uint32_t instanceID, 
-                               eq::net::Session* session )
+                               net::Session* session )
 {
-    eq::net::Object::attachToSession( id, instanceID, session );
+    net::Object::attachToSession( id, instanceID, session );
     
-    eq::net::CommandQueue* queue = getCommandThreadQueue();
+    net::CommandQueue* queue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_NODE_CONFIG_INIT_REPLY, 
-                     CommandFunc<Node>( this, &Node::_cmdConfigInitReply ),
-                     queue );
+                     NodeFunc( this, &Node::_cmdConfigInitReply ), queue );
     registerCommand( eq::CMD_NODE_CONFIG_EXIT_REPLY, 
-                     CommandFunc<Node>( this, &Node::_cmdConfigExitReply ),
-                     queue );
+                     NodeFunc( this, &Node::_cmdConfigExitReply ), queue );
     registerCommand( eq::CMD_NODE_FRAME_FINISH_REPLY,
-                     CommandFunc<Node>( this, &Node::_cmdFrameFinishReply ),
-                     queue );
+                     NodeFunc( this, &Node::_cmdFrameFinishReply ), queue );
 }
 
 void Node::addPipe( Pipe* pipe )
@@ -337,11 +334,11 @@ void Node::_sendFrameFinish( const uint32_t frameNumber )
 //---------------------------------------------------------------------------
 // Barrier cache
 //---------------------------------------------------------------------------
-eq::net::Barrier* Node::getBarrier()
+net::Barrier* Node::getBarrier()
 {
     if( _barriers.empty() )
     {
-        eq::net::Barrier* barrier = new eq::net::Barrier( _node );
+        net::Barrier* barrier = new net::Barrier( _node );
         _config->registerObject( barrier );
         barrier->setAutoObsolete( getConfig()->getLatency()+1, 
                                   Object::AUTO_OBSOLETE_COUNT_VERSIONS );
@@ -349,23 +346,23 @@ eq::net::Barrier* Node::getBarrier()
         return barrier;
     }
 
-    eq::net::Barrier* barrier = _barriers.back();
+    net::Barrier* barrier = _barriers.back();
     _barriers.pop_back();
     barrier->setHeight(0);
     return barrier;
 }
 
-void Node::releaseBarrier( eq::net::Barrier* barrier )
+void Node::releaseBarrier( net::Barrier* barrier )
 {
     _barriers.push_back( barrier );
 }
 
 void Node::_flushBarriers()
 {
-    for( vector< eq::net::Barrier* >::const_iterator i =_barriers.begin(); 
+    for( vector< net::Barrier* >::const_iterator i =_barriers.begin(); 
          i != _barriers.end(); ++ i )
     {
-        eq::net::Barrier* barrier = *i;
+        net::Barrier* barrier = *i;
         _config->deregisterObject( barrier );
         delete barrier;
     }
@@ -375,7 +372,7 @@ void Node::_flushBarriers()
 //===========================================================================
 // command handling
 //===========================================================================
-eq::net::CommandResult Node::_cmdConfigInitReply( eq::net::Command& command )
+net::CommandResult Node::_cmdConfigInitReply( net::Command& command )
 {
     const eq::NodeConfigInitReplyPacket* packet = 
         command.getPacket<eq::NodeConfigInitReplyPacket>();
@@ -387,10 +384,10 @@ eq::net::CommandResult Node::_cmdConfigInitReply( eq::net::Command& command )
     else
         _state = STATE_INIT_FAILED;
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Node::_cmdConfigExitReply( eq::net::Command& command )
+net::CommandResult Node::_cmdConfigExitReply( net::Command& command )
 {
     const eq::NodeConfigExitReplyPacket* packet =
         command.getPacket<eq::NodeConfigExitReplyPacket>();
@@ -401,10 +398,10 @@ eq::net::CommandResult Node::_cmdConfigExitReply( eq::net::Command& command )
     else
         _state = STATE_STOP_FAILED;
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
-eq::net::CommandResult Node::_cmdFrameFinishReply( eq::net::Command& command )
+net::CommandResult Node::_cmdFrameFinishReply( net::Command& command )
 {
     const eq::NodeFrameFinishReplyPacket* packet = 
         command.getPacket<eq::NodeFrameFinishReplyPacket>();
@@ -413,7 +410,7 @@ eq::net::CommandResult Node::_cmdFrameFinishReply( eq::net::Command& command )
     _finishedFrame = packet->frameNumber;
     _config->notifyNodeFrameFinished( packet->frameNumber );
 
-    return eq::net::COMMAND_HANDLED;
+    return net::COMMAND_HANDLED;
 }
 
 ostream& operator << ( ostream& os, const Node* node )
