@@ -40,7 +40,7 @@ namespace net
      * has at least one Connection through which is reachable. A Node provides
      * the basic communication facilities through message passing.
      */
-    class EQ_EXPORT Node : public Base, public eq::base::Referenced
+    class EQ_EXPORT Node : public Base, public base::Referenced
     {
     public:
         enum State 
@@ -497,7 +497,7 @@ namespace net
         bool deserialize( std::string& data );
 
         /** Registers request packets waiting for a return value. */
-        eq::base::RequestHandler _requestHandler;
+        base::RequestHandler _requestHandler;
 
     private:
         /** Determines if the node should be launched automatically. */
@@ -523,13 +523,13 @@ namespace net
         NodeIDHash< NodePtr > _nodes;
 
         /** The node for each connection. */
-        eq::base::RefPtrHash< Connection, NodePtr > _connectionNodes;
+        base::RefPtrHash< Connection, NodePtr > _connectionNodes;
 
         /** The receiver->command command queue. */
         CommandQueue _commandThreadQueue;
 
         /** Needed for thread-safety during nodeID-based connect() */
-        eq::base::Lock _connectMutex;
+        base::Lock _connectMutex;
 
         /** The cache to store the last received command for reuse */
         Command* _receivedCommand;
@@ -538,7 +538,7 @@ namespace net
         uint32_t _launchID;
 
         /** The remaining timeout for the launch operation. */
-        eq::base::Clock _launchTimeout;
+        base::Clock _launchTimeout;
 
         /** Commands re-scheduled for dispatch. */
         std::list< Command* > _pendingCommands;
@@ -603,7 +603,7 @@ namespace net
         uint32_t _generateSessionID();
 
         /** The receiver thread. */
-        class ReceiverThread : public eq::base::Thread
+        class ReceiverThread : public base::Thread
         {
         public:
             ReceiverThread( Node* node ) 
@@ -618,7 +618,7 @@ namespace net
         ReceiverThread* _receiverThread;
 
         /** The command handler thread. */
-        class CommandThread : public eq::base::Thread
+        class CommandThread : public base::Thread
         {
         public:
             CommandThread( Node* node ) 

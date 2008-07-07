@@ -129,14 +129,14 @@ namespace server
          * 
          * @param listener the listener.
          */
-        void addListener( eq::base::Monitor<uint32_t>& listener );
+        void addListener( base::Monitor<uint32_t>& listener );
 
         /** 
          * Remove a frame listener.
          * 
          * @param listener the listener.
          */
-        void removeListener( eq::base::Monitor<uint32_t>& listener );
+        void removeListener( base::Monitor<uint32_t>& listener );
         //*}
 
         /** 

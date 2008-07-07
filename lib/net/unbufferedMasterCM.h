@@ -80,7 +80,7 @@ namespace net
         uint32_t _obsoleteFlags;
 
         /** Registers request packets waiting for a return value. */
-        eq::base::RequestHandler _requestHandler;
+        base::RequestHandler _requestHandler;
 
         /* The command handlers. */
         CommandResult _cmdCommit( Command& pkg );

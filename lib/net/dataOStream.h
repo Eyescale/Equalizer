@@ -59,7 +59,7 @@ namespace net
         bool hasSentData() const { return _dataSent; }
 
         /** @return the buffer with the saved data. */
-        const eq::base::Bufferb& getSaveBuffer() const 
+        const base::Bufferb& getSaveBuffer() const 
             { EQASSERT( _save ); return _buffer; }
         //*}
 
@@ -100,7 +100,7 @@ namespace net
 
     private:
         /** The buffer used for saving and buffering */
-        eq::base::Bufferb  _buffer;
+        base::Bufferb  _buffer;
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
         /** The threshold for the buffer to flush */

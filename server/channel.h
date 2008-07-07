@@ -247,7 +247,7 @@ namespace server
         
     protected:
         /** Registers request packets waiting for a return value. */
-        eq::base::RequestHandler _requestHandler;
+        base::RequestHandler _requestHandler;
 
         /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
@@ -288,7 +288,7 @@ namespace server
         float        _far;
 
         /** The current state for state change synchronization. */
-        eq::base::Monitor< State > _state;
+        base::Monitor< State > _state;
 
         /** The last draw compound for this entity */
         const Compound* _lastDrawCompound;

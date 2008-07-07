@@ -31,7 +31,7 @@ namespace eq
          * 
          * @return the config.
          */
-        virtual Config* createConfig( eq::base::RefPtr< Server > parent )
+        virtual Config* createConfig( base::RefPtr< Server > parent )
             { return new eq::Config( parent ); }
 
         /** 

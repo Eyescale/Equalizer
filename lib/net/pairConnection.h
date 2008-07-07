@@ -42,7 +42,7 @@ namespace net
 
         ConnectionPtr _readConnection;
         ConnectionPtr _writeConnection;
-        eq::base::RefPtr<PairConnection> _sibling;
+        base::RefPtr<PairConnection> _sibling;
     };
 }
 }

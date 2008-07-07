@@ -32,7 +32,7 @@ typedef std::vector< Channel* >  ChannelVector;
 typedef std::vector< Compound* > CompoundVector;
 typedef std::vector< Frame* >    FrameVector;
 
-typedef eq::base::RefPtr< Server > ServerPtr;
+typedef base::RefPtr< Server > ServerPtr;
 
 }
 }

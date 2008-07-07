@@ -24,11 +24,11 @@ namespace net
 
 EQ_EXPORT bool init( const int argc, char** argv )
 {
-    if( !eq::base::init( ))
+    if( !base::init( ))
         return false;
 
-    EQINFO << "Log level " << eq::base::Log::getLogLevelString() << " topics " 
-           << eq::base::Log::topics << endl;
+    EQINFO << "Log level " << base::Log::getLogLevelString() << " topics " 
+           << base::Log::topics << endl;
 
 #ifdef WIN32
     WORD    wsVersion = MAKEWORD( 2, 0 );
@@ -36,7 +36,7 @@ EQ_EXPORT bool init( const int argc, char** argv )
     if( WSAStartup( wsVersion, &wsData ) != 0 )
     {
         EQERROR << "Initialization of Windows Sockets failed" 
-                << eq::base::getErrorString( GetLastError( )) << endl;
+                << base::getErrorString( GetLastError( )) << endl;
         return false;
     }
 #endif
@@ -62,11 +62,11 @@ EQ_EXPORT bool exit()
     if( WSACleanup() != 0 )
     {
         EQERROR << "Cleanup of Windows Sockets failed" 
-                << eq::base::getErrorString( GetLastError( )) << endl;
+                << base::getErrorString( GetLastError( )) << endl;
         return false;
     }
 #endif
-    return eq::base::exit();
+    return base::exit();
 }
 
 }

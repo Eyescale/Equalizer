@@ -48,7 +48,7 @@ public:
 
 
 // Image used for CPU-based assembly
-static eq::base::PerThread< ResultImage > _resultImage;
+static base::PerThread< ResultImage > _resultImage;
 
 
 static bool _useCPUAssembly( const FrameVector& frames, Channel* channel, 

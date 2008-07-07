@@ -47,7 +47,7 @@ namespace net
         Command*                    _lastCommand;
 
         /** The object version associated with this input stream. */
-        eq::base::Monitor< uint32_t > _version;
+        base::Monitor< uint32_t > _version;
     };
 }
 }

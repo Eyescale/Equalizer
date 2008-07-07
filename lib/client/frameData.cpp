@@ -277,7 +277,7 @@ void FrameData::transmit( net::NodePtr toNode )
     toNode->send( readyPacket );
 }
 
-void FrameData::addListener( eq::base::Monitor<uint32_t>& listener )
+void FrameData::addListener( base::Monitor<uint32_t>& listener )
 {
     _listenersMutex.set();
 
@@ -288,7 +288,7 @@ void FrameData::addListener( eq::base::Monitor<uint32_t>& listener )
     _listenersMutex.unset();
 }
 
-void FrameData::removeListener( eq::base::Monitor<uint32_t>& listener )
+void FrameData::removeListener( base::Monitor<uint32_t>& listener )
 {
     _listenersMutex.set();
 

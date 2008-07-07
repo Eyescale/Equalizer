@@ -235,7 +235,7 @@ namespace server
         virtual ~Window();
 
         /** Registers request packets waiting for a return value. */
-        eq::base::RequestHandler _requestHandler;
+        base::RequestHandler _requestHandler;
 
         /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
@@ -264,7 +264,7 @@ namespace server
         friend class Pipe;
 
         /** The current state for state change synchronization. */
-        eq::base::Monitor< State > _state;
+        base::Monitor< State > _state;
             
         /** The absolute size and position of the window. */
         eq::PixelViewport _pvp;

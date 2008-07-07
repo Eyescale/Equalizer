@@ -85,7 +85,7 @@ namespace net
             MIN_BUFFER_SIZE = 8,
             MAX_BUFFER_SIZE = 65536,
         };
-        typedef eq::base::Buffer< char > Buffer;
+        typedef base::Buffer< char > Buffer;
 
         Buffer   _pendingBuffer;
         Buffer   _receivedBuffer;

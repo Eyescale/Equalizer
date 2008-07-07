@@ -27,8 +27,8 @@ namespace eq
 
         /** @name Data Access */
         //*{
-        void setClient( eq::base::RefPtr<Client> client );
-        eq::base::RefPtr<Client> getClient(){ return _client; }
+        void setClient( base::RefPtr<Client> client );
+        base::RefPtr<Client> getClient(){ return _client; }
         net::CommandQueue* getNodeThreadQueue() 
             { return _client->getNodeThreadQueue(); }
         net::CommandQueue* getCommandThreadQueue() 
@@ -70,7 +70,7 @@ namespace eq
 
     private:
         /** The local client connected to the server */
-        eq::base::RefPtr<Client> _client;
+        base::RefPtr<Client> _client;
         friend class Client; // to call invokeCommand()
 
         /** Process-local server */

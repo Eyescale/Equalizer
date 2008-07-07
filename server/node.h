@@ -225,7 +225,7 @@ namespace server
         virtual ~Node();
 
         /** Registers request packets waiting for a return value. */
-        eq::base::RequestHandler _requestHandler;
+        base::RequestHandler _requestHandler;
 
         /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
@@ -274,7 +274,7 @@ namespace server
         };
 
         /** The current state for state change synchronization. */
-        eq::base::Monitor< State > _state;
+        base::Monitor< State > _state;
             
         /** The cached barriers. */
         std::vector<net::Barrier*> _barriers;

@@ -19,7 +19,7 @@ namespace net
      *
      * @sa Node
      */
-    class EQ_EXPORT ConnectionDescription : public eq::base::Referenced
+    class EQ_EXPORT ConnectionDescription : public base::Referenced
     {
     public:
         ConnectionDescription() 

@@ -54,9 +54,9 @@ namespace net
 #ifdef WIN32
         HANDLE _readHandle;
         HANDLE _writeHandle;
-        mutable eq::base::Lock _mutex;
-        mutable uint64_t     _size;
-        mutable HANDLE       _dataPending;
+        mutable base::Lock _mutex;
+        mutable uint64_t   _size;
+        mutable HANDLE     _dataPending;
 #endif
     };
 }

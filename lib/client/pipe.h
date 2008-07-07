@@ -51,9 +51,9 @@ namespace eq
         net::CommandQueue* getPipeThreadQueue();
         Node* getNode() const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : 0);}
-        eq::base::RefPtr< Client > getClient() const
+        base::RefPtr< Client > getClient() const
             { return (_node ? _node->getClient() : 0);}
-        eq::base::RefPtr< Server > getServer() const
+        base::RefPtr< Server > getServer() const
             { return (_node ? _node->getServer() : 0);}
         const WindowVector& getWindows() const { return _windows; }
 
@@ -416,20 +416,20 @@ namespace eq
             STATE_RUNNING
         };
         /** The configInit/configExit state. */
-        eq::base::Monitor< State > _state;
+        base::Monitor< State > _state;
 
         /** The last started frame. */
         uint32_t _currentFrame;
 
         /** The number of the last finished frame. */
-        eq::base::Monitor<uint32_t> _finishedFrame;
+        base::Monitor<uint32_t> _finishedFrame;
 
         /** The number of the last locally unlocked frame. */
-        eq::base::Monitor<uint32_t> _unlockedFrame;
+        base::Monitor<uint32_t> _unlockedFrame;
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
-        eq::base::SpinLock      _frameTimeMutex;
+        base::SpinLock      _frameTimeMutex;
 
         /** The base time for the currently active frame. */
         int64_t _frameTime;
@@ -438,7 +438,7 @@ namespace eq
         net::IDHash< Frame* > _frames;
 
         /** The pipe thread. */
-        class PipeThread : public eq::base::Thread
+        class PipeThread : public base::Thread
         {
         public:
             PipeThread( Pipe* pipe ) 

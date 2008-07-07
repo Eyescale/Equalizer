@@ -112,7 +112,7 @@ Config::~Config()
     _nodes.clear();
 }
 
-void Config::setLocalNode( eq::base::RefPtr< net::Node > node )
+void Config::setLocalNode( net::NodePtr node )
 {
     net::Session::setLocalNode( node );
     
@@ -543,7 +543,7 @@ bool Config::_exitNodes()
             {
                 if( !hasSlept )
                 {
-                    eq::base::sleep( 1 );
+                    base::sleep( 1 );
                     hasSlept = true;
                 }
 

@@ -38,9 +38,9 @@ namespace eq
          * @return the config of this node. 
          */
         Config* getConfig() const { return _config; }
-        eq::base::RefPtr< Client > getClient() const
+        base::RefPtr< Client > getClient() const
             { return (_config ? _config->getClient() : 0); }
-        eq::base::RefPtr< Server > getServer() const
+        base::RefPtr< Server > getServer() const
             { return (_config ? _config->getServer() : 0); }
         const PipeVector& getPipes() const { return _pipes; }
 
@@ -225,10 +225,10 @@ namespace eq
         std::string            _error;
 
         /** The configInit/configExit state. */
-        eq::base::Monitor<bool> _initialized;
+        base::Monitor<bool> _initialized;
 
         /** The number of the last started frame. */
-        eq::base::Monitor<uint32_t> _currentFrame;
+        base::Monitor<uint32_t> _currentFrame;
 
         /** The number of the last locally released frame. */
         uint32_t                  _unlockedFrame;
@@ -238,11 +238,11 @@ namespace eq
 
         /** All barriers mapped by the node. */
         net::IDHash< net::Barrier* > _barriers;
-        eq::base::Lock                     _barriersMutex;
+        base::Lock                   _barriersMutex;
 
         /** All frame datas used by the node during rendering. */
         FrameDataCache _frameDatas;
-        eq::base::Lock   _frameDatasMutex;
+        base::Lock     _frameDatasMutex;
 
         /** The receiver->node data transmission queue. */
         CommandQueue           _dataQueue;

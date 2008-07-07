@@ -252,7 +252,7 @@ namespace net
             }
 
         /** Registers request packets waiting for a return value. */
-        eq::base::RequestHandler _requestHandler;
+        base::RequestHandler _requestHandler;
 
     private:
         friend class Node;
@@ -272,10 +272,10 @@ namespace net
         bool _isMaster;
 
         /** The distributed master identifier pool. */
-        eq::base::IDPool _masterPool;
+        base::IDPool _masterPool;
 
         /** The local identifier pool. */
-        eq::base::IDPool _localPool;
+        base::IDPool _localPool;
 
         /** The identifiers for node-local instance identifiers. */
         uint32_t _instanceIDs;
@@ -293,7 +293,7 @@ namespace net
         
         /** All registered and mapped objects. */
         IDHash< ObjectVector > _objects;
-        eq::base::SpinLock       _objectsMutex;
+        base::SpinLock       _objectsMutex;
 
         const NodeID& _pollIDMaster( const uint32_t id ) const;
         NodePtr _pollIDMasterNode( const uint32_t id ) const;

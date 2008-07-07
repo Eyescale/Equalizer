@@ -113,14 +113,14 @@ namespace server
          * 
          * @param listener the listener.
          */
-        void addListener( eq::base::Monitor<uint32_t>& listener );
+        void addListener( base::Monitor<uint32_t>& listener );
 
         /** 
          * Remove a frame listener.
          * 
          * @param listener the listener.
          */
-        void removeListener( eq::base::Monitor<uint32_t>& listener );
+        void removeListener( base::Monitor<uint32_t>& listener );
         
         /** 
          * Disable the usage of a frame buffer attachment for all images.
@@ -161,7 +161,7 @@ namespace server
 
         ImageVector _images;
         ImageVector _imageCache;
-        eq::base::SpinLock    _imageCacheLock;
+        base::SpinLock    _imageCacheLock;
 
         struct ImageVersion
         {
@@ -175,11 +175,11 @@ namespace server
         std::set< uint32_t >    _readyVersions;
 
         /** Data ready monitor synchronization primitive. */
-        eq::base::Monitor<uint32_t> _readyVersion;
+        base::Monitor<uint32_t> _readyVersion;
 
         /** External monitors for readyness synchronization. */
-        std::vector< eq::base::Monitor<uint32_t>* > _listeners;
-        eq::base::Lock                              _listenersMutex;
+        std::vector< base::Monitor<uint32_t>* > _listeners;
+        base::Lock                              _listenersMutex;
 
         /** Allocate or reuse an image. */
         Image* _allocImage();

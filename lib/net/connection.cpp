@@ -183,7 +183,7 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
     if( bytes > 1048576 )
         EQLOG( LOG_NETPERF ) << "End receive   " << bytes << " bytes" << endl;
 
-    if( eq::base::Log::topics & LOG_WIRE ) // OPT
+    if( Log::topics & LOG_WIRE ) // OPT
     {
         EQLOG( LOG_WIRE ) << disableFlush << "Received " << bytes << " bytes: ";
         const uint32_t printBytes = EQ_MIN( bytes, 256 );
@@ -224,7 +224,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
 
     const unsigned char* ptr = static_cast<const unsigned char*>(buffer);
 
-    if( eq::base::Log::topics & LOG_WIRE ) // OPT
+    if( Log::topics & LOG_WIRE ) // OPT
     {
         EQLOG( LOG_WIRE ) << disableFlush << "Sending " << bytes 
                           << " bytes on " << (void*)this << ":";

@@ -37,7 +37,7 @@ namespace eq
         static void dispatchAll();
 
         /** Get the event set of the current thread. */
-        static eq::base::RefPtr< EventSet > getEventSet();
+        static base::RefPtr< EventSet > getEventSet();
 
 
         /** Constructs a new glx event handler. */
@@ -64,7 +64,7 @@ namespace eq
         uint32_t  _getKey( XEvent& event );
     };
 
-    typedef eq::base::RefPtr< GLXEventHandler::EventSet > GLXEventSetPtr; 
+    typedef base::RefPtr< GLXEventHandler::EventSet > GLXEventSetPtr; 
 }
 
 #endif // EQ_GLXEVENTHANDLER_H

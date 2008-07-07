@@ -65,7 +65,7 @@ void FullSlaveCM::makeThreadSafe()
 {
     if( _mutex ) return;
 
-    _mutex = new eq::base::Lock;
+    _mutex = new Lock;
 }
 
 bool FullSlaveCM::sync( const uint32_t version )

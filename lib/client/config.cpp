@@ -26,7 +26,7 @@ namespace eq
 {
 typedef net::CommandFunc<Config> ConfigFunc;
 
-Config::Config( eq::base::RefPtr< Server > server )
+Config::Config( base::RefPtr< Server > server )
         : Session( true )
         , _lastEvent( 0 )
         , _latency( 0 )
@@ -74,14 +74,14 @@ Config::~Config()
     _appNode   = 0;
 }
 
-eq::base::RefPtr<Server> Config::getServer()
+base::RefPtr<Server> Config::getServer()
 { 
     net::NodePtr node = net::Session::getServer();
     EQASSERT( dynamic_cast< Server* >( node.get( )));
     return RefPtr_static_cast< net::Node, Server >( node );
 }
 
-eq::base::RefPtr<Client> Config::getClient()
+base::RefPtr<Client> Config::getClient()
 { 
     return getServer()->getClient(); 
 }

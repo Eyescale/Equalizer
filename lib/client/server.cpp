@@ -34,7 +34,7 @@ Server::~Server()
     EQINFO << "Delete server at " << (void*)this << endl;
 }
 
-void Server::setClient( eq::base::RefPtr<Client> client )
+void Server::setClient( base::RefPtr<Client> client )
 {
     _client = client;
     if( !_client )

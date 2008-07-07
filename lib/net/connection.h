@@ -38,7 +38,7 @@ namespace net
     /**
      * A base class to provide communication to other hosts.
      */
-    class EQ_EXPORT Connection : public eq::base::Referenced
+    class EQ_EXPORT Connection : public base::Referenced
     {
     public:
         enum State
@@ -254,7 +254,7 @@ namespace net
         State                    _state; //!< The connection state
         ConnectionDescriptionPtr _description;
 
-        mutable eq::base::SpinLock _sendLock;
+        mutable base::SpinLock _sendLock;
 
         /** The listeners on state changes */
         std::vector< ConnectionListener* > _listeners;

@@ -80,19 +80,19 @@ namespace net
 
     private:
         /** Mutex protecting changes to the set. */
-        eq::base::SpinLock _mutex;
+        base::SpinLock _mutex;
 
         /** The connections to handle */
         ConnectionVector _connections;
 
         // Note: std::vector had to much overhead here
 #ifdef WIN32
-        eq::base::Buffer< HANDLE > _fdSet;
+        base::Buffer< HANDLE > _fdSet;
 #else
-        eq::base::Buffer< pollfd > _fdSetCopy; // 'const' set
-        eq::base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
+        base::Buffer< pollfd > _fdSetCopy; // 'const' set
+        base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
 #endif
-        eq::base::Buffer< Connection* > _fdSetConnections;
+        base::Buffer< Connection* > _fdSetConnections;
 
         enum SelfCommands
         {
@@ -100,7 +100,7 @@ namespace net
         };
 
         /** The connection to reset a running select, see constructor. */
-        eq::base::RefPtr< PipeConnection > _selfConnection;
+        base::RefPtr< PipeConnection > _selfConnection;
 
         // result values
         ConnectionPtr _connection;

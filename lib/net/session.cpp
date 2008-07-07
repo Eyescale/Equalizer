@@ -44,7 +44,7 @@ Session::~Session()
         
     if( !_objects.empty( ))
     {
-        if( eq::base::Log::level >= eq::base::LOG_WARN ) // OPT
+        if( base::Log::level >= base::LOG_WARN ) // OPT
         {
             EQWARN << _objects.size()
                    << " attached objects in destructor" << endl;

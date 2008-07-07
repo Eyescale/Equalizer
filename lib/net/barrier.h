@@ -87,7 +87,7 @@ namespace net
         std::map< uint32_t, NodeVector > _enteredNodes;
         
         /** The monitor used for barrier leave notification. */
-        eq::base::Monitor<uint32_t> _leaveNotify;
+        base::Monitor<uint32_t> _leaveNotify;
 
         /** Common constructor function. */
         void _construct();

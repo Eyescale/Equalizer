@@ -67,14 +67,14 @@ namespace net
         uint32_t _version;
 
         /** The change queue. */
-        eq::base::MTQueue< ObjectDataIStream > _queuedVersions;
+        base::MTQueue< ObjectDataIStream > _queuedVersions;
 
         /** Apply the data in the input stream to the object */
         virtual void _unpackOneVersion( ObjectDataIStream* is );
 
     private:
         /** The mutex, if thread safety is enabled. */
-        eq::base::Lock* _mutex;
+        base::Lock* _mutex;
 
         /** istream for receiving the current version */
         ObjectDataIStream* _currentDeltaStream;

@@ -29,12 +29,12 @@ namespace eq
         /** 
          * Constructs a new config.
          */
-        Config( eq::base::RefPtr< Server > parent );
+        Config( base::RefPtr< Server > parent );
 
         /** @name Data Access */
         //*{
-        eq::base::RefPtr< Client > getClient();
-        eq::base::RefPtr< Server > getServer();
+        base::RefPtr< Client > getClient();
+        base::RefPtr< Server > getServer();
         const NodeVector& getNodes() const { return _nodes; }
         CommandQueue* getNodeThreadQueue()
             { return getClient()->getNodeThreadQueue(); }
@@ -242,7 +242,7 @@ namespace eq
 
         /** Global statistics events, index per frame and channel. */
         std::deque< FrameStatistics > _statistics;
-        eq::base::SpinLock              _statisticsMutex;
+        base::SpinLock              _statisticsMutex;
 
         /** The maximum number of outstanding frames. */
         uint32_t _latency;
@@ -251,10 +251,10 @@ namespace eq
         /** The last locally released frame. */
         uint32_t _unlockedFrame;
         /** The last completed frame. */
-        eq::base::Monitor< uint32_t > _finishedFrame;
+        base::Monitor< uint32_t > _finishedFrame;
 
         /** The global clock. */
-        eq::base::Clock _clock;
+        base::Clock _clock;
 
         /** true while the config is initialized and no window has exited. */
         bool _running;
