@@ -11,7 +11,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 ObjectDeltaDataIStream::ObjectDeltaDataIStream()
 {
@@ -54,5 +56,6 @@ bool ObjectDeltaDataIStream::getNextBuffer( const uint8_t** buffer,
     }
 
     return false;    
+}
 }
 }

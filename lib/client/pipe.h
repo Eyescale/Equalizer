@@ -38,7 +38,7 @@ namespace eq
      * the pipe is non-threaded, in which case the tasks are executed on the
      * Node's main thread.
      */
-    class EQ_EXPORT Pipe : public eqNet::Object
+    class EQ_EXPORT Pipe : public eq::net::Object
     {
     public:
         /** 
@@ -48,7 +48,7 @@ namespace eq
 
         /** @name Data Access. */
         //*{
-        eqNet::CommandQueue* getPipeThreadQueue();
+        eq::net::CommandQueue* getPipeThreadQueue();
         Node* getNode() const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : 0);}
         eq::base::RefPtr< Client > getClient() const
@@ -148,7 +148,7 @@ namespace eq
          * @param id the current eye pass.
          * @return the frame.
          */
-        Frame* getFrame( const eqNet::ObjectVersion& frameVersion, 
+        Frame* getFrame( const eq::net::ObjectVersion& frameVersion, 
                          const Eye eye );
         //*}
 
@@ -367,10 +367,10 @@ namespace eq
         virtual bool useMessagePump() { return true; }
         //*}
 
-        /** @sa eqNet::Object::attachToSession. */
+        /** @sa eq::net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
-                                      eqNet::Session* session );
+                                      eq::net::Session* session );
 
     private:
         //-------------------- Members --------------------
@@ -435,7 +435,7 @@ namespace eq
         int64_t _frameTime;
 
         /** All assembly frames used by the pipe during rendering. */
-        eqNet::IDHash< Frame* > _frames;
+        eq::net::IDHash< Frame* > _frames;
 
         /** The pipe thread. */
         class PipeThread : public eq::base::Thread
@@ -472,15 +472,15 @@ namespace eq
         void _flushFrames();
 
         /* The command functions. */
-        eqNet::CommandResult _cmdCreateWindow( eqNet::Command& command );
-        eqNet::CommandResult _cmdDestroyWindow( eqNet::Command& command );
-        eqNet::CommandResult _cmdConfigInit( eqNet::Command& command );
-        eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameStartClock( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );
-        eqNet::CommandResult _cmdStopThread( eqNet::Command& command );
+        eq::net::CommandResult _cmdCreateWindow( eq::net::Command& command );
+        eq::net::CommandResult _cmdDestroyWindow( eq::net::Command& command );
+        eq::net::CommandResult _cmdConfigInit( eq::net::Command& command );
+        eq::net::CommandResult _cmdConfigExit( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameStartClock( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameStart( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameFinish( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameDrawFinish( eq::net::Command& command );
+        eq::net::CommandResult _cmdStopThread( eq::net::Command& command );
 
         CHECK_THREAD_DECLARE( _pipeThread );
     };

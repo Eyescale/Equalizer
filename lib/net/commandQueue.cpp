@@ -10,7 +10,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 CommandQueue::CommandQueue()
 {
@@ -89,6 +91,7 @@ void CommandQueue::release( Command* command )
 Command* CommandQueue::back() const
 {
     return _commands.back();
+}
 }
 }
 

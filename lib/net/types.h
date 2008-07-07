@@ -8,7 +8,9 @@
 #include <eq/base/refPtr.h>
 #include <vector>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 
 class Node;
@@ -25,6 +27,7 @@ typedef std::vector< Object* >                  ObjectVector;
 typedef std::vector< ConnectionPtr >            ConnectionVector;
 typedef std::vector< ConnectionDescriptionPtr > ConnectionDescriptionVector;
 
+}
 }
 
 #endif // EQNET_TYPES_H

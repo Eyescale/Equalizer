@@ -13,7 +13,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 ObjectInstanceDataOStream::ObjectInstanceDataOStream( const Object* object)
         : ObjectDataOStream( object )
@@ -52,5 +54,6 @@ void ObjectInstanceDataOStream::sendFooter( const void* buffer,
     EQLOG( LOG_OBJECTS ) << "send " << &instancePacket << " to " 
                          << _connections.size() << " receivers " << endl;
     Connection::send( _connections, instancePacket, buffer, size, true );
+}
 }
 }

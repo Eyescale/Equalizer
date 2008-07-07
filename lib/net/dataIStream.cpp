@@ -9,7 +9,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 DataIStream::DataIStream()
         : _input( 0 )
@@ -84,5 +86,6 @@ bool DataIStream::_checkBuffer()
     return true;
 }
 
+}
 }
 

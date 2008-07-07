@@ -24,7 +24,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 
 ConnectionSet::ConnectionSet()
@@ -386,4 +388,5 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
     return os;
 }
 
+}
 }

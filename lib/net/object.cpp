@@ -25,7 +25,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 Object::Object()
         : _session          ( 0 )
@@ -255,5 +257,6 @@ void Object::setInstanceData( void* data, const uint64_t size )
 
     _deltaData     = data;
     _deltaDataSize = size;
+}
 }
 }

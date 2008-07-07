@@ -10,7 +10,9 @@
 #include <eq/base/base.h>
 #include <eq/base/refPtr.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {    
     struct Packet;
 
@@ -64,5 +66,5 @@ namespace eqNet
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& );
 }
-
+}
 #endif // EQNET_COMMAND_H

@@ -8,7 +8,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 
 #define SEPARATOR '#'
@@ -187,5 +189,6 @@ void ConnectionDescription::setLaunchCommand( const std::string& launchCommand )
 const string& ConnectionDescription::getLaunchCommand() const
 {
     return _launchCommand;
+}
 }
 }

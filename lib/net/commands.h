@@ -7,7 +7,9 @@
 
 #include <eq/base/base.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     enum NodeCommand
     {
@@ -60,7 +62,8 @@ namespace eqNet
         CMD_BARRIER_ENTER_REPLY,
         CMD_BARRIER_ALL
     };
-};
+}
+}
 
 #endif // EQNET_COMMANDS_H
 

@@ -7,7 +7,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 SocketConnection::SocketConnection( const ConnectionType type )
     : _overlappedPending( false )
@@ -406,5 +408,6 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
 
     EQUNREACHABLE;
     return -1;
+}
 }
 }

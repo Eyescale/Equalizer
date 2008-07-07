@@ -24,7 +24,7 @@
 
 using namespace eq::base;
 using namespace std;
-using eqNet::CommandFunc;
+using eq::net::CommandFunc;
 
 namespace eqs
 {
@@ -62,7 +62,7 @@ Server::~Server()
 
 bool Server::run()
 {
-    EQASSERT( getState() == eqNet::Node::STATE_LISTENING );
+    EQASSERT( getState() == eq::net::Node::STATE_LISTENING );
 
     if( _configs.empty( ))
     {
@@ -95,27 +95,27 @@ void Server::mapConfig( Config* config )
 //===========================================================================
 // packet handling methods
 //===========================================================================
-bool Server::dispatchCommand( eqNet::Command& command )
+bool Server::dispatchCommand( eq::net::Command& command )
 {
     switch( command->datatype )
     {
         case eq::DATATYPE_EQ_SERVER:
-            return eqNet::Base::dispatchCommand( command );
+            return eq::net::Base::dispatchCommand( command );
             
         default:
-            return eqNet::Node::dispatchCommand( command );
+            return eq::net::Node::dispatchCommand( command );
     }
 }
 
-eqNet::CommandResult Server::invokeCommand( eqNet::Command& command )
+eq::net::CommandResult Server::invokeCommand( eq::net::Command& command )
 {
     switch( command->datatype )
     {
         case eq::DATATYPE_EQ_SERVER:
-            return eqNet::Base::invokeCommand( command );
+            return eq::net::Base::invokeCommand( command );
             
         default:
-            return eqNet::Node::invokeCommand( command );
+            return eq::net::Node::invokeCommand( command );
     }
 }
 
@@ -124,15 +124,15 @@ void Server::_handleCommands()
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        eqNet::Command* command = _serverThreadQueue.pop();
+        eq::net::Command* command = _serverThreadQueue.pop();
 
         switch( invokeCommand( *command ))
         {
-            case eqNet::COMMAND_HANDLED:
-            case eqNet::COMMAND_DISCARD:
+            case eq::net::COMMAND_HANDLED:
+            case eq::net::COMMAND_DISCARD:
                 break;
 
-            case eqNet::COMMAND_ERROR:
+            case eq::net::COMMAND_ERROR:
                 EQERROR << "Error handling command " << command << endl;
                 abort();
             default:
@@ -144,7 +144,7 @@ void Server::_handleCommands()
     }
 }
 
-eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Command& command ) 
+eq::net::CommandResult Server::_cmdChooseConfig( eq::net::Command& command ) 
 {
     const eq::ServerChooseConfigPacket* packet = 
         command.getPacket<eq::ServerChooseConfigPacket>();
@@ -154,13 +154,13 @@ eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Command& command )
     Config* config = _configs.empty() ? 0 : _configs[0];
     
     eq::ServerChooseConfigReplyPacket reply( packet );
-    eqNet::NodePtr               node = command.getNode();
+    eq::net::NodePtr               node = command.getNode();
 
     if( !config )
     {
         reply.configID = EQ_ID_INVALID;
         node->send( reply );
-        return eqNet::COMMAND_HANDLED;
+        return eq::net::COMMAND_HANDLED;
     }
 
     Config* appConfig = new Config( *config );
@@ -190,10 +190,10 @@ eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Command& command )
     reply.configID = configID;
     node->send( reply );
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdUseConfig( eqNet::Command& command ) 
+eq::net::CommandResult Server::_cmdUseConfig( eq::net::Command& command ) 
 {
     const eq::ServerUseConfigPacket* packet = 
         command.getPacket<eq::ServerUseConfigPacket>();
@@ -212,13 +212,13 @@ eqNet::CommandResult Server::_cmdUseConfig( eqNet::Command& command )
     Config* config = loader.parseConfig( configData.c_str( ));
 
     eq::ServerChooseConfigReplyPacket reply( packet );
-    eqNet::NodePtr               node = command.getNode();
+    eq::net::NodePtr               node = command.getNode();
 
     if( !config )
     {
         reply.configID = EQ_ID_INVALID;
         node->send( reply );
-        return eqNet::COMMAND_HANDLED;
+        return eq::net::COMMAND_HANDLED;
     }
 
     EQINFO << "Using config: " << endl << Global::instance() << config << endl;
@@ -240,10 +240,10 @@ eqNet::CommandResult Server::_cmdUseConfig( eqNet::Command& command )
 
     reply.configID = configID;
     node->send( reply );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdReleaseConfig( eqNet::Command& command )
+eq::net::CommandResult Server::_cmdReleaseConfig( eq::net::Command& command )
 {
     const eq::ServerReleaseConfigPacket* packet = 
         command.getPacket<eq::ServerReleaseConfigPacket>();
@@ -251,13 +251,13 @@ eqNet::CommandResult Server::_cmdReleaseConfig( eqNet::Command& command )
 
     eq::ServerReleaseConfigReplyPacket reply( packet );
     Config*                            config = _appConfigs[packet->configID];
-    eqNet::NodePtr                node   = command.getNode();
+    eq::net::NodePtr                node   = command.getNode();
 
     if( !config )
     {
         EQWARN << "Release request for unknown config" << endl;
         node->send( reply );
-        return eqNet::COMMAND_HANDLED;
+        return eq::net::COMMAND_HANDLED;
     }
 
     if( config->isRunning( ))
@@ -279,10 +279,10 @@ eqNet::CommandResult Server::_cmdReleaseConfig( eqNet::Command& command )
     node->send( reply );
     EQLOG( LOG_ANY ) << "----- Released Config -----" << endl;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdShutdown( eqNet::Command& command )
+eq::net::CommandResult Server::_cmdShutdown( eq::net::Command& command )
 {
     const eq::ServerShutdownPacket* packet = 
         command.getPacket<eq::ServerShutdownPacket>();
@@ -297,9 +297,9 @@ eqNet::CommandResult Server::_cmdShutdown( eqNet::Command& command )
         EQWARN << "Ignoring shutdown request, " << _appConfigs.size() 
                << " configs still active" << endl;
 
-    eqNet::NodePtr node = command.getNode();
+    eq::net::NodePtr node = command.getNode();
     node->send( reply );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
 std::ostream& operator << ( std::ostream& os, const Server* server )
@@ -310,9 +310,9 @@ std::ostream& operator << ( std::ostream& os, const Server* server )
     os << disableFlush << disableHeader << "server " << endl;
     os << "{" << endl << indent;
     
-    const eqNet::ConnectionDescriptionVector& cds =
+    const eq::net::ConnectionDescriptionVector& cds =
         server->getConnectionDescriptions();
-    for( eqNet::ConnectionDescriptionVector::const_iterator i = cds.begin();
+    for( eq::net::ConnectionDescriptionVector::const_iterator i = cds.begin();
          i != cds.end(); ++i )
         
         os << (*i).get();

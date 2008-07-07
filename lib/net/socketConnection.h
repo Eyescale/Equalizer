@@ -19,7 +19,9 @@
 #endif
 
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     /**
      * A TCP/IP-based socket connection.
@@ -99,6 +101,7 @@ namespace eqNet
         CHECK_THREAD_DECLARE( _recvThread );
 #endif
     };
+}
 }
 
 #endif //EQNET_SOCKETCONNECTION_H

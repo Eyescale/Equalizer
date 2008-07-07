@@ -18,7 +18,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 #define MIN_ID_RANGE 1024
 
@@ -874,5 +876,6 @@ std::ostream& operator << ( std::ostream& os, Session* session )
        << ")";
 
     return os;
+}
 }
 }

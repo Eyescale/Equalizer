@@ -17,8 +17,8 @@
 
 using namespace eq::base;
 using namespace std;
-using eqNet::ConnectionDescriptionVector;
-using eqNet::CommandFunc;
+using eq::net::ConnectionDescriptionVector;
+using eq::net::CommandFunc;
 
 namespace eqs
 {
@@ -51,7 +51,7 @@ Config::Config()
 }
 
 Config::Config( const Config& from )
-        : eqNet::Session()
+        : eq::net::Session()
         , _server( from._server )
 {
     _construct();
@@ -110,15 +110,15 @@ Config::~Config()
     _nodes.clear();
 }
 
-void Config::setLocalNode( eq::base::RefPtr< eqNet::Node > node )
+void Config::setLocalNode( eq::base::RefPtr< eq::net::Node > node )
 {
-    eqNet::Session::setLocalNode( node );
+    eq::net::Session::setLocalNode( node );
     
     if( !node ) 
         return;
 
-    eqNet::CommandQueue* serverQueue  = getServerThreadQueue();
-    eqNet::CommandQueue* commandQueue = getCommandThreadQueue();
+    eq::net::CommandQueue* serverQueue  = getServerThreadQueue();
+    eq::net::CommandQueue* commandQueue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_CONFIG_START_INIT,
                      CommandFunc<Config>( this, &Config::_cmdStartInit),
@@ -218,7 +218,7 @@ void Config::addApplicationNode( Node* node )
     addNode( node );
 }
 
-void Config::setApplicationNetNode( eqNet::NodePtr node )
+void Config::setApplicationNetNode( eq::net::NodePtr node )
 {
     EQASSERT( _state == STATE_STOPPED );
     EQASSERT( !_appNetNode );
@@ -234,7 +234,7 @@ void Config::setApplicationNetNode( eqNet::NodePtr node )
 // init
 //---------------------------------------------------------------------------
 bool Config::_startInit( const uint32_t initID, 
-                         vector< eqNet::NodeID::Data >& nodeIDs )
+                         vector< eq::net::NodeID::Data >& nodeIDs )
 {
     EQASSERT( _state == STATE_STOPPED );
     _currentFrame  = 0;
@@ -257,19 +257,19 @@ bool Config::_startInit( const uint32_t initID,
     return true;
 }
 
-static eqNet::NodePtr _createNode( Node* node )
+static eq::net::NodePtr _createNode( Node* node )
 {
-    eqNet::NodePtr netNode = new eqNet::Node;
+    eq::net::NodePtr netNode = new eq::net::Node;
 
     const ConnectionDescriptionVector& descriptions = 
         node->getConnectionDescriptions();
     for( ConnectionDescriptionVector::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        const eqNet::ConnectionDescription* desc = (*i).get();
+        const eq::net::ConnectionDescription* desc = (*i).get();
         
         netNode->addConnectionDescription( 
-            new eqNet::ConnectionDescription( *desc ));
+            new eq::net::ConnectionDescription( *desc ));
     }
 
     netNode->setAutoLaunch( true );
@@ -278,7 +278,7 @@ static eqNet::NodePtr _createNode( Node* node )
 
 bool Config::_connectNodes()
 {
-    RefPtr< eqNet::Node > localNode = getLocalNode();
+    RefPtr< eq::net::Node > localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
@@ -287,7 +287,7 @@ bool Config::_connectNodes()
         if( !node->isUsed( ))
             continue;
 
-        eqNet::NodePtr netNode;
+        eq::net::NodePtr netNode;
 
         if( node == _appNode )
             netNode = _appNetNode;
@@ -317,12 +317,12 @@ bool Config::_connectNodes()
 }
 
 bool Config::_initNodes( const uint32_t initID,
-                         vector< eqNet::NodeID::Data >& nodeIDs )
+                         vector< eq::net::NodeID::Data >& nodeIDs )
 {
     const string& name    = getName();
     bool          success = true;
 
-    RefPtr< eqNet::Node > localNode = getLocalNode();
+    RefPtr< eq::net::Node > localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
     eq::ServerCreateConfigPacket createConfigPacket;
@@ -338,7 +338,7 @@ bool Config::_initNodes( const uint32_t initID,
         if( !node->isUsed( ))
             continue;
         
-        eqNet::NodePtr netNode = node->getNode();
+        eq::net::NodePtr netNode = node->getNode();
 
         if( !localNode->syncConnect( netNode ))
         {
@@ -393,7 +393,7 @@ bool Config::_initNodes( const uint32_t initID,
             createConfigRequests.pop_front();
         }
 
-        eqNet::NodePtr netNode = node->getNode();
+        eq::net::NodePtr netNode = node->getNode();
 
         createNodePacket.nodeID = node->getID();
         createNodePacket.requestID = _requestHandler.registerRequest();
@@ -424,7 +424,7 @@ bool Config::_finishInit()
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node*               node    = *i;
-        eqNet::NodePtr netNode = node->getNode();
+        eq::net::NodePtr netNode = node->getNode();
         if( !node->isUsed() || !netNode->isConnected( ))
             continue;
         
@@ -442,7 +442,7 @@ bool Config::_finishInit()
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node*               node    = *i;
-        eqNet::NodePtr netNode = node->getNode();
+        eq::net::NodePtr netNode = node->getNode();
         if( !node->isUsed() || !netNode->isConnected( ))
             continue;
 
@@ -484,10 +484,10 @@ bool Config::_exitNodes()
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node*          node = *i;
-        eqNet::NodePtr netNode = node->getNode();
+        eq::net::NodePtr netNode = node->getNode();
 
         if( !node->isUsed() || !netNode.isValid() ||
-            netNode->getState() == eqNet::Node::STATE_STOPPED )
+            netNode->getState() == eq::net::Node::STATE_STOPPED )
 
             continue;
 
@@ -501,7 +501,7 @@ bool Config::_exitNodes()
 
     eq::ConfigDestroyNodePacket destroyNodePacket;
     eq::ClientExitPacket        clientExitPacket;
-    RefPtr< eqNet::Node >       localNode         = getLocalNode();
+    RefPtr< eq::net::Node >       localNode         = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
     bool success = true;
@@ -509,7 +509,7 @@ bool Config::_exitNodes()
          i != exitingNodes.end(); ++i )
     {
         Node*          node    = *i;
-        eqNet::NodePtr netNode = node->getNode();
+        eq::net::NodePtr netNode = node->getNode();
 
         if( !node->syncConfigExit( ))
         {
@@ -535,13 +535,13 @@ bool Config::_exitNodes()
         i != exitingNodes.end(); ++i )
     {
         Node*          node    = *i;
-        eqNet::NodePtr netNode = node->getNode();
+        eq::net::NodePtr netNode = node->getNode();
 
         node->setNode( 0 );
 
         if( node != _appNode )
         {
-            if( netNode->getState() == eqNet::Node::STATE_CONNECTED )
+            if( netNode->getState() == eq::net::Node::STATE_CONNECTED )
             {
                 if( !hasSlept )
                 {
@@ -549,7 +549,7 @@ bool Config::_exitNodes()
                     hasSlept = true;
                 }
 
-                if( netNode->getState() == eqNet::Node::STATE_CONNECTED )
+                if( netNode->getState() == eq::net::Node::STATE_CONNECTED )
                     getLocalNode()->disconnect( netNode );
             }
         }
@@ -583,7 +583,7 @@ void Config::_updateHead()
     _eyePosition[eq::EYE_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 ); // w
 }
 
-void Config::_prepareFrame( vector< eqNet::NodeID >& nodeIDs )
+void Config::_prepareFrame( vector< eq::net::NodeID >& nodeIDs )
 {
     EQASSERT( _state == STATE_INITIALIZED );
     ++_currentFrame;
@@ -596,7 +596,7 @@ void Config::_prepareFrame( vector< eqNet::NodeID >& nodeIDs )
         Node* node = *i;
         if( node->isUsed( ))
         {
-            RefPtr< eqNet::Node > netNode = node->getNode();
+            RefPtr< eq::net::Node > netNode = node->getNode();
             nodeIDs.push_back( netNode->getNodeID( ));
         }
     }
@@ -663,7 +663,7 @@ void Config::_flushFrames()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Config::_cmdStartInit( eqNet::Command& command )
+eq::net::CommandResult Config::_cmdStartInit( eq::net::Command& command )
 {
     const eq::ConfigStartInitPacket* packet = 
         command.getPacket<eq::ConfigStartInitPacket>();
@@ -671,7 +671,7 @@ eqNet::CommandResult Config::_cmdStartInit( eqNet::Command& command )
     EQINFO << "handle config start init " << packet << endl;
 
     _error.clear();
-    vector< eqNet::NodeID::Data > nodeIDs;
+    vector< eq::net::NodeID::Data > nodeIDs;
     reply.result   = _startInit( packet->initID, nodeIDs );
     reply.latency  = _latency;
 
@@ -679,10 +679,10 @@ eqNet::CommandResult Config::_cmdStartInit( eqNet::Command& command )
            << _error << endl;
 
     send( command.getNode(), reply, _error );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdFinishInit( eqNet::Command& command )
+eq::net::CommandResult Config::_cmdFinishInit( eq::net::Command& command )
 {
     const eq::ConfigFinishInitPacket* packet = 
         command.getPacket<eq::ConfigFinishInitPacket>();
@@ -699,10 +699,10 @@ eqNet::CommandResult Config::_cmdFinishInit( eqNet::Command& command )
         mapObject( &_headMatrix, packet->headMatrixID );
 
     send( command.getNode(), reply, _error );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdExit( eqNet::Command& command ) 
+eq::net::CommandResult Config::_cmdExit( eq::net::Command& command ) 
 {
     const eq::ConfigExitPacket* packet = 
         command.getPacket<eq::ConfigExitPacket>();
@@ -716,23 +716,23 @@ eqNet::CommandResult Config::_cmdExit( eqNet::Command& command )
 
     EQINFO << "config exit result: " << reply.result << endl;
     send( command.getNode(), reply );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdStartFrame( eqNet::Command& command ) 
+eq::net::CommandResult Config::_cmdStartFrame( eq::net::Command& command ) 
 {
     const eq::ConfigStartFramePacket* packet = 
         command.getPacket<eq::ConfigStartFramePacket>();
     eq::ConfigStartFrameReplyPacket   reply( packet );
     EQVERB << "handle config frame start " << packet << endl;
 
-    vector< eqNet::NodeID > nodeIDs;
+    vector< eq::net::NodeID > nodeIDs;
     _prepareFrame( nodeIDs );
 
     reply.frameNumber = _currentFrame;
     reply.nNodeIDs    = nodeIDs.size();
 
-    for( vector< eqNet::NodeID >::iterator i = nodeIDs.begin(); 
+    for( vector< eq::net::NodeID >::iterator i = nodeIDs.begin(); 
          i != nodeIDs.end(); ++i )
 
          (*i).convertToNetwork();
@@ -740,35 +740,35 @@ eqNet::CommandResult Config::_cmdStartFrame( eqNet::Command& command )
     command.getNode()->send( reply, nodeIDs );
 
     _startFrame( packet->frameID );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdFinishAllFrames( eqNet::Command& command ) 
+eq::net::CommandResult Config::_cmdFinishAllFrames( eq::net::Command& command ) 
 {
     const eq::ConfigFinishAllFramesPacket* packet = 
         command.getPacket<eq::ConfigFinishAllFramesPacket>();
     EQVERB << "handle config all frames finish " << packet << endl;
 
     _flushFrames();
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdCreateReply( eqNet::Command& command ) 
+eq::net::CommandResult Config::_cmdCreateReply( eq::net::Command& command ) 
 {
     const eq::ConfigCreateReplyPacket* packet = 
         command.getPacket<eq::ConfigCreateReplyPacket>();
 
     _requestHandler.serveRequest( packet->requestID );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdCreateNodeReply( eqNet::Command& command ) 
+eq::net::CommandResult Config::_cmdCreateNodeReply( eq::net::Command& command ) 
 {
     const eq::ConfigCreateNodeReplyPacket* packet = 
         command.getPacket<eq::ConfigCreateNodeReplyPacket>();
 
     _requestHandler.serveRequest( packet->requestID );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
 

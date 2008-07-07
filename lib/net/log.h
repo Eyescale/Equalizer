@@ -7,7 +7,9 @@
 
 #include <eq/base/log.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     enum LogTopics
     {
@@ -17,5 +19,6 @@ namespace eqNet
         LOG_NETPERF = 0x80,               // 128
         LOG_CUSTOM  = 0x100               // 256
     };
+}
 }
 #endif // EQNET_LOG_H

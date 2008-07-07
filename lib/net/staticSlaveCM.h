@@ -11,7 +11,9 @@
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
 #include <eq/base/monitor.h>     // member
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Node;
     class ObjectDataIStream;
@@ -70,6 +72,7 @@ namespace eqNet
         CommandResult _cmdInstanceData( Command& command );
         CommandResult _cmdInstance( Command& command );
     };
+}
 }
 
 #endif // EQNET_STATICSLAVECM_H

@@ -12,29 +12,29 @@
 namespace eq
 {
     /**
-     * Augments an eqNet::CommandQueue to pump system-specific events where
+     * Augments an eq::net::CommandQueue to pump system-specific events where
      * required by the underlying window/operating system.
      */
-    class CommandQueue : public eqNet::CommandQueue
+    class CommandQueue : public eq::net::CommandQueue
     {
     public:
         CommandQueue();
         virtual ~CommandQueue();
 
-        /** @sa eqNet::CommandQueue::push(). */
-        virtual void push( eqNet::Command& packet );
+        /** @sa eq::net::CommandQueue::push(). */
+        virtual void push( eq::net::Command& packet );
 
-        /** @sa eqNet::CommandQueue::pushFront(). */
-        virtual void pushFront( eqNet::Command& packet );
+        /** @sa eq::net::CommandQueue::pushFront(). */
+        virtual void pushFront( eq::net::Command& packet );
 
-        /** @sa eqNet::CommandQueue::wakeup(). */
+        /** @sa eq::net::CommandQueue::wakeup(). */
         virtual void wakeup();
 
-        /** @sa eqNet::CommandQueue::pop(). */
-        virtual eqNet::Command* pop();
+        /** @sa eq::net::CommandQueue::pop(). */
+        virtual eq::net::Command* pop();
 
-        /** @sa eqNet::CommandQueue::tryPop(). */
-        virtual eqNet::Command* tryPop();
+        /** @sa eq::net::CommandQueue::tryPop(). */
+        virtual eq::net::Command* tryPop();
 
         void         setWindowSystem( const WindowSystem windowSystem );
         WindowSystem getWindowSystem() const { return _windowSystem; }

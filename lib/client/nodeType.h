@@ -12,7 +12,7 @@ namespace eq
     /** Node types to identify connecting nodes. */
     enum NodeType
     {
-        TYPE_EQ_SERVER = eqNet::TYPE_EQNET_USER  //!< A server node
+        TYPE_EQ_SERVER = eq::net::TYPE_EQNET_USER  //!< A server node
     };
 }
 

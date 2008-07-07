@@ -13,7 +13,9 @@
 
 #include <eq/base/thread.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     /**
      * A uni-directional pipe connection.
@@ -57,6 +59,7 @@ namespace eqNet
         mutable HANDLE       _dataPending;
 #endif
     };
+}
 }
 
 #endif //EQNET_PIPE_CONNECTION_H

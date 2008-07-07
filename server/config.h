@@ -21,7 +21,7 @@ namespace eqs
     /**
      * The config.
      */
-    class Config : public eqNet::Session
+    class Config : public eq::net::Session
     {
     public:
         /** 
@@ -43,7 +43,7 @@ namespace eqs
 
         bool    isRunning() const { return ( _state == STATE_INITIALIZED ); }
 
-        eqNet::CommandQueue* getServerThreadQueue()
+        eq::net::CommandQueue* getServerThreadQueue()
             { return _server->getServerThreadQueue(); }
 
         /** 
@@ -137,7 +137,7 @@ namespace eqs
          * 
          * @param node the application node.
          */
-        void setApplicationNetNode( eqNet::NodePtr node );
+        void setApplicationNetNode( eq::net::NodePtr node );
 
         /** 
          * Set the name of the render client executable. 
@@ -191,8 +191,8 @@ namespace eqs
         //@}
 
     protected:
-        /** @sa eqNet::Session::setLocalNode. */
-        virtual void setLocalNode( eqNet::NodePtr node );
+        /** @sa eq::net::Session::setLocalNode. */
+        virtual void setLocalNode( eq::net::NodePtr node );
 
     private:
         /** float attributes. */
@@ -220,7 +220,7 @@ namespace eqs
         Node*       _appNode;
 
         /** The network node running the application thread. */
-        eqNet::NodePtr _appNetNode;
+        eq::net::NodePtr _appNetNode;
 
         /** The name of the render client executable. */
         std::string _renderClient;
@@ -258,29 +258,29 @@ namespace eqs
         void _construct();
 
         bool _startInit( const uint32_t initID, 
-                         std::vector< eqNet::NodeID::Data >& nodeIDs );
+                         std::vector< eq::net::NodeID::Data >& nodeIDs );
         bool   _connectNodes();
         bool   _initNodes( const uint32_t initID, 
-                           std::vector< eqNet::NodeID::Data >& nodeIDs );
+                           std::vector< eq::net::NodeID::Data >& nodeIDs );
         bool _finishInit();
 
         bool _exitNodes();
 
         void _updateHead();
 
-        void _prepareFrame( std::vector< eqNet::NodeID >& nodeIDs );
+        void _prepareFrame( std::vector< eq::net::NodeID >& nodeIDs );
         void _startFrame( const uint32_t frameID );
         void _flushFrames();
         //*}
 
         /** The command functions. */
-        eqNet::CommandResult _cmdStartInit( eqNet::Command& command );
-        eqNet::CommandResult _cmdFinishInit( eqNet::Command& command );
-        eqNet::CommandResult _cmdExit( eqNet::Command& command );
-        eqNet::CommandResult _cmdStartFrame( eqNet::Command& command );
-        eqNet::CommandResult _cmdFinishAllFrames( eqNet::Command& command ); 
-        eqNet::CommandResult _cmdCreateReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdCreateNodeReply( eqNet::Command& command );
+        eq::net::CommandResult _cmdStartInit( eq::net::Command& command );
+        eq::net::CommandResult _cmdFinishInit( eq::net::Command& command );
+        eq::net::CommandResult _cmdExit( eq::net::Command& command );
+        eq::net::CommandResult _cmdStartFrame( eq::net::Command& command );
+        eq::net::CommandResult _cmdFinishAllFrames( eq::net::Command& command ); 
+        eq::net::CommandResult _cmdCreateReply( eq::net::Command& command );
+        eq::net::CommandResult _cmdCreateNodeReply( eq::net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Config* config );

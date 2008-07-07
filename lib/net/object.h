@@ -11,7 +11,9 @@
 #include <eq/net/types.h>         // for NodeVector
 #include <eq/base/nonCopyable.h>  // base class
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class DataIStream;
     class DataOStream;
@@ -365,6 +367,7 @@ namespace eqNet
         os << " id " << ov.id << " v" << ov.version;
         return os;
     }
+}
 }
 
 #endif // EQNET_OBJECT_H

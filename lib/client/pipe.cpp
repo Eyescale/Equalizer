@@ -25,7 +25,7 @@
 
 using namespace eq::base;
 using namespace std;
-using eqNet::CommandFunc;
+using eq::net::CommandFunc;
 
 namespace eq
 {
@@ -62,11 +62,11 @@ Pipe::~Pipe()
 }
 
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
-                            eqNet::Session* session )
+                            eq::net::Session* session )
 {
-    eqNet::Object::attachToSession( id, instanceID, session );
+    eq::net::Object::attachToSession( id, instanceID, session );
     
-    eqNet::CommandQueue* queue = getPipeThreadQueue();
+    eq::net::CommandQueue* queue = getPipeThreadQueue();
 
     registerCommand( CMD_PIPE_CONFIG_INIT, 
                      CommandFunc<Pipe>( this, &Pipe::_cmdConfigInit ), queue );
@@ -310,14 +310,14 @@ void* Pipe::_runThread()
 
     while( _thread->isRunning( ))
     {
-        eqNet::Command* command = _pipeThreadQueue->pop();
+        eq::net::Command* command = _pipeThreadQueue->pop();
         switch( config->invokeCommand( *command ))
         {
-            case eqNet::COMMAND_HANDLED:
-            case eqNet::COMMAND_DISCARD:
+            case eq::net::COMMAND_HANDLED:
+            case eq::net::COMMAND_DISCARD:
                 break;
 
-            case eqNet::COMMAND_ERROR:
+            case eq::net::COMMAND_ERROR:
                 EQERROR << "Error handling command packet" << endl;
                 abort();
             default:
@@ -331,7 +331,7 @@ void* Pipe::_runThread()
     return EXIT_SUCCESS;
 }
 
-eqNet::CommandQueue* Pipe::getPipeThreadQueue()
+eq::net::CommandQueue* Pipe::getPipeThreadQueue()
 {
     if( !_thread )
         return _node->getNodeThreadQueue();
@@ -339,13 +339,13 @@ eqNet::CommandQueue* Pipe::getPipeThreadQueue()
     return _pipeThreadQueue;
 }
 
-Frame* Pipe::getFrame( const eqNet::ObjectVersion& frameVersion, const Eye eye )
+Frame* Pipe::getFrame( const eq::net::ObjectVersion& frameVersion, const Eye eye )
 {
     Frame* frame = _frames[ frameVersion.id ];
 
     if( !frame )
     {
-        eqNet::Session* session = getSession();
+        eq::net::Session* session = getSession();
         frame = new Frame();
 
         const bool mapped = session->mapObject( frame, frameVersion.id );
@@ -355,7 +355,7 @@ Frame* Pipe::getFrame( const eqNet::ObjectVersion& frameVersion, const Eye eye )
     
     frame->sync( frameVersion.version );
 
-    const eqNet::ObjectVersion& data = frame->getDataVersion( eye );
+    const eq::net::ObjectVersion& data = frame->getDataVersion( eye );
     EQASSERT( data.id != EQ_ID_INVALID );
     FrameData* frameData = getNode()->getFrameData( data ); 
     EQASSERT( frameData );
@@ -366,9 +366,9 @@ Frame* Pipe::getFrame( const eqNet::ObjectVersion& frameVersion, const Eye eye )
 
 void Pipe::_flushFrames()
 {
-    eqNet::Session* session = getSession();
+    eq::net::Session* session = getSession();
 
-    for( eqNet::IDHash< Frame* >::const_iterator i = _frames.begin(); 
+    for( eq::net::IDHash< Frame* >::const_iterator i = _frames.begin(); 
          i != _frames.end(); ++ i )
     {
         Frame* frame = i->second;
@@ -804,7 +804,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Pipe::_cmdCreateWindow(  eqNet::Command& command  )
+eq::net::CommandResult Pipe::_cmdCreateWindow(  eq::net::Command& command  )
 {
     const PipeCreateWindowPacket* packet = 
         command.getPacket<PipeCreateWindowPacket>();
@@ -817,10 +817,10 @@ eqNet::CommandResult Pipe::_cmdCreateWindow(  eqNet::Command& command  )
     if( window != _windows[0] )
         window->setSharedContextWindow( _windows[0] );
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
+eq::net::CommandResult Pipe::_cmdDestroyWindow(  eq::net::Command& command  )
 {
     const PipeDestroyWindowPacket* packet =
         command.getPacket<PipeDestroyWindowPacket>();
@@ -833,10 +833,10 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
     config->detachObject( window );
 
     delete window;
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
+eq::net::CommandResult Pipe::_cmdConfigInit( eq::net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
@@ -864,11 +864,11 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
     reply.result  = configInit( packet->initID );
     EQLOG( LOG_TASKS ) << "TASK pipe config init reply " << &reply << endl;
 
-    eqNet::NodePtr node = command.getNode();
+    eq::net::NodePtr node = command.getNode();
     if( !reply.result )
     {
         send( node, reply, _error );
-        return eqNet::COMMAND_HANDLED;
+        return eq::net::COMMAND_HANDLED;
     }
 
     switch( _windowSystem )
@@ -881,7 +881,7 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
                         << endl;
                 reply.result = false;
                 send( node, reply, _error );
-                return eqNet::COMMAND_HANDLED;
+                return eq::net::COMMAND_HANDLED;
             }
 
             // TODO: gather and send back display information
@@ -895,7 +895,7 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
                 EQERROR << "configInit() did not set a display id" << endl;
                 reply.result = false;
                 send( node, reply, _error );
-                return eqNet::COMMAND_HANDLED;
+                return eq::net::COMMAND_HANDLED;
             }
                 
             // TODO: gather and send back display information
@@ -909,7 +909,7 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
                 EQERROR << "configInit() did not setup pixel viewport" << endl;
                 reply.result = false;
                 send( node, reply, _error );
-                return eqNet::COMMAND_HANDLED;
+                return eq::net::COMMAND_HANDLED;
             }
             break;
 #endif
@@ -920,10 +920,10 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
 
     reply.pvp = _pvp;
     send( node, reply );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdConfigExit( eqNet::Command& command )
+eq::net::CommandResult Pipe::_cmdConfigExit( eq::net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
@@ -938,19 +938,19 @@ eqNet::CommandResult Pipe::_cmdConfigExit( eqNet::Command& command )
     _flushFrames();
 
     send( command.getNode(), reply );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdFrameStartClock( eqNet::Command& command )
+eq::net::CommandResult Pipe::_cmdFrameStartClock( eq::net::Command& command )
 {
 	EQVERB << "start frame clock" << endl;
     _frameTimeMutex.set();
     _frameTimes.push_back( getConfig()->getTime( ));
     _frameTimeMutex.unset();
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdFrameStart( eqNet::Command& command )
+eq::net::CommandResult Pipe::_cmdFrameStart( eq::net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
@@ -970,10 +970,10 @@ eqNet::CommandResult Pipe::_cmdFrameStart( eqNet::Command& command )
     _frameTimeMutex.unset();
 
     frameStart( packet->frameID, frameNumber );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdFrameFinish( eqNet::Command& command )
+eq::net::CommandResult Pipe::_cmdFrameFinish( eq::net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
@@ -1004,10 +1004,10 @@ eqNet::CommandResult Pipe::_cmdFrameFinish( eqNet::Command& command )
         releaseFrame( frameNumber );
     }
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdFrameDrawFinish( eqNet::Command& command )
+eq::net::CommandResult Pipe::_cmdFrameDrawFinish( eq::net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     PipeFrameDrawFinishPacket* packet = 
@@ -1016,10 +1016,10 @@ eqNet::CommandResult Pipe::_cmdFrameDrawFinish( eqNet::Command& command )
                        << endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdStopThread( eqNet::Command& command )
+eq::net::CommandResult Pipe::_cmdStopThread( eq::net::Command& command )
 {
     EQASSERT( _thread );
 
@@ -1029,6 +1029,6 @@ eqNet::CommandResult Pipe::_cmdStopThread( eqNet::Command& command )
     EQINFO << "Leaving pipe thread" << endl;
     _thread->exit( EXIT_SUCCESS );
     EQUNREACHABLE;
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 }

@@ -17,7 +17,7 @@ namespace eq
     /** 
      * The client represents a network node in the cluster.
      */
-    class EQ_EXPORT Client : public eqNet::Node
+    class EQ_EXPORT Client : public eq::net::Node
     {
     public:
         /** 
@@ -53,9 +53,9 @@ namespace eq
          */
         void processCommand();
 
-        /** @sa eqNet::Node::listen() */
+        /** @sa eq::net::Node::listen() */
         virtual bool listen();
-        /** @sa eqNet::Node::stopListening() */
+        /** @sa eq::net::Node::stopListening() */
         virtual bool stopListening();
 
         /** 
@@ -68,9 +68,9 @@ namespace eq
         CommandQueue* getNodeThreadQueue() { return _nodeThreadQueue; }
 
     protected:
-        /** @sa eqNet::Node::clientLoop */
+        /** @sa eq::net::Node::clientLoop */
         virtual bool clientLoop();
-        /** @sa eqNet::Node::exitClient(). */
+        /** @sa eq::net::Node::exitClient(). */
         virtual bool exitClient();
 
         /** @name Configuration. */
@@ -91,17 +91,17 @@ namespace eq
         
         bool _running;
 
-        /** @sa eqNet::Node::createNode */
-        virtual eqNet::NodePtr createNode( const uint32_t type );
+        /** @sa eq::net::Node::createNode */
+        virtual eq::net::NodePtr createNode( const uint32_t type );
         
-        /** @sa eqNet::Node::dispatchCommand */
-        virtual bool dispatchCommand( eqNet::Command& command );
+        /** @sa eq::net::Node::dispatchCommand */
+        virtual bool dispatchCommand( eq::net::Command& command );
 
-        /** @sa eqNet::Node::invokeCommand */
-        virtual eqNet::CommandResult invokeCommand( eqNet::Command& command );
+        /** @sa eq::net::Node::invokeCommand */
+        virtual eq::net::CommandResult invokeCommand( eq::net::Command& command );
 
         /** The command functions. */
-        eqNet::CommandResult _cmdExit( eqNet::Command& command );
+        eq::net::CommandResult _cmdExit( eq::net::Command& command );
     };
 }
 

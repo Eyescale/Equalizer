@@ -11,7 +11,7 @@
 
 namespace eqPly
 {
-    class FrameData : public eqNet::Object
+    class FrameData : public eq::net::Object
     {
     public:
 

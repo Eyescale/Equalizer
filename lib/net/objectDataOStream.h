@@ -8,7 +8,9 @@
 #include <eq/net/dataOStream.h>   // base class
 #include <eq/net/object.h>        // used in inline constructor
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Object;
 
@@ -37,5 +39,6 @@ namespace eqNet
         uint32_t      _version;
         uint32_t      _instanceID;
     };
+}
 }
 #endif //EQNET_OBJECTDATAOSTREAM_H

@@ -35,13 +35,13 @@ InitData::~InitData()
     setFrameDataID( EQ_ID_INVALID );
 }
 
-void InitData::getInstanceData( eqNet::DataOStream& os )
+void InitData::getInstanceData( eq::net::DataOStream& os )
 {
     os << _frameDataID << _windowSystem << _precision << _brightness << _alpha
        << _filename;
 }
 
-void InitData::applyInstanceData( eqNet::DataIStream& is )
+void InitData::applyInstanceData( eq::net::DataIStream& is )
 {
     is >> _frameDataID >> _windowSystem >> _precision >> _brightness >> _alpha
        >> _filename;

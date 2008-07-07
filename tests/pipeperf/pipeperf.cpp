@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-using namespace eqNet;
+using namespace eq::net;
 using namespace eq::base;
 using namespace std;
 
@@ -51,7 +51,7 @@ private:
 
 int main( int argc, char **argv )
 {
-    eqNet::init( argc, argv );
+    eq::net::init( argc, argv );
 
     RefPtr<Connection>            connection = 
         Connection::create( CONNECTIONTYPE_PIPE );

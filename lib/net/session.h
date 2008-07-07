@@ -1,4 +1,4 @@
-\
+
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -16,7 +16,9 @@
 #include <eq/base/idPool.h>
 #include <eq/base/requestHandler.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     /**
      * A logical abstraction for multiple Node s.
@@ -326,7 +328,9 @@ namespace eqNet
         CHECK_THREAD_DECLARE( _receiverThread );
         CHECK_THREAD_DECLARE( _commandThread );
     };
+
     std::ostream& operator << ( std::ostream& os, Session* session );
+}
 }
 #endif // EQNET_SESSION_H
 

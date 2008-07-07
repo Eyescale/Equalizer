@@ -1,4 +1,4 @@
-
+!
 /* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -10,9 +10,13 @@
 #include <eq/base/log.h>
 #include <eq/base/thread.h>
 
-using namespace eqNet;
 using namespace eq::base;
 using namespace std;
+
+namespace eq
+{
+namespace net
+{
 
 PipeConnection::PipeConnection()
         : _readHandle( 0 ),
@@ -151,4 +155,6 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes ) const
 	if( ret==0 ) 
 		return -1;
 	return bytesWritten;
+}
+}
 }

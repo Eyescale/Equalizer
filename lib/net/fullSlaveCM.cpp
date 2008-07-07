@@ -18,7 +18,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 FullSlaveCM::FullSlaveCM( Object* object, uint32_t masterInstanceID )
         : StaticSlaveCM( object )
@@ -172,7 +174,7 @@ CommandResult FullSlaveCM::_cmdDeltaData( Command& command )
         _currentDeltaStream = new ObjectDeltaDataIStream;
 
     _currentDeltaStream->addDataPacket( command );
-    return eqNet::COMMAND_HANDLED;
+    return COMMAND_HANDLED;
 }
 
 CommandResult FullSlaveCM::_cmdDelta( Command& command )
@@ -193,6 +195,7 @@ CommandResult FullSlaveCM::_cmdDelta( Command& command )
     _queuedVersions.push( _currentDeltaStream );
     _currentDeltaStream = 0;
 
-    return eqNet::COMMAND_HANDLED;
+    return COMMAND_HANDLED;
+}
 }
 }

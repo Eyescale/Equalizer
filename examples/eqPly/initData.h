@@ -12,7 +12,7 @@
 
 namespace eqPly
 {
-    class InitData : public eqNet::Object
+    class InitData : public eq::net::Object
     {
     public:
         InitData();
@@ -29,8 +29,8 @@ namespace eqPly
         bool               useInvertedFaces() const { return _invFaces; }
 
     protected:
-        virtual void getInstanceData( eqNet::DataOStream& os );
-        virtual void applyInstanceData( eqNet::DataIStream& is );
+        virtual void getInstanceData( eq::net::DataOStream& os );
+        virtual void applyInstanceData( eq::net::DataIStream& is );
 
         void setWindowSystem( const eq::WindowSystem windowSystem )
             { _windowSystem = windowSystem; }

@@ -11,7 +11,9 @@
 #include <eq/net/object.h>       // nested enum (Object::Version)
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Node;
     class ObjectDataIStream;
@@ -88,6 +90,7 @@ namespace eqNet
 
         CHECK_THREAD_DECLARE( _thread );
     };
+}
 }
 
 #endif // EQNET_FULLSLAVECM_H

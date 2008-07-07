@@ -19,7 +19,7 @@ namespace eqs
     /**
      * The window.
      */
-    class EQS_EXPORT Window : public eqNet::Object
+    class EQS_EXPORT Window : public eq::net::Object
     {
     public:
         enum State
@@ -74,9 +74,9 @@ namespace eqs
         const eq::Window::DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
 
-        eqNet::CommandQueue* getServerThreadQueue()
+        eq::net::CommandQueue* getServerThreadQueue()
             { return _pipe->getServerThreadQueue(); }
-        eqNet::CommandQueue* getCommandThreadQueue()
+        eq::net::CommandQueue* getCommandThreadQueue()
             { return _pipe->getCommandThreadQueue(); }
 
         /** @return the state of this window. */
@@ -143,14 +143,14 @@ namespace eqs
          *
          * @return the created swap barrier.
          */
-        eqNet::Barrier* newSwapBarrier();
+        eq::net::Barrier* newSwapBarrier();
 
         /** 
          * Join a swap barrier for the next update.
          * 
          * @param barrier the swap barrier.
          */
-        void joinSwapBarrier( eqNet::Barrier* barrier );
+        void joinSwapBarrier( eq::net::Barrier* barrier );
 
         /** The last drawing compound for this entity. */
         void setLastDrawCompound( const Compound* compound )
@@ -235,10 +235,10 @@ namespace eqs
         /** Registers request packets waiting for a return value. */
         eq::base::RequestHandler _requestHandler;
 
-        /** @sa eqNet::Object::attachToSession. */
+        /** @sa eq::net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
-                                      eqNet::Session* session );
+                                      eq::net::Session* session );
     private:
         eq::Window::DrawableConfig _drawableConfig;
 
@@ -277,9 +277,9 @@ namespace eqs
         bool _fixedPVP;
 
         /** The list of master swap barriers for the current frame. */
-        std::vector<eqNet::Barrier*> _masterSwapBarriers;
+        std::vector<eq::net::Barrier*> _masterSwapBarriers;
         /** The list of slave swap barriers for the current frame. */
-        std::vector<eqNet::Barrier*> _swapBarriers;
+        std::vector<eq::net::Barrier*> _swapBarriers;
         
         /** The last draw compound for this entity */
         const Compound* _lastDrawCompound;
@@ -290,9 +290,9 @@ namespace eqs
         /** Clears all swap barriers of the window. */
         void _resetSwapBarriers();
 
-        void _send( eqNet::ObjectPacket& packet ) 
+        void _send( eq::net::ObjectPacket& packet ) 
             { packet.objectID = getID(); getNode()->send( packet ); }
-        void _send( eqNet::ObjectPacket& packet, const std::string& string ) 
+        void _send( eq::net::ObjectPacket& packet, const std::string& string ) 
             { packet.objectID = getID(); getNode()->send( packet, string ); }
 
         void _sendConfigInit( const uint32_t initID );
@@ -301,9 +301,9 @@ namespace eqs
         void _updateSwap( const uint32_t frameNumber );
 
         /* command handler functions. */
-        eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command ); 
-        eqNet::CommandResult _cmdConfigExitReply( eqNet::Command& command ); 
-        eqNet::CommandResult _cmdSetPixelViewport( eqNet::Command& command );
+        eq::net::CommandResult _cmdConfigInitReply( eq::net::Command& command ); 
+        eq::net::CommandResult _cmdConfigExitReply( eq::net::Command& command ); 
+        eq::net::CommandResult _cmdSetPixelViewport( eq::net::Command& command );
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Window*);

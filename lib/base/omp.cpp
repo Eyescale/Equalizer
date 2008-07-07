@@ -32,5 +32,6 @@ static int _setupNThreads()
     return 1;
 #endif
 }
+
 }
 }

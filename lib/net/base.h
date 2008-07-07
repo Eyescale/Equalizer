@@ -11,7 +11,9 @@
 
 #include <vector>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Connection;
     class Command;
@@ -97,6 +99,7 @@ namespace eqNet
         _registerCommand( command, static_cast< CommandFunc<Base> >( func ),
                           destinationQueue );
     }
+}
 }
 
 #endif // EQNET_BASE_H

@@ -21,7 +21,9 @@
 #  include <uuid/uuid.h>
 #endif
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 
     /**
@@ -152,10 +154,10 @@ namespace eqNet
     private:
         friend std::ostream& operator << ( std::ostream& os, const NodeID& id );
 #ifdef WIN32_VC
-        friend size_t stde::hash_compare< eqNet::NodeID >::operator() 
-            ( const eqNet::NodeID& key ) const;
+        friend size_t stde::hash_compare< eq::net::NodeID >::operator() 
+            ( const eq::net::NodeID& key ) const;
 #else
-        friend struct stde::hash< const eqNet::NodeID >;
+        friend struct stde::hash< const eq::net::NodeID >;
 #endif
     };
 
@@ -180,19 +182,20 @@ namespace eqNet
         return os;
     }
 }
+}
 
 #ifdef WIN32_VC
 template<>
-inline size_t stde::hash_compare< eqNet::NodeID >::operator() 
-    ( const eqNet::NodeID& key ) const
+inline size_t stde::hash_compare< eq::net::NodeID >::operator() 
+    ( const eq::net::NodeID& key ) const
 {
     return key._id.Data1;
 }
 
 template<>
-inline size_t stde::hash_value( const eqNet::NodeID& key )
+inline size_t stde::hash_value( const eq::net::NodeID& key )
 {
-    stde::hash_compare< eqNet::NodeID > hash;
+    stde::hash_compare< eq::net::NodeID > hash;
     return hash( key );
 }
 
@@ -201,9 +204,9 @@ inline size_t stde::hash_value( const eqNet::NodeID& key )
 namespace __gnu_cxx
 {
     template<> 
-    struct hash< const eqNet::NodeID >
+    struct hash< const eq::net::NodeID >
     {
-        size_t operator()( const eqNet::NodeID& key ) const
+        size_t operator()( const eq::net::NodeID& key ) const
         {
             return key._id.Data1;
         }
@@ -219,9 +222,9 @@ namespace std
 #  endif
 {
     template<> 
-    struct hash< const eqNet::NodeID >
+    struct hash< const eq::net::NodeID >
     {
-        size_t operator()( const eqNet::NodeID& key ) const
+        size_t operator()( const eq::net::NodeID& key ) const
         {
             return (size_t)(*key._id);
         }

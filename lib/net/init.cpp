@@ -17,7 +17,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 
 EQ_EXPORT bool init( const int argc, char** argv )
@@ -65,5 +67,7 @@ EQ_EXPORT bool exit()
     }
 #endif
     return eq::base::exit();
+}
+
 }
 }

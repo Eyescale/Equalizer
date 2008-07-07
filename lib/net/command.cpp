@@ -7,9 +7,13 @@
 #include "node.h"
 #include "packets.h"
 
-using namespace eqNet;
 using namespace eq::base;
 using namespace std;
+
+namespace eq
+{
+namespace net
+{
 
 Command::Command( const Command& from )
         : _node( from._node )
@@ -77,8 +81,7 @@ void Command::release()
     _packetAllocSize = 0;
 }        
 
-EQ_EXPORT std::ostream& eqNet::operator << ( std::ostream& os, 
-                                             const Command& command )
+EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
 {
     if( command.isValid( ))
     {
@@ -104,4 +107,6 @@ EQ_EXPORT std::ostream& eqNet::operator << ( std::ostream& os,
         os << "command< empty >";
     
     return os;
+}
+}
 }

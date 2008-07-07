@@ -16,7 +16,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 StaticSlaveCM::StaticSlaveCM( Object* object )
         : _object( object )
@@ -51,7 +53,7 @@ CommandResult StaticSlaveCM::_cmdInstanceData( Command& command )
 {
     EQASSERT( _currentIStream );
     _currentIStream->addDataPacket( command );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
 CommandResult StaticSlaveCM::_cmdInstance( Command& command )
@@ -65,7 +67,7 @@ CommandResult StaticSlaveCM::_cmdInstance( Command& command )
 
     EQLOG( LOG_OBJECTS ) << "id " << _object->getID() << "." 
                          << _object->getInstanceID() << " ready" << endl;
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
 void StaticSlaveCM::applyMapData()
@@ -82,4 +84,5 @@ void StaticSlaveCM::applyMapData()
                          << "." << _object->getInstanceID() << " ready" << endl;
 }
 
+}
 }

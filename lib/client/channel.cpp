@@ -21,7 +21,7 @@
 
 using namespace eq::base;
 using namespace std;
-using eqNet::CommandFunc;
+using eq::net::CommandFunc;
 
 namespace eq
 {
@@ -37,7 +37,7 @@ Channel::Channel( Window* parent )
         , _frustum( vmml::Frustumf::DEFAULT )
         , _ortho( vmml::Frustumf::DEFAULT )
 {
-    eqNet::CommandQueue* queue = parent->getPipeThreadQueue();
+    eq::net::CommandQueue* queue = parent->getPipeThreadQueue();
 
     registerCommand( CMD_CHANNEL_CONFIG_INIT, 
                      CommandFunc<Channel>( this, &Channel::_cmdConfigInit ),
@@ -144,8 +144,8 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
     packet.nearPlane = nearPlane;
     packet.farPlane  = farPlane;
     
-    RefPtr< eqNet::Node > node = 
-        RefPtr_static_cast< Server, eqNet::Node >( getServer( ));
+    RefPtr< eq::net::Node > node = 
+        RefPtr_static_cast< Server, eq::net::Node >( getServer( ));
     send( node, packet );
 }
 
@@ -625,7 +625,7 @@ void Channel::outlineViewport()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Channel::_cmdConfigInit( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdConfigInit( eq::net::Command& command )
 {
     const ChannelConfigInitPacket* packet = 
         command.getPacket<ChannelConfigInitPacket>();
@@ -650,10 +650,10 @@ eqNet::CommandResult Channel::_cmdConfigInit( eqNet::Command& command )
 
     EQLOG( LOG_TASKS ) << "TASK channel config init reply " << &reply << endl;
     send( command.getNode(), reply, _error );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdConfigExit( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdConfigExit( eq::net::Command& command )
 {
     const ChannelConfigExitPacket* packet =
         command.getPacket<ChannelConfigExitPacket>();
@@ -664,10 +664,10 @@ eqNet::CommandResult Channel::_cmdConfigExit( eqNet::Command& command )
     reply.result = configExit();
 
     send( command.getNode(), reply );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdFrameStart( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdFrameStart( eq::net::Command& command )
 {
     const ChannelFrameStartPacket* packet = 
         command.getPacket<ChannelFrameStartPacket>();
@@ -676,10 +676,10 @@ eqNet::CommandResult Channel::_cmdFrameStart( eqNet::Command& command )
     //_grabFrame( packet->frameNumber ); single-threaded
     frameStart( packet->frameID, packet->frameNumber );
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdFrameFinish( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdFrameFinish( eq::net::Command& command )
 {
     const ChannelFrameFinishPacket* packet =
         command.getPacket<ChannelFrameFinishPacket>();
@@ -693,10 +693,10 @@ eqNet::CommandResult Channel::_cmdFrameFinish( eqNet::Command& command )
     command.getNode()->send( reply, _statistics );
 
     _statistics.clear();
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdFrameClear( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdFrameClear( eq::net::Command& command )
 {
     ChannelFrameClearPacket* packet = 
         command.getPacket<ChannelFrameClearPacket>();
@@ -708,10 +708,10 @@ eqNet::CommandResult Channel::_cmdFrameClear( eqNet::Command& command )
     frameClear( packet->context.frameID );
     _context = NULL;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdFrameDraw( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdFrameDraw( eq::net::Command& command )
 {
     ChannelFrameDrawPacket* packet = 
         command.getPacket<ChannelFrameDrawPacket>();
@@ -723,10 +723,10 @@ eqNet::CommandResult Channel::_cmdFrameDraw( eqNet::Command& command )
     frameDraw( packet->context.frameID );
     _context = NULL;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdFrameDrawFinish( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdFrameDrawFinish( eq::net::Command& command )
 {
     ChannelFrameDrawFinishPacket* packet = 
         command.getPacket< ChannelFrameDrawFinishPacket >();
@@ -736,10 +736,10 @@ eqNet::CommandResult Channel::_cmdFrameDrawFinish( eqNet::Command& command )
     ChannelStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
     frameDrawFinish( packet->frameID, packet->frameNumber );
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdFrameAssemble( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdFrameAssemble( eq::net::Command& command )
 {
     ChannelFrameAssemblePacket* packet = 
         command.getPacket<ChannelFrameAssemblePacket>();
@@ -761,10 +761,10 @@ eqNet::CommandResult Channel::_cmdFrameAssemble( eqNet::Command& command )
     _inputFrames.clear();
     _context = NULL;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdFrameReadback( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdFrameReadback( eq::net::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
         command.getPacket<ChannelFrameReadbackPacket>();
@@ -792,10 +792,10 @@ eqNet::CommandResult Channel::_cmdFrameReadback( eqNet::Command& command )
 
     _outputFrames.clear();
     _context = NULL;
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdFrameTransmit( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdFrameTransmit( eq::net::Command& command )
 {
     const ChannelFrameTransmitPacket* packet = 
         command.getPacket<ChannelFrameTransmitPacket>();
@@ -804,20 +804,20 @@ eqNet::CommandResult Channel::_cmdFrameTransmit( eqNet::Command& command )
 
     ChannelStatistics event( Statistic::CHANNEL_TRANSMIT, this );
 
-    eqNet::Session*     session   = getSession();
-    eqNet::NodePtr localNode = session->getLocalNode();
-    eqNet::NodePtr server    = session->getServer();
+    eq::net::Session*     session   = getSession();
+    eq::net::NodePtr localNode = session->getLocalNode();
+    eq::net::NodePtr server    = session->getServer();
     Pipe*               pipe      = getPipe();
     Frame*              frame     = pipe->getFrame( packet->frame, 
                                                     packet->context.eye );
 
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {
-        eqNet::NodeID nodeID = packet->nodes[i];
+        eq::net::NodeID nodeID = packet->nodes[i];
         nodeID.convertToHost();
 
-        eqNet::NodePtr node   = command.getNode();
-        eqNet::NodePtr toNode = localNode->connect( nodeID, node );
+        eq::net::NodePtr node   = command.getNode();
+        eq::net::NodePtr toNode = localNode->connect( nodeID, node );
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
 
@@ -825,6 +825,6 @@ eqNet::CommandResult Channel::_cmdFrameTransmit( eqNet::Command& command )
         frame->transmit( toNode );
     }
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 }

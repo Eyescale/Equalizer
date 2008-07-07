@@ -9,7 +9,7 @@
 
 namespace eqs
 {
-    class ConnectionDescription : public eqNet::ConnectionDescription
+    class ConnectionDescription : public eq::net::ConnectionDescription
     {
     public:
         ConnectionDescription();
@@ -60,7 +60,7 @@ namespace eqs
     };
 
     std::ostream& operator << ( std::ostream& os, 
-                                const eqNet::ConnectionDescription* desc );
+                                const eq::net::ConnectionDescription* desc );
 };
 
 #endif // EQNET_CONNECTION_DESCRIPTION_H

@@ -9,7 +9,9 @@
 #include <eq/net/object.h>   // nested enum (Object::Version)
 #include <eq/base/idPool.h>  // for EQ_ID_INVALID
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Node;
 
@@ -58,6 +60,7 @@ namespace eqNet
 
     private:
     };
+}
 }
 
 #endif // EQNET_NULLCM_H

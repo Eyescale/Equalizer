@@ -18,11 +18,11 @@ using namespace std;
 
 eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
-class TestObject : public eqNet::Object
+class TestObject : public eq::net::Object
 {
 public:
     TestObject() 
-            : Object( eqNet::Object::TYPE_MANAGED_CUSTOM ), 
+            : Object( eq::net::Object::TYPE_MANAGED_CUSTOM ), 
               value(42) {}
 
 protected:
@@ -35,21 +35,21 @@ protected:
         }
 };
 
-class Session : public eqNet::Session
+class Session : public eq::net::Session
 {
-    eqNet::Object* instanciateObject( const uint32_t type, const void* data, 
+    eq::net::Object* instanciateObject( const uint32_t type, const void* data, 
                                         const uint64_t dataSize )
         {
-            if( type == eqNet::Object::TYPE_MANAGED_CUSTOM )
+            if( type == eq::net::Object::TYPE_MANAGED_CUSTOM )
             {
                 TEST( *(int*)data == 42 );
                 return new TestObject();
             }
-            return eqNet::Session::instanciateObject( type, data, dataSize );
+            return eq::net::Session::instanciateObject( type, data, dataSize );
         }
 };
 
-RefPtr<eqNet::Connection> connection;
+RefPtr<eq::net::Connection> connection;
 volatile uint32_t         testID = EQ_ID_INVALID;
 
 class ServerThread : public eq::base::Thread
@@ -57,13 +57,13 @@ class ServerThread : public eq::base::Thread
 protected:
     virtual void* run()
         {
-            RefPtr<eqNet::Node> server    = new eqNet::Node;
-            RefPtr<eqNet::Node> nodeProxy = new eqNet::Node;
+            RefPtr<eq::net::Node> server    = new eq::net::Node;
+            RefPtr<eq::net::Node> nodeProxy = new eq::net::Node;
 
             TEST( server->listen( ));
 
-            eqNet::PipeConnection* pipeConnection = 
-                (eqNet::PipeConnection*)connection.get();
+            eq::net::PipeConnection* pipeConnection = 
+                (eq::net::PipeConnection*)connection.get();
 
             TEST( server->connect( nodeProxy, pipeConnection->getChildEnd( )));
             TEST( nodeProxy->isConnected( ));
@@ -73,7 +73,7 @@ protected:
 
             while( testID == EQ_ID_INVALID ); // spin for test object
             
-            RefPtr<eqNet::Object> object = session.getObject( testID );
+            RefPtr<eq::net::Object> object = session.getObject( testID );
             TEST( dynamic_cast<TestObject*>(object.get()) );
                 
             TestObject* testObject = (TestObject*) object.get();
@@ -87,16 +87,16 @@ protected:
 
 int main( int argc, char **argv )
 {
-    eqNet::init( argc, argv );
+    eq::net::init( argc, argv );
 
-    connection = new eqNet::PipeConnection();
+    connection = new eq::net::PipeConnection();
     TEST( connection->connect( ));
 
     ServerThread server;
     server.start();
 
-    RefPtr<eqNet::Node> node        = new eqNet::Node;
-    RefPtr<eqNet::Node> serverProxy = new eqNet::Node;
+    RefPtr<eq::net::Node> node        = new eq::net::Node;
+    RefPtr<eq::net::Node> serverProxy = new eq::net::Node;
 
     TEST( node->listen( ));
     TEST( node->connect( serverProxy, connection ));

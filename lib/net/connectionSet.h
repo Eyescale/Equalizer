@@ -17,7 +17,9 @@
 #  include <poll.h>
 #endif
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Message;
     class Network;
@@ -121,6 +123,7 @@ namespace eqNet
                                           const ConnectionSet* set );
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                           const ConnectionSet::Event event );
+}
 }
 
 #endif // EQNET_CONNECTION_SET_H

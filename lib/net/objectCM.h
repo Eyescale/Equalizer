@@ -8,7 +8,9 @@
 #include <eq/net/base.h>
 #include <eq/net/types.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Node;
     class Object;
@@ -123,6 +125,7 @@ namespace eqNet
 
         static ObjectCM* ZERO;
     };
+}
 }
 
 #endif // EQNET_OBJECTCM_H

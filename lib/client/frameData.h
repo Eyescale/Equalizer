@@ -28,7 +28,7 @@ namespace eq
      * A frame data holds multiple images and is used by frames.
      * It is not intended to be used directly by application code.
      */
-    class EQ_EXPORT FrameData : public eqNet::Object
+    class EQ_EXPORT FrameData : public eq::net::Object
     {
     public:
         FrameData();
@@ -97,7 +97,7 @@ namespace eq
          * 
          * @param toNode the receiving node.
          */        
-        void transmit( eqNet::NodePtr toNode );
+        void transmit( eq::net::NodePtr toNode );
 
         /** @return true if the frame data is ready, false if not. */
         bool isReady() const   { return _readyVersion >= getVersion(); }
@@ -132,12 +132,12 @@ namespace eq
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
 
-        /** @sa eqNet::Object::attachToSession */
+        /** @sa eq::net::Object::attachToSession */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
-                                      eqNet::Session* session );
-        /** @sa eqNet::Object::applyInstanceData */
-        virtual void applyInstanceData( eqNet::DataIStream& is );
+                                      eq::net::Session* session );
+        /** @sa eq::net::Object::applyInstanceData */
+        virtual void applyInstanceData( eq::net::DataIStream& is );
 
     private:
         struct Data
@@ -193,14 +193,14 @@ namespace eq
          */
         void _setReady( const uint32_t version );
 
-        void _transmit( eqNet::NodePtr toNode,
+        void _transmit( eq::net::NodePtr toNode,
                         FrameDataTransmitPacket& packet,
                         const Frame::Buffer buffers );
 
         /* The command handlers. */
-        eqNet::CommandResult _cmdTransmit( eqNet::Command& command );
-        eqNet::CommandResult _cmdReady( eqNet::Command& command );
-        eqNet::CommandResult _cmdUpdate( eqNet::Command& command );
+        eq::net::CommandResult _cmdTransmit( eq::net::Command& command );
+        eq::net::CommandResult _cmdReady( eq::net::Command& command );
+        eq::net::CommandResult _cmdUpdate( eq::net::Command& command );
 
         CHECK_THREAD_DECLARE( _commandThread );
     };

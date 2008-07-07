@@ -10,7 +10,9 @@
 #include <iostream>
 #include <vector>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     /**
      * A std::istream for binary data sent with DataOStream.
@@ -85,6 +87,7 @@ namespace eqNet
         }
         return *this; 
     }
+}
 }
 
 #endif //EQNET_DATAISTREAM_H

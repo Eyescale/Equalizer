@@ -8,7 +8,9 @@
 #include <eq/net/connection.h> // base class
 #include <eq/base/nonCopyable.h> // base class
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     /**
      * A proxy connection buffering outgoing data into a memory region.
@@ -34,6 +36,7 @@ namespace eqNet
         mutable uint64_t _size;
         mutable uint64_t _maxSize;
     };
+}
 }
 
 #endif //EQNET_BUFFER_CONNECTION_H

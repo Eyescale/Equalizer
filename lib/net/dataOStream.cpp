@@ -9,7 +9,9 @@
 
 using namespace eq::base;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 
 uint64_t DataOStream::_highWaterMark = 4096;
@@ -228,5 +230,6 @@ void DataOStream::_sendBuffer( const void* data, const uint64_t size )
 
     if( !_connections.empty( ))
         sendBuffer( data, size );
+}
 }
 }

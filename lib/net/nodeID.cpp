@@ -4,5 +4,5 @@
 
 #include "nodeID.h"
 
-const eqNet::NodeID eqNet::NodeID::ZERO;
+const eq::net::NodeID eq::net::NodeID::ZERO;
 

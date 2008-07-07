@@ -11,7 +11,9 @@
 
 #include <deque>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Command;
 
@@ -47,5 +49,6 @@ namespace eqNet
         /** The object version associated with this input stream. */
         eq::base::Monitor< uint32_t > _version;
     };
+}
 }
 #endif //EQNET_OBJECTDATAISTREAM_H

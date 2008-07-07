@@ -28,7 +28,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 //----------------------------------------------------------------------
 // State management
@@ -315,7 +317,7 @@ bool Node::connect( NodePtr node, ConnectionPtr connection )
         return false;
 
     // send connect packet to peer
-    eqNet::NodeConnectPacket packet;
+    NodeConnectPacket packet;
 
     packet.requestID = _requestHandler.registerRequest( node.get( ));
     packet.nodeID    = _id;
@@ -1024,7 +1026,7 @@ CommandResult Node::_cmdConnect( Command& command )
 
         // close connection
         _connectionSet.removeConnection( connection );
-        return eqNet::COMMAND_HANDLED;
+        return COMMAND_HANDLED;
     }
 
     // create and add connected node
@@ -1092,7 +1094,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
         if( packet->requestID != EQ_ID_INVALID )
             _requestHandler.serveRequest( packet->requestID, false );
         
-        return eqNet::COMMAND_HANDLED;
+        return COMMAND_HANDLED;
     }
 
     // create and add node
@@ -1618,4 +1620,5 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Node::State state)
     return os;
 }
 
+}
 }

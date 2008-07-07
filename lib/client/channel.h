@@ -30,7 +30,7 @@ namespace eq
      * rendering-relevant tasks, such as clear, draw, assemble and readback. It
      * is a child of a Window.
      */
-    class EQ_EXPORT Channel : public eqNet::Object
+    class EQ_EXPORT Channel : public eq::net::Object
     {
     public:
         /** 
@@ -436,16 +436,16 @@ namespace eq
         void _setRenderContext( RenderContext& context );
 
         /* The command handler functions. */
-        eqNet::CommandResult _cmdConfigInit( eqNet::Command& command );
-        eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameClear( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameDraw( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameAssemble( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameReadback( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameTransmit( eqNet::Command& command );
+        eq::net::CommandResult _cmdConfigInit( eq::net::Command& command );
+        eq::net::CommandResult _cmdConfigExit( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameStart( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameFinish( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameClear( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameDraw( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameDrawFinish( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameAssemble( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameReadback( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameTransmit( eq::net::Command& command );
     };
 }
 

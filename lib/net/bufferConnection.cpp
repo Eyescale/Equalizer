@@ -6,7 +6,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 BufferConnection::BufferConnection()
         : _buffer(0),
@@ -61,5 +63,6 @@ void BufferConnection::sendBuffer( ConnectionPtr connection )
     const bool sent = connection->send( _buffer, _size );
     EQASSERT( sent );
     _size = 0;
+}
 }
 }

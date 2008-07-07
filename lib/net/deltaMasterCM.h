@@ -13,7 +13,9 @@
 
 #include <deque>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Node;
     class ObjectDeltaDataOStream;
@@ -119,6 +121,7 @@ namespace eqNet
 
         CHECK_THREAD_DECLARE( _thread );
     };
+}
 }
 
 #endif // EQNET_DELTAMASTERCM_H

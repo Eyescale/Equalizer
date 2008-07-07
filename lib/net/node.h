@@ -20,11 +20,13 @@
 #include <list>
 
 #pragma warning(disable : 4190)
-extern "C" EQS_EXPORT eqNet::ConnectionPtr eqsStartLocalServer();
+extern "C" EQS_EXPORT eq::net::ConnectionPtr eqsStartLocalServer();
 extern "C" EQS_EXPORT void                 eqsJoinLocalServer();
 #pragma warning(default : 4190)
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Command;
     class ConnectionDescription;
@@ -515,7 +517,7 @@ namespace eqNet
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _connectionSet;
-        friend eqNet::ConnectionPtr (::eqsStartLocalServer());
+        friend eq::net::ConnectionPtr (::eqsStartLocalServer());
 
         /** The connected nodes. */
         NodeIDHash< NodePtr > _nodes;
@@ -665,6 +667,7 @@ namespace eqNet
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                           const Node::State state );
+}
+}
 
-};
 #endif // EQNET_NODE_H

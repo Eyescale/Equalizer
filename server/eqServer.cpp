@@ -16,8 +16,8 @@ using namespace std;
 
 int main( const int argc, char** argv )
 {
-    eqNet::init( argc, argv );
-    eqNet::Global::setDefaultPort( EQ_DEFAULT_PORT );
+    eq::net::init( argc, argv );
+    eq::net::Global::setDefaultPort( EQ_DEFAULT_PORT );
 
     Loader loader;
     RefPtr<Server> server;

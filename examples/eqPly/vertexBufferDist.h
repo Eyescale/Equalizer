@@ -13,25 +13,25 @@
 
 namespace eqPly 
 {
-    /** eqNet::Object to distribute a model, holds a VertexBufferBase node. */
-    class VertexBufferDist : public eqNet::Object
+    /** eq::net::Object to distribute a model, holds a VertexBufferBase node. */
+    class VertexBufferDist : public eq::net::Object
     {
     public:
         VertexBufferDist( const mesh::VertexBufferRoot* root );
         virtual ~VertexBufferDist();
 
-        void registerTree( eqNet::Session* session );
+        void registerTree( eq::net::Session* session );
         void deregisterTree();
 
-        static mesh::VertexBufferRoot* mapModel( eqNet::Session* session,
+        static mesh::VertexBufferRoot* mapModel( eq::net::Session* session,
                                                  const uint32_t modelID );
 
     protected:
         VertexBufferDist( const mesh::VertexBufferRoot* root,
                           const mesh::VertexBufferBase* node );
 
-        virtual void getInstanceData( eqNet::DataOStream& os );
-        virtual void applyInstanceData( eqNet::DataIStream& is );
+        virtual void getInstanceData( eq::net::DataOStream& os );
+        virtual void applyInstanceData( eq::net::DataIStream& is );
 
     private:
         const mesh::VertexBufferRoot* _root;

@@ -8,7 +8,9 @@
 #include <eq/base/base.h>
 #include <vector>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Command;
     
@@ -50,6 +52,7 @@ namespace eqNet
         std::vector< Command* >       _freeCommands;
 #pragma warning(pop)
     };
+}
 }
 
 #endif //EQNET_COMMANDCACHE_H

@@ -16,7 +16,9 @@
 #  define EQ_ALIGN8( var ) var __attribute__ ((aligned (8)));
 #endif
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     enum
     {
@@ -633,6 +635,7 @@ namespace eqNet
         os << (ObjectPacket*)packet << " v" << packet->version;
         return os;
     }
+}
 }
 
 #endif // EQNET_PACKETS_H

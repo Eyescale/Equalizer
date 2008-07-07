@@ -5,7 +5,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 SocketConnection::SocketConnection( const ConnectionType type )
 {
@@ -125,5 +127,6 @@ ConnectionPtr SocketConnection::accept()
            << ":" << ntohs( newAddress.sin_port ) <<endl;
 
     return newConnection;
+}
 }
 }

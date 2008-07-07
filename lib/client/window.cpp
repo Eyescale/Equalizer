@@ -31,7 +31,7 @@
 
 using namespace eq::base;
 using namespace std;
-using eqNet::CommandFunc;
+using eq::net::CommandFunc;
 
 namespace eq
 {
@@ -68,7 +68,7 @@ Window::Window( Pipe* parent )
         , _pipe( parent )
         , _renderContextAGLLock( 0 )
 {
-    eqNet::CommandQueue* queue = parent->getPipeThreadQueue();
+    eq::net::CommandQueue* queue = parent->getPipeThreadQueue();
 
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
                      CommandFunc<Window>( this, &Window::_cmdCreateChannel ), 
@@ -157,8 +157,8 @@ void Window::setPixelViewport( const PixelViewport& pvp )
 
     WindowSetPVPPacket packet;
     packet.pvp = pvp;
-    RefPtr< eqNet::Node > node = 
-        RefPtr_static_cast< Server, eqNet::Node >( getServer( ));
+    RefPtr< eq::net::Node > node = 
+        RefPtr_static_cast< Server, eq::net::Node >( getServer( ));
     send( node, packet );
 }
 
@@ -2054,7 +2054,7 @@ bool Window::processEvent( const WindowEvent& event )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Window::_cmdCreateChannel( eqNet::Command& command )
+eq::net::CommandResult Window::_cmdCreateChannel( eq::net::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
         command.getPacket<WindowCreateChannelPacket>();
@@ -2063,10 +2063,10 @@ eqNet::CommandResult Window::_cmdCreateChannel( eqNet::Command& command )
     Channel* channel = Global::getNodeFactory()->createChannel( this );
     getConfig()->attachObject( channel, packet->channelID );
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdDestroyChannel(eqNet::Command& command ) 
+eq::net::CommandResult Window::_cmdDestroyChannel(eq::net::Command& command ) 
 {
     const WindowDestroyChannelPacket* packet =
         command.getPacket<WindowDestroyChannelPacket>();
@@ -2079,10 +2079,10 @@ eqNet::CommandResult Window::_cmdDestroyChannel(eqNet::Command& command )
     config->detachObject( channel );
     delete channel;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdConfigInit( eqNet::Command& command )
+eq::net::CommandResult Window::_cmdConfigInit( eq::net::Command& command )
 {
     const WindowConfigInitPacket* packet = 
         command.getPacket<WindowConfigInitPacket>();
@@ -2105,11 +2105,11 @@ eqNet::CommandResult Window::_cmdConfigInit( eqNet::Command& command )
     reply.result = configInit( packet->initID );
     EQLOG( LOG_TASKS ) << "TASK window config init reply " << &reply << endl;
 
-    eqNet::NodePtr node = command.getNode();
+    eq::net::NodePtr node = command.getNode();
     if( !reply.result )
     {
         send( node, reply, _error );
-        return eqNet::COMMAND_HANDLED;
+        return eq::net::COMMAND_HANDLED;
     }
 
     const WindowSystem windowSystem = _pipe->getWindowSystem();
@@ -2123,7 +2123,7 @@ eqNet::CommandResult Window::_cmdConfigInit( eqNet::Command& command )
                     << endl;
                 reply.result = false;
                 send( node, reply, _error );
-                return eqNet::COMMAND_HANDLED;
+                return eq::net::COMMAND_HANDLED;
             }
             break;
 
@@ -2134,7 +2134,7 @@ eqNet::CommandResult Window::_cmdConfigInit( eqNet::Command& command )
                         << endl;
                 reply.result = false;
                 send( node, reply, _error );
-                return eqNet::COMMAND_HANDLED;
+                return eq::net::COMMAND_HANDLED;
             }
             // TODO: pvp
             break;
@@ -2146,7 +2146,7 @@ eqNet::CommandResult Window::_cmdConfigInit( eqNet::Command& command )
                         << " context" << endl;
                 reply.result = false;
                 send( node, reply, _error );
-                return eqNet::COMMAND_HANDLED;
+                return eq::net::COMMAND_HANDLED;
             }
             break;
 
@@ -2156,10 +2156,10 @@ eqNet::CommandResult Window::_cmdConfigInit( eqNet::Command& command )
     reply.pvp            = _pvp;
     reply.drawableConfig = _drawableConfig;
     send( node, reply );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdConfigExit( eqNet::Command& command )
+eq::net::CommandResult Window::_cmdConfigExit( eq::net::Command& command )
 {
     const WindowConfigExitPacket* packet =
         command.getPacket<WindowConfigExitPacket>();
@@ -2178,10 +2178,10 @@ eqNet::CommandResult Window::_cmdConfigExit( eqNet::Command& command )
     delete _renderContextAGLLock;
     _renderContextAGLLock = 0;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdFrameStart( eqNet::Command& command )
+eq::net::CommandResult Window::_cmdFrameStart( eq::net::Command& command )
 {
     const WindowFrameStartPacket* packet = 
         command.getPacket<WindowFrameStartPacket>();
@@ -2198,10 +2198,10 @@ eqNet::CommandResult Window::_cmdFrameStart( eqNet::Command& command )
     EQ_GL_CALL( makeCurrent( ));
 
     frameStart( packet->frameID, packet->frameNumber );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdFrameFinish( eqNet::Command& command )
+eq::net::CommandResult Window::_cmdFrameFinish( eq::net::Command& command )
 {
     const WindowFrameFinishPacket* packet =
         command.getPacket<WindowFrameFinishPacket>();
@@ -2210,35 +2210,35 @@ eqNet::CommandResult Window::_cmdFrameFinish( eqNet::Command& command )
     EQ_GL_CALL( makeCurrent( ));
     frameFinish( packet->frameID, packet->frameNumber );
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdFinish(eqNet::Command& command ) 
+eq::net::CommandResult Window::_cmdFinish(eq::net::Command& command ) 
 {
     EQ_GL_CALL( makeCurrent( ));
     finish();
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdBarrier( eqNet::Command& command )
+eq::net::CommandResult Window::_cmdBarrier( eq::net::Command& command )
 {
     const WindowBarrierPacket* packet = 
         command.getPacket<WindowBarrierPacket>();
     EQVERB << "handle barrier " << packet << endl;
     EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << endl;
-    EQLOG( eqNet::LOG_BARRIER ) << "swap barrier " << packet->barrierID
+    EQLOG( eq::net::LOG_BARRIER ) << "swap barrier " << packet->barrierID
                                 << " v" << packet->barrierVersion <<endl;
     
     Node*           node    = getNode();
-    eqNet::Barrier* barrier = node->getBarrier( packet->barrierID, 
+    eq::net::Barrier* barrier = node->getBarrier( packet->barrierID, 
                                                 packet->barrierVersion );
 
     WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
     barrier->enter();
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdSwap( eqNet::Command& command ) 
+eq::net::CommandResult Window::_cmdSwap( eq::net::Command& command ) 
 {
     EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << endl;
     EQ_GL_CALL( makeCurrent( ));
@@ -2246,10 +2246,10 @@ eqNet::CommandResult Window::_cmdSwap( eqNet::Command& command )
     WindowStatistics stat( Statistic::WINDOW_SWAP, this );
     swapBuffers();
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdFrameDrawFinish( eqNet::Command& command )
+eq::net::CommandResult Window::_cmdFrameDrawFinish( eq::net::Command& command )
 {
     WindowFrameDrawFinishPacket* packet = 
         command.getPacket< WindowFrameDrawFinishPacket >();
@@ -2257,7 +2257,7 @@ eqNet::CommandResult Window::_cmdFrameDrawFinish( eqNet::Command& command )
                        << endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
 std::ostream& operator << ( std::ostream& os,

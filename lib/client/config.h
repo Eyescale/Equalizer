@@ -21,9 +21,9 @@ namespace eq
 
     /**
      * The configuration groups all processes of the application in a single
-     * eqNet::Session.
+     * eq::net::Session.
      */
-    class EQ_EXPORT Config : public eqNet::Session
+    class EQ_EXPORT Config : public eq::net::Session
     {
     public:
         /** 
@@ -211,18 +211,18 @@ namespace eq
 
     private:
         /** The node identifier of the node running the application thread. */
-        eqNet::NodeID _appNodeID;
+        eq::net::NodeID _appNodeID;
         friend class Server;
 
         /** The node running the application thread. */
-        eqNet::NodePtr _appNode;
+        eq::net::NodePtr _appNode;
 
 #ifdef EQ_TRANSMISSION_API
         /** The list of the running client node identifiers. */
-        std::vector<eqNet::NodeID> _clientNodeIDs;
+        std::vector<eq::net::NodeID> _clientNodeIDs;
 
         /** The running client nodes, is cleared when _clientNodeIDs changes. */
-        eqNet::NodeVector _clientNodes;
+        eq::net::NodeVector _clientNodes;
 #endif
 
         /** Locally-instantiated nodes of this config. */
@@ -238,7 +238,7 @@ namespace eq
         CommandQueue _eventQueue;
         
         /** The last received event to be released. */
-        eqNet::Command* _lastEvent;
+        eq::net::Command* _lastEvent;
 
         /** Global statistics events, index per frame and channel. */
         std::deque< FrameStatistics > _statistics;
@@ -290,16 +290,16 @@ namespace eq
 #endif
 
         /** The command functions. */
-        eqNet::CommandResult _cmdStartClock( eqNet::Command& command );
-        eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
-        eqNet::CommandResult _cmdDestroyNode( eqNet::Command& command );
-        eqNet::CommandResult _cmdStartInitReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdFinishInitReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdStartFrameReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
+        eq::net::CommandResult _cmdStartClock( eq::net::Command& command );
+        eq::net::CommandResult _cmdCreateNode( eq::net::Command& command );
+        eq::net::CommandResult _cmdDestroyNode( eq::net::Command& command );
+        eq::net::CommandResult _cmdStartInitReply( eq::net::Command& command );
+        eq::net::CommandResult _cmdFinishInitReply( eq::net::Command& command );
+        eq::net::CommandResult _cmdExitReply( eq::net::Command& command );
+        eq::net::CommandResult _cmdStartFrameReply( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameFinish( eq::net::Command& command );
 #ifdef EQ_TRANSMISSION_API
-        eqNet::CommandResult _cmdData( eqNet::Command& command );
+        eq::net::CommandResult _cmdData( eq::net::Command& command );
 #endif
     };
 }

@@ -19,7 +19,7 @@ namespace eqs
     /**
      * A holder for frame data and parameters.
      */
-    class Frame : public eqNet::Object
+    class Frame : public eq::net::Object
     {
     public:
         /** 

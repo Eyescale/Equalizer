@@ -7,7 +7,9 @@
 
 #include "objectDataOStream.h"   // base class
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Object;
 
@@ -31,5 +33,6 @@ namespace eqNet
     private:
         uint32_t _sequence;
     };
+}
 }
 #endif //EQNET_OBJECTINSTANCEDATAOSTREAM_H

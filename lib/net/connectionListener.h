@@ -7,7 +7,9 @@
 
 #include <eq/net/connection.h> // nested Connection::State enum
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     /** A listener interface to connection changes. */
     class EQ_EXPORT ConnectionListener
@@ -17,6 +19,7 @@ namespace eqNet
 
         virtual void notifyStateChanged( Connection* connection ){}
     };
+}
 }
 
 #endif // EQNET_CONNECTION_LISTENER_H

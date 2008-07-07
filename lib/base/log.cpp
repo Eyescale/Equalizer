@@ -197,5 +197,6 @@ EQ_EXPORT std::ostream& enableHeader( std::ostream& os )
         log->enableHeader();
     return os;
 }
+
 }
 }

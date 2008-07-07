@@ -7,10 +7,13 @@
 
 #include <eq/base/hash.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     template<class T> class IDHash : public stde::hash_map<uint32_t, T>
     {};
+}
 }
 
 #endif // EQNET_IDHASH_H

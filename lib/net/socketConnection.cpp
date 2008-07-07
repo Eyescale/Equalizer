@@ -39,7 +39,9 @@
 #  include "socketConnectionPosix.cpp"
 #endif
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 bool SocketConnection::_createSocket()
 {
@@ -208,5 +210,7 @@ uint16_t SocketConnection::getPort() const
     socklen_t used = sizeof(address);
     getsockname( _readFD, (struct sockaddr *) &address, &used ); 
     return ntohs(address.sin_port);
+}
+
 }
 }

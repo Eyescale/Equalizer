@@ -13,7 +13,7 @@
 #include <iostream>
 
 using namespace eq::base;
-using namespace eqNet;
+using namespace eq::net;
 using namespace std;
 
 uint32_t barrierID = EQ_ID_INVALID;
@@ -67,10 +67,10 @@ public:
                 Session session;
                 TEST( node->mapSession( server, &session, "foo" ));
                 
-                RefPtr<eqNet::Object> object = session.getObject( barrierID);
-                TEST( dynamic_cast<eqNet::Barrier*>(object.get()) );
+                RefPtr<eq::net::Object> object = session.getObject( barrierID);
+                TEST( dynamic_cast<eq::net::Barrier*>(object.get()) );
                 
-                eqNet::Barrier* barrier = (eqNet::Barrier*)object.get();
+                eq::net::Barrier* barrier = (eq::net::Barrier*)object.get();
                 TEST( barrier );
 
                 cerr << "Slave enter" << endl;
@@ -91,7 +91,7 @@ private:
 
 int main( int argc, char **argv )
 {
-    eqNet::init( argc, argv );
+    eq::net::init( argc, argv );
 
     NodeThread server( true );
     NodeThread node( false );

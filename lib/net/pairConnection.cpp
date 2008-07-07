@@ -6,7 +6,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 PairConnection::PairConnection( ConnectionPtr readConnection,
                                 ConnectionPtr writeConnection )
@@ -78,5 +80,6 @@ void PairConnection::close()
 
     _readConnection->close();
     _writeConnection->close();
+}
 }
 }

@@ -22,7 +22,7 @@ namespace eq
 
     enum DataType
     {
-        DATATYPE_EQ_CLIENT = eqNet::DATATYPE_EQNET_CUSTOM, // 128
+        DATATYPE_EQ_CLIENT = eq::net::DATATYPE_EQNET_CUSTOM, // 128
         DATATYPE_EQ_SERVER,
         DATATYPE_EQ_CUSTOM = 1<<8 // 256
     };
@@ -30,7 +30,7 @@ namespace eq
     //------------------------------------------------------------
     // Client
     //------------------------------------------------------------
-    struct ClientPacket : public eqNet::Packet
+    struct ClientPacket : public eq::net::Packet
     {
         ClientPacket(){ datatype = DATATYPE_EQ_CLIENT; }
     };
@@ -47,7 +47,7 @@ namespace eq
     //------------------------------------------------------------
     // Server
     //------------------------------------------------------------
-    struct ServerPacket : public eqNet::Packet
+    struct ServerPacket : public eq::net::Packet
     {
         ServerPacket(){ datatype = DATATYPE_EQ_SERVER; }
     };
@@ -90,7 +90,7 @@ namespace eq
 
         uint32_t      configID;
         uint32_t      requestID;
-        eqNet::NodeID appNodeID;
+        eq::net::NodeID appNodeID;
         EQ_ALIGN8( char          name[8] );
     };
 
@@ -178,7 +178,7 @@ namespace eq
     //------------------------------------------------------------
     // Config
     //------------------------------------------------------------
-    typedef eqNet::SessionPacket ConfigPacket;
+    typedef eq::net::SessionPacket ConfigPacket;
 
     struct ConfigCreateReplyPacket : public ConfigPacket
     {
@@ -330,7 +330,7 @@ namespace eq
         uint32_t requestID;
         uint32_t frameNumber;
         uint32_t nNodeIDs;
-        EQ_ALIGN8( eqNet::NodeID nodeIDs[1] );
+        EQ_ALIGN8( eq::net::NodeID nodeIDs[1] );
     };
 
     struct ConfigFrameFinishPacket : public ConfigPacket
@@ -377,7 +377,7 @@ namespace eq
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------
-    struct NodeConfigInitPacket : public eqNet::ObjectPacket
+    struct NodeConfigInitPacket : public eq::net::ObjectPacket
     {
         NodeConfigInitPacket()
             {
@@ -390,7 +390,7 @@ namespace eq
         EQ_ALIGN8( char name[8] );
     };
 
-    struct NodeConfigInitReplyPacket : public eqNet::ObjectPacket
+    struct NodeConfigInitReplyPacket : public eq::net::ObjectPacket
     {
         NodeConfigInitReplyPacket()
             {
@@ -403,7 +403,7 @@ namespace eq
         EQ_ALIGN8( char error[8] );
     };
 
-    struct NodeConfigExitPacket : public eqNet::ObjectPacket
+    struct NodeConfigExitPacket : public eq::net::ObjectPacket
     {
         NodeConfigExitPacket()
             {
@@ -412,7 +412,7 @@ namespace eq
             }
     };
 
-    struct NodeConfigExitReplyPacket : public eqNet::ObjectPacket
+    struct NodeConfigExitReplyPacket : public eq::net::ObjectPacket
     {
         NodeConfigExitReplyPacket()
             {
@@ -423,7 +423,7 @@ namespace eq
         bool     result;
     };
 
-    struct NodeCreatePipePacket : public eqNet::ObjectPacket
+    struct NodeCreatePipePacket : public eq::net::ObjectPacket
     {
         NodeCreatePipePacket()
             {
@@ -435,7 +435,7 @@ namespace eq
         bool     threaded;
     };
 
-    struct NodeDestroyPipePacket : public eqNet::ObjectPacket
+    struct NodeDestroyPipePacket : public eq::net::ObjectPacket
     {
         NodeDestroyPipePacket()
             {
@@ -446,7 +446,7 @@ namespace eq
         uint32_t pipeID;
     };
     
-    struct NodeFrameStartPacket : public eqNet::ObjectPacket
+    struct NodeFrameStartPacket : public eq::net::ObjectPacket
     {
         NodeFrameStartPacket()
             {
@@ -458,7 +458,7 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct NodeFrameFinishPacket : public eqNet::ObjectPacket
+    struct NodeFrameFinishPacket : public eq::net::ObjectPacket
     {
         NodeFrameFinishPacket()
             {
@@ -472,7 +472,7 @@ namespace eq
         bool     syncGlobalFinish;
     };
 
-    struct NodeFrameFinishReplyPacket : public eqNet::ObjectPacket
+    struct NodeFrameFinishReplyPacket : public eq::net::ObjectPacket
     {
         NodeFrameFinishReplyPacket()
             {
@@ -483,7 +483,7 @@ namespace eq
         uint32_t frameNumber;
     };
         
-    struct NodeFrameDrawFinishPacket : public eqNet::ObjectPacket
+    struct NodeFrameDrawFinishPacket : public eq::net::ObjectPacket
     {
         NodeFrameDrawFinishPacket()
             {
@@ -497,7 +497,7 @@ namespace eq
     //------------------------------------------------------------
     // Pipe
     //------------------------------------------------------------
-    struct PipeCreateWindowPacket : public eqNet::ObjectPacket
+    struct PipeCreateWindowPacket : public eq::net::ObjectPacket
     {
         PipeCreateWindowPacket()
             {
@@ -508,7 +508,7 @@ namespace eq
         uint32_t windowID;
     };
 
-    struct PipeDestroyWindowPacket : public eqNet::ObjectPacket
+    struct PipeDestroyWindowPacket : public eq::net::ObjectPacket
     {
         PipeDestroyWindowPacket()
             {
@@ -519,7 +519,7 @@ namespace eq
         uint32_t windowID;
     };
 
-    struct PipeConfigInitPacket : public eqNet::ObjectPacket
+    struct PipeConfigInitPacket : public eq::net::ObjectPacket
     {
         PipeConfigInitPacket()
             {
@@ -535,7 +535,7 @@ namespace eq
         EQ_ALIGN8( char name[8] );
     };
 
-    struct PipeConfigInitReplyPacket : public eqNet::ObjectPacket
+    struct PipeConfigInitReplyPacket : public eq::net::ObjectPacket
     {
         PipeConfigInitReplyPacket()
             {
@@ -549,7 +549,7 @@ namespace eq
         EQ_ALIGN8( char error[8] );
     };
 
-    struct PipeConfigExitPacket : public eqNet::ObjectPacket
+    struct PipeConfigExitPacket : public eq::net::ObjectPacket
     {
         PipeConfigExitPacket()
             {
@@ -558,7 +558,7 @@ namespace eq
             }
     };
 
-    struct PipeConfigExitReplyPacket : public eqNet::ObjectPacket
+    struct PipeConfigExitReplyPacket : public eq::net::ObjectPacket
     {
         PipeConfigExitReplyPacket()
             {
@@ -569,7 +569,7 @@ namespace eq
         bool     result;
     };
 
-    struct PipeFrameStartClockPacket : public eqNet::ObjectPacket
+    struct PipeFrameStartClockPacket : public eq::net::ObjectPacket
     {
         PipeFrameStartClockPacket()
             {
@@ -578,7 +578,7 @@ namespace eq
             }
     };
 
-    struct PipeFrameStartPacket : public eqNet::ObjectPacket
+    struct PipeFrameStartPacket : public eq::net::ObjectPacket
     {
         PipeFrameStartPacket()
             {
@@ -590,7 +590,7 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct PipeFrameFinishPacket : public eqNet::ObjectPacket
+    struct PipeFrameFinishPacket : public eq::net::ObjectPacket
     {
         PipeFrameFinishPacket()
             {
@@ -602,7 +602,7 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct PipeFrameDrawFinishPacket : public eqNet::ObjectPacket
+    struct PipeFrameDrawFinishPacket : public eq::net::ObjectPacket
     {
         PipeFrameDrawFinishPacket()
             {
@@ -613,7 +613,7 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct PipeStopThreadPacket : public eqNet::ObjectPacket
+    struct PipeStopThreadPacket : public eq::net::ObjectPacket
     {
         PipeStopThreadPacket()
             {
@@ -625,7 +625,7 @@ namespace eq
     //------------------------------------------------------------
     // Window
     //------------------------------------------------------------
-    struct WindowConfigInitPacket : public eqNet::ObjectPacket
+    struct WindowConfigInitPacket : public eq::net::ObjectPacket
     {
         WindowConfigInitPacket()
             {
@@ -641,7 +641,7 @@ namespace eq
         EQ_ALIGN8( char name[8] );
     };
 
-    struct WindowConfigInitReplyPacket : public eqNet::ObjectPacket
+    struct WindowConfigInitReplyPacket : public eq::net::ObjectPacket
     {
         WindowConfigInitReplyPacket()
             {
@@ -656,7 +656,7 @@ namespace eq
         EQ_ALIGN8( char error[8] );
     };
 
-    struct WindowConfigExitPacket : public eqNet::ObjectPacket
+    struct WindowConfigExitPacket : public eq::net::ObjectPacket
     {
         WindowConfigExitPacket()
             {
@@ -665,7 +665,7 @@ namespace eq
             }
     };
 
-    struct WindowConfigExitReplyPacket : public eqNet::ObjectPacket
+    struct WindowConfigExitReplyPacket : public eq::net::ObjectPacket
     {
         WindowConfigExitReplyPacket()
             {
@@ -676,7 +676,7 @@ namespace eq
         bool     result;
     };
 
-    struct WindowCreateChannelPacket : public eqNet::ObjectPacket
+    struct WindowCreateChannelPacket : public eq::net::ObjectPacket
     {
         WindowCreateChannelPacket()
             {
@@ -687,7 +687,7 @@ namespace eq
         uint32_t channelID;
     };
 
-    struct WindowDestroyChannelPacket : public eqNet::ObjectPacket
+    struct WindowDestroyChannelPacket : public eq::net::ObjectPacket
     {
         WindowDestroyChannelPacket()
             {
@@ -698,7 +698,7 @@ namespace eq
         uint32_t channelID;
     };
 
-    struct WindowSetPVPPacket : public eqNet::ObjectPacket
+    struct WindowSetPVPPacket : public eq::net::ObjectPacket
     {
         WindowSetPVPPacket()
             {
@@ -709,7 +709,7 @@ namespace eq
         PixelViewport pvp;
     };
 
-    struct WindowFinishPacket : public eqNet::ObjectPacket
+    struct WindowFinishPacket : public eq::net::ObjectPacket
     {
         WindowFinishPacket()
             {
@@ -718,7 +718,7 @@ namespace eq
             }
     };
 
-    struct WindowBarrierPacket : public eqNet::ObjectPacket
+    struct WindowBarrierPacket : public eq::net::ObjectPacket
     {
         WindowBarrierPacket()
             {
@@ -729,7 +729,7 @@ namespace eq
         uint32_t barrierVersion;
     };
 
-    struct WindowSwapPacket : public eqNet::ObjectPacket
+    struct WindowSwapPacket : public eq::net::ObjectPacket
     {
         WindowSwapPacket()
             {
@@ -738,7 +738,7 @@ namespace eq
             }
     };
 
-    struct WindowFrameStartPacket : public eqNet::ObjectPacket
+    struct WindowFrameStartPacket : public eq::net::ObjectPacket
     {
         WindowFrameStartPacket()
             {
@@ -750,7 +750,7 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct WindowFrameFinishPacket : public eqNet::ObjectPacket
+    struct WindowFrameFinishPacket : public eq::net::ObjectPacket
     {
         WindowFrameFinishPacket()
             {
@@ -762,7 +762,7 @@ namespace eq
         uint32_t frameNumber;
     };
         
-    struct WindowFrameDrawFinishPacket : public eqNet::ObjectPacket
+    struct WindowFrameDrawFinishPacket : public eq::net::ObjectPacket
     {
         WindowFrameDrawFinishPacket()
             {
@@ -776,7 +776,7 @@ namespace eq
     //------------------------------------------------------------
     // Channel
     //------------------------------------------------------------
-    struct ChannelConfigInitPacket : public eqNet::ObjectPacket
+    struct ChannelConfigInitPacket : public eq::net::ObjectPacket
     {
         ChannelConfigInitPacket()
             {
@@ -793,7 +793,7 @@ namespace eq
         EQ_ALIGN8( char name[8] );
     };
 
-    struct ChannelConfigInitReplyPacket : public eqNet::ObjectPacket
+    struct ChannelConfigInitReplyPacket : public eq::net::ObjectPacket
     {
         ChannelConfigInitReplyPacket()
             {
@@ -808,7 +808,7 @@ namespace eq
         EQ_ALIGN8( char error[8] );
     };
 
-    struct ChannelConfigExitPacket : public eqNet::ObjectPacket
+    struct ChannelConfigExitPacket : public eq::net::ObjectPacket
     {
         ChannelConfigExitPacket()
             {
@@ -817,7 +817,7 @@ namespace eq
             }
     };
 
-    struct ChannelConfigExitReplyPacket : public eqNet::ObjectPacket
+    struct ChannelConfigExitReplyPacket : public eq::net::ObjectPacket
     {
         ChannelConfigExitReplyPacket()
             {
@@ -828,7 +828,7 @@ namespace eq
         bool     result;
     };
 
-    struct ChannelSetNearFarPacket : public eqNet::ObjectPacket
+    struct ChannelSetNearFarPacket : public eq::net::ObjectPacket
     {
         ChannelSetNearFarPacket()
             {
@@ -840,7 +840,7 @@ namespace eq
         float    farPlane;
     };
 
-    struct ChannelFrameStartPacket : public eqNet::ObjectPacket
+    struct ChannelFrameStartPacket : public eq::net::ObjectPacket
     {
         ChannelFrameStartPacket()
             {
@@ -852,7 +852,7 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct ChannelFrameFinishPacket : public eqNet::ObjectPacket
+    struct ChannelFrameFinishPacket : public eq::net::ObjectPacket
     {
         ChannelFrameFinishPacket()
             {
@@ -864,7 +864,7 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct ChannelFrameFinishReplyPacket : public eqNet::ObjectPacket
+    struct ChannelFrameFinishReplyPacket : public eq::net::ObjectPacket
     {
         ChannelFrameFinishReplyPacket( const ChannelFrameFinishPacket* request )
             {
@@ -881,7 +881,7 @@ namespace eq
     };
         
 
-    struct ChannelFrameDrawFinishPacket : public eqNet::ObjectPacket
+    struct ChannelFrameDrawFinishPacket : public eq::net::ObjectPacket
     {
         ChannelFrameDrawFinishPacket()
             {
@@ -893,7 +893,7 @@ namespace eq
         uint32_t frameNumber;
     };
         
-    struct ChannelTaskPacket : public eqNet::ObjectPacket
+    struct ChannelTaskPacket : public eq::net::ObjectPacket
     {
         RenderContext context;
     };
@@ -925,7 +925,7 @@ namespace eq
             }
 
         uint32_t             nFrames;
-        EQ_ALIGN8( eqNet::ObjectVersion frames[1] );
+        EQ_ALIGN8( eq::net::ObjectVersion frames[1] );
     };
         
     struct ChannelFrameReadbackPacket : public ChannelTaskPacket
@@ -937,7 +937,7 @@ namespace eq
             }
 
         uint32_t             nFrames;
-        EQ_ALIGN8( eqNet::ObjectVersion frames[1] );
+        EQ_ALIGN8( eq::net::ObjectVersion frames[1] );
     };
         
     struct ChannelFrameTransmitPacket : public ChannelTaskPacket
@@ -949,15 +949,15 @@ namespace eq
             }
 
         
-        eqNet::ObjectVersion frame;
+        eq::net::ObjectVersion frame;
         uint32_t             nNodes;
-        EQ_ALIGN8( eqNet::NodeID        nodes[1] );
+        EQ_ALIGN8( eq::net::NodeID        nodes[1] );
     };
 
     //------------------------------------------------------------
     // Frame Data
     //------------------------------------------------------------
-    struct FrameDataTransmitPacket : public eqNet::ObjectPacket
+    struct FrameDataTransmitPacket : public eq::net::ObjectPacket
     {
         FrameDataTransmitPacket()
             {
@@ -971,7 +971,7 @@ namespace eq
         EQ_ALIGN8( uint8_t       data[8] ); // size is pvp.w * pvp.h * depth
     };
 
-    struct FrameDataReadyPacket : public eqNet::ObjectPacket
+    struct FrameDataReadyPacket : public eq::net::ObjectPacket
     {
         FrameDataReadyPacket()
             {
@@ -981,7 +981,7 @@ namespace eq
         uint32_t version;
     };
 
-    struct FrameDataUpdatePacket : public eqNet::ObjectPacket
+    struct FrameDataUpdatePacket : public eq::net::ObjectPacket
     {
         FrameDataUpdatePacket()
             {
@@ -994,7 +994,7 @@ namespace eq
     //------------------------------------------------------------
     // Event Thread
     //------------------------------------------------------------
-    struct GLXEventThreadRegisterPipePacket : public eqNet::Packet
+    struct GLXEventThreadRegisterPipePacket : public eq::net::Packet
     {
         GLXEventThreadRegisterPipePacket()
             {
@@ -1003,7 +1003,7 @@ namespace eq
             }
         Pipe* pipe;
     };
-    struct GLXEventThreadDeregisterPipePacket : public eqNet::Packet
+    struct GLXEventThreadDeregisterPipePacket : public eq::net::Packet
     {
         GLXEventThreadDeregisterPipePacket()
             {
@@ -1013,7 +1013,7 @@ namespace eq
         uint32_t requestID;
         Pipe*    pipe;
     };
-    struct GLXEventThreadRegisterWindowPacket : public eqNet::Packet
+    struct GLXEventThreadRegisterWindowPacket : public eq::net::Packet
     {
         GLXEventThreadRegisterWindowPacket()
             {
@@ -1022,7 +1022,7 @@ namespace eq
             }
         Window* window;
     };
-    struct GLXEventThreadDeregisterWindowPacket : public eqNet::Packet
+    struct GLXEventThreadDeregisterWindowPacket : public eq::net::Packet
     {
         GLXEventThreadDeregisterWindowPacket()
             {
@@ -1083,27 +1083,27 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeCreatePipePacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " id " << packet->pipeID;
+        os << (eq::net::ObjectPacket*)packet << " id " << packet->pipeID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeFrameStartPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeFrameDrawFinishPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeFrameFinishPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID << " sync " << packet->syncGlobalFinish;
         return os;
     }
@@ -1111,40 +1111,40 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeCreateWindowPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " id " << packet->windowID;
+        os << (eq::net::ObjectPacket*)packet << " id " << packet->windowID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeConfigInitPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " init id " << packet->initID
+        os << (eq::net::ObjectPacket*)packet << " init id " << packet->initID
            << " port " << packet->port << " device " << packet->device;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeConfigInitReplyPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " result " << packet->result;
+        os << (eq::net::ObjectPacket*)packet << " result " << packet->result;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeFrameStartPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeFrameDrawFinishPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeFrameFinishPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
@@ -1152,34 +1152,34 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const WindowCreateChannelPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " id " << packet->channelID;
+        os << (eq::net::ObjectPacket*)packet << " id " << packet->channelID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                      const WindowConfigInitReplyPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " result " << packet->result
+        os << (eq::net::ObjectPacket*)packet << " result " << packet->result
            << " pvp " << packet->pvp;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const WindowFrameStartPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                      const WindowFrameDrawFinishPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const WindowBarrierPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " barrier " << packet->barrierID
+        os << (eq::net::ObjectPacket*)packet << " barrier " << packet->barrierID
            << " version " << packet->barrierVersion;
         return os;
     }
@@ -1187,26 +1187,26 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                     const ChannelConfigInitReplyPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " result " << packet->result;
+        os << (eq::net::ObjectPacket*)packet << " result " << packet->result;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ChannelTaskPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " " << packet->context;
+        os << (eq::net::ObjectPacket*)packet << " " << packet->context;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ChannelFrameStartPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                     const ChannelFrameDrawFinishPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
@@ -1219,7 +1219,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                       const ChannelFrameTransmitPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frame
+        os << (eq::net::ObjectPacket*)packet << " frame " << packet->frame
            << " nNodes " << packet->nNodes;
         return os;
     }

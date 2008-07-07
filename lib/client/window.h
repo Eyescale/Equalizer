@@ -28,7 +28,7 @@ namespace eq
      * might have it's own OpenGL command buffer, thus glFlush might be needed
      * to synchronize the state of OpenGL objects between windows.
      */
-    class EQ_EXPORT Window : public eqNet::Object
+    class EQ_EXPORT Window : public net::Object
     {
     public:
         /** Stores current drawable characteristics. */
@@ -58,7 +58,7 @@ namespace eq
 
         /** @name Data Access */
         //*{
-        eqNet::CommandQueue* getPipeThreadQueue()
+        net::CommandQueue* getPipeThreadQueue()
             { return _pipe->getPipeThreadQueue(); }
 
         /** @return the pipe of this window. */
@@ -773,16 +773,16 @@ namespace eq
         void _releaseObjectManager();
 
         /* The command functions. */
-        eqNet::CommandResult _cmdCreateChannel( eqNet::Command& command );
-        eqNet::CommandResult _cmdDestroyChannel(eqNet::Command& command );
-        eqNet::CommandResult _cmdConfigInit( eqNet::Command& command );
-        eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
-        eqNet::CommandResult _cmdBarrier( eqNet::Command& command );
-        eqNet::CommandResult _cmdFinish( eqNet::Command& command );
-        eqNet::CommandResult _cmdSwap( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );
+        net::CommandResult _cmdCreateChannel( net::Command& command );
+        net::CommandResult _cmdDestroyChannel(net::Command& command );
+        net::CommandResult _cmdConfigInit( net::Command& command );
+        net::CommandResult _cmdConfigExit( net::Command& command );
+        net::CommandResult _cmdFrameStart( net::Command& command );
+        net::CommandResult _cmdFrameFinish( net::Command& command );
+        net::CommandResult _cmdBarrier( net::Command& command );
+        net::CommandResult _cmdFinish( net::Command& command );
+        net::CommandResult _cmdSwap( net::Command& command );
+        net::CommandResult _cmdFrameDrawFinish( net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& , const Window::DrawableConfig& );

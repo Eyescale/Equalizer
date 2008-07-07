@@ -16,7 +16,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 FDConnection::FDConnection()
         : _readFD( 0 ),
@@ -92,5 +94,6 @@ bool FDConnection::hasData() const
     return nReady > 0;
 }
 
+}
 }
 #endif // WIN32

@@ -16,7 +16,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 DeltaMasterCM::DeltaMasterCM( Object* object )
         : _object( object ),
@@ -361,5 +363,6 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
                          << _object->getID() << endl;
     _requestHandler.serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
+}
 }
 }

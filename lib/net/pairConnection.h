@@ -7,7 +7,9 @@
 
 #include "connection.h"
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     /**
      * A meta connection consisting of two (unidirectional) connections
@@ -42,5 +44,6 @@ namespace eqNet
         ConnectionPtr _writeConnection;
         eq::base::RefPtr<PairConnection> _sibling;
     };
+}
 }
 #endif //EQNET_PAIRCONNECTION_H

@@ -39,13 +39,13 @@ ConnectionDescription::ConnectionDescription()
                              CATTR_LAUNCH_COMMAND_QUOTE );
 
     launchTimeout  = global->getConnectionIAttribute( IATTR_LAUNCH_TIMEOUT );
-    type           = (eqNet::ConnectionType)global->
+    type           = (eq::net::ConnectionType)global->
         getConnectionIAttribute( IATTR_TYPE );
 
     switch( type )
     {
-        case eqNet::CONNECTIONTYPE_TCPIP:
-        case eqNet::CONNECTIONTYPE_SDP:
+        case eq::net::CONNECTIONTYPE_TCPIP:
+        case eq::net::CONNECTIONTYPE_SDP:
             TCPIP.port = global->getConnectionIAttribute( IATTR_TCPIP_PORT );
             break;
         default:
@@ -54,7 +54,7 @@ ConnectionDescription::ConnectionDescription()
 }
 
 std::ostream& operator << ( std::ostream& os, 
-                            const eqNet::ConnectionDescription* desc )
+                            const eq::net::ConnectionDescription* desc )
 {
     os << disableFlush << "connection" << endl;
     os << "{" << endl << indent;
@@ -64,9 +64,9 @@ std::ostream& operator << ( std::ostream& os,
     if( desc->type != global->getConnectionIAttribute( 
             eqs::ConnectionDescription::IATTR_TYPE ))
         os << "type          " 
-           << ( desc->type == eqNet::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
-                desc->type == eqNet::CONNECTIONTYPE_SDP   ? "SDP" : 
-                desc->type == eqNet::CONNECTIONTYPE_PIPE  ? "PIPE" :
+           << ( desc->type == eq::net::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
+                desc->type == eq::net::CONNECTIONTYPE_SDP   ? "SDP" : 
+                desc->type == eq::net::CONNECTIONTYPE_PIPE  ? "PIPE" :
                 "ERROR" ) << endl;
     
     if( desc->TCPIP.port != global->getConnectionIAttribute( 

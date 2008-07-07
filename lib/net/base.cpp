@@ -11,9 +11,13 @@
 
 #include <eq/base/log.h>
 
-using namespace eqNet;
 using namespace eq::base;
 using namespace std;
+
+namespace eq
+{
+namespace net
+{
 
 Base::Base()
 {
@@ -107,4 +111,7 @@ CommandResult Base::_cmdUnknown( Command& command )
     EQERROR << "Unknown " << command << " for " << typeid(*this).name()
             << " @" << static_cast< void* >( this ) << endl;
     return COMMAND_ERROR;
+}
+
+}
 }

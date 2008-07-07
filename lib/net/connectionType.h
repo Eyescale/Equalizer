@@ -5,7 +5,9 @@
 #ifndef EQNET_CONNECTIONTYPE_H
 #define EQNET_CONNECTIONTYPE_H
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     /** The supported network protocols. */
     enum ConnectionType
@@ -14,6 +16,7 @@ namespace eqNet
         CONNECTIONTYPE_SDP,     //!< SDP sockets (InfiniBand)
         CONNECTIONTYPE_PIPE     //!< pipe() based uni-directional connection
     };
+}
 }
 
 #endif // EQNET_CONNECTIONTYPE_H

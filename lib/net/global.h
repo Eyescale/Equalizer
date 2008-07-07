@@ -8,7 +8,9 @@
 #include <eq/base/base.h>
 #include <string>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     // global defines
 
@@ -55,6 +57,7 @@ namespace eqNet
         static std::string _workDir;
         static uint16_t    _defaultPort;
     };
+}
 }
 
 #endif // EQNET_GLOBAL_H

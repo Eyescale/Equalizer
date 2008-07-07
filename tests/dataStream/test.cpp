@@ -21,7 +21,7 @@ using namespace std;
 #define CONTAINER_SIZE 4096
 static string _message( "So long, and thanks for all the fish" );
 
-struct HeaderPacket : public eqNet::Packet
+struct HeaderPacket : public eq::net::Packet
 {
     HeaderPacket()
         {
@@ -30,7 +30,7 @@ struct HeaderPacket : public eqNet::Packet
         }
 };
 
-struct DataPacket : public eqNet::Packet
+struct DataPacket : public eq::net::Packet
 {
     DataPacket()
         {
@@ -43,7 +43,7 @@ struct DataPacket : public eqNet::Packet
     EQ_ALIGN8( uint8_t data[8] );
 };
 
-struct FooterPacket : public eqNet::Packet
+struct FooterPacket : public eq::net::Packet
 {
     FooterPacket()
         {
@@ -52,13 +52,13 @@ struct FooterPacket : public eqNet::Packet
         }
 };
 
-class DataOStream : public eqNet::DataOStream
+class DataOStream : public eq::net::DataOStream
 {
 protected:
     virtual void sendHeader( const void* buffer, const uint64_t size )
         {
             HeaderPacket packet;
-            eqNet::Connection::send( _connections, packet, true /*isLocked*/ );
+            eq::net::Connection::send( _connections, packet, true /*isLocked*/ );
 
             sendBuffer( buffer, size );
         }
@@ -67,7 +67,7 @@ protected:
         {
             DataPacket packet;
             packet.dataSize = size;
-            eqNet::Connection::send( _connections, packet, buffer, size, 
+            eq::net::Connection::send( _connections, packet, buffer, size, 
                                      true /*isLocked*/ );
             EQINFO << "Sent buffer of " << size << " bytes" << endl;
         }
@@ -78,15 +78,15 @@ protected:
                 sendBuffer( buffer, size );
 
             FooterPacket packet;
-            eqNet::Connection::send( _connections, packet, true /*isLocked*/ );
+            eq::net::Connection::send( _connections, packet, true /*isLocked*/ );
             EQINFO << "Sent footer" << endl;
         }
 };
 
-class DataIStream : public eqNet::DataIStream
+class DataIStream : public eq::net::DataIStream
 {
 public:
-    void addDataCommand( eqNet::Command& command )
+    void addDataCommand( eq::net::Command& command )
         {
             TESTINFO( command->command == 2, command );
             _commands.push( command );
@@ -97,7 +97,7 @@ public:
 protected:
     virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size )
         {
-            eqNet::Command* command = _commands.tryPop();
+            eq::net::Command* command = _commands.tryPop();
             if( !command )
                 return false;
 
@@ -112,14 +112,14 @@ protected:
         }
 
 private:
-    eqNet::CommandQueue _commands;
+    eq::net::CommandQueue _commands;
 };
 
 
 class Sender : public eq::base::Thread
 {
 public:
-    Sender( eq::base::RefPtr< eqNet::Connection > connection )
+    Sender( eq::base::RefPtr< eq::net::Connection > connection )
             : Thread(),
               _connection( connection )
         {}
@@ -129,7 +129,7 @@ protected:
     virtual void* run()
         {
             DataOStream             stream;
-            eqNet::ConnectionVector connections;
+            eq::net::ConnectionVector connections;
 
             connections.push_back( _connection );
             stream.enable( connections );
@@ -151,22 +151,22 @@ protected:
         }
 
 private:
-    eq::base::RefPtr< eqNet::Connection > _connection;
+    eq::base::RefPtr< eq::net::Connection > _connection;
 };
 
 int main( int argc, char **argv )
 {
-    eqNet::init( argc, argv );
+    eq::net::init( argc, argv );
 
-    eq::base::RefPtr< eqNet::Connection > connection = 
-        eqNet::Connection::create( eqNet::CONNECTIONTYPE_PIPE );
+    eq::base::RefPtr< eq::net::Connection > connection = 
+        eq::net::Connection::create( eq::net::CONNECTIONTYPE_PIPE );
 
     TEST( connection->connect( ));
     Sender sender( connection );
     TEST( sender.start( ));
 
     DataIStream     stream;
-    eqNet::Command  command;
+    eq::net::Command  command;
     bool            receiving = true;
 
     while( receiving )

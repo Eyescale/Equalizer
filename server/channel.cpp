@@ -23,7 +23,7 @@
 
 using namespace eq::base;
 using namespace std;
-using eqNet::CommandFunc;
+using eq::net::CommandFunc;
 
 namespace eqs
 {
@@ -72,7 +72,7 @@ Channel::Channel()
 }
 
 Channel::Channel( const Channel& from, const CompoundVector& compounds )
-        : eqNet::Object()
+        : eq::net::Object()
 {
     _construct();
 
@@ -95,12 +95,12 @@ Channel::Channel( const Channel& from, const CompoundVector& compounds )
 }
 
 void Channel::attachToSession( const uint32_t id, const uint32_t instanceID, 
-                               eqNet::Session* session )
+                               eq::net::Session* session )
 {
-    eqNet::Object::attachToSession( id, instanceID, session );
+    eq::net::Object::attachToSession( id, instanceID, session );
     
-    eqNet::CommandQueue* serverQueue  = getServerThreadQueue();
-    eqNet::CommandQueue* commandQueue = getCommandThreadQueue();
+    eq::net::CommandQueue* serverQueue  = getServerThreadQueue();
+    eq::net::CommandQueue* commandQueue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_CHANNEL_CONFIG_INIT_REPLY, 
                     CommandFunc<Channel>( this, &Channel::_cmdConfigInitReply ),
@@ -364,7 +364,7 @@ void Channel::updatePost( const uint32_t frameID, const uint32_t frameNumber )
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Channel::_cmdConfigInitReply( eqNet::Command& command ) 
+eq::net::CommandResult Channel::_cmdConfigInitReply( eq::net::Command& command ) 
 {
     const eq::ChannelConfigInitReplyPacket* packet = 
         command.getPacket<eq::ChannelConfigInitReplyPacket>();
@@ -379,10 +379,10 @@ eqNet::CommandResult Channel::_cmdConfigInitReply( eqNet::Command& command )
     else
         _state = STATE_INIT_FAILED;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdConfigExitReply( eqNet::Command& command ) 
+eq::net::CommandResult Channel::_cmdConfigExitReply( eq::net::Command& command ) 
 {
     const eq::ChannelConfigExitReplyPacket* packet = 
         command.getPacket<eq::ChannelConfigExitReplyPacket>();
@@ -393,19 +393,19 @@ eqNet::CommandResult Channel::_cmdConfigExitReply( eqNet::Command& command )
     else
         _state = STATE_STOP_FAILED;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdSetNearFar( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdSetNearFar( eq::net::Command& command )
 {
     const eq::ChannelSetNearFarPacket* packet = 
         command.getPacket<eq::ChannelSetNearFarPacket>();
     _near = packet->nearPlane;
     _far  = packet->farPlane;
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdFrameFinishReply( eqNet::Command& command )
+eq::net::CommandResult Channel::_cmdFrameFinishReply( eq::net::Command& command )
 {
     const eq::ChannelFrameFinishReplyPacket* packet = 
         command.getPacket<eq::ChannelFrameFinishReplyPacket>();
@@ -417,7 +417,7 @@ eqNet::CommandResult Channel::_cmdFrameFinishReply( eqNet::Command& command )
         EQLOG( eq::LOG_STATS ) << data << endl;
     }
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
 std::ostream& operator << ( std::ostream& os, const Channel* channel)

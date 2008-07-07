@@ -18,8 +18,8 @@
 
 using namespace eq::base;
 using namespace std;
-using eqNet::CommandFunc;
-using eqNet::NodePtr;
+using eq::net::CommandFunc;
+using eq::net::NodePtr;
 
 namespace eq
 {
@@ -40,7 +40,7 @@ void Server::setClient( eq::base::RefPtr<Client> client )
     if( !_client )
         return;
 
-    eqNet::CommandQueue* queue = client->getNodeThreadQueue();
+    eq::net::CommandQueue* queue = client->getNodeThreadQueue();
 
     registerCommand( CMD_SERVER_CREATE_CONFIG, 
                      CommandFunc<Server>( this, &Server::_cmdCreateConfig ),
@@ -161,7 +161,7 @@ bool Server::shutdown()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
+eq::net::CommandResult Server::_cmdCreateConfig( eq::net::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
@@ -184,17 +184,17 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
         command.getNode()->send( reply );
     }
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdDestroyConfig( eqNet::Command& command )
+eq::net::CommandResult Server::_cmdDestroyConfig( eq::net::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.getPacket<ServerDestroyConfigPacket>();
     EQINFO << "Handle destroy config " << packet << endl;
     
     NodePtr         localNode  = command.getLocalNode();
-    eqNet::Session* session    = localNode->getSession( packet->configID );
+    eq::net::Session* session    = localNode->getSession( packet->configID );
 
     EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
     Config* config = static_cast<Config*>( session );
@@ -202,10 +202,10 @@ eqNet::CommandResult Server::_cmdDestroyConfig( eqNet::Command& command )
     localNode->removeSession( config );
     delete config;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
+eq::net::CommandResult Server::_cmdChooseConfigReply( eq::net::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
         command.getPacket<ServerChooseConfigReplyPacket>();
@@ -214,34 +214,34 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
     if( packet->configID == EQ_ID_INVALID )
     {
         _requestHandler.serveRequest( packet->requestID, (void*)0 );
-        return eqNet::COMMAND_HANDLED;
+        return eq::net::COMMAND_HANDLED;
     }
 
     NodePtr    localNode = command.getLocalNode();
-    eqNet::Session* session   = localNode->getSession( packet->configID );
+    eq::net::Session* session   = localNode->getSession( packet->configID );
     Config*         config    = static_cast< Config* >( session );
     EQASSERTINFO( dynamic_cast< Config* >( session ), 
                   "Session id " << packet->configID << " @" << (void*)session );
 
     _requestHandler.serveRequest( packet->requestID, config );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdReleaseConfigReply( eqNet::Command& command )
+eq::net::CommandResult Server::_cmdReleaseConfigReply( eq::net::Command& command )
 {
     const ServerReleaseConfigReplyPacket* packet = 
         command.getPacket<ServerReleaseConfigReplyPacket>();
 
     _requestHandler.serveRequest( packet->requestID );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdShutdownReply( eqNet::Command& command )
+eq::net::CommandResult Server::_cmdShutdownReply( eq::net::Command& command )
 {
     const ServerShutdownReplyPacket* packet = 
         command.getPacket<ServerShutdownReplyPacket>();
 
     _requestHandler.serveRequest( packet->requestID, packet->result );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 }

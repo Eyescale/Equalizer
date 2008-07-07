@@ -15,7 +15,7 @@
 
 using namespace eq::base;
 using namespace std;
-using eqNet::CommandFunc;
+using eq::net::CommandFunc;
 
 namespace eqs
 {
@@ -40,7 +40,7 @@ Window::Window()
 }
 
 Window::Window( const Window& from, const CompoundVector& compounds )
-        : eqNet::Object()
+        : eq::net::Object()
 {
     _construct();
 
@@ -82,12 +82,12 @@ Window::~Window()
 }
 
 void Window::attachToSession( const uint32_t id, const uint32_t instanceID, 
-                               eqNet::Session* session )
+                               eq::net::Session* session )
 {
-    eqNet::Object::attachToSession( id, instanceID, session );
+    eq::net::Object::attachToSession( id, instanceID, session );
     
-    eqNet::CommandQueue* serverQueue  = getServerThreadQueue();
-    eqNet::CommandQueue* commandQueue = getCommandThreadQueue();
+    eq::net::CommandQueue* serverQueue  = getServerThreadQueue();
+    eq::net::CommandQueue* commandQueue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 
                      CommandFunc<Window>( this, &Window::_cmdConfigInitReply),
@@ -195,7 +195,7 @@ void Window::_resetSwapBarriers()
     Node* node = getNode();
     EQASSERT( node );
 
-    for( vector<eqNet::Barrier*>::iterator iter = _masterSwapBarriers.begin();
+    for( vector<eq::net::Barrier*>::iterator iter = _masterSwapBarriers.begin();
          iter != _masterSwapBarriers.end(); ++iter )
             
         node->releaseBarrier( *iter );
@@ -204,17 +204,17 @@ void Window::_resetSwapBarriers()
     _swapBarriers.clear();
 }
 
-eqNet::Barrier* Window::newSwapBarrier()
+eq::net::Barrier* Window::newSwapBarrier()
 {
     Node*           node    = getNode();
-    eqNet::Barrier* barrier = node->getBarrier();
+    eq::net::Barrier* barrier = node->getBarrier();
     _masterSwapBarriers.push_back( barrier );
 
     joinSwapBarrier( barrier );
     return barrier;
 }
 
-void Window::joinSwapBarrier( eqNet::Barrier* barrier )
+void Window::joinSwapBarrier( eq::net::Barrier* barrier )
 { 
     barrier->increase();
     _swapBarriers.push_back( barrier );
@@ -407,10 +407,10 @@ void Window::_updateSwap( const uint32_t frameNumber )
 {
     bool firstBarrier = false;
 
-    for( vector<eqNet::Barrier*>::iterator iter = _swapBarriers.begin();
+    for( vector<eq::net::Barrier*>::iterator iter = _swapBarriers.begin();
          iter != _swapBarriers.end(); ++iter )
     {
-        const eqNet::Barrier*   barrier = *iter;
+        const eq::net::Barrier*   barrier = *iter;
         if( barrier->getHeight() <= 1 )
         {
             EQWARN << "Ignoring swap barrier of height " << barrier->getHeight()
@@ -458,7 +458,7 @@ void Window::updateFrameFinishNT( const uint32_t currentFrame )
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Window::_cmdConfigInitReply( eqNet::Command& command )
+eq::net::CommandResult Window::_cmdConfigInitReply( eq::net::Command& command )
 {
     const eq::WindowConfigInitReplyPacket* packet =
         command.getPacket<eq::WindowConfigInitReplyPacket>();
@@ -477,10 +477,10 @@ eqNet::CommandResult Window::_cmdConfigInitReply( eqNet::Command& command )
     else
         _state = STATE_INIT_FAILED;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdConfigExitReply( eqNet::Command& command )
+eq::net::CommandResult Window::_cmdConfigExitReply( eq::net::Command& command )
 {
     const eq::WindowConfigExitReplyPacket* packet =
         command.getPacket<eq::WindowConfigExitReplyPacket>();
@@ -491,17 +491,17 @@ eqNet::CommandResult Window::_cmdConfigExitReply( eqNet::Command& command )
     else
         _state = STATE_STOP_FAILED;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdSetPixelViewport( eqNet::Command& command)
+eq::net::CommandResult Window::_cmdSetPixelViewport( eq::net::Command& command)
 {
     const eq::WindowSetPVPPacket* packet = 
         command.getPacket<eq::WindowSetPVPPacket>();
     EQVERB << "handle window set pvp " << packet << endl;
 
     setPixelViewport( packet->pvp );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
 std::ostream& operator << ( std::ostream& os, const Window* window )

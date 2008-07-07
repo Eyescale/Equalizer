@@ -28,7 +28,9 @@
 #  define EQ_DEFAULT_PORT (4242 + getuid())
 #endif
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class ConnectionListener;
     enum ConnectionType;
@@ -295,5 +297,7 @@ namespace eqNet
     std::ostream& operator << ( std::ostream&, const Connection* );
 
 #   include "connection.ipp" // template implementation
+
+}
 }
 #endif //EQNET_CONNECTION_H

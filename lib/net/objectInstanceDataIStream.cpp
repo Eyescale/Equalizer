@@ -11,7 +11,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 ObjectInstanceDataIStream::ObjectInstanceDataIStream()
     : _sequence( EQ_ID_INVALID ) // only for safety check - remove me later!
@@ -65,5 +67,6 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
     }
 
     return false;    
+}
 }
 }

@@ -24,7 +24,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 
 Connection::Connection()
@@ -411,5 +413,6 @@ std::ostream& operator << ( std::ostream& os, const Connection* connection )
        << " description " << connection->getDescription()->toString();
     
     return os;
+}
 }
 }

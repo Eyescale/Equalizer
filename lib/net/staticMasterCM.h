@@ -11,7 +11,9 @@
 
 #include <deque>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Node;
 
@@ -61,6 +63,7 @@ namespace eqNet
         /** The managed object. */
         Object* _object;
     };
+}
 }
 
 #endif // EQNET_STATICMASTERCM_H

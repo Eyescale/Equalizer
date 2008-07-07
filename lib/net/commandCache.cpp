@@ -10,7 +10,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 CommandCache::CommandCache()
 {}
@@ -61,5 +63,6 @@ void CommandCache::release( Command* command )
         command->release();
     
     _freeCommands.push_back( command );
+}
 }
 }

@@ -62,7 +62,7 @@
 #define EQ_TIMEOUT_INDEFINITE 0
 #define EQ_OBJECT_CAST( type, object )                 \
     static_cast<type>( object );                       \
-    EQASSERTINFO( object && !dynamic_cast<type>( object ),  \
+    EQASSERTINFO( object && !dynam!ic_cast<type>( object ),  \
                   "Object is not of type " << #type ); 
 
 

@@ -7,7 +7,9 @@
 
 #include "objectDataOStream.h"   // base class
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Object;
 
@@ -28,5 +30,6 @@ namespace eqNet
         virtual void sendSingle( const void* buffer, const uint64_t size )
             { sendFooter( buffer, size ); }
     };
+}
 }
 #endif //EQNET_OBJECTDELTADATAOSTREAM_H

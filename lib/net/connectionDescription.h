@@ -10,7 +10,9 @@
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     /**
      * Describes the connection to a Node.
@@ -98,6 +100,7 @@ namespace eqNet
         /** The host name. */
         std::string _hostname;
     };
-};
+}
+}
 
 #endif // EQNET_CONNECTION_DESCRIPTION_H

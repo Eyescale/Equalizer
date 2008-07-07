@@ -12,7 +12,7 @@ namespace eqs
     /**
      * A holder for a Frame Data and parameters.
      */
-    class FrameData : public eqNet::Object
+    class FrameData : public eq::net::Object
     {
     public:
         /** 

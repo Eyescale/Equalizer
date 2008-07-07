@@ -11,7 +11,9 @@
 #include <iostream>
 #include <vector>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Connection;
 
@@ -134,5 +136,6 @@ namespace eqNet
 
         return *this;
     }
+}
 }
 #endif //EQNET_DATAOSTREAM_H

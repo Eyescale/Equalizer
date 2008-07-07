@@ -8,10 +8,10 @@
 #include <iostream>
 
 using namespace eq::base;
-using namespace eqNet;
+using namespace eq::net;
 using namespace std;
 
-RefPtr<eqNet::Connection> connection;
+RefPtr<eq::net::Connection> connection;
 
 class NodeThread : public eq::base::Thread
 {
@@ -19,12 +19,12 @@ protected:
     virtual void* run()
         {
             RefPtr<Node>        node      = new Node;
-            RefPtr<eqNet::Node> nodeProxy = new eqNet::Node;
+            RefPtr<eq::net::Node> nodeProxy = new eq::net::Node;
 
             TEST( node->listen( ));
 
-            eqNet::PipeConnection* pipeConnection = 
-                (eqNet::PipeConnection*)connection.get();
+            eq::net::PipeConnection* pipeConnection = 
+                (eq::net::PipeConnection*)connection.get();
 
             TEST( node->connect( nodeProxy, pipeConnection->getChildEnd( )));
             TEST( nodeProxy->isConnected( ));
@@ -39,7 +39,7 @@ protected:
 
 int main( int argc, char **argv )
 {
-    eqNet::init( argc, argv );
+    eq::net::init( argc, argv );
 
     connection = new PipeConnection();
     TEST( connection->connect( ));

@@ -13,7 +13,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 void Barrier::_construct()
 {
@@ -161,5 +163,6 @@ CommandResult Barrier::_cmdEnterReply( Command& command )
     EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << endl;
     ++_leaveNotify;
     return COMMAND_HANDLED;
+}
 }
 }

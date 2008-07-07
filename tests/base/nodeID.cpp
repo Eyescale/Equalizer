@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 
-using namespace eqNet;
+using namespace eq::net;
 using namespace std;
 
 int main( int argc, char **argv )

@@ -12,8 +12,8 @@ namespace eq
 {
 ConfigParams::ConfigParams()
 {
-    _renderClient = eqNet::Global::getProgramName();
-    _workDir      = eqNet::Global::getWorkDir();
+    _renderClient = eq::net::Global::getProgramName();
+    _workDir      = eq::net::Global::getWorkDir();
 
 //     compoundModes = 
 //         COMPOUND_MODE_2D    | 

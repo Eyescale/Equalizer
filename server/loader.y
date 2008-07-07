@@ -30,7 +30,7 @@
         static eqs::Compound*    eqCompound = 0; // avoid name clash on Darwin
         static eqs::SwapBarrier* swapBarrier = 0;
         static eqs::Frame*       frame = 0;
-        static eqNet::ConnectionDescriptionPtr connectionDescription;
+        static eq::net::ConnectionDescriptionPtr connectionDescription;
         static eqs::Wall         wall;
         static eqs::Projection   projection;
         static uint32_t          flags = 0;
@@ -171,7 +171,7 @@
     int                     _int;
     unsigned                _unsigned;
     float                   _float;
-    eqNet::ConnectionType   _connectionType;
+    eq::net::ConnectionType   _connectionType;
     float                   _viewport[4];
 }
 
@@ -321,8 +321,8 @@ global:
      }
 
 connectionType: 
-    EQTOKEN_TCPIP { $$ = eqNet::CONNECTIONTYPE_TCPIP; }
-    | EQTOKEN_SDP { $$ = eqNet::CONNECTIONTYPE_SDP; }
+    EQTOKEN_TCPIP { $$ = eq::net::CONNECTIONTYPE_TCPIP; }
+    | EQTOKEN_SDP { $$ = eq::net::CONNECTIONTYPE_SDP; }
 
 server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
         serverConnections

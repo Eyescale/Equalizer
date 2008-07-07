@@ -33,7 +33,7 @@ void Global::_setupDefaults()
         _connectionIAttributes[i] = eq::UNDEFINED;
 
     _connectionIAttributes[ConnectionDescription::IATTR_TYPE] = 
-        eqNet::CONNECTIONTYPE_TCPIP;
+        eq::net::CONNECTIONTYPE_TCPIP;
     _connectionIAttributes[ConnectionDescription::IATTR_TCPIP_PORT] = 0;
     _connectionIAttributes[ConnectionDescription::IATTR_LAUNCH_TIMEOUT] = 
         60000; // ms
@@ -194,8 +194,8 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         switch( i )
         { 
             case ConnectionDescription::IATTR_TYPE:
-                os << ( value == eqNet::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
-                        value == eqNet::CONNECTIONTYPE_SDP   ? "SDP" : 
+                os << ( value == eq::net::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
+                        value == eq::net::CONNECTIONTYPE_SDP   ? "SDP" : 
                         "PIPE" );
                 break;
             case ConnectionDescription::IATTR_LAUNCH_TIMEOUT:

@@ -52,7 +52,7 @@ private:
 static ServerThread _serverThread;
 }
 
-EQS_EXPORT eqNet::ConnectionPtr eqsStartLocalServer()
+EQS_EXPORT eq::net::ConnectionPtr eqsStartLocalServer()
 {
     if( _serverThread.isRunning( ))
     {
@@ -71,12 +71,12 @@ EQS_EXPORT eqNet::ConnectionPtr eqsStartLocalServer()
     }
 
     // Do not use RefPtr for easier handling
-    eqNet::PairConnection* connection = new eqNet::PairConnection( 
-        eqNet::Connection::create( eqNet::CONNECTIONTYPE_PIPE ),
-        eqNet::Connection::create( eqNet::CONNECTIONTYPE_PIPE ));
+    eq::net::PairConnection* connection = new eq::net::PairConnection( 
+        eq::net::Connection::create( eq::net::CONNECTIONTYPE_PIPE ),
+        eq::net::Connection::create( eq::net::CONNECTIONTYPE_PIPE ));
 
     // Wrap in one RefPtr to do correct reference counting and avoid deletion
-    eqNet::ConnectionPtr  conn = connection;
+    eq::net::ConnectionPtr  conn = connection;
 
     if( !connection->connect( ))
     {

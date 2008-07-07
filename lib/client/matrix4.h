@@ -12,7 +12,7 @@
 namespace eq
 {
     template< typename T >
-    class Matrix4 : public vmml::Matrix4<T>, public eqNet::Object
+    class Matrix4 : public vmml::Matrix4<T>, public eq::net::Object
     {
     public:
         Matrix4();

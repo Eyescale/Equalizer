@@ -11,7 +11,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 ObjectDataIStream::ObjectDataIStream()
         : _lastCommand( 0 )
@@ -59,5 +61,6 @@ const Command* ObjectDataIStream::getNextCommand()
     _lastCommand = _commands.front();
     _commands.pop_front();
     return _lastCommand; 
+}
 }
 }

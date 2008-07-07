@@ -11,7 +11,9 @@
 #include <eq/net/object.h>       // nested enum (Object::Version)
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class ObjectDeltaDataIStream;
     class Node;
@@ -29,6 +31,7 @@ namespace eqNet
     protected:
         virtual void _unpackOneVersion( ObjectDataIStream* is );
     };
+}
 }
 
 #endif // EQNET_DELTASLAVECM_H

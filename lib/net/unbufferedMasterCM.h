@@ -13,7 +13,9 @@
 
 #include <deque>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Node;
     class ObjectDeltaDataOStream;
@@ -88,4 +90,5 @@ namespace eqNet
     };
 }
 
+}
 #endif // EQNET_UNBUFFEREDMASTERCM_H

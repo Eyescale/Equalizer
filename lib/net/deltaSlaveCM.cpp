@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "deltaSlaveCM.h"
@@ -12,9 +12,13 @@
 
 #include <eq/base/scopedMutex.h>
 
-using namespace eqNet;
 using namespace eq::base;
 using namespace std;
+
+namespace eq
+{
+namespace net
+{
 
 DeltaSlaveCM::DeltaSlaveCM( Object* object, uint32_t masterInstanceID )
         : FullSlaveCM( object, masterInstanceID )
@@ -43,3 +47,5 @@ void DeltaSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
             << " did not unpack all data" << endl;
 }
 
+}
+}

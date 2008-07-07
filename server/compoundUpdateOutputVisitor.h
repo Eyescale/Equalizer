@@ -27,7 +27,7 @@ namespace eqs
         virtual Compound::VisitorResult visitPost( Compound* compound )
             { return visitLeaf( compound ); }
 
-        const stde::hash_map<std::string, eqNet::Barrier*>& getSwapBarriers()
+        const stde::hash_map<std::string, eq::net::Barrier*>& getSwapBarriers()
             const { return _swapBarriers; }
         const stde::hash_map<std::string, Frame*>& getOutputFrames() const
             { return _outputFrames; }
@@ -35,7 +35,7 @@ namespace eqs
     private:
         const uint32_t _frameNumber;
  
-        stde::hash_map<std::string, eqNet::Barrier*> _swapBarriers;
+        stde::hash_map<std::string, eq::net::Barrier*> _swapBarriers;
         stde::hash_map<std::string, Frame*>          _outputFrames;
 
         void _updateOutput( Compound* compound );

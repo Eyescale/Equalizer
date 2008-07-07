@@ -10,7 +10,7 @@
 #include <iostream>
 
 using namespace eq::base;
-using namespace eqNet;
+using namespace eq::net;
 using namespace std;
 
 class Server : public eq::base::Thread
@@ -42,7 +42,7 @@ private:
 
 int main( int argc, char **argv )
 {
-    eqNet::init( argc, argv );
+    eq::net::init( argc, argv );
 
     RefPtr<Connection>  connection = new PipeConnection();
     TEST( connection->connect( ));

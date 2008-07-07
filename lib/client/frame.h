@@ -28,7 +28,7 @@ namespace eq
     /**
      * A holder for a frame data and parameters.
      */
-    class EQ_EXPORT Frame : public eqNet::Object
+    class EQ_EXPORT Frame : public eq::net::Object
     {
     public:
         /** 
@@ -76,7 +76,7 @@ namespace eq
         /** Set the pixel viewport of the frame's data */
         void setPixelViewport( const PixelViewport& pvp );
 
-        const eqNet::ObjectVersion& getDataVersion( const Eye eye ) const
+        const eq::net::ObjectVersion& getDataVersion( const Eye eye ) const
             { return _data.frameData[ eye ]; }
         //*}
 
@@ -108,7 +108,7 @@ namespace eq
          * 
          * @param toNode the receiving node.
          */
-        void transmit( eqNet::NodePtr toNode );
+        void transmit( eq::net::NodePtr toNode );
 
         /** 
          * Test the readiness of the frame.
@@ -160,7 +160,7 @@ namespace eq
 
             vmml::Vector2i       offset;
             uint32_t             buffers;
-            eqNet::ObjectVersion frameData[EYE_ALL];
+            eq::net::ObjectVersion frameData[EYE_ALL];
         }
         _data;
 

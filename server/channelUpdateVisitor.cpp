@@ -363,7 +363,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
 
         return;
 
-    vector<eqNet::ObjectVersion> frameIDs;
+    vector<eq::net::ObjectVersion> frameIDs;
     for( vector<Frame*>::const_iterator iter = inputFrames.begin(); 
          iter != inputFrames.end(); ++iter )
     {
@@ -372,7 +372,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
         if( !frame->hasData( _eye )) // TODO: filter: buffers, vp, eye
             continue;
 
-        frameIDs.push_back( eqNet::ObjectVersion( frame ));
+        frameIDs.push_back( eq::net::ObjectVersion( frame ));
     }
 
     if( frameIDs.empty() )
@@ -388,7 +388,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
 
     EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
         << "TASK assemble " << _channel->getName() <<  " " << &packet << endl;
-    _channel->send<eqNet::ObjectVersion>( packet, frameIDs );
+    _channel->send<eq::net::ObjectVersion>( packet, frameIDs );
 }
     
 void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
@@ -401,7 +401,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         return;
 
     vector<Frame*>               frames;
-    vector<eqNet::ObjectVersion> frameIDs;
+    vector<eq::net::ObjectVersion> frameIDs;
     for( vector<Frame*>::const_iterator i = outputFrames.begin(); 
          i != outputFrames.end(); ++i )
     {
@@ -411,7 +411,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
             continue;
 
         frames.push_back( frame );
-        frameIDs.push_back( eqNet::ObjectVersion( frame ));
+        frameIDs.push_back( eq::net::ObjectVersion( frame ));
     }
 
     if( frames.empty() )
@@ -428,12 +428,12 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
         << "TASK readback " << _channel->getName() <<  " "
         << &packet << endl;
-    _channel->send<eqNet::ObjectVersion>( packet, frameIDs );
+    _channel->send<eq::net::ObjectVersion>( packet, frameIDs );
     
     // transmit tasks
     Node*                 node         = _channel->getNode();
-    eqNet::NodePtr   netNode      = node->getNode();
-    const eqNet::NodeID&  outputNodeID = netNode->getNodeID();
+    eq::net::NodePtr   netNode      = node->getNode();
+    const eq::net::NodeID&  outputNodeID = netNode->getNodeID();
     for( vector<Frame*>::const_iterator i = frames.begin(); 
          i != frames.end(); ++i )
     {
@@ -442,14 +442,14 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         const vector<Frame*>& inputFrames = 
             outputFrame->getInputFrames( context.eye);
 
-        vector<eqNet::NodeID> nodeIDs;
+        vector<eq::net::NodeID> nodeIDs;
         for( vector<Frame*>::const_iterator j = inputFrames.begin();
              j != inputFrames.end(); ++j )
         {
             const Frame*        inputFrame   = *j;
             const Node*         inputNode    = inputFrame->getNode();
-            eqNet::NodePtr inputNetNode = inputNode->getNode();
-            eqNet::NodeID       nodeID       = inputNetNode->getNodeID();
+            eq::net::NodePtr inputNetNode = inputNode->getNode();
+            eq::net::NodeID       nodeID       = inputNetNode->getNodeID();
             EQASSERT( node );
 
             if( nodeID == outputNodeID ) // TODO filter: buffers, vp, eye
@@ -470,14 +470,14 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         transmitPacket.sessionID = packet.sessionID;
         transmitPacket.objectID  = packet.objectID;
         transmitPacket.context   = context;
-        transmitPacket.frame     = eqNet::ObjectVersion( outputFrame );
+        transmitPacket.frame     = eq::net::ObjectVersion( outputFrame );
         transmitPacket.nNodes    = nodeIDs.size();
 
         EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS )
             << "TASK transmit " << _channel->getName() <<  " " << 
             &transmitPacket << " first " << nodeIDs[0] << endl;
 
-        _channel->send<eqNet::NodeID>( transmitPacket, nodeIDs );
+        _channel->send<eq::net::NodeID>( transmitPacket, nodeIDs );
     }        
 }
 }

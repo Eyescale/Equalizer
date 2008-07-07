@@ -22,18 +22,18 @@
 
 using namespace eq::base;
 using namespace std;
-using eqNet::CommandFunc;
+using eq::net::CommandFunc;
 
 namespace eq
 {
-typedef eqNet::CommandFunc<Node> NodeFunc;
+typedef eq::net::CommandFunc<Node> NodeFunc;
 
 Node::Node( Config* parent )
         : _config( parent )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
 {
-    eqNet::CommandQueue* queue = parent->getNodeThreadQueue();
+    eq::net::CommandQueue* queue = parent->getNodeThreadQueue();
 
     registerCommand( CMD_NODE_CREATE_PIPE, 
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
@@ -88,16 +88,16 @@ Pipe* Node::_findPipe( const uint32_t id )
     return 0;
 }
 
-eqNet::Barrier* Node::getBarrier( const uint32_t id, const uint32_t version )
+eq::net::Barrier* Node::getBarrier( const uint32_t id, const uint32_t version )
 {
     _barriersMutex.set();
-    eqNet::Barrier* barrier = _barriers[ id ];
+    eq::net::Barrier* barrier = _barriers[ id ];
 
     if( !barrier )
     {
-        eqNet::Session* session = getSession();
+        eq::net::Session* session = getSession();
 
-        barrier = new eqNet::Barrier;
+        barrier = new eq::net::Barrier;
         barrier->makeThreadSafe();
         const bool mapped = session->mapObject( barrier, id );
         EQASSERT( mapped );
@@ -110,14 +110,14 @@ eqNet::Barrier* Node::getBarrier( const uint32_t id, const uint32_t version )
     return barrier;
 }
 
-FrameData* Node::getFrameData( const eqNet::ObjectVersion& dataVersion )
+FrameData* Node::getFrameData( const eq::net::ObjectVersion& dataVersion )
 {
     _frameDatasMutex.set();
     FrameData* frameData = _frameDatas[ dataVersion.id ];
 
     if( !frameData )
     {
-        eqNet::Session* session = getSession();
+        eq::net::Session* session = getSession();
         
         frameData = new FrameData;
         frameData->makeThreadSafe();
@@ -176,8 +176,8 @@ void Node::releaseFrame( const uint32_t frameNumber )
     NodeFrameFinishReplyPacket packet;
     packet.frameNumber = frameNumber;
 
-    RefPtr< eqNet::Node > node = 
-        RefPtr_static_cast< Server, eqNet::Node >( _config->getServer( ));
+    RefPtr< eq::net::Node > node = 
+        RefPtr_static_cast< Server, eq::net::Node >( _config->getServer( ));
     send( node, packet );
 }
 
@@ -211,13 +211,13 @@ void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
 
 void Node::_flushObjects()
 {
-    eqNet::Session* session = getSession();
+    eq::net::Session* session = getSession();
 
     _barriersMutex.set();
-    for( eqNet::IDHash< eqNet::Barrier* >::const_iterator i =_barriers.begin(); 
+    for( eq::net::IDHash< eq::net::Barrier* >::const_iterator i =_barriers.begin(); 
          i != _barriers.end(); ++ i )
     {
-        eqNet::Barrier* barrier = i->second;
+        eq::net::Barrier* barrier = i->second;
         session->unmapObject( barrier );
         delete barrier;
     }
@@ -225,7 +225,7 @@ void Node::_flushObjects()
     _barriersMutex.unset();
 
     _frameDatasMutex.set();
-    for( eqNet::IDHash< FrameData* >::const_iterator i = _frameDatas.begin(); 
+    for( eq::net::IDHash< FrameData* >::const_iterator i = _frameDatas.begin(); 
          i != _frameDatas.end(); ++ i )
     {
         FrameData* frameData = i->second;
@@ -239,9 +239,9 @@ void Node::_flushObjects()
 #ifdef EQ_TRANSMISSION_API
 const void* Node::receiveData( uint64_t* size )
 {
-    eqNet::Command* command = _dataQueue.pop();
+    eq::net::Command* command = _dataQueue.pop();
     const ConfigDataPacket* packet = command->getPacket<ConfigDataPacket>();
-    EQASSERT( packet->datatype == eqNet::DATATYPE_EQNET_SESSION );
+    EQASSERT( packet->datatype == eq::net::DATATYPE_EQNET_SESSION );
     EQASSERT( packet->command == CMD_CONFIG_DATA );
 
     if( size )
@@ -251,12 +251,12 @@ const void* Node::receiveData( uint64_t* size )
 
 const void* Node::tryReceiveData( uint64_t* size )
 {
-    eqNet::Command* command = _dataQueue.tryPop();
+    eq::net::Command* command = _dataQueue.tryPop();
     if( !command )
         return 0;
 
     const ConfigDataPacket* packet = command->getPacket<ConfigDataPacket>();
-    EQASSERT( packet->datatype == eqNet::DATATYPE_EQNET_SESSION );
+    EQASSERT( packet->datatype == eq::net::DATATYPE_EQNET_SESSION );
     EQASSERT( packet->command == CMD_CONFIG_DATA );
 
     if( size )
@@ -273,7 +273,7 @@ bool Node::hasData() const
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Command& command )
+eq::net::CommandResult Node::_cmdCreatePipe( eq::net::Command& command )
 {
     const NodeCreatePipePacket* packet = 
         command.getPacket<NodeCreatePipePacket>();
@@ -289,10 +289,10 @@ eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Command& command )
 
     _config->attachObject( pipe, packet->pipeID );
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
+eq::net::CommandResult Node::_cmdDestroyPipe( eq::net::Command& command )
 {
     const NodeDestroyPipePacket* packet = 
         command.getPacket<NodeDestroyPipePacket>();
@@ -304,10 +304,10 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
     _config->detachObject( pipe );
 
     delete pipe;
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdConfigInit( eqNet::Command& command )
+eq::net::CommandResult Node::_cmdConfigInit( eq::net::Command& command )
 {
     const NodeConfigInitPacket* packet = 
         command.getPacket<NodeConfigInitPacket>();
@@ -326,10 +326,10 @@ eqNet::CommandResult Node::_cmdConfigInit( eqNet::Command& command )
 
     EQLOG( LOG_TASKS ) << "TASK node config init reply " << &reply << endl;
     send( command.getNode(), reply, _error );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdConfigExit( eqNet::Command& command )
+eq::net::CommandResult Node::_cmdConfigExit( eq::net::Command& command )
 {
     const NodeConfigExitPacket* packet = 
         command.getPacket<NodeConfigExitPacket>();
@@ -350,10 +350,10 @@ eqNet::CommandResult Node::_cmdConfigExit( eqNet::Command& command )
     _flushObjects();
 
     send( command.getNode(), reply );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdFrameStart( eqNet::Command& command )
+eq::net::CommandResult Node::_cmdFrameStart( eq::net::Command& command )
 {
     CHECK_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
@@ -369,10 +369,10 @@ eqNet::CommandResult Node::_cmdFrameStart( eqNet::Command& command )
     EQASSERTINFO( _currentFrame >= frameNumber, 
                   "Node::frameStart() did not start frame " << frameNumber );
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdFrameFinish( eqNet::Command& command )
+eq::net::CommandResult Node::_cmdFrameFinish( eq::net::Command& command )
 {
     CHECK_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
@@ -393,10 +393,10 @@ eqNet::CommandResult Node::_cmdFrameFinish( eqNet::Command& command )
         config->waitFrameFinished( frameNumber );
     }
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdFrameDrawFinish( eqNet::Command& command )
+eq::net::CommandResult Node::_cmdFrameDrawFinish( eq::net::Command& command )
 {
     NodeFrameDrawFinishPacket* packet = 
         command.getPacket< NodeFrameDrawFinishPacket >();
@@ -404,6 +404,6 @@ eqNet::CommandResult Node::_cmdFrameDrawFinish( eqNet::Command& command )
                        << endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 }

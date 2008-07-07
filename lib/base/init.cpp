@@ -23,5 +23,7 @@ EQ_EXPORT bool exit()
     eq::base::Log::exit();
     return true;
 }
+
 }
 }
+

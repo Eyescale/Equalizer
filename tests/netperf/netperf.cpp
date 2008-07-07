@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-using namespace eqNet;
+using namespace eq::net;
 using eq::base::Clock;
 using namespace std;
 
@@ -29,7 +29,7 @@ int main( int argc, char **argv )
         exit( EXIT_FAILURE );
     }
 
-    eqNet::init( argc, argv );
+    eq::net::init( argc, argv );
 
     ConnectionPtr connection = Connection::create( CONNECTIONTYPE_TCPIP );
     ConnectionDescriptionPtr connDesc = connection->getDescription();
@@ -96,7 +96,7 @@ int main( int argc, char **argv )
                     if( resultConn->recv( buffer, PACKETSIZE ))
                     {
                         const float time = clock.getTimef();
-                        eqNet::ConnectionDescriptionPtr desc = 
+                        eq::net::ConnectionDescriptionPtr desc = 
                             resultConn->getDescription();
 
                         EQWARN << " Recv perf: " << mBytesSec / time << "MB/s ("

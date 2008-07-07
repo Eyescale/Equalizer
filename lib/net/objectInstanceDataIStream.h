@@ -9,7 +9,9 @@
 
 #include <deque>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Command;
 
@@ -28,5 +30,6 @@ namespace eqNet
     private:
         uint32_t _sequence;
     };
+}
 }
 #endif //EQNET_OBJECTINSTANCEDATAISTREAM_H

@@ -60,7 +60,7 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 	EQASSERT( nodeFactory );
     Global::_nodeFactory = nodeFactory;
 
-    return eqNet::init( argc, argv );
+    return eq::net::init( argc, argv );
 }
 
 EQ_EXPORT bool exit()
@@ -70,7 +70,7 @@ EQ_EXPORT bool exit()
 #endif
 
     Global::_nodeFactory = 0;
-    return eqNet::exit();
+    return eq::net::exit();
 }
 
 EQ_EXPORT Config* getConfig( const int argc, char** argv )

@@ -13,7 +13,9 @@
 
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 ObjectDeltaDataOStream::ObjectDeltaDataOStream( const Object* object)
         : ObjectDataOStream( object )
@@ -47,5 +49,6 @@ void ObjectDeltaDataOStream::sendFooter( const void* buffer,
     EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << " to " 
                          << _connections.size() << " receivers " << endl;
     Connection::send( _connections, deltaPacket, buffer, size, true );
+}
 }
 }

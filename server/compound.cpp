@@ -582,13 +582,13 @@ void Compound::update( const uint32_t frameNumber )
     CompoundUpdateInputVisitor updateInputVisitor( outputFrames );
     accept( &updateInputVisitor );
 
-    const hash_map<std::string, eqNet::Barrier*>& swapBarriers = 
+    const hash_map<std::string, eq::net::Barrier*>& swapBarriers = 
         updateOutputVisitor.getSwapBarriers();
 
-    for( hash_map<string, eqNet::Barrier*>::const_iterator i = 
+    for( hash_map<string, eq::net::Barrier*>::const_iterator i = 
              swapBarriers.begin(); i != swapBarriers.end(); ++i )
     {
-        eqNet::Barrier* barrier = i->second;
+        eq::net::Barrier* barrier = i->second;
         if( barrier->getHeight() > 1 )
             barrier->commit();
     }

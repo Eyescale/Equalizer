@@ -7,7 +7,9 @@
 
 #include "objectDataIStream.h"   // base class
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Command;
 
@@ -23,5 +25,6 @@ namespace eqNet
     protected:
         virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size );
     };
+}
 }
 #endif //EQNET_OBJECTDELTADATAISTREAM_H

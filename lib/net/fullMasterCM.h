@@ -13,7 +13,9 @@
 
 #include <deque>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Node;
 
@@ -110,6 +112,7 @@ namespace eqNet
 
         CHECK_THREAD_DECLARE( _thread );
     };
+}
 }
 
 #endif // EQNET_FULLMASTERCM_H

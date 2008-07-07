@@ -67,28 +67,28 @@ void CommandQueue::setWindowSystem( const WindowSystem windowSystem )
     }
 }
 
-void CommandQueue::push(eqNet::Command& inCommand)
+void CommandQueue::push(eq::net::Command& inCommand)
 {
-    eqNet::CommandQueue::push(inCommand);
+    eq::net::CommandQueue::push(inCommand);
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
-void CommandQueue::pushFront(eqNet::Command& inCommand)
+void CommandQueue::pushFront(eq::net::Command& inCommand)
 {
-    eqNet::CommandQueue::pushFront(inCommand);
+    eq::net::CommandQueue::pushFront(inCommand);
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
 void CommandQueue::wakeup()
 {
-    eqNet::CommandQueue::wakeup();
+    eq::net::CommandQueue::wakeup();
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
-eqNet::Command* CommandQueue::pop()
+eq::net::Command* CommandQueue::pop()
 {
     while( true )
     {
@@ -97,20 +97,20 @@ eqNet::Command* CommandQueue::pop()
 
         // Poll for a command
         if( !empty( ))
-            return eqNet::CommandQueue::pop();
+            return eq::net::CommandQueue::pop();
 
         if( _messagePump )
             _messagePump->dispatchOne(); // blocking - push will send wakeup
         else
-            return eqNet::CommandQueue::pop();
+            return eq::net::CommandQueue::pop();
     }
 }
 
-eqNet::Command* CommandQueue::tryPop()
+eq::net::Command* CommandQueue::tryPop()
 {
     if( _messagePump )
         _messagePump->dispatchAll(); // non-blocking
 
-    return eqNet::CommandQueue::tryPop();
+    return eq::net::CommandQueue::tryPop();
 }
 }

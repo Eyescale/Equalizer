@@ -32,6 +32,7 @@
 
 #ifdef EQ_USE_DEPRECATED
 namespace eqBase = ::eq::base;
+namespace eqNet  = ::eq::net;
 #endif
 
 #endif // EQ_H

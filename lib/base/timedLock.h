@@ -47,7 +47,7 @@ namespace base
         /** 
          * Attempts to set the lock.
          * 
-         * @return <code>true</code> if the lock was acquired,
+!         * @return <code>true</code> if the lock was acquired,
          *         <code>false</code> if not.
          */
         bool trySet();

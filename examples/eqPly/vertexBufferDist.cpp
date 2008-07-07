@@ -2,7 +2,7 @@
  *   Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
  *   All rights reserved.  
  *
- * eqNet::Object to distribute a model. Has a VertexBufferBase node.
+ * eq::net::Object to distribute a model. Has a VertexBufferBase node.
  */
 
 #include "vertexBufferDist.h"
@@ -54,7 +54,7 @@ VertexBufferDist::~VertexBufferDist()
     _right = 0;
 }
 
-void VertexBufferDist::registerTree( eqNet::Session* session )
+void VertexBufferDist::registerTree( eq::net::Session* session )
 {
     EQASSERT( getID() == EQ_ID_INVALID );
     session->registerObject( this );
@@ -78,7 +78,7 @@ void VertexBufferDist::deregisterTree()
         _right->deregisterTree();
 }
 
-mesh::VertexBufferRoot* VertexBufferDist::mapModel(eqNet::Session* session,
+mesh::VertexBufferRoot* VertexBufferDist::mapModel(eq::net::Session* session,
                                                    const uint32_t modelID )
 {
     VertexBufferDist modelDist( 0, 0 );
@@ -107,7 +107,7 @@ void VertexBufferDist::_unmapTree()
         _right->_unmapTree();
 }
 
-void VertexBufferDist::getInstanceData( eqNet::DataOStream& os )
+void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
 {
     EQASSERT( _node );
     os << _isRoot;
@@ -139,7 +139,7 @@ void VertexBufferDist::getInstanceData( eqNet::DataOStream& os )
     os << _node->_boundingSphere << _node->_range;
 }
 
-void VertexBufferDist::applyInstanceData( eqNet::DataIStream& is )
+void VertexBufferDist::applyInstanceData( eq::net::DataIStream& is )
 {
     EQASSERT( !_node );
 
@@ -171,7 +171,7 @@ void VertexBufferDist::applyInstanceData( eqNet::DataIStream& is )
         _left  = new VertexBufferDist( _root, 0 );
         _right = new VertexBufferDist( _root, 0 );
 
-        eqNet::Session* session = getSession();
+        eq::net::Session* session = getSession();
         const uint32_t sync1 = session->mapObjectNB( _left, leftID );
         const uint32_t sync2 = session->mapObjectNB( _right, rightID );
         EQASSERT( sync1 != EQ_ID_INVALID );

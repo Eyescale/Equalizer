@@ -15,7 +15,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 FullMasterCM::FullMasterCM( Object* object )
         : _object( object ),
@@ -273,5 +275,6 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     _checkConsistency();
     _requestHandler.serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
+}
 }
 }

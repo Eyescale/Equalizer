@@ -8,7 +8,9 @@
 
 #include <eq/net/connection.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 
     /**
@@ -44,6 +46,7 @@ namespace eqNet
            << " writeFD " << connection->_writeFD;
         return os;
     }
+}
 }
 
 #endif //EQNET_FDCONNECTION_H

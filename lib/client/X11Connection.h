@@ -15,7 +15,7 @@ namespace eq
     /**
      * A X11 Display connection wrapper.
      */
-    class X11Connection : public eqNet::Connection
+    class X11Connection : public eq::net::Connection
     {
     public:
         X11Connection( Pipe* pipe_ )
@@ -46,7 +46,7 @@ namespace eq
         Display* _display;
     };
 #else
-    class X11Connection : public eqNet::Connection {};
+    class X11Connection : public eq::net::Connection {};
 #endif
 }
 

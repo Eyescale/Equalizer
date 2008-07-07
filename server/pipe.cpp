@@ -17,7 +17,7 @@
 
 using namespace eq::base;
 using namespace std;
-using eqNet::CommandFunc;
+using eq::net::CommandFunc;
 
 namespace eqs
 {
@@ -49,7 +49,7 @@ Pipe::Pipe()
 }
 
 Pipe::Pipe( const Pipe& from, const CompoundVector& compounds )
-        : eqNet::Object()
+        : eq::net::Object()
 {
     _construct();
 
@@ -91,11 +91,11 @@ Pipe::~Pipe()
 }
 
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
-                               eqNet::Session* session )
+                               eq::net::Session* session )
 {
-    eqNet::Object::attachToSession( id, instanceID, session );
+    eq::net::Object::attachToSession( id, instanceID, session );
     
-    eqNet::CommandQueue* queue = getCommandThreadQueue();
+    eq::net::CommandQueue* queue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_PIPE_CONFIG_INIT_REPLY,
                      CommandFunc<Pipe>( this, &Pipe::_cmdConfigInitReply ),
@@ -335,7 +335,7 @@ void Pipe::setPixelViewport( const eq::PixelViewport& pvp )
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Pipe::_cmdConfigInitReply( eqNet::Command& command ) 
+eq::net::CommandResult Pipe::_cmdConfigInitReply( eq::net::Command& command ) 
 {
     const eq::PipeConfigInitReplyPacket* packet = 
         command.getPacket<eq::PipeConfigInitReplyPacket>();
@@ -349,10 +349,10 @@ eqNet::CommandResult Pipe::_cmdConfigInitReply( eqNet::Command& command )
     else
         _state = STATE_INIT_FAILED;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdConfigExitReply( eqNet::Command& command ) 
+eq::net::CommandResult Pipe::_cmdConfigExitReply( eq::net::Command& command ) 
 {
     const eq::PipeConfigExitReplyPacket* packet = 
         command.getPacket<eq::PipeConfigExitReplyPacket>();
@@ -363,7 +363,7 @@ eqNet::CommandResult Pipe::_cmdConfigExitReply( eqNet::Command& command )
     else
         _state = STATE_STOP_FAILED;
 
-    return eqNet::COMMAND_HANDLED;
+    return eq::net::COMMAND_HANDLED;
 }
 
 

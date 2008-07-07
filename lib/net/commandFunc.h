@@ -7,7 +7,9 @@
 
 #include <eq/net/commandResult.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Command;
 
@@ -36,8 +38,7 @@ namespace eqNet
         T* _object;
         CommandResult (T::*_func)( Command& );
     };
-
-     
+}
 }
 
 #endif //EQNET_COMMANDFUNC_H

@@ -5,7 +5,9 @@
 #ifndef EQNET_COMMANDRESULT_H
 #define EQNET_COMMANDRESULT_H
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     enum CommandResult
     {
@@ -13,6 +15,7 @@ namespace eqNet
         COMMAND_DISCARD,     //*< Discard command, used by Objects
         COMMAND_ERROR        //*< An unrecoverable error occured
     };
+}
 }
 
 #endif // EQNET_COMMANDRESULT_H

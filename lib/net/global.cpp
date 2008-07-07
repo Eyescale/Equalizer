@@ -4,7 +4,10 @@
 
 #include "global.h"
 
-using namespace eqNet;
+namespace eq
+{
+namespace net
+{
 
 std::string Global::_programName;
 std::string Global::_workDir;
@@ -17,4 +20,7 @@ void Global::setProgramName( const std::string& programName )
 void Global::setWorkDir( const std::string& workDir )
 {
     _workDir = workDir; 
+}
+
+}
 }

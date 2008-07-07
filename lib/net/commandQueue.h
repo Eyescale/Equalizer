@@ -12,7 +12,9 @@
 #include <eq/base/nonCopyable.h>
 #include <eq/base/thread.h>
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
     class Command;
 
@@ -88,6 +90,7 @@ namespace eqNet
         CommandCache              _commandCache;
         eq::base::Lock              _commandCacheLock;
     };
+}
 }
 
 #endif //EQNET_COMMANDQUEUE_H

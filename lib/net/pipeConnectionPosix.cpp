@@ -10,8 +10,12 @@
 
 #include <errno.h>
 
-using namespace eqNet;
 using namespace std;
+
+namespace eq
+{
+namespace net
+{
 
 PipeConnection::PipeConnection()
 {
@@ -80,4 +84,7 @@ void PipeConnection::close()
 
     _state = STATE_CLOSED;
     _fireStateChanged();
+}
+
+}
 }

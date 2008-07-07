@@ -18,7 +18,7 @@ namespace eqs
     /**
      * The node.
      */
-    class Node : public eqNet::Object
+    class Node : public eq::net::Object
     {
     public:
         /** 
@@ -37,14 +37,14 @@ namespace eqs
         Server* getServer() const
             { return _config ? _config->getServer() : NULL; }
 
-        eqNet::NodePtr getNode() const { return _node; }
-        void setNode( eqNet::NodePtr node ) { _node = node; }
+        eq::net::NodePtr getNode() const { return _node; }
+        void setNode( eq::net::NodePtr node ) { _node = node; }
         bool isApplicationNode() const
             { return (this == _config->getApplicationNode( )); }
 
-        eqNet::CommandQueue* getServerThreadQueue()
+        eq::net::CommandQueue* getServerThreadQueue()
             { return _config->getServerThreadQueue(); }
-        eqNet::CommandQueue* getCommandThreadQueue()
+        eq::net::CommandQueue* getCommandThreadQueue()
             { return _config->getCommandThreadQueue(); }
 
         /** @return the number of the last finished frame. */
@@ -162,28 +162,28 @@ namespace eqs
          * 
          * @return the barrier.
          */
-        eqNet::Barrier* getBarrier();
+        eq::net::Barrier* getBarrier();
 
         /** 
          * Release a barrier server by this node.
          * 
          * @param barrier the barrier.
          */
-        void releaseBarrier( eqNet::Barrier* barrier );
+        void releaseBarrier( eq::net::Barrier* barrier );
         //*}
 
-        void send( eqNet::SessionPacket& packet ) 
+        void send( eq::net::SessionPacket& packet ) 
             { 
                 packet.sessionID = _config->getID(); 
                 _bufferedTasks.send( packet );
             }
-        void send( eqNet::SessionPacket& packet, const std::string& string ) 
+        void send( eq::net::SessionPacket& packet, const std::string& string ) 
             {
                 packet.sessionID = _config->getID(); 
                 _bufferedTasks.send( packet, string );
             }
         template< typename T >
-        void send( eqNet::ObjectPacket &packet, const std::vector<T>& data )
+        void send( eq::net::ObjectPacket &packet, const std::vector<T>& data )
             {
                 packet.sessionID = _config->getID(); 
                 _bufferedTasks.send( packet, data );
@@ -194,7 +194,7 @@ namespace eqs
          * 
          * @param cd the connection description.
          */
-        void addConnectionDescription(eqNet::ConnectionDescriptionPtr desc )
+        void addConnectionDescription(eq::net::ConnectionDescriptionPtr desc )
             { _connectionDescriptions.push_back( desc ); }
         
         /** 
@@ -210,7 +210,7 @@ namespace eqs
          * @param index the index of the connection description.
          * @return the connection description.
          */
-        const eqNet::ConnectionDescriptionVector& getConnectionDescriptions()
+        const eq::net::ConnectionDescriptionVector& getConnectionDescriptions()
             const { return _connectionDescriptions; }
 
         /** @name Error information. */
@@ -225,10 +225,10 @@ namespace eqs
         /** Registers request packets waiting for a return value. */
         eq::base::RequestHandler _requestHandler;
 
-        /** @sa eqNet::Object::attachToSession. */
+        /** @sa eq::net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
-                                      eqNet::Session* session );
+                                      eq::net::Session* session );
     private:
         /** The nodes's name */
         std::string _name;
@@ -247,10 +247,10 @@ namespace eqs
         uint32_t _used;
 
         /** The network node on which this Equalizer node is running. */
-        eqNet::NodePtr _node;
+        eq::net::NodePtr _node;
 
         /** The list of descriptions on how this node is reachable. */
-        eqNet::ConnectionDescriptionVector _connectionDescriptions;
+        eq::net::ConnectionDescriptionVector _connectionDescriptions;
 
         /** The frame identifiers non-finished frames. */
         std::map< uint32_t, uint32_t > _frameIDs;
@@ -275,10 +275,10 @@ namespace eqs
         eq::base::Monitor< State > _state;
             
         /** The cached barriers. */
-        std::vector<eqNet::Barrier*> _barriers;
+        std::vector<eq::net::Barrier*> _barriers;
 
         /** Task packets for the current operation. */
-        eqNet::BufferConnection _bufferedTasks;
+        eq::net::BufferConnection _bufferedTasks;
 
         /** The last draw compound for this entity */
         const Compound* _lastDrawCompound;
@@ -289,18 +289,18 @@ namespace eqs
         /** flush cached barriers. */
         void _flushBarriers();
 
-        void _send( eqNet::ObjectPacket& packet ) 
+        void _send( eq::net::ObjectPacket& packet ) 
             { packet.objectID = getID(); send( packet ); }
-        void _send( eqNet::ObjectPacket& packet, const std::string& string ) 
+        void _send( eq::net::ObjectPacket& packet, const std::string& string ) 
             { packet.objectID = getID(); send( packet, string ); }
 
         /** Send the frame finish packet for the given frame number. */
         void _sendFrameFinish( const uint32_t frameNumber );
 
         /* Command handler functions. */
-        eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdConfigExitReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameFinishReply( eqNet::Command& command );
+        eq::net::CommandResult _cmdConfigInitReply( eq::net::Command& command );
+        eq::net::CommandResult _cmdConfigExitReply( eq::net::Command& command );
+        eq::net::CommandResult _cmdFrameFinishReply( eq::net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Node* node );

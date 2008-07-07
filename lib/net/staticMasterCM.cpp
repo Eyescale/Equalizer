@@ -15,7 +15,9 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eqNet
+namespace eq
+{
+namespace net
 {
 StaticMasterCM::StaticMasterCM( Object* object )
         : _object( object )
@@ -32,5 +34,6 @@ void StaticMasterCM::addSlave( NodePtr node, const uint32_t instanceID )
     os.enable( node );
     _object->getInstanceData( os );
     os.disable();
+}
 }
 }
