@@ -46,7 +46,7 @@ namespace eq
         Display* _display;
     };
 #else
-typedef net::Connection X11Connection;
+    class X11Connection : public eq::net::Connection {};
 #endif
 }
 
