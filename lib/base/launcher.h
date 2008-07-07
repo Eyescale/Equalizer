@@ -9,7 +9,9 @@
 #include <string>
 #include <vector>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /** The launcher executes a command in a separate process. */
     class Launcher
@@ -26,4 +28,5 @@ namespace eqBase
     };
 }
 
+}
 #endif // EQBASE_LAUNCHER_H

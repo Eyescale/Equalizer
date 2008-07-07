@@ -12,7 +12,7 @@
 #include <eq/base/log.h>
 
 using namespace eqNet;
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 Base::Base()

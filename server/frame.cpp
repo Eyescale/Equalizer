@@ -10,7 +10,7 @@
 #include <eq/net/session.h>
 
 using namespace eqs;
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 Frame::Frame()

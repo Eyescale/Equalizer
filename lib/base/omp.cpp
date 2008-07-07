@@ -4,7 +4,9 @@
 
 #include "omp.h"
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 static int _setupNThreads();
 
@@ -29,5 +31,6 @@ static int _setupNThreads()
 #else
     return 1;
 #endif
+}
 }
 }

@@ -16,9 +16,9 @@ class Object;
 class Connection;
 class ConnectionDescription;
 
-typedef eqBase::RefPtr< Node >                  NodePtr;
-typedef eqBase::RefPtr< Connection >            ConnectionPtr;
-typedef eqBase::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
+typedef eq::base::RefPtr< Node >                  NodePtr;
+typedef eq::base::RefPtr< Connection >            ConnectionPtr;
+typedef eq::base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
 typedef std::vector< NodePtr >                  NodeVector;
 typedef std::vector< Object* >                  ObjectVector;

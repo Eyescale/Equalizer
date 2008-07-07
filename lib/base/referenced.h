@@ -9,7 +9,9 @@
 #include <eq/base/debug.h>    // for EQERROR
 #include <eq/base/atomic.h>   // member
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /**
      * Base class for referenced objects.
@@ -74,4 +76,5 @@ namespace eqBase
     };
 }
 
+}
 #endif //EQBASE_REFERENCED_H

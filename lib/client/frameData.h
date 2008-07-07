@@ -111,14 +111,14 @@ namespace eq
          * 
          * @param listener the listener.
          */
-        void addListener( eqBase::Monitor<uint32_t>& listener );
+        void addListener( eq::base::Monitor<uint32_t>& listener );
 
         /** 
          * Remove a frame listener.
          * 
          * @param listener the listener.
          */
-        void removeListener( eqBase::Monitor<uint32_t>& listener );
+        void removeListener( eq::base::Monitor<uint32_t>& listener );
         
         /** 
          * Disable the usage of a frame buffer attachment for all images.
@@ -159,7 +159,7 @@ namespace eq
 
         ImageVector _images;
         ImageVector _imageCache;
-        eqBase::SpinLock    _imageCacheLock;
+        eq::base::SpinLock    _imageCacheLock;
 
         struct ImageVersion
         {
@@ -173,11 +173,11 @@ namespace eq
         std::set< uint32_t >    _readyVersions;
 
         /** Data ready monitor synchronization primitive. */
-        eqBase::Monitor<uint32_t> _readyVersion;
+        eq::base::Monitor<uint32_t> _readyVersion;
 
         /** External monitors for readyness synchronization. */
-        std::vector< eqBase::Monitor<uint32_t>* > _listeners;
-        eqBase::Lock                              _listenersMutex;
+        std::vector< eq::base::Monitor<uint32_t>* > _listeners;
+        eq::base::Lock                              _listenersMutex;
 
         /** Allocate or reuse an image. */
         Image* _allocImage();

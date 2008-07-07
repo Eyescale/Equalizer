@@ -128,14 +128,14 @@ namespace eq
          * 
          * @param listener the listener.
          */
-        void addListener( eqBase::Monitor<uint32_t>& listener );
+        void addListener( eq::base::Monitor<uint32_t>& listener );
 
         /** 
          * Remove a frame listener.
          * 
          * @param listener the listener.
          */
-        void removeListener( eqBase::Monitor<uint32_t>& listener );
+        void removeListener( eq::base::Monitor<uint32_t>& listener );
         //*}
 
         /** 

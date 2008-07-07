@@ -32,7 +32,7 @@
 #include <math.h>
 #include <vector>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using namespace stde;
 

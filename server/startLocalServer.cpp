@@ -11,14 +11,14 @@
 #include <eq/net/pipeConnection.h>
 
 using namespace eqs;
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 #define CONFIG "server{ config{ appNode{ pipe { window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}} compound { channel \"channel\" wall { bottom_left [ -.8 -.5 -1 ] bottom_right [  .8 -.5 -1 ] top_left [ -.8  .5 -1 ] }}}}"
 
 namespace
 {
-class ServerThread : public eqBase::Thread
+class ServerThread : public eq::base::Thread
 {
 public:
     ServerThread() {}
@@ -52,7 +52,7 @@ private:
 static ServerThread _serverThread;
 }
 
-EQS_EXPORT eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer()
+EQS_EXPORT eqNet::ConnectionPtr eqsStartLocalServer()
 {
     if( _serverThread.isRunning( ))
     {

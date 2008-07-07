@@ -4,7 +4,7 @@
 
 #include <Mswsock.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqNet

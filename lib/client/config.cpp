@@ -19,14 +19,14 @@
 #include <eq/net/command.h>
 #include <eq/net/global.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using eqNet::CommandFunc;
 
 namespace eq
 {
 
-Config::Config( eqBase::RefPtr< Server > server )
+Config::Config( eq::base::RefPtr< Server > server )
         : Session( true )
         , _lastEvent( 0 )
         , _latency( 0 )
@@ -82,14 +82,14 @@ Config::~Config()
     _appNode   = 0;
 }
 
-eqBase::RefPtr<Server> Config::getServer()
+eq::base::RefPtr<Server> Config::getServer()
 { 
     eqNet::NodePtr node = eqNet::Session::getServer();
     EQASSERT( dynamic_cast< Server* >( node.get( )));
     return RefPtr_static_cast< eqNet::Node, Server >( node );
 }
 
-eqBase::RefPtr<Client> Config::getClient()
+eq::base::RefPtr<Client> Config::getClient()
 { 
     return getServer()->getClient(); 
 }

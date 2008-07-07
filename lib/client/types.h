@@ -29,7 +29,7 @@ typedef std::vector< Channel* > ChannelVector;
 typedef std::vector< Frame* >   FrameVector;
 typedef std::vector< Image* >   ImageVector;
 
-typedef eqBase::RefPtr< X11Connection > X11ConnectionPtr;
+typedef eq::base::RefPtr< X11Connection > X11ConnectionPtr;
 
 typedef std::vector< Statistic >                Statistics;
 

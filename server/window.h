@@ -233,7 +233,7 @@ namespace eqs
         virtual ~Window();
 
         /** Registers request packets waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
+        eq::base::RequestHandler _requestHandler;
 
         /** @sa eqNet::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
@@ -262,7 +262,7 @@ namespace eqs
         friend class Pipe;
 
         /** The current state for state change synchronization. */
-        eqBase::Monitor< State > _state;
+        eq::base::Monitor< State > _state;
             
         /** The absolute size and position of the window. */
         eq::PixelViewport _pvp;

@@ -7,7 +7,9 @@
 
 #include <eq/base/base.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class SpinLockPrivate;
 
@@ -58,5 +60,5 @@ namespace eqBase
         SpinLockPrivate* _data;
     };
 }
-
+}
 #endif //EQBASE_SPINLOCK_H

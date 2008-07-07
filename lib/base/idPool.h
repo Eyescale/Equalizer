@@ -10,7 +10,9 @@
 
 #include <list>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 #   define EQ_ID_INVALID 0xfffffffeu
 #   define EQ_ID_ANY     0xffffffffu
@@ -70,4 +72,5 @@ namespace eqBase
     };
 }
 
+}
 #endif //EQBASE_IDPOOL_H

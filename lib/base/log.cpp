@@ -15,8 +15,11 @@ using namespace std;
 #endif
 
 
-namespace eqBase
+namespace eq
 {
+namespace base
+{
+
 static int      getLogLevel();
 static unsigned getLogTopics();
 
@@ -122,7 +125,7 @@ LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
         if( !_noHeader )
         {
             _stringStream << getpid()  << " " 
-                          << eqBase::Thread::getSelfThreadID()
+                          << eq::base::Thread::getSelfThreadID()
                           << " " << _file << ":" << _line << " ";
 #ifndef NDEBUG
             const int prec  = _stringStream.precision();
@@ -193,5 +196,6 @@ EQ_EXPORT std::ostream& enableHeader( std::ostream& os )
     if( log )
         log->enableHeader();
     return os;
+}
 }
 }

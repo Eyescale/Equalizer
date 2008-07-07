@@ -22,7 +22,7 @@
 #include <eq/base/scopedMutex.h>
 #include <iostream>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqNet

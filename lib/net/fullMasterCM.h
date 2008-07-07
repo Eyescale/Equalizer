@@ -82,7 +82,7 @@ namespace eqNet
         uint32_t _obsoleteFlags;
 
         /** Registers request packets waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
+        eq::base::RequestHandler _requestHandler;
 
         struct DeltaData
         {

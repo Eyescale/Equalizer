@@ -9,7 +9,9 @@
 
 #include <vector>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class Lock;
     class RunnableListener;
@@ -147,4 +149,5 @@ namespace eqBase
     };
 }
 
+}
 #endif //EQBASE_PROCESS_H

@@ -7,7 +7,7 @@
 #include <eq/base/clock.h>
 #include <eq/client/image.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace eq;
 using namespace std;
 

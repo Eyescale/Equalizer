@@ -5,9 +5,12 @@
 #include "monitor.h"
 
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 // instantiate base types
 template class Monitor< uint32_t >;
 template class Monitor< bool >;
+}
 }

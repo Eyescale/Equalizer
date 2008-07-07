@@ -11,7 +11,7 @@
 #include <eq/base/thread.h>
 
 using namespace eqNet;
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 PipeConnection::PipeConnection()

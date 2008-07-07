@@ -6,7 +6,7 @@
 
 #include <eq/base/log.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 #define DEG2RAD( angle ) ((angle) * static_cast<float>(M_PI) / 180.f)

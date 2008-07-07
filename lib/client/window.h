@@ -43,7 +43,7 @@ namespace eq
         
         /** The per-window object manager */
         class ObjectManager : public eq::ObjectManager< const void* >, 
-                              public eqBase::Referenced
+                              public eq::base::Referenced
         {
         public:
             ObjectManager( GLEWContext* glewContext ) 
@@ -66,9 +66,9 @@ namespace eq
         Node* getNode() const 
             { return ( _pipe ? _pipe->getNode() : 0 );}
         Config* getConfig() const { return (_pipe ? _pipe->getConfig() : 0);}
-        eqBase::RefPtr< Client > getClient() const 
+        eq::base::RefPtr< Client > getClient() const 
             { return ( _pipe ? _pipe->getClient() : 0 ); }
-        eqBase::RefPtr< Server > getServer() const 
+        eq::base::RefPtr< Server > getServer() const 
             { return ( _pipe ? _pipe->getServer() : 0 ); }
         const ChannelVector& getChannels() const { return _channels; }
 
@@ -681,7 +681,7 @@ namespace eq
         GLEWContext*   _glewContext;
 
         /** OpenGL object management. */
-        eqBase::RefPtr< ObjectManager > _objectManager;
+        eq::base::RefPtr< ObjectManager > _objectManager;
 
         /** The reason for the last error. */
         std::string    _error;
@@ -748,7 +748,7 @@ namespace eq
         };
 
         /** Used on AGL only */
-        eqBase::SpinLock* _renderContextAGLLock;
+        eq::base::SpinLock* _renderContextAGLLock;
 
         friend class Channel;
         void _addChannel( Channel* channel );

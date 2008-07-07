@@ -7,7 +7,9 @@
 
 #include <eq/base/base.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     void sleep( const uint32_t seconds )
     {
@@ -17,5 +19,6 @@ namespace eqBase
         ::sleep( seconds );
 #endif
     }
+}
 }
 #endif  // EQBASE_SLEEP_H

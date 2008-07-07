@@ -45,7 +45,7 @@ namespace eqNet
         Command*                    _lastCommand;
 
         /** The object version associated with this input stream. */
-        eqBase::Monitor< uint32_t > _version;
+        eq::base::Monitor< uint32_t > _version;
     };
 }
 #endif //EQNET_OBJECTDATAISTREAM_H

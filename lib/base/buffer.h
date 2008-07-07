@@ -8,7 +8,9 @@
 #include <eq/base/nonCopyable.h> // base class
 #include <eq/base/debug.h>       // EQASSERT macro
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /**
      * A simple memory buffer with some helper functions.
@@ -144,4 +146,5 @@ namespace eqBase
     typedef Buffer< uint8_t > Bufferb;
 }
 
+}
 #endif //EQBASE_BUFFER_H

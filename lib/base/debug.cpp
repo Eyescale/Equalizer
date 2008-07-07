@@ -5,7 +5,7 @@
 #include "debug.h"
 
 #ifndef NDEBUG
-EQ_EXPORT void eqBase::abortDebug()
+EQ_EXPORT void eq::base::abortDebug()
 {
     // if EQ_ABORT_WAIT is set, spin forever to allow identifying and debugging
     // crashed nodes.

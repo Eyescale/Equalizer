@@ -1,4 +1,4 @@
-
+ 
 /* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -64,5 +64,6 @@
     static_cast<type>( object );                       \
     EQASSERTINFO( object && !dynamic_cast<type>( object ),  \
                   "Object is not of type " << #type ); 
+
 
 #endif //EQBASE_BASE_H

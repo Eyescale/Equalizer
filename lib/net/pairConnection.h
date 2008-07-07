@@ -40,7 +40,7 @@ namespace eqNet
 
         ConnectionPtr _readConnection;
         ConnectionPtr _writeConnection;
-        eqBase::RefPtr<PairConnection> _sibling;
+        eq::base::RefPtr<PairConnection> _sibling;
     };
 }
 #endif //EQNET_PAIRCONNECTION_H

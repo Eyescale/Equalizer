@@ -16,7 +16,7 @@
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using eqNet::CommandFunc;
 using eqNet::NodePtr;
@@ -34,7 +34,7 @@ Server::~Server()
     EQINFO << "Delete server at " << (void*)this << endl;
 }
 
-void Server::setClient( eqBase::RefPtr<Client> client )
+void Server::setClient( eq::base::RefPtr<Client> client )
 {
     _client = client;
     if( !_client )

@@ -13,7 +13,9 @@
 
 #include <vector>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class ExecutionListener;
     class ThreadPrivate;
@@ -199,11 +201,11 @@ namespace eqBase
     {                                                                   \
         if( NAME.id == 0 )                                              \
         {                                                               \
-            NAME.id = eqBase::Thread::getSelfThreadID();                \
+            NAME.id = eq::base::Thread::getSelfThreadID();                \
             EQVERB << "Functions for " << #NAME                         \
                    << " locked to this thread" << std::endl;            \
         }                                                               \
-        if( !NAME.extMutex && NAME.id != eqBase::Thread::getSelfThreadID( )) \
+        if( !NAME.extMutex && NAME.id != eq::base::Thread::getSelfThreadID( )) \
         {                                                               \
             EQERROR << "Threadsafety check for " << #NAME               \
                     << " failed on object of type "                     \
@@ -216,7 +218,7 @@ namespace eqBase
     {                                                                   \
         if( !NAME.extMutex && NAME.id != 0 )                           \
         {                                                               \
-            if( NAME.id ==  eqBase::Thread::getSelfThreadID( ))         \
+            if( NAME.id ==  eq::base::Thread::getSelfThreadID( ))         \
             {                                                           \
                 EQERROR << "Threadsafety check for not " << #NAME       \
                         << " failed on object of type "                 \
@@ -232,5 +234,6 @@ namespace eqBase
 #  define CHECK_NOT_THREAD( NAME )
 #endif
 
+}
 }
 #endif //EQBASE_THREAD_H

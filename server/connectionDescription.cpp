@@ -8,7 +8,7 @@
 #include <eq/base/log.h>
 #include <eq/net/connection.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqs

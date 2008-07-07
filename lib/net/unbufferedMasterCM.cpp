@@ -13,7 +13,7 @@
 #include "packets.h"
 #include "session.h"
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqNet

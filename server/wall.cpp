@@ -6,7 +6,7 @@
 
 #include <eq/base/log.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqs

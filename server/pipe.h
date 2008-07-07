@@ -197,7 +197,7 @@ namespace eqs
         virtual ~Pipe();
 
         /** Registers request packets waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
+        eq::base::RequestHandler _requestHandler;
 
         /** @sa eqNet::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
@@ -226,7 +226,7 @@ namespace eqs
         friend class Node;
 
         /** The current state for state change synchronization. */
-        eqBase::Monitor< State > _state;
+        eq::base::Monitor< State > _state;
             
         /** The display (X11) or ignored (Win32, AGL). */
         uint32_t _port;

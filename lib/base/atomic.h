@@ -8,7 +8,7 @@
 //  Disclaimer: Not a Boost library.
 
 /* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
-   Modifications to use within eqBase namespace and naming conventions.
+   Modifications to use within eq::base namespace and naming conventions.
    Original at http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
 */
 
@@ -19,7 +19,9 @@
 #include <eq/base/compareAndSwap.h> // used in inline methods
 #include <eq/base/spinLock.h>       // used in inline methods
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 #if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
 
@@ -304,4 +306,5 @@ private:
 #endif
 }
 
+}
 #endif  // EQBASE_ATOMIC_H

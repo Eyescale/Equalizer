@@ -29,11 +29,11 @@ namespace eqNet
         /** Enable output, locks the connections to the receivers */ 
         void enable( const NodeVector& receivers );
         void enable( const ConnectionVector& receivers );
-        void enable( const eqBase::RefPtr< Node > node );
+        void enable( const NodePtr node );
         void enable();
 
         /** Resend the saved buffer. */
-        void resend( const eqBase::RefPtr< Node > node );
+        void resend( const NodePtr node );
 
         /** Disable, flush and unlock the output to the current receivers. */
         void disable();
@@ -57,7 +57,7 @@ namespace eqNet
         bool hasSentData() const { return _dataSent; }
 
         /** @return the buffer with the saved data. */
-        const eqBase::Bufferb& getSaveBuffer() const 
+        const eq::base::Bufferb& getSaveBuffer() const 
             { EQASSERT( _save ); return _buffer; }
         //*}
 
@@ -98,7 +98,7 @@ namespace eqNet
 
     private:
         /** The buffer used for saving and buffering */
-        eqBase::Bufferb  _buffer;
+        eq::base::Bufferb  _buffer;
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
         /** The threshold for the buffer to flush */

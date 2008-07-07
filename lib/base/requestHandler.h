@@ -11,7 +11,9 @@
 
 #include <list>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class Lock;
 
@@ -151,4 +153,5 @@ namespace eqBase
     };
 }
 
+}
 #endif //EQBASE_REQUESTHANDLER_H

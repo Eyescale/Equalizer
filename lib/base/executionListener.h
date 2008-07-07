@@ -7,7 +7,9 @@
 
 #include <eq/base/base.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /**
      * A listener interface to monitor execution unit (Thread, Process) state
@@ -30,4 +32,5 @@ namespace eqBase
     };
 }
 
+}
 #endif //EQBASE_EXECUTIONLISTENER_H

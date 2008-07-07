@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
@@ -52,7 +52,7 @@ class Session : public eqNet::Session
 RefPtr<eqNet::Connection> connection;
 volatile uint32_t         testID = EQ_ID_INVALID;
 
-class ServerThread : public eqBase::Thread
+class ServerThread : public eq::base::Thread
 {
 protected:
     virtual void* run()

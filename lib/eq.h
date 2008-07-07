@@ -30,4 +30,8 @@
 #include <eq/net/net.h>
 #include <vmmlib/vmmlib.h>
 
+#ifdef EQ_USE_DEPRECATED
+namespace eqBase = ::eq::base;
+#endif
+
 #endif // EQ_H

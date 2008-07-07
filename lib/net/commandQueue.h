@@ -19,7 +19,7 @@ namespace eqNet
     /**
      * A CommandQueue is a thread-safe queue for command packets.
      */
-    class EQ_EXPORT CommandQueue : public eqBase::NonCopyable
+    class EQ_EXPORT CommandQueue : public eq::base::NonCopyable
     {
     public:
         CommandQueue();
@@ -82,11 +82,11 @@ namespace eqNet
         CHECK_THREAD_DECLARE( _thread );
     private:
         /** Thread-safe command queue. */
-        eqBase::MTQueue< Command >  _commands;
+        eq::base::MTQueue< Command >  _commands;
         
         /** The free command cache. */
         CommandCache              _commandCache;
-        eqBase::Lock              _commandCacheLock;
+        eq::base::Lock              _commandCacheLock;
     };
 }
 

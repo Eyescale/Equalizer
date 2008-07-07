@@ -7,13 +7,13 @@
 
 #include <iostream>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace eqNet;
 using namespace std;
 
 RefPtr<eqNet::Connection> connection;
 
-class NodeThread : public eqBase::Thread
+class NodeThread : public eq::base::Thread
 {
 protected:
     virtual void* run()

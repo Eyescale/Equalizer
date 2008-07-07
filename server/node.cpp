@@ -17,7 +17,7 @@
 #include <eq/net/command.h>
 #include <eq/client/packets.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using eqNet::ConnectionDescriptionVector;
 using eqNet::CommandFunc;

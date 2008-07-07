@@ -2,7 +2,7 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqNet

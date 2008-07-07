@@ -37,7 +37,7 @@ PairConnection::~PairConnection()
 
 ConnectionPtr PairConnection::getSibling()
 {
-    return eqBase::RefPtr_static_cast<PairConnection, Connection>( _sibling );
+    return eq::base::RefPtr_static_cast<PairConnection, Connection>( _sibling );
 }
 
 bool PairConnection::connect()

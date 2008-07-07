@@ -9,7 +9,7 @@
 #include <eq/eq.h>
 #include <stdlib.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 class Channel : public eq::Channel

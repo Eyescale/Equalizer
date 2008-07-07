@@ -12,7 +12,7 @@
 
 using namespace std;
 using namespace stde;
-using namespace eqBase;
+using namespace eq::base;
 
 namespace eqs
 {

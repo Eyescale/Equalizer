@@ -7,7 +7,7 @@
 #include <test.h>
 #include <eq/base/rng.h>
 
-using namespace eqBase;
+using namespace eq::base;
 
 #define MAXLOOPS 100000
 

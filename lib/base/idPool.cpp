@@ -1,4 +1,4 @@
-
+ 
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -6,11 +6,14 @@
 
 #include <eq/base/debug.h>
 
-using namespace eqBase;
 using namespace std;
 
 #define COMPRESS_INTERVAL 10000
 
+namespace eq
+{
+namespace base
+{
 IDPool::IDPool( const uint32_t initialCapacity )
         : _compressCounter(0)
 {
@@ -146,4 +149,6 @@ void IDPool::_compressIDs()
 
         _freeIDs.swap( blocks );
     }
+}
+}
 }

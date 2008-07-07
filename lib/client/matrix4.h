@@ -37,9 +37,9 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os,
                                        const Matrix4<T>& matrix )
     {
-        os << eqBase::disableFlush << eqBase::disableHeader << eqBase::indent
+        os << eq::base::disableFlush << eq::base::disableHeader << eq::base::indent
            << static_cast< const vmml::Matrix4<T>& >( matrix )
-           << eqBase::exdent << eqBase::enableHeader << eqBase::enableFlush;
+           << eq::base::exdent << eq::base::enableHeader << eq::base::enableFlush;
         return os;
     }
 

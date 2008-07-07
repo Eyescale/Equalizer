@@ -7,7 +7,9 @@
 #include "log.h"
 #include "thread.h"
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 
 EQ_EXPORT bool init()
@@ -17,8 +19,9 @@ EQ_EXPORT bool init()
 
 EQ_EXPORT bool exit()
 {
-    eqBase::Thread::removeAllListeners();
-    eqBase::Log::exit();
+    eq::base::Thread::removeAllListeners();
+    eq::base::Log::exit();
     return true;
+}
 }
 }

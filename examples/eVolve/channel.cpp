@@ -13,7 +13,7 @@
 #include "hlp.h"
 #include "framesOrderer.h"
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eVolve

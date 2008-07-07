@@ -30,7 +30,7 @@ typedef std::vector< Channel* >  ChannelVector;
 typedef std::vector< Compound* > CompoundVector;
 typedef std::vector< Frame* >    FrameVector;
 
-typedef eqBase::RefPtr< eqs::Server > ServerPtr;
+typedef eq::base::RefPtr< eqs::Server > ServerPtr;
 
 }
 #endif // EQS_TYPES_H

@@ -26,7 +26,9 @@ using namespace std;
  * of pthreads.
  */
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 namespace
 {
@@ -316,5 +318,6 @@ std::ostream& operator << ( std::ostream& os, const Thread* thread )
 #endif
 
     return os;
+}
 }
 }

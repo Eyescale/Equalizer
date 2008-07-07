@@ -21,7 +21,7 @@
 #  define EQ_DL_ERROR dlerror()
 #endif
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using eqNet::CommandFunc;
 
@@ -151,7 +151,7 @@ static void* _libeqserver = 0;
 #endif
 }
 
-typedef eqBase::RefPtr< eqNet::Connection > (*eqsStartLocalServer_t)();
+typedef eq::base::RefPtr< eqNet::Connection > (*eqsStartLocalServer_t)();
 
 RefPtr< eqNet::Connection > _startLocalServer()
 {

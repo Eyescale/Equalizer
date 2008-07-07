@@ -12,7 +12,7 @@
 #include "window.h"
 #include "vertexBufferState.h"
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using namespace mesh;
 

@@ -17,7 +17,9 @@
 
 using namespace std;
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 class TimedLockPrivate
 {
@@ -124,5 +126,6 @@ bool TimedLock::trySet()
 bool TimedLock::test()
 {
     return _locked;
+}
 }
 }

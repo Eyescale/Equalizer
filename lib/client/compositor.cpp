@@ -25,7 +25,7 @@
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #endif
 
-using eqBase::Monitor;
+using eq::base::Monitor;
 using namespace std;
 
 namespace eq
@@ -48,7 +48,7 @@ public:
 
 
 // Image used for CPU-based assembly
-static eqBase::PerThread< ResultImage > _resultImage;
+static eq::base::PerThread< ResultImage > _resultImage;
 
 
 static bool _useCPUAssembly( const FrameVector& frames, Channel* channel, 

@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 
-using eqBase::RefPtr;
+using eq::base::RefPtr;
 using namespace std;
 
 namespace eqPly
@@ -41,7 +41,7 @@ int Application::run()
     }
 
     // 3. init config
-    eqBase::Clock clock;
+    eq::base::Clock clock;
 
     config->setInitData( _initData );
     if( !config->init( ))

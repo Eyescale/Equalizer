@@ -30,8 +30,7 @@
         static eqs::Compound*    eqCompound = 0; // avoid name clash on Darwin
         static eqs::SwapBarrier* swapBarrier = 0;
         static eqs::Frame*       frame = 0;
-        static eqBase::RefPtr<eqNet::ConnectionDescription> 
-            connectionDescription;
+        static eqNet::ConnectionDescriptionPtr connectionDescription;
         static eqs::Wall         wall;
         static eqs::Projection   projection;
         static uint32_t          flags = 0;
@@ -39,7 +38,7 @@
 
     using namespace std;
     using namespace eqLoader;
-    using namespace eqBase;
+    using namespace eq::base;
 
     int eqLoader_lex();
 

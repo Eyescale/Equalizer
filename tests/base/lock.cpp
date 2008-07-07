@@ -3,7 +3,7 @@
 #include <eq/base/thread.h>
 #include <iostream>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 #define MAXTHREADS 256

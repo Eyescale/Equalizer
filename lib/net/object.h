@@ -20,7 +20,7 @@ namespace eqNet
     struct ObjectPacket;
 
     /** A generic, distributed object. */
-    class EQ_EXPORT Object : public Base, public eqBase::NonCopyable
+    class EQ_EXPORT Object : public Base, public eq::base::NonCopyable
     {
     public:
         /**

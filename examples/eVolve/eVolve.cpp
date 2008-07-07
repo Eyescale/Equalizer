@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eVolve
@@ -41,7 +41,7 @@ int Application::run()
     }
 
     // 3. init config
-    eqBase::Clock clock;
+    eq::base::Clock clock;
 
     config->setInitData( _initData );
     if( !config->init( ))

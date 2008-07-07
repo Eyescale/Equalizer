@@ -19,7 +19,9 @@
 #  define getpid _getpid
 #endif
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /** The logging levels. */
     enum LogLevel
@@ -193,20 +195,21 @@ namespace eqBase
     }
 #endif
 }
+}
 
 #ifndef SUBDIR
 #  define SUBDIR ""
 #endif
 
-#define EQERROR (eqBase::Log::level >= eqBase::LOG_ERROR) &&    \
-    eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
-#define EQWARN  (eqBase::Log::level >= eqBase::LOG_WARN)  &&    \
-    eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
-#define EQINFO  (eqBase::Log::level >= eqBase::LOG_INFO)  &&    \
-    eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
-#define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERB)  &&    \
-    eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
-#define EQLOG(topic)  (eqBase::Log::topics & (topic))  &&  \
-    eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define EQERROR (eq::base::Log::level >= eq::base::LOG_ERROR) &&    \
+    eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define EQWARN  (eq::base::Log::level >= eq::base::LOG_WARN)  &&    \
+    eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define EQINFO  (eq::base::Log::level >= eq::base::LOG_INFO)  &&    \
+    eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define EQVERB  (eq::base::Log::level >= eq::base::LOG_VERB)  &&    \
+    eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define EQLOG(topic)  (eq::base::Log::topics & (topic))  &&  \
+    eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
 #endif //EQBASE_LOG_H

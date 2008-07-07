@@ -53,7 +53,7 @@ namespace eqNet
         uint32_t getID() const { return _id; }
 
         /** Set the local node */
-        virtual void setLocalNode( eqBase::RefPtr< Node > node );
+        virtual void setLocalNode( NodePtr node );
 
         /** @return the local node holding this session. */
         NodePtr getLocalNode(){ return _localNode; }
@@ -250,7 +250,7 @@ namespace eqNet
             }
 
         /** Registers request packets waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
+        eq::base::RequestHandler _requestHandler;
 
     private:
         friend class Node;
@@ -270,10 +270,10 @@ namespace eqNet
         bool _isMaster;
 
         /** The distributed master identifier pool. */
-        eqBase::IDPool _masterPool;
+        eq::base::IDPool _masterPool;
 
         /** The local identifier pool. */
-        eqBase::IDPool _localPool;
+        eq::base::IDPool _localPool;
 
         /** The identifiers for node-local instance identifiers. */
         uint32_t _instanceIDs;
@@ -291,7 +291,7 @@ namespace eqNet
         
         /** All registered and mapped objects. */
         IDHash< ObjectVector > _objects;
-        eqBase::SpinLock       _objectsMutex;
+        eq::base::SpinLock       _objectsMutex;
 
         const NodeID& _pollIDMaster( const uint32_t id ) const;
         NodePtr _pollIDMasterNode( const uint32_t id ) const;

@@ -7,7 +7,9 @@
 
 #include <eq/base/base.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class BarrierPrivate;
 
@@ -39,4 +41,5 @@ namespace eqBase
     };
 }
 
+}
 #endif //EQBASE_BARRIER_H

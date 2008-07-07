@@ -15,7 +15,7 @@
 #include <eq/net/command.h>
 #include <eq/client/commands.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using eqNet::CommandFunc;
 

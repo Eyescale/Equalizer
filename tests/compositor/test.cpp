@@ -12,7 +12,7 @@
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace eq;
 using namespace std;
 

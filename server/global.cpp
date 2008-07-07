@@ -7,7 +7,7 @@
 #include "colorMask.h"
 
 using namespace eqs;
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 static Global *_instance = NULL;

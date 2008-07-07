@@ -25,7 +25,7 @@
 #  define chdir _chdir
 #endif
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqNet
@@ -1406,7 +1406,7 @@ bool Node::_launch( NodePtr node,
 
     const string launchCommand = _createLaunchCommand( node, description );
 
-    if( !eqBase::Launcher::run( launchCommand ))
+    if( !eq::base::Launcher::run( launchCommand ))
     {
         EQWARN << "Could not launch node using '" << launchCommand << "'" 
                << endl;
@@ -1499,9 +1499,9 @@ string Node::_createRemoteCommand( NodePtr node, const char quote )
         if( strlen( environ[i] ) > 2 && strncmp( environ[i], "EQ_", 3 ) == 0 )
             stringStream << environ[i] << " ";
 
-    stringStream << "EQ_LOG_LEVEL=" << eqBase::Log::getLogLevelString() << " ";
-    if( eqBase::Log::topics != 0 )
-        stringStream << "EQ_LOG_TOPICS=" << eqBase::Log::topics << " ";
+    stringStream << "EQ_LOG_LEVEL=" << eq::base::Log::getLogLevelString() << " ";
+    if( eq::base::Log::topics != 0 )
+        stringStream << "EQ_LOG_TOPICS=" << eq::base::Log::topics << " ";
 #endif // WIN32
 
     //----- program + args

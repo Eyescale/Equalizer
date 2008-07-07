@@ -12,7 +12,9 @@
 #  include <omp.h>
 #endif
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /**
      * Base class abstracting omp
@@ -28,4 +30,5 @@ namespace eqBase
     };
 }
 
+}
 #endif //EQBASE_OMP_H

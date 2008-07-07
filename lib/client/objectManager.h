@@ -27,7 +27,7 @@ namespace eq
      * delete - forcibly delete.
      */
     template< typename T >
-    class EQ_EXPORT ObjectManager : public eqBase::NonCopyable
+    class EQ_EXPORT ObjectManager : public eq::base::NonCopyable
     {
     public:
         enum

@@ -15,7 +15,7 @@
 #include <eq/net/global.h>
 #include <eq/base/sleep.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using eqNet::ConnectionDescriptionVector;
 using eqNet::CommandFunc;
@@ -110,7 +110,7 @@ Config::~Config()
     _nodes.clear();
 }
 
-void Config::setLocalNode( eqBase::RefPtr< eqNet::Node > node )
+void Config::setLocalNode( eq::base::RefPtr< eqNet::Node > node )
 {
     eqNet::Session::setLocalNode( node );
     
@@ -545,7 +545,7 @@ bool Config::_exitNodes()
             {
                 if( !hasSlept )
                 {
-                    eqBase::sleep( 1 );
+                    eq::base::sleep( 1 );
                     hasSlept = true;
                 }
 

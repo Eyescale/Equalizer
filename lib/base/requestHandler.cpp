@@ -1,5 +1,5 @@
-
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+ 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "requestHandler.h"
@@ -10,9 +10,12 @@
 
 #include <eq/base/debug.h>
 
-using namespace eqBase;
 using namespace std;
 
+namespace eq
+{
+namespace base
+{
 RequestHandler::RequestHandler( const bool threadSafe )
         : _mutex( threadSafe ? new Lock() : 0 ),
           _requestID( 1 ) 
@@ -182,5 +185,7 @@ bool RequestHandler::isServed( const uint32_t requestID ) const
         return true;
 
     return false;
+}
+}
 }
     

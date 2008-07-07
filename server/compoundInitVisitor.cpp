@@ -9,7 +9,7 @@
 #include <eq/client/log.h>
 
 using namespace std;
-using namespace eqBase;
+using namespace eq::base;
 
 namespace eqs
 {

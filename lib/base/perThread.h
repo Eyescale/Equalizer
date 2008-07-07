@@ -8,7 +8,9 @@
 #include <eq/base/base.h>
 #include <eq/base/executionListener.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class PerThreadPrivate;
 
@@ -45,6 +47,7 @@ namespace eqBase
         PerThreadPrivate* _data;
     };
 }
+}
 
 //----------------------------------------------------------------------
 // implementation
@@ -66,7 +69,9 @@ namespace eqBase
 #include <eq/base/debug.h>
 #include <eq/base/thread.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 
 class PerThreadPrivate
@@ -150,6 +155,8 @@ const T* PerThread<T>::operator->() const
     return static_cast< const T* >( pthread_getspecific( _data->key )); 
 }
 }
+}
+
 #endif // HAVE_PTHREAD_H
 
 #endif //EQBASE_PERTHREAD_H

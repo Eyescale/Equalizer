@@ -6,12 +6,12 @@
 #include "config.h"
 
 using namespace std;
-using namespace eqBase;
+using namespace eq::base;
 
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig( eqBase::RefPtr< eq::Server > parent )
+    virtual eq::Config*  createConfig( eq::base::RefPtr< eq::Server > parent )
         { return new eqPixelBench::Config( parent ); }
     virtual eq::Channel* createChannel( eq::Window* parent )
         { return new eqPixelBench::Channel( parent ); }
@@ -60,7 +60,7 @@ int main( int argc, char** argv )
     }
 
     // 4. init config
-    eqBase::Clock clock;
+    eq::base::Clock clock;
 
     if( !config->init( 0 ))
     {

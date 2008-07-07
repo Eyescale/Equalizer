@@ -11,7 +11,9 @@
 
 using namespace std;
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 class BarrierPrivate
 {
@@ -69,5 +71,6 @@ size_t Barrier::enter( const size_t size )
         pthread_mutex_unlock( &_data->mutex );
     }
     return pos;
+}
 }
 }

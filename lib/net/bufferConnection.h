@@ -14,7 +14,7 @@ namespace eqNet
      * A proxy connection buffering outgoing data into a memory region.
      */
     class EQ_EXPORT BufferConnection : public Connection, 
-                                       public eqBase::NonCopyable
+                                       public eq::base::NonCopyable
     {
     public:
         BufferConnection();

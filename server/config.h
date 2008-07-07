@@ -192,7 +192,7 @@ namespace eqs
 
     protected:
         /** @sa eqNet::Session::setLocalNode. */
-        virtual void setLocalNode( eqBase::RefPtr< eqNet::Node > node );
+        virtual void setLocalNode( eqNet::NodePtr node );
 
     private:
         /** float attributes. */
@@ -201,7 +201,7 @@ namespace eqs
         static std::string _fAttributeStrings[FATTR_ALL];
         
         /** The eq server hosting the session. */
-        eqBase::RefPtr<Server> _server;
+        ServerPtr _server;
         friend class Server;
 
         /** The list of compounds. */

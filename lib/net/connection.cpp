@@ -21,7 +21,7 @@
 #  include <alloca.h>
 #endif
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqNet
@@ -181,7 +181,7 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
     if( bytes > 1048576 )
         EQLOG( LOG_NETPERF ) << "End receive   " << bytes << " bytes" << endl;
 
-    if( eqBase::Log::topics & LOG_WIRE ) // OPT
+    if( eq::base::Log::topics & LOG_WIRE ) // OPT
     {
         EQLOG( LOG_WIRE ) << disableFlush << "Received " << bytes << " bytes: ";
         const uint32_t printBytes = EQ_MIN( bytes, 256 );
@@ -222,7 +222,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
 
     const unsigned char* ptr = static_cast<const unsigned char*>(buffer);
 
-    if( eqBase::Log::topics & LOG_WIRE ) // OPT
+    if( eq::base::Log::topics & LOG_WIRE ) // OPT
     {
         EQLOG( LOG_WIRE ) << disableFlush << "Sending " << bytes 
                           << " bytes on " << (void*)this << ":";
@@ -347,7 +347,7 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
         for( ConnectionVector::const_iterator i= connections.begin(); 
              i<connections.end(); ++i )
         {        
-            eqBase::RefPtr< Connection > connection = *i;
+            ConnectionPtr connection = *i;
 
             if( !isLocked )
                 connection->lockSend();
@@ -378,13 +378,12 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
 }
 
 
-eqBase::RefPtr<ConnectionDescription> Connection::getDescription() const
+ConnectionDescriptionPtr Connection::getDescription() const
 {
     return _description;
 }
 
-void Connection::setDescription( eqBase::RefPtr<ConnectionDescription> 
-                                 description )
+void Connection::setDescription( ConnectionDescriptionPtr description )
 {
     EQASSERT( description.isValid( ));
     EQASSERTINFO( _description->type == description->type,

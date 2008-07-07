@@ -36,7 +36,7 @@ namespace eqNet
     /**
      * A base class to provide communication to other hosts.
      */
-    class EQ_EXPORT Connection : public eqBase::Referenced
+    class EQ_EXPORT Connection : public eq::base::Referenced
     {
     public:
         enum State
@@ -224,10 +224,10 @@ namespace eqNet
          * 
          * @param description the connection parameters.
          */
-        void setDescription( eqBase::RefPtr<ConnectionDescription> description);
+        void setDescription( ConnectionDescriptionPtr description );
 
         /** @return the description for this connection. */
-        eqBase::RefPtr<ConnectionDescription> getDescription() const;
+        ConnectionDescriptionPtr getDescription() const;
 
 
         /** @return the notifier handle to signal that data can be read. */
@@ -252,7 +252,7 @@ namespace eqNet
         State                    _state; //!< The connection state
         ConnectionDescriptionPtr _description;
 
-        mutable eqBase::SpinLock _sendLock;
+        mutable eq::base::SpinLock _sendLock;
 
         /** The listeners on state changes */
         std::vector< ConnectionListener* > _listeners;

@@ -9,17 +9,17 @@
 
 #include <iostream>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace eqNet;
 using namespace std;
 
-class Server : public eqBase::Thread
+class Server : public eq::base::Thread
 {
 public:
     void start( RefPtr<Connection> connection )
         {
             _connection = connection;
-            eqBase::Thread::start();
+            eq::base::Thread::start();
         }
 
 protected:

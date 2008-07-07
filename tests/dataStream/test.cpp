@@ -116,10 +116,10 @@ private:
 };
 
 
-class Sender : public eqBase::Thread
+class Sender : public eq::base::Thread
 {
 public:
-    Sender( eqBase::RefPtr< eqNet::Connection > connection )
+    Sender( eq::base::RefPtr< eqNet::Connection > connection )
             : Thread(),
               _connection( connection )
         {}
@@ -151,14 +151,14 @@ protected:
         }
 
 private:
-    eqBase::RefPtr< eqNet::Connection > _connection;
+    eq::base::RefPtr< eqNet::Connection > _connection;
 };
 
 int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    eqBase::RefPtr< eqNet::Connection > connection = 
+    eq::base::RefPtr< eqNet::Connection > connection = 
         eqNet::Connection::create( eqNet::CONNECTIONTYPE_PIPE );
 
     TEST( connection->connect( ));

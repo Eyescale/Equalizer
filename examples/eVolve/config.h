@@ -15,7 +15,7 @@ namespace eVolve
     class Config : public eq::Config
     {
     public:
-        Config( eqBase::RefPtr< eq::Server > parent );
+        Config( eq::base::RefPtr< eq::Server > parent );
 
         /** @sa eq::Config::init. */
         virtual bool init();

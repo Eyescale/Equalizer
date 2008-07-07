@@ -175,7 +175,7 @@ namespace eq
          * Previous implementations used a std::vector, but resizing it took
          * about 20ms for typical image sizes.
          */
-        class Pixels : public eqBase::NonCopyable
+        class Pixels : public eq::base::NonCopyable
         {
         public:
             Pixels() : data(0), format( GL_FALSE ), type( GL_FALSE ),

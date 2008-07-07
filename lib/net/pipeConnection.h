@@ -52,7 +52,7 @@ namespace eqNet
 #ifdef WIN32
         HANDLE _readHandle;
         HANDLE _writeHandle;
-        mutable eqBase::Lock _mutex;
+        mutable eq::base::Lock _mutex;
         mutable uint64_t     _size;
         mutable HANDLE       _dataPending;
 #endif

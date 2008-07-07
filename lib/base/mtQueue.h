@@ -9,7 +9,9 @@
 #include <eq/base/debug.h>
 #include <queue>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 class MTQueuePrivate;
 
@@ -161,4 +163,5 @@ void MTQueue<T>::pushFront( T* element )
 #endif //HAVE_PTHREAD_H
 }
 
+}
 #endif //EQBASE_MTQUEUE_H

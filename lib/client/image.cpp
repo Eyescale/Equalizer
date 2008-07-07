@@ -461,7 +461,7 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
     out[ 0 ] = marker;
 
 #ifdef EQ_USE_OPENMP
-    const int   nThreads = eqBase::OMP::getNThreads();
+    const int   nThreads = eq::base::OMP::getNThreads();
     const float width    = static_cast< float >( nWords ) / 
                            static_cast< float >( nThreads );
 

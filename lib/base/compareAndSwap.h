@@ -8,7 +8,7 @@
 //  Disclaimer: Not a Boost library.
 
 /* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
-   Modifications to use within eqBase namespace and naming conventions.
+   Modifications to use within eq::base namespace and naming conventions.
    Original at http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
 */
 
@@ -28,7 +28,9 @@
 #  include <libkern/OSAtomic.h>
 #endif
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 
 #if (defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )) || defined(_MSC_VER) || defined(_WIN32) || defined(__APPLE__) || defined(AO_HAVE_compare_and_swap_full)
@@ -87,4 +89,5 @@ inline bool compareAndSwap(volatile C * addr, D old, D nw)
 #endif
 }
 
+}
 #endif // EQBASE_COMPAREANDSWAP_H

@@ -7,7 +7,9 @@
 
 #include <eq/base/nonCopyable.h> // base class
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class MonitorPrivate;
 
@@ -87,6 +89,7 @@ namespace eqBase
 typedef Monitor< bool >     Monitorb;
 typedef Monitor< uint32_t > Monitoru;
 }
+}
 
 //----------------------------------------------------------------------
 // implementation
@@ -111,7 +114,9 @@ typedef Monitor< uint32_t > Monitoru;
 #include <eq/base/debug.h>
 #include <eq/base/log.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 class MonitorPrivate
 {
@@ -228,6 +233,7 @@ std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor )
 {
     os << "Monitor< " << monitor.get() << " >";
     return os;
+}
 }
 }
 #endif // HAVE_PTHREAD_H

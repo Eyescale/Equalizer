@@ -19,7 +19,9 @@
 #  include <time.h>
 #endif
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 /** 
  * A class for time measurements.
@@ -192,5 +194,6 @@ namespace eqBase
         struct timespec _start;
 #endif
     };
+}
 }
 #endif  // EQBASE_CLOCK_H

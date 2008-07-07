@@ -1,4 +1,4 @@
-
+ 
 /* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -13,10 +13,12 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-using namespace eqBase;
 using namespace std;
 
-    
+namespace eq
+{
+namespace base
+{
 Process::Process()
         : _state(STATE_STOPPED),
           _pid(0)
@@ -151,6 +153,7 @@ bool Process::isCurrent() const
 
 void Process::addListener( RunnableListener* listener )
 {
-    // @todo
+    // TODO
 }
-
+}
+}

@@ -19,7 +19,7 @@
 
 #include <eq/net/command.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using eqNet::CommandFunc;
 

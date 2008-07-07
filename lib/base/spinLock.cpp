@@ -26,7 +26,9 @@ using namespace std;
 #endif
 #endif
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 class SpinLockPrivate
 {
@@ -79,5 +81,6 @@ bool SpinLock::test()
         return false;
     }
     return true;
+}
 }
 }

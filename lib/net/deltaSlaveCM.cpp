@@ -13,7 +13,7 @@
 #include <eq/base/scopedMutex.h>
 
 using namespace eqNet;
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 DeltaSlaveCM::DeltaSlaveCM( Object* object, uint32_t masterInstanceID )

@@ -14,7 +14,7 @@
 #include <eq/net/session.h>
 #include <algorithm>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using eqNet::CommandFunc;
 
@@ -277,7 +277,7 @@ void FrameData::transmit( eqNet::NodePtr toNode )
     toNode->send( readyPacket );
 }
 
-void FrameData::addListener( eqBase::Monitor<uint32_t>& listener )
+void FrameData::addListener( eq::base::Monitor<uint32_t>& listener )
 {
     _listenersMutex.set();
 
@@ -288,7 +288,7 @@ void FrameData::addListener( eqBase::Monitor<uint32_t>& listener )
     _listenersMutex.unset();
 }
 
-void FrameData::removeListener( eqBase::Monitor<uint32_t>& listener )
+void FrameData::removeListener( eq::base::Monitor<uint32_t>& listener )
 {
     _listenersMutex.set();
 

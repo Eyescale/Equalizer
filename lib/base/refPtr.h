@@ -11,7 +11,9 @@
 #include <iostream>
 #include <stdlib.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     struct RefPtr_scast{};
 
@@ -118,4 +120,5 @@ namespace eqBase
     }
 }
 
+}
 #endif //EQBASE_REFPTR_H

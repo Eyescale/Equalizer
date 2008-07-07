@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <windowsx.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using namespace stde;
 

@@ -9,7 +9,7 @@ using namespace std;
 namespace eqPly
 {
 
-Config::Config( eqBase::RefPtr< eq::Server > parent )
+Config::Config( eq::base::RefPtr< eq::Server > parent )
         : eq::Config( parent )
         , _spinX( 5 )
         , _spinY( 5 )

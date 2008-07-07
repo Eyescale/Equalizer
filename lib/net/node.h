@@ -20,8 +20,8 @@
 #include <list>
 
 #pragma warning(disable : 4190)
-extern "C" EQS_EXPORT eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer();
-extern "C" EQS_EXPORT void                                eqsJoinLocalServer();
+extern "C" EQS_EXPORT eqNet::ConnectionPtr eqsStartLocalServer();
+extern "C" EQS_EXPORT void                 eqsJoinLocalServer();
 #pragma warning(default : 4190)
 
 namespace eqNet
@@ -38,7 +38,7 @@ namespace eqNet
      * has at least one Connection through which is reachable. A Node provides
      * the basic communication facilities through message passing.
      */
-    class EQ_EXPORT Node : public Base, public eqBase::Referenced
+    class EQ_EXPORT Node : public Base, public eq::base::Referenced
     {
     public:
         enum State 
@@ -495,7 +495,7 @@ namespace eqNet
         bool deserialize( std::string& data );
 
         /** Registers request packets waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
+        eq::base::RequestHandler _requestHandler;
 
     private:
         /** Determines if the node should be launched automatically. */
@@ -515,19 +515,19 @@ namespace eqNet
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _connectionSet;
-        friend eqBase::RefPtr< eqNet::Connection > (::eqsStartLocalServer());
+        friend eqNet::ConnectionPtr (::eqsStartLocalServer());
 
         /** The connected nodes. */
         NodeIDHash< NodePtr > _nodes;
 
         /** The node for each connection. */
-        eqBase::RefPtrHash< Connection, NodePtr > _connectionNodes;
+        eq::base::RefPtrHash< Connection, NodePtr > _connectionNodes;
 
         /** The receiver->command command queue. */
         CommandQueue _commandThreadQueue;
 
         /** Needed for thread-safety during nodeID-based connect() */
-        eqBase::Lock _connectMutex;
+        eq::base::Lock _connectMutex;
 
         /** The cache to store the last received command for reuse */
         Command* _receivedCommand;
@@ -536,7 +536,7 @@ namespace eqNet
         uint32_t _launchID;
 
         /** The remaining timeout for the launch operation. */
-        eqBase::Clock _launchTimeout;
+        eq::base::Clock _launchTimeout;
 
         /** Commands re-scheduled for dispatch. */
         std::list< Command* > _pendingCommands;
@@ -601,7 +601,7 @@ namespace eqNet
         uint32_t _generateSessionID();
 
         /** The receiver thread. */
-        class ReceiverThread : public eqBase::Thread
+        class ReceiverThread : public eq::base::Thread
         {
         public:
             ReceiverThread( Node* node ) 
@@ -616,7 +616,7 @@ namespace eqNet
         ReceiverThread* _receiverThread;
 
         /** The command handler thread. */
-        class CommandThread : public eqBase::Thread
+        class CommandThread : public eq::base::Thread
         {
         public:
             CommandThread( Node* node ) 

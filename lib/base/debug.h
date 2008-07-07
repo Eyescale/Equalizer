@@ -13,46 +13,49 @@
 
 #  define EQASSERT(x) { if( !(x) )                                      \
             EQERROR << "##### Assert: " << #x << " #####" << std::endl  \
-                    << eqBase::forceFlush; }
+                    << eq::base::forceFlush; }
 #  define EQASSERTINFO(x, info) { if( !(x) )                            \
             EQERROR << "##### Assert: " << #x << " [" << info << "] #####" \
-                    << std::endl << eqBase::forceFlush; }
+                    << std::endl << eq::base::forceFlush; }
 #  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl \
-                                    << eqBase::forceFlush; }
+                                    << eq::base::forceFlush; }
 #  define EQUNREACHABLE   { EQERROR << "Unreachable code" << std::endl  \
-                                    << eqBase::forceFlush; }
+                                    << eq::base::forceFlush; }
 #  define EQDONTCALL                                                    \
     { EQERROR << "Code is not supposed to be called in this context"    \
-              << std::endl << eqBase::forceFlush; }
+              << std::endl << eq::base::forceFlush; }
 
 #else // DEBUG
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /** Used to trap into an infinite loop to allow debugging of assertions */
     EQ_EXPORT void abortDebug();
 }
+}
 
 #  define EQASSERT(x) { if( !(x) )                                      \
-        { EQERROR << "Assert: " << #x << std::endl << eqBase::forceFlush; \
-      eqBase::abortDebug(); }}
+        { EQERROR << "Assert: " << #x << std::endl << eq::base::forceFlush; \
+      eq::base::abortDebug(); }}
 #  define EQASSERTINFO(x, info) { if( !(x) )                            \
         {                                                               \
             EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl \
-                    << eqBase::forceFlush;                              \
-            eqBase::abortDebug();                                       \
+                    << eq::base::forceFlush;                              \
+            eq::base::abortDebug();                                       \
         }}
 #  define EQUNIMPLEMENTED                                               \
     { EQERROR << "Unimplemented code in " << typeid(*this).name()       \
-              << std::endl << eqBase::forceFlush;                       \
-        eqBase::abortDebug(); }
+              << std::endl << eq::base::forceFlush;                       \
+        eq::base::abortDebug(); }
 #  define EQUNREACHABLE                                          \
     { EQERROR << "Unreachable code in " << typeid(*this).name()  \
-              << std::endl << eqBase::forceFlush;                \
-        eqBase::abortDebug(); }
+              << std::endl << eq::base::forceFlush;                \
+        eq::base::abortDebug(); }
 #  define EQDONTCALL                                                    \
     { EQERROR << "Code is not supposed to be called in this context, type " \
-              << typeid(*this).name() << std::endl << eqBase::forceFlush; \
-        eqBase::abortDebug(); }
+              << typeid(*this).name() << std::endl << eq::base::forceFlush; \
+        eq::base::abortDebug(); }
 
 #endif // DEBUG
 

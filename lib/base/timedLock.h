@@ -7,7 +7,9 @@
 
 #include <eq/base/thread.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class TimedLockPrivate;
 
@@ -63,5 +65,5 @@ namespace eqBase
         bool              _locked;
     };
 }
-
+}
 #endif //EQBASE_TIMEDLOCK_H

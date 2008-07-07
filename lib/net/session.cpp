@@ -15,7 +15,7 @@
 #  include <alloca.h>
 #endif
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqNet
@@ -42,7 +42,7 @@ Session::~Session()
         
     if( !_objects.empty( ))
     {
-        if( eqBase::Log::level >= eqBase::LOG_WARN ) // OPT
+        if( eq::base::Log::level >= eq::base::LOG_WARN ) // OPT
         {
             EQWARN << _objects.size()
                    << " attached objects in destructor" << endl;

@@ -8,7 +8,9 @@
 #include <eq/base/debug.h> // for EQASSERT
 #include <fcntl.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /** A random number generator */
     class EQ_EXPORT RNG
@@ -73,5 +75,6 @@ namespace eqBase
         int _fd;
 #endif
     };
+}
 }
 #endif  // EQBASE_RNG_H

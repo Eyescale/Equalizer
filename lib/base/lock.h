@@ -7,7 +7,9 @@
 
 #include <eq/base/base.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class LockPrivate;
 
@@ -57,4 +59,5 @@ namespace eqBase
     };
 }
 
+}
 #endif //EQBASE_LOCK_H

@@ -7,7 +7,9 @@
 
 #include <eq/base/base.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class SemaPrivate;
 
@@ -48,5 +50,5 @@ namespace eqBase
         uint32_t       _value;
     };
 }
-
+}
 #endif //EQBASE_SEMA_H

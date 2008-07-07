@@ -13,7 +13,7 @@ EQ_EXPORT NodeFactory* Global::_nodeFactory = 0;
 string Global::_server;
 
 #ifdef AGL
-static eqBase::Lock _carbonLock;
+static eq::base::Lock _carbonLock;
 #endif
 
 void Global::enterCarbon()

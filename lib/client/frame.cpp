@@ -104,13 +104,13 @@ void Frame::disableBuffer( const Buffer buffer )
 }
 
 
-void Frame::addListener( eqBase::Monitor<uint32_t>& listener )
+void Frame::addListener( eq::base::Monitor<uint32_t>& listener )
 {
     EQASSERT( _frameData );
     _frameData->addListener( listener );
 }
 
-void Frame::removeListener( eqBase::Monitor<uint32_t>& listener )
+void Frame::removeListener( eq::base::Monitor<uint32_t>& listener )
 {
     EQASSERT( _frameData );
     _frameData->removeListener( listener );

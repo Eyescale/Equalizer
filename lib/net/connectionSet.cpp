@@ -21,7 +21,7 @@
 #  define EQ_SOCKET_ERROR strerror( _error )
 #endif
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqNet

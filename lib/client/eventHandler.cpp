@@ -19,7 +19,7 @@
 #include <eq/base/lock.h>
 #include <eq/base/debug.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eq

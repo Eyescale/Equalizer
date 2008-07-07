@@ -7,7 +7,9 @@
 
 #include <eq/base/base.h> // for EQ_EXPORT
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /**
      * Base class for nonCopyable objects.
@@ -27,4 +29,5 @@ namespace eqBase
     };
 }
 
+}
 #endif //EQBASE_NONCOPYABLE_H

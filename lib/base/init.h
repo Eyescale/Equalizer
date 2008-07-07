@@ -7,11 +7,13 @@
 
 #include <eq/base/base.h>
 
+namespace eq
+{
 /**
- * @namespace eqBase
+ * @namespace eq::base
  * @brief Namespace for basic Equalizer utility code.
  */
-namespace eqBase
+namespace base
 {
     /** 
      * Initializes the Equalizer base classes.
@@ -29,6 +31,6 @@ namespace eqBase
      */
     EQ_EXPORT bool exit();
 }
-
+}
 #endif // EQBASE_INIT_H
 

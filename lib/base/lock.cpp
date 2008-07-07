@@ -11,7 +11,9 @@
 
 using namespace std;
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 class LockPrivate
 {
@@ -64,5 +66,6 @@ bool Lock::test()
         return false;
     }
     return true;
+}
 }
 }

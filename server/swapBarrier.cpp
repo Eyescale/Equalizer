@@ -5,7 +5,7 @@
 #include "swapBarrier.h"
 
 using namespace std;
-using namespace eqBase;
+using namespace eq::base;
 
 ostream& eqs::operator << ( ostream& os, const SwapBarrier* swapBarrier )
 {

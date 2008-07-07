@@ -13,7 +13,7 @@ namespace eqPixelBench
 class Config : public eq::Config
 {
 public:
-    Config( eqBase::RefPtr< eq::Server > parent );
+    Config( eq::base::RefPtr< eq::Server > parent );
 
     /** @sa eq::Config::startFrame */
     virtual uint32_t startFrame( const uint32_t frameID );
@@ -22,13 +22,13 @@ public:
     virtual bool handleEvent( const eq::ConfigEvent* event );
 
     /** @return the clock started by startFrame, or 0 on render clients. */
-    const eqBase::Clock* getClock() const { return _clock; }
+    const eq::base::Clock* getClock() const { return _clock; }
 
 protected:
     virtual ~Config();
 
 private:
-    eqBase::Clock* _clock;
+    eq::base::Clock* _clock;
 };
 }
 

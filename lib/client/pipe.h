@@ -34,7 +34,7 @@ namespace eq
      * A Pipe represents a graphics card (GPU) on a Node.
      *
      * All Pipe, Window and Channel task methods are executed in a separate
-     * eqBase::Thread, in parallel with all other pipes in the system, unless
+     * eq::base::Thread, in parallel with all other pipes in the system, unless
      * the pipe is non-threaded, in which case the tasks are executed on the
      * Node's main thread.
      */
@@ -51,9 +51,9 @@ namespace eq
         eqNet::CommandQueue* getPipeThreadQueue();
         Node* getNode() const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : 0);}
-        eqBase::RefPtr< Client > getClient() const
+        eq::base::RefPtr< Client > getClient() const
             { return (_node ? _node->getClient() : 0);}
-        eqBase::RefPtr< Server > getServer() const
+        eq::base::RefPtr< Server > getServer() const
             { return (_node ? _node->getServer() : 0);}
         const WindowVector& getWindows() const { return _windows; }
 
@@ -416,20 +416,20 @@ namespace eq
             STATE_RUNNING
         };
         /** The configInit/configExit state. */
-        eqBase::Monitor< State > _state;
+        eq::base::Monitor< State > _state;
 
         /** The last started frame. */
         uint32_t _currentFrame;
 
         /** The number of the last finished frame. */
-        eqBase::Monitor<uint32_t> _finishedFrame;
+        eq::base::Monitor<uint32_t> _finishedFrame;
 
         /** The number of the last locally unlocked frame. */
-        eqBase::Monitor<uint32_t> _unlockedFrame;
+        eq::base::Monitor<uint32_t> _unlockedFrame;
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
-        eqBase::SpinLock      _frameTimeMutex;
+        eq::base::SpinLock      _frameTimeMutex;
 
         /** The base time for the currently active frame. */
         int64_t _frameTime;
@@ -438,7 +438,7 @@ namespace eq
         eqNet::IDHash< Frame* > _frames;
 
         /** The pipe thread. */
-        class PipeThread : public eqBase::Thread
+        class PipeThread : public eq::base::Thread
         {
         public:
             PipeThread( Pipe* pipe ) 

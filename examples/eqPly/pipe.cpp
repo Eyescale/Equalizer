@@ -15,7 +15,7 @@
 #include "config.h"
 #include <eq/eq.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqPly

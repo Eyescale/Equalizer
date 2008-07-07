@@ -36,7 +36,7 @@ namespace eq
          * @param server the server.
          * @return true if the server was connected, false if not.
          */
-        bool connectServer( eqBase::RefPtr<Server> server );
+        bool connectServer( eq::base::RefPtr<Server> server );
 
         /** 
          * Disconnect and close the connection of an Equalizer server to the
@@ -45,7 +45,7 @@ namespace eq
          * @param server the server.
          * @return true if the server was disconnected, false if not.
          */
-        bool disconnectServer( eqBase::RefPtr<Server> server );
+        bool disconnectServer( eq::base::RefPtr<Server> server );
 
         /** 
          * Get and process one command from the node command queue. Used

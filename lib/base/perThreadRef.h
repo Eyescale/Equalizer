@@ -9,7 +9,9 @@
 #include <eq/base/debug.h>
 #include <eq/base/refPtr.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     class PerThreadRefPrivate;
 
@@ -154,4 +156,5 @@ bool PerThreadRef<T>::isValid() const
 #endif // HAVE_PTHREAD_H
 }
 
+}
 #endif //EQBASE_PERTHREADREF_H

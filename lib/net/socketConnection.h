@@ -83,7 +83,7 @@ namespace eqNet
             MIN_BUFFER_SIZE = 8,
             MAX_BUFFER_SIZE = 65536,
         };
-        typedef eqBase::Buffer< char > Buffer;
+        typedef eq::base::Buffer< char > Buffer;
 
         Buffer   _pendingBuffer;
         Buffer   _receivedBuffer;

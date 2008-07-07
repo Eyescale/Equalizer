@@ -7,7 +7,7 @@
 #include "node.h"
 #include "types.h"
 
-using namespace eqBase;
+using namespace eq::base;
 
 namespace eqNet
 {
@@ -34,8 +34,8 @@ void DataOStream::enable( const NodeVector& receivers )
     for( NodeVector::const_iterator i = receivers.begin(); 
          i != receivers.end(); ++i )
     {
-        RefPtr< Node >       node       = *i;
-        RefPtr< Connection > connection = node->getConnection();
+        NodePtr       node       = *i;
+        ConnectionPtr connection = node->getConnection();
         
         connection->lockSend();
         _connections.push_back( connection );
@@ -44,9 +44,9 @@ void DataOStream::enable( const NodeVector& receivers )
     enable();
 }
 
-void DataOStream::enable( const eqBase::RefPtr< Node > node )
+void DataOStream::enable( const NodePtr node )
 {
-    RefPtr< Connection > connection = node->getConnection();
+    ConnectionPtr connection = node->getConnection();
         
     connection->lockSend();
     _connections.push_back( connection );
@@ -58,7 +58,7 @@ void DataOStream::enable( const ConnectionVector& receivers )
     for( ConnectionVector::const_iterator i = receivers.begin(); 
          i != receivers.end(); ++i )
     {
-        RefPtr< Connection > connection = *i;
+        ConnectionPtr connection = *i;
         
         connection->lockSend();
         _connections.push_back( connection );
@@ -78,13 +78,13 @@ void DataOStream::enable()
     _enabled  = true;
 }
 
-void DataOStream::resend( const eqBase::RefPtr< Node > node )
+void DataOStream::resend( const NodePtr node )
 {
     EQASSERT( !_enabled );
     EQASSERT( _connections.empty( ));
     EQASSERT( _save );
     
-    RefPtr< Connection > connection = node->getConnection();        
+    ConnectionPtr connection = node->getConnection();        
     connection->lockSend();
     _connections.push_back( connection );
 
@@ -126,7 +126,7 @@ void DataOStream::_unlockConnections()
     for( ConnectionVector::const_iterator i = _connections.begin(); 
          i != _connections.end(); ++i )
     {
-        RefPtr< Connection > connection = *i;
+        ConnectionPtr connection = *i;
         connection->unlockSend();
     }
     _connections.clear();

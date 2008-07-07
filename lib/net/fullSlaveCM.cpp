@@ -15,7 +15,7 @@
 
 #include <eq/base/scopedMutex.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eqNet
@@ -63,7 +63,7 @@ void FullSlaveCM::makeThreadSafe()
 {
     if( _mutex ) return;
 
-    _mutex = new eqBase::Lock;
+    _mutex = new eq::base::Lock;
 }
 
 bool FullSlaveCM::sync( const uint32_t version )

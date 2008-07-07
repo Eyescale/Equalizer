@@ -4,7 +4,7 @@
 
 #include "renderContext.h"
 
-using namespace eqBase;
+using namespace eq::base;
 
 namespace eq
 {

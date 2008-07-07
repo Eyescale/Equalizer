@@ -11,7 +11,7 @@
 #include <iostream>
 
 using namespace eqNet;
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 #define PACKETSIZE (100 * 1048576)

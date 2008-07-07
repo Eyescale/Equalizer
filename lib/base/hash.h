@@ -9,7 +9,9 @@
 #include <eq/base/refPtr.h>
 #include <eq/base/stdExt.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /** A hash for pointer keys. */
     template<class K, class T> class PtrHash 
@@ -59,4 +61,5 @@ namespace eqBase
 #endif
 }
 
+}
 #endif // EQBASE_HASH_H

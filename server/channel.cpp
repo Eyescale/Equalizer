@@ -21,7 +21,7 @@
 #include <eq/client/log.h>
 #include <eq/client/packets.h>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 using eqNet::CommandFunc;
 

@@ -194,9 +194,8 @@ namespace eqs
          * 
          * @param cd the connection description.
          */
-        void addConnectionDescription( 
-            eqBase::RefPtr<eqNet::ConnectionDescription> cd )
-            { _connectionDescriptions.push_back( cd ); }
+        void addConnectionDescription(eqNet::ConnectionDescriptionPtr desc )
+            { _connectionDescriptions.push_back( desc ); }
         
         /** 
          * Removes a connection description.
@@ -224,7 +223,7 @@ namespace eqs
         virtual ~Node();
 
         /** Registers request packets waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
+        eq::base::RequestHandler _requestHandler;
 
         /** @sa eqNet::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
@@ -273,7 +272,7 @@ namespace eqs
         };
 
         /** The current state for state change synchronization. */
-        eqBase::Monitor< State > _state;
+        eq::base::Monitor< State > _state;
             
         /** The cached barriers. */
         std::vector<eqNet::Barrier*> _barriers;

@@ -17,7 +17,7 @@ namespace eqNet
      *
      * @sa Node
      */
-    class EQ_EXPORT ConnectionDescription : public eqBase::Referenced
+    class EQ_EXPORT ConnectionDescription : public eq::base::Referenced
     {
     public:
         ConnectionDescription() 

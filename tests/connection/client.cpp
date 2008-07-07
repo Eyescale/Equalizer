@@ -7,7 +7,7 @@
 #include <iostream>
 
 using namespace eqNet;
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 int main( int argc, char **argv )

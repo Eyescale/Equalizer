@@ -14,7 +14,7 @@
 #include <iostream>
 
 using namespace eqNet;
-using eqBase::Clock;
+using eq::base::Clock;
 using namespace std;
 
 #define PACKETSIZE (1048576)

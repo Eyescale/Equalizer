@@ -1,5 +1,5 @@
-
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+ 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "launcher.h"
@@ -9,12 +9,18 @@
 #include <signal.h>
 #include <sstream>
 
-using namespace eqBase;
 using namespace std;
 
 #ifndef WIN32
 #  include <sys/wait.h>
+#endif
 
+namespace eq
+{
+namespace base
+{
+
+#ifndef WIN32
 // the signal handler for SIGCHILD
 static void sigChildHandler( int /*signal*/ )
 {
@@ -164,3 +170,6 @@ void Launcher::_buildCommandLine( const string& command,
     }
 }
 #endif
+
+}
+}

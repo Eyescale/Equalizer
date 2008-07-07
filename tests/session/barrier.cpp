@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace eqNet;
 using namespace std;
 

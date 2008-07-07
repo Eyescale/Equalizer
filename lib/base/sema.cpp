@@ -11,7 +11,9 @@
 
 using namespace std;
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
 class SemaPrivate
 {
@@ -99,5 +101,6 @@ void Sema::adjust( const int delta )
         }
     }
     pthread_mutex_unlock( &_data->mutex );
+}
 }
 }

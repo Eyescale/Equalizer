@@ -50,7 +50,7 @@ namespace eq
             { return ( _window ? _window->getNode() : 0 );}
         Config* getConfig() const 
             { return ( _window ? _window->getConfig() : 0 );}
-        eqBase::RefPtr< Server > getServer() const 
+        eq::base::RefPtr< Server > getServer() const 
             { return ( _window ? _window->getServer() : 0 );}
 
         GLEWContext* glewGetContext() { return _window->glewGetContext(); }

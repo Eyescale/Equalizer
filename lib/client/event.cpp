@@ -7,7 +7,7 @@
 #include <eq/base/idPool.h>
 
 using namespace std;
-using namespace eqBase;
+using namespace eq::base;
 
 #ifdef WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );

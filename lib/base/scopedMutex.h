@@ -7,7 +7,9 @@
 
 #include <eq/base/lock.h>
 
-namespace eqBase
+namespace eq
+{
+namespace base
 {
     /**
      * A scoped mutex.
@@ -38,5 +40,5 @@ namespace eqBase
         T* _lock;
     };
 }
-
+}
 #endif //EQBASE_SCOPEDMUTEX_H

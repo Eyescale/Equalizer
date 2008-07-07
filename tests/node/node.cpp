@@ -2,7 +2,6 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-
 #include <test.h>
 
 #include <eq/base/lock.h>
@@ -18,7 +17,7 @@ using namespace std;
 
 namespace
 {
-eqBase::Lock lock;
+eq::base::Lock lock;
 static const string message =
     "Don't Panic! And now some more text to make the message bigger";
 #define NMESSAGES 1000
@@ -77,7 +76,7 @@ int main( int argc, char **argv )
     eqNet::init( argc, argv );
 
     lock.set();
-    eqBase::RefPtr< Server >        server   = new Server;
+    eq::base::RefPtr< Server >        server   = new Server;
     eqNet::ConnectionDescriptionPtr connDesc = new eqNet::ConnectionDescription;
     
     connDesc->type       = eqNet::CONNECTIONTYPE_TCPIP;
@@ -97,7 +96,7 @@ int main( int argc, char **argv )
 
     DataPacket packet;
 
-    eqBase::Clock clock;
+    eq::base::Clock clock;
     for( unsigned i = 0; i < NMESSAGES; ++i )
         serverProxy->send( packet, message );
     const float time = clock.getTimef();

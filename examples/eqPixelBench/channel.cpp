@@ -8,7 +8,7 @@
 #include "configEvent.h"
 
 using namespace std;
-using namespace eqBase;
+using namespace eq::base;
 
 #ifdef WIN32_API
 #  define snprintf _snprintf

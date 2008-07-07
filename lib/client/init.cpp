@@ -17,7 +17,7 @@
 #  include <pcapi.h>
 #endif
 
-using namespace eqBase;
+using namespace eq::base;
 using namespace std;
 
 namespace eq
