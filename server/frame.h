@@ -115,7 +115,7 @@ namespace server
          */
         void addInputFrame( Frame* frame, const uint32_t eyes );
         /** @return the vector of current input frames. */
-        const std::vector<Frame*>& getInputFrames( const eq::Eye eye ) const
+        const FrameVector& getInputFrames( const eq::Eye eye ) const
             { return _inputFrames[eye]; }
 
         /** Unset the frame data. */
@@ -152,7 +152,7 @@ namespace server
         FrameData* _frameData[eq::EYE_ALL];
 
         /** Vector of current input frames. */
-        std::vector<Frame*> _inputFrames[eq::EYE_ALL];
+        FrameVector _inputFrames[eq::EYE_ALL];
     };
 
     std::ostream& operator << ( std::ostream& os, const Frame* frame );

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_CONSTCOMPOUNDVISITOR_H
@@ -22,13 +22,6 @@ namespace server
         
         /** Destruct the CompoundVisitor */
         virtual ~ConstCompoundVisitor(){}
-
-        /** Return value of the visit methods */
-        enum Result
-        {
-            CONTINUE,  //!< Keep traversing
-            TERMINATE  //!< Abort traversal immediately
-        };
 
         /** Visit a non-leaf compound on the down traversal. */
         virtual Compound::VisitorResult visitPre( const Compound* compound )

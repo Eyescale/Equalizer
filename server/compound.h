@@ -285,7 +285,7 @@ namespace server
         void addInputFrame( Frame* frame );
 
         /** @return the vector of input frames. */
-        const std::vector<Frame*>& getInputFrames() const {return _inputFrames;}
+        const FrameVector& getInputFrames() const {return _inputFrames;}
 
         /** 
          * Add a new output frame for this compound.
@@ -295,7 +295,7 @@ namespace server
         void addOutputFrame( Frame* frame );
 
         /** @return the vector of output frames. */
-        const std::vector<Frame*>& getOutputFrames() const
+        const FrameVector& getOutputFrames() const
             { return _outputFrames; }
         //*}
 
@@ -496,8 +496,8 @@ namespace server
 
         SwapBarrier* _swapBarrier;
 
-        std::vector<Frame*> _inputFrames;
-        std::vector<Frame*> _outputFrames;
+        FrameVector _inputFrames;
+        FrameVector _outputFrames;
 
         CHECK_THREAD_DECLARE( _serverThread );
 
