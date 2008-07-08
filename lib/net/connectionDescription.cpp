@@ -56,7 +56,7 @@ void ConnectionDescription::serialize( std::ostream& os ) const
     os << SEPARATOR;
 }
 
-bool ConnectionDescription::fromString( string& data )
+bool ConnectionDescription::fromString( std::string& data )
 {
     {
         size_t nextPos = data.find( SEPARATOR );

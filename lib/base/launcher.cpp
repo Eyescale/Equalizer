@@ -38,7 +38,7 @@ static void sigChildHandler( int /*signal*/ )
 }
 #endif
 
-bool Launcher::run( const string& command )
+bool Launcher::run( const std::string& command )
 {
     if( command.empty( ))
         return false;
@@ -120,7 +120,7 @@ bool Launcher::run( const string& command )
 }
 
 #ifndef WIN32
-void Launcher::_buildCommandLine( const string& command, 
+void Launcher::_buildCommandLine( const std::string& command, 
                                   std::vector<std::string>& commandLine )
 {
     const size_t length    = command.size();

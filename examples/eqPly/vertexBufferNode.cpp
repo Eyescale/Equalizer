@@ -174,7 +174,7 @@ void VertexBufferNode::fromMemory( char** addr, VertexBufferData& globalData )
 
 
 /*  Write node to output stream and continue with remaining nodes.  */
-void VertexBufferNode::toStream( ostream& os )
+void VertexBufferNode::toStream( std::ostream& os )
 {
     size_t nodeType = NODE_TYPE;
     os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ) );

@@ -123,7 +123,7 @@ void GLXEventHandler::dispatchAll()
     }
 }
 
-void GLXEventHandler::_handleEvents( RefPtr< X11Connection > connection )
+void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
 {
     Display*         display = connection->getDisplay();
     Pipe*            pipe    = connection->pipe;

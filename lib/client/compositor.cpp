@@ -360,7 +360,7 @@ const Image* Compositor::assembleFramesCPU( const FrameVector& frames,
 
 
 void Compositor::_assembleDBImages( Image* result, 
-                                    const vector< FrameImage >& images )
+                                    const std::vector< FrameImage >& images )
 {
     if( images.empty( ))
         return;
@@ -450,7 +450,7 @@ void Compositor::_assembleDBImages( Image* result,
 }
 
 void Compositor::_assemble2DImages( Image* result, 
-                                    const vector< FrameImage >& images )
+                                    const std::vector< FrameImage >& images )
 {
     // This is mostly copy&paste code from _assembleDBImages :-/
     if( images.empty( ))
@@ -504,7 +504,7 @@ void Compositor::_assemble2DImages( Image* result,
 
 
 void Compositor::_assembleBlendImages( Image* result, 
-                                       const vector< FrameImage >& images )
+                                       const std::vector< FrameImage >& images )
 {
     if( images.empty( ))
         return;

@@ -145,7 +145,7 @@ namespace eq
          * Get an assembly frame.
          * 
          * @param frameVersion the frame's identifier and version.
-         * @param id the current eye pass.
+         * @param eye the current eye pass.
          * @return the frame.
          */
         Frame* getFrame( const net::ObjectVersion& frameVersion, 

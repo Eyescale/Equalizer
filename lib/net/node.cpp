@@ -373,7 +373,7 @@ void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
 // Node functionality
 //----------------------------------------------------------------------
 void Node::addSession( Session* session, NodePtr server, 
-                       const uint32_t sessionID, const string& name )
+                       const uint32_t sessionID, const std::string& name )
 {
     CHECK_THREAD( _thread );
 
@@ -403,7 +403,7 @@ void Node::removeSession( Session* session )
 }
 
 bool Node::mapSession( NodePtr server, Session* session, 
-                       const string& name )
+                       const std::string& name )
 {
     EQASSERT( isLocal( ));
     EQASSERT( !inCommandThread( ));
@@ -1533,7 +1533,7 @@ string Node::_createRemoteCommand( NodePtr node, const char quote )
     return stringStream.str();
 }
 
-bool Node::runClient( const string& clientArgs )
+bool Node::runClient( const std::string& clientArgs )
 {
     EQASSERT( _state == STATE_LISTENING );
 

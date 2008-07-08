@@ -30,7 +30,6 @@ namespace net
         /** 
          * Push a command to the queue.
          * 
-         * @param node the node sending the packet.
          * @param packet the command packet.
          */
         virtual void push( Command& packet );

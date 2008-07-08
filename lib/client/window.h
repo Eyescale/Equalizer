@@ -219,7 +219,7 @@ namespace eq
          * configExit().
          * The context has to be set to 0 before it is destroyed.
          *
-         * @param drawable the GLX rendering context.
+         * @param context the GLX rendering context.
          */
         virtual void setGLXContext( GLXContext context );
 
@@ -230,7 +230,7 @@ namespace eq
          * configExit().
          * The context has to be set to 0 before it is destroyed.
          *
-         * @param drawable the AGL rendering context.
+         * @param context the AGL rendering context.
          */
         virtual void setAGLContext( AGLContext context );
 
@@ -275,7 +275,7 @@ namespace eq
          * configExit().
          * The context has to be set to 0 before it is destroyed.
          *
-         * @param drawable the WGL rendering context.
+         * @param context the WGL rendering context.
          */
         virtual void setWGLContext( HGLRC context );
         //*}
@@ -647,7 +647,7 @@ namespace eq
          * application using Config::sendEvent().
          * 
          * @param event the received window system event.
-         * @param true when the event was handled, false if not.
+         * @return true when the event was handled, false if not.
          */
         virtual bool processEvent( const WindowEvent& event );
         friend class GLXEventHandler;

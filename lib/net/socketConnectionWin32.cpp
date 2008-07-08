@@ -7,6 +7,7 @@
 using namespace eq::base;
 using namespace std;
 
+#ifdef WIN32
 namespace eq
 {
 namespace net
@@ -411,3 +412,6 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
 }
 }
 }
+#else
+#  error "File is only for WIN32 builds"
+#endif

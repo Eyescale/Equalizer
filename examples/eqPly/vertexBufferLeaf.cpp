@@ -15,8 +15,9 @@
 #include <map>
 
 using namespace std;
-using namespace mesh;
 
+namespace mesh
+{
 
 /*  Finish partial setup - sort, reindex and merge into global data.  */
 void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
@@ -254,13 +255,12 @@ void VertexBufferLeaf::render( VertexBufferState& state ) const
 
 
 /*  Render the leaf with buffer objects.  */
-inline
 void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
 {
     GLuint buffers[4];
     for( int i = 0; i < 4; ++i )
         buffers[i] = 
-            state.getBufferObject( reinterpret_cast< const char* >( this ) + i );
+            state.getBufferObject( reinterpret_cast< const char* >(this) + i );
     if( buffers[VERTEX_OBJECT] == state.FAILED || 
         buffers[NORMAL_OBJECT] == state.FAILED || 
         buffers[COLOR_OBJECT] == state.FAILED || 
@@ -340,7 +340,7 @@ void VertexBufferLeaf::fromMemory( char** addr, VertexBufferData& globalData )
 
 
 /*  Write leaf node to output stream.  */
-void VertexBufferLeaf::toStream( ostream& os )
+void VertexBufferLeaf::toStream( std::ostream& os )
 {
     size_t nodeType = LEAF_TYPE;
     os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ) );
@@ -349,4 +349,6 @@ void VertexBufferLeaf::toStream( ostream& os )
     os.write( reinterpret_cast< char* >( &_vertexLength ), sizeof( ShortIndex ) );
     os.write( reinterpret_cast< char* >( &_indexStart ), sizeof( Index ) );
     os.write( reinterpret_cast< char* >( &_indexLength ), sizeof( Index ) );
+}
+
 }

@@ -44,9 +44,7 @@ namespace mesh
         void setupRendering( VertexBufferState& state, GLuint* data ) const;
         void renderImmediate( VertexBufferState& state ) const;
         void renderDisplayList( VertexBufferState& state ) const;
-#ifdef GL_ARB_vertex_buffer_object
         void renderBufferObject( VertexBufferState& state ) const;
-#endif
         
         VertexBufferData&   _globalData;
         Index               _vertexStart;

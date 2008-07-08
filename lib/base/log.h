@@ -73,7 +73,7 @@ namespace base
 #endif
 
 	protected:
-        virtual int_type overflow( int_type c );
+        virtual int_type overflow( LogBuffer::int_type c );
         
         virtual int sync() 
             {

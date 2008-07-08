@@ -186,7 +186,7 @@ namespace eq
          * application using Config::sendEvent().
          * 
          * @param event the received window system event.
-         * @param true when the event was handled, false if not.
+         * @return true when the event was handled, false if not.
          */
         virtual bool processEvent( const ChannelEvent& event );
 

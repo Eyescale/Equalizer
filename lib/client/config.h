@@ -94,14 +94,6 @@ namespace eq
         virtual uint32_t startFrame( const uint32_t frameID );
 
         /** 
-         * Sends frame data to 
-         * 
-         * @param data 
-         */
-        void sendSceneObject( SceneObject* object );
-        void flushSceneObjects();
-
-        /** 
          * Finish the rendering of a frame.
          * 
          * @return the frame number of the finished frame, or <code>0</code> if

@@ -108,8 +108,8 @@ namespace net
         /** 
          * Add a subscribed slave to the managed object.
          * 
-         * @param slave the slave.
-         * @param instanceID the object instance identifier on the slave node.
+         * @param node the slave node
+         * @param instanceID the object instance identifier on the slave node
          */
         virtual void addSlave( NodePtr node, const uint32_t instanceID ) = 0;
 

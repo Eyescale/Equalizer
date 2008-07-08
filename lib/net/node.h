@@ -240,7 +240,7 @@ namespace net
         /** 
          * Returns if the node is local.
          * 
-         * @return <code>true</code> if the node is local, <code>false</false>
+         * @return <code>true</code> if the node is local, <code>false</code>
          *         otherwise.
          */
         bool isLocal() const { return (_state==STATE_LISTENING); }
@@ -484,7 +484,7 @@ namespace net
         /** 
          * Factory method to create a new node.
          * 
-         * @param the type the node type
+         * @param type the type the node type
          * @return the node.
          * @sa getType()
          */

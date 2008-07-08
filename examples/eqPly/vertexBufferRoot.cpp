@@ -19,10 +19,10 @@
 #   include <sys/mman.h>
 #endif
 
-
 using namespace std;
-using namespace mesh;
 
+namespace mesh
+{
 
 /*  Begin kd-tree setup, go through full range starting with x axis.  */
 void VertexBufferRoot::setupTree( VertexData& data )
@@ -295,7 +295,7 @@ void VertexBufferRoot::fromMemory( char* start )
 
 
 /*  Write root node to output stream and continue with other nodes.  */
-void VertexBufferRoot::toStream( ostream& os )
+void VertexBufferRoot::toStream( std:: ostream& os )
 {
     size_t version = FILE_VERSION;
     os.write( reinterpret_cast< char* >( &version ), sizeof( size_t ) );
@@ -304,4 +304,6 @@ void VertexBufferRoot::toStream( ostream& os )
     _data.toStream( os );
     VertexBufferNode::toStream( os );
     os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ) );
+}
+
 }

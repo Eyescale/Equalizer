@@ -31,8 +31,6 @@ namespace net
         /** 
          * Constructs a new session.
          *
-         * @param nCommands the highest command ID to be handled by the session,
-         *                  at least <code>CMD_SESSION_CUSTOM</code>.
          * @param threadSafe if <code>true</code>, all public functions are
          *                   thread-safe.
          */
@@ -64,15 +62,13 @@ namespace net
         CommandQueue* getCommandThreadQueue() 
             { return _localNode->getCommandThreadQueue(); }
 
-        /** 
-         * @return the server hosting this session. 
-         */
+        /** @return the server hosting this session. */
         NodePtr getServer(){ return _server; }
 
         /** 
          * Dispatches a command packet to the appropriate command queue.
          * 
-         * @param command the command packet.
+         * @param packet the command packet.
          * @return the result of the operation.
          * @sa Base::dispatchCommand
          */
@@ -81,7 +77,7 @@ namespace net
         /** 
          * Dispatches a command packet to the appropriate handler method.
          * 
-         * @param command the command packet.
+         * @param packet the command packet.
          * @return the result of the operation.
          * @sa Base::invokeCommand
          */
@@ -204,7 +200,7 @@ namespace net
         void attachObject( Object* object, const uint32_t id );
 
         /** 
-         * Detach an object..
+         * Detach an object.
          * 
          * @param object the attached object.
          */

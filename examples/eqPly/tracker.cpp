@@ -25,7 +25,7 @@ Tracker::Tracker()
 {
 }
 
-bool Tracker::init( const string& port )
+bool Tracker::init( const std::string& port )
 {
 #ifdef WIN32
     return false;

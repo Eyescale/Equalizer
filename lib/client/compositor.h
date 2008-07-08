@@ -105,8 +105,7 @@ namespace eq
          * Start assembling an image.
          * 
          * @param image the input image.
-         * @param buffers the frame buffer attachements to be used.
-         * @param offset the image offset wrt the window's origin.
+         * @param operation an ImageOp struct describing the operation.
          */
         static void assembleImage( const Image* image,
                                    const ImageOp& operation );
