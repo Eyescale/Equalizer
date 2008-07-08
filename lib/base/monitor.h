@@ -50,10 +50,10 @@ namespace base
 
         /** @name Monitor the value. */
         //*{
-        void waitEQ( const T& val ) const;
-        void waitNE( const T& val ) const;
-        void waitGE( const T& val ) const;
-        void waitLE( const T& val ) const;
+        const T& waitEQ( const T& val ) const;
+        const T& waitNE( const T& val ) const;
+        const T& waitGE( const T& val ) const;
+        const T& waitLE( const T& val ) const;
         //*}
 
         /** @name Comparison Operators. */
@@ -193,39 +193,47 @@ inline void Monitor<T>::set( const T& val )
 }
 
 template< typename T > 
-inline void Monitor<T>::waitEQ( const T& val ) const
+inline const T& Monitor<T>::waitEQ( const T& val ) const
 {
     pthread_mutex_lock( &_data->mutex );
     while( _value != val )
         pthread_cond_wait( &_data->cond, &_data->mutex);
+    const T& value = _value;
     pthread_mutex_unlock( &_data->mutex );
+    return value;
 }
 
 template< typename T > 
-inline void Monitor<T>::waitNE( const T& val ) const
+inline const T& Monitor<T>::waitNE( const T& val ) const
 {
     pthread_mutex_lock( &_data->mutex );
     while( _value == val )
         pthread_cond_wait( &_data->cond, &_data->mutex);
+    const T& value = _value;
     pthread_mutex_unlock( &_data->mutex );
+    return value;
 }
 
 template< typename T > 
-inline void Monitor<T>::waitGE( const T& val ) const
+inline const T& Monitor<T>::waitGE( const T& val ) const
 {
     pthread_mutex_lock( &_data->mutex );
     while( _value < val )
         pthread_cond_wait( &_data->cond, &_data->mutex);
+    const T& value = _value;
     pthread_mutex_unlock( &_data->mutex );
+    return value;
 }
 
 template< typename T > 
-inline void Monitor<T>::waitLE( const T& val ) const
+inline const T& Monitor<T>::waitLE( const T& val ) const
 {
     pthread_mutex_lock( &_data->mutex );
     while( _value > val )
         pthread_cond_wait( &_data->cond, &_data->mutex);
+    const T& value = _value;
     pthread_mutex_unlock( &_data->mutex );
+    return value;
 }
 
 template< typename T >
