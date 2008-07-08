@@ -89,6 +89,11 @@ Node::~Node()
     EQASSERT( _commandCache.empty( ));
     EQASSERT( _nodes.empty( ));
     EQASSERT( _requestHandler.empty( ));
+    EQASSERT( _sessions.empty( ));
+
+    EQASSERT( _receivedCommand == 0 );
+    delete _receivedCommand;
+    _receivedCommand = 0;
 
     EQASSERT( !_commandThread->isRunning( ));
     delete _commandThread;
@@ -97,6 +102,8 @@ Node::~Node()
     EQASSERT( !_receiverThread->isRunning( ));
     delete _receiverThread;
     _receiverThread = 0;
+
+    _connectionDescriptions.clear();
 }
 
 bool Node::operator == ( const Node* node ) const
@@ -281,7 +288,14 @@ void Node::_cleanup()
     }
 
     _connectionSet.clear();
+
+    if( !_connectionNodes.empty( ))
+        EQINFO << _connectionNodes.size() << " open connections during cleanup"
+               << endl;
     _connectionNodes.clear();
+
+    if( !_nodes.empty( ))
+        EQINFO << _nodes.size() << " nodes connected during cleanup" << endl;
     _nodes.clear();
 }
 

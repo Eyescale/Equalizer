@@ -32,6 +32,7 @@ Server::Server()
 Server::~Server()
 {
     EQINFO << "Delete server at " << (void*)this << endl;
+    _client = 0;
 }
 
 void Server::setClient( base::RefPtr<Client> client )
@@ -155,6 +156,10 @@ bool Server::shutdown()
 
     bool result = false;
     _requestHandler.waitRequest( packet.requestID, result );
+
+    if( result )
+        _client->disconnect( this );
+
     return result;
 }
 

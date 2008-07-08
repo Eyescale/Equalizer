@@ -532,7 +532,7 @@ bool Config::_exitNodes()
     for( NodeVector::const_iterator i = exitingNodes.begin();
         i != exitingNodes.end(); ++i )
     {
-        Node*          node    = *i;
+        Node*        node    = *i;
         net::NodePtr netNode = node->getNode();
 
         node->setNode( 0 );

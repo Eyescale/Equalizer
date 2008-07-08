@@ -552,56 +552,6 @@ namespace net
         /** The directory of the program to autolaunch. */
         std::string _workDir;
 
-        bool _listenToSelf();
-        void _cleanup();
-
-        void _dispatchCommand( Command& command );
-
-        /** 
-         * Launch a node using the parameters from the connection
-         * description.
-         * 
-         * @param description the connection description.
-         * @return <code>true</code> if the node was launched,
-         *         <code>false</code> otherwise.
-         */
-        bool _launch( NodePtr node, 
-                      ConnectionDescriptionPtr description );
-
-        /** 
-         * Composes the launch command by expanding the variables in the
-         * description's launch command string.
-         * 
-         * @param description the connection description.
-         * @param requestID the request identifier to be used by the launched
-         *                  node when connecting to this node.
-         * @return the expanded launch command.
-         */
-        std::string _createLaunchCommand( NodePtr node,
-                                          ConnectionDescriptionPtr description);
-        std::string   _createRemoteCommand( NodePtr node, 
-                                            const char quote );
-
-        /** 
-         * Find a connected node using a connection description
-         * 
-         * @param connectionDescription the connection description for the node.
-         * @return the node, or an invalid pointer if no node was found.
-         */
-        NodePtr _findConnectedNode( const char* connectionDescription );
-
-        /** 
-         * Find a named, mapped session.
-         * 
-         * @param name the session name.
-         * @return the session, or <code>0</code> if the session is not
-         *         mapped on this node.
-         */
-        Session* _findSession( const std::string& name ) const;
-
-        /** Generates a new, unique session identifier. */
-        uint32_t _generateSessionID();
-
         /** The receiver thread. */
         class ReceiverThread : public base::Thread
         {
@@ -631,6 +581,56 @@ namespace net
             Node* _node;
         };
         CommandThread* _commandThread;
+
+        bool _listenToSelf();
+        void _cleanup();
+
+        void _dispatchCommand( Command& command );
+
+        /** 
+        * Launch a node using the parameters from the connection
+        * description.
+        * 
+        * @param description the connection description.
+        * @return <code>true</code> if the node was launched,
+        *         <code>false</code> otherwise.
+        */
+        bool _launch( NodePtr node, 
+            ConnectionDescriptionPtr description );
+
+        /** 
+        * Composes the launch command by expanding the variables in the
+        * description's launch command string.
+        * 
+        * @param description the connection description.
+        * @param requestID the request identifier to be used by the launched
+        *                  node when connecting to this node.
+        * @return the expanded launch command.
+        */
+        std::string _createLaunchCommand( NodePtr node,
+            ConnectionDescriptionPtr description);
+        std::string   _createRemoteCommand( NodePtr node, 
+            const char quote );
+
+        /** 
+        * Find a connected node using a connection description
+        * 
+        * @param connectionDescription the connection description for the node.
+        * @return the node, or an invalid pointer if no node was found.
+        */
+        NodePtr _findConnectedNode( const char* connectionDescription );
+
+        /** 
+        * Find a named, mapped session.
+        * 
+        * @param name the session name.
+        * @return the session, or <code>0</code> if the session is not
+        *         mapped on this node.
+        */
+        Session* _findSession( const std::string& name ) const;
+
+        /** Generates a new, unique session identifier. */
+        uint32_t _generateSessionID();
 
         void* _runReceiverThread();
         void    _handleConnect();
