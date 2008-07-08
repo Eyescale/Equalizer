@@ -21,6 +21,7 @@ namespace eq
 {
 namespace server
 {
+    class ChannelListener;
     class PixelViewportListener;
 
     /**
@@ -85,19 +86,19 @@ namespace server
             { return _window->getCommandThreadQueue(); }
 
         /** 
-         * References this window as being actively used.
+         * References this channel as being actively used.
          */
         void refUsed();
 
         /** 
-         * Unreferences this window as being actively used.
+         * Unreferences this channel as being actively used.
          */
         void unrefUsed();
 
         /** 
-         * Returns if this window is actively used.
+         * Returns if this channel is actively used.
          *
-         * @return <code>true</code> if this window is actively used,
+         * @return <code>true</code> if this channel is actively used,
          *         <code>false</code> if not.
          */
         bool isUsed() const { return (_used!=0); }
@@ -228,7 +229,15 @@ namespace server
             { packet.objectID = getID(); getNode()->send( packet, data ); }
         //*}
 
-        /**
+        /** @name Channel listener interface. */
+        //*{
+        /** Register a channel listener. */
+        void addListener( ChannelListener* listener );
+        /** Deregister a channel listener. */
+        void removeListener( ChannelListener* listener );
+        //*}
+
+       /**
          * @name Attributes
          */
         //*{
@@ -293,6 +302,11 @@ namespace server
         /** The last draw compound for this entity */
         const Compound* _lastDrawCompound;
 
+        typedef std::vector< ChannelListener* > ChannelListeners;
+        ChannelListeners _listeners;
+
+        CHECK_THREAD_DECLARE( _serverThread );
+
         //-------------------- Methods --------------------
         /** common code for all constructors */
         void _construct();
@@ -303,6 +317,8 @@ namespace server
         void _sendConfigExit();
 
         void _firePVPChanged();
+        void _fireLoadData( const uint32_t frameNumber, const float startTime,
+                            const float endTime /*, const float load */ );
 
         /* command handler functions. */
         net::CommandResult _cmdConfigInitReply( net::Command& command );

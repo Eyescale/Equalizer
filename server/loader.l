@@ -5,6 +5,7 @@
 
 #include <eq/base/base.h>
 #include "compound.h"
+#include "loadBalancer.h"
 #include "parser.hpp"
 #include <stdlib.h>
 
@@ -106,6 +107,7 @@ HORIZONTAL                      { return EQTOKEN_HORIZONTAL; }
 VERTICAL                        { return EQTOKEN_VERTICAL; }
 channel                         { return EQTOKEN_CHANNEL; }
 compound                        { return EQTOKEN_COMPOUND; }
+loadBalancer                    { return EQTOKEN_LOADBALANCER; }
 connection                      { return EQTOKEN_CONNECTION; }
 name                            { return EQTOKEN_NAME; }
 type                            { return EQTOKEN_TYPE; }
@@ -154,6 +156,9 @@ stereo_anaglyph_left_mask       { return EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK; }
 stereo_anaglyph_right_mask      { return EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK; }
 update_FOV                      { return EQTOKEN_UPDATE_FOV; }
 pbuffer                         { return EQTOKEN_PBUFFER; }
+mode                            { return EQTOKEN_MODE; }
+2D                              { return EQTOKEN_2D; }
+DB                              { return EQTOKEN_DB; }
 
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }

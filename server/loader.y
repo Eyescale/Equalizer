@@ -8,6 +8,7 @@
 #include "compound.h"
 #include "frame.h"
 #include "global.h"
+#include "loadBalancer.h"
 #include "pipe.h"
 #include "server.h"
 #include "swapBarrier.h"
@@ -29,12 +30,13 @@
         static eq::server::Window*      window = 0;
         static eq::server::Channel*     channel = 0;
         static eq::server::Compound*    eqCompound = 0; // avoid name clash
+		static eq::server::LoadBalancer* loadBalancer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
         static eq::server::Frame*       frame = 0;
         static eq::net::ConnectionDescriptionPtr connectionDescription;
         static eq::server::Wall         wall;
         static eq::server::Projection   projection;
-        static uint32_t          flags = 0;
+        static uint32_t           flags = 0;
     }
     }
 
@@ -111,6 +113,7 @@
 %token EQTOKEN_VERTICAL
 %token EQTOKEN_CHANNEL
 %token EQTOKEN_COMPOUND
+%token EQTOKEN_LOADBALANCER
 %token EQTOKEN_CONNECTION
 %token EQTOKEN_NAME
 %token EQTOKEN_TYPE
@@ -150,7 +153,6 @@
 %token EQTOKEN_DISTANCE
 %token EQTOKEN_FOV
 %token EQTOKEN_HPR
-%token EQTOKEN_SYNC
 %token EQTOKEN_LATENCY
 %token EQTOKEN_SWAPBARRIER
 %token EQTOKEN_OUTPUTFRAME
@@ -160,7 +162,9 @@
 %token EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK
 %token EQTOKEN_UPDATE_FOV
 %token EQTOKEN_PBUFFER
-
+%token EQTOKEN_MODE
+%token EQTOKEN_2D
+%token EQTOKEN_DB
 %token EQTOKEN_STRING
 %token EQTOKEN_CHARACTER
 %token EQTOKEN_FLOAT
@@ -174,16 +178,18 @@
     unsigned                _unsigned;
     float                   _float;
     eq::net::ConnectionType   _connectionType;
+    eq::server::LoadBalancer::Mode _loadBalancerMode;
     float                   _viewport[4];
 }
 
-%type <_string>         STRING;
-%type <_character>      CHARACTER;
-%type <_int>            INTEGER IATTR;
-%type <_unsigned>       UNSIGNED colorMask colorMaskBit colorMaskBits;
-%type <_connectionType> connectionType;
-%type <_viewport>       viewport;
-%type <_float>          FLOAT;
+%type <_string>           STRING;
+%type <_character>        CHARACTER;
+%type <_int>              INTEGER IATTR;
+%type <_unsigned>         UNSIGNED colorMask colorMaskBit colorMaskBits;
+%type <_connectionType>   connectionType;
+%type <_loadBalancerMode> loadBalancerMode;
+%type <_viewport>         viewport;
+%type <_float>            FLOAT;
 
 %%
 
@@ -504,8 +510,7 @@ compound: EQTOKEN_COMPOUND '{'
           compoundFields 
           '}' { eqCompound = eqCompound->getParent(); } 
 
-compoundFields: /*null*/ | compoundField |
-                    compoundFields compoundField
+compoundFields: /*null*/ | compoundField | compoundFields compoundField
 compoundField: 
     compound
     | EQTOKEN_NAME STRING { eqCompound->setName( $2 ); }
@@ -533,6 +538,7 @@ compoundField:
         { eqCompound->setPixel( eq::Pixel( $3, $4 )); }
     | wall
     | projection
+    | loadBalancer
     | swapBarrier
     | outputFrame
     | inputFrame
@@ -582,14 +588,27 @@ projectionField:
     | EQTOKEN_HPR  '[' FLOAT FLOAT FLOAT ']'
         { projection.hpr = vmml::Vector3f( $3, $4, $5 ); }
 
+loadBalancer: EQTOKEN_LOADBALANCER 
+    '{' { EQASSERT( !loadBalancer ); loadBalancer = new eq::server::LoadBalancer(); }
+         loadBalancerFields
+    '}' { eqCompound->setLoadBalancer( loadBalancer ); loadBalancer = 0; }
+
+loadBalancerFields: /*null*/ | loadBalancerField | loadBalancerFields loadBalancerField
+loadBalancerField:
+    EQTOKEN_MODE loadBalancerMode { loadBalancer->setMode( $2 ) }
+
+loadBalancerMode: EQTOKEN_2D { $$ = eq::server::LoadBalancer::MODE_2D; }
+    | EQTOKEN_DB             { $$ = eq::server::LoadBalancer::MODE_DB; }
+    | EQTOKEN_HORIZONTAL     { $$ = eq::server::LoadBalancer::MODE_HORIZONTAL; }
+    | EQTOKEN_VERTICAL       { $$ = eq::server::LoadBalancer::MODE_VERTICAL; }
+
 swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
     swapBarrierFields '}'
         { 
             eqCompound->setSwapBarrier( swapBarrier );
             swapBarrier = 0;
         } 
-swapBarrierFields: /*null*/ | swapBarrierField 
-    | swapBarrierFields swapBarrierField
+swapBarrierFields: /*null*/ | swapBarrierField | swapBarrierFields swapBarrierField
 swapBarrierField: 
     EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
 

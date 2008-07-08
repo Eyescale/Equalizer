@@ -30,6 +30,22 @@ namespace server
          */
         virtual void notifyUpdatePre( Compound* compound, 
                                       const uint32_t frameNumber ) {}
+
+        /** 
+         * Notify that the compound has a new child.
+         * 
+         * @param compound the parent compound.
+         * @param child the child compound.
+         */
+        virtual void notifyChildAdded( Compound* compound, Compound* child ){}
+
+        /** 
+         * Notify that the compound is about to remove a child.
+         * 
+         * @param compound the parent compound.
+         * @param child the child compound.
+         */
+        virtual void notifyChildRemove( Compound* compound, Compound* child ){}
     };
 }
 }

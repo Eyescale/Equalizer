@@ -2,9 +2,12 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#define NOMINMAX
+
 #include <pthread.h>
 #include "channel.h"
 
+#include "channelListener.h"
 #include "channelUpdateVisitor.h"
 #include "compound.h"
 #include "compoundVisitor.h"
@@ -363,6 +366,38 @@ void Channel::updatePost( const uint32_t frameID, const uint32_t frameNumber )
     _lastDrawCompound = 0;
 }
 
+//---------------------------------------------------------------------------
+// Listener interface
+//---------------------------------------------------------------------------
+void Channel::addListener( ChannelListener* listener )
+{
+    CHECK_THREAD( _serverThread );
+
+    _listeners.push_back( listener );
+}
+
+void Channel::removeListener(  ChannelListener* listener )
+{
+    CHECK_THREAD( _serverThread );
+
+    ChannelListeners::iterator i = find( _listeners.begin(), _listeners.end(),
+                                          listener );
+    if( i != _listeners.end( ))
+        _listeners.erase( i );
+}
+
+void Channel::_fireLoadData( const uint32_t frameNumber, const float startTime,
+                             const float endTime /*, const float load */ )
+{
+    CHECK_THREAD( _serverThread );
+
+    for( ChannelListeners::const_iterator i = _listeners.begin(); 
+         i != _listeners.end(); ++i )
+
+        (*i)->notifyLoadData( this, frameNumber, startTime, endTime
+                              /*, load */ );
+}
+
 //===========================================================================
 // command handling
 //===========================================================================
@@ -418,6 +453,39 @@ net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
         const eq::Statistic& data = packet->statistics[i];
         EQLOG( eq::LOG_STATS ) << data << endl;
     }
+
+    // gather and notify load data
+    float startTime = numeric_limits< float >::max();
+    float endTime   = 0.0f;
+    bool  loadSet   = false;
+    for( uint32_t i = 0; i<packet->nStatistics && !loadSet; ++i )
+    {
+        const eq::Statistic& data = packet->statistics[i];
+        switch( data.type )
+        {
+            case eq::Statistic::CHANNEL_CLEAR:
+            case eq::Statistic::CHANNEL_DRAW:
+            case eq::Statistic::CHANNEL_DRAW_FINISH:
+            case eq::Statistic::CHANNEL_READBACK:
+            case eq::Statistic::CHANNEL_TRANSMIT:
+                startTime = EQ_MIN( startTime, data.startTime );
+                endTime   = EQ_MAX( endTime, data.endTime );
+                break;
+
+            // assemble blocks on frames, stop using subsequent data
+            case eq::Statistic::CHANNEL_ASSEMBLE:
+                loadSet = true;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    if( startTime == numeric_limits< float >::max( ))
+        startTime = endTime;
+
+    _fireLoadData( packet->frameNumber, startTime, endTime );
 
     return net::COMMAND_HANDLED;
 }

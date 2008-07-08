@@ -59,6 +59,13 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         const eq::Viewport& frameVP = frame->getViewport();
         const eq::PixelViewport& inheritPVP=compound->getInheritPixelViewport();
         eq::PixelViewport framePVP = inheritPVP.getSubPVP( frameVP );
+        
+        if( !framePVP.hasArea( )) // output frame has no pixels
+        {
+            EQINFO << "Skipping output frame " << name << ", no pixels" << endl;
+            frame->unsetData();
+            continue;
+        }
 
         // FrameData offset is position wrt destination view
         frame->cycleData( _frameNumber, compound->getInheritEyes( ));

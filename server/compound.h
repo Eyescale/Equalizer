@@ -31,6 +31,7 @@ namespace server
     class CompoundListener;
     class CompoundVisitor;
     class Frame;
+    class LoadBalancer;
     class SwapBarrier;
     
     /**
@@ -48,6 +49,9 @@ namespace server
          * Constructs a new, deep copy of the passed compound
          */
         Compound( const Compound& from );
+
+        /** Destruct the compound and all children. */
+        virtual ~Compound();
 
         /**
          * Compound tasks define the actions executed by a compound on its
@@ -191,6 +195,12 @@ namespace server
 
         Window* getWindow();
         const Window* getWindow() const;
+
+        /** Attach a load balancer to this compound. */
+        void setLoadBalancer( LoadBalancer* loadBalancer );
+
+        /** Get the attached load balancer. */
+        const LoadBalancer* getLoadBalancer() const { return _loadBalancer; }
 
         /** 
          * Set the tasks to be executed by the compound, overwriting previous
@@ -379,7 +389,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( ConstCompoundVisitor* visitor,
-                              const bool activeOnly=true ) const;
+                              const bool activeOnly = true ) const;
         /** Non-const version of accept(). */
         VisitorResult accept( CompoundVisitor* visitor,
                               const bool activeOnly = true );
@@ -413,7 +423,7 @@ namespace server
         void removeListener( CompoundListener* listener );
 
         /** Notify all listeners that the compound is about to be updated. */
-        void notifyUpdatePre( const uint32_t frameNumber );
+        void fireUpdatePre( const uint32_t frameNumber );
         //*}
 
         /**
@@ -427,9 +437,6 @@ namespace server
         static const std::string&  getIAttributeString( const IAttribute attr )
             { return _iAttributeStrings[attr]; }
         //*}
-
-    protected:
-        virtual ~Compound();
 
     private:
         //-------------------- Members --------------------
@@ -485,6 +492,8 @@ namespace server
         typedef std::vector< CompoundListener* > CompoundListeners;
         CompoundListeners _listeners;
 
+        LoadBalancer* _loadBalancer;
+
         SwapBarrier* _swapBarrier;
 
         std::vector<Frame*> _inputFrames;
@@ -495,14 +504,14 @@ namespace server
         //-------------------- Methods --------------------
         void _setDefaultFrameName( Frame* frame );
 
+        void _fireChildAdded( Compound* child );
+        void _fireChildRemove( Compound* child );
+
         /** Channel pvp changed */
         virtual void notifyPVPChanged( const eq::PixelViewport& pvp );
-
-        friend std::ostream& operator << ( std::ostream& os,
-                                           const Compound* compound );
     };
 
-    std::ostream& operator << ( std::ostream& os,const Compound* compound );
+    std::ostream& operator << ( std::ostream& os, const Compound* compound );
 }
 }
 #endif // EQSERVER_COMPOUND_H

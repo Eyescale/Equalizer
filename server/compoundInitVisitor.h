@@ -22,11 +22,13 @@ namespace server
 
         /** Visit a non-leaf compound on the down traversal. */
         virtual Compound::VisitorResult visitPre( Compound* compound )
-            { return visitLeaf( compound ); }
+            { return _visit( compound ); }
         /** Visit a leaf compound. */
-        virtual Compound::VisitorResult visitLeaf( Compound* compound );
+        virtual Compound::VisitorResult visitLeaf( Compound* compound )
+            { return _visit( compound ); }
 
     private:
+        Compound::VisitorResult _visit( Compound* compound );
     };
 }
 }

@@ -29,11 +29,11 @@ typedef net::CommandFunc<Node> NodeFunc;
 
 void Node::_construct()
 {
-    _used              = 0;
-    _config            = NULL;
-    _lastDrawCompound  = 0;
-    _flushedFrame      = 0;
-    _finishedFrame     = 0;
+    _used             = 0;
+    _config           = 0;
+    _lastDrawCompound = 0;
+    _flushedFrame     = 0;
+    _finishedFrame    = 0;
     EQINFO << "New node @" << (void*)this << endl;
 }
 

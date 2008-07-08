@@ -18,7 +18,7 @@ namespace server
 CompoundInitVisitor::CompoundInitVisitor()
 {}
 
-Compound::VisitorResult CompoundInitVisitor::visitLeaf( Compound* compound )
+Compound::VisitorResult CompoundInitVisitor::_visit( Compound* compound )
 {
     Channel* channel = compound->getChannel();
     if( channel )

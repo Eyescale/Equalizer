@@ -17,6 +17,7 @@
 #include "frame.h"
 #include "frameData.h"
 #include "global.h"
+#include "loadBalancer.h"
 #include "log.h"
 #include "swapBarrier.h"
 
@@ -51,8 +52,10 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
 Compound::Compound()
         : _config( 0 )
         , _parent( 0 )
+        , _loadBalancer( 0 )
         , _swapBarrier( 0 )
 {
+    EQINFO << "New Compound @" << (void*)this << endl;
 }
 
 // copy constructor
@@ -60,11 +63,15 @@ Compound::Compound( const Compound& from )
         : PixelViewportListener()
         , _config( 0 )
         , _parent( 0 )
+        , _loadBalancer( 0 )
 {
     _name        = from._name;
     _view        = from._view;
     _data        = from._data;
     _swapBarrier = from._swapBarrier;
+
+    if( from._loadBalancer )
+        setLoadBalancer( new LoadBalancer( *from._loadBalancer ));
 
     for( CompoundVector::const_iterator i = from._children.begin();
          i != from._children.end(); ++i )
@@ -84,6 +91,13 @@ Compound::Compound( const Compound& from )
 
 Compound::~Compound()
 {
+    if( _loadBalancer )
+    {
+        _loadBalancer->attach( 0 );
+        delete _loadBalancer;
+        _loadBalancer = 0;
+    }
+
     if( _config )
         _config->removeCompound( this );
 
@@ -139,6 +153,20 @@ void Compound::addChild( Compound* child )
     _children.push_back( child );
     EQASSERT( !child->_parent );
     child->_parent = this;
+    _fireChildAdded( child );
+}
+
+bool Compound::removeChild( Compound* child )
+{
+    CompoundVector::iterator i = find( _children.begin(), _children.end(),
+                                        child );
+    if( i == _children.end( ))
+        return false;
+
+    _fireChildRemove( child );
+    _children.erase( i );
+    child->_parent = 0;
+    return true;
 }
 
 Compound* Compound::getNext() const
@@ -217,6 +245,16 @@ const Window* Compound::getWindow() const
     return 0;
 }
 
+void Compound::setLoadBalancer( LoadBalancer* loadBalancer )
+{
+    if( _loadBalancer )
+        _loadBalancer->attach( 0 );
+    
+    if( loadBalancer )
+        loadBalancer->attach( this );
+    
+    _loadBalancer = loadBalancer;
+}
 
 //---------------------------------------------------------------------------
 // Listener interface
@@ -238,7 +276,7 @@ void Compound::removeListener(  CompoundListener* listener )
         _listeners.erase( i );
 }
 
-void Compound::notifyUpdatePre( const uint32_t frameNumber )
+void Compound::fireUpdatePre( const uint32_t frameNumber )
 {
     CHECK_THREAD( _serverThread );
 
@@ -246,6 +284,26 @@ void Compound::notifyUpdatePre( const uint32_t frameNumber )
          i != _listeners.end(); ++i )
 
         (*i)->notifyUpdatePre( this, frameNumber );
+}
+
+void Compound::_fireChildAdded( Compound* child )
+{
+    CHECK_THREAD( _serverThread );
+
+    for( CompoundListeners::const_iterator i = _listeners.begin(); 
+         i != _listeners.end(); ++i )
+
+        (*i)->notifyChildAdded( this, child );
+}
+
+void Compound::_fireChildRemove( Compound* child )
+{
+    CHECK_THREAD( _serverThread );
+
+    for( CompoundListeners::const_iterator i = _listeners.begin(); 
+         i != _listeners.end(); ++i )
+
+        (*i)->notifyChildRemove( this, child );
 }
 
 //---------------------------------------------------------------------------
@@ -698,7 +756,9 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.pvp.apply( _data.pixel );
     }
 
-    if( _data.tasks == TASK_DEFAULT )
+    if( !_inherit.pvp.hasArea( ))
+        _inherit.tasks = TASK_NONE;
+    else if( _data.tasks == TASK_DEFAULT )
     {
         if( isLeaf( ))
             _inherit.tasks = TASK_ALL;
@@ -707,6 +767,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     }
     else
         _inherit.tasks = _data.tasks;
+
 
     _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);
 }
@@ -847,6 +908,9 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         default: 
             break;
     }
+
+    if( compound->getLoadBalancer( ))
+        os << compound->getLoadBalancer();
 
     const CompoundVector& children = compound->getChildren();
     if( !children.empty( ))
