@@ -179,8 +179,9 @@ public:
     {
         for(;;)
         {
-            T newv = _value+v;
-            if(compareAndSwap(&_value,_value,newv))
+            T oldv = _value;
+            T newv = oldv+v;
+            if(compareAndSwap(&_value,oldv,newv))
                 return newv;
         }
     }
@@ -189,8 +190,9 @@ public:
     {
         for(;;)
         {
-            T newv = _value-v;
-            if(compareAndSwap(&_value,_value,newv))
+            T oldv = _value;
+            T newv = oldv-v;
+            if(compareAndSwap(&_value,oldv,newv))
                 return newv;
         }
     }
