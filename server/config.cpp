@@ -499,7 +499,7 @@ bool Config::_exitNodes()
 
     eq::ConfigDestroyNodePacket destroyNodePacket;
     eq::ClientExitPacket        clientExitPacket;
-    RefPtr< net::Node >       localNode         = getLocalNode();
+    RefPtr< net::Node >         localNode         = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
     bool success = true;
@@ -548,7 +548,7 @@ bool Config::_exitNodes()
                 }
 
                 if( netNode->getState() == net::Node::STATE_CONNECTED )
-                    getLocalNode()->disconnect( netNode );
+                    localNode->disconnect( netNode );
             }
         }
     }

@@ -365,9 +365,12 @@ NodePtr Node::getNode( const NodeID& id ) const
 
 bool Node::disconnect( NodePtr node )
 {
-    if( !node || _state != STATE_LISTENING || 
-        node->_state != STATE_CONNECTED || !node->_connection )
+    if( !node || _state != STATE_LISTENING )
         return false;
+
+    if( node->_state != STATE_CONNECTED )
+        return true;
+
     EQASSERT( !inCommandThread( ));
 
     NodeDisconnectPacket packet;
@@ -1148,7 +1151,7 @@ CommandResult Node::_cmdDisconnect( Command& command )
 {
     EQASSERT( inReceiverThread( ));
 
-    const NodeDisconnectPacket* packet = 
+    const NodeDisconnectPacket* packet =
         command.getPacket<NodeDisconnectPacket>();
 
     NodePtr node = static_cast<Node*>( 

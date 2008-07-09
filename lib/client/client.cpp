@@ -238,7 +238,7 @@ bool Client::disconnectServer( RefPtr<Server> server )
     server->setClient( 0 );
     server->_localServer = false;
 
-    const int success = disconnect( 
+    const int success = disconnect(
         RefPtr_static_cast< Server, net::Node >( server ));
     if( !success )
         EQWARN << "Server disconnect failed" << endl;
