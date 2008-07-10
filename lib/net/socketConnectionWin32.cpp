@@ -234,6 +234,7 @@ void SocketConnection::_startReceive()
     DWORD  got   = 0;
     DWORD  flags = 0;
 
+    ResetEvent( _overlapped.hEvent );
     if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 0 )==0 ||
         GetLastError() == WSA_IO_PENDING )
     {
@@ -276,6 +277,7 @@ void SocketConnection::_startAccept()
         reinterpret_cast<const char*>( &on ), sizeof( on ));
 
     // Start accept
+    ResetEvent( _overlapped.hEvent );
     DWORD got;
     if( !AcceptEx( _readFD, _overlappedSocket, _overlappedAcceptData, 0,
                    sizeof( sockaddr_in ) + 16, sizeof( sockaddr_in ) + 16,

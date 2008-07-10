@@ -9,7 +9,7 @@ using namespace eq::base;
 using namespace std;
 
 #define NTHREADS 16
-#define NREFS    100000
+#define NREFS    300000
 
 class Foo : public Referenced
 {

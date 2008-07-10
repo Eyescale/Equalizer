@@ -197,11 +197,10 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 {
 #ifdef WIN32
-    const uint32_t i      = index - WAIT_OBJECT_0;
-    const HANDLE   handle = _fdSet[i];
-
+    const uint32_t i = index - WAIT_OBJECT_0;
     _connection = _fdSetConnections[i];
 
+    EQASSERT( _fdSet[i] == _connection->getReadNotifier( ));
     return EVENT_DATA;
 #else
     for( size_t i = 0; i < _fdSet.size; ++i )
