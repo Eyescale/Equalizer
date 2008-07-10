@@ -7,6 +7,7 @@
 
 #include <eq/client/server.h>       // called in inline method
 #include <eq/client/commandQueue.h> // member
+#include <eq/client/configVisitor.h>// nested enum
 #include <eq/client/matrix4.h>      // member
 #include <eq/client/types.h>        // typedefs
 
@@ -40,6 +41,14 @@ namespace eq
             { return getClient()->getNodeThreadQueue(); }
         uint32_t getCurrentFrame()  const { return _currentFrame; }
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
+
+        /** 
+         * Traverse this config and all children using a config visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        ConfigVisitor::Result accept( ConfigVisitor* visitor );
 
         /** Get all received statistics. */
         void getStatistics( std::vector< FrameStatistics >& statistics );

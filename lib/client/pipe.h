@@ -63,6 +63,14 @@ namespace eq
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
 
         /** 
+         * Traverse this pipe and all children using a pipe visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        PipeVisitor::Result accept( PipeVisitor* visitor );
+
+        /** 
          * @return the pipe's pixel viewport
          */
         const PixelViewport& getPixelViewport() const { return _pvp; }

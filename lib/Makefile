@@ -74,6 +74,7 @@ HEADER_SRC = \
 	client/channel.h \
 	client/channelEvent.h \
 	client/channelStatistics.h \
+	client/channelVisitor.h \
 	client/client.h \
 	client/colorMask.h \
 	client/commandQueue.h \
@@ -83,6 +84,7 @@ HEADER_SRC = \
 	client/configEvent.h \
 	client/configParams.h \
 	client/configStatistics.h \
+	client/configVisitor.h \
 	client/event.h \
 	client/eventHandler.h \
 	client/eye.h \
@@ -97,9 +99,11 @@ HEADER_SRC = \
 	client/node.h \
 	client/nodeFactory.h \
 	client/nodeType.h \
+	client/nodeVisitor.h \
 	client/objectManager.h \
 	client/packets.h \
 	client/pipe.h \
+	client/pipeVisitor.h \
 	client/pixel.h \
 	client/pixelViewport.h \
 	client/range.h \
@@ -112,6 +116,7 @@ HEADER_SRC = \
 	client/windowEvent.h \
 	client/windowStatistics.h \
 	client/windowSystem.h \
+	client/windowVisitor.h \
 	client/X11Connection.h
 
 CXXFILES = \

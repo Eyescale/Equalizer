@@ -62,6 +62,35 @@ Node::~Node()
         EQWARN << "Node data queue not empty in destructor" << endl;
 }
 
+
+NodeVisitor::Result Node::accept( NodeVisitor* visitor )
+{ 
+    PipeVisitor::Result result = visitor->visit( this );
+    if( result != PipeVisitor::TRAVERSE_CONTINUE )
+        return result;
+
+    for( PipeVector::const_iterator i = _pipes.begin(); 
+         i != _pipes.end(); ++i )
+    {
+        Pipe* pipe = *i;
+        switch( pipe->accept( visitor ))
+        {
+            case PipeVisitor::TRAVERSE_TERMINATE:
+                return PipeVisitor::TRAVERSE_TERMINATE;
+
+            case PipeVisitor::TRAVERSE_PRUNE:
+                result = PipeVisitor::TRAVERSE_PRUNE;
+                break;
+                
+            case PipeVisitor::TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    return result;
+}
+
 void Node::_addPipe( Pipe* pipe )
 {
     EQASSERT( pipe->getNode() == this );

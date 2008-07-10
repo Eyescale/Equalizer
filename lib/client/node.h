@@ -49,6 +49,14 @@ namespace eq
             { return getClient()->getNodeThreadQueue(); }
 
         /** 
+         * Traverse this node and all children using a node visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        NodeVisitor::Result accept( NodeVisitor* visitor );
+
+        /** 
          * Get a network barrier. 
          * 
          * @param id the barrier identifier.

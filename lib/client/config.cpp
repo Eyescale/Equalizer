@@ -74,6 +74,34 @@ Config::~Config()
     _appNode   = 0;
 }
 
+ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
+{ 
+    NodeVisitor::Result result = visitor->visit( this );
+    if( result != NodeVisitor::TRAVERSE_CONTINUE )
+        return result;
+
+    for( NodeVector::const_iterator i = _nodes.begin(); 
+         i != _nodes.end(); ++i )
+    {
+        Node* node = *i;
+        switch( node->accept( visitor ))
+        {
+            case NodeVisitor::TRAVERSE_TERMINATE:
+                return NodeVisitor::TRAVERSE_TERMINATE;
+
+            case NodeVisitor::TRAVERSE_PRUNE:
+                result = NodeVisitor::TRAVERSE_PRUNE;
+                break;
+                
+            case NodeVisitor::TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    return result;
+}
+
 base::RefPtr<Server> Config::getServer()
 { 
     net::NodePtr node = net::Session::getServer();

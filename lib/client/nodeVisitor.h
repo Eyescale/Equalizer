@@ -1,0 +1,31 @@
+
+/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
+
+#ifndef EQ_NODEVISITOR_H
+#define EQ_NODEVISITOR_H
+
+#include <eq/client/pipeVisitor.h>
+
+namespace eq
+{
+    class Node;
+
+    /**
+     * A visitor to traverse a non-const nodes and children.
+     */
+    class NodeVisitor : public PipeVisitor
+    {
+    public:
+        /** Constructs a new NodeVisitor. */
+        NodeVisitor(){}
+        
+        /** Destruct the NodeVisitor */
+        virtual ~NodeVisitor(){}
+
+        /** Visit a node. */
+        virtual Result visit( Node* node )
+            { return TRAVERSE_CONTINUE; }
+    };
+}
+#endif // EQ_NODEVISITOR_H

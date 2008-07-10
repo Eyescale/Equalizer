@@ -94,7 +94,7 @@ namespace net
          */
         //*{
         /** 
-         * Initialize a local listening node.
+         * Initialize a local, listening node.
          *
          * This function does not return when the command line option
          * '--eq-client' is present. This is used for remote nodes which have

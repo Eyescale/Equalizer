@@ -7,6 +7,7 @@
 #include <eq/client/objectManager.h> // member
 #include <eq/client/pipe.h>          // used in inline functions
 #include <eq/client/pixelViewport.h> // member
+#include <eq/client/windowVisitor.h> // nested enum
 
 namespace eq
 {
@@ -73,6 +74,14 @@ namespace eq
         const ChannelVector& getChannels() const { return _channels; }
 
         const std::string& getName() const { return _name; }
+
+        /** 
+         * Traverse this window and all children using a window visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        WindowVisitor::Result accept( WindowVisitor* visitor );
 
         /**  @return  the X11 drawable ID. */
         XID getXDrawable() const { return _xDrawable; }

@@ -61,6 +61,34 @@ Pipe::~Pipe()
     _wglewContext = 0;
 }
 
+PipeVisitor::Result Pipe::accept( PipeVisitor* visitor )
+{ 
+    WindowVisitor::Result result = visitor->visit( this );
+    if( result != WindowVisitor::TRAVERSE_CONTINUE )
+        return result;
+
+    for( WindowVector::const_iterator i = _windows.begin(); 
+         i != _windows.end(); ++i )
+    {
+        Window* window = *i;
+        switch( window->accept( visitor ))
+        {
+            case WindowVisitor::TRAVERSE_TERMINATE:
+                return WindowVisitor::TRAVERSE_TERMINATE;
+
+            case WindowVisitor::TRAVERSE_PRUNE:
+                result = WindowVisitor::TRAVERSE_PRUNE;
+                break;
+                
+            case WindowVisitor::TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    return result;
+}
+
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
                             net::Session* session )
 {
