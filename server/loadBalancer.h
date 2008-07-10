@@ -7,6 +7,7 @@
 
 #include "channelListener.h" // base class
 #include "compoundListener.h" // base class
+#include "types.h"
 
 #include <eq/client/range.h>
 #include <eq/client/viewport.h>
@@ -105,7 +106,7 @@ namespace server
         void _clear();
 
         /** @return true if we have a valid LB tree */
-        bool _buildTree();
+        Node* _buildTree( const CompoundVector& children );
 
         /** Clear the tree, does not delete the nodes. */
         void _clearTree( Node* node );

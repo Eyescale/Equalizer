@@ -92,10 +92,12 @@ void LoadBalancer::notifyUpdatePre( Compound* compound,
     
     if( !_tree )
     {
-        if( _buildTree( ))
-            EQINFO << "LB tree: " << _tree;
-        else
+        const CompoundVector& children = _compound->getChildren();
+        if( children.empty( )) // leaf compound, can't do anything.
             return;
+
+        _tree = _buildTree( children );
+        EQINFO << "LB tree: " << _tree;
     }
     EQLOG( LOG_LB ) << "Balance for frame " << frameNumber << endl;
 
@@ -108,72 +110,43 @@ void LoadBalancer::notifyUpdatePre( Compound* compound,
     _computeSplit();
 }
 
-bool LoadBalancer::_buildTree()
+LoadBalancer::Node* LoadBalancer::_buildTree( const CompoundVector& compounds )
 {
-    EQASSERT( !_tree );
-
-    // 1. build a list of all leaf nodes, register channel listeners
-    const CompoundVector& children = _compound->getChildren();
-
-    if( children.empty( )) // leaf compound, can't do anything.
-        return false;
-
-    LBNodeVector nodes;
-    nodes.resize( children.size( ));
-
-    for( uint32_t i = 0; i < children.size(); ++i )
+    if( compounds.size() == 1 )
     {
-        nodes[i] = new Node;
+        Node* node = new Node;
 
-        Compound* compound = children[i];
-        nodes[i]->compound = compound;
-        nodes[i]->splitMode = ( _mode == MODE_2D ) ? MODE_VERTICAL : _mode;
+        Compound* compound = compounds[0];
+        node->compound  = compound;
+        node->splitMode = ( _mode == MODE_2D ) ? MODE_VERTICAL : _mode;
 
         Channel* channel = compound->getChannel();
         EQASSERT( channel );
         channel->addListener( this );
+        return node;
     }
 
-    // 2. build tree by recursively combining two nodes until one node is left
-    Mode mode = nodes[0]->splitMode;
-    while( nodes.size() > 1 )
-    {
-        LBNodeVector workNodes;
-        workNodes.swap( nodes );
-        // switch axis for 2D LB, otherwise keep mode
-        mode = (_mode == MODE_2D) ? 
-                 (( mode == MODE_VERTICAL ) ? MODE_HORIZONTAL : MODE_VERTICAL) :
-                 mode ;
+    const size_t middle = compounds.size() / 2;
 
-        for( uint32_t i=0; i < workNodes.size(); i += 2 )
-        {
-            Node* node      = new Node;
-            node->left      = workNodes[i];
+    CompoundVector left;
+    for( size_t i = 0; i < middle; ++i )
+        left.push_back( compounds[i] );
 
-            if( i+1 < workNodes.size( )) // a pair
-            {
-                node->right = workNodes[i+1];
-                nodes.push_back( node );
-                node->splitMode = mode;
-            }
-            else                        // a single
-            {
-                EQASSERT( !nodes.empty( ));
-                // switch axis for 2D LB, otherwise keep mode
-                node->splitMode = (_mode == MODE_2D) ? 
-                    ( (nodes[0]->splitMode == MODE_VERTICAL) ?
-                      MODE_HORIZONTAL : MODE_VERTICAL ) : _mode;
-                node->right     = nodes[0];
-                nodes[0]        = node;
-            }
+    CompoundVector right;
+    for( size_t i = middle; i < compounds.size(); ++i )
+        right.push_back( compounds[i] );
 
-            node->time      = 0.0f;
-        }
-    }
 
-    EQASSERT( nodes.size() == 1 );
-    _tree = nodes[0];
-    return true;
+    Node* node = new Node;
+    node->left  = _buildTree( left );
+    node->right = _buildTree( right );
+
+    node->splitMode = (_mode == MODE_2D) ? 
+                          (( node->left->splitMode == MODE_VERTICAL ) ? 
+                              MODE_HORIZONTAL : MODE_VERTICAL ) : _mode;
+    node->time      = 0.0f;
+
+    return node;
 }
 
 void LoadBalancer::_clearTree( Node* node )
@@ -319,7 +292,7 @@ void LoadBalancer::_computeSplit()
     }
 
     const size_t nResources = _compound->getChildren().size();
-    const float maxIdleTime = 0.0f;///* latency? * */ .5f * totalTime;
+    const float maxIdleTime = .1f * totalTime;
     EQLOG( LOG_LB ) << "Render time " << totalTime << ", max idle "
                     << maxIdleTime << endl;
 
@@ -444,7 +417,7 @@ void LoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
                 EQLOG( LOG_LB ) << timeLeft << "ms left for "
                                 << workingSet.size() << " tiles" << endl;
 
-                // remove all unrelevant items from working set
+                // remove all irrelevant items from working set
                 //   Is there a more clever way? Erasing invalidates iter, even
                 //   if iter is copied and inc'd beforehand.
                 LBDataVector newSet;
