@@ -113,6 +113,9 @@ int main( int argc, char **argv )
                     connectionSet.removeConnection( resultConn );
                     break;
 
+                case ConnectionSet::EVENT_INTERRUPT:
+                    break;
+
                 default:
                     TESTINFO( false, "Not reachable" );
             }
