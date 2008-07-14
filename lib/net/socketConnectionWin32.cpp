@@ -209,8 +209,6 @@ bool SocketConnection::_createReadEvents()
 
 Connection::ReadNotifier SocketConnection::getReadNotifier() const
 {
-    CHECK_THREAD( _recvThread );
-
     if( _state == STATE_CLOSED )
         return 0;
 
@@ -369,6 +367,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
     }
 
     SetEvent( _receivedDataEvent ); // WaitForMultipleObjects resets the event
+    CHECK_THREAD_RESET( _recvThread );
     return bytesCopied;
 }
 
