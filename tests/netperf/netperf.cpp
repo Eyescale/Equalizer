@@ -81,7 +81,10 @@ namespace
                     _freeThreadsLock.unset();
                 }
                 else // dead connection
-                    --_nClients;
+                {
+                    cout << --_nClients << " clients" << endl;
+                    _connectionSet.interrupt();
+                }
             }
             return EXIT_SUCCESS;
         }
@@ -199,7 +202,7 @@ int main( int argc, char **argv )
                     TEST( newConn.isValid( ));
 
                     _connectionSet.addConnection( newConn );
-                    ++_nClients;
+                    cout << ++_nClients << " clients" << endl;
                     break;
 
                 case ConnectionSet::EVENT_DATA:  // new data
@@ -228,7 +231,7 @@ int main( int argc, char **argv )
                     {
                         // Connection dead?
                         _connectionSet.removeConnection( resultConn );
-                        --_nClients;
+                        cout << --_nClients << " clients" << endl;
                     }
                     break;
 
@@ -236,7 +239,7 @@ int main( int argc, char **argv )
                 case ConnectionSet::EVENT_INVALID_HANDLE:  // client done
                     resultConn = _connectionSet.getConnection();
                     _connectionSet.removeConnection( resultConn );
-                    --_nClients;
+                    cout << --_nClients << " clients" << endl;
                     break;
 
                 case ConnectionSet::EVENT_INTERRUPT:
