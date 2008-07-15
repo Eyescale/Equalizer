@@ -16,6 +16,7 @@
 #define COMMAND_POINT "B"
 
 using namespace std;
+
 namespace eqPly
 {
 Tracker::Tracker()
@@ -179,7 +180,7 @@ bool Tracker::_update()
 }
 
 bool Tracker::_read( unsigned char* buffer, const size_t size,
-                                            const unsigned long int timeout )
+                     const unsigned long int timeout )
 {
 #ifdef WIN32
     return false;

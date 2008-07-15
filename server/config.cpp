@@ -543,7 +543,7 @@ bool Config::_exitNodes()
             {
                 if( !hasSlept )
                 {
-                    base::sleep( 1 );
+                    base::sleep( 1000 );
                     hasSlept = true;
                 }
 

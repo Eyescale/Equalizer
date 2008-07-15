@@ -11,12 +11,12 @@ namespace eq
 {
 namespace base
 {
-    void sleep( const uint32_t seconds )
+    void sleep( const uint32_t milliSeconds )
     {
 #ifdef WIN32_VC
-        Sleep( seconds * 1000 );
+        ::Sleep( milliSeconds );
 #else
-        ::sleep( seconds );
+        ::usleep( (milliSeconds+999) / 1000 );
 #endif
     }
 }

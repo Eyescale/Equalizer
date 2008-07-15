@@ -5,6 +5,7 @@
 
 #include <test.h>
 #include <eq/base/monitor.h>
+#include <eq/base/sleep.h>
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/connectionSet.h>
@@ -109,6 +110,7 @@ int main( int argc, char **argv )
     bool isClient     = true;
     bool useThreads   = false;
     size_t packetSize = 1048576;
+    size_t waitTime   = 0;
 
     try // command line parsing
     {
@@ -118,10 +120,13 @@ int main( int argc, char **argv )
         TCLAP::ValueArg<string> serverArg( "s", "server", "run as server", 
                                            true, "", "IP[:port]" );
         TCLAP::SwitchArg threadedArg( "t", "threaded", 
-                                      "Run each receive in a separate thread (server only)", 
+                          "Run each receive in a separate thread (server only)", 
                                       command, false );
         TCLAP::ValueArg<size_t> sizeArg( "p", "packetSize", "packet size", 
                                          false, 1048576, "unsigned", command );
+        TCLAP::ValueArg<size_t> waitArg( "w", "wait", 
+                                   "wait time (ms) between sends (client only)", 
+                                         false, 0, "unsigned", command );
 
         command.xorAdd( clientArg, serverArg );
         command.parse( argc, argv );
@@ -138,6 +143,8 @@ int main( int argc, char **argv )
 
         if( sizeArg.isSet( ))
             packetSize = sizeArg.getValue();
+        if( waitArg.isSet( ))
+            waitTime = waitArg.getValue();
     }
     catch( TCLAP::ArgException& exception )
     {
@@ -167,6 +174,8 @@ int main( int argc, char **argv )
             const float time = clock.getTimef();
             cout << ++packetNum << " Send perf: " << mBytesSec / time 
                  << "MB/s (" << time << "ms)" << endl;
+            if( waitTime > 0 )
+                eq::base::sleep( waitTime );
         }
     }
     else
