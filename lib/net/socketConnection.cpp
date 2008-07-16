@@ -61,6 +61,7 @@ bool SocketConnection::_createSocket()
     else
         fd = ::socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 #endif
+
     if( fd == INVALID_SOCKET )
     {
         EQERROR << "Could not create socket: " << EQ_SOCKET_ERROR << endl;

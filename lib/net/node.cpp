@@ -415,7 +415,7 @@ void Node::removeSession( Session* session )
     session->setLocalNode( 0 );
     session->_server    = 0;
     session->_id        = EQ_ID_INVALID;
-    session->_name      = "";
+    session->_name.clear();
     session->_isMaster  = false;
 }
 
@@ -911,12 +911,6 @@ CommandResult Node::_cmdMapSession( Command& command )
         {
             sessionName = packet->name;
             session     = _findSession( sessionName );
-        
-#if 0
-            if( !session ) // session does not exist, wait until master maps it
-                return COMMAND_REDISPATCH;
-#endif
-
         }
         else // mapped by identifier, session has to exist already
         {

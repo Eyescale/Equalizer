@@ -376,13 +376,13 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     if( _writeFD == INVALID_SOCKET )
         return -1;
 
-    WSABUF wsaBuffer = { bytes,
+    WSABUF wsaBuffer = { EQ_MIN( bytes, MAX_BUFFER_SIZE ),
                       const_cast<char*>( static_cast< const char* >( buffer ))};
     DWORD wrote;
 
     while( true )
     {
-        if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // success
+        if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // ok
             return wrote;
 
         // error
