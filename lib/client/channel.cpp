@@ -518,7 +518,7 @@ void Channel::drawStatistics()
                         glColor3f( 1.0f-dim, 1.0f-dim, 1.0f-dim ); 
                         y1 -= SPACE;
                         y2 += SPACE;
-                        z = 0.1f; 
+                        z = 0.2f; 
                         break;
                     case Statistic::CHANNEL_WAIT_FRAME:
                     case Statistic::CONFIG_WAIT_FINISH_FRAME:
