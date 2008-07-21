@@ -79,10 +79,10 @@ void Frame::syncReadback()
     _frameData->syncReadback();
 }
 
-void Frame::transmit( net::NodePtr toNode )
+float Frame::transmit( net::NodePtr toNode )
 {
     EQASSERT( _frameData );
-    _frameData->transmit( toNode );
+    return _frameData->transmit( toNode );
 }
 
 bool Frame::isReady() const

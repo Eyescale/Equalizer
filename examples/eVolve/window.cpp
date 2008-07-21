@@ -12,25 +12,10 @@ namespace eVolve
 
 bool Window::configInit( const uint32_t initID )
 {
-#if !defined(Darwin) || !defined(GLX)
-    // Enable alpha channel
-    // Note: Apple's glX implementation has a bug in that it does not expose
-    // visuals with alpha, even though they do have alpha.
+    // Enforce alpha channel, since we need one for rendering
     setIAttribute( IATTR_PLANES_ALPHA, 8 );
-#endif
 
-    if( !eq::Window::configInit( initID ))
-        return false;
-
-    // Check if we have a drawable with alpha
-    eq::Window::DrawableConfig drawableConfig = getDrawableConfig();
-    if( !drawableConfig.alphaBits )
-    {
-        setErrorMessage( "OpenGL drawable has no alpha channel. Try: 'global { EQ_WINDOW_IATTR_PLANES_ALPHA 1 }' in config file" );
-        return false;
-    }
-
-    return true;
+    return eq::Window::configInit( initID );
 }
 
 bool Window::configInitGL( const uint32_t initID )

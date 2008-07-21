@@ -108,8 +108,9 @@ namespace server
          * frame nodes. Do not use directly.
          * 
          * @param toNode the receiving node.
+         * @return the time in milliseconds used to compress images.
          */
-        void transmit( net::NodePtr toNode );
+        float transmit( net::NodePtr toNode );
 
         /** 
          * Test the readiness of the frame.

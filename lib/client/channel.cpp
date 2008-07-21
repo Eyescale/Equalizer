@@ -506,8 +506,19 @@ void Channel::drawStatistics()
                         glColor3f( 1.0f-dim, .5f-dim, .5f-dim ); 
                         break;
                     case Statistic::CHANNEL_TRANSMIT:
-                    case Statistic::CHANNEL_TRANSMIT_NODE:
                         glColor3f( 0.f, 0.f, 1.0f-dim ); 
+                        break;
+                    case Statistic::CHANNEL_TRANSMIT_NODE:
+                        glColor3f( 0.5f-dim, 0.5f-dim, 1.0f-dim ); 
+                        y1 -= SPACE;
+                        y2 += SPACE;
+                        z = 0.1f; 
+                        break;
+                    case Statistic::CHANNEL_COMPRESS:
+                        glColor3f( 1.0f-dim, 1.0f-dim, 1.0f-dim ); 
+                        y1 -= SPACE;
+                        y2 += SPACE;
+                        z = 0.1f; 
                         break;
                     case Statistic::CHANNEL_WAIT_FRAME:
                     case Statistic::CONFIG_WAIT_FINISH_FRAME:
@@ -793,12 +804,12 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
 
     ChannelStatistics event( Statistic::CHANNEL_TRANSMIT, this );
 
-    net::Session*     session   = getSession();
-    net::NodePtr localNode = session->getLocalNode();
-    net::NodePtr server    = session->getServer();
-    Pipe*               pipe      = getPipe();
-    Frame*              frame     = pipe->getFrame( packet->frame, 
-                                                    packet->context.eye );
+    net::Session* session   = getSession();
+    net::NodePtr  localNode = session->getLocalNode();
+    net::NodePtr  server    = session->getServer();
+    Pipe*         pipe      = getPipe();
+    Frame*        frame     = pipe->getFrame( packet->frame,
+                                              packet->context.eye );
 
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {
@@ -811,7 +822,11 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
                               << frame << " to " << nodeID << endl;
 
         ChannelStatistics nodeEvent( Statistic::CHANNEL_TRANSMIT_NODE, this );
-        frame->transmit( toNode );
+        ChannelStatistics compressEvent( Statistic::CHANNEL_COMPRESS, this );
+        compressEvent.event.data.statistic.endTime = 
+            compressEvent.event.data.statistic.startTime + 
+
+            frame->transmit( toNode );
     }
 
     return net::COMMAND_HANDLED;

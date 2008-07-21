@@ -61,6 +61,7 @@
 %token EQTOKEN_CONNECTION_IATTR_TYPE
 %token EQTOKEN_CONNECTION_IATTR_TCPIP_PORT
 %token EQTOKEN_CONNECTION_IATTR_PORT
+%token EQTOKEN_CONNECTION_IATTR_BANDWIDTH
 %token EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
 %token EQTOKEN_PIPE_IATTR_HINT_THREAD
@@ -75,6 +76,9 @@
 %token EQTOKEN_WINDOW_IATTR_PLANES_ALPHA
 %token EQTOKEN_WINDOW_IATTR_PLANES_DEPTH
 %token EQTOKEN_WINDOW_IATTR_PLANES_STENCIL
+%token EQTOKEN_WINDOW_IATTR_PLANES_ACCUM
+%token EQTOKEN_WINDOW_IATTR_PLANES_ACCUM_ALPHA
+%token EQTOKEN_WINDOW_IATTR_PLANES_SAMPLES
 %token EQTOKEN_COMPOUND_IATTR_STEREO_MODE
 %token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK
 %token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK
@@ -99,6 +103,9 @@
 %token EQTOKEN_PLANES_ALPHA
 %token EQTOKEN_PLANES_DEPTH
 %token EQTOKEN_PLANES_STENCIL
+%token EQTOKEN_PLANES_ACCUM
+%token EQTOKEN_PLANES_ACCUM_ALPHA
+%token EQTOKEN_PLANES_SAMPLES
 %token EQTOKEN_ON
 %token EQTOKEN_OFF
 %token EQTOKEN_AUTO
@@ -143,6 +150,7 @@
 %token EQTOKEN_PHASE
 %token EQTOKEN_PIXEL
 %token EQTOKEN_PORT
+%token EQTOKEN_BANDWIDTH
 %token EQTOKEN_DEVICE
 %token EQTOKEN_WALL
 %token EQTOKEN_BOTTOM_LEFT
@@ -232,6 +240,11 @@ global:
          eq::server::Global::instance()->setConnectionIAttribute(
              eq::server::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
      }
+     | EQTOKEN_CONNECTION_IATTR_BANDWIDTH UNSIGNED
+     {
+         eq::server::Global::instance()->setConnectionIAttribute(
+             eq::server::ConnectionDescription::IATTR_BANDWIDTH, $2 );
+     }
      | EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT UNSIGNED
      {
          eq::server::Global::instance()->setConnectionIAttribute(
@@ -301,6 +314,21 @@ global:
      {
          eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_PLANES_STENCIL, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_PLANES_ACCUM IATTR
+     {
+         eq::server::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_ACCUM, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_PLANES_ACCUM_ALPHA IATTR
+     {
+         eq::server::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_ACCUM_ALPHA, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_PLANES_SAMPLES IATTR
+     {
+         eq::server::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_SAMPLES, $2 );
      }
      | EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS IATTR
      {
@@ -408,6 +436,7 @@ connectionField:
     | EQTOKEN_TIMEOUT   UNSIGNED  { connectionDescription->launchTimeout = $2; }
     | EQTOKEN_TCPIP_PORT UNSIGNED { connectionDescription->TCPIP.port = $2; }
     | EQTOKEN_PORT UNSIGNED       { connectionDescription->TCPIP.port = $2; }
+    | EQTOKEN_BANDWIDTH UNSIGNED  { connectionDescription->bandwidth = $2; }
 
 
 pipes: pipe | pipes pipe
@@ -472,6 +501,12 @@ windowAttribute:
         { window->setIAttribute( eq::Window::IATTR_PLANES_DEPTH, $2 ); }
     | EQTOKEN_PLANES_STENCIL IATTR
         { window->setIAttribute( eq::Window::IATTR_PLANES_STENCIL, $2 ); }
+    | EQTOKEN_PLANES_ACCUM IATTR
+        { window->setIAttribute( eq::Window::IATTR_PLANES_ACCUM, $2 ); }
+    | EQTOKEN_PLANES_ACCUM_ALPHA IATTR
+        { window->setIAttribute( eq::Window::IATTR_PLANES_ACCUM_ALPHA, $2 ); }
+    | EQTOKEN_PLANES_SAMPLES IATTR
+        { window->setIAttribute( eq::Window::IATTR_PLANES_SAMPLES, $2 ); }
                      
 channels: channel | channels channel
 channel: EQTOKEN_CHANNEL '{' { channel = loader->createChannel(); }

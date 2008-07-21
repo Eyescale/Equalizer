@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_CONNECTION_DESCRIPTION_H
@@ -39,6 +39,7 @@ namespace server
             IATTR_TYPE,
             IATTR_TCPIP_PORT,
             IATTR_LAUNCH_TIMEOUT,
+            IATTR_BANDWIDTH,
             IATTR_ALL
         };
         //*}
@@ -49,6 +50,7 @@ namespace server
             { return _cAttributeStrings[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
             { return _iAttributeStrings[attr]; }
+
     protected:
         virtual ~ConnectionDescription() {}
 

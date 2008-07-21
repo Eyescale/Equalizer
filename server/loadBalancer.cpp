@@ -142,7 +142,7 @@ LoadBalancer::Node* LoadBalancer::_buildTree( const CompoundVector& compounds )
     node->right = _buildTree( right );
 
     node->splitMode = (_mode == MODE_2D) ? 
-                          (( node->left->splitMode == MODE_VERTICAL ) ? 
+                          (( node->right->splitMode == MODE_VERTICAL ) ? 
                               MODE_HORIZONTAL : MODE_VERTICAL ) : _mode;
     node->time      = 0.0f;
 
@@ -262,23 +262,28 @@ void LoadBalancer::_computeSplit()
     // sort load items for each of the split directions
     LBDataVector sortedData[3] = { items, items, items };
 
-    LBDataVector& xData = sortedData[MODE_VERTICAL];
-    sort( xData.begin(), xData.end(), _compareX );
+    if( _mode == MODE_DB )
+    {
+        LBDataVector& rangeData = sortedData[MODE_DB];
+        sort( rangeData.begin(), rangeData.end(), _compareRange );
+    }
+    else
+    {
+        LBDataVector& xData = sortedData[MODE_VERTICAL];
+        sort( xData.begin(), xData.end(), _compareX );
 
-    for( LBDataVector::const_iterator i = xData.begin(); i != xData.end(); ++i )
-    {  
-        const Data& data = *i;
-        EQLOG( LOG_LB ) << data.vp << ", load " << data.load << " @ " <<
-                        frameData.first << endl;
+        for( LBDataVector::const_iterator i = xData.begin(); i != xData.end();
+             ++i )
+        {  
+            const Data& data = *i;
+            EQLOG( LOG_LB ) << data.vp << ", load " << data.load << " @ " <<
+                frameData.first << endl;
+        }
+
+        LBDataVector& yData = sortedData[MODE_HORIZONTAL];
+        sort( yData.begin(), yData.end(), _compareY );
     }
 
-    LBDataVector& yData = sortedData[MODE_HORIZONTAL];
-    sort( yData.begin(), yData.end(), _compareY );
-
-#if 0
-    LBDataVector& rangeData = sortedData[MODE_DB];
-    sort( rangeData.begin(), rangeData.end(), _compareRange );
-#endif
 
     // Compute total rendering time
     float totalTime = 0.0f;
@@ -292,7 +297,7 @@ void LoadBalancer::_computeSplit()
     }
 
     const size_t nResources = _compound->getChildren().size();
-    const float maxIdleTime = .1f * totalTime;
+    const float maxIdleTime = 0.f; //.1f * totalTime;
     EQLOG( LOG_LB ) << "Render time " << totalTime << ", max idle "
                     << maxIdleTime << endl;
 

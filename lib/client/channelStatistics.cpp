@@ -11,28 +11,29 @@ namespace eq
 {
 
 ChannelStatistics::ChannelStatistics( const Statistic::Type type, 
-                                    Channel* channel )
+                                      Channel* channel )
 {
-    _event.channel                    = channel;
+    event.channel                    = channel;
 
     const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
 
-    _event.data.type                  = Event::STATISTIC;
-    _event.data.originator            = channel->getID();
-    _event.data.statistic.type        = type;
-    _event.data.statistic.frameNumber = channel->getPipe()->getCurrentFrame();
+    event.data.type                  = Event::STATISTIC;
+    event.data.originator            = channel->getID();
+    event.data.statistic.type        = type;
+    event.data.statistic.frameNumber = channel->getPipe()->getCurrentFrame();
 
     if( hint == NICEST )
         channel->getWindow()->finish();
-    _event.data.statistic.startTime  = channel->getConfig()->getTime();
+    event.data.statistic.startTime  = channel->getConfig()->getTime();
+    event.data.statistic.endTime    = 0.f;
 }
 
 
 ChannelStatistics::~ChannelStatistics()
 {
-    Channel* channel   = _event.channel;
+    Channel* channel   = event.channel;
     const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
@@ -40,8 +41,9 @@ ChannelStatistics::~ChannelStatistics()
     if( hint == NICEST )
         channel->getWindow()->finish();
 
-    _event.data.statistic.endTime = channel->getConfig()->getTime();
-    channel->addStatistic( _event );
+    if( event.data.statistic.endTime == 0.f )
+        event.data.statistic.endTime = channel->getConfig()->getTime();
+    channel->addStatistic( event );
 }
 
 }

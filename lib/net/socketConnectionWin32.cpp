@@ -158,7 +158,7 @@ ConnectionPtr SocketConnection::accept()
     newConnection->_readFD      = _overlappedSocket;
     newConnection->_writeFD     = _overlappedSocket;
     newConnection->_state       = STATE_CONNECTED;
-    newConnection->_description->bandwidthKBS = _description->bandwidthKBS;
+    newConnection->_description->bandwidth = _description->bandwidth;
     newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
     newConnection->_description->TCPIP.port   = ntohs( remote->sin_port );
     newConnection->_pendingBuffer.resize( MIN_BUFFER_SIZE );

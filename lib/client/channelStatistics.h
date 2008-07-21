@@ -20,8 +20,7 @@ namespace eq
         ChannelStatistics( const Statistic::Type type, Channel* channel );
         ~ChannelStatistics();
 
-    private:
-        ChannelEvent _event;
+        ChannelEvent event;
     };
 }
 

@@ -39,7 +39,7 @@ void ConnectionDescription::serialize( std::ostream& os ) const
             break;
     }        
 
-    os << SEPARATOR << bandwidthKBS << SEPARATOR << _launchCommand 
+    os << SEPARATOR << bandwidth << SEPARATOR << _launchCommand 
        << SEPARATOR << static_cast<int>( launchCommandQuote )
        << SEPARATOR << launchTimeout << SEPARATOR << _hostname ;
     
@@ -113,9 +113,9 @@ bool ConnectionDescription::fromString( std::string& data )
         if( nextPos == string::npos )
             goto error;
 
-        const string bandwidth = data.substr( 0, nextPos );
-        data                   = data.substr( nextPos + 1 );
-        bandwidthKBS = atoi( bandwidth.c_str( ));
+        const string bandwidthStr = data.substr( 0, nextPos );
+        data                      = data.substr( nextPos + 1 );
+        bandwidth = atoi( bandwidthStr.c_str( ));
     
         nextPos = data.find( SEPARATOR );
         if( nextPos == string::npos )

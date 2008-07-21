@@ -41,7 +41,7 @@ BIN_DIR        ?= $(BUILD_DIR)/bin
 WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
 DEP_CXX        ?= $(CXX)
 DEFFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DEQ_CHECK_THREADSAFETY \
-                  -DEQ_USE_COMPRESSION -DGLEW_MX
+                  -DGLEW_MX
 
 
 ifeq (0,${MAKELEVEL}) # top-level invocation - one-time declarations below

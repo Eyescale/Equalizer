@@ -24,7 +24,7 @@ namespace net
     public:
         ConnectionDescription() 
                 : type( CONNECTIONTYPE_TCPIP )
-                , bandwidthKBS( 0 )
+                , bandwidth( 0 )
                 , launchTimeout( 10000 )
                 , launchCommandQuote( '\'' )
             {
@@ -35,7 +35,7 @@ namespace net
         ConnectionType type;
 
         ///** The bandwidth in kilobyte per second for this connection. */
-        uint64_t bandwidthKBS;
+        int32_t bandwidth;
 
         /** 
          * The amount of time in milliseconds to wait before a node is

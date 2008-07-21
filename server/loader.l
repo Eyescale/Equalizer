@@ -1,6 +1,6 @@
 
 %{
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <eq/base/base.h>
@@ -55,6 +55,7 @@ EQ_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_CONNECTION_CATTR_LAUNC
 EQ_CONNECTION_IATTR_TYPE         { return EQTOKEN_CONNECTION_IATTR_TYPE; }
 EQ_CONNECTION_IATTR_TCPIP_PORT   { return EQTOKEN_CONNECTION_IATTR_TCPIP_PORT; }
 EQ_CONNECTION_IATTR_PORT         { return EQTOKEN_CONNECTION_IATTR_PORT; }
+EQ_CONNECTION_IATTR_BANDWDTH     { return EQTOKEN_CONNECTION_IATTR_BANDWIDTH; }
 EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT; }
 EQ_CONFIG_FATTR_EYE_BASE         { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
 EQ_PIPE_IATTR_HINT_THREAD        { return EQTOKEN_PIPE_IATTR_HINT_THREAD; }
@@ -69,6 +70,9 @@ EQ_WINDOW_IATTR_PLANES_COLOR     { return EQTOKEN_WINDOW_IATTR_PLANES_COLOR; }
 EQ_WINDOW_IATTR_PLANES_ALPHA     { return EQTOKEN_WINDOW_IATTR_PLANES_ALPHA; }
 EQ_WINDOW_IATTR_PLANES_DEPTH     { return EQTOKEN_WINDOW_IATTR_PLANES_DEPTH; }
 EQ_WINDOW_IATTR_PLANES_STENCIL   { return EQTOKEN_WINDOW_IATTR_PLANES_STENCIL; }
+EQ_WINDOW_IATTR_PLANES_ACCUM     { return EQTOKEN_WINDOW_IATTR_PLANES_ACCUM; }
+EQ_WINDOW_IATTR_PLANES_ACCUM_ALPHA { return EQTOKEN_WINDOW_IATTR_PLANES_ACCUM_ALPHA; }
+EQ_WINDOW_IATTR_PLANES_SAMPLES   { return EQTOKEN_WINDOW_IATTR_PLANES_SAMPLES; }
 EQ_CHANNEL_IATTR_HINT_STATISTICS { return EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS; }
 EQ_COMPOUND_IATTR_STEREO_MODE    { return EQTOKEN_COMPOUND_IATTR_STEREO_MODE; } 
 EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK  { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK; }
@@ -93,6 +97,9 @@ planes_alpha                    { return EQTOKEN_PLANES_ALPHA; }
 planes_color                    { return EQTOKEN_PLANES_COLOR; }
 planes_depth                    { return EQTOKEN_PLANES_DEPTH; }
 planes_stencil                  { return EQTOKEN_PLANES_STENCIL; }
+planes_accum                    { return EQTOKEN_PLANES_ACCUM; }
+planes_accum_alpha              { return EQTOKEN_PLANES_ACCUM_ALPHA; }
+planes_samples                  { return EQTOKEN_PLANES_SAMPLES; }
 ON                              { return EQTOKEN_ON; }
 OFF                             { return EQTOKEN_OFF; }
 AUTO                            { return EQTOKEN_AUTO; }
@@ -137,6 +144,7 @@ period                          { return EQTOKEN_PERIOD; }
 phase                           { return EQTOKEN_PHASE; }
 pixel                           { return EQTOKEN_PIXEL; }
 port                            { return EQTOKEN_PORT; }
+bandwidth                       { return EQTOKEN_BANDWIDTH; }
 device                          { return EQTOKEN_DEVICE; }
 wall                            { return EQTOKEN_WALL; }
 bottom_left                     { return EQTOKEN_BOTTOM_LEFT; }

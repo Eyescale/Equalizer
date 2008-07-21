@@ -27,7 +27,8 @@ std::string ConnectionDescription::_cAttributeStrings[CATTR_ALL] = {
 std::string ConnectionDescription::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_TYPE ),
     MAKE_ATTR_STRING( IATTR_TCPIP_PORT ),
-    MAKE_ATTR_STRING( IATTR_LAUNCH_TIMEOUT )
+    MAKE_ATTR_STRING( IATTR_LAUNCH_TIMEOUT ),
+    MAKE_ATTR_STRING( IATTR_BANDWIDTH )
 };
 
 ConnectionDescription::ConnectionDescription()
@@ -43,6 +44,8 @@ ConnectionDescription::ConnectionDescription()
     launchTimeout  = global->getConnectionIAttribute( IATTR_LAUNCH_TIMEOUT );
     type           = static_cast< net::ConnectionType >(
                          global->getConnectionIAttribute( IATTR_TYPE ));
+
+    bandwidth = global->getConnectionIAttribute( IATTR_BANDWIDTH );
 
     switch( type )
     {
@@ -74,6 +77,10 @@ std::ostream& operator << ( std::ostream& os,
     if( desc->TCPIP.port != global->getConnectionIAttribute( 
             ConnectionDescription::IATTR_TCPIP_PORT ))
         os << "TCPIP_port    " << desc->TCPIP.port << endl;
+
+    if( desc->bandwidth != global->getConnectionIAttribute( 
+            ConnectionDescription::IATTR_BANDWIDTH ))
+        os << "bandwidth     " << desc->bandwidth << endl;
 
     if( desc->launchTimeout != global->getConnectionIAttribute( 
             ConnectionDescription::IATTR_LAUNCH_TIMEOUT ))

@@ -98,8 +98,9 @@ namespace server
          * frame nodes. Do not use directly.
          * 
          * @param toNode the receiving node.
+         * @return the time in milliseconds used to compress images.
          */        
-        void transmit( net::NodePtr toNode );
+        float transmit( net::NodePtr toNode );
 
         /** @return true if the frame data is ready, false if not. */
         bool isReady() const   { return _readyVersion >= getVersion(); }

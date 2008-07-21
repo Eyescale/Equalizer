@@ -550,27 +550,33 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
         }
         
         os << ( i==eq::Window::IATTR_HINT_STEREO ?
-                    "hint_stereo       " :
+                    "hint_stereo        " :
                 i==eq::Window::IATTR_HINT_DOUBLEBUFFER ?
-                    "hint_doublebuffer " :
+                    "hint_doublebuffer  " :
                 i==eq::Window::IATTR_HINT_FULLSCREEN ?
-                    "hint_fullscreen   " :
+                    "hint_fullscreen    " :
                 i==eq::Window::IATTR_HINT_DECORATION ?
-                    "hint_decoration   " :
+                    "hint_decoration    " :
                 i==eq::Window::IATTR_HINT_SWAPSYNC ?
-                    "hint_swapsync     " :
+                    "hint_swapsync      " :
                 i==eq::Window::IATTR_HINT_DRAWABLE ?
-                    "hint_drawable     " :
+                    "hint_drawable      " :
                 i==eq::Window::IATTR_HINT_STATISTICS ?
-                    "hint_statistics   " :
+                    "hint_statistics    " :
                 i==eq::Window::IATTR_PLANES_COLOR ? 
-                    "planes_color      " :
+                    "planes_color       " :
                 i==eq::Window::IATTR_PLANES_ALPHA ?
-                    "planes_alpha      " :
+                    "planes_alpha       " :
                 i==eq::Window::IATTR_PLANES_DEPTH ?
-                    "planes_depth      " :
+                    "planes_depth       " :
                 i==eq::Window::IATTR_PLANES_STENCIL ?
-                    "planes_stencil    " : "ERROR" )
+                    "planes_stencil     " :
+                i==eq::Window::IATTR_PLANES_ACCUM ?
+                    "planes_accum       " :
+                i==eq::Window::IATTR_PLANES_ACCUM_ALPHA ?
+                    "planes_accum_alpha " :
+                i==eq::Window::IATTR_PLANES_SAMPLES ?
+                    "planes_samples     " : "ERROR" )
            << static_cast<eq::IAttrValue>( value ) << endl;
     }
     

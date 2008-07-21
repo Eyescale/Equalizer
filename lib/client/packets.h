@@ -968,7 +968,8 @@ namespace eq
         uint32_t      version;
         uint32_t      buffers;
         PixelViewport pvp;
-        EQ_ALIGN8( uint8_t       data[8] ); // size is pvp.w * pvp.h * depth
+        bool          isCompressed;
+        EQ_ALIGN8( uint8_t data[8] );
     };
 
     struct FrameDataReadyPacket : public net::ObjectPacket

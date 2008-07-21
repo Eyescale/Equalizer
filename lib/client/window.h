@@ -178,6 +178,9 @@ namespace eq
             IATTR_PLANES_ALPHA,
             IATTR_PLANES_DEPTH,
             IATTR_PLANES_STENCIL,
+            IATTR_PLANES_ACCUM,
+            IATTR_PLANES_ACCUM_ALPHA,
+            IATTR_PLANES_SAMPLES,
             IATTR_ALL
         };
         

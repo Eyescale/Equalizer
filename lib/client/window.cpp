@@ -48,7 +48,10 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_PLANES_COLOR ),
     MAKE_ATTR_STRING( IATTR_PLANES_ALPHA ),
     MAKE_ATTR_STRING( IATTR_PLANES_DEPTH ),
-    MAKE_ATTR_STRING( IATTR_PLANES_STENCIL )
+    MAKE_ATTR_STRING( IATTR_PLANES_STENCIL ),
+    MAKE_ATTR_STRING( IATTR_PLANES_ACCUM ),
+    MAKE_ATTR_STRING( IATTR_PLANES_ACCUM_ALPHA ),
+    MAKE_ATTR_STRING( IATTR_PLANES_SAMPLES )
 };
 
 Window::Window( Pipe* parent )
@@ -403,7 +406,34 @@ XVisualInfo* Window::chooseXVisualInfo()
         attributes.push_back( GLX_STENCIL_SIZE );
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
     }
+    const int accumSize = getIAttribute( IATTR_PLANES_ACCUM );
+    const int accumAlpha = getIAttribute( IATTR_PLANES_ACCUM_ALPHA );
+    if( accumSize >= 0 )
+    {
+        attributes.push_back( GLX_ACCUM_RED_SIZE );
+        attributes.push_back( accumSize );
+        attributes.push_back( GLX_ACCUM_GREEN_SIZE );
+        attributes.push_back( accumSize );
+        attributes.push_back( GLX_ACCUM_BLUE_SIZE );
+        attributes.push_back( accumSize );
+        attributes.push_back( GLX_ACCUM_ALPHA_SIZE );
+        attributes.push_back( accumAlpha >= 0 ? accumAlpha : accumSize );
+    }
+    else if( accumAlpha >= 0 )
+    {
+        attributes.push_back( GLX_ACCUM_ALPHA_SIZE );
+        attributes.push_back( accumAlpha );
+    }
 
+    const int samplesSize  = getIAttribute( IATTR_PLANES_SAMPLES );
+    if( samplesSize >= 0 )
+    {
+        attributes.push_back( GLX_SAMPLE_BUFFERS );
+        attributes.push_back( 1 );
+        attributes.push_back( GLX_SAMPLES );
+        attributes.push_back( samplesSize );
+    }
+    
 #ifdef DARWIN
     // WAR: glDrawBuffer( GL_BACK ) renders only to the left back buffer on a
     // stereo visual on Darwin which creates ugly flickering on mono configs
@@ -793,7 +823,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     }
     const int depthSize = getIAttribute( IATTR_PLANES_DEPTH );
     if( depthSize > 0 || depthSize == AUTO )
-   { 
+    { 
         attributes.push_back( AGL_DEPTH_SIZE );
         attributes.push_back( depthSize>0 ? depthSize : 24 );
     }
@@ -802,6 +832,33 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     {
         attributes.push_back( AGL_STENCIL_SIZE );
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
+    }
+    const int accumSize  = getIAttribute( IATTR_PLANES_ACCUM );
+    const int accumAlpha = getIAttribute( IATTR_PLANES_ACCUM_ALPHA );
+    if( accumSize >= 0 )
+    {
+        attributes.push_back( AGL_ACCUM_RED_SIZE );
+        attributes.push_back( accumSize );
+        attributes.push_back( AGL_ACCUM_GREEN_SIZE );
+        attributes.push_back( accumSize );
+        attributes.push_back( AGL_ACCUM_BLUE_SIZE );
+        attributes.push_back( accumSize );
+        attributes.push_back( AGL_ACCUM_ALPHA_SIZE );
+        attributes.push_back( accumAlpha >= 0 ? accumAlpha : accumSize );
+    }
+    else if( accumAlpha >= 0 )
+    {
+        attributes.push_back( AGL_ACCUM_ALPHA_SIZE );
+        attributes.push_back( accumAlpha );
+    }
+
+    const int samplesSize  = getIAttribute( IATTR_PLANES_SAMPLES );
+    if( samplesSize >= 0 )
+    {
+        attributes.push_back( AGL_SAMPLE_BUFFERS_ARB );
+        attributes.push_back( 1 );
+        attributes.push_back( AGL_SAMPLES_ARB );
+        attributes.push_back( samplesSize );
     }
 
     if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == ON ||
@@ -1358,6 +1415,40 @@ int Window::chooseWGLPixelFormat( HDC dc )
     {
         attributes.push_back( WGL_STENCIL_BITS_ARB );
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
+    }
+
+    const int accumSize  = getIAttribute( IATTR_PLANES_ACCUM );
+    const int accumAlpha = getIAttribute( IATTR_PLANES_ACCUM_ALPHA );
+    if( accumSize >= 0 )
+    {
+        attributes.push_back( WGL_ACCUM_RED_BITS_ARB );
+        attributes.push_back( accumSize );
+        attributes.push_back( WGL_ACCUM_GREEN_BITS_ARB );
+        attributes.push_back( accumSize );
+        attributes.push_back( WGL_ACCUM_BLUE_BITS_ARB );
+        attributes.push_back( accumSize );
+        attributes.push_back( WGL_ACCUM_ALPHA_BITS_ARB );
+        attributes.push_back( accumAlpha >= 0 ? accumAlpha : accumSize );
+    }
+    else if( accumAlpha >= 0 )
+    {
+        attributes.push_back( WGL_ACCUM_ALPHA_BITS_ARB );
+        attributes.push_back( accumAlpha );
+    }
+
+    const int samplesSize  = getIAttribute( IATTR_PLANES_SAMPLES );
+    if( samplesSize >= 0 )
+    {
+        if( WGLEW_ARB_multisample )
+        {
+            attributes.push_back( WGL_SAMPLE_BUFFERS_ARB );
+            attributes.push_back( 1 );
+            attributes.push_back( WGL_SAMPLES_ARB );
+            attributes.push_back( samplesSize );
+        }
+        else
+            EQWARN << "WGLEW_ARB_multisample not supported, ignoring samples "
+                   << "attribute" << endl;
     }
 
     if( getIAttribute( IATTR_HINT_STEREO ) == ON ||

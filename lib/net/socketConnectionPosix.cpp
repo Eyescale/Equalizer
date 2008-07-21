@@ -119,7 +119,7 @@ ConnectionPtr SocketConnection::accept()
     newConnection->_readFD      = fd;
     newConnection->_writeFD     = fd;
     newConnection->_state       = STATE_CONNECTED;
-    newConnection->_description->bandwidthKBS = _description->bandwidthKBS;
+    newConnection->_description->bandwidth = _description->bandwidth;
     newConnection->_description->setHostname( inet_ntoa( newAddress.sin_addr ));
     newConnection->_description->TCPIP.port   = ntohs( newAddress.sin_port );
 

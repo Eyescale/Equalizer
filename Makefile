@@ -53,9 +53,6 @@ endif
 ifeq ($(findstring EQ_USE_PARACOMP, $(DEFFLAGS)),EQ_USE_PARACOMP)
 	@echo "    Paracomp (http://paracomp.sourceforge.net/)"
 endif
-ifeq ($(findstring EQ_USE_COMPRESSION, $(DEFFLAGS)),EQ_USE_COMPRESSION)
-	@echo "    Image Compression for network transfers"
-endif
 ifeq (Darwin,$(ARCH))
 	@echo "Set DYLD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR)"
 else

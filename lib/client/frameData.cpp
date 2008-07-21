@@ -173,22 +173,30 @@ void FrameData::_setReady( const uint32_t version )
     _listenersMutex.unset();
 }
 
-void FrameData::transmit( net::NodePtr toNode )
+float FrameData::transmit( net::NodePtr toNode )
 {
     if( _data.buffers == 0 )
     {
         EQWARN << "No buffers for frame data" << endl;
-        return;
+        return 0.f;
     }
+
+    net::ConnectionPtr             connection = toNode->getConnection();
+    net::ConnectionDescriptionPtr description = connection->getDescription();
+
+    // use compression on links up to 2 GBit/s
+    const bool useCompression = ( description->bandwidth <= 262144 );
+    float      compressTime   = 0.f;
 
     FrameDataTransmitPacket packet;
     const uint64_t          packetSize = sizeof( packet ) - 8*sizeof( uint8_t );
-    const net::Session*   session    = getSession();
+    const net::Session*     session    = getSession();
     EQASSERT( session );
 
-    packet.sessionID = session->getID();
-    packet.objectID  = getID();
-    packet.version   = getVersion();
+    packet.sessionID    = session->getID();
+    packet.objectID     = getID();
+    packet.version      = getVersion();
+    packet.isCompressed = useCompression;
 
     for( vector<Image*>::const_iterator iter = _images.begin();
          iter != _images.end(); ++iter )
@@ -203,59 +211,50 @@ void FrameData::transmit( net::NodePtr toNode )
 
         EQASSERT( packet.pvp.isValid( ));
 
-#ifdef EQ_USE_COMPRESSION
-        Clock clock;
-#endif
         if( image->hasPixelData( Frame::BUFFER_COLOR ))
         {
-#ifdef EQ_USE_COMPRESSION
             uint32_t size;
-            const uint8_t* data = image->compressPixelData( Frame::BUFFER_COLOR,
-                                                            size );
-            EQLOG( LOG_ASSEMBLY )
-                << "Compress color "
-                << image->getPixelDataSize( Frame::BUFFER_COLOR ) << "->" 
-                << size << " done at " << clock.getTimef() << endl;
-#else
-            const uint8_t* data = image->getPixelData( Frame::BUFFER_COLOR );
-            const uint32_t size = image->getPixelDataSize( Frame::BUFFER_COLOR);
-#endif
+            if( useCompression )
+            {
+                Clock clock;
+                pixelDatas.push_back( 
+                    image->compressPixelData(Frame::BUFFER_COLOR, size ));
+                compressTime += clock.getTimef();
+            }
+            else
+            {
+                pixelDatas.push_back( image->getPixelData(Frame::BUFFER_COLOR));
+                size = image->getPixelDataSize( Frame::BUFFER_COLOR);
+            }
 
-            pixelDatas.push_back( data );
             pixelDataSizes.push_back( size );
             packet.size    += size;
             packet.buffers |= Frame::BUFFER_COLOR;
         }
         if( image->hasPixelData( Frame::BUFFER_DEPTH ))
         {
-#ifdef EQ_USE_COMPRESSION
             uint32_t size;
-            const uint8_t* data = image->compressPixelData( Frame::BUFFER_DEPTH,
-                                                            size );
-            EQLOG( LOG_ASSEMBLY )
-                << "Compress depth "
-                << image->getPixelDataSize( Frame::BUFFER_DEPTH ) << "->" 
-                << size << " done at " << clock.getTimef() << endl;
-#else
-            const uint8_t* data = image->getPixelData( Frame::BUFFER_DEPTH );
-            const uint32_t size = image->getPixelDataSize( Frame::BUFFER_DEPTH);
-#endif
+            if( useCompression )
+            {
+                Clock clock;
+                pixelDatas.push_back( 
+                    image->compressPixelData(Frame::BUFFER_DEPTH, size ));
+                compressTime += clock.getTimef();
+            }
+            else
+            {
+                pixelDatas.push_back( image->getPixelData(Frame::BUFFER_DEPTH));
+                size = image->getPixelDataSize( Frame::BUFFER_DEPTH);
+            }
 
-            pixelDatas.push_back( data );
             pixelDataSizes.push_back( size );
             packet.size    += size;
             packet.buffers |= Frame::BUFFER_DEPTH;
         }
-#ifdef EQ_USE_COMPRESSION
-        EQLOG( LOG_ASSEMBLY ) << "Image compress took " << clock.getTimef() 
-                              << endl;
-        clock.reset();
-#endif
  
         if( pixelDatas.empty( ))
             continue;
 
-        RefPtr<net::Connection> connection = toNode->getConnection();
         connection->lockSend();
         connection->send( &packet, packetSize, true );
         
@@ -263,11 +262,6 @@ void FrameData::transmit( net::NodePtr toNode )
             connection->send( pixelDatas[i], pixelDataSizes[i], true );
 
         connection->unlockSend(); 
-#ifdef EQ_USE_COMPRESSION
-        EQLOG( LOG_ASSEMBLY ) << "Image transmit took " << clock.getTimef() 
-                              << endl;
-        clock.reset();
-#endif
     }
 
     FrameDataReadyPacket readyPacket;
@@ -275,6 +269,7 @@ void FrameData::transmit( net::NodePtr toNode )
     readyPacket.objectID  = getID();
     readyPacket.version   = getVersion();
     toNode->send( readyPacket );
+    return compressTime;
 }
 
 void FrameData::addListener( base::Monitor<uint32_t>& listener )
@@ -320,36 +315,27 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
 
     image->setPixelViewport( packet->pvp );
 
-#ifdef EQ_USE_COMPRESSION
-    Clock          clock;
-#endif
     if( packet->buffers & Frame::BUFFER_COLOR )
     {
-#ifdef EQ_USE_COMPRESSION
-        data += image->decompressPixelData( Frame::BUFFER_COLOR, data );
-        EQLOG( LOG_ASSEMBLY ) << "Decompress color done at " 
-                              << clock.getTimef() << endl;
-#else
-        image->setPixelData( Frame::BUFFER_COLOR, data );
-        data += image->getPixelDataSize( Frame::BUFFER_COLOR );
-#endif
+        if( packet->isCompressed )
+            data += image->decompressPixelData( Frame::BUFFER_COLOR, data );
+        else
+        {
+            image->setPixelData( Frame::BUFFER_COLOR, data );
+            data += image->getPixelDataSize( Frame::BUFFER_COLOR );
+        }
     }
 
     if( packet->buffers & Frame::BUFFER_DEPTH )
     {
-#ifdef EQ_USE_COMPRESSION
-        data += image->decompressPixelData( Frame::BUFFER_DEPTH, data );
-        EQLOG( LOG_ASSEMBLY ) << "Decompress depth done at " 
-                              << clock.getTimef() << endl;
-#else
-        image->setPixelData( Frame::BUFFER_DEPTH, data );
-        data += image->getPixelDataSize( Frame::BUFFER_DEPTH );
-#endif
+        if( packet->isCompressed )
+            data += image->decompressPixelData( Frame::BUFFER_DEPTH, data );
+        else
+        {
+            image->setPixelData( Frame::BUFFER_DEPTH, data );
+            data += image->getPixelDataSize( Frame::BUFFER_DEPTH );
+        }
     }
-#ifdef EQ_USE_COMPRESSION
-    EQLOG( LOG_ASSEMBLY ) << "Image decompression took " << clock.getTimef() 
-                          << endl;
-#endif
     
     const uint32_t version = getVersion();
 

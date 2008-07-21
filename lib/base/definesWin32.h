@@ -26,10 +26,6 @@
 #  ifndef EQ_WIN32_SDP_JOIN_WAR // see thread.cxx
 #    define EQ_WIN32_SDP_JOIN_WAR
 #  endif
-#else
-#  ifndef EQ_USE_COMPRESSION
-#    define EQ_USE_COMPRESSION
-#  endif
 #endif
 #ifdef _OPENMP
 #  define EQ_USE_OPENMP
