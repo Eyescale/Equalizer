@@ -520,7 +520,7 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
 
                     case Compound::TRAVERSE_PRUNE:
                         result = Compound::TRAVERSE_PRUNE;
-                        current = 0;
+                        current = next;
                         break;
 
                     case Compound::TRAVERSE_CONTINUE:

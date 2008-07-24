@@ -439,13 +439,14 @@ void Window::_updateSwap( const uint32_t frameNumber )
         EQLOG( eq::LOG_TASKS ) << "TASK barrier  " << &packet << endl;
     }
 
+    _resetSwapBarriers();
+
     if( !_drawableConfig.doublebuffered )
         return;
 
     eq::WindowSwapPacket packet;
     _send( packet );
     EQLOG( eq::LOG_TASKS ) << "TASK swap  " << &packet << endl;
-    _resetSwapBarriers();
 }
 
 void Window::updateFrameFinishNT( const uint32_t currentFrame )

@@ -350,7 +350,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
         memcpy( buffer, _receivedBuffer.data, bytesCopied );
         _receivedUsedBytes = bytesCopied;
 
-        // Tune receive buffer and kick off new receive if needed
+        // Tune receive buffer and kick off new receive
         _overlappedPending = false;
         _pendingBuffer.resize( EQ_MIN( bytes, MAX_BUFFER_SIZE ));
         _startReceive();
