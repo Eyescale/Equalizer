@@ -2,6 +2,7 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#define NOMINMAX
 #include "channel.h"
 
 #include "channelEvent.h"
@@ -428,9 +429,11 @@ void Channel::drawStatistics()
     pvp.x = 0;
     pvp.y = 0;
 
-    // find max time
+    // find min/max time
     const SortedStatistics& lastStats = statistics.back().second;
     int64_t                 xMax      = 0;
+    int64_t                 xMin      = std::numeric_limits< int64_t >::max();
+
     for( SortedStatistics::const_iterator i = lastStats.begin();
          i != lastStats.end(); ++i )
     {
@@ -441,8 +444,14 @@ void Channel::drawStatistics()
         {
             const Statistic& stat = *j;
             xMax = EQ_MAX( xMax, stat.endTime );
+            xMin = EQ_MIN( xMin, stat.endTime );
         }
     }
+    uint32_t scale = 1;
+    while( (xMax - xMin) / scale > pvp.w )
+        scale *= 10;
+
+    xMax  /= scale;
     xStart = xMax - pvp.getXEnd() + SPACE;
     uint32_t                       nextY = pvp.getYEnd() - SPACE;
     std::map< uint32_t, uint32_t > positions;
@@ -478,10 +487,13 @@ void Channel::drawStatistics()
                  k != stats.end(); ++k )
             {
                 const Statistic& stat = *k;
-                frameMin = EQ_MIN( frameMin, stat.startTime );
-                frameMax = EQ_MAX( frameMax, stat.endTime   );
+                const int64_t startTime = stat.startTime / scale;
+                const int64_t endTime   = stat.endTime   / scale;
 
-                if( stat.endTime < xStart || stat.endTime == stat.startTime )
+                frameMin = EQ_MIN( frameMin, startTime );
+                frameMax = EQ_MAX( frameMax, endTime   );
+
+                if( endTime < xStart || endTime == startTime )
                     continue;
 
                 float y1 = y;
@@ -546,8 +558,8 @@ void Channel::drawStatistics()
                         break;
                 }
 
-                const float x1 = stat.startTime - xStart;
-                const float x2 = stat.endTime   - xStart;
+                const float x1 = startTime - xStart;
+                const float x2 = endTime   - xStart;
                 
                 glVertex3f( x2, y1, z );
                 glVertex3f( x1, y1, z );
