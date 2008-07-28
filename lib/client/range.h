@@ -57,8 +57,7 @@ namespace eq
 
     inline std::ostream& operator << ( std::ostream& os, const Range& range )
     {
-        if( range.isValid( ))
-            os << "range    [ " << range.start << " " << range.end << " ]";
+        os << "range    [ " << range.start << " " << range.end << " ]";
         return os;
     }
 }

@@ -2349,7 +2349,7 @@ net::CommandResult Window::_cmdBarrier( net::Command& command )
     
     Node*           node    = getNode();
     net::Barrier* barrier = node->getBarrier( packet->barrierID, 
-                                                packet->barrierVersion );
+                                              packet->barrierVersion );
 
     WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
     barrier->enter();

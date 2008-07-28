@@ -121,7 +121,7 @@ namespace server
         float _assignTargetTimes( Node* node, const float totalTime, 
                                   const float resourceTime );
         void _computeSplit( Node* node, LBDataVector* sortedData,
-                            const eq::Viewport& vp );
+                            const eq::Viewport& vp, const eq::Range& range );
 
         static bool _compareX( const LoadBalancer::Data& data1,
                                const LoadBalancer::Data& data2 )

@@ -337,7 +337,7 @@ void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
     // adjust to viewport (screen-space decomposition)
     // Note: may need to be computed in pvp space to avoid rounding problems
     const eq::Viewport vp = compound->getInheritViewport();
-    if( !vp.isFullScreen() && vp.isValid( ))
+    if( vp != eq::Viewport::FULL && vp.isValid( ))
     {
         const float frustumWidth = frustum.right - frustum.left;
         frustum.left  += frustumWidth * vp.x;

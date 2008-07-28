@@ -141,9 +141,11 @@ LoadBalancer::Node* LoadBalancer::_buildTree( const CompoundVector& compounds )
     node->left  = _buildTree( left );
     node->right = _buildTree( right );
 
-    node->splitMode = (_mode == MODE_2D) ? 
-                          (( node->right->splitMode == MODE_VERTICAL ) ? 
-                              MODE_HORIZONTAL : MODE_VERTICAL ) : _mode;
+    if( _mode == MODE_2D )
+        node->splitMode = ( node->right->splitMode == MODE_VERTICAL ) ? 
+                                MODE_HORIZONTAL : MODE_VERTICAL;
+    else
+        node->splitMode = _mode;
     node->time      = 0.0f;
 
     return node;
@@ -198,8 +200,8 @@ void LoadBalancer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
             data.load      = (endTime - startTime) / data.vp.getArea();
             EQLOG( LOG_LB ) << "Added load " << data.load << " (t=" 
                             << endTime-startTime << ") for " 
-                            << channel->getName() << " " << data.vp << " @ "
-                            << frameNumber << endl;
+                            << channel->getName() << " " << data.vp << ", "
+                            << data.range << " @ " << frameNumber << endl;
             return;
 
             // Note: if the same channel is used twice as a child, the 
@@ -309,9 +311,9 @@ void LoadBalancer::_computeSplit()
                     << timeLeft << endl;
 
     const float leftover = _assignTargetTimes( _tree, totalTime, timeLeft );
-    EQASSERT( leftover <= totalTime * numeric_limits< float >::epsilon( ))
+    EQASSERT( leftover <= totalTime * numeric_limits< float >::epsilon( ));
 
-    _computeSplit( _tree, sortedData, eq::Viewport() );
+    _computeSplit( _tree, sortedData, eq::Viewport(), eq::Range() );
 }
 
 float LoadBalancer::_assignIdleTimes( Node* node, const LBDataVector& items,
@@ -375,30 +377,39 @@ float LoadBalancer::_assignTargetTimes( Node* node, const float totalTime,
 }
 
 void LoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
-                                  const eq::Viewport& vp )
+                                  const eq::Viewport& vp, 
+                                  const eq::Range& range )
 {
     const float time = node->time;
-    EQLOG( LOG_LB ) << "_computeSplit " << vp << " time " << time << endl;
-    EQASSERT( vp.isValid( ));
+    EQLOG( LOG_LB ) << "_computeSplit " << vp << ", " << range << " time "
+                    << time << endl;
+    EQASSERTINFO( vp.isValid(), vp );
+    EQASSERTINFO( range.isValid(), range );
 
     Compound* compound = node->compound;
     if( compound )
     {
+        EQASSERTINFO( vp == eq::Viewport::FULL || range == eq::Range::ALL,
+                      "Mixed 2D/DB load-balancing not implemented" );
+
         // TODO: check that time == vp * load
         compound->setViewport( vp );
+        compound->setRange( range );
+
         EQLOG( LOG_LB ) << compound->getChannel()->getName() << " set "
-                        << vp << endl;
+                        << vp << ", " << range << endl;
 
         // save data for later use
         Data data;
         data.vp       = vp;
+        data.range    = range;
         data.compound = compound;
 
-        if( !vp.hasArea( )) // will not render
+        if( !vp.hasArea() || !range.isValid( )) // will not render
         {
             data.startTime = 0.f;
             data.endTime   = 0.f;
-        }
+        } 
 
         LBFrameData&  frameData = _history.back();
         LBDataVector& items     = frameData.second;
@@ -413,6 +424,8 @@ void LoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
     {
         case MODE_VERTICAL:
         {
+            EQASSERT( range == eq::Range::ALL );
+
             float          timeLeft = node->left->time;
             float          splitPos = vp.x;
             LBDataVector workingSet = sortedData[MODE_VERTICAL];
@@ -529,16 +542,17 @@ void LoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
 
             eq::Viewport childVP = vp;
             childVP.w = (splitPos - vp.x);
-            _computeSplit( node->left, sortedData, childVP );
+            _computeSplit( node->left, sortedData, childVP, range );
 
             childVP.x = childVP.getXEnd();
             childVP.w = vp.getXEnd() - childVP.x;
-            _computeSplit( node->right, sortedData, childVP );
+            _computeSplit( node->right, sortedData, childVP, range );
             break;
         }
 
         case MODE_HORIZONTAL:
         {
+            EQASSERT( range == eq::Range::ALL );
             float         timeLeft = node->left->time;
             float         splitPos = vp.y;
             LBDataVector  workingSet = sortedData[MODE_HORIZONTAL];
@@ -655,15 +669,111 @@ void LoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
 
             eq::Viewport childVP = vp;
             childVP.h = (splitPos - vp.y);
-            _computeSplit( node->left, sortedData, childVP );
+            _computeSplit( node->left, sortedData, childVP, range );
 
             childVP.y = childVP.getYEnd();
             childVP.h = vp.getYEnd() - childVP.y;
-            _computeSplit( node->right, sortedData, childVP );
+            _computeSplit( node->right, sortedData, childVP, range );
             break;
         }
 
         case MODE_DB:
+        {
+            EQASSERT( vp == eq::Viewport::FULL );
+            float          timeLeft = node->left->time;
+            float          splitPos = range.start;
+            LBDataVector workingSet = sortedData[MODE_DB];
+
+            while( timeLeft > 0.f && !workingSet.empty( ))
+            {
+                EQLOG( LOG_LB ) << timeLeft << "ms left for "
+                                << workingSet.size() << " tiles" << endl;
+
+                // remove all irrelevant items from working set
+                //   Is there a more clever way? Erasing invalidates iter, even
+                //   if iter is copied and inc'd beforehand.
+                LBDataVector newSet;
+                for( LBDataVector::const_iterator i = workingSet.begin();
+                     i != workingSet.end(); ++i )
+                {
+                    const Data& data = *i;
+                    if( data.range.end > splitPos )
+                        newSet.push_back( data );
+                }
+                workingSet.swap( newSet );
+                EQASSERT( !workingSet.empty( ));
+
+                // find next 'discontinouity' in loads
+                float currentPos = 1.0f;
+                for( LBDataVector::const_iterator i = workingSet.begin();
+                     i != workingSet.end(); ++i )
+                {
+                    const Data& data = *i;                        
+                    currentPos = EQ_MIN( currentPos, data.range.end );
+                }
+
+                EQASSERTINFO( currentPos > splitPos,
+                              currentPos << "<=" << splitPos );
+                EQASSERT( currentPos <= 1.0f );
+
+                // accumulate normalized load in splitPos...currentPos
+                EQLOG( LOG_LB ) << "Computing load in range " << splitPos
+                                << "..." << currentPos << endl;
+                float currentLoad = 0.f;
+                for( LBDataVector::const_iterator i = workingSet.begin();
+                     i != workingSet.end(); ++i )
+                {
+                    const Data& data = *i;
+                        
+                    if( data.range.start >= currentPos ) // not yet needed data
+                        break;
+#if 0
+                    // make sure we cover full area
+                    EQASSERTINFO(  data.range.start <= splitPos, 
+                                   data.range.start << " > " << splitPos );
+                    EQASSERTINFO( data.range.end >= currentPos, 
+                                  data.range.end << " < " << currentPos);
+#endif
+                    currentLoad += data.load;
+                }
+
+                EQLOG( LOG_LB ) << splitPos << "..." << currentPos 
+                                << ": t=" << currentLoad << " of " 
+                                << timeLeft << endl;
+
+                if( currentLoad >= timeLeft ) // found last region
+                {
+                    const float width = currentPos - splitPos;
+                    splitPos += (width * timeLeft / currentLoad );
+                    timeLeft = 0.0f;
+                    EQASSERTINFO( splitPos <= range.end, 
+                                  splitPos << " > " << range.end );
+                }
+                else
+                {
+                    timeLeft -= currentLoad;
+                    splitPos  = currentPos;
+                    EQASSERTINFO( currentPos <= range.end, 
+                                  currentPos << " > " << range.end );
+                }
+            }
+            EQASSERTINFO( timeLeft <= numeric_limits< float >::epsilon(), 
+                          timeLeft );
+
+            EQLOG( LOG_LB ) << "Split " << range << " at pos " << splitPos
+                            << endl;
+
+
+            eq::Range childRange = range;
+            childRange.end       = splitPos;
+            _computeSplit( node->left, sortedData, vp, childRange );
+
+            childRange.start = childRange.end;
+            childRange.end   = range.end;
+            _computeSplit( node->right, sortedData, vp, childRange );
+            break;
+        }
+
         default:
             EQUNIMPLEMENTED;
     }

@@ -523,7 +523,7 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
     const eq::Viewport& vp  = window->getViewport();
     if( vp.isValid( ) && !window->_fixedPVP )
     {
-        if( !vp.isFullScreen( ))
+        if( vp != eq::Viewport::FULL )
             os << "viewport " << vp << endl;
     }
     else

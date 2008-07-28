@@ -195,6 +195,7 @@ CXXFILES = \
 	client/renderContext.cpp \
 	client/server.cpp \
 	client/version.cpp \
+	client/viewport.cpp \
 	client/window.cpp \
 	client/windowEvent.cpp \
 	client/windowStatistics.cpp \

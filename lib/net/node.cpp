@@ -1017,7 +1017,7 @@ CommandResult Node::_cmdConnect( Command& command )
     EQASSERT( inReceiverThread( ));
 
     const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
-    ConnectionPtr   connection = _connectionSet.getConnection();
+    ConnectionPtr        connection = _connectionSet.getConnection();
 
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();

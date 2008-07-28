@@ -185,7 +185,7 @@ std::ostream& operator << ( std::ostream& os, const Frame* frame )
     }
 
     const eq::Viewport& vp = frame->getViewport();
-    if( !vp.isFullScreen( ))
+    if( vp != eq::Viewport::FULL )
         os << "viewport " << vp << endl;
 
     os << exdent << "}" << endl << enableFlush;

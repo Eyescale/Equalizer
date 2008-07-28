@@ -821,7 +821,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     }
 
     const eq::Viewport& vp = compound->getViewport();
-    if( vp.isValid() && !vp.isFullScreen( ))
+    if( vp.isValid() && vp != eq::Viewport::FULL )
         os << "viewport " << vp << endl;
     
     const eq::Range& range = compound->getRange();

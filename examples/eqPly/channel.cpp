@@ -98,7 +98,7 @@ void Channel::frameDraw( const uint32_t frameID )
 #endif
 
     const eq::Viewport& vp = getViewport();
-    if( range == eq::Range::ALL && vp.isFullScreen( ))
+    if( range == eq::Range::ALL && vp == eq::Viewport::FULL )
         _drawLogo();
 }
 
