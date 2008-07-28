@@ -656,6 +656,7 @@ bool Pipe::configInitWGL()
     if( dc ) // createAffinityDC did set up pvp
     {
         deleteDC( dc );
+        EQINFO << "Pipe affinity pixel viewport " << _pvp << endl;
         return true;
     }
     // else don't use affinity dc
@@ -666,6 +667,8 @@ bool Pipe::configInitWGL()
     _pvp.y = 0;
     _pvp.w = GetDeviceCaps( dc, HORZRES );
     _pvp.h = GetDeviceCaps( dc, VERTRES );
+
+    EQINFO << "Pipe pixel viewport " << _pvp << endl;
     return true;
 #else
     setErrorMessage( "Client library compiled without WGL support" );
