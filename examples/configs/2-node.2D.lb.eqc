@@ -1,0 +1,49 @@
+# two-to-one sort-first config for cluster at unizh
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe 
+            {
+                window
+                {
+                    viewport [ 320 200 640 400 ]
+                    attributes{ hint_fullscreen OFF }
+                    channel { name "channel1" }
+                }
+            }
+        }
+        node
+        {
+            connection { hostname "node2" }
+            pipe { window { channel { name "channel2" }}}
+        }
+        compound
+        {
+            channel "channel1"
+            loadBalancer { mode 2D }
+
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+
+            compound {}
+            compound
+            {
+                channel "channel2"
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+        }
+    }    
+}
