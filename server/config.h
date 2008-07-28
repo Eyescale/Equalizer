@@ -7,7 +7,8 @@
 
 #include "base.h"
 #include "types.h"
-#include "server.h" // used in inline method
+#include "server.h"        // used in inline method
+#include "configVisitor.h" // nested enum
 
 #include <eq/client/matrix4.h>
 #include <eq/client/packets.h>
@@ -94,6 +95,14 @@ namespace server
          *         channel with the name exists.
          */
         Channel* findChannel( const std::string& name );
+
+        /** 
+         * Traverse this config and all children using a config visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        ConfigVisitor::Result accept( ConfigVisitor* visitor );
         //*}
 
         /** 

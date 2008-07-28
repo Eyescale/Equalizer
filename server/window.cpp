@@ -123,6 +123,34 @@ bool Window::removeChannel( Channel* channel )
     return true;
 }
 
+WindowVisitor::Result Window::accept( WindowVisitor* visitor )
+{ 
+    ChannelVisitor::Result result = visitor->visit( this );
+    if( result != ChannelVisitor::TRAVERSE_CONTINUE )
+        return result;
+
+    for( ChannelVector::const_iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
+    {
+        Channel* channel = *i;
+        switch( channel->accept( visitor ))
+        {
+            case ChannelVisitor::TRAVERSE_TERMINATE:
+                return ChannelVisitor::TRAVERSE_TERMINATE;
+
+            case ChannelVisitor::TRAVERSE_PRUNE:
+                result = ChannelVisitor::TRAVERSE_PRUNE;
+                break;
+                
+            case ChannelVisitor::TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    return result;
+}
+
 void Window::refUsed()
 {
     _used++;

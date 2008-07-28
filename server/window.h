@@ -85,6 +85,14 @@ namespace server
         State getState() const { return _state.get(); }
 
         /** 
+         * Traverse this window and all children using a window visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        WindowVisitor::Result accept( WindowVisitor* visitor );
+
+        /** 
          * References this window as being actively used.
          */
         void refUsed();

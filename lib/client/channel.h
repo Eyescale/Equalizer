@@ -5,7 +5,6 @@
 #ifndef EQ_CHANNEL_H
 #define EQ_CHANNEL_H
 
-#include <eq/client/channelVisitor.h>// nested enum
 #include <eq/client/colorMask.h>     // enum used
 #include <eq/client/event.h>         // member
 #include <eq/client/eye.h>           // enum used

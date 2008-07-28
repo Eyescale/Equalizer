@@ -7,7 +7,6 @@
 #include <eq/client/objectManager.h> // member
 #include <eq/client/pipe.h>          // used in inline functions
 #include <eq/client/pixelViewport.h> // member
-#include <eq/client/windowVisitor.h> // nested enum
 
 namespace eq
 {

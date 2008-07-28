@@ -86,6 +86,15 @@ namespace server
             { return _window->getCommandThreadQueue(); }
 
         /** 
+         * Traverse this channel and all children using a channel visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        server::ChannelVisitor::Result accept( ChannelVisitor* visitor )
+            { return visitor->visit( this ); }
+
+        /** 
          * References this channel as being actively used.
          */
         void refUsed();

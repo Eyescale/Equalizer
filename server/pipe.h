@@ -76,6 +76,14 @@ namespace server
             { return _node->getCommandThreadQueue(); }
 
         /** 
+         * Traverse this pipe and all children using a pipe visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        PipeVisitor::Result accept( PipeVisitor* visitor );
+
+        /** 
          * References this pipe as being actively used.
          */
         void refUsed();

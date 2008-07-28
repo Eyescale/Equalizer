@@ -72,6 +72,14 @@ namespace server
         const PipeVector& getPipes() const { return _pipes; }
 
         /** 
+         * Traverse this node and all children using a node visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        NodeVisitor::Result accept( NodeVisitor* visitor );
+
+        /** 
          * References this node as being actively used.
          */
         void refUsed(){ _used++; }
