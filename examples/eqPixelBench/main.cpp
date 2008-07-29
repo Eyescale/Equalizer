@@ -4,6 +4,7 @@
 
 #include "channel.h"
 #include "config.h"
+#include "window.h"
 
 using namespace std;
 using namespace eq::base;
@@ -13,6 +14,8 @@ class NodeFactory : public eq::NodeFactory
 public:
     virtual eq::Config*  createConfig( eq::base::RefPtr< eq::Server > parent )
         { return new eqPixelBench::Config( parent ); }
+    virtual eq::Window* createWindow( eq::Pipe* parent )
+        { return new eqPixelBench::Window( parent ); }
     virtual eq::Channel* createChannel( eq::Window* parent )
         { return new eqPixelBench::Channel( parent ); }
 };

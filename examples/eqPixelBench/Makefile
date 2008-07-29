@@ -7,7 +7,8 @@ CXXFILES = \
 	channel.cpp \
 	config.cpp \
 	configEvent.cpp \
-	main.cpp
+	main.cpp \
+	window.cpp
 
 CXXFLAGS += $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
