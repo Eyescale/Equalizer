@@ -26,7 +26,7 @@ protected:
 
 private:
     void _testFormats();
-    void _testTiledAssemble();
+    void _testTiledOperations();
     void _testDepthAssemble();
 
 private:

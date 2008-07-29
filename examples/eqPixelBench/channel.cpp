@@ -103,7 +103,7 @@ void Channel::frameDraw( const uint32_t frameID )
     setupAssemblyState();
 
     _testFormats();
-    _testTiledAssemble();
+    _testTiledOperations();
     _testDepthAssemble();
     
     resetAssemblyState();
@@ -210,7 +210,7 @@ void Channel::_testFormats()
     }
 }
 
-void Channel::_testTiledAssemble()
+void Channel::_testTiledOperations()
 {
     //----- setup constant data
     const eq::ImageVector& images = _frame.getImages();
@@ -230,7 +230,6 @@ void Channel::_testTiledAssemble()
     //----- test tiled assembly algorithms
     eq::PixelViewport subPVP = pvp;
     subPVP.h /= NUM_IMAGES;
-    event.area.y = subPVP.h;
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
@@ -241,17 +240,29 @@ void Channel::_testTiledAssemble()
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
-        subPVP.y = pvp.y + i * subPVP.h;
+        // interleaved readback of 'i' color images
+        event.data.type = ConfigEvent::READBACK;
+        snprintf( event.formatType, 64, "Readback %d color images", i+1 ); 
 
-        // readback color image
-        image = images[ i ];
-        image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
-        image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+        clock.reset();
+        for( unsigned j = 0; j <= i; ++j )
+        {
+            subPVP.y = pvp.y + j * subPVP.h;
+            image = images[ j ];
+            image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
+            image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
 
-        image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
-        image->syncReadback();
+            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
+        }
+        for( unsigned j = 0; j <= i; ++j )
+            images[j]->syncReadback();
+
+        event.msec = clock.getTimef();
+        config->sendEvent( event );            
 
         // benchmark assembly operations
+        subPVP.y = pvp.y + i * subPVP.h;
+
         eq::Compositor::ImageOp op;
         op.channel = this;
         op.buffers = eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH;
