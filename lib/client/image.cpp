@@ -44,6 +44,8 @@ void Image::reset()
     _depthPixels.format = GL_DEPTH_COMPONENT;
     _depthPixels.type   = GL_FLOAT;
 
+    _usePBO = false;
+
     setPixelViewport( PixelViewport( ));
 }
 
@@ -253,7 +255,6 @@ const void* Image::_getPBOKey( const Frame::Buffer buffer ) const
     }
 }
 
-//#define EQ_USE_PBO
 
 void Image::_startReadback( const Frame::Buffer buffer )
 {
@@ -263,30 +264,32 @@ void Image::_startReadback( const Frame::Buffer buffer )
 
     compressedPixels.valid = false;
 
-#ifdef EQ_USE_PBO
-    if( !_glObjects->supportsBuffers( ))
-#endif
+    if( _usePBO && _glObjects->supportsBuffers( )) // use async PBO readback
+    {
+        pixels.reading = true;
+
+        const void* bufferKey = _getPBOKey( buffer );
+        GLuint pbo = _glObjects->obtainBuffer( bufferKey );
+
+        EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo ));
+        if( pixels.pboSize < size )
+        {
+            EQ_GL_CALL( glBufferData( GL_PIXEL_PACK_BUFFER, size, 0,
+                                      GL_DYNAMIC_READ ));
+            pixels.pboSize = size;
+        }
+
+        EQ_GL_CALL( glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, 
+                                  getFormat( buffer ), getType( buffer ), 0 ));
+        EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 ));
+    }
+    else
     {
         pixels.resize( size );
         glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
                       getType( buffer ), pixels.data );
         pixels.valid = true;
-        return;
     }
-
-    // use PBOs
-    pixels.reading = true;
-
-    const void* bufferKey = _getPBOKey( buffer );
-    GLuint pbo = _glObjects->obtainBuffer( bufferKey );
-
-    glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo );
-    if( pixels.maxSize < size )
-        glBufferData( GL_PIXEL_PACK_BUFFER, size, 0, GL_DYNAMIC_READ );
-
-    glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
-                  getType( buffer ), 0 );
-    glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
 }
 
 void Image::_syncReadback( const Frame::Buffer buffer )
@@ -295,8 +298,10 @@ void Image::_syncReadback( const Frame::Buffer buffer )
     if( pixels.valid || !pixels.reading )
         return;
 
-    // overlapped readbacks are only possible when PBOs are supported
+    // async readback only possible when PBOs are used and supported
+    EQASSERT( _usePBO );
     EQASSERT( _glObjects->supportsBuffers( ));
+    EQ_GL_ERROR( "before Image::_syncReadback" );
 
     const size_t size      = _pvp.w * _pvp.h * getDepth( buffer );
     const void*  bufferKey = _getPBOKey( buffer );
@@ -305,8 +310,9 @@ void Image::_syncReadback( const Frame::Buffer buffer )
 
     pixels.resize( size );
 
-    glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo );
+    EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo ));
     const void* data = glMapBuffer( GL_PIXEL_PACK_BUFFER, GL_READ_ONLY );
+    EQ_GL_ERROR( "glMapBuffer" );
     EQASSERT( data );
 
     memcpy( pixels.data, data, size );

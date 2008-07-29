@@ -153,6 +153,7 @@ void Channel::_testFormats()
 
         image->setFormat( eq::Frame::BUFFER_COLOR, _enums[i].format );
         image->setType(   eq::Frame::BUFFER_COLOR, _enums[i].type );
+        image->setPBO( false );
 
         // read
         clock.reset();
@@ -193,6 +194,7 @@ void Channel::_testFormats()
             image = images[ j ];
             image->setFormat( eq::Frame::BUFFER_COLOR, _enums[i].format );
             image->setType(   eq::Frame::BUFFER_COLOR, _enums[i].type );
+            image->setPBO( false );
 
             image->startReadback( eq::Frame::BUFFER_COLOR, pvp, glObjects );
         }
@@ -242,15 +244,36 @@ void Channel::_testTiledOperations()
     {
         event.area.y = subPVP.h * (i+1);
 
-        // interleaved readback of 'i' color images
+        // readback of 'i' color images
         event.data.type = ConfigEvent::READBACK;
-        snprintf( event.formatType, 64, "Readback %d color images", i+1 ); 
+        snprintf( event.formatType, 64, "Sync readback of %d color images",
+                  i+1 ); 
 
         clock.reset();
         for( unsigned j = 0; j <= i; ++j )
         {
             subPVP.y = pvp.y + j * subPVP.h;
             image = images[ j ];
+            image->setPBO( false );
+            image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
+            image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+
+            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
+            image->syncReadback();
+        }
+
+        event.msec = clock.getTimef();
+        config->sendEvent( event );            
+
+        snprintf( event.formatType, 64, "Async readback of %d color images",
+            i+1 ); 
+
+        clock.reset();
+        for( unsigned j = 0; j <= i; ++j )
+        {
+            subPVP.y = pvp.y + j * subPVP.h;
+            image = images[ j ];
+            image->setPBO( true );
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
 

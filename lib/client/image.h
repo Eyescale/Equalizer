@@ -129,6 +129,9 @@ namespace eq
          */
         uint32_t decompressPixelData( const Frame::Buffer buffer, 
                                       const uint8_t* data );
+
+        /** Switch PBO usage for image transfers on or off. */
+        void setPBO( const bool onOff ) { _usePBO = onOff; }
         //*}
 
         /**
@@ -178,8 +181,9 @@ namespace eq
         class Pixels : public base::NonCopyable
         {
         public:
-            Pixels() : data(0), format( GL_FALSE ), type( GL_FALSE ),
-                       maxSize(0), valid( false ), reading( false )
+            Pixels() : data(0), format( GL_FALSE ), type( GL_FALSE )
+                       , maxSize(0), pboSize(0), valid( false )
+                       , reading( false )
                 {}
             ~Pixels();
 
@@ -189,6 +193,7 @@ namespace eq
             uint32_t format;
             uint32_t type;
             uint32_t maxSize; // the size of the allocation
+            uint32_t pboSize; // the size of the PBO
             bool     valid;   // data is currently valid
             bool     reading; // data is currently read
         };
@@ -207,6 +212,9 @@ namespace eq
 
 		/** The GL object manager, valid during a readback operation. */
 		Window::ObjectManager* _glObjects;
+
+        /** PBO Usage. */
+        bool _usePBO;
 
         Pixels&           _getPixels( const Frame::Buffer buffer );
         CompressedPixels& _getCompressedPixels( const Frame::Buffer buffer );
