@@ -35,6 +35,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
     switch( event->data.type )
     {
         case ConfigEvent::READBACK:
+        case ConfigEvent::READBACK_PBO:
         case ConfigEvent::ASSEMBLE:
         case ConfigEvent::START_LATENCY:
             cout << static_cast< const ConfigEvent* >( event ) << endl;

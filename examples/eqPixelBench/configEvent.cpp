@@ -16,6 +16,10 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
             os  << "readback";
             break;
 
+        case ConfigEvent::READBACK_PBO:
+            os  << "read PBO";
+            break;
+
         case ConfigEvent::ASSEMBLE:
             os  << "assemble";
             break;

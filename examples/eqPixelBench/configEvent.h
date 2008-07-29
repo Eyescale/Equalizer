@@ -15,6 +15,7 @@ public:
     enum Type
     {
         READBACK = eq::Event::USER,
+        READBACK_PBO,
         ASSEMBLE,
         START_LATENCY
     };

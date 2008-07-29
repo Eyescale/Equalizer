@@ -166,6 +166,23 @@ void Channel::_testFormats()
             event.msec = - static_cast<float>( error );
         config->sendEvent( event );
 
+        if( error == GL_NO_ERROR ) // PBO readback
+        {
+            event.data.type = ConfigEvent::READBACK_PBO;
+            image->setPBO( true );
+
+            // read
+            clock.reset();
+            image->startReadback( eq::Frame::BUFFER_COLOR, pvp, glObjects );
+            image->syncReadback();
+            event.msec = clock.getTimef();
+
+            error = glGetError();
+            if( error != GL_NO_ERROR )
+                event.msec = - static_cast<float>( error );
+            config->sendEvent( event );
+        }
+
         // draw
         event.data.type = ConfigEvent::ASSEMBLE;
         eq::Compositor::ImageOp op;
@@ -182,33 +199,6 @@ void Channel::_testFormats()
             event.msec = - static_cast<float>( error );
 
         config->sendEvent( event );
-
-        // read #n
-        event.area.y    = pvp.h * NUM_IMAGES;
-        event.data.type = ConfigEvent::READBACK;
-        snprintf( event.formatType, 64, "%d images, tiled", NUM_IMAGES ); 
-
-        clock.reset();
-        for( unsigned j = 0; j < NUM_IMAGES; ++j )
-        {
-            image = images[ j ];
-            image->setFormat( eq::Frame::BUFFER_COLOR, _enums[i].format );
-            image->setType(   eq::Frame::BUFFER_COLOR, _enums[i].type );
-            image->setPBO( false );
-
-            image->startReadback( eq::Frame::BUFFER_COLOR, pvp, glObjects );
-        }
-        for( unsigned j = 0; j < NUM_IMAGES; ++j )
-            images[j]->syncReadback();
-
-        event.msec = clock.getTimef();
-
-        error = glGetError();
-        if( error != GL_NO_ERROR )
-            event.msec = - static_cast<float>( error );
-
-        config->sendEvent( event ); 
-        image = images[ 0 ];
     }
 }
 
@@ -246,8 +236,7 @@ void Channel::_testTiledOperations()
 
         // readback of 'i' color images
         event.data.type = ConfigEvent::READBACK;
-        snprintf( event.formatType, 64, "Sync readback of %d color images",
-                  i+1 ); 
+        snprintf( event.formatType, 64, "%d color tiles", i+1 ); 
 
         clock.reset();
         for( unsigned j = 0; j <= i; ++j )
@@ -265,8 +254,7 @@ void Channel::_testTiledOperations()
         event.msec = clock.getTimef();
         config->sendEvent( event );            
 
-        snprintf( event.formatType, 64, "Async readback of %d color images",
-            i+1 ); 
+        event.data.type = ConfigEvent::READBACK_PBO;
 
         clock.reset();
         for( unsigned j = 0; j <= i; ++j )
