@@ -9,6 +9,8 @@
 
 namespace eqPixelBench
 {
+struct ConfigEvent;
+
 class Channel : public eq::Channel
 {
 public:
@@ -19,6 +21,13 @@ protected:
     virtual void frameStart( const uint32_t frameID,
                              const uint32_t frameNumber );
     virtual void frameDraw( const uint32_t frameID );
+
+    ConfigEvent _createConfigEvent();
+
+private:
+    void _testFormats();
+    void _testTiledAssemble();
+    void _testDepthAssemble();
 
 private:
     eq::Frame _frame;

@@ -16,6 +16,8 @@ using namespace eq::base;
 
 namespace eqPixelBench
 {
+namespace
+{
 struct EnumMap
 {
     const char*    formatString;
@@ -27,7 +29,7 @@ struct EnumMap
 #define ENUM_MAP_ITEM( format, type )          \
     { #format, #type, format, type }
 
-static EnumMap enums[] = {
+static EnumMap _enums[] = {
     ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_BYTE ), // initial buffer resize
     ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_BYTE ),
     ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV ),
@@ -43,6 +45,7 @@ static EnumMap enums[] = {
     { 0, 0, false, false }};
 
 #define NUM_IMAGES 8
+}
 
 Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
@@ -99,22 +102,39 @@ void Channel::frameDraw( const uint32_t frameID )
 
     setupAssemblyState();
 
+    _testFormats();
+    _testTiledAssemble();
+    _testDepthAssemble();
+    
+    resetAssemblyState();
+}
+
+ConfigEvent Channel::_createConfigEvent()
+{
+    ConfigEvent   event;
+    const string& name = getName();
+
+    if( name.empty( ))    
+        snprintf( event.data.user.data, 32, "%p", this );
+    else
+        snprintf( event.data.user.data, 32, "%s", name.c_str( ));
+
+    event.data.user.data[31] = '\0';
+    return event;
+}
+
+void Channel::_testFormats()
+{
     //----- setup constant data
     const eq::ImageVector& images = _frame.getImages();
     eq::Image*             image  = images[ 0 ];
     EQASSERT( image );
 
+    eq::Config*              config = getConfig();
     const eq::PixelViewport& pvp    = getPixelViewport();
     const vmml::Vector2i     offset( pvp.x, pvp.y );
-    eq::Config*              config = getConfig();
 
-    ConfigEvent   event;
-    const string& name  = getName();
-    if( name.empty( ))    
-        snprintf( event.data.user.data, 32, "%p", this);
-    else
-        snprintf( event.data.user.data, 32, "%s", name.c_str( ));
-    event.data.user.data[31] = '\0';
+    ConfigEvent event = _createConfigEvent();
     event.area.x = pvp.w;
 
     Clock                      clock;
@@ -122,18 +142,18 @@ void Channel::frameDraw( const uint32_t frameID )
 
     //----- test all default format/type combinations
     glGetError();
-    for( uint32_t i=0; enums[i].formatString; ++i )
+    for( uint32_t i=0; _enums[i].formatString; ++i )
     {
         // setup
         snprintf( event.formatType, 64, "%s/%s", 
-                  enums[i].formatString, enums[i].typeString );
+            _enums[i].formatString, _enums[i].typeString );
         event.formatType[63] = '\0';
         event.data.type = ConfigEvent::READBACK;
         event.area.y = pvp.h;
 
-        image->setFormat( eq::Frame::BUFFER_COLOR, enums[i].format );
-        image->setType(   eq::Frame::BUFFER_COLOR, enums[i].type );
-        
+        image->setFormat( eq::Frame::BUFFER_COLOR, _enums[i].format );
+        image->setType(   eq::Frame::BUFFER_COLOR, _enums[i].type );
+
         // read
         clock.reset();
         image->startReadback( eq::Frame::BUFFER_COLOR, pvp, glObjects );
@@ -171,9 +191,9 @@ void Channel::frameDraw( const uint32_t frameID )
         for( unsigned j = 0; j < NUM_IMAGES; ++j )
         {
             image = images[ j ];
-            image->setFormat( eq::Frame::BUFFER_COLOR, enums[i].format );
-            image->setType(   eq::Frame::BUFFER_COLOR, enums[i].type );
-        
+            image->setFormat( eq::Frame::BUFFER_COLOR, _enums[i].format );
+            image->setType(   eq::Frame::BUFFER_COLOR, _enums[i].type );
+
             image->startReadback( eq::Frame::BUFFER_COLOR, pvp, glObjects );
         }
         for( unsigned j = 0; j < NUM_IMAGES; ++j )
@@ -188,6 +208,24 @@ void Channel::frameDraw( const uint32_t frameID )
         config->sendEvent( event ); 
         image = images[ 0 ];
     }
+}
+
+void Channel::_testTiledAssemble()
+{
+    //----- setup constant data
+    const eq::ImageVector& images = _frame.getImages();
+    eq::Image*             image  = images[ 0 ];
+    EQASSERT( image );
+
+    eq::Config*              config = getConfig();
+    const eq::PixelViewport& pvp    = getPixelViewport();
+    const vmml::Vector2i     offset( pvp.x, pvp.y );
+
+    ConfigEvent event = _createConfigEvent();
+    event.area.x = pvp.w;
+
+    Clock                      clock;
+    eq::Window::ObjectManager* glObjects = getWindow()->getObjectManager();
 
     //----- test tiled assembly algorithms
     eq::PixelViewport subPVP = pvp;
@@ -209,7 +247,7 @@ void Channel::frameDraw( const uint32_t frameID )
         image = images[ i ];
         image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
         image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
-        
+
         image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
         image->syncReadback();
 
@@ -230,7 +268,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
         event.msec = clock.getTimef();
         config->sendEvent( event );            
-    
+
         // CPU
         snprintf( event.formatType, 64,
                   "Tiled assembly (CPU)   of %d images", i+1 ); 
@@ -243,6 +281,25 @@ void Channel::frameDraw( const uint32_t frameID )
         event.msec = clock.getTimef();
         config->sendEvent( event );            
     }
+}
+
+void Channel::_testDepthAssemble()
+{
+    //----- setup constant data
+    const eq::ImageVector& images = _frame.getImages();
+    eq::Image*             image  = images[ 0 ];
+    EQASSERT( image );
+
+    eq::Config*              config = getConfig();
+    const eq::PixelViewport& pvp    = getPixelViewport();
+    const vmml::Vector2i     offset( pvp.x, pvp.y );
+
+    ConfigEvent event = _createConfigEvent();
+    event.area.x = pvp.w;
+
+    Clock                      clock;
+    eq::Window::ObjectManager* glObjects = getWindow()->getObjectManager();
+
 
     //----- test depth-based assembly algorithms
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
@@ -262,7 +319,7 @@ void Channel::frameDraw( const uint32_t frameID )
         image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
         image->setFormat( eq::Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
         image->setType(   eq::Frame::BUFFER_DEPTH, GL_FLOAT );
-        
+
         image->startReadback( eq::Frame::BUFFER_COLOR | 
                               eq::Frame::BUFFER_DEPTH, pvp, glObjects );
         image->syncReadback();
@@ -284,7 +341,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
         event.msec = clock.getTimef();
         config->sendEvent( event );            
-    
+
         // GLSL
         if( GLEW_VERSION_2_0 )
         {
@@ -310,7 +367,6 @@ void Channel::frameDraw( const uint32_t frameID )
         event.msec = clock.getTimef();
         config->sendEvent( event );            
     }
-    
-    resetAssemblyState();
 }
+
 }
