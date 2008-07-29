@@ -18,14 +18,15 @@ using namespace std;
 int main( int argc, char **argv )
 {
     Image image;
-    TEST( image.readImage( "../compositor/Image_1_color.rgb",
-                           Frame::BUFFER_COLOR ));
+
+    // Random Noise
+    TEST( image.readImage( "noise.rgb", Frame::BUFFER_COLOR ));
 
     Image destImage;
     destImage.setPixelViewport( image.getPixelViewport( ));
 
-    const uint8_t* colorData = image.getPixelData( Frame::BUFFER_COLOR );
-    const size_t   colorSize = image.getPixelDataSize( Frame::BUFFER_COLOR );
+    const uint8_t* noiseData = image.getPixelData( Frame::BUFFER_COLOR );
+    const uint32_t noiseSize = image.getPixelDataSize( Frame::BUFFER_COLOR );
     const uint8_t* compressedData;
     const uint8_t* data;
     uint32_t       size;
@@ -33,7 +34,43 @@ int main( int argc, char **argv )
     Clock          clock;
     float          time;
 
-    // Color
+    clock.reset();
+    compressedData = image.compressPixelData( Frame::BUFFER_COLOR, size );
+    time = clock.getTimef();
+
+    const ssize_t saved = static_cast< ssize_t >( noiseSize ) - 
+                          static_cast< ssize_t >( size );
+    cout << argv[0] << ": Noise " << noiseSize << "->" << size << " " 
+         << 100.0f * size / noiseSize << "%, " << time << " ms ("
+         << 1000.0f * noiseSize / time / 1024.0f / 1024.0f 
+         << " MB/s), max network bw " 
+         << 1000.0f * saved / time / 1024.0f / 1024.0f << "MB/s" << endl;
+
+    clock.reset();
+    resultSize = destImage.decompressPixelData( Frame::BUFFER_COLOR, 
+                                                compressedData );
+    TESTINFO( size == resultSize, size << " == " << resultSize );
+          
+    time = clock.getTimef();
+
+    cout << argv[0] << ": Noise " << size  << "->" << noiseSize << " " << time
+         << " ms, max bw " 
+         << 1000.0f * saved / time / 1024.0f / 1024.0f << "MB/s" << endl;
+
+    data = destImage.getPixelData( Frame::BUFFER_COLOR );
+    for( uint32_t i=0; i<noiseSize-7; ++i ) // last 7 pixels can be unitialized
+        TEST( noiseData[i] == data[i] );
+
+
+    // Real color data 
+    TEST( image.readImage( "../compositor/Image_1_color.rgb",
+                           Frame::BUFFER_COLOR ));
+
+    destImage.setPixelViewport( image.getPixelViewport( ));
+
+    const uint8_t* colorData = image.getPixelData( Frame::BUFFER_COLOR );
+    const uint32_t colorSize = image.getPixelDataSize( Frame::BUFFER_COLOR );
+
     clock.reset();
     compressedData = image.compressPixelData( Frame::BUFFER_COLOR, size );
     time = clock.getTimef();
@@ -66,7 +103,7 @@ int main( int argc, char **argv )
     TEST( image.readImage( "../compositor/Image_1_depth.rgb",
                            Frame::BUFFER_DEPTH ));
     const uint8_t* depthData = image.getPixelData( Frame::BUFFER_DEPTH);
-    const size_t   depthSize = image.getPixelDataSize( Frame::BUFFER_DEPTH);
+    const uint32_t depthSize = image.getPixelDataSize( Frame::BUFFER_DEPTH);
 
     destImage.setPixelViewport( image.getPixelViewport( ));
 
