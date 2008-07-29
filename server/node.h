@@ -37,7 +37,7 @@ namespace server
         //*{
         Config* getConfig() const { return _config; }
         Server* getServer() const
-            { return _config ? _config->getServer() : NULL; }
+            { return _config ? _config->getServer() : 0; }
 
         net::NodePtr getNode() const { return _node; }
         void setNode( net::NodePtr node ) { _node = node; }

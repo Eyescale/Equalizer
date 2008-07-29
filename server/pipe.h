@@ -43,7 +43,7 @@ namespace server
         Pipe( const Pipe& from, const CompoundVector& compounds );
 
         Server* getServer() const
-            { return _node ? _node->getServer() : NULL; }
+            { return _node ? _node->getServer() : 0; }
 
         /** @return the state of this pipe. */
         State getState()    const { return _state.get(); }
@@ -68,7 +68,7 @@ namespace server
         const WindowVector& getWindows() const { return _windows; }
 
         Node*   getNode()   const { return _node; }
-        Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
+        Config* getConfig() const { return (_node ? _node->getConfig() : 0);}
 
         net::CommandQueue* getServerThreadQueue()
             { return _node->getServerThreadQueue(); }

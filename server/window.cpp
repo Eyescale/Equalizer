@@ -25,7 +25,7 @@ typedef net::CommandFunc<Window> WindowFunc;
 void Window::_construct()
 {
     _used             = 0;
-    _pipe             = NULL;
+    _pipe             = 0;
     _fixedPVP         = false;
     _lastDrawCompound = 0;
 
@@ -78,7 +78,7 @@ Window::~Window()
     {
         Channel* channel = *i;
 
-        channel->_window = NULL;
+        channel->_window = 0;
         delete channel;
     }
     _channels.clear();

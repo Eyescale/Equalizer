@@ -34,7 +34,7 @@ std::string eq::Channel::_iAttributeStrings[IATTR_ALL] = {
 
 Channel::Channel( Window* parent )
         : _window( parent )
-        , _context( NULL )
+        , _context( 0 )
         , _frustum( vmml::Frustumf::DEFAULT )
         , _ortho( vmml::Frustumf::DEFAULT )
 {
@@ -592,45 +592,21 @@ void Channel::drawStatistics()
 
 void Channel::outlineViewport()
 {
-    glPushAttrib( GL_ENABLE_BIT );
-
-    glDisable( GL_DEPTH_TEST );
-    glDisable( GL_BLEND );
-    glDisable( GL_ALPHA_TEST );
-    glDisable( GL_STENCIL_TEST );
-    glDisable( GL_TEXTURE_1D );
-    glDisable( GL_TEXTURE_2D );
-    glDisable( GL_TEXTURE_3D );
-    
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
+    setupAssemblyState();
 
     const PixelViewport& pvp = getPixelViewport();
-    glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
-
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
-    glLoadIdentity();
-
     glDisable( GL_LIGHTING );
     glColor3f( 1.0f, 1.0f, 1.0f );
     glBegin( GL_LINE_LOOP );
     {
-        glVertex3f( .5f,         .5f,         0.f );
-        glVertex3f( pvp.w - .5f, .5f,         0.f );
-        glVertex3f( pvp.w - .5f, pvp.h - .5f, 0.f );
-        glVertex3f( .5f,         pvp.h - .5f, 0.f );
+        glVertex3f( pvp.x + .5f,         pvp.y + .5f,         0.f );
+        glVertex3f( pvp.getXEnd() - .5f, pvp.y + .5f,         0.f );
+        glVertex3f( pvp.getXEnd() - .5f, pvp.getYEnd() - .5f, 0.f );
+        glVertex3f( pvp.x + .5f,         pvp.getYEnd() - .5f, 0.f );
     } 
     glEnd();
 
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
-
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-
-    glPopAttrib();
+    resetAssemblyState();
 }
 
 
@@ -718,7 +694,7 @@ net::CommandResult Channel::_cmdFrameClear( net::Command& command )
 
     _setRenderContext( packet->context );
     frameClear( packet->context.frameID );
-    _context = NULL;
+    _context = 0;
 
     return net::COMMAND_HANDLED;
 }
@@ -733,7 +709,7 @@ net::CommandResult Channel::_cmdFrameDraw( net::Command& command )
 
     _setRenderContext( packet->context );
     frameDraw( packet->context.frameID );
-    _context = NULL;
+    _context = 0;
 
     return net::COMMAND_HANDLED;
 }
@@ -771,7 +747,7 @@ net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
     frameAssemble( packet->context.frameID );
 
     _inputFrames.clear();
-    _context = NULL;
+    _context = 0;
 
     return net::COMMAND_HANDLED;
 }
@@ -803,7 +779,7 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
     }
 
     _outputFrames.clear();
-    _context = NULL;
+    _context = 0;
     return net::COMMAND_HANDLED;
 }
 

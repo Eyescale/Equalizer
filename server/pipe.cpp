@@ -87,7 +87,7 @@ Pipe::~Pipe()
     {
         Window* window = *i;
 
-        window->_pipe = NULL;
+        window->_pipe = 0;
         delete window;
     }
     _windows.clear();

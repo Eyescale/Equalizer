@@ -69,9 +69,9 @@ namespace server
 
         Pipe* getPipe() const { return _pipe; }
 
-        Node* getNode() const { return (_pipe ? _pipe->getNode() : NULL); }
+        Node* getNode() const { return (_pipe ? _pipe->getNode() : 0); }
         Config* getConfig() const 
-            { return (_pipe ? _pipe->getConfig() : NULL); }
+            { return (_pipe ? _pipe->getConfig() : 0); }
         
         const eq::Window::DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }

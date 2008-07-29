@@ -36,8 +36,8 @@ namespace server
         //*{
         Compound* getCompound() const { return _compound; }
         Channel* getChannel() const 
-            { return _compound ? _compound->getChannel() :NULL; }
-        Node* getNode() const { return _compound ? _compound->getNode() :NULL; }
+            { return _compound ? _compound->getChannel() :0; }
+        Node* getNode() const { return _compound ? _compound->getNode() :0; }
 
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }

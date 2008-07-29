@@ -40,7 +40,7 @@ namespace server
          * The returned config has to be deleted by the caller.
          *
          * @param filename the name of the config file.
-         * @return The parsed config, or <code>NULL</code> upon error.
+         * @return The parsed config, or <code>0</code> upon error.
          */
         Server* loadFile( const std::string& filename );
 

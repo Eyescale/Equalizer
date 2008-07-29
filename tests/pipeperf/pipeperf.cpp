@@ -20,7 +20,7 @@ using namespace std;
 class Sender : public Thread
 {
 public:
-    Sender( RefPtr<Connection> connection )
+    Sender( ConnectionPtr connection )
             : Thread(),
               _connection( connection )
         {}
@@ -46,14 +46,14 @@ protected:
         }
 
 private:
-    RefPtr<Connection> _connection;
+    ConnectionPtr _connection;
 };
 
 int main( int argc, char **argv )
 {
     eq::net::init( argc, argv );
 
-    RefPtr<Connection>            connection = 
+    ConnectionPtr            connection = 
         Connection::create( CONNECTIONTYPE_PIPE );
 
     TEST( connection->connect( ));

@@ -59,7 +59,7 @@ private:
 void Channel::_construct()
 {
     _used             = 0;
-    _window           = NULL;
+    _window           = 0;
     _fixedPVP         = false;
     _lastDrawCompound = 0;
     EQINFO << "New channel @" << (void*)this << endl;

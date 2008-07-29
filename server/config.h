@@ -91,7 +91,7 @@ namespace server
          * Find the first channel of a given name.
          * 
          * @param name the name of the channel to find
-         * @return the first channel with the name, or <code>NULL</code> if no
+         * @return the first channel with the name, or <code>0</code> if no
          *         channel with the name exists.
          */
         Channel* findChannel( const std::string& name );
