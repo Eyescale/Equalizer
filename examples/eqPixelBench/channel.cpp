@@ -234,6 +234,46 @@ void Channel::_testTiledOperations()
     {
         event.area.y = subPVP.h * (i+1);
 
+        // readback of 'i' depth images
+        event.data.type = ConfigEvent::READBACK;
+        snprintf( event.formatType, 64, "%d depth tiles", i+1 ); 
+
+        clock.reset();
+        for( unsigned j = 0; j <= i; ++j )
+        {
+            subPVP.y = pvp.y + j * subPVP.h;
+            image = images[ j ];
+            image->setPBO( false );
+            image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
+            image->setType(   eq::Frame::BUFFER_COLOR, GL_FLOAT );
+
+            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
+            image->syncReadback();
+        }
+
+        event.msec = clock.getTimef();
+        config->sendEvent( event );            
+
+        event.data.type = ConfigEvent::READBACK_PBO;
+
+        clock.reset();
+        for( unsigned j = 0; j <= i; ++j )
+        {
+            subPVP.y = pvp.y + j * subPVP.h;
+            image = images[ j ];
+            image->setPBO( true );
+            image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
+            image->setType(   eq::Frame::BUFFER_COLOR, GL_FLOAT );
+
+            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
+        }
+        for( unsigned j = 0; j <= i; ++j )
+            images[j]->syncReadback();
+
+        event.msec = clock.getTimef();
+        config->sendEvent( event );            
+
+
         // readback of 'i' color images
         event.data.type = ConfigEvent::READBACK;
         snprintf( event.formatType, 64, "%d color tiles", i+1 ); 
