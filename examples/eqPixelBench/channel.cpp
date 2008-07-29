@@ -240,6 +240,8 @@ void Channel::_testTiledOperations()
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
+        event.area.y = subPVP.h * (i+1);
+
         // interleaved readback of 'i' color images
         event.data.type = ConfigEvent::READBACK;
         snprintf( event.formatType, 64, "Readback %d color images", i+1 ); 
