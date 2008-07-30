@@ -10,6 +10,7 @@
 #include "log.h"
 #include "event.h"
 #include "window.h"
+#include "osWindowWGL.h"
 
 #include <eq/base/debug.h>
 #include <eq/base/executionListener.h>
@@ -102,9 +103,12 @@ static WGLEventHandler* getEventHandler( HWND hWnd )
 
 WGLEventHandler::WGLEventHandler( Window* window )
         : _window( window ),
-          _hWnd( window->getWGLWindowHandle( )),
           _buttonState( PTR_BUTTON_NONE )
 {
+    const osWindowWGL* osWindow = static_cast<const osWindowWGL*>( window->getOSWindow());
+
+    _hWnd = osWindow->getWGLWindowHandle();
+
     if( !_hWnd )
     {
         EQWARN << "Window has no window handle" << endl;
@@ -358,7 +362,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
     EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
 
-    if( event.window->processEvent( event ))
+    if( EventHandler::_processEvent( event.window, event ))
         return result;
 
     return CallWindowProc( _prevWndProc, hWnd, uMsg, wParam, lParam );

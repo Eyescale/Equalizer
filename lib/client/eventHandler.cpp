@@ -150,4 +150,10 @@ void EventHandler::_getRenderContext( WindowEvent& event )
         EQINFO << "No rendering context for pointer event on " << x << ", " 
                << y << endl;
 }
+
+bool EventHandler::_processEvent( Window* window, const WindowEvent& event )
+{
+    return window->processEvent( event );
+}
+
 }

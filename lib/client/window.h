@@ -12,6 +12,7 @@ namespace eq
 {
     class Channel;
     class WindowEvent;
+    class OSWindow;
     struct RenderContext;
 
     /**
@@ -81,33 +82,6 @@ namespace eq
          * @return the result of the visitor traversal.
          */
         WindowVisitor::Result accept( WindowVisitor* visitor );
-
-        /**  @return  the X11 drawable ID. */
-        XID getXDrawable() const { return _xDrawable; }
-
-        /** @return the GLX rendering context. */
-        GLXContext getGLXContext() const { return _glXContext; }
-
-        /** @return the AGL rendering context. */
-        AGLContext getAGLContext() const { return _aglContext; }
-
-        /** @return the carbon window reference. */
-        WindowRef getCarbonWindow() const { return _carbonWindow; }
-
-        /** @return the AGL PBuffer object. */
-        AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
-
-        /** @return the Win32 window handle. */
-        HWND getWGLWindowHandle() const { return _wglWindow; }
-
-        /** @return the Win32 off screen PBuffer handle. */
-        HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
-
-        /** @return the Win32 device context used for the current drawable. */
-        HDC getWGLDC() const { return _wglDC; }
-
-        /** @return the WGL rendering context. */
-        HGLRC getWGLContext() const { return _wglContext; }
 
         /** 
          * Set the window with which this window shares the OpenGL context,
@@ -182,7 +156,7 @@ namespace eq
             IATTR_PLANES_SAMPLES,
             IATTR_ALL
         };
-        
+
         int32_t  getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
@@ -193,6 +167,16 @@ namespace eq
         //*{
         /** Finish outstanding rendering requests. */
         virtual void finish() const { glFinish(); }
+        //*}
+
+        /** @name Window system specific class */
+        //*{
+        friend class OSWindow;
+
+        const OSWindow* getOSWindow() const
+            { EQASSERT(_osWindow); return _osWindow; }
+
+        OSWindow* getOSWindow() { EQASSERT(_osWindow); return _osWindow; }
         //*}
 
     protected:
@@ -206,89 +190,9 @@ namespace eq
          * @name Attributes
          */
         //*{
-        void setIAttribute( const eq::Window::IAttribute attr,
+        void setIAttribute( const IAttribute attr,
                             const int32_t value )
             { _iAttributes[attr] = value; }
-        //*}
-
-        /** @name Data Access */
-        //*{
-        /** 
-         * Set the X11 drawable ID for this window.
-         * 
-         * This function should only be called from configInit() or 
-         * configExit().
-         *
-         * @param drawable the X11 drawable ID.
-         */
-        virtual void setXDrawable( XID drawable );
-
-        /** 
-         * Set the GLX rendering context for this window.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         * The context has to be set to 0 before it is destroyed.
-         *
-         * @param context the GLX rendering context.
-         */
-        virtual void setGLXContext( GLXContext context );
-
-        /** 
-         * Set the AGL rendering context for this window.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         * The context has to be set to 0 before it is destroyed.
-         *
-         * @param context the AGL rendering context.
-         */
-        virtual void setAGLContext( AGLContext context );
-
-        /** 
-         * Set the carbon window to be used with the current AGL context.
-         * 
-         * @param window the window reference.
-         */
-        virtual void setCarbonWindow( WindowRef window );
-        
-        /** 
-         * Set the AGL PBUffer object to be used with the current AGL context.
-         * 
-         * @param pbuffer the PBuffer.
-         */
-        virtual void setAGLPBuffer( AGLPbuffer pbuffer );
-        
-        /** 
-         * Set the Win32 window handle for this window.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         *
-         * @param handle the window handle.
-         */
-        virtual void setWGLWindowHandle( HWND handle );
-        
-        /** 
-         * Set the Win32 off screen pbuffer handle for this window.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         *
-         * @param handle the pbuffer handle.
-         */
-        virtual void setWGLPBufferHandle( HPBUFFERARB handle );
-
-        /** 
-         * Set the WGL rendering context for this window.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         * The context has to be set to 0 before it is destroyed.
-         *
-         * @param context the WGL rendering context.
-         */
-        virtual void setWGLContext( HGLRC context );
         //*}
 
         /** @name Actions */
@@ -344,247 +248,6 @@ namespace eq
          */
         virtual bool configExit();
         virtual bool configExitGL() { return true; }
-        virtual void configExitGLX();
-        virtual void configExitAGL();
-        virtual void configExitWGL();
-        
-        //* @name GLX/X11 initialization
-        //*{
-        /** 
-         * Initialize this window for the GLX window system.
-         *
-         * This method first call chooseXVisualInfo(), then createGLXContext()
-         * with the chosen visual, and finally creates a drawable using
-         * configInitGLXDrawable().
-         * 
-         * @return true if the initialization was successful, false otherwise.
-         */
-        virtual bool configInitGLX();
-
-        /** 
-         * Choose a X11 visual based on the window's attributes.
-         * 
-         * The returned XVisualInfo has to be freed using XFree().
-         *  
-         * @return a pixel format, or 0 if no pixel format was found.
-         */
-        virtual XVisualInfo* chooseXVisualInfo();
-
-        /** 
-         * Create a GLX context.
-         * 
-         * This method does not set the window's GLX context.
-         *
-         * @param visualInfo the visual info for the context.
-         * @return the context, or 0 if context creation failed.
-         */
-        virtual GLXContext createGLXContext( XVisualInfo* visualInfo );
-
-        /** 
-         * Initialize the window's drawable (fullscreen, pbuffer or window) and
-         * bind the GLX context.
-         *
-         * Sets the window's X11 drawable on success
-         * 
-         * @param visualInfo the visual info for the context.
-         * @return true if the drawable was created, false otherwise.
-         */
-        virtual bool configInitGLXDrawable( XVisualInfo* visualInfo );
-
-        /** 
-         * Initialize the window with a window and bind the GLX context.
-         *
-         * Sets the window's X11 drawable on success
-         * 
-         * @param visualInfo the visual info for the context.
-         * @return true if the window was created, false otherwise.
-         */
-        virtual bool configInitGLXWindow( XVisualInfo* visualInfo );
-
-        /** 
-         * Initialize the window with a PBuffer and bind the GLX context.
-         *
-         * Sets the window's X11 drawable on success
-         * 
-         * @param visualInfo the visual info for the context.
-         * @return true if the PBuffer was created, false otherwise.
-         */
-        virtual bool configInitGLXPBuffer( XVisualInfo* visualInfo );
-
-        //* @name AGL/Carbon initialization
-        //*{
-        /** 
-         * Initialize this window for the AGL window system.
-         *
-         * This method first call chooseAGLPixelFormat(), then
-         * createAGLContext() with the chosen pixel format, destroys the pixel
-         * format using destroyAGLPixelFormat and finally creates a drawable
-         * using configInitAGLDrawable().
-         * 
-         * @return true if the initialization was successful, false otherwise.
-         */
-        virtual bool configInitAGL();
-
-        /** 
-         * Choose a pixel format based on the window's attributes.
-         * 
-         * The returned pixel format has to be destroyed using
-         * destroyAGLPixelFormat() to avoid memory leaks.
-         *
-         * This method uses Global::enterCarbon() and Global::leaveCarbon() to
-         * protect the calls to AGL/Carbon.
-         *  
-         * @return a pixel format, or 0 if no pixel format was found.
-         */
-        virtual AGLPixelFormat chooseAGLPixelFormat();
-
-        /** 
-         * Destroy a pixel format obtained with chooseAGLPixelFormat().
-         * 
-         * This method uses Global::enterCarbon() and Global::leaveCarbon() to
-         * protect the calls to AGL/Carbon.
-         *
-         * @param pixelFormat a pixel format.
-         */
-        virtual void destroyAGLPixelFormat( AGLPixelFormat pixelFormat );
-
-        /** 
-         * Create an AGL context.
-         * 
-         * This method does not set the window's AGL context.
-         *
-         * This method uses Global::enterCarbon() and Global::leaveCarbon() to
-         * protect the calls to AGL/Carbon.
-         *
-         * @param pixelFormat the pixel format for the context.
-         * @return the context, or 0 if context creation failed.
-         */
-        virtual AGLContext createAGLContext( AGLPixelFormat pixelFormat );
-
-        /** 
-         * Initialize the window's drawable (fullscreen, pbuffer or window) and
-         * bind the AGL context.
-         *
-         * Sets the window's carbon window on success. Calls
-         * configInitAGLFullscreen() or configInitAGLWindow().
-         * 
-         * @return true if the drawable was created, false otherwise.
-         */
-        virtual bool configInitAGLDrawable();
-
-        /** 
-         * Initialize the window with a fullscreen Carbon window.
-         *
-         * Sets the window's carbon window on success.
-         *
-         * This method uses Global::enterCarbon() and Global::leaveCarbon() to
-         * protect the calls to AGL/Carbon.
-         *
-         * @return true if the window was created, false otherwise.
-         */
-        virtual bool configInitAGLFullscreen();
-
-        /** 
-         * Initialize the window with a normal Carbon window.
-         *
-         * Sets the window's carbon window on success.
-         *
-         * This method uses Global::enterCarbon() and Global::leaveCarbon() to
-         * protect the calls to AGL/Carbon.
-         *
-         * @return true if the window was created, false otherwise.
-         */
-        virtual bool configInitAGLWindow();
-
-        /** 
-         * Initialize the window with an offscreen AGL PBuffer.
-         *
-         * Sets the window's AGL PBuffer on success.
-         *
-         * @return true if the PBuffer was created, false otherwise.
-         */
-        virtual bool configInitAGLPBuffer(); 
-        //*}
-
-        //* @name WGL/Win32 initialization
-        //*{
-        /** 
-         * Initialize this window for the WGL window system.
-         *
-         * This method first calls getWGLPipeDC(), then chooses a pixel
-         * format with chooseWGLPixelFormat(), then creates a drawable using 
-         * configInitWGLDrawable() and finally creates the context using
-         * createWGLContext().
-         * 
-         * @return true if the initialization was successful, false otherwise.
-         */
-        virtual bool configInitWGL();
-
-        typedef BOOL (WINAPI * PFNEQDELETEDCPROC)( HDC hdc );
-        /** 
-         * Get a device context for this window.
-         * 
-         * @param deleteProc returns the function to be used to dispose the
-         *                   device context when it is no longer needed.
-         * @return the device context, or 0 when no special device context is 
-         *         needed.
-         */
-        virtual HDC getWGLPipeDC( PFNEQDELETEDCPROC& deleteProc );
-
-        /** 
-         * Choose a pixel format based on the window's attributes.
-         * 
-         * Sets the chosen pixel format on the given device context.
-         *
-         * @param dc the device context for the pixel format.
-         * @return a pixel format, or 0 if no pixel format was found.
-         */
-        virtual int chooseWGLPixelFormat( HDC dc );
-
-        /** 
-         * Initialize the window's drawable (pbuffer or window) and
-         * bind the WGL context.
-         *
-         * Sets the window handle on success.
-         * 
-         * @param dc the device context of the pixel format.
-         * @param pixelFormat the window's target pixel format.
-         * @return true if the drawable was created, false otherwise.
-         */
-        virtual bool configInitWGLDrawable( HDC dc, int pixelFormat );
-
-        /** 
-         * Initialize the window's with an on-screen Win32 window.
-         *
-         * Sets the window handle on success.
-         * 
-         * @param dc the device context of the pixel format, can be 0.
-         * @param pixelFormat the window's target pixel format.
-         * @return true if the drawable was created, false otherwise.
-         */
-        virtual bool configInitWGLWindow( HDC dc, int pixelFormat );
-
-        /** 
-         * Initialize the window's with an off-screen WGL PBuffer.
-         *
-         * Sets the window handle on success.
-         * 
-         * @param dc the device context of the pixel format, can be 0.
-         * @param pixelFormat the window's target pixel format.
-         * @return true if the drawable was created, false otherwise.
-         */
-        virtual bool configInitWGLPBuffer( HDC dc, int pixelFormat );
-
-        /** 
-         * Create a WGL context.
-         * 
-         * This method does not set the window's WGL context.
-         *
-         * @param dc the device context for the rendering context.
-         * @return the context, or 0 if context creation failed.
-         */
-        virtual HGLRC createWGLContext( HDC dc );
-        //*}
 
         /**
          * Start rendering a frame.
@@ -661,12 +324,9 @@ namespace eq
          * @return true when the event was handled, false if not.
          */
         virtual bool processEvent( const WindowEvent& event );
-        friend class GLXEventHandler;
-        friend class WGLEventHandler;
-        friend class AGLEventHandler;
+        friend class EventHandler;
         friend class WindowStatistics;
         //*}
-
 
         /** @name Error information. */
         //@{
@@ -681,7 +341,11 @@ namespace eq
         void setErrorMessage( const std::string& message ) { _error = message; }
         //@}
 
+        bool checkWindowType() const;
+
     private:
+        void _invalidatePVP() { _pvp.invalidate(); }
+
         /** Drawable characteristics of this window */
         DrawableConfig _drawableConfig;
 
@@ -697,38 +361,8 @@ namespace eq
         /** The reason for the last error. */
         std::string    _error;
 
-        /** Window-system specific information. */
-        union
-        {
-            struct
-            {
-                /** The X11 drawable ID of the window. */
-                XID        _xDrawable;
-                /** The glX rendering context. */
-                GLXContext _glXContext;
-            };
-
-            struct
-            {
-                /** The AGL context. */
-                AGLContext   _aglContext;
-                /** The carbon window reference. */
-                WindowRef    _carbonWindow;
-                /** The AGL PBuffer object. */
-                AGLPbuffer   _aglPBuffer;
-                /** Used by AGLEventHandler to keep the handler for removal. */
-                EventHandlerRef _carbonHandler;
-            };
-
-            struct
-            {
-                HWND             _wglWindow;
-                HPBUFFERARB      _wglPBuffer;
-                HGLRC            _wglContext;
-                HDC              _wglDC;
-            };
-            char _windowFill[32];
-        };
+        /** Window-system specific functions class */
+        OSWindow* _osWindow;
 
         /** The parent pipe. */
         Pipe* const   _pipe;
@@ -757,9 +391,6 @@ namespace eq
             FRONT = 0,
             BACK  = 1
         };
-
-        /** Used on AGL only */
-        base::SpinLock* _renderContextAGLLock;
 
         friend class Channel;
         void _addChannel( Channel* channel );

@@ -12,6 +12,7 @@
 #include "window.h"
 #include "windowEvent.h"
 #include "X11Connection.h"
+#include "glXWindow.h"
 
 #include <eq/base/perThreadRef.h>
 
@@ -141,6 +142,11 @@ void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
     }
 }
 
+static GLXWindow* getOSWindowGLX( Window* window )
+{
+    return static_cast< GLXWindow* >( window->getOSWindow( ));
+}
+
 void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
 {
     XEvent&                  xEvent   = event.xEvent;
@@ -152,7 +158,9 @@ void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
          i != windows.end(); ++i )
     {
         Window* window = *i;
-        if( window->getXDrawable() == drawable )
+        const GLXWindow* osWindow = getOSWindowGLX( window );
+        
+        if( osWindow->getXDrawable() == drawable )
         {
             event.window = window;
             break;
@@ -268,7 +276,8 @@ void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
     event.data.originator = event.window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
-    event.window->processEvent( event );
+
+    EventHandler::_processEvent( event.window, event );
 }
 
 uint32_t GLXEventHandler::_getButtonState( XEvent& event )

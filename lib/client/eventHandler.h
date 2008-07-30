@@ -66,6 +66,8 @@ namespace eq
         /** Find and set the rendering context at the mouse position. */
         void _getRenderContext( WindowEvent& event );
 
+        static bool _processEvent( Window* window, const WindowEvent& event );
+
         /** The previous pointer event to compute mouse movement deltas. */
         WindowEvent _lastPointerEvent;
     private:

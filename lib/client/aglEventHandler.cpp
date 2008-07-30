@@ -6,6 +6,7 @@
 #include "global.h"
 #include "log.h"
 #include "window.h"
+#include "aglWindow.h"
 
 using namespace eq::base;
 using namespace std;
@@ -25,9 +26,16 @@ AGLEventHandler::AGLEventHandler()
 {
 }
 
+static AGLWindow* getOSWindowAGL( Window* window )
+{
+    return static_cast< AGLWindow* >( window->getOSWindow( ));
+}
+
 void AGLEventHandler::registerWindow( Window* window )
 {
-    const WindowRef carbonWindow = window->getCarbonWindow();
+    const AGLWindow* osWindow = getOSWindowAGL( window );
+
+    const WindowRef carbonWindow = osWindow->getCarbonWindow();
     if( !carbonWindow )
     {
         EQWARN
@@ -53,9 +61,10 @@ void AGLEventHandler::registerWindow( Window* window )
         { kEventClassKeyboard, kEventRawKeyRepeat }
     };
 
+    EventHandlerRef carbonEventHandler = osWindow->getCarbonHandler();
     InstallWindowEventHandler( carbonWindow, eventHandler, 
                                sizeof( eventType ) / sizeof( EventTypeSpec ),
-                               eventType, window, &window->_carbonHandler );
+                               eventType, window, &carbonEventHandler );
     Global::leaveCarbon();
     EQINFO << "Installed event handler for carbon window " << carbonWindow
            << endl;
@@ -63,10 +72,13 @@ void AGLEventHandler::registerWindow( Window* window )
 
 void AGLEventHandler::deregisterWindow( Window* window )
 {
+    AGLWindow* osWindow = getOSWindowAGL( window );
+
     Global::enterCarbon();
-    RemoveEventHandler( window->_carbonHandler );
+    EventHandlerRef eventHandler = osWindow->getCarbonHandler();
+    RemoveEventHandler( eventHandler );
     Global::leaveCarbon();
-    window->_carbonHandler = 0;
+    osWindow->clearCarbonHandler( );
 }
 
 pascal OSStatus AGLEventHandler::_handleEventUPP( 
@@ -123,7 +135,9 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, eq::Window* window )
 
         case kEventWindowUpdate:
         {
-            WindowRef carbonWindow = window->getCarbonWindow();
+            const AGLWindow* osWindow = getOSWindowAGL( window );
+
+            WindowRef carbonWindow = osWindow->getCarbonWindow();
             BeginUpdate( carbonWindow );
             EndUpdate( carbonWindow );
         } // no break;
@@ -143,7 +157,7 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, eq::Window* window )
     windowEvent.data.originator = window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
-    return window->processEvent( windowEvent );
+    return EventHandler::_processEvent( window, windowEvent );
 }
 
 bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
@@ -287,7 +301,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
     windowEvent.data.originator = window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
-    return window->processEvent( windowEvent );
+    return EventHandler::_processEvent( window, windowEvent );
 }
 
 bool AGLEventHandler::_handleKeyEvent( EventRef event, eq::Window* window )
@@ -319,7 +333,7 @@ bool AGLEventHandler::_handleKeyEvent( EventRef event, eq::Window* window )
     windowEvent.data.originator = window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
-    return window->processEvent( windowEvent );
+    return EventHandler::_processEvent( window, windowEvent );
 }
 
 uint32_t AGLEventHandler::_getButtonAction( EventRef event )

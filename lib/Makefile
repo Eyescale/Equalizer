@@ -71,6 +71,7 @@ HEADER_SRC = \
 	net/pipeConnection.h \
 	net/session.h \
 	net/types.h \
+	client/aglWindow.h \
 	client/channel.h \
 	client/channelEvent.h \
 	client/channelStatistics.h \
@@ -91,6 +92,7 @@ HEADER_SRC = \
 	client/frame.h \
 	client/frameData.h \
 	client/global.h \
+	client/glXWindow.h \
 	client/image.h \
 	client/init.h \
 	client/log.h \
@@ -101,6 +103,7 @@ HEADER_SRC = \
 	client/nodeType.h \
 	client/nodeVisitor.h \
 	client/objectManager.h \
+	client/OSWindow.h \
 	client/packets.h \
 	client/pipe.h \
 	client/pipeVisitor.h \
@@ -112,6 +115,7 @@ HEADER_SRC = \
 	client/types.h \
 	client/version.h \
 	client/viewport.h \
+	client/wglWindow.h \
 	client/window.h \
 	client/windowEvent.h \
 	client/windowStatistics.h \
@@ -140,7 +144,6 @@ CXXFILES = \
 	net/command.cpp \
 	net/commandCache.cpp \
 	net/commandQueue.cpp \
-	client/compositor.cpp \
 	net/connection.cpp \
 	net/connectionDescription.cpp \
 	net/connectionSet.cpp \
@@ -170,12 +173,14 @@ CXXFILES = \
 	net/staticMasterCM.cpp \
 	net/staticSlaveCM.cpp \
 	net/unbufferedMasterCM.cpp \
+	client/aglWindow.cpp \
 	client/channel.cpp \
 	client/channelEvent.cpp \
 	client/channelStatistics.cpp \
 	client/client.cpp \
 	client/colorMask.cpp \
 	client/commandQueue.cpp \
+	client/compositor.cpp \
 	client/config.cpp \
 	client/configEvent.cpp \
 	client/configParams.cpp \
@@ -185,17 +190,20 @@ CXXFILES = \
 	client/frame.cpp \
 	client/frameData.cpp \
 	client/global.cpp \
+	client/glXWindow.cpp \
 	client/pixel.cpp \
 	client/image.cpp \
 	client/init.cpp \
 	client/node.cpp \
 	client/objectManager.cpp \
+	client/OSWindow.cpp \
 	client/pipe.cpp \
 	client/range.cpp \
 	client/renderContext.cpp \
 	client/server.cpp \
 	client/version.cpp \
 	client/viewport.cpp \
+	client/wglWindow.cpp \
 	client/window.cpp \
 	client/windowEvent.cpp \
 	client/windowStatistics.cpp \
