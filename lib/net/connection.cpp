@@ -401,16 +401,18 @@ std::ostream& operator << ( std::ostream& os, const Connection* connection )
         return os;
     }
     
-    Connection::State state = connection->getState();
-        
+    Connection::State        state = connection->getState();
+    ConnectionDescriptionPtr desc  = connection->getDescription();
+
     os << "Connection " << (void*)connection << " type "
        << typeid(*connection).name() << " state "
        << ( state == Connection::STATE_CLOSED     ? "closed" :
             state == Connection::STATE_CONNECTING ? "connecting" :
             state == Connection::STATE_CONNECTED  ? "connected" :
             state == Connection::STATE_LISTENING  ? "listening" :
-            "unknown state" )
-       << " description " << connection->getDescription()->toString();
+            "unknown state" );
+    if( desc.isValid( ))
+        os << " description " << desc->toString();
     
     return os;
 }
