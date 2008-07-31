@@ -119,6 +119,8 @@ EQ_EXPORT void releaseConfig( Config* config )
     EQASSERT( client.isValid( ));
     client->disconnectServer( server );
 
+    client->exitLocal();
+
     // TODO EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
 }
 
