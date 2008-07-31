@@ -21,7 +21,7 @@
 #  include "aglWindow.h"
 #endif
 #ifdef GLX
-#  include "glxWindow.h"
+#  include "glXWindow.h"
 #endif
 #ifdef WGL
 #  include "wglWindow.h"
@@ -282,26 +282,31 @@ bool Window::configInitOSWindow( const uint32_t initID )
 
     switch( pipe->getWindowSystem( ))
     {
-    case WINDOW_SYSTEM_GLX:
 #ifdef GLX
-        EQINFO << "Using GLXWindow" << std::endl;
-        setOSWindow( new GLXWindow( this ));
+        case WINDOW_SYSTEM_GLX:
+            EQINFO << "Using GLXWindow" << std::endl;
+            setOSWindow( new GLXWindow( this ));
+            break;
 #endif
-        break;
 
-    case WINDOW_SYSTEM_AGL:
 #ifdef AGL
-        EQINFO << "Using AGLWindow" << std::endl;
-        setOSWindow( new AGLWindow( this ));
+        case WINDOW_SYSTEM_AGL:
+            EQINFO << "Using AGLWindow" << std::endl;
+            setOSWindow( new AGLWindow( this ));
+            break;
 #endif
-        break;
 
-    case WINDOW_SYSTEM_WGL:
 #ifdef WGL
-        EQINFO << "Using WGLWindow" << std::endl;
-        setOSWindow( new WGLWindow( this ));
+        case WINDOW_SYSTEM_WGL:
+            EQINFO << "Using WGLWindow" << std::endl;
+            setOSWindow( new WGLWindow( this ));
+            break;
 #endif
-        break;
+
+        default:
+            EQERROR << "Window system " << pipe->getWindowSystem() 
+                    << " not implemented or supported" << endl;
+            return false;
     }
 
     if( !_checkWindowType( ))      return false;
