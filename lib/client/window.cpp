@@ -3,7 +3,6 @@
    All rights reserved. */
 
 #include "window.h"
-#include "OSWindow.h"
 
 #include "channel.h"
 #include "commands.h"
@@ -13,6 +12,7 @@
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
+#include "osWindow.h"
 #include "packets.h"
 #include "windowEvent.h"
 #include "windowStatistics.h"

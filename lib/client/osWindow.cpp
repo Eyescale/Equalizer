@@ -2,13 +2,13 @@
                           , Makhinya Maxim
    All rights reserved. */
 
-#include "OSWindow.h"
+#include "osWindow.h"
 
 #ifdef AGL
 #  include "aglWindow.h"
 #endif
 #ifdef GLX
-#  include "glxWindow.h"
+#  include "glXWindow.h"
 #endif
 #ifdef WGL
 #  include "wglWindow.h"
@@ -43,8 +43,11 @@ OSWindow* OSWindow::createOSWindow( Window* parent )
             return new WGLWindow( parent );
 #endif
             break;
+
+        default:
+            EQASSERTINFO( 0, "Not Implemented" );
     }
-    EQERROR << "failed to create window specific system " 
+    EQERROR << "failed to create window-system specific window " 
             << pipe->getWindowSystem() << std::endl;
 
     return 0;

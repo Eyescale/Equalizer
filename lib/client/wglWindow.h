@@ -5,7 +5,7 @@
 #ifndef EQ_OS_WINDOW_WGL_H
 #define EQ_OS_WINDOW_WGL_H
 
-#include "OSWindow.h"
+#include "osWindow.h"
 
 namespace eq
 {

@@ -71,7 +71,6 @@ HEADER_SRC = \
 	net/pipeConnection.h \
 	net/session.h \
 	net/types.h \
-	client/aglWindow.h \
 	client/channel.h \
 	client/channelEvent.h \
 	client/channelStatistics.h \
@@ -92,7 +91,6 @@ HEADER_SRC = \
 	client/frame.h \
 	client/frameData.h \
 	client/global.h \
-	client/glXWindow.h \
 	client/image.h \
 	client/init.h \
 	client/log.h \
@@ -103,7 +101,7 @@ HEADER_SRC = \
 	client/nodeType.h \
 	client/nodeVisitor.h \
 	client/objectManager.h \
-	client/OSWindow.h \
+	client/osWindow.h \
 	client/packets.h \
 	client/pipe.h \
 	client/pipeVisitor.h \
@@ -115,7 +113,6 @@ HEADER_SRC = \
 	client/types.h \
 	client/version.h \
 	client/viewport.h \
-	client/wglWindow.h \
 	client/window.h \
 	client/windowEvent.h \
 	client/windowStatistics.h \
@@ -173,7 +170,6 @@ CXXFILES = \
 	net/staticMasterCM.cpp \
 	net/staticSlaveCM.cpp \
 	net/unbufferedMasterCM.cpp \
-	client/aglWindow.cpp \
 	client/channel.cpp \
 	client/channelEvent.cpp \
 	client/channelStatistics.cpp \
@@ -190,20 +186,18 @@ CXXFILES = \
 	client/frame.cpp \
 	client/frameData.cpp \
 	client/global.cpp \
-	client/glXWindow.cpp \
 	client/pixel.cpp \
 	client/image.cpp \
 	client/init.cpp \
 	client/node.cpp \
 	client/objectManager.cpp \
-	client/OSWindow.cpp \
+	client/osWindow.cpp \
 	client/pipe.cpp \
 	client/range.cpp \
 	client/renderContext.cpp \
 	client/server.cpp \
 	client/version.cpp \
 	client/viewport.cpp \
-	client/wglWindow.cpp \
 	client/window.cpp \
 	client/windowEvent.cpp \
 	client/windowStatistics.cpp \
@@ -215,29 +209,35 @@ CFILES += \
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   HEADER_SRC += \
-	client/glXEventHandler.h
+	client/glXEventHandler.h \
+	client/glXWindow.h
 
   CXXFILES += \
 	client/glXEventHandler.cpp \
-	client/glXMessagePump.cpp
+	client/glXMessagePump.cpp \
+	client/glXWindow.cpp
 endif
 
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
   HEADER_SRC += \
-	client/aglEventHandler.h
+	client/aglEventHandler.h \
+	client/aglWindow.h
 
   CXXFILES += \
 	client/aglEventHandler.cpp \
-	client/aglMessagePump.cpp
+	client/aglMessagePump.cpp \
+	client/aglWindow.cpp
 endif
 
 ifeq ($(findstring WGL, $(WINDOW_SYSTEM)),WGL)
   HEADER_SRC += \
-	client/wglEventHandler.h
+	client/wglEventHandler.h \
+	client/wglWindow.h
 
   CXXFILES += \
 	client/wglEventHandler.cpp \
-	client/wglMessagePump.cpp
+	client/wglMessagePump.cpp \
+	client/wglWindow.cpp
 
 ifdef VARIANT
 $(OBJECTS): $(PTHREAD_LIBS)
