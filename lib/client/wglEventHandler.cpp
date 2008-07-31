@@ -10,7 +10,7 @@
 #include "log.h"
 #include "event.h"
 #include "window.h"
-#include "osWindowWGL.h"
+#include "wglWindow.h"
 
 #include <eq/base/debug.h>
 #include <eq/base/executionListener.h>
@@ -105,7 +105,8 @@ WGLEventHandler::WGLEventHandler( Window* window )
         : _window( window ),
           _buttonState( PTR_BUTTON_NONE )
 {
-    const osWindowWGL* osWindow = static_cast<const osWindowWGL*>( window->getOSWindow());
+    const WGLWindow* osWindow = static_cast< const WGLWindow* >( 
+                                    window->getOSWindow( ));
 
     _hWnd = osWindow->getWGLWindowHandle();
 

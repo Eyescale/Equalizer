@@ -3,9 +3,16 @@
    All rights reserved. */
 
 #include "OSWindow.h"
-#include "AGLWindow.h"
-#include "GLXWindow.h"
-#include "WGLWindow.h"
+
+#ifdef AGL
+#  include "aglWindow.h"
+#endif
+#ifdef GLX
+#  include "glxWindow.h"
+#endif
+#ifdef WGL
+#  include "wglWindow.h"
+#endif
 
 namespace eq
 {
