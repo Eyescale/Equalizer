@@ -11,7 +11,6 @@
 #include <eq/client/node.h>
 #include <eq/client/pipe.h>
 #include <eq/client/window.h>
-#include <eq/client/OSWindow.h>
 
 namespace eq
 {
@@ -64,9 +63,6 @@ namespace eq
          */
         virtual Channel* createChannel( Window* parent )
             { return new Channel( parent ); }
-
-        virtual OSWindow* createOSWindow( Window* parent )
-            { return OSWindow::createOSWindow( parent ); }
         //@}
         
         virtual ~NodeFactory(){}

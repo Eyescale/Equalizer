@@ -169,9 +169,18 @@ namespace eq
         virtual void finish() const { glFinish(); }
         //*}
 
-        /** @name Window system specific class */
+        /** @name Window system specific implementation */
         //*{
         friend class OSWindow;
+
+        /**
+         * Set the OS-specific window.
+         * 
+         * The OS-specific window implements the window-system-dependent part,
+         * e.g., the drawable creation. This window forwards certain calls, 
+         * e.g., swapBuffers() to the OS window.
+         */
+        void setOSWindow( OSWindow* window ) { _osWindow = window; }
 
         const OSWindow* getOSWindow() const
             { EQASSERT(_osWindow); return _osWindow; }
@@ -233,6 +242,13 @@ namespace eq
          * @param initID the init identifier.
          */
         virtual bool configInit( const uint32_t initID );
+
+        /** 
+         * Initialize the OS-specific window.
+         *
+         * @sa setOSWindow()
+         */
+        virtual bool configInitOSWindow( const uint32_t initID );
 
         /** 
          * Initialize the OpenGL state for this window.
@@ -341,8 +357,6 @@ namespace eq
         void setErrorMessage( const std::string& message ) { _error = message; }
         //@}
 
-        bool checkWindowType() const;
-
     private:
         void _invalidatePVP() { _pvp.invalidate(); }
 
@@ -399,6 +413,9 @@ namespace eq
 
         bool _setPixelViewport( const PixelViewport& pvp );
         void _setViewport( const Viewport& vp );
+
+        /** Check that the pipe's WS matches the OSWindow's ws. */
+        bool _checkWindowType() const;
 
         /** Set up _drawableConfig by querying current context. */
         void _queryDrawableConfig();

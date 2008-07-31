@@ -17,9 +17,9 @@ namespace eq
     class EQ_EXPORT OSWindow
     {
     public:
-        OSWindow( Window* parent ) : _parentWnd( parent )
+        OSWindow( Window* parent ) : _parent( parent )
         {
-            EQASSERT( _parentWnd );
+            EQASSERT( _parent );
         }
 
         virtual ~OSWindow( ) {}
@@ -42,19 +42,16 @@ namespace eq
 
         virtual bool isInitialized() const = 0;
 
-        static OSWindow* createOSWindow( Window* parent );
-
-
     // Interface to Window class
 
         void setErrorMessage( const std::string& message )
         {
-            _parentWnd->setErrorMessage( message );
+            _parent->setErrorMessage( message );
         }
 
         int32_t  getIAttribute( const Window::IAttribute attr ) const
         {
-            return _parentWnd->getIAttribute( attr );
+            return _parent->getIAttribute( attr );
         }
 
         /**
@@ -62,7 +59,7 @@ namespace eq
          */
         void initEventHandler()
         {
-            _parentWnd->initEventHandler();
+            _parent->initEventHandler();
         }
 
         /**
@@ -70,40 +67,40 @@ namespace eq
          */
         void exitEventHandler()
         {
-            _parentWnd->exitEventHandler();
+            _parent->exitEventHandler();
         }
 
-        Pipe* getPipe() const { return _parentWnd->getPipe(); }
+        Pipe* getPipe() const { return _parent->getPipe(); }
 
-        const std::string& getName() const { return _parentWnd->getName(); }
+        const std::string& getName() const { return _parent->getName(); }
 
         void setPixelViewport( const PixelViewport& pvp )
         {
-            _parentWnd->setPixelViewport( pvp );
+            _parent->setPixelViewport( pvp );
         }
 
         /** @return the generic WGL function table for the window's pipe. */
-        WGLEWContext* wglewGetContext() { return _parentWnd->wglewGetContext(); }
+        WGLEWContext* wglewGetContext() { return _parent->wglewGetContext(); }
 
         /**
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        GLEWContext* glewGetContext() { return _parentWnd->glewGetContext(); }
+        GLEWContext* glewGetContext() { return _parent->glewGetContext(); }
 
     protected:
 
-        void _initializeGLData() { _parentWnd->_initializeGLData(); }
-        void _clearGLData()      { _parentWnd->_clearGLData();      }
+        void _initializeGLData() { _parent->_initializeGLData(); }
+        void _clearGLData()      { _parent->_clearGLData();      }
 
-        void _setAbsPVP( const PixelViewport& pvp ) { _parentWnd->_pvp = pvp; }
+        void _setAbsPVP( const PixelViewport& pvp ) { _parent->_pvp = pvp; }
 
-        void _invalidatePVP() { _parentWnd->_invalidatePVP(); }
+        void _invalidatePVP() { _parent->_invalidatePVP(); }
 
-        const PixelViewport& _getAbsPVP( ) const { return _parentWnd->_pvp; }
+        const PixelViewport& _getAbsPVP( ) const { return _parent->_pvp; }
 
     private:
-        Window* _parentWnd;
+        Window* _parent;
     };
 }
 

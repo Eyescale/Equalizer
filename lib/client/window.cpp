@@ -17,6 +17,16 @@
 #include "windowEvent.h"
 #include "windowStatistics.h"
 
+#ifdef AGL
+#  include "aglWindow.h"
+#endif
+#ifdef GLX
+#  include "glxWindow.h"
+#endif
+#ifdef WGL
+#  include "wglWindow.h"
+#endif
+
 #include <eq/net/barrier.h>
 #include <eq/net/command.h>
 
@@ -258,15 +268,46 @@ bool Window::configInit( const uint32_t initID )
     }
 
     EQASSERT( !_osWindow );
-    _osWindow = Global::getNodeFactory()->createOSWindow( this );
 
-    if( !checkWindowType( )) return false;
+    if( !configInitOSWindow( initID )) return false;
+    if( !configInitGL( initID ))       return false;
 
+    EQ_GL_ERROR( "after Window::configInitGL" );
+    return true;
+}
+
+bool Window::configInitOSWindow( const uint32_t initID )
+{
+    const Pipe* pipe = getPipe();
+
+    switch( pipe->getWindowSystem( ))
+    {
+    case WINDOW_SYSTEM_GLX:
+#ifdef GLX
+        EQINFO << "Using GLXWindow" << std::endl;
+        setOSWindow( new GLXWindow( this ));
+#endif
+        break;
+
+    case WINDOW_SYSTEM_AGL:
+#ifdef AGL
+        EQINFO << "Using AGLWindow" << std::endl;
+        setOSWindow( new AGLWindow( this ));
+#endif
+        break;
+
+    case WINDOW_SYSTEM_WGL:
+#ifdef WGL
+        EQINFO << "Using WGLWindow" << std::endl;
+        setOSWindow( new WGLWindow( this ));
+#endif
+        break;
+    }
+
+    if( !_checkWindowType( ))      return false;
     if( !_osWindow->configInit( )) return false;
 
-    const bool ret = configInitGL( initID );
-    EQ_GL_ERROR( "after Window::configInitGL" );
-    return ret;
+    return true;
 }
 
 bool Window::configInitGL( const uint32_t initID )
@@ -292,7 +333,7 @@ bool Window::configInitGL( const uint32_t initID )
 }
 
 
-bool Window::checkWindowType() const
+bool Window::_checkWindowType() const
 {
     EQASSERT( _osWindow )
     if( !_osWindow )
@@ -309,7 +350,7 @@ bool Window::checkWindowType() const
     //else
 
     EQERROR << "pipe windowing system: " << pipeWindowSystem << endl
-            << "current windowing system: " << windowSystem << endl;
+            << "OSWindow system: " << windowSystem << endl;
 
     return false;
 }
@@ -321,7 +362,7 @@ bool Window::configExit()
 {
     const bool ret = configExitGL();
 
-    if( !checkWindowType( )) return false;
+    if( !_checkWindowType( )) return false;
 
     _osWindow->configExit( );
 
@@ -414,7 +455,7 @@ void Window::exitEventHandler()
 
 void Window::makeCurrent() const
 {
-    if( !checkWindowType( )) return;
+    if( !_checkWindowType( )) return;
 
     _osWindow->makeCurrent( );
 }
@@ -422,7 +463,7 @@ void Window::makeCurrent() const
 
 void Window::swapBuffers()
 {
-    if( !checkWindowType( )) return;
+    if( !_checkWindowType( )) return;
 
     _osWindow->swapBuffers();
 
@@ -539,7 +580,7 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
         return net::COMMAND_HANDLED;
     }
 
-    if( checkWindowType( ))
+    if( _checkWindowType( ))
     {
         if( !_osWindow->isInitialized( ))
         {
