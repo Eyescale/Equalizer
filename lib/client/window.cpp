@@ -136,7 +136,7 @@ Channel* Window::_findChannel( const uint32_t id )
 
 WindowVisitor::Result Window::accept( WindowVisitor* visitor )
 { 
-    ChannelVisitor::Result result = visitor->visit( this );
+    ChannelVisitor::Result result = visitor->visitPre( this );
     if( result != ChannelVisitor::TRAVERSE_CONTINUE )
         return result;
 
@@ -157,6 +157,20 @@ WindowVisitor::Result Window::accept( WindowVisitor* visitor )
             default:
                 break;
         }
+    }
+
+    switch( visitor->visitPost( this ))
+    {
+        case NodeVisitor::TRAVERSE_TERMINATE:
+	  return NodeVisitor::TRAVERSE_TERMINATE;
+
+        case NodeVisitor::TRAVERSE_PRUNE:
+	  return NodeVisitor::TRAVERSE_PRUNE;
+	  break;
+                
+        case NodeVisitor::TRAVERSE_CONTINUE:
+        default:
+	  break;
     }
 
     return result;

@@ -65,7 +65,7 @@ Node::~Node()
 
 NodeVisitor::Result Node::accept( NodeVisitor* visitor )
 { 
-    PipeVisitor::Result result = visitor->visit( this );
+    PipeVisitor::Result result = visitor->visitPre( this );
     if( result != PipeVisitor::TRAVERSE_CONTINUE )
         return result;
 
@@ -86,6 +86,20 @@ NodeVisitor::Result Node::accept( NodeVisitor* visitor )
             default:
                 break;
         }
+    }
+
+    switch( visitor->visitPost( this ))
+    {
+        case NodeVisitor::TRAVERSE_TERMINATE:
+	  return NodeVisitor::TRAVERSE_TERMINATE;
+
+        case NodeVisitor::TRAVERSE_PRUNE:
+	  return NodeVisitor::TRAVERSE_PRUNE;
+	  break;
+                
+        case NodeVisitor::TRAVERSE_CONTINUE:
+        default:
+	  break;
     }
 
     return result;
