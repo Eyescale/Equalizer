@@ -15,13 +15,13 @@ public:
     TestVisitor() : nConfigs(0), nNodes(0), nPipes(0), nWindows(0), nChannels(0)
         {}
 
-    virtual Result visit( Config* config )
+    virtual Result visitPre( Config* config )
         {
             ++nConfigs;
             return TRAVERSE_CONTINUE;
         }
 
-    virtual Result visit( Node* node )
+    virtual Result visitPre( Node* node )
         {
             ++nNodes;
             if( nNodes == 1 )
@@ -29,7 +29,7 @@ public:
             return TRAVERSE_CONTINUE;
         }
 
-    virtual Result visit( Pipe* pipe )
+    virtual Result visitPre( Pipe* pipe )
         {
             ++nPipes;
             if( nPipes == 5 )
@@ -37,7 +37,7 @@ public:
             return TRAVERSE_CONTINUE;
         }
 
-    virtual Result visit( eq::Window* window )
+    virtual Result visitPre( eq::Window* window )
         {
             ++nWindows;
             return TRAVERSE_CONTINUE;
