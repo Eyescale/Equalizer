@@ -17,19 +17,27 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
-    Image image;
+    Image    image;
+    Image    destImage;
+    uint32_t size;
+
+    // Touch memory once
+    TEST( image.readImage( "../compositor/Image_1_color.rgb",
+                           Frame::BUFFER_COLOR ));
+    destImage.setPixelViewport( image.getPixelViewport( ));
+    destImage.decompressPixelData( Frame::BUFFER_COLOR,     
+                                   image.compressPixelData( Frame::BUFFER_COLOR,
+                                                            size ));
 
     // Random Noise
     TEST( image.readImage( "noise.rgb", Frame::BUFFER_COLOR ));
 
-    Image destImage;
     destImage.setPixelViewport( image.getPixelViewport( ));
 
     const uint8_t* noiseData = image.getPixelData( Frame::BUFFER_COLOR );
     const uint32_t noiseSize = image.getPixelDataSize( Frame::BUFFER_COLOR );
     const uint8_t* compressedData;
     const uint8_t* data;
-    uint32_t       size;
     uint32_t       resultSize;
     Clock          clock;
     float          time;
