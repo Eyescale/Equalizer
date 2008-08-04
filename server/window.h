@@ -162,10 +162,10 @@ namespace server
          */
         void joinSwapBarrier( net::Barrier* barrier );
 
-        /** The last drawing compound for this entity. */
-        void setLastDrawCompound( const Compound* compound )
-            { _lastDrawCompound = compound; }
-        const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
+        /** The last drawing channel for this entity. */
+        void setLastDrawChannel( const Channel* channel )
+            { _lastDrawChannel = channel; }
+        const Channel* getLastDrawChannel() const { return _lastDrawChannel; }
         //*}
 
         /**
@@ -291,8 +291,8 @@ namespace server
         /** The list of slave swap barriers for the current frame. */
         std::vector<net::Barrier*> _swapBarriers;
         
-        /** The last draw compound for this entity */
-        const Compound* _lastDrawCompound;
+        /** The last draw channel for this entity */
+        const Channel* _lastDrawChannel;
 
         /** common code for all constructors */
         void _construct();

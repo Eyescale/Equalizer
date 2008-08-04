@@ -136,57 +136,61 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
 
         return;
     
+    if( _channel->getLastDrawCompound() != compound )
+        return;
+
+    // Channel::frameDrawFinish
     Node* node = _channel->getNode();
 
-    if( _channel->getLastDrawCompound() == compound )
-    {
-        eq::ChannelFrameDrawFinishPacket packet;
-        packet.objectID    = _channel->getID();
-        packet.frameNumber = _frameNumber;
-        packet.frameID     = _frameID;
+    eq::ChannelFrameDrawFinishPacket channelPacket;
+    channelPacket.objectID    = _channel->getID();
+    channelPacket.frameNumber = _frameNumber;
+    channelPacket.frameID     = _frameID;
 
-        node->send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK channel draw finish "
-                               << _channel->getName() <<  " " << &packet <<endl;
-    }
+    node->send( channelPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK channel draw finish " << _channel->getName()
+                           <<  " " << &channelPacket <<endl;
 
+    // Window::frameDrawFinish
     const Window* window = _channel->getWindow();
-    if( window->getLastDrawCompound() == compound )
-    {
-        eq::WindowFrameDrawFinishPacket packet;
-        packet.objectID    = window->getID();
-        packet.frameNumber = _frameNumber;
-        packet.frameID     = _frameID;
+    if( window->getLastDrawChannel() != _channel )
+        return;
 
-        node->send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK window draw finish " 
-                               << window->getName() <<  " " << &packet << endl;
-    }
+    eq::WindowFrameDrawFinishPacket windowPacket;
+    windowPacket.objectID    = window->getID();
+    windowPacket.frameNumber = _frameNumber;
+    windowPacket.frameID     = _frameID;
 
+    node->send( windowPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK window draw finish "  << window->getName() 
+                           <<  " " << &windowPacket << endl;
+
+    // Pipe::frameDrawFinish
     const Pipe* pipe = _channel->getPipe();
-    if( pipe->getLastDrawCompound() == compound )
-    {
-        eq::PipeFrameDrawFinishPacket packet;
-        packet.objectID    = pipe->getID();
-        packet.frameNumber = _frameNumber;
-        packet.frameID     = _frameID;
+    if( pipe->getLastDrawWindow() != window )
+        return;
 
-        node->send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK pipe draw finish " 
-                               << pipe->getName() <<  " " << &packet << endl;
-    }
+    eq::PipeFrameDrawFinishPacket pipePacket;
+    pipePacket.objectID    = pipe->getID();
+    pipePacket.frameNumber = _frameNumber;
+    pipePacket.frameID     = _frameID;
 
-    if( node->getLastDrawCompound() == compound )
-    {
-        eq::NodeFrameDrawFinishPacket packet;
-        packet.objectID    = node->getID();
-        packet.frameNumber = _frameNumber;
-        packet.frameID     = _frameID;
+    node->send( pipePacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK pipe draw finish " 
+                           << pipe->getName() <<  " " << &pipePacket << endl;
 
-        node->send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK node draw finish " 
-                               << node->getName() <<  " " << &packet << endl;
-    }
+    // Node::frameDrawFinish
+    if( node->getLastDrawPipe() != pipe )
+        return;
+
+    eq::NodeFrameDrawFinishPacket nodePacket;
+    nodePacket.objectID    = node->getID();
+    nodePacket.frameNumber = _frameNumber;
+    nodePacket.frameID     = _frameID;
+
+    node->send( nodePacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK node draw finish " << node->getName() 
+                           <<  " " << &nodePacket << endl;
 }
 
 GLenum ChannelUpdateVisitor::_getDrawBuffer() const

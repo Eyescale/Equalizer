@@ -128,9 +128,9 @@ namespace server
         const eq::PixelViewport& getPixelViewport() const { return _pvp; }
 
         /** The last drawing compound for this entity. */
-        void setLastDrawCompound( const Compound* compound )
-            { _lastDrawCompound = compound; }
-        const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
+        void setLastDrawWindow( const Window* window )
+            { _lastDrawWindow = window; }
+        const Window* getLastDrawWindow() const { return _lastDrawWindow; }
         //*}
 
         /**
@@ -250,8 +250,8 @@ namespace server
         /** The absolute size and position of the pipe. */
         eq::PixelViewport _pvp;
 
-        /** The last draw compound for this entity */
-        const Compound* _lastDrawCompound;
+        /** The last draw window for this entity */
+        const Window* _lastDrawWindow;
 
         /** common code for all constructors */
         void _construct();

@@ -25,8 +25,12 @@ namespace server
         /** Destruct the PipeVisitor */
         virtual ~PipeVisitor(){}
 
-        /** Visit a pipe. */
-        virtual Result visit( Pipe* pipe )
+        /** Visit a pipe on the down traversal. */
+        virtual Result visitPre( Pipe* pipe )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a pipe on the up traversal. */
+        virtual Result visitPost( Pipe* pipe )
             { return TRAVERSE_CONTINUE; }
     };
 }

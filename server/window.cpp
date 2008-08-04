@@ -24,10 +24,10 @@ typedef net::CommandFunc<Window> WindowFunc;
 
 void Window::_construct()
 {
-    _used             = 0;
-    _pipe             = 0;
-    _fixedPVP         = false;
-    _lastDrawCompound = 0;
+    _used            = 0;
+    _pipe            = 0;
+    _fixedPVP        = false;
+    _lastDrawChannel = 0;
 
     EQINFO << "New window @" << (void*)this << endl;
 }
@@ -125,7 +125,7 @@ bool Window::removeChannel( Channel* channel )
 
 WindowVisitor::Result Window::accept( WindowVisitor* visitor )
 { 
-    ChannelVisitor::Result result = visitor->visit( this );
+    ChannelVisitor::Result result = visitor->visitPre( this );
     if( result != ChannelVisitor::TRAVERSE_CONTINUE )
         return result;
 
@@ -146,6 +146,20 @@ WindowVisitor::Result Window::accept( WindowVisitor* visitor )
             default:
                 break;
         }
+    }
+
+    switch( visitor->visitPost( this ))
+    {
+        case NodeVisitor::TRAVERSE_TERMINATE:
+	  return NodeVisitor::TRAVERSE_TERMINATE;
+
+        case NodeVisitor::TRAVERSE_PRUNE:
+	  return NodeVisitor::TRAVERSE_PRUNE;
+	  break;
+                
+        case NodeVisitor::TRAVERSE_CONTINUE:
+        default:
+	  break;
     }
 
     return result;
@@ -387,14 +401,9 @@ bool Window::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Window::updateDraw( const uint32_t frameID, 
-                              const uint32_t frameNumber )
+void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
-    if( !_lastDrawCompound )
-    {
-        const Config* config = getConfig();
-        _lastDrawCompound = config->getCompounds()[ 0 ];
-    }
+    EQASSERT( _lastDrawChannel );
 
     eq::WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
@@ -431,7 +440,7 @@ void Window::updatePost( const uint32_t frameID,
     _send( finishPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
                            << endl;
-    _lastDrawCompound = 0;
+    _lastDrawChannel = 0;
 }
 
 void Window::_updateSwap( const uint32_t frameNumber )

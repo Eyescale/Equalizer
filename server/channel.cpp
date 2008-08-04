@@ -324,11 +324,7 @@ bool Channel::syncConfigExit()
 //---------------------------------------------------------------------------
 void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
-    if( !_lastDrawCompound )
-    {
-        Config* config = getConfig();
-        _lastDrawCompound = config->getCompounds()[0];
-    }
+    EQASSERT( _lastDrawCompound );
 
     eq::ChannelFrameStartPacket startPacket;
     startPacket.frameID     = frameID;

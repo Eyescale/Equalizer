@@ -11,6 +11,7 @@ CXXFILES = \
 	compoundUpdateInputVisitor.cpp \
 	compoundUpdateOutputVisitor.cpp \
 	config.cpp \
+	configUpdateDataVisitor.cpp \
 	connectionDescription.cpp \
 	frame.cpp \
 	frameData.cpp \

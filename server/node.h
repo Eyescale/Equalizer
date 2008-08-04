@@ -100,10 +100,10 @@ namespace server
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
-        /** The last drawing compound for this entity. */
-        void setLastDrawCompound( const Compound* compound )
-            { _lastDrawCompound = compound; }
-        const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
+        /** The last drawing channel for this entity. */
+        void setLastDrawPipe( const Pipe* pipe )
+            { _lastDrawPipe = pipe; }
+        const Pipe* getLastDrawPipe() const { return _lastDrawPipe;}
         //*}
 
         /**
@@ -290,8 +290,8 @@ namespace server
         /** Task packets for the current operation. */
         net::BufferConnection _bufferedTasks;
 
-        /** The last draw compound for this entity */
-        const Compound* _lastDrawCompound;
+        /** The last draw pipe for this entity */
+        const Pipe* _lastDrawPipe;
 
         /** common code for all constructors */
         void _construct();

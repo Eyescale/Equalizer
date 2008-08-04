@@ -29,11 +29,11 @@ typedef net::CommandFunc<Node> NodeFunc;
 
 void Node::_construct()
 {
-    _used             = 0;
-    _config           = 0;
-    _lastDrawCompound = 0;
-    _flushedFrame     = 0;
-    _finishedFrame    = 0;
+    _used           = 0;
+    _config         = 0;
+    _lastDrawPipe   = 0;
+    _flushedFrame   = 0;
+    _finishedFrame  = 0;
     EQINFO << "New node @" << (void*)this << endl;
 }
 
@@ -121,7 +121,7 @@ bool Node::removePipe( Pipe* pipe )
 
 NodeVisitor::Result Node::accept( NodeVisitor* visitor )
 { 
-    PipeVisitor::Result result = visitor->visit( this );
+    PipeVisitor::Result result = visitor->visitPre( this );
     if( result != PipeVisitor::TRAVERSE_CONTINUE )
         return result;
 
@@ -142,6 +142,20 @@ NodeVisitor::Result Node::accept( NodeVisitor* visitor )
             default:
                 break;
         }
+    }
+
+    switch( visitor->visitPost( this ))
+    {
+        case NodeVisitor::TRAVERSE_TERMINATE:
+	  return NodeVisitor::TRAVERSE_TERMINATE;
+
+        case NodeVisitor::TRAVERSE_PRUNE:
+	  return NodeVisitor::TRAVERSE_PRUNE;
+	  break;
+                
+        case NodeVisitor::TRAVERSE_CONTINUE:
+        default:
+	  break;
     }
 
     return result;
@@ -280,11 +294,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     EQVERB << "Start frame " << frameNumber << endl;
     _frameIDs[ frameNumber ] = frameID;
     
-    if( !_lastDrawCompound )
-    {
-        Config* config = getConfig();
-        _lastDrawCompound = config->getCompounds()[0];
-    }
+    EQASSERT( _lastDrawPipe ); // Not true for DPlex?
 
     eq::NodeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
@@ -306,7 +316,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
         flushFrames( frameNumber - latency );
 
     _bufferedTasks.sendBuffer( _node->getConnection( ));
-    _lastDrawCompound = 0;
+    _lastDrawPipe = 0;
 }
 
 void Node::updateFrameFinishNT( const uint32_t currentFrame )

@@ -25,8 +25,12 @@ namespace server
         /** Destruct the WindowVisitor */
         virtual ~WindowVisitor(){}
 
-        /** Visit a window. */
-        virtual Result visit( Window* window )
+        /** Visit a window on the down traversal. */
+        virtual Result visitPre( Window* window )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a window on the up traversal. */
+        virtual Result visitPost( Window* window )
             { return TRAVERSE_CONTINUE; }
     };
 }

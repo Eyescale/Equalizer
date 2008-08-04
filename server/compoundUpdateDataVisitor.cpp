@@ -34,11 +34,7 @@ void CompoundUpdateDataVisitor::_updateDrawFinish( Compound* compound )
         return;
 
     Channel* channel = compound->getChannel();
-
     channel->setLastDrawCompound( compound );
-    channel->getWindow()->setLastDrawCompound( compound );
-    channel->getPipe()->setLastDrawCompound( compound );
-    channel->getNode()->setLastDrawCompound( compound );
 }
 
 }

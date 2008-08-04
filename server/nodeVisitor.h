@@ -25,8 +25,12 @@ namespace server
         /** Destruct the NodeVisitor */
         virtual ~NodeVisitor(){}
 
-        /** Visit a node. */
-        virtual Result visit( Node* node )
+        /** Visit a node on the down traversal. */
+        virtual Result visitPre( Node* node )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a node on the up traversal. */
+        virtual Result visitPost( Node* node )
             { return TRAVERSE_CONTINUE; }
     };
 }

@@ -25,8 +25,12 @@ namespace server
         /** Destruct the ConfigVisitor */
         virtual ~ConfigVisitor(){}
 
-        /** Visit a config. */
-        virtual Result visit( Config* config )
+        /** Visit a config on the down traversal. */
+        virtual Result visitPre( Config* config )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a config on the up traversal. */
+        virtual Result visitPost( Config* config )
             { return TRAVERSE_CONTINUE; }
     };
 }

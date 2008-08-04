@@ -32,11 +32,11 @@ std::string Pipe::_iAttributeStrings[IATTR_ALL] =
 
 void Pipe::_construct()
 {
-    _used             = 0;
-    _node             = 0;
-    _port             = EQ_UNDEFINED_UINT32;
-    _device           = EQ_UNDEFINED_UINT32;
-    _lastDrawCompound = 0;
+    _used           = 0;
+    _node           = 0;
+    _port           = EQ_UNDEFINED_UINT32;
+    _device         = EQ_UNDEFINED_UINT32;
+    _lastDrawWindow = 0;
 
     EQINFO << "New pipe @" << (void*)this << endl;
 }
@@ -127,7 +127,7 @@ bool Pipe::removeWindow( Window* window )
 
 PipeVisitor::Result Pipe::accept( PipeVisitor* visitor )
 { 
-    WindowVisitor::Result result = visitor->visit( this );
+    WindowVisitor::Result result = visitor->visitPre( this );
     if( result != WindowVisitor::TRAVERSE_CONTINUE )
         return result;
 
@@ -148,6 +148,20 @@ PipeVisitor::Result Pipe::accept( PipeVisitor* visitor )
             default:
                 break;
         }
+    }
+
+    switch( visitor->visitPost( this ))
+    {
+        case NodeVisitor::TRAVERSE_TERMINATE:
+	  return NodeVisitor::TRAVERSE_TERMINATE;
+
+        case NodeVisitor::TRAVERSE_PRUNE:
+	  return NodeVisitor::TRAVERSE_PRUNE;
+	  break;
+                
+        case NodeVisitor::TRAVERSE_CONTINUE:
+        default:
+	  break;
     }
 
     return result;
@@ -308,11 +322,7 @@ bool Pipe::syncConfigExit()
 //---------------------------------------------------------------------------
 void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
 {
-    if( !_lastDrawCompound )
-    {
-        Config* config = getConfig();
-        _lastDrawCompound = config->getCompounds()[ 0 ];
-    }
+    EQASSERT( _lastDrawWindow );
 
     eq::PipeFrameStartClockPacket startClockPacket;
     _send( startClockPacket );
@@ -346,7 +356,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     _send( finishPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
                            << endl;
-    _lastDrawCompound = 0;
+    _lastDrawWindow = 0;
 }
 
 //----------------------------------------------------------------------

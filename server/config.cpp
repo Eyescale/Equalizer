@@ -6,6 +6,7 @@
 #include "config.h"
 
 #include "compound.h"
+#include "configUpdateDataVisitor.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
@@ -226,7 +227,7 @@ void Config::setApplicationNetNode( net::NodePtr node )
 
 ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
 { 
-    NodeVisitor::Result result = visitor->visit( this );
+    NodeVisitor::Result result = visitor->visitPre( this );
     if( result != NodeVisitor::TRAVERSE_CONTINUE )
         return result;
 
@@ -247,6 +248,20 @@ ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
             default:
                 break;
         }
+    }
+
+    switch( visitor->visitPost( this ))
+    {
+        case NodeVisitor::TRAVERSE_TERMINATE:
+	  return NodeVisitor::TRAVERSE_TERMINATE;
+
+        case NodeVisitor::TRAVERSE_PRUNE:
+	  return NodeVisitor::TRAVERSE_PRUNE;
+	  break;
+                
+        case NodeVisitor::TRAVERSE_CONTINUE:
+        default:
+	  break;
     }
 
     return result;
@@ -638,6 +653,9 @@ void Config::_startFrame( const uint32_t frameID )
         Compound* compound = *i;
         compound->update( _currentFrame );
     }
+    
+    ConfigUpdateDataVisitor configDataVisitor;
+    accept( &configDataVisitor );
 
     for( vector< Node* >::const_iterator i = _nodes.begin(); 
          i != _nodes.end(); ++i )
