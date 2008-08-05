@@ -67,12 +67,16 @@ void Channel::frameDraw( const uint32_t frameID )
     const Model*     model  = config->getModel();
     const eq::Range& range  = getRange();
 
-    if( range != eq::Range::ALL ) // Color DB-patches
+    if(  !frameData.color )
+    {
+        glColor3f( .75f, .75f, .75f );
+    }
+    else if( range != eq::Range::ALL ) // Color DB-patches
     {
         const vmml::Vector3ub color = getUniqueColor();
         glColor3ub( color.r, color.g, color.b );
     }
-    else if( !frameData.color || (model && !model->hasColors( )) )
+    else if( model && !model->hasColors( ))
     {
         glColor3f( .75f, .75f, .75f );
     }
