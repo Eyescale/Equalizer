@@ -324,7 +324,9 @@ bool Channel::syncConfigExit()
 //---------------------------------------------------------------------------
 void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
-    EQASSERT( _lastDrawCompound );
+    const CompoundVector& compounds = getCompounds();
+    if( !_lastDrawCompound ) // happens when a used channel skips a frame
+        _lastDrawCompound = compounds[0];
 
     eq::ChannelFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
@@ -333,7 +335,6 @@ void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     EQLOG( eq::LOG_TASKS ) << "TASK channel start frame  " << &startPacket
                            << endl;
 
-    const CompoundVector& compounds = getCompounds();
     for( CompoundVector::const_iterator i = compounds.begin(); 
          i != compounds.end(); ++i )
     {

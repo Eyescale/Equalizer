@@ -403,7 +403,8 @@ bool Window::syncConfigExit()
 //---------------------------------------------------------------------------
 void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
-    EQASSERT( _lastDrawChannel );
+    if( !_lastDrawChannel ) // happens when used channels skip a frame
+        _lastDrawChannel = _channels[0];
 
     eq::WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;

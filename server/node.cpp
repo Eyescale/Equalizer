@@ -294,7 +294,8 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     EQVERB << "Start frame " << frameNumber << endl;
     _frameIDs[ frameNumber ] = frameID;
     
-    EQASSERT( _lastDrawPipe ); // Not true for DPlex?
+    if( !_lastDrawPipe ) // happens when used channels skip a frame (DPlex, LB)
+        _lastDrawPipe = _pipes[0];
 
     eq::NodeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;

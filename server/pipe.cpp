@@ -322,7 +322,8 @@ bool Pipe::syncConfigExit()
 //---------------------------------------------------------------------------
 void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
 {
-    EQASSERT( _lastDrawWindow );
+    if( !_lastDrawWindow ) // happens when used channels skip a frame
+        _lastDrawWindow = _windows[0];
 
     eq::PipeFrameStartClockPacket startClockPacket;
     _send( startClockPacket );
