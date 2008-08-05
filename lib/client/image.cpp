@@ -393,7 +393,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 
             if( getDepth( Frame::BUFFER_COLOR ) == 4 )
 #pragma omp parallel for
-                for( uint32_t i = 3; i < size; i+=4 )
+                for( ssize_t i = 3; i < size; i+=4 )
                     data[i] = 255;
 #endif
         }
