@@ -384,7 +384,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
     {
         if( getDepth( Frame::BUFFER_COLOR ) == 4 )
         {
-            void*               data     = pixels.data.chunks[0];
+            uint8_t* data = pixels.data.chunks[0];
 #ifdef LEOPARD
             const unsigned char pixel[4] = { 0, 0, 0, 255 };
             memset_pattern4( data, &pixel, size );
