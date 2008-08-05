@@ -88,7 +88,7 @@ void Window::_loadLogo()
                   _logoSize.x, _logoSize.y, 0,
                   image.getFormat( eq::Frame::BUFFER_COLOR ), 
                   image.getType( eq::Frame::BUFFER_COLOR ),
-                  image.getPixelData( eq::Frame::BUFFER_COLOR ));
+                  image.getPixelPointer( eq::Frame::BUFFER_COLOR ));
 
     EQINFO << "Created logo texture of size " << _logoSize << endl;
 }

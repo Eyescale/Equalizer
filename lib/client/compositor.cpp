@@ -372,9 +372,9 @@ void Compositor::_assembleDBImages( Image* result,
 
     const eq::PixelViewport resultPVP = result->getPixelViewport();
     uint32_t* destColor = reinterpret_cast< uint32_t* >
-        ( result->getPixelData( Frame::BUFFER_COLOR ));
+        ( result->getPixelPointer( Frame::BUFFER_COLOR ));
     float*    destDepth = reinterpret_cast< float* >
-        ( result->getPixelData( Frame::BUFFER_DEPTH ));
+        ( result->getPixelPointer( Frame::BUFFER_DEPTH ));
 
     for( vector< FrameImage >::const_iterator i = images.begin();
          i != images.end(); ++i )
@@ -414,9 +414,9 @@ void Compositor::_assembleDBImages( Image* result,
         const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
 
         const uint32_t* color = reinterpret_cast< const uint32_t* >
-            ( image->getPixelData( Frame::BUFFER_COLOR ));
+            ( image->getPixelPointer( Frame::BUFFER_COLOR ));
         const float*   depth = reinterpret_cast< const float* >
-            ( image->getPixelData( Frame::BUFFER_DEPTH ));
+            ( image->getPixelPointer( Frame::BUFFER_DEPTH ));
 
 #  pragma omp parallel for
         for( int32_t y = 0; y < pvp.h; ++y )
@@ -459,9 +459,9 @@ void Compositor::_assemble2DImages( Image* result,
     EQVERB << "CPU-2D assembly of " << images.size() << " images" << endl;
 
     const eq::PixelViewport resultPVP = result->getPixelViewport();
-    uint8_t* destColor = result->getPixelData( Frame::BUFFER_COLOR );
+    uint8_t* destColor = result->getPixelPointer( Frame::BUFFER_COLOR );
     uint8_t* destDepth = result->hasPixelData( Frame::BUFFER_DEPTH ) ?
-        reinterpret_cast< uint8_t* >(result->getPixelData( Frame::BUFFER_DEPTH))
+        reinterpret_cast< uint8_t* >(result->getPixelPointer( Frame::BUFFER_DEPTH))
         : 0;
 
     for( vector< FrameImage >::const_iterator i = images.begin();
@@ -480,7 +480,7 @@ void Compositor::_assemble2DImages( Image* result,
         EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
                   result->getType( Frame::BUFFER_COLOR ));
 
-        const uint8_t*   color = image->getPixelData( Frame::BUFFER_COLOR );
+        const uint8_t*   color = image->getPixelPointer( Frame::BUFFER_COLOR );
         const size_t pixelSize = image->getDepth( Frame::BUFFER_COLOR );
         const size_t rowLength = pvp.w * pixelSize;
 
@@ -513,7 +513,7 @@ void Compositor::_assembleBlendImages( Image* result,
 
     const eq::PixelViewport resultPVP = result->getPixelViewport();
     int32_t* destColor = reinterpret_cast< int32_t* >
-        ( result->getPixelData( Frame::BUFFER_COLOR ));
+        ( result->getPixelPointer( Frame::BUFFER_COLOR ));
 
     for( vector< FrameImage >::const_iterator i = images.begin();
          i != images.end(); ++i )
@@ -545,7 +545,7 @@ void Compositor::_assembleBlendImages( Image* result,
 #endif
 
         const int32_t* color = reinterpret_cast< const int32_t* >
-                                ( image->getPixelData( Frame::BUFFER_COLOR ));
+                                ( image->getPixelPointer( Frame::BUFFER_COLOR ));
 
         // Check if we have enought space
         const int32_t maxSpace = ((destY+pvp.h-1)*resultPVP.w + destX+pvp.w);
@@ -654,14 +654,14 @@ bool Compositor::_assembleImage_PC( int operation, Image* result,
     input[0].width     = pvp.w;
     input[0].height    = pvp.h;
     input[0].rowLength = pvp.w * input[0].size;
-    input[0].address   = source->getPixelData( Frame::BUFFER_COLOR );
+    input[0].address   = source->getPixelPointer( Frame::BUFFER_COLOR );
 
     output[0].xOffset   = 0;
     output[0].yOffset   = 0;
     output[0].width     = pvp.w;
     output[0].height    = pvp.h;
     output[0].rowLength = pvp.w * output[0].size;
-    output[0].address   = result->getPixelData( Frame::BUFFER_COLOR );
+    output[0].address   = result->getPixelPointer( Frame::BUFFER_COLOR );
 
     
     const bool useDepth = ( operation == PC_COMP_DEPTH );
@@ -688,14 +688,14 @@ bool Compositor::_assembleImage_PC( int operation, Image* result,
         input[1].width     = pvp.w;
         input[1].height    = pvp.h;
         input[1].rowLength = pvp.w * input[1].size;
-        input[1].address   = source->getPixelData( Frame::BUFFER_DEPTH );
+        input[1].address   = source->getPixelPointer( Frame::BUFFER_DEPTH );
 
         output[1].xOffset   = 0;
         output[1].yOffset   = 0;
         output[1].width     = pvp.w;
         output[1].height    = pvp.h;
         output[1].rowLength = pvp.w * output[1].size;
-        output[1].address   = result->getPixelData( Frame::BUFFER_DEPTH );
+        output[1].address   = result->getPixelPointer( Frame::BUFFER_DEPTH );
     }
 
 
@@ -856,7 +856,7 @@ void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
     glDrawPixels( pvp.w, pvp.h, 
                   image->getFormat( Frame::BUFFER_COLOR ), 
                   image->getType( Frame::BUFFER_COLOR ), 
-                  image->getPixelData( Frame::BUFFER_COLOR ));
+                  image->getPixelPointer( Frame::BUFFER_COLOR ));
 }
 
 void Compositor::assembleImageDB( const Image* image, const ImageOp& op )
@@ -897,7 +897,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 
     glDrawPixels( pvp.w, pvp.h, image->getFormat( Frame::BUFFER_DEPTH ), 
                   image->getType( Frame::BUFFER_DEPTH ), 
-                  image->getPixelData( Frame::BUFFER_DEPTH ));
+                  image->getPixelPointer( Frame::BUFFER_DEPTH ));
     
     glDisable( GL_DEPTH_TEST );
 
@@ -907,7 +907,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
     
     glDrawPixels( pvp.w, pvp.h, image->getFormat( Frame::BUFFER_COLOR ), 
                   image->getType( Frame::BUFFER_COLOR ),
-                  image->getPixelData( Frame::BUFFER_COLOR ));
+                  image->getPixelPointer( Frame::BUFFER_COLOR ));
 
     glDisable( GL_STENCIL_TEST );
 }
@@ -995,7 +995,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                               pvp.w, pvp.h, 0,
                               image->getFormat( Frame::BUFFER_COLOR ), 
                               image->getType( Frame::BUFFER_COLOR ),
-                              image->getPixelData( Frame::BUFFER_COLOR )));
+                              image->getPixelPointer( Frame::BUFFER_COLOR )));
 
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
     EQ_GL_CALL( glBindTexture( GL_TEXTURE_RECTANGLE_ARB, depthTexture ));
@@ -1009,7 +1009,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                               pvp.w, pvp.h, 0,
                               image->getFormat( Frame::BUFFER_DEPTH ), 
                               image->getType( Frame::BUFFER_DEPTH ),
-                              image->getPixelData( Frame::BUFFER_DEPTH )));
+                              image->getPixelPointer( Frame::BUFFER_DEPTH )));
 
     // Draw a quad using shader & textures in the right place
     glEnable( GL_DEPTH_TEST );

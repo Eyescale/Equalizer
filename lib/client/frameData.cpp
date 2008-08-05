@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved. */
 
 #include "frameData.h"
@@ -30,11 +30,11 @@ FrameData::~FrameData()
     flush();
 }
 
-void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID, 
+void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID,
                                  net::Session* session )
 {
     net::Object::attachToSession( id, instanceID, session );
-    
+
     net::CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( CMD_FRAMEDATA_TRANSMIT,
@@ -49,9 +49,9 @@ void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID,
 }
 
 void FrameData::applyInstanceData( net::DataIStream& is )
-{ 
+{
     clear();
-    net::Object::applyInstanceData( is ); 
+    net::Object::applyInstanceData( is );
 
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << endl;
 
@@ -109,7 +109,7 @@ Image* FrameData::_allocImage()
     return image;
 }
 
-void FrameData::startReadback( const Frame& frame, 
+void FrameData::startReadback( const Frame& frame,
                                Window::ObjectManager* glObjects )
 {
     if( _data.buffers == Frame::BUFFER_NONE )
@@ -118,7 +118,7 @@ void FrameData::startReadback( const Frame& frame,
     PixelViewport absPVP = _data.pvp + frame.getOffset();
     if( !absPVP.isValid( ))
         return;
-    
+
     Image* image = newImage();
     image->startReadback( _data.buffers, absPVP, glObjects );
 }
@@ -145,8 +145,8 @@ void FrameData::syncReadback()
 }
 
 void FrameData::_setReady( const uint32_t version )
-{ 
-    EQASSERT( getVersion() == net::Object::VERSION_NONE || 
+{
+    EQASSERT( getVersion() == net::Object::VERSION_NONE ||
               _readyVersion < version );
 
     _listenersMutex.set();
@@ -155,12 +155,12 @@ void FrameData::_setReady( const uint32_t version )
          i != _pendingImages.end(); ++i )
     {
         const ImageVersion& imageVersion = *i;
-        EQASSERTINFO( imageVersion.version > version, 
+        EQASSERTINFO( imageVersion.version > version,
                       "Frame is ready, but not all images have been set" );
     }
 #endif
 
-    _readyVersion = version; 
+    _readyVersion = version;
     EQLOG( LOG_ASSEMBLY ) << "set ready " << this << endl;
 
     for( vector< Monitor<uint32_t>* >::iterator i = _listeners.begin();
@@ -198,12 +198,12 @@ float FrameData::transmit( net::NodePtr toNode )
     packet.version      = getVersion();
     packet.isCompressed = useCompression;
 
-    for( vector<Image*>::const_iterator iter = _images.begin();
-         iter != _images.end(); ++iter )
+    // send all images
+    for( vector<Image*>::const_iterator i = _images.begin(); 
+         i != _images.end(); ++i )
     {
-        Image*                   image = *iter;
-        vector< const uint8_t* > pixelDatas;
-        vector< uint32_t >       pixelDataSizes;
+        Image* image = *i;
+        vector< const Image::PixelData* > pixelDatas;
 
         packet.size    = packetSize;
         packet.buffers = Frame::BUFFER_NONE;
@@ -211,57 +211,82 @@ float FrameData::transmit( net::NodePtr toNode )
 
         EQASSERT( packet.pvp.isValid( ));
 
-        if( image->hasPixelData( Frame::BUFFER_COLOR ))
+        // Prepare image pixel data
+        Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
+        for( unsigned j = 0; j < 2; ++j )
         {
-            uint32_t size;
-            if( useCompression )
+            Frame::Buffer buffer = buffers[j];
+            if( image->hasPixelData( buffer ))
             {
-                Clock clock;
-                pixelDatas.push_back( 
-                    image->compressPixelData(Frame::BUFFER_COLOR, size ));
-                compressTime += clock.getTimef();
-            }
-            else
-            {
-                pixelDatas.push_back( image->getPixelData(Frame::BUFFER_COLOR));
-                size = image->getPixelDataSize( Frame::BUFFER_COLOR);
-            }
+                packet.size += 3 * sizeof( uint32_t ); // format, type, nChunks
 
-            pixelDataSizes.push_back( size );
-            packet.size    += size;
-            packet.buffers |= Frame::BUFFER_COLOR;
-        }
-        if( image->hasPixelData( Frame::BUFFER_DEPTH ))
-        {
-            uint32_t size;
-            if( useCompression )
-            {
-                Clock clock;
-                pixelDatas.push_back( 
-                    image->compressPixelData(Frame::BUFFER_DEPTH, size ));
-                compressTime += clock.getTimef();
-            }
-            else
-            {
-                pixelDatas.push_back( image->getPixelData(Frame::BUFFER_DEPTH));
-                size = image->getPixelDataSize( Frame::BUFFER_DEPTH);
-            }
+                if( useCompression )
+                {
+                    Clock clock;
+                    const Image::PixelData& data =
+                        image->compressPixelData( buffer );
+                    compressTime += clock.getTimef();
 
-            pixelDataSizes.push_back( size );
-            packet.size    += size;
-            packet.buffers |= Frame::BUFFER_DEPTH;
+                    pixelDatas.push_back( &data );
+
+                    for( vector< uint32_t >::const_iterator k = 
+                             data.chunkSizes.begin();
+                         k != data.chunkSizes.end(); ++k )
+                    {
+                        packet.size += sizeof( uint32_t ); // chunk size
+                        packet.size += *k;                 // chunk data
+                    }
+                }
+                else
+                {
+                    const Image::PixelData& data = image->getPixelData( buffer);
+                    pixelDatas.push_back( &data );
+
+                    packet.size += sizeof( uint32_t ); // chunk size
+                    packet.size += data.chunkSizes[0]; // chunk data
+                }
+
+                packet.buffers |= buffer;
+            }
         }
- 
+
         if( pixelDatas.empty( ))
             continue;
+        
+        // send image pixel data packet
 
         connection->lockSend();
         connection->send( &packet, packetSize, true );
-        
-        for( uint32_t i=0; i<pixelDatas.size(); ++i )
-            connection->send( pixelDatas[i], pixelDataSizes[i], true );
+#ifndef NDEBUG
+        size_t sentBytes = packetSize;
+#endif
 
-        connection->unlockSend(); 
+        for( uint32_t j=0; j < pixelDatas.size(); ++j )
+        {
+            const Image::PixelData* data = pixelDatas[j];
+            uint32_t imageHeader[3] = { data->format, data->type, 
+                                        data->chunks.size() };
+            connection->send( imageHeader, 3 * sizeof( uint32_t ), true );
+#ifndef NDEBUG
+            sentBytes += 3 * sizeof( uint32_t );
+#endif
+
+            for( uint32_t k=0; k < data->chunks.size(); ++k )
+            {
+                connection->send( &data->chunkSizes[k], sizeof(uint32_t), true);
+                connection->send( data->chunks[k], data->chunkSizes[k], true );
+#ifndef NDEBUG
+                sentBytes += sizeof( uint32_t );
+                sentBytes += data->chunkSizes[k];
+#endif
+            }
+        }
+#ifndef NDEBUG
+        EQASSERTINFO( sentBytes == packet.size,
+                      sentBytes << " != " << packet.size );
+#endif
+
+        connection->unlockSend();
     }
 
     FrameDataReadyPacket readyPacket;
@@ -301,42 +326,60 @@ void FrameData::removeListener( base::Monitor<uint32_t>& listener )
 net::CommandResult FrameData::_cmdTransmit( net::Command& command )
 {
     CHECK_THREAD( _commandThread );
-    const FrameDataTransmitPacket* packet = 
+    const FrameDataTransmitPacket* packet =
         command.getPacket<FrameDataTransmitPacket>();
 
-    EQLOG( LOG_ASSEMBLY ) 
-        << this << " received image, buffers " << packet->buffers << " pvp " 
+    EQLOG( LOG_ASSEMBLY )
+        << this << " received image, buffers " << packet->buffers << " pvp "
         << packet->pvp << " v" << packet->version << endl;
 
     EQASSERT( packet->pvp.isValid( ));
 
-    Image*         image   = _allocImage();
-    const uint8_t* data    = packet->data;
+    Image*   image = _allocImage();
+    // Note on the const_cast: since the PixelData structure stores non-const
+    // pointers, we have to go non-const at some point, even though we do not
+    // modify the data.
+    uint8_t* data  = const_cast< uint8_t* >( packet->data );
 
     image->setPixelViewport( packet->pvp );
 
-    if( packet->buffers & Frame::BUFFER_COLOR )
+    Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
+    for( unsigned i = 0; i < 2; ++i )
     {
-        if( packet->isCompressed )
-            data += image->decompressPixelData( Frame::BUFFER_COLOR, data );
-        else
+        Frame::Buffer buffer = buffers[i];
+        
+        if( packet->buffers & buffer )
         {
-            image->setPixelData( Frame::BUFFER_COLOR, data );
-            data += image->getPixelDataSize( Frame::BUFFER_COLOR );
+            Image::PixelData pixelData;
+            uint32_t*        u32Data   = reinterpret_cast< uint32_t* >( data );
+            
+            pixelData.format     = u32Data[0];
+            pixelData.type       = u32Data[1];
+            pixelData.compressed = packet->isCompressed;
+
+            const uint32_t nChunks = u32Data[2];
+            
+            data += 3 * sizeof( uint32_t );
+            
+            for( uint32_t j=0; j < nChunks; ++j )
+            {
+                u32Data = reinterpret_cast< uint32_t* >( data );
+                pixelData.chunkSizes.push_back( u32Data[0] );
+
+                data += sizeof( uint32_t );
+                pixelData.chunks.push_back( data );
+
+                data += pixelData.chunkSizes.back();
+            }
+
+            image->setPixelData( buffer, pixelData );
+
+            // Prevent ~PixelData from freeing pointers
+            pixelData.chunkSizes.clear();
+            pixelData.chunks.clear();
         }
     }
 
-    if( packet->buffers & Frame::BUFFER_DEPTH )
-    {
-        if( packet->isCompressed )
-            data += image->decompressPixelData( Frame::BUFFER_DEPTH, data );
-        else
-        {
-            image->setPixelData( Frame::BUFFER_DEPTH, data );
-            data += image->getPixelDataSize( Frame::BUFFER_DEPTH );
-        }
-    }
-    
     const uint32_t version = getVersion();
 
     if( version == packet->version )
@@ -356,7 +399,7 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
 net::CommandResult FrameData::_cmdReady( net::Command& command )
 {
     CHECK_THREAD( _commandThread );
-    const FrameDataReadyPacket* packet = 
+    const FrameDataReadyPacket* packet =
         command.getPacket<FrameDataReadyPacket>();
 
     if( getVersion() == packet->version )
@@ -375,7 +418,7 @@ net::CommandResult FrameData::_cmdReady( net::Command& command )
 net::CommandResult FrameData::_cmdUpdate( net::Command& command )
 {
     CHECK_THREAD( _commandThread );
-    const FrameDataUpdatePacket* packet = 
+    const FrameDataUpdatePacket* packet =
         command.getPacket<FrameDataUpdatePacket>();
 
     _applyVersion( packet->version );
@@ -402,7 +445,7 @@ void FrameData::_applyVersion( const uint32_t version )
              i != _pendingImages.end(); ++i )
         {
             const ImageVersion& imageVersion = *i;
-            EQASSERTINFO( imageVersion.version > version, 
+            EQASSERTINFO( imageVersion.version > version,
                           "Frame is ready, but not all images have been set" );
         }
 #endif
@@ -436,8 +479,8 @@ void FrameData::_applyVersion( const uint32_t version )
 
 std::ostream& operator << ( std::ostream& os, const FrameData* data )
 {
-    os << "frame data id " << data->getID() << "." << data->getInstanceID() 
-       << " v" << data->getVersion() << ' ' << data->getImages().size() 
+    os << "frame data id " << data->getID() << "." << data->getInstanceID()
+       << " v" << data->getVersion() << ' ' << data->getImages().size()
        << " images, ready " << ( data->isReady() ? 'y' :'n' );
     return os;
 }

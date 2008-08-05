@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved. */
 
 #ifndef EQ_IMAGE_H
@@ -15,7 +15,7 @@ namespace eq
 {
     /**
      * A holder for pixel data.
-     * 
+     *
      * An image holds color and depth information for a rectangular region.
      */
     class EQ_EXPORT Image
@@ -24,7 +24,22 @@ namespace eq
         /** Constructs a new Image. */
         Image();
         virtual ~Image();
-        
+
+        struct PixelData : public base::NonCopyable
+        {
+            PixelData() : format( GL_FALSE ), type( GL_FALSE )
+                        , compressed( false )
+                {}
+            ~PixelData();
+
+            uint32_t format;       //!< the GL format
+            uint32_t type;         //!< the GL type
+            bool     compressed;   //!< Chunks are RLE-compressed
+
+            std::vector< uint32_t > chunkSizes; //!< The size of each chunk
+            std::vector< uint8_t* > chunks;     //!< The pixel data
+        };
+
         /**
          * @name Data Access
          */
@@ -38,7 +53,7 @@ namespace eq
         /** Reset the image to its default state. */
         void reset();
 
-        /** 
+        /**
          * Set the (OpenGL) format of the pixel data for a buffer.
          * Invalidates the pixel data.
          *
@@ -47,7 +62,7 @@ namespace eq
          */
         void setFormat( const Frame::Buffer buffer, const uint32_t format );
 
-        /** 
+        /**
          * Set the (OpenGL) type of the pixel data for a buffer.
          * Invalidates the pixel data.
          *
@@ -69,66 +84,65 @@ namespace eq
         bool hasAlpha() const;
 
         /** @return a pointer to the raw pixel data. */
-        const uint8_t* getPixelData( const Frame::Buffer buffer ) const
-            { EQASSERT(hasPixelData(buffer)); return _getPixels( buffer ).data;}
-        uint8_t* getPixelData( const Frame::Buffer buffer )
-            { EQASSERT(hasPixelData(buffer)); return _getPixels( buffer ).data;}
+        const uint8_t* getPixelPointer( const Frame::Buffer buffer ) const;
+        uint8_t* getPixelPointer( const Frame::Buffer buffer );
 
         /** @return the size of the raw pixel data in bytes */
         uint32_t getPixelDataSize( const Frame::Buffer buffer ) const
             { return (_pvp.w * _pvp.h * getDepth( buffer )); }
-            
-        /** @return a pointer to compressed pixel data. */
-        const uint8_t* compressPixelData( const Frame::Buffer buffer,
-                                          uint32_t& size );
 
-        /** 
+        /** @return the pixel data. */
+        const PixelData& getPixelData( const Frame::Buffer buffer ) const;
+
+        /** @return the compressed pixel data. */
+        const PixelData& compressPixelData( const Frame::Buffer buffer );
+
+        /**
          * @return true if the image has pixel data for the buffer, false if
          * not.
          */
-        bool hasPixelData( const Frame::Buffer buffer ) const 
+        bool hasPixelData( const Frame::Buffer buffer ) const
             { return _getPixels( buffer ).valid; }
-            
+
         /** @return the pixel viewport of the image with in the frame buffer. */
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
-        /** 
+        /**
          * Set the pixel viewport of the image buffers.
          *
          * The image buffers will be invalidated.
-         * 
+         *
          * @param pvp the pixel viewport.
          */
         void setPixelViewport( const PixelViewport& pvp );
 
-        /** 
+        /**
          * Clear (zero-initialize) and validate an image buffer.
-         * 
+         *
          * @param buffer the image buffer to clear.
          */
         void clearPixelData( const Frame::Buffer buffer );
 
-        /** 
+        /**
          * Set the pixel data of one of the image buffers.
          *
          * The data is copied, and previous data for the buffer is overwritten.
-         * 
+         *
          * @param buffer the image buffer to set.
          * @param data the buffer data of size pvp.w * pvp.h * depth.
          */
         void setPixelData( const Frame::Buffer buffer, const uint8_t* data );
 
-        /** 
-         * Decompress and set the pixel data of one of the image buffers.
+        /**
+         * Set the pixel data of one of the image buffers.
          *
-         * Previous data for the buffer is overwritten.
-         * 
-         * @param buffer the image buffer to set
-         * @param data the buffer data decompressing to getPixelDataSize()
-         * @return the number of bytes read from the input data.
+         * Previous data for the buffer is overwritten. The pixel data is
+         * decompressed, if needed.
+         *
+         * @param buffer the image buffer to set.
+         * @param data the pixel data.
          */
-        uint32_t decompressPixelData( const Frame::Buffer buffer, 
-                                      const uint8_t* data );
+        void setPixelData( const Frame::Buffer buffer, const PixelData& data );
 
         /** Switch PBO usage for image transfers on or off. */
         void setPBO( const bool onOff ) { _usePBO = onOff; }
@@ -138,7 +152,7 @@ namespace eq
          * @name Operations
          */
         //*{
-        /** 
+        /**
          * Start reading back an image from the frame buffer.
          *
          * @param buffers bit-wise combination of the frame buffer components.
@@ -150,18 +164,18 @@ namespace eq
 
         /** Make sure that the last readback operation is complete. */
         void syncReadback();
-        
+
         /** Writes the pixel data as rgb image files. */
-        void writeImage( const std::string& filename, 
+        void writeImage( const std::string& filename,
                          const Frame::Buffer buffer ) const;
-        
+
         /** Writes all pixel data as separate images. */
         void writeImages( const std::string& filenameTemplate ) const;
 
         /** Read pixel data from an uncompressed rgb image file. */
         bool readImage(const std::string& filename, const Frame::Buffer buffer);
         //*}
-        
+
     private:
         /** All distributed data. */
         struct Data
@@ -169,11 +183,11 @@ namespace eq
             Viewport vp;
         }
         _data;
-        
+
         /** The rectangle of the current pixels data. */
         PixelViewport _pvp;
 
-        /** 
+        /**
          * Raw image data.
          * Previous implementations used a std::vector, but resizing it took
          * about 20ms for typical image sizes.
@@ -181,30 +195,31 @@ namespace eq
         class Pixels : public base::NonCopyable
         {
         public:
-            Pixels() : data(0), format( GL_FALSE ), type( GL_FALSE )
-                       , maxSize(0), pboSize(0), valid( false )
-                       , reading( false )
-                {}
-            ~Pixels();
+            Pixels() : maxSize(0), pboSize(0), valid( false ), reading( false )
+                {
+                    data.chunks.push_back( 0 );
+                    data.chunkSizes.push_back( 0 );
+                }
 
             void resize( uint32_t size );
 
-            uint8_t* data;    // allocated (and cached data)
-            uint32_t format;
-            uint32_t type;
-            uint32_t maxSize; // the size of the allocation
-            uint32_t pboSize; // the size of the PBO
-            bool     valid;   // data is currently valid
-            bool     reading; // data is currently read
+            PixelData data;
+            uint32_t  maxSize; // the size of the allocation
+            uint32_t  pboSize; // the size of the PBO
+            bool      valid;   // data is currently valid
+            bool      reading; // data is currently read
         };
 
         Pixels _colorPixels;
         Pixels _depthPixels;
 
-        class CompressedPixels : public Pixels
+        class CompressedPixels
         {
         public:
-            uint32_t size; // current size of the compressed data
+            PixelData data;
+            std::vector< uint32_t > chunkMaxSizes;
+
+            bool valid;   // data is currently valid
         };
 
         CompressedPixels _compressedColorPixels;
@@ -222,8 +237,8 @@ namespace eq
         const CompressedPixels& _getCompressedPixels( const Frame::Buffer
                                                       buffer ) const;
 
-        uint32_t _compressPixelData( const uint64_t* data, const uint32_t size, 
-                                     const uint64_t marker, uint64_t* out );
+        uint32_t _compressPixelData( const uint64_t* data, const uint32_t size,
+                                     uint64_t* out );
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getPBOKey( const Frame::Buffer buffer ) const;
