@@ -58,7 +58,6 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
 Window::Window( Pipe* parent )
         : _eventHandler( 0 )
         , _sharedContextWindow( 0 ) // default set by pipe
-        , _glewContext( new GLEWContext )
         , _osWindow( 0 )
         , _pipe( parent )
 {
@@ -100,8 +99,6 @@ Window::Window( Pipe* parent )
 Window::~Window()
 {
     _pipe->_removeWindow( this );
-    delete _glewContext;
-    _glewContext = 0;
 
     if( _eventHandler )
         EQWARN << "Event handler present in destructor" << endl;
@@ -181,6 +178,24 @@ WindowVisitor::Result Window::accept( WindowVisitor* visitor )
 // pipe-thread methods
 //======================================================================
 
+GLEWContext* Window::glewGetContext()
+{
+    EQASSERT( _osWindow );
+    return _osWindow->glewGetContext();
+}
+
+const Window::DrawableConfig& Window::getDrawableConfig() const
+{
+    EQASSERT( _osWindow );
+    return _osWindow->getDrawableConfig();
+}
+
+Window::ObjectManager* Window::getObjectManager()
+{
+    EQASSERT( _osWindow );
+    return _osWindow->getObjectManager();
+}
+
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
@@ -252,7 +267,9 @@ const RenderContext* Window::getRenderContext( const int32_t x,
 {
     EQASSERT( _osWindow );
     ScopedMutex< SpinLock > mutex( _osWindow->getContextLock( ));
-    const unsigned which = _drawableConfig.doublebuffered ? FRONT : BACK;
+
+    const DrawableConfig& drawableConfig = getDrawableConfig();
+    const unsigned which = drawableConfig.doublebuffered ? FRONT : BACK;
 
     vector< RenderContext >::const_reverse_iterator i   =
         _renderContexts[which].rbegin(); 
@@ -389,73 +406,6 @@ bool Window::configExit()
     _osWindow = 0;
 
     return ret;
-}
-
-void Window::_queryDrawableConfig()
-{
-    // GL version
-    const char* glVersion = (const char*)glGetString( GL_VERSION );
-    if( !glVersion ) // most likely no context - fail
-    {
-        EQWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
-               << endl;
-        _drawableConfig.glVersion = 1.1f;
-    }
-    else
-        _drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
-
-    // Framebuffer capabilities
-    GLboolean result;
-    glGetBooleanv( GL_STEREO,       &result );
-    _drawableConfig.stereo = result;
-
-    glGetBooleanv( GL_DOUBLEBUFFER, &result );
-    _drawableConfig.doublebuffered = result;
-
-    GLint stencilBits;
-    glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
-    _drawableConfig.stencilBits = stencilBits;
-
-    GLint alphaBits;
-    glGetIntegerv( GL_ALPHA_BITS, &alphaBits );
-    _drawableConfig.alphaBits = alphaBits;
-
-    EQINFO << "Window drawable config: " << _drawableConfig << endl;
-}
-
-void Window::_initializeGLData()
-{
-    makeCurrent();
-    _queryDrawableConfig();
-    const GLenum result = glewInit();
-    if( result != GLEW_OK )
-        EQWARN << "GLEW initialization failed with error " << result <<endl;
-
-    _setupObjectManager();
-}
-
-void Window::_clearGLData()
-{
-    _releaseObjectManager();
-}
-
-void Window::_setupObjectManager()
-{
-    _releaseObjectManager();
-
-    if( _sharedContextWindow )
-        _objectManager = _sharedContextWindow->getObjectManager();
-    
-    if( !_objectManager.isValid( ))
-        _objectManager = new ObjectManager( _glewContext );
-}
-
-void Window::_releaseObjectManager()
-{
-    if( _objectManager.isValid() && _objectManager->getRefCount() == 1 )
-        _objectManager->deleteAll();
-
-    _objectManager = 0;
 }
 
 void Window::initEventHandler()
@@ -613,7 +563,7 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     }
 
     reply.pvp            = _pvp;
-    reply.drawableConfig = _drawableConfig;
+    reply.drawableConfig = getDrawableConfig();
     send( node, reply );
     return net::COMMAND_HANDLED;
 }
@@ -648,7 +598,9 @@ net::CommandResult Window::_cmdFrameStart( net::Command& command )
     {
         EQASSERT( _osWindow );
         ScopedMutex< SpinLock > mutex( _osWindow->getContextLock( ));
-        if( _drawableConfig.doublebuffered )
+
+        const DrawableConfig& drawableConfig = getDrawableConfig();
+        if( drawableConfig.doublebuffered )
             _renderContexts[FRONT].swap( _renderContexts[BACK] );
         _renderContexts[BACK].clear();
     }

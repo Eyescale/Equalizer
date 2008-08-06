@@ -466,10 +466,7 @@ void GLXWindow::setXDrawable( XID drawable )
         _clearGLData();
 
     if( !drawable )
-    {
-        _invalidatePVP();
         return;
-    }
 
     // query pixel viewport of window
     Pipe*    pipe    = getPipe();

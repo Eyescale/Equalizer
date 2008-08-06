@@ -533,25 +533,23 @@ void AGLWindow::setCarbonWindow( WindowRef window )
         exitEventHandler();
     _carbonWindow = window;
 
-    _invalidatePVP();
+    if( !window )
+        return;
 
-    if( window )
+    initEventHandler();
+
+    Rect rect;
+    Global::enterCarbon();
+    if( GetWindowBounds( window, kWindowContentRgn, &rect ) == noErr )
     {
-        initEventHandler();
-
-        Rect rect;
-        Global::enterCarbon();
-        if( GetWindowBounds( window, kWindowContentRgn, &rect ) == noErr )
-        {
-            PixelViewport pvp;
-            pvp.x = rect.left;
-            pvp.y = rect.top;
-            pvp.w = rect.right - rect.left;
-            pvp.h = rect.bottom - rect.top;
-            setPixelViewport( pvp );
-        }
-        Global::leaveCarbon();
+        PixelViewport pvp;
+        pvp.x = rect.left;
+        pvp.y = rect.top;
+        pvp.w = rect.right - rect.left;
+        pvp.h = rect.bottom - rect.top;
+        setPixelViewport( pvp );
     }
+    Global::leaveCarbon();
 #endif // AGL
 }
 
@@ -565,23 +563,21 @@ void AGLWindow::setAGLPBuffer( AGLPbuffer pbuffer )
 
     _aglPBuffer = pbuffer;
 
-    _invalidatePVP();
+    if( !pbuffer )
+        return;
 
-    if( pbuffer )
+    GLint         w;
+    GLint         h;
+    GLenum        target;
+    GLenum        format;
+    GLint         maxLevel;
+
+    if( aglDescribePBuffer( pbuffer, &w, &h, &target, &format, &maxLevel ))
     {
-        GLint         w;
-        GLint         h;
-        GLenum        target;
-        GLenum        format;
-        GLint         maxLevel;
+        EQASSERT( target == GL_TEXTURE_RECTANGLE_EXT );
 
-        if( aglDescribePBuffer( pbuffer, &w, &h, &target, &format, &maxLevel ))
-        {
-            EQASSERT( target == GL_TEXTURE_RECTANGLE_EXT );
-
-            const PixelViewport pvp( 0, 0, w, h );
-            setPixelViewport( pvp );
-        }
+        const PixelViewport pvp( 0, 0, w, h );
+        setPixelViewport( pvp );
     }
 #endif // AGL
 }

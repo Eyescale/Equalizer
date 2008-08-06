@@ -193,6 +193,10 @@ namespace base
             text[length-2] = '\0';
         return std::string( text );
     }
+    inline std::string getLastErrorString()
+    {
+         return getErrorString( GetLastError( ));
+    }
 #endif
 }
 }

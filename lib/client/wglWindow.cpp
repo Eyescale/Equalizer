@@ -104,7 +104,7 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
 
     if( _wglWindow )
     {
-        exitEventHandler();
+        _window->exitEventHandler();
         EQASSERT( _wglDC );
         ReleaseDC( _wglWindow, _wglDC );
         _wglDC = 0;
@@ -115,7 +115,7 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
 
     if( _wglWindow )
     {
-        initEventHandler();
+        _window->initEventHandler();
         _wglDC = GetDC( _wglWindow );
     }
 
@@ -125,10 +125,7 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
         _clearGLData();
 
     if( !handle )
-    {
-        _invalidatePVP();
         return;
-    }
 
     // query pixel viewport of window
     WINDOWINFO windowInfo;
@@ -141,7 +138,7 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
     pvp.y = windowInfo.rcClient.top;
     pvp.w = windowInfo.rcClient.right  - windowInfo.rcClient.left;
     pvp.h = windowInfo.rcClient.bottom - windowInfo.rcClient.top;
-    setPixelViewport( pvp );
+    _window->setPixelViewport( pvp );
 #endif // WGL
 }
 
@@ -170,10 +167,7 @@ void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
         _clearGLData();
 
     if( !handle )
-    {
-        _invalidatePVP();
         return;
-    }
 
     // query pixel viewport of PBuffer
     int w,h;
@@ -183,7 +177,7 @@ void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
     PixelViewport pvp;
     pvp.w = w;
     pvp.h = h;
-    setPixelViewport( pvp );
+    _window->setPixelViewport( pvp );
 #endif // WGL
 }
 
@@ -217,7 +211,7 @@ bool WGLWindow::configInit()
     {
         if( dc )
             deleteDCProc( dc );
-        setErrorMessage( "configInitWGLDrawable did not set a WGL drawable" );
+        _window->setErrorMessage( "configInitWGLDrawable did not set a WGL drawable" );
         return false;
     }
 
@@ -249,7 +243,7 @@ bool WGLWindow::configInit()
         deleteDCProc( dc );
     return true;
 #else
-    setErrorMessage( "Client library compiled without WGL support" );
+    _window->setErrorMessage( "Client library compiled without WGL support" );
     return false;
 #endif
 }
@@ -276,7 +270,7 @@ bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
 {
 #ifdef WGL
     // window class
-    const std::string& name = getName();
+    const std::string& name = _window->getName();
 
     std::ostringstream className;
     className << (name.empty() ? std::string("Equalizer") : name) << (void*)this;
@@ -293,8 +287,8 @@ bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
 
     if( !RegisterClass( &wc ))
     {
-        setErrorMessage( "Can't register window class: " + 
-                         base::getErrorString( GetLastError( )));
+        _window->setErrorMessage( "Can't register window class: " + 
+                                  base::getLastErrorString( ));
         return false;
     }
 
@@ -314,7 +308,7 @@ bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
         if( ChangeDisplaySettings( &deviceMode, CDS_FULLSCREEN ) != 
             DISP_CHANGE_SUCCESSFUL )
         {
-            setErrorMessage( "Can't switch to fullscreen mode: " + 
+            _window->setErrorMessage( "Can't switch to fullscreen mode: " + 
                 base::getErrorString( GetLastError( )));
             return false;
         }
@@ -322,7 +316,7 @@ bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
     }
 
     // adjust window size (adds border pixels)
-    const PixelViewport pvp = _getAbsPVP();
+    const PixelViewport& pvp = _window->getPixelViewport();
     RECT rect;
     rect.left   = pvp.x;
     rect.top    = pvp.y;
@@ -339,7 +333,7 @@ bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
                                 instance, 0 );
     if( !hWnd )
     {
-        setErrorMessage( "Can't create window: " + 
+        _window->setErrorMessage( "Can't create window: " + 
                          base::getErrorString( GetLastError( )));
         return false;
     }
@@ -354,7 +348,7 @@ bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
     if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
     {
         ReleaseDC( hWnd, windowDC );
-        setErrorMessage( "Can't set window pixel format: " + 
+        _window->setErrorMessage( "Can't set window pixel format: " + 
             base::getErrorString( GetLastError( )));
         return false;
     }
@@ -366,7 +360,7 @@ bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
 
     return true;
 #else
-    setErrorMessage( "Client library compiled without WGL support" );
+    _window->setErrorMessage( "Client library compiled without WGL support" );
     return false;
 #endif
 }
@@ -376,11 +370,11 @@ bool WGLWindow::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
 #ifdef WGL
     if( !WGLEW_ARB_pbuffer )
     {
-        setErrorMessage( "WGL_ARB_pbuffer not supported" );
+        _window->setErrorMessage( "WGL_ARB_pbuffer not supported" );
         return false;
     }
 
-    const eq::PixelViewport& pvp = _getAbsPVP();
+    const eq::PixelViewport& pvp = _window->getPixelViewport();
     EQASSERT( pvp.isValid( ));
 
     HDC displayDC = CreateDC( "DISPLAY", 0, 0, 0 );
@@ -391,7 +385,7 @@ bool WGLWindow::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
                                                attributes );
     if( !pBuffer )
     {
-        setErrorMessage( "Can't create PBuffer: " + 
+        _window->setErrorMessage( "Can't create PBuffer: " + 
             base::getErrorString( GetLastError( )));
 
         DeleteDC( displayDC );
@@ -403,7 +397,7 @@ bool WGLWindow::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
     setWGLPBufferHandle( pBuffer );
     return true;
 #else
-    setErrorMessage( "Client library compiled without WGL support" );
+    _window->setErrorMessage( "Client library compiled without WGL support" );
     return false;
 #endif
 }
@@ -421,13 +415,13 @@ HDC WGLWindow::getWGLPipeDC( PFNEQDELETEDCPROC& deleteProc )
     HDC affinityDC = 0;
     if( !pipe->createAffinityDC( affinityDC, deleteProc ))
     {
-        setErrorMessage( "Can't create affinity dc" );
+        _window->setErrorMessage( "Can't create affinity dc" );
         return 0;
     }
 
     return affinityDC;
 #else
-    setErrorMessage( "Client library compiled without WGL support" );
+    _window->setErrorMessage( "Client library compiled without WGL support" );
     return 0;
 #endif
 }
@@ -585,7 +579,7 @@ int WGLWindow::chooseWGLPixelFormat( HDC dc )
 
     if( pixelFormat == 0 )
     {
-        setErrorMessage( "Can't find matching pixel format: " + 
+        _window->setErrorMessage( "Can't find matching pixel format: " + 
             base::getErrorString( GetLastError( )));
         return 0;
     }
@@ -599,7 +593,7 @@ int WGLWindow::chooseWGLPixelFormat( HDC dc )
         DescribePixelFormat( dc, pixelFormat, sizeof(pfd), &pfd );
         if( !SetPixelFormat( dc, pixelFormat, &pfd ))
         {
-            setErrorMessage( "Can't set device pixel format: " + 
+            _window->setErrorMessage( "Can't set device pixel format: " + 
                 base::getErrorString( GetLastError( )));
             return 0;
         }
@@ -607,7 +601,7 @@ int WGLWindow::chooseWGLPixelFormat( HDC dc )
     
     return pixelFormat;
 #else
-    setErrorMessage( "Client library compiled without WGL support" );
+    _window->setErrorMessage( "Client library compiled without WGL support" );
     return 0;
 #endif
 }
@@ -622,7 +616,7 @@ HGLRC WGLWindow::createWGLContext( HDC overrideDC )
     HGLRC context = wglCreateContext( dc );
     if( !context )
     {
-        setErrorMessage( "Can't create OpenGL context: " + 
+        _window->setErrorMessage( "Can't create OpenGL context: " + 
             base::getErrorString( GetLastError( )));
         return 0;
     }
@@ -643,7 +637,7 @@ HGLRC WGLWindow::createWGLContext( HDC overrideDC )
 
     return context;
 #else
-    setErrorMessage( "Client library compiled without WGL support" );
+    _window->setErrorMessage( "Client library compiled without WGL support" );
     return 0;
 #endif
 }

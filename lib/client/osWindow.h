@@ -17,11 +17,11 @@ namespace eq
     class EQ_EXPORT OSWindow
     {
     public:
-        OSWindow( Window* parent ) : _window( parent )
-            { EQASSERT( _window ); }
+        OSWindow( Window* parent );
+        virtual ~OSWindow( );
 
-        virtual ~OSWindow( ) {}
-
+        /** @name Methods forwarded from eq::Window */
+        //*{
         virtual bool configInit( ) = 0;
 
         virtual void configExit( ) = 0;
@@ -40,6 +40,21 @@ namespace eq
 
         virtual bool isInitialized() const = 0;
 
+        /**
+         * @return the extended OpenGL function table for the window's OpenGL
+         *         context.
+         */
+        GLEWContext* glewGetContext() { return _glewContext; }
+
+        /** @return information about the current drawable. */
+        const Window::DrawableConfig& getDrawableConfig() const
+            { return _drawableConfig; }
+
+        /** @return the object manager instance. */
+        Window::ObjectManager* getObjectManager()
+            { return _objectManager.get(); }
+        //*}
+
         /** @name Convenience interface to eq::Window methods */
         //*{
 
@@ -49,26 +64,35 @@ namespace eq
 
         /** @return the generic WGL function table for the window's pipe. */
         WGLEWContext* wglewGetContext() { return _window->wglewGetContext(); }
-
-        /**
-         * @return the extended OpenGL function table for the window's OpenGL
-         *         context.
-         */
-        GLEWContext* glewGetContext() { return _window->glewGetContext(); }
         //*}
 
     protected:
-
-        void _initializeGLData() { _window->_initializeGLData(); }
-        void _clearGLData()      { _window->_clearGLData();      }
-
-        void _setAbsPVP( const PixelViewport& pvp ) { _window->_pvp = pvp; }
-
-        void _invalidatePVP() { _window->_invalidatePVP(); }
-
-        const PixelViewport& _getAbsPVP( ) const { return _window->_pvp; }
-
+        /** The parent eq::Window. */
         Window* const _window;
+
+        /** Set up OpenGL-specific window data, e.g., GLEW. */
+        void _initializeGLData();
+        /** Clear OpenGL-specific window data. */
+        void _clearGLData();
+
+        /** Set up object manager during initialization. */
+        void _setupObjectManager();
+        /** Release object manager. */
+        void _releaseObjectManager();
+
+        /** Set up _drawableConfig by querying the current context. */
+        void _queryDrawableConfig();
+
+    private:
+        /** Drawable characteristics of this window */
+        Window::DrawableConfig _drawableConfig;
+
+        /** Extended OpenGL function entries when window has a context. */
+        GLEWContext*   _glewContext;
+
+        /** OpenGL object management. */
+        base::RefPtr< Window::ObjectManager > _objectManager;
+
     };
 }
 

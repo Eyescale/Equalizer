@@ -90,21 +90,29 @@ namespace eq
         void setSharedContextWindow( Window* sharedContextWindow )
             { _sharedContextWindow = sharedContextWindow; }
 
+        /** @return the window with which this window shares the GL context */
+        const Window* getSharedContextWindow() const 
+            { return _sharedContextWindow; }
+
+        /** @return the window with which this window shares the GL context */
+        Window* getSharedContextWindow() 
+            { return _sharedContextWindow; }
+
+
         /**
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        GLEWContext* glewGetContext() { return _glewContext; }
+        GLEWContext* glewGetContext();
 
         /** @return the generic WGL function table for the window's pipe. */
         WGLEWContext* wglewGetContext() { return _pipe->wglewGetContext(); }
 
         /** @return information about the current drawable. */
-        const DrawableConfig& getDrawableConfig() const
-            { return _drawableConfig; }
+        const DrawableConfig& getDrawableConfig() const;
 
         /** @return the window's object manager instance. */
-        ObjectManager* getObjectManager() { return _objectManager.get(); }
+        ObjectManager* getObjectManager();
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
@@ -169,10 +177,11 @@ namespace eq
         virtual void finish() const { glFinish(); }
         //*}
 
-        /** @name Window system specific implementation */
+        /** 
+         * @name Interface to and from the OSWindow, the window-system specific 
+         *       pieces for a Window.
+         */
         //*{
-        friend class OSWindow;
-
         /**
          * Set the OS-specific window.
          * 
@@ -186,6 +195,29 @@ namespace eq
             { EQASSERT(_osWindow); return _osWindow; }
 
         OSWindow* getOSWindow() { EQASSERT(_osWindow); return _osWindow; }
+
+        /**
+         * Initialize the event handling for this window. 
+         * 
+         * This function initializes the necessary event handler for this
+         * window, if required by the window system. Can be overriden by an
+         * empty method to disable built-in event handling.
+         * @sa EventHandler, eq::Pipe::useMessagePump()
+         */
+        virtual void initEventHandler();
+
+        /** De-initialize the event handling for this window. */
+        virtual void exitEventHandler();
+
+        /** 
+         * Set a message why the last operation failed.
+         * 
+         * The message will be transmitted to the originator of the request, for
+         * example to Config::init when set from within the configInit method.
+         *
+         * @param message the error message.
+         */
+        void setErrorMessage( const std::string& message ) { _error = message; }
         //*}
 
     protected:
@@ -311,21 +343,6 @@ namespace eq
         /** Swap the front and back buffer of the window. */
         virtual void swapBuffers();
 
-        /**
-         * Initialize the event handling for this window. 
-         * 
-         * This function initializes the necessary event handler for this
-         * window, if required by the window system. Can be overriden by an
-         * empty method to disable built-in event handling.
-         * @sa EventHandler, eq::Pipe::useMessagePump()
-         */
-        virtual void initEventHandler();
-
-        /**
-         * De-initialize the event handling for this window. 
-         */
-        virtual void exitEventHandler();
-
         /** The current event handler, or 0. */
         EventHandler* _eventHandler;
 
@@ -344,33 +361,9 @@ namespace eq
         friend class WindowStatistics;
         //*}
 
-        /** @name Error information. */
-        //@{
-        /** 
-         * Set a message why the last operation failed.
-         * 
-         * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within the configInit method.
-         *
-         * @param message the error message.
-         */
-        void setErrorMessage( const std::string& message ) { _error = message; }
-        //@}
-
     private:
-        void _invalidatePVP() { _pvp.invalidate(); }
-
-        /** Drawable characteristics of this window */
-        DrawableConfig _drawableConfig;
-
         /** The window sharing the OpenGL context. */
         Window* _sharedContextWindow;
-
-        /** Extended OpenGL function entries when window has a context. */
-        GLEWContext*   _glewContext;
-
-        /** OpenGL object management. */
-        base::RefPtr< ObjectManager > _objectManager;
 
         /** The reason for the last error. */
         std::string    _error;
@@ -416,20 +409,6 @@ namespace eq
 
         /** Check that the pipe's WS matches the OSWindow's ws. */
         bool _checkWindowType() const;
-
-        /** Set up _drawableConfig by querying current context. */
-        void _queryDrawableConfig();
-
-        /** Set up OpenGL-specific window data, e.g., GLEW. */
-        void _initializeGLData();
-        /** Clear OpenGL-specific window data. */
-        void _clearGLData();
-
-        /** Set up object manager during initialization. */
-        void _setupObjectManager();
-
-        /** Release object manager. */
-        void _releaseObjectManager();
 
         /* The command functions. */
         net::CommandResult _cmdCreateChannel( net::Command& command );
