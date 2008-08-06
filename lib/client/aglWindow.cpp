@@ -153,7 +153,7 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
 
     if( !displayHandle )
     {
-        setErrorMessage( "Can't get display handle" );
+        _window->setErrorMessage( "Can't get display handle" );
         Global::leaveCarbon();
         return 0;
     }
@@ -288,12 +288,12 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
     }
 
     if( !pixelFormat )
-        setErrorMessage( "Could not find a matching pixel format" );
+        _window->setErrorMessage( "Could not find a matching pixel format" );
 
     Global::leaveCarbon();
     return pixelFormat;
 #else
-    setErrorMessage( "Client library compiled without AGL support" );
+    _window->setErrorMessage( "Client library compiled without AGL support" );
     return 0;
 #endif
 }
@@ -308,7 +308,7 @@ void AGLWindow::destroyAGLPixelFormat( AGLPixelFormat pixelFormat )
     aglDestroyPixelFormat( pixelFormat );
     Global::leaveCarbon();
 #else
-    setErrorMessage( "Client library compiled without AGL support" );
+    _window->setErrorMessage( "Client library compiled without AGL support" );
 #endif
 }
 
@@ -317,21 +317,29 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
 #ifdef AGL
     if( !pixelFormat )
     {
-        setErrorMessage( "No pixel format given" );
+        _window->setErrorMessage( "No pixel format given" );
         return 0;
     }
 
-          Pipe*        pipe        = getPipe();
-          Window*      firstWindow = pipe->getWindows()[0];
-    const AGLWindow* osFirstWindow = static_cast<const AGLWindow*>( firstWindow->getOSWindow());
-          AGLContext   shareCtx      = osFirstWindow->getAGLContext();
+    AGLContext    shareCtx    = 0;
+    const Window* shareWindow = _window->getSharedContextWindow();
+    if( shareWindow )
+    {
+        const OSWindow*  shareOSWindow = shareWindow->getOSWindow();
+
+        EQASSERT( dynamic_cast< const AGLWindow* >( shareOSWindow ));
+        const AGLWindow* shareAGLWindow = static_cast< const AGLWindow* >(
+                                              shareOSWindow );
+        shareCtx = shareAGLWindow->getAGLContext();
+    }
  
     Global::enterCarbon();
     AGLContext context = aglCreateContext( pixelFormat, shareCtx );
 
     if( !context ) 
     {
-        setErrorMessage( "Could not create AGL context: " + aglGetError( ));
+        _window->setErrorMessage( "Could not create AGL context: " + 
+                                  aglGetError( ));
         Global::leaveCarbon();
         return 0;
     }
@@ -350,7 +358,7 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
     EQINFO << "Created AGL context " << context << std::endl;
     return context;
 #else
-    setErrorMessage( "Client library compiled without AGL support" );
+    _window->setErrorMessage( "Client library compiled without AGL support" );
     return 0;
 #endif
 }
@@ -372,31 +380,31 @@ bool AGLWindow::configInitAGLPBuffer()
     AGLContext context = getAGLContext();
     if( !context )
     {
-        setErrorMessage( "No AGLContext set" );
+        _window->setErrorMessage( "No AGLContext set" );
         return false;
     }
 
     // PBuffer
-    const PixelViewport pvp = _getAbsPVP();
+    const PixelViewport pvp = _window->getPixelViewport();
           AGLPbuffer    pbuffer;
     if( !aglCreatePBuffer( pvp.w, pvp.h, GL_TEXTURE_RECTANGLE_EXT, GL_RGBA,
                            0, &pbuffer ))
     {
-        setErrorMessage( "Could not create PBuffer: " + aglGetError( ));
+        _window->setErrorMessage( "Could not create PBuffer: " + aglGetError());
         return false;
     }
 
     // attach to context
     if( !aglSetPBuffer( context, pbuffer, 0, 0, aglGetVirtualScreen( context )))
     {
-        setErrorMessage( "aglSetPBuffer failed: " + aglGetError( ));
+        _window->setErrorMessage( "aglSetPBuffer failed: " + aglGetError( ));
         return false;
     }
 
     setAGLPBuffer( pbuffer );
     return true;
 #else
-    setErrorMessage( "Client library compiled without AGL support" );
+    _window->setErrorMessage( "Client library compiled without AGL support" );
     return false;
 #endif
 }
@@ -407,7 +415,7 @@ bool AGLWindow::configInitAGLFullscreen()
     AGLContext context = getAGLContext();
     if( !context )
     {
-        setErrorMessage( "No AGLContext set" );
+        _window->setErrorMessage( "No AGLContext set" );
         return false;
     }
 
@@ -415,11 +423,12 @@ bool AGLWindow::configInitAGLFullscreen()
 
     aglEnable( context, AGL_FS_CAPTURE_SINGLE );
 
-    const Pipe*    pipe    = getPipe();
+    const Pipe* pipe = getPipe();
     EQASSERT( pipe );
 
-    const PixelViewport& pipePVP = pipe->getPixelViewport();
-    const PixelViewport& pvp     = pipePVP.isValid() ? pipePVP : _getAbsPVP();
+    const PixelViewport& pipePVP   = pipe->getPixelViewport();
+    const PixelViewport& windowPVP = _window->getPixelViewport();
+    const PixelViewport& pvp       = pipePVP.isValid() ? pipePVP : windowPVP;
 
 #if 1
     if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
@@ -431,10 +440,10 @@ bool AGLWindow::configInitAGLFullscreen()
 #endif
 
     Global::leaveCarbon();
-    setPixelViewport( pvp );
+    _window->setPixelViewport( pvp );
     return true;
 #else
-    setErrorMessage( "Client library compiled without AGL support" );
+    _window->setErrorMessage( "Client library compiled without AGL support" );
     return false;
 #endif
 }
@@ -445,7 +454,7 @@ bool AGLWindow::configInitAGLWindow()
     AGLContext context = getAGLContext();
     if( !context )
     {
-        setErrorMessage( "No AGLContext set" );
+        _window->setErrorMessage( "No AGLContext set" );
         return false;
     }
 
@@ -454,7 +463,7 @@ bool AGLWindow::configInitAGLWindow()
                                      kWindowStandardHandlerAttribute   |
                                      kWindowInWindowMenuAttribute;
     // top, left, bottom, right
-    const PixelViewport   pvp = _getAbsPVP();
+    const PixelViewport   pvp = _window->getPixelViewport();
     const bool     decoration = (getIAttribute( Window::IATTR_HINT_DECORATION ) != OFF);
     const int32_t  menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
     Rect           windowRect = { pvp.y + menuHeight, pvp.x, 
@@ -468,13 +477,13 @@ bool AGLWindow::configInitAGLWindow()
                                                  &windowRect, &windowRef );
     if( status != noErr )
     {
-        setErrorMessage( "Could not create carbon window: " + status );
+        _window->setErrorMessage( "Could not create carbon window: " + status );
         Global::leaveCarbon();
         return false;
     }
 
     // window title
-    const std::string&      name = getName();
+    const std::string&      name = _window->getName();
           std::stringstream windowTitle;
 
     if( name.empty( ))
@@ -496,14 +505,14 @@ bool AGLWindow::configInitAGLWindow()
 #ifdef LEOPARD
     if( !aglSetWindowRef( context, windowRef ))
     {
-        setErrorMessage( "aglSetWindowRef failed: " + aglGetError( ));
+        _window->setErrorMessage( "aglSetWindowRef failed: " + aglGetError( ));
         Global::leaveCarbon();
         return false;
     }
 #else
     if( !aglSetDrawable( context, GetWindowPort( windowRef )))
     {
-        setErrorMessage( "aglSetDrawable failed: " + aglGetError( ));
+        _window->setErrorMessage( "aglSetDrawable failed: " + aglGetError( ));
         Global::leaveCarbon();
         return false;
     }
@@ -516,7 +525,7 @@ bool AGLWindow::configInitAGLWindow()
 
     return true;
 #else
-    setErrorMessage( "Client library compiled without AGL support" );
+    _window->setErrorMessage( "Client library compiled without AGL support" );
     return false;
 #endif
 }
@@ -530,13 +539,13 @@ void AGLWindow::setCarbonWindow( WindowRef window )
         return;
 
     if( _carbonWindow )
-        exitEventHandler();
+        _window->exitEventHandler();
     _carbonWindow = window;
 
     if( !window )
         return;
 
-    initEventHandler();
+    _window->initEventHandler();
 
     Rect rect;
     Global::enterCarbon();
@@ -547,7 +556,8 @@ void AGLWindow::setCarbonWindow( WindowRef window )
         pvp.y = rect.top;
         pvp.w = rect.right - rect.left;
         pvp.h = rect.bottom - rect.top;
-        setPixelViewport( pvp );
+
+        _window->setPixelViewport( pvp );
     }
     Global::leaveCarbon();
 #endif // AGL
@@ -577,7 +587,7 @@ void AGLWindow::setAGLPBuffer( AGLPbuffer pbuffer )
         EQASSERT( target == GL_TEXTURE_RECTANGLE_EXT );
 
         const PixelViewport pvp( 0, 0, w, h );
-        setPixelViewport( pvp );
+        _window->setPixelViewport( pvp );
     }
 #endif // AGL
 }

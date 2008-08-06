@@ -48,13 +48,13 @@ bool GLXWindow::configInit( )
 
     if( success && !_xDrawable )
     {
-        setErrorMessage( "configInitGLXDrawable did set no X11 drawable" );
+        _window->setErrorMessage( "configInitGLXDrawable did set no X11 drawable" );
         return false;
     }
 
     return success;    
 #else
-    setErrorMessage( "Client library compiled without GLX support" );
+    _window->setErrorMessage( "Client library compiled without GLX support" );
     return false;
 #endif
 }
@@ -66,7 +66,7 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
     Display* display = getPipe()->getXDisplay();
     if( !display )
     {
-        setErrorMessage( "Pipe has no X11 display connection" );
+        _window->setErrorMessage( "Pipe has no X11 display connection" );
         return 0;
     }
 
@@ -189,14 +189,14 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
     }
 
     if ( !visInfo )
-        setErrorMessage( "Could not find a matching visual" );
+        _window->setErrorMessage( "Could not find a matching visual" );
     else
         EQINFO << "Using visual 0x" << std::hex << visInfo->visualid
                << std::dec << std::endl;
 
     return visInfo;
 #else
-    setErrorMessage( "Client library compiled without GLX support" );
+    _window->setErrorMessage( "Client library compiled without GLX support" );
     return 0;
 #endif
 }
@@ -206,7 +206,7 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
 #ifdef GLX
     if( !visualInfo )
     {
-        setErrorMessage( "No visual info given" );
+        _window->setErrorMessage( "No visual info given" );
         return 0;
     }
 
@@ -214,25 +214,33 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
     Display* display = pipe->getXDisplay();
     if( !display )
     {
-        setErrorMessage( "Pipe has no X11 display connection" );
+        _window->setErrorMessage( "Pipe has no X11 display connection" );
         return 0;
     }
 
-    Window* firstWindow = pipe->getWindows()[0];
-    const GLXWindow* osFirstWindow = static_cast<const GLXWindow*>( firstWindow->getOSWindow());
+    GLXContext    shareCtx    = 0;
+    const Window* shareWindow = _window->getSharedContextWindow();
+    if( shareWindow )
+    {
+        const OSWindow*  shareOSWindow = shareWindow->getOSWindow();
 
-    GLXContext shareCtx = osFirstWindow->getGLXContext();
+        EQASSERT( dynamic_cast< const GLXWindow* >( shareOSWindow ));
+        const GLXWindow* shareGLXWindow = static_cast< const GLXWindow* >(
+                                              shareOSWindow );
+        shareCtx = shareGLXWindow->getGLXContext();
+    }
+
     GLXContext  context = glXCreateContext(display, visualInfo, shareCtx, True);
 
     if ( !context )
     {
-        setErrorMessage( "Could not create OpenGL context" );
+        _window->setErrorMessage( "Could not create OpenGL context" );
         return 0;
     }
 
     return context;
 #else
-    setErrorMessage( "Client library compiled without GLX support" );
+    _window->setErrorMessage( "Client library compiled without GLX support" );
     return 0;
 #endif
 }
@@ -262,7 +270,7 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
 
     if( !visualInfo )
     {
-        setErrorMessage( "No visual info given" );
+        _window->setErrorMessage( "No visual info given" );
         return false;
     }
 
@@ -270,7 +278,7 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
     Display* display = pipe->getXDisplay();
     if( !display )
     {
-        setErrorMessage( "Pipe has no X11 display connection" );
+        _window->setErrorMessage( "Pipe has no X11 display connection" );
         return false;
     }
 
@@ -291,7 +299,7 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
     else
         wa.override_redirect = True;
 
-    PixelViewport pvp = _getAbsPVP();
+    PixelViewport pvp = _window->getPixelViewport();
     if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
     {
         wa.override_redirect = True;
@@ -299,7 +307,8 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
         pvp.w = DisplayWidth( display, screen );
         pvp.x = 0;
         pvp.y = 0;
-        _setAbsPVP( pvp );
+
+        _window->setPixelViewport( pvp );
     }
 
     XID drawable = XCreateWindow( display, parent, 
@@ -312,13 +321,13 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
     
     if ( !drawable )
     {
-        setErrorMessage( "Could not create window" );
+        _window->setErrorMessage( "Could not create window" );
         return false;
     }   
 
     std::stringstream windowTitle;
 
-    const std::string& name = getName();
+    const std::string& name = _window->getName();
     if( name.empty( ))
     {
         windowTitle << "Equalizer";
@@ -354,7 +363,7 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
     EQINFO << "Created X11 drawable " << drawable << std::endl;
     return true;
 #else
-    setErrorMessage( "Client library compiled without GLX support" );
+    _window->setErrorMessage( "Client library compiled without GLX support" );
     return false;
 #endif
 }
@@ -366,7 +375,7 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
 
     if( !visualInfo )
     {
-        setErrorMessage( "No visual info given" );
+        _window->setErrorMessage( "No visual info given" );
         return false;
     }
 
@@ -376,7 +385,7 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
     Display* display = pipe->getXDisplay();
     if( !display )
     {
-        setErrorMessage( "Pipe has no X11 display connection" );
+        _window->setErrorMessage( "Pipe has no X11 display connection" );
         return false;
     }
 
@@ -385,13 +394,13 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
     int minor = 0;
     if( !glXQueryVersion( display, &major, &minor ))
     {
-        setErrorMessage( "Can't get GLX version" );
+        _window->setErrorMessage( "Can't get GLX version" );
         return false;
     }
 
     if( major < 1 || (major == 1 && minor < 3 ))
     {
-        setErrorMessage( "Need at least GLX 1.3" );
+        _window->setErrorMessage( "Need at least GLX 1.3" );
         return false;
     }
 
@@ -417,12 +426,12 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
 
     if( !config )
     {
-        setErrorMessage( "Can't find FBConfig for visual" );
+        _window->setErrorMessage( "Can't find FBConfig for visual" );
         return false;
     }
 
     // Create PBuffer
-    const PixelViewport& pvp = _getAbsPVP();
+    const PixelViewport& pvp = _window->getPixelViewport();
     const int attributes[] = { GLX_PBUFFER_WIDTH, pvp.w,
                                GLX_PBUFFER_HEIGHT, pvp.h,
                                GLX_LARGEST_PBUFFER, True,
@@ -432,7 +441,7 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
     XID pbuffer = glXCreatePbuffer( display, config, attributes );
     if ( !pbuffer )
     {
-        setErrorMessage( "Could not create PBuffer" );
+        _window->setErrorMessage( "Could not create PBuffer" );
         return false;
     }   
    
@@ -442,7 +451,7 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
     EQINFO << "Created X11 PBuffer " << pbuffer << std::endl;
     return true;
 #else
-    setErrorMessage( "Client library compiled without GLX support" );
+    _window->setErrorMessage( "Client library compiled without GLX support" );
     return false;
 #endif
 }
@@ -455,10 +464,10 @@ void GLXWindow::setXDrawable( XID drawable )
         return;
 
     if( _xDrawable )
-        exitEventHandler();
+        _window->exitEventHandler();
     _xDrawable = drawable;
     if( _xDrawable )
-        initEventHandler();
+        _window->initEventHandler();
 
     if( _xDrawable && _glXContext )
         _initializeGLData();
@@ -512,7 +521,7 @@ void GLXWindow::setXDrawable( XID drawable )
         pvp.h = wa.height;
     }
 
-    setPixelViewport( pvp );
+    _window->setPixelViewport( pvp );
 #endif // GLX
 }
 

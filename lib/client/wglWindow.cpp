@@ -622,18 +622,20 @@ HGLRC WGLWindow::createWGLContext( HDC overrideDC )
     }
 
     // share context
-    Pipe*    pipe        = getPipe();
-    Window*  firstWindow = pipe->getWindows()[0];
-    const WGLWindow* osFirstWindow = 
-        static_cast<const WGLWindow*>( firstWindow->getOSWindow());
-    if( osFirstWindow == this )
-        return context;
+    const Window* shareWindow = _window->getSharedContextWindow();
+    if( shareWindow )
+    {
+        const OSWindow*  shareOSWindow = shareWindow->getOSWindow();
 
-    HGLRC    shareCtx = osFirstWindow->getWGLContext();
+        EQASSERT( dynamic_cast< const WGLWindow* >( shareOSWindow ));
+        const WGLWindow* shareWGLWindow = static_cast< const WGLWindow* >(
+                                              shareOSWindow );
+        HGLRC shareCtx = shareWGLWindow->getWGLContext();
 
-    if( shareCtx && !wglShareLists( shareCtx, context ))
-        EQWARN << "Context sharing failed: " << base::getErrorString( GetLastError( ))
-               << std::endl;
+        if( shareCtx && !wglShareLists( shareCtx, context ))
+            EQWARN << "Context sharing failed: " << base::getLastErrorString()
+                   << endl;
+    }
 
     return context;
 #else
