@@ -17,10 +17,8 @@ namespace eq
     class EQ_EXPORT OSWindow
     {
     public:
-        OSWindow( Window* parent ) : _parent( parent )
-        {
-            EQASSERT( _parent );
-        }
+        OSWindow( Window* parent ) : _window( parent )
+            { EQASSERT( _window ); }
 
         virtual ~OSWindow( ) {}
 
@@ -42,65 +40,35 @@ namespace eq
 
         virtual bool isInitialized() const = 0;
 
-    // Interface to Window class
+        /** @name Convenience interface to eq::Window methods */
+        //*{
 
-        void setErrorMessage( const std::string& message )
-        {
-            _parent->setErrorMessage( message );
-        }
-
-        int32_t  getIAttribute( const Window::IAttribute attr ) const
-        {
-            return _parent->getIAttribute( attr );
-        }
-
-        /**
-         * Initialize the event handling for this window. 
-         */
-        void initEventHandler()
-        {
-            _parent->initEventHandler();
-        }
-
-        /**
-         * De-initialize the event handling for this window. 
-         */
-        void exitEventHandler()
-        {
-            _parent->exitEventHandler();
-        }
-
-        Pipe* getPipe() const { return _parent->getPipe(); }
-
-        const std::string& getName() const { return _parent->getName(); }
-
-        void setPixelViewport( const PixelViewport& pvp )
-        {
-            _parent->setPixelViewport( pvp );
-        }
+        Pipe* getPipe() const { return _window->getPipe(); }
+        int32_t getIAttribute( const Window::IAttribute attr ) const
+            { return _window->getIAttribute( attr ); }
 
         /** @return the generic WGL function table for the window's pipe. */
-        WGLEWContext* wglewGetContext() { return _parent->wglewGetContext(); }
+        WGLEWContext* wglewGetContext() { return _window->wglewGetContext(); }
 
         /**
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        GLEWContext* glewGetContext() { return _parent->glewGetContext(); }
+        GLEWContext* glewGetContext() { return _window->glewGetContext(); }
+        //*}
 
     protected:
 
-        void _initializeGLData() { _parent->_initializeGLData(); }
-        void _clearGLData()      { _parent->_clearGLData();      }
+        void _initializeGLData() { _window->_initializeGLData(); }
+        void _clearGLData()      { _window->_clearGLData();      }
 
-        void _setAbsPVP( const PixelViewport& pvp ) { _parent->_pvp = pvp; }
+        void _setAbsPVP( const PixelViewport& pvp ) { _window->_pvp = pvp; }
 
-        void _invalidatePVP() { _parent->_invalidatePVP(); }
+        void _invalidatePVP() { _window->_invalidatePVP(); }
 
-        const PixelViewport& _getAbsPVP( ) const { return _parent->_pvp; }
+        const PixelViewport& _getAbsPVP( ) const { return _window->_pvp; }
 
-    private:
-        Window* _parent;
+        Window* const _window;
     };
 }
 

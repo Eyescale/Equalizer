@@ -473,7 +473,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 
     // decompress each block
     // On OS X the loop is sometimes slower when parallelized. Investigate this!
-//#pragma omp parallel for
+#pragma omp parallel for
     for( ssize_t i = 0; i < nChunks; ++i )
     {
         uint64_t* in  = reinterpret_cast< uint64_t* >( pixels.chunks[i] );
@@ -575,7 +575,7 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     const float width = static_cast< float >( nWords ) /
                         static_cast< float >( nChunks );
 
-//#pragma omp parallel for
+#pragma omp parallel for
     for ( ssize_t i = 0; i < nChunks; ++i )
     {
         const uint32_t startIndex = i * width;
