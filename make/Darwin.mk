@@ -3,6 +3,7 @@ DSO_SUFFIX       = dylib
 DSO_LDFLAGS     += -dynamiclib
 WINDOW_SYSTEM   ?= GLX AGL
 
+#USE_OPENMP       = 1
 AR               = libtool
 ARFLAGS          = -static
 PC_LIBRARY_PATH ?= /opt/paracomp/lib

@@ -23,11 +23,11 @@ static bool cmpRangesInc(const eq::Frame* frame1, const eq::Frame* frame2)
 }
 
 
-void orderFrames( eq::FrameVector&     frames,
+void orderFrames( eq::FrameVector&      frames,
                   const vmml::Matrix4d& modelviewM,
                   const vmml::Matrix3d& modelviewITM,
                   const vmml::Matrix4f& rotation,
-                  const bool            orthographic    )
+                  const bool            orthographic )
 {
     if( orthographic )
     {
