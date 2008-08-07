@@ -5,6 +5,8 @@
 #ifndef EQ_H
 #define EQ_H
 
+#include <eq/base/defines.h>
+
 #include <eq/client/client.h>
 #include <eq/client/compositor.h>
 #include <eq/client/config.h>
@@ -26,6 +28,15 @@
 #include <eq/client/server.h>
 #include <eq/client/version.h>
 #include <eq/client/windowSystem.h>
+#ifdef AGL
+#  include <eq/client/aglWindow.h>
+#endif
+#ifdef GLX
+#  include <eq/client/glxWindow.h>
+#endif
+#ifdef WGL
+#  include <eq/client/wglWindow.h>
+#endif
 
 #include <eq/net/net.h>
 #include <vmmlib/vmmlib.h>
