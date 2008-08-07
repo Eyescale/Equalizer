@@ -26,16 +26,25 @@ AGLEventHandler::AGLEventHandler()
 {
 }
 
-static AGLWindow* getOSWindowAGL( Window* window )
+static const AGLWindowIF* getAGLWindow( const Window* window )
 {
-    return static_cast< AGLWindow* >( window->getOSWindow( ));
+    return static_cast< const AGLWindowIF* >( window->getOSWindow( ));
 }
 
 void AGLEventHandler::registerWindow( Window* window )
 {
-    const AGLWindow* osWindow = getOSWindowAGL( window );
+    const OSWindow* osWindow = window->getOSWindow();
+    EQASSERT( osWindow );
 
-    const WindowRef carbonWindow = osWindow->getCarbonWindow();
+    if( !dynamic_cast< const AGLWindowIF* >( osWindow ))
+    {
+        EQWARN << "Window does not use an AGL window" << endl;
+        return;
+    }
+
+    const AGLWindowIF* aglWindow = static_cast<const AGLWindowIF*>( osWindow );
+
+    const WindowRef carbonWindow = aglWindow->getCarbonWindow();
     if( !carbonWindow )
     {
         EQWARN
@@ -61,7 +70,7 @@ void AGLEventHandler::registerWindow( Window* window )
         { kEventClassKeyboard, kEventRawKeyRepeat }
     };
 
-    EventHandlerRef carbonEventHandler = osWindow->getCarbonHandler();
+    EventHandlerRef& carbonEventHandler = aglWindow->getCarbonEventHandler();
     InstallWindowEventHandler( carbonWindow, eventHandler, 
                                sizeof( eventType ) / sizeof( EventTypeSpec ),
                                eventType, window, &carbonEventHandler );
@@ -72,13 +81,22 @@ void AGLEventHandler::registerWindow( Window* window )
 
 void AGLEventHandler::deregisterWindow( Window* window )
 {
-    AGLWindow* osWindow = getOSWindowAGL( window );
+    const OSWindow* osWindow = window->getOSWindow();
+    EQASSERT( osWindow );
+
+    if( !dynamic_cast< const AGLWindowIF* >( osWindow ))
+    {
+        EQWARN << "Window does not use an AGL window" << endl;
+        return;
+    }
+
+    const AGLWindowIF* aglWindow = static_cast<const AGLWindowIF*>( osWindow );
 
     Global::enterCarbon();
-    EventHandlerRef eventHandler = osWindow->getCarbonHandler();
+    EventHandlerRef& eventHandler = aglWindow->getCarbonEventHandler();
     RemoveEventHandler( eventHandler );
+    eventHandler = 0;
     Global::leaveCarbon();
-    osWindow->clearCarbonHandler( );
 }
 
 pascal OSStatus AGLEventHandler::_handleEventUPP( 
@@ -135,7 +153,7 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, eq::Window* window )
 
         case kEventWindowUpdate:
         {
-            const AGLWindow* osWindow = getOSWindowAGL( window );
+            const AGLWindow* osWindow = getAGLWindow( window );
 
             WindowRef carbonWindow = osWindow->getCarbonWindow();
             BeginUpdate( carbonWindow );

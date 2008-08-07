@@ -6,11 +6,13 @@
 #include "global.h"
 #include <eq/base/log.h>
 
+using namespace std;
+
 namespace eq
 {
 
 WGLWindow::WGLWindow( Window* parent )
-    : OSWindow( parent )
+    : WGLWindowIF( parent )
     , _wglWindow( 0 )
     , _wglPBuffer( 0 )
     , _wglContext( 0 )
@@ -76,11 +78,6 @@ void WGLWindow::swapBuffers()
 bool WGLWindow::isInitialized() const
 {
     return _wglDC && _wglContext;
-}
-
-bool WGLWindow::checkConfigInit() const
-{
-    return true;
 }
 
 void WGLWindow::setWGLContext( HGLRC context )

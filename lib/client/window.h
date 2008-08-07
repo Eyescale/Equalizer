@@ -407,9 +407,6 @@ namespace eq
         bool _setPixelViewport( const PixelViewport& pvp );
         void _setViewport( const Viewport& vp );
 
-        /** Check that the pipe's WS matches the OSWindow's ws. */
-        bool _checkWindowType() const;
-
         /* The command functions. */
         net::CommandResult _cmdCreateChannel( net::Command& command );
         net::CommandResult _cmdDestroyChannel(net::Command& command );

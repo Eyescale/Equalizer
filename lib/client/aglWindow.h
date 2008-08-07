@@ -9,9 +9,33 @@
 
 namespace eq
 {
-    /**
-     */
-    class EQ_EXPORT AGLWindow: public OSWindow
+    /** The interface defining the minimum functionality for an AGL window. */
+    class EQ_EXPORT AGLWindowIF : public OSWindow
+    {
+    public:
+        AGLWindowIF( Window* parent ) : OSWindow( parent ), _carbonHandler( 0 )
+            {}
+        virtual ~AGLWindow() {}
+
+        /** @return the AGL rendering context. */
+        virtual AGLContext getAGLContext() = 0;
+
+        /** @return the carbon window reference. */
+        virtual WindowRef getCarbonWindow() = 0;
+
+        /** @return the AGL PBuffer object. */
+        virtual AGLPbuffer getAGLPBuffer() = 0;
+
+        /** Used by the AGL event handler to store the event handler ref. */
+        EventHandlerRef& getCarbonEventHandler() const { return _carbonHandler; }
+
+    private:
+        /** Used by AGLEventHandler to keep the handler for removal. */
+        EventHandlerRef _carbonHandler;
+    }
+
+    /** Equalizer default implementation of an AGL window */
+    class EQ_EXPORT AGLWindow : public AGLWindowIF
     {
     public:
         AGLWindow( Window* parent );
@@ -23,28 +47,18 @@ namespace eq
 
         virtual base::SpinLock* getContextLock() { return &_renderContextLock; }
 
-        virtual bool checkConfigInit() const;
-
-        virtual WindowSystem getWindowSystem() const
-        {
-            return WINDOW_SYSTEM_AGL;
-        }
-
         virtual bool isInitialized() const;
 
         virtual void refreshContext();
 
         /** @return the AGL rendering context. */
-        AGLContext getAGLContext() const { return _aglContext; }
+        virtual AGLContext getAGLContext() const { return _aglContext; }
 
         /** @return the carbon window reference. */
-        WindowRef getCarbonWindow() const { return _carbonWindow; }
+        virtual WindowRef getCarbonWindow() const { return _carbonWindow; }
 
         /** @return the AGL PBuffer object. */
-        AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
-
-        EventHandlerRef getCarbonHandler() const { return _carbonHandler; }
-        void clearCarbonHandler( ) { _carbonHandler = 0; }
+        virtual AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
 
         /** @name Data Access */
         //*{
@@ -176,8 +190,6 @@ namespace eq
         WindowRef    _carbonWindow;
         /** The AGL PBuffer object. */
         AGLPbuffer   _aglPBuffer;
-        /** Used by AGLEventHandler to keep the handler for removal. */
-        EventHandlerRef _carbonHandler;
 
         base::SpinLock _renderContextLock;
     };

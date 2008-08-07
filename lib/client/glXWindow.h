@@ -9,9 +9,22 @@
 
 namespace eq
 {
-    /**
-     */
-    class EQ_EXPORT GLXWindow: public OSWindow
+    /** The interface defining the minimum functionality for a GLX window. */
+    class EQ_EXPORT GLXWindowIF : public OSWindow
+    {
+    public:
+        GLXWindowIF( Window* parent ) : OSWindow( parent ) {}
+        virtual ~GLXWindowIF() {}
+
+        /** @return the GLX rendering context. */
+        GLXContext getGLXContext() = 0;
+
+        /**  @return  the X11 drawable ID. */
+        virtual XID getXDrawable() = 0;
+    }
+
+    /** Equalizer default implementation of a GLX window */
+    class EQ_EXPORT GLXWindow : public GLXWindowIF
     {
     public:
         GLXWindow( Window* parent );
@@ -22,13 +35,6 @@ namespace eq
         virtual void makeCurrent() const;
 
         virtual void swapBuffers();
-
-        virtual bool checkConfigInit() const;
-
-        virtual WindowSystem getWindowSystem() const
-        {
-            return WINDOW_SYSTEM_GLX;
-        }
 
         virtual bool isInitialized() const;
 
@@ -46,10 +52,10 @@ namespace eq
         virtual bool configInit();
 
         /** @return the GLX rendering context. */
-        GLXContext getGLXContext() const { return _glXContext; }
+        virtual GLXContext getGLXContext() const { return _glXContext; }
 
         /**  @return  the X11 drawable ID. */
-        XID getXDrawable() const { return _xDrawable; }
+        virtual XID getXDrawable() const { return _xDrawable; }
 
     protected:
         /** 

@@ -340,7 +340,6 @@ bool Window::configInitOSWindow( const uint32_t initID )
             return false;
     }
 
-    if( !_checkWindowType( ))      return false;
     if( !_osWindow->configInit( )) return false;
 
     return true;
@@ -368,37 +367,12 @@ bool Window::configInitGL( const uint32_t initID )
     return true;
 }
 
-
-bool Window::_checkWindowType() const
-{
-    EQASSERT( _osWindow )
-    if( !_osWindow )
-    {
-        EQERROR << "OS specific window is not initialized" << std::endl;
-        return false;
-    }
-
-    const WindowSystem pipeWindowSystem = _pipe->getWindowSystem();
-    const WindowSystem windowSystem = _osWindow->getWindowSystem();
-
-    if( pipeWindowSystem == windowSystem )
-        return true;
-    //else
-
-    EQERROR << "pipe windowing system: " << pipeWindowSystem << endl
-            << "OSWindow system: " << windowSystem << endl;
-
-    return false;
-}
-
 //----------------------------------------------------------------------
 // configExit
 //----------------------------------------------------------------------
 bool Window::configExit()
 {
     const bool ret = configExitGL();
-
-    if( !_checkWindowType( )) return false;
 
     _osWindow->configExit( );
 
@@ -424,18 +398,13 @@ void Window::exitEventHandler()
 
 void Window::makeCurrent() const
 {
-    if( !_checkWindowType( )) return;
-
     _osWindow->makeCurrent( );
 }
 
 
 void Window::swapBuffers()
 {
-    if( !_checkWindowType( )) return;
-
     _osWindow->swapBuffers();
-
     EQVERB << "----- SWAP -----" << endl;
 }
 
@@ -549,17 +518,12 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
         return net::COMMAND_HANDLED;
     }
 
-    if( _checkWindowType( ))
+    if( !_osWindow->isInitialized( ))
     {
-        if( !_osWindow->isInitialized( ))
-        {
-            EQERROR
-                << "configInit() did not provide a drawable and/or context" 
-                << endl;
-            reply.result = false;
-            send( node, reply, _error );
-            return net::COMMAND_HANDLED;
-        }
+        EQERROR << "OSWindow is not initialized" << endl;
+        reply.result = false;
+        send( node, reply, _error );
+        return net::COMMAND_HANDLED;
     }
 
     reply.pvp            = _pvp;

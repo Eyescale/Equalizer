@@ -10,7 +10,7 @@ namespace eq
 
 
 GLXWindow::GLXWindow( Window* parent )
-    : OSWindow( parent )
+    : GLXWindowIF( parent )
     , _xDrawable ( 0 )
     , _glXContext( 0 )
 {
@@ -598,11 +598,6 @@ void GLXWindow::swapBuffers()
 bool GLXWindow::isInitialized() const
 {
     return _xDrawable && _glXContext;
-}
-
-bool GLXWindow::checkConfigInit() const
-{
-    return true;
 }
 
 }

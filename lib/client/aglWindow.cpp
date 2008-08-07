@@ -9,11 +9,10 @@ namespace eq
 {
 
 AGLWindow::AGLWindow( Window* parent )
-    : OSWindow( parent )
+    : AGLWindowIF( parent )
     , _aglContext( 0 )
     , _carbonWindow( 0 )
     , _aglPBuffer( 0 )
-    , _carbonHandler( 0 )
 {
 }
 
@@ -93,11 +92,6 @@ bool AGLWindow::isInitialized() const
     return _aglContext;
 }
 
-
-bool AGLWindow::checkConfigInit() const
-{
-    return true;
-}
 
 
 void AGLWindow::setAGLContext( AGLContext context )

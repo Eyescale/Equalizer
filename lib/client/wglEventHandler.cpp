@@ -105,10 +105,18 @@ WGLEventHandler::WGLEventHandler( Window* window )
         : _window( window ),
           _buttonState( PTR_BUTTON_NONE )
 {
-    const WGLWindow* osWindow = static_cast< const WGLWindow* >( 
-                                    window->getOSWindow( ));
+    const OSWindow* osWindow = window->getOSWindow();
+    EQASSERT( osWindow );
 
-    _hWnd = osWindow->getWGLWindowHandle();
+    if( !dynamic_cast< const WGLWindowIF* >( osWindow ))
+    {
+        EQWARN << "Window does not use a WGL window" << endl;
+        return;
+    }
+
+    const WGLWindowIF* wglWindow = static_cast<const WGLWindowIF*>( osWindow );
+
+    _hWnd = wglWindow->getWGLWindowHandle();
 
     if( !_hWnd )
     {

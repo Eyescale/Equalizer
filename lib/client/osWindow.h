@@ -32,10 +32,6 @@ namespace eq
 
         virtual base::SpinLock* getContextLock() { return 0; }
 
-        virtual bool checkConfigInit() const = 0;
-
-        virtual WindowSystem getWindowSystem() const = 0;
-
         virtual void refreshContext() { }
 
         virtual bool isInitialized() const = 0;
@@ -58,7 +54,10 @@ namespace eq
         /** @name Convenience interface to eq::Window methods */
         //*{
 
-        Pipe* getPipe() const { return _window->getPipe(); }
+        Pipe* getPipe()     const { return _window->getPipe(); }
+        Node* getNode()     const { return _window->getNode(); }
+        Config* getConfig() const { return _window->getConfig(); }
+
         int32_t getIAttribute( const Window::IAttribute attr ) const
             { return _window->getIAttribute( attr ); }
 

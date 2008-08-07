@@ -9,9 +9,28 @@
 
 namespace eq
 {
-    /**
-     */
-    class EQ_EXPORT WGLWindow: public OSWindow
+    /** The interface defining the minimum functionality for a WGL window. */
+    class EQ_EXPORT WGLWindowIF : public OSWindow
+    {
+    public:
+        WGLWindowIF( Window* parent ) : OSWindow( parent ) {}
+        virtual ~WGLWindowIF() {}
+
+        /** @return the Win32 window handle. */
+        virtual HWND getWGLWindowHandle() const = 0;
+
+        /** @return the Win32 off screen PBuffer handle. */
+        virtual HPBUFFERARB getWGLPBufferHandle() const = 0;
+
+        /** @return the Win32 device context used for the current drawable. */
+        virtual HDC getWGLDC() const = 0;
+
+        /** @return the WGL rendering context. */
+        virtual HGLRC getWGLContext() const = 0;
+    };
+
+    /** Equalizer default implementation of a WGL window */
+    class EQ_EXPORT WGLWindow : public WGLWindowIF
     {
     public:
         WGLWindow( Window* parent );
@@ -21,26 +40,19 @@ namespace eq
         virtual void makeCurrent() const;
         virtual void swapBuffers();
 
-        virtual bool checkConfigInit() const;
-
         virtual bool isInitialized() const;
 
-        virtual WindowSystem getWindowSystem() const
-        {
-            return WINDOW_SYSTEM_WGL;
-        }
-
         /** @return the Win32 window handle. */
-        HWND getWGLWindowHandle() const { return _wglWindow; }
+        virtual HWND getWGLWindowHandle() const { return _wglWindow; }
 
         /** @return the Win32 off screen PBuffer handle. */
-        HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
+        virtual HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
 
         /** @return the Win32 device context used for the current drawable. */
-        HDC getWGLDC() const { return _wglDC; }
+        virtual HDC getWGLDC() const { return _wglDC; }
 
         /** @return the WGL rendering context. */
-        HGLRC getWGLContext() const { return _wglContext; }
+        virtual HGLRC getWGLContext() const { return _wglContext; }
 
         /** @name Data Access */
         //*{
