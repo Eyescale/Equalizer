@@ -26,23 +26,26 @@ AGLEventHandler::AGLEventHandler()
 {
 }
 
-static const AGLWindowIF* getAGLWindow( const Window* window )
+namespace
+{
+static const AGLWindowIF* _getAGLWindow( const Window* window )
 {
     return static_cast< const AGLWindowIF* >( window->getOSWindow( ));
+}
 }
 
 void AGLEventHandler::registerWindow( Window* window )
 {
-    const OSWindow* osWindow = window->getOSWindow();
+    OSWindow* osWindow = window->getOSWindow();
     EQASSERT( osWindow );
 
-    if( !dynamic_cast< const AGLWindowIF* >( osWindow ))
+    if( !dynamic_cast< AGLWindowIF* >( osWindow ))
     {
         EQWARN << "Window does not use an AGL window" << endl;
         return;
     }
 
-    const AGLWindowIF* aglWindow = static_cast<const AGLWindowIF*>( osWindow );
+    AGLWindowIF* aglWindow = static_cast< AGLWindowIF* >( osWindow );
 
     const WindowRef carbonWindow = aglWindow->getCarbonWindow();
     if( !carbonWindow )
@@ -81,16 +84,16 @@ void AGLEventHandler::registerWindow( Window* window )
 
 void AGLEventHandler::deregisterWindow( Window* window )
 {
-    const OSWindow* osWindow = window->getOSWindow();
+    OSWindow* osWindow = window->getOSWindow();
     EQASSERT( osWindow );
 
-    if( !dynamic_cast< const AGLWindowIF* >( osWindow ))
+    if( !dynamic_cast< AGLWindowIF* >( osWindow ))
     {
         EQWARN << "Window does not use an AGL window" << endl;
         return;
     }
 
-    const AGLWindowIF* aglWindow = static_cast<const AGLWindowIF*>( osWindow );
+    AGLWindowIF* aglWindow = static_cast< AGLWindowIF* >( osWindow );
 
     Global::enterCarbon();
     EventHandlerRef& eventHandler = aglWindow->getCarbonEventHandler();
@@ -153,7 +156,7 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, eq::Window* window )
 
         case kEventWindowUpdate:
         {
-            const AGLWindow* osWindow = getAGLWindow( window );
+            const AGLWindowIF* osWindow = _getAGLWindow( window );
 
             WindowRef carbonWindow = osWindow->getCarbonWindow();
             BeginUpdate( carbonWindow );

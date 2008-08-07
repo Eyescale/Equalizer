@@ -15,24 +15,24 @@ namespace eq
     public:
         AGLWindowIF( Window* parent ) : OSWindow( parent ), _carbonHandler( 0 )
             {}
-        virtual ~AGLWindow() {}
+        virtual ~AGLWindowIF() {}
 
         /** @return the AGL rendering context. */
-        virtual AGLContext getAGLContext() = 0;
+        virtual AGLContext getAGLContext() const = 0;
 
         /** @return the carbon window reference. */
-        virtual WindowRef getCarbonWindow() = 0;
+        virtual WindowRef getCarbonWindow() const = 0;
 
         /** @return the AGL PBuffer object. */
-        virtual AGLPbuffer getAGLPBuffer() = 0;
+        virtual AGLPbuffer getAGLPBuffer() const = 0;
 
         /** Used by the AGL event handler to store the event handler ref. */
-        EventHandlerRef& getCarbonEventHandler() const { return _carbonHandler; }
+        EventHandlerRef& getCarbonEventHandler() { return _carbonHandler; }
 
     private:
         /** Used by AGLEventHandler to keep the handler for removal. */
         EventHandlerRef _carbonHandler;
-    }
+    };
 
     /** Equalizer default implementation of an AGL window */
     class EQ_EXPORT AGLWindow : public AGLWindowIF

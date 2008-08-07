@@ -17,11 +17,11 @@ namespace eq
         virtual ~GLXWindowIF() {}
 
         /** @return the GLX rendering context. */
-        GLXContext getGLXContext() = 0;
+        virtual GLXContext getGLXContext() const = 0;
 
         /**  @return  the X11 drawable ID. */
-        virtual XID getXDrawable() = 0;
-    }
+        virtual XID getXDrawable() const = 0;
+    };
 
     /** Equalizer default implementation of a GLX window */
     class EQ_EXPORT GLXWindow : public GLXWindowIF

@@ -142,10 +142,12 @@ void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
     }
 }
 
-static GLXWindowIF* getGLXWindow( Window* window )
+namespace
 {
-    EQASSERT( dynamic_cast< GLXWindowIF* >( window->getOSWindow( ));
-    return static_cast< GLXWindowIF* >( window->getOSWindow( ));
+static const GLXWindowIF* _getGLXWindow( const Window* window )
+{
+    return static_cast< const GLXWindowIF* >( window->getOSWindow( ));
+}
 }
 
 void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
@@ -158,10 +160,11 @@ void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
     for( vector< Window* >::const_iterator i = windows.begin(); 
          i != windows.end(); ++i )
     {
-        Window* window = *i;
-        const GLXWindowIF* osWindow = getGLXWindow( window );
-        
-        if( osWindow->getXDrawable() == drawable )
+        Window*            window   = *i;
+        const GLXWindowIF* osWindow = _getGLXWindow( window );
+        EQASSERT( !osWindow || dynamic_cast< const GLXWindowIF* >( osWindow ));
+
+        if( osWindow && osWindow->getXDrawable() == drawable )
         {
             event.window = window;
             break;

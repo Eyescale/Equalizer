@@ -191,10 +191,9 @@ namespace eq
          */
         void setOSWindow( OSWindow* window ) { _osWindow = window; }
 
-        const OSWindow* getOSWindow() const
-            { EQASSERT(_osWindow); return _osWindow; }
+        const OSWindow* getOSWindow() const { return _osWindow; }
 
-        OSWindow* getOSWindow() { EQASSERT(_osWindow); return _osWindow; }
+        OSWindow* getOSWindow() { return _osWindow; }
 
         /**
          * Initialize the event handling for this window. 
