@@ -290,10 +290,13 @@ namespace eq
          */
         virtual bool configInitGL( const uint32_t initID );
 
-        /** 
-         * Exit this window.
-         */
+        /** Exit this window. */
         virtual bool configExit();
+
+        /** De-initialize the OS-specific window. */
+        virtual bool Window::configExitOSWindow();
+
+        /** De-initializer the OpenGL state for this window. */
         virtual bool configExitGL() { return true; }
 
         /**

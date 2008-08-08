@@ -373,13 +373,19 @@ bool Window::configInitGL( const uint32_t initID )
 bool Window::configExit()
 {
     const bool ret = configExitGL();
+    return configExitOSWindow();
+}
 
-    _osWindow->configExit( );
+bool Window::configExitOSWindow()
+{
+    if( _osWindow )
+    {
+        _osWindow->configExit( );
 
-    delete _osWindow;
-    _osWindow = 0;
-
-    return ret;
+        delete _osWindow;
+        _osWindow = 0;
+    }
+    return true;
 }
 
 void Window::initEventHandler()
