@@ -30,7 +30,11 @@ namespace eq
 namespace
 {
 const uint64_t _rleMarker = 0xF3C553FF64F6477Full; // just a random number
+
+typedef Image::PixelData::Chunk Chunk;
 }
+
+size_t Image::PixelData::Chunk::headerSize = 8;
 
 Image::Image()
         : _glObjects( 0 )
@@ -198,7 +202,7 @@ const uint8_t* Image::getPixelPointer( const Frame::Buffer buffer ) const
     EQASSERT( hasPixelData( buffer ));
     EQASSERT( _getPixels( buffer ).data.chunks.size() == 1 );
 
-    return _getPixels( buffer ).data.chunks[0];
+    return _getPixels( buffer ).data.chunks[0]->data;
 }
 
 uint8_t* Image::getPixelPointer( const Frame::Buffer buffer )
@@ -206,7 +210,7 @@ uint8_t* Image::getPixelPointer( const Frame::Buffer buffer )
     EQASSERT( hasPixelData( buffer ));
     EQASSERT( _getPixels( buffer ).data.chunks.size() == 1 );
 
-    return _getPixels( buffer ).data.chunks[0];
+    return _getPixels( buffer ).data.chunks[0]->data;
 }
 
 const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
@@ -249,18 +253,24 @@ void Image::syncReadback()
 void Image::Pixels::resize( uint32_t size )
 {
     valid = true;
-
-    data.chunkSizes[0] = size;
+    EQASSERT( data.chunks.size() == 1 );
 
     if( maxSize >= size )
+    {
+        data.chunks[0]->size = size;
         return;
+    }
 
     // round to next 8-byte alignment (compress uses 8-byte tokens)
     if( size%8 )
         size += 8 - (size%8);
 
-    delete [] data.chunks[0];
-    data.chunks[0] = new uint8_t[size];
+    if( data.chunks[0] )
+        free( data.chunks[0] );
+    
+    data.chunks[0] = reinterpret_cast< Chunk* >( malloc( size + 
+                                                         Chunk::headerSize ));
+    data.chunks[0]->size = size;
     maxSize = size;
 }
 
@@ -310,7 +320,7 @@ void Image::_startReadback( const Frame::Buffer buffer )
     {
         pixels.resize( size );
         glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
-                      getType( buffer ), pixels.data.chunks[0] );
+                      getType( buffer ), pixels.data.chunks[0]->data );
         pixels.valid = true;
     }
 }
@@ -338,7 +348,7 @@ void Image::_syncReadback( const Frame::Buffer buffer )
     EQ_GL_ERROR( "glMapBuffer" );
     EQASSERT( data );
 
-    memcpy( pixels.data.chunks[0], data, size );
+    memcpy( pixels.data.chunks[0]->data, data, size );
 
     glUnmapBuffer( GL_PIXEL_PACK_BUFFER );
     glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
@@ -368,13 +378,14 @@ void Image::clearPixelData( const Frame::Buffer buffer )
     if( buffer == Frame::BUFFER_DEPTH )
     {
 #ifdef LEOPARD
-        void*       data = pixels.data.chunks[0];
+        void*       data = pixels.data.chunks[0]->data;
         const float one  = 1.0f;
         memset_pattern4( data, &one, size );
 #else
         EQASSERT( (size % 4) == 0 );
         const size_t nWords = (size >> 2);
-        float*       data   = reinterpret_cast< float* >(pixels.data.chunks[0]);
+        float*       data   = reinterpret_cast< float* >(
+                                  pixels.data.chunks[0]->data );
         for( size_t i =0; i < nWords; ++i )
             data[i] = 1.0f;
 #endif
@@ -384,7 +395,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
     {
         if( getDepth( Frame::BUFFER_COLOR ) == 4 )
         {
-            uint8_t* data = pixels.data.chunks[0];
+            uint8_t* data = pixels.data.chunks[0]->data;
 #ifdef LEOPARD
             const unsigned char pixel[4] = { 0, 0, 0, 255 };
             memset_pattern4( data, &pixel, size );
@@ -398,7 +409,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 #endif
         }
         else
-            bzero( pixels.data.chunks[0], size );
+            bzero( pixels.data.chunks[0]->data, size );
     }
 
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
@@ -413,7 +424,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const uint8_t* data )
 
     Pixels& pixels = _getPixels( buffer );
     pixels.resize( size );
-    memcpy( pixels.data.chunks[0], data, size );
+    memcpy( pixels.data.chunks[0]->data, data, size );
 
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
     compressedPixels.valid = false;
@@ -431,9 +442,9 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     if( !pixels.compressed )
     {
         EQASSERT( pixels.chunks.size() == 1 );
-        EQASSERT( size == pixels.chunkSizes[0] );
+        EQASSERT( size == pixels.chunks[0]->size );
 
-        setPixelData( buffer, pixels.chunks[0] );
+        setPixelData( buffer, pixels.chunks[0]->data );
         return;
     }
 
@@ -455,20 +466,20 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     // Prepare table with input pointer into decompressed data
     //   Needed since decompress loop is parallelized
     {
-        uint8_t* out = outPixels.data.chunks[0];
+        uint8_t* out = outPixels.data.chunks[0]->data;
         for( ssize_t i = 0; i < nChunks; ++i )
         {
             outTable[i] = reinterpret_cast< uint64_t* >( out );
 
             const uint64_t* in  = 
-                reinterpret_cast< const uint64_t* >( pixels.chunks[i] );
+                reinterpret_cast< const uint64_t* >( pixels.chunks[i]->data );
             const uint64_t nWords = in[0];
             out += nWords * sizeof( uint64_t );
         }
-        EQASSERTINFO( size >= (uint32_t)( out - outPixels.data.chunks[0] - 7 ),
+        EQASSERTINFO( size >= (uint32_t)(out-outPixels.data.chunks[0]->data-7 ),
                       "Pixel data size does not match expected image size: "
-                      << size << " != " 
-                      << (uint32_t)( out - outPixels.data.chunks[0] ));
+                      << size << " ? " 
+                      << (uint32_t)( out - outPixels.data.chunks[0]->data ));
     }
 
     // decompress each block
@@ -476,14 +487,14 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 #pragma omp parallel for
     for( ssize_t i = 0; i < nChunks; ++i )
     {
-        uint64_t* in  = reinterpret_cast< uint64_t* >( pixels.chunks[i] );
+        uint64_t* in  = reinterpret_cast< uint64_t* >( pixels.chunks[i]->data );
         uint64_t* out = outTable[i];
 
         uint32_t       outPos = 0;
         const uint64_t endPos = in[0];
         uint32_t       inPos  = 1;
 
-        EQVERB << "In chunk " << i << " size " << pixels.chunkSizes[i] 
+        EQVERB << "In chunk " << i << " size " << pixels.chunks[i]->size 
                << " @ " << (void*)in << endl;
         EQVERB << "Out chunk " << i << " size " << endPos * sizeof( uint64_t )
                << " @ " << (void*)out << endl;
@@ -514,7 +525,8 @@ Image::PixelData::~PixelData()
 {
     while( !chunks.empty( ))
     {
-        delete [] chunks.back();
+        if( chunks.back( ))
+            free( chunks.back( ));
         chunks.pop_back();
     }
 }
@@ -549,26 +561,28 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     for( ssize_t i = 0; i<nChunks; ++i )
     {
         EQASSERT( compressedPixels.data.chunks.size() ==
-                  compressedPixels.data.chunkSizes.size( ));
-        EQASSERT( compressedPixels.data.chunks.size() ==
                   compressedPixels.chunkMaxSizes.size( ));
 
         if( compressedPixels.data.chunks.size() <= static_cast< size_t >( i ))
         {
-            compressedPixels.data.chunks.push_back( new uint8_t[maxChunkSize] );
-            compressedPixels.data.chunkSizes.push_back( 0 );
+            Chunk* chunk = reinterpret_cast< Chunk* >( 
+                               malloc( maxChunkSize + Chunk::headerSize ));
+            compressedPixels.data.chunks.push_back( chunk );
             compressedPixels.chunkMaxSizes.push_back( maxChunkSize );
         }
         else
         {
-            compressedPixels.data.chunkSizes[i] = 0;
             if( compressedPixels.chunkMaxSizes[i] < maxChunkSize )
             {
-                delete [] compressedPixels.data.chunks[i];
-                compressedPixels.data.chunks[i]   = new uint8_t[ maxChunkSize ];
+                if( compressedPixels.data.chunks[i] )
+                    free( compressedPixels.data.chunks[i] );
+
+                compressedPixels.data.chunks[i] = reinterpret_cast< Chunk* >( 
+                                    malloc( maxChunkSize + Chunk::headerSize ));
                 compressedPixels.chunkMaxSizes[i] = maxChunkSize;
             }
         }
+        compressedPixels.data.chunks[i]->size = 0;
     }
 
 
@@ -580,17 +594,17 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     {
         const uint32_t startIndex = i * width;
         const uint32_t endIndex   = (i+1) * width;
-        uint64_t*      out        =
-            reinterpret_cast< uint64_t* >( compressedPixels.data.chunks[i] );
+        uint64_t*      out        = reinterpret_cast< uint64_t* >(
+                                        compressedPixels.data.chunks[i]->data );
 
-        compressedPixels.data.chunkSizes[i] =
+        compressedPixels.data.chunks[i]->size =
             _compressPixelData( &data[ startIndex ], endIndex-startIndex, out );
 
         EQVERB << "In chunk " << i << " size "
                << (endIndex-startIndex) * sizeof( uint64_t ) << " @ " 
                << (void*)&data[ startIndex ] << endl
                << "Out chunk " << i << " size "
-               << compressedPixels.data.chunkSizes[i] << " @ " << (void*)out
+               << compressedPixels.data.chunks[i]->size << " @ " << (void*)out
                << endl;
     }
 
@@ -854,7 +868,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     Pixels           pixels;
 
     pixels.resize( nBytes );
-    uint8_t* data = pixels.data.chunks[0];
+    uint8_t* data = pixels.data.chunks[0]->data;
 
     // Each channel is saved separately
     for( size_t i = 0; i < depth; ++i )

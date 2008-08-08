@@ -35,9 +35,17 @@ namespace eq
             uint32_t format;       //!< the GL format
             uint32_t type;         //!< the GL type
             bool     compressed;   //!< Chunks are RLE-compressed
+            
+            struct Chunk : public base::NonCopyable
+            {
+                uint32_t size;
+                uint32_t dummy; // enforce 8-byte alignment
+                static size_t headerSize;
 
-            std::vector< uint32_t > chunkSizes; //!< The size of each chunk
-            std::vector< uint8_t* > chunks;     //!< The pixel data
+                uint8_t  data[8];
+            };
+
+            std::vector< Chunk* > chunks;     //!< The pixel data
         };
 
         /**
@@ -146,6 +154,9 @@ namespace eq
 
         /** Switch PBO usage for image transfers on or off. */
         void setPBO( const bool onOff ) { _usePBO = onOff; }
+
+        /** @return if this image should use PBO for image transfers. */
+        bool getPBO() const             { return _usePBO; }
         //*}
 
         /**
@@ -198,7 +209,6 @@ namespace eq
             Pixels() : maxSize(0), pboSize(0), valid( false ), reading( false )
                 {
                     data.chunks.push_back( 0 );
-                    data.chunkSizes.push_back( 0 );
                 }
 
             void resize( uint32_t size );

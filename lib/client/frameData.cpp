@@ -173,6 +173,11 @@ void FrameData::_setReady( const uint32_t version )
     _listenersMutex.unset();
 }
 
+namespace
+{
+typedef Image::PixelData::Chunk Chunk;
+}
+
 float FrameData::transmit( net::NodePtr toNode )
 {
     if( _data.buffers == 0 )
@@ -229,12 +234,12 @@ float FrameData::transmit( net::NodePtr toNode )
 
                     pixelDatas.push_back( &data );
 
-                    for( vector< uint32_t >::const_iterator k = 
-                             data.chunkSizes.begin();
-                         k != data.chunkSizes.end(); ++k )
+                    for( vector< Chunk* >::const_iterator k =
+                             data.chunks.begin(); k != data.chunks.end(); ++k )
                     {
-                        packet.size += sizeof( uint32_t ); // chunk size
-                        packet.size += *k;                 // chunk data
+                        const Chunk* chunk = *k;
+                        packet.size += chunk->headerSize;
+                        packet.size += chunk->size;
                     }
                 }
                 else
@@ -242,8 +247,8 @@ float FrameData::transmit( net::NodePtr toNode )
                     const Image::PixelData& data = image->getPixelData( buffer);
                     pixelDatas.push_back( &data );
 
-                    packet.size += sizeof( uint32_t ); // chunk size
-                    packet.size += data.chunkSizes[0]; // chunk data
+                    packet.size += data.chunks[0]->headerSize;
+                    packet.size += data.chunks[0]->size;
                 }
 
                 packet.buffers |= buffer;
@@ -271,13 +276,13 @@ float FrameData::transmit( net::NodePtr toNode )
             sentBytes += 3 * sizeof( uint32_t );
 #endif
 
-            for( uint32_t k=0; k < data->chunks.size(); ++k )
+            for( vector< Chunk* >::const_iterator k = 
+                     data->chunks.begin(); k != data->chunks.end(); ++k )
             {
-                connection->send( &data->chunkSizes[k], sizeof(uint32_t), true);
-                connection->send( data->chunks[k], data->chunkSizes[k], true );
+                const Chunk* chunk = *k;
+                connection->send( chunk, chunk->headerSize + chunk->size, true);
 #ifndef NDEBUG
-                sentBytes += sizeof( uint32_t );
-                sentBytes += data->chunkSizes[k];
+                sentBytes += chunk->headerSize + chunk->size;
 #endif
             }
         }
@@ -351,7 +356,7 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
         if( packet->buffers & buffer )
         {
             Image::PixelData pixelData;
-            uint32_t*        u32Data   = reinterpret_cast< uint32_t* >( data );
+            const uint32_t*  u32Data   = reinterpret_cast< uint32_t* >( data );
             
             pixelData.format     = u32Data[0];
             pixelData.type       = u32Data[1];
@@ -363,19 +368,15 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
             
             for( uint32_t j=0; j < nChunks; ++j )
             {
-                u32Data = reinterpret_cast< uint32_t* >( data );
-                pixelData.chunkSizes.push_back( u32Data[0] );
+                Chunk* chunk = reinterpret_cast< Chunk* >( data );
 
-                data += sizeof( uint32_t );
-                pixelData.chunks.push_back( data );
-
-                data += pixelData.chunkSizes.back();
+                pixelData.chunks.push_back( chunk );
+                data += sizeof( chunk->headerSize + chunk->size );
             }
 
             image->setPixelData( buffer, pixelData );
 
             // Prevent ~PixelData from freeing pointers
-            pixelData.chunkSizes.clear();
             pixelData.chunks.clear();
         }
     }

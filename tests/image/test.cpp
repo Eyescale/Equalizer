@@ -17,6 +17,11 @@ using namespace std;
 // threshold upon which the compression is slower than sending uncompressed
 // data.
 
+namespace
+{
+typedef Image::PixelData::Chunk Chunk;
+}
+
 int main( int argc, char **argv )
 {
     Image    image;
@@ -44,7 +49,13 @@ int main( int argc, char **argv )
     const Image::PixelData& noise =image.compressPixelData(Frame::BUFFER_COLOR);
     time = clock.getTimef();
 
-    size = accumulate( noise.chunkSizes.begin(), noise.chunkSizes.end(), 0 );
+    size = 0;
+    for( vector< Chunk* >::const_iterator i = noise.chunks.begin();
+         i != noise.chunks.end(); ++i )
+    {
+        size += (*i)->size;
+    }
+
     const ssize_t saved = static_cast< ssize_t >( noiseSize ) - 
                           static_cast< ssize_t >( size );
     cout << argv[0] << ": Noise " << noiseSize << "->" << size << " " 
@@ -80,7 +91,12 @@ int main( int argc, char **argv )
     const Image::PixelData& color =image.compressPixelData(Frame::BUFFER_COLOR);
     time = clock.getTimef();
 
-    size = accumulate( color.chunkSizes.begin(), color.chunkSizes.end(), 0 );
+    size = 0;
+    for( vector< Chunk* >::const_iterator i = color.chunks.begin();
+         i != color.chunks.end(); ++i )
+    {
+        size += (*i)->size;
+    }
     cout << argv[0] << ": Color " << colorSize << "->" << size << " " 
          << 100.0f * size / colorSize << "%, " << time << " ms ("
          << 1000.0f * colorSize / time / 1024.0f / 1024.0f 
@@ -103,7 +119,6 @@ int main( int argc, char **argv )
     for( uint32_t i=0; i<colorSize-7; ++i ) // last 7 pixels can be unitialized
         TEST( colorData[i] == data[i] );
 
-
     // Depth
     TEST( image.readImage( "../compositor/Image_1_depth.rgb",
                            Frame::BUFFER_DEPTH ));
@@ -116,7 +131,12 @@ int main( int argc, char **argv )
     const Image::PixelData& depth =image.compressPixelData(Frame::BUFFER_DEPTH);
     time = clock.getTimef();
 
-    size = accumulate( depth.chunkSizes.begin(), depth.chunkSizes.end(), 0 );
+    size = 0;
+    for( vector< Chunk* >::const_iterator i = depth.chunks.begin();
+         i != depth.chunks.end(); ++i )
+    {
+        size += (*i)->size;
+    }
     cout << argv[0] << ": Depth " << depthSize << "->" << size << " " 
          << 100.0f * size / depthSize << "%, " << time << " ms ("
          << 1000.0f * depthSize / time / 1024.0f / 1024.0f 
