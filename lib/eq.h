@@ -32,7 +32,7 @@
 #  include <eq/client/aglWindow.h>
 #endif
 #ifdef GLX
-#  include <eq/client/glxWindow.h>
+#  include <eq/client/glXWindow.h>
 #endif
 #ifdef WGL
 #  include <eq/client/wglWindow.h>
