@@ -373,7 +373,7 @@ bool Window::configInitGL( const uint32_t initID )
 bool Window::configExit()
 {
     const bool ret = configExitGL();
-    return configExitOSWindow();
+    return configExitOSWindow() && ret;
 }
 
 bool Window::configExitOSWindow()

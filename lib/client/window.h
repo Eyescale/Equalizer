@@ -294,7 +294,7 @@ namespace eq
         virtual bool configExit();
 
         /** De-initialize the OS-specific window. */
-        virtual bool Window::configExitOSWindow();
+        virtual bool configExitOSWindow();
 
         /** De-initializer the OpenGL state for this window. */
         virtual bool configExitGL() { return true; }
