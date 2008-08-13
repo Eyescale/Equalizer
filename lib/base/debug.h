@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_DEBUG_H
@@ -9,14 +9,20 @@
 #include <eq/base/log.h>
 
 // assertions
-#ifdef NDEBUG
+#define EQ_NO_RELEASE_ASSERT
 
-#  define EQASSERT(x) { if( !(x) )                                      \
-            EQERROR << "##### Assert: " << #x << " #####" << std::endl  \
-                    << eq::base::forceFlush; }
-#  define EQASSERTINFO(x, info) { if( !(x) )                            \
-            EQERROR << "##### Assert: " << #x << " [" << info << "] #####" \
-                    << std::endl << eq::base::forceFlush; }
+#ifdef NDEBUG
+#  ifdef EQ_NO_RELEASE_ASSERT
+#    define EQASSERT( x )
+#    define EQASSERTINFO( x, info )
+#  else
+#    define EQASSERT(x) { if( !(x) )                                      \
+              EQERROR << "##### Assert: " << #x << " #####" << std::endl  \
+                      << eq::base::forceFlush; }
+#    define EQASSERTINFO(x, info) { if( !(x) )                            \
+              EQERROR << "##### Assert: " << #x << " [" << info << "] #####" \
+                      << std::endl << eq::base::forceFlush; }
+#  endif
 #  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl \
                                     << eq::base::forceFlush; }
 #  define EQUNREACHABLE   { EQERROR << "Unreachable code" << std::endl  \
