@@ -1,4 +1,4 @@
-# single pipe, multi-level DB / Pixel configuration. 
+# single pipe, multi-level DB / 2D load-balanced configuration. 
 
 global
 {
@@ -16,28 +16,21 @@ server
             {
                 window
                 {
-                    viewport [ 48 670 250 300 ]
+                    viewport [ 50 380 300 300 ]
                     name "First Half 1"
 
                     channel { name "channel-first-1" }
                 }
                 window
                 {
-                    viewport [ 304 670 250 300 ]
-                    name "First Half 2"
-
-                    channel { name "channel-first-2" }
-                }
-                window
-                {
-                    viewport [ 560 670 250 300 ]
+                    viewport [ 360 380 300 300 ]
                     name "Second Half 1"
 
                     channel { name "channel-second-1" }
                 }
                 window
                 {
-                    viewport [ 816 670 250 300 ]
+                    viewport [ 670 380 300 300 ]
                     name "Second Half 2"
 
                     channel { name "channel-second-2" }
@@ -45,22 +38,7 @@ server
 
                 window
                 {
-                    viewport [ 51 345 500 300 ]
-                    name "First Half"
-
-                    channel { name "channel-first" }
-                }
-                window
-                {
-                    viewport [ 563 345 500 300 ]
-                    name "Second Half"
-
-                    channel { name "channel-second" }
-                }
-
-                window
-                {
-                    viewport [ 312 20 500 300 ]
+                    viewport [ 360 50 300 300 ]
                     name "Result"
                     attributes { hint_swapsync 1 }
                     channel { name "channel-all" }
@@ -82,51 +60,38 @@ server
 
             compound
             {
-                channel "channel-first"
-                task    [ CLEAR ASSEMBLE ] 
                 range   [ 0 .5 ]
+                loadBalancer { mode 2D }
 
                 compound
                 {
                     channel  "channel-first-1"
-                    viewport [ 0 0 .5 1 ]
                     outputframe {}
                 }
                 compound
                 {
-                    channel  "channel-first-2"
-                    viewport [ .5 0 .5 1 ]
-                    outputframe {}
                 }
 
                 inputframe{ name "frame.channel-first-1" }
-                inputframe{ name "frame.channel-first-2" }
             }
             compound
             {
-                channel "channel-second"
-                task    [ CLEAR ASSEMBLE ] 
                 range   [ .5 1 ]
+                loadBalancer { mode 2D }
 
                 compound
                 {
                     channel  "channel-second-1"
-                    viewport [ 0 0 .5 1 ]
                     outputframe {}
                 }
                 compound
                 {
                     channel  "channel-second-2"
-                    viewport [ .5 0 .5 1 ]
                     outputframe {}
                 }
-
-                inputframe{ name "frame.channel-second-1" }
-                inputframe{ name "frame.channel-second-2" }
             }
 
             inputframe{ name "frame.channel-first-1" }
-            inputframe{ name "frame.channel-first-2" }
             inputframe{ name "frame.channel-second-1" }
             inputframe{ name "frame.channel-second-2" }
         }
