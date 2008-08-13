@@ -649,15 +649,6 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
 
     free( volume );
     if( result ) return result;
-    
-    // save volume dimensions
-    hFile info( fopen( (dst+".vhf").c_str(), "wb" ) );
-    FILE* file = info.f;
-    
-    if( file==NULL ) return lFailed( "Can't open destination header file" );
-    
-    writeDimensionsToSav( file, width,  height, depth  );
-    writeScalesToSav(     file, scaleX, scaleY, scaleZ );
 
     //converting transfer function
     SavToVhfConverter( src+".sav", dst+".vhf" );
