@@ -371,7 +371,7 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
                 Chunk* chunk = reinterpret_cast< Chunk* >( data );
 
                 pixelData.chunks.push_back( chunk );
-                data += sizeof( chunk->headerSize + chunk->size );
+                data += chunk->headerSize + chunk->size;
             }
 
             image->setPixelData( buffer, pixelData );

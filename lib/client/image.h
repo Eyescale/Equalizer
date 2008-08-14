@@ -42,7 +42,7 @@ namespace eq
                 uint32_t dummy; // enforce 8-byte alignment
                 static size_t headerSize;
 
-                uint8_t  data[8];
+                EQ_ALIGN8( uint8_t data[8] );
             };
 
             std::vector< Chunk* > chunks;     //!< The pixel data
