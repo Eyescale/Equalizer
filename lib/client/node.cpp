@@ -219,7 +219,7 @@ void Node::releaseFrame( const uint32_t frameNumber )
     NodeFrameFinishReplyPacket packet;
     packet.frameNumber = frameNumber;
 
-    RefPtr< net::Node > node = 
+    net::NodePtr node = 
         RefPtr_static_cast< Server, net::Node >( _config->getServer( ));
     send( node, packet );
 }

@@ -319,7 +319,7 @@ static net::NodePtr _createNode( Node* node )
 
 bool Config::_connectNodes()
 {
-    RefPtr< net::Node > localNode = getLocalNode();
+    net::NodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
@@ -363,7 +363,7 @@ bool Config::_initNodes( const uint32_t initID,
     const string& name    = getName();
     bool          success = true;
 
-    RefPtr< net::Node > localNode = getLocalNode();
+    net::NodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
     eq::ServerCreateConfigPacket createConfigPacket;
@@ -542,7 +542,7 @@ bool Config::_exitNodes()
 
     eq::ConfigDestroyNodePacket destroyNodePacket;
     eq::ClientExitPacket        clientExitPacket;
-    RefPtr< net::Node >         localNode         = getLocalNode();
+    net::NodePtr         localNode         = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
     bool success = true;
@@ -637,7 +637,7 @@ void Config::_prepareFrame( vector< net::NodeID >& nodeIDs )
         Node* node = *i;
         if( node->isUsed( ))
         {
-            RefPtr< net::Node > netNode = node->getNode();
+            net::NodePtr netNode = node->getNode();
             nodeIDs.push_back( netNode->getNodeID( ));
         }
     }

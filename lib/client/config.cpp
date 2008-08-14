@@ -470,14 +470,14 @@ bool Config::_connectClientNodes()
     if( !_clientNodes.empty( ))
         return true;
 
-    RefPtr< net::Node > localNode = getLocalNode();
-    RefPtr< net::Node > server    = getServer();
+    net::NodePtr localNode = getLocalNode();
+    net::NodePtr server    = getServer();
 
     for( vector< net::NodeID >::const_iterator i = _clientNodeIDs.begin();
          i < _clientNodeIDs.end(); ++i )
     {
-        const net::NodeID&        id   = *i;
-        RefPtr< net::Node > node = localNode->connect( id, server );
+        const net::NodeID&  id   = *i;
+        net::NodePtr node = localNode->connect( id, server );
 
         if( !node.isValid( ))
         {
