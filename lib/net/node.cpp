@@ -1275,7 +1275,7 @@ bool Node::connect( NodePtr node )
 
     if( !initConnect( node ))
     {
-        EQERROR << "Connection initialisation to " << node << " failed." 
+        EQERROR << "Connection initialization to " << node << " failed." 
                 << endl;
         return false;
     }

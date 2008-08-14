@@ -150,7 +150,7 @@ namespace net
          * @param packet the message packet.
          * @return true if all data has been read, false if not.
          */
-        bool send( const Packet &packet ) const
+        bool send( const Packet& packet ) const
             { return send( &packet, packet.size); }
 
         /** 
@@ -160,7 +160,7 @@ namespace net
          * @param string the string.
          * @return true if all data has been read, false if not.
          */
-        bool send( Packet &packet, const std::string& string ) const
+        bool send( Packet& packet, const std::string& string ) const
             { return send( packet, string.c_str(), string.size()+1 ); }
 
         /** 
@@ -174,7 +174,7 @@ namespace net
          * @return true if all data has been read, false if not.
          */
         template< typename T >
-        bool send( Packet &packet, const std::vector<T>& data ) const;
+        bool send( Packet& packet, const std::vector<T>& data ) const;
 
         /** 
          * Sends a packaged message including additional data using the
