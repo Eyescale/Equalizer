@@ -464,10 +464,10 @@ void GLXWindow::setXDrawable( XID drawable )
         return;
 
     if( _xDrawable )
-        _window->exitEventHandler();
+        exitEventHandler();
     _xDrawable = drawable;
     if( _xDrawable )
-        _window->initEventHandler();
+        initEventHandler();
 
     if( _xDrawable && _glXContext )
         _initializeGLData();
@@ -574,7 +574,7 @@ void GLXWindow::configExit( )
 void GLXWindow::makeCurrent() const
 {
 #ifdef GLX
-    Pipe*    pipe    = getPipe();
+    const Pipe* pipe = getPipe();
 
     EQASSERT( pipe );
     EQASSERT( pipe->getXDisplay( ));

@@ -101,22 +101,11 @@ static WGLEventHandler* getEventHandler( HWND hWnd )
 }
 }
 
-WGLEventHandler::WGLEventHandler( Window* window )
+WGLEventHandler::WGLEventHandler( WGLWindowIF* window )
         : _window( window ),
           _buttonState( PTR_BUTTON_NONE )
 {
-    const OSWindow* osWindow = window->getOSWindow();
-    EQASSERT( osWindow );
-
-    if( !dynamic_cast< const WGLWindowIF* >( osWindow ))
-    {
-        EQWARN << "Window does not use a WGL window" << endl;
-        return;
-    }
-
-    const WGLWindowIF* wglWindow = static_cast<const WGLWindowIF*>( osWindow );
-
-    _hWnd = wglWindow->getWGLWindowHandle();
+    _hWnd = window->getWGLWindowHandle();
 
     if( !_hWnd )
     {
@@ -125,7 +114,8 @@ WGLEventHandler::WGLEventHandler( Window* window )
     }
 
     registerHandler( _hWnd, this );
-    _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)wndProc );
+    _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC, 
+                                              (LONG_PTR)wndProc );
     if( _prevWndProc == wndProc ) // avoid recursion
         _prevWndProc = DefWindowProc;
 }
@@ -171,12 +161,12 @@ void WGLEventHandler::_syncButtonState( WPARAM wParam )
 LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                                             LPARAM lParam )
 {
-    WindowEvent event;
+    WGLWindowEvent event;
     event.hWnd   = hWnd;
     event.uMsg   = uMsg;
     event.wParam = wParam;
     event.lParam = lParam;
-    event.window = _window;
+    event.window = _window->getWindow();
 
     LONG result = 0;
     switch( uMsg )
@@ -371,7 +361,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
     EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
 
-    if( EventHandler::_processEvent( event.window, event ))
+    if( _window->processEvent( event ))
         return result;
 
     return CallWindowProc( _prevWndProc, hWnd, uMsg, wParam, lParam );

@@ -3,6 +3,8 @@
    All rights reserved. */
 
 #include "aglWindow.h"
+
+#include "aglEventHandler.h"
 #include "global.h"
 
 namespace eq
@@ -75,16 +77,12 @@ void AGLWindow::swapBuffers()
 #endif
 }
 
-void AGLWindow::refreshContext()
+bool AGLWindow::processEvent( const AGLWindowEvent& event )
 {
-#ifdef AGL
-    // 'refresh' agl context viewport
-    Pipe*    pipe    = getPipe();
-
-    EQASSERT( pipe );
-    if( _aglContext && pipe->getWindowSystem() == WINDOW_SYSTEM_AGL )
+    if( event.data.type == Event::EXPOSE && _aglContext )
         aglUpdateContext( _aglContext );
-#endif
+
+    return AGLWindowIF::processEvent( event );
 }
 
 bool AGLWindow::isInitialized() const
@@ -533,13 +531,13 @@ void AGLWindow::setCarbonWindow( WindowRef window )
         return;
 
     if( _carbonWindow )
-        _window->exitEventHandler();
+        exitEventHandler();
     _carbonWindow = window;
 
     if( !window )
         return;
 
-    _window->initEventHandler();
+    initEventHandler();
 
     Rect rect;
     Global::enterCarbon();
@@ -586,5 +584,16 @@ void AGLWindow::setAGLPBuffer( AGLPbuffer pbuffer )
 #endif // AGL
 }
 
+void AGLWindow::initEventHandler()
+{
+    AGLEventHandler* handler = AGLEventHandler::get();
+    handler->registerWindow( this );
+}
+
+void AGLWindow::exitEventHandler()
+{
+    AGLEventHandler* handler = AGLEventHandler::get();
+    handler->deregisterWindow( this );
+}
 
 }

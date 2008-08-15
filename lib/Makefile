@@ -210,7 +210,8 @@ CFILES += \
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   HEADER_SRC += \
 	client/glXEventHandler.h \
-	client/glXWindow.h
+	client/glXWindow.h \
+	client/glXWindowEvent.h
 
   CXXFILES += \
 	client/glXEventHandler.cpp \
@@ -221,7 +222,8 @@ endif
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
   HEADER_SRC += \
 	client/aglEventHandler.h \
-	client/aglWindow.h
+	client/aglWindow.h \
+	client/aglWindowEvent.h
 
   CXXFILES += \
 	client/aglEventHandler.cpp \
@@ -232,7 +234,8 @@ endif
 ifeq ($(findstring WGL, $(WINDOW_SYSTEM)),WGL)
   HEADER_SRC += \
 	client/wglEventHandler.h \
-	client/wglWindow.h
+	client/wglWindow.h \
+	client/wglWindowEvent.h
 
   CXXFILES += \
 	client/wglEventHandler.cpp \

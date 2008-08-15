@@ -5,7 +5,8 @@
 #ifndef EQ_OS_WINDOW_GLX_H
 #define EQ_OS_WINDOW_GLX_H
 
-#include "osWindow.h"
+#include <eq/client/osWindow.h>
+#include <eq/client/glXWindowEvent.h>
 
 namespace eq
 {
@@ -21,6 +22,9 @@ namespace eq
 
         /**  @return  the X11 drawable ID. */
         virtual XID getXDrawable() const = 0;
+
+        virtual bool processEvent( const GLXWindowEvent& event )
+            { return _window->processEvent( event ); }
     };
 
     /** Equalizer default implementation of a GLX window */
@@ -56,6 +60,10 @@ namespace eq
 
         /**  @return  the X11 drawable ID. */
         virtual XID getXDrawable() const { return _xDrawable; }
+
+        virtual void initEventHandler() { /* nop */ }
+        virtual void exitEventHandler() { /* nop */ }
+        //*}
 
     protected:
         /** 

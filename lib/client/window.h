@@ -11,8 +11,8 @@
 namespace eq
 {
     class Channel;
-    class WindowEvent;
     class OSWindow;
+    class WindowEvent;
     struct RenderContext;
 
     /**
@@ -195,19 +195,6 @@ namespace eq
 
         OSWindow* getOSWindow() { return _osWindow; }
 
-        /**
-         * Initialize the event handling for this window. 
-         * 
-         * This function initializes the necessary event handler for this
-         * window, if required by the window system. Can be overriden by an
-         * empty method to disable built-in event handling.
-         * @sa EventHandler, eq::Pipe::useMessagePump()
-         */
-        virtual void initEventHandler();
-
-        /** De-initialize the event handling for this window. */
-        virtual void exitEventHandler();
-
         /** 
          * Set a message why the last operation failed.
          * 
@@ -345,9 +332,6 @@ namespace eq
         /** Swap the front and back buffer of the window. */
         virtual void swapBuffers();
 
-        /** The current event handler, or 0. */
-        EventHandler* _eventHandler;
-
         /** 
          * Process a received event.
          *
@@ -359,7 +343,9 @@ namespace eq
          * @return true when the event was handled, false if not.
          */
         virtual bool processEvent( const WindowEvent& event );
-        friend class EventHandler;
+        friend class GLXWindowIF;
+        friend class AGLWindowIF;
+        friend class WGLWindowIF;
         friend class WindowStatistics;
         //*}
 

@@ -17,6 +17,7 @@ WGLWindow::WGLWindow( Window* parent )
     , _wglPBuffer( 0 )
     , _wglContext( 0 )
     , _wglDC( 0 )
+    , _eventHandler( 0 )
 {
     
 }
@@ -101,7 +102,7 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
 
     if( _wglWindow )
     {
-        _window->exitEventHandler();
+        exitEventHandler();
         EQASSERT( _wglDC );
         ReleaseDC( _wglWindow, _wglDC );
         _wglDC = 0;
@@ -112,7 +113,7 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
 
     if( _wglWindow )
     {
-        _window->initEventHandler();
+        initEventHandler();
         _wglDC = GetDC( _wglWindow );
     }
 
@@ -639,6 +640,19 @@ HGLRC WGLWindow::createWGLContext( HDC overrideDC )
     _window->setErrorMessage( "Client library compiled without WGL support" );
     return 0;
 #endif
+}
+
+void WGLWindow::initEventHandler()
+{
+    EQASSERT( !_eventHandler );
+    _eventHandler = new WGLEventHandler( window );
+    _eventHandler->registerWindow( this );
+}
+
+void WGLWindow::exitEventHandler()
+{
+    delete _eventHandler;
+    _eventHandler = 0;
 }
 
 }

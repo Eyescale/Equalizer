@@ -134,8 +134,8 @@ void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
 
     while( XPending( display ))
     {
-        WindowEvent event;
-        XEvent&     xEvent = event.xEvent;
+        GLXWindowEvent event;
+        XEvent&        xEvent = event.xEvent;
         XNextEvent( display, &xEvent );
         
         handler->_processEvent( event, pipe );
@@ -144,27 +144,28 @@ void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
 
 namespace
 {
-static const GLXWindowIF* _getGLXWindow( const Window* window )
+static GLXWindowIF* _getGLXWindow( Window* window )
 {
-    return static_cast< const GLXWindowIF* >( window->getOSWindow( ));
+    EQASSERT( dynamic_cast< GLXWindowIF* >( window->getOSWindow( )));
+    return static_cast< GLXWindowIF* >( window->getOSWindow( ));
 }
 }
 
-void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
+void GLXEventHandler::_processEvent( GLXWindowEvent& event, Pipe* pipe )
 {
-    XEvent&                  xEvent   = event.xEvent;
-    XID                      drawable = xEvent.xany.window;
-    const vector< Window* >& windows  = pipe->getWindows();
+    XEvent&                  xEvent    = event.xEvent;
+    XID                      drawable  = xEvent.xany.window;
+    const vector< Window* >& windows   = pipe->getWindows();
+    GLXWindowIF*             glXWindow = 0;
 
     event.window   = 0;
-    for( vector< Window* >::const_iterator i = windows.begin(); 
+    for( WindowVector::const_iterator i = windows.begin(); 
          i != windows.end(); ++i )
     {
-        Window*            window   = *i;
-        const GLXWindowIF* osWindow = _getGLXWindow( window );
-        EQASSERT( !osWindow || dynamic_cast< const GLXWindowIF* >( osWindow ));
+        Window* window = *i;
+        glXWindow = _getGLXWindow( window );
 
-        if( osWindow && osWindow->getXDrawable() == drawable )
+        if( glXWindow && glXWindow->getXDrawable() == drawable )
         {
             event.window = window;
             break;
@@ -176,6 +177,7 @@ void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
         EQWARN << "Can't match window to received X event" << endl;
         return;
     }
+    EQASSERT( glXWindow );
 
     switch( xEvent.type )
     {
@@ -280,8 +282,8 @@ void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
     event.data.originator = event.window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
-
-    EventHandler::_processEvent( event.window, event );
+    
+    glXWindow->processEvent( event );
 }
 
 uint32_t GLXEventHandler::_getButtonState( XEvent& event )

@@ -12,6 +12,7 @@
 
 namespace eq
 {
+    class AGLWindowIF;
     class X11Connection;
 
     /**
@@ -26,10 +27,10 @@ namespace eq
         virtual void deregisterPipe( Pipe* pipe ) { /*NOP*/ };
         
         /** @sa EventHandler::registerWindow. */
-        void registerWindow( Window* window );
+        void registerWindow( AGLWindowIF* window );
         
         /** @sa EventHandler::deregisterWindow. */
-        virtual void deregisterWindow( Window* window ) ;
+        virtual void deregisterWindow( AGLWindowIF* window ) ;
 
     private:
         static AGLEventHandler _handler;
@@ -42,10 +43,10 @@ namespace eq
         
         static pascal OSStatus _handleEventUPP( EventHandlerCallRef nextHandler,
                                                 EventRef event, void* userData);
-        bool _handleEvent( EventRef event, eq::Window* window );
-        bool   _handleWindowEvent( EventRef event, eq::Window* window );
-        bool   _handleMouseEvent( EventRef event, eq::Window* window );
-        bool   _handleKeyEvent( EventRef event, eq::Window* window );
+        bool _handleEvent( EventRef event, AGLWindowIF* window );
+        bool   _handleWindowEvent( EventRef event, AGLWindowIF* window );
+        bool   _handleMouseEvent( EventRef event, AGLWindowIF* window );
+        bool   _handleKeyEvent( EventRef event, AGLWindowIF* window );
 
         uint32_t _getButtonAction( EventRef event );
         uint32_t _getKey( EventRef event );

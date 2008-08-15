@@ -8,7 +8,6 @@
 #include "commands.h"
 #include "configEvent.h"
 #include "event.h"
-#include "eventHandler.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
@@ -56,8 +55,7 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Window::Window( Pipe* parent )
-        : _eventHandler( 0 )
-        , _sharedContextWindow( 0 ) // default set by pipe
+        : _sharedContextWindow( 0 ) // default set by pipe
         , _osWindow( 0 )
         , _pipe( parent )
 {
@@ -99,9 +97,6 @@ Window::Window( Pipe* parent )
 Window::~Window()
 {
     _pipe->_removeWindow( this );
-
-    if( _eventHandler )
-        EQWARN << "Event handler present in destructor" << endl;
 }
 
 void Window::_addChannel( Channel* channel )
@@ -388,20 +383,6 @@ bool Window::configExitOSWindow()
     return true;
 }
 
-void Window::initEventHandler()
-{
-    EQASSERT( !_eventHandler );
-    _eventHandler = EventHandler::registerWindow( this );
-}
-
-void Window::exitEventHandler()
-{
-    if( _eventHandler )
-        _eventHandler->deregisterWindow( this );
-    _eventHandler = 0;
-}
-
-
 void Window::makeCurrent() const
 {
     _osWindow->makeCurrent( );
@@ -430,9 +411,6 @@ bool Window::processEvent( const WindowEvent& event )
                                              event.data.resize.y, 
                                              event.data.resize.w,
                                              event.data.resize.h ));
-
-            EQASSERT( _osWindow )
-            _osWindow->refreshContext();
             return true;
 
         case Event::KEY_PRESS:
@@ -447,9 +425,8 @@ bool Window::processEvent( const WindowEvent& event )
         case Event::STATISTIC:
             break;
 
-
         case Event::UNKNOWN:
-            // Handle other window-system native events here
+            // unknown window-system native event, which was not handled
             return false;
 
         default:

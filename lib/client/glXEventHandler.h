@@ -14,6 +14,7 @@ namespace eq
 {
     class Pipe;
     class Window;
+    class GLXWindowEvent;
 
     /**
      * The event handler for glX.
@@ -46,19 +47,13 @@ namespace eq
         /** @sa EventHandler::deregisterPipe. */
         virtual void deregisterPipe( Pipe* pipe );
 
-        /** @sa EventHandler::registerWindow. */        
-        void registerWindow( Window* window ) { /* nop */ }
-
-        /** @sa EventHandler::deregisterWindow. */
-        virtual void deregisterWindow( Window* window ) { /* nop */ }
-
     private:
         /** Destructs the glX event handler. */
         virtual ~GLXEventHandler();
         
         static void _handleEvents( X11ConnectionPtr connection );
 
-        void _processEvent( WindowEvent& event, Pipe* pipe );
+        void _processEvent( GLXWindowEvent& event, Pipe* pipe );
         uint32_t  _getButtonState( XEvent& event );
         uint32_t  _getButtonAction( XEvent& event );
         uint32_t  _getKey( XEvent& event );

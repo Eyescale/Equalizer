@@ -27,9 +27,6 @@ namespace eq
         /** @sa EventHandler::deregisterPipe() */
         virtual void deregisterPipe( Pipe* pipe ){ /*NOP*/ }
         
-        /** @sa EventHandler::deregisterWindow() */
-        virtual void deregisterWindow( Window* window ){ delete this; }
-
         static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                          LPARAM lParam );
 
@@ -38,10 +35,10 @@ namespace eq
         virtual ~WGLEventHandler();
         
     private:
-		Window*  _window;
-        HWND     _hWnd;
-        WNDPROC  _prevWndProc;
-        uint32_t _buttonState;
+        WGLWindowIF* _window;
+        HWND         _hWnd;
+        WNDPROC      _prevWndProc;
+        uint32_t     _buttonState;
 
         LRESULT CALLBACK _wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                    LPARAM lParam );

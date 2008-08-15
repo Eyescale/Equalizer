@@ -5,7 +5,8 @@
 #ifndef EQ_OS_WINDOW_WGL_H
 #define EQ_OS_WINDOW_WGL_H
 
-#include "osWindow.h"
+#include <eq/client/osWindow.h>
+#include <eq/client/wglWindowEvent.h>
 
 namespace eq
 {
@@ -27,6 +28,9 @@ namespace eq
 
         /** @return the WGL rendering context. */
         virtual HGLRC getWGLContext() const = 0;
+
+        virtual bool processEvent( const WGLWindowEvent& event )
+            { return _window->processEvent( event ); }
     };
 
     /** Equalizer default implementation of a WGL window */
@@ -174,6 +178,8 @@ namespace eq
         HPBUFFERARB      _wglPBuffer;
         HGLRC            _wglContext;
         HDC              _wglDC;
+
+        WGLEventHandler  _eventHandler;
     };
 }
 

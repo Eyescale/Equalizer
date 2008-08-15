@@ -5,7 +5,8 @@
 #ifndef EQ_OS_WINDOW_AGL_H
 #define EQ_OS_WINDOW_AGL_H
 
-#include "osWindow.h"
+#include <eq/client/osWindow.h>
+#include <eq/client/aglWindowEvent.h>
 
 namespace eq
 {
@@ -25,6 +26,10 @@ namespace eq
 
         /** @return the AGL PBuffer object. */
         virtual AGLPbuffer getAGLPBuffer() const = 0;
+
+        /** Process an event. */
+        virtual bool processEvent( const AGLWindowEvent& event )
+            { return _window->processEvent( event ); }
 
         /** Used by the AGL event handler to store the event handler ref. */
         EventHandlerRef& getCarbonEventHandler() { return _carbonHandler; }
@@ -48,8 +53,6 @@ namespace eq
         virtual base::SpinLock* getContextLock() { return &_renderContextLock; }
 
         virtual bool isInitialized() const;
-
-        virtual void refreshContext();
 
         /** @return the AGL rendering context. */
         virtual AGLContext getAGLContext() const { return _aglContext; }
@@ -181,7 +184,12 @@ namespace eq
          * @return true if the PBuffer was created, false otherwise.
          */
         virtual bool configInitAGLPBuffer(); 
-        //*}
+ 
+        virtual void initEventHandler();
+        virtual void exitEventHandler();
+       //*}
+
+        virtual bool processEvent( const AGLWindowEvent& event );
 
     private:
         /** The AGL context. */

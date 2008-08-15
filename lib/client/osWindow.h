@@ -32,9 +32,20 @@ namespace eq
 
         virtual base::SpinLock* getContextLock() { return 0; }
 
-        virtual void refreshContext() { }
-
         virtual bool isInitialized() const = 0;
+
+        /**
+         * Initialize the event handling for this window. 
+         * 
+         * This function initializes the necessary event handler for this
+         * window, if required by the window system. Can be overriden by an
+         * empty method to disable built-in event handling.
+         * @sa EventHandler, eq::Pipe::useMessagePump()
+         */
+        virtual void initEventHandler() = 0;
+
+        /** De-initialize the event handling for this window. */
+        virtual void exitEventHandler() = 0;
 
         /**
          * @return the extended OpenGL function table for the window's OpenGL
@@ -54,9 +65,15 @@ namespace eq
         /** @name Convenience interface to eq::Window methods */
         //*{
 
-        Pipe* getPipe()     const { return _window->getPipe(); }
-        Node* getNode()     const { return _window->getNode(); }
-        Config* getConfig() const { return _window->getConfig(); }
+        const Window* getWindow() const { return _window; }
+        const Pipe* getPipe()     const { return _window->getPipe(); }
+        const Node* getNode()     const { return _window->getNode(); }
+        const Config* getConfig() const { return _window->getConfig(); }
+
+        Window* getWindow() { return _window; }
+        Pipe* getPipe()     { return _window->getPipe(); }
+        Node* getNode()     { return _window->getNode(); }
+        Config* getConfig() { return _window->getConfig(); }
 
         int32_t getIAttribute( const Window::IAttribute attr ) const
             { return _window->getIAttribute( attr ); }

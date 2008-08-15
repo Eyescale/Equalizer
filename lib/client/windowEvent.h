@@ -1,12 +1,11 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WINDOWEVENT_H
 #define EQ_WINDOWEVENT_H
 
 #include <eq/client/event.h>
-#include <eq/client/windowSystem.h>
 
 namespace eq
 {
@@ -16,33 +15,11 @@ namespace eq
     class EQ_EXPORT WindowEvent
     {
     public:
-
         Window* window;
         Event   data;
-
-        union // Native event
-        {
-#ifdef GLX
-            XEvent xEvent; // 96 bytes
-#endif
-#ifdef AGL
-            EventRef carbonEventRef;
-#endif
-#ifdef WGL
-            struct
-            {
-                HWND hWnd;
-                UINT uMsg;
-                WPARAM wParam;
-                LPARAM lParam;
-            };
-#endif
-            char fill[128];
-        };
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
-                                          const WindowEvent& event );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const WindowEvent& );
 }
 
 #endif // EQ_WINDOWEVENT_H

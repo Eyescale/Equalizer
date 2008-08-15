@@ -6,12 +6,6 @@
 #ifdef GLX
 #  include "glXEventHandler.h"
 #endif
-#ifdef WGL
-#  include "wglEventHandler.h"
-#endif
-#ifdef AGL
-#  include "aglEventHandler.h"
-#endif
 
 #include "pipe.h"
 #include "window.h"
@@ -46,64 +40,6 @@ EventHandler* EventHandler::registerPipe( Pipe* pipe )
     }
     return 0;
 }
-
-EventHandler* EventHandler::registerWindow( Window* window )
-{
-    Pipe* pipe = window->getPipe();
-    if( !pipe )
-    {
-        EQWARN << "Can't determine window system: no parent pipe" << endl;
-        return 0;
-    }
-
-    switch( pipe->getWindowSystem( ))
-    {
-        case WINDOW_SYSTEM_GLX:
-#ifdef GLX
-        {
-            EventHandler* handler = pipe->getEventHandler();
-            if( !handler )
-            {
-                EQWARN << "No pipe event handler, can't initialize window event"
-                       << " handling" << endl;
-                return 0;
-            }
-
-            EQASSERT( dynamic_cast< GLXEventHandler* >( handler ));
-            
-            GLXEventHandler* glxHandler = 
-                static_cast< GLXEventHandler* >( handler );
-            
-            glxHandler->registerWindow( window );
-            return glxHandler;
-        }
-#endif
-            break;
-
-        case WINDOW_SYSTEM_AGL:
-#ifdef AGL
-        {
-            AGLEventHandler* handler = AGLEventHandler::get();
-            handler->registerWindow( window );
-            return handler;
-        }
-#endif
-            break;
-
-        case WINDOW_SYSTEM_WGL:
-#ifdef WGL
-            return new WGLEventHandler( window );
-#endif
-            break;
-
-        default:
-            EQERROR << "event handling not implemented for window system " 
-                    << pipe->getWindowSystem() << endl;
-            break;
-    }
-    return 0;
-}
-
 
 void EventHandler::_computePointerDelta( WindowEvent &event )
 {
@@ -149,11 +85,6 @@ void EventHandler::_getRenderContext( WindowEvent& event )
     else
         EQINFO << "No rendering context for pointer event on " << x << ", " 
                << y << endl;
-}
-
-bool EventHandler::_processEvent( Window* window, const WindowEvent& event )
-{
-    return window->processEvent( event );
 }
 
 }
