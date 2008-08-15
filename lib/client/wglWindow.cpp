@@ -3,7 +3,10 @@
    All rights reserved. */
 
 #include "wglWindow.h"
+
 #include "global.h"
+#include "wglEventHandler.h"
+
 #include <eq/base/log.h>
 
 using namespace std;
@@ -645,8 +648,7 @@ HGLRC WGLWindow::createWGLContext( HDC overrideDC )
 void WGLWindow::initEventHandler()
 {
     EQASSERT( !_eventHandler );
-    _eventHandler = new WGLEventHandler( window );
-    _eventHandler->registerWindow( this );
+    _eventHandler = new WGLEventHandler( this );
 }
 
 void WGLWindow::exitEventHandler()

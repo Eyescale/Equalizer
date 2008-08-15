@@ -11,6 +11,8 @@
 
 namespace eq
 {
+    class WGLWindowIF;
+
     /**
      * The event processing for WGL.
      *
@@ -22,17 +24,16 @@ namespace eq
     {
     public:
         /** Constructs a new wgl event handler. */
-        WGLEventHandler( Window* window );
+        WGLEventHandler( WGLWindowIF* window );
+
+        /** Destructs the wgl event handler. */
+        virtual ~WGLEventHandler();
 
         /** @sa EventHandler::deregisterPipe() */
         virtual void deregisterPipe( Pipe* pipe ){ /*NOP*/ }
         
         static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                          LPARAM lParam );
-
-      protected:
-        /** Destructs the wgl event handler. */
-        virtual ~WGLEventHandler();
         
     private:
         WGLWindowIF* _window;

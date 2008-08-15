@@ -10,6 +10,8 @@
 
 namespace eq
 {
+    class WGLEventHandler;
+
     /** The interface defining the minimum functionality for a WGL window. */
     class EQ_EXPORT WGLWindowIF : public OSWindow
     {
@@ -170,6 +172,9 @@ namespace eq
          * @return the context, or 0 if context creation failed.
          */
         virtual HGLRC createWGLContext( HDC dc );
+
+        virtual void initEventHandler();
+        virtual void exitEventHandler();
         //*}
 
     private:
@@ -179,7 +184,7 @@ namespace eq
         HGLRC            _wglContext;
         HDC              _wglDC;
 
-        WGLEventHandler  _eventHandler;
+        WGLEventHandler* _eventHandler;
     };
 }
 
