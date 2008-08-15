@@ -391,6 +391,7 @@ config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
 configFields: /*null*/ | configField | configFields configField
 configField:
     nodes
+    | EQTOKEN_NAME STRING       { config->setName( $2 ); }
     | compounds
     | EQTOKEN_LATENCY UNSIGNED  { config->setLatency( $2 ); }
     | EQTOKEN_ATTRIBUTES '{' configAttributes '}'
@@ -415,7 +416,8 @@ appNode: EQTOKEN_APPNODE '{' { node = loader->createNode(); }
             nodeFields
             '}' { config->addApplicationNode( node ); node = 0; }
 nodeFields: /*null*/ | nodeField | nodeFields nodeField
-nodeField: EQTOKEN_NAME STRING            { node->setName( $2 ); }
+nodeField: 
+    EQTOKEN_NAME STRING            { node->setName( $2 ); }
     | connections
     | pipes                
 connections: /*null*/ | connection | connections connection
@@ -766,6 +768,19 @@ Server* Loader::loadFile( const string& filename )
 
     fclose( yyin );
     eq::loader::loader = 0;
+
+    if( loader::server )
+    {
+        const server::ConfigVector& configs = loader::server->getConfigs();
+        for( server::ConfigVector::const_iterator i = configs.begin();
+             i != configs.end(); ++i )
+        {
+            Config* config = *i;
+            if( config->getName().empty( ))
+                config->setName( filename );
+        }
+    }
+
     return loader::server;
 }
 

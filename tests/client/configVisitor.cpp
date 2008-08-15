@@ -66,7 +66,7 @@ int main( int argc, char **argv )
     server->setClient( client );
 
     Config* config = new Config( server );
-    client->addSession( config, server.get(), 0, "" );
+    client->addSession( config, server.get(), 0 );
 
     for( size_t i = 0; i < 3; ++i )
     {

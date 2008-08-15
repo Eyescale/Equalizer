@@ -38,11 +38,10 @@ namespace net
 
         virtual ~Session();
 
-        /** 
-         * Returns the name of the session.
-         * 
-         * @return the name of the session.
-         */
+        /** Set the session name. */
+        void setName( const std::string& name ) { _name = name; }
+
+        /** @return the name of the session. */
         const std::string& getName() const { return _name; }
 
         /** 

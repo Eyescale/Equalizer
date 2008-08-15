@@ -824,6 +824,9 @@ ostream& operator << ( ostream& os, const Config* config )
     os << disableFlush << disableHeader << "config " << endl;
     os << "{" << endl << indent;
 
+    if( !config->getName().empty( ))
+        os << "name    \"" << config->getName() << '"' << endl;
+
     if( config->getLatency() != 1 )
         os << "latency " << config->getLatency() << endl;
     os << endl;

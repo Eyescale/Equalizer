@@ -15,6 +15,7 @@
 #  ifdef EQ_NO_RELEASE_ASSERT
 #    define EQASSERT( x )
 #    define EQASSERTINFO( x, info )
+#    define EQCHECK(x) { x; }
 #  else
 #    define EQASSERT(x) { if( !(x) )                                      \
               EQERROR << "##### Assert: " << #x << " #####" << std::endl  \
@@ -22,6 +23,7 @@
 #    define EQASSERTINFO(x, info) { if( !(x) )                            \
               EQERROR << "##### Assert: " << #x << " [" << info << "] #####" \
                       << std::endl << eq::base::forceFlush; }
+#    define EQCHECK(x) { const bool eqResult = x; EQASSERTINFO( eqResult, #x ) }
 #  endif
 #  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl \
                                     << eq::base::forceFlush; }
@@ -63,9 +65,10 @@ namespace base
               << typeid(*this).name() << std::endl << eq::base::forceFlush; \
         eq::base::abortDebug(); }
 
+#  define EQCHECK(x) { const bool eqResult = x; EQASSERTINFO( eqResult, #x ) }
+
 #endif // DEBUG
 
-#define EQCHECK(x) { const bool eqResult = x; EQASSERTINFO( eqResult, #x ) }
 
 
 #endif //EQBASE_DEBUG_H

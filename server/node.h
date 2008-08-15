@@ -240,7 +240,7 @@ namespace server
                                       const uint32_t instanceID, 
                                       net::Session* session );
     private:
-        /** The nodes's name */
+        /** The node name */
         std::string _name;
 
         /** The parent config. */

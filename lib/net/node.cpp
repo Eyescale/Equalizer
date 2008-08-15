@@ -389,22 +389,21 @@ void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
 //----------------------------------------------------------------------
 // Node functionality
 //----------------------------------------------------------------------
-void Node::addSession( Session* session, NodePtr server, 
-                       const uint32_t sessionID, const std::string& name )
+void Node::addSession( Session* session, NodePtr server,
+                       const uint32_t sessionID )
 {
     CHECK_THREAD( _thread );
 
     session->setLocalNode( this );
     session->_server    = server;
     session->_id        = sessionID;
-    session->_name      = name;
     session->_isMaster  = ( server==this && isLocal( ));
 
     _sessions[sessionID] = session;
 
     EQINFO << (session->_isMaster ? "master" : "client") << " session, id "
-         << sessionID << ", name " << name << ", served by " << server.get() 
-         << ", managed by " << this << endl;
+         << sessionID << ", name " << session->_name << ", served by "
+           << server.get() << ", managed by " << this << endl;
 }
 
 void Node::removeSession( Session* session )
@@ -415,26 +414,24 @@ void Node::removeSession( Session* session )
     session->setLocalNode( 0 );
     session->_server    = 0;
     session->_id        = EQ_ID_INVALID;
-    session->_name.clear();
     session->_isMaster  = false;
 }
 
-bool Node::mapSession( NodePtr server, Session* session, 
-                       const std::string& name )
+bool Node::mapSession( NodePtr server, Session* session )
 {
     EQASSERT( isLocal( ));
     EQASSERT( !inCommandThread( ));
 
     NodeMapSessionPacket packet;
     packet.requestID  = _requestHandler.registerRequest( session );
-    server->send( packet, name );
+    server->send( packet, session->getName( ));
 
     bool ret = false;
     _requestHandler.waitRequest( packet.requestID, ret );
     return ret;
 }
 
-bool Node::mapSession( NodePtr server, Session* session, const uint32_t id)
+bool Node::mapSession( NodePtr server, Session* session, const uint32_t id )
 {
     EQASSERT( isLocal( ));
     EQASSERT( id != EQ_ID_INVALID );
@@ -900,10 +897,13 @@ CommandResult Node::_cmdMapSession( Command& command )
                 session = static_cast< Session* >( 
                     _requestHandler.getRequestData( packet->requestID ));
                 const uint32_t newSessionID = _generateSessionID();
-                addSession( session, this, newSessionID, sessionName );
+                addSession( session, this, newSessionID );
+                EQASSERT( sessionName == session->getName( ));
             }
         }
         // else mapped by identifier: not possible since we are the master
+        else
+            EQUNREACHABLE;
     }
     else // remote mapping
     {
@@ -923,7 +923,7 @@ CommandResult Node::_cmdMapSession( Command& command )
     NodeMapSessionReplyPacket reply( packet );
     reply.sessionID  = session ? session->getID() : EQ_ID_INVALID;
                 
-    node->send( reply, sessionName );
+    node->send( reply, session->getName( ));
     return COMMAND_HANDLED;
 }
 
@@ -951,7 +951,9 @@ CommandResult Node::_cmdMapSessionReply( Command& command)
     Session* session = (Session*)_requestHandler.getRequestData( requestID );
     EQASSERT( session );
 
-    addSession( session, node, packet->sessionID, packet->name );
+    session->setName( packet->name );
+    addSession( session, node, packet->sessionID );
+
     _requestHandler.serveRequest( requestID, (void*)true );
     return COMMAND_HANDLED;
 }

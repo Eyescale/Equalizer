@@ -372,19 +372,20 @@ namespace net
          */
         //*{
         /**
-         * Maps a local session object to a named session.
+         * Maps a local session object to the session of the same name on the
+         * server.
          *
          * @param server the node serving the session.
          * @param session the session.
-         * @param name the name of the session.
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool mapSession( NodePtr server, Session* session, 
-                         const std::string& name );
+        bool mapSession( NodePtr server, Session* session );
 
         /**
-         * Maps a local session object to an existing session.
+         * Maps a local session object to the session of the same identifier on
+         * the server. The session's name is changed to the name of the session
+         * on the server.
          *
          * @param server the node serving the session.
          * @param session the session.
@@ -413,10 +414,9 @@ namespace net
          * @param session the session.
          * @param server the node serving the session.
          * @param sessionID the identifier of the session.
-         * @param name the name of the session.
          */
-        void addSession( Session* session, NodePtr server, 
-                         const uint32_t sessionID, const std::string& name );
+        void addSession( Session* session, NodePtr server,
+                         const uint32_t sessionID );
 
         /** 
          * Removes an unmapped session from this node.

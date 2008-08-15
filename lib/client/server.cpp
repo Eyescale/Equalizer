@@ -179,9 +179,9 @@ net::CommandResult Server::_cmdCreateConfig( net::Command& command )
     EQASSERT( localNode->getSession( packet->configID ) == 0 );
     config->_appNodeID = packet->appNodeID;
     config->_appNodeID.convertToHost();
+    config->setName( packet->name );
 
-    localNode->addSession( config, command.getNode(), packet->configID,
-                           packet->name );
+    localNode->addSession( config, command.getNode(), packet->configID );
 
     if( packet->requestID != EQ_ID_INVALID )
     {
