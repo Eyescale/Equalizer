@@ -28,14 +28,18 @@
 #include <eq/client/server.h>
 #include <eq/client/version.h>
 #include <eq/client/windowSystem.h>
+
 #ifdef AGL
 #  include <eq/client/aglWindow.h>
+#  include <eq/client/aglEventHandler.h>
 #endif
 #ifdef GLX
 #  include <eq/client/glXWindow.h>
+#  include <eq/client/glXEventHandler.h>
 #endif
 #ifdef WGL
 #  include <eq/client/wglWindow.h>
+#  include <eq/client/wglEventHandler.h>
 #endif
 
 #include <eq/net/net.h>
