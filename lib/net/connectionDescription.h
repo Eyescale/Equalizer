@@ -100,6 +100,8 @@ namespace net
         /** The host name. */
         std::string _hostname;
     };
+
+    std::ostream& operator << ( std::ostream&, const ConnectionDescription* );
 }
 }
 

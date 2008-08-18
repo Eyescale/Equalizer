@@ -59,7 +59,7 @@ ConnectionDescription::ConnectionDescription()
 }
 
 std::ostream& operator << ( std::ostream& os, 
-                            const net::ConnectionDescription* desc )
+                            const ConnectionDescription* desc )
 {
     os << disableFlush << "connection" << endl;
     os << "{" << endl << indent;

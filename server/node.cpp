@@ -19,7 +19,6 @@
 
 using namespace eq::base;
 using namespace std;
-using eq::net::ConnectionDescriptionVector;
 
 namespace eq
 {
@@ -50,13 +49,14 @@ Node::Node( const Node& from, const CompoundVector& compounds )
     _name = from._name;
     _node = from._node;
 
-    const ConnectionDescriptionVector& descriptions = 
+    const ConnectionDescriptionVector& descriptions =
         from.getConnectionDescriptions();
     for( ConnectionDescriptionVector::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        const net::ConnectionDescription* desc = (*i).get();
-        addConnectionDescription( new net::ConnectionDescription( *desc ));
+        const ConnectionDescriptionPtr desc = *i;
+        addConnectionDescription( 
+            new ConnectionDescription( desc.getReference( )));
     }
 
     const PipeVector& pipes = from.getPipes();

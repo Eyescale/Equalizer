@@ -208,7 +208,7 @@ bool Node::listen()
     if( !_listenToSelf( ))
         return false;
 
-    for( vector< ConnectionDescriptionPtr >::const_iterator i = 
+    for( ConnectionDescriptionVector::const_iterator i =
              _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
     {
@@ -1364,8 +1364,8 @@ NodePtr Node::connect( const NodeID& nodeID, NodePtr server )
     // is pending at a given time. Otherwise a node with the same id might be
     // instantiated twice in _cmdGetNodeDataReply(). The alternative to this
     // mutex is to register connecting nodes with this local node, and handle
-    // all cases correctly, which is far more complex. Node connection only
-    // happens a lot during initialization, and are therefore not time-critical.
+    // all cases correctly, which is far more complex. Node connections only
+    // happen a lot during initialization, and are therefore not time-critical.
     ScopedMutex< Lock > mutex( _connectMutex );
     EQINFO << "Connecting node " << nodeID << endl;
 

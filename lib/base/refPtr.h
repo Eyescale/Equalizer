@@ -96,8 +96,11 @@ namespace base
             { EQASSERTINFO( _ptr, typeid(*this).name( )); return *_ptr; }
         const T& operator*() const  
             { EQASSERTINFO( _ptr, typeid(*this).name( )); return *_ptr; }
-        T*       get()              { return _ptr; }
-        const T* get() const        { return _ptr; }
+
+        T*       get()                { return _ptr; }
+        const T* get() const          { return _ptr; }
+        T&       getReference()       { EQASSERT( _ptr ); return *_ptr; }
+        const T& getReference() const { EQASSERT( _ptr ); return *_ptr; }
 
         bool isValid() const { return ( _ptr != 0 ); }
         

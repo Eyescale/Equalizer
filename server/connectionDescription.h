@@ -63,8 +63,7 @@ namespace server
         static std::string _iAttributeStrings[IATTR_ALL];
     };
 
-    std::ostream& operator << ( std::ostream& os, 
-                                const net::ConnectionDescription* desc );
+    std::ostream& operator << ( std::ostream&, const ConnectionDescription* );
 }
 }
 #endif // EQNET_CONNECTION_DESCRIPTION_H

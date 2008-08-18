@@ -33,7 +33,7 @@
 		static eq::server::LoadBalancer* loadBalancer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
         static eq::server::Frame*       frame = 0;
-        static eq::net::ConnectionDescriptionPtr connectionDescription;
+        static eq::server::ConnectionDescriptionPtr connectionDescription;
         static eq::server::Wall         wall;
         static eq::server::Projection   projection;
         static uint32_t           flags = 0;
@@ -374,7 +374,7 @@ serverConnection: EQTOKEN_CONNECTION
             }
             connectionFields '}' 
             { 
-                server->addConnectionDescription( connectionDescription );
+                server->addConnectionDescription( connectionDescription.get( ));
                 connectionDescription = 0;
             }
 

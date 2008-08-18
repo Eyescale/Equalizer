@@ -5,7 +5,8 @@
 #ifndef EQSERVER_NODE_H
 #define EQSERVER_NODE_H
 
-#include "config.h" // used in inline method
+#include "config.h"                // used in inline method
+#include "connectionDescription.h" // used in inline method
 
 #include <eq/net/barrier.h>
 #include <eq/net/bufferConnection.h>
@@ -204,7 +205,7 @@ namespace server
          * 
          * @param cd the connection description.
          */
-        void addConnectionDescription(net::ConnectionDescriptionPtr desc )
+        void addConnectionDescription( ConnectionDescriptionPtr desc )
             { _connectionDescriptions.push_back( desc ); }
         
         /** 
@@ -220,7 +221,7 @@ namespace server
          * @param index the index of the connection description.
          * @return the connection description.
          */
-        const net::ConnectionDescriptionVector& getConnectionDescriptions()
+        const ConnectionDescriptionVector& getConnectionDescriptions()
             const { return _connectionDescriptions; }
 
         /** @name Error information. */
@@ -260,7 +261,7 @@ namespace server
         net::NodePtr _node;
 
         /** The list of descriptions on how this node is reachable. */
-        net::ConnectionDescriptionVector _connectionDescriptions;
+        ConnectionDescriptionVector _connectionDescriptions;
 
         /** The frame identifiers non-finished frames. */
         std::map< uint32_t, uint32_t > _frameIDs;

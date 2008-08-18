@@ -190,5 +190,23 @@ const string& ConnectionDescription::getLaunchCommand() const
 {
     return _launchCommand;
 }
+
+std::ostream& operator << ( std::ostream& os, const ConnectionDescription* desc)
+{
+    if( !desc )
+    {
+        os << "NULL connection description";
+        return os;
+    }
+
+    os << "connection " << ( desc->type == net::CONNECTIONTYPE_TCPIP ? "tcp/ip":
+                             desc->type == net::CONNECTIONTYPE_SDP   ? "sdp"   :
+                             desc->type == net::CONNECTIONTYPE_PIPE  ? "pipe"  :
+                             "ERROR" ) 
+       << ' ' << desc->getHostname() << ':' << desc->TCPIP.port;
+    return os;
+}
+
+
 }
 }

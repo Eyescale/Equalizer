@@ -22,6 +22,7 @@ class Channel;
 
 class Compound;
 class Frame;
+class ConnectionDescription;
 
 typedef std::vector< Config* >   ConfigVector;
 typedef std::vector< Node* >     NodeVector;
@@ -33,7 +34,8 @@ typedef std::vector< Compound* > CompoundVector;
 typedef std::vector< Frame* >    FrameVector;
 
 typedef base::RefPtr< Server > ServerPtr;
-
+typedef base::RefPtr< ConnectionDescription >   ConnectionDescriptionPtr;
+typedef std::vector< ConnectionDescriptionPtr > ConnectionDescriptionVector;
 }
 }
 #endif // EQSERVER_TYPES_H

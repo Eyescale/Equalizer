@@ -322,7 +322,7 @@ std::ostream& operator << ( std::ostream& os, const Server* server )
     for( net::ConnectionDescriptionVector::const_iterator i = cds.begin();
          i != cds.end(); ++i )
         
-        os << (*i).get();
+        os << static_cast< const ConnectionDescription* >( (*i).get( ));
 
     const ConfigVector& configs = server->getConfigs();
     for( ConfigVector::const_iterator i = configs.begin();
