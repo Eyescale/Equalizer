@@ -465,7 +465,9 @@ void GLXWindow::setXDrawable( XID drawable )
 
     if( _xDrawable )
         exitEventHandler();
+
     _xDrawable = drawable;
+
     if( _xDrawable )
         initEventHandler();
 

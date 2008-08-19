@@ -59,7 +59,7 @@ void ObjectManager<T>::deleteAll()
         const Object& object = i->second;
         EQVERB << "Delete list " << object.key << " id " << object.id
                << " ref " << object.refCount << endl;
-        glDeleteLists( object.id, 1 ); 
+        glDeleteLists( object.id, object.num ); 
     }
     _listsID.clear();
     _listsKey.clear();
@@ -123,7 +123,7 @@ GLuint ObjectManager<T>::getList( const T& key )
 }
 
 template< typename T >
-GLuint ObjectManager<T>::newList( const T& key )
+GLuint ObjectManager<T>::newList( const T& key, const GLsizei num )
 {
     if( _listsKey.find( key ) != _listsKey.end( ))
     {
@@ -131,7 +131,7 @@ GLuint ObjectManager<T>::newList( const T& key )
         return FAILED;
     }
 
-    const GLuint id = glGenLists( 1 );
+    const GLuint id = glGenLists( num );
     if( !id )
     {
         EQWARN << "glGenLists failed: " << glGetError() << endl;
@@ -142,18 +142,19 @@ GLuint ObjectManager<T>::newList( const T& key )
     object.id        = id;
     object.key       = key;
     object.refCount  = 1;
+    object.num       = num;
     _listsKey[ key ] = &object;
 
     return id;
 }
 
 template< typename T >
-GLuint ObjectManager<T>::obtainList( const T& key )
+GLuint ObjectManager<T>::obtainList( const T& key, const GLsizei num )
 {
     const GLuint id = getList( key );
     if( id != FAILED )
         return id;
-    return newList( key );
+    return newList( key, num );
 }
 
 template< typename T >
@@ -167,7 +168,7 @@ void   ObjectManager<T>::releaseList( const T& key )
     if( object->refCount )
         return;
 
-    glDeleteLists( object->id, 1 );
+    glDeleteLists( object->id, object->num );
     _listsKey.erase( key );
     _listsID.erase( object->id );
 }
@@ -183,7 +184,7 @@ void   ObjectManager<T>::releaseList( const GLuint id )
     if( object.refCount )
         return;
 
-    glDeleteLists( id, 1 );
+    glDeleteLists( id, object.num );
     _listsKey.erase( object.key );
     _listsID.erase( id );
 }
@@ -195,7 +196,7 @@ void   ObjectManager<T>::deleteList( const T& key )
         return;
 
     Object* object = _listsKey[ key ];
-    glDeleteLists( object->id, 1 );
+    glDeleteLists( object->id, object->num );
     _listsKey.erase( key );
     _listsID.erase( object->id );
 }
@@ -207,7 +208,7 @@ void   ObjectManager<T>::deleteList( const GLuint id )
         return;
 
     Object& object = _listsID[ id ];
-    glDeleteLists( id, 1 );
+    glDeleteLists( id, object.num );
     _listsKey.erase( object.key );
     _listsID.erase( id );
 }

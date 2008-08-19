@@ -118,7 +118,9 @@ HEADER_SRC = \
 	client/windowStatistics.h \
 	client/windowSystem.h \
 	client/windowVisitor.h \
-	client/X11Connection.h
+	client/X11Connection.h \
+	util/bitmapFont.h \
+	util/util.h
 
 CXXFILES = \
 	base/barrier.cpp \
@@ -201,7 +203,8 @@ CXXFILES = \
 	client/window.cpp \
 	client/windowEvent.cpp \
 	client/windowStatistics.cpp \
-	client/windowSystem.cpp
+	client/windowSystem.cpp \
+	util/bitmapFont.cpp
 
 CFLAGS += -DGLEW_BUILD -DEQ_DEFINES_H
 CFILES += \

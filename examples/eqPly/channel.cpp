@@ -40,6 +40,9 @@ bool Channel::configInit( const uint32_t initID )
         return false;
 
     setNearFar( 0.1f, 10.0f );
+#if 0
+    _font.setFont();
+#endif
     return true;
 }
 
@@ -284,6 +287,14 @@ void Channel::_drawLogo()
         glTexCoord2f( size.x, size.y );
         glVertex3f( size.x, size.y, 0.0f );
     } glEnd();
+
+#if 0
+    const eq::PixelViewport& channelPVP = getPixelViewport();
+
+    glRasterPos3f( channelPVP.x + 5.0f, channelPVP.getYEnd() - 20.0f, 0.0f );
+    string text = "Channel '" + getName() + "'";
+    _font.draw( text );
+#endif
 
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     glDisable( GL_BLEND );

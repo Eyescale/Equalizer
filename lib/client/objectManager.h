@@ -44,8 +44,8 @@ namespace eq
         void deleteAll();
 
         GLuint getList( const T& key );
-        GLuint newList( const T& key );
-        GLuint obtainList( const T& key );
+        GLuint newList( const T& key, const GLsizei num = 1  );
+        GLuint obtainList( const T& key, const GLsizei num = 1 );
         void   releaseList( const T& key );
         void   releaseList( const GLuint id );
         void   deleteList( const T& key );
@@ -95,6 +95,7 @@ namespace eq
         {
             GLuint   id;
             T        key;
+            GLuint   num;
             uint32_t refCount;
         };
 

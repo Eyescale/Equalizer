@@ -43,6 +43,8 @@
 #endif
 
 #include <eq/net/net.h>
+#include <eq/util/util.h>
+
 #include <vmmlib/vmmlib.h>
 
 #ifdef EQ_USE_DEPRECATED
