@@ -13,7 +13,10 @@
 #include "bitmapFont.h"
 
 #include <eq/client/window.h>
-#include <eq/client/aglWindow.h>
+
+#ifdef AGL
+#  include <eq/client/aglWindow.h>
+#endif
 
 using namespace std;
 
