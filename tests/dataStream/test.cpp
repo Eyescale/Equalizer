@@ -165,9 +165,9 @@ int main( int argc, char **argv )
     Sender sender( connection );
     TEST( sender.start( ));
 
-    DataIStream     stream;
-    eq::net::Command  command;
-    bool            receiving = true;
+    DataIStream      stream;
+    eq::net::Command command;
+    bool             receiving = true;
 
     while( receiving )
     {

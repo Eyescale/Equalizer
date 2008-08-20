@@ -28,7 +28,7 @@ namespace net
         virtual void sendBuffer( const void* buffer, const uint64_t size );
         virtual void sendFooter( const void* buffer, const uint64_t size );
         virtual void sendSingle( const void* buffer, const uint64_t size )
-            { sendFooter( buffer, size ); }
+            { _sequence = 0; sendFooter( buffer, size ); }
 
     private:
         uint32_t _sequence;

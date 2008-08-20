@@ -60,9 +60,6 @@ namespace eq
 
         /**  @return  the X11 drawable ID. */
         virtual XID getXDrawable() const { return _xDrawable; }
-
-        virtual void initEventHandler() { /* nop */ }
-        virtual void exitEventHandler() { /* nop */ }
         //*}
 
     protected:

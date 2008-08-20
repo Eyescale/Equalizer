@@ -122,7 +122,7 @@ namespace net
          * @return the new head version.
          */
         uint32_t commitSync( const uint32_t commitID ) 
-        { return _cm->commitSync( commitID ); }
+            { return _cm->commitSync( commitID ); }
 
         /** 
          * Explicitly obsoletes all versions including version.

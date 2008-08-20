@@ -19,6 +19,9 @@ namespace eq
         WGLWindowIF( Window* parent ) : OSWindow( parent ) {}
         virtual ~WGLWindowIF() {}
 
+        /** @return the WGL rendering context. */
+        virtual HGLRC getWGLContext() const = 0;
+
         /** @return the Win32 window handle. */
         virtual HWND getWGLWindowHandle() const = 0;
 
@@ -27,9 +30,6 @@ namespace eq
 
         /** @return the Win32 device context used for the current drawable. */
         virtual HDC getWGLDC() const = 0;
-
-        /** @return the WGL rendering context. */
-        virtual HGLRC getWGLContext() const = 0;
 
         virtual bool processEvent( const WGLWindowEvent& event )
             { return _window->processEvent( event ); }

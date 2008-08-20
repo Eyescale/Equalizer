@@ -42,10 +42,10 @@ namespace eq
          * empty method to disable built-in event handling.
          * @sa EventHandler, eq::Pipe::useMessagePump()
          */
-        virtual void initEventHandler() = 0;
+        virtual void initEventHandler(){};
 
         /** De-initialize the event handling for this window. */
-        virtual void exitEventHandler() = 0;
+        virtual void exitEventHandler(){};
 
         /**
          * @return the extended OpenGL function table for the window's OpenGL

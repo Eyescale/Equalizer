@@ -57,7 +57,7 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
             EQASSERTINFO( ( _sequence==EQ_ID_INVALID && packet->sequence==0 )||
                 ( _sequence+1 == packet->sequence ),
                 "have " << _sequence << " got " << packet->sequence);
-            _sequence = packet->sequence;
+            _sequence = EQ_ID_INVALID; // last in stream
             return true;
         }
         
