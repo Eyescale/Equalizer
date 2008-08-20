@@ -15,9 +15,7 @@ bool Node::configInit( const uint32_t initID )
         return false;
 
     eq::Config* config = getConfig();
-    const bool  mapped = config->mapObject( &_initData, initID );
-    EQASSERT( mapped );
-
+    EQCHECK( config->mapObject( &_initData, initID ));
     
     return true;
 }

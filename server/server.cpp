@@ -95,8 +95,7 @@ void Server::mapConfig( Config* config )
         config->setName( stringStream.str( ));
     }
 
-    const bool mapped = mapSession( this, config );
-    EQASSERT( mapped );
+    EQCHECK( mapSession( this, config ));
 }
 
 //===========================================================================
@@ -277,8 +276,7 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
     destroyConfigPacket.configID  = config->getID();
     node->send( destroyConfigPacket );
 
-    const bool unmapped = unmapSession( config );
-    EQASSERT( unmapped );
+    EQCHECK( unmapSession( config ));
 
     _appConfigs.erase( packet->configID );
     delete config;

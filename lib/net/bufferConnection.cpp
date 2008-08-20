@@ -60,8 +60,7 @@ void BufferConnection::sendBuffer( ConnectionPtr connection )
         return;
     }
 
-    const bool sent = connection->send( _buffer, _size );
-    EQASSERT( sent );
+    EQCHECK( connection->send( _buffer, _size ));
     _size = 0;
 }
 }

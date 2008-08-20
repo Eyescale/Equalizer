@@ -177,10 +177,8 @@ void VertexBufferDist::applyInstanceData( eq::net::DataIStream& is )
         EQASSERT( sync1 != EQ_ID_INVALID );
         EQASSERT( sync2 != EQ_ID_INVALID );
 
-        const bool mapped1 = session->mapObjectSync( sync1 );
-        const bool mapped2 = session->mapObjectSync( sync2 );
-        EQASSERT( mapped1 );
-        EQASSERT( mapped2 );
+        EQCHECK( session->mapObjectSync( sync1 ));
+        EQCHECK( session->mapObjectSync( sync2 ));
 
         node->_left  = const_cast< mesh::VertexBufferBase* >( _left->_node );
         node->_right = const_cast< mesh::VertexBufferBase* >( _right->_node );

@@ -125,8 +125,7 @@ bool Config::mapData( const uint32_t initDataID )
 {
     if( _initData.getID() == EQ_ID_INVALID )
     {
-        const bool mapped = mapObject( &_initData, initDataID );
-        EQASSERT( mapped );
+        EQCHECK( mapObject( &_initData, initDataID ));
         unmapObject( &_initData ); // data was retrieved, unmap immediately
     }
     else  // appNode, _initData is registered already

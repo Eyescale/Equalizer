@@ -153,10 +153,10 @@ static GLXWindowIF* _getGLXWindow( Window* window )
 
 void GLXEventHandler::_processEvent( GLXWindowEvent& event, Pipe* pipe )
 {
-    XEvent&                  xEvent    = event.xEvent;
-    XID                      drawable  = xEvent.xany.window;
-    const vector< Window* >& windows   = pipe->getWindows();
-    GLXWindowIF*             glXWindow = 0;
+    XEvent&             xEvent   = event.xEvent;
+    XID                 drawable = xEvent.xany.window;
+    const WindowVector& windows  = pipe->getWindows();
+    GLXWindowIF*        glXWindow = 0;
 
     event.window   = 0;
     for( WindowVector::const_iterator i = windows.begin(); 

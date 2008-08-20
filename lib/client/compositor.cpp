@@ -548,9 +548,8 @@ void Compositor::_assembleBlendImages( Image* result,
                                 ( image->getPixelPointer( Frame::BUFFER_COLOR ));
 
         // Check if we have enought space
-        const int32_t maxSpace = ((destY+pvp.h-1)*resultPVP.w + destX+pvp.w);
-        EQASSERT( maxSpace * sizeof( uint32_t ) <=
-                      result->getPixelDataSize( Frame::BUFFER_COLOR ));
+        EQASSERT( ((destY+pvp.h-1)*resultPVP.w+destX+pvp.w)*sizeof(uint32_t) <=
+                  result->getPixelDataSize( Frame::BUFFER_COLOR ));
 
 
         // Blending of two slices, none of which is on final image (i.e. result

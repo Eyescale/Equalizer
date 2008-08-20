@@ -29,6 +29,14 @@
 ** THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// HACK: Get rid of deprecated warning for aglUseFont
+//   -Wno-deprecated-declarations would do as well, but here it is more isolated
+#ifdef AGL
+#  include <AvailabilityMacros.h>
+#  undef DEPRECATED_ATTRIBUTE
+#  define DEPRECATED_ATTRIBUTE
+#endif
+
 #include <GL/glew.h>
 #if defined(_WIN32)
 #  include <GL/wglew.h>

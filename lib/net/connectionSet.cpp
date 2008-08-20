@@ -209,9 +209,8 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
         if( pollFD.revents == 0 )
             continue;
 
-        const int fd         = pollFD.fd;
         const int pollEvents = pollFD.revents;
-        EQASSERT( fd > 0 );
+        EQASSERT( pollFD.fd > 0 );
 
         _connection = _fdSetConnections[i];
         EQASSERT( _connection.isValid( ));

@@ -42,7 +42,7 @@ protected:
 
             // TODO EQASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
             _server = 0;
-            return 0;
+            return (void*)( ret ? EXIT_SUCCESS : EXIT_FAILURE );
         }
 
 private:

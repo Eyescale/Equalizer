@@ -245,11 +245,8 @@ bool Node::stopListening()
     NodeStopPacket packet;
     send( packet );
 
-    const bool recvJoined = _receiverThread->join();
-    EQASSERT( recvJoined );
-
-    const bool cmdJoined = _commandThread->join();
-    EQASSERT( cmdJoined );
+    EQCHECK( _receiverThread->join( ));
+    EQCHECK( _commandThread->join( ));
 
     _cleanup();
 

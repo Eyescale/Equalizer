@@ -142,8 +142,7 @@ net::Barrier* Node::getBarrier( const uint32_t id, const uint32_t version )
 
         barrier = new net::Barrier;
         barrier->makeThreadSafe();
-        const bool mapped = session->mapObject( barrier, id );
-        EQASSERT( mapped );
+        EQCHECK( session->mapObject( barrier, id ));
 
         _barriers[ id ] = barrier;
     }
@@ -164,8 +163,7 @@ FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
         
         frameData = new FrameData;
         frameData->makeThreadSafe();
-        const bool mapped = session->mapObject( frameData, dataVersion.id );
-        EQASSERT( mapped );
+        EQCHECK( session->mapObject( frameData, dataVersion.id ));
 
         _frameDatas[ dataVersion.id ] = frameData;
     }

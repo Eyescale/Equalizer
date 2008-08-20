@@ -83,8 +83,12 @@ bool Base::dispatchCommand( Command& command )
         queue->push( command );
     else
     {
+#ifdef NDEBUG // OPT
+        _vTable[which]( command );
+#else
         const CommandResult result = _vTable[which]( command );
         EQASSERT( result == COMMAND_HANDLED );
+#endif
     }
 
     return true;

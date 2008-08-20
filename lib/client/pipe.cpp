@@ -390,8 +390,7 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
         net::Session* session = getSession();
         frame = new Frame();
 
-        const bool mapped = session->mapObject( frame, frameVersion.id );
-        EQASSERT( mapped );
+        EQCHECK( session->mapObject( frame, frameVersion.id ));
         _frames[ frameVersion.id ] = frame;
     }
     
