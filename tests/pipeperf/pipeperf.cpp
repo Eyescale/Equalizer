@@ -53,8 +53,7 @@ int main( int argc, char **argv )
 {
     eq::net::init( argc, argv );
 
-    ConnectionPtr            connection = 
-        Connection::create( CONNECTIONTYPE_PIPE );
+    ConnectionPtr connection = new PipeConnection;
 
     TEST( connection->connect( ));
     Sender sender( connection );

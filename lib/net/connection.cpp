@@ -49,21 +49,27 @@ Connection::~Connection()
     EQINFO << "Delete Connection @" << (void*)this << endl;
 }
 
-ConnectionPtr Connection::create( const ConnectionType type )
+ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
 {
-    switch( type )
+    ConnectionPtr connection;
+    switch( description->type )
     {
         case CONNECTIONTYPE_TCPIP:
         case CONNECTIONTYPE_SDP:
-            return new SocketConnection( type );
+            connection = new SocketConnection( description->type );
+            break;
 
         case CONNECTIONTYPE_PIPE:
-            return new PipeConnection();
+            connection = new PipeConnection();
+            break;
 
         default:
             EQWARN << "Connection type not implemented" << endl;
-            return 0;
+            return connection;
     }
+
+    connection->setDescription( description );
+    return connection;
 }
 
 ConnectionPtr Connection::accept( const int timeout )

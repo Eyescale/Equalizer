@@ -72,8 +72,7 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer()
 
     // Do not use RefPtr for easier handling
     eq::net::PairConnection* connection = new eq::net::PairConnection( 
-        eq::net::Connection::create( eq::net::CONNECTIONTYPE_PIPE ),
-        eq::net::Connection::create( eq::net::CONNECTIONTYPE_PIPE ));
+        new eq::net::PipeConnection, new eq::net::PipeConnection );
 
     // Wrap in one RefPtr to do correct reference counting and avoid deletion
     eq::net::ConnectionPtr  conn = connection;

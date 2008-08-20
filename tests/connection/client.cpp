@@ -14,12 +14,12 @@ int main( int argc, char **argv )
 {
     eq::net::init( argc, argv );
 
-    RefPtr<Connection>            connection = 
-        Connection::create( CONNECTIONTYPE_TCPIP );
-    RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
+    ConnectionDescriptionPtr description = new ConnectionDescription;
+    description->type = CONNECTIONTYPE_TCPIP;
+    description->setHostname( "localhost" );
+    description->TCPIP.port = 4242;
 
-    connDesc->setHostname( "localhost" );
-    connDesc->TCPIP.port = 4242;
+    ConnectionPtr            connection = Connection::create( description );
     TEST( connection->connect( ));
 
     const char     message[] = "buh!";

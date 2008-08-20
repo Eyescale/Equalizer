@@ -103,9 +103,9 @@ int main( int argc, char **argv )
 {
     TEST( eq::net::init( argc, argv ));
 
-    ConnectionPtr connection = Connection::create( CONNECTIONTYPE_TCPIP );
-    ConnectionDescriptionPtr connDesc = connection->getDescription();
-    connDesc->TCPIP.port = 4242;
+    ConnectionDescriptionPtr description = new ConnectionDescription;
+    description->type       = CONNECTIONTYPE_TCPIP;
+    description->TCPIP.port = 4242;
 
     bool isClient     = true;
     bool useThreads   = false;
@@ -132,11 +132,11 @@ int main( int argc, char **argv )
         command.parse( argc, argv );
 
         if( clientArg.isSet( ))
-            connDesc->fromString( clientArg.getValue( ));
+            description->fromString( clientArg.getValue( ));
         else if( serverArg.isSet( ))
         {
             isClient = false;
-            connDesc->fromString( serverArg.getValue( ));
+            description->fromString( serverArg.getValue( ));
         }
 
         useThreads = threadedArg.isSet();
@@ -156,6 +156,8 @@ int main( int argc, char **argv )
     }
 
     // run
+    ConnectionPtr connection = Connection::create( description );
+
     if( isClient )
     {
         TEST( connection->connect( ));

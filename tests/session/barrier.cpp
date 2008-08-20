@@ -25,12 +25,12 @@ public:
 
     virtual void* run()
         {
-            RefPtr<Connection>            connection = 
-                Connection::create( Connection::TYPE_TCPIP );
-            RefPtr<ConnectionDescription> connDesc   = 
-                connection->getDescription();
+            ConnectionDescriptionPtr description = new ConnectionDescription;
+            description->type       = CONNECTIONTYPE_TCPIP;
+            description->TCPIP.port = _master ? 4242 : 4243;
 
-            connDesc->TCPIP.port = _master ? 4242 : 4243;
+            ConnectionPtr connection = Connection::create( description );
+
             TEST( connection->listen( ))
             
             RefPtr<Node> node = new Node();

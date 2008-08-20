@@ -212,12 +212,13 @@ bool Node::listen()
              _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
     {
-        ConnectionDescriptionPtr desc = *i;
-        ConnectionPtr      connection = Connection::create( desc->type );
-        connection->setDescription( desc );
+        ConnectionDescriptionPtr description = *i;
+        ConnectionPtr            connection = Connection::create( description );
+
         if( !connection->listen( ))
         {
-            EQWARN << "Can't create listener connection: " << desc << endl;
+            EQWARN << "Can't create listener connection: " << description
+                   << endl;
             return false;
         }
 
@@ -1301,8 +1302,7 @@ bool Node::initConnect( NodePtr node )
         i != cds.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
-        ConnectionPtr connection = Connection::create( description->type );
-        connection->setDescription( description );
+        ConnectionPtr connection = Connection::create( description );
 
         if( !connection->connect( ))
             continue;

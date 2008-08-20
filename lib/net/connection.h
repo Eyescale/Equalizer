@@ -56,10 +56,10 @@ namespace net
          * requested type. The concrete connection may not support all
          * functionality of the Connection interface.
          * 
-         * @param type the connection type.
+         * @param description describing the connection to be created.
          * @return the connection.
          */
-        static ConnectionPtr create( const ConnectionType type );
+        static ConnectionPtr create( ConnectionDescriptionPtr description );
         
         /** @name Data Access. */
         bool isClosed() const { return _state == STATE_CLOSED; }
