@@ -289,9 +289,9 @@ void Channel::_drawLogo()
     } glEnd();
 
 #if 1
-    //const eq::PixelViewport& channelPVP = getPixelViewport();
+    const eq::PixelViewport& channelPVP = getPixelViewport();
 
-    //glRasterPos3f( channelPVP.x + 5.0f, channelPVP.getYEnd() - 20.0f, 0.0f );
+    glRasterPos3f( channelPVP.x + 5.0f, channelPVP.getYEnd() - 20.0f, 0.0f );
     string text = "Channel '" + getName() + "'";
     _font.draw( text );
 #endif
