@@ -41,23 +41,23 @@ BitmapFont::~BitmapFont()
 {
 }
 
-bool BitmapFont::setFont( const string& fontName )
+bool BitmapFont::initFont( const string& fontName )
 {
     const Pipe* pipe = _window->getPipe();
     switch( pipe->getWindowSystem( ))
     {
         case WINDOW_SYSTEM_GLX:
-            return _setFontGLX( fontName );
+            return _initFontGLX( fontName );
         case WINDOW_SYSTEM_WGL:
-            return _setFontWGL( fontName );
+            return _initFontWGL( fontName );
         case WINDOW_SYSTEM_AGL:
-            return _setFontAGL( fontName );
+            return _initFontAGL( fontName );
         default:
             return false;
     }
 }
 
-bool BitmapFont::_setFontGLX( const std::string& fontName )
+bool BitmapFont::_initFontGLX( const std::string& fontName )
 {
 #ifdef GLX
     Pipe*    pipe    = _window->getPipe();
@@ -87,7 +87,7 @@ bool BitmapFont::_setFontGLX( const std::string& fontName )
 #endif
 }
 
-bool BitmapFont::_setFontWGL( const std::string& fontName )
+bool BitmapFont::_initFontWGL( const std::string& fontName )
 {
 #ifdef WGL
     const OSWindow*    osWindow  = _window->getOSWindow();
@@ -150,7 +150,7 @@ bool BitmapFont::_setFontWGL( const std::string& fontName )
 #endif
 }
 
-bool BitmapFont::_setFontAGL( const std::string& fontName )
+bool BitmapFont::_initFontAGL( const std::string& fontName )
 {
 #ifdef AGL
     const OSWindow*    osWindow  = _window->getOSWindow();
@@ -220,7 +220,7 @@ void BitmapFont::_setupLists( const GLsizei num )
     }
 }
 
-void BitmapFont::draw( const std::string& text )
+void BitmapFont::draw( const std::string& text ) const
 {
     const Pipe* pipe = _window->getPipe();
     switch( pipe->getWindowSystem( ))

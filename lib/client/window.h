@@ -7,6 +7,7 @@
 #include <eq/client/objectManager.h> // member
 #include <eq/client/pipe.h>          // used in inline functions
 #include <eq/client/pixelViewport.h> // member
+#include <eq/util/bitmapFont.h>      // member
 
 namespace eq
 {
@@ -47,9 +48,18 @@ namespace eq
                               public base::Referenced
         {
         public:
-            ObjectManager( GLEWContext* glewContext ) 
-                    : eq::ObjectManager< const void * >( glewContext ) {}
+            ObjectManager( Window* window ) 
+                    : eq::ObjectManager<const void *>(window->glewGetContext( ))
+                    , _font( window )
+                {}
             virtual ~ObjectManager(){}
+            
+            /** @return A generic bitmap font renderer */
+            const util::BitmapFont& getDefaultFont() const { return _font; }
+
+        private:
+            util::BitmapFont _font;
+            friend class Window;
         };
 
         /** 
@@ -103,16 +113,19 @@ namespace eq
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        GLEWContext* glewGetContext();
+        GLEWContext* glewGetContext() { return _glewContext; }
 
         /** @return the generic WGL function table for the window's pipe. */
         WGLEWContext* wglewGetContext() { return _pipe->wglewGetContext(); }
 
         /** @return information about the current drawable. */
-        const DrawableConfig& getDrawableConfig() const;
+        const DrawableConfig& getDrawableConfig() const 
+            { return _drawableConfig; }
 
         /** @return the window's object manager instance. */
-        ObjectManager* getObjectManager();
+        ObjectManager* getObjectManager() { return _objectManager.get(); }
+        const ObjectManager* getObjectManager() const 
+            { return _objectManager.get(); }
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
@@ -379,6 +392,15 @@ namespace eq
         /** The fractional viewport wrt the pipe. */
         eq::Viewport      _vp;
 
+        /** Drawable characteristics of this window */
+        Window::DrawableConfig _drawableConfig;
+
+        /** Extended OpenGL function entries when window has a context. */
+        GLEWContext*   _glewContext;
+
+        /** OpenGL object management. */
+        base::RefPtr< ObjectManager > _objectManager;
+
         /** The list of render context used since the last frame start. */
         std::vector< RenderContext > _renderContexts[2];
         enum 
@@ -394,6 +416,14 @@ namespace eq
 
         bool _setPixelViewport( const PixelViewport& pvp );
         void _setViewport( const Viewport& vp );
+
+        /** Set up object manager during initialization. */
+        void _setupObjectManager();
+        /** Release object manager. */
+        void _releaseObjectManager();
+
+        /** Set up _drawableConfig by querying the current context. */
+        void _queryDrawableConfig();
 
         /* The command functions. */
         net::CommandResult _cmdCreateChannel( net::Command& command );

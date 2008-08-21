@@ -52,8 +52,6 @@ namespace eq
 
         virtual base::SpinLock* getContextLock() { return &_renderContextLock; }
 
-        virtual bool isInitialized() const;
-
         /** @return the AGL rendering context. */
         virtual AGLContext getAGLContext() const { return _aglContext; }
 

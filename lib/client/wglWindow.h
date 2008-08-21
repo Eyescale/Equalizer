@@ -46,8 +46,6 @@ namespace eq
         virtual void makeCurrent() const;
         virtual void swapBuffers();
 
-        virtual bool isInitialized() const;
-
         /** @return the Win32 window handle. */
         virtual HWND getWGLWindowHandle() const { return _wglWindow; }
 

@@ -58,6 +58,7 @@ Window::Window( Pipe* parent )
         : _sharedContextWindow( 0 ) // default set by pipe
         , _osWindow( 0 )
         , _pipe( parent )
+        , _glewContext( new GLEWContext )
 {
     net::CommandQueue* queue = parent->getPipeThreadQueue();
 
@@ -97,6 +98,9 @@ Window::Window( Pipe* parent )
 Window::~Window()
 {
     _pipe->_removeWindow( this );
+
+    delete _glewContext;
+    _glewContext = 0;
 }
 
 void Window::_addChannel( Channel* channel )
@@ -172,24 +176,6 @@ WindowVisitor::Result Window::accept( WindowVisitor* visitor )
 //======================================================================
 // pipe-thread methods
 //======================================================================
-
-GLEWContext* Window::glewGetContext()
-{
-    EQASSERT( _osWindow );
-    return _osWindow->glewGetContext();
-}
-
-const Window::DrawableConfig& Window::getDrawableConfig() const
-{
-    EQASSERT( _osWindow );
-    return _osWindow->getDrawableConfig();
-}
-
-Window::ObjectManager* Window::getObjectManager()
-{
-    EQASSERT( _osWindow );
-    return _osWindow->getObjectManager();
-}
 
 //----------------------------------------------------------------------
 // viewport
@@ -335,9 +321,75 @@ bool Window::configInitOSWindow( const uint32_t initID )
             return false;
     }
 
-    if( !_osWindow->configInit( )) return false;
+    if( !_osWindow->configInit( )) 
+        return false;
+
+    // Initialize context-specific data
+    makeCurrent();
+
+    _queryDrawableConfig();
+    const GLenum result = glewInit();
+    if( result != GLEW_OK )
+        EQWARN << "GLEW initialization failed with error " << result <<endl;
+
+    _setupObjectManager();
 
     return true;
+}
+
+void Window::_queryDrawableConfig()
+{
+    // GL version
+    const char* glVersion = (const char*)glGetString( GL_VERSION );
+    if( !glVersion ) // most likely no context - fail
+    {
+        EQWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
+            << endl;
+        _drawableConfig.glVersion = 1.1f;
+    }
+    else
+        _drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
+
+    // Framebuffer capabilities
+    GLboolean result;
+    glGetBooleanv( GL_STEREO,       &result );
+    _drawableConfig.stereo = result;
+
+    glGetBooleanv( GL_DOUBLEBUFFER, &result );
+    _drawableConfig.doublebuffered = result;
+
+    GLint stencilBits;
+    glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
+    _drawableConfig.stencilBits = stencilBits;
+
+    GLint alphaBits;
+    glGetIntegerv( GL_ALPHA_BITS, &alphaBits );
+    _drawableConfig.alphaBits = alphaBits;
+
+    EQINFO << "Window drawable config: " << _drawableConfig << endl;
+}
+
+void Window::_setupObjectManager()
+{
+    _releaseObjectManager();
+
+    Window* sharedWindow = getSharedContextWindow();
+    if( sharedWindow )
+        _objectManager = sharedWindow->getObjectManager();
+
+    if( !_objectManager.isValid( ))
+    {
+        _objectManager = new ObjectManager( this );
+        _objectManager->_font.initFont();
+    }
+}
+
+void Window::_releaseObjectManager()
+{
+    if( _objectManager.isValid() && _objectManager->getRefCount() == 1 )
+        _objectManager->deleteAll();
+
+    _objectManager = 0;
 }
 
 bool Window::configInitGL( const uint32_t initID )
@@ -373,6 +425,8 @@ bool Window::configExit()
 
 bool Window::configExitOSWindow()
 {
+    _releaseObjectManager();
+
     if( _osWindow )
     {
         _osWindow->configExit( );
@@ -497,14 +551,6 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     net::NodePtr node = command.getNode();
     if( !reply.result )
     {
-        send( node, reply, _error );
-        return net::COMMAND_HANDLED;
-    }
-
-    if( !_osWindow->isInitialized( ))
-    {
-        EQERROR << "OSWindow is not initialized" << endl;
-        reply.result = false;
         send( node, reply, _error );
         return net::COMMAND_HANDLED;
     }

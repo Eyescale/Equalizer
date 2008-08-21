@@ -19,8 +19,7 @@ namespace eqPly
     class Channel : public eq::Channel
     {
     public:
-        Channel( eq::Window* parent ) : eq::Channel( parent ), _font( parent )
-            {}
+        Channel( eq::Window* parent ) : eq::Channel( parent ) {}
 
     protected:
         virtual ~Channel() {}
@@ -39,8 +38,6 @@ namespace eqPly
                            const vmml::Vector4f& boundingSphere );
 
         const FrameData::Data& _getFrameData() const;
-
-        eq::util::BitmapFont _font;
     };
 }
 

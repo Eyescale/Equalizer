@@ -40,8 +40,6 @@ namespace eq
 
         virtual void swapBuffers();
 
-        virtual bool isInitialized() const;
-
         //* @name GLX/X11 initialization
         //*{
         /** 

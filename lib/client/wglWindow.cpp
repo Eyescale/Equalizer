@@ -79,20 +79,10 @@ void WGLWindow::swapBuffers()
 #endif
 }
 
-bool WGLWindow::isInitialized() const
-{
-    return _wglDC && _wglContext;
-}
-
 void WGLWindow::setWGLContext( HGLRC context )
 {
 #ifdef WGL
     _wglContext = context; 
-
-    if( _wglContext && _wglDC )
-        _initializeGLData();
-    else
-        _clearGLData();
 #endif
 }
 
@@ -119,11 +109,6 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
         initEventHandler();
         _wglDC = GetDC( _wglWindow );
     }
-
-    if( _wglContext && _wglWindow )
-        _initializeGLData();
-    else
-        _clearGLData();
 
     if( !handle )
         return;
@@ -161,11 +146,6 @@ void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
 
     if( _wglPBuffer )
         _wglDC = wglGetPbufferDCARB( _wglPBuffer );
-
-    if( _wglContext && _wglPBuffer)
-        _initializeGLData();
-    else
-        _clearGLData();
 
     if( !handle )
         return;
@@ -224,8 +204,8 @@ bool WGLWindow::configInit()
         if( WGLEW_EXT_swap_control )
         {
             // set vsync on/off
-            const GLint vsync = ( getIAttribute( Window::IATTR_HINT_SWAPSYNC )==OFF ) ?
-                                    0 : 1;
+            const GLint vsync = 
+                ( getIAttribute( Window::IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
             wglSwapIntervalEXT( vsync );
         }
         else

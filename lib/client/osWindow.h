@@ -5,9 +5,10 @@
 #ifndef EQ_OS_WINDOW_H
 #define EQ_OS_WINDOW_H
 
-#include <eq/base/spinLock.h>
-#include <eq/client/windowSystem.h>
-#include <eq/client/window.h>
+#include <eq/client/windowSystem.h>   // WGLew
+#include <eq/client/window.h>         // used in inline methods
+
+#include <eq/base/spinLock.h>       
 
 namespace eq
 {
@@ -32,8 +33,6 @@ namespace eq
 
         virtual base::SpinLock* getContextLock() { return 0; }
 
-        virtual bool isInitialized() const = 0;
-
         /**
          * Initialize the event handling for this window. 
          * 
@@ -46,20 +45,6 @@ namespace eq
 
         /** De-initialize the event handling for this window. */
         virtual void exitEventHandler(){};
-
-        /**
-         * @return the extended OpenGL function table for the window's OpenGL
-         *         context.
-         */
-        GLEWContext* glewGetContext() { return _glewContext; }
-
-        /** @return information about the current drawable. */
-        const Window::DrawableConfig& getDrawableConfig() const
-            { return _drawableConfig; }
-
-        /** @return the object manager instance. */
-        Window::ObjectManager* getObjectManager()
-            { return _objectManager.get(); }
         //*}
 
         /** @name Convenience interface to eq::Window methods */
@@ -85,30 +70,6 @@ namespace eq
     protected:
         /** The parent eq::Window. */
         Window* const _window;
-
-        /** Set up OpenGL-specific window data, e.g., GLEW. */
-        void _initializeGLData();
-        /** Clear OpenGL-specific window data. */
-        void _clearGLData();
-
-        /** Set up object manager during initialization. */
-        void _setupObjectManager();
-        /** Release object manager. */
-        void _releaseObjectManager();
-
-        /** Set up _drawableConfig by querying the current context. */
-        void _queryDrawableConfig();
-
-    private:
-        /** Drawable characteristics of this window */
-        Window::DrawableConfig _drawableConfig;
-
-        /** Extended OpenGL function entries when window has a context. */
-        GLEWContext*   _glewContext;
-
-        /** OpenGL object management. */
-        base::RefPtr< Window::ObjectManager > _objectManager;
-
     };
 }
 

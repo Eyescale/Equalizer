@@ -471,11 +471,6 @@ void GLXWindow::setXDrawable( XID drawable )
     if( _xDrawable )
         initEventHandler();
 
-    if( _xDrawable && _glXContext )
-        _initializeGLData();
-    else
-        _clearGLData();
-
     if( !drawable )
         return;
 
@@ -532,11 +527,6 @@ void GLXWindow::setGLXContext( GLXContext context )
 {
 #ifdef GLX
     _glXContext = context;
-
-    if( _xDrawable && _glXContext )
-        _initializeGLData();
-    else
-        _clearGLData();
 #endif
 }
 
@@ -595,11 +585,6 @@ void GLXWindow::swapBuffers()
 
     glXSwapBuffers( pipe->getXDisplay(), _xDrawable );
 #endif
-}
-
-bool GLXWindow::isInitialized() const
-{
-    return _xDrawable && _glXContext;
 }
 
 }

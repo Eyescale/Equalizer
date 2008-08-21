@@ -85,23 +85,10 @@ bool AGLWindow::processEvent( const AGLWindowEvent& event )
     return AGLWindowIF::processEvent( event );
 }
 
-bool AGLWindow::isInitialized() const
-{
-    return _aglContext;
-}
-
-
-
 void AGLWindow::setAGLContext( AGLContext context )
 {
 #ifdef AGL
     _aglContext = context;
-
-    if( _aglContext )
-        _initializeGLData();
-    else
-        _clearGLData();
-
 #endif // AGL
 }
 

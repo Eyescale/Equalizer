@@ -40,9 +40,6 @@ bool Channel::configInit( const uint32_t initID )
         return false;
 
     setNearFar( 0.1f, 10.0f );
-#if 1
-    _font.setFont();
-#endif
     return true;
 }
 
@@ -250,7 +247,7 @@ void Channel::_drawLogo()
     
     const eq::PixelViewport& pvp    = getPixelViewport();
     const vmml::Vector2i&    offset = getPixelOffset();
-    const eq::Pixel&         pixel   = getPixel();
+    const eq::Pixel&         pixel  = getPixel();
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
@@ -288,12 +285,15 @@ void Channel::_drawLogo()
         glVertex3f( size.x, size.y, 0.0f );
     } glEnd();
 
-#if 1
+#if 0
     const eq::PixelViewport& channelPVP = getPixelViewport();
 
     glRasterPos3f( channelPVP.x + 5.0f, channelPVP.getYEnd() - 20.0f, 0.0f );
     string text = "Channel '" + getName() + "'";
-    _font.draw( text );
+
+    const eq::util::BitmapFont& font = 
+        window->getObjectManager()->getDefaultFont();
+    font.draw( text );
 #endif
 
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
