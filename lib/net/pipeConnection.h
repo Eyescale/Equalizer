@@ -20,7 +20,7 @@ namespace net
     /**
      * A uni-directional pipe connection.
      */
-    class PipeConnection 
+    class EQ_EXPORT PipeConnection 
 #ifdef WIN32
         : public Connection
 #else
