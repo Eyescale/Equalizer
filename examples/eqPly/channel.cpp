@@ -40,7 +40,7 @@ bool Channel::configInit( const uint32_t initID )
         return false;
 
     setNearFar( 0.1f, 10.0f );
-#if 0
+#if 1
     _font.setFont();
 #endif
     return true;
@@ -94,8 +94,8 @@ void Channel::frameDraw( const uint32_t frameID )
         glNormal3f( 0.f, -1.f, 0.f );
         glBegin( GL_TRIANGLE_STRIP );
         glVertex3f(  .25f, 0.f,  .25f );
-        glVertex3f(  .25f, 0.f, -.25f );
         glVertex3f( -.25f, 0.f,  .25f );
+        glVertex3f(  .25f, 0.f, -.25f );
         glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
     }
@@ -288,10 +288,10 @@ void Channel::_drawLogo()
         glVertex3f( size.x, size.y, 0.0f );
     } glEnd();
 
-#if 0
-    const eq::PixelViewport& channelPVP = getPixelViewport();
+#if 1
+    //const eq::PixelViewport& channelPVP = getPixelViewport();
 
-    glRasterPos3f( channelPVP.x + 5.0f, channelPVP.getYEnd() - 20.0f, 0.0f );
+    //glRasterPos3f( channelPVP.x + 5.0f, channelPVP.getYEnd() - 20.0f, 0.0f );
     string text = "Channel '" + getName() + "'";
     _font.draw( text );
 #endif

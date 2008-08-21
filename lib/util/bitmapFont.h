@@ -36,6 +36,8 @@ namespace util
         bool _setFontGLX( const std::string& fontName );
         bool _setFontWGL( const std::string& fontName );
         bool _setFontAGL( const std::string& fontName );
+
+        void _setupLists( const GLsizei num );
     };
 }
 }

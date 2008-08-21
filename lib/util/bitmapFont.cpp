@@ -14,6 +14,9 @@
 
 #include <eq/client/window.h>
 
+#ifdef WGL
+#  include <eq/client/wglWindow.h>
+#endif
 #ifdef AGL
 #  include <eq/client/aglWindow.h>
 #endif
@@ -57,15 +60,6 @@ bool BitmapFont::setFont( const string& fontName )
 bool BitmapFont::_setFontGLX( const std::string& fontName )
 {
 #ifdef GLX
-    Window::ObjectManager* gl = _window->getObjectManager();
-    EQASSERT( gl );
-
-    if( _lists != Window::ObjectManager::FAILED )
-        gl->deleteList( _lists );
-
-    _lists = gl->newList( this, 127 );
-    EQASSERT( _lists != Window::ObjectManager::FAILED );
-
     Pipe*    pipe    = _window->getPipe();
     Display* display = pipe->getXDisplay();
     EQASSERT( display );
@@ -82,6 +76,8 @@ bool BitmapFont::_setFontGLX( const std::string& fontName )
     }
 
     EQASSERT( fontStruct );
+
+    _setupLists( 127 );
     glXUseXFont( fontStruct->fid, 0, 127, _lists );
 
     XFreeFont( display, fontStruct );
@@ -94,8 +90,61 @@ bool BitmapFont::_setFontGLX( const std::string& fontName )
 bool BitmapFont::_setFontWGL( const std::string& fontName )
 {
 #ifdef WGL
-    EQUNIMPLEMENTED;
-    return false;
+    const OSWindow*    osWindow  = _window->getOSWindow();
+    const WGLWindowIF* wglWindow = dynamic_cast< const WGLWindowIF* >(osWindow);
+
+    if( !wglWindow )
+    {
+        EQWARN << "Window does not use a WGL window" << endl;
+        return false;
+    }
+
+    HDC dc = wglWindow->getWGLDC();
+    if( !dc )
+    {
+        EQWARN << "WGL window does not have a device context" << endl;
+        return false;
+    }
+
+    LOGFONT font;
+    memset( &font, 0, sizeof( font ));
+    font.lfHeight = -12;
+    font.lfWeight = FW_NORMAL;
+    font.lfCharSet = ANSI_CHARSET;
+    font.lfOutPrecision = OUT_DEFAULT_PRECIS;
+    font.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+    font.lfQuality = DEFAULT_QUALITY;
+    font.lfPitchAndFamily = FF_DONTCARE | DEFAULT_QUALITY;
+
+    if( fontName == normal )
+        strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
+    else
+        strncpy( font.lfFaceName, fontName.c_str(), LF_FACESIZE );
+    font.lfFaceName[ LF_FACESIZE-1 ] = '\0';
+
+    HFONT newFont = CreateFontIndirect( &font );
+    if( !newFont )
+    {
+        EQWARN << "Can't load font " << fontName << ", using Times New Roman" 
+               << endl;
+
+        strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
+        newFont = CreateFontIndirect( &font );
+    }
+    EQASSERT( newFont );
+
+    HFONT oldFont = static_cast< HFONT >( SelectObject( dc, newFont ));
+
+    _setupLists( 256 );
+    const bool ret = wglUseFontBitmaps( dc, 0 , 255, _lists );
+    
+    SelectObject( dc, oldFont );
+    //DeleteObject( newFont );
+    
+    if( !ret )
+        _setupLists( 0 );
+
+    return ret;
 #else
     return false;
 #endif
@@ -112,16 +161,6 @@ bool BitmapFont::_setFontAGL( const std::string& fontName )
         EQWARN << "Window does not use an AGL window" << endl;
         return false;
     }
-
-    Window::ObjectManager* gl = _window->getObjectManager();
-    EQASSERT( gl );
-
-    if( _lists != Window::ObjectManager::FAILED )
-        gl->deleteList( _lists );
-
-    _lists = gl->newList( this, 256 );
-    EQASSERT( _lists != Window::ObjectManager::FAILED );
-
 
     AGLContext context = aglWindow->getAGLContext();
     EQASSERT( context );
@@ -151,10 +190,10 @@ bool BitmapFont::_setFontAGL( const std::string& fontName )
     }
     EQASSERT( font );
 
+    _setupLists( 127 );
     if( !aglUseFont( context, font, ::normal, 12, 0, 256, (long)_lists ))
     {
-        gl->deleteList( _lists );
-        _lists = Window::ObjectManager::FAILED;
+        _setupLists( 0 );
         return false;
     }
     
@@ -164,6 +203,23 @@ bool BitmapFont::_setFontAGL( const std::string& fontName )
 #endif
 }
 
+void BitmapFont::_setupLists( const GLsizei num )
+{
+    Window::ObjectManager* gl = _window->getObjectManager();
+    EQASSERT( gl );
+
+    if( _lists != Window::ObjectManager::FAILED )
+        gl->deleteList( _lists );
+
+    if( num == 0 )
+        _lists = Window::ObjectManager::FAILED;
+    else
+    {
+        _lists = gl->newList( this, num );
+        EQASSERT( _lists != Window::ObjectManager::FAILED );
+    }
+}
+
 void BitmapFont::draw( const std::string& text )
 {
     const Pipe* pipe = _window->getPipe();
@@ -171,15 +227,13 @@ void BitmapFont::draw( const std::string& text )
     {
         case WINDOW_SYSTEM_GLX:
         case WINDOW_SYSTEM_AGL:
+        case WINDOW_SYSTEM_WGL:
             if( _lists != Window::ObjectManager::FAILED )
             {
                 glListBase( _lists );
                 glCallLists( text.size(), GL_UNSIGNED_BYTE, text.c_str( ));
                 glListBase( 0 );
             }
-            break;
-
-        case WINDOW_SYSTEM_WGL:
             break;
 
         default:
