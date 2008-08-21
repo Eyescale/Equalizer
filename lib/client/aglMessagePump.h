@@ -1,17 +1,12 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_AGLMESSAGEPUMP_H
 #define EQ_AGLMESSAGEPUMP_H
 
-#include <eq/client/messagePump.h> // base class
-
-#ifdef AGL
-#  define Cursor CGLCursor   // avoid name clash with X11 'Cursor'
-#  include <Carbon/Carbon.h>
-#  undef Cursor
-#endif
+#include <eq/client/messagePump.h>  // base class
+#include <eq/client/windowSystem.h> // EventQueueRef definition
 
 namespace eq
 {
