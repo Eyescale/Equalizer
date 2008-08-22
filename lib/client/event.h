@@ -131,6 +131,7 @@ namespace eq
         uint32_t frameNumber;
         int64_t  startTime;
         int64_t  endTime;
+        char     resourceName[32];
     };
 
 #   define EQ_USER_EVENT_SIZE 32

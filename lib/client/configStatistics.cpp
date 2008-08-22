@@ -20,6 +20,12 @@ ConfigStatistics::ConfigStatistics( const Statistic::Type type,
     event.data.statistic.type        = type;
     event.data.statistic.frameNumber = config->getCurrentFrame();
 
+    const std::string& name = config->getName();
+    if( name.empty( ))
+        snprintf( event.data.statistic.resourceName, 32, "config" );
+    else
+        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
+
     event.data.statistic.startTime   = config->getTime();
 }
 

@@ -24,6 +24,13 @@ WindowStatistics::WindowStatistics( const Statistic::Type type,
     _event.data.statistic.type        = type;
     _event.data.statistic.frameNumber = window->getPipe()->getCurrentFrame();
 
+    const std::string& name = window->getName();
+    if( name.empty( ))
+        snprintf( _event.data.statistic.resourceName, 32, "window %d",
+                  window->getID( ));
+    else
+        snprintf( _event.data.statistic.resourceName, 32, "%s", name.c_str( ));
+
     if( hint == NICEST )
         window->finish();
     _event.data.statistic.startTime  = window->getConfig()->getTime();

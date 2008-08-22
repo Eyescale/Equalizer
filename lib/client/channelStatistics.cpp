@@ -23,6 +23,13 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
     event.data.originator            = channel->getID();
     event.data.statistic.type        = type;
     event.data.statistic.frameNumber = channel->getPipe()->getCurrentFrame();
+    
+    const std::string& name = channel->getName();
+    if( name.empty( ))
+        snprintf( event.data.statistic.resourceName, 32, "channel %d",
+                  channel->getID( ));
+    else
+        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
 
     if( hint == NICEST && 
         type != Statistic::CHANNEL_COMPRESS && 

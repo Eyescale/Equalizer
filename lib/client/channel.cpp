@@ -424,6 +424,8 @@ void Channel::drawStatistics()
     glDisable( GL_LIGHTING );
     glEnable( GL_DEPTH_TEST );
 
+    const util::BitmapFont& font =_window->getObjectManager()->getDefaultFont();
+
     int64_t       xStart = 0;
     PixelViewport pvp    = _window->getPixelViewport();
     pvp.x = 0;
@@ -456,14 +458,6 @@ void Channel::drawStatistics()
     uint32_t                       nextY = pvp.getYEnd() - SPACE;
     std::map< uint32_t, uint32_t > positions;
 
-    glRasterPos3f( 5.0f, pvp.getYEnd() - 20.0f, 0.0f );
-    const eq::util::BitmapFont& font = 
-        _window->getObjectManager()->getDefaultFont();
-    ostringstream scaleText;
-    scaleText << scale << "ms/pixel";
-    font.draw( scaleText.str( ));
-    
-    glBegin( GL_QUADS );
     float dim = 0.0f;
     for( vector< FrameStatistics >::reverse_iterator i = statistics.rbegin();
          i != statistics.rend(); ++i )
@@ -481,6 +475,9 @@ void Channel::drawStatistics()
             const uint32_t    id    = j->first;
             const Statistics& stats = j->second;
 
+            if( stats.empty( ))
+                continue;
+
             if( positions.find( id ) == positions.end( ))
             {
                 positions.insert( 
@@ -489,7 +486,13 @@ void Channel::drawStatistics()
             }
 
             const uint32_t y = positions[ id ];
-            
+
+            const Statistic& nameStat = stats.front();
+            glColor3f( 1.f, 1.f, 1.f );
+            glRasterPos3f( 100.f, y-SPACE-12.0f, 0.99f );
+            font.draw( nameStat.resourceName );
+
+            glBegin( GL_QUADS );
             for( Statistics::const_iterator k = stats.begin(); 
                  k != stats.end(); ++k )
             {
@@ -573,11 +576,13 @@ void Channel::drawStatistics()
                 glVertex3f( x1, y2, z );
                 glVertex3f( x2, y2, z );
             }
+            glEnd();
         }
 
         frameMin -= xStart;
         frameMax -= xStart;
 
+        glBegin( GL_QUADS );
         glColor3f( .5f-dim, 1.0f-dim, .5f-dim );
         glVertex3f( frameMin+1.0f, pvp.getYEnd(), 0.3f );
         glVertex3f( frameMin,      pvp.getYEnd(), 0.3f );
@@ -589,11 +594,16 @@ void Channel::drawStatistics()
         glVertex3f( frameMax,      pvp.getYEnd(), 0.3f );
         glVertex3f( frameMax,      nextY,         0.3f );
         glVertex3f( frameMax+1.0f, nextY,         0.3f );
+        glEnd();
 
         dim += .2f;
     }
-    glEnd();
 
+    glColor3f( 1.f, 1.f, 1.f );
+    ostringstream scaleText;
+    scaleText << ": " << scale << "ms/pixel";
+    font.draw( scaleText.str( ));
+    
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
