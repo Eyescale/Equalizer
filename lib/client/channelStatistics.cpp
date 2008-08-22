@@ -24,8 +24,13 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
     event.data.statistic.type        = type;
     event.data.statistic.frameNumber = channel->getPipe()->getCurrentFrame();
 
-    if( hint == NICEST )
+    if( hint == NICEST && 
+        type != Statistic::CHANNEL_COMPRESS && 
+        type != Statistic::CHANNEL_TRANSMIT && 
+        type != Statistic::CHANNEL_TRANSMIT_NODE )
+    {
         channel->getWindow()->finish();
+    }
     event.data.statistic.startTime  = channel->getConfig()->getTime();
     event.data.statistic.endTime    = 0.f;
 }
@@ -38,9 +43,13 @@ ChannelStatistics::~ChannelStatistics()
     if( hint == OFF )
         return;
 
-    if( hint == NICEST )
+    if( hint == NICEST && 
+        event.data.statistic.type != Statistic::CHANNEL_COMPRESS && 
+        event.data.statistic.type != Statistic::CHANNEL_TRANSMIT && 
+        event.data.statistic.type != Statistic::CHANNEL_TRANSMIT_NODE )
+    {
         channel->getWindow()->finish();
-
+    }
     if( event.data.statistic.endTime == 0.f )
         event.data.statistic.endTime = channel->getConfig()->getTime();
     channel->addStatistic( event );
