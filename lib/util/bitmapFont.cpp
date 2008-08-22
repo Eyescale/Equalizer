@@ -41,7 +41,7 @@ BitmapFont::~BitmapFont()
 {
 }
 
-bool BitmapFont::initFont( const string& fontName )
+bool BitmapFont::initFont( const std::string& fontName )
 {
     const Pipe* pipe = _window->getPipe();
     switch( pipe->getWindowSystem( ))
