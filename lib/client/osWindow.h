@@ -32,19 +32,6 @@ namespace eq
         virtual void swapBuffers() = 0;
 
         virtual base::SpinLock* getContextLock() { return 0; }
-
-        /**
-         * Initialize the event handling for this window. 
-         * 
-         * This function initializes the necessary event handler for this
-         * window, if required by the window system. Can be overriden by an
-         * empty method to disable built-in event handling.
-         * @sa EventHandler, eq::Pipe::useMessagePump()
-         */
-        virtual void initEventHandler(){};
-
-        /** De-initialize the event handling for this window. */
-        virtual void exitEventHandler(){};
         //*}
 
         /** @name Convenience interface to eq::Window methods */
