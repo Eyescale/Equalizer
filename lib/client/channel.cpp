@@ -456,6 +456,13 @@ void Channel::drawStatistics()
     uint32_t                       nextY = pvp.getYEnd() - SPACE;
     std::map< uint32_t, uint32_t > positions;
 
+    glRasterPos3f( 5.0f, pvp.getYEnd() - 20.0f, 0.0f );
+    const eq::util::BitmapFont& font = 
+        _window->getObjectManager()->getDefaultFont();
+    ostringstream scaleText;
+    scaleText << scale << "ms/pixel";
+    font.draw( scaleText.str( ));
+    
     glBegin( GL_QUADS );
     float dim = 0.0f;
     for( vector< FrameStatistics >::reverse_iterator i = statistics.rbegin();
