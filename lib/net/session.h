@@ -164,18 +164,26 @@ namespace net
          * Map a distributed object.
          *
          * The mapped object becomes a slave instance of the master version
-         * registered to the provided identifier.
+         * registered to the provided identifier. The version can be used to map
+         * a specific version. If this version does not exist, mapObject() will
+         * fail. If VERSION_NONE is provided, the oldest available version is
+         * mapped. If the requested version is newer than the head version,
+         * mapObject() will block until the requested version is available.
          * 
          * @param object the object.
          * @param id the master object identifier.
+         * @param version the initial version.
          * @return true if the object was mapped, false if the master of the
-         *         object is no longer mapped.
+         *         object is not found or the requested version is no longer
+         *         available.
          * @sa registerObject
          */
-        bool mapObject( Object* object, const uint32_t id );
+        bool mapObject( Object* object, const uint32_t id, 
+                        const uint32_t version = Object::VERSION_NONE );
 
         /** Start mapping a distributed object. */
-        uint32_t mapObjectNB( Object* object, const uint32_t id );
+        uint32_t mapObjectNB( Object* object, const uint32_t id, 
+                              const uint32_t version = Object::VERSION_NONE );
         /** Finalize the mapping of a distributed object. */
         bool mapObjectSync( const uint32_t requestID );
 

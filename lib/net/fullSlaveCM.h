@@ -51,13 +51,14 @@ namespace net
 
         virtual uint32_t getHeadVersion() const;
         virtual uint32_t getVersion() const { return _version; }
+        virtual uint32_t getOldestVersion() const { return _version; }
         //*}
 
         virtual bool isMaster() const { return false; }
         virtual uint32_t getMasterInstanceID() const {return _masterInstanceID;}
 
-        virtual void addSlave( NodePtr slave, const uint32_t instanceID )
-            { EQDONTCALL; }
+        virtual void addSlave( NodePtr slave, const uint32_t instanceID,
+                               const uint32_t version ) { EQDONTCALL; }
         virtual void removeSlave( NodePtr node ) { EQDONTCALL; }
 
         virtual void applyMapData();

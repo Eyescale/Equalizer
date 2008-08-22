@@ -69,6 +69,8 @@ namespace base
 
 #endif // DEBUG
 
+#define EQSAFECAST( to, in ) static_cast< to >( in );   \
+    EQASSERT( in == 0 || dynamic_cast< to >( static_cast< to >( in )))
 
 
 #endif //EQBASE_DEBUG_H

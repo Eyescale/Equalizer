@@ -309,20 +309,26 @@ namespace net
                 size    = sizeof( SessionMapObjectPacket ); 
             }
         
-        uint32_t            requestID;
+        uint32_t requestID;
+        uint32_t objectID;
+        uint32_t version;
     };
 
     struct SessionSubscribeObjectPacket : public SessionPacket
     {
-        SessionSubscribeObjectPacket()
+        SessionSubscribeObjectPacket( const SessionMapObjectPacket* mapPacket )
             {
                 command = CMD_SESSION_SUBSCRIBE_OBJECT;
-                size    = sizeof( SessionSubscribeObjectPacket ); 
+                size    = sizeof( SessionSubscribeObjectPacket );
+                requestID  = mapPacket->requestID;
+                version    = mapPacket->version;
+                objectID   = mapPacket->objectID;
             }
         
-        uint32_t            requestID;
-        uint32_t            objectID;
-        uint32_t            instanceID;
+        uint32_t requestID;
+        uint32_t objectID;
+        uint32_t version;
+        uint32_t instanceID;
     };
 
     struct SessionSubscribeObjectSuccessPacket : public SessionPacket
@@ -333,10 +339,12 @@ namespace net
                 command    = CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS;
                 size       = sizeof( SessionSubscribeObjectSuccessPacket ); 
                 requestID  = request->requestID;
+                objectID   = request->objectID;
                 instanceID = request->instanceID;
             }
         
         uint32_t requestID;
+        uint32_t objectID;
         uint32_t instanceID;
         uint32_t changeType;
         uint32_t masterInstanceID;
@@ -350,9 +358,13 @@ namespace net
                 command   = CMD_SESSION_SUBSCRIBE_OBJECT_REPLY;
                 size      = sizeof( SessionSubscribeObjectReplyPacket ); 
                 requestID = request->requestID;
+                objectID  = request->objectID;
+                version   = request->version;
             }
         
         uint32_t requestID;
+        uint32_t objectID;
+        uint32_t version;
         bool     result;
     };
 

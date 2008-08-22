@@ -97,6 +97,9 @@ namespace net
 
         /** @return the current version. */
         virtual uint32_t getVersion() const = 0;
+
+        /** @return the oldest available version. */
+        virtual uint32_t getOldestVersion() const = 0;
         //*}
 
         /** @return if this instance is the master version. */
@@ -108,10 +111,12 @@ namespace net
         /** 
          * Add a subscribed slave to the managed object.
          * 
-         * @param node the slave node
-         * @param instanceID the object instance identifier on the slave node
+         * @param node the slave node.
+         * @param instanceID the object instance identifier on the slave node.
+         * @param version the initial version.
          */
-        virtual void addSlave( NodePtr node, const uint32_t instanceID ) = 0;
+        virtual void addSlave( NodePtr node, const uint32_t instanceID,
+                               const uint32_t version ) = 0;
 
         /** 
          * Remove a subscribed slave.

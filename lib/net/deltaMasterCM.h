@@ -52,12 +52,14 @@ namespace net
 
         virtual uint32_t getHeadVersion() const { return _version; }
         virtual uint32_t getVersion() const     { return _version; }
+        virtual uint32_t getOldestVersion() const;
         //*}
 
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_ID_INVALID; }
-        virtual void addSlave( NodePtr node, const uint32_t instanceID );
+        virtual void addSlave( NodePtr node, const uint32_t instanceID,
+                               const uint32_t version );
         virtual void removeSlave( NodePtr node );
 
         virtual void applyMapData() { EQDONTCALL; }

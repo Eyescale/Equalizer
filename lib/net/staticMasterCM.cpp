@@ -26,8 +26,10 @@ StaticMasterCM::StaticMasterCM( Object* object )
 StaticMasterCM::~StaticMasterCM()
 {}
 
-void StaticMasterCM::addSlave( NodePtr node, const uint32_t instanceID )
+void StaticMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
+                               const uint32_t version )
 {
+    EQASSERT( version == Object::VERSION_NONE );
     ObjectInstanceDataOStream os( _object );
     os.setInstanceID( instanceID );
 

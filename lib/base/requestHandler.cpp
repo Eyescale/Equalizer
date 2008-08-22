@@ -136,11 +136,11 @@ bool RequestHandler::_waitRequest( const uint32_t requestID,
 
 void* RequestHandler::getRequestData( const uint32_t requestID )
 {
-    RequestHash::iterator iter = _requests.find( requestID );
-    if( iter == _requests.end( ))
+    RequestHash::const_iterator i = _requests.find( requestID );
+    if( i == _requests.end( ))
         return 0;
 
-    return iter->second->data;
+    return i->second->data;
 }
 
 void RequestHandler::serveRequest( const uint32_t requestID, void* result )

@@ -133,7 +133,16 @@ void FullMasterCM::_obsolete()
     }
 }
 
-void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID )
+uint32_t FullMasterCM::getOldestVersion() const
+{
+    if( _version == Object::VERSION_NONE )
+        return Object::VERSION_NONE;
+
+    return _deltaDatas.back()->os.getVersion();
+}
+
+void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
+                             const uint32_t inVersion )
 {
     if( _version == Object::VERSION_NONE )
         _commitInitial();
@@ -144,16 +153,23 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID )
     _slaves.push_back( node );
     stde::usort( _slaves );
 
+    const uint32_t version = (inVersion == Object::VERSION_NONE) ?
+                                 getOldestVersion() : inVersion;
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
-                         << ", instanciate on " << node->getNodeID() << endl;
+                         << ", instantiate on " << node->getNodeID() 
+                         << " with v" << version << endl;
 
     EQASSERT( _object->getChangeType() == Object::INSTANCE );
+    EQASSERT( version >= getOldestVersion( ));
 
     deque< DeltaData* >::reverse_iterator i = _deltaDatas.rbegin();
-    const DeltaData* data = *i;
+    while( (*i)->os.getVersion() < version && i != _deltaDatas.rend( ))
+        ++i;
+
+    const DeltaData* data = (i == _deltaDatas.rend()) ? _deltaDatas.back() : *i;
          
-    // first packet has to be an instance packet to be applied immediately
-    const Bufferb&       buffer    = data->os.getSaveBuffer();
+    // first packet has to be an instance packet, to be applied immediately
+    const Bufferb&       buffer     = data->os.getSaveBuffer();
     ObjectInstancePacket instPacket;
     instPacket.instanceID = instanceID;
     instPacket.dataSize   = buffer.size;
@@ -161,6 +177,9 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID )
     instPacket.sequence   = 0;
 
     _object->send( node, instPacket, buffer.data, buffer.size );
+
+    if( i == _deltaDatas.rend( ))
+        return;
 
     // versions oldest-1..newest are delta packets
     for( ++i; i != _deltaDatas.rend(); ++i )

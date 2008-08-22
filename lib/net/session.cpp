@@ -292,18 +292,20 @@ void Session::_detachObject( Object* object )
     return;
 }
 
-bool Session::mapObject( Object* object, const uint32_t id )
+bool Session::mapObject( Object* object, const uint32_t id,
+                         const uint32_t version )
 {
-    const uint32_t requestID = mapObjectNB( object, id );
+    const uint32_t requestID = mapObjectNB( object, id, version );
     return mapObjectSync( requestID );
 }
 
-uint32_t Session::mapObjectNB( Object* object, const uint32_t id )
+uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
+                               const uint32_t version )
 {
     EQASSERT( object );
 
     EQLOG( LOG_OBJECTS ) << "Mapping " << typeid( *object ).name() << " to id "
-                         << id << endl;
+                         << id << " version " << version << endl;
 
     EQASSERT( object->_id == EQ_ID_INVALID );
     EQASSERT( id != EQ_ID_INVALID );
@@ -329,9 +331,10 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id )
         }
     }
 
-    object->_id = id; // temporarily store the object's identifier
     SessionMapObjectPacket packet;
     packet.requestID = _requestHandler.registerRequest( object );
+    packet.objectID  = id;
+    packet.version   = version;
 
     _sendLocal( packet );
     return packet.requestID;
@@ -342,15 +345,22 @@ bool Session::mapObjectSync( const uint32_t requestID )
     if( requestID == EQ_ID_INVALID )
         return false;
 
-    void* result = 0;
-    _requestHandler.waitRequest( requestID, result );
+    void* data = _requestHandler.getRequestData( requestID );    
+    if( data == 0 )
+        return false;
 
-    EQASSERT( result );
-    Object* object = static_cast< Object* >( result );   
+    Object* object = EQSAFECAST( Object*, data );
+
+    uint32_t version = Object::VERSION_NONE;
+    _requestHandler.waitRequest( requestID, version );
 
     const bool mapped = ( object->getID() != EQ_ID_INVALID );
     if( mapped && !object->isMaster( ))
+    {
         object->_cm->applyMapData(); // apply instance data on slave instances
+        if( version != Object::VERSION_NONE )
+            object->sync( version );
+    }
 
     EQLOG( LOG_OBJECTS ) << "Mapped " << typeid( *object ).name() << " to id " 
                          << object->getID() << endl;
@@ -698,20 +708,18 @@ CommandResult Session::_cmdMapObject( Command& command )
     Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
                                                packet->requestID ));    
     EQASSERT( object );
-    const uint32_t id = object->getID();
+    const uint32_t id = packet->objectID;
 
     if( !object->isMaster( ))
     { 
-        NodePtr master = _pollIDMasterNode( object->getID( ));
+        NodePtr master = _pollIDMasterNode( id );
         EQASSERTINFO( master.isValid(), "Master node for object id " << id
                       << " not connected" );
 
         _instanceIDs = ( _instanceIDs + 1 ) % IDPool::MAX_CAPACITY;
 
         // slave instantiation - subscribe first
-        SessionSubscribeObjectPacket subscribePacket;
-        subscribePacket.requestID  = packet->requestID;
-        subscribePacket.objectID   = id;
+        SessionSubscribeObjectPacket subscribePacket( packet );
         subscribePacket.instanceID = _instanceIDs;
 
         send( master, subscribePacket );
@@ -724,7 +732,7 @@ CommandResult Session::_cmdMapObject( Command& command )
                          << (void*)object << " is " << typeid(*object).name()
                          << endl;
 
-    _requestHandler.serveRequest( packet->requestID, object );
+    _requestHandler.serveRequest( packet->requestID, packet->version );
     return COMMAND_HANDLED;
 }
 
@@ -735,7 +743,7 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
         command.getPacket<SessionSubscribeObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd subscribe object " << packet << endl;
 
-    NodePtr   node = command.getNode();
+    NodePtr        node = command.getNode();
     const uint32_t id   = packet->objectID;
 
     Object* master = 0;
@@ -762,13 +770,24 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
 
     if( master )
     {
-        SessionSubscribeObjectSuccessPacket successPacket( packet );
-        successPacket.changeType       = master->getChangeType();
-        successPacket.masterInstanceID = master->getInstanceID();
-        send( node, successPacket );
+        // Check requested version
+        const uint32_t version = packet->version;
+        if( version == Object::VERSION_NONE || 
+            version >= master->getOldestVersion( ))
+        {
+            SessionSubscribeObjectSuccessPacket successPacket( packet );
+            successPacket.changeType       = master->getChangeType();
+            successPacket.masterInstanceID = master->getInstanceID();
+            send( node, successPacket );
         
-        master->addSlave( node, packet->instanceID );
-        reply.result = true;
+            master->addSlave( node, packet->instanceID, version );
+            reply.result = true;
+        }
+        else
+        {
+            EQWARN << "Version " << version << " no longer available" << endl;
+            reply.result = false;
+        }
     }
     else
     {
@@ -797,7 +816,7 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
         packet->masterInstanceID );
 
     // Don't use 'attachObject' - we already have an instance id.
-    const uint32_t id = object->getID();
+    const uint32_t id = packet->objectID;
     object->attachToSession( id, packet->instanceID, this );
     
     _objectsMutex.set();
@@ -826,10 +845,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
         packet->requestID ));    
     EQASSERT( object );
 
-    if( !packet->result )
-        object->_id = EQ_ID_INVALID; // reset identifier
-
-    _requestHandler.serveRequest( packet->requestID, object );
+    _requestHandler.serveRequest( packet->requestID, packet->version );
     return COMMAND_HANDLED;
 }
 

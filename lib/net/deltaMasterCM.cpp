@@ -161,7 +161,16 @@ void DeltaMasterCM::_obsolete()
     }
 }
 
-void DeltaMasterCM::addSlave( NodePtr node, const uint32_t instanceID )
+uint32_t DeltaMasterCM::getOldestVersion() const
+{
+    if( _version == Object::VERSION_NONE )
+        return Object::VERSION_NONE;
+
+    return _instanceDatas.back()->os.getVersion();
+}
+
+void DeltaMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
+                              const uint32_t inVersion )
 {
     if( _version == Object::VERSION_NONE )
         _commitInitial();
@@ -172,21 +181,39 @@ void DeltaMasterCM::addSlave( NodePtr node, const uint32_t instanceID )
     _slaves.push_back( node );
     stde::usort( _slaves );
 
+    const uint32_t version = (inVersion == Object::VERSION_NONE) ?
+                                 getOldestVersion() : inVersion;
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
-                         << ", instanciate on " << node->getNodeID() << endl;
+                         << ", instantiate on " << node->getNodeID() 
+                         << " with v" << version << endl;
+
+    EQASSERT( version >= getOldestVersion( ));
 
     // send initial instance data
-    InstanceData* data = _instanceDatas.back();
+    deque< InstanceData* >::reverse_iterator i = _instanceDatas.rbegin();
+    while( (*i)->os.getVersion() < version && i != _instanceDatas.rend( ))
+        ++i;
+
+    InstanceData* data = (i == _instanceDatas.rend( )) ? 
+                             _instanceDatas.back() : *i;
     EQASSERT( data );
-    
+    EQASSERT( data->os.getVersion() <= version );
+
     data->os.setInstanceID( instanceID );
     data->os.resend( node );
 
-    // send all deltas
-    for( deque< DeltaData* >::reverse_iterator i = _deltaDatas.rbegin();
-         i != _deltaDatas.rend(); ++i )
+    if( i == _instanceDatas.rend( ))
+        return;
+
+    // send all deltas since initial instance data
+    const uint32_t deltaVersion = data->os.getVersion() + 1;
+    for( deque< DeltaData* >::reverse_iterator j = _deltaDatas.rbegin();
+         j != _deltaDatas.rend(); ++j )
     {
-        DeltaData* deltaData = *i;
+        DeltaData* deltaData = *j;
+        if( deltaData->getVersion() < deltaVersion )
+            continue;
+
         deltaData->setInstanceID( instanceID );
         deltaData->resend( node );
     }

@@ -72,8 +72,11 @@ uint32_t UnbufferedMasterCM::commitSync( const uint32_t commitID )
     return version;
 }
 
-void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID)
+void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
+                                   const uint32_t version )
 {
+    EQASSERT( version == Object::VERSION_NONE || version == _version );
+
     // add to subscribers
     ++_slavesCount[ node->getNodeID() ];
     _slaves.push_back( node );
@@ -92,7 +95,7 @@ void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID)
 
     os.disable();
 
-    if( !os.hasSentData( )) // if no instance data, send packet to set version
+    if( !os.hasSentData( )) // if no data, send empty packet to set version
     {
         os.enable( node );
         os.writeOnce( 0, 0 );

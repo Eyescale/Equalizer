@@ -171,19 +171,14 @@ namespace net
                    /*, const float timeout = EQ_TIMEOUT_INDEFINITE*/ )
             { return _cm->sync( version ); }
 
-        /** 
-         * Get the latest available version.
-         * 
-         * @return the head version.
-         */
+        /** @return the latest available (head) version. */
         uint32_t getHeadVersion() const { return _cm->getHeadVersion(); }
 
-        /** 
-         * Get the currently synchronized version.
-         * 
-         * @return the current version.
-         */
+        /** @return the currently synchronized version. */
         uint32_t getVersion() const { return _cm->getVersion(); }
+
+        /** @return the oldest available version. */
+        uint32_t getOldestVersion() const { return _cm->getOldestVersion(); }
         //*}
 
         /** @name Methods used by session during mapping. */
@@ -282,9 +277,11 @@ namespace net
          * 
          * @param node the slave node.
          * @param instanceID the object instance identifier on the slave node.
+         * @param version the initial version.
          */
-        void addSlave( NodePtr node, const uint32_t instanceID )
-            { _cm->addSlave( node, instanceID ); }
+        void addSlave( NodePtr node, const uint32_t instanceID, 
+                       const uint32_t version )
+            { _cm->addSlave( node, instanceID, version ); }
 
         /** 
          * Remove a subscribed slave.
