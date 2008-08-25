@@ -200,13 +200,13 @@ namespace eq
          * 
          * The OS-specific window implements the window-system-dependent part,
          * e.g., the drawable creation. This window forwards certain calls, 
-         * e.g., swapBuffers() to the OS window.
+         * e.g., swapBuffers() to the OS window. The os-specific window has to
+         * be initialized.
          */
-        void setOSWindow( OSWindow* window ) { _osWindow = window; }
+        void setOSWindow( OSWindow* window );
 
         const OSWindow* getOSWindow() const { return _osWindow; }
-
-        OSWindow* getOSWindow() { return _osWindow; }
+        OSWindow*       getOSWindow()       { return _osWindow; }
 
         /** 
          * Set a message why the last operation failed.

@@ -267,6 +267,23 @@ const RenderContext* Window::getRenderContext( const int32_t x,
     return 0;
 }
 
+void Window::setOSWindow( OSWindow* window )
+{
+    _osWindow = window;
+
+    if( !window )
+        return;
+
+    // Initialize context-specific data
+    makeCurrent();
+
+    _queryDrawableConfig();
+    const GLenum result = glewInit();
+    if( result != GLEW_OK )
+    EQWARN << "GLEW initialization failed with error " << result <<endl;
+
+    _setupObjectManager();
+}
 
 //----------------------------------------------------------------------
 // configInit
@@ -290,28 +307,29 @@ bool Window::configInit( const uint32_t initID )
 
 bool Window::configInitOSWindow( const uint32_t initID )
 {
-    const Pipe* pipe = getPipe();
+    const Pipe* pipe     = getPipe();
+    OSWindow*   osWindow = 0;
 
     switch( pipe->getWindowSystem( ))
     {
 #ifdef GLX
         case WINDOW_SYSTEM_GLX:
             EQINFO << "Using GLXWindow" << std::endl;
-            setOSWindow( new GLXWindow( this ));
+            osWindow = new GLXWindow( this );
             break;
 #endif
 
 #ifdef AGL
         case WINDOW_SYSTEM_AGL:
             EQINFO << "Using AGLWindow" << std::endl;
-            setOSWindow( new AGLWindow( this ));
+            osWindow = new AGLWindow( this );
             break;
 #endif
 
 #ifdef WGL
         case WINDOW_SYSTEM_WGL:
             EQINFO << "Using WGLWindow" << std::endl;
-            setOSWindow( new WGLWindow( this ));
+            osWindow = new WGLWindow( this );
             break;
 #endif
 
@@ -321,19 +339,15 @@ bool Window::configInitOSWindow( const uint32_t initID )
             return false;
     }
 
-    if( !_osWindow->configInit( )) 
+    EQASSERT( osWindow );
+    if( !osWindow->configInit( ))
+    {
+        EQWARN << "OS Window initialization failed" << endl;
+        delete osWindow;
         return false;
+    }
 
-    // Initialize context-specific data
-    makeCurrent();
-
-    _queryDrawableConfig();
-    const GLenum result = glewInit();
-    if( result != GLEW_OK )
-        EQWARN << "GLEW initialization failed with error " << result <<endl;
-
-    _setupObjectManager();
-
+    setOSWindow( osWindow );
     return true;
 }
 
@@ -568,7 +582,7 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
     EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
                        << endl;
 
-    if( _pipe->isInitialized( ))
+    if( _pipe->isInitialized( ) && _osWindow )
         EQ_GL_CALL( makeCurrent( ));
     // else emergency exit, no context available.
 
