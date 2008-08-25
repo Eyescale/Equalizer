@@ -7,6 +7,10 @@
 #include "channel.h"
 #include "global.h"
 
+#ifdef WIN32_VC
+#  define snprintf _snprintf
+#endif
+
 namespace eq
 {
 
