@@ -113,6 +113,7 @@ namespace server
             IATTR_STEREO_ANAGLYPH_LEFT_MASK,
             IATTR_STEREO_ANAGLYPH_RIGHT_MASK,
             IATTR_UPDATE_FOV,
+            IATTR_HINT_OFFSET,
             IATTR_ALL
         };
 

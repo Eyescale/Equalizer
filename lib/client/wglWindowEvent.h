@@ -15,7 +15,6 @@ namespace eq
     {
     public:
         // Native event data
-        HWND hWnd;
         UINT uMsg;
         WPARAM wParam;
         LPARAM lParam;

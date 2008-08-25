@@ -114,8 +114,8 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.buffer         = _getDrawBuffer();
     context.drawBufferMask = _getDrawBufferMask( compound );
 
-    if( _channel != compound->getInheritChannel()
-        /* && !use dest channel origin hint set */ )
+    if( _channel != compound->getInheritChannel() &&
+        compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != eq::ON )
     {
         const eq::PixelViewport& nativePVP = _channel->getPixelViewport();
         context.pvp.x = nativePVP.x;

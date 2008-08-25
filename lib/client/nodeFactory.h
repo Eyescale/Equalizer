@@ -14,25 +14,26 @@
 
 namespace eq
 {
-    class NodeFactory;
     class Server;
 
+    /**
+     * The node factory is a per-node singleton used to create Equalizer
+     * resource instances.
+     *
+     * The instances have to be subclasses of the corresponding Equalizer
+     * classes, and can be used to selectively override task methods and store
+     * additional, application-specific data.
+     */
     class EQ_EXPORT NodeFactory
     {
     public:
-        /**
-         * @name Factory methods
-         *
-         * These methods are used to instanciate the various entities on a node.
-         */
-        //@{
         /** 
          * Creates a new config.
          * 
          * @return the config.
          */
         virtual Config* createConfig( base::RefPtr< Server > parent )
-            { return new eq::Config( parent ); }
+            { return new Config( parent ); }
 
         /** 
          * Creates a new node.
@@ -63,7 +64,6 @@ namespace eq
          */
         virtual Channel* createChannel( Window* parent )
             { return new Channel( parent ); }
-        //@}
         
         virtual ~NodeFactory(){}
     };

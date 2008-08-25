@@ -88,10 +88,11 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         frameData->setPixelViewport( framePVP );
 
         // Frame offset is position wrt window, i.e., the channel position
-        if( compound->getInheritChannel() == channel
-            /* || use dest channel origin hint set */ )
-
+        if( compound->getInheritChannel() == channel ||
+            compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) == eq::ON )
+        {
             frame->setOffset( vmml::Vector2i( inheritPVP.x, inheritPVP.y ));
+        }
         else
         {
             const eq::PixelViewport& nativePVP = channel->getPixelViewport();

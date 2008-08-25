@@ -54,8 +54,8 @@ Compound::VisitorResult CompoundUpdateInputVisitor::visitLeaf(
         eq::PixelViewport  framePVP = inheritPVP.getSubPVP( frameVP );
         vmml::Vector2i  frameOffset = outputFrame->getMasterData()->getOffset();
 
-        if( channel != compound->getInheritChannel()
-            /* && !use dest channel origin hint set */ )
+        if( channel != compound->getInheritChannel() &&
+            compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != eq::ON )
         {
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.

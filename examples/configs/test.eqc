@@ -1,117 +1,90 @@
-server 
-{ 
-    config 
-    { 
-        appNode 
-        { 
-            pipe 
-            { 
-                window 
-                { 
-                    viewport [ 30 30 1100 340 ] 
-                    attributes{ hint_fullscreen OFF } 
-                    channel { name "channel0" } 
-                } 
-            } 
-        } 
-        node 
-        { 
-            name       "node0" 
-#            connection { hostname "tile-0-0" } 
-            pipe 
-            { 
-                name     "pipe0n0" 
-                device   0 
-                window 
-                { 
-                    viewport [ 30 30 400 340 ] 
-                    name     "window0" 
-                    channel 
-                    { 
-                        name     "channel1" 
-                    } 
-                } 
-            } 
-        } 
-        node 
-        { 
-            name       "node1" 
-#            connection { hostname "tile-1-0" } 
-            pipe 
-            { 
-                name     "pipe0n1" 
-                device   0 
-                window 
-                { 
-                    viewport [ 30 770 1100 340 ] 
+# single pipe, four-to-one sort-last demo configuration
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .05 .05 .4 .3 ]
+                    name "window1"
 
-                    name     "window1" 
-                    channel 
-                    { 
-                        name     "channel2" 
-                    } 
-                } 
-            } 
-        } 
-        node 
-        { 
-            name       "node2" 
-#            connection { hostname "tile-2-0" } 
-            pipe 
-            { 
-                name     "pipe0n2" 
-                device   0 
-                window 
-                { 
-                    viewport [ 30 1140 1100 340 ] 
-                    name     "window2" 
-                    channel 
-                    { 
-                        name     "channel3" 
-                    } 
-                } 
-            } 
-        } 
-        compound 
-        { 
-            channel   "channel0" 
-            wall 
-            { 
-                bottom_left  [ -.1775 -.13 -.36 ] 
-                bottom_right [  .1775 -.13 -.36 ] 
-                top_left     [ -.1775  .13 -.36 ] 
-            } 
-            compound 
-            { 
-                channel   "channel0" 
-                viewport  [ 0 0 1 1 ] 
-            } 
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .05 .4 .3 ]
+                    name "window2"
 
-            compound 
-            { 
-                channel   "channel1" 
-                viewport  [ 0 0 .36363 1 ] 
-                outputframe{ name "frame.channel1"} 
-            } 
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+                window
+                {
+                    viewport [ .05 .5 .4 .3 ]
+                    name "window3"
 
-            compound 
-            { 
-                channel   "channel2" 
-                viewport  [ 0.31818 0 0.68181 1 ] 
-                outputframe{ name "frame.channel2"} 
-            } 
-            
-            compound 
-            { 
-                channel   "channel3" 
-                viewport  [ 0.63636 0 1 1 ] 
-                outputframe{ name "frame.channel3"} 
-            } 
+                    channel
+                    {
+                        name "channel3"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .5 .4 .3 ]
+                    name "window4"
 
-            inputframe { name "frame.channel1" } 
-            inputframe { name "frame.channel2" } 
-            inputframe { name "frame.channel3" } 
+                    channel
+                    {
+                        name "channel4"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel4"
 
-        } 
-    } 
-} 
+            wall
+            {
+                bottom_left  [ -.32 -.2 -.75 ]
+                bottom_right [  .32 -.2 -.75 ]
+                top_left     [ -.32  .2 -.75 ]
+            }
+            loadBalancer { mode VERTICAL }
+            compound
+            {
+                viewport [ 0 0 .5 .5 ]
+            }
+            compound
+            { 
+                channel "channel1"
+                viewport [ .5 0 .5 .5 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel2"
+                viewport [ 0 .5 .5 .5 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel3"
+                viewport [ .5 .5 .5 .5 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel1" }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+        }
+    }    
+}

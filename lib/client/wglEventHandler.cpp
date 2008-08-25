@@ -162,7 +162,6 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                                             LPARAM lParam )
 {
     WGLWindowEvent event;
-    event.hWnd   = hWnd;
     event.uMsg   = uMsg;
     event.wParam = wParam;
     event.lParam = lParam;

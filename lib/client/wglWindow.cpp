@@ -104,14 +104,11 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
 
     _wglWindow = handle;
 
-    if( _wglWindow )
-    {
-        initEventHandler();
-        _wglDC = GetDC( _wglWindow );
-    }
-
     if( !handle )
         return;
+
+    initEventHandler();
+    _wglDC = GetDC( handle );
 
     // query pixel viewport of window
     WINDOWINFO windowInfo;
@@ -144,11 +141,10 @@ void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
 
     _wglPBuffer = handle;
 
-    if( _wglPBuffer )
-        _wglDC = wglGetPbufferDCARB( _wglPBuffer );
-
     if( !handle )
         return;
+
+    _wglDC = wglGetPbufferDCARB( handle );
 
     // query pixel viewport of PBuffer
     int w,h;
