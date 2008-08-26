@@ -172,6 +172,7 @@ uint32_t DeltaMasterCM::getOldestVersion() const
 void DeltaMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
                               const uint32_t inVersion )
 {
+    CHECK_THREAD( _thread );
     if( _version == Object::VERSION_NONE )
         _commitInitial();
     _checkConsistency();
@@ -221,6 +222,7 @@ void DeltaMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
 
 void DeltaMasterCM::removeSlave( NodePtr node )
 {
+    CHECK_THREAD( _thread );
     _checkConsistency();
 
     // remove from subscribers
@@ -326,6 +328,7 @@ DeltaMasterCM::DeltaData* DeltaMasterCM::_newDeltaData()
 //---------------------------------------------------------------------------
 CommandResult DeltaMasterCM::_cmdCommit( Command& command )
 {
+    CHECK_THREAD( _thread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
 

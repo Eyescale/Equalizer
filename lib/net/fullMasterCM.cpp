@@ -144,6 +144,7 @@ uint32_t FullMasterCM::getOldestVersion() const
 void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
                              const uint32_t inVersion )
 {
+    CHECK_THREAD( _thread );
     if( _version == Object::VERSION_NONE )
         _commitInitial();
     _checkConsistency();
@@ -194,6 +195,7 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
 
 void FullMasterCM::removeSlave( NodePtr node )
 {
+    CHECK_THREAD( _thread );
     _checkConsistency();
 
     // remove from subscribers
@@ -253,6 +255,7 @@ FullMasterCM::DeltaData* FullMasterCM::_newDeltaData()
 //---------------------------------------------------------------------------
 CommandResult FullMasterCM::_cmdCommit( Command& command )
 {
+    CHECK_THREAD( _thread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
 

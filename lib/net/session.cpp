@@ -114,8 +114,8 @@ void Session::setLocalNode( NodePtr node )
               CommandFunc<Session>( this, &Session::_cmdSubscribeObjectReply ),
                      queue );
     registerCommand( CMD_SESSION_UNSUBSCRIBE_OBJECT,
-                 CommandFunc<Session>( this, &Session::_cmdUnsubscribeObject ),
-                     0 );
+                  CommandFunc<Session>( this, &Session::_cmdUnsubscribeObject ),
+                     queue );
 }
 
 //---------------------------------------------------------------------------
@@ -439,6 +439,7 @@ bool Session::dispatchCommand( Command& command )
 {
     EQVERB << "dispatch " << command << endl;
     EQASSERT( command.isValid( ));
+    CHECK_THREAD( _receiverThread );
 
     switch( command->datatype )
     {
@@ -458,15 +459,11 @@ bool Session::dispatchCommand( Command& command )
                        << objPacket << endl;
                 return false;
             }
-
-            _objectsMutex.set();
-
-            // create copy of first object pointer for thread-safety
             EQASSERTINFO( !_objects[id].empty(), id );
+
             Object* object = _objects[id][0];
             EQASSERT( object );
 
-            _objectsMutex.unset();
             return object->dispatchCommand( command );
         }
 
@@ -851,7 +848,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
 
 CommandResult Session::_cmdUnsubscribeObject( Command& command )
 {
-    CHECK_THREAD( _receiverThread );
+    CHECK_THREAD( _commandThread );
     SessionUnsubscribeObjectPacket* packet =
         command.getPacket<SessionUnsubscribeObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << endl;
@@ -859,6 +856,7 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
     NodePtr        node = command.getNode();
     const uint32_t id   = packet->objectID;
 
+    _objectsMutex.set();
     if( _objects.find( id ) != _objects.end( ))
     {
         ObjectVector& objects = _objects[id];
@@ -867,7 +865,7 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
              i != objects.end(); ++ i )
         {
             Object* object = *i;
-            if( object->isMaster( ) && 
+            if( object->isMaster() && 
                 object->getInstanceID() == packet->masterInstanceID )
             {
                 object->removeSlave( node );
@@ -875,6 +873,7 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
             }
         }   
     }
+    _objectsMutex.unset();
 
     SessionDetachObjectPacket detachPacket( packet );
     send( node, detachPacket );

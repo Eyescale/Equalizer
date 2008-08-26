@@ -75,6 +75,7 @@ uint32_t UnbufferedMasterCM::commitSync( const uint32_t commitID )
 void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
                                    const uint32_t version )
 {
+    CHECK_THREAD( _thread );
     EQASSERT( version == Object::VERSION_NONE || version == _version );
 
     // add to subscribers
@@ -105,6 +106,7 @@ void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
 
 void UnbufferedMasterCM::removeSlave( NodePtr node )
 {
+    CHECK_THREAD( _thread );
     // remove from subscribers
     const NodeID& nodeID = node->getNodeID();
     EQASSERT( _slavesCount[ nodeID ] != 0 );
@@ -125,6 +127,7 @@ void UnbufferedMasterCM::removeSlave( NodePtr node )
 //---------------------------------------------------------------------------
 CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
 {
+    CHECK_THREAD( _thread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
     if( _slaves.empty( ))
