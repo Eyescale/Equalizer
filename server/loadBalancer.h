@@ -20,8 +20,7 @@ namespace eq
 namespace server
 {
     /** Adapts the 2D tiling of the associated compound's children. */
-    class EQSERVER_EXPORT LoadBalancer : protected CompoundListener,
-                                         protected ChannelListener
+    class LoadBalancer : protected CompoundListener, protected ChannelListener
     {
     public:
         LoadBalancer();
