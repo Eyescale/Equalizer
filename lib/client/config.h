@@ -207,6 +207,9 @@ namespace eq
         //*}
 #endif
 
+        /** Undocumented */
+        void freezeLoadBalancing( const bool onOff );
+
     protected:
         virtual ~Config();
 

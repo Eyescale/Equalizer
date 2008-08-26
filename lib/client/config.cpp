@@ -492,6 +492,14 @@ bool Config::_connectClientNodes()
 }
 #endif // EQ_TRANSMISSION_API
 
+void Config::freezeLoadBalancing( const bool onOff )
+{
+    ConfigFreezeLoadBalancingPacket packet;
+    packet.freeze = onOff;
+    send( packet );
+}
+
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------

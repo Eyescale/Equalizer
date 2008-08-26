@@ -6,8 +6,10 @@
 #include "config.h"
 
 #include "compound.h"
+#include "compoundVisitor.h"
 #include "configUpdateDataVisitor.h"
 #include "global.h"
+#include "loadBalancer.h"
 #include "log.h"
 #include "node.h"
 #include "server.h"
@@ -139,6 +141,9 @@ void Config::setLocalNode( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdStartFrame ), serverQueue );
     registerCommand( eq::CMD_CONFIG_FINISH_ALL_FRAMES, 
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ),
+                     serverQueue );
+    registerCommand( eq::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
+                     ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ), 
                      serverQueue );
 }
 
@@ -812,6 +817,45 @@ net::CommandResult Config::_cmdCreateNodeReply( net::Command& command )
         command.getPacket<eq::ConfigCreateNodeReplyPacket>();
 
     _requestHandler.serveRequest( packet->requestID );
+    return net::COMMAND_HANDLED;
+}
+
+namespace
+{
+class FreezeVisitor : public CompoundVisitor
+{
+public:
+    FreezeVisitor( const bool freeze ) : _freeze( freeze ) {}
+
+        /** Visit a non-leaf compound on the down traversal. */
+        virtual Compound::VisitorResult visitPre( Compound* compound )
+            { 
+                LoadBalancer* loadBalancer = compound->getLoadBalancer();
+                if( loadBalancer )
+                    loadBalancer->setFreeze( _freeze );
+
+                return Compound::TRAVERSE_CONTINUE; 
+            }
+private:
+    const bool _freeze;
+};
+
+}
+
+net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command ) 
+{
+    const eq::ConfigFreezeLoadBalancingPacket* packet = 
+        command.getPacket<eq::ConfigFreezeLoadBalancingPacket>();
+
+    FreezeVisitor visitor( packet->freeze );
+
+    for( CompoundVector::const_iterator i = _compounds.begin();
+         i != _compounds.end(); ++i )
+    {
+        Compound* compound = *i;
+        compound->accept( &visitor );
+    }
+
     return net::COMMAND_HANDLED;
 }
 

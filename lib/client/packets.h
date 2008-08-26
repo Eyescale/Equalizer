@@ -365,6 +365,16 @@ namespace eq
     };
 #endif
 
+    struct ConfigFreezeLoadBalancingPacket : public ConfigPacket
+    {
+        ConfigFreezeLoadBalancingPacket()
+            {
+                command = CMD_CONFIG_FREEZE_LOAD_BALANCING;
+                size    = sizeof( ConfigFreezeLoadBalancingPacket );
+            }
+        bool freeze;
+    };
+
     struct ConfigStartClockPacket : public ConfigPacket
     {
         ConfigStartClockPacket()

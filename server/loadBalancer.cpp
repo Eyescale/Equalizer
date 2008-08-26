@@ -29,6 +29,7 @@ LoadBalancer::LoadBalancer()
         : _mode( MODE_2D )
         , _compound( 0 )
         , _tree( 0 )
+        , _freeze( false )
 {
     EQINFO << "New LoadBalancer @" << (void*)this << endl;
 }
@@ -87,6 +88,9 @@ void LoadBalancer::notifyChildRemove( Compound* compound, Compound* child )
 void LoadBalancer::notifyUpdatePre( Compound* compound,
                                     const uint32_t frameNumber )
 {
+    if( _freeze )
+        return;
+
     EQASSERT( _compound );
     EQASSERT( _compound == compound );
     

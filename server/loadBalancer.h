@@ -59,6 +59,9 @@ namespace server
                                      const uint32_t frameNumber,
                                      const float startTime, const float endTime
                                      /*, const float load */ );
+
+        void setFreeze( const bool onOff ) { _freeze = onOff; }
+
     private:
         //-------------------- Members --------------------
         Mode _mode; //!< The current adaptation mode
@@ -100,6 +103,8 @@ namespace server
         typedef std::pair< uint32_t,  LBDataVector > LBFrameData;
         
         std::deque< LBFrameData > _history;
+        
+        bool _freeze;
         
         //-------------------- Methods --------------------
         /** Clear all cached data and old load data sets. */

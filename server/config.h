@@ -292,6 +292,7 @@ namespace server
         net::CommandResult _cmdFinishAllFrames( net::Command& command ); 
         net::CommandResult _cmdCreateReply( net::Command& command );
         net::CommandResult _cmdCreateNodeReply( net::Command& command );
+        net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Config* config );

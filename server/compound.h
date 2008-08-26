@@ -202,6 +202,7 @@ namespace server
 
         /** Get the attached load balancer. */
         const LoadBalancer* getLoadBalancer() const { return _loadBalancer; }
+        LoadBalancer*       getLoadBalancer()       { return _loadBalancer; }
 
         /** 
          * Set the tasks to be executed by the compound, overwriting previous
