@@ -42,7 +42,8 @@ protected:
 
             // TODO EQASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
             _server = 0;
-            return (void*)( ret ? EXIT_SUCCESS : EXIT_FAILURE );
+            return reinterpret_cast< void* >( static_cast< size_t >(
+                ret ? EXIT_SUCCESS : EXIT_FAILURE ));
         }
 
 private:
