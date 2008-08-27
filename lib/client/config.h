@@ -246,7 +246,7 @@ namespace eq
 
         /** Global statistics events, index per frame and channel. */
         std::deque< FrameStatistics > _statistics;
-        base::SpinLock              _statisticsMutex;
+        base::SpinLock                _statisticsMutex;
 
         /** The maximum number of outstanding frames. */
         uint32_t _latency;

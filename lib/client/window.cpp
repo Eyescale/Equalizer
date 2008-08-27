@@ -246,7 +246,9 @@ void Window::addRenderContext( const RenderContext& context )
 const RenderContext* Window::getRenderContext( const int32_t x, 
                                                const int32_t y ) const
 {
-    EQASSERT( _osWindow );
+    if( !_osWindow )
+        return 0;
+
     ScopedMutex< SpinLock > mutex( _osWindow->getContextLock( ));
 
     const DrawableConfig& drawableConfig = getDrawableConfig();
