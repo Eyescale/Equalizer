@@ -38,7 +38,7 @@ namespace server
         const uint32_t _frameNumber;
  
         stde::hash_map<std::string, net::Barrier*> _swapBarriers;
-        stde::hash_map<std::string, Frame*>          _outputFrames;
+        stde::hash_map<std::string, Frame*>        _outputFrames;
 
         void _updateOutput( Compound* compound );
         void _updateSwapBarriers( Compound* compound );
