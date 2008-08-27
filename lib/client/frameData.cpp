@@ -439,7 +439,12 @@ void FrameData::_applyVersion( const uint32_t version )
     CHECK_THREAD( _commandThread );
     EQLOG( LOG_ASSEMBLY ) << this << " apply v" << version << endl;
 
-    if( _readyVersion == version )
+    // Input images sync() to the new version, then send an update packet and
+    // immediately continue. If they read back and set ready faster than we
+    // process this update packet, the readyVersion changes at any given point
+    // in this code. To avoid the resulting assertion, we use a local variable:
+    const uint32_t readyVersion = _readyVersion.get();
+    if( readyVersion == version )
     {
 #ifndef NDEBUG
         for( list<ImageVersion>::iterator i = _pendingImages.begin();
@@ -455,9 +460,12 @@ void FrameData::_applyVersion( const uint32_t version )
         return;
     }
 
-    EQASSERTINFO( _readyVersion < version, "old " << _readyVersion.get()
-                  << " new " << version << " for " << this );
+    EQASSERTINFO( readyVersion < version, 
+                  "old " << readyVersion << " new " << version << " for " 
+                         << this );
 
+    // Even if _readyVersion jumped to version in between, there are no pending
+    // images for it, so this loop doesn't do anything.
     for( list<ImageVersion>::iterator i = _pendingImages.begin();
          i != _pendingImages.end(); )
     {
