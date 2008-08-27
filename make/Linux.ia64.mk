@@ -1,5 +1,4 @@
 
 CXXFLAGS           += -fPIC
 WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
-INSTALL_LIB_DIR     = $(INSTALL_DIR)/lib
 
