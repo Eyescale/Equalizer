@@ -14,6 +14,18 @@ namespace eq
 AGLMessagePump::AGLMessagePump()
         : _receiverQueue( 0 )
 {
+    const OSStatus status = CreateEvent( 0, 0, 0, 0, kEventAttributeNone, 
+                                         &_wakeupEvent );
+    if( status != noErr )
+    {
+        EQWARN << "CreateEvent failed: " << status << endl;
+        EQUNREACHABLE;
+    }
+}
+
+AGLMessagePump::~AGLMessagePump()
+{
+    ReleaseEvent( _wakeupEvent );
 }
 
 void AGLMessagePump::postWakeup()
@@ -24,18 +36,7 @@ void AGLMessagePump::postWakeup()
         return;
     }
 
-    EventRef       event;
-    const OSStatus status = CreateEvent( 0, 0, 0, 0, kEventAttributeNone, 
-                                         &event );
-
-    if( status != noErr )
-    {
-        EQWARN << "CreateEvent failed: " << status << endl;
-        return;
-    }
-
-    PostEventToQueue( _receiverQueue, event, kEventPriorityStandard );
-    ReleaseEvent( event );
+    PostEventToQueue( _receiverQueue, _wakeupEvent, kEventPriorityStandard );
 }
 
 void AGLMessagePump::_initReceiverQueue()

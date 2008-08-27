@@ -27,10 +27,11 @@ namespace eq
         /** Get and dispatch at least one pending system event, blocking. */
         virtual void dispatchOne();
 
-        virtual ~AGLMessagePump() {}
+        virtual ~AGLMessagePump();
 
     private:
         EventQueueRef _receiverQueue;
+        EventRef      _wakeupEvent;
 
         void _initReceiverQueue();
     };
