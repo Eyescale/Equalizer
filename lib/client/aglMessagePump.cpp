@@ -35,6 +35,7 @@ void AGLMessagePump::postWakeup()
     }
 
     PostEventToQueue( _receiverQueue, event, kEventPriorityStandard );
+    ReleaseEvent( event );
 }
 
 void AGLMessagePump::_initReceiverQueue()
