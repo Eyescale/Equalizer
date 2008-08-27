@@ -40,6 +40,7 @@ LoadBalancer::LoadBalancer( const LoadBalancer& from )
         , _mode( from._mode )
         , _compound( 0 )
         , _tree( 0 )
+        , _freeze( from._freeze )
 {
 }
 
