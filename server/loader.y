@@ -83,6 +83,7 @@
 %token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK
 %token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK
 %token EQTOKEN_COMPOUND_IATTR_UPDATE_FOV
+%token EQTOKEN_COMPOUND_IATTR_HINT_OFFSET
 %token EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS
 %token EQTOKEN_SERVER
 %token EQTOKEN_CONFIG
@@ -169,6 +170,7 @@
 %token EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK
 %token EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK
 %token EQTOKEN_UPDATE_FOV
+%token EQTOKEN_HINT_OFFSET
 %token EQTOKEN_PBUFFER
 %token EQTOKEN_MODE
 %token EQTOKEN_2D
@@ -354,6 +356,11 @@ global:
      {
          eq::server::Global::instance()->setCompoundIAttribute(
              eq::server::Compound::IATTR_UPDATE_FOV, $2 );
+     }
+     | EQTOKEN_COMPOUND_IATTR_HINT_OFFSET IATTR
+     {
+         eq::server::Global::instance()->setCompoundIAttribute(
+             eq::server::Compound::IATTR_HINT_OFFSET, $2 );
      }
 
 connectionType: 
@@ -681,6 +688,8 @@ compoundAttribute:
                 eq::server::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); }
     | EQTOKEN_UPDATE_FOV IATTR
         { eqCompound->setIAttribute(eq::server::Compound::IATTR_UPDATE_FOV, $2 ); }
+    | EQTOKEN_HINT_OFFSET IATTR
+        { eqCompound->setIAttribute(eq::server::Compound::IATTR_HINT_OFFSET, $2 ); }
 
 viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
      { 

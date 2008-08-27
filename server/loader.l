@@ -77,7 +77,8 @@ EQ_CHANNEL_IATTR_HINT_STATISTICS { return EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS;
 EQ_COMPOUND_IATTR_STEREO_MODE    { return EQTOKEN_COMPOUND_IATTR_STEREO_MODE; } 
 EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK  { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK; }
 EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK; }
-EQ_COMPOUND_IATTR_UPDATE_FOV { return EQTOKEN_COMPOUND_IATTR_UPDATE_FOV; }
+EQ_COMPOUND_IATTR_UPDATE_FOV    { return EQTOKEN_COMPOUND_IATTR_UPDATE_FOV; }
+EQ_COMPOUND_IATTR_HINT_OFFSET   { return EQTOKEN_COMPOUND_IATTR_HINT_OFFSET; }
 server                          { return EQTOKEN_SERVER; }
 config                          { return EQTOKEN_CONFIG; }
 appNode                         { return EQTOKEN_APPNODE; }
@@ -163,6 +164,7 @@ stereo_mode                     { return EQTOKEN_STEREO_MODE; }
 stereo_anaglyph_left_mask       { return EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK; }
 stereo_anaglyph_right_mask      { return EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK; }
 update_FOV                      { return EQTOKEN_UPDATE_FOV; }
+hint_offset                     { return EQTOKEN_HINT_OFFSET; }
 pbuffer                         { return EQTOKEN_PBUFFER; }
 mode                            { return EQTOKEN_MODE; }
 2D                              { return EQTOKEN_2D; }
