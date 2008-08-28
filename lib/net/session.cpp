@@ -157,19 +157,17 @@ void Session::freeIDs( const uint32_t start, const uint32_t range )
 void Session::setIDMaster( const uint32_t start, const uint32_t range, 
                            const NodeID& master )
 {
-    IDMasterInfo info = { start, start+range, master };
-    _idMasterInfos.push_back( info );
-
-    if( _isMaster )
-        return;
+    CHECK_NOT_THREAD( _commandThread );
 
     SessionSetIDMasterPacket packet;
     packet.start    = start;
     packet.range    = range;
     packet.masterID = master;
     packet.masterID.convertToNetwork();
-
-    send( packet );
+    
+    _sendLocal( packet ); // set on our instance
+    if( !_isMaster )
+        send( packet ); // set on master instance
 }
 
 const NodeID& Session::_pollIDMaster( const uint32_t id ) const 
@@ -184,15 +182,11 @@ const NodeID& Session::_pollIDMaster( const uint32_t id ) const
     return NodeID::ZERO;
 }
 
-NodePtr Session::_pollIDMasterNode( const uint32_t id ) const
-{
-    const NodeID& nodeID = _pollIDMaster( id );
-    return _localNode->getNode( nodeID );
-}
-
 const NodeID& Session::getIDMaster( const uint32_t id )
 {
+    _idMasterMutex.set();
     const NodeID& master = _pollIDMaster( id );
+    _idMasterMutex.unset();
         
     if( master != NodeID::ZERO || _isMaster )
         return master;
@@ -204,6 +198,8 @@ const NodeID& Session::getIDMaster( const uint32_t id )
 
     send( packet );
     _requestHandler.waitRequest( packet.requestID );
+
+    ScopedMutex< base::SpinLock > mutex( _idMasterMutex );
     EQLOG( LOG_OBJECTS ) << "Master node for id " << id << ": " 
         << _pollIDMaster( id ) << endl;
     return _pollIDMaster( id );
@@ -311,30 +307,31 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
     EQASSERT( id != EQ_ID_INVALID );
     EQASSERT( !_localNode->inCommandThread( ));
         
-    NodePtr master;
+    NodeID masterNodeID;
     if( !object->isMaster( ))
     {
         // Connect master node, can't do that from the command thread!
-        const NodeID& masterID = getIDMaster( id );
-        if( masterID == NodeID::ZERO )
+        masterNodeID = getIDMaster( id );
+        if( masterNodeID == NodeID::ZERO )
         {
             EQWARN << "Can't find master node for object id " << id << endl;
             return EQ_ID_INVALID;
         }
 
-        master = _localNode->connect( masterID, getServer( ));
+        NodePtr master = _localNode->connect( masterNodeID, getServer( ));
         if( !master || master->getState() == Node::STATE_STOPPED )
         {
-            EQWARN << "Can't connect master node with id " << masterID
+            EQWARN << "Can't connect master node with id " << masterNodeID
                    << " for object id " << id << endl;
             return EQ_ID_INVALID;
         }
     }
 
     SessionMapObjectPacket packet;
-    packet.requestID = _requestHandler.registerRequest( object );
-    packet.objectID  = id;
-    packet.version   = version;
+    packet.requestID    = _requestHandler.registerRequest( object );
+    packet.objectID     = id;
+    packet.version      = version;
+    packet.masterNodeID = masterNodeID;
 
     _sendLocal( packet );
     return packet.requestID;
@@ -373,7 +370,7 @@ void Session::unmapObject( Object* object )
     if( id == EQ_ID_INVALID ) // not registered
 		return;
 
-    EQASSERT( !_localNode->inCommandThread( ));
+    CHECK_NOT_THREAD( _commandThread );
     EQLOG( LOG_OBJECTS ) << "Unmap " << typeid( *object ).name() << " from id "
         << object->getID() << endl;
 
@@ -383,7 +380,11 @@ void Session::unmapObject( Object* object )
         const uint32_t masterInstanceID = object->getMasterInstanceID();
         if( masterInstanceID != EQ_ID_INVALID )
         {
-            NodePtr master = _pollIDMasterNode( id );
+            _idMasterMutex.set();
+            const NodeID& masterNodeID = _pollIDMaster( id );
+            _idMasterMutex.unset();
+
+            NodePtr master = _localNode->getNode( masterNodeID );
             if( master.isValid( ))
             {
                 SessionUnsubscribeObjectPacket packet;
@@ -591,10 +592,10 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
     NodeID nodeID = packet->masterID;
     nodeID.convertToHost();
 
-    // TODO thread-safety: _idMasterInfos is also read & written by app
     IDMasterInfo info = { packet->start, packet->start+packet->range, nodeID };
-    _idMasterInfos.push_back( info );
 
+    ScopedMutex< base::SpinLock > mutex( _idMasterMutex );
+    _idMasterInfos.push_back( info );
     return COMMAND_HANDLED;
 }
 
@@ -608,10 +609,9 @@ CommandResult Session::_cmdGetIDMaster( Command& command )
     SessionGetIDMasterReplyPacket reply( packet );
     reply.start = 0;
 
-    // TODO thread-safety: _idMasterInfos is also read & written by app
     const uint32_t id     = packet->id;
     const uint32_t nInfos = _idMasterInfos.size();
-    NodePtr   node   = command.getNode();
+    NodePtr        node   = command.getNode();
     for( uint32_t i=0; i<nInfos; ++i )
     {
         IDMasterInfo& info = _idMasterInfos[i];
@@ -641,8 +641,9 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
         NodeID nodeID = packet->masterID;
         nodeID.convertToHost();
 
-        // TODO thread-safety: _idMasterInfos is also read & written by app
         IDMasterInfo info = { packet->start, packet->end, nodeID };
+
+        ScopedMutex< base::SpinLock > mutex( _idMasterMutex );
         _idMasterInfos.push_back( info );
     }
     // else not found
@@ -709,7 +710,9 @@ CommandResult Session::_cmdMapObject( Command& command )
 
     if( !object->isMaster( ))
     { 
-        NodePtr master = _pollIDMasterNode( id );
+        EQASSERT( packet->masterNodeID != NodeID::ZERO );
+        NodePtr master = _localNode->getNode( packet->masterNodeID );
+
         EQASSERTINFO( master.isValid(), "Master node for object id " << id
                       << " not connected" );
 

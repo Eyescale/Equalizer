@@ -309,6 +309,7 @@ namespace net
                 size    = sizeof( SessionMapObjectPacket ); 
             }
         
+        NodeID   masterNodeID;
         uint32_t requestID;
         uint32_t objectID;
         uint32_t version;

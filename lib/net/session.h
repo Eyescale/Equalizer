@@ -293,10 +293,11 @@ namespace net
 
         /** The id->master mapping table. */
         std::vector<IDMasterInfo> _idMasterInfos;
+        base::SpinLock            _idMasterMutex;
         
         /** All registered and mapped objects. */
         IDHash< ObjectVector > _objects;
-        base::SpinLock       _objectsMutex;
+        base::SpinLock         _objectsMutex;
 
         const NodeID& _pollIDMaster( const uint32_t id ) const;
         NodePtr _pollIDMasterNode( const uint32_t id ) const;
