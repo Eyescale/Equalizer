@@ -17,6 +17,7 @@ Frame::Frame()
         : _frameData( 0 )
 {
     setInstanceData( &_data, sizeof( Data ));
+    EQINFO << "New Frame @" << (void*)this << endl;
 }
 
 Frame::~Frame()

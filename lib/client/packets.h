@@ -88,8 +88,8 @@ namespace eq
                 name[0]   = '\0';
             }
 
-        uint32_t      configID;
-        uint32_t      requestID;
+        uint32_t    configID;
+        uint32_t    requestID;
         net::NodeID appNodeID;
         EQ_ALIGN8( char          name[8] );
     };

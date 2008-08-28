@@ -23,6 +23,7 @@ namespace eq
 FrameData::FrameData()
 {
     setInstanceData( &_data, sizeof( Data ));
+    EQINFO << "New FrameData @" << (void*)this << endl;
 }
 
 FrameData::~FrameData()
