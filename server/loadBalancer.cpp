@@ -304,15 +304,8 @@ void LoadBalancer::_computeSplit()
     }
 
     const size_t nResources = _compound->getChildren().size();
-    const float maxIdleTime = 0.f; //.1f * totalTime;
-    EQLOG( LOG_LB ) << "Render time " << totalTime << ", max idle "
-                    << maxIdleTime << endl;
-
-    const float    idleTime = _assignIdleTimes( _tree, items, maxIdleTime,
-                                                endTime );
-    const float    timeLeft = EQ_MAX( 0.0f, totalTime - idleTime ) / nResources;
-
-    EQLOG( LOG_LB ) << "Idle time " << idleTime << ", left per resource "
+    const float    timeLeft = totalTime / nResources;
+    EQLOG( LOG_LB ) << "Render time " << totalTime << ", per resource "
                     << timeLeft << endl;
 
     const float leftover = _assignTargetTimes( _tree, totalTime, timeLeft );
@@ -321,47 +314,12 @@ void LoadBalancer::_computeSplit()
     _computeSplit( _tree, sortedData, eq::Viewport(), eq::Range() );
 }
 
-float LoadBalancer::_assignIdleTimes( Node* node, const LBDataVector& items,
-                                      const float maxIdleTime, 
-                                      const float endTime )
-{
-    if( node->left )
-    {
-        EQASSERT( node->right );
-
-        return _assignIdleTimes( node->left,  items, maxIdleTime, endTime ) + 
-               _assignIdleTimes( node->right, items, maxIdleTime, endTime );
-    }
-
-    const Compound* compound = node->compound;
-    EQASSERT( compound );
-    
-    const Channel* channel = compound->getChannel();
-    EQASSERT( channel );
-
-    for( LBDataVector::const_iterator i = items.begin(); i != items.end(); ++i )
-    {
-        const Data& data = *i;
-        if( data.compound && data.compound->getChannel() == channel )
-        {
-            node->time = EQ_MIN( maxIdleTime, endTime - data.endTime );
-
-            EQLOG( LOG_LB ) << "Channel " << channel->getName() << " early " 
-                            << node->time << endl;
-            return node->time;
-        }
-    }
-
-    node->time = 0.0f;
-    return 0.0f;
-}
-
 float LoadBalancer::_assignTargetTimes( Node* node, const float totalTime, 
                                         const float resourceTime )
 {
     if( node->compound )
     {
-        node->time = EQ_MIN( node->time + resourceTime, totalTime );
+        node->time = EQ_MIN( resourceTime, totalTime );
         EQLOG( LOG_LB ) << "Channel " << node->compound->getChannel()->getName()
                         << " target " << node->time << ", left " 
                         << totalTime - node->time << endl;
@@ -537,6 +495,7 @@ void LoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
 
             EQLOG( LOG_LB ) << "Split " << vp << " at X " << splitPos << endl;
 
+            // Ensure minimum size
             const float epsilon = static_cast< float >( MIN_PIXELS ) /
                                   _compound->getInheritPixelViewport().w;
 
@@ -548,6 +507,7 @@ void LoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
             splitPos = EQ_MAX( splitPos, vp.x );
             splitPos = EQ_MIN( splitPos, vp.getXEnd());
 
+            // balance children
             eq::Viewport childVP = vp;
             childVP.w = (splitPos - vp.x);
             _computeSplit( node->left, sortedData, childVP, range );
