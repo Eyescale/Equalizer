@@ -12,7 +12,7 @@ using namespace eq::base;
 #ifdef WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #else
-#  include <cstrings>
+#  include <strings.h>
 #endif
 
 namespace eq
