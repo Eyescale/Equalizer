@@ -121,8 +121,6 @@ namespace server
         
         /** Adjust the split of each node based on the front-most _history. */
         void _computeSplit();
-        float _assignIdleTimes( Node* node, const LBDataVector& items,
-                                const float maxIdleTime, const float endTime );
         float _assignTargetTimes( Node* node, const float totalTime, 
                                   const float resourceTime );
         void _computeSplit( Node* node, LBDataVector* sortedData,

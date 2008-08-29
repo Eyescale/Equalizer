@@ -319,7 +319,27 @@ float LoadBalancer::_assignTargetTimes( Node* node, const float totalTime,
 {
     if( node->compound )
     {
-        node->time = EQ_MIN( resourceTime, totalTime );
+        float time = resourceTime; // default
+
+#if 1 // enable to smoothen the changes between frames
+        const LBFrameData&  frameData = _history.front();
+        const LBDataVector& items     = frameData.second;
+        for( LBDataVector::const_iterator i = items.begin(); 
+             i != items.end(); ++i )
+        {
+            const Data&     data     = *i;
+            const Compound* compound = data.compound;
+
+            if( compound != node->compound )
+                continue;
+
+            // found our last rendering time -> use this to smoothen the change:
+            time = (resourceTime + data.endTime - data.startTime) * 0.5f;
+            break;
+        }
+#endif
+
+        node->time = EQ_MIN( time, totalTime );
         EQLOG( LOG_LB ) << "Channel " << node->compound->getChannel()->getName()
                         << " target " << node->time << ", left " 
                         << totalTime - node->time << endl;
