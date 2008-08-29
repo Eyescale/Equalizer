@@ -17,7 +17,7 @@ namespace eq
 namespace server
 {
 
-#define MIN_PIXELS 1
+#define MIN_PIXELS 8
 
 std::ostream& operator << ( std::ostream& os, const LoadBalancer::Node* node );
 
@@ -541,9 +541,12 @@ void LoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
                                   _compound->getInheritPixelViewport().w;
 
             if( (splitPos - vp.x) < epsilon )
-                splitPos = vp.x;
+                splitPos = vp.x + epsilon;
             if( (vp.getXEnd() - splitPos) < epsilon )
-                splitPos = vp.getXEnd();
+                splitPos = vp.getXEnd() - epsilon;
+
+            splitPos = EQ_MAX( splitPos, vp.x );
+            splitPos = EQ_MIN( splitPos, vp.getXEnd());
 
             eq::Viewport childVP = vp;
             childVP.w = (splitPos - vp.x);
@@ -668,9 +671,12 @@ void LoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
                                   _compound->getInheritPixelViewport().h;
 
             if( (splitPos - vp.y) < epsilon )
-                splitPos = vp.y;
+                splitPos = vp.y + epsilon;
             if( (vp.getYEnd() - splitPos) < epsilon )
-                splitPos = vp.getYEnd();
+                splitPos = vp.getYEnd() - epsilon;
+
+            splitPos = EQ_MAX( splitPos, vp.y );
+            splitPos = EQ_MIN( splitPos, vp.getYEnd());
 
             eq::Viewport childVP = vp;
             childVP.h = (splitPos - vp.y);
