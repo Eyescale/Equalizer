@@ -16,46 +16,44 @@ namespace eq
 
 WindowStatistics::WindowStatistics( const Statistic::Type type, 
                                     Window* window )
+        : _window( window )
 {
-    _event.window                     = window;
-
-    const int32_t hint = window->getIAttribute( Window::IATTR_HINT_STATISTICS );
+    const int32_t hint = _window->getIAttribute( Window::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
 
-    _event.data.type                  = Event::STATISTIC;
-    _event.data.originator            = window->getID();
-    _event.data.statistic.type        = type;
-    _event.data.statistic.frameNumber = window->getPipe()->getCurrentFrame();
+    _event.type                  = Event::STATISTIC;
+    _event.originator            = window->getID();
+    _event.statistic.type        = type;
+    _event.statistic.frameNumber = window->getPipe()->getCurrentFrame();
 
     const std::string& name = window->getName();
     if( name.empty( ))
-        snprintf( _event.data.statistic.resourceName, 32, "window %d",
+        snprintf( _event.statistic.resourceName, 32, "window %d",
                   window->getID( ));
     else
-        snprintf( _event.data.statistic.resourceName, 32, "%s", name.c_str( ));
+        snprintf( _event.statistic.resourceName, 32, "%s", name.c_str( ));
 
     if( hint == NICEST )
         window->finish();
-    _event.data.statistic.startTime  = window->getConfig()->getTime();
+    _event.statistic.startTime  = window->getConfig()->getTime();
 }
 
 
 WindowStatistics::~WindowStatistics()
 {
-    Window*     window = _event.window;
-    const int32_t hint = window->getIAttribute( Window::IATTR_HINT_STATISTICS );
+    const int32_t hint = _window->getIAttribute( Window::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
 
-    if( _event.data.statistic.frameNumber == 0 ) // does not belong to a frame
+    if( _event.statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
     if( hint == NICEST )
-        window->finish();
+        _window->finish();
 
-    _event.data.statistic.endTime = window->getConfig()->getTime();
-    window->processEvent( _event );
+    _event.statistic.endTime = _window->getConfig()->getTime();
+    _window->processEvent( _event );
 }
 
 }

@@ -5,7 +5,7 @@
 #ifndef EQ_CHANNELSTATISTICS_H
 #define EQ_CHANNELSTATISTICS_H
 
-#include <eq/client/channelEvent.h>
+#include <eq/client/event.h>
 
 namespace eq
 {
@@ -20,7 +20,10 @@ namespace eq
         ChannelStatistics( const Statistic::Type type, Channel* channel );
         ~ChannelStatistics();
 
-        ChannelEvent event;
+        Event event;
+
+    private:
+        Channel* const _channel;
     };
 }
 

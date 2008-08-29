@@ -13,7 +13,7 @@
 #include "nodeFactory.h"
 #include "osWindow.h"
 #include "packets.h"
-#include "windowEvent.h"
+#include "event.h"
 #include "windowStatistics.h"
 
 #ifdef AGL
@@ -468,24 +468,22 @@ void Window::swapBuffers()
 //======================================================================
 // event-handler methods
 //======================================================================
-bool Window::processEvent( const WindowEvent& event )
+bool Window::processEvent( const Event& event )
 {
     ConfigEvent configEvent;
-    switch( event.data.type )
+    switch( event.type )
     {
         case Event::EXPOSE:
             break;
 
         case Event::RESIZE:
-            setPixelViewport( PixelViewport( event.data.resize.x, 
-                                             event.data.resize.y, 
-                                             event.data.resize.w,
-                                             event.data.resize.h ));
+            setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
+                                             event.resize.w, event.resize.h ));
             return true;
 
         case Event::KEY_PRESS:
         case Event::KEY_RELEASE:
-            if( event.data.keyEvent.key == KC_VOID )
+            if( event.key.key == KC_VOID )
                 return true; //ignore
             // else fall through
         case Event::WINDOW_CLOSE:
@@ -500,12 +498,12 @@ bool Window::processEvent( const WindowEvent& event )
             return false;
 
         default:
-            EQWARN << "Unhandled window event of type " << event.data.type
+            EQWARN << "Unhandled window event of type " << event.type
                    << endl;
             EQUNIMPLEMENTED;
     }
 
-    configEvent.data = event.data;
+    configEvent.data = event;
 
     Config* config = getConfig();
     config->sendEvent( configEvent );

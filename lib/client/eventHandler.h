@@ -4,7 +4,7 @@
 #ifndef EQ_EVENTHANDLER_H
 #define EQ_EVENTHANDLER_H
 
-#include <eq/client/windowEvent.h>
+#include <eq/client/event.h>
 #include <eq/client/windowSystem.h>
 
 #include <eq/base/hash.h>
@@ -39,19 +39,23 @@ namespace eq
         
     protected:
         /** Constructs a new event thread. */
-        EventHandler(){}
+        EventHandler() : _lastEventWindow( 0 ) {}
 
         /** Destructs the event thread. */
         virtual ~EventHandler(){}
 
         /** Compute the mouse move delta from the previous pointer event. */
-        void _computePointerDelta( WindowEvent& event );
+        void _computePointerDelta( const Window* window, Event& event );
 
         /** Find and set the rendering context at the mouse position. */
-        void _getRenderContext( WindowEvent& event );
+        void _getRenderContext( const Window* window, Event& event );
 
         /** The previous pointer event to compute mouse movement deltas. */
-        WindowEvent _lastPointerEvent;
+        Event _lastPointerEvent;
+
+        /** The window of the previous pointer event. */
+        const Window* _lastEventWindow;
+
     private:
     };
 }

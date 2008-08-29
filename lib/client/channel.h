@@ -16,7 +16,6 @@
 
 namespace eq
 {
-    class ChannelEvent;
     class Pixel;
     class Node;
     class Range;
@@ -83,7 +82,7 @@ namespace eq
         const vmml::Vector3ub& getUniqueColor() const { return _color; }
 
         /** Add a new statistics event for the current frame. */
-        void addStatistic( ChannelEvent& event );
+        void addStatistic( Event& event );
         //*}
 
         /**
@@ -197,7 +196,7 @@ namespace eq
          * @param event the received window system event.
          * @return true when the event was handled, false if not.
          */
-        virtual bool processEvent( const ChannelEvent& event );
+        virtual bool processEvent( const Event& event );
 
         /** Draw a statistics overlay. */
         virtual void drawStatistics();

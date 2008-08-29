@@ -167,12 +167,12 @@ namespace eq
         {
             ResizeEvent  resize;
 
-            PointerEvent pointerEvent;
+            PointerEvent pointer;
             PointerEvent pointerMotion;
             PointerEvent pointerButtonPress;
             PointerEvent pointerButtonRelease;
 
-            KeyEvent     keyEvent;
+            KeyEvent     key;
             KeyEvent     keyPress;
             KeyEvent     keyRelease;
 

@@ -72,7 +72,6 @@ HEADER_SRC = \
 	net/session.h \
 	net/types.h \
 	client/channel.h \
-	client/channelEvent.h \
 	client/channelStatistics.h \
 	client/channelVisitor.h \
 	client/client.h \
@@ -114,7 +113,6 @@ HEADER_SRC = \
 	client/version.h \
 	client/viewport.h \
 	client/window.h \
-	client/windowEvent.h \
 	client/windowStatistics.h \
 	client/windowSystem.h \
 	client/windowVisitor.h \
@@ -173,7 +171,6 @@ CXXFILES = \
 	net/staticSlaveCM.cpp \
 	net/unbufferedMasterCM.cpp \
 	client/channel.cpp \
-	client/channelEvent.cpp \
 	client/channelStatistics.cpp \
 	client/client.cpp \
 	client/colorMask.cpp \
@@ -201,7 +198,6 @@ CXXFILES = \
 	client/version.cpp \
 	client/viewport.cpp \
 	client/window.cpp \
-	client/windowEvent.cpp \
 	client/windowStatistics.cpp \
 	client/windowSystem.cpp \
 	util/bitmapFont.cpp

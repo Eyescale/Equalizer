@@ -5,13 +5,13 @@
 #ifndef EQ_WGLWINDOWEVENT_H
 #define EQ_WGLWINDOWEVENT_H
 
-#include <eq/client/windowEvent.h>
+#include <eq/client/event.h>
 #include <eq/client/windowSystem.h>
 
 namespace eq
 {
     /** A window-system event for a WGLWindowIF */
-    class EQ_EXPORT WGLWindowEvent : public WindowEvent
+    class EQ_EXPORT WGLWindowEvent : public Event
     {
     public:
         // Native event data

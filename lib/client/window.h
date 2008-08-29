@@ -13,7 +13,7 @@ namespace eq
 {
     class Channel;
     class OSWindow;
-    class WindowEvent;
+    class Event;
     struct RenderContext;
 
     /**
@@ -355,7 +355,7 @@ namespace eq
          * @param event the received window system event.
          * @return true when the event was handled, false if not.
          */
-        virtual bool processEvent( const WindowEvent& event );
+        virtual bool processEvent( const Event& event );
         friend class GLXWindowIF;
         friend class AGLWindowIF;
         friend class WGLWindowIF;

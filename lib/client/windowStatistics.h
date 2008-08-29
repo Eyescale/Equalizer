@@ -5,7 +5,7 @@
 #ifndef EQ_WINDOWSTATISTICS_H
 #define EQ_WINDOWSTATISTICS_H
 
-#include <eq/client/windowEvent.h>
+#include <eq/client/event.h>
 
 namespace eq
 {
@@ -21,7 +21,8 @@ namespace eq
         ~WindowStatistics();
 
     private:
-        WindowEvent _event;
+        Event         _event;
+        Window* const _window;
     };
 }
 

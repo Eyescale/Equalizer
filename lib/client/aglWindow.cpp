@@ -79,7 +79,7 @@ void AGLWindow::swapBuffers()
 
 bool AGLWindow::processEvent( const AGLWindowEvent& event )
 {
-    if( event.data.type == Event::EXPOSE && _aglContext )
+    if( event.type == Event::EXPOSE && _aglContext )
         aglUpdateContext( _aglContext );
 
     return AGLWindowIF::processEvent( event );

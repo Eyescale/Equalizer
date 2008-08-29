@@ -41,49 +41,46 @@ EventHandler* EventHandler::registerPipe( Pipe* pipe )
     return 0;
 }
 
-void EventHandler::_computePointerDelta( WindowEvent &event )
+void EventHandler::_computePointerDelta( const Window* window, Event &event )
 {
-    if( _lastPointerEvent.window != event.window )
+    if( _lastEventWindow != window )
     {
-        event.data.pointerEvent.dx = 0;
-        event.data.pointerEvent.dy = 0;
+        event.pointer.dx  = 0;
+        event.pointer.dy  = 0;
         _lastPointerEvent = event;
+        _lastEventWindow  = window;
         return;
     }
 
-    switch( event.data.type )
+    switch( event.type )
     {
         case Event::POINTER_BUTTON_PRESS:
         case Event::POINTER_BUTTON_RELEASE:
-            if( _lastPointerEvent.data.type == Event::POINTER_MOTION )
+            if( _lastPointerEvent.type == Event::POINTER_MOTION )
             {
-                event.data.pointerEvent.dx =
-                    _lastPointerEvent.data.pointerEvent.dx;
-                event.data.pointerEvent.dy =
-                    _lastPointerEvent.data.pointerEvent.dy;
+                event.pointer.dx = _lastPointerEvent.pointer.dx;
+                event.pointer.dy = _lastPointerEvent.pointer.dy;
                 break;
             }
             // fall through
 
         default:
-            event.data.pointerEvent.dx = event.data.pointerEvent.x -
-                                         _lastPointerEvent.data.pointerEvent.x;
-            event.data.pointerEvent.dy = event.data.pointerEvent.y -
-                                         _lastPointerEvent.data.pointerEvent.y;
+            event.pointer.dx = event.pointer.x - _lastPointerEvent.pointer.x;
+            event.pointer.dy = event.pointer.y - _lastPointerEvent.pointer.y;
     }
     _lastPointerEvent = event;
 }
 
-void EventHandler::_getRenderContext( WindowEvent& event )
+void EventHandler::_getRenderContext( const Window* window, Event& event )
 {
-    const int32_t x = event.data.pointerEvent.x;
-    const int32_t y = event.data.pointerEvent.y;
+    const int32_t x = event.pointer.x;
+    const int32_t y = event.pointer.y;
 
-    const RenderContext* context = event.window->getRenderContext( x, y );
+    const RenderContext* context = window->getRenderContext( x, y );
     if( context )
-        event.data.context = *context;
+        event.context = *context;
     else
-        EQINFO << "No rendering context for pointer event on " << x << ", " 
+        EQINFO << "No rendering context for pointer event at " << x << ", " 
                << y << endl;
 }
 

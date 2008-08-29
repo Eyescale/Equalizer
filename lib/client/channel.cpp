@@ -5,7 +5,6 @@
 #define NOMINMAX
 #include "channel.h"
 
-#include "channelEvent.h"
 #include "channelStatistics.h"
 #include "compositor.h"
 #include "commands.h"
@@ -144,12 +143,12 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
     send( node, packet );
 }
 
-void Channel::addStatistic( ChannelEvent& event )
+void Channel::addStatistic( Event& event )
 {
 #ifdef EQ_ASYNC_TRANSMIT
     _statisticsLock.set();
 #endif
-    _statistics.push_back( event.data.statistic );
+    _statistics.push_back( event.statistic );
 #ifdef EQ_ASYNC_TRANSMIT
     _statisticsLock.unset();
 #endif
@@ -391,21 +390,21 @@ void Channel::applyHeadTransform() const
     EQVERB << "Apply head transform: " << xfm << endl;
 }
 
-bool Channel::processEvent( const ChannelEvent& event )
+bool Channel::processEvent( const Event& event )
 {
-    switch( event.data.type )
+    switch( event.type )
     {
         case Event::STATISTIC:
             break;
 
         default:
-            EQWARN << "Unhandled channel event of type " << event.data.type
+            EQWARN << "Unhandled channel event of type " << event.type
                    << endl;
             EQUNIMPLEMENTED;
     }
 
     ConfigEvent configEvent;
-    configEvent.data = event.data;
+    configEvent.data = event;
 
     Config* config = getConfig();
     config->sendEvent( configEvent );
@@ -843,10 +842,8 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
 
         ChannelStatistics nodeEvent( Statistic::CHANNEL_TRANSMIT_NODE, this );
         ChannelStatistics compressEvent( Statistic::CHANNEL_COMPRESS, this );
-        compressEvent.event.data.statistic.endTime = 
-            compressEvent.event.data.statistic.startTime + 
-
-            frame->transmit( toNode );
+        compressEvent.event.statistic.endTime =
+            compressEvent.event.statistic.startTime + frame->transmit( toNode );
     }
 
     return net::COMMAND_HANDLED;

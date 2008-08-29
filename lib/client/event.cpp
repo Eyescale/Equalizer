@@ -75,12 +75,12 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
         case Event::POINTER_MOTION:
         case Event::POINTER_BUTTON_PRESS:
         case Event::POINTER_BUTTON_RELEASE:
-            os << event.pointerEvent;
+            os << event.pointer;
             break;
 
         case Event::KEY_PRESS:
         case Event::KEY_RELEASE:
-            os << event.keyEvent;
+            os << event.key;
             break;
 
         case Event::STATISTIC:

@@ -16,24 +16,23 @@ namespace eq
 
 ChannelStatistics::ChannelStatistics( const Statistic::Type type, 
                                       Channel* channel )
+        : _channel( channel )
 {
-    event.channel                    = channel;
-
     const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
 
-    event.data.type                  = Event::STATISTIC;
-    event.data.originator            = channel->getID();
-    event.data.statistic.type        = type;
-    event.data.statistic.frameNumber = channel->getPipe()->getCurrentFrame();
+    event.type                  = Event::STATISTIC;
+    event.originator            = channel->getID();
+    event.statistic.type        = type;
+    event.statistic.frameNumber = channel->getPipe()->getCurrentFrame();
     
     const std::string& name = channel->getName();
     if( name.empty( ))
-        snprintf( event.data.statistic.resourceName, 32, "channel %d",
+        snprintf( event.statistic.resourceName, 32, "channel %d",
                   channel->getID( ));
     else
-        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
+        snprintf( event.statistic.resourceName, 32, "%s", name.c_str( ));
 
     if( hint == NICEST && 
         type != Statistic::CHANNEL_COMPRESS && 
@@ -42,28 +41,28 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
     {
         channel->getWindow()->finish();
     }
-    event.data.statistic.startTime  = channel->getConfig()->getTime();
-    event.data.statistic.endTime    = 0.f;
+    event.statistic.startTime  = channel->getConfig()->getTime();
+    event.statistic.endTime    = 0.f;
 }
 
 
 ChannelStatistics::~ChannelStatistics()
 {
-    Channel* channel   = event.channel;
-    const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
+    const int32_t hint =_channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
 
     if( hint == NICEST && 
-        event.data.statistic.type != Statistic::CHANNEL_COMPRESS && 
-        event.data.statistic.type != Statistic::CHANNEL_TRANSMIT && 
-        event.data.statistic.type != Statistic::CHANNEL_TRANSMIT_NODE )
+        event.statistic.type != Statistic::CHANNEL_COMPRESS && 
+        event.statistic.type != Statistic::CHANNEL_TRANSMIT && 
+        event.statistic.type != Statistic::CHANNEL_TRANSMIT_NODE )
     {
-        channel->getWindow()->finish();
+        _channel->getWindow()->finish();
     }
-    if( event.data.statistic.endTime == 0.f )
-        event.data.statistic.endTime = channel->getConfig()->getTime();
-    channel->addStatistic( event );
+    if( event.statistic.endTime == 0.f )
+        event.statistic.endTime = _channel->getConfig()->getTime();
+
+    _channel->addStatistic( event );
 }
 
 }

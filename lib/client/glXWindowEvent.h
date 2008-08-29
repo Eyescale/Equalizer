@@ -5,12 +5,12 @@
 #ifndef EQ_GLXWINDOWEVENT_H
 #define EQ_GLXWINDOWEVENT_H
 
-#include <eq/client/windowEvent.h>
+#include <eq/client/event.h>
 
 namespace eq
 {
     /** A window-system event for a GLXWindowIF */
-    class EQ_EXPORT GLXWindowEvent : public WindowEvent
+    class EQ_EXPORT GLXWindowEvent : public Event
     {
     public:
         // Native event
