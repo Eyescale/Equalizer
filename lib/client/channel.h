@@ -421,6 +421,9 @@ namespace eq
 
         /** The statistics events gathered during the current frame. */
         std::vector< Statistic > _statistics;
+#ifdef EQ_ASYNC_TRANSMIT
+        base::SpinLock _statisticsLock;
+#endif
 
         //-------------------- Methods --------------------
         /** 

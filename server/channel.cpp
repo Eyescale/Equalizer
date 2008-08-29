@@ -464,7 +464,9 @@ net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
             case eq::Statistic::CHANNEL_DRAW:
             case eq::Statistic::CHANNEL_DRAW_FINISH:
             case eq::Statistic::CHANNEL_READBACK:
+#ifndef EQ_ASYNC_TRANSMIT
             case eq::Statistic::CHANNEL_TRANSMIT:
+#endif
                 startTime = EQ_MIN( startTime, data.startTime );
                 endTime   = EQ_MAX( endTime, data.endTime );
                 break;

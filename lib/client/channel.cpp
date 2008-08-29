@@ -58,6 +58,11 @@ Channel::Channel( Window* parent )
                      ChannelFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( CMD_CHANNEL_FRAME_READBACK, 
                      ChannelFunc( this, &Channel::_cmdFrameReadback ), queue );
+
+#ifdef EQ_ASYNC_TRANSMIT
+    queue = getNode()->getNodeThreadQueue();
+#endif
+
     registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
                      ChannelFunc( this, &Channel::_cmdFrameTransmit ), queue );
 
@@ -141,7 +146,13 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
 
 void Channel::addStatistic( ChannelEvent& event )
 {
+#ifdef EQ_ASYNC_TRANSMIT
+    _statisticsLock.set();
+#endif
     _statistics.push_back( event.data.statistic );
+#ifdef EQ_ASYNC_TRANSMIT
+    _statisticsLock.unset();
+#endif
     processEvent( event );
 }
 
@@ -529,18 +540,18 @@ void Channel::drawStatistics()
                         break;
                     case Statistic::CHANNEL_TRANSMIT:
                         glColor3f( 0.f, 0.f, 1.0f-dim ); 
+                        y1 -= SPACE;
+                        z = 0.5f; 
                         break;
                     case Statistic::CHANNEL_TRANSMIT_NODE:
                         glColor3f( 0.5f-dim, 0.5f-dim, 1.0f-dim ); 
-                        y1 -= SPACE;
-                        y2 += SPACE;
-                        z = 0.1f; 
+                        y1 -= 2*SPACE;
+                        z = 0.6f; 
                         break;
                     case Statistic::CHANNEL_COMPRESS:
                         glColor3f( 1.0f-dim, 1.0f-dim, 1.0f-dim ); 
-                        y1 -= SPACE;
-                        y2 += SPACE;
-                        z = 0.2f; 
+                        y1 -= 2*SPACE;
+                        z = 0.7f; 
                         break;
                     case Statistic::CHANNEL_WAIT_FRAME:
                     case Statistic::CONFIG_WAIT_FINISH_FRAME:
@@ -815,6 +826,10 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
     Pipe*         pipe      = getPipe();
     Frame*        frame     = pipe->getFrame( packet->frame,
                                               packet->context.eye );
+
+#ifdef EQ_ASYNC_TRANSMIT
+    frame->waitReady();
+#endif
 
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {
