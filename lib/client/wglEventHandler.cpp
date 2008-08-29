@@ -166,6 +166,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     event.wParam = wParam;
     event.lParam = lParam;
 
+    Window* const window = _window->getWindow();
+
     LONG result = 0;
     switch( uMsg )
     {
@@ -221,8 +223,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerMotion.y = GET_Y_LPARAM( lParam );
             event.pointerMotion.buttons = _buttonState;
 
-            _computePointerDelta( event );
-            _getRenderContext( event );
+            _computePointerDelta( window, event );
+            _getRenderContext( window, event );
             break;
         }
 
@@ -234,8 +236,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonPress.buttons = _buttonState;
             event.pointerButtonPress.button  = PTR_BUTTON1;
 
-            _computePointerDelta( event );
-            _getRenderContext( event );
+            _computePointerDelta( window, event );
+            _getRenderContext( window, event );
             break;
 
         case WM_MBUTTONDOWN:
@@ -246,8 +248,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonPress.buttons = _buttonState;
             event.pointerButtonPress.button  = PTR_BUTTON2;
 
-            _computePointerDelta( event );
-            _getRenderContext( event );
+            _computePointerDelta( window, event );
+            _getRenderContext( window, event );
             break;
 
         case WM_RBUTTONDOWN:
@@ -258,8 +260,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonPress.buttons = _buttonState;
             event.pointerButtonPress.button  = PTR_BUTTON3;
 
-            _computePointerDelta( event );
-            _getRenderContext( event );
+            _computePointerDelta( window, event );
+            _getRenderContext( window, event );
             break;
 
         case WM_XBUTTONDOWN:
@@ -276,8 +278,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));
             event.pointerButtonPress.buttons = _buttonState;
 
-            _computePointerDelta( event );
-            _getRenderContext( event );
+            _computePointerDelta( window, event );
+            _getRenderContext( window, event );
             result = TRUE;
             break;
 
@@ -289,8 +291,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonRelease.buttons = _buttonState;
             event.pointerButtonRelease.button  = PTR_BUTTON1;
 
-            _computePointerDelta( event );
-            _getRenderContext( event );
+            _computePointerDelta( window, event );
+            _getRenderContext( window, event );
             break;
 
         case WM_MBUTTONUP:
@@ -301,8 +303,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonRelease.buttons = _buttonState;
             event.pointerButtonRelease.button  = PTR_BUTTON2;
 
-            _computePointerDelta( event );
-            _getRenderContext( event );
+            _computePointerDelta( window, event );
+            _getRenderContext( window, event );
             break;
 
         case WM_RBUTTONUP:
@@ -313,8 +315,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonRelease.buttons = _buttonState;
             event.pointerButtonRelease.button  = PTR_BUTTON3;
 
-            _computePointerDelta( event );
-            _getRenderContext( event );
+            _computePointerDelta( window, event );
+            _getRenderContext( window, event );
             break;
 
         case WM_XBUTTONUP:
@@ -331,8 +333,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));
             event.pointerButtonRelease.buttons =_buttonState;
 
-            _computePointerDelta( event );
-            _getRenderContext( event );
+            _computePointerDelta( window, event );
+            _getRenderContext( window, event );
             result = TRUE;
             break;
 
@@ -355,7 +357,6 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
     }
 
-    Window* const window = _window->getWindow();
     event.originator = window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
