@@ -6,13 +6,13 @@
 
 #include <eq/base/idPool.h>
 
-#include <strings.h>
-
 using namespace std;
 using namespace eq::base;
 
 #ifdef WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );
+#else
+#  include <cstrings>
 #endif
 
 namespace eq
