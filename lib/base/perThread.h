@@ -5,6 +5,9 @@
 #ifndef EQBASE_PERTHREAD_H
 #define EQBASE_PERTHREAD_H
 
+#include <errno.h>
+#include <string.h>
+
 #include <eq/base/base.h>
 #include <eq/base/executionListener.h>
 

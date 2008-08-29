@@ -9,6 +9,8 @@
 #include <eq/base/debug.h>
 #include <queue>
 
+#include <string.h>
+
 namespace eq
 {
 namespace base

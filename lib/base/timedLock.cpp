@@ -8,6 +8,7 @@
 
 #include <pthread.h>
 #include <errno.h>
+#include <string.h>
 #include <sys/timeb.h>
 
 #ifdef WIN32_API

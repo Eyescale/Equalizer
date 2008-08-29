@@ -6,6 +6,8 @@
 
 #include <eq/base/idPool.h>
 
+#include <strings.h>
+
 using namespace std;
 using namespace eq::base;
 

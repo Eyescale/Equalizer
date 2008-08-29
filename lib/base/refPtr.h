@@ -9,6 +9,7 @@
 #include <eq/base/debug.h>
 
 #include <iostream>
+#include <typeinfo>
 #include <stdlib.h>
 
 namespace eq

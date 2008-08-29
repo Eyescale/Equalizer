@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "lock.h"
@@ -7,7 +7,9 @@
 #include "log.h"
 
 #include <errno.h>
+#include <string.h>
 #include <pthread.h>
+#include <string.h>
 
 using namespace std;
 

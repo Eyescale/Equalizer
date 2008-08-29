@@ -7,6 +7,7 @@
 #include <eq/base/log.h>
 
 #include <errno.h>
+#include <string.h>
 #include <pthread.h>
 
 using namespace std;

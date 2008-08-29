@@ -7,6 +7,7 @@
 #include "log.h"
 
 #include <errno.h>
+#include <string.h>
 #include <pthread.h>
 #ifndef WIN32
 #  include <unistd.h> // for _POSIX_SPIN_LOCKS on some systems

@@ -16,6 +16,7 @@
 #include <eq/base/spinLock.h>
 
 #include <sys/types.h>
+#include <string.h>
 #include <vector>
 
 #ifdef WIN32_API

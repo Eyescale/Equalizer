@@ -7,6 +7,8 @@
 #include "log.h"
 #include <eq/base/debug.h>
 
+#include <string.h>
+
 using namespace std;
 
 namespace eq

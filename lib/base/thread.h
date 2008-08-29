@@ -12,6 +12,8 @@
 #endif
 
 #include <vector>
+#include <typeinfo>
+#include <sstream>
 
 namespace eq
 {

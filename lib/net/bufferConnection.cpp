@@ -4,6 +4,8 @@
 
 #include "bufferConnection.h"
 
+#include <string.h>
+
 using namespace std;
 
 namespace eq

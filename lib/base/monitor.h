@@ -5,6 +5,9 @@
 #ifndef EQBASE_MONITOR_H
 #define EQBASE_MONITOR_H
 
+#include <errno.h>
+#include <string.h>
+
 #include <eq/base/nonCopyable.h> // base class
 
 namespace eq
