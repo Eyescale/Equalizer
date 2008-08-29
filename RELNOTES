@@ -1,15 +1,15 @@
 
-                Release Notes for Equalizer 0.5.2 Equalizer logo
+                   Release Notes for Equalizer 0.5.4
 
-   Welcome to Equalizer 0.5.2, a framework for the development and deployment
-   of parallel, scalable OpenGL applications. Equalizer 0.5.2 focuses on
-   stability and memory leaks.
+   Welcome to Equalizer 0.5.4, a framework for the development and deployment
+   of parallel, scalable OpenGL applications. Equalizer 0.5.4 adds support
+   for orthographic projections.
 
-   Equalizer 0.5.2 is a developer release, representing a stable snapshot of
-   the development tree after the 0.5 release. Equalizer 0.5.2 can be
+   Equalizer 0.5.4 is a developer release, representing a stable snapshot of
+   the development tree after the 0.5 release. Equalizer 0.5.4 can be
    retrieved using:
    svn co
-   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.5.2
+   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.5.4
 
   Features
 
@@ -39,6 +39,18 @@
 
     New Features
 
+   0.5.4:
+
+     * Added window attributes for accumulation buffer and AA samples
+     * Automatic 2D and DB load-balancing (initial support)
+     * Automatic image compression for 'slow' (< 2GBit) connections
+     * Improved statistics overlay appearance (auto-scaling, compression
+       time)
+
+   0.5.3:
+
+     * Support for orthographic projections
+
    0.5.2:
 
      * Improved statistics overlay appearance
@@ -56,6 +68,12 @@
 
     Performance Improvements
 
+   0.5.3:
+
+     * Improved overall performance by using atomic operations for reference
+       counted objects
+     * Improved performance when using non-threaded pipes
+
    0.5.1:
 
      * Alpha-blending support in the CPU-based compositor
@@ -63,14 +81,24 @@
 
     Bug Fixes
 
-   Equalizer 0.5.2 includes various bugfixes over the 0.5 release, including
+   Equalizer 0.5.4 includes various bugfixes over the 0.5 release, including
    the following:
+
+   0.5.4:
+
+     * 2026837: swapbarrier calls increase with single-buffered windows
+
+   0.5.3:
+
+     * 1997751: defines for EQ_BIT17 - EQ_BIT20 are wrong
+     * 1996988: AGL reports key press twice
+     * 1997579: Important WGL key events not reported
 
    0.5.2:
 
      * Fixed a big memory leak in the packet handling code, as well as
        numerous small bug fixes and code cleanups
-     * [LINK]1994798: Compound::getNode null pointer read
+     * 1994798: Compound::getNode null pointer read
      * 1981854: AGL: PBuffer with Fullscreen broken
 
    0.5.1:
@@ -87,12 +115,24 @@
 
      * Statistics Overlay
 
+  API Changes
+
+   0.5.4:
+
+   The eqBase, eqNet and eqServer namespaces have been renamed to eq::base,
+   eq::net and eq::server, respectively. Application developers are
+   encouraged to make the necessary changes, but can define EQ_USE_DEPRECATED
+   if these changes are not feasible.
+
   Removed Features
 
    None
 
   Known Bugs
 
+     * 2003195: Ortho frustra ignores eye offset
+     * 2003132: 3-wnd.DB.ds is broken on some ppc machines for eqPly
+     * 1997583: eqPly: ortho frustum culling broken
      * 1959418: DB Compositing fails on MacBook with GMA X3100
      * 1854948: eVolve: lighting ignores head transformation
      * 1854929: eqPly GLSL shader has artefacts
