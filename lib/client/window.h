@@ -73,15 +73,23 @@ namespace eq
             { return _pipe->getPipeThreadQueue(); }
 
         /** @return the pipe of this window. */
-        Pipe* getPipe() const { return _pipe; }
-        Node* getNode() const 
+        const Pipe* getPipe() const { return _pipe; }
+        Pipe* getPipe()             { return _pipe; }
+
+        const Node* getNode() const 
             { return ( _pipe ? _pipe->getNode() : 0 );}
-        Config* getConfig() const { return (_pipe ? _pipe->getConfig() : 0);}
-        base::RefPtr< Client > getClient() const 
+        Node* getNode() { return ( _pipe ? _pipe->getNode() : 0 );}
+
+        const Config* getConfig() const
+            { return (_pipe ? _pipe->getConfig() : 0);}
+        Config* getConfig() { return (_pipe ? _pipe->getConfig() : 0);}
+
+        base::RefPtr< Client > getClient()
             { return ( _pipe ? _pipe->getClient() : 0 ); }
-        base::RefPtr< Server > getServer() const 
+        base::RefPtr< Server > getServer() 
             { return ( _pipe ? _pipe->getServer() : 0 ); }
-        const ChannelVector& getChannels() const { return _channels; }
+
+        const ChannelVector& getChannels() { return _channels; }
 
         const std::string& getName() const { return _name; }
 
