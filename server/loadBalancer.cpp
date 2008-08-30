@@ -18,6 +18,7 @@ namespace server
 {
 
 #define MIN_PIXELS 8
+#define DAMPING   .5f   // 0: No damping, 1: No changes
 
 std::ostream& operator << ( std::ostream& os, const LoadBalancer::Node* node );
 
@@ -321,7 +322,10 @@ float LoadBalancer::_assignTargetTimes( Node* node, const float totalTime,
     {
         float time = resourceTime; // default
 
-#if 1 // enable to smoothen the changes between frames
+#ifdef DAMPING
+        EQASSERT( DAMPING >= 0.f );
+        EQASSERT( DAMPING <= 1.f );
+
         const LBFrameData&  frameData = _history.front();
         const LBDataVector& items     = frameData.second;
         for( LBDataVector::const_iterator i = items.begin(); 
@@ -334,7 +338,8 @@ float LoadBalancer::_assignTargetTimes( Node* node, const float totalTime,
                 continue;
 
             // found our last rendering time -> use this to smoothen the change:
-            time = (resourceTime + data.endTime - data.startTime) * 0.5f;
+            time = (1.f - DAMPING) * resourceTime +
+                   DAMPING         * (data.endTime - data.startTime);
             break;
         }
 #endif
