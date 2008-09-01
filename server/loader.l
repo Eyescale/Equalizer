@@ -116,6 +116,7 @@ VERTICAL                        { return EQTOKEN_VERTICAL; }
 channel                         { return EQTOKEN_CHANNEL; }
 compound                        { return EQTOKEN_COMPOUND; }
 loadBalancer                    { return EQTOKEN_LOADBALANCER; }
+damping                         { return EQTOKEN_DAMPING; }
 connection                      { return EQTOKEN_CONNECTION; }
 name                            { return EQTOKEN_NAME; }
 type                            { return EQTOKEN_TYPE; }

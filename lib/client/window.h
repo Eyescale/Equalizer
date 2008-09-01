@@ -216,6 +216,10 @@ namespace eq
         const OSWindow* getOSWindow() const { return _osWindow; }
         OSWindow*       getOSWindow()       { return _osWindow; }
 
+        //*}
+
+        /** @name Error information. */
+        //*{
         /** 
          * Set a message why the last operation failed.
          * 

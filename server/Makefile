@@ -73,4 +73,4 @@ parser.cpp: loader.y
 	$(BISON) -l -p eqLoader_ -d $< -o $@
 
 parser.hpp: parser.cpp
-	-mv parser.cpp.h parser.hpp
+	@-mv parser.cpp.h parser.hpp

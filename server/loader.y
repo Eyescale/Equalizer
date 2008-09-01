@@ -122,6 +122,7 @@
 %token EQTOKEN_CHANNEL
 %token EQTOKEN_COMPOUND
 %token EQTOKEN_LOADBALANCER
+%token EQTOKEN_DAMPING
 %token EQTOKEN_CONNECTION
 %token EQTOKEN_NAME
 %token EQTOKEN_TYPE
@@ -640,6 +641,7 @@ loadBalancer: EQTOKEN_LOADBALANCER
 loadBalancerFields: /*null*/ | loadBalancerField | loadBalancerFields loadBalancerField
 loadBalancerField:
     EQTOKEN_MODE loadBalancerMode { loadBalancer->setMode( $2 ) }
+    | EQTOKEN_DAMPING FLOAT       { loadBalancer->setDamping( $2 ) }
 
 loadBalancerMode: EQTOKEN_2D { $$ = eq::server::LoadBalancer::MODE_2D; }
     | EQTOKEN_DB             { $$ = eq::server::LoadBalancer::MODE_DB; }

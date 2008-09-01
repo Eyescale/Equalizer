@@ -45,7 +45,7 @@ server
                 bottom_right [  .32 -.20 -.75 ]
                 top_left     [ -.32  .20 -.75 ]
             }
-            loadBalancer{ mode 2D }
+            loadBalancer{ mode 2D damping 0.8 }
 
             compound
             {

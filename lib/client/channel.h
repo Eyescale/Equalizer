@@ -271,7 +271,7 @@ namespace eq
          */
         //*{
         /** 
-         * Initialise this channel.
+         * Initialize this channel.
          * 
          * @param initID the init identifier.
          */
@@ -367,7 +367,7 @@ namespace eq
         //*}
 
         /** @name Error information. */
-        //@{
+        //*{
         /** 
          * Set a message why the last operation failed.
          * 
@@ -377,7 +377,7 @@ namespace eq
          * @param message the error message.
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
-        //@}
+        //*}
     private:
         //-------------------- Members --------------------
         /** The parent window. */

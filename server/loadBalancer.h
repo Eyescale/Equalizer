@@ -38,6 +38,9 @@ namespace server
         /** Set the load balancer adaptation mode. */
         void setMode( const Mode mode ) { _mode = mode; }
 
+        /** Undocumented  */
+        void setDamping( const float damping ) { _damping = damping; }
+
         /** @return the load balancer adaptation mode. */
         Mode getMode() const { return _mode; }
 
@@ -64,7 +67,8 @@ namespace server
 
     private:
         //-------------------- Members --------------------
-        Mode _mode; //!< The current adaptation mode
+        Mode  _mode;    //!< The current adaptation mode
+        float _damping; //!< The damping factor (0: No damping, 1: No changes)
 
         Compound* _compound; //!< The attached compound
 
