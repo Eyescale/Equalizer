@@ -703,6 +703,10 @@ net::CommandResult Channel::_cmdFrameFinish( net::Command& command )
     frameFinish( packet->frameID, packet->frameNumber );
 
     ChannelFrameFinishReplyPacket reply( packet );
+
+#ifdef EQ_ASYNC_TRANSMIT
+    base::ScopedMutex< SpinLock > mutex( _statisticsLock );
+#endif
     reply.nStatistics = _statistics.size();
 
     command.getNode()->send( reply, _statistics );
