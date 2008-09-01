@@ -26,6 +26,16 @@ FullMasterCM::FullMasterCM( Object* object )
           _nVersions( 0 ),
           _obsoleteFlags( Object::AUTO_OBSOLETE_COUNT_VERSIONS )
 {
+    DeltaData* data = _newDeltaData();
+    data->os.setVersion( 1 );
+
+    data->os.enable();
+    _object->getInstanceData( data->os );
+    data->os.disable();
+        
+    _deltaDatas.push_front( data );
+    ++_version;
+    ++_commitCount;
 }
 
 FullMasterCM::~FullMasterCM()
@@ -88,26 +98,6 @@ uint32_t FullMasterCM::commitSync( const uint32_t commitID )
     return version;
 }
 
-uint32_t FullMasterCM::_commitInitial()
-{
-    CHECK_THREAD( _thread );
-    EQASSERT( _slaves.empty( ));
-    EQASSERT( _version == Object::VERSION_NONE );
-    EQASSERT( _deltaDatas.empty( ));
-
-    DeltaData* data = _newDeltaData();
-    data->os.setVersion( 1 );
-
-    data->os.enable();
-    _object->getInstanceData( data->os );
-    data->os.disable();
-        
-    _deltaDatas.push_front( data );
-    ++_version;
-    ++_commitCount;
-    return _version;
-}
-
 // Obsoletes old changes based on number of commits or number of versions,
 // depending on the obsolete flags.
 void FullMasterCM::_obsolete()
@@ -145,8 +135,7 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
                              const uint32_t inVersion )
 {
     CHECK_THREAD( _thread );
-    if( _version == Object::VERSION_NONE )
-        _commitInitial();
+    EQASSERT( _version != Object::VERSION_NONE );
     _checkConsistency();
 
     // add to subscribers
@@ -259,16 +248,7 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
 
-    if( _version == Object::VERSION_NONE )
-    {
-        EQASSERT( _slaves.empty( ));
-
-        _commitInitial();
-        _checkConsistency();
-
-        _requestHandler.serveRequest( packet->requestID, _version );
-        return COMMAND_HANDLED;
-    }
+    EQASSERT( _version != Object::VERSION_NONE );
 
     ++_commitCount;
 

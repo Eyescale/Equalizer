@@ -103,8 +103,6 @@ namespace net
 
         DeltaData* _newDeltaData();
 
-        uint32_t _commitInitial();
-
         void _obsolete();
         void _checkConsistency() const;
 

@@ -27,6 +27,17 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
           _nVersions( 0 ),
           _obsoleteFlags( Object::AUTO_OBSOLETE_COUNT_VERSIONS )
 {
+    InstanceData* data = _newInstanceData();
+    data->os.setVersion( 1 );
+    data->os.enableSave();
+
+    data->os.enable();
+    _object->getInstanceData( data->os );
+    data->os.disable();
+        
+    _instanceDatas.push_front( data );
+    ++_version;
+    ++_commitCount;
 }
 
 DeltaMasterCM::~DeltaMasterCM()
@@ -103,28 +114,6 @@ uint32_t DeltaMasterCM::commitSync( const uint32_t commitID )
     return version;
 }
 
-uint32_t DeltaMasterCM::_commitInitial()
-{
-    CHECK_THREAD( _thread );
-    EQASSERT( _slaves.empty( ));
-    EQASSERT( _version == Object::VERSION_NONE );
-    EQASSERT( _instanceDatas.empty( ));
-    EQASSERT( _deltaDatas.empty( ));
-
-    InstanceData* data = _newInstanceData();
-    data->os.setVersion( 1 );
-    data->os.enableSave();
-
-    data->os.enable();
-    _object->getInstanceData( data->os );
-    data->os.disable();
-        
-    _instanceDatas.push_front( data );
-    ++_version;
-    ++_commitCount;
-    return _version;
-}
-
 // Obsoletes old changes based on number of commits or number of versions,
 // depending on the obsolete flags.
 void DeltaMasterCM::_obsolete()
@@ -173,8 +162,7 @@ void DeltaMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
                               const uint32_t inVersion )
 {
     CHECK_THREAD( _thread );
-    if( _version == Object::VERSION_NONE )
-        _commitInitial();
+    EQASSERT( _version != Object::VERSION_NONE );
     _checkConsistency();
 
     // add to subscribers
@@ -332,17 +320,7 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
 
-    if( _version == Object::VERSION_NONE )
-    {
-        EQASSERT( _slaves.empty( ));
-
-        _commitInitial();
-        _checkConsistency();
-
-        _requestHandler.serveRequest( packet->requestID, _version );
-        return COMMAND_HANDLED;
-    }
-
+    EQASSERT( _version != Object::VERSION_NONE );
     EQASSERT( _instanceDatas.size() == _deltaDatas.size() + 1 );
 
     ++_commitCount;

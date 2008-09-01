@@ -112,8 +112,6 @@ namespace net
         DeltaData*   _newDeltaData();
         InstanceData* _newInstanceData();
 
-        uint32_t _commitInitial();
-
         void _obsolete();
         void _checkConsistency() const;
 
