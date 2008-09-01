@@ -179,6 +179,20 @@ namespace net
 
         /** @return the oldest available version. */
         uint32_t getOldestVersion() const { return _cm->getOldestVersion(); }
+
+        /** 
+         * Notification that a new head version was received by a slave object.
+         *
+         * The notification is send from the command thread, which is different
+         * from the node main thread. The object should not be sync()'ed from
+         * this notification, as this might lead to synchronization issues with
+         * the application thread changing the object. Its purpose is to send a
+         * message to the application, which then takes the appropriate action.
+         * 
+         * @param version The new head version.
+         */
+        virtual void notifyNewHeadVersion( const uint32_t version )
+            { EQASSERT( version < getVersion() + 100 ); }
         //*}
 
         /** @name Methods used by session during mapping. */

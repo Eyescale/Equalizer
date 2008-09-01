@@ -193,6 +193,7 @@ CommandResult FullSlaveCM::_cmdDelta( Command& command )
                          << " ready" << endl;
 
     _queuedVersions.push( _currentDeltaStream );
+    _object->notifyNewHeadVersion( packet->version );
     _currentDeltaStream = 0;
 
     return COMMAND_HANDLED;
