@@ -285,6 +285,9 @@ uint32_t Config::finishFrame()
 
 uint32_t Config::finishAllFrames()
 {
+    if( _finishedFrame == _currentFrame )
+        return _currentFrame;
+
     ConfigFinishAllFramesPacket packet;
     send( packet );
 
