@@ -95,6 +95,9 @@ namespace eq
 
         const PixelViewport getSubPVP( const Viewport& rhs ) const
             {
+                if( rhs == Viewport::FULL )
+                    return *this;
+
                 PixelViewport result;
 
                 // honor position over size to avoid rounding artifacts
@@ -111,6 +114,9 @@ namespace eq
 
         const Viewport getSubVP( const PixelViewport& rhs ) const
             {
+                if( *this == rhs )
+                    return Viewport::FULL;
+
                 EQASSERT( rhs.hasArea( ));
                 return Viewport(  ( x - rhs.x )/ static_cast<float>( rhs.w ),
                                   ( y - rhs.y )/ static_cast<float>( rhs.h ),

@@ -27,26 +27,24 @@ server
         }
         compound
         { 
+            wall
+            {
+                bottom_left  [ -.64 -.2 -1 ]
+                bottom_right [  .64 -.2 -1 ]
+                top_left     [ -.64  .2 -1 ]
+            }
+
             compound
             { 
                 channel "channel1"
-                wall
-                {
-                    bottom_left  [ -.64 -.2 -1 ]
-                    bottom_right [  .0  -.2 -1 ]
-                    top_left     [ -.64  .2 -1 ]
-                }
+                viewport [ 0 0 .5 1 ]
             }
             compound
             { 
                 channel "channel2"
-                wall
-                {
-                    bottom_left  [  .0  -.2 -1 ]
-                    bottom_right [  .64 -.2 -1 ]
-                    top_left     [  .0   .2 -1 ]
-                }
+                viewport [ .5 0 .5 1 ]
             }
+
         }
     }    
 }
