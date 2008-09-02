@@ -241,12 +241,6 @@ void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
         pipe->waitFrameLocal( frameNumber );
     }
 
-#if 0
-    const Config*  config  = getConfig();
-    const uint32_t latency = config->getLatency();
-    if( latency > 0 )
-        config->
-#endif
     releaseFrameLocal( frameNumber );
 }
 
@@ -421,8 +415,6 @@ net::CommandResult Node::_cmdFrameFinish( net::Command& command )
     EQVERB << "handle node frame finish " << packet << endl;
 
     const uint32_t frameNumber = packet->frameNumber;
-    EQASSERTINFO( _finishedFrame+1 == frameNumber,
-                  _finishedFrame << ", " << frameNumber );
 
     _finishFrame( frameNumber );
     _frameFinish( packet->frameID, frameNumber );

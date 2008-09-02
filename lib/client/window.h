@@ -13,7 +13,7 @@ namespace eq
 {
     class Channel;
     class OSWindow;
-    class Event;
+    struct Event;
     struct RenderContext;
 
     /**
