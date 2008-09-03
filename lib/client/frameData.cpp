@@ -58,7 +58,7 @@ void FrameData::applyInstanceData( net::DataIStream& is )
 
     FrameDataUpdatePacket packet; // trigger process of received ready packets
     packet.instanceID = getInstanceID();
-    packet.version    = getVersion() + 1;
+    packet.version    = getVersion() + 1; // use +1 : new version not yet set
     send( getLocalNode(), packet );
 }
 
@@ -441,11 +441,10 @@ void FrameData::_applyVersion( const uint32_t version )
     EQLOG( LOG_ASSEMBLY ) << this << " apply v" << version << endl;
 
     // Input images sync() to the new version, then send an update packet and
-    // immediately continue. If they read back and set ready faster than we
+    // immediately continue. If they read back and setReady faster than we
     // process this update packet, the readyVersion changes at any given point
-    // in this code. To avoid the resulting assertion, we use a local variable:
-    const uint32_t readyVersion = _readyVersion.get();
-    if( readyVersion == version )
+    // in this code.
+    if( _readyVersion == version )
     {
 #ifndef NDEBUG
         for( list<ImageVersion>::iterator i = _pendingImages.begin();
@@ -461,10 +460,6 @@ void FrameData::_applyVersion( const uint32_t version )
         return;
     }
 
-    EQASSERTINFO( readyVersion < version, 
-                  "old " << readyVersion << " new " << version << " for " 
-                         << this );
-
     // Even if _readyVersion jumped to version in between, there are no pending
     // images for it, so this loop doesn't do anything.
     for( list<ImageVersion>::iterator i = _pendingImages.begin();
@@ -479,6 +474,8 @@ void FrameData::_applyVersion( const uint32_t version )
             list<ImageVersion>::iterator eraseIter = i;
             ++i;
             _pendingImages.erase( eraseIter );
+
+            EQASSERT( _readyVersion < version );
         }
         else
             ++i;
