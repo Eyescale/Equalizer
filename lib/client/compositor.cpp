@@ -839,7 +839,8 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     glStencilFunc( GL_EQUAL, 1, 1 );
     glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
     
-    op.channel->applyColorMask();
+    const ColorMask& colorMask = op.channel->getDrawBufferMask();
+    glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
     glDepthMask( true );
 }
 
