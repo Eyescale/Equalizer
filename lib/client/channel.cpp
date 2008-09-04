@@ -57,11 +57,6 @@ Channel::Channel( Window* parent )
                      ChannelFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( CMD_CHANNEL_FRAME_READBACK, 
                      ChannelFunc( this, &Channel::_cmdFrameReadback ), queue );
-
-#ifdef EQ_ASYNC_TRANSMIT
-    queue = getNode()->getNodeThreadQueue();
-#endif
-
     registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
                      ChannelFunc( this, &Channel::_cmdFrameTransmit ), queue );
 
@@ -145,13 +140,7 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
 
 void Channel::addStatistic( Event& event )
 {
-#ifdef EQ_ASYNC_TRANSMIT
-    _statisticsLock.set();
-#endif
     _statistics.push_back( event.statistic );
-#ifdef EQ_ASYNC_TRANSMIT
-    _statisticsLock.unset();
-#endif
     processEvent( event );
 }
 
@@ -703,10 +692,6 @@ net::CommandResult Channel::_cmdFrameFinish( net::Command& command )
     frameFinish( packet->frameID, packet->frameNumber );
 
     ChannelFrameFinishReplyPacket reply( packet );
-
-#ifdef EQ_ASYNC_TRANSMIT
-    base::ScopedMutex< SpinLock > mutex( _statisticsLock );
-#endif
     reply.nStatistics = _statistics.size();
 
     command.getNode()->send( reply, _statistics );
@@ -830,10 +815,6 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
     Frame*        frame     = pipe->getFrame( packet->frame,
                                               packet->context.eye );
 
-#ifdef EQ_ASYNC_TRANSMIT
-    frame->waitReady();
-#endif
-
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {
         net::NodeID nodeID = packet->nodes[i];
@@ -844,10 +825,14 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
 
+#ifdef EQ_ASYNC_TRANSMIT
+        getNode()->transmitter.send( frame->getData(), toNode );
+#else
         ChannelStatistics nodeEvent( Statistic::CHANNEL_TRANSMIT_NODE, this );
         ChannelStatistics compressEvent( Statistic::CHANNEL_COMPRESS, this );
         compressEvent.event.statistic.endTime =
             compressEvent.event.statistic.startTime + frame->transmit( toNode );
+#endif
     }
 
     return net::COMMAND_HANDLED;

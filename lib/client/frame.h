@@ -73,7 +73,8 @@ namespace server
 
         /** Set the data for this frame. */
         void setData( FrameData* data ) { _frameData = data; }
-    
+        FrameData* getData() { return _frameData; }
+
         /** Set the pixel viewport of the frame's data */
         void setPixelViewport( const PixelViewport& pvp );
 

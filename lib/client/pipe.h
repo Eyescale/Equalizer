@@ -444,9 +444,6 @@ namespace eq
 
         /** All assembly frames used by the pipe during rendering. */
         net::IDHash< Frame* > _frames;
-#ifdef EQ_ASYNC_TRANSMIT
-        base::SpinLock        _framesMutex;
-#endif
 
         /** The pipe thread. */
         class PipeThread : public base::Thread

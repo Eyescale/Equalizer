@@ -109,6 +109,32 @@ namespace eq
         //*}
 #endif
 
+#ifdef EQ_ASYNC_TRANSMIT
+        class TransmitThread : public base::Thread
+        {
+        public:
+            TransmitThread() {}
+            virtual ~TransmitThread() {}
+
+            void send( FrameData* data, net::NodePtr node );
+            
+        protected:
+            virtual void* run();
+
+        private:
+            struct Task
+            {
+                Task( FrameData* d, net::NodePtr n ) : data( d ), node( n ) {}
+
+                FrameData*   data;
+                net::NodePtr node;
+            };
+            base::MTQueue< Task > _tasks;
+        };
+
+        TransmitThread transmitter;
+#endif
+
     protected:
         /**
          * Destructs the node.

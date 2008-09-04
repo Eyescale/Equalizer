@@ -305,6 +305,27 @@ bool Node::hasData() const
 }
 #endif // EQ_TRANSMISSION_API
 
+#ifdef EQ_ASYNC_TRANSMIT
+void Node::TransmitThread::send( FrameData* data, net::NodePtr node )
+{
+    _tasks.push( Task( data, node ));
+}
+
+void* Node::TransmitThread::run()
+{
+    while( true )
+    {
+        const Task task = _tasks.pop();
+        if( _tasks.empty() && !task.node )
+            return 0; // exit thread
+        
+        task.data->transmit( task.node );
+    }
+    return 0;
+}
+
+#endif
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -354,6 +375,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     _unlockedFrame = 0;
     _finishedFrame = 0;
 
+    transmitter.start();
     _error.clear();
     NodeConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
@@ -380,6 +402,9 @@ net::CommandResult Node::_cmdConfigExit( net::Command& command )
     
     NodeConfigExitReplyPacket reply;
     reply.result = configExit();
+
+    transmitter.send( 0, 0 );
+    transmitter.join();
 
     _initialized = false;
     _flushObjects();

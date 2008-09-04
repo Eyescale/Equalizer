@@ -383,9 +383,6 @@ net::CommandQueue* Pipe::getPipeThreadQueue()
 
 Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
 {
-#ifdef EQ_ASYNC_TRANSMIT
-    _framesMutex.set();
-#endif
     Frame* frame = _frames[ frameVersion.id ];
 
     if( !frame )
@@ -393,10 +390,6 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
         net::Session* session = getSession();
         frame = new Frame();
         
-#ifdef EQ_ASYNC_TRANSMIT
-        frame->makeThreadSafe();
-#endif
-
         EQCHECK( session->mapObject( frame, frameVersion.id ));
         _frames[ frameVersion.id ] = frame;
     }
@@ -409,9 +402,6 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
     EQASSERT( frameData );
 
     frame->setData( frameData );
-#ifdef EQ_ASYNC_TRANSMIT
-    _framesMutex.unset();
-#endif
     return frame;
 }
 
