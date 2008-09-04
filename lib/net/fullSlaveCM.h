@@ -68,7 +68,7 @@ namespace net
         uint32_t _version;
 
         /** The change queue. */
-        base::MTQueue< ObjectDataIStream > _queuedVersions;
+        base::MTQueue< ObjectDataIStream* > _queuedVersions;
 
         /** Apply the data in the input stream to the object */
         virtual void _unpackOneVersion( ObjectDataIStream* is );

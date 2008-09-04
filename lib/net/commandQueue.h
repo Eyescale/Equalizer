@@ -38,7 +38,7 @@ namespace net
         virtual void pushFront( Command& packet );
 
         /** Wake up the command queue, pop() will return 0. */
-        virtual void wakeup() { _commands.push( 0 ); }
+        virtual void wakeup() { _commands.push( static_cast< Command* >( 0 )); }
 
         /** 
          * Pop a command from the queue.
@@ -83,7 +83,7 @@ namespace net
         CHECK_THREAD_DECLARE( _thread );
     private:
         /** Thread-safe command queue. */
-        base::MTQueue< Command >  _commands;
+        base::MTQueue< Command* >  _commands;
         
         /** The free command cache. */
         CommandCache              _commandCache;

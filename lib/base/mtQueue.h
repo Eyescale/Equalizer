@@ -35,14 +35,16 @@ class MTQueuePrivate;
         bool empty() const { return _queue.empty(); }
         size_t size() const { return _queue.size(); }
 
-        T* pop();
-        T* tryPop();
-        T* back() const;
-        void push( T* element );
-        void pushFront( T* element );
+        T pop();
+        T tryPop();
+        T back() const;
+        void push( const T& element );
+        void pushFront( const T& element );
+
+        static const T NONE;
 
     private:
-        std::deque<T*> _queue;
+        std::deque< T > _queue;
 
         MTQueuePrivate* _data;
     };
@@ -70,6 +72,8 @@ public:
     pthread_mutex_t mutex;
     pthread_cond_t  cond;
 };
+
+template< typename T > const T MTQueue<T>::NONE = 0;
 
 template< typename T >
 MTQueue<T>::MTQueue()
@@ -104,21 +108,21 @@ MTQueue<T>::~MTQueue()
 }
 
 template< typename T >
-T* MTQueue<T>::pop()
+T MTQueue<T>::pop()
 {
     pthread_mutex_lock( &_data->mutex );
     while( _queue.empty( ))
         pthread_cond_wait( &_data->cond, &_data->mutex );
                 
     EQASSERT( !_queue.empty( ));
-    T* element = _queue.front();
+    T element = _queue.front();
     _queue.pop_front();
     pthread_mutex_unlock( &_data->mutex );
     return element;
 }
 
 template< typename T >
-T* MTQueue<T>::tryPop()
+T MTQueue<T>::tryPop()
 {
     if( _queue.empty( ))
         return 0;
@@ -127,26 +131,32 @@ T* MTQueue<T>::tryPop()
     if( _queue.empty( ))
     {
         pthread_mutex_unlock( &_data->mutex );
-        return 0;
+        return NONE;
     }
     
-    T* element = _queue.front();
+    T element = _queue.front();
     _queue.pop_front();
     pthread_mutex_unlock( &_data->mutex );
     return element;
 }   
 
 template< typename T >
-T* MTQueue<T>::back() const
+T MTQueue<T>::back() const
 {
     pthread_mutex_lock( &_data->mutex );
-    T* element = _queue.empty() ? 0 : _queue.back();
+    if( _queue.empty( ))
+    {
+        pthread_mutex_unlock( &_data->mutex );
+        return NONE;
+    }
+    // else
+    T element = _queue.back();
     pthread_mutex_unlock( &_data->mutex );
     return element;
 }
 
 template< typename T >
-void MTQueue<T>::push( T* element )
+void MTQueue<T>::push( const T& element )
 {
     pthread_mutex_lock( &_data->mutex );
     _queue.push_back( element );
@@ -155,7 +165,7 @@ void MTQueue<T>::push( T* element )
 }
 
 template< typename T >
-void MTQueue<T>::pushFront( T* element )
+void MTQueue<T>::pushFront( const T& element )
 {
     pthread_mutex_lock( &_data->mutex );
     _queue.push_front( element );
