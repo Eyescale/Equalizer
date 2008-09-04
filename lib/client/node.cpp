@@ -375,7 +375,9 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     _unlockedFrame = 0;
     _finishedFrame = 0;
 
+#ifdef EQ_ASYNC_TRANSMIT
     transmitter.start();
+#endif
     _error.clear();
     NodeConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
@@ -403,8 +405,10 @@ net::CommandResult Node::_cmdConfigExit( net::Command& command )
     NodeConfigExitReplyPacket reply;
     reply.result = configExit();
 
+#ifdef EQ_ASYNC_TRANSMIT
     transmitter.send( 0, 0 );
     transmitter.join();
+#endif
 
     _initialized = false;
     _flushObjects();
