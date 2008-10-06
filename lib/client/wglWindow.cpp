@@ -633,4 +633,18 @@ void WGLWindow::exitEventHandler()
     _eventHandler = 0;
 }
 
+bool WGLWindow::processEvent( const WGLWindowEvent& event )
+{
+    if( event.type == Event::EXPOSE )
+    {
+        EQASSERT( _wglWindow ); // PBuffers should not generate paint events
+
+        // Invalidate update rectangle
+        PAINTSTRUCT ps;
+        BeginPaint( _wglWindow, &ps );
+        EndPaint(   _wglWindow, &ps );
+    }
+
+    return WGLWindowIF::processEvent( event );
+}
 }

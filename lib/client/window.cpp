@@ -473,9 +473,6 @@ bool Window::processEvent( const Event& event )
     ConfigEvent configEvent;
     switch( event.type )
     {
-        case Event::EXPOSE:
-            break;
-
         case Event::RESIZE:
             setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
                                              event.resize.w, event.resize.h ));
@@ -486,6 +483,7 @@ bool Window::processEvent( const Event& event )
             if( event.key.key == KC_VOID )
                 return true; //ignore
             // else fall through
+        case Event::EXPOSE:
         case Event::WINDOW_CLOSE:
         case Event::POINTER_MOTION:
         case Event::POINTER_BUTTON_PRESS:

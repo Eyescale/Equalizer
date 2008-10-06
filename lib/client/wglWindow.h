@@ -173,6 +173,7 @@ namespace eq
 
         virtual void initEventHandler();
         virtual void exitEventHandler();
+        virtual bool processEvent( const WGLWindowEvent& event );
         //*}
 
     private:
