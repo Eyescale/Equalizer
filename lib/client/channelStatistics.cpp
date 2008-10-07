@@ -42,7 +42,7 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
         channel->getWindow()->finish();
     }
     event.statistic.startTime  = channel->getConfig()->getTime();
-    event.statistic.endTime    = 0.f;
+    event.statistic.endTime    = 0;
 }
 
 
@@ -59,7 +59,7 @@ ChannelStatistics::~ChannelStatistics()
     {
         _channel->getWindow()->finish();
     }
-    if( event.statistic.endTime == 0.f )
+    if( event.statistic.endTime == 0 )
         event.statistic.endTime = _channel->getConfig()->getTime();
 
     _channel->addStatistic( event );

@@ -367,7 +367,7 @@ void Image::setPixelViewport( const PixelViewport& pvp )
 
 void Image::clearPixelData( const Frame::Buffer buffer )
 {
-    const uint32_t size  = getPixelDataSize( buffer );
+    const ssize_t size  = getPixelDataSize( buffer );
     if( size == 0 )
         return;
 
@@ -592,8 +592,8 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 #pragma omp parallel for
     for ( ssize_t i = 0; i < nChunks; ++i )
     {
-        const uint32_t startIndex = i * width;
-        const uint32_t endIndex   = (i+1) * width;
+        const uint32_t startIndex = static_cast< uint32_t >( i * width );
+        const uint32_t endIndex   = static_cast< uint32_t >( (i+1) * width );
         uint64_t*      out        = reinterpret_cast< uint64_t* >(
                                         compressedPixels.data.chunks[i]->data );
 

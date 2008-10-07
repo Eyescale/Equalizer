@@ -80,7 +80,7 @@ void Frame::syncReadback()
     _frameData->syncReadback();
 }
 
-float Frame::transmit( net::NodePtr toNode )
+int64_t Frame::transmit( net::NodePtr toNode )
 {
     EQASSERT( _frameData );
     return _frameData->transmit( toNode );

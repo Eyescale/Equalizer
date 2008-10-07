@@ -841,9 +841,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
         command.getPacket<SessionSubscribeObjectReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd object subscribe reply " << packet << endl;
 
-    Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
-        packet->requestID ));    
-    EQASSERT( object );
+    EQASSERT( _requestHandler.getRequestData( packet->requestID ));
 
     _requestHandler.serveRequest( packet->requestID, packet->version );
     return COMMAND_HANDLED;

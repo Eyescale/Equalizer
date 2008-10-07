@@ -179,12 +179,12 @@ namespace
 typedef Image::PixelData::Chunk Chunk;
 }
 
-float FrameData::transmit( net::NodePtr toNode )
+int64_t FrameData::transmit( net::NodePtr toNode )
 {
     if( _data.buffers == 0 )
     {
         EQWARN << "No buffers for frame data" << endl;
-        return 0.f;
+        return 0;
     }
 
     net::ConnectionPtr             connection = toNode->getConnection();
@@ -300,7 +300,7 @@ float FrameData::transmit( net::NodePtr toNode )
     readyPacket.objectID  = getID();
     readyPacket.version   = getVersion();
     toNode->send( readyPacket );
-    return compressTime;
+    return static_cast< int64_t >( compressTime );
 }
 
 void FrameData::addListener( base::Monitor<uint32_t>& listener )

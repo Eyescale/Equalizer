@@ -1158,8 +1158,7 @@ CommandResult Node::_cmdDisconnect( Command& command )
         node->_state      = STATE_STOPPED;
         node->_connection = 0;
 
-        const bool removed = _connectionSet.removeConnection( connection );
-        EQASSERTINFO( removed, connection );
+        EQCHECK( _connectionSet.removeConnection( connection ));
         EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
 
         _connectionNodes.erase( connection );
