@@ -312,6 +312,11 @@ void LoadBalancer::_computeSplit()
 
     const float leftover = _assignTargetTimes( _tree, totalTime, timeLeft );
     EQASSERT( leftover <= totalTime * numeric_limits< float >::epsilon( ));
+    if( leftover > totalTime * numeric_limits< float >::epsilon( ))
+    {
+	EQWARN << "Load balancer failure: " << leftover
+	       << "ms not assigned for next frame" << endl;
+    }
 
     _computeSplit( _tree, sortedData, eq::Viewport(), eq::Range() );
 }
