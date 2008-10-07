@@ -1,15 +1,17 @@
 
-                   Release Notes for Equalizer 0.5.4
+                   Release Notes for Equalizer 0.5.5
 
-   Welcome to Equalizer 0.5.4, a framework for the development and deployment
-   of parallel, scalable OpenGL applications. Equalizer 0.5.4 adds support
-   for orthographic projections.
+   Welcome to Equalizer 0.5.5, a framework for the development and deployment
+   of parallel, scalable OpenGL applications. Equalizer 0.5.5 introduces
+   pixel compounds using 2D kernels and facilitates window system
+   integration.
 
-   Equalizer 0.5.4 is a developer release, representing a stable snapshot of
-   the development tree after the 0.5 release. Equalizer 0.5.4 can be
-   retrieved using:
+   Equalizer 0.5.5 is a developer release, representing a stable snapshot of
+   the development tree after the 0.5 release. Equalizer 0.5.5 can be
+   retrieved by updating the subversion trunk to revision 2214 (svn up -r
+   2214) or by using:
    svn co
-   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.5.4
+   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.5.5
 
   Features
 
@@ -38,6 +40,12 @@
    introduced since the 0.5 release:
 
     New Features
+
+   0.5.5:
+
+     * Initial support for 2D pixel compound kernels
+     * New OSWindow interface to simplify window system integration
+     * Add eq::util::BitmapFont as a simple helper to draw 2D bitmap fonts
 
    0.5.4:
 
@@ -68,6 +76,11 @@
 
     Performance Improvements
 
+   0.5.5:
+
+     * Assertions are disabled in release builds
+     * Switch to CriticalSection for Win32 locks
+
    0.5.3:
 
      * Improved overall performance by using atomic operations for reference
@@ -81,8 +94,15 @@
 
     Bug Fixes
 
-   Equalizer 0.5.4 includes various bugfixes over the 0.5 release, including
+   Equalizer 0.5.5 includes various bugfixes over the 0.5 release, including
    the following:
+
+   0.5.5:
+
+     * 2032631: Nullpointer exception and crash
+     * 2032643: process-local server object gets not deleted
+     * 2033860: frameDrawFinish called too early and too often
+     * 2149563: WGL: Update region is reset by event handler
 
    0.5.4:
 
@@ -108,7 +128,7 @@
 
     Documentation
 
-   The Programming Guide has been extended to 57 pages. In addition, the
+   The Programming Guide has been extended to 59 pages. In addition, the
    following documentation has been added:
 
    0.5.1:
@@ -116,6 +136,20 @@
      * Statistics Overlay
 
   API Changes
+
+   0.5.5:
+
+   The new OSWindow interface moved window system depend functionality from
+   the eq::Window to different subclasses of OSWindow. Applications
+   integrating with their own windowing code have to implement an OSWindow
+   containing all the window system code, and instantiate this OSWindow in
+   Window::configInitOSWindow. Please refer to the Programming Guide for a
+   detailed description of the Window System Interface.
+
+   The OSWindow interface also caused some cleanups in the event handling.
+   Most notably, the classes ChannelEvent and WindowEvent are now unneeded
+   and have been removed. The former base class Event is now used in the
+   appropriate places.
 
    0.5.4:
 
@@ -130,6 +164,7 @@
 
   Known Bugs
 
+     * 2151376: Irregular Pixel kernels do not work
      * 2003195: Ortho frustra ignores eye offset
      * 2003132: 3-wnd.DB.ds is broken on some ppc machines for eqPly
      * 1997583: eqPly: ortho frustum culling broken
@@ -143,7 +178,9 @@
    Equalizer is a cross-platform toolkit, designed to run on any modern
    operating system, including all Unix variants and the Windows operating
    system. A compatibility matrix can be found on the Equalizer website.
-   Version 0.5 has been tested on:
+
+   Equalizer requires at least OpenGL 1.1, but uses newer OpenGL features
+   when available. Version 0.5.0 has been tested on:
 
     Operating System Support
 
@@ -159,7 +196,7 @@
 
   Documentation
 
-   The Programming Guide is part of the Equalizer and can be found online.
+   The Programming Guide is available as a hard-copy (0.5.0 only) and online.
    Equalizer does not yet have an Users Guide. The shipped examples provides
    a reference for developing or porting applications. The Developer
    Documentation on the website provides further design documents for
@@ -171,5 +208,5 @@
    directly to info@equalizergraphics.com.
 
    Commercial support, custom software development and porting services are
-   available from EyeScale. Please contact info@eyescale.ch for further
+   available from Eyescale. Please contact info@eyescale.ch for further
    information.
