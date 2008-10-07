@@ -400,8 +400,8 @@ bool Channel::processEvent( const Event& event )
     return true;
 }
 
-#define HEIGHT 20
-#define SPACE  4
+#define HEIGHT 12
+#define SPACE  2
 
 void Channel::drawStatistics()
 {
