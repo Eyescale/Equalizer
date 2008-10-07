@@ -339,9 +339,11 @@ void Channel::_drawLogo()
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    glOrtho( offset.x * pixel.size + pixel.index, 
-             (offset.x + pvp.w) * pixel.size + pixel.index, 
-             offset.y, offset.y + pvp.h, 0., 1. );
+    glOrtho( offset.x * pixel.w + pixel.x, 
+             (offset.x + pvp.w) * pixel.w + pixel.x, 
+             offset.y * pixel.h + pixel.y, 
+             (offset.y + pvp.h) * pixel.h + pixel.y, 
+             0., 1. );
 
     glMatrixMode(GL_TEXTURE);
     glLoadIdentity();

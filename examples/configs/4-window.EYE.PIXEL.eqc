@@ -66,13 +66,13 @@ server
                 compound
                 {
                     channel  "left-buffer"
-                    pixel [ 0 2 ]
+                    pixel [ 0 0 2 1 ]
                     outputframe {}
                 }
                 compound
                 {
                     channel  "destination"
-                    pixel [ 1 2 ]
+                    pixel [ 1 0 2 1 ]
                     outputframe {}
                 }
             }
@@ -84,13 +84,13 @@ server
                 compound
                 {
                     channel  "right-buffer-1"
-                    pixel [ 0 2 ]
+                    pixel [ 0 0 2 1 ]
                     outputframe {}
                 }
                 compound
                 {
                     channel  "right-buffer-2"
-                    pixel [ 1 2 ]
+                    pixel [ 1 0 2 1 ]
                     outputframe {}
                 }
             }

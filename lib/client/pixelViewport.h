@@ -69,28 +69,28 @@ namespace eq
 
         void apply( const Pixel& pixel )
             {
-                if( pixel == eq::Pixel::ALL )
-                    return;
+                if( pixel.w > 1 )
+                {
+                    int32_t newWidth = w / pixel.w;
+                    // This would be the correct thing to do, but it would
+                    // require frustum adaptations in CUV::_computeFrustum:
+                    //if( w - ( newWidth * pixel.w ) > pixel.x )
+                    if( w - ( newWidth * pixel.w ) != 0 )
+                        ++newWidth;
 
-#ifdef EQ_PIXEL_Y
-                int32_t newHeight = h / pixel.size;
-                // This would be the correct thing to do, but it would require
-                // frustum adaptations in CUV::_computeFrustum:
-                //if( w - ( newWidth * pixel.size ) > pixel.index )
-                if( h - ( newHeight * pixel.size ) != 0 )
-                    ++newHeight;
+                    w = newWidth;
+                }
+                if( pixel.h > 1 )
+                {
+                    int32_t newHeight = h / pixel.h;
+                    // This would be the correct thing to do, but it would
+                    // require frustum adaptations in CUV::_computeFrustum:
+                    // if( w - ( newWidth * pixel.h ) > pixel.y )
+                    if( h - ( newHeight * pixel.h ) != 0 )
+                        ++newHeight;
 
-                h = newHeight;
-#else
-                int32_t newWidth = w / pixel.size;
-                // This would be the correct thing to do, but it would require
-                // frustum adaptations in CUV::_computeFrustum:
-                //if( w - ( newWidth * pixel.size ) > pixel.index )
-                if( w - ( newWidth * pixel.size ) != 0 )
-                    ++newWidth;
-
-                w = newWidth;
-#endif
+                    h = newHeight;
+                }
         }
 
         const PixelViewport getSubPVP( const Viewport& rhs ) const
@@ -137,11 +137,7 @@ namespace eq
 
         const PixelViewport operator * ( const eq::Pixel& pixel ) const
             {
-#ifdef EQ_PIXEL_Y
-                return PixelViewport( x, y, w * pixel.size, h );
-#else
-                return PixelViewport( x, y, w, h * pixel.size );
-#endif
+                return PixelViewport( x, y, w * pixel.w, h * pixel.h );
             }
 
         bool operator == ( const PixelViewport& rhs ) const 

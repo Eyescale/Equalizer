@@ -43,19 +43,19 @@ server
             compound
             {
                 channel "channel1"
-                pixel [ 0 3 ]
+                pixel [ 0 0 3 1 ]
                 outputframe {}
             }
             compound
             {
                 channel "channel2"
-                pixel [ 1 3 ]
+                pixel [ 1 0 3 1 ]
                 outputframe {}
             }
             compound
             {
                 channel "channel3"
-                pixel [ 2 3 ]
+                pixel [ 2 0 3 1 ]
                 outputframe {}
             }
             inputframe { name "frame.channel1" }

@@ -17,9 +17,9 @@ namespace eq
      * Holds a pixel decomposition specification along with some methods for
      * manipulation.
      *
-     * The size determines how many contributors are sending pixels to the
-     * destination. The index determines the pixel of the contributor within the
-     * decomposition pixel.
+     * The w, h size determines how many contributors are sending pixels to the
+     * destination. The x, y index determines the pixel of the contributor
+     * within the decomposition pixel.
      */
     class Pixel 
     {
@@ -28,10 +28,11 @@ namespace eq
          * @name Constructors
          */
         //*{
-        Pixel() : index( 0 ), size( 1 )  {}
+        Pixel() : x( 0 ), y( 0 ), w( 1 ), h( 1 )  {}
 
-        Pixel( const uint32_t index_, const uint32_t size_ )
-                : index( index_ ), size( size_ ) {}
+        Pixel( const uint32_t x_, const uint32_t y_, 
+               const uint32_t w_, const uint32_t h_ )
+                : x( x_ ), y( y_ ), w( w_ ), h( h_ ) {}
         //*}
 
         void apply( const Pixel& rhs )
@@ -39,38 +40,42 @@ namespace eq
                 if( !isValid() || !rhs.isValid( ))
                     return;
 
-                index = index * rhs.size + rhs.index;
-                size *= rhs.size;
+                x = x * rhs.w + rhs.x;
+                w *= rhs.w;
+                y = y * rhs.h + rhs.y;
+                h *= rhs.h;
             }
 
         bool operator == ( const Pixel& rhs ) const
         {
-            return index==rhs.index && size==rhs.size;
+            return x==rhs.x && y==rhs.y && w==rhs.w && h==rhs.h;
         }
         
         bool operator != ( const Pixel& rhs ) const
         {
-            return index!=rhs.index || size!=rhs.size;
+            return x!=rhs.x || y!=rhs.y || w!=rhs.w || h!=rhs.h;
         }
         
         void invalidate() 
-            { index = 0; size = 0; }
+            { x = y = w = h = 0; }
 
         void validate()
             {
                 if( isValid( )) return;
                 EQWARN << "Invalid " << *this << std::endl;
-                if( size == 0 )
-                    size = 1;
-                if( index >= size )
-                    index = 0;
+                if( w == 0 ) w = 1;
+                if( h == 0 ) h = 1;
+                if( x >= w ) x = 0;
+                if( y >= h ) y = 0;
                 EQWARN << "Corrected " << *this << std::endl;
             }
 
-        bool isValid() const { return ( size > 0 && index < size ); }
+        bool isValid() const { return ( w>0 && x<w && h>0 && y<h ); }
 
-        uint32_t index;
-        uint32_t size;
+        uint32_t x;
+        uint32_t y;
+        uint32_t w;
+        uint32_t h;
 
         EQ_EXPORT static const Pixel ALL;
     };
@@ -78,7 +83,8 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, const Pixel& pixel )
     {
         if( pixel.isValid( ))
-            os << "pixel     [ " << pixel.index << " " << pixel.size << " ]";
+            os << "pixel     [ " << pixel.x << ' ' << pixel.y
+               << ' ' << pixel.w << ' ' << pixel.h << " ]";
         return os;
     }
 }

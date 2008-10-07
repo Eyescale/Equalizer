@@ -784,7 +784,7 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     if( op.pixel == Pixel::ALL )
         return;
 
-    // mark stencil buffer where pixel shall pass
+    // mark stencil buffer where pixel shall not pass
     // TODO: OPT!
     glClear( GL_STENCIL_BUFFER_BIT );
     glEnable( GL_STENCIL_TEST );
@@ -799,44 +799,60 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     
     const PixelViewport& pvp    = image->getPixelViewport();
 
-#ifdef EQ_PIXEL_Y
-    glPixelZoom( 1.0f, static_cast< float >( op.pixel.size ));
+    glPixelZoom( static_cast< float >( op.pixel.w ),
+                 static_cast< float >( op.pixel.h ));
 
-    const float startX = static_cast< float >( op.offset.x + pvp.x );
-    const float endX   = static_cast< float >( startX      + pvp.w );
-    const float height = static_cast< float >( pvp.h * op.pixel.size );
-    const float startY = static_cast< float >( op.offset.y + pvp.y ) + 0.5f;
-    const float endY   = startY + height;
-
-    glBegin( GL_LINES );
-    for( float y = startY + op.pixel.index; y < endY;
-         y += static_cast< float >( op.pixel.size ))
+    if( op.pixel.w > 1 )
     {
-        glVertex3f( startX, y, 0.0f );
-        glVertex3f( endX,   y, 0.0f );        
+        const float width  = static_cast< float >( pvp.w * op.pixel.w );
+        const float step   = static_cast< float >( op.pixel.w );
+
+        const float startX = 
+            static_cast< float >( op.offset.x + pvp.x ) + 0.5f - 
+            static_cast< float >( op.pixel.w );
+        const float endX   = startX + width + op.pixel.w + step;
+
+        const float startY = 
+            static_cast< float >( op.offset.y + pvp.y + op.pixel.y );
+        const float endY   = static_cast< float >( startY + pvp.h*op.pixel.h );
+
+        glBegin( GL_QUADS );
+        for( float x = startX + op.pixel.x + 1.0f ; x < endX; x += step)
+        {
+            glVertex3f( x-step, startY, 0.0f );
+            glVertex3f( x-1.0f, startY, 0.0f );
+            glVertex3f( x-1.0f, endY, 0.0f );        
+            glVertex3f( x-step, endY, 0.0f );        
+        }
+        glEnd();
     }
-    glEnd();
-#else
-    glPixelZoom( static_cast< float >( op.pixel.size ), 1.0f );
-
-    const float width  = static_cast< float >( pvp.w * op.pixel.size );
-    const float startX = static_cast< float >( op.offset.x + pvp.x ) + 0.5f;
-    const float endX   = startX + width;
-    const float startY = static_cast< float >( op.offset.y + pvp.y );
-    const float endY   = static_cast< float >( startY      + pvp.h );
-
-    glBegin( GL_LINES );
-    for( float x = startX + op.pixel.index; x < endX; 
-         x += static_cast< float >( op.pixel.size ))
+    if( op.pixel.h > 1 )
     {
-        glVertex3f( x, startY, 0.0f );
-        glVertex3f( x, endY, 0.0f );        
+        const float height = static_cast< float >( pvp.h * op.pixel.h );
+        const float step   = static_cast< float >( op.pixel.h );
+
+        const float startX = 
+            static_cast< float >( op.offset.x + pvp.x + op.pixel.x );
+        const float endX   = static_cast< float >( startX + pvp.w*op.pixel.w );
+
+        const float startY = 
+            static_cast< float >( op.offset.y + pvp.y ) + 0.5f - 
+            static_cast< float >( op.pixel.h );
+        const float endY   = startY + height + op.pixel.h + step;
+
+        glBegin( GL_QUADS );
+        for( float y = startY + op.pixel.y; y < endY; y += step)
+        {
+            glVertex3f( startX, y-step, 0.0f );
+            glVertex3f( endX,   y-step, 0.0f );        
+            glVertex3f( endX,   y-1.0f, 0.0f );        
+            glVertex3f( startX, y-1.0f, 0.0f );
+        }
+        glEnd();
     }
-    glEnd();
-#endif
     
     glDisable( GL_DEPTH_TEST );
-    glStencilFunc( GL_EQUAL, 1, 1 );
+    glStencilFunc( GL_EQUAL, 0, 1 );
     glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
     
     const ColorMask& colorMask = op.channel->getDrawBufferMask();
@@ -1015,23 +1031,14 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     glEnable( GL_DEPTH_TEST );
     glColor3f( 1.0f, 1.0f, 1.0f );
 
-#ifdef EQ_PIXEL_Y
-    const float startX = static_cast< float >( op.offset.x + pvp.x );
-    const float endX   = static_cast< float >( op.offset.x + pvp.x + pvp.w );
-
-    const float startY = static_cast< float >
-        ( op.offset.y + pvp.y * op.pixel.size + op.pixel.index );
-    const float endY   = static_cast< float >
-        ( op.offset.y + (pvp.y + pvp.h) * op.pixel.size + op.pixel.index );
-#else
     const float startX = static_cast< float >
-        ( op.offset.x + pvp.x * op.pixel.size + op.pixel.index );
+        ( op.offset.x + pvp.x * op.pixel.w + op.pixel.x );
     const float endX   = static_cast< float >
-        ( op.offset.x + (pvp.x + pvp.w) * op.pixel.size + op.pixel.index );
-
-    const float startY = static_cast< float >( op.offset.y + pvp.y );
-    const float endY   = static_cast< float >( op.offset.y + pvp.y + pvp.h );
-#endif
+        ( op.offset.x + (pvp.x + pvp.w) * op.pixel.w + op.pixel.x );
+    const float startY = static_cast< float >
+        ( op.offset.y + pvp.y * op.pixel.h + op.pixel.y );
+    const float endY   = static_cast< float >
+        ( op.offset.y + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y );
 
     glBegin( GL_TRIANGLE_STRIP );
     glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f );

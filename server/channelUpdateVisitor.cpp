@@ -315,27 +315,33 @@ void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
 
     // move frustum according to pixel decomposition
     const eq::Pixel& pixel = compound->getInheritPixel();
-    if( pixel != eq::Pixel::ALL && pixel.isValid( ) && pixel.index > 0)
+    if( pixel != eq::Pixel::ALL && pixel.isValid( ))
     {
         const Channel*    inheritChannel = compound->getInheritChannel();
         const eq::PixelViewport& destPVP = inheritChannel->getPixelViewport();
-#ifdef EQ_PIXEL_Y
-        const float        frustumHeight = frustum.bottom - frustum.top;
-        const float          pixelHeight = frustumHeight / 
-                                           static_cast<float>( destPVP.h );
-        const float               jitter = pixelHeight * pixel.index;
+        
+        if( pixel.w > 1 )
+        {
+            const float         frustumWidth = frustum.right - frustum.left;
+            const float           pixelWidth = frustumWidth / 
+                                               static_cast<float>( destPVP.w );
+            const float               jitter = pixelWidth * pixel.x - 
+                                               pixelWidth * .5f;
 
-        frustum.top    += jitter;
-        frustum.bottom += jitter;
-#else
-        const float         frustumWidth = frustum.right - frustum.left;
-        const float           pixelWidth = frustumWidth / 
-                                           static_cast<float>( destPVP.w );
-        const float               jitter = pixelWidth * pixel.index;
+            frustum.left  += jitter;
+            frustum.right += jitter;
+        }
+        if( pixel.h > 1 )
+        {
+            const float        frustumHeight = frustum.bottom - frustum.top;
+            const float          pixelHeight = frustumHeight / 
+                                               static_cast<float>( destPVP.h );
+            const float               jitter = pixelHeight * pixel.y + 
+                                               pixelHeight * .5f;
 
-        frustum.left  += jitter;
-        frustum.right += jitter;
-#endif
+            frustum.top    -= jitter;
+            frustum.bottom -= jitter;
+        }
     }
 
     // adjust to viewport (screen-space decomposition)
