@@ -22,13 +22,36 @@ namespace eq
 {
 FrameData::FrameData()
 {
-    setInstanceData( &_data, sizeof( Data ));
     EQINFO << "New FrameData @" << (void*)this << endl;
 }
 
 FrameData::~FrameData()
 {
     flush();
+}
+
+void FrameData::getInstanceData( net::DataOStream& os )
+{
+    os.writeOnce( &_data, sizeof( _data )); 
+}
+
+void FrameData::applyInstanceData( net::DataIStream& is )
+{
+    clear();
+    EQASSERT( is.getRemainingBufferSize() == sizeof( _data )); 
+
+    memcpy( &_data, is.getRemainingBuffer(), sizeof( _data ));
+    is.advanceBuffer( sizeof( _data ));
+
+    EQASSERT( is.nRemainingBuffers() == 0 );
+    EQASSERT( is.getRemainingBufferSize() == 0 );
+
+    EQLOG( LOG_ASSEMBLY ) << "applied " << this << endl;
+
+    FrameDataUpdatePacket packet; // trigger process of received ready packets
+    packet.instanceID = getInstanceID();
+    packet.version    = getVersion() + 1; // use +1 : new version not yet set
+    send( getLocalNode(), packet );
 }
 
 void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID,
@@ -47,19 +70,6 @@ void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID,
     registerCommand( CMD_FRAMEDATA_UPDATE,
                      CommandFunc<FrameData>( this, &FrameData::_cmdUpdate ),
                      queue );
-}
-
-void FrameData::applyInstanceData( net::DataIStream& is )
-{
-    clear();
-    net::Object::applyInstanceData( is );
-
-    EQLOG( LOG_ASSEMBLY ) << "applied " << this << endl;
-
-    FrameDataUpdatePacket packet; // trigger process of received ready packets
-    packet.instanceID = getInstanceID();
-    packet.version    = getVersion() + 1; // use +1 : new version not yet set
-    send( getLocalNode(), packet );
 }
 
 void FrameData::clear()

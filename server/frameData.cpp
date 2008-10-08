@@ -13,8 +13,24 @@ namespace server
 FrameData::FrameData()
 {
     _data.buffers = eq::Frame::BUFFER_UNDEFINED;
-    setInstanceData( &_data, sizeof( eq::FrameData::Data ));
 }
+
+void FrameData::getInstanceData( net::DataOStream& os )
+{
+    os.writeOnce( &_data, sizeof( _data )); 
+}
+
+void FrameData::applyInstanceData( net::DataIStream& is )
+{
+    EQASSERT( is.getRemainingBufferSize() == sizeof( _data )); 
+
+    memcpy( &_data, is.getRemainingBuffer(), sizeof( _data ));
+    is.advanceBuffer( sizeof( _data ));
+
+    EQASSERT( is.nRemainingBuffers() == 0 );
+    EQASSERT( is.getRemainingBufferSize() == 0 );
+}
+
 
 }
 }

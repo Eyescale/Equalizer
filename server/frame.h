@@ -128,6 +128,8 @@ namespace server
     protected:
         virtual ~Frame();
         virtual ChangeType getChangeType() const { return INSTANCE; }
+        virtual void getInstanceData( net::DataOStream& os );
+        virtual void applyInstanceData( net::DataIStream& is );
 
     private:
         /** The parent compound. */

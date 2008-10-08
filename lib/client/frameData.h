@@ -134,13 +134,13 @@ namespace server
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
+        virtual void getInstanceData( net::DataOStream& os );
+        virtual void applyInstanceData( net::DataIStream& is );
 
         /** @sa net::Object::attachToSession */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
                                       net::Session* session );
-        /** @sa net::Object::applyInstanceData */
-        virtual void applyInstanceData( net::DataIStream& is );
 
     private:
         struct Data

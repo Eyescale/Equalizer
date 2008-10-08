@@ -67,7 +67,12 @@ namespace net
         //*}
 
     protected:
-        virtual ChangeType getChangeType() const { return INSTANCE; }
+        virtual ChangeType getChangeType() const { return DELTA; }
+
+        virtual void getInstanceData( DataOStream& os );
+        virtual void applyInstanceData( DataIStream& is );
+        virtual void pack( DataOStream& os );
+        virtual void unpack( DataIStream& is );
 
     private:
         struct Data
@@ -88,9 +93,6 @@ namespace net
         
         /** The monitor used for barrier leave notification. */
         base::Monitor<uint32_t> _leaveNotify;
-
-        /** Common constructor function. */
-        void _construct();
 
         /* The command handlers. */
         CommandResult _cmdEnter( Command& command );

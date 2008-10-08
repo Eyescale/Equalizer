@@ -33,10 +33,12 @@ Object::Object()
         : _session          ( 0 )
         , _id               ( EQ_ID_INVALID )
         , _instanceID       ( EQ_ID_INVALID )
+#ifdef EQ_USE_DEPRECATED
         , _instanceData     ( 0 )
         , _instanceDataSize ( 0 )
         , _deltaData        ( 0 )
         , _deltaDataSize    ( 0 )
+#endif
         , _cm               ( ObjectCM::ZERO )
         , _threadSafe       ( false )
 {
@@ -113,6 +115,7 @@ NodePtr Object::getLocalNode()
     return _session ? _session->getLocalNode() : 0; 
 }
 
+#ifdef EQ_USE_DEPRECATED
 void Object::getInstanceData( DataOStream& ostream )
 {
     if( !_instanceData || _instanceDataSize == 0 )
@@ -165,6 +168,7 @@ void Object::unpack( DataIStream& is )
     memcpy( _deltaData, data, size );
     is.advanceBuffer( size );
 }
+#endif
 
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
@@ -247,6 +251,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
     }
 }
 
+#ifdef EQ_USE_DEPRECATED
 void Object::setInstanceData( void* data, const uint64_t size )
 {
     _instanceData     = data;
@@ -258,5 +263,6 @@ void Object::setInstanceData( void* data, const uint64_t size )
     _deltaData     = data;
     _deltaDataSize = size;
 }
+#endif
 }
 }

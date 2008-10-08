@@ -24,8 +24,6 @@ Frame::Frame()
     _data.buffers = eq::Frame::BUFFER_UNDEFINED;
     for( unsigned i = 0; i<eq::EYE_ALL; ++i )
         _frameData[i] = 0;
-
-    setInstanceData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
 Frame::Frame( const Frame& from )
@@ -38,13 +36,27 @@ Frame::Frame( const Frame& from )
 
     for( unsigned i = 0; i<eq::EYE_ALL; ++i )
         _frameData[i] = 0;
-
-    setInstanceData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
 Frame::~Frame()
 {
     EQASSERT( _datas.empty());
+}
+
+void Frame::getInstanceData( net::DataOStream& os )
+{
+    os.writeOnce( &_inherit, sizeof( _inherit )); 
+}
+
+void Frame::applyInstanceData( net::DataIStream& is )
+{
+    EQASSERT( is.getRemainingBufferSize() == sizeof( _inherit )); 
+
+    memcpy( &_inherit, is.getRemainingBuffer(), sizeof( _inherit ));
+    is.advanceBuffer( sizeof( _inherit ));
+
+    EQASSERT( is.nRemainingBuffers() == 0 );
+    EQASSERT( is.getRemainingBufferSize() == 0 );
 }
 
 void Frame::flush()

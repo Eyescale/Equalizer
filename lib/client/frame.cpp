@@ -16,7 +16,6 @@ namespace eq
 Frame::Frame()
         : _frameData( 0 )
 {
-    setInstanceData( &_data, sizeof( Data ));
     EQINFO << "New Frame @" << (void*)this << endl;
 }
 
@@ -24,6 +23,22 @@ Frame::~Frame()
 {
     if( _frameData )
         EQINFO << "FrameData attached to frame during deletion" << endl;
+}
+
+void Frame::getInstanceData( net::DataOStream& os )
+{
+    os.writeOnce( &_data, sizeof( _data )); 
+}
+
+void Frame::applyInstanceData( net::DataIStream& is )
+{
+    EQASSERT( is.getRemainingBufferSize() == sizeof( _data )); 
+
+    memcpy( &_data, is.getRemainingBuffer(), sizeof( _data ));
+    is.advanceBuffer( sizeof( _data ));
+
+    EQASSERT( is.nRemainingBuffers() == 0 );
+    EQASSERT( is.getRemainingBufferSize() == 0 );
 }
 
 uint32_t Frame::getBuffers() const

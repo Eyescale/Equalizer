@@ -446,6 +446,9 @@ namespace eq
         /** Setup the current rendering context. */
         void _setRenderContext( RenderContext& context );
 
+        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
+        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
+
         /* The command handler functions. */
         net::CommandResult _cmdConfigInit( net::Command& command );
         net::CommandResult _cmdConfigExit( net::Command& command );

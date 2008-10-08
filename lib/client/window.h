@@ -437,6 +437,9 @@ namespace eq
         /** Set up _drawableConfig by querying the current context. */
         void _queryDrawableConfig();
 
+        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
+        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
+
         /* The command functions. */
         net::CommandResult _cmdCreateChannel( net::Command& command );
         net::CommandResult _cmdDestroyChannel(net::Command& command );

@@ -6,6 +6,8 @@
 
 #include "command.h"
 #include "connection.h"
+#include "dataIStream.h"
+#include "dataOStream.h"
 #include "log.h"
 #include "packets.h"
 #include "session.h"
@@ -17,18 +19,11 @@ namespace eq
 {
 namespace net
 {
-void Barrier::_construct()
-{
-    setInstanceData( &_data, sizeof( _data ));
-    setDeltaData( &_data.height, sizeof( _data.height ));
-}
-
 Barrier::Barrier( NodePtr master, const uint32_t height )
         : _master( master )
 {
     _data.master = master->getNodeID();
     _data.height = height;
-    _construct();
 
     EQASSERT( _data.master != NodeID::ZERO );
     EQINFO << "New barrier of height " << _data.height << endl;
@@ -36,13 +31,48 @@ Barrier::Barrier( NodePtr master, const uint32_t height )
 
 Barrier::Barrier()
 {
-    _construct();
     EQINFO << "Barrier instanciated" << endl;
 }
 
 Barrier::~Barrier()
 {
 }
+
+//---------------------------------------------------------------------------
+// Serialization
+//---------------------------------------------------------------------------
+void Barrier::getInstanceData( DataOStream& os )
+{
+    os.writeOnce( &_data, sizeof( _data )); 
+}
+
+void Barrier::applyInstanceData( DataIStream& is )
+{
+    EQASSERT( is.getRemainingBufferSize() == sizeof( _data )); 
+
+    memcpy( &_data, is.getRemainingBuffer(), sizeof( _data ));
+    is.advanceBuffer( sizeof( _data ));
+
+    EQASSERT( is.nRemainingBuffers() == 0 );
+    EQASSERT( is.getRemainingBufferSize() == 0 );
+}
+
+void Barrier::pack( DataOStream& os )
+{
+    os.writeOnce( &_data.height, sizeof( _data.height )); 
+}
+
+void Barrier::unpack( DataIStream& is )
+{
+    EQASSERT( is.getRemainingBufferSize() == sizeof( _data.height )); 
+
+    memcpy( &_data.height, is.getRemainingBuffer(), sizeof( _data.height ));
+    is.advanceBuffer( sizeof( _data.height ));
+
+    EQASSERT( is.nRemainingBuffers() == 0 );
+    EQASSERT( is.getRemainingBufferSize() == 0 );
+}
+//---------------------------------------------------------------------------
 
 void Barrier::attachToSession( const uint32_t id, const uint32_t instanceID, 
                                Session* session )

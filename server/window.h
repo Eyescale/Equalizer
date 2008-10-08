@@ -310,6 +310,9 @@ namespace server
 
         void _updateSwap( const uint32_t frameNumber );
 
+        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
+        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
+
         /* command handler functions. */
         net::CommandResult _cmdConfigInitReply( net::Command& command ); 
         net::CommandResult _cmdConfigExitReply( net::Command& command ); 

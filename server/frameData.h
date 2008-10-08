@@ -57,6 +57,8 @@ namespace server
     protected:
         virtual ~FrameData(){}
         virtual ChangeType getChangeType() const { return INSTANCE; }
+        virtual void getInstanceData( net::DataOStream& os );
+        virtual void applyInstanceData( net::DataIStream& is );
 
     private:
         friend class Frame;

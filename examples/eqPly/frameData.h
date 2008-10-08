@@ -18,7 +18,6 @@ namespace eqPly
         FrameData()
             {
                 reset();
-                setInstanceData( &data, sizeof( Data ));
                 EQINFO << "New FrameData " << std::endl;
             }
 
@@ -46,6 +45,15 @@ namespace eqPly
     
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
+
+        virtual void getInstanceData( eq::net::DataOStream& os )
+            { os.writeOnce( &data, sizeof( data )); }
+
+        virtual void applyInstanceData( eq::net::DataIStream& is )
+            {
+                memcpy( &data, is.getRemainingBuffer(), sizeof( data ));
+                is.advanceBuffer( sizeof( data ));
+            }
     };
 }
 

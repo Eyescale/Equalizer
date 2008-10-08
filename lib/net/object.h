@@ -222,7 +222,11 @@ namespace net
          *
          * @param os The output stream.
          */
+#ifdef EQ_USE_DEPRECATED
         virtual void getInstanceData( DataOStream& os );
+#else
+        virtual void getInstanceData( DataOStream& os ) = 0;
+#endif
 
         /**
          * Deserialize the instance data.
@@ -233,7 +237,11 @@ namespace net
          * 
          * @param is the input stream.
          */
+#ifdef EQ_USE_DEPRECATED
         virtual void applyInstanceData( DataIStream& is );
+#else
+        virtual void applyInstanceData( DataIStream& is ) = 0;
+#endif
 
         /** 
          * Serialize the modifications since the last call to commit().
@@ -244,7 +252,11 @@ namespace net
          * 
          * @param os the output stream.
          */
+#ifdef EQ_USE_DEPRECATED
         virtual void pack( DataOStream& os );
+#else
+        virtual void pack( DataOStream& os ) { getInstanceData( os ); }
+#endif
 
         /**
          * Deserialize a change.
@@ -254,8 +266,13 @@ namespace net
          *
          * @param is the input data stream.
          */
+#ifdef EQ_USE_DEPRECATED
         virtual void unpack( DataIStream& is );
+#else
+        virtual void unpack( DataIStream& is ) { applyInstanceData( is ); }
+#endif
 
+#ifdef EQ_USE_DEPRECATED
         /** 
          * Set the instance data of this object.
          * 
@@ -281,6 +298,7 @@ namespace net
          */
         void setDeltaData( void* data, const uint64_t size )
             { _deltaData = data; _deltaDataSize = size; }
+#endif
         //*}
 
         /** @return the master object instance identifier. */
@@ -337,6 +355,7 @@ namespace net
         /** A node-unique identifier of the concrete instance. */
         uint32_t     _instanceID;
 
+#ifdef EQ_USE_DEPRECATED
         /** A pointer to the object's instance data. */
         void*    _instanceData;
         uint64_t _instanceDataSize;
@@ -344,6 +363,7 @@ namespace net
         /** A pointer to the object's delta data. */
         void*    _deltaData;
         uint64_t _deltaDataSize;
+#endif
 
         /** The object's change manager. */
         ObjectCM* _cm;

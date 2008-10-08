@@ -291,6 +291,9 @@ namespace eq
 
         void _flushObjects();
 
+        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
+        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
+
         /** The command functions. */
         net::CommandResult _cmdCreatePipe( net::Command& command );
         net::CommandResult _cmdDestroyPipe( net::Command& command );

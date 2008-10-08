@@ -1,11 +1,13 @@
 
 /* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch> 
-   Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+   Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef CLIENT_MATRIX4_H
 #define CLIENT_MATRIX4_H
 
+#include <eq/net/dataIStream.h>
+#include <eq/net/dataOStream.h>
 #include <eq/net/object.h>
 #include <vmmlib/matrix4.h>
 
@@ -26,6 +28,8 @@ namespace eq
 
     protected:
         virtual ChangeType getChangeType() const { return DELTA_UNBUFFERED; }
+        virtual void getInstanceData( net::DataOStream& os );
+        virtual void applyInstanceData( net::DataIStream& is );
     };
 
     typedef Matrix4<float> Matrix4f;
@@ -47,14 +51,29 @@ namespace eq
     Matrix4<T>::Matrix4() 
     {
         vmml::Matrix4<T>::operator= ( vmml::Matrix4<T>::IDENTITY );
-        setInstanceData( &(this->ml), 16 * sizeof( T ));
     }
 
     template< class T >
     Matrix4<T>::Matrix4( const vmml::Matrix4<T>& matrix )
             : vmml::Matrix4<T>( matrix )
+    {}
+
+    template< class T >
+    void Matrix4<T>::getInstanceData( net::DataOStream& os )
     {
-        setInstanceData( &(this->ml), 16 * sizeof( T ));
+        os.writeOnce( &(this->ml), sizeof( this->ml )); 
+    }
+
+    template< class T >
+    void Matrix4<T>::applyInstanceData( net::DataIStream& is )
+    {
+        EQASSERT( is.getRemainingBufferSize() == sizeof( this->ml )); 
+
+        memcpy( &(this->ml), is.getRemainingBuffer(), sizeof( this->ml ));
+        is.advanceBuffer( sizeof( this->ml ));
+
+        EQASSERT( is.nRemainingBuffers() == 0 );
+        EQASSERT( is.getRemainingBufferSize() == 0 );
     }
 }
 

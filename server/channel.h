@@ -329,6 +329,9 @@ namespace server
         void _fireLoadData( const uint32_t frameNumber, const float startTime,
                             const float endTime /*, const float load */ );
 
+        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
+        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
+
         /* command handler functions. */
         net::CommandResult _cmdConfigInitReply( net::Command& command );
         net::CommandResult _cmdConfigExitReply( net::Command& command );
