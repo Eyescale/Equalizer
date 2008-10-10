@@ -396,7 +396,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
         return;
     }
 
-    if( !_initialPVP.isValid( ) || !_data.view.isValid( ))
+    if( !_data.view.isValid( ))
         return;
     
     const int32_t updateFOV = _inherit.iAttributes[ IATTR_UPDATE_FOV ];

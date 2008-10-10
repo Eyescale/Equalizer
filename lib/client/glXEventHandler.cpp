@@ -146,8 +146,12 @@ namespace
 {
 static GLXWindowIF* _getGLXWindow( Window* window )
 {
-    EQASSERT( dynamic_cast< GLXWindowIF* >( window->getOSWindow( )));
-    return static_cast< GLXWindowIF* >( window->getOSWindow( ));
+    OSWindow* osWindow = window->getOSWindow();
+    if( !osWindow )
+        return 0;
+
+    EQASSERT( dynamic_cast< GLXWindowIF* >( osWindow ));
+    return static_cast< GLXWindowIF* >( osWindow );
 }
 }
 
