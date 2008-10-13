@@ -260,6 +260,26 @@ namespace eq
         /** The global clock. */
         base::Clock _clock;
 
+        /** The views of the config. */
+        ViewVector _views;
+
+        /** Helper class to distribute the config, which is a net::Session */
+        class Distributor : public net::Object
+        {
+        public:
+            Distributor( Config* config ) : _config( config ) {}
+            virtual ~Distributor() {}
+
+        protected:
+            virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL; }
+            virtual void applyInstanceData( net::DataIStream& is );
+
+        private:
+            Config* _config;
+        };
+
+        friend class Distributor;
+
         /** true while the config is initialized and no window has exited. */
         bool _running;
 

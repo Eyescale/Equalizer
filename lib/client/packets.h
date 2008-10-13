@@ -252,7 +252,7 @@ namespace eq
             }
 
         uint32_t requestID;
-        uint32_t latency;
+        uint32_t configID;
         bool     result;
         EQ_ALIGN8( char error[8] );
     };

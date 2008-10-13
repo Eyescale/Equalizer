@@ -7,6 +7,7 @@
 
 #include "compound.h"
 #include "compoundVisitor.h"
+#include "constCompoundVisitor.h"
 #include "configUpdateDataVisitor.h"
 #include "global.h"
 #include "loadBalancer.h"
@@ -41,6 +42,7 @@ void Config::_construct()
     _finishedFrame = 0;
     _state         = STATE_STOPPED;
     _appNode       = 0;
+    _distributor   = 0;
 
     EQINFO << "New config @" << (void*)this << endl;
 }
@@ -279,8 +281,7 @@ ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-bool Config::_startInit( const uint32_t initID, 
-                         vector< net::NodeID::Data >& nodeIDs )
+bool Config::_startInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
     _currentFrame  = 0;
@@ -293,7 +294,7 @@ bool Config::_startInit( const uint32_t initID,
         compound->init();
     }
 
-    if( !_connectNodes() || !_initNodes( initID, nodeIDs ))
+    if( !_connectNodes() || !_initNodes( initID ))
     {
         exit();
         return false;
@@ -362,8 +363,7 @@ bool Config::_connectNodes()
     return true;
 }
 
-bool Config::_initNodes( const uint32_t initID,
-                         vector< net::NodeID::Data >& nodeIDs )
+bool Config::_initNodes( const uint32_t initID )
 {
     const string& name    = getName();
     bool          success = true;
@@ -449,8 +449,11 @@ bool Config::_initNodes( const uint32_t initID,
         // start node-pipe-window-channel init in parallel on all nodes
         node->startConfigInit( initID );
 
+#ifdef EQ_TRANSMISSION_API
+        // TODO move me
         nodeIDs.resize( nodeIDs.size() + 1 );
         netNode->getNodeID().getData( nodeIDs.back( ));
+#endif
     }
 
     // Need to sync eq::Node creation: It is possible, though unlikely, that
@@ -720,10 +723,18 @@ net::CommandResult Config::_cmdStartInit( net::Command& command )
     EQINFO << "handle config start init " << packet << endl;
 
     _error.clear();
-    vector< net::NodeID::Data > nodeIDs;
-    reply.result   = _startInit( packet->initID, nodeIDs );
-    reply.latency  = _latency;
 
+    reply.result   = _startInit( packet->initID );
+
+    if( reply.result )
+    {
+        _distributor = new Distributor( this );
+        registerObject( _distributor );
+        reply.configID = _distributor->getID();
+    }
+    else
+        reply.configID = EQ_ID_INVALID;
+    
     EQINFO << "Config start init " << (reply.result ? "successful": "failed: ") 
            << _error << endl;
 
@@ -748,6 +759,14 @@ net::CommandResult Config::_cmdFinishInit( net::Command& command )
         mapObject( &_headMatrix, packet->headMatrixID );
 
     send( command.getNode(), reply, _error );
+
+    if( _distributor ) // OPT clients have retrieved data
+    {
+        deregisterObject( _distributor );
+        delete _distributor;
+        _distributor = 0;
+    }
+
     return net::COMMAND_HANDLED;
 }
 
@@ -859,6 +878,64 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
+namespace
+{
+
+class ViewSerializer : public ConstCompoundVisitor
+{
+public:
+    
+    ViewSerializer( net::DataOStream& os ) : _os( os ) {}
+    virtual ~ViewSerializer(){}
+
+    virtual Compound::VisitorResult visitPre( const Compound* compound )
+        { return visit( compound ); }
+    virtual Compound::VisitorResult visitLeaf( const Compound* compound )
+        { return visit( compound ); }
+
+    virtual Compound::VisitorResult visit( const Compound* compound )
+        { 
+            switch( compound->getLatestView( ))
+            {
+                case eq::View::TYPE_WALL:
+                case eq::View::TYPE_PROJECTION:
+                    _os << compound->getLatestView() << compound->getWall()
+                        << compound->getProjection();
+
+                case eq::View::TYPE_NONE:
+                    break;
+                default:
+                    EQUNIMPLEMENTED;
+            }
+
+            return Compound::TRAVERSE_CONTINUE; 
+        }
+
+private:
+    net::DataOStream& _os;
+};
+}
+
+void Config::Distributor::getInstanceData( net::DataOStream& os )
+{
+    os << _config->_latency;
+
+    ViewSerializer        serializer( os );
+    const CompoundVector& compounds = _config->getCompounds();
+
+    for( CompoundVector::const_iterator i = compounds.begin(); 
+         i != compounds.end(); ++i )
+    {
+        const Compound* compound = *i;
+        compound->accept( &serializer, false /* activeOnly */ );
+    }
+
+    os << eq::View::TYPE_NONE; // end token
+
+#ifdef EQ_TRANSMISSION_API
+#  error TODO transmit node identifiers of used nodes
+#endif
+}
 
 ostream& operator << ( ostream& os, const Config* config )
 {

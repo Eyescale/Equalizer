@@ -259,7 +259,25 @@ namespace server
             STATE_STOPPED,
             STATE_INITIALIZED
         }
-            _state;
+        _state;
+
+        /** Helper class to distribute the config, which is a net::Session */
+        class Distributor : public net::Object
+        {
+        public:
+            Distributor( const Config* config ) : _config( config ) {}
+            virtual ~Distributor() {}
+
+        protected:
+            virtual void getInstanceData( net::DataOStream& os );
+            virtual void applyInstanceData( net::DataIStream& is ) {EQDONTCALL;}
+
+        private:
+            const Config* _config;
+        };
+
+        Distributor* _distributor;
+        friend class Distributor;
 
         /**
          * @name Operations
@@ -268,11 +286,9 @@ namespace server
         /** common code for all constructors */
         void _construct();
 
-        bool _startInit( const uint32_t initID, 
-                         std::vector< net::NodeID::Data >& nodeIDs );
+        bool _startInit( const uint32_t initID );
         bool   _connectNodes();
-        bool   _initNodes( const uint32_t initID, 
-                           std::vector< net::NodeID::Data >& nodeIDs );
+        bool   _initNodes( const uint32_t initID );
         bool _finishInit();
 
         bool _exitNodes();

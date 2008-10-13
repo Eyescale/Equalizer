@@ -19,6 +19,7 @@ class Window;
 class Channel;
 class Frame;
 class Image;
+class View;
 class X11Connection;
 struct Statistic;
 
@@ -28,6 +29,7 @@ typedef std::vector< Window* >  WindowVector;
 typedef std::vector< Channel* > ChannelVector;
 typedef std::vector< Frame* >   FrameVector;
 typedef std::vector< Image* >   ImageVector;
+typedef std::vector< View* >    ViewVector;
 
 typedef base::RefPtr< X11Connection > X11ConnectionPtr;
 

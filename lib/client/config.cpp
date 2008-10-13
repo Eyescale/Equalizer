@@ -15,6 +15,7 @@
 #include "nodeFactory.h"
 #include "packets.h"
 #include "server.h"
+#include "view.h"
 
 #include <eq/net/command.h>
 #include <eq/net/global.h>
@@ -64,6 +65,10 @@ Config::Config( base::RefPtr< Server > server )
 Config::~Config()
 {
     EQINFO << "Delete config @" << (void*)this << endl;
+
+    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+        delete *i;
+    _views.clear();
 
     while( tryNextEvent( )) /* flush all pending events */ ;
     _eventQueue.release( _lastEvent );
@@ -502,6 +507,29 @@ void Config::freezeLoadBalancing( const bool onOff )
     send( packet );
 }
 
+void Config::Distributor::applyInstanceData( net::DataIStream& is )
+{
+    is >> _config->_latency;
+
+    for( ViewVector::const_iterator i = _config->_views.begin();
+         i != _config->_views.end(); ++i )
+    {
+        delete *i;
+    }
+    _config->_views.clear();
+
+    View::Type viewType;
+    for( is >> viewType; viewType != View::TYPE_NONE; is >> viewType )
+    {
+        Wall       wall;
+        Projection projection;
+        
+        is >> wall >> projection;   
+        View* view = new View( viewType, wall, projection );
+        _config->_views.push_back( view );
+    }
+}
+
 
 //---------------------------------------------------------------------------
 // command handlers
@@ -544,23 +572,15 @@ net::CommandResult Config::_cmdStartInitReply( net::Command& command )
         command.getPacket<ConfigStartInitReplyPacket>();
     EQINFO << "handle start init reply " << packet << endl;
 
-#ifdef EQ_TRANSMISSION_API
-    _clientNodeIDs.clear();
-    _clientNodes.clear();
-
     if( packet->result )
     {
-        for( uint32_t i=0; i<packet->nNodeIDs; ++i )
-            _clientNodeIDs.push_back( packet->data.nodeIDs[i] );
+        Distributor distributor( this );
+        EQCHECK( mapObject( &distributor, packet->configID ));
+        unmapObject( &distributor ); // OPT data was retrieved, unmap
     }
     else
-        _error = packet->data.error;
-#else
-    if( !packet->result )
         _error = packet->error;
-#endif
 
-    _latency = packet->latency;
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return net::COMMAND_HANDLED;
 }
@@ -589,6 +609,10 @@ net::CommandResult Config::_cmdExitReply( net::Command& command )
     const ConfigExitReplyPacket* packet = 
         command.getPacket<ConfigExitReplyPacket>();
     EQINFO << "handle exit reply " << packet << endl;
+
+    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+        delete *i;
+    _views.clear();
 
 #ifdef EQ_TRANSMISSION_API
     _clientNodeIDs.clear();

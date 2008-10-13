@@ -24,6 +24,13 @@ View::View( const View& view )
     _data.current    = view._data.current;
 }
 
+View::View( const Type& last, const Wall& wall, const Projection& projection )
+{
+    _data.wall       = wall;
+    _data.projection = projection;
+    _data.current    = last;
+}
+
 View::~View()
 {
     _data.current = TYPE_NONE;
@@ -70,4 +77,20 @@ void View::setProjection( const Projection& projection )
     _dirty = true;
 }
 
+std::ostream& operator << ( std::ostream& os, const View& view )
+{
+    switch( view.getCurrentType( ))
+    {
+        case View::TYPE_WALL:
+            os << view.getWall();
+            break;
+        case View::TYPE_PROJECTION:
+            os << view.getProjection();
+            break;
+        default: 
+            os << "INVALID VIEW";
+            break;
+    }
+    return os;
+}
 }

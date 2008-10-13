@@ -14,10 +14,6 @@ namespace eq
     class EQ_EXPORT View : public net::Object
     {
     public:
-        View();
-        View( const View& view );
-        virtual ~View();
-
         /** @name The type of the latest specified view. */
         enum Type
         {
@@ -25,6 +21,13 @@ namespace eq
             TYPE_WALL,
             TYPE_PROJECTION
         };
+
+        View();
+        View( const View& view );
+        View( const Type& last, const Wall& wall, const Projection& projection);
+            
+
+        virtual ~View();
 
         /** 
          * Set the view using a wall description.
@@ -62,10 +65,13 @@ namespace eq
             Wall       wall;
             Projection projection;
             Type       current;
-        } _data;
+        } 
+        _data;
 
         bool _dirty;
     };
+
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const View& view );
 }
 
 #endif //EQ_VIEW_H
