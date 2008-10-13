@@ -62,14 +62,14 @@ Compound::Compound()
 // copy constructor
 Compound::Compound( const Compound& from )
         : PixelViewportListener()
+        , _name( from._name )
         , _config( 0 )
         , _parent( 0 )
+        , _view( from._view )
+        , _data( from._data )
         , _loadBalancer( 0 )
+        , _swapBarrier( from._swapBarrier )
 {
-    _name        = from._name;
-    _view        = from._view;
-    _data        = from._data;
-    _swapBarrier = from._swapBarrier;
 
     if( from._loadBalancer )
         setLoadBalancer( new LoadBalancer( *from._loadBalancer ));
@@ -366,9 +366,9 @@ void Compound::_setDefaultFrameName( Frame* frame )
 //---------------------------------------------------------------------------
 void Compound::setWall( const eq::Wall& wall )
 {
+    _view.setWall( wall );
     _data.view.applyWall( wall );
-    _view.wall   = wall;
-    _view.latest = VIEW_WALL;
+
     _initialPVP.invalidate();
 
     if( _data.channel )
@@ -378,9 +378,9 @@ void Compound::setWall( const eq::Wall& wall )
 
 void Compound::setProjection( const eq::Projection& projection )
 {
+    _view.setProjection( projection );
     _data.view.applyProjection( projection );
-    _view.projection = projection;
-    _view.latest     = VIEW_PROJECTION;
+
     _initialPVP.invalidate();
 
     if( _data.channel )
@@ -403,13 +403,13 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
     if( updateFOV == eq::OFF || updateFOV == eq::UNDEFINED )
         return;
 
-    switch( _view.latest )
+    switch( getLatestView( ))
     {
-        case VIEW_NONE:
+        case eq::View::TYPE_NONE:
             EQUNREACHABLE;
             return;
 
-        case VIEW_WALL:
+        case eq::View::TYPE_WALL:
             switch( updateFOV )
             {
                 case eq::HORIZONTAL:
@@ -420,7 +420,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
                                          static_cast< float >( _initialPVP.h );
                     const float ratio  = newAR / initAR;
 
-                    eq::Wall wall( _view.wall );
+                    eq::Wall wall( _view.getWall( ));
                     wall.resizeHorizontal( ratio );
                     _data.view.applyWall( wall );
                     break;
@@ -433,7 +433,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
                                          static_cast< float >( _initialPVP.w );
                     const float ratio  = newAR / initAR;
 
-                    eq::Wall wall( _view.wall );
+                    eq::Wall wall( _view.getWall( ));
                     wall.resizeVertical( ratio );
                     _data.view.applyWall( wall );
                     break;
@@ -443,7 +443,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
             }
             break;
 
-        case VIEW_PROJECTION:
+        case eq::View::TYPE_PROJECTION:
             switch( updateFOV )
             {
                 case eq::HORIZONTAL:
@@ -454,7 +454,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
                                          static_cast< float >( _initialPVP.h );
                     const float ratio  = newAR / initAR;
 
-                    eq::Projection projection( _view.projection );
+                    eq::Projection projection( _view.getProjection( ));
                     projection.resizeHorizontal( ratio );
                     _data.view.applyProjection( projection );
                     break;
@@ -467,10 +467,8 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
                                          static_cast< float >( _initialPVP.w );
                     const float ratio  = newAR / initAR;
 
-                    eq::Projection projection( _view.projection );
+                    eq::Projection projection( _view.getProjection( ));
                     projection.resizeVertical( ratio );
-                    EQINFO << _view.projection << " -" << ratio << "-> "
-                           << projection << endl;
                     _data.view.applyProjection( projection );
                     break;
                 }
@@ -901,10 +899,10 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
 
     switch( compound->getLatestView( ))
     {
-        case Compound::VIEW_WALL:
+        case eq::View::TYPE_WALL:
             os << compound->getWall() << endl;
             break;
-        case Compound::VIEW_PROJECTION:
+        case eq::View::TYPE_PROJECTION:
             os << compound->getProjection() << endl;
             break;
         default: 

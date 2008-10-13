@@ -112,6 +112,7 @@ HEADER_SRC = \
 	client/server.h \
 	client/types.h \
 	client/version.h \
+	client/view.h \
 	client/viewport.h \
 	client/wall.h \
 	client/window.h \
@@ -199,6 +200,7 @@ CXXFILES = \
 	client/renderContext.cpp \
 	client/server.cpp \
 	client/version.cpp \
+	client/view.cpp \
 	client/viewport.cpp \
 	client/wall.cpp \
 	client/window.cpp \

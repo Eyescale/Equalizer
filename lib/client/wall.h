@@ -12,6 +12,8 @@
 
 namespace eq
 {
+    class Projection;
+
     /**
      * A wall defining a view frustum.
      * 
@@ -36,6 +38,9 @@ namespace eq
          * @param ratio the amount by which the wall is grown or shrunk.
          */
         void resizeVertical( const float ratio );
+
+        //TODO /** Set the wall parameters from a projection description. */
+        //Wall& operator = ( const Projection& projection );
 
         bool operator == ( const Wall& rhs ) const;
         bool operator != ( const Wall& rhs ) const;

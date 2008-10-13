@@ -16,6 +16,7 @@
 #include <eq/client/projection.h>
 #include <eq/client/range.h>
 #include <eq/client/renderContext.h>
+#include <eq/client/view.h>
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
 #include <eq/base/thread.h>
@@ -116,15 +117,6 @@ namespace server
             IATTR_HINT_OFFSET,
             IATTR_ALL
         };
-
-        /** @name view type names. */
-        enum ViewType
-        {
-            VIEW_NONE,
-            VIEW_WALL,
-            VIEW_PROJECTION
-        };
-
 
         /**
          * @name Data Access
@@ -342,7 +334,7 @@ namespace server
         void setWall( const eq::Wall& wall );
         
         /** @return the last specified wall description. */
-        const eq::Wall& getWall() const { return _view.wall; }
+        const eq::Wall& getWall() const { return _view.getWall(); }
 
         /** 
          * Set the compound's view using a projection description
@@ -352,10 +344,11 @@ namespace server
         void setProjection( const eq::Projection& projection );
 
         /** @return the last specified projection description. */
-        const eq::Projection& getProjection() const { return _view.projection; }
+        const eq::Projection& getProjection() const 
+            { return _view.getProjection(); }
 
         /** @return the type of the latest specified view. */
-        Compound::ViewType getLatestView() const { return _view.latest; }
+        eq::View::Type getLatestView() const { return _view.getCurrentType(); }
 
         /** @return the bitwise OR of the eye values. */
         uint32_t getEyes() const { return _data.eyes; }
@@ -457,15 +450,7 @@ namespace server
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
 
-        struct ViewDescription
-        {
-            ViewDescription() : latest( VIEW_NONE ) {}
-
-            ViewType   latest;
-            eq::Wall       wall;
-            eq::Projection projection;
-        } 
-        _view;
+        eq::View _view;
 
         eq::PixelViewport _initialPVP;
 
