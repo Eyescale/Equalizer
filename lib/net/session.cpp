@@ -303,7 +303,7 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
     EQLOG( LOG_OBJECTS ) << "Mapping " << typeid( *object ).name() << " to id "
                          << id << " version " << version << endl;
 
-    EQASSERT( object->_id == EQ_ID_INVALID );
+    EQASSERT( object->getID() == EQ_ID_INVALID );
     EQASSERT( id != EQ_ID_INVALID );
     EQASSERT( !_localNode->inCommandThread( ));
         

@@ -267,6 +267,8 @@ namespace eq
 
         uint32_t requestID;
         uint32_t headMatrixID;
+        uint32_t nViews;
+        EQ_ALIGN8( uint32_t viewIDs[2] );
     };
 
     struct ConfigFinishInitReplyPacket : public ConfigPacket
@@ -960,7 +962,7 @@ namespace eq
 
         
         net::ObjectVersion frame;
-        uint32_t             nNodes;
+        uint32_t           nNodes;
         EQ_ALIGN8( net::NodeID        nodes[1] );
     };
 

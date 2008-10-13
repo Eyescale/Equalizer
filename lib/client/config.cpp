@@ -188,8 +188,13 @@ bool Config::_finishInit()
     ConfigFinishInitPacket packet;
     packet.requestID    = _requestHandler.registerRequest();
     packet.headMatrixID = _headMatrix.getID();
+    packet.nViews       = _views.size();
 
-    send( packet );
+    vector< uint32_t > viewIDs;
+    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+        viewIDs.push_back( (*i)->getID( ));
+        
+    send( packet, viewIDs );
     
     RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
@@ -514,6 +519,7 @@ void Config::Distributor::applyInstanceData( net::DataIStream& is )
     for( ViewVector::const_iterator i = _config->_views.begin();
          i != _config->_views.end(); ++i )
     {
+        _config->deregisterObject( *i );
         delete *i;
     }
     _config->_views.clear();
@@ -525,7 +531,10 @@ void Config::Distributor::applyInstanceData( net::DataIStream& is )
         Projection projection;
         
         is >> wall >> projection;   
+
         View* view = new View( viewType, wall, projection );
+
+        _config->registerObject( view );
         _config->_views.push_back( view );
     }
 }
@@ -611,7 +620,10 @@ net::CommandResult Config::_cmdExitReply( net::Command& command )
     EQINFO << "handle exit reply " << packet << endl;
 
     for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+    {
+        deregisterObject( *i );
         delete *i;
+    }
     _views.clear();
 
 #ifdef EQ_TRANSMISSION_API

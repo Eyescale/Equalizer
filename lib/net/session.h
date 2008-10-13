@@ -227,6 +227,13 @@ namespace net
                 return _server->send( packet );
             }
 
+        template< typename T >
+        bool send( SessionPacket& packet, const std::vector<T>& data )
+            { 
+                packet.sessionID = _id;
+                return _server->send( packet, data );
+            }
+
         /** 
          * Send a packet to a node.
          * 
