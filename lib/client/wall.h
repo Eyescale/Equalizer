@@ -45,7 +45,7 @@ namespace eq
         vmml::Vector3f topLeft;
     };
 
-    std::ostream& operator << ( std::ostream& os, const Wall& wall );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Wall& wall );
 }
 #endif // EQ_WALL_H
 

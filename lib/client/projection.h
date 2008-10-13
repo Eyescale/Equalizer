@@ -45,7 +45,7 @@ namespace eq
         vmml::Vector3f hpr;
     };
 
-    std::ostream& operator << ( std::ostream& os, const Projection& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Projection& );
 }
 #endif // EQ_PROJECTION_H
 
