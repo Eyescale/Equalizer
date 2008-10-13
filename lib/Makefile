@@ -106,12 +106,14 @@ HEADER_SRC = \
 	client/pipeVisitor.h \
 	client/pixel.h \
 	client/pixelViewport.h \
+	client/projection.h \
 	client/range.h \
 	client/renderContext.h \
 	client/server.h \
 	client/types.h \
 	client/version.h \
 	client/viewport.h \
+	client/wall.h \
 	client/window.h \
 	client/windowStatistics.h \
 	client/windowSystem.h \
@@ -192,11 +194,13 @@ CXXFILES = \
 	client/objectManager.cpp \
 	client/osWindow.cpp \
 	client/pipe.cpp \
+	client/projection.cpp \
 	client/range.cpp \
 	client/renderContext.cpp \
 	client/server.cpp \
 	client/version.cpp \
 	client/viewport.cpp \
+	client/wall.cpp \
 	client/window.cpp \
 	client/windowStatistics.cpp \
 	client/windowSystem.cpp \

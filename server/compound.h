@@ -7,17 +7,17 @@
 
 #include "channel.h"               // used in inline method
 #include "pixelViewportListener.h" // base class
-#include "projection.h"            // member
 #include "view.h"                  // member
-#include "wall.h"                  // member
 
 #include <eq/client/colorMask.h>
 #include <eq/client/frame.h>
 #include <eq/client/frameData.h>
+#include <eq/client/global.h>
+#include <eq/client/projection.h>
 #include <eq/client/range.h>
 #include <eq/client/renderContext.h>
 #include <eq/client/viewport.h>
-#include <eq/client/global.h>
+#include <eq/client/wall.h>
 #include <eq/base/thread.h>
 
 #include <iostream>
@@ -339,20 +339,20 @@ namespace server
          * 
          * @param wall the wall description.
          */
-        void setWall( const Wall& wall );
+        void setWall( const eq::Wall& wall );
         
         /** @return the last specified wall description. */
-        const Wall& getWall() const { return _view.wall; }
+        const eq::Wall& getWall() const { return _view.wall; }
 
         /** 
          * Set the compound's view using a projection description
          * 
          * @param projection the projection description.
          */
-        void setProjection( const Projection& projection );
+        void setProjection( const eq::Projection& projection );
 
         /** @return the last specified projection description. */
-        const Projection& getProjection() const { return _view.projection; }
+        const eq::Projection& getProjection() const { return _view.projection; }
 
         /** @return the type of the latest specified view. */
         Compound::ViewType getLatestView() const { return _view.latest; }
@@ -462,8 +462,8 @@ namespace server
             ViewDescription() : latest( VIEW_NONE ) {}
 
             ViewType   latest;
-            Wall       wall;
-            Projection projection;
+            eq::Wall       wall;
+            eq::Projection projection;
         } 
         _view;
 

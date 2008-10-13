@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "view.h"
 
-#include "projection.h"
-#include "wall.h"
+#include <eq/client/projection.h>
+#include <eq/client/wall.h>
 
 #define DEG2RAD( angle ) ( (angle) * static_cast<float>(M_PI) / 180.f )
 
@@ -13,7 +13,7 @@ namespace eq
 {
 namespace server
 {
-void View::applyWall( const Wall& wall )
+void View::applyWall( const eq::Wall& wall )
 {
     vmml::Vector3f u = wall.bottomRight - wall.bottomLeft;
     vmml::Vector3f v = wall.topLeft - wall.bottomLeft;
@@ -50,7 +50,7 @@ void View::applyWall( const Wall& wall )
     xfm.ml[15] = 1.;
 }
 
-void View::applyProjection( const Projection& projection )
+void View::applyProjection( const eq::Projection& projection )
 {
     const float cosH = cosf( DEG2RAD( projection.hpr[0] ));
     const float sinH = sinf( DEG2RAD( projection.hpr[0] ));

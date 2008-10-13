@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "wall.h"
@@ -10,8 +10,6 @@ using namespace eq::base;
 using namespace std;
 
 namespace eq
-{
-namespace server
 {
 Wall::Wall()
         : bottomLeft( -.8f, -.5f, -1.f ),
@@ -69,5 +67,4 @@ ostream& operator << ( ostream& os, const Wall& wall )
     return os;
 }
 
-}
 }

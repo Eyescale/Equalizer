@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "projection.h"
@@ -13,8 +13,6 @@ using namespace std;
 #define RAD2DEG( angle ) ((angle) * 180.f / static_cast<float>(M_PI))
 
 namespace eq
-{
-namespace server
 {
 Projection::Projection()
         : origin( 0.f, 0.f, 0.f ),
@@ -55,5 +53,4 @@ ostream& operator << ( ostream& os, const Projection& projection )
     return os;
 }
 
-}
 }

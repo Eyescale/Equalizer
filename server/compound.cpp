@@ -364,7 +364,7 @@ void Compound::_setDefaultFrameName( Frame* frame )
 //---------------------------------------------------------------------------
 // view operations
 //---------------------------------------------------------------------------
-void Compound::setWall( const Wall& wall )
+void Compound::setWall( const eq::Wall& wall )
 {
     _data.view.applyWall( wall );
     _view.wall   = wall;
@@ -376,7 +376,7 @@ void Compound::setWall( const Wall& wall )
     EQVERB << "Wall: " << _data.view << endl;
 }
 
-void Compound::setProjection( const Projection& projection )
+void Compound::setProjection( const eq::Projection& projection )
 {
     _data.view.applyProjection( projection );
     _view.projection = projection;
@@ -420,7 +420,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
                                          static_cast< float >( _initialPVP.h );
                     const float ratio  = newAR / initAR;
 
-                    Wall wall( _view.wall );
+                    eq::Wall wall( _view.wall );
                     wall.resizeHorizontal( ratio );
                     _data.view.applyWall( wall );
                     break;
@@ -433,7 +433,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
                                          static_cast< float >( _initialPVP.w );
                     const float ratio  = newAR / initAR;
 
-                    Wall wall( _view.wall );
+                    eq::Wall wall( _view.wall );
                     wall.resizeVertical( ratio );
                     _data.view.applyWall( wall );
                     break;
@@ -454,7 +454,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
                                          static_cast< float >( _initialPVP.h );
                     const float ratio  = newAR / initAR;
 
-                    Projection projection( _view.projection );
+                    eq::Projection projection( _view.projection );
                     projection.resizeHorizontal( ratio );
                     _data.view.applyProjection( projection );
                     break;
@@ -467,7 +467,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
                                          static_cast< float >( _initialPVP.w );
                     const float ratio  = newAR / initAR;
 
-                    Projection projection( _view.projection );
+                    eq::Projection projection( _view.projection );
                     projection.resizeVertical( ratio );
                     EQINFO << _view.projection << " -" << ratio << "-> "
                            << projection << endl;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_VIEW_H
@@ -10,11 +10,11 @@
 
 namespace eq
 {
-namespace server
-{
     class Projection;
     class Wall;
 
+namespace server
+{
     /** 
      * A generic view definition
      *
@@ -28,8 +28,8 @@ namespace server
 
         bool isValid() const { return (width!=0.f && height!=0.f); }
 
-        void applyProjection( const Projection& projection );
-        void applyWall( const Wall& wall );
+        void applyProjection( const eq::Projection& projection );
+        void applyWall( const eq::Wall& wall );
 
         float width;
         float height;

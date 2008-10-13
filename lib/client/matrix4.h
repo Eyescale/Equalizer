@@ -3,8 +3,8 @@
    Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef CLIENT_MATRIX4_H
-#define CLIENT_MATRIX4_H
+#ifndef EQ_MATRIX4_H
+#define EQ_MATRIX4_H
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
@@ -77,4 +77,4 @@ namespace eq
     }
 }
 
-#endif //CLIENT_MATRIX4_H
+#endif //EQ_MATRIX4_H

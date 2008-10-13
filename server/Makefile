@@ -21,12 +21,10 @@ CXXFILES = \
 	node.cpp \
 	parser.cpp \
 	pipe.cpp \
-	projection.cpp \
 	server.cpp \
 	startLocalServer.cpp \
 	swapBarrier.cpp \
 	view.cpp \
-	wall.cpp \
 	window.cpp
 
 SIMPLE_CXXFILES = \

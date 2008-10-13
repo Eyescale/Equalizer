@@ -58,6 +58,7 @@
 
 // defines
 #define EQ_UNDEFINED_UINT32   (0xffffffffu)
+#define EQ_UNDEFINED_FLOAT    (std::numeric_limits<float>::quiet_NaN( ))
 //#define EQ_UNDEFINED_INT32    (0x7fffffffu)
 #define EQ_TIMEOUT_INDEFINITE 0
 #define EQ_OBJECT_CAST( type, object )                 \

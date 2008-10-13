@@ -34,8 +34,8 @@
         static eq::server::SwapBarrier* swapBarrier = 0;
         static eq::server::Frame*       frame = 0;
         static eq::server::ConnectionDescriptionPtr connectionDescription;
-        static eq::server::Wall         wall;
-        static eq::server::Projection   projection;
+        static eq::Wall           wall;
+        static eq::Projection     projection;
         static uint32_t           flags = 0;
     }
     }
@@ -607,7 +607,7 @@ buffer:
     EQTOKEN_COLOR    { flags |= eq::Frame::BUFFER_COLOR; }
     | EQTOKEN_DEPTH  { flags |= eq::Frame::BUFFER_DEPTH; }
 
-wall: EQTOKEN_WALL '{' { wall = eq::server::Wall(); } 
+wall: EQTOKEN_WALL '{' { wall = eq::Wall(); } 
     wallFields '}' { eqCompound->setWall( wall ); }
 
 wallFields:  /*null*/ | wallField | wallFields wallField
@@ -619,7 +619,7 @@ wallField:
    |  EQTOKEN_TOP_LEFT  '[' FLOAT FLOAT FLOAT ']'
         { wall.topLeft = vmml::Vector3f( $3, $4, $5 ); }
 
-projection: EQTOKEN_PROJECTION '{' { projection = eq::server::Projection(); } 
+projection: EQTOKEN_PROJECTION '{' { projection = eq::Projection(); } 
     projectionFields '}' { eqCompound->setProjection( projection ); }
 
 projectionFields:  /*null*/ | projectionField | projectionFields projectionField
