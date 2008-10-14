@@ -150,7 +150,6 @@ CXXFILES = \
 	net/dataIStream.cpp \
 	net/dataOStream.cpp \
 	net/deltaMasterCM.cpp \
-	net/deltaSlaveCM.cpp \
 	net/fdConnection.cpp \
 	net/fullMasterCM.cpp \
 	net/fullSlaveCM.cpp \
