@@ -8,7 +8,6 @@
 #include "dataIStream.h"
 #include "dataOStream.h"
 #include "deltaMasterCM.h"
-#include "deltaSlaveCM.h"
 #include "fullMasterCM.h"
 #include "fullSlaveCM.h"
 #include "log.h"
@@ -238,13 +237,13 @@ void Object::setupChangeManager( const Object::ChangeType type,
             if( master )
                 _setChangeManager( new DeltaMasterCM( this ));
             else
-                _setChangeManager( new DeltaSlaveCM( this, masterInstanceID ));
+                _setChangeManager( new FullSlaveCM( this, masterInstanceID ));
             break;
         case Object::DELTA_UNBUFFERED:
             if( master )
                 _setChangeManager( new UnbufferedMasterCM( this ));
             else
-                _setChangeManager( new DeltaSlaveCM( this, masterInstanceID ));
+                _setChangeManager( new FullSlaveCM( this, masterInstanceID ));
             break;
 
         default: EQUNIMPLEMENTED;

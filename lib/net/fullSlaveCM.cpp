@@ -136,14 +136,15 @@ void FullSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
     EQASSERTINFO( _version == is->getVersion() - 1, "Expected version " 
                   << _version << ", got " << is->getVersion() - 1 );
     
-    _object->applyInstanceData( *is );
+    _object->unpack( *is );
     _version = is->getVersion();
     EQLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
                          << _object->getID() << "." << _object->getInstanceID()
                          << endl;
 
     if( is->getRemainingBufferSize() > 0 || is->nRemainingBuffers() > 0 )
-        EQWARN << "Object did not unpack all data" << endl;
+        EQWARN << "Object " << typeid( *_object ).name() 
+            << " did not unpack all data" << endl;
 }
 
 

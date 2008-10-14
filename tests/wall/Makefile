@@ -1,8 +1,8 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS += -I.. -I$(TOP)/server
-LDFLAGS  += -lpthread -leq -leqserver
+CXXFLAGS += -I..
+LDFLAGS  += -lpthread -leq
 BIN_DIR   = $(ARCH)
 
 ifeq "${ARCH}" "Linux"
@@ -13,4 +13,4 @@ TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)
 
 include $(TOP)/make/rules.mk
 
-$(SIMPLE_PROGRAMS): $(wildcard $(TOP)/lib/client/image.*)
+$(SIMPLE_PROGRAMS): $(wildcard $(TOP)/lib/client/wall.*)

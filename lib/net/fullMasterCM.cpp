@@ -258,7 +258,7 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     deltaData->os.setVersion( _version + 1 );
 
     deltaData->os.enable( _slaves );
-    _object->getInstanceData( deltaData->os );
+    _object->pack( deltaData->os );
     deltaData->os.disable();
 
     if( deltaData->os.hasSentData( ))

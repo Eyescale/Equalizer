@@ -4,9 +4,9 @@
 
 #include <test.h>
 
-#include <wall.h>
+#include <eq/client/wall.h>
 
-using namespace eq::server;
+using namespace eq;
 using namespace std;
 
 // Tests the wall description
