@@ -32,7 +32,6 @@ WGLWindow::~WGLWindow( )
 
 void WGLWindow::configExit( )
 {
-#ifdef WGL
     wglMakeCurrent( 0, 0 );
 
     HGLRC context        = getWGLContext();
@@ -62,34 +61,26 @@ void WGLWindow::configExit( )
         ChangeDisplaySettings( 0, 0 );
 
     EQINFO << "Destroyed WGL context and window" << std::endl;
-#endif
 }
 
 void WGLWindow::makeCurrent() const
 {
-#ifdef WGL
     wglMakeCurrent( _wglDC, _wglContext );
-#endif
 }
 
 void WGLWindow::swapBuffers()
 {
-#ifdef WGL
-    SwapBuffers( _wglDC );
-#endif
+    ::SwapBuffers( _wglDC );
 }
 
 void WGLWindow::setWGLContext( HGLRC context )
 {
-#ifdef WGL
     _wglContext = context; 
-#endif
 }
 
 
 void WGLWindow::setWGLWindowHandle( HWND handle )
 {
-#ifdef WGL
     if( _wglWindow == handle )
         return;
 
@@ -122,12 +113,10 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
     pvp.w = windowInfo.rcClient.right  - windowInfo.rcClient.left;
     pvp.h = windowInfo.rcClient.bottom - windowInfo.rcClient.top;
     _window->setPixelViewport( pvp );
-#endif // WGL
 }
 
 void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
 {
-#ifdef WGL
     if( _wglPBuffer == handle )
         return;
 
@@ -155,7 +144,6 @@ void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
     pvp.w = w;
     pvp.h = h;
     _window->setPixelViewport( pvp );
-#endif // WGL
 }
 
 
@@ -164,7 +152,6 @@ void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
 //---------------------------------------------------------------------------
 bool WGLWindow::configInit()
 {
-#ifdef WGL
     PFNEQDELETEDCPROC deleteDCProc = 0;
     HDC dc = getWGLPipeDC( deleteDCProc );
     EQASSERT( !dc || deleteDCProc );
@@ -188,7 +175,8 @@ bool WGLWindow::configInit()
     {
         if( dc )
             deleteDCProc( dc );
-        _window->setErrorMessage( "configInitWGLDrawable did not set a WGL drawable" );
+        _window->setErrorMessage(
+            "configInitWGLDrawable did not set a WGL drawable" );
         return false;
     }
 
@@ -219,10 +207,6 @@ bool WGLWindow::configInit()
     if( dc )
         deleteDCProc( dc );
     return true;
-#else
-    _window->setErrorMessage( "Client library compiled without WGL support" );
-    return false;
-#endif
 }
 
 bool WGLWindow::configInitWGLDrawable( HDC dc, int pixelFormat )
@@ -245,12 +229,12 @@ bool WGLWindow::configInitWGLDrawable( HDC dc, int pixelFormat )
 
 bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
 {
-#ifdef WGL
     // window class
     const std::string& name = _window->getName();
 
     std::ostringstream className;
-    className << (name.empty() ? std::string("Equalizer") : name) << (void*)this;
+    className << (name.empty() ? std::string("Equalizer") : name) 
+              << (void*)this;
     const std::string& classStr = className.str();
                                   
     HINSTANCE instance = GetModuleHandle( 0 );
@@ -336,15 +320,10 @@ bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
     UpdateWindow( hWnd );
 
     return true;
-#else
-    _window->setErrorMessage( "Client library compiled without WGL support" );
-    return false;
-#endif
 }
 
 bool WGLWindow::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
 {
-#ifdef WGL
     if( !WGLEW_ARB_pbuffer )
     {
         _window->setErrorMessage( "WGL_ARB_pbuffer not supported" );
@@ -373,15 +352,10 @@ bool WGLWindow::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
 
     setWGLPBufferHandle( pBuffer );
     return true;
-#else
-    _window->setErrorMessage( "Client library compiled without WGL support" );
-    return false;
-#endif
 }
 
 HDC WGLWindow::getWGLPipeDC( PFNEQDELETEDCPROC& deleteProc )
 {
-#ifdef WGL
     // per-GPU affinity DC
     // We need to create one DC per window, since the window DC pixel format and
     // the affinity RC pixel format have to match, and each window has
@@ -397,15 +371,10 @@ HDC WGLWindow::getWGLPipeDC( PFNEQDELETEDCPROC& deleteProc )
     }
 
     return affinityDC;
-#else
-    _window->setErrorMessage( "Client library compiled without WGL support" );
-    return 0;
-#endif
 }
 
 int WGLWindow::chooseWGLPixelFormat( HDC dc )
 {
-#ifdef WGL
     EQASSERT( WGLEW_ARB_pixel_format );
 
     std::vector< int > attributes;
@@ -577,15 +546,10 @@ int WGLWindow::chooseWGLPixelFormat( HDC dc )
     }
     
     return pixelFormat;
-#else
-    _window->setErrorMessage( "Client library compiled without WGL support" );
-    return 0;
-#endif
 }
 
 HGLRC WGLWindow::createWGLContext( HDC overrideDC )
 {
-#ifdef WGL
     HDC dc = overrideDC ? overrideDC : _wglDC;
     EQASSERT( dc );
 
@@ -615,10 +579,6 @@ HGLRC WGLWindow::createWGLContext( HDC overrideDC )
     }
 
     return context;
-#else
-    _window->setErrorMessage( "Client library compiled without WGL support" );
-    return 0;
-#endif
 }
 
 void WGLWindow::initEventHandler()

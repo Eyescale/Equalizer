@@ -25,14 +25,14 @@ GLXWindow::~GLXWindow( )
 //---------------------------------------------------------------------------
 // GLX init
 //---------------------------------------------------------------------------
-#ifdef GLX
+namespace
+{
 static Bool WaitForNotify( Display*, XEvent *e, char *arg )
 { return (e->type == MapNotify) && (e->xmap.window == (::Window)arg); }
-#endif
+}
 
 bool GLXWindow::configInit( )
 {
-#ifdef GLX
     XVisualInfo* visualInfo = chooseXVisualInfo();
     if( !visualInfo )
         return false;
@@ -48,21 +48,17 @@ bool GLXWindow::configInit( )
 
     if( success && !_xDrawable )
     {
-        _window->setErrorMessage( "configInitGLXDrawable did set no X11 drawable" );
+        _window->setErrorMessage( 
+            "configInitGLXDrawable did not set a X11 drawable");
         return false;
     }
 
     return success;    
-#else
-    _window->setErrorMessage( "Client library compiled without GLX support" );
-    return false;
-#endif
 }
 
 
 XVisualInfo* GLXWindow::chooseXVisualInfo()
 {
-#ifdef GLX
     Display* display = getPipe()->getXDisplay();
     if( !display )
     {
@@ -195,15 +191,10 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
                << std::dec << std::endl;
 
     return visInfo;
-#else
-    _window->setErrorMessage( "Client library compiled without GLX support" );
-    return 0;
-#endif
 }
 
 GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
 {
-#ifdef GLX
     if( !visualInfo )
     {
         _window->setErrorMessage( "No visual info given" );
@@ -239,10 +230,6 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
     }
 
     return context;
-#else
-    _window->setErrorMessage( "Client library compiled without GLX support" );
-    return 0;
-#endif
 }
 
 bool GLXWindow::configInitGLXDrawable( XVisualInfo* visualInfo )
@@ -265,7 +252,6 @@ bool GLXWindow::configInitGLXDrawable( XVisualInfo* visualInfo )
 
 bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
 {
-#ifdef GLX
     EQASSERT( getIAttribute( Window::IATTR_HINT_DRAWABLE ) != PBUFFER )
 
     if( !visualInfo )
@@ -362,15 +348,10 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
 
     EQINFO << "Created X11 drawable " << drawable << std::endl;
     return true;
-#else
-    _window->setErrorMessage( "Client library compiled without GLX support" );
-    return false;
-#endif
 }
 
 bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
 {
-#ifdef GLX
     EQASSERT( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == PBUFFER )
 
     if( !visualInfo )
@@ -450,16 +431,11 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
 
     EQINFO << "Created X11 PBuffer " << pbuffer << std::endl;
     return true;
-#else
-    _window->setErrorMessage( "Client library compiled without GLX support" );
-    return false;
-#endif
 }
 
 
 void GLXWindow::setXDrawable( XID drawable )
 {
-#ifdef GLX
     if( _xDrawable == drawable )
         return;
 
@@ -513,20 +489,16 @@ void GLXWindow::setXDrawable( XID drawable )
     }
 
     _window->setPixelViewport( pvp );
-#endif // GLX
 }
 
 
 void GLXWindow::setGLXContext( GLXContext context )
 {
-#ifdef GLX
     _glXContext = context;
-#endif
 }
 
 void GLXWindow::configExit( )
 {
-#ifdef GLX
     Pipe*    pipe    = getPipe();
     EQASSERT( pipe );
 
@@ -554,31 +526,26 @@ void GLXWindow::configExit( )
     }
 
     EQINFO << "Destroyed GLX context and X drawable " << std::endl;
-#endif
 }
 
 void GLXWindow::makeCurrent() const
 {
-#ifdef GLX
     const Pipe* pipe = getPipe();
 
     EQASSERT( pipe );
     EQASSERT( pipe->getXDisplay( ));
 
     glXMakeCurrent( pipe->getXDisplay(), _xDrawable, _glXContext );
-#endif
 }
 
 void GLXWindow::swapBuffers()
 {
-#ifdef GLX
     Pipe*    pipe    = getPipe();
 
     EQASSERT( pipe );
     EQASSERT( pipe->getXDisplay( ));
 
     glXSwapBuffers( pipe->getXDisplay(), _xDrawable );
-#endif
 }
 
 }
