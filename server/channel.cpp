@@ -59,6 +59,7 @@ private:
 void Channel::_construct()
 {
     _used             = 0;
+    _viewID           = EQ_ID_INVALID;
     _window           = 0;
     _fixedPVP         = false;
     _lastDrawCompound = 0;
@@ -261,6 +262,7 @@ void Channel::_sendConfigInit( const uint32_t initID )
 
     eq::ChannelConfigInitPacket packet;
     packet.initID     = initID;
+    packet.viewID     = _viewID;
     packet.color      = _getUniqueColor();
     if( _fixedPVP )
         packet.pvp    = _pvp; 

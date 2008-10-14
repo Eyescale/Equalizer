@@ -201,6 +201,9 @@ namespace server
         const std::string& getErrorMessage() const { return _error; }
         //@}
 
+        /** Used by server during appNode initialization. */
+        uint32_t getDistributorID();
+
     protected:
         /** @sa net::Session::setLocalNode. */
         virtual void setLocalNode( net::NodePtr node );
@@ -309,6 +312,7 @@ namespace server
         net::CommandResult _cmdCreateReply( net::Command& command );
         net::CommandResult _cmdCreateNodeReply( net::Command& command );
         net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
+        net::CommandResult _cmdMapViews( net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Config* config );

@@ -85,11 +85,13 @@ namespace eq
                 command   = CMD_SERVER_CREATE_CONFIG;
                 size      = sizeof( ServerCreateConfigPacket );
                 requestID = EQ_ID_INVALID;
+                objectID  = EQ_ID_INVALID;                
                 name[0]   = '\0';
             }
 
         uint32_t    configID;
         uint32_t    requestID;
+        uint32_t    objectID;
         net::NodeID appNodeID;
         EQ_ALIGN8( char          name[8] );
     };
@@ -267,8 +269,6 @@ namespace eq
 
         uint32_t requestID;
         uint32_t headMatrixID;
-        uint32_t nViews;
-        EQ_ALIGN8( uint32_t viewIDs[2] );
     };
 
     struct ConfigFinishInitReplyPacket : public ConfigPacket
@@ -384,6 +384,18 @@ namespace eq
                 command       = CMD_CONFIG_START_CLOCK;
                 size          = sizeof( ConfigStartClockPacket );
             }
+    };
+
+    struct ConfigMapViewsPacket : public ConfigPacket
+    {
+        ConfigMapViewsPacket()
+            {
+                command   = CMD_CONFIG_MAP_VIEWS;
+                size      = sizeof( ConfigMapViewsPacket );
+            }
+
+        uint32_t nViews;
+        EQ_ALIGN8( uint32_t viewIDs[2] );
     };
 
     //------------------------------------------------------------
@@ -798,6 +810,7 @@ namespace eq
             }
 
         uint32_t        initID;
+        uint32_t        viewID;
         int32_t         iattr[eq::Channel::IATTR_ALL];
         PixelViewport   pvp;
         Viewport        vp;

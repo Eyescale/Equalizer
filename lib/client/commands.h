@@ -51,6 +51,7 @@ namespace eq
         CMD_CONFIG_DATA,
         CMD_CONFIG_FREEZE_LOAD_BALANCING,
         CMD_CONFIG_START_CLOCK,
+        CMD_CONFIG_MAP_VIEWS,
         CMD_CONFIG_CUSTOM
     };
 

@@ -16,6 +16,7 @@
 #include "packets.h"
 #include "range.h"
 #include "renderContext.h"
+#include "view.h"
 
 #include <eq/net/command.h>
 
@@ -36,6 +37,7 @@ Channel::Channel( Window* parent )
         , _context( 0 )
         , _frustum( vmml::Frustumf::DEFAULT )
         , _ortho( vmml::Frustumf::DEFAULT )
+        , _view( 0 )
 {
     net::CommandQueue* queue = parent->getPipeThreadQueue();
 
@@ -635,6 +637,20 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
         command.getPacket<ChannelConfigInitPacket>();
     EQLOG( LOG_TASKS ) << "TASK channel config init " << packet << endl;
 
+    if( packet->viewID != EQ_ID_INVALID )
+    {
+        View*   view   = new View;
+        Config* config = getConfig();
+
+        if( config->mapObject( view, packet->viewID ))
+            _view = view;
+        else
+        {
+            delete view;
+            EQUNREACHABLE;
+        }
+    }
+
     if( packet->pvp.isValid( ))
         _setPixelViewport( packet->pvp );
     else
@@ -666,6 +682,15 @@ net::CommandResult Channel::_cmdConfigExit( net::Command& command )
 
     ChannelConfigExitReplyPacket reply;
     reply.result = configExit();
+
+    if( _view )
+    {
+        Config* config = getConfig();
+
+        config->unmapObject( _view );
+        delete _view;
+        _view = 0;
+    }
 
     send( command.getNode(), reply );
     return net::COMMAND_HANDLED;

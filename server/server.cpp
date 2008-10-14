@@ -189,6 +189,7 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
 
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = configID;
+    createConfigPacket.objectID  = appConfig->getDistributorID();
     createConfigPacket.appNodeID = node->getNodeID();
     createConfigPacket.appNodeID.convertToNetwork();
     node->send( createConfigPacket, name );
@@ -240,6 +241,7 @@ net::CommandResult Server::_cmdUseConfig( net::Command& command )
 
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = configID;
+    createConfigPacket.objectID  = config->getDistributorID();
     createConfigPacket.appNodeID = node->getNodeID();
     createConfigPacket.appNodeID.convertToNetwork();
     node->send( createConfigPacket, name );

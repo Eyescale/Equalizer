@@ -52,6 +52,19 @@ namespace eq
         base::RefPtr< Server > getServer() const 
             { return ( _window ? _window->getServer() : 0 );}
 
+        /** 
+         * Get the GLEW context for this channel.
+         * 
+         * The glew context is initialized during window initialization, and
+         * provides access to OpenGL extensions. This function does not follow
+         * the Equalizer naming conventions, since GLEW uses a function of this
+         * name to automatically resolve OpenGL function entry
+         * points. Therefore, any supported GL function can be called directly
+         * from an initialized Channel.
+         * 
+         * @return the extended OpenGL function table for the channel's OpenGL
+         *         context.
+         */
         GLEWContext* glewGetContext() { return _window->glewGetContext(); }
 
         const std::string& getName() const { return _name; }
@@ -80,6 +93,17 @@ namespace eq
 
         /** Return a stable, unique color for this channel. */
         const vmml::Vector3ub& getUniqueColor() const { return _color; }
+
+        /** 
+         * Get the channel's view.
+         * 
+         * A channel has a View if a Wall or Projection description is
+         * configured for it. This is typically the case for destination
+         * channels, source channels do not have a view.
+         * 
+         * @return the channel's view, or 0 if it does not have a view.
+         */
+        const View* getView() const { return _view; }
 
         /** Add a new statistics event for the current frame. */
         void addStatistic( Event& event );
@@ -423,6 +447,9 @@ namespace eq
 #ifdef EQ_ASYNC_TRANSMIT
         base::SpinLock _statisticsLock;
 #endif
+
+        /** The channel's view, if it has one. */
+        View* _view;
 
         //-------------------- Methods --------------------
         /** 

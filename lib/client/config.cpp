@@ -188,13 +188,8 @@ bool Config::_finishInit()
     ConfigFinishInitPacket packet;
     packet.requestID    = _requestHandler.registerRequest();
     packet.headMatrixID = _headMatrix.getID();
-    packet.nViews       = _views.size();
 
-    vector< uint32_t > viewIDs;
-    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
-        viewIDs.push_back( (*i)->getID( ));
-        
-    send( packet, viewIDs );
+    send( packet );
     
     RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
@@ -450,8 +445,6 @@ void Config::getStatistics( std::vector< FrameStatistics >& statistics )
     _statisticsMutex.unset();
 }
 
-
-
 void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
 {
     _headMatrix = matrix;
@@ -539,6 +532,21 @@ void Config::Distributor::applyInstanceData( net::DataIStream& is )
     }
 }
 
+void Config::_initAppNode( const uint32_t distributorID )
+{
+    Config::Distributor distributor( this );
+    EQCHECK( mapObject( &distributor, distributorID ));
+    unmapObject( &distributor ); // data was retrieved, unmap
+
+    vector< uint32_t > viewIDs;
+    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+        viewIDs.push_back( (*i)->getID( ));
+
+    ConfigMapViewsPacket packet;
+    packet.nViews = _views.size();
+
+    send( packet, viewIDs );
+}
 
 //---------------------------------------------------------------------------
 // command handlers
@@ -581,13 +589,7 @@ net::CommandResult Config::_cmdStartInitReply( net::Command& command )
         command.getPacket<ConfigStartInitReplyPacket>();
     EQINFO << "handle start init reply " << packet << endl;
 
-    if( packet->result )
-    {
-        Distributor distributor( this );
-        EQCHECK( mapObject( &distributor, packet->configID ));
-        unmapObject( &distributor ); // OPT data was retrieved, unmap
-    }
-    else
+    if( !packet->result )
         _error = packet->error;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );

@@ -183,6 +183,9 @@ net::CommandResult Server::_cmdCreateConfig( net::Command& command )
 
     localNode->addSession( config, command.getNode(), packet->configID );
 
+    if( packet->objectID != EQ_ID_INVALID )
+        config->_initAppNode( packet->objectID );
+
     if( packet->requestID != EQ_ID_INVALID )
     {
         ConfigCreateReplyPacket reply( packet );

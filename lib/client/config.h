@@ -313,6 +313,9 @@ namespace eq
         bool _connectClientNodes();
 #endif
 
+        /** Init the application node instance */
+        void _initAppNode( const uint32_t distributorID );
+
         /** The command functions. */
         net::CommandResult _cmdStartClock( net::Command& command );
         net::CommandResult _cmdCreateNode( net::Command& command );

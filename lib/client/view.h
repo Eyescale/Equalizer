@@ -11,15 +11,19 @@
 
 namespace eq
 {
+    /**
+     * A View describes a projection of the scene onto a coherent 2D area,
+     * typically a display driven by a destination Channel.
+     */
     class EQ_EXPORT View : public net::Object
     {
     public:
-        /** @name The type of the latest specified view. */
+        /** The type of the latest specified view. */
         enum Type
         {
-            TYPE_NONE,
-            TYPE_WALL,
-            TYPE_PROJECTION
+            TYPE_NONE,        //!< No view has been specified, invalid view
+            TYPE_WALL,        //!< A wall description has been set last
+            TYPE_PROJECTION   //!< A projection description has been set last
         };
 
         View();

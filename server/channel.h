@@ -112,6 +112,11 @@ namespace server
          */
         bool isUsed() const { return (_used!=0); }
 
+        /** Set the identifier of the compound view. */
+        void setViewID( const uint32_t id ) { _viewID = id; }
+        /** @return the channel's view identifier. */
+        uint32_t getViewID() const { return _viewID; }
+
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
@@ -275,6 +280,9 @@ namespace server
         //-------------------- Members --------------------
         /** Number of entitities actively using this channel. */
         uint32_t _used;
+
+        /** The identifier of the compound view used by this channel. */
+        uint32_t _viewID;
 
         /** The reason for the last error. */
         std::string _error;

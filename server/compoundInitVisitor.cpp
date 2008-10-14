@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "compoundInitVisitor.h"
@@ -23,6 +23,15 @@ Compound::VisitorResult CompoundInitVisitor::_visit( Compound* compound )
     Channel* channel = compound->getChannel();
     if( channel )
         channel->refUsed();
+
+    if( channel && compound->getLatestView() != eq::View::TYPE_NONE )
+    {
+        const eq::View& view = compound->getView();
+        EQASSERT( view.getID() != EQ_ID_INVALID );
+        EQASSERTINFO( channel->getViewID() == EQ_ID_INVALID,
+                      "Multiple views per channel are not supported" );
+        channel->setViewID( view.getID( ));
+    }
 
     Config*        config  = compound->getConfig();
     const uint32_t latency = config->getLatency();

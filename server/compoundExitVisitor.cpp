@@ -42,8 +42,10 @@ Compound::VisitorResult CompoundExitVisitor::visitLeaf( Compound* compound )
 
     Channel* channel = compound->getChannel();
     if( channel )
+    {
         channel->unrefUsed();
-
+        channel->setViewID( EQ_ID_INVALID );
+    }
     return Compound::TRAVERSE_CONTINUE;    
 }
 

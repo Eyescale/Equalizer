@@ -147,6 +147,8 @@ void Config::setLocalNode( net::NodePtr node )
     registerCommand( eq::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
                      ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ), 
                      serverQueue );
+    registerCommand( eq::CMD_CONFIG_MAP_VIEWS,
+                     ConfigFunc( this, &Config::_cmdMapViews ), serverQueue );
 }
 
 void Config::addNode( Node* node )
@@ -281,6 +283,74 @@ ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
+namespace
+{
+class ViewSerializer : public ConstCompoundVisitor
+{
+public:
+    
+    ViewSerializer( net::DataOStream& os ) : _os( os ) {}
+    virtual ~ViewSerializer(){}
+
+    virtual Compound::VisitorResult visitPre( const Compound* compound )
+        { return visit( compound ); }
+    virtual Compound::VisitorResult visitLeaf( const Compound* compound )
+        { return visit( compound ); }
+
+    virtual Compound::VisitorResult visit( const Compound* compound )
+        { 
+            switch( compound->getLatestView( ))
+            {
+                case eq::View::TYPE_WALL:
+                case eq::View::TYPE_PROJECTION:
+                    _os << compound->getLatestView() << compound->getWall()
+                        << compound->getProjection();
+
+                case eq::View::TYPE_NONE:
+                    break;
+                default:
+                    EQUNIMPLEMENTED;
+            }
+
+            return Compound::TRAVERSE_CONTINUE; 
+        }
+
+private:
+    net::DataOStream& _os;
+};
+}
+
+void Config::Distributor::getInstanceData( net::DataOStream& os )
+{
+    os << _config->_latency;
+
+    ViewSerializer        serializer( os );
+    const CompoundVector& compounds = _config->getCompounds();
+
+    for( CompoundVector::const_iterator i = compounds.begin(); 
+         i != compounds.end(); ++i )
+    {
+        const Compound* compound = *i;
+        compound->accept( &serializer, false /* activeOnly */ );
+    }
+
+    os << eq::View::TYPE_NONE; // end token
+
+#ifdef EQ_TRANSMISSION_API
+#  error TODO transmit node identifiers of used nodes
+#endif
+}
+
+uint32_t Config::getDistributorID()
+{
+    EQASSERT( !_distributor );
+
+    _distributor = new Distributor( this );
+    registerObject( _distributor );
+
+    return _distributor->getID();
+}
+
 bool Config::_startInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
@@ -723,17 +793,7 @@ net::CommandResult Config::_cmdStartInit( net::Command& command )
     EQINFO << "handle config start init " << packet << endl;
 
     _error.clear();
-
-    reply.result   = _startInit( packet->initID );
-
-    if( reply.result )
-    {
-        _distributor = new Distributor( this );
-        registerObject( _distributor );
-        reply.configID = _distributor->getID();
-    }
-    else
-        reply.configID = EQ_ID_INVALID;
+    reply.result = _startInit( packet->initID );
     
     EQINFO << "Config start init " << (reply.result ? "successful": "failed: ") 
            << _error << endl;
@@ -745,7 +805,6 @@ net::CommandResult Config::_cmdStartInit( net::Command& command )
 
 namespace
 {
-
 class ViewMapper : public CompoundVisitor
 {
 public:
@@ -843,27 +902,9 @@ net::CommandResult Config::_cmdFinishInit( net::Command& command )
            << _error << endl;
 
     if( reply.result )
-    {
         mapObject( &_headMatrix, packet->headMatrixID );
 
-        ViewMapper mapper( packet->nViews, packet->viewIDs );
-        for( CompoundVector::const_iterator i = _compounds.begin();
-             i != _compounds.end(); ++i )
-        {
-            Compound* compound = *i;
-            compound->accept( &mapper );
-        }
-    }
-
     send( command.getNode(), reply, _error );
-
-    if( _distributor ) // OPT clients have retrieved data
-    {
-        deregisterObject( _distributor );
-        delete _distributor;
-        _distributor = 0;
-    }
-
     return net::COMMAND_HANDLED;
 }
 
@@ -963,7 +1004,6 @@ public:
 private:
     const bool _freeze;
 };
-
 }
 
 net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command ) 
@@ -983,63 +1023,28 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-namespace
+net::CommandResult Config::_cmdMapViews( net::Command& command ) 
 {
+    const eq::ConfigMapViewsPacket* packet = 
+        command.getPacket<eq::ConfigMapViewsPacket>();
+    EQINFO << "handle config map views " << packet << endl;
 
-class ViewSerializer : public ConstCompoundVisitor
-{
-public:
-    
-    ViewSerializer( net::DataOStream& os ) : _os( os ) {}
-    virtual ~ViewSerializer(){}
+    // clients have retrieved distributed data
+    EQASSERT( _distributor );
+    deregisterObject( _distributor );
+    delete _distributor;
+    _distributor = 0;
 
-    virtual Compound::VisitorResult visitPre( const Compound* compound )
-        { return visit( compound ); }
-    virtual Compound::VisitorResult visitLeaf( const Compound* compound )
-        { return visit( compound ); }
-
-    virtual Compound::VisitorResult visit( const Compound* compound )
-        { 
-            switch( compound->getLatestView( ))
-            {
-                case eq::View::TYPE_WALL:
-                case eq::View::TYPE_PROJECTION:
-                    _os << compound->getLatestView() << compound->getWall()
-                        << compound->getProjection();
-
-                case eq::View::TYPE_NONE:
-                    break;
-                default:
-                    EQUNIMPLEMENTED;
-            }
-
-            return Compound::TRAVERSE_CONTINUE; 
-        }
-
-private:
-    net::DataOStream& _os;
-};
-}
-
-void Config::Distributor::getInstanceData( net::DataOStream& os )
-{
-    os << _config->_latency;
-
-    ViewSerializer        serializer( os );
-    const CompoundVector& compounds = _config->getCompounds();
-
-    for( CompoundVector::const_iterator i = compounds.begin(); 
-         i != compounds.end(); ++i )
+    // map views to appNode master instances
+    ViewMapper mapper( packet->nViews, packet->viewIDs );
+    for( CompoundVector::const_iterator i = _compounds.begin();
+         i != _compounds.end(); ++i )
     {
-        const Compound* compound = *i;
-        compound->accept( &serializer, false /* activeOnly */ );
+        Compound* compound = *i;
+        compound->accept( &mapper, false /* activeOnly */ );
     }
 
-    os << eq::View::TYPE_NONE; // end token
-
-#ifdef EQ_TRANSMISSION_API
-#  error TODO transmit node identifiers of used nodes
-#endif
+    return net::COMMAND_HANDLED;
 }
 
 ostream& operator << ( ostream& os, const Config* config )

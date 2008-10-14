@@ -117,7 +117,16 @@ namespace eq
             { return _sharedContextWindow; }
 
 
-        /**
+        /** 
+         * Get the GLEW context for this window.
+         * 
+         * The glew context is initialized during window initialization, and
+         * provides access to OpenGL extensions. This function does not follow
+         * the Equalizer naming conventions, since GLEW uses a function of this
+         * name to automatically resolve OpenGL function entry
+         * points. Therefore, any supported GL function can be called directly
+         * from an initialized Window.
+         * 
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
