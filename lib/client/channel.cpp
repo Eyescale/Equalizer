@@ -703,6 +703,9 @@ net::CommandResult Channel::_cmdFrameStart( net::Command& command )
     EQVERB << "handle channel frame start " << packet << endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
+    if( _view )
+        _view->sync( packet->viewVersion );
+
     frameStart( packet->frameID, packet->frameNumber );
 
     return net::COMMAND_HANDLED;

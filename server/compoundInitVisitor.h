@@ -20,15 +20,8 @@ namespace server
         CompoundInitVisitor();
         virtual ~CompoundInitVisitor() {}
 
-        /** Visit a non-leaf compound on the down traversal. */
-        virtual Compound::VisitorResult visitPre( Compound* compound )
-            { return _visit( compound ); }
-        /** Visit a leaf compound. */
-        virtual Compound::VisitorResult visitLeaf( Compound* compound )
-            { return _visit( compound ); }
-
-    private:
-        Compound::VisitorResult _visit( Compound* compound );
+        /** Visit all compounds. */
+        virtual Compound::VisitorResult visit( Compound* compound );
     };
 }
 }

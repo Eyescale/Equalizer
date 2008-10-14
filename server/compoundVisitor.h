@@ -25,12 +25,16 @@ namespace server
 
         /** Visit a non-leaf compound on the down traversal. */
         virtual Compound::VisitorResult visitPre( Compound* compound )
-            { return Compound::TRAVERSE_CONTINUE; }
+            { return visit( compound ); }
         /** Visit a leaf compound. */
         virtual Compound::VisitorResult visitLeaf( Compound* compound )
-            { return Compound::TRAVERSE_CONTINUE; }
+            { return visit( compound ); }
         /** Visit a non-leaf compound on the up traversal. */
         virtual Compound::VisitorResult visitPost( Compound* compound )
+            { return Compound::TRAVERSE_CONTINUE; }
+
+        /** Visit every compound on the down traversal. */
+        virtual Compound::VisitorResult visit( Compound* compound )
             { return Compound::TRAVERSE_CONTINUE; }
     };
 }

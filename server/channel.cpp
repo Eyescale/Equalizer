@@ -59,7 +59,7 @@ private:
 void Channel::_construct()
 {
     _used             = 0;
-    _viewID           = EQ_ID_INVALID;
+    _view             = 0;
     _window           = 0;
     _fixedPVP         = false;
     _lastDrawCompound = 0;
@@ -262,7 +262,7 @@ void Channel::_sendConfigInit( const uint32_t initID )
 
     eq::ChannelConfigInitPacket packet;
     packet.initID     = initID;
-    packet.viewID     = _viewID;
+    packet.viewID     = _view ? _view->getID() : EQ_ID_INVALID;
     packet.color      = _getUniqueColor();
     if( _fixedPVP )
         packet.pvp    = _pvp; 
@@ -333,6 +333,8 @@ void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     eq::ChannelFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
+    startPacket.viewVersion = _view ? _view->getVersion() : EQ_ID_INVALID;
+
     send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK channel start frame  " << &startPacket
                            << endl;

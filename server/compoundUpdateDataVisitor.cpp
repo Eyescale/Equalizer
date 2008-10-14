@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "compoundUpdateDataVisitor.h"
@@ -18,10 +18,15 @@ CompoundUpdateDataVisitor::CompoundUpdateDataVisitor(
         : _frameNumber( frameNumber )
 {}
 
-Compound::VisitorResult CompoundUpdateDataVisitor::visitLeaf(
+Compound::VisitorResult CompoundUpdateDataVisitor::visit(
     Compound* compound )
 {
     compound->fireUpdatePre( _frameNumber );
+
+    eq::View& view = compound->getView();
+    if( view.getID() != EQ_ID_INVALID )
+        view.sync();
+
     compound->updateInheritData( _frameNumber );
     _updateDrawFinish( compound );
     return Compound::TRAVERSE_CONTINUE;    

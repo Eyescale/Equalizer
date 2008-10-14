@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "compoundExitVisitor.h"
@@ -18,7 +18,7 @@ namespace server
 CompoundExitVisitor::CompoundExitVisitor()
 {}
 
-Compound::VisitorResult CompoundExitVisitor::visitLeaf( Compound* compound )
+Compound::VisitorResult CompoundExitVisitor::visit( Compound* compound )
 {
     Config* config = compound->getConfig();
     EQASSERT( config );
@@ -44,7 +44,7 @@ Compound::VisitorResult CompoundExitVisitor::visitLeaf( Compound* compound )
     if( channel )
     {
         channel->unrefUsed();
-        channel->setViewID( EQ_ID_INVALID );
+        channel->setView( 0 );
     }
     return Compound::TRAVERSE_CONTINUE;    
 }

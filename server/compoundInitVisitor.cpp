@@ -18,7 +18,7 @@ namespace server
 CompoundInitVisitor::CompoundInitVisitor()
 {}
 
-Compound::VisitorResult CompoundInitVisitor::_visit( Compound* compound )
+Compound::VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
     Channel* channel = compound->getChannel();
     if( channel )
@@ -28,10 +28,12 @@ Compound::VisitorResult CompoundInitVisitor::_visit( Compound* compound )
     {
         const eq::View& view = compound->getView();
         EQASSERT( view.getID() != EQ_ID_INVALID );
-        EQASSERTINFO( channel->getViewID() == EQ_ID_INVALID,
+        EQASSERTINFO( !channel->getView(),
                       "Multiple views per channel are not supported" );
-        channel->setViewID( view.getID( ));
+        channel->setView( &view );
     }
+    else
+        channel->setView( 0 );
 
     Config*        config  = compound->getConfig();
     const uint32_t latency = config->getLatency();
