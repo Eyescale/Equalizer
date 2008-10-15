@@ -213,11 +213,11 @@ namespace eq
         /** 
          * Process a received event.
          *
-         * The task of this method is to update the window as necessary, and 
+         * The task of this method is to update the channel as necessary, and 
          * transform the event into an config event to be send to the 
          * application using Config::sendEvent().
          * 
-         * @param event the received window system event.
+         * @param event the received event.
          * @return true when the event was handled, false if not.
          */
         virtual bool processEvent( const Event& event );
@@ -436,6 +436,9 @@ namespace eq
         /** The native viewport. */
         Viewport       _vp;
 
+        /** true if the pvp is immutable, false if the vp is immutable */
+        bool _fixedPVP;
+
         /** The native perspective ('identity') frustum. */
         vmml::Frustumf  _frustum;
 
@@ -469,6 +472,9 @@ namespace eq
          * @param pvp the viewport in pixels.
          */
         void _setPixelViewport( const PixelViewport& pvp );
+
+        /** Notification of window pvp change. */
+        void _notifyViewportChanged();
 
         /** Setup the current rendering context. */
         void _setRenderContext( RenderContext& context );

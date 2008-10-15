@@ -96,8 +96,6 @@ void Global::_setupDefaults()
     // compound
     for( int i=0; i<Compound::IATTR_ALL; ++i )
         _compoundIAttributes[i] = eq::UNDEFINED;
-
-    _compoundIAttributes[Compound::IATTR_UPDATE_FOV] = eq::HORIZONTAL;
 }
 
 void Global::_readEnvironment()
@@ -297,7 +295,6 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         switch( i )
         {
             case Compound::IATTR_STEREO_MODE:
-            case Compound::IATTR_UPDATE_FOV:
                 os << static_cast<eq::IAttrValue>( value ) << endl;
                 break;
 

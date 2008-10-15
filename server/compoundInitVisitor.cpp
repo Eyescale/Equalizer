@@ -22,18 +22,20 @@ Compound::VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
     Channel* channel = compound->getChannel();
     if( channel )
+    {
         channel->refUsed();
 
-    if( channel && compound->getLatestView() != eq::View::TYPE_NONE )
-    {
-        const eq::View& view = compound->getView();
-        EQASSERT( view.getID() != EQ_ID_INVALID );
-        EQASSERTINFO( !channel->getView(),
-                      "Multiple views per channel are not supported" );
-        channel->setView( &view );
+        if( compound->getLatestView() == eq::View::TYPE_NONE )
+            channel->setView( 0 );
+        else
+        {
+            const eq::View& view = compound->getView();
+            EQASSERT( view.getID() != EQ_ID_INVALID );
+            EQASSERTINFO( !channel->getView(),
+                          "Multiple views per channel are not supported" );
+            channel->setView( &view );
+        }
     }
-    else
-        channel->setView( 0 );
 
     Config*        config  = compound->getConfig();
     const uint32_t latency = config->getLatency();

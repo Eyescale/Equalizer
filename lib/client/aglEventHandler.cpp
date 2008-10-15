@@ -116,7 +116,7 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, AGLWindowIF* osWindow)
                                typeQDRectangle, 0, sizeof( rect ), 0, 
                                &rect );
 
-            windowEvent.type = Event::RESIZE;
+            windowEvent.type = Event::WINDOW_RESIZE;
             windowEvent.resize.x = rect.top;
             windowEvent.resize.y = rect.left;
             windowEvent.resize.h = rect.bottom - rect.top;

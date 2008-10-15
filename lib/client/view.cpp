@@ -34,6 +34,13 @@ View::~View()
     _data.current = TYPE_NONE;
 }
 
+View& View::operator = ( const View& view )
+{
+    _data  = view._data;
+    _dirty = true;
+    return *this;
+}
+
 void View::getInstanceData( net::DataOStream& os )
 {
     os.writeOnce( &_data, sizeof( _data )); 

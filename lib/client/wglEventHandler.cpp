@@ -177,7 +177,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         case WM_SHOWWINDOW:
         case WM_WINDOWPOSCHANGED:
         {
-            event.type = Event::RESIZE;
+            event.type = Event::WINDOW_RESIZE;
 
             RECT rect;
             GetClientRect( hWnd, &rect );

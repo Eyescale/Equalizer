@@ -189,6 +189,11 @@ void Window::setPixelViewport( const PixelViewport& pvp )
     packet.pvp = pvp;
     net::NodePtr node = RefPtr_static_cast< Server, net::Node >( getServer( ));
     send( node, packet );
+
+    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
+
+        (*i)->_notifyViewportChanged();
 }
 
 bool Window::_setPixelViewport( const PixelViewport& pvp )
@@ -473,7 +478,7 @@ bool Window::processEvent( const Event& event )
     ConfigEvent configEvent;
     switch( event.type )
     {
-        case Event::RESIZE:
+        case Event::WINDOW_RESIZE:
             setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
                                              event.resize.w, event.resize.h ));
             return true;

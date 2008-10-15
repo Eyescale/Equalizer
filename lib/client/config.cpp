@@ -421,9 +421,86 @@ bool Config::handleEvent( const ConfigEvent* event )
             
             return true;
         }
+
+        case Event::VIEW_RESIZE:
+            handleViewResize( event->data.originator,
+                              vmml::Vector2i( event->data.resize.w, 
+                                              event->data.resize.h ));
+            return true;
     }
 
     return false;
+}
+
+void Config::handleViewResize( const uint32_t viewID,
+                               const vmml::Vector2i& newSize )
+{
+    net::IDHash< BaseView >::const_iterator i = _baseViews.find( viewID );
+
+    if( i == _baseViews.end( )) // new view, save base data
+    {
+        // find view
+        for( ViewVector::const_iterator j = _views.begin(); 
+             j != _views.end(); ++j )
+        {
+            View* view = *j;
+            if( view->getID() != viewID )
+                continue;
+            
+            // found view, save data
+            BaseView& baseView = _baseViews[ viewID ];
+            baseView.view = view;
+            baseView.base = *view;
+            baseView.size = newSize;
+            return;
+        }
+
+        EQWARN << "View " << viewID << " not found" << endl;
+        EQUNREACHABLE;
+        return;
+    }
+    
+    const BaseView&       baseView = i->second;
+    View*                 view     = baseView.view;
+    const vmml::Vector2i& baseSize = baseView.size;
+
+    switch( view->getCurrentType( ))
+    {
+        case View::TYPE_WALL:
+        {
+            const float newAR = static_cast< float >( newSize.x ) /
+                                static_cast< float >( newSize.y );
+            const float initAR = static_cast< float >( baseSize.x ) /
+                                 static_cast< float >( baseSize.y );
+            const float ratio  = newAR / initAR;
+
+            Wall wall( baseView.base.getWall( ));
+            wall.resizeHorizontal( ratio );
+            view->setWall( wall );
+            break;
+        }
+
+        case View::TYPE_PROJECTION:
+        {
+            const float newAR = static_cast< float >( newSize.x ) /
+                                static_cast< float >( newSize.y );
+            const float initAR = static_cast< float >( baseSize.x ) /
+                                 static_cast< float >( baseSize.y );
+            const float ratio  = newAR / initAR;
+
+            eq::Projection projection( baseView.base.getProjection( ));
+            projection.resizeHorizontal( ratio );
+            view->setProjection( projection );
+            break;
+        }
+
+        case eq::View::TYPE_NONE:
+            EQUNREACHABLE;
+            break;
+        default:
+            EQUNIMPLEMENTED;
+            break;
+    }
 }
 
 void Config::_updateStatistics( const uint32_t finishedFrame )

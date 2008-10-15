@@ -207,7 +207,7 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event, Pipe* pipe )
                                    &event.resize.x, &event.resize.y,
                                    &child );
 
-            event.type = Event::RESIZE;
+            event.type = Event::WINDOW_RESIZE;
             event.resize.w = windowAttrs.width;
             event.resize.h = windowAttrs.height;
             break;

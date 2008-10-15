@@ -29,7 +29,6 @@ namespace eq
         View();
         View( const View& view );
         View( const Type& last, const Wall& wall, const Projection& projection);
-            
 
         virtual ~View();
 
@@ -55,6 +54,8 @@ namespace eq
 
         /** @return the type of the latest specified view. */
         Type getCurrentType() const { return _data.current; }
+
+        View& operator = ( const View& view );
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }

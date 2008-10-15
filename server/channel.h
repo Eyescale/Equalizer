@@ -24,7 +24,6 @@ class View;
 namespace server
 {
     class ChannelListener;
-    class PixelViewportListener;
 
     /**
      * The channel.
@@ -142,20 +141,6 @@ namespace server
          * The channel updates the viewport or pixel viewport accordingly. 
          */
         void notifyViewportChanged();
-
-        /** 
-         * Add a listener for pixel viewport changes of this channel.
-         * 
-         * @param listener the listener.
-         */
-        void addPVPListener( PixelViewportListener* listener );
-
-        /** 
-         * Remove a listener for pixel viewport changes of this channel.
-         * 
-         * @param listener the listener.
-         */
-        void removePVPListener( PixelViewportListener* listener );
 
         /** 
          * Set the channel's viewport wrt its parent pipe.
@@ -307,9 +292,6 @@ namespace server
         /** true if the pvp is immutable, false if the vp is immutable */
         bool _fixedPVP;
 
-        /** The listeners on pixel viewport changes */
-        std::vector< PixelViewportListener* > _pvpListeners;
-
         /** Frustum near plane. */
         float        _near;
         /** Frustum far plane. */
@@ -335,7 +317,6 @@ namespace server
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();
 
-        void _firePVPChanged();
         void _fireLoadData( const uint32_t frameNumber, const float startTime,
                             const float endTime /*, const float load */ );
 

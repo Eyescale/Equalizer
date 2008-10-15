@@ -10,6 +10,7 @@
 #include <eq/client/configVisitor.h>// nested enum
 #include <eq/client/matrix4.h>      // member
 #include <eq/client/types.h>        // typedefs
+#include <eq/client/view.h>         // member
 
 #include <eq/net/session.h>         // base class
 #include <eq/base/monitor.h>        // member
@@ -183,6 +184,15 @@ namespace eq
          *         <code>false</code> if not.
          */
         virtual bool handleEvent( const ConfigEvent* event );
+
+        /** 
+         * Updates a view, retaining its aspect ratio.
+         * 
+         * @param viewID the identifier of the view.
+         * @param newSize the new size, in pixels, of the view.
+         */
+        virtual void handleViewResize( const uint32_t viewID, 
+                                       const vmml::Vector2i& newSize );
         //*}
 
         /** Sets the head matrix according to the specified matrix.
@@ -265,6 +275,17 @@ namespace eq
 
         /** The views of the config. */
         ViewVector _views;
+        
+        /** Used for resizing views */
+        struct BaseView
+        {
+            View*          view;
+            View           base;
+            vmml::Vector2i size;
+        };
+
+        /** Unmodified view data. */
+        net::IDHash< BaseView > _baseViews;
 
         /** Helper class to distribute the config, which is a net::Session */
         class Distributor : public net::Object

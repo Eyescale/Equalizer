@@ -85,7 +85,7 @@ namespace eq
 
     struct ResizeEvent
     {
-        int32_t x; // relative to screen
+        int32_t x; // relative to parent
         int32_t y;
         int32_t w;
         int32_t h;
@@ -147,14 +147,19 @@ namespace eq
         enum Type // Also update string table in event.cpp
         {
             EXPOSE = 0,
-            RESIZE,
+            WINDOW_RESIZE,
+#ifdef EQ_USE_DEPRECATED
+            RESIZE = WINDOW_RESIZE,
+#endif
             POINTER_MOTION,
             POINTER_BUTTON_PRESS,
             POINTER_BUTTON_RELEASE,
             KEY_PRESS,
             KEY_RELEASE,
             WINDOW_CLOSE,
+            CHANNEL_RESIZE,
             STATISTIC,
+            VIEW_RESIZE,
             UNKNOWN,
             USER,
             ALL // must be last

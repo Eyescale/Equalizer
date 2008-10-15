@@ -355,8 +355,8 @@ global:
      }
      | EQTOKEN_COMPOUND_IATTR_UPDATE_FOV IATTR
      {
-         eq::server::Global::instance()->setCompoundIAttribute(
-             eq::server::Compound::IATTR_UPDATE_FOV, $2 );
+         EQWARN << "ignoring removed attribute EQ_COMPOUND_IATTR_UPDATE_FOV"
+                << std::endl;
      }
      | EQTOKEN_COMPOUND_IATTR_HINT_OFFSET IATTR
      {
@@ -689,7 +689,7 @@ compoundAttribute:
         { eqCompound->setIAttribute( 
                 eq::server::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); }
     | EQTOKEN_UPDATE_FOV IATTR
-        { eqCompound->setIAttribute(eq::server::Compound::IATTR_UPDATE_FOV, $2 ); }
+        { EQWARN << "ignoring removed attribute update_FOV" << std::endl; }
     | EQTOKEN_HINT_OFFSET IATTR
         { eqCompound->setIAttribute(eq::server::Compound::IATTR_HINT_OFFSET, $2 ); }
 

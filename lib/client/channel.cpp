@@ -28,13 +28,14 @@ namespace eq
 typedef net::CommandFunc<Channel> ChannelFunc;
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CHANNEL_") + #attr )
-std::string eq::Channel::_iAttributeStrings[IATTR_ALL] = {
+std::string Channel::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
 };
 
 Channel::Channel( Window* parent )
         : _window( parent )
         , _context( 0 )
+        , _fixedPVP( false )
         , _frustum( vmml::Frustumf::DEFAULT )
         , _ortho( vmml::Frustumf::DEFAULT )
         , _view( 0 )
@@ -74,9 +75,15 @@ Channel::~Channel()
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
-void eq::Channel::_setPixelViewport( const PixelViewport& pvp )
+void Channel::_setPixelViewport( const PixelViewport& pvp )
 {
-    if( _pvp == pvp || !pvp.hasArea( ))
+    EQASSERT( pvp.hasArea( ));
+    if( !pvp.hasArea( ))
+        return;
+
+    _fixedPVP = true;
+
+    if( _pvp == pvp && _vp.hasArea( ))
         return;
 
     _pvp = pvp;
@@ -92,11 +99,16 @@ void eq::Channel::_setPixelViewport( const PixelViewport& pvp )
     EQVERB << "Channel pvp set: " << _pvp << ":" << _vp << endl;
 }
 
-void eq::Channel::_setViewport( const Viewport& vp )
+void Channel::_setViewport( const Viewport& vp )
 {
     if( !vp.hasArea( ))
         return;
     
+    _fixedPVP = false;
+
+    if( _vp == vp && _pvp.hasArea( ))
+        return;
+
     _vp = vp;
     _pvp.invalidate();
 
@@ -109,12 +121,60 @@ void eq::Channel::_setViewport( const Viewport& vp )
         windowPVP.x = 0;
         windowPVP.y = 0;
         _pvp = windowPVP.getSubPVP( vp );
+
+        // send event
+        Event event;
+        event.type       = Event::CHANNEL_RESIZE;
+        event.originator = getID();
+        event.resize.x   = _pvp.x;
+        event.resize.y   = _pvp.y;
+        event.resize.w   = _pvp.w;
+        event.resize.h   = _pvp.h;
+
+        processEvent( event );
     }
 
     EQVERB << "Channel vp set: " << _pvp << ":" << _vp << endl;
 }
 
-void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
+void Channel::_notifyViewportChanged()
+{
+    if( !_window )
+        return;
+
+    eq::PixelViewport windowPVP = _window->getPixelViewport();
+    if( !windowPVP.hasArea( ))
+        return;
+
+    windowPVP.x = 0;
+    windowPVP.y = 0;
+
+    if( _fixedPVP ) // update viewport
+        _vp = _pvp.getSubVP( windowPVP );
+    else            // update pixel viewport
+    {
+        eq::PixelViewport pvp = windowPVP.getSubPVP( _vp );
+        if( _pvp == pvp )
+            return;
+
+        _pvp = pvp;
+
+        // send event
+        Event event;
+        event.type       = Event::CHANNEL_RESIZE;
+        event.originator = getID();
+        event.resize.x   = _pvp.x;
+        event.resize.y   = _pvp.y;
+        event.resize.w   = _pvp.w;
+        event.resize.h   = _pvp.h;
+
+        processEvent( event );
+    }
+
+    EQINFO << "Channel viewport update: " << _pvp << ":" << _vp << endl;
+}
+
+void Channel::setNearFar( const float nearPlane, const float farPlane )
 {
     _frustum.adjustNear( nearPlane );
     _frustum.farPlane = farPlane;
@@ -383,19 +443,31 @@ void Channel::applyHeadTransform() const
 
 bool Channel::processEvent( const Event& event )
 {
+    ConfigEvent configEvent;
+    configEvent.data = event;
+
     switch( event.type )
     {
         case Event::STATISTIC:
             break;
+
+        case Event::CHANNEL_RESIZE:
+        {
+            const View* view = getView();
+            if( !view )
+                return true;
+
+            // transform to view event, which is meaningful for the config 
+            configEvent.data.type       = Event::VIEW_RESIZE;
+            configEvent.data.originator = view->getID();
+            break;
+        }
 
         default:
             EQWARN << "Unhandled channel event of type " << event.type
                    << endl;
             EQUNIMPLEMENTED;
     }
-
-    ConfigEvent configEvent;
-    configEvent.data = event;
 
     Config* config = getConfig();
     config->sendEvent( configEvent );

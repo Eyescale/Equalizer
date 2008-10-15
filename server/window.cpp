@@ -226,10 +226,10 @@ void Window::notifyViewportChanged()
     }
     EQINFO << "Window viewport update: " << _pvp << ":" << _vp << endl;
 
-    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
-         iter != _channels.end(); ++iter )
+    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
 
-        (*iter)->notifyViewportChanged();
+        (*i)->notifyViewportChanged();
 }
 
 //---------------------------------------------------------------------------
@@ -240,10 +240,10 @@ void Window::_resetSwapBarriers()
     Node* node = getNode();
     EQASSERT( node );
 
-    for( vector<net::Barrier*>::iterator iter = _masterSwapBarriers.begin();
-         iter != _masterSwapBarriers.end(); ++iter )
+    for( vector<net::Barrier*>::iterator i = _masterSwapBarriers.begin();
+         i != _masterSwapBarriers.end(); ++i )
             
-        node->releaseBarrier( *iter );
+        node->releaseBarrier( *i );
 
     _masterSwapBarriers.clear();
     _swapBarriers.clear();
@@ -282,10 +282,10 @@ void Window::startConfigInit( const uint32_t initID )
     Config* config = getConfig();
     eq::WindowCreateChannelPacket createChannelPacket;
 
-    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
-         iter != _channels.end(); ++iter )
+    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
     {
-        Channel* channel = *iter;
+        Channel* channel = *i;
         if( channel->isUsed( ))
         {
             config->registerObject( channel );
@@ -316,10 +316,10 @@ void Window::_sendConfigInit( const uint32_t initID )
 bool Window::syncConfigInit()
 {
     bool success = true;
-    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
-         iter != _channels.end(); ++iter )
+    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
     {
-        Channel* channel = *iter;
+        Channel* channel = *i;
         if( channel->isUsed( ))
             if( !channel->syncConfigInit( ))
             {
@@ -348,10 +348,10 @@ void Window::startConfigExit()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
 
-    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
-         iter != _channels.end(); ++iter )
+    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
     {
-        Channel* channel = *iter;
+        Channel* channel = *i;
         if( channel->getState() == Channel::STATE_STOPPED )
             continue;
 
@@ -448,10 +448,10 @@ void Window::_updateSwap( const uint32_t frameNumber )
 {
     bool firstBarrier = false;
 
-    for( vector<net::Barrier*>::iterator iter = _swapBarriers.begin();
-         iter != _swapBarriers.end(); ++iter )
+    for( vector<net::Barrier*>::iterator i = _swapBarriers.begin();
+         i != _swapBarriers.end(); ++i )
     {
-        const net::Barrier*   barrier = *iter;
+        const net::Barrier*   barrier = *i;
         if( barrier->getHeight() <= 1 )
         {
             EQWARN << "Ignoring swap barrier of height " << barrier->getHeight()

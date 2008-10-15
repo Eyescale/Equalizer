@@ -22,13 +22,16 @@ namespace{
 static std::string _eventTypeNames[ Event::ALL ] =
 {
     "expose",
-    "resize",
+    "window resize",
     "pointer motion",
     "pointer button press",
     "pointer button release",
     "key press",
     "key release",
     "window close",
+    "channel resize",
+    "statistic",
+    "view resize",
     "unknown",
     "user-specific"
 };
@@ -68,7 +71,9 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
         case Event::WINDOW_CLOSE:
             break;
 
-        case Event::RESIZE:
+        case Event::WINDOW_RESIZE:
+        case Event::CHANNEL_RESIZE:
+        case Event::VIEW_RESIZE:
             os << event.resize;
             break;
 

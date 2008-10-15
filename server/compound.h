@@ -6,7 +6,6 @@
 #define EQSERVER_COMPOUND_H
 
 #include "channel.h"               // used in inline method
-#include "pixelViewportListener.h" // base class
 #include "view.h"                  // member
 #include "viewData.h"              // member
 
@@ -38,7 +37,7 @@ namespace server
     /**
      * The compound.
      */
-    class EQSERVER_EXPORT Compound : private PixelViewportListener
+    class EQSERVER_EXPORT Compound
     {
     public:
         /** 
@@ -113,7 +112,6 @@ namespace server
             IATTR_STEREO_MODE,
             IATTR_STEREO_ANAGLYPH_LEFT_MASK,
             IATTR_STEREO_ANAGLYPH_RIGHT_MASK,
-            IATTR_UPDATE_FOV,
             IATTR_HINT_OFFSET,
             IATTR_ALL
         };
@@ -453,8 +451,6 @@ namespace server
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
 
-        eq::PixelViewport _initialPVP;
-
         struct InheritData
         {
             InheritData();
@@ -497,9 +493,6 @@ namespace server
 
         void _fireChildAdded( Compound* child );
         void _fireChildRemove( Compound* child );
-
-        /** Channel pvp changed */
-        virtual void notifyPVPChanged( const eq::PixelViewport& pvp );
     };
 
     std::ostream& operator << ( std::ostream& os, const Compound* compound );

@@ -46,7 +46,6 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_STEREO_MODE ),
     MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_LEFT_MASK ),
     MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_RIGHT_MASK ),
-    MAKE_ATTR_STRING( IATTR_UPDATE_FOV ),
     MAKE_ATTR_STRING( IATTR_HINT_OFFSET )
 };
 
@@ -62,8 +61,7 @@ Compound::Compound()
 
 // copy constructor
 Compound::Compound( const Compound& from )
-        : PixelViewportListener()
-        , _name( from._name )
+        : _name( from._name )
         , _config( 0 )
         , _parent( 0 )
         , _data( from._data )
@@ -196,20 +194,7 @@ Node* Compound::getNode()
 
 void Compound::setChannel( Channel* channel )
 { 
-    if( _data.channel == channel )
-        return;
-    
-    if( _data.channel )
-        _data.channel->removePVPListener( this );
-    
     _data.channel = channel;
-    _initialPVP.invalidate();
-
-    if( channel )
-    {
-        channel->addPVPListener( this );
-        notifyPVPChanged( channel->getPixelViewport( ));
-    }
 }
 
 const Channel* Compound::getChannel() const
@@ -367,115 +352,13 @@ void Compound::_setDefaultFrameName( Frame* frame )
 void Compound::setWall( const eq::Wall& wall )
 {
     _view.setWall( wall );
-    _initialPVP.invalidate();
-
-    if( _data.channel )
-        notifyPVPChanged( _data.channel->getPixelViewport( ));
     EQVERB << "Wall: " << _data.viewData << endl;
 }
 
 void Compound::setProjection( const eq::Projection& projection )
 {
     _view.setProjection( projection );
-    _initialPVP.invalidate();
-
-    if( _data.channel )
-        notifyPVPChanged( _data.channel->getPixelViewport( ));
     EQVERB << "Projection: " << _data.viewData << endl;
-}
-
-void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
-{
-    const int32_t updateFOV = _inherit.iAttributes[ IATTR_UPDATE_FOV ];
-    if( updateFOV == eq::OFF || updateFOV == eq::UNDEFINED )
-        return;
-
-    if( _view.getCurrentType() == eq::View::TYPE_NONE )
-        return;
-
-    if( !_initialPVP.isValid( )) // no valid channel pvp: set initial values
-    {
-        _initialPVP = pvp;
-        return;
-    }
-    
-    switch( _view.getCurrentType( ))
-    {
-        case eq::View::TYPE_NONE:
-            EQUNREACHABLE;
-            return;
-
-        case eq::View::TYPE_WALL:
-            switch( updateFOV )
-            {
-                case eq::HORIZONTAL:
-                {
-                    const float newAR = static_cast< float >( pvp.w ) /
-                                        static_cast< float >( pvp.h );
-                    const float initAR = static_cast< float >( _initialPVP.w ) /
-                                         static_cast< float >( _initialPVP.h );
-                    const float ratio  = newAR / initAR;
-
-                    eq::Wall wall( _view.getWall( ));
-                    wall.resizeHorizontal( ratio );
-                    _data.viewData.applyWall( wall );
-                    break;
-                }
-                case eq::VERTICAL:
-                {
-                    const float newAR = static_cast< float >( pvp.h ) /
-                                        static_cast< float >( pvp.w );
-                    const float initAR = static_cast< float >( _initialPVP.h ) /
-                                         static_cast< float >( _initialPVP.w );
-                    const float ratio  = newAR / initAR;
-
-                    eq::Wall wall( _view.getWall( ));
-                    wall.resizeVertical( ratio );
-                    _data.viewData.applyWall( wall );
-                    break;
-                }
-                default:
-                    EQUNIMPLEMENTED;
-            }
-            break;
-
-        case eq::View::TYPE_PROJECTION:
-            switch( updateFOV )
-            {
-                case eq::HORIZONTAL:
-                {
-                    const float newAR = static_cast< float >( pvp.w ) /
-                                        static_cast< float >( pvp.h );
-                    const float initAR = static_cast< float >( _initialPVP.w ) /
-                                         static_cast< float >( _initialPVP.h );
-                    const float ratio  = newAR / initAR;
-
-                    eq::Projection projection( _view.getProjection( ));
-                    projection.resizeHorizontal( ratio );
-                    _data.viewData.applyProjection( projection );
-                    break;
-                }
-                case eq::VERTICAL:
-                {
-                    const float newAR = static_cast< float >( pvp.h ) /
-                                        static_cast< float >( pvp.w );
-                    const float initAR = static_cast< float >( _initialPVP.h ) /
-                                         static_cast< float >( _initialPVP.w );
-                    const float ratio  = newAR / initAR;
-
-                    eq::Projection projection( _view.getProjection( ));
-                    projection.resizeVertical( ratio );
-                    _data.viewData.applyProjection( projection );
-                    break;
-                }
-                default:
-                    EQUNIMPLEMENTED;
-            }
-            break;
-
-        default:
-            EQUNIMPLEMENTED;
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -686,9 +569,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] =
                 COLOR_MASK_GREEN | COLOR_MASK_BLUE;
-
-        if( _inherit.iAttributes[IATTR_UPDATE_FOV] == eq::UNDEFINED )
-            _inherit.iAttributes[IATTR_UPDATE_FOV] = eq::HORIZONTAL;
     }
     else
     {
@@ -743,10 +623,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] !=eq::UNDEFINED)
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] = 
                 _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
-
-        if( _data.iAttributes[IATTR_UPDATE_FOV] != eq::UNDEFINED )
-            _inherit.iAttributes[IATTR_UPDATE_FOV] =
-                _data.iAttributes[IATTR_UPDATE_FOV];
     }
 
     if( _inherit.pvp.isValid( ))
