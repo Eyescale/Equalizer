@@ -54,7 +54,7 @@ namespace server
                               eq::RenderContext& context );
         void   _computeFrustumCorners( vmml::Frustumf& frustum,
                                        const Compound* compound,
-                                       const View& view,
+                                       const ViewData& viewData,
                                        const vmml::Vector3f& eye,
                                        const bool ortho );
         void _updatePostDraw( const Compound* compound, 

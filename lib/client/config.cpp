@@ -239,7 +239,7 @@ uint32_t Config::startFrame( const uint32_t frameID )
     // Commit view changes
     for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
         (*i)->commit();
-        
+
     // Request new frame
     ConfigStartFramePacket packet;
     packet.requestID = _requestHandler.registerRequest();

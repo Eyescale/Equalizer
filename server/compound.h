@@ -8,6 +8,7 @@
 #include "channel.h"               // used in inline method
 #include "pixelViewportListener.h" // base class
 #include "view.h"                  // member
+#include "viewData.h"              // member
 
 #include <eq/client/colorMask.h>
 #include <eq/client/frame.h>
@@ -16,7 +17,6 @@
 #include <eq/client/projection.h>
 #include <eq/client/range.h>
 #include <eq/client/renderContext.h>
-#include <eq/client/view.h>
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
 #include <eq/base/thread.h>
@@ -308,15 +308,15 @@ namespace server
         const eq::PixelViewport& getInheritPixelViewport() const 
             { return _inherit.pvp; }
         const eq::Viewport& getInheritViewport() const { return _inherit.vp; }
-        const eq::Range& getInheritRange()    const { return _inherit.range; }
-        const eq::Pixel&  getInheritPixel()   const { return _inherit.pixel; }
-        uint32_t getInheritTask()             const { return _inherit.tasks; }
+        const eq::Range& getInheritRange()   const { return _inherit.range; }
+        const eq::Pixel&  getInheritPixel()  const { return _inherit.pixel; }
+        uint32_t getInheritTask()            const { return _inherit.tasks; }
         int32_t  getInheritIAttribute( const IAttribute attr ) const
             { return _inherit.iAttributes[attr]; }
-        const View& getInheritView()       const { return _inherit.view; }
-        uint32_t getInheritTasks()         const { return _inherit.tasks; }
-        uint32_t getInheritEyes()          const { return _inherit.eyes; }
-        const Channel* getInheritChannel() const { return _inherit.channel; }
+        const ViewData& getInheritViewData() const { return _inherit.viewData; }
+        uint32_t getInheritTasks()           const { return _inherit.tasks; }
+        uint32_t getInheritEyes()            const { return _inherit.eyes; }
+        const Channel* getInheritChannel()   const { return _inherit.channel; }
 
         /** @return true if the task is set, false if not. */
         bool testInheritTask( const Task task ) const
@@ -453,8 +453,6 @@ namespace server
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
 
-        eq::View _view;
-
         eq::PixelViewport _initialPVP;
 
         struct InheritData
@@ -466,7 +464,7 @@ namespace server
             eq::PixelViewport pvp;
             eq::Range         range;
             eq::Pixel         pixel;
-            View              view;
+            ViewData          viewData;
             uint32_t          buffers;
             uint32_t          eyes;
             uint32_t          tasks;
@@ -478,6 +476,9 @@ namespace server
 
         InheritData _data;
         InheritData _inherit;
+
+        /** The view description of this compound. */
+        View _view;
 
         typedef std::vector< CompoundListener* > CompoundListeners;
         CompoundListeners _listeners;

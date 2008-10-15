@@ -263,17 +263,17 @@ eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
 void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
                                             eq::RenderContext& context )
 {
-    const View&    view        = compound->getInheritView();
-    const Config*  config      = _channel->getConfig();
+    const ViewData& viewData = compound->getInheritViewData();
+    const Config*   config   = _channel->getConfig();
 
     // compute eye position in screen space
     const vmml::Vector3f& eyeW = config->getEyePosition( _eye );
-    const vmml::Matrix4f& xfm  = view.xfm;
+    const vmml::Matrix4f& xfm  = viewData.xfm;
     const vmml::Vector3f  eye  = xfm * eyeW;
 
     // compute perspective and orthographic frustra from size and eye position
-    _computeFrustumCorners( context.frustum, compound, view, eye, false );
-    _computeFrustumCorners( context.ortho,   compound, view, eye, true );
+    _computeFrustumCorners( context.frustum, compound, viewData, eye, false );
+    _computeFrustumCorners( context.ortho,   compound, viewData, eye, true );
 
     // compute head transform
     // headTransform = -trans(eye) * view matrix (frustum position)
@@ -289,7 +289,7 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
 
 void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
                                                    const Compound* compound,
-                                                   const View& view, 
+                                                   const ViewData& viewData, 
                                                    const vmml::Vector3f& eye,
                                                    const bool ortho )
 {
@@ -300,17 +300,17 @@ void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
 
     if( eye[2] > 0 || ortho )
     {
-        frustum.left   =  ( -view.width*0.5f  - eye[0] ) * ratio;
-        frustum.right  =  (  view.width*0.5f  - eye[0] ) * ratio;
-        frustum.bottom =  ( -view.height*0.5f - eye[1] ) * ratio;
-        frustum.top    =  (  view.height*0.5f - eye[1] ) * ratio;
+        frustum.left   =  ( -viewData.width*0.5f  - eye[0] ) * ratio;
+        frustum.right  =  (  viewData.width*0.5f  - eye[0] ) * ratio;
+        frustum.bottom =  ( -viewData.height*0.5f - eye[1] ) * ratio;
+        frustum.top    =  (  viewData.height*0.5f - eye[1] ) * ratio;
     }
     else // eye behind near plane - 'mirror' x
     {
-        frustum.left   =  (  view.width*0.5f  - eye[0] ) * ratio;
-        frustum.right  =  ( -view.width*0.5f  - eye[0] ) * ratio;
-        frustum.bottom =  (  view.height*0.5f + eye[1] ) * ratio;
-        frustum.top    =  ( -view.height*0.5f + eye[1] ) * ratio;
+        frustum.left   =  (  viewData.width*0.5f  - eye[0] ) * ratio;
+        frustum.right  =  ( -viewData.width*0.5f  - eye[0] ) * ratio;
+        frustum.bottom =  (  viewData.height*0.5f + eye[1] ) * ratio;
+        frustum.top    =  ( -viewData.height*0.5f + eye[1] ) * ratio;
     }
 
     // move frustum according to pixel decomposition

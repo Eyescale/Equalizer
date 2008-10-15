@@ -64,6 +64,9 @@ namespace eq
 
         /** @return the global time in ms. */
         int64_t getTime() const { return _clock.getTime64(); }
+
+        /** @return the View list of this config. */
+        const ViewVector& getViews() { return _views; }
         //*}
 
         /** 

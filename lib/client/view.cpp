@@ -17,11 +17,9 @@ View::View()
 
 View::View( const View& view )
         : net::Object()
+        , _data( view._data )
         , _dirty( false )
 {
-    _data.wall       = view._data.wall;
-    _data.projection = view._data.projection;
-    _data.current    = view._data.current;
 }
 
 View::View( const Type& last, const Wall& wall, const Projection& projection )

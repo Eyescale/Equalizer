@@ -27,6 +27,7 @@
 #include <eq/client/pipe.h>
 #include <eq/client/server.h>
 #include <eq/client/version.h>
+#include <eq/client/view.h>
 #include <eq/client/windowSystem.h>
 
 #ifdef AGL

@@ -25,6 +25,7 @@ CXXFILES = \
 	startLocalServer.cpp \
 	swapBarrier.cpp \
 	view.cpp \
+	viewData.cpp \
 	window.cpp
 
 SIMPLE_CXXFILES = \

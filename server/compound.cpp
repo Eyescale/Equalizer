@@ -53,6 +53,7 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
 Compound::Compound()
         : _config( 0 )
         , _parent( 0 )
+        , _view( _data.viewData )
         , _loadBalancer( 0 )
         , _swapBarrier( 0 )
 {
@@ -65,12 +66,11 @@ Compound::Compound( const Compound& from )
         , _name( from._name )
         , _config( 0 )
         , _parent( 0 )
-        , _view( from._view )
         , _data( from._data )
+        , _view( from._view, _data.viewData )
         , _loadBalancer( 0 )
         , _swapBarrier( from._swapBarrier )
 {
-
     if( from._loadBalancer )
         setLoadBalancer( new LoadBalancer( *from._loadBalancer ));
 
@@ -367,43 +367,39 @@ void Compound::_setDefaultFrameName( Frame* frame )
 void Compound::setWall( const eq::Wall& wall )
 {
     _view.setWall( wall );
-    _data.view.applyWall( wall );
-
     _initialPVP.invalidate();
 
     if( _data.channel )
         notifyPVPChanged( _data.channel->getPixelViewport( ));
-    EQVERB << "Wall: " << _data.view << endl;
+    EQVERB << "Wall: " << _data.viewData << endl;
 }
 
 void Compound::setProjection( const eq::Projection& projection )
 {
     _view.setProjection( projection );
-    _data.view.applyProjection( projection );
-
     _initialPVP.invalidate();
 
     if( _data.channel )
         notifyPVPChanged( _data.channel->getPixelViewport( ));
-    EQVERB << "Projection: " << _data.view << endl;
+    EQVERB << "Projection: " << _data.viewData << endl;
 }
 
 void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
 {
+    const int32_t updateFOV = _inherit.iAttributes[ IATTR_UPDATE_FOV ];
+    if( updateFOV == eq::OFF || updateFOV == eq::UNDEFINED )
+        return;
+
+    if( _view.getCurrentType() == eq::View::TYPE_NONE )
+        return;
+
     if( !_initialPVP.isValid( )) // no valid channel pvp: set initial values
     {
         _initialPVP = pvp;
         return;
     }
-
-    if( !_data.view.isValid( ))
-        return;
     
-    const int32_t updateFOV = _inherit.iAttributes[ IATTR_UPDATE_FOV ];
-    if( updateFOV == eq::OFF || updateFOV == eq::UNDEFINED )
-        return;
-
-    switch( getLatestView( ))
+    switch( _view.getCurrentType( ))
     {
         case eq::View::TYPE_NONE:
             EQUNREACHABLE;
@@ -422,7 +418,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
 
                     eq::Wall wall( _view.getWall( ));
                     wall.resizeHorizontal( ratio );
-                    _data.view.applyWall( wall );
+                    _data.viewData.applyWall( wall );
                     break;
                 }
                 case eq::VERTICAL:
@@ -435,7 +431,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
 
                     eq::Wall wall( _view.getWall( ));
                     wall.resizeVertical( ratio );
-                    _data.view.applyWall( wall );
+                    _data.viewData.applyWall( wall );
                     break;
                 }
                 default:
@@ -456,7 +452,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
 
                     eq::Projection projection( _view.getProjection( ));
                     projection.resizeHorizontal( ratio );
-                    _data.view.applyProjection( projection );
+                    _data.viewData.applyProjection( projection );
                     break;
                 }
                 case eq::VERTICAL:
@@ -469,7 +465,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
 
                     eq::Projection projection( _view.getProjection( ));
                     projection.resizeVertical( ratio );
-                    _data.view.applyProjection( projection );
+                    _data.viewData.applyProjection( projection );
                     break;
                 }
                 default:
@@ -701,8 +697,8 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if( !_inherit.channel )
             _inherit.channel = _data.channel;
     
-        if( _data.view.isValid( ))
-            _inherit.view = _data.view;
+        if( _data.viewData.isValid( ))
+            _inherit.viewData = _data.viewData;
         
         _inherit.range.apply( _data.range );
         _inherit.pixel.apply( _data.pixel );

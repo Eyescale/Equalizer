@@ -1,42 +1,42 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_VIEW_H
 #define EQSERVER_VIEW_H
 
-#include <eq/base/base.h>
-#include <vmmlib/matrix4.h>
+#include <eq/client/view.h> // base class
 
 namespace eq
 {
-    class Projection;
-    class Wall;
-
 namespace server
 {
+    struct ViewData;
+
     /** 
-     * A generic view definition
-     *
-     * The view is defined by the size of the viewport and a
-     * transformation matrix.
-     * @todo better doc
+     * Extends the eq::View to update server-side generic view data.
      */
-    struct View
+    class View : public eq::View
     {
-        View() : width(0.f), height(0.f) {}
+    public:
+        View( ViewData& data );
+        View( const View& from, ViewData& data );
+        virtual ~View(){}
+        
+        /** Set the view using a wall description. */
+        void setWall( const eq::Wall& wall );
+        
+        /** Set the view using a projection description. */
+        void setProjection( const eq::Projection& projection );
 
-        bool isValid() const { return (width!=0.f && height!=0.f); }
+    protected:
+        virtual void applyInstanceData( net::DataIStream& is );
 
-        void applyProjection( const eq::Projection& projection );
-        void applyWall( const eq::Wall& wall );
+    private:
+        ViewData& _data;
 
-        float width;
-        float height;
-        vmml::Matrix4f xfm;
+        void _updateData();
     };
-
-    std::ostream& operator << ( std::ostream& os, const View& view ); 
 }
 }
 #endif // EQ_VIEW_H
