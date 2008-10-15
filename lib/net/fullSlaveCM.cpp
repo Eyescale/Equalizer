@@ -68,13 +68,13 @@ void FullSlaveCM::makeThreadSafe()
     _mutex = new Lock;
 }
 
-bool FullSlaveCM::sync( const uint32_t version )
+uint32_t FullSlaveCM::sync( const uint32_t version )
 {
     EQLOG( LOG_OBJECTS ) << "sync to v" << version << ", id " 
                          << _object->getID() << "." << _object->getInstanceID()
                          << endl;
     if( _version == version )
-        return true;
+        return _version;
 
     if( !_mutex )
         CHECK_THREAD( _thread );
@@ -84,7 +84,7 @@ bool FullSlaveCM::sync( const uint32_t version )
     if( version == Object::VERSION_HEAD )
     {
         _syncToHead();
-        return true;
+        return _version;
     }
 
     EQASSERTINFO( _version <= version, "can't sync to older version of object");
@@ -99,7 +99,7 @@ bool FullSlaveCM::sync( const uint32_t version )
     }
 
     _object->getLocalNode()->flushCommands();
-    return true;
+    return _version;
 }
 
 void FullSlaveCM::_syncToHead()

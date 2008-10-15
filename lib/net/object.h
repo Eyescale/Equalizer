@@ -164,10 +164,9 @@ namespace net
          * 
          * @param version the version to synchronize, must be bigger than the
          *                current version.
-         * @return <code>true</code> if the version was synchronized,
-         *         <code>false</code> if not.
+         * @return the version of the object after the operation.
          */
-        bool sync( const uint32_t version = VERSION_HEAD
+        uint32_t sync( const uint32_t version = VERSION_HEAD
                    /*, const float timeout = EQ_TIMEOUT_INDEFINITE*/ )
             { return _cm->sync( version ); }
 

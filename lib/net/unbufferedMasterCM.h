@@ -48,7 +48,8 @@ namespace net
         
         virtual uint32_t getAutoObsoleteCount() const { return 0; }
 
-        virtual bool sync( const uint32_t version ){ EQDONTCALL; return false; }
+        virtual uint32_t sync( const uint32_t version )
+            { EQDONTCALL; return _version; }
 
         virtual uint32_t getHeadVersion() const { return _version; }
         virtual uint32_t getVersion() const     { return _version; }

@@ -87,10 +87,9 @@ namespace net
          *
          * @param version the version to synchronize, must be bigger than the
          *                current version.
-         * @return <code>true</code> if the version was synchronized,
-         *         <code>false</code> if not.
+         * @return the version of the object after the operation.
          */
-        virtual bool sync( const uint32_t version ) = 0;
+        virtual uint32_t sync( const uint32_t version ) = 0;
 
         /** @return the latest available (head) version. */
         virtual uint32_t getHeadVersion() const = 0;
