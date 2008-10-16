@@ -97,6 +97,8 @@ Compound::~Compound()
         _loadBalancer = 0;
     }
 
+    EQASSERT( _view.getID() == EQ_ID_INVALID );
+
     if( _config )
         _config->removeCompound( this );
 

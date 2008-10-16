@@ -340,6 +340,9 @@ namespace eq
         /** Init the application node instance */
         void _initAppNode( const uint32_t distributorID );
 
+        /** Exit the application node instance */
+        void _exitAppNode();
+
         /** The command functions. */
         net::CommandResult _cmdStartClock( net::Command& command );
         net::CommandResult _cmdCreateNode( net::Command& command );

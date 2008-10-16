@@ -35,6 +35,92 @@ std::string Config::_fAttributeStrings[FATTR_ALL] =
     MAKE_ATTR_STRING( FATTR_EYE_BASE )
 };
 
+
+namespace
+{
+class ViewMapper : public CompoundVisitor
+{
+public:
+    
+    ViewMapper( const uint32_t nViews, const uint32_t* viewIDs ) 
+            : _current( 0 ), _nViews( nViews ), _viewIDs( viewIDs ) {}
+    virtual ~ViewMapper(){}
+
+    virtual Compound::VisitorResult visitPre( Compound* compound )
+        { return visit( compound ); }
+    virtual Compound::VisitorResult visitLeaf( Compound* compound )
+        { return visit( compound ); }
+
+    virtual Compound::VisitorResult visit( Compound* compound )
+        { 
+            switch( compound->getLatestView( ))
+            {
+                case eq::View::TYPE_WALL:
+                case eq::View::TYPE_PROJECTION:
+                {
+                    EQASSERT( _current < _nViews );
+                    eq::View& view   = compound->getView();
+                    Config*   config = compound->getConfig();
+                    
+                    EQCHECK( config->mapObject( &view, _viewIDs[ _current ] ));
+                    ++_current;
+                    break;
+                }
+
+                case eq::View::TYPE_NONE:
+                    break;
+                default:
+                    EQUNIMPLEMENTED;
+            }
+
+            return Compound::TRAVERSE_CONTINUE; 
+        }
+
+private:
+    uint32_t        _current;
+    uint32_t        _nViews;
+    const uint32_t* _viewIDs;
+};
+
+class ViewUnmapper : public CompoundVisitor
+{
+public:
+    
+    ViewUnmapper() {}
+    virtual ~ViewUnmapper(){}
+
+    virtual Compound::VisitorResult visitPre( Compound* compound )
+        { return visit( compound ); }
+    virtual Compound::VisitorResult visitLeaf( Compound* compound )
+        { return visit( compound ); }
+
+    virtual Compound::VisitorResult visit( Compound* compound )
+        { 
+            switch( compound->getLatestView( ))
+            {
+                case eq::View::TYPE_WALL:
+                case eq::View::TYPE_PROJECTION:
+                {
+                    eq::View& view = compound->getView();
+                    if( view.getID() != EQ_ID_INVALID )
+                    {
+                        Config* config = compound->getConfig();
+                        config->unmapObject( &view );
+                    }
+                    break;
+                }
+
+                case eq::View::TYPE_NONE:
+                    break;
+                default:
+                    EQUNIMPLEMENTED;
+            }
+
+            return Compound::TRAVERSE_CONTINUE; 
+        }
+};
+}
+
 void Config::_construct()
 {
     _latency       = 1;
@@ -97,11 +183,13 @@ Config::~Config()
     _appNode    = 0;
     _appNetNode = 0;
 
+    ViewUnmapper unmapper;
     for( vector<Compound*>::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
 
+        compound->accept( &unmapper );
         compound->_config = 0;
         delete compound;
     }
@@ -802,92 +890,6 @@ net::CommandResult Config::_cmdStartInit( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-
-namespace
-{
-class ViewMapper : public CompoundVisitor
-{
-public:
-    
-    ViewMapper( const uint32_t nViews, const uint32_t* viewIDs ) 
-            : _current( 0 ), _nViews( nViews ), _viewIDs( viewIDs ) {}
-    virtual ~ViewMapper(){}
-
-    virtual Compound::VisitorResult visitPre( Compound* compound )
-        { return visit( compound ); }
-    virtual Compound::VisitorResult visitLeaf( Compound* compound )
-        { return visit( compound ); }
-
-    virtual Compound::VisitorResult visit( Compound* compound )
-        { 
-            switch( compound->getLatestView( ))
-            {
-                case eq::View::TYPE_WALL:
-                case eq::View::TYPE_PROJECTION:
-                {
-                    EQASSERT( _current < _nViews );
-                    eq::View& view   = compound->getView();
-                    Config*   config = compound->getConfig();
-                    
-                    EQCHECK( config->mapObject( &view, _viewIDs[ _current ] ));
-                    ++_current;
-                    break;
-                }
-
-                case eq::View::TYPE_NONE:
-                    break;
-                default:
-                    EQUNIMPLEMENTED;
-            }
-
-            return Compound::TRAVERSE_CONTINUE; 
-        }
-
-private:
-    uint32_t        _current;
-    uint32_t        _nViews;
-    const uint32_t* _viewIDs;
-};
-
-class ViewUnmapper : public CompoundVisitor
-{
-public:
-    
-    ViewUnmapper() {}
-    virtual ~ViewUnmapper(){}
-
-    virtual Compound::VisitorResult visitPre( Compound* compound )
-        { return visit( compound ); }
-    virtual Compound::VisitorResult visitLeaf( Compound* compound )
-        { return visit( compound ); }
-
-    virtual Compound::VisitorResult visit( Compound* compound )
-        { 
-            switch( compound->getLatestView( ))
-            {
-                case eq::View::TYPE_WALL:
-                case eq::View::TYPE_PROJECTION:
-                {
-                    eq::View& view = compound->getView();
-                    if( view.getID() != EQ_ID_INVALID )
-                    {
-                        Config* config = compound->getConfig();
-                        config->unmapObject( &view );
-                    }
-                    break;
-                }
-
-                case eq::View::TYPE_NONE:
-                    break;
-                default:
-                    EQUNIMPLEMENTED;
-            }
-
-            return Compound::TRAVERSE_CONTINUE; 
-        }
-};
-}
-
 net::CommandResult Config::_cmdFinishInit( net::Command& command )
 {
     const eq::ConfigFinishInitPacket* packet = 
@@ -915,11 +917,6 @@ net::CommandResult Config::_cmdExit( net::Command& command )
     eq::ConfigExitReplyPacket   reply( packet );
     EQINFO << "handle config exit " << packet << endl;
 
-    if( _state == STATE_INITIALIZED )
-        reply.result = exit();
-    else
-        reply.result = false;
-
     ViewUnmapper unmapper;
     for( CompoundVector::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
@@ -927,6 +924,11 @@ net::CommandResult Config::_cmdExit( net::Command& command )
         Compound* compound = *i;
         compound->accept( &unmapper );
     }
+
+    if( _state == STATE_INITIALIZED )
+        reply.result = exit();
+    else
+        reply.result = false;
 
     EQINFO << "config exit result: " << reply.result << endl;
     send( command.getNode(), reply );

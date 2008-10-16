@@ -631,6 +631,20 @@ void Config::_initAppNode( const uint32_t distributorID )
     send( packet, viewIDs );
 }
 
+void Config::_exitAppNode()
+{
+    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+    {
+        View* view = *i;
+        EQASSERT( view->getID() != EQ_ID_INVALID );
+        EQASSERT( view->isMaster( ));
+
+        deregisterObject( view );
+        delete view;
+    }
+    _views.clear();
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -703,13 +717,6 @@ net::CommandResult Config::_cmdExitReply( net::Command& command )
     const ConfigExitReplyPacket* packet = 
         command.getPacket<ConfigExitReplyPacket>();
     EQINFO << "handle exit reply " << packet << endl;
-
-    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
-    {
-        deregisterObject( *i );
-        delete *i;
-    }
-    _views.clear();
 
 #ifdef EQ_TRANSMISSION_API
     _clientNodeIDs.clear();

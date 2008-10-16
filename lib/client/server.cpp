@@ -201,12 +201,13 @@ net::CommandResult Server::_cmdDestroyConfig( net::Command& command )
         command.getPacket<ServerDestroyConfigPacket>();
     EQINFO << "Handle destroy config " << packet << endl;
     
-    NodePtr         localNode  = command.getLocalNode();
+    NodePtr       localNode  = command.getLocalNode();
     net::Session* session    = localNode->getSession( packet->configID );
 
     EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
     Config* config = static_cast<Config*>( session );
 
+    config->_exitAppNode();
     localNode->removeSession( config );
     delete config;
 
