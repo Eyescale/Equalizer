@@ -13,8 +13,12 @@
 namespace eq
 {
     /**
+     * The interface definition for OS-specific windowing code.
+     *
+     * The OSWindow abstracts all window system specific code and facilitates
+     * porting to new windowing systems. Each Windows uses one OSWindow, which
+     * is initialized in Window::configInitOSWindow.
      */
-
     class EQ_EXPORT OSWindow
     {
     public:

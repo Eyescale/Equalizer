@@ -1030,7 +1030,6 @@ DOTFILE_DIRS           =
 # If 0 is used for the depth value (the default), the graph is not depth-constrained.
 
 MAX_DOT_GRAPH_DEPTH  = 2
-MAX_DOT_GRAPH_WIDTH  = 800
 
 # If the GENERATE_LEGEND tag is set to YES (the default) Doxygen will 
 # generate a legend page explaining the meaning of the various boxes and 
