@@ -14,6 +14,12 @@ namespace eq
 {
 class Window;
 
+/** 
+ * @namespace eq::util
+ * @brief Equalizer utility classes
+ *
+ * The eq::util namespace groups common utility classes.
+ */
 namespace util
 {
     /** A wrapper around agl, wgl and glx bitmap fonts. */

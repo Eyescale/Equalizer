@@ -54,10 +54,16 @@ namespace eq
         /** @return the type of the latest specified view. */
         Type getCurrentType() const { return _current; }
 
-        /** Set the eye separation. */
+        /** 
+         * Set the eye separation. 
+         * @warning eye base API will change in the future.
+         */
         void setEyeBase( const float eyeBase );
 
-        /** @return the eye separation. */
+        /** 
+         * @warning eye base API will change in the future.
+         * @return the eye separation.
+         */
         float getEyeBase() const { return _eyeBase; }
 
     protected:
