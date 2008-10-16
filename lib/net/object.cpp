@@ -43,6 +43,23 @@ Object::Object()
 {
 }
 
+Object::Object( const Object& object )
+        : Base( object )
+        , _session          ( 0 )
+        , _id               ( EQ_ID_INVALID )
+        , _instanceID       ( EQ_ID_INVALID )
+#ifdef EQ_USE_DEPRECATED
+        , _instanceData     ( 0 )
+        , _instanceDataSize ( 0 )
+        , _deltaData        ( 0 )
+        , _deltaDataSize    ( 0 )
+#endif
+        , _cm               ( ObjectCM::ZERO )
+        , _threadSafe       ( object._threadSafe )
+{
+}
+
+
 Object::~Object()
 {
     if( _session ) // Still registered

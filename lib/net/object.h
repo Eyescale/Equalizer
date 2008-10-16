@@ -9,7 +9,6 @@
 #include <eq/net/node.h>          // used in RefPtr
 #include <eq/net/objectCM.h>      // called inline
 #include <eq/net/types.h>         // for NodeVector
-#include <eq/base/nonCopyable.h>  // base class
 
 namespace eq
 {
@@ -22,7 +21,7 @@ namespace net
     struct ObjectPacket;
 
     /** A generic, distributed object. */
-    class EQ_EXPORT Object : public Base, public base::NonCopyable
+    class EQ_EXPORT Object : public Base
     {
     public:
         /**
@@ -210,6 +209,12 @@ namespace net
         //*}
 
     protected:
+        /** Copy constructor. */
+        Object( const Object& );
+
+        /** NOP assignment operator. */
+        const Object& operator = ( const Object& ) { return *this; }
+
         /**
          * @name Automatic Instantiation and Versioning
          */

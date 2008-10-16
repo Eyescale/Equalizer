@@ -29,9 +29,12 @@ namespace net
     class EQ_EXPORT Base
     {
     public:
-        Base();
-		Base( const Base& from );
-        virtual ~Base();        
+        Base() {}
+		Base( const Base& from ) {}
+        virtual ~Base() {}
+
+        /** NOP assignment operator. */
+        const Base& operator = ( const Base& ) { return *this; }
 
         /** 
          * Dispatch a command from the receiver thread to the registered queue.
