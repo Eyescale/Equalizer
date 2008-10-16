@@ -163,13 +163,19 @@ void Object::applyInstanceData( DataIStream& is )
 void Object::pack( DataOStream& ostream )
 {
     if( !_deltaData || _deltaDataSize == 0 )
-        return;
-
-    ostream.writeOnce( _deltaData, _deltaDataSize ); 
+        getInstanceData( ostream );
+    else
+        ostream.writeOnce( _deltaData, _deltaDataSize ); 
 }
 
 void Object::unpack( DataIStream& is )
 {
+    if( !_deltaData || _deltaDataSize == 0 )
+    {
+        applyInstanceData( is );
+        return;
+    }
+
     EQASSERTINFO( is.nRemainingBuffers() == 1, 
                   "Master instance did not use default Object::pack(), "
                   << "can't use default Object::unpack()" );
