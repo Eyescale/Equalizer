@@ -7,6 +7,7 @@
 #include <eq/client/objectManager.h> // member
 #include <eq/client/pipe.h>          // used in inline functions
 #include <eq/client/pixelViewport.h> // member
+#include <eq/client/renderContext.h> // member
 #include <eq/util/bitmapFont.h>      // member
 
 namespace eq

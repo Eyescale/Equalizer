@@ -7,7 +7,6 @@
 #include <eq/client/eventHandler.h>
 
 #include <eq/client/event.h>
-#include <eq/client/windowEvent.h>
 
 namespace eq
 {
