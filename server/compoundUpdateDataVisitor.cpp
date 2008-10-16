@@ -23,7 +23,7 @@ Compound::VisitorResult CompoundUpdateDataVisitor::visit(
 {
     compound->fireUpdatePre( _frameNumber );
 
-    eq::View& view = compound->getView();
+    View& view = compound->getView();
     if( view.getID() != EQ_ID_INVALID )
         view.sync();
 

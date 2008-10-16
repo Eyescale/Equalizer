@@ -226,6 +226,17 @@ namespace eq
     protected:
         virtual ~Config();
 
+        /** Used for resizing views, see handleViewResize */
+        struct BaseView
+        {
+            View*          view;
+            View           base;
+            vmml::Vector2i size;
+        };
+
+        /** Unmodified, baseline view data. */
+        net::IDHash< BaseView > _baseViews;
+
     private:
         /** The node identifier of the node running the application thread. */
         net::NodeID _appNodeID;
@@ -275,17 +286,6 @@ namespace eq
 
         /** The views of the config. */
         ViewVector _views;
-        
-        /** Used for resizing views */
-        struct BaseView
-        {
-            View*          view;
-            View           base;
-            vmml::Vector2i size;
-        };
-
-        /** Unmodified view data. */
-        net::IDHash< BaseView > _baseViews;
 
         /** Helper class to distribute the config, which is a net::Session */
         class Distributor : public net::Object

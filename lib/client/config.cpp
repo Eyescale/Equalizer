@@ -600,19 +600,13 @@ void Config::Distributor::applyInstanceData( net::DataIStream& is )
     }
     _config->_views.clear();
 
-    View::Type viewType;
-    for( is >> viewType; viewType != View::TYPE_NONE; is >> viewType )
+    View* view = new View( is ); 
+    for( ; view->getCurrentType() != View::TYPE_NONE; view = new View( is ))
     {
-        Wall       wall;
-        Projection projection;
-        
-        is >> wall >> projection;   
-
-        View* view = new View( viewType, wall, projection );
-
         _config->registerObject( view );
         _config->_views.push_back( view );
     }
+    delete view;
 }
 
 void Config::_initAppNode( const uint32_t distributorID )
@@ -717,6 +711,8 @@ net::CommandResult Config::_cmdExitReply( net::Command& command )
     const ConfigExitReplyPacket* packet = 
         command.getPacket<ConfigExitReplyPacket>();
     EQINFO << "handle exit reply " << packet << endl;
+
+    _baseViews.clear();
 
 #ifdef EQ_TRANSMISSION_API
     _clientNodeIDs.clear();

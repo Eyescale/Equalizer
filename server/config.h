@@ -48,7 +48,9 @@ namespace server
 
         net::CommandQueue* getServerThreadQueue()
             { return _server->getServerThreadQueue(); }
-
+        
+        const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
+        
         /** 
          * Adds a new node to this config.
          * 
@@ -164,14 +166,6 @@ namespace server
          */
         void setWorkDir( const std::string& workDir ){ _workDir = workDir; }
 
-         /** 
-          * Return the position of the eye in world-space.
-          * 
-          * @return the eye position.
-          */
-        const vmml::Vector3f& getEyePosition( const eq::Eye eye ) const
-            { return _eyePosition[ eye ]; }
-
         /** Notify that a node of this config has finished a frame. */
         void notifyNodeFrameFinished( const uint32_t frameNumber );
 
@@ -253,9 +247,6 @@ namespace server
 
         /** The matrix defining the head's position for head tracking. */
         eq::Matrix4f _headMatrix;
-
-        /** The vectors defining the eye positions. */
-        vmml::Vector3f _eyePosition[eq::EYE_ALL];
 
         enum State
         {

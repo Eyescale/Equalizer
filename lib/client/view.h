@@ -27,8 +27,7 @@ namespace eq
         };
 
         View();
-        View( const View& view );
-        View( const Type& last, const Wall& wall, const Projection& projection);
+        View( net::DataIStream& is );
 
         virtual ~View();
 
@@ -40,7 +39,7 @@ namespace eq
         void setWall( const Wall& wall );
         
         /** @return the last specified view as a wall. */
-        const Wall& getWall() const { return _data.wall; }
+        const Wall& getWall() const { return _wall; }
 
         /** 
          * Set the view using a projection description.
@@ -50,12 +49,16 @@ namespace eq
         void setProjection( const Projection& projection );
 
         /** @return the last specified view as a projection. */
-        const Projection& getProjection() const { return _data.projection; }
+        const Projection& getProjection() const { return _projection; }
 
         /** @return the type of the latest specified view. */
-        Type getCurrentType() const { return _data.current; }
+        Type getCurrentType() const { return _current; }
 
-        View& operator = ( const View& view );
+        /** Set the eye separation. */
+        void setEyeBase( const float eyeBase );
+
+        /** @return the eye separation. */
+        float getEyeBase() const { return _eyeBase; }
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
@@ -64,16 +67,24 @@ namespace eq
         virtual void pack( net::DataOStream& os );
         virtual void applyInstanceData( net::DataIStream& is );
 
-    private:
-        struct Data
+        enum DirtyBits
         {
-            Wall       wall;
-            Projection projection;
-            Type       current;
-        } 
-        _data;
+            DIRTY_NONE       = 0,
+            DIRTY_WALL       = 1 << 0,
+            DIRTY_PROJECTION = 1 << 1,
+            DIRTY_EYEBASE    = 1 << 2
+        };
 
-        bool _dirty;
+        uint32_t _dirty;
+
+    private:
+        Wall       _wall;
+        Projection _projection;
+        Type       _current;
+        float      _eyeBase;
+
+        /** worker for View( is ) constructor and applyInstanceData() */
+        void deserialize( net::DataIStream& is );
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const View& view );

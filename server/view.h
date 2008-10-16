@@ -29,13 +29,24 @@ namespace server
         /** Set the view using a projection description. */
         void setProjection( const eq::Projection& projection );
 
+        /** Set the eye separation. */
+        void setEyeBase( const float eyeBase );
+
+        /** Update the eye positions based on the head matrix. */
+        void updateHead();
+
+        // Used by Config
+        virtual void getInstanceData( net::DataOStream& os )
+            { eq::View::getInstanceData( os ); }
+
     protected:
         virtual void applyInstanceData( net::DataIStream& is );
 
     private:
         ViewData& _data;
 
-        void _updateData();
+        /** Update the view (wall/projection. */
+        void _updateView();
     };
 }
 }

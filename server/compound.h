@@ -188,7 +188,7 @@ namespace server
         const Window* getWindow() const;
 
         /** @return the view of this compound. */
-        eq::View& getView() { return _view; }
+        View& getView() { return _view; }
 
         /** Attach a load balancer to this compound. */
         void setLoadBalancer( LoadBalancer* loadBalancer );

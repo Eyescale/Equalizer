@@ -10,76 +10,89 @@
 namespace eq
 {
 View::View()
-        : _dirty( false )
-{
-    _data.current = TYPE_NONE;
-}
-
-View::View( const View& view )
-        : net::Object()
-        , _data( view._data )
-        , _dirty( false )
+        : _dirty( DIRTY_NONE )
+        , _current( TYPE_NONE )
+        , _eyeBase( 0.f )
 {
 }
 
-View::View( const Type& last, const Wall& wall, const Projection& projection )
+View::View( net::DataIStream& is )
+        : _eyeBase( 0.f )
 {
-    _data.wall       = wall;
-    _data.projection = projection;
-    _data.current    = last;
+    deserialize( is );
 }
 
 View::~View()
 {
-    _data.current = TYPE_NONE;
-}
-
-View& View::operator = ( const View& view )
-{
-    _data  = view._data;
-    _dirty = true;
-    return *this;
+    _current = TYPE_NONE;
 }
 
 void View::getInstanceData( net::DataOStream& os )
 {
-    os.writeOnce( &_data, sizeof( _data )); 
+    os << _current;
+    if( _current == TYPE_NONE ) // OPT
+        return;
+
+    os << _dirty;
+    if( _dirty & DIRTY_WALL )
+        os << _wall;
+    if( _dirty & DIRTY_PROJECTION )
+        os << _projection;
+    if( _dirty & DIRTY_EYEBASE )
+        os << _eyeBase;
 }
 
 void View::applyInstanceData( net::DataIStream& is )
 {
-    EQASSERT( is.getRemainingBufferSize() == sizeof( _data )); 
+    deserialize( is );
+}
 
-    memcpy( &_data, is.getRemainingBuffer(), sizeof( _data ));
-    is.advanceBuffer( sizeof( _data ));
+void View::deserialize( net::DataIStream& is )
+{
+    is >> _current;
+    if( _current == TYPE_NONE ) // OPT
+    {
+        _dirty = DIRTY_NONE;
+        return;
+    }
 
-    EQASSERT( is.nRemainingBuffers() == 0 );
-    EQASSERT( is.getRemainingBufferSize() == 0 );
+    is >> _dirty;
+    if( _dirty & DIRTY_WALL )
+        is >> _wall;
+    if( _dirty & DIRTY_PROJECTION )
+        is >> _projection;
+    if( _dirty & DIRTY_EYEBASE )
+        is >> _eyeBase;
 }
 
 void View::pack( net::DataOStream& os )
 {
-    if( !_dirty )
+    if( _dirty == DIRTY_NONE )
         return;
 
     getInstanceData( os );
-    _dirty = false;
+    _dirty = DIRTY_NONE;
 }
 
 void View::setWall( const Wall& wall )
 {
-    _data.wall       = wall;
+    _wall       = wall;
     // TODO write '= wall' for Projection and update projection here
-    _data.current    = TYPE_WALL;
-    _dirty = true;
+    _current    = TYPE_WALL;
+    _dirty      = DIRTY_WALL;
 }
 
 void View::setProjection( const Projection& projection )
 {
-    _data.projection = projection;
-    _data.current    = TYPE_PROJECTION;
+    _projection = projection;
+    _current    = TYPE_PROJECTION;
+    _dirty      = DIRTY_PROJECTION;
+}
 
-    _dirty = true;
+void View::setEyeBase( const float eyeBase )
+{
+    _eyeBase = eyeBase;
+    _dirty   = DIRTY_EYEBASE;
 }
 
 std::ostream& operator << ( std::ostream& os, const View& view )

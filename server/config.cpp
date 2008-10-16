@@ -35,21 +35,22 @@ std::string Config::_fAttributeStrings[FATTR_ALL] =
     MAKE_ATTR_STRING( FATTR_EYE_BASE )
 };
 
+#define TRAVERSE_COMPOUNDS( compounds, visitor, activeOnly )    \
+    for( CompoundVector::const_iterator i = compounds.begin();  \
+         i != compounds.end(); ++i )                            \
+    {                                                           \
+        Compound* compound = *i;                                \
+        compound->accept( &visitor, activeOnly );               \
+    }                                                           
 
 namespace
 {
 class ViewMapper : public CompoundVisitor
 {
 public:
-    
     ViewMapper( const uint32_t nViews, const uint32_t* viewIDs ) 
             : _current( 0 ), _nViews( nViews ), _viewIDs( viewIDs ) {}
     virtual ~ViewMapper(){}
-
-    virtual Compound::VisitorResult visitPre( Compound* compound )
-        { return visit( compound ); }
-    virtual Compound::VisitorResult visitLeaf( Compound* compound )
-        { return visit( compound ); }
 
     virtual Compound::VisitorResult visit( Compound* compound )
         { 
@@ -85,14 +86,7 @@ private:
 class ViewUnmapper : public CompoundVisitor
 {
 public:
-    
-    ViewUnmapper() {}
     virtual ~ViewUnmapper(){}
-
-    virtual Compound::VisitorResult visitPre( Compound* compound )
-        { return visit( compound ); }
-    virtual Compound::VisitorResult visitLeaf( Compound* compound )
-        { return visit( compound ); }
 
     virtual Compound::VisitorResult visit( Compound* compound )
         { 
@@ -373,26 +367,29 @@ ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
 //---------------------------------------------------------------------------
 namespace
 {
-class ViewSerializer : public ConstCompoundVisitor
+class ViewSerializer : public CompoundVisitor
 {
 public:
-    
     ViewSerializer( net::DataOStream& os ) : _os( os ) {}
     virtual ~ViewSerializer(){}
 
-    virtual Compound::VisitorResult visitPre( const Compound* compound )
-        { return visit( compound ); }
-    virtual Compound::VisitorResult visitLeaf( const Compound* compound )
-        { return visit( compound ); }
-
-    virtual Compound::VisitorResult visit( const Compound* compound )
+    virtual Compound::VisitorResult visit( Compound* compound )
         { 
-            switch( compound->getLatestView( ))
+            View& view = compound->getView();
+            switch( view.getCurrentType( ))
             {
                 case eq::View::TYPE_WALL:
                 case eq::View::TYPE_PROJECTION:
-                    _os << compound->getLatestView() << compound->getWall()
-                        << compound->getProjection();
+                    if( view.getEyeBase() == 0.f )
+                    {
+                        Config* config = compound->getConfig();
+                        EQASSERT( config );
+                        view.setEyeBase( 
+                            config->getFAttribute( Config::FATTR_EYE_BASE ));
+                    }
+
+                    view.getInstanceData( _os );
+                    break;
 
                 case eq::View::TYPE_NONE:
                     break;
@@ -414,13 +411,7 @@ void Config::Distributor::getInstanceData( net::DataOStream& os )
 
     ViewSerializer        serializer( os );
     const CompoundVector& compounds = _config->getCompounds();
-
-    for( CompoundVector::const_iterator i = compounds.begin(); 
-         i != compounds.end(); ++i )
-    {
-        const Compound* compound = *i;
-        compound->accept( &serializer, false /* activeOnly */ );
-    }
+    TRAVERSE_COMPOUNDS( compounds, serializer, false /* activeOnly */ );
 
     os << eq::View::TYPE_NONE; // end token
 
@@ -764,30 +755,30 @@ bool Config::_exitNodes()
     return success;
 }
 
+namespace
+{
+class ViewUpdater : public CompoundVisitor
+{
+public:
+    virtual ~ViewUpdater(){}
+
+    virtual Compound::VisitorResult visit( Compound* compound )
+        { 
+            if( compound->getLatestView() != eq::View::TYPE_NONE )
+                compound->getView().updateHead();
+
+            return Compound::TRAVERSE_CONTINUE; 
+        }
+};
+}
+
 void Config::_updateHead()
 {
-    _headMatrix.sync();
+    if( _headMatrix.getVersion() == _headMatrix.sync( )) // no changes
+        return;
 
-    const float         eyeBase_2 = .5f * getFAttribute(Config::FATTR_EYE_BASE);
-    const eq::Matrix4f& head      = _headMatrix;
-
-    // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
-    // OPT: don't use vector operator* due to possible simplification
-
-    _eyePosition[eq::EYE_CYCLOP].x = head.m03;
-    _eyePosition[eq::EYE_CYCLOP].y = head.m13;
-    _eyePosition[eq::EYE_CYCLOP].z = head.m23;
-    _eyePosition[eq::EYE_CYCLOP]  /= head.m33;
-
-    _eyePosition[eq::EYE_LEFT].x = ( -eyeBase_2 * head.m00 + head.m03 );
-    _eyePosition[eq::EYE_LEFT].y = ( -eyeBase_2 * head.m10 + head.m13 );
-    _eyePosition[eq::EYE_LEFT].z = ( -eyeBase_2 * head.m20 + head.m23 );
-    _eyePosition[eq::EYE_LEFT]  /= ( -eyeBase_2 * head.m30 + head.m33 ); // w
-
-    _eyePosition[eq::EYE_RIGHT].x = ( eyeBase_2 * head.m00 + head.m03 );
-    _eyePosition[eq::EYE_RIGHT].y = ( eyeBase_2 * head.m10 + head.m13 );
-    _eyePosition[eq::EYE_RIGHT].z = ( eyeBase_2 * head.m20 + head.m23 );
-    _eyePosition[eq::EYE_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 ); // w
+    ViewUpdater updater;
+    TRAVERSE_COMPOUNDS( _compounds, updater, false /* activeOnly */ );
 }
 
 void Config::_prepareFrame( vector< net::NodeID >& nodeIDs )
@@ -918,12 +909,7 @@ net::CommandResult Config::_cmdExit( net::Command& command )
     EQINFO << "handle config exit " << packet << endl;
 
     ViewUnmapper unmapper;
-    for( CompoundVector::const_iterator i = _compounds.begin();
-         i != _compounds.end(); ++i )
-    {
-        Compound* compound = *i;
-        compound->accept( &unmapper );
-    }
+    TRAVERSE_COMPOUNDS( _compounds, unmapper, false /* activeOnly */ );
 
     if( _state == STATE_INITIALIZED )
         reply.result = exit();
@@ -1014,13 +1000,7 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
         command.getPacket<eq::ConfigFreezeLoadBalancingPacket>();
 
     FreezeVisitor visitor( packet->freeze );
-
-    for( CompoundVector::const_iterator i = _compounds.begin();
-         i != _compounds.end(); ++i )
-    {
-        Compound* compound = *i;
-        compound->accept( &visitor );
-    }
+    TRAVERSE_COMPOUNDS( _compounds, visitor, false /* activeOnly */ );
 
     return net::COMMAND_HANDLED;
 }
@@ -1039,12 +1019,7 @@ net::CommandResult Config::_cmdMapViews( net::Command& command )
 
     // map views to appNode master instances
     ViewMapper mapper( packet->nViews, packet->viewIDs );
-    for( CompoundVector::const_iterator i = _compounds.begin();
-         i != _compounds.end(); ++i )
-    {
-        Compound* compound = *i;
-        compound->accept( &mapper, false /* activeOnly */ );
-    }
+    TRAVERSE_COMPOUNDS( _compounds, mapper, false /* activeOnly */ );
 
     return net::COMMAND_HANDLED;
 }

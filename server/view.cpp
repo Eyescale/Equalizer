@@ -4,6 +4,7 @@
 
 #include "view.h"
 
+#include "config.h"
 #include "viewData.h"
 
 namespace eq
@@ -14,35 +15,48 @@ namespace server
 View::View( ViewData& data )
         : _data( data )
 {
-    _updateData();
+    _updateView();
 }
 
 View::View( const View& from, ViewData& data )
         : eq::View( from )
         , _data( data )
 {
-    _updateData();
+    _updateView();
 }
 
 void View::setWall( const eq::Wall& wall )
 {
     eq::View::setWall( wall );
-    _updateData();
+    _updateView();
 }
         
 void View::setProjection( const eq::Projection& projection )
 {
     eq::View::setProjection( projection );
-    _updateData();
+    _updateView();
+}
+
+void View::setEyeBase( const float eyeBase )
+{
+    eq::View::setEyeBase( eyeBase );
+    updateHead();
 }
 
 void View::applyInstanceData( net::DataIStream& is )
 {
     eq::View::applyInstanceData( is );
-    _updateData();
+
+    if( _dirty == DIRTY_NONE )
+        _data.invalidate();
+
+    if( _dirty & (DIRTY_WALL | DIRTY_PROJECTION) )
+        _updateView();
+    if( _dirty & DIRTY_EYEBASE )
+        updateHead();
 }
 
-void View::_updateData()
+void View::_updateView()
 {
     switch( getCurrentType( ))
     {
@@ -59,6 +73,17 @@ void View::_updateData()
         default:
             EQUNREACHABLE;
     }
+}
+
+void View::updateHead()
+{
+    const net::Session* session = getSession();
+    if( !session ) // not yet mapped (active)
+        return;
+
+    // XXX eye base and head matrix belong together, see Issues on view spec
+    const Config* config = EQSAFECAST( const Config*, session );
+    _data.applyHead( config->getHeadMatrix(), getEyeBase( ));
 }
 
 }

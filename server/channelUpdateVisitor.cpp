@@ -264,11 +264,10 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
                                             eq::RenderContext& context )
 {
     const ViewData& viewData = compound->getInheritViewData();
-    const Config*   config   = _channel->getConfig();
 
     // compute eye position in screen space
-    const vmml::Vector3f& eyeW = config->getEyePosition( _eye );
-    const vmml::Matrix4f& xfm  = viewData.xfm;
+    const vmml::Vector3f& eyeW = viewData.getEyePosition( _eye );
+    const vmml::Matrix4f& xfm  = viewData.getViewTransform();
     const vmml::Vector3f  eye  = xfm * eyeW;
 
     // compute perspective and orthographic frustra from size and eye position
@@ -296,21 +295,23 @@ void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
     const Channel* destination = compound->getInheritChannel();
     destination->getNearFar( &frustum.nearPlane, &frustum.farPlane );
 
-    const float ratio = ortho ? 1.0f : frustum.nearPlane / eye[2];
+    const float ratio      = ortho ? 1.0f : frustum.nearPlane / eye[2];
+    const float viewWidth  = viewData.getViewWidth();
+    const float viewHeight = viewData.getViewHeight();
 
     if( eye[2] > 0 || ortho )
     {
-        frustum.left   =  ( -viewData.width*0.5f  - eye[0] ) * ratio;
-        frustum.right  =  (  viewData.width*0.5f  - eye[0] ) * ratio;
-        frustum.bottom =  ( -viewData.height*0.5f - eye[1] ) * ratio;
-        frustum.top    =  (  viewData.height*0.5f - eye[1] ) * ratio;
+        frustum.left   =  ( -viewWidth*0.5f  - eye[0] ) * ratio;
+        frustum.right  =  (  viewWidth*0.5f  - eye[0] ) * ratio;
+        frustum.bottom =  ( -viewHeight*0.5f - eye[1] ) * ratio;
+        frustum.top    =  (  viewHeight*0.5f - eye[1] ) * ratio;
     }
     else // eye behind near plane - 'mirror' x
     {
-        frustum.left   =  (  viewData.width*0.5f  - eye[0] ) * ratio;
-        frustum.right  =  ( -viewData.width*0.5f  - eye[0] ) * ratio;
-        frustum.bottom =  (  viewData.height*0.5f + eye[1] ) * ratio;
-        frustum.top    =  ( -viewData.height*0.5f + eye[1] ) * ratio;
+        frustum.left   =  (  viewWidth*0.5f  - eye[0] ) * ratio;
+        frustum.right  =  ( -viewWidth*0.5f  - eye[0] ) * ratio;
+        frustum.bottom =  (  viewHeight*0.5f + eye[1] ) * ratio;
+        frustum.top    =  ( -viewHeight*0.5f + eye[1] ) * ratio;
     }
 
     // move frustum according to pixel decomposition
