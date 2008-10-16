@@ -12,7 +12,7 @@
 namespace eq
 {
     /**
-     * A View describes a projection of the scene onto a coherent 2D area,
+     * A View describes the projection of the scene onto a coherent 2D area,
      * typically a display driven by a destination Channel.
      */
     class EQ_EXPORT View : public net::Object

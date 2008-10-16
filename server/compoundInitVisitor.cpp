@@ -25,9 +25,7 @@ Compound::VisitorResult CompoundInitVisitor::visit( Compound* compound )
     {
         channel->refUsed();
 
-        if( compound->getLatestView() == eq::View::TYPE_NONE )
-            channel->setView( 0 );
-        else
+        if( compound->getLatestView() != eq::View::TYPE_NONE )
         {
             const eq::View& view = compound->getView();
             EQASSERT( view.getID() != EQ_ID_INVALID );
