@@ -61,6 +61,7 @@ namespace eq
         /** 
          * Set the window system for the client's message pump, used by
          * non-threaded pipes.
+         * @internal
          */
         void setWindowSystem( const WindowSystem windowSystem );
 
@@ -73,18 +74,6 @@ namespace eq
         /** @sa net::Node::exitClient(). */
         virtual bool exitClient();
 
-        /** @name Configuration. */
-        //*{
-        /** 
-         * Enable or disable automatic or external OS event dispatch for the
-         * node thread.
-         *
-         * @return true if Equalizer shall dispatch OS events, false if the
-         *         application dispatches OS events.
-         * @sa Event handling documentation on website.
-         */
-        virtual bool useMessagePump() { return true; }
-        //*}
     private:
         /** The command->node command queue. */
         CommandQueue* _nodeThreadQueue;

@@ -481,7 +481,7 @@ bool Window::processEvent( const Event& event )
         case Event::WINDOW_RESIZE:
             setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
                                              event.resize.w, event.resize.h ));
-            return true;
+            break;
 
         case Event::KEY_PRESS:
         case Event::KEY_RELEASE:

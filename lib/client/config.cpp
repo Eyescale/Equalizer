@@ -528,6 +528,27 @@ void Config::getStatistics( std::vector< FrameStatistics >& statistics )
     _statisticsMutex.unset();
 }
 
+void Config::setWindowSystem( const WindowSystem windowSystem )
+{
+    // called from pipe threads - but only during init
+    static SpinLock _lock;
+    ScopedMutex< SpinLock > mutex( _lock );
+
+    if( _eventQueue.getWindowSystem() == WINDOW_SYSTEM_NONE )
+    {
+        _eventQueue.setWindowSystem( windowSystem );
+        EQINFO << "Client message pump set up for " << windowSystem << endl;
+    }
+    else if( _eventQueue.getWindowSystem() != windowSystem )
+        EQWARN << "Can't switch to window system " << windowSystem 
+               << ", already using " <<  _eventQueue.getWindowSystem()
+               << endl;
+
+    RefPtr< Client > client = getClient();
+    client->setWindowSystem( windowSystem );    
+}
+
+
 void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
 {
     _headMatrix = matrix;

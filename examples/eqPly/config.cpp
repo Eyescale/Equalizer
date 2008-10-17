@@ -15,6 +15,7 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
         , _spinY( 5 )
         , _model( 0 )
         , _modelDist( 0 )
+        , _redraw( true )
 {
 }
 
@@ -156,7 +157,13 @@ uint32_t Config::startFrame()
     _frameData.data.rotation.preRotateY( -0.001f * _spinY );
     const uint32_t version = _frameData.commit();
 
+    _redraw = false;
     return eq::Config::startFrame( version );
+}
+
+bool Config::needsRedraw()
+{
+    return ( _spinX != 0 || _spinY != 0 || _redraw );
 }
 
 bool Config::handleEvent( const eq::ConfigEvent* event )
@@ -164,6 +171,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
     switch( event->data.type )
     {
         case eq::Event::KEY_PRESS:
+            _redraw = true;
             switch( event->data.keyPress.key )
             {
                 case 'r':
@@ -203,6 +211,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             {
                 _spinX = event->data.pointerButtonRelease.dx;
                 _spinY = event->data.pointerButtonRelease.dy;
+                _redraw = true;
             }
             return true;
 
@@ -219,6 +228,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     -0.005f * event->data.pointerMotion.dx );
                 _frameData.data.rotation.preRotateY(
                     -0.005f * event->data.pointerMotion.dy );
+
+                _redraw = true;
             }
             else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 ||
                      event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
@@ -226,6 +237,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             {
                 _frameData.data.translation.z +=
                     .005f * event->data.pointerMotion.dy;
+
+                _redraw = true;
             }
             else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
@@ -233,12 +246,22 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     .0005f * event->data.pointerMotion.dx;
                 _frameData.data.translation.y -= 
                     .0005f * event->data.pointerMotion.dy;
+
+                _redraw = true;
             }
             return true;
+
+        case eq::Event::EXPOSE:
+        case eq::Event::WINDOW_RESIZE:
+        case eq::Event::WINDOW_CLOSE:
+        case eq::Event::VIEW_RESIZE:
+            _redraw = true;
+            break;
 
         default:
             break;
     }
+
     return eq::Config::handleEvent( event );
 }
 }

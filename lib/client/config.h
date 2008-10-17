@@ -223,6 +223,13 @@ namespace eq
         /** Undocumented */
         void freezeLoadBalancing( const bool onOff );
 
+        /** 
+         * Set the window system for the config's message pump, used by
+         * non-threaded pipes.
+         * @internal
+         */
+        void setWindowSystem( const WindowSystem windowSystem );
+
     protected:
         virtual ~Config();
 

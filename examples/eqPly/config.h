@@ -35,11 +35,14 @@ namespace eqPly
         /** @return the loaded model, or 0. */
         const Model* getModel() const { return _model; }
 
-    protected:
-        virtual ~Config();
-
         /** @sa eq::Config::handleEvent */
         virtual bool handleEvent( const eq::ConfigEvent* event );
+
+        /** @return true if an event required a redraw. */
+        bool needsRedraw();
+
+    protected:
+        virtual ~Config();
 
         int        _spinX, _spinY;
 
@@ -50,6 +53,8 @@ namespace eqPly
 
         Model*     _model;
         ModelDist* _modelDist;
+
+        bool _redraw;
 
     private:
         void _loadModel();

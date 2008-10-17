@@ -12,6 +12,8 @@
 using eq::base::RefPtr;
 using namespace std;
 
+#define EQPLY_EVENTDRIVEN
+
 namespace eqPly
 {
 
@@ -65,6 +67,18 @@ int Application::run()
         config->startFrame();
         // config->renderData(...);
         config->finishFrame();
+
+#ifdef EQPLY_EVENTDRIVEN
+        if( !config->needsRedraw( ))
+            config->finishAllFrames(); // flush, TODO flush one task at a time
+            
+        while( !config->needsRedraw( )) // wait for an event requiring redraw
+        {
+            const eq::ConfigEvent* event = config->nextEvent();
+            if( !config->handleEvent( event ))
+                EQVERB << "Unhandled " << event << endl;
+        }
+#endif
     }
     const uint32_t frame = config->finishAllFrames();
     const float    time  = clock.getTimef();

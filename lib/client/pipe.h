@@ -49,12 +49,11 @@ namespace eq
         /** @name Data Access. */
         //*{
         net::CommandQueue* getPipeThreadQueue();
-        Node* getNode() const { return _node; }
-        Config* getConfig() const { return (_node ? _node->getConfig() : 0);}
-        base::RefPtr< Client > getClient() const
-            { return (_node ? _node->getClient() : 0);}
-        base::RefPtr< Server > getServer() const
-            { return (_node ? _node->getServer() : 0);}
+        Node* getNode() const       { return _node; }
+        Config* getConfig() const   { return (_node ? _node->getConfig() : 0);}
+        ClientPtr getClient() const { return (_node ? _node->getClient() : 0);}
+        ServerPtr getServer() const { return (_node ? _node->getServer() : 0);}
+
         const WindowVector& getWindows() const { return _windows; }
 
         const std::string& getName() const { return _name; }

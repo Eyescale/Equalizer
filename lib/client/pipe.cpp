@@ -193,11 +193,14 @@ void Pipe::_setupCommandQueue()
 {
     EQASSERT( _windowSystem != WINDOW_SYSTEM_NONE );
 
-    // Switch the client's message pump for non-threaded and AGL pipes
+    // Switch the node thread message pumps for non-threaded and AGL pipes
     if( !_thread || _windowSystem == WINDOW_SYSTEM_AGL )
     {
-        RefPtr< Client > client = getClient();
-        client->setWindowSystem( _windowSystem );
+        if( !useMessagePump( ))
+            return;
+
+        Config* config = getConfig();
+        config->setWindowSystem( _windowSystem );
         return;
     }
     

@@ -55,17 +55,11 @@ bool Client::listen()
 
 void Client::setWindowSystem( const WindowSystem windowSystem )
 {
-    // called from pipe threads - but only during init
-    static SpinLock _lock;
-    ScopedMutex< SpinLock > mutex( _lock );
-
+    // access already locked by Config::setWindowSystem (caller)
     if( _nodeThreadQueue->getWindowSystem() == WINDOW_SYSTEM_NONE )
     {
-        if( useMessagePump( ))
-        {
-            _nodeThreadQueue->setWindowSystem( windowSystem );
-            EQINFO << "Client message pump set up for " << windowSystem << endl;
-        }
+        _nodeThreadQueue->setWindowSystem( windowSystem );
+        EQINFO << "Client message pump set up for " << windowSystem << endl;
     }
     else if( _nodeThreadQueue->getWindowSystem() != windowSystem )
         EQWARN << "Can't switch to window system " << windowSystem 
