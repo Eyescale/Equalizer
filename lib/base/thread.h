@@ -147,6 +147,9 @@ namespace base
         /** @return a unique identifier for the calling thread. */
         static size_t getSelfThreadID();
 
+        /** @internal */
+        static void pinCurrentThread();
+
     private:
 		ThreadPrivate* _data;
         /** The current state of this thread. */

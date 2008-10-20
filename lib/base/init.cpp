@@ -14,6 +14,7 @@ namespace base
 
 EQ_EXPORT bool init()
 {
+    Thread::pinCurrentThread();
     return true;
 }
 

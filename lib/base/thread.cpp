@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "lock.h"
 #include "log.h"
+#include "rng.h"
 #include "scopedMutex.h"
 #include "executionListener.h"
 
@@ -26,6 +27,11 @@ using namespace std;
  * workaround uses a monitor to implement the join functionality independently
  * of pthreads.
  */
+
+// Experimental Win32 thread pinning
+#ifdef WIN32
+//#  define EQ_WIN32_THREAD_AFFINITY
+#endif
 
 namespace eq
 {
@@ -99,18 +105,20 @@ void Thread::_runChild()
 #ifdef EQ_WIN32_SDP_JOIN_WAR
     _running = true;
 #endif
+    pinCurrentThread();
+
     _data->threadID = pthread_self(); // XXX remove, set during create already?
 
     if( !init( ))
     {
-        EQINFO << "Thread failed to initialise" << endl;
+        EQINFO << "Thread failed to initialize" << endl;
         _state = STATE_STOPPED;
         _syncChild.unset();
         pthread_exit( 0 );
     }
 
     _state    = STATE_RUNNING;
-    EQINFO << "Thread successfully initialised" << endl;
+    EQINFO << "Thread successfully initialized" << endl;
     pthread_setspecific( _cleanupKey, this ); // install cleanup handler
     _notifyStarted();
     _syncChild.unset(); // sync w/ parent
@@ -297,6 +305,61 @@ void Thread::removeAllListeners()
     _listenerLock().set();
     _listeners().clear();
     _listenerLock().unset();
+}
+
+
+void Thread::pinCurrentThread()
+{
+#ifdef EQ_WIN32_THREAD_AFFINITY
+    static SpinLock lock;
+    ScopedMutex< SpinLock > mutex( lock );
+
+    static DWORD_PTR processMask = 0;
+    static DWORD_PTR processor   = 0;
+    if( processMask == 0 )
+    {
+        // Get available processors
+        DWORD_PTR systemMask;
+        if( GetProcessAffinityMask( GetCurrentProcess(), &processMask, 
+            &systemMask ) == 0 )
+        {
+            EQWARN << "Can't get usable processor mask" << endl;
+            return;
+        }
+        EQINFO << "Available processors 0x" << hex << processMask << dec <<endl;
+
+        // Choose random starting processor: Multiple Eq apps on the same node
+        // would otherwise use the same processor for the same thread
+        unsigned nProcessors = 0;
+        for( DWORD_PTR i = 1; i != 0; i <<= 1 )
+        {
+            if( processMask & i )
+                ++nProcessors;
+        }
+        EQINFO << nProcessors << " available processors" << endl;
+
+        unsigned chance = RNG().get< unsigned >();
+        processor = 1 << (chance % nProcessors);
+        EQINFO << "Starting with processor " << processor << endl;
+    }
+    EQASSERT( processMask != 0 );
+
+    while( true )
+    {
+        processor <<= 1;
+        if( processor == 0 ) // wrap around
+            processor = 1;
+
+        if( processor & processMask ) // processor is available
+        {
+            if( SetThreadAffinityMask( GetCurrentThread(), processor ) == 0 )
+                EQWARN << "Can't set thread processor" << endl;
+            EQINFO << "Pinned thread to processor 0x" << hex << processor << dec
+                   << endl;
+            return;
+        }
+    }
+#endif
 }
 
 std::ostream& operator << ( std::ostream& os, const Thread* thread )
