@@ -366,6 +366,8 @@ void Compound::setProjection( const eq::Projection& projection )
 //---------------------------------------------------------------------------
 // accept
 //---------------------------------------------------------------------------
+namespace
+{
 template< class C, class V >
 Compound::VisitorResult _accept( C* compound, V* visitor, 
                                  const bool activeOnly )
@@ -474,6 +476,7 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
         }
     }
     return result;
+}
 }
 
 Compound::VisitorResult Compound::accept( ConstCompoundVisitor* visitor,
