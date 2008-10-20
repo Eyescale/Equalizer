@@ -71,7 +71,7 @@ void View::pack( net::DataOStream& os )
         return;
 
     getInstanceData( os );
-    _dirty = DIRTY_NONE;
+    _dirty |= DIRTY_NONE;
 }
 
 void View::setWall( const Wall& wall )
@@ -79,20 +79,20 @@ void View::setWall( const Wall& wall )
     _wall       = wall;
     // TODO write '= wall' for Projection and update projection here
     _current    = TYPE_WALL;
-    _dirty      = DIRTY_WALL;
+    _dirty     |= DIRTY_WALL;
 }
 
 void View::setProjection( const Projection& projection )
 {
     _projection = projection;
     _current    = TYPE_PROJECTION;
-    _dirty      = DIRTY_PROJECTION;
+    _dirty     |= DIRTY_PROJECTION;
 }
 
 void View::setEyeBase( const float eyeBase )
 {
     _eyeBase = eyeBase;
-    _dirty   = DIRTY_EYEBASE;
+    _dirty  |= DIRTY_EYEBASE;
 }
 
 std::ostream& operator << ( std::ostream& os, const View& view )
