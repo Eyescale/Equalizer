@@ -61,14 +61,34 @@ namespace net
          * @return the connection.
          */
         static ConnectionPtr create( ConnectionDescriptionPtr description );
-        
+
         /** @name Data Access. */
+        //*{
+        /** @return true if the connection is in the closed state. */
         bool isClosed() const { return _state == STATE_CLOSED; }
+
+        /** 
+         * Returns the state of this connection.
+         * 
+         * @return the state of this connection.
+         */
+        State getState() const { return _state; }
+
+        /** 
+         * Set the connection's description.
+         * 
+         * @param description the connection parameters.
+         */
+        void setDescription( ConnectionDescriptionPtr description );
+
+        /** @return the description for this connection. */
+        ConnectionDescriptionPtr getDescription() const;
+        //*}
 
         /** @name Connection Management */
         //@{
         /** 
-         * Connect the connection.
+         * Connect to the remote peer.
          *
          * @return <code>true</code> if the connection was successfully
          *         connected, <code>false</code> if not.
@@ -214,24 +234,6 @@ namespace net
                           const void* data, const uint64_t size,
                           const bool isLocked = false );
         //*}
-
-        /** 
-         * Returns the state of this connection.
-         * 
-         * @return the state of this connection.
-         */
-        State getState() const { return _state; }
-
-        /** 
-         * Set the connection's description.
-         * 
-         * @param description the connection parameters.
-         */
-        void setDescription( ConnectionDescriptionPtr description );
-
-        /** @return the description for this connection. */
-        ConnectionDescriptionPtr getDescription() const;
-
 
         /** @return the notifier handle to signal that data can be read. */
 #ifdef WIN32

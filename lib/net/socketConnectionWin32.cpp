@@ -319,7 +319,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
 
         DWORD got   = 0;
         DWORD flags = 0;
-        if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
+        if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags))
         {
             if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
                 return 0;
@@ -376,9 +376,12 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     if( _writeFD == INVALID_SOCKET )
         return -1;
 
-    WSABUF wsaBuffer = { EQ_MIN( bytes, MAX_BUFFER_SIZE ),
-                      const_cast<char*>( static_cast< const char* >( buffer ))};
-    DWORD wrote;
+    DWORD  wrote;
+    WSABUF wsaBuffer = 
+        { 
+            EQ_MIN( bytes, MAX_BUFFER_SIZE ),
+            const_cast<char*>( static_cast< const char* >( buffer )) 
+        };
 
     while( true )
     {
