@@ -10,9 +10,6 @@
 
 #ifdef WIN32
 #  include <eq/net/connection.h>
-#  ifndef MAXPATHLEN
-#    define MAXPATHLEN 1024
-#  endif
 #else
 #  include <eq/net/fdConnection.h>
 #  include <netinet/in.h>

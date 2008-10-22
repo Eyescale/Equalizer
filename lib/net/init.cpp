@@ -13,6 +13,9 @@
 #ifdef WIN32_API
 #  include <direct.h>
 #  define getcwd _getcwd
+#  ifndef MAXPATHLEN
+#    define MAXPATHLEN 1024
+#  endif
 #endif
 
 using namespace std;
