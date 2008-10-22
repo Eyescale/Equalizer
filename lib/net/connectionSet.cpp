@@ -79,8 +79,7 @@ void ConnectionSet::interrupt()
 
 void ConnectionSet::addConnection( ConnectionPtr connection )
 {
-    EQASSERT( connection->getState() == Connection::STATE_CONNECTED ||
-            connection->getState() == Connection::STATE_LISTENING );
+    EQASSERT( connection->isConnected() || connection->isListening( ));
 
     _mutex.set();
     _connections.push_back( connection );
@@ -180,9 +179,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                         return event;
                     }
                     
-                    if( event == EVENT_DATA &&
-                        _connection->getState() == Connection::STATE_LISTENING )
-
+                    if( event == EVENT_DATA && _connection->isListening( ))
                         event = EVENT_CONNECT;
 
                     EQVERB << "selected connection " << _connection << " of "

@@ -324,9 +324,10 @@ bool Node::connect( NodePtr node, ConnectionPtr connection )
     EQASSERT( connection.isValid( ));
 
     if( !node.isValid() || _state != STATE_LISTENING ||
-        connection->getState() != Connection::STATE_CONNECTED ||
-        node->_state != STATE_STOPPED )
+        !connection->isConnected() || node->_state != STATE_STOPPED )
+    {
         return false;
+    }
 
     // send connect packet to peer
     NodeConnectPacket packet;
@@ -1095,7 +1096,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     EQINFO << "handle connect reply " << packet << endl;
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
-    if( nodeID == NodeID::ZERO || // connection refused
+    if( nodeID == NodeID::ZERO ||               // connection refused
         _nodes.find( nodeID ) != _nodes.end( )) // Node exists, probably
                                                 // simultaneous connect
     {

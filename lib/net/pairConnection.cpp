@@ -16,8 +16,8 @@ PairConnection::PairConnection( ConnectionPtr readConnection,
         , _writeConnection( writeConnection )
 {
     _sibling = new PairConnection( this );
-    EQASSERT( readConnection->getState() == STATE_CLOSED );
-    EQASSERT( writeConnection->getState() == STATE_CLOSED );
+    EQASSERT( readConnection->isClosed( ));
+    EQASSERT( writeConnection->isClosed( ));
     EQINFO << "New Connection Pair @" << (void*)this << endl;
 }
 
@@ -26,8 +26,8 @@ PairConnection::PairConnection( PairConnection* sibling )
           _writeConnection( sibling->_readConnection ),
           _sibling( sibling )
 {
-    EQASSERT( _readConnection->getState() == STATE_CLOSED );
-    EQASSERT( _writeConnection->getState() == STATE_CLOSED );
+    EQASSERT( _readConnection->isClosed( ));
+    EQASSERT( _writeConnection->isClosed( ));
 }
 
 PairConnection::~PairConnection()

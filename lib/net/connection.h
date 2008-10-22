@@ -64,15 +64,21 @@ namespace net
 
         /** @name Data Access. */
         //*{
-        /** @return true if the connection is in the closed state. */
-        bool isClosed() const { return _state == STATE_CLOSED; }
-
         /** 
          * Returns the state of this connection.
          * 
          * @return the state of this connection.
          */
         State getState() const { return _state; }
+
+        /** @return true if the connection is in the closed state. */
+        bool isClosed() const { return _state == STATE_CLOSED; }
+
+        /** @return true if the connection is in the connected state. */
+        bool isConnected() const { return _state == STATE_CONNECTED; }
+
+        /** @return true if the connection is in the listening state. */
+        bool isListening() const { return _state == STATE_LISTENING; }
 
         /** 
          * Set the connection's description.
