@@ -254,6 +254,8 @@ namespace server
         void setPixel( const eq::Pixel& pixel )    { _data.pixel = pixel; }
         const eq::Pixel& getPixel() const          { return _data.pixel; }
 
+        void setMaxFPS( const float fps )          { _data.maxFPS = fps; }
+        float getMaxFPS() const                    { return _data.maxFPS; }
         //*}
 
         /** @name IO object access. */
@@ -308,6 +310,7 @@ namespace server
         const eq::Viewport& getInheritViewport() const { return _inherit.vp; }
         const eq::Range& getInheritRange()   const { return _inherit.range; }
         const eq::Pixel&  getInheritPixel()  const { return _inherit.pixel; }
+        float  getInheritMaxFPS()            const { return _inherit.maxFPS; }
         uint32_t getInheritTask()            const { return _inherit.tasks; }
         int32_t  getInheritIAttribute( const IAttribute attr ) const
             { return _inherit.iAttributes[attr]; }
@@ -467,6 +470,7 @@ namespace server
             uint32_t          tasks;
             uint32_t          period;
             uint32_t          phase;
+            float             maxFPS;
             int32_t           iAttributes[IATTR_ALL];
             bool              active;
         };

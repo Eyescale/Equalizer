@@ -624,6 +624,7 @@ namespace eq
 
         uint32_t frameID;
         uint32_t frameNumber;
+        float    minFrameTime; // in ms
     };
 
     struct PipeFrameDrawFinishPacket : public net::ObjectPacket
@@ -1172,7 +1173,8 @@ namespace eq
                                        const PipeFrameFinishPacket* packet )
     {
         os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
-           << " id " << packet->frameID;
+           << " id " << packet->frameID << " time " << packet->minFrameTime
+           << "ms";
         return os;
     }
 

@@ -36,6 +36,8 @@ Compound::VisitorResult ChannelUpdateVisitor::visitPre(
         
         return Compound::TRAVERSE_CONTINUE;
 
+    _updateFrameRate( compound );
+
     if( compound->testInheritTask( Compound::TASK_CLEAR ))
     {
         eq::ChannelFrameClearPacket clearPacket;        
@@ -57,6 +59,8 @@ Compound::VisitorResult ChannelUpdateVisitor::visitLeaf(
         _updateDrawFinish( compound );
         return Compound::TRAVERSE_CONTINUE;
     }
+
+    _updateFrameRate( compound );
 
     eq::RenderContext context;
     _setupRenderContext( compound, context );
@@ -191,6 +195,15 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     node->send( nodePacket );
     EQLOG( eq::LOG_TASKS ) << "TASK node draw finish " << node->getName() 
                            <<  " " << &nodePacket << endl;
+}
+
+void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
+{
+    const float maxFPS = compound->getInheritMaxFPS();
+    Pipe*       pipe   = _channel->getPipe();
+
+    if(  maxFPS <  pipe->getMaxFPS())
+        pipe->setMaxFPS( maxFPS );
 }
 
 GLenum ChannelUpdateVisitor::_getDrawBuffer() const

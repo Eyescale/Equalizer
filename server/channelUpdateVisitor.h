@@ -44,6 +44,8 @@ namespace server
         const uint32_t _frameNumber;
 
         void _updateDrawFinish( const Compound* compound ) const;
+        void _updateFrameRate( const Compound* compound ) const;
+
         GLenum _getDrawBuffer() const;
         eq::ColorMask _getDrawBufferMask( const Compound* compound ) const;
 

@@ -136,12 +136,13 @@ Compound::~Compound()
 }
 
 Compound::InheritData::InheritData()
-        : channel( 0 ),
-          buffers( eq::Frame::BUFFER_UNDEFINED ),
-          eyes( EYE_UNDEFINED ),
-          tasks( TASK_DEFAULT ),
-          period( EQ_UNDEFINED_UINT32 ),
-          phase( EQ_UNDEFINED_UINT32 )
+        : channel( 0 )
+        , buffers( eq::Frame::BUFFER_UNDEFINED )
+        , eyes( EYE_UNDEFINED )
+        , tasks( TASK_DEFAULT )
+        , period( EQ_UNDEFINED_UINT32 )
+        , phase( EQ_UNDEFINED_UINT32 )
+        , maxFPS( numeric_limits< float >::max( ))
 {
     const Global* global = Global::instance();
     for( int i=0; i<IATTR_ALL; ++i )
@@ -597,6 +598,9 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if( _data.phase != EQ_UNDEFINED_UINT32 )
             _inherit.phase = _data.phase;
 
+        if( _data.maxFPS < _inherit.maxFPS )
+            _inherit.maxFPS = _data.maxFPS;
+
         if ( _inherit.pvp.isValid( ))
         {
             EQASSERT( _data.vp.isValid( ));
@@ -644,7 +648,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     }
     else
         _inherit.tasks = _data.tasks;
-
 
     _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);
 }

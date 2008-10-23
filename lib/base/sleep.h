@@ -16,7 +16,7 @@ namespace base
 #ifdef WIN32_VC
         ::Sleep( milliSeconds );
 #else
-        ::usleep( (milliSeconds+999) / 1000 );
+        ::usleep( milliSeconds * 1000 );
 #endif
     }
 }

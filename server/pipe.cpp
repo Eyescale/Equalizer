@@ -37,6 +37,7 @@ void Pipe::_construct()
     _port           = EQ_UNDEFINED_UINT32;
     _device         = EQ_UNDEFINED_UINT32;
     _lastDrawWindow = 0;
+    _maxFPS         = numeric_limits< float >::max();
 
     EQINFO << "New pipe @" << (void*)this << endl;
 }
@@ -352,12 +353,14 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     }
 
     eq::PipeFrameFinishPacket finishPacket;
-    finishPacket.frameID     = frameID;
-    finishPacket.frameNumber = frameNumber;
+    finishPacket.frameID      = frameID;
+    finishPacket.frameNumber  = frameNumber;
+    finishPacket.minFrameTime = 1000.0f / _maxFPS;
     _send( finishPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
                            << endl;
     _lastDrawWindow = 0;
+    _maxFPS = numeric_limits< float >::max();
 }
 
 //----------------------------------------------------------------------
