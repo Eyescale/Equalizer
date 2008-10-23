@@ -183,7 +183,7 @@ Config::~Config()
     {
         Compound* compound = *i;
 
-        compound->accept( &unmapper );
+        compound->accept( &unmapper, false /*activeOnly*/  );
         compound->_config = 0;
         delete compound;
     }

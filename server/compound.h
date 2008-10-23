@@ -380,15 +380,16 @@ namespace server
          * visitor.
          * 
          * @param visitor the visitor.
-         * @param activeOnly traverse only the active DPlex or all compounds.
+         * @param activeOnly traverse only the active DPlex (true), or all
+         *                   (false) compounds.
          * 
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( ConstCompoundVisitor* visitor,
-                              const bool activeOnly = true ) const;
+                              const bool activeOnly ) const;
         /** Non-const version of accept(). */
         VisitorResult accept( CompoundVisitor* visitor,
-                              const bool activeOnly = true );
+                              const bool activeOnly );
 
         /** 
          * Initializes this compound.

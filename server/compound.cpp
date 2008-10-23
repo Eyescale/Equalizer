@@ -518,12 +518,12 @@ void Compound::update( const uint32_t frameNumber )
     accept( &updateDataVisitor, false /*activeOnly*/ );
 
     CompoundUpdateOutputVisitor updateOutputVisitor( frameNumber );
-    accept( &updateOutputVisitor );
+    accept( &updateOutputVisitor, true /*activeOnly*/ );
 
     const hash_map<std::string, Frame*>& outputFrames =
         updateOutputVisitor.getOutputFrames();
     CompoundUpdateInputVisitor updateInputVisitor( outputFrames );
-    accept( &updateInputVisitor );
+    accept( &updateInputVisitor, true /*activeOnly*/ );
 
     const hash_map<std::string, net::Barrier*>& swapBarriers = 
         updateOutputVisitor.getSwapBarriers();

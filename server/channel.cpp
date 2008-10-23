@@ -316,13 +316,13 @@ void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
         ChannelUpdateVisitor visitor( this, frameID, frameNumber );
 
         visitor.setEye( eq::EYE_CYCLOP );
-        compound->accept( &visitor );
+        compound->accept( &visitor, true /* activeOnly */ );
 
         visitor.setEye( eq::EYE_LEFT );
-        compound->accept( &visitor );
+        compound->accept( &visitor, true /* activeOnly */ );
 
         visitor.setEye( eq::EYE_RIGHT );
-        compound->accept( &visitor );
+        compound->accept( &visitor, true /* activeOnly */ );
     }
 }
 
