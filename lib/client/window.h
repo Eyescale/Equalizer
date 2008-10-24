@@ -431,6 +431,9 @@ namespace eq
             BACK  = 1
         };
 
+        /** The time of the last swap command. */
+        int64_t _lastSwapTime;
+
         friend class Channel;
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );

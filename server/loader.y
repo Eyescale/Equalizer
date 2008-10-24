@@ -119,6 +119,7 @@
 %token EQTOKEN_BLUE
 %token EQTOKEN_HORIZONTAL
 %token EQTOKEN_VERTICAL
+%token EQTOKEN_DPLEX
 %token EQTOKEN_CHANNEL
 %token EQTOKEN_COMPOUND
 %token EQTOKEN_LOADBALANCER
@@ -647,6 +648,7 @@ loadBalancerMode: EQTOKEN_2D { $$ = eq::server::LoadBalancer::MODE_2D; }
     | EQTOKEN_DB             { $$ = eq::server::LoadBalancer::MODE_DB; }
     | EQTOKEN_HORIZONTAL     { $$ = eq::server::LoadBalancer::MODE_HORIZONTAL; }
     | EQTOKEN_VERTICAL       { $$ = eq::server::LoadBalancer::MODE_VERTICAL; }
+    | EQTOKEN_DPLEX          { $$ = eq::server::LoadBalancer::MODE_DPLEX; }
 
 swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
     swapBarrierFields '}'

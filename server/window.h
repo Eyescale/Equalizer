@@ -162,10 +162,14 @@ namespace server
          */
         void joinSwapBarrier( net::Barrier* barrier );
 
-        /** The last drawing channel for this entity. */
+        /** The last drawing channel for this entity. @internal */
         void setLastDrawChannel( const Channel* channel )
             { _lastDrawChannel = channel; }
         const Channel* getLastDrawChannel() const { return _lastDrawChannel; }
+
+        /** The maximum frame rate for this window. @internal */
+        void setMaxFPS( const float fps ) { _maxFPS = fps; }
+        float getMaxFPS() const { return _maxFPS; }
         //*}
 
         /**
@@ -280,6 +284,9 @@ namespace server
         /** The fractional size and position of the window. */
         eq::Viewport _vp;
         
+        /** The maximum frame rate allowed for this window. */
+        float _maxFPS;
+
         /** 
          * true if the pixel viewport is immutable, false if the viewport is
          * immutable

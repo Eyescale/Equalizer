@@ -11,7 +11,7 @@ namespace eq
 {
 namespace base
 {
-    void sleep( const uint32_t milliSeconds )
+    inline void sleep( const uint32_t milliSeconds )
     {
 #ifdef WIN32_VC
         ::Sleep( milliSeconds );

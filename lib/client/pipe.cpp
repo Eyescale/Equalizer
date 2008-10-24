@@ -21,7 +21,6 @@
 #endif
 
 #include <eq/net/command.h>
-#include <eq/base/sleep.h>
 #include <sstream>
 
 using namespace eq::base;
@@ -44,7 +43,6 @@ Pipe::Pipe( Node* parent )
         , _state( STATE_STOPPED )
         , _currentFrame( 0 )
         , _frameTime( 0 )
-        , _frameStartTime( 0 )
         , _thread( 0 )
         , _pipeThreadQueue( 0 )
 {
@@ -1018,7 +1016,6 @@ net::CommandResult Pipe::_cmdFrameStart( net::Command& command )
     _frameTimes.pop_front();
     _frameTimeMutex.unset();
 
-    _frameStartTime = getConfig()->getTime();
     frameStart( packet->frameID, frameNumber );
     return net::COMMAND_HANDLED;
 }
@@ -1039,13 +1036,6 @@ net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
     
     EQASSERTINFO( _finishedFrame >= frameNumber, 
                   "Pipe::frameFinish() did not release frame " << frameNumber );
-
-    // throttle to given framerate
-    const int64_t now      = getConfig()->getTime() - _frameStartTime;
-    const float   timeLeft = packet->minFrameTime - static_cast< float >( now );
-
-    if( timeLeft >= 1.f )
-        base::sleep( static_cast< uint32_t >( timeLeft ));
 
     if( _unlockedFrame < frameNumber )
     {

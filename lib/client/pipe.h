@@ -441,9 +441,6 @@ namespace eq
         /** The base time for the currently active frame. */
         int64_t _frameTime;
 
-        /** The time when the pipe executed frameStart */
-        int64_t _frameStartTime;
-
         /** All assembly frames used by the pipe during rendering. */
         net::IDHash< Frame* > _frames;
 

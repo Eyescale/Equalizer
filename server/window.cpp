@@ -28,6 +28,7 @@ void Window::_construct()
     _pipe            = 0;
     _fixedPVP        = false;
     _lastDrawChannel = 0;
+    _maxFPS          = numeric_limits< float >::max();
 
     EQINFO << "New window @" << (void*)this << endl;
 }
@@ -479,12 +480,12 @@ void Window::_updateSwap( const uint32_t frameNumber )
 
     _resetSwapBarriers();
 
-    if( !_drawableConfig.doublebuffered )
-        return;
-
     eq::WindowSwapPacket packet;
+    packet.minFrameTime = 1000.0f / _maxFPS;
+
     _send( packet );
     EQLOG( eq::LOG_TASKS ) << "TASK swap  " << &packet << endl;
+    _maxFPS = numeric_limits< float >::max();
 }
 
 void Window::updateFrameFinishNT( const uint32_t currentFrame )

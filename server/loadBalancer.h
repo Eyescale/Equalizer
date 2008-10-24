@@ -5,22 +5,36 @@
 #ifndef EQS_LOADBALANCER_H
 #define EQS_LOADBALANCER_H
 
-#include "channelListener.h" // base class
 #include "compoundListener.h" // base class
 #include "types.h"
 
 #include <eq/client/range.h>
 #include <eq/client/viewport.h>
 
-#include <deque>
-#include <vector>
-
 namespace eq
 {
 namespace server
 {
-    /** Adapts the 2D tiling of the associated compound's children. */
-    class LoadBalancer : protected CompoundListener, protected ChannelListener
+    class LoadBalancer;
+
+    /** The interface to the concrete loadbalancer implementation. */
+    class LoadBalancerIF
+    {
+    public:
+        LoadBalancerIF( const LoadBalancer& parent ) : _parent( parent ) {}
+        virtual ~LoadBalancerIF() {}
+
+        virtual void update( const uint32_t frameNumber ) = 0;
+
+    protected:
+        const LoadBalancer& _parent;
+    };
+
+    /**
+     * A generic loadbalancer interface using different implementations to adapt
+     * compounds based on runtime data.
+     */
+    class LoadBalancer : protected CompoundListener
     {
     public:
         LoadBalancer();
@@ -32,7 +46,8 @@ namespace server
             MODE_DB = 0,     //!< Adapt for a sort-last decomposition
             MODE_HORIZONTAL, //!< Adapt for sort-first using horizontal stripes
             MODE_VERTICAL,   //!< Adapt for sort-first using vertical stripes
-            MODE_2D          //!< Adapt for a sort-first decomposition
+            MODE_2D,         //!< Adapt for a sort-first decomposition
+            MODE_DPLEX       //!< Adapt for smooth time-multiplex rendering
         };
 
         /** Set the load balancer adaptation mode. */
@@ -40,9 +55,13 @@ namespace server
 
         /** Undocumented  */
         void setDamping( const float damping ) { _damping = damping; }
+        float getDamping() const { return _damping; }
 
         /** @return the load balancer adaptation mode. */
         Mode getMode() const { return _mode; }
+
+        /** @return the currently attached compound. */
+        Compound* getCompound() const { return _compound; }
 
         /** Attach to a compound and detach the previous compound. */
         void attach( Compound* compound );
@@ -57,93 +76,24 @@ namespace server
         /** @sa CompoundListener::notifyChildRemove */
         virtual void notifyChildRemove( Compound* compound, Compound* child );
 
-        /** @sa ChannelListener::notifyLoadData */
-        virtual void notifyLoadData( Channel* channel, 
-                                     const uint32_t frameNumber,
-                                     const float startTime, const float endTime
-                                     /*, const float load */ );
-
         void setFreeze( const bool onOff ) { _freeze = onOff; }
+        bool isFrozen() const { return _freeze; }
 
     private:
         //-------------------- Members --------------------
         Mode  _mode;    //!< The current adaptation mode
-        float _damping; //!< The damping factor (0: No damping, 1: No changes)
+        float _damping; //!< The damping factor,  (0: No damping, 1: No changes)
 
-        Compound* _compound; //!< The attached compound
+        Compound*       _compound;       //!< The attached compound
+        LoadBalancerIF* _implementation; //!< The concrete implementation
 
-        struct Node
-        {
-            Node() : left(0), right(0), compound(0), 
-                     splitMode( LoadBalancer::MODE_VERTICAL ) , time( 0.0f ) {}
-            ~Node() { delete left; delete right; }
-
-            Node*     left;      //<! Left child (only on non-leafs)
-            Node*     right;     //<! Right child (only on non-leafs)
-            Compound* compound;  //<! The corresponding child (only on leafs)
-            LoadBalancer::Mode splitMode; //<! What to adapt
-            float     time;      //<! target render time for next frame
-        };
-        friend std::ostream& operator << ( std::ostream& os,
-                                           const LoadBalancer::Node* node );
-        typedef std::vector< Node* > LBNodeVector;
-
-        Node* _tree; // <! The binary split tree of all children
-
-        struct Data
-        {
-            Data() : compound(0), startTime( -1.f ), endTime( -1.f ) {}
-
-            Compound*    compound;
-            eq::Viewport vp;
-            eq::Range    range;
-            float        startTime;
-            float        endTime;
-            float        load;          //<! (endTime-startTime)/vp.area
-        };
-
-        typedef std::vector< Data >                  LBDataVector;
-        typedef std::deque< Data >                   LBDataDeque;
-        typedef std::pair< uint32_t,  LBDataVector > LBFrameData;
-        
-        std::deque< LBFrameData > _history;
-        
         bool _freeze;
         
-        //-------------------- Methods --------------------
-        /** Clear all cached data and old load data sets. */
         void _clear();
-
-        /** @return true if we have a valid LB tree */
-        Node* _buildTree( const CompoundVector& children );
-
-        /** Clear the tree, does not delete the nodes. */
-        void _clearTree( Node* node );
-
-        /** Obsolete _history so that front-most item is youngest available. */
-        void _checkHistory();
-        
-        /** Adjust the split of each node based on the front-most _history. */
-        void _computeSplit();
-        float _assignTargetTimes( Node* node, const float totalTime, 
-                                  const float resourceTime );
-        void _computeSplit( Node* node, LBDataVector* sortedData,
-                            const eq::Viewport& vp, const eq::Range& range );
-
-        static bool _compareX( const LoadBalancer::Data& data1,
-                               const LoadBalancer::Data& data2 )
-            { return data1.vp.x < data2.vp.x; }
-
-        static bool _compareY( const LoadBalancer::Data& data1,
-                               const LoadBalancer::Data& data2 )
-            { return data1.vp.y < data2.vp.y; }
-
-        static bool _compareRange( const LoadBalancer::Data& data1,
-                                   const LoadBalancer::Data& data2 )
-            { return data1.range.start < data2.range.start; }
     };
 
     std::ostream& operator << ( std::ostream& os, const LoadBalancer* lb );
+    std::ostream& operator << ( std::ostream& os, const LoadBalancer::Mode );
 }
 }
 

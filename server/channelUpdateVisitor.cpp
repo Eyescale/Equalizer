@@ -200,10 +200,10 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
 void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
 {
     const float maxFPS = compound->getInheritMaxFPS();
-    Pipe*       pipe   = _channel->getPipe();
+    Window*     window = _channel->getWindow();
 
-    if(  maxFPS <  pipe->getMaxFPS())
-        pipe->setMaxFPS( maxFPS );
+    if(  maxFPS <  window->getMaxFPS())
+        window->setMaxFPS( maxFPS );
 }
 
 GLenum ChannelUpdateVisitor::_getDrawBuffer() const

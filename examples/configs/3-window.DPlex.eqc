@@ -1,16 +1,16 @@
-# 2-window test config
+# 3-window time-multiplex config
 server
 {
     config
     {
-        latency 3
+        latency 3 # min: number of source channels, opt: no + 1
         appNode
         {
             pipe
             {
                 window
                 {
-                    attributes { hint_doublebuffer 0 }
+#                    attributes { hint_doublebuffer 0 hint_drawable pbuffer }
                     viewport [ 100 100 480 300 ]
                     channel
                     {
@@ -22,7 +22,7 @@ server
             {
                 window
                 {
-                    attributes { hint_doublebuffer 0 }
+#                    attributes { hint_doublebuffer 0 hint_drawable pbuffer }
                     viewport [ 580 100 480 300 ]
                     channel
                     {
@@ -34,7 +34,7 @@ server
             {
                 window
                 {
-                    viewport [ 580 450 480 300 ]
+                    viewport [ 340 450 480 300 ]
                     channel
                     {
                         name "dest"
@@ -52,22 +52,24 @@ server
             }
             channel "dest"
 
+            loadBalancer { mode DPLEX }
+
             compound
             { 
                 channel "channel1"
                 phase  0
                 period 2
-                outputframe {}
+                outputframe { name "frame.DPlex" }
             }
             compound
             { 
                 channel "channel2"
                 phase  1
                 period 2
-                outputframe {}
+                outputframe { name "frame.DPlex" }
             }
-            inputframe { name "frame.channel1" }
-            inputframe { name "frame.channel2" }
+
+            inputframe { name "frame.DPlex" }
         }
     }    
 }

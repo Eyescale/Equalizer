@@ -43,6 +43,7 @@
 #  include <eq/client/wglEventHandler.h>
 #endif
 
+#include <eq/base/sleep.h>
 #include <eq/net/net.h>
 #include <eq/util/util.h>
 

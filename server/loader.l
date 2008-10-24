@@ -113,6 +113,7 @@ GREEN                           { return EQTOKEN_GREEN; }
 BLUE                            { return EQTOKEN_BLUE; }
 HORIZONTAL                      { return EQTOKEN_HORIZONTAL; }
 VERTICAL                        { return EQTOKEN_VERTICAL; }
+DPLEX                           { return EQTOKEN_DPLEX; }
 channel                         { return EQTOKEN_CHANNEL; }
 compound                        { return EQTOKEN_COMPOUND; }
 loadBalancer                    { return EQTOKEN_LOADBALANCER; }

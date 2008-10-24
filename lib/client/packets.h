@@ -624,7 +624,6 @@ namespace eq
 
         uint32_t frameID;
         uint32_t frameNumber;
-        float    minFrameTime; // in ms
     };
 
     struct PipeFrameDrawFinishPacket : public net::ObjectPacket
@@ -761,6 +760,7 @@ namespace eq
                 command = CMD_WINDOW_SWAP;
                 size    = sizeof( WindowSwapPacket );
             }
+        float    minFrameTime; // in ms
     };
 
     struct WindowFrameStartPacket : public net::ObjectPacket
@@ -1173,8 +1173,7 @@ namespace eq
                                        const PipeFrameFinishPacket* packet )
     {
         os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
-           << " id " << packet->frameID << " time " << packet->minFrameTime
-           << "ms";
+           << " id " << packet->frameID;
         return os;
     }
 

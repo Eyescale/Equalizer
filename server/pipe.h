@@ -131,10 +131,6 @@ namespace server
         void setLastDrawWindow( const Window* window )
             { _lastDrawWindow = window; }
         const Window* getLastDrawWindow() const { return _lastDrawWindow; }
-
-        /** The maximum frame rate for this pipe. @internal */
-        void setMaxFPS( const float fps ) { _maxFPS = fps; }
-        float getMaxFPS() const { return _maxFPS; }
         //*}
 
         /**
@@ -256,9 +252,6 @@ namespace server
 
         /** The last draw window for this entity. */
         const Window* _lastDrawWindow;
-
-        /** The maximum frame rate allowed for this pipe. */
-        float _maxFPS;
 
         /** common code for all constructors */
         void _construct();

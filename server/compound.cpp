@@ -598,8 +598,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if( _data.phase != EQ_UNDEFINED_UINT32 )
             _inherit.phase = _data.phase;
 
-        if( _data.maxFPS < _inherit.maxFPS )
-            _inherit.maxFPS = _data.maxFPS;
+        _inherit.maxFPS = _data.maxFPS;
 
         if ( _inherit.pvp.isValid( ))
         {

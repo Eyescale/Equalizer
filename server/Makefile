@@ -22,8 +22,10 @@ CXXFILES = \
 	parser.cpp \
 	pipe.cpp \
 	server.cpp \
+	smoothLoadBalancer.cpp \
 	startLocalServer.cpp \
 	swapBarrier.cpp \
+	treeLoadBalancer.cpp \
 	view.cpp \
 	viewData.cpp \
 	window.cpp

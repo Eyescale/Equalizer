@@ -28,6 +28,7 @@
 
 #include <eq/net/barrier.h>
 #include <eq/net/command.h>
+#include <eq/base/sleep.h>
 
 using namespace eq::base;
 using namespace std;
@@ -59,6 +60,7 @@ Window::Window( Pipe* parent )
         , _osWindow( 0 )
         , _pipe( parent )
         , _glewContext( new GLEWContext )
+        , _lastSwapTime( 0 )
 {
     net::CommandQueue* queue = parent->getPipeThreadQueue();
 
@@ -659,12 +661,26 @@ net::CommandResult Window::_cmdBarrier( net::Command& command )
 
 net::CommandResult Window::_cmdSwap( net::Command& command ) 
 {
-    EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << endl;
-    EQ_GL_CALL( makeCurrent( ));
+    WindowSwapPacket* packet = command.getPacket< WindowSwapPacket >();
+    EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
+                       << endl;
 
-    WindowStatistics stat( Statistic::WINDOW_SWAP, this );
-    swapBuffers();
+    // throttle to given framerate
+    const int64_t elapsed  = getConfig()->getTime() - _lastSwapTime;
+    const float   timeLeft = packet->minFrameTime - 
+                             static_cast< float >( elapsed );
+    if( timeLeft >= 1.f )
+        base::sleep( static_cast< uint32_t >( timeLeft ));
 
+    _lastSwapTime = getConfig()->getTime();
+
+    if( _drawableConfig.doublebuffered )
+    {
+        // swap
+        WindowStatistics stat( Statistic::WINDOW_SWAP, this );
+        EQ_GL_CALL( makeCurrent( ));
+        swapBuffers();
+    }
     return net::COMMAND_HANDLED;
 }
 
