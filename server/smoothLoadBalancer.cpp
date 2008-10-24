@@ -2,6 +2,7 @@
 /* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#define NOMINMAX
 #include "smoothLoadBalancer.h"
 
 #include "compound.h"
