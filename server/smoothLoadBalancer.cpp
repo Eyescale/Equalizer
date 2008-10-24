@@ -59,30 +59,41 @@ void SmoothLoadBalancer::update( const uint32_t frameNumber )
     if( _nSamples == 0 )
         _init();
 
-    size_t nValues    = 0;
-    float  totalTime  = 0.f;
-    
-    deque< FrameTime >::iterator i = _times.begin();
-    for( ; i != _times.end() && nValues < _nSamples; ++i )
+    // find starting point of contiguous block
+    const size_t size = _times.size();
+    size_t       from = 0;
+    for( size_t i = 0; i < size; ++i )
     {
-        const FrameTime& time = *i;
+        if( _times[i].second == 0.f )
+            from = i;
+    }
+
+    // find max time in block
+    size_t nSamples = 0;
+    float  maxTime  = 0.f;
+    for( ++from; from < size && nSamples < _nSamples; ++from )
+    {
+        const FrameTime& time = _times[from];
         if( time.second == 0.f )
             continue;
 
         EQASSERT( time.first > 0 );
-        ++nValues;
-        totalTime += time.second;
+        ++nSamples;
+        maxTime = EQ_MAX( maxTime, time.second );
+        EQLOG( LOG_LB ) << "Using " << time.first << ", " << time.second << "ms"
+                        << endl;
     }
 
-    if( nValues == _nSamples && i != _times.end( ))
-        _times.erase( i, _times.end( ));
+    if( nSamples == _nSamples )       // If we have a full set
+        while( from < _times.size( )) //  delete all older samples
+            _times.pop_back();
 
-    if( nValues > 0 )
+    if( nSamples > 0 )
     {
         //TODO: totalTime *= 1.f - damping;
-        const float fps = 1000.f / totalTime * nValues;
-        EQLOG( LOG_LB ) << fps << " Hz from " << nValues << " samples, "
-                        << totalTime << "ms" << endl;
+        const float fps = 1000.f / maxTime;
+        EQLOG( LOG_LB ) << fps << " Hz from " << nSamples << " samples, "
+                        << maxTime << "ms" << endl;
         compound->setMaxFPS( fps );
     }
 

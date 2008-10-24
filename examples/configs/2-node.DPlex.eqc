@@ -1,0 +1,67 @@
+# two-to-one time-multiplex config
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+}
+
+server
+{
+    config
+    {
+        latency 3
+        appNode
+        {
+            pipe 
+            {
+                window
+                {
+                    viewport [ 640 400 1280 800 ]
+                    attributes{ hint_fullscreen OFF }
+                    channel { name "destination" }
+                }
+            }
+            pipe 
+            {
+                window
+                {
+                    attributes { hint_drawable pbuffer }
+                    channel { name "channel1" }
+                }
+            }
+        }
+        node
+        {
+            connection { hostname "10.1.1.13" port 2345 }
+            pipe { window { channel { name "channel2" }}}
+        }
+        compound
+        {
+            channel "destination"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+
+            loadBalancer { mode DPLEX }
+
+            compound
+            { 
+                channel "channel1"
+                phase  0
+                period 2
+                outputframe { name "frame.DPlex" }
+            }
+            compound
+            { 
+                channel "channel2"
+                phase  1
+                period 2
+                outputframe { name "frame.DPlex" }
+            }
+
+            inputframe { name "frame.DPlex" }
+        }
+    }    
+}
