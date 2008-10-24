@@ -287,6 +287,9 @@ namespace server
         /** The maximum frame rate allowed for this window. */
         float _maxFPS;
 
+        /** true if something was done during the last update. */
+        bool _doSwap;
+
         /** 
          * true if the pixel viewport is immutable, false if the viewport is
          * immutable

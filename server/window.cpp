@@ -30,6 +30,7 @@ void Window::_construct()
     _fixedPVP        = false;
     _lastDrawChannel = 0;
     _maxFPS          = numeric_limits< float >::max();
+    _doSwap          = false;
 
     EQINFO << "New window @" << (void*)this << endl;
 }
@@ -407,6 +408,7 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
     if( !_lastDrawChannel ) // happens when used channels skip a frame
         _lastDrawChannel = _channels[0];
+    _doSwap = false;
 
     eq::WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
@@ -420,7 +422,9 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     {
         Channel* channel = *i;
         if( channel->isUsed( ))
-            channel->updateDraw( frameID, frameNumber );
+        {
+            _doSwap |= channel->updateDraw( frameID, frameNumber );
+        }
     }
 }
 
@@ -481,11 +485,15 @@ void Window::_updateSwap( const uint32_t frameNumber )
 
     _resetSwapBarriers();
 
-    eq::WindowSwapPacket packet;
-    packet.minFrameTime = 1000.0f / _maxFPS;
+    if( _doSwap )
+    {
+        eq::WindowSwapPacket packet;
+        packet.minFrameTime = 1000.0f / _maxFPS;
 
-    _send( packet );
-    EQLOG( eq::LOG_TASKS ) << "TASK swap  " << &packet << endl;
+        _send( packet );
+        EQLOG( eq::LOG_TASKS ) << "TASK swap  " << &packet << endl;
+    }
+
     _maxFPS = numeric_limits< float >::max();
 }
 

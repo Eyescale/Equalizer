@@ -294,7 +294,7 @@ bool Channel::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
+bool Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
     const CompoundVector& compounds = getCompounds();
     if( !_lastDrawCompound ) // happens when a used channel skips a frame
@@ -308,6 +308,8 @@ void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK channel start frame  " << &startPacket
                            << endl;
+
+    bool updated = false;
 
     for( CompoundVector::const_iterator i = compounds.begin(); 
          i != compounds.end(); ++i )
@@ -323,7 +325,11 @@ void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 
         visitor.setEye( eq::EYE_RIGHT );
         compound->accept( &visitor, true /* activeOnly */ );
+        
+        updated |= visitor.isUpdated();
     }
+
+    return updated;
 }
 
 void Channel::updatePost( const uint32_t frameID, const uint32_t frameNumber )

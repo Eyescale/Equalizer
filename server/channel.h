@@ -209,8 +209,9 @@ namespace server
          * @param frameID a per-frame identifier passed to all rendering
          *                methods.
          * @param frameNumber the number of the frame.
+         * @return true if at least one rendering task was sent.
          */
-        void updateDraw( const uint32_t frameID, const uint32_t frameNumber );
+        bool updateDraw( const uint32_t frameID, const uint32_t frameNumber );
 
         /** 
          * Trigger the post-draw operations.

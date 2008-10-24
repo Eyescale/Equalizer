@@ -37,11 +37,14 @@ namespace server
         /** Visit a non-leaf compound on the up traversal. */
         virtual Compound::VisitorResult visitPost( const Compound* compound );
 
+        bool isUpdated() const { return _updated; }
+
     private:
         Channel*       _channel;
         eq::Eye        _eye;
         const uint32_t _frameID;
         const uint32_t _frameNumber;
+        bool           _updated;
 
         void _updateDrawFinish( const Compound* compound ) const;
         void _updateFrameRate( const Compound* compound ) const;

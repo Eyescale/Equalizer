@@ -24,6 +24,7 @@ ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
         , _eye( eq::EYE_CYCLOP )
         , _frameID( frameID )
         , _frameNumber( frameNumber )
+        , _updated( false )
 {}
 
 Compound::VisitorResult ChannelUpdateVisitor::visitPre( 
@@ -44,6 +45,7 @@ Compound::VisitorResult ChannelUpdateVisitor::visitPre(
         
         _setupRenderContext( compound, clearPacket.context );
         _channel->send( clearPacket );
+        _updated = true;
         EQLOG( eq::LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
                                << &clearPacket << endl;
     }
@@ -71,6 +73,7 @@ Compound::VisitorResult ChannelUpdateVisitor::visitLeaf(
         eq::ChannelFrameClearPacket clearPacket;        
         clearPacket.context = context;
         _channel->send( clearPacket );
+        _updated = true;
         EQLOG( eq::LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
                            << &clearPacket << endl;
     }
@@ -80,6 +83,7 @@ Compound::VisitorResult ChannelUpdateVisitor::visitLeaf(
 
         drawPacket.context = context;
         _channel->send( drawPacket );
+        _updated = true;
         EQLOG( eq::LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
                            << &drawPacket << endl;
     }
@@ -415,6 +419,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
         << "TASK assemble " << _channel->getName() <<  " " << &packet << endl;
     _channel->send<net::ObjectVersion>( packet, frameIDs );
+    _updated = true;
 }
     
 void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
@@ -455,7 +460,8 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         << "TASK readback " << _channel->getName() <<  " "
         << &packet << endl;
     _channel->send<net::ObjectVersion>( packet, frameIDs );
-    
+    _updated = true;
+
     // transmit tasks
     Node*                 node         = _channel->getNode();
     net::NodePtr   netNode      = node->getNode();
