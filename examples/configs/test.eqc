@@ -1,73 +1,133 @@
-# 2-window test config
+# single pipe, multi-level DB / Pixel configuration. 
+
+global
+{
+    EQ_WINDOW_IATTR_PLANES_STENCIL 1
+    EQ_WINDOW_IATTR_HINT_SWAPSYNC  0
+}
+
 server
 {
     config
     {
-        latency 3
         appNode
         {
             pipe
             {
                 window
                 {
-                    attributes { hint_doublebuffer 0 }
-                    viewport [ 100 100 480 300 ]
-                    channel
-                    {
-                        name "channel1"
-                    }
+                    viewport [ 48 670 500 300 ]
+                    name "First Half 1"
+
+                    channel { name "channel-first-1" }
                 }
-            }
-            pipe
-            {
                 window
                 {
-                    attributes { hint_doublebuffer 0 }
-                    viewport [ 580 100 480 300 ]
-                    channel
-                    {
-                        name "channel2"
-                    }
+                    viewport [ 304 670 500 300 ]
+                    name "First Half 2"
+
+                    channel { name "channel-first-2" }
                 }
-            }
-            pipe
-            {
                 window
                 {
-                    viewport [ 580 450 480 300 ]
-                    channel
-                    {
-                        name "dest"
-                    }
+                    viewport [ 560 670 500 300 ]
+                    name "Second Half 1"
+
+                    channel { name "channel-second-1" }
+                }
+                window
+                {
+                    viewport [ 816 670 500 300 ]
+                    name "Second Half 2"
+
+                    channel { name "channel-second-2" }
+                }
+
+                window
+                {
+                    viewport [ 51 345 500 300 ]
+                    name "First Half"
+
+                    channel { name "channel-first" }
+                }
+                window
+                {
+                    viewport [ 563 345 500 300 ]
+                    name "Second Half"
+
+                    channel { name "channel-second" }
+                }
+
+                window
+                {
+                    viewport [ 312 20 500 300 ]
+                    name "Result"
+                    attributes { hint_swapsync 1 }
+                    channel { name "channel-all" }
                 }
             }
         }
         compound
-        { 
+        {
+            channel "channel-all"
+            task    [ CLEAR ASSEMBLE ] 
+            buffer  [ COLOR DEPTH ]
+
             wall
             {
-                bottom_left  [ -.32 -.2 -1 ]
-                bottom_right [  .32 -.2 -1 ]
-                top_left     [ -.32  .2 -1 ]
+                bottom_left  [ -.32 -.2 -.75 ]
+                bottom_right [  .32 -.2 -.75 ]
+                top_left     [ -.32  .2 -.75 ]
             }
-            channel "dest"
+            loadBalancer { mode 2D }
 
             compound
-            { 
-                channel "channel1"
-                phase  0
-                period 2
-                outputframe {}
+            {
+                channel "channel-first"
+                task    [ CLEAR ASSEMBLE ] 
+
+                compound
+                {
+                    channel  "channel-first-1"
+                    range   [ 0 .5 ]
+                    outputframe {}
+                }
+                compound
+                {
+                    channel  "channel-first-2"
+                    range   [ .5 1 ]
+                    outputframe {}
+                }
+
+                inputframe{ name "frame.channel-first-1" }
+                inputframe{ name "frame.channel-first-2" }
             }
             compound
-            { 
-                channel "channel2"
-                phase  1
-                period 2
-                outputframe {}
+            {
+                channel "channel-second"
+                task    [ CLEAR ASSEMBLE ] 
+
+                compound
+                {
+                    channel  "channel-second-1"
+                    range   [ 0 .5 ]
+                    outputframe {}
+                }
+                compound
+                {
+                    channel  "channel-second-2"
+                    range   [ .5 1 ]
+                    outputframe {}
+                }
+
+                inputframe{ name "frame.channel-second-1" }
+                inputframe{ name "frame.channel-second-2" }
             }
-            inputframe { name "frame.channel1" }
-            inputframe { name "frame.channel2" }
+
+            inputframe{ name "frame.channel-first-1" }
+            inputframe{ name "frame.channel-first-2" }
+            inputframe{ name "frame.channel-second-1" }
+            inputframe{ name "frame.channel-second-2" }
         }
     }    
 }

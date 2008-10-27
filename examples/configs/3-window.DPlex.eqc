@@ -3,7 +3,7 @@ server
 {
     config
     {
-        latency 3 # min: number of source channels, opt: no + 1
+        latency 3 # min: period, opt: period + 1
         appNode
         {
             pipe
@@ -12,6 +12,7 @@ server
                 {
 #                    attributes { hint_doublebuffer 0 hint_drawable pbuffer }
                     viewport [ 100 100 480 300 ]
+                    attributes { hint_swapsync 0 }
                     channel
                     {
                         name "channel1"
@@ -24,6 +25,7 @@ server
                 {
 #                    attributes { hint_doublebuffer 0 hint_drawable pbuffer }
                     viewport [ 580 100 480 300 ]
+                    attributes { hint_swapsync 0 }
                     channel
                     {
                         name "channel2"
