@@ -21,6 +21,7 @@ private:
         MODE_DB,
         MODE_DB_DS,
         MODE_DB_DS_AC,
+        MODE_DPLEX,
         MODE_WALL,
         MODE_ALL
     }
@@ -40,6 +41,7 @@ private:
     void _writeDB()         const;
     void _writeDS()         const;
     void _writeDSAC()       const;
+    void _writeDPlex()      const;
     void _writeWall()       const;
 };
 

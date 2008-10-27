@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "configTool.h"
@@ -54,7 +54,8 @@ bool ConfigTool::parseArguments( int argc, char** argv )
         TCLAP::ValueArg<string> modeArg( "m", "mode",
                                          "Compound mode (default 2D)",
                                          false, "2D",
-                                         "2D|DB|DB_ds|DB_ds_ac|Wall", command );
+                                         "2D|DB|DB_ds|DB_ds_ac|DPlex|Wall", 
+                                         command );
 
         TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes",
                                          "Number of pipes per node (default 1)",
@@ -78,7 +79,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
 
         TCLAP::ValueArg<string> nodesArg( "n", "nodes", 
                                           "file with list of node-names",
-                                         false, "", "", command );
+                                          false, "", "filename", command );
 
         command.parse( argc, argv );
 
@@ -121,6 +122,8 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                     return false;
                 }
             }
+            else if( mode == "DPlex" )
+                _mode = MODE_DPLEX;
             else if( mode == "Wall" )
             {
                 _mode   = MODE_WALL;
@@ -259,6 +262,10 @@ void ConfigTool::_writeCompound() const
 
         case MODE_DB_DS_AC:
             _writeDSAC();
+            break;
+
+        case MODE_DPLEX:
+            _writeDPlex();
             break;
 
         case MODE_WALL:
@@ -550,6 +557,39 @@ void ConfigTool::_writeDSAC() const
         cout << "            inputframe{ name \"frame.channel" << i*2 << "\" }" 
              << endl;
     cout << "        }" << endl;    
+}
+
+void ConfigTool::_writeDPlex() const
+{
+    cout << "        compound" << endl
+         << "        {" << endl
+         << "            channel     \"channel0\"" << endl
+         << "            buffer      [ COLOR DEPTH ]" << endl
+         << "            wall" << endl
+         << "            {" << endl
+         << "                bottom_left  [ -.32 -.20 -.75 ]" << endl
+         << "                bottom_right [  .32 -.20 -.75 ]" << endl
+         << "                top_left     [ -.32  .20 -.75 ]" << endl
+         << "            }" << endl
+         << "            task        [ CLEAR ASSEMBLE ]" << endl
+         << "            loadBalancer{ mode DPLEX }" << endl;
+
+    const unsigned period = _nChannels - 1;
+    unsigned       phase  = 0;
+    for( unsigned i = 1; i<_nChannels; ++i )
+    {
+        cout << "            compound" << endl
+             << "            {" << endl
+             << "                channel   \"channel" << i << "\"" << endl
+             << "                period " << period << " phase " << phase <<endl
+             << "                outputframe{ name \"frame.DPlex\" }" << endl
+             << "            }" << endl;
+
+        ++phase;
+    }
+    
+    cout << "            inputframe{ name \"frame.DPlex\" }" << endl
+         << "        }" << endl;    
 }
 
 void ConfigTool::_writeWall() const
