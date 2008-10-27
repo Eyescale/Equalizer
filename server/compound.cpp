@@ -727,12 +727,15 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     }
 
     const uint32_t period = compound->getPeriod();
+    const uint32_t phase  = compound->getPhase();
     if( period != EQ_UNDEFINED_UINT32 )
-        os << "period   " << period << endl;
+        os << "period " << period << "  ";
 
-    const uint32_t phase = compound->getPhase();
     if( phase != EQ_UNDEFINED_UINT32 )
-        os << "phase    " << phase << endl;
+        os << "phase " << phase;
+
+    if( period != EQ_UNDEFINED_UINT32 || phase != EQ_UNDEFINED_UINT32 )
+        os << endl;
 
     // attributes
     bool attrPrinted = false;
