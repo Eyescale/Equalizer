@@ -397,6 +397,21 @@ vmml::Vector2i Channel::getScreenSize() const
     return _context ? _context->screenSize : vmml::Vector2i( _pvp.w, _pvp.h );
 }
 
+vmml::Frustumf Channel::getScreenFrustum() const
+{
+    vmml::Vector2i       origin = getScreenOrigin();
+    const PixelViewport& pvp    = getPixelViewport();
+    const Pixel&         pixel  = getPixel();
+
+    origin.x += pixel.x;
+    origin.y += pixel.y;
+
+    return vmml::Frustumf( origin.x, origin.x + pvp.w * pixel.w,
+                           origin.y, origin.y + pvp.h * pixel.h,
+                           -1.f, 1.f );
+}
+
+
 void Channel::applyBuffer() const
 {
     EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
@@ -444,14 +459,13 @@ void Channel::applyOrtho() const
 	EQVERB << "Apply " << ortho << endl;
 }
 
-
 void Channel::applyScreenFrustum() const
 {
-    const vmml::Vector2i& origin = getScreenOrigin();
-    const vmml::Vector2i  size   = getScreenSize();
-    EQ_GL_CALL( glOrtho( origin.x, origin.y,                    \
-                         origin.x + size.x, origin.y + size.y,  \
-                         -1, 1 ));
+    const vmml::Frustumf frustum = getScreenFrustum();
+    EQ_GL_CALL( glOrtho( frustum.left, frustum.right,               \
+                         frustum.bottom, frustum.top,               \
+                         frustum.nearPlane, frustum.farPlane ));
+    EQVERB << "Apply " << frustum << endl;
 }
 
 void Channel::applyHeadTransform() const

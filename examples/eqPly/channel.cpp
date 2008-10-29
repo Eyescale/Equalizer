@@ -97,13 +97,12 @@ void Channel::frameDraw( const uint32_t frameID )
         glEnd();
     }
 
+    if( range == eq::Range::ALL )
+        _drawLogo();
+
 #ifndef NDEBUG
     outlineViewport();
 #endif
-
-    const eq::Viewport& vp = getViewport();
-    if( range == eq::Range::ALL && vp == eq::Viewport::FULL )
-        _drawLogo();
 }
 
 void Channel::frameAssemble( const uint32_t frameID )
@@ -245,18 +244,9 @@ void Channel::_drawLogo()
     if( !texture )
         return;
     
-    const eq::PixelViewport& pvp    = getPixelViewport();
-    const vmml::Vector2i&    offset = getPixelOffset();
-    const eq::Pixel&         pixel  = getPixel();
-
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    glOrtho( offset.x * pixel.w + pixel.x, 
-             (offset.x + pvp.w) * pixel.w + pixel.x, 
-             offset.y * pixel.h + pixel.y, 
-             (offset.y + pvp.h) * pixel.h + pixel.y, 
-             0., 1. );
-
+    applyScreenFrustum();
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
@@ -275,28 +265,17 @@ void Channel::_drawLogo()
     glColor3f( 1.0f, 1.0f, 1.0f );
     glBegin( GL_TRIANGLE_STRIP ); {
         glTexCoord2f( 0.0f, 0.0f );
-        glVertex3f( 0.0f, 0.0f, 0.0f );
-        
+        glVertex3f( 5.0f, 5.0f, 0.0f );
+
         glTexCoord2f( size.x, 0.0f );
-        glVertex3f( size.x, 0.0f, 0.0f );
-        
+        glVertex3f( size.x + 5.0f, 5.0f, 0.0f );
+
         glTexCoord2f( 0.0f, size.y );
-        glVertex3f( 0.0f, size.y, 0.0f );
-        
+        glVertex3f( 5.0f, size.y + 5.0f, 0.0f );
+
         glTexCoord2f( size.x, size.y );
-        glVertex3f( size.x, size.y, 0.0f );
+        glVertex3f( size.x + 5.0f, size.y + 5.0f, 0.0f );
     } glEnd();
-
-#if 0
-    const eq::PixelViewport& channelPVP = getPixelViewport();
-
-    glRasterPos3f( channelPVP.x + 5.0f, channelPVP.getYEnd() - 20.0f, 0.0f );
-    string text = "Channel '" + getName() + "'";
-
-    const eq::util::BitmapFont& font = 
-        window->getObjectManager()->getDefaultFont();
-    font.draw( text );
-#endif
 
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     glDisable( GL_BLEND );

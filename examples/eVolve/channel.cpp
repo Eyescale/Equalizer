@@ -136,13 +136,11 @@ void Channel::frameDraw( const uint32_t frameID )
     _drawRange = range;
 }
 
-
 const FrameData::Data& Channel::_getFrameData() const
 {
     const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
     return pipe->getFrameData();
 }
-
 
 void Channel::applyFrustum() const
 {
@@ -325,7 +323,7 @@ void Channel::frameReadback( const uint32_t frameID )
 
 void Channel::_drawLogo()
 {
-    const Window*  window = static_cast<Window*>( getWindow( ));
+    const Window*  window      = static_cast<Window*>( getWindow( ));
     GLuint         texture;
     vmml::Vector2i size;
 
@@ -333,21 +331,9 @@ void Channel::_drawLogo()
     if( !texture )
         return;
     
-    const eq::PixelViewport& pvp    = getPixelViewport();
-    const vmml::Vector2i&    offset = getPixelOffset();
-    const eq::Pixel&         pixel   = getPixel();
-
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    glOrtho( offset.x * pixel.w + pixel.x, 
-             (offset.x + pvp.w) * pixel.w + pixel.x, 
-             offset.y * pixel.h + pixel.y, 
-             (offset.y + pvp.h) * pixel.h + pixel.y, 
-             0., 1. );
-
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-
+    applyScreenFrustum();
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
@@ -366,16 +352,16 @@ void Channel::_drawLogo()
     glColor3f( 1.0f, 1.0f, 1.0f );
     glBegin( GL_TRIANGLE_STRIP ); {
         glTexCoord2f( 0.0f, 0.0f );
-        glVertex3f( 0.0f, 0.0f, 0.0f );
+        glVertex3f( 5.0f, 5.0f, 0.0f );
 
         glTexCoord2f( size.x, 0.0f );
-        glVertex3f( size.x, 0.0f, 0.0f );
+        glVertex3f( size.x + 5.0f, 5.0f, 0.0f );
 
         glTexCoord2f( 0.0f, size.y );
-        glVertex3f( 0.0f, size.y, 0.0f );
+        glVertex3f( 5.0f, size.y + 5.0f, 0.0f );
 
         glTexCoord2f( size.x, size.y );
-        glVertex3f( size.x, size.y, 0.0f );
+        glVertex3f( size.x + 5.0f, size.y + 5.0f, 0.0f );
     } glEnd();
 
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
