@@ -15,8 +15,13 @@ namespace eq
 {
 namespace server
 {
-    /** Adapts the frame rate of a compound to smoothen its output. */
-    class SmoothLoadBalancer : public LoadBalancerIF, protected ChannelListener
+    /** 
+     * Adapts the frame rate of a compound to smoothen its output. 
+     * 
+     * Does not support period settings underneath a child. One channel should
+     * not be used in compounds with a different inherit period.
+     */
+    class SmoothLoadBalancer : public LoadBalancerIF
     {
     public:
         SmoothLoadBalancer( const LoadBalancer& parent );
@@ -25,12 +30,6 @@ namespace server
         /** @sa LoadBalancerIF::update */
         virtual void update( const uint32_t frameNumber );
 
-        /** @sa ChannelListener::notifyLoadData */
-        virtual void notifyLoadData( Channel* channel, 
-                                     const uint32_t frameNumber,
-                                     const float startTime, const float endTime
-                                     /*, const float load */ );
-
     private:
         /** Frame number with max time. */
         typedef std::pair< uint32_t, float > FrameTime;
@@ -38,8 +37,23 @@ namespace server
         /** Historical data to compute new frame rate. */
         std::deque< FrameTime > _times;
 
-        /** Used to identify the compound for a channel. */
-        std::map< Channel*, Compound* > _compoundMap;
+        /** Helper class connecting on child tree for load gathering. */
+        class LoadListener : public ChannelListener
+        {
+        public:
+            /** @sa ChannelListener::notifyLoadData */
+            virtual void notifyLoadData( Channel* channel, 
+                                         const uint32_t frameNumber,
+                                         const float startTime, 
+                                         const float endTime );
+
+            SmoothLoadBalancer* parent;
+            uint32_t            period;
+        };
+
+        /** One listener for each compound child. */
+        std::vector< LoadListener > _loadListeners;
+        friend class LoadListener;
 
         /** The number of samples to use from _times. */
         uint32_t _nSamples;

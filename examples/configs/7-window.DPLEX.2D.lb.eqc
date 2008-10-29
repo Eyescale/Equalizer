@@ -1,0 +1,139 @@
+# single pipe, multi-level DB / 2D load-balanced configuration. 
+
+global
+{
+    EQ_WINDOW_IATTR_PLANES_STENCIL 1
+    EQ_WINDOW_IATTR_HINT_SWAPSYNC  0
+}
+
+server
+{
+    config
+    {
+        latency 3
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 10 450 300 300 ]
+                    name "First Half 1"
+
+                    channel { name "channel-first-1" }
+                }
+                window
+                {
+                    viewport [ 318 450 300 300 ]
+                    name "First Half 2"
+
+                    channel { name "channel-first-2" }
+                }
+                window
+                {
+                    viewport [ 164 100 300 300 ]
+                    name "First Half"
+
+                    channel { name "channel-first" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 626 450 300 300 ]
+                    name "Second Half 1"
+
+                    channel { name "channel-second-1" }
+                }
+                window
+                {
+                    viewport [ 934 450 300 300 ]
+                    name "Second Half 2"
+
+                    channel { name "channel-second-2" }
+                }
+                window
+                {
+                    viewport [ 780 100 300 300 ]
+                    name "Second Half"
+
+                    channel { name "channel-second" }
+                }
+            }
+            pipe
+            {
+
+                window
+                {
+                    viewport [ 472 50 300 300 ]
+                    name "Result"
+                    attributes { hint_swapsync 1 }
+                    channel { name "channel-all" }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel-all"
+            task    [ CLEAR ASSEMBLE ] 
+
+            wall
+            {
+                bottom_left  [ -.32 -.2 -.75 ]
+                bottom_right [  .32 -.2 -.75 ]
+                top_left     [ -.32  .2 -.75 ]
+            }
+            loadBalancer { mode DPLEX }
+
+            compound
+            {
+                channel "channel-first"
+                task    [ CLEAR ASSEMBLE ] 
+                period 2 phase 0
+
+                loadBalancer { mode 2D }
+
+                compound
+                {
+                    channel  "channel-first-1"
+                    outputframe {}
+                }
+                compound
+                {
+                    channel  "channel-first-2"
+                    outputframe {}
+                }
+
+                inputframe{ name "frame.channel-first-1" }
+                inputframe{ name "frame.channel-first-2" }
+            }
+            compound
+            {
+                channel "channel-second"
+                task    [ CLEAR ASSEMBLE ] 
+                period 2 phase 1
+                loadBalancer { mode 2D }
+
+                compound
+                {
+                    channel  "channel-second-1"
+                    outputframe {}
+                }
+                compound
+                {
+                    channel  "channel-second-2"
+                    outputframe {}
+                }
+
+                inputframe{ name "frame.channel-second-1" }
+                inputframe{ name "frame.channel-second-2" }
+            }
+
+            inputframe{ name "frame.channel-first-1" }
+            inputframe{ name "frame.channel-first-2" }
+            inputframe{ name "frame.channel-second-1" }
+            inputframe{ name "frame.channel-second-2" }
+        }
+    }    
+}

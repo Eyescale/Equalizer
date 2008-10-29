@@ -118,12 +118,11 @@ namespace server
          */
         void setLatency( const uint32_t latency ) { _latency = latency; }
 
-        /** 
-         * Return the latency for this config.
-         * @return the latency for this config.
-         */
+        /** @return the latency for this config. */
         uint32_t getLatency() const { return _latency; }
 
+        /** @return the last finished frame. */
+        uint32_t getFinishedFrame() const { return _finishedFrame; }
         /** 
          * Set the name of the application.
          * 

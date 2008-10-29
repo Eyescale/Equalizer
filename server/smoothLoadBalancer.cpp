@@ -3,9 +3,11 @@
    All rights reserved. */
 
 #define NOMINMAX
+
 #include "smoothLoadBalancer.h"
 
 #include "compound.h"
+#include "compoundVisitor.h"
 #include "log.h"
 
 #include <eq/base/debug.h>
@@ -17,6 +19,46 @@ namespace eq
 {
 namespace server
 {
+
+namespace
+{
+class LoadSubscriber : public CompoundVisitor
+{
+public:
+    LoadSubscriber( ChannelListener* listener ) : _listener( listener ) {}
+
+    virtual Compound::VisitorResult visit( Compound* compound )
+        {
+            Channel*  channel = compound->getChannel();
+            EQASSERT( channel );
+            channel->addListener( _listener );
+
+            return Compound::TRAVERSE_CONTINUE; 
+        }
+
+private:
+    ChannelListener* const _listener;
+};
+
+class LoadUnsubscriber : public CompoundVisitor
+{
+public:
+    LoadUnsubscriber( ChannelListener* listener ) : _listener( listener ) {}
+
+    virtual Compound::VisitorResult visit( Compound* compound )
+        {
+            Channel*  channel = compound->getChannel();
+            EQASSERT( channel );
+            channel->removeListener( _listener );
+
+            return Compound::TRAVERSE_CONTINUE; 
+        }
+
+private:
+    ChannelListener* const _listener;
+};
+
+}
 
 // The smooth load balancer adapts the framerate of the compound to be the
 // average frame rate of all children, taking the DPlex period into account.
@@ -33,17 +75,18 @@ SmoothLoadBalancer::~SmoothLoadBalancer()
     const Compound*       compound = _parent.getCompound();
     const CompoundVector& children = compound->getChildren();
 
-    for( CompoundVector::const_iterator i = children.begin();
-         i != children.end(); ++i )
+    EQASSERT( _loadListeners.size() == children.size( ));
+    for( size_t i = 0; i < children.size(); ++i )
     {
-        Compound* child   = *i;
-        Channel*  channel = child->getChannel();
-        EQASSERT( channel );
-        channel->removeListener( this );
+        Compound*      child        = children[i];
+        LoadListener&  loadListener = _loadListeners[i];
+
+        LoadUnsubscriber unsubscriber( &loadListener );
+        child->accept( &unsubscriber, false /* activeOnly */ );
     }
 
+    _loadListeners.clear();
     _times.clear();
-    _compoundMap.clear();
 }
 
 void SmoothLoadBalancer::update( const uint32_t frameNumber )
@@ -69,12 +112,15 @@ void SmoothLoadBalancer::update( const uint32_t frameNumber )
     }
 
     // find max time in block
+    const Config*  config        = compound->getConfig();
+    const uint32_t finishedFrame = config->getFinishedFrame();
+
     size_t nSamples = 0;
     float  maxTime  = 0.f;
     for( ++from; from < size && nSamples < _nSamples; ++from )
     {
         const FrameTime& time = _times[from];
-        if( time.second == 0.f )
+        if( time.second == 0.f || time.first < finishedFrame )
             continue;
 
         EQASSERT( time.first > 0 );
@@ -108,48 +154,41 @@ bool SmoothLoadBalancer::_init()
     // Subscribe to child channel load events
     const Compound*       compound = _parent.getCompound();
     const CompoundVector& children = compound->getChildren();
+    
+    EQASSERT( _loadListeners.empty( ));
+    _loadListeners.resize( children.size( ));
 
-    for( CompoundVector::const_iterator i = children.begin();
-         i != children.end(); ++i )
+    for( size_t i = 0; i < children.size(); ++i )
     {
-        Compound* child   = *i;
-        Channel*  channel = child->getChannel();
-        EQASSERT( channel );
+        Compound*      child        = children[i];
+        const uint32_t period       = child->getInheritPeriod();
+        LoadListener&  loadListener = _loadListeners[i];
 
-        EQASSERTINFO( _compoundMap.find( channel ) == _compoundMap.end(),
-                      "Unimplemented feature: Usage of the same channel '"
-                      << channel->getName() << "' multiple compound children"
-                      << endl );
+        loadListener.parent = this;
+        loadListener.period = period;
 
-        _compoundMap[ channel ] = child;
-        channel->addListener( this );
-        _nSamples = EQ_MAX( _nSamples, child->getInheritPeriod( ));
+        LoadSubscriber subscriber( &loadListener );
+        child->accept( &subscriber, false /* activeOnly */ );
+
+        _nSamples = EQ_MAX( _nSamples, period );
     }
 
     _nSamples = EQ_MIN( _nSamples, 100 );       
     return true;
 }
 
-void SmoothLoadBalancer::notifyLoadData( Channel* channel, 
-                                         const uint32_t frameNumber,
-                                         const float startTime, 
-                                         const float endTime
-                                         /*, const float load */ )
+void SmoothLoadBalancer::LoadListener::notifyLoadData( 
+    Channel* channel, const uint32_t frameNumber,
+    const float startTime, const float endTime )
 {
-    for( deque< FrameTime >::iterator i = _times.begin();
-         i != _times.end(); ++i )
+    for( deque< FrameTime >::iterator i = parent->_times.begin();
+         i != parent->_times.end(); ++i )
     {
         FrameTime& frameTime = *i;
         if( frameTime.first != frameNumber )
             continue;
 
-        EQASSERT( _compoundMap.find( channel ) != _compoundMap.end( ));
-        
-        const Compound* compound = _compoundMap[ channel ];
-        const float     period   = static_cast< float >( 
-                                       compound->getInheritPeriod( ));
-        const float     time     = (endTime - startTime) / period;
-
+        const float time = (endTime - startTime) / period;
         frameTime.second = EQ_MAX( frameTime.second, time );
         EQLOG( LOG_LB ) << "Frame " << frameNumber << " channel " 
                         << channel->getName() << " time " << time
