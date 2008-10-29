@@ -8,7 +8,6 @@
 #include <eq/client/windowSystem.h>
 
 #include <eq/base/hash.h>
-#include <eq/base/thread.h>
 
 namespace eq
 {
@@ -38,10 +37,10 @@ namespace eq
         virtual void deregisterPipe( Pipe* pipe ) = 0;
         
     protected:
-        /** Constructs a new event thread. */
+        /** Constructs a new event handler. */
         EventHandler() : _lastEventWindow( 0 ) {}
 
-        /** Destructs the event thread. */
+        /** Destructs the event handler. */
         virtual ~EventHandler(){}
 
         /** Compute the mouse move delta from the previous pointer event. */
