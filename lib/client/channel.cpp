@@ -387,6 +387,16 @@ const vmml::Matrix4f& Channel::getHeadTransform() const
     return _context ? _context->headTransform : vmml::Matrix4f::IDENTITY;
 }
 
+const vmml::Vector2i& Channel::getScreenOrigin() const
+{
+    return _context ? _context->screenOrigin : vmml::Vector2i::ZERO;
+}
+
+vmml::Vector2i Channel::getScreenSize() const
+{
+    return _context ? _context->screenSize : vmml::Vector2i( _pvp.w, _pvp.h );
+}
+
 void Channel::applyBuffer() const
 {
     EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
@@ -428,10 +438,20 @@ void Channel::applyFrustum() const
 void Channel::applyOrtho() const
 {
 	const vmml::Frustumf& ortho = getOrtho();
-	EQ_GL_CALL( glOrtho( ortho.left, ortho.right,             \
+	EQ_GL_CALL( glOrtho( ortho.left, ortho.right,               \
                          ortho.bottom, ortho.top,               \
                          ortho.nearPlane, ortho.farPlane )); 
 	EQVERB << "Apply " << ortho << endl;
+}
+
+
+void Channel::applyScreenFrustum() const
+{
+    const vmml::Vector2i& origin = getScreenOrigin();
+    const vmml::Vector2i  size   = getScreenSize();
+    EQ_GL_CALL( glOrtho( origin.x, origin.y,                    \
+                         origin.x + size.x, origin.y + size.y,  \
+                         -1, 1 ));
 }
 
 void Channel::applyHeadTransform() const

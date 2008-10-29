@@ -160,6 +160,7 @@ fov                             { return EQTOKEN_FOV; }
 hpr                             { return EQTOKEN_HPR; }
 latency                         { return EQTOKEN_LATENCY; }
 swapbarrier                     { return EQTOKEN_SWAPBARRIER; }
+screen                          { return EQTOKEN_SCREEN; }
 outputframe                     { return EQTOKEN_OUTPUTFRAME; }
 inputframe                      { return EQTOKEN_INPUTFRAME; }
 stereo_mode                     { return EQTOKEN_STEREO_MODE; }

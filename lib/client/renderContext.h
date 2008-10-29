@@ -34,6 +34,8 @@ namespace eq
         Range          range;          //<! database-range wrt to dest channel
         Pixel          pixel;          //<! pixel decomposition wrt to dest
         vmml::Vector2i offset;         //<! absolute position wrt dest channel
+        vmml::Vector2i screenOrigin;   //<! absolute position wrt screen
+        vmml::Vector2i screenSize;     //<! size of screen
         Eye            eye;            //<! current eye pass
     };
 

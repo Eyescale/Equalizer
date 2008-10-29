@@ -118,6 +118,8 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.pixel          = compound->getInheritPixel();
     context.offset.x       = context.pvp.x;
     context.offset.y       = context.pvp.y;
+    context.screenOrigin  = context.offset + compound->getInheritScreenOrigin();
+    context.screenSize     = compound->getInheritScreenSize();
     context.eye            = _eye;
     context.buffer         = _getDrawBuffer();
     context.drawBufferMask = _getDrawBufferMask( compound );

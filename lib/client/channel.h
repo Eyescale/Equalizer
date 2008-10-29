@@ -169,6 +169,16 @@ namespace eq
 
         /** @return the list of output frames, used from frameReadback(). */
         const FrameVector& getOutputFrames() { return _outputFrames; }
+
+        /** @name 2D Operations */
+        //*{
+        /** @return the position of this channel wrt 2D virtual screen. */
+        const vmml::Vector2i& getScreenOrigin() const;
+
+        /** @return the size of the 2D virtual screen. */
+        vmml::Vector2i getScreenSize() const;
+        //*}
+
         //*}
 
         /**
@@ -227,6 +237,18 @@ namespace eq
 
         /** Outlines the current pixel viewport. */
         virtual void outlineViewport();
+
+        /** @name 2D Operations */
+        //*{
+        /** 
+         * Apply a orthographic frustum for the 2D virtual screen. 
+         *
+         * One unit matches one 2D virtual screen pixel. The frustum is
+         * positioned this channel's virtual screen position. The z-range is
+         * [-1,1].
+         */
+        void applyScreenFrustum() const;
+        //*}
         //*}
 
         /**

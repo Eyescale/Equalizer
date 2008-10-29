@@ -1,11 +1,4 @@
-# single pipe, multi-level DB / Pixel configuration. 
-
-global
-{
-    EQ_WINDOW_IATTR_PLANES_STENCIL 1
-    EQ_WINDOW_IATTR_HINT_SWAPSYNC  0
-}
-
+# 2-window test config
 server
 {
     config
@@ -16,118 +9,69 @@ server
             {
                 window
                 {
-                    viewport [ 48 670 500 300 ]
-                    name "First Half 1"
-
-                    channel { name "channel-first-1" }
+                    viewport [ 100 100 480 300 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
                 }
                 window
                 {
-                    viewport [ 304 670 500 300 ]
-                    name "First Half 2"
-
-                    channel { name "channel-first-2" }
+                    viewport [ 580 100 480 300 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
                 }
                 window
                 {
-                    viewport [ 560 670 500 300 ]
-                    name "Second Half 1"
-
-                    channel { name "channel-second-1" }
+                    viewport [ 100 425 480 300 ]
+                    channel
+                    {
+                        name "channel3"
+                    }
                 }
                 window
                 {
-                    viewport [ 816 670 500 300 ]
-                    name "Second Half 2"
-
-                    channel { name "channel-second-2" }
-                }
-
-                window
-                {
-                    viewport [ 51 345 500 300 ]
-                    name "First Half"
-
-                    channel { name "channel-first" }
-                }
-                window
-                {
-                    viewport [ 563 345 500 300 ]
-                    name "Second Half"
-
-                    channel { name "channel-second" }
-                }
-
-                window
-                {
-                    viewport [ 312 20 500 300 ]
-                    name "Result"
-                    attributes { hint_swapsync 1 }
-                    channel { name "channel-all" }
+                    viewport [ 580 425 480 300 ]
+                    channel
+                    {
+                        name "channel4"
+                    }
                 }
             }
         }
         compound
-        {
-            channel "channel-all"
-            task    [ CLEAR ASSEMBLE ] 
-            buffer  [ COLOR DEPTH ]
-
+        { 
             wall
             {
-                bottom_left  [ -.32 -.2 -.75 ]
-                bottom_right [  .32 -.2 -.75 ]
-                top_left     [ -.32  .2 -.75 ]
+                bottom_left  [ -.64 -.4 -1 ]
+                bottom_right [  .64 -.4 -1 ]
+                top_left     [ -.64  .4 -1 ]
             }
-            loadBalancer { mode 2D }
 
             compound
-            {
-                channel "channel-first"
-                task    [ CLEAR ASSEMBLE ] 
-
-                compound
-                {
-                    channel  "channel-first-1"
-                    range   [ 0 .5 ]
-                    outputframe {}
-                }
-                compound
-                {
-                    channel  "channel-first-2"
-                    range   [ .5 1 ]
-                    outputframe {}
-                }
-
-                inputframe{ name "frame.channel-first-1" }
-                inputframe{ name "frame.channel-first-2" }
+            { 
+                channel "channel1"
+                viewport [ 0 .5 .5 .5 ]
+                screen [ 1 100 100 ]
             }
             compound
-            {
-                channel "channel-second"
-                task    [ CLEAR ASSEMBLE ] 
-
-                compound
-                {
-                    channel  "channel-second-1"
-                    range   [ 0 .5 ]
-                    outputframe {}
-                }
-                compound
-                {
-                    channel  "channel-second-2"
-                    range   [ .5 1 ]
-                    outputframe {}
-                }
-
-                inputframe{ name "frame.channel-second-1" }
-                inputframe{ name "frame.channel-second-2" }
+            { 
+                channel "channel2"
+                viewport [ .5 .5 .5 .5 ]
+            }
+            compound
+            { 
+                channel "channel3"
+                viewport [ 0 0 .5 .5 ]
+            }
+            compound
+            { 
+                channel "channel4"
+                viewport [ .5 0 .5 .5 ]
             }
 
-            inputframe{ name "frame.channel-first-1" }
-            inputframe{ name "frame.channel-first-2" }
-            inputframe{ name "frame.channel-second-1" }
-            inputframe{ name "frame.channel-second-2" }
         }
     }    
 }
