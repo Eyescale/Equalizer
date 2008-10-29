@@ -550,6 +550,11 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
         _inherit = _data;
         
+        if( _inherit.screen.origin.x == eq::AUTO )
+            _inherit.screen.origin.x = 0;
+        if( _inherit.screen.origin.y == eq::AUTO )
+            _inherit.screen.origin.y = 0;
+
         if( _inherit.eyes == EYE_UNDEFINED )
             _inherit.eyes = EYE_CYCLOP_BIT;
 
@@ -626,10 +631,10 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             if( _inherit.pvp.isValid( ))
             {
                 // Auto-compute our screen origin offset
-                if( _inherit.screen.origin.x < 0 )
+                if( _inherit.screen.origin.x == eq::AUTO )
                     _inherit.screen.origin.x = 
                         _inherit.vp.x * (_inherit.pvp.w / _inherit.vp.w);
-                if( _inherit.screen.origin.y < 0 )
+                if( _inherit.screen.origin.y == eq::AUTO )
                     _inherit.screen.origin.y = 
                         _inherit.vp.y * (_inherit.pvp.h / _inherit.vp.h);
             }
@@ -649,12 +654,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] !=eq::UNDEFINED)
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] = 
                 _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
-    }
-
-    if( _inherit.channel )
-    {
-        _inherit.screen.origin.x = EQ_MAX( _inherit.screen.origin.x, 0 );
-        _inherit.screen.origin.y = EQ_MAX( _inherit.screen.origin.y, 0 );
     }
 
     if( _inherit.pvp.isValid( ))
@@ -835,9 +834,22 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     const uint32_t        screen = compound->getScreen();
     const vmml::Vector2i& origin = compound->getScreenOrigin();
     if( screen != 1 || origin != vmml::Vector2i( eq::AUTO, eq::AUTO ))
-        os << "screen   [ " << screen << ' ' 
-           << static_cast< eq::IAttrValue >( origin.x ) << ' '
-           << static_cast< eq::IAttrValue >( origin.y ) << " ]" << endl;
+    {
+        os << "screen   [ " << screen << ' ';
+        if( origin.x == eq::AUTO )
+            os << "AUTO";
+        else
+            os << origin.x;
+
+        os << ' ';
+
+        if( origin.y == eq::AUTO )
+            os << "AUTO";
+        else
+            os << origin.y;
+
+        os << " ]" << endl;
+    }
 
     if( compound->getLoadBalancer( ))
         os << compound->getLoadBalancer();

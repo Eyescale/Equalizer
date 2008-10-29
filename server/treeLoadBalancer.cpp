@@ -122,7 +122,7 @@ void TreeLoadBalancer::_clearTree( Node* node )
     if( node->compound )
     {
         Channel* channel = node->compound->getChannel();
-        EQASSERT( channel );
+        EQASSERTINFO( channel, node->compound );
         channel->removeListener( this );
     }
 }

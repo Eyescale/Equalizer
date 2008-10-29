@@ -54,7 +54,6 @@ server
             { 
                 channel "channel1"
                 viewport [ 0 .5 .5 .5 ]
-                screen [ 1 100 100 ]
             }
             compound
             { 
