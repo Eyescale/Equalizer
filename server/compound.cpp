@@ -99,22 +99,20 @@ Compound::~Compound()
         _loadBalancer = 0;
     }
 
+    for( CompoundVector::const_iterator i = _children.begin(); 
+         i != _children.end(); ++i )
+    {
+        Compound* compound = *i;
+        delete compound;
+    }
+    _children.clear();
+
     EQASSERT( _view.getID() == EQ_ID_INVALID );
 
     if( _config )
         _config->removeCompound( this );
 
     _config = 0;
-
-    for( CompoundVector::const_iterator i = _children.begin(); 
-         i != _children.end(); ++i )
-    {
-        Compound* compound = *i;
-
-        compound->_parent = 0;
-        delete compound;
-    }
-    _children.clear();
 
     for( FrameVector::const_iterator i = _inputFrames.begin(); 
          i != _inputFrames.end(); ++i )
@@ -135,6 +133,8 @@ Compound::~Compound()
         delete frame;
     }
     _outputFrames.clear();
+
+    _parent = 0;
 }
 
 Compound::InheritData::InheritData()
