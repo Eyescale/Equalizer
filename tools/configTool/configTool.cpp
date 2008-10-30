@@ -54,7 +54,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
         TCLAP::ValueArg<string> modeArg( "m", "mode",
                                          "Compound mode (default 2D)",
                                          false, "2D",
-                                         "2D|DB|DB_ds|DB_ds_ac|DPlex|Wall", 
+                                    "2D|DB|DB_ds|DB_stream|DB_ds_ac|DPlex|Wall",
                                          command );
 
         TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes",
@@ -111,6 +111,8 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                 _mode = MODE_DB;
             else if( mode == "DB_ds" )
                 _mode = MODE_DB_DS;
+            else if( mode == "DB_stream" )
+                _mode = MODE_DB_STREAM;
             else if( mode == "DB_ds_ac" )
             {
                 _mode = MODE_DB_DS_AC;
@@ -264,6 +266,10 @@ void ConfigTool::_writeCompound() const
             _writeDSAC();
             break;
 
+        case MODE_DB_STREAM:
+            _writeDBStream();
+            break;
+
         case MODE_DPLEX:
             _writeDPlex();
             break;
@@ -379,6 +385,55 @@ void ConfigTool::_writeDB() const
     cout << "        }" << endl;    
 }
 
+void ConfigTool::_writeDBStream() const
+{
+    cout << "        compound" << endl
+         << "        {" << endl
+         << "            channel   \"channel0\"" << endl
+         << "            buffer    [ COLOR DEPTH ]" << endl
+         << "            wall" << endl
+         << "            {" << endl
+         << "                bottom_left  [ -.32 -.20 -.75 ]" << endl
+         << "                bottom_right [  .32 -.20 -.75 ]" << endl
+         << "                top_left     [ -.32  .20 -.75 ]" << endl
+         << "            }" << endl;
+    if( !_useDestination )
+        cout << "            task      [ CLEAR ASSEMBLE ]" << endl;
+
+    const unsigned nDraw = _useDestination ? _nChannels : _nChannels - 1;
+    const unsigned step  = static_cast< unsigned >( 100000.0f / ( nDraw ));
+    const unsigned stop  = _useDestination ? 0 : 1;
+    unsigned start = 0;
+    for( unsigned i = _nChannels; i>stop; --i )
+    {
+        cout << "            compound" << endl
+             << "            {" << endl
+             << "                channel   \"channel" << i-1 << "\"" << endl;
+
+        if( i-1 == stop ) // last - correct rounding error
+            cout << "                range     [ 0." << setw(5) << start
+                 << " 1 ]" << endl;
+        else
+            cout << "                range     [ 0." << setw(5) << start
+                 << " 0." << setw(5) << start + step << " ]" << endl;
+
+        if( i != _nChannels )
+            cout << "                inputframe{  name \"frame.channel" << i
+                 << "\" }" << endl;
+ 
+        if( i != 1 ) 
+            cout << "                outputframe{ name \"frame.channel" << i-1
+                 <<"\" }" << endl;
+
+        cout << "            }" << endl;
+        start += step;
+    }
+    if( !_useDestination )
+        cout << "            inputframe{ name \"frame.channel1\" }" << endl;
+
+    cout << "        }" << endl;    
+}
+
 void ConfigTool::_writeDS() const
 {
     cout << "        compound" << endl
@@ -468,7 +523,7 @@ void ConfigTool::_writeDS() const
     cout << "        }" << endl;    
 }
 
-
+// each node has 2 GPU and compositing performed on separate GPU
 void ConfigTool::_writeDSAC() const
 {
     cout << "        compound" << endl

@@ -20,6 +20,7 @@ private:
         MODE_2D = 0,
         MODE_DB,
         MODE_DB_DS,
+        MODE_DB_STREAM,
         MODE_DB_DS_AC,
         MODE_DPLEX,
         MODE_WALL,
@@ -39,6 +40,7 @@ private:
     void _writeCompound()   const;
     void _write2D()         const;
     void _writeDB()         const;
+    void _writeDBStream()   const;
     void _writeDS()         const;
     void _writeDSAC()       const;
     void _writeDPlex()      const;
