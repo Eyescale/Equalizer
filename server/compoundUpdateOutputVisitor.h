@@ -29,16 +29,16 @@ namespace server
         virtual Compound::VisitorResult visitPost( Compound* compound )
             { return visitLeaf( compound ); }
 
-        const stde::hash_map<std::string, net::Barrier*>& getSwapBarriers()
+        const Compound::BarrierMap& getSwapBarriers()
             const { return _swapBarriers; }
-        const stde::hash_map<std::string, Frame*>& getOutputFrames() const
+        const Compound::FrameMap& getOutputFrames() const
             { return _outputFrames; }
 
     private:
         const uint32_t _frameNumber;
  
-        stde::hash_map<std::string, net::Barrier*> _swapBarriers;
-        stde::hash_map<std::string, Frame*>        _outputFrames;
+        Compound::BarrierMap _swapBarriers;
+        Compound::FrameMap   _outputFrames;
 
         void _updateOutput( Compound* compound );
         void _updateSwapBarriers( Compound* compound );

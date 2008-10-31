@@ -254,7 +254,7 @@ void Window::_resetSwapBarriers()
 
 net::Barrier* Window::newSwapBarrier()
 {
-    Node*           node    = getNode();
+    Node*         node    = getNode();
     net::Barrier* barrier = node->getBarrier();
     _masterSwapBarriers.push_back( barrier );
 
@@ -452,7 +452,7 @@ void Window::updatePost( const uint32_t frameID,
 
 void Window::_updateSwap( const uint32_t frameNumber )
 {
-    bool firstBarrier = false;
+    bool doFinish = true;
 
     for( vector<net::Barrier*>::iterator i = _swapBarriers.begin();
          i != _swapBarriers.end(); ++i )
@@ -465,14 +465,14 @@ void Window::_updateSwap( const uint32_t frameNumber )
             continue;
         }
 
-        if( !firstBarrier )
+        if( doFinish )
         {
             eq::WindowFinishPacket packet;
             _send( packet );
             EQLOG( eq::LOG_TASKS ) << "TASK finish  " << &packet << endl;
 
             updateFrameFinishNT( frameNumber );
-            firstBarrier = true;
+            doFinish = false;
         }
 
         eq::WindowBarrierPacket packet;

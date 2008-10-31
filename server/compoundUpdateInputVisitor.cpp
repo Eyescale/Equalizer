@@ -18,7 +18,7 @@ namespace eq
 namespace server
 {
 CompoundUpdateInputVisitor::CompoundUpdateInputVisitor(
-    const stde::hash_map<std::string, Frame*>& outputFrames )
+    const Compound::FrameMap& outputFrames )
         : _outputFrames( outputFrames )
 {}
 
@@ -36,9 +36,9 @@ Compound::VisitorResult CompoundUpdateInputVisitor::visitLeaf(
     for( vector<Frame*>::const_iterator i = inputFrames.begin(); 
          i != inputFrames.end(); ++i )
     {
-        Frame*                                  frame = *i;
-        const std::string&                       name = frame->getName();
-        hash_map<string, Frame*>::const_iterator iter =_outputFrames.find(name);
+        Frame*                             frame = *i;
+        const std::string&                 name = frame->getName();
+        Compound::FrameMap::const_iterator iter =_outputFrames.find(name);
 
         if( iter == _outputFrames.end())
         {

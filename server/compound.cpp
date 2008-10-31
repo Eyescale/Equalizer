@@ -528,8 +528,7 @@ void Compound::update( const uint32_t frameNumber )
     CompoundUpdateInputVisitor updateInputVisitor( outputFrames );
     accept( &updateInputVisitor, true /*activeOnly*/ );
 
-    const hash_map<std::string, net::Barrier*>& swapBarriers = 
-        updateOutputVisitor.getSwapBarriers();
+    const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
 
     for( hash_map<string, net::Barrier*>::const_iterator i = 
              swapBarriers.begin(); i != swapBarriers.end(); ++i )

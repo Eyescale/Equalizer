@@ -131,13 +131,12 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
         return;
 
     const std::string& barrierName = swapBarrier->getName();
-    hash_map<string, net::Barrier*>::const_iterator iter = 
-        _swapBarriers.find( barrierName );
+    Compound::BarrierMap::const_iterator i = _swapBarriers.find( barrierName );
 
-    if( iter == _swapBarriers.end( ))
+    if( i == _swapBarriers.end( ))
         _swapBarriers[barrierName] = window->newSwapBarrier();
     else
-        window->joinSwapBarrier( iter->second );
+        window->joinSwapBarrier( i->second );
 }
 
 }

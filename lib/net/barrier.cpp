@@ -99,8 +99,8 @@ void Barrier::enter()
 
     if( !_master )
     {
-        Session*     session   = getSession();
-        NodePtr localNode = session->getLocalNode();
+        Session* session   = getSession();
+        NodePtr  localNode = session->getLocalNode();
         _master = localNode->connect( _data.master, session->getServer( ));
     }
 
