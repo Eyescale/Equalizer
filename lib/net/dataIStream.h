@@ -70,7 +70,14 @@ namespace net
          */
         bool _checkBuffer();
     };
+}
+}
 
+#include <eq/net/nodeID.h>
+namespace eq
+{
+namespace net
+{
     // Some template specializations
     template<>
     inline DataIStream& DataIStream::operator >> ( std::string& str )
@@ -86,6 +93,13 @@ namespace net
             advanceBuffer( nElems );
         }
         return *this; 
+    }
+    template<>
+    inline DataIStream& DataIStream::operator >> ( NodeID& nodeID )
+    { 
+        read( &nodeID, sizeof( nodeID ));
+        nodeID.convertToHost();
+        return *this;
     }
 }
 }

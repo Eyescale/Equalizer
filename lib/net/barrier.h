@@ -26,7 +26,7 @@ namespace net
         /** 
          * Constructs a new barrier.
          */
-        Barrier(NodePtr master, const uint32_t height=0);
+        Barrier( NodePtr master, const uint32_t height = 0 );
 
         /** 
          * Constructs a new barrier.
@@ -38,9 +38,6 @@ namespace net
          */
         virtual ~Barrier();
 
-        virtual void attachToSession( const uint32_t id, 
-                                      const uint32_t instanceID, 
-                                      Session* session );
         /** 
          * @name Data Access
          *
@@ -48,11 +45,10 @@ namespace net
          * same version on all nodes entering the barrier.
          */
         //*{
-        void setHeight( const uint32_t height )
-            { _data.height = height; }
-        void increase() { ++_data.height; }
+        void setHeight( const uint32_t height ) { _height = height; }
+        void increase() { ++_height; }
 
-        uint32_t getHeight() const { return _data.height; }
+        uint32_t getHeight() const { return _height; }
         //*}
 
         /** @name Operations */
@@ -67,6 +63,9 @@ namespace net
         //*}
 
     protected:
+        virtual void attachToSession( const uint32_t id, 
+                                      const uint32_t instanceID, 
+                                      Session* session );
         virtual ChangeType getChangeType() const { return DELTA; }
 
         virtual void getInstanceData( DataOStream& os );
@@ -75,17 +74,13 @@ namespace net
         virtual void unpack( DataIStream& is );
 
     private:
-        struct Data
-        {
-            Data() : height( 0 ) {}
+        /** The master barrier node. */
+        NodeID   _masterID;
 
-            /** The master barrier node. */
-            NodeID   master;
-            /** The height of the barrier, only set on the master. */
-            uint32_t height;
-        }
-            _data;
+        /** The height of the barrier, only set on the master. */
+        uint32_t _height;
 
+        /** The local, connected instantiation of the master node. */
         NodePtr _master;
 
         /** Slave nodes which have entered the barrier, index per version. */

@@ -125,6 +125,14 @@ namespace net
         void _unlockConnections();
     };
 
+}
+}
+
+#include <eq/net/nodeID.h>
+namespace eq
+{
+namespace net
+{
     // Some template specializations
     template<>
     inline DataOStream& DataOStream::operator << ( const std::string& str )
@@ -134,6 +142,14 @@ namespace net
         if ( nElems > 0 )
             write( str.c_str(), nElems );
 
+        return *this;
+    }
+    template<>
+    inline DataOStream& DataOStream::operator << ( const NodeID& nodeID )
+    { 
+        NodeID out( nodeID );
+        out.convertToNetwork();
+        write( &out, sizeof( out ));
         return *this;
     }
 }

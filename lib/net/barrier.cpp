@@ -20,13 +20,12 @@ namespace eq
 namespace net
 {
 Barrier::Barrier( NodePtr master, const uint32_t height )
-        : _master( master )
+        : _masterID( master->getNodeID( ))
+        , _height( height )
+        , _master( master )
 {
-    _data.master = master->getNodeID();
-    _data.height = height;
-
-    EQASSERT( _data.master != NodeID::ZERO );
-    EQINFO << "New barrier of height " << _data.height << endl;
+    EQASSERT( _masterID != NodeID::ZERO );
+    EQINFO << "New barrier of height " << _height << endl;
 }
 
 Barrier::Barrier()
@@ -43,34 +42,22 @@ Barrier::~Barrier()
 //---------------------------------------------------------------------------
 void Barrier::getInstanceData( DataOStream& os )
 {
-    os.writeOnce( &_data, sizeof( _data )); 
+    os << _height << _masterID;
 }
 
 void Barrier::applyInstanceData( DataIStream& is )
 {
-    EQASSERT( is.getRemainingBufferSize() == sizeof( _data )); 
-
-    memcpy( &_data, is.getRemainingBuffer(), sizeof( _data ));
-    is.advanceBuffer( sizeof( _data ));
-
-    EQASSERT( is.nRemainingBuffers() == 0 );
-    EQASSERT( is.getRemainingBufferSize() == 0 );
+    is >> _height >> _masterID;
 }
 
 void Barrier::pack( DataOStream& os )
 {
-    os.writeOnce( &_data.height, sizeof( _data.height )); 
+    os << _height;
 }
 
 void Barrier::unpack( DataIStream& is )
 {
-    EQASSERT( is.getRemainingBufferSize() == sizeof( _data.height )); 
-
-    memcpy( &_data.height, is.getRemainingBuffer(), sizeof( _data.height ));
-    is.advanceBuffer( sizeof( _data.height ));
-
-    EQASSERT( is.nRemainingBuffers() == 0 );
-    EQASSERT( is.getRemainingBufferSize() == 0 );
+    is >> _height;
 }
 //---------------------------------------------------------------------------
 
@@ -91,23 +78,23 @@ void Barrier::attachToSession( const uint32_t id, const uint32_t instanceID,
 
 void Barrier::enter()
 {
-    EQASSERT( _data.height > 0 );
-    EQASSERT( _data.master != NodeID::ZERO );
+    EQASSERT( _height > 0 );
+    EQASSERT( _masterID != NodeID::ZERO );
 
-    if( _data.height == 1 ) // trivial ;)
+    if( _height == 1 ) // trivial ;)
         return;
 
     if( !_master )
     {
         Session* session   = getSession();
         NodePtr  localNode = session->getLocalNode();
-        _master = localNode->connect( _data.master, session->getServer( ));
+        _master = localNode->connect( _masterID, session->getServer( ));
     }
 
     EQASSERT( _master.isValid( ));
     EQASSERT( _master->isConnected( ));
     EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
-                         << ", height " << _data.height << endl;
+                         << ", height " << _height << endl;
     EQASSERT( getSession( ));
 
     const uint32_t leaveVal = _leaveNotify.get() + 1;
@@ -118,7 +105,7 @@ void Barrier::enter()
     
     _leaveNotify.waitEQ( leaveVal );
     EQLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
-                         << ", height " << _data.height << endl;
+                         << ", height " << _height << endl;
 }
 
 CommandResult Barrier::_cmdEnter( Command& command )
@@ -136,7 +123,7 @@ CommandResult Barrier::_cmdEnter( Command& command )
     NodeVector&    nodes   = _enteredNodes[ packet->version ];
 
     EQLOG( LOG_BARRIER ) << "enter barrier v" << version 
-                         << ", has " << nodes.size() << " of " << _data.height
+                         << ", has " << nodes.size() << " of " << _height
                          << endl;
 
     nodes.push_back( command.getNode( ));
@@ -152,10 +139,10 @@ CommandResult Barrier::_cmdEnter( Command& command )
     
     EQASSERT( version == getVersion( ));
 
-    if( nodes.size() < _data.height )
+    if( nodes.size() < _height )
         return COMMAND_DISCARD;
 
-    EQASSERT( nodes.size() == _data.height );
+    EQASSERT( nodes.size() == _height );
     EQLOG( LOG_BARRIER ) << "Barrier reached" << endl;
 
     BarrierEnterReplyPacket reply;
