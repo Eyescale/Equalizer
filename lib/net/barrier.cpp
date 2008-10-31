@@ -30,7 +30,7 @@ Barrier::Barrier( NodePtr master, const uint32_t height )
 
 Barrier::Barrier()
 {
-    EQINFO << "Barrier instanciated" << endl;
+    EQINFO << "Barrier instantiated" << endl;
 }
 
 Barrier::~Barrier()
