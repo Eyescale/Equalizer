@@ -213,6 +213,18 @@ namespace net
         uint32_t paddingSessionPacket; // pad to multiple-of-8
     };
 
+    struct SessionAckRequestPacket : public SessionPacket
+    {
+        SessionAckRequestPacket( const uint32_t requestID_ )
+            {
+                command   = CMD_SESSION_ACK_REQUEST;
+                size      = sizeof( SessionAckRequestPacket ); 
+                requestID = requestID_;
+            }
+        
+        uint32_t requestID;
+    };
+
     struct SessionGenIDsPacket : public SessionPacket
     {
         SessionGenIDsPacket() 
@@ -242,13 +254,15 @@ namespace net
     {
         SessionSetIDMasterPacket()
             {
-                command = CMD_SESSION_SET_ID_MASTER;
-                size    = sizeof( SessionSetIDMasterPacket ); 
+                command   = CMD_SESSION_SET_ID_MASTER;
+                size      = sizeof( SessionSetIDMasterPacket ); 
+                requestID = EQ_ID_INVALID;
             }
 
         NodeID   masterID;
         uint32_t start;
         uint32_t range;
+        uint32_t requestID;
     };
 
     struct SessionGetIDMasterPacket : public SessionPacket

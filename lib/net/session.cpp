@@ -81,6 +81,8 @@ void Session::setLocalNode( NodePtr node )
 
     CommandQueue* queue = node->getCommandThreadQueue();
 
+    registerCommand( CMD_SESSION_ACK_REQUEST, 
+                     CommandFunc<Session>( this, &Session::_cmdAckRequest ), 0);
     registerCommand( CMD_SESSION_GEN_IDS, 
                      CommandFunc<Session>( this, &Session::_cmdGenIDs ),
                      queue );
@@ -158,6 +160,13 @@ void Session::setIDMaster( const uint32_t start, const uint32_t range,
                            const NodeID& master )
 {
     CHECK_NOT_THREAD( _commandThread );
+    _setIDMasterSync( _setIDMasterNB( start, range, master ));
+}
+
+uint32_t Session::_setIDMasterNB( const uint32_t start, const uint32_t range, 
+                                  const NodeID& master )
+{
+    CHECK_NOT_THREAD( _commandThread );
 
     SessionSetIDMasterPacket packet;
     packet.start    = start;
@@ -165,9 +174,17 @@ void Session::setIDMaster( const uint32_t start, const uint32_t range,
     packet.masterID = master;
     packet.masterID.convertToNetwork();
     
-    _sendLocal( packet ); // set on our instance
     if( !_isMaster )
-        send( packet ); // set on master instance
+        _sendLocal( packet ); // set on our slave instance (fire&forget)
+
+    packet.requestID = _requestHandler.registerRequest();
+    send( packet );       // set on master instance (need to wait for ack)
+    return packet.requestID;
+}
+
+void Session::_setIDMasterSync( const uint32_t requestID )
+{
+    _requestHandler.waitRequest( requestID );
 }
 
 const NodeID& Session::_pollIDMaster( const uint32_t id ) const 
@@ -413,10 +430,11 @@ void Session::registerObject( Object* object )
     const uint32_t id = genIDs( 1 );
     EQASSERT( id != EQ_ID_INVALID );
 
-    setIDMaster( id, 1, _localNode->getNodeID( ));
+    const uint32_t requestID = _setIDMasterNB( id, 1, _localNode->getNodeID( ));
     object->setupChangeManager( object->getChangeType(), true );
 
     EQCHECK( mapObject( object, id ));
+    _setIDMasterSync( requestID ); // sync, master knows our ID now
     EQLOG( LOG_OBJECTS ) << "Registered " << typeid( *object ).name()
                          << " to id " << id << endl;
 }
@@ -559,6 +577,17 @@ CommandResult Session::_invokeObjectCommand( Command& command )
     return COMMAND_ERROR;
 }
 
+CommandResult Session::_cmdAckRequest( Command& command )
+{
+    const SessionAckRequestPacket* packet = 
+        command.getPacket<SessionAckRequestPacket>();
+    EQASSERT( packet->requestID != EQ_ID_INVALID );
+
+    _requestHandler.serveRequest( packet->requestID );
+    return COMMAND_HANDLED;
+}
+
+
 CommandResult Session::_cmdGenIDs( Command& command )
 {
     CHECK_THREAD( _commandThread );
@@ -596,6 +625,19 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
 
     ScopedMutex< base::SpinLock > mutex( _idMasterMutex );
     _idMasterInfos.push_back( info );
+
+    if( packet->requestID != EQ_ID_INVALID ) // need to ack set operation
+    {
+        NodePtr node = command.getNode();
+
+        if( node == _localNode ) // OPT
+            _requestHandler.serveRequest( packet->requestID );
+        else
+        {
+            SessionAckRequestPacket reply( packet->requestID );
+            send( node, reply );
+        }
+    }
     return COMMAND_HANDLED;
 }
 

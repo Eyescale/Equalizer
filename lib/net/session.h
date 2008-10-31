@@ -322,7 +322,13 @@ namespace net
         void _attachObject( Object* object, const uint32_t id );
         void _detachObject( Object* object );
 
+        uint32_t _setIDMasterNB( const uint32_t start, const uint32_t range, 
+                                 const NodeID& master );
+        void _setIDMasterSync( const uint32_t requestID );
+
+
         /** The command handler functions. */
+        CommandResult _cmdAckRequest( Command& packet );
         CommandResult _cmdGenIDs( Command& packet );
         CommandResult _cmdGenIDsReply( Command& packet );
         CommandResult _cmdSetIDMaster( Command& packet );

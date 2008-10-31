@@ -30,6 +30,7 @@ namespace net
 
     enum SessionCommand
     {
+        CMD_SESSION_ACK_REQUEST,
         CMD_SESSION_GEN_IDS,
         CMD_SESSION_GEN_IDS_REPLY,
         CMD_SESSION_SET_ID_MASTER,
