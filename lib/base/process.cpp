@@ -13,6 +13,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include "log.h"
+#include "debug.h"
+
 using namespace std;
 
 namespace eq
