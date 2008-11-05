@@ -1,3 +1,4 @@
+
 /* 
  * Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved.
@@ -71,7 +72,6 @@ bool Pipe::configInit( const uint32_t initID )
     return mapped;
 }
 
-
 bool Pipe::configExit()
 {
     delete _renderer;
@@ -83,16 +83,13 @@ bool Pipe::configExit()
     return eq::Pipe::configExit();
 }
 
-
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
-    // don't wait for node to start frame, local sync not needed
+    // don't wait for node to start frame, local sync not needed:
     // node->waitFrameStarted( frameNumber );
     _frameData.sync( frameID );
     _renderer->setOrtho( _frameData.data.ortho );
 
     startFrame( frameNumber );
 }
-
-
 }

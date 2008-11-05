@@ -1,6 +1,6 @@
 
 /* 
- * Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved.
  *
  * The pipe object is responsible for maintaining GPU-specific and

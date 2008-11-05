@@ -53,11 +53,11 @@ namespace base
 #ifdef Linux
             int read = ::read( _fd, &value, sizeof( T ));
             EQASSERT( read == sizeof( T ));
-	    if( read != sizeof( T ))
-	    {
-	        EQERROR << "random number generator not working" << std::endl;
-		return 0;
-	    }
+            if( read != sizeof( T ))
+            {
+                EQERROR << "random number generator not working" << std::endl;
+                return 0;
+            }
 
 #elif defined (WIN32)
 

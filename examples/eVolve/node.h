@@ -10,11 +10,8 @@
 
 #include <eq/eq.h>
 
-//#include "rawVolModel.h"
-
 namespace eVolve
 {
-
     class Node : public eq::Node
     {
     public:
@@ -37,7 +34,6 @@ namespace eVolve
     private:
         InitData _initData;
     };
-
 }
 
 #endif // EVOLVE_NODE_H
