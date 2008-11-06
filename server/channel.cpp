@@ -461,10 +461,8 @@ net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
         }
     }
 
-    if( startTime == numeric_limits< float >::max( ))
-        startTime = endTime;
-
-    _fireLoadData( packet->frameNumber, startTime, endTime );
+    if( startTime != numeric_limits< float >::max( ))
+        _fireLoadData( packet->frameNumber, startTime, endTime );
 
     return net::COMMAND_HANDLED;
 }
