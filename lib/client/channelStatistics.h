@@ -14,7 +14,7 @@ namespace eq
     /**
      * Holds one statistics event, used for profiling.
      */
-    class ChannelStatistics
+    class EQ_EXPORT ChannelStatistics
     {
     public:
         ChannelStatistics( const Statistic::Type type, Channel* channel );

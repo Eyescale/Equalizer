@@ -688,6 +688,7 @@ bool Node::_handleData()
         return false;
 
     EQASSERT( size );
+    EQASSERT( size > sizeof( size ));
     _receivedCommand->allocate( node, this, size );
     size -= sizeof( size );
 

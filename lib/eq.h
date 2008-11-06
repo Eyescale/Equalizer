@@ -7,6 +7,7 @@
 
 #include <eq/base/defines.h>
 
+#include <eq/client/channelStatistics.h>
 #include <eq/client/client.h>
 #include <eq/client/compositor.h>
 #include <eq/client/config.h>
