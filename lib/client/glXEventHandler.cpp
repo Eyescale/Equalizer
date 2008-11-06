@@ -153,6 +153,23 @@ static GLXWindowIF* _getGLXWindow( Window* window )
     EQASSERT( dynamic_cast< GLXWindowIF* >( osWindow ));
     return static_cast< GLXWindowIF* >( osWindow );
 }
+
+void _getWindowSize( Display* display, XID drawable, ResizeEvent& event )
+{
+    // Get window coordinates from X11, the event data is relative to window
+    // parent, but we report pvp relative to root window.
+    XWindowAttributes windowAttrs;
+    XGetWindowAttributes( display, drawable, &windowAttrs );
+                
+    XID child;
+    XTranslateCoordinates( display, drawable, 
+                           RootWindowOfScreen( windowAttrs.screen ),
+                           windowAttrs.x, windowAttrs.y,
+                           &event.x, &event.y, &child );
+
+    event.w = windowAttrs.width;
+    event.h = windowAttrs.height;
+}
 }
 
 void GLXEventHandler::_processEvent( GLXWindowEvent& event, Pipe* pipe )
@@ -193,25 +210,19 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event, Pipe* pipe )
             break;
 
         case ConfigureNotify:
-        {
-            // Get window coordinates from X11, the event data is relative to
-            // window parent, but we report pvp relative to root window.
-            XWindowAttributes windowAttrs;
-                
-            XGetWindowAttributes( xEvent.xany.display, drawable, &windowAttrs );
-                
-            XID child;
-            XTranslateCoordinates( xEvent.xany.display, drawable, 
-                                   RootWindowOfScreen( windowAttrs.screen ),
-                                   windowAttrs.x, windowAttrs.y,
-                                   &event.resize.x, &event.resize.y,
-                                   &child );
-
             event.type = Event::WINDOW_RESIZE;
-            event.resize.w = windowAttrs.width;
-            event.resize.h = windowAttrs.height;
+            _getWindowSize( xEvent.xany.display, drawable, event.resize );
             break;
-        }
+
+        case UnmapNotify:
+            event.type = Event::WINDOW_HIDE;
+            _getWindowSize( xEvent.xany.display, drawable, event.resize );
+            break;
+
+        case MapNotify:
+            event.type = Event::WINDOW_SHOW;
+            _getWindowSize( xEvent.xany.display, drawable, event.resize );
+            break;
 
         case ClientMessage:
         {
@@ -269,8 +280,6 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event, Pipe* pipe )
             event.keyPress.key = _getKey( xEvent );
             break;
 
-        case UnmapNotify:
-        case MapNotify:
         case ReparentNotify:
         case VisibilityNotify:
             event.type = Event::UNKNOWN;

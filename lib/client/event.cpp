@@ -23,12 +23,14 @@ static std::string _eventTypeNames[ Event::ALL ] =
 {
     "expose",
     "window resize",
+    "window close",
+    "window show",
+    "window hide",
     "pointer motion",
     "pointer button press",
     "pointer button release",
     "key press",
     "key release",
-    "window close",
     "channel resize",
     "statistic",
     "view resize",
@@ -72,6 +74,8 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
             break;
 
         case Event::WINDOW_RESIZE:
+        case Event::WINDOW_SHOW:
+        case Event::WINDOW_HIDE:
         case Event::CHANNEL_RESIZE:
         case Event::VIEW_RESIZE:
             os << event.resize;
@@ -98,7 +102,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
     return os;
 }
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event::Type type )
+EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event::Type& type)
 {
     if( type >= Event::ALL )
         os << "unknown (" << static_cast<unsigned>( type ) << ')';

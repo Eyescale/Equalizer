@@ -143,7 +143,7 @@ void Channel::_notifyViewportChanged()
         return;
 
     eq::PixelViewport windowPVP = _window->getPixelViewport();
-    if( !windowPVP.hasArea( ))
+    if( !windowPVP.isValid( ))
         return;
 
     windowPVP.x = 0;

@@ -117,7 +117,9 @@ namespace eq
                 if( *this == rhs )
                     return Viewport::FULL;
 
-                EQASSERT( rhs.hasArea( ));
+                if( !rhs.hasArea( ))
+                    return Viewport( x, y, 0.f, 0.f );
+
                 return Viewport(  ( x - rhs.x )/ static_cast<float>( rhs.w ),
                                   ( y - rhs.y )/ static_cast<float>( rhs.h ),
                                   ( w )/ static_cast<float>( rhs.w ),

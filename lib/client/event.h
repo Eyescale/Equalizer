@@ -148,6 +148,9 @@ namespace eq
         {
             EXPOSE = 0,
             WINDOW_RESIZE,
+            WINDOW_CLOSE,
+            WINDOW_HIDE,
+            WINDOW_SHOW,
 #ifdef EQ_USE_DEPRECATED
             RESIZE = WINDOW_RESIZE,
 #endif
@@ -156,7 +159,6 @@ namespace eq
             POINTER_BUTTON_RELEASE,
             KEY_PRESS,
             KEY_RELEASE,
-            WINDOW_CLOSE,
             CHANNEL_RESIZE,
             STATISTIC,
             VIEW_RESIZE,
@@ -171,7 +173,9 @@ namespace eq
         union // event data
         {
             ResizeEvent  resize;
-
+            ResizeEvent  show;
+            ResizeEvent  hide;
+            
             PointerEvent pointer;
             PointerEvent pointerMotion;
             PointerEvent pointerButtonPress;
@@ -189,8 +193,8 @@ namespace eq
         RenderContext context; //<! The last rendering context at (x,y)
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Event::Type );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const Event& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Event::Type& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const ResizeEvent& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const PointerEvent& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const KeyEvent& );

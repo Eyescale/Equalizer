@@ -165,7 +165,7 @@ vmml::Vector3ub Channel::_getUniqueColor() const
 //----------------------------------------------------------------------
 void Channel::setPixelViewport( const eq::PixelViewport& pvp )
 {
-    if( !pvp.hasArea( ))
+    if( !pvp.isValid( ))
         return;
     
     _fixedPVP = true;
@@ -199,7 +199,7 @@ void Channel::notifyViewportChanged()
         return;
 
     eq::PixelViewport windowPVP = _window->getPixelViewport();
-    if( !windowPVP.hasArea( ))
+    if( !windowPVP.isValid( ))
         return;
 
     windowPVP.x = 0;

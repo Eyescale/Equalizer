@@ -186,7 +186,7 @@ void Window::unrefUsed()
 //----------------------------------------------------------------------
 void Window::setPixelViewport( const eq::PixelViewport& pvp )
 {
-    if( !pvp.hasArea( ))
+    if( !pvp.isValid( ))
         return;
 
     _fixedPVP = true;

@@ -44,6 +44,10 @@ void AGLEventHandler::registerWindow( AGLWindowIF* window )
         { kEventClassWindow,   kEventWindowUpdate },
         { kEventClassWindow,   kEventWindowDrawContent },
         { kEventClassWindow,   kEventWindowClosed },
+        { kEventClassWindow,   kEventWindowHidden },
+        { kEventClassWindow,   kEventWindowCollapsed },
+        { kEventClassWindow,   kEventWindowShown },
+        { kEventClassWindow,   kEventWindowExpanded },
         { kEventClassMouse,    kEventMouseMoved },
         { kEventClassMouse,    kEventMouseDragged },
         { kEventClassMouse,    kEventMouseDown },
@@ -107,35 +111,42 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, AGLWindowIF* osWindow)
     windowEvent.carbonEventRef = event;
     Window* const window       = osWindow->getWindow();
 
+    Rect      rect;
+    WindowRef carbonWindow = osWindow->getCarbonWindow();
+    GetWindowPortBounds( carbonWindow, &rect );
+    windowEvent.resize.x = rect.top;
+    windowEvent.resize.y = rect.left;
+    windowEvent.resize.h = rect.bottom - rect.top;
+    windowEvent.resize.w = rect.right  - rect.left;
+
     switch( GetEventKind( event ))
     {
         case kEventWindowBoundsChanged:
-        {
-            Rect rect;
-            GetEventParameter( event, kEventParamCurrentBounds, 
-                               typeQDRectangle, 0, sizeof( rect ), 0, 
-                               &rect );
-
             windowEvent.type = Event::WINDOW_RESIZE;
-            windowEvent.resize.x = rect.top;
-            windowEvent.resize.y = rect.left;
-            windowEvent.resize.h = rect.bottom - rect.top;
-            windowEvent.resize.w = rect.right  - rect.left;
             break;
-        }
 
         case kEventWindowUpdate:
-        {
-            WindowRef carbonWindow = osWindow->getCarbonWindow();
             BeginUpdate( carbonWindow );
             EndUpdate( carbonWindow );
-        } // no break;
+            // no break;
         case kEventWindowDrawContent:
             windowEvent.type = Event::EXPOSE;
             break;
 
         case kEventWindowClosed:
             windowEvent.type = Event::WINDOW_CLOSE;
+            break;
+
+        case kEventWindowHidden:
+        case kEventWindowCollapsed:
+            windowEvent.type = Event::WINDOW_HIDE;
+            break;
+            
+        case kEventWindowShown:
+        case kEventWindowExpanded:
+            windowEvent.type = Event::WINDOW_SHOW;
+            if( carbonWindow == FrontNonFloatingWindow( ))
+                SetUserFocusWindow( carbonWindow );
             break;
 
         default:
