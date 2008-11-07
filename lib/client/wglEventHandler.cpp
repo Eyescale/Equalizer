@@ -158,6 +158,25 @@ void WGLEventHandler::_syncButtonState( WPARAM wParam )
     _buttonState = buttons;
 }
 
+namespace
+{
+void _getWindowSize( HWND hWnd, ResizeEvent& event )
+{
+    RECT rect;
+    GetClientRect( hWnd, &rect );
+    event.w = rect.right - rect.left;
+    event.h = rect.bottom - rect.top; 
+
+    // Get window coordinates, the rect data is relative
+    // to window parent, but we report pvp relative to screen.
+    POINT point;
+    point.x = rect.left;
+    point.y = rect.top;
+    ClientToScreen( hWnd, &point );
+    event.x = point.x;
+    event.y = point.y;
+}
+}
 LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                                             LPARAM lParam )
 {
@@ -171,28 +190,31 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     LONG result = 0;
     switch( uMsg )
     {
+        case WM_SHOWWINDOW:
+            if( wParam == TRUE )
+                event.type = Event::WINDOW_SHOW;
+            else
+                event.type = Event::WINDOW_HIDE;
+
+            _getWindowSize( hWnd, event.resize );
+            break;
+
         case WM_CREATE:
         case WM_SIZE:
         case WM_MOVE:
-        case WM_SHOWWINDOW:
         case WM_WINDOWPOSCHANGED:
         {
-            event.type = Event::WINDOW_RESIZE;
+            _getWindowSize( hWnd, event.resize );
+            const bool hasArea = (event.resize.w >0 && event.resize.h > 0);
+            const PixelViewport& pvp = window->getPixelViewport();
 
-            RECT rect;
-            GetClientRect( hWnd, &rect );
-            event.resize.w = rect.right - rect.left;
-            event.resize.h = rect.bottom - rect.top; 
-
-            // Get window coordinates, the rect data is relative
-            // to window parent, but we report pvp relative to screen.
-            POINT point;
-            point.x = rect.left;
-            point.y = rect.top;
-            ClientToScreen( hWnd, &point );
-            event.resize.x = point.x;
-            event.resize.y = point.y;
-
+            // No show/hide events on Win32?: Emulate.
+            if( !hasArea && pvp.hasArea( ))
+                event.type = Event::WINDOW_HIDE;
+            else if( hasArea && !pvp.hasArea( ))
+                event.type = Event::WINDOW_SHOW;
+            else
+                event.type = Event::WINDOW_RESIZE;
             break;
         }
 
@@ -348,7 +370,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         default:
             event.type = Event::UNKNOWN;
-            EQVERB << "Unhandled message " << uMsg << endl;
+            EQVERB << "Unhandled message 0x" << hex << uMsg << dec << endl;
             result = !0;
             break;
     }
