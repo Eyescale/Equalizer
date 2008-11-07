@@ -28,7 +28,7 @@ namespace eq
 typedef net::CommandFunc<Config> ConfigFunc;
 
 Config::Config( base::RefPtr< Server > server )
-        : Session( true )
+        : net::Session()
         , _lastEvent( 0 )
         , _latency( 0 )
         , _currentFrame( 0 )

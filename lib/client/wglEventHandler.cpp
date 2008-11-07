@@ -371,7 +371,6 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         default:
             event.type = Event::UNKNOWN;
             EQVERB << "Unhandled message 0x" << hex << uMsg << dec << endl;
-            result = !0;
             break;
     }
 

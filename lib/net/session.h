@@ -28,13 +28,8 @@ namespace net
     class EQ_EXPORT Session : public Base
     {
     public:
-        /** 
-         * Constructs a new session.
-         *
-         * @param threadSafe if <code>true</code>, all public functions are
-         *                   thread-safe.
-         */
-        Session( const bool threadSafe = false );
+        /** Constructs a new session. */
+        Session();
 
         virtual ~Session();
 

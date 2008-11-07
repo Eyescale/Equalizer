@@ -25,8 +25,8 @@ namespace net
 {
 #define MIN_ID_RANGE 1024
 
-Session::Session( const bool threadSafe )
-        : _requestHandler( threadSafe )
+Session::Session()
+        : _requestHandler( true /* threadSafe */ )
         , _id(EQ_ID_INVALID)
         , _isMaster(false)
         , _masterPool( IDPool::MAX_CAPACITY )
