@@ -406,7 +406,7 @@ bool Window::syncConfigExit()
 //---------------------------------------------------------------------------
 void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
-    if( !_lastDrawChannel ) // happens when used channels skip a frame
+    if( !_lastDrawChannel ) // happens when all used channels skip a frame
         _lastDrawChannel = _channels[0];
     _doSwap = false;
 

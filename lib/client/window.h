@@ -177,25 +177,28 @@ namespace eq
          */
         //*{
         // Note: also update string array initialization in window.cpp
+        /** Window (visual) attributes, used during configInit(). */
         enum IAttribute
         {
-            IATTR_HINT_STEREO,
-            IATTR_HINT_DOUBLEBUFFER,
-            IATTR_HINT_FULLSCREEN,
-            IATTR_HINT_DECORATION,
-            IATTR_HINT_SWAPSYNC,
-            IATTR_HINT_DRAWABLE,
-            IATTR_HINT_STATISTICS,
-            IATTR_PLANES_COLOR,
-            IATTR_PLANES_ALPHA,
-            IATTR_PLANES_DEPTH,
-            IATTR_PLANES_STENCIL,
-            IATTR_PLANES_ACCUM,
-            IATTR_PLANES_ACCUM_ALPHA,
-            IATTR_PLANES_SAMPLES,
+            IATTR_HINT_STEREO,           //!< Active Stereo
+            IATTR_HINT_DOUBLEBUFFER,     //!< Front and back buffer
+            IATTR_HINT_FULLSCREEN,       //!< Fullscreen drawable
+            IATTR_HINT_DECORATION,       //!< Window decorations
+            IATTR_HINT_SWAPSYNC,         //!< Swap sync on vertical retrace
+            IATTR_HINT_DRAWABLE,         //!< Drawable type
+            IATTR_HINT_STATISTICS,       //!< Statistics gathering hint
+            IATTR_PLANES_COLOR,          //!< No of per-component color planes
+            IATTR_PLANES_ALPHA,          //!< No of alpha planes
+            IATTR_PLANES_DEPTH,          //!< No of z-buffer planes
+            IATTR_PLANES_STENCIL,        //!< No of stencil planes
+            IATTR_PLANES_ACCUM,          //!< No of accumulation buffer planes
+            IATTR_PLANES_ACCUM_ALPHA,    //!< No of alpha accum buffer planes
+            IATTR_PLANES_SAMPLES,        //!< No of multisample (AA) planes
             IATTR_ALL
         };
 
+        void setIAttribute( const IAttribute attr, const int32_t value )
+            { _iAttributes[attr] = value; }
         int32_t  getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
@@ -247,15 +250,6 @@ namespace eq
          */
         virtual ~Window();
         friend class Pipe;
-
-        /**
-         * @name Attributes
-         */
-        //*{
-        void setIAttribute( const IAttribute attr,
-                            const int32_t value )
-            { _iAttributes[attr] = value; }
-        //*}
 
         /** @name Actions */
         //*{

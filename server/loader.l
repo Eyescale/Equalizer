@@ -58,6 +58,7 @@ EQ_CONNECTION_IATTR_PORT         { return EQTOKEN_CONNECTION_IATTR_PORT; }
 EQ_CONNECTION_IATTR_BANDWDTH     { return EQTOKEN_CONNECTION_IATTR_BANDWIDTH; }
 EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT; }
 EQ_CONFIG_FATTR_EYE_BASE         { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
+EQ_CONFIG_IATTR_THREAD_MODEL     { return EQTOKEN_CONFIG_IATTR_THREAD_MODEL; }
 EQ_PIPE_IATTR_HINT_THREAD        { return EQTOKEN_PIPE_IATTR_HINT_THREAD; }
 EQ_WINDOW_IATTR_HINT_STEREO      { return EQTOKEN_WINDOW_IATTR_HINT_STEREO; }
 EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER; }
@@ -169,6 +170,14 @@ stereo_anaglyph_right_mask      { return EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK; }
 update_FOV                      { return EQTOKEN_UPDATE_FOV; }
 hint_offset                     { return EQTOKEN_HINT_OFFSET; }
 pbuffer                         { return EQTOKEN_PBUFFER; }
+async                           { return EQTOKEN_ASYNC; }
+ASYNC                           { return EQTOKEN_ASYNC; }
+draw_sync                       { return EQTOKEN_DRAW_SYNC; }
+DRAW_SYNC                       { return EQTOKEN_DRAW_SYNC; }
+local_sync                      { return EQTOKEN_LOCAL_SYNC; }
+LOCAL_SYNC                      { return EQTOKEN_LOCAL_SYNC; }
+sync                            { return EQTOKEN_SYNC; }
+SYNC                            { return EQTOKEN_SYNC; }
 mode                            { return EQTOKEN_MODE; }
 2D                              { return EQTOKEN_2D; }
 DB                              { return EQTOKEN_DB; }

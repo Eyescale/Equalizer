@@ -171,9 +171,8 @@ namespace server
         // Used by Server::releaseConfig() to make sure config is exited
         bool exit();
 
-        /**
-         * @name Float Attributes
-         */
+        /** @name Attributes */
+        //*{
         // Note: also update string array initialization in config.cpp
         enum FAttribute
         {
@@ -187,6 +186,13 @@ namespace server
             { return _fAttributes[attr]; }
         static const std::string&  getFAttributeString( const FAttribute attr )
             { return _fAttributeStrings[attr]; }
+
+        void setIAttribute( const eq::Config::IAttribute attr, 
+                            const int32_t value )
+            { _iAttributes[attr] = value; }
+        int32_t  getIAttribute( const eq::Config::IAttribute attr ) const
+            { return _iAttributes[attr]; }
+        //*}
 
         /** @name Error information. */
         //@{
@@ -207,6 +213,9 @@ namespace server
         /** String representation of float attributes. */
         static std::string _fAttributeStrings[FATTR_ALL];
         
+        /** Integer attributes. */
+        int32_t _iAttributes[eq::Config::IATTR_ALL];
+
         /** The eq server hosting the session. */
         ServerPtr _server;
         friend class Server;

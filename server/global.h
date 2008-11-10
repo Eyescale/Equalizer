@@ -59,6 +59,15 @@ namespace server
             { return _configFAttributes[attr]; }
 
         /**
+         * @name Config Attributes.
+         */  
+        void setConfigIAttribute( const eq::Config::IAttribute attr,
+                                    const float value )
+            { _configIAttributes[attr] = value; }
+        int32_t getConfigIAttribute( const eq::Config::IAttribute attr ) const
+            { return _configIAttributes[attr]; }
+
+        /**
          * @name Pipe Attributes.
          */
         void setPipeIAttribute( const Pipe::IAttribute attr,
@@ -102,6 +111,7 @@ namespace server
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
         
         float       _configFAttributes[Config::FATTR_ALL];
+        int32_t     _configIAttributes[eq::Config::IATTR_ALL];
 
         int32_t     _pipeIAttributes[Pipe::IATTR_ALL];
 

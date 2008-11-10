@@ -36,16 +36,21 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
     if( value > ON ) // ugh
         os << static_cast<int>( value );
     else
-        os << ( value == UNDEFINED ? "UNDEFINED" :
-                value == OFF       ? "OFF" :
-                value == ON        ? "ON" : 
-                value == AUTO      ? "AUTO" :
-                value == NICEST    ? "NICEST" :
-                value == QUAD      ? "QUAD" :
-                value == ANAGLYPH  ? "ANAGLYPH" :
-                value == VERTICAL  ? "VERTICAL" :
-                value == WINDOW    ? "WINDOW" :
-                value == PBUFFER   ? "PBUFFER" : "ERROR"  );
+        os << ( value == UNDEFINED  ? "UNDEFINED" :
+                value == OFF        ? "OFF" :
+                value == ON         ? "ON" : 
+                value == AUTO       ? "AUTO" :
+                value == NICEST     ? "NICEST" :
+                value == QUAD       ? "QUAD" :
+                value == ANAGLYPH   ? "ANAGLYPH" :
+                value == VERTICAL   ? "VERTICAL" :
+                value == WINDOW     ? "WINDOW" :
+                value == PBUFFER    ? "PBUFFER" : 
+                value == ASYNC      ? "ASYNC" : 
+                value == DRAW_SYNC  ? "DRAW_SYNC" : 
+                value == LOCAL_SYNC ? "LOCAL_SYNC" : 
+                value == SYNC       ? "SYNC" : 
+                "ERROR"  );
     return os;
 }
 }

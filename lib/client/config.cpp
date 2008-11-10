@@ -27,6 +27,11 @@ namespace eq
 {
 typedef net::CommandFunc<Config> ConfigFunc;
 
+#define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
+std::string Config::_iAttributeStrings[IATTR_ALL] = {
+    MAKE_ATTR_STRING( IATTR_THREAD_MODEL )
+};
+
 Config::Config( base::RefPtr< Server > server )
         : net::Session()
         , _lastEvent( 0 )

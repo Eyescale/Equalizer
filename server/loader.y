@@ -64,6 +64,7 @@
 %token EQTOKEN_CONNECTION_IATTR_BANDWIDTH
 %token EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
+%token EQTOKEN_CONFIG_IATTR_THREAD_MODEL
 %token EQTOKEN_PIPE_IATTR_HINT_THREAD
 %token EQTOKEN_WINDOW_IATTR_HINT_STEREO
 %token EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER
@@ -137,6 +138,11 @@
 %token EQTOKEN_TASK
 %token EQTOKEN_EYE
 %token EQTOKEN_EYE_BASE
+%token EQTOKEN_THREAD_MODEL
+%token EQTOKEN_ASYNC
+%token EQTOKEN_DRAW_SYNC
+%token EQTOKEN_LOCAL_SYNC
+%token EQTOKEN_SYNC
 %token EQTOKEN_BUFFER
 %token EQTOKEN_CLEAR
 %token EQTOKEN_DRAW
@@ -259,6 +265,11 @@ global:
      {
          eq::server::Global::instance()->setConfigFAttribute(
              eq::server::Config::FATTR_EYE_BASE, $2 );
+     }
+     | EQTOKEN_CONFIG_IATTR_THREAD_MODEL IATTR
+     {
+         eq::server::Global::instance()->setConfigIAttribute(
+             eq::Config::IATTR_THREAD_MODEL, $2 );
      }
      | EQTOKEN_PIPE_IATTR_HINT_THREAD IATTR
      {
@@ -409,6 +420,8 @@ configAttributes: /*null*/ | configAttribute | configAttributes configAttribute
 configAttribute:
     EQTOKEN_EYE_BASE FLOAT { config->setFAttribute( 
                              eq::server::Config::FATTR_EYE_BASE, $2 ); }
+    | EQTOKEN_THREAD_MODEL IATTR { config->setIAttribute( 
+                                   eq::Config::IATTR_THREAD_MODEL, $2 ); }
 
 nodes: node | nodes node
 node: appNode | renderNode
@@ -733,6 +746,10 @@ IATTR:
     | EQTOKEN_VERTICAL   { $$ = eq::VERTICAL; }
     | EQTOKEN_WINDOW     { $$ = eq::WINDOW; }
     | EQTOKEN_PBUFFER    { $$ = eq::PBUFFER; }
+    | EQTOKEN_ASYNC      { $$ = eq::ASYNC; }
+    | EQTOKEN_DRAW_SYNC  { $$ = eq::DRAW_SYNC; }
+    | EQTOKEN_LOCAL_SYNC { $$ = eq::LOCAL_SYNC; }
+    | EQTOKEN_SYNC       { $$ = eq::SYNC; }
     | INTEGER            { $$ = $1; }
 
 STRING: EQTOKEN_STRING
