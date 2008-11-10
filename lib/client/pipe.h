@@ -290,9 +290,12 @@ namespace eq
          * Start rendering a frame.
          *
          * Called once at the beginning of each frame, to do per-frame updates
-         * of pipe-specific data, for example updating the rendering engine. The
-         * default implementation waits for the node to start the frame. This
-         * method has to call startFrame().
+         * of pipe-specific data, for example updating the rendering
+         * engine. Waits for the node to start the frame, unless the thread
+         * model is async. If the thread model is async, the local
+         * synchronization is released immediately.
+         *
+         * This method has to call startFrame().
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to start.
@@ -306,28 +309,29 @@ namespace eq
          * Finish rendering a frame.
          *
          * Called once at the end of each frame, to do per-frame updates of
-         * pipe-specific data, for example updating the rendering engine.  This
-         * method has to call releaseFrame().
+         * pipe-specific data, for example updating the rendering
+         * engine. Releases the local synchronization if the thread model is
+         * local_sync. Always releases the global synchronization for this pipe.
+         *
+         * This method has to call releaseFrame().
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finish.
          */
         virtual void frameFinish( const uint32_t frameID, 
-                                  const uint32_t frameNumber ) 
-            { releaseFrame( frameNumber ); }
+                                  const uint32_t frameNumber );
 
         /** 
          * Finish drawing.
          * 
-         * Called once per frame after the last draw operation. Typically
-         * releases the local node thread synchronization for this frame.
+         * Called once per frame after the last draw operation.  Releases the
+         * local synchronization if the thread model is draw_sync (the default).
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finished with draw.
          */
         virtual void frameDrawFinish( const uint32_t frameID, 
-                                      const uint32_t frameNumber )
-            { releaseFrameLocal( frameNumber ); }
+                                      const uint32_t frameNumber );
 
         /**
          * Initialize the event handling for this pipe. 

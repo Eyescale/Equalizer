@@ -17,7 +17,6 @@ namespace eq
     enum IAttrValue
     {
         UNDEFINED  = -0xfffffff,
-        SYNC       = -11,
         LOCAL_SYNC = -10,
         DRAW_SYNC  = -9,
         ASYNC      = -8,

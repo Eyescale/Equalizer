@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_NODE_H
@@ -21,12 +21,6 @@ namespace eqPly
         virtual ~Node(){}
 
         virtual bool configInit( const uint32_t initID );
-
-        virtual void frameStart( const uint32_t frameID, 
-                                 const uint32_t frameNumber );
-        virtual void frameDrawFinish( const uint32_t frameID,
-                                      const uint32_t frameNumber )
-            { /* nop, see frameStart */ }
 
     private:
     };

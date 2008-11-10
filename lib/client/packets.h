@@ -411,6 +411,7 @@ namespace eq
             }
 
         uint32_t initID;
+        int32_t  iAttributes[ eq::Node::IATTR_ALL ];
         EQ_ALIGN8( char name[8] );
     };
 
@@ -514,6 +515,18 @@ namespace eq
                 command       = CMD_NODE_FRAME_DRAW_FINISH;
                 size          = sizeof( NodeFrameDrawFinishPacket );
             }
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
+
+struct NodeFrameTasksFinishPacket : public net::ObjectPacket
+    {
+        NodeFrameTasksFinishPacket()
+            {
+                command     = CMD_NODE_FRAME_TASKS_FINISH;
+                size        = sizeof( NodeFrameTasksFinishPacket );
+            }
+
         uint32_t frameID;
         uint32_t frameNumber;
     };
@@ -659,7 +672,7 @@ namespace eq
             }
 
         uint32_t       initID;
-        int32_t        iattr[eq::Window::IATTR_ALL];
+        int32_t        iAttributes[ eq::Window::IATTR_ALL ];
         PixelViewport  pvp;
         Viewport       vp;
         EQ_ALIGN8( char name[8] );
@@ -812,7 +825,7 @@ namespace eq
 
         uint32_t        initID;
         uint32_t        viewID;
-        int32_t         iattr[eq::Channel::IATTR_ALL];
+        int32_t         iAttributes[ eq::Channel::IATTR_ALL ];
         PixelViewport   pvp;
         Viewport        vp;
         vmml::Vector3ub color;

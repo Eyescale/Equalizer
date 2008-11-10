@@ -39,6 +39,10 @@ void Node::_construct()
 Node::Node()
 {
     _construct();
+
+    const Global* global = Global::instance();    
+    for( int i=0; i < eq::Node::IATTR_ALL; ++i )
+        _iAttributes[i] =global->getNodeIAttribute((eq::Node::IAttribute)i);
 }
 
 Node::Node( const Node& from, const CompoundVector& compounds )
@@ -48,6 +52,9 @@ Node::Node( const Node& from, const CompoundVector& compounds )
 
     _name = from._name;
     _node = from._node;
+
+    for( int i=0; i<eq::Node::IATTR_ALL; ++i )
+        _iAttributes[i] = from.getIAttribute( (eq::Node::IAttribute)i );
 
     const ConnectionDescriptionVector& descriptions =
         from.getConnectionDescriptions();
@@ -179,6 +186,9 @@ void Node::startConfigInit( const uint32_t initID )
 
     eq::NodeConfigInitPacket packet;
     packet.initID = initID;
+    memcpy( packet.iAttributes, _iAttributes, 
+            eq::Node::IATTR_ALL * sizeof( int32_t ));
+
     _send( packet, _name );
     EQLOG( eq::LOG_TASKS ) << "TASK node configInit  " << &packet << endl;
 
@@ -312,6 +322,12 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
 
     const Config*  config  = getConfig();
     const uint32_t latency = config->getLatency();
+
+    eq::NodeFrameTasksFinishPacket finishPacket;
+    finishPacket.frameID     = frameID;
+    finishPacket.frameNumber = frameNumber;
+    _send( finishPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK node tasks finish " << &finishPacket <<endl;
 
     if( frameNumber > latency )
         flushFrames( frameNumber - latency );
@@ -476,6 +492,15 @@ ostream& operator << ( ostream& os, const Node* node )
          i != descriptions.end(); ++i )
 
         os << (*i).get();
+
+    const int32_t value = node->getIAttribute( eq::Node::IATTR_THREAD_MODEL );
+    if( value != 
+        Global::instance()->getNodeIAttribute( eq::Node::IATTR_THREAD_MODEL ))
+    {
+        os << "attributes" << endl << "{" << endl << indent
+           << "thread_model " << static_cast< eq::IAttrValue >( value ) << endl
+           << exdent << "}" << endl;
+    }
 
     const PipeVector& pipes = node->getPipes();
     for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )

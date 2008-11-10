@@ -309,8 +309,8 @@ void Window::_sendConfigInit( const uint32_t initID )
     else
         packet.vp     = _vp;
 
-    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
-        packet.iattr[i] = _iAttributes[i];
+    memcpy( packet.iAttributes, _iAttributes, 
+            eq::Window::IATTR_ALL * sizeof( int32_t ));
     
     _send( packet, _name );
     EQLOG( eq::LOG_TASKS ) << "TASK window configInit  " << &packet << endl;

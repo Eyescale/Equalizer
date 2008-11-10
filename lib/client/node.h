@@ -109,6 +109,26 @@ namespace eq
         //*}
 #endif
 
+        /**
+         * @name Attributes
+         */
+        //*{
+        // Note: also update string array initialization in node.cpp
+        /** Node attributes. */
+        enum IAttribute
+        {
+            IATTR_THREAD_MODEL,           //!< Threading model
+            IATTR_ALL
+        };
+
+        void setIAttribute( const IAttribute attr, const int32_t value )
+            { _iAttributes[attr] = value; }
+        int32_t  getIAttribute( const IAttribute attr ) const
+            { return _iAttributes[attr]; }
+        static const std::string&  getIAttributeString( const IAttribute attr )
+            { return _iAttributeStrings[attr]; }
+        //*}
+
 #ifdef EQ_ASYNC_TRANSMIT
         class TransmitThread : public base::Thread
         {
@@ -192,15 +212,15 @@ namespace eq
          *
          * Called once at the beginning of each frame, to start the node's frame
          * and to do per-frame updates of node-specific data. This method has to
-         * call startFrame().
+         * call startFrame(). Immediately releases local synchronization if the
+         * thread model is async.
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to start.
          * @sa startFrame(), Config::beginFrame()
          */
         virtual void frameStart( const uint32_t frameID, 
-                                 const uint32_t frameNumber ) 
-            { startFrame( frameNumber ); }
+                                 const uint32_t frameNumber );
 
         /**
          * Finish rendering a frame.
@@ -220,16 +240,32 @@ namespace eq
         /** 
          * Finish drawing.
          * 
-         * Called once per frame after the last draw operation. The default
-         * implementation waits for all pipe threads to release the local
-         * synchronization in order to frame-synchronize the node and pipe
-         * threads.
+         * Called once per frame after the last draw operation. Waits for the
+         * pipes to release the local synchonization and releases the node's
+         * local synchronization if the thread model is draw_sync (the default).
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame finished with draw.
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
          */
         virtual void frameDrawFinish( const uint32_t frameID, 
+                                      const uint32_t frameNumber );
+
+        /** 
+         * Finish all rendering tasks.
+         * 
+         * Called once per frame after all frame tasks.  Waits for the pipes to
+         * release the local synchonization and releases the node's local
+         * synchronization if the thread model is local_sync.
+         *
+         * Note that frameFinish is called after the latency is exhausted and
+         * synchronizes pipe thread execution.
+         *
+         * @param frameID the per-frame identifier.
+         * @param frameNumber the frame finished with draw.
+         * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
+         */
+        virtual void frameTasksFinish( const uint32_t frameID, 
                                       const uint32_t frameNumber );
         //*}
 
@@ -253,6 +289,12 @@ namespace eq
         /** The name. */
         std::string            _name;
 
+        /** Integer attributes. */
+        int32_t _iAttributes[IATTR_ALL];
+        /** String representation of integer attributes. */
+        static std::string _iAttributeStrings[IATTR_ALL];
+
+        /** Pipe children. */
         PipeVector             _pipes;
 
         /** The reason for the last error. */
@@ -302,6 +344,7 @@ namespace eq
         net::CommandResult _cmdFrameStart( net::Command& command );
         net::CommandResult _cmdFrameFinish( net::Command& command );
         net::CommandResult _cmdFrameDrawFinish( net::Command& command );
+        net::CommandResult _cmdFrameTasksFinish( net::Command& command );
 
         CHECK_THREAD_DECLARE( _nodeThread );
     };

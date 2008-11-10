@@ -563,11 +563,9 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
         _setPixelViewport( packet->pvp );
     else
         _setViewport( packet->vp );
+
     _name = packet->name;
-
-    for( uint32_t i=0; i<IATTR_ALL; ++i )
-        _iAttributes[i] = packet->iattr[i];
-
+    memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
     _error.clear();
 
     WindowConfigInitReplyPacket reply;

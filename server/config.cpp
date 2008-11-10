@@ -131,12 +131,9 @@ Config::Config()
 {
     _construct();
 
-    const Global* global = Global::instance();
-    
+    const Global* global = Global::instance();    
     for( int i=0; i<FATTR_ALL; ++i )
         _fAttributes[i] = global->getConfigFAttribute( (FAttribute)i );
-    for( int i=0; i<eq::Config::IATTR_ALL; ++i )
-        _iAttributes[i] =global->getConfigIAttribute((eq::Config::IAttribute)i);
 }
 
 Config::Config( const Config& from )
@@ -160,8 +157,6 @@ Config::Config( const Config& from )
 
     for( int i=0; i<FATTR_ALL; ++i )
         _fAttributes[i] = from.getFAttribute( (FAttribute)i );
-    for( int i=0; i<eq::Config::IATTR_ALL; ++i )
-        _iAttributes[i] = from.getIAttribute( (eq::Config::IAttribute)i );
         
     const NodeVector& nodes = from.getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
@@ -1043,31 +1038,14 @@ ostream& operator << ( ostream& os, const Config* config )
         os << "latency " << config->getLatency() << endl;
     os << endl;
 
-    bool attrPrinted  = false;
-    const float fValue = config->getFAttribute( Config::FATTR_EYE_BASE );
-
-    if( fValue != 
+    const float value = config->getFAttribute( Config::FATTR_EYE_BASE );
+    if( value != 
         Global::instance()->getConfigFAttribute( Config::FATTR_EYE_BASE ))
     {
         os << "attributes" << endl << "{" << endl << indent
-           << "eye_base     " << fValue << endl;
-        attrPrinted = true;
+           << "eye_base     " << value << endl
+           << exdent << "}" << endl;
     }
-
-    const int32_t iValue =config->getIAttribute(eq::Config::IATTR_THREAD_MODEL);
-    if( iValue != 
-        Global::instance()->getConfigIAttribute(eq::Config::IATTR_THREAD_MODEL))
-    {
-        if( !attrPrinted )
-            os << "attributes" << endl << "{" << endl << indent;
-
-        os << "thread_model " << static_cast< eq::IAttrValue >( iValue )
-           << endl;
-        attrPrinted = true;
-    }
-
-    if( attrPrinted )
-        os << exdent << "}" << endl;
 
     const NodeVector& nodes = config->getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )

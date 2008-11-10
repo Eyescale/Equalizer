@@ -67,6 +67,7 @@ namespace eq
         CMD_NODE_FRAME_FINISH,
         CMD_NODE_FRAME_FINISH_REPLY,
         CMD_NODE_FRAME_DRAW_FINISH,
+        CMD_NODE_FRAME_TASKS_FINISH,
         CMD_NODE_CUSTOM
     };
 

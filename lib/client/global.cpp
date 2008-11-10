@@ -49,7 +49,6 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                 value == ASYNC      ? "ASYNC" : 
                 value == DRAW_SYNC  ? "DRAW_SYNC" : 
                 value == LOCAL_SYNC ? "LOCAL_SYNC" : 
-                value == SYNC       ? "SYNC" : 
                 "ERROR"  );
     return os;
 }

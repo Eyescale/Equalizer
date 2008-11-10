@@ -162,6 +162,16 @@ namespace server
         void updateFrameFinishNT( const uint32_t currentFrame );
         //*}
 
+
+        /** @name Attributes */
+        //*{
+        void setIAttribute( const eq::Node::IAttribute attr, 
+                            const int32_t value )
+            { _iAttributes[attr] = value; }
+        int32_t  getIAttribute( const eq::Node::IAttribute attr ) const
+            { return _iAttributes[attr]; }
+        //*}
+
         /**
          * @name Barrier Cache
          *
@@ -243,6 +253,9 @@ namespace server
     private:
         /** The node name */
         std::string _name;
+
+        /** Integer attributes. */
+        int32_t _iAttributes[eq::Node::IATTR_ALL];
 
         /** The parent config. */
         Config* _config;

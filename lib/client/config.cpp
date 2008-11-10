@@ -27,11 +27,6 @@ namespace eq
 {
 typedef net::CommandFunc<Config> ConfigFunc;
 
-#define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
-std::string Config::_iAttributeStrings[IATTR_ALL] = {
-    MAKE_ATTR_STRING( IATTR_THREAD_MODEL )
-};
-
 Config::Config( base::RefPtr< Server > server )
         : net::Session()
         , _lastEvent( 0 )
@@ -304,6 +299,7 @@ uint32_t Config::finishAllFrames()
     if( _finishedFrame == _currentFrame )
         return _currentFrame;
 
+    EQLOG( LOG_ANY ) << "-- Finish All Frames --" << endl;
     ConfigFinishAllFramesPacket packet;
     send( packet );
 
@@ -312,7 +308,7 @@ uint32_t Config::finishAllFrames()
         client->processCommand();
 
     handleEvents();
-    EQLOG( LOG_ANY ) << "-- Finish All Frames --" << endl;
+    EQLOG( LOG_ANY ) << "-- Finished All Frames --" << endl;
     return _currentFrame;
 }
 

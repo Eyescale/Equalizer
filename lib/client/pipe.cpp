@@ -746,8 +746,67 @@ void Pipe::configExitWGL()
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
 { 
     CHECK_THREAD( _pipeThread );
-    getNode()->waitFrameStarted( frameNumber );
+
+    const Node* node = getNode();
+    switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
+    {
+        case ASYNC:      // No sync, release immediately
+            releaseFrameLocal( frameNumber ); 
+            break;
+
+        case DRAW_SYNC:  // Sync, release in frameDrawFinish
+        case LOCAL_SYNC: // Sync, release in frameFinish
+            node->waitFrameStarted( frameNumber );
+            break;
+
+        default:
+            EQUNIMPLEMENTED;
+    }
+
     startFrame( frameNumber );
+}
+
+void Pipe::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
+{
+    const Node* node = getNode();
+    switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
+    {
+        case ASYNC:      // released in frameStart
+            break;
+
+        case DRAW_SYNC:  // release
+            releaseFrameLocal( frameNumber ); 
+            break;
+
+        case LOCAL_SYNC: // release in frameFinish
+            break;
+
+        default:
+            EQUNIMPLEMENTED;
+    }
+}
+
+void Pipe::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
+{
+    const Node* node = getNode();
+    switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
+    {
+        case ASYNC:      // released in frameStart
+            break;
+
+        case DRAW_SYNC:  // released in frameDrawFinish
+            break;
+
+        case LOCAL_SYNC: // release
+            releaseFrameLocal( frameNumber ); 
+            break;
+
+        default:
+            EQUNIMPLEMENTED;
+    }
+
+    // Global release
+    releaseFrame( frameNumber );
 }
 
 void Pipe::initEventHandler()

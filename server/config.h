@@ -186,12 +186,6 @@ namespace server
             { return _fAttributes[attr]; }
         static const std::string&  getFAttributeString( const FAttribute attr )
             { return _fAttributeStrings[attr]; }
-
-        void setIAttribute( const eq::Config::IAttribute attr, 
-                            const int32_t value )
-            { _iAttributes[attr] = value; }
-        int32_t  getIAttribute( const eq::Config::IAttribute attr ) const
-            { return _iAttributes[attr]; }
         //*}
 
         /** @name Error information. */
@@ -210,11 +204,9 @@ namespace server
     private:
         /** float attributes. */
         float _fAttributes[FATTR_ALL];
+
         /** String representation of float attributes. */
         static std::string _fAttributeStrings[FATTR_ALL];
-        
-        /** Integer attributes. */
-        int32_t _iAttributes[eq::Config::IATTR_ALL];
 
         /** The eq server hosting the session. */
         ServerPtr _server;

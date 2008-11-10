@@ -28,6 +28,11 @@ namespace eq
 {
 typedef net::CommandFunc<Node> NodeFunc;
 
+#define MAKE_ATTR_STRING( attr ) ( string("EQ_NODE_") + #attr )
+std::string Node::_iAttributeStrings[IATTR_ALL] = {
+    MAKE_ATTR_STRING( IATTR_THREAD_MODEL )
+};
+
 Node::Node( Config* parent )
         : _config( parent )
         , _unlockedFrame( 0 )
@@ -49,6 +54,8 @@ Node::Node( Config* parent )
                      NodeFunc( this, &Node::_cmdFrameFinish ), queue );
     registerCommand( CMD_NODE_FRAME_DRAW_FINISH, 
                      NodeFunc( this, &Node::_cmdFrameDrawFinish ), queue );
+    registerCommand( CMD_NODE_FRAME_TASKS_FINISH, 
+                     NodeFunc( this, &Node::_cmdFrameTasksFinish ), queue );
 
     parent->_addNode( this );
     EQINFO << " New eq::Node @" << (void*)this << endl;
@@ -233,15 +240,72 @@ void Node::releaseFrameLocal( const uint32_t frameNumber )
     config->releaseFrameLocal( frameNumber );
 }
 
-void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
-{ 
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
+void Node::frameStart( const uint32_t frameID, const uint32_t frameNumber )
+{
+    startFrame( frameNumber ); // unlock pipe threads
+    
+    switch( getIAttribute( IATTR_THREAD_MODEL ))
     {
-        const Pipe* pipe = *i;
-        pipe->waitFrameLocal( frameNumber );
-    }
+        case ASYNC:
+            // Don't wait for pipes to release frame locally, sync not needed
+            releaseFrameLocal( frameNumber );
+            break;
 
-    releaseFrameLocal( frameNumber );
+        case DRAW_SYNC:  // Sync and release in frameDrawFinish
+        case LOCAL_SYNC: // Sync and release in frameTasksFinish
+            break;
+
+        default:
+            EQUNIMPLEMENTED;
+    }
+}
+
+void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
+{
+    switch( getIAttribute( IATTR_THREAD_MODEL ))
+    {
+        case ASYNC:      // No sync, release in frameStart
+        case LOCAL_SYNC: // Sync and release in frameTasksFinish
+            break;
+
+        case DRAW_SYNC:
+            for( PipeVector::const_iterator i = _pipes.begin();
+                 i != _pipes.end(); ++i )
+            {
+                const Pipe* pipe = *i;
+                pipe->waitFrameLocal( frameNumber );
+            }
+            
+            releaseFrameLocal( frameNumber );
+            break;
+
+        default:
+            EQUNIMPLEMENTED;
+    }
+}
+
+void Node::frameTasksFinish( const uint32_t frameID, const uint32_t frameNumber)
+{
+    switch( getIAttribute( IATTR_THREAD_MODEL ))
+    {
+        case ASYNC:      // No sync, release in frameStart
+        case DRAW_SYNC:  // Sync and release in frameDrawFinish
+            break;
+
+        case LOCAL_SYNC:
+            for( PipeVector::const_iterator i = _pipes.begin();
+                 i != _pipes.end(); ++i )
+            {
+                const Pipe* pipe = *i;
+                pipe->waitFrameLocal( frameNumber );
+            }
+            
+            releaseFrameLocal( frameNumber );
+            break;
+
+        default:
+            EQUNIMPLEMENTED;
+    }
 }
 
 void Node::_flushObjects()
@@ -371,6 +435,8 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
 
     CHECK_THREAD( _nodeThread );
     _name = packet->name;
+    memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
+
     _currentFrame  = 0;
     _unlockedFrame = 0;
     _finishedFrame = 0;
@@ -381,6 +447,10 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     _error.clear();
     NodeConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
+
+    if( _iAttributes[ IATTR_THREAD_MODEL ] == eq::UNDEFINED )
+        _iAttributes[ IATTR_THREAD_MODEL ] = eq::DRAW_SYNC;
+
     _initialized = true; // even if init failed we need to unlock the pipes
 
     EQLOG( LOG_TASKS ) << "TASK node config init reply " << &reply << endl;
@@ -466,6 +536,17 @@ net::CommandResult Node::_cmdFrameDrawFinish( net::Command& command )
                        << endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
+    return net::COMMAND_HANDLED;
+}
+
+net::CommandResult Node::_cmdFrameTasksFinish( net::Command& command )
+{
+    NodeFrameTasksFinishPacket* packet = 
+        command.getPacket< NodeFrameTasksFinishPacket >();
+    EQLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << packet
+                       << endl;
+
+    frameTasksFinish( packet->frameID, packet->frameNumber );
     return net::COMMAND_HANDLED;
 }
 }

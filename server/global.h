@@ -59,13 +59,13 @@ namespace server
             { return _configFAttributes[attr]; }
 
         /**
-         * @name Config Attributes.
+         * @name Node Attributes.
          */  
-        void setConfigIAttribute( const eq::Config::IAttribute attr,
+        void setNodeIAttribute( const eq::Node::IAttribute attr,
                                     const float value )
-            { _configIAttributes[attr] = value; }
-        int32_t getConfigIAttribute( const eq::Config::IAttribute attr ) const
-            { return _configIAttributes[attr]; }
+            { _nodeIAttributes[attr] = value; }
+        int32_t getNodeIAttribute( const eq::Node::IAttribute attr ) const
+            { return _nodeIAttributes[attr]; }
 
         /**
          * @name Pipe Attributes.
@@ -111,7 +111,8 @@ namespace server
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
         
         float       _configFAttributes[Config::FATTR_ALL];
-        int32_t     _configIAttributes[eq::Config::IATTR_ALL];
+
+        int32_t     _nodeIAttributes[eq::Node::IATTR_ALL];
 
         int32_t     _pipeIAttributes[Pipe::IATTR_ALL];
 

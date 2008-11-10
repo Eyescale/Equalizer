@@ -238,9 +238,8 @@ void Channel::_sendConfigInit( const uint32_t initID )
         packet.pvp    = _pvp; 
     else
         packet.vp     = _vp;
-
-    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
-        packet.iattr[i] = _iAttributes[i];
+    memcpy( packet.iAttributes, _iAttributes, 
+            eq::Channel::IATTR_ALL * sizeof( int32_t ));
     
     send( packet, _name );
     EQLOG( eq::LOG_TASKS ) << "TASK channel configInit  " << &packet << endl;

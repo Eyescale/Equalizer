@@ -195,26 +195,6 @@ namespace eq
                                        const vmml::Vector2i& newSize );
         //*}
 
-        /**
-         * @name Attributes
-         */
-        //*{
-        // Note: also update string array initialization in config.cpp
-        /** Config attributes. */
-        enum IAttribute
-        {
-            IATTR_THREAD_MODEL,           //!< Threading model
-            IATTR_ALL
-        };
-
-        void setIAttribute( const IAttribute attr, const int32_t value )
-            { _iAttributes[attr] = value; }
-        int32_t  getIAttribute( const IAttribute attr ) const
-            { return _iAttributes[attr]; }
-        static const std::string&  getIAttributeString( const IAttribute attr )
-            { return _iAttributeStrings[attr]; }
-        //*}
-
         /** Sets the head matrix according to the specified matrix.
          *
          * @param matrix the matrix
@@ -271,11 +251,6 @@ namespace eq
 
         /** The node running the application thread. */
         net::NodePtr _appNode;
-
-        /** Integer attributes. */
-        int32_t _iAttributes[IATTR_ALL];
-        /** String representation of integer attributes. */
-        static std::string _iAttributeStrings[IATTR_ALL];
 
 #ifdef EQ_TRANSMISSION_API
         /** The list of the running client node identifiers. */

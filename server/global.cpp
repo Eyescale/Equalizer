@@ -58,7 +58,9 @@ void Global::_setupDefaults()
 
     // config
     _configFAttributes[Config::FATTR_EYE_BASE]         = 0.05f;
-    _configIAttributes[eq::Config::IATTR_THREAD_MODEL] = eq::DRAW_SYNC;
+
+    // node
+    _nodeIAttributes[eq::Node::IATTR_THREAD_MODEL] = eq::UNDEFINED;
 
     // pipe
     for( int i=0; i<Pipe::IATTR_ALL; ++i )
@@ -137,14 +139,14 @@ void Global::_readEnvironment()
         if( envValue )
             _configFAttributes[i] = atof( envValue );
     }
-    for( int i=0; i<eq::Config::IATTR_ALL; ++i )
+    for( int i=0; i<eq::Node::IATTR_ALL; ++i )
     {
-        const string& name     = eq::Config::getIAttributeString(
-            (eq::Config::IAttribute)i);
+        const string& name     = eq::Node::getIAttributeString(
+            (eq::Node::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
-            _configIAttributes[i] = atol( envValue );
+            _nodeIAttributes[i] = atol( envValue );
     }
     for( int i=0; i<Pipe::IATTR_ALL; ++i )
     {
@@ -255,14 +257,15 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << value << endl;
     }
-    for( int i=0; i < eq::Config::IATTR_ALL; ++i )
+
+    for( int i=0; i < eq::Node::IATTR_ALL; ++i )
     {
-        const float value = global->_configIAttributes[i];
-        if( value == reference._configIAttributes[i] )
+        const float value = global->_nodeIAttributes[i];
+        if( value == reference._nodeIAttributes[i] )
             continue;
 
-        const string& name = eq::Config::getIAttributeString( 
-            static_cast<eq::Config::IAttribute>( i ));
+        const string& name = eq::Node::getIAttributeString( 
+            static_cast<eq::Node::IAttribute>( i ));
         os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast<eq::IAttrValue>( value ) << endl;
     }
