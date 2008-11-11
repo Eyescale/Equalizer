@@ -180,6 +180,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     _spinX = 0;
                     _spinY = 0;
                     _frameData.reset();
+                    setHeadMatrix( vmml::Matrix4f::IDENTITY );
                     return true;
 
                 case 'o':
@@ -199,6 +200,36 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     EQINFO << "Switched to " << _frameData.data.renderMode
                            << endl;
                     return true;
+
+                // Head Tracking Emulation
+                case eq::KC_UP:
+                {
+                    vmml::Matrix4f headMatrix = getHeadMatrix();
+                    headMatrix.y += 0.1f;
+                    setHeadMatrix( headMatrix );
+                    break;
+                }
+                case eq::KC_DOWN:
+                {
+                    vmml::Matrix4f headMatrix = getHeadMatrix();
+                    headMatrix.y -= 0.1f;
+                    setHeadMatrix( headMatrix );
+                    break;
+                }
+                case eq::KC_RIGHT:
+                {
+                    vmml::Matrix4f headMatrix = getHeadMatrix();
+                    headMatrix.x += 0.1f;
+                    setHeadMatrix( headMatrix );
+                    break;
+                }
+                case eq::KC_LEFT:
+                {
+                    vmml::Matrix4f headMatrix = getHeadMatrix();
+                    headMatrix.x -= 0.1f;
+                    setHeadMatrix( headMatrix );
+                    break;
+                }
 
                 default:
                     break;

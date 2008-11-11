@@ -71,6 +71,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
             string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
             string( "\t\t<Space>, r:                Reset camera\n" ) +
+            string( "\t\t<Cursor Keys>:             Move head in x,y plane\n" )+
             string( "\t\to:                         Toggle perspective/orthographic\n" ) +
             string( "\t\ts:                         Toggle statistics overlay\n" ) +
             string( "\t\tm:                         Switch rendering mode\n" );

@@ -201,6 +201,10 @@ namespace eq
          */
         void setHeadMatrix( const vmml::Matrix4f& matrix );
 
+        /** @return the current head matrix. */
+        const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
+
+
         /** @name Error Information. */
         //*{
         /** @return the error message from the last operation. */
