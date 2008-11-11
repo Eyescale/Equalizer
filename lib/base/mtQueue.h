@@ -32,11 +32,18 @@ class MTQueuePrivate;
         /** Destructs the Queue. */
         ~MTQueue();
 
+        /** @return true if the queue is empty, false otherwise. */
         bool empty() const { return _queue.empty(); }
+
+        /** @return the number of items currently in the queue. */
         size_t size() const { return _queue.size(); }
 
+        /** Retrieve and pop the front element from the queue, may block. */
         T pop();
+
+        /** Try to get the front element from the queue, returns 0 if empty. */
         T tryPop();
+
         T back() const;
         void push( const T& element );
         void pushFront( const T& element );
@@ -125,7 +132,7 @@ template< typename T >
 T MTQueue<T>::tryPop()
 {
     if( _queue.empty( ))
-        return 0;
+        return NONE;
     
     pthread_mutex_lock( &_data->mutex );
     if( _queue.empty( ))
