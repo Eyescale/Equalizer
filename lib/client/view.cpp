@@ -71,7 +71,7 @@ void View::pack( net::DataOStream& os )
         return;
 
     getInstanceData( os );
-    _dirty |= DIRTY_NONE;
+    _dirty = DIRTY_NONE;
 }
 
 void View::setWall( const Wall& wall )
