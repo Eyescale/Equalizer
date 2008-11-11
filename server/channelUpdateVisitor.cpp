@@ -289,6 +289,8 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
     const vmml::Matrix4f& xfm  = viewData.getViewTransform();
     const vmml::Vector3f  eye  = xfm * eyeW;
 
+    EQVERB << "Eye position world: " << eyeW << " screen " << eye << endl;
+
     // compute perspective and orthographic frustra from size and eye position
     _computeFrustumCorners( context.frustum, compound, viewData, eye, false );
     _computeFrustumCorners( context.ortho,   compound, viewData, eye, true );

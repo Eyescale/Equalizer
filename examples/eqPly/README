@@ -112,6 +112,8 @@ Where:
 
                 <Space>, r:                Reset camera
 
+                <Cursor Keys>:             Move head in x,y plane
+
                 o:                         Toggle perspective/orthographic
 
                 s:                         Toggle statistics overlay

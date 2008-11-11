@@ -120,6 +120,8 @@ void ViewData::applyHead( const vmml::Matrix4f& head, const float eyeBase )
     _eyes[eq::EYE_RIGHT].y = ( eyeBase_2 * head.m10 + head.m13 );
     _eyes[eq::EYE_RIGHT].z = ( eyeBase_2 * head.m20 + head.m23 );
     _eyes[eq::EYE_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 ); // w
+
+    EQVERB << "Eye position: " << _eyes[ eq:: EYE_CYCLOP ] << std::endl;
 }
 
 std::ostream& operator << ( std::ostream& os, const ViewData& viewData )

@@ -19,7 +19,7 @@ server
                     channel 
                     {
                         viewport [ .333 .333 .333 .333 ]
-                        name "channel-middle"
+                        name "channel-front"
                     }
                     channel 
                     {
@@ -54,7 +54,7 @@ server
             }
             compound
             {
-                channel "channel-middle"
+                channel "channel-front"
                 wall
                 {
                     bottom_left  [ -1 -1 -1 ]
@@ -77,9 +77,9 @@ server
                 channel "channel-bottom"
                 wall
                 {
-                    bottom_left  [ -1  1  1 ]
-                    bottom_right [  1  1  1 ]
-                    top_left     [ -1  1 -1 ]
+                    bottom_left  [ -1 -1  1 ]
+                    bottom_right [  1 -1  1 ]
+                    top_left     [ -1 -1 -1 ]
                 }
             }
             compound
@@ -87,9 +87,9 @@ server
                 channel "channel-top"
                 wall
                 {
-                    bottom_left  [ -1 -1 -1 ]
-                    bottom_right [  1 -1 -1 ]
-                    top_left     [ -1 -1  1 ]
+                    bottom_left  [ -1  1 -1 ]
+                    bottom_right [  1  1 -1 ]
+                    top_left     [ -1  1  1 ]
                 }
             }
         }
