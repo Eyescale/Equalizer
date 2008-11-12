@@ -319,6 +319,13 @@ bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
     ShowWindow( hWnd, SW_SHOW );
     UpdateWindow( hWnd );
 
+    if( getIAttribute( Window::IATTR_HINT_SCREENSAVER ) != ON )
+    {
+        // Post screen saver wakeup
+        //PostMessage( HWND_BROADCAST, WM_SYSCOMMAND, SC_SCREENSAVE, 0 );
+        PostMessage( HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, -1 );
+    }
+
     return true;
 }
 

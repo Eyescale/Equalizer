@@ -46,6 +46,7 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_SWAPSYNC ),
     MAKE_ATTR_STRING( IATTR_HINT_DRAWABLE ),
     MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
+    MAKE_ATTR_STRING( IATTR_HINT_SCREENSAVER ),
     MAKE_ATTR_STRING( IATTR_PLANES_COLOR ),
     MAKE_ATTR_STRING( IATTR_PLANES_ALPHA ),
     MAKE_ATTR_STRING( IATTR_PLANES_DEPTH ),
@@ -504,6 +505,22 @@ bool Window::processEvent( const Event& event )
         case Event::POINTER_BUTTON_RELEASE:
         case Event::STATISTIC:
             break;
+
+        case Event::WINDOW_SCREENSAVER:
+            switch( getIAttribute( IATTR_HINT_SCREENSAVER ))
+            {
+                case OFF:
+                    return true; // screen saver stays inactive
+                case ON:
+                    return false; // screen saver becomes active
+                default: // AUTO
+                    if( _drawableConfig.doublebuffered &&
+                        getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW )
+                    {
+                        return true; // screen saver stays inactive
+                    }
+                    return false;
+            }
 
         case Event::UNKNOWN:
             // unknown window-system native event, which was not handled

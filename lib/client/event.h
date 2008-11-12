@@ -151,6 +151,7 @@ namespace eq
             WINDOW_CLOSE,
             WINDOW_HIDE,
             WINDOW_SHOW,
+            WINDOW_SCREENSAVER,
 #ifdef EQ_USE_DEPRECATED
             RESIZE = WINDOW_RESIZE,
 #endif

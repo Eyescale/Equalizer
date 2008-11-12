@@ -187,6 +187,7 @@ namespace eq
             IATTR_HINT_SWAPSYNC,         //!< Swap sync on vertical retrace
             IATTR_HINT_DRAWABLE,         //!< Drawable type
             IATTR_HINT_STATISTICS,       //!< Statistics gathering hint
+            IATTR_HINT_SCREENSAVER,      //!< Screensaver (de)activation (WGL)
             IATTR_PLANES_COLOR,          //!< No of per-component color planes
             IATTR_PLANES_ALPHA,          //!< No of alpha planes
             IATTR_PLANES_DEPTH,          //!< No of z-buffer planes

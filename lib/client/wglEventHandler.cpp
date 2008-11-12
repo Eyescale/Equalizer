@@ -368,6 +368,25 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.keyRelease.key = _getKey( lParam, wParam );
             break;
 
+        case WM_SYSCOMMAND:
+            switch( wParam )
+            {
+                case SC_MONITORPOWER:
+                case SC_SCREENSAVE:
+                    if( lParam > 0 ) // request off
+                    {
+                        event.type = Event::WINDOW_SCREENSAVER;
+                        break;
+                    }
+                    // else no break; fall through
+                default:
+                    event.type = Event::UNKNOWN;
+                    EQVERB << "Unhandled system command 0x" << hex << wParam 
+                           << dec << endl;
+                    break;
+            }
+            break;
+
         default:
             event.type = Event::UNKNOWN;
             EQVERB << "Unhandled message 0x" << hex << uMsg << dec << endl;
