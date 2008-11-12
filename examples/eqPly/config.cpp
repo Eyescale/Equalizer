@@ -207,28 +207,42 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     vmml::Matrix4f headMatrix = getHeadMatrix();
                     headMatrix.y += 0.1f;
                     setHeadMatrix( headMatrix );
-                    break;
+                    return true;
                 }
                 case eq::KC_DOWN:
                 {
                     vmml::Matrix4f headMatrix = getHeadMatrix();
                     headMatrix.y -= 0.1f;
                     setHeadMatrix( headMatrix );
-                    break;
+                    return true;
                 }
                 case eq::KC_RIGHT:
                 {
                     vmml::Matrix4f headMatrix = getHeadMatrix();
                     headMatrix.x += 0.1f;
                     setHeadMatrix( headMatrix );
-                    break;
+                    return true;
                 }
                 case eq::KC_LEFT:
                 {
                     vmml::Matrix4f headMatrix = getHeadMatrix();
                     headMatrix.x -= 0.1f;
                     setHeadMatrix( headMatrix );
-                    break;
+                    return true;
+                }
+                case eq::KC_PAGE_DOWN:
+                {
+                    vmml::Matrix4f headMatrix = getHeadMatrix();
+                    headMatrix.z += 0.1f;
+                    setHeadMatrix( headMatrix );
+                    return true;
+                }
+                case eq::KC_PAGE_UP:
+                {
+                    vmml::Matrix4f headMatrix = getHeadMatrix();
+                    headMatrix.z -= 0.1f;
+                    setHeadMatrix( headMatrix );
+                    return true;
                 }
 
                 default:

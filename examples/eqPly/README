@@ -108,11 +108,13 @@ Where:
 
                 Right Mouse Button:        Move model in Z
 
+                <Cursor Keys>:             Move head in x,y plane
+
+                <Page Up,Down>:            Move head in Z
+
                 <Esc>, All Mouse Buttons:  Exit program
 
                 <Space>, r:                Reset camera
-
-                <Cursor Keys>:             Move head in x,y plane
 
                 o:                         Toggle perspective/orthographic
 
