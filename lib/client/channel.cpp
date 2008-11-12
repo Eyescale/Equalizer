@@ -539,21 +539,27 @@ void Channel::drawStatistics()
     pvp.y = 0;
 
     // find min/max time
-    const SortedStatistics& lastStats = statistics.back().second;
     int64_t                 xMax      = 0;
     int64_t                 xMin      = std::numeric_limits< int64_t >::max();
 
-    for( SortedStatistics::const_iterator i = lastStats.begin();
-         i != lastStats.end(); ++i )
+    for( vector< FrameStatistics >::const_iterator i = statistics.begin();
+         i != statistics.end(); ++i )
     {
-        const Statistics& stats = i->second;
+        const FrameStatistics&  frameStats  = *i;
+        const SortedStatistics& configStats = frameStats.second;
 
-        for( Statistics::const_iterator j = stats.begin(); 
-             j != stats.end(); ++j )
+        for( SortedStatistics::const_iterator j = configStats.begin();
+             j != configStats.end(); ++j )
         {
-            const Statistic& stat = *j;
-            xMax = EQ_MAX( xMax, stat.endTime );
-            xMin = EQ_MIN( xMin, stat.endTime );
+            const Statistics& stats = j->second;
+
+            for( Statistics::const_iterator k = stats.begin(); 
+                 k != stats.end(); ++k )
+            {
+                const Statistic& stat = *k;
+                xMax = EQ_MAX( xMax, stat.endTime );
+                xMin = EQ_MIN( xMin, stat.endTime );
+            }
         }
     }
     uint32_t scale = 1;
