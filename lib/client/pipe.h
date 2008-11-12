@@ -236,6 +236,9 @@ namespace eq
         /** 
          * Release the local synchronization of the parent for a frame.
          * 
+         * The synchronization is released only for this frame, not for
+         * previous, possible yet unreleased frames.
+         * 
          * @param frameNumber the frame to release.
          */
         void releaseFrameLocal( const uint32_t frameNumber );
@@ -324,7 +327,7 @@ namespace eq
         /** 
          * Finish drawing.
          * 
-         * Called once per frame after the last draw operation.  Releases the
+         * Called once per frame after the last draw operation. Releases the
          * local synchronization if the thread model is draw_sync (the default).
          *
          * @param frameID the per-frame identifier.
@@ -433,7 +436,7 @@ namespace eq
         uint32_t _currentFrame;
 
         /** The number of the last finished frame. */
-        base::Monitor<uint32_t> _finishedFrame;
+        base::Monitor< uint32_t > _finishedFrame;
 
         /** The number of the last locally unlocked frame. */
         base::Monitor<uint32_t> _unlockedFrame;

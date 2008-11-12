@@ -83,6 +83,7 @@ namespace base
         //*}
 
         const T& get() const { return _value; }
+        T operator + ( const T& value ) const { return _value + value; }
 
     private:
         T _value;

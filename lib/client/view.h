@@ -66,6 +66,9 @@ namespace eq
          */
         float getEyeBase() const { return _eyeBase; }
 
+        /** @return true if the view has to be committed. */
+        bool isDirty() const { return (_dirty != 0); }
+
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
 

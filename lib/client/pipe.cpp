@@ -29,6 +29,8 @@ using eq::net::CommandFunc;
 
 namespace eq
 {
+typedef net::CommandFunc<Pipe> PipeFunc;
+
 #ifdef WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #endif
@@ -111,26 +113,23 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
     net::CommandQueue* queue = getPipeThreadQueue();
 
     registerCommand( CMD_PIPE_CONFIG_INIT, 
-                     CommandFunc<Pipe>( this, &Pipe::_cmdConfigInit ), queue );
+                     PipeFunc( this, &Pipe::_cmdConfigInit ), queue );
     registerCommand( CMD_PIPE_CONFIG_EXIT, 
-                     CommandFunc<Pipe>( this, &Pipe::_cmdConfigExit ), queue );
+                     PipeFunc( this, &Pipe::_cmdConfigExit ), queue );
     registerCommand( CMD_PIPE_CREATE_WINDOW,
-                     CommandFunc<Pipe>( this, &Pipe::_cmdCreateWindow ),
-                     queue );
+                     PipeFunc( this, &Pipe::_cmdCreateWindow ), queue );
     registerCommand( CMD_PIPE_DESTROY_WINDOW, 
-                     CommandFunc<Pipe>( this, &Pipe::_cmdDestroyWindow ),
-                     queue );
+                     PipeFunc( this, &Pipe::_cmdDestroyWindow ), queue );
     registerCommand( CMD_PIPE_FRAME_START,
-                     CommandFunc<Pipe>( this, &Pipe::_cmdFrameStart ), queue );
+                     PipeFunc( this, &Pipe::_cmdFrameStart ), queue );
     registerCommand( CMD_PIPE_FRAME_FINISH,
-                     CommandFunc<Pipe>( this, &Pipe::_cmdFrameFinish ), queue );
+                     PipeFunc( this, &Pipe::_cmdFrameFinish ), queue );
     registerCommand( CMD_PIPE_FRAME_DRAW_FINISH, 
-                     CommandFunc<Pipe>( this, &Pipe::_cmdFrameDrawFinish ),
-                     queue );
+                     PipeFunc( this, &Pipe::_cmdFrameDrawFinish ), queue );
     registerCommand( CMD_PIPE_STOP_THREAD, 
-                     CommandFunc<Pipe>( this, &Pipe::_cmdStopThread ), queue );
+                     PipeFunc( this, &Pipe::_cmdStopThread ), queue );
     registerCommand( CMD_PIPE_FRAME_START_CLOCK,
-                     CommandFunc<Pipe>( this, &Pipe::_cmdFrameStartClock ), 0 );
+                     PipeFunc( this, &Pipe::_cmdFrameStartClock ), 0 );
 }
 
 void Pipe::_addWindow( Window* window )

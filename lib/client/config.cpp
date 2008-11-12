@@ -238,7 +238,11 @@ uint32_t Config::startFrame( const uint32_t frameID )
 
     // Commit view changes
     for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
-        (*i)->commit();
+    {
+        View* view = *i;
+        if( view->isDirty( ))
+            view->commit();
+    }
 
     // Request new frame
     ConfigStartFramePacket packet;
@@ -268,8 +272,12 @@ uint32_t Config::finishFrame()
 
         while( _unlockedFrame < _currentFrame || // local sync
                _finishedFrame < frameToFinish )  // global sync
-
+        {
             client->processCommand();
+            EQINFO << "local " << _unlockedFrame << '/' << _currentFrame
+                   << " global " << _finishedFrame.get() << '/' << frameToFinish
+                   << endl;
+        }
 
         // handle directly, it would not be processed in time using the normal
         // event flow
@@ -774,7 +782,7 @@ net::CommandResult Config::_cmdFrameFinish( net::Command& command )
 {
     const ConfigFrameFinishPacket* packet = 
         command.getPacket<ConfigFrameFinishPacket>();
-    EQVERB << "handle frame finish " << packet << endl;
+    EQLOG( LOG_TASKS ) << "frame finish " << packet << endl;
 
     _finishedFrame = packet->frameNumber;
 

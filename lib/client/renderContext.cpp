@@ -11,9 +11,9 @@ namespace eq
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                       const RenderContext& ctx )
 {
-    os << disableFlush << "pvp " << ctx.pvp << " vp " << ctx.vp << " " 
-       << ctx.range << " " << ctx.eye << " frustum " << ctx.frustum << " xfm "
-       << ctx.headTransform << enableFlush;
+    os << disableFlush << "ID " << ctx.frameID << " pvp " << ctx.pvp << " vp "
+       << ctx.vp << " " << ctx.range << " " << ctx.eye << " frustum "
+       << ctx.frustum << " xfm " << ctx.headTransform << enableFlush;
     return os;
 }
 }
