@@ -260,7 +260,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
 
     for( int i=0; i < eq::Node::IATTR_ALL; ++i )
     {
-        const float value = global->_nodeIAttributes[i];
+        const int32_t value = global->_nodeIAttributes[i];
         if( value == reference._nodeIAttributes[i] )
             continue;
 
