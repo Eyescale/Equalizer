@@ -39,10 +39,9 @@ namespace eq
             struct Chunk : public base::NonCopyable
             {
                 uint32_t size;
-                uint32_t dummy; // enforce 8-byte alignment
                 static size_t headerSize;
 
-                EQ_ALIGN8( uint8_t data[8] );
+                EQ_ALIGN16( uint8_t data[16] );
             };
 
             std::vector< Chunk* > chunks;     //!< The pixel data

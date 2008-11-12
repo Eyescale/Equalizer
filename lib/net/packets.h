@@ -10,12 +10,6 @@
 
 #include <eq/base/idPool.h> // for EQ_ID_*
 
-#ifdef WIN32_VC
-#  define EQ_ALIGN8( var ) __declspec (align (8)) var;
-#else
-#  define EQ_ALIGN8( var ) var __attribute__ ((aligned (8)));
-#endif
-
 namespace eq
 {
 namespace net

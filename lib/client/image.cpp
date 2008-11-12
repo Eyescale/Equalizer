@@ -34,7 +34,7 @@ const uint64_t _rleMarker = 0xF3C553FF64F6477Full; // just a random number
 typedef Image::PixelData::Chunk Chunk;
 }
 
-size_t Image::PixelData::Chunk::headerSize = 8;
+size_t Image::PixelData::Chunk::headerSize = 16;
 
 Image::Image()
         : _glObjects( 0 )
