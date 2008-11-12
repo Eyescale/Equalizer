@@ -274,7 +274,7 @@ uint32_t Config::finishFrame()
                _finishedFrame < frameToFinish )  // global sync
         {
             client->processCommand();
-            EQINFO << "local " << _unlockedFrame << '/' << _currentFrame
+            EQVERB << "local " << _unlockedFrame << '/' << _currentFrame
                    << " global " << _finishedFrame.get() << '/' << frameToFinish
                    << endl;
         }
