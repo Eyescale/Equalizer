@@ -184,6 +184,7 @@ namespace eq
         HDC              _wglDC;
 
         WGLEventHandler* _eventHandler;
+        BOOL             _screenSaverActive;
     };
 }
 

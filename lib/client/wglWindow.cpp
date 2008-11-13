@@ -47,6 +47,11 @@ void WGLWindow::configExit( )
 
     if( hWnd )
     {
+        // Re-enable screen saver
+        if( getIAttribute( Window::IATTR_HINT_SCREENSAVER ) != ON )
+            SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, _screenSaverActive, 
+                                  0, 0 );
+        
         char className[256] = {0};
         GetClassName( hWnd, className, 255 );
         DestroyWindow( hWnd );
@@ -321,8 +326,12 @@ bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
 
     if( getIAttribute( Window::IATTR_HINT_SCREENSAVER ) != ON )
     {
-        // Post screen saver wakeup
-        //PostMessage( HWND_BROADCAST, WM_SYSCOMMAND, SC_SCREENSAVE, 0 );
+        // Disable screen saver
+        SystemParametersInfo( SPI_GETSCREENSAVEACTIVE, 0, &_screenSaverActive,
+                              0 );
+        SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, FALSE, 0, 0 );
+        
+        // Wake up monitor
         PostMessage( HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, -1 );
     }
 
