@@ -30,7 +30,6 @@ MODELS = \
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
 
-
 ifeq "${ARCH}" "Linux"
   LDFLAGS += -lrt
 ifeq "${SUBARCH}" "ia64"
@@ -38,7 +37,7 @@ ifeq "${SUBARCH}" "ia64"
 endif
 endif
 
-TARGETS = $(PROGRAMS) $(MODELS)
+TARGETS = $(SHADERS) $(PROGRAMS) $(MODELS)
 
 include $(TOP)/make/rules.mk
 

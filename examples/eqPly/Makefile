@@ -37,11 +37,9 @@ ifeq "${SUBARCH}" "ia64"
 endif
 endif
 
-TARGETS = $(PROGRAMS) $(SHARE_DIR)/data/rockerArm.ply
+TARGETS = $(SHADERS) $(PROGRAMS) $(SHARE_DIR)/data/rockerArm.ply
 
 include $(TOP)/make/rules.mk
-
-$(OBJECTS): $(SHADERS)
 
 README: ../../../website/build/documents/user/eqPly.html
 	links -dump $< > $@
