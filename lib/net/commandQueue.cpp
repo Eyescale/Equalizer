@@ -50,6 +50,7 @@ void CommandQueue::push( Command& inCommand )
     _commandCacheLock.unset();
 
     EQASSERT( outCommand->isValid( ));
+    outCommand->_dispatched = true;
     _commands.push( outCommand );
 }
 
@@ -62,6 +63,7 @@ void CommandQueue::pushFront( Command& inCommand )
     _commandCacheLock.unset();
 
     EQASSERT( outCommand->isValid( ));
+    outCommand->_dispatched = true;
     _commands.pushFront( outCommand );
 }
 

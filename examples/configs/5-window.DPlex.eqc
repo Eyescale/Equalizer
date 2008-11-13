@@ -1,4 +1,4 @@
-# 3-window time-multiplex config
+# four-to-one time-multiplex config
 global
 {
     EQ_WINDOW_IATTR_HINT_SWAPSYNC 0

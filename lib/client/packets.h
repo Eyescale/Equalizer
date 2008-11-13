@@ -639,6 +639,18 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
         uint32_t frameNumber;
     };
 
+    struct PipeFrameNoDrawPacket : public net::ObjectPacket
+    {
+        PipeFrameNoDrawPacket()
+            {
+                command        = CMD_PIPE_FRAME_NO_DRAW;
+                size           = sizeof( PipeFrameNoDrawPacket );
+            }
+
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
+
     struct PipeFrameDrawFinishPacket : public net::ObjectPacket
     {
         PipeFrameDrawFinishPacket()
@@ -1113,7 +1125,7 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
     inline std::ostream& operator << ( std::ostream& os, 
                                      const ConfigStartFrameReplyPacket* packet )
     {
-        os << (ConfigPacket*)packet << " frame #" << packet->frameNumber
+        os << (ConfigPacket*)packet << " frame " << packet->frameNumber
            << ", " << packet->nNodeIDs << " nodes";
 
         for( uint32_t i=0 ; i<4 && i<packet->nNodeIDs; ++i )
@@ -1121,6 +1133,13 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
 
         return os;
     }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ConfigFrameFinishPacket* packet )
+    {
+        os << (ConfigPacket*)packet << " frame " << packet->frameNumber;
+        return os;
+    }
+
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeCreatePipePacket* packet )
     {
@@ -1177,6 +1196,13 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeFrameDrawFinishPacket* packet )
+    {
+        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const PipeFrameNoDrawPacket* packet )
     {
         os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;

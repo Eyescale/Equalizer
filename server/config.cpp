@@ -924,12 +924,14 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
 {
     const eq::ConfigStartFramePacket* packet = 
         command.getPacket<eq::ConfigStartFramePacket>();
-    eq::ConfigStartFrameReplyPacket   reply( packet );
     EQVERB << "handle config frame start " << packet << endl;
 
     vector< net::NodeID > nodeIDs;
-    _prepareFrame( nodeIDs );
 
+    _prepareFrame( nodeIDs );
+    _startFrame( packet->frameID );
+
+    eq::ConfigStartFrameReplyPacket reply( packet );
     reply.frameNumber = _currentFrame;
     reply.nNodeIDs    = nodeIDs.size();
 
@@ -940,7 +942,6 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
 
     command.getNode()->send( reply, nodeIDs );
 
-    _startFrame( packet->frameID );
     return net::COMMAND_HANDLED;
 }
 

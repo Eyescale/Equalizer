@@ -322,11 +322,19 @@ bool Pipe::syncConfigExit()
 //---------------------------------------------------------------------------
 void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
 {
-    if( !_lastDrawWindow ) // happens when used channels skip a frame
-        _lastDrawWindow = _windows[0];
-
     eq::PipeFrameStartClockPacket startClockPacket;
     _send( startClockPacket );
+
+    if( !_lastDrawWindow ) // happens when all used channels skip a frame
+    {
+        _lastDrawWindow = _windows[0];
+        
+        eq::PipeFrameNoDrawPacket packet;
+        packet.frameID     = frameID;
+        packet.frameNumber = frameNumber;
+        _send( packet );
+        EQLOG( eq::LOG_TASKS ) << "TASK pipe no draw " << &packet << endl;
+    }
 
     eq::PipeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;

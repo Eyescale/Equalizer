@@ -239,6 +239,9 @@ namespace eq
          * The synchronization is released only for this frame, not for
          * previous, possible yet unreleased frames.
          * 
+         * The synchronization is released only for this frame, not for
+         * previous, possible yet unreleased frames.
+         * 
          * @param frameNumber the frame to release.
          */
         void releaseFrameLocal( const uint32_t frameNumber );
@@ -335,6 +338,19 @@ namespace eq
          */
         virtual void frameDrawFinish( const uint32_t frameID, 
                                       const uint32_t frameNumber );
+
+        /** 
+         * Early callback when the pipe does not draw at all for a frame.
+         * 
+         * Called as early as possible if the pipe does not draw for a given
+         * frame. Releases the local synchronization if the thread model is
+         * async or draw_sync (the default).
+         *
+         * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to finished with draw.
+         */
+        virtual void frameNoDraw( const uint32_t frameID, 
+                                  const uint32_t frameNumber );
 
         /**
          * Initialize the event handling for this pipe. 
@@ -441,6 +457,9 @@ namespace eq
         /** The number of the last locally unlocked frame. */
         base::Monitor<uint32_t> _unlockedFrame;
 
+        /** Unlocked 'future' frames. */
+        std::deque< uint32_t >    _unlockedFrames;
+
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
         base::SpinLock        _frameTimeMutex;
@@ -497,6 +516,7 @@ namespace eq
         net::CommandResult _cmdFrameStart( net::Command& command );
         net::CommandResult _cmdFrameFinish( net::Command& command );
         net::CommandResult _cmdFrameDrawFinish( net::Command& command );
+        net::CommandResult _cmdFrameNoDraw( net::Command& command );
         net::CommandResult _cmdStopThread( net::Command& command );
 
         CHECK_THREAD_DECLARE( _pipeThread );

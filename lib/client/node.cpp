@@ -238,6 +238,8 @@ void Node::releaseFrameLocal( const uint32_t frameNumber )
     EQASSERT( config->getNodes().size() == 1 );
     EQASSERT( config->getNodes()[0] == this );
     config->releaseFrameLocal( frameNumber );
+
+    EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame << endl;
 }
 
 void Node::frameStart( const uint32_t frameID, const uint32_t frameNumber )

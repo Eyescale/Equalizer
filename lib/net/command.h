@@ -28,7 +28,7 @@ namespace net
     class Command 
     {
     public:
-        Command() : _packet( 0 ), _packetAllocSize( 0 )   {}
+        Command() : _packet( 0 ), _packetAllocSize( 0 ), _dispatched( false ) {}
         Command( const Command& from ); // deep copy (of _packet)
         ~Command() { release(); }
         
@@ -55,6 +55,8 @@ namespace net
         void release();
         bool isValid() const { return ( _packet!=0 ); }
 
+        bool isDispatched() const { return _dispatched; }
+
     private:
         Command& operator = ( Command& rhs ); // disable assignment
 
@@ -62,6 +64,9 @@ namespace net
         NodePtr  _localNode;
         Packet*  _packet;
         uint64_t _packetAllocSize;
+
+        bool     _dispatched;
+        friend class CommandQueue; // sets _dispatched to true
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& );

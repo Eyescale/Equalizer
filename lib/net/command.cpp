@@ -20,6 +20,7 @@ Command::Command( const Command& from )
         , _localNode( from._localNode )
         , _packet( 0 )
         , _packetAllocSize( 0 )
+        , _dispatched( from._dispatched )
 {
     if( !from.isValid( ))
         return;
@@ -43,11 +44,13 @@ void Command::swap( Command& rhs )
     _node            = rhs._node;
     _localNode       = rhs._localNode;
     _packetAllocSize = rhs._packetAllocSize;
+    _dispatched      = false;
 
     rhs._packet          = packet;
     rhs._node            = node;
     rhs._localNode       = localNode;
     rhs._packetAllocSize = packetAllocSize;
+    rhs._dispatched      = false;
 }
 
 void Command::allocate( NodePtr node, 
@@ -68,6 +71,7 @@ void Command::allocate( NodePtr node,
     _node         = node;
     _localNode    = localNode;
     _packet->size = packetSize;
+    _dispatched   = false;
 }
 
 void Command::release()
@@ -79,6 +83,7 @@ void Command::release()
     _node      = 0;
     _localNode = 0;
     _packetAllocSize = 0;
+    _dispatched      = false;
 }        
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
