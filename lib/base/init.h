@@ -10,8 +10,7 @@
 namespace eq
 {
 /**
- * @namespace eq::base
- * @brief Namespace for basic Equalizer utility code.
+ * @brief Equalizer base OS abstraction layer.
  */
 namespace base
 {
