@@ -373,7 +373,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             {
                 case SC_MONITORPOWER:
                 case SC_SCREENSAVE:
-                    if( lParam > 0 ) // request off
+                    if( lParam >= 0 ) // request off
                     {
                         event.type = Event::WINDOW_SCREENSAVER;
                         break;
