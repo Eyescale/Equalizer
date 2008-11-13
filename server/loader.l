@@ -111,6 +111,7 @@ FASTEST                         { return EQTOKEN_FASTEST; }
 NICEST                          { return EQTOKEN_NICEST; }
 QUAD                            { return EQTOKEN_QUAD; }
 ANAGLYPH                        { return EQTOKEN_ANAGLYPH; }
+anaglyph                        { return EQTOKEN_ANAGLYPH; }
 RED                             { return EQTOKEN_RED; }
 GREEN                           { return EQTOKEN_GREEN; }
 BLUE                            { return EQTOKEN_BLUE; }
