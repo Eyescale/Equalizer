@@ -773,7 +773,10 @@ public:
 
 void Config::_updateHead()
 {
-    if( _headMatrix.getVersion() == _headMatrix.sync( )) // no changes
+    const uint32_t oldVersion = _headMatrix.getVersion();
+    const uint32_t newVersion = _headMatrix.sync();
+
+    if( oldVersion == newVersion )
         return;
 
     ViewUpdater updater;
