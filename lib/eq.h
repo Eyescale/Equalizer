@@ -59,23 +59,26 @@ namespace eqNet  = ::eq::net;
 
 /*! \mainpage Equalizer Documentation
 
+<a name="introduction"></a>
+<h2>1. Introduction</h2>
 <p>
-  Welcome to Equalizer 0.6-RC1, a framework for the development and deployment
-  of parallel, scalable OpenGL applications. Equalizer 0.6-RC1 contains major
-  new features, most notably support for DPlex compounds and automatic
+  Welcome to Equalizer, a framework for the development and deployment of
+  parallel, scalable OpenGL applications. Equalizer 0.6 will contain major new
+  features, most notably support for DPlex compounds and automatic
   load-balancing.
 </p>
 <p>
   Equalizer 0.6-RC1 is the release candidate for Equalizer 0.6. Equalizer
-  0.6-RC1 can be retrieved by updating the subversion trunk to revision ????
-  (<code>svn up -r ???? </code>), by using<br>
-  <code>svn co https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.6-rc1</code>
-  or by downloading the
+  0.6-RC1 can be retrieved by downloading the
   <a href="http://equalizer.svn.sourceforge.net/viewvc/equalizer/tags/release-0.6-rc1.tar.gz?view=tar">source
-    code</a>.
+    code</a>, updating the subversion trunk to revision 2341
+  (<code>svn up -r 2341</code>) or by using<br>
+  <code>svn co https://equalizer.svn.sf.net/svnroot/equalizer/tags/release-0.6-rc1</code>.
 </p>
 
-<h3>Features</h3>
+
+<a name="features"></a>
+<h3>1.1. Features</h3>
 <p>
   Equalizer provides the following major features to facilitate the development
   and deployment of scalable OpenGL applications. A
@@ -87,9 +90,9 @@ namespace eqNet  = ::eq::net;
     configuration, from laptops to large-scale visualization clusters, without
     recompilation. The runtime configuration is externalized from the
     application to a system-wide resource server.</li>
-  <li><b>Runtime Scalability:</b> An Equalizer application can use multiple
-    CPU's, GPU's and computers to increase the rendering performance of a single
-    view.</li>
+  <li><b>Runtime Scalability:</b> An Equalizer application can aggregate
+    multiple CPU's, GPU's and computers to increase the rendering performance of
+    a single or multiple views.</li>
   <li><b>Distributed Execution:</b> Equalizer applications can be written to
     support cluster-based execution. The task of distributing the application
     data is facilitated by support for versioned, distributed objects.</li>
@@ -98,13 +101,15 @@ namespace eqNet  = ::eq::net;
     immersive Virtual Reality installations.</li>
 </ul>
 
-<h3>New in this release</h3>
+<a name="new"></a>
+<h2>2. New in this release</h2>
 <p>
-  Equalizer 0.6 will contain the following features, improvements, bug fixes and
+  Equalizer 0.6 will contain the following features, enhancements, bug fixes and
   documentation changes:
 </p>
 
-<h4>New Features</h4>
+<a name="newFeatures"></a>
+<h3>2.1. New Features</h3>
 <ul>
   <li>Automatic <a href="/scalability.html#lb">2D and DB
       load-balancing</a></li>
@@ -112,18 +117,23 @@ namespace eqNet  = ::eq::net;
     SFR) compounds</li>
   <li><a href="/documents/design/statisticsOverlay.html">Statistics Overlay</a> 
     to understand and eliminate bottlenecks in the rendering pipeline</li>
-  <li>Easy configuration of thread synchronization model</li>
+  <li>Easy configuration of 
+    <a href="/documents/design/threads.html#sync">thread synchronization
+      model</a></li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/view.html">View
+      API</a> to modify the view parameters during rendering</li>
   <li>New OSWindow interface to simplify window system integration</li>
   <li>New 2D bitmap font to draw text</li>
   <li>Support for orthographic projections</li>
-  <li>Support for OpenGL accumulation buffer and AA sample setup</li>
+  <li>Support for OpenGL accumulation buffer and multisample setup</li>
   <li>Support for using <a href="http://paracomp.sourceforge.net/">Paracomp</a>
     as a
     <a href="/cgi-bin/viewvc.cgi/trunk/src/README.paracomp?view=markup">compositing
       backend</a></li>
 </ul>
 
-<h4>Improvements</h4>
+<a name="enhancements"></a>
+<h3>2.2. Enhancements</h3>
 <ul>
   <li>Upgraded <a href="http://glew.sourceforge.net">GLEW</a> to version
     1.5.1</li>
@@ -132,24 +142,84 @@ namespace eqNet  = ::eq::net;
   <li>Support for two-dimensional pixel compound kernels</li>
   <li>Support for using multiple clients with the netperf benchmark tool</li>
   <li>Support window swap buffer vertical retrace synchronization on WGL</li>
-  <li>Network-based instead of file-based model distribution in eqPly</li>
+  <li>Add show and hide window events</li>
 </ul>
 
-<h4>Optimizations</h4>
+<a name="optimizations"></a>
+<h3>2.3. Optimizations</h3>
 <ul>
   <li>Improved overall performance by using atomic operations for reference
     counted objects</li>
   <li>Improved performance when using non-threaded pipes</li>
+  <li>Asynchronous network frame transmission during compositing</li>
   <li>Assertions are disabled in release builds</li>
   <li>Switch to CriticalSection for Win32 locks</li>
 </ul>
 
-<h4>Bug Fixes</h4>
+<a name="examples"></a>
+<h3>2.4. Examples</h3>
+<ul>
+  <li>eqPly: network-based instead of file-based model distribution</li>
+  <li>eqPly: added head-tracking emulation</li>
+  <li>eqPly: implemented event-driven execution</li>
+</ul>
+
+<a name="changes"></a>
+<h3>2.5. API Changes</h3>
+<ul>
+  <li>The compound attribute <code>UPDATE_FOV</code> has been removed, since
+    view updates are handled by the application, using the new View API.</li>
+  <li><code>Event::RESIZE</code> has been deprecated. Use
+    <code>Event::WINDOW_RESIZE</code> instead.</li>
+  <li>The new <code>OSWindow</code> interface moved all window system
+    functionality from the <code>eq::Window</code> to different subclasses
+    of <code>OSWindow</code>. Applications integrating with their own windowing
+    code have to implement an <code>OSWindow</code> containing all the window
+    system code, and instantiate this <code>OSWindow</code>
+    in <code>Window::configInitOSWindow</code>. Please refer to the Programming
+    Guide for a detailed description of the Window System Interface.</li>
+  <li>The <code>OSWindow</code> interface also caused some cleanups in the event
+    handling. Most notably, the classes <code>ChannelEvent</code>
+    and <code>WindowEvent</code> are now unneeded and have been removed. The
+    former base class <code>Event</code> is now used in the appropriate
+    places.</li>
+  <li>The <code>eqBase</code>, <code>eqNet</code> and <code>eqServer</code>
+    namespaces have been renamed to <code>eq::base</code>, <code>eq::net</code>
+    and <code>eq::server</code>, respectively. Application developers are
+    encouraged to make the necessary changes, but can
+    define <code>EQ_USE_DEPRECATED</code> if these changes are not
+    feasible.</li>
+</ul>
+
+<a name="documentation"></a>
+<h3>2.6. Documentation</h3>
+<ul>
+  <li>The <a href="/survey.html">Programming Guide</a> has been extended to 62
+    pages and 37 figures.</li>
+  <li><a href="/documents/design/view.html">View API</a></li>
+  <li><a href="/documents/design/statisticsOverlay.html">Statistics
+      Overlay</a></li>
+</ul>
+
+<a name="bugfixes"></a>
+<h3>2.7. Bug Fixes</h3>
 <p>
   Equalizer 0.6 includes various bugfixes over the 0.5 release, including
   the following:
 </p>
 <ul>
+  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2263716&group_id=170962&atid=856209">2263716</a>:
+    5-channel.cave.eqc has wrong top/bottom wall</li>
+  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2166278&group_id=170962&atid=856209">2166278</a>:
+    eq::net::Object with instance never uses pack/unpack</li>
+  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2149563&group_id=170962&atid=856209">2149563</a>:
+    WGL: Update region is reset by event handler</li>
+  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2047816&group_id=170962&atid=856209">2047816</a>:
+    name field in config missing</li>
+  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2033860&group_id=170962&atid=856209">2033860</a>:
+    frameDrawFinish called too early and too often</li>
+  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2032643&group_id=170962&atid=856209">2032643</a>:
+    eqHello: process-local server object gets not deleted.</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2032631&group_id=170962&atid=856209">2032631</a>:
     Nullpointer exception and crash</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2032643&group_id=170962&atid=856209">2032643</a>:
@@ -178,52 +248,11 @@ namespace eqNet  = ::eq::net;
     eqPly crashes during rendering</li>
 </ul>
 
-<h4>Documentation</h4>
-<p>
-  The <a href="/survey.html">Programming Guide</a> has been extended to 61
-    pages. In addition, the following documentation has been added:
-</p>
+<a name="knownbugs"></a>
+<h3>2.8. Known Bugs</h3>
 <ul>
-  <li><a href="/documents/design/statisticsOverlay.html">Statistics
-      Overlay</a></li>
-</ul>
-
-<h3>API Changes</h3>
-<p>
-  <code>Event::RESIZE</code> has been deprecated. Use
-  <code>Event::WINDOW_RESIZE</code> instead.
-</p>
-<p>
-  The new <code>OSWindow</code> interface moved window system depend
-  functionality from the <code>eq::Window</code> to different subclasses
-  of <code>OSWindow</code>. Applications integrating with their own windowing
-  code have to implement an <code>OSWindow</code> containing all the window
-  system code, and instantiate this <code>OSWindow</code>
-  in <code>Window::configInitOSWindow</code>. Please refer to the Programming
-  Guide for a detailed description of the Window System Interface.
-</p>
-<p>
-  The <code>OSWindow</code> interface also caused some cleanups in the event
-  handling. Most notably, the classes <code>ChannelEvent</code>
-  and <code>WindowEvent</code> are now unneeded and have been removed. The
-  former base class <code>Event</code> is now used in the appropriate places.
-</p>
-<p>
-  The <code>eqBase</code>, <code>eqNet</code> and <code>eqServer</code>
-  namespaces have been renamed to <code>eq::base</code>, <code>eq::net</code>
-  and <code>eq::server</code>, respectively. Application developers are
-  encouraged to make the necessary changes, but can
-  define <code>EQ_USE_DEPRECATED</code> if these changes are not feasible.
-</p>
-
-<h3>Removed Features</h3>
-<p>
-  The compound attribute <code>UPDATE_FOV</code> has been removed, since view
-  updates are handled by the application, using the new View API.
-</p>
-
-<h3>Known Bugs</h3>
-<ul>
+  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2268547&group_id=170962&atid=856209">2268547</a>:
+    fullscreen windows not always active on Win32</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2151376&group_id=170962&atid=856209">2151376</a>:
     Irregular Pixel kernels do not work</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2003195&group_id=170962&atid=856209">2003195</a>:
@@ -242,7 +271,9 @@ namespace eqNet  = ::eq::net;
     eVolve: binary swap configs don't work</li>
 </ul>
 
-<h3>Supported Platforms</h3>
+
+<a name="about"></a>
+<h2>3. About</h2>
 <p>
   Equalizer is a cross-platform toolkit, designed to run on any modern operating
   system, including all Unix variants and the Windows operating system. A 
@@ -254,21 +285,26 @@ namespace eqNet  = ::eq::net;
   but uses newer OpenGL features when available. Version 0.5.0 has been tested
   on:
 </p>
-<h4>Operating System Support</h4>
+
+<a name="os"></a>
+<h3>3.1. Operating System Support</h3>
 <ul>
   <li><b>Linux:</b> Ubuntu 6.10 (x64, i386), RHEL4 (x64, i386)</li>
   <li><b>Windows:</b> XP with Visual Studio 2005 (i386, x64) and
     Cygwin (i386)</li>
   <li><b>Mac OS X:</b> 10.5 (PowerPC, i386)</li>
 </ul>
-<h4>Window System Support</h4>
+
+<a name="ws"></a>
+<h3>3.2. Window System Support</h3>
 <ul>
   <li><b>X11:</b> Full support for all documented features.</li>
   <li><b>WGL:</b> Full support for all documented features.</li>
   <li><b>AGL:</b> Full support for all documented features.</li>
 </ul>
 
-<h3>Documentation</h3>
+<a name="documentation"></a>
+<h3>3.3. Documentation</h3>
 <p>
   The Programming Guide is available as a 
   <a href="http://www.lulu.com/browse/book_view.php?fCID=2184039">hard-copy</a>
@@ -283,7 +319,9 @@ namespace eqNet  = ::eq::net;
   <a href="/doc_developer.html">Developer Documentation</a> on the website
   provides further design documents for specific features.
 </p>
-<h3>Support</h3>
+
+<a name="support"></a>
+<h3>3.4. Support</h3>
 <p>
   Technical questions can be posted to the 
   <a href="/cgi-bin/mailman/listinfo/eq-dev">

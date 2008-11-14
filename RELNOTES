@@ -1,6 +1,24 @@
 
                   Preliminary Release Notes for Equalizer 0.6
 
+     * 1. Introduction
+          * 1.1. Features
+     * 2. New in this release
+          * 2.1. New Features
+          * 2.2. Enhancements
+          * 2.3. Optimizations
+          * 2.4. Examples
+          * 2.5. API Changes
+          * 2.6. Documentation
+          * 2.7. Bug Fixes
+          * 2.8. Known Bugs
+     * 3. About
+          * 3.1. Operating System Support
+          * 3.2. Window System Support
+          * 3.3. Documentation
+          * 3.4. Support
+
+1. Introduction
 
    Welcome to Equalizer, a framework for the development and deployment of
    parallel, scalable OpenGL applications. Equalizer 0.6 will contain major
@@ -9,29 +27,11 @@
 
    Equalizer 0.6-RC1 is the release candidate for Equalizer 0.6. Equalizer
    0.6-RC1 can be retrieved by downloading the source code, updating the
-   subversion trunk to revision ???? (svn up -r ???? ) or by using
+   subversion trunk to revision 2341 (svn up -r 2341 ) or by using
    svn co
    https://equalizer.svn.sf.net/svnroot/equalizer/tags/release-0.6-rc1.
 
-Table of Contents
-
-     * 1. Features
-     * 2. New in this release
-          * 2.1. New Features
-          * 2.2. Improvements
-          * 2.3. Optimizations
-          * 2.4. Examples
-          * 2.5. Documentation
-          * 2.6. Bug Fixes
-          * 2.7. Known Bugs
-          * 2.8. API Changes
-     * 3. About
-          * 3.1. Operating System Support
-          * 3.2. Window System Support
-          * 3.3. Documentation
-          * 3.4. Support
-
-1. Features
+  1.1. Features
 
    Equalizer provides the following major features to facilitate the
    development and deployment of scalable OpenGL applications. A detailed
@@ -54,7 +54,7 @@ Table of Contents
 
 2. New in this release
 
-   Equalizer 0.6 will contain the following features, improvements, bug fixes
+   Equalizer 0.6 will contain the following features, enhancements, bug fixes
    and documentation changes:
 
   2.1. New Features
@@ -71,7 +71,7 @@ Table of Contents
      * Support for OpenGL accumulation buffer and multisample setup
      * Support for using Paracomp as a compositing backend
 
-  2.2. Improvements
+  2.2. Enhancements
 
      * Upgraded GLEW to version 1.5.1
      * Automatic image compression for 'slow' (< 2GBit) connections
@@ -96,13 +96,34 @@ Table of Contents
      * eqPly: added head-tracking emulation
      * eqPly: implemented event-driven execution
 
-  2.5. Documentation
+  2.5. API Changes
+
+     * The compound attribute UPDATE_FOV has been removed, since view updates
+       are handled by the application, using the new View API.
+     * Event::RESIZE has been deprecated. Use Event::WINDOW_RESIZE instead.
+     * The new OSWindow interface moved all window system functionality from
+       the eq::Window to different subclasses of OSWindow. Applications
+       integrating with their own windowing code have to implement an
+       OSWindow containing all the window system code, and instantiate this
+       OSWindow in Window::configInitOSWindow. Please refer to the
+       Programming Guide for a detailed description of the Window System
+       Interface.
+     * The OSWindow interface also caused some cleanups in the event
+       handling. Most notably, the classes ChannelEvent and WindowEvent are
+       now unneeded and have been removed. The former base class Event is now
+       used in the appropriate places.
+     * The eqBase, eqNet and eqServer namespaces have been renamed to
+       eq::base, eq::net and eq::server, respectively. Application developers
+       are encouraged to make the necessary changes, but can define
+       EQ_USE_DEPRECATED if these changes are not feasible.
+
+  2.6. Documentation
 
      * The Programming Guide has been extended to 62 pages and 37 figures.
      * View API
      * Statistics Overlay
 
-  2.6. Bug Fixes
+  2.7. Bug Fixes
 
    Equalizer 0.6 includes various bugfixes over the 0.5 release, including
    the following:
@@ -128,7 +149,7 @@ Table of Contents
      * 1960225: Problems with windows getting focus on mac
      * 1960098: eqPly crashes during rendering
 
-  2.7. Known Bugs
+  2.8. Known Bugs
 
      * 2268547: fullscreen windows not always active on Win32
      * 2151376: Irregular Pixel kernels do not work
@@ -139,27 +160,6 @@ Table of Contents
      * 1854948: eVolve: lighting ignores head transformation
      * 1854929: eqPly GLSL shader has artefacts
      * 1816670: eVolve: binary swap configs don't work
-
-  2.8. API Changes
-
-     * The compound attribute UPDATE_FOV has been removed, since view updates
-       are handled by the application, using the new View API.
-     * Event::RESIZE has been deprecated. Use Event::WINDOW_RESIZE instead.
-     * The new OSWindow interface moved window system depend functionality
-       from the eq::Window to different subclasses of OSWindow. Applications
-       integrating with their own windowing code have to implement an
-       OSWindow containing all the window system code, and instantiate this
-       OSWindow in Window::configInitOSWindow. Please refer to the
-       Programming Guide for a detailed description of the Window System
-       Interface.
-     * The OSWindow interface also caused some cleanups in the event
-       handling. Most notably, the classes ChannelEvent and WindowEvent are
-       now unneeded and have been removed. The former base class Event is now
-       used in the appropriate places.
-     * The eqBase, eqNet and eqServer namespaces have been renamed to
-       eq::base, eq::net and eq::server, respectively. Application developers
-       are encouraged to make the necessary changes, but can define
-       EQ_USE_DEPRECATED if these changes are not feasible.
 
 3. About
 

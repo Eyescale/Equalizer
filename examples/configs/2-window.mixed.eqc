@@ -64,16 +64,17 @@ server
             attributes { stereo_mode ANAGLYPH }
             eye  [ LEFT RIGHT ]
 
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20  -.75 ]
+            }
+
             compound
             {
                 channel "channel1"
-
-                wall
-                {
-                    bottom_left  [ -.32 -.20 -.75 ]
-                    bottom_right [   0  -.20 -.75 ]
-                    top_left     [ -.32   0  -.75 ]
-                }
+                viewport [ 0 0 .5 .5 ]
 
                 compound
                 {
@@ -91,23 +92,17 @@ server
             compound
             {
                 channel "channel2"
-
-                wall
-                {
-                    bottom_left  [ -.32   0  -.75 ]
-                    bottom_right [   0    0  -.75 ]
-                    top_left     [ -.32  .20 -.75 ]
-                }
+                viewport [ 0 .5 .5 .5 ]
                 
                 compound
                 {
-                    pixel [ 0 2 ]
+                    pixel [ 0 0 2 1 ]
                     outputframe {}
                 }
                 compound
                 { 
                     channel "buffer2"
-                    pixel [ 1 2 ]
+                    pixel [ 1 0 2 1 ]
                     outputframe {}
                 }
                 inputframe { name "frame.channel2" }
@@ -118,13 +113,7 @@ server
             {
                 channel "channel3"
                 buffer  [ COLOR DEPTH ]
-                
-                wall
-                {
-                    bottom_left  [   0  -.20 -.75 ]
-                    bottom_right [  .32 -.20 -.75 ]
-                    top_left     [  0     0  -.75 ]
-                }
+                viewport [ .5 0 .5 .5 ]
                 
                 compound
                 {
@@ -142,14 +131,8 @@ server
             compound
             {
                 channel "channel4"
+                viewport [ .5 .5 .5 .5 ]
 
-                wall
-                {
-                    bottom_left  [   0    0  -.75 ]
-                    bottom_right [  .32   0  -.75 ]
-                    top_left     [  0    .20 -.75 ]
-                }
-                
                 compound
                 {
                     eye [ LEFT ]

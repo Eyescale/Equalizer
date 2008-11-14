@@ -1,4 +1,4 @@
-# single pipe, multi-level DB / 2D load-balanced configuration. 
+# single pipe, multi-level DPlex / 2D load-balanced configuration. 
 
 global
 {
@@ -18,23 +18,23 @@ server
                 window
                 {
                     viewport [ 10 450 300 300 ]
-                    name "First Half 1"
+                    name "Even Half 1"
 
-                    channel { name "channel-first-1" }
+                    channel { name "channel-even-1" }
                 }
                 window
                 {
                     viewport [ 318 450 300 300 ]
-                    name "First Half 2"
+                    name "Even Half 2"
 
-                    channel { name "channel-first-2" }
+                    channel { name "channel-even-2" }
                 }
                 window
                 {
                     viewport [ 164 100 300 300 ]
-                    name "First Half"
+                    name "Even Frames"
 
-                    channel { name "channel-first" }
+                    channel { name "channel-even" }
                 }
             }
             pipe
@@ -42,23 +42,23 @@ server
                 window
                 {
                     viewport [ 626 450 300 300 ]
-                    name "Second Half 1"
+                    name "Odd Half 1"
 
-                    channel { name "channel-second-1" }
+                    channel { name "channel-odd-1" }
                 }
                 window
                 {
                     viewport [ 934 450 300 300 ]
-                    name "Second Half 2"
+                    name "Odd Half 2"
 
-                    channel { name "channel-second-2" }
+                    channel { name "channel-odd-2" }
                 }
                 window
                 {
                     viewport [ 780 100 300 300 ]
-                    name "Second Half"
+                    name "Odd Frames"
 
-                    channel { name "channel-second" }
+                    channel { name "channel-odd" }
                 }
             }
             pipe
@@ -88,7 +88,7 @@ server
 
             compound
             {
-                channel "channel-first"
+                channel "channel-even"
                 task    [ CLEAR ASSEMBLE ] 
                 period 2 phase 0
 
@@ -96,44 +96,44 @@ server
 
                 compound
                 {
-                    channel  "channel-first-1"
+                    channel  "channel-even-1"
                     outputframe {}
                 }
                 compound
                 {
-                    channel  "channel-first-2"
+                    channel  "channel-even-2"
                     outputframe {}
                 }
 
-                inputframe{ name "frame.channel-first-1" }
-                inputframe{ name "frame.channel-first-2" }
+                inputframe{ name "frame.channel-even-1" }
+                inputframe{ name "frame.channel-even-2" }
             }
             compound
             {
-                channel "channel-second"
+                channel "channel-odd"
                 task    [ CLEAR ASSEMBLE ] 
                 period 2 phase 1
                 loadBalancer { mode 2D }
 
                 compound
                 {
-                    channel  "channel-second-1"
+                    channel  "channel-odd-1"
                     outputframe {}
                 }
                 compound
                 {
-                    channel  "channel-second-2"
+                    channel  "channel-odd-2"
                     outputframe {}
                 }
 
-                inputframe{ name "frame.channel-second-1" }
-                inputframe{ name "frame.channel-second-2" }
+                inputframe{ name "frame.channel-odd-1" }
+                inputframe{ name "frame.channel-odd-2" }
             }
 
-            inputframe{ name "frame.channel-first-1" }
-            inputframe{ name "frame.channel-first-2" }
-            inputframe{ name "frame.channel-second-1" }
-            inputframe{ name "frame.channel-second-2" }
+            inputframe{ name "frame.channel-even-1" }
+            inputframe{ name "frame.channel-even-2" }
+            inputframe{ name "frame.channel-odd-1" }
+            inputframe{ name "frame.channel-odd-2" }
         }
     }    
 }
