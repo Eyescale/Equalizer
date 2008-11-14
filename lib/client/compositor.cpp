@@ -14,6 +14,8 @@
 #include "image.h"
 #include "windowSystem.h"
 
+#include <eq/base/debug.h>
+
 #include <eq/base/executionListener.h>
 #include <eq/base/monitor.h>
 
@@ -120,17 +122,19 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
 
                     return false;
 
-                if( depthFormat == 0 && 
-                    image->hasPixelData( Frame::BUFFER_DEPTH ))
+                if( image->hasPixelData( Frame::BUFFER_DEPTH ))
                 {
-                    depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
-                    depthType   = image->getType(   Frame::BUFFER_DEPTH );
+                    if( depthFormat == 0 )
+                    {
+                        depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
+                        depthType   = image->getType(   Frame::BUFFER_DEPTH );
+                    }
+
+                    if( depthFormat != image->getFormat(Frame::BUFFER_DEPTH ) ||
+                        depthType   != image->getType(  Frame::BUFFER_DEPTH ))
+
+                        return false;
                 }
-
-                if( depthFormat != image->getFormat(Frame::BUFFER_DEPTH ) ||
-                    depthType   != image->getType(  Frame::BUFFER_DEPTH ))
-
-                    return false;
 
                 ++nImages;
             }
