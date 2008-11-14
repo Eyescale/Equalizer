@@ -70,7 +70,7 @@ namespace eqNet  = ::eq::net;
 <p>
   Equalizer 0.6-RC1 is the release candidate for Equalizer 0.6. Equalizer
   0.6-RC1 can be retrieved by downloading the
-  <a href="http://equalizer.svn.sourceforge.net/viewvc/equalizer/tags/release-0.6-rc1.tar.gz?view=tar">source
+  <a href="http://downloads.sourceforge.net/equalizer/Equalizer-0.6-rc1.tar.gz">source
     code</a>, updating the subversion trunk to revision 2341
   (<code>svn up -r 2341</code>) or by using<br>
   <code>svn co https://equalizer.svn.sf.net/svnroot/equalizer/tags/release-0.6-rc1</code>.
