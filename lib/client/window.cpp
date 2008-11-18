@@ -659,7 +659,10 @@ net::CommandResult Window::_cmdFrameFinish( net::Command& command )
 net::CommandResult Window::_cmdFinish(net::Command& command ) 
 {
     EQ_GL_CALL( makeCurrent( ));
+
+    WindowStatistics stat( Statistic::WINDOW_FINISH, this );
     finish();
+
     return net::COMMAND_HANDLED;
 }
 

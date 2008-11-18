@@ -663,6 +663,10 @@ void Channel::drawStatistics()
                         z = 0.1f; 
                         break;
 
+                    case Statistic::WINDOW_FINISH:
+                        glColor3f( 1.0f-dim, .5f-dim, 0.f ); 
+                        break;
+
                     case Statistic::WINDOW_SWAP_BARRIER:
                         glColor3f( 1.0f-dim, 0.f, 0.f ); 
                         break;
