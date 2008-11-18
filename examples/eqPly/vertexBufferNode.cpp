@@ -51,8 +51,8 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
     // left child will include elements smaller than the median
     const Index leftLength    = length / 2;
     const bool  subdivideLeft = 
-        countUniqueVertices( data, start, leftLength ) > LEAF_SIZE ||
-        depth < 3;
+        ( countUniqueVertices( data, start, leftLength ) > LEAF_SIZE ||
+          depth < 3 ) && leftLength > 1;
 
     if( subdivideLeft )
         _left = new VertexBufferNode;
@@ -62,8 +62,8 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
     // right child will include elements equal to or greater than the median
     const Index rightLength    = ( length + 1 ) / 2;
     const bool  subdivideRight = 
-        countUniqueVertices( data, median, rightLength ) > LEAF_SIZE ||
-        depth < 3;
+        ( countUniqueVertices( data, median, rightLength ) > LEAF_SIZE ||
+          depth < 3 ) && rightLength > 1;
 
     if( subdivideRight )
         _right = new VertexBufferNode;
