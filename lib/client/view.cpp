@@ -40,6 +40,8 @@ void View::getInstanceData( net::DataOStream& os )
         os << _projection;
     if( _dirty & DIRTY_EYEBASE )
         os << _eyeBase;
+    if( _dirty & DIRTY_NAME )
+        os << _name;
 }
 
 void View::applyInstanceData( net::DataIStream& is )
@@ -63,6 +65,8 @@ void View::deserialize( net::DataIStream& is )
         is >> _projection;
     if( _dirty & DIRTY_EYEBASE )
         is >> _eyeBase;
+    if( _dirty & DIRTY_NAME )
+        is >> _name;
 }
 
 void View::pack( net::DataOStream& os )
@@ -93,6 +97,17 @@ void View::setEyeBase( const float eyeBase )
 {
     _eyeBase = eyeBase;
     _dirty  |= DIRTY_EYEBASE;
+}
+
+void View::setName( const std::string& name )
+{
+    _name = name;
+    _dirty |= DIRTY_NAME;
+}
+
+const std::string& View::getName() const
+{
+    return _name;
 }
 
 std::ostream& operator << ( std::ostream& os, const View& view )

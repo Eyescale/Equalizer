@@ -69,6 +69,12 @@ namespace eq
         /** @return true if the view has to be committed. */
         bool isDirty() const { return (_dirty != 0); }
 
+        /** @warning will not be supported in the future. */
+        void setName( const std::string& name );
+
+        /** @warning will not be supported in the future. */
+        const std::string& getName() const;
+
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
 
@@ -81,16 +87,18 @@ namespace eq
             DIRTY_NONE       = 0,
             DIRTY_WALL       = 1 << 0,
             DIRTY_PROJECTION = 1 << 1,
-            DIRTY_EYEBASE    = 1 << 2
+            DIRTY_EYEBASE    = 1 << 2,
+            DIRTY_NAME       = 1 << 3
         };
 
         uint32_t _dirty;
 
     private:
-        Wall       _wall;
-        Projection _projection;
-        Type       _current;
-        float      _eyeBase;
+        Wall        _wall;
+        Projection  _projection;
+        Type        _current;
+        float       _eyeBase;
+        std::string _name;
 
         /** worker for View( is ) constructor and applyInstanceData() */
         void deserialize( net::DataIStream& is );

@@ -316,23 +316,23 @@ void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
     const Channel* destination = compound->getInheritChannel();
     destination->getNearFar( &frustum.nearPlane, &frustum.farPlane );
 
-    const float ratio      = ortho ? 1.0f : frustum.nearPlane / eye[2];
-    const float viewWidth  = viewData.getViewWidth();
-    const float viewHeight = viewData.getViewHeight();
+    const float ratio    = ortho ? 1.0f : frustum.nearPlane / eye.z;
+    const float width_2  = viewData.getViewWidth()  * .5f;
+    const float height_2 = viewData.getViewHeight() * .5f;
 
-    if( eye[2] > 0 || ortho )
+    if( eye.z > 0 || ortho )
     {
-        frustum.left   =  ( -viewWidth*0.5f  - eye[0] ) * ratio;
-        frustum.right  =  (  viewWidth*0.5f  - eye[0] ) * ratio;
-        frustum.bottom =  ( -viewHeight*0.5f - eye[1] ) * ratio;
-        frustum.top    =  (  viewHeight*0.5f - eye[1] ) * ratio;
+        frustum.left   =  ( -width_2  - eye.x ) * ratio;
+        frustum.right  =  (  width_2  - eye.x ) * ratio;
+        frustum.bottom =  ( -height_2 - eye.y ) * ratio;
+        frustum.top    =  (  height_2 - eye.y ) * ratio;
     }
     else // eye behind near plane - 'mirror' x
     {
-        frustum.left   =  (  viewWidth*0.5f  - eye[0] ) * ratio;
-        frustum.right  =  ( -viewWidth*0.5f  - eye[0] ) * ratio;
-        frustum.bottom =  (  viewHeight*0.5f + eye[1] ) * ratio;
-        frustum.top    =  ( -viewHeight*0.5f + eye[1] ) * ratio;
+        frustum.left   =  (  width_2  - eye.x ) * ratio;
+        frustum.right  =  ( -width_2  - eye.x ) * ratio;
+        frustum.bottom =  (  height_2 + eye.y ) * ratio;
+        frustum.top    =  ( -height_2 + eye.y ) * ratio;
     }
 
     // move frustum according to pixel decomposition

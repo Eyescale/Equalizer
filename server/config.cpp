@@ -386,6 +386,22 @@ public:
                         view.setEyeBase( 
                             config->getFAttribute( Config::FATTR_EYE_BASE ));
                     }
+                    if( view.getName().empty( ))
+                    {
+                        Channel* channel = compound->getChannel();
+                        if( !compound->getName().empty( ))
+                        {
+                            const std::string viewName( "view.compound." + 
+                                                        compound->getName( ));
+                            view.setName( viewName );
+                        }
+                        else if( channel && !channel->getName().empty( ))
+                        {
+                            const std::string viewName( "view.channel." + 
+                                                        channel->getName( ));
+                            view.setName( viewName );
+                        }
+                    }
 
                     view.getInstanceData( _os );
                     break;
