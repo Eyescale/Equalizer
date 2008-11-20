@@ -80,10 +80,14 @@ endif
 endif # g++
 
 # Paracomp settings
+ifeq ($(findstring x86_64, $(SUBARCH)), x86_64)
 ifeq ($(wildcard $(PC_LIBRARY_PATH)), $(PC_LIBRARY_PATH))
     DEFFLAGS += -DEQ_USE_PARACOMP
+    DEFFLAGS += -DEQ_USE_PARACOMP_BLEND
+#    DEFFLAGS += -DEQ_USE_PARACOMP_DEPTH
     CXXFLAGS += -I$(PC_LIBRARY_PATH)/../include
     LDFLAGS  += -L$(PC_LIBRARY_PATH) -lpcstub
+endif
 endif
 
 endif # top-level

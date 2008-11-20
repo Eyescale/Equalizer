@@ -403,7 +403,7 @@ void Compositor::_assembleDBImages( Image* result,
         EQASSERT( image->getType( Frame::BUFFER_DEPTH ) ==
                   result->getType( Frame::BUFFER_DEPTH ));
 
-#ifdef EQ_USE_PARACOMP
+#ifdef EQ_USE_PARACOMP_DEPTH
         if( pvp == resultPVP && offset == vmml::Vector2i::ZERO )
         {
             // Use Paracomp to composite
@@ -537,7 +537,7 @@ void Compositor::_assembleBlendImages( Image* result,
         EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
                   result->getType( Frame::BUFFER_COLOR ));
 
-#ifdef EQ_USE_PARACOMP
+#ifdef EQ_USE_PARACOMP_BLEND
         if( pvp == resultPVP && offset == vmml::Vector2i::ZERO )
         { 
             // Use Paracomp to composite

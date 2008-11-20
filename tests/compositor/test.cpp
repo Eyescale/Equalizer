@@ -75,6 +75,9 @@ int main( int argc, char **argv )
          << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
 
     // 2) DB assembly test
+#ifdef EQ_USE_PARACOMP_DEPTH
+     cout << "Using Paracomp PC compositing (depth)" << endl;
+#endif
     const ImageVector& images = frameData->getImages();
 
     image = images[0];
@@ -119,6 +122,9 @@ int main( int argc, char **argv )
          << 5000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)" << endl;
 
     // 3) alpha-blend assembly test
+#ifdef EQ_USE_PARACOMP_BLEND
+     cout << "Using Paracomp PC compositing (blend)" << endl;
+#endif
     frameData->clear();
     frameData->setBuffers( Frame::BUFFER_COLOR );
 

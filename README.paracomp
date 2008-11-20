@@ -8,10 +8,13 @@ Equalizer.
 
 Currently the support is experimental. Please use the test/compositor
 benchmark to verify your performance with and without Paracomp. The
-changes needed for Equalizer are not yet in the main branch of
-Paracomp. Please use the following branch for now:
-https://paracomp.svn.sourceforge.net/svnroot/paracomp/branches/developer/shree/feature/composite_binary
+changes needed for Equalizer are now in the main branch:
+https://paracomp.svn.sourceforge.net/svnroot/paracomp/trunk
+
+Latest revision checked: 98
 
 
-
-
+Currently, Paracomp compositing is enabled only for x86_64
+architecture and only for alpha blending compositing (for performance
+issues). To enable Paracomp on different architectures or for 
+depth-based compositing please modify make/system.mk file.
