@@ -118,6 +118,7 @@ namespace eq
         enum IAttribute
         {
             IATTR_THREAD_MODEL,           //!< Threading model
+            IATTR_HINT_STATISTICS,        //!< Statitistics gathering mode
             IATTR_ALL
         };
 
@@ -133,10 +134,11 @@ namespace eq
         class TransmitThread : public base::Thread
         {
         public:
-            TransmitThread() {}
+            TransmitThread( Node* parent ) : _node( parent ) {}
             virtual ~TransmitThread() {}
 
-            void send( FrameData* data, net::NodePtr node );
+            void send( FrameData* data, net::NodePtr node, 
+                       const uint32_t frameNumber );
             
         protected:
             virtual void* run();
@@ -144,12 +146,16 @@ namespace eq
         private:
             struct Task
             {
-                Task( FrameData* d, net::NodePtr n ) : data( d ), node( n ) {}
+                Task( FrameData* d, net::NodePtr n, const uint32_t f ) 
+                        : data( d ), node( n ), frameNumber( f ) {}
 
                 FrameData*   data;
                 net::NodePtr node;
+                uint32_t     frameNumber;
             };
+
             base::MTQueue< Task > _tasks;
+            Node* const           _node;
         };
 
         TransmitThread transmitter;

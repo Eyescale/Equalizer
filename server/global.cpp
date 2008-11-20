@@ -61,6 +61,11 @@ void Global::_setupDefaults()
 
     // node
     _nodeIAttributes[eq::Node::IATTR_THREAD_MODEL] = eq::UNDEFINED;
+#ifdef NDEBUG
+    _nodeIAttributes[eq::Node::IATTR_HINT_STATISTICS]   = eq::FASTEST;
+#else
+    _nodeIAttributes[eq::Node::IATTR_HINT_STATISTICS]   = eq::NICEST;
+#endif
 
     // pipe
     for( int i=0; i<Pipe::IATTR_ALL; ++i )

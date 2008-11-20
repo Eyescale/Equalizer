@@ -53,8 +53,8 @@ Node::Node( const Node& from, const CompoundVector& compounds )
     _name = from._name;
     _node = from._node;
 
-    for( int i=0; i<eq::Node::IATTR_ALL; ++i )
-        _iAttributes[i] = from.getIAttribute( (eq::Node::IAttribute)i );
+    memcpy( _iAttributes, from._iAttributes, 
+            eq::Node::IATTR_ALL * sizeof( int32_t ));
 
     const ConnectionDescriptionVector& descriptions =
         from.getConnectionDescriptions();
@@ -493,14 +493,33 @@ ostream& operator << ( ostream& os, const Node* node )
 
         os << (*i).get();
 
-    const int32_t value = node->getIAttribute( eq::Node::IATTR_THREAD_MODEL );
-    if( value != 
-        Global::instance()->getNodeIAttribute( eq::Node::IATTR_THREAD_MODEL ))
+    bool attrPrinted   = false;
+    
+    for( eq::Node::IAttribute i = static_cast<eq::Node::IAttribute>( 0 );
+         i<eq::Node::IATTR_ALL; 
+         i = static_cast<eq::Node::IAttribute>( static_cast<uint32_t>( i )+1))
     {
-        os << "attributes" << endl << "{" << endl << indent
-           << "thread_model " << static_cast< eq::IAttrValue >( value ) << endl
-           << exdent << "}" << endl;
+        const int value = node->getIAttribute( i );
+        if( value == Global::instance()->getNodeIAttribute( i ))
+            continue;
+
+        if( !attrPrinted )
+        {
+            os << endl << "attributes" << endl;
+            os << "{" << endl << indent;
+            attrPrinted = true;
+        }
+        
+        os << ( i==eq::Node::IATTR_THREAD_MODEL ?
+                    "thread_model       " :
+                i==eq::Node::IATTR_HINT_STATISTICS ?
+                    "hint_statistics    " :
+                "ERROR" )
+           << static_cast<eq::IAttrValue>( value ) << endl;
     }
+    
+    if( attrPrinted )
+        os << exdent << "}" << endl << endl;
 
     const PipeVector& pipes = node->getPipes();
     for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )

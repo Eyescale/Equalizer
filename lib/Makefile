@@ -191,6 +191,7 @@ CXXFILES = \
 	client/image.cpp \
 	client/init.cpp \
 	client/node.cpp \
+	client/nodeStatistics.cpp \
 	client/objectManager.cpp \
 	client/osWindow.cpp \
 	client/pipe.cpp \

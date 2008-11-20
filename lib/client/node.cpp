@@ -12,6 +12,7 @@
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
+#include "nodeStatistics.h"
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"
@@ -30,11 +31,13 @@ typedef net::CommandFunc<Node> NodeFunc;
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_NODE_") + #attr )
 std::string Node::_iAttributeStrings[IATTR_ALL] = {
-    MAKE_ATTR_STRING( IATTR_THREAD_MODEL )
+    MAKE_ATTR_STRING( IATTR_THREAD_MODEL ),
+    MAKE_ATTR_STRING( IATTR_HINT_STATISTICS )
 };
 
 Node::Node( Config* parent )
-        : _config( parent )
+        : transmitter( this )
+        , _config( parent )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
 {
@@ -372,9 +375,10 @@ bool Node::hasData() const
 #endif // EQ_TRANSMISSION_API
 
 #ifdef EQ_ASYNC_TRANSMIT
-void Node::TransmitThread::send( FrameData* data, net::NodePtr node )
+void Node::TransmitThread::send( FrameData* data, net::NodePtr node, 
+                                 const uint32_t frameNumber )
 {
-    _tasks.push( Task( data, node ));
+    _tasks.push( Task( data, node, frameNumber ));
 }
 
 void* Node::TransmitThread::run()
@@ -385,7 +389,15 @@ void* Node::TransmitThread::run()
         if( _tasks.empty() && !task.node )
             return 0; // exit thread
         
-        task.data->transmit( task.node );
+        NodeStatistics event( Statistic::NODE_TRANSMIT, _node,
+                              task.frameNumber );
+        NodeStatistics compressEvent( Statistic::NODE_COMPRESS, _node, 
+                                      task.frameNumber );
+
+        const int64_t compressTime = task.data->transmit( task.node );
+
+        compressEvent.event.data.statistic.endTime =
+            compressEvent.event.data.statistic.startTime + compressTime;
     }
     return 0;
 }
@@ -478,7 +490,7 @@ net::CommandResult Node::_cmdConfigExit( net::Command& command )
     reply.result = configExit();
 
 #ifdef EQ_ASYNC_TRANSMIT
-    transmitter.send( 0, 0 );
+    transmitter.send( 0, 0, 0 );
     transmitter.join();
 #endif
 

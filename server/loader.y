@@ -65,6 +65,7 @@
 %token EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
 %token EQTOKEN_NODE_IATTR_THREAD_MODEL
+%token EQTOKEN_NODE_IATTR_HINT_STATISTICS
 %token EQTOKEN_PIPE_IATTR_HINT_THREAD
 %token EQTOKEN_WINDOW_IATTR_HINT_STEREO
 %token EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER
@@ -272,6 +273,11 @@ global:
          eq::server::Global::instance()->setNodeIAttribute(
              eq::Node::IATTR_THREAD_MODEL, $2 );
      }
+     | EQTOKEN_NODE_IATTR_HINT_STATISTICS IATTR
+     {
+         eq::server::Global::instance()->setNodeIAttribute(
+             eq::Node::IATTR_HINT_STATISTICS, $2 );
+     }
      | EQTOKEN_PIPE_IATTR_HINT_THREAD IATTR
      {
          eq::server::Global::instance()->setPipeIAttribute(
@@ -470,8 +476,10 @@ connectionField:
 
 nodeAttributes: /*null*/ | nodeAttribute | nodeAttributes nodeAttribute
 nodeAttribute:
-    EQTOKEN_THREAD_MODEL IATTR { node->setIAttribute( 
-                                     eq::Node::IATTR_THREAD_MODEL, $2 ); }
+    EQTOKEN_THREAD_MODEL IATTR 
+        { node->setIAttribute( eq::Node::IATTR_THREAD_MODEL, $2 ); }
+    | EQTOKEN_HINT_STATISTICS IATTR
+        { node->setIAttribute( eq::Node::IATTR_HINT_STATISTICS, $2 ); }
 
 
 pipes: pipe | pipes pipe

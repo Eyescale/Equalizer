@@ -122,6 +122,8 @@ namespace eq
             WINDOW_FINISH,
             WINDOW_SWAP_BARRIER,
             WINDOW_SWAP,
+            NODE_TRANSMIT,
+            NODE_COMPRESS,
             CONFIG_START_FRAME,
             CONFIG_FINISH_FRAME,
             CONFIG_WAIT_FINISH_FRAME,
