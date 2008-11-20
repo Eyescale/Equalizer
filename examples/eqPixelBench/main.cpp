@@ -12,7 +12,7 @@ using namespace eq::base;
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig( eq::base::RefPtr< eq::Server > parent )
+    virtual eq::Config*  createConfig( eq::ServerPtr parent )
         { return new eqPixelBench::Config( parent ); }
     virtual eq::Window* createWindow( eq::Pipe* parent )
         { return new eqPixelBench::Window( parent ); }

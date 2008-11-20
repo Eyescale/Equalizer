@@ -18,7 +18,7 @@ using namespace std;
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig( eq::base::RefPtr< eq::Server > parent )
+    virtual eq::Config*  createConfig( eq::ServerPtr parent )
         { return new eqPly::Config( parent ); }
     virtual eq::Node*    createNode( eq::Config* parent )  
         { return new eqPly::Node( parent ); }
