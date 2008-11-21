@@ -256,7 +256,7 @@ namespace eqNet  = ::eq::net;
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2151376&group_id=170962&atid=856209">2151376</a>:
     Irregular Pixel kernels do not work</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2003195&group_id=170962&atid=856209">2003195</a>:
-    Ortho frustra ignores eye offset</li>
+    Ortho frusta ignore eye offset</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2003132&group_id=170962&atid=856209">2003132</a>:
     3-wnd.DB.ds is broken on some ppc machines for eqPly</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1997583&group_id=170962&atid=856209">1997583</a>:

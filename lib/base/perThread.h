@@ -22,7 +22,7 @@ namespace base
      * 
      * The object has to implement notifyPerThreadDelete().
      *
-     * OPT: using __thread storage where available might be benefitial.
+     * OPT: using __thread storage where available might be beneficial.
      */
     template<typename T> class PerThread : public ExecutionListener
     {

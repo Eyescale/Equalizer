@@ -18,7 +18,7 @@ namespace base
     /**
      * Implements a thread-specific storage for RefPtr's.
      * 
-     * OPT: using __thread storage where available might be benefitial.
+     * OPT: using __thread storage where available might be beneficial.
      */
     template<typename T> class PerThreadRef
     {

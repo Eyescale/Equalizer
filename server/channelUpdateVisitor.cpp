@@ -291,7 +291,7 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
 
     EQVERB << "Eye position world: " << eyeW << " screen " << eye << endl;
 
-    // compute perspective and orthographic frustra from size and eye position
+    // compute perspective and orthographic frusta from size and eye position
     _computeFrustumCorners( context.frustum, compound, viewData, eye, false );
     _computeFrustumCorners( context.ortho,   compound, viewData, eye, true );
 
