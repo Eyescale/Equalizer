@@ -54,7 +54,7 @@ void UnbufferedMasterCM::notifyAttached()
 
 uint32_t UnbufferedMasterCM::commitNB()
 {
-    EQASSERTINFO( _object->getChangeType() == Object::DELTA_UNBUFFERED,
+    EQASSERTINFO( _object->getChangeType() == Object::UNBUFFERED,
                   "Object type " << typeid(*this).name( ));
 
     ObjectCommitPacket packet;

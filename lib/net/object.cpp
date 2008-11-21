@@ -262,7 +262,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
             else
                 _setChangeManager( new FullSlaveCM( this, masterInstanceID ));
             break;
-        case Object::DELTA_UNBUFFERED:
+        case Object::UNBUFFERED:
             if( master )
                 _setChangeManager( new UnbufferedMasterCM( this ));
             else

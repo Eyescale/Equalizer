@@ -51,17 +51,16 @@ bool Config::init()
             EQWARN << "Failed to initialise tracker" << endl;
         else
         {
-            // Set up position of tracking system in world space
+            // Set up position of tracking system wrt world space
             // Note: this depends on the physical installation.
             vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
             m.scale( 1.f, 1.f, -1.f );
-            //m.x = .5;
             _tracker.setWorldToEmitter( m );
 
             m = vmml::Matrix4f::IDENTITY;
             m.rotateZ( -M_PI_2 );
             _tracker.setSensorToObject( m );
-            EQINFO << "Tracker initialised" << endl;
+            EQINFO << "Tracker initialized" << endl;
         }
     }
 
@@ -163,7 +162,7 @@ uint32_t Config::startFrame()
 
 bool Config::needsRedraw()
 {
-    return ( _spinX != 0 || _spinY != 0 || _redraw );
+    return ( _spinX != 0 || _spinY != 0 || _tracker.isRunning() || _redraw );
 }
 
 bool Config::handleEvent( const eq::ConfigEvent* event )

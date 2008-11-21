@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "eVolve.h"
@@ -9,7 +9,6 @@
 
 #include <stdlib.h>
 
-using namespace eq::base;
 using namespace std;
 
 namespace eVolve
@@ -22,7 +21,7 @@ Application::Application( const LocalInitData& initData )
 int Application::run()
 {
     // 1. connect to server
-    RefPtr<eq::Server> server = new eq::Server;
+    eq::ServerPtr server = new eq::Server;
     if( !connectServer( server ))
     {
         EQERROR << "Can't open server" << endl;
@@ -53,8 +52,8 @@ int Application::run()
         return EXIT_FAILURE;
     }
 
-    EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
-                            << endl;
+    EQLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
+                       << endl;
 
     // 4. run main loop
     uint32_t maxFrames = _initData.getMaxFrames();
@@ -67,20 +66,21 @@ int Application::run()
     }
     const uint32_t frame = config->finishAllFrames();
     const float    time  = clock.getTimef();
-    EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << time << " ms (" << frame
-                            << " frames @ " << ( frame / time * 1000.f)
-                            << " FPS)" << endl;
+    EQLOG( LOG_STATS ) << "Rendering took " << time << " ms (" << frame
+                       << " frames @ " << ( frame / time * 1000.f) << " FPS)"
+                       << endl;
 
     // 5. exit config
     clock.reset();
     config->exit();
-    EQLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms" <<endl;
+    EQLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<endl;
 
     // 6. cleanup and exit
     server->releaseConfig( config );
     if( !disconnectServer( server ))
         EQERROR << "Client::disconnectServer failed" << endl;
     server = 0;
+
     return EXIT_SUCCESS;
 }
 

@@ -1,20 +1,21 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EVOLVE_H
 #define EVOLVE_H
 
+#include <eq/eq.h>
+
 #include "rawVolModelRenderer.h"
 
-#include <eq/eq.h>
 
 /** The Equalizer Volume Rendering Example */
 namespace eVolve
 {
+    class LocalInitData;
     typedef RawVolumeModelRenderer Renderer;
 
-    class LocalInitData;
 
     class Application : public eq::Client
     {
@@ -31,6 +32,11 @@ namespace eVolve
         
     private:
         const LocalInitData& _initData;
+    };
+
+    enum LogTopics
+    {
+        LOG_STATS = eq::LOG_CUSTOM      // 65536
     };
 }
 

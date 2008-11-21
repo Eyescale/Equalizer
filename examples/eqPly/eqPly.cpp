@@ -9,10 +9,7 @@
 
 #include <stdlib.h>
 
-using eq::base::RefPtr;
 using namespace std;
-
-#define EQPLY_EVENTDRIVEN
 
 namespace eqPly
 {
@@ -24,7 +21,7 @@ Application::Application( const LocalInitData& initData )
 int Application::run()
 {
     // 1. connect to server
-    RefPtr<eq::Server> server = new eq::Server;
+    eq::ServerPtr server = new eq::Server;
     if( !connectServer( server ))
     {
         EQERROR << "Can't open server" << endl;
@@ -68,7 +65,6 @@ int Application::run()
         // config->renderData(...);
         config->finishFrame();
 
-#ifdef EQPLY_EVENTDRIVEN
         if( !config->needsRedraw( ))
             config->finishAllFrames(); // flush, TODO flush one task at a time
             
@@ -78,7 +74,6 @@ int Application::run()
             if( !config->handleEvent( event ))
                 EQVERB << "Unhandled " << event << endl;
         }
-#endif
     }
     const uint32_t frame = config->finishAllFrames();
     const float    time  = clock.getTimef();

@@ -27,7 +27,7 @@ namespace eq
             { vmml::Matrix4<T>::operator= (matrix); return *this; }
 
     protected:
-        virtual ChangeType getChangeType() const { return DELTA_UNBUFFERED; }
+        virtual ChangeType getChangeType() const { return UNBUFFERED; }
         virtual void getInstanceData( net::DataOStream& os );
         virtual void applyInstanceData( net::DataIStream& is );
     };
