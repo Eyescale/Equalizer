@@ -62,7 +62,7 @@ namespace server
          * @name Node Attributes.
          */  
         void setNodeIAttribute( const eq::Node::IAttribute attr,
-                                    const float value )
+                                    const int32_t value )
             { _nodeIAttributes[attr] = value; }
         int32_t getNodeIAttribute( const eq::Node::IAttribute attr ) const
             { return _nodeIAttributes[attr]; }

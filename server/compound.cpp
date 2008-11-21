@@ -631,11 +631,11 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             {
                 // Auto-compute our screen origin offset
                 if( _inherit.screen.origin.x == eq::AUTO )
-                    _inherit.screen.origin.x = 
-                        _inherit.vp.x * (_inherit.pvp.w / _inherit.vp.w);
+                    _inherit.screen.origin.x = static_cast< int32_t >(
+                        _inherit.vp.x * (_inherit.pvp.w / _inherit.vp.w));
                 if( _inherit.screen.origin.y == eq::AUTO )
-                    _inherit.screen.origin.y = 
-                        _inherit.vp.y * (_inherit.pvp.h / _inherit.vp.h);
+                    _inherit.screen.origin.y = static_cast< int32_t >(
+                        _inherit.vp.y * (_inherit.pvp.h / _inherit.vp.h));
             }
         }
 
