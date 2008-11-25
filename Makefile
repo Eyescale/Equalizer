@@ -8,7 +8,6 @@ SUBDIRS = \
 	server \
 	tools \
 	examples \
-	contrib \
 	proto \
 	tests
 
@@ -27,7 +26,6 @@ lib: externals
 proto: lib
 tests: lib server
 examples: lib
-contrib: lib
 server: lib
 tools: lib
 
