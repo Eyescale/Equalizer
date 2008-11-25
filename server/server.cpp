@@ -148,6 +148,7 @@ void Server::_handleCommands()
 
         _serverThreadQueue.release( command );
     }
+    _serverThreadQueue.flush();
 }
 
 net::CommandResult Server::_cmdChooseConfig( net::Command& command ) 

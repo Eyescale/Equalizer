@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_LOADER_H
 #define EQSERVER_LOADER_H
 
 #include "base.h"
+#include "types.h"
 
 #include <iostream>
 
@@ -42,7 +43,7 @@ namespace server
          * @param filename the name of the config file.
          * @return The parsed config, or <code>0</code> upon error.
          */
-        Server* loadFile( const std::string& filename );
+        ServerPtr loadFile( const std::string& filename );
 
         /** 
          * Parse a config file given as a parameter.
@@ -50,7 +51,7 @@ namespace server
          * @param config the config file.
          * @return the parsed server.
          */
-        Server* parseServer( const char* config );
+        ServerPtr parseServer( const char* config );
 
         /** 
          * Parse a config given as a parameter.
@@ -64,7 +65,7 @@ namespace server
          * @name Factory Methods.
          */
         //*{
-        virtual Server*   createServer();
+        virtual ServerPtr createServer();
         virtual Config*   createConfig();
         virtual Node*     createNode();
         virtual Pipe*     createPipe();

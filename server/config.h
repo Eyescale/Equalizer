@@ -42,7 +42,7 @@ namespace server
          * @name Data Access.
          */
         //*{
-        Server* getServer() { return _server.get(); }
+        Server* getServer() { return _server; }
 
         bool    isRunning() const { return ( _state == STATE_INITIALIZED ); }
 
@@ -209,7 +209,7 @@ namespace server
         static std::string _fAttributeStrings[FATTR_ALL];
 
         /** The eq server hosting the session. */
-        ServerPtr _server;
+        Server* _server;
         friend class Server;
 
         /** The list of compounds. */

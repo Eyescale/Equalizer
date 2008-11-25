@@ -24,7 +24,7 @@ public:
     ServerThread() {}
     virtual ~ServerThread() {}
 
-    bool start( RefPtr<Server> server )
+    bool start( ServerPtr server )
         {
             EQASSERT( !_server );
             _server = server;
@@ -40,14 +40,17 @@ protected:
 
             _server->stopListening();
 
-            // TODO EQASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
+            EQINFO << "Server thread done, ref count " 
+                   << _server->getRefCount() - 1 << endl;
+            EQASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
+
             _server = 0;
             return reinterpret_cast< void* >( static_cast< size_t >(
                 ret ? EXIT_SUCCESS : EXIT_FAILURE ));
         }
 
 private:
-    RefPtr<Server> _server;    
+    ServerPtr _server;    
 };
 
 static ServerThread _serverThread;
@@ -61,8 +64,8 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer()
         return 0;
     }
 
-    Loader loader;
-    RefPtr<Server> server = loader.parseServer( CONFIG );
+    Loader    loader;
+    ServerPtr server = loader.parseServer( CONFIG );
     EQASSERT( server.isValid( ));
 
     if( !server->listen( ))

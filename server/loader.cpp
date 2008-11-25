@@ -21,7 +21,7 @@ namespace server
 //---------------------------------------------------------------------------
 // factory methods
 //---------------------------------------------------------------------------
-Server*   Loader::createServer()
+ServerPtr Loader::createServer()
 {
     return new Server;
 }

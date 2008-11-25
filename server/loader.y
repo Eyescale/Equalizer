@@ -23,7 +23,7 @@
     {
         static eq::server::Loader*      loader = 0;
         
-        static eq::server::Server*      server = 0;
+        static eq::server::ServerPtr    server;
         static eq::server::Config*      config = 0;
         static eq::server::Node*        node = 0;
         static eq::server::Pipe*        eqPipe = 0; // avoid name clash
@@ -415,7 +415,7 @@ configs: config | configs config
 config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
         configFields
         '}' {
-                if( server ) 
+                if( server.isValid( )) 
                 {
                     server->addConfig( config ); 
                     config = 0;
@@ -804,7 +804,7 @@ namespace server
 //---------------------------------------------------------------------------
 // loader
 //---------------------------------------------------------------------------
-Server* Loader::loadFile( const string& filename )
+ServerPtr Loader::loadFile( const string& filename )
 {
     EQASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
     eq::loader::loader = this;
@@ -826,7 +826,7 @@ Server* Loader::loadFile( const string& filename )
     fclose( yyin );
     eq::loader::loader = 0;
 
-    if( loader::server )
+    if( loader::server.isValid( ))
     {
         const server::ConfigVector& configs = loader::server->getConfigs();
         for( server::ConfigVector::const_iterator i = configs.begin();
@@ -838,7 +838,9 @@ Server* Loader::loadFile( const string& filename )
         }
     }
 
-    return loader::server;
+    eq::server::ServerPtr server = loader::server;
+    loader::server = 0;
+    return server;
 }
 
 void Loader::_parseString( const char* data )
@@ -862,10 +864,13 @@ Config* Loader::parseConfig( const char* data )
     return config;
 }
 
-Server* Loader::parseServer( const char* data )
+ServerPtr Loader::parseServer( const char* data )
 {
     _parseString( data );
-    return loader::server;
+
+    eq::server::ServerPtr server = loader::server;
+    loader::server = 0;
+    return server;
 }
 
 }
