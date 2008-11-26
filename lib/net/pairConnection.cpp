@@ -18,7 +18,7 @@ PairConnection::PairConnection( ConnectionPtr readConnection,
     _sibling = new PairConnection( this );
     EQASSERT( readConnection->isClosed( ));
     EQASSERT( writeConnection->isClosed( ));
-    EQINFO << "New Connection Pair @" << (void*)this << endl;
+    EQINFO << "New PairConnection @" << (void*)this << endl;
 }
 
 PairConnection::PairConnection( PairConnection* sibling )
@@ -28,6 +28,7 @@ PairConnection::PairConnection( PairConnection* sibling )
 {
     EQASSERT( _readConnection->isClosed( ));
     EQASSERT( _writeConnection->isClosed( ));
+    EQINFO << "New PairConnection Sibling @" << (void*)this << endl;
 }
 
 PairConnection::~PairConnection()
@@ -39,7 +40,7 @@ PairConnection::~PairConnection()
 
 ConnectionPtr PairConnection::getSibling()
 {
-    return base::RefPtr_static_cast<PairConnection, Connection>( _sibling );
+    return _sibling.get();
 }
 
 bool PairConnection::connect()
@@ -80,6 +81,15 @@ void PairConnection::close()
 
     _readConnection->close();
     _writeConnection->close();
+
+    // clear all pointers to break circular RefPtr dependency to sibling. This
+    // prohibits reopening the pair connection!
+    _sibling->_readConnection  = 0;
+    _sibling->_writeConnection = 0;
+    _sibling->_sibling         = 0;
+    _readConnection  = 0;
+    _writeConnection = 0;
+    _sibling         = 0;
 }
 }
 }

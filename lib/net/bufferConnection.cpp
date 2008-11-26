@@ -18,7 +18,7 @@ BufferConnection::BufferConnection()
           _maxSize(0)
 {
     _state = STATE_CONNECTED;
-    EQINFO << "New Buffer Connection @" << (void*)this << endl;
+    EQINFO << "New BufferConnection @" << (void*)this << endl;
 }
 
 BufferConnection::~BufferConnection()

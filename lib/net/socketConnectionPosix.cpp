@@ -14,7 +14,7 @@ SocketConnection::SocketConnection( const ConnectionType type )
     EQASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
     _description =  new ConnectionDescription;
     _description->type = type;
-    EQINFO << "New Socket Connection @" << (void*)this << endl;
+    EQINFO << "New SocketConnection @" << (void*)this << endl;
 }
 
 SocketConnection::~SocketConnection()

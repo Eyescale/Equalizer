@@ -285,6 +285,7 @@ void Node::_cleanup()
         node->_connection = 0;
         _connectionNodes.erase( connection );
         _nodes.erase( node->_id );
+        connection->close();
     }
 
     _connectionSet.clear();
