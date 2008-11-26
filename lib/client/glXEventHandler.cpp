@@ -56,9 +56,8 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
         if( connection->pipe == pipe )
         {
             _pipeConnections->removeConnection( *i );
-
-            // TODO EQASSERTINFO( connection->getRefCount() == 1,
-            //                    connection->getRefCount( ));
+            EQASSERTINFO( connection->getRefCount() == 1,
+                          connection->getRefCount( ));
             break;
         }
     }
@@ -69,6 +68,16 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
 GLXEventSetPtr GLXEventHandler::getEventSet()
 {
     return _pipeConnections.get();
+}
+
+void GLXEventHandler::clearEventSet()
+{
+    EQASSERTINFO( !_pipeConnections || _pipeConnections->empty(),
+                  _pipeConnections->getConnections().size( ));
+    EQASSERTINFO( !_pipeConnections || _pipeConnections->getRefCount() == 1,
+                  _pipeConnections->getRefCount( ));
+
+    _pipeConnections = 0;
 }
 
 void GLXEventHandler::dispatchOne()
@@ -83,7 +92,7 @@ void GLXEventHandler::dispatchOne()
     {
         case net::ConnectionSet::EVENT_DISCONNECT:
         {
-            RefPtr<net::Connection> connection = connections->getConnection();
+            net::ConnectionPtr connection = connections->getConnection();
             connections->removeConnection( connection );
             EQERROR << "Display connection shut down" << endl;
             break;

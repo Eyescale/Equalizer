@@ -36,6 +36,9 @@ namespace eq
         /** @sa net::CommandQueue::tryPop(). */
         virtual net::Command* tryPop();
 
+        /** @sa net::CommandQueue::flush(). */
+        virtual void flush();
+
         void         setWindowSystem( const WindowSystem windowSystem );
         WindowSystem getWindowSystem() const { return _windowSystem; }
         

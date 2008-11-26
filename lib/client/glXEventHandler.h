@@ -40,6 +40,9 @@ namespace eq
         /** Get the event set of the current thread. */
         static base::RefPtr< EventSet > getEventSet();
 
+        /** Clear the event set of the current thread. */
+        static void clearEventSet();
+
 
         /** Constructs a new glx event handler. */
         GLXEventHandler( Pipe* pipe );

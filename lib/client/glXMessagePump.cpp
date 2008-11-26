@@ -48,4 +48,14 @@ void GLXMessagePump::dispatchAll()
 
     GLXEventHandler::dispatchAll();
 }
+
+void GLXMessagePump::dispatchDone()
+{
+    if( !_wakeupSet )
+        return;
+
+    _wakeupSet = 0;
+    GLXEventHandler::clearEventSet();
+}
+
 }

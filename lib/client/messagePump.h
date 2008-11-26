@@ -24,6 +24,9 @@ namespace eq
         /** Get and dispatch at least one pending system event, blocking. */
         virtual void dispatchOne() = 0;
         
+        /** Clean up, no more dispatch from thread. */
+        virtual void dispatchDone(){}
+
         virtual ~MessagePump() {}
     };
 }

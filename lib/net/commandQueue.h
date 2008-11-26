@@ -75,7 +75,7 @@ namespace net
         bool empty() const { return _commands.empty(); }
 
         /** Flush all cached commands. */
-        void flush();
+        virtual void flush();
 
         /** @return the size of the queue. */
         size_t size() const { return _commands.size(); }

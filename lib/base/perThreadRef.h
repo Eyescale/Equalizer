@@ -29,7 +29,9 @@ namespace base
         PerThreadRef<T>& operator = ( RefPtr< T > data );
         PerThreadRef<T>& operator = ( const PerThreadRef<T>& rhs );
 
-        RefPtr< T > get() const;
+        RefPtr< const T > get() const;
+        RefPtr< T > get();
+        T* getPointer();
         T* operator->();
         const T* operator->() const;
 
@@ -122,7 +124,19 @@ PerThreadRef<T>& PerThreadRef<T>::operator = ( const PerThreadRef<T>& rhs )
 }
 
 template< typename T >
-RefPtr< T > PerThreadRef<T>::get() const
+RefPtr< const T > PerThreadRef<T>::get() const
+{
+    return static_cast< const T* >( pthread_getspecific( _data->key )); 
+}
+
+template< typename T >
+RefPtr< T > PerThreadRef<T>::get()
+{
+    return static_cast< T* >( pthread_getspecific( _data->key )); 
+}
+
+template< typename T >
+T* PerThreadRef<T>::getPointer()
 {
     return static_cast< T* >( pthread_getspecific( _data->key )); 
 }

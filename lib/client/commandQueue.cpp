@@ -113,4 +113,13 @@ net::Command* CommandQueue::tryPop()
 
     return net::CommandQueue::tryPop();
 }
+
+void CommandQueue::flush()
+{
+    if( _messagePump )
+        _messagePump->dispatchDone();
+
+    net::CommandQueue::flush();
+}
+
 }
