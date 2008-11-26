@@ -1,22 +1,22 @@
 Summary: A framework for the development and deployment of scalable graphics applications
 Name: Equalizer
-Version: 0.5.0
+Version: 0.6.0
 Release: 0
 License: LGPL
 Group: System Environment/Libraries
-Source: http://www.equalizergraphics.com/downloads/Equalizer-0.5.0.tar.gz
+Source: http://www.equalizergraphics.com/downloads/Equalizer-0.6.tar.gz
 Buildroot: /var/tmp/%{name}-%{version}-buildroot
 URL: http://www.equalizergraphics.com
 Packager: Stefan Eilemann <eilemann@gmail.com>
 
-%description
-Equalizer is an open source programming interface and resource
-management system for scalable OpenGL applications. An Equalizer
-application can run unmodified on any visualization system, from a
-singlepipe workstation to large scale graphics clusters and shared
-memory visualization systems. Equalizer is build upon a parallel,
-scalable programming interface solving the problems common to any
-multipipe application.
+%description 
+Equalizer is the standard middleware to create parallel OpenGL-based
+applications. It enables applications to benefit from multiple graphics
+cards, processors and computers to scale the rendering performance,
+visual quality and display size. An Equalizer-based application runs
+unmodified on any visualization system, from a simple workstation to
+large scale graphics clusters, multi-GPU workstations and Virtual
+Reality installations.
 
 %prep
 %setup -q
