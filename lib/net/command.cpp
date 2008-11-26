@@ -7,13 +7,19 @@
 #include "node.h"
 #include "packets.h"
 
-using namespace eq::base;
 using namespace std;
 
 namespace eq
 {
 namespace net
 {
+
+Command::Command() 
+  : _packet( 0 )
+  , _packetAllocSize( 0 )
+  , _dispatched( false )
+{
+}
 
 Command::Command( const Command& from )
         : _node( from._node )
@@ -28,6 +34,11 @@ Command::Command( const Command& from )
     _packetAllocSize = EQ_MAX( Packet::minSize, from._packet->size );
     _packet          = static_cast<Packet*>( malloc( _packetAllocSize ));
     memcpy( _packet, from._packet, from._packet->size );
+}
+
+Command::~Command() 
+{
+    release(); 
 }
 
 void Command::swap( Command& rhs )
@@ -53,24 +64,22 @@ void Command::swap( Command& rhs )
     rhs._dispatched      = false;
 }
 
-void Command::allocate( NodePtr node, 
-                        NodePtr localNode, 
-                        const uint64_t       packetSize )
+void Command::allocate( NodePtr node, NodePtr localNode, const uint64_t size )
 {
     if( !_packet )
     {
-        _packetAllocSize = EQ_MAX( Packet::minSize, packetSize );
+        _packetAllocSize = EQ_MAX( Packet::minSize, size );
         _packet = static_cast<Packet*>( malloc( _packetAllocSize ));
     }
-    else if( packetSize > _packetAllocSize )
+    else if( size > _packetAllocSize )
     {
-        _packetAllocSize = EQ_MAX( Packet::minSize, packetSize );
+        _packetAllocSize = EQ_MAX( Packet::minSize, size );
         _packet = static_cast<Packet*>( realloc( _packet, _packetAllocSize ));
     }
 
     _node         = node;
     _localNode    = localNode;
-    _packet->size = packetSize;
+    _packet->size = size;
     _dispatched   = false;
 }
 
@@ -90,7 +99,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
 {
     if( command.isValid( ))
     {
-        os << disableFlush << "command< ";
+        os << base::disableFlush << "command< ";
         const Packet* packet = command.getPacket() ;
         switch( packet->datatype )
         {
@@ -106,7 +115,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
                 os << packet;
         }
 
-        os << ", " << command.getNode() << " >" << enableFlush;
+        os << ", " << command.getNode() << " >" << base::enableFlush;
     }
     else
         os << "command< empty >";

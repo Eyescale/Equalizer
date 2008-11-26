@@ -35,7 +35,7 @@ Server::~Server()
     _client = 0;
 }
 
-void Server::setClient( base::RefPtr<Client> client )
+void Server::setClient( ClientPtr client )
 {
     _client = client;
     if( !_client )

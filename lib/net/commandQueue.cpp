@@ -34,7 +34,8 @@ void CommandQueue::flush()
     {
         Command* command = _commands.pop();
         EQWARN << *command << endl;
-        release( command );
+        if( command )
+            _commandCache.release( command );
     }
 
     _commandCache.flush();

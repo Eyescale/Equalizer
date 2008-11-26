@@ -29,6 +29,7 @@ namespace eq
 typedef net::CommandFunc<Client> ClientFunc;
 
 static net::ConnectionPtr _startLocalServer();
+static void _joinLocalServer();
 
 Client::Client()
         : _nodeThreadQueue( 0 )
@@ -77,7 +78,7 @@ bool Client::stopListening()
     return true;
 }
 
-bool Client::connectServer( RefPtr<Server> server )
+bool Client::connectServer( ServerPtr server )
 {
     if( server->isConnected( ))
         return true;
@@ -106,7 +107,7 @@ bool Client::connectServer( RefPtr<Server> server )
             explicitAddress = false;
     }
 
-    if( connect( RefPtr_static_cast< Server, net::Node >( server )))
+    if( connect( server.get( )))
     {
         server->setClient( this );
         return true;
@@ -214,7 +215,7 @@ static void _joinLocalServer()
     eqsJoinLocalServer();
 }
 
-bool Client::disconnectServer( RefPtr<Server> server )
+bool Client::disconnectServer( ServerPtr server )
 {
     if( !server->isConnected( ))
     {
@@ -232,8 +233,7 @@ bool Client::disconnectServer( RefPtr<Server> server )
     server->setClient( 0 );
     server->_localServer = false;
 
-    const int success = disconnect(
-        RefPtr_static_cast< Server, net::Node >( server ));
+    const int success = disconnect( server.get( ));
     if( !success )
         EQWARN << "Server disconnect failed" << endl;
 

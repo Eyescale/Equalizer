@@ -7,6 +7,8 @@
 
 #include <eq/client/client.h>    // called in inline method
 #include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
+#include <eq/client/types.h>     // basic typedefs
+
 #include <eq/net/node.h>         // base class
 
 namespace eq
@@ -27,8 +29,9 @@ namespace eq
 
         /** @name Data Access */
         //*{
-        void setClient( base::RefPtr<Client> client );
-        base::RefPtr<Client> getClient(){ return _client; }
+        void setClient( ClientPtr client );
+        ClientPtr getClient(){ return _client; }
+
         net::CommandQueue* getNodeThreadQueue() 
             { return _client->getNodeThreadQueue(); }
         net::CommandQueue* getCommandThreadQueue() 
@@ -70,7 +73,7 @@ namespace eq
 
     private:
         /** The local client connected to the server */
-        base::RefPtr<Client> _client;
+        ClientPtr _client;
         friend class Client; // to call invokeCommand()
 
         /** Process-local server */

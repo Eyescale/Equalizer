@@ -17,7 +17,6 @@
 #  include <pcapi.h>
 #endif
 
-using namespace eq::base;
 using namespace std;
 
 namespace eq
@@ -76,16 +75,16 @@ EQ_EXPORT bool exit()
 EQ_EXPORT Config* getConfig( const int argc, char** argv )
 {
     // 1. initialization of a local client node
-    RefPtr< eq::Client > client = new eq::Client;
+    ClientPtr client = new Client;
     if( client->initLocal( argc, argv ))
     {
         // 2. connect to server
-        RefPtr<eq::Server> server = new eq::Server;
+        ServerPtr server = new Server;
         if( client->connectServer( server ))
         {
             // 3. choose configuration
-            eq::ConfigParams configParams;
-            eq::Config* config = server->chooseConfig( configParams );
+            ConfigParams configParams;
+            Config* config = server->chooseConfig( configParams );
             if( config )
                 return config;
 
@@ -111,17 +110,18 @@ EQ_EXPORT void releaseConfig( Config* config )
     if( !config )
         return;
 
-    RefPtr<eq::Server> server = config->getServer();
+    ServerPtr server = config->getServer();
     EQASSERT( server.isValid( ));
     server->releaseConfig( config );
 
-    RefPtr< eq::Client > client = server->getClient();
+    ClientPtr client = server->getClient();
     EQASSERT( client.isValid( ));
     client->disconnectServer( server );
 
     client->exitLocal();
 
-    // TODO EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
+    EQASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
+    EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
 }
 
 }

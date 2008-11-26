@@ -35,8 +35,8 @@ namespace eq
 
         /** @name Data Access */
         //*{
-        base::RefPtr< Client > getClient();
-        base::RefPtr< Server > getServer();
+        ClientPtr getClient();
+        ServerPtr getServer();
         const NodeVector& getNodes() const { return _nodes; }
         CommandQueue* getNodeThreadQueue()
             { return getClient()->getNodeThreadQueue(); }

@@ -283,6 +283,8 @@ void Node::_cleanup()
 
         node->_state      = STATE_STOPPED;
         node->_connection = 0;
+        _connectionNodes.erase( connection );
+        _nodes.erase( node->_id );
     }
 
     _connectionSet.clear();
@@ -290,10 +292,34 @@ void Node::_cleanup()
     if( !_connectionNodes.empty( ))
         EQINFO << _connectionNodes.size() << " open connections during cleanup"
                << endl;
+#ifndef NDEBUG
+    for( ConnectionNodeHash::const_iterator i = _connectionNodes.begin();
+         i != _connectionNodes.end(); ++i )
+    {
+        NodePtr node = i->second;
+        EQINFO << "    " << i->first << " : " << node << endl;
+        EQINFO << "    Node ref count " << node->getRefCount() - 1 
+               << ' ' << node->_connection << ' ' << node->_state
+               << ( node == this ? " self" : "" ) << endl;
+    }
+#endif
+
     _connectionNodes.clear();
 
     if( !_nodes.empty( ))
         EQINFO << _nodes.size() << " nodes connected during cleanup" << endl;
+
+#ifndef NDEBUG
+    for( NodeIDHash< NodePtr >::const_iterator i = _nodes.begin();
+         i != _nodes.end(); ++i )
+    {
+        NodePtr node = i->second;
+        EQINFO << "    " << node << " ref count " << node->getRefCount() - 1 
+               << ' ' << node->_connection << ' ' << node->_state
+               << ( node == this ? " self" : "" ) << endl;
+    }
+#endif
+
     _nodes.clear();
 }
 

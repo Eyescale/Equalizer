@@ -1190,6 +1190,7 @@ net::CommandResult Pipe::_cmdStopThread( net::Command& command )
 
     // cleanup
     _pipeThreadQueue->flush();
+    command.release();
 
     EQINFO << "Leaving pipe thread" << endl;
     _thread->exit( EXIT_SUCCESS );

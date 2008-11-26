@@ -28,9 +28,9 @@ namespace net
     class Command 
     {
     public:
-        Command() : _packet( 0 ), _packetAllocSize( 0 ), _dispatched( false ) {}
+        Command();
         Command( const Command& from ); // deep copy (of _packet)
-        ~Command() { release(); }
+        ~Command();
         
         void swap( Command& rhs );
 

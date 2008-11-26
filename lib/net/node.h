@@ -523,7 +523,8 @@ namespace net
         NodeIDHash< NodePtr > _nodes;
 
         /** The node for each connection. */
-        base::RefPtrHash< Connection, NodePtr > _connectionNodes;
+        typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
+        ConnectionNodeHash _connectionNodes;
 
         /** The receiver->command command queue. */
         CommandQueue _commandThreadQueue;
