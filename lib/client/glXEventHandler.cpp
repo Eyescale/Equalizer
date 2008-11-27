@@ -31,8 +31,10 @@ static PerThreadRef< GLXEventHandler::EventSet > _pipeConnections;
 GLXEventHandler::GLXEventHandler( Pipe* pipe )
 {
     if( !_pipeConnections )
+    {
+        EQINFO << "Set glX event set" << endl;
         _pipeConnections = new GLXEventHandler::EventSet;
-
+    }
     _pipeConnections->addConnection( new X11Connection( pipe ));
 }
 
@@ -74,18 +76,20 @@ void GLXEventHandler::clearEventSet()
 {
     EQASSERTINFO( !_pipeConnections || _pipeConnections->empty(),
                   _pipeConnections->getConnections().size( ));
+#if 0 // Asserts with more than one non-threaded pipe
     EQASSERTINFO( !_pipeConnections || _pipeConnections->getRefCount() == 1,
                   _pipeConnections->getRefCount( ));
+#endif
 
     _pipeConnections = 0;
+    EQINFO << "Cleared glX event set" << endl;
 }
 
 void GLXEventHandler::dispatchOne()
 {
-    if( !_pipeConnections )
-        _pipeConnections = new GLXEventHandler::EventSet;
-
     GLXEventSetPtr connections = _pipeConnections.get();
+    if( !connections )
+        return;
 
     const net::ConnectionSet::Event event = connections->select( );
     switch( event )
@@ -117,11 +121,11 @@ void GLXEventHandler::dispatchOne()
 
 void GLXEventHandler::dispatchAll()
 {
-    if( !_pipeConnections )
-        _pipeConnections = new GLXEventHandler::EventSet;
+    GLXEventSetPtr pipeConnections = _pipeConnections.get();
+    if( !pipeConnections )
+        return;
 
-    const net::ConnectionVector& connections =
-        _pipeConnections->getConnections();
+    const net::ConnectionVector& connections =pipeConnections->getConnections();
 
     for( net::ConnectionVector::const_iterator i = connections.begin(); 
          i != connections.end(); ++i )
