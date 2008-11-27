@@ -308,7 +308,8 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
     // set vsync on/off
     if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
     {
-        const GLint vsync = ( getIAttribute( Window::IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
+        const GLint vsync = 
+            ( getIAttribute( Window::IATTR_HINT_SWAPSYNC )==OFF ? 0 : 1 );
         aglSetInteger( context, AGL_SWAP_INTERVAL, &vsync );
     }
 
