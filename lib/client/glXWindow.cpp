@@ -53,6 +53,7 @@ bool GLXWindow::configInit( )
         return false;
     }
 
+    makeCurrent();
     return success;    
 }
 

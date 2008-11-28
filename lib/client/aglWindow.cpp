@@ -97,6 +97,7 @@ bool AGLWindow::configInit( )
     AGLContext context = createAGLContext( pixelFormat );
     destroyAGLPixelFormat ( pixelFormat );
     setAGLContext( context );
+    makeCurrent();
 
     if( !context )
         return false;

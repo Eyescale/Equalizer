@@ -187,6 +187,7 @@ bool WGLWindow::configInit()
 
     HGLRC context = createWGLContext( dc );
     setWGLContext( context );
+    makeCurrent();
 
     if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
     {
