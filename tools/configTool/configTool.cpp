@@ -155,6 +155,8 @@ void ConfigTool::writeConfig() const
     cout << "global" << endl;
     cout << "{" << endl;
     cout << "    EQ_WINDOW_IATTR_HINT_FULLSCREEN    ON" << endl;
+    cout << "    EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER  OFF" << endl;
+    cout << "    EQ_WINDOW_IATTR_HINT_DRAWABLE      pbuffer" << endl;
     if( _mode != MODE_2D )
         cout << "    EQ_WINDOW_IATTR_PLANES_STENCIL     ON" << endl;
     cout << "}" << endl;
@@ -216,21 +218,26 @@ void ConfigTool::_writeResources() const
         cout << "        node" << endl
              << "        {" << endl
              << "            name       \"node" << node << "\""<< endl
-             << "            connection { hostname \"" << nodeName.str() << "\" }"<< endl;
+             << "            connection { hostname \"" << nodeName.str() 
+             << "\" }"<< endl;
         for( unsigned pipe=0; pipe < _nPipes && channel < _nChannels; ++pipe )
         {
             cout << "            pipe" << endl
                  << "            {" << endl
-                 << "                name     \"pipe" << pipe << "n" << node << "\"" 
-                 << endl
+                 << "                name     \"pipe" << pipe << "n" << node 
+                 << "\"" << endl
                  << "                device   " << pipe << endl
                  << "                window" << endl
                  << "                {" << endl
                  << "                    name     \"window" << channel << "\""
                  << endl;
             if( channel == 0 && !_fullScreen ) // destination window
-                cout << "                    attributes{ hint_fullscreen OFF }"
-                     << endl
+                cout << "                    attributes" << endl
+                     << "                    {" << endl
+                     << "                        hint_fullscreen   OFF" << endl
+                     << "                        hint_drawable     window" <<endl
+                     << "                        hint_doublebuffer ON" << endl
+                     << "                    }" << endl
                      << "                    viewport [ 100 100 1280 800 ]" << endl;
 
             cout << "                    channel" << endl
