@@ -4,12 +4,10 @@
  Equalizer is developed on the latest OS X version, at the time of
  writing 10.5.2. Other versions may work, but are not tested.
 
-Prerequisites
+Prerequisites for Mac OS X 10.4 Tiger:
 
  X11SDK: Equalizer uses X11. The X11SDK packages is shipped with Mac OS X,
- but not installed by default.
-
-Prerequisites for Mac OS X 10.4 Tiger:
+   but not installed by default.
 
  New bison version: Equalizer uses bison to generate the configuration
    file parser. The bison version shipped with Mac OS X 10.4 is too old,
@@ -17,9 +15,6 @@ Prerequisites for Mac OS X 10.4 Tiger:
    fink or DarwinPorts.
 
 Universal Binary Notes
-
- Right now, we compile separate libraries for each SUBARCH (ppc,
- i386), which are later combined to universal libraries using lipo.
 
  AGL/Carbon does not support 64 bit. When compiling with WINDOW_SYSTEM
  AGL, the targets ppc64 and x86_64 are disabled.

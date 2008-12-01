@@ -9,24 +9,23 @@
 
                            Running Equalizer
 
- Right now there is only one example. To run it, first setup your
- library search path (LD_LIBRARY_PATH) to point to
- trunk/src/build/<os>/<VARIANT>/lib. Then start a server:
- './server/eqServer.<VARIANT>'. Once the server is  running, start the
- example: './examples/eqPly/eqPly.<VARIANT>'. On Mac OS X, fat
- (universal) libraries and binaries are build. Therefore, '.<VARIANT>' can
- be omitted.
+ The main example is eqPly, a scalable rendering program for polygonal
+ data. Furthermore, there is eqHello, a very simple Equalizer program,
+ and eVolve, a scalable volume renderer. To run examples, first setup
+ your library search path (LD_LIBRARY_PATH) to point to
+ build/<os>/lib. Then start a server: 'build/<os>/bin/eqServer'. Once
+ the server is running, start the example: 'build/<os>/bin/eqPly'.
 
  The default launch mechanism for nodes uses ssh. If your configuration
  contains remote nodes, make sure a passwordless login using ssh is
- possible, or reconfigure the launch command.
+ possible, or reconfigure the launch command accordingly.
 
 
                             Directory Layout
                             
  make/      files for the build environment.
  externals/ third-party source code used by Equalizer
- lib/       the sources of the client library, i.e. libeq
+ lib/       the sources of the client library, i.e., libeq
  lib/base/    basic source code: utilities, OS abstraction, etc.
  lib/net/     the sources for the networking P2P layer
  lib/client/  the client-side implementation of Equalizer

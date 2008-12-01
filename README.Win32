@@ -4,10 +4,11 @@
  Equalizer has been fully tested with Visual Studio 2005 and Windows
  XP. Support for Cygwin is preliminary.
  
- The Visual Studio project files are in the VS2005 directory.
+ The Visual Studio solution and project files are in the VS2005 directory.
 
  Remote launching has been tested using ssh with the cygwin OpenSSH
- port. The following caveats have been observed:
+ port. Depending on your auto-launch command, you need to adapt the
+ launch command quotes. The following caveats have been observed:
 
  o You'll need to add <InstPath>/bin manually to your Path variable
  o Open Computer Management->Services->CYGWIN sshd->Properties->Log On and
