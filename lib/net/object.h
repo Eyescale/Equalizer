@@ -48,10 +48,9 @@ namespace net
             INSTANCE,          //!< use only instance data
             DELTA,             //!< use pack/unpack delta
             UNBUFFERED,        //!< versioned, but don't retain versions
-// TODO: Too late to deprecate for 0.6 - but will be deprecated directly after
-//#ifdef EQ_USE_DEPRECATED
+#ifdef EQ_USE_DEPRECATED
             DELTA_UNBUFFERED = UNBUFFERED
-//#endif
+#endif
         };
 
         /** 
