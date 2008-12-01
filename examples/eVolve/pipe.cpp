@@ -89,7 +89,5 @@ void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 
     _frameData.sync( frameID );
     _renderer->setOrtho( _frameData.data.ortho );
-
-    startFrame( frameNumber );
 }
 }
