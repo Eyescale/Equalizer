@@ -63,17 +63,14 @@ namespace eqNet  = ::eq::net;
 <h2>1. Introduction</h2>
 <p>
   Welcome to Equalizer, a framework for the development and deployment of
-  parallel, scalable OpenGL applications. Equalizer 0.6 will contain major new
+  parallel, scalable OpenGL applications. Equalizer 0.6 delivers major new
   features, most notably support for DPlex compounds and automatic
   load-balancing.
 </p>
 <p>
-  Equalizer 0.6-RC1 is the release candidate for Equalizer 0.6. Equalizer
-  0.6-RC1 can be retrieved by downloading the
-  <a href="http://downloads.sourceforge.net/equalizer/Equalizer-0.6-rc1.tar.gz">source
-    code</a>, updating the subversion trunk to revision 2341
-  (<code>svn up -r 2341</code>) or by using<br>
-  <code>svn co https://equalizer.svn.sf.net/svnroot/equalizer/tags/release-0.6-rc1</code>.
+  Equalizer 0.6 can be retrieved by downloading the
+  <a href="http://www.equalizergraphics.com/downloads/Equalizer-0.6.tar.gz">source
+    code</a>.
 </p>
 
 
@@ -104,7 +101,7 @@ namespace eqNet  = ::eq::net;
 <a name="new"></a>
 <h2>2. New in this release</h2>
 <p>
-  Equalizer 0.6 will contain the following features, enhancements, bug fixes and
+  Equalizer 0.6 contains the following features, enhancements, bug fixes and
   documentation changes:
 </p>
 
@@ -208,6 +205,10 @@ namespace eqNet  = ::eq::net;
   the following:
 </p>
 <ul>
+  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2369549&group_id=170962&atid=856209">2369549</a>:
+  Crash in wglSwapIntervalEXT</li>
+  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2284482&group_id=170962&atid=856209">2284482</a>:
+  Head tracking broken with VS release builds</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2263716&group_id=170962&atid=856209">2263716</a>:
     5-channel.cave.eqc has wrong top/bottom wall</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2166278&group_id=170962&atid=856209">2166278</a>:
@@ -307,14 +308,14 @@ namespace eqNet  = ::eq::net;
 <h3>3.3. Documentation</h3>
 <p>
   The Programming Guide is available as a 
-  <a href="http://www.lulu.com/browse/book_view.php?fCID=2184039">hard-copy</a>
+  <a href="http://www.lulu.com/browse/book_view.php?fCID=5006510">hard-copy</a>
   and <a href="/survey.html">online</a>. <a href="http://www.equalizergraphics.com/documents/Developer/doxies/index.html">API documentation</a> can be
   found on the Equalizer website. Equalizer does not yet have an Users Guide.
 </p>
 <p>
   As with any open source project, the available source code, in particular the
   shipped
-  <a href="/cgi-bin/viewvc.cgi/tags/release-0.6-rc1/examples/">examples</a>
+  <a href="/cgi-bin/viewvc.cgi/tags/release-0.6/examples/">examples</a>
   provide a reference for developing or porting applications. The
   <a href="/doc_developer.html">Developer Documentation</a> on the website
   provides further design documents for specific features.

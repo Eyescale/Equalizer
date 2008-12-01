@@ -13,8 +13,8 @@ namespace eq
 {
     // Equalizer version macros and functions
 #   define EQ_VERSION_MAJOR 0
-#   define EQ_VERSION_MINOR 5
-#   define EQ_VERSION_PATCH 9
+#   define EQ_VERSION_MINOR 6
+#   define EQ_VERSION_PATCH 0
 
     class Version
     {

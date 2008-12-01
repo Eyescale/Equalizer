@@ -1,5 +1,5 @@
 
-                  Preliminary Release Notes for Equalizer 0.6
+                        Release Notes for Equalizer 0.6
 
      * 1. Introduction
           * 1.1. Features
@@ -21,15 +21,11 @@
 1. Introduction
 
    Welcome to Equalizer, a framework for the development and deployment of
-   parallel, scalable OpenGL applications. Equalizer 0.6 will contain major
-   new features, most notably support for DPlex compounds and automatic
+   parallel, scalable OpenGL applications. Equalizer 0.6 delivers major new
+   features, most notably support for DPlex compounds and automatic
    load-balancing.
 
-   Equalizer 0.6-RC1 is the release candidate for Equalizer 0.6. Equalizer
-   0.6-RC1 can be retrieved by downloading the source code, updating the
-   subversion trunk to revision 2341 (svn up -r 2341 ) or by using
-   svn co
-   https://equalizer.svn.sf.net/svnroot/equalizer/tags/release-0.6-rc1.
+   Equalizer 0.6 can be retrieved by downloading the source code.
 
   1.1. Features
 
@@ -54,8 +50,8 @@
 
 2. New in this release
 
-   Equalizer 0.6 will contain the following features, enhancements, bug fixes
-   and documentation changes:
+   Equalizer 0.6 contains the following features, enhancements, bug fixes and
+   documentation changes:
 
   2.1. New Features
 
@@ -128,6 +124,8 @@
    Equalizer 0.6 includes various bugfixes over the 0.5 release, including
    the following:
 
+     * 2369549: Crash in wglSwapIntervalEXT
+     * 2284482: Head tracking broken with VS release builds
      * 2263716: 5-channel.cave.eqc has wrong top/bottom wall
      * 2166278: eq::net::Object with instance never uses pack/unpack
      * 2149563: WGL: Update region is reset by event handler
@@ -153,7 +151,7 @@
 
      * 2268547: fullscreen windows not always active on Win32
      * 2151376: Irregular Pixel kernels do not work
-     * 2003195: Ortho frustra ignores eye offset
+     * 2003195: Ortho frusta ignore eye offset
      * 2003132: 3-wnd.DB.ds is broken on some ppc machines for eqPly
      * 1997583: eqPly: ortho frustum culling broken
      * 1959418: DB Compositing fails on MacBook with GMA X3100
