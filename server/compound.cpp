@@ -252,15 +252,11 @@ void Compound::setLoadBalancer( LoadBalancer* loadBalancer )
 //---------------------------------------------------------------------------
 void Compound::addListener( CompoundListener* listener )
 {
-    CHECK_THREAD( _serverThread );
-
     _listeners.push_back( listener );
 }
 
-void Compound::removeListener(  CompoundListener* listener )
+void Compound::removeListener( CompoundListener* listener )
 {
-    CHECK_THREAD( _serverThread );
-
     CompoundListeners::iterator i = find( _listeners.begin(), _listeners.end(),
                                           listener );
     if( i != _listeners.end( ))
