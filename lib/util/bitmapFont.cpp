@@ -209,7 +209,7 @@ void BitmapFont::_setupLists( const GLsizei num )
     EQASSERT( gl );
 
     if( _lists != Window::ObjectManager::FAILED )
-        gl->deleteList( _lists );
+        gl->deleteList( this );
 
     if( num == 0 )
         _lists = Window::ObjectManager::FAILED;

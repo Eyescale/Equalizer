@@ -19,12 +19,12 @@ namespace eq
      * See also:
      * http://www.equalizergraphics.com/documents/design/objectManager.html
      * 
-     * The semantics for the functions is:
+     * The semantics for each of the functions is:
+     *
      * get - lookup existing object,
      * new - allocate new object,
      * obtain - get or new,
-     * release - decrease reference count,
-     * delete - forcibly delete.
+     * delete - delete.
      */
     template< typename T >
     class EQ_EXPORT ObjectManager : public base::NonCopyable
@@ -44,47 +44,32 @@ namespace eq
         void deleteAll();
 
         GLuint getList( const T& key );
-        GLuint newList( const T& key, const GLsizei num = 1  );
+        GLuint newList( const T& key, const GLsizei num = 1 );
         GLuint obtainList( const T& key, const GLsizei num = 1 );
-        void   releaseList( const T& key );
-        void   releaseList( const GLuint id );
         void   deleteList( const T& key );
-        void   deleteList( const GLuint id );
 
         GLuint getTexture( const T& key );
         GLuint newTexture( const T& key );
         GLuint obtainTexture( const T& key );
-        void   releaseTexture( const T& key );
-        void   releaseTexture( const GLuint id );
         void   deleteTexture( const T& key );
-        void   deleteTexture( const GLuint id );
 
         bool   supportsBuffers() const;
         GLuint getBuffer( const T& key );
         GLuint newBuffer( const T& key );
         GLuint obtainBuffer( const T& key );
-        void   releaseBuffer( const T& key );
-        void   releaseBuffer( const GLuint id );
         void   deleteBuffer( const T& key );
-        void   deleteBuffer( const GLuint id );
 
         bool   supportsPrograms() const;
         GLuint getProgram( const T& key );
         GLuint newProgram( const T& key );
         GLuint obtainProgram( const T& key );
-        void   releaseProgram( const T& key );
-        void   releaseProgram( const GLuint id );
         void   deleteProgram( const T& key );
-        void   deleteProgram( const GLuint id );
 
         bool   supportsShaders() const;
         GLuint getShader( const T& key );
         GLuint newShader( const T& key, const GLenum type );
         GLuint obtainShader( const T& key, const GLenum type );
-        void   releaseShader( const T& key );
-        void   releaseShader( const GLuint id );
         void   deleteShader( const T& key );
-        void   deleteShader( const GLuint id );
 
         GLEWContext* glewGetContext() const { return _glewContext; }
 
@@ -94,28 +79,16 @@ namespace eq
         struct Object
         {
             GLuint   id;
-            T        key;
             GLuint   num;
-            uint32_t refCount;
         };
 
-        typedef stde::hash_map< GLuint, Object > ObjectIDHash;
-        typedef stde::hash_map< T, Object* >     ObjectKeyHash;
+        typedef stde::hash_map< T, Object >     ObjectKeyHash;
 
-        ObjectIDHash  _listsID;
-        ObjectKeyHash _listsKey;
-
-        ObjectIDHash  _texturesID;
-        ObjectKeyHash _texturesKey;
-
-        ObjectIDHash  _buffersID;
-        ObjectKeyHash _buffersKey;
-
-        ObjectIDHash  _programsID;
-        ObjectKeyHash _programsKey;
-
-        ObjectIDHash  _shadersID;
-        ObjectKeyHash _shadersKey;
+        ObjectKeyHash _lists;
+        ObjectKeyHash _textures;
+        ObjectKeyHash _buffers;
+        ObjectKeyHash _programs;
+        ObjectKeyHash _shaders;
     };
 }
 
