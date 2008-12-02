@@ -261,7 +261,15 @@ void Channel::frameReadback( const uint32_t frameID )
 
     const FrameVector& frames = getOutputFrames();
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
-        (*i)->startReadback( glObjects );
+    {
+        Frame* frame = *i;
+        frame->startReadback( glObjects );
+    }
+    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    {
+        Frame* frame = *i;
+        frame->syncReadback();
+    }
 
     EQ_GL_CALL( resetAssemblyState( ));
 }
@@ -930,13 +938,6 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
     }
 
     frameReadback( packet->context.frameID );
-
-    for( FrameVector::const_iterator i = _outputFrames.begin();
-         i != _outputFrames.end(); ++i )
-    {
-        Frame* frame = *i;
-        frame->syncReadback();
-    }
 
     _outputFrames.clear();
     _context = 0;
