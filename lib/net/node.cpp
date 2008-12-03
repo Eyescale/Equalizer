@@ -1381,7 +1381,7 @@ NodePtr Node::connect( const NodeID& nodeID, NodePtr server )
 {
     EQASSERT( nodeID != NodeID::ZERO );
 
-    NodeIDHash< RefPtr< Node > >::const_iterator iter = _nodes.find( nodeID );
+    NodeIDHash< NodePtr >::const_iterator iter = _nodes.find( nodeID );
     if( iter != _nodes.end( ))
         return iter->second;
 

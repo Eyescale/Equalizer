@@ -37,10 +37,14 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
     const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
     const Channel*               channel      = compound->getChannel();
 
-    if( !compound->testInheritTask( Compound::TASK_READBACK ) || 
-        outputFrames.empty( ) || !channel )
-
+    if( !compound->testInheritTask( Compound::TASK_READBACK ) || !channel )
         return;
+
+    if( outputFrames.empty( ))
+    {
+        compound->unsetInheritTask( Compound::TASK_READBACK );
+        return;
+    }
 
     for( vector<Frame*>::const_iterator i = outputFrames.begin(); 
          i != outputFrames.end(); ++i )

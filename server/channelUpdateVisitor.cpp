@@ -392,10 +392,10 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
                                             const eq::RenderContext& context )
 {
     const std::vector< Frame* >& inputFrames = compound->getInputFrames();
-    if( !compound->testInheritTask( Compound::TASK_ASSEMBLE ) ||
-        inputFrames.empty( ))
-
+    if( !compound->testInheritTask( Compound::TASK_ASSEMBLE ))
         return;
+
+    EQASSERT( !inputFrames.empty( ));
 
     vector<net::ObjectVersion> frameIDs;
     for( vector<Frame*>::const_iterator iter = inputFrames.begin(); 
@@ -430,12 +430,12 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
                                             const eq::RenderContext& context )
 {
     const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
-    if( !compound->testInheritTask( Compound::TASK_READBACK ) || 
-        outputFrames.empty( ))
-        
+    if( !compound->testInheritTask( Compound::TASK_READBACK ))
         return;
 
-    vector<Frame*>               frames;
+    EQASSERT( !outputFrames.empty( ));
+
+    FrameVector                frames;
     vector<net::ObjectVersion> frameIDs;
     for( vector<Frame*>::const_iterator i = outputFrames.begin(); 
          i != outputFrames.end(); ++i )
@@ -461,8 +461,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     packet.nFrames   = frames.size();
 
     EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
-        << "TASK readback " << _channel->getName() <<  " "
-        << &packet << endl;
+        << "TASK readback " << _channel->getName() <<  " " << &packet << endl;
     _channel->send<net::ObjectVersion>( packet, frameIDs );
     _updated = true;
 

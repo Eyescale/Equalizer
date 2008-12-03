@@ -314,7 +314,6 @@ namespace server
         const eq::Pixel&  getInheritPixel()  const { return _inherit.pixel; }
         uint32_t getInheritPeriod()          const { return _inherit.period; }
         float getInheritMaxFPS()             const { return _inherit.maxFPS; }
-        uint32_t getInheritTask()            const { return _inherit.tasks; }
         int32_t  getInheritIAttribute( const IAttribute attr ) const
             { return _inherit.iAttributes[attr]; }
         const ViewData& getInheritViewData() const { return _inherit.viewData; }
@@ -330,6 +329,12 @@ namespace server
         /** @return true if the task is set, false if not. */
         bool testInheritTask( const Task task ) const
             { return (_inherit.tasks & task); }
+
+        /** Delete an inherit task, if it was set. */
+        void unsetInheritTask( const Task task )
+            { _inherit.tasks &= ~task; }
+
+        /** @return true if the eye pass is used, false if not. */
         bool testInheritEye( const eq::Eye eye ) const
             { return ( _inherit.eyes & (1<<eye) ); }
         //*}
