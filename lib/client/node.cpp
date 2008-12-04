@@ -36,7 +36,12 @@ std::string Node::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Node::Node( Config* parent )
+#ifdef EQ_ASYNC_TRANSMIT
         : transmitter( this )
+        , _config( parent )
+#else
+        : _config( parent )
+#endif       
         , _config( parent )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
