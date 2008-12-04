@@ -939,6 +939,13 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
 
     frameReadback( packet->context.frameID );
 
+    for( FrameVector::const_iterator i = _outputFrames.begin(); 
+         i != _outputFrames.end(); ++i)
+    {
+        Frame* frame = *i;
+        frame->setReady();
+    }
+
     _outputFrames.clear();
     _context = 0;
     return net::COMMAND_HANDLED;

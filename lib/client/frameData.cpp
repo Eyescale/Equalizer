@@ -152,6 +152,11 @@ void FrameData::syncReadback()
         }
 #endif
     }
+    setReady();
+}
+
+void FrameData::setReady()
+{
     _setReady( getVersion( ));
 }
 

@@ -102,6 +102,14 @@ namespace server
          */        
         int64_t transmit( net::NodePtr toNode );
 
+        /** 
+         * Set the frame data ready.
+         * 
+         * The frame data is automatically set ready by syncReadback
+         * and upon receiving of the transmit commands.
+         */
+        void setReady();
+
         /** @return true if the frame data is ready, false if not. */
         bool isReady() const   { return _readyVersion >= getVersion(); }
 
@@ -188,12 +196,7 @@ namespace server
         /** Apply all received images of the given version. */
         void _applyVersion( const uint32_t version );
 
-        /** 
-         * Set the frame data ready.
-         * 
-         * The frame data is automatically set ready by syncReadback
-         * and upon processing of the transmit commands.
-         */
+        /** Set a specific version ready. */
         void _setReady( const uint32_t version );
 
         void _transmit( net::NodePtr toNode,

@@ -114,6 +114,14 @@ namespace server
         int64_t transmit( net::NodePtr toNode );
 
         /** 
+         * Set the frame ready.
+         * 
+         * The frame is automatically set ready by syncReadback and upon
+         * receiving of the transmit commands.
+         */
+        void setReady();
+
+        /** 
          * Test the readiness of the frame.
          * 
          * The readiness of the frame is automatically managed by the frame

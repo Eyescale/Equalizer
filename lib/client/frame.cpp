@@ -101,6 +101,12 @@ int64_t Frame::transmit( net::NodePtr toNode )
     return _frameData->transmit( toNode );
 }
 
+void Frame::setReady()
+{
+    EQASSERT( _frameData );
+    _frameData->setReady();
+}
+
 bool Frame::isReady() const
 {
     EQASSERT( _frameData );
