@@ -42,7 +42,6 @@ Node::Node( Config* parent )
 #else
         : _config( parent )
 #endif       
-        , _config( parent )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
 {
