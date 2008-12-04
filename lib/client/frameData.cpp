@@ -172,7 +172,8 @@ void FrameData::_setReady( const uint32_t version )
 #endif
 
     _readyVersion = version;
-    EQLOG( LOG_ASSEMBLY ) << "set ready " << this << endl;
+    EQLOG( LOG_ASSEMBLY ) << "set ready " << this << ", " << _listeners.size()
+                          << " monitoring" << endl;
 
     for( vector< Monitor<uint32_t>* >::iterator i = _listeners.begin();
          i != _listeners.end(); ++i )
