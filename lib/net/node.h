@@ -224,11 +224,12 @@ namespace net
          * @return <code>true</code> if this node is connected,
          *         <code>false</code> otherwise.
          */
-        bool checkConnection()
+        ConnectionPtr checkConnection()
             {
+                ConnectionPtr connection = _connection;
                 if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
-                    return true;
-                return false;
+                    return _connection;
+                return 0;
             }
         //*}
 
@@ -287,9 +288,10 @@ namespace net
          */
         bool send( const Packet& packet )
             {
-                if( !checkConnection() )
+                ConnectionPtr connection = checkConnection();
+                if( !connection )
                     return false;
-                return _connection->send( packet );
+                return connection->send( packet );
             }
 
         /** 
@@ -309,9 +311,10 @@ namespace net
          */
         bool send( Packet& packet, const std::string& string )
             {
-                if( !checkConnection() )
+                ConnectionPtr connection = checkConnection();
+                if( !connection )
                     return false;
-                return _connection->send( packet, string );
+                return connection->send( packet, string );
             }
 
         /** 
@@ -330,9 +333,10 @@ namespace net
         template< class T >
         bool send( Packet& packet, const std::vector<T>& data )
             {
-                if( !checkConnection() )
+                ConnectionPtr connection = checkConnection();
+                if( !connection )
                     return false;
-                return _connection->send( packet, data );
+                return connection->send( packet, data );
             }
 
         /** 
@@ -353,9 +357,10 @@ namespace net
          */
         bool send( Packet& packet, const void* data, const uint64_t size )
             {
-                if( !checkConnection() )
+                ConnectionPtr connection = checkConnection();
+                if( !connection )
                     return false;
-                return _connection->send( packet, data, size );
+                return connection->send( packet, data, size );
             }
 
         /**
