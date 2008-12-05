@@ -224,6 +224,7 @@ net::CommandResult Server::_cmdUseConfig( net::Command& command )
 
     if( !config )
     {
+        EQWARN << "Use config parsing failed " << endl;
         reply.configID = EQ_ID_INVALID;
         node->send( reply );
         return net::COMMAND_HANDLED;
@@ -231,6 +232,7 @@ net::CommandResult Server::_cmdUseConfig( net::Command& command )
 
     EQINFO << "Using config: " << endl << Global::instance() << config << endl;
     config->setApplicationNetNode( node );
+    config->_server = this;
     mapConfig( config );
 
     const uint32_t configID = config->getID();
