@@ -96,5 +96,5 @@ int main( int argc, char **argv )
 
     // teardown
     TEST( client->exitLocal( ));
-    return result;
+    return EXIT_SUCCESS;
 }
