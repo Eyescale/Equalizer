@@ -50,7 +50,7 @@ void FrameData::applyInstanceData( net::DataIStream& is )
 
     FrameDataUpdatePacket packet; // trigger process of received ready packets
     packet.instanceID = getInstanceID();
-    packet.version    = getVersion() + 1; // use +1 : new version not yet set
+    packet.version    = is.getVersion(); // new version!
     send( getLocalNode(), packet );
 }
 
