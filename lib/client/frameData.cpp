@@ -47,10 +47,14 @@ void FrameData::applyInstanceData( net::DataIStream& is )
     EQASSERT( is.getRemainingBufferSize() == 0 );
 
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << endl;
+}
 
-    FrameDataUpdatePacket packet; // trigger process of received ready packets
+void FrameData::update( const uint32_t version )
+{
+    // trigger process of received ready packets
+    FrameDataUpdatePacket packet;
     packet.instanceID = getInstanceID();
-    packet.version    = is.getVersion(); // new version!
+    packet.version    = version;
     send( getLocalNode(), packet );
 }
 
