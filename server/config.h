@@ -47,7 +47,7 @@ namespace server
         bool    isRunning() const { return ( _state == STATE_INITIALIZED ); }
 
         net::CommandQueue* getServerThreadQueue()
-            { return _server->getServerThreadQueue(); }
+            { EQASSERT( _server ); return _server->getServerThreadQueue(); }
         
         const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
         
