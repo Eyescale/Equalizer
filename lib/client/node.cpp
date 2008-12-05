@@ -183,7 +183,13 @@ FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
     }
     _frameDatasMutex.unset();
 
-    frameData->sync( dataVersion.version );
+    if( frameData->getVersion() < dataVersion.version )
+    {
+        frameData->sync( dataVersion.version );
+        frameData->update( dataVersion.version );
+    }
+    EQASSERT( frameData->getVersion() == dataVersion.version );
+
     return frameData;
 }
 

@@ -132,6 +132,9 @@ namespace server
             { _data.buffers &= ~buffer; }
         //*}
 
+        /** @warning internal use only. */
+        void update( const uint32_t version );
+
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
         virtual void getInstanceData( net::DataOStream& os );
