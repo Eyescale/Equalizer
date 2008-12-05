@@ -401,7 +401,9 @@ void Session::unmapObject( Object* object )
             const NodeID& masterNodeID = _pollIDMaster( id );
             _idMasterMutex.unset();
 
-            NodePtr master = _localNode->getNode( masterNodeID );
+            NodePtr localNode = _localNode;
+            NodePtr master    = localNode.isValid() ? 
+                                    localNode->getNode( masterNodeID ) : 0;
             if( master.isValid( ))
             {
                 SessionUnsubscribeObjectPacket packet;

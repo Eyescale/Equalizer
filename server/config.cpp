@@ -99,6 +99,7 @@ public:
                     if( view.getID() != EQ_ID_INVALID )
                     {
                         Config* config = compound->getConfig();
+                        EQASSERT( config );
                         config->unmapObject( &view );
                     }
                     break;

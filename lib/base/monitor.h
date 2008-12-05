@@ -42,31 +42,31 @@ namespace base
         //*{
         Monitor& operator++ ();    // prefix only
         Monitor& operator-- ();    // prefix only
-        Monitor& operator = ( const T& val )
+        Monitor& operator = ( const T& value )
             {
-                set( val );
+                set( value );
                 return *this;
             }
 
-        void set( const T& val );
+        void set( const T& value );
         //*}
 
         /** @name Monitor the value. */
         //*{
-        const T& waitEQ( const T& val ) const;
-        const T& waitNE( const T& val ) const;
-        const T& waitGE( const T& val ) const;
-        const T& waitLE( const T& val ) const;
+        const T& waitEQ( const T& value ) const;
+        const T& waitNE( const T& value ) const;
+        const T& waitGE( const T& value ) const;
+        const T& waitLE( const T& value ) const;
         //*}
 
         /** @name Comparison Operators. */
         //*{
-        bool operator == ( const T& val ) const { return _value == val; }
-        bool operator != ( const T& val ) const { return _value != val; }
-        bool operator < ( const T& val ) const { return _value < val; }
-        bool operator > ( const T& val ) const { return _value > val; }
-        bool operator <= ( const T& val ) const { return _value <= val; }
-        bool operator >= ( const T& val ) const { return _value >= val; }
+        bool operator == ( const T& value ) const { return _value == value; }
+        bool operator != ( const T& value ) const { return _value != value; }
+        bool operator < ( const T& value ) const { return _value < value; }
+        bool operator > ( const T& value ) const { return _value > value; }
+        bool operator <= ( const T& value ) const { return _value <= value; }
+        bool operator >= ( const T& value ) const { return _value >= value; }
 
         bool operator == ( const Monitor<T>& rhs ) const
             { return _value == rhs._value; }
@@ -188,56 +188,55 @@ inline Monitor< bool >& Monitor< bool >::operator-- ()
 }
 
 template< typename T > 
-inline void Monitor<T>::set( const T& val )
+inline void Monitor<T>::set( const T& value )
 {
     pthread_mutex_lock( &_data->mutex );
-    _value = val;
+    _value = value;
     pthread_cond_broadcast( &_data->cond );
     pthread_mutex_unlock( &_data->mutex );
 }
 
 template< typename T > 
-inline const T& Monitor<T>::waitEQ( const T& val ) const
+inline const T& Monitor<T>::waitEQ( const T& value ) const
 {
     pthread_mutex_lock( &_data->mutex );
-    while( _value != val )
+    while( _value != value )
         pthread_cond_wait( &_data->cond, &_data->mutex);
-    const T& value = _value;
     pthread_mutex_unlock( &_data->mutex );
     return value;
 }
 
 template< typename T > 
-inline const T& Monitor<T>::waitNE( const T& val ) const
+inline const T& Monitor<T>::waitNE( const T& value ) const
 {
     pthread_mutex_lock( &_data->mutex );
-    while( _value == val )
+    while( _value == value )
         pthread_cond_wait( &_data->cond, &_data->mutex);
-    const T& value = _value;
+    const T& newValue = _value;
     pthread_mutex_unlock( &_data->mutex );
-    return value;
+    return newValue;
 }
 
 template< typename T > 
-inline const T& Monitor<T>::waitGE( const T& val ) const
+inline const T& Monitor<T>::waitGE( const T& value ) const
 {
     pthread_mutex_lock( &_data->mutex );
-    while( _value < val )
+    while( _value < value )
         pthread_cond_wait( &_data->cond, &_data->mutex);
-    const T& value = _value;
+    const T& newValue = _value;
     pthread_mutex_unlock( &_data->mutex );
-    return value;
+    return newValue;
 }
 
 template< typename T > 
-inline const T& Monitor<T>::waitLE( const T& val ) const
+inline const T& Monitor<T>::waitLE( const T& value ) const
 {
     pthread_mutex_lock( &_data->mutex );
-    while( _value > val )
+    while( _value > value )
         pthread_cond_wait( &_data->cond, &_data->mutex);
-    const T& value = _value;
+    const T& newValue = _value;
     pthread_mutex_unlock( &_data->mutex );
-    return value;
+    return newValue;
 }
 
 template< typename T >

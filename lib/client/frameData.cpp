@@ -162,10 +162,12 @@ void FrameData::setReady()
 
 void FrameData::_setReady( const uint32_t version )
 {
-    EQASSERT( getVersion() == net::Object::VERSION_NONE ||
-              _readyVersion < version );
+    EQASSERTINFO( getVersion() == net::Object::VERSION_NONE || 
+                  _readyVersion <= version,
+                  "v" << getVersion() << " ready " << _readyVersion << " new "
+                      << version );
 
-    _listenersMutex.set();
+    base::ScopedMutex< base::Lock > mutex( _listenersMutex );
 #ifndef NDEBUG
     for( list<ImageVersion>::iterator i = _pendingImages.begin();
          i != _pendingImages.end(); ++i )
@@ -175,6 +177,9 @@ void FrameData::_setReady( const uint32_t version )
                       "Frame is ready, but not all images have been set" );
     }
 #endif
+
+    if( _readyVersion >= version )
+        return;
 
     _readyVersion = version;
     EQLOG( LOG_ASSEMBLY ) << "set ready " << this << ", " << _listeners.size()
@@ -186,8 +191,6 @@ void FrameData::_setReady( const uint32_t version )
         Monitor<uint32_t>* monitor = *i;
         ++(*monitor);
     }
-
-    _listenersMutex.unset();
 }
 
 namespace
