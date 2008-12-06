@@ -7,6 +7,8 @@
 
 #include <eq/client/commandQueue.h> // member
 #include <eq/client/nodeType.h>     // for TYPE_EQ_CLIENT enum
+#include <eq/client/types.h>        // basic types
+
 #include <eq/net/command.h>         // member
 #include <eq/net/node.h>            // base class
 
@@ -36,7 +38,7 @@ namespace eq
          * @param server the server.
          * @return true if the server was connected, false if not.
          */
-        bool connectServer( base::RefPtr<Server> server );
+        bool connectServer( ServerPtr server );
 
         /** 
          * Disconnect and close the connection of an Equalizer server to the
@@ -45,7 +47,7 @@ namespace eq
          * @param server the server.
          * @return true if the server was disconnected, false if not.
          */
-        bool disconnectServer( base::RefPtr<Server> server );
+        bool disconnectServer( ServerPtr server );
 
         /** 
          * Get and process one command from the node command queue. Used

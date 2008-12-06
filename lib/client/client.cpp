@@ -121,8 +121,7 @@ bool Client::connectServer( ServerPtr server )
     if( !connection )
         return false;
 
-    if( connect( RefPtr_static_cast< Server, net::Node >( server ),
-                 connection ))
+    if( connect( server.get(), connection ))
     {
         server->setClient( this );
         server->_localServer = true;
@@ -311,9 +310,8 @@ bool Client::dispatchCommand( net::Command& command )
         {
             net::NodePtr node = command.getNode();
 
-            EQASSERT( dynamic_cast<Server*>( node.get( )) );
-            RefPtr<Server> server = 
-                RefPtr_static_cast<net::Node, Server>( node );
+            EQASSERT( dynamic_cast< Server* >( node.get( )) );
+            ServerPtr server = static_cast< Server* >( node.get( ));
 
             return server->net::Base::dispatchCommand( command );
         }
@@ -337,8 +335,7 @@ net::CommandResult Client::invokeCommand( net::Command& command )
             net::NodePtr node = command.getNode();
 
             EQASSERT( dynamic_cast<Server*>( node.get( )) );
-            RefPtr<Server> server = 
-                RefPtr_static_cast<net::Node, Server>( node );
+            ServerPtr server = static_cast<Server*>( node.get( ));
 
             return server->net::Base::invokeCommand( command );
         }

@@ -22,7 +22,7 @@ namespace base
      * A monitor has a value, which can be monitored to reach a certain
      * state. The caller is blocked until the condition is fulfilled.
      *
-     * Template instantiation are at the end of the .cpp file.
+     * Template instantiations are at the end of monitor.cpp.
      */
     template< typename T > class Monitor : public NonCopyable
     {
