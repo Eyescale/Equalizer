@@ -47,6 +47,7 @@ namespace std
     };
 #    endif
 
+#    ifndef EQ_HAVE_VOID_PTR_HASH
     /** void* hash functions. */
     template<> 
     struct hash< void* >
@@ -66,6 +67,7 @@ namespace std
             return reinterpret_cast<size_t>(key);	 
         }
     };
+#    endif
 
 #  else // WIN32
 #    ifndef EQ_HAVE_STRING_HASH
