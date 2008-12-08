@@ -98,6 +98,9 @@ namespace server
          */
         bool isUsed() const { return (_used!=0); }
 
+        /** Add additional tasks this node might potentially execute. */
+        void addTasks( const uint32_t tasks ) { _tasks |= tasks; }
+
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
@@ -294,6 +297,9 @@ namespace server
             STATE_STOPPING,     // next: STOP_FAILED or STOPPED
             STATE_STOP_FAILED,  // next: STOPPED
         };
+
+        /** Worst-case set of tasks. */
+        uint32_t _tasks;
 
         /** The current state for state change synchronization. */
         base::Monitor< State > _state;

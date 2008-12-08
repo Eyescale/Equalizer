@@ -141,7 +141,7 @@ Compound::InheritData::InheritData()
         : channel( 0 )
         , buffers( eq::Frame::BUFFER_UNDEFINED )
         , eyes( EYE_UNDEFINED )
-        , tasks( TASK_DEFAULT )
+        , tasks( eq::TASK_DEFAULT )
         , period( EQ_UNDEFINED_UINT32 )
         , phase( EQ_UNDEFINED_UINT32 )
         , maxFPS( numeric_limits< float >::max( ))
@@ -498,8 +498,6 @@ void Compound::init()
 {
     CompoundInitVisitor initVisitor;
     accept( &initVisitor, false /* activeOnly */ );
-
-    // CompoundUpdateVisitor updateVisitor;
 }
 
 void Compound::exit()
@@ -672,13 +670,13 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     }
 
     if( !_inherit.pvp.hasArea( ))
-        _inherit.tasks = TASK_NONE;
-    else if( _data.tasks == TASK_DEFAULT )
+        _inherit.tasks = eq::TASK_NONE;
+    else if( _data.tasks == eq::TASK_DEFAULT )
     {
         if( isLeaf( ))
-            _inherit.tasks = TASK_ALL;
+            _inherit.tasks = eq::TASK_ALL;
         else
-            _inherit.tasks = TASK_ASSEMBLE | TASK_READBACK;
+            _inherit.tasks = eq::TASK_ASSEMBLE | eq::TASK_READBACK;
     }
     else
         _inherit.tasks = _data.tasks;
@@ -713,15 +711,15 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     }
 
     const uint32_t tasks = compound->getTasks();
-    if( tasks != Compound::TASK_DEFAULT )
+    if( tasks != eq::TASK_DEFAULT )
     {
         os << "task     [";
-        if( tasks &  Compound::TASK_CLEAR )    os << " CLEAR";
-        if( tasks &  Compound::TASK_CULL )     os << " CULL";
+        if( tasks &  eq::TASK_CLEAR )    os << " CLEAR";
+        if( tasks &  eq::TASK_CULL )     os << " CULL";
         if( compound->isLeaf() && 
-            ( tasks &  Compound::TASK_DRAW ))  os << " DRAW";
-        if( tasks &  Compound::TASK_ASSEMBLE ) os << " ASSEMBLE";
-        if( tasks &  Compound::TASK_READBACK ) os << " READBACK";
+            ( tasks &  eq::TASK_DRAW ))  os << " DRAW";
+        if( tasks &  eq::TASK_ASSEMBLE ) os << " ASSEMBLE";
+        if( tasks &  eq::TASK_READBACK ) os << " READBACK";
         os << " ]" << endl;
     }
 

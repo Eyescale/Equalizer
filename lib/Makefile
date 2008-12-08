@@ -110,6 +110,7 @@ HEADER_SRC = \
 	client/range.h \
 	client/renderContext.h \
 	client/server.h \
+	client/task.h \
 	client/types.h \
 	client/version.h \
 	client/view.h \

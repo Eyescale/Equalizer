@@ -30,6 +30,7 @@ void Node::_construct()
 {
     _used           = 0;
     _config         = 0;
+    _tasks          = eq::TASK_NONE;
     _lastDrawPipe   = 0;
     _flushedFrame   = 0;
     _finishedFrame  = 0;
@@ -186,6 +187,8 @@ void Node::startConfigInit( const uint32_t initID )
 
     eq::NodeConfigInitPacket packet;
     packet.initID = initID;
+    packet.tasks  = _tasks;
+
     memcpy( packet.iAttributes, _iAttributes, 
             eq::Node::IATTR_ALL * sizeof( int32_t ));
 
@@ -248,6 +251,7 @@ void Node::startConfigExit()
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
+    _tasks = eq::TASK_NONE;
 
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {

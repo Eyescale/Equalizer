@@ -63,6 +63,9 @@ void Channel::_construct()
     _window           = 0;
     _fixedPVP         = false;
     _lastDrawCompound = 0;
+    _near             = .1f;
+    _far              = 10.f;
+    _tasks            = eq::TASK_NONE;
     EQINFO << "New channel @" << (void*)this << endl;
 }
 
@@ -143,6 +146,13 @@ void Channel::unrefUsed()
     _used--;
     if( _window ) 
         _window->unrefUsed(); 
+}
+
+void Channel::addTasks( const uint32_t tasks )
+{
+    EQASSERT( _window );
+    _tasks |= tasks;
+    _window->addTasks( tasks );
 }
 
 vmml::Vector3ub Channel::_getUniqueColor() const
@@ -231,9 +241,11 @@ void Channel::_sendConfigInit( const uint32_t initID )
     _state = STATE_INITIALIZING;
 
     eq::ChannelConfigInitPacket packet;
-    packet.initID     = initID;
-    packet.viewID     = _view ? _view->getID() : EQ_ID_INVALID;
-    packet.color      = _getUniqueColor();
+    packet.initID = initID;
+    packet.viewID = _view ? _view->getID() : EQ_ID_INVALID;
+    packet.color  = _getUniqueColor();
+    packet.tasks  = _tasks;
+
     if( _fixedPVP )
         packet.pvp    = _pvp; 
     else
@@ -265,6 +277,8 @@ void Channel::startConfigExit()
 {
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
+    _tasks = eq::TASK_NONE;
+
     _sendConfigExit();
 }
 

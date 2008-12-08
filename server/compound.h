@@ -16,6 +16,7 @@
 #include <eq/client/projection.h>
 #include <eq/client/range.h>
 #include <eq/client/renderContext.h>
+#include <eq/client/task.h>
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
 #include <eq/base/thread.h>
@@ -52,25 +53,6 @@ namespace server
 
         /** Destruct the compound and all children. */
         virtual ~Compound();
-
-        /**
-         * Compound tasks define the actions executed by a compound on its
-         * channel during compound update, in the order they are defined.
-         *
-         * The enums are spaced apart to leave room for future additions without
-         * breaking binary backward compatibility.
-         */
-        enum Task
-        {
-            TASK_NONE     = EQ_BIT_NONE,
-            TASK_DEFAULT  = EQ_BIT1,   //!< ALL for leaf, else ASSEMBLE|READBACK
-            TASK_CLEAR    = EQ_BIT5,   //!< Clear the framebuffer
-            TASK_CULL     = EQ_BIT9,   //!< Cull data
-            TASK_DRAW     = EQ_BIT13,  //!< Draw data to the framebuffer
-            TASK_ASSEMBLE = EQ_BIT17,  //!< Combine input frames
-            TASK_READBACK = EQ_BIT21,  //!< Read results to output frames
-            TASK_ALL      = EQ_BIT_ALL
-        };
 
         /**
          * Eye pass bit mask for which the compound is enabled.
@@ -216,7 +198,7 @@ namespace server
          * 
          * @param tasks the compound tasks.
          */
-        void enableTask( const Task task ) { _data.tasks |= task; }
+        void enableTask( const eq::Task task ) { _data.tasks |= task; }
 
         /** @return the tasks executed by this compound. */
         uint32_t getTasks() const { return _data.tasks; }
@@ -327,11 +309,11 @@ namespace server
             { return getRoot()->_screens.find( _inherit.screen.id )->second; }
 
         /** @return true if the task is set, false if not. */
-        bool testInheritTask( const Task task ) const
+        bool testInheritTask( const eq::Task task ) const
             { return (_inherit.tasks & task); }
 
         /** Delete an inherit task, if it was set. */
-        void unsetInheritTask( const Task task )
+        void unsetInheritTask( const eq::Task task )
             { _inherit.tasks &= ~task; }
 
         /** @return true if the eye pass is used, false if not. */

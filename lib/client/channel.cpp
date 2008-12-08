@@ -16,6 +16,7 @@
 #include "packets.h"
 #include "range.h"
 #include "renderContext.h"
+#include "task.h"
 #include "view.h"
 
 #include <eq/net/command.h>
@@ -34,6 +35,7 @@ std::string Channel::_iAttributeStrings[IATTR_ALL] = {
 
 Channel::Channel( Window* parent )
         : _window( parent )
+        , _tasks( TASK_NONE )
         , _context( 0 )
         , _fixedPVP( false )
         , _frustum( vmml::Frustumf::DEFAULT )
@@ -782,6 +784,7 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
         _setViewport( packet->vp );
 
     _name  = packet->name;
+    _tasks = packet->tasks;
     _color = packet->color;
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
 

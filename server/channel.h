@@ -113,6 +113,12 @@ namespace server
          */
         bool isUsed() const { return (_used!=0); }
 
+        /**
+         * Add additional tasks this channel, and all its parents, might
+         * potentially execute.
+         */
+        void addTasks( const uint32_t tasks );
+
         /** Set the view for this channel. */
         void setView( const eq::View* view ) { _view = view; }
         /** @return the channel's view. */
@@ -297,6 +303,9 @@ namespace server
         float        _near;
         /** Frustum far plane. */
         float        _far;
+
+        /** Worst-case set of tasks. */
+        uint32_t _tasks;
 
         /** The current state for state change synchronization. */
         base::Monitor< State > _state;

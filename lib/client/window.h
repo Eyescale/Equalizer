@@ -95,6 +95,18 @@ namespace eq
         const std::string& getName() const { return _name; }
 
         /** 
+         * Return the set of tasks this window's channels might execute in the
+         * worst case.
+         * 
+         * It is not guaranteed that all the tasks will be actually executed
+         * during rendering.
+         * 
+         * @warning Not finalized, might change in the future.
+         * @return the tasks.
+         */
+        uint32_t getTasks() const { return _tasks; }
+
+        /** 
          * Traverse this window and all children using a window visitor.
          * 
          * @param visitor the visitor.
@@ -399,6 +411,9 @@ namespace eq
         int32_t _iAttributes[IATTR_ALL];
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
+
+        /** Worst-case set of tasks. */
+        uint32_t _tasks;
 
         /** The channels of this window. */
         ChannelVector     _channels;

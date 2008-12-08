@@ -27,6 +27,7 @@ void Window::_construct()
 {
     _used            = 0;
     _pipe            = 0;
+    _tasks           = eq::TASK_NONE;
     _fixedPVP        = false;
     _lastDrawChannel = 0;
     _maxFPS          = numeric_limits< float >::max();
@@ -181,6 +182,13 @@ void Window::unrefUsed()
         _pipe->unrefUsed(); 
 }
 
+void Window::addTasks( const uint32_t tasks )
+{
+    EQASSERT( _pipe );
+    _tasks |= tasks;
+    _pipe->addTasks( tasks );
+}
+
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
@@ -303,7 +311,9 @@ void Window::startConfigInit( const uint32_t initID )
 void Window::_sendConfigInit( const uint32_t initID )
 {
     eq::WindowConfigInitPacket packet;
-    packet.initID    = initID;
+    packet.initID = initID;
+    packet.tasks  = _tasks;
+
     if( _fixedPVP )
         packet.pvp    = _pvp; 
     else
@@ -350,6 +360,7 @@ void Window::startConfigExit()
 {
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
+    _tasks = eq::TASK_NONE;
 
     for( std::vector<Channel*>::iterator i = _channels.begin(); 
          i != _channels.end(); ++i )

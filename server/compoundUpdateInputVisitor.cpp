@@ -28,12 +28,12 @@ Compound::VisitorResult CompoundUpdateInputVisitor::visitLeaf(
     const std::vector< Frame* >& inputFrames = compound->getInputFrames();
     const Channel*               channel     = compound->getChannel();
 
-    if( !compound->testInheritTask( Compound::TASK_ASSEMBLE ) || !channel )
+    if( !compound->testInheritTask( eq::TASK_ASSEMBLE ) || !channel )
         return Compound::TRAVERSE_CONTINUE;
 
     if( inputFrames.empty( ))
     {
-        compound->unsetInheritTask( Compound::TASK_ASSEMBLE );
+        compound->unsetInheritTask( eq::TASK_ASSEMBLE );
         return Compound::TRAVERSE_CONTINUE;
     }
 

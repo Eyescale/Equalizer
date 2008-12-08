@@ -101,6 +101,12 @@ namespace server
          */
         bool isUsed() const { return (_used!=0); }
 
+        /**
+         * Add additional tasks this pipe, and all its parents, might
+         * potentially execute.
+         */
+        void addTasks( const uint32_t tasks );
+
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
@@ -234,6 +240,9 @@ namespace server
         /** The parent node. */
         Node* _node;
         friend class Node;
+
+        /** Worst-case set of tasks. */
+        uint32_t _tasks;
 
         /** The current state for state change synchronization. */
         base::Monitor< State > _state;

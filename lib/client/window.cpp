@@ -8,12 +8,13 @@
 #include "commands.h"
 #include "configEvent.h"
 #include "event.h"
+#include "event.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
 #include "osWindow.h"
 #include "packets.h"
-#include "event.h"
+#include "task.h"
 #include "windowStatistics.h"
 
 #ifdef AGL
@@ -60,6 +61,7 @@ Window::Window( Pipe* parent )
         : _sharedContextWindow( 0 ) // default set by pipe
         , _osWindow( 0 )
         , _pipe( parent )
+        , _tasks( TASK_NONE )
         , _glewContext( new GLEWContext )
         , _lastSwapTime( 0 )
 {
@@ -290,7 +292,7 @@ void Window::setOSWindow( OSWindow* window )
     _queryDrawableConfig();
     const GLenum result = glewInit();
     if( result != GLEW_OK )
-    EQWARN << "GLEW initialization failed with error " << result <<endl;
+        EQWARN << "GLEW initialization failed with error " << result <<endl;
 
     _setupObjectManager();
 }
@@ -581,7 +583,8 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     else
         _setViewport( packet->vp );
 
-    _name = packet->name;
+    _name  = packet->name;
+    _tasks = packet->tasks;
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
     _error.clear();
 

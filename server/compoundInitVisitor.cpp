@@ -62,6 +62,9 @@ Compound::VisitorResult CompoundInitVisitor::visit( Compound* compound )
     }
 
     compound->updateInheritData( 0 ); // set up initial values
+    if( channel )
+        channel->addTasks( compound->getInheritTasks( ));
+
     return Compound::TRAVERSE_CONTINUE;    
 }
 

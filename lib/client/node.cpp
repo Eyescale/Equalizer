@@ -16,6 +16,7 @@
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"
+#include "task.h"
 
 #include <eq/base/scopedMutex.h>
 #include <eq/net/command.h>
@@ -41,7 +42,8 @@ Node::Node( Config* parent )
         , _config( parent )
 #else
         : _config( parent )
-#endif       
+#endif
+        , _tasks( TASK_NONE )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
 {
@@ -460,7 +462,8 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     EQLOG( LOG_TASKS ) << "TASK node config init " << packet << endl;
 
     CHECK_THREAD( _nodeThread );
-    _name = packet->name;
+    _name  = packet->name;
+    _tasks = packet->tasks;
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
 
     _currentFrame  = 0;

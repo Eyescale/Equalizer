@@ -10,6 +10,7 @@
 #include "log.h"
 #include "nodeFactory.h"
 #include "packets.h"
+#include "task.h"
 #include "X11Connection.h"
 #include "window.h"
 
@@ -40,6 +41,7 @@ Pipe::Pipe( Node* parent )
         , _node( parent )
         , _windowSystem( WINDOW_SYSTEM_NONE )
         , _wglewContext( new WGLEWContext )       
+        , _tasks( TASK_NONE )
         , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
         , _state( STATE_STOPPED )
@@ -988,10 +990,11 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
         command.getPacket<PipeConfigInitPacket>();
     EQLOG( LOG_TASKS ) << "TASK pipe config init " << packet << endl;
     
-    _name         = packet->name;
-    _port         = packet->port;
-    _device       = packet->device;
-    _pvp          = packet->pvp;
+    _name   = packet->name;
+    _port   = packet->port;
+    _device = packet->device;
+    _tasks  = packet->tasks;
+    _pvp    = packet->pvp;
     
     _currentFrame  = 0;
     _finishedFrame = 0;

@@ -41,15 +41,12 @@ namespace eq
          * @name Data Access
          */
         //*{
-        Window* getWindow()   const
-            { return _window; }
-        Pipe*   getPipe()   const
-            { return ( _window ? _window->getPipe() : 0 );}
-        Node* getNode() const 
-            { return ( _window ? _window->getNode() : 0 );}
-        Config* getConfig() const 
+        Window* getWindow() const { return _window; }
+        Pipe*   getPipe() const { return ( _window ? _window->getPipe() : 0 );}
+        Node* getNode() const { return ( _window ? _window->getNode() : 0 );}
+        Config* getConfig() const
             { return ( _window ? _window->getConfig() : 0 );}
-        base::RefPtr< Server > getServer() const 
+        ServerPtr getServer() const
             { return ( _window ? _window->getServer() : 0 );}
 
         /** 
@@ -62,12 +59,24 @@ namespace eq
          * points. Therefore, any supported GL function can be called directly
          * from an initialized Channel.
          * 
+         * @warning Not finalized, might change in the future.
          * @return the extended OpenGL function table for the channel's OpenGL
          *         context.
          */
         GLEWContext* glewGetContext() { return _window->glewGetContext(); }
 
+        /** @return the name of the window. */
         const std::string& getName() const { return _name; }
+
+        /** 
+         * Return the set of tasks this channel might execute in the worst case.
+         * 
+         * It is not guaranteed that all the tasks will be actually executed
+         * during rendering.
+         * 
+         * @return the tasks.
+         */
+        uint32_t getTasks() const { return _tasks; }
 
         /** 
          * Traverse this channel and all children using a channel visitor.
@@ -442,6 +451,9 @@ namespace eq
         int32_t _iAttributes[IATTR_ALL];
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
+
+        /** Worst-case set of tasks. */
+        uint32_t _tasks;
 
         /** server-supplied rendering data. */
         RenderContext* _context;

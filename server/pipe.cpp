@@ -34,6 +34,7 @@ void Pipe::_construct()
 {
     _used           = 0;
     _node           = 0;
+    _tasks          = eq::TASK_NONE;
     _port           = EQ_UNDEFINED_UINT32;
     _device         = EQ_UNDEFINED_UINT32;
     _lastDrawWindow = 0;
@@ -180,6 +181,13 @@ void Pipe::unrefUsed()
         _node->unrefUsed(); 
 }
 
+void Pipe::addTasks( const uint32_t tasks )
+{
+    EQASSERT( _node );
+    _tasks |= tasks;
+    _node->addTasks( tasks );
+}
+
 //===========================================================================
 // Operations
 //===========================================================================
@@ -216,10 +224,11 @@ void Pipe::startConfigInit( const uint32_t initID )
 void Pipe::_sendConfigInit( const uint32_t initID )
 {
     eq::PipeConfigInitPacket packet;
-    packet.initID     = initID;
-    packet.port       = _port;
-    packet.device     = _device;
-    packet.pvp        = _pvp;
+    packet.initID = initID;
+    packet.port   = _port;
+    packet.device = _device;
+    packet.tasks  = _tasks;
+    packet.pvp    = _pvp;
 
     _send( packet, _name );
     EQLOG( eq::LOG_TASKS ) << "TASK pipe configInit  " << &packet << endl;
@@ -260,6 +269,7 @@ void Pipe::startConfigExit()
 {
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
+    _tasks = eq::TASK_NONE;
 
     for( vector< Window* >::const_iterator i = _windows.begin(); 
          i != _windows.end(); ++i )

@@ -412,6 +412,7 @@ namespace eq
 
         uint32_t initID;
         int32_t  iAttributes[ eq::Node::IATTR_ALL ];
+        int32_t  tasks;
         EQ_ALIGN8( char name[8] );
     };
 
@@ -568,6 +569,7 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
         uint32_t      initID;
         uint32_t      port;
         uint32_t      device;
+        int32_t       tasks;
         PixelViewport pvp;
         EQ_ALIGN8( char name[8] );
     };
@@ -685,6 +687,7 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
 
         uint32_t       initID;
         int32_t        iAttributes[ eq::Window::IATTR_ALL ];
+        int32_t        tasks;
         PixelViewport  pvp;
         Viewport       vp;
         EQ_ALIGN8( char name[8] );
@@ -838,6 +841,7 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
         uint32_t        initID;
         uint32_t        viewID;
         int32_t         iAttributes[ eq::Channel::IATTR_ALL ];
+        int32_t         tasks;
         PixelViewport   pvp;
         Viewport        vp;
         vmml::Vector3ub color;
@@ -1178,7 +1182,8 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
                                        const PipeConfigInitPacket* packet )
     {
         os << (net::ObjectPacket*)packet << " init id " << packet->initID
-           << " port " << packet->port << " device " << packet->device;
+           << " port " << packet->port << " device " << packet->device
+           << " tasks " << packet->tasks;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

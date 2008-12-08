@@ -57,6 +57,19 @@ namespace eq
         const WindowVector& getWindows() const { return _windows; }
 
         const std::string& getName() const { return _name; }
+
+        /** 
+         * Return the set of tasks this pipe's channels might execute in the
+         * worst case.
+         * 
+         * It is not guaranteed that all the tasks will be actually executed
+         * during rendering.
+         * 
+         * @warning Not finalized, might change in the future.
+         * @return the tasks.
+         */
+        uint32_t getTasks() const { return _tasks; }
+
         bool isThreaded() const { return ( _thread != 0 ); }
         uint32_t getCurrentFrame()  const { return _currentFrame; }
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
@@ -421,6 +434,9 @@ namespace eq
 
         /** The size (and location) of the pipe. */
         PixelViewport _pvp;
+
+        /** Worst-case set of tasks. */
+        uint32_t _tasks;
 
         /** The reason for the last error. */
         std::string            _error;

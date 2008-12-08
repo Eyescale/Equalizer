@@ -39,7 +39,7 @@ Compound::VisitorResult ChannelUpdateVisitor::visitPre(
 
     _updateFrameRate( compound );
 
-    if( compound->testInheritTask( Compound::TASK_CLEAR ))
+    if( compound->testInheritTask( eq::TASK_CLEAR ))
     {
         eq::ChannelFrameClearPacket clearPacket;        
         
@@ -68,7 +68,7 @@ Compound::VisitorResult ChannelUpdateVisitor::visitLeaf(
     _setupRenderContext( compound, context );
     // OPT: Send render context once before task packets?
 
-    if( compound->testInheritTask( Compound::TASK_CLEAR ))
+    if( compound->testInheritTask( eq::TASK_CLEAR ))
     {
         eq::ChannelFrameClearPacket clearPacket;        
         clearPacket.context = context;
@@ -77,7 +77,7 @@ Compound::VisitorResult ChannelUpdateVisitor::visitLeaf(
         EQLOG( eq::LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
                            << &clearPacket << endl;
     }
-    if( compound->testInheritTask( Compound::TASK_DRAW ))
+    if( compound->testInheritTask( eq::TASK_DRAW ))
     {
         eq::ChannelFrameDrawPacket drawPacket;
 
@@ -392,7 +392,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
                                             const eq::RenderContext& context )
 {
     const std::vector< Frame* >& inputFrames = compound->getInputFrames();
-    if( !compound->testInheritTask( Compound::TASK_ASSEMBLE ))
+    if( !compound->testInheritTask( eq::TASK_ASSEMBLE ))
         return;
 
     EQASSERT( !inputFrames.empty( ));
@@ -430,7 +430,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
                                             const eq::RenderContext& context )
 {
     const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
-    if( !compound->testInheritTask( Compound::TASK_READBACK ))
+    if( !compound->testInheritTask( eq::TASK_READBACK ))
         return;
 
     EQASSERT( !outputFrames.empty( ));

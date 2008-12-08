@@ -602,7 +602,7 @@ compoundField:
          else
              eqCompound->setChannel( channel );
     }
-    | EQTOKEN_TASK '['   { eqCompound->setTasks( eq::server::Compound::TASK_NONE ); }
+    | EQTOKEN_TASK '['   { eqCompound->setTasks( eq::TASK_NONE ); }
         compoundTasks ']'
     | EQTOKEN_EYE  '['   { eqCompound->setEyes( eq::server::Compound::EYE_UNDEFINED );}
         compoundEyes  ']'
@@ -627,10 +627,10 @@ compoundField:
 
 compoundTasks: /*null*/ | compoundTask | compoundTasks compoundTask
 compoundTask:
-    EQTOKEN_CLEAR      { eqCompound->enableTask( eq::server::Compound::TASK_CLEAR ); }
-    | EQTOKEN_DRAW     { eqCompound->enableTask( eq::server::Compound::TASK_DRAW ); }
-    | EQTOKEN_ASSEMBLE { eqCompound->enableTask( eq::server::Compound::TASK_ASSEMBLE);}
-    | EQTOKEN_READBACK { eqCompound->enableTask( eq::server::Compound::TASK_READBACK);}
+    EQTOKEN_CLEAR      { eqCompound->enableTask( eq::TASK_CLEAR ); }
+    | EQTOKEN_DRAW     { eqCompound->enableTask( eq::TASK_DRAW ); }
+    | EQTOKEN_ASSEMBLE { eqCompound->enableTask( eq::TASK_ASSEMBLE );}
+    | EQTOKEN_READBACK { eqCompound->enableTask( eq::TASK_READBACK );}
 
 compoundEyes: /*null*/ | compoundEye | compoundEyes compoundEye
 compoundEye:
