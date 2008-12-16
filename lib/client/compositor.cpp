@@ -169,7 +169,7 @@ void Compositor::assembleFramesSorted( const FrameVector& frames,
     if( blendAlpha )
     {
         glEnable( GL_BLEND );
-        glBlendFunc( GL_ONE, GL_SRC_ALPHA );
+        glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
     }
 
     if( _useCPUAssembly( frames, channel, blendAlpha ))

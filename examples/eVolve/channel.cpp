@@ -292,6 +292,9 @@ void Channel::frameAssemble( const uint32_t frameID )
     eq::Compositor::assembleFramesSorted( dbFrames, this, true /*blendAlpha*/ );
 
     _finishAssemble();
+
+    // Update range
+    _drawRange = getRange();
 }
 
 void Channel::_startAssemble()
