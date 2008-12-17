@@ -33,7 +33,7 @@ using namespace std;
 namespace eq
 {
 
-#define glewGetContext op.channel->glewGetContext
+#define glewGetContext channel->glewGetContext
 
 namespace
 {
@@ -882,6 +882,8 @@ void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 
 void Compositor::assembleImageDB( const Image* image, const ImageOp& op )
 {
+    Channel* channel = op.channel;
+
     if( GLEW_VERSION_2_0 )
         assembleImageDB_GLSL( image, op );
     else
