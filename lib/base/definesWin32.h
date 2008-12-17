@@ -23,7 +23,7 @@
 //#  define EQ_BUILD_FOR_SDP
 //#endif
 #ifdef EQ_BUILD_FOR_SDP
-#  ifndef EQ_WIN32_SDP_JOIN_WAR // see thread.cxx
+#  ifndef EQ_WIN32_SDP_JOIN_WAR // see thread.cpp
 #    define EQ_WIN32_SDP_JOIN_WAR
 #  endif
 #endif
