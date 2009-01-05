@@ -93,9 +93,9 @@ endif
 endif # top-level
 
 # defines
-CXX_DEFINES      = $(sort $(filter -D%,$(CXXFLAGS)))
-CXX_DEFINES_FILE = lib/base/defines.h
-CXX_DEFINES_TXT  = $(CXX_DEFINES:-D%= %)
+CXX_DEFINES       = $(sort $(filter -D%,$(CXXFLAGS)))
+CXX_DEFINES_FILE ?= lib/base/defines.h
+CXX_DEFINES_TXT   = $(CXX_DEFINES:-D%= %)
 
 # include file variables
 INCLUDE_BASE    = include/$(MODULE)
