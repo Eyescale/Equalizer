@@ -1,12 +1,16 @@
 
-Q: I am getting a compile error that the include file uuid/uuid.h can
-   not be found.
-A: Equalizer uses the libuuid to generate unique node identifiers. 
+Q: How do I resolve syntax errors between OpenGL headers and GLEW?
+A: Try to include first eq/eq.h, then your scene graph or OpenGL
+   headers. If that doesn't help, and you don't need GLEW, define
+   EQ_IGNORE_GLEW before including Equalizer.
+
+Q: Where do I find the include file uuid/uuid.h?
+A: Equalizer uses the libuuid to generate unique node identifiers.
    Under Linux, this library is often part of the ext2fsprogs. Depending
    on you distribution you have to install ext2fsprogs, libuuid,
-   libuuid-dev or uuid-dev.
-   Under other Unix operating systems, the uuid library is either a
-   separate package, or may be part of DCE, from which it originates.
+   libuuid-dev or uuid-dev.  Under other Unix operating systems, the
+   uuid library is either a separate package, or may be part of DCE,
+   from which it originates.
 
 Q: Debian/Ubuntu: As soon as I am using scalable rendering or a swap
    barrier, one of my nodes crashes.
