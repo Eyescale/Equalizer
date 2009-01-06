@@ -978,8 +978,8 @@ net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
 
     Config* config = getConfig();
     config->detachObject( window );
+    Global::getNodeFactory()->releaseWindow( window );
 
-    delete window;
     return net::COMMAND_HANDLED;
 }
 

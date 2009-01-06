@@ -17,11 +17,11 @@ namespace eq
     class Server;
 
     /**
-     * The node factory is a per-node singleton used to create Equalizer
-     * resource instances.
+     * The node factory is a per-node singleton used to create and release
+     * Equalizer resource instances.
      *
      * The instances have to be subclasses of the corresponding Equalizer
-     * classes, and can be used to selectively override task methods and store
+     * classes, and are used to selectively override task methods and store
      * additional, application-specific data.
      */
     class EQ_EXPORT NodeFactory
@@ -35,6 +35,9 @@ namespace eq
         virtual Config* createConfig( base::RefPtr< Server > parent )
             { return new Config( parent ); }
 
+        /** Release a config. */
+        virtual releaseConfig( Config* config ) { delete config; }
+
         /** 
          * Creates a new node.
          * 
@@ -42,12 +45,18 @@ namespace eq
          */
         virtual Node* createNode( Config* parent ){ return new Node( parent ); }
 
+        /** Release a node. */
+        virtual releaseNode( Node* node ) { delete node; }
+
         /** 
          * Creates a new pipe.
          * 
          * @return the pipe.
          */
         virtual Pipe* createPipe( Node* parent ){ return new Pipe( parent ); }
+
+        /** Release a pipe. */
+        virtual releasePipe( Pipe* pipe ) { delete pipe; }
 
         /** 
          * Creates a new window.
@@ -57,6 +66,9 @@ namespace eq
         virtual Window* createWindow( Pipe* parent )
             { return new Window( parent ); }
 
+        /** Release a window. */
+        virtual releaseWindow( Window* window ) { delete window; }
+
         /** 
          * Creates a new channel.
          * 
@@ -64,6 +76,9 @@ namespace eq
          */
         virtual Channel* createChannel( Window* parent )
             { return new Channel( parent ); }
+
+        /** Release a channel. */
+        virtual releaseChannel( Channel* channel ) { delete channel; }
         
         virtual ~NodeFactory(){}
     };

@@ -699,7 +699,7 @@ net::CommandResult Config::_cmdDestroyNode( net::Command& command )
         return net::COMMAND_HANDLED;
 
     detachObject( node );
-    delete node;
+    Global::getNodeFactory()->releaseNode( node );
 
     return net::COMMAND_HANDLED;
 }

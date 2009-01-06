@@ -567,7 +567,7 @@ net::CommandResult Window::_cmdDestroyChannel( net::Command& command )
 
     Config*  config  = getConfig();
     config->detachObject( channel );
-    delete channel;
+    Global::getNodeFactory()->releaseChannel( channel );
 
     return net::COMMAND_HANDLED;
 }

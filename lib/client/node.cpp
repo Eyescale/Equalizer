@@ -449,9 +449,10 @@ net::CommandResult Node::_cmdDestroyPipe( net::Command& command )
     CHECK_THREAD( _nodeThread );
     Pipe* pipe = _findPipe( packet->pipeID );
     pipe->joinThread();
-    _config->detachObject( pipe );
 
-    delete pipe;
+    _config->detachObject( pipe );
+    Global::getNodeFactory()->releasePipe( pipe );
+
     return net::COMMAND_HANDLED;
 }
 

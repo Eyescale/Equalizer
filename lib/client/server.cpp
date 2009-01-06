@@ -209,7 +209,7 @@ net::CommandResult Server::_cmdDestroyConfig( net::Command& command )
 
     config->_exitAppNode();
     localNode->removeSession( config );
-    delete config;
+    Global::getNodeFactory()->releaseConfig( config );
 
     return net::COMMAND_HANDLED;
 }
