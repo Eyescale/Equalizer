@@ -1313,7 +1313,7 @@ bool Node::connect( NodePtr node )
 
 bool Node::initConnect( NodePtr node )
 {
-    EQASSERT( _state == STATE_LISTENING );
+    EQASSERTINFO( _state == STATE_LISTENING, _state );
     if( node->getState() == STATE_CONNECTED ||
         node->getState() == STATE_LISTENING )
 

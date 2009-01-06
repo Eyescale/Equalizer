@@ -47,7 +47,26 @@ Node::Node( Config* parent )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
 {
-    net::CommandQueue* queue = parent->getNodeThreadQueue();
+    parent->_addNode( this );
+    EQINFO << " New eq::Node @" << (void*)this << endl;
+}
+
+Node::~Node()
+{
+    _config->_removeNode( this );
+    EQINFO << " Delete eq::Node @" << (void*)this << endl;
+    if( !_dataQueue.empty( ))
+        EQWARN << "Node data queue not empty in destructor" << endl;
+}
+
+void Node::attachToSession( const uint32_t id, 
+                            const uint32_t instanceID, 
+                            net::Session* session )
+{
+    net::Object::attachToSession( id, instanceID, session );
+
+    EQASSERT( _config );
+    net::CommandQueue* queue = _config->getNodeThreadQueue();
 
     registerCommand( CMD_NODE_CREATE_PIPE, 
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
@@ -65,19 +84,7 @@ Node::Node( Config* parent )
                      NodeFunc( this, &Node::_cmdFrameDrawFinish ), queue );
     registerCommand( CMD_NODE_FRAME_TASKS_FINISH, 
                      NodeFunc( this, &Node::_cmdFrameTasksFinish ), queue );
-
-    parent->_addNode( this );
-    EQINFO << " New eq::Node @" << (void*)this << endl;
 }
-
-Node::~Node()
-{
-    _config->_removeNode( this );
-    EQINFO << " Delete eq::Node @" << (void*)this << endl;
-    if( !_dataQueue.empty( ))
-        EQWARN << "Node data queue not empty in destructor" << endl;
-}
-
 
 NodeVisitor::Result Node::accept( NodeVisitor* visitor )
 { 
