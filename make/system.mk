@@ -55,6 +55,10 @@ ifneq ($(findstring -O, $(CXXFLAGS)),-O)
 endif # -O
 endif # -g
 
+ifndef CFLAGS
+  CFLAGS         := $(CXXFLAGS)
+endif
+
   CFLAGS         += $(DEFFLAGS)
   CXXFLAGS       += $(DEFFLAGS)
 

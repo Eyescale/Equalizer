@@ -209,7 +209,6 @@ CXXFILES = \
 	client/windowSystem.cpp \
 	util/bitmapFont.cpp
 
-CFLAGS += -DGLEW_BUILD -DEQ_DEFINES_H
 CFILES += \
 	glew/glew.c
 
@@ -259,7 +258,7 @@ endif
 endif
 
 CXXFLAGS += $(WINDOW_SYSTEM_INCS) -DEQUALIZER_EXPORTS
-CFLAGS   += -DGLEW_BUILD
+CFLAGS   += -DGLEW_BUILD -DEQ_DEFINES_H
 LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
 
 TARGETS = $(HEADERS) $(DYNAMIC_LIB)
