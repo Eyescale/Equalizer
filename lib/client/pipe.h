@@ -41,10 +41,11 @@ namespace eq
     class EQ_EXPORT Pipe : public net::Object
     {
     public:
-        /** 
-         * Constructs a new pipe.
-         */
+        /** Constructs a new pipe. */
         Pipe( Node* parent );
+
+        /** Destructs the pipe. */
+        virtual ~Pipe();
 
         /** @name Data Access. */
         //*{
@@ -201,10 +202,6 @@ namespace eq
         void joinThread();
 
     protected:
-        /**
-         * Destructs the pipe.
-         */
-        virtual ~Pipe();
         friend class Node;
 
         /** @name Data Access. */

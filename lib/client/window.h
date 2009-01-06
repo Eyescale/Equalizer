@@ -63,10 +63,11 @@ namespace eq
             friend class Window;
         };
 
-        /** 
-         * Constructs a new window.
-         */
+        /** Constructs a new window. */
         Window( Pipe* parent );
+
+        /** Destructs the window. */
+        virtual ~Window();
 
         /** @name Data Access */
         //*{
@@ -258,10 +259,6 @@ namespace eq
         //*}
 
     protected:
-        /**
-         * Destructs the window.
-         */
-        virtual ~Window();
         friend class Pipe;
 
         /** @name Actions */

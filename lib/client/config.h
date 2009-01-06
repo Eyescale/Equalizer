@@ -28,10 +28,11 @@ namespace eq
     class EQ_EXPORT Config : public net::Session
     {
     public:
-        /** 
-         * Constructs a new config.
-         */
+        /** Constructs a new config. */
         Config( base::RefPtr< Server > parent );
+
+        /** Destructs a config. */
+        virtual ~Config();
 
         /** @name Data Access */
         //*{
@@ -235,7 +236,6 @@ namespace eq
         void setWindowSystem( const WindowSystem windowSystem );
 
     protected:
-        virtual ~Config();
 
         /** Used for resizing views, see handleViewResize */
         struct BaseView

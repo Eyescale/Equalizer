@@ -27,10 +27,11 @@ namespace eq
     class EQ_EXPORT Node : public net::Object
     {
     public:
-        /** 
-         * Constructs a new node.
-         */
+        /** Constructs a new node. */
         Node( Config* parent );
+
+        /** Destructs the node. */
+        virtual ~Node();
 
         /** 
          * Returns the config of this node.
@@ -175,10 +176,6 @@ namespace eq
 #endif
 
     protected:
-        /**
-         * Destructs the node.
-         */
-        virtual ~Node();
         friend class Config;
 
         /** @name Actions */

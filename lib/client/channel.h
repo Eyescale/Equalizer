@@ -32,10 +32,11 @@ namespace eq
     class EQ_EXPORT Channel : public net::Object
     {
     public:
-        /** 
-         * Constructs a new channel.
-         */
+        /** Constructs a new channel. */
         Channel( Window* parent );
+
+        /** Destructs the channel. */
+        virtual ~Channel();
 
         /**
          * @name Data Access
@@ -288,10 +289,6 @@ namespace eq
 #endif
 
     protected:
-        /**
-         * Destructs the channel.
-         */
-        virtual ~Channel();
         friend class Window;
 
         /** @name Actions */

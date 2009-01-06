@@ -36,7 +36,7 @@ namespace eq
             { return new Config( parent ); }
 
         /** Release a config. */
-        virtual releaseConfig( Config* config ) { delete config; }
+        virtual void releaseConfig( Config* config ) { delete config; }
 
         /** 
          * Creates a new node.
@@ -46,7 +46,7 @@ namespace eq
         virtual Node* createNode( Config* parent ){ return new Node( parent ); }
 
         /** Release a node. */
-        virtual releaseNode( Node* node ) { delete node; }
+        virtual void releaseNode( Node* node ) { delete node; }
 
         /** 
          * Creates a new pipe.
@@ -56,7 +56,7 @@ namespace eq
         virtual Pipe* createPipe( Node* parent ){ return new Pipe( parent ); }
 
         /** Release a pipe. */
-        virtual releasePipe( Pipe* pipe ) { delete pipe; }
+        virtual void releasePipe( Pipe* pipe ) { delete pipe; }
 
         /** 
          * Creates a new window.
@@ -67,7 +67,7 @@ namespace eq
             { return new Window( parent ); }
 
         /** Release a window. */
-        virtual releaseWindow( Window* window ) { delete window; }
+        virtual void releaseWindow( Window* window ) { delete window; }
 
         /** 
          * Creates a new channel.
@@ -78,7 +78,7 @@ namespace eq
             { return new Channel( parent ); }
 
         /** Release a channel. */
-        virtual releaseChannel( Channel* channel ) { delete channel; }
+        virtual void releaseChannel( Channel* channel ) { delete channel; }
         
         virtual ~NodeFactory(){}
     };
