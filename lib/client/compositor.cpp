@@ -942,7 +942,8 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp 
                           << endl;
 
-    Window*                window  = op.channel->getWindow();
+    Channel*               channel = op.channel; // needed for glewGetContext
+    Window*                window  = channel->getWindow();
     Window::ObjectManager* objects = window->getObjectManager();
     
     // use per-window textures: using a shared texture across multiple windows
