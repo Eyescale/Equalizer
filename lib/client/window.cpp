@@ -64,7 +64,17 @@ Window::Window( Pipe* parent )
         , _tasks( TASK_NONE )
         , _lastSwapTime( 0 )
 {
-    net::CommandQueue* queue = parent->getPipeThreadQueue();
+    parent->_addWindow( this );
+    EQINFO << " New eq::Window @" << (void*)this << endl;
+}
+
+void Window::attachToSession( const uint32_t id, 
+                              const uint32_t instanceID, 
+                              net::Session* session )
+{
+    net::Object::attachToSession( id, instanceID, session );
+
+    net::CommandQueue* queue = _pipe->getPipeThreadQueue();
 
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
                      CommandFunc<Window>( this, &Window::_cmdCreateChannel ), 
@@ -93,11 +103,7 @@ Window::Window( Pipe* parent )
     registerCommand( CMD_WINDOW_FRAME_DRAW_FINISH, 
                      CommandFunc<Window>( this, &Window::_cmdFrameDrawFinish ), 
                      queue );
-
-    parent->_addWindow( this );
-    EQINFO << " New eq::Window @" << (void*)this << endl;
 }
-
 
 Window::~Window()
 {
