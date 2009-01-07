@@ -39,6 +39,8 @@ void AGLWindow::configExit( )
     if( pbuffer )
         aglDestroyPBuffer( pbuffer );
 
+    configExitFBO();
+    
     AGLContext context = getAGLContext();
     if( context )
     {
@@ -64,6 +66,7 @@ void AGLWindow::configExit( )
 void AGLWindow::makeCurrent() const
 {
     aglSetCurrentContext( _aglContext );
+    OSWindow::makeCurrent();
 }
 
 void AGLWindow::swapBuffers()
@@ -97,10 +100,12 @@ bool AGLWindow::configInit( )
     AGLContext context = createAGLContext( pixelFormat );
     destroyAGLPixelFormat ( pixelFormat );
     setAGLContext( context );
-    makeCurrent();
-
+    
     if( !context )
         return false;
+
+    makeCurrent();
+    _initGlew();
 
     return configInitAGLDrawable();
 }
@@ -327,7 +332,9 @@ bool AGLWindow::configInitAGLDrawable()
 {
     if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == PBUFFER )
         return configInitAGLPBuffer();
-    if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+    else if ( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
+        return configInitFBO();
+    else if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
         return configInitAGLFullscreen();
     else
         return configInitAGLWindow();

@@ -90,7 +90,8 @@ namespace eq
          * @return true if the drawable was created, false otherwise.
          */
         virtual bool configInitGLXDrawable( XVisualInfo* visualInfo );
-
+        
+        virtual XID _createGLXWindow(  XVisualInfo* visualInfo , const PixelViewport pvp );
         /** 
          * Initialize the window with a window and bind the GLX context.
          *

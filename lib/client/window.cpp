@@ -62,7 +62,6 @@ Window::Window( Pipe* parent )
         , _osWindow( 0 )
         , _pipe( parent )
         , _tasks( TASK_NONE )
-        , _glewContext( new GLEWContext )
         , _lastSwapTime( 0 )
 {
     net::CommandQueue* queue = parent->getPipeThreadQueue();
@@ -104,8 +103,7 @@ Window::~Window()
 {
     _pipe->_removeWindow( this );
 
-    delete _glewContext;
-    _glewContext = 0;
+
 }
 
 void Window::_addChannel( Channel* channel )
@@ -290,10 +288,6 @@ void Window::setOSWindow( OSWindow* window )
     makeCurrent();
 
     _queryDrawableConfig();
-    const GLenum result = glewInit();
-    if( result != GLEW_OK )
-        EQWARN << "GLEW initialization failed with error " << result <<endl;
-
     _setupObjectManager();
 }
 
@@ -475,6 +469,11 @@ void Window::swapBuffers()
     EQVERB << "----- SWAP -----" << endl;
 }
 
+	
+GLEWContext* Window::glewGetContext()
+{ 
+	return _osWindow->glewGetContext();
+}
 //======================================================================
 // event-handler methods
 //======================================================================

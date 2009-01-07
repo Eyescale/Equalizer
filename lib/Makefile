@@ -88,6 +88,7 @@ HEADER_SRC = \
 	client/eventHandler.h \
 	client/eye.h \
 	client/frame.h \
+	client/frameBufferObject.h \
 	client/frameData.h \
 	client/global.h \
 	client/image.h \
@@ -187,6 +188,7 @@ CXXFILES = \
 	client/eventHandler.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
+	client/frameBufferObject.cpp \
 	client/global.cpp \
 	client/pixel.cpp \
 	client/image.cpp \

@@ -7,8 +7,8 @@
 
 #include <eq/client/windowSystem.h>   // WGLew
 #include <eq/client/window.h>         // used in inline methods
-
 #include <eq/base/spinLock.h>       
+#include <eq/client/frameBufferObject.h>
 
 namespace eq
 {
@@ -24,14 +24,19 @@ namespace eq
     public:
         OSWindow( Window* parent );
         virtual ~OSWindow( );
-
+        
+        /** built and Initialize FBO*/
+        bool configInitFBO();
+        /** Destroy FBO*/
+        bool configExitFBO();
+        
         /** @name Methods forwarded from eq::Window */
         //*{
         virtual bool configInit( ) = 0;
 
         virtual void configExit( ) = 0;
 
-        virtual void makeCurrent() const = 0;
+        virtual void makeCurrent() const;
 
         virtual void swapBuffers() = 0;
 
@@ -57,10 +62,43 @@ namespace eq
         /** @return the generic WGL function table for the window's pipe. */
         WGLEWContext* wglewGetContext() { return _window->wglewGetContext(); }
         //*}
-
+		
+        
+        /** 
+         * Get the GLEW context for this window.
+         * 
+         * The glew context is initialized during window initialization, and
+         * provides access to OpenGL extensions. This function does not follow
+         * the Equalizer naming conventions, since GLEW uses a function of this
+         * name to automatically resolve OpenGL function entry
+         * points. Therefore, any supported GL function can be called directly
+         * from an initialized Window.
+         * 
+         * @return the extended OpenGL function table for the window's OpenGL
+         *         context.
+         */
+        GLEWContext* glewGetContext() { return _glewContext; }
+        GLEWContext* glewGetContext() const { return _glewContext; }
+        
     protected:
         /** The parent eq::Window. */
         Window* const _window;
+        
+        /** Initialization glew. */
+        void _initGlew(); 
+    private:
+        
+        /** Extended OpenGL function entries when window has a context. */
+        GLEWContext*   _glewContext; 
+        
+        bool _glewInitialized ;
+        
+        /** For use Frame buffer object. */		
+		FrameBufferObject* _fbo; 
+       
+		
+        
+
     };
 }
 

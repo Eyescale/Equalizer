@@ -144,7 +144,7 @@ namespace eq
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        GLEWContext* glewGetContext() { return _glewContext; }
+        GLEWContext* glewGetContext();
 
         /** @return the generic WGL function table for the window's pipe. */
         WGLEWContext* wglewGetContext() { return _pipe->wglewGetContext(); }
@@ -423,9 +423,6 @@ namespace eq
 
         /** Drawable characteristics of this window */
         Window::DrawableConfig _drawableConfig;
-
-        /** Extended OpenGL function entries when window has a context. */
-        GLEWContext*   _glewContext;
 
         /** OpenGL object management. */
         base::RefPtr< ObjectManager > _objectManager;

@@ -38,6 +38,11 @@ void WGLWindow::configExit( )
     HWND  hWnd           = getWGLWindowHandle();
     HPBUFFERARB hPBuffer = getWGLPBufferHandle();
 
+    if((getIAttribute( Window::IATTR_HINT_DRAWABLE ))== FBO)
+	{
+        configExitFBO();
+	}
+    
     setWGLContext( 0 );
     setWGLWindowHandle( 0 );
     setWGLPBufferHandle( 0 );
@@ -71,6 +76,7 @@ void WGLWindow::configExit( )
 void WGLWindow::makeCurrent() const
 {
     wglMakeCurrent( _wglDC, _wglContext );
+	OSWindow::makeCurrent();
 }
 
 void WGLWindow::swapBuffers()
@@ -188,6 +194,7 @@ bool WGLWindow::configInit()
     HGLRC context = createWGLContext( dc );
     setWGLContext( context );
     makeCurrent();
+	_initGlew();
 
     if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
     {
@@ -202,6 +209,11 @@ bool WGLWindow::configInit()
             EQWARN << "WGLEW_EXT_swap_control not supported, ignoring window "
                    << "swapsync hint" << std::endl;
     }
+    
+    if((getIAttribute( Window::IATTR_HINT_DRAWABLE ))== FBO)
+	{
+      configInitFBO();
+	}
 
     if( !context )
     {
@@ -221,7 +233,8 @@ bool WGLWindow::configInitWGLDrawable( HDC dc, int pixelFormat )
     {
         case PBUFFER:
             return configInitWGLPBuffer( dc, pixelFormat );
-
+        case FBO:
+			return configInitWGLFBO( dc, pixelFormat );
         default:
             EQWARN << "Unknown drawable type "
                    << getIAttribute(Window::IATTR_HINT_DRAWABLE )
@@ -231,6 +244,24 @@ bool WGLWindow::configInitWGLDrawable( HDC dc, int pixelFormat )
         case WINDOW:
             return configInitWGLWindow( dc, pixelFormat );
     }
+}
+
+bool WGLWindow::configInitWGLFBO( HDC dc, int pixelFormat )
+{    
+    _wglWindow = 0;
+
+	if (dc == 0) _wglDC = GetDC( 0 );
+	else _wglDC = dc;
+    HDC windowDC = GetDC( 0 );
+
+    PIXELFORMATDESCRIPTOR pfd = {0};
+    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion     = 1;
+
+    DescribePixelFormat( _wglDC, pixelFormat, sizeof(pfd), &pfd );
+	if( !SetPixelFormat( _wglDC, pixelFormat, &pfd )) return false;
+
+	return true;
 }
 
 bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )

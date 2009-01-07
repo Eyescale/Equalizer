@@ -127,6 +127,7 @@ namespace eq
          */
         virtual int chooseWGLPixelFormat( HDC dc );
 
+        virtual bool configInitWGLFBO( HDC dc, int pixelFormat );
         /** 
          * Initialize the window's drawable (pbuffer or window) and
          * bind the WGL context.

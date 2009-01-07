@@ -173,6 +173,7 @@ stereo_anaglyph_left_mask       { return EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK; }
 stereo_anaglyph_right_mask      { return EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK; }
 update_FOV                      { return EQTOKEN_UPDATE_FOV; }
 hint_offset                     { return EQTOKEN_HINT_OFFSET; }
+FBO                             { return EQTOKEN_FBO; }
 pbuffer                         { return EQTOKEN_PBUFFER; }
 thread_model                    { return EQTOKEN_THREAD_MODEL; }
 ASYNC                           { return EQTOKEN_ASYNC; }

@@ -54,6 +54,11 @@ bool GLXWindow::configInit( )
     }
 
     makeCurrent();
+	_initGlew();
+    if (getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
+    {
+        configInitFBO();
+    }
     return success;    
 }
 
@@ -239,7 +244,16 @@ bool GLXWindow::configInitGLXDrawable( XVisualInfo* visualInfo )
     {
         case PBUFFER:
             return configInitGLXPBuffer( visualInfo );
-
+        case FBO:
+        {
+            PixelViewport pvp = _window->getPixelViewport();
+            pvp.h = 1;
+            pvp.w = 1;
+            pvp.x = 0;
+            pvp.y = 0;
+			_xDrawable = _createGLXWindow( visualInfo, pvp );
+			return (_xDrawable != 0 );
+        }
         default:
             EQWARN << "Unknown drawable type " 
                    << getIAttribute(Window::IATTR_HINT_DRAWABLE ) << ", using window" 
@@ -252,6 +266,51 @@ bool GLXWindow::configInitGLXDrawable( XVisualInfo* visualInfo )
 }
 
 bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
+{
+    Pipe*    pipe    = getPipe();
+    Display* display = pipe->getXDisplay();
+    if( !display )
+    {
+        _window->setErrorMessage( "Pipe has no X11 display connection" );
+        return false;
+    }
+    
+    const int            screen = DefaultScreen( display );
+    
+    PixelViewport pvp = _window->getPixelViewport();
+    if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+    {
+        pvp.h = DisplayHeight( display, screen );
+        pvp.w = DisplayWidth( display, screen );
+        pvp.x = 0;
+        pvp.y = 0;
+        
+        _window->setPixelViewport( pvp );
+    }
+    
+    XID drawable = _createGLXWindow( visualInfo, pvp );
+
+    // map and wait for MapNotify event
+    XMapWindow( display, drawable );
+    
+    XEvent event;
+    XIfEvent( display, &event, WaitForNotify, (XPointer)(drawable) );
+    
+    XMoveResizeWindow( display, drawable, pvp.x, pvp.y, pvp.w, pvp.h );
+    XFlush( display );
+    
+    // Grab keyboard focus in fullscreen mode
+    if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+        XGrabKeyboard( display, drawable, True, GrabModeAsync, GrabModeAsync, 
+                      CurrentTime );
+    
+    setXDrawable( drawable );
+    
+    EQINFO << "Created X11 drawable " << drawable << std::endl;
+    return true;
+}
+    
+XID GLXWindow::_createGLXWindow(  XVisualInfo* visualInfo , const PixelViewport pvp )
 {
     EQASSERT( getIAttribute( Window::IATTR_HINT_DRAWABLE ) != PBUFFER )
 
@@ -286,18 +345,6 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
     else
         wa.override_redirect = True;
 
-    PixelViewport pvp = _window->getPixelViewport();
-    if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
-    {
-        wa.override_redirect = True;
-        pvp.h = DisplayHeight( display, screen );
-        pvp.w = DisplayWidth( display, screen );
-        pvp.x = 0;
-        pvp.y = 0;
-
-        _window->setPixelViewport( pvp );
-    }
-
     XID drawable = XCreateWindow( display, parent, 
                                   pvp.x, pvp.y, pvp.w, pvp.h,
                                   0, visualInfo->depth, InputOutput,
@@ -330,26 +377,12 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
     // Register for close window request from the window manager
     Atom deleteAtom = XInternAtom( display, "WM_DELETE_WINDOW", False );
     XSetWMProtocols( display, drawable, &deleteAtom, 1 );
-
-    // map and wait for MapNotify event
-    XMapWindow( display, drawable );
-
-    XEvent event;
-    XIfEvent( display, &event, WaitForNotify, (XPointer)(drawable) );
-
-    XMoveResizeWindow( display, drawable, pvp.x, pvp.y, pvp.w, pvp.h );
-    XFlush( display );
-
-    // Grab keyboard focus in fullscreen mode
-    if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
-        XGrabKeyboard( display, drawable, True, GrabModeAsync, GrabModeAsync, 
-                       CurrentTime );
-
-    setXDrawable( drawable );
-
-    EQINFO << "Created X11 drawable " << drawable << std::endl;
-    return true;
+    
+    return drawable;
 }
+    
+    
+    
 
 bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
 {
@@ -506,7 +539,12 @@ void GLXWindow::configExit( )
     Display *display = pipe->getXDisplay();
     if( !display ) 
         return;
-
+        
+    if((getIAttribute( Window::IATTR_HINT_DRAWABLE ))== FBO)
+	{
+        configExitFBO();
+	}
+    
     glXMakeCurrent( display, None, 0 );
 
     GLXContext context  = getGLXContext();
@@ -537,6 +575,7 @@ void GLXWindow::makeCurrent() const
     EQASSERT( pipe->getXDisplay( ));
 
     glXMakeCurrent( pipe->getXDisplay(), _xDrawable, _glXContext );
+    OSWindow::makeCurrent();
 }
 
 void GLXWindow::swapBuffers()

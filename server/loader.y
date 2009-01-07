@@ -183,6 +183,7 @@
 %token EQTOKEN_UPDATE_FOV
 %token EQTOKEN_HINT_OFFSET
 %token EQTOKEN_PBUFFER
+%token EQTOKEN_FBO
 %token EQTOKEN_MODE
 %token EQTOKEN_2D
 %token EQTOKEN_DB
@@ -765,6 +766,7 @@ IATTR:
     | EQTOKEN_ANAGLYPH   { $$ = eq::ANAGLYPH; } 
     | EQTOKEN_VERTICAL   { $$ = eq::VERTICAL; }
     | EQTOKEN_WINDOW     { $$ = eq::WINDOW; }
+    | EQTOKEN_FBO        { $$ = eq::FBO; }	
     | EQTOKEN_PBUFFER    { $$ = eq::PBUFFER; }
     | EQTOKEN_ASYNC      { $$ = eq::ASYNC; }
     | EQTOKEN_DRAW_SYNC  { $$ = eq::DRAW_SYNC; }

@@ -46,6 +46,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                 value == VERTICAL   ? "VERTICAL" :
                 value == WINDOW     ? "WINDOW" :
                 value == PBUFFER    ? "PBUFFER" : 
+                value == FBO        ? "FBO" : 
                 value == ASYNC      ? "ASYNC" : 
                 value == DRAW_SYNC  ? "DRAW_SYNC" : 
                 value == LOCAL_SYNC ? "LOCAL_SYNC" : 
