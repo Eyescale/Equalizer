@@ -129,7 +129,6 @@ namespace eq
          */
         virtual int chooseWGLPixelFormat( HDC dc );
 
-        virtual bool configInitWGLFBO( HDC dc, int pixelFormat );
         /** 
          * Initialize the window's drawable (pbuffer or window) and
          * bind the WGL context.
@@ -143,7 +142,7 @@ namespace eq
         virtual bool configInitWGLDrawable( HDC dc, int pixelFormat );
 
         /** 
-         * Initialize the window's with an on-screen Win32 window.
+         * Initialize the window with an on-screen Win32 window.
          *
          * Sets the window handle on success.
          * 
@@ -154,7 +153,7 @@ namespace eq
         virtual bool configInitWGLWindow( HDC dc, int pixelFormat );
 
         /** 
-         * Initialize the window's with an off-screen WGL PBuffer.
+         * Initialize the window with an off-screen WGL PBuffer.
          *
          * Sets the window handle on success.
          * 
@@ -163,6 +162,9 @@ namespace eq
          * @return true if the drawable was created, false otherwise.
          */
         virtual bool configInitWGLPBuffer( HDC dc, int pixelFormat );
+
+        /** Initialize the window for an off-screen FBO */
+        virtual bool configInitWGLFBO( int pixelFormat );
 
         /** 
          * Create a WGL context.
@@ -173,6 +175,9 @@ namespace eq
          * @return the context, or 0 if context creation failed.
          */
         virtual HGLRC createWGLContext( HDC dc );
+
+        /** Destroy FBO. */
+        virtual void configExitFBO();
 
         virtual void initEventHandler();
         virtual void exitEventHandler();

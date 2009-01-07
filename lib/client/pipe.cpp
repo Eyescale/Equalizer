@@ -667,14 +667,13 @@ bool Pipe::configInitWGL()
     if( _pvp.isValid( ))
         return true;
 
-    HDC                  dc;
-    PFNWGLDELETEDCNVPROC deleteDC;
-    if( !createAffinityDC( dc, deleteDC ))
+    HDC dc;
+    if( !createAffinityDC( dc ))
         return false;
     
     if( dc ) // createAffinityDC did set up pvp
     {
-        deleteDC( dc );
+        wglDeleteDCNV( dc );
         EQINFO << "Pipe affinity pixel viewport " << _pvp << endl;
         return true;
     }
@@ -687,6 +686,7 @@ bool Pipe::configInitWGL()
     _pvp.w = GetDeviceCaps( dc, HORZRES );
     _pvp.h = GetDeviceCaps( dc, VERTRES );
 
+    ReleaseDC( 0, dc );
     EQINFO << "Pipe pixel viewport " << _pvp << endl;
     return true;
 #else
