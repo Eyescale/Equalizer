@@ -78,6 +78,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+void* NSGLGetProcAddress (const GLubyte *name);
+
 void* NSGLGetProcAddress (const GLubyte *name)
 {
   static const struct mach_header* image = NULL;

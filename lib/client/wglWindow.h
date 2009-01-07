@@ -97,7 +97,7 @@ namespace eq
         /** 
          * Initialize this window for the WGL window system.
          *
-         * This method first calls getWGLPipeDC(), then chooses a pixel
+         * This method first calls getWGLAffinityDC(), then chooses a pixel
          * format with chooseWGLPixelFormat(), then creates a drawable using 
          * configInitWGLDrawable() and finally creates the context using
          * createWGLContext().
@@ -107,15 +107,17 @@ namespace eq
         virtual bool configInit();
 
         typedef BOOL (WINAPI * PFNEQDELETEDCPROC)( HDC hdc );
+
         /** 
          * Get a device context for this window.
-         * 
-         * @param deleteProc returns the function to be used to dispose the
-         *                   device context when it is no longer needed.
-         * @return the device context, or 0 when no special device context is 
-         *         needed.
+         *
+         * The returned context has to be deleted using wglDeleteDCNV when it is
+         * no longer needed.
+         *
+         * @return the device context, or 0 when no special device context is
+         * needed.
          */
-        virtual HDC getWGLPipeDC( PFNEQDELETEDCPROC& deleteProc );
+        virtual HDC getWGLAffinityDC();
 
         /** 
          * Choose a pixel format based on the window's attributes.
@@ -183,9 +185,11 @@ namespace eq
         HPBUFFERARB      _wglPBuffer;
         HGLRC            _wglContext;
         HDC              _wglDC;
-
+        
         WGLEventHandler* _eventHandler;
         BOOL             _screenSaverActive;
+
+        bool             _wglIsAffinityDC;
     };
 }
 

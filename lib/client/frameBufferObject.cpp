@@ -4,37 +4,52 @@
 #include "frameBufferObject.h"
 #include <eq/eq.h>
 
-using namespace std; // for use endl
+using namespace std;
+
+#ifdef WIN32
+#  define bzero( ptr, size ) memset( ptr, 0, size );
+#endif
 
 namespace eq
 {
 	
 FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
-    : _glewContext( glewContext )
-    , _fboID(0){}
-	
+    : _fboID(0)
+    , _glewContext( glewContext )
+{
+    bzero( _textureID, sizeof( _textureID ));
+}
+
 FrameBufferObject::~FrameBufferObject()
 {
-    
+    exit();
+}
+
+void FrameBufferObject::exit()
+{
     if( _fboID )
     {
         glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
         glDeleteFramebuffers( 1, &_fboID );
+        _fboID = 0;
     }
     
     if( _textureID[COLOR_TEXTURE] )
     {      
         glDeleteTextures( 1, &_textureID[COLOR_TEXTURE] );   
+        _textureID[COLOR_TEXTURE] = 0;
     }
     
     if( _textureID[DEPTH_TEXTURE] )
     {      
         glDeleteTextures( 1, &_textureID[DEPTH_TEXTURE] );   
+        _textureID[DEPTH_TEXTURE] = 0;
     }
     
     if( _textureID[STENCIL_TEXTURE] )
     {      
         glDeleteTextures( 1, &_textureID[STENCIL_TEXTURE] );   
+        _textureID[STENCIL_TEXTURE] = 0;
     }
 }
 	

@@ -884,7 +884,7 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
                        << endl;
 }
 
-bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
+bool Pipe::createAffinityDC( HDC& affinityDC )
 {
 #ifdef WGL
     affinityDC = 0;
@@ -941,10 +941,9 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
         return false;
     }
 
-    deleteProc = wglDeleteDCNV;
     return true;
 #else
-    return 0;
+    return false;
 #endif
 }
 

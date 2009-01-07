@@ -21,6 +21,7 @@ WGLWindow::WGLWindow( Window* parent )
     , _wglContext( 0 )
     , _wglDC( 0 )
     , _eventHandler( 0 )
+    , _wglIsAffinityDC( false )
 {
     
 }
@@ -38,11 +39,7 @@ void WGLWindow::configExit( )
     HWND  hWnd           = getWGLWindowHandle();
     HPBUFFERARB hPBuffer = getWGLPBufferHandle();
 
-    if((getIAttribute( Window::IATTR_HINT_DRAWABLE ))== FBO)
-	{
-        configExitFBO();
-	}
-    
+    configExitFBO();
     setWGLContext( 0 );
     setWGLWindowHandle( 0 );
     setWGLPBufferHandle( 0 );
@@ -76,7 +73,7 @@ void WGLWindow::configExit( )
 void WGLWindow::makeCurrent() const
 {
     wglMakeCurrent( _wglDC, _wglContext );
-	OSWindow::makeCurrent();
+    OSWindow::makeCurrent();
 }
 
 void WGLWindow::swapBuffers()
@@ -88,7 +85,6 @@ void WGLWindow::setWGLContext( HGLRC context )
 {
     _wglContext = context; 
 }
-
 
 void WGLWindow::setWGLWindowHandle( HWND handle )
 {
@@ -157,44 +153,56 @@ void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
     _window->setPixelViewport( pvp );
 }
 
+void WGLWindow::configExitFBO()
+{
+    OSWindow::configExitFBO();
+
+    if( !_wglDC || getIAttribute( Window::IATTR_HINT_DRAWABLE ) != FBO )
+        return;
+
+    if( _wglIsAffinityDC )
+        wglDeleteDCNV( _wglDC );
+    else
+        ReleaseDC( 0, _wglDC );
+
+    _wglDC           = 0;
+    _wglIsAffinityDC = false;
+}
 
 //---------------------------------------------------------------------------
 // WGL init
 //---------------------------------------------------------------------------
 bool WGLWindow::configInit()
 {
-    PFNEQDELETEDCPROC deleteDCProc = 0;
-    HDC dc = getWGLPipeDC( deleteDCProc );
-    EQASSERT( !dc || deleteDCProc );
-
-    int pixelFormat = chooseWGLPixelFormat( dc );
+    HDC affinityDC  = getWGLAffinityDC();
+    int pixelFormat = chooseWGLPixelFormat( affinityDC );
     if( pixelFormat == 0 )
     {
-        if( dc )
-            deleteDCProc( dc );
+        if( affinityDC )
+            wglDeleteDCNV( affinityDC );
         return false;
     }
 
-    if( !configInitWGLDrawable( dc, pixelFormat ))
+    if( !configInitWGLDrawable( affinityDC, pixelFormat ))
     {
-        if( dc )
-            deleteDCProc( dc );
+        if( affinityDC )
+            wglDeleteDCNV( affinityDC );
         return false;
     }
 
     if( !_wglDC )
     {
-        if( dc )
-            deleteDCProc( dc );
+        if( affinityDC )
+            wglDeleteDCNV( affinityDC );
         _window->setErrorMessage(
             "configInitWGLDrawable did not set a WGL drawable" );
         return false;
     }
 
-    HGLRC context = createWGLContext( dc );
+    HGLRC context = createWGLContext( affinityDC );
     setWGLContext( context );
     makeCurrent();
-	_initGlew();
+    _initGlew();
 
     if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
     {
@@ -210,20 +218,18 @@ bool WGLWindow::configInit()
                    << "swapsync hint" << std::endl;
     }
     
-    if((getIAttribute( Window::IATTR_HINT_DRAWABLE ))== FBO)
-	{
-      configInitFBO();
-	}
+    if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
+        configInitFBO();
 
     if( !context )
     {
-        if( dc )
-            deleteDCProc( dc );
+        if( affinityDC )
+            wglDeleteDCNV( affinityDC );
         return false;
     }
 
-    if( dc )
-        deleteDCProc( dc );
+    if( affinityDC )
+        wglDeleteDCNV( affinityDC );
     return true;
 }
 
@@ -233,8 +239,10 @@ bool WGLWindow::configInitWGLDrawable( HDC dc, int pixelFormat )
     {
         case PBUFFER:
             return configInitWGLPBuffer( dc, pixelFormat );
+
         case FBO:
-			return configInitWGLFBO( dc, pixelFormat );
+            return configInitWGLFBO( pixelFormat );
+
         default:
             EQWARN << "Unknown drawable type "
                    << getIAttribute(Window::IATTR_HINT_DRAWABLE )
@@ -246,22 +254,26 @@ bool WGLWindow::configInitWGLDrawable( HDC dc, int pixelFormat )
     }
 }
 
-bool WGLWindow::configInitWGLFBO( HDC dc, int pixelFormat )
+bool WGLWindow::configInitWGLFBO( int pixelFormat )
 {    
     _wglWindow = 0;
 
-	if (dc == 0) _wglDC = GetDC( 0 );
-	else _wglDC = dc;
-    HDC windowDC = GetDC( 0 );
+    // Create a new affinity DC, retained until configExit
+    _wglDC = getWGLAffinityDC();    
+    if( _wglDC )
+        _wglIsAffinityDC = true;
+    else
+        _wglDC = GetDC( 0 );
 
     PIXELFORMATDESCRIPTOR pfd = {0};
     pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion     = 1;
 
     DescribePixelFormat( _wglDC, pixelFormat, sizeof(pfd), &pfd );
-	if( !SetPixelFormat( _wglDC, pixelFormat, &pfd )) return false;
+    if( !SetPixelFormat( _wglDC, pixelFormat, &pfd )) 
+        return false;
 
-	return true;
+    return true;
 }
 
 bool WGLWindow::configInitWGLWindow( HDC dc, int pixelFormat )
@@ -382,7 +394,7 @@ bool WGLWindow::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
     EQASSERT( pvp.isValid( ));
 
     HDC displayDC = CreateDC( "DISPLAY", 0, 0, 0 );
-    HDC dc       = overrideDC ? overrideDC : displayDC;
+    HDC dc        = overrideDC ? overrideDC : displayDC;
     const int attributes[] = { WGL_PBUFFER_LARGEST_ARB, TRUE, 0 };
 
     HPBUFFERARB pBuffer = wglCreatePbufferARB( dc, pixelFormat, pvp.w, pvp.h,
@@ -402,9 +414,8 @@ bool WGLWindow::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
     return true;
 }
 
-HDC WGLWindow::getWGLPipeDC( PFNEQDELETEDCPROC& deleteProc )
+HDC WGLWindow::getWGLAffinityDC()
 {
-    // per-GPU affinity DC
     // We need to create one DC per window, since the window DC pixel format and
     // the affinity RC pixel format have to match, and each window has
     // potentially a different pixel format.
@@ -412,7 +423,7 @@ HDC WGLWindow::getWGLPipeDC( PFNEQDELETEDCPROC& deleteProc )
     EQASSERT( pipe );
 
     HDC affinityDC = 0;
-    if( !pipe->createAffinityDC( affinityDC, deleteProc ))
+    if( !pipe->createAffinityDC( affinityDC ))
     {
         _window->setErrorMessage( "Can't create affinity dc" );
         return 0;

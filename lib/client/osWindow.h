@@ -25,11 +25,6 @@ namespace eq
         OSWindow( Window* parent );
         virtual ~OSWindow( );
         
-        /** built and Initialize FBO*/
-        bool configInitFBO();
-        /** Destroy FBO*/
-        bool configExitFBO();
-        
         /** @name Methods forwarded from eq::Window */
         //*{
         virtual bool configInit( ) = 0;
@@ -41,6 +36,14 @@ namespace eq
         virtual void swapBuffers() = 0;
 
         virtual base::SpinLock* getContextLock() { return 0; }
+        //*}
+
+        /** @name Frame Buffer Object support. */
+        //*{
+        /** Build and initialize the FBO. */
+        bool configInitFBO();
+        /** Destroy FBO. */
+        virtual void configExitFBO();
         //*}
 
         /** @name Convenience interface to eq::Window methods */

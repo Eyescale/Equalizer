@@ -330,14 +330,26 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
 
 bool AGLWindow::configInitAGLDrawable()
 {
-    if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == PBUFFER )
-        return configInitAGLPBuffer();
-    else if ( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
-        return configInitFBO();
-    else if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
-        return configInitAGLFullscreen();
-    else
-        return configInitAGLWindow();
+    switch( getIAttribute( Window::IATTR_HINT_DRAWABLE ))
+    {
+        case PBUFFER:
+            return configInitAGLPBuffer();
+
+        case FBO:
+            return configInitFBO();
+
+        default:
+            EQWARN << "Unknown drawable type "
+                   << getIAttribute( Window::IATTR_HINT_DRAWABLE )
+                   << ", using window" << std::endl;
+            // no break;
+        case UNDEFINED:
+        case WINDOW:
+            if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+                return configInitAGLFullscreen();
+            else
+                return configInitAGLWindow();
+    }
 }
 
 bool AGLWindow::configInitAGLPBuffer()

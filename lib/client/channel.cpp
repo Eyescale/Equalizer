@@ -71,6 +71,7 @@ Channel::Channel( Window* parent )
 
 Channel::~Channel()
 {
+    EQINFO << " Delete eq::Channel @" << (void*)this << endl;
     _window->_removeChannel( this );
 }
 

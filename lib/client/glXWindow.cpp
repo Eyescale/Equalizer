@@ -55,10 +55,10 @@ bool GLXWindow::configInit( )
 
     makeCurrent();
 	_initGlew();
+
     if (getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
-    {
         configInitFBO();
-    }
+
     return success;    
 }
 
@@ -244,20 +244,18 @@ bool GLXWindow::configInitGLXDrawable( XVisualInfo* visualInfo )
     {
         case PBUFFER:
             return configInitGLXPBuffer( visualInfo );
+
         case FBO:
         {
-            PixelViewport pvp = _window->getPixelViewport();
-            pvp.h = 1;
-            pvp.w = 1;
-            pvp.x = 0;
-            pvp.y = 0;
+            const PixelViewport pvp( 0, 0, 1, 1 );
 			_xDrawable = _createGLXWindow( visualInfo, pvp );
 			return (_xDrawable != 0 );
         }
+
         default:
-            EQWARN << "Unknown drawable type " 
-                   << getIAttribute(Window::IATTR_HINT_DRAWABLE ) << ", using window" 
-                   << std::endl;
+            EQWARN << "Unknown drawable type "
+                   << getIAttribute( Window::IATTR_HINT_DRAWABLE )
+                   << ", using window" << std::endl;
             // no break;
         case UNDEFINED:
         case WINDOW:
@@ -275,11 +273,11 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
         return false;
     }
     
-    const int            screen = DefaultScreen( display );
-    
     PixelViewport pvp = _window->getPixelViewport();
     if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
     {
+        const int screen = DefaultScreen( display );
+    
         pvp.h = DisplayHeight( display, screen );
         pvp.w = DisplayWidth( display, screen );
         pvp.x = 0;
@@ -289,6 +287,8 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
     }
     
     XID drawable = _createGLXWindow( visualInfo, pvp );
+    if( !drawable )
+        return false;
 
     // map and wait for MapNotify event
     XMapWindow( display, drawable );
@@ -310,14 +310,15 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
     return true;
 }
     
-XID GLXWindow::_createGLXWindow(  XVisualInfo* visualInfo , const PixelViewport pvp )
+XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo , 
+                                 const PixelViewport& pvp )
 {
-    EQASSERT( getIAttribute( Window::IATTR_HINT_DRAWABLE ) != PBUFFER )
+    EQASSERT( getIAttribute( Window::IATTR_HINT_DRAWABLE ) != PBUFFER );
 
     if( !visualInfo )
     {
         _window->setErrorMessage( "No visual info given" );
-        return false;
+        return 0;
     }
 
     Pipe*    pipe    = getPipe();
@@ -325,7 +326,7 @@ XID GLXWindow::_createGLXWindow(  XVisualInfo* visualInfo , const PixelViewport 
     if( !display )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
-        return false;
+        return 0;
     }
 
     const int            screen = DefaultScreen( display );
@@ -356,12 +357,12 @@ XID GLXWindow::_createGLXWindow(  XVisualInfo* visualInfo , const PixelViewport 
     if ( !drawable )
     {
         _window->setErrorMessage( "Could not create window" );
-        return false;
+        return 0;
     }   
 
     std::stringstream windowTitle;
-
     const std::string& name = _window->getName();
+
     if( name.empty( ))
     {
         windowTitle << "Equalizer";
@@ -540,11 +541,7 @@ void GLXWindow::configExit( )
     if( !display ) 
         return;
         
-    if((getIAttribute( Window::IATTR_HINT_DRAWABLE ))== FBO)
-	{
-        configExitFBO();
-	}
-    
+    configExitFBO();
     glXMakeCurrent( display, None, 0 );
 
     GLXContext context  = getGLXContext();

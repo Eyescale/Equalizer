@@ -91,7 +91,6 @@ namespace eq
          */
         virtual bool configInitGLXDrawable( XVisualInfo* visualInfo );
         
-        virtual XID _createGLXWindow(  XVisualInfo* visualInfo , const PixelViewport pvp );
         /** 
          * Initialize the window with a window and bind the GLX context.
          *
@@ -142,6 +141,10 @@ namespace eq
         XID        _xDrawable;
         /** The glX rendering context. */
         GLXContext _glXContext;
+
+        /** Create an unmapped X11 window. */
+        XID _createGLXWindow( XVisualInfo* visualInfo , 
+                              const PixelViewport& pvp );
     };
 }
 

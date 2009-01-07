@@ -150,17 +150,17 @@ namespace eq
          */
         //*{
         /**
-         * Create a device context bound only to the display of this pipe.
+         * Create a device context bound only to the display device of this
+         * pipe.
          *
          * If the dc return parameter is set to 0 and the return value is true,
-         * an affinitiy dc is not needed.
+         * an affinity dc is not needed. The returned context has to be deleted
+         * using wglDeleteDCNV when it is no longer needed.
          *
          * @param affinityDC the affinity device context output parameter.
-         * @param deleteProc the deleteDC function pointer output parameter.
          * @return the success status.
          */
-        bool createAffinityDC( HDC& affinityDC, 
-                               PFNWGLDELETEDCNVPROC& deleteProc );
+        bool createAffinityDC( HDC& affinityDC );
 
         /** 
          * Get an assembly frame.

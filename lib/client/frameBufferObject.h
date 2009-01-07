@@ -12,8 +12,6 @@ namespace eq
     class FrameBufferObject 
     {
     public: 
-        
-        
         /** Constructs a new Frame Buffer Object */
 		FrameBufferObject( GLEWContext* const glewContext );
         
@@ -23,6 +21,9 @@ namespace eq
         /** Initialize the Frame Buffer Object */
         bool init( const int width, const int height, 
                    const int depthSize, const int stencilSize );
+
+        /** De-initialize the Frame Buffer Object. */
+        void exit();
         
         /** Bind to the Frame Buffer Object */
         void bind();
@@ -44,6 +45,7 @@ namespace eq
          *         context.
          */
         GLEWContext* glewGetContext() { return _glewContext; }
+
     private:
         GLuint _fboID;
          
