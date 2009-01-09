@@ -65,6 +65,7 @@ void Channel::_construct()
     _lastDrawCompound = 0;
     _near             = .1f;
     _far              = 10.f;
+    _drawable         = 0;
     _tasks            = eq::TASK_NONE;
     EQINFO << "New channel @" << (void*)this << endl;
 }
@@ -89,7 +90,8 @@ Channel::Channel( const Channel& from, const CompoundVector& compounds )
     _vp       = from._vp;
     _pvp      = from._pvp;
     _fixedPVP = from._fixedPVP;
-
+    _drawable = from._drawable;
+    
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
 
@@ -132,7 +134,10 @@ Channel::~Channel()
     if( _window )
         _window->removeChannel( this );
 }
-
+void Channel::setDrawable( const uint32_t drawable ) 
+{ 
+    _drawable = drawable; 
+}
 void Channel::refUsed()
 {
     _used++;
@@ -245,7 +250,8 @@ void Channel::_sendConfigInit( const uint32_t initID )
     packet.viewID = _view ? _view->getID() : EQ_ID_INVALID;
     packet.color  = _getUniqueColor();
     packet.tasks  = _tasks;
-
+    packet.drawable = _drawable;
+    
     if( _fixedPVP )
         packet.pvp    = _pvp; 
     else
@@ -507,6 +513,28 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
             os << "viewport " << pvp << endl;
     }
 
+
+    const uint32_t drawable = channel->getDrawable();
+    if (drawable !=  eq::Channel::FBO_NONE)
+    {
+        os << "drawable [";
+        
+        if (drawable !=  eq::Channel::FBO_COLOR)
+        {
+           os << " FBO_COLOR";
+        }
+        
+        if (drawable !=  eq::Channel::FBO_DEPTH)
+        {
+           os << " FBO_DEPTH"; 
+        } 
+        if (drawable !=  eq::Channel::FBO_STENCIL) 
+        {
+           os << " FBO_STENCIL";  
+        }
+        
+        os << " ]" << endl;
+    }
     bool attrPrinted   = false;
     
     for( eq::Channel::IAttribute i = static_cast<eq::Channel::IAttribute>( 0 );

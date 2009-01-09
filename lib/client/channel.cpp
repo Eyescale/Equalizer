@@ -18,6 +18,7 @@
 #include "renderContext.h"
 #include "task.h"
 #include "view.h"
+#include "frameBufferObject.h"
 
 #include <eq/net/command.h>
 
@@ -41,6 +42,8 @@ Channel::Channel( Window* parent )
         , _frustum( vmml::Frustumf::DEFAULT )
         , _ortho( vmml::Frustumf::DEFAULT )
         , _view( 0 )
+        , _drawable( 0 )
+        , _fbo(0)
 {
     net::CommandQueue* queue = parent->getPipeThreadQueue();
 
@@ -70,9 +73,48 @@ Channel::Channel( Window* parent )
 }
 
 Channel::~Channel()
-{
+{  
     EQINFO << " Delete eq::Channel @" << (void*)this << endl;
     _window->_removeChannel( this );
+}
+
+bool Channel::configExit()
+{
+    delete _fbo;
+    _fbo = 0;
+    return true;
+}
+bool Channel::configInit( const uint32_t initID )
+{ 
+    return _configInitFBO(); 
+}
+
+bool Channel::_configInitFBO()
+{   
+    if ( _drawable == FBO_NONE )
+        return true;
+    
+    if  (  !_window->getOSWindow()  ||
+          !GLEW_ARB_texture_non_power_of_two ||
+          !GLEW_EXT_framebuffer_object )
+    {
+    	setErrorMessage( "Can't use FBO due to missing GL extensions" );
+        return false;
+    }
+        
+    // needs glew initialized (see above)
+    _fbo = new FrameBufferObject( glewGetContext() );
+        
+    if( _fbo->init( _pvp.w, _pvp.h, _drawable & FBO_DEPTH,
+                   _drawable & FBO_STENCIL ) ) 
+    {
+         return true;
+    }
+
+    setErrorMessage( "FBO initialization failed" );
+    delete _fbo;
+    _fbo = 0;
+    return false;
 }
 
 //----------------------------------------------------------------------
@@ -422,13 +464,46 @@ vmml::Frustumf Channel::getScreenFrustum() const
                            -1.f, 1.f );
 }
 
-
-void Channel::applyBuffer() const
+eq::PixelViewport Channel::getNativePixelViewPort() const
 {
-    EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
-    EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));
+    return _pvp;
+}
 
+FrameBufferObject* Channel::getFrameBufferObject()
+{
+    return _fbo;
+}
+
+void Channel::applyFrameBufferObject()
+{
+    _fbo->resize( _pvp.w, _pvp.h );
+    _fbo->bind();    
+}
+
+void Channel::applyBuffer()
+{
+    if ( !_fbo )
+    {
+        EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
+        EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));
+    }
+    
     applyColorMask();
+}
+
+void Channel::makeCurrent()
+{
+   if( !_window->getOSWindow() )
+       return;
+        
+   if( _fbo )
+   {       
+       applyFrameBufferObject();
+   }
+   else
+   {
+       _window->makeCurrent();
+   }
 }
 
 void Channel::applyColorMask() const
@@ -784,9 +859,11 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
     else
         _setViewport( packet->vp );
 
-    _name  = packet->name;
-    _tasks = packet->tasks;
-    _color = packet->color;
+    _name     = packet->name;
+    _tasks    = packet->tasks;
+    _color    = packet->color;
+    _drawable = packet->drawable;
+    
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
 
     _error.clear();
@@ -833,7 +910,8 @@ net::CommandResult Channel::_cmdFrameStart( net::Command& command )
     //_grabFrame( packet->frameNumber ); single-threaded
     if( _view )
         _view->sync( packet->viewVersion );
-
+    
+    makeCurrent();
     frameStart( packet->frameID, packet->frameNumber );
 
     return net::COMMAND_HANDLED;

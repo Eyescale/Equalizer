@@ -29,8 +29,11 @@ namespace eq
         void bind();
         
         /** ask if FBO built construction is ok */
-        bool checkFBOStatus();
-        
+        bool checkFBOStatus() const;
+       
+        /* Resize FBO, if needed. */
+        bool resize( const int width, const int height );
+          
         /** 
          * Get the GLEW context for this window.
          * 
@@ -48,6 +51,9 @@ namespace eq
 
     private:
         GLuint _fboID;
+         
+        int _width;
+        int _height;
          
         enum iTextureType
         {

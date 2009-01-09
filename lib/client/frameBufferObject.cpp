@@ -15,6 +15,8 @@ namespace eq
 	
 FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
     : _fboID(0)
+    , _width(0)
+    , _height(0)
     , _glewContext( glewContext )
 {
     bzero( _textureID, sizeof( _textureID ));
@@ -56,7 +58,6 @@ void FrameBufferObject::exit()
 bool FrameBufferObject::init( const int width, const int height, 
                               const int depthSize, const int stencilSize )
 {
-
     // generate the framebuffer and 3 texture object names
     glGenFramebuffersEXT( 1, &_fboID );
     glGenTextures( 1, &_textureID[COLOR_TEXTURE] );
@@ -102,11 +103,14 @@ bool FrameBufferObject::init( const int width, const int height,
                                    GL_TEXTURE_RECTANGLE_ARB, 
                                   _textureID[STENCIL_TEXTURE], 0 );
     }
+    
+    _width = width;
+    _height = height;
 
     return checkFBOStatus();
 }
 
-bool FrameBufferObject::checkFBOStatus()
+bool FrameBufferObject::checkFBOStatus() const
 {
 	const GLenum status = ( GLenum ) glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
     switch( status ) {
@@ -146,7 +150,40 @@ void FrameBufferObject::bind()
 	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID );
 }
 
+bool FrameBufferObject::resize( const int width, const int height )
+{
+    if (( _width == width ) && ( _height == height ))
+       return true; 
+     
+    // creation texture for the color
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _textureID[COLOR_TEXTURE] );
+    glTexImage2D ( GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, width, height, 0, 
+                   GL_RGBA, GL_UNSIGNED_BYTE, 0 );
 
+    
+    if ( _textureID[DEPTH_TEXTURE] )
+    {
+        // creation texture for the depth 
+        glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _textureID[DEPTH_TEXTURE] ); 
+        glTexImage2D ( GL_TEXTURE_RECTANGLE_ARB, 0, GL_DEPTH_COMPONENT, width, 
+                       height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 
+                       0 ); 
+    }
+    
+    if ( _textureID[STENCIL_TEXTURE] )
+    {
+        // creation texture for the depth 
+        glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _textureID[STENCIL_TEXTURE] ); 
+        glTexImage2D ( GL_TEXTURE_RECTANGLE_ARB, 0, GL_STENCIL_INDEX, width, 
+                       height, 0, GL_STENCIL_INDEX, GL_UNSIGNED_SHORT, 
+                       0 ); 
+    }
+    
+    _width = width;
+    _height = height;
+
+    return checkFBOStatus();
+}
 }	
 	
 

@@ -262,6 +262,12 @@ namespace server
         const std::string& getErrorMessage() const { return _error; }
         //@}
         
+        /* Set the channel's drawable. */
+        void setDrawable( const uint32_t drawable );
+
+        /* Get the channel's drawable. */
+        uint32_t getDrawable() const { return _drawable; }
+        
     protected:
         /** Registers request packets waiting for a return value. */
         base::RequestHandler _requestHandler;
@@ -296,6 +302,9 @@ namespace server
         /** The pixel viewport within the window. */
         eq::PixelViewport _pvp;
 
+        /** The alternate drawable (fbo) to use. */
+        uint32_t _drawable;
+        
         /** true if the pvp is immutable, false if the vp is immutable */
         bool _fixedPVP;
 

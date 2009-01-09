@@ -11,7 +11,6 @@
 #include <eq/client/frame.h>         // used in inline method
 #include <eq/client/pixelViewport.h> // member
 #include <eq/client/window.h>        // used in inline method
-
 #include <vmmlib/vmmlib.h>           // Frustum definition 
 
 namespace eq
@@ -20,6 +19,7 @@ namespace eq
     class Node;
     class Range;
     class SceneObject;
+    class FrameBufferObject;
     struct RenderContext;
 
     /**
@@ -32,6 +32,19 @@ namespace eq
     class EQ_EXPORT Channel : public net::Object
     {
     public:
+    
+        /** 
+         * The drawable format defining the components used as an alternate
+         * drawable for this cannel.
+         */
+        enum Drawable
+        {
+            FBO_NONE      = EQ_BIT_NONE,
+            FBO_COLOR     = EQ_BIT1,  //!< Use color images
+            FBO_DEPTH     = EQ_BIT2,  //!< Use depth images
+            FBO_STENCIL   = EQ_BIT3   //!< Use stencil images
+        };
+        
         /** Constructs a new channel. */
         Channel( Window* parent );
 
@@ -65,7 +78,8 @@ namespace eq
          *         context.
          */
         GLEWContext* glewGetContext() { return _window->glewGetContext(); }
-
+        const GLEWContext* glewGetContext() const { return _window->glewGetContext(); }
+        
         /** @return the name of the window. */
         const std::string& getName() const { return _name; }
 
@@ -201,10 +215,24 @@ namespace eq
          * OpenGL state.
          */
         //*{
+        
+        /** 
+         * get the channel pixel viewport.
+         */
+        eq::PixelViewport Channel::getNativePixelViewPort() const;
+        /** 
+         * get the current alternate FBO.
+         */
+        FrameBufferObject* getFrameBufferObject();
+        /** 
+         * Apply the current alternate FBO.
+         */
+        void applyFrameBufferObject();
+        
         /** 
          * Apply the current rendering buffer, including the color mask.
          */
-        virtual void applyBuffer() const;
+        virtual void applyBuffer();
 
         /** 
          * Apply the current color mask.
@@ -327,13 +355,18 @@ namespace eq
          * 
          * @param initID the init identifier.
          */
-        virtual bool configInit( const uint32_t initID ){ return true; }
+        virtual bool configInit( const uint32_t initID );
 
         /** 
          * Exit this channel.
          */
-        virtual bool configExit(){ return true; }
+        virtual bool configExit();
 
+        /** 
+         * bind and resize FBO.
+         */
+        void makeCurrent();
+        
         /**
          * Start rendering a frame.
          *
@@ -438,6 +471,12 @@ namespace eq
         /** The name. */
         std::string    _name;
         
+        /** Used as an alternate drawable. */		
+		FrameBufferObject* _fbo; 
+        
+        /** Alternate drawable definition. */
+        uint32_t _drawable;
+        
         /** A unique color assigned by the server during config init. */
         vmml::Vector3ub _color;
 
@@ -485,6 +524,9 @@ namespace eq
         /** The channel's view, if it has one. */
         View* _view;
 
+        /** Initialize the FBO */
+        bool _configInitFBO();
+        
         //-------------------- Methods --------------------
         /** 
          * Set the channel's fractional viewport wrt its parent pipe.

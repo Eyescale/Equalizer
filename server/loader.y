@@ -156,6 +156,10 @@
 %token EQTOKEN_LEFT
 %token EQTOKEN_RIGHT
 %token EQTOKEN_VIEWPORT
+%token EQTOKEN_DRAWABLE
+%token EQTOKEN_FBO_COLOR
+%token EQTOKEN_FBO_DEPTH
+%token EQTOKEN_FBO_STENCIL
 %token EQTOKEN_RANGE
 %token EQTOKEN_PERIOD
 %token EQTOKEN_PHASE
@@ -572,6 +576,8 @@ channelField:
             else
                 channel->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3]));
         }
+    | EQTOKEN_DRAWABLE '[' { flags = eq::Channel::FBO_NONE; }
+         drawables ']' { channel->setDrawable( flags ); flags = 0; }
 channelAttributes: /*null*/ | channelAttribute | channelAttributes channelAttribute
 channelAttribute:
     EQTOKEN_HINT_STATISTICS IATTR
@@ -643,6 +649,12 @@ buffers: /*null*/ | buffer | buffers buffer
 buffer:
     EQTOKEN_COLOR    { flags |= eq::Frame::BUFFER_COLOR; }
     | EQTOKEN_DEPTH  { flags |= eq::Frame::BUFFER_DEPTH; }
+    
+drawables:  /*null*/ | drawable | drawables drawable
+drawable:  
+    EQTOKEN_FBO_COLOR     { flags |= eq::Channel::FBO_COLOR; }
+    | EQTOKEN_FBO_DEPTH   { flags |= eq::Channel::FBO_DEPTH; }
+    | EQTOKEN_FBO_STENCIL { flags |= eq::Channel::FBO_STENCIL; }
 
 wall: EQTOKEN_WALL '{' { wall = eq::Wall(); } 
     wallFields '}' { eqCompound->setWall( wall ); }
