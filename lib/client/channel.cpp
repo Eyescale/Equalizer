@@ -41,9 +41,9 @@ Channel::Channel( Window* parent )
         , _fixedPVP( false )
         , _frustum( vmml::Frustumf::DEFAULT )
         , _ortho( vmml::Frustumf::DEFAULT )
-        , _view( 0 )
-        , _drawable( 0 )
         , _fbo(0)
+        , _drawable( 0 )
+        , _view( 0 )
 {
     net::CommandQueue* queue = parent->getPipeThreadQueue();
 
@@ -464,11 +464,6 @@ vmml::Frustumf Channel::getScreenFrustum() const
                            -1.f, 1.f );
 }
 
-eq::PixelViewport Channel::getNativePixelViewPort() const
-{
-    return _pvp;
-}
-
 FrameBufferObject* Channel::getFrameBufferObject()
 {
     return _fbo;
@@ -497,13 +492,9 @@ void Channel::makeCurrent()
        return;
         
    if( _fbo )
-   {       
        applyFrameBufferObject();
-   }
    else
-   {
        _window->makeCurrent();
-   }
 }
 
 void Channel::applyColorMask() const

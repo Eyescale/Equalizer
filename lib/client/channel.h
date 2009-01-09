@@ -40,9 +40,9 @@ namespace eq
         enum Drawable
         {
             FBO_NONE      = EQ_BIT_NONE,
-            FBO_COLOR     = EQ_BIT1,  //!< Use color images
-            FBO_DEPTH     = EQ_BIT2,  //!< Use depth images
-            FBO_STENCIL   = EQ_BIT3   //!< Use stencil images
+            FBO_COLOR     = EQ_BIT1,  //!< Use FBO color attachment
+            FBO_DEPTH     = EQ_BIT2,  //!< Use FBO depth attachment
+            FBO_STENCIL   = EQ_BIT3   //!< Use FBO stencil attachment
         };
         
         /** Constructs a new channel. */
@@ -205,6 +205,16 @@ namespace eq
          * @sa getScreenOrigin, getPixelViewport, getPixel
          */
         vmml::Frustumf getScreenFrustum() const;
+        
+        /** 
+         * get the channel's native (drawable) pixel viewport.
+         */
+        const eq::PixelViewport& getNativePixelViewPort() const { return _pvp; }
+
+        /** 
+         * get the FBO used as an alternate frame buffer.
+         */
+        FrameBufferObject* getFrameBufferObject();
         //*}
 
         /**
@@ -215,20 +225,6 @@ namespace eq
          * OpenGL state.
          */
         //*{
-        
-        /** 
-         * get the channel pixel viewport.
-         */
-        eq::PixelViewport Channel::getNativePixelViewPort() const;
-        /** 
-         * get the current alternate FBO.
-         */
-        FrameBufferObject* getFrameBufferObject();
-        /** 
-         * Apply the current alternate FBO.
-         */
-        void applyFrameBufferObject();
-        
         /** 
          * Apply the current rendering buffer, including the color mask.
          */
@@ -260,6 +256,11 @@ namespace eq
          */
         virtual void applyHeadTransform() const;
 
+        /** 
+         * Apply the current alternate frame buffer.
+         */
+        virtual void applyFrameBufferObject();
+        
         /** 
          * Process a received event.
          *
@@ -363,7 +364,7 @@ namespace eq
         virtual bool configExit();
 
         /** 
-         * bind and resize FBO.
+         * Rebind the current alternate rendering buffer.
          */
         void makeCurrent();
         
@@ -471,12 +472,6 @@ namespace eq
         /** The name. */
         std::string    _name;
         
-        /** Used as an alternate drawable. */		
-		FrameBufferObject* _fbo; 
-        
-        /** Alternate drawable definition. */
-        uint32_t _drawable;
-        
         /** A unique color assigned by the server during config init. */
         vmml::Vector3ub _color;
 
@@ -515,6 +510,12 @@ namespace eq
         /** The native orthographic ('identity') frustum. */
         vmml::Frustumf  _ortho;
 
+        /** Used as an alternate drawable. */       
+        FrameBufferObject* _fbo; 
+        
+        /** Alternate drawable definition. */
+        uint32_t _drawable;
+        
         /** The statistics events gathered during the current frame. */
         std::vector< Statistic > _statistics;
 #ifdef EQ_ASYNC_TRANSMIT

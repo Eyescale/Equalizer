@@ -44,7 +44,7 @@ int main( int argc, char **argv )
     frames.push_back( &frame );
 
     clock.reset();
-    const Image* result = Compositor::assembleFramesCPU( frames );
+    const Image* result = Compositor::mergeFramesCPU( frames );
     time = clock.getTimef();
     TEST( result );
 
@@ -52,7 +52,7 @@ int main( int argc, char **argv )
          << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
 
     clock.reset();
-    result = Compositor::assembleFramesCPU( frames );
+    result = Compositor::mergeFramesCPU( frames );
     time = clock.getTimef();
     TEST( result );
 
@@ -67,7 +67,7 @@ int main( int argc, char **argv )
     frames.push_back( &frame );
 
     clock.reset();
-    result = Compositor::assembleFramesCPU( frames );
+    result = Compositor::mergeFramesCPU( frames );
     time = clock.getTimef();
     TEST( result );
 
@@ -91,7 +91,7 @@ int main( int argc, char **argv )
     frames.push_back( &frame );
 
     clock.reset();
-    result = Compositor::assembleFramesCPU( frames );
+    result = Compositor::mergeFramesCPU( frames );
     time = clock.getTimef();
     TEST( result );
 
@@ -99,7 +99,7 @@ int main( int argc, char **argv )
          << 1000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)" << endl;
 
     clock.reset();
-    result = Compositor::assembleFramesCPU( frames );
+    result = Compositor::mergeFramesCPU( frames );
     time = clock.getTimef();
     TEST( result );
 
@@ -114,7 +114,7 @@ int main( int argc, char **argv )
     frames.push_back( &frame );
 
     clock.reset();
-    result = Compositor::assembleFramesCPU( frames );
+    result = Compositor::mergeFramesCPU( frames );
     time = clock.getTimef();
     TEST( result );
 
@@ -138,7 +138,7 @@ int main( int argc, char **argv )
     frames.push_back( &frame );
 
     clock.reset();
-    result = Compositor::assembleFramesCPU( frames, true );
+    result = Compositor::mergeFramesCPU( frames, true );
     time = clock.getTimef();
     TEST( result );
 
@@ -146,7 +146,7 @@ int main( int argc, char **argv )
          << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
 
     clock.reset();
-    result = Compositor::assembleFramesCPU( frames, true );
+    result = Compositor::mergeFramesCPU( frames, true );
     time = clock.getTimef();
     TEST( result );
 
@@ -161,7 +161,7 @@ int main( int argc, char **argv )
     frames.push_back( &frame );
 
     clock.reset();
-    result = Compositor::assembleFramesCPU( frames, true );
+    result = Compositor::mergeFramesCPU( frames, true );
     time = clock.getTimef();
     TEST( result );
 

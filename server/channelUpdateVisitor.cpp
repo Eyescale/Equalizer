@@ -208,7 +208,7 @@ void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
     const float maxFPS = compound->getInheritMaxFPS();
     Window*     window = _channel->getWindow();
 
-    if(  maxFPS <  window->getMaxFPS())
+    if( maxFPS <  window->getMaxFPS())
         window->setMaxFPS( maxFPS );
 }
 

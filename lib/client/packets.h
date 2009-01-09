@@ -840,6 +840,7 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
 
         uint32_t        initID;
         uint32_t        viewID;
+        uint32_t        drawable;
         int32_t         iAttributes[ eq::Channel::IATTR_ALL ];
         int32_t         tasks;
         PixelViewport   pvp;

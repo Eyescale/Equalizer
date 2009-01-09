@@ -568,15 +568,16 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
         if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] == 
             eq::UNDEFINED )
-
+        {
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = 
                 COLOR_MASK_RED;
-
+        }
         if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] == 
             eq::UNDEFINED )
-            
+        {   
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] =
                 COLOR_MASK_GREEN | COLOR_MASK_BLUE;
+        }
     }
     else
     {

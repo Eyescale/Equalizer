@@ -29,11 +29,10 @@ Frame::Frame()
 Frame::Frame( const Frame& from )
         : net::Object()
         , _compound( 0 )
+        , _name( from._name )
+        , _data( from._data )
+        , _vp( from._vp )
 {
-    _data = from._data;
-    _name = from._name;
-    _vp   = from._vp;
-
     for( unsigned i = 0; i<eq::EYE_ALL; ++i )
         _frameData[i] = 0;
 }

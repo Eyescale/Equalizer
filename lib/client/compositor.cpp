@@ -263,7 +263,7 @@ void Compositor::assembleFramesCPU( const FrameVector& frames,
     // assembles the result image. Does not yet support Pixel or Eye
     // compounds.
 
-    const Image* result = assembleFramesCPU( frames, blendAlpha );
+    const Image* result = mergeFramesCPU( frames, blendAlpha );
     if( !result )
         return;
 
@@ -281,8 +281,8 @@ void Compositor::assembleFramesCPU( const FrameVector& frames,
 #endif
 }
 
-const Image* Compositor::assembleFramesCPU( const FrameVector& frames,
-                                            const bool blendAlpha )
+const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
+                                         const bool blendAlpha )
 {
     EQVERB << "Sorted CPU assembly" << endl;
 

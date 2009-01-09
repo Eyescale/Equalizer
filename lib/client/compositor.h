@@ -91,8 +91,9 @@ namespace eq
                                        Channel* channel,
                                        const bool blendAlpha = false );
 
-        static const Image* assembleFramesCPU(const FrameVector& frames,
-                                              const bool blendAlpha = false );
+        /** Merge the provided frames into one image in main memory. */
+        static const Image* mergeFramesCPU( const FrameVector& frames,
+                                            const bool blendAlpha = false );
 
         /** Assemble a frame using the default algorithm. */
         static void assembleFrame( const Frame* frame, Channel* channel );
