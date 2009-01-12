@@ -58,7 +58,7 @@ namespace eqNet  = ::eq::net;
 
 // Copy&paste RelNotes.html content here
 
-/*! \mainpage Equalizer Documentation
+/*! \mainpage Equalizer API Documentation
 
 <a name="introduction"></a>
 <h2>1. Introduction</h2>
