@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_SESSION_H
@@ -33,12 +33,6 @@ namespace net
 
         virtual ~Session();
 
-        /** Set the session name. */
-        void setName( const std::string& name ) { _name = name; }
-
-        /** @return the name of the session. */
-        const std::string& getName() const { return _name; }
-
         /** 
          * Returns the identifier of this session.
          * 
@@ -46,7 +40,7 @@ namespace net
          */
         uint32_t getID() const { return _id; }
 
-        /** Set the local node */
+        /** Set the local node to which this session is mapped */
         virtual void setLocalNode( NodePtr node );
 
         /** @return the local node holding this session. */
@@ -269,9 +263,6 @@ namespace net
 
         /** The session's identifier. */
         uint32_t _id;
-        
-        /** The session's name. */
-        std::string _name;
 
         /** The state (master/client) of this session instance. */
         bool _isMaster;

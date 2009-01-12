@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_PACKETS_H
@@ -66,19 +66,40 @@ namespace net
             }
     };
 
+    struct NodeRegisterSessionPacket : public NodePacket
+    {
+        NodeRegisterSessionPacket()
+            {
+                command   = CMD_NODE_REGISTER_SESSION;
+                size      = sizeof(NodeRegisterSessionPacket);
+            }
+
+        uint32_t requestID;
+    };
+
+    struct NodeRegisterSessionReplyPacket : public NodePacket
+    {
+        NodeRegisterSessionReplyPacket(const NodeRegisterSessionPacket* request)
+            {
+                command   = CMD_NODE_REGISTER_SESSION_REPLY;
+                size      = sizeof( NodeRegisterSessionReplyPacket );
+                requestID = request->requestID;
+            }
+            
+        uint32_t requestID;
+        uint32_t sessionID;
+    };
+
     struct NodeMapSessionPacket : public NodePacket
     {
         NodeMapSessionPacket()
             {
                 command   = CMD_NODE_MAP_SESSION;
                 size      = sizeof(NodeMapSessionPacket);
-                sessionID = EQ_ID_INVALID;
-                name[0]   = '\0';
             }
 
         uint32_t requestID;
         uint32_t sessionID;
-        EQ_ALIGN8( char name[8] );
     };
 
     struct NodeMapSessionReplyPacket : public NodePacket
@@ -88,12 +109,11 @@ namespace net
                 command   = CMD_NODE_MAP_SESSION_REPLY;
                 size      = sizeof( NodeMapSessionReplyPacket );
                 requestID = requestPacket->requestID;
-                name[0]   = '\0';
+                sessionID = requestPacket->sessionID;
             }
             
         uint32_t requestID;
         uint32_t sessionID;
-        EQ_ALIGN8( char     name[8] );
     };
 
     struct NodeUnmapSessionPacket : public NodePacket
@@ -537,14 +557,14 @@ namespace net
                                        const NodeMapSessionPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID
-           << " sessionID " << packet->sessionID << " name " << packet->name;
+           << " sessionID " << packet->sessionID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeMapSessionReplyPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID
-           << " sessionID " << packet->sessionID << " name " << packet->name;
+           << " sessionID " << packet->sessionID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

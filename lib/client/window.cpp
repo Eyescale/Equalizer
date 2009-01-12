@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "window.h"
@@ -68,6 +68,11 @@ Window::Window( Pipe* parent )
     EQINFO << " New eq::Window @" << (void*)this << endl;
 }
 
+Window::~Window()
+{
+    _pipe->_removeWindow( this );
+}
+
 void Window::attachToSession( const uint32_t id, 
                               const uint32_t instanceID, 
                               net::Session* session )
@@ -103,13 +108,6 @@ void Window::attachToSession( const uint32_t id,
     registerCommand( CMD_WINDOW_FRAME_DRAW_FINISH, 
                      CommandFunc<Window>( this, &Window::_cmdFrameDrawFinish ), 
                      queue );
-}
-
-Window::~Window()
-{
-    _pipe->_removeWindow( this );
-
-
 }
 
 void Window::_addChannel( Channel* channel )

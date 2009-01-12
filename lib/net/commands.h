@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_COMMANDS_H
@@ -15,6 +15,8 @@ namespace net
     {
         CMD_NODE_STOP,
         CMD_NODE_MESSAGE,
+        CMD_NODE_REGISTER_SESSION,
+        CMD_NODE_REGISTER_SESSION_REPLY,
         CMD_NODE_MAP_SESSION,
         CMD_NODE_MAP_SESSION_REPLY,
         CMD_NODE_UNMAP_SESSION,

@@ -1,11 +1,13 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 // Tests the functionality of the config visitor
 
 #include <test.h>
 #include <eq/client/channel.h>
+#include <eq/client/init.h>
+#include <eq/client/nodeFactory.h>
 
 using namespace eq;
 
@@ -59,15 +61,16 @@ public:
 int main( int argc, char **argv )
 {
     // setup
-    base::RefPtr< Client > client = new Client;
+    eq::NodeFactory nodeFactory;
+    TEST( eq::init( argc, argv, &nodeFactory ));
+
+    eq::ClientPtr client = new Client;
     TEST( client->initLocal( argc, argv ));
 
-    base::RefPtr< Server > server = new Server;
-    server->setClient( client );
+    eq::ServerPtr server = new eq::Server;
+    TEST( client->connectServer( server ));
 
     Config* config = new Config( server );
-    client->addSession( config, server.get(), 0 );
-
     for( size_t i = 0; i < 3; ++i )
     {
         Node* node = new Node( config );

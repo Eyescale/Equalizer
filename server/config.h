@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_CONFIG_H
@@ -51,6 +51,9 @@ namespace server
         
         const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
         
+        void setName( const std::string& name ) { _name = name; }
+        const std::string& getName() const      { return _name; }
+
         /** 
          * Adds a new node to this config.
          * 
@@ -202,6 +205,9 @@ namespace server
         virtual void setLocalNode( net::NodePtr node );
 
     private:
+        /** The config name */
+        std::string _name;
+
         /** float attributes. */
         float _fAttributes[FATTR_ALL];
 

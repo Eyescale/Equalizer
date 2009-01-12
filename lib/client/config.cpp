@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "config.h"
@@ -36,7 +36,33 @@ Config::Config( base::RefPtr< Server > server )
         , _finishedFrame( 0 )
         , _running( false )
 {
-    net::CommandQueue* queue    = server->getNodeThreadQueue();
+}
+
+Config::~Config()
+{
+    EQINFO << "Delete config @" << (void*)this << endl;
+
+    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+        delete *i;
+    _views.clear();
+
+    while( tryNextEvent( )) /* flush all pending events */ ;
+    _eventQueue.release( _lastEvent );
+    _eventQueue.flush();
+    _lastEvent = 0;
+
+    _appNodeID = net::NodeID::ZERO;
+    _appNode   = 0;
+}
+
+void Config::setLocalNode( net::NodePtr node )
+{
+    net::Session::setLocalNode( node );
+    if( !node )
+        return;
+
+    ServerPtr          server = getServer();
+    net::CommandQueue* queue  = server->getNodeThreadQueue();
 
     registerCommand( CMD_CONFIG_CREATE_NODE,
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );
@@ -60,23 +86,6 @@ Config::Config( base::RefPtr< Server > server )
 #endif
     registerCommand( CMD_CONFIG_START_CLOCK, 
                      ConfigFunc( this, &Config::_cmdStartClock ), 0 );
-}
-
-Config::~Config()
-{
-    EQINFO << "Delete config @" << (void*)this << endl;
-
-    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
-        delete *i;
-    _views.clear();
-
-    while( tryNextEvent( )) /* flush all pending events */ ;
-    _eventQueue.release( _lastEvent );
-    _eventQueue.flush();
-    _lastEvent = 0;
-
-    _appNodeID = net::NodeID::ZERO;
-    _appNode   = 0;
 }
 
 ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )

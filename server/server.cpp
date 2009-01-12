@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "server.h"
@@ -86,7 +86,7 @@ void Server::addConfig( Config* config )
     _configs.push_back( config );
 }
 
-void Server::mapConfig( Config* config )
+void Server::registerConfig( Config* config )
 {
     if( config->getName().empty( ))
     {
@@ -95,7 +95,7 @@ void Server::mapConfig( Config* config )
         config->setName( stringStream.str( ));
     }
 
-    EQCHECK( mapSession( this, config ));
+    EQCHECK( registerSession( config ));
 }
 
 //===========================================================================
@@ -161,7 +161,7 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     Config* config = _configs.empty() ? 0 : _configs[0];
     
     eq::ServerChooseConfigReplyPacket reply( packet );
-    net::NodePtr               node = command.getNode();
+    net::NodePtr node = command.getNode();
 
     if( !config )
     {
@@ -173,7 +173,7 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     Config* appConfig = new Config( *config );
     appConfig->setApplicationNetNode( node );
 
-    mapConfig( appConfig );
+    registerConfig( appConfig );
 
     // TODO: move to open?: appConfig->setAppName( appName );
     const string rendererInfo = packet->rendererInfo;
@@ -233,7 +233,7 @@ net::CommandResult Server::_cmdUseConfig( net::Command& command )
     EQINFO << "Using config: " << endl << Global::instance() << config << endl;
     config->setApplicationNetNode( node );
     config->_server = this;
-    mapConfig( config );
+    registerConfig( config );
 
     const uint32_t configID = config->getID();
     config->setWorkDir( workDir );
@@ -281,7 +281,7 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
     destroyConfigPacket.configID  = config->getID();
     node->send( destroyConfigPacket );
 
-    EQCHECK( unmapSession( config ));
+    EQCHECK( deregisterSession( config ));
 
     _appConfigs.erase( packet->configID );
     delete config;

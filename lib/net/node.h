@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_NODE_H
@@ -377,21 +377,26 @@ namespace net
          */
         //*{
         /**
-         * Maps a local session object to the session of the same name on the
-         * server.
+         * Register a new session using this node as the session server.
          *
-         * @param server the node serving the session.
+         * This method assigns the session identifier. The node has to be local.
+         *
          * @param session the session.
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool mapSession( NodePtr server, Session* session );
+        bool registerSession( Session* session );
+
+        /** Deregister a (master) session. */
+        bool deregisterSession( Session* session )
+            { return unmapSession( session ); }
 
         /**
          * Maps a local session object to the session of the same identifier on
-         * the server. The session's name is changed to the name of the session
-         * on the server.
+         * the server.
          *
+         * The node has to be a remote node.
+         * 
          * @param server the node serving the session.
          * @param session the session.
          * @param id the identifier of the session.
@@ -412,23 +417,6 @@ namespace net
 
         /** @return the mapped session with the given identifier, or 0. */
         Session* getSession( const uint32_t id ) { return _sessions[id]; }
-
-        /** 
-         * Adds an already mapped session to this node.
-         * 
-         * @param session the session.
-         * @param server the node serving the session.
-         * @param sessionID the identifier of the session.
-         */
-        void addSession( Session* session, NodePtr server,
-                         const uint32_t sessionID );
-
-        /** 
-         * Removes an unmapped session from this node.
-         * 
-         * @param session the session.
-         */
-        void removeSession( Session* session );
 
         bool hasSessions() const { return !_sessions.empty(); }
         //*}
@@ -619,21 +607,29 @@ namespace net
             const char quote );
 
         /** 
-        * Find a connected node using a connection description
-        * 
-        * @param connectionDescription the connection description for the node.
-        * @return the node, or an invalid pointer if no node was found.
-        */
+         * Find a connected node using a connection description
+         * 
+         * @param connectionDescription the connection description for the node.
+         * @return the node, or an invalid pointer if no node was found.
+         */
         NodePtr _findConnectedNode( const char* connectionDescription );
 
+        /**
+         * Adds an already mapped session to this node.
+         * 
+         * @param session the session.
+         * @param server the node serving the session.
+         * @param sessionID the identifier of the session.
+         */
+        void _addSession( Session* session, NodePtr server,
+                          const uint32_t sessionID );
+
         /** 
-        * Find a named, mapped session.
-        * 
-        * @param name the session name.
-        * @return the session, or <code>0</code> if the session is not
-        *         mapped on this node.
-        */
-        Session* _findSession( const std::string& name ) const;
+         * Removes an unmapped session from this node.
+         * 
+         * @param session the session.
+         */
+        void _removeSession( Session* session );
 
         /** Generates a new, unique session identifier. */
         uint32_t _generateSessionID();
@@ -648,6 +644,8 @@ namespace net
 
         /** The command functions. */
         CommandResult _cmdStop( Command& command );
+        CommandResult _cmdRegisterSession( Command& command );
+        CommandResult _cmdRegisterSessionReply( Command& command );
         CommandResult _cmdMapSession( Command& command );
         CommandResult _cmdMapSessionReply( Command& command );
         CommandResult _cmdUnmapSession( Command& command );

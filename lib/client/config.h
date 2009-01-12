@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CONFIG_H
@@ -43,6 +43,9 @@ namespace eq
             { return getClient()->getNodeThreadQueue(); }
         uint32_t getCurrentFrame()  const { return _currentFrame; }
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
+
+        /** @return the name of this config. */
+        const std::string& getName() const { return _name; }
 
         /** 
          * Traverse this config and all children using a config visitor.
@@ -247,11 +250,17 @@ namespace eq
 
         /** Unmodified, baseline view data. */
         net::IDHash< BaseView > _baseViews;
+        
+        /** @sa eq::net::Session::setLocalNode() */
+        virtual void setLocalNode( net::NodePtr node );
 
     private:
         /** The node identifier of the node running the application thread. */
         net::NodeID _appNodeID;
         friend class Server;
+
+        /** The name. */
+        std::string _name;
 
         /** The node running the application thread. */
         net::NodePtr _appNode;

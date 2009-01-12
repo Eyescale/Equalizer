@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -139,6 +139,7 @@ Config::Config()
 
 Config::Config( const Config& from )
         : net::Session()
+        , _name( from._name )
         , _server( from._server )
 {
     _construct();
@@ -744,7 +745,7 @@ bool Config::_exitNodes()
     }
 
     // now wait that the clients disconnect
-    bool hasSlept = false;
+    uint32_t nSleeps = 50; // max 5 seconds for all clients
     for( NodeVector::const_iterator i = exitingNodes.begin();
         i != exitingNodes.end(); ++i )
     {
@@ -755,17 +756,14 @@ bool Config::_exitNodes()
 
         if( node != _appNode )
         {
-            if( netNode->getState() == net::Node::STATE_CONNECTED )
+            while( netNode->getState() == net::Node::STATE_CONNECTED &&
+                   nSleeps-- )
             {
-                if( !hasSlept )
-                {
-                    base::sleep( 1000 );
-                    hasSlept = true;
-                }
-
-                if( netNode->getState() == net::Node::STATE_CONNECTED )
-                    localNode->disconnect( netNode );
+                base::sleep( 100 ); // ms
             }
+
+            if( netNode->getState() == net::Node::STATE_CONNECTED )
+                localNode->disconnect( netNode );
         }
     }
     return success;

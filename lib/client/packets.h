@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PACKETS_H
@@ -93,7 +93,7 @@ namespace eq
         uint32_t    requestID;
         uint32_t    objectID;
         net::NodeID appNodeID;
-        EQ_ALIGN8( char          name[8] );
+        EQ_ALIGN8( char name[8] );
     };
 
     struct ServerDestroyConfigPacket : public ServerPacket
@@ -1107,7 +1107,7 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                   const ServerChooseConfigReplyPacket* packet )
+                                  const ServerChooseConfigReplyPacket* packet )
     {
         os << (ServerPacket*)packet << " req " << packet->requestID << " id " 
            << packet->configID;

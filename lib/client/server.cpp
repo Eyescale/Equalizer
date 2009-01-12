@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "server.h"
@@ -38,7 +38,7 @@ Server::~Server()
 void Server::setClient( ClientPtr client )
 {
     _client = client;
-    if( !_client )
+    if( !client )
         return;
 
     net::CommandQueue* queue = client->getNodeThreadQueue();
@@ -177,11 +177,12 @@ net::CommandResult Server::_cmdCreateConfig( net::Command& command )
     Config* config    = Global::getNodeFactory()->createConfig( this );
 
     EQASSERT( localNode->getSession( packet->configID ) == 0 );
+
+    config->_name      = packet->name;
     config->_appNodeID = packet->appNodeID;
     config->_appNodeID.convertToHost();
-    config->setName( packet->name );
 
-    localNode->addSession( config, command.getNode(), packet->configID );
+    localNode->mapSession( command.getNode(), config, packet->configID );
 
     if( packet->objectID != EQ_ID_INVALID )
         config->_initAppNode( packet->objectID );
@@ -208,7 +209,7 @@ net::CommandResult Server::_cmdDestroyConfig( net::Command& command )
     Config* config = static_cast<Config*>( session );
 
     config->_exitAppNode();
-    localNode->removeSession( config );
+    EQCHECK( localNode->unmapSession( config ));
     Global::getNodeFactory()->releaseConfig( config );
 
     return net::COMMAND_HANDLED;
@@ -226,9 +227,9 @@ net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
         return net::COMMAND_HANDLED;
     }
 
-    NodePtr    localNode = command.getLocalNode();
+    NodePtr       localNode = command.getLocalNode();
     net::Session* session   = localNode->getSession( packet->configID );
-    Config*         config    = static_cast< Config* >( session );
+    Config*       config    = static_cast< Config* >( session );
     EQASSERTINFO( dynamic_cast< Config* >( session ), 
                   "Session id " << packet->configID << " @" << (void*)session );
 

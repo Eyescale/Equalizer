@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CHANNEL_H
@@ -319,6 +319,10 @@ namespace eq
 
     protected:
         friend class Window;
+
+        void attachToSession( const uint32_t id, 
+                              const uint32_t instanceID, 
+                              net::Session* session );
 
         /** @name Actions */
         //*{

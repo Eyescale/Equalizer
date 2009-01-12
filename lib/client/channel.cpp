@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #define NOMINMAX
@@ -45,7 +45,23 @@ Channel::Channel( Window* parent )
         , _drawable( 0 )
         , _view( 0 )
 {
-    net::CommandQueue* queue = parent->getPipeThreadQueue();
+    parent->_addChannel( this );
+    EQINFO << " New eq::Channel @" << (void*)this << endl;
+}
+
+Channel::~Channel()
+{  
+    EQINFO << " Delete eq::Channel @" << (void*)this << endl;
+    _window->_removeChannel( this );
+}
+
+void Channel::attachToSession( const uint32_t id, 
+                              const uint32_t instanceID, 
+                              net::Session* session )
+{
+    net::Object::attachToSession( id, instanceID, session );
+
+    net::CommandQueue* queue = _window->getPipeThreadQueue();
 
     registerCommand( CMD_CHANNEL_CONFIG_INIT, 
                      ChannelFunc( this, &Channel::_cmdConfigInit ), queue );
@@ -67,15 +83,6 @@ Channel::Channel( Window* parent )
                      ChannelFunc( this, &Channel::_cmdFrameReadback ), queue );
     registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
                      ChannelFunc( this, &Channel::_cmdFrameTransmit ), queue );
-
-    parent->_addChannel( this );
-    EQINFO << " New eq::Channel @" << (void*)this << endl;
-}
-
-Channel::~Channel()
-{  
-    EQINFO << " Delete eq::Channel @" << (void*)this << endl;
-    _window->_removeChannel( this );
 }
 
 bool Channel::configExit()

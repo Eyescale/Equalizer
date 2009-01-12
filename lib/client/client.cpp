@@ -48,6 +48,7 @@ bool Client::listen()
 {
     EQASSERT( !_nodeThreadQueue );
     _nodeThreadQueue = new CommandQueue;
+
     registerCommand( CMD_CLIENT_EXIT, ClientFunc( this, &Client::_cmdExit ),
                      _nodeThreadQueue );
 
