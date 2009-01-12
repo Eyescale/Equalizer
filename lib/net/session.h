@@ -21,9 +21,12 @@ namespace eq
 namespace net
 {
     /**
-     * A logical abstraction for multiple Node s.
+     * Provides higher-level functionality to a set of nodes.
      *
-     * A session provides unique identifiers for a number of nodes.
+     * A session provides unique identifiers and eq::net::Object mapping for a
+     * set of nodes. The master node registers the session, which makes this
+     * node the session server and assigns a node-unique identifier to the
+     * session. All other nodes map the session using this identifier.
      */
     class EQ_EXPORT Session : public Base
     {
