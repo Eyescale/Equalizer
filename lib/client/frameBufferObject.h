@@ -48,6 +48,7 @@ namespace eq
          *         context.
          */
         GLEWContext* glewGetContext() { return _glewContext; }
+        const GLEWContext* glewGetContext() const { return _glewContext; }
 
     private:
         GLuint _fboID;
