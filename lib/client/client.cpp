@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "client.h"
@@ -305,7 +305,7 @@ bool Client::dispatchCommand( net::Command& command )
     switch( command->datatype )
     {
         case DATATYPE_EQ_CLIENT:
-            return net::Base::dispatchCommand( command );
+            return net::Dispatcher::dispatchCommand( command );
 
         case DATATYPE_EQ_SERVER:
         {
@@ -314,7 +314,7 @@ bool Client::dispatchCommand( net::Command& command )
             EQASSERT( dynamic_cast< Server* >( node.get( )) );
             ServerPtr server = static_cast< Server* >( node.get( ));
 
-            return server->net::Base::dispatchCommand( command );
+            return server->net::Dispatcher::dispatchCommand( command );
         }
 
         default:
@@ -329,7 +329,7 @@ net::CommandResult Client::invokeCommand( net::Command& command )
     switch( command->datatype )
     {
         case DATATYPE_EQ_CLIENT:
-            return net::Base::invokeCommand( command );
+            return net::Dispatcher::invokeCommand( command );
 
         case DATATYPE_EQ_SERVER:
         {
@@ -338,7 +338,7 @@ net::CommandResult Client::invokeCommand( net::Command& command )
             EQASSERT( dynamic_cast<Server*>( node.get( )) );
             ServerPtr server = static_cast<Server*>( node.get( ));
 
-            return server->net::Base::invokeCommand( command );
+            return server->net::Dispatcher::invokeCommand( command );
         }
         default:
             return net::Node::invokeCommand( command );

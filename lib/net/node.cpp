@@ -781,7 +781,7 @@ bool Node::dispatchCommand( Command& command )
     switch( datatype )
     {
         case DATATYPE_EQNET_NODE:
-            return Base::dispatchCommand( command );
+            return Dispatcher::dispatchCommand( command );
 
         case DATATYPE_EQNET_SESSION:
         case DATATYPE_EQNET_OBJECT:
@@ -875,7 +875,7 @@ CommandResult Node::invokeCommand( Command& command )
     switch( datatype )
     {
         case DATATYPE_EQNET_NODE:
-            return Base::invokeCommand( command );
+            return Dispatcher::invokeCommand( command );
 
         case DATATYPE_EQNET_SESSION:
         case DATATYPE_EQNET_OBJECT:
@@ -1079,7 +1079,7 @@ CommandResult Node::_cmdConnect( Command& command )
     if( packet->launchID != EQ_ID_INVALID )
     {
         void* ptr = _requestHandler.getRequestData( packet->launchID );
-        EQASSERT( dynamic_cast< Node* >( (Base*)ptr ));
+        EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
         remoteNode = static_cast< Node* >( ptr );
         remoteNode->_connectionDescriptions.clear(); //use actual data from peer
     }
@@ -1147,7 +1147,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     if( packet->requestID != EQ_ID_INVALID )
     {
         void* ptr = _requestHandler.getRequestData( packet->requestID );
-        EQASSERT( dynamic_cast< Node* >( (Base*)ptr ));
+        EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
         remoteNode = static_cast< Node* >( ptr );
         remoteNode->_connectionDescriptions.clear(); //get actual data from peer
     }
@@ -1404,7 +1404,7 @@ NodePtr Node::connect( const NodeID& nodeID, NodePtr server )
         return 0;
     }
 
-    EQASSERT( dynamic_cast< Node* >( (Base*)result ));
+    EQASSERT( dynamic_cast< Node* >( (Dispatcher*)result ));
     NodePtr node = static_cast< Node* >( result );
     node.unref(); // ref'd before serveRequest()
     

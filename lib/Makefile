@@ -39,7 +39,7 @@ HEADER_SRC = \
 	base/timedLock.h \
 	base/types.h \
 	net/barrier.h \
-	net/base.h \
+	net/dispatcher.h \
 	net/bufferConnection.h \
 	net/command.h \
 	net/commandCache.h \
@@ -141,7 +141,7 @@ CXXFILES = \
 	base/thread.cpp \
 	base/timedLock.cpp \
 	net/barrier.cpp \
-	net/base.cpp \
+	net/dispatcher.cpp \
 	net/bufferConnection.cpp \
 	net/command.cpp \
 	net/commandCache.cpp \

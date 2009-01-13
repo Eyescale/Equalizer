@@ -106,7 +106,7 @@ bool Server::dispatchCommand( net::Command& command )
     switch( command->datatype )
     {
         case eq::DATATYPE_EQ_SERVER:
-            return net::Base::dispatchCommand( command );
+            return net::Dispatcher::dispatchCommand( command );
             
         default:
             return net::Node::dispatchCommand( command );
@@ -118,7 +118,7 @@ net::CommandResult Server::invokeCommand( net::Command& command )
     switch( command->datatype )
     {
         case eq::DATATYPE_EQ_SERVER:
-            return net::Base::invokeCommand( command );
+            return net::Dispatcher::invokeCommand( command );
             
         default:
             return net::Node::invokeCommand( command );

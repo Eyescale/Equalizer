@@ -465,7 +465,7 @@ bool Session::dispatchCommand( Command& command )
     switch( command->datatype )
     {
         case DATATYPE_EQNET_SESSION:
-            return Base::dispatchCommand( command );
+            return Dispatcher::dispatchCommand( command );
 
         case DATATYPE_EQNET_OBJECT:
         {
@@ -503,7 +503,7 @@ CommandResult Session::invokeCommand( Command& command )
     switch( command->datatype )
     {
         case DATATYPE_EQNET_SESSION:
-            return Base::invokeCommand( command );
+            return Dispatcher::invokeCommand( command );
 
         case DATATYPE_EQNET_OBJECT:
             return _invokeObjectCommand( command );

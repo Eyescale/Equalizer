@@ -5,7 +5,7 @@
 #ifndef EQNET_NODE_H
 #define EQNET_NODE_H
 
-#include <eq/net/base.h>                     // base class
+#include <eq/net/dispatcher.h>               // base class
 #include <eq/net/commandQueue.h>             // member
 #include <eq/net/connectionSet.h>            // member
 #include <eq/net/idHash.h>                   // member
@@ -40,7 +40,7 @@ namespace net
      * has at least one Connection through which is reachable. A Node provides
      * the basic communication facilities through message passing.
      */
-    class EQ_EXPORT Node : public Base, public base::Referenced
+    class EQ_EXPORT Node : public Dispatcher, public base::Referenced
     {
     public:
         enum State 
@@ -460,7 +460,7 @@ namespace net
          * 
          * @param command the command.
          * @return the result of the operation.
-         * @sa Base::invokeCommand
+         * @sa Dispatcher::invokeCommand
          */
         virtual CommandResult invokeCommand( Command& command );
 

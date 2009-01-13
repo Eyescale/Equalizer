@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_OBJECT_H
 #define EQNET_OBJECT_H
 
-#include <eq/net/base.h>          // base class
+#include <eq/net/dispatcher.h>    // base class
 #include <eq/net/node.h>          // used in RefPtr
 #include <eq/net/objectCM.h>      // called inline
 #include <eq/net/types.h>         // for NodeVector
@@ -21,7 +21,7 @@ namespace net
     struct ObjectPacket;
 
     /** A generic, distributed object. */
-    class EQ_EXPORT Object : public Base
+    class EQ_EXPORT Object : public Dispatcher
     {
     public:
         /**

@@ -1,8 +1,8 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "base.h"
+#include "dispatcher.h"
 
 #include "command.h"
 #include "commandQueue.h"
@@ -11,7 +11,6 @@
 
 #include <eq/base/log.h>
 
-using namespace eq::base;
 using namespace std;
 
 namespace eq
@@ -22,9 +21,9 @@ namespace net
 //===========================================================================
 // command handling
 //===========================================================================
-void Base::_registerCommand( const uint32_t command,
-                             const CommandFunc<Base>& func,
-                             CommandQueue* destinationQueue )
+void Dispatcher::_registerCommand( const uint32_t command,
+                                   const CommandFunc< Dispatcher >& func,
+                                   CommandQueue* destinationQueue )
 {
     EQASSERT( _vTable.size() == _qTable.size( ));
 
@@ -32,7 +31,8 @@ void Base::_registerCommand( const uint32_t command,
     {
         while( _vTable.size() < command )
         {
-            _vTable.push_back( CommandFunc<Base>( this, &Base::_cmdUnknown ));
+            _vTable.push_back( 
+                CommandFunc< Dispatcher >( this, &Dispatcher::_cmdUnknown ));
             _qTable.push_back( 0 );
         }
 
@@ -49,7 +49,7 @@ void Base::_registerCommand( const uint32_t command,
 }
 
 
-bool Base::dispatchCommand( Command& command )
+bool Dispatcher::dispatchCommand( Command& command )
 {
     EQVERB << "dispatch " << static_cast< ObjectPacket* >( command.getPacket( ))
            << ", " << typeid( *this ).name() << endl;
@@ -83,7 +83,7 @@ bool Base::dispatchCommand( Command& command )
     return true;
 }
 
-CommandResult Base::invokeCommand( Command& command )
+CommandResult Dispatcher::invokeCommand( Command& command )
 {
     const uint32_t which = command->command;
 #ifndef NDEBUG
@@ -100,7 +100,7 @@ CommandResult Base::invokeCommand( Command& command )
     return _vTable[which]( command );
 }
 
-CommandResult Base::_cmdUnknown( Command& command )
+CommandResult Dispatcher::_cmdUnknown( Command& command )
 {
     EQERROR << "Unknown " << command << " for " << typeid(*this).name()
             << " @" << static_cast< void* >( this ) << endl;

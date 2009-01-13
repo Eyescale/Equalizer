@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQNET_BASE_H
-#define EQNET_BASE_H
+#ifndef EQNET_DISPATCHER_H
+#define EQNET_DISPATCHER_H
 
-#include <eq/net/commandFunc.h>
+#include <eq/net/commandFunc.h> // member
 
 #include <eq/base/base.h>
 
@@ -21,20 +21,21 @@ namespace net
     enum  CommandResult;
 
     /** 
-     * The base class for all networked objects. 
+     * A helper class providing command packet dispatch functionality to
+     * networked objects.
      *
-     * Provides packet dispatch for an object using a command handler
-     * table. Handles the result of the command handlers.
+     * Provides packet dispatch through a command queue and command handler
+     * table. Returns the result of the invoked command handlers.
      */
-    class EQ_EXPORT Base
+    class EQ_EXPORT Dispatcher
     {
     public:
-        Base() {}
-		Base( const Base& from ) {}
-        virtual ~Base() {}
+        Dispatcher() {}
+		Dispatcher( const Dispatcher& from ) {}
+        virtual ~Dispatcher() {}
 
         /** NOP assignment operator. */
-        const Base& operator = ( const Base& ) { return *this; }
+        const Dispatcher& operator = ( const Dispatcher& ) { return *this; }
 
         /** 
          * Dispatch a command from the receiver thread to the registered queue.
@@ -70,7 +71,7 @@ namespace net
          */
         template< typename T >
         void registerCommand( const uint32_t command, 
-                              const CommandFunc<T>& func,
+                              const CommandFunc< T >& func,
                               CommandQueue* destinationQueue );
 
         
@@ -84,25 +85,25 @@ namespace net
 
     private:
         void _registerCommand( const uint32_t command, 
-                               const CommandFunc<Base>& func,
+                               const CommandFunc< Dispatcher >& func,
                                CommandQueue* destinationQueue );
 
         /** The command handler function table. */
-        std::vector< CommandFunc<Base> > _vTable;
+        std::vector< CommandFunc< Dispatcher > > _vTable;
         
         /** Defines a queue to which commands are dispatched from the recv. */
-        std::vector< CommandQueue* >     _qTable;
+        std::vector< CommandQueue* >       _qTable;
     };
 
     template< typename T >
-    void Base::registerCommand( const uint32_t command,
-                                const CommandFunc<T>& func,
+    void Dispatcher::registerCommand( const uint32_t command,
+                                const CommandFunc< T >& func,
                                 CommandQueue* destinationQueue )
     {
-        _registerCommand( command, static_cast< CommandFunc<Base> >( func ),
+        _registerCommand( command, CommandFunc< Dispatcher >( func ),
                           destinationQueue );
     }
 }
 }
 
-#endif // EQNET_BASE_H
+#endif // EQNET_DISPATCHER_H

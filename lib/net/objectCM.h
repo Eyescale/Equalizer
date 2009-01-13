@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_OBJECTCM_H
 #define EQNET_OBJECTCM_H
 
-#include <eq/net/base.h>
+#include <eq/net/dispatcher.h>   // base class
 #include <eq/net/types.h>
 
 namespace eq
@@ -22,7 +22,7 @@ namespace net
      * information. The type of change manager depends on the object
      * implementation and if it is the master object or a slave object.
      */
-    class ObjectCM : public Base
+    class ObjectCM : public Dispatcher
     {
     public:
         /** Construct a new change manager. */

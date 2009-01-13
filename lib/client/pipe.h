@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PIPE_H
@@ -21,7 +21,6 @@
 #include <eq/base/refPtr.h>
 #include <eq/base/spinLock.h>
 #include <eq/base/thread.h>
-#include <eq/net/base.h>
 #include <eq/net/object.h>
 
 namespace eq

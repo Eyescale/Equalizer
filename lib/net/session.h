@@ -5,12 +5,8 @@
 #ifndef EQNET_SESSION_H
 #define EQNET_SESSION_H
 
-#include <eq/net/base.h>
-#include <eq/net/commands.h>
-#include <eq/net/global.h>
-#include <eq/net/idHash.h>
-#include <eq/net/node.h>
-#include <eq/net/object.h>
+#include <eq/net/dispatcher.h>  // base class
+#include <eq/net/object.h>      // Object::VERSION_NONE enum
 
 #include <eq/base/base.h>
 #include <eq/base/idPool.h>
@@ -28,7 +24,7 @@ namespace net
      * node the session server and assigns a node-unique identifier to the
      * session. All other nodes map the session using this identifier.
      */
-    class EQ_EXPORT Session : public Base
+    class EQ_EXPORT Session : public Dispatcher
     {
     public:
         /** Constructs a new session. */
@@ -61,7 +57,7 @@ namespace net
          * 
          * @param packet the command packet.
          * @return the result of the operation.
-         * @sa Base::dispatchCommand
+         * @sa Dispatcher::dispatchCommand
          */
         virtual bool dispatchCommand( Command& packet );
 
@@ -70,7 +66,7 @@ namespace net
          * 
          * @param packet the command packet.
          * @return the result of the operation.
-         * @sa Base::invokeCommand
+         * @sa Dispatcher::invokeCommand
          */
         virtual CommandResult invokeCommand( Command& packet );
 

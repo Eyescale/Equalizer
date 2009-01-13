@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "object.h"
@@ -44,7 +44,7 @@ Object::Object()
 }
 
 Object::Object( const Object& object )
-        : Base( object )
+        : Dispatcher( object )
         , _session          ( 0 )
         , _id               ( EQ_ID_INVALID )
         , _instanceID       ( EQ_ID_INVALID )

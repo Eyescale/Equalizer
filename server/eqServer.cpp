@@ -4,6 +4,7 @@
 #include "global.h"
 #include "loader.h"
 
+#include <eq/net/global.h>
 #include <eq/net/init.h>
 
 #include <iostream>
