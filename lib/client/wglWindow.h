@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
                           , Makhinya Maxim
    All rights reserved. */
 
@@ -97,7 +97,7 @@ namespace eq
         /** 
          * Initialize this window for the WGL window system.
          *
-         * This method first calls getWGLAffinityDC(), then chooses a pixel
+         * This method first calls createWGLAffinityDC(), then chooses a pixel
          * format with chooseWGLPixelFormat(), then creates a drawable using 
          * configInitWGLDrawable() and finally creates the context using
          * createWGLContext().
@@ -117,17 +117,17 @@ namespace eq
          * @return the device context, or 0 when no special device context is
          * needed.
          */
-        virtual HDC getWGLAffinityDC();
+        virtual HDC createWGLAffinityDC();
 
         /** 
          * Choose a pixel format based on the window's attributes.
          * 
-         * Sets the chosen pixel format on the given device context.
+         * Uses the currently set DC (if any) and sets the chosen pixel format
+         * on it.
          *
-         * @param dc the device context for the pixel format.
          * @return a pixel format, or 0 if no pixel format was found.
          */
-        virtual int chooseWGLPixelFormat( HDC dc );
+        virtual int chooseWGLPixelFormat();
 
         /** 
          * Initialize the window's drawable (pbuffer or window) and
@@ -135,33 +135,30 @@ namespace eq
          *
          * Sets the window handle on success.
          * 
-         * @param dc the device context of the pixel format.
          * @param pixelFormat the window's target pixel format.
          * @return true if the drawable was created, false otherwise.
          */
-        virtual bool configInitWGLDrawable( HDC dc, int pixelFormat );
+        virtual bool configInitWGLDrawable( int pixelFormat );
 
         /** 
          * Initialize the window with an on-screen Win32 window.
          *
          * Sets the window handle on success.
          * 
-         * @param dc the device context of the pixel format, can be 0.
          * @param pixelFormat the window's target pixel format.
          * @return true if the drawable was created, false otherwise.
          */
-        virtual bool configInitWGLWindow( HDC dc, int pixelFormat );
+        virtual bool configInitWGLWindow( int pixelFormat );
 
         /** 
          * Initialize the window with an off-screen WGL PBuffer.
          *
          * Sets the window handle on success.
          * 
-         * @param dc the device context of the pixel format, can be 0.
          * @param pixelFormat the window's target pixel format.
          * @return true if the drawable was created, false otherwise.
          */
-        virtual bool configInitWGLPBuffer( HDC dc, int pixelFormat );
+        virtual bool configInitWGLPBuffer( int pixelFormat );
 
         /** Initialize the window for an off-screen FBO */
         virtual bool configInitWGLFBO( int pixelFormat );
@@ -171,30 +168,44 @@ namespace eq
          * 
          * This method does not set the window's WGL context.
          *
-         * @param dc the device context for the rendering context.
          * @return the context, or 0 if context creation failed.
          */
-        virtual HGLRC createWGLContext( HDC dc );
-
-        /** Destroy FBO. */
-        virtual void configExitFBO();
+        virtual HGLRC createWGLContext();
 
         virtual void initEventHandler();
         virtual void exitEventHandler();
         virtual bool processEvent( const WGLWindowEvent& event );
         //*}
 
+    protected:
+        /** The type of the Win32 device context. */
+        enum WGLDCType
+        {
+            WGL_DC_NONE,    //!< No device context is set
+            WGL_DC_WINDOW,  //!< The WGL DC belongs to a window
+            WGL_DC_PBUFFER, //!< The WGL DC belongs to a PBuffer
+            WGL_DC_AFFINITY //!< The WGL DC is an affinity DC
+        };
+
+        /** 
+         * Set new device context and release the old DC.
+         * 
+         * @param dc the new DC.
+         * @param type the type of the new DC.
+         */
+        void setWGLDC( HDC dc, const WGLDCType type );
+
     private:
 
         HWND             _wglWindow;
         HPBUFFERARB      _wglPBuffer;
         HGLRC            _wglContext;
+
         HDC              _wglDC;
-        
+        WGLDCType        _wglDCType;
+
         WGLEventHandler* _eventHandler;
         BOOL             _screenSaverActive;
-
-        bool             _wglIsAffinityDC;
     };
 }
 

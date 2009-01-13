@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
                           , Makhinya Maxim
    All rights reserved. */
 
@@ -42,8 +42,12 @@ namespace eq
         //*{
         /** Build and initialize the FBO. */
         bool configInitFBO();
+
         /** Destroy FBO. */
-        virtual void configExitFBO();
+        void configExitFBO();
+
+        /** @return the FBO of this window, or 0 if no FBO is used. */
+        const FrameBufferObject* getFBO() const { return _fbo; }
         //*}
 
         /** @name Convenience interface to eq::Window methods */
@@ -81,7 +85,7 @@ namespace eq
          *         context.
          */
         GLEWContext* glewGetContext() { return _glewContext; }
-        GLEWContext* glewGetContext() const { return _glewContext; }
+        const GLEWContext* glewGetContext() const { return _glewContext; }
         
     protected:
         /** The parent eq::Window. */
@@ -89,19 +93,15 @@ namespace eq
         
         /** Initialization glew. */
         void _initGlew(); 
-    private:
         
+    private:
         /** Extended OpenGL function entries when window has a context. */
         GLEWContext*   _glewContext; 
         
         bool _glewInitialized ;
         
-        /** For use Frame buffer object. */		
+        /** Frame buffer object for FBO drawables. */		
 		FrameBufferObject* _fbo; 
-       
-		
-        
-
     };
 }
 
