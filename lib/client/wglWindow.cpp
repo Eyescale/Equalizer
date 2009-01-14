@@ -21,6 +21,7 @@ WGLWindow::WGLWindow( Window* parent )
     , _wglContext( 0 )
     , _wglDC( 0 )
     , _wglDCType( WGL_DC_NONE )
+    , _wglAffinityDC( 0 )
     , _eventHandler( 0 )
 {
     
@@ -39,6 +40,7 @@ void WGLWindow::configExit( )
     HWND  hWnd           = getWGLWindowHandle();
     HPBUFFERARB hPBuffer = getWGLPBufferHandle();
 
+    exitWGLAffinityDC();
     setWGLDC( 0, WGL_DC_NONE );
     setWGLContext( 0 );
     setWGLWindowHandle( 0 );
@@ -72,7 +74,7 @@ void WGLWindow::configExit( )
 
 void WGLWindow::makeCurrent() const
 {
-    wglMakeCurrent( _wglDC, _wglContext );
+    EQCHECK( wglMakeCurrent( _wglDC, _wglContext ));
     OSWindow::makeCurrent();
 }
 
@@ -102,9 +104,7 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
     }
 
     _wglWindow = handle;
-
-    if( !_wglDC )
-        setWGLDC( GetDC( handle ), WGL_DC_WINDOW );
+    setWGLDC( GetDC( handle ), WGL_DC_WINDOW );
 
     initEventHandler();
 
@@ -135,9 +135,7 @@ void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
     }
 
     _wglPBuffer = handle;
-
-    if( !_wglDC )
-        setWGLDC( wglGetPbufferDCARB( handle ), WGL_DC_PBUFFER );
+    setWGLDC( wglGetPbufferDCARB( handle ), WGL_DC_PBUFFER );
 
     // query pixel viewport of PBuffer
     int w,h;
@@ -177,7 +175,15 @@ void WGLWindow::setWGLDC( HDC dc, const WGLDCType type )
             break;
 
         case WGL_DC_AFFINITY:
+            EQASSERT( _wglDC );
+            wglDeleteDCNV( _wglDC );
+            break;
                 
+        case WGL_DC_DISPLAY:
+            EQASSERT( _wglDC );
+            DeleteDC( _wglDC );
+            break;
+
         default:
             EQUNIMPLEMENTED;
     }
@@ -191,28 +197,25 @@ void WGLWindow::setWGLDC( HDC dc, const WGLDCType type )
 //---------------------------------------------------------------------------
 bool WGLWindow::configInit()
 {
-    if( !_wglDC )
-    {
-        const HDC affinityDC  = createWGLAffinityDC();
-        if( affinityDC ) // use it from now on
-            setWGLDC( affinityDC, WGL_DC_AFFINITY );
-    }
+    if( !initWGLAffinityDC( ))
+        _window->setErrorMessage( "Can't create affinity dc" );
 
     int pixelFormat = chooseWGLPixelFormat();
     if( pixelFormat == 0 )
     {
-        setWGLDC( 0, WGL_DC_NONE );
+        exitWGLAffinityDC();
         return false;
     }
 
     if( !configInitWGLDrawable( pixelFormat ))
     {
-        setWGLDC( 0, WGL_DC_NONE );
+        exitWGLAffinityDC();
         return false;
     }
 
-    if( !_wglWindow && !_wglPBuffer && !getFBO( ))
+    if( !_wglDC )
     {
+        exitWGLAffinityDC();
         setWGLDC( 0, WGL_DC_NONE );
         _window->setErrorMessage(
             "configInitWGLDrawable did not set a WGL drawable" );
@@ -220,6 +223,12 @@ bool WGLWindow::configInit()
     }
 
     HGLRC context = createWGLContext();
+    if( !context )
+    {
+        configExit();
+        return false;
+    }
+
     setWGLContext( context );
     makeCurrent();
     _initGlew();
@@ -239,13 +248,7 @@ bool WGLWindow::configInit()
     }
     
     if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
-        configInitFBO();
-
-    if( !context )
-    {
-        setWGLDC( 0, WGL_DC_NONE );
-        return false;
-    }
+        return configInitFBO();
 
     return true;
 }
@@ -272,19 +275,33 @@ bool WGLWindow::configInitWGLDrawable( int pixelFormat )
 }
 
 bool WGLWindow::configInitWGLFBO( int pixelFormat )
-{    
-    _wglWindow = 0;
-
-    if( !_wglDC )
-        setWGLDC( GetDC( 0 ), WGL_DC_WINDOW );
+{
+    if( _wglAffinityDC )
+    {
+        // move affinity DC to be our main DC
+        // deletion is now taken care of by setWGLDC( 0 )
+        setWGLDC( _wglAffinityDC, WGL_DC_AFFINITY );
+        _wglAffinityDC = 0;
+    }
+    else // no affinity, use DC of nth device
+    {
+        const HDC displayDC = createWGLDisplayDC();
+        if( !displayDC )
+            return false;
+        setWGLDC( displayDC, WGL_DC_DISPLAY );
+    }
 
     PIXELFORMATDESCRIPTOR pfd = {0};
     pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion     = 1;
 
-    DescribePixelFormat( _wglDC, pixelFormat, sizeof(pfd), &pfd );
-    if( !SetPixelFormat( _wglDC, pixelFormat, &pfd )) 
+    DescribePixelFormat( _wglDC, pixelFormat, sizeof( pfd ), &pfd );
+    if( !SetPixelFormat( _wglDC, pixelFormat, &pfd ))
+    {
+        _window->setErrorMessage( "Can't set window pixel format: " + 
+            base::getErrorString( GetLastError( )));
         return false;
+    }
 
     return true;
 }
@@ -361,21 +378,22 @@ bool WGLWindow::configInitWGLWindow( int pixelFormat )
         return false;
     }
 
-    if( !_wglDC )
-        setWGLDC( GetDC( hWnd ), WGL_DC_WINDOW );
-    EQASSERT( _wglDC );
+    HDC windowDC = GetDC( hWnd );
 
     PIXELFORMATDESCRIPTOR pfd = {0};
     pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion     = 1;
 
-    DescribePixelFormat( _wglDC, pixelFormat, sizeof(pfd), &pfd );
-    if( !SetPixelFormat( _wglDC, pixelFormat, &pfd ))
+    DescribePixelFormat( _wglAffinityDC ? _wglAffinityDC : windowDC, 
+                         pixelFormat, sizeof(pfd), &pfd );
+    if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
     {
+        ReleaseDC( hWnd, windowDC );
         _window->setErrorMessage( "Can't set window pixel format: " + 
             base::getErrorString( GetLastError( )));
         return false;
     }
+    ReleaseDC( hWnd, windowDC );
 
     setWGLWindowHandle( hWnd );
     ShowWindow( hWnd, SW_SHOW );
@@ -406,8 +424,11 @@ bool WGLWindow::configInitWGLPBuffer( int pixelFormat )
     const eq::PixelViewport& pvp = _window->getPixelViewport();
     EQASSERT( pvp.isValid( ));
 
-    const HDC displayDC    = CreateDC( "DISPLAY", 0, 0, 0 );
-    const HDC dc           = _wglDC ? _wglDC : displayDC;
+    const HDC displayDC    = createWGLDisplayDC();
+    if( !displayDC )
+        return false;
+
+    const HDC dc           = _wglAffinityDC ? _wglAffinityDC : displayDC;
     const int attributes[] = { WGL_PBUFFER_LARGEST_ARB, TRUE, 0 };
 
     HPBUFFERARB pBuffer = wglCreatePbufferARB( dc, pixelFormat, pvp.w, pvp.h,
@@ -424,7 +445,16 @@ bool WGLWindow::configInitWGLPBuffer( int pixelFormat )
     return true;
 }
 
-HDC WGLWindow::createWGLAffinityDC()
+void WGLWindow::exitWGLAffinityDC()
+{
+    if( !_wglAffinityDC )
+        return;
+
+    wglDeleteDCNV( _wglAffinityDC );
+    _wglAffinityDC = 0;
+}
+
+bool WGLWindow::initWGLAffinityDC()
 {
     // We need to create one DC per window, since the window DC pixel format and
     // the affinity RC pixel format have to match, and each window has
@@ -432,14 +462,43 @@ HDC WGLWindow::createWGLAffinityDC()
     Pipe* pipe    = getPipe();
     EQASSERT( pipe );
 
-    HDC affinityDC = 0;
-    if( !pipe->createAffinityDC( affinityDC ))
+    return pipe->createAffinityDC( _wglAffinityDC );
+}
+
+HDC WGLWindow::getWGLAffinityDC()
+{
+    if( _wglAffinityDC )
+        return _wglAffinityDC;
+    if( _wglDCType == WGL_DC_AFFINITY )
+        return _wglDC;
+    return 0;
+}
+
+HDC WGLWindow::createWGLDisplayDC()
+{
+    const Pipe* pipe   = getPipe();
+    uint32_t    device = pipe->getDevice();
+    if( device == EQ_UNDEFINED_UINT32 )
+        device = 0;
+
+    DISPLAY_DEVICE devInfo;
+    devInfo.cb = sizeof( devInfo );
+
+    if( !EnumDisplayDevices( 0, device, &devInfo, 0 ))
     {
-        _window->setErrorMessage( "Can't create affinity dc" );
+        _window->setErrorMessage( "Can't enumerate display devices: " + 
+            base::getErrorString( GetLastError( )));
         return 0;
     }
 
-    return affinityDC;
+    const HDC displayDC = CreateDC( "DISPLAY", devInfo.DeviceName, 0, 0 );
+    if( !displayDC )
+    {
+        _window->setErrorMessage( "Can't create device context: " + 
+            base::getErrorString( GetLastError( )));
+        return 0;
+    }
+    return displayDC;
 }
 
 int WGLWindow::chooseWGLPixelFormat()
@@ -560,7 +619,7 @@ int WGLWindow::chooseWGLPixelFormat()
         backoffAttributes.push_back( WGL_STENCIL_BITS_ARB );
 
     HDC screenDC    = GetDC( 0 );
-    HDC pfDC        = _wglDC ? _wglDC : screenDC;
+    HDC pfDC        = _wglAffinityDC ? _wglAffinityDC : screenDC;
     int pixelFormat = 0;
 
     while( true )
@@ -599,15 +658,14 @@ int WGLWindow::chooseWGLPixelFormat()
         return 0;
     }
  
-    if( _wglDC ) // set pixel format on given device context
+    if( _wglAffinityDC ) // set pixel format on given device context
     {
-        EQASSERT( _wglDCType == WGL_DC_AFFINITY );
         PIXELFORMATDESCRIPTOR pfd = {0};
         pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
         pfd.nVersion     = 1;
 
-        DescribePixelFormat( _wglDC, pixelFormat, sizeof(pfd), &pfd );
-        if( !SetPixelFormat( _wglDC, pixelFormat, &pfd ))
+        DescribePixelFormat( _wglAffinityDC, pixelFormat, sizeof(pfd), &pfd );
+        if( !SetPixelFormat( _wglAffinityDC, pixelFormat, &pfd ))
         {
             _window->setErrorMessage( "Can't set device pixel format: " + 
                 base::getErrorString( GetLastError( )));
@@ -623,7 +681,7 @@ HGLRC WGLWindow::createWGLContext()
     EQASSERT( _wglDC );
 
     // create context
-    HGLRC context = wglCreateContext( _wglDC );
+    HGLRC context = wglCreateContext(_wglAffinityDC ? _wglAffinityDC : _wglDC );
     if( !context )
     {
         _window->setErrorMessage( "Can't create OpenGL context: " + 

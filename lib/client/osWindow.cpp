@@ -4,6 +4,8 @@
 
 #include "osWindow.h"
 
+#include "global.h"
+
 using namespace std;
 
 namespace eq
@@ -29,10 +31,10 @@ void OSWindow::_initGlew()
 {
     const GLenum result = glewInit();
     if( result != GLEW_OK )
-        EQWARN << "GLEW initialization failed with error " << result <<endl;
+        _window->setErrorMessage( "GLEW initialization failed: " + result );
     else
         _glewInitialized = true;
-}   
+}
     
 bool OSWindow::configInitFBO()
 {
@@ -48,11 +50,16 @@ bool OSWindow::configInitFBO()
     
     const PixelViewport& pvp = _window->getPixelViewport();
     
-    if( _fbo->init( pvp.w, pvp.h, getIAttribute( Window::IATTR_PLANES_DEPTH ),
-                    getIAttribute( Window::IATTR_PLANES_STENCIL ) ) )
-    {
+    int depthSize = getIAttribute( Window::IATTR_PLANES_DEPTH );
+    if( depthSize == AUTO )
+         depthSize = 24;
+
+    int stencilSize = getIAttribute( Window::IATTR_PLANES_STENCIL );
+    if( stencilSize == AUTO )
+        stencilSize = 1;
+
+    if( _fbo->init( pvp.w, pvp.h, depthSize, stencilSize ) )
         return true;
-    }
     
     delete _fbo;
     _fbo = 0;

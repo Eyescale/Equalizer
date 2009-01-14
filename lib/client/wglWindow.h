@@ -106,18 +106,28 @@ namespace eq
          */
         virtual bool configInit();
 
-        typedef BOOL (WINAPI * PFNEQDELETEDCPROC)( HDC hdc );
-
         /** 
-         * Get a device context for this window.
+         * Create, if needed, an affinity device context for this window.
          *
-         * The returned context has to be deleted using wglDeleteDCNV when it is
-         * no longer needed.
-         *
-         * @return the device context, or 0 when no special device context is
-         * needed.
+         * @return false on error, true otherwise
          */
-        virtual HDC createWGLAffinityDC();
+        virtual bool initWGLAffinityDC();
+
+        /** Destroy the affinity device context. */
+        virtual void exitWGLAffinityDC();
+
+        /** @return the affinity device context. */
+        HDC getWGLAffinityDC();
+
+        /**
+         * Create a device context for the display device of the window.
+         *
+         * The returned device context has to be released using DeleteDC. The
+         * window's error message is set if an error occured.
+         *
+         * @return the DC, or 0 upon error.
+         */
+        HDC createWGLDisplayDC();
 
         /** 
          * Choose a pixel format based on the window's attributes.
@@ -181,10 +191,11 @@ namespace eq
         /** The type of the Win32 device context. */
         enum WGLDCType
         {
-            WGL_DC_NONE,    //!< No device context is set
-            WGL_DC_WINDOW,  //!< The WGL DC belongs to a window
-            WGL_DC_PBUFFER, //!< The WGL DC belongs to a PBuffer
-            WGL_DC_AFFINITY //!< The WGL DC is an affinity DC
+            WGL_DC_NONE,     //!< No device context is set
+            WGL_DC_WINDOW,   //!< The WGL DC belongs to a window
+            WGL_DC_PBUFFER,  //!< The WGL DC belongs to a PBuffer
+            WGL_DC_AFFINITY, //!< The WGL DC is an affinity DC
+            WGL_DC_DISPLAY   //!< The WGL DC is a display DC
         };
 
         /** 
@@ -203,6 +214,7 @@ namespace eq
 
         HDC              _wglDC;
         WGLDCType        _wglDCType;
+        HDC              _wglAffinityDC;
 
         WGLEventHandler* _eventHandler;
         BOOL             _screenSaverActive;
