@@ -125,6 +125,10 @@
 %token EQTOKEN_VERTICAL
 %token EQTOKEN_DPLEX
 %token EQTOKEN_CHANNEL
+%token EQTOKEN_LAYOUT
+%token EQTOKEN_VIEW
+%token EQTOKEN_SURFACE
+%token EQTOKEN_SEGMENT
 %token EQTOKEN_COMPOUND
 %token EQTOKEN_LOADBALANCER
 %token EQTOKEN_DAMPING
@@ -225,7 +229,7 @@ global: EQTOKEN_GLOBAL '{' globals '}'
         | /* null */
         ;
 
-globals: global | globals global;
+globals: /* null */ | globals global;
 
 global:
      EQTOKEN_CONNECTION_SATTR_HOSTNAME STRING
@@ -402,8 +406,7 @@ server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
         serverConnections
         configs '}'
 
-serverConnections: /*null*/ 
-             | serverConnection | serverConnections serverConnection
+serverConnections: /*null*/ | serverConnections serverConnection
 serverConnection: EQTOKEN_CONNECTION 
         '{' { 
                 connectionDescription = new eq::server::ConnectionDescription;
@@ -426,14 +429,16 @@ config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
                     config = 0;
                 } // else leave config for Loader::parseConfig()
         }
-configFields: /*null*/ | configField | configFields configField
+configFields: /*null*/ | configFields configField
 configField:
     nodes
     | EQTOKEN_NAME STRING       { config->setName( $2 ); }
+//    | layouts
+//    | surfaces
     | compounds
     | EQTOKEN_LATENCY UNSIGNED  { config->setLatency( $2 ); }
     | EQTOKEN_ATTRIBUTES '{' configAttributes '}'
-configAttributes: /*null*/ | configAttribute | configAttributes configAttribute
+configAttributes: /*null*/ | configAttributes configAttribute
 configAttribute:
     EQTOKEN_EYE_BASE FLOAT { config->setFAttribute( 
                              eq::server::Config::FATTR_EYE_BASE, $2 ); }
@@ -453,13 +458,13 @@ renderNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
 appNode: EQTOKEN_APPNODE '{' { node = loader->createNode(); }
             nodeFields
             '}' { config->addApplicationNode( node ); node = 0; }
-nodeFields: /*null*/ | nodeField | nodeFields nodeField
+nodeFields: /*null*/ | nodeFields nodeField
 nodeField: 
     EQTOKEN_NAME STRING            { node->setName( $2 ); }
     | connections
     | pipes                
     | EQTOKEN_ATTRIBUTES '{' nodeAttributes '}'
-connections: /*null*/ | connection | connections connection
+connections: /*null*/ | connections connection
 connection: EQTOKEN_CONNECTION 
             '{' { connectionDescription = new eq::server::ConnectionDescription; }
             connectionFields '}' 
@@ -467,8 +472,7 @@ connection: EQTOKEN_CONNECTION
                  node->addConnectionDescription( connectionDescription );
                  connectionDescription = 0;
              }
-connectionFields: /*null*/ | connectionField | 
-                      connectionFields connectionField
+connectionFields: /*null*/ | connectionFields connectionField
 connectionField:
     EQTOKEN_TYPE connectionType   { connectionDescription->type = $2; }
     | EQTOKEN_HOSTNAME  STRING    { connectionDescription->setHostname($2); }
@@ -479,7 +483,7 @@ connectionField:
     | EQTOKEN_PORT UNSIGNED       { connectionDescription->TCPIP.port = $2; }
     | EQTOKEN_BANDWIDTH UNSIGNED  { connectionDescription->bandwidth = $2; }
 
-nodeAttributes: /*null*/ | nodeAttribute | nodeAttributes nodeAttribute
+nodeAttributes: /*null*/ | nodeAttributes nodeAttribute
 nodeAttribute:
     EQTOKEN_THREAD_MODEL IATTR 
         { node->setIAttribute( eq::Node::IATTR_THREAD_MODEL, $2 ); }
@@ -491,7 +495,7 @@ pipes: pipe | pipes pipe
 pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
         pipeFields
         '}' { node->addPipe( eqPipe ); eqPipe = 0; }
-pipeFields: /*null*/ | pipeField | pipeFields pipeField
+pipeFields: /*null*/ | pipeFields pipeField
 pipeField:
     windows   
     | EQTOKEN_ATTRIBUTES '{' pipeAttributes '}'
@@ -503,7 +507,7 @@ pipeField:
             eqPipe->setPixelViewport( eq::PixelViewport( (int)$2[0], (int)$2[1],
                                                       (int)$2[2], (int)$2[3] ));
         }
-pipeAttributes: /*null*/ | pipeAttribute | pipeAttributes pipeAttribute
+pipeAttributes: /*null*/ | pipeAttributes pipeAttribute
 pipeAttribute:
     EQTOKEN_HINT_THREAD IATTR
         { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_THREAD, $2 ); }
@@ -512,7 +516,7 @@ windows: window | windows window
 window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
         windowFields
         '}' { eqPipe->addWindow( window ); window = 0; }
-windowFields: /*null*/ | windowField | windowFields windowField
+windowFields: /*null*/ | windowFields windowField
 windowField: 
     channels
     | EQTOKEN_ATTRIBUTES '{' windowAttributes '}'
@@ -525,7 +529,7 @@ windowField:
             else
                 window->setViewport( eq::Viewport($2[0], $2[1], $2[2], $2[3])); 
         }
-windowAttributes: /*null*/ | windowAttribute | windowAttributes windowAttribute
+windowAttributes: /*null*/ | windowAttributes windowAttribute
 windowAttribute:
     EQTOKEN_HINT_STEREO IATTR
         { window->setIAttribute( eq::Window::IATTR_HINT_STEREO, $2 ); }
@@ -562,8 +566,7 @@ channels: channel | channels channel
 channel: EQTOKEN_CHANNEL '{' { channel = loader->createChannel(); }
          channelFields
         '}' { window->addChannel( channel ); channel = 0; }
-channelFields:
-     /*null*/ | channelField | channelFields channelField
+channelFields: /*null*/ | channelFields channelField
 channelField: 
     EQTOKEN_NAME STRING { channel->setName( $2 ); }
     | EQTOKEN_ATTRIBUTES '{' 
@@ -578,12 +581,13 @@ channelField:
         }
     | EQTOKEN_DRAWABLE '[' { flags = eq::Channel::FBO_NONE; }
          drawables ']' { channel->setDrawable( flags ); flags = 0; }
-channelAttributes: /*null*/ | channelAttribute | channelAttributes channelAttribute
+channelAttributes: /*null*/ | channelAttributes channelAttribute
 channelAttribute:
     EQTOKEN_HINT_STATISTICS IATTR
         { channel->setIAttribute( eq::Channel::IATTR_HINT_STATISTICS, $2 ); }
 
 
+// layouts: /*null*/ | layouts layout
 compounds: compound | compounds compound
 compound: EQTOKEN_COMPOUND '{' 
               {
@@ -597,7 +601,7 @@ compound: EQTOKEN_COMPOUND '{'
           compoundFields 
           '}' { eqCompound = eqCompound->getParent(); } 
 
-compoundFields: /*null*/ | compoundField | compoundFields compoundField
+compoundFields: /*null*/ | compoundFields compoundField
 compoundField: 
     compound
     | EQTOKEN_NAME STRING { eqCompound->setName( $2 ); }
@@ -632,25 +636,25 @@ compoundField:
     | inputFrame
     | EQTOKEN_ATTRIBUTES '{' compoundAttributes '}'
 
-compoundTasks: /*null*/ | compoundTask | compoundTasks compoundTask
+compoundTasks: /*null*/ | compoundTasks compoundTask
 compoundTask:
     EQTOKEN_CLEAR      { eqCompound->enableTask( eq::TASK_CLEAR ); }
     | EQTOKEN_DRAW     { eqCompound->enableTask( eq::TASK_DRAW ); }
     | EQTOKEN_ASSEMBLE { eqCompound->enableTask( eq::TASK_ASSEMBLE );}
     | EQTOKEN_READBACK { eqCompound->enableTask( eq::TASK_READBACK );}
 
-compoundEyes: /*null*/ | compoundEye | compoundEyes compoundEye
+compoundEyes: /*null*/ | compoundEyes compoundEye
 compoundEye:
     EQTOKEN_CYCLOP  { eqCompound->enableEye( eq::server::Compound::EYE_CYCLOP_BIT ); }
     | EQTOKEN_LEFT  { eqCompound->enableEye( eq::server::Compound::EYE_LEFT_BIT ); }
     | EQTOKEN_RIGHT { eqCompound->enableEye( eq::server::Compound::EYE_RIGHT_BIT ); }
 
-buffers: /*null*/ | buffer | buffers buffer
+buffers: /*null*/ | buffers buffer
 buffer:
     EQTOKEN_COLOR    { flags |= eq::Frame::BUFFER_COLOR; }
     | EQTOKEN_DEPTH  { flags |= eq::Frame::BUFFER_DEPTH; }
     
-drawables:  /*null*/ | drawable | drawables drawable
+drawables:  /*null*/ | drawables drawable
 drawable:  
     EQTOKEN_FBO_COLOR     { flags |= eq::Channel::FBO_COLOR; }
     | EQTOKEN_FBO_DEPTH   { flags |= eq::Channel::FBO_DEPTH; }
@@ -659,7 +663,7 @@ drawable:
 wall: EQTOKEN_WALL '{' { wall = eq::Wall(); } 
     wallFields '}' { eqCompound->setWall( wall ); }
 
-wallFields:  /*null*/ | wallField | wallFields wallField
+wallFields:  /*null*/ | wallFields wallField
 wallField:
     EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']'
         { wall.bottomLeft = vmml::Vector3f( $3, $4, $5 ); }
@@ -671,7 +675,7 @@ wallField:
 projection: EQTOKEN_PROJECTION '{' { projection = eq::Projection(); } 
     projectionFields '}' { eqCompound->setProjection( projection ); }
 
-projectionFields:  /*null*/ | projectionField | projectionFields projectionField
+projectionFields:  /*null*/ | projectionFields projectionField
 projectionField:
     EQTOKEN_ORIGIN  '[' FLOAT FLOAT FLOAT ']'
         { projection.origin = vmml::Vector3f( $3, $4, $5 ); }
@@ -693,7 +697,7 @@ loadBalancer: EQTOKEN_LOADBALANCER
          loadBalancerFields
     '}' { eqCompound->setLoadBalancer( loadBalancer ); loadBalancer = 0; }
 
-loadBalancerFields: /*null*/ | loadBalancerField | loadBalancerFields loadBalancerField
+loadBalancerFields: /*null*/ | loadBalancerFields loadBalancerField
 loadBalancerField:
     EQTOKEN_MODE loadBalancerMode { loadBalancer->setMode( $2 ) }
     | EQTOKEN_DAMPING FLOAT       { loadBalancer->setDamping( $2 ) }
@@ -710,7 +714,7 @@ swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier
             eqCompound->setSwapBarrier( swapBarrier );
             swapBarrier = 0;
         } 
-swapBarrierFields: /*null*/ | swapBarrierField | swapBarrierFields swapBarrierField
+swapBarrierFields: /*null*/ | swapBarrierFields swapBarrierField
 swapBarrierField: 
     EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
 
@@ -726,7 +730,7 @@ inputFrame: EQTOKEN_INPUTFRAME '{' { frame = new eq::server::Frame; }
             eqCompound->addInputFrame( frame );
             frame = 0;
         } 
-frameFields: /*null*/ | frameField | frameFields frameField
+frameFields: /*null*/ | frameFields frameField
 frameField: 
     EQTOKEN_NAME STRING { frame->setName( $2 ); }
     | EQTOKEN_VIEWPORT viewport
@@ -734,7 +738,7 @@ frameField:
     | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_NONE; }
         buffers ']' { frame->setBuffers( flags ); flags = 0; }
 
-compoundAttributes: /*null*/ | compoundAttribute | compoundAttributes compoundAttribute
+compoundAttributes: /*null*/ | compoundAttributes compoundAttribute
 compoundAttribute:
     EQTOKEN_STEREO_MODE IATTR 
         { eqCompound->setIAttribute( eq::server::Compound::IATTR_STEREO_MODE, $2 ); }

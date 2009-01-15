@@ -120,6 +120,10 @@ HORIZONTAL                      { return EQTOKEN_HORIZONTAL; }
 VERTICAL                        { return EQTOKEN_VERTICAL; }
 DPLEX                           { return EQTOKEN_DPLEX; }
 channel                         { return EQTOKEN_CHANNEL; }
+layout                          { return EQTOKEN_LAYOUT; }
+view                            { return EQTOKEN_VIEW; }
+surface                         { return EQTOKEN_SURFACE; }
+segment                         { return EQTOKEN_SEGMENT; }
 compound                        { return EQTOKEN_COMPOUND; }
 loadBalancer                    { return EQTOKEN_LOADBALANCER; }
 damping                         { return EQTOKEN_DAMPING; }
