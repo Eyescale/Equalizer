@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PIXELVIEWPORT_H
@@ -163,10 +163,10 @@ namespace eq
                     return;
                 }
 
-                int32_t sEx =     x +     w;
-                int32_t sEy =     y +     h;
-                int32_t dEx = rhs.x + rhs.w;
-                int32_t dEy = rhs.y + rhs.h;
+                const int32_t sEx =     x +     w;
+                const int32_t sEy =     y +     h;
+                const int32_t dEx = rhs.x + rhs.w;
+                const int32_t dEy = rhs.y + rhs.h;
                 
                 x = EQ_MIN( x, rhs.x );
                 y = EQ_MIN( y, rhs.y );
@@ -195,10 +195,10 @@ namespace eq
                     return;
                 }
                 
-                int32_t sEx =     x +     w;
-                int32_t sEy =     y +     h;
-                int32_t dEx = rhs.x + rhs.w;
-                int32_t dEy = rhs.y + rhs.h;
+                const int32_t sEx =     x +     w;
+                const int32_t sEy =     y +     h;
+                const int32_t dEx = rhs.x + rhs.w;
+                const int32_t dEy = rhs.y + rhs.h;
                     
                 x = EQ_MAX( x, rhs.x );
                 y = EQ_MAX( y, rhs.y );
