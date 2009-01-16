@@ -1013,8 +1013,10 @@ CommandResult Node::_cmdUnmapSession( Command& command )
     NodeUnmapSessionReplyPacket reply( packet );
     reply.result = (session != 0);
 
+#if 0
     if( session && session->_server == this )
         ;// TODO: unmap all session slave instances.
+#endif
 
     command.getNode()->send( reply );
     return COMMAND_HANDLED;
