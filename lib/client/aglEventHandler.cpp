@@ -180,8 +180,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, AGLWindowIF* osWindow )
             windowEvent.pointerMotion.button  = PTR_BUTTON_NONE;
             // Note: Luckily GetCurrentEventButtonState returns the same bits as
             // our button definitions.
-            windowEvent.pointerMotion.buttons =
-                GetCurrentEventButtonState();
+            windowEvent.pointerMotion.buttons = _getButtonsState();
 
             if( windowEvent.pointerMotion.buttons == PTR_BUTTON1 )
             {   // Only left button pressed: implement apple-style middle/right
@@ -219,8 +218,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, AGLWindowIF* osWindow )
 
         case kEventMouseDown:
             windowEvent.type = Event::POINTER_BUTTON_PRESS;
-            windowEvent.pointerButtonPress.buttons =
-                GetCurrentEventButtonState();
+            windowEvent.pointerMotion.buttons = _getButtonsState();
             windowEvent.pointerButtonPress.button  =
                 _getButtonAction( event );
 
@@ -257,8 +255,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, AGLWindowIF* osWindow )
 
         case kEventMouseUp:
             windowEvent.type = Event::POINTER_BUTTON_RELEASE;
-            windowEvent.pointerButtonRelease.buttons =
-                GetCurrentEventButtonState();
+            windowEvent.pointerMotion.buttons = _getButtonsState();
             windowEvent.pointerButtonRelease.button = 
                 _getButtonAction( event );
 
@@ -336,6 +333,28 @@ bool AGLEventHandler::_handleKeyEvent( EventRef event, AGLWindowIF* osWindow )
     return osWindow->processEvent( windowEvent );
 }
 
+uint32_t AGLEventHandler::_getButtonsState()
+{
+        UInt32 buttons = GetCurrentEventButtonState();
+        
+        if ( ( buttons & ( PTR_BUTTON3 + PTR_BUTTON2 ) ) ==
+             ( PTR_BUTTON3 + PTR_BUTTON2 ) )
+        {
+            
+        }
+        else if ( ( buttons & PTR_BUTTON3 ) ==  PTR_BUTTON3 )
+        { 
+            buttons = buttons - PTR_BUTTON3 + PTR_BUTTON2;
+        } 
+        else if ( ( buttons & PTR_BUTTON2 ) ==  PTR_BUTTON2 )
+        {
+            buttons = buttons - PTR_BUTTON2 + PTR_BUTTON3;           
+        }
+        
+        return buttons;
+}
+
+
 uint32_t AGLEventHandler::_getButtonAction( EventRef event )
 {
     EventMouseButton button;
@@ -346,8 +365,8 @@ uint32_t AGLEventHandler::_getButtonAction( EventRef event )
     switch( button )
     {    
         case kEventMouseButtonPrimary:   return PTR_BUTTON1;
-        case kEventMouseButtonSecondary: return PTR_BUTTON2;
-        case kEventMouseButtonTertiary:  return PTR_BUTTON3;
+        case kEventMouseButtonSecondary: return PTR_BUTTON3;
+        case kEventMouseButtonTertiary:  return PTR_BUTTON2;
         default: return PTR_BUTTON_NONE;
     }
 }

@@ -48,6 +48,7 @@ namespace eq
         bool   _handleMouseEvent( EventRef event, AGLWindowIF* window );
         bool   _handleKeyEvent( EventRef event, AGLWindowIF* window );
 
+        uint32_t _getButtonsState();
         uint32_t _getButtonAction( EventRef event );
         uint32_t _getKey( EventRef event );
 
