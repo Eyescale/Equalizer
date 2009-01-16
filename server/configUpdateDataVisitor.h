@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_CONFIGUPDATEDATAVISITOR_H
@@ -27,11 +27,15 @@ namespace server
         virtual Result visitPre( Window* window );
         virtual Result visitPost( Window* window );
         virtual Result visit( Channel* channel );
+
+        // No need to traverse compounds
+        virtual Compound::VisitorResult visitPre( Compound* compound )
+            { return Compound::TRAVERSE_PRUNE; }
  
     private:
-	const Channel* _lastDrawChannel;
-	const Window*  _lastDrawWindow;
-	const Pipe*    _lastDrawPipe;
+        const Channel* _lastDrawChannel;
+        const Window*  _lastDrawWindow;
+        const Pipe*    _lastDrawPipe;
     };
 }
 }

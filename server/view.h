@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_VIEW_H
 #define EQSERVER_VIEW_H
 
-#include <eq/client/view.h> // base class
+#include <eq/client/view.h>     // base class
+#include <eq/client/viewport.h> // member
 
 namespace eq
 {
@@ -39,6 +40,20 @@ namespace server
         virtual void getInstanceData( net::DataOStream& os )
             { eq::View::getInstanceData( os ); }
 
+        //----- New View API
+        View();
+        View( const View& from );
+
+        /** 
+         * Set the view's area wrt its parent layout.
+         * 
+         * @param vp the fractional viewport.
+         */
+        void setViewport( const eq::Viewport& vp );
+
+        /** @return this view's viewport. */
+        const eq::Viewport& getViewport() const { return _vp; }
+
     protected:
         virtual void applyInstanceData( net::DataIStream& is );
 
@@ -47,6 +62,11 @@ namespace server
 
         /** Update the view (wall/projection. */
         void _updateView();
+
+
+        //----- New View API
+        /** The fractional viewport with respect to the layout. */
+        eq::Viewport _vp;
     };
 }
 }

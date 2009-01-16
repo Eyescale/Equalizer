@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #define NOMINMAX
@@ -23,6 +23,8 @@
 #include <eq/client/global.h>
 #include <eq/client/log.h>
 #include <eq/client/packets.h>
+
+#include "channel.ipp"
 
 using namespace eq::base;
 using namespace std;
@@ -138,6 +140,61 @@ void Channel::setDrawable( const uint32_t drawable )
 { 
     _drawable = drawable; 
 }
+
+Config* Channel::getConfig()
+{
+    EQASSERT( _window );
+    return _window ? _window->getConfig() : 0; 
+}
+
+const Config* Channel::getConfig() const
+{
+    EQASSERT( _window );
+    return _window ? _window->getConfig() : 0;
+}
+
+Node* Channel::getNode() 
+{ 
+    EQASSERT( _window );
+    return _window ? _window->getNode() : 0;
+}
+
+const Node* Channel::getNode() const
+{ 
+    EQASSERT( _window );
+    return _window ? _window->getNode() : 0;
+}
+
+Pipe* Channel::getPipe() 
+{ 
+    EQASSERT( _window );
+    return _window ? _window->getPipe() : 0;
+}
+
+const Pipe* Channel::getPipe() const
+{ 
+    EQASSERT( _window );
+    return _window ? _window->getPipe() : 0;
+}
+
+const CompoundVector& Channel::getCompounds() const
+{ 
+    return getConfig()->getCompounds();
+}
+
+net::CommandQueue* Channel::getServerThreadQueue()
+{
+    EQASSERT( _window );
+    return _window->getServerThreadQueue(); 
+}
+
+net::CommandQueue* Channel::getCommandThreadQueue()
+{
+    EQASSERT( _window );
+    return _window->getCommandThreadQueue(); 
+}
+
+
 void Channel::refUsed()
 {
     _used++;
@@ -360,6 +417,18 @@ void Channel::updatePost( const uint32_t frameID, const uint32_t frameNumber )
     EQLOG( eq::LOG_TASKS ) << "TASK channel finish frame  " << &finishPacket
                            << endl;
     _lastDrawCompound = 0;
+}
+
+void Channel::send( net::ObjectPacket& packet ) 
+{ 
+    packet.objectID = getID();
+    getNode()->send( packet );
+}
+
+void Channel::send( net::ObjectPacket& packet, const std::string& string ) 
+{
+    packet.objectID = getID();
+    getNode()->send( packet, string ); 
 }
 
 //---------------------------------------------------------------------------

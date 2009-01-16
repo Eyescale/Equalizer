@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "compoundUpdateOutputVisitor.h"
@@ -7,6 +7,7 @@
 #include "frame.h"
 #include "frameData.h"
 #include "swapBarrier.h"
+#include "window.h"
 
 #include <eq/client/log.h>
 

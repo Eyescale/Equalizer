@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "channelUpdateVisitor.h"
@@ -7,6 +7,9 @@
 #include "colorMask.h"
 #include "compound.h"
 #include "frame.h"
+#include "window.h"
+
+#include "channel.ipp"
 
 #include <eq/client/log.h>
 

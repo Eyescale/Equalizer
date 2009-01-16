@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_TYPES_H
@@ -21,8 +21,10 @@ class Window;
 class Channel;
 
 class Compound;
-class Frame;
 class ConnectionDescription;
+class Frame;
+class View;
+class Layout;
 
 typedef std::vector< Config* >   ConfigVector;
 typedef std::vector< Node* >     NodeVector;
@@ -32,6 +34,8 @@ typedef std::vector< Channel* >  ChannelVector;
 
 typedef std::vector< Compound* > CompoundVector;
 typedef std::vector< Frame* >    FrameVector;
+typedef std::vector< View* >     ViewVector;
+typedef std::vector< Layout* >   LayoutVector;
 
 typedef base::RefPtr< Server > ServerPtr;
 typedef base::RefPtr< ConnectionDescription >   ConnectionDescriptionPtr;

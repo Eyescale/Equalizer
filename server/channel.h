@@ -1,15 +1,17 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_CHANNEL_H
 #define EQSERVER_CHANNEL_H
 
 #include "base.h"
-#include "node.h"
-#include "window.h"
+#include "types.h"
+#include "channelVisitor.h" // nested enum
 
+#include <eq/client/channel.h>
 #include <eq/client/commands.h>
+#include <eq/client/pixelViewport.h>
 #include <eq/client/viewport.h>
 #include <eq/net/object.h>
 #include <eq/net/packets.h>
@@ -55,7 +57,7 @@ namespace server
         virtual ~Channel();
 
         /** 
-         * @return the state of this pipe.
+         * @return the state of this channel.
          */
         State getState()    const { return _state.get(); }
 
@@ -63,28 +65,22 @@ namespace server
          * @name Data Access
          */
         //*{
-        Config* getConfig() { return _window ? _window->getConfig():0; }
-        const Config* getConfig() const
-            { return _window ? _window->getConfig():0;}
+        Config* getConfig();
+        const Config* getConfig() const;
 
-        Node* getNode() { return (_window ? _window->getNode() : 0); }
-        const Node* getNode() const
-            { return (_window ? _window->getNode() : 0); }
+        Node* getNode();
+        const Node* getNode() const;
 
-        Pipe* getPipe() { return (_window ? _window->getPipe() : 0); }
-        const Pipe* getPipe() const
-            { return (_window ? _window->getPipe() : 0); }
+        Pipe* getPipe();
+        const Pipe* getPipe() const;
 
         Window* getWindow()             { return _window; }
         const Window* getWindow() const { return _window; }
 
-        const CompoundVector& getCompounds() const
-            { return getConfig()->getCompounds(); }
+        const CompoundVector& getCompounds() const;
 
-        net::CommandQueue* getServerThreadQueue()
-            { return _window->getServerThreadQueue(); }
-        net::CommandQueue* getCommandThreadQueue()
-            { return _window->getCommandThreadQueue(); }
+        net::CommandQueue* getServerThreadQueue();
+        net::CommandQueue* getCommandThreadQueue();
 
         /** 
          * Traverse this channel and all children using a channel visitor.
@@ -92,7 +88,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        server::ChannelVisitor::Result accept( ChannelVisitor* visitor )
+        ChannelVisitor::Result accept( ChannelVisitor* visitor )
             { return visitor->visit( this ); }
 
         /** 
@@ -128,7 +124,7 @@ namespace server
         const std::string& getName() const      { return _name; }
 
         /** 
-         * Set the channel's pixel viewport wrt its parent pipe.
+         * Set the channel's pixel viewport wrt its parent window.
          * 
          * @param pvp the viewport in pixels.
          */
@@ -149,7 +145,7 @@ namespace server
         void notifyViewportChanged();
 
         /** 
-         * Set the channel's viewport wrt its parent pipe.
+         * Set the channel's viewport wrt its parent window.
          * 
          * @param vp the fractional viewport.
          */
@@ -228,13 +224,10 @@ namespace server
          */
         void updatePost( const uint32_t frameID, const uint32_t frameNumber );
 
-        void send( net::ObjectPacket& packet ) 
-            { packet.objectID = getID(); getNode()->send( packet ); }
-        void send( net::ObjectPacket& packet, const std::string& string ) 
-            { packet.objectID = getID(); getNode()->send( packet, string ); }
+        void send( net::ObjectPacket& packet );
+        void send( net::ObjectPacket& packet, const std::string& string );
         template< typename T >
-        void send( net::ObjectPacket &packet, const std::vector<T>& data )
-            { packet.objectID = getID(); getNode()->send( packet, data ); }
+        void send( net::ObjectPacket &packet, const std::vector<T>& data );
         //*}
 
         /** @name Channel listener interface. */

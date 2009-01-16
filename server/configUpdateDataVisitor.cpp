@@ -1,10 +1,11 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "configUpdateDataVisitor.h"
 
 #include "channel.h"
+#include "window.h"
 
 using namespace std;
 

@@ -10,6 +10,7 @@
 #include "constCompoundVisitor.h"
 #include "configUpdateDataVisitor.h"
 #include "global.h"
+#include "layout.h"
 #include "loadBalancer.h"
 #include "log.h"
 #include "node.h"
@@ -35,22 +36,17 @@ std::string Config::_fAttributeStrings[FATTR_ALL] =
     MAKE_ATTR_STRING( FATTR_EYE_BASE )
 };
 
-#define TRAVERSE_COMPOUNDS( compounds, visitor, activeOnly )    \
-    for( CompoundVector::const_iterator i = compounds.begin();  \
-         i != compounds.end(); ++i )                            \
-    {                                                           \
-        Compound* compound = *i;                                \
-        compound->accept( &visitor, activeOnly );               \
-    }                                                           
-
 namespace
 {
-class ViewMapper : public CompoundVisitor
+class ViewMapper : public ConfigVisitor
 {
 public:
     ViewMapper( const uint32_t nViews, const uint32_t* viewIDs ) 
             : _current( 0 ), _nViews( nViews ), _viewIDs( viewIDs ) {}
     virtual ~ViewMapper(){}
+
+    // No need to go down on nodes.
+    virtual Result visitPre( Node* node ) { return TRAVERSE_PRUNE; }
 
     virtual Compound::VisitorResult visit( Compound* compound )
         { 
@@ -83,10 +79,13 @@ private:
     const uint32_t* _viewIDs;
 };
 
-class ViewUnmapper : public CompoundVisitor
+class ViewUnmapper : public ConfigVisitor
 {
 public:
     virtual ~ViewUnmapper(){}
+
+    // No need to go down on nodes.
+    virtual Result visitPre( Node* node ) { return TRAVERSE_PRUNE; }
 
     virtual Compound::VisitorResult visit( Compound* compound )
         { 
@@ -146,14 +145,20 @@ Config::Config( const Config& from )
     _appNetNode = from._appNetNode;
     _latency    = from._latency;
 
+    const LayoutVector& layouts = from.getLayouts();
+    for( LayoutVector::const_iterator i = layouts.begin(); 
+         i != layouts.end(); ++i )
+    {
+        const Layout* layout = *i;
+        addLayout( new Layout( *layout ));
+    }
+
     const CompoundVector& compounds = from.getCompounds();
     for( CompoundVector::const_iterator i = compounds.begin(); 
          i != compounds.end(); ++i )
     {
-        const Compound* compound      = *i;
-        Compound*       compoundClone = new Compound( *compound );
-
-        addCompound( compoundClone );
+        const Compound* compound = *i;
+        addCompound( new Compound( *compound ));
         // channel is replaced in channel copy constructor
     }
 
@@ -179,7 +184,7 @@ Config::~Config()
     _appNetNode = 0;
 
     ViewUnmapper unmapper;
-    for( vector<Compound*>::const_iterator i = _compounds.begin(); 
+    for( CompoundVector::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
@@ -189,6 +194,16 @@ Config::~Config()
         delete compound;
     }
     _compounds.clear();
+
+    for( LayoutVector::const_iterator i = _layouts.begin(); 
+         i != _layouts.end(); ++i )
+    {
+        Layout* layout = *i;
+
+//        layout->_config = 0;
+        delete layout;
+    }
+    _layouts.clear();
 
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
@@ -250,6 +265,24 @@ bool Config::removeNode( Node* node )
     _nodes.erase( i );
     node->_config = 0; 
 
+    return true;
+}
+
+void Config::addLayout( Layout* layout )
+{
+//    layout->_config = this;
+    _layouts.push_back( layout );
+}
+
+bool Config::removeLayout( Layout* layout )
+{
+    vector<Layout*>::iterator i = find( _layouts.begin(), _layouts.end(),
+                                          layout );
+    if( i == _layouts.end( ))
+        return false;
+
+    _layouts.erase( i );
+//    layout->_config = 0;
     return true;
 }
 
@@ -345,16 +378,35 @@ ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
     switch( visitor->visitPost( this ))
     {
         case NodeVisitor::TRAVERSE_TERMINATE:
-	  return NodeVisitor::TRAVERSE_TERMINATE;
+            return NodeVisitor::TRAVERSE_TERMINATE;
 
         case NodeVisitor::TRAVERSE_PRUNE:
-	  return NodeVisitor::TRAVERSE_PRUNE;
-	  break;
+            result = NodeVisitor::TRAVERSE_PRUNE;
+            break;
                 
         case NodeVisitor::TRAVERSE_CONTINUE:
         default:
-	  break;
+            break;
     }
+
+    for( CompoundVector::const_iterator i = _compounds.begin();
+         i != _compounds.end(); ++i )
+    {
+        Compound* compound = *i;
+        switch( compound->accept( visitor, false /*activeOnly*/ ))
+        {
+            case Compound::TRAVERSE_TERMINATE:
+                return ConfigVisitor::TRAVERSE_TERMINATE;
+
+            case Compound::TRAVERSE_PRUNE:
+                return ConfigVisitor::TRAVERSE_PRUNE;
+                break;
+                
+            case Compound::TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }                                                           
 
     return result;
 }
@@ -368,11 +420,14 @@ ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
 //---------------------------------------------------------------------------
 namespace
 {
-class ViewSerializer : public CompoundVisitor
+class ViewSerializer : public ConfigVisitor
 {
 public:
     ViewSerializer( net::DataOStream& os ) : _os( os ) {}
     virtual ~ViewSerializer(){}
+
+    // No need to go down on nodes.
+    virtual Result visitPre( Node* node ) { return TRAVERSE_PRUNE; }
 
     virtual Compound::VisitorResult visit( Compound* compound )
         { 
@@ -426,9 +481,8 @@ void Config::Distributor::getInstanceData( net::DataOStream& os )
 {
     os << _config->_latency;
 
-    ViewSerializer        serializer( os );
-    const CompoundVector& compounds = _config->getCompounds();
-    TRAVERSE_COMPOUNDS( compounds, serializer, false /* activeOnly */ );
+    ViewSerializer serializer( os );
+    _config->accept( &serializer );
 
     os << eq::View::TYPE_NONE; // end token
 
@@ -771,10 +825,13 @@ bool Config::_exitNodes()
 
 namespace
 {
-class ViewUpdater : public CompoundVisitor
+class ViewUpdater : public ConfigVisitor
 {
 public:
     virtual ~ViewUpdater(){}
+
+    // No need to go down on nodes.
+    virtual Result visitPre( Node* node ) { return TRAVERSE_PRUNE; }
 
     virtual Compound::VisitorResult visit( Compound* compound )
         { 
@@ -795,7 +852,7 @@ void Config::_updateHead()
         return;
 
     ViewUpdater updater;
-    TRAVERSE_COMPOUNDS( _compounds, updater, false /* activeOnly */ );
+    accept( &updater );
 }
 
 void Config::_prepareFrame( vector< net::NodeID >& nodeIDs )
@@ -926,7 +983,7 @@ net::CommandResult Config::_cmdExit( net::Command& command )
     EQINFO << "handle config exit " << packet << endl;
 
     ViewUnmapper unmapper;
-    TRAVERSE_COMPOUNDS( _compounds, unmapper, false /* activeOnly */ );
+    accept( &unmapper );
 
     if( _state == STATE_INITIALIZED )
         reply.result = exit();
@@ -993,20 +1050,24 @@ net::CommandResult Config::_cmdCreateNodeReply( net::Command& command )
 
 namespace
 {
-class FreezeVisitor : public CompoundVisitor
+class FreezeVisitor : public ConfigVisitor
 {
 public:
+    // No need to go down on nodes.
+    virtual Result visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+
     FreezeVisitor( const bool freeze ) : _freeze( freeze ) {}
 
-        /** Visit a non-leaf compound on the down traversal. */
-        virtual Compound::VisitorResult visitPre( Compound* compound )
-            { 
-                LoadBalancer* loadBalancer = compound->getLoadBalancer();
-                if( loadBalancer )
-                    loadBalancer->setFreeze( _freeze );
+    /** Visit a non-leaf compound on the down traversal. */
+    virtual Compound::VisitorResult visitPre( Compound* compound )
+        { 
+            LoadBalancer* loadBalancer = compound->getLoadBalancer();
+            if( loadBalancer )
+                loadBalancer->setFreeze( _freeze );
+            
+            return Compound::TRAVERSE_CONTINUE; 
+        }
 
-                return Compound::TRAVERSE_CONTINUE; 
-            }
 private:
     const bool _freeze;
 };
@@ -1018,7 +1079,7 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
         command.getPacket<eq::ConfigFreezeLoadBalancingPacket>();
 
     FreezeVisitor visitor( packet->freeze );
-    TRAVERSE_COMPOUNDS( _compounds, visitor, false /* activeOnly */ );
+    accept( &visitor );
 
     return net::COMMAND_HANDLED;
 }
@@ -1037,7 +1098,7 @@ net::CommandResult Config::_cmdMapViews( net::Command& command )
 
     // map views to appNode master instances
     ViewMapper mapper( packet->nViews, packet->viewIDs );
-    TRAVERSE_COMPOUNDS( _compounds, mapper, false /* activeOnly */ );
+    accept( &mapper );
 
     return net::COMMAND_HANDLED;
 }

@@ -74,6 +74,25 @@ namespace server
         const NodeVector& getNodes() const { return _nodes; }
 
         /** 
+         * Adds a new layout to this config.
+         * 
+         * @param layout the layout.
+         */
+        void addLayout( Layout* layout );
+
+        /** 
+         * Removes a layout from this config.
+         * 
+         * @param layout the layout
+         * @return <code>true</code> if the layout was removed,
+         *         <code>false</code> otherwise.
+         */
+        bool removeLayout( Layout* layout );
+
+        /** @return the vecotr of layouts. */
+        const LayoutVector& getLayouts() const { return _layouts; }
+
+        /** 
          * Adds a new compound to this config.
          * 
          * @param compound the compound.
@@ -218,11 +237,14 @@ namespace server
         Server* _server;
         friend class Server;
 
-        /** The list of compounds. */
-        CompoundVector _compounds;
-
         /** The list of nodes. */
         NodeVector _nodes;
+
+        /** The list of layouts. */
+        LayoutVector _layouts;
+
+        /** The list of compounds. */
+        CompoundVector _compounds;
 
         /** The reason for the last error. */
         std::string            _error;
@@ -265,7 +287,7 @@ namespace server
         class Distributor : public net::Object
         {
         public:
-            Distributor( const Config* config ) : _config( config ) {}
+            Distributor( Config* const config ) : _config( config ) {}
             virtual ~Distributor() {}
 
         protected:
@@ -273,7 +295,7 @@ namespace server
             virtual void applyInstanceData( net::DataIStream& is ) {EQDONTCALL;}
 
         private:
-            const Config* _config;
+            Config* const _config;
         };
 
         Distributor* _distributor;

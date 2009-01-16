@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #define NOMINMAX
@@ -8,6 +8,7 @@
 
 #include "compound.h"
 #include "compoundVisitor.h"
+#include "config.h"
 #include "log.h"
 
 #include <eq/base/debug.h>

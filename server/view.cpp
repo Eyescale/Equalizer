@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "view.h"
@@ -12,6 +12,23 @@ namespace eq
 namespace server
 {
 
+View::View()
+        : _data( *(new ViewData) )
+{
+}
+
+View::View( const View& from )
+        : eq::View( from )
+        , _data( from._data )
+{
+}
+
+void View::setViewport( const eq::Viewport& vp )
+{
+    _vp = vp;
+}
+
+//----- old View API below
 View::View( ViewData& data )
         : _data( data )
 {

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 %{
@@ -8,10 +8,12 @@
 #include "compound.h"
 #include "frame.h"
 #include "global.h"
+#include "layout.h"
 #include "loadBalancer.h"
 #include "pipe.h"
 #include "server.h"
 #include "swapBarrier.h"
+#include "view.h"
 #include "window.h"
 
 #include <eq/base/base.h>
@@ -29,6 +31,8 @@
         static eq::server::Pipe*        eqPipe = 0; // avoid name clash
         static eq::server::Window*      window = 0;
         static eq::server::Channel*     channel = 0;
+        static eq::server::Layout*      layout = 0;
+        static eq::server::View*        view = 0;
         static eq::server::Compound*    eqCompound = 0; // avoid name clash
 		static eq::server::LoadBalancer* loadBalancer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
@@ -433,8 +437,8 @@ configFields: /*null*/ | configFields configField
 configField:
     nodes
     | EQTOKEN_NAME STRING       { config->setName( $2 ); }
-//    | layouts
-//    | surfaces
+    | layouts
+//    | canvases
     | compounds
     | EQTOKEN_LATENCY UNSIGNED  { config->setLatency( $2 ); }
     | EQTOKEN_ATTRIBUTES '{' configAttributes '}'
@@ -587,7 +591,24 @@ channelAttribute:
         { channel->setIAttribute( eq::Channel::IATTR_HINT_STATISTICS, $2 ); }
 
 
-// layouts: /*null*/ | layouts layout
+layouts: /*null*/ | layouts layout
+layout: EQTOKEN_LAYOUT '{' { layout = new eq::server::Layout; }
+            layoutFields '}' { config->addLayout( layout ); layout = 0; }
+layoutFields: /*null*/ | layoutFields layoutField
+layoutField:
+    EQTOKEN_NAME STRING { layout->setName( $2 ); }
+    | view
+
+view: EQTOKEN_VIEW '{' { view = new eq::server::View; }
+          viewFields '}' { layout->addView( view ); view = 0; }
+viewFields: /*null*/ | viewFields viewField
+viewField:
+    EQTOKEN_NAME STRING { view->setName( $2 ); }
+    | EQTOKEN_VIEWPORT viewport
+        { view->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
+    | wall       { view->setWall( wall ); }
+    | projection { view->setProjection( projection ); }
+
 compounds: compound | compounds compound
 compound: EQTOKEN_COMPOUND '{' 
               {
@@ -627,8 +648,8 @@ compoundField:
     | EQTOKEN_PHASE  UNSIGNED { eqCompound->setPhase( $2 ); }
     | EQTOKEN_PIXEL '[' UNSIGNED UNSIGNED UNSIGNED UNSIGNED ']'
         { eqCompound->setPixel( eq::Pixel( $3, $4, $5, $6 )); }
-    | wall
-    | projection
+    | wall { eqCompound->setWall( wall ); }
+    | projection { eqCompound->setProjection( projection ); }
     | screen
     | loadBalancer
     | swapBarrier
@@ -660,8 +681,7 @@ drawable:
     | EQTOKEN_FBO_DEPTH   { flags |= eq::Channel::FBO_DEPTH; }
     | EQTOKEN_FBO_STENCIL { flags |= eq::Channel::FBO_STENCIL; }
 
-wall: EQTOKEN_WALL '{' { wall = eq::Wall(); } 
-    wallFields '}' { eqCompound->setWall( wall ); }
+wall: EQTOKEN_WALL '{' { wall = eq::Wall(); } wallFields '}'
 
 wallFields:  /*null*/ | wallFields wallField
 wallField:
@@ -673,7 +693,7 @@ wallField:
         { wall.topLeft = vmml::Vector3f( $3, $4, $5 ); }
 
 projection: EQTOKEN_PROJECTION '{' { projection = eq::Projection(); } 
-    projectionFields '}' { eqCompound->setProjection( projection ); }
+                projectionFields '}'
 
 projectionFields:  /*null*/ | projectionFields projectionField
 projectionField:

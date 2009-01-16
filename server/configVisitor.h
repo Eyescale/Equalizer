@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_CONFIGVISITOR_H
 #define EQSERVER_CONFIGVISITOR_H
 
-#include "nodeVisitor.h"
+#include "compoundVisitor.h" // base class
+#include "nodeVisitor.h"     // base class
 
 namespace eq
 {
@@ -16,7 +17,7 @@ namespace server
     /**
      * A visitor to traverse a non-const configs and children.
      */
-    class ConfigVisitor : public NodeVisitor
+    class ConfigVisitor : public NodeVisitor, public CompoundVisitor
     {
     public:
         /** Constructs a new ConfigVisitor. */

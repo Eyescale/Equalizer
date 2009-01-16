@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_NODEVISITOR_H
@@ -26,12 +26,10 @@ namespace server
         virtual ~NodeVisitor(){}
 
         /** Visit a node on the down traversal. */
-        virtual Result visitPre( Node* node )
-            { return TRAVERSE_CONTINUE; }
+        virtual Result visitPre( Node* node ) { return TRAVERSE_CONTINUE; }
 
         /** Visit a node on the up traversal. */
-        virtual Result visitPost( Node* node )
-            { return TRAVERSE_CONTINUE; }
+        virtual Result visitPost( Node* node ) { return TRAVERSE_CONTINUE; }
     };
 }
 }
