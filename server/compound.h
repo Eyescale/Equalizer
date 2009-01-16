@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_COMPOUND_H
@@ -49,7 +49,7 @@ namespace server
         /**
          * Constructs a new, deep copy of the passed compound
          */
-        Compound( const Compound& from );
+        Compound( const Compound& from, Config* config, Compound* parent );
 
         /** Destruct the compound and all children. */
         virtual ~Compound();

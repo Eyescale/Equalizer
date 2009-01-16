@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_PIPE_H
@@ -40,7 +40,7 @@ namespace server
         /** 
          * Constructs a new deep copy of a pipe.
          */
-        Pipe( const Pipe& from, const CompoundVector& compounds );
+        Pipe( const Pipe& from );
 
         Server* getServer() const
             { return _node ? _node->getServer() : 0; }

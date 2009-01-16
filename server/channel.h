@@ -51,7 +51,7 @@ namespace server
         /** 
          * Constructs a new deep copy of a channel.
          */
-        Channel( const Channel& from, const CompoundVector& compounds );
+        Channel( const Channel& from );
 
         /** Destruct this channel. */
         virtual ~Channel();

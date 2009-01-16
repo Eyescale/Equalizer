@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -52,7 +52,7 @@ Pipe::Pipe()
             static_cast<IAttribute>( i ));
 }
 
-Pipe::Pipe( const Pipe& from, const CompoundVector& compounds )
+Pipe::Pipe( const Pipe& from )
         : eq::net::Object()
 {
     _construct();
@@ -69,10 +69,7 @@ Pipe::Pipe( const Pipe& from, const CompoundVector& compounds )
     for( WindowVector::const_iterator i = windows.begin(); 
          i != windows.end(); ++i )
     {
-        const Window* window      = *i;
-        Window*       windowClone = new Window( *window, compounds );
-            
-        addWindow( windowClone );
+        addWindow( new Window( **i ));
     }
 }
 

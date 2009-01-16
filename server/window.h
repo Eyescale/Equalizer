@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_WINDOW_H
@@ -42,7 +42,7 @@ namespace server
         /** 
          * Constructs a new deep copy of a window.
          */
-        Window( const Window& from, const CompoundVector& compounds );
+        Window( const Window& from );
 
         /**
          * @name Data Access

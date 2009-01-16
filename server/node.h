@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_NODE_H
@@ -32,7 +32,7 @@ namespace server
         /** 
          * Constructs a new deep copy of a node.
          */
-        Node( const Node& from, const CompoundVector& compounds );
+        Node( const Node& from );
 
         /** @name Data Access. */
         //*{

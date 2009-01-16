@@ -144,6 +144,18 @@ Config::Config( const Config& from )
     _construct();
     _appNetNode = from._appNetNode;
     _latency    = from._latency;
+    for( int i=0; i<FATTR_ALL; ++i )
+        _fAttributes[i] = from.getFAttribute( (FAttribute)i );
+
+    const NodeVector& nodes = from.getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        const Node* node      = *i;
+        Node*       nodeClone = new Node( *node );
+        
+        (node == from._appNode) ? 
+            addApplicationNode( nodeClone ) : addNode( nodeClone );
+    }
 
     const LayoutVector& layouts = from.getLayouts();
     for( LayoutVector::const_iterator i = layouts.begin(); 
@@ -158,21 +170,7 @@ Config::Config( const Config& from )
          i != compounds.end(); ++i )
     {
         const Compound* compound = *i;
-        addCompound( new Compound( *compound ));
-        // channel is replaced in channel copy constructor
-    }
-
-    for( int i=0; i<FATTR_ALL; ++i )
-        _fAttributes[i] = from.getFAttribute( (FAttribute)i );
-        
-    const NodeVector& nodes = from.getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
-        const Node* node      = *i;
-        Node*       nodeClone = new Node( *node, _compounds );
-        
-        (node == from._appNode) ? 
-            addApplicationNode( nodeClone ) : addNode( nodeClone );
+        new Compound( *compound, this, 0 );
     }
 }
 

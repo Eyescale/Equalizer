@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #define NOMINMAX
@@ -62,36 +62,68 @@ Compound::Compound()
 }
 
 // copy constructor
-Compound::Compound( const Compound& from )
+Compound::Compound( const Compound& from, Config* config, Compound* parent )
         : _name( from._name )
         , _config( 0 )
         , _parent( 0 )
         , _data( from._data )
         , _view( from._view, _data.viewData )
         , _loadBalancer( 0 )
-        , _swapBarrier( from._swapBarrier )
+        , _swapBarrier( 0 )
 {
-    if( from._loadBalancer )
-        setLoadBalancer( new LoadBalancer( *from._loadBalancer ));
+    EQASSERTINFO( (config && !parent) || (!config && parent),
+                  "Either config or parent has to be given" );
+
+    if( config )
+        config->addCompound( this );
+    else
+    {
+        EQASSERT( parent );
+        parent->addChild( this );
+    }
+
+    if( from._data.channel )
+    {
+        const Channel* oldChannel = from._data.channel;
+        const std::string&   name = oldChannel->getName();
+        Channel*       newChannel = getConfig()->findChannel( name );
+
+        EQASSERT( !name.empty( ));
+        EQASSERT( newChannel );
+            
+        _data.channel = newChannel;
+    }
 
     for( CompoundVector::const_iterator i = from._children.begin();
          i != from._children.end(); ++i )
+    {
+        new Compound( **i, 0, this );
+    }
 
-        addChild( new Compound( **i ));
+    if( from._loadBalancer )
+        setLoadBalancer( new LoadBalancer( *from._loadBalancer ));
 
-    for( FrameVector::const_iterator i = from._outputFrames.begin();
-         i != from._outputFrames.end(); ++i )
-
-        addOutputFrame( new Frame( **i ));
+    if( from._swapBarrier )
+        _swapBarrier = new SwapBarrier( *from._swapBarrier );
 
     for( FrameVector::const_iterator i = from._inputFrames.begin();
          i != from._inputFrames.end(); ++i )
-
+    {
         addInputFrame( new Frame( **i ));
+    }
+
+    for( FrameVector::const_iterator i = from._outputFrames.begin();
+         i != from._outputFrames.end(); ++i )
+    {
+        addOutputFrame( new Frame( **i ));
+    }
 }
 
 Compound::~Compound()
 {
+    delete _swapBarrier;
+    _swapBarrier = 0;
+
     if( _loadBalancer )
     {
         _loadBalancer->attach( 0 );
@@ -145,6 +177,7 @@ Compound::InheritData::InheritData()
         , period( EQ_UNDEFINED_UINT32 )
         , phase( EQ_UNDEFINED_UINT32 )
         , maxFPS( numeric_limits< float >::max( ))
+        , active( true )
 {
     const Global* global = Global::instance();
     for( int i=0; i<IATTR_ALL; ++i )

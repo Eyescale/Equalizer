@@ -35,29 +35,6 @@ namespace server
 {
 typedef net::CommandFunc<Channel> ChannelFunc;
 
-namespace
-{
-class ReplaceChannelVisitor : public CompoundVisitor
-{
-public:
-    ReplaceChannelVisitor( const Channel* oldChannel, Channel* newChannel )
-            : _oldChannel( oldChannel ), _newChannel( newChannel ) {}
-    virtual ~ReplaceChannelVisitor() {}
-
-    virtual Compound::VisitorResult visitPre( Compound* compound )
-        { return visitLeaf( compound ); }
-    virtual Compound::VisitorResult visitLeaf( Compound* compound )
-        {
-            if( compound->getChannel() == _oldChannel )
-                compound->setChannel( _newChannel );
-            return Compound::TRAVERSE_CONTINUE;
-        }
-private:
-    const Channel* _oldChannel;
-    Channel*       _newChannel;
-};
-}
-
 void Channel::_construct()
 {
     _used             = 0;
@@ -83,7 +60,7 @@ Channel::Channel()
             static_cast<eq::Channel::IAttribute>( i ));
 }
 
-Channel::Channel( const Channel& from, const CompoundVector& compounds )
+Channel::Channel( const Channel& from )
         : net::Object()
 {
     _construct();
@@ -96,15 +73,6 @@ Channel::Channel( const Channel& from, const CompoundVector& compounds )
     
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
-
-    // replace channel in all compounds
-    ReplaceChannelVisitor visitor( &from, this );
-    for( CompoundVector::const_iterator i = compounds.begin(); 
-         i != compounds.end(); ++i )
-    {
-        Compound* compound = *i;
-        compound->accept( &visitor, false /*activeOnly*/ );
-    }
 }
 
 void Channel::attachToSession( const uint32_t id, const uint32_t instanceID, 

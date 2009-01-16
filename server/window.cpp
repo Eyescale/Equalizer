@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #define NOMINMAX
@@ -46,7 +46,7 @@ Window::Window()
             static_cast<eq::Window::IAttribute>( i ));
 }
 
-Window::Window( const Window& from, const CompoundVector& compounds )
+Window::Window( const Window& from )
         : net::Object()
 {
     _construct();
@@ -63,10 +63,7 @@ Window::Window( const Window& from, const CompoundVector& compounds )
     for( ChannelVector::const_iterator i = channels.begin();
          i != channels.end(); ++i )
     {
-        const Channel* channel      = *i;
-        Channel*       channelClone = new Channel( *channel, compounds );
-        
-        addChannel( channelClone );
+        addChannel( new Channel( **i ));
     }            
 }
 

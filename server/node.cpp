@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -46,7 +46,7 @@ Node::Node()
         _iAttributes[i] =global->getNodeIAttribute((eq::Node::IAttribute)i);
 }
 
-Node::Node( const Node& from, const CompoundVector& compounds )
+Node::Node( const Node& from )
         : net::Object()
 {
     _construct();
@@ -69,12 +69,7 @@ Node::Node( const Node& from, const CompoundVector& compounds )
 
     const PipeVector& pipes = from.getPipes();
     for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
-    {
-        const Pipe* pipe      = *i;
-        Pipe*       pipeClone = new Pipe( *pipe, compounds );
-
-        addPipe( pipeClone );
-    }
+        addPipe( new Pipe( **i ));
 }
 
 Node::~Node()
