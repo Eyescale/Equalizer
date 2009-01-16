@@ -1,4 +1,4 @@
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_AGLEVENTHANDLER_H
@@ -48,7 +48,7 @@ namespace eq
         bool   _handleMouseEvent( EventRef event, AGLWindowIF* window );
         bool   _handleKeyEvent( EventRef event, AGLWindowIF* window );
 
-        uint32_t _getButtonsState();
+        uint32_t _getButtonState();
         uint32_t _getButtonAction( EventRef event );
         uint32_t _getKey( EventRef event );
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "aglEventHandler.h"
@@ -180,7 +180,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, AGLWindowIF* osWindow )
             windowEvent.pointerMotion.button  = PTR_BUTTON_NONE;
             // Note: Luckily GetCurrentEventButtonState returns the same bits as
             // our button definitions.
-            windowEvent.pointerMotion.buttons = _getButtonsState();
+            windowEvent.pointerMotion.buttons = _getButtonState();
 
             if( windowEvent.pointerMotion.buttons == PTR_BUTTON1 )
             {   // Only left button pressed: implement apple-style middle/right
@@ -218,7 +218,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, AGLWindowIF* osWindow )
 
         case kEventMouseDown:
             windowEvent.type = Event::POINTER_BUTTON_PRESS;
-            windowEvent.pointerMotion.buttons = _getButtonsState();
+            windowEvent.pointerMotion.buttons = _getButtonState();
             windowEvent.pointerButtonPress.button  =
                 _getButtonAction( event );
 
@@ -255,7 +255,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, AGLWindowIF* osWindow )
 
         case kEventMouseUp:
             windowEvent.type = Event::POINTER_BUTTON_RELEASE;
-            windowEvent.pointerMotion.buttons = _getButtonsState();
+            windowEvent.pointerMotion.buttons = _getButtonState();
             windowEvent.pointerButtonRelease.button = 
                 _getButtonAction( event );
 
@@ -333,25 +333,14 @@ bool AGLEventHandler::_handleKeyEvent( EventRef event, AGLWindowIF* osWindow )
     return osWindow->processEvent( windowEvent );
 }
 
-uint32_t AGLEventHandler::_getButtonsState()
+uint32_t AGLEventHandler::_getButtonState()
 {
-        UInt32 buttons = GetCurrentEventButtonState();
-        
-        if ( ( buttons & ( PTR_BUTTON3 + PTR_BUTTON2 ) ) ==
-             ( PTR_BUTTON3 + PTR_BUTTON2 ) )
-        {
-            
-        }
-        else if ( ( buttons & PTR_BUTTON3 ) ==  PTR_BUTTON3 )
-        { 
-            buttons = buttons - PTR_BUTTON3 + PTR_BUTTON2;
-        } 
-        else if ( ( buttons & PTR_BUTTON2 ) ==  PTR_BUTTON2 )
-        {
-            buttons = buttons - PTR_BUTTON2 + PTR_BUTTON3;           
-        }
-        
-        return buttons;
+    const uint32 buttons = GetCurrentEventButtonState();
+    
+    // swap button 2&3
+    return ( (buttons & 0xfffffff9u) +
+             ((buttons & EQ_BIT3) >> 1) +
+             ((buttons & EQ_BIT2) << 1) );
 }
 
 
