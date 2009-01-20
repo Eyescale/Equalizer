@@ -29,24 +29,38 @@ View::~View()
 
 void View::getInstanceData( net::DataOStream& os )
 {
-    os << _current;
-    if( _current == TYPE_NONE ) // OPT
+    serialize( os, DIRTY_ALL );
+}
+
+void View::pack( net::DataOStream& os )
+{
+    if( _dirty == DIRTY_NONE )
         return;
 
-    os << _dirty;
-    if( _dirty & DIRTY_WALL )
-        os << _wall;
-    if( _dirty & DIRTY_PROJECTION )
-        os << _projection;
-    if( _dirty & DIRTY_EYEBASE )
-        os << _eyeBase;
-    if( _dirty & DIRTY_NAME )
-        os << _name;
+    serialize( os, _dirty );
+    _dirty = DIRTY_NONE;
 }
 
 void View::applyInstanceData( net::DataIStream& is )
 {
     deserialize( is );
+}
+
+void View::serialize( net::DataOStream& os, const uint32_t dirtyBits )
+{
+    os << _current;
+    if( _current == TYPE_NONE ) // OPT
+        return;
+
+    os << dirtyBits;
+    if( dirtyBits & DIRTY_WALL )
+        os << _wall;
+    if( dirtyBits & DIRTY_PROJECTION )
+        os << _projection;
+    if( dirtyBits & DIRTY_EYEBASE )
+        os << _eyeBase;
+    if( dirtyBits & DIRTY_NAME )
+        os << _name;
 }
 
 void View::deserialize( net::DataIStream& is )
@@ -67,15 +81,6 @@ void View::deserialize( net::DataIStream& is )
         is >> _eyeBase;
     if( _dirty & DIRTY_NAME )
         is >> _name;
-}
-
-void View::pack( net::DataOStream& os )
-{
-    if( _dirty == DIRTY_NONE )
-        return;
-
-    getInstanceData( os );
-    _dirty = DIRTY_NONE;
 }
 
 void View::setWall( const Wall& wall )

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_VIEW_H
@@ -88,7 +88,8 @@ namespace eq
             DIRTY_WALL       = 1 << 0,
             DIRTY_PROJECTION = 1 << 1,
             DIRTY_EYEBASE    = 1 << 2,
-            DIRTY_NAME       = 1 << 3
+            DIRTY_NAME       = 1 << 3,
+            DIRTY_ALL        = 0xffff
         };
 
         uint32_t _dirty;
@@ -100,7 +101,9 @@ namespace eq
         float       _eyeBase;
         std::string _name;
 
-        /** worker for View( is ) constructor and applyInstanceData() */
+        /** worker for pack and getInstanceData() */
+        void serialize( net::DataOStream& os, const uint32_t dirtyBits );
+        /** worker for View( is ) constructor, unpack and applyInstanceData() */
         void deserialize( net::DataIStream& is );
     };
 
