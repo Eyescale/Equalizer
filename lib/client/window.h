@@ -221,6 +221,8 @@ namespace eq
 
         /** @name Actions */
         //*{
+        /** Flush outstanding rendering requests. */
+        virtual void flush() const { glFlush(); } 
         /** Finish outstanding rendering requests. */
         virtual void finish() const { glFinish(); }
         //*}
@@ -347,14 +349,17 @@ namespace eq
          * Finish rendering a frame.
          *
          * Called once at the end of each frame, to do per-frame updates of
-         * window-specific data.  This method has to call releaseFrame().
+         * window-specific data. This method has to call releaseFrame(). The
+         * default implementation also flushes all rendering commands. This
+         * light-weight call ensures that all outstanding rendering commands for
+         * the window's context are being executed in a timely fashion.
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finish.
          */
         virtual void frameFinish( const uint32_t frameID, 
                                   const uint32_t frameNumber )
-            { releaseFrame( frameNumber ); }
+            { releaseFrame( frameNumber ); flush(); }
 
         /** 
          * Finish drawing.
