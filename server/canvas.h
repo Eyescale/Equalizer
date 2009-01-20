@@ -6,8 +6,9 @@
 #define EQSERVER_CANVAS_H
 
 #include "types.h"
-#include "viewData.h"       // member
 #include "visitorResult.h"  // enum
+
+#include <eq/client/canvas.h>
 
 #include <eq/base/base.h>
 #include <string>
@@ -21,13 +22,13 @@ namespace server
     /**
      * The canvas. @sa eq::Canvas
      */
-    class Canvas
+    class Canvas : public eq::Canvas
     {
     public:
         /** 
          * Constructs a new Canvas.
          */
-        Canvas() : _layout( 0 ) {}
+        Canvas();
 
         /** Creates a new, deep copy of a canvas. */
         Canvas( const Canvas& from, Config* config );
@@ -50,16 +51,15 @@ namespace server
         const std::string& getName() const      { return _name; }
 
         /** Add a new segment to this canvas. */
-        void addSegment( Segment* segment ) { _segments.push_back( segment ); }
+        void addSegment( Segment* segment );
         
         /** Get the list of segments. */
         const SegmentVector& getSegments() const { return _segments; }
 
-        /** Set the view using a wall description. */
-        void setWall( const eq::Wall& wall );
-        
-        /** Set the view using a projection description. */
-        void setProjection( const eq::Projection& projection );
+        /** @return the currently used layout. */
+        Layout* getLayout() { return _layout; }
+        /** @return the currently used layout. */
+        const Layout* getLayout() const { return _layout; }
         //*}
 
         /**
@@ -80,20 +80,15 @@ namespace server
     protected:
 
     private:
-        /** The name of this canvas. */
-        std::string _name;
+        /** The parent config. */
+        Config* _config;
+        friend class Config;
 
         /** The currently active layout on this canvas. */
         Layout* _layout;
 
         /** Child segments on this canvas. */
         SegmentVector _segments;
-
-        /** Frustum information. */
-        ViewData _data;
-
-        /** Update the view (wall/projection). */
-        void _updateView();
     };
 
     std::ostream& operator << ( std::ostream& os, const Canvas* canvas);

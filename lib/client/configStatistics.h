@@ -5,7 +5,7 @@
 #ifndef EQ_CONFIGSTATISTICS_H
 #define EQ_CONFIGSTATISTICS_H
 
-#include <eq/client/configEvent.h>
+#include <eq/client/configEvent.h> // member
 #include <eq/client/event.h>
 
 namespace eq

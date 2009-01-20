@@ -7,6 +7,8 @@
 #include "layoutVisitor.h"
 #include "view.h"
 
+using namespace eq::base;
+
 namespace eq
 {
 namespace server
@@ -68,6 +70,39 @@ VisitorResult Layout::accept( LayoutVisitor* visitor )
     }
 
     return result;
+}
+
+void Layout::addView( View* view )
+{
+    EQASSERT( view );
+    if( view->getName().empty( ))
+    {
+        std::stringstream name;
+        name << "view" << _views.size() + 1;
+        view->setName( name.str( ));
+    }
+
+    _views.push_back( view );
+}
+
+std::ostream& operator << ( std::ostream& os, const Layout* layout )
+{
+    if( !layout )
+        return os;
+    
+    os << disableFlush << disableHeader << "layout" << std::endl;
+    os << "{" << std::endl << indent; 
+
+    const std::string& name = layout->getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << std::endl;
+
+    const ViewVector& views = layout->getViews();
+    for( ViewVector::const_iterator i = views.begin(); i != views.end(); ++i )
+        os << *i;
+
+    os << exdent << "}" << std::endl << enableHeader << enableFlush;
+    return os;
 }
 
 }

@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CONFIGVISITOR_H
 #define EQ_CONFIGVISITOR_H
 
-#include <eq/client/nodeVisitor.h>
+#include <eq/client/nodeVisitor.h> // base class
 
 namespace eq
 {

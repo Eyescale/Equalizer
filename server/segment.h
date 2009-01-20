@@ -7,10 +7,11 @@
 
 #include "types.h"
 #include "segmentVisitor.h"  // used in inline method
-#include "viewData.h"        // member
 
-#include <eq/base/base.h>
-#include <eq/client/viewport.h>  // member
+#include <eq/client/frustum.h>      // base class
+#include <eq/client/projection.h>   // member
+#include <eq/client/viewport.h>     // member
+#include <eq/client/wall.h>         // member
 
 #include <string>
 
@@ -23,7 +24,7 @@ namespace server
     /**
      * The segment. @sa eq::Segment
      */
-    class Segment
+    class Segment : public eq::Frustum
     {
     public:
         /** 
@@ -74,12 +75,6 @@ namespace server
 
         /** @return the segment's viewport. */
         const eq::Viewport& getViewport() const { return _vp; }
-
-        /** Set the view using a wall description. */
-        void setWall( const eq::Wall& wall );
-        
-        /** Set the view using a projection description. */
-        void setProjection( const eq::Projection& projection );
         //*}
         
         /** Operations */
@@ -108,9 +103,6 @@ namespace server
 
         /** The 2D area of this segment wrt to the canvas. */
         eq::Viewport _vp;
-
-        /** Frustum information. */
-        ViewData _data;
 
         /** Update the view (wall/projection). */
         void _updateView();

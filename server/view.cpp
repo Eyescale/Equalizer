@@ -7,6 +7,8 @@
 #include "config.h"
 #include "viewData.h"
 
+using namespace eq::base;
+
 namespace eq
 {
 namespace server
@@ -20,6 +22,7 @@ View::View()
 View::View( const View& from )
         : eq::View( from )
         , _data( from._data )
+        , _vp( from._vp )
 {
 }
 
@@ -38,6 +41,7 @@ View::View( ViewData& data )
 View::View( const View& from, ViewData& data )
         : eq::View( from )
         , _data( data )
+        , _vp( from._vp )
 {
     _updateView();
 }
@@ -101,6 +105,38 @@ void View::updateHead()
     // XXX eye base and head matrix belong together, see Issues on view spec
     const Config* config = EQSAFECAST( const Config*, session );
     _data.applyHead( config->getHeadMatrix(), getEyeBase( ));
+}
+
+std::ostream& operator << ( std::ostream& os, const View* view)
+{
+    if( !view )
+        return os;
+    
+    os << disableFlush << disableHeader << "view" << std::endl;
+    os << "{" << std::endl << indent;
+    
+    const std::string& name = view->getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << std::endl;
+
+    const eq::Viewport& vp  = view->getViewport();
+    if( vp.isValid( ) && vp != eq::Viewport::FULL )
+        os << "viewport " << vp << std::endl;
+
+    switch( view->getCurrentType( ))
+    {
+        case eq::View::TYPE_WALL:
+            os << view->getWall() << std::endl;
+            break;
+        case eq::View::TYPE_PROJECTION:
+            os << view->getProjection() << std::endl;
+            break;
+        default: 
+            break;
+    }
+
+    os << exdent << "}" << std::endl << enableHeader << enableFlush;
+    return os;
 }
 
 }

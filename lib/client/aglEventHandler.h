@@ -4,11 +4,7 @@
 #ifndef EQ_AGLEVENTHANDLER_H
 #define EQ_AGLEVENTHANDLER_H
 
-#include <eq/client/eventHandler.h>
-
-#include <eq/client/event.h>
-#include <eq/net/command.h>
-#include <eq/net/connectionSet.h>
+#include <eq/client/eventHandler.h> // base class
 
 namespace eq
 {

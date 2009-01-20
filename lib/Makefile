@@ -70,6 +70,8 @@ HEADER_SRC = \
 	net/pipeConnection.h \
 	net/session.h \
 	net/types.h \
+	client/canvas.h \
+	client/canvasVisitor.h \
 	client/channel.h \
 	client/channelStatistics.h \
 	client/channelVisitor.h \
@@ -89,6 +91,7 @@ HEADER_SRC = \
 	client/frame.h \
 	client/frameBufferObject.h \
 	client/frameData.h \
+	client/frustum.h \
 	client/global.h \
 	client/image.h \
 	client/init.h \
@@ -115,6 +118,7 @@ HEADER_SRC = \
 	client/version.h \
 	client/view.h \
 	client/viewport.h \
+	client/visitorResult.h \
 	client/wall.h \
 	client/window.h \
 	client/windowStatistics.h \
@@ -173,6 +177,7 @@ CXXFILES = \
 	net/staticMasterCM.cpp \
 	net/staticSlaveCM.cpp \
 	net/unbufferedMasterCM.cpp \
+	client/canvas.cpp \
 	client/channel.cpp \
 	client/channelStatistics.cpp \
 	client/client.cpp \
@@ -188,6 +193,7 @@ CXXFILES = \
 	client/frame.cpp \
 	client/frameData.cpp \
 	client/frameBufferObject.cpp \
+	client/frustum.cpp \
 	client/global.cpp \
 	client/pixel.cpp \
 	client/image.cpp \

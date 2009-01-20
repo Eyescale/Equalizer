@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CHANNELSTATISTICS_H
 #define EQ_CHANNELSTATISTICS_H
 
-#include <eq/client/event.h>
+#include <eq/client/event.h> // enum Statistic::Type
 
 namespace eq
 {

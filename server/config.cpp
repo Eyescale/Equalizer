@@ -15,6 +15,7 @@
 #include "loadBalancer.h"
 #include "log.h"
 #include "node.h"
+#include "segment.h"
 #include "server.h"
 
 #include <eq/net/command.h>
@@ -279,6 +280,13 @@ bool Config::removeNode( Node* node )
 
 void Config::addLayout( Layout* layout )
 {
+    if( layout->getName().empty( ))
+    {
+        std::stringstream name;
+        name << "layout" << _layouts.size() + 1;
+        layout->setName( name.str( ));
+    }
+
 //    layout->_config = this;
     _layouts.push_back( layout );
 }
@@ -329,9 +337,60 @@ Layout* Config::findLayout( const std::string& name )
     return finder.getResult();
 }
 
+namespace
+{
+class AddCanvasVisitor : public ConfigVisitor
+{
+public:
+    AddCanvasVisitor( Canvas* canvas ) : _canvas( canvas )
+        {}
+    virtual ~AddCanvasVisitor() {}
+
+    virtual VisitorResult visit( View* view )
+        {
+            _view = view;
+            _canvas->accept( this );
+            return TRAVERSE_CONTINUE;
+        }
+
+    virtual VisitorResult visit( Canvas* canvas )
+        {
+            if( canvas != _canvas ) // only consider our canvas
+                return TRAVERSE_PRUNE;
+            return TRAVERSE_CONTINUE;
+        }
+
+    virtual VisitorResult visit( Segment* segment )
+        {
+            Viewport viewport = segment->getViewport();
+            viewport.intersect( _view->getViewport( ));
+
+            EQINFO << "View " << _view->getName() << _view->getViewport()
+                   << " intersects " << segment->getName() 
+                   << segment->getViewport() << " at " << viewport << std::endl;
+
+            return TRAVERSE_CONTINUE;
+        }
+
+protected:
+    Canvas* const _canvas;
+    View*         _view; // The current view
+};
+}
+
 void Config::addCanvas( Canvas* canvas )
 {
-//    canvas->_config = this;
+    if( canvas->getName().empty( ))
+    {
+        std::stringstream name;
+        name << "canvas" << _canvases.size() + 1;
+        canvas->setName( name.str( ));
+    }
+
+    AddCanvasVisitor visitor( canvas );
+    accept( &visitor );
+
+    canvas->_config = this;
     _canvases.push_back( canvas );
 }
 
@@ -1230,12 +1289,25 @@ ostream& operator << ( ostream& os, const Config* config )
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
         os << *i;
 
+    const LayoutVector& layouts = config->getLayouts();
+    for( LayoutVector::const_iterator i = layouts.begin(); 
+         i !=layouts.end(); ++i )
+    {
+        os << *i;
+    }
+    const CanvasVector& canvases = config->getCanvases();
+    for( CanvasVector::const_iterator i = canvases.begin(); 
+         i != canvases.end(); ++i )
+    {
+        os << *i;
+    }
+
     const CompoundVector& compounds = config->getCompounds();
     for( CompoundVector::const_iterator i = compounds.begin(); 
          i != compounds.end(); ++i )
-
+    {
         os << *i;
-
+    }
     os << exdent << "}" << endl << enableHeader << enableFlush;
 
     return os;

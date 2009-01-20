@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_VIEWPORT_H
@@ -66,6 +66,38 @@ namespace eq
 
         /** @return the Y end position */
         float getYEnd() const { return y+h; }
+
+        /** create the intersection viewport  */
+        void intersect( const Viewport& rhs )
+            {
+                if( *this == rhs )
+                    return;
+
+                if( !rhs.isValid() || !isValid() )
+                {
+                    invalidate();
+                    return;
+                }
+                
+                if( !rhs.hasArea() || !hasArea() )
+                {
+                    x = 0;
+                    y = 0;
+                    w = 0;
+                    h = 0;
+                    return;
+                }
+                
+                const int32_t sEx =     x +     w;
+                const int32_t sEy =     y +     h;
+                const int32_t dEx = rhs.x + rhs.w;
+                const int32_t dEy = rhs.y + rhs.h;
+                    
+                x = EQ_MAX( x, rhs.x );
+                y = EQ_MAX( y, rhs.y );
+                w = EQ_MIN( sEx, dEx ) - x;
+                h = EQ_MIN( sEy, dEy ) - y;
+            }
 
         float x;
         float y;

@@ -50,7 +50,7 @@ namespace server
         const std::string& getName() const      { return _name; }
 
         /** Add a new view to this layout. */
-        void addView( View* view ) { _views.push_back( view ); }
+        void addView( View* view );
         
         /** Get the list of views. */
         const ViewVector& getViews() const { return _views; }

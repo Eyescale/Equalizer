@@ -7,14 +7,17 @@
 #include "channel.h"
 #include "config.h"
 
+using namespace eq::base;
+
 namespace eq
 {
 namespace server
 {
 
 Segment::Segment( const Segment& from, Config* config )
-        : _canvas( 0 ),
-          _channel( 0 )
+        : eq::Frustum( from )
+        , _canvas( 0 )
+        , _channel( 0 )
 {
     if( from._channel )
     {
@@ -35,18 +38,32 @@ Segment::~Segment()
     _channel = 0;
 }
 
-void Segment::setWall( const eq::Wall& wall )
-{
-    //eq::Segment::setWall( wall );
-    //_updateSegment();
-}
-        
-void Segment::setProjection( const eq::Projection& projection )
-{
-    //eq::Segment::setProjection( projection );
-    //_updateSegment();
-}
 
+std::ostream& operator << ( std::ostream& os, const Segment* segment)
+{
+    if( !segment )
+        return os;
+    
+    os << disableFlush << disableHeader << "segment" << std::endl;
+    os << "{" << std::endl << indent;
+    
+    const std::string& name = segment->getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << std::endl;
+
+    const Channel* channel = segment->getChannel();
+    if( channel && !channel->getName().empty( ))
+        os << "channel  \"" << channel->getName() << "\"" << std::endl;
+
+    const eq::Viewport& vp  = segment->getViewport();
+    if( vp.isValid( ) && vp != eq::Viewport::FULL )
+        os << "viewport " << vp << std::endl;
+
+    os << static_cast< const eq::Frustum& >( *segment );
+
+    os << exdent << "}" << std::endl << enableHeader << enableFlush;
+    return os;
+}
 
 }
 }

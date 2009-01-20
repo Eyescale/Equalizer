@@ -438,11 +438,11 @@ config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
         }
 configFields: /*null*/ | configFields configField
 configField:
-    nodes
+    node
     | EQTOKEN_NAME STRING       { config->setName( $2 ); }
-    | layouts
-    | canvases
-    | compounds
+    | layout
+    | canvas
+    | compound
     | EQTOKEN_LATENCY UNSIGNED  { config->setLatency( $2 ); }
     | EQTOKEN_ATTRIBUTES '{' configAttributes '}'
 configAttributes: /*null*/ | configAttributes configAttribute
@@ -450,7 +450,6 @@ configAttribute:
     EQTOKEN_EYE_BASE FLOAT { config->setFAttribute( 
                              eq::server::Config::FATTR_EYE_BASE, $2 ); }
 
-nodes: node | nodes node
 node: appNode | renderNode
 renderNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
                nodeFields
@@ -468,14 +467,14 @@ appNode: EQTOKEN_APPNODE '{' { node = loader->createNode(); }
 nodeFields: /*null*/ | nodeFields nodeField
 nodeField: 
     EQTOKEN_NAME STRING            { node->setName( $2 ); }
-    | connections
-    | pipes                
+    | connection
+    | pipe
     | EQTOKEN_ATTRIBUTES '{' nodeAttributes '}'
-connections: /*null*/ | connections connection
-connection: EQTOKEN_CONNECTION 
-            '{' { connectionDescription = new eq::server::ConnectionDescription; }
-            connectionFields '}' 
-             { 
+connection:
+    EQTOKEN_CONNECTION 
+        '{' { connectionDescription = new eq::server::ConnectionDescription; }
+             connectionFields
+        '}'  { 
                  node->addConnectionDescription( connectionDescription );
                  connectionDescription = 0;
              }
@@ -498,13 +497,12 @@ nodeAttribute:
         { node->setIAttribute( eq::Node::IATTR_HINT_STATISTICS, $2 ); }
 
 
-pipes: pipe | pipes pipe
 pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
         pipeFields
         '}' { node->addPipe( eqPipe ); eqPipe = 0; }
 pipeFields: /*null*/ | pipeFields pipeField
 pipeField:
-    windows   
+    window
     | EQTOKEN_ATTRIBUTES '{' pipeAttributes '}'
     | EQTOKEN_NAME     STRING          { eqPipe->setName( $2 ); }
     | EQTOKEN_PORT     UNSIGNED        { eqPipe->setPort( $2 ); }
@@ -519,13 +517,12 @@ pipeAttribute:
     EQTOKEN_HINT_THREAD IATTR
         { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_THREAD, $2 ); }
 
-windows: window | windows window
 window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
         windowFields
         '}' { eqPipe->addWindow( window ); window = 0; }
 windowFields: /*null*/ | windowFields windowField
 windowField: 
-    channels
+    channel
     | EQTOKEN_ATTRIBUTES '{' windowAttributes '}'
     | EQTOKEN_NAME STRING              { window->setName( $2 ); }
     | EQTOKEN_VIEWPORT viewport
@@ -569,7 +566,6 @@ windowAttribute:
     | EQTOKEN_PLANES_SAMPLES IATTR
         { window->setIAttribute( eq::Window::IATTR_PLANES_SAMPLES, $2 ); }
                      
-channels: channel | channels channel
 channel: EQTOKEN_CHANNEL '{' { channel = loader->createChannel(); }
          channelFields
         '}' { window->addChannel( channel ); channel = 0; }
@@ -594,7 +590,6 @@ channelAttribute:
         { channel->setIAttribute( eq::Channel::IATTR_HINT_STATISTICS, $2 ); }
 
 
-layouts: /*null*/ | layouts layout
 layout: EQTOKEN_LAYOUT '{' { layout = new eq::server::Layout; }
             layoutFields '}' { config->addLayout( layout ); layout = 0; }
 layoutFields: /*null*/ | layoutFields layoutField
@@ -612,7 +607,6 @@ viewField:
     | wall       { view->setWall( wall ); }
     | projection { view->setProjection( projection ); }
 
-canvases: /*null*/ | canvases canvas
 canvas: EQTOKEN_CANVAS '{' { canvas = new eq::server::Canvas; }
             canvasFields '}' { config->addCanvas( canvas ); canvas = 0; }
 canvasFields: /*null*/ | canvasFields canvasField
@@ -635,21 +629,20 @@ segment: EQTOKEN_SEGMENT '{' { segment = new eq::server::Segment; }
 segmentFields: /*null*/ | segmentFields segmentField
 segmentField:
     EQTOKEN_NAME STRING { segment->setName( $2 ); }
-    EQTOKEN_CHANNEL STRING
-      {
-          eq::server::Channel* channel = config->findChannel( $2 );
-          if( !channel )
-              yyerror( "No channel of the given name" );
-          else
-              segment->setChannel( channel );
-      }
+    | EQTOKEN_CHANNEL STRING
+        {
+            eq::server::Channel* channel = config->findChannel( $2 );
+            if( !channel )
+                yyerror( "No channel of the given name" );
+            else
+                segment->setChannel( channel );
+        }
     | EQTOKEN_VIEWPORT viewport
         { segment->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
     | wall       { segment->setWall( wall ); }
     | projection { segment->setProjection( projection ); }
 
 
-compounds: compound | compounds compound
 compound: EQTOKEN_COMPOUND '{' 
               {
                   eq::server::Compound* child = loader->createCompound();

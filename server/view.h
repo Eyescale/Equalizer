@@ -85,6 +85,8 @@ namespace server
         /** The fractional viewport with respect to the layout. */
         eq::Viewport _vp;
     };
+
+    std::ostream& operator << ( std::ostream& os, const View* view );
 }
 }
 #endif // EQ_VIEW_H

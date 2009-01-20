@@ -540,7 +540,7 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
     const eq::Viewport& vp  = channel->getViewport();
     if( vp.isValid( ) && !channel->_fixedPVP )
     {
-        if( vp == eq::Viewport::FULL )
+        if( vp != eq::Viewport::FULL )
             os << "viewport " << vp << endl;
     }
     else

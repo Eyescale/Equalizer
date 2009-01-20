@@ -1,12 +1,12 @@
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
                           , Makhinya Maxim
    All rights reserved. */
 
 #ifndef EQ_OS_WINDOW_AGL_H
 #define EQ_OS_WINDOW_AGL_H
 
-#include <eq/client/osWindow.h>
-#include <eq/client/aglWindowEvent.h>
+#include <eq/client/osWindow.h>       // base class
+#include <eq/client/aglWindowEvent.h> // used in inline method
 
 namespace eq
 {

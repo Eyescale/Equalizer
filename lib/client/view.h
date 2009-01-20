@@ -66,9 +66,6 @@ namespace eq
          */
         float getEyeBase() const { return _eyeBase; }
 
-        /** @return true if the view has to be committed. */
-        virtual bool isDirty() const { return (_dirty != 0); }
-
         /** @warning will not be supported in the future. */
         void setName( const std::string& name );
 
@@ -77,6 +74,7 @@ namespace eq
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
+        virtual bool isDirty() const { return (_dirty != 0); }
 
         virtual void getInstanceData( net::DataOStream& os );
         virtual void pack( net::DataOStream& os );

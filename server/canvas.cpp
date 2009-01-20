@@ -8,13 +8,22 @@
 #include "layout.h"
 #include "segment.h"
 
+using namespace eq::base;
+
 namespace eq
 {
 namespace server
 {
 
+Canvas::Canvas()
+        : _config( 0 )
+        , _layout( 0 )
+{}
+
 Canvas::Canvas( const Canvas& from, Config* config )
-        : _name( from._name )
+        : eq::Canvas( from )
+        , _config( config )
+        , _layout( 0 )
 {
     EQASSERT( config );
     
@@ -38,29 +47,31 @@ Canvas::Canvas( const Canvas& from, Config* config )
 
 Canvas::~Canvas()
 {
-//    if( _config )
-//        _config->removeCanvas( this );
-    
     for( SegmentVector::const_iterator i = _segments.begin();
          i != _segments.end(); ++i )
     {
         delete *i;
     }
 
+    if( _config )
+        _config->removeCanvas( this );
+
+    _config = 0;
     _segments.clear();
     _layout = 0;
 }
 
-void Canvas::setWall( const eq::Wall& wall )
+void Canvas::addSegment( Segment* segment )
 {
-    //eq::Canvas::setWall( wall );
-    //_updateCanvas();
-}
-        
-void Canvas::setProjection( const eq::Projection& projection )
-{
-    //eq::Canvas::setProjection( projection );
-    //_updateCanvas();
+    EQASSERT( segment );
+    if( segment->getName().empty( ))
+    {
+        std::stringstream name;
+        name << "segment" << _segments.size() + 1;
+        segment->setName( name.str( ));
+    }
+
+    _segments.push_back( segment );
 }
 
 void Canvas::useLayout( Layout* layout )
@@ -107,6 +118,34 @@ VisitorResult Canvas::accept( CanvasVisitor* visitor )
     }
 
     return result;
+}
+
+std::ostream& operator << ( std::ostream& os, const Canvas* canvas )
+{
+    if( !canvas )
+        return os;
+    
+    os << disableFlush << disableHeader << "canvas" << std::endl;
+    os << "{" << std::endl << indent; 
+
+    const std::string& name = canvas->getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << std::endl;
+
+    const Layout* layout = canvas->getLayout();
+    if( layout && !layout->getName().empty( ))
+        os << "layout   \"" << layout->getName() << "\"" << std::endl;
+
+    os << static_cast< const eq::Canvas& >( *canvas );
+
+    const SegmentVector& segments = canvas->getSegments();
+    for( SegmentVector::const_iterator i = segments.begin(); 
+         i != segments.end(); ++i )
+    {
+        os << *i;
+    }
+    os << exdent << "}" << std::endl << enableHeader << enableFlush;
+    return os;
 }
 
 }

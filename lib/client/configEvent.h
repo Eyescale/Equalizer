@@ -1,11 +1,11 @@
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CONFIGEVENT_H
 #define EQ_CONFIGEVENT_H
 
-#include <eq/client/event.h>
-#include <eq/client/packets.h>
+#include <eq/client/event.h>   // member
+#include <eq/client/packets.h> // base class
 
 namespace eq
 {
