@@ -93,7 +93,22 @@ namespace net
         /** @return how the changes are to be handled. */
         virtual Object::ChangeType getChangeType() const
             { return STATIC; }
-        
+
+        /** 
+         * Return if this object needs a commit.
+         * 
+         * This function is used for optimization, to detect early that no
+         * commit is needed. If it returns true, pack or getInstanceData will be
+         * executed. These functions can still decide to not write any data,
+         * upon which no new version will be created. If it returs false, commit
+         * will exit early. Applications using asynchronous commits (commitNB,
+         * commitSync) should use isDirty to decide if commitNB should be
+         * called.
+         * 
+         * @return true if a commit is needed.
+         */
+        virtual bool isDirty() const { return true; }
+
         /** 
          * Commit a new version of this object.
          * 

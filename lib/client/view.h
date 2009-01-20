@@ -67,7 +67,7 @@ namespace eq
         float getEyeBase() const { return _eyeBase; }
 
         /** @return true if the view has to be committed. */
-        bool isDirty() const { return (_dirty != 0); }
+        virtual bool isDirty() const { return (_dirty != 0); }
 
         /** @warning will not be supported in the future. */
         void setName( const std::string& name );

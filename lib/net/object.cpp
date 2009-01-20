@@ -234,6 +234,9 @@ bool Object::send( NodeVector nodes, ObjectPacket& packet, const void* data,
 
 uint32_t Object::commit()
 {
+    if( !isDirty( ))
+        return getVersion();
+
     const uint32_t requestID = commitNB();
     return commitSync( requestID );
 }

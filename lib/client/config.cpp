@@ -249,8 +249,7 @@ uint32_t Config::startFrame( const uint32_t frameID )
     for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
     {
         View* view = *i;
-        if( view->isDirty( ))
-            view->commit();
+        view->commit();
     }
 
     // Request new frame
