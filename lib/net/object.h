@@ -98,12 +98,12 @@ namespace net
          * Return if this object needs a commit.
          * 
          * This function is used for optimization, to detect early that no
-         * commit is needed. If it returns true, pack or getInstanceData will be
-         * executed. These functions can still decide to not write any data,
-         * upon which no new version will be created. If it returs false, commit
-         * will exit early. Applications using asynchronous commits (commitNB,
-         * commitSync) should use isDirty to decide if commitNB should be
-         * called.
+         * commit() is needed. If it returns true, pack() or getInstanceData()
+         * will be executed. These functions can still decide to not write any
+         * data, upon which no new version will be created. If it returns false,
+         * commit() will exit early. Applications using asynchronous commits
+         * (commitNB(), commitSync()) should use isDirty() to decide if
+         * commitNB() should be called.
          * 
          * @return true if a commit is needed.
          */
