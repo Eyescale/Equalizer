@@ -8,7 +8,6 @@
 #include <eq/net/dispatcher.h>               // base class
 #include <eq/net/commandQueue.h>             // member
 #include <eq/net/connectionSet.h>            // member
-#include <eq/net/idHash.h>                   // member
 #include <eq/net/nodeID.h>                   // member
 #include <eq/net/nodeType.h>                 // for TYPE_EQNET_NODE enum
 
@@ -416,7 +415,7 @@ namespace net
         bool unmapSession( Session* session );
 
         /** @return the mapped session with the given identifier, or 0. */
-        Session* getSession( const uint32_t id ) { return _sessions[id]; }
+        Session* getSession( const uint32_t id );
 
         bool hasSessions() const { return !_sessions.empty(); }
         //*}
@@ -503,7 +502,7 @@ namespace net
         State _state;
 
         /** The current mapped sessions of this node. */
-        IDHash<Session*> _sessions;
+        SessionHash _sessions;
 
         /** The connection to this node, for remote nodes. */
         ConnectionPtr _connection;

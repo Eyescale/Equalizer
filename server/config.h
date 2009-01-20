@@ -93,6 +93,34 @@ namespace server
         const LayoutVector& getLayouts() const { return _layouts; }
 
         /** 
+         * Find the first layout of a given name.
+         * 
+         * @param name the name of the layout to find
+         * @return the first layout with the name, or <code>0</code> if no
+         *         layout with the name exists.
+         */
+        Layout* findLayout( const std::string& name );
+
+        /** 
+         * Adds a new canvas to this config.
+         * 
+         * @param canvas the canvas.
+         */
+        void addCanvas( Canvas* canvas );
+
+        /** 
+         * Removes a canvas from this config.
+         * 
+         * @param canvas the canvas
+         * @return <code>true</code> if the canvas was removed,
+         *         <code>false</code> otherwise.
+         */
+        bool removeCanvas( Canvas* canvas );
+
+        /** @return the vecotr of canvases. */
+        const CanvasVector& getCanvases() const { return _canvases; }
+
+        /** 
          * Adds a new compound to this config.
          * 
          * @param compound the compound.
@@ -126,7 +154,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        ConfigVisitor::Result accept( ConfigVisitor* visitor );
+        VisitorResult accept( ConfigVisitor* visitor );
         //*}
 
         /** 
@@ -242,6 +270,9 @@ namespace server
 
         /** The list of layouts. */
         LayoutVector _layouts;
+
+        /** The list of canvases. */
+        CanvasVector _canvases;
 
         /** The list of compounds. */
         CompoundVector _compounds;

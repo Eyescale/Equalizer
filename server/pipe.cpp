@@ -123,10 +123,10 @@ bool Pipe::removeWindow( Window* window )
     return true;
 }
 
-PipeVisitor::Result Pipe::accept( PipeVisitor* visitor )
+VisitorResult Pipe::accept( PipeVisitor* visitor )
 { 
-    WindowVisitor::Result result = visitor->visitPre( this );
-    if( result != WindowVisitor::TRAVERSE_CONTINUE )
+    VisitorResult result = visitor->visitPre( this );
+    if( result != TRAVERSE_CONTINUE )
         return result;
 
     for( WindowVector::const_iterator i = _windows.begin(); 
@@ -135,14 +135,14 @@ PipeVisitor::Result Pipe::accept( PipeVisitor* visitor )
         Window* window = *i;
         switch( window->accept( visitor ))
         {
-            case WindowVisitor::TRAVERSE_TERMINATE:
-                return WindowVisitor::TRAVERSE_TERMINATE;
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
 
-            case WindowVisitor::TRAVERSE_PRUNE:
-                result = WindowVisitor::TRAVERSE_PRUNE;
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
                 break;
                 
-            case WindowVisitor::TRAVERSE_CONTINUE:
+            case TRAVERSE_CONTINUE:
             default:
                 break;
         }
@@ -150,16 +150,15 @@ PipeVisitor::Result Pipe::accept( PipeVisitor* visitor )
 
     switch( visitor->visitPost( this ))
     {
-        case NodeVisitor::TRAVERSE_TERMINATE:
-	  return NodeVisitor::TRAVERSE_TERMINATE;
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
 
-        case NodeVisitor::TRAVERSE_PRUNE:
-	  return NodeVisitor::TRAVERSE_PRUNE;
-	  break;
+        case TRAVERSE_PRUNE:
+            return TRAVERSE_PRUNE;
                 
-        case NodeVisitor::TRAVERSE_CONTINUE:
+        case TRAVERSE_CONTINUE:
         default:
-	  break;
+            break;
     }
 
     return result;

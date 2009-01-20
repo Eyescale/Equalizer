@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include "config.h"
 
+#include "canvas.h"
 #include "compound.h"
 #include "compoundVisitor.h"
 #include "constCompoundVisitor.h"
@@ -45,10 +46,7 @@ public:
             : _current( 0 ), _nViews( nViews ), _viewIDs( viewIDs ) {}
     virtual ~ViewMapper(){}
 
-    // No need to go down on nodes.
-    virtual Result visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
-    virtual Compound::VisitorResult visit( Compound* compound )
+    virtual VisitorResult visit( Compound* compound )
         { 
             switch( compound->getLatestView( ))
             {
@@ -70,7 +68,7 @@ public:
                     EQUNIMPLEMENTED;
             }
 
-            return Compound::TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE; 
         }
 
 private:
@@ -84,10 +82,7 @@ class ViewUnmapper : public ConfigVisitor
 public:
     virtual ~ViewUnmapper(){}
 
-    // No need to go down on nodes.
-    virtual Result visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
-    virtual Compound::VisitorResult visit( Compound* compound )
+    virtual VisitorResult visit( Compound* compound )
         { 
             switch( compound->getLatestView( ))
             {
@@ -110,7 +105,7 @@ public:
                     EQUNIMPLEMENTED;
             }
 
-            return Compound::TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE; 
         }
 };
 }
@@ -165,12 +160,18 @@ Config::Config( const Config& from )
         addLayout( new Layout( *layout ));
     }
 
+    const CanvasVector& canvases = from.getCanvases();
+    for( CanvasVector::const_iterator i = canvases.begin(); 
+         i != canvases.end(); ++i )
+    {
+        new Canvas( **i, this );
+    }
+
     const CompoundVector& compounds = from.getCompounds();
     for( CompoundVector::const_iterator i = compounds.begin(); 
          i != compounds.end(); ++i )
     {
-        const Compound* compound = *i;
-        new Compound( *compound, this, 0 );
+        new Compound( **i, this, 0 );
     }
 }
 
@@ -192,6 +193,16 @@ Config::~Config()
         delete compound;
     }
     _compounds.clear();
+
+    for( CanvasVector::const_iterator i = _canvases.begin(); 
+         i != _canvases.end(); ++i )
+    {
+        Canvas* canvas = *i;
+
+//        canvas->_config = 0;
+        delete canvas;
+    }
+    _canvases.clear();
 
     for( LayoutVector::const_iterator i = _layouts.begin(); 
          i != _layouts.end(); ++i )
@@ -284,6 +295,58 @@ bool Config::removeLayout( Layout* layout )
     return true;
 }
 
+
+namespace
+{
+class LayoutFinder : public ConfigVisitor
+{
+public:
+    LayoutFinder( const std::string& name ) : _name( name ), _result( 0 ) {}
+    virtual ~LayoutFinder(){}
+
+    virtual VisitorResult visitPre( Layout* layout )
+        {
+            if( layout->getName() == _name )
+            {
+                _result = layout;
+                return TRAVERSE_TERMINATE;
+            }
+            return TRAVERSE_CONTINUE;
+        }
+
+    Layout* getResult() { return _result; }
+
+private:
+    const std::string& _name;
+    Layout*           _result;
+};
+}
+
+Layout* Config::findLayout( const std::string& name )
+{
+    LayoutFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
+}
+
+void Config::addCanvas( Canvas* canvas )
+{
+//    canvas->_config = this;
+    _canvases.push_back( canvas );
+}
+
+bool Config::removeCanvas( Canvas* canvas )
+{
+    vector<Canvas*>::iterator i = find( _canvases.begin(), _canvases.end(),
+                                          canvas );
+    if( i == _canvases.end( ))
+        return false;
+
+    _canvases.erase( i );
+//    canvas->_config = 0;
+    return true;
+}
+
 void Config::addCompound( Compound* compound )
 {
     compound->_config = this;
@@ -302,33 +365,37 @@ bool Config::removeCompound( Compound* compound )
     return true;
 }
 
+namespace
+{
+class ChannelFinder : public ConfigVisitor
+{
+public:
+    ChannelFinder( const std::string& name ) : _name( name ), _result( 0 ) {}
+    virtual ~ChannelFinder(){}
+
+    virtual VisitorResult visit( Channel* channel )
+        {
+            if( channel->getName() == _name )
+            {
+                _result = channel;
+                return TRAVERSE_TERMINATE;
+            }
+            return TRAVERSE_CONTINUE;
+        }
+
+    Channel* getResult() { return _result; }
+
+private:
+    const std::string& _name;
+    Channel*           _result;
+};
+}
+
 Channel* Config::findChannel( const std::string& name )
 {
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
-    {
-        const Node*       node  = *i;
-        const PipeVector& pipes = node->getPipes();
-        for( PipeVector::const_iterator j = pipes.begin();
-             j != pipes.end(); ++j )
-        {
-            const Pipe*         pipe    = *j;
-            const WindowVector& windows = pipe->getWindows();
-            for( WindowVector::const_iterator k = windows.begin(); 
-                 k != windows.end(); ++k )
-            {
-                const Window*        window   = *k;
-                const ChannelVector& channels = window->getChannels();
-                for( ChannelVector::const_iterator l = channels.begin();
-                     l != channels.end(); ++l )
-                {
-                    const Channel* channel = *l;
-                    if( channel->getName() == name )
-                        return *l;
-                }
-            }
-        }
-    }
-    return 0;
+    ChannelFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
 }
 
 void Config::addApplicationNode( Node* node )
@@ -348,43 +415,66 @@ void Config::setApplicationNetNode( net::NodePtr node )
     _appNetNode = node;
 }
 
-ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
+VisitorResult Config::accept( ConfigVisitor* visitor )
 { 
-    NodeVisitor::Result result = visitor->visitPre( this );
-    if( result != NodeVisitor::TRAVERSE_CONTINUE )
+    VisitorResult result = visitor->visitPre( this );
+    if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( NodeVector::const_iterator i = _nodes.begin(); 
-         i != _nodes.end(); ++i )
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
         switch( node->accept( visitor ))
         {
-            case NodeVisitor::TRAVERSE_TERMINATE:
-                return NodeVisitor::TRAVERSE_TERMINATE;
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
 
-            case NodeVisitor::TRAVERSE_PRUNE:
-                result = NodeVisitor::TRAVERSE_PRUNE;
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
                 break;
                 
-            case NodeVisitor::TRAVERSE_CONTINUE:
+            case TRAVERSE_CONTINUE:
             default:
                 break;
         }
     }
 
-    switch( visitor->visitPost( this ))
+    for( LayoutVector::const_iterator i = _layouts.begin(); 
+         i != _layouts.end(); ++i )
     {
-        case NodeVisitor::TRAVERSE_TERMINATE:
-            return NodeVisitor::TRAVERSE_TERMINATE;
+        Layout* layout = *i;
+        switch( layout->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
 
-        case NodeVisitor::TRAVERSE_PRUNE:
-            result = NodeVisitor::TRAVERSE_PRUNE;
-            break;
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
                 
-        case NodeVisitor::TRAVERSE_CONTINUE:
-        default:
-            break;
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    for( CanvasVector::const_iterator i = _canvases.begin();
+         i != _canvases.end(); ++i )
+    {
+        Canvas* canvas = *i;
+        switch( canvas->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
     }
 
     for( CompoundVector::const_iterator i = _compounds.begin();
@@ -393,18 +483,32 @@ ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
         Compound* compound = *i;
         switch( compound->accept( visitor, false /*activeOnly*/ ))
         {
-            case Compound::TRAVERSE_TERMINATE:
-                return ConfigVisitor::TRAVERSE_TERMINATE;
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
 
-            case Compound::TRAVERSE_PRUNE:
-                return ConfigVisitor::TRAVERSE_PRUNE;
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
                 break;
                 
-            case Compound::TRAVERSE_CONTINUE:
+            case TRAVERSE_CONTINUE:
             default:
                 break;
         }
     }                                                           
+
+    switch( visitor->visitPost( this ))
+    {
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
+
+        case TRAVERSE_PRUNE:
+            result = TRAVERSE_PRUNE;
+            break;
+                
+        case TRAVERSE_CONTINUE:
+        default:
+            break;
+    }
 
     return result;
 }
@@ -424,10 +528,7 @@ public:
     ViewSerializer( net::DataOStream& os ) : _os( os ) {}
     virtual ~ViewSerializer(){}
 
-    // No need to go down on nodes.
-    virtual Result visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
-    virtual Compound::VisitorResult visit( Compound* compound )
+    virtual VisitorResult visit( Compound* compound )
         { 
             View& view = compound->getView();
             switch( view.getCurrentType( ))
@@ -467,7 +568,7 @@ public:
                     EQUNIMPLEMENTED;
             }
 
-            return Compound::TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE; 
         }
 
 private:
@@ -829,14 +930,14 @@ public:
     virtual ~ViewUpdater(){}
 
     // No need to go down on nodes.
-    virtual Result visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
 
-    virtual Compound::VisitorResult visit( Compound* compound )
+    virtual VisitorResult visit( Compound* compound )
         { 
             if( compound->getLatestView() != eq::View::TYPE_NONE )
                 compound->getView().updateHead();
 
-            return Compound::TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE; 
         }
 };
 }
@@ -853,7 +954,7 @@ void Config::_updateHead()
     accept( &updater );
 }
 
-void Config::_prepareFrame( vector< net::NodeID >& nodeIDs )
+void Config::_prepareFrame( std::vector< net::NodeID >& nodeIDs )
 {
     EQASSERT( _state == STATE_INITIALIZED );
     ++_currentFrame;
@@ -1052,18 +1153,18 @@ class FreezeVisitor : public ConfigVisitor
 {
 public:
     // No need to go down on nodes.
-    virtual Result visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
 
     FreezeVisitor( const bool freeze ) : _freeze( freeze ) {}
 
     /** Visit a non-leaf compound on the down traversal. */
-    virtual Compound::VisitorResult visitPre( Compound* compound )
+    virtual VisitorResult visitPre( Compound* compound )
         { 
             LoadBalancer* loadBalancer = compound->getLoadBalancer();
             if( loadBalancer )
                 loadBalancer->setFreeze( _freeze );
             
-            return Compound::TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE; 
         }
 
 private:

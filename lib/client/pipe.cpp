@@ -415,8 +415,7 @@ void Pipe::_flushFrames()
 {
     net::Session* session = getSession();
 
-    for( net::IDHash< Frame* >::const_iterator i = _frames.begin(); 
-         i != _frames.end(); ++ i )
+    for( FrameHash::const_iterator i = _frames.begin(); i != _frames.end(); ++i)
     {
         Frame* frame = i->second;
         session->unmapObject( frame );

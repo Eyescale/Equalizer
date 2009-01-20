@@ -176,8 +176,6 @@ net::CommandResult Server::_cmdCreateConfig( net::Command& command )
     NodePtr localNode = command.getLocalNode();
     Config* config    = Global::getNodeFactory()->createConfig( this );
 
-    EQASSERT( localNode->getSession( packet->configID ) == 0 );
-
     config->_name      = packet->name;
     config->_appNodeID = packet->appNodeID;
     config->_appNodeID.convertToHost();

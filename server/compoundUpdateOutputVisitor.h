@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_COMPOUNDUPDATEOUTPUTVISITOR_H
 #define EQSERVER_COMPOUNDUPDATEOUTPUTVISITOR_H
 
 #include "compoundVisitor.h" // base class
+#include "compound.h"        // nested type
 
 namespace eq
 {
@@ -24,9 +25,9 @@ namespace server
         virtual ~CompoundUpdateOutputVisitor() {}
 
         /** Visit a leaf compound. */
-        virtual Compound::VisitorResult visitLeaf( Compound* compound );
+        virtual VisitorResult visitLeaf( Compound* compound );
         /** Visit a non-leaf compound on the up traversal. */
-        virtual Compound::VisitorResult visitPost( Compound* compound )
+        virtual VisitorResult visitPost( Compound* compound )
             { return visitLeaf( compound ); }
 
         const Compound::BarrierMap& getSwapBarriers()

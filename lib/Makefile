@@ -57,7 +57,6 @@ HEADER_SRC = \
 	net/dataOStream.h \
 	net/fdConnection.h \
 	net/global.h \
-	net/idHash.h \
 	net/init.h \
 	net/log.h \
 	net/net.h \

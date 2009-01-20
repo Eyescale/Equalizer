@@ -75,15 +75,6 @@ namespace server
             COLOR_MASK_ALL       = 0xff
         };
 
-        /** The return value of a CompoundVisitor::visit method */
-        enum VisitorResult
-        {
-            TRAVERSE_CONTINUE,
-            TRAVERSE_TERMINATE,
-            TRAVERSE_PRUNE
-        };
-
-
         /**
          * @name Attributes
          */
@@ -196,7 +187,7 @@ namespace server
         /** 
          * Add a task to be executed by the compound, preserving previous tasks.
          * 
-         * @param tasks the compound tasks.
+         * @param task the compound task to add.
          */
         void enableTask( const eq::Task task ) { _data.tasks |= task; }
 
@@ -215,7 +206,7 @@ namespace server
          * Add a image buffer to be used by the compound, preserving previous
          * buffers.
          * 
-         * @param buffers the compound image buffers.
+         * @param buffer the compound image buffer to add.
          */
         void enableBuffer( const eq::Frame::Buffer buffer )
             { _data.buffers |= buffer; }

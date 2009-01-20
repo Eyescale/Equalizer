@@ -247,9 +247,10 @@ namespace eq
             View           base;
             vmml::Vector2i size;
         };
+        typedef stde::hash_map< uint32_t, BaseView > BaseViewHash;
 
         /** Unmodified, baseline view data. */
-        net::IDHash< BaseView > _baseViews;
+        BaseViewHash _baseViews;
         
         /** @sa eq::net::Session::setLocalNode() */
         virtual void setLocalNode( net::NodePtr node );

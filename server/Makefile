@@ -2,6 +2,7 @@
 include $(TOP)/make/system.mk
 
 CXXFILES = \
+	canvas.cpp \
 	channel.cpp \
 	channelUpdateVisitor.cpp \
 	compound.cpp \
@@ -22,6 +23,7 @@ CXXFILES = \
 	node.cpp \
 	parser.cpp \
 	pipe.cpp \
+	segment.cpp \
 	server.cpp \
 	smoothLoadBalancer.cpp \
 	startLocalServer.cpp \

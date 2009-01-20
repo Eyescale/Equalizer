@@ -401,18 +401,17 @@ void Compound::setProjection( const eq::Projection& projection )
 namespace
 {
 template< class C, class V >
-Compound::VisitorResult _accept( C* compound, V* visitor, 
-                                 const bool activeOnly )
+VisitorResult _accept( C* compound, V* visitor, const bool activeOnly )
 {
     if( compound->isLeaf( )) 
     {
         if ( !activeOnly || compound->isActive( )) 
             return visitor->visitLeaf( compound );
-        return Compound::TRAVERSE_CONTINUE;
+        return TRAVERSE_CONTINUE;
     }
 
     C* current = compound;
-    Compound::VisitorResult result = Compound::TRAVERSE_CONTINUE;
+    VisitorResult result = TRAVERSE_CONTINUE;
 
     while( true )
     {
@@ -429,15 +428,15 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
             {
                 switch( visitor->visitLeaf( current ))
                 {
-                    case Compound::TRAVERSE_TERMINATE:
-                        return Compound::TRAVERSE_TERMINATE;
+                    case TRAVERSE_TERMINATE:
+                        return TRAVERSE_TERMINATE;
 
-                    case Compound::TRAVERSE_PRUNE:
-                        result = Compound::TRAVERSE_PRUNE;
+                    case TRAVERSE_PRUNE:
+                        result = TRAVERSE_PRUNE;
                         current = next;
                         break;
 
-                    case Compound::TRAVERSE_CONTINUE:
+                    case TRAVERSE_CONTINUE:
                         current = next;
                         break;
 
@@ -454,15 +453,15 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
             {
                 switch( visitor->visitPre( current ))
                 {
-                    case Compound::TRAVERSE_TERMINATE:
-                        return Compound::TRAVERSE_TERMINATE;
+                    case TRAVERSE_TERMINATE:
+                        return TRAVERSE_TERMINATE;
 
-                    case Compound::TRAVERSE_PRUNE:
-                        result = Compound::TRAVERSE_PRUNE;
+                    case TRAVERSE_PRUNE:
+                        result = TRAVERSE_PRUNE;
                         current = next;
                         break;
 
-                    case Compound::TRAVERSE_CONTINUE:
+                    case TRAVERSE_CONTINUE:
                         current = child;
                         break;
 
@@ -475,7 +474,7 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
         }
 
         //---------- up-right traversal
-        if( !current && !parent ) return Compound::TRAVERSE_CONTINUE;
+        if( !current && !parent ) return TRAVERSE_CONTINUE;
 
         while( !current )
         {
@@ -487,14 +486,14 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
             {
                 switch( visitor->visitPost( current ))
                 {
-                    case Compound::TRAVERSE_TERMINATE:
-                        return Compound::TRAVERSE_TERMINATE;
+                    case TRAVERSE_TERMINATE:
+                        return TRAVERSE_TERMINATE;
 
-                    case Compound::TRAVERSE_PRUNE:
-                        result = Compound::TRAVERSE_PRUNE;
+                    case TRAVERSE_PRUNE:
+                        result = TRAVERSE_PRUNE;
                         break;
 
-                    case Compound::TRAVERSE_CONTINUE:
+                    case TRAVERSE_CONTINUE:
                         break;
 
                     default:
@@ -511,14 +510,14 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
 }
 }
 
-Compound::VisitorResult Compound::accept( ConstCompoundVisitor* visitor,
-                                          const bool activeOnly ) const
+VisitorResult Compound::accept( ConstCompoundVisitor* visitor,
+                                const bool activeOnly ) const
 {
     return _accept( this, visitor, activeOnly );
 }
 
-Compound::VisitorResult Compound::accept( CompoundVisitor* visitor,
-                                          const bool activeOnly )
+VisitorResult Compound::accept( CompoundVisitor* visitor,
+                                const bool activeOnly )
 {
     return _accept( this, visitor, activeOnly );
 }

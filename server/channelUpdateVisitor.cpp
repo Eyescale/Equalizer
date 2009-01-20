@@ -30,7 +30,7 @@ ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
         , _updated( false )
 {}
 
-Compound::VisitorResult ChannelUpdateVisitor::visitPre( 
+VisitorResult ChannelUpdateVisitor::visitPre( 
     const Compound* compound )
 {
     _updateDrawFinish( compound );
@@ -38,7 +38,7 @@ Compound::VisitorResult ChannelUpdateVisitor::visitPre(
     if( compound->getChannel() != _channel || 
         !compound->testInheritEye( _eye ) )
         
-        return Compound::TRAVERSE_CONTINUE;
+        return TRAVERSE_CONTINUE;
 
     _updateFrameRate( compound );
 
@@ -52,17 +52,17 @@ Compound::VisitorResult ChannelUpdateVisitor::visitPre(
         EQLOG( eq::LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
                                << &clearPacket << endl;
     }
-    return Compound::TRAVERSE_CONTINUE;
+    return TRAVERSE_CONTINUE;
 }
 
-Compound::VisitorResult ChannelUpdateVisitor::visitLeaf( 
+VisitorResult ChannelUpdateVisitor::visitLeaf( 
     const Compound* compound )
 {
     if( compound->getChannel() != _channel ||
         !compound->testInheritEye( _eye ) )
     {
         _updateDrawFinish( compound );
-        return Compound::TRAVERSE_CONTINUE;
+        return TRAVERSE_CONTINUE;
     }
 
     _updateFrameRate( compound );
@@ -93,21 +93,21 @@ Compound::VisitorResult ChannelUpdateVisitor::visitLeaf(
     
     _updateDrawFinish( compound );
     _updatePostDraw( compound, context );
-    return Compound::TRAVERSE_CONTINUE;
+    return TRAVERSE_CONTINUE;
 }
 
-Compound::VisitorResult ChannelUpdateVisitor::visitPost(
+VisitorResult ChannelUpdateVisitor::visitPost(
     const Compound* compound )
 {
     if( compound->getChannel() != _channel || !compound->getInheritTasks() ||
         !compound->testInheritEye( _eye ))
 
-        return Compound::TRAVERSE_CONTINUE;
+        return TRAVERSE_CONTINUE;
 
     eq::RenderContext context;
     _setupRenderContext( compound, context );
     _updatePostDraw( compound, context );
-    return Compound::TRAVERSE_CONTINUE;
+    return TRAVERSE_CONTINUE;
 }
 
 

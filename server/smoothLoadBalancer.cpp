@@ -28,13 +28,13 @@ class LoadSubscriber : public CompoundVisitor
 public:
     LoadSubscriber( ChannelListener* listener ) : _listener( listener ) {}
 
-    virtual Compound::VisitorResult visit( Compound* compound )
+    virtual VisitorResult visit( Compound* compound )
         {
             Channel*  channel = compound->getChannel();
             EQASSERT( channel );
             channel->addListener( _listener );
 
-            return Compound::TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE; 
         }
 
 private:
@@ -46,13 +46,13 @@ class LoadUnsubscriber : public CompoundVisitor
 public:
     LoadUnsubscriber( ChannelListener* listener ) : _listener( listener ) {}
 
-    virtual Compound::VisitorResult visit( Compound* compound )
+    virtual VisitorResult visit( Compound* compound )
         {
             Channel*  channel = compound->getChannel();
             EQASSERT( channel );
             channel->removeListener( _listener );
 
-            return Compound::TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE; 
         }
 
 private:

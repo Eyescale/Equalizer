@@ -21,7 +21,7 @@ namespace server
         virtual ~CompoundInitVisitor() {}
 
         /** Visit all compounds. */
-        virtual Compound::VisitorResult visit( Compound* compound );
+        virtual VisitorResult visit( Compound* compound );
     };
 }
 }

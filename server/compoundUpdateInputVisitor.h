@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_COMPOUNDUPDATEINPUTVISITOR_H
@@ -7,12 +7,15 @@
 
 #include "compoundVisitor.h" // base class
 
+#include <eq/base/hash.h>
+
 namespace eq
 {
 namespace server
 {
     class Channel;
-    
+    class Frame;
+
     /**
      * The compound visitor updating the inherit input of a compound tree.
      */
@@ -24,10 +27,10 @@ namespace server
         virtual ~CompoundUpdateInputVisitor() {}
 
         /** Visit a non-leaf compound on the down traversal. */
-        virtual Compound::VisitorResult visitPre( Compound* compound )
+        virtual VisitorResult visitPre( Compound* compound )
             { return visitLeaf( compound ); }
         /** Visit a leaf compound. */
-        virtual Compound::VisitorResult visitLeaf( Compound* compound );
+        virtual VisitorResult visitLeaf( Compound* compound );
 
     private:
         const stde::hash_map<std::string, Frame*>& _outputFrames;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "compoundUpdateInputVisitor.h"
@@ -18,23 +18,23 @@ namespace eq
 namespace server
 {
 CompoundUpdateInputVisitor::CompoundUpdateInputVisitor(
-    const Compound::FrameMap& outputFrames )
+    const stde::hash_map<std::string, Frame*>& outputFrames )
         : _outputFrames( outputFrames )
 {}
 
-Compound::VisitorResult CompoundUpdateInputVisitor::visitLeaf(
+VisitorResult CompoundUpdateInputVisitor::visitLeaf(
     Compound* compound )
 {
     const std::vector< Frame* >& inputFrames = compound->getInputFrames();
     const Channel*               channel     = compound->getChannel();
 
     if( !compound->testInheritTask( eq::TASK_ASSEMBLE ) || !channel )
-        return Compound::TRAVERSE_CONTINUE;
+        return TRAVERSE_CONTINUE;
 
     if( inputFrames.empty( ))
     {
         compound->unsetInheritTask( eq::TASK_ASSEMBLE );
-        return Compound::TRAVERSE_CONTINUE;
+        return TRAVERSE_CONTINUE;
     }
 
     for( vector<Frame*>::const_iterator i = inputFrames.begin(); 
@@ -85,7 +85,7 @@ Compound::VisitorResult CompoundUpdateInputVisitor::visitLeaf(
             << "\" tile pos " << frameOffset << " sub-pvp " << framePVP << endl;
     }
 
-    return Compound::TRAVERSE_CONTINUE;
+    return TRAVERSE_CONTINUE;
 }
 
 }

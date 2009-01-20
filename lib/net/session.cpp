@@ -39,34 +39,35 @@ Session::Session()
 Session::~Session()
 {
     EQINFO << "Delete Session @" << (void*)this << endl;
+    EQASSERTINFO( _id == EQ_ID_INVALID, "Session still mapped during deletion");
 
+    _id        = EQ_ID_INVALID;
+    _isMaster  = false;
     _localNode = 0;
     _server    = 0;
-        
+    
+#ifndef NDEBUG
     if( !_objects.empty( ))
     {
-        if( base::Log::level >= base::LOG_WARN ) // OPT
+        EQWARN << _objects.size() << " attached objects in destructor" << endl;
+        
+        for( ObjectVectorHash::const_iterator i = _objects.begin();
+             i != _objects.end(); ++i )
         {
-            EQWARN << _objects.size()
-                   << " attached objects in destructor" << endl;
-
-            for( IDHash< ObjectVector >::const_iterator i = _objects.begin();
-                 i != _objects.end(); ++i )
+            const ObjectVector& objects = i->second;
+            EQWARN << "  " << objects.size() << " objects with id " 
+                   << i->first << endl;
+            
+            for( ObjectVector::const_iterator j = objects.begin();
+                 j != objects.end(); ++j )
             {
-                const ObjectVector& objects = i->second;
-                EQWARN << "  " << objects.size() << " objects with id " 
-                       << i->first << endl;
-
-                for( ObjectVector::const_iterator j = objects.begin();
-                     j != objects.end(); ++j )
-                {
-                    const Object* object = *j;
-                    EQINFO << "    object type " << typeid(*object).name() 
-                           << endl;
-                }
+                const Object* object = *j;
+                EQINFO << "    object type " << typeid(*object).name() 
+                       << endl;
             }
         }
     }
+#endif
     _objects.clear();
 }
 

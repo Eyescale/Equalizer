@@ -20,23 +20,23 @@ ConfigUpdateDataVisitor::ConfigUpdateDataVisitor()
 {}
 
 
-ConfigVisitor::Result ConfigUpdateDataVisitor::visitPre( Node* node )
+VisitorResult ConfigUpdateDataVisitor::visitPre( Node* node )
 {
     _lastDrawPipe = 0;
     return TRAVERSE_CONTINUE;
 }
-ConfigVisitor::Result ConfigUpdateDataVisitor::visitPost( Node* node )
+VisitorResult ConfigUpdateDataVisitor::visitPost( Node* node )
 {
     node->setLastDrawPipe( _lastDrawPipe );
     return TRAVERSE_CONTINUE;
 }
 
-ConfigVisitor::Result ConfigUpdateDataVisitor::visitPre( Pipe* pipe )
+VisitorResult ConfigUpdateDataVisitor::visitPre( Pipe* pipe )
 {
     _lastDrawWindow = 0;
     return TRAVERSE_CONTINUE;
 }
-ConfigVisitor::Result ConfigUpdateDataVisitor::visitPost( Pipe* pipe )
+VisitorResult ConfigUpdateDataVisitor::visitPost( Pipe* pipe )
 {
     pipe->setLastDrawWindow( _lastDrawWindow );
     if( _lastDrawWindow )
@@ -44,12 +44,12 @@ ConfigVisitor::Result ConfigUpdateDataVisitor::visitPost( Pipe* pipe )
     return TRAVERSE_CONTINUE;
 }
 
-ConfigVisitor::Result ConfigUpdateDataVisitor::visitPre( Window* window )
+VisitorResult ConfigUpdateDataVisitor::visitPre( Window* window )
 {
     _lastDrawChannel = 0;
     return TRAVERSE_CONTINUE;
 }
-ConfigVisitor::Result ConfigUpdateDataVisitor::visitPost( Window* window )
+VisitorResult ConfigUpdateDataVisitor::visitPost( Window* window )
 {
     window->setLastDrawChannel( _lastDrawChannel );
     if( _lastDrawChannel )
@@ -57,7 +57,7 @@ ConfigVisitor::Result ConfigUpdateDataVisitor::visitPost( Window* window )
     return TRAVERSE_CONTINUE;
 }
 
-ConfigVisitor::Result ConfigUpdateDataVisitor::visit( Channel* channel )
+VisitorResult ConfigUpdateDataVisitor::visit( Channel* channel )
 {
     if( channel->getLastDrawCompound( ))
         _lastDrawChannel = channel;

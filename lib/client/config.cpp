@@ -453,7 +453,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 void Config::handleViewResize( const uint32_t viewID,
                                const vmml::Vector2i& newSize )
 {
-    net::IDHash< BaseView >::const_iterator i = _baseViews.find( viewID );
+    BaseViewHash::const_iterator i = _baseViews.find( viewID );
 
     if( i == _baseViews.end( )) // new view, save base data
     {

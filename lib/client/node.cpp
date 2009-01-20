@@ -337,7 +337,7 @@ void Node::_flushObjects()
     net::Session* session = getSession();
 
     _barriersMutex.set();
-    for( net::IDHash< net::Barrier* >::const_iterator i =_barriers.begin(); 
+    for( BarrierHash::const_iterator i =_barriers.begin();
          i != _barriers.end(); ++ i )
     {
         net::Barrier* barrier = i->second;
@@ -348,7 +348,7 @@ void Node::_flushObjects()
     _barriersMutex.unset();
 
     _frameDatasMutex.set();
-    for( net::IDHash< FrameData* >::const_iterator i = _frameDatas.begin(); 
+    for( FrameDataHash::const_iterator i = _frameDatas.begin(); 
          i != _frameDatas.end(); ++ i )
     {
         FrameData* frameData = i->second;

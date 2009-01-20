@@ -19,7 +19,7 @@ namespace server
 CompoundInitVisitor::CompoundInitVisitor()
 {}
 
-Compound::VisitorResult CompoundInitVisitor::visit( Compound* compound )
+VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
     Channel* channel = compound->getChannel();
     if( channel )
@@ -66,7 +66,7 @@ Compound::VisitorResult CompoundInitVisitor::visit( Compound* compound )
     if( channel )
         channel->addTasks( compound->getInheritTasks( ));
 
-    return Compound::TRAVERSE_CONTINUE;    
+    return TRAVERSE_CONTINUE;    
 }
 
 }

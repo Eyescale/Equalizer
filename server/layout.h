@@ -5,6 +5,7 @@
 #ifndef EQSERVER_LAYOUT_H
 #define EQSERVER_LAYOUT_H
 
+#include "visitorResult.h" // enum
 #include "types.h"
 
 #include <eq/base/base.h>
@@ -14,6 +15,8 @@ namespace eq
 {
 namespace server
 {
+    class LayoutVisitor;
+
     /**
      * The layout. @sa eq::Layout
      */
@@ -29,7 +32,7 @@ namespace server
         Layout( const Layout& from );
 
         /** Destruct this layout. */
-        virtual ~Layout(){}
+        virtual ~Layout();
 
         /**
          * @name Data Access
@@ -38,7 +41,8 @@ namespace server
         /** 
          * Set the name of this layout.
          *
-         * The names is used by the canvas referenc layouts in the config file.
+         * The name is used by the canvas to reference layouts in the config
+         * file.
          */
         void setName( const std::string& name ) { _name = name; }
 
@@ -56,6 +60,13 @@ namespace server
          * @name Operations
          */
         //*{
+        /** 
+         * Traverse this layout and all children using a layout visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        VisitorResult accept( LayoutVisitor* visitor );
         //*}
         
     protected:

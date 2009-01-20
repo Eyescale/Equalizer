@@ -1,8 +1,10 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "compoundUpdateDataVisitor.h"
+
+#include "compound.h"
 
 #include <eq/client/log.h>
 
@@ -18,7 +20,7 @@ CompoundUpdateDataVisitor::CompoundUpdateDataVisitor(
         : _frameNumber( frameNumber )
 {}
 
-Compound::VisitorResult CompoundUpdateDataVisitor::visit(
+VisitorResult CompoundUpdateDataVisitor::visit(
     Compound* compound )
 {
     compound->fireUpdatePre( _frameNumber );
@@ -29,7 +31,7 @@ Compound::VisitorResult CompoundUpdateDataVisitor::visit(
 
     compound->updateInheritData( _frameNumber );
     _updateDrawFinish( compound );
-    return Compound::TRAVERSE_CONTINUE;    
+    return TRAVERSE_CONTINUE;    
 }
 
 

@@ -95,6 +95,21 @@ Node::~Node()
     EQASSERT( _commandCache.empty( ));
     EQASSERT( _nodes.empty( ));
     EQASSERT( _requestHandler.empty( ));
+
+#ifndef NDEBUG
+    if( !_sessions.empty( ))
+    {
+        EQINFO << _sessions.size() << " mapped sessions" << endl;
+        
+        for( SessionHash::const_iterator i = _sessions.begin();
+             i != _sessions.end(); ++i )
+        {
+            const Session* session = i->second;
+            EQINFO << "    Session " << session->getID() << std::endl;
+        }
+    }
+#endif
+
     EQASSERT( _sessions.empty( ));
 
     EQASSERT( _receivedCommand == 0 );
@@ -431,17 +446,25 @@ void Node::_addSession( Session* session, NodePtr server,
     session->_isMaster  = ( server==this && isLocal( ));
     session->setLocalNode( this );
 
-    _sessions[sessionID] = session;
+    EQASSERTINFO( _sessions.find( sessionID ) == _sessions.end(),
+                  "Session " << sessionID << " @" << (void*)session
+                  << " already mapped on " << this << " @"
+                  <<  (void*)_sessions[ sessionID ] );
+    _sessions[ sessionID ] = session;
 
     EQINFO << (session->_isMaster ? "master" : "client") << " session, id "
-           << sessionID << ", served by " << server.get() << ", managed by "
+           << sessionID << ", served by " << server.get() << ", mapped on "
            << this << endl;
 }
 
 void Node::_removeSession( Session* session )
 {
     CHECK_THREAD( _thread );
+    EQASSERT( _sessions.find( session->getID( )) != _sessions.end( ));
+
     _sessions.erase( session->getID( ));
+    EQINFO << "Erased session " << session->getID() << ", " << _sessions.size()
+           << " left" << std::endl;
 
     session->setLocalNode( 0 );
     session->_server    = 0;
@@ -491,6 +514,17 @@ bool Node::unmapSession( Session* session )
     bool ret = false;
     _requestHandler.waitRequest( packet.requestID, ret );
     return ret;
+}
+
+Session* Node::getSession( const uint32_t id )
+{
+    SessionHash::const_iterator i = _sessions.find( id );
+    
+    EQASSERT( i != _sessions.end( ));
+    if( i == _sessions.end( ))
+        return 0;
+
+    return i->second;
 }
 
 uint32_t Node::_generateSessionID()
@@ -789,7 +823,9 @@ bool Node::dispatchCommand( Command& command )
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
             const uint32_t       id            = sessionPacket->sessionID;
-            Session*             session       = _sessions[id];
+
+            EQASSERT( _sessions.find( id ) != _sessions.end( ));
+            Session*             session       = _sessions[ id ];
             EQASSERTINFO( session, "Can't find session for " << sessionPacket );
             
             return session->dispatchCommand( command );
@@ -883,7 +919,9 @@ CommandResult Node::invokeCommand( Command& command )
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
             const uint32_t       id            = sessionPacket->sessionID;
-            Session*             session       = _sessions[id];
+
+            EQASSERT( _sessions.find( id ) != _sessions.end( ));
+            Session*             session       = _sessions[ id ];
             EQASSERTINFO( session, "Can't find session for " << sessionPacket );
             
             return session->invokeCommand( command );
@@ -967,7 +1005,7 @@ CommandResult Node::_cmdMapSession( Command& command )
     else
     {
         const uint32_t sessionID = packet->sessionID;
-        IDHash<Session*>::const_iterator i = _sessions.find( sessionID );
+        SessionHash::const_iterator i = _sessions.find( sessionID );
         
         if( i == _sessions.end( ))
             reply.sessionID = EQ_ID_INVALID;
@@ -1008,7 +1046,8 @@ CommandResult Node::_cmdUnmapSession( Command& command )
     CHECK_THREAD( _thread );
     
     const uint32_t sessionID = packet->sessionID;
-    Session*       session   = _sessions[sessionID];
+    SessionHash::const_iterator i = _sessions.find( sessionID );
+    Session* session = (i == _sessions.end() ? 0 : i->second );
 
     NodeUnmapSessionReplyPacket reply( packet );
     reply.result = (session != 0);
@@ -1036,7 +1075,6 @@ CommandResult Node::_cmdUnmapSessionReply( Command& command)
 
     if( session )
     {
-        NodePtr node = command.getNode();
         _removeSession( session ); // TODO use session existence as return value
         _requestHandler.serveRequest( requestID, true );
     }

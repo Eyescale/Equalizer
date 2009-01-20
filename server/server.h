@@ -11,7 +11,6 @@
 #include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
 #include <eq/net/command.h>      // used in inline method
 #include <eq/net/commandQueue.h> // member
-#include <eq/net/idHash.h>       // member
 #include <eq/net/node.h>         // base class & eqsStartLocalServer declaration
 
 namespace eq
@@ -21,7 +20,8 @@ namespace eq
  * @brief The Equalizer server library.
  *
  * This namespace implements the server-side functionality for the Equalizer
- * framework.
+ * framework. The API is not stable and certain assumptions are not documented,
+ * use it at your own risk!
  */
 namespace server
 {
@@ -83,10 +83,11 @@ namespace server
         uint32_t _configID;
 
         /** The list of configurations. */
-        ConfigVector   _configs;
+        ConfigVector _configs;
 
+        typedef stde::hash_map< uint32_t, Config* > ConfigHash;
         /** The application-allocated configurations, mapped by identifier. */
-        net::IDHash<Config*> _appConfigs;
+        ConfigHash _appConfigs;
 
         /** The receiver->main command queue. */
         net::CommandQueue    _serverThreadQueue;

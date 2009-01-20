@@ -122,7 +122,7 @@ DPLEX                           { return EQTOKEN_DPLEX; }
 channel                         { return EQTOKEN_CHANNEL; }
 layout                          { return EQTOKEN_LAYOUT; }
 view                            { return EQTOKEN_VIEW; }
-surface                         { return EQTOKEN_SURFACE; }
+canvas                          { return EQTOKEN_CANVAS; }
 segment                         { return EQTOKEN_SEGMENT; }
 compound                        { return EQTOKEN_COMPOUND; }
 loadBalancer                    { return EQTOKEN_LOADBALANCER; }

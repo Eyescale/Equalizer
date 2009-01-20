@@ -14,7 +14,7 @@ namespace server
     class Node;
 
     /**
-     * A visitor to traverse a non-const nodes and children.
+     * A visitor to traverse non-const nodes and children.
      */
     class NodeVisitor : public PipeVisitor
     {
@@ -26,10 +26,12 @@ namespace server
         virtual ~NodeVisitor(){}
 
         /** Visit a node on the down traversal. */
-        virtual Result visitPre( Node* node ) { return TRAVERSE_CONTINUE; }
+        virtual VisitorResult visitPre( Node* node )
+            { return TRAVERSE_CONTINUE; }
 
         /** Visit a node on the up traversal. */
-        virtual Result visitPost( Node* node ) { return TRAVERSE_CONTINUE; }
+        virtual VisitorResult visitPost( Node* node )
+            { return TRAVERSE_CONTINUE; }
     };
 }
 }

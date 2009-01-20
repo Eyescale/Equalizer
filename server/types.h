@@ -20,11 +20,14 @@ class Pipe;
 class Window;
 class Channel;
 
+class Canvas;
 class Compound;
 class ConnectionDescription;
 class Frame;
-class View;
 class Layout;
+class Segment;
+class View;
+
 
 typedef std::vector< Config* >   ConfigVector;
 typedef std::vector< Node* >     NodeVector;
@@ -32,10 +35,12 @@ typedef std::vector< Pipe* >     PipeVector;
 typedef std::vector< Window* >   WindowVector;
 typedef std::vector< Channel* >  ChannelVector;
 
+typedef std::vector< Canvas* >   CanvasVector;
 typedef std::vector< Compound* > CompoundVector;
 typedef std::vector< Frame* >    FrameVector;
-typedef std::vector< View* >     ViewVector;
 typedef std::vector< Layout* >   LayoutVector;
+typedef std::vector< Segment* >   SegmentVector;
+typedef std::vector< View* >     ViewVector;
 
 typedef base::RefPtr< Server > ServerPtr;
 typedef base::RefPtr< ConnectionDescription >   ConnectionDescriptionPtr;

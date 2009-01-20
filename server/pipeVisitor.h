@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_PIPEVISITOR_H
@@ -14,7 +14,7 @@ namespace server
     class Pipe;
 
     /**
-     * A visitor to traverse a non-const pipes and children.
+     * A visitor to traverse non-const pipes and children.
      */
     class PipeVisitor : public WindowVisitor
     {
@@ -26,11 +26,11 @@ namespace server
         virtual ~PipeVisitor(){}
 
         /** Visit a pipe on the down traversal. */
-        virtual Result visitPre( Pipe* pipe )
+        virtual VisitorResult visitPre( Pipe* pipe )
             { return TRAVERSE_CONTINUE; }
 
         /** Visit a pipe on the up traversal. */
-        virtual Result visitPost( Pipe* pipe )
+        virtual VisitorResult visitPost( Pipe* pipe )
             { return TRAVERSE_CONTINUE; }
     };
 }

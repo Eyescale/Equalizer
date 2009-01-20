@@ -19,7 +19,7 @@ namespace server
 CompoundExitVisitor::CompoundExitVisitor()
 {}
 
-Compound::VisitorResult CompoundExitVisitor::visit( Compound* compound )
+VisitorResult CompoundExitVisitor::visit( Compound* compound )
 {
     Config* config = compound->getConfig();
     EQASSERT( config );
@@ -47,7 +47,7 @@ Compound::VisitorResult CompoundExitVisitor::visit( Compound* compound )
         channel->unrefUsed();
         channel->setView( 0 );
     }
-    return Compound::TRAVERSE_CONTINUE;    
+    return TRAVERSE_CONTINUE;    
 }
 
 }

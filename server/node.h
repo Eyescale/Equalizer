@@ -78,7 +78,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        NodeVisitor::Result accept( NodeVisitor* visitor );
+        VisitorResult accept( NodeVisitor* visitor );
 
         /** 
          * References this node as being actively used.
@@ -216,7 +216,7 @@ namespace server
         /** 
          * Adds a new description how this node can be reached.
          * 
-         * @param cd the connection description.
+         * @param desc the connection description.
          */
         void addConnectionDescription( ConnectionDescriptionPtr desc )
             { _connectionDescriptions.push_back( desc ); }
@@ -228,12 +228,7 @@ namespace server
          */
         void removeConnectionDescription( const uint32_t index );
 
-        /** 
-         * Returns a connection description.
-         * 
-         * @param index the index of the connection description.
-         * @return the connection description.
-         */
+        /** @return the vector of connection descriptions. */
         const ConnectionDescriptionVector& getConnectionDescriptions()
             const { return _connectionDescriptions; }
 

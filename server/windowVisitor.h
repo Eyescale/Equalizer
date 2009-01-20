@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_WINDOWVISITOR_H
@@ -14,7 +14,7 @@ namespace server
     class Window;
 
     /**
-     * A visitor to traverse a non-const windows and children.
+     * A visitor to traverse non-const windows and children.
      */
     class WindowVisitor : public ChannelVisitor
     {
@@ -26,11 +26,11 @@ namespace server
         virtual ~WindowVisitor(){}
 
         /** Visit a window on the down traversal. */
-        virtual Result visitPre( Window* window )
+        virtual VisitorResult visitPre( Window* window )
             { return TRAVERSE_CONTINUE; }
 
         /** Visit a window on the up traversal. */
-        virtual Result visitPost( Window* window )
+        virtual VisitorResult visitPost( Window* window )
             { return TRAVERSE_CONTINUE; }
     };
 }

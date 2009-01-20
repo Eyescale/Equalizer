@@ -5,7 +5,9 @@
 #ifndef EQSERVER_CONFIGVISITOR_H
 #define EQSERVER_CONFIGVISITOR_H
 
+#include "canvasVisitor.h"   // base class
 #include "compoundVisitor.h" // base class
+#include "layoutVisitor.h"   // base class
 #include "nodeVisitor.h"     // base class
 
 namespace eq
@@ -15,9 +17,12 @@ namespace server
     class Config;
 
     /**
-     * A visitor to traverse a non-const configs and children.
+     * A visitor to traverse non-const configs and children.
      */
-    class ConfigVisitor : public NodeVisitor, public CompoundVisitor
+    class ConfigVisitor : public NodeVisitor, 
+                          public CompoundVisitor,
+                          public LayoutVisitor,
+                          public CanvasVisitor
     {
     public:
         /** Constructs a new ConfigVisitor. */
@@ -27,11 +32,11 @@ namespace server
         virtual ~ConfigVisitor(){}
 
         /** Visit a config on the down traversal. */
-        virtual Result visitPre( Config* config )
+        virtual VisitorResult visitPre( Config* config )
             { return TRAVERSE_CONTINUE; }
 
         /** Visit a config on the up traversal. */
-        virtual Result visitPost( Config* config )
+        virtual VisitorResult visitPost( Config* config )
             { return TRAVERSE_CONTINUE; }
     };
 }

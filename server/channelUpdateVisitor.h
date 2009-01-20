@@ -17,6 +17,7 @@ namespace eq
 namespace server
 {
     class Channel;
+    class ViewData;
     
     /**
      * The compound visitor generating the draw tasks for a channel.
@@ -31,11 +32,11 @@ namespace server
         void setEye( const eq::Eye eye ) { _eye = eye; }
 
         /** Visit a non-leaf compound on the down traversal. */
-        virtual Compound::VisitorResult visitPre( const Compound* compound );
+        virtual VisitorResult visitPre( const Compound* compound );
         /** Visit a leaf compound. */
-        virtual Compound::VisitorResult visitLeaf( const Compound* compound );
+        virtual VisitorResult visitLeaf( const Compound* compound );
         /** Visit a non-leaf compound on the up traversal. */
-        virtual Compound::VisitorResult visitPost( const Compound* compound );
+        virtual VisitorResult visitPost( const Compound* compound );
 
         bool isUpdated() const { return _updated; }
 

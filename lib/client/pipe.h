@@ -479,8 +479,9 @@ namespace eq
         /** The base time for the currently active frame. */
         int64_t _frameTime;
 
+        typedef stde::hash_map< uint32_t, Frame* > FrameHash;
         /** All assembly frames used by the pipe during rendering. */
-        net::IDHash< Frame* > _frames;
+        FrameHash _frames;
 
         /** The pipe thread. */
         class PipeThread : public base::Thread

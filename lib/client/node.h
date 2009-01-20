@@ -17,8 +17,6 @@ namespace eq
     class Pipe;
     class Server;
 
-    typedef stde::hash_map< uint32_t, FrameData* > FrameDataCache;
-
     /**
      * A Node represents a single computer in the cluster.
      *
@@ -335,13 +333,15 @@ namespace eq
         /** The number of the last finished frame. */
         uint32_t                  _finishedFrame;
 
+        typedef stde::hash_map< uint32_t, net::Barrier* > BarrierHash;
         /** All barriers mapped by the node. */
-        net::IDHash< net::Barrier* > _barriers;
-        base::Lock                   _barriersMutex;
+        BarrierHash _barriers;
+        base::Lock  _barriersMutex;
 
+        typedef stde::hash_map< uint32_t, FrameData* > FrameDataHash;
         /** All frame datas used by the node during rendering. */
-        FrameDataCache _frameDatas;
-        base::Lock     _frameDatasMutex;
+        FrameDataHash _frameDatas;
+        base::Lock    _frameDatasMutex;
 
         /** The receiver->node data transmission queue. */
         CommandQueue           _dataQueue;

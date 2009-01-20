@@ -83,12 +83,12 @@ namespace server
         net::CommandQueue* getCommandThreadQueue();
 
         /** 
-         * Traverse this channel and all children using a channel visitor.
+         * Traverse this channel using a channel visitor.
          * 
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        ChannelVisitor::Result accept( ChannelVisitor* visitor )
+        VisitorResult accept( ChannelVisitor* visitor )
             { return visitor->visit( this ); }
 
         /** 
@@ -161,8 +161,8 @@ namespace server
         /** 
          * Returns the current near and far planes for this channel.
          *
-         * @param near a pointer to store the near plane.
-         * @param far a pointer to store the far plane.
+         * @param nearPlane a pointer to store the near plane.
+         * @param farPlane a pointer to store the far plane.
          */
         void getNearFar( float* nearPlane, float* farPlane ) const 
             { *nearPlane = _near; *farPlane = _far; }

@@ -24,13 +24,13 @@ CompoundUpdateOutputVisitor::CompoundUpdateOutputVisitor(
         : _frameNumber( frameNumber )
 {}
 
-Compound::VisitorResult CompoundUpdateOutputVisitor::visitLeaf(
+VisitorResult CompoundUpdateOutputVisitor::visitLeaf(
     Compound* compound )
 {
     _updateOutput( compound );
     _updateSwapBarriers( compound );
 
-    return Compound::TRAVERSE_CONTINUE;    
+    return TRAVERSE_CONTINUE;    
 }
 
 void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )

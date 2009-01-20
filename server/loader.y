@@ -5,12 +5,14 @@
 %{
 #include "loader.h"
 
+#include "canvas.h"
 #include "compound.h"
 #include "frame.h"
 #include "global.h"
 #include "layout.h"
 #include "loadBalancer.h"
 #include "pipe.h"
+#include "segment.h"
 #include "server.h"
 #include "swapBarrier.h"
 #include "view.h"
@@ -33,6 +35,8 @@
         static eq::server::Channel*     channel = 0;
         static eq::server::Layout*      layout = 0;
         static eq::server::View*        view = 0;
+        static eq::server::Canvas*      canvas = 0;
+        static eq::server::Segment*     segment = 0;
         static eq::server::Compound*    eqCompound = 0; // avoid name clash
 		static eq::server::LoadBalancer* loadBalancer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
@@ -44,7 +48,6 @@
     }
     }
 
-    using namespace std;
     using namespace eq::base;
     using namespace eq::loader;
 
@@ -131,7 +134,7 @@
 %token EQTOKEN_CHANNEL
 %token EQTOKEN_LAYOUT
 %token EQTOKEN_VIEW
-%token EQTOKEN_SURFACE
+%token EQTOKEN_CANVAS
 %token EQTOKEN_SEGMENT
 %token EQTOKEN_COMPOUND
 %token EQTOKEN_LOADBALANCER
@@ -438,7 +441,7 @@ configField:
     nodes
     | EQTOKEN_NAME STRING       { config->setName( $2 ); }
     | layouts
-//    | canvases
+    | canvases
     | compounds
     | EQTOKEN_LATENCY UNSIGNED  { config->setLatency( $2 ); }
     | EQTOKEN_ATTRIBUTES '{' configAttributes '}'
@@ -609,6 +612,43 @@ viewField:
     | wall       { view->setWall( wall ); }
     | projection { view->setProjection( projection ); }
 
+canvases: /*null*/ | canvases canvas
+canvas: EQTOKEN_CANVAS '{' { canvas = new eq::server::Canvas; }
+            canvasFields '}' { config->addCanvas( canvas ); canvas = 0; }
+canvasFields: /*null*/ | canvasFields canvasField
+canvasField:
+    EQTOKEN_NAME STRING { canvas->setName( $2 ); }
+    | EQTOKEN_LAYOUT STRING 
+      {
+          eq::server::Layout* layout = config->findLayout( $2 );
+          if( !layout )
+              yyerror( "No layout of the given name" );
+          else
+              canvas->useLayout( layout ); 
+      }
+    | wall       { canvas->setWall( wall ); }
+    | projection { canvas->setProjection( projection ); }
+    | segment
+
+segment: EQTOKEN_SEGMENT '{' { segment = new eq::server::Segment; }
+          segmentFields '}' { canvas->addSegment( segment ); segment = 0; }
+segmentFields: /*null*/ | segmentFields segmentField
+segmentField:
+    EQTOKEN_NAME STRING { segment->setName( $2 ); }
+    EQTOKEN_CHANNEL STRING
+      {
+          eq::server::Channel* channel = config->findChannel( $2 );
+          if( !channel )
+              yyerror( "No channel of the given name" );
+          else
+              segment->setChannel( channel );
+      }
+    | EQTOKEN_VIEWPORT viewport
+        { segment->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
+    | wall       { segment->setWall( wall ); }
+    | projection { segment->setProjection( projection ); }
+
+
 compounds: compound | compounds compound
 compound: EQTOKEN_COMPOUND '{' 
               {
@@ -627,13 +667,13 @@ compoundField:
     compound
     | EQTOKEN_NAME STRING { eqCompound->setName( $2 ); }
     | EQTOKEN_CHANNEL STRING
-    {
-         eq::server::Channel* channel = config->findChannel( $2 );
-         if( !channel )
-             yyerror( "No channel of the given name" );
-         else
-             eqCompound->setChannel( channel );
-    }
+      {
+          eq::server::Channel* channel = config->findChannel( $2 );
+          if( !channel )
+              yyerror( "No channel of the given name" );
+          else
+              eqCompound->setChannel( channel );
+      }
     | EQTOKEN_TASK '['   { eqCompound->setTasks( eq::TASK_NONE ); }
         compoundTasks ']'
     | EQTOKEN_EYE  '['   { eqCompound->setEyes( eq::server::Compound::EYE_UNDEFINED );}
@@ -831,7 +871,7 @@ UNSIGNED: EQTOKEN_UNSIGNED                 { $$ = atoi( yytext ); }
 void yyerror( char *errmsg )
 {
     EQERROR << "Parse error: '" << errmsg << "', line " << yylineno
-            << " at '" << yytext << "'" << endl;
+            << " at '" << yytext << "'" << std::endl;
 }
 
 namespace eq
@@ -842,7 +882,7 @@ namespace server
 //---------------------------------------------------------------------------
 // loader
 //---------------------------------------------------------------------------
-ServerPtr Loader::loadFile( const string& filename )
+ServerPtr Loader::loadFile( const std::string& filename )
 {
     EQASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
     eq::loader::loader = this;
@@ -852,7 +892,7 @@ ServerPtr Loader::loadFile( const string& filename )
 
     if( !yyin )
     {
-        EQERROR << "Can't open config file " << filename << endl;
+        EQERROR << "Can't open config file " << filename << std::endl;
         eq::loader::loader = 0;
         return 0;
     }

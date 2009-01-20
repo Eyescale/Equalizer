@@ -81,7 +81,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        PipeVisitor::Result accept( PipeVisitor* visitor );
+        VisitorResult accept( PipeVisitor* visitor );
 
         /** 
          * References this pipe as being actively used.

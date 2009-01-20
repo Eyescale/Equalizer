@@ -20,17 +20,17 @@ namespace server
         ConfigUpdateDataVisitor();
         virtual ~ConfigUpdateDataVisitor() {}
 
-        virtual Result visitPre( Node* node );
-        virtual Result visitPost( Node* node );
-        virtual Result visitPre( Pipe* pipe );
-        virtual Result visitPost( Pipe* pipe );
-        virtual Result visitPre( Window* window );
-        virtual Result visitPost( Window* window );
-        virtual Result visit( Channel* channel );
+        virtual VisitorResult visitPre( Node* node );
+        virtual VisitorResult visitPost( Node* node );
+        virtual VisitorResult visitPre( Pipe* pipe );
+        virtual VisitorResult visitPost( Pipe* pipe );
+        virtual VisitorResult visitPre( Window* window );
+        virtual VisitorResult visitPost( Window* window );
+        virtual VisitorResult visit( Channel* channel );
 
         // No need to traverse compounds
-        virtual Compound::VisitorResult visitPre( Compound* compound )
-            { return Compound::TRAVERSE_PRUNE; }
+        virtual VisitorResult visitPre( Compound* compound )
+            { return TRAVERSE_PRUNE; }
  
     private:
         const Channel* _lastDrawChannel;

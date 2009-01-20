@@ -90,7 +90,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        WindowVisitor::Result accept( WindowVisitor* visitor );
+        VisitorResult accept( WindowVisitor* visitor );
 
         /** 
          * References this window as being actively used.

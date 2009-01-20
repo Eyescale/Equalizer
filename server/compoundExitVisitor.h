@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_COMPOUNDEXITVISITOR_H
@@ -23,7 +23,7 @@ namespace server
         virtual ~CompoundExitVisitor() {}
 
         /** Visit all compounds. */
-        virtual Compound::VisitorResult visit( Compound* compound );
+        virtual VisitorResult visit( Compound* compound );
 
     private:
     };
