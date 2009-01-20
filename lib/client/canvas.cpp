@@ -6,7 +6,7 @@
 
 #include "canvasVisitor.h"
 #include "config.h"
-#include "layout.h"
+//#include "layout.h"
 
 namespace eq
 {
