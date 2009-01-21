@@ -4,7 +4,9 @@
    All rights reserved. */
 
 #include "wglPipe.h"
+
 #include "global.h"
+#include "wglEventHandler.h"
 
 namespace eq
 {
@@ -128,7 +130,7 @@ bool WGLPipe::createAffinityDC( HDC& affinityDC )
     if( !affinityDC )
     {
         setErrorMessage( "Can't create affinity DC: " +
-                         getErrorString( GetLastError( )));
+                         base::getErrorString( GetLastError( )));
         return false;
     }
 
@@ -160,7 +162,7 @@ void WGLPipe::_configInitWGLEW()
     if( !RegisterClass( &wc ))
     {
         EQWARN << "Can't register temporary window class: " 
-               << getErrorString( GetLastError( )) << endl;
+               << base::getErrorString( GetLastError( )) << endl;
         return;
     }
 
@@ -177,7 +179,7 @@ void WGLPipe::_configInitWGLEW()
     if( !hWnd )
     {
         EQWARN << "Can't create temporary window: "
-               << getErrorString( GetLastError( )) << endl;
+               << base::getErrorString( GetLastError( )) << endl;
         UnregisterClass( classStr.c_str(),  instance );
         return;
     }
@@ -193,7 +195,7 @@ void WGLPipe::_configInitWGLEW()
     if( pf == 0 )
     {
         EQWARN << "Can't find temporary pixel format: "
-               << getErrorString( GetLastError( )) << endl;
+               << base::getErrorString( GetLastError( )) << endl;
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
         return;
@@ -201,8 +203,8 @@ void WGLPipe::_configInitWGLEW()
  
     if( !SetPixelFormat( dc, pf, &pfd ))
     {
-        EQWARN << "Can't set pixel format: " << getErrorString( GetLastError( ))
-               << endl;
+        EQWARN << "Can't set pixel format: " 
+               << base::getErrorString( GetLastError( )) << endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -214,7 +216,7 @@ void WGLPipe::_configInitWGLEW()
     if( !context )
     {
          EQWARN << "Can't create temporary OpenGL context: " 
-                << getErrorString( GetLastError( )) << endl;
+                << base::getErrorString( GetLastError( )) << endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );

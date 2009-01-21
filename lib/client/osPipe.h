@@ -22,14 +22,8 @@ namespace eq
     class EQ_EXPORT OSPipe
     {
     public:
-
-        OSPipe( Pipe* parent )
-            : _pipe( parent )
-        {
-            EQASSERT( _pipe );
-        }
-
-        virtual ~OSPipe( ) {}
+        OSPipe( Pipe* parent );
+        virtual ~OSPipe( );
 
         /** @name Methods forwarded from eq::Pipe */
         //*{
@@ -43,6 +37,9 @@ namespace eq
 
         Pipe* getPipe() { return _pipe; }
         const Pipe* getPipe() const { return _pipe; }
+
+        /** @return the generic WGL function table for the pipe. */
+        WGLEWContext* wglewGetContext() { return _wglewContext; }
 
     protected:
         /** @name Error information. */
@@ -63,6 +60,9 @@ namespace eq
 
         /** The reason for the last error. */
         std::string _error;
+
+        /** Extended OpenGL function entries - WGL. */
+        WGLEWContext*   _wglewContext;
     };
 }
 

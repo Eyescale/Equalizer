@@ -7,6 +7,7 @@
 
 #include "global.h"
 #include "wglEventHandler.h"
+#include "wglPipe.h"
 
 #include <eq/base/log.h>
 

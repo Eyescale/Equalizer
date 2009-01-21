@@ -6,7 +6,10 @@
 #define EQ_X11_CONNECTION_H
 
 #include <eq/client/windowSystem.h>
-#include <eq/client/glXPipe.h>
+
+#ifdef GLX
+#  include <eq/client/glXPipe.h>
+#endif
 
 #include <eq/net/connection.h>
 

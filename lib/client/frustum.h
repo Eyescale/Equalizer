@@ -15,10 +15,10 @@ namespace eq
     {
     public:
         /** Construct a new Frustum. */
-        Frustum();
+        EQ_EXPORT Frustum();
         
         /** Destruct the frustum. */
-        virtual ~Frustum();
+        EQ_EXPORT virtual ~Frustum();
 
         /** The type of the latest specified frustum. */
         enum Type
@@ -29,23 +29,23 @@ namespace eq
         };
 
         /** Set the frustum using a wall description. */
-        void setWall( const Wall& wall );
+        EQ_EXPORT void setWall( const Wall& wall );
         
         /** Set the frustum using a projection description. */
-        void setProjection( const Projection& projection );
+        EQ_EXPORT void setProjection( const Projection& projection );
 
         /** @return the last specified frustum as a wall. */
-        const Wall& getWall() const { return _wall; }
+        EQ_EXPORT const Wall& getWall() const { return _wall; }
 
         /** @return the last specified frustum as a projection. */
-        const Projection& getProjection() const { return _projection; }
+        EQ_EXPORT const Projection& getProjection() const { return _projection; }
 
         /** @return the type of the latest specified frustum. */
-        Type getCurrentFrustum() const { return _current; }
+        EQ_EXPORT Type getCurrentFrustum() const { return _current; }
 
     protected:
         /** @return true if the view has to be committed. */
-        virtual bool isDirty() const { return (_dirty != DIRTY_NONE); }
+        EQ_EXPORT virtual bool isDirty() const { return (_dirty != DIRTY_NONE); }
 
         /** 
          * Worker for pack() and getInstanceData().
@@ -58,7 +58,8 @@ namespace eq
          * the actual _dirty bits from pack(), which also resets the _dirty flag
          * afterwards. The dirty bits are transmitted beforehand.
          */
-        virtual void serialize( net::DataOStream& os, const uint32_t dirtyBits);
+        EQ_EXPORT virtual void serialize( net::DataOStream& os,
+                                          const uint32_t dirtyBits );
 
         /** 
          * Worker for unpack() and applyInstanceData().
@@ -68,12 +69,12 @@ namespace eq
          * 
          * @sa serialize()
          */
-        virtual void deserialize( net::DataIStream& is, 
-                                  const uint32_t dirtyBits );
+        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
+                                            const uint32_t dirtyBits );
 
-        virtual void getInstanceData( net::DataOStream& os );
-        virtual void pack( net::DataOStream& os );
-        virtual void applyInstanceData( net::DataIStream& is );
+        EQ_EXPORT virtual void getInstanceData( net::DataOStream& os );
+        EQ_EXPORT virtual void pack( net::DataOStream& os );
+        EQ_EXPORT virtual void applyInstanceData( net::DataIStream& is );
 
         /** Do not override. */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }

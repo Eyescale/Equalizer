@@ -71,7 +71,7 @@ namespace server
          * 
          * @return the image.
          */
-        Image* newImage( eq::Frame::Type type );
+        Image* newImage( eq::Frame::Type type = Frame::TYPE_MEMORY );
 
         /** Clear the frame by recycling the attached images. */
         void clear();

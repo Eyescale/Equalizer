@@ -37,24 +37,24 @@ namespace server
         /** 
          * Constructs a new Canvas.
          */
-        Canvas();
+        EQ_EXPORT Canvas();
 
         /** Destruct this canvas. */
-        virtual ~Canvas();
+        EQ_EXPORT virtual ~Canvas();
 
         /**
          * @name Data Access
          */
         //*{
         /** @return the name of this canvas. */
-        const std::string& getName() const      { return _name; }
+        EQ_EXPORT const std::string& getName() const      { return _name; }
         //*}
 
         /**
          * @name Operations
          */
         //*{
-        void useLayout( Layout* layout );
+        EQ_EXPORT void useLayout( Layout* layout );
 
         /** 
          * Traverse this canvas and all children using a canvas visitor.
@@ -62,14 +62,14 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( CanvasVisitor* visitor );
+        EQ_EXPORT VisitorResult accept( CanvasVisitor* visitor );
         //*}
 
     protected:
         /** @sa Frustum::serialize */
-        virtual void serialize( net::DataOStream& os, const uint32_t dirtyBits);
+        EQ_EXPORT virtual void serialize( net::DataOStream& os, const uint32_t dirtyBits);
         /** @sa Frustum::deserialize */
-        virtual void deserialize( net::DataIStream& is, 
+        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                   const uint32_t dirtyBits );
 
         enum DirtyBits

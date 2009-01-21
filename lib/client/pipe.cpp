@@ -37,7 +37,6 @@ typedef net::CommandFunc<Pipe> PipeFunc;
 Pipe::Pipe( Node* parent )
         : _node( parent )
         , _windowSystem( WINDOW_SYSTEM_NONE )
-        , _wglewContext( new WGLEWContext )       
         , _tasks( TASK_NONE )
         , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
@@ -56,9 +55,6 @@ Pipe::~Pipe()
     _node->_removePipe( this );
     delete _thread;
     _thread = 0;
-
-    delete _wglewContext;
-    _wglewContext = 0;
 }
 
 PipeVisitor::Result Pipe::accept( PipeVisitor* visitor )
@@ -310,6 +306,12 @@ void Pipe::joinThread()
     delete _pipeThreadQueue;
     _pipeThreadQueue = 0;
 }
+
+WGLEWContext* Pipe::wglewGetContext()
+{ 
+    return _osPipe->wglewGetContext();
+}
+
 
 //---------------------------------------------------------------------------
 // pipe-thread methods

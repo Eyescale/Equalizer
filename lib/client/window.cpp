@@ -478,6 +478,7 @@ GLEWContext* Window::glewGetContext()
 { 
 	return _osWindow->glewGetContext();
 }
+
 //======================================================================
 // event-handler methods
 //======================================================================

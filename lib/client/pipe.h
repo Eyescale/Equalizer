@@ -123,8 +123,8 @@ namespace eq
         /** 
          * Return the window system used by this pipe. 
          * 
-         * The return value is quaranteed to be constant for an initialised
-         * pipe, that is, the window system is determined usign
+         * The return value is quaranteed to be constant for an initialized
+         * pipe, that is, the window system is determined using
          * selectWindowSystem() before the pipe init method is executed.
          * 
          * @return the window system used by this pipe.
@@ -135,7 +135,7 @@ namespace eq
         int64_t getFrameTime() const{ return getConfig()->getTime()-_frameTime;}
 
         /** @return the generic WGL function table for the pipe. */
-        WGLEWContext* wglewGetContext() { return _wglewContext; }
+        WGLEWContext* wglewGetContext();
         //*}
 
         /**
@@ -381,9 +381,6 @@ namespace eq
 
         /** The current window system. */
         WindowSystem _windowSystem;
-
-        /** Extended OpenGL function entries - WGL. */
-        WGLEWContext*   _wglewContext;
 
         /** The size (and location) of the pipe. */
         PixelViewport _pvp;

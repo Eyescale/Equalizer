@@ -6,6 +6,7 @@
 #define EQSERVER_COMPOUNDUPDATEDATAVISITOR_H
 
 #include "compoundVisitor.h" // base class
+#include "types.h"
 
 namespace eq
 {
