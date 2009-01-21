@@ -99,9 +99,10 @@ void FrameData::flush()
     _imageCache.clear();
 }
 
-Image* FrameData::newImage()
+Image* FrameData::newImage(eq::Frame::Type type)
 {
     Image* image = _allocImage();
+    image->setType( type );
     _images.push_back( image );
     return image;
 }
@@ -134,7 +135,7 @@ void FrameData::startReadback( const Frame& frame,
     if( !absPVP.isValid( ))
         return;
 
-    Image* image = newImage();
+    Image* image = newImage( frame.getType() );
     image->startReadback( _data.buffers, absPVP, glObjects );
 }
 
@@ -207,6 +208,12 @@ int64_t FrameData::transmit( net::NodePtr toNode )
     if( _data.buffers == 0 )
     {
         EQWARN << "No buffers for frame data" << endl;
+        return 0;
+    }
+
+    if ( _data.frameType == Frame::TYPE_TEXTURE )
+    {
+        EQWARN << "Image type TEXTURE" << endl;
         return 0;
     }
 

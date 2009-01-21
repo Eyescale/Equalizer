@@ -132,6 +132,8 @@ name                            { return EQTOKEN_NAME; }
 type                            { return EQTOKEN_TYPE; }
 TCPIP                           { return EQTOKEN_TCPIP; }
 SDP                             { return EQTOKEN_SDP; }
+texture                         { return EQTOKEN_TEXTURE; } 
+memory                          { return EQTOKEN_MEMORY; }
 hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
 command_quote                   { return EQTOKEN_COMMAND_QUOTE; }

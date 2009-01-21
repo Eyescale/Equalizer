@@ -6,6 +6,7 @@
 #define EQSERVER_FRAMEDATA_H
 
 #include <eq/client/frameData.h>
+#include <eq/client/frame.h>      // for FrameType
 
 namespace eq
 {
@@ -52,6 +53,17 @@ namespace server
         /** Set the source pixel decomposition wrt dest channel. */
         void setPixel( const eq::Pixel& pixel )
             { _data.pixel = pixel; }
+        
+        /** return the frame storage type. */    
+        eq::Frame::Type getType()const{ return _data.frameType; }
+
+        /** 
+         * Set the frame storage type.
+         * 
+         * @param type frame storage type.
+         */
+        void setType( const eq::Frame::Type type ){ _data.frameType = type; }
+
         //*}
 
     protected:

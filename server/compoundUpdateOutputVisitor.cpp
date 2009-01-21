@@ -104,7 +104,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             frame->setOffset( vmml::Vector2i( nativePVP.x, nativePVP.y ));
         }
 
-        // image buffers
+        // image buffers and storage type
+        frameData->setType( frame->getType() );
         uint32_t buffers = frame->getBuffers();
         frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ? 
                                    compound->getInheritBuffers() : buffers );

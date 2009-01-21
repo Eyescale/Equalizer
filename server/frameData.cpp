@@ -13,6 +13,7 @@ namespace server
 FrameData::FrameData()
 {
     _data.buffers = eq::Frame::BUFFER_UNDEFINED;
+    _data.frameType = eq::Frame::TYPE_MEMORY;
 }
 
 void FrameData::getInstanceData( net::DataOStream& os )

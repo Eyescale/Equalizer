@@ -76,7 +76,17 @@ namespace server
          */
         void setBuffers( const uint32_t buffers )
             { _data.buffers = buffers; }
-        
+
+        /** return the frame storage type. */    
+        eq::Frame::Type getType() const { return _data.frameType; }
+
+        /** 
+         * Set the frame storage type.
+         * 
+         * @param type frame storage type.
+         */
+        void setType( const eq::Frame::Type type ) { _data.frameType = type; }
+
         /** @return the frame buffers used by this frame. */
         uint32_t getBuffers() const { return _data.buffers; }
         uint32_t getInheritBuffers() const { return _inherit.buffers; }

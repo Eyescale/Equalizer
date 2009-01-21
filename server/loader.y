@@ -38,7 +38,7 @@
         static eq::server::Canvas*      canvas = 0;
         static eq::server::Segment*     segment = 0;
         static eq::server::Compound*    eqCompound = 0; // avoid name clash
-		static eq::server::LoadBalancer* loadBalancer = 0;
+        static eq::server::LoadBalancer* loadBalancer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
         static eq::server::Frame*       frame = 0;
         static eq::server::ConnectionDescriptionPtr connectionDescription;
@@ -144,6 +144,8 @@
 %token EQTOKEN_TYPE
 %token EQTOKEN_TCPIP
 %token EQTOKEN_SDP
+%token EQTOKEN_TEXTURE
+%token EQTOKEN_MEMORY
 %token EQTOKEN_HOSTNAME
 %token EQTOKEN_COMMAND
 %token EQTOKEN_COMMAND_QUOTE
@@ -786,11 +788,14 @@ inputFrame: EQTOKEN_INPUTFRAME '{' { frame = new eq::server::Frame; }
 frameFields: /*null*/ | frameFields frameField
 frameField: 
     EQTOKEN_NAME STRING { frame->setName( $2 ); }
+    | EQTOKEN_TYPE frameType
     | EQTOKEN_VIEWPORT viewport
         { frame->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3])); }
     | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_NONE; }
         buffers ']' { frame->setBuffers( flags ); flags = 0; }
-
+frameType: 
+    EQTOKEN_TEXTURE { frame->setType( eq::Frame::TYPE_TEXTURE ); }
+    | EQTOKEN_MEMORY { frame->setType( eq::Frame::TYPE_MEMORY ); }
 compoundAttributes: /*null*/ | compoundAttributes compoundAttribute
 compoundAttribute:
     EQTOKEN_STEREO_MODE IATTR 
@@ -835,7 +840,7 @@ IATTR:
     | EQTOKEN_ANAGLYPH   { $$ = eq::ANAGLYPH; } 
     | EQTOKEN_VERTICAL   { $$ = eq::VERTICAL; }
     | EQTOKEN_WINDOW     { $$ = eq::WINDOW; }
-    | EQTOKEN_FBO        { $$ = eq::FBO; }	
+    | EQTOKEN_FBO        { $$ = eq::FBO; }
     | EQTOKEN_PBUFFER    { $$ = eq::PBUFFER; }
     | EQTOKEN_ASYNC      { $$ = eq::ASYNC; }
     | EQTOKEN_DRAW_SYNC  { $$ = eq::DRAW_SYNC; }

@@ -5,6 +5,7 @@
 #ifndef EQ_COMPOSITOR_H
 #define EQ_COMPOSITOR_H
 
+#include <eq/client/frame.h>          // nested type Frame::Buffer 
 #include <eq/client/pixel.h>          // member
 #include <eq/client/types.h>          // type definitions
 #include <eq/base/base.h>             // EQ_EXPORT definition
@@ -15,7 +16,6 @@
 namespace eq
 {
     class Channel;
-    class Frame;
     class Image;
 
     /** A facility class for image assembly operations */
@@ -150,6 +150,11 @@ namespace eq
                                        const std::vector< FrameImage >& images);
         static bool   _assembleImage_PC( int operation, Image* result,
                                          const Image* source );
+        /** 
+         * draw an image to the frame buffer using a texture quad or drawPixels.
+         */
+        static void _drawPixels( const Image* image, const ImageOp& op,
+                                 const Frame::Buffer which );
 
     };
 }

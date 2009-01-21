@@ -45,6 +45,13 @@ namespace server
             BUFFER_ALL       = EQ_BIT_ALL
         };
 
+        /** The storage type for pixel data. */
+        enum Type
+        {
+            TYPE_MEMORY,    //!< use main memory to store pixel data
+            TYPE_TEXTURE    //!< use a GL texture to store pixel data
+        };
+
         /** 
          * Constructs a new Frame.
          */
@@ -156,6 +163,9 @@ namespace server
          */
         void disableBuffer( const Buffer buffer );
         
+        /** return the frame texture type. */  
+        Type getType() const { return _data.frameType; }
+
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
         virtual void getInstanceData( net::DataOStream& os );
@@ -173,6 +183,7 @@ namespace server
 
             vmml::Vector2i     offset;
             uint32_t           buffers;
+            Type               frameType; 
             net::ObjectVersion frameData[EYE_ALL];
         }
         _data;

@@ -9,7 +9,7 @@
 
 #include "channel.h"
 #include "channelStatistics.h"
-#include "frame.h"
+
 #include "log.h"
 #include "image.h"
 #include "windowSystem.h"
@@ -874,10 +874,85 @@ void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
     EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
 
     glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );
-    glDrawPixels( pvp.w, pvp.h, 
-                  image->getFormat( Frame::BUFFER_COLOR ), 
-                  image->getType( Frame::BUFFER_COLOR ), 
-                  image->getPixelPointer( Frame::BUFFER_COLOR ));
+
+    _drawPixels( image, op, Frame::BUFFER_COLOR );
+}
+
+void Compositor::_drawPixels( const Image* image, 
+                              const ImageOp& op,
+                              const Frame::Buffer which )
+{
+
+    const PixelViewport& pvp = image->getPixelViewport();
+    
+    if ( image->getType() == Frame::TYPE_MEMORY )
+    {
+        glDrawPixels( pvp.w, pvp.h, 
+                     image->getFormat( which ), 
+                     image->getType( which ), 
+                     image->getPixelPointer( which ));
+        return;
+    }
+
+    // else texture
+    GLuint textureId;
+    GLenum internalformat;
+        
+    if ( which == Frame::BUFFER_COLOR )
+    {
+         textureId = image->getColorTexture();
+         internalformat = GL_RGBA;
+    }
+    else
+    {
+         glColorMask( false, false, false, false );
+         textureId = image->getDepthTexture();
+         internalformat = GL_DEPTH_COMPONENT;
+    }
+
+    glDisable( GL_LIGHTING );
+    glEnable( GL_TEXTURE_RECTANGLE_ARB );
+
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, textureId );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
+                     GL_NEAREST );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
+                     GL_NEAREST );
+
+    glColor3f( 1.0f, 1.0f, 1.0f );
+
+    const float startX = static_cast< float >
+         ( op.offset.x + pvp.x * op.pixel.w + op.pixel.x );
+    const float endX   = static_cast< float >
+         ( op.offset.x + (pvp.x + pvp.w) * op.pixel.w + op.pixel.x );
+    const float startY = static_cast< float >
+         ( op.offset.y + pvp.y * op.pixel.h + op.pixel.y );
+    const float endY   = static_cast< float >
+         ( op.offset.y + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y );
+
+    glBegin( GL_QUADS );
+        glTexCoord2f( 0.0f, 0.0f );
+        glVertex3f( startX, startY, 0.0f );
+
+        glTexCoord2f( pvp.w, 0.0f );
+        glVertex3f( endX, startY, 0.0f );
+
+        glTexCoord2f( pvp.w, pvp.h );
+        glVertex3f( endX, endY, 0.0f );
+        
+        glTexCoord2f( 0.0f, pvp.h );
+        glVertex3f( startX, endY, 0.0f );
+    glEnd();
+
+    // restore state
+    glDisable( GL_TEXTURE_RECTANGLE_ARB );
+
+    if( which == Frame::BUFFER_COLOR ) 
+    {
+        const ColorMask& colorMask = op.channel->getDrawBufferMask();
+        glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
+        glDepthMask( true );
+    }
 }
 
 void Compositor::assembleImageDB( const Image* image, const ImageOp& op )
@@ -918,9 +993,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
         glStencilOp( GL_ZERO, GL_ZERO, GL_REPLACE );
     }
 
-    glDrawPixels( pvp.w, pvp.h, image->getFormat( Frame::BUFFER_DEPTH ), 
-                  image->getType( Frame::BUFFER_DEPTH ), 
-                  image->getPixelPointer( Frame::BUFFER_DEPTH ));
+    _drawPixels( image, op, Frame::BUFFER_DEPTH );
     
     glDisable( GL_DEPTH_TEST );
 
@@ -928,9 +1001,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
     glStencilFunc( GL_EQUAL, 1, 1 );
     glStencilOp( GL_KEEP, GL_ZERO, GL_ZERO );
     
-    glDrawPixels( pvp.w, pvp.h, image->getFormat( Frame::BUFFER_COLOR ), 
-                  image->getType( Frame::BUFFER_COLOR ),
-                  image->getPixelPointer( Frame::BUFFER_COLOR ));
+    _drawPixels( image, op, Frame::BUFFER_COLOR );
 
     glDisable( GL_STENCIL_TEST );
 }
@@ -954,8 +1025,20 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     // the glFlush.
     const char*            key     = reinterpret_cast< char* >( window );
 
-    GLuint depthTexture = objects->obtainTexture( key );
-    GLuint colorTexture = objects->obtainTexture( key+1 );
+    GLuint depthTexture;
+    GLuint colorTexture;
+
+    if ( image->getType() == Frame::TYPE_TEXTURE )
+    {
+        depthTexture = image->getDepthTexture();
+        colorTexture = image->getColorTexture();
+    }
+    else
+    {
+        depthTexture = objects->obtainTexture( key );
+        colorTexture = objects->obtainTexture( key+1 );
+    }
+
     GLuint program      = objects->getProgram( &glslKey );
 
     if( program == Window::ObjectManager::FAILED )
@@ -1014,12 +1097,15 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
                      GL_NEAREST );
 
-    EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
-                              GL_RGBA,
-                              pvp.w, pvp.h, 0,
-                              image->getFormat( Frame::BUFFER_COLOR ), 
-                              image->getType( Frame::BUFFER_COLOR ),
-                              image->getPixelPointer( Frame::BUFFER_COLOR )));
+    if ( image->getType() != Frame::TYPE_TEXTURE )
+    {
+        EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
+                                  GL_RGBA,
+                                  pvp.w, pvp.h, 0,
+                                  image->getFormat( Frame::BUFFER_COLOR ), 
+                                  image->getType( Frame::BUFFER_COLOR ),
+                                  image->getPixelPointer( Frame::BUFFER_COLOR )));
+    }
 
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
     EQ_GL_CALL( glBindTexture( GL_TEXTURE_RECTANGLE_ARB, depthTexture ));
@@ -1027,13 +1113,15 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                      GL_NEAREST );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
                      GL_NEAREST );
-
-    EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
-                              GL_DEPTH_COMPONENT32_ARB,
-                              pvp.w, pvp.h, 0,
-                              image->getFormat( Frame::BUFFER_DEPTH ), 
-                              image->getType( Frame::BUFFER_DEPTH ),
-                              image->getPixelPointer( Frame::BUFFER_DEPTH )));
+    if ( image->getType() != Frame::TYPE_TEXTURE )
+    {
+        EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
+                                  GL_DEPTH_COMPONENT32_ARB,
+                                  pvp.w, pvp.h, 0,
+                                  image->getFormat( Frame::BUFFER_DEPTH ), 
+                                  image->getType( Frame::BUFFER_DEPTH ),
+                                  image->getPixelPointer( Frame::BUFFER_DEPTH )));
+    }
 
     // Draw a quad using shader & textures in the right place
     glEnable( GL_DEPTH_TEST );

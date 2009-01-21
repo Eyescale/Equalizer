@@ -219,6 +219,19 @@ const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
     return _getPixels( buffer ).data;
 }
 
+void Image::Texture::init()
+{
+    glGenTextures( 1, &id );
+}
+
+void Image::Texture::resize( const uint32_t w, const uint32_t h )
+{
+    if ( width < w ) 
+        width  = w;
+    
+    if ( height < h )
+        height = h;
+}
 void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
                            Window::ObjectManager* glObjects )
 {
@@ -230,8 +243,8 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     _glObjects = glObjects;
     _pvp       = pvp;
 
-    _colorPixels.valid = false;
-    _depthPixels.valid = false;
+    _colorPixels.valid = true;
+    _depthPixels.valid = true;
 
     if( buffers & Frame::BUFFER_COLOR )
         _startReadback( Frame::BUFFER_COLOR );
@@ -297,24 +310,14 @@ void Image::_startReadback( const Frame::Buffer buffer )
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
     compressedPixels.valid = false;
 
+
     if( _usePBO && _glObjects->supportsBuffers( )) // use async PBO readback
     {
-        pixels.reading = true;
-
-        const void* bufferKey = _getPBOKey( buffer );
-        GLuint pbo = _glObjects->obtainBuffer( bufferKey );
-
-        EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo ));
-        if( pixels.pboSize < size )
-        {
-            EQ_GL_CALL( glBufferData( GL_PIXEL_PACK_BUFFER, size, 0,
-                                      GL_DYNAMIC_READ ));
-            pixels.pboSize = size;
-        }
-
-        EQ_GL_CALL( glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h,
-                                  getFormat( buffer ), getType( buffer ), 0 ));
-        EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 ));
+        _startReadbackPBO( buffer, pixels, size );
+    }
+    else if ( _type == Frame::TYPE_TEXTURE )
+    {
+        _startCopyToTexture();
     }
     else
     {
@@ -324,6 +327,50 @@ void Image::_startReadback( const Frame::Buffer buffer )
         pixels.valid = true;
     }
 }
+
+void Image::_startCopyToTexture()
+{
+    glEnable(GL_TEXTURE_RECTANGLE_ARB);
+    
+    if ( _colorTexture.id == 0 )
+        _colorTexture.init();
+    
+    _colorTexture.resize( _pvp.w, _pvp.h );  
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _colorTexture.id );
+    glCopyTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
+                     GL_RGBA, 0, 0, 
+                     _colorTexture.width, 
+                     _colorTexture.height,  0 );
+    
+    if ( _depthTexture.id == 0 )
+        _depthTexture.init();
+    
+    _depthTexture.resize( _pvp.w, _pvp.h );
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _depthTexture.id );
+    glCopyTexImage2D ( GL_TEXTURE_RECTANGLE_ARB, 0, 
+                      GL_DEPTH_COMPONENT32_ARB, 0, 0, 
+                      _depthTexture.width, 
+                      _depthTexture.height, 0 ); 
+}
+void Image::_startReadbackPBO( const Frame::Buffer buffer, Pixels& pixels, const size_t size )
+{
+    pixels.reading = true;
+    
+    const void* bufferKey = _getPBOKey( buffer );
+    GLuint pbo = _glObjects->obtainBuffer( bufferKey );
+    
+    EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo ));
+    if( pixels.pboSize < size )
+    {
+        EQ_GL_CALL( glBufferData( GL_PIXEL_PACK_BUFFER, size, 0,
+                                 GL_DYNAMIC_READ ));
+        pixels.pboSize = size;
+    }
+    
+    EQ_GL_CALL( glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h,
+                             getFormat( buffer ), getType( buffer ), 0 ));
+    EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 ));
+} 
 
 void Image::_syncReadback( const Frame::Buffer buffer )
 {

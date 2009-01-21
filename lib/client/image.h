@@ -54,8 +54,8 @@ namespace eq
         /** @return the fractional viewport of the image. */
         const eq::Viewport& getViewport() const { return _data.vp; }
 
-		/** @return the GL function table, valid during readback. */
-		GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
+        /** @return the GL function table, valid during readback. */
+        GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
 
         /** Reset the image to its default state. */
         void reset();
@@ -89,6 +89,17 @@ namespace eq
 
         /** @return true if the image has a color buffer with alpha. */
         bool hasAlpha() const;
+
+
+        /** return the frame texture type. */    
+        Frame::Type getType() const{ return _type; }
+
+        /** 
+         * Set the frame txture type.
+         * 
+         * @param type frame txture type.
+         */
+        void setType( const Frame::Type type) { _type = type; }
 
         /** @return a pointer to the raw pixel data. */
         const uint8_t* getPixelPointer( const Frame::Buffer buffer ) const;
@@ -167,10 +178,10 @@ namespace eq
          *
          * @param buffers bit-wise combination of the frame buffer components.
          * @param pvp the area of the frame buffer wrt the drawable.
-		 * @param glObjects the GL object manager for the current GL context.
+         * @param glObjects the GL object manager for the current GL context.
          */
         void startReadback( const uint32_t buffers, const PixelViewport& pvp,
-			                Window::ObjectManager* glObjects );
+                            Window::ObjectManager* glObjects );
 
         /** Make sure that the last readback operation is complete. */
         void syncReadback();
@@ -183,7 +194,14 @@ namespace eq
         void writeImages( const std::string& filenameTemplate ) const;
 
         /** Read pixel data from an uncompressed rgb image file. */
-        bool readImage(const std::string& filename, const Frame::Buffer buffer);
+        bool readImage( const std::string& filename, 
+                        const Frame::Buffer buffer   );
+
+        /** Get the id of the color texture. */
+        const GLuint getColorTexture() const { return _colorTexture.id; }
+        
+        /** Get the id of the depth texture. */
+        const GLuint getDepthTexture() const { return _depthTexture.id; }
         //*}
 
     private:
@@ -222,6 +240,22 @@ namespace eq
         Pixels _colorPixels;
         Pixels _depthPixels;
 
+        /**
+         * Texture image data.
+         */
+        class Texture : public base::NonCopyable
+        {
+        public:
+            Texture() : id(0), width(0), height(0) {};
+            void init();
+            void resize( const uint32_t width, const uint32_t height );
+            GLuint id;
+            uint32_t width;
+            uint32_t height;
+        };
+        Texture _colorTexture;
+        Texture _depthTexture;
+
         class CompressedPixels
         {
         public:
@@ -234,8 +268,10 @@ namespace eq
         CompressedPixels _compressedColorPixels;
         CompressedPixels _compressedDepthPixels;
 
-		/** The GL object manager, valid during a readback operation. */
-		Window::ObjectManager* _glObjects;
+        /** The GL object manager, valid during a readback operation. */
+        Window::ObjectManager* _glObjects;
+
+        Frame::Type _type;
 
         /** PBO Usage. */
         bool _usePBO;
@@ -253,8 +289,11 @@ namespace eq
         const void* _getPBOKey( const Frame::Buffer buffer ) const;
 
         void _startReadback( const Frame::Buffer buffer );
+        void _startReadbackPBO( const Frame::Buffer buffer, 
+                                Pixels& pixels, const size_t size );
+                                
         void _syncReadback( const Frame::Buffer buffer );
-
+        void _startCopyToTexture();
         void _setupAssemble( const vmml::Vector2i& offset );
         void _startAssemble2D( const vmml::Vector2i& offset );
         void _startAssembleDB( const vmml::Vector2i& offset );

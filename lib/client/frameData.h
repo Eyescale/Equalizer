@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved. */
 
 #ifndef EQ_FRAMEDATA_H
@@ -71,7 +71,7 @@ namespace server
          * 
          * @return the image.
          */
-        Image* newImage();
+        Image* newImage( eq::Frame::Type type );
 
         /** Clear the frame by recycling the attached images. */
         void clear();
@@ -159,15 +159,16 @@ namespace server
             Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 ), format( 0 )
                    , type( 0 ) {}
 
-            PixelViewport  pvp;
-            vmml::Vector2i offset;
-            uint32_t       buffers;
-            uint32_t       format;
-            uint32_t       type;
-            Range          range; //<! database-range of src wrt to dest channel
-            Pixel          pixel; //<! pixel decomposition of source
+            PixelViewport    pvp;
+            vmml::Vector2i   offset;
+            uint32_t         buffers;
+            uint32_t         format;
+            uint32_t         type;
+            Frame::Type      frameType;
+            Range            range; //<! database-range of src wrt to dest channel
+            Pixel            pixel; //<! pixel decomposition of source
         }
-            _data;
+        _data;
 
         friend class eq::server::FrameData;
 
