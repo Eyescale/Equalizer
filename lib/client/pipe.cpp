@@ -35,7 +35,8 @@ namespace eq
 typedef net::CommandFunc<Pipe> PipeFunc;
 
 Pipe::Pipe( Node* parent )
-        : _node( parent )
+        : _osPipe( 0 )
+        , _node( parent )
         , _windowSystem( WINDOW_SYSTEM_NONE )
         , _tasks( TASK_NONE )
         , _port( EQ_UNDEFINED_UINT32 )

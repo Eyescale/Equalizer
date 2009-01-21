@@ -44,7 +44,7 @@ bool WGLPipe::configInit()
     {
         GPU_DEVICE gpuDevice;
         gpuDevice.cb = sizeof( gpuDevice );
-        const bool found = wglEnumGpuDevicesNV( hGPU[0], 0, &gpuDevice );
+        const bool found = wglEnumGpuDevicesNV( hGPU, 0, &gpuDevice );
         EQASSERT( found );
 
         if( gpuDevice.Flags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP )
@@ -118,7 +118,7 @@ bool WGLPipe::createAffinityDC( HDC& affinityDC )
 #endif
 }
 
-bool WGLPipe::_getGPUHandle( HGPUNV& handle );
+bool WGLPipe::_getGPUHandle( HGPUNV& handle )
 {
     handle = 0;
 
