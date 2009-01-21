@@ -20,7 +20,7 @@
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
 #include <eq/base/thread.h>
-
+#include <vmmlib/vector2.h>
 #include <iostream>
 #include <vector>
 
@@ -425,7 +425,9 @@ namespace server
         /** Notify all listeners that the compound is about to be updated. */
         void fireUpdatePre( const uint32_t frameNumber );
         //*}
-
+        
+        /** Set the scale compund */
+        void setScale( const float x, const float y );
         /**
          * @name Attributes
          */
@@ -477,6 +479,7 @@ namespace server
             eq::Pixel         pixel;
             ViewData          viewData;
             Screen            screen;
+            vmml::Vector2f    scale;
             uint32_t          buffers;
             uint32_t          eyes;
             uint32_t          tasks;
