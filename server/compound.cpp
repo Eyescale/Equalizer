@@ -171,10 +171,10 @@ Compound::~Compound()
 
 Compound::InheritData::InheritData()
         : channel( 0 )
+        , scale( 1.0, 1.0 )
         , buffers( eq::Frame::BUFFER_UNDEFINED )
         , eyes( EYE_UNDEFINED )
         , tasks( eq::TASK_DEFAULT )
-        , scale( 1.0, 1.0 )
         , period( EQ_UNDEFINED_UINT32 )
         , phase( EQ_UNDEFINED_UINT32 )
         , maxFPS( numeric_limits< float >::max( ))
@@ -398,7 +398,8 @@ void Compound::setProjection( const eq::Projection& projection )
 
 void Compound::setScale( const float x, const float y )
 {
-    _data.scale = ( x, y );   
+    _data.scale.x = x;
+    _data.scale.y = y;
 }
 
 //---------------------------------------------------------------------------

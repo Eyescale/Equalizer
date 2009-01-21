@@ -354,7 +354,7 @@ bool Window::configInitOSWindow( const uint32_t initID )
     EQASSERT( osWindow );
     if( !osWindow->configInit( ))
     {
-        EQWARN << "OS Window initialization failed" << endl;
+        EQWARN << "OS Window initialization failed: " << _error << endl;
         delete osWindow;
         return false;
     }

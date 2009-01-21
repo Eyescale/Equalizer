@@ -951,7 +951,6 @@ void Compositor::_drawPixels( const Image* image,
     {
         const ColorMask& colorMask = op.channel->getDrawBufferMask();
         glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
-        glDepthMask( true );
     }
 }
 

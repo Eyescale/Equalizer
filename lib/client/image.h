@@ -91,14 +91,10 @@ namespace eq
         bool hasAlpha() const;
 
 
-        /** return the frame texture type. */    
+        /** @return the frame pixel storage type. */    
         Frame::Type getType() const{ return _type; }
 
-        /** 
-         * Set the frame txture type.
-         * 
-         * @param type frame txture type.
-         */
+        /** Set the frame pixel storage type. */
         void setType( const Frame::Type type) { _type = type; }
 
         /** @return a pointer to the raw pixel data. */
@@ -296,9 +292,6 @@ namespace eq
                                 
         void _syncReadback( const Frame::Buffer buffer );
         void _copyToTexture( const Frame::Buffer buffer );
-        void _setupAssemble( const vmml::Vector2i& offset );
-        void _startAssemble2D( const vmml::Vector2i& offset );
-        void _startAssembleDB( const vmml::Vector2i& offset );
 
         friend std::ostream& operator << ( std::ostream& os, const Image* );
     };

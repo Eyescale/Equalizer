@@ -213,7 +213,8 @@ int64_t FrameData::transmit( net::NodePtr toNode )
 
     if ( _data.frameType == Frame::TYPE_TEXTURE )
     {
-        EQWARN << "Image type TEXTURE" << endl;
+        EQWARN << "Can't transmit image of type TEXTURE" << endl;
+        EQUNIMPLEMENTED;
         return 0;
     }
 
