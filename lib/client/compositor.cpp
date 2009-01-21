@@ -310,6 +310,7 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
              j != images.end(); ++j )
         {
             const Image* image = *j;
+            EQASSERT( image->getStorageType() == Frame::TYPE_MEMORY );
 
             if( !image->hasPixelData( Frame::BUFFER_COLOR ))
                 continue;
@@ -885,7 +886,7 @@ void Compositor::_drawPixels( const Image* image,
 
     const PixelViewport& pvp = image->getPixelViewport();
     
-    if ( image->getType() == Frame::TYPE_MEMORY )
+    if ( image->getStorageType() == Frame::TYPE_MEMORY )
     {
         glDrawPixels( pvp.w, pvp.h, 
                      image->getFormat( which ), 
@@ -1027,7 +1028,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     GLuint depthTexture;
     GLuint colorTexture;
 
-    if ( image->getType() == Frame::TYPE_TEXTURE )
+    if ( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
         depthTexture = image->getDepthTexture();
         colorTexture = image->getColorTexture();
@@ -1096,14 +1097,15 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
                      GL_NEAREST );
 
-    if ( image->getType() != Frame::TYPE_TEXTURE )
+    if ( image->getStorageType() != Frame::TYPE_TEXTURE )
     {
         EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
                                   GL_RGBA,
                                   pvp.w, pvp.h, 0,
                                   image->getFormat( Frame::BUFFER_COLOR ), 
                                   image->getType( Frame::BUFFER_COLOR ),
-                                  image->getPixelPointer( Frame::BUFFER_COLOR )));
+                                  image->getPixelPointer( Frame::BUFFER_COLOR )
+                                  ));
     }
 
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
@@ -1112,7 +1114,8 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                      GL_NEAREST );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
                      GL_NEAREST );
-    if ( image->getType() != Frame::TYPE_TEXTURE )
+
+    if ( image->getStorageType() != Frame::TYPE_TEXTURE )
     {
         EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
                                   GL_DEPTH_COMPONENT32_ARB,

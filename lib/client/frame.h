@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_FRAME_H
@@ -179,7 +179,8 @@ namespace server
         friend class eq::server::Frame;
         struct Data
         {
-            Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 ) {}
+            Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 )
+                   , frameType( TYPE_MEMORY ) {}
 
             vmml::Vector2i     offset;
             uint32_t           buffers;

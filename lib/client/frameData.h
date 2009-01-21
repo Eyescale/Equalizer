@@ -157,7 +157,7 @@ namespace server
         struct Data
         {
             Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 ), format( 0 )
-                   , type( 0 ) {}
+                   , type( 0 ), frameType( Frame::TYPE_MEMORY ) {}
 
             PixelViewport    pvp;
             vmml::Vector2i   offset;

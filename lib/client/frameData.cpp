@@ -102,7 +102,7 @@ void FrameData::flush()
 Image* FrameData::newImage(eq::Frame::Type type)
 {
     Image* image = _allocImage();
-    image->setType( type );
+    image->setStorageType( type );
     _images.push_back( image );
     return image;
 }

@@ -38,6 +38,7 @@ size_t Image::PixelData::Chunk::headerSize = 16;
 
 Image::Image()
         : _glObjects( 0 )
+        , _type( Frame::TYPE_MEMORY )
 {
     reset();
 }

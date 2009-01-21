@@ -91,11 +91,11 @@ namespace eq
         bool hasAlpha() const;
 
 
-        /** @return the frame pixel storage type. */    
-        Frame::Type getType() const{ return _type; }
+        /** @return the pixel data storage type. */    
+        Frame::Type getStorageType() const{ return _type; }
 
         /** Set the frame pixel storage type. */
-        void setType( const Frame::Type type) { _type = type; }
+        void setStorageType( const Frame::Type type) { _type = type; }
 
         /** @return a pointer to the raw pixel data. */
         const uint8_t* getPixelPointer( const Frame::Buffer buffer ) const;
@@ -268,6 +268,7 @@ namespace eq
         /** The GL object manager, valid during a readback operation. */
         Window::ObjectManager* _glObjects;
 
+        /** The storage type for the pixel data. */
         Frame::Type _type;
 
         /** PBO Usage. */
