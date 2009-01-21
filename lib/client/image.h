@@ -246,12 +246,13 @@ namespace eq
         class Texture : public base::NonCopyable
         {
         public:
-            Texture() : id(0), width(0), height(0) {};
+            Texture() : id(0), width(0), height(0), valid( false ) {};
             void init();
             void resize( const uint32_t width, const uint32_t height );
             GLuint id;
             uint32_t width;
             uint32_t height;
+            bool valid;
         };
         Texture _colorTexture;
         Texture _depthTexture;
@@ -281,7 +282,8 @@ namespace eq
         const Pixels&           _getPixels( const Frame::Buffer buffer ) const;
         const CompressedPixels& _getCompressedPixels( const Frame::Buffer
                                                       buffer ) const;
-
+        const uint32_t _getTextureFormat( const Frame::Buffer buffer ) const;
+        Texture& _getTexture( const Frame::Buffer buffer );
         uint32_t _compressPixelData( const uint64_t* data, const uint32_t size,
                                      uint64_t* out );
 
@@ -293,7 +295,7 @@ namespace eq
                                 Pixels& pixels, const size_t size );
                                 
         void _syncReadback( const Frame::Buffer buffer );
-        void _startCopyToTexture();
+        void _copyToTexture( const Frame::Buffer buffer );
         void _setupAssemble( const vmml::Vector2i& offset );
         void _startAssemble2D( const vmml::Vector2i& offset );
         void _startAssembleDB( const vmml::Vector2i& offset );

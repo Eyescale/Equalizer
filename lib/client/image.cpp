@@ -222,16 +222,28 @@ const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 void Image::Texture::init()
 {
     glGenTextures( 1, &id );
+    valid = false;
 }
 
 void Image::Texture::resize( const uint32_t w, const uint32_t h )
 {
-    if ( width < w ) 
+    if( width < w ) 
+    {
         width  = w;
+        valid = false;
+    }
     
-    if ( height < h )
+    if( height < h )
+    {
         height = h;
+        valid = false;
+    }    
+    
+    
+
 }
+
+
 void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
                            Window::ObjectManager* glObjects )
 {
@@ -317,7 +329,7 @@ void Image::_startReadback( const Frame::Buffer buffer )
     }
     else if ( _type == Frame::TYPE_TEXTURE )
     {
-        _startCopyToTexture();
+        _copyToTexture( buffer );
     }
     else
     {
@@ -328,29 +340,62 @@ void Image::_startReadback( const Frame::Buffer buffer )
     }
 }
 
-void Image::_startCopyToTexture()
+Image::Texture& Image::_getTexture( const Frame::Buffer buffer )
 {
+    switch( buffer )
+    {
+        case Frame::BUFFER_COLOR:
+            return _colorTexture;
+            
+        default:
+            EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
+            return _depthTexture;
+    }
+
+
+}   
+
+const uint32_t Image::_getTextureFormat( const Frame::Buffer buffer ) const
+{
+    switch( buffer )
+    {
+        case Frame::BUFFER_COLOR:
+            return GL_RGBA;
+            
+        default:
+            EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
+            return GL_DEPTH_COMPONENT;
+    }
+}
+
+void Image::_copyToTexture( const Frame::Buffer buffer )
+{
+    Texture& texture = _getTexture( buffer );    
+       
     glEnable(GL_TEXTURE_RECTANGLE_ARB);
     
-    if ( _colorTexture.id == 0 )
-        _colorTexture.init();
+    if ( texture.id == 0 )
+        texture.init();
     
     _colorTexture.resize( _pvp.w, _pvp.h );  
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _colorTexture.id );
-    glCopyTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
-                     GL_RGBA, 0, 0, 
-                     _colorTexture.width, 
-                     _colorTexture.height,  0 );
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, texture.id );
+
+    if ( texture.valid )
+    {
+        glCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0,
+                          0, _pvp.x, _pvp.y, _pvp.w, _pvp.h );
+    }
+    else
+    {
+           
+        glCopyTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
+                          _getTextureFormat( buffer ), _pvp.x, _pvp.y, 
+                          texture.width, 
+                          texture.height,  0 );
     
-    if ( _depthTexture.id == 0 )
-        _depthTexture.init();
+    }
     
-    _depthTexture.resize( _pvp.w, _pvp.h );
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _depthTexture.id );
-    glCopyTexImage2D ( GL_TEXTURE_RECTANGLE_ARB, 0, 
-                      GL_DEPTH_COMPONENT32_ARB, 0, 0, 
-                      _depthTexture.width, 
-                      _depthTexture.height, 0 ); 
+    texture.valid = true;
 }
 void Image::_startReadbackPBO( const Frame::Buffer buffer, Pixels& pixels, const size_t size )
 {

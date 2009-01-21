@@ -196,14 +196,8 @@ std::ostream& operator << ( std::ostream& os, const Frame* frame )
     }
 
     const eq::Frame::Type frameType = frame->getType();
-    if ( frameType != eq::Frame::TYPE_MEMORY ) 
-    {
-        os << "type     " << frameType;
-        if ( frameType == eq::Frame::TYPE_TEXTURE ) 
-            os << " texture" << endl;
-        else if ( frameType == eq::Frame::TYPE_MEMORY ) 
-            os << " memory" << endl;
-    }
+    if( frameType != eq::Frame::TYPE_MEMORY )
+        os  << frameType;
     
     const eq::Viewport& vp = frame->getViewport();
     if( vp != eq::Viewport::FULL )

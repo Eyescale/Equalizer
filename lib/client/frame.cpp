@@ -139,6 +139,18 @@ void Frame::removeListener( base::Monitor<uint32_t>& listener )
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                      const Frame::Type type )
+{
+    os << "type     ";
+    if ( type == eq::Frame::TYPE_TEXTURE ) 
+        os << " texture" << endl;
+    else if ( type == eq::Frame::TYPE_MEMORY ) 
+        os << " memory" << endl;
+        
+    return os;
+}
+
+EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                       const Frame::Buffer buffer )
 {
     if( buffer == Frame::BUFFER_NONE )

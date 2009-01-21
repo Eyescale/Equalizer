@@ -191,6 +191,10 @@ namespace server
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const Frame::Type type );
+                                         
+                                         
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                           const Frame::Buffer buffer );
 };
 #endif // EQ_FRAME_H
