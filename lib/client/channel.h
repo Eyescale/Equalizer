@@ -370,7 +370,7 @@ namespace eq
         /** 
          * Rebind the current alternate rendering buffer.
          */
-        void makeCurrent();
+        void bindFramebuffer();
         
         /**
          * Start rendering a frame.

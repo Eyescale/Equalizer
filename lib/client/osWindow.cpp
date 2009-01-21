@@ -77,12 +77,19 @@ void OSWindow::configExitFBO()
 
 void OSWindow::makeCurrent() const 
 {
+    bindFramebuffer();
+    getPipe()->setCurrent( _window );
+}
+
+void OSWindow::bindFramebuffer() const 
+{
    if( !_glewInitialized )
        return;
     
    if( _fbo )
        _fbo->bind();
-   else
+   else if( GLEW_EXT_framebuffer_object )
        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
 }
+
 }

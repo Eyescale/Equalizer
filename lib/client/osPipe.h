@@ -18,7 +18,6 @@ namespace eq
      * porting to new windowing systems. Each Pipe uses one OSPipe, which
      * is initialized in Pipe::configInitOSPipe.
      */
-
     class EQ_EXPORT OSPipe
     {
     public:

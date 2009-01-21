@@ -70,6 +70,9 @@ Window::Window( Pipe* parent )
 
 Window::~Window()
 {
+    if( _pipe->isCurrent( this ))
+        _pipe->setCurrent( 0 );
+
     _pipe->_removeWindow( this );
 }
 
@@ -290,7 +293,6 @@ void Window::setOSWindow( OSWindow* window )
 
     // Initialize context-specific data
     makeCurrent();
-
     _queryDrawableConfig();
     _setupObjectManager();
 }
@@ -458,14 +460,26 @@ bool Window::configExitOSWindow()
         delete _osWindow;
         _osWindow = 0;
     }
+
+    if( _pipe->isCurrent( this ))
+        _pipe->setCurrent( 0 );
+
     return true;
 }
 
-void Window::makeCurrent() const
+void Window::makeCurrent( const bool useCache ) const
 {
-    _osWindow->makeCurrent( );
+    if( useCache && !_pipe->isCurrent( this ))
+        return;
+
+    _osWindow->makeCurrent();
+    // _pipe->setCurrent done by OSWindow::makeCurrent
 }
 
+void Window::bindFramebuffer() const
+{
+    _osWindow->bindFramebuffer( );
+}
 
 void Window::swapBuffers()
 {
@@ -636,8 +650,8 @@ net::CommandResult Window::_cmdFrameStart( net::Command& command )
 
     //_grabFrame( packet->frameNumber ); single-threaded
 
+         EQASSERT( _osWindow );
     {
-        EQASSERT( _osWindow );
         ScopedMutex< SpinLock > mutex( _osWindow->getContextLock( ));
 
         const DrawableConfig& drawableConfig = getDrawableConfig();
@@ -659,7 +673,6 @@ net::CommandResult Window::_cmdFrameFinish( net::Command& command )
 
     EQ_GL_CALL( makeCurrent( ));
     frameFinish( packet->frameID, packet->frameNumber );
-
     return net::COMMAND_HANDLED;
 }
 

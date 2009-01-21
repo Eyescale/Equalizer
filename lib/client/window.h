@@ -396,8 +396,18 @@ namespace eq
                                       const uint32_t frameNumber )
             { releaseFrameLocal( frameNumber ); }
 
-        /** Make the window's drawable and context current. */
-        virtual void makeCurrent() const;
+        /** 
+         * Make the window's drawable and context current.
+         *
+         * GL drivers tend to be behave sub-optimally if two many makeCurrent
+         * calls happen in a multi-threaded program. When caching is enabled,
+         * this method will only call OSWindow::makeCurrent if it has not been
+         * done before for this window.
+         */
+        virtual void makeCurrent( const bool cache = true ) const;
+
+        /** Bind the window's FBO, if it uses one. */
+        virtual void bindFramebuffer() const;
 
         /** Swap the front and back buffer of the window. */
         virtual void swapBuffers();

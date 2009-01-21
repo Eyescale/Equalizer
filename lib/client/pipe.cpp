@@ -32,6 +32,11 @@ using eq::net::CommandFunc;
 
 namespace eq
 {
+namespace
+{
+static const Window* _ntCurrentWindow = 0;
+}
+
 typedef net::CommandFunc<Pipe> PipeFunc;
 
 Pipe::Pipe( Node* parent )
@@ -46,6 +51,7 @@ Pipe::Pipe( Node* parent )
         , _frameTime( 0 )
         , _thread( 0 )
         , _pipeThreadQueue( 0 )
+        , _currentWindow( 0 )
 {
     parent->_addPipe( this );
     EQINFO << " New eq::Pipe @" << (void*)this << endl;
@@ -285,6 +291,21 @@ void Pipe::_flushFrames()
         delete frame;
     }
     _frames.clear();
+}
+
+bool Pipe::isCurrent( const Window* window ) const
+{
+    if( isThreaded( ))
+        return ( window == _currentWindow );
+    return ( window == _ntCurrentWindow );
+}
+
+void Pipe::setCurrent( const Window* window ) const
+{
+    if( isThreaded( ))
+        _currentWindow = window;
+    else
+        _ntCurrentWindow = window;
 }
 
 void Pipe::startThread()

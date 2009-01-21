@@ -151,6 +151,12 @@ namespace eq
          */
         Frame* getFrame( const net::ObjectVersion& frameVersion, 
                          const Eye eye );
+
+        /** @return if the window is made current */
+        bool isCurrent( const Window* window ) const;
+
+        /** Set the window as current window. */
+        void setCurrent( const Window* window ) const;
         //*}
 
         /** Wait for the pipe to be exited. */
@@ -388,7 +394,6 @@ namespace eq
         /** Worst-case set of tasks. */
         uint32_t _tasks;
 
-
         /** The display (GLX) or ignored (Win32, AGL). */
         uint32_t _port;
 
@@ -443,6 +448,9 @@ namespace eq
 
         /** The receiver->pipe thread command queue. */
         eq::CommandQueue*   _pipeThreadQueue;
+
+        /** The last window made current. */
+        const mutable Window* _currentWindow;
 
         //-------------------- Methods --------------------
         void* _runThread();

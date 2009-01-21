@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
                           , Makhinya Maxim
    All rights reserved. */
@@ -27,12 +28,38 @@ namespace eq
         
         /** @name Methods forwarded from eq::Window */
         //*{
+        /** 
+         * Initialize this OS window.
+         * 
+         * This method should take into account all attributes of the parent
+         * Window.
+         * 
+         * @return true if the window was correctly initialized, false
+         *         on any error.
+         */
         virtual bool configInit( ) = 0;
 
+        /** 
+         * De-initialize this OS window.
+         * 
+         * This function might be called on partially or uninitialized OS
+         * windows, and has therefore be tolerant enough to handle this.
+         */
         virtual void configExit( ) = 0;
 
+        /** 
+         * Make the OS window's rendering context and drawable current.
+         *
+         * This function invalidates the pipe's make current cache. If this
+         * function is not called, Pipe::setCurrent() has to be called
+         * appropriately.
+         */
         virtual void makeCurrent() const;
 
+        /** Bind the window's FBO, if it uses an FBO drawable. */
+        virtual void bindFramebuffer() const;
+
+        /** Swap the front and back buffer, for doublebuffered drawables. */
         virtual void swapBuffers() = 0;
 
         virtual base::SpinLock* getContextLock() { return 0; }
@@ -69,8 +96,7 @@ namespace eq
         /** @return the generic WGL function table for the window's pipe. */
         WGLEWContext* wglewGetContext() { return _window->wglewGetContext(); }
         //*}
-		
-        
+		        
         /** 
          * Get the GLEW context for this window.
          * 
@@ -79,7 +105,7 @@ namespace eq
          * the Equalizer naming conventions, since GLEW uses a function of this
          * name to automatically resolve OpenGL function entry
          * points. Therefore, any supported GL function can be called directly
-         * from an initialized Window.
+         * from an initialized OSWindow.
          * 
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.

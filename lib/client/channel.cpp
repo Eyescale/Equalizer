@@ -478,8 +478,13 @@ FrameBufferObject* Channel::getFrameBufferObject()
 
 void Channel::applyFrameBufferObject()
 {
-    _fbo->resize( _pvp.w, _pvp.h );
-    _fbo->bind();    
+    if( _fbo )
+    {
+        _fbo->resize( _pvp.w, _pvp.h );
+        _fbo->bind(); 
+    }
+    else if( GLEW_EXT_framebuffer_object )
+        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
 }
 
 void Channel::applyBuffer()
@@ -493,7 +498,7 @@ void Channel::applyBuffer()
     applyColorMask();
 }
 
-void Channel::makeCurrent()
+void Channel::bindFramebuffer()
 {
    if( !_window->getOSWindow() )
        return;
@@ -501,7 +506,7 @@ void Channel::makeCurrent()
    if( _fbo )
        applyFrameBufferObject();
    else
-       _window->makeCurrent();
+       _window->bindFramebuffer();
 }
 
 void Channel::applyColorMask() const
@@ -909,7 +914,7 @@ net::CommandResult Channel::_cmdFrameStart( net::Command& command )
     if( _view )
         _view->sync( packet->viewVersion );
     
-    makeCurrent();
+    bindFramebuffer();
     frameStart( packet->frameID, packet->frameNumber );
 
     return net::COMMAND_HANDLED;
