@@ -58,8 +58,10 @@ endif
 	@echo
 ifeq (Darwin,$(ARCH))
 	@echo "Set DYLD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR)"
+	@echo "bash: 'export DYLD_LIBRARY_PATH=$(PWD)/$(LIBRARY_DIR)'"
 else
 	@echo "Set LD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR)"
+	@echo "bash: 'export LD_LIBRARY_PATH=$(PWD)/$(LIBRARY_DIR)'"
 endif
 	@echo
 
