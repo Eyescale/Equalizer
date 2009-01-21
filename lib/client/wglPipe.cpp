@@ -27,81 +27,20 @@ using namespace std;
 //---------------------------------------------------------------------------
 bool WGLPipe::configInit()
 {
+#ifdef WGL
     _configInitWGLEW();
 
-#ifdef WGL
     PixelViewport pvp = _pipe->getPixelViewport();
-
     if( pvp.isValid( ))
         return true;
 
-    HDC dc;
-    if( !createAffinityDC( dc ))
-        return false;
-    
-    if( dc ) // createAffinityDC did set up pvp
-    {
-        wglDeleteDCNV( dc );
-        EQINFO << "Pipe affinity pixel viewport " << pvp << endl;
-        return true;
-    }
-    // else don't use affinity dc
-    dc = GetDC( 0 );
-    EQASSERT( dc );
-
-    pvp.x = 0;
-    pvp.y = 0;
-    pvp.w = GetDeviceCaps( dc, HORZRES );
-    pvp.h = GetDeviceCaps( dc, VERTRES );
-    _pipe->setPixelViewport( pvp );
-
-    ReleaseDC( 0, dc );
-    EQINFO << "Pipe pixel viewport " << pvp << endl;
-    return true;
-#else
-    setErrorMessage( "Client library compiled without WGL support" );
-    return false;
-#endif
-}
-
-
-void WGLPipe::configExit()
-{
-#ifdef WGL
-    _pipe->setPixelViewport( eq::PixelViewport( )); // invalidate
-#endif
-}
-
-
-bool WGLPipe::createAffinityDC( HDC& affinityDC )
-{
-#ifdef WGL
-    affinityDC = 0;
-    const uint32_t device = _pipe->getDevice();
-
-    if( device == EQ_UNDEFINED_UINT32 )
-        return true;
-
-    if( !WGLEW_NV_gpu_affinity )
-    {
-        EQWARN <<"WGL_NV_gpu_affinity unsupported, ignoring pipe device setting"
-               << endl;
-        return true;
-    }
-
-    HGPUNV hGPU[2] = { 0 };
-    hGPU[1] = 0;
-    if( !wglEnumGpusNV( device, hGPU ))
-    {
-        stringstream error;
-        error << "Can't enumerate GPU #" << device;
-        setErrorMessage( error.str( ));
-        return false;
-    }
-
     // setup pvp
-    PixelViewport pvp = _pipe->getPixelViewport();
-    if( !pvp.isValid( ))
+    // ...using gpu affinity API
+    HGPUNV hGPU = 0;
+    if( !_getGPUHandle( hGPU ))
+        return false;
+
+    if( hGPU != 0 )
     {
         GPU_DEVICE gpuDevice;
         gpuDevice.cb = sizeof( gpuDevice );
@@ -123,8 +62,47 @@ bool WGLPipe::createAffinityDC( HDC& affinityDC )
             pvp.w = 4096;
             pvp.h = 4096;
         }
-        _pipe->setPixelViewport( pvp );
     }
+    else // ... using Win32 API
+    {
+        HDC dc = GetDC( 0 );
+        EQASSERT( dc );
+
+        pvp.x = 0;
+        pvp.y = 0;
+        pvp.w = GetDeviceCaps( dc, HORZRES );
+        pvp.h = GetDeviceCaps( dc, VERTRES );
+        _pipe->setPixelViewport( pvp );
+
+        ReleaseDC( 0, dc );
+    }
+
+    _pipe->setPixelViewport( pvp );
+    EQINFO << "Pipe pixel viewport " << pvp << endl;
+    return true;
+#else
+    setErrorMessage( "Client library compiled without WGL support" );
+    return false;
+#endif
+}
+
+
+void WGLPipe::configExit()
+{
+#ifdef WGL
+    _pipe->setPixelViewport( eq::PixelViewport( )); // invalidate
+#endif
+}
+
+
+bool WGLPipe::createAffinityDC( HDC& affinityDC )
+{
+#ifdef WGL
+    affinityDC = 0;
+
+    HGPUNV hGPU[2] = { 0 };
+    if( !_getGPUHandle( hGPU[0] ))
+        return false;
 
     affinityDC = wglCreateAffinityDCNV( hGPU );
     if( !affinityDC )
@@ -138,6 +116,35 @@ bool WGLPipe::createAffinityDC( HDC& affinityDC )
 #else
     return false;
 #endif
+}
+
+bool WGLPipe::_getGPUHandle( HGPUNV& handle );
+{
+    handle = 0;
+
+    const uint32_t device = _pipe->getDevice();
+    if( device == EQ_UNDEFINED_UINT32 )
+        return true;
+
+    if( !WGLEW_NV_gpu_affinity )
+    {
+        EQWARN <<"WGL_NV_gpu_affinity unsupported, ignoring pipe device setting"
+               << endl;
+        return true;
+    }
+
+    HGPUNV hGPU[2] = { 0 };
+    hGPU[1] = 0;
+    if( !wglEnumGpusNV( device, hGPU ))
+    {
+        stringstream error;
+        error << "Can't enumerate GPU #" << device;
+        setErrorMessage( error.str( ));
+        return false;
+    }
+
+    handle = hGPU[0];
+    return true;
 }
 
 

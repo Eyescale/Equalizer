@@ -51,7 +51,7 @@ namespace eq
 
         void _configInitWGLEW();
 
-        /** Window-system specific display information. */
+        bool _getGPUHandle( HGPUNV& handle );
     };
 }
 
