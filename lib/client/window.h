@@ -260,6 +260,28 @@ namespace eq
         void setErrorMessage( const std::string& message ) { _error = message; }
         //*}
 
+        /**
+         * @name Callbacks
+         *
+         * The callbacks are called by Equalizer during rendering to execute
+         * various actions.
+         */
+        //*{
+
+        /** 
+         * Process a received event.
+         *
+         * The task of this method is to update the window as necessary, and 
+         * transform the event into an config event to be send to the 
+         * application using Config::sendEvent().
+         * 
+         * @param event the received window system event.
+         * @return true when the event was handled, false if not.
+         */
+        virtual bool processEvent( const Event& event );
+
+        //*}
+
     protected:
         friend class Pipe;
 
@@ -379,22 +401,6 @@ namespace eq
 
         /** Swap the front and back buffer of the window. */
         virtual void swapBuffers();
-
-        /** 
-         * Process a received event.
-         *
-         * The task of this method is to update the window as necessary, and 
-         * transform the event into an config event to be send to the 
-         * application using Config::sendEvent().
-         * 
-         * @param event the received window system event.
-         * @return true when the event was handled, false if not.
-         */
-        virtual bool processEvent( const Event& event );
-        friend class GLXWindowIF;
-        friend class AGLWindowIF;
-        friend class WGLWindowIF;
-        friend class WindowStatistics;
         //*}
 
     private:

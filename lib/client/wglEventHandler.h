@@ -1,4 +1,5 @@
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WGLEVENTHANDLER_H
@@ -28,9 +29,6 @@ namespace eq
         /** Destructs the wgl event handler. */
         virtual ~WGLEventHandler();
 
-        /** @sa EventHandler::deregisterPipe() */
-        virtual void deregisterPipe( Pipe* pipe ){ /*NOP*/ }
-        
         static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                          LPARAM lParam );
         

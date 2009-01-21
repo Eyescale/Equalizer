@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -19,9 +20,6 @@ namespace eq
     public:
         static AGLEventHandler* get();
 
-        /** @sa EventHandler::deregisterPipe. */
-        virtual void deregisterPipe( Pipe* pipe ) { /*NOP*/ };
-        
         /** @sa EventHandler::registerWindow. */
         void registerWindow( AGLWindowIF* window );
         

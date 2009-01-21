@@ -1,4 +1,5 @@
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "glXEventHandler.h"
@@ -28,21 +29,19 @@ namespace
 static PerThreadRef< GLXEventHandler::EventSet > _pipeConnections;
 }
 
-GLXEventHandler::GLXEventHandler( Pipe* pipe )
+GLXEventHandler::GLXEventHandler( GLXPipe* pipe )
+        : _pipe( pipe )
 {
     if( !_pipeConnections )
     {
         EQINFO << "Set glX event set" << endl;
         _pipeConnections = new GLXEventHandler::EventSet;
     }
+    
     _pipeConnections->addConnection( new X11Connection( pipe ));
 }
 
 GLXEventHandler::~GLXEventHandler()
-{
-}
-
-void GLXEventHandler::deregisterPipe( Pipe* pipe )
 {
     EQASSERT( _pipeConnections.isValid( ));
 
@@ -55,7 +54,7 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
         X11ConnectionPtr connection = 
             RefPtr_static_cast< net::Connection, X11Connection >( *i );
         
-        if( connection->pipe == pipe )
+        if( connection->pipe == _pipe )
         {
             _pipeConnections->removeConnection( *i );
             EQASSERTINFO( connection->getRefCount() == 1,
@@ -63,8 +62,6 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
             break;
         }
     }
-
-    delete this;
 }
 
 GLXEventSetPtr GLXEventHandler::getEventSet()
@@ -140,9 +137,9 @@ void GLXEventHandler::dispatchAll()
 void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
 {
     Display*         display = connection->getDisplay();
-    Pipe*            pipe    = connection->pipe;
-    GLXEventHandler* handler = 
-        static_cast< GLXEventHandler* >( pipe->getEventHandler( ));
+    GLXPipe*         glXPipe = connection->pipe;
+    Pipe*            pipe    = glXPipe->getPipe();
+    GLXEventHandler* handler = glXPipe->getGLXEventHandler();
     EQASSERT( handler );
 
     while( XPending( display ))

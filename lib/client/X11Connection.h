@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_X11_CONNECTION_H
 #define EQ_X11_CONNECTION_H
 
 #include <eq/client/windowSystem.h>
+#include <eq/client/glXPipe.h>
 
 #include <eq/net/connection.h>
 
@@ -18,10 +19,12 @@ namespace eq
     class X11Connection : public net::Connection
     {
     public:
-        X11Connection( Pipe* pipe_ )
+        X11Connection( GLXPipe* pipe_ )
                 : pipe( pipe_ )
-                , _display( pipe_->getXDisplay( ))
             {
+                EQASSERT( pipe_ );
+                _display = pipe_->getXDisplay();
+
                 EQASSERT( _display );
                 _state = STATE_CONNECTED;
                 EQINFO << "New X11 Connection @" << (void*)this << std::endl;
@@ -34,7 +37,7 @@ namespace eq
         virtual ReadNotifier getReadNotifier() const
             { return ConnectionNumber( _display ); }
 
-        Pipe* const pipe;
+        GLXPipe* const pipe;
 
     protected:
         virtual int64_t read( void* buffer, const uint64_t bytes )

@@ -22,8 +22,7 @@ CompoundUpdateInputVisitor::CompoundUpdateInputVisitor(
         : _outputFrames( outputFrames )
 {}
 
-VisitorResult CompoundUpdateInputVisitor::visitLeaf(
-    Compound* compound )
+VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
 {
     const std::vector< Frame* >& inputFrames = compound->getInputFrames();
     const Channel*               channel     = compound->getChannel();
@@ -42,7 +41,7 @@ VisitorResult CompoundUpdateInputVisitor::visitLeaf(
     {
         Frame*                             frame = *i;
         const std::string&                 name = frame->getName();
-        Compound::FrameMap::const_iterator iter =_outputFrames.find(name);
+        Compound::FrameMap::const_iterator iter =_outputFrames.find( name );
 
         if( iter == _outputFrames.end())
         {
@@ -69,8 +68,8 @@ VisitorResult CompoundUpdateInputVisitor::visitLeaf(
 
         // input frames are moved using the offset. The pvp signifies the pixels
         // to be used from the frame data.
-        framePVP.x = static_cast<int32_t>( frameVP.x * inheritPVP.w );
-        framePVP.y = static_cast<int32_t>( frameVP.y * inheritPVP.h );
+        framePVP.x = static_cast< int32_t >( frameVP.x * inheritPVP.w );
+        framePVP.y = static_cast< int32_t >( frameVP.y * inheritPVP.h );
 
         frame->setOffset( frameOffset );
         //frame->setPixelViewport( framePVP );

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 // HACK: Get rid of deprecated warning for aglUseFont
@@ -19,6 +19,9 @@
 #endif
 #ifdef AGL
 #  include <eq/client/aglWindow.h>
+#endif
+#ifdef GLX
+#  include <eq/client/glXPipe.h>
 #endif
 
 using namespace std;
@@ -61,7 +64,12 @@ bool BitmapFont::_initFontGLX( const std::string& fontName )
 {
 #ifdef GLX
     Pipe*    pipe    = _window->getPipe();
-    Display* display = pipe->getXDisplay();
+    EQASSERT( pipe );
+    EQASSERT( pipe->getOSPipe( ));
+    EQASSERT( dynamic_cast< const GLXPipe* >( pipe->getOSPipe( )));
+    const GLXPipe* osPipe = static_cast< const GLXPipe* >( pipe->getOSPipe( ));
+
+    Display* display = osPipe->getXDisplay();
     EQASSERT( display );
 
     string font = fontName;

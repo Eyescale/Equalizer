@@ -1,4 +1,5 @@
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_GLXEVENTHANDLER_H
@@ -12,7 +13,7 @@
 
 namespace eq
 {
-    class Pipe;
+    class GLXPipe;
     class Window;
     class GLXWindowEvent;
 
@@ -43,17 +44,16 @@ namespace eq
         /** Clear the event set of the current thread. */
         static void clearEventSet();
 
-
         /** Constructs a new glx event handler. */
-        GLXEventHandler( Pipe* pipe );
+        GLXEventHandler( GLXPipe* pipe );
 
-        /** @sa EventHandler::deregisterPipe. */
-        virtual void deregisterPipe( Pipe* pipe );
-
-    private:
         /** Destructs the glX event handler. */
         virtual ~GLXEventHandler();
-        
+
+    private:
+        /** The corresponding glX pipe. */
+        GLXPipe* const _pipe;
+
         static void _handleEvents( X11ConnectionPtr connection );
 
         void _processEvent( GLXWindowEvent& event, Pipe* pipe );

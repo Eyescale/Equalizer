@@ -26,11 +26,8 @@ namespace server
             const stde::hash_map<std::string, Frame*>& outputFrames );
         virtual ~CompoundUpdateInputVisitor() {}
 
-        /** Visit a non-leaf compound on the down traversal. */
-        virtual VisitorResult visitPre( Compound* compound )
-            { return visitLeaf( compound ); }
-        /** Visit a leaf compound. */
-        virtual VisitorResult visitLeaf( Compound* compound );
+        /** Visit all compounds. */
+        virtual VisitorResult visit( Compound* compound );
 
     private:
         const stde::hash_map<std::string, Frame*>& _outputFrames;

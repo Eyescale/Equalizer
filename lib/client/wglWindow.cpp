@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
                           , Makhinya Maxim
    All rights reserved. */
@@ -461,8 +462,12 @@ bool WGLWindow::initWGLAffinityDC()
     // potentially a different pixel format.
     Pipe* pipe    = getPipe();
     EQASSERT( pipe );
+    EQASSERT( pipe->getOSPipe( ));
+    EQASSERT( dynamic_cast< WGLPipe* >( pipe->getOSPipe( )));
 
-    return pipe->createAffinityDC( _wglAffinityDC );
+    WGLPipe* osPipe = static_cast< WGLPipe* >( pipe->getOSPipe( ));
+
+    return osPipe->createAffinityDC( _wglAffinityDC );
 }
 
 HDC WGLWindow::getWGLAffinityDC()

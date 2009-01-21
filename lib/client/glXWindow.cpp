@@ -1,9 +1,11 @@
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com>
+
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
                           , Makhinya Maxim
    All rights reserved. */
 
 #include "glXWindow.h"
 #include "global.h"
+#include "glXPipe.h"
 
 namespace eq
 {
@@ -54,18 +56,45 @@ bool GLXWindow::configInit( )
     }
 
     makeCurrent();
-	_initGlew();
+    _initGlew();
 
     if (getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         configInitFBO();
 
-    return success;    
+    return success;
+}
+
+
+Display* GLXWindow::getXDisplay()
+{
+    Pipe* pipe = getPipe();
+
+    EQASSERT( pipe );
+    EQASSERT( pipe->getOSPipe( ));
+    EQASSERT( dynamic_cast< GLXPipe* >( pipe->getOSPipe( )));
+
+    GLXPipe* osPipe = static_cast< GLXPipe* >( pipe->getOSPipe( ));
+
+    return osPipe->getXDisplay();
+}
+
+Display* GLXWindow::getXDisplay() const
+{
+    const Pipe* pipe = getPipe();
+
+    EQASSERT( pipe );
+    EQASSERT( pipe->getOSPipe( ));
+    EQASSERT( dynamic_cast< const GLXPipe* >( pipe->getOSPipe( )));
+
+    const GLXPipe* osPipe = static_cast< const GLXPipe* >( pipe->getOSPipe( ));
+
+    return osPipe->getXDisplay();
 }
 
 
 XVisualInfo* GLXWindow::chooseXVisualInfo()
 {
-    Display* display = getPipe()->getXDisplay();
+    Display* display = getXDisplay();
     if( !display )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
@@ -199,6 +228,7 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
     return visInfo;
 }
 
+
 GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
 {
     if( !visualInfo )
@@ -207,8 +237,8 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
         return 0;
     }
 
-    Pipe*    pipe    = getPipe();
-    Display* display = pipe->getXDisplay();
+    Display* display = getXDisplay();
+
     if( !display )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
@@ -265,8 +295,8 @@ bool GLXWindow::configInitGLXDrawable( XVisualInfo* visualInfo )
 
 bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
 {
-    Pipe*    pipe    = getPipe();
-    Display* display = pipe->getXDisplay();
+    Display* display = getXDisplay();
+
     if( !display )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
@@ -321,8 +351,7 @@ XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo ,
         return 0;
     }
 
-    Pipe*    pipe    = getPipe();
-    Display* display = pipe->getXDisplay();
+    Display* display = getXDisplay();
     if( !display )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
@@ -353,7 +382,7 @@ XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo ,
                                   CWBackPixmap | CWBorderPixel |
                                   CWEventMask | CWColormap | CWOverrideRedirect,
                                   &wa );
-    
+
     if ( !drawable )
     {
         _window->setErrorMessage( "Could not create window" );
@@ -378,12 +407,10 @@ XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo ,
     // Register for close window request from the window manager
     Atom deleteAtom = XInternAtom( display, "WM_DELETE_WINDOW", False );
     XSetWMProtocols( display, drawable, &deleteAtom, 1 );
-    
+
     return drawable;
 }
-    
-    
-    
+
 
 bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
 {
@@ -395,10 +422,7 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
         return false;
     }
 
-    const Pipe*    pipe    = getPipe();
-    EQASSERT( pipe );
-
-    Display* display = pipe->getXDisplay();
+    Display* display = getXDisplay();
     if( !display )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
@@ -480,10 +504,7 @@ void GLXWindow::setXDrawable( XID drawable )
         return;
 
     // query pixel viewport of window
-    Pipe*    pipe    = getPipe();
-    EQASSERT( pipe );
-
-    Display *display = pipe->getXDisplay();
+    Display* display = getXDisplay();
     EQASSERT( display );
 
     PixelViewport pvp;
@@ -534,10 +555,7 @@ void GLXWindow::setGLXContext( GLXContext context )
 
 void GLXWindow::configExit( )
 {
-    Pipe*    pipe    = getPipe();
-    EQASSERT( pipe );
-
-    Display *display = pipe->getXDisplay();
+    Display* display = getXDisplay();
     if( !display ) 
         return;
         
@@ -566,23 +584,19 @@ void GLXWindow::configExit( )
 
 void GLXWindow::makeCurrent() const
 {
-    const Pipe* pipe = getPipe();
+    Display* display = getXDisplay();
+    EQASSERT( display );
 
-    EQASSERT( pipe );
-    EQASSERT( pipe->getXDisplay( ));
-
-    glXMakeCurrent( pipe->getXDisplay(), _xDrawable, _glXContext );
+    glXMakeCurrent( display, _xDrawable, _glXContext );
     OSWindow::makeCurrent();
 }
 
 void GLXWindow::swapBuffers()
 {
-    Pipe*    pipe    = getPipe();
+    Display* display = getXDisplay();
+    EQASSERT( display );
 
-    EQASSERT( pipe );
-    EQASSERT( pipe->getXDisplay( ));
-
-    glXSwapBuffers( pipe->getXDisplay(), _xDrawable );
+    glXSwapBuffers( display, _xDrawable );
 }
 
 }

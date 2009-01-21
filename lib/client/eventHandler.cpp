@@ -1,4 +1,5 @@
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "eventHandler.h"
@@ -18,28 +19,6 @@ using namespace std;
 
 namespace eq
 {
-EventHandler* EventHandler::registerPipe( Pipe* pipe )
-{
-    switch( pipe->getWindowSystem( ))
-    {
-        case WINDOW_SYSTEM_GLX:
-#ifdef GLX
-            return new GLXEventHandler( pipe );
-#endif
-            break;
-
-        case WINDOW_SYSTEM_AGL:
-        case WINDOW_SYSTEM_WGL:
-            // NOP
-            break;
-
-        default:
-            EQERROR << "event handling not implemented for window system " 
-                    << pipe->getWindowSystem() << endl;
-            break;
-    }
-    return 0;
-}
 
 void EventHandler::_computePointerDelta( const Window* window, Event &event )
 {

@@ -1,4 +1,5 @@
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com>
+
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
                           , Makhinya Maxim
    All rights reserved. */
 
@@ -6,6 +7,7 @@
 
 #include "aglEventHandler.h"
 #include "global.h"
+#include "aglPipe.h"
 
 namespace eq
 {
@@ -114,8 +116,12 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
 {
     Pipe*    pipe    = getPipe();
     EQASSERT( pipe );
+    EQASSERT( pipe->getOSPipe( ));
+    EQASSERT( dynamic_cast< const AGLPipe* >( pipe->getOSPipe( )));
 
-    CGDirectDisplayID displayID = pipe->getCGDisplayID();
+    const AGLPipe* osPipe = static_cast< const AGLPipe* >( pipe->getOSPipe( ));
+
+    CGDirectDisplayID displayID = osPipe->getCGDisplayID();
 
     Global::enterCarbon();
 

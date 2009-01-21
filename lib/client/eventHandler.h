@@ -1,4 +1,5 @@
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_EVENTHANDLER_H
@@ -20,22 +21,7 @@ namespace eq
     class EQ_EXPORT EventHandler
     {
     public:
-        /** 
-         * Register a pipe for event handling and return the appropriate event
-         * handler.
-         * 
-         * @param pipe the pipe.
-         * @return the event handler for the pipe, can be 0.
-         */
-        static EventHandler* registerPipe( Pipe* pipe );
 
-        /** 
-         * Deregister a pipe for event handling.
-         * 
-         * @param pipe the pipe.
-         */
-        virtual void deregisterPipe( Pipe* pipe ) = 0;
-        
     protected:
         /** Constructs a new event handler. */
         EventHandler() : _lastEventWindow( 0 ) {}

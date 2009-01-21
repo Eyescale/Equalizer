@@ -1,4 +1,5 @@
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com>
+
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
                           , Makhinya Maxim
    All rights reserved. */
 
@@ -25,6 +26,10 @@ namespace eq
 
         virtual bool processEvent( const GLXWindowEvent& event )
             { return _window->processEvent( event ); }
+
+        /** @return GLX display */
+        virtual Display* getXDisplay() = 0;
+        virtual Display* getXDisplay() const = 0;
     };
 
     /** Equalizer default implementation of a GLX window */
@@ -58,6 +63,10 @@ namespace eq
 
         /**  @return  the X11 drawable ID. */
         virtual XID getXDrawable() const { return _xDrawable; }
+
+        /** @return GLX display */
+        virtual Display* getXDisplay();
+        virtual Display* getXDisplay() const;
         //*}
 
     protected:

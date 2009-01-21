@@ -1,11 +1,10 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "pipe.h"
 
 #include "commands.h"
-#include "eventHandler.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
@@ -15,10 +14,13 @@
 #include "window.h"
 
 #ifdef GLX
-#  include "glXEventHandler.h"
+#  include "glXPipe.h"
 #endif
 #ifdef WGL
-#  include "wglEventHandler.h"
+#  include "wglPipe.h"
+#endif
+#ifdef AGL
+#  include "aglPipe.h"
 #endif
 
 #include <eq/net/command.h>
@@ -32,13 +34,8 @@ namespace eq
 {
 typedef net::CommandFunc<Pipe> PipeFunc;
 
-#ifdef WIN32
-#  define bzero( ptr, size ) memset( ptr, 0, size );
-#endif
-
 Pipe::Pipe( Node* parent )
-        : _eventHandler( 0 )
-        , _node( parent )
+        : _node( parent )
         , _windowSystem( WINDOW_SYSTEM_NONE )
         , _wglewContext( new WGLEWContext )       
         , _tasks( TASK_NONE )
@@ -50,7 +47,6 @@ Pipe::Pipe( Node* parent )
         , _thread( 0 )
         , _pipeThreadQueue( 0 )
 {
-    bzero( _pipeFill, sizeof( _pipeFill ));
     parent->_addPipe( this );
     EQINFO << " New eq::Pipe @" << (void*)this << endl;
 }
@@ -216,136 +212,6 @@ void Pipe::_setupCommandQueue()
     }
 }
 
-void Pipe::setXDisplay( Display* display )
-{
-#ifdef GLX
-    if( _xDisplay == display )
-		return;
-
-    if( _xDisplay )
-        exitEventHandler();
-    _xDisplay = display; 
-
-    if( display )
-    {
-        initEventHandler();
-#ifndef NDEBUG
-        // somewhat reduntant since it is a global handler
-        XSetErrorHandler( eq::Pipe::XErrorHandler );
-#endif
-
-        string       displayString = DisplayString( display );
-        const size_t colonPos      = displayString.find( ':' );
-        if( colonPos != string::npos )
-        {
-            const string displayNumberString = displayString.substr(colonPos+1);
-            const uint32_t displayNumber = atoi( displayNumberString.c_str( ));
-            
-            if( _port != EQ_UNDEFINED_UINT32 && displayNumber != _port )
-                EQWARN << "Display mismatch: provided display connection uses"
-                   << " display " << displayNumber
-                   << ", but pipe has port " << _port << endl;
-
-            if( _device != EQ_UNDEFINED_UINT32 &&
-                DefaultScreen( display ) != (int)_device )
-                
-                EQWARN << "Screen mismatch: provided display connection uses"
-                       << " default screen " << DefaultScreen( display ) 
-                       << ", but pipe has screen " << _device << endl;
-            
-            //_port = displayNumber;
-            //_device  = DefaultScreen( display );
-        }
-    }
-
-    if( _pvp.isValid( ))
-        return;
-
-    if( display )
-    {
-        _pvp.x    = 0;
-        _pvp.y    = 0;
-        _pvp.w = DisplayWidth(  display, DefaultScreen( display ));
-        _pvp.h = DisplayHeight( display, DefaultScreen( display ));
-    }
-    else
-        _pvp.invalidate();
-#endif
-}
-
-int Pipe::XErrorHandler( Display* display, XErrorEvent* event )
-{
-#ifdef GLX
-    EQERROR << disableFlush;
-    EQERROR << "X Error occured: " << disableHeader << indent;
-
-    char buffer[256];
-    XGetErrorText( display, event->error_code, buffer, 256);
-
-    EQERROR << buffer << endl;
-    EQERROR << "Major opcode: " << (int)event->request_code << endl;
-    EQERROR << "Minor opcode: " << (int)event->minor_code << endl;
-    EQERROR << "Error code: " << (int)event->error_code << endl;
-    EQERROR << "Request serial: " << event->serial << endl;
-    EQERROR << "Current serial: " << NextRequest( display ) - 1 << endl;
-
-    switch( event->error_code )
-    {
-        case BadValue:
-            EQERROR << "  Value: " << event->resourceid << endl;
-            break;
-
-        case BadAtom:
-            EQERROR << "  AtomID: " << event->resourceid << endl;
-            break;
-
-        default:
-            EQERROR << "  ResourceID: " << event->resourceid << endl;
-            break;
-    }
-    EQERROR << enableFlush << exdent << enableHeader;
-
-#ifndef NDEBUG
-    if( getenv( "EQ_ABORT_WAIT" ))
-    {
-        EQERROR << "Caught X Error, entering infinite loop for debugging" 
-                << endl;
-        while( true ) ;
-    }
-#endif
-
-#endif // GLX
-
-    return 0;
-}
-
-void Pipe::setCGDisplayID( CGDirectDisplayID id )
-{
-#ifdef AGL
-    if( _cgDisplayID == id )
-        return;
-
-    if( _cgDisplayID )
-        exitEventHandler();
-    _cgDisplayID = id; 
-    if( _cgDisplayID )
-        initEventHandler();
-
-    if( _pvp.isValid( ))
-        return;
-
-    if( id )
-    {
-        const CGRect displayRect = CGDisplayBounds( id );
-        _pvp.x = (int32_t)displayRect.origin.x;
-        _pvp.y = (int32_t)displayRect.origin.y;
-        _pvp.w = (int32_t)displayRect.size.width;
-        _pvp.h = (int32_t)displayRect.size.height;
-    }
-    else
-        _pvp.invalidate();
-#endif
-}
 
 void* Pipe::_runThread()
 {
@@ -448,302 +314,75 @@ void Pipe::joinThread()
 //---------------------------------------------------------------------------
 // pipe-thread methods
 //---------------------------------------------------------------------------
-void Pipe::_configInitWGLEW()
-{
-    CHECK_THREAD( _pipeThread );
-    if( _windowSystem != WINDOW_SYSTEM_WGL )
-        return;
-
-#ifdef WGL
-    //----- Create and make current a temporary GL context to initialize WGLEW
-
-    // window class
-    ostringstream className;
-    className << "TMP" << (void*)this;
-    const string& classStr = className.str();
-                                  
-    HINSTANCE instance = GetModuleHandle( 0 );
-    WNDCLASS  wc       = { 0 };
-    wc.lpfnWndProc   = WGLEventHandler::wndProc;    
-    wc.hInstance     = instance; 
-    wc.hIcon         = LoadIcon( 0, IDI_WINLOGO );
-    wc.hCursor       = LoadCursor( 0, IDC_ARROW );
-    wc.lpszClassName = classStr.c_str();       
-
-    if( !RegisterClass( &wc ))
-    {
-        EQWARN << "Can't register temporary window class: " 
-               << getErrorString( GetLastError( )) << endl;
-        return;
-    }
-
-    // window
-    DWORD windowStyleEx = WS_EX_APPWINDOW;
-    DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
-
-    HWND hWnd = CreateWindowEx( windowStyleEx,
-                                wc.lpszClassName, "TMP",
-                                windowStyle, 0, 0, 1, 1,
-                                0, 0, // parent, menu
-                                instance, 0 );
-
-    if( !hWnd )
-    {
-        EQWARN << "Can't create temporary window: "
-               << getErrorString( GetLastError( )) << endl;
-        UnregisterClass( classStr.c_str(),  instance );
-        return;
-    }
-
-    HDC                   dc  = GetDC( hWnd );
-    PIXELFORMATDESCRIPTOR pfd = {0};
-    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
-    pfd.nVersion     = 1;
-    pfd.dwFlags      = PFD_DRAW_TO_WINDOW |
-                       PFD_SUPPORT_OPENGL;
-
-    int pf = ChoosePixelFormat( dc, &pfd );
-    if( pf == 0 )
-    {
-        EQWARN << "Can't find temporary pixel format: "
-               << getErrorString( GetLastError( )) << endl;
-        DestroyWindow( hWnd );
-        UnregisterClass( classStr.c_str(),  instance );
-        return;
-    }
- 
-    if( !SetPixelFormat( dc, pf, &pfd ))
-    {
-        EQWARN << "Can't set pixel format: " << getErrorString( GetLastError( ))
-               << endl;
-        ReleaseDC( hWnd, dc );
-        DestroyWindow( hWnd );
-        UnregisterClass( classStr.c_str(),  instance );
-        return;
-    }
-
-    // context
-    HGLRC context = wglCreateContext( dc );
-    if( !context )
-    {
-         EQWARN << "Can't create temporary OpenGL context: " 
-                << getErrorString( GetLastError( )) << endl;
-        ReleaseDC( hWnd, dc );
-        DestroyWindow( hWnd );
-        UnregisterClass( classStr.c_str(),  instance );
-        return;
-    }
-
-    HDC   oldDC      = wglGetCurrentDC();
-    HGLRC oldContext = wglGetCurrentContext();
-
-    wglMakeCurrent( dc, context );
-
-    const GLenum result = wglewInit();
-    if( result != GLEW_OK )
-        EQWARN << "Pipe WGLEW initialization failed with error " << result 
-               << endl;
-    else
-        EQINFO << "Pipe WGLEW initialization successful" << endl;
-
-    wglDeleteContext( context );
-    ReleaseDC( hWnd, dc );
-    DestroyWindow( hWnd );
-    UnregisterClass( classStr.c_str(),  instance );
-
-    wglMakeCurrent( oldDC, oldContext );
-#endif
-}
-
 bool Pipe::configInit( const uint32_t initID )
 {
     CHECK_THREAD( _pipeThread );
+
+    EQASSERT( !_osPipe );
+
+    OSPipe* osPipe = 0;
+
     switch( _windowSystem )
     {
+#ifdef GLX
         case WINDOW_SYSTEM_GLX:
-            return configInitGLX();
+            EQINFO << "Pipe: using GLXWindow" << std::endl;
+            osPipe = new GLXPipe( this );
+            break;
+#endif
 
+#ifdef AGL
         case WINDOW_SYSTEM_AGL:
-            return configInitAGL();
+            EQINFO << "Pipe: using AGLWindow" << std::endl;
+            osPipe = new AGLPipe( this );
+            break;
+#endif
 
+#ifdef WGL
         case WINDOW_SYSTEM_WGL:
-            return configInitWGL();
+            EQINFO << "Pipe: using WGLWindow" << std::endl;
+            osPipe = new WGLPipe( this );
+            break;
+#endif
 
         default:
             EQERROR << "Unknown windowing system: " << _windowSystem << endl;
             setErrorMessage( "Unknown windowing system" );
             return false;
     }
-}
 
-bool Pipe::configInitGLX()
-{
-#ifdef GLX
-    const std::string displayName  = getXDisplayString();
-    const char*       cDisplayName = ( displayName.length() == 0 ? 
-                                       0 : displayName.c_str( ));
-    Display*          xDisplay     = XOpenDisplay( cDisplayName );
-            
-    if( !xDisplay )
+    EQASSERT( osPipe );
+    if( !osPipe->configInit( ))
     {
-        ostringstream msg;
-        msg << "Can't open display: " << XDisplayName( displayName.c_str( ));
-        setErrorMessage( msg.str( ));
+        setErrorMessage( "OS Pipe initialization failed: " + 
+                         osPipe->getErrorMessage( ));
+        EQERROR << _error << endl;
+        delete osPipe;
         return false;
     }
-    
-    setXDisplay( xDisplay );
-    EQINFO << "Opened X display " << xDisplay << ", device " << _device << endl;
+
+    setOSPipe( osPipe );
     return true;
-#else
-    setErrorMessage( "Client library compiled without GLX support" );
-    return false;
-#endif
-}
-
-std::string Pipe::getXDisplayString()
-{
-    ostringstream  stringStream;
-    
-    if( _port != EQ_UNDEFINED_UINT32 )
-    { 
-        if( _device == EQ_UNDEFINED_UINT32 )
-            stringStream << ":" << _port;
-        else
-            stringStream << ":" << _port << "." << _device;
-    }
-    else if( _device != EQ_UNDEFINED_UINT32 )
-        stringStream << ":0." << _device;
-    else if( !getenv( "DISPLAY" ))
-        stringStream <<  ":0";
-
-    return stringStream.str();
-}
-
-bool Pipe::configInitAGL()
-{
-#ifdef AGL
-    CGDirectDisplayID displayID = CGMainDisplayID();
-
-    if( _device != EQ_UNDEFINED_UINT32 )
-    {
-        CGDirectDisplayID displayIDs[_device+1];
-        CGDisplayCount    nDisplays;
-
-        if( CGGetOnlineDisplayList( _device+1, displayIDs, &nDisplays ) !=
-            kCGErrorSuccess )
-        {
-            ostringstream msg;
-            msg << "Can't get display identifier for display " << _device;
-            setErrorMessage( msg.str( ));
-            return false;
-        }
-
-        if( nDisplays <= _device )
-        {
-            ostringstream msg;
-            msg << "Can't get display identifier for display " << _device
-                << ", not enough displays in this system";
-            setErrorMessage( msg.str( ));
-            return false;
-        }
-
-        displayID = displayIDs[_device];
-    }
-
-    setCGDisplayID( displayID );
-    EQINFO << "Using CG displayID " << displayID << endl;
-    return true;
-#else
-    setErrorMessage( "Client library compiled without AGL support" );
-    return false;
-#endif
-}
-
-bool Pipe::configInitWGL()
-{
-#ifdef WGL
-    if( _pvp.isValid( ))
-        return true;
-
-    HDC dc;
-    if( !createAffinityDC( dc ))
-        return false;
-    
-    if( dc ) // createAffinityDC did set up pvp
-    {
-        wglDeleteDCNV( dc );
-        EQINFO << "Pipe affinity pixel viewport " << _pvp << endl;
-        return true;
-    }
-    // else don't use affinity dc
-    dc = GetDC( 0 );
-    EQASSERT( dc );
-
-    _pvp.x = 0;
-    _pvp.y = 0;
-    _pvp.w = GetDeviceCaps( dc, HORZRES );
-    _pvp.h = GetDeviceCaps( dc, VERTRES );
-
-    ReleaseDC( 0, dc );
-    EQINFO << "Pipe pixel viewport " << _pvp << endl;
-    return true;
-#else
-    setErrorMessage( "Client library compiled without WGL support" );
-    return false;
-#endif
 }
 
 bool Pipe::configExit()
 {
     CHECK_THREAD( _pipeThread );
-    switch( _windowSystem )
+
+    if( _osPipe )
     {
-        case WINDOW_SYSTEM_GLX:
-            configExitGLX();
-            return true;
+        _osPipe->configExit( );
 
-        case WINDOW_SYSTEM_AGL:
-            configExitAGL();
-            return true;
-
-        case WINDOW_SYSTEM_WGL:
-            configExitWGL();
-            return true;
-
-        default:
-            EQWARN << "Unknown windowing system: " << _windowSystem << endl;
-            return false;
+        delete _osPipe;
+        _osPipe = 0;
+        return true;
     }
+    //else
+
+    EQWARN << "Window system "<< _windowSystem <<" was not initialized" << endl;
+    return false;
 }
 
-void Pipe::configExitGLX()
-{
-#ifdef GLX
-    Display* xDisplay = getXDisplay();
-    if( !xDisplay )
-        return;
-
-    setXDisplay( 0 );
-    XCloseDisplay( xDisplay );
-    EQINFO << "Closed X display " << xDisplay << endl;
-#endif
-}
-
-void Pipe::configExitAGL()
-{
-#ifdef AGL
-    setCGDisplayID( 0 );
-    EQINFO << "Reset CG displayID " << endl;
-#endif
-}
-
-void Pipe::configExitWGL()
-{
-#ifdef WGL
-    _pvp.invalidate();
-#endif
-}
 
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
 { 
@@ -829,19 +468,6 @@ void Pipe::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
     releaseFrame( frameNumber );
 }
 
-void Pipe::initEventHandler()
-{
-    EQASSERT( !_eventHandler );
-    _eventHandler = EventHandler::registerPipe( this );
-}
-
-void Pipe::exitEventHandler()
-{
-    if( _eventHandler )
-        _eventHandler->deregisterPipe( this );
-    _eventHandler = 0;
-}
-
 void Pipe::startFrame( const uint32_t frameNumber )
 { 
     CHECK_THREAD( _pipeThread );
@@ -881,69 +507,6 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
     
     EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame.get()
                        << endl;
-}
-
-bool Pipe::createAffinityDC( HDC& affinityDC )
-{
-#ifdef WGL
-    affinityDC = 0;
-    if( _device == EQ_UNDEFINED_UINT32 )
-        return true;
-
-    if( !WGLEW_NV_gpu_affinity )
-    {
-        EQWARN <<"WGL_NV_gpu_affinity unsupported, ignoring pipe device setting"
-               << endl;
-        return true;
-    }
-
-    HGPUNV hGPU[2] = { 0 };
-    hGPU[1] = 0;
-    if( !wglEnumGpusNV( _device, hGPU ))
-    {
-		stringstream error;
-		error << "Can't enumerate GPU #" << _device;
-        setErrorMessage( error.str( ));
-        return false;
-    }
-
-    // setup pvp
-    if( !_pvp.isValid( ))
-    {
-        GPU_DEVICE device;
-        device.cb = sizeof( device );
-        const bool found = wglEnumGpuDevicesNV( hGPU[0], 0, &device );
-        EQASSERT( found );
-
-		if( device.Flags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP )
-		{
-			const RECT& rect = device.rcVirtualScreen;
-			_pvp.x = rect.left;
-			_pvp.y = rect.top;
-			_pvp.w = rect.right  - rect.left;
-			_pvp.h = rect.bottom - rect.top; 
-		}
-		else
-		{
-			_pvp.x = 0;
-			_pvp.y = 0;
-			_pvp.w = 4096;
-			_pvp.h = 4096;
-	    }
-    }
-
-    affinityDC = wglCreateAffinityDCNV( hGPU );
-    if( !affinityDC )
-    {
-        setErrorMessage( "Can't create affinity DC: " +
-                         getErrorString( GetLastError( )));
-        return false;
-    }
-
-    return true;
-#else
-    return false;
-#endif
 }
 
 //---------------------------------------------------------------------------
@@ -987,13 +550,13 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
     const PipeConfigInitPacket* packet = 
         command.getPacket<PipeConfigInitPacket>();
     EQLOG( LOG_TASKS ) << "TASK pipe config init " << packet << endl;
-    
+
     _name   = packet->name;
     _port   = packet->port;
     _device = packet->device;
     _tasks  = packet->tasks;
     _pvp    = packet->pvp;
-    
+
     _currentFrame  = 0;
     _finishedFrame = 0;
     _unlockedFrame = 0;
@@ -1006,62 +569,17 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
     _setupCommandQueue();
 
     _error.clear();
-    _configInitWGLEW();
     reply.result  = configInit( packet->initID );
     EQLOG( LOG_TASKS ) << "TASK pipe config init reply " << &reply << endl;
 
     net::NodePtr node = command.getNode();
-    if( !reply.result )
+
+    if( !_osPipe || !reply.result )
     {
         send( node, reply, _error );
         return net::COMMAND_HANDLED;
     }
 
-    switch( _windowSystem )
-    {
-#ifdef GLX
-        case WINDOW_SYSTEM_GLX:
-            if( !_xDisplay )
-            {
-                EQERROR << "configInit() did not set a display connection" 
-                        << endl;
-                reply.result = false;
-                send( node, reply, _error );
-                return net::COMMAND_HANDLED;
-            }
-
-            // TODO: gather and send back display information
-            EQINFO << "Using display " << DisplayString( _xDisplay ) << endl;
-            break;
-#endif
-#ifdef AGL
-        case WINDOW_SYSTEM_AGL:
-            if( !_cgDisplayID )
-            {
-                EQERROR << "configInit() did not set a display id" << endl;
-                reply.result = false;
-                send( node, reply, _error );
-                return net::COMMAND_HANDLED;
-            }
-                
-            // TODO: gather and send back display information
-            EQINFO << "Using port " << _port << endl;
-            break;
-#endif
-#ifdef WGL
-        case WINDOW_SYSTEM_WGL:
-            if( !_pvp.isValid( ))
-            {
-                EQERROR << "configInit() did not setup pixel viewport" << endl;
-                reply.result = false;
-                send( node, reply, _error );
-                return net::COMMAND_HANDLED;
-            }
-            break;
-#endif
-
-        default: EQUNIMPLEMENTED;
-    }
     _state = STATE_RUNNING;
 
     reply.pvp = _pvp;

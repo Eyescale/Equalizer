@@ -25,9 +25,9 @@
 
 namespace eq
 {
-    class EventHandler;
     class Frame;
     class Window;
+    class OSPipe;
 
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
@@ -82,12 +82,21 @@ namespace eq
          */
         PipeVisitor::Result accept( PipeVisitor* visitor );
 
+        /**
+         * Set the pipes's pixel viewport.
+         *
+         *  Used from _osPipe calls
+         *
+         * @param pvp the viewport in pixels.
+         */
+         void setPixelViewport( const eq::PixelViewport& pvp ){ _pvp = pvp; }
+
         /** 
          * @return the pipe's pixel viewport
          */
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
-        /** 
+        /**
          * Returns the port number of this pipe.
          * 
          * The port number identifies the X server for systems using the
@@ -112,12 +121,6 @@ namespace eq
         uint32_t getDevice() const { return _device; }
 
         /** 
-         * @return The string representation of this pipe's port and device
-         *         setting, in the form used by XOpenDisplay().
-         */
-        std::string getXDisplayString();
-
-        /** 
          * Return the window system used by this pipe. 
          * 
          * The return value is quaranteed to be constant for an initialised
@@ -128,17 +131,8 @@ namespace eq
          */
         WindowSystem getWindowSystem() const { return _windowSystem; }
 
-        /** @return the X display connection for this pipe. */
-        Display* getXDisplay() const { return _xDisplay; }
-
-        /** @return the CG display ID for this pipe. */
-        CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
-
         /** @return the time in ms elapsed since the frame started. */
         int64_t getFrameTime() const{ return getConfig()->getTime()-_frameTime;}
-
-        /** @return the pipe's event handler, or 0. */
-        EventHandler* getEventHandler() { return _eventHandler; }
 
         /** @return the generic WGL function table for the pipe. */
         WGLEWContext* wglewGetContext() { return _wglewContext; }
@@ -148,19 +142,6 @@ namespace eq
          * @name Operations
          */
         //*{
-        /**
-         * Create a device context bound only to the display device of this
-         * pipe.
-         *
-         * If the dc return parameter is set to 0 and the return value is true,
-         * an affinity dc is not needed. The returned context has to be deleted
-         * using wglDeleteDCNV when it is no longer needed.
-         *
-         * @param affinityDC the affinity device context output parameter.
-         * @return the success status.
-         */
-        bool createAffinityDC( HDC& affinityDC );
-
         /** 
          * Get an assembly frame.
          * 
@@ -200,31 +181,39 @@ namespace eq
         /** Wait for the pipe thread to exit. */
         void joinThread();
 
-    protected:
-        friend class Node;
+        /** 
+         * @name Interface to and from the OSPipe, the window-system specific 
+         *       pieces for a pipe.
+         */
+        //*{
+        /**
+         * Set the OS-specific pipe.
+         * 
+         * The OS-specific pipe implements the window-system-dependent part.
+         * The os-specific pipe has to be initialized.
+         */
+        void setOSPipe( OSPipe* pipe )  { _osPipe = pipe; }
 
-        /** @name Data Access. */
+        const OSPipe* getOSPipe() const { return _osPipe; }
+              OSPipe* getOSPipe()       { return _osPipe; }
+
+        //*}
+
+        /** @name Error information. */
         //*{
         /** 
-         * Set the X display connection for this pipe.
+         * Set a message why the last operation failed.
          * 
-         * This function should only be called from configInit() or
-         * configExit(). Updates the pixel viewport.
+         * The message will be transmitted to the originator of the request, for
+         * example to Config::init when set from within the configInit method.
          *
-         * @param display the X display connection for this pipe.
+         * @param message the error message.
          */
-        void setXDisplay( Display* display );
-
-        /** 
-         * Set the CG display ID for this pipe.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         *
-         * @param id the CG display ID for this pipe.
-         */
-        void setCGDisplayID( CGDirectDisplayID id );
+        void setErrorMessage( const std::string& message ) { _error = message; }
         //*}
+
+    protected:
+        friend class Node;
 
         /** @name Actions */
         //*{
@@ -289,17 +278,11 @@ namespace eq
          * @param initID the init identifier.
          */
         virtual bool configInit( const uint32_t initID );
-        virtual bool configInitGLX();
-        virtual bool configInitAGL();
-        virtual bool configInitWGL();
 
         /** 
          * Exit this pipe.
          */
         virtual bool configExit();
-        virtual void configExitGLX();
-        virtual void configExitAGL();
-        virtual void configExitWGL();
 
         /**
          * Start rendering a frame.
@@ -361,38 +344,6 @@ namespace eq
         virtual void frameNoDraw( const uint32_t frameID, 
                                   const uint32_t frameNumber );
 
-        /**
-         * Initialize the event handling for this pipe. 
-         * 
-         * This function initializes the necessary event handler for this pipe,
-         * if required by the window system. Can be overriden by an empty
-         * method to disable built-in event handling.
-         * @sa EventHandler, useMessagePump()
-         */
-        virtual void initEventHandler();
-
-        /**
-         * De-initialize the event handling for this pipe. 
-         */
-        virtual void exitEventHandler();
-
-        /** The current event handler, or 0. */
-        EventHandler* _eventHandler;
-        //*}
-
-        /** @name Error information. */
-        //*{
-        /** 
-         * Set a message why the last operation failed.
-         * 
-         * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within the configInit method.
-         *
-         * @param message the error message.
-         */
-        void setErrorMessage( const std::string& message ) { _error = message; }
-        //*}
-
         /** @name Configuration. */
         //*{
         /** 
@@ -413,6 +364,12 @@ namespace eq
 
     private:
         //-------------------- Members --------------------
+        /** The reason for the last error. */
+        std::string _error;
+
+        /** Window-system specific functions class */
+        OSPipe *_osPipe;
+
         /** The parent node. */
         Node* const    _node;
 
@@ -434,23 +391,12 @@ namespace eq
         /** Worst-case set of tasks. */
         uint32_t _tasks;
 
-        /** The reason for the last error. */
-        std::string            _error;
-
-        /** Window-system specific display information. */
-        union
-        {
-            Display*          _xDisplay;
-            CGDirectDisplayID _cgDisplayID;
-            char              _pipeFill[16];
-        };
 
         /** The display (GLX) or ignored (Win32, AGL). */
         uint32_t _port;
 
         /** The screen (GLX), GPU (Win32) or virtual screen (AGL). */
         uint32_t _device;
-        
         enum State
         {
             STATE_STOPPED,
@@ -505,15 +451,10 @@ namespace eq
         void* _runThread();
         void _setupCommandQueue();
 
-        static int XErrorHandler( Display* display, XErrorEvent* event );
-
         friend class Window;
         void _addWindow( Window* window );
         void _removeWindow( Window* window );
         Window* _findWindow( const uint32_t id );
-
-        /** Initialize the generic wglew context. */
-        void _configInitWGLEW();
 
         void _flushFrames();
 
