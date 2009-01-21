@@ -202,6 +202,7 @@ CXXFILES = \
 	client/node.cpp \
 	client/nodeStatistics.cpp \
 	client/objectManager.cpp \
+	client/osPipe.cpp \
 	client/osWindow.cpp \
 	client/pipe.cpp \
 	client/projection.cpp \
