@@ -2,8 +2,6 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#define NOMINMAX
-
 #include "compound.h"
 
 #include "channel.h"

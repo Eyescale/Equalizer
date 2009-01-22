@@ -2,10 +2,6 @@
 /* Copyright (c) 2007       Maxim Makhinya
    All rights reserved. */
 
-#ifdef WIN32
-#  define NOMINMAX
-#endif
-
 #include "framesOrderer.h"
 
 namespace eVolve

@@ -2,7 +2,6 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#define NOMINMAX
 #include <pthread.h>
 #include "window.h"
 #include "global.h"

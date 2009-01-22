@@ -10,6 +10,7 @@
 #ifdef WIN32
 #  define _USE_MATH_DEFINES
 #  define _WIN32_WINNT 0x500
+#  define NOMINMAX
 #  include <Winsock2.h>
 #  include <Windows.h>
 #  include <windef.h>

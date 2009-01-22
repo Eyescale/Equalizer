@@ -13,6 +13,8 @@
 #include <eq/base/debug.h>
 #include <vmmlib/vector2.h>
 
+#include <limits>
+
 namespace eq
 {
     /**
