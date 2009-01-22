@@ -437,6 +437,11 @@ const Pixel& Channel::getPixel() const
     return _context ? _context->pixel : Pixel::ALL;
 }
 
+const Zoom& Channel::getZoom() const
+{
+    return _context ? _context->zoom : Zoom::NONE;
+}
+
 Eye Channel::getEye() const
 {
     return _context ? _context->eye : EYE_CYCLOP;

@@ -204,7 +204,7 @@
 %token EQTOKEN_MODE
 %token EQTOKEN_2D
 %token EQTOKEN_DB
-%token EQTOKEN_SCALE
+%token EQTOKEN_ZOOM
 %token EQTOKEN_STRING
 %token EQTOKEN_CHARACTER
 %token EQTOKEN_FLOAT
@@ -682,8 +682,8 @@ compoundField:
         { eqCompound->setRange( eq::Range( $3, $4 )); }
     | EQTOKEN_PERIOD UNSIGNED { eqCompound->setPeriod( $2 ); }
     | EQTOKEN_PHASE  UNSIGNED { eqCompound->setPhase( $2 ); }
-    | EQTOKEN_SCALE '[' FLOAT FLOAT ']'
-         { eqCompound->setScale( $3, $4 ); }
+    | EQTOKEN_ZOOM '[' FLOAT FLOAT ']'
+        { eqCompound->setZoom( eq::Zoom( $3, $4 )); }
     | EQTOKEN_PIXEL '[' UNSIGNED UNSIGNED UNSIGNED UNSIGNED ']'
         { eqCompound->setPixel( eq::Pixel( $3, $4, $5, $6 )); }
     | wall { eqCompound->setWall( wall ); }

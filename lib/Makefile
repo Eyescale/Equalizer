@@ -126,6 +126,7 @@ HEADER_SRC = \
 	client/windowSystem.h \
 	client/windowVisitor.h \
 	client/X11Connection.h \
+	client/zoom.h \
 	util/bitmapFont.h \
 	util/util.h
 
@@ -216,6 +217,7 @@ CXXFILES = \
 	client/window.cpp \
 	client/windowStatistics.cpp \
 	client/windowSystem.cpp \
+	client/zoom.cpp \
 	util/bitmapFont.cpp
 
 CFILES += \

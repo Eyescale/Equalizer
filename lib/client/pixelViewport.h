@@ -7,6 +7,7 @@
 
 #include <eq/client/viewport.h> // used in inline method
 #include <eq/client/pixel.h>    // used in inline method
+#include <eq/client/zoom.h>     // used in inline method
 
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
@@ -93,6 +94,21 @@ namespace eq
                 }
         }
 
+        void apply( const Zoom& zoom )
+            {
+                if( zoom == Zoom::NONE )
+                    return;
+
+                // honor position over size to avoid rounding artifacts
+                const int32_t xEnd = static_cast< int32_t >( (x + w) * zoom.x );
+                const int32_t yEnd = static_cast< int32_t >( (y + h) * zoom.y );
+
+                x = static_cast< int32_t >( x * zoom.x );
+                y = static_cast< int32_t >( y * zoom.y );
+                w = xEnd - x;
+                h = yEnd - y;                
+            }
+
         const PixelViewport getSubPVP( const Viewport& rhs ) const
             {
                 if( rhs == Viewport::FULL )
@@ -124,6 +140,19 @@ namespace eq
                                   ( y - rhs.y )/ static_cast<float>( rhs.h ),
                                   ( w )/ static_cast<float>( rhs.w ),
                                   ( h )/ static_cast<float>( rhs.h ));
+            }
+
+        const Zoom getZoom( const PixelViewport& rhs ) const
+            {
+                if( *this == rhs )
+                    return Zoom::NONE;
+
+                if( !rhs.hasArea( ))
+                    return Zoom( std::numeric_limits< float >::max(), 
+                                 std::numeric_limits< float >::max( ));
+
+                return Zoom( w / static_cast<float>( rhs.w ),
+                             h / static_cast<float>( rhs.h ));
             }
 
         /** @return the X end position */

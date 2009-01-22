@@ -19,6 +19,7 @@
 #include <eq/client/task.h>
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
+#include <eq/client/zoom.h>
 #include <eq/base/thread.h>
 #include <vmmlib/vector2.h>
 #include <iostream>
@@ -229,6 +230,9 @@ namespace server
         void setPixel( const eq::Pixel& pixel )    { _data.pixel = pixel; }
         const eq::Pixel& getPixel() const          { return _data.pixel; }
 
+        void setZoom( const eq::Zoom& zoom )       { _data.zoom = zoom; }
+        const eq::Zoom& getZoom() const            { return _data.zoom; }
+
         void setMaxFPS( const float fps )          { _data.maxFPS = fps; }
         float getMaxFPS() const                    { return _data.maxFPS; }
         //*}
@@ -284,7 +288,8 @@ namespace server
             { return _inherit.pvp; }
         const eq::Viewport& getInheritViewport() const { return _inherit.vp; }
         const eq::Range& getInheritRange()   const { return _inherit.range; }
-        const eq::Pixel&  getInheritPixel()  const { return _inherit.pixel; }
+        const eq::Pixel& getInheritPixel()   const { return _inherit.pixel; }
+        const eq::Zoom& getInheritZoom()     const { return _inherit.zoom; }
         uint32_t getInheritPeriod()          const { return _inherit.period; }
         float getInheritMaxFPS()             const { return _inherit.maxFPS; }
         int32_t  getInheritIAttribute( const IAttribute attr ) const
@@ -426,8 +431,6 @@ namespace server
         void fireUpdatePre( const uint32_t frameNumber );
         //*}
         
-        /** Set the scale compund */
-        void setScale( const float x, const float y );
         /**
          * @name Attributes
          */
@@ -479,7 +482,7 @@ namespace server
             eq::Pixel         pixel;
             ViewData          viewData;
             Screen            screen;
-            vmml::Vector2f    scale;
+            eq::Zoom          zoom;
             uint32_t          buffers;
             uint32_t          eyes;
             uint32_t          tasks;

@@ -171,7 +171,6 @@ Compound::~Compound()
 
 Compound::InheritData::InheritData()
         : channel( 0 )
-        , scale( 1.0, 1.0 )
         , buffers( eq::Frame::BUFFER_UNDEFINED )
         , eyes( EYE_UNDEFINED )
         , tasks( eq::TASK_DEFAULT )
@@ -396,12 +395,6 @@ void Compound::setProjection( const eq::Projection& projection )
     EQVERB << "Projection: " << _data.viewData << endl;
 }
 
-void Compound::setScale( const float x, const float y )
-{
-    _data.scale.x = x;
-    _data.scale.y = y;
-}
-
 //---------------------------------------------------------------------------
 // accept
 //---------------------------------------------------------------------------
@@ -575,13 +568,15 @@ void Compound::update( const uint32_t frameNumber )
 void Compound::updateInheritData( const uint32_t frameNumber )
 {
     _data.pixel.validate();
+    _data.zoom.validate();
 
     if( !_parent )
     {
         _screens.clear();
 
         _inherit = _data;
-        
+        _inherit.zoom = eq::Zoom::NONE; // will be reapplied below
+
         if( _inherit.screen.origin.x == eq::AUTO )
             _inherit.screen.origin.x = 0;
         if( _inherit.screen.origin.y == eq::AUTO )
@@ -707,6 +702,17 @@ void Compound::updateInheritData( const uint32_t frameNumber )
                             _inherit.screen.origin.y + _inherit.pvp.getYEnd( ));
 
         _inherit.pvp.apply( _data.pixel );
+
+        // Zoom
+        const eq::PixelViewport unzoomedPVP = _inherit.pvp;
+        _inherit.pvp.apply( _data.zoom );
+
+        // Compute the inherit zoom to be pixel-correct with the integer-rounded
+        // pvp.
+        const Zoom zoom = _inherit.pvp.getZoom( unzoomedPVP );
+        _inherit.zoom *= zoom;
+        EQINFO << zoom << ", inherit " << _inherit.zoom << ": " << unzoomedPVP 
+               << " -> " << _inherit.pvp << std::endl;
     }
 
     if( !_inherit.pvp.hasArea( ))
@@ -783,6 +789,10 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     const eq::Pixel& pixel = compound->getPixel();
     if( pixel.isValid() && pixel != eq::Pixel::ALL )
         os << pixel << endl;
+
+    const eq::Zoom& zoom = compound->getZoom();
+    if( zoom.isValid() && zoom != eq::Zoom::NONE )
+        os << zoom << endl;
 
     const uint32_t eye = compound->getEyes();
     if( eye )

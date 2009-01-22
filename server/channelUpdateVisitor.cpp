@@ -119,6 +119,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.vp             = compound->getInheritViewport();
     context.range          = compound->getInheritRange();
     context.pixel          = compound->getInheritPixel();
+    context.zoom           = compound->getInheritZoom();
     context.offset.x       = context.pvp.x;
     context.offset.y       = context.pvp.y;
     context.screenOrigin  = context.offset + compound->getInheritScreenOrigin();

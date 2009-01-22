@@ -195,7 +195,7 @@ local_sync                      { return EQTOKEN_LOCAL_SYNC; }
 mode                            { return EQTOKEN_MODE; }
 2D                              { return EQTOKEN_2D; }
 DB                              { return EQTOKEN_DB; }
-scale                           { return EQTOKEN_SCALE; }
+zoom                            { return EQTOKEN_ZOOM; }
 
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }

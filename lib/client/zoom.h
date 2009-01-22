@@ -1,0 +1,56 @@
+
+/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
+
+#ifndef EQ_ZOOM_H
+#define EQ_ZOOM_H
+
+#include <eq/base/base.h>
+#include <eq/base/log.h>
+#include <vmmlib/vector2.h>  // base class
+
+namespace eq
+{
+    /**
+     * Holds a zoom specification along with some methods for manipulation.
+     *
+     * The x, y paramenters determine the factor by which the channel's
+     * rendering is zoomed.
+     */
+    class Zoom : public vmml::Vector2f
+    {
+    public:
+        /**
+         * @name Constructors
+         */
+        //*{
+        Zoom() : vmml::Vector2f( 1.f, 1.f )  {}
+        Zoom( const float x_, const float y_ ) : vmml::Vector2f( x_, y_ ) {}
+        //*}
+
+        void invalidate() 
+            { x = y = 0; }
+
+        void validate()
+            {
+                if( isValid( )) return;
+                EQWARN << "Invalid " << *this << std::endl;
+                if( x <= 0.f ) x = 1.f;
+                if( y <= 0.f ) y = 1.f;
+                EQWARN << "Corrected " << *this << std::endl;
+            }
+
+        bool isValid() const { return ( x>0 && y>0 ); }
+
+        EQ_EXPORT static const Zoom NONE;
+    };
+
+    inline std::ostream& operator << ( std::ostream& os, const Zoom& zoom )
+    {
+        if( zoom.isValid( ))
+            os << "zoom     [ " << zoom.x << ' ' << zoom.y << " ]";
+        return os;
+    }
+}
+
+#endif // EQ_ZOOM_H

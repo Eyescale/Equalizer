@@ -179,6 +179,9 @@ namespace eq
         /** @return the pixel decomposition for the current rendering task. */
         const Pixel& getPixel() const;
 
+        /** @return the up/downscale factor for the current rendering task. */
+        const Zoom& getZoom() const;
+
         /** @return the currently rendered eye pass. */
         Eye getEye() const;
 

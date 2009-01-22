@@ -11,6 +11,7 @@
 #include <eq/client/pixel.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/range.h>
+#include <eq/client/zoom.h>
 #include <vmmlib/vmmlib.h>
 
 namespace eq
@@ -33,6 +34,7 @@ namespace eq
         Viewport       vp;             //<! fractional viewport wrt dest channel
         Range          range;          //<! database-range wrt to dest channel
         Pixel          pixel;          //<! pixel decomposition wrt to dest
+        Zoom           zoom;           //<! up/downsampling wrt to dest
         vmml::Vector2i offset;         //<! absolute position wrt dest channel
         vmml::Vector2i screenOrigin;   //<! absolute position wrt screen
         vmml::Vector2i screenSize;     //<! size of screen
