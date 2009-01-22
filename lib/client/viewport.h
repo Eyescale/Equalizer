@@ -88,10 +88,10 @@ namespace eq
                     return;
                 }
                 
-                const int32_t sEx =     x +     w;
-                const int32_t sEy =     y +     h;
-                const int32_t dEx = rhs.x + rhs.w;
-                const int32_t dEy = rhs.y + rhs.h;
+                const int32_t sEx = static_cast< int32_t >(     x +     w );
+                const int32_t sEy = static_cast< int32_t >(     y +     h );
+                const int32_t dEx = static_cast< int32_t >( rhs.x + rhs.w );
+                const int32_t dEy = static_cast< int32_t >( rhs.y + rhs.h );
                     
                 x = EQ_MAX( x, rhs.x );
                 y = EQ_MAX( y, rhs.y );

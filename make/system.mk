@@ -48,12 +48,15 @@ ifeq (0,${MAKELEVEL}) # top-level invocation - one-time declarations below
 
 LD        = $(CXX) # use c++ compiler for linking
 
-ifneq ($(findstring -g, $(CXXFLAGS)),-g)
+ifeq ($(findstring -O, $(CXXFLAGS)),-O) # assume release build...
+ifeq ($(findstring -g, $(CXXFLAGS)),-g) # ... unless -g was specified
+    CXXFLAGS       += -Werror
+else
     DEFFLAGS       += -DNDEBUG
-ifneq ($(findstring -O, $(CXXFLAGS)),-O)
-    CXXFLAGS       += -O2
-endif # -O
 endif # -g
+else  # debug build
+    CXXFLAGS       += -g -Werror
+endif # -O
 
 ifndef CFLAGS
   CFLAGS         := $(CXXFLAGS)
