@@ -469,7 +469,7 @@ bool Window::configExitOSWindow()
 
 void Window::makeCurrent( const bool useCache ) const
 {
-    if( useCache && !_pipe->isCurrent( this ))
+    if( useCache && _pipe->isCurrent( this ))
         return;
 
     _osWindow->makeCurrent();
@@ -650,7 +650,7 @@ net::CommandResult Window::_cmdFrameStart( net::Command& command )
 
     //_grabFrame( packet->frameNumber ); single-threaded
 
-         EQASSERT( _osWindow );
+    EQASSERT( _osWindow );
     {
         ScopedMutex< SpinLock > mutex( _osWindow->getContextLock( ));
 

@@ -77,7 +77,7 @@ void WGLWindow::configExit( )
 void WGLWindow::makeCurrent() const
 {
     EQCHECK( wglMakeCurrent( _wglDC, _wglContext ));
-    OSWindow::makeCurrent();
+    WGLWindowIF::makeCurrent();
 }
 
 void WGLWindow::swapBuffers()

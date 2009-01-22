@@ -68,7 +68,7 @@ void AGLWindow::configExit( )
 void AGLWindow::makeCurrent() const
 {
     aglSetCurrentContext( _aglContext );
-    OSWindow::makeCurrent();
+    AGLWindowIF::makeCurrent();
 }
 
 void AGLWindow::swapBuffers()

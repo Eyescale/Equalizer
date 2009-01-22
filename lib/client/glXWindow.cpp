@@ -588,7 +588,7 @@ void GLXWindow::makeCurrent() const
     EQASSERT( display );
 
     glXMakeCurrent( display, _xDrawable, _glXContext );
-    OSWindow::makeCurrent();
+    GLXWindowIF::makeCurrent();
 }
 
 void GLXWindow::swapBuffers()
