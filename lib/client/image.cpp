@@ -256,8 +256,8 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     _glObjects = glObjects;
     _pvp       = pvp;
 
-    _colorPixels.valid = true;
-    _depthPixels.valid = true;
+    _colorPixels.valid = false;
+    _depthPixels.valid = false;
 
     if( buffers & Frame::BUFFER_COLOR )
         _startReadback( Frame::BUFFER_COLOR );
