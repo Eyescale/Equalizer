@@ -709,8 +709,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         // pvp.
         const Zoom zoom = _inherit.pvp.getZoom( unzoomedPVP );
         _inherit.zoom *= zoom;
-        EQINFO << zoom << ", inherit " << _inherit.zoom << ": " << unzoomedPVP 
-               << " -> " << _inherit.pvp << std::endl;
     }
 
     if( !_inherit.pvp.hasArea( ))
