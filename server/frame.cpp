@@ -20,6 +20,7 @@ namespace server
 Frame::Frame()
         : _compound( 0 )
         , _buffers( eq::Frame::BUFFER_UNDEFINED )
+        , _type( eq::Frame::TYPE_MEMORY )
         , _masterFrameData( 0 )
 {
     for( unsigned i = 0; i<eq::EYE_ALL; ++i )
@@ -33,6 +34,8 @@ Frame::Frame( const Frame& from )
         , _data( from._data )
         , _vp( from._vp )
         , _buffers( from._buffers )
+        , _type( from._type )
+        , _masterFrameData( 0 )
 {
     for( unsigned i = 0; i<eq::EYE_ALL; ++i )
         _frameData[i] = 0;
@@ -45,18 +48,13 @@ Frame::~Frame()
 
 void Frame::getInstanceData( net::DataOStream& os )
 {
-    os.writeOnce( &_inherit, sizeof( _inherit )); 
+    os << _inherit;
 }
 
 void Frame::applyInstanceData( net::DataIStream& is )
 {
-    EQASSERT( is.getRemainingBufferSize() == sizeof( _inherit )); 
-
-    memcpy( &_inherit, is.getRemainingBuffer(), sizeof( _inherit ));
-    is.advanceBuffer( sizeof( _inherit ));
-
-    EQASSERT( is.nRemainingBuffers() == 0 );
-    EQASSERT( is.getRemainingBufferSize() == 0 );
+    EQUNREACHABLE;
+    is >> _inherit;
 }
 
 void Frame::flush()
@@ -114,11 +112,6 @@ uint32_t Frame::commit()
     }
 
     return net::Object::commit();
-}
-
-void Frame::updateInheritData( const Compound* compound )
-{
-    _inherit = _data;
 }
 
 void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )

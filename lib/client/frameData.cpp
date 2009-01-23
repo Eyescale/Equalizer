@@ -135,7 +135,7 @@ void FrameData::startReadback( const Frame& frame,
     if( !absPVP.isValid( ))
         return;
 
-    Image* image = newImage( frame.getType() );
+    Image* image = newImage( _data.frameType );
     image->startReadback( _data.buffers, absPVP, glObjects );
 }
 

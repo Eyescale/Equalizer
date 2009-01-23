@@ -164,9 +164,6 @@ namespace server
          */
         void disableBuffer( const Buffer buffer );
         
-        /** return the frame texture type. */  
-        Type getType() const { return _data.frameType; }
-
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
         virtual void getInstanceData( net::DataOStream& os );
@@ -180,12 +177,11 @@ namespace server
         friend class eq::server::Frame;
         struct Data
         {
-            Data() : offset( vmml::Vector2i::ZERO ), frameType( TYPE_MEMORY ) {}
+            Data() : offset( vmml::Vector2i::ZERO ) {}
 
             vmml::Vector2i     offset;
-            Type               frameType; 
-            net::ObjectVersion frameData[EYE_ALL];
             Zoom               zoom;
+            net::ObjectVersion frameData[EYE_ALL];
         }
         _data;
 

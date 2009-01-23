@@ -27,18 +27,13 @@ Frame::~Frame()
 
 void Frame::getInstanceData( net::DataOStream& os )
 {
-    os.writeOnce( &_data, sizeof( _data )); 
+    EQUNREACHABLE;
+    os << _data;
 }
 
 void Frame::applyInstanceData( net::DataIStream& is )
 {
-    EQASSERT( is.getRemainingBufferSize() == sizeof( _data )); 
-
-    memcpy( &_data, is.getRemainingBuffer(), sizeof( _data ));
-    is.advanceBuffer( sizeof( _data ));
-
-    EQASSERT( is.nRemainingBuffers() == 0 );
-    EQASSERT( is.getRemainingBufferSize() == 0 );
+    is >> _data;
 }
 
 uint32_t Frame::getBuffers() const

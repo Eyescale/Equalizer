@@ -99,8 +99,9 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         frameData->setPixelViewport( framePVP );
 
         // 3) image buffers and storage type
-        frameData->setType( frame->getType() );
         uint32_t buffers = frame->getBuffers();
+
+        frameData->setType( frame->getType() );
         frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ? 
                                    compound->getInheritBuffers() : buffers );
 
@@ -113,16 +114,20 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         if( compound->getInheritChannel() == channel ||
             compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) == eq::ON )
         {
-            frame->setOffset( vmml::Vector2i( inheritPVP.x, inheritPVP.y ));
+            frame->setInheritOffset(
+                vmml::Vector2i( inheritPVP.x, inheritPVP.y ));
         }
         else
         {
             const eq::PixelViewport& nativePVP = channel->getPixelViewport();
-            frame->setOffset( vmml::Vector2i( nativePVP.x, nativePVP.y ));
+            frame->setInheritOffset(
+                vmml::Vector2i( nativePVP.x, nativePVP.y ));
         }
 
+        // 2) TODO zoom
+        //frame->setInheritZoom( frame->getZoom( ));
+
         //----- Commit
-        frame->updateInheritData( compound );
         frame->commitData();
         frame->commit();
 

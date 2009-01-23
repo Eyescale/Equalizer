@@ -68,21 +68,21 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
             frameOffset.x -= framePVP.x;
             frameOffset.y -= framePVP.y;
         }
-        frame->setOffset( frameOffset );
+        frame->setInheritOffset( frameOffset );
 
-        // 2) TODO input frames are moved using the offset. The pvp signifies
+        // 2) TODO zoom
+
+        // 3) TODO input frames are moved using the offset. The pvp signifies
         //    the pixels to be used from the frame data.
         //framePVP.x = static_cast< int32_t >( frameVP.x * inheritPVP.w );
         //framePVP.y = static_cast< int32_t >( frameVP.y * inheritPVP.h );
-        //frame->setPixelViewport( framePVP );
+        //frame->setInheritPixelViewport( framePVP );
 
         //----- Link input frame to output frame (connects frame data)
         outputFrame->addInputFrame( frame, compound->getInheritEyes( ));
 
         //----- Commit
-        frame->updateInheritData( compound );
         frame->commit();
-
         EQLOG( eq::LOG_ASSEMBLY )
             << "Input frame  \"" << name << "\" on channel \"" 
             << channel->getName() << "\" id " << frame->getID() << " v"

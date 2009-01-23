@@ -72,18 +72,6 @@ namespace server
         const eq::Zoom& getZoom() const { return _data.zoom; }
 
         /** 
-         * Set the offset of the frame.
-         *
-         * The offset is computed during compound update. The offset defines
-         * relative data position wrt to the current destination channel of
-         * the source.
-         */
-        void setOffset( const vmml::Vector2i& offset ) { _data.offset = offset;}
-        
-        /** @return the frame offset. */
-        const vmml::Vector2i& getOffset() const { return _data.offset; }
-
-        /** 
          * Set the frame buffers to be read or write by this frame.
          * 
          * @param buffers a bitwise combination of the buffers.
@@ -91,14 +79,14 @@ namespace server
         void setBuffers( const uint32_t buffers ) { _buffers = buffers; }
 
         /** return the frame storage type. */    
-        eq::Frame::Type getType() const { return _data.frameType; }
+        eq::Frame::Type getType() const { return _type; }
 
         /** 
          * Set the frame storage type.
          * 
          * @param type frame storage type.
          */
-        void setType( const eq::Frame::Type type ) { _data.frameType = type; }
+        void setType( const eq::Frame::Type type ) { _type = type; }
 
         /** @return the frame buffers used by this frame. */
         uint32_t getBuffers() const { return _buffers; }
@@ -113,13 +101,6 @@ namespace server
 
         /** Commit the frame */
         virtual uint32_t commit();
-
-        /** 
-         * Update the inherited, absolute data of this frame.
-         * 
-         * @param compound The compound from which the frame inherits.
-         */
-        void updateInheritData( const Compound* compound );
 
         /** 
          * Cycle the current FrameData.
@@ -150,6 +131,32 @@ namespace server
         void flush();
         //*}
 
+        /**
+         * @name Inherit data access.
+         * 
+         * The inherit data are the actual derived (from parent compound)
+         * parameters, set each frame during compound update. The inherit data
+         * is the data used by client-side frame class for readback and
+         * assembly.
+         */
+        //*{
+        /** 
+         * Set the offset of the frame.
+         *
+         * The offset defines relative data position wrt to the current
+         * destination channel of the source.
+         */
+        void setInheritOffset( const vmml::Vector2i& offset )
+            { _inherit.offset = offset; }
+        
+        /** @return the frame offset. */
+        //const vmml::Vector2i& getOffset() const { return _data.offset; }
+
+        /** Set the inherit frame zoom factor. */
+        void setInheritZoom( const eq::Zoom& zoom )
+            { _inherit.zoom = zoom; }
+        //*}
+        
     protected:
         virtual ~Frame();
         virtual ChangeType getChangeType() const { return INSTANCE; }
@@ -168,6 +175,7 @@ namespace server
         eq::Frame::Data _data;
         eq::Viewport    _vp;
         uint32_t        _buffers;
+        eq::Frame::Type _type;
 
         /** The current, actual data used by the frame. */
         eq::Frame::Data _inherit;
