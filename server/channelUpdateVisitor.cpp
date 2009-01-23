@@ -464,10 +464,10 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     packet.context   = context;
     packet.nFrames   = frames.size();
 
-    EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
-        << "TASK readback " << _channel->getName() <<  " " << &packet << endl;
     _channel->send<net::ObjectVersion>( packet, frameIDs );
     _updated = true;
+    EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
+        << "TASK readback " << _channel->getName() <<  " " << &packet << endl;
 
     // transmit tasks
     Node*                 node         = _channel->getNode();

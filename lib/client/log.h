@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_LOG_H
@@ -11,7 +11,7 @@ namespace eq
 {
     enum LogTopics
     {
-        LOG_ASSEMBLY = net::LOG_CUSTOM,  // 256
+        LOG_ASSEMBLY = net::LOG_CUSTOM,    // 256
         LOG_TASKS    = 0x200,              // 512
         LOG_EVENTS   = 0x400,              // 1024
         LOG_STATS    = 0x800,              // 2048

@@ -180,11 +180,9 @@ namespace server
         friend class eq::server::Frame;
         struct Data
         {
-            Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 )
-                   , frameType( TYPE_MEMORY ) {}
+            Data() : offset( vmml::Vector2i::ZERO ), frameType( TYPE_MEMORY ) {}
 
             vmml::Vector2i     offset;
-            uint32_t           buffers;
             Type               frameType; 
             net::ObjectVersion frameData[EYE_ALL];
             Zoom               zoom;
@@ -193,11 +191,7 @@ namespace server
 
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
-                                          const Frame::Type type );
-                                         
-                                         
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
-                                          const Frame::Buffer buffer );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Frame::Type );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Frame::Buffer );
 };
 #endif // EQ_FRAME_H
