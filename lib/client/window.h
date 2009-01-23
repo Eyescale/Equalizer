@@ -282,6 +282,12 @@ namespace eq
 
         //*}
 
+        /** Returns averaged FPS count (averaging is not longer than 2 sec) */
+        double getFPS() const { return _avgFPS; }
+
+        /* Draw FPS count */
+        virtual void drawFPS() const;
+
     protected:
         friend class Pipe;
 
@@ -381,7 +387,7 @@ namespace eq
          */
         virtual void frameFinish( const uint32_t frameID, 
                                   const uint32_t frameNumber )
-            { releaseFrame( frameNumber ); flush(); }
+            { releaseFrame( frameNumber ); flush(); _updateFPS(); }
 
         /** 
          * Finish drawing.
@@ -414,6 +420,19 @@ namespace eq
         //*}
 
     private:
+        /** Calculates per-window frame rate */
+        void _updateFPS();
+
+        /** Used to calculate time of last frame rendering */
+        double             _lastTime;
+
+        /** FPS values for several last frames */
+        std::deque<double> _fpsQueue;
+
+        /** averaged FPS value, to prevent FPS counter flickering */
+        double _avgFPS;
+
+
         /** The window sharing the OpenGL context. */
         Window* _sharedContextWindow;
 

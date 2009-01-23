@@ -58,7 +58,9 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Window::Window( Pipe* parent )
-        : _sharedContextWindow( 0 ) // default set by pipe
+        : _lastTime ( 0.0 )
+        , _avgFPS ( 0.0 )
+        , _sharedContextWindow( 0 ) // default set by pipe
         , _osWindow( 0 )
         , _pipe( parent )
         , _tasks( TASK_NONE )
@@ -111,6 +113,56 @@ void Window::attachToSession( const uint32_t id,
     registerCommand( CMD_WINDOW_FRAME_DRAW_FINISH, 
                      CommandFunc<Window>( this, &Window::_cmdFrameDrawFinish ), 
                      queue );
+}
+
+void Window::_updateFPS()
+{
+    const double curTime      = getConfig()->getTime();
+    const double curInterval  = curTime - _lastTime;
+
+    const bool   isFirstFrame = _lastTime == 0.0;
+    _lastTime = curTime;
+
+    if( isFirstFrame )
+        return;
+
+    const double curFPS = 1000.0 / curInterval;
+
+    _fpsQueue.push_front( curFPS );
+    if( _fpsQueue.size() > 100 )
+        _fpsQueue.pop_back();
+
+    if( curFPS < 1.0 ) //don't average FPS if rendering is too slow
+    {
+        _avgFPS = curFPS;
+        return;
+    }
+    //else  average some last frames FPS
+
+    const uint32_t framesToAvg = EQ_MIN( _fpsQueue.size(), (uint32_t)curFPS*2 );
+
+    _avgFPS = 0.0;
+    deque<double>::iterator it = _fpsQueue.begin();
+    for( uint32_t i = 0; i < framesToAvg; ++i )
+        _avgFPS += *it++;
+
+    _avgFPS /= framesToAvg;
+}
+
+
+void Window::drawFPS() const
+{
+    ostringstream fpsText;
+    fpsText << "fps: " << setw(4) << setprecision(4) << getFPS();
+
+    const util::BitmapFont& font = getObjectManager()->getDefaultFont();
+
+    const PixelViewport& pvp = getPixelViewport();
+
+    glRasterPos3f( pvp.w - 70.f, 10.0f, 0.99f );
+    glColor3f( 1.f, 1.f, 1.f );
+
+    font.draw( fpsText.str( ));
 }
 
 void Window::_addChannel( Channel* channel )

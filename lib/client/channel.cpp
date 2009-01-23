@@ -814,7 +814,8 @@ void Channel::drawStatistics()
     ostringstream scaleText;
     scaleText << ": " << scale << "ms/pixel";
     font.draw( scaleText.str( ));
-    
+
+    _window->drawFPS();
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
