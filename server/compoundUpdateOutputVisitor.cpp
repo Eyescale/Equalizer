@@ -121,6 +121,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             frame->setOffset( vmml::Vector2i( nativePVP.x, nativePVP.y ));
         }
 
+        //----- Commit
         frame->updateInheritData( compound );
         frame->commitData();
         frame->commit();

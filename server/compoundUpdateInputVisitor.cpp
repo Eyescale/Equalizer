@@ -39,6 +39,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
     for( vector<Frame*>::const_iterator i = inputFrames.begin(); 
          i != inputFrames.end(); ++i )
     {
+        //----- Find corresponding output frame
         Frame*                             frame = *i;
         const std::string&                 name = frame->getName();
         Compound::FrameMap::const_iterator iter =_outputFrames.find( name );
@@ -51,11 +52,13 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
             continue;
         }
 
-        Frame*          outputFrame = iter->second;
-        const eq::Viewport& frameVP = frame->getViewport();
+        //----- Set frame parameters:
+        // 1) Frame offset
+        Frame*                 outputFrame = iter->second;
+        const eq::Viewport&        frameVP = frame->getViewport();
         const eq::PixelViewport& inheritPVP=compound->getInheritPixelViewport();
-        eq::PixelViewport  framePVP = inheritPVP.getSubPVP( frameVP );
-        vmml::Vector2i  frameOffset = outputFrame->getMasterData()->getOffset();
+        eq::PixelViewport         framePVP = inheritPVP.getSubPVP( frameVP );
+        vmml::Vector2i frameOffset = outputFrame->getMasterData()->getOffset();
 
         if( channel != compound->getInheritChannel() &&
             compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != eq::ON )
@@ -65,23 +68,25 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
             frameOffset.x -= framePVP.x;
             frameOffset.y -= framePVP.y;
         }
-
-        // input frames are moved using the offset. The pvp signifies the pixels
-        // to be used from the frame data.
-        framePVP.x = static_cast< int32_t >( frameVP.x * inheritPVP.w );
-        framePVP.y = static_cast< int32_t >( frameVP.y * inheritPVP.h );
-
         frame->setOffset( frameOffset );
+
+        // 2) TODO input frames are moved using the offset. The pvp signifies
+        //    the pixels to be used from the frame data.
+        //framePVP.x = static_cast< int32_t >( frameVP.x * inheritPVP.w );
+        //framePVP.y = static_cast< int32_t >( frameVP.y * inheritPVP.h );
         //frame->setPixelViewport( framePVP );
+
+        //----- Link input frame to output frame (connects frame data)
         outputFrame->addInputFrame( frame, compound->getInheritEyes( ));
+
+        //----- Commit
         frame->updateInheritData( compound );
         frame->commit();
 
         EQLOG( eq::LOG_ASSEMBLY )
             << "Input frame  \"" << name << "\" on channel \"" 
             << channel->getName() << "\" id " << frame->getID() << " v"
-            << frame->getVersion() << "\" tile pos " << frameOffset 
-            << " sub-pvp " << framePVP << endl;
+            << frame->getVersion() << "\" tile pos " << frameOffset << endl;
     }
 
     return TRAVERSE_CONTINUE;
