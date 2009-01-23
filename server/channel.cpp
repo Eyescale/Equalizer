@@ -163,7 +163,7 @@ net::CommandQueue* Channel::getCommandThreadQueue()
 
 void Channel::refUsed()
 {
-    _used++;
+    ++_used;
     if( _window ) 
         _window->refUsed(); 
 }
@@ -171,7 +171,7 @@ void Channel::refUsed()
 void Channel::unrefUsed()
 {
     EQASSERT( _used != 0 );
-    _used--;
+    --_used;
     if( _window ) 
         _window->unrefUsed(); 
 }

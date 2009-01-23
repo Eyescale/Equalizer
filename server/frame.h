@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_FRAME_H
@@ -56,6 +56,20 @@ namespace server
         
         /** @return the fractional viewport. */
         const eq::Viewport& getViewport() const { return _vp; }
+
+        /** 
+         * Set the frame's zoom factor.
+         *
+         * Output frames downscale pixel data during readback, and upscale it on
+         * the input frame by setting the input frame's inherit zoom. Input
+         * frames zoom pixel data during compositing.
+         *
+         * @param zoom the zoom factor.
+         */
+        void setZoom( const eq::Zoom& zoom ) { _data.zoom = zoom; }
+        
+        /** @return the zoom factor. */
+        const eq::Zoom& getZoom() const { return _data.zoom; }
 
         /** 
          * Set the offset of the frame.

@@ -7,6 +7,7 @@
 
 #include <eq/client/eye.h>    // member enum
 #include <eq/client/window.h> // nested ObjectManager type
+#include <eq/client/zoom.h>   // member
 
 #include <eq/base/monitor.h>
 #include <eq/net/object.h>
@@ -186,6 +187,7 @@ namespace server
             uint32_t           buffers;
             Type               frameType; 
             net::ObjectVersion frameData[EYE_ALL];
+            Zoom               zoom;
         }
         _data;
 

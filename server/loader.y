@@ -796,9 +796,13 @@ frameField:
         { frame->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3])); }
     | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_NONE; }
         buffers ']' { frame->setBuffers( flags ); flags = 0; }
+    | EQTOKEN_ZOOM '[' FLOAT FLOAT ']'
+        { frame->setZoom( eq::Zoom( $3, $4 )); }
+
 frameType: 
     EQTOKEN_TEXTURE { frame->setType( eq::Frame::TYPE_TEXTURE ); }
     | EQTOKEN_MEMORY { frame->setType( eq::Frame::TYPE_MEMORY ); }
+
 compoundAttributes: /*null*/ | compoundAttributes compoundAttribute
 compoundAttribute:
     EQTOKEN_STEREO_MODE IATTR 
