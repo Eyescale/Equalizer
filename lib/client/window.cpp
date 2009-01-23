@@ -153,13 +153,12 @@ void Window::_updateFPS()
 void Window::drawFPS() const
 {
     ostringstream fpsText;
-    fpsText << "fps: " << setw(4) << setprecision(4) << getFPS();
+    fpsText << "FPS: " << setprecision(3) << getFPS();
 
     const util::BitmapFont& font = getObjectManager()->getDefaultFont();
+    const PixelViewport&    pvp  = getPixelViewport();
 
-    const PixelViewport& pvp = getPixelViewport();
-
-    glRasterPos3f( pvp.w - 70.f, 10.0f, 0.99f );
+    glRasterPos3f( 10.f, pvp.h - 16.f , 0.99f );
     glColor3f( 1.f, 1.f, 1.f );
 
     font.draw( fpsText.str( ));
