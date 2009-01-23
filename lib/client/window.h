@@ -426,12 +426,8 @@ namespace eq
         /** Used to calculate time of last frame rendering */
         double             _lastTime;
 
-        /** FPS values for several last frames */
-        std::deque<double> _fpsQueue;
-
         /** averaged FPS value, to prevent FPS counter flickering */
         double _avgFPS;
-
 
         /** The window sharing the OpenGL context. */
         Window* _sharedContextWindow;

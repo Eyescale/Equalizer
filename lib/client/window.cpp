@@ -128,10 +128,6 @@ void Window::_updateFPS()
 
     const double curFPS = 1000.0 / curInterval;
 
-    _fpsQueue.push_front( curFPS );
-    if( _fpsQueue.size() > 100 )
-        _fpsQueue.pop_back();
-
     if( curFPS < 1.0 ) //don't average FPS if rendering is too slow
     {
         _avgFPS = curFPS;
@@ -139,14 +135,21 @@ void Window::_updateFPS()
     }
     //else  average some last frames FPS
 
-    const uint32_t framesToAvg = EQ_MIN( _fpsQueue.size(), (uint32_t)curFPS*2 );
+    // check if current frame rate too differ from average
+    // (can happen when rendering loop was paused)
+    if( _avgFPS > 10*curFPS || 10*_avgFPS < curFPS )
+        _avgFPS = curFPS;
 
-    _avgFPS = 0.0;
-    deque<double>::iterator it = _fpsQueue.begin();
-    for( uint32_t i = 0; i < framesToAvg; ++i )
-        _avgFPS += *it++;
-
-    _avgFPS /= framesToAvg;
+    // We calculate weighted sum of average frame rate with current 
+    // frame rate to prevent FPS count flickering.
+    //
+    // Weighted sum calculation here is following:
+    // _avgFPS = (curFPS * _avgFPS + 1 * curFPS ) / ( curFPS + 1 );
+    // the higher current frame rate (FR), the less it affects averaged
+    // FR, this is equivalent of averaging with many frames, i.e. when
+    // rendering is fast, we suppress FPS counter flickering stronger.
+    // following line is a simplification of the equation above:
+    _avgFPS = curFPS * ( _avgFPS + 1 ) / ( curFPS + 1 );
 }
 
 
