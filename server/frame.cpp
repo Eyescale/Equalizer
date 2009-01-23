@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "frame.h"
@@ -18,10 +18,10 @@ namespace server
 {
 
 Frame::Frame()
-        : _compound( 0 ),
-          _masterFrameData( 0 )
+        : _compound( 0 )
+        , _buffers( eq::Frame::BUFFER_UNDEFINED )
+        , _masterFrameData( 0 )
 {
-    _data.buffers = eq::Frame::BUFFER_UNDEFINED;
     for( unsigned i = 0; i<eq::EYE_ALL; ++i )
         _frameData[i] = 0;
 }
@@ -32,6 +32,7 @@ Frame::Frame( const Frame& from )
         , _name( from._name )
         , _data( from._data )
         , _vp( from._vp )
+        , _buffers( from._buffers )
 {
     for( unsigned i = 0; i<eq::EYE_ALL; ++i )
         _frameData[i] = 0;
@@ -99,12 +100,8 @@ void Frame::commitData()
     }
 }
 
-void Frame::updateInheritData( const Compound* compound )
+uint32_t Frame::commit()
 {
-    _inherit = _data;
-    if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
-        _inherit.buffers = compound->getInheritBuffers();
-
     for( unsigned i = 0; i<eq::EYE_ALL; ++i )
     {
         if( _frameData[i] )
@@ -115,6 +112,13 @@ void Frame::updateInheritData( const Compound* compound )
         else
             _inherit.frameData[i].id = EQ_ID_INVALID;
     }
+
+    return net::Object::commit();
+}
+
+void Frame::updateInheritData( const Compound* compound )
+{
+    _inherit = _data;
 }
 
 void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
@@ -130,7 +134,7 @@ void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
             continue;
         }
 
-        // find unused frame data
+        // reuse unused frame data
         FrameData*     data    = _datas.empty() ? 0 : _datas.back();
         const uint32_t latency = getAutoObsoleteCount();
         const uint32_t dataAge = data ? data->getFrameNumber() : 0;

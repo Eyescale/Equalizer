@@ -88,8 +88,7 @@ namespace server
          * 
          * @param buffers a bitwise combination of the buffers.
          */
-        void setBuffers( const uint32_t buffers )
-            { _data.buffers = buffers; }
+        void setBuffers( const uint32_t buffers ) { _buffers = buffers; }
 
         /** return the frame storage type. */    
         eq::Frame::Type getType() const { return _data.frameType; }
@@ -102,16 +101,18 @@ namespace server
         void setType( const eq::Frame::Type type ) { _data.frameType = type; }
 
         /** @return the frame buffers used by this frame. */
-        uint32_t getBuffers() const { return _data.buffers; }
-        uint32_t getInheritBuffers() const { return _inherit.buffers; }
+        uint32_t getBuffers() const { return _buffers; }
         //*}
 
         /**
          * @name Operations
          */
         //*{
-        /** Commit the frame's data (output frames only) */
+        /** Commit the frame's data (used for output frames only) */
         void commitData();
+
+        /** Commit the frame */
+        virtual uint32_t commit();
 
         /** 
          * Update the inherited, absolute data of this frame.
@@ -166,6 +167,7 @@ namespace server
         /** Frame-specific data. */
         eq::Frame::Data _data;
         eq::Viewport    _vp;
+        uint32_t        _buffers;
 
         /** The current, actual data used by the frame. */
         eq::Frame::Data _inherit;

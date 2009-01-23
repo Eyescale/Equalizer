@@ -50,6 +50,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
     for( vector<Frame*>::const_iterator i = outputFrames.begin(); 
          i != outputFrames.end(); ++i )
     {
+        //----- Check uniqueness of output frame name
         Frame*             frame  = *i;
         const std::string& name   = frame->getName();
 
@@ -61,6 +62,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             continue;
         }
 
+        //----- compute readback area
         const eq::Viewport& frameVP = frame->getViewport();
         const eq::PixelViewport& inheritPVP=compound->getInheritPixelViewport();
         eq::PixelViewport framePVP = inheritPVP.getSubPVP( frameVP );
@@ -72,12 +74,12 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             continue;
         }
 
-        // FrameData offset is position wrt destination view
+        //----- Create new frame datas
+        //      one frame data per used eye pass
+        //      set data on master frame data (will copy to all others)
         frame->cycleData( _frameNumber, compound->getInheritEyes( ));
         FrameData* frameData = frame->getMasterData();
         EQASSERT( frameData );
-
-        frameData->setOffset( vmml::Vector2i( framePVP.x, framePVP.y ));
 
         EQLOG( eq::LOG_ASSEMBLY )
             << disableFlush << "Output frame \"" << name << "\" id " 
@@ -87,12 +89,27 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             << channel->getName() << "\" tile pos " << framePVP.x << ", " 
             << framePVP.y;
 
-        // FrameData pvp is area within channel
+        //----- Set frame data parameters:
+        // 1) offset is position wrt destination view
+        frameData->setOffset( vmml::Vector2i( framePVP.x, framePVP.y ));
+
+        // 2) pvp is area within channel
         framePVP.x = (int32_t)(frameVP.x * inheritPVP.w);
         framePVP.y = (int32_t)(frameVP.y * inheritPVP.h);
         frameData->setPixelViewport( framePVP );
 
-        // Frame offset is position wrt window, i.e., the channel position
+        // 3) image buffers and storage type
+        frameData->setType( frame->getType() );
+        uint32_t buffers = frame->getBuffers();
+        frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ? 
+                                   compound->getInheritBuffers() : buffers );
+
+        // 4) (source) render context
+        frameData->setRange( compound->getInheritRange( ));
+        frameData->setPixel( compound->getInheritPixel( ));
+
+        //----- Set frame parameters:
+        // 1) offset is position wrt window, i.e., the channel position
         if( compound->getInheritChannel() == channel ||
             compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) == eq::ON )
         {
@@ -104,25 +121,14 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             frame->setOffset( vmml::Vector2i( nativePVP.x, nativePVP.y ));
         }
 
-        // image buffers and storage type
-        frameData->setType( frame->getType() );
-        uint32_t buffers = frame->getBuffers();
-        frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ? 
-                                   compound->getInheritBuffers() : buffers );
-
-        // (source) render context
-        frameData->setRange( compound->getInheritRange( ));
-        frameData->setPixel( compound->getInheritPixel( ));
-
-        frame->commitData();
         frame->updateInheritData( compound );
+        frame->commitData();
         frame->commit();
-        _outputFrames[name] = frame;
 
+        _outputFrames[name] = frame;
         EQLOG( eq::LOG_ASSEMBLY ) 
-            << " buffers frame " << frame->getInheritBuffers() << " data " 
-            << frameData->getBuffers() << " read area " << framePVP << endl
-            << enableFlush;
+            << " buffers " << frameData->getBuffers() << " read area "
+            << framePVP << endl << enableFlush;
     }
 }
 

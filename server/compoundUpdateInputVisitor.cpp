@@ -80,8 +80,8 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         EQLOG( eq::LOG_ASSEMBLY )
             << "Input frame  \"" << name << "\" on channel \"" 
             << channel->getName() << "\" id " << frame->getID() << " v"
-            << frame->getVersion() << " buffers " << frame->getInheritBuffers() 
-            << "\" tile pos " << frameOffset << " sub-pvp " << framePVP << endl;
+            << frame->getVersion() << "\" tile pos " << frameOffset 
+            << " sub-pvp " << framePVP << endl;
     }
 
     return TRAVERSE_CONTINUE;

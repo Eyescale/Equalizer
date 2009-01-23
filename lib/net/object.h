@@ -119,7 +119,7 @@ namespace net
          * @return the new head version.
          * @sa commitNB, commitSync
          */
-        uint32_t commit();
+        virtual uint32_t commit();
 
         /** 
          * Start committing a new version of this object.

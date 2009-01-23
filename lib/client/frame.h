@@ -180,11 +180,9 @@ namespace server
         friend class eq::server::Frame;
         struct Data
         {
-            Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 )
-                   , frameType( TYPE_MEMORY ) {}
+            Data() : offset( vmml::Vector2i::ZERO ), frameType( TYPE_MEMORY ) {}
 
             vmml::Vector2i     offset;
-            uint32_t           buffers;
             Type               frameType; 
             net::ObjectVersion frameData[EYE_ALL];
             Zoom               zoom;
