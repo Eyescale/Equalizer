@@ -164,8 +164,9 @@ namespace server
             uint32_t         buffers;
             uint32_t         format;
             uint32_t         type;
+            Zoom             zoom;
             Frame::Type      frameType;
-            Range            range; //<! database-range of src wrt to dest channel
+            Range            range; //<! database-range of src wrt to dest
             Pixel            pixel; //<! pixel decomposition of source
         }
         _data;

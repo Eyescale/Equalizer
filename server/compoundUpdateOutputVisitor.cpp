@@ -124,8 +124,40 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
                 vmml::Vector2i( nativePVP.x, nativePVP.y ));
         }
 
-        // 2) TODO zoom
-        //frame->setInheritZoom( frame->getZoom( ));
+        // 2) zoom
+        eq::Zoom zoom = frame->getZoom();
+        if( !zoom.isValid( )) // if zoom is not set, auto-calculate from parent
+        {
+            zoom = compound->getInheritZoom();
+            EQASSERT( zoom.isValid( ));
+            zoom.x = 1.0f / zoom.x;
+            zoom.y = 1.0f / zoom.y;
+        }
+
+        if( frame->getType( ) == eq::Frame::TYPE_TEXTURE )
+        {
+            frameData->setZoom( zoom ); // textures are zoomed by input frame
+            frame->setInheritZoom( eq::Zoom( ));
+        }
+        else
+        {
+            eq::Zoom inputZoom;
+            /* Output frames downscale pixel data during readback, and upscale
+             * it on the input frame by setting the input frame's inherit
+             * zoom. Input frames zoom pixel data during compositing. */
+            if( zoom.x > 1.0f )
+            {
+                inputZoom.x = zoom.x;
+                zoom.x      = 1.f;
+            }
+            if( zoom.y > 1.0f )
+            {
+                inputZoom.y = zoom.y;
+                zoom.y      = 1.f;
+            }
+            frameData->setZoom( inputZoom );
+            frame->setInheritZoom( zoom );                
+        }
 
         //----- Commit
         frame->commitData();
@@ -134,7 +166,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         _outputFrames[name] = frame;
         EQLOG( eq::LOG_ASSEMBLY ) 
             << " buffers " << frameData->getBuffers() << " read area "
-            << framePVP << endl << enableFlush;
+            << framePVP << " readback " << frame->getInheritZoom()
+            << " assemble " << frameData->getZoom() << endl << enableFlush;
     }
 }
 

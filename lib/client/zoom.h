@@ -28,19 +28,18 @@ namespace eq
         Zoom( const float x_, const float y_ ) : vmml::Vector2f( x_, y_ ) {}
         //*}
 
-        void invalidate() 
-            { x = y = 0; }
+        /** @return true if this zoom defines a valid zoom factor. */
+        bool isValid() const { return ( x!=0.f && y!=0.f ); }
 
+        /** Enforce the zoom to be valid. */
         void validate()
             {
-                if( isValid( )) return;
-                EQWARN << "Invalid " << *this << std::endl;
-                if( x <= 0.f ) x = 1.f;
-                if( y <= 0.f ) y = 1.f;
-                EQWARN << "Corrected " << *this << std::endl;
+                if( x == 0.f ) x = 1.f;
+                if( y == 0.f ) y = 1.f;
             }
 
-        bool isValid() const { return ( x>0 && y>0 ); }
+        /** Make the zoom factor invalid. */
+        void invalidate() { x = y = 0.f; }
 
         EQ_EXPORT static const Zoom NONE;
     };

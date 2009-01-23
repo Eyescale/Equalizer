@@ -177,7 +177,7 @@ namespace server
         friend class eq::server::Frame;
         struct Data
         {
-            Data() : offset( vmml::Vector2i::ZERO ) {}
+            Data() : offset( vmml::Vector2i::ZERO ), zoom( 0.f, 0.f ) {}
 
             vmml::Vector2i     offset;
             Zoom               zoom;

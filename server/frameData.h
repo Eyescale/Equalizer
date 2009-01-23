@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_FRAMEDATA_H
@@ -54,6 +54,11 @@ namespace server
         void setPixel( const eq::Pixel& pixel )
             { _data.pixel = pixel; }
         
+        /** Set the src zoom factor. */
+        void setZoom( const eq::Zoom& zoom )
+            { _data.zoom = zoom; }
+        const eq::Zoom& getZoom() const { return _data.zoom; }
+
         /** return the frame storage type. */    
         eq::Frame::Type getType()const{ return _data.frameType; }
 

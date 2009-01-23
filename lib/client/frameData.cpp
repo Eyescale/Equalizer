@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved. */
 
 #include "frameData.h"
@@ -32,20 +32,14 @@ FrameData::~FrameData()
 
 void FrameData::getInstanceData( net::DataOStream& os )
 {
-    os.writeOnce( &_data, sizeof( _data )); 
+    EQUNREACHABLE;
+    os << _data;
 }
 
 void FrameData::applyInstanceData( net::DataIStream& is )
 {
     clear();
-    EQASSERT( is.getRemainingBufferSize() == sizeof( _data )); 
-
-    memcpy( &_data, is.getRemainingBuffer(), sizeof( _data ));
-    is.advanceBuffer( sizeof( _data ));
-
-    EQASSERT( is.nRemainingBuffers() == 0 );
-    EQASSERT( is.getRemainingBufferSize() == 0 );
-
+    is >> _data;
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << endl;
 }
 

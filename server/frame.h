@@ -155,6 +155,9 @@ namespace server
         /** Set the inherit frame zoom factor. */
         void setInheritZoom( const eq::Zoom& zoom )
             { _inherit.zoom = zoom; }
+
+        /** @return the inherit zoom factor. */
+        const eq::Zoom& getInheritZoom() const { return _inherit.zoom; }
         //*}
         
     protected:
