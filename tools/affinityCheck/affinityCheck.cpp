@@ -25,7 +25,7 @@ namespace
         return std::string( text );
     }
 
-    static void initWGLEW()
+    static bool initWGLEW()
     {
         //Create and make current a temporary GL context to initialize WGLEW
 
@@ -46,7 +46,7 @@ namespace
         {
             std::cerr << "Can't register temporary window class: " 
                       << getErrorString() << std::endl;
-            exit( EXIT_FAILURE );
+            return false;
         }
 
         // window
@@ -65,7 +65,7 @@ namespace
             std::cerr << "Can't create temporary window: "
                       << getErrorString() << std::endl;
             UnregisterClass( classStr.c_str(),  instance );
-            exit( EXIT_FAILURE );
+            return false;
         }
 
         HDC                   dc  = GetDC( hWnd );
@@ -81,7 +81,7 @@ namespace
                       << getErrorString() << std::endl;
             DestroyWindow( hWnd );
             UnregisterClass( classStr.c_str(),  instance );
-            exit( EXIT_FAILURE );
+            return false;
         }
 
         if( !SetPixelFormat( dc, pf, &pfd ))
@@ -91,7 +91,7 @@ namespace
             ReleaseDC( hWnd, dc );
             DestroyWindow( hWnd );
             UnregisterClass( classStr.c_str(),  instance );
-            exit( EXIT_FAILURE );
+            return false;
         }
 
         // context
@@ -103,7 +103,7 @@ namespace
             ReleaseDC( hWnd, dc );
             DestroyWindow( hWnd );
             UnregisterClass( classStr.c_str(),  instance );
-            exit( EXIT_FAILURE );
+            return false;
         }
 
         HDC   oldDC      = wglGetCurrentDC();
@@ -116,7 +116,7 @@ namespace
         {
             std::cerr << "Pipe WGLEW initialization failed with error " 
                       << result << std::endl;
-            exit( EXIT_FAILURE );
+            return false;
         }
 
         wglDeleteContext( context );
@@ -125,29 +125,21 @@ namespace
         UnregisterClass( classStr.c_str(),  instance );
 
         wglMakeCurrent( oldDC, oldContext );
+        return true;
     }
 }
 
 int main( const int argc, char** argv )
 {
-    initWGLEW();
-    if( !WGLEW_NV_gpu_affinity )
-    {
+    if( !initWGLEW( ))
+        std::cerr << "WGL extension query failed" << std::endl;
+    else if( !WGLEW_NV_gpu_affinity )
         std::cerr << "WGL_NV_gpu_affinity unsupported" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    for( UINT gpu = 0; true; ++gpu )
+    else for( UINT gpu = 0; true; ++gpu )
     {
         HGPUNV hGPU = 0;
         if( !wglEnumGpusNV( gpu, &hGPU ))
-        {
-            std::cout << "Press Enter to exit..." << std::endl;
-
-            char foo[256];
-            std::cin.getline( foo, 256 );
-            return EXIT_SUCCESS;
-        }
+            break;
 
         GPU_DEVICE gpuDevice;
         gpuDevice.cb = sizeof( gpuDevice );
@@ -168,4 +160,10 @@ int main( const int argc, char** argv )
 
         std::cout << std::endl;
     }
+
+    std::cout << "Press Enter to exit..." << std::endl;
+    
+    char foo[256];
+    std::cin.getline( foo, 256 );
+    return EXIT_SUCCESS;
 }
