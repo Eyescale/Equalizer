@@ -331,6 +331,7 @@ void Image::_startReadback( const Frame::Buffer buffer )
     else if ( _type == Frame::TYPE_TEXTURE )
     {
         _copyToTexture( buffer );
+        pixels.valid = true;
     }
     else
     {
