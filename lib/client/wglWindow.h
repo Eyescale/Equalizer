@@ -31,6 +31,9 @@ namespace eq
         /** @return the Win32 device context used for the current drawable. */
         virtual HDC getWGLDC() const = 0;
 
+        /** @return the Win32 affinity device context, if used. */
+        virtual HDC getWGLAffinityDC() { return 0; }
+
         virtual bool processEvent( const WGLWindowEvent& event )
             { return _window->processEvent( event ); }
     };
@@ -117,7 +120,7 @@ namespace eq
         virtual void exitWGLAffinityDC();
 
         /** @return the affinity device context. */
-        HDC getWGLAffinityDC();
+        virtual HDC getWGLAffinityDC();
 
         /**
          * Create a device context for the display device of the window.
@@ -127,7 +130,7 @@ namespace eq
          *
          * @return the DC, or 0 upon error.
          */
-        HDC createWGLDisplayDC();
+        virtual HDC createWGLDisplayDC();
 
         /** 
          * Choose a pixel format based on the window's attributes.
