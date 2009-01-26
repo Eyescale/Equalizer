@@ -104,6 +104,9 @@ bool WGLPipe::createAffinityDC( HDC& affinityDC )
     if( !_getGPUHandle( hGPU[0] ))
         return false;
 
+    if( hGPU[0] == 0 ) // no affinity DC needed
+        return true;
+
     affinityDC = wglCreateAffinityDCNV( hGPU );
     if( !affinityDC )
     {
