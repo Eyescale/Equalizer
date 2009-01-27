@@ -1,10 +1,12 @@
 /* Copyright (c) 2008-2009, Cedric Stalder <cedric.stalder@gmail.com>
+                 2009, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved. */
 
 #ifndef EQ_FRAMEBUFFEROBJECT_H 
 #define EQ_FRAMEBUFFEROBJECT_H 
 
 #include <eq/client/windowSystem.h> // for GL types
+#include <eq/client/texture.h>      // member
 
 namespace eq
 {
@@ -56,7 +58,7 @@ namespace eq
         int _width;
         int _height;
          
-        enum iTextureType
+        enum TextureType
         {
             COLOR_TEXTURE,
             DEPTH_TEXTURE,
@@ -64,9 +66,11 @@ namespace eq
             ALL_TEXTURE
         };
         
-        GLuint _textureID[ALL_TEXTURE];
+        Texture _textures[ALL_TEXTURE];
         
-        GLEWContext* const   _glewContext;
+        GLEWContext* const _glewContext;
+
+        CHECK_THREAD_DECLARE( _thread );
     };
 }
 

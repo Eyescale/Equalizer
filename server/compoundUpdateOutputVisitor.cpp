@@ -143,18 +143,25 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
                                                Frame* frame )
 {
     eq::Zoom zoom = frame->getZoom();
+    eq::Zoom zoom_1;
+
     if( !zoom.isValid( )) // if zoom is not set, auto-calculate from parent
     {
-        zoom = compound->getInheritZoom();
-        EQASSERT( zoom.isValid( ));
-        zoom.x = 1.0f / zoom.x;
-        zoom.y = 1.0f / zoom.y;
+        zoom_1 = compound->getInheritZoom();
+        EQASSERT( zoom_1.isValid( ));
+        zoom.x = 1.0f / zoom_1.x;
+        zoom.y = 1.0f / zoom_1.y;
+    }
+    else
+    {
+        zoom_1.x = 1.0f / zoom.x;
+        zoom_1.y = 1.0f / zoom.y;
     }
 
     if( frame->getType( ) == eq::Frame::TYPE_TEXTURE )
     {
         FrameData* frameData = frame->getMasterData();
-        frameData->setZoom( zoom ); // textures are zoomed by input frame
+        frameData->setZoom( zoom_1 ); // textures are zoomed by input frame
         frame->setInheritZoom( eq::Zoom( ));
     }
     else
@@ -164,12 +171,12 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
          * the input frame by setting the input frame's inherit zoom. */
         if( zoom.x > 1.0f )
         {
-            inputZoom.x = zoom.x;
+            inputZoom.x = zoom_1.x;
             zoom.x      = 1.f;
         }
         if( zoom.y > 1.0f )
         {
-            inputZoom.y = zoom.y;
+            inputZoom.y = zoom_1.y;
             zoom.y      = 1.f;
         }
 

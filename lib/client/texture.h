@@ -41,12 +41,18 @@ namespace eq
         /** Copy the specified image buffer to 0,0. */
         void upload( const Image* image, const Frame::Buffer which );
 
-        /** @return the GL texture name. */
-        GLuint getID() const { return _id; }
-
         /** Bind the texture. */
         void bind() const
             { EQASSERT( _id ); glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id ); }
+
+        /** Create and bind a texture to the current FBO. */
+        void bindToFBO( const GLenum target, const int width, const int height);
+
+        /** Resize the texture. */
+        void resize( const int width, const int height );
+        
+        /** @return true if the texture can be bound. */
+        bool isValid() const;
 
     private:
         /** The GL texture name. */

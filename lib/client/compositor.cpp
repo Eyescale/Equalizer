@@ -41,7 +41,9 @@ namespace
 static const char seed = 42;
 static const char* shaderDBKey = &seed;
 static const char* colorDBKey  = shaderDBKey + 1;
-static const char* depthDBKey  = colorDBKey + 1;
+static const char* depthDBKey  = shaderDBKey + 2;
+static const char* colorKey    = shaderDBKey + 3;
+static const char* depthKey    = shaderDBKey + 4;
 
 class ResultImage : public Image
 {
@@ -886,7 +888,7 @@ void Compositor::_drawPixels( const Image* image,
     
     if ( image->getStorageType() == Frame::TYPE_MEMORY )
     {
-        // TODO if( op.zoom == eq::Zoom::NONE )
+        if( op.zoom == eq::Zoom::NONE )
         {
             glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );
             glDrawPixels( pvp.w, pvp.h, 
@@ -897,33 +899,52 @@ void Compositor::_drawPixels( const Image* image,
         }
         // else use texture with filtering to zoom
         
+        Channel*               channel = op.channel;
+        Window*                window  = channel->getWindow();
+        Window::ObjectManager* objects = window->getObjectManager();
+
+        Texture* texture = objects->obtainEqTexture(
+            which == Frame::BUFFER_COLOR ? colorKey : depthKey );
+
+        texture->setFormat( image->getInternalTextureFormat( which ));
+        texture->upload( image, which );
+    }
+    else // texture image
+    {
+        image->getTexture( which ).bind();
     }
 
-    // else texture
-    const GLuint textureId = image->getTexture( which ).getID();
-        
     if ( which != Frame::BUFFER_COLOR )
         glColorMask( false, false, false, false );
 
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
 
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, textureId );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                     GL_NEAREST );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
-                     GL_NEAREST );
+    if( op.zoom == eq::Zoom::NONE )
+    {
+        glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
+                         GL_NEAREST );
+        glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
+                         GL_NEAREST );
+    }
+    else
+    {
+        glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
+                         GL_LINEAR );
+        glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
+                         GL_LINEAR );
+    }
 
     glColor3f( 1.0f, 1.0f, 1.0f );
 
     const float startX = static_cast< float >
-         ( op.offset.x + pvp.x * op.pixel.w + op.pixel.x );
+         ( op.offset.x + pvp.x * op.pixel.w + op.pixel.x ) * op.zoom.x;
     const float endX   = static_cast< float >
-         ( op.offset.x + (pvp.x + pvp.w) * op.pixel.w + op.pixel.x );
+         ( op.offset.x + (pvp.x + pvp.w) * op.pixel.w + op.pixel.x ) *op.zoom.x;
     const float startY = static_cast< float >
-         ( op.offset.y + pvp.y * op.pixel.h + op.pixel.y );
+         ( op.offset.y + pvp.y * op.pixel.h + op.pixel.y ) * op.zoom.y;
     const float endY   = static_cast< float >
-         ( op.offset.y + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y );
+         ( op.offset.y + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y ) *op.zoom.y;
 
     glBegin( GL_QUADS );
         glTexCoord2f( 0.0f, 0.0f );
