@@ -200,7 +200,10 @@ void WGLWindow::setWGLDC( HDC dc, const WGLDCType type )
 bool WGLWindow::configInit()
 {
     if( !initWGLAffinityDC( ))
+    {
         _window->setErrorMessage( "Can't create affinity dc" );
+        return false;
+    }
 
     int pixelFormat = chooseWGLPixelFormat();
     if( pixelFormat == 0 )
