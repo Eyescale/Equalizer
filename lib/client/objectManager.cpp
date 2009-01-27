@@ -1,8 +1,11 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "objectManager.h"
+
+#include "texture.h"
+
 #include <string.h>
 
 using namespace eq;
@@ -26,6 +29,12 @@ ObjectManager<T>::~ObjectManager()
                << endl;
     _textures.clear();
 
+    if( !_eqTextures.empty( ))
+        EQWARN << _eqTextures.size() 
+               << " eq::Texture's still allocated in ObjectManager destructor" 
+               << endl;
+    _eqTextures.clear();
+
     if( !_buffers.empty( ))
         EQWARN << _buffers.size() 
                << " buffers still allocated in ObjectManager destructor" 
@@ -48,7 +57,7 @@ ObjectManager<T>::~ObjectManager()
 template< typename T >
 void ObjectManager<T>::deleteAll()
 {
-   for( typename ObjectKeyHash::const_iterator i = _lists.begin(); 
+   for( typename ObjectHash::const_iterator i = _lists.begin(); 
          i != _lists.end(); ++i )
     {
         const Object& object = i->second;
@@ -57,7 +66,7 @@ void ObjectManager<T>::deleteAll()
     }
     _lists.clear();
 
-    for( typename ObjectKeyHash::const_iterator i = _textures.begin(); 
+    for( typename ObjectHash::const_iterator i = _textures.begin(); 
          i != _textures.end(); ++i )
     {
         const Object& object = i->second;
@@ -66,7 +75,18 @@ void ObjectManager<T>::deleteAll()
     }
     _textures.clear();
 
-    for( typename ObjectKeyHash::const_iterator i = _buffers.begin(); 
+    for( typename TextureHash::const_iterator i = _eqTextures.begin(); 
+         i != _eqTextures.end(); ++i )
+    {
+        Texture* texture = i->second;
+        EQINFO << "Delete eq::Texture " << i->first << " @" << (void*)texture
+               << endl;
+        texture->flush();
+        delete texture;
+    }
+    _eqTextures.clear();
+
+    for( typename ObjectHash::const_iterator i = _buffers.begin(); 
          i != _buffers.end(); ++i )
     {
         const Object& object = i->second;
@@ -75,7 +95,7 @@ void ObjectManager<T>::deleteAll()
     }
     _buffers.clear();
 
-    for( typename ObjectKeyHash::const_iterator i = _programs.begin(); 
+    for( typename ObjectHash::const_iterator i = _programs.begin(); 
          i != _programs.end(); ++i )
     {
         const Object& object = i->second;
@@ -84,7 +104,7 @@ void ObjectManager<T>::deleteAll()
     }
     _programs.clear();
 
-    for( typename ObjectKeyHash::const_iterator i = _shaders.begin(); 
+    for( typename ObjectHash::const_iterator i = _shaders.begin(); 
          i != _shaders.end(); ++i )
     {
         const Object& object = i->second;
@@ -201,6 +221,53 @@ void   ObjectManager<T>::deleteTexture( const T& key )
     const Object& object = _textures[ key ];
     glDeleteTextures( 1, &object.id );
     _textures.erase( key );
+}
+
+// eq::Texture object functions
+
+template< typename T >
+Texture* ObjectManager<T>::getEqTexture( const T& key )
+{
+    if( _eqTextures.find( key ) == _eqTextures.end( ))
+        return 0;
+
+    return _eqTextures[ key ];
+}
+
+template< typename T >
+Texture* ObjectManager<T>::newEqTexture( const T& key )
+{
+    if( _eqTextures.find( key ) != _eqTextures.end( ))
+    {
+        EQWARN << "Requested new eqTexture for existing key" << endl;
+        return 0;
+    }
+
+    Texture* texture = new Texture;
+    _eqTextures[ key ] = texture;
+    return texture;
+}
+
+template< typename T >
+Texture* ObjectManager<T>::obtainEqTexture( const T& key )
+{
+    Texture* texture = getEqTexture( key );
+    if( texture )
+        return texture;
+    return newEqTexture( key );
+}
+
+template< typename T >
+void   ObjectManager<T>::deleteEqTexture( const T& key )
+{
+    if( _eqTextures.find( key ) == _eqTextures.end( ))
+        return;
+
+    Texture* texture = _eqTextures[ key ];
+    _eqTextures.erase( key );
+
+    texture->flush();
+    delete texture;
 }
 
 // buffer object functions

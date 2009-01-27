@@ -4,6 +4,7 @@
 
 #include "texture.h"
 
+#include "image.h"
 #include "window.h"
 
 namespace eq
@@ -76,8 +77,6 @@ void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
     EQASSERT( _format != 0 );
 
     _generate();
-    glEnable(GL_TEXTURE_RECTANGLE_ARB);
-    
     _resize( pvp.w, pvp.h );  
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
 
@@ -90,6 +89,35 @@ void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
     {
         EQ_GL_CALL( glCopyTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, _format, 
                                       pvp.x, pvp.y, pvp.w, pvp.h, 0 ));
+        _defined = true;
+    }
+}
+
+void Texture::upload( const Image* image, const Frame::Buffer which )
+{
+    EQASSERT( _format != 0 );
+
+    const eq::PixelViewport& pvp = image->getPixelViewport();
+
+    _generate();
+    _resize( pvp.w, pvp.h );  
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
+
+    if( _defined )
+    {
+        EQ_GL_CALL( glTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0,
+                                     pvp.w, pvp.h,
+                                     image->getFormat( which ), 
+                                     image->getType( which ),
+                                     image->getPixelPointer( which )));
+    }
+    else
+    {
+        EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
+                                  _format, pvp.w, pvp.h, 0,
+                                  image->getFormat( which ), 
+                                  image->getType( which ),
+                                  image->getPixelPointer( which )));
         _defined = true;
     }
 }

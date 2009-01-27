@@ -1011,21 +1011,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     Window*                window  = channel->getWindow();
     Window::ObjectManager* objects = window->getObjectManager();
     
-    GLuint depthTexture;
-    GLuint colorTexture;
-
-    if ( image->getStorageType() == Frame::TYPE_TEXTURE )
-    {
-        depthTexture = image->getTexture( Frame::BUFFER_DEPTH ).getID();
-        colorTexture = image->getTexture( Frame::BUFFER_COLOR ).getID();
-    }
-    else
-    {
-        depthTexture = objects->obtainTexture( depthDBKey );
-        colorTexture = objects->obtainTexture( colorDBKey );
-    }
-
-    GLuint program      = objects->getProgram( shaderDBKey );
+    GLuint program = objects->getProgram( shaderDBKey );
 
     if( program == Window::ObjectManager::INVALID )
     {
@@ -1068,46 +1054,45 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         glUniform1i( colorParam, 1 );
     }
     else
+    {
         // use fragment shader
         EQ_GL_CALL( glUseProgram( program ));
+    }
 
     // Enable & download color and depth textures
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
 
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE1 ));
-    EQ_GL_CALL( glBindTexture( GL_TEXTURE_RECTANGLE_ARB, colorTexture ));
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
                      GL_NEAREST );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
                      GL_NEAREST );
 
-    if ( image->getStorageType() != Frame::TYPE_TEXTURE )
+    const bool useImageTexture = image->getStorageType() == Frame::TYPE_TEXTURE;
+    if( useImageTexture )
+        image->getTexture( Frame::BUFFER_COLOR ).bind();
+    else
     {
-        EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
-                                  GL_RGBA,
-                                  pvp.w, pvp.h, 0,
-                                  image->getFormat( Frame::BUFFER_COLOR ), 
-                                  image->getType( Frame::BUFFER_COLOR ),
-                                  image->getPixelPointer( Frame::BUFFER_COLOR )
-                                  ));
+        Texture*          texture = objects->obtainEqTexture( colorDBKey );
+        const Frame::Buffer which = Frame::BUFFER_COLOR;
+        texture->setFormat( image->getInternalTextureFormat( which ));
+        texture->upload( image, which );
     }
 
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
-    EQ_GL_CALL( glBindTexture( GL_TEXTURE_RECTANGLE_ARB, depthTexture ));
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
                      GL_NEAREST );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
                      GL_NEAREST );
 
-    if ( image->getStorageType() != Frame::TYPE_TEXTURE )
+    if( useImageTexture )
+        image->getTexture( Frame::BUFFER_DEPTH ).bind();
+    else
     {
-        EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
-                                  GL_DEPTH_COMPONENT32_ARB,
-                                  pvp.w, pvp.h, 0,
-                                  image->getFormat( Frame::BUFFER_DEPTH ), 
-                                  image->getType( Frame::BUFFER_DEPTH ),
-                                  image->getPixelPointer( Frame::BUFFER_DEPTH )
-                                  ));
+        Texture*          texture = objects->obtainEqTexture( depthDBKey );
+        const Frame::Buffer which = Frame::BUFFER_DEPTH;
+        texture->setFormat( image->getInternalTextureFormat( which ));
+        texture->upload( image, which );
     }
 
     // Draw a quad using shader & textures in the right place

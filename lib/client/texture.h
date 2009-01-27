@@ -6,13 +6,15 @@
 #define EQ_TEXTURE_H
 
 #include <eq/client/windowSystem.h> // GL types
+#include <eq/client/frame.h>        // Frame::Buffer enum
 
 #include <eq/base/thread.h>         // thread debug macro
 #include <eq/base/nonCopyable.h>    // base class
 
 namespace eq
 {
-     class PixelViewport;
+    class Image;
+    class PixelViewport;
 
     /** 
      * A wrapper around GL textures.
@@ -36,8 +38,15 @@ namespace eq
         /** Copy the specified area from the current read buffer to 0,0. */
         void copyFromFrameBuffer( const PixelViewport& pvp );
 
+        /** Copy the specified image buffer to 0,0. */
+        void upload( const Image* image, const Frame::Buffer which );
+
         /** @return the GL texture name. */
         GLuint getID() const { return _id; }
+
+        /** Bind the texture. */
+        void bind() const
+            { EQASSERT( _id ); glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id ); }
 
     private:
         /** The GL texture name. */

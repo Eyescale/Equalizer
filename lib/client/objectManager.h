@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_OBJECTMANAGER_H
@@ -13,6 +13,8 @@
 
 namespace eq
 {
+    class Texture;
+
     /**
      * A facility class to managed OpenGL objects across shared contexts
      *
@@ -53,6 +55,11 @@ namespace eq
         GLuint obtainTexture( const T& key );
         void   deleteTexture( const T& key );
 
+        Texture* getEqTexture( const T& key );
+        Texture* newEqTexture( const T& key );
+        Texture* obtainEqTexture( const T& key );
+        void     deleteEqTexture( const T& key );
+
         bool   supportsBuffers() const;
         GLuint getBuffer( const T& key );
         GLuint newBuffer( const T& key );
@@ -82,13 +89,15 @@ namespace eq
             GLuint   num;
         };
 
-        typedef stde::hash_map< T, Object >     ObjectKeyHash;
+        typedef stde::hash_map< T, Object >     ObjectHash;
+        ObjectHash _lists;
+        ObjectHash _textures;
+        ObjectHash _buffers;
+        ObjectHash _programs;
+        ObjectHash _shaders;
 
-        ObjectKeyHash _lists;
-        ObjectKeyHash _textures;
-        ObjectKeyHash _buffers;
-        ObjectKeyHash _programs;
-        ObjectKeyHash _shaders;
+        typedef stde::hash_map< T, Texture* >   TextureHash;
+        TextureHash _eqTextures;
     };
 }
 

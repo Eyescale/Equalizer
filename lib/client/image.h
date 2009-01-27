@@ -164,6 +164,12 @@ namespace eq
 
         /** @return if this image should use PBO for image transfers. */
         bool getPBO() const             { return _usePBO; }
+
+        /** 
+         * @return the internal format a texture should use for the given
+         *         buffer. 
+         */
+        uint32_t getInternalTextureFormat( const Frame::Buffer which ) const;
         //*}
 
         /**

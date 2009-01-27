@@ -107,6 +107,31 @@ uint32_t Image::getDepth( const Frame::Buffer buffer ) const
     return 0;
 }
 
+uint32_t Image::getInternalTextureFormat( const Frame::Buffer which ) const
+{
+    switch( getFormat( which ))
+    {
+        case GL_RGBA:
+        case GL_RGBA8:
+        case GL_BGRA:
+            return GL_RGBA;
+
+        case GL_RGB:
+        case GL_BGR:
+            return GL_RGB;
+
+        case GL_DEPTH_STENCIL_NV:
+        case GL_DEPTH_COMPONENT:
+            return GL_DEPTH_COMPONENT;
+
+        default :
+            EQWARN << "Unknown format " << getFormat( which ) << " of buffer "
+                   << which << endl;
+            EQUNIMPLEMENTED;
+            return GL_RGBA;
+    }
+}
+
 Image::Pixels& Image::_getPixels( const Frame::Buffer buffer )
 {
     switch( buffer )
