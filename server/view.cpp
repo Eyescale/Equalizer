@@ -107,7 +107,7 @@ void View::updateHead()
     _data.applyHead( config->getHeadMatrix(), getEyeBase( ));
 }
 
-std::ostream& operator << ( std::ostream& os, const View* view)
+std::ostream& operator << ( std::ostream& os, const View* view )
 {
     if( !view )
         return os;

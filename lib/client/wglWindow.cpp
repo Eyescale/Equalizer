@@ -471,7 +471,7 @@ bool WGLWindow::initWGLAffinityDC()
 
     WGLPipe* osPipe = static_cast< WGLPipe* >( pipe->getOSPipe( ));
 
-    return osPipe->createAffinityDC( _wglAffinityDC );
+    return osPipe->createWGLAffinityDC( _wglAffinityDC );
 }
 
 HDC WGLWindow::getWGLAffinityDC()
@@ -485,29 +485,14 @@ HDC WGLWindow::getWGLAffinityDC()
 
 HDC WGLWindow::createWGLDisplayDC()
 {
-    const Pipe* pipe   = getPipe();
-    uint32_t    device = pipe->getDevice();
-    if( device == EQ_UNDEFINED_UINT32 )
-        device = 0;
+    Pipe* pipe    = getPipe();
+    EQASSERT( pipe );
+    EQASSERT( pipe->getOSPipe( ));
+    EQASSERT( dynamic_cast< WGLPipe* >( pipe->getOSPipe( )));
 
-    DISPLAY_DEVICE devInfo;
-    devInfo.cb = sizeof( devInfo );
+    WGLPipe* osPipe = static_cast< WGLPipe* >( pipe->getOSPipe( ));
 
-    if( !EnumDisplayDevices( 0, device, &devInfo, 0 ))
-    {
-        _window->setErrorMessage( "Can't enumerate display devices: " + 
-            base::getErrorString( GetLastError( )));
-        return 0;
-    }
-
-    const HDC displayDC = CreateDC( "DISPLAY", devInfo.DeviceName, 0, 0 );
-    if( !displayDC )
-    {
-        _window->setErrorMessage( "Can't create device context: " + 
-            base::getErrorString( GetLastError( )));
-        return 0;
-    }
-    return displayDC;
+    return osPipe->createWGLDisplayDC();
 }
 
 int WGLWindow::chooseWGLPixelFormat()

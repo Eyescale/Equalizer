@@ -27,7 +27,6 @@ using namespace std;
 //---------------------------------------------------------------------------
 bool WGLPipe::configInit()
 {
-#ifdef WGL
     _configInitWGLEW();
 
     PixelViewport pvp = _pipe->getPixelViewport();
@@ -65,7 +64,7 @@ bool WGLPipe::configInit()
     }
     else // ... using Win32 API
     {
-        HDC dc = GetDC( 0 );
+        HDC dc = createWGLDisplayDC();
         EQASSERT( dc );
 
         pvp.x = 0;
@@ -74,30 +73,23 @@ bool WGLPipe::configInit()
         pvp.h = GetDeviceCaps( dc, VERTRES );
         _pipe->setPixelViewport( pvp );
 
-        ReleaseDC( 0, dc );
+        DeleteDC( dc );
     }
 
     _pipe->setPixelViewport( pvp );
     EQINFO << "Pipe pixel viewport " << pvp << endl;
     return true;
-#else
-    setErrorMessage( "Client library compiled without WGL support" );
-    return false;
-#endif
 }
 
 
 void WGLPipe::configExit()
 {
-#ifdef WGL
     _pipe->setPixelViewport( eq::PixelViewport( )); // invalidate
-#endif
 }
 
 
-bool WGLPipe::createAffinityDC( HDC& affinityDC )
+bool WGLPipe::createWGLAffinityDC( HDC& affinityDC )
 {
-#ifdef WGL
     affinityDC = 0;
 
     HGPUNV hGPU[2] = { 0 };
@@ -116,9 +108,33 @@ bool WGLPipe::createAffinityDC( HDC& affinityDC )
     }
 
     return true;
-#else
-    return false;
-#endif
+}
+
+HDC WGLPipe::createWGLDisplayDC()
+{
+    uint32_t device = _pipe->getDevice();
+    if( device == EQ_UNDEFINED_UINT32 )
+        device = 0;
+
+    DISPLAY_DEVICE devInfo;
+    devInfo.cb = sizeof( devInfo );
+
+    if( !EnumDisplayDevices( 0, device, &devInfo, 0 ))
+    {
+        _pipe->setErrorMessage( "Can't enumerate display devices: " + 
+                                    base::getLastErrorString());
+        return 0;
+    }
+
+    const HDC displayDC = CreateDC( "DISPLAY", devInfo.DeviceName, 0, 0 );
+    if( !displayDC )
+    {
+        _pipe->setErrorMessage( "Can't create device context: " + 
+                                     base::getLastErrorString( ));
+        return 0;
+    }
+
+    return displayDC;
 }
 
 bool WGLPipe::_getGPUHandle( HGPUNV& handle )
@@ -136,9 +152,7 @@ bool WGLPipe::_getGPUHandle( HGPUNV& handle )
         return true;
     }
 
-    HGPUNV hGPU[2] = { 0 };
-    hGPU[1] = 0;
-    if( !wglEnumGpusNV( device, hGPU ))
+    if( !wglEnumGpusNV( device, &handle ))
     {
         stringstream error;
         error << "Can't enumerate GPU #" << device;
@@ -146,14 +160,12 @@ bool WGLPipe::_getGPUHandle( HGPUNV& handle )
         return false;
     }
 
-    handle = hGPU[0];
     return true;
 }
 
 
 void WGLPipe::_configInitWGLEW()
 {
-#ifdef WGL
     //----- Create and make current a temporary GL context to initialize WGLEW
 
     // window class
@@ -251,7 +263,6 @@ void WGLPipe::_configInitWGLEW()
     UnregisterClass( classStr.c_str(),  instance );
 
     wglMakeCurrent( oldDC, oldContext );
-#endif
 }
 
 

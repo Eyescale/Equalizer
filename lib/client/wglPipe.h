@@ -45,7 +45,16 @@ namespace eq
          * @param affinityDC the affinity device context output parameter.
          * @return the success status.
          */
-        bool createAffinityDC( HDC& affinityDC );
+        bool createWGLAffinityDC( HDC& affinityDC );
+
+        /** 
+         * Create a device context on the display device of this pipe.
+         * 
+         * The returned device context has to be deallocated using DeleteDC.
+         * 
+         * @return the device context, or 0 upon error.
+         */
+        HDC createWGLDisplayDC();
 
     private:
 
