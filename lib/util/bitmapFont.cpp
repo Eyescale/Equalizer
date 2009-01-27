@@ -34,7 +34,7 @@ const string BitmapFont::normal( "EQ_UTIL_BITMAPFONT_NORMAL" );
 
 BitmapFont::BitmapFont( Window* window )
         : _window( window )
-        , _lists ( Window::ObjectManager::FAILED )
+        , _lists ( Window::ObjectManager::INVALID )
 {
     EQASSERT( window );
 }
@@ -216,15 +216,15 @@ void BitmapFont::_setupLists( const GLsizei num )
     Window::ObjectManager* gl = _window->getObjectManager();
     EQASSERT( gl );
 
-    if( _lists != Window::ObjectManager::FAILED )
+    if( _lists != Window::ObjectManager::INVALID )
         gl->deleteList( this );
 
     if( num == 0 )
-        _lists = Window::ObjectManager::FAILED;
+        _lists = Window::ObjectManager::INVALID;
     else
     {
         _lists = gl->newList( this, num );
-        EQASSERT( _lists != Window::ObjectManager::FAILED );
+        EQASSERT( _lists != Window::ObjectManager::INVALID );
     }
 }
 
@@ -236,7 +236,7 @@ void BitmapFont::draw( const std::string& text ) const
         case WINDOW_SYSTEM_GLX:
         case WINDOW_SYSTEM_AGL:
         case WINDOW_SYSTEM_WGL:
-            if( _lists != Window::ObjectManager::FAILED )
+            if( _lists != Window::ObjectManager::INVALID )
             {
                 glListBase( _lists );
                 glCallLists( text.size(), GL_UNSIGNED_BYTE, text.c_str( ));

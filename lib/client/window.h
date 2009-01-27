@@ -27,9 +27,10 @@ namespace eq
      *
      * The default window initialization methods do initialize all windows of
      * the same Pipe with a shared context, so that OpenGL objects can be reused
-     * between them for optimal GPU memory usage. Please not that each window
-     * might have it's own OpenGL command buffer, thus glFlush might be needed
-     * to synchronize the state of OpenGL objects between windows.
+     * between them for optimal GPU memory usage. Please note that each window
+     * might have it's own OpenGL command buffer, thus glFlush is needed
+     * to synchronize the state of OpenGL objects between windows. Therefore,
+     * Equalizer calls flush() at the end of each frame for each window.
      */
     class EQ_EXPORT Window : public net::Object
     {

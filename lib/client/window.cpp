@@ -685,7 +685,10 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
                        << endl;
 
     if( _pipe->isInitialized( ) && _osWindow )
+    {
         EQ_GL_CALL( makeCurrent( ));
+        _pipe->flushFrames();
+    }
     // else emergency exit, no context available.
 
     WindowConfigExitReplyPacket reply;

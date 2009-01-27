@@ -100,7 +100,7 @@ template< typename T >
 GLuint ObjectManager<T>::getList( const T& key )
 {
     if( _lists.find( key ) == _lists.end( ))
-        return FAILED;
+        return INVALID;
 
     const Object& object = _lists[ key ];
     return object.id;
@@ -112,14 +112,14 @@ GLuint ObjectManager<T>::newList( const T& key, const GLsizei num )
     if( _lists.find( key ) != _lists.end( ))
     {
         EQWARN << "Requested new list for existing key" << endl;
-        return FAILED;
+        return INVALID;
     }
 
     const GLuint id = glGenLists( num );
     if( !id )
     {
         EQWARN << "glGenLists failed: " << glGetError() << endl;
-        return FAILED;
+        return INVALID;
     }
     
     Object& object   = _lists[ key ];
@@ -133,7 +133,7 @@ template< typename T >
 GLuint ObjectManager<T>::obtainList( const T& key, const GLsizei num )
 {
     const GLuint id = getList( key );
-    if( id != FAILED )
+    if( id != INVALID )
         return id;
     return newList( key, num );
 }
@@ -155,7 +155,7 @@ template< typename T >
 GLuint ObjectManager<T>::getTexture( const T& key )
 {
     if( _textures.find( key ) == _textures.end( ))
-        return FAILED;
+        return INVALID;
 
     const Object& object = _textures[ key ];
     return object.id;
@@ -167,15 +167,15 @@ GLuint ObjectManager<T>::newTexture( const T& key )
     if( _textures.find( key ) != _textures.end( ))
     {
         EQWARN << "Requested new texture for existing key" << endl;
-        return FAILED;
+        return INVALID;
     }
 
-    GLuint id = FAILED;
+    GLuint id = INVALID;
     glGenTextures( 1, &id );
-    if( id == FAILED )
+    if( id == INVALID )
     {
         EQWARN << "glGenTextures failed: " << glGetError() << endl;
-        return FAILED;
+        return INVALID;
     }
     
     Object& object   = _textures[ key ];
@@ -187,7 +187,7 @@ template< typename T >
 GLuint ObjectManager<T>::obtainTexture( const T& key )
 {
     const GLuint id = getTexture( key );
-    if( id != FAILED )
+    if( id != INVALID )
         return id;
     return newTexture( key );
 }
@@ -215,7 +215,7 @@ template< typename T >
 GLuint ObjectManager<T>::getBuffer( const T& key )
 {
     if( _buffers.find( key ) == _buffers.end() )
-        return FAILED;
+        return INVALID;
 
     const Object& object = _buffers[ key ];
     return object.id;
@@ -227,22 +227,22 @@ GLuint ObjectManager<T>::newBuffer( const T& key )
     if( !GLEW_VERSION_1_5 )
     {
         EQWARN << "glGenBuffers not available" << endl;
-        return FAILED;
+        return INVALID;
     }
 
     if( _buffers.find( key ) != _buffers.end() )
     {
         EQWARN << "Requested new buffer for existing key" << endl;
-        return FAILED;
+        return INVALID;
     }
 
-    GLuint id = FAILED;
+    GLuint id = INVALID;
     glGenBuffers( 1, &id );
 
-    if( id == FAILED )
+    if( id == INVALID )
     {
         EQWARN << "glGenBuffers failed: " << glGetError() << endl;
-        return FAILED;
+        return INVALID;
     }
     
     Object& object     = _buffers[ key ];
@@ -254,7 +254,7 @@ template< typename T >
 GLuint ObjectManager<T>::obtainBuffer( const T& key )
 {
     const GLuint id = getBuffer( key );
-    if( id != FAILED )
+    if( id != INVALID )
         return id;
     return newBuffer( key );
 }
@@ -282,7 +282,7 @@ template< typename T >
 GLuint ObjectManager<T>::getProgram( const T& key )
 {
     if( _programs.find( key ) == _programs.end() )
-        return FAILED;
+        return INVALID;
 
     const Object& object = _programs[ key ];
     return object.id;
@@ -294,20 +294,20 @@ GLuint ObjectManager<T>::newProgram( const T& key )
     if( !GLEW_VERSION_2_0 )
     {
         EQWARN << "glCreateProgram not available" << endl;
-        return FAILED;
+        return INVALID;
     }
 
     if( _programs.find( key ) != _programs.end() )
     {
         EQWARN << "Requested new program for existing key" << endl;
-        return FAILED;
+        return INVALID;
     }
 
     const GLuint id = glCreateProgram();
     if( !id )
     {
         EQWARN << "glCreateProgram failed: " << glGetError() << endl;
-        return FAILED;
+        return INVALID;
     }
     
     Object& object     = _programs[ key ];
@@ -319,7 +319,7 @@ template< typename T >
 GLuint ObjectManager<T>::obtainProgram( const T& key )
 {
     const GLuint id = getProgram( key );
-    if( id != FAILED )
+    if( id != INVALID )
         return id;
     return newProgram( key );
 }
@@ -347,7 +347,7 @@ template< typename T >
 GLuint ObjectManager<T>::getShader( const T& key )
 {
     if( _shaders.find( key ) == _shaders.end() )
-        return FAILED;
+        return INVALID;
 
     const Object& object = _shaders[ key ];
     return object.id;
@@ -359,20 +359,20 @@ GLuint ObjectManager<T>::newShader( const T& key, const GLenum type )
     if( !GLEW_VERSION_2_0 )
     {
         EQWARN << "glCreateShader not available" << endl;
-        return FAILED;
+        return INVALID;
     }
 
     if( _shaders.find( key ) != _shaders.end() )
     {
         EQWARN << "Requested new shader for existing key" << endl;
-        return FAILED;
+        return INVALID;
     }
 
     const GLuint id = glCreateShader( type );
     if( !id )
     {
         EQWARN << "glCreateShader failed: " << glGetError() << endl;
-        return FAILED;
+        return INVALID;
     }
 
     
@@ -385,7 +385,7 @@ template< typename T >
 GLuint ObjectManager<T>::obtainShader( const T& key, const GLenum type )
 {
     const GLuint id = getShader( key );
-    if( id != FAILED )
+    if( id != INVALID )
         return id;
     return newShader( key, type );
 }

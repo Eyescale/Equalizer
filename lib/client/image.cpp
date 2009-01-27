@@ -49,14 +49,18 @@ Image::~Image()
 
 void Image::reset()
 {
-    _colorPixels.data.format = GL_BGRA;
-    _colorPixels.data.type   = GL_UNSIGNED_BYTE;
-    _depthPixels.data.format = GL_DEPTH_COMPONENT;
-    _depthPixels.data.type   = GL_FLOAT;
-
     _usePBO = false;
-
     setPixelViewport( PixelViewport( ));
+}
+
+void Image::flush()
+{
+    _colorPixels.flush();
+    _depthPixels.flush();
+    _compressedColorPixels.flush();
+    _compressedDepthPixels.flush();
+    _colorTexture.flush();
+    _depthTexture.flush();
 }
 
 uint32_t Image::getDepth( const Frame::Buffer buffer ) const
@@ -161,13 +165,21 @@ const Image::CompressedPixels& Image::_getCompressedPixels(
 void Image::setFormat( const Frame::Buffer buffer, const uint32_t format )
 {
     Pixels& pixels = _getPixels( buffer );
+    if( pixels.data.format == format )
+        return;
+
     pixels.data.format = format;
-    pixels.valid  = false;
+    pixels.valid = false;
+
+    _getTexture( buffer ).setFormat( format );
 }
 
 void Image::setType( const Frame::Buffer buffer, const uint32_t type )
 {
     Pixels& pixels = _getPixels( buffer );
+    if( pixels.data.type == type )
+        return;
+
     pixels.data.type  = type;
     pixels.valid = false;
 }
@@ -175,12 +187,14 @@ void Image::setType( const Frame::Buffer buffer, const uint32_t type )
 uint32_t Image::getFormat( const Frame::Buffer buffer ) const
 {
     const Pixels& pixels = _getPixels( buffer );
+    EQASSERT( pixels.data.format );
     return pixels.data.format;
 }
 
 uint32_t Image::getType( const Frame::Buffer buffer ) const
 {
     const Pixels& pixels = _getPixels( buffer );
+    EQASSERT( pixels.data.type );
     return pixels.data.type;
 }
 
@@ -218,30 +232,6 @@ const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 {
     EQASSERT(hasPixelData(buffer));
     return _getPixels( buffer ).data;
-}
-
-void Image::Texture::init()
-{
-    glGenTextures( 1, &id );
-    valid = false;
-}
-
-void Image::Texture::resize( const uint32_t w, const uint32_t h )
-{
-    if( width < w ) 
-    {
-        width  = w;
-        valid = false;
-    }
-    
-    if( height < h )
-    {
-        height = h;
-        valid = false;
-    }    
-    
-    
-
 }
 
 
@@ -330,7 +320,8 @@ void Image::_startReadback( const Frame::Buffer buffer )
     }
     else if ( _type == Frame::TYPE_TEXTURE )
     {
-        _copyToTexture( buffer );
+        Texture& texture = _getTexture( buffer );    
+        texture.copyFromFrameBuffer( _pvp );
         pixels.valid = true;
     }
     else
@@ -342,7 +333,20 @@ void Image::_startReadback( const Frame::Buffer buffer )
     }
 }
 
-Image::Texture& Image::_getTexture( const Frame::Buffer buffer )
+const Texture& Image::getTexture( const Frame::Buffer buffer ) const
+{
+    switch( buffer )
+    {
+        case Frame::BUFFER_COLOR:
+            return _colorTexture;
+            
+        default:
+            EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
+            return _depthTexture;
+    }
+}   
+
+Texture& Image::_getTexture( const Frame::Buffer buffer )
 {
     switch( buffer )
     {
@@ -357,48 +361,6 @@ Image::Texture& Image::_getTexture( const Frame::Buffer buffer )
 
 }   
 
-const uint32_t Image::_getTextureFormat( const Frame::Buffer buffer ) const
-{
-    switch( buffer )
-    {
-        case Frame::BUFFER_COLOR:
-            return GL_RGBA;
-            
-        default:
-            EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
-            return GL_DEPTH_COMPONENT;
-    }
-}
-
-void Image::_copyToTexture( const Frame::Buffer buffer )
-{
-    Texture& texture = _getTexture( buffer );    
-       
-    glEnable(GL_TEXTURE_RECTANGLE_ARB);
-    
-    if ( texture.id == 0 )
-        texture.init();
-    
-    _colorTexture.resize( _pvp.w, _pvp.h );  
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, texture.id );
-
-    if ( texture.valid )
-    {
-        glCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0,
-                          0, _pvp.x, _pvp.y, _pvp.w, _pvp.h );
-    }
-    else
-    {
-           
-        glCopyTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
-                          _getTextureFormat( buffer ), _pvp.x, _pvp.y, 
-                          texture.width, 
-                          texture.height,  0 );
-    
-    }
-    
-    texture.valid = true;
-}
 void Image::_startReadbackPBO( const Frame::Buffer buffer, Pixels& pixels, const size_t size )
 {
     pixels.reading = true;
@@ -433,7 +395,7 @@ void Image::_syncReadback( const Frame::Buffer buffer )
     const size_t size      = getPixelDataSize( buffer );
     const void*  bufferKey = _getPBOKey( buffer );
     GLuint       pbo       = _glObjects->getBuffer( bufferKey );
-    EQASSERT( pbo != Window::ObjectManager::FAILED );
+    EQASSERT( pbo != Window::ObjectManager::INVALID );
 
     pixels.resize( size );
 
@@ -615,7 +577,24 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     }
 }
 
-Image::PixelData::~PixelData()
+void Image::CompressedPixels::flush()
+{
+    data.flush();
+    chunkMaxSizes.clear();
+    valid = false;
+}
+
+void Image::Pixels::flush()
+{
+    maxSize = 0;
+    pboSize = 0;
+    valid = false;
+    reading = false;
+    data.flush();
+    data.chunks.push_back( 0 );
+}
+
+void Image::PixelData::flush()
 {
     while( !chunks.empty( ))
     {
@@ -623,6 +602,14 @@ Image::PixelData::~PixelData()
             free( chunks.back( ));
         chunks.pop_back();
     }
+    format = GL_FALSE;
+    type   = GL_FALSE;
+    compressed = false;
+}
+
+Image::PixelData::~PixelData()
+{
+    flush();
 }
 
 const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
@@ -931,12 +918,6 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         image.close();
         return false;
     }
-    if( header.depth != getDepth( buffer ))
-    {
-        EQERROR << "Pixel depth mismatch " << filename << endl;
-        image.close();
-        return false;
-    }
     if( header.compression != 0)
     {
         EQERROR << "Unsupported compression " << filename << endl;
@@ -946,8 +927,10 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     const size_t depth = header.depth;
 
-    if( header.bytesPerChannel != 1 || header.nDimensions != 3 ||
-        header.minValue != 0 || header.maxValue != 255 ||
+    if( header.bytesPerChannel != 1 ||
+        header.nDimensions != 3 ||
+        header.minValue != 0 ||
+        header.maxValue != 255 ||
         header.colorMode != 0 ||
         ( buffer == Frame::BUFFER_COLOR && depth != 3 && depth != 4 ) ||
         ( buffer == Frame::BUFFER_DEPTH && depth != 4 ))
@@ -955,6 +938,21 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         EQERROR << "Unsupported image type " << filename << endl;
         image.close();
         return false;
+    }
+
+    switch( buffer )
+    {
+        case Frame::BUFFER_DEPTH:
+            setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
+            setType(   Frame::BUFFER_DEPTH, GL_FLOAT );
+            break;
+
+        default:
+            EQUNREACHABLE;
+        case Frame::BUFFER_COLOR:
+            setFormat( Frame::BUFFER_COLOR, (depth==4) ? GL_RGBA : GL_RGB );
+            setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+            break;
     }
 
     const size_t     nPixels = header.width * header.height;

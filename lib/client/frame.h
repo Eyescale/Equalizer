@@ -26,6 +26,7 @@ namespace server
     class Pipe;
     class Pixel;
     class Range;
+    class Zoom;
 
     /**
      * A holder for a frame data and parameters.
@@ -76,6 +77,9 @@ namespace server
         /** @return the pixel parameters relative to the destination channel. */
         const Pixel& getPixel() const;
 
+        /** @return the zoom factor for readback or assemble. */
+        const Zoom& getZoom() const;
+
         /** The images of this frame */
         const ImageVector& getImages() const;
 
@@ -97,6 +101,9 @@ namespace server
 
         /** Clear the frame, recycles the images attached to the frame data. */
         void clear();
+
+        /** Clear the frame and free all images attached to the frame data. */
+        void flush();
 
         /** 
          * Read back a set of images according to the current frame data.

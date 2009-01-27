@@ -48,6 +48,11 @@ const Pixel& Frame::getPixel() const
     return _frameData->getPixel();
 }
 
+const Zoom& Frame::getZoom() const
+{
+    return _data.zoom;
+}
+
 const Range& Frame::getRange() const
 {
     EQASSERT( _frameData );
@@ -76,6 +81,12 @@ void Frame::clear()
 {
     EQASSERT( _frameData );
     _frameData->clear();
+}
+
+void Frame::flush()
+{
+    EQASSERT( _frameData );
+    _frameData->flush();
 }
 
 void Frame::startReadback( Window::ObjectManager* glObjects ) 

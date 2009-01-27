@@ -42,6 +42,7 @@ namespace server
         Compound::FrameMap   _outputFrames;
 
         void _updateOutput( Compound* compound );
+        void _updateZoom( const Compound* compound, Frame* frame );
         void _updateSwapBarriers( Compound* compound );
     };
 }

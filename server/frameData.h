@@ -54,10 +54,9 @@ namespace server
         void setPixel( const eq::Pixel& pixel )
             { _data.pixel = pixel; }
         
-        /** Set the src zoom factor. */
-        void setZoom( const eq::Zoom& zoom )
-            { _data.zoom = zoom; }
-        const eq::Zoom& getZoom() const { return _data.zoom; }
+        /** Set the output frame zoom factor. */
+        void setZoom( const eq::Zoom& zoom ) { _zoom = zoom; }
+        const eq::Zoom& getZoom() const      { return _zoom; }
 
         /** return the frame storage type. */    
         eq::Frame::Type getType()const{ return _data.frameType; }
@@ -81,6 +80,9 @@ namespace server
         friend class Frame;
         eq::FrameData::Data _data;
         
+        /** The zoom factor of the output frame after readback. */
+        eq::Zoom _zoom;
+
         /** The number of the config frame when this data was last used. */
         uint32_t _frameNumber;
     };

@@ -27,7 +27,16 @@ FrameData::FrameData()
 
 FrameData::~FrameData()
 {
-    flush();
+    clear();
+
+    for( vector<Image*>::const_iterator i = _imageCache.begin();
+         i != _imageCache.end(); ++i )
+    {
+        Image* image = *i;
+        EQWARN << "Unflushed image in FrameData destructor" << endl;
+        delete image;
+    }
+    _imageCache.clear();
 }
 
 void FrameData::getInstanceData( net::DataOStream& os )
@@ -87,35 +96,55 @@ void FrameData::flush()
 
     for( vector<Image*>::const_iterator i = _imageCache.begin();
          i != _imageCache.end(); ++i )
-
-        delete *i;
+    {
+        Image* image = *i;
+        image->flush();
+        delete image;
+    }
 
     _imageCache.clear();
 }
 
-Image* FrameData::newImage(eq::Frame::Type type)
+Image* FrameData::newImage( const eq::Frame::Type type )
 {
-    Image* image = _allocImage();
-    image->setStorageType( type );
+    Image* image = _allocImage( type );
     _images.push_back( image );
     return image;
 }
 
-Image* FrameData::_allocImage()
+Image* FrameData::_allocImage( const eq::Frame::Type type )
 {
     Image* image;
     _imageCacheLock.set();
 
     if( _imageCache.empty( ))
-        image = new Image();
+    {
+        _imageCacheLock.unset();
+        image = new Image;
+
+        if( type == Frame::TYPE_TEXTURE )
+        {
+            image->setFormat( Frame::BUFFER_COLOR, GL_RGBA );
+            image->setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+        }
+        else
+        {
+            image->setFormat( Frame::BUFFER_COLOR, GL_BGRA );
+            image->setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+        }
+        image->setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
+        image->setType(   Frame::BUFFER_DEPTH, GL_FLOAT );
+    }
     else
     {
         image = _imageCache.back();
-        image->reset();
         _imageCache.pop_back();
+        _imageCacheLock.unset();
+
+        image->reset();
     }
 
-    _imageCacheLock.unset();
+    image->setStorageType( type );
     return image;
 }
 
@@ -366,7 +395,7 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
 
     EQASSERT( packet->pvp.isValid( ));
 
-    Image*   image = _allocImage();
+    Image*   image = _allocImage( Frame::TYPE_MEMORY );
     // Note on the const_cast: since the PixelData structure stores non-const
     // pointers, we have to go non-const at some point, even though we do not
     // modify the data.

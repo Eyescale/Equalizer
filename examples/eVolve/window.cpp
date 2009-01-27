@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "window.h"
@@ -67,7 +67,7 @@ void Window::_loadLogo()
     eq::Window::ObjectManager* objects = getObjectManager();
 
     if( objects->getTexture( _logoTextureName ) != 
-        eq::Window::ObjectManager::FAILED )
+        eq::Window::ObjectManager::INVALID )
     {
         // Already loaded by first window
         const eq::Pipe* pipe        = getPipe();
@@ -88,7 +88,7 @@ void Window::_loadLogo()
     }
 
     _logoTexture = objects->newTexture( _logoTextureName );
-    EQASSERT( _logoTexture != eq::Window::ObjectManager::FAILED );
+    EQASSERT( _logoTexture != eq::Window::ObjectManager::INVALID );
 
     const eq::PixelViewport& pvp = image.getPixelViewport();
     _logoSize.x = pvp.w;

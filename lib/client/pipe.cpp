@@ -280,13 +280,15 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
     return frame;
 }
 
-void Pipe::_flushFrames()
+void Pipe::flushFrames()
 {
     net::Session* session = getSession();
 
     for( FrameHash::const_iterator i = _frames.begin(); i != _frames.end(); ++i)
     {
         Frame* frame = i->second;
+
+        frame->flush();
         session->unmapObject( frame );
         delete frame;
     }
@@ -623,7 +625,6 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
     reply.result = configExit();
 
     _state = STATE_STOPPED;
-    _flushFrames();
 
     send( command.getNode(), reply );
     return net::COMMAND_HANDLED;

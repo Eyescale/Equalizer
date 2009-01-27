@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
    All rights reserved. */
 
@@ -54,7 +54,7 @@ static const char* _logoTextureName = "eqPly_logo";
 
 void Window::_loadLogo()
 {
-    if( _state->getTexture( _logoTextureName ) != VertexBufferState::FAILED )
+    if( _state->getTexture( _logoTextureName ) != VertexBufferState::INVALID )
     {
         // Already loaded by first window
         const eq::Pipe* pipe        = getPipe();
@@ -76,7 +76,7 @@ void Window::_loadLogo()
     }
 
     _logoTexture = _state->newTexture( _logoTextureName );
-    EQASSERT( _logoTexture != VertexBufferState::FAILED );
+    EQASSERT( _logoTexture != VertexBufferState::INVALID );
 
     const eq::PixelViewport& pvp = image.getPixelViewport();
     _logoSize.x = pvp.w;
@@ -96,7 +96,7 @@ void Window::_loadLogo()
 void Window::_loadShaders()
 {
     if( _state->getShader( vertexShader_glsl.c_str( )) !=
-        VertexBufferState::FAILED )
+        VertexBufferState::INVALID )
 
         // already loaded
         return;
@@ -111,7 +111,7 @@ void Window::_loadShaders()
 
     const GLuint vShader = _state->newShader( vertexShader_glsl.c_str(), 
                                               GL_VERTEX_SHADER );
-    EQASSERT( vShader != VertexBufferState::FAILED );
+    EQASSERT( vShader != VertexBufferState::INVALID );
     const GLchar* vShaderPtr = vertexShader_glsl.c_str();
     glShaderSource( vShader, 1, &vShaderPtr, 0 );
     glCompileShader( vShader );
@@ -126,7 +126,7 @@ void Window::_loadShaders()
     
     const GLuint fShader = 
         _state->newShader( fragmentShader_glsl.c_str(), GL_FRAGMENT_SHADER );
-    EQASSERT( fShader != VertexBufferState::FAILED );
+    EQASSERT( fShader != VertexBufferState::INVALID );
     const GLchar* fShaderPtr = fragmentShader_glsl.c_str();
     glShaderSource( fShader, 1, &fShaderPtr, 0 );
     glCompileShader( fShader );
@@ -138,7 +138,7 @@ void Window::_loadShaders()
     }
     
     const GLuint program = _state->newProgram( getPipe() );
-    EQASSERT( program != VertexBufferState::FAILED );
+    EQASSERT( program != VertexBufferState::INVALID );
     glAttachShader( program, vShader );
     glAttachShader( program, fShader );
     glLinkProgram( program );

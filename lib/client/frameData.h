@@ -71,7 +71,7 @@ namespace server
          * 
          * @return the image.
          */
-        Image* newImage( eq::Frame::Type type = Frame::TYPE_MEMORY );
+        Image* newImage( const eq::Frame::Type type = Frame::TYPE_MEMORY );
 
         /** Clear the frame by recycling the attached images. */
         void clear();
@@ -164,7 +164,6 @@ namespace server
             uint32_t         buffers;
             uint32_t         format;
             uint32_t         type;
-            Zoom             zoom;
             Frame::Type      frameType;
             Range            range; //<! database-range of src wrt to dest
             Pixel            pixel; //<! pixel decomposition of source
@@ -196,7 +195,7 @@ namespace server
         base::Lock                              _listenersMutex;
 
         /** Allocate or reuse an image. */
-        Image* _allocImage();
+        Image* _allocImage( const eq::Frame::Type type );
 
         /** Apply all received images of the given version. */
         void _applyVersion( const uint32_t version );

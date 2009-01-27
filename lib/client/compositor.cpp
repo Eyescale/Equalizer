@@ -38,7 +38,10 @@ namespace eq
 namespace
 {
 // use to address one shader and program per shared context set
-static const char glslKey = 42;
+static const char seed = 42;
+static const char* shaderDBKey = &seed;
+static const char* colorDBKey  = shaderDBKey + 1;
+static const char* depthDBKey  = colorDBKey + 1;
 
 class ResultImage : public Image
 {
@@ -744,6 +747,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.buffers = frame->getBuffers();
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
+    operation.zoom    = frame->getZoom();
 
     for( vector< Image* >::const_iterator i = images.begin(); 
          i != images.end(); ++i )
@@ -868,14 +872,7 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
 
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
-    const PixelViewport& pvp = image->getPixelViewport();
-
-    EQLOG( LOG_ASSEMBLY ) << "assembleImage2D " << pvp << " offset " 
-                          << op.offset << endl;
     EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
-
-    glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );
-
     _drawPixels( image, op, Frame::BUFFER_COLOR );
 }
 
@@ -883,33 +880,30 @@ void Compositor::_drawPixels( const Image* image,
                               const ImageOp& op,
                               const Frame::Buffer which )
 {
-
     const PixelViewport& pvp = image->getPixelViewport();
+    EQLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
+                          << endl;
     
     if ( image->getStorageType() == Frame::TYPE_MEMORY )
     {
-        glDrawPixels( pvp.w, pvp.h, 
-                     image->getFormat( which ), 
-                     image->getType( which ), 
-                     image->getPixelPointer( which ));
-        return;
+        // TODO if( op.zoom == eq::Zoom::NONE )
+        {
+            glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );
+            glDrawPixels( pvp.w, pvp.h, 
+                          image->getFormat( which ), 
+                          image->getType( which ), 
+                          image->getPixelPointer( which ));
+            return;
+        }
+        // else use texture with filtering to zoom
+        
     }
 
     // else texture
-    GLuint textureId;
-    GLenum internalformat;
+    const GLuint textureId = image->getTexture( which ).getID();
         
-    if ( which == Frame::BUFFER_COLOR )
-    {
-         textureId = image->getColorTexture();
-         internalformat = GL_RGBA;
-    }
-    else
-    {
-         glColorMask( false, false, false, false );
-         textureId = image->getDepthTexture();
-         internalformat = GL_DEPTH_COMPONENT;
-    }
+    if ( which != Frame::BUFFER_COLOR )
+        glColorMask( false, false, false, false );
 
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
@@ -948,7 +942,7 @@ void Compositor::_drawPixels( const Image* image,
     // restore state
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
 
-    if( which == Frame::BUFFER_COLOR ) 
+    if( which != Frame::BUFFER_COLOR ) 
     {
         const ColorMask& colorMask = op.channel->getDrawBufferMask();
         glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
@@ -1017,36 +1011,29 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     Window*                window  = channel->getWindow();
     Window::ObjectManager* objects = window->getObjectManager();
     
-    // use per-window textures: using a shared texture across multiple windows
-    // creates undefined texture contents, since each context has it's own
-    // command buffer which is flushed unpredictably (at least on Darwin). A
-    // glFlush at the end of this method would do it too, but the performance
-    // use case is one window per pipe, hence we'll optimize for that and remove
-    // the glFlush.
-    const char*            key     = reinterpret_cast< char* >( window );
-
     GLuint depthTexture;
     GLuint colorTexture;
 
     if ( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
-        depthTexture = image->getDepthTexture();
-        colorTexture = image->getColorTexture();
+        depthTexture = image->getTexture( Frame::BUFFER_DEPTH ).getID();
+        colorTexture = image->getTexture( Frame::BUFFER_COLOR ).getID();
     }
     else
     {
-        depthTexture = objects->obtainTexture( key );
-        colorTexture = objects->obtainTexture( key+1 );
+        depthTexture = objects->obtainTexture( depthDBKey );
+        colorTexture = objects->obtainTexture( colorDBKey );
     }
 
-    GLuint program      = objects->getProgram( &glslKey );
+    GLuint program      = objects->getProgram( shaderDBKey );
 
-    if( program == Window::ObjectManager::FAILED )
+    if( program == Window::ObjectManager::INVALID )
     {
         // Create fragment shader which reads color and depth values from 
         // rectangular textures
-        const GLuint shader = objects->newShader( &glslKey, GL_FRAGMENT_SHADER);
-        EQASSERT( shader != Window::ObjectManager::FAILED );
+        const GLuint shader = objects->newShader( shaderDBKey, 
+                                                  GL_FRAGMENT_SHADER );
+        EQASSERT( shader != Window::ObjectManager::INVALID );
 
         const char* source = "uniform sampler2DRect color; uniform sampler2DRect depth; void main(void){ gl_FragColor = texture2DRect( color, gl_TexCoord[0].st ); gl_FragDepth = texture2DRect( depth, gl_TexCoord[0].st ).x; }";
 
@@ -1059,7 +1046,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
             EQERROR << "Failed to compile fragment shader for DB compositing" 
                     << endl;
 
-        program = objects->newProgram( &glslKey );
+        program = objects->newProgram( shaderDBKey );
 
         EQ_GL_CALL( glAttachShader( program, shader ));
         EQ_GL_CALL( glLinkProgram( program ));
@@ -1079,9 +1066,6 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         glUniform1i( depthParam, 0 );
         const GLint colorParam = glGetUniformLocation( program, "color" );
         glUniform1i( colorParam, 1 );
-
-        // make sure the other shared context see the program
-        glFlush();
     }
     else
         // use fragment shader
@@ -1122,7 +1106,8 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                                   pvp.w, pvp.h, 0,
                                   image->getFormat( Frame::BUFFER_DEPTH ), 
                                   image->getType( Frame::BUFFER_DEPTH ),
-                                  image->getPixelPointer( Frame::BUFFER_DEPTH )));
+                                  image->getPixelPointer( Frame::BUFFER_DEPTH )
+                                  ));
     }
 
     // Draw a quad using shader & textures in the right place

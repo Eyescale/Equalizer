@@ -75,8 +75,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         }
 
         //----- Create new frame datas
-        //      one frame data per used eye pass
-        //      set data on master frame data (will copy to all others)
+        //      one frame data used for each eye pass
+        //      data is set only on master frame data (will copy to all others)
         frame->cycleData( _frameNumber, compound->getInheritEyes( ));
         FrameData* frameData = frame->getMasterData();
         EQASSERT( frameData );
@@ -125,39 +125,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         }
 
         // 2) zoom
-        eq::Zoom zoom = frame->getZoom();
-        if( !zoom.isValid( )) // if zoom is not set, auto-calculate from parent
-        {
-            zoom = compound->getInheritZoom();
-            EQASSERT( zoom.isValid( ));
-            zoom.x = 1.0f / zoom.x;
-            zoom.y = 1.0f / zoom.y;
-        }
-
-        if( frame->getType( ) == eq::Frame::TYPE_TEXTURE )
-        {
-            frameData->setZoom( zoom ); // textures are zoomed by input frame
-            frame->setInheritZoom( eq::Zoom( ));
-        }
-        else
-        {
-            eq::Zoom inputZoom;
-            /* Output frames downscale pixel data during readback, and upscale
-             * it on the input frame by setting the input frame's inherit
-             * zoom. Input frames zoom pixel data during compositing. */
-            if( zoom.x > 1.0f )
-            {
-                inputZoom.x = zoom.x;
-                zoom.x      = 1.f;
-            }
-            if( zoom.y > 1.0f )
-            {
-                inputZoom.y = zoom.y;
-                zoom.y      = 1.f;
-            }
-            frameData->setZoom( inputZoom );
-            frame->setInheritZoom( zoom );                
-        }
+        _updateZoom( compound, frame );
 
         //----- Commit
         frame->commitData();
@@ -168,6 +136,46 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             << " buffers " << frameData->getBuffers() << " read area "
             << framePVP << " readback " << frame->getInheritZoom()
             << " assemble " << frameData->getZoom() << endl << enableFlush;
+    }
+}
+
+void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
+                                               Frame* frame )
+{
+    eq::Zoom zoom = frame->getZoom();
+    if( !zoom.isValid( )) // if zoom is not set, auto-calculate from parent
+    {
+        zoom = compound->getInheritZoom();
+        EQASSERT( zoom.isValid( ));
+        zoom.x = 1.0f / zoom.x;
+        zoom.y = 1.0f / zoom.y;
+    }
+
+    if( frame->getType( ) == eq::Frame::TYPE_TEXTURE )
+    {
+        FrameData* frameData = frame->getMasterData();
+        frameData->setZoom( zoom ); // textures are zoomed by input frame
+        frame->setInheritZoom( eq::Zoom( ));
+    }
+    else
+    {
+        eq::Zoom inputZoom;
+        /* Output frames downscale pixel data during readback, and upscale it on
+         * the input frame by setting the input frame's inherit zoom. */
+        if( zoom.x > 1.0f )
+        {
+            inputZoom.x = zoom.x;
+            zoom.x      = 1.f;
+        }
+        if( zoom.y > 1.0f )
+        {
+            inputZoom.y = zoom.y;
+            zoom.y      = 1.f;
+        }
+
+        FrameData* frameData = frame->getMasterData();
+        frameData->setZoom( inputZoom );
+        frame->setInheritZoom( zoom );                
     }
 }
 

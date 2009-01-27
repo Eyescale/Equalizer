@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008,      Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "vertexBufferBase.h"
@@ -11,7 +11,7 @@ void VertexBufferBase::renderBoundingSphere(VertexBufferState& state ) const
 {
     GLuint displayList = state.getDisplayList( &_boundingSphere );
 
-    if( displayList == state.FAILED )
+    if( displayList == state.INVALID )
     {
         displayList = state.newDisplayList( &_boundingSphere );
         glNewList( displayList, GL_COMPILE );

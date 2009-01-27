@@ -71,6 +71,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         frame->setInheritOffset( frameOffset );
 
         // 2) TODO zoom
+        _updateZoom( compound, frame, outputFrame );
 
         // 3) TODO input frames are moved using the offset. The pvp signifies
         //    the pixels to be used from the frame data.
@@ -86,10 +87,26 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         EQLOG( eq::LOG_ASSEMBLY )
             << "Input frame  \"" << name << "\" on channel \"" 
             << channel->getName() << "\" id " << frame->getID() << " v"
-            << frame->getVersion() << "\" tile pos " << frameOffset << endl;
+            << frame->getVersion() << "\" tile pos " << frameOffset << ' ' 
+            << frame->getInheritZoom() << endl;
     }
 
     return TRAVERSE_CONTINUE;
+}
+
+void CompoundUpdateInputVisitor::_updateZoom( const Compound* compound,
+                                              Frame* frame, 
+                                              const Frame* outputFrame )
+{
+    Zoom zoom = frame->getZoom();
+    if( !zoom.isValid( )) // if zoom is not set, inherit from parent
+        zoom = compound->getInheritZoom();
+
+    // Zoom difference between output and input
+    const FrameData* frameData = outputFrame->getMasterData();
+    zoom /= frameData->getZoom();
+
+    frame->setInheritZoom( zoom );
 }
 
 }

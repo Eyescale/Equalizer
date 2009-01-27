@@ -32,6 +32,7 @@ namespace eq
             uint32_t       buffers; //!< The Frame buffer attachments to use
             vmml::Vector2i offset;  //!< The offset wrt destination window
             Pixel          pixel;   //!< The pixel decomposition parameters
+            Zoom           zoom;    //!< The zoom factor
         };
 
         /** @name Frame-based operations. */

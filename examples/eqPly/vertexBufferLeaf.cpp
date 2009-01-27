@@ -1,7 +1,7 @@
 /*  
     vertexBufferLeaf.cpp
     Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
-    Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
+    Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
     All rights reserved.  
     
     Implementation of the VertexBufferLeaf class.
@@ -186,19 +186,19 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
         MESHINFO << "Setting up VBO rendering for leaf " << this << "." << endl;
         const char* charThis = reinterpret_cast< const char* >( this );
         
-        if( data[VERTEX_OBJECT] == state.FAILED )
+        if( data[VERTEX_OBJECT] == state.INVALID )
             data[VERTEX_OBJECT] = state.newBufferObject( charThis + 0 );
         glBindBuffer( GL_ARRAY_BUFFER, data[VERTEX_OBJECT] );
         glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
                         &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
         
-        if( data[NORMAL_OBJECT] == state.FAILED )
+        if( data[NORMAL_OBJECT] == state.INVALID )
             data[NORMAL_OBJECT] = state.newBufferObject( charThis + 1 );
         glBindBuffer( GL_ARRAY_BUFFER, data[NORMAL_OBJECT] );
         glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
                         &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
         
-        if( data[COLOR_OBJECT] == state.FAILED )
+        if( data[COLOR_OBJECT] == state.INVALID )
             data[COLOR_OBJECT] = state.newBufferObject( charThis + 2 );
         if( state.useColors() )
         {
@@ -207,7 +207,7 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
                             &_globalData.colors[_vertexStart], GL_STATIC_DRAW );
         }
         
-        if( data[INDEX_OBJECT] == state.FAILED )
+        if( data[INDEX_OBJECT] == state.INVALID )
             data[INDEX_OBJECT] = state.newBufferObject( charThis + 3 );
         glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, data[INDEX_OBJECT] );
         glBufferData( GL_ELEMENT_ARRAY_BUFFER, 
@@ -221,7 +221,7 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
     {
         MESHINFO << "Setting up display list rendering for leaf " << this
                  << "." << endl;
-        if( data[0] == state.FAILED )
+        if( data[0] == state.INVALID )
             data[0] = state.newDisplayList( this );
         glNewList( data[0], GL_COMPILE );
         renderImmediate( state );
@@ -261,10 +261,10 @@ void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
     for( int i = 0; i < 4; ++i )
         buffers[i] = 
             state.getBufferObject( reinterpret_cast< const char* >(this) + i );
-    if( buffers[VERTEX_OBJECT] == state.FAILED || 
-        buffers[NORMAL_OBJECT] == state.FAILED || 
-        buffers[COLOR_OBJECT] == state.FAILED || 
-        buffers[INDEX_OBJECT] == state.FAILED )
+    if( buffers[VERTEX_OBJECT] == state.INVALID || 
+        buffers[NORMAL_OBJECT] == state.INVALID || 
+        buffers[COLOR_OBJECT] == state.INVALID || 
+        buffers[INDEX_OBJECT] == state.INVALID )
 
         setupRendering( state, buffers );
     
@@ -287,7 +287,7 @@ inline
 void VertexBufferLeaf::renderDisplayList( VertexBufferState& state ) const
 {
     GLuint displayList = state.getDisplayList( this );
-    if( displayList == state.FAILED )
+    if( displayList == state.INVALID )
         setupRendering( state, &displayList );
     
     glCallList( displayList );

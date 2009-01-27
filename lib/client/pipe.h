@@ -152,6 +152,9 @@ namespace eq
         Frame* getFrame( const net::ObjectVersion& frameVersion, 
                          const Eye eye );
 
+        /** Clear the frame cache and delete all frames. */
+        void flushFrames();
+
         /** @return if the window is made current */
         bool isCurrent( const Window* window ) const;
 
@@ -460,8 +463,6 @@ namespace eq
         void _addWindow( Window* window );
         void _removeWindow( Window* window );
         Window* _findWindow( const uint32_t id );
-
-        void _flushFrames();
 
         virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
         virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }

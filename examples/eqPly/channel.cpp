@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
    All rights reserved. */
 
@@ -141,7 +141,7 @@ void Channel::_drawModel( const Model* model )
 
     const eq::Pipe* pipe = getPipe();
     const GLuint program = state.getProgram( pipe );
-    if( program != VertexBufferState::FAILED )
+    if( program != VertexBufferState::INVALID )
         glUseProgram( program );
     
     model->beginRendering( state );
@@ -222,7 +222,7 @@ void Channel::_drawModel( const Model* model )
     
     model->endRendering( state );
     
-    if( program != VertexBufferState::FAILED )
+    if( program != VertexBufferState::INVALID )
         glUseProgram( 0 );
 
 #ifndef NDEBUG

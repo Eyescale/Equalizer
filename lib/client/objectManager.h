@@ -32,7 +32,7 @@ namespace eq
     public:
         enum
         {
-            FAILED = 0xffffffffu //<! return value for failed operations.
+            INVALID = 0 //<! return value for failed operations.
         };
 
         ObjectManager( GLEWContext* glewContext )

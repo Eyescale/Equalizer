@@ -31,6 +31,9 @@ namespace server
 
     private:
         const stde::hash_map<std::string, Frame*>& _outputFrames;
+
+        void _updateZoom( const Compound* compound, Frame* frame, 
+                          const Frame* outputFrame );
     };
 }
 }

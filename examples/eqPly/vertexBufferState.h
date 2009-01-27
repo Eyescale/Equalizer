@@ -1,5 +1,6 @@
 /*  
     vertexBufferState.h
+    Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
     Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
     All rights reserved.  
     
@@ -27,7 +28,7 @@ namespace mesh
     public:
         enum
         {
-            FAILED = 0xffffffffu //<! return value for failed operations.
+            INVALID = 0 //<! return value for failed operations.
         };
 
         virtual bool useColors() const { return _useColors; }
@@ -86,7 +87,7 @@ namespace mesh
         virtual GLuint getDisplayList( const void* key )
         {
             if( _displayLists.find( key ) == _displayLists.end() )
-                return FAILED;
+                return INVALID;
             return _displayLists[key];
         }
         
@@ -99,14 +100,14 @@ namespace mesh
         virtual GLuint getBufferObject( const void* key )
         {
             if( _bufferObjects.find( key ) == _bufferObjects.end() )
-                return FAILED;
+                return INVALID;
             return _bufferObjects[key];
         }
         
         virtual GLuint newBufferObject( const void* key )
         {
             if( !GLEW_VERSION_1_5 )
-                return FAILED;
+                return INVALID;
             glGenBuffers( 1, &_bufferObjects[key] );
             return _bufferObjects[key];
         }

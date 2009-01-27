@@ -7,9 +7,9 @@
 
 #include <eq/client/frame.h>         // for Frame::Buffer enum
 #include <eq/client/pixelViewport.h> // member
+#include <eq/client/texture.h>       // member
 #include <eq/client/viewport.h>      // member
 #include <eq/client/windowSystem.h>  // for OpenGL types
-#include <eq/base/nonCopyable.h>     // base class of nested class
 
 namespace eq
 {
@@ -31,6 +31,7 @@ namespace eq
                         , compressed( false )
                 {}
             ~PixelData();
+            void flush();
 
             uint32_t format;       //!< the GL format
             uint32_t type;         //!< the GL type
@@ -193,11 +194,11 @@ namespace eq
         bool readImage( const std::string& filename, 
                         const Frame::Buffer buffer   );
 
-        /** Get the id of the color texture. */
-        const GLuint getColorTexture() const { return _colorTexture.id; }
-        
-        /** Get the id of the depth texture. */
-        const GLuint getDepthTexture() const { return _depthTexture.id; }
+        /** Get the texture of this image. */
+        const Texture& getTexture( const Frame::Buffer buffer ) const;
+
+        /** Delete all cache data of this image. */
+        void flush();
         //*}
 
     private:
@@ -225,6 +226,7 @@ namespace eq
                 }
 
             void resize( uint32_t size );
+            void flush();
 
             PixelData data;
             uint32_t  maxSize; // the size of the allocation
@@ -236,26 +238,11 @@ namespace eq
         Pixels _colorPixels;
         Pixels _depthPixels;
 
-        /**
-         * Texture image data.
-         */
-        class Texture : public base::NonCopyable
-        {
-        public:
-            Texture() : id(0), width(0), height(0), valid( false ) {};
-            void init();
-            void resize( const uint32_t width, const uint32_t height );
-            GLuint id;
-            uint32_t width;
-            uint32_t height;
-            bool valid;
-        };
-        Texture _colorTexture;
-        Texture _depthTexture;
-
         class CompressedPixels
         {
         public:
+            void flush();
+
             PixelData data;
             std::vector< uint32_t > chunkMaxSizes;
 
@@ -264,6 +251,12 @@ namespace eq
 
         CompressedPixels _compressedColorPixels;
         CompressedPixels _compressedDepthPixels;
+
+        /** The color texture for this image. */
+        Texture _colorTexture;
+
+        /** The depth texture for this image. */
+        Texture _depthTexture;
 
         /** The GL object manager, valid during a readback operation. */
         Window::ObjectManager* _glObjects;
@@ -279,7 +272,6 @@ namespace eq
         const Pixels&           _getPixels( const Frame::Buffer buffer ) const;
         const CompressedPixels& _getCompressedPixels( const Frame::Buffer
                                                       buffer ) const;
-        const uint32_t _getTextureFormat( const Frame::Buffer buffer ) const;
         Texture& _getTexture( const Frame::Buffer buffer );
         uint32_t _compressPixelData( const uint64_t* data, const uint32_t size,
                                      uint64_t* out );
@@ -292,7 +284,6 @@ namespace eq
                                 Pixels& pixels, const size_t size );
                                 
         void _syncReadback( const Frame::Buffer buffer );
-        void _copyToTexture( const Frame::Buffer buffer );
 
         friend std::ostream& operator << ( std::ostream& os, const Image* );
     };

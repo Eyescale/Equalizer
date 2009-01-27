@@ -1,0 +1,55 @@
+# single pipe, two-to-one sort-last demo configuration
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .05 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .3 .4 .3 ]
+                    attributes{ planes_stencil ON }
+
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel1"
+            buffer  [ COLOR DEPTH ]
+
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+            
+            compound
+            {
+                range   [ 0 .5 ]
+            }
+            compound
+            { 
+                channel "channel2"
+                range   [ .5 1 ]
+                outputframe { name "frame.channel2" type texture }
+            }
+            inputframe { name "frame.channel2" }
+        }
+    }    
+}
