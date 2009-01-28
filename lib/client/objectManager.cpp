@@ -243,7 +243,7 @@ Texture* ObjectManager<T>::newEqTexture( const T& key )
         return 0;
     }
 
-    Texture* texture = new Texture;
+    Texture* texture = new Texture( _glewContext );
     _eqTextures[ key ] = texture;
     return texture;
 }

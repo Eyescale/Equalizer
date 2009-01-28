@@ -764,14 +764,10 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
     ImageOp operation = op;
     operation.buffers = Frame::BUFFER_NONE;
 
-    if( op.buffers & Frame::BUFFER_COLOR && 
-        image->hasPixelData( Frame::BUFFER_COLOR ))
-
+    if( op.buffers&Frame::BUFFER_COLOR && image->hasData( Frame::BUFFER_COLOR ))
         operation.buffers |= Frame::BUFFER_COLOR;
 
-    if( op.buffers & Frame::BUFFER_DEPTH &&
-        image->hasPixelData( Frame::BUFFER_DEPTH ))
-
+    if( op.buffers&Frame::BUFFER_DEPTH && image->hasData( Frame::BUFFER_DEPTH ))
         operation.buffers |= Frame::BUFFER_DEPTH;
 
     if( operation.buffers == Frame::BUFFER_NONE )
@@ -874,7 +870,7 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
 
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
-    EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+    EQASSERT( image->hasData( Frame::BUFFER_COLOR ));
     _drawPixels( image, op, Frame::BUFFER_COLOR );
 }
 
@@ -888,6 +884,8 @@ void Compositor::_drawPixels( const Image* image,
     
     if ( image->getStorageType() == Frame::TYPE_MEMORY )
     {
+        EQASSERT( image->hasPixelData( which ));
+
         if( op.zoom == eq::Zoom::NONE )
         {
             glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );
@@ -911,6 +909,7 @@ void Compositor::_drawPixels( const Image* image,
     }
     else // texture image
     {
+        EQASSERT( image->hasTextureData( which ));
         image->getTexture( which ).bind();
     }
 
@@ -986,8 +985,8 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 
     EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, fixed function " << pvp 
                           << endl;
-    EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
-    EQASSERT( image->hasPixelData( Frame::BUFFER_DEPTH ));
+    EQASSERT( image->hasData( Frame::BUFFER_COLOR ));
+    EQASSERT( image->hasData( Frame::BUFFER_DEPTH ));
 
     // Z-Based sort-last assembly
     glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );

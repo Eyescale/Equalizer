@@ -26,7 +26,7 @@ namespace eq
     {
     public:
         /** Constructs a new Texture. */
-        Texture();
+        Texture( GLEWContext* const glewContext = 0 );
         ~Texture();
      
         /** Clear the texture, including the GL texture name. */
@@ -54,6 +54,9 @@ namespace eq
         /** @return true if the texture can be bound. */
         bool isValid() const;
 
+        GLEWContext* glewGetContext() { return _glewContext; }
+        const GLEWContext* glewGetContext() const { return _glewContext; }
+
     private:
         /** The GL texture name. */
         GLuint _id;
@@ -69,6 +72,8 @@ namespace eq
 
         /** false if the texture needs to be defined, true if not. */
         bool _defined;
+
+        GLEWContext* const _glewContext;
 
         /** Generate, if needed, a GL texture name. */
         void _generate();

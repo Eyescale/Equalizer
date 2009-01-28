@@ -18,12 +18,16 @@ FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
     : _fboID(0)
     , _width(0)
     , _height(0)
+    , _color( glewContext )
+    , _depth( glewContext )
+    , _stencil( glewContext )
     , _glewContext( glewContext )
 {
     EQASSERT( GLEW_EXT_framebuffer_object );
-    _textures[ COLOR_TEXTURE ].setFormat( GL_RGBA );
-    _textures[ DEPTH_TEXTURE ].setFormat( GL_DEPTH_COMPONENT );
-    _textures[ STENCIL_TEXTURE ].setFormat( GL_STENCIL_INDEX );
+
+    _color.setFormat( GL_RGBA );
+    _depth.setFormat( GL_DEPTH_COMPONENT );
+    _stencil.setFormat( GL_STENCIL_INDEX );
 }
 
 FrameBufferObject::~FrameBufferObject()
@@ -41,8 +45,9 @@ void FrameBufferObject::exit()
         _fboID = 0;
     }
 
-    for( size_t i=i; i < ALL_TEXTURE; ++i )
-        _textures[i].flush();
+    _color.flush();
+    _depth.flush();
+    _stencil.flush();
 }
 	
 bool FrameBufferObject::init( const int width, const int height, 
@@ -61,15 +66,13 @@ bool FrameBufferObject::init( const int width, const int height,
     glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID );
 
     // create and bind textures
-    _textures[ COLOR_TEXTURE ].bindToFBO( GL_COLOR_ATTACHMENT0, width, height );
+    _color.bindToFBO( GL_COLOR_ATTACHMENT0, width, height );
 
     if ( depthSize > 0 )
-        _textures[ DEPTH_TEXTURE ].bindToFBO( GL_DEPTH_ATTACHMENT,
-                                              width, height );
+        _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height );
 
     if ( stencilSize > 0 )
-        _textures[ STENCIL_TEXTURE ].bindToFBO( GL_STENCIL_ATTACHMENT,
-                                                width, height );
+        _stencil.bindToFBO( GL_STENCIL_ATTACHMENT, width, height );
     
     _width = width;
     _height = height;
@@ -124,13 +127,13 @@ bool FrameBufferObject::resize( const int width, const int height )
     if (( _width == width ) && ( _height == height ))
        return true; 
      
-    _textures[ COLOR_TEXTURE ].resize( width, height );
+    _color.resize( width, height );
 
-    if ( _textures[ DEPTH_TEXTURE ].isValid( ))
-        _textures[ DEPTH_TEXTURE ].resize( width, height );
+    if ( _depth.isValid( ))
+        _depth.resize( width, height );
     
-    if ( _textures[ STENCIL_TEXTURE ].isValid( ))
-        _textures[ STENCIL_TEXTURE ].resize( width, height );
+    if ( _stencil.isValid( ))
+        _stencil.resize( width, height );
 
     _width = width;
     _height = height;

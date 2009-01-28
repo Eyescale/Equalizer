@@ -205,7 +205,7 @@ void Image::setType( const Frame::Buffer buffer, const uint32_t type )
     if( pixels.data.type == type )
         return;
 
-    pixels.data.type  = type;
+    pixels.data.type = type;
     pixels.valid = false;
 }
 
@@ -237,6 +237,20 @@ bool Image::hasAlpha() const
     }
 }
 
+bool Image::hasData( const Frame::Buffer buffer ) const
+{
+    if( _type == Frame::TYPE_MEMORY )
+        return hasPixelData( buffer );
+
+    EQASSERT( _type == Frame::TYPE_TEXTURE );
+    return hasTextureData( buffer );
+}
+
+bool Image::hasTextureData( const Frame::Buffer buffer ) const
+{
+    return getTexture( buffer ).isValid(); 
+}
+
 const uint8_t* Image::getPixelPointer( const Frame::Buffer buffer ) const
 {
     EQASSERT( hasPixelData( buffer ));
@@ -261,7 +275,7 @@ const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 
 
 void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
-                           Window::ObjectManager* glObjects )
+                           const Zoom& zoom, Window::ObjectManager* glObjects )
 {
     EQASSERT( glObjects );
     EQASSERTINFO( !_glObjects, "Another readback in progress?" );
@@ -275,10 +289,10 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     _depthPixels.valid = false;
 
     if( buffers & Frame::BUFFER_COLOR )
-        _startReadback( Frame::BUFFER_COLOR );
+        _startReadback( Frame::BUFFER_COLOR, zoom );
 
     if( buffers & Frame::BUFFER_DEPTH )
-        _startReadback( Frame::BUFFER_DEPTH );
+        _startReadback( Frame::BUFFER_DEPTH, zoom );
 
     _pvp.x = 0;
     _pvp.y = 0;
@@ -330,24 +344,24 @@ const void* Image::_getPBOKey( const Frame::Buffer buffer ) const
 }
 
 
-void Image::_startReadback( const Frame::Buffer buffer )
+void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
 {
-    Pixels&           pixels           = _getPixels( buffer );
-    const size_t      size             = getPixelDataSize( buffer );
+    if ( _type == Frame::TYPE_TEXTURE )
+    {
+        Texture& texture = _getTexture( buffer );    
+        texture.copyFromFrameBuffer( _pvp );
+        return;
+    }
 
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
     compressedPixels.valid = false;
 
+    Pixels&           pixels           = _getPixels( buffer );
+    const size_t      size             = getPixelDataSize( buffer );
 
     if( _usePBO && _glObjects->supportsBuffers( )) // use async PBO readback
     {
         _startReadbackPBO( buffer, pixels, size );
-    }
-    else if ( _type == Frame::TYPE_TEXTURE )
-    {
-        Texture& texture = _getTexture( buffer );    
-        texture.copyFromFrameBuffer( _pvp );
-        pixels.valid = true;
     }
     else
     {
@@ -386,7 +400,8 @@ Texture& Image::_getTexture( const Frame::Buffer buffer )
 
 }   
 
-void Image::_startReadbackPBO( const Frame::Buffer buffer, Pixels& pixels, const size_t size )
+void Image::_startReadbackPBO( const Frame::Buffer buffer, Pixels& pixels, 
+                               const size_t size )
 {
     pixels.reading = true;
     
@@ -397,7 +412,7 @@ void Image::_startReadbackPBO( const Frame::Buffer buffer, Pixels& pixels, const
     if( pixels.pboSize < size )
     {
         EQ_GL_CALL( glBufferData( GL_PIXEL_PACK_BUFFER, size, 0,
-                                 GL_DYNAMIC_READ ));
+                                  GL_DYNAMIC_READ ));
         pixels.pboSize = size;
     }
     
@@ -434,6 +449,7 @@ void Image::_syncReadback( const Frame::Buffer buffer )
     glUnmapBuffer( GL_PIXEL_PACK_BUFFER );
     glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
 
+    pixels.valid   = true;
     pixels.reading = false;
 }
 

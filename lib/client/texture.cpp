@@ -9,12 +9,13 @@
 
 namespace eq
 {
-Texture::Texture() 
+Texture::Texture( GLEWContext* const glewContext )
         : _id( 0 )
         , _format( 0 )
         , _width(0)
         , _height(0)
         , _defined( false ) 
+        , _glewContext( glewContext )
 {
 }
 
@@ -22,6 +23,7 @@ Texture::~Texture()
 {
     if( _id != 0 )
         EQWARN << "OpenGL texture was not freed" << std::endl;
+
     _id      = 0;
     _defined = false;
 }
@@ -131,6 +133,7 @@ void Texture::bindToFBO( const GLenum target, const int width,
                          const int height )
 {
     EQASSERT( _format );
+    EQASSERT( _glewContext );
 
     _generate();
     _width = width;

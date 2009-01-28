@@ -158,8 +158,10 @@ void FrameData::startReadback( const Frame& frame,
     if( !absPVP.isValid( ))
         return;
 
+    const Zoom& zoom = frame.getZoom();
+
     Image* image = newImage( _data.frameType );
-    image->startReadback( _data.buffers, absPVP, glObjects );
+    image->startReadback( _data.buffers, absPVP, zoom, glObjects );
 }
 
 void FrameData::syncReadback()

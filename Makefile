@@ -57,13 +57,13 @@ ifeq ($(findstring EQ_USE_PARACOMP, $(DEFFLAGS)),EQ_USE_PARACOMP)
 endif
 	@echo
 ifeq (Darwin,$(ARCH))
-	@echo "Set DYLD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR)"
-	@echo "bash: 'export DYLD_LIBRARY_PATH=$(PWD)/$(LIBRARY_DIR)'"
-	@echo "*csh: 'setenv DYLD_LIBRARY_PATH $(PWD)/$(LIBRARY_DIR)'"
+	@echo "Set DYLD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR) :"
+	@echo "  bash: 'export DYLD_LIBRARY_PATH=$(PWD)/$(LIBRARY_DIR)'"
+	@echo "  *csh: 'setenv DYLD_LIBRARY_PATH $(PWD)/$(LIBRARY_DIR)'"
 else
-	@echo "Set LD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR)"
-	@echo "bash: 'export LD_LIBRARY_PATH=$(PWD)/$(LIBRARY_DIR)'"
-	@echo "*csh: 'setenv LD_LIBRARY_PATH $(PWD)/$(LIBRARY_DIR)'"
+	@echo "Set LD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR) :"
+	@echo "  bash: 'export LD_LIBRARY_PATH=$(PWD)/$(LIBRARY_DIR)'"
+	@echo "  *csh: 'setenv LD_LIBRARY_PATH $(PWD)/$(LIBRARY_DIR)'"
 endif
 	@echo
 

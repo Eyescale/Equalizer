@@ -36,19 +36,6 @@ namespace eq
         /* Resize FBO, if needed. */
         bool resize( const int width, const int height );
           
-        /** 
-         * Get the GLEW context for this window.
-         * 
-         * The glew context is initialized during window initialization, and
-         * provides access to OpenGL extensions. This function does not follow
-         * the Equalizer naming conventions, since GLEW uses a function of this
-         * name to automatically resolve OpenGL function entry
-         * points. Therefore, any supported GL function can be called directly
-         * from an initialized Window.
-         * 
-         * @return the extended OpenGL function table for the window's OpenGL
-         *         context.
-         */
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
 
@@ -58,15 +45,9 @@ namespace eq
         int _width;
         int _height;
          
-        enum TextureType
-        {
-            COLOR_TEXTURE,
-            DEPTH_TEXTURE,
-            STENCIL_TEXTURE,
-            ALL_TEXTURE
-        };
-        
-        Texture _textures[ALL_TEXTURE];
+        Texture _color;
+        Texture _depth;
+        Texture _stencil;
         
         GLEWContext* const _glewContext;
 

@@ -48,19 +48,11 @@ namespace eq
             std::vector< Chunk* > chunks;     //!< The pixel data
         };
 
-        /**
-         * @name Data Access
-         */
+        /** @name Data Access */
         //*{
-        /** @return the fractional viewport of the image. */
-        const eq::Viewport& getViewport() const { return _data.vp; }
 
-        /** @return the GL function table, valid during readback. */
-        GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
-
-        /** Reset the image to its default state. */
-        void reset();
-
+        /** @name Image parameters */
+        //*{
         /**
          * Set the (OpenGL) format of the pixel data for a buffer.
          * Invalidates the pixel data.
@@ -69,6 +61,9 @@ namespace eq
          * @param format the format.
          */
         void setFormat( const Frame::Buffer buffer, const uint32_t format );
+
+        /** @return the (OpenGL) format of the pixel data. */
+        uint32_t getFormat( const Frame::Buffer buffer ) const;
 
         /**
          * Set the (OpenGL) type of the pixel data for a buffer.
@@ -79,25 +74,54 @@ namespace eq
          */
         void setType( const Frame::Buffer buffer, const uint32_t type );
 
-        /** @return the (OpenGL) format of the pixel data. */
-        uint32_t getFormat( const Frame::Buffer buffer ) const;
-
         /** @return the (OpenGL) type of the pixel data. */
         uint32_t getType( const Frame::Buffer buffer ) const;
 
-        /** @return the size of a single image pixel in bytes. */
+        /** @return the size of a single image pixel (format*type) in bytes. */
         uint32_t getDepth( const Frame::Buffer buffer ) const;
 
         /** @return true if the image has a color buffer with alpha. */
         bool hasAlpha() const;
 
+        /** 
+         * Set the frame pixel storage type. 
+         *
+         * Images of storage type TYPE_MEMORY read back frame buffer data into
+         * main memory. The data can be accessed through the PixelData.
+         *
+         * Image of storage type TYPE_TEXTURE read frame buffer data into a
+         * texture, which can be accessed using getTexture().
+         */
+        void setStorageType( const Frame::Type type) { _type = type; }
 
         /** @return the pixel data storage type. */    
         Frame::Type getStorageType() const{ return _type; }
 
-        /** Set the frame pixel storage type. */
-        void setStorageType( const Frame::Type type) { _type = type; }
+        /** @return true if the image buffer has valid data. */
+        bool hasData( const Frame::Buffer buffer ) const;
 
+        /** @return the fractional viewport of the image. */
+        //const eq::Viewport& getViewport() const { return _data.vp; }
+
+        /**
+         * Set the pixel viewport of the image.
+         *
+         * The image pixel data and textures will be invalidated.
+         *
+         * @param pvp the pixel viewport.
+         */
+        void setPixelViewport( const PixelViewport& pvp );
+
+        /** @return the pixel viewport of the image with in the frame buffer. */
+        const PixelViewport& getPixelViewport() const { return _pvp; }
+
+        /** Reset the image to its default state. */
+        void reset();
+        //*}
+
+
+        /** @name Pixel data */
+        //*{
         /** @return a pointer to the raw pixel data. */
         const uint8_t* getPixelPointer( const Frame::Buffer buffer ) const;
         uint8_t* getPixelPointer( const Frame::Buffer buffer );
@@ -119,18 +143,6 @@ namespace eq
         bool hasPixelData( const Frame::Buffer buffer ) const
             { return _getPixels( buffer ).valid; }
 
-        /** @return the pixel viewport of the image with in the frame buffer. */
-        const PixelViewport& getPixelViewport() const { return _pvp; }
-
-        /**
-         * Set the pixel viewport of the image buffers.
-         *
-         * The image buffers will be invalidated.
-         *
-         * @param pvp the pixel viewport.
-         */
-        void setPixelViewport( const PixelViewport& pvp );
-
         /**
          * Clear (zero-initialize) and validate an image buffer.
          *
@@ -141,7 +153,8 @@ namespace eq
         /**
          * Set the pixel data of one of the image buffers.
          *
-         * The data is copied, and previous data for the buffer is overwritten.
+         * The data is copied, and previous data for the buffer is
+         * overwritten. The pixel data is validated.
          *
          * @param buffer the image buffer to set.
          * @param data the buffer data of size pvp.w * pvp.h * depth.
@@ -152,7 +165,7 @@ namespace eq
          * Set the pixel data of one of the image buffers.
          *
          * Previous data for the buffer is overwritten. The pixel data is
-         * decompressed, if needed.
+         * validated and decompressed , if needed.
          *
          * @param buffer the image buffer to set.
          * @param data the pixel data.
@@ -164,6 +177,19 @@ namespace eq
 
         /** @return if this image should use PBO for image transfers. */
         bool getPBO() const             { return _usePBO; }
+        //*}
+
+
+        /** @name Texture access */
+        //*{
+        /** Get the texture of this image. */
+        const Texture& getTexture( const Frame::Buffer buffer ) const;
+
+        /**
+         * @return true if the image has texture data for the buffer, false if
+         * not.
+         */
+        bool hasTextureData( const Frame::Buffer buffer ) const;
 
         /** 
          * @return the internal format a texture should use for the given
@@ -171,6 +197,8 @@ namespace eq
          */
         uint32_t getInternalTextureFormat( const Frame::Buffer which ) const;
         //*}
+        //*}
+
 
         /**
          * @name Operations
@@ -181,10 +209,12 @@ namespace eq
          *
          * @param buffers bit-wise combination of the frame buffer components.
          * @param pvp the area of the frame buffer wrt the drawable.
+         * @param zoom the scale factor to apply during readback.
          * @param glObjects the GL object manager for the current GL context.
+         * @sa setStorageType()
          */
         void startReadback( const uint32_t buffers, const PixelViewport& pvp,
-                            Window::ObjectManager* glObjects );
+                            const Zoom& zoom, Window::ObjectManager* glObjects);
 
         /** Make sure that the last readback operation is complete. */
         void syncReadback();
@@ -193,19 +223,19 @@ namespace eq
         void writeImage( const std::string& filename,
                          const Frame::Buffer buffer ) const;
 
-        /** Writes all pixel data as separate images. */
+        /** Writes all valid pixel data as separate images. */
         void writeImages( const std::string& filenameTemplate ) const;
 
         /** Read pixel data from an uncompressed rgb image file. */
         bool readImage( const std::string& filename, 
                         const Frame::Buffer buffer   );
 
-        /** Get the texture of this image. */
-        const Texture& getTexture( const Frame::Buffer buffer ) const;
-
         /** Delete all cache data of this image. */
         void flush();
         //*}
+
+        /** @return the GL function table, valid during readback. */
+        GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
 
     private:
         /** All distributed data. */
@@ -285,7 +315,7 @@ namespace eq
         /** @return a unique key for the frame buffer attachment. */
         const void* _getPBOKey( const Frame::Buffer buffer ) const;
 
-        void _startReadback( const Frame::Buffer buffer );
+        void _startReadback( const Frame::Buffer buffer, const Zoom& zoom );
         void _startReadbackPBO( const Frame::Buffer buffer, 
                                 Pixels& pixels, const size_t size );
                                 

@@ -37,7 +37,7 @@ namespace eq
             INVALID = 0 //<! return value for failed operations.
         };
 
-        ObjectManager( GLEWContext* glewContext )
+        ObjectManager( GLEWContext* const glewContext )
             : _glewContext( glewContext ) 
             { EQASSERT( glewContext ); }
 
@@ -78,10 +78,11 @@ namespace eq
         GLuint obtainShader( const T& key, const GLenum type );
         void   deleteShader( const T& key );
 
-        GLEWContext* glewGetContext() const { return _glewContext; }
+        const GLEWContext* glewGetContext() const { return _glewContext; }
+        GLEWContext* glewGetContext()             { return _glewContext; }
 
     private:
-        GLEWContext* _glewContext;
+        GLEWContext* const _glewContext;
 
         struct Object
         {

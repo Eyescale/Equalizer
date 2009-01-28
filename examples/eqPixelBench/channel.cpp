@@ -157,7 +157,8 @@ void Channel::_testFormats()
 
         // read
         clock.reset();
-        image->startReadback( eq::Frame::BUFFER_COLOR, pvp, glObjects );
+        image->startReadback( eq::Frame::BUFFER_COLOR, pvp, eq::Zoom(), 
+                              glObjects );
         image->syncReadback();
         event.msec = clock.getTimef();
 
@@ -173,7 +174,8 @@ void Channel::_testFormats()
 
             // read
             clock.reset();
-            image->startReadback( eq::Frame::BUFFER_COLOR, pvp, glObjects );
+            image->startReadback( eq::Frame::BUFFER_COLOR, pvp, eq::Zoom(),
+                                  glObjects );
             image->syncReadback();
             event.msec = clock.getTimef();
 
@@ -247,7 +249,8 @@ void Channel::_testTiledOperations()
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_FLOAT );
 
-            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
+            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
+                                  glObjects );
             image->syncReadback();
         }
 
@@ -265,7 +268,8 @@ void Channel::_testTiledOperations()
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_FLOAT );
 
-            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
+            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
+                                  glObjects );
         }
         for( unsigned j = 0; j <= i; ++j )
             images[j]->syncReadback();
@@ -287,7 +291,8 @@ void Channel::_testTiledOperations()
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
 
-            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
+            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
+                                  glObjects );
             image->syncReadback();
         }
 
@@ -305,7 +310,8 @@ void Channel::_testTiledOperations()
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
 
-            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
+            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
+                                  glObjects );
         }
         for( unsigned j = 0; j <= i; ++j )
             images[j]->syncReadback();
@@ -385,7 +391,8 @@ void Channel::_testDepthAssemble()
         image->setType(   eq::Frame::BUFFER_DEPTH, GL_FLOAT );
 
         image->startReadback( eq::Frame::BUFFER_COLOR | 
-                              eq::Frame::BUFFER_DEPTH, pvp, glObjects );
+                              eq::Frame::BUFFER_DEPTH, pvp, eq::Zoom(),
+                              glObjects );
         image->syncReadback();
 
         // benchmark
