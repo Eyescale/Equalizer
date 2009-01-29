@@ -1,0 +1,196 @@
+Index: lib/net/packets.h
+===================================================================
+--- lib/net/packets.h	(revision 2530)
++++ lib/net/packets.h	(working copy)
+@@ -197,6 +197,41 @@
+         EQ_ALIGN8( char nodeData[8] );
+     };
+ 
++    struct NodeAcquireSendTokenPacket : public NodePacket
++    {
++        NodeAcquireSendTokenPacket()
++            {
++                command = CMD_NODE_ACQUIRE_SEND_TOKEN;
++                size    = sizeof( NodeAcquireSendTokenPacket );
++            }
++
++        uint32_t requestID;
++    };
++
++    struct NodeAcquireSendTokenReplyPacket : public NodePacket
++    {
++        NodeAcquireSendTokenReplyPacket(
++            const NodeAcquireSendTokenPacket* request )
++
++            {
++                command = CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY;
++                size    = sizeof( NodeAcquireSendTokenReplyPacket );
++                requestID = request->requestID;
++            }
++
++        uint32_t requestID;
++    };
++
++    struct NodeReleaseSendTokenPacket : public NodePacket
++    {
++        NodeReleaseSendTokenPacket()
++            {
++                command = CMD_NODE_RELEASE_SEND_TOKEN;
++                size    = sizeof( NodeReleaseSendTokenPacket );
++            }
++    };
++
++
+     //------------------------------------------------------------
+     // Session
+     //------------------------------------------------------------
+Index: lib/net/commands.h
+===================================================================
+--- lib/net/commands.h	(revision 2530)
++++ lib/net/commands.h	(working copy)
+@@ -25,6 +25,9 @@
+         CMD_NODE_DISCONNECT,
+         CMD_NODE_GET_NODE_DATA,
+         CMD_NODE_GET_NODE_DATA_REPLY,
++        CMD_NODE_ACQUIRE_SEND_TOKEN,
++        CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
++        CMD_NODE_RELEASE_SEND_TOKEN,
+         CMD_NODE_CUSTOM // must be last
+     };
+ 
+Index: lib/net/node.cpp
+===================================================================
+--- lib/net/node.cpp	(revision 2530)
++++ lib/net/node.cpp	(working copy)
+@@ -75,6 +75,13 @@
+     registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
+                      CommandFunc<Node>( this, &Node::_cmdGetNodeDataReply ),
+                      &_commandThreadQueue );
++    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
++                     CommandFunc<Node>( this, &Node::_cmdAcquireSendToken ), 0);
++    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
++                     CommandFunc<Node>( this, &Node::_cmdAcquireSendTokenReply )
++                     , 0 );
++    registerCommand( CMD_NODE_RELEASE_SEND_TOKEN,
++                     CommandFunc<Node>( this, &Node::_cmdReleaseSendToken ), 0);
+ 
+     EQINFO << "New Node @" << (void*)this << " " << _id << endl;
+ }
+@@ -568,6 +575,20 @@
+     return true;
+ }
+ 
++void Node::acquireSendToken( NodePtr node )
++{
++    NodeAcquireSendTokenPacket packet;
++    packet.requestID = _requestHandler.registerRequest();
++    node->send( packet );
++    _requestHandler.waitRequest( packet.requestID );
++}
++
++void Node::releaseSendToken( NodePtr node )
++{
++    NodeReleaseSendTokenPacket packet;
++    node->send( packet );
++}
++
+ //----------------------------------------------------------------------
+ // receiver thread functions
+ //----------------------------------------------------------------------
+@@ -1275,6 +1296,38 @@
+     return COMMAND_HANDLED;
+ }
+ 
++CommandResult Node::_cmdAcquireSendToken( Command& command )
++{
++    NodeAcquireSendTokenPacket* packet = 
++        command.getPacket<NodeAcquireSendTokenPacket>();
++
++    // HACK 1: reuse _launchID to not change the memory layout
++    if( _launchID != EQ_ID_INVALID ) // no token available
++        // HACK 2: returning not COMMAND_HANDLED causes redispatch, see base.cpp
++        return COMMAND_ERROR;
++
++    NodeAcquireSendTokenReplyPacket reply( packet );
++    _launchID = 42;
++    command.getNode()->send( reply );
++    return COMMAND_HANDLED;
++}
++
++CommandResult Node::_cmdAcquireSendTokenReply( Command& command )
++{
++    NodeAcquireSendTokenReplyPacket* packet = 
++        command.getPacket<NodeAcquireSendTokenReplyPacket>();
++
++    _requestHandler.serveRequest( packet->requestID );
++    return COMMAND_HANDLED;
++}
++
++CommandResult Node::_cmdReleaseSendToken( Command& command )
++{
++    EQASSERT( _launchID == 42 );
++    _launchID = EQ_ID_INVALID;
++    return COMMAND_HANDLED;
++}
++
+ //----------------------------------------------------------------------
+ // utility functions
+ //----------------------------------------------------------------------
+Index: lib/net/base.cpp
+===================================================================
+--- lib/net/base.cpp	(revision 2530)
++++ lib/net/base.cpp	(working copy)
+@@ -76,7 +76,7 @@
+         _vTable[which]( command );
+ #else
+         const CommandResult result = _vTable[which]( command );
+-        EQASSERT( result == COMMAND_HANDLED );
++        return( result == COMMAND_HANDLED );
+ #endif
+     }
+ 
+Index: lib/net/node.h
+===================================================================
+--- lib/net/node.h	(revision 2530)
++++ lib/net/node.h	(working copy)
+@@ -370,6 +370,9 @@
+          * which are normally only redispatched when a new command is received.
+          */
+         void flushCommands() { _connectionSet.interrupt(); }
++
++        void acquireSendToken( NodePtr toNode );
++        void releaseSendToken( NodePtr toNode );
+         //@}
+ 
+         /**
+@@ -657,6 +660,9 @@
+         CommandResult _cmdDisconnect( Command& command );
+         CommandResult _cmdGetNodeData( Command& command );
+         CommandResult _cmdGetNodeDataReply( Command& command );
++        CommandResult _cmdAcquireSendToken( Command& command );
++        CommandResult _cmdAcquireSendTokenReply( Command& command );
++        CommandResult _cmdReleaseSendToken( Command& command );
+ 
+         CHECK_THREAD_DECLARE( _thread );
+     };
+Index: lib/client/frameData.cpp
+===================================================================
+--- lib/client/frameData.cpp	(revision 2530)
++++ lib/client/frameData.cpp	(working copy)
+@@ -275,7 +275,7 @@
+             continue;
+         
+         // send image pixel data packet
+-
++        getLocalNode()->acquireSendToken( toNode );
+         connection->lockSend();
+         connection->send( &packet, packetSize, true );
+ #ifndef NDEBUG
+@@ -308,6 +308,7 @@
+ #endif
+ 
+         connection->unlockSend();
++        getLocalNode()->releaseSendToken( toNode );
+     }
+ 
+     FrameDataReadyPacket readyPacket;
