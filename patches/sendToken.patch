@@ -97,7 +97,7 @@ Index: lib/net/node.cpp
  //----------------------------------------------------------------------
  // receiver thread functions
  //----------------------------------------------------------------------
-@@ -1275,6 +1296,38 @@
+@@ -1275,6 +1296,39 @@
      return COMMAND_HANDLED;
  }
  
@@ -130,6 +130,7 @@ Index: lib/net/node.cpp
 +{
 +    EQASSERT( _launchID == 42 );
 +    _launchID = EQ_ID_INVALID;
++    flushCommands(); // redispatch pending commands
 +    return COMMAND_HANDLED;
 +}
 +
