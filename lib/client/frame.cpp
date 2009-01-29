@@ -85,8 +85,8 @@ void Frame::clear()
 
 void Frame::flush()
 {
-    EQASSERT( _frameData );
-    _frameData->flush();
+    if( _frameData )
+        _frameData->flush();
 }
 
 void Frame::startReadback( Window::ObjectManager* glObjects ) 

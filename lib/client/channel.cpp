@@ -1004,6 +1004,13 @@ net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
 
     frameAssemble( packet->context.frameID );
 
+    for( FrameVector::const_iterator i = _inputFrames.begin();
+         i != _inputFrames.end(); ++i )
+    {
+        // Unset the frame data on input frames, so that they only get flushed
+        // once by the output frames during exit.
+        (*i)->setData( 0 );
+    }
     _inputFrames.clear();
     _context = 0;
 
