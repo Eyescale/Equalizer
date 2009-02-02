@@ -1415,7 +1415,12 @@ NodePtr Node::connect( const NodeID& nodeID )
     for( NodeIDHash< NodePtr >::const_iterator i = _nodes.begin();
          i != _nodes.end(); ++i )
     {
-        nodes.push_back( i->second );
+        NodePtr node = i->second;
+
+        if( node->getID() == nodeID ) // early out
+            return node;
+
+        nodes.push_back( node );
     }
 
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
