@@ -244,6 +244,7 @@ void Channel::_drawLogo()
     if( !texture )
         return;
     
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     applyScreenFrustum();

@@ -192,6 +192,11 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     _frameData.data.statistics = !_frameData.data.statistics;
                     return true;
 
+                case 'w':
+                case 'W':
+                    _frameData.data.wireframe = !_frameData.data.wireframe;
+                    return true;
+
                 case 'm':
                 case 'M':
                     _frameData.data.renderMode = static_cast<mesh::RenderMode>

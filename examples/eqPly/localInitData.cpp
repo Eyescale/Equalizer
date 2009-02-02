@@ -75,6 +75,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             string( "\t\t<Space>, r:                Reset camera\n" ) +
             string( "\t\to:                         Toggle perspective/orthographic\n" ) +
             string( "\t\ts:                         Toggle statistics overlay\n" ) +
+            string( "\t\tw:                         Toggle wireframe mode\n" ) +
             string( "\t\tm:                         Switch rendering mode\n" );
 
         TCLAP::CmdLine command( desc );

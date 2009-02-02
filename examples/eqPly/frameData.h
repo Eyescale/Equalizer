@@ -32,28 +32,26 @@ namespace eqPly
 
         struct Data
         {
-            Data() : color( true ), ortho( false ), statistics( false )
-                   , renderMode( mesh::RENDER_MODE_DISPLAY_LIST ) {}
+            Data() : renderMode( mesh::RENDER_MODE_DISPLAY_LIST ), color( true )
+                   , ortho( false ), statistics( false ), wireframe( false ) {}
 
             vmml::Matrix4f rotation;
             vmml::Vector3f translation;
+            mesh::RenderMode renderMode;
             bool           color;
             bool           ortho;
             bool           statistics;
-            mesh::RenderMode renderMode;
+            bool           wireframe;
         } data;
     
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
 
         virtual void getInstanceData( eq::net::DataOStream& os )
-            { os.writeOnce( &data, sizeof( data )); }
+            { os << data; }
 
         virtual void applyInstanceData( eq::net::DataIStream& is )
-            {
-                memcpy( &data, is.getRemainingBuffer(), sizeof( data ));
-                is.advanceBuffer( sizeof( data ));
-            }
+            { is >> data; }
     };
 }
 
