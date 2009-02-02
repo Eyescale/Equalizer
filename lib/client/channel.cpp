@@ -1072,8 +1072,7 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
         net::NodeID nodeID = packet->nodes[i];
         nodeID.convertToHost();
 
-        net::NodePtr node   = command.getNode();
-        net::NodePtr toNode = localNode->connect( nodeID, node );
+        net::NodePtr toNode = localNode->connect( nodeID );
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
 

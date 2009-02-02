@@ -1406,7 +1406,29 @@ bool Node::syncConnect( NodePtr node )
     return false;
 }
 
-NodePtr Node::connect( const NodeID& nodeID, NodePtr server )
+NodePtr Node::connect( const NodeID& nodeID )
+{
+    EQASSERT( nodeID != NodeID::ZERO );
+    
+    // Extract all node pointers - _nodes hash might be modified later
+    NodeVector nodes;
+    for( NodeIDHash< NodePtr >::const_iterator i = _nodes.begin();
+         i != _nodes.end(); ++i )
+    {
+        nodes.push_back( i->second );
+    }
+
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        NodePtr result = _connect( nodeID, *i );
+        if( result.isValid( ))
+            return result;
+    }
+
+    return 0;
+}
+
+NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
 {
     EQASSERT( nodeID != NodeID::ZERO );
 

@@ -335,8 +335,7 @@ void Config::sendEvent( ConfigEvent& event )
     if( !_appNode )
     {
         net::NodePtr localNode = getLocalNode();
-        net::NodePtr server    = net::Session::getServer();
-        _appNode = localNode->connect( _appNodeID, server );
+        _appNode = localNode->connect( _appNodeID );
     }
     EQASSERT( _appNode );
 

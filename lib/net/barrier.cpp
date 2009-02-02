@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "barrier.h"
@@ -88,7 +88,7 @@ void Barrier::enter()
     {
         Session* session   = getSession();
         NodePtr  localNode = session->getLocalNode();
-        _master = localNode->connect( _masterID, session->getServer( ));
+        _master = localNode->connect( _masterID );
     }
 
     EQASSERT( _master.isValid( ));

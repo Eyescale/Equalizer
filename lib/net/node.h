@@ -158,7 +158,7 @@ namespace net
 
         /** 
          * Connect and potentially launch a node to this listening node, using
-         * the available connection descriptions.
+         * the connection descriptions of the node.
          *
          * On success, the node is in the connected state, otherwise its state
          * is unchanged.
@@ -201,12 +201,10 @@ namespace net
          * Create and connect a node given by an identifier.
          * 
          * @param nodeID the identifier of the node to connect.
-         * @param server a node holding connection information to the
-         *               destination node.
          * @return the connected node, or an invalid RefPtr if the node could
          *         not be connected.
          */
-        NodePtr connect( const NodeID& nodeID, NodePtr server );
+        NodePtr connect( const NodeID& nodeID );
 
         /** 
          * Disconnects a connected node.
@@ -632,6 +630,8 @@ namespace net
 
         /** Generates a new, unique session identifier. */
         uint32_t _generateSessionID();
+
+        NodePtr _connect( const NodeID& nodeID, NodePtr server );
 
         void* _runReceiverThread();
         void    _handleConnect();

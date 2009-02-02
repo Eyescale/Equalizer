@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "session.h"
@@ -336,7 +336,7 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
             return EQ_ID_INVALID;
         }
 
-        NodePtr master = _localNode->connect( masterNodeID, getServer( ));
+        NodePtr master = _localNode->connect( masterNodeID );
         if( !master || master->getState() == Node::STATE_STOPPED )
         {
             EQWARN << "Can't connect master node with id " << masterNodeID

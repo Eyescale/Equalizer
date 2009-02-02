@@ -108,7 +108,7 @@ bool Client::connectServer( ServerPtr server )
             explicitAddress = false;
     }
 
-    if( connect( server.get( )))
+    if( connect( net::NodePtr( server.get( )) ))
     {
         server->setClient( this );
         return true;
