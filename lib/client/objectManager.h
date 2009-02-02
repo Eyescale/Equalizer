@@ -13,6 +13,7 @@
 
 namespace eq
 {
+    class FrameBufferObject;
     class Texture;
 
     /**
@@ -55,11 +56,6 @@ namespace eq
         GLuint obtainTexture( const T& key );
         void   deleteTexture( const T& key );
 
-        Texture* getEqTexture( const T& key );
-        Texture* newEqTexture( const T& key );
-        Texture* obtainEqTexture( const T& key );
-        void     deleteEqTexture( const T& key );
-
         bool   supportsBuffers() const;
         GLuint getBuffer( const T& key );
         GLuint newBuffer( const T& key );
@@ -77,6 +73,18 @@ namespace eq
         GLuint newShader( const T& key, const GLenum type );
         GLuint obtainShader( const T& key, const GLenum type );
         void   deleteShader( const T& key );
+
+        bool     supportsEqTexture() const;
+        Texture* getEqTexture( const T& key );
+        Texture* newEqTexture( const T& key );
+        Texture* obtainEqTexture( const T& key );
+        void     deleteEqTexture( const T& key );
+
+        bool               supportsEqFrameBufferObject() const;
+        FrameBufferObject* getEqFrameBufferObject( const T& key );
+        FrameBufferObject* newEqFrameBufferObject( const T& key );
+        FrameBufferObject* obtainEqFrameBufferObject( const T& key );
+        void               deleteEqFrameBufferObject( const T& key );
 
         const GLEWContext* glewGetContext() const { return _glewContext; }
         GLEWContext* glewGetContext()             { return _glewContext; }
@@ -99,6 +107,9 @@ namespace eq
 
         typedef stde::hash_map< T, Texture* >   TextureHash;
         TextureHash _eqTextures;
+
+        typedef stde::hash_map< T, FrameBufferObject* > FrameBufferObjectHash;
+        FrameBufferObjectHash _eqFrameBufferObjects;
     };
 }
 

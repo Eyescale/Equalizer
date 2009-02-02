@@ -530,9 +530,9 @@ void Window::makeCurrent( const bool useCache ) const
     // _pipe->setCurrent done by OSWindow::makeCurrent
 }
 
-void Window::bindFramebuffer() const
+void Window::bindFrameBuffer() const
 {
-    _osWindow->bindFramebuffer( );
+    _osWindow->bindFrameBuffer( );
 }
 
 void Window::swapBuffers()

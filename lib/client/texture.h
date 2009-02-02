@@ -38,8 +38,12 @@ namespace eq
         /** Copy the specified area from the current read buffer to 0,0. */
         void copyFromFrameBuffer( const PixelViewport& pvp );
 
-        /** Copy the specified image buffer to 0,0. */
+        /** Copy the specified image buffer to the texture at 0,0. */
         void upload( const Image* image, const Frame::Buffer which );
+
+        /** Copy the texture data to the given memory address. */
+        void download( void* buffer, const uint32_t format, 
+                       const uint32_t type ) const;
 
         /** Bind the texture. */
         void bind() const

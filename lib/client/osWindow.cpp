@@ -77,11 +77,11 @@ void OSWindow::configExitFBO()
 
 void OSWindow::makeCurrent() const 
 {
-    bindFramebuffer();
+    bindFrameBuffer();
     getPipe()->setCurrent( _window );
 }
 
-void OSWindow::bindFramebuffer() const 
+void OSWindow::bindFrameBuffer() const 
 {
    if( !_glewInitialized )
        return;

@@ -502,7 +502,7 @@ void Channel::applyBuffer()
     applyColorMask();
 }
 
-void Channel::bindFramebuffer()
+void Channel::bindFrameBuffer()
 {
    if( !_window->getOSWindow() )
        return;
@@ -510,7 +510,7 @@ void Channel::bindFramebuffer()
    if( _fbo )
        applyFrameBufferObject();
    else
-       _window->bindFramebuffer();
+       _window->bindFrameBuffer();
 }
 
 void Channel::applyColorMask() const
@@ -919,7 +919,7 @@ net::CommandResult Channel::_cmdFrameStart( net::Command& command )
     if( _view )
         _view->sync( packet->viewVersion );
     
-    bindFramebuffer();
+    bindFrameBuffer();
     frameStart( packet->frameID, packet->frameNumber );
 
     return net::COMMAND_HANDLED;
@@ -929,7 +929,8 @@ net::CommandResult Channel::_cmdFrameFinish( net::Command& command )
 {
     const ChannelFrameFinishPacket* packet =
         command.getPacket<ChannelFrameFinishPacket>();
-    EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
+                       << endl;
 
     frameFinish( packet->frameID, packet->frameNumber );
 

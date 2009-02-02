@@ -913,8 +913,13 @@ void Compositor::_drawPixels( const Image* image,
         image->getTexture( which ).bind();
     }
 
-    if ( which != Frame::BUFFER_COLOR )
+    if ( which == Frame::BUFFER_COLOR )
+        glDepthMask( false );
+    else
+    {
+        EQASSERT( which == Frame::BUFFER_DEPTH )
         glColorMask( false, false, false, false );
+    }
 
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
@@ -962,7 +967,9 @@ void Compositor::_drawPixels( const Image* image,
     // restore state
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
 
-    if( which != Frame::BUFFER_COLOR ) 
+    if ( which == Frame::BUFFER_COLOR )
+        glDepthMask( true );
+    else
     {
         const ColorMask& colorMask = op.channel->getDrawBufferMask();
         glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );

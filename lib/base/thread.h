@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_THREAD_H
@@ -189,7 +189,6 @@ namespace base
 // development may cause false positives, e.g., when threadsafety is ensured
 // outside of the objects by the application.
 
-#ifdef EQ_CHECK_THREADSAFETY
 #  define CHECK_THREAD_DECLARE( NAME )                      \
     struct NAME ## Struct                                   \
     {                                                       \
@@ -200,6 +199,7 @@ namespace base
         bool extMutex;                                      \
     } NAME;                                                 \
 
+#ifdef EQ_CHECK_THREADSAFETY
 #  define CHECK_THREAD_RESET( NAME ) NAME.id = 0;
 
 #  define CHECK_THREAD( NAME )                                          \
@@ -233,7 +233,6 @@ namespace base
         }                                                               \
     }
 #else
-#  define CHECK_THREAD_DECLARE( NAME )
 #  define CHECK_THREAD_RESET( NAME )
 #  define CHECK_THREAD( NAME )
 #  define CHECK_NOT_THREAD( NAME )

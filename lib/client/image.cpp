@@ -5,6 +5,7 @@
 #include "image.h"
 
 #include "frame.h"
+#include "frameBufferObject.h"
 #include "frameData.h"
 #include "pixel.h"
 #include "log.h"
@@ -194,7 +195,7 @@ void Image::setFormat( const Frame::Buffer buffer, const uint32_t format )
         return;
 
     pixels.data.format = format;
-    pixels.valid = false;
+    pixels.state = Pixels::INVALID;
 
     _getTexture( buffer ).setFormat( format );
 }
@@ -206,7 +207,7 @@ void Image::setType( const Frame::Buffer buffer, const uint32_t type )
         return;
 
     pixels.data.type = type;
-    pixels.valid = false;
+    pixels.state = Pixels::INVALID;
 }
 
 uint32_t Image::getFormat( const Frame::Buffer buffer ) const
@@ -285,8 +286,8 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     _glObjects = glObjects;
     _pvp       = pvp;
 
-    _colorPixels.valid = false;
-    _depthPixels.valid = false;
+    _colorPixels.state = Pixels::INVALID;
+    _depthPixels.state = Pixels::INVALID;
 
     if( buffers & Frame::BUFFER_COLOR )
         _startReadback( Frame::BUFFER_COLOR, zoom );
@@ -294,6 +295,7 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     if( buffers & Frame::BUFFER_DEPTH )
         _startReadback( Frame::BUFFER_DEPTH, zoom );
 
+    _pvp.apply( zoom );
     _pvp.x = 0;
     _pvp.y = 0;
 }
@@ -307,7 +309,6 @@ void Image::syncReadback()
 
 void Image::Pixels::resize( uint32_t size )
 {
-    valid = true;
     EQASSERT( data.chunks.size() == 1 );
 
     if( maxSize >= size )
@@ -329,47 +330,56 @@ void Image::Pixels::resize( uint32_t size )
     maxSize = size;
 }
 
-const void* Image::_getPBOKey( const Frame::Buffer buffer ) const
+const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
 {
     switch( buffer )
     {
         case Frame::BUFFER_COLOR:
-            return ( reinterpret_cast< const char* >( this ) + 1 );
+            return ( reinterpret_cast< const char* >( this ) + 0 );
         case Frame::BUFFER_DEPTH:
-            return ( reinterpret_cast< const char* >( this ) + 2 );
+            return ( reinterpret_cast< const char* >( this ) + 1 );
         default:
             EQUNIMPLEMENTED;
-            return ( reinterpret_cast< const char* >( this ) + 0 );
+            return ( reinterpret_cast< const char* >( this ) + 2 );
     }
 }
 
 
 void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
 {
+    CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
+    compressedPixels.valid = false;
+
     if ( _type == Frame::TYPE_TEXTURE )
     {
-        Texture& texture = _getTexture( buffer );    
+        EQASSERTINFO( zoom == Zoom::NONE, "Texture readback zoom not "
+                      << "implemented, zoom happens during compositing" );
+        Texture& texture = _getTexture( buffer );
         texture.copyFromFrameBuffer( _pvp );
         return;
     }
 
-    CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
-    compressedPixels.valid = false;
-
-    Pixels&           pixels           = _getPixels( buffer );
-    const size_t      size             = getPixelDataSize( buffer );
-
     if( _usePBO && _glObjects->supportsBuffers( )) // use async PBO readback
     {
-        _startReadbackPBO( buffer, pixels, size );
+        EQASSERTINFO( zoom == Zoom::NONE, "Not Implemented" );
+        _startReadbackPBO( buffer );
+        return;
     }
-    else
+
+    if( zoom == Zoom::NONE ) // normal glReadPixels
     {
+        Pixels&    pixels = _getPixels( buffer );
+        const size_t size = getPixelDataSize( buffer );
+
         pixels.resize( size );
         glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
                       getType( buffer ), pixels.data.chunks[0]->data );
-        pixels.valid = true;
+        pixels.state = Pixels::VALID;
+        return;
     }
+
+    // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
+    _startReadbackZoom( buffer, zoom );
 }
 
 const Texture& Image::getTexture( const Frame::Buffer buffer ) const
@@ -400,15 +410,17 @@ Texture& Image::_getTexture( const Frame::Buffer buffer )
 
 }   
 
-void Image::_startReadbackPBO( const Frame::Buffer buffer, Pixels& pixels, 
-                               const size_t size )
+void Image::_startReadbackPBO( const Frame::Buffer buffer )
 {
-    pixels.reading = true;
-    
-    const void* bufferKey = _getPBOKey( buffer );
+    Pixels& pixels = _getPixels( buffer );
+    pixels.state = Pixels::PBO_READBACK;
+
+    const void* bufferKey = _getBufferKey( buffer );
     GLuint pbo = _glObjects->obtainBuffer( bufferKey );
     
     EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo ));
+
+    const size_t size = getPixelDataSize( buffer );
     if( pixels.pboSize < size )
     {
         EQ_GL_CALL( glBufferData( GL_PIXEL_PACK_BUFFER, size, 0,
@@ -421,22 +433,121 @@ void Image::_startReadbackPBO( const Frame::Buffer buffer, Pixels& pixels,
     EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 ));
 } 
 
+void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
+{
+    EQASSERT( _glObjects );
+    EQASSERT( _glObjects->supportsEqTexture( ));
+    EQASSERT( _glObjects->supportsEqFrameBufferObject( ));
+
+    Pixels& pixels = _getPixels( buffer );
+    pixels.state = Pixels::ZOOM_READBACK;
+    
+    // copy frame buffer to texture
+    const void* bufferKey = _getBufferKey( buffer );
+    Texture*    texture   = _glObjects->obtainEqTexture( bufferKey );
+
+    texture->setFormat( getInternalTextureFormat( buffer ));
+    texture->copyFromFrameBuffer( _pvp );
+
+    // draw zoomed quad into FBO
+    //  uses the same FBO for color and depth, with masking.
+    const void*     fboKey = _getBufferKey( Frame::BUFFER_COLOR );
+    FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( fboKey );
+    PixelViewport      pvp = _pvp;
+    pvp.apply( zoom );
+
+    if( fbo )
+    {
+        EQCHECK( fbo->resize( pvp.w, pvp.h ));
+    }
+    else
+    {
+        fbo = _glObjects->newEqFrameBufferObject( fboKey );
+        fbo->init( pvp.w, pvp.h, 24, 0 );
+    }
+    fbo->bind();
+    texture->bind();
+
+    if ( buffer == Frame::BUFFER_COLOR )
+        glDepthMask( false );
+    else
+    {
+        EQASSERT( buffer == Frame::BUFFER_DEPTH )
+        glColorMask( false, false, false, false );
+    }
+
+    glDisable( GL_LIGHTING );
+    glEnable( GL_TEXTURE_RECTANGLE_ARB );
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glColor3f( 1.0f, 1.0f, 1.0f );
+
+    const float startX = static_cast< float >( pvp.x );
+    const float endX   = static_cast< float >( pvp.getXEnd( ));
+    const float startY = static_cast< float >( pvp.y );
+    const float endY   = static_cast< float >( pvp.getYEnd( ));
+
+    glBegin( GL_QUADS );
+        glTexCoord2f( 0.0f, 0.0f );
+        glVertex3f( startX, startY, 0.0f );
+
+        glTexCoord2f( _pvp.w, 0.0f );
+        glVertex3f( endX, startY, 0.0f );
+
+        glTexCoord2f( _pvp.w, _pvp.h );
+        glVertex3f( endX, endY, 0.0f );
+        
+        glTexCoord2f( 0.0f, _pvp.h );
+        glVertex3f( startX, endY, 0.0f );
+    glEnd();
+
+    // restore state
+    glDisable( GL_TEXTURE_RECTANGLE_ARB );
+
+    if ( buffer == Frame::BUFFER_COLOR )
+        glDepthMask( true );
+    else
+    {
+        const ColorMask colorMask; // TODO = channel->getDrawBufferMask();
+        glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
+    }
+    // TODO channel->bindFramebuffer()
+    fbo->unbind();
+
+    EQLOG( LOG_ASSEMBLY ) << "Scale " << _pvp << " -> " << pvp << std::endl;
+}
+
 void Image::_syncReadback( const Frame::Buffer buffer )
 {
     Pixels& pixels = _getPixels( buffer );
-    if( pixels.valid || !pixels.reading )
-        return;
+    switch( pixels.state )
+    {
+        case Pixels::PBO_READBACK:
+            _syncReadbackPBO( buffer );
+            break;
 
+        case Pixels::ZOOM_READBACK:
+            _syncReadbackZoom( buffer );
+            break;
+
+        default:
+            break;
+    }
+}
+
+void Image::_syncReadbackPBO( const Frame::Buffer buffer )
+{
     // async readback only possible when PBOs are used and supported
     EQASSERT( _usePBO );
     EQASSERT( _glObjects->supportsBuffers( ));
     EQ_GL_ERROR( "before Image::_syncReadback" );
 
     const size_t size      = getPixelDataSize( buffer );
-    const void*  bufferKey = _getPBOKey( buffer );
+    const void*  bufferKey = _getBufferKey( buffer );
     GLuint       pbo       = _glObjects->getBuffer( bufferKey );
     EQASSERT( pbo != Window::ObjectManager::INVALID );
 
+    Pixels& pixels = _getPixels( buffer );
     pixels.resize( size );
 
     EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo ));
@@ -449,15 +560,45 @@ void Image::_syncReadback( const Frame::Buffer buffer )
     glUnmapBuffer( GL_PIXEL_PACK_BUFFER );
     glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
 
-    pixels.valid   = true;
-    pixels.reading = false;
+    pixels.state = Pixels::VALID;
+}
+
+void Image::_syncReadbackZoom( const Frame::Buffer buffer )
+{
+    Pixels& pixels = _getPixels( buffer );
+    const size_t size = getPixelDataSize( buffer );
+    pixels.resize( size );
+
+    const void*  bufferKey = _getBufferKey( buffer );
+    FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( bufferKey );
+    EQASSERT( fbo != 0 );
+    
+    switch( buffer )
+    {
+        case Frame::BUFFER_COLOR:
+            fbo->getColorTexture().download( pixels.data.chunks[0]->data,
+                                             getFormat( buffer ), 
+                                             getType( buffer ));
+            break;
+
+        default:
+            EQUNIMPLEMENTED;
+        case Frame::BUFFER_DEPTH:
+            fbo->getDepthTexture().download( pixels.data.chunks[0]->data,
+                                             getFormat( buffer ), 
+                                             getType( buffer ));
+            break;
+    }
+
+    pixels.state = Pixels::VALID;
+    EQLOG( LOG_ASSEMBLY ) << "Read texture " << _pvp << std::endl;
 }
 
 void Image::setPixelViewport( const PixelViewport& pvp )
 {
     _pvp = pvp;
-    _colorPixels.valid = false;
-    _depthPixels.valid = false;
+    _colorPixels.state = Pixels::INVALID;
+    _depthPixels.state = Pixels::INVALID;
     _compressedColorPixels.valid = false;
     _compressedDepthPixels.valid = false;
 }
@@ -509,6 +650,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
             bzero( pixels.data.chunks[0]->data, size );
     }
 
+    pixels.state = Pixels::VALID;
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
     compressedPixels.valid = false;
 }
@@ -522,6 +664,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const uint8_t* data )
     Pixels& pixels = _getPixels( buffer );
     pixels.resize( size );
     memcpy( pixels.data.chunks[0]->data, data, size );
+    pixels.state = Pixels::VALID;
 
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
     compressedPixels.valid = false;
@@ -616,6 +759,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         }
         EQASSERT( outPos == endPos );
     }
+
+    outPixels.state = Pixels::VALID;
 }
 
 void Image::CompressedPixels::flush()
@@ -629,8 +774,7 @@ void Image::Pixels::flush()
 {
     maxSize = 0;
     pboSize = 0;
-    valid = false;
-    reading = false;
+    state = INVALID;
     data.flush();
     data.chunks.push_back( 0 );
 }
@@ -797,9 +941,9 @@ uint32_t Image::_compressPixelData( const uint64_t* data, const uint32_t nWords,
 //---------------------------------------------------------------------------
 void Image::writeImages( const std::string& filenameTemplate ) const
 {
-    if( _colorPixels.valid )
+    if( _colorPixels.state == Pixels::VALID )
         writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR );
-    if( _depthPixels.valid )
+    if( _depthPixels.state == Pixels::VALID )
         writeImage( filenameTemplate + "_depth.rgb", Frame::BUFFER_DEPTH );
 }
 
@@ -867,10 +1011,10 @@ struct RGBHeader
 void Image::writeImage( const std::string& filename,
                         const Frame::Buffer buffer ) const
 {
-    const size_t   nPixels = _pvp.w * _pvp.h;
-    const Pixels&  pixels  = _getPixels( buffer );
+    const size_t  nPixels = _pvp.w * _pvp.h;
+    const Pixels& pixels  = _getPixels( buffer );
 
-    if( nPixels == 0 || !pixels.valid )
+    if( nPixels == 0 || pixels.state != Pixels::VALID )
         return;
 
     ofstream image( filename.c_str(), ios::out | ios::binary );

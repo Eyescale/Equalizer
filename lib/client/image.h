@@ -128,7 +128,7 @@ namespace eq
 
         /** @return the size of the raw pixel data in bytes */
         uint32_t getPixelDataSize( const Frame::Buffer buffer ) const
-            { return (_pvp.w * _pvp.h * getDepth( buffer )); }
+            { return _pvp.getArea() * getDepth( buffer ); }
 
         /** @return the pixel data. */
         const PixelData& getPixelData( const Frame::Buffer buffer ) const;
@@ -141,7 +141,7 @@ namespace eq
          * not.
          */
         bool hasPixelData( const Frame::Buffer buffer ) const
-            { return _getPixels( buffer ).valid; }
+            { return _getPixels( buffer ).state == Pixels::VALID; }
 
         /**
          * Clear (zero-initialize) and validate an image buffer.
@@ -250,16 +250,21 @@ namespace eq
 
         /**
          * Raw image data.
-         * Previous implementations used a std::vector, but resizing it took
-         * about 20ms for typical image sizes.
          */
         class Pixels : public base::NonCopyable
         {
         public:
-            Pixels() : maxSize(0), pboSize(0), valid( false ), reading( false )
-                {
-                    data.chunks.push_back( 0 );
-                }
+            /** The current state of the pixels */
+            enum State
+            {
+                INVALID,
+                PBO_READBACK,
+                ZOOM_READBACK,
+                VALID
+            };
+
+            Pixels() : maxSize(0), pboSize(0), state( INVALID )
+                { data.chunks.push_back( 0 ); }
 
             void resize( uint32_t size );
             void flush();
@@ -267,8 +272,7 @@ namespace eq
             PixelData data;
             uint32_t  maxSize; // the size of the allocation
             uint32_t  pboSize; // the size of the PBO
-            bool      valid;   // data is currently valid
-            bool      reading; // data is currently read
+            State     state;   // current state
         };
 
         Pixels _colorPixels;
@@ -313,13 +317,15 @@ namespace eq
                                      uint64_t* out );
 
         /** @return a unique key for the frame buffer attachment. */
-        const void* _getPBOKey( const Frame::Buffer buffer ) const;
+        const void* _getBufferKey( const Frame::Buffer buffer ) const;
 
         void _startReadback( const Frame::Buffer buffer, const Zoom& zoom );
-        void _startReadbackPBO( const Frame::Buffer buffer, 
-                                Pixels& pixels, const size_t size );
+        void _startReadbackPBO( const Frame::Buffer buffer );
+        void _startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom );
                                 
         void _syncReadback( const Frame::Buffer buffer );
+        void _syncReadbackPBO( const Frame::Buffer buffer );
+        void _syncReadbackZoom( const Frame::Buffer buffer );
 
         friend std::ostream& operator << ( std::ostream& os, const Image* );
     };

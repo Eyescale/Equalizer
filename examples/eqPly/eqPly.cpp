@@ -74,6 +74,7 @@ int Application::run()
             if( !config->handleEvent( event ))
                 EQVERB << "Unhandled " << event << endl;
         }
+        config->handleEvents(); // process all pending events
     }
     const uint32_t frame = config->finishAllFrames();
     const float    time  = clock.getTimef();

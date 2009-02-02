@@ -4,6 +4,7 @@
 
 #include "objectManager.h"
 
+#include "frameBufferObject.h"
 #include "texture.h"
 
 #include <string.h>
@@ -29,12 +30,6 @@ ObjectManager<T>::~ObjectManager()
                << endl;
     _textures.clear();
 
-    if( !_eqTextures.empty( ))
-        EQWARN << _eqTextures.size() 
-               << " eq::Texture's still allocated in ObjectManager destructor" 
-               << endl;
-    _eqTextures.clear();
-
     if( !_buffers.empty( ))
         EQWARN << _buffers.size() 
                << " buffers still allocated in ObjectManager destructor" 
@@ -52,6 +47,18 @@ ObjectManager<T>::~ObjectManager()
                << " shaders still allocated in ObjectManager destructor" 
                << endl;
     _shaders.clear();
+
+    if( !_eqTextures.empty( ))
+        EQWARN << _eqTextures.size() 
+               << " eq::Texture's still allocated in ObjectManager destructor" 
+               << endl;
+    _eqTextures.clear();
+
+    if( !_eqFrameBufferObjects.empty( ))
+        EQWARN << _eqFrameBufferObjects.size() 
+               << " eq::FrameBufferObject's still allocated in ObjectManager "
+               << "destructor" << endl;
+    _eqFrameBufferObjects.clear();
 }
 
 template< typename T >
@@ -74,17 +81,6 @@ void ObjectManager<T>::deleteAll()
         glDeleteTextures( 1, &object.id ); 
     }
     _textures.clear();
-
-    for( typename TextureHash::const_iterator i = _eqTextures.begin(); 
-         i != _eqTextures.end(); ++i )
-    {
-        Texture* texture = i->second;
-        EQINFO << "Delete eq::Texture " << i->first << " @" << (void*)texture
-               << endl;
-        texture->flush();
-        delete texture;
-    }
-    _eqTextures.clear();
 
     for( typename ObjectHash::const_iterator i = _buffers.begin(); 
          i != _buffers.end(); ++i )
@@ -112,6 +108,29 @@ void ObjectManager<T>::deleteAll()
         glDeleteShader( object.id ); 
     }
     _shaders.clear();
+
+    for( typename TextureHash::const_iterator i = _eqTextures.begin(); 
+         i != _eqTextures.end(); ++i )
+    {
+        Texture* texture = i->second;
+        EQVERB << "Delete eq::Texture " << i->first << " @" << (void*)texture
+               << endl;
+        texture->flush();
+        delete texture;
+    }
+    _eqTextures.clear();
+
+    for( typename FrameBufferObjectHash::const_iterator i = 
+             _eqFrameBufferObjects.begin();
+         i != _eqFrameBufferObjects.end(); ++i )
+    {
+        FrameBufferObject* frameBufferObject = i->second;
+        EQVERB << "Delete eq::FrameBufferObject " << i->first << " @" 
+               << (void*)frameBufferObject << endl;
+        frameBufferObject->exit();
+        delete frameBufferObject;
+    }
+    _eqFrameBufferObjects.clear();
 }
 
 // display list functions
@@ -221,53 +240,6 @@ void   ObjectManager<T>::deleteTexture( const T& key )
     const Object& object = _textures[ key ];
     glDeleteTextures( 1, &object.id );
     _textures.erase( key );
-}
-
-// eq::Texture object functions
-
-template< typename T >
-Texture* ObjectManager<T>::getEqTexture( const T& key )
-{
-    if( _eqTextures.find( key ) == _eqTextures.end( ))
-        return 0;
-
-    return _eqTextures[ key ];
-}
-
-template< typename T >
-Texture* ObjectManager<T>::newEqTexture( const T& key )
-{
-    if( _eqTextures.find( key ) != _eqTextures.end( ))
-    {
-        EQWARN << "Requested new eqTexture for existing key" << endl;
-        return 0;
-    }
-
-    Texture* texture = new Texture( _glewContext );
-    _eqTextures[ key ] = texture;
-    return texture;
-}
-
-template< typename T >
-Texture* ObjectManager<T>::obtainEqTexture( const T& key )
-{
-    Texture* texture = getEqTexture( key );
-    if( texture )
-        return texture;
-    return newEqTexture( key );
-}
-
-template< typename T >
-void   ObjectManager<T>::deleteEqTexture( const T& key )
-{
-    if( _eqTextures.find( key ) == _eqTextures.end( ))
-        return;
-
-    Texture* texture = _eqTextures[ key ];
-    _eqTextures.erase( key );
-
-    texture->flush();
-    delete texture;
 }
 
 // buffer object functions
@@ -466,6 +438,110 @@ void ObjectManager<T>::deleteShader( const T& key )
     const Object& object = _shaders[ key ];
     glDeleteShader( object.id );
     _shaders.erase( key );
+}
+
+// eq::Texture object functions
+template< typename T >
+bool ObjectManager<T>::supportsEqTexture() const
+{
+    return (GLEW_ARB_texture_rectangle);
+}
+
+template< typename T >
+Texture* ObjectManager<T>::getEqTexture( const T& key )
+{
+    if( _eqTextures.find( key ) == _eqTextures.end( ))
+        return 0;
+
+    return _eqTextures[ key ];
+}
+
+template< typename T >
+Texture* ObjectManager<T>::newEqTexture( const T& key )
+{
+    if( _eqTextures.find( key ) != _eqTextures.end( ))
+    {
+        EQWARN << "Requested new eqTexture for existing key" << endl;
+        return 0;
+    }
+
+    Texture* texture = new Texture( _glewContext );
+    _eqTextures[ key ] = texture;
+    return texture;
+}
+
+template< typename T >
+Texture* ObjectManager<T>::obtainEqTexture( const T& key )
+{
+    Texture* texture = getEqTexture( key );
+    if( texture )
+        return texture;
+    return newEqTexture( key );
+}
+
+template< typename T >
+void   ObjectManager<T>::deleteEqTexture( const T& key )
+{
+    if( _eqTextures.find( key ) == _eqTextures.end( ))
+        return;
+
+    Texture* texture = _eqTextures[ key ];
+    _eqTextures.erase( key );
+
+    texture->flush();
+    delete texture;
+}
+
+// eq::FrameBufferObject object functions
+template< typename T >
+bool ObjectManager<T>::supportsEqFrameBufferObject() const
+{
+    return (GLEW_EXT_framebuffer_object);
+}
+
+template< typename T >
+FrameBufferObject* ObjectManager<T>::getEqFrameBufferObject( const T& key )
+{
+    if( _eqFrameBufferObjects.find( key ) == _eqFrameBufferObjects.end( ))
+        return 0;
+
+    return _eqFrameBufferObjects[ key ];
+}
+
+template< typename T >
+FrameBufferObject* ObjectManager<T>::newEqFrameBufferObject( const T& key )
+{
+    if( _eqFrameBufferObjects.find( key ) != _eqFrameBufferObjects.end( ))
+    {
+        EQWARN << "Requested new eqFrameBufferObject for existing key" << endl;
+        return 0;
+    }
+
+    FrameBufferObject* frameBufferObject = new FrameBufferObject( _glewContext);
+    _eqFrameBufferObjects[ key ] = frameBufferObject;
+    return frameBufferObject;
+}
+
+template< typename T >
+FrameBufferObject* ObjectManager<T>::obtainEqFrameBufferObject( const T& key )
+{
+    FrameBufferObject* frameBufferObject = getEqFrameBufferObject( key );
+    if( frameBufferObject )
+        return frameBufferObject;
+    return newEqFrameBufferObject( key );
+}
+
+template< typename T >
+void   ObjectManager<T>::deleteEqFrameBufferObject( const T& key )
+{
+    if( _eqFrameBufferObjects.find( key ) == _eqFrameBufferObjects.end( ))
+        return;
+
+    FrameBufferObject* frameBufferObject = _eqFrameBufferObjects[ key ];
+    _eqFrameBufferObjects.erase( key );
+
+    frameBufferObject->exit();
+    delete frameBufferObject;
 }
 
 // instantiate desired key types

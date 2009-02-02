@@ -102,6 +102,7 @@ void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
 
 void Texture::upload( const Image* image, const Frame::Buffer which )
 {
+    CHECK_THREAD( _thread );
     EQASSERT( _format != 0 );
 
     const eq::PixelViewport& pvp = image->getPixelViewport();
@@ -129,38 +130,50 @@ void Texture::upload( const Image* image, const Frame::Buffer which )
     }
 }
 
+void Texture::download( void* buffer, const uint32_t format, 
+                        const uint32_t type ) const
+{
+    CHECK_THREAD( _thread );
+    EQASSERT( _defined );
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
+    glGetTexImage( GL_TEXTURE_RECTANGLE_ARB, 0, format, type, buffer );
+}
+
 void Texture::bindToFBO( const GLenum target, const int width, 
                          const int height )
 {
+    CHECK_THREAD( _thread );
     EQASSERT( _format );
     EQASSERT( _glewContext );
 
     _generate();
-    _width = width;
-    _height = height;
 
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
     glTexImage2D ( GL_TEXTURE_RECTANGLE_ARB, 0, _format, width, height, 0, 
                    _format, GL_INT, 0 );
     glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, GL_TEXTURE_RECTANGLE_ARB,
                                _id, 0 );
+
+    _width = width;
+    _height = height;
     _defined = true;
 }
 
 void Texture::resize( const int width, const int height )
 {
+    CHECK_THREAD( _thread );
     EQASSERT( _id );
     EQASSERT( _format );
 
-    if( _width == width && _height == height )
+    if( _width == width && _height == height && _defined )
         return;
-
-    _width = width;
-    _height = height;
 
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
     glTexImage2D ( GL_TEXTURE_RECTANGLE_ARB, 0, _format, width, height, 0, 
                    _format, GL_INT, 0 );
+
+    _width  = width;
+    _height = height;
     _defined = true;
 }
 

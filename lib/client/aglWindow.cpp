@@ -17,6 +17,7 @@ AGLWindow::AGLWindow( Window* parent )
     , _aglContext( 0 )
     , _carbonWindow( 0 )
     , _aglPBuffer( 0 )
+    , _updateContext( false )
 {
 }
 
@@ -68,6 +69,7 @@ void AGLWindow::configExit( )
 void AGLWindow::makeCurrent() const
 {
     aglSetCurrentContext( _aglContext );
+
     AGLWindowIF::makeCurrent();
 }
 

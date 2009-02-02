@@ -192,11 +192,14 @@ namespace eq
 
     private:
         /** The AGL context. */
-        AGLContext   _aglContext;
+        AGLContext _aglContext;
         /** The carbon window reference. */
-        WindowRef    _carbonWindow;
+        WindowRef _carbonWindow;
         /** The AGL PBuffer object. */
-        AGLPbuffer   _aglPBuffer;
+        AGLPbuffer _aglPBuffer;
+
+        /** The flag (from the event handler) if a context update is needed. */
+        bool _updateContext;
 
         base::SpinLock _renderContextLock;
     };

@@ -414,7 +414,7 @@ namespace eq
         virtual void makeCurrent( const bool cache = true ) const;
 
         /** Bind the window's FBO, if it uses one. */
-        virtual void bindFramebuffer() const;
+        virtual void bindFrameBuffer() const;
 
         /** Swap the front and back buffer of the window. */
         virtual void swapBuffers();

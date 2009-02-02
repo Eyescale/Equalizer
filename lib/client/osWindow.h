@@ -57,7 +57,7 @@ namespace eq
         virtual void makeCurrent() const;
 
         /** Bind the window's FBO, if it uses an FBO drawable. */
-        virtual void bindFramebuffer() const;
+        virtual void bindFrameBuffer() const;
 
         /** Swap the front and back buffer, for doublebuffered drawables. */
         virtual void swapBuffers() = 0;

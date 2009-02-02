@@ -41,6 +41,7 @@ void AGLEventHandler::registerWindow( AGLWindowIF* window )
         eq::AGLEventHandler::_handleEventUPP );
     EventTypeSpec   eventType[]    = {
         { kEventClassWindow,   kEventWindowBoundsChanged },
+        { kEventClassWindow,   kEventWindowZoomed },
         { kEventClassWindow,   kEventWindowUpdate },
         { kEventClassWindow,   kEventWindowDrawContent },
         { kEventClassWindow,   kEventWindowClosed },
@@ -122,6 +123,7 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, AGLWindowIF* osWindow)
     switch( GetEventKind( event ))
     {
         case kEventWindowBoundsChanged:
+        case kEventWindowZoomed:
             windowEvent.type = Event::WINDOW_RESIZE;
             break;
 

@@ -201,7 +201,7 @@ std::ostream& operator << ( std::ostream& os, const Frame* frame )
         os << "viewport " << vp << endl;
 
     const eq::Zoom& zoom = frame->getZoom();
-    if( zoom != eq::Zoom::NONE )
+    if( zoom.isValid() && zoom != eq::Zoom::NONE )
         os << zoom << endl;
 
     os << exdent << "}" << endl << enableFlush;

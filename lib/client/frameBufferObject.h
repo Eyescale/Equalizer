@@ -30,6 +30,9 @@ namespace eq
         /** Bind to the Frame Buffer Object */
         void bind();
         
+        /** Unbind any Frame Buffer Object */
+        void unbind() { glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 ); }
+        
         /** ask if FBO built construction is ok */
         bool checkFBOStatus() const;
        
@@ -38,6 +41,15 @@ namespace eq
           
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
+
+        /** @return the color texture. */
+        const Texture& getColorTexture() const { return _color; }
+
+        /** @return the depth texture. */
+        const Texture& getDepthTexture() const { return _depth; }
+
+        /** @return the stencil texture. */
+        const Texture& getStencilTexture() const { return _stencil; }
 
     private:
         GLuint _fboID;
