@@ -1417,7 +1417,7 @@ NodePtr Node::connect( const NodeID& nodeID )
     {
         NodePtr node = i->second;
 
-        if( node->getID() == nodeID ) // early out
+        if( node->getNodeID() == nodeID ) // early out
             return node;
 
         nodes.push_back( node );
