@@ -316,7 +316,9 @@ int64_t FrameData::transmit( net::NodePtr toNode )
             continue;
         
         // send image pixel data packet
-
+#ifdef EQ_SEND_TOKEN
+        getLocalNode()->acquireSendToken( toNode );
+#endif
         connection->lockSend();
         connection->send( &packet, packetSize, true );
 #ifndef NDEBUG
@@ -349,6 +351,9 @@ int64_t FrameData::transmit( net::NodePtr toNode )
 #endif
 
         connection->unlockSend();
+#ifdef EQ_SEND_TOKEN
+        getLocalNode()->releaseSendToken( toNode );
+#endif
     }
 
     FrameDataReadyPacket readyPacket;

@@ -76,7 +76,11 @@ bool Dispatcher::dispatchCommand( Command& command )
         _vTable[which]( command );
 #else
         const CommandResult result = _vTable[which]( command );
+#  ifdef EQ_SEND_TOKEN
+        return( result == COMMAND_HANDLED );
+#  else
         EQASSERT( result == COMMAND_HANDLED );
+#  endif
 #endif
     }
 

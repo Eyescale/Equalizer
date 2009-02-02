@@ -367,6 +367,9 @@ namespace net
          * which are normally only redispatched when a new command is received.
          */
         void flushCommands() { _connectionSet.interrupt(); }
+
+        void acquireSendToken( NodePtr toNode );
+        void releaseSendToken( NodePtr toNode );
         //@}
 
         /**
@@ -573,6 +576,9 @@ namespace net
         };
         CommandThread* _commandThread;
 
+        /** true if the send token can be granted, false otherwise. */
+        bool _hasSendToken;
+
         bool _listenToSelf();
         void _cleanup();
 
@@ -654,6 +660,9 @@ namespace net
         CommandResult _cmdDisconnect( Command& command );
         CommandResult _cmdGetNodeData( Command& command );
         CommandResult _cmdGetNodeDataReply( Command& command );
+        CommandResult _cmdAcquireSendToken( Command& command );
+        CommandResult _cmdAcquireSendTokenReply( Command& command );
+        CommandResult _cmdReleaseSendToken( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };

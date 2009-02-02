@@ -27,6 +27,9 @@ namespace net
         CMD_NODE_DISCONNECT,
         CMD_NODE_GET_NODE_DATA,
         CMD_NODE_GET_NODE_DATA_REPLY,
+        CMD_NODE_ACQUIRE_SEND_TOKEN,
+        CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
+        CMD_NODE_RELEASE_SEND_TOKEN,
         CMD_NODE_CUSTOM // must be last
     };
 

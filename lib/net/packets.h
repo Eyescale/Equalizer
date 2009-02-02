@@ -217,6 +217,41 @@ namespace net
         EQ_ALIGN8( char nodeData[8] );
     };
 
+    struct NodeAcquireSendTokenPacket : public NodePacket
+    {
+        NodeAcquireSendTokenPacket()
+            {
+                command = CMD_NODE_ACQUIRE_SEND_TOKEN;
+                size    = sizeof( NodeAcquireSendTokenPacket );
+            }
+
+        uint32_t requestID;
+    };
+
+    struct NodeAcquireSendTokenReplyPacket : public NodePacket
+    {
+        NodeAcquireSendTokenReplyPacket(
+            const NodeAcquireSendTokenPacket* request )
+
+            {
+                command = CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY;
+                size    = sizeof( NodeAcquireSendTokenReplyPacket );
+                requestID = request->requestID;
+            }
+
+        uint32_t requestID;
+    };
+
+    struct NodeReleaseSendTokenPacket : public NodePacket
+    {
+        NodeReleaseSendTokenPacket()
+            {
+                command = CMD_NODE_RELEASE_SEND_TOKEN;
+                size    = sizeof( NodeReleaseSendTokenPacket );
+            }
+    };
+
+
     //------------------------------------------------------------
     // Session
     //------------------------------------------------------------

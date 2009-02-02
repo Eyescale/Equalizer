@@ -44,6 +44,7 @@ Node::Node()
         , _launchID( EQ_ID_INVALID )
         , _programName( Global::getProgramName( ))
         , _workDir( Global::getWorkDir( ))
+        , _hasSendToken( true )
 {
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );
@@ -81,6 +82,13 @@ Node::Node()
     registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
                      CommandFunc<Node>( this, &Node::_cmdGetNodeDataReply ),
                      &_commandThreadQueue );
+    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
+                     CommandFunc<Node>( this, &Node::_cmdAcquireSendToken ), 0);
+    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
+                     CommandFunc<Node>( this, &Node::_cmdAcquireSendTokenReply )
+                     , 0 );
+    registerCommand( CMD_NODE_RELEASE_SEND_TOKEN,
+                     CommandFunc<Node>( this, &Node::_cmdReleaseSendToken ), 0);
 
     EQINFO << "New Node @" << (void*)this << " " << _id << endl;
 }
@@ -607,6 +615,20 @@ bool Node::deserialize( std::string& data )
     }
 
     return true;
+}
+
+void Node::acquireSendToken( NodePtr node )
+{
+    NodeAcquireSendTokenPacket packet;
+    packet.requestID = _requestHandler.registerRequest();
+    node->send( packet );
+    _requestHandler.waitRequest( packet.requestID );
+}
+
+void Node::releaseSendToken( NodePtr node )
+{
+    NodeReleaseSendTokenPacket packet;
+    node->send( packet );
 }
 
 //----------------------------------------------------------------------
@@ -1317,6 +1339,39 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
     node->setAutoLaunch( false );
     node.ref();
     _requestHandler.serveRequest( requestID, node.get( ));
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdAcquireSendToken( Command& command )
+{
+    NodeAcquireSendTokenPacket* packet = 
+        command.getPacket<NodeAcquireSendTokenPacket>();
+
+    if( !_hasSendToken ) // no token available
+        // HACK: returning not COMMAND_HANDLED causes redispatch, see base.cpp
+        return COMMAND_ERROR;
+
+    _hasSendToken = false;
+
+    NodeAcquireSendTokenReplyPacket reply( packet );
+    command.getNode()->send( reply );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdAcquireSendTokenReply( Command& command )
+{
+    NodeAcquireSendTokenReplyPacket* packet = 
+        command.getPacket<NodeAcquireSendTokenReplyPacket>();
+
+    _requestHandler.serveRequest( packet->requestID );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdReleaseSendToken( Command& command )
+{
+    EQASSERT( !_hasSendToken );
+    _hasSendToken = true;
+    flushCommands(); // redispatch pending commands
     return COMMAND_HANDLED;
 }
 
