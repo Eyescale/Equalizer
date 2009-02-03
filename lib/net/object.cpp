@@ -32,12 +32,6 @@ Object::Object()
         : _session          ( 0 )
         , _id               ( EQ_ID_INVALID )
         , _instanceID       ( EQ_ID_INVALID )
-#ifdef EQ_USE_DEPRECATED
-        , _instanceData     ( 0 )
-        , _instanceDataSize ( 0 )
-        , _deltaData        ( 0 )
-        , _deltaDataSize    ( 0 )
-#endif
         , _cm               ( ObjectCM::ZERO )
         , _threadSafe       ( false )
 {
@@ -48,12 +42,6 @@ Object::Object( const Object& object )
         , _session          ( 0 )
         , _id               ( EQ_ID_INVALID )
         , _instanceID       ( EQ_ID_INVALID )
-#ifdef EQ_USE_DEPRECATED
-        , _instanceData     ( 0 )
-        , _instanceDataSize ( 0 )
-        , _deltaData        ( 0 )
-        , _deltaDataSize    ( 0 )
-#endif
         , _cm               ( ObjectCM::ZERO )
         , _threadSafe       ( object._threadSafe )
 {
@@ -130,67 +118,6 @@ NodePtr Object::getLocalNode()
 { 
     return _session ? _session->getLocalNode() : 0; 
 }
-
-#ifdef EQ_USE_DEPRECATED
-void Object::getInstanceData( DataOStream& ostream )
-{
-    if( !_instanceData || _instanceDataSize == 0 )
-        return;
-
-    ostream.writeOnce( _instanceData, _instanceDataSize ); 
-}
-
-void Object::applyInstanceData( DataIStream& is )
-{
-    const uint64_t size = is.getRemainingBufferSize();
-    EQASSERT( size == _instanceDataSize ); 
-
-	if( size == 0 )
-		return;
-
-	const void*    data = is.getRemainingBuffer();
-
-	EQASSERTINFO( is.nRemainingBuffers() == 0, 
-		"Master instance did not use default getInstanceData(), "
-		<< "can't use default applyInstanceData()" );
-	EQASSERT( data && size > 0 );
-    EQASSERT( _instanceData );
-
-    memcpy( _instanceData, data, size );
-    is.advanceBuffer( size );
-}
-
-void Object::pack( DataOStream& ostream )
-{
-    if( !_deltaData || _deltaDataSize == 0 )
-        getInstanceData( ostream );
-    else
-        ostream.writeOnce( _deltaData, _deltaDataSize ); 
-}
-
-void Object::unpack( DataIStream& is )
-{
-    if( !_deltaData || _deltaDataSize == 0 )
-    {
-        applyInstanceData( is );
-        return;
-    }
-
-    EQASSERTINFO( is.nRemainingBuffers() == 1, 
-                  "Master instance did not use default Object::pack(), "
-                  << "can't use default Object::unpack()" );
-
-    const uint64_t size = is.getRemainingBufferSize();
-    const void*    data = is.getRemainingBuffer();
-
-    EQASSERT( data && size > 0 );
-    EQASSERT( size == _deltaDataSize ); 
-    EQASSERT( _deltaData );
-
-    memcpy( _deltaData, data, size );
-    is.advanceBuffer( size );
-}
-#endif
 
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
@@ -276,18 +203,5 @@ void Object::setupChangeManager( const Object::ChangeType type,
     }
 }
 
-#ifdef EQ_USE_DEPRECATED
-void Object::setInstanceData( void* data, const uint64_t size )
-{
-    _instanceData     = data;
-    _instanceDataSize = size;
-
-    if( _deltaData )
-        return;
-
-    _deltaData     = data;
-    _deltaDataSize = size;
-}
-#endif
 }
 }
