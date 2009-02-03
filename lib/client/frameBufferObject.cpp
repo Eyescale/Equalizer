@@ -121,6 +121,11 @@ void FrameBufferObject::bind()
 	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID );
 }
 
+void FrameBufferObject::unbind()
+{
+    glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 ); 
+}
+
 bool FrameBufferObject::resize( const int width, const int height )
 {
     CHECK_THREAD( _thread );

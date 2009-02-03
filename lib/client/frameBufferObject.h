@@ -31,7 +31,7 @@ namespace eq
         void bind();
         
         /** Unbind any Frame Buffer Object */
-        void unbind() { glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 ); }
+        void unbind();
         
         /** ask if FBO built construction is ok */
         bool checkFBOStatus() const;
