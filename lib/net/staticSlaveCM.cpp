@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "staticSlaveCM.h"
@@ -24,26 +24,18 @@ StaticSlaveCM::StaticSlaveCM( Object* object )
         : _object( object )
         , _currentIStream( new ObjectInstanceDataIStream )
 {
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
+           CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstanceData ),
+                     0 );
+    registerCommand( CMD_OBJECT_INSTANCE,
+               CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstance ),
+                     0 );
 }
 
 StaticSlaveCM::~StaticSlaveCM()
 {
     delete _currentIStream;
     _currentIStream = 0;
-}
-
-void StaticSlaveCM::notifyAttached()
-{
-    Session* session = _object->getSession();
-    EQASSERT( session );
-    CommandQueue* queue = session->getCommandThreadQueue();
-
-    registerCommand( CMD_OBJECT_INSTANCE_DATA,
-           CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstanceData ),
-                     queue );
-    registerCommand( CMD_OBJECT_INSTANCE,
-               CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstance ),
-                     queue );
 }
 
 //---------------------------------------------------------------------------

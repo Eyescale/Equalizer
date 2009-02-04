@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_EYE_H
@@ -36,7 +36,7 @@ namespace eq
                 break;
             case EYE_ALL: 
             default: 
-                EQASSERTINFO( 0, "Invalid eye value" );
+                EQABORT( "Invalid eye value" );
         }
 
         return os;

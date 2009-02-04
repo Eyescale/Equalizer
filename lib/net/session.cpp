@@ -29,8 +29,7 @@ Session::Session()
         : _requestHandler( true /* threadSafe */ )
         , _id(EQ_ID_INVALID)
         , _isMaster(false)
-        , _masterPool( IDPool::MAX_CAPACITY )
-        , _localPool( 0 )
+        , _idPool( 0 ) // Master pool is filled in Node::registerSession
         , _instanceIDs( 0 ) 
 {
     EQINFO << "New Session @" << (void*)this << endl;
@@ -126,11 +125,8 @@ void Session::setLocalNode( NodePtr node )
 //---------------------------------------------------------------------------
 uint32_t Session::genIDs( const uint32_t range )
 {
-    if( _isMaster && _server->inCommandThread( ))
-        return _masterPool.genIDs( range );
-
-    uint32_t id = _localPool.genIDs( range );
-    if( id != EQ_ID_INVALID )
+    uint32_t id = _idPool.genIDs( range );
+    if( id != EQ_ID_INVALID || _isMaster )
         return id;
 
     SessionGenIDsPacket packet;
@@ -144,13 +140,13 @@ uint32_t Session::genIDs( const uint32_t range )
         return id;
 
     // We allocated more IDs than requested - let the pool handle the details
-    _localPool.freeIDs( id, MIN_ID_RANGE );
-    return _localPool.genIDs( range );
+    _idPool.freeIDs( id, MIN_ID_RANGE );
+    return _idPool.genIDs( range );
 }
 
 void Session::freeIDs( const uint32_t start, const uint32_t range )
 {
-    _localPool.freeIDs( start, range );
+    _idPool.freeIDs( start, range );
     // TODO: could return IDs to master sometimes ?
 }
 
@@ -226,25 +222,36 @@ const NodeID& Session::getIDMaster( const uint32_t id )
 //---------------------------------------------------------------------------
 // object mapping
 //---------------------------------------------------------------------------
-void Session::attachObject( Object* object, const uint32_t id )
+void Session::attachObject( Object* object, const uint32_t id, 
+                            const uint32_t instanceID )
 {
     EQASSERT( object );
     CHECK_NOT_THREAD( _receiverThread );
 
     SessionAttachObjectPacket packet;
-    packet.objectID  = id;
+    packet.objectID = id;
+    packet.objectInstanceID = instanceID;
     packet.requestID = _requestHandler.registerRequest( object );
+
     _sendLocal( packet );
     _requestHandler.waitRequest( packet.requestID );
 }
 
-void Session::_attachObject( Object* object, const uint32_t id )
+void Session::_attachObject( Object* object, const uint32_t id, 
+                             const uint32_t inInstanceID )
 {
     EQASSERT( object );
     CHECK_THREAD( _receiverThread );
 
-    _instanceIDs = ( _instanceIDs + 1 ) % IDPool::MAX_CAPACITY;
-    object->attachToSession( id, _instanceIDs, this );
+    uint32_t instanceID = inInstanceID;
+    if( inInstanceID == EQ_ID_INVALID )
+    {
+        _instanceIDs = ( _instanceIDs + 1 ) % IDPool::MAX_CAPACITY;
+        instanceID = _instanceIDs;
+    }
+    EQASSERT( instanceID <= _instanceIDs );
+
+    object->attachToSession( id, instanceID, this );
 
     _objectsMutex.set();
     ObjectVector& objects = _objects[ id ];
@@ -373,8 +380,11 @@ bool Session::mapObjectSync( const uint32_t requestID )
     if( mapped && !object->isMaster( ))
     {
         object->_cm->applyMapData(); // apply instance data on slave instances
-        if( version != Object::VERSION_NONE )
+        if( version != Object::VERSION_OLDEST && 
+            version != Object::VERSION_NONE )
+        {
             object->sync( version );
+        }
     }
 
     EQLOG( LOG_OBJECTS ) << "Mapped " << typeid( *object ).name() << " to id " 
@@ -388,13 +398,13 @@ void Session::unmapObject( Object* object )
     if( id == EQ_ID_INVALID ) // not registered
 		return;
 
-    CHECK_NOT_THREAD( _commandThread );
     EQLOG( LOG_OBJECTS ) << "Unmap " << typeid( *object ).name() << " from id "
         << object->getID() << endl;
 
     // Slave: send unsubscribe to master. Master will send detach packet.
     if( !object->isMaster( ))
     {
+        CHECK_NOT_THREAD( _commandThread );
         const uint32_t masterInstanceID = object->getMasterInstanceID();
         if( masterInstanceID != EQ_ID_INVALID )
         {
@@ -490,8 +500,8 @@ bool Session::dispatchCommand( Command& command )
         }
 
         default:
-            EQASSERTINFO( 0, "Unknown datatype " << command->datatype << " for "
-                          << command );
+            EQABORT( "Unknown datatype " << command->datatype << " for "
+                     << command );
             return true;
     }
 }
@@ -536,9 +546,10 @@ CommandResult Session::_invokeObjectCommand( Command& command )
          i != objects.end(); ++ i )
     {
         Object* object = *i;
+        const bool isInstance = 
+            ( objPacket->instanceID == object->getInstanceID( ));
 
-        if( objPacket->instanceID == EQ_ID_ANY ||
-            objPacket->instanceID == object->getInstanceID( ))
+        if( objPacket->instanceID == EQ_ID_ANY || isInstance )
         {
             if( !command.isValid( ))
             {
@@ -564,7 +575,7 @@ CommandResult Session::_invokeObjectCommand( Command& command )
                     return COMMAND_ERROR;
 
                 case COMMAND_HANDLED:
-                    if( objPacket->instanceID == object->getInstanceID( ))
+                    if( isInstance )
                         return result;
                     break;
 
@@ -599,7 +610,7 @@ CommandResult Session::_cmdGenIDs( Command& command )
 
     SessionGenIDsReplyPacket reply( packet );
 
-    reply.id = _masterPool.genIDs( packet->range );
+    reply.id = _idPool.genIDs( packet->range );
     send( command.getNode(), reply );
     return COMMAND_HANDLED;
 }
@@ -706,7 +717,7 @@ CommandResult Session::_cmdAttachObject( Command& command )
 
     Object* object =  static_cast<Object*>( _requestHandler.getRequestData( 
                                                 packet->requestID ));
-    _attachObject( object, packet->objectID );
+    _attachObject( object, packet->objectID, packet->objectInstanceID );
     _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
@@ -771,7 +782,7 @@ CommandResult Session::_cmdMapObject( Command& command )
         return COMMAND_HANDLED;
     }
 
-    _attachObject( object, id );
+    _attachObject( object, id, EQ_ID_INVALID );
 
     EQLOG( LOG_OBJECTS ) << "mapped object id " << object->getID() << " @" 
                          << (void*)object << " is " << typeid(*object).name()
@@ -817,7 +828,7 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     {
         // Check requested version
         const uint32_t version = packet->version;
-        if( version == Object::VERSION_NONE || 
+        if( version == Object::VERSION_OLDEST || 
             version >= master->getOldestVersion( ))
         {
             SessionSubscribeObjectSuccessPacket successPacket( packet );
@@ -860,16 +871,7 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
         static_cast< Object::ChangeType >( packet->changeType ), false, 
         packet->masterInstanceID );
 
-    // Don't use 'attachObject' - we already have an instance id.
-    const uint32_t id = packet->objectID;
-    object->attachToSession( id, packet->instanceID, this );
-    
-    _objectsMutex.set();
-    ObjectVector& objects = _objects[ id ];
-    objects.push_back( object );
-    _objectsMutex.unset();
-    
-    getLocalNode()->flushCommands(); // redispatch pending commands
+    _attachObject( object, packet->objectID, packet->instanceID );
 
     EQLOG( LOG_OBJECTS ) << "subscribed object id " << object->getID() << '.'
                          << object->getInstanceID() << " cm " 

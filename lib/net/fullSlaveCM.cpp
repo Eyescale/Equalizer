@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -22,6 +22,8 @@ namespace eq
 {
 namespace net
 {
+typedef CommandFunc<FullSlaveCM> CmdFunc;
+
 FullSlaveCM::FullSlaveCM( Object* object, uint32_t masterInstanceID )
         : StaticSlaveCM( object )
         , _version( Object::VERSION_NONE )
@@ -29,6 +31,12 @@ FullSlaveCM::FullSlaveCM( Object* object, uint32_t masterInstanceID )
         , _currentDeltaStream( 0 )
         , _masterInstanceID( masterInstanceID )
 {
+    registerCommand( CMD_OBJECT_DELTA_DATA,
+                     CmdFunc( this, &FullSlaveCM::_cmdDeltaData ), 0 );
+    registerCommand( CMD_OBJECT_DELTA,
+                     CmdFunc( this, &FullSlaveCM::_cmdDelta ), 0 );
+    registerCommand( CMD_OBJECT_VERSION,
+                     CmdFunc( this, &FullSlaveCM::_cmdVersion ), 0 );
 }
 
 FullSlaveCM::~FullSlaveCM()
@@ -43,22 +51,6 @@ FullSlaveCM::~FullSlaveCM()
     _currentDeltaStream = 0;
 
     _version = Object::VERSION_NONE;
-}
-
-void FullSlaveCM::notifyAttached()
-{
-    StaticSlaveCM::notifyAttached();
-
-    Session* session = _object->getSession();
-    EQASSERT( session );
-    CommandQueue* queue = session->getCommandThreadQueue();
-
-    registerCommand( CMD_OBJECT_DELTA_DATA,
-                  CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDeltaData ),
-                     queue );
-    registerCommand( CMD_OBJECT_DELTA,
-                     CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDelta ),
-                     queue );
 }
 
 void FullSlaveCM::makeThreadSafe()
@@ -199,5 +191,14 @@ CommandResult FullSlaveCM::_cmdDelta( Command& command )
 
     return COMMAND_HANDLED;
 }
+
+CommandResult FullSlaveCM::_cmdVersion( Command& command )
+{
+    const ObjectVersionPacket* packet = 
+        command.getPacket< ObjectVersionPacket >();
+    _version = packet->version;
+    return COMMAND_HANDLED;
+}
+
 }
 }

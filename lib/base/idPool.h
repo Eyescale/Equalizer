@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_IDPOOL_H
@@ -27,7 +27,7 @@ namespace base
     public:
         enum MaxCapacity
         {
-            MAX_CAPACITY =  0xfffffff0
+            MAX_CAPACITY =  0xfffffff0u
         };
 
         /** 
@@ -51,6 +51,13 @@ namespace base
          *         block of size range is available.
          */
         uint32_t genIDs( const uint32_t range );
+
+        /** 
+         * Release a block of previously generated identifiers.
+         * 
+         * @param start the first identifier of the block.
+         * @param range the number of consecutive identifiers.
+         */
         void freeIDs( const uint32_t start, const uint32_t range );
 
 
@@ -63,12 +70,12 @@ namespace base
 
         std::list<Block*> _freeIDs;
         std::list<Block*> _blockCache;
-        
+
+        Lock _lock;
+
         uint32_t _genIDs( const uint32_t range );
         uint32_t _compressCounter;
         void _compressIDs();
-
-        CHECK_THREAD_DECLARE( _thread );
     };
 }
 

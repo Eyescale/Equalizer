@@ -153,8 +153,15 @@ namespace net
          *
          * The mapped object becomes a slave instance of the master version
          * registered to the provided identifier. The version can be used to map
-         * a specific version. If this version does not exist, mapObject() will
-         * fail. If VERSION_NONE is provided, the oldest available version is
+         * a specific version. If this version does no longer exist, mapObject()
+         * will fail.
+         * 
+         * If VERSION_NONE is provided, the slave instance is not initialized
+         * with any data from the master. This is useful if the object has been
+         * pre-initialized by other means, for example from a shared file
+         * system.
+         * 
+         * If VERSION_OLDEST is provided, the oldest available version is
          * mapped. If the requested version is newer than the head version,
          * mapObject() will block until the requested version is available.
          * 
@@ -167,11 +174,11 @@ namespace net
          * @sa registerObject
          */
         bool mapObject( Object* object, const uint32_t id, 
-                        const uint32_t version = Object::VERSION_NONE );
+                        const uint32_t version = Object::VERSION_OLDEST );
 
         /** Start mapping a distributed object. */
         uint32_t mapObjectNB( Object* object, const uint32_t id, 
-                              const uint32_t version = Object::VERSION_NONE );
+                              const uint32_t version = Object::VERSION_OLDEST );
         /** Finalize the mapping of a distributed object. */
         bool mapObjectSync( const uint32_t requestID );
 
@@ -191,8 +198,11 @@ namespace net
          * 
          * @param object the object.
          * @param id the object identifier.
+         * @param instanceID the node-local instance identifier, or
+         *                   EQ_ID_INVALID if this method should generate one.
          */
-        void attachObject( Object* object, const uint32_t id );
+        void attachObject( Object* object, const uint32_t id, 
+                           const uint32_t instanceID );
 
         /** 
          * Detach an object.
@@ -266,11 +276,8 @@ namespace net
         /** The state (master/client) of this session instance. */
         bool _isMaster;
 
-        /** The distributed master identifier pool. */
-        base::IDPool _masterPool;
-
-        /** The local identifier pool. */
-        base::IDPool _localPool;
+        /** The distributed identifier pool. */
+        base::IDPool _idPool;
 
         /** The identifiers for node-local instance identifiers. */
         uint32_t _instanceIDs;
@@ -304,7 +311,8 @@ namespace net
             }
 
         CommandResult _invokeObjectCommand( Command& packet );
-        void _attachObject( Object* object, const uint32_t id );
+        void _attachObject( Object* object, const uint32_t id, 
+                            const uint32_t instanceID );
         void _detachObject( Object* object );
 
         uint32_t _setIDMasterNB( const uint32_t start, const uint32_t range, 

@@ -453,6 +453,8 @@ void Node::_addSession( Session* session, NodePtr server,
     session->_id        = sessionID;
     session->_isMaster  = ( server==this && isLocal( ));
     session->setLocalNode( this );
+    if( session->_isMaster )
+        session->_idPool.freeIDs( 1, IDPool::MAX_CAPACITY );
 
     EQASSERTINFO( _sessions.find( sessionID ) == _sessions.end(),
                   "Session " << sessionID << " @" << (void*)session
@@ -854,8 +856,7 @@ bool Node::dispatchCommand( Command& command )
         }
 
         default:
-            EQASSERTINFO( 0, "Unknown datatype " << datatype << " for "
-                          << command );
+            EQABORT( "Unknown datatype " << datatype << " for " << command );
             return true;
     }
 }
@@ -905,7 +906,7 @@ void* Node::_runCommandThread()
         switch( result )
         {
             case COMMAND_ERROR:
-                EQASSERTINFO( 0, "Error handling " << *command );
+                EQABORT( "Error handling " << *command );
                 break;
 
             case COMMAND_HANDLED:
@@ -950,8 +951,7 @@ CommandResult Node::invokeCommand( Command& command )
         }
 
         default:
-            EQASSERTINFO( 0, "Unknown datatype " << datatype << " for "
-                          << command );
+            EQABORT( "Unknown datatype " << datatype << " for " << command );
             return COMMAND_ERROR;
     }
 }

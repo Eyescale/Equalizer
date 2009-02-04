@@ -386,18 +386,6 @@ namespace eq
             }
     };
 
-    struct ConfigMapViewsPacket : public ConfigPacket
-    {
-        ConfigMapViewsPacket()
-            {
-                command   = CMD_CONFIG_MAP_VIEWS;
-                size      = sizeof( ConfigMapViewsPacket );
-            }
-
-        uint32_t nViews;
-        EQ_ALIGN8( uint32_t viewIDs[2] );
-    };
-
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------
@@ -1047,48 +1035,6 @@ struct NodeFrameTasksFinishPacket : public net::ObjectPacket
                 size    = sizeof( FrameDataUpdatePacket );
             }
         uint32_t version;
-    };
-
-    //------------------------------------------------------------
-    // Event Thread
-    //------------------------------------------------------------
-    struct GLXEventThreadRegisterPipePacket : public net::Packet
-    {
-        GLXEventThreadRegisterPipePacket()
-            {
-                command = CMD_GLXEVENTTHREAD_REGISTER_PIPE;
-                size    = sizeof( GLXEventThreadRegisterPipePacket );
-            }
-        Pipe* pipe;
-    };
-    struct GLXEventThreadDeregisterPipePacket : public net::Packet
-    {
-        GLXEventThreadDeregisterPipePacket()
-            {
-                command = CMD_GLXEVENTTHREAD_DEREGISTER_PIPE;
-                size    = sizeof( GLXEventThreadDeregisterPipePacket );
-            }
-        uint32_t requestID;
-        Pipe*    pipe;
-    };
-    struct GLXEventThreadRegisterWindowPacket : public net::Packet
-    {
-        GLXEventThreadRegisterWindowPacket()
-            {
-                command = CMD_GLXEVENTTHREAD_REGISTER_WINDOW;
-                size    = sizeof( GLXEventThreadRegisterWindowPacket );
-            }
-        Window* window;
-    };
-    struct GLXEventThreadDeregisterWindowPacket : public net::Packet
-    {
-        GLXEventThreadDeregisterWindowPacket()
-            {
-                command = CMD_GLXEVENTTHREAD_DEREGISTER_WINDOW;
-                size    = sizeof( GLXEventThreadDeregisterWindowPacket );
-            }
-        uint32_t requestID;
-        Window*  window;
     };
 
     //------------------------------------------------------------

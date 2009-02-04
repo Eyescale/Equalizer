@@ -38,6 +38,7 @@ namespace net
         {
             VERSION_NONE    = 0,
             VERSION_INVALID = 0xfffffffeu,
+            VERSION_OLDEST  = VERSION_INVALID,
             VERSION_HEAD    = 0xffffffffu
         };
 
@@ -91,8 +92,19 @@ namespace net
          */
         //*{
         /** @return how the changes are to be handled. */
-        virtual Object::ChangeType getChangeType() const
-            { return STATIC; }
+        virtual ChangeType getChangeType() const { return STATIC; }
+
+        /** 
+         * Switches a slave object to become the master instance.
+         * 
+         * This function unmaps and registers this instance, making it a master
+         * instance with a new identifier. The old master is informed of this
+         * change and becomes a slave.
+         *
+         * Additional slaves are not informed. The object is synced to the head
+         * version before switching.
+         */
+        void becomeMaster();
 
         /** 
          * Return if this object needs a commit.
@@ -344,6 +356,7 @@ namespace net
         /* The command handlers. */
         CommandResult _cmdForward( Command& command )
             { return _cm->invokeCommand( command ); }
+        CommandResult _cmdNewMaster( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };

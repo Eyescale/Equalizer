@@ -38,79 +38,6 @@ std::string Config::_fAttributeStrings[FATTR_ALL] =
     MAKE_ATTR_STRING( FATTR_EYE_BASE )
 };
 
-namespace
-{
-class ViewMapper : public ConfigVisitor
-{
-public:
-    ViewMapper( const uint32_t nViews, const uint32_t* viewIDs ) 
-            : _current( 0 ), _nViews( nViews ), _viewIDs( viewIDs ) {}
-    virtual ~ViewMapper(){}
-
-    virtual VisitorResult visit( Compound* compound )
-        { 
-            switch( compound->getLatestView( ))
-            {
-                case eq::View::TYPE_WALL:
-                case eq::View::TYPE_PROJECTION:
-                {
-                    EQASSERT( _current < _nViews );
-                    eq::View& view   = compound->getView();
-                    Config*   config = compound->getConfig();
-                    
-                    EQCHECK( config->mapObject( &view, _viewIDs[ _current ] ));
-                    ++_current;
-                    break;
-                }
-
-                case eq::View::TYPE_NONE:
-                    break;
-                default:
-                    EQUNIMPLEMENTED;
-            }
-
-            return TRAVERSE_CONTINUE; 
-        }
-
-private:
-    uint32_t        _current;
-    uint32_t        _nViews;
-    const uint32_t* _viewIDs;
-};
-
-class ViewUnmapper : public ConfigVisitor
-{
-public:
-    virtual ~ViewUnmapper(){}
-
-    virtual VisitorResult visit( Compound* compound )
-        { 
-            switch( compound->getLatestView( ))
-            {
-                case eq::View::TYPE_WALL:
-                case eq::View::TYPE_PROJECTION:
-                {
-                    eq::View& view = compound->getView();
-                    if( view.getID() != EQ_ID_INVALID )
-                    {
-                        Config* config = compound->getConfig();
-                        EQASSERT( config );
-                        config->unmapObject( &view );
-                    }
-                    break;
-                }
-
-                case eq::View::TYPE_NONE:
-                    break;
-                default:
-                    EQUNIMPLEMENTED;
-            }
-
-            return TRAVERSE_CONTINUE; 
-        }
-};
-}
-
 void Config::_construct()
 {
     _latency       = 1;
@@ -183,13 +110,10 @@ Config::~Config()
     _appNode    = 0;
     _appNetNode = 0;
 
-    ViewUnmapper unmapper;
     for( CompoundVector::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
-
-        compound->accept( &unmapper, false /*activeOnly*/  );
         compound->_config = 0;
         delete compound;
     }
@@ -255,8 +179,6 @@ void Config::setLocalNode( net::NodePtr node )
     registerCommand( eq::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
                      ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ), 
                      serverQueue );
-    registerCommand( eq::CMD_CONFIG_MAP_VIEWS,
-                     ConfigFunc( this, &Config::_cmdMapViews ), serverQueue );
 }
 
 void Config::addNode( Node* node )
@@ -590,43 +512,23 @@ public:
     virtual VisitorResult visit( Compound* compound )
         { 
             View& view = compound->getView();
-            switch( view.getCurrentType( ))
+            if( view.getCurrentType() == eq::View::TYPE_NONE )
+                return TRAVERSE_CONTINUE;
+
+            if( view.getEyeBase() == 0.f )
             {
-                case eq::View::TYPE_WALL:
-                case eq::View::TYPE_PROJECTION:
-                    if( view.getEyeBase() == 0.f )
-                    {
-                        Config* config = compound->getConfig();
-                        EQASSERT( config );
-                        view.setEyeBase( 
-                            config->getFAttribute( Config::FATTR_EYE_BASE ));
-                    }
-                    if( view.getName().empty( ))
-                    {
-                        Channel* channel = compound->getChannel();
-                        if( !compound->getName().empty( ))
-                        {
-                            const std::string viewName( "view.compound." + 
-                                                        compound->getName( ));
-                            view.setName( viewName );
-                        }
-                        else if( channel && !channel->getName().empty( ))
-                        {
-                            const std::string viewName( "view.channel." + 
-                                                        channel->getName( ));
-                            view.setName( viewName );
-                        }
-                    }
-
-                    view.getInstanceData( _os );
-                    break;
-
-                case eq::View::TYPE_NONE:
-                    break;
-                default:
-                    EQUNIMPLEMENTED;
+                Config* config = compound->getConfig();
+                EQASSERT( config );
+                view.setEyeBase(
+                    config->getFAttribute( Config::FATTR_EYE_BASE ));
             }
 
+            Config* config = compound->getConfig();
+            EQASSERT( config );
+            EQASSERT( view.getID() == EQ_ID_INVALID );
+            
+            config->registerObject( &view );
+            _os << view.getID();
             return TRAVERSE_CONTINUE; 
         }
 
@@ -641,8 +543,7 @@ void Config::Distributor::getInstanceData( net::DataOStream& os )
 
     ViewSerializer serializer( os );
     _config->accept( &serializer );
-
-    os << eq::View::TYPE_NONE; // end token
+    os << EQ_ID_INVALID; // end token
 
 #ifdef EQ_TRANSMISSION_API
 #  error TODO transmit node identifiers of used nodes
@@ -983,6 +884,44 @@ bool Config::_exitNodes()
 
 namespace
 {
+class ViewUnmapper : public ConfigVisitor
+{
+public:
+    virtual ~ViewUnmapper(){}
+
+    virtual VisitorResult visit( Compound* compound )
+        { 
+            if( compound->getLatestView() != eq::View::TYPE_NONE )
+            {
+                eq::View& view = compound->getView();
+                if( view.getID() != EQ_ID_INVALID )
+                {
+                    Config* config = compound->getConfig();
+                    EQASSERT( config );
+                    config->unmapObject( &view );
+                }
+            }
+
+            return TRAVERSE_CONTINUE; 
+        }
+};
+}
+
+void Config::unmap()
+{
+    if( _distributor ) // Config::init never happened
+    {
+        deregisterObject( _distributor );
+        delete _distributor;
+        _distributor = 0;
+    }
+
+    ViewUnmapper unmapper;
+    accept( &unmapper );
+}
+
+namespace
+{
 class ViewUpdater : public ConfigVisitor
 {
 public:
@@ -1098,6 +1037,12 @@ void Config::_flushFrames()
 //---------------------------------------------------------------------------
 net::CommandResult Config::_cmdStartInit( net::Command& command )
 {
+    // clients have retrieved distributed data
+    EQASSERT( _distributor );
+    deregisterObject( _distributor );
+    delete _distributor;
+    _distributor = 0;
+
     const eq::ConfigStartInitPacket* packet = 
         command.getPacket<eq::ConfigStartInitPacket>();
     eq::ConfigStartInitReplyPacket   reply( packet );
@@ -1139,9 +1084,6 @@ net::CommandResult Config::_cmdExit( net::Command& command )
         command.getPacket<eq::ConfigExitPacket>();
     eq::ConfigExitReplyPacket   reply( packet );
     EQINFO << "handle config exit " << packet << endl;
-
-    ViewUnmapper unmapper;
-    accept( &unmapper );
 
     if( _state == STATE_INITIALIZED )
         reply.result = exit();
@@ -1238,25 +1180,6 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
 
     FreezeVisitor visitor( packet->freeze );
     accept( &visitor );
-
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Config::_cmdMapViews( net::Command& command ) 
-{
-    const eq::ConfigMapViewsPacket* packet = 
-        command.getPacket<eq::ConfigMapViewsPacket>();
-    EQINFO << "handle config map views " << packet << endl;
-
-    // clients have retrieved distributed data
-    EQASSERT( _distributor );
-    deregisterObject( _distributor );
-    delete _distributor;
-    _distributor = 0;
-
-    // map views to appNode master instances
-    ViewMapper mapper( packet->nViews, packet->viewIDs );
-    accept( &mapper );
 
     return net::COMMAND_HANDLED;
 }

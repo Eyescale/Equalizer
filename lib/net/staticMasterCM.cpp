@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "staticMasterCM.h"
@@ -29,7 +29,7 @@ StaticMasterCM::~StaticMasterCM()
 void StaticMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
                                const uint32_t version )
 {
-    EQASSERT( version == Object::VERSION_NONE );
+    EQASSERT( version == Object::VERSION_OLDEST ); // VERSION_NONE is useless
     ObjectInstanceDataOStream os( _object );
     os.setInstanceID( instanceID );
 

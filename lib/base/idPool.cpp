@@ -1,12 +1,13 @@
  
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
-
-#include <sstream>
 
 #include "idPool.h"
 
-#include <eq/base/debug.h>
+#include "debug.h"
+#include "scopedMutex.h"
+
+#include <sstream>
 
 using namespace std;
 
@@ -47,7 +48,7 @@ IDPool::~IDPool()
 
 uint32_t IDPool::genIDs( const uint32_t range )
 {
-    CHECK_THREAD( _thread );
+    ScopedMutex< Lock > mutex( _lock );
 
     const uint32_t id = _genIDs( range );
     if( id )
@@ -84,7 +85,7 @@ uint32_t IDPool::_genIDs( const uint32_t range )
 
 void IDPool::freeIDs( const uint32_t start, const uint32_t range )
 {
-    CHECK_THREAD( _thread );
+    ScopedMutex< Lock > mutex( _lock );
 
     Block* block;
 

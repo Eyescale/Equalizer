@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "deltaMasterCM.h"
@@ -38,6 +38,17 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
     _instanceDatas.push_front( data );
     ++_version;
     ++_commitCount;
+
+    registerCommand( CMD_OBJECT_COMMIT, 
+                 CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdCommit ),
+                     0 );
+    // sync commands are send to all instances, even the master gets it
+	registerCommand( CMD_OBJECT_DELTA_DATA, 
+                CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ),
+                     0 );
+	registerCommand( CMD_OBJECT_DELTA, 
+                CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ),
+                     0 );
 }
 
 DeltaMasterCM::~DeltaMasterCM()
@@ -74,24 +85,6 @@ DeltaMasterCM::~DeltaMasterCM()
         delete *i;
     
     _deltaDataCache.clear();
-}
-
-void DeltaMasterCM::notifyAttached()
-{
-    Session* session = _object->getSession();
-    EQASSERT( session );
-    CommandQueue* queue = session->getCommandThreadQueue();
-
-    registerCommand( CMD_OBJECT_COMMIT, 
-                 CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdCommit ),
-                     queue );
-    // sync commands are send to all instances, even the master gets it
-	registerCommand( CMD_OBJECT_DELTA_DATA, 
-                CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ),
-                     queue );
-	registerCommand( CMD_OBJECT_DELTA, 
-                CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ),
-                     queue );
 }
 
 uint32_t DeltaMasterCM::commitNB()
@@ -170,7 +163,19 @@ void DeltaMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
     _slaves.push_back( node );
     stde::usort( _slaves );
 
-    const uint32_t version = (inVersion == Object::VERSION_NONE) ?
+    if( inVersion == Object::VERSION_NONE ) // no data to send
+    {
+        ObjectInstancePacket instPacket;
+        instPacket.instanceID = instanceID;
+        instPacket.dataSize   = 0;
+        instPacket.version    = _version;
+        instPacket.sequence   = 0;
+
+        _object->send( node, instPacket );
+        return;
+    }
+
+    const uint32_t version = (inVersion == Object::VERSION_OLDEST) ?
                                  getOldestVersion() : inVersion;
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID() 
@@ -225,6 +230,21 @@ void DeltaMasterCM::removeSlave( NodePtr node )
         _slaves.erase( i );
         _slavesCount.erase( nodeID );
     }
+}
+
+void DeltaMasterCM::addOldMaster( NodePtr node, const uint32_t instanceID )
+{
+    EQASSERT( _version != Object::VERSION_NONE );
+
+    // add to subscribers
+    ++_slavesCount[ node->getNodeID() ];
+    _slaves.push_back( node );
+    stde::usort( _slaves );
+
+    ObjectVersionPacket packet;
+    packet.instanceID = instanceID;
+    packet.version    = _version;
+    _object->send( node, packet );
 }
 
 void DeltaMasterCM::_checkConsistency() const

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "unbufferedMasterCM.h"
@@ -24,6 +24,16 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
         : _object( object )
         , _version( Object::VERSION_NONE )
 {
+    registerCommand( CMD_OBJECT_COMMIT, 
+       CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdCommit ),
+                     0 );
+    // sync commands are send to any instance, even the master gets the command
+	registerCommand( CMD_OBJECT_DELTA_DATA, 
+	  CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdDiscard ),
+                     0 );
+	registerCommand( CMD_OBJECT_DELTA, 
+      CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdDiscard ),
+                     0 );
 }
 
 UnbufferedMasterCM::~UnbufferedMasterCM()
@@ -32,24 +42,6 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
         EQWARN << _slaves.size() 
                << " slave nodes subscribed during deregisterObject" << endl;
     _slaves.clear();
-}
-
-void UnbufferedMasterCM::notifyAttached()
-{
-    Session* session = _object->getSession();
-    EQASSERT( session );
-    CommandQueue* queue = session->getCommandThreadQueue();
-
-    registerCommand( CMD_OBJECT_COMMIT, 
-       CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdCommit ),
-                     queue );
-    // sync commands are send to any instance, even the master gets the command
-	registerCommand( CMD_OBJECT_DELTA_DATA, 
-	  CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdDiscard ),
-                     queue );
-	registerCommand( CMD_OBJECT_DELTA, 
-      CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdDiscard ),
-                     queue );
 }
 
 uint32_t UnbufferedMasterCM::commitNB()
@@ -76,7 +68,9 @@ void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
                                    const uint32_t version )
 {
     CHECK_THREAD( _thread );
-    EQASSERT( version == Object::VERSION_NONE || version == _version );
+    EQASSERT( version == Object::VERSION_OLDEST ||
+              version == Object::VERSION_NONE   ||
+              version == _version );
 
     // add to subscribers
     ++_slavesCount[ node->getNodeID() ];
@@ -90,11 +84,13 @@ void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
     ObjectInstanceDataOStream os( _object );
     os.setVersion( _version );
     os.setInstanceID( instanceID );
-    os.enable( node );
     
-    _object->getInstanceData( os );
-
-    os.disable();
+    if( version != Object::VERSION_NONE ) // send current data
+    {
+        os.enable( node );
+        _object->getInstanceData( os );
+        os.disable();
+    }
 
     if( !os.hasSentData( )) // if no data, send empty packet to set version
     {
@@ -119,6 +115,19 @@ void UnbufferedMasterCM::removeSlave( NodePtr node )
         _slaves.erase( i );
         _slavesCount.erase( nodeID );
     }
+}
+
+void UnbufferedMasterCM::addOldMaster( NodePtr node, const uint32_t instanceID )
+{
+    // add to subscribers
+    ++_slavesCount[ node->getNodeID() ];
+    _slaves.push_back( node );
+    stde::usort( _slaves );
+
+    ObjectVersionPacket packet;
+    packet.instanceID = instanceID;
+    packet.version    = _version;
+    _object->send( node, packet );
 }
 
 

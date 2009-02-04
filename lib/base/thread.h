@@ -215,7 +215,7 @@ namespace base
             EQERROR << "Threadsafety check for " << #NAME               \
                     << " failed on object of type "                     \
                     << typeid(*this).name() << std::endl;               \
-            EQASSERTINFO( 0, "Non-threadsave code called from two threads" ); \
+            EQABORT( "Non-threadsave code called from two threads" );   \
         }                                                               \
     }
 
@@ -228,7 +228,7 @@ namespace base
                 EQERROR << "Threadsafety check for not " << #NAME       \
                         << " failed on object of type "                 \
                         << typeid(*this).name() << std::endl;           \
-                EQASSERTINFO( 0, "Code called from wrong thread" );     \
+                EQABORT( "Code called from wrong thread" );             \
             }                                                           \
         }                                                               \
     }

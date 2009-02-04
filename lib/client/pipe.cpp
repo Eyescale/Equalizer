@@ -187,7 +187,7 @@ WindowSystem Pipe::selectWindowSystem() const
         if( supportsWindowSystem( i ))
             return i;
     }
-    EQASSERTINFO( 0, "No supported window system found" );
+    EQABORT( "No supported window system found" );
     return WINDOW_SYSTEM_NONE;
 }
 
@@ -545,7 +545,7 @@ net::CommandResult Pipe::_cmdCreateWindow(  net::Command& command  )
     EQINFO << "Handle create window " << packet << endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
-    getConfig()->attachObject( window, packet->windowID );
+    getConfig()->attachObject( window, packet->windowID, EQ_ID_INVALID );
     
     EQASSERT( !_windows.empty( ));
     if( window != _windows[0] )

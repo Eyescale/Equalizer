@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "fullMasterCM.h"
@@ -19,6 +19,8 @@ namespace eq
 {
 namespace net
 {
+typedef CommandFunc<FullMasterCM> CmdFunc;
+
 FullMasterCM::FullMasterCM( Object* object )
         : _object( object ),
           _version( Object::VERSION_NONE ),
@@ -36,13 +38,22 @@ FullMasterCM::FullMasterCM( Object* object )
     _deltaDatas.push_front( data );
     ++_version;
     ++_commitCount;
+
+    registerCommand( CMD_OBJECT_COMMIT, 
+                     CmdFunc( this, &FullMasterCM::_cmdCommit ), 0 );
+    // sync commands are send to any instance, even the master gets the command
+    registerCommand( CMD_OBJECT_DELTA_DATA,
+                     CmdFunc( this, &FullMasterCM::_cmdDiscard ), 0 );
+    registerCommand( CMD_OBJECT_DELTA,
+                     CmdFunc( this, &FullMasterCM::_cmdDiscard ), 0 );
 }
 
 FullMasterCM::~FullMasterCM()
 {
     if( !_slaves.empty( ))
         EQWARN << _slaves.size() 
-               << " slave nodes subscribed during deregisterObject" << endl;
+               << " slave nodes subscribed during deregisterObject of "
+               << typeid( *_object ).name() << std::endl;
     _slaves.clear();
 
     for( std::deque< DeltaData* >::const_iterator i = _deltaDatas.begin();
@@ -58,24 +69,6 @@ FullMasterCM::~FullMasterCM()
         delete *i;
     
     _deltaDataCache.clear();
-}
-
-void FullMasterCM::notifyAttached()
-{
-    Session* session = _object->getSession();
-    EQASSERT( session );
-    CommandQueue* queue = session->getCommandThreadQueue();
-
-    registerCommand( CMD_OBJECT_COMMIT, 
-                   CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdCommit ),
-                     queue );
-    // sync commands are send to any instance, even the master gets the command
-    registerCommand( CMD_OBJECT_DELTA_DATA,
-                  CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdDiscard ),
-                     queue );
-    registerCommand( CMD_OBJECT_DELTA,
-                  CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdDiscard ),
-                     queue );
 }
 
 uint32_t FullMasterCM::commitNB()
@@ -143,7 +136,19 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
     _slaves.push_back( node );
     stde::usort( _slaves );
 
-    const uint32_t version = (inVersion == Object::VERSION_NONE) ?
+    if( inVersion == Object::VERSION_NONE ) // no data to send
+    {
+        ObjectInstancePacket instPacket;
+        instPacket.instanceID = instanceID;
+        instPacket.dataSize   = 0;
+        instPacket.version    = _version;
+        instPacket.sequence   = 0;
+
+        _object->send( node, instPacket );
+        return;
+    }
+
+    const uint32_t version = (inVersion == Object::VERSION_OLDEST) ?
                                  getOldestVersion() : inVersion;
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID() 
@@ -199,6 +204,21 @@ void FullMasterCM::removeSlave( NodePtr node )
         _slaves.erase( i );
         _slavesCount.erase( nodeID );
     }
+}
+
+void FullMasterCM::addOldMaster( NodePtr node, const uint32_t instanceID )
+{
+    EQASSERT( _version != Object::VERSION_NONE );
+
+    // add to subscribers
+    ++_slavesCount[ node->getNodeID() ];
+    _slaves.push_back( node );
+    stde::usort( _slaves );
+
+    ObjectVersionPacket packet;
+    packet.instanceID = instanceID;
+    packet.version    = _version;
+    _object->send( node, packet );
 }
 
 void FullMasterCM::_checkConsistency() const
@@ -278,5 +298,6 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     _requestHandler.serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
 }
+
 }
 }

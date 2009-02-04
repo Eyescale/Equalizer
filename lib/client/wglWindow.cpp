@@ -155,7 +155,7 @@ void WGLWindow::setWGLDC( HDC dc, const WGLDCType type )
     if( ( type != WGL_DC_NONE && dc == 0 ) ||
         ( type == WGL_DC_NONE && dc != 0 ))
     {
-        EQASSERTINFO( 0, "Illegal combination of WGL device context and type" );
+        EQABORT( "Illegal combination of WGL device context and type" );
         return;
     }
 

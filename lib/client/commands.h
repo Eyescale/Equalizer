@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_COMMANDS_H
@@ -22,12 +22,22 @@ namespace eq
         CMD_SERVER_INIT_CONFIG,
         CMD_SERVER_SHUTDOWN,
         CMD_SERVER_SHUTDOWN_REPLY,
+        CMD_SERVER_FILL1, // some buffer for binary-compatible patches
+        CMD_SERVER_FILL2,
+        CMD_SERVER_FILL3,
+        CMD_SERVER_FILL4,
+        CMD_SERVER_FILL5,
         CMD_SERVER_CUSTOM
     };
 
     enum ClientCommand
     {
         CMD_CLIENT_EXIT               = net::CMD_NODE_CUSTOM,
+        CMD_CLIENT_FILL1, // some buffer for binary-compatible patches
+        CMD_CLIENT_FILL2,
+        CMD_CLIENT_FILL3,
+        CMD_CLIENT_FILL4,
+        CMD_CLIENT_FILL5,
         CMD_CLIENT_CUSTOM
     };
 
@@ -51,7 +61,11 @@ namespace eq
         CMD_CONFIG_DATA,
         CMD_CONFIG_FREEZE_LOAD_BALANCING,
         CMD_CONFIG_START_CLOCK,
-        CMD_CONFIG_MAP_VIEWS,
+        CMD_CONFIG_FILL1, // some buffer for binary-compatible patches
+        CMD_CONFIG_FILL2,
+        CMD_CONFIG_FILL3,
+        CMD_CONFIG_FILL4,
+        CMD_CONFIG_FILL5,
         CMD_CONFIG_CUSTOM
     };
 
@@ -68,6 +82,11 @@ namespace eq
         CMD_NODE_FRAME_FINISH_REPLY,
         CMD_NODE_FRAME_DRAW_FINISH,
         CMD_NODE_FRAME_TASKS_FINISH,
+        CMD_NODE_FILL1, // some buffer for binary-compatible patches
+        CMD_NODE_FILL2,
+        CMD_NODE_FILL3,
+        CMD_NODE_FILL4,
+        CMD_NODE_FILL5,
         CMD_NODE_CUSTOM
     };
 
@@ -85,6 +104,11 @@ namespace eq
         CMD_PIPE_FRAME_NO_DRAW,
         CMD_PIPE_STOP_THREAD,
         CMD_PIPE_FRAME_START_CLOCK,
+        CMD_PIPE_FILL1, // some buffer for binary-compatible patches
+        CMD_PIPE_FILL2,
+        CMD_PIPE_FILL3,
+        CMD_PIPE_FILL4,
+        CMD_PIPE_FILL5,
         CMD_PIPE_CUSTOM
     };
 
@@ -103,6 +127,11 @@ namespace eq
         CMD_WINDOW_BARRIER,
         CMD_WINDOW_SWAP,
         CMD_WINDOW_FRAME_DRAW_FINISH,
+        CMD_WINDOW_FILL1, // some buffer for binary-compatible patches
+        CMD_WINDOW_FILL2,
+        CMD_WINDOW_FILL3,
+        CMD_WINDOW_FILL4,
+        CMD_WINDOW_FILL5,
         CMD_WINDOW_CUSTOM
     };
 
@@ -122,6 +151,11 @@ namespace eq
         CMD_CHANNEL_FRAME_ASSEMBLE,
         CMD_CHANNEL_FRAME_READBACK,
         CMD_CHANNEL_FRAME_TRANSMIT,
+        CMD_CHANNEL_FILL1, // some buffer for binary-compatible patches
+        CMD_CHANNEL_FILL2,
+        CMD_CHANNEL_FILL3,
+        CMD_CHANNEL_FILL4,
+        CMD_CHANNEL_FILL5,
         CMD_CHANNEL_CUSTOM
     };
 
@@ -130,16 +164,12 @@ namespace eq
         CMD_FRAMEDATA_TRANSMIT = net::CMD_OBJECT_CUSTOM,
         CMD_FRAMEDATA_READY,
         CMD_FRAMEDATA_UPDATE,
+        CMD_FRAMEDATA_FILL1, // some buffer for binary-compatible patches
+        CMD_FRAMEDATA_FILL2,
+        CMD_FRAMEDATA_FILL3,
+        CMD_FRAMEDATA_FILL4,
+        CMD_FRAMEDATA_FILL5,
         CMD_FRAMEDATA_CUSTOM
-    };
-
-    enum GLXEventThreadCommand
-    {
-        CMD_GLXEVENTTHREAD_REGISTER_PIPE,
-        CMD_GLXEVENTTHREAD_DEREGISTER_PIPE,
-        CMD_GLXEVENTTHREAD_REGISTER_WINDOW,
-        CMD_GLXEVENTTHREAD_DEREGISTER_WINDOW,
-        CMD_GLXEVENTTHREAD_ALL
     };
 };
 

@@ -281,6 +281,7 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
     destroyConfigPacket.configID  = config->getID();
     node->send( destroyConfigPacket );
 
+    config->unmap();
     EQCHECK( deregisterSession( config ));
 
     _appConfigs.erase( packet->configID );

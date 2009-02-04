@@ -629,6 +629,7 @@ void Config::Distributor::applyInstanceData( net::DataIStream& is )
 {
     is >> _config->_latency;
 
+    EQASSERT( _config->_views.empty( ));
     for( ViewVector::const_iterator i = _config->_views.begin();
          i != _config->_views.end(); ++i )
     {
@@ -637,13 +638,18 @@ void Config::Distributor::applyInstanceData( net::DataIStream& is )
     }
     _config->_views.clear();
 
-    View* view = new View( is ); 
-    for( ; view->getCurrentType() != View::TYPE_NONE; view = new View( is ))
+    uint32_t viewID;
+    is >> viewID;
+    while( viewID != EQ_ID_INVALID )
     {
-        _config->registerObject( view );
+        View* view = new View(); 
+
+        _config->mapObject( view, viewID ); // OPT: async mapping
+        view->becomeMaster();
+
         _config->_views.push_back( view );
+        is >> viewID;
     }
-    delete view;
 }
 
 void Config::_initAppNode( const uint32_t distributorID )
@@ -651,15 +657,6 @@ void Config::_initAppNode( const uint32_t distributorID )
     Config::Distributor distributor( this );
     EQCHECK( mapObject( &distributor, distributorID ));
     unmapObject( &distributor ); // data was retrieved, unmap
-
-    vector< uint32_t > viewIDs;
-    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
-        viewIDs.push_back( (*i)->getID( ));
-
-    ConfigMapViewsPacket packet;
-    packet.nViews = _views.size();
-
-    send( packet, viewIDs );
 }
 
 void Config::_exitAppNode()
@@ -687,7 +684,7 @@ net::CommandResult Config::_cmdCreateNode( net::Command& command )
     EQASSERT( packet->nodeID != EQ_ID_INVALID );
 
     Node* node = Global::getNodeFactory()->createNode( this );
-    attachObject( node, packet->nodeID );
+    attachObject( node, packet->nodeID, EQ_ID_INVALID );
 
     ConfigCreateNodeReplyPacket reply( packet );
     send( command.getNode(), reply );

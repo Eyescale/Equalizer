@@ -362,6 +362,7 @@ namespace net
         
         uint32_t            requestID;
         uint32_t            objectID;
+        uint32_t            objectInstanceID;
     };
 
     struct SessionMapObjectPacket : public SessionPacket
@@ -548,6 +549,30 @@ namespace net
         uint64_t deltaSize;
         uint32_t version;
         EQ_ALIGN8( uint8_t     delta[8] );
+    };
+
+    struct ObjectNewMasterPacket : public ObjectPacket
+    {
+        ObjectNewMasterPacket()
+            {
+                command = CMD_OBJECT_NEW_MASTER;
+                size    = sizeof( ObjectNewMasterPacket );
+            };
+
+        uint32_t newMasterID;
+        uint32_t newMasterInstanceID;
+        uint32_t changeType;
+    };
+
+    struct ObjectVersionPacket : public ObjectPacket
+    {
+        ObjectVersionPacket()
+            {
+                command = CMD_OBJECT_VERSION;
+                size    = sizeof( ObjectVersionPacket );
+            };
+
+        uint32_t version;
     };
 
     //------------------------------------------------------------

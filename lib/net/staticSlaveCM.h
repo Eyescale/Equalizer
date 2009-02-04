@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_STATICSLAVECM_H
@@ -27,7 +27,6 @@ namespace net
         StaticSlaveCM( Object* object );
         virtual ~StaticSlaveCM();
 
-        virtual void notifyAttached();
         virtual void makeThreadSafe(){}
 
         /**
@@ -59,6 +58,8 @@ namespace net
         virtual void addSlave( NodePtr slave, const uint32_t instanceID,
                                const uint32_t version ) { EQDONTCALL; }
         virtual void removeSlave( NodePtr node ) { EQDONTCALL; }
+        virtual void addOldMaster( NodePtr node, const uint32_t instanceID )
+            { EQDONTCALL }
 
         virtual void applyMapData();
 

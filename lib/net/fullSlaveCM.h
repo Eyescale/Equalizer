@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_FULLSLAVECM_H
@@ -29,7 +29,6 @@ namespace net
         FullSlaveCM( Object* object, uint32_t masterInstanceID );
         virtual ~FullSlaveCM();
 
-        virtual void notifyAttached();
         virtual void makeThreadSafe();
 
         /**
@@ -60,6 +59,8 @@ namespace net
         virtual void addSlave( NodePtr slave, const uint32_t instanceID,
                                const uint32_t version ) { EQDONTCALL; }
         virtual void removeSlave( NodePtr node ) { EQDONTCALL; }
+        virtual void addOldMaster( NodePtr node, const uint32_t instanceID )
+            { EQDONTCALL }
 
         virtual void applyMapData();
 
@@ -88,6 +89,7 @@ namespace net
         /* The command handlers. */
         CommandResult _cmdDeltaData( Command& command );
         CommandResult _cmdDelta( Command& command );
+        CommandResult _cmdVersion( Command& pkg );
 
         CHECK_THREAD_DECLARE( _thread );
     };

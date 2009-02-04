@@ -221,6 +221,12 @@ namespace server
         // Used by Server::releaseConfig() to make sure config is exited
         bool exit();
 
+        /** 
+         * Unmap all shared objects of the session, called before session
+         * teardown.
+         */
+        void unmap();
+        
         /** @name Attributes */
         //*{
         // Note: also update string array initialization in config.cpp
@@ -322,6 +328,11 @@ namespace server
             virtual ~Distributor() {}
 
         protected:
+            // Use instance since then getInstanceData() is called from app
+            // thread, which allows us to map all children during serialization
+            virtual Object::ChangeType getChangeType() const 
+                { return Object::INSTANCE; }
+            
             virtual void getInstanceData( net::DataOStream& os );
             virtual void applyInstanceData( net::DataIStream& is ) {EQDONTCALL;}
 
@@ -362,7 +373,6 @@ namespace server
         net::CommandResult _cmdCreateReply( net::Command& command );
         net::CommandResult _cmdCreateNodeReply( net::Command& command );
         net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
-        net::CommandResult _cmdMapViews( net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Config* config );

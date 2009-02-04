@@ -29,9 +29,6 @@ namespace net
         ObjectCM() {}
         virtual ~ObjectCM() {}
 
-        /** Notification that the object is attached to a session. */
-        virtual void notifyAttached() = 0;
-
         /** 
          * Make this object thread safe.
          * 
@@ -127,6 +124,10 @@ namespace net
         /** Apply the initial data after mapping. */
         virtual void applyMapData() = 0;
 
+        /** Add the old master as a slave. */
+        virtual void addOldMaster( NodePtr node, const uint32_t instanceID ) =0;
+
+        /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
     };
 }

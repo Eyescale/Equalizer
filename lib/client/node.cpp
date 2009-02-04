@@ -442,7 +442,7 @@ net::CommandResult Node::_cmdCreatePipe( net::Command& command )
     if( packet->threaded )
         pipe->startThread();
 
-    _config->attachObject( pipe, packet->pipeID );
+    _config->attachObject( pipe, packet->pipeID, EQ_ID_INVALID );
 
     return net::COMMAND_HANDLED;
 }

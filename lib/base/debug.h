@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_DEBUG_H
@@ -32,8 +32,12 @@
 #  define EQDONTCALL                                                    \
     { EQERROR << "Code is not supposed to be called in this context"    \
               << std::endl << eq::base::forceFlush; }
+#  define EQABORT( info ) {                                         \
+        EQERROR << "##### Abort: " << info << " #####" << std::endl \
+                << eq::base::forceFlush; }
 
 #else // DEBUG
+
 namespace eq
 {
 namespace base
@@ -66,6 +70,9 @@ namespace base
         eq::base::abortDebug(); }
 
 #  define EQCHECK(x) { const bool eqResult = x; EQASSERTINFO( eqResult, #x ) }
+#  define EQABORT( info ) {                                             \
+        EQERROR << "Abort: " << info << std::endl << eq::base::forceFlush; \
+        eq::base::abortDebug(); }
 
 #endif // DEBUG
 

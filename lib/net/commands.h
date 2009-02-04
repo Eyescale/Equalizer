@@ -30,6 +30,11 @@ namespace net
         CMD_NODE_ACQUIRE_SEND_TOKEN,
         CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
         CMD_NODE_RELEASE_SEND_TOKEN,
+        CMD_NODE_FILL1, // some buffer for binary-compatible patches
+        CMD_NODE_FILL2,
+        CMD_NODE_FILL3,
+        CMD_NODE_FILL4,
+        CMD_NODE_FILL5,
         CMD_NODE_CUSTOM // must be last
     };
 
@@ -49,6 +54,11 @@ namespace net
         CMD_SESSION_SUBSCRIBE_OBJECT_REPLY,
         CMD_SESSION_UNSUBSCRIBE_OBJECT,
         CMD_SESSION_GET_OBJECT,
+        CMD_SESSION_FILL1, // some buffer for binary-compatible patches
+        CMD_SESSION_FILL2,
+        CMD_SESSION_FILL3,
+        CMD_SESSION_FILL4,
+        CMD_SESSION_FILL5,
         CMD_SESSION_CUSTOM // must be last
     };
 
@@ -59,6 +69,13 @@ namespace net
         CMD_OBJECT_DELTA_DATA,
         CMD_OBJECT_DELTA,
         CMD_OBJECT_COMMIT,
+        CMD_OBJECT_NEW_MASTER,
+        CMD_OBJECT_VERSION,
+        CMD_OBJECT_FILL1, // some buffer for binary-compatible patches
+        CMD_OBJECT_FILL2,
+        CMD_OBJECT_FILL3,
+        CMD_OBJECT_FILL4,
+        CMD_OBJECT_FILL5,
         CMD_OBJECT_CUSTOM // must be last
     };
 
@@ -66,6 +83,11 @@ namespace net
     {
         CMD_BARRIER_ENTER = CMD_OBJECT_CUSTOM,
         CMD_BARRIER_ENTER_REPLY,
+        CMD_BARRIER_FILL1, // some buffer for binary-compatible patches
+        CMD_BARRIER_FILL2,
+        CMD_BARRIER_FILL3,
+        CMD_BARRIER_FILL4,
+        CMD_BARRIER_FILL5,
         CMD_BARRIER_ALL
     };
 }

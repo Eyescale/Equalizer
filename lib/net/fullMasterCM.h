@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_FULLMASTERCM_H
@@ -29,7 +29,6 @@ namespace net
         FullMasterCM( Object* object );
         virtual ~FullMasterCM();
 
-        virtual void notifyAttached();
         virtual void makeThreadSafe(){}
 
         /**
@@ -61,6 +60,7 @@ namespace net
         virtual void addSlave( NodePtr node, const uint32_t instanceID,
                                const uint32_t version );
         virtual void removeSlave( NodePtr node );
+        virtual void addOldMaster( NodePtr node, const uint32_t instanceID );
 
         virtual void applyMapData() { EQDONTCALL; }
 

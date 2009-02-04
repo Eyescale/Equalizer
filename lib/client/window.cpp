@@ -623,7 +623,7 @@ net::CommandResult Window::_cmdCreateChannel( net::Command& command )
     EQINFO << "Handle create channel " << packet << endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
-    getConfig()->attachObject( channel, packet->channelID );
+    getConfig()->attachObject( channel, packet->channelID, EQ_ID_INVALID );
 
     return net::COMMAND_HANDLED;
 }
