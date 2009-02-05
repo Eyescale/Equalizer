@@ -24,10 +24,13 @@ Segment::Segment( const Segment& from, Config* config )
         const Channel* oldChannel = from._channel;
         const std::string&   name = oldChannel->getName();
         Channel*       newChannel = config->findChannel( name );
-
+        
         EQASSERT( !name.empty( ));
         EQASSERT( newChannel );
-            
+      
+        _name = from._name;
+        _vp = from._vp;
+        
         _channel = newChannel;
     }
 }

@@ -253,6 +253,8 @@ namespace server
         /** Used by server during appNode initialization. */
         uint32_t getDistributorID();
 
+        /** Return the initID for late initialization  */
+        uint32_t getInitID(){ return _initID; }
     protected:
         /** @sa net::Session::setLocalNode. */
         virtual void setLocalNode( net::NodePtr node );
@@ -261,6 +263,9 @@ namespace server
         /** The config name */
         std::string _name;
 
+        /** The initID for late initialization. */
+        uint32_t _initID;
+        
         /** float attributes. */
         float _fAttributes[FATTR_ALL];
 

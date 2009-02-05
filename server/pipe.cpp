@@ -33,6 +33,7 @@ std::string Pipe::_iAttributeStrings[IATTR_ALL] =
 void Pipe::_construct()
 {
     _used           = 0;
+    _active         = 1;
     _node           = 0;
     _tasks          = eq::TASK_NONE;
     _port           = EQ_UNDEFINED_UINT32;
@@ -177,6 +178,21 @@ void Pipe::unrefUsed()
         _node->unrefUsed(); 
 }
 
+void Pipe::activate()
+{ 
+    _active++;
+    EQASSERT( _node );  
+    _node->activate(); 
+}
+
+void Pipe::deactivate()
+{ 
+    EQASSERT( _active != 0 );
+    _active--; 
+    EQASSERT( _node );  
+    _node->deactivate(); 
+};
+
 void Pipe::addTasks( const uint32_t tasks )
 {
     EQASSERT( _node );
@@ -206,7 +222,7 @@ void Pipe::startConfigInit( const uint32_t initID )
     {
         Window* window = *i;
 
-        if( window->isUsed( ))
+        if( window->isUsed( ) && window->isActive( ))
         {
             config->registerObject( window );
             createWindowPacket.windowID = window->getID();
@@ -238,7 +254,7 @@ bool Pipe::syncConfigInit()
          i != _windows.end(); ++i )
     {
         Window* window = *i;
-        if( window->isUsed( ))
+        if( window->isUsed( ) && window->isActive( ))
             if( !window->syncConfigInit( ))
             {
                 _error += " window " + window->getName() + ": '" +

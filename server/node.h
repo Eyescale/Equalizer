@@ -96,7 +96,25 @@ namespace server
          * @return <code>true</code> if this node is actively used,
          *         <code>false</code> if not.
          */
-        bool isUsed() const { return (_used!=0); }
+        bool isUsed() const { return( _used!=0 ); }
+
+        /**
+         * Increase  node activition count.
+         */
+        void activate(){ _active++; }
+
+        /** 
+         * Decrease  node activition count.
+         */
+        void deactivate(){ _active--; };
+
+        /** 
+         * Returns if this node is actively used.
+         *
+         * @return <code>true</code> if this node has activation,
+         *         <code>false</code> if not.
+         */
+        bool isActive() const{ return( _active != 0 ); }
 
         /** Add additional tasks this node might potentially execute. */
         void addTasks( const uint32_t tasks ) { _tasks |= tasks; }
@@ -267,6 +285,9 @@ namespace server
 
         /** Number of entities actively using this node. */
         uint32_t _used;
+
+        /** Number of activations for this node. */
+        uint32_t _active;
 
         /** The network node on which this Equalizer node is running. */
         net::NodePtr _node;

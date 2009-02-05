@@ -35,6 +35,14 @@ namespace eq
                 w *= rhs.w;
                 h *= rhs.h;
             }
+            
+        void transform ( const Viewport& rhs )
+            {
+                w = w / rhs.w;
+                h = h / rhs.h;
+                x = ( x - rhs.x ) / rhs.w;
+                y = ( y - rhs.y ) / rhs.h;
+            }
 
         bool operator == ( const Viewport& rhs ) const 
             { 
@@ -88,10 +96,10 @@ namespace eq
                     return;
                 }
                 
-                const int32_t sEx = static_cast< int32_t >(     x +     w );
-                const int32_t sEy = static_cast< int32_t >(     y +     h );
-                const int32_t dEx = static_cast< int32_t >( rhs.x + rhs.w );
-                const int32_t dEy = static_cast< int32_t >( rhs.y + rhs.h );
+                const float sEx = static_cast< float >(     x +     w );
+                const float sEy = static_cast< float >(     y +     h );
+                const float dEx = static_cast< float >( rhs.x + rhs.w );
+                const float dEy = static_cast< float >( rhs.y + rhs.h );
                     
                 x = EQ_MAX( x, rhs.x );
                 y = EQ_MAX( y, rhs.y );

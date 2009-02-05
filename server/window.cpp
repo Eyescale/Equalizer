@@ -25,6 +25,7 @@ typedef net::CommandFunc<Window> WindowFunc;
 void Window::_construct()
 {
     _used            = 0;
+    _active          = 1;
     _pipe            = 0;
     _tasks           = eq::TASK_NONE;
     _fixedPVP        = false;
@@ -177,6 +178,22 @@ void Window::unrefUsed()
         _pipe->unrefUsed(); 
 }
 
+void Window::activate()
+{   
+    _active++;  
+    EQASSERT( _pipe ); 
+    _pipe->activate(); 
+}
+
+void Window::deactivate()
+{ 
+    EQASSERT( _active != 0 ) 
+    _active--; 
+
+    EQASSERT( _pipe ); 
+    _pipe->deactivate(); 
+};
+
 void Window::addTasks( const uint32_t tasks )
 {
     EQASSERT( _pipe );
@@ -292,7 +309,7 @@ void Window::startConfigInit( const uint32_t initID )
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
-        if( channel->isUsed( ))
+        if( channel->isUsed( ) && channel->isActive( ))
         {
             config->registerObject( channel );
             createChannelPacket.channelID = channel->getID();
@@ -328,7 +345,7 @@ bool Window::syncConfigInit()
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
-        if( channel->isUsed( ))
+        if( channel->isUsed( ) && channel->isActive( ))
             if( !channel->syncConfigInit( ))
             {
                 _error += ", channel " + channel->getName() + ": '"  +

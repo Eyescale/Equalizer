@@ -252,6 +252,143 @@ private:
 };
 }
 
+namespace
+{
+class CompoundCanvasInitVisitor : public ConfigVisitor
+{
+public:
+    CompoundCanvasInitVisitor( Canvas* canvas,
+                               std::string channelName )
+        : _channelName( channelName )
+    {
+        _segments = canvas->getSegments() ;
+    };
+    
+    virtual VisitorResult visit( Compound* compound )
+    {
+        if ( !compound->isDestination() )
+            return TRAVERSE_CONTINUE;
+        
+        Channel* destinationChannel = compound->getChannel();
+        EQASSERT( destinationChannel );
+        
+        if( _channelName != destinationChannel->getName())
+            return TRAVERSE_CONTINUE;
+        
+        for( SegmentVector::const_iterator j = _segments.begin(); 
+            j != _segments.end(); ++j )
+        {
+            Segment* segment = *j;
+            Channel* outputChannel = segment->getChannel();
+            
+            if(  _channelName.find( outputChannel->getName()) != string::npos )
+            {   
+                //if segment has frustum
+                switch ( segment->getCurrentFrustum())
+                {
+                    case View::TYPE_WALL:
+                    {
+                        // set compound frustum = segment frustum X channel/segment coverage
+                        const Viewport& outputViewPortChannel = outputChannel->getViewport();
+                        Viewport computeViewport = destinationChannel->getViewport( );                     
+                        computeViewport.intersect( outputViewPortChannel );
+                        computeViewport.transform( outputViewPortChannel );
+
+                        Wall wallSegment = segment->getWall();
+                        wallSegment.apply( computeViewport );
+                        compound->setWall( wallSegment );
+                        EQINFO << "set compound frustum = segment frustum X channel/segment coverage" << std::endl;
+                        EQINFO << "Compound Wall = " << wallSegment << std::endl;
+                        break;
+                    }
+                    case View::TYPE_PROJECTION:
+
+                        EQUNIMPLEMENTED;
+
+                    default: 
+                        break;
+                }
+            }
+        }
+     return TRAVERSE_CONTINUE;   
+    }
+private:
+    string _channelName;
+    SegmentVector _segments;
+};
+    
+class CanvasInitVisitor : public ConfigVisitor
+{
+public:
+    
+    CanvasInitVisitor(  Config* config  )
+         : _layout( 0 )
+         , _canvas( 0 )
+         , _config( config ) {}
+    virtual ~CanvasInitVisitor(){}
+
+    virtual VisitorResult visitPre( Canvas* canvas )
+    {
+        _layout = canvas->getLayout();
+        
+        if( _layout )
+        {
+            _canvas = canvas;
+            _layout->accept( this );
+        }
+        _layout = 0;
+
+        return TRAVERSE_CONTINUE;
+    }
+    
+    virtual VisitorResult visit( View* view )
+    { 
+        if( !_layout )
+            return TRAVERSE_CONTINUE;
+            
+        //for each Channel
+        ChannelVector channels = view->getChannels();
+        
+        // for each channel named "channelName.newLayoutName.*"       
+        for( ChannelVector::const_iterator i = channels.begin(); 
+             i != channels.end(); ++i )
+        {
+           Channel* channel = *i;
+           string channelName = channel->getName();        
+           if( channelName.find( '.' + _layout->getName()) != string::npos ) 
+           {
+               // increase channel, window, pipe, node activation count*/
+               channel->activate();
+               _setCompoundFrustum( channel );
+           }
+        }
+        
+        return TRAVERSE_CONTINUE;
+    }
+       
+    
+private:    
+    Layout* _layout;
+    Canvas* _canvas;
+    Config* _config;
+
+    void _setCompoundFrustum(Channel* channel)
+    {
+        // find compounds where channel is a destination channel
+        CompoundVector compounds = _config->getCompounds();
+
+        for( CompoundVector::const_iterator j = compounds.begin();
+             j != compounds.end(); ++j )
+        {
+            CompoundCanvasInitVisitor visitor( _canvas, channel->getName() );
+            Compound* compound = *j;
+            compound->accept( &visitor, false );
+        }
+    }
+ };
+}
+
+
 Layout* Config::findLayout( const std::string& name )
 {
     LayoutFinder finder( name );
@@ -264,7 +401,9 @@ namespace
 class AddCanvasVisitor : public ConfigVisitor
 {
 public:
-    AddCanvasVisitor( Canvas* canvas ) : _canvas( canvas )
+    AddCanvasVisitor( Canvas* canvas, Config* config  )  
+                                       : _canvas( canvas )
+                                       , _config( config )
         {}
     virtual ~AddCanvasVisitor() {}
 
@@ -287,15 +426,68 @@ public:
             Viewport viewport = segment->getViewport();
             viewport.intersect( _view->getViewport( ));
 
+            if( !viewport.hasArea())
+            {
+                EQINFO << "View " << _view->getName() << _view->getViewport()
+                       << " doesn't intersect " << segment->getName() 
+                       << segment->getViewport() << std::endl;
+                
+                return TRAVERSE_CONTINUE;
+            }
+                      
+            Channel* segmentChannel = segment->getChannel( );
+            if (!segmentChannel)
+            {
+                EQWARN << "Segment " << segment->getName()
+                       << " has no output channel" << endl;
+                return TRAVERSE_CONTINUE;
+            }
+
+
+            Layout* const layout = _canvas->getLayout();  
+            // find Channel
+            string channelName = segmentChannel->getName() + '.' + 
+                                         layout->getName() + '.' + 
+                                          _view->getName();
+                                          
+            // find Channel
+            Channel* channel = _config->findChannel( channelName );
+                                   
+            if( !channel )
+            {
+                channel = new Channel( *segmentChannel );
+                channel->setName( channelName ); 
+                
+                Window* window = segmentChannel->getWindow();
+                window->addChannel( channel );
+            }
+            
+            // set viewport to sub-viewport of segment channel
+            Viewport contribution = viewport; // segment X view in canvas space
+            contribution.transform( segment->getViewport( )); // ... in segment space
+            
+            Viewport subViewport = segmentChannel->getViewport(); // total output area
+            subViewport.apply( contribution );                    // our part of it    
+            
+            channel->setViewport( subViewport );
+            
+            // decrement channel activation count [inactivates channel]
+            // TODO implement useLayout: channel->deactivate();               
+                            
+            // set view on channel, add channel to view
+            channel->setView( _view );
+            _view->addChannel( channel );
+            
             EQINFO << "View " << _view->getName() << _view->getViewport()
                    << " intersects " << segment->getName() 
-                   << segment->getViewport() << " at " << viewport << std::endl;
+                   << segment->getViewport() << " at " << subViewport << std::endl;
 
             return TRAVERSE_CONTINUE;
         }
 
 protected:
     Canvas* const _canvas;
+    Config* const _config; // For find channel
     View*         _view; // The current view
 };
 }
@@ -309,7 +501,7 @@ void Config::addCanvas( Canvas* canvas )
         canvas->setName( name.str( ));
     }
 
-    AddCanvasVisitor visitor( canvas );
+    AddCanvasVisitor visitor( canvas, this );
     accept( &visitor );
 
     canvas->_config = this;
@@ -370,6 +562,94 @@ private:
     const std::string& _name;
     Channel*           _result;
 };
+
+class CompoundUpdateVisitor : public ConfigVisitor
+{
+public:
+    CompoundUpdateVisitor( View* view,
+                              Channel* channel )
+        : _view( view)
+        , _channel( channel ){}
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        if ( !compound->isDestination() )
+            return TRAVERSE_CONTINUE;
+            
+        Channel* channelCompound = compound->getChannel();
+            
+        if( !( channelCompound && 
+             ( channelCompound->getName() == _channel->getName()) &&
+             compound->isDestination()))
+             return TRAVERSE_CONTINUE;
+            
+        switch ( _view->getCurrentType())
+        {
+            case View::TYPE_WALL :
+            {
+                Viewport ouptutViewPortChannel = _view->getViewport();
+                Viewport computeViewport = _channel->getViewport( );
+                    
+                computeViewport.intersect( ouptutViewPortChannel );
+                computeViewport.transform( ouptutViewPortChannel );
+                    
+                Wall wallView = _view->getWall();
+                wallView.apply( computeViewport );
+                compound->setWall( wallView );
+                    
+                EQINFO << "set compound frustum = view frustum X channel/view coverage" << std::endl;
+                EQINFO << "Compound " << wallView << std::endl;
+                break;
+            }
+            case View::TYPE_PROJECTION:
+            {
+                EQUNIMPLEMENTED;
+            }
+            default: 
+                break;  
+        }      
+        return TRAVERSE_CONTINUE;
+    }
+private:
+    View* _view;
+    Channel* _channel;
+};
+    
+class InitCompoundFrustrumView : public ConfigVisitor
+{
+public:
+
+    InitCompoundFrustrumView( Config* config ): _config( config ){}
+
+    virtual ~InitCompoundFrustrumView(){}
+
+    virtual VisitorResult visit( View* view )
+    {
+         //for each Channel
+         ChannelVector channels = view->getChannels();
+    
+         // for each channel named "channelName.newLayoutName.*"       
+         for( ChannelVector::const_iterator i = channels.begin(); 
+                i != channels.end(); ++i )
+         {
+            Channel* channel = *i;
+            CompoundVector compounds = _config->getCompounds();
+            for( CompoundVector::const_iterator j = compounds.begin();
+                j != compounds.end(); ++j )
+            {
+               CompoundUpdateVisitor visitor( view, channel );
+               Compound* compound = *j;
+               compound->accept( &visitor, false );
+            }
+         }
+         return TRAVERSE_CONTINUE;
+    }
+
+private:
+    Config* _config ;
+};
+
+
 }
 
 Channel* Config::findChannel( const std::string& name )
@@ -565,6 +845,13 @@ bool Config::_startInit( const uint32_t initID )
     EQASSERT( _state == STATE_STOPPED );
     _currentFrame  = 0;
     _finishedFrame = 0;
+    _initID = initID;
+
+    CanvasInitVisitor canvasInit( this );
+    accept( &canvasInit );
+
+    InitCompoundFrustrumView compoundInit( this );
+    accept( &compoundInit );
 
     for( vector< Compound* >::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )

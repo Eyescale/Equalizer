@@ -3,10 +3,14 @@
    All rights reserved. */
 
 #include "canvas.h"
-
+#include "channel.h"
 #include "config.h"
 #include "layout.h"
+#include "node.h"
+#include "pipe.h"
 #include "segment.h"
+#include "window.h"
+
 
 using namespace eq::base;
 
@@ -70,6 +74,37 @@ void Canvas::addSegment( Segment* segment )
         name << "segment" << _segments.size() + 1;
         segment->setName( name.str( ));
     }
+    
+    // if segment has no frustum and canvas has frustum
+    if(( segment->getCurrentFrustum() == TYPE_NONE ))
+    {
+        switch( getCurrentFrustum( ))
+        {
+            // set segment frustum = canvas frustum X segment viewport
+            case Segment::TYPE_WALL:
+            {
+                eq::Wall wallCanvas( getWall() );
+                Viewport viewport = segment->getViewport();
+                    
+                wallCanvas.apply( viewport );
+                segment->setWall( wallCanvas );
+                EQINFO << "Segment " << segment->getName() << segment->getWall() << std::endl;
+                break;
+            }
+            case Segment::TYPE_PROJECTION:
+            {
+                eq::Projection projection( getProjection( ));
+                EQUNIMPLEMENTED;
+                //to do compute new projection
+
+                
+                segment->setProjection( projection );
+                break;
+            }
+            default: 
+                break; 
+        }
+    }
 
     _segments.push_back( segment );
 }
@@ -77,6 +112,85 @@ void Canvas::addSegment( Segment* segment )
 void Canvas::useLayout( Layout* layout )
 {
     _layout = layout;
+    return; // untested code below:
+    // for each segment
+    for( SegmentVector::const_iterator i = _segments.begin(); 
+         i != _segments.end(); ++i )
+    {
+        Segment* segment = *i;
+        
+        Channel* channel = segment->getChannel();
+        std::string channelName = channel->getName();
+        if ( channelName.find( '.' + layout->getName()) != std::string::npos )
+        {
+            // increase channel, window, pipe, node activation count
+            channel->activate();
+
+            Node* node     = channel->getNode();
+            if( node == 0)
+            {
+                node = new Node();
+                node->startConfigInit( _config->getInitID() );
+            }
+
+
+            Pipe* pipe     = channel->getPipe();
+            if( pipe == 0 )
+            {
+                pipe = new Pipe();
+                pipe->startConfigInit( _config->getInitID() );
+            }
+
+
+            Window* window = channel->getWindow();
+            if( window == 0 )
+            {
+               window = new Window();
+               window->startConfigInit( _config->getInitID() );
+            }
+
+        }
+
+           
+        if ( channelName.find( '.' + layout->getName()) != std::string::npos )
+        {
+            // decrease channel, window, pipe, node activation count
+            // exit and release entities with 0 activation count
+            channel->deactivate();
+
+            Node* node     = channel->getNode();
+
+            if( !node->isActive())
+            {
+                eq::ConfigExitPacket configExitPacket;
+                configExitPacket.requestID  = getID();
+                net::NodePtr netNode = node->getNode();
+                netNode->send( configExitPacket );
+            }
+
+            Pipe* pipe     = channel->getPipe();
+            if( !pipe->isActive())
+            {
+           /*     eq::ConfigExitPacket configExitPacket;
+                configExitPacket.requestID  = getID();
+                net::NodePtr netNode = pipe->getPipe();
+                netNode->send( configExitPacket );*/
+            }
+
+            Window* window = channel->getWindow();
+            if( !window->isActive())
+            {
+             /*   eq::ConfigExitPacket configExitPacket;
+                configExitPacket.requestID  = getID();
+                
+                net::NodePtr netNode  = window->getNode();
+                netNode->send( configExitPacket );*/
+            }   
+               
+        }   
+    }
+                
+    
 }
 
 VisitorResult Canvas::accept( CanvasVisitor* visitor )

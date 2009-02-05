@@ -278,6 +278,13 @@ void Compound::setLoadBalancer( LoadBalancer* loadBalancer )
     _loadBalancer = loadBalancer;
 }
 
+bool Compound::isActive() const 
+{
+    if( _data.channel )
+        return _inherit.active && _data.channel->isActive(); 
+
+    return _inherit.active;
+}
 //---------------------------------------------------------------------------
 // Listener interface
 //---------------------------------------------------------------------------
@@ -378,6 +385,23 @@ void Compound::_setDefaultFrameName( Frame* frame )
     frame->setName( "frame" );
 }
 
+bool Compound::isDestination() const
+{
+    if( getChannel() == 0 )
+        return false;
+    
+    if( getParent() == 0 )
+        return true;
+
+    for( const Compound* compound = getParent(); compound;
+         compound = compound->getParent())
+    {
+        if( compound->getChannel() )
+            return false;
+    }
+
+    return true;
+}
 //---------------------------------------------------------------------------
 // view operations
 //---------------------------------------------------------------------------

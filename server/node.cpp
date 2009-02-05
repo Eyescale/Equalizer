@@ -29,6 +29,7 @@ typedef net::CommandFunc<Node> NodeFunc;
 void Node::_construct()
 {
     _used           = 0;
+    _active         = 1;
     _config         = 0;
     _tasks          = eq::TASK_NONE;
     _lastDrawPipe   = 0;
@@ -193,7 +194,7 @@ void Node::startConfigInit( const uint32_t initID )
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
-        if( !pipe->isUsed( ))
+        if( !pipe->isUsed( ) || !pipe->isActive( ) )
             continue;
         
         _config->registerObject( pipe );

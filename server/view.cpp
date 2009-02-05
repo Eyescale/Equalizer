@@ -107,6 +107,24 @@ void View::updateHead()
     _data.applyHead( config->getHeadMatrix(), getEyeBase( ));
 }
 
+void View::addChannel( Channel* channel )
+{
+    _channels.push_back( channel ); 
+}
+
+
+bool View::removeChannel( Channel* channel )
+{
+    ChannelVector::iterator i = find( _channels.begin(), 
+                                      _channels.end(), channel );
+
+    if( i == _channels.end( ))
+        return false;
+
+    _channels.erase( i );
+    return true;
+}
+
 std::ostream& operator << ( std::ostream& os, const View* view )
 {
     if( !view )

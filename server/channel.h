@@ -107,7 +107,25 @@ namespace server
          * @return <code>true</code> if this channel is actively used,
          *         <code>false</code> if not.
          */
-        bool isUsed() const { return (_used!=0); }
+        bool isUsed() const { return( _used!=0 ); }
+
+        /**
+         * Increase channel activition count.
+         */
+        void activate();
+
+        /** 
+         * Decrease channel activition count.
+         */
+        void deactivate();
+
+        /** 
+         * Returns if this channel is actively used.
+         *
+         * @return <code>true</code> if this channel has activation,
+         *         <code>false</code> if not.
+         */
+        bool isActive() const{ return( _active != 0 ); }
 
         /**
          * Add additional tasks this channel, and all its parents, might
@@ -273,6 +291,9 @@ namespace server
         //-------------------- Members --------------------
         /** Number of entitities actively using this channel. */
         uint32_t _used;
+
+        /** Number of activations for this channel. */
+        uint32_t _active;
 
         /** The view used by this channel. */
         const eq::View* _view;

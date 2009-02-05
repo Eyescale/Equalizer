@@ -36,6 +36,7 @@ typedef net::CommandFunc<Channel> ChannelFunc;
 void Channel::_construct()
 {
     _used             = 0;
+    _active           = 1;
     _view             = 0;
     _window           = 0;
     _fixedPVP         = false;
@@ -160,7 +161,6 @@ net::CommandQueue* Channel::getCommandThreadQueue()
     return _window->getCommandThreadQueue(); 
 }
 
-
 void Channel::refUsed()
 {
     ++_used;
@@ -174,6 +174,21 @@ void Channel::unrefUsed()
     --_used;
     if( _window ) 
         _window->unrefUsed(); 
+}
+
+void Channel::activate()
+{ 
+    ++_active;
+    EQASSERT( _window );
+    _window->activate();
+}
+
+void Channel::deactivate()
+{ 
+    EQASSERT( _active != 0 );
+    --_active; 
+    EQASSERT( _window );
+    _window->deactivate(); 
 }
 
 void Channel::addTasks( const uint32_t tasks )

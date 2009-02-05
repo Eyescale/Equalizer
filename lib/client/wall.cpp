@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "wall.h"
@@ -42,6 +42,17 @@ void Wall::resizeVertical( const float ratio )
     topLeft     += delta;
 }
 
+void Wall::apply( const Viewport& viewport)
+{
+    vmml::Vector3f u = bottomRight - bottomLeft;
+    vmml::Vector3f v = topLeft - bottomLeft;
+    
+    bottomLeft  = bottomLeft + u * viewport.x + v * viewport.y;
+    bottomRight = bottomLeft + u * viewport.w;
+    topLeft     = bottomLeft + v * viewport.h;  
+    
+}
+    
 bool Wall::operator == ( const Wall& rhs ) const
 {
     return ( bottomLeft  == rhs.bottomLeft  &&
@@ -63,7 +74,7 @@ ostream& operator << ( ostream& os, const Wall& wall )
     os << "bottom_left  " << wall.bottomLeft << endl;
     os << "bottom_right " << wall.bottomRight << endl;
     os << "top_left     " << wall.topLeft << endl;
-    os << exdent << "}";
+    os << exdent << "}" << endl;
     return os;
 }
 

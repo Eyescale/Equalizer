@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WALL_H
@@ -7,7 +7,7 @@
 
 #include <eq/base/base.h>
 #include <vmmlib/vmmlib.h>  // member
-
+#include "viewport.h"
 #include <iostream>
 
 namespace eq
@@ -38,6 +38,8 @@ namespace eq
          * @param ratio the amount by which the wall is grown or shrunk.
          */
         void resizeVertical( const float ratio );
+        
+        void apply( const Viewport& viewport);
 
         //TODO /** Set the wall parameters from a projection description. */
         //Wall& operator = ( const Projection& projection );

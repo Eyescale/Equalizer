@@ -29,10 +29,12 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
         if( compound->getLatestView() != eq::View::TYPE_NONE )
         {
             const eq::View& view = compound->getView();
-            EQASSERT( view.getID() != EQ_ID_INVALID );
-            EQASSERTINFO( !channel->getView(),
+            if ( view.getID() != EQ_ID_INVALID )
+            {
+               EQASSERTINFO( !channel->getView(),
                           "Multiple views per channel are not supported" );
-            channel->setView( &view );
+               channel->setView( &view );
+            }
         }
     }
 

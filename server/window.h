@@ -108,7 +108,25 @@ namespace server
          * @return <code>true</code> if this window is actively used,
          *         <code>false</code> if not.
          */
-        bool isUsed() const { return (_used!=0); }
+        bool isUsed() const { return( _used!=0 ); }
+
+        /**
+         * Increase window activition count.
+         */
+        void activate();
+
+        /** 
+         * Decrease window activition count.
+         */
+        void deactivate();
+
+        /** 
+         * Returns if this window is actively used.
+         *
+         * @return <code>true</code> if this window has activation,
+         *         <code>false</code> if not.
+         */
+        bool isActive() const{ return ( _active != 0 ); }
 
         /**
          * Add additional tasks this window, and all its parents, might
@@ -276,6 +294,9 @@ namespace server
 
         /** Number of entitities actively using this window. */
         uint32_t _used;
+
+        /** Number of activations for this window. */
+        uint32_t _active;
 
         /** The parent pipe. */
         Pipe* _pipe;

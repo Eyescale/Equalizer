@@ -99,7 +99,25 @@ namespace server
          * @return <code>true</code> if this pipe is actively used,
          *         <code>false</code> if not.
          */
-        bool isUsed() const { return (_used!=0); }
+        bool isUsed() const { return( _used!=0 ); }
+
+        /**
+         * Increase  pipe activition count.
+         */
+        void activate();
+
+        /** 
+         * decrease  pipe activition count.
+         */
+        void deactivate();
+
+        /** 
+         * Returns if this pipe is actively used.
+         *
+         * @return <code>true</code> if this pipe has activation,
+         *         <code>false</code> if not.
+         */
+        bool isActive() const{ return( _active != 0 ); }
 
         /**
          * Add additional tasks this pipe, and all its parents, might
@@ -233,6 +251,9 @@ namespace server
 
         /** Number of entitities actively using this pipe. */
         uint32_t _used;
+
+        /** Number of activations for this pipe. */
+        uint32_t _active;
 
         /** The reason for the last error. */
         std::string _error;

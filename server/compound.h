@@ -110,11 +110,14 @@ namespace server
          */
         bool removeChild( Compound* child );
 
+        /** @return if the compound is active. */
+        bool isActive() const;
+
         /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }
 
-        /** @return if the compound is active. */
-        bool isActive() const { return _inherit.active; }
+        /** @return if the compound has the destination channel. */
+        bool isDestination() const;
         
         /** @return the children of this compound. */
         const CompoundVector& getChildren() const { return _children; }

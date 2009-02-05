@@ -6,6 +6,7 @@
 #define EQSERVER_VIEW_H
 
 #include "viewVisitor.h"        // used in inline method
+#include "types.h"
 
 #include <eq/client/view.h>     // base class
 #include <eq/client/viewport.h> // member
@@ -71,10 +72,33 @@ namespace server
             { return visitor->visit( this ); }
         //*}
 
+        /** 
+         * Adds a new channel to this config.
+         * 
+         * @param channel the channel.
+         */
+        void addChannel( Channel* channel );
+        
+        /** 
+         * Removes a node channel this config.
+         * 
+         * @param channel the channel
+         * @return <code>true</code> if the channel was removed, 
+         *         <code>false</code> otherwise.
+         */
+        bool removeChannel( Channel* channel );
+        
+        /** @return the vector of channels. */
+        const ChannelVector& getChannels() const{ return _channels; }
+        
     protected:
         virtual void applyInstanceData( net::DataIStream& is );
 
     private:
+
+        /** The list of channels. */
+        ChannelVector _channels;
+        
         ViewData& _data;
 
         /** Update the view (wall/projection). */
