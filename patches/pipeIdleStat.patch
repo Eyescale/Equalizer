@@ -1,0 +1,312 @@
+Index: lib/Makefile
+===================================================================
+--- lib/Makefile	(revision 2530)
++++ lib/Makefile	(working copy)
+@@ -195,6 +195,7 @@
+ 	client/objectManager.cpp \
+ 	client/osWindow.cpp \
+ 	client/pipe.cpp \
++	client/pipeStatistics.cpp \
+ 	client/projection.cpp \
+ 	client/range.cpp \
+ 	client/renderContext.cpp \
+Index: lib/client/event.h
+===================================================================
+--- lib/client/event.h	(revision 2530)
++++ lib/client/event.h	(working copy)
+@@ -122,6 +122,7 @@
+             WINDOW_FINISH,
+             WINDOW_SWAP_BARRIER,
+             WINDOW_SWAP,
++            PIPE_IDLE,
+             NODE_TRANSMIT,
+             NODE_COMPRESS,
+             CONFIG_START_FRAME,
+@@ -132,8 +133,17 @@
+ 
+         Type     type;
+         uint32_t frameNumber;
+-        int64_t  startTime;
+-        int64_t  endTime;
++        union
++        {
++            int64_t  startTime;
++            int64_t  idleTime;
++        };
++        union
++        {
++            int64_t  endTime;
++            int64_t  totalTime;
++        };
++
+         char     resourceName[32];
+     };
+ 
+Index: lib/client/pipe.h
+===================================================================
+--- lib/client/pipe.h	(revision 2530)
++++ lib/client/pipe.h	(working copy)
+@@ -467,6 +467,9 @@
+         /** The base time for the currently active frame. */
+         int64_t _frameTime;
+ 
++        /** The time spent waiting since the last frame start. */
++        int64_t _waitTime;
++
+         /** All assembly frames used by the pipe during rendering. */
+         net::IDHash< Frame* > _frames;
+ 
+Index: lib/client/pipe.cpp
+===================================================================
+--- lib/client/pipe.cpp	(revision 2530)
++++ lib/client/pipe.cpp	(working copy)
+@@ -9,6 +9,7 @@
+ #include "global.h"
+ #include "log.h"
+ #include "nodeFactory.h"
++#include "pipeStatistics.h"
+ #include "packets.h"
+ #include "X11Connection.h"
+ #include "window.h"
+@@ -45,6 +46,7 @@
+         , _state( STATE_STOPPED )
+         , _currentFrame( 0 )
+         , _frameTime( 0 )
++        , _waitTime( 0 )
+         , _thread( 0 )
+         , _pipeThreadQueue( 0 )
+ {
+@@ -356,7 +358,10 @@
+ 
+     while( _thread->isRunning( ))
+     {
++        const int64_t startWait = config->getTime();
+         net::Command* command = _pipeThreadQueue->pop();
++        _waitTime += ( config->getTime() - startWait );
++
+         switch( config->invokeCommand( *command ))
+         {
+             case net::COMMAND_HANDLED:
+@@ -1103,9 +1108,7 @@
+     EQVERB << "handle pipe frame start " << packet << endl;
+     EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << endl;
+ 
+-    const uint32_t frameNumber = packet->frameNumber;
+-    EQASSERTINFO( _currentFrame + 1 == frameNumber,
+-                  "current " << _currentFrame << " start " << frameNumber );
++    const int64_t lastFrameTime = _frameTime;
+ 
+     _frameTimeMutex.set();
+     EQASSERT( !_frameTimes.empty( ));
+@@ -1114,6 +1117,18 @@
+     _frameTimes.pop_front();
+     _frameTimeMutex.unset();
+ 
++    if( lastFrameTime > 0 )
++    {
++        PipeStatistics waitEvent( Statistic::PIPE_IDLE, this );
++        waitEvent.event.data.statistic.idleTime  = _waitTime;
++        waitEvent.event.data.statistic.totalTime = _frameTime - lastFrameTime;
++    }
++    _waitTime = 0;
++
++    const uint32_t frameNumber = packet->frameNumber;
++    EQASSERTINFO( _currentFrame + 1 == frameNumber,
++                  "current " << _currentFrame << " start " << frameNumber );
++
+     frameStart( packet->frameID, frameNumber );
+     return net::COMMAND_HANDLED;
+ }
+Index: lib/client/channel.cpp
+===================================================================
+--- lib/client/channel.cpp	(revision 2530)
++++ lib/client/channel.cpp	(working copy)
+@@ -508,9 +508,21 @@
+     return true;
+ }
+ 
++namespace
++{
+ #define HEIGHT 12
+ #define SPACE  2
+ 
++struct EntityData
++{
++    EntityData() : yPos( 0 ), idle( 0 ), nIdle( 0 ) {}
++    uint32_t yPos;
++    uint32_t idle;
++    uint32_t nIdle;
++    std::string name;
++};
++}
++
+ void Channel::drawStatistics()
+ {
+     Config* config = getConfig();
+@@ -557,6 +569,9 @@
+                  k != stats.end(); ++k )
+             {
+                 const Statistic& stat = *k;
++                if( stat.type == Statistic::PIPE_IDLE )
++                    continue;
++
+                 xMax = EQ_MAX( xMax, stat.endTime );
+                 xMin = EQ_MIN( xMin, stat.endTime );
+             }
+@@ -569,7 +584,8 @@
+     xMax  /= scale;
+     xStart = xMax - pvp.getXEnd() + SPACE;
+     uint32_t                       nextY = pvp.getYEnd() - SPACE;
+-    std::map< uint32_t, uint32_t > positions;
++
++    std::map< uint32_t, EntityData > entities;
+ 
+     float dim = 0.0f;
+     for( vector< FrameStatistics >::reverse_iterator i = statistics.rbegin();
+@@ -591,25 +607,30 @@
+             if( stats.empty( ))
+                 continue;
+ 
+-            if( positions.find( id ) == positions.end( ))
++            if( entities.find( id ) == entities.end( ))
+             {
+-                positions.insert( 
+-                    std::pair< uint32_t, uint32_t >( id, nextY ));
++                EntityData& data = entities[ id ];
++                data.yPos = nextY;
++                data.name = stats.front().resourceName;
++
+                 nextY -= (HEIGHT + SPACE);
+             }
+ 
+-            const uint32_t y = positions[ id ];
+-
+-            const Statistic& nameStat = stats.front();
+-            glColor3f( 1.f, 1.f, 1.f );
+-            glRasterPos3f( 100.f, y-SPACE-12.0f, 0.99f );
+-            font.draw( nameStat.resourceName );
++            const uint32_t y = entities[ id ].yPos;
+ 
+-            glBegin( GL_QUADS );
+             for( Statistics::const_iterator k = stats.begin(); 
+                  k != stats.end(); ++k )
+             {
+                 const Statistic& stat = *k;
++
++                if( stat.type == Statistic::PIPE_IDLE )
++                {
++                    EntityData& data = entities[ id ];
++                    data.idle += (stat.idleTime * 100ll / stat.totalTime);
++                    ++data.nIdle;
++                    continue;
++                }
++
+                 const int64_t startTime = stat.startTime / scale;
+                 const int64_t endTime   = stat.endTime   / scale;
+ 
+@@ -689,12 +710,13 @@
+                 const float x1 = startTime - xStart;
+                 const float x2 = endTime   - xStart;
+                 
++                glBegin( GL_QUADS );
+                 glVertex3f( x2, y1, z );
+                 glVertex3f( x1, y1, z );
+                 glVertex3f( x1, y2, z );
+                 glVertex3f( x2, y2, z );
++                glEnd();
+             }
+-            glEnd();
+         }
+ 
+         frameMin -= xStart;
+@@ -717,6 +739,21 @@
+         dim += .2f;
+     }
+ 
++    for( std::map< uint32_t, EntityData >::const_iterator i = entities.begin();
++         i != entities.end(); ++i )
++    {
++        const EntityData& data = i->second;
++        ostringstream text;
++
++        text << data.name;
++        if( data.nIdle > 0 )
++            text << "  " << data.idle / data.nIdle << "% idle";
++            
++        glColor3f( 1.f, 1.f, 1.f );
++        glRasterPos3f( 100.f, data.yPos-SPACE-12.0f, 0.99f );
++        font.draw( text.str( ));
++    }
++
+     glColor3f( 1.f, 1.f, 1.f );
+     ostringstream scaleText;
+     scaleText << ": " << scale << "ms/pixel";
+Index: VS2005/Equalizer.vcproj
+===================================================================
+--- VS2005/Equalizer.vcproj	(revision 2530)
++++ VS2005/Equalizer.vcproj	(working copy)
+@@ -7670,6 +7670,26 @@
+ 				</FileConfiguration>
+ 			</File>
+ 			<File
++				RelativePath="..\lib\client\pipeStatistics.cpp"
++				>
++				<FileConfiguration
++					Name="Debug|Win32"
++					>
++					<Tool
++						Name="VCCLCompilerTool"
++						SuppressStartupBanner="false"
++					/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug|x64"
++					>
++					<Tool
++						Name="VCCLCompilerTool"
++						SuppressStartupBanner="false"
++					/>
++				</FileConfiguration>
++			</File>
++			<File
+ 				RelativePath="..\lib\client\windowStatistics.h"
+ 				>
+ 				<FileConfiguration
+Index: XCode/Equalizer.xcodeproj/project.pbxproj
+===================================================================
+--- XCode/Equalizer.xcodeproj/project.pbxproj	(revision 2530)
++++ XCode/Equalizer.xcodeproj/project.pbxproj	(working copy)
+@@ -31,6 +31,7 @@
+ 
+ /* Begin PBXBuildFile section */
+ 		2B4FCBB90ED599A600222DFA /* nodeStatistics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4FCBB80ED599A600222DFA /* nodeStatistics.cpp */; };
++		2BA4EFA20F3B22D500FCFB3B /* pipeStatistics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BA4EFA00F3B22D500FCFB3B /* pipeStatistics.cpp */; };
+ 		7BA12F3B0EB740C8009CCB41 /* barrier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BA12F090EB740C8009CCB41 /* barrier.cpp */; };
+ 		7BA12F410EB740C8009CCB41 /* debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BA12F0F0EB740C8009CCB41 /* debug.cpp */; };
+ 		7BA12F470EB740C8009CCB41 /* idPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BA12F150EB740C8009CCB41 /* idPool.cpp */; };
+@@ -377,6 +378,8 @@
+ 
+ /* Begin PBXFileReference section */
+ 		2B4FCBB80ED599A600222DFA /* nodeStatistics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nodeStatistics.cpp; sourceTree = "<group>"; };
++		2BA4EFA00F3B22D500FCFB3B /* pipeStatistics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pipeStatistics.cpp; path = ../lib/client/pipeStatistics.cpp; sourceTree = SOURCE_ROOT; };
++		2BA4EFA10F3B22D500FCFB3B /* pipeStatistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pipeStatistics.h; path = ../lib/client/pipeStatistics.h; sourceTree = SOURCE_ROOT; };
+ 		7BA12F050EB740B1009CCB41 /* eq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eq.h; path = ../lib/eq.h; sourceTree = SOURCE_ROOT; };
+ 		7BA12F080EB740C8009CCB41 /* atomic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomic.h; sourceTree = "<group>"; };
+ 		7BA12F090EB740C8009CCB41 /* barrier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = barrier.cpp; sourceTree = "<group>"; };
+@@ -1560,6 +1563,8 @@
+ 		7BB6449D0EB7404100BB5992 /* Equalizer Client Library */ = {
+ 			isa = PBXGroup;
+ 			children = (
++				2BA4EFA00F3B22D500FCFB3B /* pipeStatistics.cpp */,
++				2BA4EFA10F3B22D500FCFB3B /* pipeStatistics.h */,
+ 				7BA130F30EB7415C009CCB41 /* vmmlib */,
+ 				7BA130EC0EB74128009CCB41 /* util */,
+ 				7BA130E90EB74110009CCB41 /* glew */,
+@@ -2667,6 +2672,7 @@
+ 				7BA130EB0EB74110009CCB41 /* glew.c in Sources */,
+ 				7BA130F00EB74128009CCB41 /* bitmapFont.cpp in Sources */,
+ 				2B4FCBB90ED599A600222DFA /* nodeStatistics.cpp in Sources */,
++				2BA4EFA20F3B22D500FCFB3B /* pipeStatistics.cpp in Sources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
