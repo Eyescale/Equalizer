@@ -17,7 +17,7 @@ namespace eq
 namespace server
 {
     class Channel;
-    class ViewData;
+    class FrustumData;
     
     /**
      * The compound visitor generating the draw tasks for a channel.
@@ -60,7 +60,7 @@ namespace server
                               eq::RenderContext& context );
         void   _computeFrustumCorners( vmml::Frustumf& frustum,
                                        const Compound* compound,
-                                       const ViewData& viewData,
+                                       const FrustumData& frustumData,
                                        const vmml::Vector3f& eye,
                                        const bool ortho );
         void _updatePostDraw( const Compound* compound, 

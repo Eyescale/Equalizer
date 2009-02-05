@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WINDOWSYSTEM_H
@@ -40,6 +40,12 @@ namespace eq
 #ifdef GLX
 #  include <X11/Xlib.h>
 #  include <GL/glx.h>
+#  ifndef GLX_SAMPLE_BUFFERS
+#    define GLX_SAMPLE_BUFFERS 100000
+#  endif
+#  ifndef GLX_SAMPLES
+#    define GLX_SAMPLES 100001
+#  endif
 #endif
 
 #ifdef AGL

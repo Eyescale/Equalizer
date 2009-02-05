@@ -8,8 +8,8 @@
 #include "canvas.h"
 #include "compound.h"
 #include "compoundVisitor.h"
-#include "constCompoundVisitor.h"
 #include "configUpdateDataVisitor.h"
+#include "constCompoundVisitor.h"
 #include "global.h"
 #include "layout.h"
 #include "loadBalancer.h"
@@ -17,6 +17,7 @@
 #include "node.h"
 #include "segment.h"
 #include "server.h"
+#include "view.h"
 
 #include <eq/net/command.h>
 #include <eq/net/global.h>
@@ -209,7 +210,7 @@ void Config::addLayout( Layout* layout )
         layout->setName( name.str( ));
     }
 
-//    layout->_config = this;
+    layout->_config = this;
     _layouts.push_back( layout );
 }
 
@@ -283,22 +284,25 @@ public:
             
             if(  _channelName.find( outputChannel->getName()) != string::npos )
             {   
-                //if segment has frustum
-                switch ( segment->getCurrentFrustum())
+                // if segment has frustum
+                switch ( segment->getCurrentType())
                 {
                     case View::TYPE_WALL:
                     {
-                        // set compound frustum = segment frustum X channel/segment coverage
-                        const Viewport& outputViewPortChannel = outputChannel->getViewport();
-                        Viewport computeViewport = destinationChannel->getViewport( );                     
+                        // set compound frustum =
+                        //         segment frustum X channel/segment coverage
+                        const Viewport& outputViewPortChannel = 
+                            outputChannel->getViewport();
+                        Viewport computeViewport = 
+                            destinationChannel->getViewport( ); 
                         computeViewport.intersect( outputViewPortChannel );
                         computeViewport.transform( outputViewPortChannel );
 
                         Wall wallSegment = segment->getWall();
                         wallSegment.apply( computeViewport );
                         compound->setWall( wallSegment );
-                        EQINFO << "set compound frustum = segment frustum X channel/segment coverage" << std::endl;
-                        EQINFO << "Compound Wall = " << wallSegment << std::endl;
+                        EQINFO << "Compound Wall = " << wallSegment
+                               << std::endl;
                         break;
                     }
                     case View::TYPE_PROJECTION:
@@ -791,24 +795,21 @@ public:
 
     virtual VisitorResult visit( Compound* compound )
         { 
-            View& view = compound->getView();
-            if( view.getCurrentType() == eq::View::TYPE_NONE )
-                return TRAVERSE_CONTINUE;
-
-            if( view.getEyeBase() == 0.f )
-            {
-                Config* config = compound->getConfig();
-                EQASSERT( config );
-                view.setEyeBase(
-                    config->getFAttribute( Config::FATTR_EYE_BASE ));
-            }
-
+            // TODO: belongs to observer
             Config* config = compound->getConfig();
+            compound->getFrustum().setEyeBase(
+                config->getFAttribute( Config::FATTR_EYE_BASE ));
+            return TRAVERSE_CONTINUE; 
+        }
+
+    virtual VisitorResult visit( View* view )
+        { 
+            Config* config = view->getConfig();
             EQASSERT( config );
-            EQASSERT( view.getID() == EQ_ID_INVALID );
+            EQASSERT( view->getID() == EQ_ID_INVALID );
             
-            config->registerObject( &view );
-            _os << view.getID();
+            config->registerObject( view );
+            _os << view->getID();
             return TRAVERSE_CONTINUE; 
         }
 
@@ -1176,17 +1177,13 @@ class ViewUnmapper : public ConfigVisitor
 public:
     virtual ~ViewUnmapper(){}
 
-    virtual VisitorResult visit( Compound* compound )
+    virtual VisitorResult visit( View* view )
         { 
-            if( compound->getLatestView() != eq::View::TYPE_NONE )
+            if( view->getID() != EQ_ID_INVALID )
             {
-                eq::View& view = compound->getView();
-                if( view.getID() != EQ_ID_INVALID )
-                {
-                    Config* config = compound->getConfig();
-                    EQASSERT( config );
-                    config->unmapObject( &view );
-                }
+                Config* config = view->getConfig();
+                EQASSERT( config );
+                config->unmapObject( view );
             }
 
             return TRAVERSE_CONTINUE; 
@@ -1219,8 +1216,8 @@ public:
 
     virtual VisitorResult visit( Compound* compound )
         { 
-            if( compound->getLatestView() != eq::View::TYPE_NONE )
-                compound->getView().updateHead();
+            if( compound->getLatestFrustum() != eq::Frustum::TYPE_NONE )
+                compound->getFrustum().updateHead();
 
             return TRAVERSE_CONTINUE; 
         }

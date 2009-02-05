@@ -1,8 +1,8 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "viewData.h"
+#include "frustumData.h"
 
 #include <eq/client/projection.h>
 #include <eq/client/wall.h>
@@ -13,7 +13,7 @@ namespace eq
 {
 namespace server
 {
-void ViewData::applyWall( const eq::Wall& wall )
+void FrustumData::applyWall( const eq::Wall& wall )
 {
     vmml::Vector3f u = wall.bottomRight - wall.bottomLeft;
     vmml::Vector3f v = wall.topLeft - wall.bottomLeft;
@@ -50,7 +50,7 @@ void ViewData::applyWall( const eq::Wall& wall )
     _xfm.ml[15] = 1.;
 }
 
-void ViewData::applyProjection( const eq::Projection& projection )
+void FrustumData::applyProjection( const eq::Projection& projection )
 {
     const float cosH = cosf( DEG2RAD( projection.hpr[0] ));
     const float sinH = sinf( DEG2RAD( projection.hpr[0] ));
@@ -99,7 +99,7 @@ void ViewData::applyProjection( const eq::Projection& projection )
     _height = distance * 2.f * tanf(DEG2RAD( .5f * projection.fov[1] ));
 }
  
-void ViewData::applyHead( const vmml::Matrix4f& head, const float eyeBase )
+void FrustumData::applyHead( const vmml::Matrix4f& head, const float eyeBase )
 {
     const float         eyeBase_2 = .5f * eyeBase;
 
@@ -124,10 +124,10 @@ void ViewData::applyHead( const vmml::Matrix4f& head, const float eyeBase )
     EQVERB << "Eye position: " << _eyes[ eq:: EYE_CYCLOP ] << std::endl;
 }
 
-std::ostream& operator << ( std::ostream& os, const ViewData& viewData )
+std::ostream& operator << ( std::ostream& os, const FrustumData& frustumData )
 {
-    os << "size: " << viewData.getViewWidth() << "x" << viewData.getViewHeight()
-       << " xfm: " << viewData.getViewTransform() << std::endl;
+    os << "size: " << frustumData.getWidth() << "x" << frustumData.getHeight()
+       << " xfm: " << frustumData.getTransform() << std::endl;
     return os;
 }
 

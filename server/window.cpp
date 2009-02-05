@@ -74,7 +74,7 @@ Window::~Window()
     if( _pipe )
         _pipe->removeWindow( this );
     
-    for( vector<Channel*>::const_iterator i = _channels.begin(); 
+    for( ChannelVector::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
@@ -114,7 +114,7 @@ void Window::addChannel( Channel* channel )
 
 bool Window::removeChannel( Channel* channel )
 {
-    vector<Channel*>::iterator i = find( _channels.begin(), _channels.end(),
+    ChannelVector::iterator i = find( _channels.begin(), _channels.end(),
                                         channel );
     if( i == _channels.end( ))
         return false;
@@ -249,7 +249,7 @@ void Window::notifyViewportChanged()
     }
     EQINFO << "Window viewport update: " << _pvp << ":" << _vp << endl;
 
-    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+    for( ChannelVector::iterator i = _channels.begin();
          i != _channels.end(); ++i )
 
         (*i)->notifyViewportChanged();
@@ -305,7 +305,7 @@ void Window::startConfigInit( const uint32_t initID )
     Config* config = getConfig();
     eq::WindowCreateChannelPacket createChannelPacket;
 
-    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+    for( ChannelVector::iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
@@ -341,7 +341,7 @@ void Window::_sendConfigInit( const uint32_t initID )
 bool Window::syncConfigInit()
 {
     bool success = true;
-    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+    for( ChannelVector::iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
@@ -374,7 +374,7 @@ void Window::startConfigExit()
     _state = STATE_STOPPING;
     _tasks = eq::TASK_NONE;
 
-    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+    for( ChannelVector::iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
@@ -407,7 +407,7 @@ bool Window::syncConfigExit()
     Config* config = getConfig();
     eq::WindowDestroyChannelPacket destroyChannelPacket;
 
-    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+    for( ChannelVector::iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;

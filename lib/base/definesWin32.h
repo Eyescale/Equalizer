@@ -19,10 +19,7 @@
 #ifndef GLEW_MX
 #  define GLEW_MX
 #endif
-//#ifndef EQ_BUILD_FOR_SDP
-//#  define EQ_BUILD_FOR_SDP
-//#endif
-#ifdef EQ_BUILD_FOR_SDP
+#if 0
 #  ifndef EQ_WIN32_SDP_JOIN_WAR // see thread.cpp
 #    define EQ_WIN32_SDP_JOIN_WAR
 #  endif

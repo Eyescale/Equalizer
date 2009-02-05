@@ -24,26 +24,26 @@ Canvas::~Canvas()
     _layout  = 0;
 }
 
-void Canvas::serialize( net::DataOStream& os, const uint32_t dirtyBits )
+void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
+    Frustum::serialize( os, dirtyBits );
+
     if( dirtyBits & DIRTY_LAYOUT )
         EQUNIMPLEMENTED;
-
-    Frustum::serialize( os, dirtyBits );
 }
 
-void Canvas::deserialize( net::DataIStream& is, const uint32_t dirtyBits )
+void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
-    if( _dirty & DIRTY_LAYOUT )
-        EQUNIMPLEMENTED;
-
     Frustum::deserialize( is, dirtyBits );
+
+    if( dirtyBits & DIRTY_LAYOUT )
+        EQUNIMPLEMENTED;
 }
 
 void Canvas::useLayout( Layout* layout )
 {
     _layout = layout;
-    _dirty |= DIRTY_LAYOUT;
+    setDirty( DIRTY_LAYOUT );
 }
 
 VisitorResult Canvas::accept( CanvasVisitor* visitor )

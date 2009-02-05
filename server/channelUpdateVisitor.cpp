@@ -286,18 +286,18 @@ eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
 void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
                                             eq::RenderContext& context )
 {
-    const ViewData& viewData = compound->getInheritViewData();
+    const FrustumData& frustumData = compound->getInheritFrustumData();
 
     // compute eye position in screen space
-    const vmml::Vector3f& eyeW = viewData.getEyePosition( _eye );
-    const vmml::Matrix4f& xfm  = viewData.getViewTransform();
+    const vmml::Vector3f& eyeW = frustumData.getEyePosition( _eye );
+    const vmml::Matrix4f& xfm  = frustumData.getTransform();
     const vmml::Vector3f  eye  = xfm * eyeW;
 
     EQVERB << "Eye position world: " << eyeW << " screen " << eye << endl;
 
     // compute perspective and orthographic frusta from size and eye position
-    _computeFrustumCorners( context.frustum, compound, viewData, eye, false );
-    _computeFrustumCorners( context.ortho,   compound, viewData, eye, true );
+    _computeFrustumCorners( context.frustum, compound, frustumData, eye, false);
+    _computeFrustumCorners( context.ortho,   compound, frustumData, eye, true );
 
     // compute head transform
     // headTransform = -trans(eye) * view matrix (frustum position)
@@ -313,7 +313,7 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
 
 void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
                                                    const Compound* compound,
-                                                   const ViewData& viewData, 
+                                                 const FrustumData& frustumData,
                                                    const vmml::Vector3f& eye,
                                                    const bool ortho )
 {
@@ -321,8 +321,8 @@ void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
     destination->getNearFar( &frustum.nearPlane, &frustum.farPlane );
 
     const float ratio    = ortho ? 1.0f : frustum.nearPlane / eye.z;
-    const float width_2  = viewData.getViewWidth()  * .5f;
-    const float height_2 = viewData.getViewHeight() * .5f;
+    const float width_2  = frustumData.getWidth()  * .5f;
+    const float height_2 = frustumData.getHeight() * .5f;
 
     if( eye.z > 0 || ortho )
     {

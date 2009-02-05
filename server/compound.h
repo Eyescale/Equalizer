@@ -6,8 +6,8 @@
 #define EQSERVER_COMPOUND_H
 
 #include "channel.h"               // used in inline method
-#include "view.h"                  // member
-#include "viewData.h"              // member
+#include "frustum.h"               // member
+#include "frustumData.h"           // member
 
 #include <eq/client/colorMask.h>
 #include <eq/client/frame.h>
@@ -166,8 +166,8 @@ namespace server
         Window* getWindow();
         const Window* getWindow() const;
 
-        /** @return the view of this compound. */
-        View& getView() { return _view; }
+        /** @return the frustum of this compound. */
+        Frustum& getFrustum() { return _frustum; }
 
         /** Attach a load balancer to this compound. */
         void setLoadBalancer( LoadBalancer* loadBalancer );
@@ -297,7 +297,8 @@ namespace server
         float getInheritMaxFPS()             const { return _inherit.maxFPS; }
         int32_t  getInheritIAttribute( const IAttribute attr ) const
             { return _inherit.iAttributes[attr]; }
-        const ViewData& getInheritViewData() const { return _inherit.viewData; }
+        const FrustumData& getInheritFrustumData() const 
+            { return _inherit.frustumData; }
         uint32_t getInheritTasks()           const { return _inherit.tasks; }
         uint32_t getInheritEyes()            const { return _inherit.eyes; }
         const Channel* getInheritChannel()   const { return _inherit.channel; }
@@ -321,21 +322,21 @@ namespace server
         //*}
 
         /**
-         * @name View Operations
+         * @name Frustum Operations
          */
         //*{
         /** 
-         * Set the compound's view using a wall description.
+         * Set the compound's frustum using a wall description.
          * 
          * @param wall the wall description.
          */
         void setWall( const eq::Wall& wall );
         
         /** @return the last specified wall description. */
-        const eq::Wall& getWall() const { return _view.getWall(); }
+        const eq::Wall& getWall() const { return _frustum.getWall(); }
 
         /** 
-         * Set the compound's view using a projection description
+         * Set the compound's frustum using a projection description
          * 
          * @param projection the projection description.
          */
@@ -343,10 +344,10 @@ namespace server
 
         /** @return the last specified projection description. */
         const eq::Projection& getProjection() const 
-            { return _view.getProjection(); }
+            { return _frustum.getProjection(); }
 
-        /** @return the type of the latest specified view. */
-        eq::View::Type getLatestView() const { return _view.getCurrentType(); }
+        /** @return the type of the latest specified frustum. */
+        eq::Frustum::Type getLatestFrustum() const { return _frustum.getCurrentType(); }
 
         /** @return the bitwise OR of the eye values. */
         uint32_t getEyes() const { return _data.eyes; }
@@ -483,7 +484,7 @@ namespace server
             eq::PixelViewport pvp;
             eq::Range         range;
             eq::Pixel         pixel;
-            ViewData          viewData;
+            FrustumData       frustumData;
             Screen            screen;
             eq::Zoom          zoom;
             uint32_t          buffers;
@@ -499,8 +500,8 @@ namespace server
         InheritData _data;
         InheritData _inherit;
 
-        /** The view description of this compound. */
-        View _view;
+        /** The frustum description of this compound. */
+        Frustum _frustum;
 
         typedef std::vector< CompoundListener* > CompoundListeners;
         CompoundListeners _listeners;

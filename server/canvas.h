@@ -40,16 +40,6 @@ namespace server
          * @name Data Access
          */
         //*{
-        /** 
-         * Set the name of this canvas.
-         *
-         * The names is used by the canvas referenc canvass in the config file.
-         */
-        void setName( const std::string& name ) { _name = name; }
-
-        /** @return the name of this canvas. */
-        const std::string& getName() const      { return _name; }
-
         /** Add a new segment to this canvas. */
         void addSegment( Segment* segment );
         

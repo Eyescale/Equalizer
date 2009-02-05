@@ -75,10 +75,10 @@ void Canvas::addSegment( Segment* segment )
         segment->setName( name.str( ));
     }
     
-    // if segment has no frustum and canvas has frustum
-    if(( segment->getCurrentFrustum() == TYPE_NONE ))
+    // if segment has no frustum...
+    if(( segment->getCurrentType() == TYPE_NONE ))
     {
-        switch( getCurrentFrustum( ))
+        switch( getCurrentType( )) // ... and canvas has frustum
         {
             // set segment frustum = canvas frustum X segment viewport
             case Segment::TYPE_WALL:
@@ -88,7 +88,8 @@ void Canvas::addSegment( Segment* segment )
                     
                 wallCanvas.apply( viewport );
                 segment->setWall( wallCanvas );
-                EQINFO << "Segment " << segment->getName() << segment->getWall() << std::endl;
+                EQINFO << "Segment " << segment->getName() << segment->getWall()
+                       << std::endl;
                 break;
             }
             case Segment::TYPE_PROJECTION:

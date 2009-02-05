@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_VIEW_H
@@ -15,52 +15,19 @@ namespace eq
 {
 namespace server
 {
-    struct ViewData;
+    class Config;
+    class Layout;
 
     /** 
-     * Extends the eq::View to update server-side generic view data.
+     * Extends the eq::View to implement server-side logic.
      */
     class View : public eq::View
     {
     public:
-        View( ViewData& data );
-        View( const View& from, ViewData& data );
-        virtual ~View(){}
-        
-        /** Set the view using a wall description. */
-        void setWall( const eq::Wall& wall );
-        
-        /** Set the view using a projection description. */
-        void setProjection( const eq::Projection& projection );
-
-        /** Set the eye separation. */
-        void setEyeBase( const float eyeBase );
-
-        /** Update the eye positions based on the head matrix. */
-        void updateHead();
-
-        // Used by Config
-        virtual void getInstanceData( net::DataOStream& os )
-            { eq::View::getInstanceData( os ); }
-
-        //----- New View API
         View();
-        View( const View& from );
+        virtual ~View();
 
-        /** Data access. */
-        //*{
-        /** 
-         * Set the view's area wrt its parent layout.
-         * 
-         * @param vp the fractional viewport.
-         */
-        void setViewport( const eq::Viewport& vp );
-
-        /** @return this view's viewport. */
-        const eq::Viewport& getViewport() const { return _vp; }
-        //*}
-
-        /** Operations */
+        /** @name Operations */
         //*{
         /** 
          * Traverse this view using a view visitor.
@@ -71,6 +38,17 @@ namespace server
         VisitorResult accept( ViewVisitor* visitor )
             { return visitor->visit( this ); }
         //*}
+        
+        /** @name Data Access. */
+        //*{
+        /** Set the area covered by this wrt it parent Layout. */
+        void setViewport( const Viewport& viewport );
+
+        /** @return the config of this view. */
+        Config* getConfig();
+
+        /** @return the config of this view. */
+        const Config* getConfig() const;
 
         /** 
          * Adds a new channel to this config.
@@ -92,22 +70,14 @@ namespace server
         const ChannelVector& getChannels() const{ return _channels; }
         
     protected:
-        virtual void applyInstanceData( net::DataIStream& is );
 
     private:
+        /** The parent Layout. */
+        Layout* _layout;
+        friend class Layout;
 
         /** The list of channels. */
         ChannelVector _channels;
-        
-        ViewData& _data;
-
-        /** Update the view (wall/projection). */
-        void _updateView();
-
-
-        //----- New View API
-        /** The fractional viewport with respect to the layout. */
-        eq::Viewport _vp;
     };
 
     std::ostream& operator << ( std::ostream& os, const View* view );

@@ -26,6 +26,7 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
     {
         channel->refUsed();
 
+#if 0
         if( compound->getLatestView() != eq::View::TYPE_NONE )
         {
             const eq::View& view = compound->getView();
@@ -36,6 +37,7 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
                channel->setView( &view );
             }
         }
+#endif
     }
 
     Config*        config  = compound->getConfig();

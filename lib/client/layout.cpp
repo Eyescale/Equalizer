@@ -18,23 +18,12 @@ Layout::Layout()
         : _config( 0 )
 {}
 
-Layout::Layout( const Layout& from )
-        : _config( 0 )
-        , _name( from._name )
-{
-    for( ViewVector::const_iterator i = from._views.begin();
-         i != from._views.end(); ++i )
-    {
-        _views.push_back( new View( **i ));
-    }
-}
-
 Layout::~Layout()
 {
     for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
     {
         View* view = *i;
-        removeView( view );
+        EQCHECK( _removeView( view ));
         delete view;
     }
 
@@ -82,21 +71,14 @@ VisitorResult Layout::accept( LayoutVisitor* visitor )
     return result;
 }
 
-void Layout::addView( View* view )
+void Layout::_addView( View* view )
 {
     EQASSERT( view );
-    if( view->getName().empty( ))
-    {
-        std::stringstream name;
-        name << "view" << _views.size() + 1;
-        view->setName( name.str( ));
-    }
-
     view->_layout = this;
     _views.push_back( view );
 }
 
-bool Layout::removeView( View* view )
+bool Layout::_removeView( View* view )
 {
     ViewVector::iterator i = find( _views.begin(), _views.end(), view );
     if( i == _views.end( ))

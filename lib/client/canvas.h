@@ -46,8 +46,6 @@ namespace server
          * @name Data Access
          */
         //*{
-        /** @return the name of this canvas. */
-        EQ_EXPORT const std::string& getName() const      { return _name; }
         //*}
 
         /**
@@ -67,23 +65,21 @@ namespace server
 
     protected:
         /** @sa Frustum::serialize */
-        EQ_EXPORT virtual void serialize( net::DataOStream& os, const uint32_t dirtyBits);
+        EQ_EXPORT virtual void serialize( net::DataOStream& os, 
+                                          const uint64_t dirtyBits );
         /** @sa Frustum::deserialize */
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
-                                  const uint32_t dirtyBits );
+                                            const uint64_t dirtyBits );
 
         enum DirtyBits
         {
             DIRTY_LAYOUT     = Frustum::DIRTY_CUSTOM << 0,
-            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 1
+            DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 1,
+            DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 2,
+            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 3
         };
 
     private:
-        friend class eq::server::Canvas;
-
-        /** The name of this canvas. */
-        std::string _name;
-
         /** The parent config. */
         Config* _config;
 

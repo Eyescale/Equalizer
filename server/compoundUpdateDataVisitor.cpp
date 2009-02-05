@@ -25,9 +25,11 @@ VisitorResult CompoundUpdateDataVisitor::visit(
 {
     compound->fireUpdatePre( _frameNumber );
 
+#if 0
     View& view = compound->getView();
     if( view.getID() != EQ_ID_INVALID )
         view.sync();
+#endif
 
     compound->updateInheritData( _frameNumber );
     _updateDrawFinish( compound );

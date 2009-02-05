@@ -16,6 +16,8 @@ CXXFILES = \
 	connectionDescription.cpp \
 	frame.cpp \
 	frameData.cpp \
+	frustum.cpp \
+	frustumData.cpp \
 	global.cpp \
 	layout.cpp \
 	loadBalancer.cpp \
@@ -30,7 +32,6 @@ CXXFILES = \
 	swapBarrier.cpp \
 	treeLoadBalancer.cpp \
 	view.cpp \
-	viewData.cpp \
 	window.cpp
 
 SIMPLE_CXXFILES = \

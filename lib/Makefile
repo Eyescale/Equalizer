@@ -95,6 +95,7 @@ HEADER_SRC = \
 	client/global.h \
 	client/image.h \
 	client/init.h \
+	client/layout.h \
 	client/log.h \
 	client/matrix4.h \
 	client/messagePump.h \
@@ -102,6 +103,7 @@ HEADER_SRC = \
 	client/nodeFactory.h \
 	client/nodeType.h \
 	client/nodeVisitor.h \
+	client/object.h \
 	client/objectManager.h \
 	client/osPipe.h \
 	client/osWindow.h \
@@ -120,6 +122,7 @@ HEADER_SRC = \
 	client/version.h \
 	client/view.h \
 	client/viewport.h \
+	client/viewVisitor.h \
 	client/visitorResult.h \
 	client/wall.h \
 	client/window.h \
@@ -201,8 +204,10 @@ CXXFILES = \
 	client/pixel.cpp \
 	client/image.cpp \
 	client/init.cpp \
+	client/layout.cpp \
 	client/node.cpp \
 	client/nodeStatistics.cpp \
+	client/object.cpp \
 	client/objectManager.cpp \
 	client/osPipe.cpp \
 	client/osWindow.cpp \

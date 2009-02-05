@@ -11,8 +11,7 @@ namespace eq
 {
 
 Frustum::Frustum()
-        :  _dirty( DIRTY_NONE )
-        , _current( TYPE_NONE )
+        : _current( TYPE_NONE )
 {}
 
 Frustum::~Frustum()
@@ -20,41 +19,18 @@ Frustum::~Frustum()
     _current = TYPE_NONE;
 }
 
-void Frustum::getInstanceData( net::DataOStream& os )
+void Frustum::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
-    os << static_cast< uint32_t >( DIRTY_ALL );
-    serialize( os, DIRTY_ALL );
-}
-
-void Frustum::pack( net::DataOStream& os )
-{
-    if( _dirty == DIRTY_NONE )
-        return;
-
-    os << _dirty;
-    serialize( os, _dirty );
-    _dirty = DIRTY_NONE;
-}
-
-void Frustum::applyInstanceData( net::DataIStream& is )
-{
-    if( is.getRemainingBufferSize() == 0 && is.nRemainingBuffers() == 0 )
-        return;
-    
-    is >> _dirty;
-    deserialize( is, _dirty );
-}
-
-void Frustum::serialize( net::DataOStream& os, const uint32_t dirtyBits )
-{
+    Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_WALL )
         os << _current << _wall;
     if( dirtyBits & DIRTY_PROJECTION )
         os << _current << _projection;
 }
 
-void Frustum::deserialize( net::DataIStream& is, const uint32_t dirtyBits )
+void Frustum::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
+    Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_WALL )
         is >> _current >> _wall;
     if( dirtyBits & DIRTY_PROJECTION )
@@ -66,20 +42,20 @@ void Frustum::setWall( const Wall& wall )
     _wall       = wall;
     // TODO write '= wall' for Projection and update projection here
     _current    = TYPE_WALL;
-    _dirty     |= DIRTY_WALL;
+    setDirty( DIRTY_WALL );
 }
         
 void Frustum::setProjection( const Projection& projection )
 {
     _projection = projection;
     _current    = TYPE_PROJECTION;
-    _dirty     |= DIRTY_PROJECTION;
+    setDirty( DIRTY_PROJECTION );
 }
 
 
 std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
 {
-    switch( frustum.getCurrentFrustum( ))
+    switch( frustum.getCurrentType( ))
     {
         case Frustum::TYPE_WALL:
             os << frustum.getWall();

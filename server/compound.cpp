@@ -52,7 +52,7 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
 Compound::Compound()
         : _config( 0 )
         , _parent( 0 )
-        , _view( _data.viewData )
+        , _frustum( _data.frustumData )
         , _loadBalancer( 0 )
         , _swapBarrier( 0 )
 {
@@ -65,7 +65,7 @@ Compound::Compound( const Compound& from, Config* config, Compound* parent )
         , _config( 0 )
         , _parent( 0 )
         , _data( from._data )
-        , _view( from._view, _data.viewData )
+        , _frustum( from._frustum, _data.frustumData )
         , _loadBalancer( 0 )
         , _swapBarrier( 0 )
 {
@@ -136,8 +136,6 @@ Compound::~Compound()
         delete compound;
     }
     _children.clear();
-
-    EQASSERT( _view.getID() == EQ_ID_INVALID );
 
     if( _config )
         _config->removeCompound( this );
@@ -403,18 +401,18 @@ bool Compound::isDestination() const
     return true;
 }
 //---------------------------------------------------------------------------
-// view operations
+// frustum operations
 //---------------------------------------------------------------------------
 void Compound::setWall( const eq::Wall& wall )
 {
-    _view.setWall( wall );
-    EQVERB << "Wall: " << _data.viewData << endl;
+    _frustum.setWall( wall );
+    EQVERB << "Wall: " << _data.frustumData << endl;
 }
 
 void Compound::setProjection( const eq::Projection& projection )
 {
-    _view.setProjection( projection );
-    EQVERB << "Projection: " << _data.viewData << endl;
+    _frustum.setProjection( projection );
+    EQVERB << "Projection: " << _data.frustumData << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -645,8 +643,8 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _inherit.screen  = _data.screen;
         }
 
-        if( _data.viewData.isValid( ))
-            _inherit.viewData = _data.viewData;
+        if( _data.frustumData.isValid( ))
+            _inherit.frustumData = _data.frustumData;
 
         _inherit.range.apply( _data.range );
         _inherit.pixel.apply( _data.pixel );
@@ -882,12 +880,12 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     if( attrPrinted )
         os << exdent << "}" << endl << endl;
 
-    switch( compound->getLatestView( ))
+    switch( compound->getLatestFrustum( ))
     {
-        case eq::View::TYPE_WALL:
+        case eq::Frustum::TYPE_WALL:
             os << compound->getWall() << endl;
             break;
-        case eq::View::TYPE_PROJECTION:
+        case eq::Frustum::TYPE_PROJECTION:
             os << compound->getProjection() << endl;
             break;
         default: 

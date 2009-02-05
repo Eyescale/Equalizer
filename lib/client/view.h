@@ -5,104 +5,71 @@
 #ifndef EQ_VIEW_H
 #define EQ_VIEW_H
 
-#include <eq/client/projection.h>  // member
-#include <eq/client/wall.h>        // member
-#include <eq/net/object.h>         // base class
+#include <eq/client/frustum.h>        // base class
+#include <eq/client/viewport.h>       // member
+#include <eq/client/viewVisitor.h>    // used in inline method
 
 namespace eq
 {
+namespace server
+{
+    class View;
+}
+
     /**
-     * A View describes the projection of the scene onto a coherent 2D area,
-     * typically a display driven by a destination Channel.
+     * A View is a 2D area of a Layout. It is a view of the application's data
+     * on a model, in the sense used by the MVC pattern. It can be a scene,
+     * viewing mode, viewing position, or any other representation of the
+     * application's data.
      */
-    class EQ_EXPORT View : public net::Object
+    class View : public Frustum
     {
     public:
-        /** The type of the latest specified view. */
-        enum Type
-        {
-            TYPE_NONE,        //!< No view has been specified, invalid view
-            TYPE_WALL,        //!< A wall description has been set last
-            TYPE_PROJECTION   //!< A projection description has been set last
-        };
+        EQ_EXPORT View();
+        EQ_EXPORT virtual ~View();
 
-        View();
-        View( net::DataIStream& is );
+        /** @name Data Access. */
+        //*{
+        /** @return the viewport of the view. */
+        EQ_EXPORT const Viewport& getViewport() const;
+        //*}
 
-        virtual ~View();
-
+        /** @name Operations */
+        //*{
         /** 
-         * Set the view using a wall description.
+         * Traverse this view using a view visitor.
          * 
-         * @param wall the wall description.
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
          */
-        void setWall( const Wall& wall );
+        VisitorResult accept( ViewVisitor* visitor )
+            { return visitor->visit( this ); }
+        //*}
         
-        /** @return the last specified view as a wall. */
-        const Wall& getWall() const { return _wall; }
-
-        /** 
-         * Set the view using a projection description.
-         * 
-         * @param projection the projection description.
-         */
-        void setProjection( const Projection& projection );
-
-        /** @return the last specified view as a projection. */
-        const Projection& getProjection() const { return _projection; }
-
-        /** @return the type of the latest specified view. */
-        Type getCurrentType() const { return _current; }
-
-        /** 
-         * Set the eye separation. 
-         * @warning eye base API will change in the future.
-         */
-        void setEyeBase( const float eyeBase );
-
-        /** 
-         * @warning eye base API will change in the future.
-         * @return the eye separation.
-         */
-        float getEyeBase() const { return _eyeBase; }
-
-        /** @warning will not be supported in the future. */
-        void setName( const std::string& name );
-
-        /** @warning will not be supported in the future. */
-        const std::string& getName() const;
-
     protected:
-        virtual ChangeType getChangeType() const { return INSTANCE; }
-        virtual bool isDirty() const { return (_dirty != 0); }
+        /** @sa Object::serialize() */
+        EQ_EXPORT virtual void serialize( net::DataOStream& os,
+                                          const uint64_t dirtyBits );
 
-        virtual void getInstanceData( net::DataOStream& os );
-        virtual void pack( net::DataOStream& os );
-        virtual void applyInstanceData( net::DataIStream& is );
+        /** @sa Object::deserialize() */
+        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
+                                            const uint64_t dirtyBits );
 
         enum DirtyBits
         {
-            DIRTY_NONE       = 0,
-            DIRTY_WALL       = 1 << 0,
-            DIRTY_PROJECTION = 1 << 1,
-            DIRTY_EYEBASE    = 1 << 2,
-            DIRTY_NAME       = 1 << 3,
-            DIRTY_ALL        = 0xffff
+            DIRTY_VIEWPORT   = Frustum::DIRTY_CUSTOM << 0,
+            DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 2,
+            DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 3,
+            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4,
         };
 
-        uint32_t _dirty;
-
     private:
-        Wall        _wall;
-        Projection  _projection;
-        Type        _current;
-        float       _eyeBase;
-        std::string _name;
+        friend class Layout;
+        Layout* _layout;
 
-        /** worker for pack and getInstanceData() */
-        void serialize( net::DataOStream& os, const uint32_t dirtyBits );
-        /** worker for View( is ) constructor, unpack and applyInstanceData() */
-        void deserialize( net::DataIStream& is );
+        friend class server::View;
+        Viewport    _viewport;
+        std::string _name;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const View& view );
