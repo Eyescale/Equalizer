@@ -8,6 +8,7 @@
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
+#include "pipeStatistics.h"
 #include "packets.h"
 #include "task.h"
 #include "X11Connection.h"
@@ -49,6 +50,7 @@ Pipe::Pipe( Node* parent )
         , _state( STATE_STOPPED )
         , _currentFrame( 0 )
         , _frameTime( 0 )
+        , _waitTime( 0 )
         , _thread( 0 )
         , _pipeThreadQueue( 0 )
         , _currentWindow( 0 )
@@ -227,7 +229,10 @@ void* Pipe::_runThread()
 
     while( _thread->isRunning( ))
     {
+        const int64_t startWait = config->getTime();
         net::Command* command = _pipeThreadQueue->pop();
+        _waitTime += ( config->getTime() - startWait );
+
         switch( config->invokeCommand( *command ))
         {
             case net::COMMAND_HANDLED:
@@ -647,9 +652,7 @@ net::CommandResult Pipe::_cmdFrameStart( net::Command& command )
     EQVERB << "handle pipe frame start " << packet << endl;
     EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << endl;
 
-    const uint32_t frameNumber = packet->frameNumber;
-    EQASSERTINFO( _currentFrame + 1 == frameNumber,
-                  "current " << _currentFrame << " start " << frameNumber );
+    const int64_t lastFrameTime = _frameTime;
 
     _frameTimeMutex.set();
     EQASSERT( !_frameTimes.empty( ));
@@ -657,6 +660,18 @@ net::CommandResult Pipe::_cmdFrameStart( net::Command& command )
     _frameTime = _frameTimes.front();
     _frameTimes.pop_front();
     _frameTimeMutex.unset();
+
+    if( lastFrameTime > 0 )
+    {
+        PipeStatistics waitEvent( Statistic::PIPE_IDLE, this );
+        waitEvent.event.data.statistic.idleTime  = _waitTime;
+        waitEvent.event.data.statistic.totalTime = _frameTime - lastFrameTime;
+    }
+    _waitTime = 0;
+
+    const uint32_t frameNumber = packet->frameNumber;
+    EQASSERTINFO( _currentFrame + 1 == frameNumber,
+                  "current " << _currentFrame << " start " << frameNumber );
 
     frameStart( packet->frameID, frameNumber );
     return net::COMMAND_HANDLED;

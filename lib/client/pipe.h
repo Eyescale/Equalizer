@@ -430,6 +430,9 @@ namespace eq
         /** The base time for the currently active frame. */
         int64_t _frameTime;
 
+        /** The time spent waiting since the last frame start. */
+        int64_t _waitTime;
+
         typedef stde::hash_map< uint32_t, Frame* > FrameHash;
         /** All assembly frames used by the pipe during rendering. */
         FrameHash _frames;

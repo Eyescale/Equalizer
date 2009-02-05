@@ -122,6 +122,7 @@ namespace eq
             WINDOW_FINISH,
             WINDOW_SWAP_BARRIER,
             WINDOW_SWAP,
+            PIPE_IDLE,
             NODE_TRANSMIT,
             NODE_COMPRESS,
             CONFIG_START_FRAME,
@@ -132,8 +133,17 @@ namespace eq
 
         Type     type;
         uint32_t frameNumber;
-        int64_t  startTime;
-        int64_t  endTime;
+        union
+        {
+            int64_t  startTime;
+            int64_t  idleTime;
+        };
+        union
+        {
+            int64_t  endTime;
+            int64_t  totalTime;
+        };
+
         char     resourceName[32];
     };
 

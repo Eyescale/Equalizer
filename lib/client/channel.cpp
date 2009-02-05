@@ -601,8 +601,20 @@ bool Channel::processEvent( const Event& event )
     return true;
 }
 
+namespace
+{
 #define HEIGHT 12
 #define SPACE  2
+
+struct EntityData
+{
+    EntityData() : yPos( 0 ), idle( 0 ), nIdle( 0 ) {}
+    uint32_t yPos;
+    uint32_t idle;
+    uint32_t nIdle;
+    std::string name;
+};
+}
 
 void Channel::drawStatistics()
 {
@@ -650,6 +662,9 @@ void Channel::drawStatistics()
                  k != stats.end(); ++k )
             {
                 const Statistic& stat = *k;
+                if( stat.type == Statistic::PIPE_IDLE )
+                    continue;
+
                 xMax = EQ_MAX( xMax, stat.endTime );
                 xMin = EQ_MIN( xMin, stat.endTime );
             }
@@ -662,7 +677,8 @@ void Channel::drawStatistics()
     xMax  /= scale;
     xStart = xMax - pvp.getXEnd() + SPACE;
     uint32_t                       nextY = pvp.getYEnd() - SPACE;
-    std::map< uint32_t, uint32_t > positions;
+
+    std::map< uint32_t, EntityData > entities;
 
     float dim = 0.0f;
     for( vector< FrameStatistics >::reverse_iterator i = statistics.rbegin();
@@ -684,25 +700,30 @@ void Channel::drawStatistics()
             if( stats.empty( ))
                 continue;
 
-            if( positions.find( id ) == positions.end( ))
+            if( entities.find( id ) == entities.end( ))
             {
-                positions.insert( 
-                    std::pair< uint32_t, uint32_t >( id, nextY ));
+                EntityData& data = entities[ id ];
+                data.yPos = nextY;
+                data.name = stats.front().resourceName;
+
                 nextY -= (HEIGHT + SPACE);
             }
 
-            const uint32_t y = positions[ id ];
+            const uint32_t y = entities[ id ].yPos;
 
-            const Statistic& nameStat = stats.front();
-            glColor3f( 1.f, 1.f, 1.f );
-            glRasterPos3f( 100.f, y-SPACE-12.0f, 0.99f );
-            font.draw( nameStat.resourceName );
-
-            glBegin( GL_QUADS );
             for( Statistics::const_iterator k = stats.begin(); 
                  k != stats.end(); ++k )
             {
                 const Statistic& stat = *k;
+
+                if( stat.type == Statistic::PIPE_IDLE )
+                {
+                    EntityData& data = entities[ id ];
+                    data.idle += (stat.idleTime * 100ll / stat.totalTime);
+                    ++data.nIdle;
+                    continue;
+                }
+
                 const int64_t startTime = stat.startTime / scale;
                 const int64_t endTime   = stat.endTime   / scale;
 
@@ -782,12 +803,13 @@ void Channel::drawStatistics()
                 const float x1 = startTime - xStart;
                 const float x2 = endTime   - xStart;
                 
+                glBegin( GL_QUADS );
                 glVertex3f( x2, y1, z );
                 glVertex3f( x1, y1, z );
                 glVertex3f( x1, y2, z );
                 glVertex3f( x2, y2, z );
+                glEnd();
             }
-            glEnd();
         }
 
         frameMin -= xStart;
@@ -808,6 +830,21 @@ void Channel::drawStatistics()
         glEnd();
 
         dim += .2f;
+    }
+
+    for( std::map< uint32_t, EntityData >::const_iterator i = entities.begin();
+         i != entities.end(); ++i )
+    {
+        const EntityData& data = i->second;
+        ostringstream text;
+
+        text << data.name;
+        if( data.nIdle > 0 )
+            text << "  " << data.idle / data.nIdle << "% idle";
+            
+        glColor3f( 1.f, 1.f, 1.f );
+        glRasterPos3f( 100.f, data.yPos-SPACE-12.0f, 0.99f );
+        font.draw( text.str( ));
     }
 
     glColor3f( 1.f, 1.f, 1.f );

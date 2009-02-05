@@ -207,6 +207,7 @@ CXXFILES = \
 	client/osPipe.cpp \
 	client/osWindow.cpp \
 	client/pipe.cpp \
+	client/pipeStatistics.cpp \
 	client/projection.cpp \
 	client/range.cpp \
 	client/renderContext.cpp \
