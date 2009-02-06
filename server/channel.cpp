@@ -493,12 +493,13 @@ net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
     const eq::ChannelFrameFinishReplyPacket* packet = 
         command.getPacket<eq::ChannelFrameFinishReplyPacket>();
 
-    // output  received events
+    // output received events
     for( uint32_t i = 0; i<packet->nStatistics; ++i )
     {
         const eq::Statistic& data = packet->statistics[i];
         EQLOG( eq::LOG_STATS ) << data << endl;
     }
+    EQLOG( eq::LOG_STATS ) << endl;
 
     // gather and notify load data
     float startTime = numeric_limits< float >::max();

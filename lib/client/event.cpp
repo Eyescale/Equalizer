@@ -150,8 +150,9 @@ std::ostream& operator << ( std::ostream& os, const KeyEvent& event )
 
 std::ostream& operator << ( std::ostream& os, const Statistic& event )
 {
-    os << _stateEventTypeNames[ event.type ] << ' ' << event.frameNumber << ' '
-       << event.startTime << " - " << event.endTime;
+    os << event.resourceName << ": " << _stateEventTypeNames[ event.type ]
+       << ' ' << event.frameNumber << ' ' << event.startTime << " - " 
+       << event.endTime;
     return os;
 }
 }
