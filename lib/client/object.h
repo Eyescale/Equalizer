@@ -83,9 +83,9 @@ namespace eq
         EQ_EXPORT void setDirty( const uint64_t bits );
 
     private:
-        virtual void getInstanceData( net::DataOStream& os );
-        virtual void pack( net::DataOStream& os );
-        virtual void applyInstanceData( net::DataIStream& is );
+        EQ_EXPORT virtual void getInstanceData( net::DataOStream& os );
+        EQ_EXPORT virtual void pack( net::DataOStream& os );
+        EQ_EXPORT virtual void applyInstanceData( net::DataIStream& is );
 
         /** The current dirty bits. */
         uint64_t _dirty;

@@ -11,8 +11,6 @@ using namespace eq::base;
 
 namespace eq
 {
-namespace server
-{
 
 Layout::Layout()
         : _config( 0 )
@@ -110,5 +108,4 @@ std::ostream& operator << ( std::ostream& os, const Layout* layout )
     return os;
 }
 
-}
 }
