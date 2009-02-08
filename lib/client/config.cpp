@@ -88,10 +88,10 @@ void Config::setLocalNode( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdStartClock ), 0 );
 }
 
-ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
+VisitorResult Config::accept( ConfigVisitor* visitor )
 { 
-    NodeVisitor::Result result = visitor->visitPre( this );
-    if( result != NodeVisitor::TRAVERSE_CONTINUE )
+    VisitorResult result = visitor->visitPre( this );
+    if( result != TRAVERSE_CONTINUE )
         return result;
 
     for( NodeVector::const_iterator i = _nodes.begin(); 
@@ -100,14 +100,14 @@ ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
         Node* node = *i;
         switch( node->accept( visitor ))
         {
-            case NodeVisitor::TRAVERSE_TERMINATE:
-                return NodeVisitor::TRAVERSE_TERMINATE;
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
 
-            case NodeVisitor::TRAVERSE_PRUNE:
-                result = NodeVisitor::TRAVERSE_PRUNE;
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
                 break;
                 
-            case NodeVisitor::TRAVERSE_CONTINUE:
+            case TRAVERSE_CONTINUE:
             default:
                 break;
         }
@@ -115,16 +115,15 @@ ConfigVisitor::Result Config::accept( ConfigVisitor* visitor )
 
     switch( visitor->visitPost( this ))
     {
-        case NodeVisitor::TRAVERSE_TERMINATE:
-	  return NodeVisitor::TRAVERSE_TERMINATE;
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
 
-        case NodeVisitor::TRAVERSE_PRUNE:
-	  return NodeVisitor::TRAVERSE_PRUNE;
-	  break;
+        case TRAVERSE_PRUNE:
+            return TRAVERSE_PRUNE;
                 
-        case NodeVisitor::TRAVERSE_CONTINUE:
+        case TRAVERSE_CONTINUE:
         default:
-	  break;
+            break;
     }
 
     return result;

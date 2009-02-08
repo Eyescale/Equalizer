@@ -7,6 +7,7 @@
 #include "compound.h"
 #include "log.h"
 
+#include <eq/client/server.h>
 #include <eq/base/debug.h>
 
 using namespace eq::base;

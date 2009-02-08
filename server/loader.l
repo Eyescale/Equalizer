@@ -3,10 +3,11 @@
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include <eq/base/base.h>
 #include "compound.h"
 #include "loadBalancer.h"
 #include "parser.hpp"
+#include <eq/client/server.h>
+#include <eq/base/base.h>
 #include <stdlib.h>
 
 #define yyerror eqLoader_error

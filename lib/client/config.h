@@ -53,7 +53,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        ConfigVisitor::Result accept( ConfigVisitor* visitor );
+        VisitorResult accept( ConfigVisitor* visitor );
 
         /** Get all received statistics. */
         void getStatistics( std::vector< FrameStatistics >& statistics );

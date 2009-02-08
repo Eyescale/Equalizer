@@ -5,6 +5,7 @@
 #include "osWindow.h"
 
 #include "global.h"
+#include "pipe.h"
 
 using namespace std;
 

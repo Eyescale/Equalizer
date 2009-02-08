@@ -15,8 +15,8 @@
 
 namespace eq
 {
+    class ChannelVisitor;
     class Pixel;
-    class Node;
     class Range;
     class SceneObject;
     class FrameBufferObject;
@@ -99,8 +99,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        ChannelVisitor::Result accept( ChannelVisitor* visitor )
-            { return visitor->visit( this ); }
+        VisitorResult accept( ChannelVisitor* visitor );
 
         /** 
          * Set the near and far planes for this channel.

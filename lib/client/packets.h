@@ -5,13 +5,12 @@
 #ifndef EQ_PACKETS_H
 #define EQ_PACKETS_H
 
-#include <eq/client/channel.h>
+#include <eq/client/channel.h>       // Channel::IATTR_ALL enum
 #include <eq/client/commands.h>
-#include <eq/client/frame.h>
-#include <eq/client/pixelViewport.h>
-#include <eq/client/renderContext.h>
-#include <eq/client/viewport.h>
-#include <eq/client/window.h>
+#include <eq/client/node.h>          // Node::IATTR_ALL enum
+#include <eq/client/renderContext.h> // member
+#include <eq/client/viewport.h>      // member
+#include <eq/client/window.h>        // Window::IATTR_ALL enum
 
 #include <eq/net/packets.h>
 

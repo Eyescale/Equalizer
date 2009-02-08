@@ -80,7 +80,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        PipeVisitor::Result accept( PipeVisitor* visitor );
+        VisitorResult accept( PipeVisitor* visitor );
 
         /**
          * Set the pipes's pixel viewport.

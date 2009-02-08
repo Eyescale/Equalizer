@@ -11,6 +11,7 @@
 #include "frame.h"
 #include "global.h"
 #include "log.h"
+#include "node.h"
 #include "nodeFactory.h"
 #include "packets.h"
 #include "range.h"
@@ -82,6 +83,11 @@ void Channel::attachToSession( const uint32_t id,
                      ChannelFunc( this, &Channel::_cmdFrameReadback ), queue );
     registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
                      ChannelFunc( this, &Channel::_cmdFrameTransmit ), queue );
+}
+
+VisitorResult Channel::accept( ChannelVisitor* visitor )
+{
+    return visitor->visit( this );
 }
 
 bool Channel::configExit()

@@ -24,11 +24,11 @@ namespace eq
         virtual ~ConfigVisitor(){}
 
         /** Visit a config on the down traversal. */
-        virtual Result visitPre( Config* config )
+        virtual VisitorResult visitPre( Config* config )
             { return TRAVERSE_CONTINUE; }
 
         /** Visit a config on the up traversal. */
-        virtual Result visitPost( Config* config )
+        virtual VisitorResult visitPost( Config* config )
             { return TRAVERSE_CONTINUE; }
     };
 }

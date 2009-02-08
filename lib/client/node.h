@@ -66,7 +66,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        NodeVisitor::Result accept( NodeVisitor* visitor );
+        VisitorResult accept( NodeVisitor* visitor );
 
         /** 
          * Get a network barrier. 

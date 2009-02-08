@@ -17,13 +17,13 @@ public:
     TestVisitor() : nConfigs(0), nNodes(0), nPipes(0), nWindows(0), nChannels(0)
         {}
 
-    virtual Result visitPre( Config* config )
+    virtual VisitorResult visitPre( Config* config )
         {
             ++nConfigs;
             return TRAVERSE_CONTINUE;
         }
 
-    virtual Result visitPre( Node* node )
+    virtual VisitorResult visitPre( Node* node )
         {
             ++nNodes;
             if( nNodes == 1 )
@@ -31,7 +31,7 @@ public:
             return TRAVERSE_CONTINUE;
         }
 
-    virtual Result visitPre( Pipe* pipe )
+    virtual VisitorResult visitPre( Pipe* pipe )
         {
             ++nPipes;
             if( nPipes == 5 )
@@ -39,13 +39,13 @@ public:
             return TRAVERSE_CONTINUE;
         }
 
-    virtual Result visitPre( eq::Window* window )
+    virtual VisitorResult visitPre( eq::Window* window )
         {
             ++nWindows;
             return TRAVERSE_CONTINUE;
         }
 
-    virtual Result visit( Channel* channel )
+    virtual VisitorResult visit( Channel* channel )
         {
             ++nChannels;
             return TRAVERSE_PRUNE; 
@@ -88,9 +88,9 @@ int main( int argc, char **argv )
 
     // tests
     TestVisitor visitor;
-    const TestVisitor::Result result = config->accept( &visitor );
+    const VisitorResult result = config->accept( &visitor );
 
-    TESTINFO( result == TestVisitor::TRAVERSE_TERMINATE, result );
+    TESTINFO( result == TRAVERSE_TERMINATE, result );
     TESTINFO( visitor.nConfigs == 1,   visitor.nConfigs );
     TESTINFO( visitor.nNodes == 3,     visitor.nNodes );
     TESTINFO( visitor.nPipes == 5,     visitor.nPipes );

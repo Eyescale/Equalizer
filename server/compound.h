@@ -20,6 +20,7 @@
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
 #include <eq/client/zoom.h>
+#include <eq/net/barrier.h>
 #include <eq/base/thread.h>
 #include <vmmlib/vector2.h>
 #include <iostream>

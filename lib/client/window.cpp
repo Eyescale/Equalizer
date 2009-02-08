@@ -194,10 +194,55 @@ Channel* Window::_findChannel( const uint32_t id )
     return 0;
 }
 
-WindowVisitor::Result Window::accept( WindowVisitor* visitor )
+net::CommandQueue* Window::getPipeThreadQueue()
 { 
-    ChannelVisitor::Result result = visitor->visitPre( this );
-    if( result != ChannelVisitor::TRAVERSE_CONTINUE )
+    EQASSERT( _pipe );
+    return _pipe->getPipeThreadQueue(); 
+}
+
+const Node* Window::getNode() const 
+{
+    EQASSERT( _pipe );
+    return ( _pipe ? _pipe->getNode() : 0 );
+}
+Node* Window::getNode()
+{
+    EQASSERT( _pipe );
+    return ( _pipe ? _pipe->getNode() : 0 );
+}
+
+const Config* Window::getConfig() const
+{
+    EQASSERT( _pipe );
+    return (_pipe ? _pipe->getConfig() : 0);
+}
+Config* Window::getConfig() 
+{
+    EQASSERT( _pipe );
+    return (_pipe ? _pipe->getConfig() : 0);
+}
+
+ClientPtr Window::getClient()
+{
+    EQASSERT( _pipe );
+    return ( _pipe ? _pipe->getClient() : 0 ); 
+}
+ServerPtr Window::getServer() 
+{
+    EQASSERT( _pipe );
+    return ( _pipe ? _pipe->getServer() : 0 );
+}
+
+WGLEWContext* Window::wglewGetContext()
+{ 
+    EQASSERT( _pipe );
+    return _pipe->wglewGetContext();
+}
+
+VisitorResult Window::accept( WindowVisitor* visitor )
+{ 
+    VisitorResult result = visitor->visitPre( this );
+    if( result != TRAVERSE_CONTINUE )
         return result;
 
     for( ChannelVector::const_iterator i = _channels.begin(); 
@@ -206,14 +251,14 @@ WindowVisitor::Result Window::accept( WindowVisitor* visitor )
         Channel* channel = *i;
         switch( channel->accept( visitor ))
         {
-            case ChannelVisitor::TRAVERSE_TERMINATE:
-                return ChannelVisitor::TRAVERSE_TERMINATE;
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
 
-            case ChannelVisitor::TRAVERSE_PRUNE:
-                result = ChannelVisitor::TRAVERSE_PRUNE;
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
                 break;
                 
-            case ChannelVisitor::TRAVERSE_CONTINUE:
+            case TRAVERSE_CONTINUE:
             default:
                 break;
         }
@@ -221,16 +266,15 @@ WindowVisitor::Result Window::accept( WindowVisitor* visitor )
 
     switch( visitor->visitPost( this ))
     {
-        case NodeVisitor::TRAVERSE_TERMINATE:
-	  return NodeVisitor::TRAVERSE_TERMINATE;
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
 
-        case NodeVisitor::TRAVERSE_PRUNE:
-	  return NodeVisitor::TRAVERSE_PRUNE;
-	  break;
+        case TRAVERSE_PRUNE:
+            return TRAVERSE_PRUNE;
                 
-        case NodeVisitor::TRAVERSE_CONTINUE:
+        case TRAVERSE_CONTINUE:
         default:
-	  break;
+            break;
     }
 
     return result;

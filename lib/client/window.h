@@ -5,15 +5,17 @@
 #define EQ_WINDOW_H
 
 #include <eq/client/objectManager.h> // member
-#include <eq/client/pipe.h>          // used in inline functions
 #include <eq/client/pixelViewport.h> // member
 #include <eq/client/renderContext.h> // member
+#include <eq/client/types.h>
+#include <eq/client/visitorResult.h> // enum
 #include <eq/util/bitmapFont.h>      // member
+#include <eq/net/object.h>           // base class
 
 namespace eq
 {
-    class Channel;
     class OSWindow;
+    class WindowVisitor;
     struct Event;
     struct RenderContext;
 
@@ -72,25 +74,20 @@ namespace eq
 
         /** @name Data Access */
         //*{
-        net::CommandQueue* getPipeThreadQueue()
-            { return _pipe->getPipeThreadQueue(); }
+        net::CommandQueue* getPipeThreadQueue();
 
         /** @return the pipe of this window. */
         const Pipe* getPipe() const { return _pipe; }
-        Pipe* getPipe()             { return _pipe; }
+        Pipe*       getPipe()       { return _pipe; }
 
-        const Node* getNode() const 
-            { return ( _pipe ? _pipe->getNode() : 0 );}
-        Node* getNode() { return ( _pipe ? _pipe->getNode() : 0 );}
+        const Node* getNode() const; 
+        Node*       getNode();
 
-        const Config* getConfig() const
-            { return (_pipe ? _pipe->getConfig() : 0);}
-        Config* getConfig() { return (_pipe ? _pipe->getConfig() : 0);}
+        const Config* getConfig() const;
+        Config*       getConfig();
 
-        base::RefPtr< Client > getClient()
-            { return ( _pipe ? _pipe->getClient() : 0 ); }
-        base::RefPtr< Server > getServer() 
-            { return ( _pipe ? _pipe->getServer() : 0 ); }
+        ClientPtr getClient();
+        ServerPtr getServer();
 
         const ChannelVector& getChannels() { return _channels; }
 
@@ -114,7 +111,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        WindowVisitor::Result accept( WindowVisitor* visitor );
+        VisitorResult accept( WindowVisitor* visitor );
 
         /** 
          * Set the window with which this window shares the OpenGL context,
@@ -148,7 +145,7 @@ namespace eq
         GLEWContext* glewGetContext();
 
         /** @return the generic WGL function table for the window's pipe. */
-        WGLEWContext* wglewGetContext() { return _pipe->wglewGetContext(); }
+        WGLEWContext* wglewGetContext();
 
         /** @return information about the current drawable. */
         const DrawableConfig& getDrawableConfig() const 

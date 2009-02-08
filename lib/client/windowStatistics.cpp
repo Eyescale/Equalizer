@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "windowStatistics.h"
 
-#include "window.h"
 #include "global.h"
+#include "pipe.h"
+#include "window.h"
 
 #ifdef WIN32_VC
 #  define snprintf _snprintf

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "loadBalancer.h"
@@ -9,6 +9,7 @@
 #include "treeLoadBalancer.h"
 #include "smoothLoadBalancer.h"
 
+#include <eq/client/server.h>
 #include <eq/base/debug.h>
 
 using namespace eq::base;

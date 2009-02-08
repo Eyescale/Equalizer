@@ -9,9 +9,9 @@
 
 #include "channel.h"
 #include "channelStatistics.h"
-
-#include "log.h"
 #include "image.h"
+#include "log.h"
+#include "server.h"
 #include "windowSystem.h"
 
 #include <eq/base/debug.h>

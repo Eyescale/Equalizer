@@ -86,10 +86,10 @@ void Node::attachToSession( const uint32_t id,
                      NodeFunc( this, &Node::_cmdFrameTasksFinish ), queue );
 }
 
-NodeVisitor::Result Node::accept( NodeVisitor* visitor )
+VisitorResult Node::accept( NodeVisitor* visitor )
 { 
-    PipeVisitor::Result result = visitor->visitPre( this );
-    if( result != PipeVisitor::TRAVERSE_CONTINUE )
+    VisitorResult result = visitor->visitPre( this );
+    if( result != TRAVERSE_CONTINUE )
         return result;
 
     for( PipeVector::const_iterator i = _pipes.begin(); 
@@ -98,14 +98,14 @@ NodeVisitor::Result Node::accept( NodeVisitor* visitor )
         Pipe* pipe = *i;
         switch( pipe->accept( visitor ))
         {
-            case PipeVisitor::TRAVERSE_TERMINATE:
-                return PipeVisitor::TRAVERSE_TERMINATE;
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
 
-            case PipeVisitor::TRAVERSE_PRUNE:
-                result = PipeVisitor::TRAVERSE_PRUNE;
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
                 break;
                 
-            case PipeVisitor::TRAVERSE_CONTINUE:
+            case TRAVERSE_CONTINUE:
             default:
                 break;
         }
@@ -113,16 +113,15 @@ NodeVisitor::Result Node::accept( NodeVisitor* visitor )
 
     switch( visitor->visitPost( this ))
     {
-        case NodeVisitor::TRAVERSE_TERMINATE:
-	  return NodeVisitor::TRAVERSE_TERMINATE;
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
 
-        case NodeVisitor::TRAVERSE_PRUNE:
-	  return NodeVisitor::TRAVERSE_PRUNE;
-	  break;
+        case TRAVERSE_PRUNE:
+            return TRAVERSE_PRUNE;
                 
-        case NodeVisitor::TRAVERSE_CONTINUE:
+        case TRAVERSE_CONTINUE:
         default:
-	  break;
+            break;
     }
 
     return result;

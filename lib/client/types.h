@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_TYPES_H
@@ -15,6 +15,7 @@ namespace eq
 
 class Channel;
 class Client;
+class Config;
 class Frame;
 class Image;
 class Node;

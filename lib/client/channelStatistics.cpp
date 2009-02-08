@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "channelStatistics.h"
 
 #include "channel.h"
 #include "global.h"
+#include "pipe.h"
 
 #ifdef WIN32_VC
 #  define snprintf _snprintf
