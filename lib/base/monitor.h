@@ -1,14 +1,16 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_MONITOR_H
 #define EQBASE_MONITOR_H
 
+#include <eq/base/nonCopyable.h> // base class
+
 #include <errno.h>
 #include <string.h>
+#include <iostream>
 
-#include <eq/base/nonCopyable.h> // base class
 
 namespace eq
 {
@@ -92,6 +94,9 @@ namespace base
 
 typedef Monitor< bool >     Monitorb;
 typedef Monitor< uint32_t > Monitoru;
+
+template< typename T >
+std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor );
 }
 }
 

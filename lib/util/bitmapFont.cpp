@@ -12,6 +12,7 @@
 
 #include "bitmapFont.h"
 
+#include <eq/client/pipe.h>
 #include <eq/client/window.h>
 
 #ifdef WGL

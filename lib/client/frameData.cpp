@@ -12,6 +12,7 @@
 #include <eq/net/command.h>
 #include <eq/net/commandFunc.h>
 #include <eq/net/session.h>
+#include <eq/base/monitor.h>
 #include <algorithm>
 
 using namespace eq::base;
