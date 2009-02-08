@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_GLOBAL_H
@@ -55,6 +55,17 @@ namespace eq
         static const std::string& getServer() { return _server; }
 
         /** 
+         * Set the config file for the app-local server.
+         * 
+         * @param configFile the default configFile.
+         */
+        static void setConfigFile( const std::string& configFile )
+            { _configFile = configFile; }
+
+        /** @return the default config file for the app-local server. */
+        static const std::string& getConfigFile() { return _configFile; }
+
+        /** 
          * Global lock for all non-thread-safe Carbon API calls. 
          * Note: this is a nop on non-AGL builds. Do not use unless you know the
          * side effects, i.e., ask on the eq-dev mailing list.
@@ -70,6 +81,7 @@ namespace eq
         static NodeFactory* _nodeFactory;
 
         static std::string  _server;
+        static std::string  _configFile;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

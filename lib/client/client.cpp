@@ -146,7 +146,7 @@ static void* _libeqserver = 0;
 #endif
 }
 
-typedef net::ConnectionPtr (*eqsStartLocalServer_t)();
+typedef net::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
 
 net::ConnectionPtr _startLocalServer()
 {
@@ -184,7 +184,7 @@ net::ConnectionPtr _startLocalServer()
         return 0;
     }
 
-    return eqsStartLocalServer();
+    return eqsStartLocalServer( Global::getConfigFile( ));
 }
 
 typedef void (*eqsJoinLocalServer_t)();

@@ -1,16 +1,15 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "global.h"
 #include "nodeFactory.h"
 
-using namespace std;
-
 namespace eq
 {
 EQ_EXPORT NodeFactory* Global::_nodeFactory = 0;
-string Global::_server;
+std::string Global::_server;
+std::string Global::_configFile;
 
 #ifdef AGL
 static base::Lock _carbonLock;

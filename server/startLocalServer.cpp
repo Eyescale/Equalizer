@@ -56,7 +56,8 @@ private:
 static ServerThread _serverThread;
 }
 
-EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer()
+EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer( 
+    const std::string& file )
 {
     if( _serverThread.isRunning( ))
     {
@@ -65,9 +66,13 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer()
     }
 
     Loader    loader;
-    ServerPtr server = loader.parseServer( CONFIG );
-    EQASSERT( server.isValid( ));
-
+    ServerPtr server = file.empty() ? loader.parseServer( CONFIG ) :
+                                      loader.loadFile( file );
+    if( !server )
+    {
+        EQERROR << "Failed to load configuration" << endl;
+        return 0;
+    }
     if( !server->listen( ))
     {
         EQERROR << "Failed to setup server listener" << endl;

@@ -54,6 +54,12 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
             if( i<argc )
                 Global::setServer( argv[i] );
         }
+        else if( strcmp( "--eq-config", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc )
+                Global::setConfigFile( argv[i] );
+        }
     }
     
 	EQASSERT( nodeFactory );

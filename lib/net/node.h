@@ -19,7 +19,8 @@
 #include <list>
 
 #pragma warning(disable : 4190)
-extern "C" EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer();
+extern "C" EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer( const
+                                                                 std::string& );
 extern "C" EQSERVER_EXPORT void                   eqsJoinLocalServer();
 #pragma warning(default : 4190)
 
@@ -510,7 +511,8 @@ namespace net
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _connectionSet;
-        friend eq::net::ConnectionPtr (::eqsStartLocalServer());
+        friend eq::net::ConnectionPtr (::eqsStartLocalServer(const
+                                                             std::string& ));
 
         /** The connected nodes. */
         NodeIDHash< NodePtr > _nodes;
