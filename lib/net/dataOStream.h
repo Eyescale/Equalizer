@@ -65,17 +65,19 @@ namespace net
 
         /** @name Basic data output */
         //*{
+        /** Write a POD data item. */
         template< typename T >
         DataOStream& operator << ( const T& value )
             { write( &value, sizeof( value )); return *this; }
 
+        /** Write a std::vector of serializable items. */
         template< typename T >
         DataOStream& operator << ( const std::vector< T >& value )
-            { 
+            {
                 const uint64_t nElems = value.size();
                 write( &nElems, sizeof( nElems ));
-                if( nElems > 0 )
-                    write( &value[0], nElems * sizeof( T ) );
+                for( uint64_t i =0; i < nElems; ++i )
+                    (*this) << value[i];
                 return *this;
             }
 

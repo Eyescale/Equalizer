@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_DATAISTREAM_H
@@ -33,15 +33,16 @@ namespace net
         DataIStream& operator >> ( T& value )
             { read( &value, sizeof( value )); return *this; }
 
-        /** Read a std::vector of POD data items. */
+        /** Read a std::vector of serializable items. */
         template< typename T >
         DataIStream& operator >> ( std::vector< T >& value )
         {
             uint64_t nElems = 0;
             read( &nElems, sizeof( nElems ));
             value.resize( nElems );
-            if( nElems > 0 )
-                read( &value[0], nElems * sizeof( T ) ); 
+            for( uint64_t i = 0; i < nElems; i++ )
+                (*this) >> value[i];
+
             return *this; 
         }
 
