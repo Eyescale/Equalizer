@@ -4,6 +4,7 @@
 
 #include "windowStatistics.h"
 
+#include "config.h"
 #include "global.h"
 #include "pipe.h"
 #include "window.h"

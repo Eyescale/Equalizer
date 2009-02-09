@@ -6,6 +6,7 @@
 
 #include "compound.h"
 
+#include <eq/client/client.h>
 #include <eq/client/log.h>
 #include <eq/client/server.h>
 

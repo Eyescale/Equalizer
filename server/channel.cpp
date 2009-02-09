@@ -21,6 +21,7 @@
 #include <eq/client/global.h>
 #include <eq/client/log.h>
 #include <eq/client/packets.h>
+#include <eq/client/view.h>
 
 #include "channel.ipp"
 
@@ -159,6 +160,11 @@ net::CommandQueue* Channel::getCommandThreadQueue()
 {
     EQASSERT( _window );
     return _window->getCommandThreadQueue(); 
+}
+
+VisitorResult Channel::accept( ChannelVisitor* visitor )
+{
+    return visitor->visit( this );
 }
 
 void Channel::refUsed()

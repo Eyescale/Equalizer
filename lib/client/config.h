@@ -5,7 +5,6 @@
 #ifndef EQ_CONFIG_H
 #define EQ_CONFIG_H
 
-#include <eq/client/server.h>       // called in inline method
 #include <eq/client/commandQueue.h> // member
 #include <eq/client/configVisitor.h>// nested enum
 #include <eq/client/matrix4.h>      // member
@@ -29,7 +28,7 @@ namespace eq
     {
     public:
         /** Constructs a new config. */
-        Config( base::RefPtr< Server > parent );
+        Config( ServerPtr parent );
 
         /** Destructs a config. */
         virtual ~Config();
@@ -38,9 +37,11 @@ namespace eq
         //*{
         ClientPtr getClient();
         ServerPtr getServer();
+
+        CommandQueue* getNodeThreadQueue();
+
         const NodeVector& getNodes() const { return _nodes; }
-        CommandQueue* getNodeThreadQueue()
-            { return getClient()->getNodeThreadQueue(); }
+
         uint32_t getCurrentFrame()  const { return _currentFrame; }
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
 

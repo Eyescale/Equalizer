@@ -27,7 +27,7 @@ namespace eq
 {
 typedef net::CommandFunc<Config> ConfigFunc;
 
-Config::Config( base::RefPtr< Server > server )
+Config::Config( ServerPtr server )
         : net::Session()
         , _lastEvent( 0 )
         , _latency( 0 )
@@ -86,6 +86,11 @@ void Config::setLocalNode( net::NodePtr node )
 #endif
     registerCommand( CMD_CONFIG_START_CLOCK, 
                      ConfigFunc( this, &Config::_cmdStartClock ), 0 );
+}
+
+CommandQueue* Config::getNodeThreadQueue()
+{
+    return getClient()->getNodeThreadQueue();
 }
 
 VisitorResult Config::accept( ConfigVisitor* visitor )

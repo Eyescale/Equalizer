@@ -9,14 +9,15 @@
    // We need to instantiate a Monitor< State > when compiling the library,
    // but we don't want to have <pthread.h> for a normal build, hence this hack
 #  include <pthread.h>
-#  include <eq/base/monitor.h>
 #endif
+#include <eq/base/monitor.h>
 
 #include <eq/client/commandQueue.h>   // member
 #include <eq/client/eye.h>            // Eye enum
-#include <eq/client/node.h>           // used in inline methods
 #include <eq/client/pixelViewport.h>  // member
-#include <eq/client/windowSystem.h>   // member
+#include <eq/client/types.h>
+#include <eq/client/visitorResult.h>  // enum
+#include <eq/client/windowSystem.h>   // WGLEWContext
 
 #include <eq/base/refPtr.h>
 #include <eq/base/spinLock.h>
@@ -25,9 +26,8 @@
 
 namespace eq
 {
-    class Frame;
-    class Window;
     class OSPipe;
+    class PipeVisitor;
 
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
@@ -49,10 +49,14 @@ namespace eq
         /** @name Data Access. */
         //*{
         net::CommandQueue* getPipeThreadQueue();
-        Node* getNode() const       { return _node; }
-        Config* getConfig() const   { return (_node ? _node->getConfig() : 0);}
-        ClientPtr getClient() const { return (_node ? _node->getClient() : 0);}
-        ServerPtr getServer() const { return (_node ? _node->getServer() : 0);}
+        Node*       getNode()       { return _node; }
+        const Node* getNode() const { return _node; }
+
+        Config* getConfig();
+        const Config* getConfig() const;
+
+        ClientPtr getClient();
+        ServerPtr getServer();
 
         const WindowVector& getWindows() const { return _windows; }
 
@@ -132,7 +136,7 @@ namespace eq
         WindowSystem getWindowSystem() const { return _windowSystem; }
 
         /** @return the time in ms elapsed since the frame started. */
-        int64_t getFrameTime() const{ return getConfig()->getTime()-_frameTime;}
+        int64_t getFrameTime() const;
 
         /** @return the generic WGL function table for the pipe. */
         WGLEWContext* wglewGetContext();

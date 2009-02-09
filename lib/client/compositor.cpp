@@ -8,6 +8,7 @@
 #include "compositor.h"
 
 #include "channel.h"
+#include "client.h"
 #include "channelStatistics.h"
 #include "image.h"
 #include "log.h"

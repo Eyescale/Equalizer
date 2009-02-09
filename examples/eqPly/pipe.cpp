@@ -1,6 +1,6 @@
 
 /* 
- * Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved.
  *
  * The pipe object is responsible for maintaining GPU-specific and
@@ -22,7 +22,7 @@ namespace eqPly
 {
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
-    const Config*          config   = static_cast<Config*>( getConfig( ));
+    const Config*          config   = static_cast<const Config*>( getConfig( ));
     const InitData&        initData = config->getInitData();
     const eq::WindowSystem ws       = initData.getWindowSystem();
 

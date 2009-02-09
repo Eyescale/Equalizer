@@ -6,11 +6,19 @@
 #include "aglWindow.h"
 
 #include "aglEventHandler.h"
-#include "global.h"
 #include "aglPipe.h"
+#include "aglWindowEvent.h"
+#include "global.h"
+#include "window.h"
 
 namespace eq
 {
+
+bool AGLWindowIF::processEvent( const AGLWindowEvent& event )
+{
+    EQASSERT( _window );
+    return _window->processEvent( event );
+}
 
 AGLWindow::AGLWindow( Window* parent )
     : AGLWindowIF( parent )

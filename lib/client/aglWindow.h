@@ -7,10 +7,11 @@
 #define EQ_OS_WINDOW_AGL_H
 
 #include <eq/client/osWindow.h>       // base class
-#include <eq/client/aglWindowEvent.h> // used in inline method
 
 namespace eq
 {
+    class AGLWindowEvent;
+
     /** The interface defining the minimum functionality for an AGL window. */
     class EQ_EXPORT AGLWindowIF : public OSWindow
     {
@@ -29,8 +30,7 @@ namespace eq
         virtual AGLPbuffer getAGLPBuffer() const = 0;
 
         /** Process an event. */
-        virtual bool processEvent( const AGLWindowEvent& event )
-            { return _window->processEvent( event ); }
+        virtual bool processEvent( const AGLWindowEvent& event );
 
         /** Used by the AGL event handler to store the event handler ref. */
         EventHandlerRef& getCarbonEventHandler() { return _carbonHandler; }

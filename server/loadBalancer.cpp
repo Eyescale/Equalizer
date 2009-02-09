@@ -9,6 +9,7 @@
 #include "treeLoadBalancer.h"
 #include "smoothLoadBalancer.h"
 
+#include <eq/client/client.h>
 #include <eq/client/server.h>
 #include <eq/base/debug.h>
 

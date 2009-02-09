@@ -5,8 +5,11 @@
 #include "channel.h"
 
 #include "channelStatistics.h"
+#include "channelVisitor.h"
+#include "client.h"
 #include "compositor.h"
 #include "commands.h"
+#include "config.h"
 #include "configEvent.h"
 #include "frame.h"
 #include "global.h"
@@ -14,8 +17,10 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "packets.h"
+#include "pipe.h"
 #include "range.h"
 #include "renderContext.h"
+#include "server.h"
 #include "task.h"
 #include "view.h"
 #include "frameBufferObject.h"
@@ -83,6 +88,56 @@ void Channel::attachToSession( const uint32_t id,
                      ChannelFunc( this, &Channel::_cmdFrameReadback ), queue );
     registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
                      ChannelFunc( this, &Channel::_cmdFrameTransmit ), queue );
+}
+
+Pipe* Channel::getPipe()
+{
+    EQASSERT( _window );
+    return ( _window ? _window->getPipe() : 0 );
+}
+const Pipe* Channel::getPipe() const
+{
+    EQASSERT( _window );
+    return ( _window ? _window->getPipe() : 0 );
+}
+
+Node* Channel::getNode()
+{
+    EQASSERT( _window );
+    return ( _window ? _window->getNode() : 0 );
+}
+const Node* Channel::getNode() const
+{
+    EQASSERT( _window );
+    return ( _window ? _window->getNode() : 0 );
+}
+
+Config* Channel::getConfig()
+{
+    EQASSERT( _window );
+    return ( _window ? _window->getConfig() : 0 );
+}
+const Config* Channel::getConfig() const
+{
+    EQASSERT( _window );
+    return ( _window ? _window->getConfig() : 0 );
+}
+
+ServerPtr Channel::getServer()
+{
+    EQASSERT( _window );
+    return ( _window ? _window->getServer() : 0 );
+}
+
+GLEWContext* Channel::glewGetContext()
+{
+    EQASSERT( _window );
+    return _window->glewGetContext();
+}
+const GLEWContext* Channel::glewGetContext() const
+{
+    EQASSERT( _window );
+    return _window->glewGetContext();
 }
 
 VisitorResult Channel::accept( ChannelVisitor* visitor )

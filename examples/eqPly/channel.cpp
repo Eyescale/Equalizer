@@ -113,7 +113,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 
 const FrameData::Data& Channel::_getFrameData() const
 {
-    const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
+    const Pipe* pipe = static_cast<const Pipe*>( getPipe( ));
     return pipe->getFrameData();
 }
 

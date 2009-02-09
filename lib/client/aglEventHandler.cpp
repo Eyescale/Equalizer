@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -7,6 +8,7 @@
 #include "log.h"
 #include "window.h"
 #include "aglWindow.h"
+#include "aglWindowEvent.h"
 
 using namespace eq::base;
 using namespace std;

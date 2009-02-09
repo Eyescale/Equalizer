@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -8,6 +8,7 @@
 
 #include "client.h"
 #include "commands.h"
+#include "config.h"
 #include "frameData.h"
 #include "global.h"
 #include "log.h"
@@ -84,6 +85,23 @@ void Node::attachToSession( const uint32_t id,
                      NodeFunc( this, &Node::_cmdFrameDrawFinish ), queue );
     registerCommand( CMD_NODE_FRAME_TASKS_FINISH, 
                      NodeFunc( this, &Node::_cmdFrameTasksFinish ), queue );
+}
+
+ClientPtr Node::getClient()
+{
+    EQASSERT( _config );
+    return (_config ? _config->getClient() : 0);
+}
+
+ServerPtr Node::getServer()
+{
+    EQASSERT( _config );
+    return (_config ? _config->getServer() : 0);
+}
+
+CommandQueue* Node::getNodeThreadQueue()
+{
+    return getClient()->getNodeThreadQueue();
 }
 
 VisitorResult Node::accept( NodeVisitor* visitor )

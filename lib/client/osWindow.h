@@ -6,13 +6,16 @@
 #ifndef EQ_OS_WINDOW_H
 #define EQ_OS_WINDOW_H
 
-#include <eq/client/windowSystem.h>   // WGLew
-#include <eq/client/window.h>         // used in inline methods
+#include <eq/client/types.h>
+#include <eq/client/window.h>         // Window::IAttribute enum
+#include <eq/client/windowSystem.h>   // GLEWContext
+
 #include <eq/base/spinLock.h>       
-#include <eq/client/frameBufferObject.h>
 
 namespace eq
 {
+    class FrameBufferObject;
+
     /**
      * The interface definition for OS-specific windowing code.
      *
@@ -79,22 +82,22 @@ namespace eq
 
         /** @name Convenience interface to eq::Window methods */
         //*{
-
-        const Window* getWindow() const { return _window; }
-        const Pipe* getPipe()     const { return _window->getPipe(); }
-        const Node* getNode()     const { return _window->getNode(); }
-        const Config* getConfig() const { return _window->getConfig(); }
-
         Window* getWindow() { return _window; }
-        Pipe* getPipe()     { return _window->getPipe(); }
-        Node* getNode()     { return _window->getNode(); }
-        Config* getConfig() { return _window->getConfig(); }
+        const Window* getWindow() const { return _window; }
 
-        int32_t getIAttribute( const Window::IAttribute attr ) const
-            { return _window->getIAttribute( attr ); }
+        Pipe* getPipe(); 
+        const Pipe* getPipe() const;
+
+        Node* getNode(); 
+        const Node* getNode() const;
+
+        Config* getConfig();
+        const Config* getConfig() const;
+
+        int32_t getIAttribute( const Window::IAttribute attr ) const;
 
         /** @return the generic WGL function table for the window's pipe. */
-        WGLEWContext* wglewGetContext() { return _window->wglewGetContext(); }
+        WGLEWContext* wglewGetContext();
         //*}
 		        
         /** 

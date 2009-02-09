@@ -1,21 +1,21 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_NODE_H
 #define EQ_NODE_H
 
-#include <eq/client/config.h>         // called in inline method
+#include <eq/client/commandQueue.h>   // member
+#include <eq/client/types.h>
+#include <eq/client/visitorResult.h>  // enum
 
 #include <eq/base/base.h>
 #include <eq/net/barrier.h>
 
 namespace eq
 {
-    class Config;
     class FrameData;
-    class Pipe;
-    class Server;
+    class NodeVisitor;
 
     /**
      * A Node represents a single computer in the cluster.
@@ -36,11 +36,12 @@ namespace eq
          * 
          * @return the config of this node. 
          */
-        Config* getConfig() const { return _config; }
-        base::RefPtr< Client > getClient() const
-            { return (_config ? _config->getClient() : 0); }
-        base::RefPtr< Server > getServer() const
-            { return (_config ? _config->getServer() : 0); }
+        Config*       getConfig()       { return _config; }
+        const Config* getConfig() const { return _config; }
+
+        ClientPtr getClient();
+        ServerPtr getServer();
+
         const PipeVector& getPipes() const { return _pipes; }
 
         const std::string& getName() const { return _name; }
@@ -57,8 +58,7 @@ namespace eq
          */
         uint32_t getTasks() const { return _tasks; }
 
-        CommandQueue* getNodeThreadQueue()
-            { return getClient()->getNodeThreadQueue(); }
+        CommandQueue* getNodeThreadQueue();
 
         /** 
          * Traverse this node and all children using a node visitor.

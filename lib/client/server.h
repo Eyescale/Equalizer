@@ -5,7 +5,6 @@
 #ifndef EQ_SERVER_H
 #define EQ_SERVER_H
 
-#include <eq/client/client.h>    // called in inline method
 #include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
 #include <eq/client/types.h>     // basic typedefs
 
@@ -32,10 +31,8 @@ namespace eq
         void setClient( ClientPtr client );
         ClientPtr getClient(){ return _client; }
 
-        net::CommandQueue* getNodeThreadQueue() 
-            { return _client->getNodeThreadQueue(); }
-        net::CommandQueue* getCommandThreadQueue() 
-            { return _client->getCommandThreadQueue(); }
+        net::CommandQueue* getNodeThreadQueue();
+        net::CommandQueue* getCommandThreadQueue();
         //*}
 
         /** 

@@ -5,9 +5,16 @@
 #ifndef EQSERVER_CHANNEL_H
 #define EQSERVER_CHANNEL_H
 
+#ifdef EQUALIZERSERVERLIBRARY_EXPORTS
+   // We need to instantiate a Monitor< State > when compiling the library,
+   // but we don't want to have <pthread.h> for a normal build, hence this hack
+#  include <pthread.h>
+#endif
+#include <eq/base/monitor.h>
+
 #include "base.h"
 #include "types.h"
-#include "channelVisitor.h" // nested enum
+#include "visitorResult.h" // nested enum
 
 #include <eq/client/channel.h>
 #include <eq/client/commands.h>
@@ -26,6 +33,7 @@ class View;
 namespace server
 {
     class ChannelListener;
+    class ChannelVisitor;
 
     /**
      * The channel.
@@ -88,8 +96,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ChannelVisitor* visitor )
-            { return visitor->visit( this ); }
+        VisitorResult accept( ChannelVisitor* visitor );
 
         /** 
          * References this channel as being actively used.

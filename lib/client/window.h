@@ -9,6 +9,7 @@
 #include <eq/client/renderContext.h> // member
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h> // enum
+
 #include <eq/util/bitmapFont.h>      // member
 #include <eq/net/object.h>           // base class
 

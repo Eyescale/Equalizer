@@ -60,6 +60,16 @@ void Server::setClient( ClientPtr client )
                      queue );
 }
 
+net::CommandQueue* Server::getNodeThreadQueue() 
+{
+    return _client->getNodeThreadQueue();
+}
+
+net::CommandQueue* Server::getCommandThreadQueue() 
+{
+    return _client->getCommandThreadQueue();
+}
+
 Config* Server::chooseConfig( const ConfigParams& parameters )
 {
     if( !isConnected( ))

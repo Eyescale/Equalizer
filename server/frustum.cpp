@@ -7,6 +7,9 @@
 #include "config.h"
 #include "frustumData.h"
 
+#include <eq/net/dataIStream.h>
+#include <eq/net/dataOStream.h>
+
 using namespace eq::base;
 
 namespace eq

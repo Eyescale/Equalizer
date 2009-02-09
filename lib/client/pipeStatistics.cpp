@@ -4,6 +4,7 @@
 
 #include "pipeStatistics.h"
 
+#include "config.h"
 #include "pipe.h"
 #include "global.h"
 

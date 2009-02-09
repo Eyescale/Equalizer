@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2008-2009, Cedric Stalder <cedric.stalder@gmail.com>
                  2009, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved. */

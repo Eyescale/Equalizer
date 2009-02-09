@@ -5,9 +5,17 @@
 // Tests the functionality of the config visitor
 
 #include <test.h>
+
 #include <eq/client/channel.h>
+#include <eq/client/channel.h>
+#include <eq/client/client.h>
+#include <eq/client/config.h>
 #include <eq/client/init.h>
+#include <eq/client/node.h>
 #include <eq/client/nodeFactory.h>
+#include <eq/client/pipe.h>
+#include <eq/client/server.h>
+#include <eq/client/window.h>
 
 using namespace eq;
 
@@ -16,6 +24,7 @@ class TestVisitor : public ConfigVisitor
 public:
     TestVisitor() : nConfigs(0), nNodes(0), nPipes(0), nWindows(0), nChannels(0)
         {}
+    virtual ~TestVisitor() {}
 
     virtual VisitorResult visitPre( Config* config )
         {

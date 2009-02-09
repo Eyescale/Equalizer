@@ -1,14 +1,16 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "init.h"
 
 #include "client.h"
+#include "config.h"
 #include "configParams.h"
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
+#include "server.h"
 #include "version.h"
 
 #include <eq/net/init.h>

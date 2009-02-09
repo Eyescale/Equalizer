@@ -4,6 +4,8 @@
 
 #include "view.h"
 
+#include "viewVisitor.h"
+
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 
@@ -37,6 +39,11 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 const Viewport& View::getViewport() const
 {
     return _viewport;
+}
+
+VisitorResult View::accept( ViewVisitor* visitor )
+{
+    return visitor->visit( this );
 }
 
 }

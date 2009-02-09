@@ -5,8 +5,10 @@
 #include "channelStatistics.h"
 
 #include "channel.h"
+#include "config.h"
 #include "global.h"
 #include "pipe.h"
+#include "window.h"
 
 #ifdef WIN32_VC
 #  define snprintf _snprintf

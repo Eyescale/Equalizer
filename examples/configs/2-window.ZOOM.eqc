@@ -37,6 +37,7 @@ server
             compound 
             {
                 channel "buffer"
+                #loadBalancer { mode [ DFR ] framerate 10.0 }
                 zoom [ 2 2 ]
 #                viewport [ .5 .5 .5 .5 ]
                 outputframe{ }

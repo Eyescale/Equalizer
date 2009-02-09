@@ -5,17 +5,21 @@
 #include "window.h"
 
 #include "channel.h"
+#include "client.h"
 #include "commands.h"
 #include "configEvent.h"
-#include "event.h"
+#include "config.h"
 #include "event.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
+#include "pipe.h"
 #include "osWindow.h"
 #include "packets.h"
+#include "server.h"
 #include "task.h"
 #include "windowStatistics.h"
+#include "windowVisitor.h"
 
 #ifdef AGL
 #  include "aglWindow.h"

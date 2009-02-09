@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
                  2007       Maxim Makhinya
    All rights reserved. */
 
@@ -138,7 +138,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
 const FrameData::Data& Channel::_getFrameData() const
 {
-    const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
+    const Pipe* pipe = static_cast< const Pipe* >( getPipe( ));
     return pipe->getFrameData();
 }
 
@@ -158,7 +158,7 @@ void Channel::_calcMVandITMV(
     vmml::Matrix3d& modelviewITM ) const
 {
     const FrameData::Data& frameData = _getFrameData();
-    const Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
+    const Pipe*            pipe      = static_cast< const Pipe* >( getPipe( ));
     const Renderer*        renderer  = pipe->getRenderer();
 
     if( renderer )

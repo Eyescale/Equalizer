@@ -11,6 +11,8 @@
 
 #include <eq/net/command.h>
 #include <eq/net/commandFunc.h>
+#include <eq/net/dataIStream.h>
+#include <eq/net/dataOStream.h>
 #include <eq/net/session.h>
 #include <eq/base/monitor.h>
 #include <algorithm>

@@ -7,7 +7,7 @@
 
 #include <eq/client/frustum.h>        // base class
 #include <eq/client/viewport.h>       // member
-#include <eq/client/viewVisitor.h>    // used in inline method
+#include <eq/client/visitorResult.h>  // enum
 
 namespace eq
 {
@@ -15,6 +15,7 @@ namespace server
 {
     class View;
 }
+    class ViewVisitor;
 
     /**
      * A View is a 2D area of a Layout. It is a view of the application's data
@@ -42,8 +43,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ViewVisitor* visitor )
-            { return visitor->visit( this ); }
+        VisitorResult accept( ViewVisitor* visitor );
         //*}
         
     protected:

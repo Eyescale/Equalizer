@@ -4,12 +4,16 @@
 
 #include "pipe.h"
 
+#include "client.h"
 #include "commands.h"
+#include "config.h"
+#include "frame.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
 #include "pipeStatistics.h"
 #include "packets.h"
+#include "server.h"
 #include "task.h"
 #include "X11Connection.h"
 #include "window.h"
@@ -64,6 +68,34 @@ Pipe::~Pipe()
     _node->_removePipe( this );
     delete _thread;
     _thread = 0;
+}
+
+Config* Pipe::getConfig()
+{
+    EQASSERT( _node );
+    return (_node ? _node->getConfig() : 0);
+}
+const Config* Pipe::getConfig() const
+{
+    EQASSERT( _node );
+    return (_node ? _node->getConfig() : 0);
+}
+
+ClientPtr Pipe::getClient()
+{
+    EQASSERT( _node );
+    return (_node ? _node->getClient() : 0);
+}
+
+ServerPtr Pipe::getServer()
+{
+    EQASSERT( _node );
+    return (_node ? _node->getServer() : 0);
+}
+
+int64_t Pipe::getFrameTime() const
+{
+    return getConfig()->getTime() - _frameTime;
 }
 
 VisitorResult Pipe::accept( PipeVisitor* visitor )

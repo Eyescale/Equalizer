@@ -206,6 +206,7 @@ CXXFILES = \
 	client/init.cpp \
 	client/layout.cpp \
 	client/node.cpp \
+	client/nodeFactory.cpp \
 	client/nodeStatistics.cpp \
 	client/object.cpp \
 	client/objectManager.cpp \

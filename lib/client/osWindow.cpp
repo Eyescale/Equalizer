@@ -4,6 +4,7 @@
 
 #include "osWindow.h"
 
+#include "frameBufferObject.h"
 #include "global.h"
 #include "pipe.h"
 
@@ -26,6 +27,51 @@ OSWindow::~OSWindow()
     delete _glewContext;
     _glewContext = 0;
     _glewInitialized = false;
+}
+
+const Pipe* OSWindow::getPipe() const
+{
+    EQASSERT( _window );
+    return _window->getPipe();
+}
+Pipe* OSWindow::getPipe()
+{
+    EQASSERT( _window );
+    return _window->getPipe();
+}
+
+const Node* OSWindow::getNode() const
+{
+    EQASSERT( _window );
+    return _window->getNode();
+}
+Node* OSWindow::getNode()
+{
+    EQASSERT( _window );
+    return _window->getNode();
+}
+
+const Config* OSWindow::getConfig() const
+{
+    EQASSERT( _window );
+    return _window->getConfig();
+}
+Config* OSWindow::getConfig()
+{
+    EQASSERT( _window );
+    return _window->getConfig();
+}
+
+int32_t OSWindow::getIAttribute( const Window::IAttribute attr ) const
+{
+    EQASSERT( _window );
+    return _window->getIAttribute( attr );
+}
+
+WGLEWContext* OSWindow::wglewGetContext()
+{
+    EQASSERT( _window );
+    return _window->wglewGetContext();
 }
 
 void OSWindow::_initGlew()

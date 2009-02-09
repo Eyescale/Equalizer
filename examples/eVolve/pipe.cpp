@@ -22,7 +22,7 @@ namespace eVolve
 {
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
-    const Node*            node     = static_cast<Node*>( getNode( ));
+    const Node*            node     = static_cast< const Node* >( getNode( ));
     const InitData&        initData = node->getInitData();
     const eq::WindowSystem ws       = initData.getWindowSystem();
 

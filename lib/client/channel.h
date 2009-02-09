@@ -5,12 +5,15 @@
 #ifndef EQ_CHANNEL_H
 #define EQ_CHANNEL_H
 
-#include <eq/client/colorMask.h>     // enum used
+#include <eq/client/colorMask.h>     // enum
 #include <eq/client/event.h>         // member
-#include <eq/client/eye.h>           // enum used
-#include <eq/client/frame.h>         // used in inline method
+#include <eq/client/eye.h>           // enum
 #include <eq/client/pixelViewport.h> // member
-#include <eq/client/window.h>        // used in inline method
+#include <eq/client/types.h>
+#include <eq/client/visitorResult.h> // enum
+#include <eq/client/windowSystem.h>  // GLEWContext
+
+#include <eq/net/object.h>           // base class
 #include <vmmlib/vmmlib.h>           // Frustum definition 
 
 namespace eq
@@ -55,13 +58,19 @@ namespace eq
          * @name Data Access
          */
         //*{
-        Window* getWindow() const { return _window; }
-        Pipe*   getPipe() const { return ( _window ? _window->getPipe() : 0 );}
-        Node* getNode() const { return ( _window ? _window->getNode() : 0 );}
-        Config* getConfig() const
-            { return ( _window ? _window->getConfig() : 0 );}
-        ServerPtr getServer() const
-            { return ( _window ? _window->getServer() : 0 );}
+        Window*       getWindow()       { return _window; }
+        const Window* getWindow() const { return _window; }
+
+        Pipe*       getPipe();
+        const Pipe* getPipe() const;
+
+        Node*       getNode();
+        const Node* getNode() const;
+
+        Config*       getConfig();
+        const Config* getConfig() const;
+
+        ServerPtr getServer();
 
         /** 
          * Get the GLEW context for this channel.
@@ -77,8 +86,8 @@ namespace eq
          * @return the extended OpenGL function table for the channel's OpenGL
          *         context.
          */
-        GLEWContext* glewGetContext() { return _window->glewGetContext(); }
-        const GLEWContext* glewGetContext() const { return _window->glewGetContext(); }
+        GLEWContext*       glewGetContext();
+        const GLEWContext* glewGetContext() const;
         
         /** @return the name of the window. */
         const std::string& getName() const { return _name; }

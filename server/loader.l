@@ -6,6 +6,8 @@
 #include "compound.h"
 #include "loadBalancer.h"
 #include "parser.hpp"
+
+#include <eq/client/client.h>
 #include <eq/client/server.h>
 #include <eq/base/base.h>
 #include <stdlib.h>

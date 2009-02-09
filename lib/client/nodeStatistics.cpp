@@ -1,9 +1,10 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "nodeStatistics.h"
 
+#include "config.h"
 #include "node.h"
 #include "global.h"
 
