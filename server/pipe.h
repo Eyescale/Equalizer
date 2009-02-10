@@ -5,9 +5,13 @@
 #ifndef EQSERVER_PIPE_H
 #define EQSERVER_PIPE_H
 
-#include "node.h"                       // used in inline method
+#include "types.h"
+#include "visitorResult.h" // enum
+
 #include <eq/client/global.h>           // eq::OFF enum
+#include <eq/client/pixelViewport.h>    // member
 #include <eq/net/object.h>              // base class
+#include <eq/base/monitor.h>            // member
 
 #include <ostream>
 #include <vector>
@@ -16,6 +20,10 @@ namespace eq
 {
 namespace server
 {
+    class PipeVisitor;
+    struct ChannelPath;
+    struct PipePath;
+
     /**
      * The pipe.
      */
@@ -42,8 +50,22 @@ namespace server
          */
         Pipe( const Pipe& from );
 
-        Server* getServer() const
-            { return _node ? _node->getServer() : 0; }
+        Server* getServer();
+        const Server* getServer() const;
+
+        Node*       getNode()       { return _node; }
+        const Node* getNode() const { return _node; }
+
+        Config* getConfig();
+        const Config* getConfig() const;
+
+        net::CommandQueue* getServerThreadQueue();
+        net::CommandQueue* getCommandThreadQueue();
+
+        /** @return the index path to this pipe. */
+        PipePath getPath() const;
+
+        Channel* getChannel( const ChannelPath& path );
 
         /** @return the state of this pipe. */
         State getState()    const { return _state.get(); }
@@ -66,14 +88,6 @@ namespace server
 
         /** @return the vector of windows. */
         const WindowVector& getWindows() const { return _windows; }
-
-        Node*   getNode()   const { return _node; }
-        Config* getConfig() const { return (_node ? _node->getConfig() : 0);}
-
-        net::CommandQueue* getServerThreadQueue()
-            { return _node->getServerThreadQueue(); }
-        net::CommandQueue* getCommandThreadQueue()
-            { return _node->getCommandThreadQueue(); }
 
         /** 
          * Traverse this pipe and all children using a pipe visitor.
@@ -286,10 +300,8 @@ namespace server
         /** common code for all constructors */
         void _construct();
 
-        void _send( net::ObjectPacket& packet )
-            { packet.objectID = getID(); _node->send( packet ); }
-        void _send( net::ObjectPacket& packet, const std::string& string ) 
-            { packet.objectID = getID(); _node->send( packet, string ); }
+        void _send( net::ObjectPacket& packet );
+        void _send( net::ObjectPacket& packet, const std::string& string ) ;
 
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();

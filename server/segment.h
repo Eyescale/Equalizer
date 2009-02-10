@@ -30,7 +30,7 @@ namespace server
         /** 
          * Constructs a new Segment.
          */
-        Segment() : _canvas( 0 ), _channel( 0 ) {}
+        Segment();
 
         /** Creates a new, deep copy of a segment. */
         Segment( const Segment& from, Config* config );
@@ -42,11 +42,11 @@ namespace server
          * @name Data Access
          */
         //*{
-        /** Set the name of this segment. */
-        void setName( const std::string& name ) { _name = name; }
+        /** @return the config of this view. */
+        Config* getConfig();
 
-        /** @return the name of this segment. */
-        const std::string& getName() const      { return _name; }
+        /** @return the config of this view. */
+        const Config* getConfig() const;
 
         /** 
          * Set the channel of this segment.
@@ -75,6 +75,12 @@ namespace server
 
         /** @return the segment's viewport. */
         const eq::Viewport& getViewport() const { return _vp; }
+
+        /** Add a destination (View) channel. */
+        void addDestinationChannel( Channel* channel );
+
+        /** Remove a destination (View) channel. */
+        bool removeDestinationChannel( Channel* channel );
         //*}
         
         /** Operations */
@@ -98,8 +104,8 @@ namespace server
         /** The output channel of this segment. */
         Channel* _channel;
 
-        /** The name of this segment. */
-        std::string _name;
+        /** The resulting destination channels from the view intersections. */
+        ChannelVector _destinationChannels;
 
         /** The 2D area of this segment wrt to the canvas. */
         eq::Viewport _vp;

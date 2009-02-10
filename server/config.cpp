@@ -15,9 +15,11 @@
 #include "loadBalancer.h"
 #include "log.h"
 #include "node.h"
+#include "paths.h"
 #include "segment.h"
 #include "server.h"
 #include "view.h"
+#include "window.h"
 
 #include <eq/net/command.h>
 #include <eq/net/global.h>
@@ -402,6 +404,41 @@ Layout* Config::findLayout( const std::string& name )
 
 namespace
 {
+class ChannelFinder : public ConfigVisitor
+{
+public:
+    ChannelFinder( const std::string& name ) 
+            : _name( name ), _segment( 0 ), _view( 0 ), _result( 0 ) {}
+
+    ChannelFinder( const Segment* const segment, const View* const view ) 
+            : _segment( segment ), _view( view ), _result( 0 ) {}
+
+    virtual ~ChannelFinder(){}
+
+    virtual VisitorResult visit( Channel* channel )
+        {
+            if( !_name.empty() && channel->getName() != _name )
+                return TRAVERSE_CONTINUE;
+
+            if( _view && channel->getView() != _view )
+                return TRAVERSE_CONTINUE;
+
+            if( _segment && channel->getSegment() != _segment )
+                return TRAVERSE_CONTINUE;
+
+            _result = channel;
+            return TRAVERSE_TERMINATE;
+        }
+
+    Channel* getResult() { return _result; }
+
+private:
+    const std::string    _name;
+    const Segment* const _segment;
+    const View* const    _view;
+    Channel*             _result;
+};
+
 class AddCanvasVisitor : public ConfigVisitor
 {
 public:
@@ -447,44 +484,42 @@ public:
                 return TRAVERSE_CONTINUE;
             }
 
+#ifndef NDEBUG
+            // make sure channel doesn't exist yet
+            ChannelFinder finder( segment, _view );
+            _view->getConfig()->accept( &finder );
+            EQASSERT( finder.getResult() == 0 );
+#endif
 
-            Layout* const layout = _canvas->getLayout();  
-            // find Channel
-            string channelName = segmentChannel->getName() + '.' + 
-                                         layout->getName() + '.' + 
-                                          _view->getName();
-                                          
-            // find Channel
-            Channel* channel = _config->findChannel( channelName );
-                                   
-            if( !channel )
-            {
-                channel = new Channel( *segmentChannel );
-                channel->setName( channelName ); 
-                
-                Window* window = segmentChannel->getWindow();
-                window->addChannel( channel );
-            }
+            // create new channel for view/segment intersection
+            Channel* channel = new Channel( *segmentChannel );
+
+            //----- compute channel viewport:
+            // segment/view intersection in canvas space...
+            Viewport contribution = viewport;
+            // ... in segment space...
+            contribution.transform( segment->getViewport( ));
             
-            // set viewport to sub-viewport of segment channel
-            Viewport contribution = viewport; // segment X view in canvas space
-            contribution.transform( segment->getViewport( )); // ... in segment space
-            
-            Viewport subViewport = segmentChannel->getViewport(); // total output area
-            subViewport.apply( contribution );                    // our part of it    
+             // segment output area
+            Viewport subViewport = segmentChannel->getViewport();
+            // ...our part of it    
+            subViewport.apply( contribution );
             
             channel->setViewport( subViewport );
             
-            // decrement channel activation count [inactivates channel]
-            // TODO implement useLayout: channel->deactivate();               
-                            
-            // set view on channel, add channel to view
-            channel->setView( _view );
             _view->addChannel( channel );
+            segment->addDestinationChannel( channel );
+
+            Window* window = segmentChannel->getWindow();
+            window->addChannel( channel );
+            
+            // decrement channel activation count [inactivates channel]
+            // TODO implement useLayout: channel->deactivate(); 
             
             EQINFO << "View " << _view->getName() << _view->getViewport()
                    << " intersects " << segment->getName() 
-                   << segment->getViewport() << " at " << subViewport << std::endl;
+                   << segment->getViewport() << " at " << subViewport
+                   << std::endl;
 
             return TRAVERSE_CONTINUE;
         }
@@ -544,29 +579,6 @@ bool Config::removeCompound( Compound* compound )
 
 namespace
 {
-class ChannelFinder : public ConfigVisitor
-{
-public:
-    ChannelFinder( const std::string& name ) : _name( name ), _result( 0 ) {}
-    virtual ~ChannelFinder(){}
-
-    virtual VisitorResult visit( Channel* channel )
-        {
-            if( channel->getName() == _name )
-            {
-                _result = channel;
-                return TRAVERSE_TERMINATE;
-            }
-            return TRAVERSE_CONTINUE;
-        }
-
-    Channel* getResult() { return _result; }
-
-private:
-    const std::string& _name;
-    Channel*           _result;
-};
-
 class CompoundUpdateVisitor : public ConfigVisitor
 {
 public:
@@ -678,6 +690,28 @@ void Config::setApplicationNetNode( net::NodePtr node )
     EQASSERT( !_appNetNode );
 
     _appNetNode = node;
+}
+
+Channel* Config::getChannel( const ChannelPath& path )
+{
+    EQASSERTINFO( _nodes.size() >= path.nodeIndex,
+                  _nodes.size() << " < " << path.nodeIndex );
+
+    if( _nodes.size() < path.nodeIndex )
+        return 0;
+
+    return _nodes[ path.nodeIndex ]->getChannel( path );
+}
+
+Layout* Config::getLayout( const LayoutPath& path )
+{
+    EQASSERTINFO( _layouts.size() >= path.layoutIndex,
+                  _layouts.size() << " < " << path.layoutIndex );
+
+    if( _layouts.size() < path.layoutIndex )
+        return 0;
+
+    return _layouts[ path.layoutIndex ];
 }
 
 VisitorResult Config::accept( ConfigVisitor* visitor )

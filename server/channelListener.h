@@ -30,7 +30,7 @@ namespace server
         virtual void notifyLoadData( Channel* channel, 
                                      const uint32_t frameNumber,
                                      const float startTime, const float endTime
-                                     /*, const float load */ ) {}
+                                     /*, const float load */ ) = 0;
     };
 }
 }

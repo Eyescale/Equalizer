@@ -4,8 +4,10 @@
 
 #include "segment.h"
 
+#include "canvas.h"
 #include "channel.h"
 #include "config.h"
+#include "paths.h"
 
 using namespace eq::base;
 
@@ -14,24 +16,36 @@ namespace eq
 namespace server
 {
 
+Segment::Segment()
+        : _canvas( 0 )
+        , _channel( 0 )
+{
+}
+
 Segment::Segment( const Segment& from, Config* config )
         : eq::Frustum( from )
         , _canvas( 0 )
         , _channel( 0 )
+        , _vp( from._vp )
 {
     if( from._channel )
     {
         const Channel* oldChannel = from._channel;
-        const std::string&   name = oldChannel->getName();
-        Channel*       newChannel = config->findChannel( name );
-        
-        EQASSERT( !name.empty( ));
+        const ChannelPath path( oldChannel->getPath( ));
+
+        _channel = config->getChannel( path );
+        EQASSERT( _channel );
+    }
+    for( ChannelVector::const_iterator i = from._destinationChannels.begin();
+         i != from._destinationChannels.end(); ++i )
+    {
+        const Channel* oldChannel = *i;
+        const ChannelPath path( oldChannel->getPath( ));
+
+        Channel* newChannel = getConfig()->getChannel( path );
         EQASSERT( newChannel );
-      
-        _name = from._name;
-        _vp = from._vp;
-        
-        _channel = newChannel;
+
+        addDestinationChannel( newChannel );
     }
 }
 
@@ -39,6 +53,38 @@ Segment::~Segment()
 {
     _canvas  = 0;
     _channel = 0;
+}
+
+Config* Segment::getConfig()
+{
+    EQASSERT( _canvas );
+    return _canvas ? _canvas->getConfig() : 0;
+}
+
+
+const Config* Segment::getConfig() const
+{
+    EQASSERT( _canvas );
+    return _canvas ? _canvas->getConfig() : 0;
+}
+
+void Segment::addDestinationChannel( Channel* channel )
+{
+    _destinationChannels.push_back( channel );
+    channel->setSegment( this );
+}
+
+bool Segment::removeDestinationChannel( Channel* channel )
+{
+    ChannelVector::iterator i = find( _destinationChannels.begin(), 
+                                      _destinationChannels.end(), channel );
+
+    if( i == _destinationChannels.end( ))
+        return false;
+
+    channel->setSegment( 0 );
+    _destinationChannels.erase( i );
+    return true;
 }
 
 

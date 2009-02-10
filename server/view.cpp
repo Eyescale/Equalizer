@@ -4,8 +4,10 @@
 
 #include "view.h"
 
+#include "channel.h"
 #include "config.h"
 #include "layout.h"
+#include "paths.h"
 
 using namespace eq::base;
 
@@ -17,6 +19,23 @@ namespace server
 View::View()
         : _layout( 0 )
 {
+}
+
+View::View( const View& from )
+        : eq::View( from )
+        , _layout( 0 )
+{
+    for( ChannelVector::const_iterator i = from._channels.begin();
+         i != from._channels.end(); ++i )
+    {
+        const Channel* oldChannel = *i;
+        const ChannelPath path( oldChannel->getPath( ));
+
+        Channel* newChannel = getConfig()->getChannel( path );
+        EQASSERT( newChannel );
+
+        addChannel( newChannel );
+    }
 }
 
 View::~View()
@@ -47,9 +66,9 @@ const Config* View::getConfig() const
 
 void View::addChannel( Channel* channel )
 {
-    _channels.push_back( channel ); 
+    _channels.push_back( channel );
+    channel->setView( this );
 }
-
 
 bool View::removeChannel( Channel* channel )
 {
@@ -59,6 +78,7 @@ bool View::removeChannel( Channel* channel )
     if( i == _channels.end( ))
         return false;
 
+    channel->setView( 0 );
     _channels.erase( i );
     return true;
 }

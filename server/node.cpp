@@ -9,6 +9,7 @@
 #include "config.h"
 #include "global.h"
 #include "log.h"
+#include "paths.h"
 #include "pipe.h"
 #include "server.h"
 #include "window.h"
@@ -121,6 +122,30 @@ bool Node::removePipe( Pipe* pipe )
     pipe->_node = 0; 
 
     return true;
+}
+
+NodePath Node::getPath() const
+{
+    EQASSERT( _config );
+    
+    const NodeVector&      nodes = _config->getNodes();
+    NodeVector::const_iterator i = std::find( nodes.begin(), nodes.end(),
+                                              this );
+    EQASSERT( i != nodes.end( ));
+
+    NodePath path;
+    path.nodeIndex = std::distance( nodes.begin(), i );
+    return path;
+}
+
+Channel* Node::getChannel( const ChannelPath& path )
+{
+    EQASSERT( _pipes.size() >= path.pipeIndex );
+
+    if( _pipes.size() < path.pipeIndex )
+        return 0;
+
+    return _pipes[ path.pipeIndex ]->getChannel( path );
 }
 
 VisitorResult Node::accept( NodeVisitor* visitor )

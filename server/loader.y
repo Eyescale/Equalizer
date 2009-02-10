@@ -11,6 +11,7 @@
 #include "global.h"
 #include "layout.h"
 #include "loadBalancer.h"
+#include "node.h"
 #include "pipe.h"
 #include "segment.h"
 #include "server.h"

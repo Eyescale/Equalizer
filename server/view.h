@@ -25,6 +25,10 @@ namespace server
     {
     public:
         View();
+
+        /** Creates a new, deep copy of a view. */
+        View( const View& from );
+
         virtual ~View();
 
         /** @name Operations */
@@ -51,14 +55,14 @@ namespace server
         const Config* getConfig() const;
 
         /** 
-         * Adds a new channel to this config.
+         * Adds a new destination channel to this view.
          * 
          * @param channel the channel.
          */
         void addChannel( Channel* channel );
         
         /** 
-         * Removes a node channel this config.
+         * Removes a destination channel from this view.
          * 
          * @param channel the channel
          * @return <code>true</code> if the channel was removed, 

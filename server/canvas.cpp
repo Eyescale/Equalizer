@@ -7,6 +7,7 @@
 #include "config.h"
 #include "layout.h"
 #include "node.h"
+#include "paths.h"
 #include "pipe.h"
 #include "segment.h"
 #include "window.h"
@@ -26,11 +27,11 @@ Canvas::Canvas()
 
 Canvas::Canvas( const Canvas& from, Config* config )
         : eq::Canvas( from )
-        , _config( config )
+        , _config( 0 )
         , _layout( 0 )
 {
     EQASSERT( config );
-    
+
     for( SegmentVector::const_iterator i = from._segments.begin();
          i != from._segments.end(); ++i )
     {
@@ -39,10 +40,8 @@ Canvas::Canvas( const Canvas& from, Config* config )
 
     if( from._layout )
     {
-        const std::string& name = from._layout->getName();
-        useLayout( config->findLayout( name ));
-
-        EQASSERT( !name.empty( ));
+        const LayoutPath path( from._layout->getPath( ));
+        useLayout( config->getLayout( path ));
         EQASSERT( _layout );
     }
 

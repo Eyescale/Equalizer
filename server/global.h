@@ -1,17 +1,19 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_GLOBAL_H
 #define EQSERVER_GLOBAL_H
 
-#include "channel.h"
-#include "compound.h"
-#include "connectionDescription.h"
-#include "node.h"
-#include "window.h"
+#include "compound.h"                // nested enum
+#include "config.h"                  // nested enum
+#include "connectionDescription.h"   // nested enum
+#include "pipe.h"                    // nested enum
 
-#include <eq/client/global.h>
+//#include <eq/client/global.h>
+#include <eq/client/node.h>      // nested enum
+#include <eq/client/channel.h>   // nested enum
+#include <eq/client/window.h>    // nested enum
 
 namespace eq
 {

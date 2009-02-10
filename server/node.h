@@ -18,6 +18,9 @@ namespace eq
 {
 namespace server
 {
+    struct ChannelPath;
+    struct NodePath;
+
     /**
      * The node.
      */
@@ -44,6 +47,11 @@ namespace server
         void setNode( net::NodePtr node ) { _node = node; }
         bool isApplicationNode() const
             { return (this == _config->getApplicationNode( )); }
+
+        /** @return the index path to this node. */
+        NodePath getPath() const;
+
+        Channel* getChannel( const ChannelPath& path );
 
         net::CommandQueue* getServerThreadQueue()
             { return _config->getServerThreadQueue(); }

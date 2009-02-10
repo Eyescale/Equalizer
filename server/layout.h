@@ -8,19 +8,20 @@
 #include "visitorResult.h" // enum
 #include "types.h"
 
-#include <eq/base/base.h>
+#include <eq/client/layout.h> // base class
 #include <string>
 
 namespace eq
 {
 namespace server
 {
+    class LayoutPath;
     class LayoutVisitor;
 
     /**
      * The layout. @sa eq::Layout
      */
-    class Layout
+    class Layout : public eq::Layout
     {
     public:
         /** 
@@ -29,7 +30,7 @@ namespace server
         Layout();
 
         /** Creates a new, deep copy of a layout. */
-        Layout( const Layout& from );
+        Layout( const Layout& from, Config* config );
 
         /** Destruct this layout. */
         virtual ~Layout();
@@ -38,17 +39,6 @@ namespace server
          * @name Data Access
          */
         //*{
-        /** 
-         * Set the name of this layout.
-         *
-         * The name is used by the canvas to reference layouts in the config
-         * file.
-         */
-        void setName( const std::string& name ) { _name = name; }
-
-        /** @return the name of this layout. */
-        const std::string& getName() const      { return _name; }
-
         /** Add a new view to this layout. */
         void addView( View* view );
         
@@ -60,6 +50,9 @@ namespace server
 
         Config* getConfig() { return _config; }
         const Config* getConfig() const { return _config; }
+
+        /** @return the index path to this layout. */
+        LayoutPath getPath() const;
         //*}
 
         /**
@@ -81,9 +74,6 @@ namespace server
         /** The parent Config. */
         Config* _config;
         friend class Config;
-
-        /** The name of this layout. */
-        std::string _name;
 
         /** Child views on this layout. */
         ViewVector _views;

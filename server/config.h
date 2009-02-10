@@ -21,6 +21,9 @@ namespace eq
 {
 namespace server
 {
+    struct ChannelPath;
+    struct LayoutPath;
+
     /**
      * The config.
      */
@@ -43,6 +46,9 @@ namespace server
          */
         //*{
         Server* getServer() { return _server; }
+        
+        Channel* getChannel( const ChannelPath& path );
+        Layout* getLayout( const LayoutPath& path );
 
         bool    isRunning() const { return ( _state == STATE_INITIALIZED ); }
 

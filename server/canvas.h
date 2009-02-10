@@ -40,6 +40,9 @@ namespace server
          * @name Data Access
          */
         //*{
+        Config* getConfig()             { return _config; }
+        const Config* getConfig() const { return _config; }
+
         /** Add a new segment to this canvas. */
         void addSegment( Segment* segment );
         

@@ -7,6 +7,8 @@
 #include "colorMask.h"
 #include "compound.h"
 #include "frame.h"
+#include "node.h"
+#include "pipe.h"
 #include "window.h"
 
 #include "channel.ipp"

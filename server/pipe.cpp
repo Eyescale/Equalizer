@@ -10,6 +10,7 @@
 #include "global.h"
 #include "log.h"
 #include "node.h"
+#include "paths.h"
 #include "window.h"
 
 #include <eq/net/command.h>
@@ -122,6 +123,63 @@ bool Pipe::removeWindow( Window* window )
     _windows.erase( i );
     window->_pipe = 0;
     return true;
+}
+
+Server* Pipe::getServer()
+{ 
+    EQASSERT( _node );
+    return _node ? _node->getServer() : 0; 
+}
+const Server* Pipe::getServer() const
+{ 
+    EQASSERT( _node );
+    return _node ? _node->getServer() : 0; 
+}
+
+Config* Pipe::getConfig()
+{
+    EQASSERT( _node );
+    return (_node ? _node->getConfig() : 0);
+}
+const Config* Pipe::getConfig() const
+{
+    EQASSERT( _node );
+    return (_node ? _node->getConfig() : 0);
+}
+
+net::CommandQueue* Pipe::getServerThreadQueue()
+{ 
+    EQASSERT( _node );
+    return _node->getServerThreadQueue(); 
+}
+
+net::CommandQueue* Pipe::getCommandThreadQueue()
+{ 
+    EQASSERT( _node );
+    return _node->getCommandThreadQueue(); 
+}
+
+PipePath Pipe::getPath() const
+{
+    EQASSERT( _node );
+    PipePath path( _node->getPath( ));
+    
+    const PipeVector&      pipes = _node->getPipes();
+    PipeVector::const_iterator i = std::find( pipes.begin(), pipes.end(),
+                                              this );
+    EQASSERT( i != pipes.end( ));
+    path.pipeIndex = std::distance( pipes.begin(), i );
+    return path;
+}
+
+Channel* Pipe::getChannel( const ChannelPath& path )
+{
+    EQASSERT( _windows.size() >= path.windowIndex );
+
+    if( _windows.size() < path.windowIndex )
+        return 0;
+
+    return _windows[ path.windowIndex ]->getChannel( path );
 }
 
 VisitorResult Pipe::accept( PipeVisitor* visitor )
@@ -272,6 +330,20 @@ bool Pipe::syncConfigInit()
     if( !success )
         EQWARN << "Pipe initialisation failed: " << _error << endl;
     return success;
+}
+
+void Pipe::_send( net::ObjectPacket& packet )
+{ 
+    EQASSERT( _node );
+    packet.objectID = getID();
+    _node->send( packet ); 
+}
+
+void Pipe::_send( net::ObjectPacket& packet, const std::string& string ) 
+{
+    EQASSERT( _node );
+    packet.objectID = getID(); 
+    _node->send( packet, string ); 
 }
 
 //---------------------------------------------------------------------------

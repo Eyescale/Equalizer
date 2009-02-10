@@ -28,12 +28,12 @@
 
 namespace eq
 {
-class View;
 
 namespace server
 {
     class ChannelListener;
     class ChannelVisitor;
+    struct ChannelPath;
 
     /**
      * The channel.
@@ -84,6 +84,9 @@ namespace server
 
         Window* getWindow()             { return _window; }
         const Window* getWindow() const { return _window; }
+
+        /** @return the index path to this channel. */
+        ChannelPath getPath() const;
 
         const CompoundVector& getCompounds() const;
 
@@ -141,9 +144,14 @@ namespace server
         void addTasks( const uint32_t tasks );
 
         /** Set the view for this channel. */
-        void setView( const eq::View* view ) { _view = view; }
+        void setView( const View* view );
         /** @return the channel's view. */
-        const eq::View* getView() const { return _view; }
+        const View* getView() const { return _view; }
+
+        /** Set the segment for this channel. */
+        void setSegment( const Segment* segment );
+        /** @return the channel's segment. */
+        const Segment* getSegment() const { return _segment; }
 
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
@@ -303,7 +311,10 @@ namespace server
         uint32_t _active;
 
         /** The view used by this channel. */
-        const eq::View* _view;
+        const View* _view;
+
+        /** The segment used by this channel. */
+        const Segment* _segment;
 
         /** The reason for the last error. */
         std::string _error;

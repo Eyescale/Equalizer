@@ -5,10 +5,19 @@
 #ifndef EQSERVER_WINDOW_H
 #define EQSERVER_WINDOW_H
 
-#include "pipe.h"
+#ifdef EQUALIZERSERVERLIBRARY_EXPORTS
+   // We need to instantiate a Monitor< State > when compiling the library,
+   // but we don't want to have <pthread.h> for a normal build, hence this hack
+#  include <pthread.h>
+#endif
+#include <eq/base/monitor.h>
+
+#include "types.h"
+#include "visitorResult.h"  // enum
 
 #include <eq/client/pixelViewport.h>
 #include <eq/client/window.h>
+#include <eq/net/barrier.h>
 #include <eq/net/object.h>
 
 #include <iostream>
@@ -18,6 +27,10 @@ namespace eq
 {
 namespace server
 {
+    class WindowVisitor;
+    struct ChannelPath;
+    struct WindowPath;
+
     /**
      * The window.
      */
@@ -67,19 +80,25 @@ namespace server
         /** @return the vector of channels. */
         const ChannelVector& getChannels() const { return _channels; }
 
-        Pipe* getPipe() const { return _pipe; }
+        Pipe*       getPipe()       { return _pipe; }
+        const Pipe* getPipe() const { return _pipe; }
 
-        Node* getNode() const { return (_pipe ? _pipe->getNode() : 0); }
-        Config* getConfig() const 
-            { return (_pipe ? _pipe->getConfig() : 0); }
+        Node* getNode();
+        const Node* getNode() const;
+
+        Config* getConfig();
+        const Config* getConfig() const;
         
+        /** @return the index path to this window. */
+        WindowPath getPath() const;
+
+        Channel* getChannel( const ChannelPath& path );
+
         const eq::Window::DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
 
-        net::CommandQueue* getServerThreadQueue()
-            { return _pipe->getServerThreadQueue(); }
-        net::CommandQueue* getCommandThreadQueue()
-            { return _pipe->getCommandThreadQueue(); }
+        net::CommandQueue* getServerThreadQueue();
+        net::CommandQueue* getCommandThreadQueue();
 
         /** @return the state of this window. */
         State getState() const { return _state.get(); }
@@ -340,10 +359,8 @@ namespace server
         /** Clears all swap barriers of the window. */
         void _resetSwapBarriers();
 
-        void _send( net::ObjectPacket& packet ) 
-            { packet.objectID = getID(); getNode()->send( packet ); }
-        void _send( net::ObjectPacket& packet, const std::string& string ) 
-            { packet.objectID = getID(); getNode()->send( packet, string ); }
+        void _send( net::ObjectPacket& packet );
+        void _send( net::ObjectPacket& packet, const std::string& string );
 
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();

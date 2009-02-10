@@ -5,6 +5,8 @@
 #include "configUpdateDataVisitor.h"
 
 #include "channel.h"
+#include "node.h"
+#include "pipe.h"
 #include "window.h"
 
 using namespace std;

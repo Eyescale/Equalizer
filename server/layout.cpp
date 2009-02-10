@@ -4,7 +4,9 @@
 
 #include "layout.h"
 
+#include "config.h"
 #include "layoutVisitor.h"
+#include "paths.h"
 #include "view.h"
 
 using namespace eq::base;
@@ -18,14 +20,16 @@ Layout::Layout()
         : _config( 0 )
 {}
 
-Layout::Layout( const Layout& from )
+Layout::Layout( const Layout& from, Config* config )
         : _config( 0 )
-        , _name( from._name )
 {
+    config->addLayout( this );
+    EQASSERT( _config );
+
     for( ViewVector::const_iterator i = from._views.begin();
          i != from._views.end(); ++i )
     {
-        _views.push_back( new View( **i ));
+        addView( new View( **i ));
     }
 }
 
@@ -39,6 +43,20 @@ Layout::~Layout()
     }
 
     _views.clear();
+}
+
+LayoutPath Layout::getPath() const
+{
+    EQASSERT( _config );
+    
+    const LayoutVector&    layouts = _config->getLayouts();
+    LayoutVector::const_iterator i = std::find( layouts.begin(), layouts.end(),
+                                              this );
+    EQASSERT( i != layouts.end( ));
+
+    LayoutPath path;
+    path.layoutIndex = std::distance( layouts.begin(), i );
+    return path;
 }
 
 VisitorResult Layout::accept( LayoutVisitor* visitor )

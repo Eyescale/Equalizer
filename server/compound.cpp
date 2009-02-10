@@ -19,6 +19,7 @@
 #include "global.h"
 #include "loadBalancer.h"
 #include "log.h"
+#include "paths.h"
 #include "swapBarrier.h"
 
 #include <eq/base/base.h>
@@ -83,13 +84,10 @@ Compound::Compound( const Compound& from, Config* config, Compound* parent )
     if( from._data.channel )
     {
         const Channel* oldChannel = from._data.channel;
-        const std::string&   name = oldChannel->getName();
-        Channel*       newChannel = getConfig()->findChannel( name );
+        const ChannelPath    path = oldChannel->getPath();
 
-        EQASSERT( !name.empty( ));
-        EQASSERT( newChannel );
-            
-        _data.channel = newChannel;
+        _data.channel = getConfig()->getChannel( path );
+        EQASSERT( _data.channel );
     }
 
     for( CompoundVector::const_iterator i = from._children.begin();

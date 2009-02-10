@@ -9,6 +9,8 @@
 #include "config.h"
 #include "compound.h"
 #include "log.h"
+#include "node.h"
+#include "paths.h"
 #include "pipe.h"
 
 #include <eq/net/command.h>
@@ -122,6 +124,63 @@ bool Window::removeChannel( Channel* channel )
     _channels.erase( i );
     channel->_window = 0;
     return true;
+}
+
+Node* Window::getNode()
+{
+    EQASSERT( _pipe );
+    return (_pipe ? _pipe->getNode() : 0); 
+}
+const Node* Window::getNode() const
+{
+    EQASSERT( _pipe );
+    return (_pipe ? _pipe->getNode() : 0); 
+}
+
+Config* Window::getConfig()
+{
+    EQASSERT( _pipe );
+    return (_pipe ? _pipe->getConfig() : 0); 
+}
+const Config* Window::getConfig() const 
+{
+    EQASSERT( _pipe );
+    return (_pipe ? _pipe->getConfig() : 0); 
+}
+        
+net::CommandQueue* Window::getServerThreadQueue()
+{
+    EQASSERT( _pipe );
+    return _pipe->getServerThreadQueue(); 
+}
+
+net::CommandQueue* Window::getCommandThreadQueue()
+{ 
+    EQASSERT( _pipe );
+    return _pipe->getCommandThreadQueue(); 
+}
+
+WindowPath Window::getPath() const
+{
+    EQASSERT( _pipe );
+    WindowPath path( _pipe->getPath( ));
+    
+    const WindowVector&    windows = _pipe->getWindows();
+    WindowVector::const_iterator i = std::find( windows.begin(), windows.end(),
+                                                this );
+    EQASSERT( i != windows.end( ));
+    path.windowIndex = std::distance( windows.begin(), i );
+    return path;
+}
+
+Channel* Window::getChannel( const ChannelPath& path )
+{
+    EQASSERT( _channels.size() >= path.channelIndex );
+
+    if( _channels.size() < path.channelIndex )
+        return 0;
+
+    return _channels[ path.channelIndex ];
 }
 
 VisitorResult Window::accept( WindowVisitor* visitor )
@@ -363,6 +422,18 @@ bool Window::syncConfigInit()
     if( !success )
         EQWARN << "Window initialisation failed: " << _error << endl;
     return success;
+}
+
+void Window::_send( net::ObjectPacket& packet ) 
+{
+    packet.objectID = getID(); 
+    getNode()->send( packet ); 
+}
+
+void Window::_send( net::ObjectPacket& packet, const std::string& string ) 
+{
+    packet.objectID = getID(); 
+    getNode()->send( packet, string ); 
 }
 
 //---------------------------------------------------------------------------

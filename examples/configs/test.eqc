@@ -1,4 +1,4 @@
-# 2-window test config
+# 'Hello, World!' config: one window rendering from the application process.
 server
 {
     config
@@ -9,61 +9,43 @@ server
             {
                 window
                 {
-                    viewport [ 300 500 480 150 ]
-                    channel{ name  "controlhost" }
-                }
-            }
-
-            pipe
-            {
-                window
-                {
-                    viewport [ 100 100 480 300 ]
-                    channel
-                    {
-                        name "channel1"
-                    }
-                }
-                window
-                {
-                    viewport [ 580 100 480 300 ]
-                    channel
-                    {
-                        name "channel2"
-                    }
+                    viewport [ 0.25 0.25 0.5 0.5 ]
+                    
+                    channel { name "channel" }
                 }
             }
         }
-        compound
-        {
-            compound
-            { 
-                wall
-                {
-                    bottom_left  [ -.64 -.2 -1 ]
-                    bottom_right [  .64 -.2 -1 ]
-                    top_left     [ -.64  .2 -1 ]
-                }
 
-                compound
-                { 
-                    channel "channel1"
-                    viewport [ 0 0 .5 1 ]
-                    outputframe { zoom [ .5 .5 ] }
-                }
-                compound
-                { 
-                    channel "channel2"
-                    viewport [ .5 0 .5 1 ]
-                    outputframe { zoom [ .5 .5 ] }
-                }
-                compound
-                {
-                    channel "controlhost"
-                    task [ CLEAR ASSEMBLE ]
-                    inputframe { name "frame.channel1" }
-                    inputframe { name "frame.channel2" }
-                }
+        layout
+        {
+            name "Simple"
+            view {}
+        }
+
+        layout
+        {
+            name "2x1"
+            view { viewport [ 0 0 .5 1 ] }
+            view { viewport [ .5 0 .5 1 ] }
+        }
+
+        canvas
+        {
+            layout "Simple"
+            segment
+            {
+                channel "channel"
+            }
+        }
+
+        compound
+        { 
+            channel "channel"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
             }
         }
     }    

@@ -12,6 +12,9 @@
 #include "config.h"
 #include "global.h"
 #include "log.h"
+#include "node.h"
+#include "paths.h"
+#include "view.h"
 #include "window.h"
 
 #include <eq/base/base.h>
@@ -39,6 +42,7 @@ void Channel::_construct()
     _used             = 0;
     _active           = 1;
     _view             = 0;
+    _segment          = 0;
     _window           = 0;
     _fixedPVP         = false;
     _lastDrawCompound = 0;
@@ -70,7 +74,8 @@ Channel::Channel( const Channel& from )
     _pvp      = from._pvp;
     _fixedPVP = from._fixedPVP;
     _drawable = from._drawable;
-    
+    // Don't copy view and segment. Will be re-set by view/segment copy ctors
+
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
 }
@@ -145,6 +150,19 @@ const Pipe* Channel::getPipe() const
     return _window ? _window->getPipe() : 0;
 }
 
+ChannelPath Channel::getPath() const
+{
+    EQASSERT( _window );
+    ChannelPath path( _window->getPath( ));
+    
+    const ChannelVector&   channels = _window->getChannels();
+    ChannelVector::const_iterator i = std::find( channels.begin(),
+                                                 channels.end(), this );
+    EQASSERT( i != channels.end( ));
+    path.channelIndex = std::distance( channels.begin(), i );
+    return path;
+}
+
 const CompoundVector& Channel::getCompounds() const
 { 
     return getConfig()->getCompounds();
@@ -195,6 +213,18 @@ void Channel::deactivate()
     --_active; 
     EQASSERT( _window );
     _window->deactivate(); 
+}
+
+void Channel::setView( const View* view )
+{
+    EQASSERT( !view || !_view );
+    _view = view;
+}
+
+void Channel::setSegment( const Segment* segment )
+{
+    EQASSERT( !segment || !_segment );
+    _segment = segment;
 }
 
 void Channel::addTasks( const uint32_t tasks )
