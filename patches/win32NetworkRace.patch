@@ -1,0 +1,237 @@
+Index: tests/netperf/netperf.cpp
+===================================================================
+--- tests/netperf/netperf.cpp	(revision 2564)
++++ tests/netperf/netperf.cpp	(working copy)
+@@ -41,7 +41,7 @@
+             const float mBytesSec = _buffer.size / 1024.0f / 1024.0f * 1000.0f;
+ 
+             _clock.reset();
+-            if( !connection->recv( _buffer.data, _buffer.size ))
++            if( !connection->recv( _buffer.data, _buffer.size, true ))
+                 return false;
+ 
+             const float time = _clock.getTimef();
+Index: tests/pipeperf/pipeperf.cpp
+===================================================================
+--- tests/pipeperf/pipeperf.cpp	(revision 2564)
++++ tests/pipeperf/pipeperf.cpp	(working copy)
+@@ -66,7 +66,7 @@
+     for( unsigned i=0; i<NPACKETS; )
+     {
+         clock.reset();
+-        if( connection->recv( buffer, PACKETSIZE ))
++        if( connection->recv( buffer, PACKETSIZE, true ))
+         {
+             EQINFO << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s"
+                    << endl;
+Index: lib/net/connection.cpp
+===================================================================
+--- lib/net/connection.cpp	(revision 2564)
++++ lib/net/connection.cpp	(working copy)
+@@ -144,7 +144,7 @@
+ //----------------------------------------------------------------------
+ // read
+ //----------------------------------------------------------------------
+-bool Connection::recv( void* buffer, const uint64_t bytes )
++bool Connection::recv( void* buffer, const uint64_t bytes, const bool wait )
+ {
+     EQLOG( LOG_WIRE ) << "Receiving " << bytes << " bytes on " << this << endl;
+     if( _state != STATE_CONNECTED )
+@@ -158,7 +158,7 @@
+ 
+     while( bytesLeft )
+     {
+-        int64_t got = this->read( ptr, bytesLeft );
++        int64_t got = this->read( ptr, bytesLeft, wait );
+ 
+         if( got == -1 ) // error
+         {
+Index: lib/net/connectionSet.cpp
+===================================================================
+--- lib/net/connectionSet.cpp	(revision 2564)
++++ lib/net/connectionSet.cpp	(working copy)
+@@ -243,7 +243,7 @@
+ ConnectionSet::Event ConnectionSet::_handleSelfCommand()
+ {
+     char c = 0;
+-    _connection->recv( &c, 1 );
++    _connection->recv( &c, 1, true );
+     _connection = 0;
+ 
+     switch( c ) 
+Index: lib/net/node.cpp
+===================================================================
+--- lib/net/node.cpp	(revision 2564)
++++ lib/net/node.cpp	(working copy)
+@@ -710,7 +710,7 @@
+     EQVERB << "Handle data from " << node << endl;
+ 
+     uint64_t size;
+-    const bool gotSize = connection->recv( &size, sizeof( size ));
++    const bool gotSize = connection->recv( &size, sizeof( size ), false );
+     if( !gotSize ) // Some systems signal data on dead connections.
+         return false;
+ 
+@@ -721,7 +721,7 @@
+ 
+     char* ptr = reinterpret_cast< char* >(_receivedCommand->getPacket()) + 
+                     sizeof( size );
+-    const bool gotData = connection->recv( ptr, size );
++    const bool gotData = connection->recv( ptr, size, true );
+ 
+     EQASSERT( gotData );
+     EQASSERT( _receivedCommand->isValid( ));
+Index: lib/net/socketConnection.h
+===================================================================
+--- lib/net/socketConnection.h	(revision 2564)
++++ lib/net/socketConnection.h	(working copy)
+@@ -49,7 +49,8 @@
+         virtual ~SocketConnection();
+ 
+ #ifdef WIN32
+-        virtual int64_t read( void* buffer, const uint64_t bytes );
++        virtual int64_t read( void* buffer, const uint64_t bytes, 
++                              const bool wait );
+         virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
+ 
+         typedef SOCKET Socket;
+Index: lib/net/pipeConnection.h
+===================================================================
+--- lib/net/pipeConnection.h	(revision 2564)
++++ lib/net/pipeConnection.h	(working copy)
+@@ -44,7 +44,8 @@
+         PipeConnection( const PipeConnection& conn );
+ 
+ #ifdef WIN32
+-        virtual int64_t read( void* buffer, const uint64_t bytes );
++        virtual int64_t read( void* buffer, const uint64_t bytes, 
++                              const bool wait );
+         virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
+ #endif
+ 
+Index: lib/net/fdConnection.h
+===================================================================
+--- lib/net/fdConnection.h	(revision 2564)
++++ lib/net/fdConnection.h	(working copy)
+@@ -19,7 +19,8 @@
+     class EQ_EXPORT FDConnection : public Connection
+     {
+     public:
+-        virtual int64_t read( void* buffer, const uint64_t bytes );
++        virtual int64_t read( void* buffer, const uint64_t bytes, 
++                              const bool wait );
+         virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
+ 
+ #ifndef WIN32
+Index: lib/net/pairConnection.h
+===================================================================
+--- lib/net/pairConnection.h	(revision 2564)
++++ lib/net/pairConnection.h	(working copy)
+@@ -32,8 +32,9 @@
+     protected:
+         virtual ~PairConnection();
+ 
+-        virtual int64_t read( void* buffer, const uint64_t bytes )
+-            { return _readConnection.get()->read( buffer, bytes ); }
++        virtual int64_t read( void* buffer, const uint64_t bytes, 
++                              const bool wait )
++            { return _readConnection.get()->read( buffer, bytes, wait ); }
+         virtual int64_t write( const void* buffer, const uint64_t bytes )
+             const { return _writeConnection->write( buffer, bytes ); }
+ 
+Index: lib/net/bufferConnection.h
+===================================================================
+--- lib/net/bufferConnection.h	(revision 2564)
++++ lib/net/bufferConnection.h	(working copy)
+@@ -27,7 +27,8 @@
+         uint64_t getSize() const { return _size; }
+ 
+     protected:
+-        virtual int64_t read( void* buffer, const uint64_t bytes )
++        virtual int64_t read( void* buffer, const uint64_t bytes, 
++                              const bool wait )
+             { EQDONTCALL; return -1; }
+         virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
+ 
+Index: lib/net/pipeConnectionWin32.cpp
+===================================================================
+--- lib/net/pipeConnectionWin32.cpp	(revision 2564)
++++ lib/net/pipeConnectionWin32.cpp	(working copy)
+@@ -89,7 +89,8 @@
+     _fireStateChanged();
+ }
+ 
+-int64_t PipeConnection::read( void* buffer, const uint64_t bytes )
++int64_t PipeConnection::read( void* buffer, const uint64_t bytes, 
++                              const bool wait )
+ {
+     if( !_readHandle )
+         return -1;
+Index: lib/net/connection.h
+===================================================================
+--- lib/net/connection.h	(revision 2564)
++++ lib/net/connection.h	(working copy)
+@@ -153,7 +153,8 @@
+          * @param bytes the number of bytes to read.
+          * @return true if all data has been read, false if not.
+          */
+-        bool recv( void* buffer, const uint64_t bytes );
++        bool recv( void* buffer, const uint64_t bytes, 
++                   const bool wait );
+ 
+         /** Lock the connection, no other thread can send data. */
+         void lockSend() const   { _sendLock.set(); }
+@@ -289,7 +290,8 @@
+          * @param bytes the number of bytes to read.
+          * @return the number of bytes read, or -1 upon error.
+          */
+-        virtual int64_t read( void* buffer, const uint64_t bytes ) = 0;
++        virtual int64_t read( void* buffer, const uint64_t bytes, 
++                              const bool wait ) = 0;
+ 
+         /** 
+          * Write data to the connection.
+Index: lib/net/fdConnection.cpp
+===================================================================
+--- lib/net/fdConnection.cpp	(revision 2564)
++++ lib/net/fdConnection.cpp	(working copy)
+@@ -34,7 +34,8 @@
+ //----------------------------------------------------------------------
+ // read
+ //----------------------------------------------------------------------
+-int64_t FDConnection::read( void* buffer, const uint64_t bytes )
++int64_t FDConnection::read( void* buffer, const uint64_t bytes, 
++                            const bool wait )
+ {
+     if( _readFD < 1 )
+         return -1;
+Index: lib/net/socketConnectionWin32.cpp
+===================================================================
+--- lib/net/socketConnectionWin32.cpp	(revision 2564)
++++ lib/net/socketConnectionWin32.cpp	(working copy)
+@@ -288,7 +288,8 @@
+     }
+ }
+     
+-int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
++int64_t SocketConnection::read( void* buffer, const uint64_t bytes, 
++                                const bool wait )
+ {
+     CHECK_THREAD( _recvThread );
+ 
+@@ -319,10 +320,13 @@
+ 
+         DWORD got   = 0;
+         DWORD flags = 0;
+-        if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags))
++        if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, wait, &flags))
+         {
+-            if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
++            if( GetLastError() == WSASYSCALLFAILURE || // happens sometimes!?
++                GetLastError() == WSA_IO_INCOMPLETE )
++            {
+                 return 0;
++            }
+ 
+             EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
+                 << ", closing connection" << endl;
