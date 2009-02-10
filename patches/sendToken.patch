@@ -62,21 +62,31 @@ Index: lib/net/node.cpp
 ===================================================================
 --- lib/net/node.cpp	(revision 2530)
 +++ lib/net/node.cpp	(working copy)
-@@ -75,6 +75,13 @@
+@@ -44,6 +44,7 @@
+         , _launchID( EQ_ID_INVALID )
+         , _programName( Global::getProgramName( ))
+         , _workDir( Global::getWorkDir( ))
++        , _hasSendToken( true )
+ {
+     _receiverThread = new ReceiverThread( this );
+     _commandThread  = new CommandThread( this );
+@@ -75,6 +76,15 @@
      registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
                       CommandFunc<Node>( this, &Node::_cmdGetNodeDataReply ),
                       &_commandThreadQueue );
 +    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
-+                     CommandFunc<Node>( this, &Node::_cmdAcquireSendToken ), 0);
++                     CommandFunc<Node>( this, &Node::_cmdAcquireSendToken ), 
++                     &_commandThreadQueue );
 +    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
 +                     CommandFunc<Node>( this, &Node::_cmdAcquireSendTokenReply )
-+                     , 0 );
++                     , &_commandThreadQueue );
 +    registerCommand( CMD_NODE_RELEASE_SEND_TOKEN,
-+                     CommandFunc<Node>( this, &Node::_cmdReleaseSendToken ), 0);
++                     CommandFunc<Node>( this, &Node::_cmdReleaseSendToken ),
++                     & _commandThreadQueue );
  
      EQINFO << "New Node @" << (void*)this << " " << _id << endl;
  }
-@@ -568,6 +575,20 @@
+@@ -568,6 +578,20 @@
      return true;
  }
  
@@ -97,7 +107,7 @@ Index: lib/net/node.cpp
  //----------------------------------------------------------------------
  // receiver thread functions
  //----------------------------------------------------------------------
-@@ -1275,6 +1296,39 @@
+@@ -1275,6 +1299,49 @@
      return COMMAND_HANDLED;
  }
  
@@ -106,14 +116,16 @@ Index: lib/net/node.cpp
 +    NodeAcquireSendTokenPacket* packet = 
 +        command.getPacket<NodeAcquireSendTokenPacket>();
 +
-+    // HACK 1: reuse _launchID to not change the memory layout
-+    if( _launchID != EQ_ID_INVALID ) // no token available
-+        // HACK 2: returning not COMMAND_HANDLED causes redispatch, see base.cpp
-+        return COMMAND_ERROR;
-+
 +    NodeAcquireSendTokenReplyPacket reply( packet );
-+    _launchID = 42;
-+    command.getNode()->send( reply );
++
++    if( _hasSendToken )
++    {
++        _hasSendToken = false;
++        command.getNode()->send( reply );
++    }
++    else
++        _sendWaiting.push_back( SendWaiting( command.getNode(), reply ));
++
 +    return COMMAND_HANDLED;
 +}
 +
@@ -128,28 +140,23 @@ Index: lib/net/node.cpp
 +
 +CommandResult Node::_cmdReleaseSendToken( Command& command )
 +{
-+    EQASSERT( _launchID == 42 );
-+    _launchID = EQ_ID_INVALID;
-+    flushCommands(); // redispatch pending commands
++    EQASSERT( !_hasSendToken );
++
++    if( _sendWaiting.empty( ))
++        _hasSendToken = true;
++    else
++    {
++        SendWaiting& waiting = _sendWaiting.back();
++        waiting.first->send( waiting.second );
++        _sendWaiting.pop_back();
++    }
++
 +    return COMMAND_HANDLED;
 +}
 +
  //----------------------------------------------------------------------
  // utility functions
  //----------------------------------------------------------------------
-Index: lib/net/base.cpp
-===================================================================
---- lib/net/base.cpp	(revision 2530)
-+++ lib/net/base.cpp	(working copy)
-@@ -76,7 +76,7 @@
-         _vTable[which]( command );
- #else
-         const CommandResult result = _vTable[which]( command );
--        EQASSERT( result == COMMAND_HANDLED );
-+        return( result == COMMAND_HANDLED );
- #endif
-     }
- 
 Index: lib/net/node.h
 ===================================================================
 --- lib/net/node.h	(revision 2530)
@@ -164,7 +171,21 @@ Index: lib/net/node.h
          //@}
  
          /**
-@@ -657,6 +660,9 @@
+@@ -588,6 +591,13 @@
+         };
+         CommandThread* _commandThread;
+ 
++        /** true if the send token can be granted, false otherwise. */
++        bool _hasSendToken;
++
++        typedef std::pair< net::NodePtr, NodeAcquireSendTokenReplyPacket >
++            SendWaiting;
++        std::vector< SendWaiting > _sendWaiting;
++
+         bool _listenToSelf();
+         void _cleanup();
+ 
+@@ -657,6 +667,9 @@
          CommandResult _cmdDisconnect( Command& command );
          CommandResult _cmdGetNodeData( Command& command );
          CommandResult _cmdGetNodeDataReply( Command& command );
