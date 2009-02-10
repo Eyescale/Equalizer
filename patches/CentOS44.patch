@@ -1,0 +1,17 @@
+Index: lib/client/windowSystem.h
+===================================================================
+--- lib/client/windowSystem.h	(revision 2544)
++++ lib/client/windowSystem.h	(working copy)
+@@ -40,6 +40,12 @@
+ #ifdef GLX
+ #  include <X11/Xlib.h>
+ #  include <GL/glx.h>
++#  ifndef GLX_SAMPLE_BUFFERS
++#    define GLX_SAMPLE_BUFFERS 100000
++#  endif
++#  ifndef GLX_SAMPLES
++#    define GLX_SAMPLES 100001
++#  endif
+ #endif
+ 
+ #ifdef AGL
