@@ -83,6 +83,19 @@ bool View::removeChannel( Channel* channel )
     return true;
 }
 
+ViewPath View::getPath() const
+{
+    EQASSERT( _layout );
+    ViewPath path( _layout->getPath( ));
+    
+    const ViewVector&   views = _layout->getViews();
+    ViewVector::const_iterator i = std::find( views.begin(),
+                                                 views.end(), this );
+    EQASSERT( i != views.end( ));
+    path.viewIndex = std::distance( views.begin(), i );
+    return path;
+}
+
 std::ostream& operator << ( std::ostream& os, const View* view )
 {
     if( !view )

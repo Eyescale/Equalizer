@@ -106,6 +106,16 @@ namespace server
          *         layout with the name exists.
          */
         Layout* findLayout( const std::string& name );
+        const Layout* findLayout( const std::string& name ) const;
+
+        /** 
+         * Find the first view of a given name.
+         * 
+         * @param name the name of the view to find
+         * @return the first view with the name, or <code>0</code> if no
+         *         view with the name exists.
+         */
+        const View* findView( const std::string& name ) const;
 
         /** 
          * Adds a new canvas to this config.
@@ -125,6 +135,15 @@ namespace server
 
         /** @return the vecotr of canvases. */
         const CanvasVector& getCanvases() const { return _canvases; }
+
+        /** 
+         * Find the first segment of a given name.
+         * 
+         * @param name the name of the segment to find
+         * @return the first segment with the name, or <code>0</code> if no
+         *         segment with the name exists.
+         */
+        const Segment* findSegment( const std::string& name ) const;
 
         /** 
          * Adds a new compound to this config.
@@ -153,6 +172,7 @@ namespace server
          *         channel with the name exists.
          */
         Channel* findChannel( const std::string& name );
+        const Channel* findChannel( const std::string& name ) const;
 
         /** 
          * Traverse this config and all children using a config visitor.
@@ -161,6 +181,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( ConfigVisitor* visitor );
+        VisitorResult accept( ConstConfigVisitor* visitor ) const;
         //*}
 
         /** 

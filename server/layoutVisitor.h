@@ -14,7 +14,7 @@ namespace server
     class Layout;
 
     /**
-     * A visitor to traverse a non-const layouts and children.
+     * A visitor to traverse non-const layouts and children.
      */
     class LayoutVisitor : public ViewVisitor
     {
@@ -31,6 +31,27 @@ namespace server
 
         /** Visit a layout on the up traversal. */
         virtual VisitorResult visitPost( Layout* layout )
+            { return TRAVERSE_CONTINUE; }
+    };
+
+    /**
+     * A visitor to traverse const layouts and children.
+     */
+    class ConstLayoutVisitor : public ConstViewVisitor
+    {
+    public:
+        /** Constructs a new LayoutVisitor. */
+        ConstLayoutVisitor(){}
+        
+        /** Destruct the LayoutVisitor */
+        virtual ~ConstLayoutVisitor(){}
+
+        /** Visit a layout on the down traversal. */
+        virtual VisitorResult visitPre( const Layout* layout )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a layout on the up traversal. */
+        virtual VisitorResult visitPost( const Layout* layout )
             { return TRAVERSE_CONTINUE; }
     };
 }

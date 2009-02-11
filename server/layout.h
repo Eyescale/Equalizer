@@ -17,6 +17,7 @@ namespace server
 {
     class LayoutPath;
     class LayoutVisitor;
+    class ConstLayoutVisitor;
 
     /**
      * The layout. @sa eq::Layout
@@ -66,6 +67,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( LayoutVisitor* visitor );
+        VisitorResult accept( ConstLayoutVisitor* visitor ) const;
         //*}
         
     protected:

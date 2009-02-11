@@ -183,17 +183,20 @@ Channel* Window::getChannel( const ChannelPath& path )
     return _channels[ path.channelIndex ];
 }
 
-VisitorResult Window::accept( WindowVisitor* visitor )
+namespace
+{
+template< class C, class V >
+VisitorResult _accept( C* window, V* visitor )
 { 
-    VisitorResult result = visitor->visitPre( this );
+    VisitorResult result = visitor->visitPre( window );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( ChannelVector::const_iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
+    const ChannelVector& channels = window->getChannels();
+    for( ChannelVector::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
     {
-        Channel* channel = *i;
-        switch( channel->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -208,7 +211,7 @@ VisitorResult Window::accept( WindowVisitor* visitor )
         }
     }
 
-    switch( visitor->visitPost( this ))
+    switch( visitor->visitPost( window ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -222,6 +225,17 @@ VisitorResult Window::accept( WindowVisitor* visitor )
     }
 
     return result;
+}
+}
+
+VisitorResult Window::accept( WindowVisitor* visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Window::accept( ConstWindowVisitor* visitor ) const
+{
+    return _accept( this, visitor );
 }
 
 void Window::refUsed()

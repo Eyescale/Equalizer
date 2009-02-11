@@ -59,17 +59,19 @@ LayoutPath Layout::getPath() const
     return path;
 }
 
-VisitorResult Layout::accept( LayoutVisitor* visitor )
+namespace
+{
+template< class C, class V >
+VisitorResult _accept( C* layout, V* visitor )
 { 
-    VisitorResult result = visitor->visitPre( this );
+    VisitorResult result = visitor->visitPre( layout );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( ViewVector::const_iterator i = _views.begin(); 
-         i != _views.end(); ++i )
+    const ViewVector& views = layout->getViews();
+    for( ViewVector::const_iterator i = views.begin(); i != views.end(); ++i )
     {
-        View* view = *i;
-        switch( view->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -84,7 +86,7 @@ VisitorResult Layout::accept( LayoutVisitor* visitor )
         }
     }
 
-    switch( visitor->visitPost( this ))
+    switch( visitor->visitPost( layout ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -98,6 +100,16 @@ VisitorResult Layout::accept( LayoutVisitor* visitor )
     }
 
     return result;
+}
+}
+
+VisitorResult Layout::accept( LayoutVisitor* visitor )
+{
+    return _accept( this, visitor );
+}
+VisitorResult Layout::accept( ConstLayoutVisitor* visitor ) const
+{
+    return _accept( this, visitor );
 }
 
 void Layout::addView( View* view )

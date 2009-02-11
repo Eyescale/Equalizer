@@ -5,6 +5,7 @@
 #ifndef EQSERVER_VIEW_H
 #define EQSERVER_VIEW_H
 
+#include "paths.h"
 #include "viewVisitor.h"        // used in inline method
 #include "types.h"
 
@@ -41,6 +42,8 @@ namespace server
          */
         VisitorResult accept( ViewVisitor* visitor )
             { return visitor->visit( this ); }
+        VisitorResult accept( ConstViewVisitor* visitor ) const
+            { return visitor->visit( this ); }
         //*}
         
         /** @name Data Access. */
@@ -53,6 +56,9 @@ namespace server
 
         /** @return the config of this view. */
         const Config* getConfig() const;
+
+        /** @return the index path to this view. */
+        ViewPath getPath() const;
 
         /** 
          * Adds a new destination channel to this view.

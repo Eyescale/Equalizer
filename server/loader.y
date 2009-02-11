@@ -12,6 +12,7 @@
 #include "layout.h"
 #include "loadBalancer.h"
 #include "node.h"
+#include "paths.h"
 #include "pipe.h"
 #include "segment.h"
 #include "server.h"
@@ -621,6 +622,15 @@ canvasField:
           eq::server::Layout* layout = config->findLayout( $2 );
           if( !layout )
               yyerror( "No layout of the given name" );
+          else
+              canvas->useLayout( layout ); 
+      }
+    | EQTOKEN_LAYOUT UNSIGNED
+      {
+          const eq::server::LayoutPath path( $2 );
+          eq::server::Layout* layout = config->getLayout( path );
+          if( !layout )
+              yyerror( "No layout of the given index" );
           else
               canvas->useLayout( layout ); 
       }

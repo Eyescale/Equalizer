@@ -21,6 +21,7 @@ namespace eq
 namespace server
 {
     class PipeVisitor;
+    class ConstPipeVisitor;
     struct ChannelPath;
     struct PipePath;
 
@@ -96,6 +97,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( PipeVisitor* visitor );
+        VisitorResult accept( ConstPipeVisitor* visitor ) const;
 
         /** 
          * References this pipe as being actively used.

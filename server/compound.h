@@ -136,8 +136,9 @@ namespace server
         /** @return the next sibling, or 0. */
         Compound* getNext() const;
 
-        Config* getConfig()
-            { return getRoot()->_config; }
+        Config*       getConfig()       { return getRoot()->_config; }
+        const Config* getConfig() const { return getRoot()->_config; }
+
         Node* getNode();
 
         void setName( const std::string& name ) { _name = name; }

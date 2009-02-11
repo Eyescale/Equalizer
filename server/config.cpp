@@ -231,32 +231,6 @@ bool Config::removeLayout( Layout* layout )
 
 namespace
 {
-class LayoutFinder : public ConfigVisitor
-{
-public:
-    LayoutFinder( const std::string& name ) : _name( name ), _result( 0 ) {}
-    virtual ~LayoutFinder(){}
-
-    virtual VisitorResult visitPre( Layout* layout )
-        {
-            if( layout->getName() == _name )
-            {
-                _result = layout;
-                return TRAVERSE_TERMINATE;
-            }
-            return TRAVERSE_CONTINUE;
-        }
-
-    Layout* getResult() { return _result; }
-
-private:
-    const std::string& _name;
-    Layout*           _result;
-};
-}
-
-namespace
-{
 class CompoundCanvasInitVisitor : public ConfigVisitor
 {
 public:
@@ -391,9 +365,46 @@ private:
             compound->accept( &visitor, false );
         }
     }
- };
-}
+};
 
+template< typename P, typename T > class NameFinder : public P
+{
+public:
+    NameFinder( const std::string& name ) 
+            : _name( name ), _result( 0 ) {}
+    virtual ~NameFinder(){}
+
+    virtual VisitorResult visitPre( T* node ) { return visit( node ); }
+
+    virtual VisitorResult visit( T* node )
+        {
+            if( node->getName() == _name )
+            {
+                _result = node;
+                return TRAVERSE_TERMINATE;
+            }
+            return TRAVERSE_CONTINUE;
+        }
+
+    T* getResult() { return _result; }
+
+private:
+    const std::string _name;
+    T*                _result;
+};
+
+typedef NameFinder< ConfigVisitor, Layout > LayoutFinder;
+typedef NameFinder< ConstConfigVisitor, const Layout > ConstLayoutFinder;
+
+typedef NameFinder< ConfigVisitor, View > ViewFinder;
+typedef NameFinder< ConstConfigVisitor, const View > ConstViewFinder;
+
+typedef NameFinder< ConfigVisitor, Segment > SegmentFinder;
+typedef NameFinder< ConstConfigVisitor, const Segment > ConstSegmentFinder;
+
+typedef NameFinder< ConfigVisitor, Channel > ChannelFinder;
+typedef NameFinder< ConstConfigVisitor, const Channel > ConstChannelFinder;
+}
 
 Layout* Config::findLayout( const std::string& name )
 {
@@ -401,29 +412,36 @@ Layout* Config::findLayout( const std::string& name )
     accept( &finder );
     return finder.getResult();
 }
+const Layout* Config::findLayout( const std::string& name ) const
+{
+    ConstLayoutFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
+}
+
+const View* Config::findView( const std::string& name ) const
+{
+    ConstViewFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
+}
 
 namespace
 {
-class ChannelFinder : public ConfigVisitor
+class ChannelViewFinder : public ConfigVisitor
 {
 public:
-    ChannelFinder( const std::string& name ) 
-            : _name( name ), _segment( 0 ), _view( 0 ), _result( 0 ) {}
-
-    ChannelFinder( const Segment* const segment, const View* const view ) 
+    ChannelViewFinder( const Segment* const segment, const View* const view ) 
             : _segment( segment ), _view( view ), _result( 0 ) {}
 
-    virtual ~ChannelFinder(){}
+    virtual ~ChannelViewFinder(){}
 
     virtual VisitorResult visit( Channel* channel )
         {
-            if( !_name.empty() && channel->getName() != _name )
+            if( channel->getView() != _view )
                 return TRAVERSE_CONTINUE;
 
-            if( _view && channel->getView() != _view )
-                return TRAVERSE_CONTINUE;
-
-            if( _segment && channel->getSegment() != _segment )
+            if( channel->getSegment() != _segment )
                 return TRAVERSE_CONTINUE;
 
             _result = channel;
@@ -433,11 +451,11 @@ public:
     Channel* getResult() { return _result; }
 
 private:
-    const std::string    _name;
     const Segment* const _segment;
     const View* const    _view;
     Channel*             _result;
 };
+
 
 class AddCanvasVisitor : public ConfigVisitor
 {
@@ -486,7 +504,7 @@ public:
 
 #ifndef NDEBUG
             // make sure channel doesn't exist yet
-            ChannelFinder finder( segment, _view );
+            ChannelViewFinder finder( segment, _view );
             _view->getConfig()->accept( &finder );
             EQASSERT( finder.getResult() == 0 );
 #endif
@@ -558,6 +576,14 @@ bool Config::removeCanvas( Canvas* canvas )
 //    canvas->_config = 0;
     return true;
 }
+
+const Segment* Config::findSegment( const std::string& name ) const
+{
+    ConstSegmentFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
+}
+
 
 void Config::addCompound( Compound* compound )
 {
@@ -675,6 +701,13 @@ Channel* Config::findChannel( const std::string& name )
     return finder.getResult();
 }
 
+const Channel* Config::findChannel( const std::string& name ) const
+{
+    ConstChannelFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
+}
+
 void Config::addApplicationNode( Node* node )
 {
     EQASSERT( _state == STATE_STOPPED );
@@ -714,16 +747,19 @@ Layout* Config::getLayout( const LayoutPath& path )
     return _layouts[ path.layoutIndex ];
 }
 
-VisitorResult Config::accept( ConfigVisitor* visitor )
+namespace
+{
+template< class C, class V >
+VisitorResult _accept( C* config, V* visitor )
 { 
-    VisitorResult result = visitor->visitPre( this );
+    VisitorResult result = visitor->visitPre( config );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    const NodeVector& nodes = config->getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        Node* node = *i;
-        switch( node->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -738,11 +774,11 @@ VisitorResult Config::accept( ConfigVisitor* visitor )
         }
     }
 
-    for( LayoutVector::const_iterator i = _layouts.begin(); 
-         i != _layouts.end(); ++i )
+    const LayoutVector& layouts = config->getLayouts();
+    for( LayoutVector::const_iterator i = layouts.begin(); 
+         i != layouts.end(); ++i )
     {
-        Layout* layout = *i;
-        switch( layout->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -757,11 +793,11 @@ VisitorResult Config::accept( ConfigVisitor* visitor )
         }
     }
 
-    for( CanvasVector::const_iterator i = _canvases.begin();
-         i != _canvases.end(); ++i )
+    const CanvasVector& canvases = config->getCanvases();
+    for( CanvasVector::const_iterator i = canvases.begin();
+         i != canvases.end(); ++i )
     {
-        Canvas* canvas = *i;
-        switch( canvas->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -776,11 +812,11 @@ VisitorResult Config::accept( ConfigVisitor* visitor )
         }
     }
 
-    for( CompoundVector::const_iterator i = _compounds.begin();
-         i != _compounds.end(); ++i )
+    const CompoundVector& compounds = config->getCompounds();
+    for( CompoundVector::const_iterator i = compounds.begin();
+         i != compounds.end(); ++i )
     {
-        Compound* compound = *i;
-        switch( compound->accept( visitor, false /*activeOnly*/ ))
+        switch( (*i)->accept( visitor, false /*activeOnly*/ ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -795,7 +831,7 @@ VisitorResult Config::accept( ConfigVisitor* visitor )
         }
     }                                                           
 
-    switch( visitor->visitPost( this ))
+    switch( visitor->visitPost( config ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -811,6 +847,18 @@ VisitorResult Config::accept( ConfigVisitor* visitor )
 
     return result;
 }
+}
+
+VisitorResult Config::accept( ConfigVisitor* visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Config::accept( ConstConfigVisitor* visitor ) const
+{
+    return _accept( this, visitor );
+}
+
 
 //===========================================================================
 // operations

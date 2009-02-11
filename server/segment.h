@@ -5,6 +5,7 @@
 #ifndef EQSERVER_SEGMENT_H
 #define EQSERVER_SEGMENT_H
 
+#include "paths.h"
 #include "types.h"
 #include "segmentVisitor.h"  // used in inline method
 
@@ -47,6 +48,9 @@ namespace server
 
         /** @return the config of this view. */
         const Config* getConfig() const;
+
+        /** @return the index path to this segment. */
+        SegmentPath getPath() const;
 
         /** 
          * Set the channel of this segment.
@@ -92,6 +96,8 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( SegmentVisitor* visitor )
+            { return visitor->visit( this ); }
+        VisitorResult accept( ConstSegmentVisitor* visitor ) const
             { return visitor->visit( this ); }
         //*}
 

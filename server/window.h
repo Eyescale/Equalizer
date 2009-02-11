@@ -28,6 +28,7 @@ namespace eq
 namespace server
 {
     class WindowVisitor;
+    class ConstWindowVisitor;
     struct ChannelPath;
     struct WindowPath;
 
@@ -110,6 +111,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( WindowVisitor* visitor );
+        VisitorResult accept( ConstWindowVisitor* visitor ) const;
 
         /** 
          * References this window as being actively used.

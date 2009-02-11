@@ -14,7 +14,7 @@ namespace server
     class Segment;
 
     /**
-     * A visitor to traverse a non-const segments.
+     * A visitor to traverse non-const segments.
      */
     class SegmentVisitor
     {
@@ -27,6 +27,23 @@ namespace server
 
         /** Visit a segment. */
         virtual VisitorResult visit( Segment* segment )
+            { return TRAVERSE_CONTINUE; }
+    };
+
+    /**
+     * A visitor to traverse const segments.
+     */
+    class ConstSegmentVisitor
+    {
+    public:
+        /** Constructs a new SegmentVisitor. */
+        ConstSegmentVisitor(){}
+        
+        /** Destruct the SegmentVisitor */
+        virtual ~ConstSegmentVisitor(){}
+
+        /** Visit a segment. */
+        virtual VisitorResult visit( const Segment* segment )
             { return TRAVERSE_CONTINUE; }
     };
 }

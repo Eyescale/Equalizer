@@ -5,6 +5,7 @@
 #ifndef EQSERVER_CANVAS_H
 #define EQSERVER_CANVAS_H
 
+#include "paths.h"
 #include "types.h"
 #include "visitorResult.h"  // enum
 
@@ -18,6 +19,7 @@ namespace eq
 namespace server
 {
     class CanvasVisitor;
+    class ConstCanvasVisitor;
 
     /**
      * The canvas. @sa eq::Canvas
@@ -53,6 +55,9 @@ namespace server
         Layout* getLayout() { return _layout; }
         /** @return the currently used layout. */
         const Layout* getLayout() const { return _layout; }
+
+        /** @return the index path to this canvas. */
+        CanvasPath getPath() const;
         //*}
 
         /**
@@ -68,6 +73,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( CanvasVisitor* visitor );
+        VisitorResult accept( ConstCanvasVisitor* visitor ) const;
         //*}
         
     protected:

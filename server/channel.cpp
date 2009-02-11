@@ -185,6 +185,11 @@ VisitorResult Channel::accept( ChannelVisitor* visitor )
     return visitor->visit( this );
 }
 
+VisitorResult Channel::accept( ConstChannelVisitor* visitor ) const
+{
+    return visitor->visit( this );
+}
+
 void Channel::refUsed()
 {
     ++_used;
@@ -582,9 +587,7 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
     os << "{" << endl << indent;
     
     const std::string& name = channel->getName();
-    if( name.empty( ))
-        os << "name     \"channel_" << (void*)channel << "\"" << endl;
-    else
+    if( !name.empty( ))
         os << "name     \"" << name << "\"" << endl;
 
     const eq::Viewport& vp  = channel->getViewport();

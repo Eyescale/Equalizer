@@ -33,6 +33,27 @@ namespace server
         virtual VisitorResult visitPost( Pipe* pipe )
             { return TRAVERSE_CONTINUE; }
     };
+
+    /**
+     * A visitor to traverse const pipes and children.
+     */
+    class ConstPipeVisitor : public ConstWindowVisitor
+    {
+    public:
+        /** Constructs a new PipeVisitor. */
+        ConstPipeVisitor(){}
+        
+        /** Destruct the PipeVisitor */
+        virtual ~ConstPipeVisitor(){}
+
+        /** Visit a pipe on the down traversal. */
+        virtual VisitorResult visitPre( const Pipe* pipe )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a pipe on the up traversal. */
+        virtual VisitorResult visitPost( const Pipe* pipe )
+            { return TRAVERSE_CONTINUE; }
+    };
 }
 }
 #endif // EQSERVER_PIPEVISITOR_H

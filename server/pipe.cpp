@@ -182,17 +182,20 @@ Channel* Pipe::getChannel( const ChannelPath& path )
     return _windows[ path.windowIndex ]->getChannel( path );
 }
 
-VisitorResult Pipe::accept( PipeVisitor* visitor )
+namespace
+{
+template< class C, class V >
+VisitorResult _accept( C* pipe, V* visitor )
 { 
-    VisitorResult result = visitor->visitPre( this );
+    VisitorResult result = visitor->visitPre( pipe );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( WindowVector::const_iterator i = _windows.begin(); 
-         i != _windows.end(); ++i )
+    const WindowVector& windows = pipe->getWindows();
+    for( WindowVector::const_iterator i = windows.begin(); 
+         i != windows.end(); ++i )
     {
-        Window* window = *i;
-        switch( window->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -207,7 +210,7 @@ VisitorResult Pipe::accept( PipeVisitor* visitor )
         }
     }
 
-    switch( visitor->visitPost( this ))
+    switch( visitor->visitPost( pipe ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -222,6 +225,18 @@ VisitorResult Pipe::accept( PipeVisitor* visitor )
 
     return result;
 }
+}
+
+VisitorResult Pipe::accept( PipeVisitor* visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Pipe::accept( ConstPipeVisitor* visitor ) const
+{
+    return _accept( this, visitor );
+}
+
 
 void Pipe::refUsed()
 {

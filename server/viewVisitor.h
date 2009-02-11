@@ -14,7 +14,7 @@ namespace server
     class View;
 
     /**
-     * A visitor to traverse a non-const views.
+     * A visitor to traverse non-const views.
      */
     class ViewVisitor
     {
@@ -27,6 +27,23 @@ namespace server
 
         /** Visit a view. */
         virtual VisitorResult visit( View* view )
+            { return TRAVERSE_CONTINUE; }
+    };
+
+    /**
+     * A visitor to traverse const views.
+     */
+    class ConstViewVisitor
+    {
+    public:
+        /** Constructs a new ViewVisitor. */
+        ConstViewVisitor(){}
+        
+        /** Destruct the ViewVisitor */
+        virtual ~ConstViewVisitor(){}
+
+        /** Visit a view. */
+        virtual VisitorResult visit( const View* view )
             { return TRAVERSE_CONTINUE; }
     };
 }

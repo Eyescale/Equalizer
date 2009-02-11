@@ -33,6 +33,27 @@ namespace server
         virtual VisitorResult visitPost( Node* node )
             { return TRAVERSE_CONTINUE; }
     };
+
+    /**
+     * A visitor to traverse const nodes and children.
+     */
+    class ConstNodeVisitor : public ConstPipeVisitor
+    {
+    public:
+        /** Constructs a new NodeVisitor. */
+        ConstNodeVisitor(){}
+        
+        /** Destruct the NodeVisitor */
+        virtual ~ConstNodeVisitor(){}
+
+        /** Visit a node on the down traversal. */
+        virtual VisitorResult visitPre( const Node* node )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a node on the up traversal. */
+        virtual VisitorResult visitPost( const Node* node )
+            { return TRAVERSE_CONTINUE; }
+    };
 }
 }
 #endif // EQSERVER_NODEVISITOR_H

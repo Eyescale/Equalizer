@@ -87,6 +87,18 @@ bool Segment::removeDestinationChannel( Channel* channel )
     return true;
 }
 
+SegmentPath Segment::getPath() const
+{
+    EQASSERT( _canvas );
+    SegmentPath path( _canvas->getPath( ));
+    
+    const SegmentVector&   segments = _canvas->getSegments();
+    SegmentVector::const_iterator i = std::find( segments.begin(),
+                                                 segments.end(), this );
+    EQASSERT( i != segments.end( ));
+    path.segmentIndex = std::distance( segments.begin(), i );
+    return path;
+}
 
 std::ostream& operator << ( std::ostream& os, const Segment* segment)
 {

@@ -57,7 +57,7 @@ struct SegmentPath : public CanvasPath
 
 struct LayoutPath
 {
-    LayoutPath() : layoutIndex( 0 ) {}
+    LayoutPath( const uint32_t index = 0 ) : layoutIndex( index ) {}
     uint32_t layoutIndex;
 };
 
@@ -67,6 +67,55 @@ struct ViewPath : public LayoutPath
     ViewPath( const LayoutPath& p ) : LayoutPath( p ), viewIndex( 0 ) {}
     uint32_t viewIndex;
 };
+
+// ostream operators
+inline std::ostream& operator << ( std::ostream& os, const NodePath& path )
+{
+    os << "node " << path.nodeIndex;
+    return os;
+}
+inline std::ostream& operator << ( std::ostream& os, const PipePath& path )
+{
+    os << static_cast< const NodePath& >( path ) << " pipe " << path.pipeIndex;
+    return os;
+}
+inline std::ostream& operator << ( std::ostream& os, const WindowPath& path )
+{
+    os << static_cast< const PipePath& >( path ) << " window "
+       << path.windowIndex;
+    return os;
+}
+inline std::ostream& operator << ( std::ostream& os, const ChannelPath& path )
+{
+    os << static_cast< const WindowPath& >( path ) << " channel "
+       << path.channelIndex;
+    return os;
+}
+
+inline std::ostream& operator << ( std::ostream& os, const CanvasPath& path )
+{
+    os << "canvas " << path.canvasIndex;
+    return os;
+}
+inline std::ostream& operator << ( std::ostream& os, const SegmentPath& path )
+{
+    os << static_cast< const CanvasPath& >( path ) << " segment "
+       << path.segmentIndex;
+    return os;
+}
+
+inline std::ostream& operator << ( std::ostream& os, const LayoutPath& path )
+{
+    os << "layout   " << path.layoutIndex;
+    return os;
+}
+inline std::ostream& operator << ( std::ostream& os, const ViewPath& path )
+{
+    os << static_cast< const LayoutPath& >( path ) << " view "
+       << path.viewIndex;
+    return os;
+}
+
 
 }
 }

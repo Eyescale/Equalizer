@@ -20,7 +20,9 @@
 #include "loadBalancer.h"
 #include "log.h"
 #include "paths.h"
+#include "segment.h"
 #include "swapBarrier.h"
+#include "view.h"
 
 #include <eq/base/base.h>
 #include <eq/base/stdExt.h>
@@ -765,10 +767,46 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         if( !parent || parent->getChannel() != channel )
         {
             const std::string& channelName = channel->getName();
-            if( channelName.empty( ))
-                os << "channel  \"channel_" << (void*)channel << "\"" << endl;
-            else
+            const Config*      config      = compound->getConfig();
+            EQASSERT( config );
+
+            if( !channelName.empty() && 
+                config->findChannel( channelName ) == channel )
+            {
                 os << "channel  \"" << channelName << "\"" << endl;
+            }
+            else
+            {
+                const Segment* segment = channel->getSegment();
+                const View*    view    = channel->getView();
+
+                if( view && segment )
+                {
+                    os << "channel  ( ";
+
+                    const std::string& segmentName = segment->getName();
+                    if( !segmentName.empty() && 
+                        config->findSegment( segmentName ) == segment )
+                    {
+                        os << "segment \"" << segmentName << "\" ";
+                    }
+                    else
+                        os << segment->getPath() << ' ';
+
+                    const std::string& viewName = view->getName();
+                    if( !viewName.empty() && 
+                        config->findView( viewName ) == view )
+                    {
+                        os << "view \"" << viewName;
+                    }
+                    else
+                        os << view->getPath();
+
+                    os << " )" << endl; 
+                }
+                else
+                    os << "channel  ( " << channel->getPath() << " )" << endl;
+            }
         }
     }
 

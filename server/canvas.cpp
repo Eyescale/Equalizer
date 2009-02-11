@@ -64,6 +64,20 @@ Canvas::~Canvas()
     _layout = 0;
 }
 
+CanvasPath Canvas::getPath() const
+{
+    EQASSERT( _config );
+
+    const CanvasVector& canvases = _config->getCanvases();
+    CanvasVector::const_iterator i = std::find( canvases.begin(),
+                                                 canvases.end(), this );
+    EQASSERT( i != canvases.end( ));
+
+    CanvasPath path;
+    path.canvasIndex = std::distance( canvases.begin(), i );
+    return path;
+}
+
 void Canvas::addSegment( Segment* segment )
 {
     EQASSERT( segment );
@@ -189,21 +203,22 @@ void Canvas::useLayout( Layout* layout )
                
         }   
     }
-                
-    
 }
 
-VisitorResult Canvas::accept( CanvasVisitor* visitor )
-{ 
-    VisitorResult result = visitor->visitPre( this );
+namespace
+{
+template< class C, class V >
+VisitorResult _accept( C* canvas, V* visitor )
+{
+    VisitorResult result = visitor->visitPre( canvas );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( SegmentVector::const_iterator i = _segments.begin(); 
-         i != _segments.end(); ++i )
+    const SegmentVector& segments = canvas->getSegments();
+    for( SegmentVector::const_iterator i = segments.begin(); 
+         i != segments.end(); ++i )
     {
-        Segment* segment = *i;
-        switch( segment->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -218,7 +233,7 @@ VisitorResult Canvas::accept( CanvasVisitor* visitor )
         }
     }
 
-    switch( visitor->visitPost( this ))
+    switch( visitor->visitPost( canvas ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -232,6 +247,17 @@ VisitorResult Canvas::accept( CanvasVisitor* visitor )
     }
 
     return result;
+}
+}
+
+VisitorResult Canvas::accept( CanvasVisitor* visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Canvas::accept( ConstCanvasVisitor* visitor ) const
+{
+    return _accept( this, visitor );
 }
 
 std::ostream& operator << ( std::ostream& os, const Canvas* canvas )
@@ -247,8 +273,15 @@ std::ostream& operator << ( std::ostream& os, const Canvas* canvas )
         os << "name     \"" << name << "\"" << std::endl;
 
     const Layout* layout = canvas->getLayout();
-    if( layout && !layout->getName().empty( ))
-        os << "layout   \"" << layout->getName() << "\"" << std::endl;
+    if( layout )
+    {
+        const Config*      config     = layout->getConfig();
+        const std::string& layoutName = layout->getName();
+        if( layoutName.empty() || config->findLayout( layoutName ) != layout )
+            os << layout->getPath() << std::endl;
+        else
+            os << "layout   \"" << layout->getName() << "\"" << std::endl;
+    }
 
     os << static_cast< const eq::Canvas& >( *canvas );
 

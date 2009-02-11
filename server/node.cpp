@@ -148,17 +148,19 @@ Channel* Node::getChannel( const ChannelPath& path )
     return _pipes[ path.pipeIndex ]->getChannel( path );
 }
 
-VisitorResult Node::accept( NodeVisitor* visitor )
+namespace
+{
+template< class C, class V >
+VisitorResult _accept( C* node, V* visitor )
 { 
-    VisitorResult result = visitor->visitPre( this );
+    VisitorResult result = visitor->visitPre( node );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( PipeVector::const_iterator i = _pipes.begin(); 
-         i != _pipes.end(); ++i )
+    const PipeVector& pipes = node->getPipes();
+    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
-        Pipe* pipe = *i;
-        switch( pipe->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -173,7 +175,7 @@ VisitorResult Node::accept( NodeVisitor* visitor )
         }
     }
 
-    switch( visitor->visitPost( this ))
+    switch( visitor->visitPost( node ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -187,6 +189,17 @@ VisitorResult Node::accept( NodeVisitor* visitor )
     }
 
     return result;
+}
+}
+
+VisitorResult Node::accept( NodeVisitor* visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Node::accept( ConstNodeVisitor* visitor ) const
+{
+    return _accept( this, visitor );
 }
 
 //===========================================================================

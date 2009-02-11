@@ -33,6 +33,27 @@ namespace server
         virtual VisitorResult visitPost( Canvas* canvas )
             { return TRAVERSE_CONTINUE; }
     };
+
+    /**
+     * A visitor to traverse const canvases and children.
+     */
+    class ConstCanvasVisitor : public ConstSegmentVisitor
+    {
+    public:
+        /** Constructs a new CanvasVisitor. */
+        ConstCanvasVisitor(){}
+        
+        /** Destruct the CanvasVisitor */
+        virtual ~ConstCanvasVisitor(){}
+
+        /** Visit a canvas on the down traversal. */
+        virtual VisitorResult visitPre( const Canvas* canvas )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a canvas on the up traversal. */
+        virtual VisitorResult visitPost( const Canvas* canvas )
+            { return TRAVERSE_CONTINUE; }
+    };
 }
 }
 #endif // EQSERVER_CANVASVISITOR_H

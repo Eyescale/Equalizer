@@ -33,6 +33,7 @@ namespace server
 {
     class ChannelListener;
     class ChannelVisitor;
+    class ConstChannelVisitor;
     struct ChannelPath;
 
     /**
@@ -100,6 +101,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( ChannelVisitor* visitor );
+        VisitorResult accept( ConstChannelVisitor* visitor ) const;
 
         /** 
          * References this channel as being actively used.

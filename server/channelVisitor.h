@@ -29,6 +29,23 @@ namespace server
         virtual VisitorResult visit( Channel* channel )
             { return TRAVERSE_CONTINUE; }
     };
+
+    /**
+     * A visitor to traverse a const channels.
+     */
+    class ConstChannelVisitor
+    {
+    public:
+        /** Constructs a new ChannelVisitor. */
+        ConstChannelVisitor(){}
+        
+        /** Destruct the ChannelVisitor */
+        virtual ~ConstChannelVisitor(){}
+
+        /** Visit a channel. */
+        virtual VisitorResult visit( const Channel* channel )
+            { return TRAVERSE_CONTINUE; }
+    };
 }
 }
 #endif // EQSERVER_CHANNELVISITOR_H
