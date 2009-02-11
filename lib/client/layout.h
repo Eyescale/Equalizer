@@ -32,10 +32,10 @@ namespace eq
         /** 
          * Constructs a new Layout.
          */
-        Layout();
+        EQ_EXPORT Layout();
 
         /** Destruct this layout. */
-        virtual ~Layout();
+        EQ_EXPORT virtual ~Layout();
 
         /**
          * @name Data Access
@@ -58,7 +58,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( LayoutVisitor* visitor );
+        EQ_EXPORT VisitorResult accept( LayoutVisitor* visitor );
         //*}
         
     protected:
