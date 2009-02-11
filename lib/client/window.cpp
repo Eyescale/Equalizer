@@ -604,13 +604,11 @@ bool Window::processEvent( const Event& event )
     switch( event.type )
     {
         case Event::WINDOW_HIDE:
-            EQINFO << event << endl;
             setPixelViewport( PixelViewport( 0, 0, 0, 0 ));
             break;
 
         case Event::WINDOW_SHOW:
         case Event::WINDOW_RESIZE:
-            EQINFO << event << endl;
             setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
                                              event.resize.w, event.resize.h ));
             break;

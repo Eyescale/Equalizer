@@ -482,23 +482,18 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glColor3f( 1.0f, 1.0f, 1.0f );
 
-    const float startX = static_cast< float >( pvp.x );
-    const float endX   = static_cast< float >( pvp.getXEnd( ));
-    const float startY = static_cast< float >( pvp.y );
-    const float endY   = static_cast< float >( pvp.getYEnd( ));
-
     glBegin( GL_QUADS );
         glTexCoord2f( 0.0f, 0.0f );
-        glVertex3f( startX, startY, 0.0f );
+        glVertex3f( 0, 0, 0.0f );
 
         glTexCoord2f( _pvp.w, 0.0f );
-        glVertex3f( endX, startY, 0.0f );
+        glVertex3f( pvp.w, 0, 0.0f );
 
         glTexCoord2f( _pvp.w, _pvp.h );
-        glVertex3f( endX, endY, 0.0f );
+        glVertex3f( pvp.w, pvp.h, 0.0f );
         
         glTexCoord2f( 0.0f, _pvp.h );
-        glVertex3f( startX, endY, 0.0f );
+        glVertex3f( 0, pvp.h, 0.0f );
     glEnd();
 
     // restore state
