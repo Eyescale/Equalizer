@@ -37,8 +37,8 @@ protected:
             {
                 clock.reset();
                 TEST( _connection->send( buffer, PACKETSIZE ));
-                EQINFO << "Send perf: " << mBytesSec / clock.getTimef() 
-                       << "MB/s" << endl;
+                cout << "Send perf: " << mBytesSec / clock.getTimef() << "MB/s"
+                     << endl;
             }
 
             free( buffer );
@@ -68,8 +68,8 @@ int main( int argc, char **argv )
         clock.reset();
         if( connection->recv( buffer, PACKETSIZE ))
         {
-            EQINFO << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s"
-                   << endl;
+            cout << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s"
+                 << endl;
             ++i;
         }
     }
