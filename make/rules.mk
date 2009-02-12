@@ -38,6 +38,10 @@ rpm: $(INSTALL_FILES)
 $(INSTALL_FILES):
 	@find $(BUILD_DIR) -type f > $@
 
+# shaders
+%_glsl.h: %.glsl
+	$(SHADERS_PARSER) $< > $@
+
 # includes
 $(INCLUDE_DIR)/%: %
 	@mkdir -p $(@D)

@@ -45,9 +45,6 @@ include $(TOP)/make/rules.mk
 README: ../../../website/build/documents/user/eVolve.html
 	links -dump $< > $@
 
-%_glsl.h: %.glsl
-	./stringify.pl $< > $@
-
 $(SHARE_DIR)/data/Bucky32x32x32_d.%: Bucky32x32x32_d.%
 	@mkdir -p $(@D)
 	cp $< $@

@@ -48,5 +48,3 @@ $(SHARE_DIR)/data/rockerArm.ply: rockerArm.ply
 	@mkdir -p $(@D)
 	cp $< $@
 
-%_glsl.h: %.glsl
-	./stringify.pl $< > $@

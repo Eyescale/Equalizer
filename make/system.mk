@@ -43,6 +43,7 @@ DEP_CXX        ?= $(CXX)
 DEFFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DEQ_CHECK_THREADSAFETY \
                   -DGLEW_MX -DEQ_ASYNC_TRANSMIT # -DEQ_USE_DEPRECATED
 
+SHADERS_PARSER  = $(TOP)/make/stringify.pl
 
 ifeq (0,${MAKELEVEL}) # top-level invocation - one-time declarations below
 
