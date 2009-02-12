@@ -9,6 +9,7 @@
 #include "compound.h"
 #include "compoundVisitor.h"
 #include "configUpdateDataVisitor.h"
+#include "configSerializer.h"
 #include "constCompoundVisitor.h"
 #include "global.h"
 #include "layout.h"
@@ -49,7 +50,7 @@ void Config::_construct()
     _finishedFrame = 0;
     _state         = STATE_STOPPED;
     _appNode       = 0;
-    _distributor   = 0;
+    _serializer    = 0;
 
     EQINFO << "New config @" << (void*)this << endl;
 }
@@ -891,60 +892,13 @@ VisitorResult Config::accept( ConstConfigVisitor* visitor ) const
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-namespace
-{
-class ViewSerializer : public ConfigVisitor
-{
-public:
-    ViewSerializer( net::DataOStream& os ) : _os( os ) {}
-    virtual ~ViewSerializer(){}
-
-    virtual VisitorResult visit( Compound* compound )
-        { 
-            // TODO: belongs to observer
-            Config* config = compound->getConfig();
-            compound->getFrustum().setEyeBase(
-                config->getFAttribute( Config::FATTR_EYE_BASE ));
-            return TRAVERSE_CONTINUE; 
-        }
-
-    virtual VisitorResult visit( View* view )
-        { 
-            Config* config = view->getConfig();
-            EQASSERT( config );
-            EQASSERT( view->getID() == EQ_ID_INVALID );
-            
-            config->registerObject( view );
-            _os << view->getID();
-            return TRAVERSE_CONTINUE; 
-        }
-
-private:
-    net::DataOStream& _os;
-};
-}
-
-void Config::Distributor::getInstanceData( net::DataOStream& os )
-{
-    os << _config->_latency;
-
-    ViewSerializer serializer( os );
-    _config->accept( &serializer );
-    os << EQ_ID_INVALID; // end token
-
-#ifdef EQ_TRANSMISSION_API
-#  error TODO transmit node identifiers of used nodes
-#endif
-}
-
 uint32_t Config::getDistributorID()
 {
-    EQASSERT( !_distributor );
+    EQASSERT( !_serializer );
 
-    _distributor = new Distributor( this );
-    registerObject( _distributor );
-
-    return _distributor->getID();
+    _serializer = new ConfigSerializer( this );
+    registerObject( _serializer );
+    return _serializer->getID();
 }
 
 bool Config::_startInit( const uint32_t initID )
@@ -1276,38 +1230,14 @@ bool Config::_exitNodes()
     return success;
 }
 
-namespace
-{
-class ViewUnmapper : public ConfigVisitor
-{
-public:
-    virtual ~ViewUnmapper(){}
-
-    virtual VisitorResult visit( View* view )
-        { 
-            if( view->getID() != EQ_ID_INVALID )
-            {
-                Config* config = view->getConfig();
-                EQASSERT( config );
-                config->unmapObject( view );
-            }
-
-            return TRAVERSE_CONTINUE; 
-        }
-};
-}
-
 void Config::unmap()
 {
-    if( _distributor ) // Config::init never happened
+    if( _serializer ) // Config::init never happened
     {
-        deregisterObject( _distributor );
-        delete _distributor;
-        _distributor = 0;
+        _serializer->deregister();
+        delete _serializer;
+        _serializer = 0;
     }
-
-    ViewUnmapper unmapper;
-    accept( &unmapper );
 }
 
 namespace
@@ -1428,10 +1358,10 @@ void Config::_flushFrames()
 net::CommandResult Config::_cmdStartInit( net::Command& command )
 {
     // clients have retrieved distributed data
-    EQASSERT( _distributor );
-    deregisterObject( _distributor );
-    delete _distributor;
-    _distributor = 0;
+    EQASSERT( _serializer );
+    _serializer->deregister();
+    delete _serializer;
+    _serializer = 0;
 
     const eq::ConfigStartInitPacket* packet = 
         command.getPacket<eq::ConfigStartInitPacket>();

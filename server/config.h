@@ -21,6 +21,7 @@ namespace eq
 {
 namespace server
 {
+    class ConfigSerializer;
     struct CanvasPath;
     struct ChannelPath;
     struct LayoutPath;
@@ -378,28 +379,7 @@ namespace server
         }
         _state;
 
-        /** Helper class to distribute the config, which is a net::Session */
-        class Distributor : public net::Object
-        {
-        public:
-            Distributor( Config* const config ) : _config( config ) {}
-            virtual ~Distributor() {}
-
-        protected:
-            // Use instance since then getInstanceData() is called from app
-            // thread, which allows us to map all children during serialization
-            virtual Object::ChangeType getChangeType() const 
-                { return Object::INSTANCE; }
-            
-            virtual void getInstanceData( net::DataOStream& os );
-            virtual void applyInstanceData( net::DataIStream& is ) {EQDONTCALL;}
-
-        private:
-            Config* const _config;
-        };
-
-        Distributor* _distributor;
-        friend class Distributor;
+        ConfigSerializer* _serializer;
 
         /**
          * @name Operations
