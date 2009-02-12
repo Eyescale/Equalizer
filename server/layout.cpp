@@ -6,6 +6,7 @@
 
 #include "config.h"
 #include "layoutVisitor.h"
+#include "nameFinder.h"
 #include "paths.h"
 #include "view.h"
 
@@ -23,14 +24,14 @@ Layout::Layout()
 Layout::Layout( const Layout& from, Config* config )
         : _config( 0 )
 {
-    config->addLayout( this );
-    EQASSERT( _config );
-
     for( ViewVector::const_iterator i = from._views.begin();
          i != from._views.end(); ++i )
     {
-        addView( new View( **i ));
+        addView( new View( **i, config ));
     }
+
+    config->addLayout( this );
+    EQASSERT( _config );
 }
 
 Layout::~Layout()
@@ -38,11 +39,21 @@ Layout::~Layout()
     for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
     {
         View* view = *i;
-        removeView( view );
+        view->_layout = 0;
         delete view;
     }
-
     _views.clear();
+}
+
+View* Layout::getView( const ViewPath& path )
+{
+    EQASSERTINFO( _views.size() >= path.viewIndex,
+                  _views.size() << " < " << path.viewIndex );
+
+    if( _views.size() < path.viewIndex )
+        return 0;
+
+    return _views[ path.viewIndex ];
 }
 
 LayoutPath Layout::getPath() const
@@ -135,6 +146,13 @@ bool Layout::removeView( View* view )
     _views.erase( i );
     view->_layout = 0;
     return true;
+}
+
+View* Layout::findView( const std::string& name )
+{
+    ViewFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
 }
 
 

@@ -44,7 +44,7 @@ struct ChannelPath : public WindowPath
 // View hierarchy
 struct CanvasPath
 {
-    CanvasPath() : canvasIndex( 0 ) {}
+    CanvasPath( const uint32_t index = 0 ) : canvasIndex( index ) {}
     uint32_t canvasIndex;
 };
 

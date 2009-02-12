@@ -14,6 +14,7 @@
 #include "layout.h"
 #include "loadBalancer.h"
 #include "log.h"
+#include "nameFinder.h"
 #include "node.h"
 #include "paths.h"
 #include "segment.h"
@@ -87,8 +88,7 @@ Config::Config( const Config& from )
     for( LayoutVector::const_iterator i = layouts.begin(); 
          i != layouts.end(); ++i )
     {
-        const Layout* layout = *i;
-        addLayout( new Layout( *layout ));
+        new Layout( **i, this );
     }
 
     const CanvasVector& canvases = from.getCanvases();
@@ -127,7 +127,7 @@ Config::~Config()
     {
         Canvas* canvas = *i;
 
-//        canvas->_config = 0;
+        canvas->_config = 0;
         delete canvas;
     }
     _canvases.clear();
@@ -137,7 +137,7 @@ Config::~Config()
     {
         Layout* layout = *i;
 
-//        layout->_config = 0;
+        layout->_config = 0;
         delete layout;
     }
     _layouts.clear();
@@ -366,44 +366,6 @@ private:
         }
     }
 };
-
-template< typename P, typename T > class NameFinder : public P
-{
-public:
-    NameFinder( const std::string& name ) 
-            : _name( name ), _result( 0 ) {}
-    virtual ~NameFinder(){}
-
-    virtual VisitorResult visitPre( T* node ) { return visit( node ); }
-
-    virtual VisitorResult visit( T* node )
-        {
-            if( node->getName() == _name )
-            {
-                _result = node;
-                return TRAVERSE_TERMINATE;
-            }
-            return TRAVERSE_CONTINUE;
-        }
-
-    T* getResult() { return _result; }
-
-private:
-    const std::string _name;
-    T*                _result;
-};
-
-typedef NameFinder< ConfigVisitor, Layout > LayoutFinder;
-typedef NameFinder< ConstConfigVisitor, const Layout > ConstLayoutFinder;
-
-typedef NameFinder< ConfigVisitor, View > ViewFinder;
-typedef NameFinder< ConstConfigVisitor, const View > ConstViewFinder;
-
-typedef NameFinder< ConfigVisitor, Segment > SegmentFinder;
-typedef NameFinder< ConstConfigVisitor, const Segment > ConstSegmentFinder;
-
-typedef NameFinder< ConfigVisitor, Channel > ChannelFinder;
-typedef NameFinder< ConstConfigVisitor, const Channel > ConstChannelFinder;
 }
 
 Layout* Config::findLayout( const std::string& name )
@@ -415,6 +377,13 @@ Layout* Config::findLayout( const std::string& name )
 const Layout* Config::findLayout( const std::string& name ) const
 {
     ConstLayoutFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
+}
+
+View* Config::findView( const std::string& name )
+{
+    ViewFinder finder( name );
     accept( &finder );
     return finder.getResult();
 }
@@ -455,8 +424,17 @@ private:
     const View* const    _view;
     Channel*             _result;
 };
+}
 
+Channel* Config::findChannel( const Segment* segment, const View* view )
+{
+    ChannelViewFinder finder( segment, view );
+    accept( &finder );
+    return finder.getResult();
+}
 
+namespace
+{
 class AddCanvasVisitor : public ConfigVisitor
 {
 public:
@@ -502,15 +480,21 @@ public:
                 return TRAVERSE_CONTINUE;
             }
 
-#ifndef NDEBUG
-            // make sure channel doesn't exist yet
+            // try to reuse channel
             ChannelViewFinder finder( segment, _view );
             _view->getConfig()->accept( &finder );
-            EQASSERT( finder.getResult() == 0 );
-#endif
+            Channel* channel = finder.getResult();
 
-            // create new channel for view/segment intersection
-            Channel* channel = new Channel( *segmentChannel );
+            if( !channel ) // create and add new channel
+            {
+                channel = new Channel( *segmentChannel );
+
+                _view->addChannel( channel );
+                segment->addDestinationChannel( channel );
+                
+                Window* window = segmentChannel->getWindow();
+                window->addChannel( channel );            
+            }
 
             //----- compute channel viewport:
             // segment/view intersection in canvas space...
@@ -524,12 +508,6 @@ public:
             subViewport.apply( contribution );
             
             channel->setViewport( subViewport );
-            
-            _view->addChannel( channel );
-            segment->addDestinationChannel( channel );
-
-            Window* window = segmentChannel->getWindow();
-            window->addChannel( channel );
             
             // decrement channel activation count [inactivates channel]
             // TODO implement useLayout: channel->deactivate(); 
@@ -577,6 +555,19 @@ bool Config::removeCanvas( Canvas* canvas )
     return true;
 }
 
+Canvas* Config::findCanvas( const std::string& name )
+{
+    CanvasFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
+}
+
+Segment* Config::findSegment( const std::string& name )
+{
+    SegmentFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
+}
 const Segment* Config::findSegment( const std::string& name ) const
 {
     ConstSegmentFinder finder( name );
@@ -736,6 +727,28 @@ Channel* Config::getChannel( const ChannelPath& path )
     return _nodes[ path.nodeIndex ]->getChannel( path );
 }
 
+Canvas* Config::getCanvas( const CanvasPath& path )
+{
+    EQASSERTINFO( _canvases.size() >= path.canvasIndex,
+                  _canvases.size() << " < " << path.canvasIndex );
+
+    if( _canvases.size() < path.canvasIndex )
+        return 0;
+
+    return _canvases[ path.canvasIndex ];
+}
+
+Segment* Config::getSegment( const SegmentPath& path )
+{
+    Canvas* canvas = getCanvas( path );
+    EQASSERT( canvas );
+
+    if( canvas )
+        return canvas->getSegment( path );
+
+    return 0;
+}
+
 Layout* Config::getLayout( const LayoutPath& path )
 {
     EQASSERTINFO( _layouts.size() >= path.layoutIndex,
@@ -745,6 +758,17 @@ Layout* Config::getLayout( const LayoutPath& path )
         return 0;
 
     return _layouts[ path.layoutIndex ];
+}
+
+View* Config::getView( const ViewPath& path )
+{
+    Layout* layout = getLayout( path );
+    EQASSERT( layout );
+
+    if( layout )
+        return layout->getView( path );
+
+    return 0;
 }
 
 namespace

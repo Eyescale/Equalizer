@@ -5,7 +5,6 @@
 #ifndef EQSERVER_CANVAS_H
 #define EQSERVER_CANVAS_H
 
-#include "paths.h"
 #include "types.h"
 #include "visitorResult.h"  // enum
 
@@ -20,6 +19,8 @@ namespace server
 {
     class CanvasVisitor;
     class ConstCanvasVisitor;
+    struct CanvasPath;
+    struct SegmentPath;
 
     /**
      * The canvas. @sa eq::Canvas
@@ -51,10 +52,22 @@ namespace server
         /** Get the list of segments. */
         const SegmentVector& getSegments() const { return _segments; }
 
+        /** 
+         * Find the first segment of a given name.
+         * 
+         * @param name the name of the segment to find
+         * @return the first segment with the name, or <code>0</code> if no
+         *         segment with the name exists.
+         */
+        Segment* findSegment( const std::string& name );
+
         /** @return the currently used layout. */
         Layout* getLayout() { return _layout; }
         /** @return the currently used layout. */
         const Layout* getLayout() const { return _layout; }
+
+        /** @return the segment of the given path. */
+        Segment* getSegment( const SegmentPath& path );
 
         /** @return the index path to this canvas. */
         CanvasPath getPath() const;

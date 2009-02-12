@@ -3,9 +3,11 @@
    All rights reserved. */
 
 #include "canvas.h"
+
 #include "channel.h"
 #include "config.h"
 #include "layout.h"
+#include "nameFinder.h"
 #include "node.h"
 #include "paths.h"
 #include "pipe.h"
@@ -35,7 +37,7 @@ Canvas::Canvas( const Canvas& from, Config* config )
     for( SegmentVector::const_iterator i = from._segments.begin();
          i != from._segments.end(); ++i )
     {
-        _segments.push_back( new Segment( **i, config ));
+        addSegment( new Segment( **i, config ));
     }
 
     if( from._layout )
@@ -53,15 +55,28 @@ Canvas::~Canvas()
     for( SegmentVector::const_iterator i = _segments.begin();
          i != _segments.end(); ++i )
     {
-        delete *i;
+        Segment* segment = *i;
+        segment->_canvas = 0;
+        delete segment;
     }
+    _segments.clear();
 
     if( _config )
         _config->removeCanvas( this );
 
     _config = 0;
-    _segments.clear();
     _layout = 0;
+}
+
+Segment* Canvas::getSegment( const SegmentPath& path )
+{
+    EQASSERTINFO( _segments.size() >= path.segmentIndex,
+                  _segments.size() << " < " << path.segmentIndex );
+
+    if( _segments.size() < path.segmentIndex )
+        return 0;
+
+    return _segments[ path.segmentIndex ];
 }
 
 CanvasPath Canvas::getPath() const
@@ -120,7 +135,15 @@ void Canvas::addSegment( Segment* segment )
         }
     }
 
+    segment->_canvas = this;
     _segments.push_back( segment );
+}
+
+Segment* Canvas::findSegment( const std::string& name )
+{
+    SegmentFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
 }
 
 void Canvas::useLayout( Layout* layout )

@@ -21,7 +21,7 @@ View::View()
 {
 }
 
-View::View( const View& from )
+View::View( const View& from, Config* config )
         : eq::View( from )
         , _layout( 0 )
 {
@@ -31,7 +31,7 @@ View::View( const View& from )
         const Channel* oldChannel = *i;
         const ChannelPath path( oldChannel->getPath( ));
 
-        Channel* newChannel = getConfig()->getChannel( path );
+        Channel* newChannel = config->getChannel( path );
         EQASSERT( newChannel );
 
         addChannel( newChannel );
@@ -40,6 +40,14 @@ View::View( const View& from )
 
 View::~View()
 {
+    for( ChannelVector::const_iterator i = _channels.begin();
+         i != _channels.end(); ++i )
+    {
+        Channel* channel = *i;
+        channel->setView( 0 );
+    }
+    _channels.clear();
+
     if( _layout )
         _layout->removeView( this );
     _layout = 0;

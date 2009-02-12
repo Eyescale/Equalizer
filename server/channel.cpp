@@ -222,13 +222,13 @@ void Channel::deactivate()
 
 void Channel::setView( const View* view )
 {
-    EQASSERT( !view || !_view );
+    EQASSERT( !view || !_view || view == _view );
     _view = view;
 }
 
 void Channel::setSegment( const Segment* segment )
 {
-    EQASSERT( !segment || !_segment );
+    EQASSERT( !segment || !_segment || segment == _segment );
     _segment = segment;
 }
 

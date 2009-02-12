@@ -109,6 +109,9 @@ void Window::attachToSession( const uint32_t id, const uint32_t instanceID,
 
 void Window::addChannel( Channel* channel )
 {
+    EQASSERT( find( _channels.begin(), _channels.end(), channel ) == 
+              _channels.end( ));
+
     _channels.push_back( channel ); 
     channel->_window = this;
     channel->notifyViewportChanged();

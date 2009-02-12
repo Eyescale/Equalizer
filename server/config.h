@@ -21,8 +21,11 @@ namespace eq
 {
 namespace server
 {
+    struct CanvasPath;
     struct ChannelPath;
     struct LayoutPath;
+    struct SegmentPath;
+    struct ViewPath;
 
     /**
      * The config.
@@ -48,7 +51,10 @@ namespace server
         Server* getServer() { return _server; }
         
         Channel* getChannel( const ChannelPath& path );
+        Canvas* getCanvas( const CanvasPath& path );
+        Segment* getSegment( const SegmentPath& path );
         Layout* getLayout( const LayoutPath& path );
+        View* getView( const ViewPath& path );
 
         bool    isRunning() const { return ( _state == STATE_INITIALIZED ); }
 
@@ -115,6 +121,7 @@ namespace server
          * @return the first view with the name, or <code>0</code> if no
          *         view with the name exists.
          */
+        View* findView( const std::string& name );
         const View* findView( const std::string& name ) const;
 
         /** 
@@ -137,12 +144,22 @@ namespace server
         const CanvasVector& getCanvases() const { return _canvases; }
 
         /** 
+         * Find the first canvas of a given name.
+         * 
+         * @param name the name of the canvas to find
+         * @return the first canvas with the name, or <code>0</code> if no
+         *         canvas with the name exists.
+         */
+        Canvas* findCanvas( const std::string& name );
+
+        /** 
          * Find the first segment of a given name.
          * 
          * @param name the name of the segment to find
          * @return the first segment with the name, or <code>0</code> if no
          *         segment with the name exists.
          */
+        Segment* findSegment( const std::string& name );
         const Segment* findSegment( const std::string& name ) const;
 
         /** 
@@ -173,6 +190,15 @@ namespace server
          */
         Channel* findChannel( const std::string& name );
         const Channel* findChannel( const std::string& name ) const;
+
+        /** 
+         * Find the channel for the given view/segment intersection.
+         * 
+         * @param segment the segment.
+         * @param view the view.
+         * @return the channel for updating the view/segment intersection.
+         */
+        Channel* findChannel( const Segment* segment, const View* view );
 
         /** 
          * Traverse this config and all children using a config visitor.

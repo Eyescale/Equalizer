@@ -42,7 +42,7 @@ Segment::Segment( const Segment& from, Config* config )
         const Channel* oldChannel = *i;
         const ChannelPath path( oldChannel->getPath( ));
 
-        Channel* newChannel = getConfig()->getChannel( path );
+        Channel* newChannel = config->getChannel( path );
         EQASSERT( newChannel );
 
         addDestinationChannel( newChannel );
@@ -51,8 +51,16 @@ Segment::Segment( const Segment& from, Config* config )
 
 Segment::~Segment()
 {
-    _canvas  = 0;
+    for( ChannelVector::const_iterator i = _destinationChannels.begin();
+         i != _destinationChannels.end(); ++i )
+    {
+        Channel* channel = *i;
+        channel->setSegment( 0 );
+    }
+
+    _destinationChannels.clear();
     _channel = 0;
+    _canvas  = 0;
 }
 
 Config* Segment::getConfig()

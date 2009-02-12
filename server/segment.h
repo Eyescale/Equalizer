@@ -106,6 +106,7 @@ namespace server
     private:
         /** The parent canvas. */
         Canvas* _canvas;
+        friend class Canvas;
 
         /** The output channel of this segment. */
         Channel* _channel;

@@ -15,6 +15,7 @@ namespace eq
 {
 namespace server
 {
+    class ViewPath;
     class LayoutPath;
     class LayoutVisitor;
     class ConstLayoutVisitor;
@@ -49,8 +50,20 @@ namespace server
         /** Get the list of views. */
         const ViewVector& getViews() const { return _views; }
 
+        /** 
+         * Find the first view of a given name.
+         * 
+         * @param name the name of the view to find
+         * @return the first view with the name, or <code>0</code> if no
+         *         view with the name exists.
+         */
+        View* findView( const std::string& name );
+
         Config* getConfig() { return _config; }
         const Config* getConfig() const { return _config; }
+
+        /** @return the view of the given path. */
+        View* getView( const ViewPath& path );
 
         /** @return the index path to this layout. */
         LayoutPath getPath() const;

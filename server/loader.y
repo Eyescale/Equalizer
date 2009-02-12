@@ -681,6 +681,24 @@ compoundField:
           else
               eqCompound->setChannel( channel );
       }
+    | EQTOKEN_CHANNEL viewSegmentRef
+      {
+          if( !segment || !view )
+              yyerror( "Incomplete channel reference (view or segment missing)" );
+          else
+          {
+              eq::server::Channel* channel = config->findChannel(segment,view);
+              if( channel )
+                  eqCompound->setChannel( channel );
+              else
+                  yyerror( "No channel for the given view and segment" );
+          }
+
+          canvas = 0;
+          segment = 0;
+          layout = 0;
+          view = 0;
+      }
     | EQTOKEN_TASK '['   { eqCompound->setTasks( eq::TASK_NONE ); }
         compoundTasks ']'
     | EQTOKEN_EYE  '['   { eqCompound->setEyes( eq::server::Compound::EYE_UNDEFINED );}
@@ -705,6 +723,54 @@ compoundField:
     | outputFrame
     | inputFrame
     | EQTOKEN_ATTRIBUTES '{' compoundAttributes '}'
+
+viewSegmentRef: 
+    '(' {
+            canvas = 0;
+            segment = 0;
+            layout = 0;
+            view = 0;
+        }
+    viewSegmentRefFields ')'
+
+viewSegmentRefFields : /*null*/ | viewSegmentRefFields viewSegmentRefField
+viewSegmentRefField:
+    EQTOKEN_CANVAS STRING 
+        { canvas = config->findCanvas( $2 ); }
+    | EQTOKEN_CANVAS UNSIGNED 
+        { canvas = config->getCanvas( eq::server::CanvasPath( $2 )); }
+    | EQTOKEN_SEGMENT STRING 
+        { 
+            if( canvas )
+                segment = canvas->findSegment( $2 ); 
+            else
+                segment = config->findSegment( $2 );
+        }
+    | EQTOKEN_SEGMENT UNSIGNED 
+        {
+            if( canvas )
+                segment = canvas->getSegment( eq::server::SegmentPath( $2 ));
+            else
+                segment = config->getSegment( eq::server::SegmentPath( $2 ));
+        }
+    | EQTOKEN_LAYOUT STRING 
+        { layout = config->findLayout( $2 ); }
+    | EQTOKEN_LAYOUT UNSIGNED 
+        { layout = config->getLayout( eq::server::LayoutPath( $2 )); }
+    | EQTOKEN_VIEW STRING 
+        { 
+            if( layout )
+                view = layout->findView( $2 ); 
+            else
+                view = config->findView( $2 );
+        }
+    | EQTOKEN_VIEW UNSIGNED 
+        {
+            if( layout )
+                view = layout->getView( eq::server::ViewPath( $2 ));
+            else
+                view = config->getView( eq::server::ViewPath( $2 ));
+        }
 
 compoundTasks: /*null*/ | compoundTasks compoundTask
 compoundTask:

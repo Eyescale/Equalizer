@@ -277,11 +277,12 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
         config->exit(); // Make sure config is exited
     }
 
+    config->unmap();
+
     eq::ServerDestroyConfigPacket destroyConfigPacket;
     destroyConfigPacket.configID  = config->getID();
     node->send( destroyConfigPacket );
 
-    config->unmap();
     EQCHECK( deregisterSession( config ));
 
     _appConfigs.erase( packet->configID );

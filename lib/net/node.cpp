@@ -848,9 +848,10 @@ bool Node::dispatchCommand( Command& command )
                 static_cast<SessionPacket*>( command.getPacket( ));
             const uint32_t       id            = sessionPacket->sessionID;
 
-            EQASSERT( _sessions.find( id ) != _sessions.end( ));
+            EQASSERTINFO( _sessions.find( id ) != _sessions.end(), 
+                          "Can't find session for " << sessionPacket );
             Session*             session       = _sessions[ id ];
-            EQASSERTINFO( session, "Can't find session for " << sessionPacket );
+            EQASSERT( session );
             
             return session->dispatchCommand( command );
         }

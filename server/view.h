@@ -28,7 +28,7 @@ namespace server
         View();
 
         /** Creates a new, deep copy of a view. */
-        View( const View& from );
+        View( const View& from, Config* config );
 
         virtual ~View();
 
@@ -93,4 +93,4 @@ namespace server
     std::ostream& operator << ( std::ostream& os, const View* view );
 }
 }
-#endif // EQ_VIEW_H
+#endif // EQSERVER_VIEW_H
