@@ -1,6 +1,6 @@
 Index: lib/net/packets.h
 ===================================================================
---- lib/net/packets.h	(revision 2530)
+--- lib/net/packets.h	(revision 2575)
 +++ lib/net/packets.h	(working copy)
 @@ -197,6 +197,41 @@
          EQ_ALIGN8( char nodeData[8] );
@@ -46,7 +46,7 @@ Index: lib/net/packets.h
      //------------------------------------------------------------
 Index: lib/net/commands.h
 ===================================================================
---- lib/net/commands.h	(revision 2530)
+--- lib/net/commands.h	(revision 2575)
 +++ lib/net/commands.h	(working copy)
 @@ -25,6 +25,9 @@
          CMD_NODE_DISCONNECT,
@@ -60,7 +60,7 @@ Index: lib/net/commands.h
  
 Index: lib/net/node.cpp
 ===================================================================
---- lib/net/node.cpp	(revision 2530)
+--- lib/net/node.cpp	(revision 2575)
 +++ lib/net/node.cpp	(working copy)
 @@ -44,6 +44,7 @@
          , _launchID( EQ_ID_INVALID )
@@ -159,7 +159,7 @@ Index: lib/net/node.cpp
  //----------------------------------------------------------------------
 Index: lib/net/node.h
 ===================================================================
---- lib/net/node.h	(revision 2530)
+--- lib/net/node.h	(revision 2575)
 +++ lib/net/node.h	(working copy)
 @@ -370,6 +370,9 @@
           * which are normally only redispatched when a new command is received.
@@ -195,24 +195,215 @@ Index: lib/net/node.h
  
          CHECK_THREAD_DECLARE( _thread );
      };
+Index: lib/client/channel.h
+===================================================================
+--- lib/client/channel.h	(revision 2575)
++++ lib/client/channel.h	(working copy)
+@@ -259,6 +259,7 @@
+         enum IAttribute
+         {
+             IATTR_HINT_STATISTICS,
++            IATTR_HINT_SENDTOKEN,
+             IATTR_ALL
+         };
+         
+Index: lib/client/frame.cpp
+===================================================================
+--- lib/client/frame.cpp	(revision 2575)
++++ lib/client/frame.cpp	(working copy)
+@@ -119,6 +119,12 @@
+     _frameData->disableBuffer( buffer );
+ }
+ 
++void Frame::useSendToken( const bool use )
++{
++    EQASSERT( _frameData );
++    _frameData->useSendToken( use );
++}
++
+ 
+ void Frame::addListener( base::Monitor<uint32_t>& listener )
+ {
+Index: lib/client/frame.h
+===================================================================
+--- lib/client/frame.h	(revision 2575)
++++ lib/client/frame.h	(working copy)
+@@ -147,7 +147,9 @@
+          * @param buffer the buffer to disable.
+          */
+         void disableBuffer( const Buffer buffer );
+-        
++
++        void useSendToken( const bool use );
++
+     protected:
+         virtual ChangeType getChangeType() const { return INSTANCE; }
+         virtual void getInstanceData( net::DataOStream& os );
 Index: lib/client/frameData.cpp
 ===================================================================
---- lib/client/frameData.cpp	(revision 2530)
+--- lib/client/frameData.cpp	(revision 2575)
 +++ lib/client/frameData.cpp	(working copy)
-@@ -275,7 +275,7 @@
+@@ -21,6 +21,7 @@
+ namespace eq
+ {
+ FrameData::FrameData()
++        : _useSendToken( true )
+ {
+     EQINFO << "New FrameData @" << (void*)this << endl;
+ }
+@@ -275,7 +276,8 @@
              continue;
          
          // send image pixel data packet
 -
-+        getLocalNode()->acquireSendToken( toNode );
++        if( _useSendToken )
++            getLocalNode()->acquireSendToken( toNode );
          connection->lockSend();
          connection->send( &packet, packetSize, true );
  #ifndef NDEBUG
-@@ -308,6 +308,7 @@
+@@ -308,6 +310,8 @@
  #endif
  
          connection->unlockSend();
-+        getLocalNode()->releaseSendToken( toNode );
++        if( _useSendToken )
++            getLocalNode()->releaseSendToken( toNode );
      }
  
      FrameDataReadyPacket readyPacket;
+Index: lib/client/channel.cpp
+===================================================================
+--- lib/client/channel.cpp	(revision 2575)
++++ lib/client/channel.cpp	(working copy)
+@@ -30,6 +30,7 @@
+ #define MAKE_ATTR_STRING( attr ) ( string("EQ_CHANNEL_") + #attr )
+ std::string Channel::_iAttributeStrings[IATTR_ALL] = {
+     MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
++    MAKE_ATTR_STRING( IATTR_HINT_SENDTOKEN ),
+ };
+ 
+ Channel::Channel( Window* parent )
+@@ -971,6 +972,7 @@
+         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
+                               << frame << " to " << nodeID << endl;
+ 
++        frame->useSendToken( getIAttribute( IATTR_HINT_SENDTOKEN ) == ON );
+ #ifdef EQ_ASYNC_TRANSMIT
+         getNode()->transmitter.send( frame->getData(), toNode, 
+                                      getPipe()->getCurrentFrame( ));
+Index: lib/client/frameData.h
+===================================================================
+--- lib/client/frameData.h	(revision 2575)
++++ lib/client/frameData.h	(working copy)
+@@ -130,6 +130,8 @@
+          */
+         void disableBuffer( const Frame::Buffer buffer )
+             { _data.buffers &= ~buffer; }
++
++        void useSendToken( const bool use ) { _useSendToken = use; }
+         //*}
+ 
+         /** @warning internal use only. */
+@@ -185,6 +187,8 @@
+         std::vector< base::Monitor<uint32_t>* > _listeners;
+         base::Lock                              _listenersMutex;
+ 
++        bool _useSendToken;
++        
+         /** Allocate or reuse an image. */
+         Image* _allocImage();
+ 
+Index: server/global.cpp
+===================================================================
+--- server/global.cpp	(revision 2575)
++++ server/global.cpp	(working copy)
+@@ -101,6 +101,7 @@
+ #else
+     _channelIAttributes[eq::Channel::IATTR_HINT_STATISTICS] = eq::NICEST;
+ #endif
++    _channelIAttributes[eq::Channel::IATTR_HINT_SENDTOKEN] = eq::ON;
+ 
+     // compound
+     for( int i=0; i<Compound::IATTR_ALL; ++i )
+Index: server/loader.l
+===================================================================
+--- server/loader.l	(revision 2575)
++++ server/loader.l	(working copy)
+@@ -77,6 +77,7 @@
+ EQ_WINDOW_IATTR_PLANES_ACCUM_ALPHA { return EQTOKEN_WINDOW_IATTR_PLANES_ACCUM_ALPHA; }
+ EQ_WINDOW_IATTR_PLANES_SAMPLES   { return EQTOKEN_WINDOW_IATTR_PLANES_SAMPLES; }
+ EQ_CHANNEL_IATTR_HINT_STATISTICS { return EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS; }
++EQ_CHANNEL_IATTR_HINT_SENDTOKEN  { return EQTOKEN_CHANNEL_IATTR_HINT_SENDTOKEN; }
+ EQ_COMPOUND_IATTR_STEREO_MODE    { return EQTOKEN_COMPOUND_IATTR_STEREO_MODE; } 
+ EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK  { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK; }
+ EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK; }
+@@ -93,6 +94,7 @@
+ hint_doublebuffer               { return EQTOKEN_HINT_DOUBLEBUFFER; }
+ hint_fullscreen                 { return EQTOKEN_HINT_FULLSCREEN; }
+ hint_statistics                 { return EQTOKEN_HINT_STATISTICS; }
++hint_sendtoken                  { return EQTOKEN_HINT_SENDTOKEN; }
+ hint_stereo                     { return EQTOKEN_HINT_STEREO; }
+ hint_swapsync                   { return EQTOKEN_HINT_SWAPSYNC; }
+ hint_drawable                   { return EQTOKEN_HINT_DRAWABLE; }
+Index: server/loader.y
+===================================================================
+--- server/loader.y	(revision 2575)
++++ server/loader.y	(working copy)
+@@ -1,5 +1,5 @@
+ 
+-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
++/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+    All rights reserved. */
+ 
+ %{
+@@ -88,6 +88,7 @@
+ %token EQTOKEN_COMPOUND_IATTR_UPDATE_FOV
+ %token EQTOKEN_COMPOUND_IATTR_HINT_OFFSET
+ %token EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS
++%token EQTOKEN_CHANNEL_IATTR_HINT_SENDTOKEN
+ %token EQTOKEN_SERVER
+ %token EQTOKEN_CONFIG
+ %token EQTOKEN_APPNODE
+@@ -100,6 +101,7 @@
+ %token EQTOKEN_HINT_FULLSCREEN
+ %token EQTOKEN_HINT_DECORATION
+ %token EQTOKEN_HINT_STATISTICS
++%token EQTOKEN_HINT_SENDTOKEN
+ %token EQTOKEN_HINT_SWAPSYNC
+ %token EQTOKEN_HINT_DRAWABLE
+ %token EQTOKEN_HINT_THREAD
+@@ -363,6 +365,11 @@
+          eq::server::Global::instance()->setChannelIAttribute(
+              eq::Channel::IATTR_HINT_STATISTICS, $2 );
+      }
++     | EQTOKEN_CHANNEL_IATTR_HINT_SENDTOKEN IATTR
++     {
++         eq::server::Global::instance()->setChannelIAttribute(
++             eq::Channel::IATTR_HINT_SENDTOKEN, $2 );
++     }
+      | EQTOKEN_COMPOUND_IATTR_STEREO_MODE IATTR 
+      { 
+          eq::server::Global::instance()->setCompoundIAttribute( 
+@@ -575,6 +582,8 @@
+ channelAttribute:
+     EQTOKEN_HINT_STATISTICS IATTR
+         { channel->setIAttribute( eq::Channel::IATTR_HINT_STATISTICS, $2 ); }
++    | EQTOKEN_HINT_SENDTOKEN IATTR
++        { channel->setIAttribute( eq::Channel::IATTR_HINT_SENDTOKEN, $2 ); }
+ 
+ 
+ compounds: compound | compounds compound
+Index: server/channel.cpp
+===================================================================
+--- server/channel.cpp	(revision 2575)
++++ server/channel.cpp	(working copy)
+@@ -511,7 +511,9 @@
+         }
+         
+         os << ( i==eq::Channel::IATTR_HINT_STATISTICS ?
+-                    "hint_statistics   " : "ERROR" )
++                "hint_statistics   " :
++                i==eq::Channel::IATTR_HINT_SENDTOKEN ?
++                    "hint_sendtoken    " : "ERROR" )
+            << static_cast<eq::IAttrValue>( value ) << endl;
+     }
+     
