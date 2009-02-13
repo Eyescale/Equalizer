@@ -24,7 +24,7 @@ namespace server
     class FrustumData
     {
     public:
-        FrustumData() : _width(0.f), _height(0.f) {}
+        FrustumData();
 
         bool isValid() const { return (_width!=0.f && _height!=0.f); }
         void invalidate()    { _width = 0.f; _height = 0.f; }

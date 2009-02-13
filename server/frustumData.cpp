@@ -13,6 +13,14 @@ namespace eq
 {
 namespace server
 {
+
+FrustumData::FrustumData() : _width(0.f), _height(0.f) 
+{
+    _eyes[eq::EYE_CYCLOP] = vmml::Vector3f::ZERO;
+    _eyes[eq::EYE_LEFT] = vmml::Vector3f::ZERO; // w
+    _eyes[eq::EYE_RIGHT]  = vmml::Vector3f::ZERO;
+}
+
 void FrustumData::applyWall( const eq::Wall& wall )
 {
     vmml::Vector3f u = wall.bottomRight - wall.bottomLeft;
