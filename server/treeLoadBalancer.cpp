@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "treeLoadBalancer.h"
@@ -131,10 +131,43 @@ void TreeLoadBalancer::_clearTree( Node* node )
 
 void TreeLoadBalancer::notifyLoadData( Channel* channel, 
                                        const uint32_t frameNumber,
-                                       const float startTime, 
-                                       const float endTime
-                                       /*, const float load */ )
+                                       const uint32_t nStatistics,
+                                       const eq::Statistic* statistics  )
 {
+
+    // gather and notify load data
+    float startTime = numeric_limits< float >::max();
+    float endTime   = 0.0f;
+    bool  loadSet   = false;
+    for( uint32_t i = 0; i < nStatistics && !loadSet; ++i )
+    {
+        const eq::Statistic& data = statistics[i];
+        switch( data.type )
+        {
+            case eq::Statistic::CHANNEL_CLEAR:
+            case eq::Statistic::CHANNEL_DRAW:
+                //case eq::Statistic::CHANNEL_DRAW_FINISH:
+            case eq::Statistic::CHANNEL_READBACK:
+#ifndef EQ_ASYNC_TRANSMIT
+            case eq::Statistic::CHANNEL_TRANSMIT:
+#endif
+                startTime = EQ_MIN( startTime, data.startTime );
+                endTime   = EQ_MAX( endTime, data.endTime );
+                break;
+                
+                // assemble blocks on frames, stop using subsequent data
+            case eq::Statistic::CHANNEL_ASSEMBLE:
+                loadSet = true;
+                break;
+                
+            default:
+                break;
+        }
+    }
+    
+    if( startTime == numeric_limits< float >::max( ))
+        return;
+    
     for( deque< LBFrameData >::iterator i = _history.begin();
          i != _history.end(); ++i )
     {

@@ -8,6 +8,7 @@
 #include "log.h"
 #include "treeLoadBalancer.h"
 #include "smoothLoadBalancer.h"
+#include "dfrLoadBalancer.h"
 
 #include <eq/client/client.h>
 #include <eq/client/server.h>
@@ -24,6 +25,7 @@ namespace server
 LoadBalancer::LoadBalancer()
         : _mode( MODE_2D )
         , _damping( -1.f )
+        , _frameRate( 35.0 )
         , _compound( 0 )
         , _implementation( 0 )
         , _freeze( false )
@@ -35,6 +37,7 @@ LoadBalancer::LoadBalancer( const LoadBalancer& from )
         : CompoundListener()
         , _mode( from._mode )
         , _damping( from._damping )
+        , _frameRate( from._frameRate )
         , _compound( 0 )
         , _implementation( 0 )
         , _freeze( from._freeze )
@@ -99,7 +102,9 @@ void LoadBalancer::notifyUpdatePre( Compound* compound,
             case MODE_DPLEX:
                 _implementation = new SmoothLoadBalancer( *this );
                 break;
-
+            case MODE_DFR:
+                _implementation = new DfrLoadBalancer( *this );
+                break;
             default:
                 EQUNREACHABLE;
                 return;
@@ -117,6 +122,7 @@ std::ostream& operator << ( std::ostream& os,
             mode == LoadBalancer::MODE_VERTICAL   ? "VERTICAL" :
             mode == LoadBalancer::MODE_HORIZONTAL ? "HORIZONTAL" :
             mode == LoadBalancer::MODE_DB         ? "DB" :
+            mode == LoadBalancer::MODE_DFR        ? "DFR" :
             mode == LoadBalancer::MODE_DPLEX      ? "DPLEX" : "ERROR" );
     return os;
 }
@@ -130,6 +136,8 @@ std::ostream& operator << ( std::ostream& os, const LoadBalancer* lb )
 
     if( lb->getDamping() >= 0.f )
         os << "    damping " << lb->getDamping() << endl;
+    else if( lb->getMode() == LoadBalancer::MODE_DFR )
+        os << "    frameRate " << lb->getFrameRate() << endl;
 
     os << '}' << endl << enableFlush;
     return os;

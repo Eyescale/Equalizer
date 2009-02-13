@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_TREELOADBALANCER_H
@@ -30,9 +30,9 @@ namespace server
 
         /** @sa ChannelListener::notifyLoadData */
         virtual void notifyLoadData( Channel* channel, 
-                                     const uint32_t frameNumber,
-                                     const float startTime, const float endTime
-                                     /*, const float load */ );
+                                     const uint32_t frameNumber, 
+                                     const uint32_t nStatistics,
+                                     const eq::Statistic* statistics );
 
     private:
         struct Node

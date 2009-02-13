@@ -122,6 +122,8 @@ BLUE                            { return EQTOKEN_BLUE; }
 HORIZONTAL                      { return EQTOKEN_HORIZONTAL; }
 VERTICAL                        { return EQTOKEN_VERTICAL; }
 DPLEX                           { return EQTOKEN_DPLEX; }
+DFR                             { return EQTOKEN_DFR; }
+framerate                       { return EQTOKEN_FRAMERATE; }
 channel                         { return EQTOKEN_CHANNEL; }
 layout                          { return EQTOKEN_LAYOUT; }
 view                            { return EQTOKEN_VIEW; }

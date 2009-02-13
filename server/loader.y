@@ -132,6 +132,8 @@
 %token EQTOKEN_BLUE
 %token EQTOKEN_HORIZONTAL
 %token EQTOKEN_VERTICAL
+%token EQTOKEN_DFR
+%token EQTOKEN_FRAMERATE
 %token EQTOKEN_DPLEX
 %token EQTOKEN_CHANNEL
 %token EQTOKEN_LAYOUT
@@ -832,7 +834,7 @@ loadBalancer: EQTOKEN_LOADBALANCER
          loadBalancerFields
     '}' { eqCompound->setLoadBalancer( loadBalancer ); loadBalancer = 0; }
 
-loadBalancerFields: /*null*/ | loadBalancerFields loadBalancerField
+loadBalancerFields: /*null*/ | loadBalancerFields loadBalancerField framerateField
 loadBalancerField:
     EQTOKEN_MODE loadBalancerMode { loadBalancer->setMode( $2 ) }
     | EQTOKEN_DAMPING FLOAT       { loadBalancer->setDamping( $2 ) }
@@ -842,6 +844,10 @@ loadBalancerMode: EQTOKEN_2D { $$ = eq::server::LoadBalancer::MODE_2D; }
     | EQTOKEN_HORIZONTAL     { $$ = eq::server::LoadBalancer::MODE_HORIZONTAL; }
     | EQTOKEN_VERTICAL       { $$ = eq::server::LoadBalancer::MODE_VERTICAL; }
     | EQTOKEN_DPLEX          { $$ = eq::server::LoadBalancer::MODE_DPLEX; }
+    | EQTOKEN_DFR            { $$ = eq::server::LoadBalancer::MODE_DFR; } 
+    
+framerateField:  /*null*/ 
+                  | EQTOKEN_FRAMERATE FLOAT { loadBalancer->setFrameRate( $2 ) }
 
 swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
     swapBarrierFields '}'

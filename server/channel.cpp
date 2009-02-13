@@ -473,16 +473,16 @@ void Channel::removeListener(  ChannelListener* listener )
         _listeners.erase( i );
 }
 
-void Channel::_fireLoadData( const uint32_t frameNumber, const float startTime,
-                             const float endTime /*, const float load */ )
+void Channel::_fireLoadData( const uint32_t frameNumber, 
+                             const uint32_t nStatistics,
+                             const eq::Statistic* statistics )
 {
     CHECK_THREAD( _serverThread );
 
     for( ChannelListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
 
-        (*i)->notifyLoadData( this, frameNumber, startTime, endTime
-                              /*, load */ );
+        (*i)->notifyLoadData( this, frameNumber, nStatistics, statistics );
 }
 
 //===========================================================================
@@ -540,40 +540,8 @@ net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
         const eq::Statistic& data = packet->statistics[i];
         EQLOG( eq::LOG_STATS ) << data << endl;
     }
-    EQLOG( eq::LOG_STATS ) << endl;
 
-    // gather and notify load data
-    float startTime = numeric_limits< float >::max();
-    float endTime   = 0.0f;
-    bool  loadSet   = false;
-    for( uint32_t i = 0; i<packet->nStatistics && !loadSet; ++i )
-    {
-        const eq::Statistic& data = packet->statistics[i];
-        switch( data.type )
-        {
-            case eq::Statistic::CHANNEL_CLEAR:
-            case eq::Statistic::CHANNEL_DRAW:
-            //case eq::Statistic::CHANNEL_DRAW_FINISH:
-            case eq::Statistic::CHANNEL_READBACK:
-#ifndef EQ_ASYNC_TRANSMIT
-            case eq::Statistic::CHANNEL_TRANSMIT:
-#endif
-                startTime = EQ_MIN( startTime, data.startTime );
-                endTime   = EQ_MAX( endTime, data.endTime );
-                break;
-
-            // assemble blocks on frames, stop using subsequent data
-            case eq::Statistic::CHANNEL_ASSEMBLE:
-                loadSet = true;
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    if( startTime != numeric_limits< float >::max( ))
-        _fireLoadData( packet->frameNumber, startTime, endTime );
+    _fireLoadData( packet->frameNumber, packet->nStatistics, packet->statistics );
 
     return net::COMMAND_HANDLED;
 }

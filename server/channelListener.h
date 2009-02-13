@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_CHANNEL_LISTENER_H
 #define EQS_CHANNEL_LISTENER_H
 
 #include <eq/base/base.h>
+#include <eq/client/event.h> // for use Statistic
 
 namespace eq
 {
@@ -29,8 +30,8 @@ namespace server
          */
         virtual void notifyLoadData( Channel* channel, 
                                      const uint32_t frameNumber,
-                                     const float startTime, const float endTime
-                                     /*, const float load */ ) = 0;
+                                     const uint32_t nStatistics,
+                                     const eq::Statistic* statistics )=0;
     };
 }
 }

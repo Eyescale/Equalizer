@@ -15,6 +15,7 @@ CXXFILES = \
 	configSerializer.cpp \
 	configUpdateDataVisitor.cpp \
 	connectionDescription.cpp \
+        dfrLoadBalancer.cpp \
 	frame.cpp \
 	frameData.cpp \
 	frustum.cpp \
