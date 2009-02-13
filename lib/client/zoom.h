@@ -37,7 +37,14 @@ namespace eq
                 if( x == 0.f ) x = 1.f;
                 if( y == 0.f ) y = 1.f;
             }
-
+            
+        /** apply factor to zoom. */
+        void applyFactor( float factor )
+            {
+                x = x * factor;
+                y = y * factor;
+            }
+            
         /** Make the zoom factor invalid. */
         void invalidate() { x = y = 0.f; }
 
