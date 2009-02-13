@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PROJECTION_H
@@ -12,6 +12,7 @@
 
 namespace eq
 {
+    class Wall;
     /**
      * A projection definition defining a view frustum.
      * 
@@ -39,6 +40,9 @@ namespace eq
          */
         void resizeVertical( const float ratio );
 
+        /** Set the projection parameters from a wall description. */
+        Projection& operator = ( const Wall& wall );
+        
         vmml::Vector3f origin;
         float          distance;
         vmml::Vector2f fov;

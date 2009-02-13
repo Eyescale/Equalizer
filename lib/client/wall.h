@@ -42,7 +42,7 @@ namespace eq
         void apply( const Viewport& viewport);
 
         //TODO /** Set the wall parameters from a projection description. */
-        //Wall& operator = ( const Projection& projection );
+        Wall& operator = ( const Projection& projection );
 
         bool operator == ( const Wall& rhs ) const;
         bool operator != ( const Wall& rhs ) const;
