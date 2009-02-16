@@ -15,30 +15,24 @@ namespace eq
 {
 namespace server
 {
-    /** 
-     * Adapts the frame rate averarage while adapt a zoom factor. 
-     * 
-     */
+    /** Tries to maintain a constant frame rate by adapting the compound zoom.*/
     class DfrLoadBalancer : public LoadBalancerIF, protected ChannelListener
     {
     public:
-
         DfrLoadBalancer( const LoadBalancer& parent );
         virtual ~DfrLoadBalancer();
 
         /** @sa LoadBalancerIF::update */
         virtual void update( const uint32_t frameNumber );
         
-        
+        /** @sa ChannelListener::notifyLoadData */
         virtual void notifyLoadData( Channel* channel, 
                                      const uint32_t frameNumber,
                                      const uint32_t nStatistics,
                                      const eq::Statistic* statistics  );
     private:
         Compound* _compound;
-
         float _fpsLastFrame;
-
     };
 }
 }

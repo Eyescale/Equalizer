@@ -41,8 +41,8 @@ namespace eq
         /** apply factor to zoom. */
         void applyFactor( float factor )
             {
-                x = x * factor;
-                y = y * factor;
+                x *= factor;
+                y *= factor;
             }
             
         /** Make the zoom factor invalid. */

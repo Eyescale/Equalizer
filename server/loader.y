@@ -834,10 +834,11 @@ loadBalancer: EQTOKEN_LOADBALANCER
          loadBalancerFields
     '}' { eqCompound->setLoadBalancer( loadBalancer ); loadBalancer = 0; }
 
-loadBalancerFields: /*null*/ | loadBalancerFields loadBalancerField framerateField
+loadBalancerFields: /*null*/ | loadBalancerFields loadBalancerField
 loadBalancerField:
     EQTOKEN_MODE loadBalancerMode { loadBalancer->setMode( $2 ) }
     | EQTOKEN_DAMPING FLOAT       { loadBalancer->setDamping( $2 ) }
+    | EQTOKEN_FRAMERATE FLOAT     { loadBalancer->setFrameRate( $2 ) }
 
 loadBalancerMode: EQTOKEN_2D { $$ = eq::server::LoadBalancer::MODE_2D; }
     | EQTOKEN_DB             { $$ = eq::server::LoadBalancer::MODE_DB; }
@@ -846,8 +847,6 @@ loadBalancerMode: EQTOKEN_2D { $$ = eq::server::LoadBalancer::MODE_2D; }
     | EQTOKEN_DPLEX          { $$ = eq::server::LoadBalancer::MODE_DPLEX; }
     | EQTOKEN_DFR            { $$ = eq::server::LoadBalancer::MODE_DFR; } 
     
-framerateField:  /*null*/ 
-                  | EQTOKEN_FRAMERATE FLOAT { loadBalancer->setFrameRate( $2 ) }
 
 swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
     swapBarrierFields '}'

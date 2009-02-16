@@ -48,7 +48,7 @@ namespace server
             MODE_VERTICAL,   //!< Adapt for sort-first using vertical stripes
             MODE_2D,         //!< Adapt for a sort-first decomposition
             MODE_DPLEX,      //!< Adapt for smooth time-multiplex rendering
-            MODE_DFR         //!< Adapt for dynamic frame zoom rendering
+            MODE_DFR         //!< Adapt for dynamic frame resolution
         };
 
         /** Set the load balancer adaptation mode. */
@@ -80,10 +80,10 @@ namespace server
         void setFreeze( const bool onOff ) { _freeze = onOff; }
         bool isFrozen() const { return _freeze; }
 
-        /** Set the average Frame Rate using in dfrLoadBalancer  */
+        /** Set the average frame rate for the DFRLoadBalancer  */
         void setFrameRate( const float frameRate ) { _frameRate = frameRate; }
 
-        /** Get the average Frame Rate using in dfrLoadBalancer  */ 
+        /** Get the average frame rate for the DFRLoadBalancer  */ 
         float getFrameRate() const{ return _frameRate; }
         
     private:

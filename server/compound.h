@@ -237,7 +237,6 @@ namespace server
 
         void setZoom( const eq::Zoom& zoom )       { _data.zoom = zoom; }
         const eq::Zoom& getZoom() const            { return _data.zoom; }
-        eq::Zoom& getZoom()                        { return _data.zoom; }
 
         void setMaxFPS( const float fps )          { _data.maxFPS = fps; }
         float getMaxFPS() const                    { return _data.maxFPS; }

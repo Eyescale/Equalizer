@@ -27,7 +27,7 @@ DfrLoadBalancer::DfrLoadBalancer( const LoadBalancer& parent )
 {
     _compound = _parent.getCompound();
     
-    _fpsLastFrame = _parent.getFrameRate();
+    _fpsLastFrame = 0.f;
      
     Channel*  channel   = _compound->getChannel();
 
@@ -39,7 +39,6 @@ DfrLoadBalancer::DfrLoadBalancer( const LoadBalancer& parent )
 
 DfrLoadBalancer::~DfrLoadBalancer()
 {
-
     Channel*  channel   = _compound->getChannel();
 
     EQASSERT( channel );
@@ -50,25 +49,22 @@ DfrLoadBalancer::~DfrLoadBalancer()
 
 void DfrLoadBalancer::update( const uint32_t frameNumber )
 {
-   Zoom& currentZoom = _compound->getZoom();
-   
-   float factor;
-   
-   factor = sqrtf( _fpsLastFrame / _parent.getFrameRate() );
-   
-   if ( abs ( factor - 1.0f ) > 0.1 )
-       currentZoom.applyFactor( factor );
-   
-   _fpsLastFrame = _parent.getFrameRate();
+    if( _fpsLastFrame == 0.f )
+        return;
 
+    Zoom currentZoom = _compound->getZoom();
+    const float factor = sqrtf( _fpsLastFrame / _parent.getFrameRate() );
+   
+    currentZoom.applyFactor( factor );
+    _compound->setZoom( currentZoom );
+
+    _fpsLastFrame = 0.f;
 }
 
-
-void DfrLoadBalancer::notifyLoadData( 
-                            Channel* channel,
-                            const uint32_t frameNumber, 
-                            const uint32_t nStatistics,
-                            const eq::Statistic* statistics  )
+void DfrLoadBalancer::notifyLoadData( Channel* channel,
+                                      const uint32_t frameNumber, 
+                                      const uint32_t nStatistics,
+                                      const eq::Statistic* statistics  )
 {
     // gather and notify load data
     float startTime = numeric_limits< float >::max();
@@ -82,6 +78,7 @@ void DfrLoadBalancer::notifyLoadData(
              startTime = EQ_MIN( startTime, data.startTime );
              break;
             case eq::Statistic::CHANNEL_READBACK:
+            case eq::Statistic::CHANNEL_ASSEMBLE:
 #ifndef EQ_ASYNC_TRANSMIT
             case eq::Statistic::CHANNEL_TRANSMIT:
 #endif
@@ -98,12 +95,9 @@ void DfrLoadBalancer::notifyLoadData(
         return;
     
     const float time = endTime - startTime;
-    
     if ( time <= 0.0f ) 
         return;
          
-
-    
     _fpsLastFrame = 1000.0f / time;
 
     EQLOG( LOG_LB ) << "Frame " << frameNumber << " channel " 
