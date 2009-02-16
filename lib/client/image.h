@@ -221,9 +221,13 @@ namespace eq
 
         /** Writes the pixel data as rgb image files. */
         void writeImage( const std::string& filename,
-                         const Frame::Buffer buffer ) const;
+                         const Frame::Buffer buffer, 
+                         const uint32_t shift = 0 ) const;
 
         /** Writes all valid pixel data as separate images. */
+        void writeImages( const std::string& filenameTemplate, 
+                          const Frame::Buffer buffer ) const;
+
         void writeImages( const std::string& filenameTemplate ) const;
 
         /** Read pixel data from an uncompressed rgb image file. */

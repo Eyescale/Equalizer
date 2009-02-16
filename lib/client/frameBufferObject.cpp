@@ -49,7 +49,13 @@ void FrameBufferObject::exit()
     _depth.flush();
     _stencil.flush();
 }
-	
+
+void FrameBufferObject::setColorFormat( const GLuint format )
+{
+    _color.setFormat( format );
+}
+
+
 bool FrameBufferObject::init( const int width, const int height, 
                               const int depthSize, const int stencilSize )
 {

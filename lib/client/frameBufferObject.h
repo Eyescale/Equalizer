@@ -25,6 +25,10 @@ namespace eq
         bool init( const int width, const int height, 
                    const int depthSize, const int stencilSize );
 
+        /* Set format for color buffer. If desired format differs from default
+           this function should be called before init function */
+       void setColorFormat( const GLuint format );
+
         /** De-initialize the Frame Buffer Object. */
         void exit();
         

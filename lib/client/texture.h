@@ -28,7 +28,7 @@ namespace eq
         /** Constructs a new Texture. */
         Texture( GLEWContext* const glewContext = 0 );
         ~Texture();
-     
+
         /** Clear the texture, including the GL texture name. */
         void flush();
 
@@ -45,6 +45,10 @@ namespace eq
         void download( void* buffer, const uint32_t format, 
                        const uint32_t type ) const;
 
+        /** Copy the texture data to the given memory address. Using internal 
+            format and type. */
+        void download( void* buffer ) const;
+
         /** Bind the texture. */
         void bind() const
             { EQASSERT( _id ); glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id ); }
@@ -54,7 +58,7 @@ namespace eq
 
         /** Resize the texture. */
         void resize( const int width, const int height );
-        
+
         /** @return true if the texture can be bound. */
         bool isValid() const;
 
@@ -66,7 +70,13 @@ namespace eq
         GLuint _id;
 
         /** The GL internal texture format. */
+        GLuint _internalFormat;
+
+        /** texture format, complementary to internal texture format */
         GLuint _format;
+
+        /** texture data type */
+        GLuint _type;
 
         /** The maximum width of the texture. */
         int32_t _width;

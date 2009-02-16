@@ -295,6 +295,7 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     if( buffers & Frame::BUFFER_DEPTH )
         _startReadback( Frame::BUFFER_DEPTH, zoom );
 
+
     _pvp.apply( zoom );
     _pvp.x = 0;
     _pvp.y = 0;
@@ -491,7 +492,7 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
 
         glTexCoord2f( _pvp.w, _pvp.h );
         glVertex3f( pvp.w, pvp.h, 0.0f );
-        
+
         glTexCoord2f( 0.0f, _pvp.h );
         glVertex3f( 0, pvp.h, 0.0f );
     glEnd();
@@ -934,13 +935,35 @@ uint32_t Image::_compressPixelData( const uint64_t* data, const uint32_t nWords,
 //---------------------------------------------------------------------------
 // IO
 //---------------------------------------------------------------------------
+
 void Image::writeImages( const std::string& filenameTemplate ) const
 {
-    if( _colorPixels.state == Pixels::VALID )
-        writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR );
-    if( _depthPixels.state == Pixels::VALID )
-        writeImage( filenameTemplate + "_depth.rgb", Frame::BUFFER_DEPTH );
+    writeImages( filenameTemplate + "_color", Frame::BUFFER_COLOR );
+    writeImages( filenameTemplate + "_depth", Frame::BUFFER_DEPTH );
 }
+
+
+void Image::writeImages( const std::string& filenameTemplate,
+                         const Frame::Buffer buffer ) const
+{
+    const Pixels& pixels = _getPixels( buffer );
+
+    if( pixels.state == Pixels::VALID )
+    {
+        uint32_t depth = getDepth( buffer );
+        for( uint32_t d = 0; d < depth; d+=4 )
+        {
+            ostringstream stringstream;
+            if( depth > 4)
+                stringstream << "_" << d / 4;
+
+            writeImage( filenameTemplate + stringstream.str() + ".rgb",
+                        buffer, d );
+        }
+    }
+
+}
+
 
 #define SWAP_SHORT(v) ( v = (v&0xff) << 8 | (v&0xff00) >> 8 )
 #define SWAP_INT(v)   ( v = (v&0xff) << 24 | (v&0xff00) << 8 |      \
@@ -1004,7 +1027,8 @@ struct RGBHeader
 ;
 
 void Image::writeImage( const std::string& filename,
-                        const Frame::Buffer buffer ) const
+                        const Frame::Buffer buffer, 
+                        const uint32_t shift ) const
 {
     const size_t  nPixels = _pvp.w * _pvp.h;
     const Pixels& pixels  = _getPixels( buffer );
@@ -1024,7 +1048,7 @@ void Image::writeImage( const std::string& filename,
 
     header.width  = _pvp.w;
     header.height = _pvp.h;
-    header.depth  = depth;
+    header.depth  = depth > 4 ? 4 : depth;
     strncpy( header.filename, filename.c_str(), 80 );
 
     header.convert();
@@ -1032,7 +1056,7 @@ void Image::writeImage( const std::string& filename,
 
     // Each channel is saved separately
     const size_t   nBytes = nPixels * depth;
-    const uint8_t* data   = getPixelPointer( buffer );
+    const uint8_t* data   = getPixelPointer( buffer ) + shift;
 
     switch( getFormat( buffer ))
     {

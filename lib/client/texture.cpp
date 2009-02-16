@@ -11,9 +11,11 @@ namespace eq
 {
 Texture::Texture( GLEWContext* const glewContext )
         : _id( 0 )
+        , _internalFormat( 0 )
         , _format( 0 )
-        , _width(0)
-        , _height(0)
+        , _type( 0 )
+        , _width( 0 )
+        , _height( 0 )
         , _defined( false ) 
         , _glewContext( glewContext )
 {
@@ -46,11 +48,40 @@ void Texture::flush()
 
 void Texture::setFormat( const GLuint format )
 {
-    if( _format == format )
+    if( _internalFormat == format )
         return;
 
     _defined = false;
-    _format  = format;
+
+    _internalFormat  = format;
+    switch( format )
+    {
+        case GL_RGBA8:
+        case GL_RGBA16:
+                _format = GL_BGRA;
+                _type   = GL_UNSIGNED_BYTE;
+            break;
+
+        case GL_RGBA16F:
+        case GL_RGBA32F:
+                _format = GL_RGBA;
+                _type   = GL_FLOAT;
+            break;
+
+        case GL_ALPHA32F_ARB:
+                _format = GL_ALPHA;
+                _type   = GL_FLOAT;
+            break;
+
+        case GL_RGBA32UI:
+                _format = GL_RGBA_INTEGER_EXT;
+                _type   = GL_UNSIGNED_INT;
+            break;
+
+        default:
+                _format = _internalFormat;
+                _type   = GL_INT;
+    }
 }
 
 void Texture::_generate()
@@ -65,12 +96,12 @@ void Texture::_generate()
 
 void Texture::_resize( const int32_t width, const int32_t height )
 {
-    if( _width < width ) 
+    if( _width < width )
     {
         _width   = width;
         _defined = false;
     }
-    
+
     if( _height < height )
     {
         _height  = height;
@@ -81,10 +112,10 @@ void Texture::_resize( const int32_t width, const int32_t height )
 void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
 {
     CHECK_THREAD( _thread );
-    EQASSERT( _format != 0 );
+    EQASSERT( _internalFormat != 0 );
 
     _generate();
-    _resize( pvp.w, pvp.h );  
+    _resize( pvp.w, pvp.h );
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
 
     if( _defined )
@@ -94,7 +125,8 @@ void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
     }
     else
     {
-        EQ_GL_CALL( glCopyTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, _format, 
+        EQ_GL_CALL( glCopyTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0,
+                                      _internalFormat,
                                       pvp.x, pvp.y, pvp.w, pvp.h, 0 ));
         _defined = true;
     }
@@ -103,34 +135,34 @@ void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
 void Texture::upload( const Image* image, const Frame::Buffer which )
 {
     CHECK_THREAD( _thread );
-    EQASSERT( _format != 0 );
+    EQASSERT( _internalFormat != 0 );
 
     const eq::PixelViewport& pvp = image->getPixelViewport();
 
     _generate();
-    _resize( pvp.w, pvp.h );  
+    _resize( pvp.w, pvp.h );
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
 
     if( _defined )
     {
         EQ_GL_CALL( glTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0,
                                      pvp.w, pvp.h,
-                                     image->getFormat( which ), 
+                                     image->getFormat( which ),
                                      image->getType( which ),
                                      image->getPixelPointer( which )));
     }
     else
     {
         EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
-                                  _format, pvp.w, pvp.h, 0,
-                                  image->getFormat( which ), 
+                                  _internalFormat, pvp.w, pvp.h, 0,
+                                  image->getFormat( which ),
                                   image->getType( which ),
                                   image->getPixelPointer( which )));
         _defined = true;
     }
 }
 
-void Texture::download( void* buffer, const uint32_t format, 
+void Texture::download( void* buffer, const uint32_t format,
                         const uint32_t type ) const
 {
     CHECK_THREAD( _thread );
@@ -139,18 +171,28 @@ void Texture::download( void* buffer, const uint32_t format,
     glGetTexImage( GL_TEXTURE_RECTANGLE_ARB, 0, format, type, buffer );
 }
 
+void Texture::download( void* buffer ) const
+{
+    CHECK_THREAD( _thread );
+    EQASSERT( _defined );
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
+    glGetTexImage( GL_TEXTURE_RECTANGLE_ARB, 0, _format, _type, buffer );
+}
+
 void Texture::bindToFBO( const GLenum target, const int width, 
                          const int height )
 {
     CHECK_THREAD( _thread );
-    EQASSERT( _format );
+    EQASSERT( _internalFormat );
     EQASSERT( _glewContext );
 
     _generate();
 
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
-    glTexImage2D ( GL_TEXTURE_RECTANGLE_ARB, 0, _format, width, height, 0, 
-                   _format, GL_INT, 0 );
+
+    glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, _internalFormat, width, height,
+                    0, _format, _type, 0 );
+
     glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, GL_TEXTURE_RECTANGLE_ARB,
                                _id, 0 );
 
@@ -163,14 +205,15 @@ void Texture::resize( const int width, const int height )
 {
     CHECK_THREAD( _thread );
     EQASSERT( _id );
-    EQASSERT( _format );
+    EQASSERT( _internalFormat );
 
     if( _width == width && _height == height && _defined )
         return;
 
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
-    glTexImage2D ( GL_TEXTURE_RECTANGLE_ARB, 0, _format, width, height, 0, 
-                   _format, GL_INT, 0 );
+
+    glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, _internalFormat, width, height,
+                    0, _format, _type, 0 );
 
     _width  = width;
     _height = height;
