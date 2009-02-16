@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "global.h"
@@ -14,7 +14,7 @@ namespace eq
 namespace server
 {
 
-static Global *_instance = NULL;
+static Global *_instance = 0;
 
 Global* Global::instance()
 {
@@ -22,6 +22,12 @@ Global* Global::instance()
         _instance = new Global();
 
     return _instance;
+}
+
+void Global::clear()
+{
+    delete _instance;
+    _instance = 0;
 }
 
 Global::Global()

@@ -1,9 +1,10 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "server.h"
 
+#include "global.h"
 #include "loader.h"
 
 #include <eq/net/node.h>
@@ -45,6 +46,8 @@ protected:
             EQASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
 
             _server = 0;
+            Global::clear();
+
             return reinterpret_cast< void* >( static_cast< size_t >(
                 ret ? EXIT_SUCCESS : EXIT_FAILURE ));
         }

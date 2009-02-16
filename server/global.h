@@ -27,6 +27,9 @@ namespace server
     public:
         static Global* instance();
 
+        /** De-allocate the global instance. */
+        static void clear();
+
         /**
          * @name Connection (Description) Attributes.
          */
