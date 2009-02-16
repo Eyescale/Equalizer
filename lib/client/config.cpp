@@ -5,6 +5,7 @@
 #include "config.h"
 
 #include "client.h"
+#include "configDeserializer.h"
 #include "configEvent.h"
 #include "configStatistics.h"
 #include "frame.h"
@@ -631,36 +632,9 @@ void Config::freezeLoadBalancing( const bool onOff )
     send( packet );
 }
 
-void Config::Distributor::applyInstanceData( net::DataIStream& is )
-{
-    is >> _config->_latency;
-
-    EQASSERT( _config->_views.empty( ));
-    for( ViewVector::const_iterator i = _config->_views.begin();
-         i != _config->_views.end(); ++i )
-    {
-        _config->deregisterObject( *i );
-        delete *i;
-    }
-    _config->_views.clear();
-
-    uint32_t viewID;
-    is >> viewID;
-    while( viewID != EQ_ID_INVALID )
-    {
-        View* view = new View(); 
-
-        _config->mapObject( view, viewID ); // OPT: async mapping
-        view->becomeMaster();
-
-        _config->_views.push_back( view );
-        is >> viewID;
-    }
-}
-
 void Config::_initAppNode( const uint32_t distributorID )
 {
-    Config::Distributor distributor( this );
+    ConfigDeserializer distributor( this );
     EQCHECK( mapObject( &distributor, distributorID ));
     unmapObject( &distributor ); // data was retrieved, unmap
 }

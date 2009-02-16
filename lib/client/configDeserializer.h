@@ -9,6 +9,8 @@
 
 namespace eq
 {
+    class Config;
+
     /** Helper class to receive a config, which is a net::Session */
     class ConfigDeserializer : public net::Object
     {
@@ -25,3 +27,4 @@ namespace eq
     };
 }
 
+#endif // EQ_CONFIGDESERIALIZER_H

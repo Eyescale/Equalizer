@@ -4,6 +4,9 @@
 
 #include "configDeserializer.h"
 
+#include "config.h"
+#include "view.h"
+
 namespace eq
 {
 void ConfigDeserializer::applyInstanceData( net::DataIStream& is )

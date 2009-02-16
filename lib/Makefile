@@ -191,6 +191,7 @@ CXXFILES = \
 	client/commandQueue.cpp \
 	client/compositor.cpp \
 	client/config.cpp \
+	client/configDeserializer.cpp \
 	client/configEvent.cpp \
 	client/configParams.cpp \
 	client/configStatistics.cpp \
