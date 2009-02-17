@@ -6,10 +6,12 @@
 #define EQS_CHANNEL_LISTENER_H
 
 #include <eq/base/base.h>
-#include <eq/client/event.h> // for use Statistic
 
 namespace eq
 {
+
+class Statistic;
+
 namespace server
 {
     class Channel;
@@ -25,8 +27,8 @@ namespace server
          *
          * @param channel the channel
          * @param frameNumber the frame number.
-         * @param startTime the time the channel started executing the frame.
-         * @param endTime the time the channel finished the frame.
+         * @param nStatistics the statistic's length.
+         * @param statistics the frame's statistic.
          */
         virtual void notifyLoadData( Channel* channel, 
                                      const uint32_t frameNumber,

@@ -25,7 +25,7 @@ namespace server
 LoadBalancer::LoadBalancer()
         : _mode( MODE_2D )
         , _damping( -1.f )
-        , _frameRate( 35.0 )
+        , _frameRate( 10.f )
         , _compound( 0 )
         , _implementation( 0 )
         , _freeze( false )
@@ -103,7 +103,7 @@ void LoadBalancer::notifyUpdatePre( Compound* compound,
                 _implementation = new SmoothLoadBalancer( *this );
                 break;
             case MODE_DFR:
-                _implementation = new DfrLoadBalancer( *this );
+                _implementation = new DFRLoadBalancer( *this );
                 break;
             default:
                 EQUNREACHABLE;
@@ -137,7 +137,7 @@ std::ostream& operator << ( std::ostream& os, const LoadBalancer* lb )
     if( lb->getDamping() >= 0.f )
         os << "    damping " << lb->getDamping() << endl;
     else if( lb->getMode() == LoadBalancer::MODE_DFR )
-        os << "    frameRate " << lb->getFrameRate() << endl;
+        os << "    framerate " << lb->getFrameRate() << endl;
 
     os << '}' << endl << enableFlush;
     return os;

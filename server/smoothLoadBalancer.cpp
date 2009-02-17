@@ -192,7 +192,7 @@ void SmoothLoadBalancer::LoadListener::notifyLoadData(
         {
             case eq::Statistic::CHANNEL_CLEAR:
             case eq::Statistic::CHANNEL_DRAW:
-                //case eq::Statistic::CHANNEL_DRAW_FINISH:
+            case eq::Statistic::CHANNEL_ASSEMBLE:
             case eq::Statistic::CHANNEL_READBACK:
 #ifndef EQ_ASYNC_TRANSMIT
             case eq::Statistic::CHANNEL_TRANSMIT:

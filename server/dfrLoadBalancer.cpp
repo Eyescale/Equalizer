@@ -14,31 +14,32 @@
 using namespace eq::base;
 using namespace std;
 
+#define NB_ELEMENT 30
 namespace eq
 {
 namespace server
 {
 
 
-DfrLoadBalancer::DfrLoadBalancer( const LoadBalancer& parent )
+DFRLoadBalancer::DFRLoadBalancer( const LoadBalancer& parent )
         : LoadBalancerIF( parent )
-
-         
-{
-    _compound = _parent.getCompound();
-    
-    _fpsLastFrame = 0.f;
-     
-    Channel*  channel   = _compound->getChannel();
+        , _compound( _parent.getCompound() )
+        , _fpsLastFrame ( _parent.getFrameRate() )
+        , _average ( _parent.getFrameRate() )
+        , _newValueReady ( false ) 
+{    
+    Channel* channel = _compound->getChannel();
 
     EQASSERT( channel );
     // Subscribe to channel load notification
     channel->addListener( this );
+
     EQINFO << "New DFRLoadBalancer @" << (void*)this << endl;
 }
 
-DfrLoadBalancer::~DfrLoadBalancer()
+DFRLoadBalancer::~DFRLoadBalancer()
 {
+
     Channel*  channel   = _compound->getChannel();
 
     EQASSERT( channel );
@@ -47,21 +48,35 @@ DfrLoadBalancer::~DfrLoadBalancer()
     EQINFO << "Remove DFRLoadBalancer @" << (void*)this << endl;
 }
 
-void DfrLoadBalancer::update( const uint32_t frameNumber )
+void DFRLoadBalancer::update( const uint32_t frameNumber )
 {
-    if( _fpsLastFrame == 0.f )
-        return;
-
-    Zoom currentZoom = _compound->getZoom();
-    const float factor = sqrtf( _fpsLastFrame / _parent.getFrameRate() );
+   if ( !_newValueReady )
+       return;
    
-    currentZoom.applyFactor( factor );
-    _compound->setZoom( currentZoom );
+   _newValueReady = false;    
+   
+   if ( _parent.isFrozen())
+   {
+      _compound->setZoom( Zoom::NONE );  
+      return;    
+   }
+   
 
-    _fpsLastFrame = 0.f;
+   Zoom currentZoom = _compound->getZoom();
+   _average = (( _average * (NB_ELEMENT - 1) ) + _fpsLastFrame ) / NB_ELEMENT ;
+   
+   float factor = sqrtf( _average / _parent.getFrameRate() );
+   
+   factor = EQ_MAX( factor, 0.5f );
+   factor = EQ_MIN( factor, 2.0f ); 
+   
+   currentZoom *= factor;
+   
+   _compound->setZoom( currentZoom );
+   
 }
 
-void DfrLoadBalancer::notifyLoadData( Channel* channel,
+void DFRLoadBalancer::notifyLoadData( Channel* channel,
                                       const uint32_t frameNumber, 
                                       const uint32_t nStatistics,
                                       const eq::Statistic* statistics  )
@@ -77,8 +92,8 @@ void DfrLoadBalancer::notifyLoadData( Channel* channel,
             case eq::Statistic::CHANNEL_CLEAR:
              startTime = EQ_MIN( startTime, data.startTime );
              break;
-            case eq::Statistic::CHANNEL_READBACK:
             case eq::Statistic::CHANNEL_ASSEMBLE:
+            case eq::Statistic::CHANNEL_READBACK:
 #ifndef EQ_ASYNC_TRANSMIT
             case eq::Statistic::CHANNEL_TRANSMIT:
 #endif
@@ -95,8 +110,11 @@ void DfrLoadBalancer::notifyLoadData( Channel* channel,
         return;
     
     const float time = endTime - startTime;
+    
     if ( time <= 0.0f ) 
         return;
+         
+    _newValueReady = true;
          
     _fpsLastFrame = 1000.0f / time;
 

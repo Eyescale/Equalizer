@@ -16,11 +16,12 @@ namespace eq
 namespace server
 {
     /** Tries to maintain a constant frame rate by adapting the compound zoom.*/
-    class DfrLoadBalancer : public LoadBalancerIF, protected ChannelListener
+    class DFRLoadBalancer : public LoadBalancerIF, protected ChannelListener
     {
     public:
-        DfrLoadBalancer( const LoadBalancer& parent );
-        virtual ~DfrLoadBalancer();
+
+        DFRLoadBalancer( const LoadBalancer& parent );
+        virtual ~DFRLoadBalancer();
 
         /** @sa LoadBalancerIF::update */
         virtual void update( const uint32_t frameNumber );
@@ -31,8 +32,14 @@ namespace server
                                      const uint32_t nStatistics,
                                      const eq::Statistic* statistics  );
     private:
-        Compound* _compound;
+        Compound*  const  _compound;
         float _fpsLastFrame;
+        float _average;    
+        bool _newValueReady;
+                
+        
+
+
     };
 }
 }
