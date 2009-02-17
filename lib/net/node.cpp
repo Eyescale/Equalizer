@@ -942,11 +942,12 @@ CommandResult Node::invokeCommand( Command& command )
         {
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
-            const uint32_t       id            = sessionPacket->sessionID;
+            const uint32_t id = sessionPacket->sessionID;
 
-            EQASSERT( _sessions.find( id ) != _sessions.end( ));
-            Session*             session       = _sessions[ id ];
-            EQASSERTINFO( session, "Can't find session for " << sessionPacket );
+            EQASSERTINFO( _sessions.find( id ) != _sessions.end( ),
+                          "Can't find session for " << sessionPacket );
+
+            Session* session = _sessions[ id ];
             
             return session->invokeCommand( command );
         }
