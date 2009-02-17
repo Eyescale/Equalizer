@@ -50,11 +50,6 @@ const Pixel& Frame::getPixel() const
     return _frameData->getPixel();
 }
 
-const Zoom& Frame::getZoom() const
-{
-    return _data.zoom;
-}
-
 const Range& Frame::getRange() const
 {
     EQASSERT( _frameData );

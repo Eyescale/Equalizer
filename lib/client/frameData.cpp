@@ -163,6 +163,12 @@ void FrameData::startReadback( const Frame& frame,
 
     const Zoom& zoom = frame.getZoom();
 
+    if( zoom.x == 0 || zoom.y == 0 )
+    {
+        EQWARN << "One of zoom components is zero, skipping frame." << endl;
+        return;
+    }
+
     Image* image = newImage( _data.frameType );
     image->startReadback( _data.buffers, absPVP, zoom, glObjects );
 }

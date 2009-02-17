@@ -12,6 +12,7 @@
 #include "window.h"
 #include "hlp.h"
 #include "framesOrderer.h"
+#include <eq/client/zoom.h>
 
 using namespace eq::base;
 using namespace std;
@@ -232,6 +233,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     const eq::FrameVector& frames = getInputFrames();
     eq::PixelViewport  coveredPVP;
     eq::FrameVector    dbFrames;
+    eq::Zoom           zoom     = eq::Zoom( 1.0, 1.0 );
 
     // Make sure all frames are ready and gather some information on them
     for( eq::FrameVector::const_iterator i = frames.begin();
@@ -246,6 +248,7 @@ void Channel::frameAssemble( const uint32_t frameID )
         else
         {
             dbFrames.push_back( frame );
+            zoom = frame->getZoom();
             _expandPVP( coveredPVP, frame->getImages(), frame->getOffset() );
         }
     }
@@ -278,6 +281,7 @@ void Channel::frameAssemble( const uint32_t frameID )
             eq::Window::ObjectManager* glObjects = window->getObjectManager();
 
             _frame.setOffset( vmml::Vector2i( 0, 0 ));
+            _frame.setZoom( zoom );
             _frame.setPixelViewport( coveredPVP );
             _frame.startReadback( glObjects );
             clearViewport( coveredPVP );

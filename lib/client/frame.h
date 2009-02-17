@@ -78,7 +78,11 @@ namespace server
         const Pixel& getPixel() const;
 
         /** @return the zoom factor for readback or assemble. */
-        const Zoom& getZoom() const;
+        const Zoom& getZoom() const { return _data.zoom; }
+
+        /** Set zoom, used for frames created by user; normally zoom is set by 
+            server implicitly and not through this function */
+        void setZoom( const Zoom& zoom ) { _data.zoom = zoom; }
 
         /** The images of this frame */
         const ImageVector& getImages() const;
