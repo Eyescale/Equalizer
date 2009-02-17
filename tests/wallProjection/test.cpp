@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009, Cedric Stalder
    All rights reserved. */
 
 #include <test.h>
@@ -18,7 +18,8 @@ int main( int argc, char **argv )
  //test2();
 }
 
-void test1(){
+void test1()
+{
     Projection projection;
     projection.distance = 3;
     projection.fov[0] = 90;
@@ -42,7 +43,8 @@ void test1(){
     TESTINFO( wall == wall2 , projection << wall << projection2 << wall2 );
 }
 
-void test2(){
+void test2()
+{
     Wall wall;
     wall.bottomLeft  = vmml::Vector3f( 2.4749f, -9.4749f, -5.5303f );
     wall.bottomRight = vmml::Vector3f( 4.5251f, 2.4749f, -1.4497f );

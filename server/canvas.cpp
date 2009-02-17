@@ -124,12 +124,6 @@ CanvasPath Canvas::getPath() const
 void Canvas::addSegment( Segment* segment )
 {
     EQASSERT( segment );
-    if( segment->getName().empty( ))
-    {
-        std::stringstream name;
-        name << "segment" << _segments.size() + 1;
-        segment->setName( name.str( ));
-    }
     
     // if segment has no frustum...
     if(( segment->getCurrentType() == TYPE_NONE ))

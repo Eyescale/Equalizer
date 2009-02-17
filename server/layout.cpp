@@ -143,13 +143,6 @@ VisitorResult Layout::accept( ConstLayoutVisitor* visitor ) const
 void Layout::addView( View* view )
 {
     EQASSERT( view );
-    if( view->getName().empty( ))
-    {
-        std::stringstream name;
-        name << "view" << _views.size() + 1;
-        view->setName( name.str( ));
-    }
-
     view->_layout = this;
     _views.push_back( view );
 }

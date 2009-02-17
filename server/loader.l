@@ -209,7 +209,7 @@ zoom                            { return EQTOKEN_ZOOM; }
 \"[-\\\., _%<>:a-zA-Z0-9\!]*\"  { return EQTOKEN_STRING; }
 '.'                             { return EQTOKEN_CHARACTER; }
 
-[{}\[\]]                        { return *yytext; }
+[\(\){}\[\]]                    { return *yytext; }
 [\n]                            { ++yylineno; }
 [ \t]                           { ; }
 [/][/]|[#]                      { while( yyinput() != '\n' ) ; ++yylineno; }

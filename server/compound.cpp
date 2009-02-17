@@ -797,7 +797,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
                     if( !viewName.empty() && 
                         config->findView( viewName ) == view )
                     {
-                        os << "view \"" << viewName;
+                        os << "view \"" << viewName << '\"';
                     }
                     else
                         os << view->getPath();

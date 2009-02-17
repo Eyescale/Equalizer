@@ -1,0 +1,46 @@
+# 'Hello, World!' config: one window rendering from the application process.
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 0.25 0.25 0.5 0.5 ]
+                    
+                    channel { name "channel" }
+                }
+            }
+        }
+
+        layout
+        {
+            name "Simple"
+            view {}
+        }
+
+        layout
+        {
+            name "2x1"
+            view { viewport [ 0 0 .5 1 ] }
+            view { viewport [ .5 0 .5 1 ] }
+        }
+
+        canvas
+        {
+            layout "Simple"
+            segment
+            {
+                channel "channel"
+            }
+        }
+
+        compound
+        { 
+            channel ( segment 0 view 0 )
+        }
+    }    
+}

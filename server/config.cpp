@@ -209,13 +209,6 @@ bool Config::removeNode( Node* node )
 
 void Config::addLayout( Layout* layout )
 {
-    if( layout->getName().empty( ))
-    {
-        std::stringstream name;
-        name << "layout" << _layouts.size() + 1;
-        layout->setName( name.str( ));
-    }
-
     layout->_config = this;
     _layouts.push_back( layout );
 }
@@ -533,13 +526,6 @@ protected:
 
 void Config::addCanvas( Canvas* canvas )
 {
-    if( canvas->getName().empty( ))
-    {
-        std::stringstream name;
-        name << "canvas" << _canvases.size() + 1;
-        canvas->setName( name.str( ));
-    }
-
     AddCanvasVisitor visitor( canvas, this );
     accept( &visitor );
 
