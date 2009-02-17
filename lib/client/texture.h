@@ -45,7 +45,7 @@ namespace eq
         void download( void* buffer, const uint32_t format, 
                        const uint32_t type ) const;
 
-        /** Copy the texture data to the given memory address. Using internal 
+        /** Copy the texture data to the given memory address, using internal 
             format and type. */
         void download( void* buffer ) const;
 

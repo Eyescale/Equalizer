@@ -213,7 +213,7 @@ void Texture::resize( const int width, const int height )
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
 
     glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, _internalFormat, width, height,
-                    0, _format, _type, 0 );
+                  0, _format, _type, 0 );
 
     _width  = width;
     _height = height;

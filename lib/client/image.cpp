@@ -950,13 +950,15 @@ void Image::writeImages( const std::string& filenameTemplate,
 
     if( pixels.state == Pixels::VALID )
     {
-        uint32_t depth = getDepth( buffer );
+        const uint32_t depth = getDepth( buffer );
         for( uint32_t d = 0; d < depth; d+=4 )
         {
             ostringstream stringstream;
             if( depth > 4)
+            {
+                EQASSERT( (depth % 4) == 0 );
                 stringstream << "_" << d / 4;
-
+            }
             writeImage( filenameTemplate + stringstream.str() + ".rgb",
                         buffer, d );
         }
