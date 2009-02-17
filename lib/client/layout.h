@@ -59,9 +59,22 @@ namespace eq
          * @return the result of the visitor traversal.
          */
         EQ_EXPORT VisitorResult accept( LayoutVisitor* visitor );
+
+        /** Deregister this layout, and all children, from its net::Session.*/
+        EQ_EXPORT virtual void deregister();
         //*}
         
     protected:
+        /** @sa Object::deserialize */
+        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
+                                            const uint64_t dirtyBits );
+
+        enum DirtyBits
+        {
+            DIRTY_FILL1      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_FILL2      = Object::DIRTY_CUSTOM << 1,
+            DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 2
+        };
 
     private:
         /** The parent Config. */

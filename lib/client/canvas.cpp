@@ -6,7 +6,10 @@
 
 #include "canvasVisitor.h"
 #include "config.h"
-//#include "layout.h"
+#include "global.h"
+#include "layout.h"
+#include "nodeFactory.h"
+#include "segment.h"
 
 namespace eq
 {
@@ -14,30 +17,80 @@ namespace eq
 Canvas::Canvas()
         : _config( 0 )
         , _layout( 0 )
-{}
+{
+}
 
 Canvas::~Canvas()
 {
     EQASSERT( !_config );
-    
-    _config  = 0;
-    _layout  = 0;
-}
-
-void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
-{
-    Frustum::serialize( os, dirtyBits );
-
-    if( dirtyBits & DIRTY_LAYOUT )
-        EQUNIMPLEMENTED;
 }
 
 void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Frustum::deserialize( is, dirtyBits );
 
+    uint32_t id;
     if( dirtyBits & DIRTY_LAYOUT )
-        EQUNIMPLEMENTED;
+    {
+        is >> id;
+        if( id == EQ_ID_INVALID )
+            _layout = 0;
+        else
+        {
+            EQASSERT( _config );
+            const LayoutVector& layouts = _config->getLayouts();
+            for( LayoutVector::const_iterator i = layouts.begin();
+                 i != layouts.end(); ++i )
+            {
+                Layout* layout = *i;
+                if( layout->getID() != id )
+                    continue;
+
+                _layout = layout;
+                break;
+            }
+            EQASSERT( _layout );
+        }
+    }
+
+    if( dirtyBits & DIRTY_ALL ) // children are immutable
+    {
+        EQASSERT( _segments.empty( ));
+        EQASSERT( _config );
+
+        NodeFactory* nodeFactory = Global::getNodeFactory();
+        for( is >> id; id != EQ_ID_INVALID; is >> id )
+        {
+            Segment* segment = nodeFactory->createSegment();
+            segment->_canvas = this;
+            _segments.push_back( segment );
+
+            _config->mapObject( segment, id );
+            segment->becomeMaster();
+        }
+    }
+}
+
+void Canvas::deregister()
+{
+    EQASSERT( _config );
+    EQASSERT( isMaster( ));
+    NodeFactory* nodeFactory = Global::getNodeFactory();
+
+    for( SegmentVector::const_iterator i = _segments.begin(); 
+         i != _segments.end(); ++i )
+    {
+        Segment* segment = *i;
+        EQASSERT( segment->getID() != EQ_ID_INVALID );
+        EQASSERT( segment->isMaster( ));
+
+        _config->deregisterObject( segment );
+        segment->_canvas = 0;
+        nodeFactory->releaseSegment( segment );
+    }
+    
+    _segments.clear();
+    _config->deregisterObject( this );
 }
 
 void Canvas::useLayout( Layout* layout )

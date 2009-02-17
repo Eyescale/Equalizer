@@ -4,9 +4,14 @@
 
 #include "configSerializer.h"
 
+#include "canvas.h"
 #include "config.h"
 #include "compound.h"
+#include "layout.h"
+#include "segment.h"
 #include "view.h"
+
+#include "../lib/client/configDeserializer.h" // header not installed
 
 namespace eq
 {
@@ -29,19 +34,42 @@ public:
             return TRAVERSE_CONTINUE; 
         }
 
+    virtual VisitorResult visit( Segment* segment )
+        { 
+            _registerObject( segment->getConfig(), segment );
+            return TRAVERSE_CONTINUE; 
+        }
+
+    virtual VisitorResult visitPost( Canvas* canvas )
+        { 
+            _registerObject( canvas->getConfig(), canvas );
+            _os << eq::ConfigDeserializer::TYPE_CANVAS << canvas->getID();
+            return TRAVERSE_CONTINUE; 
+        }
+
     virtual VisitorResult visit( View* view )
         { 
-            Config* config = view->getConfig();
-            EQASSERT( config );
-            EQASSERT( view->getID() == EQ_ID_INVALID );
-            
-            config->registerObject( view );
-            _os << view->getID();
+            _registerObject( view->getConfig(), view );
+            return TRAVERSE_CONTINUE; 
+        }
+
+    virtual VisitorResult visitPost( Layout* layout )
+        { 
+            _registerObject( layout->getConfig(), layout );
+            _os << eq::ConfigDeserializer::TYPE_LAYOUT << layout->getID();
             return TRAVERSE_CONTINUE; 
         }
 
 private:
     net::DataOStream& _os;
+
+    void _registerObject( net::Session* session, net::Object* object )
+        {
+            EQASSERT( session );
+            EQASSERT( object->getID() == EQ_ID_INVALID );
+            
+            session->registerObject( object );
+        }
 };
 }
 
@@ -51,39 +79,11 @@ void ConfigSerializer::getInstanceData( net::DataOStream& os )
 
     SerializerVisitor serializer( os );
     _config->accept( &serializer );
-    os << EQ_ID_INVALID; // end token
+    os << eq::ConfigDeserializer::TYPE_LAST; // end token
 
 #ifdef EQ_TRANSMISSION_API
 #  error TODO transmit node identifiers of used nodes
 #endif
-}
-
-namespace
-{
-class UnmapVisitor : public ConfigVisitor
-{
-public:
-    virtual ~UnmapVisitor(){}
-
-    virtual VisitorResult visit( View* view )
-        { 
-            if( view->getID() != EQ_ID_INVALID )
-            {
-                Config* config = view->getConfig();
-                EQASSERT( config );
-                config->unmapObject( view );
-            }
-
-            return TRAVERSE_CONTINUE; 
-        }
-};
-}
-
-void ConfigSerializer::deregister()
-{
-    UnmapVisitor unmapper;
-    _config->accept( &unmapper );
-    _config->deregisterObject( this );
 }
 
 }

@@ -55,9 +55,11 @@ Node::Node( Config* parent )
 Node::~Node()
 {
     _config->_removeNode( this );
+
     EQINFO << " Delete eq::Node @" << (void*)this << endl;
-    if( !_dataQueue.empty( ))
-        EQWARN << "Node data queue not empty in destructor" << endl;
+#ifdef EQ_TRANSMISSION_API
+    EQASSERT( _dataQueue.empty( ))
+#endif
 }
 
 void Node::attachToSession( const uint32_t id, 

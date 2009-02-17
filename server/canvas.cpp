@@ -68,6 +68,34 @@ Canvas::~Canvas()
     _layout = 0;
 }
 
+void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
+{
+    Frustum::serialize( os, dirtyBits );
+
+    if( dirtyBits & DIRTY_LAYOUT )
+    {
+        if( _layout )
+        {
+            EQASSERT( _layout->getID() != EQ_ID_INVALID );
+            os << _layout->getID();
+        }
+        else
+            os << EQ_ID_INVALID;
+    }
+
+    if( dirtyBits & DIRTY_ALL ) // children are immutable
+    {
+        for( SegmentVector::const_iterator i = _segments.begin(); 
+             i != _segments.end(); ++i )
+        {
+            Segment* segment = *i;
+            EQASSERT( segment->getID() != EQ_ID_INVALID );
+            os << segment->getID();
+        }
+        os << EQ_ID_INVALID;
+    }
+}
+
 Segment* Canvas::getSegment( const SegmentPath& path )
 {
     EQASSERTINFO( _segments.size() >= path.segmentIndex,
@@ -149,6 +177,8 @@ Segment* Canvas::findSegment( const std::string& name )
 void Canvas::useLayout( Layout* layout )
 {
     _layout = layout;
+    setDirty( DIRTY_LAYOUT );
+
     return; // untested code below:
     // for each segment
     for( SegmentVector::const_iterator i = _segments.begin(); 
@@ -281,6 +311,23 @@ VisitorResult Canvas::accept( CanvasVisitor* visitor )
 VisitorResult Canvas::accept( ConstCanvasVisitor* visitor ) const
 {
     return _accept( this, visitor );
+}
+
+void Canvas::unmap()
+{
+    net::Session* session = getSession();
+    EQASSERT( session );
+    for( SegmentVector::const_iterator i = _segments.begin(); 
+         i != _segments.end(); ++i )
+    {
+        Segment* segment = *i;
+        EQASSERT( segment->getID() != EQ_ID_INVALID );
+        
+        session->unmapObject( segment );
+    }
+
+    EQASSERT( getID() != EQ_ID_INVALID );
+    session->unmapObject( this );
 }
 
 std::ostream& operator << ( std::ostream& os, const Canvas* canvas )

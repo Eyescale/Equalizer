@@ -4,7 +4,11 @@
 
 #include "configDeserializer.h"
 
+#include "canvas.h"
 #include "config.h"
+#include "global.h"
+#include "layout.h"
+#include "nodeFactory.h"
 #include "view.h"
 
 namespace eq
@@ -13,26 +17,64 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
 {
     is >> _config->_latency;
 
-    EQASSERT( _config->_views.empty( ));
-    for( ViewVector::const_iterator i = _config->_views.begin();
-         i != _config->_views.end(); ++i )
+    NodeFactory* nodeFactory = Global::getNodeFactory();
+    
+    // Clean up - should never be necessary
+    EQASSERT( _config->_canvases.empty( ));
+    for( CanvasVector::const_iterator i = _config->_canvases.begin();
+         i != _config->_canvases.end(); ++i )
     {
-        _config->deregisterObject( *i );
-        delete *i;
+        Canvas* canvas = *i;
+        canvas->deregister();
+        nodeFactory->releaseCanvas( canvas );
     }
-    _config->_views.clear();
+    _config->_canvases.clear();
 
-    uint32_t viewID;
-    is >> viewID;
-    while( viewID != EQ_ID_INVALID )
+    EQASSERT( _config->_layouts.empty( ));
+    for( LayoutVector::const_iterator i = _config->_layouts.begin();
+         i != _config->_layouts.end(); ++i )
     {
-        View* view = new View(); 
+        Layout* layout = *i;
+        layout->deregister();
+        nodeFactory->releaseLayout( layout );
+    }
+    _config->_layouts.clear();
 
-        _config->mapObject( view, viewID ); // OPT: async mapping
-        view->becomeMaster();
+    // map all config children as master
+    Type type;
+    for( is >> type; type != TYPE_LAST; is >> type )
+    {
+        uint32_t id;
+        is >> id;
+        EQASSERT( id != EQ_ID_INVALID );
 
-        _config->_views.push_back( view );
-        is >> viewID;
+        switch( type )
+        {
+            case TYPE_CANVAS:
+            {
+                Canvas* canvas = nodeFactory->createCanvas();
+                EQASSERT( canvas );
+                _config->_addCanvas( canvas );
+
+                EQCHECK( _config->mapObject( canvas, id )); //OPT: async mapping
+                canvas->becomeMaster();
+                break;
+            }
+
+            case TYPE_LAYOUT:
+            {
+                Layout* layout = nodeFactory->createLayout();
+                EQASSERT( layout );
+                _config->_addLayout( layout );
+
+                EQCHECK( _config->mapObject( layout, id )); //OPT: async mapping
+                layout->becomeMaster();
+                break;
+            }
+                
+            default:
+                EQUNIMPLEMENTED;
+        }
     }
 }
 

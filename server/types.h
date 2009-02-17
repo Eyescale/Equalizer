@@ -39,7 +39,7 @@ typedef std::vector< Canvas* >   CanvasVector;
 typedef std::vector< Compound* > CompoundVector;
 typedef std::vector< Frame* >    FrameVector;
 typedef std::vector< Layout* >   LayoutVector;
-typedef std::vector< Segment* >   SegmentVector;
+typedef std::vector< Segment* >  SegmentVector;
 typedef std::vector< View* >     ViewVector;
 
 typedef base::RefPtr< Server > ServerPtr;

@@ -13,13 +13,16 @@
 namespace eq
 {
 
+class Canvas;
 class Channel;
 class Client;
 class Config;
 class Frame;
 class Image;
+class Layout;
 class Node;
 class Pipe;
+class Segment;
 class Server;
 class View;
 class Window;
@@ -27,13 +30,18 @@ class X11Connection;
 struct Statistic;
 
 //----- Vectors
-typedef std::vector< Node* >    NodeVector;
-typedef std::vector< Pipe* >    PipeVector;
-typedef std::vector< Window* >  WindowVector;
-typedef std::vector< Channel* > ChannelVector;
-typedef std::vector< Frame* >   FrameVector;
-typedef std::vector< Image* >   ImageVector;
-typedef std::vector< View* >    ViewVector;
+typedef std::vector< Node* >     NodeVector;
+typedef std::vector< Pipe* >     PipeVector;
+typedef std::vector< Window* >   WindowVector;
+typedef std::vector< Channel* >  ChannelVector;
+
+typedef std::vector< Frame* >    FrameVector;
+typedef std::vector< Image* >    ImageVector;
+
+typedef std::vector< Canvas* >   CanvasVector;
+typedef std::vector< Layout* >   LayoutVector;
+typedef std::vector< Segment* >  SegmentVector;
+typedef std::vector< View* >     ViewVector;
 
 //----- Reference Pointers
 typedef base::RefPtr< X11Connection > X11ConnectionPtr;

@@ -9,12 +9,8 @@
 #include "types.h"
 #include "segmentVisitor.h"  // used in inline method
 
-#include <eq/client/frustum.h>      // base class
-#include <eq/client/projection.h>   // member
+#include <eq/client/segment.h>      // base class
 #include <eq/client/viewport.h>     // member
-#include <eq/client/wall.h>         // member
-
-#include <string>
 
 namespace eq
 {
@@ -25,7 +21,7 @@ namespace server
     /**
      * The segment. @sa eq::Segment
      */
-    class Segment : public eq::Frustum
+    class Segment : public eq::Segment
     {
     public:
         /** 
@@ -75,7 +71,7 @@ namespace server
          * 
          * @param vp the fractional viewport.
          */
-        void setViewport( const eq::Viewport& vp ) { _vp = vp; }
+        void setViewport( const eq::Viewport& vp );
 
         /** @return the segment's viewport. */
         const eq::Viewport& getViewport() const { return _vp; }
@@ -113,9 +109,6 @@ namespace server
 
         /** The resulting destination channels from the view intersections. */
         ChannelVector _destinationChannels;
-
-        /** The 2D area of this segment wrt to the canvas. */
-        eq::Viewport _vp;
 
         /** Update the view (wall/projection). */
         void _updateView();

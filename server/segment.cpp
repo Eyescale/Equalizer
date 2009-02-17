@@ -23,10 +23,9 @@ Segment::Segment()
 }
 
 Segment::Segment( const Segment& from, Config* config )
-        : eq::Frustum( from )
+        : eq::Segment( from )
         , _canvas( 0 )
         , _channel( 0 )
-        , _vp( from._vp )
 {
     if( from._channel )
     {
@@ -74,6 +73,12 @@ const Config* Segment::getConfig() const
 {
     EQASSERT( _canvas );
     return _canvas ? _canvas->getConfig() : 0;
+}
+
+void Segment::setViewport( const eq::Viewport& vp ) 
+{
+    _vp = vp; 
+    setDirty( DIRTY_VIEWPORT );
 }
 
 void Segment::addDestinationChannel( Channel* channel )

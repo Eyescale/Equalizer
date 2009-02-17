@@ -87,9 +87,15 @@ namespace server
          */
         VisitorResult accept( CanvasVisitor* visitor );
         VisitorResult accept( ConstCanvasVisitor* visitor ) const;
+
+        /** Unmap this canvas and all its children. */
+        void unmap();
         //*}
         
     protected:
+        /** @sa Frustum::serialize */
+        EQ_EXPORT virtual void serialize( net::DataOStream& os, 
+                                          const uint64_t dirtyBits );
 
     private:
         /** The parent config. */

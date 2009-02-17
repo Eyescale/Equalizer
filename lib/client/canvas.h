@@ -6,6 +6,7 @@
 #define EQ_CANVAS_H
 
 #include <eq/client/frustum.h>        // base class
+#include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 
 #include <eq/net/object.h>
@@ -13,13 +14,7 @@
 
 namespace eq
 {
-namespace server
-{
-    class Canvas;
-}
     class CanvasVisitor;
-    class Config;
-    class Layout;
 
     /**
      * The canvas.
@@ -46,6 +41,10 @@ namespace server
          * @name Data Access
          */
         //*{
+        /** @return the parent config. */
+        Config*       getConfig()       { return _config; }
+        /** @return the parent config. */
+        const Config* getConfig() const { return _config; }
         //*}
 
         /**
@@ -61,12 +60,12 @@ namespace server
          * @return the result of the visitor traversal.
          */
         EQ_EXPORT VisitorResult accept( CanvasVisitor* visitor );
+
+        /** Deregister this canvas, and all children, from its net::Session.*/
+        EQ_EXPORT virtual void deregister();
         //*}
 
     protected:
-        /** @sa Frustum::serialize */
-        EQ_EXPORT virtual void serialize( net::DataOStream& os, 
-                                          const uint64_t dirtyBits );
         /** @sa Frustum::deserialize */
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
@@ -82,9 +81,13 @@ namespace server
     private:
         /** The parent config. */
         Config* _config;
+        friend class Config;
 
         /** The currently active layout on this canvas. */
         Layout* _layout;
+
+        /** Child segments on this canvas. */
+        SegmentVector _segments;
     };
 }
 #endif // EQ_CANVAS_H

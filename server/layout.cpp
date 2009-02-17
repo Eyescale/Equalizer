@@ -45,6 +45,23 @@ Layout::~Layout()
     _views.clear();
 }
 
+void Layout::serialize( net::DataOStream& os, const uint64_t dirtyBits )
+{
+    Object::serialize( os, dirtyBits );
+
+    if( dirtyBits & DIRTY_ALL ) // children are immutable
+    {
+        for( ViewVector::const_iterator i = _views.begin();
+             i != _views.end(); ++i )
+        {
+            View* view = *i;
+            EQASSERT( view->getID() != EQ_ID_INVALID );
+            os << view->getID();
+        }
+        os << EQ_ID_INVALID;
+    }
+}
+
 View* Layout::getView( const ViewPath& path )
 {
     EQASSERTINFO( _views.size() >= path.viewIndex,
@@ -155,6 +172,21 @@ View* Layout::findView( const std::string& name )
     return finder.getResult();
 }
 
+void Layout::unmap()
+{
+    net::Session* session = getSession();
+    EQASSERT( session );
+    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+    {
+        View* view = *i;
+        EQASSERT( view->getID() != EQ_ID_INVALID );
+        
+        session->unmapObject( view );
+    }
+
+    EQASSERT( getID() != EQ_ID_INVALID );
+    session->unmapObject( this );
+}
 
 std::ostream& operator << ( std::ostream& os, const Layout* layout )
 {

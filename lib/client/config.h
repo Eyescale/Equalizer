@@ -41,10 +41,17 @@ namespace eq
 
         CommandQueue* getNodeThreadQueue();
 
-        const NodeVector& getNodes() const { return _nodes; }
-
         uint32_t getCurrentFrame()  const { return _currentFrame; }
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
+
+        /** @return the vector of nodes instantiated on this process. */
+        const NodeVector& getNodes() const { return _nodes; }
+
+        /** @return the vector of layouts, app-node only. */
+        const LayoutVector& getLayouts() const { return _layouts; }
+
+        /** @return the vector of canvases, app-node only. */
+        const CanvasVector& getCanvases() const { return _canvases; }
 
         /** @return the name of this config. */
         const std::string& getName() const { return _name; }
@@ -71,11 +78,10 @@ namespace eq
 
         /** @return the global time in ms. */
         int64_t getTime() const { return _clock.getTime64(); }
-
-        /** @return the View list of this config. */
-        const ViewVector& getViews() { return _views; }
         //*}
 
+        /** @name Operations. */
+        //*{
         /** 
          * Initializes this configuration.
          * 
@@ -98,6 +104,7 @@ namespace eq
          *         <code>false</code> if not.
          */
         virtual bool exit();
+        //*}
 
         /**
          * @name Frame Control
@@ -200,8 +207,16 @@ namespace eq
         virtual void handleViewResize( const uint32_t viewID, 
                                        const vmml::Vector2i& newSize );
         //*}
-
-        /** Sets the head matrix according to the specified matrix.
+        
+        /** @name Head Tracking. */
+        //*{
+        /** 
+         * Set the head matrix.
+         *
+         * The head matrix specifies the transformation origin->observer.
+         * Together with the eye separation, this determines the eye positions.
+         * The eye position and wall or projection description define the shape
+         * of the frustum and the channel's head matrix during rendering.
          *
          * @param matrix the matrix
          */
@@ -209,7 +224,7 @@ namespace eq
 
         /** @return the current head matrix. */
         const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
-
+        //*}
 
         /** @name Error Information. */
         //*{
@@ -279,6 +294,12 @@ namespace eq
         /** Locally-instantiated nodes of this config. */
         NodeVector _nodes;
 
+        /** The list of layouts, app-node only. */
+        LayoutVector _layouts;
+
+        /** The list of canvases, app-node only. */
+        CanvasVector _canvases;
+
         /** The matrix describing the head position and orientation. */
         Matrix4f _headMatrix;
 
@@ -297,6 +318,7 @@ namespace eq
 
         /** The maximum number of outstanding frames. */
         uint32_t _latency;
+
         /** The last started frame. */
         uint32_t _currentFrame;
         /** The last locally released frame. */
@@ -307,11 +329,6 @@ namespace eq
         /** The global clock. */
         base::Clock _clock;
 
-        /** The views of the config. */
-        ViewVector _views;
-
-        friend class ConfigDeserializer;
-
         /** true while the config is initialized and no window has exited. */
         bool _running;
 
@@ -319,6 +336,12 @@ namespace eq
         void _addNode( Node* node );
         void _removeNode( Node* node );
         Node* _findNode( const uint32_t id );
+
+        friend class ConfigDeserializer;
+        void _addCanvas( Canvas* canvas );
+        void _removeCanvas( Canvas* canvas );
+        void _addLayout( Layout* layout );
+        void _removeLayout( Layout* layout );
 
         /** 
          * Start initializing the configuration.

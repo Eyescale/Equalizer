@@ -4,6 +4,7 @@
 
 #include "config.h"
 
+#include "canvas.h"
 #include "client.h"
 #include "configDeserializer.h"
 #include "configEvent.h"
@@ -11,6 +12,7 @@
 #include "frame.h"
 #include "frameData.h"
 #include "global.h"
+#include "layout.h"
 #include "log.h"
 #include "node.h"
 #include "nodeFactory.h"
@@ -42,11 +44,9 @@ Config::Config( ServerPtr server )
 Config::~Config()
 {
     EQINFO << "Delete config @" << (void*)this << endl;
-
-    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
-        delete *i;
-    _views.clear();
-
+    EQASSERT( _canvases.empty( ));
+    EQASSERT( _layouts.empty( ));
+    
     while( tryNextEvent( )) /* flush all pending events */ ;
     _eventQueue.release( _lastEvent );
     _eventQueue.flush();
@@ -172,6 +172,34 @@ Node* Config::_findNode( const uint32_t id )
     return 0;
 }
 
+void Config::_addCanvas( Canvas* canvas )
+{
+    canvas->_config = this;
+    _canvases.push_back( canvas );
+}
+
+void Config::_removeCanvas( Canvas* canvas )
+{
+    vector<Canvas*>::iterator i = find( _canvases.begin(), _canvases.end(),
+                                        canvas );
+    EQASSERT( i != _canvases.end( ));
+    _canvases.erase( i );
+}
+
+void Config::_addLayout( Layout* layout )
+{
+    layout->_config = this;
+    _layouts.push_back( layout );
+}
+
+void Config::_removeLayout( Layout* layout )
+{
+    vector<Layout*>::iterator i = find( _layouts.begin(), _layouts.end(), 
+                                        layout );
+    EQASSERT( i != _layouts.end( ));
+    _layouts.erase( i );
+}
+
 bool Config::_startInit( const uint32_t initID )
 {
     EQASSERT( !_running );
@@ -250,11 +278,16 @@ uint32_t Config::startFrame( const uint32_t frameID )
 {
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
 
-    // Commit view changes
-    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+    // Commit changes
+    for( CanvasVector::const_iterator i = _canvases.begin(); 
+         i != _canvases.end(); ++i )
     {
-        View* view = *i;
-        view->commit();
+        (*i)->commit();
+    }
+    for( LayoutVector::const_iterator i = _layouts.begin();
+         i != _layouts.end(); ++i )
+    {
+        (*i)->commit();
     }
 
     // Request new frame
@@ -641,16 +674,27 @@ void Config::_initAppNode( const uint32_t distributorID )
 
 void Config::_exitAppNode()
 {
-    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
-    {
-        View* view = *i;
-        EQASSERT( view->getID() != EQ_ID_INVALID );
-        EQASSERT( view->isMaster( ));
+    NodeFactory* nodeFactory = Global::getNodeFactory();
 
-        deregisterObject( view );
-        delete view;
+    for( CanvasVector::const_iterator i = _canvases.begin();
+         i != _canvases.end(); ++i )
+    {
+        Canvas* canvas = *i;
+        canvas->deregister();
+        canvas->_config = 0;
+        nodeFactory->releaseCanvas( canvas );
     }
-    _views.clear();
+    _canvases.clear();
+
+    for( LayoutVector::const_iterator i = _layouts.begin();
+         i != _layouts.end(); ++i )
+    {
+        Layout* layout = *i;
+        layout->deregister();
+        layout->_config = 0;
+        nodeFactory->releaseLayout( layout );
+    }
+    _layouts.clear();
 }
 
 //---------------------------------------------------------------------------

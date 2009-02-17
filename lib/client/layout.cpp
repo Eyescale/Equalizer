@@ -4,7 +4,10 @@
 
 #include "layout.h"
 
+#include "config.h"
+#include "global.h"
 #include "layoutVisitor.h"
+#include "nodeFactory.h"
 #include "view.h"
 
 using namespace eq::base;
@@ -14,7 +17,8 @@ namespace eq
 
 Layout::Layout()
         : _config( 0 )
-{}
+{
+}
 
 Layout::~Layout()
 {
@@ -26,6 +30,52 @@ Layout::~Layout()
     }
 
     _views.clear();
+    EQASSERT( !_config );
+}
+
+void Layout::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+{
+    Object::deserialize( is, dirtyBits );
+
+    if( dirtyBits & DIRTY_ALL ) // children are immutable
+    {
+        EQASSERT( _views.empty( ));
+        EQASSERT( _config );
+
+        NodeFactory* nodeFactory = Global::getNodeFactory();
+        uint32_t id;
+        for( is >> id; id != EQ_ID_INVALID; is >> id )
+        {
+            View* view = nodeFactory->createView();
+            view->_layout = this;
+            _views.push_back( view );
+
+            _config->mapObject( view, id );
+            view->becomeMaster();
+        }
+    }
+}
+
+void Layout::deregister()
+{
+    EQASSERT( _config );
+    EQASSERT( isMaster( ));
+
+    NodeFactory* nodeFactory = Global::getNodeFactory();
+
+    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+    {
+        View* view = *i;
+        EQASSERT( view->getID() != EQ_ID_INVALID );
+        EQASSERT( view->isMaster( ));
+
+        _config->deregisterObject( view );
+        view->_layout = 0;
+        nodeFactory->releaseView( view );
+    }
+
+    _views.clear();
+    _config->deregisterObject( this );
 }
 
 VisitorResult Layout::accept( LayoutVisitor* visitor )

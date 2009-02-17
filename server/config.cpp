@@ -1230,14 +1230,60 @@ bool Config::_exitNodes()
     return success;
 }
 
+
+    
+namespace
+{
+class UnmapVisitor : public ConfigVisitor
+{
+public:
+    virtual ~UnmapVisitor(){}
+
+    virtual VisitorResult visitPre( Canvas* canvas )
+        {
+            _unmap( canvas );
+            return TRAVERSE_CONTINUE; 
+        }
+    virtual VisitorResult visit( Segment* segment )
+        { 
+            _unmap( segment );
+            return TRAVERSE_CONTINUE; 
+        }
+
+    virtual VisitorResult visitPre( Layout* layout )
+        { 
+            _unmap( layout );
+            return TRAVERSE_CONTINUE; 
+        }
+    virtual VisitorResult visit( View* view )
+        { 
+            _unmap( view );
+            return TRAVERSE_CONTINUE; 
+        }
+
+private:
+    void _unmap( net::Object* object )
+        {
+            EQASSERT( object->getID() != EQ_ID_INVALID );
+            EQASSERT( !object->isMaster( ));
+
+            object->getSession()->unmapObject( object );
+        }
+
+};
+}
+
 void Config::unmap()
 {
     if( _serializer ) // Config::init never happened
     {
-        _serializer->deregister();
+        deregisterObject( _serializer );
         delete _serializer;
         _serializer = 0;
     }
+
+    UnmapVisitor unmapper;
+    accept( &unmapper );
 }
 
 namespace
@@ -1359,7 +1405,7 @@ net::CommandResult Config::_cmdStartInit( net::Command& command )
 {
     // clients have retrieved distributed data
     EQASSERT( _serializer );
-    _serializer->deregister();
+    deregisterObject( _serializer );
     delete _serializer;
     _serializer = 0;
 

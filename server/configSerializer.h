@@ -24,8 +24,6 @@ namespace server
         ConfigSerializer( Config* const config ) : _config( config ) {}
         virtual ~ConfigSerializer() {}
 
-        void deregister();
-
     protected:
         // Use instance since then getInstanceData() is called from app thread,
         // which allows us to map all children during serialization

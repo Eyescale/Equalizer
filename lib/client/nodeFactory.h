@@ -42,6 +42,46 @@ namespace eq
         virtual void releaseNode( Node* node );
 
         /** 
+         * Creates a new canvas.
+         * 
+         * @return the canvas.
+         */
+        virtual Canvas* createCanvas();
+
+        /** Release a canvas. */
+        virtual void releaseCanvas( Canvas* canvas );
+
+        /** 
+         * Creates a new segment.
+         * 
+         * @return the segment.
+         */
+        virtual Segment* createSegment();
+
+        /** Release a segment. */
+        virtual void releaseSegment( Segment* segment );
+
+        /** 
+         * Creates a new layout.
+         * 
+         * @return the layout.
+         */
+        virtual Layout* createLayout();
+
+        /** Release a layout. */
+        virtual void releaseLayout( Layout* layout );
+
+        /** 
+         * Creates a new view.
+         * 
+         * @return the view.
+         */
+        virtual View* createView();
+
+        /** Release a view. */
+        virtual void releaseView( View* view );
+
+        /** 
          * Creates a new pipe.
          * 
          * @return the pipe.

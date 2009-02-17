@@ -115,6 +115,8 @@ HEADER_SRC = \
 	client/projection.h \
 	client/range.h \
 	client/renderContext.h \
+	client/segment.h \
+	client/segmentVisitor.h \
 	client/server.h \
 	client/task.h \
 	client/texture.h \
@@ -218,6 +220,7 @@ CXXFILES = \
 	client/projection.cpp \
 	client/range.cpp \
 	client/renderContext.cpp \
+	client/segment.cpp \
 	client/server.cpp \
 	client/texture.cpp \
 	client/version.cpp \

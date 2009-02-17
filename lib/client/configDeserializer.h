@@ -18,6 +18,14 @@ namespace eq
         ConfigDeserializer( Config* config ) : _config( config ) {}
         virtual ~ConfigDeserializer() {}
 
+        /** Types of the children in the serialization stream. */
+        enum Type
+        {
+            TYPE_CANVAS,
+            TYPE_LAYOUT,
+            TYPE_LAST
+        };
+
     protected:
         virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL; }
         virtual void applyInstanceData( net::DataIStream& is );

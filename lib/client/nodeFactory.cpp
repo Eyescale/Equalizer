@@ -4,12 +4,16 @@
 
 #include "nodeFactory.h"
 
+#include "canvas.h"
 #include "channel.h"
 #include "client.h"
 #include "config.h"
+#include "layout.h"
 #include "node.h"
 #include "pipe.h"
+#include "segment.h"
 #include "server.h"
+#include "view.h"
 #include "window.h"
 
 namespace eq
@@ -31,6 +35,42 @@ Node* NodeFactory::createNode( Config* parent )
 void NodeFactory::releaseNode( Node* node )
 {
     delete node;
+}
+
+Canvas* NodeFactory::createCanvas()
+{
+    return new Canvas();
+}
+void NodeFactory::releaseCanvas( Canvas* canvas )
+{
+    delete canvas;
+}
+
+Segment* NodeFactory::createSegment()
+{
+    return new Segment();
+}
+void NodeFactory::releaseSegment( Segment* segment )
+{
+    delete segment;
+}
+
+Layout* NodeFactory::createLayout()
+{
+    return new Layout();
+}
+void NodeFactory::releaseLayout( Layout* layout )
+{
+    delete layout;
+}
+
+View* NodeFactory::createView()
+{
+    return new View();
+}
+void NodeFactory::releaseView( View* view )
+{
+    delete view;
 }
 
 Pipe* NodeFactory::createPipe( Node* parent )

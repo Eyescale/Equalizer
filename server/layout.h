@@ -81,9 +81,15 @@ namespace server
          */
         VisitorResult accept( LayoutVisitor* visitor );
         VisitorResult accept( ConstLayoutVisitor* visitor ) const;
+
+        /** Unmap this layout and all its children. */
+        void unmap();
         //*}
         
     protected:
+        /** @sa Object::serialize */
+        EQ_EXPORT virtual void serialize( net::DataOStream& os, 
+                                          const uint64_t dirtyBits );
 
     private:
         /** The parent Config. */
