@@ -948,7 +948,9 @@ CommandResult Node::invokeCommand( Command& command )
                           "Can't find session for " << sessionPacket );
 
             Session* session = _sessions[ id ];
-            
+            if( !session )
+                return COMMAND_ERROR;
+
             return session->invokeCommand( command );
         }
 
