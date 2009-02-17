@@ -5,7 +5,7 @@
 #ifndef EQ_SEGMENTVISITOR_H
 #define EQ_SEGMENTVISITOR_H
 
-#include "visitorResult.h"  // enum
+#include <eq/client/visitorResult.h>  // enum
 
 namespace eq
 {

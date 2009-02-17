@@ -12,7 +12,7 @@ namespace eq
     class Layout;
 
     /**
-     * A visitor to traverse a non-const layouts and children.
+     * A visitor to traverse non-const layouts and children.
      */
     class LayoutVisitor : public ViewVisitor
     {

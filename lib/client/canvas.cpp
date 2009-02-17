@@ -66,7 +66,7 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
             _segments.push_back( segment );
 
             _config->mapObject( segment, id );
-            segment->becomeMaster();
+            // RO, don't: segment->becomeMaster();
         }
     }
 }
@@ -82,7 +82,7 @@ void Canvas::deregister()
     {
         Segment* segment = *i;
         EQASSERT( segment->getID() != EQ_ID_INVALID );
-        EQASSERT( segment->isMaster( ));
+        EQASSERT( !segment->isMaster( ));
 
         _config->deregisterObject( segment );
         segment->_canvas = 0;

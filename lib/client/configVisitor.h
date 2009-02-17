@@ -5,16 +5,20 @@
 #ifndef EQ_CONFIGVISITOR_H
 #define EQ_CONFIGVISITOR_H
 
-#include <eq/client/nodeVisitor.h> // base class
+#include <eq/client/canvasVisitor.h>        // base class
+#include <eq/client/layoutVisitor.h>        // base class
+#include <eq/client/nodeVisitor.h>          // base class
 
 namespace eq
 {
     class Config;
 
     /**
-     * A visitor to traverse a non-const configs and children.
+     * A visitor to traverse non-const configs and children.
      */
-    class ConfigVisitor : public NodeVisitor
+    class ConfigVisitor : public NodeVisitor, 
+                          public LayoutVisitor,
+                          public CanvasVisitor
     {
     public:
         /** Constructs a new ConfigVisitor. */

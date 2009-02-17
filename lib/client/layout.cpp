@@ -59,7 +59,7 @@ void Layout::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 void Layout::deregister()
 {
     EQASSERT( _config );
-    EQASSERT( isMaster( ));
+    EQASSERT( !isMaster( ));
 
     NodeFactory* nodeFactory = Global::getNodeFactory();
 

@@ -385,6 +385,29 @@ namespace eq
             }
     };
 
+    struct ConfigUnmapPacket : public ConfigPacket
+    {
+        ConfigUnmapPacket()
+            {
+                command       = CMD_CONFIG_UNMAP;
+                size          = sizeof( ConfigUnmapPacket );
+            }
+
+        uint32_t requestID;
+    };
+
+    struct ConfigUnmapReplyPacket : public ConfigPacket
+    {
+        ConfigUnmapReplyPacket( const ConfigUnmapPacket* request )
+            {
+                command       = CMD_CONFIG_UNMAP_REPLY;
+                size          = sizeof( ConfigUnmapReplyPacket );
+                requestID     = request->requestID;
+            }
+
+        uint32_t requestID;
+    };
+
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------
@@ -507,7 +530,7 @@ namespace eq
         uint32_t frameNumber;
     };
 
-struct NodeFrameTasksFinishPacket : public net::ObjectPacket
+    struct NodeFrameTasksFinishPacket : public net::ObjectPacket
     {
         NodeFrameTasksFinishPacket()
             {

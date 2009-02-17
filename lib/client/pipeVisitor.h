@@ -12,7 +12,7 @@ namespace eq
     class Pipe;
 
     /**
-     * A visitor to traverse a non-const pipes and children.
+     * A visitor to traverse non-const pipes and children.
      */
     class PipeVisitor : public WindowVisitor
     {

@@ -183,6 +183,9 @@ void Config::setLocalNode( net::NodePtr node )
     registerCommand( eq::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
                      ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ), 
                      serverQueue );
+    registerCommand( eq::CMD_CONFIG_UNMAP_REPLY,
+                     ConfigFunc( this, &Config::_cmdUnmapReply ), 
+                     commandQueue );
 }
 
 void Config::addNode( Node* node )
@@ -1265,9 +1268,14 @@ private:
     void _unmap( net::Object* object )
         {
             EQASSERT( object->getID() != EQ_ID_INVALID );
-            EQASSERT( !object->isMaster( ));
 
-            object->getSession()->unmapObject( object );
+            net::Session* session = object->getSession();
+            EQASSERT( session );
+
+            if( object->isMaster( ))
+                session->deregisterObject( object );
+            else
+                session->unmapObject( object );
         }
 
 };
@@ -1275,6 +1283,10 @@ private:
 
 void Config::unmap()
 {
+    eq::ConfigUnmapPacket packet;
+    packet.requestID = _requestHandler.registerRequest();
+    send( _appNetNode, packet );
+
     if( _serializer ) // Config::init never happened
     {
         deregisterObject( _serializer );
@@ -1284,6 +1296,8 @@ void Config::unmap()
 
     UnmapVisitor unmapper;
     accept( &unmapper );
+
+    _requestHandler.waitRequest( packet.requestID );
 }
 
 namespace
@@ -1549,6 +1563,17 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
 
     return net::COMMAND_HANDLED;
 }
+
+net::CommandResult Config::_cmdUnmapReply( net::Command& command ) 
+{
+    const eq::ConfigUnmapReplyPacket* packet = 
+        command.getPacket< eq::ConfigUnmapReplyPacket >();
+    EQVERB << "Handle unmap reply " << packet << endl;
+
+    _requestHandler.serveRequest( packet->requestID );
+    return net::COMMAND_HANDLED;
+}
+
 
 ostream& operator << ( ostream& os, const Config* config )
 {

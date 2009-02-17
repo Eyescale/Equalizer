@@ -40,7 +40,8 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
 {
     if( !_slaves.empty( ))
         EQWARN << _slaves.size() 
-               << " slave nodes subscribed during deregisterObject" << endl;
+               << " slave nodes subscribed during deregisterObject of "
+               << _object->getID() << '.' << _object->getInstanceID() << endl;
     _slaves.clear();
 }
 

@@ -87,6 +87,8 @@ void Config::setLocalNode( net::NodePtr node )
 #endif
     registerCommand( CMD_CONFIG_START_CLOCK, 
                      ConfigFunc( this, &Config::_cmdStartClock ), 0 );
+    registerCommand( CMD_CONFIG_UNMAP, ConfigFunc( this, &Config::_cmdUnmap ),
+                     queue );
 }
 
 CommandQueue* Config::getNodeThreadQueue()
@@ -94,17 +96,20 @@ CommandQueue* Config::getNodeThreadQueue()
     return getClient()->getNodeThreadQueue();
 }
 
-VisitorResult Config::accept( ConfigVisitor* visitor )
+
+namespace
+{
+template< class C, class V >
+VisitorResult _accept( C* config, V* visitor )
 { 
-    VisitorResult result = visitor->visitPre( this );
+    VisitorResult result = visitor->visitPre( config );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( NodeVector::const_iterator i = _nodes.begin(); 
-         i != _nodes.end(); ++i )
+    const NodeVector& nodes = config->getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        Node* node = *i;
-        switch( node->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -119,13 +124,52 @@ VisitorResult Config::accept( ConfigVisitor* visitor )
         }
     }
 
-    switch( visitor->visitPost( this ))
+    const LayoutVector& layouts = config->getLayouts();
+    for( LayoutVector::const_iterator i = layouts.begin(); 
+         i != layouts.end(); ++i )
+    {
+        switch( (*i)->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    const CanvasVector& canvases = config->getCanvases();
+    for( CanvasVector::const_iterator i = canvases.begin();
+         i != canvases.end(); ++i )
+    {
+        switch( (*i)->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    switch( visitor->visitPost( config ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
 
         case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
+            result = TRAVERSE_PRUNE;
+            break;
                 
         case TRAVERSE_CONTINUE:
         default:
@@ -133,6 +177,12 @@ VisitorResult Config::accept( ConfigVisitor* visitor )
     }
 
     return result;
+}
+}
+
+VisitorResult Config::accept( ConfigVisitor* visitor )
+{
+    return _accept( this, visitor );
 }
 
 ServerPtr Config::getServer()
@@ -274,21 +324,31 @@ bool Config::exit()
     return ret;
 }
 
+namespace
+{
+class DataUpdater : public ConfigVisitor
+{
+public:
+    virtual VisitorResult visitPre( Canvas* canvas )
+        {
+            canvas->commit();
+            return TRAVERSE_CONTINUE; 
+        }
+    virtual VisitorResult visit( View* view )
+        { 
+            view->commit();
+            return TRAVERSE_CONTINUE; 
+        }
+};
+
+}
+
 uint32_t Config::startFrame( const uint32_t frameID )
 {
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
 
-    // Commit changes
-    for( CanvasVector::const_iterator i = _canvases.begin(); 
-         i != _canvases.end(); ++i )
-    {
-        (*i)->commit();
-    }
-    for( LayoutVector::const_iterator i = _layouts.begin();
-         i != _layouts.end(); ++i )
-    {
-        (*i)->commit();
-    }
+    DataUpdater updater;
+    accept( &updater );
 
     // Request new frame
     ConfigStartFramePacket packet;
@@ -672,31 +732,6 @@ void Config::_initAppNode( const uint32_t distributorID )
     unmapObject( &distributor ); // data was retrieved, unmap
 }
 
-void Config::_exitAppNode()
-{
-    NodeFactory* nodeFactory = Global::getNodeFactory();
-
-    for( CanvasVector::const_iterator i = _canvases.begin();
-         i != _canvases.end(); ++i )
-    {
-        Canvas* canvas = *i;
-        canvas->deregister();
-        canvas->_config = 0;
-        nodeFactory->releaseCanvas( canvas );
-    }
-    _canvases.clear();
-
-    for( LayoutVector::const_iterator i = _layouts.begin();
-         i != _layouts.end(); ++i )
-    {
-        Layout* layout = *i;
-        layout->deregister();
-        layout->_config = 0;
-        nodeFactory->releaseLayout( layout );
-    }
-    _layouts.clear();
-}
-
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -848,6 +883,39 @@ net::CommandResult Config::_cmdStartClock( net::Command& command )
     _clock.reset();
 
     EQVERB << "start global clock" << endl;
+    return net::COMMAND_HANDLED;
+}
+
+net::CommandResult Config::_cmdUnmap( net::Command& command )
+{
+    const ConfigUnmapPacket* packet = command.getPacket< ConfigUnmapPacket >();
+    EQVERB << "Handle unmap " << packet << endl;
+
+    NodeFactory* nodeFactory = Global::getNodeFactory();
+
+    for( CanvasVector::const_iterator i = _canvases.begin();
+         i != _canvases.end(); ++i )
+    {
+        Canvas* canvas = *i;
+        canvas->deregister();
+        canvas->_config = 0;
+        nodeFactory->releaseCanvas( canvas );
+    }
+    _canvases.clear();
+
+    for( LayoutVector::const_iterator i = _layouts.begin();
+         i != _layouts.end(); ++i )
+    {
+        Layout* layout = *i;
+        layout->deregister();
+        layout->_config = 0;
+        nodeFactory->releaseLayout( layout );
+    }
+    _layouts.clear();
+
+    ConfigUnmapReplyPacket reply( packet );
+    send( command.getNode(), reply );
+
     return net::COMMAND_HANDLED;
 }
 

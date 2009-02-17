@@ -96,6 +96,7 @@ HEADER_SRC = \
 	client/image.h \
 	client/init.h \
 	client/layout.h \
+	client/layoutVisitor.h \
 	client/log.h \
 	client/matrix4.h \
 	client/messagePump.h \

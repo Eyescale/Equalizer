@@ -303,13 +303,14 @@ void Session::_detachObject( Object* object )
     
     EQASSERT( object->_instanceID != EQ_ID_INVALID );
 
+    // Slave objects keep their cm to be able to sync queued versions
+    if( object->isMaster( )) 
+        object->_setChangeManager( ObjectCM::ZERO );
+
     object->_id         = EQ_ID_INVALID;
     object->_instanceID = EQ_ID_INVALID;
     object->_session    = 0;
 
-    // Slave objects keep their cm to be able to sync queued versions
-    if( object->isMaster( )) 
-        object->_setChangeManager( ObjectCM::ZERO );
     return;
 }
 

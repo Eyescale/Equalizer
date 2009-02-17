@@ -216,7 +216,6 @@ net::CommandResult Server::_cmdDestroyConfig( net::Command& command )
     EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
     Config* config = static_cast<Config*>( session );
 
-    config->_exitAppNode();
     EQCHECK( localNode->unmapSession( config ));
     Global::getNodeFactory()->releaseConfig( config );
 

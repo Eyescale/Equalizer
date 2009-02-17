@@ -12,7 +12,7 @@ namespace eq
     class Node;
 
     /**
-     * A visitor to traverse a non-const nodes and children.
+     * A visitor to traverse non-const nodes and children.
      */
     class NodeVisitor : public PipeVisitor
     {

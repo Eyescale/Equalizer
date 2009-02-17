@@ -61,6 +61,8 @@ namespace eq
         CMD_CONFIG_DATA,
         CMD_CONFIG_FREEZE_LOAD_BALANCING,
         CMD_CONFIG_START_CLOCK,
+        CMD_CONFIG_UNMAP,
+        CMD_CONFIG_UNMAP_REPLY,
         CMD_CONFIG_FILL1, // some buffer for binary-compatible patches
         CMD_CONFIG_FILL2,
         CMD_CONFIG_FILL3,

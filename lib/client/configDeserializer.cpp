@@ -68,7 +68,7 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
                 _config->_addLayout( layout );
 
                 EQCHECK( _config->mapObject( layout, id )); //OPT: async mapping
-                layout->becomeMaster();
+                // RO, don't: layout->becomeMaster();
                 break;
             }
                 
