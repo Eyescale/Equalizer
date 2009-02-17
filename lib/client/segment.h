@@ -29,20 +29,20 @@ namespace server
         /** 
          * Constructs a new Segment.
          */
-        Segment();
+        EQ_EXPORT Segment();
 
         /** Destruct this segment. */
-        virtual ~Segment();
+        EQ_EXPORT virtual ~Segment();
 
         /**
          * @name Data Access
          */
         //*{
         /** @return the config of this view. */
-        Config* getConfig();
+        EQ_EXPORT Config* getConfig();
 
         /** @return the config of this view. */
-        const Config* getConfig() const;
+        EQ_EXPORT const Config* getConfig() const;
 
         /** @return the segment's viewport. */
         const eq::Viewport& getViewport() const { return _vp; }
@@ -56,7 +56,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( SegmentVisitor* visitor );
+        EQ_EXPORT VisitorResult accept( SegmentVisitor* visitor );
         //*}
 
     protected:

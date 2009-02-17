@@ -88,7 +88,7 @@ namespace server
         
     protected:
         /** @sa Object::serialize */
-        EQ_EXPORT virtual void serialize( net::DataOStream& os, 
+        virtual void serialize( net::DataOStream& os, 
                                           const uint64_t dirtyBits );
 
     private:
