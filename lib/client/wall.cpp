@@ -58,6 +58,7 @@ void Wall::apply( const Viewport& viewport)
 Wall& Wall::operator = ( const Projection& projection )
 {
        
+    
     const float width  = abs(projection.distance * 2.0 * tanf(DEG2RAD( .5f * projection.fov[0] )));
     const float height = abs(projection.distance * 2.0 * tanf(DEG2RAD( .5f * projection.fov[1] )));
    
@@ -71,26 +72,26 @@ Wall& Wall::operator = ( const Projection& projection )
     topLeft[1]     = height * 0.5f;
     topLeft[2]     = 0;
 
-    const float A       = cos(DEG2RAD( projection.hpr[1]));
-    const float B       = sin(DEG2RAD( projection.hpr[1]));
-    const float C       = cos(DEG2RAD( projection.hpr[0]));
-    const float D       = sin(DEG2RAD( projection.hpr[0]));
-    const float E       = cos(DEG2RAD( projection.hpr[2]));
-    const float F       = sin(DEG2RAD( projection.hpr[2]));
+    const float cosP       = cos(DEG2RAD( projection.hpr[1]));
+    const float sinP       = sin(DEG2RAD( projection.hpr[1]));
+    const float cosH       = cos(DEG2RAD( projection.hpr[0]));
+    const float sinH       = sin(DEG2RAD( projection.hpr[0]));
+    const float cosR       = cos(DEG2RAD( projection.hpr[2]));
+    const float sinR       = sin(DEG2RAD( projection.hpr[2]));
 
     vmml::Matrix4f  mat ;
-    const float AD      =   A * D;
-    const float BD      =   B * D;
+    const float cosPsinH      =   cosP * sinH;
+    const float sinPsinH      =   sinP * sinH;
 
-    mat.ml[0]  =   C * E;
-    mat.ml[1]  =  -C * F;
-    mat.ml[2]  =  -D;
-    mat.ml[4]  = -BD * E + A * F;
-    mat.ml[5]  =  BD * F + A * E;
-    mat.ml[6]  =  -B * C;
-    mat.ml[8]  =  AD * E + B * F;
-    mat.ml[9]  = -AD * F + B * E;
-    mat.ml[10] =   A * C;
+    mat.ml[0]  =   cosH * cosR;
+    mat.ml[1]  =  -cosH * sinR;
+    mat.ml[2]  =  -sinH;
+    mat.ml[4]  = -sinPsinH * cosR + cosP * sinR;
+    mat.ml[5]  =  sinPsinH * sinR + cosP * cosR;
+    mat.ml[6]  =  -sinP * cosH;
+    mat.ml[8]  =  cosPsinH * cosR + sinP * sinR;
+    mat.ml[9]  = -cosPsinH * sinR + sinP * cosR;
+    mat.ml[10] =   cosP * cosH;
 
     mat.ml[3]  =  mat.ml[7] = mat.ml[11] = mat.ml[12] = mat.ml[13] = mat.ml[14] = 0;
     mat.ml[15] =  1;
@@ -98,10 +99,13 @@ Wall& Wall::operator = ( const Projection& projection )
     bottomLeft  = mat * bottomLeft;
     bottomRight = mat * bottomRight;
     topLeft     = mat * topLeft;
-
-    bottomLeft[2]  = bottomLeft[2]  - projection.distance;
-    bottomRight[2] = bottomRight[2] - projection.distance;
-    topLeft[2]     = topLeft[2]     - projection.distance;
+    
+    vmml::Vector3f distance(projection.origin);
+    distance.normalize();
+    distance = distance * projection.origin.length() + distance * projection.distance;
+    bottomLeft  = bottomLeft  - distance;
+    bottomRight = bottomRight - distance;
+    topLeft     = topLeft      - distance;
 
     return *this;
 }    

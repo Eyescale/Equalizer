@@ -3,7 +3,6 @@
    All rights reserved. */
 
 #include <test.h>
-
 #include <eq/client/wall.h>
 #include <eq/client/projection.h>
 
@@ -21,13 +20,13 @@ int main( int argc, char **argv )
 
 void test1(){
     Projection projection;
-    projection.distance = 7;
+    projection.distance = 3;
     projection.fov[0] = 90;
     projection.fov[1] = 90;
     projection.hpr[0] = 65;
     projection.hpr[1] = -68;
     projection.hpr[2] = -77;
-    projection.origin[0] = 0;
+    projection.origin[0] = -4;
     projection.origin[1] = 0;
     projection.origin[2] = 0;
 
@@ -40,7 +39,7 @@ void test1(){
     
     Wall wall2;
     wall2 = projection2;
-    TESTINFO( 1 == 0, projection << wall << projection2 << wall2 );
+    TESTINFO( wall == wall2 , projection << wall << projection2 << wall2 );
 }
 
 void test2(){

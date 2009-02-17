@@ -53,62 +53,69 @@ Projection& Projection::operator = ( const Wall& wall )
 
     w.normalize();
 
-    const vmml::Vector3f center((wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
-                               (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
-                               (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f);
+    vmml::Vector3f center((wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
+                                (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
+                                (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f );
 
-
-    distance = center.length();
+    float distTemp = center.length(); 
+    if ( distance == 0.f )
+    {
+        distance = distTemp;
+        distTemp = 0;
+    }
 
     vmml::Matrix4f  mat ;
     mat.ml[0]  = u[0];
     mat.ml[1]  = u[1];
     mat.ml[2]  = u[2];
-    mat.ml[3]  = 0.;
+    mat.ml[3]  = 0.f;
              
     mat.ml[4]  = v[0];
     mat.ml[5]  = v[1];
     mat.ml[6]  = v[2];
-    mat.ml[7]  = 0.;
+    mat.ml[7]  = 0.f;
              
     mat.ml[8]  = w[0];
     mat.ml[9]  = w[1];
     mat.ml[10] = w[2];
-    mat.ml[11] = 0.;
+    mat.ml[11] = 0.f;
 
 
-    if (distance > 0.0000001)
+    if (distance > 0.0000001f)
     {
-        fov[0] = RAD2DEG(atan(0.5f * width / center.length()))*2.0;
-        fov[1] = RAD2DEG(atan(0.5f * height / center.length()))*2.0;
+        fov[0] = RAD2DEG(atan(0.5f * width / distance ))*2.0;
+        fov[1] = RAD2DEG(atan(0.5f * height / distance ))*2.0;
     }
 
-    hpr[0] = -asin(mat.ml[2]);           /* Calcul de l'Angle Y */
+    hpr[0] = -asin(mat.ml[2]);   
     float C  =  cos(hpr[0]);
     hpr[0] =  RAD2DEG(hpr[0]);
     float tr_x;
     float tr_y;
 
-    if (fabs(C) > 0.005)                /* Gimbal lock ? */
+    if (fabs(C) > 0.005)      
     {
-        tr_x      =  mat.ml[10] / C;           /* Non, donc calcul de l'angle X */
+        tr_x      =  mat.ml[10] / C;     
         tr_y      = -mat.ml[6]  / C;
         hpr[1]  = RAD2DEG(atan2(tr_y, tr_x));
-        tr_x      =  mat.ml[0] / C;            /* Calcul de l'angle Z */
+        tr_x      =  mat.ml[0] / C;          
         tr_y      = -mat.ml[1] / C;
         hpr[2]  = RAD2DEG(atan2(tr_y, tr_x));
     }
-    else                                   /* Gimbal lock  */
+    else                                  
     {
-        hpr[1]  = 0;                      /* Angle X à 0 */
+        hpr[1]  = 0;         
 
-        tr_x      = mat.ml[5];                 /* Calcul de l'angle Z */
+        tr_x      = mat.ml[5];  
         tr_y      = mat.ml[4];
 
         hpr[2]  = RAD2DEG(atan2(tr_y, tr_x));
     }
-
-   return *this;
+    
+    center.normalize();
+    origin = center * distance - center * distTemp ;
+    
+    return *this;
 }
 ostream& operator << ( ostream& os, const Projection& projection )
 {
