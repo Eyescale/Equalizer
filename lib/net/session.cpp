@@ -607,7 +607,7 @@ CommandResult Session::_cmdGenIDs( Command& command )
 {
     CHECK_THREAD( _commandThread );
     const SessionGenIDsPacket* packet =command.getPacket<SessionGenIDsPacket>();
-    EQINFO << "Cmd gen IDs: " << packet << endl;
+    EQVERB << "Cmd gen IDs: " << packet << endl;
 
     SessionGenIDsReplyPacket reply( packet );
 
@@ -621,7 +621,7 @@ CommandResult Session::_cmdGenIDsReply( Command& command )
     CHECK_THREAD( _commandThread );
     const SessionGenIDsReplyPacket* packet =
         command.getPacket<SessionGenIDsReplyPacket>();
-    EQINFO << "Cmd gen IDs reply: " << packet << endl;
+    EQVERB << "Cmd gen IDs reply: " << packet << endl;
     _requestHandler.serveRequest( packet->requestID, packet->id );
     return COMMAND_HANDLED;
 }

@@ -978,7 +978,7 @@ CommandResult Node::_cmdRegisterSession( Command& command )
 
     const NodeRegisterSessionPacket* packet = 
         command.getPacket<NodeRegisterSessionPacket>();
-    EQINFO << "Cmd register session: " << packet << endl;
+    EQVERB << "Cmd register session: " << packet << endl;
     CHECK_THREAD( _thread );
     
     Session* session = static_cast< Session* >( 
@@ -1001,7 +1001,7 @@ CommandResult Node::_cmdRegisterSessionReply( Command& command)
 {
     const NodeRegisterSessionReplyPacket* packet = 
         command.getPacket<NodeRegisterSessionReplyPacket>();
-    EQINFO << "Cmd register session reply: " << packet << endl;
+    EQVERB << "Cmd register session reply: " << packet << endl;
     CHECK_THREAD( _thread );
 
     EQASSERT( command.getNode() == this );
@@ -1017,7 +1017,7 @@ CommandResult Node::_cmdMapSession( Command& command )
 
     const NodeMapSessionPacket* packet = 
         command.getPacket<NodeMapSessionPacket>();
-    EQINFO << "Cmd map session: " << packet << endl;
+    EQVERB << "Cmd map session: " << packet << endl;
     CHECK_THREAD( _thread );
     
     NodePtr node = command.getNode();
@@ -1046,7 +1046,7 @@ CommandResult Node::_cmdMapSessionReply( Command& command)
 {
     const NodeMapSessionReplyPacket* packet = 
         command.getPacket<NodeMapSessionReplyPacket>();
-    EQINFO << "Cmd map session reply: " << packet << endl;
+    EQVERB << "Cmd map session reply: " << packet << endl;
     CHECK_THREAD( _thread );
 
     const uint32_t requestID = packet->requestID;
@@ -1069,7 +1069,7 @@ CommandResult Node::_cmdUnmapSession( Command& command )
 {
     const NodeUnmapSessionPacket* packet =
         command.getPacket<NodeUnmapSessionPacket>();
-    EQINFO << "Cmd unmap session: " << packet << endl;
+    EQVERB << "Cmd unmap session: " << packet << endl;
     CHECK_THREAD( _thread );
     
     const uint32_t sessionID = packet->sessionID;
@@ -1092,7 +1092,7 @@ CommandResult Node::_cmdUnmapSessionReply( Command& command)
 {
     const NodeUnmapSessionReplyPacket* packet = 
         command.getPacket<NodeUnmapSessionReplyPacket>();
-    EQINFO << "Cmd unmap session reply: " << packet << endl;
+    EQVERB << "Cmd unmap session reply: " << packet << endl;
     CHECK_THREAD( _thread );
 
     const uint32_t requestID = packet->requestID;
