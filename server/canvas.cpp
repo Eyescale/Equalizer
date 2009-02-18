@@ -170,86 +170,43 @@ Segment* Canvas::findSegment( const std::string& name )
 
 void Canvas::useLayout( Layout* layout )
 {
-    _layout = layout;
-    setDirty( DIRTY_LAYOUT );
-
-    return; // untested code below:
-    // for each segment
     for( SegmentVector::const_iterator i = _segments.begin(); 
          i != _segments.end(); ++i )
     {
-        Segment* segment = *i;
-        
-        Channel* channel = segment->getChannel();
-        std::string channelName = channel->getName();
-        if ( channelName.find( '.' + layout->getName()) != std::string::npos )
+        const Segment* segment = *i;        
+        const ChannelVector& destChannels = segment->getDestinationChannels();
+
+        // activate channels used by new layout
+        for( ChannelVector::const_iterator j = destChannels.begin();
+             j != destChannels.end(); ++j )
         {
+            Channel*       channel       = *j;
+            const Layout*  channelLayout = channel->getLayout();
+            if( channelLayout != layout )
+                continue;
+
             // increase channel, window, pipe, node activation count
+            // also sends initialization commands as needed
             channel->activate();
-
-            Node* node     = channel->getNode();
-            if( node == 0)
-            {
-                node = new Node();
-                node->startConfigInit( _config->getInitID() );
-            }
-
-
-            Pipe* pipe     = channel->getPipe();
-            if( pipe == 0 )
-            {
-                pipe = new Pipe();
-                pipe->startConfigInit( _config->getInitID() );
-            }
-
-
-            Window* window = channel->getWindow();
-            if( window == 0 )
-            {
-               window = new Window();
-               window->startConfigInit( _config->getInitID() );
-            }
-
         }
-
            
-        if ( channelName.find( '.' + layout->getName()) != std::string::npos )
+        // de-activate channels used by old layout
+        for( ChannelVector::const_iterator j = destChannels.begin();
+             j != destChannels.end(); ++j )
         {
-            // decrease channel, window, pipe, node activation count
-            // exit and release entities with 0 activation count
+            Channel*       channel       = *j;
+            const Layout*  channelLayout = channel->getLayout();
+            if( channelLayout != _layout )
+                continue;
+
+            // increase channel, window, pipe, node activation count
+            // also sends exit commands as needed
             channel->deactivate();
-
-            Node* node     = channel->getNode();
-
-            if( !node->isActive())
-            {
-                eq::ConfigExitPacket configExitPacket;
-                configExitPacket.requestID  = getID();
-                net::NodePtr netNode = node->getNode();
-                netNode->send( configExitPacket );
-            }
-
-            Pipe* pipe     = channel->getPipe();
-            if( !pipe->isActive())
-            {
-           /*     eq::ConfigExitPacket configExitPacket;
-                configExitPacket.requestID  = getID();
-                net::NodePtr netNode = pipe->getPipe();
-                netNode->send( configExitPacket );*/
-            }
-
-            Window* window = channel->getWindow();
-            if( !window->isActive())
-            {
-             /*   eq::ConfigExitPacket configExitPacket;
-                configExitPacket.requestID  = getID();
-                
-                net::NodePtr netNode  = window->getNode();
-                netNode->send( configExitPacket );*/
-            }   
-               
-        }   
+        }
     }
+
+    _layout = layout;
+    setDirty( DIRTY_LAYOUT );
 }
 
 namespace

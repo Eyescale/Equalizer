@@ -57,6 +57,12 @@ namespace server
         /** @return the config of this view. */
         const Config* getConfig() const;
 
+        /** @return the layout of this view. */
+        Layout* getLayout() { return _layout; }
+
+        /** @return the layout of this view. */
+        const Layout* getLayout() const { return _layout; }
+
         /** @return the index path to this view. */
         ViewPath getPath() const;
 

@@ -192,6 +192,8 @@ VisitorResult Channel::accept( ConstChannelVisitor* visitor ) const
 
 void Channel::refUsed()
 {
+    EQASSERT( _window );
+
     ++_used;
     if( _window ) 
         _window->refUsed(); 
@@ -200,6 +202,8 @@ void Channel::refUsed()
 void Channel::unrefUsed()
 {
     EQASSERT( _used != 0 );
+    EQASSERT( _window );
+
     --_used;
     if( _window ) 
         _window->unrefUsed(); 
@@ -207,23 +211,44 @@ void Channel::unrefUsed()
 
 void Channel::activate()
 { 
-    ++_active;
     EQASSERT( _window );
-    _window->activate();
+
+    ++_active;
+    if( _window ) 
+        _window->activate();
+
+    if( !getConfig()->isRunning( ))
+        return; // will be activated during init
+
+    EQCHECK( _window->initChannel( this ));
 }
 
 void Channel::deactivate()
 { 
     EQASSERT( _active != 0 );
-    --_active; 
     EQASSERT( _window );
-    _window->deactivate(); 
+
+    --_active; 
+    if( _window ) 
+        _window->deactivate(); 
+
+    EQASSERT( getConfig()->isRunning( ));
+    if( !getConfig()->isRunning( ))
+        return; // already stopped
+
+    EQCHECK( _window->exitChannel( this ));
 }
 
 void Channel::setView( const View* view )
 {
     EQASSERT( !view || !_view || view == _view );
     _view = view;
+}
+
+const Layout* Channel::getLayout() const
+{
+    EQASSERT( _view );
+    return _view ? _view->getLayout() : 0;
 }
 
 void Channel::setSegment( const Segment* segment )

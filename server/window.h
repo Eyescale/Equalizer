@@ -235,7 +235,10 @@ namespace server
          *         <code>false</code> if not.
          */
         bool syncConfigInit();
-        
+
+        /** Create and initialize a channel, used during layout switch. */
+        bool initChannel( Channel* channel );
+
         /** 
          * Starts exiting this node.
          */
@@ -249,6 +252,9 @@ namespace server
          */
         bool syncConfigExit();
         
+        /** De-initialize and release a channel, used during layout switch. */
+        bool exitChannel( Channel* channel );
+
         /** 
          * Update one frame.
          *

@@ -441,6 +441,13 @@ bool Window::syncConfigInit()
     return success;
 }
 
+bool Window::initChannel( Channel* channel )
+{
+    EQUNIMPLEMENTED;
+    // TODO: same code for our (de-)activation
+    return false;
+}
+
 void Window::_send( net::ObjectPacket& packet ) 
 {
     packet.objectID = getID(); 
@@ -510,6 +517,13 @@ bool Window::syncConfigExit()
         config->deregisterObject( channel );
     }
     return success;
+}
+
+bool Window::exitChannel( Channel* channel )
+{
+    EQUNIMPLEMENTED;
+    // TODO: same code for our (de-)activation
+    return false;
 }
 
 //---------------------------------------------------------------------------

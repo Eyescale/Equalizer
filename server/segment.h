@@ -81,6 +81,11 @@ namespace server
 
         /** Remove a destination (View) channel. */
         bool removeDestinationChannel( Channel* channel );
+
+        /** @return the vector of channels resulting from the segment/view
+         *          intersection. */
+        const ChannelVector& getDestinationChannels() const 
+            { return _destinationChannels; }
         //*}
         
         /** Operations */

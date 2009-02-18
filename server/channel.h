@@ -150,6 +150,9 @@ namespace server
         /** @return the channel's view. */
         const View* getView() const { return _view; }
 
+        /** @return the channel's layout. */
+        const Layout* getLayout() const;
+
         /** Set the segment for this channel. */
         void setSegment( const Segment* segment );
         /** @return the channel's segment. */
