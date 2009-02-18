@@ -35,6 +35,7 @@ namespace server
         Compound*  const  _compound;
         float _fpsLastFrame;
         float _average;    
+        int _sizeAverage;
         bool _newValueReady;
                 
         

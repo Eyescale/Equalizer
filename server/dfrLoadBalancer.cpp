@@ -14,7 +14,7 @@
 using namespace eq::base;
 using namespace std;
 
-#define NB_ELEMENT 30
+#define NB_ELEMENT_MAX 100
 namespace eq
 {
 namespace server
@@ -28,7 +28,11 @@ DFRLoadBalancer::DFRLoadBalancer( const LoadBalancer& parent )
         , _newValueReady ( false ) 
 {    
     Channel* channel = _compound->getChannel();
-
+    
+    float damping = EQ_MAX( _parent.getDamping(), 0.f );
+    
+    _sizeAverage = (int) ( NB_ELEMENT_MAX * damping ) + 1;
+    
     EQASSERT( channel );
     // Subscribe to channel load notification
     channel->addListener( this );
@@ -60,20 +64,37 @@ void DFRLoadBalancer::update( const uint32_t frameNumber )
    
    _newValueReady = false;    
    
+   
+   if ( _fpsLastFrame == _parent.getFrameRate())
+   {
+       _average = _fpsLastFrame;
+       return;
+   }
+   
    Zoom currentZoom = _compound->getZoom();
-   _average = (( _average * (NB_ELEMENT - 1) ) + _fpsLastFrame ) / NB_ELEMENT ;
+
+   _average = (( _average * (_sizeAverage - 1) ) + _fpsLastFrame ) / _sizeAverage ;
    
    float factor = sqrtf( _average / _parent.getFrameRate() );
 
-   // TODO: min/max on new zoom!
-   // TODO: max zoom factor = 
+      
+   // min/max on new zoom!
+   // max zoom factor = 
    //          min x,y( my channel pvp / parent compound inherit pvp )
-   // TODO: min zoom factor = never smaller than 128 pixels in both directions
+   // min zoom factor = never smaller than 128 pixels in both directions
 
-   factor = EQ_MAX( factor, 0.5f );
-   factor = EQ_MIN( factor, 2.0f ); 
+   const eq::PixelViewport& pvp = _compound->getInheritPixelViewport();
    
-   currentZoom *= factor;
+   Channel*  channel   = _compound->getChannel();
+   const eq::PixelViewport& channelPVP   = channel->getPixelViewport();
+   
+   float minZoom = 128.f / EQ_MIN( (float)pvp.h, (float)pvp.w );
+   float maxZoom = EQ_MIN( (float)channelPVP.w / (float)pvp.w, (float)channelPVP.h / (float)pvp.h );
+   
+   factor = EQ_MAX( factor, minZoom ); 
+   factor = EQ_MIN( factor, maxZoom );
+   currentZoom *= factor;  
+
    
    _compound->setZoom( currentZoom );
    
