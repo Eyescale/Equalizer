@@ -246,46 +246,49 @@ void Channel::_drawLogo()
         
     const eq::Zoom& zoom = getZoom();
         
-    float newX = size.x * zoom.x;
-    float newY = size.y * zoom.y;
+    const float newX = size.x * zoom.x;
+    const float newY = size.y * zoom.y;
         
-    float delta = 5.0f * zoom.x ;
+    const float delta = 5.0f * zoom.x ;
         
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     applyScreenFrustum();
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-        
+    
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_LIGHTING );
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-        
+    
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, texture );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                        GL_LINEAR );
+                    GL_LINEAR );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
-                        GL_LINEAR );
-        
+                    GL_LINEAR );
+    
     glColor3f( 1.0f, 1.0f, 1.0f );
     glBegin( GL_TRIANGLE_STRIP ); {
-            glTexCoord2f( 0.0f, 0.0f );
-            glVertex3f( delta, delta, 0.0f );
-            
-            glTexCoord2f( size.x, 0.0f );
-            glVertex3f( newX + delta, delta, 0.0f );
-            
-            glTexCoord2f( 0.0f, size.y );
-            glVertex3f( delta, newY + delta, 0.0f );
-            
-            glTexCoord2f( size.x, size.y );
-            glVertex3f( newX + delta, newY + delta, 0.0f );
-    } glEnd();
+        glTexCoord2f( 0.0f, 0.0f );
+        glVertex3f( delta, delta, 0.0f );
         
+        glTexCoord2f( size.x, 0.0f );
+        glVertex3f( newX + delta, delta, 0.0f );
+        
+        glTexCoord2f( 0.0f, size.y );
+        glVertex3f( delta, newY + delta, 0.0f );
+        
+        glTexCoord2f( size.x, size.y );
+        glVertex3f( newX + delta, newY + delta, 0.0f );
+    } glEnd();
+    
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     glDisable( GL_BLEND );
+    glEnable( GL_LIGHTING );
+    glEnable( GL_DEPTH_TEST );
 }
 
 void Channel::_initFrustum( vmml::FrustumCullerf& culler,

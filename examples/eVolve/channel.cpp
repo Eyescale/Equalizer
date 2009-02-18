@@ -340,10 +340,9 @@ void Channel::_drawLogo()
     
     const eq::Zoom& zoom = getZoom();
 
-    float newX = size.x * zoom.x;
-    float newY = size.y * zoom.y;
-    
-    float delta = 5.0f * zoom.x ;
+    const float newX = size.x * zoom.x;
+    const float newY = size.y * zoom.y;
+    const float delta = 5.0f * zoom.x ;
     
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
