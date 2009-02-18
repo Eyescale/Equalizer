@@ -434,15 +434,18 @@ serverConnection: EQTOKEN_CONNECTION
             }
 
 configs: config | configs config
-config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
+config: EQTOKEN_CONFIG '{'
+            {
+                config = loader->createConfig();
+                if( server.isValid( )) 
+                    server->addConfig( config ); 
+            }
         configFields
         '}' {
                 if( server.isValid( )) 
-                {
-                    server->addConfig( config ); 
                     config = 0;
-                } // else leave config for Loader::parseConfig()
-        }
+                // else leave config for Loader::parseConfig()
+            }
 configFields: /*null*/ | configFields configField
 configField:
     node
@@ -468,9 +471,13 @@ renderNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
                         config->addNode( node );
                         node = 0; 
                    }
-appNode: EQTOKEN_APPNODE '{' { node = loader->createNode(); }
+appNode: EQTOKEN_APPNODE '{' 
+            {
+                node = loader->createNode();
+                config->addApplicationNode( node );
+            }
             nodeFields
-            '}' { config->addApplicationNode( node ); node = 0; }
+            '}' { node = 0; }
 nodeFields: /*null*/ | nodeFields nodeField
 nodeField: 
     EQTOKEN_NAME STRING            { node->setName( $2 ); }
@@ -504,9 +511,13 @@ nodeAttribute:
         { node->setIAttribute( eq::Node::IATTR_HINT_STATISTICS, $2 ); }
 
 
-pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
+pipe: EQTOKEN_PIPE '{' 
+            {
+                eqPipe = loader->createPipe();
+                node->addPipe( eqPipe );
+            }
         pipeFields
-        '}' { node->addPipe( eqPipe ); eqPipe = 0; }
+        '}' { eqPipe = 0; }
 pipeFields: /*null*/ | pipeFields pipeField
 pipeField:
     window
@@ -524,9 +535,13 @@ pipeAttribute:
     EQTOKEN_HINT_THREAD IATTR
         { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_THREAD, $2 ); }
 
-window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
+window: EQTOKEN_WINDOW '{' 
+            {
+                window = loader->createWindow();
+                eqPipe->addWindow( window ); 
+            }
         windowFields
-        '}' { eqPipe->addWindow( window ); window = 0; }
+        '}' { window = 0; }
 windowFields: /*null*/ | windowFields windowField
 windowField: 
     channel
@@ -573,9 +588,13 @@ windowAttribute:
     | EQTOKEN_PLANES_SAMPLES IATTR
         { window->setIAttribute( eq::Window::IATTR_PLANES_SAMPLES, $2 ); }
                      
-channel: EQTOKEN_CHANNEL '{' { channel = loader->createChannel(); }
+channel: EQTOKEN_CHANNEL '{' 
+            {
+                channel = loader->createChannel();
+                window->addChannel( channel );
+            }
          channelFields
-        '}' { window->addChannel( channel ); channel = 0; }
+        '}' { channel = 0; }
 channelFields: /*null*/ | channelFields channelField
 channelField: 
     EQTOKEN_NAME STRING { channel->setName( $2 ); }
@@ -689,7 +708,7 @@ compoundField:
               yyerror( "Incomplete channel reference (view or segment missing)" );
           else
           {
-              eq::server::Channel* channel = config->findChannel(segment,view);
+              eq::server::Channel* channel = config->findChannel(segment, view);
               if( channel )
                   eqCompound->setChannel( channel );
               else

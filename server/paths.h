@@ -16,27 +16,27 @@ namespace server
 // node...channel hierarchy
 struct NodePath
 {
-    NodePath() : nodeIndex( 0 ) {}
+    NodePath( const uint32_t index = 0 ) : nodeIndex( index ) {}
     uint32_t nodeIndex;
 };
 
 struct PipePath : public NodePath
 {
-    PipePath() : pipeIndex( 0 ) {}
+    PipePath( const uint32_t index = 0 ) : pipeIndex( index ) {}
     PipePath( const NodePath& p ) : NodePath( p ), pipeIndex( 0 ) {}
     uint32_t pipeIndex;
 };
 
 struct WindowPath : public PipePath
 {
-    WindowPath() : windowIndex( 0 ) {}
+    WindowPath( const uint32_t index = 0 ) : windowIndex( index ) {}
     WindowPath( const PipePath& p ) : PipePath( p ), windowIndex( 0 ) {}
     uint32_t windowIndex;
 };
 
 struct ChannelPath : public WindowPath
 {
-    ChannelPath() : channelIndex( 0 ) {}
+    ChannelPath( const uint32_t index = 0 ) : channelIndex( index ) {}
     ChannelPath( const WindowPath& p ) : WindowPath( p ), channelIndex( 0 ) {}
     uint32_t channelIndex;
 };
@@ -50,7 +50,7 @@ struct CanvasPath
 
 struct SegmentPath : public CanvasPath
 {
-    SegmentPath() : segmentIndex( 0 ) {}
+    SegmentPath( const uint32_t index = 0 ) : segmentIndex( index ) {}
     SegmentPath( const CanvasPath& p ) : CanvasPath( p ), segmentIndex( 0 ) {}
     uint32_t segmentIndex;
 };
@@ -63,7 +63,7 @@ struct LayoutPath
 
 struct ViewPath : public LayoutPath
 {
-    ViewPath() : viewIndex( 0 ) {}
+    ViewPath( const uint32_t index = 0 ) : viewIndex( index ) {}
     ViewPath( const LayoutPath& p ) : LayoutPath( p ), viewIndex( 0 ) {}
     uint32_t viewIndex;
 };

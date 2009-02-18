@@ -13,7 +13,8 @@ namespace server
 {
     enum LogTopics
     {
-        LOG_LB       = eq::LOG_SERVER  // 4096
+        LOG_LB       = LOG_SERVER << 0,   // 4096
+        LOG_VIEW     = LOG_SERVER << 1    // 8192
     };
 }
 }

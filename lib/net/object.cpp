@@ -253,7 +253,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
 CommandResult Object::_cmdNewMaster( Command& command )
 {
     ObjectNewMasterPacket* packet = command.getPacket<ObjectNewMasterPacket>();
-    EQINFO << "become slave " << _id << '.' << _instanceID << " to "
+    EQVERB << "become slave " << _id << '.' << _instanceID << " to "
            << packet->newMasterID << '.' << packet->newMasterInstanceID
            << std::endl;
     EQASSERT( isMaster( ));

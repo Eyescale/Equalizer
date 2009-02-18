@@ -79,10 +79,10 @@ Config::Config( const Config& from )
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         const Node* node      = *i;
-        Node*       nodeClone = new Node( *node );
+        Node*       nodeClone = new Node( *node, this );
         
-        (node == from._appNode) ? 
-            addApplicationNode( nodeClone ) : addNode( nodeClone );
+        if( node == from._appNode )
+            _appNode = nodeClone;
     }
 
     const LayoutVector& layouts = from.getLayouts();
@@ -274,8 +274,8 @@ public:
                         Wall wallSegment = segment->getWall();
                         wallSegment.apply( computeViewport );
                         compound->setWall( wallSegment );
-                        EQINFO << "Compound Wall = " << wallSegment
-                               << std::endl;
+                        EQLOG( LOG_VIEW ) << "Compound Wall = " << wallSegment
+                                          << std::endl;
                         break;
                     }
                     case View::TYPE_PROJECTION:
@@ -462,9 +462,10 @@ public:
 
             if( !viewport.hasArea())
             {
-                EQINFO << "View " << _view->getName() << _view->getViewport()
-                       << " doesn't intersect " << segment->getName() 
-                       << segment->getViewport() << std::endl;
+                EQLOG( LOG_VIEW )
+                    << "View " << _view->getName() << _view->getViewport()
+                    << " doesn't intersect " << segment->getName()
+                    << segment->getViewport() << std::endl;
                 
                 return TRAVERSE_CONTINUE;
             }
@@ -484,13 +485,11 @@ public:
 
             if( !channel ) // create and add new channel
             {
-                channel = new Channel( *segmentChannel );
+                Window* window = segmentChannel->getWindow();
+                channel = new Channel( *segmentChannel, window );
 
                 _view->addChannel( channel );
                 segment->addDestinationChannel( channel );
-                
-                Window* window = segmentChannel->getWindow();
-                window->addChannel( channel );            
             }
 
             //----- compute channel viewport:
@@ -507,12 +506,13 @@ public:
             channel->setViewport( subViewport );
             
             // decrement channel activation count [inactivates channel]
-            // TODO implement useLayout: channel->deactivate(); 
+            channel->deactivate(); 
             
-            EQINFO << "View " << _view->getName() << _view->getViewport()
-                   << " intersects " << segment->getName() 
-                   << segment->getViewport() << " at " << subViewport
-                   << std::endl;
+            EQLOG( LOG_VIEW ) 
+                << "View @" << (void*)_view << ' ' << _view->getViewport()
+                << " intersects " << segment->getName()
+                << segment->getViewport() << " at " << subViewport
+                << " using channel @" << (void*)channel << std::endl;
 
             return TRAVERSE_CONTINUE;
         }
@@ -620,8 +620,8 @@ public:
                 wallView.apply( computeViewport );
                 compound->setWall( wallView );
                     
-                EQINFO << "set compound frustum = view frustum X channel/view coverage" << std::endl;
-                EQINFO << "Compound " << wallView << std::endl;
+                EQLOG( LOG_VIEW ) << "compound frustum = " << wallView
+                                  << std::endl;
                 break;
             }
             case View::TYPE_PROJECTION:

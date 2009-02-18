@@ -60,7 +60,7 @@ namespace server
         /** 
          * Constructs a new deep copy of a channel.
          */
-        Channel( const Channel& from );
+        Channel( const Channel& from, Window* window );
 
         /** Destruct this channel. */
         virtual ~Channel();

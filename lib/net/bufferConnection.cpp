@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "bufferConnection.h"
@@ -18,7 +18,7 @@ BufferConnection::BufferConnection()
           _maxSize(0)
 {
     _state = STATE_CONNECTED;
-    EQINFO << "New BufferConnection @" << (void*)this << endl;
+    EQVERB << "New BufferConnection @" << (void*)this << endl;
 }
 
 BufferConnection::~BufferConnection()

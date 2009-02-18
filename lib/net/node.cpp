@@ -887,7 +887,8 @@ void Node::_redispatchCommands()
 
 #ifndef NDEBUG
     if( !_pendingCommands.empty( ))
-        EQINFO << _pendingCommands.size() << " undispatched commands" << endl;
+        EQVERB << _pendingCommands.size() << " undispatched commands" << endl;
+    EQASSERT( _pendingCommands.size() < 1000 );
 #endif
 }
 

@@ -40,7 +40,7 @@ typedef net::CommandFunc<Channel> ChannelFunc;
 void Channel::_construct()
 {
     _used             = 0;
-    _active           = 1;
+    _active           = 0;
     _view             = 0;
     _segment          = 0;
     _window           = 0;
@@ -64,7 +64,7 @@ Channel::Channel()
             static_cast<eq::Channel::IAttribute>( i ));
 }
 
-Channel::Channel( const Channel& from )
+Channel::Channel( const Channel& from, Window* window )
         : net::Object()
 {
     _construct();
@@ -75,6 +75,8 @@ Channel::Channel( const Channel& from )
     _fixedPVP = from._fixedPVP;
     _drawable = from._drawable;
     // Don't copy view and segment. Will be re-set by view/segment copy ctors
+
+    window->addChannel( this );
 
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
@@ -232,9 +234,8 @@ void Channel::deactivate()
     if( _window ) 
         _window->deactivate(); 
 
-    EQASSERT( getConfig()->isRunning( ));
     if( !getConfig()->isRunning( ))
-        return; // already stopped
+        return; // already stopped or not yet running
 
     EQCHECK( _window->exitChannel( this ));
 }

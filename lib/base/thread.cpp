@@ -111,7 +111,7 @@ void Thread::_runChild()
 
     if( !init( ))
     {
-        EQINFO << "Thread failed to initialize" << endl;
+        EQWARN << "Thread failed to initialize" << endl;
         _state = STATE_STOPPED;
         _syncChild.unset();
         pthread_exit( 0 );
@@ -137,7 +137,7 @@ void Thread::_notifyStarted()
     const std::vector<ExecutionListener*> listeners = _listeners();
     _listenerLock().unset();
 
-    EQINFO << "Calling " << listeners.size() << " thread started listeners"
+    EQVERB << "Calling " << listeners.size() << " thread started listeners"
            << endl;
     for( vector<ExecutionListener*>::const_iterator i = listeners.begin();
          i != listeners.end(); ++i )

@@ -30,7 +30,7 @@ typedef net::CommandFunc<Node> NodeFunc;
 void Node::_construct()
 {
     _used           = 0;
-    _active         = 1;
+    _active         = 0;
     _config         = 0;
     _tasks          = eq::TASK_NONE;
     _lastDrawPipe   = 0;
@@ -48,13 +48,15 @@ Node::Node()
         _iAttributes[i] =global->getNodeIAttribute((eq::Node::IAttribute)i);
 }
 
-Node::Node( const Node& from )
+Node::Node( const Node& from, Config* config )
         : net::Object()
 {
     _construct();
 
     _name = from._name;
     _node = from._node;
+
+    config->addNode( this );
 
     memcpy( _iAttributes, from._iAttributes, 
             eq::Node::IATTR_ALL * sizeof( int32_t ));
@@ -71,7 +73,7 @@ Node::Node( const Node& from )
 
     const PipeVector& pipes = from.getPipes();
     for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
-        addPipe( new Pipe( **i ));
+        new Pipe( **i, this );
 }
 
 Node::~Node()
@@ -108,12 +110,16 @@ void Node::attachToSession( const uint32_t id, const uint32_t instanceID,
 
 void Node::addPipe( Pipe* pipe )
 {
+    EQASSERT( pipe->getWindows().empty( ));
+
     _pipes.push_back( pipe ); 
-    pipe->_node = this; 
+    pipe->_node = this;
 }
 
 bool Node::removePipe( Pipe* pipe )
 {
+    EQASSERT( pipe->getWindows().empty( ));
+
     PipeVector::iterator i = find( _pipes.begin(), _pipes.end(), pipe );
     if( i == _pipes.end( ))
         return false;

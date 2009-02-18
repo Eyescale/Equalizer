@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "connection.h"
@@ -32,7 +32,7 @@ namespace net
 Connection::Connection()
         : _state( STATE_CLOSED )
 {
-    EQINFO << "New Connection @" << (void*)this << endl;
+    EQVERB << "New Connection @" << (void*)this << endl;
 }
 
 Connection::Connection( const Connection& from )
@@ -40,13 +40,13 @@ Connection::Connection( const Connection& from )
         , _state( from._state )
         , _description( from._description )
 {
-    EQINFO << "New Connection copy @" << (void*)this << endl;
+    EQVERB << "New Connection copy @" << (void*)this << endl;
 }
 
 Connection::~Connection()
 {
     _state = STATE_CLOSED;
-    EQINFO << "Delete Connection @" << (void*)this << endl;
+    EQVERB << "Delete Connection @" << (void*)this << endl;
 }
 
 ConnectionPtr Connection::create( ConnectionDescriptionPtr description )

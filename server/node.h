@@ -35,7 +35,7 @@ namespace server
         /** 
          * Constructs a new deep copy of a node.
          */
-        Node( const Node& from );
+        Node( const Node& from, Config* config );
 
         /** @name Data Access. */
         //*{

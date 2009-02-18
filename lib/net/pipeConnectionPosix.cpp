@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "pipeConnection.h"
@@ -21,7 +21,7 @@ PipeConnection::PipeConnection()
 {
     _description = new ConnectionDescription;
     _description->type = CONNECTIONTYPE_PIPE;
-    EQINFO << "New PipeConnection @" << (void*)this << endl;
+    EQVERB << "New PipeConnection @" << (void*)this << endl;
 }
 
 PipeConnection::~PipeConnection()
@@ -47,7 +47,7 @@ bool PipeConnection::connect()
         return false;
     }
 
-    EQINFO << "readFD " << _readFD << " writeFD " << _writeFD << endl;
+    EQVERB << "readFD " << _readFD << " writeFD " << _writeFD << endl;
     _state = STATE_CONNECTED;
     _fireStateChanged();
     return true;

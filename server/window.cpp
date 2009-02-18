@@ -27,7 +27,7 @@ typedef net::CommandFunc<Window> WindowFunc;
 void Window::_construct()
 {
     _used            = 0;
-    _active          = 1;
+    _active          = 0;
     _pipe            = 0;
     _tasks           = eq::TASK_NONE;
     _fixedPVP        = false;
@@ -48,7 +48,7 @@ Window::Window()
             static_cast<eq::Window::IAttribute>( i ));
 }
 
-Window::Window( const Window& from )
+Window::Window( const Window& from, Pipe* pipe )
         : net::Object()
 {
     _construct();
@@ -57,7 +57,9 @@ Window::Window( const Window& from )
     _pvp      = from._pvp;
     _vp       = from._vp;
     _fixedPVP = from._fixedPVP;
-    
+
+    pipe->addWindow( this );
+
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
 
@@ -65,7 +67,7 @@ Window::Window( const Window& from )
     for( ChannelVector::const_iterator i = channels.begin();
          i != channels.end(); ++i )
     {
-        addChannel( new Channel( **i ));
+        new Channel( **i, this );
     }            
 }
 
@@ -114,6 +116,7 @@ void Window::addChannel( Channel* channel )
 
     _channels.push_back( channel ); 
     channel->_window = this;
+    channel->activate();
     channel->notifyViewportChanged();
 }
 
@@ -125,6 +128,7 @@ bool Window::removeChannel( Channel* channel )
         return false;
 
     _channels.erase( i );
+    channel->deactivate();
     channel->_window = 0;
     return true;
 }

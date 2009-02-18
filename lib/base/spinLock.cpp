@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "spinLock.h"
@@ -54,7 +54,7 @@ SpinLock::SpinLock()
         return;
     }
 #endif
-    EQINFO << " New SpinLock @" << (void*)this << endl;
+    EQVERB << " New SpinLock @" << (void*)this << endl;
 }
 
 SpinLock::~SpinLock()

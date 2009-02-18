@@ -56,7 +56,7 @@ namespace server
         /** 
          * Constructs a new deep copy of a window.
          */
-        Window( const Window& from );
+        Window( const Window& from, Pipe* pipe );
 
         /**
          * @name Data Access

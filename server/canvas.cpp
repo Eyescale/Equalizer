@@ -7,6 +7,7 @@
 #include "channel.h"
 #include "config.h"
 #include "layout.h"
+#include "log.h"
 #include "nameFinder.h"
 #include "node.h"
 #include "paths.h"
@@ -138,8 +139,8 @@ void Canvas::addSegment( Segment* segment )
                     
                 wallCanvas.apply( viewport );
                 segment->setWall( wallCanvas );
-                EQINFO << "Segment " << segment->getName() << segment->getWall()
-                       << std::endl;
+                EQLOG( LOG_VIEW ) << "Segment " << segment->getName() 
+                                  << segment->getWall() << std::endl;
                 break;
             }
             case Segment::TYPE_PROJECTION:

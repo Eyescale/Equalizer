@@ -49,7 +49,7 @@ namespace server
         /** 
          * Constructs a new deep copy of a pipe.
          */
-        Pipe( const Pipe& from );
+        Pipe( const Pipe& from, Node* node );
 
         Server* getServer();
         const Server* getServer() const;

@@ -11,12 +11,12 @@ namespace eq
 {
     enum LogTopics
     {
-        LOG_ASSEMBLY = net::LOG_CUSTOM,    // 256
-        LOG_TASKS    = 0x200,              // 512
-        LOG_EVENTS   = 0x400,              // 1024
-        LOG_STATS    = 0x800,              // 2048
-        LOG_SERVER   = 0x1000,             // 4096
-        LOG_CUSTOM   = 0x10000             // 65536
+        LOG_ASSEMBLY = net::LOG_CUSTOM << 0,   // 256
+        LOG_TASKS    = net::LOG_CUSTOM << 1,   // 512
+        LOG_EVENTS   = net::LOG_CUSTOM << 2,   // 1024
+        LOG_STATS    = net::LOG_CUSTOM << 3,   // 2048
+        LOG_SERVER   = net::LOG_CUSTOM << 4,   // 4096
+        LOG_CUSTOM   = 0x10000                 // 65536
     };
 }
 #endif // EQ_LOG_H

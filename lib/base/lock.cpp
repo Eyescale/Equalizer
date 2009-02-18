@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "lock.h"
@@ -40,7 +40,7 @@ Lock::Lock()
         return;
     }
 #endif
-    EQINFO << "New Lock @" << (void*)this << endl;
+    EQVERB << "New Lock @" << (void*)this << endl;
 }
 
 Lock::~Lock()

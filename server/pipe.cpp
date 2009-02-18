@@ -34,7 +34,7 @@ std::string Pipe::_iAttributeStrings[IATTR_ALL] =
 void Pipe::_construct()
 {
     _used           = 0;
-    _active         = 1;
+    _active         = 0;
     _node           = 0;
     _tasks          = eq::TASK_NONE;
     _port           = EQ_UNDEFINED_UINT32;
@@ -54,7 +54,7 @@ Pipe::Pipe()
             static_cast<IAttribute>( i ));
 }
 
-Pipe::Pipe( const Pipe& from )
+Pipe::Pipe( const Pipe& from, Node* node )
         : eq::net::Object()
 {
     _construct();
@@ -64,6 +64,8 @@ Pipe::Pipe( const Pipe& from )
     _device = from._device;
     _pvp    = from._pvp;
 
+    node->addPipe( this );
+
     for( int i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
 
@@ -71,7 +73,7 @@ Pipe::Pipe( const Pipe& from )
     for( WindowVector::const_iterator i = windows.begin(); 
          i != windows.end(); ++i )
     {
-        addWindow( new Window( **i ));
+        new Window( **i, this );
     }
 }
 
@@ -108,6 +110,8 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
 
 void Pipe::addWindow( Window* window )
 {
+    EQASSERT( window->getChannels().empty( ));
+
     _windows.push_back( window ); 
     window->_pipe = this;
     window->notifyViewportChanged();
@@ -115,6 +119,8 @@ void Pipe::addWindow( Window* window )
 
 bool Pipe::removeWindow( Window* window )
 {
+    EQASSERT( window->getChannels().empty( ));
+
     vector<Window*>::iterator i = find( _windows.begin(), _windows.end(),
                                         window );
     if( i == _windows.end( ))

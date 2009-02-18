@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_LOG_H
@@ -13,11 +13,11 @@ namespace net
 {
     enum LogTopics
     {
-        LOG_OBJECTS = base::LOG_CUSTOM, // 16
-        LOG_BARRIER = 0x20,               // 32
-        LOG_WIRE    = 0x40,               // 64
-        LOG_NETPERF = 0x80,               // 128
-        LOG_CUSTOM  = 0x100               // 256
+        LOG_OBJECTS = base::LOG_CUSTOM << 0,  // 16
+        LOG_BARRIER = base::LOG_CUSTOM << 1,  // 32
+        LOG_WIRE    = base::LOG_CUSTOM << 2,  // 64
+        LOG_NETPERF = base::LOG_CUSTOM << 3,  // 128
+        LOG_CUSTOM  = base::LOG_CUSTOM << 4   // 256
     };
 }
 }

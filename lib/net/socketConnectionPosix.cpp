@@ -14,7 +14,7 @@ SocketConnection::SocketConnection( const ConnectionType type )
     EQASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
     _description =  new ConnectionDescription;
     _description->type = type;
-    EQINFO << "New SocketConnection @" << (void*)this << endl;
+    EQVERB << "New SocketConnection @" << (void*)this << endl;
 }
 
 SocketConnection::~SocketConnection()
@@ -123,7 +123,7 @@ ConnectionPtr SocketConnection::accept()
     newConnection->_description->setHostname( inet_ntoa( newAddress.sin_addr ));
     newConnection->_description->TCPIP.port   = ntohs( newAddress.sin_port );
 
-    EQINFO << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
+    EQVERB << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
            << ":" << ntohs( newAddress.sin_port ) <<endl;
 
     return newConnection;

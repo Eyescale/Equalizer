@@ -98,7 +98,7 @@ ViewPath View::getPath() const
     
     const ViewVector&   views = _layout->getViews();
     ViewVector::const_iterator i = std::find( views.begin(),
-                                                 views.end(), this );
+                                              views.end(), this );
     EQASSERT( i != views.end( ));
     path.viewIndex = std::distance( views.begin(), i );
     return path;
