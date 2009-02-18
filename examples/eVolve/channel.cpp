@@ -233,7 +233,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     const eq::FrameVector& frames = getInputFrames();
     eq::PixelViewport  coveredPVP;
     eq::FrameVector    dbFrames;
-    eq::Zoom           zoom     = eq::Zoom( 1.0, 1.0 );
+    eq::Zoom           zoom( eq::Zoom::NONE );
 
     // Make sure all frames are ready and gather some information on them
     for( eq::FrameVector::const_iterator i = frames.begin();

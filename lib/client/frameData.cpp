@@ -163,9 +163,9 @@ void FrameData::startReadback( const Frame& frame,
 
     const Zoom& zoom = frame.getZoom();
 
-    if( zoom.x == 0 || zoom.y == 0 )
+    if( !zoom.isValid( ))
     {
-        EQWARN << "One of zoom components is zero, skipping frame." << endl;
+        EQWARN << "Invalid zoom factor, skipping frame." << endl;
         return;
     }
 
