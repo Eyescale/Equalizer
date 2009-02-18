@@ -24,9 +24,6 @@ void test1()
     projection.distance = 3;
     projection.fov[0] = 90;
     projection.fov[1] = 90;
-    projection.hpr[0] = 65;
-    projection.hpr[1] = -68;
-    projection.hpr[2] = -77;
     projection.origin[0] = -4;
     projection.origin[1] = 0;
     projection.origin[2] = 0;
@@ -38,9 +35,19 @@ void test1()
     Projection projection2;
     projection2 = wall;
     
+    TESTINFO( projection == projection2 , 
+              projection << std::endl << wall << std::endl <<
+              projection2  << std::endl );
+
+    projection.hpr[0] = 65;
+    projection.hpr[1] = -68;
+    projection.hpr[2] = -77;
+
     Wall wall2;
     wall2 = projection2;
-    TESTINFO( wall == wall2 , projection << wall << projection2 << wall2 );
+    TESTINFO( wall == wall2 , 
+              projection << std::endl << wall << std::endl <<
+              projection2  << std::endl << wall2 );
 }
 
 void test2()

@@ -13,7 +13,8 @@ SUBDIRS = \
 	openmp \
 	pipeperf \
 	session \
-	wall
+	wall \
+	wallProjection
 
 TARGETS = subdirs
 

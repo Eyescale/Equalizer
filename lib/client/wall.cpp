@@ -109,6 +109,7 @@ Wall& Wall::operator = ( const Projection& projection )
 
     return *this;
 }    
+
 bool Wall::operator == ( const Wall& rhs ) const
 {
     return ( bottomLeft  == rhs.bottomLeft  &&

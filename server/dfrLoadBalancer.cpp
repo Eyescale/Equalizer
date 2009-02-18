@@ -20,7 +20,6 @@ namespace eq
 namespace server
 {
 
-
 DFRLoadBalancer::DFRLoadBalancer( const LoadBalancer& parent )
         : LoadBalancerIF( parent )
         , _compound( _parent.getCompound() )
@@ -50,23 +49,27 @@ DFRLoadBalancer::~DFRLoadBalancer()
 
 void DFRLoadBalancer::update( const uint32_t frameNumber )
 {
-   if ( !_newValueReady )
-       return;
-   
-   _newValueReady = false;    
-   
    if ( _parent.isFrozen())
    {
       _compound->setZoom( Zoom::NONE );  
       return;    
    }
    
-
+   if ( !_newValueReady )
+       return;
+   
+   _newValueReady = false;    
+   
    Zoom currentZoom = _compound->getZoom();
    _average = (( _average * (NB_ELEMENT - 1) ) + _fpsLastFrame ) / NB_ELEMENT ;
    
    float factor = sqrtf( _average / _parent.getFrameRate() );
-   
+
+   // TODO: min/max on new zoom!
+   // TODO: max zoom factor = 
+   //          min x,y( my channel pvp / parent compound inherit pvp )
+   // TODO: min zoom factor = never smaller than 128 pixels in both directions
+
    factor = EQ_MAX( factor, 0.5f );
    factor = EQ_MIN( factor, 2.0f ); 
    

@@ -42,6 +42,9 @@ namespace eq
 
         /** Set the projection parameters from a wall description. */
         Projection& operator = ( const Wall& wall );
+
+        bool operator == ( const Projection& rhs ) const;
+        bool operator != ( const Projection& rhs ) const;
         
         vmml::Vector3f origin;
         float          distance;
