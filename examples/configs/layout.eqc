@@ -47,7 +47,7 @@ server
 
         compound
         { 
-            channel "channel" # ( segment 0 view 0 )
+            channel ( segment 0 view 0 )
         }
 #        compound
 #        { 

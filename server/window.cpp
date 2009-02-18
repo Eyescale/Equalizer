@@ -764,8 +764,13 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
     const ChannelVector& channels = window->getChannels();
     for( ChannelVector::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
+    {
+        const Channel* channel = *i;
+        if( channel->getView() && channel->getSegment( ))
+            continue; // don't print generated channels for now
 
-        os << *i;
+        os << channel;
+    }
 
     os << exdent << "}" << endl << enableHeader << enableFlush;
     return os;

@@ -567,7 +567,7 @@ net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
         EQLOG( eq::LOG_STATS ) << data << endl;
     }
 
-    _fireLoadData( packet->frameNumber, packet->nStatistics, packet->statistics );
+    _fireLoadData(packet->frameNumber, packet->nStatistics, packet->statistics);
 
     return net::COMMAND_HANDLED;
 }
