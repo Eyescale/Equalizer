@@ -47,10 +47,8 @@ Projection& Projection::operator = ( const Wall& wall )
     vmml::Vector3f v = wall.topLeft - wall.bottomLeft;
     const float width  = u.normalize();
     const float height = v.normalize();
-
     vmml::Vector3f w( u );
-    w.cross( v );
-    w.normalize();
+    w = w.cross( v );
 
     const vmml::Vector3f center((wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
                                 (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
@@ -99,7 +97,7 @@ Projection& Projection::operator = ( const Wall& wall )
         hpr[2]  = RAD2DEG( atan2f( tr_y, tr_x ));
     }
     
-    origin = center + w * distance;
+    origin = center - w * distance;
     return *this;
 }
 

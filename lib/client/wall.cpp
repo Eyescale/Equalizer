@@ -79,33 +79,34 @@ Wall& Wall::operator = ( const Projection& projection )
     const float cosR       = cos(DEG2RAD( projection.hpr[2]));
     const float sinR       = sin(DEG2RAD( projection.hpr[2]));
 
-    vmml::Matrix4f  mat ;
+    vmml::Matrix3f  mat ;
     const float cosPsinH      =   cosP * sinH;
     const float sinPsinH      =   sinP * sinH;
 
     mat.ml[0]  =   cosH * cosR;
     mat.ml[1]  =  -cosH * sinR;
     mat.ml[2]  =  -sinH;
-    mat.ml[4]  = -sinPsinH * cosR + cosP * sinR;
-    mat.ml[5]  =  sinPsinH * sinR + cosP * cosR;
-    mat.ml[6]  =  -sinP * cosH;
-    mat.ml[8]  =  cosPsinH * cosR + sinP * sinR;
-    mat.ml[9]  = -cosPsinH * sinR + sinP * cosR;
-    mat.ml[10] =   cosP * cosH;
-
-    mat.ml[3]  =  mat.ml[7] = mat.ml[11] = mat.ml[12] = mat.ml[13] = mat.ml[14] = 0;
-    mat.ml[15] =  1;
+    mat.ml[3]  = -sinPsinH * cosR + cosP * sinR;
+    mat.ml[4]  =  sinPsinH * sinR + cosP * cosR;
+    mat.ml[5]  =  -sinP * cosH;
+    mat.ml[6]  =  cosPsinH * cosR + sinP * sinR;
+    mat.ml[7]  = -cosPsinH * sinR + sinP * cosR;
+    mat.ml[8] =   cosP * cosH;
 
     bottomLeft  = mat * bottomLeft;
     bottomRight = mat * bottomRight;
     topLeft     = mat * topLeft;
     
-    vmml::Vector3f distance(projection.origin);
-    distance.normalize();
-    distance = distance * projection.origin.length() + distance * projection.distance;
-    bottomLeft  = bottomLeft  - distance;
-    bottomRight = bottomRight - distance;
-    topLeft     = topLeft      - distance;
+    vmml::Vector3f u = bottomRight - bottomLeft;
+    vmml::Vector3f v = topLeft - bottomLeft;
+    u.normalize();
+    v.normalize();
+    
+    vmml::Vector3f w(&mat.ml[6]);
+    
+    bottomLeft  = bottomLeft  + projection.origin  + w *  projection.distance;
+    bottomRight = bottomRight + projection.origin  + w *  projection.distance;
+    topLeft     = topLeft     + projection.origin  + w *  projection.distance;
 
     return *this;
 }    

@@ -20,11 +20,12 @@ int main( int argc, char **argv )
 
 void test1()
 {
+    // Test 1 
     Projection projection;
     projection.distance = 3;
     projection.fov[0] = 90;
     projection.fov[1] = 90;
-    projection.origin[0] = -4;
+    projection.origin[0] = 4;
     projection.origin[1] = 0;
     projection.origin[2] = 0;
 
@@ -39,15 +40,54 @@ void test1()
               projection << std::endl << wall << std::endl <<
               projection2  << std::endl );
 
-    projection.hpr[0] = 65;
+    // test 2
+    projection.distance = 3;
+    projection.fov[0] = 90;
+    projection.fov[1] = 90;
+    projection.origin[0] = -4;
+    projection.origin[1] = -3;
+    projection.origin[2] = -2;
+    wall = projection;
+    projection2 = wall;
+    TESTINFO( projection == projection2 , "Test 2" <<
+             projection << std::endl << wall << std::endl <<
+             projection2  << std::endl ); 
+    
+    
+    // test 3
+    projection.distance = 3;
+    projection.fov[0] = 90;
+    projection.fov[1] = 90;
+    projection.origin[0] = 4;
+    projection.origin[1] = 3;
+    projection.origin[2] = 2;
+    wall = projection;
+    projection2 = wall;
+    TESTINFO( projection == projection2 , "Test 3" <<
+             projection << std::endl << wall << std::endl <<
+             projection2  << std::endl ); 
+             
+             
+    // test 4
+    projection.distance = 3;
+    projection.fov[0] = 43;
+    projection.fov[1] = 20;
+    projection.origin[0] = 4;
+    projection.origin[1] = 3;
+    projection.origin[2] = 2;
+    
+    projection.hpr[0] = 90;
     projection.hpr[1] = -68;
     projection.hpr[2] = -77;
-
+    
+    wall = projection;
+    projection2 = wall;
     Wall wall2;
-    wall2 = projection2;
-    TESTINFO( wall == wall2 , 
-              projection << std::endl << wall << std::endl <<
-              projection2  << std::endl << wall2 );
+    wall2=  projection2; 
+    TESTINFO( projection == projection2 , "Test 4" <<
+             projection << std::endl << wall << std::endl <<
+             projection2 << std::endl << wall2 << std::endl ); 
+    
 }
 
 void test2()
