@@ -338,6 +338,13 @@ void Channel::_drawLogo()
     if( !texture )
         return;
     
+    const eq::Zoom& zoom = getZoom();
+
+    float newX = size.x * zoom.x;
+    float newY = size.y * zoom.y;
+    
+    float delta = 5.0f * zoom.x ;
+    
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     applyScreenFrustum();
@@ -359,16 +366,16 @@ void Channel::_drawLogo()
     glColor3f( 1.0f, 1.0f, 1.0f );
     glBegin( GL_TRIANGLE_STRIP ); {
         glTexCoord2f( 0.0f, 0.0f );
-        glVertex3f( 5.0f, 5.0f, 0.0f );
+        glVertex3f( delta, delta, 0.0f );
 
         glTexCoord2f( size.x, 0.0f );
-        glVertex3f( size.x + 5.0f, 5.0f, 0.0f );
+        glVertex3f( newX + delta, delta, 0.0f );
 
         glTexCoord2f( 0.0f, size.y );
-        glVertex3f( 5.0f, size.y + 5.0f, 0.0f );
+        glVertex3f( delta, newY + delta, 0.0f );
 
         glTexCoord2f( size.x, size.y );
-        glVertex3f( size.x + 5.0f, size.y + 5.0f, 0.0f );
+        glVertex3f( newX + delta, newY + delta, 0.0f );
     } glEnd();
 
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
