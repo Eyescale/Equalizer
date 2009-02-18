@@ -301,7 +301,7 @@ void Pipe::startConfigInit( const uint32_t initID )
     {
         Window* window = *i;
 
-        if( window->isUsed( ) && window->isActive( ))
+        if( window->isRendering( ))
         {
             config->registerObject( window );
             createWindowPacket.windowID = window->getID();
@@ -333,13 +333,12 @@ bool Pipe::syncConfigInit()
          i != _windows.end(); ++i )
     {
         Window* window = *i;
-        if( window->isUsed( ) && window->isActive( ))
-            if( !window->syncConfigInit( ))
-            {
-                _error += " window " + window->getName() + ": '" +
-                          window->getErrorMessage() + '\'';
-                success = false;
-            }
+        if( window->isRendering() && !window->syncConfigInit( ))
+        {
+            _error += " window " + window->getName() + ": '" +
+                window->getErrorMessage() + '\'';
+            success = false;
+        }
     }
 
     EQASSERT( _state == STATE_INITIALIZING || _state == STATE_RUNNING ||
@@ -462,7 +461,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
          i != _windows.end(); ++i )
     {
         Window* window = *i;
-        if( window->isUsed( ))
+        if( window->isRendering( ))
             window->updateDraw( frameID, frameNumber );
     }
 
@@ -470,7 +469,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
          i != _windows.end(); ++i )
     {
         Window* window = *i;
-        if( window->isUsed( ))
+        if( window->isRendering( ))
             window->updatePost( frameID, frameNumber );
     }
 
@@ -503,7 +502,7 @@ eq::net::CommandResult Pipe::_cmdConfigInitReply( eq::net::Command& command )
 {
     const eq::PipeConfigInitReplyPacket* packet = 
         command.getPacket<eq::PipeConfigInitReplyPacket>();
-    EQINFO << "handle pipe configInit reply " << packet << endl;
+    EQVERB << "handle pipe configInit reply " << packet << endl;
 
     _error = packet->error;
     setPixelViewport( packet->pvp );
@@ -520,7 +519,7 @@ eq::net::CommandResult Pipe::_cmdConfigExitReply( eq::net::Command& command )
 {
     const eq::PipeConfigExitReplyPacket* packet = 
         command.getPacket<eq::PipeConfigExitReplyPacket>();
-    EQINFO << "handle pipe configExit reply " << packet << endl;
+    EQVERB << "handle pipe configExit reply " << packet << endl;
 
     if( packet->result )
         _state = STATE_STOPPED;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_COMPOUNDINITVISITOR_H
@@ -22,6 +22,9 @@ namespace server
 
         /** Visit all compounds. */
         virtual VisitorResult visit( Compound* compound );
+
+    private:
+        void _updateFrustum( Compound* compound );
     };
 }
 }

@@ -518,7 +518,7 @@ net::CommandResult Channel::_cmdConfigInitReply( net::Command& command )
 {
     const eq::ChannelConfigInitReplyPacket* packet = 
         command.getPacket<eq::ChannelConfigInitReplyPacket>();
-    EQINFO << "handle channel configInit reply " << packet << endl;
+    EQVERB << "handle channel configInit reply " << packet << endl;
 
     _near  = packet->nearPlane;
     _far   = packet->farPlane;
@@ -536,7 +536,7 @@ net::CommandResult Channel::_cmdConfigExitReply( net::Command& command )
 {
     const eq::ChannelConfigExitReplyPacket* packet = 
         command.getPacket<eq::ChannelConfigExitReplyPacket>();
-    EQINFO << "handle channel configExit reply " << packet << endl;
+    EQVERB << "handle channel configExit reply " << packet << endl;
 
     if( packet->result )
         _state = STATE_STOPPED;

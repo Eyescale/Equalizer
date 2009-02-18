@@ -238,7 +238,7 @@ void Node::startConfigInit( const uint32_t initID )
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
-        if( !pipe->isUsed( ) || !pipe->isActive( ) )
+        if( !pipe->isRendering( ))
             continue;
         
         _config->registerObject( pipe );
@@ -258,7 +258,7 @@ bool Node::syncConfigInit()
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
-        if( !pipe->isUsed( ))
+        if( !pipe->isRendering( ))
             continue;
 
         if( !pipe->syncConfigInit( ))
@@ -359,7 +359,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
-        if( pipe->isUsed( ))
+        if( pipe->isRendering( ))
             pipe->update( frameID, frameNumber );
     }
 
@@ -474,7 +474,7 @@ net::CommandResult Node::_cmdConfigInitReply( net::Command& command )
 {
     const eq::NodeConfigInitReplyPacket* packet = 
         command.getPacket<eq::NodeConfigInitReplyPacket>();
-    EQINFO << "handle configInit reply " << packet << endl;
+    EQVERB << "handle configInit reply " << packet << endl;
 
     _error = packet->error;
     if( packet->result )
@@ -489,7 +489,7 @@ net::CommandResult Node::_cmdConfigExitReply( net::Command& command )
 {
     const eq::NodeConfigExitReplyPacket* packet =
         command.getPacket<eq::NodeConfigExitReplyPacket>();
-    EQINFO << "handle configExit reply " << packet << endl;
+    EQVERB << "handle configExit reply " << packet << endl;
 
     if( packet->result )
         _state = STATE_STOPPED;

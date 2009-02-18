@@ -226,145 +226,6 @@ bool Config::removeLayout( Layout* layout )
 }
 
 
-namespace
-{
-class CompoundCanvasInitVisitor : public ConfigVisitor
-{
-public:
-    CompoundCanvasInitVisitor( Canvas* canvas,
-                               std::string channelName )
-        : _channelName( channelName )
-    {
-        _segments = canvas->getSegments() ;
-    };
-    
-    virtual VisitorResult visit( Compound* compound )
-    {
-        if ( !compound->isDestination() )
-            return TRAVERSE_CONTINUE;
-        
-        Channel* destinationChannel = compound->getChannel();
-        EQASSERT( destinationChannel );
-        
-        if( _channelName != destinationChannel->getName())
-            return TRAVERSE_CONTINUE;
-        
-        for( SegmentVector::const_iterator j = _segments.begin(); 
-            j != _segments.end(); ++j )
-        {
-            Segment* segment = *j;
-            Channel* outputChannel = segment->getChannel();
-            
-            if(  _channelName.find( outputChannel->getName()) != string::npos )
-            {   
-                // if segment has frustum
-                switch ( segment->getCurrentType())
-                {
-                    case View::TYPE_WALL:
-                    {
-                        // set compound frustum =
-                        //         segment frustum X channel/segment coverage
-                        const Viewport& outputViewPortChannel = 
-                            outputChannel->getViewport();
-                        Viewport computeViewport = 
-                            destinationChannel->getViewport( ); 
-                        computeViewport.intersect( outputViewPortChannel );
-                        computeViewport.transform( outputViewPortChannel );
-
-                        Wall wallSegment = segment->getWall();
-                        wallSegment.apply( computeViewport );
-                        compound->setWall( wallSegment );
-                        EQLOG( LOG_VIEW ) << "Compound Wall = " << wallSegment
-                                          << std::endl;
-                        break;
-                    }
-                    case View::TYPE_PROJECTION:
-
-                        EQUNIMPLEMENTED;
-
-                    default: 
-                        break;
-                }
-            }
-        }
-     return TRAVERSE_CONTINUE;   
-    }
-private:
-    string _channelName;
-    SegmentVector _segments;
-};
-    
-class CanvasInitVisitor : public ConfigVisitor
-{
-public:
-    
-    CanvasInitVisitor(  Config* config  )
-         : _layout( 0 )
-         , _canvas( 0 )
-         , _config( config ) {}
-    virtual ~CanvasInitVisitor(){}
-
-    virtual VisitorResult visitPre( Canvas* canvas )
-    {
-        _layout = canvas->getLayout();
-        
-        if( _layout )
-        {
-            _canvas = canvas;
-            _layout->accept( this );
-        }
-        _layout = 0;
-
-        return TRAVERSE_CONTINUE;
-    }
-    
-    virtual VisitorResult visit( View* view )
-    { 
-        if( !_layout )
-            return TRAVERSE_CONTINUE;
-            
-        //for each Channel
-        ChannelVector channels = view->getChannels();
-        
-        // for each channel named "channelName.newLayoutName.*"       
-        for( ChannelVector::const_iterator i = channels.begin(); 
-             i != channels.end(); ++i )
-        {
-           Channel* channel = *i;
-           string channelName = channel->getName();        
-           if( channelName.find( '.' + _layout->getName()) != string::npos ) 
-           {
-               // increase channel, window, pipe, node activation count*/
-               channel->activate();
-               _setCompoundFrustum( channel );
-           }
-        }
-        
-        return TRAVERSE_CONTINUE;
-    }
-       
-    
-private:    
-    Layout* _layout;
-    Canvas* _canvas;
-    Config* _config;
-
-    void _setCompoundFrustum(Channel* channel)
-    {
-        // find compounds where channel is a destination channel
-        CompoundVector compounds = _config->getCompounds();
-
-        for( CompoundVector::const_iterator j = compounds.begin();
-             j != compounds.end(); ++j )
-        {
-            CompoundCanvasInitVisitor visitor( _canvas, channel->getName() );
-            Compound* compound = *j;
-            compound->accept( &visitor, false );
-        }
-    }
-};
-}
-
 Layout* Config::findLayout( const std::string& name )
 {
     LayoutFinder finder( name );
@@ -582,97 +443,6 @@ bool Config::removeCompound( Compound* compound )
     _compounds.erase( i );
     compound->_config = 0;
     return true;
-}
-
-namespace
-{
-class CompoundUpdateVisitor : public ConfigVisitor
-{
-public:
-    CompoundUpdateVisitor( View* view,
-                              Channel* channel )
-        : _view( view)
-        , _channel( channel ){}
-
-    virtual VisitorResult visit( Compound* compound )
-    {
-        if ( !compound->isDestination() )
-            return TRAVERSE_CONTINUE;
-            
-        Channel* channelCompound = compound->getChannel();
-            
-        if( !( channelCompound && 
-             ( channelCompound->getName() == _channel->getName()) &&
-             compound->isDestination()))
-             return TRAVERSE_CONTINUE;
-            
-        switch ( _view->getCurrentType())
-        {
-            case View::TYPE_WALL :
-            {
-                Viewport ouptutViewPortChannel = _view->getViewport();
-                Viewport computeViewport = _channel->getViewport( );
-                    
-                computeViewport.intersect( ouptutViewPortChannel );
-                computeViewport.transform( ouptutViewPortChannel );
-                    
-                Wall wallView = _view->getWall();
-                wallView.apply( computeViewport );
-                compound->setWall( wallView );
-                    
-                EQLOG( LOG_VIEW ) << "compound frustum = " << wallView
-                                  << std::endl;
-                break;
-            }
-            case View::TYPE_PROJECTION:
-            {
-                EQUNIMPLEMENTED;
-            }
-            default: 
-                break;  
-        }      
-        return TRAVERSE_CONTINUE;
-    }
-private:
-    View* _view;
-    Channel* _channel;
-};
-    
-class InitCompoundFrustrumView : public ConfigVisitor
-{
-public:
-
-    InitCompoundFrustrumView( Config* config ): _config( config ){}
-
-    virtual ~InitCompoundFrustrumView(){}
-
-    virtual VisitorResult visit( View* view )
-    {
-         //for each Channel
-         ChannelVector channels = view->getChannels();
-    
-         // for each channel named "channelName.newLayoutName.*"       
-         for( ChannelVector::const_iterator i = channels.begin(); 
-                i != channels.end(); ++i )
-         {
-            Channel* channel = *i;
-            CompoundVector compounds = _config->getCompounds();
-            for( CompoundVector::const_iterator j = compounds.begin();
-                j != compounds.end(); ++j )
-            {
-               CompoundUpdateVisitor visitor( view, channel );
-               Compound* compound = *j;
-               compound->accept( &visitor, false );
-            }
-         }
-         return TRAVERSE_CONTINUE;
-    }
-
-private:
-    Config* _config ;
-};
-
-
 }
 
 Channel* Config::findChannel( const std::string& name )
@@ -897,12 +667,6 @@ bool Config::_startInit( const uint32_t initID )
     _finishedFrame = 0;
     _initID = initID;
 
-    CanvasInitVisitor canvasInit( this );
-    accept( &canvasInit );
-
-    InitCompoundFrustrumView compoundInit( this );
-    accept( &compoundInit );
-
     for( vector< Compound* >::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
     {
@@ -947,7 +711,7 @@ bool Config::_connectNodes()
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( !node->isUsed( ))
+        if( !node->isRendering( ))
             continue;
 
         net::NodePtr netNode;
@@ -997,7 +761,7 @@ bool Config::_initNodes( const uint32_t initID )
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( !node->isUsed( ))
+        if( !node->isRendering( ))
             continue;
         
         net::NodePtr netNode = node->getNode();
@@ -1044,7 +808,7 @@ bool Config::_initNodes( const uint32_t initID )
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( !node->isUsed( ))
+        if( !node->isRendering( ))
             continue;
 
         registerObject( node );
@@ -1090,7 +854,7 @@ bool Config::_finishInit()
     {
         Node*               node    = *i;
         net::NodePtr netNode = node->getNode();
-        if( !node->isUsed() || !netNode->isConnected( ))
+        if( !node->isRendering() || !netNode->isConnected( ))
             continue;
         
         if( !node->syncConfigInit( ))
@@ -1108,7 +872,7 @@ bool Config::_finishInit()
     {
         Node*               node    = *i;
         net::NodePtr netNode = node->getNode();
-        if( !node->isUsed() || !netNode->isConnected( ))
+        if( !node->isRendering() || !netNode->isConnected( ))
             continue;
 
         send( netNode, packet );
@@ -1151,7 +915,7 @@ bool Config::_exitNodes()
         Node*          node = *i;
         net::NodePtr netNode = node->getNode();
 
-        if( !node->isUsed() || !netNode.isValid() ||
+        if( !node->isRendering() || !netNode.isValid() ||
             netNode->getState() == net::Node::STATE_STOPPED )
 
             continue;
@@ -1329,7 +1093,7 @@ void Config::_prepareFrame( std::vector< net::NodeID >& nodeIDs )
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isUsed( ))
+        if( node->isRendering( ))
         {
             net::NodePtr netNode = node->getNode();
             nodeIDs.push_back( netNode->getNodeID( ));
@@ -1355,7 +1119,7 @@ void Config::_startFrame( const uint32_t frameID )
          i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isUsed( ))
+        if( node->isRendering( ))
             node->update( frameID, _currentFrame );
     }
 }
@@ -1368,7 +1132,7 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         const Node* node = *i;
-        if( node->isUsed() && node->getFinishedFrame() < frameNumber )
+        if( node->isRendering() && node->getFinishedFrame() < frameNumber )
             return;
     }
 
@@ -1391,7 +1155,7 @@ void Config::_flushFrames()
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isUsed( ))
+        if( node->isRendering( ))
             node->flushFrames( _currentFrame );
     }
 
@@ -1412,7 +1176,7 @@ net::CommandResult Config::_cmdStartInit( net::Command& command )
     const eq::ConfigStartInitPacket* packet = 
         command.getPacket<eq::ConfigStartInitPacket>();
     eq::ConfigStartInitReplyPacket   reply( packet );
-    EQINFO << "handle config start init " << packet << endl;
+    EQVERB << "handle config start init " << packet << endl;
 
     _error.clear();
     reply.result = _startInit( packet->initID );
@@ -1429,7 +1193,7 @@ net::CommandResult Config::_cmdFinishInit( net::Command& command )
     const eq::ConfigFinishInitPacket* packet = 
         command.getPacket<eq::ConfigFinishInitPacket>();
     eq::ConfigFinishInitReplyPacket   reply( packet );
-    EQINFO << "handle config finish init " << packet << endl;
+    EQVERB << "handle config finish init " << packet << endl;
 
     _error.clear();
     reply.result = _finishInit();
@@ -1449,7 +1213,7 @@ net::CommandResult Config::_cmdExit( net::Command& command )
     const eq::ConfigExitPacket* packet = 
         command.getPacket<eq::ConfigExitPacket>();
     eq::ConfigExitReplyPacket   reply( packet );
-    EQINFO << "handle config exit " << packet << endl;
+    EQVERB << "handle config exit " << packet << endl;
 
     if( _state == STATE_INITIALIZED )
         reply.result = exit();

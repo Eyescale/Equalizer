@@ -279,7 +279,7 @@ void Compound::setLoadBalancer( LoadBalancer* loadBalancer )
 bool Compound::isActive() const 
 {
     if( _data.channel )
-        return _inherit.active && _data.channel->isActive(); 
+        return _inherit.active && _data.channel->isRendering(); 
 
     return _inherit.active;
 }

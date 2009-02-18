@@ -57,8 +57,7 @@ VisitorResult ChannelUpdateVisitor::visitPre(
     return TRAVERSE_CONTINUE;
 }
 
-VisitorResult ChannelUpdateVisitor::visitLeaf( 
-    const Compound* compound )
+VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
 {
     if( compound->getChannel() != _channel ||
         !compound->testInheritEye( _eye ) )

@@ -6,6 +6,9 @@
 
 #include "config.h"
 #include "frame.h"
+#include "log.h"
+#include "segment.h"
+#include "view.h"
 
 #include <eq/client/log.h>
 
@@ -26,18 +29,9 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
     {
         channel->refUsed();
 
-#if 0
-        if( compound->getLatestView() != eq::View::TYPE_NONE )
-        {
-            const eq::View& view = compound->getView();
-            if ( view.getID() != EQ_ID_INVALID )
-            {
-               EQASSERTINFO( !channel->getView(),
-                          "Multiple views per channel are not supported" );
-               channel->setView( &view );
-            }
-        }
-#endif
+        const Segment* segment = channel->getSegment();
+        if( segment ) // we are a created destination channel
+            _updateFrustum( compound );
     }
 
     Config*        config  = compound->getConfig();
@@ -71,6 +65,43 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
         channel->addTasks( compound->getInheritTasks( ));
 
     return TRAVERSE_CONTINUE;    
+}
+
+void CompoundInitVisitor::_updateFrustum( Compound* compound )
+{
+    const Channel* channel = compound->getChannel();
+    const Segment* segment = channel->getSegment();
+    EQASSERT( channel && segment );
+
+    switch( segment->getCurrentType( )) // derive our frustum:
+    {
+        case View::TYPE_WALL:
+        {
+            // set compound frustum =
+            //         segment frustum X channel/segment coverage
+            const Channel* outputChannel = segment->getChannel();
+            EQASSERT( outputChannel );
+
+            const Viewport& outputVP = outputChannel->getViewport();
+            Viewport partialArea( channel->getViewport( ));
+            partialArea.intersect( outputVP ); // intersection
+            partialArea.transform( outputVP ); // in output coord.
+
+            Wall wall( segment->getWall( ));
+            wall.apply( partialArea );
+            compound->setWall( wall );
+            EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
+            break;
+        }
+
+        case View::TYPE_PROJECTION:
+            EQUNIMPLEMENTED;
+            break;
+
+        default: 
+            break;
+    }
+
 }
 
 }

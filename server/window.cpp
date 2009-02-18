@@ -389,7 +389,7 @@ void Window::startConfigInit( const uint32_t initID )
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
-        if( channel->isUsed( ) && channel->isActive( ))
+        if( channel->isRendering( ))
         {
             config->registerObject( channel );
             createChannelPacket.channelID = channel->getID();
@@ -425,13 +425,16 @@ bool Window::syncConfigInit()
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
-        if( channel->isUsed( ) && channel->isActive( ))
-            if( !channel->syncConfigInit( ))
-            {
-                _error += ", channel " + channel->getName() + ": '"  +
-                          channel->getErrorMessage() + '\'';
-                success = false;
-            }
+        EQLOG( LOG_VIEW ) << "Channel " << channel->getName() << " used "
+                          << channel->_used << " active "
+                          << channel->_active << std::endl;
+
+        if( channel->isRendering() && !channel->syncConfigInit( ))
+        {
+            _error += ", channel " + channel->getName() + ": '"  +
+                channel->getErrorMessage() + '\'';
+            success = false;
+        }
     }
 
     EQASSERT( _state == STATE_INITIALIZING || _state == STATE_RUNNING ||
@@ -550,7 +553,7 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
-        if( channel->isUsed( ))
+        if( channel->isRendering( ))
         {
             _doSwap |= channel->updateDraw( frameID, frameNumber );
         }
@@ -564,7 +567,7 @@ void Window::updatePost( const uint32_t frameID,
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
-        if( channel->isUsed( ))
+        if( channel->isRendering( ))
             channel->updatePost( frameID, frameNumber );
     }
 
@@ -643,7 +646,7 @@ net::CommandResult Window::_cmdConfigInitReply( net::Command& command )
 {
     const eq::WindowConfigInitReplyPacket* packet =
         command.getPacket<eq::WindowConfigInitReplyPacket>();
-    EQINFO << "handle window configInit reply " << packet << endl;
+    EQVERB << "handle window configInit reply " << packet << endl;
 
     if( packet->pvp.isValid( ))
         setPixelViewport( packet->pvp );
@@ -665,7 +668,7 @@ net::CommandResult Window::_cmdConfigExitReply( net::Command& command )
 {
     const eq::WindowConfigExitReplyPacket* packet =
         command.getPacket<eq::WindowConfigExitReplyPacket>();
-    EQINFO << "handle window configExit reply " << packet << endl;
+    EQVERB << "handle window configExit reply " << packet << endl;
 
     if( packet->result )
         _state = STATE_STOPPED;

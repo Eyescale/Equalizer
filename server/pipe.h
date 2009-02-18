@@ -127,13 +127,8 @@ namespace server
          */
         void deactivate();
 
-        /** 
-         * Returns if this pipe is actively used.
-         *
-         * @return <code>true</code> if this pipe has activation,
-         *         <code>false</code> if not.
-         */
-        bool isActive() const{ return( _active != 0 ); }
+        /** @return if this pipe is actively used for rendering. */
+        bool isRendering() const { return( _active != 0 && _used != 0 ); }
 
         /**
          * Add additional tasks this pipe, and all its parents, might

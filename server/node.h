@@ -117,13 +117,8 @@ namespace server
          */
         void deactivate(){ _active--; };
 
-        /** 
-         * Returns if this node is actively used.
-         *
-         * @return <code>true</code> if this node has activation,
-         *         <code>false</code> if not.
-         */
-        bool isActive() const{ return( _active != 0 ); }
+        /** @return if this pipe is actively used for rendering. */
+        bool isRendering() const { return( _active != 0 && _used != 0 ); }
 
         /** Add additional tasks this node might potentially execute. */
         void addTasks( const uint32_t tasks ) { _tasks |= tasks; }
