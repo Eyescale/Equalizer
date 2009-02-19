@@ -49,7 +49,7 @@ namespace server
         /** Add a new segment to this canvas. */
         void addSegment( Segment* segment );
         
-        /** Get the list of segments. */
+        /** @return the vector of child segments. */
         const SegmentVector& getSegments() const { return _segments; }
 
         /** 

@@ -51,7 +51,7 @@ void Channel::frameClear( const uint32_t frameID )
     const eq::View*  view      = getView();
     const FrameData& frameData = _getFrameData();
     if( view && frameData.getCurrentViewID() == view->getID( ))
-        glClearColor( .2f, .2f, .2f, 1.0f );
+        glClearColor( .4f, .4f, .4f, 1.0f );
 #ifndef NDEBUG
     else if( getenv( "EQ_TAINT_CHANNELS" ))
     {

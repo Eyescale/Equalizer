@@ -181,8 +181,27 @@ class NextViewFinder : public eq::ConfigVisitor
 {
 public:
     NextViewFinder( const uint32_t currentViewID ) 
-            : _id( currentViewID ), _result( 0 ), _stopNext( false ) {}
+            : _id( currentViewID ), _layout( 0 ), _result( 0 )
+            , _stopNext( false ) {}
     virtual ~NextViewFinder(){}
+
+    virtual eq::VisitorResult visitPre( eq::Canvas* canvas )
+        {
+            _layout = canvas->getLayout();
+            EQINFO << _layout << std::endl;
+            if( _layout )
+                _layout->accept( this );
+
+            _layout = 0;
+            return eq::TRAVERSE_PRUNE;
+        }
+
+    virtual eq::VisitorResult visitPre( eq::Layout* layout )
+        {
+            if( _layout != layout )
+                return eq::TRAVERSE_PRUNE; // only consider used layouts
+            return eq::TRAVERSE_CONTINUE; 
+        }
 
     virtual eq::VisitorResult visit( eq::View* view )
         {
@@ -197,17 +216,11 @@ public:
             return eq::TRAVERSE_CONTINUE; 
         }
 
-    virtual eq::VisitorResult visitPost( eq::Config* config )
-        {
-            if( _stopNext ) // wrap around
-                config->accept( this );
-            return eq::TRAVERSE_CONTINUE; 
-        }
-
     const eq::View* getResult() const { return _result; }
 
 private:
     const uint32_t _id;
+    eq::Layout*    _layout;
     eq::View*      _result;
     bool           _stopNext;
 };
@@ -248,7 +261,9 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     const eq::View* view = finder.getResult();
                     if( view )
                         _frameData.setCurrentViewID( view->getID( ));
-                    EQINFO << _frameData.getCurrentViewID( ) << std::endl;
+                    else
+                        _frameData.setCurrentViewID( EQ_ID_INVALID );
+                    EQINFO << _frameData.getCurrentViewID() << std::endl;
                     return true;
                 }
 
