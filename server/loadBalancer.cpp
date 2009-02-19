@@ -129,6 +129,9 @@ std::ostream& operator << ( std::ostream& os,
 
 std::ostream& operator << ( std::ostream& os, const LoadBalancer* lb )
 {
+    if( !lb )
+        return os;
+
     os << disableFlush
        << "loadBalancer " << endl
        << '{' << endl

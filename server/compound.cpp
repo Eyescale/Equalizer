@@ -948,8 +948,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         os << " ]" << endl;
     }
 
-    if( compound->getLoadBalancer( ))
-        os << compound->getLoadBalancer();
+    os << compound->getLoadBalancer();
 
     const CompoundVector& children = compound->getChildren();
     if( !children.empty( ))
