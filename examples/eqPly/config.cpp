@@ -188,7 +188,6 @@ public:
     virtual eq::VisitorResult visitPre( eq::Canvas* canvas )
         {
             _layout = canvas->getLayout();
-            EQINFO << _layout << std::endl;
             if( _layout )
                 _layout->accept( this );
 
@@ -263,7 +262,6 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                         _frameData.setCurrentViewID( view->getID( ));
                     else
                         _frameData.setCurrentViewID( EQ_ID_INVALID );
-                    EQINFO << _frameData.getCurrentViewID() << std::endl;
                     return true;
                 }
 
