@@ -12,6 +12,7 @@
 #include "fullSlaveCM.h"
 #include "log.h"
 #include "nullCM.h"
+#include "objectCM.h"
 #include "packets.h"
 #include "session.h"
 #include "staticMasterCM.h"
@@ -89,6 +90,17 @@ void Object::attachToSession( const uint32_t id, const uint32_t instanceID,
 
     EQINFO << _id << '.' << _instanceID << ": " << typeid( *this ).name()
            << (isMaster() ? " master" : " slave") << std::endl;
+}
+
+void Object::detachFromSession()
+{
+    // Slave objects keep their cm to be able to sync queued versions
+    if( isMaster( )) 
+        _setChangeManager( ObjectCM::ZERO );
+
+    _id         = EQ_ID_INVALID;
+    _instanceID = EQ_ID_INVALID;
+    _session    = 0;
 }
 
 void Object::_setChangeManager( ObjectCM* cm )
@@ -248,6 +260,81 @@ void Object::setupChangeManager( const Object::ChangeType type,
 
         default: EQUNIMPLEMENTED;
     }
+}
+
+//---------------------------------------------------------------------------
+// ChangeManager forwarders
+//---------------------------------------------------------------------------
+
+bool Object::isMaster() const
+{
+    return _cm->isMaster();
+}
+
+uint32_t Object::commitNB()
+{
+    return _cm->commitNB();
+}
+
+uint32_t Object::commitSync( const uint32_t commitID ) 
+{
+    return _cm->commitSync( commitID );
+}
+
+void Object::obsolete( const uint32_t version )
+{
+    _cm->obsolete( version );
+}
+
+void Object::setAutoObsolete( const uint32_t count, const uint32_t flags )
+{
+    _cm->setAutoObsolete( count, flags );
+}
+
+uint32_t Object::getAutoObsoleteCount() const 
+{
+    return _cm->getAutoObsoleteCount();
+}
+
+uint32_t Object::sync( const uint32_t version )
+{
+    return _cm->sync( version );
+}
+
+uint32_t Object::getHeadVersion() const
+{
+    return _cm->getHeadVersion();
+}
+
+uint32_t Object::getVersion() const
+{
+    return _cm->getVersion();
+}
+
+uint32_t Object::getOldestVersion() const
+{
+    return _cm->getOldestVersion();
+}
+
+uint32_t Object::getMasterInstanceID() const
+{
+    return _cm->getMasterInstanceID();
+}
+
+void Object::addSlave( NodePtr node, const uint32_t instanceID, 
+                       const uint32_t version )
+{
+    _cm->addSlave( node, instanceID, version );
+}
+
+void Object::removeSlave( NodePtr node )
+{
+    _cm->removeSlave( node );
+}
+
+CommandResult Object::_cmdForward( Command& command )
+{
+    return _cm->invokeCommand( command );
 }
 
 CommandResult Object::_cmdNewMaster( Command& command )

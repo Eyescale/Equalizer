@@ -9,6 +9,7 @@
 #include "connection.h"
 #include "connectionDescription.h"
 #include "log.h"
+#include "objectCM.h"
 #include "packets.h"
 #include "session.h"
 
@@ -300,17 +301,9 @@ void Session::_detachObject( Object* object )
         _objects.erase( id );
 
     _objectsMutex.unset();
-    
-    EQASSERT( object->_instanceID != EQ_ID_INVALID );
+    EQASSERT( object->getInstanceID() != EQ_ID_INVALID );
 
-    // Slave objects keep their cm to be able to sync queued versions
-    if( object->isMaster( )) 
-        object->_setChangeManager( ObjectCM::ZERO );
-
-    object->_id         = EQ_ID_INVALID;
-    object->_instanceID = EQ_ID_INVALID;
-    object->_session    = 0;
-
+    object->detachFromSession();
     return;
 }
 
@@ -439,7 +432,7 @@ void Session::unmapObject( Object* object )
 
 void Session::registerObject( Object* object )
 {
-    EQASSERT( object->_id == EQ_ID_INVALID );
+    EQASSERT( object->getID() == EQ_ID_INVALID );
 
     const uint32_t id = genIDs( 1 );
     EQASSERT( id != EQ_ID_INVALID );

@@ -7,7 +7,6 @@
 
 #include <eq/net/dispatcher.h>    // base class
 #include <eq/net/node.h>          // used in RefPtr
-#include <eq/net/objectCM.h>      // called inline
 #include <eq/net/types.h>         // for NodeVector
 
 namespace eq
@@ -17,11 +16,12 @@ namespace net
     class DataIStream;
     class DataOStream;
     class Node;
+    class ObjectCM;
     class Session;
     struct ObjectPacket;
 
     /** A generic, distributed object. */
-    class EQ_EXPORT Object : public Dispatcher
+    class Object : public Dispatcher
     {
     public:
         /**
@@ -57,13 +57,15 @@ namespace net
         /** 
          * Construct a new object.
          */
-        Object();
+        EQ_EXPORT Object();
 
-        virtual ~Object();
+        EQ_EXPORT virtual ~Object();
 
-        virtual void attachToSession( const uint32_t id, 
+        EQ_EXPORT virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
                                       Session* session );
+        EQ_EXPORT virtual void detachFromSession();
+
         /** 
          * Make this object thread safe.
          * 
@@ -85,7 +87,7 @@ namespace net
         uint32_t getInstanceID() const { return _instanceID; }
 
         /** @return if this instance is the master version. */
-        bool isMaster() const { return _cm->isMaster(); }
+        EQ_EXPORT bool isMaster() const;
 
         /**
          * @name Versioning
@@ -131,7 +133,7 @@ namespace net
          * @return the new head version.
          * @sa commitNB, commitSync
          */
-        virtual uint32_t commit();
+        EQ_EXPORT virtual uint32_t commit();
 
         /** 
          * Start committing a new version of this object.
@@ -142,7 +144,7 @@ namespace net
          * @return the commit identifier to be passed to commitSync
          * @sa commitSync
          */
-        uint32_t commitNB() { return _cm->commitNB(); }
+        EQ_EXPORT uint32_t commitNB();
         
         /** 
          * Finalizes a commit transaction.
@@ -150,8 +152,7 @@ namespace net
          * @param commitID the commit identifier returned from commitNB
          * @return the new head version.
          */
-        uint32_t commitSync( const uint32_t commitID ) 
-            { return _cm->commitSync( commitID ); }
+        EQ_EXPORT uint32_t commitSync( const uint32_t commitID );
 
         /** 
          * Explicitly obsoletes all versions including version.
@@ -160,7 +161,7 @@ namespace net
          * 
          * @param version the version to obsolete
          */
-        void obsolete( const uint32_t version ) { _cm->obsolete( version ); }
+        EQ_EXPORT void obsolete( const uint32_t version );
 
         /** 
          * Automatically obsolete old versions.
@@ -177,13 +178,11 @@ namespace net
          *              version.
          * @param flags additional flags for the auto-obsoletion mechanism
          */
-        void setAutoObsolete( const uint32_t count, 
-                           const uint32_t flags = AUTO_OBSOLETE_COUNT_VERSIONS )
-            { _cm->setAutoObsolete( count, flags ); }
+        EQ_EXPORT void setAutoObsolete( const uint32_t count, 
+                          const uint32_t flags = AUTO_OBSOLETE_COUNT_VERSIONS );
 
         /** @return get the number of versions this object retains. */
-        uint32_t getAutoObsoleteCount() const 
-            { return _cm->getAutoObsoleteCount(); }
+        EQ_EXPORT uint32_t getAutoObsoleteCount() const;
 
         /** 
          * Sync to a given version.
@@ -195,18 +194,16 @@ namespace net
          *                current version.
          * @return the version of the object after the operation.
          */
-        uint32_t sync( const uint32_t version = VERSION_HEAD
-                   /*, const float timeout = EQ_TIMEOUT_INDEFINITE*/ )
-            { return _cm->sync( version ); }
+        EQ_EXPORT uint32_t sync( const uint32_t version = VERSION_HEAD );
 
         /** @return the latest available (head) version. */
-        uint32_t getHeadVersion() const { return _cm->getHeadVersion(); }
+        EQ_EXPORT uint32_t getHeadVersion() const;
 
         /** @return the currently synchronized version. */
-        uint32_t getVersion() const { return _cm->getVersion(); }
+        EQ_EXPORT uint32_t getVersion() const;
 
         /** @return the oldest available version. */
-        uint32_t getOldestVersion() const { return _cm->getOldestVersion(); }
+        EQ_EXPORT uint32_t getOldestVersion() const;
 
         /** 
          * Notification that a new head version was received by a slave object.
@@ -240,10 +237,10 @@ namespace net
 
     protected:
         /** Copy constructor. */
-        Object( const Object& );
+        EQ_EXPORT Object( const Object& );
 
         /** NOP assignment operator. */
-        const Object& operator = ( const Object& ) { return *this; }
+        EQ_EXPORT const Object& operator = ( const Object& ) { return *this; }
 
         /**
          * @name Automatic Instantiation and Versioning
@@ -292,7 +289,7 @@ namespace net
         //*}
 
         /** @return the master object instance identifier. */
-        uint32_t getMasterInstanceID() const{return _cm->getMasterInstanceID();}
+        EQ_EXPORT uint32_t getMasterInstanceID() const;
 
         /** 
          * Add a slave subscriber.
@@ -301,17 +298,15 @@ namespace net
          * @param instanceID the object instance identifier on the slave node.
          * @param version the initial version.
          */
-        void addSlave( NodePtr node, const uint32_t instanceID, 
-                       const uint32_t version )
-            { _cm->addSlave( node, instanceID, version ); }
+        EQ_EXPORT void addSlave( NodePtr node, const uint32_t instanceID, 
+                                 const uint32_t version );
 
         /** 
          * Remove a subscribed slave.
          * 
          * @param node the slave node. 
          */
-        void removeSlave( NodePtr node )
-            { _cm->removeSlave( node ); }
+        EQ_EXPORT void removeSlave( NodePtr node );
 
         /** @name Packet Transmission */
         //*{
@@ -354,8 +349,7 @@ namespace net
         void _setChangeManager( ObjectCM* cm );
 
         /* The command handlers. */
-        CommandResult _cmdForward( Command& command )
-            { return _cm->invokeCommand( command ); }
+        CommandResult _cmdForward( Command& command );
         CommandResult _cmdNewMaster( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
