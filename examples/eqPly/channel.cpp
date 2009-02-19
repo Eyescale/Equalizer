@@ -43,6 +43,28 @@ bool Channel::configInit( const uint32_t initID )
     return true;
 }
 
+void Channel::frameClear( const uint32_t frameID )
+{
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
+
+    const eq::View*  view      = getView();
+    const FrameData& frameData = _getFrameData();
+    if( view && frameData.getCurrentViewID() == view->getID( ))
+        glClearColor( .2f, .2f, .2f, 1.0f );
+#ifndef NDEBUG
+    else if( getenv( "EQ_TAINT_CHANNELS" ))
+    {
+        const vmml::Vector3ub color = getUniqueColor();
+        glClearColor( color.r/255.0f, color.g/255.0f, color.b/255.0f, 1.0f );
+    }
+#endif // DEBUG
+    else
+        glClearColor( 0.f, 0.f, 0.f, 1.0f );
+
+    EQ_GL_CALL( glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ));
+}
+
 void Channel::frameDraw( const uint32_t frameID )
 {
     // Setup OpenGL state

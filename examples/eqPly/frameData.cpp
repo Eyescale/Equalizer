@@ -13,6 +13,7 @@ FrameData::FrameData()
         , _ortho( false )
         , _statistics( false )
         , _wireframe( false )
+        , _currentViewID( EQ_ID_INVALID )
 {
     reset();
     EQINFO << "New FrameData " << std::endl;
@@ -25,6 +26,8 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
         os << _translation << _rotation;
     if( dirtyBits & DIRTY_FLAGS )
         os << _renderMode << _color << _ortho << _statistics << _wireframe;
+    if( dirtyBits & DIRTY_VIEW )
+        os << _currentViewID;
 }
 
 void FrameData::deserialize( eq::net::DataIStream& is,
@@ -35,6 +38,8 @@ void FrameData::deserialize( eq::net::DataIStream& is,
         is >> _translation >> _rotation;
     if( dirtyBits & DIRTY_FLAGS )
         is >> _renderMode >> _color >> _ortho >> _statistics >> _wireframe;
+    if( dirtyBits & DIRTY_VIEW )
+        is >> _currentViewID;
 }
 
 void FrameData::setColor( const bool onOff )
@@ -103,6 +108,12 @@ void FrameData::reset()
     _rotation.rotateX( static_cast<float>( -M_PI_2 ));
     _rotation.rotateY( static_cast<float>( -M_PI_2 ));
     setDirty( DIRTY_CAMERA );
+}
+
+void FrameData::setCurrentViewID( const uint32_t id )
+{
+    _currentViewID = id;
+    setDirty( DIRTY_VIEW );
 }
 
 }

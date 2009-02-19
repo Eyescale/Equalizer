@@ -175,6 +175,44 @@ bool Config::needsRedraw()
     return ( _spinX != 0 || _spinY != 0 || _tracker.isRunning() || _redraw );
 }
 
+namespace
+{
+class NextViewFinder : public eq::ConfigVisitor
+{
+public:
+    NextViewFinder( const uint32_t currentViewID ) 
+            : _id( currentViewID ), _result( 0 ), _stopNext( false ) {}
+    virtual ~NextViewFinder(){}
+
+    virtual eq::VisitorResult visit( eq::View* view )
+        {
+            if( _stopNext || _id == EQ_ID_INVALID )
+            {
+                _result = view;
+                return eq::TRAVERSE_TERMINATE;
+            }
+            
+            if( view->getID() == _id )
+                _stopNext = true;    
+            return eq::TRAVERSE_CONTINUE; 
+        }
+
+    virtual eq::VisitorResult visitPost( eq::Config* config )
+        {
+            if( _stopNext ) // wrap around
+                config->accept( this );
+            return eq::TRAVERSE_CONTINUE; 
+        }
+
+    const eq::View* getResult() const { return _result; }
+
+private:
+    const uint32_t _id;
+    eq::View*      _result;
+    bool           _stopNext;
+};
+}
+
 bool Config::handleEvent( const eq::ConfigEvent* event )
 {
     switch( event->data.type )
@@ -201,6 +239,18 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 case 'S':
                     _frameData.toggleStatistics();
                     return true;
+
+                case 'v':
+                case 'V':
+                {
+                    NextViewFinder finder( _frameData.getCurrentViewID( ));
+                    accept( &finder );
+                    const eq::View* view = finder.getResult();
+                    if( view )
+                        _frameData.setCurrentViewID( view->getID( ));
+                    EQINFO << _frameData.getCurrentViewID( ) << std::endl;
+                    return true;
+                }
 
                 case 'w':
                 case 'W':

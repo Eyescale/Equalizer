@@ -11,6 +11,9 @@
 
 namespace eqPly
 {
+    class View;
+    typedef std::vector< View* > ViewVector;
+
     /**
      * Frame-specific data.
      *
@@ -57,6 +60,12 @@ namespace eqPly
             { return _translation; }
         //*}
 
+        /** @name View interface. */
+        //*{
+        void setCurrentViewID( const uint32_t id );
+        uint32_t getCurrentViewID() const { return _currentViewID; }
+        //*}
+
     protected:
         /** @sa Object::serialize() */
         virtual void serialize( eq::net::DataOStream& os,
@@ -70,6 +79,7 @@ namespace eqPly
         {
             DIRTY_CAMERA = eq::Object::DIRTY_CUSTOM << 0,
             DIRTY_FLAGS  = eq::Object::DIRTY_CUSTOM << 1,
+            DIRTY_VIEW   = eq::Object::DIRTY_CUSTOM << 2,
         };
 
     private:
@@ -81,6 +91,8 @@ namespace eqPly
         bool             _ortho;
         bool             _statistics;
         bool             _wireframe;
+
+        uint32_t _currentViewID;
     };
 }
 

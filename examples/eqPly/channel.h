@@ -28,6 +28,7 @@ namespace eqPly
         virtual ~Channel() {}
 
         virtual bool configInit( const uint32_t initID );
+        virtual void frameClear( const uint32_t frameID );
         virtual void frameDraw( const uint32_t frameID );
         virtual void frameAssemble( const uint32_t frameID );
 
