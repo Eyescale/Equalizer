@@ -99,9 +99,54 @@ void Canvas::useLayout( Layout* layout )
     setDirty( DIRTY_LAYOUT );
 }
 
+namespace
+{
+template< class C, class V >
+VisitorResult _accept( C* canvas, V* visitor )
+{
+    VisitorResult result = visitor->visitPre( canvas );
+    if( result != TRAVERSE_CONTINUE )
+        return result;
+
+    const SegmentVector& segments = canvas->getSegments();
+    for( SegmentVector::const_iterator i = segments.begin(); 
+         i != segments.end(); ++i )
+    {
+        switch( (*i)->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    switch( visitor->visitPost( canvas ))
+    {
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
+
+        case TRAVERSE_PRUNE:
+            return TRAVERSE_PRUNE;
+                
+        case TRAVERSE_CONTINUE:
+        default:
+            break;
+    }
+
+    return result;
+}
+}
+
 VisitorResult Canvas::accept( CanvasVisitor* visitor )
-{ 
-    return visitor->visit( this );
+{
+    return _accept( this, visitor );
 }
 
 }

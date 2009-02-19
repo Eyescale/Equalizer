@@ -45,6 +45,14 @@ namespace eq
         Config*       getConfig()       { return _config; }
         /** @return the parent config. */
         const Config* getConfig() const { return _config; }
+
+        /** @return the layout used by the canvas. */
+        Layout*       getLayout()       { return _layout; }
+        /** @return the layout used by the canvas. */
+        const Layout* getLayout() const { return _layout; }
+
+        /** @return the vector of child segments. */
+        const SegmentVector& getSegments() const { return _segments; }        
         //*}
 
         /**

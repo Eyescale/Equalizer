@@ -9,6 +9,7 @@
 
 #include <eq/client/channelStatistics.h>
 #include <eq/client/client.h>
+#include <eq/client/canvas.h>
 #include <eq/client/compositor.h>
 #include <eq/client/config.h>
 #include <eq/client/configEvent.h>
@@ -19,6 +20,7 @@
 #include <eq/client/global.h>
 #include <eq/client/image.h>
 #include <eq/client/init.h>
+#include <eq/client/layout.h>
 #include <eq/client/log.h>
 #include <eq/client/matrix4.h>
 #include <eq/client/node.h>
