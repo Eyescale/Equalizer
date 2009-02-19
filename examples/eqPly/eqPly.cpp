@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "eqPly.h"
@@ -14,11 +14,11 @@ using namespace std;
 namespace eqPly
 {
 
-Application::Application( const LocalInitData& initData )
+EqPly::EqPly( const LocalInitData& initData )
         : _initData( initData )
 {}
 
-int Application::run()
+int EqPly::run()
 {
     // 1. connect to server
     eq::ServerPtr server = new eq::Server;
@@ -98,7 +98,7 @@ int Application::run()
     return EXIT_SUCCESS;
 }
 
-bool Application::clientLoop()
+bool EqPly::clientLoop()
 {
     if( !_initData.isResident( )) // execute only one config run
         return eq::Client::clientLoop();

@@ -13,6 +13,13 @@
 
 namespace eqPly
 {
+    /**
+     * The configuration, run be the EqPly application. 
+     *
+     * A configuration instance manages configuration-specific data: it
+     * distributes the initialization and model data, updates frame-specific
+     * data and manages frame generation based on event handling. 
+     */
     class Config : public eq::Config
     {
     public:

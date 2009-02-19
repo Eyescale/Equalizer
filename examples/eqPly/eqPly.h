@@ -11,7 +11,7 @@
 #include "vertexBufferRoot.h"
 
 
-/** The Equalizer Polygonal Rendering Example. */
+/** The Equalizer polygonal rendering example. */
 namespace eqPly
 {
     class LocalInitData;
@@ -19,11 +19,12 @@ namespace eqPly
     typedef mesh::VertexBufferRoot    Model;
     typedef VertexBufferDist          ModelDist;
 
-    class Application : public eq::Client
+    /** The EqPly application instance */
+    class EqPly : public eq::Client
     {
     public:
-        Application( const LocalInitData& initData );
-        virtual ~Application() {}
+        EqPly( const LocalInitData& initData );
+        virtual ~EqPly() {}
 
         /** Run an eqPly instance. */
         int run();
@@ -38,7 +39,7 @@ namespace eqPly
 
     enum LogTopics
     {
-        LOG_STATS = eq::LOG_CUSTOM,      // 65536
+        LOG_STATS = eq::LOG_CUSTOM << 0, // 65536
         LOG_CULL  = eq::LOG_CUSTOM << 1  // 131072
     };
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "eqPly.h"
@@ -8,6 +8,7 @@
 #include "config.h"
 #include "node.h"
 #include "pipe.h"
+#include "view.h"
 #include "window.h"
 
 #include <stdlib.h>
@@ -28,6 +29,9 @@ public:
         { return new eqPly::Window( parent ); }
     virtual eq::Channel* createChannel( eq::Window* parent )
         { return new eqPly::Channel( parent ); }
+
+    virtual eq::View* createView()
+        { return new eqPly::View(); }
 };
 
 int main( const int argc, char** argv )
@@ -45,7 +49,7 @@ int main( const int argc, char** argv )
     }
     
     // 3. initialization of local client node
-    RefPtr< eqPly::Application > client = new eqPly::Application( initData );
+    RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << endl;

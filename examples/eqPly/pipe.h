@@ -11,6 +11,15 @@
 
 namespace eqPly
 {
+    /**
+     * The representation of one GPU.
+     *
+     * The pipe object is responsible for maintaining GPU-specific and
+     * frame-specific data. The identifier passed by the configuration contains
+     * the version of the frame data corresponding to the rendered frame. The
+     * pipe's start frame callback synchronizes the thread-local instance of the
+     * frame data to this version.
+     */
     class Pipe : public eq::Pipe
     {
     public:

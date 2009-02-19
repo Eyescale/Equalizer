@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_CHANNEL_H
@@ -16,6 +16,9 @@ namespace eqPly
     class FrameData;
     class InitData;
 
+    /**
+     * The rendering entity, updating a part of a Window.
+     */
     class Channel : public eq::Channel
     {
     public:

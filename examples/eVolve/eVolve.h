@@ -17,11 +17,11 @@ namespace eVolve
     typedef RawVolumeModelRenderer Renderer;
 
 
-    class Application : public eq::Client
+    class EVolve : public eq::Client
     {
     public:
-        Application( const LocalInitData& initData );
-        virtual ~Application() {}
+        EVolve( const LocalInitData& initData );
+        virtual ~EVolve() {}
 
         /** Run an eqPly instance. */
         int run();

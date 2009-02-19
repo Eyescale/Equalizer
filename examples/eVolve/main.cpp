@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "eVolve.h"
@@ -45,7 +45,7 @@ int main( const int argc, char** argv )
     }
     
     // 3. initialization of local client node
-    RefPtr< eVolve::Application > client = new eVolve::Application( initData );
+    RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << endl;

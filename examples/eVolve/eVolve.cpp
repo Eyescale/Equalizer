@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "eVolve.h"
@@ -14,11 +14,11 @@ using namespace std;
 namespace eVolve
 {
 
-Application::Application( const LocalInitData& initData )
+EVolve::EVolve( const LocalInitData& initData )
         : _initData( initData )
 {}
 
-int Application::run()
+int EVolve::run()
 {
     // 1. connect to server
     eq::ServerPtr server = new eq::Server;
@@ -84,7 +84,7 @@ int Application::run()
     return EXIT_SUCCESS;
 }
 
-bool Application::clientLoop()
+bool EVolve::clientLoop()
 {
     if( !_initData.isResident( )) // execute only one config run
         return eq::Client::clientLoop();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_NODE_H
@@ -12,6 +12,12 @@
 
 namespace eqPly
 {
+    /**
+     * Representation of a node in the cluster
+     * 
+     * Manages node-specific data, namely requesting the mapping of the
+     * initialization data by the local Config instance.
+     */
     class Node : public eq::Node
     {
     public:

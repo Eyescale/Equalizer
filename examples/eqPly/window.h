@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_WINDOW_H
@@ -12,6 +12,13 @@
 
 namespace eqPly
 {
+    /**
+     * A window represent an OpenGL drawable and context
+     *
+     * Manages OpenGL-specific data, i.e., it creates the logo texture during
+     * initialization and holds a state object for GL object creation. It
+     * initializes the OpenGL state and draws the statistics overlay.
+     */
     class Window : public eq::Window
     {
     public:
