@@ -461,14 +461,15 @@ configAttribute:
                              eq::server::Config::FATTR_EYE_BASE, $2 ); }
 
 node: appNode | renderNode
-renderNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
+renderNode: EQTOKEN_NODE '{' {
+                                 node = loader->createNode();
+                                 config->addNode( node );
+                             }
                nodeFields
                '}' { 
                         if( node->getConnectionDescriptions().empty( ))
                             node->addConnectionDescription(
                                 new eq::server::ConnectionDescription );
-
-                        config->addNode( node );
                         node = 0; 
                    }
 appNode: EQTOKEN_APPNODE '{' 
