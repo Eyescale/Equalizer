@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved. */
 
 #ifndef EQ_PLY_LOCALINITDATA_H
@@ -11,6 +11,10 @@ class FrameData;
 
 namespace eqPly
 {
+    /**
+     * Manages the argument parsing and non-distributed part of the
+     * initialization data.
+     */
     class LocalInitData : public InitData
     {
     public:
@@ -22,13 +26,14 @@ namespace eqPly
         bool               useColor()       const { return _color; }
         bool               isResident()     const { return _isResident; }
         uint32_t           getMaxFrames()   const { return _maxFrames; }
-        const std::string& getFilename()    const { return _filename; }
+        const std::vector< std::string >& getFilenames() const
+            { return _filenames; }
 
         const LocalInitData& operator = ( const LocalInitData& from );
 
     private:
         std::string _trackerPort;
-        std::string _filename;
+        std::vector< std::string > _filenames;
         uint32_t    _maxFrames;
         bool        _color;
         bool        _isResident;

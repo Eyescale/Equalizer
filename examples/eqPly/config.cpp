@@ -13,7 +13,6 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
         : eq::Config( parent )
         , _spinX( 5 )
         , _spinY( 5 )
-        , _model( 0 )
         , _modelDist( 0 )
         , _redraw( true )
 {
@@ -21,8 +20,12 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
 
 Config::~Config()
 {
-    delete _model;
-    _model = 0;
+    for( ModelVector::const_iterator i = _models.begin(); 
+         i != _models.end(); ++i )
+    {
+        delete *i;
+    }
+    _models.clear();
 
     delete _modelDist;
     _modelDist = 0;
@@ -90,30 +93,34 @@ bool Config::exit()
 
 void Config::_loadModel()
 {
-    if( !_model )
+    if( _models.empty( ))
     {
-        const string& filename = _initData.getFilename();
-        EQINFO << "Loading model " << filename << endl;
-     
-        _model = new Model;
-
-        if( _initData.useInvertedFaces() )
-            _model->useInvertedFaces();
-        
-        if ( !_model->readFromFile( filename.c_str() ) )
+        const std::vector< std::string >& filenames = _initData.getFilenames();
+        for(  std::vector< std::string >::const_iterator i = filenames.begin();
+              i != filenames.end(); ++i )
         {
-            EQWARN << "Can't load model: " << filename << endl;
+            const std::string& filename = *i;
+            EQINFO << "Loading model " << filename << endl;
+     
+            Model* model = new Model;
 
-            delete _model;
-            _model = 0;
-            return;
+            if( _initData.useInvertedFaces() )
+                model->useInvertedFaces();
+        
+            if ( !model->readFromFile( filename.c_str() ) )
+            {
+                EQWARN << "Can't load model: " << filename << endl;
+                delete model;
+            }
+            else
+                _models.push_back( model );
         }
     }
     
-    if( !_modelDist )
+    // TODO: move to View
+    if( !_models.empty() && !_modelDist )
     {
-        EQASSERT( _model );
-        _modelDist = new ModelDist( _model );
+        _modelDist = new ModelDist( _models[0] );
         _modelDist->registerTree( this );
         EQASSERT( _modelDist->getID() != EQ_ID_INVALID );
 
@@ -135,10 +142,14 @@ bool Config::mapData( const uint32_t initDataID )
     if( modelID == EQ_ID_INVALID ) // no model loaded by application
         return true;
 
-    if( !_model )
-        _model = ModelDist::mapModel( this, modelID );
+    if( _models.empty( ))
+    {
+        Model* model = ModelDist::mapModel( this, modelID );
+        if( model )
+            _models.push_back( model );
+    }
 
-    return (_model != 0);
+    return !_models.empty();
 }
 
 uint32_t Config::startFrame()

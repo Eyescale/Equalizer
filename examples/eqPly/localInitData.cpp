@@ -19,16 +19,17 @@ using namespace std;
 
 namespace eqPly
 {
-LocalInitData::LocalInitData() :
-#ifdef WIN32_VC
-        _filename( "../examples/eqPly/rockerArm.ply" )
-#else
-        _filename( "../share/data/rockerArm.ply" )
-#endif
-        , _maxFrames( 0xffffffffu )
+LocalInitData::LocalInitData() 
+        : _maxFrames( 0xffffffffu )
         , _color( true )
         , _isResident( false )
-{}
+{
+#ifdef WIN32_VC
+    _filenames.push_back( "../examples/eqPly/rockerArm.ply" );
+#else
+    _filenames.push_back( "../share/data/rockerArm.ply" );
+#endif
+}
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
 {
@@ -36,7 +37,7 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _maxFrames   = from._maxFrames;    
     _color       = from._color;        
     _isResident  = from._isResident;
-    _filename    = from._filename;
+    _filenames    = from._filenames;
 
     setWindowSystem( from.getWindowSystem( ));
     setRenderMode( from.getRenderMode( ));
@@ -79,9 +80,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             string( "\t\tm:                         Switch rendering mode\n" );
 
         TCLAP::CmdLine command( desc );
-        TCLAP::ValueArg<string> modelArg( "m", "model", "ply model file name", 
-                                          false, "rockerArm.ply", "string", 
-                                          command );
+        TCLAP::MultiArg<string> modelArg( "m", "model", "ply model file name", 
+                                          false, "string", command );
         TCLAP::ValueArg<string> portArg( "p", "port", "tracking device port",
                                          false, "/dev/ttyS0", "string",
                                          command );
@@ -108,7 +108,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         command.parse( argc, argv );
 
         if( modelArg.isSet( ))
-            _filename = modelArg.getValue();
+            _filenames = modelArg.getValue();
         if( portArg.isSet( ))
             _trackerPort = portArg.getValue();
         if( wsArg.isSet( ))

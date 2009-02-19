@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_CONFIG_H
@@ -13,6 +13,8 @@
 
 namespace eqPly
 {
+    typedef std::vector< Model* > ModelVector;
+
     /**
      * The configuration, run be the EqPly application. 
      *
@@ -40,7 +42,9 @@ namespace eqPly
         bool mapData( const uint32_t initDataID );
 
         /** @return the loaded model, or 0. */
-        const Model* getModel() const { return _model; }
+        const ModelVector& getModels() const { return _models; }
+        const Model* getModel() const // TODO remove 
+            { return _models.empty() ? 0 : _models[0]; }
 
         /** @sa eq::Config::handleEvent */
         virtual bool handleEvent( const eq::ConfigEvent* event );
@@ -58,7 +62,7 @@ namespace eqPly
 
         Tracker _tracker;
 
-        Model*     _model;
+        ModelVector _models;
         ModelDist* _modelDist;
 
         bool _redraw;
