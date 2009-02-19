@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_FRAMEDATA_H
@@ -11,47 +11,76 @@
 
 namespace eqPly
 {
-    class FrameData : public eq::net::Object
+    /**
+     * Frame-specific data.
+     *
+     * The frame-specific data is used as a per-config distributed object and
+     * contains mutable, rendering-relevant data. Each rendering thread (pipe)
+     * keeps its own instance synchronized with the frame currently being
+     * rendered. The data is managed by the Config, which modifies it directly.
+     */
+    class FrameData : public eq::Object
     {
     public:
 
-        FrameData()
-            {
-                reset();
-                EQINFO << "New FrameData " << std::endl;
-            }
+        FrameData();
 
-        void reset()
-            {
-                data.translation   = vmml::Vector3f::ZERO;
-                data.translation.z = -2.f;
-                data.rotation = vmml::Matrix4f::IDENTITY;
-                data.rotation.rotateX( static_cast<float>( -M_PI_2 ));
-                data.rotation.rotateY( static_cast<float>( -M_PI_2 ));
-            }
+        virtual ~FrameData() {};
 
-        struct Data
-        {
-            Data() : renderMode( mesh::RENDER_MODE_DISPLAY_LIST ), color( true )
-                   , ortho( false ), statistics( false ), wireframe( false ) {}
+        void reset();
+        
+        /** @name Rendering flags. */
+        //*{
+        void setColor( const bool onOff );
+        void setRenderMode( const mesh::RenderMode mode );
 
-            vmml::Matrix4f rotation;
-            vmml::Vector3f translation;
-            mesh::RenderMode renderMode;
-            bool           color;
-            bool           ortho;
-            bool           statistics;
-            bool           wireframe;
-        } data;
-    
+        void toggleOrtho();
+        void toggleStatistics();
+        void toggleWireframe();
+        void toggleRenderMode();
+
+        bool useColor() const { return _color; }
+        bool useOrtho() const { return _ortho; }
+        bool useStatistics() const { return _statistics; }
+        bool useWireframe() const { return _wireframe; }
+        mesh::RenderMode getRenderMode() const { return _renderMode; }
+        //*}
+
+        /** @name Camera parameters. */
+        //*{
+        void spinCamera( const float x, const float y );
+        void moveCamera( const float x, const float y, const float z );
+
+        const vmml::Matrix4f& getCameraRotation() const
+            { return _rotation; }
+        const vmml::Vector3f& getCameraTranslation() const
+            { return _translation; }
+        //*}
+
     protected:
-        virtual ChangeType getChangeType() const { return INSTANCE; }
+        /** @sa Object::serialize() */
+        virtual void serialize( eq::net::DataOStream& os,
+                                const uint64_t dirtyBits );
+        /** @sa Object::deserialize() */
+        virtual void deserialize( eq::net::DataIStream& is,
+                                  const uint64_t dirtyBits );
 
-        virtual void getInstanceData( eq::net::DataOStream& os )
-            { os << data; }
+        /** The changed parts of the data since the last pack(). */
+        enum DirtyBits
+        {
+            DIRTY_CAMERA = eq::Object::DIRTY_CUSTOM << 0,
+            DIRTY_FLAGS  = eq::Object::DIRTY_CUSTOM << 1,
+        };
 
-        virtual void applyInstanceData( eq::net::DataIStream& is )
-            { is >> data; }
+    private:
+        vmml::Matrix4f _rotation;
+        vmml::Vector3f _translation;
+        
+        mesh::RenderMode _renderMode;
+        bool             _color;
+        bool             _ortho;
+        bool             _statistics;
+        bool             _wireframe;
     };
 }
 

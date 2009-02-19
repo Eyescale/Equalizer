@@ -36,8 +36,8 @@ bool Config::init()
     _loadModel();
 
     // init distributed objects
-    _frameData.data.color      = _initData.useColor();
-    _frameData.data.renderMode = _initData.getRenderMode();
+    _frameData.setColor( _initData.useColor( ));
+    _frameData.setRenderMode( _initData.getRenderMode( ));
     registerObject( &_frameData );
     
     _initData.setFrameDataID( _frameData.getID( ));
@@ -163,8 +163,7 @@ uint32_t Config::startFrame()
     }
 
     // update database
-    _frameData.data.rotation.preRotateX( -0.001f * _spinX );
-    _frameData.data.rotation.preRotateY( -0.001f * _spinY );
+    _frameData.spinCamera( -0.001f * _spinX, -0.001f * _spinY );
     const uint32_t version = _frameData.commit();
 
     _redraw = false;
@@ -195,25 +194,22 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
                 case 'o':
                 case 'O':
-                    _frameData.data.ortho = !_frameData.data.ortho;
+                    _frameData.toggleOrtho();
                     return true;
 
                 case 's':
                 case 'S':
-                    _frameData.data.statistics = !_frameData.data.statistics;
+                    _frameData.toggleStatistics();
                     return true;
 
                 case 'w':
                 case 'W':
-                    _frameData.data.wireframe = !_frameData.data.wireframe;
+                    _frameData.toggleWireframe();
                     return true;
 
                 case 'm':
                 case 'M':
-                    _frameData.data.renderMode = static_cast<mesh::RenderMode>
-                        ((_frameData.data.renderMode+1)%mesh::RENDER_MODE_ALL);
-                    EQINFO << "Switched to " << _frameData.data.renderMode
-                           << endl;
+                    _frameData.toggleRenderMode();
                     return true;
 
                 // Head Tracking Emulation
@@ -284,29 +280,23 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 _spinX = 0;
                 _spinY = 0;
 
-                _frameData.data.rotation.preRotateX( 
-                    -0.005f * event->data.pointerMotion.dx );
-                _frameData.data.rotation.preRotateY(
-                    -0.005f * event->data.pointerMotion.dy );
-
+                _frameData.spinCamera( -0.005f * event->data.pointerMotion.dx,
+                                       -0.005f * event->data.pointerMotion.dy );
                 _redraw = true;
             }
             else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 ||
                      event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
                                                        eq::PTR_BUTTON3 ))
             {
-                _frameData.data.translation.z +=
-                    .005f * event->data.pointerMotion.dy;
-
+                _frameData.moveCamera( 0.f, 0.f,
+                                       .005f * event->data.pointerMotion.dy );
                 _redraw = true;
             }
             else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
-                _frameData.data.translation.x += 
-                    .0005f * event->data.pointerMotion.dx;
-                _frameData.data.translation.y -= 
-                    .0005f * event->data.pointerMotion.dy;
-
+                _frameData.moveCamera( .0005f * event->data.pointerMotion.dx,
+                                       .0005f * event->data.pointerMotion.dy,
+                                       0.f );
                 _redraw = true;
             }
             return true;

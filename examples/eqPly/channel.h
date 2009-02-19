@@ -40,7 +40,7 @@ namespace eqPly
         void _initFrustum( vmml::FrustumCullerf& frustum, 
                            const vmml::Vector4f& boundingSphere );
 
-        const FrameData::Data& _getFrameData() const;
+        const FrameData& _getFrameData() const;
     };
 }
 

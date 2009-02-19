@@ -157,21 +157,22 @@ void Window::_loadShaders()
 
 void Window::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
-    const Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData::Data& frameData = pipe->getFrameData();
+    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData& frameData = pipe->getFrameData();
 
-    _state->setRenderMode( frameData.renderMode );
-    glPolygonMode( GL_FRONT_AND_BACK, frameData.wireframe ? GL_LINE : GL_FILL );
+    _state->setRenderMode( frameData.getRenderMode( ));
+    glPolygonMode( GL_FRONT_AND_BACK, 
+                   frameData.useWireframe() ? GL_LINE : GL_FILL );
     eq::Window::frameStart( frameID, frameNumber );
 }
 
 void Window::swapBuffers()
 {
     const Pipe*              pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData::Data&   frameData = pipe->getFrameData();
+    const FrameData&         frameData = pipe->getFrameData();
     const eq::ChannelVector& channels  = getChannels();
 
-    if( frameData.statistics && !channels.empty( ))
+    if( frameData.useStatistics() && !channels.empty( ))
         EQ_GL_CALL( channels.back()->drawStatistics( ));
 
     eq::Window::swapBuffers();

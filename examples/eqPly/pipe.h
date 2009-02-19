@@ -25,7 +25,7 @@ namespace eqPly
     public:
         Pipe( eq::Node* parent ) : eq::Pipe( parent ) {}
 
-        const FrameData::Data& getFrameData() const { return _frameData.data; }
+        const FrameData& getFrameData() const { return _frameData; }
 
     protected:
         virtual ~Pipe() {}

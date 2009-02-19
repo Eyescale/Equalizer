@@ -58,16 +58,16 @@ void Channel::frameDraw( const uint32_t frameID )
     glMaterialfv( GL_FRONT, GL_SPECULAR,  materialSpecular );
     glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
 
-    const FrameData::Data& frameData = _getFrameData();
-    glTranslatef( frameData.translation.x, frameData.translation.y,
-                  frameData.translation.z );
-    glMultMatrixf( frameData.rotation.ml );
+    const FrameData& frameData = _getFrameData();
+    const vmml::Vector3f& translation = frameData.getCameraTranslation();
+    glTranslatef( translation.x, translation.y, translation.z );
+    glMultMatrixf( frameData.getCameraRotation().ml );
 
     const Config*    config = static_cast< Config* >( getConfig( ));
     const Model*     model  = config->getModel();
     const eq::Range& range  = getRange();
 
-    if(  !frameData.color )
+    if( !frameData.useColor( ))
     {
         glColor3f( .75f, .75f, .75f );
     }
@@ -111,7 +111,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     _drawLogo();
 }
 
-const FrameData::Data& Channel::_getFrameData() const
+const FrameData& Channel::_getFrameData() const
 {
     const Pipe* pipe = static_cast<const Pipe*>( getPipe( ));
     return pipe->getFrameData();
@@ -119,9 +119,9 @@ const FrameData::Data& Channel::_getFrameData() const
 
 void Channel::applyFrustum() const
 {
-    const FrameData::Data& frameData = _getFrameData();
+    const FrameData& frameData = _getFrameData();
 
-    if( frameData.ortho )
+    if( frameData.useOrtho( ))
         eq::Channel::applyOrtho();
     else
         eq::Channel::applyFrustum();
@@ -129,13 +129,13 @@ void Channel::applyFrustum() const
 
 void Channel::_drawModel( const Model* model )
 {
-    Window*                  window    = static_cast<Window*>( getWindow() );
-    VertexBufferState&       state     = window->getState();
-    const FrameData::Data&   frameData = _getFrameData();
-    const eq::Range&         range     = getRange();
-    vmml::FrustumCullerf     culler;
+    Window*              window    = static_cast<Window*>( getWindow() );
+    VertexBufferState&   state     = window->getState();
+    const FrameData&     frameData = _getFrameData();
+    const eq::Range&     range     = getRange();
+    vmml::FrustumCullerf culler;
 
-    state.setColors( frameData.color && range == eq::Range::ALL && 
+    state.setColors( frameData.useColor() && range == eq::Range::ALL && 
                      model->hasColors() );
     _initFrustum( culler, model->getBoundingSphere( ));
 
@@ -295,15 +295,15 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
                             const vmml::Vector4f& boundingSphere )
 {
     // setup frustum cull helper
-    const FrameData::Data& frameData = _getFrameData();
+    const FrameData& frameData = _getFrameData();
 
-    vmml::Matrix4f view( frameData.rotation );
-    view.setTranslation( frameData.translation );
+    vmml::Matrix4f view( frameData.getCameraRotation( ));
+    view.setTranslation( frameData.getCameraTranslation( ));
 
     const vmml::Frustumf&  frustum       = getFrustum();
     const vmml::Matrix4f&  headTransform = getHeadTransform();
     const vmml::Matrix4f   modelView     = headTransform * view;
-    const vmml::Matrix4f   projection    = frameData.ortho ?
+    const vmml::Matrix4f   projection    = frameData.useOrtho() ?
                                                frustum.computeOrthoMatrix() :
                                                frustum.computeMatrix();
 
@@ -321,11 +321,11 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
     front.scale( boundingSphere.radius );
 
     const vmml::Vector3f center = vmml::Vector3f( boundingSphere.xyzw ) + 
-                                  vmml::Vector3f( frameData.translation );
+                             vmml::Vector3f( frameData.getCameraTranslation( ));
     const vmml::Vector3f nearPoint  = headTransform * ( center - front );
     const vmml::Vector3f farPoint   = headTransform * ( center + front );
 
-    if( frameData.ortho )
+    if( frameData.useOrtho( ))
     {
         EQASSERT( fabs( farPoint.z - nearPoint.z ) > 
                   numeric_limits< float >::epsilon( ));

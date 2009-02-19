@@ -8,6 +8,7 @@ CXXFILES = \
 	channel.cpp \
 	config.cpp \
 	eqPly.cpp \
+	frameData.cpp \
 	initData.cpp \
 	main.cpp \
 	node.cpp \

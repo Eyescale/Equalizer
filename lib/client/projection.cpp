@@ -47,8 +47,9 @@ Projection& Projection::operator = ( const Wall& wall )
     vmml::Vector3f v = wall.topLeft - wall.bottomLeft;
     const float width  = u.normalize();
     const float height = v.normalize();
-    vmml::Vector3f w( u );
-    w = w.cross( v );
+
+    vmml::Vector3f w;
+    w.cross( u, v );
 
     const vmml::Vector3f center((wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
                                 (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
