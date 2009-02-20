@@ -82,6 +82,11 @@ namespace eq
         /** Set dirty flags to mark data for distribution. */
         EQ_EXPORT void setDirty( const uint64_t bits );
 
+        /** @sa eq::net::Object::attachToSession. */
+        EQ_EXPORT virtual void attachToSession( const uint32_t id, 
+                                                const uint32_t instanceID, 
+                                                net::Session* session );
+
     private:
         EQ_EXPORT virtual void getInstanceData( net::DataOStream& os );
         EQ_EXPORT virtual void pack( net::DataOStream& os );

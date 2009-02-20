@@ -317,6 +317,8 @@ namespace eq
             }
         uint32_t requestID;
         uint32_t frameID;
+        uint32_t nChanges;
+        EQ_ALIGN8( net::ObjectVersion changes[1] );
     };
 
     struct ConfigStartFrameReplyPacket : public ConfigPacket

@@ -60,6 +60,13 @@ void Object::setDirty( const uint64_t bits )
     _dirty |= bits;
 }
 
+void Object::attachToSession( const uint32_t id, const uint32_t instanceID, 
+                              net::Session* session )
+{
+    net::Object::attachToSession( id, instanceID, session );
+    _dirty = DIRTY_NONE;
+}
+
 void Object::setName( const std::string& name )
 {
     _name = name;

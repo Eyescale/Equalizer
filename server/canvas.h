@@ -107,6 +107,9 @@ namespace server
 
         /** Child segments on this canvas. */
         SegmentVector _segments;
+
+        // WAR to set the layout on client and server during deserialize
+        virtual void _setLayout( const uint32_t id );
     };
 
     std::ostream& operator << ( std::ostream& os, const Canvas* canvas);

@@ -50,6 +50,12 @@ namespace eq
         /** @return the vector of layouts, app-node only. */
         const LayoutVector& getLayouts() const { return _layouts; }
 
+        /** @return the layout of the given identifier, or 0. */
+        Layout* findLayout( const uint32_t id );
+
+        /** @return the view of the given identifier, or 0. */
+        View* findView( const uint32_t id );
+
         /** @return the vector of canvases, app-node only. */
         const CanvasVector& getCanvases() const { return _canvases; }
 

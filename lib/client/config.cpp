@@ -23,6 +23,8 @@
 #include <eq/net/command.h>
 #include <eq/net/global.h>
 
+#include "configCommitVisitor.h"
+
 using namespace eq::base;
 using namespace std;
 
@@ -96,6 +98,49 @@ CommandQueue* Config::getNodeThreadQueue()
     return getClient()->getNodeThreadQueue();
 }
 
+namespace
+{
+template< typename P, typename T > class IDFinder : public P
+{
+public:
+    IDFinder( const uint32_t id ) : _id( id ), _result( 0 ) {}
+    virtual ~IDFinder(){}
+
+    virtual VisitorResult visitPre( T* node ) { return visit( node ); }
+    virtual VisitorResult visit( T* node )
+        {
+            if( node->getID() == _id )
+            {
+                _result = node;
+                return TRAVERSE_TERMINATE;
+            }
+            return TRAVERSE_CONTINUE;
+        }
+
+    T* getResult() { return _result; }
+
+private:
+    const uint32_t _id;
+    T*             _result;
+};
+
+typedef IDFinder< ConfigVisitor, Layout > LayoutIDFinder;
+typedef IDFinder< ConfigVisitor, View > ViewIDFinder;
+}
+
+Layout* Config::findLayout( const uint32_t id )
+{
+    LayoutIDFinder finder( id );
+    accept( &finder );
+    return finder.getResult();
+}
+
+View* Config::findView( const uint32_t id )
+{
+    ViewIDFinder finder( id );
+    accept( &finder );
+    return finder.getResult();
+}
 
 namespace
 {
@@ -324,39 +369,22 @@ bool Config::exit()
     return ret;
 }
 
-namespace
-{
-class DataUpdater : public ConfigVisitor
-{
-public:
-    virtual VisitorResult visitPre( Canvas* canvas )
-        {
-            canvas->commit();
-            return TRAVERSE_CONTINUE; 
-        }
-    virtual VisitorResult visit( View* view )
-        { 
-            view->commit();
-            return TRAVERSE_CONTINUE; 
-        }
-};
-
-}
-
 uint32_t Config::startFrame( const uint32_t frameID )
 {
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
 
-    DataUpdater updater;
-    accept( &updater );
+    ConfigCommitVisitor committer;
+    accept( &committer );
+    const std::vector< net::ObjectVersion >& changes = committer.getChanges();
 
     // Request new frame
     ConfigStartFramePacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.frameID   = frameID;
+    packet.nChanges  = changes.size();
 
     const uint32_t frameNumber = _currentFrame + 1;
-    send( packet );
+    send( packet, changes );
 
     _requestHandler.waitRequest( packet.requestID );
     EQASSERT( frameNumber == _currentFrame );

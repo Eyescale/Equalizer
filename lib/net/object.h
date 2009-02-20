@@ -62,8 +62,8 @@ namespace net
         EQ_EXPORT virtual ~Object();
 
         EQ_EXPORT virtual void attachToSession( const uint32_t id, 
-                                      const uint32_t instanceID, 
-                                      Session* session );
+                                                const uint32_t instanceID, 
+                                                Session* session );
         EQ_EXPORT virtual void detachFromSession();
 
         /** 

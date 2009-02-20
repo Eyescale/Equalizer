@@ -115,6 +115,9 @@ namespace server
         Layout* findLayout( const std::string& name );
         const Layout* findLayout( const std::string& name ) const;
 
+        /** @return the layout mapped to the given identifier, or 0. */
+        Layout* findLayout( const uint32_t id );
+
         /** 
          * Find the first view of a given name.
          * 

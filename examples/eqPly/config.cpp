@@ -215,7 +215,7 @@ const Model* Config::getModel( const uint32_t id )
     if( modelID == EQ_ID_INVALID ) // no model loaded by application
         return 0;
 
-    // Accessed from pipe threads
+    // Accessed concurrently from pipe threads
     eq::base::ScopedMutex< eq::base::SpinLock > _mutex( _modelLock );
 
     const size_t nModels = _models.size();
@@ -318,8 +318,6 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             _redraw = true;
             switch( event->data.keyPress.key )
             {
-                case 'r':
-                case 'R':
                 case ' ':
                     _spinX = 0;
                     _spinY = 0;
@@ -350,10 +348,31 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     return true;
                 }
 
-                case 'p':
-                case 'P':
+                case 'm':
+                case 'M':
                 {
-                    //const eq::View* view = _getActiveView();
+                    if( _modelDist.empty( )) // no models
+                        return true;
+
+                    const uint32_t viewID = _frameData.getCurrentViewID();
+                    View* view = static_cast< View* >( findView( viewID ));
+                    if( !view )  // no active view
+                        return true;
+
+                    const uint32_t currentID = view->getModelID();
+                    ModelDistVector::const_iterator i;
+                    for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
+                    {
+                        if( (*i)->getID() != currentID )
+                            continue;
+                            
+                        ++i;
+                        break;
+                    }
+                    if( i == _modelDist.end( ))
+                        i = _modelDist.begin(); // wrap around
+
+                    view->setModelID( (*i)->getID( ));
                     return true;
                 }
 
@@ -362,8 +381,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     _frameData.toggleWireframe();
                     return true;
 
-                case 'm':
-                case 'M':
+                case 'r':
+                case 'R':
                     _frameData.toggleRenderMode();
                     return true;
 

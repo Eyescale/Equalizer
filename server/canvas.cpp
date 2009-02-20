@@ -282,6 +282,18 @@ void Canvas::unmap()
     session->unmapObject( this );
 }
 
+void Canvas::_setLayout( const uint32_t id )
+{
+    if( id == EQ_ID_INVALID )
+        _layout = 0;
+    else
+    {
+        EQASSERT( _config );
+        _layout = _config->findLayout( id );
+        EQASSERTINFO( _layout, id );
+    }
+}
+
 std::ostream& operator << ( std::ostream& os, const Canvas* canvas )
 {
     if( !canvas )

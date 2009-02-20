@@ -25,6 +25,18 @@ Canvas::~Canvas()
     EQASSERT( !_config );
 }
 
+void Canvas::_setLayout( const uint32_t id )
+{
+    if( id == EQ_ID_INVALID )
+        _layout = 0;
+    else
+    {
+        EQASSERT( _config );
+        _layout = _config->findLayout( id );
+        EQASSERT( _layout );
+    }
+}
+
 void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Frustum::deserialize( is, dirtyBits );
@@ -33,24 +45,7 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_LAYOUT )
     {
         is >> id;
-        if( id == EQ_ID_INVALID )
-            _layout = 0;
-        else
-        {
-            EQASSERT( _config );
-            const LayoutVector& layouts = _config->getLayouts();
-            for( LayoutVector::const_iterator i = layouts.begin();
-                 i != layouts.end(); ++i )
-            {
-                Layout* layout = *i;
-                if( layout->getID() != id )
-                    continue;
-
-                _layout = layout;
-                break;
-            }
-            EQASSERT( _layout );
-        }
+        _setLayout( id );
     }
 
     if( dirtyBits & DIRTY_ALL ) // children are immutable

@@ -12,6 +12,7 @@
 #include "configSerializer.h"
 #include "constCompoundVisitor.h"
 #include "global.h"
+#include "idFinder.h"
 #include "layout.h"
 #include "loadBalancer.h"
 #include "log.h"
@@ -26,6 +27,8 @@
 #include <eq/net/command.h>
 #include <eq/net/global.h>
 #include <eq/base/sleep.h>
+
+#include "configSyncVisitor.h"
 
 using namespace eq::base;
 using namespace std;
@@ -235,6 +238,12 @@ Layout* Config::findLayout( const std::string& name )
 const Layout* Config::findLayout( const std::string& name ) const
 {
     ConstLayoutFinder finder( name );
+    accept( &finder );
+    return finder.getResult();
+}
+Layout* Config::findLayout( const uint32_t id )
+{
+    LayoutIDFinder finder( id );
     accept( &finder );
     return finder.getResult();
 }
@@ -1230,6 +1239,12 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
     const eq::ConfigStartFramePacket* packet = 
         command.getPacket<eq::ConfigStartFramePacket>();
     EQVERB << "handle config frame start " << packet << endl;
+
+    if( packet->nChanges > 0 )
+    {
+        ConfigSyncVisitor syncer( packet->nChanges, packet->changes );
+        EQCHECK( accept( &syncer ) == TRAVERSE_TERMINATE );
+    }
 
     vector< net::NodeID > nodeIDs;
 

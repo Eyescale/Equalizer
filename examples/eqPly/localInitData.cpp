@@ -73,11 +73,13 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             string( "\t\t<Cursor Keys>:             Move head in X,Y plane\n" )+
             string( "\t\t<Page Up,Down>:            Move head in Z\n" )+
             string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
-            string( "\t\t<Space>, r:                Reset camera\n" ) +
+            string( "\t\t<Space>:                   Reset camera\n" ) +
             string( "\t\to:                         Toggle perspective/orthographic\n" ) +
             string( "\t\ts:                         Toggle statistics overlay\n" ) +
             string( "\t\tw:                         Toggle wireframe mode\n" ) +
-            string( "\t\tm:                         Switch rendering mode\n" );
+            string( "\t\tr:                         Switch rendering mode\n" ) +
+            string( "\t\tv:                         Switch active view\n" ) +
+            string( "\t\tm:                         Switch model for active view\n" );
 
         TCLAP::CmdLine command( desc );
         TCLAP::MultiArg<string> modelArg( "m", "model", "ply model file name", 
