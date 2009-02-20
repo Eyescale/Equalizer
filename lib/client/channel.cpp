@@ -948,14 +948,16 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
 
     if( packet->viewID != EQ_ID_INVALID )
     {
-        View*   view   = new View;
-        Config* config = getConfig();
+        NodeFactory* nodeFactory = Global::getNodeFactory();
+        View*        view        = nodeFactory->createView();
+        Config*      config      = getConfig();
+        EQASSERT( view );
 
         if( config->mapObject( view, packet->viewID ))
             _view = view;
         else
         {
-            delete view;
+            nodeFactory->releaseView( view );
             EQUNREACHABLE;
         }
     }
@@ -999,7 +1001,7 @@ net::CommandResult Channel::_cmdConfigExit( net::Command& command )
         Config* config = getConfig();
 
         config->unmapObject( _view );
-        delete _view;
+        Global::getNodeFactory()->releaseView( _view );
         _view = 0;
     }
 
