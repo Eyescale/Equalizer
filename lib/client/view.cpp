@@ -41,9 +41,9 @@ const Viewport& View::getViewport() const
     return _viewport;
 }
 
-VisitorResult View::accept( ViewVisitor* visitor )
+VisitorResult View::accept( ViewVisitor& visitor )
 {
-    return visitor->visit( this );
+    return visitor.visit( this );
 }
 
 }

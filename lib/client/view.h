@@ -43,7 +43,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ViewVisitor* visitor );
+        VisitorResult accept( ViewVisitor& visitor );
         //*}
         
     protected:

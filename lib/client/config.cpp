@@ -131,23 +131,23 @@ typedef IDFinder< ConfigVisitor, View > ViewIDFinder;
 Layout* Config::findLayout( const uint32_t id )
 {
     LayoutIDFinder finder( id );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
 View* Config::findView( const uint32_t id )
 {
     ViewIDFinder finder( id );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
 namespace
 {
 template< class C, class V >
-VisitorResult _accept( C* config, V* visitor )
+VisitorResult _accept( C* config, V& visitor )
 { 
-    VisitorResult result = visitor->visitPre( config );
+    VisitorResult result = visitor.visitPre( config );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
@@ -207,7 +207,7 @@ VisitorResult _accept( C* config, V* visitor )
         }
     }
 
-    switch( visitor->visitPost( config ))
+    switch( visitor.visitPost( config ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -225,7 +225,7 @@ VisitorResult _accept( C* config, V* visitor )
 }
 }
 
-VisitorResult Config::accept( ConfigVisitor* visitor )
+VisitorResult Config::accept( ConfigVisitor& visitor )
 {
     return _accept( this, visitor );
 }
@@ -374,7 +374,7 @@ uint32_t Config::startFrame( const uint32_t frameID )
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
 
     ConfigCommitVisitor committer;
-    accept( &committer );
+    accept( committer );
     const std::vector< net::ObjectVersion >& changes = committer.getChanges();
 
     // Request new frame

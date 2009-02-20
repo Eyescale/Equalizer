@@ -108,7 +108,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ChannelVisitor* visitor );
+        VisitorResult accept( ChannelVisitor& visitor );
 
         /** 
          * Set the near and far planes for this channel.

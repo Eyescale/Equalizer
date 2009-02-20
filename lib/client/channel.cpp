@@ -140,9 +140,9 @@ const GLEWContext* Channel::glewGetContext() const
     return _window->glewGetContext();
 }
 
-VisitorResult Channel::accept( ChannelVisitor* visitor )
+VisitorResult Channel::accept( ChannelVisitor& visitor )
 {
-    return visitor->visit( this );
+    return visitor.visit( this );
 }
 
 bool Channel::configExit()

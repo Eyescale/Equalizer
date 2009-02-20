@@ -78,9 +78,9 @@ void Layout::deregister()
     _config->deregisterObject( this );
 }
 
-VisitorResult Layout::accept( LayoutVisitor* visitor )
+VisitorResult Layout::accept( LayoutVisitor& visitor )
 { 
-    VisitorResult result = visitor->visitPre( this );
+    VisitorResult result = visitor.visitPre( this );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
@@ -103,7 +103,7 @@ VisitorResult Layout::accept( LayoutVisitor* visitor )
         }
     }
 
-    switch( visitor->visitPost( this ))
+    switch( visitor.visitPost( this ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;

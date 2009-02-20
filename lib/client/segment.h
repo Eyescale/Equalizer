@@ -56,7 +56,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        EQ_EXPORT VisitorResult accept( SegmentVisitor* visitor );
+        EQ_EXPORT VisitorResult accept( SegmentVisitor& visitor );
         //*}
 
     protected:

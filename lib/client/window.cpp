@@ -243,9 +243,9 @@ WGLEWContext* Window::wglewGetContext()
     return _pipe->wglewGetContext();
 }
 
-VisitorResult Window::accept( WindowVisitor* visitor )
+VisitorResult Window::accept( WindowVisitor& visitor )
 { 
-    VisitorResult result = visitor->visitPre( this );
+    VisitorResult result = visitor.visitPre( this );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
@@ -268,7 +268,7 @@ VisitorResult Window::accept( WindowVisitor* visitor )
         }
     }
 
-    switch( visitor->visitPost( this ))
+    switch( visitor.visitPost( this ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;

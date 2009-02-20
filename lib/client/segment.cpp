@@ -50,9 +50,9 @@ const Config* Segment::getConfig() const
     return _canvas ? _canvas->getConfig() : 0;
 }
 
-VisitorResult Segment::accept( SegmentVisitor* visitor )
+VisitorResult Segment::accept( SegmentVisitor& visitor )
 {
-    return visitor->visit( this );
+    return visitor.visit( this );
 }
 
 }

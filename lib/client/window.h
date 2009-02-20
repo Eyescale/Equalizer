@@ -112,7 +112,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( WindowVisitor* visitor );
+        VisitorResult accept( WindowVisitor& visitor );
 
         /** 
          * Set the window with which this window shares the OpenGL context,

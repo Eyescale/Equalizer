@@ -67,7 +67,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        EQ_EXPORT VisitorResult accept( CanvasVisitor* visitor );
+        EQ_EXPORT VisitorResult accept( CanvasVisitor& visitor );
 
         /** Deregister this canvas, and all children, from its net::Session.*/
         EQ_EXPORT virtual void deregister();

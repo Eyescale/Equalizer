@@ -106,9 +106,9 @@ CommandQueue* Node::getNodeThreadQueue()
     return getClient()->getNodeThreadQueue();
 }
 
-VisitorResult Node::accept( NodeVisitor* visitor )
+VisitorResult Node::accept( NodeVisitor& visitor )
 { 
-    VisitorResult result = visitor->visitPre( this );
+    VisitorResult result = visitor.visitPre( this );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
@@ -131,7 +131,7 @@ VisitorResult Node::accept( NodeVisitor* visitor )
         }
     }
 
-    switch( visitor->visitPost( this ))
+    switch( visitor.visitPost( this ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;

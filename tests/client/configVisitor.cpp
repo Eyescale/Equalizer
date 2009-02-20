@@ -97,7 +97,7 @@ int main( int argc, char **argv )
 
     // tests
     TestVisitor visitor;
-    const VisitorResult result = config->accept( &visitor );
+    const VisitorResult result = config->accept( visitor );
 
     TESTINFO( result == TRAVERSE_TERMINATE, result );
     TESTINFO( visitor.nConfigs == 1,   visitor.nConfigs );

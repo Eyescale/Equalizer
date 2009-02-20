@@ -110,7 +110,7 @@ public:
         {
             _layout = canvas->getLayout();
             if( _layout )
-                _layout->accept( this );
+                _layout->accept( *this );
 
             _layout = 0;
             return eq::TRAVERSE_PRUNE;
@@ -195,7 +195,7 @@ void Config::_loadModels()
     EQASSERT( _modelDist.size() == nModels );
     
     ModelAssigner assigner( _modelDist );
-    accept( &assigner );
+    accept( assigner );
 }
 
 void Config::mapData( const uint32_t initDataID )
@@ -274,7 +274,7 @@ public:
         {
             _layout = canvas->getLayout();
             if( _layout )
-                _layout->accept( this );
+                _layout->accept( *this );
 
             _layout = 0;
             return eq::TRAVERSE_PRUNE;
@@ -339,7 +339,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 case 'V':
                 {
                     NextViewFinder finder( _frameData.getCurrentViewID( ));
-                    accept( &finder );
+                    accept( finder );
                     const eq::View* view = finder.getResult();
                     if( view )
                         _frameData.setCurrentViewID( view->getID( ));

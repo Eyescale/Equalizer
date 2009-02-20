@@ -58,7 +58,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        EQ_EXPORT VisitorResult accept( LayoutVisitor* visitor );
+        EQ_EXPORT VisitorResult accept( LayoutVisitor& visitor );
 
         /** Deregister this layout, and all children, from its net::Session.*/
         EQ_EXPORT virtual void deregister();

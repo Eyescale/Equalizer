@@ -98,9 +98,9 @@ int64_t Pipe::getFrameTime() const
     return getConfig()->getTime() - _frameTime;
 }
 
-VisitorResult Pipe::accept( PipeVisitor* visitor )
+VisitorResult Pipe::accept( PipeVisitor& visitor )
 { 
-    VisitorResult result = visitor->visitPre( this );
+    VisitorResult result = visitor.visitPre( this );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
@@ -123,7 +123,7 @@ VisitorResult Pipe::accept( PipeVisitor* visitor )
         }
     }
 
-    switch( visitor->visitPost( this ))
+    switch( visitor.visitPost( this ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
