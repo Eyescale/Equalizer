@@ -74,7 +74,7 @@ namespace net
          * during object instantiation.
          * @sa Session::getObject().
          */
-        virtual void makeThreadSafe();  
+        EQ_EXPORT virtual void makeThreadSafe();  
         bool isThreadSafe() const      { return _threadSafe; }
 
         NodePtr getLocalNode();
