@@ -110,8 +110,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( WindowVisitor* visitor );
-        VisitorResult accept( ConstWindowVisitor* visitor ) const;
+        VisitorResult accept( WindowVisitor& visitor );
+        VisitorResult accept( ConstWindowVisitor& visitor ) const;
 
         /** 
          * References this window as being actively used.

@@ -96,8 +96,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( PipeVisitor* visitor );
-        VisitorResult accept( ConstPipeVisitor* visitor ) const;
+        VisitorResult accept( PipeVisitor& visitor );
+        VisitorResult accept( ConstPipeVisitor& visitor ) const;
 
         /** 
          * References this pipe as being actively used.

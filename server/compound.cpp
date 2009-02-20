@@ -421,12 +421,12 @@ void Compound::setProjection( const eq::Projection& projection )
 namespace
 {
 template< class C, class V >
-VisitorResult _accept( C* compound, V* visitor, const bool activeOnly )
+VisitorResult _accept( C* compound, V& visitor, const bool activeOnly )
 {
     if( compound->isLeaf( )) 
     {
         if ( !activeOnly || compound->isActive( )) 
-            return visitor->visitLeaf( compound );
+            return visitor.visitLeaf( compound );
         return TRAVERSE_CONTINUE;
     }
 
@@ -446,7 +446,7 @@ VisitorResult _accept( C* compound, V* visitor, const bool activeOnly )
         {
             if ( !activeOnly || current->isActive( ))
             {
-                switch( visitor->visitLeaf( current ))
+                switch( visitor.visitLeaf( current ))
                 {
                     case TRAVERSE_TERMINATE:
                         return TRAVERSE_TERMINATE;
@@ -471,7 +471,7 @@ VisitorResult _accept( C* compound, V* visitor, const bool activeOnly )
         {
             if( !activeOnly || current->isActive( ))
             {
-                switch( visitor->visitPre( current ))
+                switch( visitor.visitPre( current ))
                 {
                     case TRAVERSE_TERMINATE:
                         return TRAVERSE_TERMINATE;
@@ -504,7 +504,7 @@ VisitorResult _accept( C* compound, V* visitor, const bool activeOnly )
 
             if( !activeOnly || current->isActive( ))
             {
-                switch( visitor->visitPost( current ))
+                switch( visitor.visitPost( current ))
                 {
                     case TRAVERSE_TERMINATE:
                         return TRAVERSE_TERMINATE;
@@ -530,14 +530,14 @@ VisitorResult _accept( C* compound, V* visitor, const bool activeOnly )
 }
 }
 
-VisitorResult Compound::accept( ConstCompoundVisitor* visitor,
-                                const bool activeOnly ) const
+VisitorResult Compound::accept( CompoundVisitor& visitor,
+                                const bool activeOnly )
 {
     return _accept( this, visitor, activeOnly );
 }
 
-VisitorResult Compound::accept( CompoundVisitor* visitor,
-                                const bool activeOnly )
+VisitorResult Compound::accept( ConstCompoundVisitor& visitor,
+                                const bool activeOnly ) const
 {
     return _accept( this, visitor, activeOnly );
 }
@@ -549,13 +549,13 @@ VisitorResult Compound::accept( CompoundVisitor* visitor,
 void Compound::init()
 {
     CompoundInitVisitor initVisitor;
-    accept( &initVisitor, false /* activeOnly */ );
+    accept( initVisitor, false /* activeOnly */ );
 }
 
 void Compound::exit()
 {
     CompoundExitVisitor visitor;
-    accept( &visitor, false /* activeOnly */ );
+    accept( visitor, false /* activeOnly */ );
 }
 
 //---------------------------------------------------------------------------
@@ -564,15 +564,15 @@ void Compound::exit()
 void Compound::update( const uint32_t frameNumber )
 {
     CompoundUpdateDataVisitor updateDataVisitor( frameNumber );
-    accept( &updateDataVisitor, false /*activeOnly*/ );
+    accept( updateDataVisitor, false /*activeOnly*/ );
 
     CompoundUpdateOutputVisitor updateOutputVisitor( frameNumber );
-    accept( &updateOutputVisitor, true /*activeOnly*/ );
+    accept( updateOutputVisitor, true /*activeOnly*/ );
 
     const hash_map<std::string, Frame*>& outputFrames =
         updateOutputVisitor.getOutputFrames();
     CompoundUpdateInputVisitor updateInputVisitor( outputFrames );
-    accept( &updateInputVisitor, true /*activeOnly*/ );
+    accept( updateInputVisitor, true /*activeOnly*/ );
 
     const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
 

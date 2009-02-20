@@ -86,8 +86,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( NodeVisitor* visitor );
-        VisitorResult accept( ConstNodeVisitor* visitor ) const;
+        VisitorResult accept( NodeVisitor& visitor );
+        VisitorResult accept( ConstNodeVisitor& visitor ) const;
 
         /** 
          * References this node as being actively used.

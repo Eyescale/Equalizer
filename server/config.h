@@ -210,8 +210,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ConfigVisitor* visitor );
-        VisitorResult accept( ConstConfigVisitor* visitor ) const;
+        VisitorResult accept( ConfigVisitor& visitor );
+        VisitorResult accept( ConstConfigVisitor& visitor ) const;
         //*}
 
         /** 

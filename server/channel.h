@@ -100,8 +100,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ChannelVisitor* visitor );
-        VisitorResult accept( ConstChannelVisitor* visitor ) const;
+        VisitorResult accept( ChannelVisitor& visitor );
+        VisitorResult accept( ConstChannelVisitor& visitor ) const;
 
         /** 
          * References this channel as being actively used.

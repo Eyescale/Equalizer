@@ -78,7 +78,7 @@ void ConfigSerializer::getInstanceData( net::DataOStream& os )
     os << _config->getLatency();
 
     SerializerVisitor serializer( os );
-    _config->accept( &serializer );
+    _config->accept( serializer );
     os << eq::ConfigDeserializer::TYPE_LAST; // end token
 
 #ifdef EQ_TRANSMISSION_API

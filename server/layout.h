@@ -79,8 +79,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( LayoutVisitor* visitor );
-        VisitorResult accept( ConstLayoutVisitor* visitor ) const;
+        VisitorResult accept( LayoutVisitor& visitor );
+        VisitorResult accept( ConstLayoutVisitor& visitor ) const;
 
         /** Unmap this layout and all its children. */
         void unmap();

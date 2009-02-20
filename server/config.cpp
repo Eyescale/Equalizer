@@ -232,33 +232,33 @@ bool Config::removeLayout( Layout* layout )
 Layout* Config::findLayout( const std::string& name )
 {
     LayoutFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 const Layout* Config::findLayout( const std::string& name ) const
 {
     ConstLayoutFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 Layout* Config::findLayout( const uint32_t id )
 {
     LayoutIDFinder finder( id );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
 View* Config::findView( const std::string& name )
 {
     ViewFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
 const View* Config::findView( const std::string& name ) const
 {
     ConstViewFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
@@ -296,7 +296,7 @@ private:
 Channel* Config::findChannel( const Segment* segment, const View* view )
 {
     ChannelViewFinder finder( segment, view );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
@@ -314,7 +314,7 @@ public:
     virtual VisitorResult visit( View* view )
         {
             _view = view;
-            _canvas->accept( this );
+            _canvas->accept( *this );
             return TRAVERSE_CONTINUE;
         }
 
@@ -350,7 +350,7 @@ public:
 
             // try to reuse channel
             ChannelViewFinder finder( segment, _view );
-            _view->getConfig()->accept( &finder );
+            _view->getConfig()->accept( finder );
             Channel* channel = finder.getResult();
 
             if( !channel ) // create and add new channel
@@ -397,7 +397,7 @@ protected:
 void Config::addCanvas( Canvas* canvas )
 {
     AddCanvasVisitor visitor( canvas, this );
-    accept( &visitor );
+    accept( visitor );
 
     canvas->_config = this;
     _canvases.push_back( canvas );
@@ -418,20 +418,20 @@ bool Config::removeCanvas( Canvas* canvas )
 Canvas* Config::findCanvas( const std::string& name )
 {
     CanvasFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
 Segment* Config::findSegment( const std::string& name )
 {
     SegmentFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 const Segment* Config::findSegment( const std::string& name ) const
 {
     ConstSegmentFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
@@ -457,14 +457,14 @@ bool Config::removeCompound( Compound* compound )
 Channel* Config::findChannel( const std::string& name )
 {
     ChannelFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
 const Channel* Config::findChannel( const std::string& name ) const
 {
     ConstChannelFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
@@ -543,9 +543,9 @@ View* Config::getView( const ViewPath& path )
 namespace
 {
 template< class C, class V >
-VisitorResult _accept( C* config, V* visitor )
+VisitorResult _accept( C* config, V& visitor )
 { 
-    VisitorResult result = visitor->visitPre( config );
+    VisitorResult result = visitor.visitPre( config );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
@@ -624,7 +624,7 @@ VisitorResult _accept( C* config, V* visitor )
         }
     }                                                           
 
-    switch( visitor->visitPost( config ))
+    switch( visitor.visitPost( config ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -642,12 +642,12 @@ VisitorResult _accept( C* config, V* visitor )
 }
 }
 
-VisitorResult Config::accept( ConfigVisitor* visitor )
+VisitorResult Config::accept( ConfigVisitor& visitor )
 {
     return _accept( this, visitor );
 }
 
-VisitorResult Config::accept( ConstConfigVisitor* visitor ) const
+VisitorResult Config::accept( ConstConfigVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }
@@ -1054,7 +1054,7 @@ void Config::unmap()
     }
 
     UnmapVisitor unmapper;
-    accept( &unmapper );
+    accept( unmapper );
 
     _requestHandler.waitRequest( packet.requestID );
 }
@@ -1088,7 +1088,7 @@ void Config::_updateHead()
         return;
 
     ViewUpdater updater;
-    accept( &updater );
+    accept( updater );
 }
 
 void Config::_prepareFrame( std::vector< net::NodeID >& nodeIDs )
@@ -1122,7 +1122,7 @@ void Config::_startFrame( const uint32_t frameID )
     }
     
     ConfigUpdateDataVisitor configDataVisitor;
-    accept( &configDataVisitor );
+    accept( configDataVisitor );
 
     for( vector< Node* >::const_iterator i = _nodes.begin(); 
          i != _nodes.end(); ++i )
@@ -1243,7 +1243,7 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
     if( packet->nChanges > 0 )
     {
         ConfigSyncVisitor syncer( packet->nChanges, packet->changes );
-        EQCHECK( accept( &syncer ) == TRAVERSE_TERMINATE );
+        EQCHECK( accept( syncer ) == TRAVERSE_TERMINATE );
     }
 
     vector< net::NodeID > nodeIDs;
@@ -1324,7 +1324,7 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
         command.getPacket<eq::ConfigFreezeLoadBalancingPacket>();
 
     FreezeVisitor visitor( packet->freeze );
-    accept( &visitor );
+    accept( visitor );
 
     return net::COMMAND_HANDLED;
 }

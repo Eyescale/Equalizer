@@ -96,10 +96,10 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( SegmentVisitor* visitor )
-            { return visitor->visit( this ); }
-        VisitorResult accept( ConstSegmentVisitor* visitor ) const
-            { return visitor->visit( this ); }
+        VisitorResult accept( SegmentVisitor& visitor )
+            { return visitor.visit( this ); }
+        VisitorResult accept( ConstSegmentVisitor& visitor ) const
+            { return visitor.visit( this ); }
         //*}
 
     protected:

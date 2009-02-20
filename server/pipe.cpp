@@ -191,9 +191,9 @@ Channel* Pipe::getChannel( const ChannelPath& path )
 namespace
 {
 template< class C, class V >
-VisitorResult _accept( C* pipe, V* visitor )
+VisitorResult _accept( C* pipe, V& visitor )
 { 
-    VisitorResult result = visitor->visitPre( pipe );
+    VisitorResult result = visitor.visitPre( pipe );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
@@ -216,7 +216,7 @@ VisitorResult _accept( C* pipe, V* visitor )
         }
     }
 
-    switch( visitor->visitPost( pipe ))
+    switch( visitor.visitPost( pipe ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -233,12 +233,12 @@ VisitorResult _accept( C* pipe, V* visitor )
 }
 }
 
-VisitorResult Pipe::accept( PipeVisitor* visitor )
+VisitorResult Pipe::accept( PipeVisitor& visitor )
 {
     return _accept( this, visitor );
 }
 
-VisitorResult Pipe::accept( ConstPipeVisitor* visitor ) const
+VisitorResult Pipe::accept( ConstPipeVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

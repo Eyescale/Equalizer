@@ -157,9 +157,9 @@ Channel* Node::getChannel( const ChannelPath& path )
 namespace
 {
 template< class C, class V >
-VisitorResult _accept( C* node, V* visitor )
+VisitorResult _accept( C* node, V& visitor )
 { 
-    VisitorResult result = visitor->visitPre( node );
+    VisitorResult result = visitor.visitPre( node );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
@@ -181,7 +181,7 @@ VisitorResult _accept( C* node, V* visitor )
         }
     }
 
-    switch( visitor->visitPost( node ))
+    switch( visitor.visitPost( node ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -198,12 +198,12 @@ VisitorResult _accept( C* node, V* visitor )
 }
 }
 
-VisitorResult Node::accept( NodeVisitor* visitor )
+VisitorResult Node::accept( NodeVisitor& visitor )
 {
     return _accept( this, visitor );
 }
 
-VisitorResult Node::accept( ConstNodeVisitor* visitor ) const
+VisitorResult Node::accept( ConstNodeVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

@@ -399,10 +399,10 @@ namespace server
          * 
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ConstCompoundVisitor* visitor,
+        VisitorResult accept( ConstCompoundVisitor& visitor,
                               const bool activeOnly ) const;
         /** Non-const version of accept(). */
-        VisitorResult accept( CompoundVisitor* visitor,
+        VisitorResult accept( CompoundVisitor& visitor,
                               const bool activeOnly );
 
         /** 

@@ -182,14 +182,14 @@ net::CommandQueue* Channel::getCommandThreadQueue()
     return _window->getCommandThreadQueue(); 
 }
 
-VisitorResult Channel::accept( ChannelVisitor* visitor )
+VisitorResult Channel::accept( ChannelVisitor& visitor )
 {
-    return visitor->visit( this );
+    return visitor.visit( this );
 }
 
-VisitorResult Channel::accept( ConstChannelVisitor* visitor ) const
+VisitorResult Channel::accept( ConstChannelVisitor& visitor ) const
 {
-    return visitor->visit( this );
+    return visitor.visit( this );
 }
 
 void Channel::refUsed()
@@ -442,13 +442,13 @@ bool Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
         ChannelUpdateVisitor visitor( this, frameID, frameNumber );
 
         visitor.setEye( eq::EYE_CYCLOP );
-        compound->accept( &visitor, true /* activeOnly */ );
+        compound->accept( visitor, true /* activeOnly */ );
 
         visitor.setEye( eq::EYE_LEFT );
-        compound->accept( &visitor, true /* activeOnly */ );
+        compound->accept( visitor, true /* activeOnly */ );
 
         visitor.setEye( eq::EYE_RIGHT );
-        compound->accept( &visitor, true /* activeOnly */ );
+        compound->accept( visitor, true /* activeOnly */ );
         
         updated |= visitor.isUpdated();
     }

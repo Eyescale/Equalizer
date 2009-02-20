@@ -165,7 +165,7 @@ void Canvas::addSegment( Segment* segment )
 Segment* Canvas::findSegment( const std::string& name )
 {
     SegmentFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 
@@ -213,9 +213,9 @@ void Canvas::useLayout( Layout* layout )
 namespace
 {
 template< class C, class V >
-VisitorResult _accept( C* canvas, V* visitor )
+VisitorResult _accept( C* canvas, V& visitor )
 {
-    VisitorResult result = visitor->visitPre( canvas );
+    VisitorResult result = visitor.visitPre( canvas );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
@@ -238,7 +238,7 @@ VisitorResult _accept( C* canvas, V* visitor )
         }
     }
 
-    switch( visitor->visitPost( canvas ))
+    switch( visitor.visitPost( canvas ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -255,12 +255,12 @@ VisitorResult _accept( C* canvas, V* visitor )
 }
 }
 
-VisitorResult Canvas::accept( CanvasVisitor* visitor )
+VisitorResult Canvas::accept( CanvasVisitor& visitor )
 {
     return _accept( this, visitor );
 }
 
-VisitorResult Canvas::accept( ConstCanvasVisitor* visitor ) const
+VisitorResult Canvas::accept( ConstCanvasVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

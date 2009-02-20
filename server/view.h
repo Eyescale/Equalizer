@@ -40,10 +40,10 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ViewVisitor* visitor )
-            { return visitor->visit( this ); }
-        VisitorResult accept( ConstViewVisitor* visitor ) const
-            { return visitor->visit( this ); }
+        VisitorResult accept( ViewVisitor& visitor )
+            { return visitor.visit( this ); }
+        VisitorResult accept( ConstViewVisitor& visitor ) const
+            { return visitor.visit( this ); }
         //*}
         
         /** @name Data Access. */

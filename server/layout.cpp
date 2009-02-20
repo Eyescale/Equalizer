@@ -90,9 +90,9 @@ LayoutPath Layout::getPath() const
 namespace
 {
 template< class C, class V >
-VisitorResult _accept( C* layout, V* visitor )
+VisitorResult _accept( C* layout, V& visitor )
 { 
-    VisitorResult result = visitor->visitPre( layout );
+    VisitorResult result = visitor.visitPre( layout );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
@@ -114,7 +114,7 @@ VisitorResult _accept( C* layout, V* visitor )
         }
     }
 
-    switch( visitor->visitPost( layout ))
+    switch( visitor.visitPost( layout ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -131,11 +131,11 @@ VisitorResult _accept( C* layout, V* visitor )
 }
 }
 
-VisitorResult Layout::accept( LayoutVisitor* visitor )
+VisitorResult Layout::accept( LayoutVisitor& visitor )
 {
     return _accept( this, visitor );
 }
-VisitorResult Layout::accept( ConstLayoutVisitor* visitor ) const
+VisitorResult Layout::accept( ConstLayoutVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }
@@ -161,7 +161,7 @@ bool Layout::removeView( View* view )
 View* Layout::findView( const std::string& name )
 {
     ViewFinder finder( name );
-    accept( &finder );
+    accept( finder );
     return finder.getResult();
 }
 

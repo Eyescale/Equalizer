@@ -85,8 +85,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( CanvasVisitor* visitor );
-        VisitorResult accept( ConstCanvasVisitor* visitor ) const;
+        VisitorResult accept( CanvasVisitor& visitor );
+        VisitorResult accept( ConstCanvasVisitor& visitor ) const;
 
         /** Unmap this canvas and all its children. */
         void unmap();
