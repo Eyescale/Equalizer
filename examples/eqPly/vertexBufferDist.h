@@ -1,7 +1,6 @@
-/*  
- *   Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
- *   All rights reserved.  
- */
+
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+   All rights reserved. */
 
 
 #ifndef EQPLY_VERTEXBUFFERDIST_H
@@ -17,14 +16,16 @@ namespace eqPly
     class VertexBufferDist : public eq::net::Object
     {
     public:
+        VertexBufferDist();
         VertexBufferDist( const mesh::VertexBufferRoot* root );
         virtual ~VertexBufferDist();
 
         void registerTree( eq::net::Session* session );
         void deregisterTree();
 
-        static mesh::VertexBufferRoot* mapModel( eq::net::Session* session,
-                                                 const uint32_t modelID );
+        mesh::VertexBufferRoot* mapModel( eq::net::Session* session,
+                                          const uint32_t modelID );
+        void unmapTree();
 
     protected:
         VertexBufferDist( const mesh::VertexBufferRoot* root,
@@ -40,8 +41,6 @@ namespace eqPly
 
         VertexBufferDist* _left;
         VertexBufferDist* _right;
-
-        void _unmapTree();
     };
 }
 

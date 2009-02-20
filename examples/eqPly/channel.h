@@ -42,6 +42,7 @@ namespace eqPly
                            const vmml::Vector4f& boundingSphere );
 
         const FrameData& _getFrameData() const;
+        const Model*     _getModel();
     };
 }
 

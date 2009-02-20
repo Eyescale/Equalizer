@@ -21,6 +21,7 @@ bool Node::configInit( const uint32_t initID )
         setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
 
     Config*    config = static_cast< Config* >( getConfig( ));
-    return config->mapData( initID );
+    config->mapData( initID );
+    return true;
 }
 }

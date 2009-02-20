@@ -4,24 +4,25 @@ include $(TOP)/make/system.mk
 PROGRAM = eqPly
 
 CXXFILES = \
-	localInitData.cpp \
 	channel.cpp \
 	config.cpp \
 	eqPly.cpp \
 	frameData.cpp \
 	initData.cpp \
+	localInitData.cpp \
 	main.cpp \
 	node.cpp \
 	pipe.cpp \
-	tracker.cpp \
-	window.cpp \
 	plyfile.cpp \
-	vertexData.cpp \
+	tracker.cpp \
 	vertexBufferBase.cpp \
 	vertexBufferDist.cpp \
 	vertexBufferLeaf.cpp \
 	vertexBufferNode.cpp \
-	vertexBufferRoot.cpp
+	vertexBufferRoot.cpp \
+	vertexData.cpp \
+	view.cpp \
+	window.cpp
 
 SHADERS = \
 	fragmentShader_glsl.h \

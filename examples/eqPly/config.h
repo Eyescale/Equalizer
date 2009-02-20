@@ -13,7 +13,8 @@
 
 namespace eqPly
 {
-    typedef std::vector< Model* > ModelVector;
+    typedef std::vector< Model* >     ModelVector;
+    typedef std::vector< ModelDist* > ModelDistVector;
 
     /**
      * The configuration, run be the EqPly application. 
@@ -39,12 +40,10 @@ namespace eqPly
         const InitData& getInitData() const { return _initData; }
 
         /** Map per-config data to the local node process */
-        bool mapData( const uint32_t initDataID );
+        void mapData( const uint32_t initDataID );
 
-        /** @return the loaded model, or 0. */
-        const ModelVector& getModels() const { return _models; }
-        const Model* getModel() const // TODO remove 
-            { return _models.empty() ? 0 : _models[0]; }
+        /** @return the requested, default model or 0. */
+        const Model* getModel( const uint32_t id = EQ_ID_INVALID );
 
         /** @sa eq::Config::handleEvent */
         virtual bool handleEvent( const eq::ConfigEvent* event );
@@ -62,13 +61,14 @@ namespace eqPly
 
         Tracker _tracker;
 
-        ModelVector _models;
-        ModelDist* _modelDist;
+        ModelVector     _models;
+        ModelDistVector _modelDist;
+        eq::base::SpinLock _modelLock;
 
         bool _redraw;
 
     private:
-        void _loadModel();
+        void _loadModels();
     };
 }
 

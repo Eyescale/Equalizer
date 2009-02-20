@@ -9,6 +9,7 @@
 #include "initData.h"
 #include "config.h"
 #include "pipe.h"
+#include "view.h"
 #include "window.h"
 #include "vertexBufferState.h"
 
@@ -85,8 +86,7 @@ void Channel::frameDraw( const uint32_t frameID )
     glTranslatef( translation.x, translation.y, translation.z );
     glMultMatrixf( frameData.getCameraRotation().ml );
 
-    const Config*    config = static_cast< Config* >( getConfig( ));
-    const Model*     model  = config->getModel();
+    const Model*     model  = _getModel();
     const eq::Range& range  = getRange();
 
     if( !frameData.useColor( ))
@@ -147,6 +147,17 @@ void Channel::applyFrustum() const
         eq::Channel::applyOrtho();
     else
         eq::Channel::applyFrustum();
+}
+
+const Model* Channel::_getModel()
+{
+    Config*     config = static_cast< Config* >( getConfig( ));
+    const View* view   = static_cast< const View* >( getView( ));
+    EQASSERT( !view || dynamic_cast< const View* >( getView( )));
+
+    if( view )
+        return config->getModel( view->getModelID( ));
+    return config->getModel();
 }
 
 void Channel::_drawModel( const Model* model )

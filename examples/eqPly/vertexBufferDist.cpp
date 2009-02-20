@@ -14,6 +14,14 @@ using namespace std;
 namespace eqPly 
 {
 
+VertexBufferDist::VertexBufferDist()
+        : _root( 0 )
+        , _node( 0 )
+        , _isRoot( false )
+        , _left( 0 )
+        , _right( 0 )
+{}
+
 VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root )
         : _root( root )
         , _node( root )
@@ -36,8 +44,7 @@ VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root,
         , _left( 0 )
         , _right( 0 )
 {
-    if( !node )
-        return;
+    EQASSERT( node );
 
     if( node->getLeft( ))
         _left = new VertexBufferDist( root, node->getLeft( ));
@@ -78,23 +85,21 @@ void VertexBufferDist::deregisterTree()
         _right->deregisterTree();
 }
 
-mesh::VertexBufferRoot* VertexBufferDist::mapModel(eq::net::Session* session,
-                                                   const uint32_t modelID )
+mesh::VertexBufferRoot* VertexBufferDist::mapModel( eq::net::Session* session,
+                                                    const uint32_t modelID )
 {
-    VertexBufferDist modelDist( 0, 0 );
+    EQASSERT( !_root && !_node );
 
-    if( !session->mapObject( &modelDist, modelID ))
+    if( !session->mapObject( this, modelID ))
     {
         EQWARN << "Mapping of model failed" << endl;
         return 0;
     }
 
-    modelDist._unmapTree(); // No longer needed    
-
-    return const_cast< mesh::VertexBufferRoot* >( modelDist._root );
+    return const_cast< mesh::VertexBufferRoot* >( _root );
 }
 
-void VertexBufferDist::_unmapTree()
+void VertexBufferDist::unmapTree()
 {
     EQASSERT( getID() != EQ_ID_INVALID );
     EQASSERT( !isMaster( ));
@@ -102,9 +107,9 @@ void VertexBufferDist::_unmapTree()
     getSession()->unmapObject( this );
 
     if( _left )
-        _left->_unmapTree();
+        _left->unmapTree();
     if( _right )
-        _right->_unmapTree();
+        _right->unmapTree();
 }
 
 void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )

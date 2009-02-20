@@ -1,8 +1,10 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "config.h"
+
+#include "view.h"
 
 using namespace std;
 
@@ -13,7 +15,6 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
         : eq::Config( parent )
         , _spinX( 5 )
         , _spinY( 5 )
-        , _modelDist( 0 )
         , _redraw( true )
 {
 }
@@ -27,13 +28,18 @@ Config::~Config()
     }
     _models.clear();
 
-    delete _modelDist;
-    _modelDist = 0;
+    for( ModelDistVector::const_iterator i = _modelDist.begin(); 
+         i != _modelDist.end(); ++i )
+    {
+        EQASSERT( (*i)->getID() == EQ_ID_INVALID );
+        delete *i;
+    }
+    _modelDist.clear();
 }
 
 bool Config::init()
 {
-    _loadModel();
+    _loadModels();
 
     // init distributed objects
     _frameData.setColor( _initData.useColor( ));
@@ -78,22 +84,68 @@ bool Config::exit()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    if( _modelDist )
+    for( ModelDistVector::const_iterator i = _modelDist.begin(); 
+         i != _modelDist.end(); ++i )
     {
-        _modelDist->deregisterTree();
-        delete _modelDist;
-        _modelDist = 0;
-
-        _initData.setModelID( EQ_ID_INVALID );
-        // retain model for possible other config runs, destructor deletes it
+        ModelDist* modelDist = *i;
+        modelDist->deregisterTree();
     }
+
+    _initData.setModelID( EQ_ID_INVALID );
+    // retain models and distributors for possible other config runs, destructor
+    // deletes it
 
     return ret;
 }
 
-void Config::_loadModel()
+namespace
 {
-    if( _models.empty( ))
+class ModelAssigner : public eq::ConfigVisitor
+{
+public:
+    ModelAssigner( const ModelDistVector& models ) 
+            : _models( models ), _current( models.begin( )), _layout( 0 ) {}
+
+    virtual eq::VisitorResult visitPre( eq::Canvas* canvas )
+        {
+            _layout = canvas->getLayout();
+            if( _layout )
+                _layout->accept( this );
+
+            _layout = 0;
+            return eq::TRAVERSE_PRUNE;
+        }
+
+    virtual eq::VisitorResult visitPre( eq::Layout* layout )
+        {
+            if( _layout != layout )
+                return eq::TRAVERSE_PRUNE; // only consider used layouts
+            return eq::TRAVERSE_CONTINUE; 
+        }
+
+    virtual eq::VisitorResult visit( eq::View* view )
+        {
+            const ModelDist* model = *_current;
+            static_cast< View* >( view )->setModelID( model->getID( ));
+
+            ++_current;
+            if( _current == _models.end( ))
+                _current = _models.begin(); // wrap around
+
+            return eq::TRAVERSE_CONTINUE; 
+        }
+
+private:
+    const ModelDistVector&          _models;
+    ModelDistVector::const_iterator _current;
+    
+    eq::Layout* _layout;
+};
+}
+
+void Config::_loadModels()
+{
+    if( _models.empty( )) // only load on the first config run
     {
         const std::vector< std::string >& filenames = _initData.getFilenames();
         for(  std::vector< std::string >::const_iterator i = filenames.begin();
@@ -117,18 +169,36 @@ void Config::_loadModel()
         }
     }
     
-    // TODO: move to View
-    if( !_models.empty() && !_modelDist )
-    {
-        _modelDist = new ModelDist( _models[0] );
-        _modelDist->registerTree( this );
-        EQASSERT( _modelDist->getID() != EQ_ID_INVALID );
+    // Register distribution helpers on each config run
+    const bool createDist = _modelDist.empty(); //first run, create distributors
+    const size_t  nModels = _models.size();
+    EQASSERT( createDist || _modelDist.size() == nModels );
 
-        _initData.setModelID( _modelDist->getID( ));
+    for( size_t i = 0; i < nModels; ++i )
+    {
+        const Model* model = _models[i];
+        ModelDist* modelDist = 0;
+        if( createDist )
+        {
+            modelDist = new ModelDist( model );
+            _modelDist.push_back( modelDist );
+        }
+        else
+            modelDist = _modelDist[i];
+
+        modelDist->registerTree( this );
+        EQASSERT( modelDist->getID() != EQ_ID_INVALID );
+
+        _initData.setModelID( modelDist->getID( ));
     }
+
+    EQASSERT( _modelDist.size() == nModels );
+    
+    ModelAssigner assigner( _modelDist );
+    accept( &assigner );
 }
 
-bool Config::mapData( const uint32_t initDataID )
+void Config::mapData( const uint32_t initDataID )
 {
     if( _initData.getID() == EQ_ID_INVALID )
     {
@@ -137,20 +207,35 @@ bool Config::mapData( const uint32_t initDataID )
     }
     else  // appNode, _initData is registered already
         EQASSERT( _initData.getID() == initDataID );
-
-    const uint32_t modelID = _initData.getModelID();
-    if( modelID == EQ_ID_INVALID ) // no model loaded by application
-        return true;
-
-    if( _models.empty( ))
-    {
-        Model* model = ModelDist::mapModel( this, modelID );
-        if( model )
-            _models.push_back( model );
-    }
-
-    return !_models.empty();
 }
+
+const Model* Config::getModel( const uint32_t id )
+{
+    uint32_t modelID = id == EQ_ID_INVALID ? _initData.getModelID() : id;
+    if( modelID == EQ_ID_INVALID ) // no model loaded by application
+        return 0;
+
+    // Accessed from pipe threads
+    eq::base::ScopedMutex< eq::base::SpinLock > _mutex( _modelLock );
+
+    const size_t nModels = _models.size();
+    EQASSERT( _modelDist.size() == nModels );
+
+    for( size_t i = 0; i < nModels; ++i )
+    {
+        const ModelDist* dist = _modelDist[ i ];
+        if( dist->getID() == modelID )
+            return _models[ i ];
+    }
+    
+    _modelDist.push_back( new ModelDist );
+    Model* model = _modelDist.back()->mapModel( this, modelID );
+    EQASSERT( model );
+    _models.push_back( model );
+
+    return model;
+}
+
 
 uint32_t Config::startFrame()
 {
@@ -262,6 +347,13 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                         _frameData.setCurrentViewID( view->getID( ));
                     else
                         _frameData.setCurrentViewID( EQ_ID_INVALID );
+                    return true;
+                }
+
+                case 'p':
+                case 'P':
+                {
+                    //const eq::View* view = _getActiveView();
                     return true;
                 }
 
