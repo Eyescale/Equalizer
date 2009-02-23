@@ -318,7 +318,7 @@ public:
             return TRAVERSE_CONTINUE;
         }
 
-    virtual VisitorResult visit( Canvas* canvas )
+    virtual VisitorResult visitPre( Canvas* canvas )
         {
             if( canvas != _canvas ) // only consider our canvas
                 return TRAVERSE_PRUNE;
