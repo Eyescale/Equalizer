@@ -916,7 +916,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     if( attrPrinted )
         os << exdent << "}" << endl << endl;
 
-    switch( compound->getLatestFrustum( ))
+    switch( compound->getFrustumType( ))
     {
         case eq::Frustum::TYPE_WALL:
             os << compound->getWall() << endl;

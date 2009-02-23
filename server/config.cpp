@@ -1071,7 +1071,7 @@ public:
 
     virtual VisitorResult visit( Compound* compound )
         { 
-            if( compound->getLatestFrustum() != eq::Frustum::TYPE_NONE )
+            if( compound->getFrustumType() != eq::Frustum::TYPE_NONE )
                 compound->getFrustum().updateHead();
 
             return TRAVERSE_CONTINUE; 

@@ -71,9 +71,36 @@ void CompoundInitVisitor::_updateFrustum( Compound* compound )
 {
     const Channel* channel = compound->getChannel();
     const Segment* segment = channel->getSegment();
-    EQASSERT( channel && segment );
+    const View*    view    = channel->getView();
+    EQASSERT( channel && segment && view );
 
-    switch( segment->getCurrentType( )) // derive our frustum:
+    switch( view->getCurrentType( )) // derive our frustum from view:
+    {
+        case View::TYPE_WALL:
+        {
+            // set compound frustum =
+            //         segment frustum X channel/view coverage
+            const Viewport& segmentVP = segment->getViewport();
+            const Viewport& viewVP    = view->getViewport();
+            const Viewport  coverage  = viewVP.getCoverage( segmentVP );
+
+            Wall wall( view->getWall( ));
+            wall.apply( coverage );
+            compound->setWall( wall );
+
+            EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
+            return;
+        }
+
+        case View::TYPE_PROJECTION:
+            EQUNIMPLEMENTED;
+            return;
+
+        default: // try segment frustum
+            break;
+    }
+
+    switch( segment->getCurrentType( )) // derive our frustum from segment:
     {
         case View::TYPE_WALL:
         {
@@ -82,13 +109,12 @@ void CompoundInitVisitor::_updateFrustum( Compound* compound )
             const Channel* outputChannel = segment->getChannel();
             EQASSERT( outputChannel );
 
-            const Viewport& outputVP = outputChannel->getViewport();
-            Viewport partialArea( channel->getViewport( ));
-            partialArea.intersect( outputVP ); // intersection
-            partialArea.transform( outputVP ); // in output coord.
+            const Viewport& outputVP  = outputChannel->getViewport();
+            const Viewport& channelVP = channel->getViewport();
+            const Viewport  coverage  = outputVP.getCoverage( channelVP );
 
             Wall wall( segment->getWall( ));
-            wall.apply( partialArea );
+            wall.apply( coverage );
             compound->setWall( wall );
             EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
             break;

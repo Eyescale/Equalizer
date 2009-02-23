@@ -38,10 +38,10 @@ namespace server
         EQ_EXPORT const Viewport& getViewport() const;
 
         /** @return the config of this view. */
-        Config* getConfig();
+        EQ_EXPORT Config* getConfig();
 
         /** @return the config of this view. */
-        const Config* getConfig() const;
+        EQ_EXPORT const Config* getConfig() const;
         //*}
 
         /** @name Operations */

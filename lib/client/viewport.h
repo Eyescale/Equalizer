@@ -107,6 +107,16 @@ namespace eq
                 h = EQ_MIN( sEy, dEy ) - y;
             }
 
+        /** Compute the coverage of another Viewport on this Viewport. */
+        Viewport getCoverage( const Viewport& with ) const
+            {
+                Viewport coverage( with );
+                coverage.intersect( *this ); // intersection
+                coverage.transform( *this ); // in our coordinate system
+
+                return coverage;
+            }
+
         float x;
         float y;
         float w;

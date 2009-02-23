@@ -25,8 +25,26 @@ server
         layout
         {
             name "2x1"
-            view { viewport [ 0 0 .5 1 ] }
-            view { viewport [ .5 0 .5 1 ] }
+            view
+            {
+                viewport [ 0 0 .5 1 ]
+                wall
+                {
+                    bottom_left  [ -.32 -.40 -.75 ]
+                    bottom_right [  .32 -.40 -.75 ]
+                    top_left     [ -.32  .40 -.75 ]
+                }
+            }
+            view
+            {
+                viewport [ .5 0 .5 1 ]
+                wall
+                {
+                    bottom_left  [ -.32 -.40 -.75 ]
+                    bottom_right [  .32 -.40 -.75 ]
+                    top_left     [ -.32  .40 -.75 ]
+                }
+            }
         }
 
         canvas

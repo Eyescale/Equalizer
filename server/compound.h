@@ -349,7 +349,8 @@ namespace server
             { return _frustum.getProjection(); }
 
         /** @return the type of the latest specified frustum. */
-        eq::Frustum::Type getLatestFrustum() const { return _frustum.getCurrentType(); }
+        eq::Frustum::Type getFrustumType() const
+            { return _frustum.getCurrentType(); }
 
         /** @return the bitwise OR of the eye values. */
         uint32_t getEyes() const { return _data.eyes; }
