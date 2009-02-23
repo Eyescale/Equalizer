@@ -85,30 +85,43 @@ server
                 top_left     [ -.32  .20 -.75 ]
             }
 
-            segment { channel "operator" }
             segment { channel "wall1" viewport [ 0  0 .5 1 ] }
             segment { channel "wall2" viewport [ .5 0 .5 1 ] }
+        }
+        
+        canvas
+        {
+            layout "1x1"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+
+            segment { channel "operator" }
         }
 
         compound { channel ( segment 0 layout "1x1" view 0 ) }
         compound { channel ( segment 1 layout "1x1" view 0 ) }
-        compound { channel ( segment 2 layout "1x1" view 0 ) }
 
         compound { channel ( segment 0 layout "3x1" view 0 ) }
         compound { channel ( segment 0 layout "3x1" view 1 ) }
-        compound { channel ( segment 0 layout "3x1" view 2 ) }
-        compound { channel ( segment 1 layout "3x1" view 0 ) }
         compound { channel ( segment 1 layout "3x1" view 1 ) }
-        compound { channel ( segment 2 layout "3x1" view 1 ) }
-        compound { channel ( segment 2 layout "3x1" view 2 ) }
+        compound { channel ( segment 1 layout "3x1" view 2 ) }
 
         compound { channel ( segment 0 layout "2x2" view 0 ) }
         compound { channel ( segment 0 layout "2x2" view 1 ) }
-        compound { channel ( segment 0 layout "2x2" view 2 ) }
-        compound { channel ( segment 0 layout "2x2" view 3 ) }
-        compound { channel ( segment 1 layout "2x2" view 0 ) }
-        compound { channel ( segment 1 layout "2x2" view 1 ) }
-        compound { channel ( segment 2 layout "2x2" view 2 ) }
-        compound { channel ( segment 2 layout "2x2" view 3 ) }
+        compound { channel ( segment 1 layout "2x2" view 2 ) }
+        compound { channel ( segment 1 layout "2x2" view 3 ) }
+
+        compound { channel ( canvas 1 segment 0 layout "1x1" view 0 ) }
+        compound { channel ( canvas 1 segment 0 layout "3x1" view 0 ) }
+        compound { channel ( canvas 1 segment 0 layout "3x1" view 1 ) }
+        compound { channel ( canvas 1 segment 0 layout "3x1" view 2 ) }
+        compound { channel ( canvas 1 segment 0 layout "2x2" view 0 ) }
+        compound { channel ( canvas 1 segment 0 layout "2x2" view 1 ) }
+        compound { channel ( canvas 1 segment 0 layout "2x2" view 2 ) }
+        compound { channel ( canvas 1 segment 0 layout "2x2" view 3 ) }
     }    
 }
