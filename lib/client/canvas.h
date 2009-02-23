@@ -98,7 +98,7 @@ namespace eq
         SegmentVector _segments;
 
         // WAR to set the layout on client and server during deserialize
-        virtual void _setLayout( const uint32_t id );
+        EQ_EXPORT virtual void _setLayout( const uint32_t id );
     };
 }
 #endif // EQ_CANVAS_H
