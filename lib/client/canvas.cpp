@@ -25,15 +25,19 @@ Canvas::~Canvas()
     EQASSERT( !_config );
 }
 
-void Canvas::_setLayout( const uint32_t id )
+void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
-    if( id == EQ_ID_INVALID )
-        _layout = 0;
-    else
+    Frustum::serialize( os, dirtyBits );
+
+    if( dirtyBits & DIRTY_LAYOUT )
     {
-        EQASSERT( _config );
-        _layout = _config->findLayout( id );
-        EQASSERT( _layout );
+        if( _layout )
+        {
+            EQASSERT( _layout->getID() != EQ_ID_INVALID );
+            os << _layout->getID();
+        }
+        else
+            os << EQ_ID_INVALID;
     }
 }
 
@@ -41,11 +45,18 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Frustum::deserialize( is, dirtyBits );
 
-    uint32_t id;
     if( dirtyBits & DIRTY_LAYOUT )
     {
+        uint32_t id;
         is >> id;
-        _setLayout( id );
+        if( id == EQ_ID_INVALID )
+            _layout = 0;
+        else
+        {
+            EQASSERT( _config );
+            _layout = _config->findLayout( id );
+            EQASSERT( _layout );
+        }
     }
 
     if( dirtyBits & DIRTY_ALL ) // children are immutable
@@ -54,6 +65,7 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         EQASSERT( _config );
 
         NodeFactory* nodeFactory = Global::getNodeFactory();
+        uint32_t id;
         for( is >> id; id != EQ_ID_INVALID; is >> id )
         {
             Segment* segment = nodeFactory->createSegment();

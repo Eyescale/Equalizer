@@ -29,7 +29,7 @@ Canvas::Canvas()
 {}
 
 Canvas::Canvas( const Canvas& from, Config* config )
-        : eq::Canvas( from )
+        : eq::Frustum( from )
         , _config( 0 )
         , _layout( 0 )
 {
@@ -73,7 +73,7 @@ void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
     Frustum::serialize( os, dirtyBits );
 
-    if( dirtyBits & DIRTY_LAYOUT )
+    if( dirtyBits & eq::Canvas::DIRTY_LAYOUT )
     {
         if( _layout )
         {
@@ -94,6 +94,25 @@ void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
             os << segment->getID();
         }
         os << EQ_ID_INVALID;
+    }
+}
+
+void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+{
+    Frustum::deserialize( is, dirtyBits );
+
+    if( dirtyBits & eq::Canvas::DIRTY_LAYOUT )
+    {
+        uint32_t id;
+        is >> id;
+        if( id == EQ_ID_INVALID )
+            _layout = 0;
+        else
+        {
+            EQASSERT( _config );
+            _layout = _config->findLayout( id );
+            EQASSERTINFO( _layout, id );
+        }
     }
 }
 
@@ -207,7 +226,7 @@ void Canvas::useLayout( Layout* layout )
     }
 
     _layout = layout;
-    setDirty( DIRTY_LAYOUT );
+    setDirty( eq::Canvas::DIRTY_LAYOUT );
 }
 
 namespace
@@ -282,18 +301,6 @@ void Canvas::unmap()
     session->unmapObject( this );
 }
 
-void Canvas::_setLayout( const uint32_t id )
-{
-    if( id == EQ_ID_INVALID )
-        _layout = 0;
-    else
-    {
-        EQASSERT( _config );
-        _layout = _config->findLayout( id );
-        EQASSERTINFO( _layout, id );
-    }
-}
-
 std::ostream& operator << ( std::ostream& os, const Canvas* canvas )
 {
     if( !canvas )
@@ -317,7 +324,7 @@ std::ostream& operator << ( std::ostream& os, const Canvas* canvas )
             os << "layout   \"" << layout->getName() << "\"" << std::endl;
     }
 
-    os << static_cast< const eq::Canvas& >( *canvas );
+    os << static_cast< const eq::Frustum& >( *canvas );
 
     const SegmentVector& segments = canvas->getSegments();
     for( SegmentVector::const_iterator i = segments.begin(); 

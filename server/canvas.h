@@ -25,7 +25,7 @@ namespace server
     /**
      * The canvas. @sa eq::Canvas
      */
-    class Canvas : public eq::Canvas
+    class Canvas : public eq::Frustum
     {
     public:
         /** 
@@ -95,7 +95,11 @@ namespace server
     protected:
         /** @sa Frustum::serialize */
         virtual void serialize( net::DataOStream& os, 
-                                          const uint64_t dirtyBits );
+                                const uint64_t dirtyBits );
+
+        /** @sa Frustum::deserialize */
+        virtual void deserialize( net::DataIStream& is, 
+                                  const uint64_t dirtyBits );
 
     private:
         /** The parent config. */
@@ -107,9 +111,6 @@ namespace server
 
         /** Child segments on this canvas. */
         SegmentVector _segments;
-
-        // WAR to set the layout on client and server during deserialize
-        virtual void _setLayout( const uint32_t id );
     };
 
     std::ostream& operator << ( std::ostream& os, const Canvas* canvas);

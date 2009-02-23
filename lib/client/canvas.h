@@ -14,6 +14,10 @@
 
 namespace eq
 {
+namespace server
+{
+    class Canvas;
+}
     class CanvasVisitor;
 
     /**
@@ -74,6 +78,9 @@ namespace eq
         //*}
 
     protected:
+        /** @sa Frustum::serialize */
+        void serialize( net::DataOStream& os, const uint64_t dirtyBits );
+
         /** @sa Frustum::deserialize */
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
@@ -85,6 +92,7 @@ namespace eq
             DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 2,
             DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 3
         };
+        friend class server::Canvas;
 
     private:
         /** The parent config. */
@@ -96,9 +104,6 @@ namespace eq
 
         /** Child segments on this canvas. */
         SegmentVector _segments;
-
-        // WAR to set the layout on client and server during deserialize
-        EQ_EXPORT virtual void _setLayout( const uint32_t id );
     };
 }
 #endif // EQ_CANVAS_H

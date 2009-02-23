@@ -42,6 +42,12 @@ namespace server
 
         /** @return the config of this view. */
         EQ_EXPORT const Config* getConfig() const;
+
+        /** @return the layout of this view. */
+        Layout* getLayout() { return _layout; }
+
+        /** @return the layout of this view. */
+        const Layout* getLayout() const { return _layout; }
         //*}
 
         /** @name Operations */
