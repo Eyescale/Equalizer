@@ -6,6 +6,10 @@
 
 #include "view.h"
 
+#include "modelAssigner.h"
+#include "layoutSwitcher.h"
+#include "nextViewFinder.h"
+
 using namespace std;
 
 namespace eqPly
@@ -90,51 +94,6 @@ bool Config::exit()
     // deletes it
 
     return ret;
-}
-
-namespace
-{
-class ModelAssigner : public eq::ConfigVisitor
-{
-public:
-    ModelAssigner( const ModelDistVector& models ) 
-            : _models( models ), _current( models.begin( )), _layout( 0 ) {}
-
-    virtual eq::VisitorResult visitPre( eq::Canvas* canvas )
-        {
-            _layout = canvas->getLayout();
-            if( _layout )
-                _layout->accept( *this );
-
-            _layout = 0;
-            return eq::TRAVERSE_PRUNE;
-        }
-
-    virtual eq::VisitorResult visitPre( eq::Layout* layout )
-        {
-            if( _layout != layout )
-                return eq::TRAVERSE_PRUNE; // only consider used layouts
-            return eq::TRAVERSE_CONTINUE; 
-        }
-
-    virtual eq::VisitorResult visit( eq::View* view )
-        {
-            const ModelDist* model = *_current;
-            static_cast< View* >( view )->setModelID( model->getID( ));
-
-            ++_current;
-            if( _current == _models.end( ))
-                _current = _models.begin(); // wrap around
-
-            return eq::TRAVERSE_CONTINUE; 
-        }
-
-private:
-    const ModelDistVector&          _models;
-    ModelDistVector::const_iterator _current;
-    
-    eq::Layout* _layout;
-};
 }
 
 void Config::_loadModels()
@@ -270,57 +229,6 @@ bool Config::needsRedraw()
     return ( _spinX != 0 || _spinY != 0 || _tracker.isRunning() || _redraw );
 }
 
-namespace
-{
-class NextViewFinder : public eq::ConfigVisitor
-{
-public:
-    NextViewFinder( const uint32_t currentViewID ) 
-            : _id( currentViewID ), _layout( 0 ), _result( 0 )
-            , _stopNext( false ) {}
-    virtual ~NextViewFinder(){}
-
-    virtual eq::VisitorResult visitPre( eq::Canvas* canvas )
-        {
-            _layout = canvas->getLayout();
-
-            if( _layout && _layout->accept( *this ) == eq::TRAVERSE_TERMINATE )
-                return eq::TRAVERSE_TERMINATE;
-
-            _layout = 0;
-            return eq::TRAVERSE_PRUNE;
-        }
-
-    virtual eq::VisitorResult visitPre( eq::Layout* layout )
-        {
-            if( _layout != layout )
-                return eq::TRAVERSE_PRUNE; // only consider used layouts
-            return eq::TRAVERSE_CONTINUE; 
-        }
-
-    virtual eq::VisitorResult visit( eq::View* view )
-        {
-            if( _stopNext || _id == EQ_ID_INVALID )
-            {
-                _result = view;
-                return eq::TRAVERSE_TERMINATE;
-            }
-            
-            if( view->getID() == _id )
-                _stopNext = true; 
-            return eq::TRAVERSE_CONTINUE; 
-        }
-
-    const eq::View* getResult() const { return _result; }
-
-private:
-    const uint32_t _id;
-    eq::Layout*    _layout;
-    eq::View*      _result;
-    bool           _stopNext;
-};
-}
-
 bool Config::handleEvent( const eq::ConfigEvent* event )
 {
     switch( event->data.type )
@@ -384,6 +292,15 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                         i = _modelDist.begin(); // wrap around
 
                     view->setModelID( (*i)->getID( ));
+                    return true;
+                }
+
+                case 'l':
+                case 'L':
+                {
+                    const uint32_t viewID = _frameData.getCurrentViewID();
+                    LayoutSwitcher switcher( viewID );
+                    accept( switcher );
                     return true;
                 }
 

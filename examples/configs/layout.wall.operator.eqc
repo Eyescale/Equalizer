@@ -14,12 +14,12 @@ server
                     
                     channel { name "operator" }
                 }
-            }
-        }
-        node
-        {
-            pipe
-            {
+#            }
+#        }
+#        node
+#        {
+#            pipe
+#            {
                 window
                 {
                     viewport [ 0 0.1 1 0.5 ]

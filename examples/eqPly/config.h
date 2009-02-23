@@ -2,8 +2,8 @@
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_PLY_CONFIG_H
-#define EQ_PLY_CONFIG_H
+#ifndef EQPLY_CONFIG_H
+#define EQPLY_CONFIG_H
 
 #include <eq/eq.h>
 
@@ -75,4 +75,4 @@ namespace eqPly
     };
 }
 
-#endif // EQ_PLY_CONFIG_H
+#endif // EQPLY_CONFIG_H
