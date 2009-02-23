@@ -1,0 +1,61 @@
+# 2-window DFRLoadBalancer config
+server
+{
+    config
+    {
+  
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 500 100 1000 800 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+            }
+
+            pipe
+            {
+                window
+                {
+                    viewport [ 20 100 480 300 ]
+                    channel
+                    {
+                        name "dest"
+                    }
+                }
+            }
+        }
+        compound
+        { 
+            wall
+            {
+                bottom_left  [ -.32 -.2 -1 ]
+                bottom_right [  .32 -.2 -1 ]
+                top_left     [ -.32  .2 -1 ]
+            }
+            channel "dest"
+
+            
+
+            compound
+            { 
+
+                channel "channel1"
+                loadBalancer 
+                { 
+                     mode DFR 
+                     framerate 15.0
+                     damping 0.5
+                }
+                outputframe { name "frame.DFR" }
+            }
+
+            inputframe { name "frame.DFR" }
+        }
+    }    
+}

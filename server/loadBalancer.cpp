@@ -136,11 +136,14 @@ std::ostream& operator << ( std::ostream& os, const LoadBalancer* lb )
        << "loadBalancer " << endl
        << '{' << endl
        << "    mode " << lb->getMode() << endl;
+  
+    if( lb->getMode() == LoadBalancer::MODE_DFR )
+        os << "    framerate " << lb->getFrameRate() << endl;
 
     if( lb->getDamping() >= 0.f )
         os << "    damping " << lb->getDamping() << endl;
-    else if( lb->getMode() == LoadBalancer::MODE_DFR )
-        os << "    framerate " << lb->getFrameRate() << endl;
+    
+
 
     os << '}' << endl << enableFlush;
     return os;

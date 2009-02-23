@@ -38,7 +38,7 @@ namespace server
         int _sizeAverage;
         bool _newValueReady;
                 
-        
+        int _count ;
 
 
     };

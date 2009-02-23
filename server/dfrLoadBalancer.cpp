@@ -26,6 +26,7 @@ DFRLoadBalancer::DFRLoadBalancer( const LoadBalancer& parent )
         , _fpsLastFrame ( _parent.getFrameRate() )
         , _average ( _parent.getFrameRate() )
         , _newValueReady ( false ) 
+        , _count ( 0 )
 {    
     Channel* channel = _compound->getChannel();
     
@@ -35,7 +36,8 @@ DFRLoadBalancer::DFRLoadBalancer( const LoadBalancer& parent )
     
     EQASSERT( channel );
     // Subscribe to channel load notification
-    channel->addListener( this );
+    if ( _compound->getParent() && channel)
+        channel->addListener( this );
 
     EQINFO << "New DFRLoadBalancer @" << (void*)this << endl;
 }
@@ -64,18 +66,22 @@ void DFRLoadBalancer::update( const uint32_t frameNumber )
    
    _newValueReady = false;    
    
-   
-   if ( _fpsLastFrame == _parent.getFrameRate())
-   {
-       _average = _fpsLastFrame;
-       return;
-   }
-   
+   _count++;
+   _average = _average +_fpsLastFrame;
+      
+   if ( _count <= _sizeAverage )
+         return;
+        
    Zoom currentZoom = _compound->getZoom();
 
-   _average = (( _average * (_sizeAverage - 1) ) + _fpsLastFrame ) / _sizeAverage ;
+   _average = _average / (_count-1);
    
    float factor = sqrtf( _average / _parent.getFrameRate() );
+    
+    
+   _count = 0; 
+   _average = 0;
+   
 
       
    // min/max on new zoom!
@@ -83,17 +89,20 @@ void DFRLoadBalancer::update( const uint32_t frameNumber )
    //          min x,y( my channel pvp / parent compound inherit pvp )
    // min zoom factor = never smaller than 128 pixels in both directions
 
-   const eq::PixelViewport& pvp = _compound->getInheritPixelViewport();
+   const Compound* compondParent = _compound->getParent();
+   const eq::PixelViewport& pvp = compondParent->getInheritPixelViewport();
    
-   Channel*  channel   = _compound->getChannel();
+   const Channel*  channel   = _compound->getChannel();
    const eq::PixelViewport& channelPVP   = channel->getPixelViewport();
    
    float minZoom = 128.f / EQ_MIN( (float)pvp.h, (float)pvp.w );
    float maxZoom = EQ_MIN( (float)channelPVP.w / (float)pvp.w, (float)channelPVP.h / (float)pvp.h );
    
-   factor = EQ_MAX( factor, minZoom ); 
-   factor = EQ_MIN( factor, maxZoom );
-   currentZoom *= factor;  
+   currentZoom *= factor;
+   
+   currentZoom[0] = EQ_MAX( currentZoom[0], minZoom ); 
+   currentZoom[0] = EQ_MIN( currentZoom[0], maxZoom );
+   currentZoom[1] = currentZoom[0]; 
 
    
    _compound->setZoom( currentZoom );
