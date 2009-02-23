@@ -44,7 +44,8 @@ VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root,
         , _left( 0 )
         , _right( 0 )
 {
-    EQASSERT( node );
+    if( !node )
+        return;
 
     if( node->getLeft( ))
         _left = new VertexBufferDist( root, node->getLeft( ));
