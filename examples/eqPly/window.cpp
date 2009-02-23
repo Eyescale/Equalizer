@@ -161,8 +161,6 @@ void Window::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     const FrameData& frameData = pipe->getFrameData();
 
     _state->setRenderMode( frameData.getRenderMode( ));
-    glPolygonMode( GL_FRONT_AND_BACK, 
-                   frameData.useWireframe() ? GL_LINE : GL_FILL );
     eq::Window::frameStart( frameID, frameNumber );
 }
 

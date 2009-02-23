@@ -82,6 +82,9 @@ void Channel::frameDraw( const uint32_t frameID )
     glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
 
     const FrameData& frameData = _getFrameData();
+    glPolygonMode( GL_FRONT_AND_BACK, 
+                   frameData.useWireframe() ? GL_LINE : GL_FILL );
+
     const vmml::Vector3f& translation = frameData.getCameraTranslation();
     glTranslatef( translation.x, translation.y, translation.z );
     glMultMatrixf( frameData.getCameraRotation().ml );
