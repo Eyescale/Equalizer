@@ -42,6 +42,9 @@ namespace eqPly
         /** Map per-config data to the local node process */
         void mapData( const uint32_t initDataID );
 
+        /** Unmap per-config data to the local node process */
+        void unmapData();
+
         /** @return the requested, default model or 0. */
         const Model* getModel( const uint32_t id = EQ_ID_INVALID );
 

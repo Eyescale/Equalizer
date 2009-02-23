@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "node.h"
@@ -20,8 +20,17 @@ bool Node::configInit( const uint32_t initID )
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
         setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
 
-    Config*    config = static_cast< Config* >( getConfig( ));
+    Config* config = static_cast< Config* >( getConfig( ));
     config->mapData( initID );
     return true;
 }
+
+bool Node::configExit()
+{
+    Config* config = static_cast< Config* >( getConfig( ));
+    config->unmapData();
+    
+    return eq::Node::configExit();
+}
+
 }

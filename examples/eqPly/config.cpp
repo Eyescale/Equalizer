@@ -84,13 +84,7 @@ bool Config::exit()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    for( ModelDistVector::const_iterator i = _modelDist.begin(); 
-         i != _modelDist.end(); ++i )
-    {
-        ModelDist* modelDist = *i;
-        modelDist->deregisterTree();
-    }
-
+    unmapData(); // needed for configs with no appNode
     _initData.setModelID( EQ_ID_INVALID );
     // retain models and distributors for possible other config runs, destructor
     // deletes it
@@ -207,6 +201,22 @@ void Config::mapData( const uint32_t initDataID )
     }
     else  // appNode, _initData is registered already
         EQASSERT( _initData.getID() == initDataID );
+}
+
+void Config::unmapData()
+{
+    for( ModelDistVector::const_iterator i = _modelDist.begin(); 
+         i != _modelDist.end(); ++i )
+    {
+        ModelDist* modelDist = *i;
+        if( modelDist->getID() == EQ_ID_INVALID ) // already done
+            continue;
+
+        if( modelDist->isMaster( ))
+            modelDist->deregisterTree();
+        else
+            modelDist->unmapTree();
+    }
 }
 
 const Model* Config::getModel( const uint32_t id )

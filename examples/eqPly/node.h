@@ -27,6 +27,7 @@ namespace eqPly
         virtual ~Node(){}
 
         virtual bool configInit( const uint32_t initID );
+        virtual bool configExit();
 
     private:
     };
