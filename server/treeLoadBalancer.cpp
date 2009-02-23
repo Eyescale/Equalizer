@@ -319,8 +319,6 @@ float TreeLoadBalancer::_assignTargetTimes( Node* node, const float totalTime,
 
 #if 1 // disable to remove damping code
         float damping = _parent.getDamping();
-        if( damping < 0.f )
-            damping = .5f;
         EQASSERT( damping >= 0.f );
         EQASSERT( damping <= 1.f );
 

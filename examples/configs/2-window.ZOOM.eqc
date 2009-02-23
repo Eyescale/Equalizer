@@ -9,8 +9,8 @@ server
             {
                 window
                 {
-                    attributes { hint_drawable pbuffer hint_doublebuffer 0 }
-                    viewport [ 0 0 4096 4096 ] 
+                    #attributes { hint_drawable pbuffer hint_doublebuffer 0 }
+                    #viewport [ 0 0 4096 4096 ] 
                     channel
                     {
                         #drawable [ FBO_COLOR FBO_DEPTH ]
@@ -37,7 +37,7 @@ server
             compound 
             {
                 channel "buffer"
-                #loadBalancer { mode [ DFR ] framerate 10.0 }
+                loadBalancer { mode DFR framerate 10.0 }
                 zoom [ 2 2 ]
 #                viewport [ .5 .5 .5 .5 ]
                 outputframe{ }

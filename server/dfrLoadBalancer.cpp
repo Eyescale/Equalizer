@@ -14,7 +14,9 @@
 using namespace eq::base;
 using namespace std;
 
+#define QUICK_ADAPT
 #define NB_ELEMENT_MAX 100
+
 namespace eq
 {
 namespace server
@@ -25,12 +27,12 @@ DFRLoadBalancer::DFRLoadBalancer( const LoadBalancer& parent )
         , _compound( _parent.getCompound() )
         , _fpsLastFrame ( _parent.getFrameRate() )
         , _average ( _parent.getFrameRate() )
-        , _newValueReady ( false ) 
+        , _newValueReady ( false )
         , _count ( 0 )
 {    
     Channel* channel = _compound->getChannel();
     
-    float damping = EQ_MAX( _parent.getDamping(), 0.f );
+    const float damping = EQ_MAX( _parent.getDamping(), 0.f );
     
     _sizeAverage = (int) ( NB_ELEMENT_MAX * damping ) + 1;
     
@@ -55,58 +57,67 @@ DFRLoadBalancer::~DFRLoadBalancer()
 
 void DFRLoadBalancer::update( const uint32_t frameNumber )
 {
-   if ( _parent.isFrozen())
-   {
-      _compound->setZoom( Zoom::NONE );  
-      return;    
-   }
+    if ( _parent.isFrozen())
+    {
+        _compound->setZoom( Zoom::NONE );  
+        return;    
+    }
    
-   if ( !_newValueReady )
-       return;
+   Zoom currentZoom = _compound->getZoom();
+
+#ifdef QUICK_ADAPT
+    if ( !_newValueReady )
+        return;
    
    _newValueReady = false;    
    
-   _count++;
-   _average = _average +_fpsLastFrame;
-      
+   EQASSERT( _parent.getDamping() >= 0.f );
+   EQASSERT( _parent.getDamping() <= 1.f );
+
+   const float target = _parent.getFrameRate();
+   const float factor = ( sqrtf( _fpsLastFrame / target ) - 1.f ) * 
+                            _parent.getDamping() + 1.0f;
+
+#else
+
    if ( _count <= _sizeAverage )
-         return;
-        
-   Zoom currentZoom = _compound->getZoom();
+        return;
 
    _average = _average / (_count-1);
-   
-   float factor = sqrtf( _average / _parent.getFrameRate() );
-    
-    
-   _count = 0; 
-   _average = 0;
-   
+   _average = 0.f;
+   _count   = 0;
 
+   const float factor = sqrtf( _average / _parent.getFrameRate() );
+   // EQINFO << "Frame " << frameNumber << " fps " << _average
+   //                    << endl;
       
-   // min/max on new zoom!
-   // max zoom factor = 
-   //          min x,y( my channel pvp / parent compound inherit pvp )
-   // min zoom factor = never smaller than 128 pixels in both directions
+#endif
 
-   const Compound* compondParent = _compound->getParent();
-   const eq::PixelViewport& pvp = compondParent->getInheritPixelViewport();
-   
-   const Channel*  channel   = _compound->getChannel();
-   const eq::PixelViewport& channelPVP   = channel->getPixelViewport();
-   
-   float minZoom = 128.f / EQ_MIN( (float)pvp.h, (float)pvp.w );
-   float maxZoom = EQ_MIN( (float)channelPVP.w / (float)pvp.w, (float)channelPVP.h / (float)pvp.h );
-   
    currentZoom *= factor;
-   
-   currentZoom[0] = EQ_MAX( currentZoom[0], minZoom ); 
-   currentZoom[0] = EQ_MIN( currentZoom[0], maxZoom );
-   currentZoom[1] = currentZoom[0]; 
 
+   //EQINFO << _fpsLastFrame << ": " << factor << " = " << currentZoom 
+   //       << std::endl;
+
+   // clip zoom factor to min( 128px ), max( channel pvp )
+
+   const Compound*          parent = _compound->getParent();
+   const eq::PixelViewport& pvp    = parent->getInheritPixelViewport();
+   
+   const Channel*           channel    = _compound->getChannel();
+   const eq::PixelViewport& channelPVP = channel->getPixelViewport();
+   
+   const float minZoom = 128.f / EQ_MIN( static_cast< float >( pvp.h ),
+                                         static_cast< float >( pvp.w ));
+   const float maxZoom = EQ_MIN( static_cast< float >( channelPVP.w ) /
+                                 static_cast< float >( pvp.w ),
+                                 static_cast< float >( channelPVP.h ) /
+                                 static_cast< float >( pvp.h ));
+   
+   currentZoom.x = EQ_MAX( currentZoom.x, minZoom ); 
+   currentZoom.x = EQ_MIN( currentZoom.x, maxZoom );
+   currentZoom.y = currentZoom.x; 
    
    _compound->setZoom( currentZoom );
-   
 }
 
 void DFRLoadBalancer::notifyLoadData( Channel* channel,
@@ -148,10 +159,14 @@ void DFRLoadBalancer::notifyLoadData( Channel* channel,
         return;
          
     _newValueReady = true;
-         
     _fpsLastFrame = 1000.0f / time;
 
-    EQLOG( LOG_LB ) << "Frame " << frameNumber << " channel " 
+#ifndef QUICK_ADAPT
+    _average = _average + _fpsLastFrame;
+    ++_count;
+#endif
+
+   EQLOG( LOG_LB ) << "Frame " << frameNumber << " channel " 
                         << channel->getName() << " time " << time
                         << endl;
 }

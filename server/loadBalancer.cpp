@@ -24,7 +24,7 @@ namespace server
 
 LoadBalancer::LoadBalancer()
         : _mode( MODE_2D )
-        , _damping( -1.f )
+        , _damping( .5f )
         , _frameRate( 10.f )
         , _compound( 0 )
         , _implementation( 0 )
@@ -140,7 +140,7 @@ std::ostream& operator << ( std::ostream& os, const LoadBalancer* lb )
     if( lb->getMode() == LoadBalancer::MODE_DFR )
         os << "    framerate " << lb->getFrameRate() << endl;
 
-    if( lb->getDamping() >= 0.f )
+    if( lb->getDamping() != 0.5f )
         os << "    damping " << lb->getDamping() << endl;
     
 
