@@ -954,7 +954,10 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
         EQASSERT( view );
 
         if( config->mapObject( view, packet->viewID ))
+        {
+            view->_channel = this;
             _view = view;
+        }
         else
         {
             nodeFactory->releaseView( view );
@@ -1001,6 +1004,8 @@ net::CommandResult Channel::_cmdConfigExit( net::Command& command )
         Config* config = getConfig();
 
         config->unmapObject( _view );
+        _view->_channel = 0;
+
         Global::getNodeFactory()->releaseView( _view );
         _view = 0;
     }

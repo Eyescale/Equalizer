@@ -15,6 +15,9 @@ namespace server
 {
     class View;
 }
+    class Channel;
+    class Config;
+    class Layout;
     class ViewVisitor;
 
     /**
@@ -33,6 +36,12 @@ namespace server
         //*{
         /** @return the viewport of the view. */
         EQ_EXPORT const Viewport& getViewport() const;
+
+        /** @return the config of this view. */
+        Config* getConfig();
+
+        /** @return the config of this view. */
+        const Config* getConfig() const;
         //*}
 
         /** @name Operations */
@@ -64,8 +73,13 @@ namespace server
         };
 
     private:
-        friend class Layout;
+        /** Parent layout (application-side). */
         Layout* _layout;
+        friend class Layout;
+
+        /** Parent channel (render-client-side). */
+        Channel* _channel;
+        friend class Channel;
 
         friend class server::View;
         Viewport    _viewport;

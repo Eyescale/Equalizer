@@ -65,7 +65,6 @@ Config* View::getConfig()
     return _layout ? _layout->getConfig() : 0;
 }
 
-
 const Config* View::getConfig() const
 {
     EQASSERT( _layout );
