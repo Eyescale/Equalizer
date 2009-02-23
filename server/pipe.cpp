@@ -180,9 +180,9 @@ PipePath Pipe::getPath() const
 
 Channel* Pipe::getChannel( const ChannelPath& path )
 {
-    EQASSERT( _windows.size() >= path.windowIndex );
+    EQASSERT( _windows.size() > path.windowIndex );
 
-    if( _windows.size() < path.windowIndex )
+    if( _windows.size() <= path.windowIndex )
         return 0;
 
     return _windows[ path.windowIndex ]->getChannel( path );

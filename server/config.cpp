@@ -487,10 +487,10 @@ void Config::setApplicationNetNode( net::NodePtr node )
 
 Channel* Config::getChannel( const ChannelPath& path )
 {
-    EQASSERTINFO( _nodes.size() >= path.nodeIndex,
-                  _nodes.size() << " < " << path.nodeIndex );
+    EQASSERTINFO( _nodes.size() > path.nodeIndex,
+                  _nodes.size() << " <= " << path.nodeIndex );
 
-    if( _nodes.size() < path.nodeIndex )
+    if( _nodes.size() <= path.nodeIndex )
         return 0;
 
     return _nodes[ path.nodeIndex ]->getChannel( path );
@@ -498,10 +498,10 @@ Channel* Config::getChannel( const ChannelPath& path )
 
 Canvas* Config::getCanvas( const CanvasPath& path )
 {
-    EQASSERTINFO( _canvases.size() >= path.canvasIndex,
-                  _canvases.size() << " < " << path.canvasIndex );
+    EQASSERTINFO( _canvases.size() > path.canvasIndex,
+                  _canvases.size() << " <= " << path.canvasIndex );
 
-    if( _canvases.size() < path.canvasIndex )
+    if( _canvases.size() <= path.canvasIndex )
         return 0;
 
     return _canvases[ path.canvasIndex ];
@@ -520,10 +520,10 @@ Segment* Config::getSegment( const SegmentPath& path )
 
 Layout* Config::getLayout( const LayoutPath& path )
 {
-    EQASSERTINFO( _layouts.size() >= path.layoutIndex,
-                  _layouts.size() << " < " << path.layoutIndex );
+    EQASSERTINFO( _layouts.size() > path.layoutIndex,
+                  _layouts.size() << " <= " << path.layoutIndex );
 
-    if( _layouts.size() < path.layoutIndex )
+    if( _layouts.size() <= path.layoutIndex )
         return 0;
 
     return _layouts[ path.layoutIndex ];

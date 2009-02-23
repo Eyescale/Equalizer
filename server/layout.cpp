@@ -64,10 +64,10 @@ void Layout::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 
 View* Layout::getView( const ViewPath& path )
 {
-    EQASSERTINFO( _views.size() >= path.viewIndex,
-                  _views.size() << " < " << path.viewIndex );
+    EQASSERTINFO( _views.size() > path.viewIndex,
+                  _views.size() << " <= " << path.viewIndex );
 
-    if( _views.size() < path.viewIndex )
+    if( _views.size() <= path.viewIndex )
         return 0;
 
     return _views[ path.viewIndex ];

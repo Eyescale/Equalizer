@@ -1,0 +1,114 @@
+# Layout example configuration for a display wall with control host.
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    name "Operator Station"
+                    viewport [ 0.25 0.7 0.5 0.25 ]
+                    
+                    channel { name "operator" }
+                }
+                window
+                {
+                    viewport [ 0 0.1 1 0.5 ]
+                    name "Two-projector Wall"
+                    
+                    channel { viewport [ 0  0 .5 1 ] name "wall1" }
+                    channel { viewport [ .5 0 .5 1 ] name "wall2" }
+                }
+            }
+        }
+
+        layout
+        {
+            name "1x1"
+            view {}
+        }
+
+        layout
+        {
+            name "3x1"
+            view
+            {
+                viewport [ 0 0 .3333 1 ]
+                wall
+                {
+                    bottom_left  [ -.21 -.40 -.75 ]
+                    bottom_right [  .21 -.40 -.75 ]
+                    top_left     [ -.21  .40 -.75 ]
+                }
+            }
+            view
+            {
+                viewport [ .3333 0 .3334 1 ]
+                wall
+                {
+                    bottom_left  [ -.21 -.40 -.75 ]
+                    bottom_right [  .21 -.40 -.75 ]
+                    top_left     [ -.21  .40 -.75 ]
+                }
+            }
+            view
+            {
+                viewport [ .6667 0 .3333 1 ]
+                wall
+                {
+                    bottom_left  [ -.21 -.40 -.75 ]
+                    bottom_right [  .21 -.40 -.75 ]
+                    top_left     [ -.21  .40 -.75 ]
+                }
+            }
+        }
+
+        layout
+        {
+            name "2x2"
+            view { viewport [ 0  0  .5 .5 ] wall {} }
+            view { viewport [ 0  .5 .5 .5 ] wall {} }
+            view { viewport [ .5 0  .5 .5 ] wall {} }
+            view { viewport [ .5 .5 .5 .5 ] wall {} }
+        }
+
+        canvas
+        {
+            layout "3x1"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+
+            segment { channel "operator" }
+            segment { channel "wall1" viewport [ 0  0 .5 1 ] }
+            segment { channel "wall2" viewport [ .5 0 .5 1 ] }
+        }
+
+        compound { channel ( segment 0 layout "1x1" view 0 ) }
+        compound { channel ( segment 1 layout "1x1" view 0 ) }
+        compound { channel ( segment 2 layout "1x1" view 0 ) }
+
+        compound { channel ( segment 0 layout "3x1" view 0 ) }
+        compound { channel ( segment 0 layout "3x1" view 1 ) }
+        compound { channel ( segment 0 layout "3x1" view 2 ) }
+        compound { channel ( segment 1 layout "3x1" view 0 ) }
+        compound { channel ( segment 1 layout "3x1" view 1 ) }
+        compound { channel ( segment 2 layout "3x1" view 1 ) }
+        compound { channel ( segment 2 layout "3x1" view 2 ) }
+
+        compound { channel ( segment 0 layout "2x2" view 0 ) }
+        compound { channel ( segment 0 layout "2x2" view 1 ) }
+        compound { channel ( segment 0 layout "2x2" view 2 ) }
+        compound { channel ( segment 0 layout "2x2" view 3 ) }
+        compound { channel ( segment 1 layout "2x2" view 0 ) }
+        compound { channel ( segment 1 layout "2x2" view 1 ) }
+        compound { channel ( segment 2 layout "2x2" view 2 ) }
+        compound { channel ( segment 2 layout "2x2" view 3 ) }
+    }    
+}

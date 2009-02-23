@@ -182,9 +182,9 @@ WindowPath Window::getPath() const
 
 Channel* Window::getChannel( const ChannelPath& path )
 {
-    EQASSERT( _channels.size() >= path.channelIndex );
+    EQASSERT( _channels.size() > path.channelIndex );
 
-    if( _channels.size() < path.channelIndex )
+    if( _channels.size() <= path.channelIndex )
         return 0;
 
     return _channels[ path.channelIndex ];

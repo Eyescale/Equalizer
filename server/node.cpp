@@ -146,9 +146,9 @@ NodePath Node::getPath() const
 
 Channel* Node::getChannel( const ChannelPath& path )
 {
-    EQASSERT( _pipes.size() >= path.pipeIndex );
+    EQASSERT( _pipes.size() > path.pipeIndex );
 
-    if( _pipes.size() < path.pipeIndex )
+    if( _pipes.size() <= path.pipeIndex )
         return 0;
 
     return _pipes[ path.pipeIndex ]->getChannel( path );

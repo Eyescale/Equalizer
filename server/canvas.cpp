@@ -99,10 +99,10 @@ void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 
 Segment* Canvas::getSegment( const SegmentPath& path )
 {
-    EQASSERTINFO( _segments.size() >= path.segmentIndex,
-                  _segments.size() << " < " << path.segmentIndex );
+    EQASSERTINFO( _segments.size() > path.segmentIndex,
+                  _segments.size() << " <= " << path.segmentIndex );
 
-    if( _segments.size() < path.segmentIndex )
+    if( _segments.size() <= path.segmentIndex )
         return 0;
 
     return _segments[ path.segmentIndex ];
