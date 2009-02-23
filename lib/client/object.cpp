@@ -11,7 +11,7 @@ namespace eq
 {
 
 Object::Object()
-        :  _dirty( DIRTY_NONE )
+        : _dirty( DIRTY_NONE )
 {}
 
 Object::~Object()

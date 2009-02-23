@@ -273,8 +273,9 @@ public:
     virtual eq::VisitorResult visitPre( eq::Canvas* canvas )
         {
             _layout = canvas->getLayout();
-            if( _layout )
-                _layout->accept( *this );
+
+            if( _layout && _layout->accept( *this ) == eq::TRAVERSE_TERMINATE )
+                return eq::TRAVERSE_TERMINATE;
 
             _layout = 0;
             return eq::TRAVERSE_PRUNE;
@@ -296,7 +297,7 @@ public:
             }
             
             if( view->getID() == _id )
-                _stopNext = true;    
+                _stopNext = true; 
             return eq::TRAVERSE_CONTINUE; 
         }
 
