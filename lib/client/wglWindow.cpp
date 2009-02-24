@@ -42,6 +42,9 @@ void WGLWindow::configExit( )
     HWND  hWnd           = getWGLWindowHandle();
     HPBUFFERARB hPBuffer = getWGLPBufferHandle();
 
+    if ( getNVGroup() || getNVBarrier() )
+        joinNVSwapBarrier( 0, 0 );
+
     exitWGLAffinityDC();
     setWGLDC( 0, WGL_DC_NONE );
     setWGLContext( 0 );
@@ -252,6 +255,9 @@ bool WGLWindow::configInit()
                    << "swapsync hint" << std::endl;
     }
     
+    if ( getNVGroup() || getNVBarrier() )
+       joinNVSwapBarrier( getNVGroup(), getNVBarrier() );
+
     if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         return configInitFBO();
 
@@ -727,5 +733,37 @@ bool WGLWindow::processEvent( const WGLWindowEvent& event )
     }
 
     return WGLWindowIF::processEvent( event );
+}
+
+bool WGLWindow::joinNVSwapBarrier( const uint32_t group, 
+                                   const uint32_t barrier )
+{
+    if ( !WGL_NV_swap_group )
+    {
+        EQWARN << " NV Swap group not supported: " << endl;
+        return false;
+    }
+
+    uint32_t maxBarrier = 0;
+    uint32_t maxGroup = 0;
+    
+    wglQueryMaxSwapGroupsNV( _wglDC , &maxGroup, &maxBarrier );
+
+    if ( group > maxGroup )
+    {
+        EQWARN << " SwapBarrier deactivate : group more great than max group " << endl;
+        return false;
+    }
+
+    if ( barrier > maxBarrier )
+    {
+        EQWARN << " SwapBarrier deactivate : barrier more great than max barrier " << endl;
+        return false;
+    }
+
+    wglJoinSwapGroupNV( _wglDC, group );
+    wglBindSwapBarrierNV( group, barrier );
+    
+    return true;
 }
 }

@@ -14,7 +14,7 @@
 
 #include "types.h"
 #include "visitorResult.h"  // enum
-
+#include "swapBarrier.h"
 #include <eq/client/pixelViewport.h>
 #include <eq/client/window.h>
 #include <eq/net/barrier.h>
@@ -202,6 +202,14 @@ namespace server
          */
         void joinSwapBarrier( net::Barrier* barrier );
 
+        
+        /** 
+         * Join a NV swap barrier.
+         * 
+         * @param barrier the NV swap barrier.
+         */
+        void joinNVSwapBarrier( const SwapBarrier* barrier ); 
+
         /** The last drawing channel for this entity. @internal */
         void setLastDrawChannel( const Channel* channel )
             { _lastDrawChannel = channel; }
@@ -353,6 +361,8 @@ namespace server
         /** The list of slave swap barriers for the current frame. */
         std::vector<net::Barrier*> _swapBarriers;
         
+        const SwapBarrier* _swapBarrier;
+
         /** The last draw channel for this entity */
         const Channel* _lastDrawChannel;
 

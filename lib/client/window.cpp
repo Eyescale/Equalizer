@@ -703,6 +703,9 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
 
     _name  = packet->name;
     _tasks = packet->tasks;
+    _nvGroup   = packet->nvGroup; 
+    _nvBarrier = packet->nvBarrier;
+
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
     _error.clear();
 

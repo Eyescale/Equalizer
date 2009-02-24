@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQSERVER_SWAPBARRIER_H
@@ -28,7 +28,8 @@ namespace server
         /** 
          * Constructs a new SwapBarrier.
          */
-        SwapBarrier() {}
+        SwapBarrier(): _nvGroup( 0 )
+                     , _nvBarrier( 0 ) {}
 
         /** @name Data Access. */
         //*{
@@ -36,8 +37,18 @@ namespace server
         const std::string getName() const { return _name; }
         //*}
 
+        const int getNVGroup()const { return _nvGroup ; }
+        void setNVGroup( int nvGroup ) { _nvGroup = nvGroup; }
+
+        const int getNVBarrier()const { return _nvBarrier; }
+        void setNVBarrier( int nvBarrier )  { _nvBarrier = nvBarrier; }
+
+        bool isNvSwapBarrier()const { return ( _nvBarrier || _nvGroup ); }
     private:
         std::string _name;
+        int _nvGroup;
+        int _nvBarrier;
+
     };
 
     std::ostream& operator << ( std::ostream& os, const SwapBarrier* barrier );

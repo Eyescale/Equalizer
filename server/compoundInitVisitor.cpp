@@ -9,7 +9,8 @@
 #include "log.h"
 #include "segment.h"
 #include "view.h"
-
+#include "window.h"
+#include "swapBarrier.h"
 #include <eq/client/log.h>
 
 using namespace std;
@@ -32,6 +33,18 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
         const Segment* segment = channel->getSegment();
         if( segment ) // we are a created destination channel
             _updateFrustum( compound );
+
+        const SwapBarrier* swapBarrier = compound->getSwapBarrier();
+        if ( swapBarrier )
+        {
+            if ( swapBarrier->isNvSwapBarrier() )
+            {
+                Window* window = channel->getWindow();
+                window->joinNVSwapBarrier( swapBarrier );
+            }
+        }
+
+
     }
 
     Config*        config  = compound->getConfig();

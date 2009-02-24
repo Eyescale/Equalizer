@@ -195,6 +195,8 @@
 %token EQTOKEN_HPR
 %token EQTOKEN_LATENCY
 %token EQTOKEN_SWAPBARRIER
+%token EQTOKEN_NVGROUP 
+%token EQTOKEN_NVBARRIER
 %token EQTOKEN_SCREEN
 %token EQTOKEN_OUTPUTFRAME
 %token EQTOKEN_INPUTFRAME
@@ -875,8 +877,11 @@ swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier
             swapBarrier = 0;
         } 
 swapBarrierFields: /*null*/ | swapBarrierFields swapBarrierField
-swapBarrierField: 
-    EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
+swapBarrierField: EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
+    | EQTOKEN_NVGROUP IATTR { swapBarrier->setNVGroup( $2 ); }
+    | EQTOKEN_NVBARRIER IATTR { swapBarrier->setNVBarrier( $2 ); }
+    
+
 
 outputFrame : EQTOKEN_OUTPUTFRAME '{' { frame = new eq::server::Frame; }
     frameFields '}'
@@ -973,6 +978,7 @@ FLOAT: EQTOKEN_FLOAT                       { $$ = atof( yytext ); }
 INTEGER: EQTOKEN_INTEGER                   { $$ = atoi( yytext ); }
     | UNSIGNED                             { $$ = $1; }
 UNSIGNED: EQTOKEN_UNSIGNED                 { $$ = atoi( yytext ); }
+
 %%
 
 void yyerror( char *errmsg )

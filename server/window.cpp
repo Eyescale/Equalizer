@@ -34,7 +34,7 @@ void Window::_construct()
     _lastDrawChannel = 0;
     _maxFPS          = numeric_limits< float >::max();
     _doSwap          = false;
-
+    _swapBarrier     = 0;
     EQINFO << "New window @" << (void*)this << endl;
 }
 
@@ -364,10 +364,22 @@ net::Barrier* Window::newSwapBarrier()
 
 void Window::joinSwapBarrier( net::Barrier* barrier )
 { 
+
     barrier->increase();
     _swapBarriers.push_back( barrier );
+
 }
 
+void Window::joinNVSwapBarrier( const SwapBarrier* barrier )
+{ 
+    if ( _swapBarrier )
+    {
+        EQWARN << " SwapBarrierNV even define and will be overwrite !!" << endl;
+        delete _swapBarrier;
+    }
+
+    _swapBarrier = barrier;
+}
 //===========================================================================
 // Operations
 //===========================================================================
@@ -406,6 +418,16 @@ void Window::_sendConfigInit( const uint32_t initID )
     packet.initID = initID;
     packet.tasks  = _tasks;
 
+    if ( _swapBarrier && _swapBarrier->isNvSwapBarrier() )
+    {
+        packet.nvBarrier = _swapBarrier->getNVBarrier();
+        packet.nvGroup  = _swapBarrier->getNVGroup();
+    }
+    else
+    {
+        packet.nvBarrier = 0;
+        packet.nvGroup  = 0;
+    }
     if( _fixedPVP )
         packet.pvp    = _pvp; 
     else

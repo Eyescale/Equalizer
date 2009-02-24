@@ -176,6 +176,14 @@ namespace eq
         /** Initialize the window for an off-screen FBO */
         virtual bool configInitWGLFBO( int pixelFormat );
 
+        /**
+         * Initialize and join a NVSwapBarrier                  
+         *
+         * @ return true if NV SwapBarrier was created
+         *
+         **/
+        virtual bool joinNVSwapBarrier( const uint32_t group, 
+                                        const uint32_t barrier );
         /** 
          * Create a WGL context.
          * 

@@ -28,6 +28,12 @@ VisitorResult CompoundUpdateOutputVisitor::visitLeaf(
     Compound* compound )
 {
     _updateOutput( compound );
+    
+    const SwapBarrier* swapBarrier = compound->getSwapBarrier();
+
+    if ( swapBarrier && swapBarrier->isNvSwapBarrier() )
+        return TRAVERSE_CONTINUE;
+    
     _updateSwapBarriers( compound );
 
     return TRAVERSE_CONTINUE;    

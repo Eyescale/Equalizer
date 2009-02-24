@@ -1,0 +1,62 @@
+# 2-window test config NVSwapbarrier
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 100 100 480 300 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ 580 100 480 300 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+        }
+        compound
+        { 
+            wall
+            {
+                bottom_left  [ -.64 -.2 -1 ]
+                bottom_right [  .64 -.2 -1 ]
+                top_left     [ -.64  .2 -1 ]
+            }
+
+            compound
+            { 
+                channel "channel1"
+                viewport [ 0 0 .5 1 ]
+                swapbarrier
+                {
+                    name "barrier2" 
+                    NV_group    1
+                    NV_barrier  1
+                }
+            }
+            compound
+            { 
+                channel "channel2"
+                viewport [ .5 0 .5 1 ]
+                swapbarrier
+                {
+                    name "barrier2" 
+                    NV_group    1
+                    NV_barrier  2
+                }
+            }
+
+        }
+    }    
+}

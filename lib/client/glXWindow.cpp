@@ -58,6 +58,9 @@ bool GLXWindow::configInit( )
     makeCurrent();
     _initGlew();
 
+    if ( getNVGroup() || getNVBarrier() )
+        joinMVSwapBarrier( getNVGroup(), getNVBarrier() );
+
     if (getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         configInitFBO();
 
@@ -560,6 +563,11 @@ void GLXWindow::configExit( )
         return;
         
     configExitFBO();
+
+    
+    if ( getNVGroup() || getNVBarrier() )
+        joinMVSwapBarrier( 0, 0 );
+
     glXMakeCurrent( display, None, 0 );
 
     GLXContext context  = getGLXContext();
@@ -597,6 +605,43 @@ void GLXWindow::swapBuffers()
     EQASSERT( display );
 
     glXSwapBuffers( display, _xDrawable );
+}
+
+bool GLXWindow::joinMVSwapBarrier( const uint32_t group, 
+                                  const uint32_t barrier )
+{
+
+    if ( !GLX_NV_swap_group )
+    {
+        EQWARN << " NV Swap group not supported: " << endl;
+        return false;
+    }
+
+    const Display* display = getXDisplay();
+    const int screen  = DefaultScreen( display );
+    
+    int maxBarrier;
+    int maxGroup;
+    
+    glxQueryMaxSwapGroupsNV( display , screen, &maxGroup, &maxBarrier )
+
+    if ( group > maxGroup )
+    {
+        EQWARN << " SwapBarrier deactivate : group more greater than max group " << endl;
+        return false;
+    }
+
+    if ( barrier > maxBarrier )
+    {
+        EQWARN << " SwapBarrier deactivate : barrier more greatre than max barrier " << endl;
+        return false;
+    }
+
+    glxJoinSwapGroupNV( display, _xDrawable, group );
+    glxBindSwapBarrierNV( group, barrier );
+
+    return true; 
+        
 }
 
 }
