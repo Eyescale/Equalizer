@@ -43,10 +43,33 @@ server
         {
             view {}
         }
+        layout
+        {
+            view 
+            {
+                viewport [ 0  0 .5 1 ] 
+                wall
+                {
+                    bottom_left  [ -.5 -.4285 -2 ]
+                    bottom_right [  .5 -.4285 -2 ]
+                    top_left     [ -.5  .4285 -2 ]
+                }
+            }
+            view 
+            { 
+                viewport [ .5 0 .5 1 ] 
+                wall
+                {
+                    bottom_left  [ -.5 -.4285 -2 ]
+                    bottom_right [  .5 -.4285 -2 ]
+                    top_left     [ -.5  .4285 -2 ]
+                }
+            }
+        }
 
         canvas
         {
-            layout 0
+            layout 1
             wall
             {
                 bottom_left  [ -1. -.4285 -2 ]
@@ -86,7 +109,7 @@ server
             }
         }
             
-        compound
+        compound # layout 0
         {
             compound
             { 
@@ -119,38 +142,46 @@ server
                 swapbarrier {}
             }
         }
+        compound # layout 1
+        {
+            compound
+            { 
+                channel ( layout 1 view 0 segment 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel ( layout 1 view 0 segment 1 )
+            }
+            compound
+            { 
+                channel ( layout 1 view 1 segment 1 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel ( layout 1 view 1 segment 2 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel ( layout 1 view 0 segment 3 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel ( layout 1 view 0 segment 4 )
+            }
+            compound
+            { 
+                channel ( layout 1 view 1 segment 4 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel ( layout 1 view 1 segment 5 )
+                swapbarrier {}
+            }
+        }
     }    
 }
-            compound
-            { 
-                channel "channel4"
-                wall
-                {
-                    bottom_left  [ -1.  -.4285 -2 ]
-                    bottom_right [ -.36 -.4285 -2 ]
-                    top_left     [ -1.  -.0285 -2 ]
-                }
-                swapbarrier {}
-            }
-            compound
-            { 
-                channel "channel5"
-                wall
-                {
-                    bottom_left  [ -.32 -.4285 -2 ]
-                    bottom_right [  .32 -.4285 -2 ]
-                    top_left     [ -.32 -.0285 -2 ]
-                }
-                swapbarrier {}
-            }
-            compound
-            { 
-                channel "channel6"
-                wall
-                {
-                    bottom_left  [  .36 -.4285 -2 ]
-                    bottom_right [ 1.   -.4285 -2 ]
-                    top_left     [  .36 -.0285 -2 ]
-                }
-                swapbarrier {}
-            }

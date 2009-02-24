@@ -1,6 +1,7 @@
 
 # common Linux settings
 
+#USE_OPENMP          = 1
 DSO_LDFLAGS        += -shared -luuid
 DSO_SUFFIX          = so
 WINDOW_SYSTEM      ?= GLX
