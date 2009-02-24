@@ -59,7 +59,7 @@ bool GLXWindow::configInit( )
     _initGlew();
 
     if ( getNVGroup() || getNVBarrier() )
-        joinMVSwapBarrier( getNVGroup(), getNVBarrier() );
+        joinNVSwapBarrier( getNVGroup(), getNVBarrier() );
 
     if (getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         configInitFBO();
@@ -566,7 +566,7 @@ void GLXWindow::configExit( )
 
     
     if ( getNVGroup() || getNVBarrier() )
-        joinMVSwapBarrier( 0, 0 );
+        joinNVSwapBarrier( 0, 0 );
 
     glXMakeCurrent( display, None, 0 );
 
@@ -607,10 +607,10 @@ void GLXWindow::swapBuffers()
     glXSwapBuffers( display, _xDrawable );
 }
 
-bool GLXWindow::joinMVSwapBarrier( const uint32_t group, 
+bool GLXWindow::joinNVSwapBarrier( const uint32_t group, 
                                   const uint32_t barrier )
 {
-
+#if 0
     if ( !GLX_NV_swap_group )
     {
         EQWARN << " NV Swap group not supported: " << endl;
@@ -641,7 +641,10 @@ bool GLXWindow::joinMVSwapBarrier( const uint32_t group,
     glxBindSwapBarrierNV( group, barrier );
 
     return true; 
-        
+#else
+    EQUNIMPLEMENTED;
+    return false;
+#endif        
 }
 
 }

@@ -585,10 +585,10 @@ void AGLWindow::exitEventHandler()
     handler->deregisterWindow( this );
 }
 
-bool AGLWindow::joinMVSwapBarrier( const uint32_t group, 
+bool AGLWindow::joinNVSwapBarrier( const uint32_t group, 
                                    const uint32_t barrier )
 {
-   _window->setErrorMessage( "No AGLSwapBarrier set" );
-   return false;
+    EQWARN << "NV swap barrier not supported on AGL" << std::endl;
+    return true;
 }
 }
