@@ -1,7 +1,7 @@
 # six-node config for 3x2 30" display wall at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_WINDOW_IATTR_HINT_DECORATION OFF
 }
 
 server
@@ -15,12 +15,12 @@ server
         }
         node
         {
-            connection { hostname "node4" }
+            connection { hostname "node5" }
             pipe { window { channel { name "channel2" }}}
         }
         node
         {
-            connection { hostname "node5" }
+            connection { hostname "node4" }
             pipe { window { channel { name "channel3" }}}
         }
         node
@@ -38,41 +38,89 @@ server
             connection { hostname "node1" }
             pipe { window { channel { name "channel6" }}}
         }
+
+        layout
+        {
+            view {}
+        }
+
+        canvas
+        {
+            layout 0
+            wall
+            {
+                bottom_left  [ -1. -.4285 -2 ]
+                bottom_right [  1. -.4285 -2 ]
+                top_left     [ -1.  .4285 -2 ]
+            }
+
+            segment
+            { 
+                channel "channel1"
+                viewport [ 0 .53 .32 .47 ]
+            }
+            segment
+            { 
+                channel "channel2"
+                viewport [ .34 .53 .32 .47 ]
+            }
+            segment
+            { 
+                channel "channel3"
+                viewport [ .68 .53 .32 .47 ]
+            }
+            segment
+            { 
+                channel "channel4"
+                viewport [ 0 0 .32 .47 ]
+            }
+            segment
+            { 
+                channel "channel5"
+                viewport [ .34 0 .32 .47 ]
+            }
+            segment
+            { 
+                channel "channel6"
+                viewport [ .68 0 .32 .47 ]
+            }
+        }
+            
         compound
         {
             compound
             { 
-                channel "channel1"
-                wall
-                {
-                    bottom_left  [ -1.  .0285 -2 ]
-                    bottom_right [ -.36 .0285 -2 ]
-                    top_left     [ -1.  .4285 -2 ]
-                }
+                channel ( view 0 segment 0 )
                 swapbarrier {}
             }
             compound
             { 
-                channel "channel2"
-                wall
-                {
-                    bottom_left  [ -.32 .0285 -2 ]
-                    bottom_right [  .32 .0285 -2 ]
-                    top_left     [ -.32 .4285 -2 ]
-                }
+                channel ( view 0 segment 1 )
                 swapbarrier {}
             }
             compound
             { 
-                channel "channel3"
-                wall
-                {
-                    bottom_left  [  .36 .0285 -2 ]
-                    bottom_right [ 1.   .0285 -2 ]
-                    top_left     [  .36 .4285 -2 ]
-                }
+                channel ( view 0 segment 2 )
                 swapbarrier {}
             }
+            compound
+            { 
+                channel ( view 0 segment 3 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel ( view 0 segment 4 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel ( view 0 segment 5 )
+                swapbarrier {}
+            }
+        }
+    }    
+}
             compound
             { 
                 channel "channel4"
@@ -106,6 +154,3 @@ server
                 }
                 swapbarrier {}
             }
-        }
-    }    
-}
