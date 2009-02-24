@@ -24,7 +24,6 @@ namespace server
         virtual VisitorResult visit( Compound* compound );
 
     private:
-        void _updateFrustum( Compound* compound );
     };
 }
 }

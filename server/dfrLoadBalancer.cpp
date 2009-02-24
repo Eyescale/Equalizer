@@ -134,15 +134,14 @@ void DFRLoadBalancer::notifyLoadData( Channel* channel,
         switch( data.type )
         {
             case eq::Statistic::CHANNEL_CLEAR:
-             startTime = EQ_MIN( startTime, data.startTime );
-             break;
+            case eq::Statistic::CHANNEL_DRAW:
             case eq::Statistic::CHANNEL_ASSEMBLE:
             case eq::Statistic::CHANNEL_READBACK:
 #ifndef EQ_ASYNC_TRANSMIT
             case eq::Statistic::CHANNEL_TRANSMIT:
 #endif
-               
-                endTime   = EQ_MAX( endTime, data.endTime );
+                startTime = EQ_MIN( startTime, data.startTime );               
+                endTime   = EQ_MAX( endTime,   data.endTime );
                 break;
                 
             default:

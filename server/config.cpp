@@ -1066,9 +1066,6 @@ class ViewUpdater : public ConfigVisitor
 public:
     virtual ~ViewUpdater(){}
 
-    // No need to go down on nodes.
-    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
     virtual VisitorResult visit( Compound* compound )
         { 
             if( compound->getFrustumType() != eq::Frustum::TYPE_NONE )

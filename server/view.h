@@ -86,6 +86,9 @@ namespace server
         const ChannelVector& getChannels() const{ return _channels; }
         
     protected:
+        /** @sa eq::View::deserialize() */
+        virtual void deserialize( net::DataIStream& is, 
+                                  const uint64_t dirtyBits );
 
     private:
         /** The parent Layout. */

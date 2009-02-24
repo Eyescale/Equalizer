@@ -30,10 +30,6 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
     {
         channel->refUsed();
 
-        const Segment* segment = channel->getSegment();
-        if( segment ) // we are a created destination channel
-            _updateFrustum( compound );
-
         const SwapBarrier* swapBarrier = compound->getSwapBarrier();
         if ( swapBarrier )
         {
@@ -73,74 +69,13 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
                                   << "\" id " << frame->getID() << endl;
     }
 
+    compound->updateFrustum();
     compound->updateInheritData( 0 ); // set up initial values
+
     if( channel )
         channel->addTasks( compound->getInheritTasks( ));
 
     return TRAVERSE_CONTINUE;    
-}
-
-void CompoundInitVisitor::_updateFrustum( Compound* compound )
-{
-    const Channel* channel = compound->getChannel();
-    const Segment* segment = channel->getSegment();
-    const View*    view    = channel->getView();
-    EQASSERT( channel && segment && view );
-
-    switch( view->getCurrentType( )) // derive our frustum from view:
-    {
-        case View::TYPE_WALL:
-        {
-            // set compound frustum =
-            //         segment frustum X channel/view coverage
-            const Viewport& segmentVP = segment->getViewport();
-            const Viewport& viewVP    = view->getViewport();
-            const Viewport  coverage  = viewVP.getCoverage( segmentVP );
-
-            Wall wall( view->getWall( ));
-            wall.apply( coverage );
-            compound->setWall( wall );
-
-            EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
-            return;
-        }
-
-        case View::TYPE_PROJECTION:
-            EQUNIMPLEMENTED;
-            return;
-
-        default: // try segment frustum
-            break;
-    }
-
-    switch( segment->getCurrentType( )) // derive our frustum from segment:
-    {
-        case View::TYPE_WALL:
-        {
-            // set compound frustum =
-            //         segment frustum X channel/segment coverage
-            const Channel* outputChannel = segment->getChannel();
-            EQASSERT( outputChannel );
-
-            const Viewport& outputVP  = outputChannel->getViewport();
-            const Viewport& channelVP = channel->getViewport();
-            const Viewport  coverage  = outputVP.getCoverage( channelVP );
-
-            Wall wall( segment->getWall( ));
-            wall.apply( coverage );
-            compound->setWall( wall );
-            EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
-            break;
-        }
-
-        case View::TYPE_PROJECTION:
-            EQUNIMPLEMENTED;
-            break;
-
-        default: 
-            break;
-    }
-
 }
 
 }

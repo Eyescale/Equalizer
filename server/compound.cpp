@@ -385,10 +385,10 @@ void Compound::_setDefaultFrameName( Frame* frame )
 
 bool Compound::isDestination() const
 {
-    if( getChannel() == 0 )
+    if( !getChannel( ))
         return false;
     
-    if( getParent() == 0 )
+    if( !getParent( ))
         return true;
 
     for( const Compound* compound = getParent(); compound;
@@ -413,6 +413,75 @@ void Compound::setProjection( const eq::Projection& projection )
 {
     _frustum.setProjection( projection );
     EQVERB << "Projection: " << _data.frustumData << endl;
+}
+
+void Compound::updateFrustum()
+{
+    if( !isDestination( )) // only set view/segment frusta on destination
+        return;
+
+    const Channel* channel = getChannel();
+    if( !channel )
+        return;
+
+    const Segment* segment = channel->getSegment();
+    const View*    view    = channel->getView();
+    if( !segment || !view )
+        return;
+
+    switch( view->getCurrentType( )) // derive our frustum from view:
+    {
+        case View::TYPE_WALL:
+        {
+            // set compound frustum =
+            //         segment frustum X channel/view coverage
+            const Viewport& segmentVP = segment->getViewport();
+            const Viewport& viewVP    = view->getViewport();
+            const Viewport  coverage  = viewVP.getCoverage( segmentVP );
+
+            Wall wall( view->getWall( ));
+            wall.apply( coverage );
+            setWall( wall );
+
+            EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
+            return;
+        }
+
+        case View::TYPE_PROJECTION:
+            EQUNIMPLEMENTED;
+            return;
+
+        default: // try segment frustum
+            break;
+    }
+
+    switch( segment->getCurrentType( )) // derive our frustum from segment:
+    {
+        case View::TYPE_WALL:
+        {
+            // set compound frustum =
+            //         segment frustum X channel/segment coverage
+            const Channel* outputChannel = segment->getChannel();
+            EQASSERT( outputChannel );
+
+            const Viewport& outputVP  = outputChannel->getViewport();
+            const Viewport& channelVP = channel->getViewport();
+            const Viewport  coverage  = outputVP.getCoverage( channelVP );
+
+            Wall wall( segment->getWall( ));
+            wall.apply( coverage );
+            setWall( wall );
+            EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
+            break;
+        }
+
+        case View::TYPE_PROJECTION:
+            EQUNIMPLEMENTED;
+            break;
+
+        default: 
+            break;
+    }
 }
 
 //---------------------------------------------------------------------------

@@ -577,29 +577,23 @@ bool Config::handleEvent( const ConfigEvent* event )
 void Config::handleViewResize( const uint32_t viewID,
                                const vmml::Vector2i& newSize )
 {
-#if 0 // TODO: reactivate
     BaseViewHash::const_iterator i = _baseViews.find( viewID );
 
     if( i == _baseViews.end( )) // new view, save base data
     {
-        // find view
-        for( ViewVector::const_iterator j = _views.begin(); 
-             j != _views.end(); ++j )
+        View* view = findView( viewID );
+        if( !view )
         {
-            View* view = *j;
-            if( view->getID() != viewID )
-                continue;
-            
-            // found view, save data
-            BaseView& baseView = _baseViews[ viewID ];
-            baseView.view = view;
-            baseView.base = *view;
-            baseView.size = newSize;
+            EQWARN << "View " << viewID << " not found" << endl;
+            EQUNREACHABLE;
             return;
         }
 
-        EQWARN << "View " << viewID << " not found" << endl;
-        EQUNREACHABLE;
+        // found view, save data
+        BaseView& baseView = _baseViews[ viewID ];
+        baseView.view    = view;
+        baseView.frustum = *view;
+        baseView.size    = newSize;
         return;
     }
     
@@ -617,7 +611,7 @@ void Config::handleViewResize( const uint32_t viewID,
                                  static_cast< float >( baseSize.y );
             const float ratio  = newAR / initAR;
 
-            Wall wall( baseView.base.getWall( ));
+            Wall wall( baseView.frustum.getWall( ));
             wall.resizeHorizontal( ratio );
             view->setWall( wall );
             break;
@@ -631,7 +625,7 @@ void Config::handleViewResize( const uint32_t viewID,
                                  static_cast< float >( baseSize.y );
             const float ratio  = newAR / initAR;
 
-            eq::Projection projection( baseView.base.getProjection( ));
+            eq::Projection projection( baseView.frustum.getProjection( ));
             projection.resizeHorizontal( ratio );
             view->setProjection( projection );
             break;
@@ -644,7 +638,6 @@ void Config::handleViewResize( const uint32_t viewID,
             EQUNIMPLEMENTED;
             break;
     }
-#endif
 }
 
 void Config::_updateStatistics( const uint32_t finishedFrame )

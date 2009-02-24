@@ -5,6 +5,7 @@
 #include "view.h"
 
 #include "channel.h"
+#include "compound.h"
 #include "config.h"
 #include "layout.h"
 #include "paths.h"
@@ -51,6 +52,51 @@ View::~View()
     if( _layout )
         _layout->removeView( this );
     _layout = 0;
+}
+
+namespace
+{
+class ViewUpdater : public ConfigVisitor
+{
+public:
+    ViewUpdater( const ChannelVector& channels ) : _channels( channels ) {}
+    virtual ~ViewUpdater() {}
+
+    virtual VisitorResult visit( Compound* compound )
+        {
+            const Channel* channel = compound->getChannel();
+            if( !channel )
+                return TRAVERSE_CONTINUE;
+
+            if( !compound->isDestination( ))
+                return TRAVERSE_PRUNE; // only change destination compounds
+
+            if( std::find( _channels.begin(), _channels.end(), channel ) !=
+                _channels.end( )) // our destination channel
+            {
+                compound->updateFrustum();
+            }
+
+            return TRAVERSE_PRUNE;            
+        }
+private:
+    const ChannelVector& _channels;
+};
+}
+
+void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+{
+    eq::View::deserialize( is, dirtyBits );
+
+    if( dirtyBits & ( DIRTY_WALL | DIRTY_PROJECTION ))
+    {
+        const ChannelVector& channels = getChannels();
+        Config*              config   = getConfig();
+        EQASSERT( config );
+
+        ViewUpdater updater( channels );
+        config->accept( updater );
+    }
 }
 
 void View::setViewport( const Viewport& viewport )

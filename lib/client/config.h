@@ -267,7 +267,7 @@ namespace eq
         struct BaseView
         {
             View*          view;
-            View           base;
+            Frustum        frustum;
             vmml::Vector2i size;
         };
         typedef stde::hash_map< uint32_t, BaseView > BaseViewHash;

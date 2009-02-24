@@ -62,11 +62,11 @@ namespace server
         //*}
         
     protected:
-        /** @sa Object::serialize() */
+        /** @sa Frustum::serialize() */
         EQ_EXPORT virtual void serialize( net::DataOStream& os,
                                           const uint64_t dirtyBits );
 
-        /** @sa Object::deserialize() */
+        /** @sa Frustum::deserialize() */
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
 

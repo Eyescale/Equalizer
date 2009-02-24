@@ -352,6 +352,9 @@ namespace server
         eq::Frustum::Type getFrustumType() const
             { return _frustum.getCurrentType(); }
 
+        /** Update the frustum from the view or segment. */
+        void updateFrustum();
+
         /** @return the bitwise OR of the eye values. */
         uint32_t getEyes() const { return _data.eyes; }
 
