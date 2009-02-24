@@ -56,7 +56,6 @@ Compound::Compound()
         : _config( 0 )
         , _parent( 0 )
         , _frustum( _data.frustumData )
-        , _loadBalancer( 0 )
         , _swapBarrier( 0 )
 {
     EQINFO << "New Compound @" << (void*)this << endl;
@@ -69,7 +68,6 @@ Compound::Compound( const Compound& from, Config* config, Compound* parent )
         , _parent( 0 )
         , _data( from._data )
         , _frustum( from._frustum, _data.frustumData )
-        , _loadBalancer( 0 )
         , _swapBarrier( 0 )
 {
     EQASSERTINFO( (config && !parent) || (!config && parent),
@@ -98,8 +96,11 @@ Compound::Compound( const Compound& from, Config* config, Compound* parent )
         new Compound( **i, 0, this );
     }
 
-    if( from._loadBalancer )
-        setLoadBalancer( new LoadBalancer( *from._loadBalancer ));
+    for( LoadBalancerVector::const_iterator i = from._loadBalancers.begin();
+         i != from._loadBalancers.end(); ++i )
+    {
+        addLoadBalancer( new LoadBalancer( **i ));
+    }
 
     if( from._swapBarrier )
         _swapBarrier = new SwapBarrier( *from._swapBarrier );
@@ -122,12 +123,14 @@ Compound::~Compound()
     delete _swapBarrier;
     _swapBarrier = 0;
 
-    if( _loadBalancer )
+    for( LoadBalancerVector::const_iterator i = _loadBalancers.begin();
+         i != _loadBalancers.end(); ++i )
     {
-        _loadBalancer->attach( 0 );
-        delete _loadBalancer;
-        _loadBalancer = 0;
+        LoadBalancer* loadBalancer = *i;
+        loadBalancer->attach( 0 );
+        delete loadBalancer;
     }
+    _loadBalancers.clear();
 
     for( CompoundVector::const_iterator i = _children.begin(); 
          i != _children.end(); ++i )
@@ -265,15 +268,12 @@ const Window* Compound::getWindow() const
     return 0;
 }
 
-void Compound::setLoadBalancer( LoadBalancer* loadBalancer )
+void Compound::addLoadBalancer( LoadBalancer* loadBalancer )
 {
-    if( _loadBalancer )
-        _loadBalancer->attach( 0 );
-    
     if( loadBalancer )
         loadBalancer->attach( this );
     
-    _loadBalancer = loadBalancer;
+    _loadBalancers.push_back( loadBalancer );
 }
 
 bool Compound::isActive() const 
@@ -1017,7 +1017,12 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         os << " ]" << endl;
     }
 
-    os << compound->getLoadBalancer();
+    const LoadBalancerVector& loadBalancers = compound->getLoadBalancers();
+    for( LoadBalancerVector::const_iterator i = loadBalancers.begin();
+         i != loadBalancers.end(); ++i )
+    {
+        os << *i;
+    }
 
     const CompoundVector& children = compound->getChildren();
     if( !children.empty( ))

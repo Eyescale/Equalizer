@@ -25,6 +25,7 @@ class Compound;
 class ConnectionDescription;
 class Frame;
 class Layout;
+class LoadBalancer;
 class Segment;
 class View;
 
@@ -35,12 +36,13 @@ typedef std::vector< Pipe* >     PipeVector;
 typedef std::vector< Window* >   WindowVector;
 typedef std::vector< Channel* >  ChannelVector;
 
-typedef std::vector< Canvas* >   CanvasVector;
-typedef std::vector< Compound* > CompoundVector;
-typedef std::vector< Frame* >    FrameVector;
-typedef std::vector< Layout* >   LayoutVector;
-typedef std::vector< Segment* >  SegmentVector;
-typedef std::vector< View* >     ViewVector;
+typedef std::vector< Canvas* >       CanvasVector;
+typedef std::vector< Compound* >     CompoundVector;
+typedef std::vector< Frame* >        FrameVector;
+typedef std::vector< Layout* >       LayoutVector;
+typedef std::vector< LoadBalancer* > LoadBalancerVector;
+typedef std::vector< Segment* >      SegmentVector;
+typedef std::vector< View* >         ViewVector;
 
 typedef base::RefPtr< Server > ServerPtr;
 typedef base::RefPtr< ConnectionDescription >   ConnectionDescriptionPtr;

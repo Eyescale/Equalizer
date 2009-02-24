@@ -1,0 +1,63 @@
+# 2-window sort-first config running on a single pipe.
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .25 .25 .5 .5 ]
+                    name "2D and Dynamic Frame Resize"
+
+                    channel
+                    {
+                        viewport [ 0 0 2048 2048 ] 
+                        drawable [ FBO_COLOR FBO_DEPTH ]
+                        name "buffer"
+                    }                    
+
+                    channel { name "channel" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    attributes { hint_drawable pbuffer }
+                    channel { name "source1" }
+                    channel { name "source2" }
+                }
+            }
+        }
+        compound
+        { 
+            channel "channel"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+            
+            compound 
+            {
+                channel "buffer"
+
+                loadBalancer { mode 2D }
+                compound { channel "source1" outputframe{} }
+                compound { channel "source2" outputframe{} }
+                inputframe { name "frame.source1" }
+                inputframe { name "frame.source2" }
+
+                loadBalancer { mode DFR framerate 10.5 }
+                zoom [ .5 .5 ]
+                outputframe{ }
+            }
+
+            inputframe{ name "frame.buffer" }
+        }
+    }    
+}

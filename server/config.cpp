@@ -1303,10 +1303,13 @@ public:
     /** Visit a non-leaf compound on the down traversal. */
     virtual VisitorResult visitPre( Compound* compound )
         { 
-            LoadBalancer* loadBalancer = compound->getLoadBalancer();
-            if( loadBalancer )
-                loadBalancer->setFreeze( _freeze );
-            
+            const LoadBalancerVector& loadBalancers = 
+                compound->getLoadBalancers();
+            for( LoadBalancerVector::const_iterator i = loadBalancers.begin();
+                 i != loadBalancers.end(); ++i )
+            {
+                (*i)->setFreeze( _freeze );
+            }
             return TRAVERSE_CONTINUE; 
         }
 

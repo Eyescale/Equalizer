@@ -135,6 +135,10 @@ void Channel::frameDraw( const uint32_t frameID )
        _drawLogo();
 
     _drawRange = range;
+
+#ifndef NDEBUG
+    outlineViewport();
+#endif
 }
 
 const FrameData::Data& Channel::_getFrameData() const

@@ -34,7 +34,6 @@ namespace server
     class CompoundListener;
     class CompoundVisitor;
     class Frame;
-    class LoadBalancer;
     class SwapBarrier;
     
     /**
@@ -172,11 +171,11 @@ namespace server
         Frustum& getFrustum() { return _frustum; }
 
         /** Attach a load balancer to this compound. */
-        void setLoadBalancer( LoadBalancer* loadBalancer );
+        void addLoadBalancer( LoadBalancer* loadBalancer );
 
-        /** Get the attached load balancer. */
-        const LoadBalancer* getLoadBalancer() const { return _loadBalancer; }
-        LoadBalancer*       getLoadBalancer()       { return _loadBalancer; }
+        /** Get the attached load balancers. */
+        const LoadBalancerVector& getLoadBalancers() const
+            { return _loadBalancers; }
 
         /** 
          * Set the tasks to be executed by the compound, overwriting previous
@@ -512,7 +511,7 @@ namespace server
         typedef std::vector< CompoundListener* > CompoundListeners;
         CompoundListeners _listeners;
 
-        LoadBalancer* _loadBalancer;
+        LoadBalancerVector _loadBalancers;
 
         SwapBarrier* _swapBarrier;
 
