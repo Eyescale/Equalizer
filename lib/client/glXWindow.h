@@ -145,14 +145,9 @@ namespace eq
         virtual void setGLXContext( GLXContext context );
         //*}
 
-        /**
-         * Initialize and join a NVSwapBarrier                  
-         *
-         * @ return true if NV SwapBarrier was created
-         *
-         **/
-        virtual bool joinNVSwapBarrier( const uint32_t group, 
-                                        const uint32_t barrier );
+        /** Initialize and join a GLX_NV_swap_barrier. */ 
+        bool joinNVSwapBarrier( const uint32_t group, const uint32_t barrier );
+
     private:
         /** The X11 drawable ID of the window. */
         XID        _xDrawable;

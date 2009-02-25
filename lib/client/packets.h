@@ -702,8 +702,8 @@ namespace eq
         int32_t        tasks;
         PixelViewport  pvp;
         Viewport       vp;
-        uint32_t       nvGroup;
-        uint32_t       nvBarrier;
+        uint32_t       nvSwapGroup;
+        uint32_t       nvSwapBarrier;
         EQ_ALIGN8( char name[8] );
     };
 

@@ -176,14 +176,6 @@ namespace eq
         /** Initialize the window for an off-screen FBO */
         virtual bool configInitWGLFBO( int pixelFormat );
 
-        /**
-         * Initialize and join a NVSwapBarrier                  
-         *
-         * @ return true if NV SwapBarrier was created
-         *
-         **/
-        virtual bool joinNVSwapBarrier( const uint32_t group, 
-                                        const uint32_t barrier );
         /** 
          * Create a WGL context.
          * 
@@ -216,6 +208,9 @@ namespace eq
          * @param type the type of the new DC.
          */
         void setWGLDC( HDC dc, const WGLDCType type );
+
+        /** Initialize and join a WGL_NV_swap_barrier. */ 
+        bool joinNVSwapBarrier( const uint32_t group, const uint32_t barrier );
 
     private:
 

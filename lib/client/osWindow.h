@@ -116,19 +116,7 @@ namespace eq
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
 
-        
-        /**
-         * Initialize and join a NVSwapBarrier                  
-         *
-         * @ return true if NV SwapBarrier was created
-         *
-        **/
-        virtual bool joinNVSwapBarrier( const uint32_t group, 
-                                        const uint32_t barrier ) = 0;
-
-        uint32_t getNVGroup() const { return _window->getNVGroup(); } 
-        uint32_t getNVBarrier() const { return _window->getNVBarrier(); }
-    protected:
+      protected:
         /** The parent eq::Window. */
         Window* const _window;
         

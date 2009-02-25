@@ -184,15 +184,6 @@ namespace eq
          */
         virtual bool configInitAGLPBuffer(); 
 
-        /**
-         * Initialize and join a NVSwapBarrier                  
-         *
-         * @ return true if NV SwapBarrier was created
-         *
-         **/
-        virtual bool joinNVSwapBarrier( const uint32_t group, 
-                                        const uint32_t barrier );
- 
         virtual void initEventHandler();
         virtual void exitEventHandler();
        //*}

@@ -69,6 +69,8 @@ Window::Window( Pipe* parent )
         , _pipe( parent )
         , _tasks( TASK_NONE )
         , _lastSwapTime( 0 )
+        , _nvSwapGroup( 0 )
+        , _nvSwapBarrier( 0 )
 {
     parent->_addWindow( this );
     EQINFO << " New eq::Window @" << (void*)this << endl;
@@ -703,8 +705,8 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
 
     _name  = packet->name;
     _tasks = packet->tasks;
-    _nvGroup   = packet->nvGroup; 
-    _nvBarrier = packet->nvBarrier;
+    _nvSwapGroup   = packet->nvSwapGroup; 
+    _nvSwapBarrier = packet->nvSwapBarrier;
 
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
     _error.clear();

@@ -41,9 +41,6 @@ void AGLWindow::configExit( )
     AGLPbuffer pbuffer = getAGLPBuffer();
     setAGLPBuffer( 0 );
     
-    if ( getNVGroup() || getNVBarrier() )
-        joinNVSwapBarrier( 0, 0 );
-    
     if( window )
     {
         Global::enterCarbon();
@@ -122,9 +119,9 @@ bool AGLWindow::configInit( )
     makeCurrent();
     _initGlew();
 
-    if ( getNVGroup() || getNVBarrier() )
-        joinNVSwapBarrier( getNVGroup(), getNVBarrier() );
-        
+    if( _window->getNVSwapGroup() || _window->getNVSwapBarrier( ))
+        EQWARN << "NV_swap_barrier not supported on AGL" << std::endl;
+
     return configInitAGLDrawable();
 }
 
@@ -585,10 +582,4 @@ void AGLWindow::exitEventHandler()
     handler->deregisterWindow( this );
 }
 
-bool AGLWindow::joinNVSwapBarrier( const uint32_t group, 
-                                   const uint32_t barrier )
-{
-    EQWARN << "NV swap barrier not supported on AGL" << std::endl;
-    return true;
-}
 }

@@ -418,16 +418,6 @@ void Window::_sendConfigInit( const uint32_t initID )
     packet.initID = initID;
     packet.tasks  = _tasks;
 
-    if ( _swapBarrier && _swapBarrier->isNvSwapBarrier() )
-    {
-        packet.nvBarrier = _swapBarrier->getNVBarrier();
-        packet.nvGroup  = _swapBarrier->getNVGroup();
-    }
-    else
-    {
-        packet.nvBarrier = 0;
-        packet.nvGroup  = 0;
-    }
     if( _fixedPVP )
         packet.pvp    = _pvp; 
     else
@@ -436,6 +426,17 @@ void Window::_sendConfigInit( const uint32_t initID )
     memcpy( packet.iAttributes, _iAttributes, 
             eq::Window::IATTR_ALL * sizeof( int32_t ));
     
+    if ( _swapBarrier && _swapBarrier->isNvSwapBarrier() )
+    {
+        packet.nvSwapBarrier = _swapBarrier->getNVSwapBarrier();
+        packet.nvSwapGroup   = _swapBarrier->getNVSwapGroup();
+    }
+    else
+    {
+        packet.nvSwapBarrier = 0;
+        packet.nvSwapGroup   = 0;
+    }
+
     _send( packet, _name );
     EQLOG( eq::LOG_TASKS ) << "TASK window configInit  " << &packet << endl;
 }

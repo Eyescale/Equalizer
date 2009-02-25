@@ -287,10 +287,10 @@ namespace eq
         /* Draw FPS count */
         virtual void drawFPS() const;
 
-        /* Return Group ID of the NVSwapBarrier */ 
-        uint32_t getNVGroup() const { return _nvGroup; } 
-		/** Return Barrier ID of the NVSwapBarrier */
-        uint32_t getNVBarrier() const { return _nvBarrier; }
+        /* @return the group of the NV swap barrier. */ 
+        uint32_t getNVSwapGroup() const { return _nvSwapGroup; } 
+		/** @return the barrier of the NV swap barrier */
+        uint32_t getNVSwapBarrier() const { return _nvSwapBarrier; }
 
     protected:
         friend class Pipe;
@@ -482,8 +482,10 @@ namespace eq
         /** The time of the last swap command. */
         int64_t _lastSwapTime;
 
-        uint32_t _nvGroup; 
-        uint32_t _nvBarrier;
+        /** The swap group to use for the window. */
+        uint32_t _nvSwapGroup; 
+        /** The swap barrier to use for the window. */
+        uint32_t _nvSwapBarrier;
 
         friend class Channel;
         void _addChannel( Channel* channel );

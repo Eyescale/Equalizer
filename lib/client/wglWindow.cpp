@@ -42,8 +42,8 @@ void WGLWindow::configExit( )
     HWND  hWnd           = getWGLWindowHandle();
     HPBUFFERARB hPBuffer = getWGLPBufferHandle();
 
-    if ( getNVGroup() || getNVBarrier() )
-        joinNVSwapBarrier( 0, 0 );
+    if( _window->getNVSwapGroup() || _window->getNVSwapBarrier( ))
+        joinNVSwapBarrier( 0, 0 ); // unbind
 
     exitWGLAffinityDC();
     setWGLDC( 0, WGL_DC_NONE );
@@ -255,8 +255,15 @@ bool WGLWindow::configInit()
                    << "swapsync hint" << std::endl;
     }
     
-    if ( getNVGroup() || getNVBarrier() )
-       joinNVSwapBarrier( getNVGroup(), getNVBarrier() );
+    const uint32_t swapGroup   = _window->getNVSwapGroup();
+    const uint32_t swapBarrier = _window->getNVSwapBarrier();
+
+    if( (swapGroup > 0 || swapBarrier > 0) &&
+        !joinNVSwapBarrier( swapGroup, swapBarrier ))
+    {
+        _window->setErrorMessage( "joinNVSwapBarrier failed" );
+        return false;
+    }
 
     if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         return configInitFBO();
@@ -746,23 +753,33 @@ bool WGLWindow::joinNVSwapBarrier( const uint32_t group,
 
     uint32_t maxBarrier = 0;
     uint32_t maxGroup = 0;
-    
     wglQueryMaxSwapGroupsNV( _wglDC , &maxGroup, &maxBarrier );
 
-    if ( group > maxGroup )
+    if( group > maxGroup )
     {
-        EQWARN << " SwapBarrier deactivate : group more great than max group " << endl;
+        EQWARN << "Failed to initialize WGL_NV_swap_group: requested group "
+               << "greater than maxGroups " << std::endl;
         return false;
     }
 
-    if ( barrier > maxBarrier )
+    if( barrier > maxBarrier )
     {
-        EQWARN << " SwapBarrier deactivate : barrier more great than max barrier " << endl;
+        EQWARN << "Failed to initialize WGL_NV_swap_group: requested barrier "
+               << "greater than maxBarriers " << std::endl;
         return false;
     }
 
-    wglJoinSwapGroupNV( _wglDC, group );
-    wglBindSwapBarrierNV( group, barrier );
+    if( !wglJoinSwapGroupNV( _wglDC, group ))
+    {
+        EQWARN << "Failed to join swap group " << group << std::endl;
+        return false;
+    }
+
+    if( !wglBindSwapBarrierNV( group, barrier ))
+    {
+        EQWARN << "Failed to bind swap barrier " << group << std::endl;
+        return false;
+    }
     
     return true;
 }

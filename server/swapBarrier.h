@@ -28,8 +28,8 @@ namespace server
         /** 
          * Constructs a new SwapBarrier.
          */
-        SwapBarrier(): _nvGroup( 0 )
-                     , _nvBarrier( 0 ) {}
+        SwapBarrier(): _nvSwapGroup( 0 )
+                     , _nvSwapBarrier( 0 ) {}
 
         /** @name Data Access. */
         //*{
@@ -37,18 +37,21 @@ namespace server
         const std::string getName() const { return _name; }
         //*}
 
-        const int getNVGroup()const { return _nvGroup ; }
-        void setNVGroup( int nvGroup ) { _nvGroup = nvGroup; }
+        const uint32_t getNVSwapGroup() const   { return _nvSwapGroup ; }
+        void setNVSwapGroup( uint32_t nvGroup ) { _nvSwapGroup = nvGroup; }
 
-        const int getNVBarrier()const { return _nvBarrier; }
-        void setNVBarrier( int nvBarrier )  { _nvBarrier = nvBarrier; }
+        const uint32_t getNVSwapBarrier() const { return _nvSwapBarrier; }
+        void setNVSwapBarrier( uint32_t nvBarrier ) 
+            { _nvSwapBarrier = nvBarrier; }
 
-        bool isNvSwapBarrier()const { return ( _nvBarrier || _nvGroup ); }
+        bool isNvSwapBarrier() const
+            { return ( _nvSwapBarrier || _nvSwapGroup ); }
+
     private:
         std::string _name;
-        int _nvGroup;
-        int _nvBarrier;
 
+        uint32_t _nvSwapGroup;
+        uint32_t _nvSwapBarrier;
     };
 
     std::ostream& operator << ( std::ostream& os, const SwapBarrier* barrier );

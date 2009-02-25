@@ -19,12 +19,12 @@ ostream& operator << ( ostream& os, const SwapBarrier* swapBarrier )
     
     if ( swapBarrier->isNvSwapBarrier() )
     {
-        os << "swapBarrier" << endl 
+        os << disableFlush << "swapBarrier" << endl 
            << "{"<< endl 
            << "    name \"" << swapBarrier->getName() << "\"" << endl
-           << "    group " << swapBarrier->getNVGroup() << endl
-           << "    barrier " << swapBarrier->getNVBarrier()<< endl
-           << "}"  << endl; 
+           << "    group " << swapBarrier->getNVSwapGroup() << endl
+           << "    barrier " << swapBarrier->getNVSwapBarrier()<< endl
+           << "}"  << enableFlush << endl; 
     }
     else
     {

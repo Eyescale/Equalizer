@@ -878,8 +878,8 @@ swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier
         } 
 swapBarrierFields: /*null*/ | swapBarrierFields swapBarrierField
 swapBarrierField: EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
-    | EQTOKEN_NVGROUP IATTR { swapBarrier->setNVGroup( $2 ); }
-    | EQTOKEN_NVBARRIER IATTR { swapBarrier->setNVBarrier( $2 ); }
+    | EQTOKEN_NVGROUP IATTR { swapBarrier->setNVSwapGroup( $2 ); }
+    | EQTOKEN_NVBARRIER IATTR { swapBarrier->setNVSwapBarrier( $2 ); }
     
 
 
