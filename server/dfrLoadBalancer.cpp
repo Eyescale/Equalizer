@@ -63,7 +63,7 @@ void DFRLoadBalancer::update( const uint32_t frameNumber )
         return;    
     }
    
-   Zoom currentZoom = _compound->getZoom();
+   Zoom newZoom = _compound->getZoom();
 
 #ifdef QUICK_ADAPT
     if ( !_newValueReady )
@@ -93,9 +93,9 @@ void DFRLoadBalancer::update( const uint32_t frameNumber )
       
 #endif
 
-   currentZoom *= factor;
+   newZoom *= factor;
 
-   //EQINFO << _fpsLastFrame << ": " << factor << " = " << currentZoom 
+   //EQINFO << _fpsLastFrame << ": " << factor << " = " << newZoom 
    //       << std::endl;
 
    // clip zoom factor to min( 128px ), max( channel pvp )
@@ -113,11 +113,11 @@ void DFRLoadBalancer::update( const uint32_t frameNumber )
                                  static_cast< float >( channelPVP.h ) /
                                  static_cast< float >( pvp.h ));
    
-   currentZoom.x = EQ_MAX( currentZoom.x, minZoom ); 
-   currentZoom.x = EQ_MIN( currentZoom.x, maxZoom );
-   currentZoom.y = currentZoom.x; 
+   newZoom.x = EQ_MAX( newZoom.x, minZoom ); 
+   newZoom.x = EQ_MIN( newZoom.x, maxZoom );
+   newZoom.y = newZoom.x; 
    
-   _compound->setZoom( currentZoom );
+   _compound->setZoom( newZoom );
 }
 
 void DFRLoadBalancer::notifyLoadData( Channel* channel,

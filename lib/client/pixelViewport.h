@@ -101,6 +101,7 @@ namespace eq
                 if( zoom == Zoom::NONE )
                     return;
 
+#if 0
                 // honor position over size to avoid rounding artifacts
                 const int32_t xEnd = static_cast< int32_t >( (x + w) * zoom.x );
                 const int32_t yEnd = static_cast< int32_t >( (y + h) * zoom.y );
@@ -108,7 +109,13 @@ namespace eq
                 x = static_cast< int32_t >( x * zoom.x );
                 y = static_cast< int32_t >( y * zoom.y );
                 w = xEnd - x;
-                h = yEnd - y;                
+                h = yEnd - y;
+#else
+                x = static_cast< int32_t >( x * zoom.x + .5f );
+                y = static_cast< int32_t >( y * zoom.y + .5f );
+                w = static_cast< int32_t >( w * zoom.x + .5f );
+                h = static_cast< int32_t >( h * zoom.y + .5f );
+#endif
             }
 
         const PixelViewport getSubPVP( const Viewport& rhs ) const

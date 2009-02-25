@@ -135,6 +135,8 @@ void FrameBufferObject::unbind()
 bool FrameBufferObject::resize( const int width, const int height )
 {
     CHECK_THREAD( _thread );
+    EQASSERT( width > 0 && height > 0 );
+
     if (( _width == width ) && ( _height == height ))
        return true; 
      

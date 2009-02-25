@@ -278,6 +278,7 @@ const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
                            const Zoom& zoom, Window::ObjectManager* glObjects )
 {
+    EQ_GL_ERROR( "before startReadback" );
     EQASSERT( glObjects );
     EQASSERTINFO( !_glObjects, "Another readback in progress?" );
     EQLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers
@@ -299,13 +300,16 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     _pvp.apply( zoom );
     _pvp.x = 0;
     _pvp.y = 0;
+    EQ_GL_ERROR( "after startReadback" );
 }
 
 void Image::syncReadback()
 {
+    EQ_GL_ERROR( "before syncReadback" );
     _syncReadback( Frame::BUFFER_COLOR );
     _syncReadback( Frame::BUFFER_DEPTH );
     _glObjects = 0;
+    EQ_GL_ERROR( "after syncReadback" );
 }
 
 void Image::Pixels::resize( uint32_t size )
@@ -440,6 +444,11 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     EQASSERT( _glObjects->supportsEqTexture( ));
     EQASSERT( _glObjects->supportsEqFrameBufferObject( ));
 
+    PixelViewport      pvp = _pvp;
+    pvp.apply( zoom );
+    if( !pvp.hasArea( ))
+        return;
+
     Pixels& pixels = _getPixels( buffer );
     pixels.state = Pixels::ZOOM_READBACK;
     
@@ -454,8 +463,6 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     //  uses the same FBO for color and depth, with masking.
     const void*     fboKey = _getBufferKey( Frame::BUFFER_COLOR );
     FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( fboKey );
-    PixelViewport      pvp = _pvp;
-    pvp.apply( zoom );
 
     if( fbo )
     {

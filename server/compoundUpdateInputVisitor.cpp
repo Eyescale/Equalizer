@@ -70,7 +70,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         }
         frame->setInheritOffset( frameOffset );
 
-        // 2) TODO zoom
+        // 2) zoom
         _updateZoom( compound, frame, outputFrame );
 
         // 3) TODO input frames are moved using the offset. The pvp signifies
