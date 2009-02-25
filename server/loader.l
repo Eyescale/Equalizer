@@ -180,6 +180,8 @@ fov                             { return EQTOKEN_FOV; }
 hpr                             { return EQTOKEN_HPR; }
 latency                         { return EQTOKEN_LATENCY; }
 swapbarrier                     { return EQTOKEN_SWAPBARRIER; }
+NV_group                        { return EQTOKEN_NVGROUP;}
+NV_barrier                      { return EQTOKEN_NVBARRIER;}
 screen                          { return EQTOKEN_SCREEN; }
 outputframe                     { return EQTOKEN_OUTPUTFRAME; }
 inputframe                      { return EQTOKEN_INPUTFRAME; }
