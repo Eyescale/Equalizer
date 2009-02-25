@@ -652,7 +652,7 @@ bool GLXWindow::joinNVSwapBarrier( const uint32_t group,
 
     if( !glxBindSwapBarrierNV( group, barrier ))
     {
-        EQWARN << "Failed to bind swap barrier " << group << std::endl;
+        EQWARN << "Failed to bind swap barrier " << barrier << std::endl;
         return false;
     }
     

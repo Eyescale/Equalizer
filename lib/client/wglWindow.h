@@ -212,6 +212,9 @@ namespace eq
         /** Initialize and join a WGL_NV_swap_barrier. */ 
         bool joinNVSwapBarrier( const uint32_t group, const uint32_t barrier );
 
+        /** Unbind a WGL_NV_swap_barrier. */ 
+        void leaveNVSwapBarrier( const uint32_t group, const uint32_t barrier );
+
     private:
 
         HWND             _wglWindow;
