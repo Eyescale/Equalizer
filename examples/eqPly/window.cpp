@@ -90,7 +90,7 @@ void Window::_loadLogo()
                   image.getType( eq::Frame::BUFFER_COLOR ),
                   image.getPixelPointer( eq::Frame::BUFFER_COLOR ));
 
-    EQINFO << "Created logo texture of size " << _logoSize << endl;
+    EQVERB << "Created logo texture of size " << _logoSize << endl;
 }
 
 void Window::_loadShaders()

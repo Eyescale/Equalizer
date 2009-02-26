@@ -219,8 +219,6 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
     case RENDER_MODE_DISPLAY_LIST:
     default:
     {
-        MESHINFO << "Setting up display list rendering for leaf " << this
-                 << "." << endl;
         if( data[0] == state.INVALID )
             data[0] = state.newDisplayList( this );
         glNewList( data[0], GL_COMPILE );
@@ -229,9 +227,6 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
         break;
     }
     }
-
-    MESHINFO << "Leaf " << this << " contains " << _vertexLength << " vertices"
-             << " and " << _indexLength / 3 << " triangles." << endl;
 }
 
 

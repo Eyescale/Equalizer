@@ -146,9 +146,12 @@ void Config::_loadModels()
     }
 
     EQASSERT( _modelDist.size() == nModels );
-    
-    ModelAssigner assigner( _modelDist );
-    accept( assigner );
+
+    if( !_modelDist.empty( ))
+    {
+        ModelAssigner assigner( _modelDist );
+        accept( assigner );
+    }
 }
 
 void Config::mapData( const uint32_t initDataID )
