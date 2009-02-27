@@ -7,12 +7,14 @@
 
 #include <eq/base/log.h>
 
+#define OUTPUT eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+
 #define TEST( x )                                                       \
     {                                                                   \
         EQINFO << "Test " << #x << std::endl;                           \
         if( !(x) )                                                      \
         {                                                               \
-            std::cerr << #x << " failed (l." << __LINE__ << ')' << std::endl; \
+            OUTPUT << #x << " failed (l." << __LINE__ << ')' << std::endl; \
             ::exit( EXIT_FAILURE );                                     \
         }                                                               \
     }
@@ -22,8 +24,8 @@
         EQINFO << "Test " << #x << ": " << info << std::endl;         \
         if( !(x) )                                                    \
         {                                                             \
-            std::cerr << #x << " failed (l." << __LINE__ << "): " << info \
-                      << std::endl;                                     \
+            OUTPUT << #x << " failed (l." << __LINE__ << "): " << info  \
+                   << std::endl;                                        \
             ::exit( EXIT_FAILURE );                                     \
         }                                                               \
     }

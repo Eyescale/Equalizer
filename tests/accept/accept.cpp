@@ -72,19 +72,26 @@ int main( int argc, char **argv )
     size_t nConnects = 0;
     if( isClient )
     {
+        uint32_t data = 42;
         while( true )
         {
             TEST( connection->connect( ));
+            TEST( connection->send( &data, 4, true ));
+
+            while( !connection->recv( &data, 4 ))
+                OUTPUT << "Empty read" << std::endl;
+
+            connection->close();
+
             if( waitTime > 0 )
                 eq::base::sleep( waitTime );
-            connection->close();
 
             ++nConnects;
             const float time = clock.getTimef();
             if( time > 1000.0f )
             {
-                std::cout << nConnects / time * 1000.f << " connects/s "
-                          << std::endl;
+                OUTPUT << nConnects / time * 1000.f << " connects/s "
+                       << std::endl;
                 nConnects = 0;
                 clock.reset();
             }
@@ -96,30 +103,42 @@ int main( int argc, char **argv )
 
         ConnectionSet connectionSet;
         connectionSet.addConnection( connection );
+        uint32_t data;
 
-        ConnectionPtr resultConn;
         while( true )
         {
             switch( connectionSet.select( )) // ...get next request
             {
                 case ConnectionSet::EVENT_CONNECT: // new client
-                    resultConn = connectionSet.getConnection();
-                    TEST( resultConn == connection );
-
-                    resultConn = resultConn->accept();
-                    TEST( resultConn.isValid( ));
-                    
-                    connectionSet.addConnection( resultConn );
+                    connection = connectionSet.getConnection();
+                    connection = connection->accept();
+                    TEST( connection.isValid( ));
+                    connectionSet.addConnection( connection );
                     ++nConnects;
                     break;
 
+                case ConnectionSet::EVENT_ERROR:
+                    OUTPUT << "Error on connection " << std::endl;
+                    // no break;
                 case ConnectionSet::EVENT_DISCONNECT:
                 case ConnectionSet::EVENT_INVALID_HANDLE:  // client done
-                    resultConn = connectionSet.getConnection();
-                    connectionSet.removeConnection( resultConn );
+                    connection = connectionSet.getConnection();
+                    connectionSet.removeConnection( connection );
                     break;
 
                 case ConnectionSet::EVENT_INTERRUPT:
+                    break;
+
+                case ConnectionSet::EVENT_SELECT_ERROR:
+                    OUTPUT << "Error during select, " << connectionSet.size() 
+                        << " connections open" << std::endl;
+                    break;
+
+                case ConnectionSet::EVENT_DATA:
+                    if( connection->recv( &data, 4 ))
+                    {
+                        TEST( connection->send( &data, 4, true ));
+                    }
                     break;
 
                 default:
@@ -129,9 +148,9 @@ int main( int argc, char **argv )
             const float time = clock.getTimef();
             if( time > 1000.0f )
             {
-                std::cout << nConnects / time * 1000.f << " accepts/s ("
-                          << connectionSet.size() << " connections open)"
-                          << std::endl;
+                OUTPUT << nConnects / time * 1000.f << " accepts/s, "
+                       << connectionSet.size() << " connections open"
+                       << std::endl;
                 nConnects = 0;
                 clock.reset();
             }
