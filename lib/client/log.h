@@ -15,7 +15,8 @@ namespace eq
         LOG_TASKS    = net::LOG_CUSTOM << 1,   // 512
         LOG_EVENTS   = net::LOG_CUSTOM << 2,   // 1024
         LOG_STATS    = net::LOG_CUSTOM << 3,   // 2048
-        LOG_SERVER   = net::LOG_CUSTOM << 4,   // 4096
+        LOG_INIT     = net::LOG_CUSTOM << 4,   // 4096
+        LOG_SERVER   = net::LOG_CUSTOM << 5,   // 8192
         LOG_CUSTOM   = 0x10000                 // 65536
     };
 }

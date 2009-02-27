@@ -668,7 +668,7 @@ net::CommandResult Window::_cmdCreateChannel( net::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
         command.getPacket<WindowCreateChannelPacket>();
-    EQINFO << "Handle create channel " << packet << endl;
+    EQLOG( LOG_INIT ) << "Create channel " << packet << endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
     getConfig()->attachObject( channel, packet->channelID, EQ_ID_INVALID );
@@ -680,7 +680,7 @@ net::CommandResult Window::_cmdDestroyChannel( net::Command& command )
 {
     const WindowDestroyChannelPacket* packet =
         command.getPacket<WindowDestroyChannelPacket>();
-    EQINFO << "Handle destroy channel " << packet << endl;
+    EQLOG( LOG_INIT ) << "Destroy channel " << packet << endl;
 
     Channel* channel = _findChannel( packet->channelID );
     EQASSERT( channel )
@@ -696,7 +696,7 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
 {
     const WindowConfigInitPacket* packet = 
         command.getPacket<WindowConfigInitPacket>();
-    EQLOG( LOG_TASKS ) << "TASK window config init " << packet << endl;
+    EQLOG( LOG_INIT ) << "TASK window config init " << packet << endl;
 
     if( packet->pvp.isValid( ))
         _setPixelViewport( packet->pvp );
@@ -713,7 +713,7 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
 
     WindowConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
-    EQLOG( LOG_TASKS ) << "TASK window config init reply " << &reply << endl;
+    EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply << endl;
 
     net::NodePtr node = command.getNode();
     if( !reply.result )
@@ -732,8 +732,7 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
 {
     const WindowConfigExitPacket* packet =
         command.getPacket<WindowConfigExitPacket>();
-    EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
-                       << endl;
+    EQLOG( LOG_INIT ) << "TASK window config exit " << packet << endl;
 
     if( _pipe->isInitialized( ) && _osWindow )
     {

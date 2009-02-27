@@ -578,7 +578,7 @@ net::CommandResult Pipe::_cmdCreateWindow(  net::Command& command  )
 {
     const PipeCreateWindowPacket* packet = 
         command.getPacket<PipeCreateWindowPacket>();
-    EQINFO << "Handle create window " << packet << endl;
+    EQLOG( LOG_INIT ) << "Create window " << packet << endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
     getConfig()->attachObject( window, packet->windowID, EQ_ID_INVALID );
@@ -594,7 +594,7 @@ net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
 {
     const PipeDestroyWindowPacket* packet =
         command.getPacket<PipeDestroyWindowPacket>();
-    EQINFO << "Handle destroy window " << packet << endl;
+    EQLOG( LOG_INIT ) << "Destroy window " << packet << endl;
 
     Window* window = _findWindow( packet->windowID );
     EQASSERT( window );
@@ -611,7 +611,7 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
     CHECK_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
         command.getPacket<PipeConfigInitPacket>();
-    EQLOG( LOG_TASKS ) << "TASK pipe config init " << packet << endl;
+    EQLOG( LOG_INIT ) << "TASK pipe config init " << packet << endl;
 
     _name   = packet->name;
     _port   = packet->port;
@@ -632,7 +632,7 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
 
     _error.clear();
     reply.result  = configInit( packet->initID );
-    EQLOG( LOG_TASKS ) << "TASK pipe config init reply " << &reply << endl;
+    EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << endl;
 
     net::NodePtr node = command.getNode();
 
@@ -654,8 +654,7 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
     CHECK_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
         command.getPacket<PipeConfigExitPacket>();
-    EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
-                       << endl;
+    EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << endl;
 
     PipeConfigExitReplyPacket reply;
     reply.result = configExit();

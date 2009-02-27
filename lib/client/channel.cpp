@@ -944,7 +944,7 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
 {
     const ChannelConfigInitPacket* packet = 
         command.getPacket<ChannelConfigInitPacket>();
-    EQLOG( LOG_TASKS ) << "TASK channel config init " << packet << endl;
+    EQLOG( LOG_INIT ) << "TASK channel config init " << packet << endl;
 
     if( packet->viewID != EQ_ID_INVALID )
     {
@@ -984,7 +984,7 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
     reply.nearPlane   = _frustum.nearPlane;
     reply.farPlane    = _frustum.farPlane;
 
-    EQLOG( LOG_TASKS ) << "TASK channel config init reply " << &reply << endl;
+    EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply << endl;
     send( command.getNode(), reply, _error );
     return net::COMMAND_HANDLED;
 }
@@ -993,8 +993,7 @@ net::CommandResult Channel::_cmdConfigExit( net::Command& command )
 {
     const ChannelConfigExitPacket* packet =
         command.getPacket<ChannelConfigExitPacket>();
-    EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
-                       << endl;
+    EQLOG( LOG_INIT ) << "TASK channel config exit " << packet << endl;
 
     ChannelConfigExitReplyPacket reply;
     reply.result = configExit();
