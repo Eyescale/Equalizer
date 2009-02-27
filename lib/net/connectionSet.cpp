@@ -80,11 +80,13 @@ void ConnectionSet::interrupt()
 void ConnectionSet::addConnection( ConnectionPtr connection )
 {
     EQASSERT( connection->isConnected() || connection->isListening( ));
-
-    _mutex.set();
-    _connections.push_back( connection );
-    connection->addListener( this );
-    _mutex.unset();
+    {
+        base::ScopedMutex< SpinLock > mutex( _mutex );
+        EQASSERTINFO( _connections.size() < 63,
+            "Connection set can't handle more than 63 connections" );
+        _connections.push_back( connection );
+        connection->addListener( this );
+    }
     _dirtyFDSet();
 }
 
@@ -291,7 +293,7 @@ bool ConnectionSet::_setupFDSet()
 
         if( !readHandle )
         {
-            EQWARN << "Cannot select connection " << connection
+            EQINFO << "Cannot select connection " << connection
                  << ", connection does not provide a read handle" << endl;
             _connection = connection;
 		    _mutex.unset();
@@ -324,7 +326,7 @@ bool ConnectionSet::_setupFDSet()
 
         if( fd.fd <= 0 )
         {
-            EQWARN << "Cannot select connection " << connection
+            EQINFO << "Cannot select connection " << connection
                    << ", connection " << typeid( *connection.get( )).name() 
                    << " does not use a file descriptor" << endl;
             _connection = connection;
