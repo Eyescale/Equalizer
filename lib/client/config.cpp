@@ -376,7 +376,10 @@ uint32_t Config::startFrame( const uint32_t frameID )
     ConfigCommitVisitor committer;
     accept( committer );
     const std::vector< net::ObjectVersion >& changes = committer.getChanges();
-
+    
+    if( committer.needsFinish( ))
+        finishAllFrames();
+    
     // Request new frame
     ConfigStartFramePacket packet;
     packet.requestID = _requestHandler.registerRequest();
@@ -845,7 +848,7 @@ net::CommandResult Config::_cmdStartFrameReply( net::Command& command )
         command.getPacket<ConfigStartFrameReplyPacket>();
     EQVERB << "handle frame start reply " << packet << endl;
 
-#if 0 // enable when list of client nodes is dynamic
+#ifdef EQ_TRANSMISSION_API
     _clientNodeIDs.clear();
     _clientNodes.clear();
 

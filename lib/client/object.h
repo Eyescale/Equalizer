@@ -32,6 +32,9 @@ namespace eq
         /** @return the name of the object. */
         EQ_EXPORT const std::string& getName() const;
 
+        /** @return the current dirty flags. */
+        EQ_EXPORT uint64_t getDirty() const { return _dirty; }
+
     protected:
         /** @return true if the view has to be committed. */
         virtual bool isDirty() const { return ( _dirty != DIRTY_NONE ); }

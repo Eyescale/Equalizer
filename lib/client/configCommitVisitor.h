@@ -15,11 +15,14 @@ namespace eq
     class ConfigCommitVisitor : public ConfigVisitor
     {
     public:
-        ConfigCommitVisitor() {}
+        ConfigCommitVisitor() : _needFinish( false ) {}
         virtual ~ConfigCommitVisitor() {}
 
         virtual VisitorResult visitPre( Canvas* canvas )
             {
+                if( canvas->getDirty() & Canvas::DIRTY_LAYOUT )
+                    _needFinish = true;
+
                 _commit( canvas );
                 return TRAVERSE_PRUNE; // no need to visit segments
             }
@@ -29,16 +32,20 @@ namespace eq
                 return TRAVERSE_CONTINUE; 
             }
         
+        bool needsFinish() const { return _needFinish; }
+
         const std::vector< net::ObjectVersion >& getChanges() const
             { return _changes; }
 
     private:
+        bool _needFinish;
         std::vector< net::ObjectVersion > _changes;
         
         void _commit( net::Object* object )
             {
                 const uint32_t oldVersion = object->getVersion();
                 const uint32_t newVersion = object->commit();
+
                 if( oldVersion != newVersion )
                     _changes.push_back( net::ObjectVersion( object->getID(),
                                                             newVersion ));

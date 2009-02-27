@@ -402,7 +402,7 @@ namespace server
 
         void _prepareFrame( std::vector< net::NodeID >& nodeIDs );
         void _startFrame( const uint32_t frameID );
-        void _flushFrames();
+        void _flushAllFrames();
         //*}
 
         /** The command functions. */

@@ -879,7 +879,7 @@ bool Config::_finishInit()
     eq::ConfigStartClockPacket packet;
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        Node*               node    = *i;
+        Node*        node    = *i;
         net::NodePtr netNode = node->getNode();
         if( !node->isRendering() || !netNode->isConnected( ))
             continue;
@@ -1090,11 +1090,12 @@ void Config::_updateHead()
 
 void Config::_prepareFrame( std::vector< net::NodeID >& nodeIDs )
 {
+#ifdef EQ_TRANSMISSION_API
     EQASSERT( _state == STATE_INITIALIZED );
     ++_currentFrame;
     EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
 
-    _updateHead();
+    _updateHead(); // TODO move
 
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
@@ -1105,6 +1106,7 @@ void Config::_prepareFrame( std::vector< net::NodeID >& nodeIDs )
             nodeIDs.push_back( netNode->getNodeID( ));
         }
     }
+#endif
 }
 
 void Config::_startFrame( const uint32_t frameID )
@@ -1142,6 +1144,8 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
             return;
     }
 
+    _finishedFrame = frameNumber;
+
     // All nodes have finished the frame. Notify the application's config that
     // the frame is finished
     eq::ConfigFrameFinishPacket packet;
@@ -1153,7 +1157,7 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     EQLOG( eq::LOG_TASKS ) << "TASK config frame finished  " << &packet << endl;
 }
 
-void Config::_flushFrames()
+void Config::_flushAllFrames()
 {
     if( _currentFrame == 0 )
         return;
@@ -1237,28 +1241,41 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         command.getPacket<eq::ConfigStartFramePacket>();
     EQVERB << "handle config frame start " << packet << endl;
 
+    eq::ConfigStartFrameReplyPacket reply( packet );
+#ifdef EQ_TRANSMISSION_API
+    vector< net::NodeID > nodeIDs;
+    _prepareFrame( nodeIDs );
+
+    reply.frameNumber = _currentFrame;
+    reply.nNodeIDs    = nodeIDs.size();
+
+    for( vector< net::NodeID >::iterator i = nodeIDs.begin(); 
+         i != nodeIDs.end(); ++i )
+    {
+         (*i).convertToNetwork();
+    }
+    command.getNode()->send( reply, nodeIDs );
+
+#else
+    _updateHead(); // TODO move
+
+    reply.frameNumber = _currentFrame + 1;
+    command.getNode()->send( reply );
+#endif
+
     if( packet->nChanges > 0 )
     {
         ConfigSyncVisitor syncer( packet->nChanges, packet->changes );
         EQCHECK( accept( syncer ) == TRAVERSE_TERMINATE );
     }
 
-    vector< net::NodeID > nodeIDs;
+#ifndef EQ_TRANSMISSION_API
+    ++_currentFrame;
+    EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
+    EQINFO << "start " << _currentFrame << std::endl;
+#endif
 
-    _prepareFrame( nodeIDs );
     _startFrame( packet->frameID );
-
-    eq::ConfigStartFrameReplyPacket reply( packet );
-    reply.frameNumber = _currentFrame;
-    reply.nNodeIDs    = nodeIDs.size();
-
-    for( vector< net::NodeID >::iterator i = nodeIDs.begin(); 
-         i != nodeIDs.end(); ++i )
-
-         (*i).convertToNetwork();
-
-    command.getNode()->send( reply, nodeIDs );
-
     return net::COMMAND_HANDLED;
 }
 
@@ -1268,7 +1285,7 @@ net::CommandResult Config::_cmdFinishAllFrames( net::Command& command )
         command.getPacket<eq::ConfigFinishAllFramesPacket>();
     EQVERB << "handle config all frames finish " << packet << endl;
 
-    _flushFrames();
+    _flushAllFrames();
     return net::COMMAND_HANDLED;
 }
 

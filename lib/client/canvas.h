@@ -77,14 +77,6 @@ namespace server
         EQ_EXPORT virtual void deregister();
         //*}
 
-    protected:
-        /** @sa Frustum::serialize */
-        void serialize( net::DataOStream& os, const uint64_t dirtyBits );
-
-        /** @sa Frustum::deserialize */
-        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
-                                            const uint64_t dirtyBits );
-
         enum DirtyBits
         {
             DIRTY_LAYOUT     = Frustum::DIRTY_CUSTOM << 0,
@@ -92,8 +84,14 @@ namespace server
             DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 2,
             DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 3
         };
-        friend class server::Canvas;
 
+    protected:
+        /** @sa Frustum::serialize */
+        void serialize( net::DataOStream& os, const uint64_t dirtyBits );
+
+        /** @sa Frustum::deserialize */
+        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
+                                            const uint64_t dirtyBits );
     private:
         /** The parent config. */
         Config* _config;

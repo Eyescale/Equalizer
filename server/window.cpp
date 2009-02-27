@@ -471,11 +471,23 @@ bool Window::syncConfigInit()
     return success;
 }
 
-bool Window::initChannel( Channel* channel )
+void Window::initChannel( Channel* channel )
 {
-    EQUNIMPLEMENTED;
-    // TODO: same code for our (de-)activation
-    return false;
+    EQASSERT( channel->isRendering( ));
+
+    eq::WindowCreateChannelPacket createChannelPacket;
+
+    Config* config = getConfig();
+    config->registerObject( channel );
+
+    createChannelPacket.channelID = channel->getID();
+    _send( createChannelPacket );
+
+    const uint32_t initID = config->getInitID();
+    channel->startConfigInit( initID );
+
+    _flushSendBuffer();
+    EQCHECK( channel->syncConfigInit( ));
 }
 
 void Window::_send( net::ObjectPacket& packet ) 
@@ -488,6 +500,11 @@ void Window::_send( net::ObjectPacket& packet, const std::string& string )
 {
     packet.objectID = getID(); 
     getNode()->send( packet, string ); 
+}
+
+void Window::_flushSendBuffer()
+{
+    getNode()->flushSendBuffer();
 }
 
 //---------------------------------------------------------------------------
@@ -549,11 +566,23 @@ bool Window::syncConfigExit()
     return success;
 }
 
-bool Window::exitChannel( Channel* channel )
+void Window::exitChannel( Channel* channel )
 {
-    EQUNIMPLEMENTED;
-    // TODO: same code for our (de-)activation
-    return false;
+    EQASSERT( channel->getID() != EQ_ID_INVALID );
+    EQASSERT( !channel->isRendering( ));
+
+    channel->startConfigExit();
+    _flushSendBuffer();
+    EQCHECK( channel->syncConfigExit( ));
+
+    eq::WindowDestroyChannelPacket destroyChannelPacket;
+    destroyChannelPacket.channelID = channel->getID();
+    _send( destroyChannelPacket );
+
+    EQINFO << "exit " << channel->getID() << std::endl;
+    getConfig()->deregisterObject( channel );
+
+    _flushSendBuffer();
 }
 
 //---------------------------------------------------------------------------

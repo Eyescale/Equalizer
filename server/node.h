@@ -235,6 +235,8 @@ namespace server
                 _bufferedTasks.send( packet, data );
             }
 
+        void flushSendBuffer();
+
         /** 
          * Adds a new description how this node can be reached.
          * 

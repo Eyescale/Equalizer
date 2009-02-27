@@ -222,7 +222,8 @@ void Channel::activate()
     if( !getConfig()->isRunning( ))
         return; // will be activated during init
 
-    EQCHECK( _window->initChannel( this ));
+    if( _active == 1 )
+        _window->initChannel( this );
 }
 
 void Channel::deactivate()
@@ -237,7 +238,8 @@ void Channel::deactivate()
     if( !getConfig()->isRunning( ))
         return; // already stopped or not yet running
 
-    EQCHECK( _window->exitChannel( this ));
+    if( _active == 0 )
+        _window->exitChannel( this );
 }
 
 void Channel::setView( const View* view )

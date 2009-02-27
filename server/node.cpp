@@ -249,7 +249,7 @@ void Node::startConfigInit( const uint32_t initID )
         pipe->startConfigInit( initID );
     }
 
-    _bufferedTasks.sendBuffer( _node->getConnection( ));
+    flushSendBuffer();
 }
 
 bool Node::syncConfigInit()
@@ -302,7 +302,7 @@ void Node::startConfigExit()
 
     eq::NodeConfigExitPacket packet;
     _send( packet );
-    _bufferedTasks.sendBuffer( _node->getConnection( ));
+    flushSendBuffer();
 }
 
 bool Node::syncConfigExit()
@@ -332,8 +332,8 @@ bool Node::syncConfigExit()
         _send( destroyPipePacket );
         _config->deregisterObject( pipe );
     }
-    _bufferedTasks.sendBuffer( _node->getConnection( ));
 
+    flushSendBuffer();
     _frameIDs.clear();
     _flushBarriers();
     return success;
@@ -375,7 +375,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     if( frameNumber > latency )
         flushFrames( frameNumber - latency );
 
-    _bufferedTasks.sendBuffer( _node->getConnection( ));
+    flushSendBuffer();
     _lastDrawPipe = 0;
 }
 
@@ -412,7 +412,7 @@ void Node::flushFrames( const uint32_t frameNumber )
         _sendFrameFinish( _flushedFrame );
     }
 
-    _bufferedTasks.sendBuffer( _node->getConnection( ));
+    flushSendBuffer();
 }
 
 void Node::_sendFrameFinish( const uint32_t frameNumber )
@@ -465,6 +465,11 @@ void Node::_flushBarriers()
         delete barrier;
     }
     _barriers.clear();
+}
+
+void Node::flushSendBuffer()
+{
+    _bufferedTasks.sendBuffer( _node->getConnection( ));
 }
 
 //===========================================================================

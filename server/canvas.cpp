@@ -106,11 +106,11 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         uint32_t id;
         is >> id;
         if( id == EQ_ID_INVALID )
-            _layout = 0;
+            useLayout( 0 );
         else
         {
             EQASSERT( _config );
-            _layout = _config->findLayout( id );
+            useLayout( _config->findLayout( id ));
             EQASSERTINFO( _layout, id );
         }
     }

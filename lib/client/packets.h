@@ -1201,6 +1201,12 @@ namespace eq
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
+                                      const WindowDestroyChannelPacket* packet )
+    {
+        os << (net::ObjectPacket*)packet << " id " << packet->channelID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
                                      const WindowConfigInitReplyPacket* packet )
     {
         os << (net::ObjectPacket*)packet << " result " << packet->result
