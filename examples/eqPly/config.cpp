@@ -399,8 +399,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
-                _frameData.moveCamera( .0005f * event->data.pointerMotion.dx,
-                                       .0005f * event->data.pointerMotion.dy,
+                _frameData.moveCamera(  .0005f * event->data.pointerMotion.dx,
+                                       -.0005f * event->data.pointerMotion.dy,
                                        0.f );
                 _redraw = true;
             }
