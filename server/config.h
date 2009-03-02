@@ -400,7 +400,6 @@ namespace server
 
         void _updateHead();
 
-        void _prepareFrame( std::vector< net::NodeID >& nodeIDs );
         void _startFrame( const uint32_t frameID );
         void _flushAllFrames();
         //*}

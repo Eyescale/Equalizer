@@ -57,9 +57,6 @@ Node::~Node()
     _config->_removeNode( this );
 
     EQINFO << " Delete eq::Node @" << (void*)this << endl;
-#ifdef EQ_TRANSMISSION_API
-    EQASSERT( _dataQueue.empty( ))
-#endif
 }
 
 void Node::attachToSession( const uint32_t id, 
@@ -377,40 +374,6 @@ void Node::_flushObjects()
     _frameDatas.clear();
     _frameDatasMutex.unset();
 }
-
-#ifdef EQ_TRANSMISSION_API
-const void* Node::receiveData( uint64_t* size )
-{
-    net::Command* command = _dataQueue.pop();
-    const ConfigDataPacket* packet = command->getPacket<ConfigDataPacket>();
-    EQASSERT( packet->datatype == net::DATATYPE_EQNET_SESSION );
-    EQASSERT( packet->command == CMD_CONFIG_DATA );
-
-    if( size )
-        *size = packet->dataSize;
-    return packet->data;
-}
-
-const void* Node::tryReceiveData( uint64_t* size )
-{
-    net::Command* command = _dataQueue.tryPop();
-    if( !command )
-        return 0;
-
-    const ConfigDataPacket* packet = command->getPacket<ConfigDataPacket>();
-    EQASSERT( packet->datatype == net::DATATYPE_EQNET_SESSION );
-    EQASSERT( packet->command == CMD_CONFIG_DATA );
-
-    if( size )
-        *size = packet->dataSize;
-    return packet->data;
-}
-
-bool Node::hasData() const
-{
-    return !_dataQueue.empty();
-}
-#endif // EQ_TRANSMISSION_API
 
 #ifdef EQ_ASYNC_TRANSMIT
 void Node::TransmitThread::send( FrameData* data, net::NodePtr node, 

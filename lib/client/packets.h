@@ -332,8 +332,6 @@ namespace eq
             }
         uint32_t requestID;
         uint32_t frameNumber;
-        uint32_t nNodeIDs;
-        EQ_ALIGN8( net::NodeID nodeIDs[1] );
     };
 
     struct ConfigFrameFinishPacket : public ConfigPacket
@@ -354,19 +352,6 @@ namespace eq
                 size      = sizeof( ConfigFinishAllFramesPacket );
             }
     };
-
-#ifdef EQ_TRANSMISSION_API
-    struct ConfigDataPacket : public ConfigPacket
-    {
-        ConfigDataPacket()
-            {
-                command   = CMD_CONFIG_DATA;
-                size      = sizeof( ConfigDataPacket );
-            }
-        uint64_t dataSize;
-        EQ_ALIGN8( char data[8] );        
-    };
-#endif
 
     struct ConfigFreezeLoadBalancingPacket : public ConfigPacket
     {
@@ -1102,12 +1087,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                      const ConfigStartFrameReplyPacket* packet )
     {
-        os << (ConfigPacket*)packet << " frame " << packet->frameNumber
-           << ", " << packet->nNodeIDs << " nodes";
-
-        for( uint32_t i=0 ; i<4 && i<packet->nNodeIDs; ++i )
-            os << " " << i << ":" << packet->nodeIDs[i];
-
+        os << (ConfigPacket*)packet << " frame " << packet->frameNumber;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

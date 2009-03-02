@@ -83,10 +83,6 @@ void Config::setLocalNode( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdFrameFinish ), 0 );
     registerCommand( CMD_CONFIG_EVENT, 
                      ConfigFunc( this, &Config::_cmdUnknown ), &_eventQueue );
-#ifdef EQ_TRANSMISSION_API
-    registerCommand( CMD_CONFIG_DATA, 
-                     ConfigFunc( this, &Config::_cmdData ), queue );
-#endif
     registerCommand( CMD_CONFIG_START_CLOCK, 
                      ConfigFunc( this, &Config::_cmdStartClock ), 0 );
     registerCommand( CMD_CONFIG_UNMAP, ConfigFunc( this, &Config::_cmdUnmap ),
@@ -697,53 +693,6 @@ void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
     _headMatrix.commit();
 }
 
-#ifdef EQ_TRANSMISSION_API
-void Config::broadcastData( const void* data, uint64_t size )
-{
-    if( _clientNodeIDs.empty( ))
-        return;
-
-    if( !_connectClientNodes( ))
-        return;
-
-    ConfigDataPacket packet;
-    packet.sessionID = getID();
-    packet.dataSize  = size;
-
-    for( vector< net::NodePtr >::iterator i = _clientNodes.begin();
-         i != _clientNodes.end(); ++i )
-    {
-        (*i)->send( packet, data, size );
-    }
-}
-
-bool Config::_connectClientNodes()
-{
-    if( !_clientNodes.empty( ))
-        return true;
-
-    net::NodePtr localNode = getLocalNode();
-    net::NodePtr server    = getServer();
-
-    for( vector< net::NodeID >::const_iterator i = _clientNodeIDs.begin();
-         i < _clientNodeIDs.end(); ++i )
-    {
-        const net::NodeID&  id   = *i;
-        net::NodePtr node = localNode->connect( id, server );
-
-        if( !node.isValid( ))
-        {
-            EQERROR << "Can't connect node with ID " << id << endl;
-            _clientNodes.clear();
-            return false;
-        }
-
-        _clientNodes.push_back( node );
-    }
-    return true;
-}
-#endif // EQ_TRANSMISSION_API
-
 void Config::freezeLoadBalancing( const bool onOff )
 {
     ConfigFreezeLoadBalancingPacket packet;
@@ -813,13 +762,7 @@ net::CommandResult Config::_cmdFinishInitReply( net::Command& command )
     EQINFO << "handle finish init reply " << packet << endl;
 
     if( !packet->result )
-    {
         _error = packet->error;
-#ifdef EQ_TRANSMISSION_API
-        _clientNodeIDs.clear();
-        _clientNodes.clear();
-#endif
-    }
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return net::COMMAND_HANDLED;
@@ -833,11 +776,6 @@ net::CommandResult Config::_cmdExitReply( net::Command& command )
 
     _baseViews.clear();
 
-#ifdef EQ_TRANSMISSION_API
-    _clientNodeIDs.clear();
-    _clientNodes.clear();
-#endif
-
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return net::COMMAND_HANDLED;
 }
@@ -847,17 +785,6 @@ net::CommandResult Config::_cmdStartFrameReply( net::Command& command )
     const ConfigStartFrameReplyPacket* packet =
         command.getPacket<ConfigStartFrameReplyPacket>();
     EQVERB << "handle frame start reply " << packet << endl;
-
-#ifdef EQ_TRANSMISSION_API
-    _clientNodeIDs.clear();
-    _clientNodes.clear();
-
-    for( uint32_t i=0; i<packet->nNodeIDs; ++i )
-    {
-        _clientNodeIDs.push_back( packet->nodeIDs[i] );
-        _clientNodeIDs[i].convertToHost();
-    }
-#endif
 
     _currentFrame = packet->frameNumber;
     if( _nodes.empty( )) // no local rendering - release sync immediately
@@ -885,24 +812,6 @@ net::CommandResult Config::_cmdFrameFinish( net::Command& command )
     getNodeThreadQueue()->wakeup();
     return net::COMMAND_HANDLED;
 }
-
-#ifdef EQ_TRANSMISSION_API
-net::CommandResult Config::_cmdData( net::Command& command )
-{
-    EQVERB << "received data " << command.getPacket<ConfigDataPacket>()
-           << endl;
-
-    // If we -for whatever reason- instantiate more than one config node per
-    // client, the server has to send us a list of config node object IDs
-    // together with the net::NodeIDs, so that broadcastData can send the
-    // packet directly to the eq::Node objects.
-    EQASSERTINFO( _nodes.size() == 1, 
-                  "More than one config node instantiated locally" );
-
-    _nodes[0]->_dataQueue.push( command );
-    return net::COMMAND_HANDLED;
-}
-#endif
 
 net::CommandResult Config::_cmdStartClock( net::Command& command )
 {

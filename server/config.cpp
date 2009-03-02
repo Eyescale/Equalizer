@@ -837,12 +837,6 @@ bool Config::_initNodes( const uint32_t initID )
 
         // start node-pipe-window-channel init in parallel on all nodes
         node->startConfigInit( initID );
-
-#ifdef EQ_TRANSMISSION_API
-        // TODO move me
-        nodeIDs.resize( nodeIDs.size() + 1 );
-        netNode->getNodeID().getData( nodeIDs.back( ));
-#endif
     }
 
     // Need to sync eq::Node creation: It is possible, though unlikely, that
@@ -1088,30 +1082,12 @@ void Config::_updateHead()
     accept( updater );
 }
 
-void Config::_prepareFrame( std::vector< net::NodeID >& nodeIDs )
-{
-#ifdef EQ_TRANSMISSION_API
-    EQASSERT( _state == STATE_INITIALIZED );
-    ++_currentFrame;
-    EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
-
-    _updateHead(); // TODO move
-
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
-    {
-        Node* node = *i;
-        if( node->isRendering( ))
-        {
-            net::NodePtr netNode = node->getNode();
-            nodeIDs.push_back( netNode->getNodeID( ));
-        }
-    }
-#endif
-}
-
 void Config::_startFrame( const uint32_t frameID )
 {
     EQASSERT( _state == STATE_INITIALIZED );
+
+    ++_currentFrame;
+    EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
 
     for( vector< Compound* >::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
@@ -1241,39 +1217,17 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         command.getPacket<eq::ConfigStartFramePacket>();
     EQVERB << "handle config frame start " << packet << endl;
 
-    eq::ConfigStartFrameReplyPacket reply( packet );
-#ifdef EQ_TRANSMISSION_API
-    vector< net::NodeID > nodeIDs;
-    _prepareFrame( nodeIDs );
-
-    reply.frameNumber = _currentFrame;
-    reply.nNodeIDs    = nodeIDs.size();
-
-    for( vector< net::NodeID >::iterator i = nodeIDs.begin(); 
-         i != nodeIDs.end(); ++i )
-    {
-         (*i).convertToNetwork();
-    }
-    command.getNode()->send( reply, nodeIDs );
-
-#else
     _updateHead(); // TODO move
 
+    eq::ConfigStartFrameReplyPacket reply( packet );
     reply.frameNumber = _currentFrame + 1;
     command.getNode()->send( reply );
-#endif
 
     if( packet->nChanges > 0 )
     {
         ConfigSyncVisitor syncer( packet->nChanges, packet->changes );
         EQCHECK( accept( syncer ) == TRAVERSE_TERMINATE );
     }
-
-#ifndef EQ_TRANSMISSION_API
-    ++_currentFrame;
-    EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
-    EQINFO << "start " << _currentFrame << std::endl;
-#endif
 
     _startFrame( packet->frameID );
     return net::COMMAND_HANDLED;
