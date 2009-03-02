@@ -304,6 +304,15 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     const uint32_t viewID = _frameData.getCurrentViewID();
                     LayoutSwitcher switcher( viewID );
                     accept( switcher );
+
+                    _frameData.setCurrentViewID( EQ_ID_INVALID );
+                    const eq::Layout* layout = switcher.getResult();
+                    if( layout )
+                    {
+                        const eq::ViewVector& views = layout->getViews();
+                        if( !views.empty( ))
+                            _frameData.setCurrentViewID( views[0]->getID( ));
+                    }
                     return true;
                 }
 

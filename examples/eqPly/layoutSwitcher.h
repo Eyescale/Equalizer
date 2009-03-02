@@ -15,6 +15,8 @@ public:
             : _id( currentViewID ), _layout( 0 ) {}
     virtual ~LayoutSwitcher(){}
 
+    const eq::Layout* getResult() const { return _layout; }
+
 protected:
     virtual eq::VisitorResult visitPre( eq::Config* config )
         {
@@ -56,7 +58,8 @@ protected:
             if( i == layouts.end( ))
                 i = layouts.begin(); // wrap around
             
-            canvas->useLayout( *i );
+            _layout = *i;
+            canvas->useLayout( _layout );
             EQINFO << "Using layout " << (*i)->getID() << " on " 
                    << canvas->getID() << std::endl;
 
