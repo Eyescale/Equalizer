@@ -117,6 +117,9 @@ namespace eq
 
         /** Reset the image to its default state. */
         void reset();
+
+        void resizeToFitPVP( const Frame::Buffer buffer );
+
         //*}
 
 
@@ -216,6 +219,9 @@ namespace eq
         void startReadback( const uint32_t buffers, const PixelViewport& pvp,
                             const Zoom& zoom, Window::ObjectManager* glObjects);
 
+        bool getReadbackInfo( const uint32_t buffers, const PixelViewport& pvp,
+                            const Zoom& zoom, Window::ObjectManager* glObjects);
+
         /** Make sure that the last readback operation is complete. */
         void syncReadback();
 
@@ -234,6 +240,10 @@ namespace eq
         bool readImage( const std::string& filename, 
                         const Frame::Buffer buffer   );
 
+        /** Setting image offset, used after readback to correct position 
+            if necessary */
+        void setOffset( int32_t x, int32_t y ) { _pvp.x = x; _pvp.y = y; }
+
         /** Delete all cache data of this image. */
         void flush();
         //*}
@@ -246,8 +256,7 @@ namespace eq
         struct Data
         {
             Viewport vp;
-        }
-        _data;
+        } _data;
 
         /** The rectangle of the current pixels data. */
         PixelViewport _pvp;
@@ -323,6 +332,8 @@ namespace eq
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;
 
+        const void* _getInfoKey( ) const;
+
         void _startReadback( const Frame::Buffer buffer, const Zoom& zoom );
         void _startReadbackPBO( const Frame::Buffer buffer );
         void _startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom );
@@ -330,6 +341,10 @@ namespace eq
         void _syncReadback( const Frame::Buffer buffer );
         void _syncReadbackPBO( const Frame::Buffer buffer );
         void _syncReadbackZoom( const Frame::Buffer buffer );
+
+        /** Called from getReadbackInfo. Calculates per-block statistic before 
+            actuall read-back */
+        void _readbackInfo();
 
         friend std::ostream& operator << ( std::ostream& os, const Image* );
     };

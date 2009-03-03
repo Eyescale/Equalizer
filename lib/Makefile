@@ -115,6 +115,8 @@ HEADER_SRC = \
 	client/pixelViewport.h \
 	client/projection.h \
 	client/range.h \
+	client/rbAreasSelector.h \
+	client/rbEmptyAreasFinder.h \
 	client/renderContext.h \
 	client/segment.h \
 	client/segmentVisitor.h \
@@ -220,6 +222,8 @@ CXXFILES = \
 	client/pipeStatistics.cpp \
 	client/projection.cpp \
 	client/range.cpp \
+	client/rbAreasSelector.cpp \
+	client/rbEmptyAreasFinder.cpp \
 	client/renderContext.cpp \
 	client/segment.cpp \
 	client/server.cpp \
@@ -233,6 +237,10 @@ CXXFILES = \
 	client/windowSystem.cpp \
 	client/zoom.cpp \
 	util/bitmapFont.cpp
+
+SHADERS = \
+	client/rbInfoFragmentShader_glsl.h
+
 
 CFILES += \
 	glew/glew.c
@@ -288,10 +296,11 @@ $(BUILD_DIR)/$(VARIANT)/lib/pthread.%: $(TOP)/Windows/pthreads/lib/pthreadGC2.%
 endif
 endif
 
+
 CXXFLAGS += $(WINDOW_SYSTEM_INCS) -DEQUALIZER_EXPORTS
 CFLAGS   += -DGLEW_BUILD -DEQ_DEFINES_H
 LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
 
-TARGETS = $(HEADERS) $(DYNAMIC_LIB)
+TARGETS = $(SHADERS) $(HEADERS) $(DYNAMIC_LIB)
 
 include $(TOP)/make/rules.mk

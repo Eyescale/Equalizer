@@ -17,6 +17,8 @@
 #include <eq/base/monitor.h>
 #include <algorithm>
 
+#include <eq/client/rbAreasSelector.h> // member
+
 using namespace eq::base;
 using namespace std;
 using eq::net::CommandFunc;
@@ -24,7 +26,9 @@ using eq::net::CommandFunc;
 namespace eq
 {
 FrameData::FrameData()
+: _infoImg( 0 )
 {
+    _objSelector = new RBAreasSelector();
     EQINFO << "New FrameData @" << (void*)this << endl;
 }
 
@@ -40,6 +44,15 @@ FrameData::~FrameData()
         delete image;
     }
     _imageCache.clear();
+
+    if( _infoImg )
+    {
+        delete _infoImg; 
+        _infoImg = 0;
+    }
+
+    delete _objSelector;
+    _objSelector = 0;
 }
 
 void FrameData::getInstanceData( net::DataOStream& os )
@@ -151,6 +164,18 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
     return image;
 }
 
+static Image* _allocateInfoImage( Image* img )
+{
+    if( img != 0 )
+        return img;
+
+    img = new Image;
+    img->setFormat( Frame::BUFFER_COLOR, GL_RGBA  );
+    img->setType(   Frame::BUFFER_COLOR, GL_FLOAT );
+
+    return img;
+}
+
 void FrameData::startReadback( const Frame& frame,
                                Window::ObjectManager* glObjects )
 {
@@ -168,6 +193,26 @@ void FrameData::startReadback( const Frame& frame,
         EQWARN << "Invalid zoom factor, skipping frame." << endl;
         return;
     }
+
+    _infoImg = _allocateInfoImage( _infoImg );
+    if( _infoImg->getReadbackInfo( _data.buffers, absPVP, zoom, glObjects ))
+    {
+        const pvpVec& pvps = _objSelector->getObjects( _infoImg );
+
+        for( uint32_t i = 0; i < pvps.size(); i++ )
+        {
+            PixelViewport pvp = pvps[ i ];
+            pvp.apply( Zoom( 16.0, 16.0 ));
+            pvp.intersect( absPVP );
+
+            Image* image = newImage( _data.frameType );
+            image->startReadback( _data.buffers, pvp, zoom, glObjects );
+            image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+        }
+
+        return;
+    }
+
 
     Image* image = newImage( _data.frameType );
     image->startReadback( _data.buffers, absPVP, zoom, glObjects );

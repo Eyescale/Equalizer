@@ -24,6 +24,7 @@ namespace server
 }
 
     class  Image;
+    class  RBAreasSelector;
     struct FrameDataTransmitPacket;
 
     /**
@@ -167,14 +168,16 @@ namespace server
             Frame::Type      frameType;
             Range            range; //<! database-range of src wrt to dest
             Pixel            pixel; //<! pixel decomposition of source
-        }
-        _data;
+        } _data;
 
         friend class eq::server::FrameData;
 
         ImageVector _images;
         ImageVector _imageCache;
         base::SpinLock    _imageCacheLock;
+
+        Image*           _infoImg;
+        RBAreasSelector* _objSelector;
 
         struct ImageVersion
         {
