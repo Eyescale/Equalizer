@@ -769,6 +769,16 @@ namespace eq
             }
     };
 
+    struct WindowThrottleFramrate : public net::ObjectPacket
+    {
+        WindowThrottleFramrate()
+        {
+            command = CMD_WINDOW_THROTTLE;
+            size    = sizeof( WindowThrottleFramrate );
+        }
+        float    minFrameTime; // in ms
+    };
+    
     struct WindowBarrierPacket : public net::ObjectPacket
     {
         WindowBarrierPacket()
@@ -787,7 +797,6 @@ namespace eq
                 command = CMD_WINDOW_SWAP;
                 size    = sizeof( WindowSwapPacket );
             }
-        float    minFrameTime; // in ms
     };
 
     struct WindowFrameStartPacket : public net::ObjectPacket

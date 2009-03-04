@@ -513,6 +513,7 @@ namespace eq
         net::CommandResult _cmdConfigExit( net::Command& command );
         net::CommandResult _cmdFrameStart( net::Command& command );
         net::CommandResult _cmdFrameFinish( net::Command& command );
+        net::CommandResult _cmdThrottle( net::Command& command );
         net::CommandResult _cmdBarrier( net::Command& command );
         net::CommandResult _cmdFinish( net::Command& command );
         net::CommandResult _cmdSwap( net::Command& command );
