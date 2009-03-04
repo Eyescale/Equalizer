@@ -1,8 +1,8 @@
 /* Copyright (c) 2009       Maxim Makhinya
    All rights reserved. */
 
-#ifndef EQ_RB_EMPTY_AREAS_FINDER_H
-#define EQ_RB_EMPTY_AREAS_FINDER_H
+#ifndef EQ_ROI_EMPTY_SPACE_FINDER_H
+#define EQ_ROI_EMPTY_SPACE_FINDER_H
 
 #include "pixelViewport.h"
 #include <vector>
@@ -15,11 +15,11 @@ namespace eq
     /**
      * Finds largest empty regions.
      */
-    class EQ_EXPORT RBEmptyAreasFinder
+    class EQ_EXPORT ROIEmptySpaceFinder
     {
     public:
-        RBEmptyAreasFinder() : _mask( 0 ) {};
-        virtual ~RBEmptyAreasFinder(){};
+        ROIEmptySpaceFinder() : _mask( 0 ) {};
+        virtual ~ROIEmptySpaceFinder(){};
 
         /** Updated data structure from a given mask. Limits should be
             re-initialized after calling this function */
@@ -64,5 +64,5 @@ namespace eq
     };
 }
 
-#endif // EQ_RB_EMPTY_AREAS_FINDER_H
+#endif // EQ_ROI_EMPTY_SPACE_FINDER_H
 

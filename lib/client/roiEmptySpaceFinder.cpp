@@ -1,13 +1,13 @@
 /* Copyright (c) 2009       Maxim Makhinya
    All rights reserved. */
 
-#include "rbEmptyAreasFinder.h"
+#include "roiEmptySpaceFinder.h"
 
 
 namespace eq
 {
 
-void RBEmptyAreasFinder::_resize( const int32_t w, const int32_t h )
+void ROIEmptySpaceFinder::_resize( const int32_t w, const int32_t h )
 {
     _w = w;
     _h = h;
@@ -21,7 +21,7 @@ void RBEmptyAreasFinder::_resize( const int32_t w, const int32_t h )
 }
 
 
-void RBEmptyAreasFinder::update( const uint8_t* mask,
+void ROIEmptySpaceFinder::update( const uint8_t* mask,
                                  const int32_t  w,
                                  const int32_t  h  )
 {
@@ -54,14 +54,14 @@ void RBEmptyAreasFinder::update( const uint8_t* mask,
 }
 
 
-inline uint16_t RBEmptyAreasFinder::getArea(
+inline uint16_t ROIEmptySpaceFinder::getArea(
                                     const int32_t x, const int32_t y,
                                     const int32_t w, const int32_t h ) const
 {
     return  getArea( x, y, w, h, &_data[0] + y * _w + x );
 }
 
-inline uint16_t RBEmptyAreasFinder::getArea(
+inline uint16_t ROIEmptySpaceFinder::getArea(
                                     const int32_t x, const int32_t y,
                                     const int32_t w, const int32_t h,
                                     const uint16_t* data ) const
@@ -74,7 +74,7 @@ inline uint16_t RBEmptyAreasFinder::getArea(
 }
 
 
-bool RBEmptyAreasFinder::_updateMaximalEmptyRegion(
+bool ROIEmptySpaceFinder::_updateMaximalEmptyRegion(
                                     const int32_t x, const int32_t y,
                                     const int32_t w, const int32_t h,
                                     PixelViewport& pvp,
@@ -155,7 +155,7 @@ bool RBEmptyAreasFinder::_updateMaximalEmptyRegion(
     return updated;
 }
 
-PixelViewport RBEmptyAreasFinder::getLargestEmptyArea(const PixelViewport& pvp )
+PixelViewport ROIEmptySpaceFinder::getLargestEmptyArea(const PixelViewport& pvp )
 const
 {
     EQASSERT(   pvp.x >= 0    && pvp.w > 0 &&

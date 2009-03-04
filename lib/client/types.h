@@ -6,6 +6,7 @@
 #define EQ_TYPES_H
 
 #include <eq/base/refPtr.h>
+#include <eq/client/pixelViewport.h>
 
 #include <map>
 #include <vector>
@@ -42,6 +43,9 @@ typedef std::vector< Canvas* >   CanvasVector;
 typedef std::vector< Layout* >   LayoutVector;
 typedef std::vector< Segment* >  SegmentVector;
 typedef std::vector< View* >     ViewVector;
+
+typedef std::vector< PixelViewport > PVPVector;
+
 
 //----- Reference Pointers
 typedef base::RefPtr< X11Connection > X11ConnectionPtr;

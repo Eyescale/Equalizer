@@ -115,8 +115,8 @@ HEADER_SRC = \
 	client/pixelViewport.h \
 	client/projection.h \
 	client/range.h \
-	client/rbAreasSelector.h \
-	client/rbEmptyAreasFinder.h \
+	client/roiFinder.h \
+	client/roiEmptySpaceFinder.h \
 	client/renderContext.h \
 	client/segment.h \
 	client/segmentVisitor.h \
@@ -222,8 +222,8 @@ CXXFILES = \
 	client/pipeStatistics.cpp \
 	client/projection.cpp \
 	client/range.cpp \
-	client/rbAreasSelector.cpp \
-	client/rbEmptyAreasFinder.cpp \
+	client/roiFinder.cpp \
+	client/roiEmptySpaceFinder.cpp \
 	client/renderContext.cpp \
 	client/segment.cpp \
 	client/server.cpp \
@@ -239,7 +239,7 @@ CXXFILES = \
 	util/bitmapFont.cpp
 
 SHADERS = \
-	client/rbInfoFragmentShader_glsl.h
+	client/roiFragmentShader_glsl.h
 
 
 CFILES += \

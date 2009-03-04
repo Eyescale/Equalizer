@@ -1,7 +1,11 @@
 /* Copyright (c) 2009       Maxim Makhinya
    All rights reserved. */
 
-#include "rbAreasSelector.h"
+#include "roiFinder.h"
+#include "roiFragmentShader_glsl.h"
+
+#include "frameBufferObject.h"
+#include "log.h"
 
 #include <eq/base/base.h>
 
@@ -9,14 +13,20 @@
 namespace eq
 {
 
-RBAreasSelector::RBAreasSelector()
+// use to address one shader and program per shared context set
+static const char seeds = 42;
+static const char* shaderRBInfo = &seeds;
+
+
+ROIFinder::ROIFinder()
+    : _glObjects( 0 )
 {
     _tmpAreas[0].pvp       = PixelViewport( 0, 0, 0, 0 );
     _tmpAreas[0].hole      = PixelViewport( 0, 0, 0, 0 );
     _tmpAreas[0].emptySize = 0;
 }
 
-void RBAreasSelector::_dumpDebug( const std::string file )
+void ROIFinder::_dumpDebug( const std::string file )
 {
     _tmpImg.reset();
     _tmpImg.setPixelViewport( PixelViewport( 0, 0, _wb, _hb ));
@@ -44,7 +54,7 @@ void RBAreasSelector::_dumpDebug( const std::string file )
 }
 
 
-void RBAreasSelector::_calcHist( const PixelViewport& pvp, const uint8_t* src )
+void ROIFinder::_calcHist( const PixelViewport& pvp, const uint8_t* src )
 {
     EQASSERT( pvp.x >= 0 && pvp.x+pvp.w <= _wb &&
               pvp.y >= 0 && pvp.y+pvp.h <= _hb );
@@ -74,7 +84,7 @@ void RBAreasSelector::_calcHist( const PixelViewport& pvp, const uint8_t* src )
 }
 
 
-PixelViewport RBAreasSelector::_getObjectPVP( const PixelViewport& pvp,
+PixelViewport ROIFinder::_getObjectPVP( const PixelViewport& pvp,
                                               const uint8_t* src )
 {
     _calcHist( pvp, src );
@@ -96,7 +106,7 @@ PixelViewport RBAreasSelector::_getObjectPVP( const PixelViewport& pvp,
         }
 
     if( xMax < xMin )
-        return PixelViewport( );
+        return PixelViewport( pvp.x, pvp.y, 0, 0 );
 
     int32_t yMin = pvp.h;
     for( int32_t y = 0; y < pvp.h; y++ )
@@ -114,11 +124,14 @@ PixelViewport RBAreasSelector::_getObjectPVP( const PixelViewport& pvp,
             break;
         }
 
+    if( yMax < yMin )
+        return PixelViewport( pvp.x, pvp.y, 0, 0 );
+
     return PixelViewport( pvp.x+xMin, pvp.y+yMin, xMax-xMin+1, yMax-yMin+1 );
 }
 
 
-void RBAreasSelector::_resize( const PixelViewport& pvp )
+void ROIFinder::_resize( const PixelViewport& pvp )
 {
     _pvp = pvp;
 
@@ -133,20 +146,21 @@ void RBAreasSelector::_resize( const PixelViewport& pvp )
     {
         _mask.resize( _wbhb );
         _tmpMask.resize( _wbhb );
+
+        // w * h * sizeof( GL_FLOAT ) * RGBA
+        _perBlockInfo.resize( _wh * 4 );
     }
 }
 
 
-void RBAreasSelector::_init( const Image *img, uint8_t* dst )
+void ROIFinder::_init( )
 {
-    _pvpResult.clear();
     _areasToCheck.clear();
     memset( &_mask[0]   , 0, _mask.size( ));
     memset( &_tmpMask[0], 0, _tmpMask.size( ));
 
-    const float* src = static_cast<const float*>(
-                       static_cast<const void*>(
-                        img->getPixelPointer( Frame::BUFFER_COLOR )));
+    const float*    src = &_perBlockInfo[0];
+          uint8_t*  dst = &_mask[0];
 
     src += 2;   // choose BG pixels
 
@@ -163,7 +177,7 @@ void RBAreasSelector::_init( const Image *img, uint8_t* dst )
 }
 
 
-void RBAreasSelector::_fillWithColor( const PixelViewport& pvp,
+void ROIFinder::_fillWithColor( const PixelViewport& pvp,
                                       uint8_t* dst, const uint8_t val )
 {
     for( int32_t y = pvp.y; y < pvp.y + pvp.h; y++ )
@@ -172,14 +186,14 @@ void RBAreasSelector::_fillWithColor( const PixelViewport& pvp,
 }
 
 #ifndef NDEBUG
-void RBAreasSelector::_invalidateAreas( Area* areas, uint8_t num )
+void ROIFinder::_invalidateAreas( Area* areas, uint8_t num )
 {
     for( uint8_t i = 0; i < num; i++ )
         areas[i].valid = false;
 }
 #endif
 
-void RBAreasSelector::_updateSubArea( const uint8_t type )
+void ROIFinder::_updateSubArea( const uint8_t type )
 {
     EQASSERT( type <= 16 );
 
@@ -284,7 +298,7 @@ static const uint8_t _compilations16[18][4] =// center
 };
 
 
-uint8_t RBAreasSelector::_splitArea( Area& a )
+uint8_t ROIFinder::_splitArea( Area& a )
 {
     EQASSERT( a.hole.getArea() > 0 );
 #ifndef NDEBUG
@@ -437,16 +451,20 @@ uint8_t RBAreasSelector::_splitArea( Area& a )
 }
 
 
-void RBAreasSelector::_findAreas()
+void ROIFinder::_findAreas( PVPVector& resultPVPs )
 {
     EQASSERT( _areasToCheck.size() == 0 );
 
     Area area( PixelViewport( 0, 0, _w, _h ));
     area.pvp  = _getObjectPVP( area.pvp, &_mask[0] );
+
+    if( area.pvp.w <= 0 || area.pvp.h <= 0 )
+        return;
+
     area.hole = _emptyFinder.getLargestEmptyArea( area.pvp );
 
     if( area.hole.getArea() == 0 )
-        _pvpResult.push_back( area.pvp );
+        resultPVPs.push_back( area.pvp );
     else
         _areasToCheck.push_back( area );
 
@@ -465,18 +483,18 @@ void RBAreasSelector::_findAreas()
             EQASSERT( _finalAreas[i]->pvp.hasArea( ));
             
             if( _finalAreas[i]->hole.getArea() == 0 )
-                _pvpResult.push_back( _finalAreas[i]->pvp );
+                resultPVPs.push_back( _finalAreas[i]->pvp );
             else
                 _areasToCheck.push_back( *_finalAreas[i] );
         }
     }
 
     // correct position and sizes
-    for( uint32_t i = 0; i < _pvpResult.size(); i++ )
+    for( uint32_t i = 0; i < resultPVPs.size(); i++ )
     {
-//      _fillWithColor(_pvpResult[i],&_tmpMask[0],255-i*200/_pvpResult.size() );
+      _fillWithColor(resultPVPs[i],&_tmpMask[0],255-i*200/resultPVPs.size() );
 
-        PixelViewport& pvp = _pvpResult[i];
+        PixelViewport& pvp = resultPVPs[i];
         pvp.x += _pvp.x;
         pvp.y += _pvp.y;
         pvp.w++;
@@ -485,43 +503,217 @@ void RBAreasSelector::_findAreas()
 
 }
 
-
-const pvpVec& RBAreasSelector::getObjects( const Image *img )
+const void* ROIFinder::_getInfoKey( ) const
 {
-    eq::base::Clock clock;
-    clock.reset();
+    return ( reinterpret_cast< const char* >( this ) + 3 );
+}
 
-/*    static uint32_t counter = 0;
-    std::ostringstream ss;
-    ss << "_img_" << ++counter;
 
+#define GRID_SIZE 16 // will be replaced later by variable
+
+void ROIFinder::_readbackInfo( )
+{
+    EQASSERT( _glObjects );
+    EQASSERT( _glObjects->supportsEqTexture( ));
+    EQASSERT( _glObjects->supportsEqFrameBufferObject( ));
+
+    PixelViewport pvp = _pvp;
+    pvp.apply( Zoom( GRID_SIZE, GRID_SIZE ));
+
+    // copy depth frame buffer to texture
+    const void* depthBufferKey = _getInfoKey( );
+    Texture*    depthTex       = _glObjects->obtainEqTexture( depthBufferKey );
+
+    depthTex->setFormat( GL_DEPTH_COMPONENT );
+    depthTex->copyFromFrameBuffer( pvp );
+
+    // draw zoomed quad into FBO
+    const void*     fboKey = _getInfoKey( );
+    FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( fboKey );
+
+    if( fbo )
+    {
+        EQCHECK( fbo->resize( _pvp.w, _pvp.h ));
+    }
+    else
+    {
+        fbo = _glObjects->newEqFrameBufferObject( fboKey );
+        fbo->setColorFormat( GL_RGBA32F );
+        fbo->init( _pvp.w, _pvp.h, 0, 0 );
+    }
+    fbo->bind();
+
+    // Enable & download depth texture
+    glEnable( GL_TEXTURE_RECTANGLE_ARB );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+    depthTex->bind();
+
+    // Enable shaders
+    //
+    GLuint program = _glObjects->getProgram( shaderRBInfo );
+
+    if( program == Window::ObjectManager::INVALID )
+    {
+        // Create fragment shader which reads depth values from 
+        // rectangular textures
+        const GLuint shader = _glObjects->newShader( shaderRBInfo,
+                                                        GL_FRAGMENT_SHADER );
+        EQASSERT( shader != Window::ObjectManager::INVALID );
+
+        const GLchar* vShaderPtr = roiFragmentShader_glsl.c_str();
+        EQ_GL_CALL( glShaderSource( shader, 1, &vShaderPtr, 0 ));
+        EQ_GL_CALL( glCompileShader( shader ));
+
+        GLint status;
+        glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
+        if( !status )
+            EQERROR << "Failed to compile fragment shader for DB compositing"
+                    << std::endl;
+
+        program = _glObjects->newProgram( shaderRBInfo );
+
+        EQ_GL_CALL( glAttachShader( program, shader ));
+        EQ_GL_CALL( glLinkProgram( program ));
+
+        glGetProgramiv( program, GL_LINK_STATUS, &status );
+        if( !status )
+        {
+            EQWARN << "Failed to link shader program for DB compositing"
+                   << std::endl;
+            return;
+        }
+
+        // use fragment shader and setup uniforms
+        EQ_GL_CALL( glUseProgram( program ));
+
+        const GLint depthParam = glGetUniformLocation( program, "depth" );
+        glUniform1i( depthParam, 0 );
+    }
+    else
+    {
+        // use fragment shader
+        EQ_GL_CALL( glUseProgram( program ));
+    }
+
+    // Draw Quad
+    glDisable( GL_LIGHTING );
+    glDisable( GL_DEPTH_TEST );
+    glColor3f( 1.0f, 1.0f, 1.0f );
+
+    glBegin( GL_QUADS );
+        glTexCoord2f( 0.0f, 0.0f );
+        glVertex3f(   0   , 0   , 0.0f );
+
+        glTexCoord2f( _pvp.w, 0.0f       );
+        glVertex3f(   _pvp.w, 0   , 0.0f );
+
+        glTexCoord2f( _pvp.w, _pvp.h       );
+        glVertex3f(   _pvp.w, _pvp.h, 0.0f );
+
+        glTexCoord2f( 0.0f, _pvp.h       );
+        glVertex3f(   0   , _pvp.h, 0.0f );
+    glEnd();
+
+
+    // restore state
+    glEnable( GL_DEPTH_TEST );
+    glDisable( GL_TEXTURE_RECTANGLE_ARB );
+    EQ_GL_CALL( glUseProgram( 0 ));
+
+    fbo->checkFBOStatus();
+    fbo->unbind();
+    fbo->checkFBOStatus();
+
+    // finish readback of info
+    fbo->getColorTexture().download( &_perBlockInfo[0], GL_RGBA, GL_FLOAT );
+}
+
+
+static PixelViewport _getBoundingPVP( const PixelViewport& pvp )
+{
+    PixelViewport pvp_;
+
+    pvp_.x = ( pvp.x / GRID_SIZE );
+    pvp_.y = ( pvp.y / GRID_SIZE );
+
+    pvp_.w = (( pvp.x + pvp.w + GRID_SIZE-1 )/GRID_SIZE ) - pvp_.x;
+    pvp_.h = (( pvp.y + pvp.h + GRID_SIZE-1 )/GRID_SIZE ) - pvp_.y;
+
+    return pvp_;
+}
+
+
+bool ROIFinder::getObjects( const uint32_t         buffers,
+                                 const PixelViewport&   pvp,
+                                 const Zoom&            zoom,
+                                 Window::ObjectManager* glObjects,
+                                 PVPVector&                resultPVPs )
+{
+    return false; // disable read back info usage
+
+    EQASSERT( glObjects );
+    EQASSERTINFO( !_glObjects, "Another readback in progress?" );
+    EQLOG( LOG_ASSEMBLY )   << "ROIFinder::getObjects " << pvp
+                            << ", buffers " << buffers
+                            << std::endl;
+
+    if( zoom != Zoom::NONE )
+    {
+        EQWARN << "R-B optimization impossible when zoom is used"
+               << std::endl;
+        return false;
+    }
+
+    if( !(buffers & Frame::BUFFER_DEPTH ))
+    {
+        EQWARN << "No depth buffer, R-B optimization impossible" 
+               << std::endl;
+        return false;
+    }
+
+    _resize( _getBoundingPVP( pvp ));
+
+    // go through depth buffer and check min/max/BG values
+    // render to and read-back usefull info from FBO
+
+    _glObjects = glObjects;
+    _readbackInfo();
+    _glObjects = 0;
+
+    // Analyze readed back data and find regions of interest
+
+//    eq::base::Clock clock;
+//    clock.reset();
+
+//    static uint32_t counter = 0;
+//    std::ostringstream ss;
+//    ss << "_img_" << ++counter;
+/*
 for( int i = 0; i < 100; i++ )
 {
 */
-    EQASSERT( img->getFormat( Frame::BUFFER_COLOR ) == GL_RGBA  );
-    EQASSERT( img->getType(   Frame::BUFFER_COLOR ) == GL_FLOAT );
-
-    _resize( img->getPixelViewport( ));
-    _init( img, &_mask[0] );
+    _init( );
 
     _emptyFinder.update( &_mask[0], _wb, _hb );
     _emptyFinder.setLimits( 50, 0.01 );
 
-    _findAreas( );
+    resultPVPs.clear();
+    _findAreas( resultPVPs );
 /*}
 
     const float time = clock.getTimef() / 100;
     EQWARN << "=============================================" << std::endl;
     EQWARN << "Obj finding took: " << time << " ms, " << 1000.f / time 
            << " FPS " << std::endl << "areas found: " 
-           << _pvpResult.size() << std::endl;
-
-    EQWARN << "Areas found: " << _pvpResult.size() << std::endl;
-    _dumpDebug( ss.str( ) + "_00" );
+           << resultPVPs.size() << std::endl;
 */
-    return _pvpResult;
-}
+//    EQWARN << "Areas found: " << resultPVPs.size() << std::endl;
+//    _dumpDebug( ss.str( ) + "_00" );
 
+    return true;
+}
 
 }
 

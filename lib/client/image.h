@@ -219,9 +219,6 @@ namespace eq
         void startReadback( const uint32_t buffers, const PixelViewport& pvp,
                             const Zoom& zoom, Window::ObjectManager* glObjects);
 
-        bool getReadbackInfo( const uint32_t buffers, const PixelViewport& pvp,
-                            const Zoom& zoom, Window::ObjectManager* glObjects);
-
         /** Make sure that the last readback operation is complete. */
         void syncReadback();
 
@@ -332,8 +329,6 @@ namespace eq
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;
 
-        const void* _getInfoKey( ) const;
-
         void _startReadback( const Frame::Buffer buffer, const Zoom& zoom );
         void _startReadbackPBO( const Frame::Buffer buffer );
         void _startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom );
@@ -341,10 +336,6 @@ namespace eq
         void _syncReadback( const Frame::Buffer buffer );
         void _syncReadbackPBO( const Frame::Buffer buffer );
         void _syncReadbackZoom( const Frame::Buffer buffer );
-
-        /** Called from getReadbackInfo. Calculates per-block statistic before 
-            actuall read-back */
-        void _readbackInfo();
 
         friend std::ostream& operator << ( std::ostream& os, const Image* );
     };

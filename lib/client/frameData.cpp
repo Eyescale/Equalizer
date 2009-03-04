@@ -17,7 +17,7 @@
 #include <eq/base/monitor.h>
 #include <algorithm>
 
-#include <eq/client/rbAreasSelector.h> // member
+#include <eq/client/roiFinder.h> // member
 
 using namespace eq::base;
 using namespace std;
@@ -26,9 +26,8 @@ using eq::net::CommandFunc;
 namespace eq
 {
 FrameData::FrameData()
-: _infoImg( 0 )
 {
-    _objSelector = new RBAreasSelector();
+    _roiFinder = new ROIFinder();
     EQINFO << "New FrameData @" << (void*)this << endl;
 }
 
@@ -45,14 +44,8 @@ FrameData::~FrameData()
     }
     _imageCache.clear();
 
-    if( _infoImg )
-    {
-        delete _infoImg; 
-        _infoImg = 0;
-    }
-
-    delete _objSelector;
-    _objSelector = 0;
+    delete _roiFinder;
+    _roiFinder = 0;
 }
 
 void FrameData::getInstanceData( net::DataOStream& os )
@@ -164,17 +157,6 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
     return image;
 }
 
-static Image* _allocateInfoImage( Image* img )
-{
-    if( img != 0 )
-        return img;
-
-    img = new Image;
-    img->setFormat( Frame::BUFFER_COLOR, GL_RGBA  );
-    img->setType(   Frame::BUFFER_COLOR, GL_FLOAT );
-
-    return img;
-}
 
 void FrameData::startReadback( const Frame& frame,
                                Window::ObjectManager* glObjects )
@@ -194,11 +176,10 @@ void FrameData::startReadback( const Frame& frame,
         return;
     }
 
-    _infoImg = _allocateInfoImage( _infoImg );
-    if( _infoImg->getReadbackInfo( _data.buffers, absPVP, zoom, glObjects ))
+    PVPVector pvps;
+    if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE &&
+        _roiFinder->getObjects( _data.buffers, absPVP, zoom, glObjects, pvps ))
     {
-        const pvpVec& pvps = _objSelector->getObjects( _infoImg );
-
         for( uint32_t i = 0; i < pvps.size(); i++ )
         {
             PixelViewport pvp = pvps[ i ];

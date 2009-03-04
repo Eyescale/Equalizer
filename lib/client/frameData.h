@@ -24,7 +24,7 @@ namespace server
 }
 
     class  Image;
-    class  RBAreasSelector;
+    class  ROIFinder;
     struct FrameDataTransmitPacket;
 
     /**
@@ -172,12 +172,11 @@ namespace server
 
         friend class eq::server::FrameData;
 
-        ImageVector _images;
-        ImageVector _imageCache;
-        base::SpinLock    _imageCacheLock;
+        ImageVector     _images;
+        ImageVector     _imageCache;
+        base::SpinLock  _imageCacheLock;
 
-        Image*           _infoImg;
-        RBAreasSelector* _objSelector;
+        ROIFinder* _roiFinder;
 
         struct ImageVersion
         {

@@ -1,38 +1,45 @@
 /* Copyright (c) 2009       Maxim Makhinya
    All rights reserved. */
 
-#ifndef EQ_RB_AREAS_SELECTOR_H
-#define EQ_RB_AREAS_SELECTOR_H
+#ifndef EQ_ROI_FINDER_H
+#define EQ_ROI_FINDER_H
 
 #include <vector>
 #include <string>
 
 #include <eq/client/image.h>
-#include "rbEmptyAreasFinder.h"
+#include "roiEmptySpaceFinder.h"
 
 namespace eq
 {
-    typedef std::vector<PixelViewport> pvpVec;
-
     /**
      * Processes image with depth information and selects areas for read back.
      */
-    class EQ_EXPORT RBAreasSelector
+    class EQ_EXPORT ROIFinder
     {
     public:
-        RBAreasSelector();
-        virtual ~RBAreasSelector(){};
+        ROIFinder();
+        virtual ~ROIFinder(){};
 
-        const pvpVec& getObjects( const Image *img );
-
+        bool getObjects( const uint32_t         buffers,
+                         const PixelViewport&   pvp,
+                         const Zoom&            zoom,
+                         Window::ObjectManager* glObjects,
+                         PVPVector&             resultPVPs );
     protected:
 
     private:
         struct Area;
 
+        const void* _getInfoKey( ) const;
+
+        /** Called from getReadbackInfo. Calculates per-block statistic before 
+            actuall read-back */
+        void _readbackInfo();
+
         void _dumpDebug( const std::string file );
 
-        void _init( const Image *img, uint8_t* dst );
+        void _init( );
 
         /** For debugging purposes */
         void _fillWithColor( const PixelViewport& pvp, uint8_t* dst,
@@ -52,7 +59,7 @@ namespace eq
         void _updateSubArea( const uint8_t type );
 
         /** find areas in current mask*/
-        void _findAreas();
+        void _findAreas( PVPVector& resultPVPs );
 
 #ifndef NDEBUG
         void _invalidateAreas( Area* areas, uint8_t num );
@@ -84,11 +91,9 @@ namespace eq
 
         std::vector< Area > _areasToCheck;
 
-        pvpVec              _pvpResult; //! final objects
+        PixelViewport       _pvp;       //! current pvp
 
-        PixelViewport       _pvp;       //! current image pvp
-
-        RBEmptyAreasFinder   _emptyFinder;
+        ROIEmptySpaceFinder   _emptyFinder;
 
         int32_t _w;
         int32_t _h;
@@ -99,12 +104,18 @@ namespace eq
 
         byteVec _tmpMask;
         byteVec _mask;
+
+        std::vector<float> _perBlockInfo;
+
         uint8_t _histX[256];
         uint8_t _histY[256];
 
         Image _tmpImg; //! used for dumping debug info
+
+        /** The GL object manager, valid during a readback operation. */
+        Window::ObjectManager* _glObjects;
     };
 }
 
-#endif // EQ_RB_AREAS_SELECTOR_H
+#endif // EQ_ROI_FINDER_H
 
