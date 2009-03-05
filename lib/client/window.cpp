@@ -112,8 +112,8 @@ void Window::attachToSession( const uint32_t id,
                      queue );
     registerCommand( CMD_WINDOW_FINISH, 
                      CommandFunc<Window>( this, &Window::_cmdFinish), queue );
-    registerCommand( CMD_WINDOW_THROTTLE, 
-                     CommandFunc<Window>( this, &Window::_cmdThrottle ), 
+    registerCommand( CMD_WINDOW_THROTTLE_FRAMERATE, 
+                     CommandFunc<Window>( this, &Window::_cmdThrottleFramerate ), 
                      queue );
     registerCommand( CMD_WINDOW_BARRIER, 
                      CommandFunc<Window>( this, &Window::_cmdBarrier ), 
@@ -595,10 +595,10 @@ void Window::swapBuffers()
     EQVERB << "----- SWAP -----" << endl;
 }
 
-	
+
 GLEWContext* Window::glewGetContext()
 { 
-	return _osWindow->glewGetContext();
+    return _osWindow->glewGetContext();
 }
 
 //======================================================================
@@ -796,19 +796,19 @@ net::CommandResult Window::_cmdFinish(net::Command& command )
 
     return net::COMMAND_HANDLED;
 }
-net::CommandResult  Window::_cmdThrottle( net::Command& command )
+net::CommandResult  Window::_cmdThrottleFramerate( net::Command& command )
 {
 
-    WindowThrottleFramrate* packet = command.getPacket< WindowThrottleFramrate >();
-    EQLOG( LOG_TASKS ) << "TASK breakout framerate " << getName() << " " << packet
-    << endl;
+    WindowThrottleFramerate* packet = command.getPacket< WindowThrottleFramerate >();
+    EQLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " " << packet << endl;
     
     // throttle to given framerate
     const int64_t elapsed  = getConfig()->getTime() - _lastSwapTime;
     const float   timeLeft = packet->minFrameTime - 
     static_cast< float >( elapsed );
+    
     if( timeLeft >= 1.f )
-    base::sleep( static_cast< uint32_t >( timeLeft ));
+        base::sleep( static_cast< uint32_t >( timeLeft ));
         
     _lastSwapTime = getConfig()->getTime();
         

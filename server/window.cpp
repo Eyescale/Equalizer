@@ -638,7 +638,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
 {
     bool doFinish = true;
     
-    eq::WindowThrottleFramrate packetThrottle;
+    eq::WindowThrottleFramerate packetThrottle;
     packetThrottle.minFrameTime = 1000.0f / _maxFPS;
         
     _send( packetThrottle );

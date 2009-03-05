@@ -769,12 +769,12 @@ namespace eq
             }
     };
 
-    struct WindowThrottleFramrate : public net::ObjectPacket
+    struct WindowThrottleFramerate : public net::ObjectPacket
     {
-        WindowThrottleFramrate()
+        WindowThrottleFramerate()
         {
-            command = CMD_WINDOW_THROTTLE;
-            size    = sizeof( WindowThrottleFramrate );
+            command = CMD_WINDOW_THROTTLE_FRAMERATE;
+            size    = sizeof( WindowThrottleFramerate );
         }
         float    minFrameTime; // in ms
     };
