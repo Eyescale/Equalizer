@@ -62,8 +62,10 @@ namespace server
         net::CommandQueue* getServerThreadQueue()
             { EQASSERT( _server ); return _server->getServerThreadQueue(); }
         
-        const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
-        
+        /** @return the position of an eye in world-space coordinates. */
+        const vmml::Vector3f& getEyePosition( const eq::Eye eye ) const
+            { return _eyes[ eye ]; }
+
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
@@ -376,6 +378,9 @@ namespace server
         /** The matrix defining the head's position for head tracking. */
         eq::Matrix4f _headMatrix;
 
+        /** The eye positions in world space. */ 
+        vmml::Vector3f _eyes[eq::EYE_ALL];
+
         enum State
         {
             STATE_STOPPED,
@@ -409,6 +414,7 @@ namespace server
 
         bool _startFrame( const uint32_t frameID );
         void   _updateHead();
+        void   _updateEyes();
         void _flushAllFrames();
         //*}
 

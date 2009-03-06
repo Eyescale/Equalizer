@@ -56,6 +56,10 @@ void Config::_construct()
     _appNode       = 0;
     _serializer    = 0;
 
+    _eyes[eq::EYE_CYCLOP] = vmml::Vector3f::ZERO;
+    _eyes[eq::EYE_LEFT]   = vmml::Vector3f::ZERO;
+    _eyes[eq::EYE_RIGHT]  = vmml::Vector3f::ZERO;
+
     EQINFO << "New config @" << (void*)this << endl;
 }
 
@@ -850,6 +854,8 @@ bool Config::_init( const uint32_t initID )
     _finishedFrame = 0;
     _initID = initID;
 
+    _updateEyes();
+
     for( vector< Canvas* >::const_iterator i = _canvases.begin();
          i != _canvases.end(); ++i )
     {
@@ -974,23 +980,6 @@ void Config::unmap()
     _requestHandler.waitRequest( packet.requestID );
 }
 
-namespace
-{
-class ViewUpdater : public ConfigVisitor
-{
-public:
-    virtual ~ViewUpdater(){}
-
-    virtual VisitorResult visit( Compound* compound )
-        { 
-            if( compound->getFrustumType() != eq::Frustum::TYPE_NONE )
-                compound->getFrustum().updateHead();
-
-            return TRAVERSE_CONTINUE; 
-        }
-};
-}
-
 void Config::_updateHead()
 {
     const uint32_t oldVersion = _headMatrix.getVersion();
@@ -999,8 +988,32 @@ void Config::_updateHead()
     if( oldVersion == newVersion )
         return;
 
-    ViewUpdater updater;
-    accept( updater );
+    _updateEyes();
+}
+
+void Config::_updateEyes()
+{
+    const float eyeBase_2 = .5f * getFAttribute( FATTR_EYE_BASE );
+
+    // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
+    // OPT: don't use vector operator* due to possible simplification
+
+    _eyes[eq::EYE_CYCLOP].x = _headMatrix.m03;
+    _eyes[eq::EYE_CYCLOP].y = _headMatrix.m13;
+    _eyes[eq::EYE_CYCLOP].z = _headMatrix.m23;
+    _eyes[eq::EYE_CYCLOP]  /= _headMatrix.m33;
+
+    _eyes[eq::EYE_LEFT].x = ( -eyeBase_2 * _headMatrix.m00 + _headMatrix.m03 );
+    _eyes[eq::EYE_LEFT].y = ( -eyeBase_2 * _headMatrix.m10 + _headMatrix.m13 );
+    _eyes[eq::EYE_LEFT].z = ( -eyeBase_2 * _headMatrix.m20 + _headMatrix.m23 );
+    _eyes[eq::EYE_LEFT]  /= ( -eyeBase_2 * _headMatrix.m30 + _headMatrix.m33 );
+
+    _eyes[eq::EYE_RIGHT].x = ( eyeBase_2 * _headMatrix.m00 + _headMatrix.m03 );
+    _eyes[eq::EYE_RIGHT].y = ( eyeBase_2 * _headMatrix.m10 + _headMatrix.m13 );
+    _eyes[eq::EYE_RIGHT].z = ( eyeBase_2 * _headMatrix.m20 + _headMatrix.m23 );
+    _eyes[eq::EYE_RIGHT]  /= ( eyeBase_2 * _headMatrix.m30 + _headMatrix.m33 );
+
+    EQVERB << "Eye position: " << _eyes[ eq:: EYE_CYCLOP ] << std::endl;
 }
 
 bool Config::_startFrame( const uint32_t frameID )

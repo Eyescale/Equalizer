@@ -36,9 +36,6 @@ namespace server
 
         /** Update the frustum data using the given wall. */
         void applyWall( const eq::Wall& wall );
-
-        /** Update the frustum data using the given head parameters. */
-        void applyHead( const vmml::Matrix4f& headMatrix, const float eyeBase );
         //*}
 
         /** @name Data Access. */
@@ -51,17 +48,12 @@ namespace server
 
         /** @return the frustum plane height */
         float getHeight() const { return _height; }
-
-        /** @return the position of an eye in world-space coordinates. */
-        const vmml::Vector3f& getEyePosition( const eq::Eye eye ) const
-            { return _eyes[ eye ]; }
         //*}
 
     private:
         float _width;
         float _height;
         vmml::Matrix4f _xfm;
-        vmml::Vector3f _eyes[eq::EYE_ALL];
     };
 
     std::ostream& operator << ( std::ostream& os, const FrustumData& ); 

@@ -25,15 +25,6 @@ public:
     SerializerVisitor( net::DataOStream& os ) : _os( os ) {}
     virtual ~SerializerVisitor(){}
 
-    virtual VisitorResult visit( Compound* compound )
-        { 
-            // TODO: belongs to observer
-            Config* config = compound->getConfig();
-            compound->getFrustum().setEyeBase(
-                config->getFAttribute( Config::FATTR_EYE_BASE ));
-            return TRAVERSE_CONTINUE; 
-        }
-
     virtual VisitorResult visit( Segment* segment )
         { 
             _registerObject( segment->getConfig(), segment );

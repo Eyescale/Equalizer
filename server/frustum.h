@@ -32,15 +32,10 @@ namespace server
         /** Set the eye separation. */
         void setEyeBase( const float eyeBase );
 
-        /** Update the eye positions based on the head matrix. */
-        void updateHead();
-
     protected:
 
     private:
         FrustumData& _data;
-
-        float _eyeBase;
 
         /** Update the frustum (wall/projection). */
         void _updateFrustum();

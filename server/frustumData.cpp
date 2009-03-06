@@ -16,9 +16,6 @@ namespace server
 
 FrustumData::FrustumData() : _width(0.f), _height(0.f) 
 {
-    _eyes[eq::EYE_CYCLOP] = vmml::Vector3f::ZERO;
-    _eyes[eq::EYE_LEFT] = vmml::Vector3f::ZERO; // w
-    _eyes[eq::EYE_RIGHT]  = vmml::Vector3f::ZERO;
 }
 
 void FrustumData::applyWall( const eq::Wall& wall )
@@ -107,31 +104,6 @@ void FrustumData::applyProjection( const eq::Projection& projection )
     _height = distance * 2.f * tanf(DEG2RAD( .5f * projection.fov[1] ));
 }
  
-void FrustumData::applyHead( const vmml::Matrix4f& head, const float eyeBase )
-{
-    const float         eyeBase_2 = .5f * eyeBase;
-
-    // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
-    // OPT: don't use vector operator* due to possible simplification
-
-    _eyes[eq::EYE_CYCLOP].x = head.m03;
-    _eyes[eq::EYE_CYCLOP].y = head.m13;
-    _eyes[eq::EYE_CYCLOP].z = head.m23;
-    _eyes[eq::EYE_CYCLOP]  /= head.m33;
-
-    _eyes[eq::EYE_LEFT].x = ( -eyeBase_2 * head.m00 + head.m03 );
-    _eyes[eq::EYE_LEFT].y = ( -eyeBase_2 * head.m10 + head.m13 );
-    _eyes[eq::EYE_LEFT].z = ( -eyeBase_2 * head.m20 + head.m23 );
-    _eyes[eq::EYE_LEFT]  /= ( -eyeBase_2 * head.m30 + head.m33 ); // w
-
-    _eyes[eq::EYE_RIGHT].x = ( eyeBase_2 * head.m00 + head.m03 );
-    _eyes[eq::EYE_RIGHT].y = ( eyeBase_2 * head.m10 + head.m13 );
-    _eyes[eq::EYE_RIGHT].z = ( eyeBase_2 * head.m20 + head.m23 );
-    _eyes[eq::EYE_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 ); // w
-
-    EQVERB << "Eye position: " << _eyes[ eq:: EYE_CYCLOP ] << std::endl;
-}
-
 std::ostream& operator << ( std::ostream& os, const FrustumData& frustumData )
 {
     os << "size: " << frustumData.getWidth() << "x" << frustumData.getHeight()

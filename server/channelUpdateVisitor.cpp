@@ -288,9 +288,10 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
                                             eq::RenderContext& context )
 {
     const FrustumData& frustumData = compound->getInheritFrustumData();
+    const Config*      config      = compound->getConfig();
 
     // compute eye position in screen space
-    const vmml::Vector3f& eyeW = frustumData.getEyePosition( _eye );
+    const vmml::Vector3f& eyeW = config->getEyePosition( _eye );
     const vmml::Matrix4f& xfm  = frustumData.getTransform();
     const vmml::Vector3f  eye  = xfm * eyeW;
 
