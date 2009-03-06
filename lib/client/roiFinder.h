@@ -26,6 +26,10 @@ namespace eq
                          const Zoom&            zoom,
                          Window::ObjectManager* glObjects,
                          PVPVector&             resultPVPs );
+
+        /** @return the GL function table, valid during readback. */
+        GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }    
+
     protected:
 
     private:
