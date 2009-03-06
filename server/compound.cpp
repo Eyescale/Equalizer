@@ -36,6 +36,8 @@
 #include <math.h>
 #include <vector>
 
+#include "compoundActivateVisitor.h"
+
 using namespace eq::base;
 using namespace std;
 using namespace stde;
@@ -55,6 +57,7 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
 Compound::Compound()
         : _config( 0 )
         , _parent( 0 )
+        , _active( false )
         , _frustum( _data.frustumData )
         , _swapBarrier( 0 )
 {
@@ -66,6 +69,7 @@ Compound::Compound( const Compound& from, Config* config, Compound* parent )
         : _name( from._name )
         , _config( 0 )
         , _parent( 0 )
+        , _active( false )
         , _data( from._data )
         , _frustum( from._frustum, _data.frustumData )
         , _swapBarrier( 0 )
@@ -278,11 +282,9 @@ void Compound::addLoadBalancer( LoadBalancer* loadBalancer )
 
 bool Compound::isActive() const 
 {
-    if( _data.channel )
-        return _inherit.active && _data.channel->isRendering(); 
-
-    return _inherit.active;
+    return _inherit.active && _active; 
 }
+
 //---------------------------------------------------------------------------
 // Listener interface
 //---------------------------------------------------------------------------
@@ -614,6 +616,22 @@ VisitorResult Compound::accept( ConstCompoundVisitor& visitor,
 //---------------------------------------------------------------------------
 // Operations
 //---------------------------------------------------------------------------
+
+void Compound::activate()
+{
+    EQASSERT( isDestination( ));
+
+    CompoundActivateVisitor activator( true );
+    accept( activator, false /* activeOnly */ );
+}
+
+void Compound::deactivate()
+{
+    EQASSERT( isDestination( ));
+
+    CompoundActivateVisitor deactivator( false );
+    accept( deactivator, false /* activeOnly */ );
+}
 
 void Compound::init()
 {

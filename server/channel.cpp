@@ -39,7 +39,6 @@ typedef net::CommandFunc<Channel> ChannelFunc;
 
 void Channel::_construct()
 {
-    _used             = 0;
     _active           = 0;
     _view             = 0;
     _segment          = 0;
@@ -192,25 +191,6 @@ VisitorResult Channel::accept( ConstChannelVisitor& visitor ) const
     return visitor.visit( this );
 }
 
-void Channel::refUsed()
-{
-    EQASSERT( _window );
-
-    ++_used;
-    if( _window ) 
-        _window->refUsed(); 
-}
-
-void Channel::unrefUsed()
-{
-    EQASSERT( _used != 0 );
-    EQASSERT( _window );
-
-    --_used;
-    if( _window ) 
-        _window->unrefUsed(); 
-}
-
 void Channel::activate()
 { 
     EQASSERT( _window );
@@ -219,11 +199,7 @@ void Channel::activate()
     if( _window ) 
         _window->activate();
 
-    if( !getConfig()->isRunning( ))
-        return; // will be activated during init
-
-    if( _active == 1 )
-        _window->initChannel( this );
+    EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
 
 void Channel::deactivate()
@@ -235,11 +211,7 @@ void Channel::deactivate()
     if( _window ) 
         _window->deactivate(); 
 
-    if( !getConfig()->isRunning( ))
-        return; // already stopped or not yet running
-
-    if( _active == 0 )
-        _window->exitChannel( this );
+    EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 }
 
 void Channel::setView( const View* view )
@@ -340,17 +312,46 @@ void Channel::notifyViewportChanged()
 //===========================================================================
 
 //---------------------------------------------------------------------------
-// configInit
+// update running entities (init/exit)
 //---------------------------------------------------------------------------
-void Channel::startConfigInit( const uint32_t initID )
+
+void Channel::updateRunning( const uint32_t initID )
 {
-    _sendConfigInit( initID );
+    if( !isActive() && _state == STATE_STOPPED ) // inactive
+        return;
+
+    if( isActive() && _state != STATE_RUNNING ) // becoming active
+        _configInit( initID );
+
+    if( !isActive( )) // becoming inactive
+        _configExit();
 }
 
-void Channel::_sendConfigInit( const uint32_t initID )
+bool Channel::syncRunning()
+{
+    if( !isActive() && _state == STATE_STOPPED ) // inactive
+        return true;
+
+    bool success = true;
+    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
+        // becoming active
+        success = false;
+
+    if( !isActive() && !_syncConfigExit( ))
+        // becoming inactive
+        success = false;
+
+    EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED );
+    return success;
+}
+
+//---------------------------------------------------------------------------
+// init
+//---------------------------------------------------------------------------
+void Channel::_configInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
-    _state = STATE_INITIALIZING;
+    _state         = STATE_INITIALIZING;
 
     eq::ChannelConfigInitPacket packet;
     packet.initID = initID;
@@ -364,64 +365,62 @@ void Channel::_sendConfigInit( const uint32_t initID )
     else
         packet.vp     = _vp;
     memcpy( packet.iAttributes, _iAttributes, 
-            eq::Channel::IATTR_ALL * sizeof( int32_t ));
-    
+            eq::Channel::IATTR_ALL * sizeof( int32_t )); 
+
     send( packet, _name );
     EQLOG( eq::LOG_TASKS ) << "TASK channel configInit  " << &packet << endl;
 }
 
-bool Channel::syncConfigInit()
+bool Channel::_syncConfigInit()
 {
-    EQASSERT( _state == STATE_INITIALIZING || _state == STATE_RUNNING ||
+    EQASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
               _state == STATE_INIT_FAILED );
+
     _state.waitNE( STATE_INITIALIZING );
 
-    if( _state == STATE_RUNNING )
-        return true;
+    const bool success = ( _state == STATE_INIT_SUCCESS );
+    if( success )
+        _state = STATE_RUNNING;
+    else
+        EQWARN << "Channel initialization failed: " << _error << endl;
 
-    EQWARN << "Channel initialisation failed: " << _error << endl;
-    return false;
+    return success;
 }
 
 //---------------------------------------------------------------------------
-// configExit
+// exit
 //---------------------------------------------------------------------------
-void Channel::startConfigExit()
+void Channel::_configExit()
 {
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
-    _state = STATE_STOPPING;
-    _tasks = eq::TASK_NONE;
+    _state = STATE_EXITING;
 
-    _sendConfigExit();
-}
-
-void Channel::_sendConfigExit()
-{
     eq::ChannelConfigExitPacket packet;
     send( packet );
-    EQLOG( eq::LOG_TASKS ) << "TASK configExit  " << &packet << endl;
 }
 
-bool Channel::syncConfigExit()
+bool Channel::_syncConfigExit()
 {
-    EQASSERT( _state == STATE_STOPPING || _state == STATE_STOPPED || 
-              _state == STATE_STOP_FAILED );
+    EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
+              _state == STATE_EXIT_FAILED );
     
-    _state.waitNE( STATE_STOPPING );
-    if( _state == STATE_STOPPED )
-        return true;
+    _state.waitNE( STATE_EXITING );
+    const bool success = ( _state == STATE_EXIT_SUCCESS );
+    EQASSERT( success || _state == STATE_EXIT_FAILED );
 
-    EQASSERT( _state == STATE_STOP_FAILED );
-    _state = STATE_STOPPED; /// STOP_FAILED -> STOPPED transition
-    return false;
+    _state = STATE_STOPPED;
+    _tasks = eq::TASK_NONE;
+    return success;
 }
-
 
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
 bool Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
+    EQASSERT( _state == STATE_RUNNING );
+    EQASSERT( _active > 0 );
+
     const CompoundVector& compounds = getCompounds();
     if( !_lastDrawCompound ) // happens when a used channel skips a frame
         _lastDrawCompound = compounds[0];
@@ -527,7 +526,7 @@ net::CommandResult Channel::_cmdConfigInitReply( net::Command& command )
     _error = packet->error;
 
     if( packet->result )
-        _state = STATE_RUNNING;
+        _state = STATE_INIT_SUCCESS;
     else
         _state = STATE_INIT_FAILED;
 
@@ -541,9 +540,9 @@ net::CommandResult Channel::_cmdConfigExitReply( net::Command& command )
     EQVERB << "handle channel configExit reply " << packet << endl;
 
     if( packet->result )
-        _state = STATE_STOPPED;
+        _state = STATE_EXIT_SUCCESS;
     else
-        _state = STATE_STOP_FAILED;
+        _state = STATE_EXIT_FAILED;
 
     return net::COMMAND_HANDLED;
 }

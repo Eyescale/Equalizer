@@ -257,6 +257,7 @@ net::CommandResult Server::_cmdShutdownReply( net::Command& command )
 {
     const ServerShutdownReplyPacket* packet = 
         command.getPacket<ServerShutdownReplyPacket>();
+    EQINFO << "Handle shutdown reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, packet->result );
     return net::COMMAND_HANDLED;

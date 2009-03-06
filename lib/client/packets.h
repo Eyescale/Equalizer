@@ -203,19 +203,6 @@ namespace eq
             }
 
         uint32_t nodeID;
-        uint32_t requestID;
-    };
-
-    struct ConfigCreateNodeReplyPacket : public ConfigPacket
-    {
-        ConfigCreateNodeReplyPacket( const ConfigCreateNodePacket* request )
-            {
-                command   = CMD_CONFIG_CREATE_NODE_REPLY;
-                size      = sizeof( ConfigCreateNodeReplyPacket );
-                requestID = request->requestID;
-            }
-
-        uint32_t requestID;
     };
 
     struct ConfigDestroyNodePacket : public ConfigPacket
@@ -229,24 +216,25 @@ namespace eq
         uint32_t nodeID;
     };
 
-    struct ConfigStartInitPacket : public ConfigPacket
+    struct ConfigInitPacket : public ConfigPacket
     {
-        ConfigStartInitPacket()
+        ConfigInitPacket()
             {
-                command   = CMD_CONFIG_START_INIT;
-                size      = sizeof( ConfigStartInitPacket );
+                command   = CMD_CONFIG_INIT;
+                size      = sizeof( ConfigInitPacket );
             }
 
         uint32_t requestID;
         uint32_t initID;
+        uint32_t headMatrixID;
     };
 
-    struct ConfigStartInitReplyPacket : public ConfigPacket
+    struct ConfigInitReplyPacket : public ConfigPacket
     {
-        ConfigStartInitReplyPacket( const ConfigStartInitPacket* requestPacket )
+        ConfigInitReplyPacket( const ConfigInitPacket* requestPacket )
             {
-                command   = CMD_CONFIG_START_INIT_REPLY;
-                size      = sizeof( ConfigStartInitReplyPacket );
+                command   = CMD_CONFIG_INIT_REPLY;
+                size      = sizeof( ConfigInitReplyPacket );
                 requestID = requestPacket->requestID;
                 sessionID = requestPacket->sessionID;
                 error[0]  = '\0';
@@ -254,34 +242,6 @@ namespace eq
 
         uint32_t requestID;
         uint32_t configID;
-        bool     result;
-        EQ_ALIGN8( char error[8] );
-    };
-
-    struct ConfigFinishInitPacket : public ConfigPacket
-    {
-        ConfigFinishInitPacket()
-            {
-                command   = CMD_CONFIG_FINISH_INIT;
-                size      = sizeof( ConfigFinishInitPacket );
-            }
-
-        uint32_t requestID;
-        uint32_t headMatrixID;
-    };
-
-    struct ConfigFinishInitReplyPacket : public ConfigPacket
-    {
-        ConfigFinishInitReplyPacket( const ConfigFinishInitPacket* request )
-            {
-                command   = CMD_CONFIG_FINISH_INIT_REPLY;
-                size      = sizeof( ConfigFinishInitReplyPacket );
-                requestID = request->requestID;
-                sessionID = request->sessionID;
-                error[0]  = '\0';
-            }
-
-        uint32_t requestID;
         bool     result;
         EQ_ALIGN8( char error[8] );
     };
@@ -363,13 +323,15 @@ namespace eq
         bool freeze;
     };
 
-    struct ConfigStartClockPacket : public ConfigPacket
+    struct ConfigSyncClockPacket : public ConfigPacket
     {
-        ConfigStartClockPacket()
+        ConfigSyncClockPacket()
             {
-                command       = CMD_CONFIG_START_CLOCK;
-                size          = sizeof( ConfigStartClockPacket );
+                command       = CMD_CONFIG_SYNC_CLOCK;
+                size          = sizeof( ConfigSyncClockPacket );
             }
+
+        int64_t time;
     };
 
     struct ConfigUnmapPacket : public ConfigPacket

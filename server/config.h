@@ -312,6 +312,7 @@ namespace server
 
         /** Return the initID for late initialization  */
         uint32_t getInitID(){ return _initID; }
+
     protected:
         /** @sa net::Session::setLocalNode. */
         virtual void setLocalNode( net::NodePtr node );
@@ -384,6 +385,9 @@ namespace server
 
         ConfigSerializer* _serializer;
 
+        /** The global clock. */
+        base::Clock _clock;
+
         /**
          * @name Operations
          */
@@ -391,27 +395,29 @@ namespace server
         /** common code for all constructors */
         void _construct();
 
-        bool _startInit( const uint32_t initID );
+        bool _updateRunning();
         bool   _connectNodes();
-        bool   _initNodes( const uint32_t initID );
-        bool _finishInit();
+        bool     _connectNode( Node* node );
+        bool     _syncConnectNode( Node* node );
+        void   _startNodes();
+        uint32_t _createConfig( Node* node );
+        void     _createNode( Node* node );
+        void   _stopNodes();
+        void   _syncClock();
 
-        bool _exitNodes();
+        bool _init( const uint32_t initID );
 
-        void _updateHead();
-
-        void _startFrame( const uint32_t frameID );
+        bool _startFrame( const uint32_t frameID );
+        void   _updateHead();
         void _flushAllFrames();
         //*}
 
         /** The command functions. */
-        net::CommandResult _cmdStartInit( net::Command& command );
-        net::CommandResult _cmdFinishInit( net::Command& command );
+        net::CommandResult _cmdInit( net::Command& command );
         net::CommandResult _cmdExit( net::Command& command );
         net::CommandResult _cmdStartFrame( net::Command& command );
         net::CommandResult _cmdFinishAllFrames( net::Command& command ); 
         net::CommandResult _cmdCreateReply( net::Command& command );
-        net::CommandResult _cmdCreateNodeReply( net::Command& command );
         net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
         net::CommandResult _cmdUnmapReply( net::Command& command );
     };

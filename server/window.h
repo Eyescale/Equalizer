@@ -41,11 +41,13 @@ namespace server
         enum State
         {
             STATE_STOPPED = 0,  // next: INITIALIZING
-            STATE_INITIALIZING, // next: INIT_FAILED or RUNNING
-            STATE_INIT_FAILED,  // next: STOPPING
-            STATE_RUNNING,      // next: STOPPING
-            STATE_STOPPING,     // next: STOP_FAILED or STOPPED
-            STATE_STOP_FAILED,  // next: STOPPED
+            STATE_INITIALIZING, // next: INIT_FAILED or INIT_SUCCESS
+            STATE_INIT_SUCCESS, // next: RUNNING
+            STATE_INIT_FAILED,  // next: EXITING
+            STATE_RUNNING,      // next: EXITING
+            STATE_EXITING,      // next: EXIT_FAILED or EXIT_SUCCESS
+            STATE_EXIT_SUCCESS, // next: STOPPED
+            STATE_EXIT_FAILED,  // next: STOPPED
         };
 
         /** 
@@ -113,36 +115,14 @@ namespace server
         VisitorResult accept( WindowVisitor& visitor );
         VisitorResult accept( ConstWindowVisitor& visitor ) const;
 
-        /** 
-         * References this window as being actively used.
-         */
-        void refUsed();
-
-        /** 
-         * Unreferences this window as being actively used.
-         */
-        void unrefUsed();
-
-        /** 
-         * Return if this window is actively used.
-         *
-         * @return <code>true</code> if this window is actively used,
-         *         <code>false</code> if not.
-         */
-        bool isUsed() const { return( _used!=0 ); }
-
-        /**
-         * Increase window activition count.
-         */
+        /** Increase window activition count. */
         void activate();
 
-        /** 
-         * Decrease window activition count.
-         */
+        /** Decrease window activition count. */
         void deactivate();
 
         /** @return if this window is actively used for rendering. */
-        bool isRendering() const { return( _active != 0 && _used != 0 ); }
+        bool isActive() const { return (_active != 0); }
 
         /**
          * Add additional tasks this window, and all its parents, might
@@ -202,13 +182,16 @@ namespace server
          */
         void joinSwapBarrier( net::Barrier* barrier );
 
-        
         /** 
-         * Join a NV swap barrier.
+         * Join a NV_swap_group barrier during init.
          * 
          * @param barrier the NV swap barrier.
          */
         void joinNVSwapBarrier( const SwapBarrier* barrier ); 
+
+        /** Leave the NV_swap_group barrier. */
+        void leaveNVSwapBarrier( const SwapBarrier* barrier );
+        
 
         /** The last drawing channel for this entity. @internal */
         void setLastDrawChannel( const Channel* channel )
@@ -224,39 +207,11 @@ namespace server
          * @name Operations
          */
         //*{
-        /** 
-         * Start initializing this node.
-         *
-         * @param initID an identifier to be passed to all init methods.
-         */
-        void startConfigInit( const uint32_t initID );
+        /** Update (init and exit) this window and its children as needed. */
+        void updateRunning( const uint32_t initID );
 
-        /** 
-         * Synchronize the initialisation of the node.
-         * 
-         * @return <code>true</code> if the node was initialised successfully,
-         *         <code>false</code> if not.
-         */
-        bool syncConfigInit();
-
-        /** Create and initialize a channel, used during layout switch. */
-        void initChannel( Channel* channel );
-
-        /** 
-         * Starts exiting this node.
-         */
-        void startConfigExit();
-
-        /** 
-         * Synchronize the exit of the node.
-         * 
-         * @return <code>true</code> if the node exited cleanly,
-         *         <code>false</code> if not.
-         */
-        bool syncConfigExit();
-        
-        /** De-initialize and release a channel, used during layout switch. */
-        void exitChannel( Channel* channel );
+        /** Finalize the last updateRunning changes. */
+        bool syncRunning();
 
         /** 
          * Update one frame.
@@ -322,9 +277,6 @@ namespace server
         /** The child channels. */
         ChannelVector _channels;
 
-        /** Number of entitities actively using this window. */
-        uint32_t _used;
-
         /** Number of activations for this window. */
         uint32_t _active;
 
@@ -361,7 +313,8 @@ namespace server
         /** The list of slave swap barriers for the current frame. */
         std::vector<net::Barrier*> _swapBarriers;
         
-        const SwapBarrier* _swapBarrier;
+        /** The hardware swap barrier to use. */
+        const SwapBarrier* _nvSwapBarrier;
 
         /** The last draw channel for this entity */
         const Channel* _lastDrawChannel;
@@ -374,10 +327,14 @@ namespace server
 
         void _send( net::ObjectPacket& packet );
         void _send( net::ObjectPacket& packet, const std::string& string );
-        void _flushSendBuffer();
 
-        void _sendConfigInit( const uint32_t initID );
-        void _sendConfigExit();
+        void _startChannels();
+        void _stopChannels();
+
+        void _configInit( const uint32_t initID );
+        bool _syncConfigInit();
+        void _configExit();
+        bool _syncConfigExit();
 
         void _updateSwap( const uint32_t frameNumber );
 

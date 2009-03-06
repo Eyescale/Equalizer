@@ -34,11 +34,13 @@ namespace server
         enum State
         {
             STATE_STOPPED = 0,  // next: INITIALIZING
-            STATE_INITIALIZING, // next: INIT_FAILED or RUNNING
-            STATE_INIT_FAILED,  // next: STOPPING
-            STATE_RUNNING,      // next: STOPPING
-            STATE_STOPPING,     // next: STOP_FAILED or STOPPED
-            STATE_STOP_FAILED,  // next: STOPPED
+            STATE_INITIALIZING, // next: INIT_FAILED or INIT_SUCCESS
+            STATE_INIT_SUCCESS, // next: RUNNING
+            STATE_INIT_FAILED,  // next: EXITING
+            STATE_RUNNING,      // next: EXITING
+            STATE_EXITING,      // next: EXIT_FAILED or EXIT_SUCCESS
+            STATE_EXIT_SUCCESS, // next: STOPPED
+            STATE_EXIT_FAILED,  // next: STOPPED
         };
 
         /** 
@@ -99,36 +101,14 @@ namespace server
         VisitorResult accept( PipeVisitor& visitor );
         VisitorResult accept( ConstPipeVisitor& visitor ) const;
 
-        /** 
-         * References this pipe as being actively used.
-         */
-        void refUsed();
-
-        /** 
-         * Unreferences this pipe as being actively used.
-         */
-        void unrefUsed();
-
-        /** 
-         * Returns if this pipe is actively used.
-         *
-         * @return <code>true</code> if this pipe is actively used,
-         *         <code>false</code> if not.
-         */
-        bool isUsed() const { return( _used!=0 ); }
-
-        /**
-         * Increase  pipe activition count.
-         */
+        /** Increase pipe activition count. */
         void activate();
 
-        /** 
-         * decrease  pipe activition count.
-         */
+        /** Decrease pipe activition count. */
         void deactivate();
 
         /** @return if this pipe is actively used for rendering. */
-        bool isRendering() const { return( _active != 0 && _used != 0 ); }
+        bool isActive() const { return (_active != 0); }
 
         /**
          * Add additional tasks this pipe, and all its parents, might
@@ -172,33 +152,11 @@ namespace server
          * @name Operations
          */
         //*{
-        /** 
-         * Start initializing this pipe.
-         *
-         * @param initID an identifier to be passed to all init methods.
-         */
-        void startConfigInit( const uint32_t initID );
+        /** Update (init and exit) this pipe and its children as needed. */
+        void updateRunning( const uint32_t initID );
 
-        /** 
-         * Synchronize the initialisation of the pipe.
-         * 
-         * @return <code>true</code> if the pipe was initialised successfully,
-         *         <code>false</code> if not.
-         */
-        bool syncConfigInit();
-        
-        /** 
-         * Starts exiting this pipe.
-         */
-        void startConfigExit();
-
-        /** 
-         * Synchronize the exit of the pipe.
-         * 
-         * @return <code>true</code> if the pipe exited cleanly,
-         *         <code>false</code> if not.
-         */
-        bool syncConfigExit();
+        /** Finalize the last updateRunning changes. */
+        bool syncRunning();
 
         /** 
          * Trigger the rendering of a new frame.
@@ -260,9 +218,6 @@ namespace server
         /** The list of windows. */
         WindowVector _windows;
 
-        /** Number of entitities actively using this pipe. */
-        uint32_t _used;
-
         /** Number of activations for this pipe. */
         uint32_t _active;
 
@@ -300,8 +255,13 @@ namespace server
         void _send( net::ObjectPacket& packet );
         void _send( net::ObjectPacket& packet, const std::string& string ) ;
 
-        void _sendConfigInit( const uint32_t initID );
-        void _sendConfigExit();
+        void _startWindows();
+        void _stopWindows();
+
+        void _configInit( const uint32_t initID );
+        bool _syncConfigInit();
+        void _configExit();
+        bool _syncConfigExit();
 
         virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
         virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }

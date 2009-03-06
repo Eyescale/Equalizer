@@ -94,8 +94,7 @@ namespace eq
          * @param initID an identifier to be passed to all init methods.
          * @return true if the initialization was successful, false if not.
          */
-        virtual bool init( const uint32_t initID )
-            { return _startInit( initID ) && _finishInit(); }
+        virtual bool init( const uint32_t initID );
 
         /** 
          * Exits this configuration.
@@ -350,20 +349,6 @@ namespace eq
         void _removeLayout( Layout* layout );
 
         /** 
-         * Start initializing the configuration.
-         * 
-         * @param initID an identifier to be passed to all init methods. 
-         */
-        virtual bool _startInit( const uint32_t initID );
-
-        /** 
-         * Finish initializing the configuration.
-         * 
-         * @return true if the initialisation was successful, false if not.
-         */
-        virtual bool _finishInit();
-
-        /** 
          * Update statistics for the finished frame, push it to the local node
          * for visualization.
          */
@@ -378,11 +363,10 @@ namespace eq
         void _initAppNode( const uint32_t distributorID );
 
         /** The command functions. */
-        net::CommandResult _cmdStartClock( net::Command& command );
+        net::CommandResult _cmdSyncClock( net::Command& command );
         net::CommandResult _cmdCreateNode( net::Command& command );
         net::CommandResult _cmdDestroyNode( net::Command& command );
-        net::CommandResult _cmdStartInitReply( net::Command& command );
-        net::CommandResult _cmdFinishInitReply( net::Command& command );
+        net::CommandResult _cmdInitReply( net::Command& command );
         net::CommandResult _cmdExitReply( net::Command& command );
         net::CommandResult _cmdStartFrameReply( net::Command& command );
         net::CommandResult _cmdFrameFinish( net::Command& command );

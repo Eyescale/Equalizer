@@ -5,6 +5,7 @@
 #include "canvas.h"
 
 #include "channel.h"
+#include "compound.h"
 #include "config.h"
 #include "layout.h"
 #include "log.h"
@@ -190,43 +191,149 @@ Segment* Canvas::findSegment( const std::string& name )
 
 void Canvas::useLayout( Layout* layout )
 {
-    for( SegmentVector::const_iterator i = _segments.begin(); 
+    if( _config && _config->isRunning( ))
+        _switchLayout( _layout, layout );
+
+    _layout = layout;
+    setDirty( eq::Canvas::DIRTY_LAYOUT );
+}
+
+void Canvas::init()
+{
+    _switchLayout( 0, _layout );
+}
+
+void Canvas::exit()
+{
+    _switchLayout( _layout, 0 );
+}
+
+namespace
+{
+class ActivateVisitor : public ConfigVisitor
+{
+public:
+    ActivateVisitor( const ChannelVector& channels ) : _channels( channels ) {}
+    virtual ~ActivateVisitor() {}
+
+    virtual VisitorResult visit( Compound* compound )
+        {
+            Channel* channel = compound->getChannel();
+            if( !channel )
+                return TRAVERSE_CONTINUE;
+            
+            for( ChannelVector::iterator i = _channels.begin();
+                 i != _channels.end(); ++i )
+            {
+                Channel* destChannel = *i;
+                if( destChannel != channel ) 
+                    continue;
+
+                compound->activate();
+                _channels.erase( i );
+                break;
+            }
+
+            return TRAVERSE_PRUNE;
+        }
+
+    virtual VisitorResult visitPost( Config* config )
+        { 
+            if( !_channels.empty( ))
+                EQWARN << _channels.size() << " unused destination channels"
+                       << std::endl;
+            return TRAVERSE_CONTINUE;
+        }
+
+private:
+    ChannelVector _channels;
+};
+
+class DeactivateVisitor : public ConfigVisitor
+{
+public:
+    DeactivateVisitor( ChannelVector& channels )
+            : _channels( channels ) {}
+    virtual ~DeactivateVisitor() {}
+
+    virtual VisitorResult visit( Compound* compound )
+        {
+            Channel* channel = compound->getChannel();
+            if( !channel )
+                return TRAVERSE_CONTINUE;
+            
+            for( ChannelVector::iterator i = _channels.begin();
+                 i != _channels.end(); ++i )
+            {
+                Channel* destChannel = *i;
+                if( destChannel != channel ) 
+                    continue;
+
+                compound->deactivate();
+                _channels.erase( i );
+                break;
+            }
+
+            return TRAVERSE_PRUNE;
+        }
+
+    virtual VisitorResult visitPost( Config* config )
+        { 
+            if( !_channels.empty( ))
+                EQWARN << _channels.size() << " unused destination channels"
+                       << std::endl;
+            return TRAVERSE_CONTINUE;
+        }
+
+private:
+    ChannelVector& _channels;
+};
+}
+
+void Canvas::_switchLayout( const Layout* oldLayout, const Layout* newLayout )
+{
+    EQASSERT( _config );
+
+    for( SegmentVector::const_iterator i = _segments.begin();
          i != _segments.end(); ++i )
     {
         const Segment* segment = *i;        
         const ChannelVector& destChannels = segment->getDestinationChannels();
 
-        // activate channels used by new layout
-        for( ChannelVector::const_iterator j = destChannels.begin();
-             j != destChannels.end(); ++j )
+        if( newLayout )
         {
-            Channel*       channel       = *j;
-            const Layout*  channelLayout = channel->getLayout();
-            if( channelLayout != layout )
-                continue;
-
-            // increase channel, window, pipe, node activation count
-            // also sends initialization commands as needed
-            channel->activate();
+            // activate channels used by new layout
+            ChannelVector usedChannels;
+            for( ChannelVector::const_iterator j = destChannels.begin();
+                 j != destChannels.end(); ++j )
+            {
+                Channel*       channel       = *j;
+                const Layout*  channelLayout = channel->getLayout();
+                if( channelLayout == newLayout )
+                    usedChannels.push_back( channel );
+            }
+            
+            ActivateVisitor activator( usedChannels );
+            _config->accept( activator );
         }
-           
-        // de-activate channels used by old layout
-        for( ChannelVector::const_iterator j = destChannels.begin();
-             j != destChannels.end(); ++j )
-        {
-            Channel*       channel       = *j;
-            const Layout*  channelLayout = channel->getLayout();
-            if( channelLayout != _layout )
-                continue;
 
-            // increase channel, window, pipe, node activation count
-            // also sends exit commands as needed
-            channel->deactivate();
+        if( oldLayout )
+        {
+            // de-activate channels used by old layout
+            ChannelVector usedChannels;
+
+            for( ChannelVector::const_iterator j = destChannels.begin();
+                 j != destChannels.end(); ++j )
+            {
+                Channel*       channel       = *j;
+                const Layout*  channelLayout = channel->getLayout();
+                if( channelLayout == oldLayout )
+                    usedChannels.push_back( channel );
+            }
+            DeactivateVisitor deactivator( usedChannels );
+            _config->accept( deactivator );
         }
     }
-
-    _layout = layout;
-    setDirty( eq::Canvas::DIRTY_LAYOUT );
 }
 
 namespace

@@ -1,4 +1,4 @@
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "aglMessagePump.h"
@@ -55,13 +55,14 @@ void AGLMessagePump::dispatchOne()
     while( true )
     {
         Global::enterCarbon();
-        const EventTargetRef target = GetEventDispatcherTarget();
         EventRef             event;
         const OSStatus       status = ReceiveNextEvent( 0, 0, .05 /* 50ms */,
                                                         true, &event );
         if( status == noErr )
         {
             EQVERB << "Dispatch Carbon event " << event << endl;
+
+            const EventTargetRef target = GetEventDispatcherTarget();
             SendEventToEventTarget( event, target );
             ReleaseEvent( event );
             Global::leaveCarbon();

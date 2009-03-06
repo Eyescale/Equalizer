@@ -29,6 +29,7 @@
 #include <eq/base/sleep.h>
 
 #include "configSyncVisitor.h"
+#include "configAddCanvasVisitor.h"
 
 using namespace eq::base;
 using namespace std;
@@ -166,17 +167,12 @@ void Config::setLocalNode( net::NodePtr node )
     net::CommandQueue* serverQueue  = getServerThreadQueue();
     net::CommandQueue* commandQueue = getCommandThreadQueue();
 
-    registerCommand( eq::CMD_CONFIG_START_INIT,
-                     ConfigFunc( this, &Config::_cmdStartInit), serverQueue );
-    registerCommand( eq::CMD_CONFIG_FINISH_INIT,
-                     ConfigFunc(this, &Config::_cmdFinishInit), serverQueue );
+    registerCommand( eq::CMD_CONFIG_INIT,
+                     ConfigFunc( this, &Config::_cmdInit), serverQueue );
     registerCommand( eq::CMD_CONFIG_EXIT,
                      ConfigFunc( this, &Config::_cmdExit ), serverQueue );
     registerCommand( eq::CMD_CONFIG_CREATE_REPLY,
                      ConfigFunc( this, &Config::_cmdCreateReply ),
-                     commandQueue );
-    registerCommand( eq::CMD_CONFIG_CREATE_NODE_REPLY,
-                     ConfigFunc( this, &Config::_cmdCreateNodeReply ),
                      commandQueue );
     registerCommand( eq::CMD_CONFIG_START_FRAME, 
                      ConfigFunc( this, &Config::_cmdStartFrame ), serverQueue );
@@ -262,37 +258,6 @@ const View* Config::findView( const std::string& name ) const
     return finder.getResult();
 }
 
-namespace
-{
-class ChannelViewFinder : public ConfigVisitor
-{
-public:
-    ChannelViewFinder( const Segment* const segment, const View* const view ) 
-            : _segment( segment ), _view( view ), _result( 0 ) {}
-
-    virtual ~ChannelViewFinder(){}
-
-    virtual VisitorResult visit( Channel* channel )
-        {
-            if( channel->getView() != _view )
-                return TRAVERSE_CONTINUE;
-
-            if( channel->getSegment() != _segment )
-                return TRAVERSE_CONTINUE;
-
-            _result = channel;
-            return TRAVERSE_TERMINATE;
-        }
-
-    Channel* getResult() { return _result; }
-
-private:
-    const Segment* const _segment;
-    const View* const    _view;
-    Channel*             _result;
-};
-}
-
 Channel* Config::findChannel( const Segment* segment, const View* view )
 {
     ChannelViewFinder finder( segment, view );
@@ -300,103 +265,9 @@ Channel* Config::findChannel( const Segment* segment, const View* view )
     return finder.getResult();
 }
 
-namespace
-{
-class AddCanvasVisitor : public ConfigVisitor
-{
-public:
-    AddCanvasVisitor( Canvas* canvas, Config* config  )  
-                                       : _canvas( canvas )
-                                       , _config( config )
-        {}
-    virtual ~AddCanvasVisitor() {}
-
-    virtual VisitorResult visit( View* view )
-        {
-            _view = view;
-            _canvas->accept( *this );
-            return TRAVERSE_CONTINUE;
-        }
-
-    virtual VisitorResult visitPre( Canvas* canvas )
-        {
-            if( canvas != _canvas ) // only consider our canvas
-                return TRAVERSE_PRUNE;
-            return TRAVERSE_CONTINUE;
-        }
-
-    virtual VisitorResult visit( Segment* segment )
-        {
-            Viewport viewport = segment->getViewport();
-            viewport.intersect( _view->getViewport( ));
-
-            if( !viewport.hasArea())
-            {
-                EQLOG( LOG_VIEW )
-                    << "View " << _view->getName() << _view->getViewport()
-                    << " doesn't intersect " << segment->getName()
-                    << segment->getViewport() << std::endl;
-                
-                return TRAVERSE_CONTINUE;
-            }
-                      
-            Channel* segmentChannel = segment->getChannel( );
-            if (!segmentChannel)
-            {
-                EQWARN << "Segment " << segment->getName()
-                       << " has no output channel" << endl;
-                return TRAVERSE_CONTINUE;
-            }
-
-            // try to reuse channel
-            ChannelViewFinder finder( segment, _view );
-            _view->getConfig()->accept( finder );
-            Channel* channel = finder.getResult();
-
-            if( !channel ) // create and add new channel
-            {
-                Window* window = segmentChannel->getWindow();
-                channel = new Channel( *segmentChannel, window );
-
-                _view->addChannel( channel );
-                segment->addDestinationChannel( channel );
-            }
-
-            //----- compute channel viewport:
-            // segment/view intersection in canvas space...
-            Viewport contribution = viewport;
-            // ... in segment space...
-            contribution.transform( segment->getViewport( ));
-            
-             // segment output area
-            Viewport subViewport = segmentChannel->getViewport();
-            // ...our part of it    
-            subViewport.apply( contribution );
-            
-            channel->setViewport( subViewport );
-            
-            // decrement channel activation count [inactivates channel]
-            channel->deactivate(); 
-            
-            EQLOG( LOG_VIEW ) 
-                << "View @" << (void*)_view << ' ' << _view->getViewport()
-                << " intersects " << segment->getName()
-                << segment->getViewport() << " at " << subViewport
-                << " using channel @" << (void*)channel << std::endl;
-
-            return TRAVERSE_CONTINUE;
-        }
-
-protected:
-    Canvas* const _canvas;
-    Config* const _config; // For find channel
-    View*         _view; // The current view
-};
-}
-
 void Config::addCanvas( Canvas* canvas )
 {
-    AddCanvasVisitor visitor( canvas, this );
+    ConfigAddCanvasVisitor visitor( canvas, this );
     accept( visitor );
 
     canvas->_config = this;
@@ -657,9 +528,6 @@ VisitorResult Config::accept( ConstConfigVisitor& visitor ) const
 // operations
 //===========================================================================
 
-//---------------------------------------------------------------------------
-// init
-//---------------------------------------------------------------------------
 uint32_t Config::getDistributorID()
 {
     EQASSERT( !_serializer );
@@ -669,31 +537,64 @@ uint32_t Config::getDistributorID()
     return _serializer->getID();
 }
 
-bool Config::_startInit( const uint32_t initID )
+//---------------------------------------------------------------------------
+// update running entities (init/exit)
+//---------------------------------------------------------------------------
+
+bool Config::_updateRunning()
 {
-    EQASSERT( _state == STATE_STOPPED );
-    _currentFrame  = 0;
-    _finishedFrame = 0;
-    _initID = initID;
-
-    for( vector< Compound* >::const_iterator i = _compounds.begin();
-         i != _compounds.end(); ++i )
-    {
-        Compound* compound = *i;
-        compound->init();
-    }
-
-    if( !_connectNodes() || !_initNodes( initID ))
-    {
-        exit();
+    if( !_connectNodes( ))
         return false;
+
+    _startNodes();
+
+    // Let all running nodes update their running state (incl. children)
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+        (*i)->updateRunning( _initID );
+
+    // Sync state updates
+    bool success = true;
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( !node->syncRunning( ))
+            success = false;
     }
 
-    _state = STATE_INITIALIZED;
-    return true;
+    _stopNodes();
+    _syncClock();
+
+    return success;
 }
 
-static net::NodePtr _createNode( Node* node )
+//----- connect new nodes
+bool Config::_connectNodes()
+{
+    bool success = true;
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( node->isActive() && !_connectNode( node ))
+        {
+            success = false;
+            break;
+        }
+    }
+
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( node->isActive() && !_syncConnectNode( node ))
+            success = false;
+    }
+
+    return success;
+}
+
+
+namespace
+{
+static net::NodePtr _createNetNode( Node* node )
 {
     net::NodePtr netNode = new net::Node;
 
@@ -711,187 +612,276 @@ static net::NodePtr _createNode( Node* node )
     netNode->setAutoLaunch( true );
     return netNode;
 }
+}
 
-bool Config::_connectNodes()
+bool Config::_connectNode( Node* node )
 {
+    EQASSERT( node->isActive( ));
+
+    net::NodePtr netNode = node->getNode();
+    if( netNode.isValid( ))
+        return ( netNode->getState() == net::Node::STATE_CONNECTED );
+
+    net::NodePtr localNode = getLocalNode();
+    EQASSERT( localNode.isValid( ));
+    
+    if( node == _appNode )
+        netNode = _appNetNode;
+    else
+    {
+        netNode = _createNetNode( node );
+        netNode->setProgramName( _renderClient );
+        netNode->setWorkDir( _workDir );
+    }
+
+    EQLOG( LOG_INIT ) << "Connecting node" << std::endl;
+    if( !localNode->initConnect( netNode ))
+    {
+        stringstream nodeString;
+        nodeString << node;
+        
+        _error = string( "Connection to node failed, node does not run " ) +
+            string( "and launch command failed:\n " ) + 
+            nodeString.str();
+        EQERROR << "Connection to " << netNode->getNodeID() << " failed." 
+                << endl;
+        return false;
+    }
+
+    node->setNode( netNode );
+    return true;
+}
+
+bool Config::_syncConnectNode( Node* node )
+{
+    EQASSERT( node->isActive( ));
+
+    net::NodePtr netNode = node->getNode();
+    if( !netNode )
+        return false;
+
     net::NodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    if( !localNode->syncConnect( netNode ))
     {
-        Node* node = *i;
-        if( !node->isRendering( ))
-            continue;
+        stringstream nodeString;
+        nodeString << node;
 
-        net::NodePtr netNode;
+        _error = "Connection of node failed, node did not start:\n " +
+            nodeString.str();
+        EQERROR << "Connection of node " << node << " failed." << endl;
 
-        if( node == _appNode )
-            netNode = _appNetNode;
-        else
-        {
-            netNode = _createNode( node );
-            netNode->setProgramName( _renderClient );
-            netNode->setWorkDir( _workDir );
-        }
-
-        if( !localNode->initConnect( netNode ))
-        {
-            stringstream nodeString;
-            nodeString << node;
-
-            _error = string( "Connection to node failed, node does not run " ) +
-                     string( "and launch command failed:\n " ) + 
-                     nodeString.str();
-            EQERROR << "Connection to " << netNode->getNodeID() << " failed." 
-                    << endl;
-            return false;
-        }
-
-        node->setNode( netNode );
+        node->setNode( 0 );
+        EQASSERT( netNode->getRefCount() == 1 );
+        return false;
     }
     return true;
 }
 
-bool Config::_initNodes( const uint32_t initID )
+void Config::_startNodes()
 {
-    const string& name    = getName();
-    bool          success = true;
-
-    net::NodePtr localNode = getLocalNode();
-    EQASSERT( localNode.isValid( ));
-
-    eq::ServerCreateConfigPacket createConfigPacket;
-    deque<uint32_t>              createConfigRequests;
-    createConfigPacket.configID  = getID();
-    createConfigPacket.appNodeID = _appNetNode->getNodeID();
-    createConfigPacket.appNodeID.convertToNetwork();
-
-    // sync node connect and create configs
+    // start up newly running nodes
+    std::vector< uint32_t > requests;
+    NodeVector startingNodes;
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( !node->isRendering( ))
-            continue;
-        
-        net::NodePtr netNode = node->getNode();
+        const Node::State state = node->getState();
 
-        if( !localNode->syncConnect( netNode ))
+        if( node->isActive() && state != Node::STATE_RUNNING )
         {
-            stringstream nodeString;
-            nodeString << node;
-
-            _error = "Connection of node failed, node did not start:\n " +
-                     nodeString.str();
-            EQERROR << "Connection of node " << node << " failed." << endl;
-            success = false;
-        }
-        
-        if( !success ) 
-            continue;
-
-        // create config (session) on each non-app node
-        //   app-node already has config
-        if( node != _appNode )
-        {
-            createConfigPacket.requestID = _requestHandler.registerRequest();
-            createConfigRequests.push_back( createConfigPacket.requestID );
-
-            netNode->send( createConfigPacket, name );
+            EQLOG( LOG_INIT ) << "Initializing node" << std::endl;
+            EQASSERT( state == Node::STATE_STOPPED );
+            startingNodes.push_back( node );
+            if( node != _appNode )
+                requests.push_back( _createConfig( node ));
         }
     }
 
-    if( !success )
-    {
-        // sync already issued requests
-        while( !createConfigRequests.empty( ))
-        {
-            _requestHandler.waitRequest( createConfigRequests.front( ));
-            createConfigRequests.pop_front();
-        }
-        return false;
-    }
-
-    // sync config creation and start node init
-    eq::ConfigCreateNodePacket createNodePacket;
-    vector<uint32_t>           createNodeRequests;
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
-    {
-        Node* node = *i;
-        if( !node->isRendering( ))
-            continue;
-
-        registerObject( node );
-
-        if( node != _appNode )
-        {
-            _requestHandler.waitRequest( createConfigRequests.front( ));
-            createConfigRequests.pop_front();
-        }
-
-        net::NodePtr netNode = node->getNode();
-
-        createNodePacket.nodeID = node->getID();
-        createNodePacket.requestID = _requestHandler.registerRequest();
-        createNodeRequests.push_back( createNodePacket.requestID );
-        send( netNode, createNodePacket );
-
-        // start node-pipe-window-channel init in parallel on all nodes
-        node->startConfigInit( initID );
-    }
-
-    // Need to sync eq::Node creation: It is possible, though unlikely, that
-    // Config::startInit returns and Config::broadcastData is used before the
-    // NodeCreatePacket has been processed by the render node.
-    for( vector<uint32_t>::const_iterator i = createNodeRequests.begin();
-         i != createNodeRequests.end(); ++i )
+    // sync create config requests on starting nodes
+    for( std::vector< uint32_t >::const_iterator i = requests.begin();
+         i != requests.end(); ++i )
     {
         _requestHandler.waitRequest( *i );
     }
-    return success;
+
+    // Create node instances on starting nodes
+    for( NodeVector::const_iterator i = startingNodes.begin(); 
+         i != startingNodes.end(); ++i )
+    {
+        Node* node = *i;
+        _createNode( node );
+    }
 }
 
-bool Config::_finishInit()
+void Config::_stopNodes()
 {
-    bool success = true;
+    // wait for the nodes to stop, destroy entities, disconnect
+    NodeVector stoppingNodes;
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        Node*               node    = *i;
-        net::NodePtr netNode = node->getNode();
-        if( !node->isRendering() || !netNode->isConnected( ))
-            continue;
-        
-        if( !node->syncConfigInit( ))
+        Node* node = *i;
+        if( node->getState() == Node::STATE_RUNNING ||
+            node->getID() == EQ_ID_INVALID )
         {
-            _error += ( ' ' + node->getErrorMessage( ));
-            EQERROR << "Init of node " << (void*)node << " failed." 
-                    << endl;
-            success = false;
+            continue;
         }
+
+        EQLOG( LOG_INIT ) << "Exiting node" << std::endl;
+
+        stoppingNodes.push_back( node );
+        EQASSERT( node->getState() == Node::STATE_STOPPED );
+        EQASSERT( !node->isActive( ));
+        
+        net::NodePtr netNode = node->getNode();
+        EQASSERT( netNode.isValid( ));
+
+        EQLOG( LOG_INIT ) << "Destroy node" << std::endl;
+        eq::ConfigDestroyNodePacket   destroyNodePacket;
+        destroyNodePacket.nodeID = node->getID();
+        send( netNode, destroyNodePacket );
+
+        if( node != _appNode )
+        {
+            eq::ServerDestroyConfigPacket destroyConfigPacket;
+            destroyConfigPacket.configID  = getID();
+            netNode->send( destroyConfigPacket );
+
+            eq::ClientExitPacket clientExitPacket;
+            netNode->send( clientExitPacket );
+        }
+
+        deregisterObject( node );
     }
 
-    // start global clock on all nodes
-    eq::ConfigStartClockPacket packet;
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    if( stoppingNodes.empty( ))
+        return;
+
+    // now wait that the render clients disconnect
+    uint32_t nSleeps = 50; // max 5 seconds for all clients
+    for( NodeVector::const_iterator i = stoppingNodes.begin();
+         i != stoppingNodes.end(); ++i )
     {
         Node*        node    = *i;
         net::NodePtr netNode = node->getNode();
-        if( !node->isRendering() || !netNode->isConnected( ))
+
+        if( node == _appNode )
             continue;
 
-        send( netNode, packet );
+        node->setNode( 0 );
+
+        while( netNode->getState() == net::Node::STATE_CONNECTED && --nSleeps )
+            base::sleep( 100 ); // ms
+
+        if( netNode->getState() == net::Node::STATE_CONNECTED )
+        {
+            net::NodePtr localNode = getLocalNode();
+            EQASSERT( localNode.isValid( ));
+
+            EQWARN << "Forcefully disconnection exited render client node"
+                   << std::endl;
+            localNode->disconnect( netNode );
+        }
+
+        EQLOG( LOG_INIT ) << "Disconnected node" << std::endl;
     }
-    send( _appNetNode, packet );
-    return success;
 }
+
+uint32_t Config::_createConfig( Node* node )
+{
+    EQASSERT( node != _appNode );
+    EQASSERT( node->isActive( ));
+
+    // create config (session) on each non-app node
+    //   app-node already has config from chooseConfig
+    eq::ServerCreateConfigPacket createConfigPacket;
+    createConfigPacket.configID  = getID();
+    createConfigPacket.appNodeID = _appNetNode->getNodeID();
+    createConfigPacket.appNodeID.convertToNetwork();
+    createConfigPacket.requestID = _requestHandler.registerRequest();
+
+    const string&   name = getName();
+    net::NodePtr netNode = node->getNode();
+    netNode->send( createConfigPacket, name );
+
+    return createConfigPacket.requestID;
+}
+
+void Config::_createNode( Node* node )
+{
+    EQASSERT( node->isActive( ));
+
+    registerObject( node );
+
+    // sync config creation and start node init
+    eq::ConfigCreateNodePacket createNodePacket;
+    createNodePacket.nodeID = node->getID();
+
+    net::NodePtr netNode = node->getNode();
+    send( netNode, createNodePacket );
+}
+
+void Config::_syncClock()
+{
+    eq::ConfigSyncClockPacket packet;
+    packet.time = _clock.getTime64();
+
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( _appNode == node || node->isActive( ))
+        {
+            net::NodePtr netNode = node->getNode();
+            EQASSERT( netNode->isConnected( ));
+
+            send( netNode, packet );
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+// init
+//---------------------------------------------------------------------------
+bool Config::_init( const uint32_t initID )
+{
+    EQASSERT( _state == STATE_STOPPED );
+    _currentFrame  = 0;
+    _finishedFrame = 0;
+    _initID = initID;
+
+    for( vector< Canvas* >::const_iterator i = _canvases.begin();
+         i != _canvases.end(); ++i )
+    {
+        Canvas* canvas = *i;
+        canvas->init();
+    }
+
+    for( vector< Compound* >::const_iterator i = _compounds.begin();
+         i != _compounds.end(); ++i )
+    {
+        Compound* compound = *i;
+        compound->init();
+    }
+
+    if( !_updateRunning( ))
+    {
+        exit();
+        return false;
+    }
+
+    _state = STATE_INITIALIZED;
+    return true;
+}
+
+//---------------------------------------------------------------------------
+// exit
+//---------------------------------------------------------------------------
 
 bool Config::exit()
 {
     if( _state != STATE_INITIALIZED )
         EQWARN << "Exiting non-initialized config" << endl;
-
-    bool cleanExit = _exitNodes();
-    if( !cleanExit )
-        EQERROR << "nodes exit failed" << endl;
 
     for( vector< Compound* >::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
@@ -900,94 +890,25 @@ bool Config::exit()
         compound->exit();
     }
 
+    for( vector< Canvas* >::const_iterator i = _canvases.begin();
+         i != _canvases.end(); ++i )
+    {
+        Canvas* canvas = *i;
+        canvas->exit();
+    }
+
+    const bool success = _updateRunning();
+
     if( _headMatrix.getID() != EQ_ID_INVALID )
         deregisterObject( &_headMatrix );
 
     _currentFrame  = 0;
     _finishedFrame = 0;
     _state         = STATE_STOPPED;
-    return cleanExit;
-}
 
-bool Config::_exitNodes()
-{
-    // invoke configExit task methods and delete resource instances on clients 
-    NodeVector exitingNodes;
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
-    {
-        Node*          node = *i;
-        net::NodePtr netNode = node->getNode();
-
-        if( !node->isRendering() || !netNode.isValid() ||
-            netNode->getState() == net::Node::STATE_STOPPED )
-
-            continue;
-
-        exitingNodes.push_back( node );
-        node->startConfigExit();
-    }
-
-    // wait for the above and then delete the config and request disconnect
-    eq::ServerDestroyConfigPacket destroyConfigPacket;
-    destroyConfigPacket.configID  = getID();
-
-    eq::ConfigDestroyNodePacket destroyNodePacket;
-    eq::ClientExitPacket        clientExitPacket;
-    net::NodePtr         localNode         = getLocalNode();
-    EQASSERT( localNode.isValid( ));
-
-    bool success = true;
-    for( NodeVector::const_iterator i = exitingNodes.begin();
-         i != exitingNodes.end(); ++i )
-    {
-        Node*          node    = *i;
-        net::NodePtr netNode = node->getNode();
-
-        if( !node->syncConfigExit( ))
-        {
-            EQERROR << "Could not exit cleanly: " << node << endl;
-            success = false;
-        }
-        
-        destroyNodePacket.nodeID = node->getID();
-        send( netNode, destroyNodePacket );
-
-        if( node != _appNode )
-        {
-            netNode->send( destroyConfigPacket );
-            netNode->send( clientExitPacket );
-        }
-
-        deregisterObject( node );
-    }
-
-    // now wait that the clients disconnect
-    uint32_t nSleeps = 50; // max 5 seconds for all clients
-    for( NodeVector::const_iterator i = exitingNodes.begin();
-        i != exitingNodes.end(); ++i )
-    {
-        Node*        node    = *i;
-        net::NodePtr netNode = node->getNode();
-
-        node->setNode( 0 );
-
-        if( node != _appNode )
-        {
-            while( netNode->getState() == net::Node::STATE_CONNECTED &&
-                   nSleeps-- )
-            {
-                base::sleep( 100 ); // ms
-            }
-
-            if( netNode->getState() == net::Node::STATE_CONNECTED )
-                localNode->disconnect( netNode );
-        }
-    }
     return success;
 }
 
-
-    
 namespace
 {
 class UnmapVisitor : public ConfigVisitor
@@ -1082,9 +1003,12 @@ void Config::_updateHead()
     accept( updater );
 }
 
-void Config::_startFrame( const uint32_t frameID )
+bool Config::_startFrame( const uint32_t frameID )
 {
     EQASSERT( _state == STATE_INITIALIZED );
+
+    if( !_updateRunning( ))
+        return false;
 
     ++_currentFrame;
     EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
@@ -1103,9 +1027,10 @@ void Config::_startFrame( const uint32_t frameID )
          i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isRendering( ))
+        if( node->isActive( ))
             node->update( frameID, _currentFrame );
     }
+    return true;
 }
 
 void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
@@ -1116,7 +1041,7 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         const Node* node = *i;
-        if( node->isRendering() && node->getFinishedFrame() < frameNumber )
+        if( node->isActive() && node->getFinishedFrame() < frameNumber )
             return;
     }
 
@@ -1141,7 +1066,7 @@ void Config::_flushAllFrames()
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isRendering( ))
+        if( node->isActive( ))
             node->flushFrames( _currentFrame );
     }
 
@@ -1151,7 +1076,7 @@ void Config::_flushAllFrames()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-net::CommandResult Config::_cmdStartInit( net::Command& command )
+net::CommandResult Config::_cmdInit( net::Command& command )
 {
     // clients have retrieved distributed data
     EQASSERT( _serializer );
@@ -1159,36 +1084,20 @@ net::CommandResult Config::_cmdStartInit( net::Command& command )
     delete _serializer;
     _serializer = 0;
 
-    const eq::ConfigStartInitPacket* packet = 
-        command.getPacket<eq::ConfigStartInitPacket>();
-    eq::ConfigStartInitReplyPacket   reply( packet );
+    const eq::ConfigInitPacket* packet =
+        command.getPacket<eq::ConfigInitPacket>();
     EQVERB << "handle config start init " << packet << endl;
 
     _error.clear();
-    reply.result = _startInit( packet->initID );
-    
-    EQINFO << "Config start init " << (reply.result ? "successful": "failed: ") 
-           << _error << endl;
 
-    send( command.getNode(), reply, _error );
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Config::_cmdFinishInit( net::Command& command )
-{
-    const eq::ConfigFinishInitPacket* packet = 
-        command.getPacket<eq::ConfigFinishInitPacket>();
-    eq::ConfigFinishInitReplyPacket   reply( packet );
-    EQVERB << "handle config finish init " << packet << endl;
-
-    _error.clear();
-    reply.result = _finishInit();
-
-    EQINFO << "Config finish init " << (reply.result ? "successful":"failed: ") 
-           << _error << endl;
+    eq::ConfigInitReplyPacket reply( packet );
+    reply.result = _init( packet->initID );
 
     if( reply.result )
         mapObject( &_headMatrix, packet->headMatrixID );
+    
+    EQINFO << "Config init " << (reply.result ? "successful": "failed: ") 
+           << _error << endl;
 
     send( command.getNode(), reply, _error );
     return net::COMMAND_HANDLED;
@@ -1229,7 +1138,12 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         EQCHECK( accept( syncer ) == TRAVERSE_TERMINATE );
     }
 
-    _startFrame( packet->frameID );
+    if( !_startFrame( packet->frameID ))
+    {
+        exit();
+        // TODO: tell app?
+    }
+
     return net::COMMAND_HANDLED;
 }
 
@@ -1247,15 +1161,6 @@ net::CommandResult Config::_cmdCreateReply( net::Command& command )
 {
     const eq::ConfigCreateReplyPacket* packet = 
         command.getPacket<eq::ConfigCreateReplyPacket>();
-
-    _requestHandler.serveRequest( packet->requestID );
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Config::_cmdCreateNodeReply( net::Command& command ) 
-{
-    const eq::ConfigCreateNodeReplyPacket* packet = 
-        command.getPacket<eq::ConfigCreateNodeReplyPacket>();
 
     _requestHandler.serveRequest( packet->requestID );
     return net::COMMAND_HANDLED;

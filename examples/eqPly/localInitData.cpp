@@ -24,11 +24,12 @@ LocalInitData::LocalInitData()
         , _color( true )
         , _isResident( false )
 {
-#ifdef WIN32_VC
+    _filenames.push_back( "examples/eqPly/rockerArm.ply" );
     _filenames.push_back( "../examples/eqPly/rockerArm.ply" );
-#else
     _filenames.push_back( "../share/data/rockerArm.ply" );
-#endif
+    _filenames.push_back( "/opt/local/share/data/rockerArm.ply" );
+    _filenames.push_back( "/usr/local/share/data/rockerArm.ply" );
+    _filenames.push_back( "/usr/share/data/rockerArm.ply" );
 }
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
@@ -110,7 +111,10 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         command.parse( argc, argv );
 
         if( modelArg.isSet( ))
+        {
+            _filenames.clear();
             _filenames = modelArg.getValue();
+        }
         if( portArg.isSet( ))
             _trackerPort = portArg.getValue();
         if( wsArg.isSet( ))

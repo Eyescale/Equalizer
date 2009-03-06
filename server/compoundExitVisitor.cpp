@@ -6,6 +6,8 @@
 
 #include "config.h"
 #include "frame.h"
+#include "swapBarrier.h"
+#include "window.h"
 
 #include <eq/client/log.h>
 
@@ -41,12 +43,27 @@ VisitorResult CompoundExitVisitor::visit( Compound* compound )
         config->deregisterObject( frame );
     }
 
-    Channel* channel = compound->getChannel();
-    if( channel )
+    const SwapBarrier* swapBarrier = compound->getSwapBarrier();
+    if( swapBarrier )
     {
-        channel->unrefUsed();
-        channel->setView( 0 );
+        if( swapBarrier->isNvSwapBarrier( ))
+        {
+            Window* window = compound->getWindow();
+            if( window )
+                window->leaveNVSwapBarrier( swapBarrier );
+        }
     }
+
+    Channel* channel = compound->getChannel();
+    if( compound->isDestination() && !channel->getSegment( ))
+    {
+        EQASSERT( !channel->getView( ));
+        
+        // old-school (non-Layout) destination channel, deactivate compound
+        //  layout destination channel compounds are deactivated by canvas
+        compound->deactivate();
+    }
+    
     return TRAVERSE_CONTINUE;    
 }
 

@@ -26,21 +26,26 @@ CompoundInitVisitor::CompoundInitVisitor()
 VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
     Channel* channel = compound->getChannel();
+    if( compound->isDestination() && !channel->getSegment( ))
+    {
+        EQASSERT( !channel->getView( ));
+        
+        // old-school (non-Layout) destination channel, activate compound
+        //  layout destination channel compounds are activated by canvas
+        compound->activate();
+    }
+    
     if( channel )
     {
-        channel->refUsed();
-
         const SwapBarrier* swapBarrier = compound->getSwapBarrier();
-        if ( swapBarrier )
+        if( swapBarrier )
         {
-            if ( swapBarrier->isNvSwapBarrier() )
+            if( swapBarrier->isNvSwapBarrier( ))
             {
                 Window* window = channel->getWindow();
                 window->joinNVSwapBarrier( swapBarrier );
             }
         }
-
-
     }
 
     Config*        config  = compound->getConfig();

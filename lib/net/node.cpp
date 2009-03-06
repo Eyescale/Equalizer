@@ -295,7 +295,7 @@ bool Node::stopListening()
 
 void Node::_cleanup()
 {
-    EQINFO << "Clean up stopped node" << endl;
+    EQVERB << "Clean up stopped node" << endl;
     EQASSERTINFO( _state == STATE_STOPPED, _state );
     EQASSERT( _connection.isValid( ));
 
@@ -1405,8 +1405,9 @@ bool Node::initConnect( NodePtr node )
     EQASSERTINFO( _state == STATE_LISTENING, _state );
     if( node->getState() == STATE_CONNECTED ||
         node->getState() == STATE_LISTENING )
-
+    {
         return true;
+    }
 
     EQASSERT( node->getState() == STATE_STOPPED );
 

@@ -77,6 +77,9 @@ namespace server
          * @name Operations
          */
         //*{
+        void init();
+        void exit();
+
         void useLayout( Layout* layout );
 
         /** 
@@ -111,6 +114,9 @@ namespace server
 
         /** Child segments on this canvas. */
         SegmentVector _segments;
+
+        /** Run-time layout */
+        void _switchLayout( const Layout* oldLayout, const Layout* newLayout );
     };
 
     std::ostream& operator << ( std::ostream& os, const Canvas* canvas);

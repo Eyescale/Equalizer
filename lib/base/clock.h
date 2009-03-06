@@ -82,7 +82,37 @@ namespace base
 #else
                 const int sec   = static_cast<int>( time * 0.001f );
                 _start.tv_sec  += sec;
-                _start.tv_nsec += (static_cast<int>(time) - sec) * 1000000;
+                _start.tv_nsec += static_cast<int>(
+                    (time - sec * 1000) * 1000000 );
+                if( _start.tv_nsec > 1000000000 )
+                {
+                    _start.tv_sec  += 1;
+                    _start.tv_nsec -= 1000000000;
+                }
+#endif
+            }
+
+        /** Set the current time of the clock. */
+        void set( const int64_t time )
+            {
+                reset();
+#ifdef Darwin
+                _start -= static_cast< uint64_t >(
+                              time * _timebaseInfo.denom / _timebaseInfo.numer *
+                                     1000000 );
+#elif defined (WIN32)
+                _start.QuadPart -= static_cast<long long>( 
+                    time * _frequency.QuadPart / 1000 );
+#else
+                const int sec   = static_cast< int >( time / 1000 ) + 1;
+                _start.tv_sec  -= sec;
+                _start.tv_nsec -= static_cast<int>(
+                    (time - sec * 1000) * 1000000 );
+                if( _start.tv_nsec > 1000000000 )
+                {
+                    _start.tv_sec  += 1;
+                    _start.tv_nsec -= 1000000000;
+                }
 #endif
             }
 

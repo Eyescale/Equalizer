@@ -71,10 +71,8 @@ void Config::setLocalNode( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );
     registerCommand( CMD_CONFIG_DESTROY_NODE,
                      ConfigFunc( this, &Config::_cmdDestroyNode ), queue );
-    registerCommand( CMD_CONFIG_START_INIT_REPLY, 
-                     ConfigFunc( this, &Config::_cmdStartInitReply ), queue );
-    registerCommand( CMD_CONFIG_FINISH_INIT_REPLY,
-                     ConfigFunc( this, &Config::_cmdFinishInitReply ), queue );
+    registerCommand( CMD_CONFIG_INIT_REPLY, 
+                     ConfigFunc( this, &Config::_cmdInitReply ), queue );
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
                      ConfigFunc( this, &Config::_cmdExitReply ), queue );
     registerCommand( CMD_CONFIG_START_FRAME_REPLY, 
@@ -83,8 +81,8 @@ void Config::setLocalNode( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdFrameFinish ), 0 );
     registerCommand( CMD_CONFIG_EVENT, 
                      ConfigFunc( this, &Config::_cmdUnknown ), &_eventQueue );
-    registerCommand( CMD_CONFIG_START_CLOCK, 
-                     ConfigFunc( this, &Config::_cmdStartClock ), 0 );
+    registerCommand( CMD_CONFIG_SYNC_CLOCK, 
+                     ConfigFunc( this, &Config::_cmdSyncClock ), 0 );
     registerCommand( CMD_CONFIG_UNMAP, ConfigFunc( this, &Config::_cmdUnmap ),
                      queue );
 }
@@ -291,35 +289,18 @@ void Config::_removeLayout( Layout* layout )
     _layouts.erase( i );
 }
 
-bool Config::_startInit( const uint32_t initID )
+bool Config::init( const uint32_t initID )
 {
     EQASSERT( !_running );
     _currentFrame = 0;
     _unlockedFrame = 0;
     _finishedFrame = 0;
 
-    ConfigStartInitPacket packet;
-    packet.requestID    = _requestHandler.registerRequest();
-    packet.initID       = initID;
-
-    send( packet );
-    
-    RefPtr< Client > client = getClient();
-    while( !_requestHandler.isServed( packet.requestID ))
-        client->processCommand();
-
-    bool ret = false;
-    _requestHandler.waitRequest( packet.requestID, ret );
-    return ret;
-}
-
-bool Config::_finishInit()
-{
-    EQASSERT( !_running );
     registerObject( &_headMatrix );
 
-    ConfigFinishInitPacket packet;
+    ConfigInitPacket packet;
     packet.requestID    = _requestHandler.registerRequest();
+    packet.initID       = initID;
     packet.headMatrixID = _headMatrix.getID();
 
     send( packet );
@@ -720,9 +701,6 @@ net::CommandResult Config::_cmdCreateNode( net::Command& command )
     Node* node = Global::getNodeFactory()->createNode( this );
     attachObject( node, packet->nodeID, EQ_ID_INVALID );
 
-    ConfigCreateNodeReplyPacket reply( packet );
-    send( command.getNode(), reply );
-    
     return net::COMMAND_HANDLED;
 }
 
@@ -742,24 +720,11 @@ net::CommandResult Config::_cmdDestroyNode( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-net::CommandResult Config::_cmdStartInitReply( net::Command& command )
+net::CommandResult Config::_cmdInitReply( net::Command& command )
 {
-    const ConfigStartInitReplyPacket* packet = 
-        command.getPacket<ConfigStartInitReplyPacket>();
-    EQINFO << "handle start init reply " << packet << endl;
-
-    if( !packet->result )
-        _error = packet->error;
-
-    _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Config::_cmdFinishInitReply( net::Command& command )
-{
-    const ConfigFinishInitReplyPacket* packet = 
-        command.getPacket<ConfigFinishInitReplyPacket>();
-    EQINFO << "handle finish init reply " << packet << endl;
+    const ConfigInitReplyPacket* packet = 
+        command.getPacket<ConfigInitReplyPacket>();
+    EQINFO << "handle init reply " << packet << endl;
 
     if( !packet->result )
         _error = packet->error;
@@ -813,11 +778,15 @@ net::CommandResult Config::_cmdFrameFinish( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-net::CommandResult Config::_cmdStartClock( net::Command& command )
+net::CommandResult Config::_cmdSyncClock( net::Command& command )
 {
-    _clock.reset();
+    const ConfigSyncClockPacket* packet = 
+        command.getPacket< ConfigSyncClockPacket >();
 
-    EQVERB << "start global clock" << endl;
+    EQVERB << "sync global clock to " << packet->time << ", drift " 
+           << packet->time - _clock.getTime64() << std::endl;
+
+    _clock.set( packet->time );
     return net::COMMAND_HANDLED;
 }
 

@@ -27,6 +27,18 @@ namespace server
     class Node : public net::Object
     {
     public:
+        enum State
+        {
+            STATE_STOPPED = 0,  // next: INITIALIZING
+            STATE_INITIALIZING, // next: INIT_FAILED or INIT_SUCCESS
+            STATE_INIT_SUCCESS, // next: RUNNING
+            STATE_INIT_FAILED,  // next: EXITING
+            STATE_RUNNING,      // next: EXITING
+            STATE_EXITING,      // next: EXIT_FAILED or EXIT_SUCCESS
+            STATE_EXIT_SUCCESS, // next: STOPPED
+            STATE_EXIT_FAILED,  // next: STOPPED
+        };
+
         /** 
          * Constructs a new Node.
          */
@@ -52,6 +64,9 @@ namespace server
         NodePath getPath() const;
 
         Channel* getChannel( const ChannelPath& path );
+
+        /** @return the state of this node. */
+        State getState()    const { return _state.get(); }
 
         net::CommandQueue* getServerThreadQueue()
             { return _config->getServerThreadQueue(); }
@@ -89,36 +104,14 @@ namespace server
         VisitorResult accept( NodeVisitor& visitor );
         VisitorResult accept( ConstNodeVisitor& visitor ) const;
 
-        /** 
-         * References this node as being actively used.
-         */
-        void refUsed(){ _used++; }
+        /** Increase node activition count. */
+        void activate();
 
-        /** 
-         * Unreferences this node as being actively used.
-         */
-        void unrefUsed(){ _used--; }
-
-        /** 
-         * Returns if this node is actively used.
-         *
-         * @return <code>true</code> if this node is actively used,
-         *         <code>false</code> if not.
-         */
-        bool isUsed() const { return( _used!=0 ); }
-
-        /**
-         * Increase  node activition count.
-         */
-        void activate(){ _active++; }
-
-        /** 
-         * Decrease  node activition count.
-         */
-        void deactivate(){ _active--; };
+        /** Decrease node activition count. */
+        void deactivate();
 
         /** @return if this pipe is actively used for rendering. */
-        bool isRendering() const { return( _active != 0 && _used != 0 ); }
+        bool isActive() const { return ( _active != 0 ); }
 
         /** Add additional tasks this node might potentially execute. */
         void addTasks( const uint32_t tasks ) { _tasks |= tasks; }
@@ -136,34 +129,12 @@ namespace server
          * @name Operations
          */
         //*{
-        /** 
-         * Start initializing this node.
-         *
-         * @param initID an identifier to be passed to all init methods.
-         */
-        void startConfigInit( const uint32_t initID);
+        /** Update (init and exit) this node and its children as needed. */
+        void updateRunning( const uint32_t initID );
 
-        /** 
-         * Synchronize the initialisation of the node.
-         * 
-         * @return <code>true</code> if the node was initialised successfully,
-         *         <code>false</code> if not.
-         */
-        bool syncConfigInit();
+        /** Finalize the last updateRunning changes. */
+        bool syncRunning();
 
-        /** 
-         * Starts exiting this node.
-         */
-        void startConfigExit();
-
-        /** 
-         * Synchronize the exit of the node.
-         * 
-         * @return <code>true</code> if the node exited cleanly,
-         *         <code>false</code> if not.
-         */
-        bool syncConfigExit();
-        
         /** 
          * Trigger the rendering of a new frame for this node.
          *
@@ -289,9 +260,6 @@ namespace server
         /** The reason for the last error. */
         std::string _error;
 
-        /** Number of entities actively using this node. */
-        uint32_t _used;
-
         /** Number of activations for this node. */
         uint32_t _active;
 
@@ -310,16 +278,6 @@ namespace server
         /** The number of the last finished frame. */
         uint32_t _finishedFrame;
 
-        enum State
-        {
-            STATE_STOPPED = 0,  // next: INITIALIZING
-            STATE_INITIALIZING, // next: INIT_FAILED or RUNNING
-            STATE_INIT_FAILED,  // next: STOPPING
-            STATE_RUNNING,      // next: STOPPING
-            STATE_STOPPING,     // next: STOP_FAILED or STOPPED
-            STATE_STOP_FAILED,  // next: STOPPED
-        };
-
         /** Worst-case set of tasks. */
         uint32_t _tasks;
 
@@ -337,6 +295,14 @@ namespace server
 
         /** common code for all constructors */
         void _construct();
+
+        void _startPipes();
+        void _stopPipes();
+
+        void _configInit( const uint32_t initID );
+        bool _syncConfigInit();
+        void _configExit();
+        bool _syncConfigExit();
 
         /** flush cached barriers. */
         void _flushBarriers();
