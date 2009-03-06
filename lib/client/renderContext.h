@@ -39,6 +39,11 @@ namespace eq
         vmml::Vector2i screenOrigin;   //<! absolute position wrt screen
         vmml::Vector2i screenSize;     //<! size of screen
         Eye            eye;            //<! current eye pass
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[16];
+        };
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

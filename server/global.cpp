@@ -39,8 +39,10 @@ Global::Global()
 void Global::_setupDefaults()
 {
     // connection
-    for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
         _connectionIAttributes[i] = eq::UNDEFINED;
+    for( uint32_t i=0; i<ConnectionDescription::CATTR_ALL; ++i )
+        _connectionCAttributes[i] = '\0';
 
     _connectionIAttributes[ConnectionDescription::IATTR_TYPE] = 
         net::CONNECTIONTYPE_TCPIP;
@@ -63,10 +65,15 @@ void Global::_setupDefaults()
 #endif
 
     // config
+    for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
+        _configFAttributes[i] = 0.f;
+
     _configFAttributes[Config::FATTR_EYE_BASE]         = 0.05f;
 
     // node
-    _nodeIAttributes[eq::Node::IATTR_THREAD_MODEL] = eq::UNDEFINED;
+    for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
+        _nodeIAttributes[i] = eq::UNDEFINED;
+
 #ifdef NDEBUG
     _nodeIAttributes[eq::Node::IATTR_HINT_STATISTICS]   = eq::FASTEST;
 #else
@@ -74,13 +81,13 @@ void Global::_setupDefaults()
 #endif
 
     // pipe
-    for( int i=0; i<Pipe::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
         _pipeIAttributes[i] = eq::UNDEFINED;
 
     _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = eq::ON;
 
     // window
-    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )
         _windowIAttributes[i] = eq::UNDEFINED;
 
     _windowIAttributes[eq::Window::IATTR_HINT_STEREO]       = eq::AUTO;
@@ -99,7 +106,7 @@ void Global::_setupDefaults()
 #endif
     
     // channel
-    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<eq::Channel::IATTR_ALL; ++i )
         _channelIAttributes[i] = eq::UNDEFINED;
 
 #ifdef NDEBUG
@@ -109,13 +116,13 @@ void Global::_setupDefaults()
 #endif
 
     // compound
-    for( int i=0; i<Compound::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
         _compoundIAttributes[i] = eq::UNDEFINED;
 }
 
 void Global::_readEnvironment()
 {
-    for( int i=0; i<ConnectionDescription::SATTR_ALL; ++i )
+    for( uint32_t i=0; i<ConnectionDescription::SATTR_ALL; ++i )
     {
         const string& name     = ConnectionDescription::getSAttributeString(
             (ConnectionDescription::SAttribute)i);
@@ -124,7 +131,7 @@ void Global::_readEnvironment()
         if( envValue )
             _connectionSAttributes[i] = envValue;
     }
-    for( int i=0; i<ConnectionDescription::CATTR_ALL; ++i )
+    for( uint32_t i=0; i<ConnectionDescription::CATTR_ALL; ++i )
     {
         const string& name     = ConnectionDescription::getCAttributeString(
             (ConnectionDescription::CAttribute)i);
@@ -133,7 +140,7 @@ void Global::_readEnvironment()
         if( envValue )
             _connectionCAttributes[i] = envValue[0];
     }
-    for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
     {
         const string& name     = ConnectionDescription::getIAttributeString(
             (ConnectionDescription::IAttribute)i);
@@ -142,7 +149,7 @@ void Global::_readEnvironment()
         if( envValue )
             _connectionIAttributes[i] = atol( envValue );
     }
-    for( int i=0; i<Config::FATTR_ALL; ++i )
+    for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
     {
         const string& name     = Config::getFAttributeString(
             (Config::FAttribute)i);
@@ -151,7 +158,7 @@ void Global::_readEnvironment()
         if( envValue )
             _configFAttributes[i] = atof( envValue );
     }
-    for( int i=0; i<eq::Node::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<eq::Node::IATTR_ALL; ++i )
     {
         const string& name     = eq::Node::getIAttributeString(
             (eq::Node::IAttribute)i);
@@ -160,7 +167,7 @@ void Global::_readEnvironment()
         if( envValue )
             _nodeIAttributes[i] = atol( envValue );
     }
-    for( int i=0; i<Pipe::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
     {
         const string& name     = Pipe::getIAttributeString(
             (Pipe::IAttribute)i);
@@ -169,7 +176,7 @@ void Global::_readEnvironment()
         if( envValue )
             _pipeIAttributes[i] = atol( envValue );
     }
-    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )
     {
         const string& name     = eq::Window::getIAttributeString(
             (eq::Window::IAttribute)i);
@@ -178,7 +185,7 @@ void Global::_readEnvironment()
         if( envValue )
             _windowIAttributes[i] = atol( envValue );
     }
-    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<eq::Channel::IATTR_ALL; ++i )
     {
         const string& name     = eq::Channel::getIAttributeString(
             (eq::Channel::IAttribute)i);
@@ -187,7 +194,7 @@ void Global::_readEnvironment()
         if( envValue )
             _channelIAttributes[i] = atol( envValue );
     }
-    for( int i=0; i<Compound::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
     {
         const string& name     = Compound::getIAttributeString(
             (Compound::IAttribute)i);
@@ -208,7 +215,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
     os << disableFlush << disableHeader << "global" << endl;
     os << '{' << indent << endl;
 
-    for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
     {
         const int value = global->_connectionIAttributes[i];
         if( value == reference._connectionIAttributes[i] )
@@ -234,7 +241,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         os << endl;
     }
 
-    for( int i=0; i<ConnectionDescription::SATTR_ALL; ++i )
+    for( uint32_t i=0; i<ConnectionDescription::SATTR_ALL; ++i )
     {
         const string& value = global->_connectionSAttributes[i];
         if( value == reference._connectionSAttributes[i] )
@@ -246,7 +253,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << "\"" << value << "\"" << endl;
     }
 
-    for( int i=0; i<ConnectionDescription::CATTR_ALL; ++i )
+    for( uint32_t i=0; i<ConnectionDescription::CATTR_ALL; ++i )
     {
         const char value = global->_connectionCAttributes[i];
         if( value == reference._connectionCAttributes[i] )
@@ -258,7 +265,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << "'" << value << "'" << endl;
     }
 
-    for( int i=0; i<Config::FATTR_ALL; ++i )
+    for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
     {
         const float value = global->_configFAttributes[i];
         if( value == reference._configFAttributes[i] )
@@ -270,7 +277,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << value << endl;
     }
 
-    for( int i=0; i < eq::Node::IATTR_ALL; ++i )
+    for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
     {
         const int32_t value = global->_nodeIAttributes[i];
         if( value == reference._nodeIAttributes[i] )
@@ -282,7 +289,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << static_cast<eq::IAttrValue>( value ) << endl;
     }
 
-    for( int i=0; i<Pipe::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
     {
         const int value = global->_pipeIAttributes[i];
         if( value == reference._pipeIAttributes[i] )
@@ -294,7 +301,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << static_cast<eq::IAttrValue>( value ) << endl;
     }
 
-    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )
     {
         const int value = global->_windowIAttributes[i];
         if( value == reference._windowIAttributes[i] )
@@ -306,7 +313,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << static_cast<eq::IAttrValue>( value ) << endl;
     }
 
-    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<eq::Channel::IATTR_ALL; ++i )
     {
         const int value = global->_channelIAttributes[i];
         if( value == reference._channelIAttributes[i] )
@@ -318,7 +325,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << static_cast<eq::IAttrValue>( value ) << endl;
     }
 
-    for( int i=0; i<Compound::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
     {
         const int value = global->_compoundIAttributes[i];
         if( value == reference._compoundIAttributes[i] )

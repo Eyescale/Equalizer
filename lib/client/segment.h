@@ -83,6 +83,11 @@ namespace server
         /** The 2D area of this segment wrt to the canvas. */
         eq::Viewport _vp;
         friend class server::Segment;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 
 }

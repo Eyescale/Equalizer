@@ -176,6 +176,8 @@ namespace server
         enum IAttribute
         {
             IATTR_HINT_THREAD,
+            IATTR_FILL1,
+            IATTR_FILL2,
             IATTR_ALL
         };
 
@@ -248,6 +250,11 @@ namespace server
 
         /** The last draw window for this entity. */
         const Window* _lastDrawWindow;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
 
         /** common code for all constructors */
         void _construct();

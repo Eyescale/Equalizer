@@ -97,6 +97,11 @@ namespace server
 
         /** The list of channels. */
         ChannelVector _channels;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 
     std::ostream& operator << ( std::ostream& os, const View* view );

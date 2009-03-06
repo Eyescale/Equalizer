@@ -87,6 +87,8 @@ namespace server
             IATTR_STEREO_ANAGLYPH_LEFT_MASK,
             IATTR_STEREO_ANAGLYPH_RIGHT_MASK,
             IATTR_HINT_OFFSET,
+            IATTR_FILL1,
+            IATTR_FILL2,
             IATTR_ALL
         };
 
@@ -514,6 +516,11 @@ namespace server
             float             maxFPS;
             int32_t           iAttributes[IATTR_ALL];
             bool              active;
+
+            union // placeholder for binary-compatible changes
+            {
+                char dummy[16];
+            };
         };
 
         InheritData _data;
@@ -534,6 +541,11 @@ namespace server
 
         typedef stde::hash_map< uint32_t, vmml::Vector2i > ScreenMap;
         ScreenMap _screens;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
 
         CHECK_THREAD_DECLARE( _serverThread );
 

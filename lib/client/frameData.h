@@ -196,6 +196,11 @@ namespace server
         std::vector< base::Monitor<uint32_t>* > _listeners;
         base::Lock                              _listenersMutex;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** Allocate or reuse an image. */
         Image* _allocImage( const eq::Frame::Type type );
 

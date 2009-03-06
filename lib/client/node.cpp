@@ -34,7 +34,9 @@ typedef net::CommandFunc<Node> NodeFunc;
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_NODE_") + #attr )
 std::string Node::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_THREAD_MODEL ),
-    MAKE_ATTR_STRING( IATTR_HINT_STATISTICS )
+    MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
+    MAKE_ATTR_STRING( IATTR_FILL1 ),
+    MAKE_ATTR_STRING( IATTR_FILL2 )
 };
 
 Node::Node( Config* parent )

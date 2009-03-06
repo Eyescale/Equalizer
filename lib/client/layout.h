@@ -84,6 +84,11 @@ namespace eq
         /** Child views on this layout. */
         ViewVector _views;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         void _addView( View* view );
         bool _removeView( View* view );
     };

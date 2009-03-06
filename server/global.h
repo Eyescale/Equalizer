@@ -127,6 +127,11 @@ namespace server
         
         int32_t     _compoundIAttributes[Compound::IATTR_ALL];
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         void _setupDefaults();
         void _readEnvironment();
 

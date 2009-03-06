@@ -207,6 +207,8 @@ namespace eq
             IATTR_PLANES_ACCUM,          //!< No of accumulation buffer planes
             IATTR_PLANES_ACCUM_ALPHA,    //!< No of alpha accum buffer planes
             IATTR_PLANES_SAMPLES,        //!< No of multisample (AA) planes
+            IATTR_FILL1,
+            IATTR_FILL2,
             IATTR_ALL
         };
 
@@ -486,6 +488,11 @@ namespace eq
         uint32_t _nvSwapGroup; 
         /** The swap barrier to use for the window. */
         uint32_t _nvSwapBarrier;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
 
         friend class Channel;
         void _addChannel( Channel* channel );

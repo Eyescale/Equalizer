@@ -317,6 +317,11 @@ namespace eq
         /** PBO Usage. */
         bool _usePBO;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         Pixels&           _getPixels( const Frame::Buffer buffer );
         CompressedPixels& _getCompressedPixels( const Frame::Buffer buffer );
         const Pixels&           _getPixels( const Frame::Buffer buffer ) const;

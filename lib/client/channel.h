@@ -309,6 +309,8 @@ namespace eq
         enum IAttribute
         {
             IATTR_HINT_STATISTICS,
+            IATTR_FILL1,
+            IATTR_FILL2,
             IATTR_ALL
         };
         
@@ -539,6 +541,11 @@ namespace eq
 
         /** The channel's view, if it has one. */
         View* _view;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
 
         /** Initialize the FBO */
         bool _configInitFBO();

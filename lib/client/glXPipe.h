@@ -73,6 +73,11 @@ namespace eq
 
         /** The event handler for our display connection. */
         GLXEventHandler* _eventHandler;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 }
 

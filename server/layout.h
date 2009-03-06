@@ -98,6 +98,11 @@ namespace server
 
         /** Child views on this layout. */
         ViewVector _views;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 
     std::ostream& operator << ( std::ostream& os, const Layout* layout);

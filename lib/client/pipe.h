@@ -462,6 +462,11 @@ namespace eq
         /** The last window made current. */
         const mutable Window* _currentWindow;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         //-------------------- Methods --------------------
         void* _runThread();
         void _setupCommandQueue();

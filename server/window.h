@@ -319,6 +319,11 @@ namespace server
         /** The last draw channel for this entity */
         const Channel* _lastDrawChannel;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** common code for all constructors */
         void _construct();
 

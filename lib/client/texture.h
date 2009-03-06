@@ -89,6 +89,11 @@ namespace eq
 
         GLEWContext* const _glewContext;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** Generate, if needed, a GL texture name. */
         void _generate();
 

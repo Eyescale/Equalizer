@@ -76,6 +76,11 @@ namespace eq
         /** Process-local server */
         bool _localServer;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** @sa net::Node::getType */
         virtual uint32_t getType() const { return TYPE_EQ_SERVER; }
 

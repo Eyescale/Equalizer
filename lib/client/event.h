@@ -147,7 +147,7 @@ namespace eq
         char     resourceName[32];
     };
 
-#   define EQ_USER_EVENT_SIZE 32
+#   define EQ_USER_EVENT_SIZE 64
     struct UserEvent
     {
         char data[ EQ_USER_EVENT_SIZE ];

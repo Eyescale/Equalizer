@@ -196,6 +196,10 @@ namespace server
         }
         _data;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const Frame::Type );

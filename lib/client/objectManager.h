@@ -110,6 +110,11 @@ namespace eq
 
         typedef stde::hash_map< T, FrameBufferObject* > FrameBufferObjectHash;
         FrameBufferObjectHash _eqFrameBufferObjects;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 }
 

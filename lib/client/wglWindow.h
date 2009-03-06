@@ -227,6 +227,11 @@ namespace eq
 
         WGLEventHandler* _eventHandler;
         BOOL             _screenSaverActive;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 }
 

@@ -154,6 +154,11 @@ namespace eq
         /** The glX rendering context. */
         GLXContext _glXContext;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** Create an unmapped X11 window. */
         XID _createGLXWindow( XVisualInfo* visualInfo , 
                               const PixelViewport& pvp );

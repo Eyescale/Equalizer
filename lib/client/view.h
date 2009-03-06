@@ -90,6 +90,11 @@ namespace server
         friend class server::View;
         Viewport    _viewport;
         std::string _name;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const View& view );

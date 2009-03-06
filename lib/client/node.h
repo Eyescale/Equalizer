@@ -106,7 +106,9 @@ namespace eq
         enum IAttribute
         {
             IATTR_THREAD_MODEL,           //!< Threading model
-            IATTR_HINT_STATISTICS,        //!< Statitistics gathering mode
+            IATTR_HINT_STATISTICS,        //!< Statistics gathering mode
+            IATTR_FILL1,
+            IATTR_FILL2,
             IATTR_ALL
         };
 
@@ -318,6 +320,11 @@ namespace eq
         /** All frame datas used by the node during rendering. */
         FrameDataHash _frameDatas;
         base::Lock    _frameDatasMutex;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
 
         friend class Pipe;
         void _addPipe( Pipe* pipe );

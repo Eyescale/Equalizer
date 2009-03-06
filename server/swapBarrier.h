@@ -28,8 +28,7 @@ namespace server
         /** 
          * Constructs a new SwapBarrier.
          */
-        SwapBarrier(): _nvSwapGroup( 0 )
-                     , _nvSwapBarrier( 0 ) {}
+        SwapBarrier() : _nvSwapGroup( 0 ), _nvSwapBarrier( 0 ) {}
 
         /** @name Data Access. */
         //*{

@@ -131,6 +131,11 @@ namespace eq
         
         /** Frame buffer object for FBO drawables. */		
 		FrameBufferObject* _fbo; 
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 }
 

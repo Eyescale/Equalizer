@@ -37,6 +37,8 @@ typedef net::CommandFunc<Channel> ChannelFunc;
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CHANNEL_") + #attr )
 std::string Channel::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
+    MAKE_ATTR_STRING( IATTR_FILL1 ),
+    MAKE_ATTR_STRING( IATTR_FILL2 )
 };
 
 Channel::Channel( Window* parent )

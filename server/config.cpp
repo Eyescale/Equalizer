@@ -44,7 +44,9 @@ typedef net::CommandFunc<Config> ConfigFunc;
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
 std::string Config::_fAttributeStrings[FATTR_ALL] = 
 {
-    MAKE_ATTR_STRING( FATTR_EYE_BASE )
+    MAKE_ATTR_STRING( FATTR_EYE_BASE ),
+    MAKE_ATTR_STRING( FATTR_FILL1 ),
+    MAKE_ATTR_STRING( FATTR_FILL2 )
 };
 
 void Config::_construct()

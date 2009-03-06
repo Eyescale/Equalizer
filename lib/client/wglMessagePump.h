@@ -32,6 +32,11 @@ namespace eq
         /** Thread ID of the receiver. */
         DWORD _win32ThreadID;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         void _initReceiverQueue();
     };
 }

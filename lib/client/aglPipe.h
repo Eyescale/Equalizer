@@ -54,6 +54,11 @@ namespace eq
 
         /** Window-system specific display information. */
         CGDirectDisplayID _cgDisplayID;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 }
 

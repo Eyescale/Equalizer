@@ -95,6 +95,11 @@ namespace server
         /** The current state. */
         bool _running;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** @sa net::Node::getType */
         virtual uint32_t getType() const { return eq::TYPE_EQ_SERVER; }
 

@@ -62,6 +62,11 @@ namespace eq
 
         /** Extended OpenGL function entries - WGL. */
         WGLEWContext*   _wglewContext;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 }
 

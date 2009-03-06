@@ -293,6 +293,11 @@ namespace server
         /** The last draw pipe for this entity */
         const Pipe* _lastDrawPipe;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** common code for all constructors */
         void _construct();
 

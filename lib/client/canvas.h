@@ -102,6 +102,11 @@ namespace server
 
         /** Child segments on this canvas. */
         SegmentVector _segments;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 }
 #endif // EQ_CANVAS_H

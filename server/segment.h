@@ -115,6 +115,11 @@ namespace server
         /** The resulting destination channels from the view intersections. */
         ChannelVector _destinationChannels;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** Update the view (wall/projection). */
         void _updateView();
     };

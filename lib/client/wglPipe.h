@@ -61,6 +61,11 @@ namespace eq
         void _configInitWGLEW();
 
         bool _getGPUHandle( HGPUNV& handle );
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
     };
 }
 

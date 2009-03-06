@@ -38,6 +38,11 @@ namespace eq
         WNDPROC      _prevWndProc;
         uint32_t     _buttonState;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         LRESULT CALLBACK _wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                    LPARAM lParam );
 

@@ -28,7 +28,9 @@ typedef net::CommandFunc<Pipe> PipeFunc;
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_PIPE_") + #attr )
 std::string Pipe::_iAttributeStrings[IATTR_ALL] = 
 {
-    MAKE_ATTR_STRING( IATTR_HINT_THREAD )
+    MAKE_ATTR_STRING( IATTR_HINT_THREAD ),
+    MAKE_ATTR_STRING( IATTR_FILL1 ),
+    MAKE_ATTR_STRING( IATTR_FILL2 )
 };
 
 void Pipe::_construct()

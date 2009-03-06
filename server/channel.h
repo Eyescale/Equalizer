@@ -327,6 +327,11 @@ namespace server
 
         CHECK_THREAD_DECLARE( _serverThread );
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         //-------------------- Methods --------------------
         /** common code for all constructors */
         void _construct();

@@ -100,6 +100,11 @@ namespace eq
 
         /** The application-defined name of the object. */
         std::string _name;
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[8];
+        };
     };
 }
 #endif // EQ_OBJECT_H

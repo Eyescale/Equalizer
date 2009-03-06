@@ -337,6 +337,11 @@ namespace eq
         /** true while the config is initialized and no window has exited. */
         bool _running;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         friend class Node;
         void _addNode( Node* node );
         void _removeNode( Node* node );

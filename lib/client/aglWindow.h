@@ -198,6 +198,11 @@ namespace eq
         /** The AGL PBuffer object. */
         AGLPbuffer _aglPBuffer;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** The flag (from the event handler) if a context update is needed. */
         bool _updateContext;
 

@@ -292,6 +292,8 @@ namespace server
         enum FAttribute
         {
             FATTR_EYE_BASE,
+            FATTR_FILL1,
+            FATTR_FILL2,
             FATTR_ALL
         };
         
@@ -392,6 +394,10 @@ namespace server
 
         /** The global clock. */
         base::Clock _clock;
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
 
         /**
          * @name Operations

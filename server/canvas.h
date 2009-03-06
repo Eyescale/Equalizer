@@ -115,6 +115,11 @@ namespace server
         /** Child segments on this canvas. */
         SegmentVector _segments;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** Run-time layout */
         void _switchLayout( const Layout* oldLayout, const Layout* newLayout );
     };

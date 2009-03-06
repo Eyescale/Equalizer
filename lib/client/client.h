@@ -82,6 +82,11 @@ namespace eq
         
         bool _running;
 
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[64];
+        };
+
         /** @sa net::Node::createNode */
         virtual net::NodePtr createNode( const uint32_t type );
         
