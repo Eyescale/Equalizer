@@ -8,6 +8,7 @@
 #include "image.h"
 #include "log.h"
 #include "packets.h"
+#include "roiFinder.h"
 
 #include <eq/net/command.h>
 #include <eq/net/commandFunc.h>
@@ -17,7 +18,6 @@
 #include <eq/base/monitor.h>
 #include <algorithm>
 
-#include <eq/client/roiFinder.h> // member
 
 using namespace eq::base;
 using namespace std;

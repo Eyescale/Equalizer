@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_TYPES_H
@@ -27,6 +27,7 @@ typedef INT64      int64_t;
 typedef UINT32     uint32_t;
 typedef INT32      int32_t;
 typedef UINT16     uint16_t;
+typedef INT16      int16_t;
 typedef UINT8      uint8_t;
 #    ifndef HAVE_SSIZE_T
 typedef SSIZE_T    ssize_t;

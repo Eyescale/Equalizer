@@ -4,7 +4,7 @@
 #ifndef EQ_ROI_EMPTY_SPACE_FINDER_H
 #define EQ_ROI_EMPTY_SPACE_FINDER_H
 
-#include "pixelViewport.h"
+#include <eq/client/pixelViewport.h>
 #include <vector>
 
 namespace eq
