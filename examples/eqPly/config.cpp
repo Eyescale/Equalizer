@@ -89,7 +89,7 @@ bool Config::exit()
     deregisterObject( &_frameData );
 
     unmapData(); // needed for configs with no appNode
-    _initData.setModelID( EQ_ID_INVALID );
+    _frameData.setModelID( EQ_ID_INVALID );
     // retain models and distributors for possible other config runs, destructor
     // deletes it
 
@@ -142,7 +142,7 @@ void Config::_loadModels()
         modelDist->registerTree( this );
         EQASSERT( modelDist->getID() != EQ_ID_INVALID );
 
-        _initData.setModelID( modelDist->getID( ));
+        _frameData.setModelID( modelDist->getID( ));
     }
 
     EQASSERT( _modelDist.size() == nModels );
@@ -181,9 +181,8 @@ void Config::unmapData()
     }
 }
 
-const Model* Config::getModel( const uint32_t id )
+const Model* Config::getModel( const uint32_t modelID )
 {
-    uint32_t modelID = id == EQ_ID_INVALID ? _initData.getModelID() : id;
     if( modelID == EQ_ID_INVALID ) // no model loaded by application
         return 0;
 
@@ -278,10 +277,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
                     const uint32_t viewID = _frameData.getCurrentViewID();
                     View* view = static_cast< View* >( findView( viewID ));
-                    if( !view )  // no active view
-                        return true;
-
-                    const uint32_t currentID = view->getModelID();
+                    const uint32_t currentID = view ? view->getModelID() :
+                                                      _frameData.getModelID();
                     ModelDistVector::const_iterator i;
                     for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
                     {
@@ -294,7 +291,11 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     if( i == _modelDist.end( ))
                         i = _modelDist.begin(); // wrap around
 
-                    view->setModelID( (*i)->getID( ));
+                    const uint32_t modelID = (*i)->getID();
+                    if( view )
+                        view->setModelID( modelID );
+                    else
+                        _frameData.setModelID( modelID );
                     return true;
                 }
 

@@ -34,6 +34,8 @@ namespace eqPly
         
         /** @name Rendering flags. */
         //*{
+        void setModelID( const uint32_t id );
+
         void setColor( const bool onOff );
         void setRenderMode( const mesh::RenderMode mode );
 
@@ -42,6 +44,7 @@ namespace eqPly
         void toggleWireframe();
         void toggleRenderMode();
 
+        uint32_t getModelID() const { return _modelID; }
         bool useColor() const { return _color; }
         bool useOrtho() const { return _ortho; }
         bool useStatistics() const { return _statistics; }
@@ -86,6 +89,7 @@ namespace eqPly
         vmml::Matrix4f _rotation;
         vmml::Vector3f _translation;
         
+        uint32_t         _modelID;
         mesh::RenderMode _renderMode;
         bool             _color;
         bool             _ortho;

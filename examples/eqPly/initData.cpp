@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved. 
  *
  * The init data manages static, per-instance application data. In this example,
@@ -19,7 +19,6 @@ namespace eqPly
 
 InitData::InitData()
         : _frameDataID( EQ_ID_INVALID )
-        , _modelID( EQ_ID_INVALID )
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _useGLSL( false )
@@ -33,14 +32,12 @@ InitData::~InitData()
 
 void InitData::getInstanceData( eq::net::DataOStream& os )
 {
-    os << _frameDataID << _modelID << _windowSystem << _renderMode << _useGLSL
-       << _invFaces ;
+    os << _frameDataID << _windowSystem << _renderMode << _useGLSL << _invFaces;
 }
 
 void InitData::applyInstanceData( eq::net::DataIStream& is )
 {
-    is >> _frameDataID >> _modelID >> _windowSystem >> _renderMode >> _useGLSL
-       >> _invFaces;
+    is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces;
 
     EQASSERT( _frameDataID != EQ_ID_INVALID );
     EQINFO << "New InitData instance" << endl;

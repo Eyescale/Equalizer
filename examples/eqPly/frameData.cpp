@@ -8,7 +8,8 @@ namespace eqPly
 {
 
 FrameData::FrameData()
-        : _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
+        : _modelID( EQ_ID_INVALID )
+        , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _color( true )
         , _ortho( false )
         , _statistics( false )
@@ -25,7 +26,8 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_CAMERA )
         os << _translation << _rotation;
     if( dirtyBits & DIRTY_FLAGS )
-        os << _renderMode << _color << _ortho << _statistics << _wireframe;
+        os << _modelID << _renderMode << _color << _ortho << _statistics
+           << _wireframe;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
 }
@@ -37,9 +39,16 @@ void FrameData::deserialize( eq::net::DataIStream& is,
     if( dirtyBits & DIRTY_CAMERA )
         is >> _translation >> _rotation;
     if( dirtyBits & DIRTY_FLAGS )
-        is >> _renderMode >> _color >> _ortho >> _statistics >> _wireframe;
+        is >> _modelID >> _renderMode >> _color >> _ortho >> _statistics
+           >> _wireframe;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
+}
+
+void FrameData::setModelID( const uint32_t id )
+{
+    _modelID = id;
+    setDirty( DIRTY_FLAGS );
 }
 
 void FrameData::setColor( const bool onOff )

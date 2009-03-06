@@ -46,7 +46,7 @@ namespace eqPly
         void unmapData();
 
         /** @return the requested, default model or 0. */
-        const Model* getModel( const uint32_t id = EQ_ID_INVALID );
+        const Model* getModel( const uint32_t id );
 
         /** @sa eq::Config::handleEvent */
         virtual bool handleEvent( const eq::ConfigEvent* event );

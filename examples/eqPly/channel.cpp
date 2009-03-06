@@ -160,7 +160,9 @@ const Model* Channel::_getModel()
 
     if( view )
         return config->getModel( view->getModelID( ));
-    return config->getModel();
+
+    const FrameData& frameData = _getFrameData();
+    return config->getModel( frameData.getModelID( ));
 }
 
 void Channel::_drawModel( const Model* model )
