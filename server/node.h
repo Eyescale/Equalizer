@@ -301,7 +301,7 @@ namespace server
         /** common code for all constructors */
         void _construct();
 
-        void _configInit( const uint32_t initID );
+        void _configInit( const uint32_t initID, const uint32_t frameNumber );
         bool _syncConfigInit();
         void _configExit();
         bool _syncConfigExit();

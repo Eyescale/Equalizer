@@ -569,7 +569,6 @@ bool Config::_updateRunning()
 
     _stopNodes();
     _syncClock();
-
     return success;
 }
 
@@ -719,30 +718,25 @@ void Config::_stopNodes()
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->getState() == Node::STATE_RUNNING ||
-            node->getID() == EQ_ID_INVALID )
-        {
+        if( node->getState() != Node::STATE_STOPPED || node == _appNode )
             continue;
-        }
+
+        net::NodePtr netNode = node->getNode();
+        if( !netNode ) // already disconnected
+            continue;
 
         EQLOG( LOG_INIT ) << "Exiting node" << std::endl;
 
         stoppingNodes.push_back( node );
-        EQASSERT( node->getState() == Node::STATE_STOPPED );
         EQASSERT( !node->isActive( ));
-        
-        if( node != _appNode )
-        {
-            net::NodePtr netNode = node->getNode();
-            EQASSERT( netNode.isValid( ));
+        EQASSERT( netNode.isValid( ));
 
-            eq::ServerDestroyConfigPacket destroyConfigPacket;
-            destroyConfigPacket.configID  = getID();
-            netNode->send( destroyConfigPacket );
+        eq::ServerDestroyConfigPacket destroyConfigPacket;
+        destroyConfigPacket.configID  = getID();
+        netNode->send( destroyConfigPacket );
 
-            eq::ClientExitPacket clientExitPacket;
-            netNode->send( clientExitPacket );
-        }
+        eq::ClientExitPacket clientExitPacket;
+        netNode->send( clientExitPacket );
     }
 
     // now wait that the render clients disconnect
@@ -752,9 +746,6 @@ void Config::_stopNodes()
     {
         Node*        node    = *i;
         net::NodePtr netNode = node->getNode();
-
-        if( node == _appNode )
-            continue;
 
         node->setNode( 0 );
 
@@ -995,6 +986,13 @@ bool Config::_startFrame( const uint32_t frameID )
     ++_currentFrame;
     EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
 
+    if( !_appNode->isActive( )) // release appNode local sync
+    {
+        ConfigReleaseFrameLocalPacket packet;
+        packet.frameNumber = _currentFrame;
+        send( _appNetNode, packet );
+    }
+
     for( vector< Compound* >::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
     {
@@ -1033,9 +1031,9 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     // the frame is finished
     eq::ConfigFrameFinishPacket packet;
     packet.frameNumber = frameNumber;
+    packet.sessionID   = getID();
 
     // do not use send/_bufferedTasks, not thread-safe!
-    packet.sessionID   = getID();
     _appNetNode->send( packet );
     EQLOG( eq::LOG_TASKS ) << "TASK config frame finished  " << &packet << endl;
 }
@@ -1110,15 +1108,15 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
 
     _updateHead(); // TODO move
 
-    eq::ConfigStartFrameReplyPacket reply( packet );
-    reply.frameNumber = _currentFrame + 1;
-    command.getNode()->send( reply );
-
     if( packet->nChanges > 0 )
     {
         ConfigSyncVisitor syncer( packet->nChanges, packet->changes );
         EQCHECK( accept( syncer ) == TRAVERSE_TERMINATE );
     }
+
+    eq::ConfigStartFrameReplyPacket reply( packet );
+    reply.frameNumber = _currentFrame + 1;
+    command.getNode()->send( reply );
 
     if( !_startFrame( packet->frameID ))
     {

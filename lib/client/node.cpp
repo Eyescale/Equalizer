@@ -458,9 +458,9 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     _tasks = packet->tasks;
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
 
-    _currentFrame  = 0;
-    _unlockedFrame = 0;
-    _finishedFrame = 0;
+    _currentFrame  = packet->frameNumber;
+    _unlockedFrame = packet->frameNumber;
+    _finishedFrame = packet->frameNumber;
 
 #ifdef EQ_ASYNC_TRANSMIT
     transmitter.start();

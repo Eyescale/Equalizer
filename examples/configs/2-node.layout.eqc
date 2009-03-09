@@ -14,9 +14,9 @@ server
                     channel { name "channel1" }
                 }
             }
-#        }
-#        node
-#        {
+        }
+        node
+        {
             pipe
             {
                 window

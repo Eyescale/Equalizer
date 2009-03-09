@@ -77,6 +77,8 @@ void Config::setLocalNode( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdExitReply ), queue );
     registerCommand( CMD_CONFIG_START_FRAME_REPLY, 
                      ConfigFunc( this, &Config::_cmdStartFrameReply ), 0 );
+    registerCommand( CMD_CONFIG_RELEASE_FRAME_LOCAL, 
+                     ConfigFunc( this, &Config::_cmdReleaseFrameLocal ), queue);
     registerCommand( CMD_CONFIG_FRAME_FINISH, 
                      ConfigFunc( this, &Config::_cmdFrameFinish ), 0 );
     registerCommand( CMD_CONFIG_EVENT, 
@@ -752,10 +754,16 @@ net::CommandResult Config::_cmdStartFrameReply( net::Command& command )
     EQVERB << "handle frame start reply " << packet << endl;
 
     _currentFrame = packet->frameNumber;
-    if( _nodes.empty( )) // no local rendering - release sync immediately
-        releaseFrameLocal( packet->frameNumber );
-
     _requestHandler.serveRequest( packet->requestID );
+    return net::COMMAND_HANDLED;
+}
+
+net::CommandResult Config::_cmdReleaseFrameLocal( net::Command& command )
+{
+    const ConfigReleaseFrameLocalPacket* packet =
+        command.getPacket< ConfigReleaseFrameLocalPacket >();
+
+    releaseFrameLocal( packet->frameNumber );
     return net::COMMAND_HANDLED;
 }
 

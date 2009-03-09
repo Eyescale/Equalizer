@@ -841,7 +841,7 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     }
     else
     {
-        EQWARN << "Can't find master object for subscribe" << endl;
+        EQWARN << "Can't find master object to subscribe " << id << endl;
         reply.result = false;
     }
 
@@ -884,7 +884,14 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
 
     EQASSERT( _requestHandler.getRequestData( packet->requestID ));
 
-    _requestHandler.serveRequest( packet->requestID, packet->version );
+    if( !packet->requestID )
+    {
+        EQWARN << "Could not subscribe object " << packet->objectID << endl;
+        _requestHandler.serveRequest( packet->requestID, Object::VERSION_NONE );
+    }
+    else
+        _requestHandler.serveRequest( packet->requestID, packet->version );
+
     return COMMAND_HANDLED;
 }
 

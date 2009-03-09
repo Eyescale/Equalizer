@@ -236,7 +236,7 @@ void Node::updateRunning( const uint32_t initID, const uint32_t frameNumber )
     if( isActive() && _state != STATE_RUNNING ) // becoming active
     {
         EQASSERT( _state == STATE_STOPPED );
-        _configInit( initID );
+        _configInit( initID, frameNumber );
     }
 
     // Let all running pipes update their running state (incl. children)
@@ -287,7 +287,7 @@ bool Node::syncRunning()
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Node::_configInit( const uint32_t initID )
+void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
@@ -305,8 +305,9 @@ void Node::_configInit( const uint32_t initID )
 
     EQLOG( LOG_INIT ) << "Init node" << std::endl;
     eq::NodeConfigInitPacket packet;
-    packet.initID = initID;
-    packet.tasks  = _tasks;
+    packet.initID      = initID;
+    packet.tasks       = _tasks;
+    packet.frameNumber = frameNumber;
 
     memcpy( packet.iAttributes, _iAttributes, 
             eq::Node::IATTR_ALL * sizeof( int32_t ));

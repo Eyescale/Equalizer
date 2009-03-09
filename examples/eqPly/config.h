@@ -72,6 +72,7 @@ namespace eqPly
 
     private:
         void _loadModels();
+        void _deregisterData();
     };
 }
 

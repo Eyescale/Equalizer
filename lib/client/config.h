@@ -374,6 +374,7 @@ namespace eq
         net::CommandResult _cmdInitReply( net::Command& command );
         net::CommandResult _cmdExitReply( net::Command& command );
         net::CommandResult _cmdStartFrameReply( net::Command& command );
+        net::CommandResult _cmdReleaseFrameLocal( net::Command& command );
         net::CommandResult _cmdFrameFinish( net::Command& command );
 #ifdef EQ_TRANSMISSION_API
         net::CommandResult _cmdData( net::Command& command );

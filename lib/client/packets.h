@@ -294,6 +294,16 @@ namespace eq
         uint32_t frameNumber;
     };
 
+    struct ConfigReleaseFrameLocalPacket : public ConfigPacket
+    {
+        ConfigReleaseFrameLocalPacket()
+            {
+                command       = CMD_CONFIG_RELEASE_FRAME_LOCAL;
+                size          = sizeof( ConfigReleaseFrameLocalPacket );
+            }
+        uint32_t frameNumber;
+    };
+
     struct ConfigFrameFinishPacket : public ConfigPacket
     {
         ConfigFrameFinishPacket()
@@ -370,6 +380,7 @@ namespace eq
             }
 
         uint32_t initID;
+        uint32_t frameNumber;
         int32_t  iAttributes[ eq::Node::IATTR_ALL ];
         int32_t  tasks;
         EQ_ALIGN8( char name[8] );
