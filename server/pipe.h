@@ -198,6 +198,8 @@ namespace server
         const std::string& getErrorMessage() const { return _error; }
         //@}
 
+        void send( net::ObjectPacket& packet );
+
     protected:
         virtual ~Pipe();
 
@@ -259,11 +261,7 @@ namespace server
         /** common code for all constructors */
         void _construct();
 
-        void _send( net::ObjectPacket& packet );
         void _send( net::ObjectPacket& packet, const std::string& string ) ;
-
-        void _startWindows();
-        void _stopWindows();
 
         void _configInit( const uint32_t initID );
         bool _syncConfigInit();

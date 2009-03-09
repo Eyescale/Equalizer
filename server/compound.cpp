@@ -284,7 +284,11 @@ void Compound::addLoadBalancer( LoadBalancer* loadBalancer )
 
 bool Compound::isActive() const 
 {
-    return _inherit.active && _active; 
+    const Channel* channel = getChannel();
+    if( channel )
+        return _inherit.active && channel->isActive(); 
+
+    return _inherit.active;
 }
 
 //---------------------------------------------------------------------------

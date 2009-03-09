@@ -375,7 +375,7 @@ void Window::leaveNVSwapBarrier( const SwapBarrier* barrier )
         _nvSwapBarrier = 0;
 }
 
-void Window::_send( net::ObjectPacket& packet ) 
+void Window::send( net::ObjectPacket& packet ) 
 {
     packet.objectID = getID(); 
     getNode()->send( packet ); 
@@ -402,8 +402,6 @@ void Window::updateRunning( const uint32_t initID )
 
     if( isActive() && _state != STATE_RUNNING ) // becoming active
         _configInit( initID );
-
-    _startChannels();
 
     // Let all running channels update their running state (incl. children)
     for( ChannelVector::const_iterator i = _channels.begin(); 
@@ -435,8 +433,6 @@ bool Window::syncRunning()
         }
     }
 
-    _stopChannels();
-
     if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
         // becoming active
         success = false;
@@ -450,45 +446,6 @@ bool Window::syncRunning()
     return success;
 }
 
-void Window::_startChannels()
-{
-    // start up newly running channels
-    for( ChannelVector::const_iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
-    {
-        Channel* channel = *i;
-        if( channel->isActive() && channel->getState()!=Channel::STATE_RUNNING )
-        {   
-            getConfig()->registerObject( channel );
-
-            eq::WindowCreateChannelPacket createChannelPacket;
-            createChannelPacket.channelID = channel->getID();
-            _send( createChannelPacket );
-        }
-    }
-}
-
-void Window::_stopChannels()
-{
-    for( ChannelVector::const_iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
-    {
-        Channel* channel = *i;
-        if( channel->getState() == Channel::STATE_RUNNING ||
-            channel->getID() == EQ_ID_INVALID )
-        {
-            continue;
-        }
-
-        EQASSERT( channel->getState() == Channel::STATE_STOPPED );
-        
-        eq::WindowDestroyChannelPacket destroyChannelPacket;
-        destroyChannelPacket.channelID = channel->getID();
-        _send( destroyChannelPacket );
-        getConfig()->deregisterObject( channel );
-    }
-}
-
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
@@ -496,6 +453,13 @@ void Window::_configInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state         = STATE_INITIALIZING;
+
+    getConfig()->registerObject( this );
+
+    EQLOG( LOG_INIT ) << "Create Window" << std::endl;
+    eq::PipeCreateWindowPacket createWindowPacket;
+    createWindowPacket.windowID = getID();
+    _pipe->send( createWindowPacket );
 
     eq::WindowConfigInitPacket packet;
     packet.initID = initID;
@@ -521,6 +485,7 @@ void Window::_configInit( const uint32_t initID )
         packet.nvSwapGroup   = 0;
     }
 
+    EQLOG( LOG_INIT ) << "Init Window" << std::endl;
     _send( packet, _name );
     EQLOG( eq::LOG_TASKS ) << "TASK window configInit  " << &packet << endl;
 }
@@ -549,8 +514,14 @@ void Window::_configExit()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
+    EQLOG( LOG_INIT ) << "Exit Window" << std::endl;
     eq::WindowConfigExitPacket packet;
-    _send( packet );
+    send( packet );
+
+    EQLOG( LOG_INIT ) << "Destroy Window" << std::endl;
+    eq::PipeDestroyWindowPacket destroyWindowPacket;
+    destroyWindowPacket.windowID = getID();
+    _pipe->send( destroyWindowPacket );
 }
 
 bool Window::_syncConfigExit()
@@ -561,6 +532,8 @@ bool Window::_syncConfigExit()
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );
+
+    getConfig()->deregisterObject( this );
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
     _tasks = eq::TASK_NONE;
@@ -582,7 +555,7 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     eq::WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
-    _send( startPacket );
+    send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK window start frame  " << &startPacket 
                            << endl;
 
@@ -613,7 +586,7 @@ void Window::updatePost( const uint32_t frameID,
     eq::WindowFrameFinishPacket finishPacket;
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
-    _send( finishPacket );
+    send( finishPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
                            << endl;
     _lastDrawChannel = 0;
@@ -626,7 +599,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
     eq::WindowThrottleFramerate packetThrottle;
     packetThrottle.minFrameTime = 1000.0f / _maxFPS;
         
-    _send( packetThrottle );
+    send( packetThrottle );
     EQLOG( eq::LOG_TASKS ) << "TASK Throttle framerate  " << &packetThrottle << endl;
 
     
@@ -644,7 +617,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
         if( doFinish )
         {
             eq::WindowFinishPacket packet;
-            _send( packet );
+            send( packet );
             EQLOG( eq::LOG_TASKS ) << "TASK finish  " << &packet << endl;
 
             updateFrameFinishNT( frameNumber );
@@ -655,7 +628,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
 
         packet.barrierID      = barrier->getID();
         packet.barrierVersion = barrier->getVersion();
-        _send( packet );
+        send( packet );
         EQLOG( eq::LOG_TASKS ) << "TASK barrier  " << &packet << endl;
     }
 
@@ -665,7 +638,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
     {
         eq::WindowSwapPacket packet;
 
-        _send( packet );
+        send( packet );
         EQLOG( eq::LOG_TASKS ) << "TASK swap  " << &packet << endl;
     }
 

@@ -353,6 +353,12 @@ void Channel::_configInit( const uint32_t initID )
     EQASSERT( _state == STATE_STOPPED );
     _state         = STATE_INITIALIZING;
 
+    getConfig()->registerObject( this );
+
+    eq::WindowCreateChannelPacket createChannelPacket;
+    createChannelPacket.channelID = getID();
+    _window->send( createChannelPacket );
+
     eq::ChannelConfigInitPacket packet;
     packet.initID = initID;
     packet.viewID = _view ? _view->getID() : EQ_ID_INVALID;
@@ -367,8 +373,8 @@ void Channel::_configInit( const uint32_t initID )
     memcpy( packet.iAttributes, _iAttributes, 
             eq::Channel::IATTR_ALL * sizeof( int32_t )); 
 
+    EQLOG( LOG_INIT ) << "Init channel" << std::endl;
     send( packet, _name );
-    EQLOG( eq::LOG_TASKS ) << "TASK channel configInit  " << &packet << endl;
 }
 
 bool Channel::_syncConfigInit()
@@ -395,8 +401,13 @@ void Channel::_configExit()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
+    EQLOG( LOG_INIT ) << "Exit channel" << std::endl;
     eq::ChannelConfigExitPacket packet;
     send( packet );
+
+    eq::WindowDestroyChannelPacket destroyChannelPacket;
+    destroyChannelPacket.channelID = getID();
+    _window->send( destroyChannelPacket );
 }
 
 bool Channel::_syncConfigExit()
@@ -407,6 +418,8 @@ bool Channel::_syncConfigExit()
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );
+
+    getConfig()->deregisterObject( this );
 
     _state = STATE_STOPPED;
     _tasks = eq::TASK_NONE;

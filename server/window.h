@@ -252,6 +252,8 @@ namespace server
         const std::string& getErrorMessage() const { return _error; }
         //@}
 
+        void send( net::ObjectPacket& packet );
+
     protected:
         virtual ~Window();
 
@@ -330,11 +332,7 @@ namespace server
         /** Clears all swap barriers of the window. */
         void _resetSwapBarriers();
 
-        void _send( net::ObjectPacket& packet );
         void _send( net::ObjectPacket& packet, const std::string& string );
-
-        void _startChannels();
-        void _stopChannels();
 
         void _configInit( const uint32_t initID );
         bool _syncConfigInit();

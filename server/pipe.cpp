@@ -274,7 +274,7 @@ void Pipe::addTasks( const uint32_t tasks )
     _node->addTasks( tasks );
 }
 
-void Pipe::_send( net::ObjectPacket& packet )
+void Pipe::send( net::ObjectPacket& packet )
 { 
     EQASSERT( _node );
     packet.objectID = getID();
@@ -303,8 +303,6 @@ void Pipe::updateRunning( const uint32_t initID )
 
     if( isActive() && _state != STATE_RUNNING ) // becoming active
         _configInit( initID );
-
-    _startWindows();
 
     // Let all running windows update their running state (incl. children)
     for( WindowVector::const_iterator i = _windows.begin(); 
@@ -336,8 +334,6 @@ bool Pipe::syncRunning()
         }
     }
 
-    _stopWindows();
-
     if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
         // becoming active
         success = false;
@@ -350,45 +346,6 @@ bool Pipe::syncRunning()
     return success;
 }
 
-void Pipe::_startWindows()
-{
-    // start up newly running windows
-    for( WindowVector::const_iterator i = _windows.begin(); 
-         i != _windows.end(); ++i )
-    {
-        Window* window = *i;
-        if( window->isActive() && window->getState() != Window::STATE_RUNNING )
-        {   
-            getConfig()->registerObject( window );
-
-            eq::PipeCreateWindowPacket createWindowPacket;
-            createWindowPacket.windowID = window->getID();
-            _send( createWindowPacket );
-        }
-    }
-}
-
-void Pipe::_stopWindows()
-{
-    for( WindowVector::const_iterator i = _windows.begin(); 
-         i != _windows.end(); ++i )
-    {
-        Window* window = *i;
-        if( window->getState() == Window::STATE_RUNNING ||
-            window->getID() == EQ_ID_INVALID )
-        {
-            continue;
-        }
-
-        EQASSERT( window->getState() == Window::STATE_STOPPED );
-        
-        eq::PipeDestroyWindowPacket destroyWindowPacket;
-        destroyWindowPacket.windowID = window->getID();
-        _send( destroyWindowPacket );
-        getConfig()->deregisterObject( window );
-    }
-}
-
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
@@ -397,15 +354,23 @@ void Pipe::_configInit( const uint32_t initID )
     EQASSERT( _state == STATE_STOPPED );
     _state         = STATE_INITIALIZING;
 
+    getConfig()->registerObject( this );
+
+    EQLOG( LOG_INIT ) << "Create pipe" << std::endl;
+    eq::NodeCreatePipePacket createPipePacket;
+    createPipePacket.objectID = _node->getID();
+    createPipePacket.pipeID   = getID();
+    createPipePacket.threaded = getIAttribute( IATTR_HINT_THREAD );
+    _node->send( createPipePacket );
+
+    EQLOG( LOG_INIT ) << "Init pipe" << std::endl;
     eq::PipeConfigInitPacket packet;
     packet.initID = initID;
     packet.port   = _port;
     packet.device = _device;
     packet.tasks  = _tasks;
     packet.pvp    = _pvp;
-
     _send( packet, _name );
-    EQLOG( eq::LOG_TASKS ) << "TASK pipe configInit  " << &packet << endl;
 }
 
 bool Pipe::_syncConfigInit()
@@ -432,8 +397,15 @@ void Pipe::_configExit()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
+    EQLOG( LOG_INIT ) << "Exit pipe" << std::endl;
     eq::PipeConfigExitPacket packet;
-    _send( packet );
+    send( packet );
+
+    EQLOG( LOG_INIT ) << "Destroy pipe" << std::endl;
+    eq::NodeDestroyPipePacket destroyPipePacket;
+    destroyPipePacket.objectID = _node->getID();
+    destroyPipePacket.pipeID   = getID();
+    _node->send( destroyPipePacket );
 }
 
 bool Pipe::_syncConfigExit()
@@ -448,8 +420,10 @@ bool Pipe::_syncConfigExit()
     if( getIAttribute( IATTR_HINT_THREAD ))
     {   // Note: thread is started by NodeCreatePipePacket
         eq::PipeStopThreadPacket packet;
-        _send( packet );
+        send( packet );
     }
+
+    getConfig()->deregisterObject( this );
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
     _tasks = eq::TASK_NONE;
@@ -465,7 +439,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     EQASSERT( _active > 0 );
 
     eq::PipeFrameStartClockPacket startClockPacket;
-    _send( startClockPacket );
+    send( startClockPacket );
 
     if( !_lastDrawWindow ) // happens when all used channels skip a frame
     {
@@ -474,7 +448,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
         eq::PipeFrameNoDrawPacket packet;
         packet.frameID     = frameID;
         packet.frameNumber = frameNumber;
-        _send( packet );
+        send( packet );
         EQLOG( eq::LOG_TASKS ) << "TASK pipe no draw " << &packet << endl;
     }
 
@@ -482,7 +456,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
 
-    _send( startPacket );
+    send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK pipe start frame " << &startPacket << endl;
 
     for( vector< Window* >::const_iterator i = _windows.begin(); 
@@ -505,7 +479,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     finishPacket.frameID      = frameID;
     finishPacket.frameNumber  = frameNumber;
 
-    _send( finishPacket );
+    send( finishPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
                            << endl;
     _lastDrawWindow = 0;

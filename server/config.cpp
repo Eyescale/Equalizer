@@ -697,7 +697,6 @@ void Config::_startNodes()
 
         if( node->isActive() && state != Node::STATE_RUNNING )
         {
-            EQLOG( LOG_INIT ) << "Initializing node" << std::endl;
             EQASSERT( state == Node::STATE_STOPPED );
             startingNodes.push_back( node );
             if( node != _appNode )
@@ -710,14 +709,6 @@ void Config::_startNodes()
          i != requests.end(); ++i )
     {
         _requestHandler.waitRequest( *i );
-    }
-
-    // Create node instances on starting nodes
-    for( NodeVector::const_iterator i = startingNodes.begin(); 
-         i != startingNodes.end(); ++i )
-    {
-        Node* node = *i;
-        _createNode( node );
     }
 }
 
@@ -740,16 +731,11 @@ void Config::_stopNodes()
         EQASSERT( node->getState() == Node::STATE_STOPPED );
         EQASSERT( !node->isActive( ));
         
-        net::NodePtr netNode = node->getNode();
-        EQASSERT( netNode.isValid( ));
-
-        EQLOG( LOG_INIT ) << "Destroy node" << std::endl;
-        eq::ConfigDestroyNodePacket   destroyNodePacket;
-        destroyNodePacket.nodeID = node->getID();
-        send( netNode, destroyNodePacket );
-
         if( node != _appNode )
         {
+            net::NodePtr netNode = node->getNode();
+            EQASSERT( netNode.isValid( ));
+
             eq::ServerDestroyConfigPacket destroyConfigPacket;
             destroyConfigPacket.configID  = getID();
             netNode->send( destroyConfigPacket );
@@ -757,12 +743,7 @@ void Config::_stopNodes()
             eq::ClientExitPacket clientExitPacket;
             netNode->send( clientExitPacket );
         }
-
-        deregisterObject( node );
     }
-
-    if( stoppingNodes.empty( ))
-        return;
 
     // now wait that the render clients disconnect
     uint32_t nSleeps = 50; // max 5 seconds for all clients
@@ -812,20 +793,6 @@ uint32_t Config::_createConfig( Node* node )
     netNode->send( createConfigPacket, name );
 
     return createConfigPacket.requestID;
-}
-
-void Config::_createNode( Node* node )
-{
-    EQASSERT( node->isActive( ));
-
-    registerObject( node );
-
-    // sync config creation and start node init
-    eq::ConfigCreateNodePacket createNodePacket;
-    createNodePacket.nodeID = node->getID();
-
-    net::NodePtr netNode = node->getNode();
-    send( netNode, createNodePacket );
 }
 
 void Config::_syncClock()

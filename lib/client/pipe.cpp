@@ -599,6 +599,29 @@ net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
     Window* window = _findWindow( packet->windowID );
     EQASSERT( window );
 
+    // re-set shared windows accordingly
+    Window* newSharedWindow = 0;
+    for( WindowVector::const_iterator i = _windows.begin(); 
+         i != _windows.end(); ++i )
+    {
+        Window* candidate = *i;
+        
+        if( candidate == window )
+            continue; // ignore
+        if( !newSharedWindow && candidate->getSharedContextWindow() == window )
+        {
+            newSharedWindow = candidate;
+            newSharedWindow->setSharedContextWindow( 0 );
+        }
+        else if( newSharedWindow && 
+                 candidate->getSharedContextWindow() == window )
+        {
+            candidate->setSharedContextWindow( newSharedWindow );
+        }
+
+        EQASSERT( candidate->getSharedContextWindow() != window );
+    }
+
     Config* config = getConfig();
     config->detachObject( window );
     Global::getNodeFactory()->releaseWindow( window );
@@ -611,7 +634,7 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
     CHECK_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
         command.getPacket<PipeConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "TASK pipe config init " << packet << endl;
+    EQLOG( LOG_INIT ) << "Init pipe " << packet << endl;
 
     _name   = packet->name;
     _port   = packet->port;

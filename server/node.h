@@ -200,7 +200,7 @@ namespace server
                 _bufferedTasks.send( packet, string );
             }
         template< typename T >
-        void send( net::ObjectPacket &packet, const std::vector<T>& data )
+        void send( net::SessionPacket &packet, const std::vector<T>& data )
             {
                 packet.sessionID = _config->getID(); 
                 _bufferedTasks.send( packet, data );
@@ -300,9 +300,6 @@ namespace server
 
         /** common code for all constructors */
         void _construct();
-
-        void _startPipes();
-        void _stopPipes();
 
         void _configInit( const uint32_t initID );
         bool _syncConfigInit();

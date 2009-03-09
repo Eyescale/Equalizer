@@ -646,10 +646,10 @@ static PixelViewport _getBoundingPVP( const PixelViewport& pvp )
 
 
 bool ROIFinder::getObjects( const uint32_t         buffers,
-                                 const PixelViewport&   pvp,
-                                 const Zoom&            zoom,
-                                 Window::ObjectManager* glObjects,
-                                 PVPVector&                resultPVPs )
+                            const PixelViewport&   pvp,
+                            const Zoom&            zoom,
+                            Window::ObjectManager* glObjects,
+                            PVPVector&             resultPVPs )
 {
     return false; // disable read back info usage
 

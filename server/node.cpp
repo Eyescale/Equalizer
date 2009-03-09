@@ -239,8 +239,6 @@ void Node::updateRunning( const uint32_t initID )
         _configInit( initID );
     }
 
-    _startPipes();
-
     // Let all running pipes update their running state (incl. children)
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
         (*i)->updateRunning( initID );
@@ -272,7 +270,6 @@ bool Node::syncRunning()
         }
     }
 
-    _stopPipes();
     flushSendBuffer();
 
     if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
@@ -287,46 +284,6 @@ bool Node::syncRunning()
     return success;
 }
 
-void Node::_startPipes()
-{
-    // start up newly running pipes
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
-    {
-        Pipe* pipe = *i;
-        if( pipe->isActive() && pipe->getState() != Pipe::STATE_RUNNING )
-        {   
-            _config->registerObject( pipe );
-
-            eq::NodeCreatePipePacket createPipePacket;
-            createPipePacket.pipeID   = pipe->getID();
-            createPipePacket.threaded = 
-                pipe->getIAttribute( Pipe::IATTR_HINT_THREAD );
-            _send( createPipePacket );
-        }
-    }
-}
-
-void Node::_stopPipes()
-{
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
-    {
-        Pipe* pipe = *i;
-        if( pipe->getState() == Pipe::STATE_RUNNING ||
-            pipe->getID() == EQ_ID_INVALID )
-        {
-            continue;
-        }
-
-        EQASSERT( pipe->getState() == Pipe::STATE_STOPPED );
-        
-        EQLOG( LOG_INIT ) << "Destroy pipe" << std::endl;
-        eq::NodeDestroyPipePacket destroyPipePacket;
-        destroyPipePacket.pipeID = pipe->getID();
-        _send( destroyPipePacket );
-        _config->deregisterObject( pipe );
-    }
-}
-
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
@@ -339,6 +296,14 @@ void Node::_configInit( const uint32_t initID )
     _finishedFrame = 0;
     _frameIDs.clear();
 
+    _config->registerObject( this );
+
+    EQLOG( LOG_INIT ) << "Create node" << std::endl;
+    eq::ConfigCreateNodePacket createNodePacket;
+    createNodePacket.nodeID = getID();
+    _config->send( _node, createNodePacket );
+
+    EQLOG( LOG_INIT ) << "Init node" << std::endl;
     eq::NodeConfigInitPacket packet;
     packet.initID = initID;
     packet.tasks  = _tasks;
@@ -347,7 +312,6 @@ void Node::_configInit( const uint32_t initID )
             eq::Node::IATTR_ALL * sizeof( int32_t ));
 
     _send( packet, _name );
-    EQLOG( eq::LOG_TASKS ) << "TASK node configInit  " << &packet << endl;
 }
 
 bool Node::_syncConfigInit()
@@ -374,8 +338,15 @@ void Node::_configExit()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
+    EQLOG( LOG_INIT ) << "Exit node" << std::endl;
     eq::NodeConfigExitPacket packet;
     _send( packet );
+    flushSendBuffer();
+
+    EQLOG( LOG_INIT ) << "Destroy node" << std::endl;
+    eq::ConfigDestroyNodePacket destroyNodePacket;
+    destroyNodePacket.nodeID = getID();
+    _config->send( _node, destroyNodePacket );
 }
 
 bool Node::_syncConfigExit()
@@ -386,6 +357,8 @@ bool Node::_syncConfigExit()
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );
+
+    _config->deregisterObject( this );
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
     _tasks = eq::TASK_NONE;

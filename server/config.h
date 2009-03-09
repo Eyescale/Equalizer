@@ -412,7 +412,6 @@ namespace server
         bool     _syncConnectNode( Node* node );
         void   _startNodes();
         uint32_t _createConfig( Node* node );
-        void     _createNode( Node* node );
         void   _stopNodes();
         void   _syncClock();
 

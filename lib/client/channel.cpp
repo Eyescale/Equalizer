@@ -995,7 +995,7 @@ net::CommandResult Channel::_cmdConfigExit( net::Command& command )
 {
     const ChannelConfigExitPacket* packet =
         command.getPacket<ChannelConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "TASK channel config exit " << packet << endl;
+    EQLOG( LOG_INIT ) << "Exit channel " << packet << endl;
 
     ChannelConfigExitReplyPacket reply;
     reply.result = configExit();

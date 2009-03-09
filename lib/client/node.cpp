@@ -451,7 +451,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
 {
     const NodeConfigInitPacket* packet = 
         command.getPacket<NodeConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "TASK node config init " << packet << endl;
+    EQLOG( LOG_INIT ) << "Init node " << packet << endl;
 
     CHECK_THREAD( _nodeThread );
     _name  = packet->name;
@@ -474,7 +474,6 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
 
     _initialized = true; // even if init failed we need to unlock the pipes
 
-    EQLOG( LOG_INIT ) << "TASK node config init reply " << &reply << endl;
     send( command.getNode(), reply, _error );
     return net::COMMAND_HANDLED;
 }
@@ -483,7 +482,7 @@ net::CommandResult Node::_cmdConfigExit( net::Command& command )
 {
     const NodeConfigExitPacket* packet = 
         command.getPacket<NodeConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "TASK node config exit " << packet << endl;
+    EQLOG( LOG_INIT ) << "Node exit " << packet << endl;
 
     CHECK_THREAD( _nodeThread );
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 

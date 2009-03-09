@@ -212,6 +212,19 @@ namespace net
         void detachObject( Object* object );
         //*}
         
+        /** 
+         * Send a packet to a node.
+         * 
+         * @param node the target node.
+         * @param packet the packet.
+         * @return the success status of the transaction.
+         */
+        void send( NodePtr node, SessionPacket& packet )
+            {
+                packet.sessionID = _id;
+                node->send( packet );
+            }
+
     protected:
         /** 
          * Send a packet to the session's server node.
@@ -232,18 +245,6 @@ namespace net
                 return _server->send( packet, data );
             }
 
-        /** 
-         * Send a packet to a node.
-         * 
-         * @param node the target node.
-         * @param packet the packet.
-         * @return the success status of the transaction.
-         */
-        void send( NodePtr node, SessionPacket& packet )
-            {
-                packet.sessionID = _id;
-                node->send( packet );
-            }
 
         void send( NodePtr node, SessionPacket& packet, 
                    const std::string& text )
