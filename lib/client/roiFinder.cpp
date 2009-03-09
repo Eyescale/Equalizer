@@ -17,6 +17,8 @@ namespace eq
 static const char seeds = 42;
 static const char* shaderRBInfo = &seeds;
 
+#define GRID_SIZE 16 // will be replaced later by variable
+
 
 ROIFinder::ROIFinder()
     : _glObjects( 0 )
@@ -451,7 +453,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
 }
 
 
-void ROIFinder::_findAreas( PVPVector& resultPVPs )
+void ROIFinder::_findAreas( PixelViewportVector& resultPVPs )
 {
     EQASSERT( _areasToCheck.size() == 0 );
 
@@ -492,13 +494,16 @@ void ROIFinder::_findAreas( PVPVector& resultPVPs )
     // correct position and sizes
     for( uint32_t i = 0; i < resultPVPs.size(); i++ )
     {
-      _fillWithColor(resultPVPs[i],&_tmpMask[0],255-i*200/resultPVPs.size() );
+        _fillWithColor( resultPVPs[i], &_tmpMask[0], 
+                        255 - i*200/resultPVPs.size( ));
 
         PixelViewport& pvp = resultPVPs[i];
         pvp.x += _pvp.x;
         pvp.y += _pvp.y;
         pvp.w++;
         pvp.h++;
+
+        pvp.apply( Zoom( GRID_SIZE, GRID_SIZE ));
     }
 
 }
@@ -508,8 +513,6 @@ const void* ROIFinder::_getInfoKey( ) const
     return ( reinterpret_cast< const char* >( this ) + 3 );
 }
 
-
-#define GRID_SIZE 16 // will be replaced later by variable
 
 void ROIFinder::_readbackInfo( )
 {
@@ -645,13 +648,14 @@ static PixelViewport _getBoundingPVP( const PixelViewport& pvp )
 }
 
 
-bool ROIFinder::getObjects( const uint32_t         buffers,
-                            const PixelViewport&   pvp,
-                            const Zoom&            zoom,
-                            Window::ObjectManager* glObjects,
-                            PVPVector&             resultPVPs )
+PixelViewportVector ROIFinder::findRegions( const uint32_t         buffers,
+                                            const PixelViewport&   pvp,
+                                            const Zoom&            zoom,
+                                            Window::ObjectManager* glObjects )
 {
-    return false; // disable read back info usage
+    PixelViewportVector result;
+    result.push_back( pvp );
+    return result; // disable read back info usage
 
     EQASSERT( glObjects );
     EQASSERTINFO( !_glObjects, "Another readback in progress?" );
@@ -663,14 +667,14 @@ bool ROIFinder::getObjects( const uint32_t         buffers,
     {
         EQWARN << "R-B optimization impossible when zoom is used"
                << std::endl;
-        return false;
+        return result;
     }
 
     if( !(buffers & Frame::BUFFER_DEPTH ))
     {
         EQWARN << "No depth buffer, R-B optimization impossible" 
                << std::endl;
-        return false;
+        return result;
     }
 
     _resize( _getBoundingPVP( pvp ));
@@ -698,9 +702,9 @@ for( int i = 0; i < 100; i++ )
 
     _emptyFinder.update( &_mask[0], _wb, _hb );
     _emptyFinder.setLimits( 50, 0.01 );
-
-    resultPVPs.clear();
-    _findAreas( resultPVPs );
+    
+    result.clear();
+    _findAreas( result );
 /*}
 
     const float time = clock.getTimef() / 100;
@@ -712,7 +716,7 @@ for( int i = 0; i < 100; i++ )
 //    EQWARN << "Areas found: " << resultPVPs.size() << std::endl;
 //    _dumpDebug( ss.str( ) + "_00" );
 
-    return true;
+    return result;
 }
 
 }

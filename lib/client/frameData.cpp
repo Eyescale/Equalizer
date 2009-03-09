@@ -176,27 +176,22 @@ void FrameData::startReadback( const Frame& frame,
         return;
     }
 
-    PVPVector pvps;
-    if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE &&
-        _roiFinder->getObjects( _data.buffers, absPVP, zoom, glObjects, pvps ))
+    PixelViewportVector pvps;
+
+    if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
+        pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom, glObjects);
+    else
+        pvps.push_back( absPVP );
+
+    for( uint32_t i = 0; i < pvps.size(); i++ )
     {
-        for( uint32_t i = 0; i < pvps.size(); i++ )
-        {
-            PixelViewport pvp = pvps[ i ];
-            pvp.apply( Zoom( 16.0, 16.0 ));
-            pvp.intersect( absPVP );
-
-            Image* image = newImage( _data.frameType );
-            image->startReadback( _data.buffers, pvp, zoom, glObjects );
-            image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
-        }
-
-        return;
+        PixelViewport pvp = pvps[ i ];
+        pvp.intersect( absPVP );
+                
+        Image* image = newImage( _data.frameType );
+        image->startReadback( _data.buffers, pvp, zoom, glObjects );
+        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
     }
-
-
-    Image* image = newImage( _data.frameType );
-    image->startReadback( _data.buffers, absPVP, zoom, glObjects );
 }
 
 void FrameData::syncReadback()

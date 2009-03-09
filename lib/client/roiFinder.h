@@ -21,14 +21,13 @@ namespace eq
         ROIFinder();
         virtual ~ROIFinder(){};
 
-        bool getObjects( const uint32_t         buffers,
-                         const PixelViewport&   pvp,
-                         const Zoom&            zoom,
-                         Window::ObjectManager* glObjects,
-                         PVPVector&             resultPVPs );
+        PixelViewportVector findRegions( const uint32_t         buffers,
+                                         const PixelViewport&   pvp,
+                                         const Zoom&            zoom,
+                                         Window::ObjectManager* glObjects );
 
         /** @return the GL function table, valid during readback. */
-        GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }    
+        GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
 
     protected:
 
@@ -63,7 +62,7 @@ namespace eq
         void _updateSubArea( const uint8_t type );
 
         /** find areas in current mask*/
-        void _findAreas( PVPVector& resultPVPs );
+        void _findAreas( PixelViewportVector& resultPVPs );
 
 #ifndef NDEBUG
         void _invalidateAreas( Area* areas, uint8_t num );

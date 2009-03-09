@@ -44,7 +44,7 @@ typedef std::vector< Layout* >   LayoutVector;
 typedef std::vector< Segment* >  SegmentVector;
 typedef std::vector< View* >     ViewVector;
 
-typedef std::vector< PixelViewport > PVPVector;
+typedef std::vector< PixelViewport > PixelViewportVector;
 
 
 //----- Reference Pointers
