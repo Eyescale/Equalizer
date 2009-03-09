@@ -14,23 +14,6 @@ public:
     ModelAssigner( const ModelDistVector& models ) 
             : _models( models ), _current( models.begin( )), _layout( 0 ) {}
 
-    virtual eq::VisitorResult visitPre( eq::Canvas* canvas )
-        {
-            _layout = canvas->getLayout();
-            if( _layout )
-                _layout->accept( *this );
-
-            _layout = 0;
-            return eq::TRAVERSE_PRUNE;
-        }
-
-    virtual eq::VisitorResult visitPre( eq::Layout* layout )
-        {
-            if( _layout != layout )
-                return eq::TRAVERSE_PRUNE; // only consider used layouts
-            return eq::TRAVERSE_CONTINUE; 
-        }
-
     virtual eq::VisitorResult visit( eq::View* view )
         {
             const ModelDist* model = *_current;
