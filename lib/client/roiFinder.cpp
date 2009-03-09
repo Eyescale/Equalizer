@@ -36,7 +36,7 @@ void ROIFinder::_dumpDebug( const std::string file )
     _tmpImg.setFormat( Frame::BUFFER_COLOR, GL_RGB  );
     _tmpImg.setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
 
-    _tmpImg.resizeToFitPVP( Frame::BUFFER_COLOR );
+    _tmpImg.validatePixelData( Frame::BUFFER_COLOR );
 
     uint8_t* dst  = _tmpImg.getPixelPointer( Frame::BUFFER_COLOR );
     uint8_t* src1 = &_mask[0];

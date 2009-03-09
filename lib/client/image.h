@@ -117,9 +117,6 @@ namespace eq
 
         /** Reset the image to its default state. */
         void reset();
-
-        void resizeToFitPVP( const Frame::Buffer buffer );
-
         //*}
 
 
@@ -152,6 +149,9 @@ namespace eq
          * @param buffer the image buffer to clear.
          */
         void clearPixelData( const Frame::Buffer buffer );
+
+        /** Validate an image buffer without initializing its content. */
+        void validatePixelData( const Frame::Buffer buffer );
 
         /**
          * Set the pixel data of one of the image buffers.

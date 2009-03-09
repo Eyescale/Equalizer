@@ -65,16 +65,6 @@ void Image::flush()
     _depthTexture.flush();
 }
 
-void Image::resizeToFitPVP( const Frame::Buffer buffer )
-{
-    Pixels& pixels = _getPixels( buffer );
-    const size_t size = getPixelDataSize( buffer );
-
-    pixels.resize( size );
-
-    _getPixels( buffer ).state = Pixels::VALID;
-}
-
 uint32_t Image::getDepth( const Frame::Buffer buffer ) const
 {
     uint32_t depth = 0;
@@ -621,9 +611,8 @@ void Image::clearPixelData( const Frame::Buffer buffer )
     if( size == 0 )
         return;
 
+    validatePixelData( buffer );
     Pixels& pixels = _getPixels( buffer );
-
-    pixels.resize( size );
 
     if( buffer == Frame::BUFFER_DEPTH )
     {
@@ -661,8 +650,16 @@ void Image::clearPixelData( const Frame::Buffer buffer )
         else
             bzero( pixels.data.chunks[0]->data, size );
     }
+}
 
+void Image::validatePixelData( const Frame::Buffer buffer )
+{
+    Pixels& pixels = _getPixels( buffer );
+    const size_t size = getPixelDataSize( buffer );
+
+    pixels.resize( size );
     pixels.state = Pixels::VALID;
+
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
     compressedPixels.valid = false;
 }
