@@ -162,8 +162,6 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
                      PipeFunc( this, &Pipe::_cmdFrameDrawFinish ), queue );
     registerCommand( CMD_PIPE_FRAME_NO_DRAW, 
                      PipeFunc( this, &Pipe::_cmdFrameNoDraw ), 0 );
-    registerCommand( CMD_PIPE_STOP_THREAD, 
-                     PipeFunc( this, &Pipe::_cmdStopThread ), queue );
     registerCommand( CMD_PIPE_FRAME_START_CLOCK,
                      PipeFunc( this, &Pipe::_cmdFrameStartClock ), 0 );
 }
@@ -642,9 +640,9 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
     _tasks  = packet->tasks;
     _pvp    = packet->pvp;
 
-    _currentFrame  = 0;
-    _finishedFrame = 0;
-    _unlockedFrame = 0;
+    _currentFrame  = packet->frameNumber;
+    _finishedFrame = packet->frameNumber;
+    _unlockedFrame = packet->frameNumber;
 
     PipeConfigInitReplyPacket reply;
     _node->waitInitialized();
@@ -685,6 +683,20 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
     _state = STATE_STOPPED;
 
     send( command.getNode(), reply );
+
+    if( packet->exitThread )
+    {
+        EQASSERT( _thread );
+
+        // cleanup
+        _pipeThreadQueue->release( &command );
+        _pipeThreadQueue->flush();
+        
+        EQINFO << "Leaving pipe thread" << endl;
+        _thread->exit( EXIT_SUCCESS );
+        EQUNREACHABLE;
+    }
+
     return net::COMMAND_HANDLED;
 }
 
@@ -750,8 +762,8 @@ net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
     if( _unlockedFrame < frameNumber )
     {
         EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
-               << endl << "    unlocked " << _unlockedFrame.get() << " done "
-               << frameNumber << endl;
+               << std::endl << "    unlocked " << _unlockedFrame.get()
+               << " done " << frameNumber << std::endl;
         releaseFrameLocal( frameNumber );
     }
 
@@ -793,20 +805,6 @@ net::CommandResult Pipe::_cmdFrameNoDraw( net::Command& command )
                        << endl;
 
     frameNoDraw( packet->frameID, packet->frameNumber );
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Pipe::_cmdStopThread( net::Command& command )
-{
-    EQASSERT( _thread );
-
-    // cleanup
-    _pipeThreadQueue->release( &command );
-    _pipeThreadQueue->flush();
-
-    EQINFO << "Leaving pipe thread" << endl;
-    _thread->exit( EXIT_SUCCESS );
-    EQUNREACHABLE;
     return net::COMMAND_HANDLED;
 }
 }

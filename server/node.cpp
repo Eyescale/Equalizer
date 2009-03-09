@@ -228,7 +228,7 @@ void Node::deactivate()
 // update running entities (init/exit)
 //---------------------------------------------------------------------------
 
-void Node::updateRunning( const uint32_t initID )
+void Node::updateRunning( const uint32_t initID, const uint32_t frameNumber )
 {
     if( !isActive() && _state == STATE_STOPPED ) // inactive
         return;
@@ -241,7 +241,7 @@ void Node::updateRunning( const uint32_t initID )
 
     // Let all running pipes update their running state (incl. children)
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
-        (*i)->updateRunning( initID );
+        (*i)->updateRunning( initID, frameNumber );
 
     if( !isActive( )) // becoming inactive
     {

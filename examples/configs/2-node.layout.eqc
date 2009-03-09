@@ -13,12 +13,12 @@ server
                     
                     channel { name "channel1" }
                 }
-#            }
+            }
 #        }
 #        node
 #        {
-#            pipe
-#            {
+            pipe
+            {
                 window
                 {
                     viewport [ 0.5 0.25 0.4 0.4 ]

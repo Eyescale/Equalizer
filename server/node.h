@@ -130,7 +130,7 @@ namespace server
          */
         //*{
         /** Update (init and exit) this node and its children as needed. */
-        void updateRunning( const uint32_t initID );
+        void updateRunning( const uint32_t initID, const uint32_t frameNumber );
 
         /** Finalize the last updateRunning changes. */
         bool syncRunning();

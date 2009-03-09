@@ -296,13 +296,13 @@ void Pipe::_send( net::ObjectPacket& packet, const std::string& string )
 // update running entities (init/exit)
 //---------------------------------------------------------------------------
 
-void Pipe::updateRunning( const uint32_t initID )
+void Pipe::updateRunning( const uint32_t initID, const uint32_t frameNumber )
 {
     if( !isActive() && _state == STATE_STOPPED ) // inactive
         return;
 
     if( isActive() && _state != STATE_RUNNING ) // becoming active
-        _configInit( initID );
+        _configInit( initID, frameNumber );
 
     // Let all running windows update their running state (incl. children)
     for( WindowVector::const_iterator i = _windows.begin(); 
@@ -349,7 +349,7 @@ bool Pipe::syncRunning()
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Pipe::_configInit( const uint32_t initID )
+void Pipe::_configInit( const uint32_t initID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state         = STATE_INITIALIZING;
@@ -370,6 +370,7 @@ void Pipe::_configInit( const uint32_t initID )
     packet.device = _device;
     packet.tasks  = _tasks;
     packet.pvp    = _pvp;
+    packet.frameNumber = frameNumber;
     _send( packet, _name );
 }
 
@@ -399,6 +400,7 @@ void Pipe::_configExit()
 
     EQLOG( LOG_INIT ) << "Exit pipe" << std::endl;
     eq::PipeConfigExitPacket packet;
+    packet.exitThread = ( getIAttribute( IATTR_HINT_THREAD ) != eq::OFF );
     send( packet );
 
     EQLOG( LOG_INIT ) << "Destroy pipe" << std::endl;
@@ -416,12 +418,6 @@ bool Pipe::_syncConfigExit()
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );
-
-    if( getIAttribute( IATTR_HINT_THREAD ))
-    {   // Note: thread is started by NodeCreatePipePacket
-        eq::PipeStopThreadPacket packet;
-        send( packet );
-    }
 
     getConfig()->deregisterObject( this );
 

@@ -102,7 +102,6 @@ namespace eq
         CMD_PIPE_FRAME_FINISH,
         CMD_PIPE_FRAME_DRAW_FINISH,
         CMD_PIPE_FRAME_NO_DRAW,
-        CMD_PIPE_STOP_THREAD,
         CMD_PIPE_FRAME_START_CLOCK,
         CMD_PIPE_FILL1, // some buffer for binary-compatible patches
         CMD_PIPE_FILL2,

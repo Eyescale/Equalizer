@@ -528,6 +528,7 @@ namespace eq
         uint32_t      initID;
         uint32_t      port;
         uint32_t      device;
+        uint32_t      frameNumber;
         int32_t       tasks;
         PixelViewport pvp;
         EQ_ALIGN8( char name[8] );
@@ -554,6 +555,7 @@ namespace eq
                 command = CMD_PIPE_CONFIG_EXIT;
                 size    = sizeof( PipeConfigExitPacket );
             }
+        bool exitThread;
     };
 
     struct PipeConfigExitReplyPacket : public net::ObjectPacket
@@ -621,15 +623,6 @@ namespace eq
             }
         uint32_t frameID;
         uint32_t frameNumber;
-    };
-
-    struct PipeStopThreadPacket : public net::ObjectPacket
-    {
-        PipeStopThreadPacket()
-            {
-                command       = CMD_PIPE_STOP_THREAD;
-                size          = sizeof( PipeStopThreadPacket );
-            }
     };
 
     //------------------------------------------------------------
@@ -1107,7 +1100,7 @@ namespace eq
     {
         os << (net::ObjectPacket*)packet << " init id " << packet->initID
            << " port " << packet->port << " device " << packet->device
-           << " tasks " << packet->tasks;
+           << " tasks " << packet->tasks << " frame " << packet->frameNumber;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

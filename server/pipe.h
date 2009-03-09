@@ -153,7 +153,7 @@ namespace server
          */
         //*{
         /** Update (init and exit) this pipe and its children as needed. */
-        void updateRunning( const uint32_t initID );
+        void updateRunning( const uint32_t initID, const uint32_t frameNumber );
 
         /** Finalize the last updateRunning changes. */
         bool syncRunning();
@@ -263,7 +263,7 @@ namespace server
 
         void _send( net::ObjectPacket& packet, const std::string& string ) ;
 
-        void _configInit( const uint32_t initID );
+        void _configInit( const uint32_t initID, const uint32_t frameNumber );
         bool _syncConfigInit();
         void _configExit();
         bool _syncConfigExit();

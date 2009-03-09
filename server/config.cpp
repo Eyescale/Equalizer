@@ -556,7 +556,7 @@ bool Config::_updateRunning()
 
     // Let all running nodes update their running state (incl. children)
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
-        (*i)->updateRunning( _initID );
+        (*i)->updateRunning( _initID, _currentFrame );
 
     // Sync state updates
     bool success = true;

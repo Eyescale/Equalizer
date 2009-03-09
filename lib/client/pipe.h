@@ -489,7 +489,6 @@ namespace eq
         net::CommandResult _cmdFrameFinish( net::Command& command );
         net::CommandResult _cmdFrameDrawFinish( net::Command& command );
         net::CommandResult _cmdFrameNoDraw( net::Command& command );
-        net::CommandResult _cmdStopThread( net::Command& command );
 
         CHECK_THREAD_DECLARE( _pipeThread );
     };
