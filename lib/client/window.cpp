@@ -70,6 +70,7 @@ Window::Window( Pipe* parent )
         , _osWindow( 0 )
         , _pipe( parent )
         , _tasks( TASK_NONE )
+        , _objectManager( 0 )
         , _lastSwapTime( 0 )
         , _nvSwapGroup( 0 )
         , _nvSwapBarrier( 0 )
@@ -84,6 +85,9 @@ Window::~Window()
         _pipe->setCurrent( 0 );
 
     _pipe->_removeWindow( this );
+
+    delete _objectManager;
+    _objectManager = 0;
 }
 
 void Window::attachToSession( const uint32_t id, 
@@ -509,22 +513,23 @@ void Window::_setupObjectManager()
 {
     _releaseObjectManager();
 
-    Window* sharedWindow = getSharedContextWindow();
-    if( sharedWindow )
-        _objectManager = sharedWindow->getObjectManager();
+    Window*    sharedWindow = getSharedContextWindow();
+    ObjectManager* sharedOM = sharedWindow ? sharedWindow->getObjectManager():0;
 
-    if( !_objectManager.isValid( ))
-    {
+    if( sharedOM )
+        _objectManager = new ObjectManager( this, sharedOM );
+    else
         _objectManager = new ObjectManager( this );
-        _objectManager->_font.initFont();
-    }
+
+    _objectManager->_font.initFont();
 }
 
 void Window::_releaseObjectManager()
 {
-    if( _objectManager.isValid() && _objectManager->getRefCount() == 1 )
+    if( _objectManager && _objectManager->getSharedUsage() == 1 )
         _objectManager->deleteAll();
 
+    delete _objectManager;
     _objectManager = 0;
 }
 

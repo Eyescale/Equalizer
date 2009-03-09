@@ -16,101 +16,124 @@ using namespace stde;
 // instantiate desired key types -- see end of file
 
 template< typename T >
+ObjectManager< T >::ObjectManager( GLEWContext* const glewContext )
+        : _glewContext( glewContext )
+        , _data( new SharedData )
+{
+    EQASSERT( glewContext );
+}
+
+template< typename T >
+ObjectManager< T >::ObjectManager( GLEWContext* const glewContext, 
+                              ObjectManager* shared )
+        : _glewContext( glewContext )
+        , _data( shared->_data )
+{
+    EQASSERT( glewContext );
+}
+
+template< typename T >
 ObjectManager<T>::~ObjectManager()
 {
-    // Do not delete GL objects, we may have no GL context.
-    if( !_lists.empty( ))
-        EQWARN << _lists.size() 
-               << " lists still allocated in ObjectManager destructor" << endl;
-    _lists.clear();
+    _data = 0;
+}
 
-    if( !_textures.empty( ))
-        EQWARN << _textures.size() 
+template< typename T >
+ObjectManager<T>::SharedData::~SharedData()
+{
+    // Do not delete GL objects, we may no longer have a GL context.
+    if( !lists.empty( ))
+        EQWARN << lists.size() 
+               << " lists still allocated in ObjectManager destructor" << endl;
+    lists.clear();
+
+    if( !textures.empty( ))
+        EQWARN << textures.size() 
                << " textures still allocated in ObjectManager destructor" 
                << endl;
-    _textures.clear();
+    textures.clear();
 
-    if( !_buffers.empty( ))
-        EQWARN << _buffers.size() 
+    if( !buffers.empty( ))
+        EQWARN << buffers.size() 
                << " buffers still allocated in ObjectManager destructor" 
                << endl;
-    _buffers.clear();
+    buffers.clear();
 
-    if( !_programs.empty( ))
-        EQWARN << _programs.size() 
+    if( !programs.empty( ))
+        EQWARN << programs.size() 
                << " programs still allocated in ObjectManager destructor" 
                << endl;
-    _programs.clear();
+    programs.clear();
 
-    if( !_shaders.empty( ))
-        EQWARN << _shaders.size() 
+    if( !shaders.empty( ))
+        EQWARN << shaders.size() 
                << " shaders still allocated in ObjectManager destructor" 
                << endl;
-    _shaders.clear();
+    shaders.clear();
 
-    if( !_eqTextures.empty( ))
-        EQWARN << _eqTextures.size() 
+    if( !eqTextures.empty( ))
+        EQWARN << eqTextures.size() 
                << " eq::Texture's still allocated in ObjectManager destructor" 
                << endl;
-    _eqTextures.clear();
+    eqTextures.clear();
 
-    if( !_eqFrameBufferObjects.empty( ))
-        EQWARN << _eqFrameBufferObjects.size() 
+    if( !eqFrameBufferObjects.empty( ))
+        EQWARN << eqFrameBufferObjects.size() 
                << " eq::FrameBufferObject's still allocated in ObjectManager "
                << "destructor" << endl;
-    _eqFrameBufferObjects.clear();
+    eqFrameBufferObjects.clear();
 }
 
 template< typename T >
 void ObjectManager<T>::deleteAll()
 {
-   for( typename ObjectHash::const_iterator i = _lists.begin(); 
-         i != _lists.end(); ++i )
+   for( typename ObjectHash::const_iterator i = _data->lists.begin(); 
+         i != _data->lists.end(); ++i )
     {
         const Object& object = i->second;
         EQVERB << "Delete list " << object.id << endl;
         glDeleteLists( object.id, object.num ); 
     }
-    _lists.clear();
+    _data->lists.clear();
 
-    for( typename ObjectHash::const_iterator i = _textures.begin(); 
-         i != _textures.end(); ++i )
+    for( typename ObjectHash::const_iterator i = _data->textures.begin(); 
+         i != _data->textures.end(); ++i )
     {
         const Object& object = i->second;
         EQVERB << "Delete texture " << object.id << endl;
         glDeleteTextures( 1, &object.id ); 
     }
-    _textures.clear();
+    _data->textures.clear();
 
-    for( typename ObjectHash::const_iterator i = _buffers.begin(); 
-         i != _buffers.end(); ++i )
+    for( typename ObjectHash::const_iterator i = _data->buffers.begin(); 
+         i != _data->buffers.end(); ++i )
     {
         const Object& object = i->second;
         EQVERB << "Delete buffer " << object.id << endl;
         glDeleteBuffers( 1, &object.id ); 
     }
-    _buffers.clear();
+    _data->buffers.clear();
 
-    for( typename ObjectHash::const_iterator i = _programs.begin(); 
-         i != _programs.end(); ++i )
+    for( typename ObjectHash::const_iterator i = _data->programs.begin(); 
+         i != _data->programs.end(); ++i )
     {
         const Object& object = i->second;
         EQVERB << "Delete program " << object.id << endl;
         glDeleteProgram( object.id ); 
     }
-    _programs.clear();
+    _data->programs.clear();
 
-    for( typename ObjectHash::const_iterator i = _shaders.begin(); 
-         i != _shaders.end(); ++i )
+    for( typename ObjectHash::const_iterator i = _data->shaders.begin(); 
+         i != _data->shaders.end(); ++i )
     {
         const Object& object = i->second;
         EQVERB << "Delete shader " << object.id << endl;
         glDeleteShader( object.id ); 
     }
-    _shaders.clear();
+    _data->shaders.clear();
 
-    for( typename TextureHash::const_iterator i = _eqTextures.begin(); 
-         i != _eqTextures.end(); ++i )
+    for( typename TextureHash::const_iterator i = _data->eqTextures.begin(); 
+         i != _data->eqTextures.end(); ++i )
     {
         Texture* texture = i->second;
         EQVERB << "Delete eq::Texture " << i->first << " @" << (void*)texture
@@ -118,11 +141,11 @@ void ObjectManager<T>::deleteAll()
         texture->flush();
         delete texture;
     }
-    _eqTextures.clear();
+    _data->eqTextures.clear();
 
     for( typename FrameBufferObjectHash::const_iterator i = 
-             _eqFrameBufferObjects.begin();
-         i != _eqFrameBufferObjects.end(); ++i )
+             _data->eqFrameBufferObjects.begin();
+         i != _data->eqFrameBufferObjects.end(); ++i )
     {
         FrameBufferObject* frameBufferObject = i->second;
         EQVERB << "Delete eq::FrameBufferObject " << i->first << " @" 
@@ -130,7 +153,7 @@ void ObjectManager<T>::deleteAll()
         frameBufferObject->exit();
         delete frameBufferObject;
     }
-    _eqFrameBufferObjects.clear();
+    _data->eqFrameBufferObjects.clear();
 }
 
 // display list functions
@@ -138,17 +161,17 @@ void ObjectManager<T>::deleteAll()
 template< typename T >
 GLuint ObjectManager<T>::getList( const T& key )
 {
-    if( _lists.find( key ) == _lists.end( ))
+    if( _data->lists.find( key ) == _data->lists.end( ))
         return INVALID;
 
-    const Object& object = _lists[ key ];
+    const Object& object = _data->lists[ key ];
     return object.id;
 }
 
 template< typename T >
 GLuint ObjectManager<T>::newList( const T& key, const GLsizei num )
 {
-    if( _lists.find( key ) != _lists.end( ))
+    if( _data->lists.find( key ) != _data->lists.end( ))
     {
         EQWARN << "Requested new list for existing key" << endl;
         return INVALID;
@@ -161,7 +184,7 @@ GLuint ObjectManager<T>::newList( const T& key, const GLsizei num )
         return INVALID;
     }
     
-    Object& object   = _lists[ key ];
+    Object& object   = _data->lists[ key ];
     object.id        = id;
     object.num       = num;
 
@@ -180,12 +203,12 @@ GLuint ObjectManager<T>::obtainList( const T& key, const GLsizei num )
 template< typename T >
 void   ObjectManager<T>::deleteList( const T& key )
 {
-    if( _lists.find( key ) == _lists.end( ))
+    if( _data->lists.find( key ) == _data->lists.end( ))
         return;
 
-    const Object& object = _lists[ key ];
+    const Object& object = _data->lists[ key ];
     glDeleteLists( object.id, object.num );
-    _lists.erase( key );
+    _data->lists.erase( key );
 }
 
 // texture object functions
@@ -193,17 +216,17 @@ void   ObjectManager<T>::deleteList( const T& key )
 template< typename T >
 GLuint ObjectManager<T>::getTexture( const T& key )
 {
-    if( _textures.find( key ) == _textures.end( ))
+    if( _data->textures.find( key ) == _data->textures.end( ))
         return INVALID;
 
-    const Object& object = _textures[ key ];
+    const Object& object = _data->textures[ key ];
     return object.id;
 }
 
 template< typename T >
 GLuint ObjectManager<T>::newTexture( const T& key )
 {
-    if( _textures.find( key ) != _textures.end( ))
+    if( _data->textures.find( key ) != _data->textures.end( ))
     {
         EQWARN << "Requested new texture for existing key" << endl;
         return INVALID;
@@ -217,7 +240,7 @@ GLuint ObjectManager<T>::newTexture( const T& key )
         return INVALID;
     }
     
-    Object& object   = _textures[ key ];
+    Object& object   = _data->textures[ key ];
     object.id        = id;
     return id;
 }
@@ -234,12 +257,12 @@ GLuint ObjectManager<T>::obtainTexture( const T& key )
 template< typename T >
 void   ObjectManager<T>::deleteTexture( const T& key )
 {
-    if( _textures.find( key ) == _textures.end( ))
+    if( _data->textures.find( key ) == _data->textures.end( ))
         return;
 
-    const Object& object = _textures[ key ];
+    const Object& object = _data->textures[ key ];
     glDeleteTextures( 1, &object.id );
-    _textures.erase( key );
+    _data->textures.erase( key );
 }
 
 // buffer object functions
@@ -253,10 +276,10 @@ bool ObjectManager<T>::supportsBuffers() const
 template< typename T >
 GLuint ObjectManager<T>::getBuffer( const T& key )
 {
-    if( _buffers.find( key ) == _buffers.end() )
+    if( _data->buffers.find( key ) == _data->buffers.end() )
         return INVALID;
 
-    const Object& object = _buffers[ key ];
+    const Object& object = _data->buffers[ key ];
     return object.id;
 }
 
@@ -269,7 +292,7 @@ GLuint ObjectManager<T>::newBuffer( const T& key )
         return INVALID;
     }
 
-    if( _buffers.find( key ) != _buffers.end() )
+    if( _data->buffers.find( key ) != _data->buffers.end() )
     {
         EQWARN << "Requested new buffer for existing key" << endl;
         return INVALID;
@@ -284,7 +307,7 @@ GLuint ObjectManager<T>::newBuffer( const T& key )
         return INVALID;
     }
     
-    Object& object     = _buffers[ key ];
+    Object& object     = _data->buffers[ key ];
     object.id          = id;
     return id;
 }
@@ -301,12 +324,12 @@ GLuint ObjectManager<T>::obtainBuffer( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteBuffer( const T& key )
 {
-    if( _buffers.find( key ) == _buffers.end() )
+    if( _data->buffers.find( key ) == _data->buffers.end() )
         return;
 
-    const Object& object = _buffers[ key ];
+    const Object& object = _data->buffers[ key ];
     glDeleteBuffers( 1, &object.id );
-    _buffers.erase( key );
+    _data->buffers.erase( key );
 }
 
 // program object functions
@@ -320,10 +343,10 @@ bool ObjectManager<T>::supportsPrograms() const
 template< typename T >
 GLuint ObjectManager<T>::getProgram( const T& key )
 {
-    if( _programs.find( key ) == _programs.end() )
+    if( _data->programs.find( key ) == _data->programs.end() )
         return INVALID;
 
-    const Object& object = _programs[ key ];
+    const Object& object = _data->programs[ key ];
     return object.id;
 }
 
@@ -336,7 +359,7 @@ GLuint ObjectManager<T>::newProgram( const T& key )
         return INVALID;
     }
 
-    if( _programs.find( key ) != _programs.end() )
+    if( _data->programs.find( key ) != _data->programs.end() )
     {
         EQWARN << "Requested new program for existing key" << endl;
         return INVALID;
@@ -349,7 +372,7 @@ GLuint ObjectManager<T>::newProgram( const T& key )
         return INVALID;
     }
     
-    Object& object     = _programs[ key ];
+    Object& object     = _data->programs[ key ];
     object.id          = id;
     return id;
 }
@@ -366,12 +389,12 @@ GLuint ObjectManager<T>::obtainProgram( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteProgram( const T& key )
 {
-    if( _programs.find( key ) == _programs.end() )
+    if( _data->programs.find( key ) == _data->programs.end() )
         return;
 
-    const Object& object = _programs[ key ];
+    const Object& object = _data->programs[ key ];
     glDeleteProgram( object.id );
-    _programs.erase( key );
+    _data->programs.erase( key );
 }
 
 // shader object functions
@@ -385,10 +408,10 @@ bool ObjectManager<T>::supportsShaders() const
 template< typename T >
 GLuint ObjectManager<T>::getShader( const T& key )
 {
-    if( _shaders.find( key ) == _shaders.end() )
+    if( _data->shaders.find( key ) == _data->shaders.end() )
         return INVALID;
 
-    const Object& object = _shaders[ key ];
+    const Object& object = _data->shaders[ key ];
     return object.id;
 }
 
@@ -401,7 +424,7 @@ GLuint ObjectManager<T>::newShader( const T& key, const GLenum type )
         return INVALID;
     }
 
-    if( _shaders.find( key ) != _shaders.end() )
+    if( _data->shaders.find( key ) != _data->shaders.end() )
     {
         EQWARN << "Requested new shader for existing key" << endl;
         return INVALID;
@@ -415,7 +438,7 @@ GLuint ObjectManager<T>::newShader( const T& key, const GLenum type )
     }
 
     
-    Object& object     = _shaders[ key ];
+    Object& object     = _data->shaders[ key ];
     object.id          = id;
     return id;
 }
@@ -432,12 +455,12 @@ GLuint ObjectManager<T>::obtainShader( const T& key, const GLenum type )
 template< typename T >
 void ObjectManager<T>::deleteShader( const T& key )
 {
-    if( _shaders.find( key ) == _shaders.end() )
+    if( _data->shaders.find( key ) == _data->shaders.end() )
         return;
 
-    const Object& object = _shaders[ key ];
+    const Object& object = _data->shaders[ key ];
     glDeleteShader( object.id );
-    _shaders.erase( key );
+    _data->shaders.erase( key );
 }
 
 // eq::Texture object functions
@@ -450,23 +473,23 @@ bool ObjectManager<T>::supportsEqTexture() const
 template< typename T >
 Texture* ObjectManager<T>::getEqTexture( const T& key )
 {
-    if( _eqTextures.find( key ) == _eqTextures.end( ))
+    if( _data->eqTextures.find( key ) == _data->eqTextures.end( ))
         return 0;
 
-    return _eqTextures[ key ];
+    return _data->eqTextures[ key ];
 }
 
 template< typename T >
 Texture* ObjectManager<T>::newEqTexture( const T& key )
 {
-    if( _eqTextures.find( key ) != _eqTextures.end( ))
+    if( _data->eqTextures.find( key ) != _data->eqTextures.end( ))
     {
         EQWARN << "Requested new eqTexture for existing key" << endl;
         return 0;
     }
 
     Texture* texture = new Texture( _glewContext );
-    _eqTextures[ key ] = texture;
+    _data->eqTextures[ key ] = texture;
     return texture;
 }
 
@@ -482,11 +505,11 @@ Texture* ObjectManager<T>::obtainEqTexture( const T& key )
 template< typename T >
 void   ObjectManager<T>::deleteEqTexture( const T& key )
 {
-    if( _eqTextures.find( key ) == _eqTextures.end( ))
+    if( _data->eqTextures.find( key ) == _data->eqTextures.end( ))
         return;
 
-    Texture* texture = _eqTextures[ key ];
-    _eqTextures.erase( key );
+    Texture* texture = _data->eqTextures[ key ];
+    _data->eqTextures.erase( key );
 
     texture->flush();
     delete texture;
@@ -502,23 +525,23 @@ bool ObjectManager<T>::supportsEqFrameBufferObject() const
 template< typename T >
 FrameBufferObject* ObjectManager<T>::getEqFrameBufferObject( const T& key )
 {
-    if( _eqFrameBufferObjects.find( key ) == _eqFrameBufferObjects.end( ))
+    if( _data->eqFrameBufferObjects.find( key ) == _data->eqFrameBufferObjects.end( ))
         return 0;
 
-    return _eqFrameBufferObjects[ key ];
+    return _data->eqFrameBufferObjects[ key ];
 }
 
 template< typename T >
 FrameBufferObject* ObjectManager<T>::newEqFrameBufferObject( const T& key )
 {
-    if( _eqFrameBufferObjects.find( key ) != _eqFrameBufferObjects.end( ))
+    if( _data->eqFrameBufferObjects.find( key ) != _data->eqFrameBufferObjects.end( ))
     {
         EQWARN << "Requested new eqFrameBufferObject for existing key" << endl;
         return 0;
     }
 
     FrameBufferObject* frameBufferObject = new FrameBufferObject( _glewContext);
-    _eqFrameBufferObjects[ key ] = frameBufferObject;
+    _data->eqFrameBufferObjects[ key ] = frameBufferObject;
     return frameBufferObject;
 }
 
@@ -532,13 +555,13 @@ FrameBufferObject* ObjectManager<T>::obtainEqFrameBufferObject( const T& key )
 }
 
 template< typename T >
-void   ObjectManager<T>::deleteEqFrameBufferObject( const T& key )
+void ObjectManager<T>::deleteEqFrameBufferObject( const T& key )
 {
-    if( _eqFrameBufferObjects.find( key ) == _eqFrameBufferObjects.end( ))
+    if( _data->eqFrameBufferObjects.find( key ) == _data->eqFrameBufferObjects.end( ))
         return;
 
-    FrameBufferObject* frameBufferObject = _eqFrameBufferObjects[ key ];
-    _eqFrameBufferObjects.erase( key );
+    FrameBufferObject* frameBufferObject = _data->eqFrameBufferObjects[ key ];
+    _data->eqFrameBufferObjects.erase( key );
 
     frameBufferObject->exit();
     delete frameBufferObject;

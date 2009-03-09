@@ -49,12 +49,16 @@ namespace eq
         };
         
         /** The per-window object manager */
-        class ObjectManager : public eq::ObjectManager< const void* >, 
-                              public base::Referenced
+        class ObjectManager : public eq::ObjectManager< const void* >
         {
         public:
             ObjectManager( Window* window ) 
                     : eq::ObjectManager<const void *>(window->glewGetContext( ))
+                    , _font( window )
+                {}
+            ObjectManager( Window* window, ObjectManager* shared ) 
+                    : eq::ObjectManager<const void *>(window->glewGetContext(),
+                                                      shared )
                     , _font( window )
                 {}
             virtual ~ObjectManager(){}
@@ -153,9 +157,8 @@ namespace eq
             { return _drawableConfig; }
 
         /** @return the window's object manager instance. */
-        ObjectManager* getObjectManager() { return _objectManager.get(); }
-        const ObjectManager* getObjectManager() const 
-            { return _objectManager.get(); }
+        ObjectManager* getObjectManager() { return _objectManager; }
+        const ObjectManager* getObjectManager() const { return _objectManager; }
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
@@ -471,7 +474,7 @@ namespace eq
         Window::DrawableConfig _drawableConfig;
 
         /** OpenGL object management. */
-        base::RefPtr< ObjectManager > _objectManager;
+        ObjectManager* _objectManager;
 
         /** The list of render context used since the last frame start. */
         std::vector< RenderContext > _renderContexts[2];

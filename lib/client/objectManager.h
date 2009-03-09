@@ -9,6 +9,7 @@
 #include <eq/base/debug.h>            // EQASSERT definition
 #include <eq/base/hash.h>             // member
 #include <eq/base/nonCopyable.h>      // base class
+#include <eq/base/referenced.h>       // base class
 #include <eq/client/windowSystem.h>   // OpenGL types
 
 namespace eq
@@ -38,11 +39,16 @@ namespace eq
             INVALID = 0 //<! return value for failed operations.
         };
 
-        ObjectManager( GLEWContext* const glewContext )
-            : _glewContext( glewContext ) 
-            { EQASSERT( glewContext ); }
+        /** Construct a new object manager. */
+        ObjectManager( GLEWContext* const glewContext );
+
+        /** Construct a new object manager sharing data with another manager. */
+        ObjectManager( GLEWContext* const glewContext, ObjectManager* shared );
 
         virtual ~ObjectManager();
+
+        /** @return the number of object managers currently sharing the data. */
+        int getSharedUsage() const { return _data->getRefCount(); }
 
         void deleteAll();
 
@@ -99,22 +105,35 @@ namespace eq
         };
 
         typedef stde::hash_map< T, Object >     ObjectHash;
-        ObjectHash _lists;
-        ObjectHash _textures;
-        ObjectHash _buffers;
-        ObjectHash _programs;
-        ObjectHash _shaders;
-
         typedef stde::hash_map< T, Texture* >   TextureHash;
-        TextureHash _eqTextures;
-
         typedef stde::hash_map< T, FrameBufferObject* > FrameBufferObjectHash;
-        FrameBufferObjectHash _eqFrameBufferObjects;
+
+        struct SharedData : public base::Referenced
+        {
+            virtual ~SharedData();
+
+            ObjectHash lists;
+            ObjectHash textures;
+            ObjectHash buffers;
+            ObjectHash programs;
+            ObjectHash shaders;
+            TextureHash eqTextures;
+            FrameBufferObjectHash eqFrameBufferObjects;
+
+            union // placeholder for binary-compatible changes
+            {
+                char dummy[64];
+            };
+        };
+
+        typedef base::RefPtr< SharedData > SharedDataPtr;
+        SharedDataPtr _data;
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[16];
         };
+
     };
 }
 
