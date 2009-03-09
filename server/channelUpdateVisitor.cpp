@@ -9,6 +9,7 @@
 #include "frame.h"
 #include "node.h"
 #include "pipe.h"
+#include "view.h"
 #include "window.h"
 
 #include "channel.ipp"
@@ -128,8 +129,16 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.eye            = _eye;
     context.buffer         = _getDrawBuffer();
     context.drawBufferMask = _getDrawBufferMask( compound );
+    context.viewID         = EQ_ID_INVALID;
 
-    if( _channel != compound->getInheritChannel() &&
+    const Channel* destChannel = compound->getInheritChannel();
+    EQASSERT( destChannel );
+
+    const View* destView = destChannel->getView();
+    if( destView )
+        context.viewID = destView->getID();
+
+    if( _channel != destChannel &&
         compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != eq::ON )
     {
         const eq::PixelViewport& nativePVP = _channel->getPixelViewport();

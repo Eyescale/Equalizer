@@ -389,6 +389,10 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             break;
 
+        case eq::Event::POINTER_BUTTON_PRESS:
+            _frameData.setCurrentViewID( event->data.context.viewID );
+            return true;
+
         case eq::Event::POINTER_BUTTON_RELEASE:
             if( event->data.pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE
                 && event->data.pointerButtonRelease.button  == eq::PTR_BUTTON1 )

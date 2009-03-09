@@ -39,6 +39,7 @@ namespace eq
         vmml::Vector2i screenOrigin;   //<! absolute position wrt screen
         vmml::Vector2i screenSize;     //<! size of screen
         Eye            eye;            //<! current eye pass
+        uint32_t       viewID;         //<! identifier of the dest channel view
 
         union // placeholder for binary-compatible changes
         {

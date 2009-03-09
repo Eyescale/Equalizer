@@ -1132,7 +1132,7 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
                                        << packet << endl;
 
     ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
-    _setRenderContext( packet->context );
+    _context = &packet->context;
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
