@@ -46,8 +46,6 @@ namespace eq
         virtual void makeCurrent() const;
         virtual void swapBuffers();
 
-        virtual base::SpinLock* getContextLock() { return &_renderContextLock; }
-
         /** @return the AGL rendering context. */
         virtual AGLContext getAGLContext() const { return _aglContext; }
 
@@ -199,8 +197,6 @@ namespace eq
         {
             char dummy[64];
         };
-
-        base::SpinLock _renderContextLock;
     };
 }
 

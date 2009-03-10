@@ -360,25 +360,16 @@ void Window::_setViewport( const Viewport& vp )
 //----------------------------------------------------------------------
 void Window::addRenderContext( const RenderContext& context )
 {
-    // AGL events are dispatched from the main thread, which therefore
-    // potentially accesses _renderContexts concurrently with the pipe
-    // thread. The _osWindow->getContextLock( ) is only active for AGL windows.
-    // The proper solution would be to implement our own event queue which
-    // dispatches events from the main to the pipe thread, to be handled
-    // there. Since the event dispatch is buried in the messagePump, using this
-    // lock is easier. Eventually we should implement it, though.
-    EQASSERT( _osWindow );
-    ScopedMutex< SpinLock > mutex( _osWindow->getContextLock( ));
+    CHECK_THREAD( _pipeThread );
     _renderContexts[BACK].push_back( context );
 }
 
 bool Window::getRenderContext( const int32_t x, const int32_t y,
                                RenderContext& context ) const
 {
+    CHECK_THREAD( _pipeThread );
     if( !_osWindow )
         return false;
-
-    ScopedMutex< SpinLock > mutex( _osWindow->getContextLock( ));
 
     const DrawableConfig& drawableConfig = getDrawableConfig();
     const unsigned which = drawableConfig.doublebuffered ? FRONT : BACK;
@@ -766,6 +757,8 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
 
 net::CommandResult Window::_cmdFrameStart( net::Command& command )
 {
+    CHECK_THREAD( _pipeThread );
+
     const WindowFrameStartPacket* packet = 
         command.getPacket<WindowFrameStartPacket>();
     EQVERB << "handle window frame start " << packet << endl;
@@ -773,14 +766,11 @@ net::CommandResult Window::_cmdFrameStart( net::Command& command )
     //_grabFrame( packet->frameNumber ); single-threaded
 
     EQASSERT( _osWindow );
-    {
-        ScopedMutex< SpinLock > mutex( _osWindow->getContextLock( ));
+    const DrawableConfig& drawableConfig = getDrawableConfig();
+    if( drawableConfig.doublebuffered )
+        _renderContexts[FRONT].swap( _renderContexts[BACK] );
+    _renderContexts[BACK].clear();
 
-        const DrawableConfig& drawableConfig = getDrawableConfig();
-        if( drawableConfig.doublebuffered )
-            _renderContexts[FRONT].swap( _renderContexts[BACK] );
-        _renderContexts[BACK].clear();
-    }
     EQ_GL_CALL( makeCurrent( ));
 
     frameStart( packet->frameID, packet->frameNumber );

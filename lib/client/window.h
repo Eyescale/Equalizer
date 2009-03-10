@@ -528,6 +528,8 @@ namespace eq
         net::CommandResult _cmdFinish( net::Command& command );
         net::CommandResult _cmdSwap( net::Command& command );
         net::CommandResult _cmdFrameDrawFinish( net::Command& command );
+
+        CHECK_THREAD_DECLARE( _pipeThread );
     };
 
     std::ostream& operator << ( std::ostream& , const Window::DrawableConfig& );

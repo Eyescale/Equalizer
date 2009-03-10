@@ -64,8 +64,6 @@ namespace eq
 
         /** Swap the front and back buffer, for doublebuffered drawables. */
         virtual void swapBuffers() = 0;
-
-        virtual base::SpinLock* getContextLock() { return 0; }
         //*}
 
         /** @name Frame Buffer Object support. */
