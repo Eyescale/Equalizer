@@ -13,7 +13,7 @@ namespace eq
 {
 AGLMessagePump::AGLMessagePump()
         : _receiverQueue( 0 )
-        , _needGlobalLock( GetCurrentEventQueue() == GetMainEventQueue( ));
+        , _needGlobalLock( GetCurrentEventQueue() == GetMainEventQueue( ))
 {
     const OSStatus status = CreateEvent( 0, 0, 0, 0, kEventAttributeNone, 
                                          &_wakeupEvent );
