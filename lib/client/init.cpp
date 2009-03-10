@@ -31,6 +31,7 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 #ifdef AGL
     ProcessSerialNumber selfProcess = { 0, kCurrentProcess };
     SetFrontProcess( &selfProcess );
+    GetCurrentEventQueue();
 #endif
 
 #ifdef EQ_USE_PARACOMP

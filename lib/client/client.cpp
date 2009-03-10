@@ -61,7 +61,8 @@ void Client::setWindowSystem( const WindowSystem windowSystem )
     if( _nodeThreadQueue->getWindowSystem() == WINDOW_SYSTEM_NONE )
     {
         _nodeThreadQueue->setWindowSystem( windowSystem );
-        EQINFO << "Client message pump set up for " << windowSystem << endl;
+        EQINFO << "Client command message pump set up for " << windowSystem
+               << endl;
     }
     else if( _nodeThreadQueue->getWindowSystem() != windowSystem )
         EQWARN << "Can't switch to window system " << windowSystem 

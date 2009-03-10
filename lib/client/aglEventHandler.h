@@ -13,34 +13,32 @@ namespace eq
     class X11Connection;
 
     /**
-     * The per-node event processing handler for agl windows.
+     * The event handler for agl windows.
      */
     class AGLEventHandler : public EventHandler
     {
     public:
-        static AGLEventHandler* get();
-
-        /** @sa EventHandler::registerWindow. */
-        void registerWindow( AGLWindowIF* window );
+        /** Construct a new AGL event handler for the given AGL window. */
+        AGLEventHandler( AGLWindowIF* window );
         
         /** @sa EventHandler::deregisterWindow. */
-        virtual void deregisterWindow( AGLWindowIF* window ) ;
+        virtual ~AGLEventHandler();
 
     private:
-        static AGLEventHandler _handler;
+        AGLWindowIF* const _window;
 
-        /** Constructs a new agl event handler. */
-        AGLEventHandler();
+        EventHandlerRef _eventHandler;
+        EventHandlerRef _eventDispatcher;
 
-        /** Destructs the agl event handler. */
-        virtual ~AGLEventHandler(){}
-        
+        static pascal OSStatus _dispatchEventUPP( 
+            EventHandlerCallRef nextHandler, EventRef event, void* userData );
+
         static pascal OSStatus _handleEventUPP( EventHandlerCallRef nextHandler,
                                                 EventRef event, void* userData);
-        bool _handleEvent( EventRef event, AGLWindowIF* window );
-        bool   _handleWindowEvent( EventRef event, AGLWindowIF* window );
-        bool   _handleMouseEvent( EventRef event, AGLWindowIF* window );
-        bool   _handleKeyEvent( EventRef event, AGLWindowIF* window );
+        bool _handleEvent( EventRef event );
+        bool   _handleWindowEvent( EventRef event );
+        bool   _handleMouseEvent( EventRef event );
+        bool   _handleKeyEvent( EventRef event );
 
         uint32_t _getButtonState();
         uint32_t _getButtonAction( EventRef event );

@@ -25,7 +25,7 @@ AGLWindow::AGLWindow( Window* parent )
     , _aglContext( 0 )
     , _carbonWindow( 0 )
     , _aglPBuffer( 0 )
-    , _updateContext( false )
+    , _eventHandler( 0 )
 {
 }
 
@@ -572,14 +572,14 @@ void AGLWindow::setAGLPBuffer( AGLPbuffer pbuffer )
 
 void AGLWindow::initEventHandler()
 {
-    AGLEventHandler* handler = AGLEventHandler::get();
-    handler->registerWindow( this );
+    EQASSERT( !_eventHandler );
+    _eventHandler = new AGLEventHandler( this );
 }
 
 void AGLWindow::exitEventHandler()
 {
-    AGLEventHandler* handler = AGLEventHandler::get();
-    handler->deregisterWindow( this );
+    delete _eventHandler;
+    _eventHandler = 0;
 }
 
 }

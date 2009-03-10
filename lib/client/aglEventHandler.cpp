@@ -6,6 +6,7 @@
 
 #include "global.h"
 #include "log.h"
+#include "pipe.h"
 #include "window.h"
 #include "aglWindow.h"
 #include "aglWindowEvent.h"
@@ -15,20 +16,12 @@ using namespace std;
 
 namespace eq
 {
-AGLEventHandler AGLEventHandler::_handler;
-
-AGLEventHandler* AGLEventHandler::get()
-{
-    return &_handler;
-}
-
-AGLEventHandler::AGLEventHandler()
-        : _lastDX( 0 ),
-          _lastDY( 0 )
-{
-}
-
-void AGLEventHandler::registerWindow( AGLWindowIF* window )
+AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
+        : _window( window )
+        , _eventHandler( 0 )
+        , _eventDispatcher( 0 )
+        , _lastDX( 0 )
+        , _lastDY( 0 )
 {
     const WindowRef carbonWindow = window->getCarbonWindow();
     if( !carbonWindow )
@@ -60,62 +53,106 @@ void AGLEventHandler::registerWindow( AGLWindowIF* window )
         { kEventClassKeyboard, kEventRawKeyRepeat }
     };
 
-    EventHandlerRef& carbonEventHandler = window->getCarbonEventHandler();
     InstallWindowEventHandler( carbonWindow, eventHandler, 
                                sizeof( eventType ) / sizeof( EventTypeSpec ),
-                               eventType, window, &carbonEventHandler );
+                               eventType, this, &_eventHandler );
+
+    const Pipe* pipe = window->getPipe();
+    if( pipe->isThreaded( ))
+    {
+        EQASSERT( GetCurrentEventQueue() != GetMainEventQueue( ));
+
+        // dispatches to pipe thread queue
+        EventHandlerUPP eventDispatcher = NewEventHandlerUPP( 
+            eq::AGLEventHandler::_dispatchEventUPP );
+        EventQueueRef target = GetCurrentEventQueue();
+
+        InstallWindowEventHandler( carbonWindow, eventDispatcher, 
+                                   sizeof( eventType ) / sizeof( EventTypeSpec),
+                                   eventType, target, &_eventDispatcher );
+    }
+    else
+        _eventDispatcher = 0;
+
     Global::leaveCarbon();
 
-    EQINFO << "Installed event handler for carbon window " << carbonWindow
+    EQINFO << "Installed event handlers for carbon window " << carbonWindow
            << endl;
 }
 
-void AGLEventHandler::deregisterWindow( AGLWindowIF* window )
+AGLEventHandler::~AGLEventHandler()
 {
     Global::enterCarbon();
-    EventHandlerRef& eventHandler = window->getCarbonEventHandler();
-    RemoveEventHandler( eventHandler );
-    eventHandler = 0;
+    if( _eventDispatcher )
+    {
+        RemoveEventHandler( _eventDispatcher );
+        _eventDispatcher = 0;
+    }
+    if( _eventHandler )
+    {
+        RemoveEventHandler( _eventHandler );
+        _eventHandler = 0;
+    }
     Global::leaveCarbon();
+}
+
+pascal OSStatus AGLEventHandler::_dispatchEventUPP( 
+    EventHandlerCallRef nextHandler, EventRef event, void* userData )
+{
+    EventQueueRef target = static_cast< EventQueueRef >( userData );
+    
+    if( GetCurrentEventQueue() == target )
+        return CallNextEventHandler( nextHandler, event );
+
+    EQASSERT( GetCurrentEventQueue() == GetMainEventQueue( ));
+    PostEventToQueue( target, event, kEventPriorityStandard );
+    return noErr;
 }
 
 pascal OSStatus AGLEventHandler::_handleEventUPP( 
     EventHandlerCallRef nextHandler, EventRef event, void* userData )
 {
-    AGLWindowIF*     window  = static_cast< AGLWindowIF* >( userData );
-    AGLEventHandler* handler = get();
+    AGLEventHandler* handler = static_cast< AGLEventHandler* >( userData );
+    AGLWindowIF*     window  = handler->_window;
 
-    handler->_handleEvent( event, window );
+    if( GetCurrentEventQueue() == GetMainEventQueue( )) // main thread
+    {
+        const Pipe* pipe = window->getPipe();
+        if( !pipe->isThreaded( ))
+            // non-threaded window, handle from main thread
+            handler->_handleEvent( event );
 
-    // Always pass events to the default handler. Most events require some
-    // action, which is not the case on other window systems.
+    }
+    else
+        handler->_handleEvent( event );
+
     return CallNextEventHandler( nextHandler, event );
 }
 
-bool AGLEventHandler::_handleEvent( EventRef event, AGLWindowIF* window )
+bool AGLEventHandler::_handleEvent( EventRef event )
 {
     switch( GetEventClass( event ))
     {
         case kEventClassWindow:
-            return _handleWindowEvent( event, window );
+            return _handleWindowEvent( event );
         case kEventClassMouse:
-            return _handleMouseEvent( event, window );
+            return _handleMouseEvent( event );
         case kEventClassKeyboard:
-            return _handleKeyEvent( event, window );
+            return _handleKeyEvent( event );
         default:
             EQINFO << "Unknown event class " << GetEventClass( event ) << endl;
             return false;
     }
 }
 
-bool AGLEventHandler::_handleWindowEvent( EventRef event, AGLWindowIF* osWindow)
+bool AGLEventHandler::_handleWindowEvent( EventRef event )
 {
     AGLWindowEvent windowEvent;
     windowEvent.carbonEventRef = event;
-    Window* const window       = osWindow->getWindow();
+    Window* const window       = _window->getWindow();
 
     Rect      rect;
-    WindowRef carbonWindow = osWindow->getCarbonWindow();
+    WindowRef carbonWindow = _window->getCarbonWindow();
     GetWindowPortBounds( carbonWindow, &rect );
     windowEvent.resize.x = rect.top;
     windowEvent.resize.y = rect.left;
@@ -161,16 +198,16 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, AGLWindowIF* osWindow)
     windowEvent.originator = window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
-    return osWindow->processEvent( windowEvent );
+    return _window->processEvent( windowEvent );
 }
 
-bool AGLEventHandler::_handleMouseEvent( EventRef event, AGLWindowIF* osWindow )
+bool AGLEventHandler::_handleMouseEvent( EventRef event )
 {
     HIPoint        pos;
     AGLWindowEvent windowEvent;
 
     windowEvent.carbonEventRef = event;
-    Window* const window       = osWindow->getWindow();
+    Window* const window       = _window->getWindow();
     
     const bool    decoration =
         window->getIAttribute( Window::IATTR_HINT_DECORATION ) != OFF;
@@ -302,15 +339,15 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, AGLWindowIF* osWindow )
     windowEvent.originator = window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
-    return osWindow->processEvent( windowEvent );
+    return _window->processEvent( windowEvent );
 }
 
-bool AGLEventHandler::_handleKeyEvent( EventRef event, AGLWindowIF* osWindow )
+bool AGLEventHandler::_handleKeyEvent( EventRef event )
 {
     AGLWindowEvent windowEvent;
 
     windowEvent.carbonEventRef = event;
-    Window* const window       = osWindow->getWindow();
+    Window* const window       = _window->getWindow();
 
     switch( GetEventKind( event ))
     {
@@ -334,7 +371,7 @@ bool AGLEventHandler::_handleKeyEvent( EventRef event, AGLWindowIF* osWindow )
     windowEvent.originator = window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
-    return osWindow->processEvent( windowEvent );
+    return _window->processEvent( windowEvent );
 }
 
 uint32_t AGLEventHandler::_getButtonState()

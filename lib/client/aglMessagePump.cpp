@@ -54,7 +54,6 @@ void AGLMessagePump::dispatchOne()
 
     while( true )
     {
-        Global::enterCarbon();
         EventRef             event;
         const OSStatus       status = ReceiveNextEvent( 0, 0, .05 /* 50ms */,
                                                         true, &event );
@@ -62,13 +61,14 @@ void AGLMessagePump::dispatchOne()
         {
             EQVERB << "Dispatch Carbon event " << event << endl;
 
+            Global::enterCarbon();
             const EventTargetRef target = GetEventDispatcherTarget();
             SendEventToEventTarget( event, target );
-            ReleaseEvent( event );
             Global::leaveCarbon();
+
+            ReleaseEvent( event );
             return;
         }
-        Global::leaveCarbon();
 
         if( status != eventLoopTimedOutErr )
         {
@@ -81,9 +81,6 @@ void AGLMessagePump::dispatchOne()
 void AGLMessagePump::dispatchAll()
 {
     _initReceiverQueue();
-
-    Global::enterCarbon();
-    const EventTargetRef target = GetEventDispatcherTarget();
 
     while( true )
     {
@@ -100,10 +97,14 @@ void AGLMessagePump::dispatchAll()
         }
 
         EQVERB << "Dispatch Carbon event " << event << endl;
+
+        Global::enterCarbon();
+        const EventTargetRef target = GetEventDispatcherTarget();
         SendEventToEventTarget( event, target );
+        Global::leaveCarbon();
+
         ReleaseEvent( event );
     }
 
-    Global::leaveCarbon();
 }
 }

@@ -10,14 +10,14 @@
 
 namespace eq
 {
+    class AGLEventHandler;
     class AGLWindowEvent;
 
     /** The interface defining the minimum functionality for an AGL window. */
     class EQ_EXPORT AGLWindowIF : public OSWindow
     {
     public:
-        AGLWindowIF( Window* parent ) : OSWindow( parent ), _carbonHandler( 0 )
-            {}
+        AGLWindowIF( Window* parent ) : OSWindow( parent ) {}
         virtual ~AGLWindowIF() {}
 
         /** @return the AGL rendering context. */
@@ -32,12 +32,7 @@ namespace eq
         /** Process an event. */
         virtual bool processEvent( const AGLWindowEvent& event );
 
-        /** Used by the AGL event handler to store the event handler ref. */
-        EventHandlerRef& getCarbonEventHandler() { return _carbonHandler; }
-
     private:
-        /** Used by AGLEventHandler to keep the handler for removal. */
-        EventHandlerRef _carbonHandler;
     };
 
     /** Equalizer default implementation of an AGL window */
@@ -197,14 +192,13 @@ namespace eq
         WindowRef _carbonWindow;
         /** The AGL PBuffer object. */
         AGLPbuffer _aglPBuffer;
+        /** The AGL event handler. */
+        AGLEventHandler* _eventHandler;
 
         union // placeholder for binary-compatible changes
         {
             char dummy[64];
         };
-
-        /** The flag (from the event handler) if a context update is needed. */
-        bool _updateContext;
 
         base::SpinLock _renderContextLock;
     };

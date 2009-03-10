@@ -658,7 +658,8 @@ void Config::setWindowSystem( const WindowSystem windowSystem )
     if( _eventQueue.getWindowSystem() == WINDOW_SYSTEM_NONE )
     {
         _eventQueue.setWindowSystem( windowSystem );
-        EQINFO << "Client message pump set up for " << windowSystem << endl;
+        EQINFO << "Client event message pump set up for " << windowSystem
+               << endl;
     }
     else if( _eventQueue.getWindowSystem() != windowSystem )
         EQWARN << "Can't switch to window system " << windowSystem 

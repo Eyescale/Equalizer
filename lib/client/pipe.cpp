@@ -225,25 +225,27 @@ WindowSystem Pipe::selectWindowSystem() const
 void Pipe::_setupCommandQueue()
 {
     EQASSERT( _windowSystem != WINDOW_SYSTEM_NONE );
+    if( !useMessagePump( ))
+        return;
 
-    // Switch the node thread message pumps for non-threaded and AGL pipes
-    if( !_thread || _windowSystem == WINDOW_SYSTEM_AGL )
+    EQINFO << "Pipe message pump set up for " << _windowSystem << endl;
+
+    // Switch the node thread message pumps for non-threaded pipes
+    if( !_thread )
     {
-        if( !useMessagePump( ))
-            return;
-
         Config* config = getConfig();
         config->setWindowSystem( _windowSystem );
         return;
     }
+
+    if( _windowSystem == WINDOW_SYSTEM_AGL ) //AGL needs dispatch from node
+    {
+        Config* config = getConfig();
+        config->setWindowSystem( _windowSystem );
+    }
     
     EQASSERT( _pipeThreadQueue );
-    
-    if( useMessagePump( ))
-    {
-        _pipeThreadQueue->setWindowSystem( _windowSystem );
-        EQINFO << "Pipe message pump set up for " << _windowSystem << endl;
-    }
+    _pipeThreadQueue->setWindowSystem( _windowSystem );
 }
 
 
