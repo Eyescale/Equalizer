@@ -38,9 +38,6 @@ namespace eq
         /** Unbind any Frame Buffer Object */
         void unbind();
         
-        /** ask if FBO built construction is ok */
-        bool checkFBOStatus() const;
-       
         /* Resize FBO, if needed. */
         bool resize( const int width, const int height );
           
@@ -56,6 +53,9 @@ namespace eq
         /** @return the stencil texture. */
         const Texture& getStencilTexture() const { return _stencil; }
 
+        /** @return the reason for the last failed operation. */
+        const std::string& getErrorMessage() { return _error; }
+
     private:
         GLuint _fboID;
          
@@ -68,12 +68,18 @@ namespace eq
         
         GLEWContext* const _glewContext;
 
+        /** The reason for the last error. */
+        std::string _error;
+
         union // placeholder for binary-compatible changes
         {
             char dummy[64];
         };
 
         CHECK_THREAD_DECLARE( _thread );
+
+        /** Check the result after changes to an FBO. */
+        bool _checkFBOStatus();
     };
 }
 

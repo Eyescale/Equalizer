@@ -542,7 +542,7 @@ void ROIFinder::_readbackInfo( )
     {
         fbo = _glObjects->newEqFrameBufferObject( fboKey );
         fbo->setColorFormat( GL_RGBA32F );
-        fbo->init( _pvp.w, _pvp.h, 0, 0 );
+        EQCHECK( fbo->init( _pvp.w, _pvp.h, 0, 0 ));
     }
     fbo->bind();
 
@@ -625,9 +625,7 @@ void ROIFinder::_readbackInfo( )
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     EQ_GL_CALL( glUseProgram( 0 ));
 
-    fbo->checkFBOStatus();
     fbo->unbind();
-    fbo->checkFBOStatus();
 
     // finish readback of info
     fbo->getColorTexture().download( &_perBlockInfo[0], GL_RGBA, GL_FLOAT );

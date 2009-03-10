@@ -5,8 +5,6 @@
 #include "frameBufferObject.h"
 #include <eq/eq.h>
 
-using namespace std;
-
 #ifdef WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #endif
@@ -63,7 +61,8 @@ bool FrameBufferObject::init( const int width, const int height,
 
     if( _fboID )
     {
-        EQWARN << "FBO already initialized" << endl;
+        _error = "FBO already initialized";
+        EQWARN << _error << std::endl;
         return false;
     }
 
@@ -82,41 +81,43 @@ bool FrameBufferObject::init( const int width, const int height,
     
     _width = width;
     _height = height;
-    return checkFBOStatus();
+    return _checkFBOStatus();
 }
 
-bool FrameBufferObject::checkFBOStatus() const
+bool FrameBufferObject::_checkFBOStatus()
 {
-	const GLenum status = ( GLenum ) glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
-    switch( status ) {
+    switch( glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT ))
+    {
         case GL_FRAMEBUFFER_COMPLETE_EXT:
-            EQVERB << "Frame Buffer Object supported and complete " << endl;
+            EQVERB << "FBO supported and complete" << std::endl;
             return true;
 			
         case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-            EQERROR << "Unsupported framebuffer format " << endl;
+            _error = "Unsupported framebuffer format";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-            EQERROR << "Framebuffer incomplete, missing attachment " << endl;
+            _error = "Framebuffer incomplete, missing attachment";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-            EQERROR << "Framebuffer incomplete, duplicate attachment " << endl;
+            _error = "Framebuffer incomplete, incomplete attachment";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            EQERROR << "Framebuffer incomplete, attached images must have same dimensions " << endl;
+            _error = "Framebuffer incomplete, attached images must have same dimensions";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-            EQERROR << "Framebuffer incomplete, attached images must have same format " << endl;
+            _error = "Framebuffer incomplete, attached images must have same format";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-            EQERROR << "Framebuffer incomplete, missing draw buffer " << endl;
+            _error = "Framebuffer incomplete, missing draw buffer";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-            EQERROR << "Framebuffer incomplete, missing read buffer " << endl;
+            _error = "Framebuffer incomplete, missing read buffer";
             break;
         default:
             break;
     }
+
+    EQERROR << _error << std::endl;
     return false;
 }
 	
@@ -151,7 +152,7 @@ bool FrameBufferObject::resize( const int width, const int height )
     _width = width;
     _height = height;
 
-    return checkFBOStatus();
+    return _checkFBOStatus();
 }
 }	
 	

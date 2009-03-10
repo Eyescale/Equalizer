@@ -89,6 +89,7 @@ bool OSWindow::configInitFBO()
         !GLEW_ARB_texture_non_power_of_two ||
         !GLEW_EXT_framebuffer_object )
     {
+        _window->setErrorMessage( "Framebuffer objects unsupported" );
          return false;
     }
     
@@ -108,6 +109,8 @@ bool OSWindow::configInitFBO()
     if( _fbo->init( pvp.w, pvp.h, depthSize, stencilSize ) )
         return true;
     
+    _window->setErrorMessage( "FBO initialization failed: " + 
+                              _fbo->getErrorMessage( ));
     delete _fbo;
     _fbo = 0;
     return false;
