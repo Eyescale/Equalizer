@@ -32,7 +32,6 @@ namespace eq
     private:
         EventQueueRef _receiverQueue;
         EventRef      _wakeupEvent;
-        const bool    _needGlobalLock;
 
         void _initReceiverQueue();
     };

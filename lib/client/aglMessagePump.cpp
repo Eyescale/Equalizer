@@ -13,7 +13,6 @@ namespace eq
 {
 AGLMessagePump::AGLMessagePump()
         : _receiverQueue( 0 )
-        , _needGlobalLock( GetCurrentEventQueue() == GetMainEventQueue( ));
 {
     const OSStatus status = CreateEvent( 0, 0, 0, 0, kEventAttributeNone, 
                                          &_wakeupEvent );
@@ -56,18 +55,13 @@ void AGLMessagePump::dispatchOne()
     while( true )
     {
         EventRef             event;
-
-        if( _needGlobalLock )
-            Global::enterCarbon();
-            
         const OSStatus       status = ReceiveNextEvent( 0, 0, .05 /* 50ms */,
                                                         true, &event );
         if( status == noErr )
         {
             EQVERB << "Dispatch Carbon event " << event << endl;
 
-            if( !_needGlobalLock )
-                Global::enterCarbon();
+            Global::enterCarbon();
             const EventTargetRef target = GetEventDispatcherTarget();
             SendEventToEventTarget( event, target );
             Global::leaveCarbon();
@@ -75,9 +69,6 @@ void AGLMessagePump::dispatchOne()
             ReleaseEvent( event );
             return;
         }
-        
-        if( _needGlobalLock )
-            Global::leaveCarbon();
 
         if( status != eventLoopTimedOutErr )
         {
@@ -94,9 +85,6 @@ void AGLMessagePump::dispatchAll()
     while( true )
     {
         EventRef       event;
-
-        if( _needGlobalLock )
-            Global::enterCarbon(); 
         const OSStatus status = ReceiveNextEvent( 0, 0, 0.0, true, &event );
 
         if( status == eventLoopTimedOutErr )
@@ -110,8 +98,7 @@ void AGLMessagePump::dispatchAll()
 
         EQVERB << "Dispatch Carbon event " << event << endl;
 
-        if( !_needGlobalLock )
-            Global::enterCarbon();
+        Global::enterCarbon();
         const EventTargetRef target = GetEventDispatcherTarget();
         SendEventToEventTarget( event, target );
         Global::leaveCarbon();
@@ -119,7 +106,5 @@ void AGLMessagePump::dispatchAll()
         ReleaseEvent( event );
     }
 
-    if( _needGlobalLock )
-        Global::leaveCarbon();
 }
 }
