@@ -677,11 +677,11 @@ bool Config::_syncConnectNode( Node* node )
     if( !localNode->syncConnect( netNode ))
     {
         stringstream nodeString;
-        nodeString << node;
+        nodeString << netNode->serialize();
 
-        _error += "Connection of node failed, node did not start:\n " +
-            nodeString.str();
-        EQERROR << "Connection of node " << node << " failed." << endl;
+        _error += "Connection of node failed, node did not start (" +
+            nodeString.str() + ") ";
+        EQERROR << _error << std::endl;
 
         node->setNode( 0 );
         EQASSERT( netNode->getRefCount() == 1 );
@@ -837,10 +837,7 @@ bool Config::_init( const uint32_t initID )
     }
 
     if( !_updateRunning( ))
-    {
-        exit();
         return false;
-    }
 
     _state = STATE_INITIALIZED;
     return true;
@@ -1076,14 +1073,17 @@ net::CommandResult Config::_cmdInit( net::Command& command )
 
     eq::ConfigInitReplyPacket reply( packet );
     reply.result = _init( packet->initID );
+    std::string error = _error;
 
     if( reply.result )
         mapObject( &_headMatrix, packet->headMatrixID );
-    
-    EQINFO << "Config init " << (reply.result ? "successful": "failed: ") 
-           << _error << endl;
+    else
+        exit();
 
-    send( command.getNode(), reply, _error );
+    EQINFO << "Config init " << (reply.result ? "successful": "failed: ") 
+           << error << endl;
+
+    send( command.getNode(), reply, error );
     return net::COMMAND_HANDLED;
 }
 

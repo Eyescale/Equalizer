@@ -443,6 +443,11 @@ namespace net
 
         const NodeID& getNodeID() const { return _id; }
 
+        /** Serialize the node's information. */
+        std::string serialize() const;
+        /** Deserialize the node information, consumes given data. */
+        bool deserialize( std::string& data );
+
     protected:
         /** Destructs this node. */
         virtual ~Node();
@@ -484,11 +489,6 @@ namespace net
          */
         virtual NodePtr createNode( const uint32_t type )
         { EQASSERTINFO( type == TYPE_EQNET_NODE, type ); return new Node(); }
-
-        /** Serialize the node's information. */
-        std::string serialize() const;
-        /** Deserialize the node information, consumes data. */
-        bool deserialize( std::string& data );
 
         /** Registers request packets waiting for a return value. */
         base::RequestHandler _requestHandler;

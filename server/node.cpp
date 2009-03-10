@@ -547,7 +547,7 @@ ostream& operator << ( ostream& os, const Node* node )
     if( !node )
         return os;
     
-    os << disableFlush;
+    os << disableFlush << disableHeader;
     const Config* config = node->getConfig();
     if( config && config->isApplicationNode( node ))
         os << "appNode" << endl;
@@ -599,7 +599,7 @@ ostream& operator << ( ostream& os, const Node* node )
     for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
         os << *i;
 
-    os << exdent << "}" << enableFlush << endl;
+    os << exdent << "}" << endl << enableHeader << enableFlush;
     return os;
 }
 
