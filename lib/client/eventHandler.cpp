@@ -55,10 +55,7 @@ void EventHandler::_getRenderContext( const Window* window, Event& event )
     const int32_t x = event.pointer.x;
     const int32_t y = event.pointer.y;
 
-    const RenderContext* context = window->getRenderContext( x, y );
-    if( context )
-        event.context = *context;
-    else
+    if( !window->getRenderContext( x, y, event.context ))
         EQINFO << "No rendering context for pointer event at " << x << ", " 
                << y << endl;
 }

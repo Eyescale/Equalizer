@@ -182,9 +182,9 @@ namespace eq
         /** Add a channel's rendering context to the current frame's list */
         void addRenderContext( const RenderContext& context );
 
-        /** Get the last rendering context at the x, y position, or 0. */
-        const RenderContext* getRenderContext( const int32_t x,
-                                               const int32_t y ) const;
+        /** Get the last rendering context at the x, y position. */
+        bool getRenderContext( const int32_t x, const int32_t y,
+                               RenderContext& context ) const;
         //*}
 
         /**

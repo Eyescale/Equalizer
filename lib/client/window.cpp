@@ -372,11 +372,11 @@ void Window::addRenderContext( const RenderContext& context )
     _renderContexts[BACK].push_back( context );
 }
 
-const RenderContext* Window::getRenderContext( const int32_t x, 
-                                               const int32_t y ) const
+bool Window::getRenderContext( const int32_t x, const int32_t y,
+                               RenderContext& context ) const
 {
     if( !_osWindow )
-        return 0;
+        return false;
 
     ScopedMutex< SpinLock > mutex( _osWindow->getContextLock( ));
 
@@ -388,14 +388,18 @@ const RenderContext* Window::getRenderContext( const int32_t x,
     vector< RenderContext >::const_reverse_iterator end =
         _renderContexts[which].rend();
 
+    const int32_t glY = _pvp.h - y; // invert y to follow GL convention
+
     for( ; i != end; ++i )
     {
-        const RenderContext& context = *i;
-
-        if( context.pvp.isPointInside( x, y ))
-            return &context;
+        const RenderContext& candidate = *i;
+        if( candidate.pvp.isPointInside( x, glY ))
+        {
+            context = candidate;
+            return true;
+        }
     }
-    return 0;
+    return false;
 }
 
 void Window::setOSWindow( OSWindow* window )
