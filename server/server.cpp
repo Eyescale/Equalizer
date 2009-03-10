@@ -297,7 +297,7 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
 net::CommandResult Server::_cmdShutdown( net::Command& command )
 {
     const eq::ServerShutdownPacket* packet = 
-        command.getPacket<eq::ServerShutdownPacket>();
+        command.getPacket< eq::ServerShutdownPacket >();
     EQINFO << "Handle shutdown " << packet << endl;
 
     eq::ServerShutdownReplyPacket reply( packet );

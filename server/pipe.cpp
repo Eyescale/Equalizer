@@ -301,6 +301,8 @@ void Pipe::updateRunning( const uint32_t initID, const uint32_t frameNumber )
     if( !isActive() && _state == STATE_STOPPED ) // inactive
         return;
 
+    _error.clear();
+
     if( isActive() && _state != STATE_RUNNING ) // becoming active
         _configInit( initID, frameNumber );
 
@@ -328,7 +330,7 @@ bool Pipe::syncRunning()
         Window* window = *i;
         if( !window->syncRunning( ))
         {
-            _error += "window " + window->getName() + ": '" + 
+            _error += " window " + window->getName() + ": '" + 
                       window->getErrorMessage() + '\'';
             success = false;
         }
@@ -342,7 +344,8 @@ bool Pipe::syncRunning()
         // becoming inactive
         success = false;
 
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED );
+    EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED ||
+              _state == STATE_INIT_FAILED );
     return success;
 }
 
@@ -502,7 +505,7 @@ eq::net::CommandResult Pipe::_cmdConfigInitReply( eq::net::Command& command )
         command.getPacket<eq::PipeConfigInitReplyPacket>();
     EQVERB << "handle pipe configInit reply " << packet << endl;
 
-    _error = packet->error;
+    _error += packet->error;
     setPixelViewport( packet->pvp );
 
     if( packet->result )

@@ -549,6 +549,8 @@ uint32_t Config::getDistributorID()
 
 bool Config::_updateRunning()
 {
+    _error.clear();
+
     if( !_connectNodes( ))
         return false;
 
@@ -649,7 +651,7 @@ bool Config::_connectNode( Node* node )
         stringstream nodeString;
         nodeString << node;
         
-        _error = string( "Connection to node failed, node does not run " ) +
+        _error += string( "Connection to node failed, node does not run " ) +
             string( "and launch command failed:\n " ) + 
             nodeString.str();
         EQERROR << "Connection to " << netNode->getNodeID() << " failed." 
@@ -677,7 +679,7 @@ bool Config::_syncConnectNode( Node* node )
         stringstream nodeString;
         nodeString << node;
 
-        _error = "Connection of node failed, node did not start:\n " +
+        _error += "Connection of node failed, node did not start:\n " +
             nodeString.str();
         EQERROR << "Connection of node " << node << " failed." << endl;
 
@@ -1071,8 +1073,6 @@ net::CommandResult Config::_cmdInit( net::Command& command )
     const eq::ConfigInitPacket* packet =
         command.getPacket<eq::ConfigInitPacket>();
     EQVERB << "handle config start init " << packet << endl;
-
-    _error.clear();
 
     eq::ConfigInitReplyPacket reply( packet );
     reply.result = _init( packet->initID );
