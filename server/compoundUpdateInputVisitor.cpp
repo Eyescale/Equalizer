@@ -60,6 +60,8 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         eq::PixelViewport         framePVP = inheritPVP.getSubPVP( frameVP );
         vmml::Vector2i frameOffset = outputFrame->getMasterData()->getOffset();
 
+        frameOffset += frame->getOffset();
+         
         if( channel != compound->getInheritChannel() &&
             compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != eq::ON )
         {

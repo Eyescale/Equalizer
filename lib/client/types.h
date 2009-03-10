@@ -26,6 +26,7 @@ class Pipe;
 class Segment;
 class Server;
 class View;
+class Viewport;
 class Window;
 class X11Connection;
 struct Statistic;
@@ -43,6 +44,7 @@ typedef std::vector< Canvas* >   CanvasVector;
 typedef std::vector< Layout* >   LayoutVector;
 typedef std::vector< Segment* >  SegmentVector;
 typedef std::vector< View* >     ViewVector;
+typedef std::vector< Viewport* > ViewportVector;
 
 typedef std::vector< PixelViewport > PixelViewportVector;
 

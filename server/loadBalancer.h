@@ -48,7 +48,8 @@ namespace server
             MODE_VERTICAL,   //!< Adapt for sort-first using vertical stripes
             MODE_2D,         //!< Adapt for a sort-first decomposition
             MODE_DPLEX,      //!< Adapt for smooth time-multiplex rendering
-            MODE_DFR         //!< Adapt for dynamic frame resolution
+            MODE_DFR,        //!< Adapt for dynamic frame resolution
+            MODE_DDS         //!< Adapt for destination-driven scaling
         };
 
         /** Set the load balancer adaptation mode. */

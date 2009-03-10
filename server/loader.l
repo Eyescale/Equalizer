@@ -123,6 +123,7 @@ HORIZONTAL                      { return EQTOKEN_HORIZONTAL; }
 VERTICAL                        { return EQTOKEN_VERTICAL; }
 DPLEX                           { return EQTOKEN_DPLEX; }
 DFR                             { return EQTOKEN_DFR; }
+DDS                             { return EQTOKEN_DDS; }
 framerate                       { return EQTOKEN_FRAMERATE; }
 channel                         { return EQTOKEN_CHANNEL; }
 layout                          { return EQTOKEN_LAYOUT; }

@@ -150,8 +150,14 @@ namespace server
             { _inherit.offset = offset; }
         
         /** @return the frame offset. */
-        //const vmml::Vector2i& getOffset() const { return _data.offset; }
+        const vmml::Vector2i& getOffset() const { return _data.offset; }
 
+        /** 
+         * Set the offset of the frame.
+         */
+        void setOffset( const vmml::Vector2i& offset )
+           { _data.offset = offset; }
+        
         /** Set the inherit frame zoom factor. */
         void setInheritZoom( const eq::Zoom& zoom )
             { _inherit.zoom = zoom; }

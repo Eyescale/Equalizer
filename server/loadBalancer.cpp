@@ -9,7 +9,7 @@
 #include "treeLoadBalancer.h"
 #include "smoothLoadBalancer.h"
 #include "dfrLoadBalancer.h"
-
+#include "ddsLoadBalancer.h"
 #include <eq/client/client.h>
 #include <eq/client/server.h>
 #include <eq/base/debug.h>
@@ -105,6 +105,9 @@ void LoadBalancer::notifyUpdatePre( Compound* compound,
             case MODE_DFR:
                 _implementation = new DFRLoadBalancer( *this );
                 break;
+            case MODE_DDS:
+                _implementation = new DDSLoadBalancer( *this );
+                break;
             default:
                 EQUNREACHABLE;
                 return;
@@ -123,6 +126,7 @@ std::ostream& operator << ( std::ostream& os,
             mode == LoadBalancer::MODE_HORIZONTAL ? "HORIZONTAL" :
             mode == LoadBalancer::MODE_DB         ? "DB" :
             mode == LoadBalancer::MODE_DFR        ? "DFR" :
+            mode == LoadBalancer::MODE_DDS        ? "DDS" :
             mode == LoadBalancer::MODE_DPLEX      ? "DPLEX" : "ERROR" );
     return os;
 }
