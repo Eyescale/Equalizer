@@ -7,19 +7,17 @@
 #include <eq/base/debug.h>
 #include <eq/base/log.h>
 
-using namespace std;
-
 namespace eq
 {
 AGLMessagePump::AGLMessagePump()
         : _receiverQueue( 0 )
-        , _needGlobalLock( GetCurrentEventQueue() == GetMainEventQueue( ))
+        , _needGlobalLock( true )
 {
     const OSStatus status = CreateEvent( 0, 0, 0, 0, kEventAttributeNone, 
                                          &_wakeupEvent );
     if( status != noErr )
     {
-        EQWARN << "CreateEvent failed: " << status << endl;
+        EQWARN << "CreateEvent failed: " << status << std::endl;
         EQUNREACHABLE;
     }
 }
@@ -33,7 +31,7 @@ void AGLMessagePump::postWakeup()
 {
     if( !_receiverQueue )
     {
-        EQWARN << "Receiver thread not waiting?" << endl;
+        EQWARN << "Receiver thread not waiting?" << std::endl;
         return;
     }
 
@@ -43,7 +41,11 @@ void AGLMessagePump::postWakeup()
 void AGLMessagePump::_initReceiverQueue()
 {
     if( !_receiverQueue )
+    {
         _receiverQueue = GetCurrentEventQueue();
+        _needGlobalLock = ( _receiverQueue == GetMainEventQueue( ));
+        EQINFO << "_needGlobalLock " << _needGlobalLock << std::endl;
+    }
 
     EQASSERTINFO( _receiverQueue == GetCurrentEventQueue(),
                   "MessagePump::pop() called from two different threads" );
@@ -64,7 +66,7 @@ void AGLMessagePump::dispatchOne()
                                                         true, &event );
         if( status == noErr )
         {
-            EQVERB << "Dispatch Carbon event " << event << endl;
+            EQVERB << "Dispatch Carbon event " << event << std::endl;
 
             if( !_needGlobalLock )
                 Global::enterCarbon();
@@ -81,7 +83,7 @@ void AGLMessagePump::dispatchOne()
 
         if( status != eventLoopTimedOutErr )
         {
-            EQWARN << "ReceiveNextEvent failed: " << status << endl;
+            EQWARN << "ReceiveNextEvent failed: " << status << std::endl;
             return;
         }
     }
@@ -89,8 +91,6 @@ void AGLMessagePump::dispatchOne()
 
 void AGLMessagePump::dispatchAll()
 {
-    _initReceiverQueue();
-
     while( true )
     {
         EventRef       event;
@@ -104,11 +104,11 @@ void AGLMessagePump::dispatchAll()
 
         if( status != noErr )
         {
-            EQWARN << "ReceiveNextEvent failed: " << status << endl;
+            EQWARN << "ReceiveNextEvent failed: " << status << std::endl;
             break;
         }
 
-        EQVERB << "Dispatch Carbon event " << event << endl;
+        EQVERB << "Dispatch Carbon event " << event << std::endl;
 
         if( !_needGlobalLock )
             Global::enterCarbon();
@@ -121,5 +121,9 @@ void AGLMessagePump::dispatchAll()
 
     if( _needGlobalLock )
         Global::leaveCarbon();
+
+    // Init the receiver queue (and disable _needGlobalLock) after the first
+    // batch (first ReceiveNextEvent is not thread safe)
+    _initReceiverQueue();
 }
 }
