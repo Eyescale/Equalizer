@@ -19,10 +19,12 @@
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/client/windowSystem.h>   // WGLEWContext
 
+#include <eq/net/object.h>
+#include <eq/net/objectVersion.h>
+
 #include <eq/base/refPtr.h>
 #include <eq/base/spinLock.h>
 #include <eq/base/thread.h>
-#include <eq/net/object.h>
 
 namespace eq
 {
@@ -152,11 +154,12 @@ namespace eq
          * @param frameVersion the frame's identifier and version.
          * @param eye the current eye pass.
          * @return the frame.
+         * @internal
          */
         Frame* getFrame( const net::ObjectVersion& frameVersion, 
                          const Eye eye );
 
-        /** Clear the frame cache and delete all frames. */
+        /** @internal Clear the frame cache and delete all frames. */
         void flushFrames();
 
         /** @return if the window is made current */
@@ -164,6 +167,9 @@ namespace eq
 
         /** Set the window as current window. */
         void setCurrent( const Window* window ) const;
+
+        /** @internal @return the view for the given identifier and version. */
+        View* getView( const net::ObjectVersion& viewVersion );
         //*}
 
         /** Wait for the pipe to be exited. */
@@ -441,6 +447,10 @@ namespace eq
         /** All assembly frames used by the pipe during rendering. */
         FrameHash _frames;
 
+        typedef stde::hash_map< uint32_t, View* > ViewHash;
+        /** All views used by the pipe's channels during rendering. */
+        ViewHash _views;
+
         /** The pipe thread. */
         class PipeThread : public base::Thread
         {
@@ -478,6 +488,9 @@ namespace eq
 
         virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
         virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
+
+        /** @internal Clear the view cache and release all views. */
+        void _flushViews();
 
         /* The command functions. */
         net::CommandResult _cmdCreateWindow( net::Command& command );

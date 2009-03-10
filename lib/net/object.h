@@ -354,25 +354,6 @@ namespace net
 
         CHECK_THREAD_DECLARE( _thread );
     };
-
-    /** A helper struct bundling an object identifier and a version. */
-    struct ObjectVersion
-    {
-        ObjectVersion( const uint32_t id_      = EQ_ID_INVALID, 
-                       const uint32_t version_ = Object::VERSION_NONE )
-                : id( id_ ), version( version_ ) {}
-        ObjectVersion( Object* object ) 
-                : id( object->getID( )), version( object->getVersion( )) {}
-
-        uint32_t id;
-        uint32_t version;
-    };
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const ObjectVersion& ov )
-    {
-        os << " id " << ov.id << " v" << ov.version;
-        return os;
-    }
 }
 }
 

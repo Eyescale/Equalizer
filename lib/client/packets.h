@@ -813,13 +813,13 @@ namespace eq
             }
 
         uint32_t        initID;
-        uint32_t        viewID;
         uint32_t        drawable;
         int32_t         iAttributes[ eq::Channel::IATTR_ALL ];
         int32_t         tasks;
         PixelViewport   pvp;
         Viewport        vp;
         vmml::Vector3ub color;
+        net::ObjectVersion view;
         EQ_ALIGN8( char name[8] );
     };
 

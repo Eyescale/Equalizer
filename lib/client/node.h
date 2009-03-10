@@ -9,8 +9,9 @@
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 
-#include <eq/base/base.h>
 #include <eq/net/barrier.h>
+#include <eq/net/objectVersion.h>
+#include <eq/base/base.h>
 
 namespace eq
 {

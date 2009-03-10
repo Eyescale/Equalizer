@@ -329,6 +329,43 @@ void Pipe::flushFrames()
     _frames.clear();
 }
 
+View* Pipe::getView( const net::ObjectVersion& viewVersion )
+{
+    if( viewVersion.id == EQ_ID_INVALID )
+        return 0;
+
+    View* view = _views[ viewVersion.id ];
+
+    if( !view )
+    {
+        NodeFactory* nodeFactory = Global::getNodeFactory();
+        view = nodeFactory->createView();
+
+        net::Session* session = getSession();
+        EQCHECK( session->mapObject( view, viewVersion.id ));
+
+        _views[ viewVersion.id ] = view;
+    }
+    
+    view->sync( viewVersion.version );
+    return view;
+}
+
+void Pipe::_flushViews()
+{
+    NodeFactory*  nodeFactory = Global::getNodeFactory();
+    net::Session* session     = getSession();
+
+    for( ViewHash::const_iterator i = _views.begin(); i != _views.end(); ++i)
+    {
+        View* view = i->second;
+
+        session->unmapObject( view );
+        nodeFactory->releaseView( view );
+    }
+    _views.clear();
+}
+
 bool Pipe::isCurrent( const Window* window ) const
 {
     if( isThreaded( ))
@@ -679,6 +716,7 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
 
     PipeConfigExitReplyPacket reply;
     reply.result = configExit();
+    _flushViews();
 
     _state = STATE_STOPPED;
 

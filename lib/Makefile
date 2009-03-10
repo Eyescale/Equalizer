@@ -65,6 +65,7 @@ HEADER_SRC = \
 	net/nodeType.h \
 	net/object.h \
 	net/objectCM.h\
+	net/objectVersion.h \
 	net/packets.h \
 	net/pairConnection.h \
 	net/pipeConnection.h \
@@ -178,6 +179,7 @@ CXXFILES = \
 	net/objectDeltaDataOStream.cpp \
 	net/objectInstanceDataIStream.cpp \
 	net/objectInstanceDataOStream.cpp \
+	net/objectVersion.cpp \
 	net/packets.cpp \
 	net/pairConnection.cpp \
 	net/pipeConnection.cpp \

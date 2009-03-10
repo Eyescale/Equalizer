@@ -129,14 +129,12 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.eye            = _eye;
     context.buffer         = _getDrawBuffer();
     context.drawBufferMask = _getDrawBufferMask( compound );
-    context.viewID         = EQ_ID_INVALID;
 
     const Channel* destChannel = compound->getInheritChannel();
     EQASSERT( destChannel );
 
-    const View* destView = destChannel->getView();
-    if( destView )
-        context.viewID = destView->getID();
+    const View* destView   = destChannel->getView();
+    context.view           = destView;
 
     if( _channel != destChannel &&
         compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != eq::ON )

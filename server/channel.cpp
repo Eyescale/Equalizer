@@ -359,7 +359,7 @@ void Channel::_configInit( const uint32_t initID )
 
     eq::ChannelConfigInitPacket packet;
     packet.initID = initID;
-    packet.viewID = _view ? _view->getID() : EQ_ID_INVALID;
+    packet.view   = _view;
     packet.color  = _getUniqueColor();
     packet.tasks  = _tasks;
     packet.drawable = _drawable;

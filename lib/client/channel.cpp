@@ -543,6 +543,19 @@ FrameBufferObject* Channel::getFrameBufferObject()
     return _fbo;
 }
 
+const View* Channel::getView()
+{
+    if( !_context )
+        return _view;
+    
+    Pipe* pipe = getPipe();
+    return pipe->getView( _context->view );
+}
+
+//---------------------------------------------------------------------------
+// apply convenience methods
+//---------------------------------------------------------------------------
+
 void Channel::applyFrameBufferObject()
 {
     if( _fbo )
@@ -948,34 +961,18 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
         command.getPacket<ChannelConfigInitPacket>();
     EQLOG( LOG_INIT ) << "TASK channel config init " << packet << endl;
 
-    if( packet->viewID != EQ_ID_INVALID )
-    {
-        NodeFactory* nodeFactory = Global::getNodeFactory();
-        View*        view        = nodeFactory->createView();
-        Config*      config      = getConfig();
-        EQASSERT( view );
-
-        if( config->mapObject( view, packet->viewID ))
-        {
-            view->_channel = this;
-            _view = view;
-        }
-        else
-        {
-            nodeFactory->releaseView( view );
-            EQUNREACHABLE;
-        }
-    }
-
     if( packet->pvp.isValid( ))
         _setPixelViewport( packet->pvp );
     else
         _setViewport( packet->vp );
 
+    Pipe* pipe = getPipe();
+
     _name     = packet->name;
     _tasks    = packet->tasks;
     _color    = packet->color;
     _drawable = packet->drawable;
+    _view     = pipe->getView( packet->view );
     
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
 
@@ -999,17 +996,6 @@ net::CommandResult Channel::_cmdConfigExit( net::Command& command )
 
     ChannelConfigExitReplyPacket reply;
     reply.result = configExit();
-
-    if( _view )
-    {
-        Config* config = getConfig();
-
-        config->unmapObject( _view );
-        _view->_channel = 0;
-
-        Global::getNodeFactory()->releaseView( _view );
-        _view = 0;
-    }
 
     send( command.getNode(), reply );
     return net::COMMAND_HANDLED;

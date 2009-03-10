@@ -131,11 +131,13 @@ namespace eq
          * 
          * A channel has a View if a Wall or Projection description is
          * configured for it. This is typically the case for destination
-         * channels, source channels do not have a view.
+         * channels, source channels do not have a native view. During rendering
+         * operations, the view of the current destination channel, i.e., the
+         * channel this channel is rendering for, is returned.
          * 
          * @return the channel's view, or 0 if it does not have a view.
          */
-        const View* getView() const { return _view; }
+        const View* getView();
 
         /** Add a new statistics event for the current frame. */
         void addStatistic( Event& event );
@@ -539,7 +541,7 @@ namespace eq
         base::SpinLock _statisticsLock;
 #endif
 
-        /** The channel's view, if it has one. */
+        /** The channel's native view, if it has one. */
         View* _view;
 
         union // placeholder for binary-compatible changes

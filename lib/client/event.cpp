@@ -62,7 +62,6 @@ Event::Event()
         , originator( EQ_ID_INVALID )
 {
     bzero( &context, sizeof( RenderContext ));
-    context.viewID = EQ_ID_INVALID;
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )

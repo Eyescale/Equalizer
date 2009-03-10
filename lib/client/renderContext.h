@@ -1,17 +1,20 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_RENDERCONTEXT_H
 #define EQ_RENDERCONTEXT_H
 
-#include <eq/base/base.h>
 #include <eq/client/colorMask.h>
 #include <eq/client/eye.h>
 #include <eq/client/pixel.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/range.h>
 #include <eq/client/zoom.h>
+
+#include <eq/net/objectVersion.h>
+#include <eq/base/base.h>
+
 #include <vmmlib/vmmlib.h>
 
 namespace eq
@@ -39,7 +42,7 @@ namespace eq
         vmml::Vector2i screenOrigin;   //<! absolute position wrt screen
         vmml::Vector2i screenSize;     //<! size of screen
         Eye            eye;            //<! current eye pass
-        uint32_t       viewID;         //<! identifier of the dest channel view
+        net::ObjectVersion view;       //<! destination view id and version
 
         union // placeholder for binary-compatible changes
         {

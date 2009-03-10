@@ -393,7 +393,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
 
         case eq::Event::POINTER_BUTTON_PRESS:
-            _frameData.setCurrentViewID( event->data.context.viewID );
+            _frameData.setCurrentViewID( event->data.context.view.id );
             return true;
 
         case eq::Event::POINTER_BUTTON_RELEASE:
