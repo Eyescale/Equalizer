@@ -564,7 +564,11 @@ bool Config::_updateRunning()
     {
         Node* node = *i;
         if( !node->syncRunning( ))
+        {
+            _error += "node " + node->getName() + ": '" +
+                          node->getErrorMessage() + '\'';
             success = false;
+        }
     }
 
     _stopNodes();

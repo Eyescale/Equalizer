@@ -93,7 +93,7 @@ void Window::attachToSession( const uint32_t id, const uint32_t instanceID,
 {
     net::Object::attachToSession( id, instanceID, session );
     
-    net::CommandQueue* serverQueue  = getServerThreadQueue();
+//    net::CommandQueue* serverQueue  = getServerThreadQueue();
     net::CommandQueue* commandQueue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 
@@ -104,7 +104,7 @@ void Window::attachToSession( const uint32_t id, const uint32_t instanceID,
                      commandQueue );
     registerCommand( eq::CMD_WINDOW_SET_PVP, 
                      WindowFunc( this, &Window::_cmdSetPixelViewport ),
-                     serverQueue );
+                     commandQueue );
                          
 }
 
@@ -441,8 +441,8 @@ bool Window::syncRunning()
         // becoming inactive
         success = false;
 
-    EQASSERT( success || _state == STATE_INIT_FAILED );
-    EQASSERT( !success || _state == STATE_STOPPED || _state == STATE_RUNNING );
+    EQASSERT( _state == STATE_STOPPED || _state == STATE_RUNNING || 
+              _state == STATE_INIT_FAILED );
     return success;
 }
 

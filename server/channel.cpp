@@ -329,19 +329,17 @@ void Channel::updateRunning( const uint32_t initID )
 
 bool Channel::syncRunning()
 {
-    if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return true;
-
     bool success = true;
-    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
+    if( isActive() && _state != STATE_RUNNING  && !_syncConfigInit( ))
         // becoming active
         success = false;
 
-    if( !isActive() && !_syncConfigExit( ))
+    if( !isActive() && _state != STATE_STOPPED && !_syncConfigExit( ))
         // becoming inactive
         success = false;
 
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED );
+    EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED || 
+              _state == STATE_INIT_FAILED );
     return success;
 }
 

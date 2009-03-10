@@ -55,8 +55,11 @@ bool Config::init()
 
     // init config
     if( !eq::Config::init( _initData.getID( )))
+    {
+        _deregisterData();
         return false;
-    
+    }
+
     // init tracker
     if( !_initData.getTrackerPort().empty( ))
     {
@@ -83,16 +86,10 @@ bool Config::init()
 bool Config::exit()
 {
     const bool ret = eq::Config::exit();
-
-    _initData.setFrameDataID( EQ_ID_INVALID );
-    deregisterObject( &_initData );
-    deregisterObject( &_frameData );
-
     _deregisterData();
-    _frameData.setModelID( EQ_ID_INVALID );
+
     // retain models and distributors for possible other config runs, destructor
     // deletes it
-
     return ret;
 }
 
@@ -166,6 +163,12 @@ void Config::_deregisterData()
         EQASSERT( modelDist->isMaster( ));
         modelDist->deregisterTree();
     }
+
+    deregisterObject( &_initData );
+    deregisterObject( &_frameData );
+
+    _initData.setFrameDataID( EQ_ID_INVALID );
+    _frameData.setModelID( EQ_ID_INVALID );
 }
 
 
