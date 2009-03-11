@@ -264,8 +264,8 @@ namespace server
         void addInputFrame( Frame* frame );
 
         /** @return the vector of input frames. */
-        const FrameVector& getInputFrames() const {return _inputFrames;}
-        FrameVector& getInputFrames() {return _inputFrames;}
+        const FrameVector& getInputFrames() const {return _inputFrames; }
+
         /** 
          * Add a new output frame for this compound.
          *
@@ -275,7 +275,6 @@ namespace server
 
         /** @return the vector of output frames. */
         const FrameVector& getOutputFrames() const { return _outputFrames; }
-        FrameVector& getOutputFrames() { return _outputFrames; }
         //*}
 
         /** 
