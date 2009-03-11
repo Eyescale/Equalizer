@@ -101,12 +101,12 @@ pascal OSStatus AGLEventHandler::_dispatchEventUPP(
 {
     EventQueueRef target = static_cast< EventQueueRef >( userData );
     
-    if( GetCurrentEventQueue() == target )
-        return CallNextEventHandler( nextHandler, event );
-
-    EQASSERT( GetCurrentEventQueue() == GetMainEventQueue( ));
-    PostEventToQueue( target, event, kEventPriorityStandard );
-    return noErr;
+    if( GetCurrentEventQueue() != target )
+    {
+        EQASSERT( GetCurrentEventQueue() == GetMainEventQueue( ));
+        PostEventToQueue( target, event, kEventPriorityStandard );
+    }
+    return CallNextEventHandler( nextHandler, event );
 }
 
 pascal OSStatus AGLEventHandler::_handleEventUPP( 
@@ -122,11 +122,11 @@ pascal OSStatus AGLEventHandler::_handleEventUPP(
             // non-threaded window, handle from main thread
             handler->_handleEvent( event );
 
+        return CallNextEventHandler( nextHandler, event );
     }
-    else
-        handler->_handleEvent( event );
 
-    return CallNextEventHandler( nextHandler, event );
+    handler->_handleEvent( event );
+    return noErr;
 }
 
 bool AGLEventHandler::_handleEvent( EventRef event )
