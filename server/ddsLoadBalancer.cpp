@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -5,6 +6,7 @@
 
 #include "compound.h"
 #include "config.h"
+#include "configVisitor.h"
 #include "log.h"
 #include "frame.h"
 #include "view.h"
@@ -25,9 +27,7 @@ namespace server
 
 namespace
 {
-
-
-class OutputFrameFinder : public ConfigVisitor
+class OutputFrameFinder : public ConstCompoundVisitor
 {
 public:
     OutputFrameFinder( const std::string& name  )
@@ -35,18 +35,11 @@ public:
                              , _name( name )  {}
 
     virtual ~OutputFrameFinder(){}
-    virtual VisitorResult visit( Segment* segument )
-    {
-        return TRAVERSE_CONTINUE;
-    }
-    virtual VisitorResult visit( View* view )
-    {
-        return TRAVERSE_CONTINUE;
-    }
-    virtual VisitorResult visit( Compound* compound )
+
+    virtual VisitorResult visit( const Compound* compound )
         {
-            FrameVector outputFrames = compound->getOutputFrames();
-            for( vector<Frame*>::const_iterator i = outputFrames.begin(); 
+            const FrameVector& outputFrames = compound->getOutputFrames();
+            for( FrameVector::const_iterator i = outputFrames.begin(); 
                  i != outputFrames.end(); ++i )
             {
                 Frame* frame = *i;
@@ -82,13 +75,12 @@ DDSLoadBalancer::DDSLoadBalancer( const LoadBalancer& parent )
     for( FrameVector::const_iterator i = inputFrames.begin(); 
          i != inputFrames.end(); ++i )
     {
-        
         const Frame* frame = *i;
-        Config* config = _compound->getConfig();
-        
+        const Compound* root = _compound->getRoot();
+
         // find the output frame
         OutputFrameFinder finderOframe( frame->getName() );
-        config->accept(finderOframe);
+        root->accept( finderOframe, false /* activeOnly */ );
         Frame* outputFrame = finderOframe.getResult();
         _outputFrames.push_back( outputFrame );
         
