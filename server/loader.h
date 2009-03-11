@@ -60,7 +60,14 @@ namespace server
          * @return the parsed config.
          */
         Config* parseConfig( const char* config );
-        //*}
+
+        /**
+         * Add a compound for each output channel.
+         *
+         * This function creates a compound for each output channel which is not
+         * used as a destination channel yet.
+         */
+        static void addOutputCompounds( ServerPtr server );
 
     private:
         void _parseString( const char* config );

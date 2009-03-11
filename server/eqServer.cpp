@@ -38,6 +38,8 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
+    Loader::addOutputCompounds( server );
+
     if( !server->initLocal( argc, argv ))
     {
         EQERROR << "Can't create listener for server, please consult log" 
