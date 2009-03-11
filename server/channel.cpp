@@ -7,6 +7,7 @@
 
 #include "channelListener.h"
 #include "channelUpdateVisitor.h"
+#include "channelVisitor.h"
 #include "compound.h"
 #include "compoundVisitor.h"
 #include "config.h"

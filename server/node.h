@@ -18,6 +18,8 @@ namespace eq
 {
 namespace server
 {
+    class ConstNodeVisitor;
+    class NodeVisitor;
     struct ChannelPath;
     struct NodePath;
 

@@ -3,7 +3,9 @@
    All rights reserved. */
 
 #include <pthread.h>
+
 #include "window.h"
+
 #include "global.h"
 #include "channel.h"
 #include "config.h"
@@ -12,6 +14,7 @@
 #include "node.h"
 #include "paths.h"
 #include "pipe.h"
+#include "windowVisitor.h"
 
 #include <eq/net/command.h>
 
@@ -93,7 +96,6 @@ void Window::attachToSession( const uint32_t id, const uint32_t instanceID,
 {
     net::Object::attachToSession( id, instanceID, session );
     
-//    net::CommandQueue* serverQueue  = getServerThreadQueue();
     net::CommandQueue* commandQueue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 

@@ -7,6 +7,7 @@
 #include "channel.h"
 #include "compound.h"
 #include "config.h"
+#include "configVisitor.h"
 #include "layout.h"
 #include "paths.h"
 

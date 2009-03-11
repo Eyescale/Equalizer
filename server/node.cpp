@@ -9,6 +9,7 @@
 #include "config.h"
 #include "global.h"
 #include "log.h"
+#include "nodeVisitor.h"
 #include "paths.h"
 #include "pipe.h"
 #include "server.h"

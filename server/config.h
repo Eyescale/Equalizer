@@ -8,7 +8,7 @@
 #include "base.h"
 #include "types.h"
 #include "server.h"        // used in inline method
-#include "configVisitor.h" // nested enum
+#include "visitorResult.h" // enum
 
 #include <eq/client/matrix4.h>
 #include <eq/client/packets.h>
@@ -22,6 +22,8 @@ namespace eq
 namespace server
 {
     class ConfigSerializer;
+    class ConfigVisitor;
+    class ConstConfigVisitor;
     struct CanvasPath;
     struct ChannelPath;
     struct LayoutPath;
