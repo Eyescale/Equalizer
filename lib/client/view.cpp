@@ -37,6 +37,9 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     Frustum::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
         is >> _viewport;
+
+    if( dirtyBits & DIRTY_ALL )
+        _baseFrustum = *this; // save baseline data for resizing
 }
 
 Config* View::getConfig()
@@ -86,5 +89,50 @@ VisitorResult View::accept( ViewVisitor& visitor )
 {
     return visitor.visit( this );
 }
+
+bool View::handleEvent( const Event& event )
+{
+    switch( event.type )
+    {
+        case Event::VIEW_RESIZE:
+        {
+            const ResizeEvent& resize = event.resize;
+
+            switch( getCurrentType( ))
+            {
+                case TYPE_WALL:
+                {
+                    const float ratio( resize.dw / resize.dh );
+                    Wall wall( _baseFrustum.getWall( ));
+
+                    wall.resizeHorizontal( ratio );
+                    setWall( wall );
+                    break;
+                }
+
+                case View::TYPE_PROJECTION:
+                {
+                    const float ratio( resize.dw / resize.dh );
+                    eq::Projection projection( _baseFrustum.getProjection( ));
+
+                    projection.resizeHorizontal( ratio );
+                    setProjection( projection );
+                    break;
+                }
+
+                case eq::View::TYPE_NONE:
+                    break;
+                default:
+                    EQUNIMPLEMENTED;
+                    break;
+            }
+
+            return true;
+        }
+    }
+    
+    return false;
+}
+
 
 }

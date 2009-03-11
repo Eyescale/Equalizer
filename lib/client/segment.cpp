@@ -6,6 +6,7 @@
 
 #include "canvas.h"
 #include "config.h"
+#include "segmentVisitor.h"
 
 using namespace eq::base;
 

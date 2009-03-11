@@ -19,6 +19,7 @@ namespace server
     class Config;
     class Layout;
     class ViewVisitor;
+    struct Event;
 
     /**
      * A View is a 2D area of a Layout. It is a view of the application's data
@@ -59,6 +60,18 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( ViewVisitor& visitor );
+
+        /** 
+         * Handle a received (view) event.
+         *
+         * The task of this method is to update the view as necessary. It is
+         * called by Config::handleEvent on the application main thread for all
+         * view events.
+         * 
+         * @param event the received view event.
+         * @return true when the event was handled, false if not.
+         */
+        virtual bool handleEvent( const Event& event );
         //*}
         
     protected:
@@ -90,6 +103,9 @@ namespace server
         friend class server::View;
         Viewport    _viewport;
         std::string _name;
+
+        /** Unmodified, baseline view frustum data, used when resizing. */
+        Frustum _baseFrustum;
 
         union // placeholder for binary-compatible changes
         {

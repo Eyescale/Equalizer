@@ -544,6 +544,9 @@ namespace eq
         /** The channel's native view, if it has one. */
         View* _view;
 
+        /** The initial channel size, used for view resize events. */
+        vmml::Vector2i _initialSize;
+
         union // placeholder for binary-compatible changes
         {
             char dummy[64];

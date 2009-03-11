@@ -14,6 +14,7 @@
 #include "log.h"
 #include "nodeFactory.h"
 #include "nodeStatistics.h"
+#include "nodeVisitor.h"
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"

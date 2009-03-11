@@ -12,9 +12,11 @@
 #include "log.h"
 #include "nodeFactory.h"
 #include "pipeStatistics.h"
+#include "pipeVisitor.h"
 #include "packets.h"
 #include "server.h"
 #include "task.h"
+#include "view.h"
 #include "X11Connection.h"
 #include "window.h"
 

@@ -660,9 +660,14 @@ bool Channel::processEvent( const Event& event )
             if( !view )
                 return true;
 
+            EQASSERT( view == _view );
             // transform to view event, which is meaningful for the config 
             configEvent.data.type       = Event::VIEW_RESIZE;
             configEvent.data.originator = view->getID();
+
+            ResizeEvent& resize = configEvent.data.resize;
+            resize.dw = resize.w / static_cast< float >( _initialSize.x );
+            resize.dh = resize.h / static_cast< float >( _initialSize.y );
             break;
         }
 
@@ -973,7 +978,9 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
     _color    = packet->color;
     _drawable = packet->drawable;
     _view     = pipe->getView( packet->view );
-    
+    _initialSize.x = _pvp.w;
+    _initialSize.y = _pvp.h;
+
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
 
     _error.clear();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_H
@@ -14,6 +14,7 @@
 #include <eq/client/config.h>
 #include <eq/client/configEvent.h>
 #include <eq/client/configParams.h>
+#include <eq/client/configVisitor.h>
 #include <eq/client/event.h>
 #include <eq/client/frame.h>
 #include <eq/client/frameData.h>

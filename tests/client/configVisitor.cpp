@@ -10,6 +10,7 @@
 #include <eq/client/channel.h>
 #include <eq/client/client.h>
 #include <eq/client/config.h>
+#include <eq/client/configVisitor.h>
 #include <eq/client/init.h>
 #include <eq/client/node.h>
 #include <eq/client/nodeFactory.h>

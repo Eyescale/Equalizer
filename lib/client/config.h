@@ -5,18 +5,18 @@
 #ifndef EQ_CONFIG_H
 #define EQ_CONFIG_H
 
-#include <eq/client/commandQueue.h> // member
-#include <eq/client/configVisitor.h>// nested enum
-#include <eq/client/matrix4.h>      // member
-#include <eq/client/types.h>        // typedefs
-#include <eq/client/view.h>         // member
+#include <eq/client/commandQueue.h>  // member
+#include <eq/client/matrix4.h>       // member
+#include <eq/client/types.h>         // typedefs
+#include <eq/client/visitorResult.h> // enum
 
-#include <eq/net/session.h>         // base class
-#include <eq/base/monitor.h>        // member
+#include <eq/net/session.h>          // base class
+#include <eq/base/monitor.h>         // member
 
 namespace eq
 {
     class ConfigDeserializer;
+    class ConfigVisitor;
     class Node;
     class SceneObject;
     struct ConfigEvent;
@@ -202,15 +202,6 @@ namespace eq
          *         <code>false</code> if not.
          */
         virtual bool handleEvent( const ConfigEvent* event );
-
-        /** 
-         * Updates a view, retaining its aspect ratio.
-         * 
-         * @param viewID the identifier of the view.
-         * @param newSize the new size, in pixels, of the view.
-         */
-        virtual void handleViewResize( const uint32_t viewID, 
-                                       const vmml::Vector2i& newSize );
         //*}
         
         /** @name Head Tracking. */
@@ -262,18 +253,6 @@ namespace eq
 
     protected:
 
-        /** Used for resizing views, see handleViewResize */
-        struct BaseView
-        {
-            View*          view;
-            Frustum        frustum;
-            vmml::Vector2i size;
-        };
-        typedef stde::hash_map< uint32_t, BaseView > BaseViewHash;
-
-        /** Unmodified, baseline view data. */
-        BaseViewHash _baseViews;
-        
         /** @sa eq::net::Session::setLocalNode() */
         virtual void setLocalNode( net::NodePtr node );
 

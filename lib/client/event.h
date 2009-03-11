@@ -85,10 +85,12 @@ namespace eq
 
     struct ResizeEvent
     {
-        int32_t x; // relative to parent
+        int32_t x; //<! relative to parent
         int32_t y;
         int32_t w;
         int32_t h;
+        float dw;  //<! view only: relative to baseline
+        float dh;
     };
     struct PointerEvent
     {
