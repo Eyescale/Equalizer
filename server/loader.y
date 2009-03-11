@@ -419,7 +419,7 @@ connectionType:
     EQTOKEN_TCPIP { $$ = eq::net::CONNECTIONTYPE_TCPIP; }
     | EQTOKEN_SDP { $$ = eq::net::CONNECTIONTYPE_SDP; }
 
-server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
+server: EQTOKEN_SERVER '{' { server = new eq::server::Server(); }
         serverConnections
         configs '}'
 
@@ -439,7 +439,7 @@ serverConnection: EQTOKEN_CONNECTION
 configs: config | configs config
 config: EQTOKEN_CONFIG '{'
             {
-                config = loader->createConfig();
+                config = new eq::server::Config();
                 if( server.isValid( )) 
                     server->addConfig( config ); 
             }
@@ -465,7 +465,7 @@ configAttribute:
 
 node: appNode | renderNode
 renderNode: EQTOKEN_NODE '{' {
-                                 node = loader->createNode();
+                                 node = new eq::server::Node();
                                  config->addNode( node );
                              }
                nodeFields
@@ -477,7 +477,7 @@ renderNode: EQTOKEN_NODE '{' {
                    }
 appNode: EQTOKEN_APPNODE '{' 
             {
-                node = loader->createNode();
+                node = new eq::server::Node();
                 config->addApplicationNode( node );
             }
             nodeFields
@@ -517,7 +517,7 @@ nodeAttribute:
 
 pipe: EQTOKEN_PIPE '{' 
             {
-                eqPipe = loader->createPipe();
+                eqPipe = new eq::server::Pipe();
                 node->addPipe( eqPipe );
             }
         pipeFields
@@ -541,7 +541,7 @@ pipeAttribute:
 
 window: EQTOKEN_WINDOW '{' 
             {
-                window = loader->createWindow();
+                window = new eq::server::Window();
                 eqPipe->addWindow( window ); 
             }
         windowFields
@@ -594,7 +594,7 @@ windowAttribute:
                      
 channel: EQTOKEN_CHANNEL '{' 
             {
-                channel = loader->createChannel();
+                channel = new eq::server::Channel();
                 window->addChannel( channel );
             }
          channelFields
@@ -684,7 +684,7 @@ segmentField:
 
 compound: EQTOKEN_COMPOUND '{' 
               {
-                  eq::server::Compound* child = loader->createCompound();
+                  eq::server::Compound* child = new eq::server::Compound();
                   if( eqCompound )
                       eqCompound->addChild( child );
                   else

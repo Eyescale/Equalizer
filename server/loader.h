@@ -60,18 +60,6 @@ namespace server
          * @return the parsed config.
          */
         Config* parseConfig( const char* config );
-
-        /**
-         * @name Factory Methods.
-         */
-        //*{
-        virtual ServerPtr createServer();
-        virtual Config*   createConfig();
-        virtual Node*     createNode();
-        virtual Pipe*     createPipe();
-        virtual Window*   createWindow();
-        virtual Channel*  createChannel();
-        virtual Compound* createCompound();
         //*}
 
     private:

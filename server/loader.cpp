@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "loader.h" 
@@ -18,43 +18,6 @@ namespace eq
 namespace server
 {
 
-//---------------------------------------------------------------------------
-// factory methods
-//---------------------------------------------------------------------------
-ServerPtr Loader::createServer()
-{
-    return new Server;
-}
-
-Config*   Loader::createConfig()
-{
-    return new Config;
-}
-
-Node*     Loader::createNode()
-{
-    return new Node;
-}
-
-Pipe*     Loader::createPipe()
-{
-    return new Pipe;
-}
-
-Window*   Loader::createWindow()
-{
-    return new Window;
-}
-
-Channel*  Loader::createChannel()
-{
-    return new Channel;
-}
-
-Compound* Loader::createCompound()
-{
-    return new Compound;
-}
 
 }
 }
