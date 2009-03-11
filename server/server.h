@@ -7,8 +7,10 @@
 
 #include "base.h"
 #include "types.h"
+#include "visitorResult.h" // enum
 
 #include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
+
 #include <eq/net/command.h>      // used in inline method
 #include <eq/net/commandQueue.h> // member
 #include <eq/net/node.h>         // base class & eqsStartLocalServer declaration
@@ -25,6 +27,9 @@ namespace eq
  */
 namespace server
 {
+    class ConstServerVisitor;
+    class ServerVisitor;
+
     /**
      * The Equalizer server.
      */
@@ -68,6 +73,15 @@ namespace server
         /** @return the command queue to the server thread */
         net::CommandQueue* getServerThreadQueue() 
             { return &_serverThreadQueue; }
+
+        /** 
+         * Traverse this server and all children using a server visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        VisitorResult accept( ServerVisitor& visitor );
+        VisitorResult accept( ConstServerVisitor& visitor ) const;
 
     protected:
         virtual ~Server();
