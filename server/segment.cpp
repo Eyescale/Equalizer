@@ -8,6 +8,7 @@
 #include "channel.h"
 #include "config.h"
 #include "paths.h"
+#include "view.h"
 
 using namespace eq::base;
 
@@ -20,6 +21,7 @@ Segment::Segment()
         : _canvas( 0 )
         , _channel( 0 )
 {
+    EQINFO << "New segment @" << (void*)this << std::endl;
 }
 
 Segment::Segment( const Segment& from, Config* config )
@@ -35,28 +37,43 @@ Segment::Segment( const Segment& from, Config* config )
         _channel = config->getChannel( path );
         EQASSERT( _channel );
     }
+
     for( ChannelVector::const_iterator i = from._destinationChannels.begin();
          i != from._destinationChannels.end(); ++i )
     {
         const Channel* oldChannel = *i;
-        const ChannelPath path( oldChannel->getPath( ));
+        const ChannelPath channelPath( oldChannel->getPath( ));
 
-        Channel* newChannel = config->getChannel( path );
+        Channel* newChannel = config->getChannel( channelPath );
         EQASSERT( newChannel );
 
-        addDestinationChannel( newChannel );
+        const View* oldView = oldChannel->getView();
+        EQASSERT( oldView );
+        const ViewPath viewPath( oldView->getPath( ));
+
+        View* newView = config->getView( viewPath );
+        EQASSERT( newView );
+
+        newChannel->setOutput( newView, this );
     }
+
+    EQINFO << "Copy segment @" << (void*)this << std::endl;
 }
 
 Segment::~Segment()
 {
-    for( ChannelVector::const_iterator i = _destinationChannels.begin();
-         i != _destinationChannels.end(); ++i )
+    EQINFO << "Delete segment @" << (void*)this << std::endl;
+
+    // Use copy - Channel::unsetOutput modifies vector
+    ChannelVector destinationChannels = _destinationChannels;
+    for( ChannelVector::const_iterator i = destinationChannels.begin();
+         i != destinationChannels.end(); ++i )
     {
         Channel* channel = *i;
-        channel->setSegment( 0 );
+        channel->unsetOutput();
     }
 
+    EQASSERT( _destinationChannels.empty( ));
     _destinationChannels.clear();
     _channel = 0;
     _canvas  = 0;
@@ -83,8 +100,11 @@ void Segment::setViewport( const eq::Viewport& vp )
 
 void Segment::addDestinationChannel( Channel* channel )
 {
+    EQASSERT( std::find( _destinationChannels.begin(), 
+                         _destinationChannels.end(), channel ) == 
+              _destinationChannels.end( ));
+
     _destinationChannels.push_back( channel );
-    channel->setSegment( this );
 }
 
 bool Segment::removeDestinationChannel( Channel* channel )
@@ -92,11 +112,15 @@ bool Segment::removeDestinationChannel( Channel* channel )
     ChannelVector::iterator i = find( _destinationChannels.begin(), 
                                       _destinationChannels.end(), channel );
 
+    EQASSERT( i !=  _destinationChannels.end( ));
     if( i == _destinationChannels.end( ))
         return false;
 
-    channel->setSegment( 0 );
     _destinationChannels.erase( i );
+
+    EQASSERT( std::find( _destinationChannels.begin(), 
+                         _destinationChannels.end(), channel ) == 
+              _destinationChannels.end( ));
     return true;
 }
 

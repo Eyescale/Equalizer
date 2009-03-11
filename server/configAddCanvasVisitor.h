@@ -94,8 +94,7 @@ public:
                 Window* window = segmentChannel->getWindow();
                 channel = new Channel( *segmentChannel, window );
 
-                _view->addChannel( channel );
-                segment->addDestinationChannel( channel );
+                channel->setOutput( _view, segment );
             }
 
             //----- compute channel viewport:

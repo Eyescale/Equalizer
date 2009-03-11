@@ -145,6 +145,8 @@ CanvasPath Canvas::getPath() const
 void Canvas::addSegment( Segment* segment )
 {
     EQASSERT( segment );
+    EQASSERT( std::find( _segments.begin(), _segments.end(), segment ) == 
+              _segments.end( ));
     
     // if segment has no frustum...
     if(( segment->getCurrentType() == TYPE_NONE ))

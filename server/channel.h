@@ -120,16 +120,18 @@ namespace server
          */
         void addTasks( const uint32_t tasks );
 
-        /** Set the view for this channel. */
-        void setView( const View* view );
+        /** Set the output view and segment for this channel. */
+        void setOutput( View* view, Segment* segment );
+
+        /** Unset the output view and segment for this channel. */
+        void unsetOutput();
+
         /** @return the channel's view. */
         const View* getView() const { return _view; }
 
         /** @return the channel's layout. */
         const Layout* getLayout() const;
 
-        /** Set the segment for this channel. */
-        void setSegment( const Segment* segment );
         /** @return the channel's segment. */
         const Segment* getSegment() const { return _segment; }
 
@@ -279,10 +281,10 @@ namespace server
         uint32_t _active;
 
         /** The view used by this channel. */
-        const View* _view;
+        View* _view;
 
         /** The segment used by this channel. */
-        const Segment* _segment;
+        Segment* _segment;
 
         /** The reason for the last error. */
         std::string _error;

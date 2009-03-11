@@ -15,6 +15,7 @@
 #include "log.h"
 #include "node.h"
 #include "paths.h"
+#include "segment.h"
 #include "view.h"
 #include "window.h"
 
@@ -74,7 +75,7 @@ Channel::Channel( const Channel& from, Window* window )
     _pvp      = from._pvp;
     _fixedPVP = from._fixedPVP;
     _drawable = from._drawable;
-    // Don't copy view and segment. Will be re-set by view/segment copy ctors
+    // Don't copy view and segment. Will be re-set by segment copy ctor
 
     window->addChannel( this );
 
@@ -215,22 +216,33 @@ void Channel::deactivate()
     EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 }
 
-void Channel::setView( const View* view )
+void Channel::setOutput( View* view, Segment* segment )
 {
-    EQASSERT( !view || !_view || view == _view );
-    _view = view;
+    EQASSERT( !_view && !_segment );
+    EQASSERT( view && segment );
+
+    _view    = view;
+    _segment = segment;
+
+    view->addChannel( this );
+    segment->addDestinationChannel( this );
+}
+
+void Channel::unsetOutput()
+{
+    EQASSERT( _view && _segment );
+
+    EQCHECK( _view->removeChannel( this ));
+    EQCHECK( _segment->removeDestinationChannel( this ));
+
+    _view    = 0;
+    _segment = 0;
 }
 
 const Layout* Channel::getLayout() const
 {
     EQASSERT( _view );
     return _view ? _view->getLayout() : 0;
-}
-
-void Channel::setSegment( const Segment* segment )
-{
-    EQASSERT( !segment || !_segment || segment == _segment );
-    _segment = segment;
 }
 
 void Channel::addTasks( const uint32_t tasks )

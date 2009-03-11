@@ -27,27 +27,21 @@ View::View( const View& from, Config* config )
         : eq::View( from )
         , _layout( 0 )
 {
-    for( ChannelVector::const_iterator i = from._channels.begin();
-         i != from._channels.end(); ++i )
-    {
-        const Channel* oldChannel = *i;
-        const ChannelPath path( oldChannel->getPath( ));
-
-        Channel* newChannel = config->getChannel( path );
-        EQASSERT( newChannel );
-
-        addChannel( newChannel );
-    }
+    // _channels will be added by Segment copy ctor
 }
 
 View::~View()
 {
-    for( ChannelVector::const_iterator i = _channels.begin();
-         i != _channels.end(); ++i )
+    // Use copy - Channel::unsetOutput modifies vector
+    ChannelVector channels = _channels;
+    for( ChannelVector::const_iterator i = channels.begin();
+         i != channels.end(); ++i )
     {
         Channel* channel = *i;
-        channel->setView( 0 );
+        channel->unsetOutput();
     }
+
+    EQASSERT( _channels.empty( ));
     _channels.clear();
 
     if( _layout )
@@ -121,7 +115,6 @@ const Config* View::getConfig() const
 void View::addChannel( Channel* channel )
 {
     _channels.push_back( channel );
-    channel->setView( this );
 }
 
 bool View::removeChannel( Channel* channel )
@@ -129,10 +122,10 @@ bool View::removeChannel( Channel* channel )
     ChannelVector::iterator i = find( _channels.begin(), 
                                       _channels.end(), channel );
 
+    EQASSERT( i != _channels.end( ));
     if( i == _channels.end( ))
         return false;
 
-    channel->setView( 0 );
     _channels.erase( i );
     return true;
 }
