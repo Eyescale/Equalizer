@@ -391,20 +391,14 @@ namespace server
         /** @name Compound Operations. */
         //*{
         /** 
-         * Traverse the compound and all (active) children using a compound
-         * visitor.
+         * Traverse the compound and all children using a compound visitor.
          * 
          * @param visitor the visitor.
-         * @param activeOnly traverse only the active DPlex (true), or all
-         *                   (false) compounds.
-         * 
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ConstCompoundVisitor& visitor,
-                              const bool activeOnly ) const;
+        VisitorResult accept( ConstCompoundVisitor& visitor ) const;
         /** Non-const version of accept(). */
-        VisitorResult accept( CompoundVisitor& visitor,
-                              const bool activeOnly );
+        VisitorResult accept( CompoundVisitor& visitor );
 
 
         /** Activate the compound tree. */

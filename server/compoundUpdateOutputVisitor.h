@@ -24,11 +24,8 @@ namespace server
         CompoundUpdateOutputVisitor( const uint32_t frameNumber );
         virtual ~CompoundUpdateOutputVisitor() {}
 
-        /** Visit a leaf compound. */
-        virtual VisitorResult visitLeaf( Compound* compound );
-        /** Visit a non-leaf compound on the up traversal. */
-        virtual VisitorResult visitPost( Compound* compound )
-            { return visitLeaf( compound ); }
+        /** Visit all compounds. */
+        virtual VisitorResult visit( Compound* compound );
 
         const Compound::BarrierMap& getSwapBarriers()
             const { return _swapBarriers; }

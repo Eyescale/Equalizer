@@ -497,15 +497,10 @@ void Compound::updateFrustum()
 //---------------------------------------------------------------------------
 namespace
 {
-template< class C, class V >
-VisitorResult _accept( C* compound, V& visitor, const bool activeOnly )
+template< class C, class V > VisitorResult _accept( C* compound, V& visitor )
 {
     if( compound->isLeaf( )) 
-    {
-        if ( !activeOnly || compound->isActive( )) 
-            return visitor.visitLeaf( compound );
-        return TRAVERSE_CONTINUE;
-    }
+        return visitor.visitLeaf( compound );
 
     C* current = compound;
     VisitorResult result = TRAVERSE_CONTINUE;
@@ -521,53 +516,43 @@ VisitorResult _accept( C* compound, V& visitor, const bool activeOnly )
         //---------- down-right traversal
         if ( !child ) // leaf
         {
-            if ( !activeOnly || current->isActive( ))
+            switch( visitor.visitLeaf( current ))
             {
-                switch( visitor.visitLeaf( current ))
-                {
-                    case TRAVERSE_TERMINATE:
-                        return TRAVERSE_TERMINATE;
+                case TRAVERSE_TERMINATE:
+                    return TRAVERSE_TERMINATE;
 
-                    case TRAVERSE_PRUNE:
-                        result = TRAVERSE_PRUNE;
-                        current = next;
-                        break;
+                case TRAVERSE_PRUNE:
+                    result = TRAVERSE_PRUNE;
+                    current = next;
+                    break;
 
-                    case TRAVERSE_CONTINUE:
-                        current = next;
-                        break;
+                case TRAVERSE_CONTINUE:
+                    current = next;
+                    break;
 
-                    default:
-                        EQASSERTINFO( 0, "Unreachable" );
-                }
+                default:
+                    EQASSERTINFO( 0, "Unreachable" );
             }
-            else
-                current = next;
         } 
         else // node
         {
-            if( !activeOnly || current->isActive( ))
+            switch( visitor.visitPre( current ))
             {
-                switch( visitor.visitPre( current ))
-                {
-                    case TRAVERSE_TERMINATE:
-                        return TRAVERSE_TERMINATE;
+                case TRAVERSE_TERMINATE:
+                    return TRAVERSE_TERMINATE;
+                    
+                case TRAVERSE_PRUNE:
+                    result = TRAVERSE_PRUNE;
+                    current = next;
+                    break;
 
-                    case TRAVERSE_PRUNE:
-                        result = TRAVERSE_PRUNE;
-                        current = next;
-                        break;
+                case TRAVERSE_CONTINUE:
+                    current = child;
+                    break;
 
-                    case TRAVERSE_CONTINUE:
-                        current = child;
-                        break;
-
-                    default:
-                        EQASSERTINFO( 0, "Unreachable" );
-                }
+                default:
+                    EQASSERTINFO( 0, "Unreachable" );
             }
-            else
-                current = next;
         }
 
         //---------- up-right traversal
@@ -579,26 +564,24 @@ VisitorResult _accept( C* compound, V& visitor, const bool activeOnly )
             parent  = current->getParent();
             next    = current->getNext();
 
-            if( !activeOnly || current->isActive( ))
+            switch( visitor.visitPost( current ))
             {
-                switch( visitor.visitPost( current ))
-                {
-                    case TRAVERSE_TERMINATE:
-                        return TRAVERSE_TERMINATE;
+                case TRAVERSE_TERMINATE:
+                    return TRAVERSE_TERMINATE;
 
-                    case TRAVERSE_PRUNE:
-                        result = TRAVERSE_PRUNE;
-                        break;
+                case TRAVERSE_PRUNE:
+                    result = TRAVERSE_PRUNE;
+                    break;
 
-                    case TRAVERSE_CONTINUE:
-                        break;
+                case TRAVERSE_CONTINUE:
+                    break;
 
-                    default:
-                        EQASSERTINFO( 0, "Unreachable" );
-                }
+                default:
+                    EQASSERTINFO( 0, "Unreachable" );
             }
             
-            if ( current == compound ) return result;
+            if ( current == compound ) 
+                return result;
             
             current = next;
         }
@@ -607,16 +590,14 @@ VisitorResult _accept( C* compound, V& visitor, const bool activeOnly )
 }
 }
 
-VisitorResult Compound::accept( CompoundVisitor& visitor,
-                                const bool activeOnly )
+VisitorResult Compound::accept( CompoundVisitor& visitor )
 {
-    return _accept( this, visitor, activeOnly );
+    return _accept( this, visitor );
 }
 
-VisitorResult Compound::accept( ConstCompoundVisitor& visitor,
-                                const bool activeOnly ) const
+VisitorResult Compound::accept( ConstCompoundVisitor& visitor ) const
 {
-    return _accept( this, visitor, activeOnly );
+    return _accept( this, visitor );
 }
 
 //---------------------------------------------------------------------------
@@ -628,7 +609,7 @@ void Compound::activate()
     EQASSERT( isDestination( ));
 
     CompoundActivateVisitor activator( true );
-    accept( activator, false /* activeOnly */ );
+    accept( activator );
 }
 
 void Compound::deactivate()
@@ -636,19 +617,19 @@ void Compound::deactivate()
     EQASSERT( isDestination( ));
 
     CompoundActivateVisitor deactivator( false );
-    accept( deactivator, false /* activeOnly */ );
+    accept( deactivator );
 }
 
 void Compound::init()
 {
     CompoundInitVisitor initVisitor;
-    accept( initVisitor, false /* activeOnly */ );
+    accept( initVisitor );
 }
 
 void Compound::exit()
 {
     CompoundExitVisitor visitor;
-    accept( visitor, false /* activeOnly */ );
+    accept( visitor );
 }
 
 //---------------------------------------------------------------------------
@@ -657,15 +638,15 @@ void Compound::exit()
 void Compound::update( const uint32_t frameNumber )
 {
     CompoundUpdateDataVisitor updateDataVisitor( frameNumber );
-    accept( updateDataVisitor, false /*activeOnly*/ );
+    accept( updateDataVisitor );
 
     CompoundUpdateOutputVisitor updateOutputVisitor( frameNumber );
-    accept( updateOutputVisitor, true /*activeOnly*/ );
+    accept( updateOutputVisitor );
 
     const hash_map<std::string, Frame*>& outputFrames =
         updateOutputVisitor.getOutputFrames();
     CompoundUpdateInputVisitor updateInputVisitor( outputFrames );
-    accept( updateInputVisitor, true /*activeOnly*/ );
+    accept( updateInputVisitor );
 
     const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
 

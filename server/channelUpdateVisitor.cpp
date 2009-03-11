@@ -36,6 +36,9 @@ ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
 VisitorResult ChannelUpdateVisitor::visitPre( 
     const Compound* compound )
 {
+    if( !compound->isActive( ))
+        return TRAVERSE_PRUNE;    
+
     _updateDrawFinish( compound );
 
     if( compound->getChannel() != _channel || 
@@ -60,6 +63,9 @@ VisitorResult ChannelUpdateVisitor::visitPre(
 
 VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
 {
+    if( !compound->isActive( ))
+        return TRAVERSE_PRUNE;    
+
     if( compound->getChannel() != _channel ||
         !compound->testInheritEye( _eye ) )
     {
@@ -101,6 +107,9 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
 VisitorResult ChannelUpdateVisitor::visitPost(
     const Compound* compound )
 {
+    if( !compound->isActive( ))
+        return TRAVERSE_PRUNE;    
+
     if( compound->getChannel() != _channel || !compound->getInheritTasks() ||
         !compound->testInheritEye( _eye ))
 

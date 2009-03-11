@@ -24,16 +24,12 @@ CompoundUpdateOutputVisitor::CompoundUpdateOutputVisitor(
         : _frameNumber( frameNumber )
 {}
 
-VisitorResult CompoundUpdateOutputVisitor::visitLeaf(
-    Compound* compound )
+VisitorResult CompoundUpdateOutputVisitor::visit( Compound* compound )
 {
-    _updateOutput( compound );
-    
-    const SwapBarrier* swapBarrier = compound->getSwapBarrier();
+    if( !compound->isActive( ))
+        return TRAVERSE_PRUNE;    
 
-    if ( swapBarrier && swapBarrier->isNvSwapBarrier() )
-        return TRAVERSE_CONTINUE;
-    
+    _updateOutput( compound );
     _updateSwapBarriers( compound );
 
     return TRAVERSE_CONTINUE;    
@@ -198,6 +194,9 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
     if( !swapBarrier )
         return;
 
+    if( swapBarrier->isNvSwapBarrier() )
+        return;
+    
     Window* window = compound->getWindow();
     if( !window )
         return;

@@ -80,7 +80,7 @@ DDSLoadBalancer::DDSLoadBalancer( const LoadBalancer& parent )
 
         // find the output frame
         OutputFrameFinder finderOframe( frame->getName() );
-        root->accept( finderOframe, false /* activeOnly */ );
+        root->accept( finderOframe );
         Frame* outputFrame = finderOframe.getResult();
         _outputFrames.push_back( outputFrame );
         

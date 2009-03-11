@@ -486,7 +486,7 @@ VisitorResult _accept( C* config, V& visitor )
     for( CompoundVector::const_iterator i = compounds.begin();
          i != compounds.end(); ++i )
     {
-        switch( (*i)->accept( visitor, false /*activeOnly*/ ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;

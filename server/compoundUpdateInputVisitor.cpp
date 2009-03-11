@@ -24,6 +24,9 @@ CompoundUpdateInputVisitor::CompoundUpdateInputVisitor(
 
 VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
 {
+    if( !compound->isActive( ))
+        return TRAVERSE_PRUNE;    
+
     const std::vector< Frame* >& inputFrames = compound->getInputFrames();
     const Channel*               channel     = compound->getChannel();
 

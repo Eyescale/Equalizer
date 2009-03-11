@@ -81,7 +81,7 @@ SmoothLoadBalancer::~SmoothLoadBalancer()
         LoadListener&  loadListener = _loadListeners[i];
 
         LoadUnsubscriber unsubscriber( &loadListener );
-        child->accept( unsubscriber, false /* activeOnly */ );
+        child->accept( unsubscriber );
     }
 
     _loadListeners.clear();
@@ -167,7 +167,7 @@ bool SmoothLoadBalancer::_init()
         loadListener.period = period;
 
         LoadSubscriber subscriber( &loadListener );
-        child->accept( subscriber, false /* activeOnly */ );
+        child->accept( subscriber );
 
         _nSamples = EQ_MAX( _nSamples, period );
     }
