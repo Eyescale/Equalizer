@@ -10,6 +10,8 @@ server
             {
                 window
                 {
+                    name "render buffer"
+                    # attributes { hint_drawable pbuffer }
                     viewport [ 500 100 1000 800 ]
                     channel
                     {
@@ -22,6 +24,7 @@ server
             {
                 window
                 {
+                    name "Dynamic Frame Resize"
                     viewport [ 20 100 480 300 ]
                     channel
                     {
