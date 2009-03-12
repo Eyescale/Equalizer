@@ -125,19 +125,19 @@ VisitorResult ChannelUpdateVisitor::visitPost(
 void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
                                                 eq::RenderContext& context )
 {
-    context.frameID        = _frameID;
-    context.pvp            = compound->getInheritPixelViewport();
-    context.vp             = compound->getInheritViewport();
-    context.range          = compound->getInheritRange();
-    context.pixel          = compound->getInheritPixel();
-    context.zoom           = compound->getInheritZoom();
-    context.offset.x       = context.pvp.x;
-    context.offset.y       = context.pvp.y;
+    context.frameID       = _frameID;
+    context.pvp           = compound->getInheritPixelViewport();
+    context.vp            = compound->getInheritViewport();
+    context.range         = compound->getInheritRange();
+    context.pixel         = compound->getInheritPixel();
+    context.zoom          = compound->getInheritZoom();
+    context.offset.x      = context.pvp.x;
+    context.offset.y      = context.pvp.y;
     context.screenOrigin  = context.offset + compound->getInheritScreenOrigin();
-    context.screenSize     = compound->getInheritScreenSize();
-    context.eye            = _eye;
-    context.buffer         = _getDrawBuffer();
-    context.drawBufferMask = _getDrawBufferMask( compound );
+    context.screenSize    = compound->getInheritScreenSize();
+    context.eye           = _eye;
+    context.buffer        = _getDrawBuffer();
+    context.bufferMask    = _getDrawBufferMask( compound );
 
     const Channel* destChannel = compound->getInheritChannel();
     EQASSERT( destChannel );

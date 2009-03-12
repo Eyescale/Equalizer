@@ -43,14 +43,11 @@ std::string Channel::_iAttributeStrings[IATTR_ALL] = {
 
 Channel::Channel( Window* parent )
         : _window( parent )
+        , _currentContext( &_nativeContext )
         , _tasks( TASK_NONE )
-        , _context( 0 )
         , _fixedPVP( false )
-        , _frustum( vmml::Frustumf::DEFAULT )
-        , _ortho( vmml::Frustumf::DEFAULT )
         , _fbo(0)
         , _drawable( 0 )
-        , _view( 0 )
 {
     parent->_addChannel( this );
     EQINFO << " New eq::Channel @" << (void*)this << endl;
@@ -174,8 +171,8 @@ bool Channel::_configInitFBO()
     // needs glew initialized (see above)
     _fbo = new FrameBufferObject( glewGetContext() );
         
-    if( _fbo->init( _pvp.w, _pvp.h, _drawable & FBO_DEPTH,
-                   _drawable & FBO_STENCIL ) ) 
+    if( _fbo->init( _nativeContext.pvp.w, _nativeContext.pvp.h, 
+                    _drawable & FBO_DEPTH, _drawable & FBO_STENCIL ) ) 
     {
          return true;
     }
@@ -197,20 +194,21 @@ void Channel::_setPixelViewport( const PixelViewport& pvp )
 
     _fixedPVP = true;
 
-    if( _pvp == pvp && _vp.hasArea( ))
+    if( _nativeContext.pvp == pvp && _nativeContext.vp.hasArea( ))
         return;
 
-    _pvp = pvp;
-    _vp.invalidate();
+    _nativeContext.pvp = pvp;
+    _nativeContext.vp.invalidate();
 
     if( !_window )
         return;
     
     const PixelViewport& windowPVP = _window->getPixelViewport();
     if( windowPVP.isValid( ))
-        _vp = pvp.getSubVP( windowPVP );
+        _nativeContext.vp = pvp.getSubVP( windowPVP );
 
-    EQVERB << "Channel pvp set: " << _pvp << ":" << _vp << endl;
+    EQVERB << "Channel pvp set: " << _nativeContext.pvp << ":" 
+           << _nativeContext.vp << std::endl;
 }
 
 void Channel::_setViewport( const Viewport& vp )
@@ -220,11 +218,11 @@ void Channel::_setViewport( const Viewport& vp )
     
     _fixedPVP = false;
 
-    if( _vp == vp && _pvp.hasArea( ))
+    if( _nativeContext.vp == vp && _nativeContext.pvp.hasArea( ))
         return;
 
-    _vp = vp;
-    _pvp.invalidate();
+    _nativeContext.vp = vp;
+    _nativeContext.pvp.invalidate();
 
     if( !_window )
         return;
@@ -234,21 +232,22 @@ void Channel::_setViewport( const Viewport& vp )
     {
         windowPVP.x = 0;
         windowPVP.y = 0;
-        _pvp = windowPVP.getSubPVP( vp );
+        _nativeContext.pvp = windowPVP.getSubPVP( vp );
 
         // send event
         Event event;
         event.type       = Event::CHANNEL_RESIZE;
         event.originator = getID();
-        event.resize.x   = _pvp.x;
-        event.resize.y   = _pvp.y;
-        event.resize.w   = _pvp.w;
-        event.resize.h   = _pvp.h;
+        event.resize.x   = _nativeContext.pvp.x;
+        event.resize.y   = _nativeContext.pvp.y;
+        event.resize.w   = _nativeContext.pvp.w;
+        event.resize.h   = _nativeContext.pvp.h;
 
         processEvent( event );
     }
 
-    EQVERB << "Channel vp set: " << _pvp << ":" << _vp << endl;
+    EQVERB << "Channel vp set: " << _nativeContext.pvp << ":" 
+           << _nativeContext.vp << std::endl;
 }
 
 void Channel::_notifyViewportChanged()
@@ -264,47 +263,51 @@ void Channel::_notifyViewportChanged()
     windowPVP.y = 0;
 
     if( _fixedPVP ) // update viewport
-        _vp = _pvp.getSubVP( windowPVP );
+        _nativeContext.vp = _nativeContext.pvp.getSubVP( windowPVP );
     else            // update pixel viewport
     {
-        eq::PixelViewport pvp = windowPVP.getSubPVP( _vp );
-        if( _pvp == pvp )
+        eq::PixelViewport pvp = windowPVP.getSubPVP( _nativeContext.vp );
+        if( _nativeContext.pvp == pvp )
             return;
 
-        _pvp = pvp;
+        _nativeContext.pvp = pvp;
 
         // send event
         Event event;
         event.type       = Event::CHANNEL_RESIZE;
         event.originator = getID();
-        event.resize.x   = _pvp.x;
-        event.resize.y   = _pvp.y;
-        event.resize.w   = _pvp.w;
-        event.resize.h   = _pvp.h;
+        event.resize.x   = _nativeContext.pvp.x;
+        event.resize.y   = _nativeContext.pvp.y;
+        event.resize.w   = _nativeContext.pvp.w;
+        event.resize.h   = _nativeContext.pvp.h;
 
         processEvent( event );
     }
 
-    EQINFO << "Channel viewport update: " << _pvp << ":" << _vp << endl;
+    EQINFO << "Channel viewport update: " << _nativeContext.pvp << ":" 
+           << _nativeContext.vp << std::endl;
 }
 
 void Channel::setNearFar( const float nearPlane, const float farPlane )
 {
-    _frustum.adjustNear( nearPlane );
-    _frustum.farPlane = farPlane;
-    _ortho.nearPlane = nearPlane;
-    _ortho.farPlane  = farPlane;
-
-    if( _context )
+    if( _currentContext->frustum.nearPlane == nearPlane && 
+        _currentContext->frustum.farPlane == farPlane )
     {
-        _context->frustum.adjustNear( nearPlane );
-        _context->frustum.farPlane = farPlane;
-        _context->ortho.nearPlane = nearPlane;
-        _context->ortho.farPlane  = farPlane;
+        return;
     }
 
-    if( _frustum.nearPlane == nearPlane && _frustum.farPlane == farPlane )
-        return;
+    _nativeContext.frustum.adjustNear( nearPlane );
+    _nativeContext.frustum.farPlane = farPlane;
+    _nativeContext.ortho.nearPlane  = nearPlane;
+    _nativeContext.ortho.farPlane   = farPlane;
+
+    if( _currentContext != &_nativeContext )
+    {
+        _currentContext->frustum.adjustNear( nearPlane );
+        _currentContext->frustum.farPlane = farPlane;
+        _currentContext->ortho.nearPlane = nearPlane;
+        _currentContext->ortho.farPlane  = farPlane;
+    }
 
     ChannelSetNearFarPacket packet;
     packet.nearPlane = nearPlane;
@@ -445,83 +448,83 @@ void Channel::resetAssemblyState()
 
 void Channel::_setRenderContext( RenderContext& context )
 {
-    _context = &context;
+    _currentContext = &context;
     _window->addRenderContext( context );
 }
 
 const Viewport& Channel::getViewport() const
 {
-    return _context ? _context->vp : _vp;
+    return _currentContext->vp;
 }
 
 const PixelViewport& Channel::getPixelViewport() const
 {
-    return _context ? _context->pvp : _pvp;
+    return _currentContext->pvp;
 }
 
 const vmml::Vector2i& Channel::getPixelOffset() const
 {
-    return _context ? _context->offset : vmml::Vector2i::ZERO;
+    return _currentContext->offset;
 }
 
 uint32_t Channel::getDrawBuffer() const
 {
-    return _context ? _context->buffer : GL_BACK;
+    return _currentContext->buffer;
 }
 
 uint32_t Channel::getReadBuffer() const
 {
-    return _context ? _context->buffer : GL_BACK;
+    return _currentContext->buffer;
 }
 
 const ColorMask& Channel::getDrawBufferMask() const
 {
-    return _context ? _context->drawBufferMask : ColorMask::ALL;
+    return _currentContext->bufferMask;
 }
 
 const vmml::Frustumf& Channel::getFrustum() const
 {
-    return _context ? _context->frustum : _frustum;
+    return _currentContext->frustum;
 }
 
 const vmml::Frustumf& Channel::getOrtho() const
 {
-    return _context ? _context->ortho : _ortho;
+    return _currentContext->ortho;
 }
 
 const Range& Channel::getRange() const
 {
-    return _context ? _context->range : Range::ALL;
+    return _currentContext->range;
 }
 
 const Pixel& Channel::getPixel() const
 {
-    return _context ? _context->pixel : Pixel::ALL;
+    return _currentContext->pixel;
 }
 
 const Zoom& Channel::getZoom() const
 {
-    return _context ? _context->zoom : Zoom::NONE;
+    return _currentContext->zoom;
 }
 
 Eye Channel::getEye() const
 {
-    return _context ? _context->eye : EYE_CYCLOP;
+    return _currentContext->eye;
 }
 
 const vmml::Matrix4f& Channel::getHeadTransform() const
 {
-    return _context ? _context->headTransform : vmml::Matrix4f::IDENTITY;
+    return _currentContext->headTransform;
 }
 
 const vmml::Vector2i& Channel::getScreenOrigin() const
 {
-    return _context ? _context->screenOrigin : vmml::Vector2i::ZERO;
+    return _currentContext->screenOrigin;
 }
 
 vmml::Vector2i Channel::getScreenSize() const
 {
-    return _context ? _context->screenSize : vmml::Vector2i( _pvp.w, _pvp.h );
+    return _currentContext->screenSize;
 }
 
 vmml::Frustumf Channel::getScreenFrustum() const
@@ -545,11 +548,8 @@ FrameBufferObject* Channel::getFrameBufferObject()
 
 const View* Channel::getView()
 {
-    if( !_context )
-        return _view;
-    
     Pipe* pipe = getPipe();
-    return pipe->getView( _context->view );
+    return pipe->getView( _currentContext->view );
 }
 
 //---------------------------------------------------------------------------
@@ -560,7 +560,7 @@ void Channel::applyFrameBufferObject()
 {
     if( _fbo )
     {
-        _fbo->resize( _pvp.w, _pvp.h );
+        _fbo->resize( _nativeContext.pvp.w, _nativeContext.pvp.h );
         _fbo->bind(); 
     }
     else if( GLEW_EXT_framebuffer_object )
@@ -660,7 +660,7 @@ bool Channel::processEvent( const Event& event )
             if( !view )
                 return true;
 
-            EQASSERT( view == _view );
+            EQASSERT( _currentContext == &_nativeContext );
             // transform to view event, which is meaningful for the config 
             configEvent.data.type       = Event::VIEW_RESIZE;
             configEvent.data.originator = view->getID();
@@ -971,15 +971,13 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
     else
         _setViewport( packet->vp );
 
-    Pipe* pipe = getPipe();
-
     _name     = packet->name;
     _tasks    = packet->tasks;
     _color    = packet->color;
     _drawable = packet->drawable;
-    _view     = pipe->getView( packet->view );
-    _initialSize.x = _pvp.w;
-    _initialSize.y = _pvp.h;
+    _nativeContext.view = packet->view;
+    _initialSize.x = _nativeContext.pvp.w;
+    _initialSize.y = _nativeContext.pvp.h;
 
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
 
@@ -987,8 +985,8 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
     ChannelConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
 
-    reply.nearPlane   = _frustum.nearPlane;
-    reply.farPlane    = _frustum.farPlane;
+    reply.nearPlane   = _nativeContext.frustum.nearPlane;
+    reply.farPlane    = _nativeContext.frustum.farPlane;
 
     EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply << endl;
     send( command.getNode(), reply, _error );
@@ -1015,8 +1013,7 @@ net::CommandResult Channel::_cmdFrameStart( net::Command& command )
     EQVERB << "handle channel frame start " << packet << endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
-    if( _view )
-        _view->sync( packet->viewVersion );
+    _nativeContext.view.version = packet->viewVersion;
     
     bindFrameBuffer();
     frameStart( packet->frameID, packet->frameNumber );
@@ -1052,7 +1049,7 @@ net::CommandResult Channel::_cmdFrameClear( net::Command& command )
 
     _setRenderContext( packet->context );
     frameClear( packet->context.frameID );
-    _context = 0;
+    _currentContext = &_nativeContext;
 
     return net::COMMAND_HANDLED;
 }
@@ -1067,7 +1064,7 @@ net::CommandResult Channel::_cmdFrameDraw( net::Command& command )
 
     _setRenderContext( packet->context );
     frameDraw( packet->context.frameID );
-    _context = 0;
+    _currentContext = &_nativeContext;
 
     return net::COMMAND_HANDLED;
 }
@@ -1098,7 +1095,7 @@ net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
         Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( packet->frames[i], _context->eye );
+        Frame* frame = pipe->getFrame( packet->frames[i], getEye( ));
         _inputFrames.push_back( frame );
     }
 
@@ -1112,7 +1109,7 @@ net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
         (*i)->setData( 0 );
     }
     _inputFrames.clear();
-    _context = 0;
+    _currentContext = &_nativeContext;
 
     return net::COMMAND_HANDLED;
 }
@@ -1125,12 +1122,12 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
                                        << packet << endl;
 
     ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
-    _context = &packet->context;
+    _currentContext = &packet->context;
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
         Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( packet->frames[i], _context->eye );
+        Frame* frame = pipe->getFrame( packet->frames[i], getEye( ));
         _outputFrames.push_back( frame );
     }
 
@@ -1144,7 +1141,7 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
     }
 
     _outputFrames.clear();
-    _context = 0;
+    _currentContext = &_nativeContext;
     return net::COMMAND_HANDLED;
 }
 

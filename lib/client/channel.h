@@ -5,10 +5,8 @@
 #ifndef EQ_CHANNEL_H
 #define EQ_CHANNEL_H
 
-#include <eq/client/colorMask.h>     // enum
 #include <eq/client/event.h>         // member
-#include <eq/client/eye.h>           // enum
-#include <eq/client/pixelViewport.h> // member
+#include <eq/client/renderContext.h> // member
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h> // enum
 #include <eq/client/windowSystem.h>  // GLEWContext
@@ -222,7 +220,8 @@ namespace eq
         /** 
          * get the channel's native (drawable) pixel viewport.
          */
-        const eq::PixelViewport& getNativePixelViewPort() const { return _pvp; }
+        const eq::PixelViewport& getNativePixelViewPort() const
+            { return _nativeContext.pvp; }
 
         /** 
          * get the FBO used as an alternate frame buffer.
@@ -488,6 +487,12 @@ namespace eq
         /** The parent window. */
         Window* const _window;
 
+        /** The native render context parameters of this channel. */
+        RenderContext _nativeContext;
+
+        /** The rendering parameters for the current operation. */
+        RenderContext* _currentContext;
+            
         /** The name. */
         std::string    _name;
         
@@ -505,29 +510,14 @@ namespace eq
         /** Worst-case set of tasks. */
         uint32_t _tasks;
 
-        /** server-supplied rendering data. */
-        RenderContext* _context;
-
         /** server-supplied vector of output frames for current task. */
         FrameVector _outputFrames;
 
         /** server-supplied vector of input frames for current task. */
         FrameVector _inputFrames;
 
-        /** The native pixel viewport wrt the window. */
-        eq::PixelViewport _pvp;
-
-        /** The native viewport. */
-        Viewport       _vp;
-
         /** true if the pvp is immutable, false if the vp is immutable */
         bool _fixedPVP;
-
-        /** The native perspective ('identity') frustum. */
-        vmml::Frustumf  _frustum;
-
-        /** The native orthographic ('identity') frustum. */
-        vmml::Frustumf  _ortho;
 
         /** Used as an alternate drawable. */       
         FrameBufferObject* _fbo; 
@@ -540,9 +530,6 @@ namespace eq
 #ifdef EQ_ASYNC_TRANSMIT
         base::SpinLock _statisticsLock;
 #endif
-
-        /** The channel's native view, if it has one. */
-        View* _view;
 
         /** The initial channel size, used for view resize events. */
         vmml::Vector2i _initialSize;

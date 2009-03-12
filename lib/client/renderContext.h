@@ -24,11 +24,13 @@ namespace eq
      */
     struct RenderContext 
     {
-    public:        
+    public: 
+        RenderContext();
+
         uint32_t       frameID;        //<! identifier from Config::beginFrame
 
         uint32_t       buffer;         //<! buffer as passed to glDrawBuffer() 
-        ColorMask      drawBufferMask; //<! draw color mask for anaglyph stereo
+        ColorMask      bufferMask;     //<! color mask for anaglyph stereo
         PixelViewport  pvp;            //<! pixel viewport of channel wrt window
         vmml::Frustumf frustum;        //<! frustum for projection matrix
         vmml::Frustumf ortho;          //<! ortho frustum for projection matrix

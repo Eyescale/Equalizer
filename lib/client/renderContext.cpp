@@ -4,10 +4,25 @@
 
 #include "renderContext.h"
 
+#include "windowSystem.h"
+
 using namespace eq::base;
 
 namespace eq
 {
+RenderContext::RenderContext()
+        : frameID( 0 )
+        , buffer( GL_BACK ) 
+        , frustum( vmml::Frustumf::DEFAULT )
+        , ortho( vmml::Frustumf::DEFAULT )
+        , headTransform( vmml::Matrix4f::IDENTITY )
+        , offset( vmml::Vector2i::ZERO )
+        , screenOrigin( vmml::Vector2i::ZERO )   
+        , screenSize( vmml::Vector2i::ZERO )
+        , eye( EYE_CYCLOP )
+{
+}
+
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                       const RenderContext& ctx )
 {
