@@ -41,6 +41,7 @@ namespace eqPly
 
         void toggleOrtho();
         void toggleStatistics();
+        void toggleHelp();
         void toggleWireframe();
         void toggleRenderMode();
 
@@ -48,6 +49,7 @@ namespace eqPly
         bool useColor() const { return _color; }
         bool useOrtho() const { return _ortho; }
         bool useStatistics() const { return _statistics; }
+        bool showHelp() const { return _help; }
         bool useWireframe() const { return _wireframe; }
         mesh::RenderMode getRenderMode() const { return _renderMode; }
         //*}
@@ -94,6 +96,7 @@ namespace eqPly
         bool             _color;
         bool             _ortho;
         bool             _statistics;
+        bool             _help;
         bool             _wireframe;
 
         uint32_t _currentViewID;

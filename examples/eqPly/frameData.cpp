@@ -13,6 +13,7 @@ FrameData::FrameData()
         , _color( true )
         , _ortho( false )
         , _statistics( false )
+        , _help( false )
         , _wireframe( false )
         , _currentViewID( EQ_ID_INVALID )
 {
@@ -27,7 +28,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
         os << _translation << _rotation;
     if( dirtyBits & DIRTY_FLAGS )
         os << _modelID << _renderMode << _color << _ortho << _statistics
-           << _wireframe;
+           << _help << _wireframe;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
 }
@@ -40,7 +41,7 @@ void FrameData::deserialize( eq::net::DataIStream& is,
         is >> _translation >> _rotation;
     if( dirtyBits & DIRTY_FLAGS )
         is >> _modelID >> _renderMode >> _color >> _ortho >> _statistics
-           >> _wireframe;
+           >> _help >> _wireframe;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
 }
@@ -72,6 +73,12 @@ void FrameData::toggleOrtho()
 void FrameData::toggleStatistics()
 {
     _statistics = !_statistics;
+    setDirty( DIRTY_FLAGS );
+}
+
+void FrameData::toggleHelp()
+{
+    _help = !_help;
     setDirty( DIRTY_FLAGS );
 }
 

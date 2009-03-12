@@ -125,6 +125,9 @@ void Channel::frameDraw( const uint32_t frameID )
     if( range == eq::Range::ALL )
         _drawLogo();
 
+    if( frameData.showHelp( ))
+        _drawHelp();
+
 #ifndef NDEBUG
     outlineViewport();
 #endif
@@ -327,6 +330,41 @@ void Channel::_drawLogo()
     glDisable( GL_BLEND );
     glEnable( GL_LIGHTING );
     glEnable( GL_DEPTH_TEST );
+}
+
+void Channel::_drawHelp()
+{
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
+    EQ_GL_CALL( setupAssemblyState( ));
+
+    glDisable( GL_LIGHTING );
+    glDisable( GL_DEPTH_TEST );
+
+    const eq::Window* window = getWindow();
+    const eq::util::BitmapFont& font = 
+        window->getObjectManager()->getDefaultFont();
+
+    glColor3f( 1.f, 1.f, 1.f );
+
+    std::string help = EqPly::getHelp();
+    float y = 340.f;
+
+    for( size_t pos = help.find( '\n' ); pos != std::string::npos;
+         pos = help.find( '\n' ))
+    {
+        glRasterPos3f( 10.f, y, 0.99f );
+        glColor3f( 1.f, 1.f, 1.f );
+
+        const std::string line( help.substr( 0, pos ));
+        help = help.substr( pos + 1 );
+        font.draw( line );
+        y -= 16.f;
+    }
+    glRasterPos3f( 10.f, y, 0.99f );
+    font.draw( help );
+
+    EQ_GL_CALL( resetAssemblyState( ));
 }
 
 void Channel::_initFrustum( vmml::FrustumCullerf& culler,

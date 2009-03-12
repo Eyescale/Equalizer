@@ -65,22 +65,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 #endif
         wsHelp += ")";
 
-        string desc = 
-            string( "eqPly - Equalizer polygonal rendering example\n" ) +
-            string( "\tRun-time commands:\n" ) +
-            string( "\t\tLeft Mouse Button:         Rotate model\n" ) +
-            string( "\t\tMiddle Mouse Button:       Move model in X, Y\n" ) +
-            string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
-            string( "\t\t<Cursor Keys>:             Move head in X,Y plane\n" )+
-            string( "\t\t<Page Up,Down>:            Move head in Z\n" )+
-            string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
-            string( "\t\t<Space>:                   Reset camera\n" ) +
-            string( "\t\to:                         Toggle perspective/orthographic\n" ) +
-            string( "\t\ts:                         Toggle statistics overlay\n" ) +
-            string( "\t\tw:                         Toggle wireframe mode\n" ) +
-            string( "\t\tr:                         Switch rendering mode\n" ) +
-            string( "\t\tv:                         Switch active view\n" ) +
-            string( "\t\tm:                         Switch model for active view\n" );
+        const std::string& desc = EqPly::getHelp();
 
         TCLAP::CmdLine command( desc );
         TCLAP::MultiArg<string> modelArg( "m", "model", "ply model file name", 

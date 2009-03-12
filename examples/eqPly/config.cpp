@@ -252,143 +252,10 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
     switch( event->data.type )
     {
         case eq::Event::KEY_PRESS:
-            _redraw = true;
-            switch( event->data.keyPress.key )
+            if( _handleKeyEvent( event->data.keyPress ))
             {
-                case ' ':
-                    _spinX = 0;
-                    _spinY = 0;
-                    _frameData.reset();
-                    setHeadMatrix( vmml::Matrix4f::IDENTITY );
-                    return true;
-
-                case 'o':
-                case 'O':
-                    _frameData.toggleOrtho();
-                    return true;
-
-                case 's':
-                case 'S':
-                    _frameData.toggleStatistics();
-                    return true;
-
-                case 'v':
-                case 'V':
-                {
-                    NextViewFinder finder( _frameData.getCurrentViewID( ));
-                    accept( finder );
-                    const eq::View* view = finder.getResult();
-                    if( view )
-                        _frameData.setCurrentViewID( view->getID( ));
-                    else
-                        _frameData.setCurrentViewID( EQ_ID_INVALID );
-                    return true;
-                }
-
-                case 'm':
-                case 'M':
-                {
-                    if( _modelDist.empty( )) // no models
-                        return true;
-
-                    const uint32_t viewID = _frameData.getCurrentViewID();
-                    View* view = static_cast< View* >( findView( viewID ));
-                    const uint32_t currentID = view ? view->getModelID() :
-                                                      _frameData.getModelID();
-                    ModelDistVector::const_iterator i;
-                    for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
-                    {
-                        if( (*i)->getID() != currentID )
-                            continue;
-                            
-                        ++i;
-                        break;
-                    }
-                    if( i == _modelDist.end( ))
-                        i = _modelDist.begin(); // wrap around
-
-                    const uint32_t modelID = (*i)->getID();
-                    if( view )
-                        view->setModelID( modelID );
-                    else
-                        _frameData.setModelID( modelID );
-                    return true;
-                }
-
-                case 'l':
-                case 'L':
-                {
-                    const uint32_t viewID = _frameData.getCurrentViewID();
-                    LayoutSwitcher switcher( viewID );
-                    accept( switcher );
-
-                    _frameData.setCurrentViewID( EQ_ID_INVALID );
-                    const eq::Layout* layout = switcher.getResult();
-                    if( layout )
-                    {
-                        const eq::ViewVector& views = layout->getViews();
-                        if( !views.empty( ))
-                            _frameData.setCurrentViewID( views[0]->getID( ));
-                    }
-                    return true;
-                }
-
-                case 'w':
-                case 'W':
-                    _frameData.toggleWireframe();
-                    return true;
-
-                case 'r':
-                case 'R':
-                    _frameData.toggleRenderMode();
-                    return true;
-
-                // Head Tracking Emulation
-                case eq::KC_UP:
-                {
-                    vmml::Matrix4f headMatrix = getHeadMatrix();
-                    headMatrix.y += 0.1f;
-                    setHeadMatrix( headMatrix );
-                    return true;
-                }
-                case eq::KC_DOWN:
-                {
-                    vmml::Matrix4f headMatrix = getHeadMatrix();
-                    headMatrix.y -= 0.1f;
-                    setHeadMatrix( headMatrix );
-                    return true;
-                }
-                case eq::KC_RIGHT:
-                {
-                    vmml::Matrix4f headMatrix = getHeadMatrix();
-                    headMatrix.x += 0.1f;
-                    setHeadMatrix( headMatrix );
-                    return true;
-                }
-                case eq::KC_LEFT:
-                {
-                    vmml::Matrix4f headMatrix = getHeadMatrix();
-                    headMatrix.x -= 0.1f;
-                    setHeadMatrix( headMatrix );
-                    return true;
-                }
-                case eq::KC_PAGE_DOWN:
-                {
-                    vmml::Matrix4f headMatrix = getHeadMatrix();
-                    headMatrix.z += 0.1f;
-                    setHeadMatrix( headMatrix );
-                    return true;
-                }
-                case eq::KC_PAGE_UP:
-                {
-                    vmml::Matrix4f headMatrix = getHeadMatrix();
-                    headMatrix.z -= 0.1f;
-                    setHeadMatrix( headMatrix );
-                    return true;
-                }
-
-                default:
-                    break;
+                _redraw = true;
+                return true;
             }
             break;
 
@@ -447,6 +314,154 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
     }
 
-    return eq::Config::handleEvent( event );
+    _redraw |= eq::Config::handleEvent( event );
+    return _redraw;
+}
+
+bool Config::_handleKeyEvent( const eq::KeyEvent& event )
+{
+    switch( event.key )
+    {
+        case ' ':
+            _spinX = 0;
+            _spinY = 0;
+            _frameData.reset();
+            setHeadMatrix( vmml::Matrix4f::IDENTITY );
+            return true;
+
+        case 'o':
+        case 'O':
+            _frameData.toggleOrtho();
+            return true;
+
+        case 's':
+        case 'S':
+            _frameData.toggleStatistics();
+            return true;
+            
+        case eq::KC_F1:
+        case 'h':
+        case 'H':
+            _frameData.toggleHelp();
+            return true;
+            
+        case 'v':
+        case 'V':
+        {
+            NextViewFinder finder( _frameData.getCurrentViewID( ));
+            accept( finder );
+            const eq::View* view = finder.getResult();
+            if( view )
+                _frameData.setCurrentViewID( view->getID( ));
+            else
+                _frameData.setCurrentViewID( EQ_ID_INVALID );
+            return true;
+        }
+
+        case 'm':
+        case 'M':
+        {
+            if( _modelDist.empty( )) // no models
+                return true;
+
+            const uint32_t viewID = _frameData.getCurrentViewID();
+            View* view = static_cast< View* >( findView( viewID ));
+            const uint32_t currentID = view ? 
+                view->getModelID() : _frameData.getModelID();
+            ModelDistVector::const_iterator i;
+            for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
+            {
+                if( (*i)->getID() != currentID )
+                    continue;
+                
+                ++i;
+                break;
+            }
+            if( i == _modelDist.end( ))
+                i = _modelDist.begin(); // wrap around
+            
+            const uint32_t modelID = (*i)->getID();
+            if( view )
+                view->setModelID( modelID );
+            else
+                _frameData.setModelID( modelID );
+            return true;
+        }
+
+        case 'l':
+        case 'L':
+        {
+            const uint32_t viewID = _frameData.getCurrentViewID();
+            LayoutSwitcher switcher( viewID );
+            accept( switcher );
+            
+            _frameData.setCurrentViewID( EQ_ID_INVALID );
+            const eq::Layout* layout = switcher.getResult();
+            if( layout )
+            {
+                const eq::ViewVector& views = layout->getViews();
+                if( !views.empty( ))
+                    _frameData.setCurrentViewID( views[0]->getID( ));
+            }
+            return true;
+        }
+
+        case 'w':
+        case 'W':
+            _frameData.toggleWireframe();
+            return true;
+
+        case 'r':
+        case 'R':
+            _frameData.toggleRenderMode();
+            return true;
+
+        // Head Tracking Emulation
+        case eq::KC_UP:
+        {
+            vmml::Matrix4f headMatrix = getHeadMatrix();
+            headMatrix.y += 0.1f;
+            setHeadMatrix( headMatrix );
+            return true;
+        }
+        case eq::KC_DOWN:
+        {
+            vmml::Matrix4f headMatrix = getHeadMatrix();
+            headMatrix.y -= 0.1f;
+            setHeadMatrix( headMatrix );
+            return true;
+        }
+        case eq::KC_RIGHT:
+        {
+            vmml::Matrix4f headMatrix = getHeadMatrix();
+            headMatrix.x += 0.1f;
+            setHeadMatrix( headMatrix );
+            return true;
+        }
+        case eq::KC_LEFT:
+        {
+            vmml::Matrix4f headMatrix = getHeadMatrix();
+            headMatrix.x -= 0.1f;
+            setHeadMatrix( headMatrix );
+            return true;
+        }
+        case eq::KC_PAGE_DOWN:
+        {
+            vmml::Matrix4f headMatrix = getHeadMatrix();
+            headMatrix.z += 0.1f;
+            setHeadMatrix( headMatrix );
+            return true;
+        }
+        case eq::KC_PAGE_UP:
+        {
+            vmml::Matrix4f headMatrix = getHeadMatrix();
+            headMatrix.z -= 0.1f;
+            setHeadMatrix( headMatrix );
+            return true;
+        }
+
+        default:
+            return false;
+    }
 }
 }

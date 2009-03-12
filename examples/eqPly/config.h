@@ -73,6 +73,7 @@ namespace eqPly
     private:
         void _loadModels();
         void _deregisterData();
+        bool _handleKeyEvent( const eq::KeyEvent& event );
     };
 }
 
