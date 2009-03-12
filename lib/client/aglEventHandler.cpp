@@ -419,35 +419,45 @@ uint32_t AGLEventHandler::_getKey( EventRef event )
         case kDownArrowCharCode:  return KC_DOWN;       
         case kPageUpCharCode:     return KC_PAGE_UP;    
         case kPageDownCharCode:   return KC_PAGE_DOWN;  
-        case kEndCharCode:        return KC_END;        
+        case kEndCharCode:        return KC_END;
+        case kFunctionKeyCharCode:
+        {
+            uint32_t keyCode;
+            GetEventParameter( event, kEventParamKeyCode, typeUInt32, 0,
+                       sizeof( keyCode ), 0, &keyCode );
+
+            switch( keyCode )
+            {
+                case kVK_F1:        return KC_F1;         
+                case kVK_F2:        return KC_F2;         
+                case kVK_F3:        return KC_F3;         
+                case kVK_F4:        return KC_F4;         
+                case kVK_F5:        return KC_F5;         
+                case kVK_F6:        return KC_F6;         
+                case kVK_F7:        return KC_F7;         
+                case kVK_F8:        return KC_F8;         
+                case kVK_F9:        return KC_F9;         
+                case kVK_F10:       return KC_F10;        
+                case kVK_F11:       return KC_F11;        
+                case kVK_F12:       return KC_F12;        
+                case kVK_F13:       return KC_F13;        
+                case kVK_F14:       return KC_F14;        
+                case kVK_F15:       return KC_F15;        
+                case kVK_F16:       return KC_F16;        
+                case kVK_F17:       return KC_F17;        
+                case kVK_F18:       return KC_F18;        
+                case kVK_F19:       return KC_F19;        
+                case kVK_F20:       return KC_F20;        
 #if 0
-        case XK_F1:        return KC_F1;         
-        case XK_F2:        return KC_F2;         
-        case XK_F3:        return KC_F3;         
-        case XK_F4:        return KC_F4;         
-        case XK_F5:        return KC_F5;         
-        case XK_F6:        return KC_F6;         
-        case XK_F7:        return KC_F7;         
-        case XK_F8:        return KC_F8;         
-        case XK_F9:        return KC_F9;         
-        case XK_F10:       return KC_F10;        
-        case XK_F11:       return KC_F11;        
-        case XK_F12:       return KC_F12;        
-        case XK_F13:       return KC_F13;        
-        case XK_F14:       return KC_F14;        
-        case XK_F15:       return KC_F15;        
-        case XK_F16:       return KC_F16;        
-        case XK_F17:       return KC_F17;        
-        case XK_F18:       return KC_F18;        
-        case XK_F19:       return KC_F19;        
-        case XK_F20:       return KC_F20;        
-        case XK_Shift_L:   return KC_SHIFT_L;    
-        case XK_Shift_R:   return KC_SHIFT_R;    
-        case XK_Control_L: return KC_CONTROL_L;  
-        case XK_Control_R: return KC_CONTROL_R;  
-        case XK_Alt_L:     return KC_ALT_L;      
-        case XK_Alt_R:     return KC_ALT_R;
+                case XK_Shift_L:   return KC_SHIFT_L;    
+                case XK_Shift_R:   return KC_SHIFT_R;    
+                case XK_Control_L: return KC_CONTROL_L;  
+                case XK_Control_R: return KC_CONTROL_R;  
+                case XK_Alt_L:     return KC_ALT_L;      
+                case XK_Alt_R:     return KC_ALT_R;
 #endif
+            }
+        }
             
         default: 
             // 'Useful' Latin1 characters
