@@ -1,4 +1,4 @@
-# 2-window sort-first config running on a single pipe.
+# 2-window sort-first, constant-framerate config running on a single pipe.
 server
 {
     config
@@ -12,13 +12,6 @@ server
                     viewport [ .25 .25 .5 .5 ]
                     name "2D and Dynamic Frame Resize"
 
-                    channel
-                    {
-                        viewport [ 0 0 2048 2048 ] 
-                        drawable [ FBO_COLOR FBO_DEPTH ]
-                        name "buffer"
-                    }                    
-
                     channel { name "channel" }
                 }
             }
@@ -26,6 +19,7 @@ server
             {
                 window
                 {
+                    viewport [ .25 .25 .5 .5 ]
                     attributes { hint_drawable pbuffer }
                     channel { name "source1" }
                     channel { name "source2" }
@@ -44,20 +38,18 @@ server
             
             compound 
             {
-                channel "buffer"
+                channel "source2"
 
-                loadBalancer { mode 2D }
+                loadBalancer { mode VERTICAL }
+                compound {}
                 compound { channel "source1" outputframe{} }
-                compound { channel "source2" outputframe{} }
                 inputframe { name "frame.source1" }
-                inputframe { name "frame.source2" }
 
-                loadBalancer { mode DFR framerate 10.5 }
-                zoom [ .5 .5 ]
+                loadBalancer { mode DFR framerate 20.5 }
                 outputframe{ }
             }
 
-            inputframe{ name "frame.buffer" }
+            inputframe{ name "frame.source2" }
         }
     }    
 }
