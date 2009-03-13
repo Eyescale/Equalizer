@@ -45,10 +45,10 @@ namespace server
         EQ_EXPORT const Config* getConfig() const;
 
         /** @return the layout of this view. */
-        Layout* getLayout() { return _layout; }
+        EQ_EXPORT Layout* getLayout() { return _layout; }
 
         /** @return the layout of this view. */
-        const Layout* getLayout() const { return _layout; }
+        EQ_EXPORT const Layout* getLayout() const { return _layout; }
         //*}
 
         /** @name Operations */
@@ -59,7 +59,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ViewVisitor& visitor );
+        EQ_EXPORT VisitorResult accept( ViewVisitor& visitor );
 
         /** 
          * Handle a received (view) event.
@@ -71,7 +71,7 @@ namespace server
          * @param event the received view event.
          * @return true when the event was handled, false if not.
          */
-        virtual bool handleEvent( const Event& event );
+        EQ_EXPORT virtual bool handleEvent( const Event& event );
         //*}
         
     protected:

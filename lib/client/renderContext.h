@@ -25,7 +25,7 @@ namespace eq
     struct RenderContext 
     {
     public: 
-        RenderContext();
+        EQ_EXPORT RenderContext();
 
         uint32_t       frameID;        //<! identifier from Config::beginFrame
 

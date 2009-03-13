@@ -18,10 +18,10 @@ namespace net
     /** A helper struct bundling an object identifier and version. */
     struct ObjectVersion
     {
-        ObjectVersion();
-        ObjectVersion( const uint32_t id, const uint32_t version );
-        ObjectVersion( const Object* object );
-        ObjectVersion& operator = ( const Object* object );
+        EQ_EXPORT ObjectVersion();
+        EQ_EXPORT ObjectVersion( const uint32_t id, const uint32_t version );
+        EQ_EXPORT ObjectVersion( const Object* object );
+        EQ_EXPORT ObjectVersion& operator = ( const Object* object );
         
         uint32_t id;
         uint32_t version;
