@@ -17,6 +17,7 @@ FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
     , _width(0)
     , _height(0)
     , _resizedColorTextures(0)
+    , _colorFormat( GL_RGBA )
     , _depth( glewContext )
     , _stencil( glewContext )
     , _glewContext( glewContext )
@@ -24,7 +25,7 @@ FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
     EQASSERT( GLEW_EXT_framebuffer_object );
 
     _color.push_back( new Texture( glewContext ));
-    _color[0]->setFormat( GL_RGBA );
+    _color[0]->setFormat( _colorFormat );
 
     _depth.setFormat( GL_DEPTH_COMPONENT );
     _stencil.setFormat( GL_STENCIL_INDEX );
@@ -56,20 +57,15 @@ void FrameBufferObject::exit()
     _stencil.flush();
 }
 
-bool FrameBufferObject::setColorFormat( const GLuint  format,
-                                        const uint8_t index )
+void FrameBufferObject::setColorFormat( const GLuint format )
 {
-    if( index >= _color.size() )
-    {
-        EQERROR << "Wrong color texture index" << std::endl;
-        return false;
-    }
-    _color[ index ]->setFormat( format );
+    for( uint i = 0; i < _color.size(); ++i )
+        _color[ i ]->setFormat( format );
 
-    return true;
+    _colorFormat = format;
 }
 
-bool FrameBufferObject::addColorTexture( const GLuint format )
+bool FrameBufferObject::addColorTexture( )
 {
     if( _color.size() >= 16 )
     {
@@ -78,7 +74,7 @@ bool FrameBufferObject::addColorTexture( const GLuint format )
     }
 
     _color.push_back( new Texture( _glewContext ));
-    setColorFormat( format, getNumberOfColorTextures()-1 );
+    _color.back()->setFormat( _colorFormat );
 
     return true;
 }

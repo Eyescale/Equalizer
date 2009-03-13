@@ -28,16 +28,12 @@ namespace eq
                    const int depthSize, const int stencilSize );
 
         /**
-         * Set format for color buffer, if desired format differs from default.
-         * This function should be called before init function.
+         * Set format for all color textures, if desired format differs 
+         * from default. This function should be called before init function.
          *
          * @param format new format of color texture
-         * @param index  index of texture. Should be less than number of
-         *               color textures allocated
-         *
-         * @return false if index is incorrect, otherwise true
          */
-       bool setColorFormat( const GLuint format, const uint8_t index = 0 );
+        void setColorFormat( const GLuint format );
 
         /** De-initialize the Frame Buffer Object. */
         void exit();
@@ -70,15 +66,13 @@ namespace eq
         inline uint8_t getNumberOfColorTextures() const { return _color.size();}
 
         /**
-         * Add one texture with desired format to FBO. When FBO class is 
-         * created it has one color texture by default. Maximal number of
-         * textures per FBO is 16.
-         *
-         * @param format format of added color texture
+         * Add one texture to FBO. When FBO class is created it has one color
+         * texture by default. Maximal number of textures per FBO is 16. Added
+         * color texture will have the same format as already added textures.
          *
          * @return false if color texture can't be added, otherwise true
          */
-        bool addColorTexture( const GLuint format );
+        bool addColorTexture( );
 
     private:
         GLuint _fboID;
@@ -89,6 +83,7 @@ namespace eq
         uint8_t _resizedColorTextures;
 
         std::vector<Texture*> _color; //!< Multiple color textures
+        GLuint _colorFormat;          //!< Format of color textures
 
         Texture _depth;
         Texture _stencil;
