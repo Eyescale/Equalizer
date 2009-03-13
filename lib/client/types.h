@@ -25,6 +25,7 @@ class Node;
 class Pipe;
 class Segment;
 class Server;
+class Texture;
 class View;
 class Viewport;
 class Window;
@@ -39,13 +40,14 @@ typedef std::vector< Channel* >  ChannelVector;
 
 typedef std::vector< Frame* >    FrameVector;
 typedef std::vector< Image* >    ImageVector;
+typedef std::vector< Texture* >  TextureVector;
 
 typedef std::vector< Canvas* >   CanvasVector;
 typedef std::vector< Layout* >   LayoutVector;
 typedef std::vector< Segment* >  SegmentVector;
 typedef std::vector< View* >     ViewVector;
-typedef std::vector< Viewport* > ViewportVector;
 
+typedef std::vector< Viewport >      ViewportVector;
 typedef std::vector< PixelViewport > PixelViewportVector;
 
 

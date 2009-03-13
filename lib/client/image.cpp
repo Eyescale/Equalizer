@@ -578,9 +578,9 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
     switch( buffer )
     {
         case Frame::BUFFER_COLOR:
-            fbo->getColorTexture().download( pixels.data.chunks[0]->data,
-                                             getFormat( buffer ), 
-                                             getType( buffer ));
+            fbo->getColorTextures()[0]->download( pixels.data.chunks[0]->data,
+                                                  getFormat( buffer ), 
+                                                  getType( buffer ));
             break;
 
         default:

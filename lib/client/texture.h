@@ -35,6 +35,9 @@ namespace eq
         /** Set the internal format of the texture. */
         void setFormat( const GLuint format );
 
+        /** @return the internal format of the texture. */
+        GLuint getFormat() const { return _internalFormat; }
+
         /** Copy the specified area from the current read buffer to 0,0. */
         void copyFromFrameBuffer( const PixelViewport& pvp );
 

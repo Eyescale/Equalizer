@@ -52,8 +52,8 @@ void Texture::setFormat( const GLuint format )
         return;
 
     _defined = false;
+    _internalFormat = format;
 
-    _internalFormat  = format;
     switch( format )
     {
         case GL_RGBA8:

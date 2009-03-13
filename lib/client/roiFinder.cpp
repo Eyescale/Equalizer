@@ -628,7 +628,8 @@ void ROIFinder::_readbackInfo( )
     fbo->unbind();
 
     // finish readback of info
-    fbo->getColorTexture().download( &_perBlockInfo[0], GL_RGBA, GL_FLOAT );
+    Texture* texture = fbo->getColorTextures()[0];
+    texture->download( &_perBlockInfo[0], GL_RGBA, GL_FLOAT );
 }
 
 

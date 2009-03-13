@@ -51,7 +51,7 @@ namespace eq
         const GLEWContext* glewGetContext() const { return _glewContext; }
 
         /** @return the color texture. */
-        const Texture& getColorTexture( const uint8_t index = 0 ) const;
+        const TextureVector& getColorTextures() const { return _colors; }
 
         /** @return the depth texture. */
         const Texture& getDepthTexture() const { return _depth; }
@@ -61,9 +61,6 @@ namespace eq
 
         /** @return the reason for the last failed operation. */
         const std::string& getErrorMessage() { return _error; }
-
-        /** @return number of color textures that will be used in FBO. */
-        inline uint8_t getNumberOfColorTextures() const { return _color.size();}
 
         /**
          * Add one texture to FBO. When FBO class is created it has one color
@@ -80,10 +77,7 @@ namespace eq
         int _width;
         int _height;
 
-        uint8_t _resizedColorTextures;
-
-        std::vector<Texture*> _color; //!< Multiple color textures
-        GLuint _colorFormat;          //!< Format of color textures
+        TextureVector _colors; //!< Multiple color textures
 
         Texture _depth;
         Texture _stencil;
@@ -92,6 +86,8 @@ namespace eq
 
         /** The reason for the last error. */
         std::string _error;
+
+        bool _valid;
 
         union // placeholder for binary-compatible changes
         {

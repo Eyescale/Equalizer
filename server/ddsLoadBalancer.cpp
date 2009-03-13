@@ -88,10 +88,10 @@ DDSLoadBalancer::DDSLoadBalancer( const LoadBalancer& parent )
         const Segment* segment = channel->getSegment();
         const View* view =  channel->getView();
         
-        Viewport* viewport = new Viewport( segment->getViewport() );
-        viewport->intersect(view->getViewport());
+        Viewport viewport( segment->getViewport( ));
+        viewport.intersect( view->getViewport( ));
         
-        _viewports.push_back(viewport);
+        _viewports.push_back( viewport );
     }
 
     _updateZoomAndOffset();
@@ -134,30 +134,28 @@ void DDSLoadBalancer::_updateZoomAndOffset()
     {
         Frame* frame = *i;
 
-        
-        const Compound* SegmentCompound = _outputFrames[ count ]->getCompound();
-            
-        const PixelViewport pvpCompound = SegmentCompound->getInheritPixelViewport();
+        const Compound* compound = _outputFrames[ count ]->getCompound();
         
         // compute and apply input frame offset
         const int offsetX = static_cast< int >( static_cast< float >( pvp.w ) * 
-                                                _viewports[ count ]->x );
+                                                _viewports[ count ].x );
         const int offsetY = static_cast< int >( static_cast< float >( pvp.h ) * 
-                                                _viewports[ count ]->y );
+                                                _viewports[ count ].y );
         frame->setOffset( vmml::Vector2i( offsetX, offsetY ) );
         
         // compute and apply output frame zoo
         const int width   = static_cast< int >( static_cast< float >( pvp.w ) * 
-                                                _viewports[ count ]->w);
+                                                _viewports[ count ].w);
         const int height  = static_cast< int >( static_cast< float >( pvp.h ) * 
-                                                _viewports[ count ]->h); 
+                                                _viewports[ count ].h); 
 
-        const float factorW = static_cast< float >(width ) / 
-                                  static_cast< float >( pvpCompound.w );
+        const PixelViewport& compoundPVP = compound->getInheritPixelViewport();
+        const float factorW = static_cast< float >( width ) / 
+                                  static_cast< float >( compoundPVP.w );
         const float factorH = static_cast< float >( height ) / 
-                                  static_cast< float >( pvpCompound.h );
+                                  static_cast< float >( compoundPVP.h );
             
-        Zoom newZoom(factorW, factorH);
+        Zoom newZoom( factorW, factorH );
             
         _outputFrames[ count ]->setZoom( newZoom );
         count++;
