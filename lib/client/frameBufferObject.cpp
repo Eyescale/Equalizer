@@ -11,19 +11,21 @@
 
 namespace eq
 {
-	
+
 FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
     : _fboID(0)
     , _width(0)
     , _height(0)
-    , _color( glewContext )
+    , _resizedColorTextures(0)
     , _depth( glewContext )
     , _stencil( glewContext )
     , _glewContext( glewContext )
 {
     EQASSERT( GLEW_EXT_framebuffer_object );
 
-    _color.setFormat( GL_RGBA );
+    _color.push_back( new Texture( glewContext ));
+    _color[0]->setFormat( GL_RGBA );
+
     _depth.setFormat( GL_DEPTH_COMPONENT );
     _stencil.setFormat( GL_STENCIL_INDEX );
 }
@@ -31,6 +33,11 @@ FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
 FrameBufferObject::~FrameBufferObject()
 {
     exit();
+    for( uint i = 0; i < _color.size(); ++i )
+    {
+        delete _color[i];
+        _color[i] = 0;
+    }
 }
 
 void FrameBufferObject::exit()
@@ -43,18 +50,52 @@ void FrameBufferObject::exit()
         _fboID = 0;
     }
 
-    _color.flush();
+    for( uint i = 0; i < _color.size(); ++i )
+        _color[i]->flush();
     _depth.flush();
     _stencil.flush();
 }
 
-void FrameBufferObject::setColorFormat( const GLuint format )
+bool FrameBufferObject::setColorFormat( const GLuint  format,
+                                        const uint8_t index )
 {
-    _color.setFormat( format );
+    if( index >= _color.size() )
+    {
+        EQERROR << "Wrong color texture index" << std::endl;
+        return false;
+    }
+    _color[ index ]->setFormat( format );
+
+    return true;
+}
+
+bool FrameBufferObject::addColorTexture( const GLuint format )
+{
+    if( _color.size() >= 16 )
+    {
+        EQERROR << "Too many color textures, can't add another one";
+        return false;
+    }
+
+    _color.push_back( new Texture( _glewContext ));
+    setColorFormat( format, getNumberOfColorTextures()-1 );
+
+    return true;
+}
+
+const Texture& FrameBufferObject::getColorTexture( const uint8_t index ) const
+{
+    if( index >= _color.size() )
+    {
+        EQERROR << "Wrong color texture index" << std::endl;
+        return *_color.back();
+    }
+
+    return *_color[ index ];
 }
 
 
-bool FrameBufferObject::init( const int width, const int height, 
+bool FrameBufferObject::init( const int width    , const int height,
                               const int depthSize, const int stencilSize )
 {
     CHECK_THREAD( _thread );
@@ -71,16 +112,18 @@ bool FrameBufferObject::init( const int width, const int height,
     glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID );
 
     // create and bind textures
-    _color.bindToFBO( GL_COLOR_ATTACHMENT0, width, height );
+    for( uint i = 0; i < getNumberOfColorTextures(); ++i )
+        _color[i]->bindToFBO( GL_COLOR_ATTACHMENT0 + i, width, height );
 
     if ( depthSize > 0 )
         _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height );
 
     if ( stencilSize > 0 )
         _stencil.bindToFBO( GL_STENCIL_ATTACHMENT, width, height );
-    
-    _width = width;
+
+    _width  = width;
     _height = height;
+    _resizedColorTextures = getNumberOfColorTextures();
     return _checkFBOStatus();
 }
 
@@ -91,7 +134,7 @@ bool FrameBufferObject::_checkFBOStatus()
         case GL_FRAMEBUFFER_COMPLETE_EXT:
             EQVERB << "FBO supported and complete" << std::endl;
             return true;
-			
+
         case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
             _error = "Unsupported framebuffer format";
             break;
@@ -102,10 +145,12 @@ bool FrameBufferObject::_checkFBOStatus()
             _error = "Framebuffer incomplete, incomplete attachment";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            _error = "Framebuffer incomplete, attached images must have same dimensions";
+            _error = "Framebuffer incomplete, \
+                      attached images must have same dimensions";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-            _error = "Framebuffer incomplete, attached images must have same format";
+            _error = "Framebuffer incomplete, \
+                      attached images must have same format";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
             _error = "Framebuffer incomplete, missing draw buffer";
@@ -120,12 +165,12 @@ bool FrameBufferObject::_checkFBOStatus()
     EQERROR << _error << std::endl;
     return false;
 }
-	
+
 void FrameBufferObject::bind()
-{ 
+{
     CHECK_THREAD( _thread );
     EQASSERT( _fboID );
-	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID );
+    glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID );
 }
 
 void FrameBufferObject::unbind()
@@ -138,10 +183,13 @@ bool FrameBufferObject::resize( const int width, const int height )
     CHECK_THREAD( _thread );
     EQASSERT( width > 0 && height > 0 );
 
-    if (( _width == width ) && ( _height == height ))
-       return true; 
-     
-    _color.resize( width, height );
+    if(( _width == width ) && ( _height == height ) &&
+       ( _resizedColorTextures >= getNumberOfColorTextures() ))
+       return true;
+
+
+    for( uint i = 0; i < _color.size(); ++i )
+        _color[i]->resize( width, height );
 
     if ( _depth.isValid( ))
         _depth.resize( width, height );
@@ -151,10 +199,9 @@ bool FrameBufferObject::resize( const int width, const int height )
 
     _width = width;
     _height = height;
+    _resizedColorTextures = getNumberOfColorTextures();
 
     return _checkFBOStatus();
 }
-}	
-	
+}
 
-	
