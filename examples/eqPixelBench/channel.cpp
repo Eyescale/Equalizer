@@ -90,7 +90,7 @@ void Channel::frameDraw( const uint32_t frameID )
     //----- setup GL state
     applyBuffer();
     applyViewport();
-            
+
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
 
@@ -105,7 +105,7 @@ void Channel::frameDraw( const uint32_t frameID )
     _testFormats();
     _testTiledOperations();
     _testDepthAssemble();
-    
+
     resetAssemblyState();
 }
 
@@ -144,6 +144,8 @@ void Channel::_testFormats()
     glGetError();
     for( uint32_t i=0; _enums[i].formatString; ++i )
     {
+        _draw( 0 );
+
         // setup
         snprintf( event.formatType, 64, "%s/%s", 
             _enums[i].formatString, _enums[i].typeString );
@@ -153,6 +155,7 @@ void Channel::_testFormats()
 
         image->setFormat( eq::Frame::BUFFER_COLOR, _enums[i].format );
         image->setType(   eq::Frame::BUFFER_COLOR, _enums[i].type );
+        image->clearPixelData( eq::Frame::BUFFER_COLOR );
         image->setPBO( false );
 
         // read
@@ -167,9 +170,13 @@ void Channel::_testFormats()
             event.msec = - static_cast<float>( error );
         config->sendEvent( event );
 
+        _saveImage( image, _enums[i].typeString, _enums[i].formatString,
+                    "formats" );
+
         if( error == GL_NO_ERROR ) // PBO readback
         {
             event.data.type = ConfigEvent::READBACK_PBO;
+            image->clearPixelData( eq::Frame::BUFFER_COLOR );
             image->setPBO( true );
 
             // read
@@ -183,6 +190,9 @@ void Channel::_testFormats()
             if( error != GL_NO_ERROR )
                 event.msec = - static_cast<float>( error );
             config->sendEvent( event );
+
+            _saveImage( image, _enums[i].typeString, _enums[i].formatString,
+                        "formats_PBO" );
         }
 
         // draw
@@ -208,8 +218,7 @@ void Channel::_testTiledOperations()
 {
     //----- setup constant data
     const eq::ImageVector& images = _frame.getImages();
-    eq::Image*             image  = images[ 0 ];
-    EQASSERT( image );
+    EQASSERT( images[0] );
 
     eq::Config*              config = getConfig();
     const eq::PixelViewport& pvp    = getPixelViewport();
@@ -227,100 +236,132 @@ void Channel::_testTiledOperations()
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
-        image = images[ i ];
-        EQASSERT( image );
-        image->setPixelViewport( subPVP );
+        EQASSERT( images[ i ] );
+        images[ i ]->setPixelViewport( subPVP );
     }
 
-    for( unsigned i = 0; i < NUM_IMAGES; ++i )
+    for( unsigned tiles = 0; tiles < NUM_IMAGES; ++tiles )
     {
-        event.area.y = subPVP.h * (i+1);
+        _draw( 0 );
 
-        // readback of 'i' depth images
+        event.area.y = subPVP.h * (tiles+1);
+
+        //---- readback of 'tiles' depth images
         event.data.type = ConfigEvent::READBACK;
-        snprintf( event.formatType, 64, "%d depth tiles", i+1 ); 
+        snprintf( event.formatType, 64, "%d depth tiles", tiles+1 ); 
 
-        clock.reset();
-        for( unsigned j = 0; j <= i; ++j )
+        event.msec = 0;
+        for( unsigned j = 0; j <= tiles; ++j )
         {
             subPVP.y = pvp.y + j * subPVP.h;
-            image = images[ j ];
+            eq::Image* image = images[ j ];
             image->setPBO( false );
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_FLOAT );
+            image->clearPixelData( eq::Frame::BUFFER_COLOR );
 
+            clock.reset();
             image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
                                   glObjects );
             image->syncReadback();
+            event.msec += clock.getTimef();
         }
 
-        event.msec = clock.getTimef();
-        config->sendEvent( event );            
+        config->sendEvent( event );
+
+        if( tiles == NUM_IMAGES-1 )
+            for( unsigned j = 0; j <= tiles; ++j )
+                _saveImage( images[j],"GL_DEPTH_COMPONENT","GL_FLOAT","tiles" );
+
 
         event.data.type = ConfigEvent::READBACK_PBO;
 
-        clock.reset();
-        for( unsigned j = 0; j <= i; ++j )
+        for( unsigned j = 0; j <= tiles; ++j )
         {
-            subPVP.y = pvp.y + j * subPVP.h;
-            image = images[ j ];
+            eq::Image* image = images[ j ];
             image->setPBO( true );
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_FLOAT );
-
-            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
-                                  glObjects );
+            image->clearPixelData( eq::Frame::BUFFER_COLOR );
         }
-        for( unsigned j = 0; j <= i; ++j )
-            images[j]->syncReadback();
-
-        event.msec = clock.getTimef();
-        config->sendEvent( event );            
-
-
-        // readback of 'i' color images
-        event.data.type = ConfigEvent::READBACK;
-        snprintf( event.formatType, 64, "%d color tiles", i+1 ); 
-
         clock.reset();
-        for( unsigned j = 0; j <= i; ++j )
+        for( unsigned j = 0; j <= tiles; ++j )
         {
             subPVP.y = pvp.y + j * subPVP.h;
-            image = images[ j ];
+            images[ j ]->startReadback( eq::Frame::BUFFER_COLOR, subPVP,
+                                        eq::Zoom(), glObjects );
+        }
+
+        for( unsigned j = 0; j <= tiles; ++j )
+            images[ j ]->syncReadback();
+
+        event.msec = clock.getTimef();
+        config->sendEvent( event );
+
+        if( tiles == NUM_IMAGES-1 )
+            for( unsigned j = 0; j <= tiles; ++j )
+              _saveImage(images[j],"GL_DEPTH_COMPONENT","GL_FLOAT","tiles_PBO");
+
+
+        //---- readback of 'tiles' color images
+        event.data.type = ConfigEvent::READBACK;
+        snprintf( event.formatType, 64, "%d color tiles", tiles+1 );
+
+        event.msec = 0;
+        for( unsigned j = 0; j <= tiles; ++j )
+        {
+            subPVP.y = pvp.y + j * subPVP.h;
+            eq::Image* image = images[ j ];
             image->setPBO( false );
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+            image->clearPixelData( eq::Frame::BUFFER_COLOR );
 
+            clock.reset();
             image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
                                   glObjects );
             image->syncReadback();
+            event.msec += clock.getTimef();
         }
 
-        event.msec = clock.getTimef();
-        config->sendEvent( event );            
+        config->sendEvent( event );
+
+        if( tiles == NUM_IMAGES-1 )
+            for( unsigned j = 0; j <= tiles; ++j )
+                _saveImage( images[j],"GL_BGRA","GL_UNSIGNED_BYTE","tiles" );
+
 
         event.data.type = ConfigEvent::READBACK_PBO;
 
-        clock.reset();
-        for( unsigned j = 0; j <= i; ++j )
+        for( unsigned j = 0; j <= tiles; ++j )
         {
-            subPVP.y = pvp.y + j * subPVP.h;
-            image = images[ j ];
+            eq::Image* image = images[ j ];
             image->setPBO( true );
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
-
-            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
-                                  glObjects );
+            image->clearPixelData( eq::Frame::BUFFER_COLOR );
         }
-        for( unsigned j = 0; j <= i; ++j )
-            images[j]->syncReadback();
+        clock.reset();
+        for( unsigned j = 0; j <= tiles; ++j )
+        {
+            subPVP.y = pvp.y + j * subPVP.h;
+            images[ j ]->startReadback( eq::Frame::BUFFER_COLOR, subPVP,
+                                        eq::Zoom(), glObjects );
+        }
+
+        for( unsigned j = 0; j <= tiles; ++j )
+            images[ j ]->syncReadback();
 
         event.msec = clock.getTimef();
-        config->sendEvent( event );            
+        config->sendEvent( event );
 
-        // benchmark assembly operations
-        subPVP.y = pvp.y + i * subPVP.h;
+        if( tiles == NUM_IMAGES-1 )
+            for( unsigned j = 0; j <= tiles; ++j )
+                _saveImage(images[j],"GL_BGRA","GL_UNSIGNED_BYTE","tiles_PBO" );
+
+
+        //---- benchmark assembly operations
+        subPVP.y = pvp.y + tiles * subPVP.h;
 
         eq::Compositor::ImageOp op;
         op.channel = this;
@@ -330,18 +371,18 @@ void Channel::_testTiledOperations()
         // fixed-function
         event.data.type = ConfigEvent::ASSEMBLE;
         snprintf( event.formatType, 64, 
-                  "Tiled assembly (GL1.1) of %d images", i+1 ); 
+                  "Tiled assembly (GL1.1) of %d images", tiles+1 ); 
 
         clock.reset();
-        for( unsigned j = 0; j <= i; ++j )
+        for( unsigned j = 0; j <= tiles; ++j )
             eq::Compositor::assembleImage( images[j], op );
 
         event.msec = clock.getTimef();
-        config->sendEvent( event );            
+        config->sendEvent( event );
 
         // CPU
         snprintf( event.formatType, 64,
-                  "Tiled assembly (CPU)   of %d images", i+1 ); 
+                  "Tiled assembly (CPU)   of %d images", tiles+1 ); 
 
         std::vector< eq::Frame* > frames;
         frames.push_back( &_frame );
@@ -383,17 +424,24 @@ void Channel::_testDepthAssemble()
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
+        _draw( i );
+
         // fill depth & color image
         image = images[ i ];
         image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
         image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
         image->setFormat( eq::Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
         image->setType(   eq::Frame::BUFFER_DEPTH, GL_FLOAT );
+        image->clearPixelData( eq::Frame::BUFFER_COLOR );
+        image->clearPixelData( eq::Frame::BUFFER_DEPTH );
 
         image->startReadback( eq::Frame::BUFFER_COLOR | 
                               eq::Frame::BUFFER_DEPTH, pvp, eq::Zoom(),
                               glObjects );
         image->syncReadback();
+
+        if( i == NUM_IMAGES-1 )
+            _saveImage( image,"GL_BGRA","GL_UNSIGNED_BYTE","depthAssemble" );
 
         // benchmark
         eq::Compositor::ImageOp op;
@@ -439,5 +487,104 @@ void Channel::_testDepthAssemble()
         config->sendEvent( event );            
     }
 }
+
+void Channel::_saveImage( const eq::Image* image,
+                          const char*      type,
+                          const char*      format,
+                          const char*      info    )
+{
+    return;
+
+    static uint32_t counter = 0;
+    ostringstream stringstream;
+    stringstream << "Image_" << ++counter << "_"
+                 << type << "_" << format << "_" << info;
+    image->writeImages( stringstream.str( ));
+}
+
+
+void Channel::_draw( const uint32_t spin )
+{
+    glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+    eq::Channel::frameDraw( spin );
+
+    glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+    glEnable( GL_DEPTH_TEST );
+
+
+    const float lightPos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
+    glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
+
+    const float lightAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
+
+    // rotate scene around the origin
+    glRotatef( static_cast< float >( spin + 3 ) * 10, 1.0f, 0.5f, 0.25f );
+
+    // render six axis-aligned colored quads around the origin
+    //  front
+    glColor3f( 1.0f, 0.5f, 0.5f );
+    glNormal3f( 0.0f, 0.0f, 1.0f );
+    glBegin( GL_TRIANGLE_STRIP );
+    glVertex3f(  .7f,  .7f, -1.0f );
+    glVertex3f( -.7f,  .7f, -1.0f );
+    glVertex3f(  .7f, -.7f, -1.0f );
+    glVertex3f( -.7f, -.7f, -1.0f );
+    glEnd();
+
+    //  bottom
+    glColor3f( 0.5f, 1.0f, 0.5f );
+    glNormal3f( 0.0f, 1.0f, 0.0f );
+    glBegin( GL_TRIANGLE_STRIP );
+    glVertex3f(  .7f, -1.0f,  .7f );
+    glVertex3f( -.7f, -1.0f,  .7f );
+    glVertex3f(  .7f, -1.0f, -.7f );
+    glVertex3f( -.7f, -1.0f, -.7f );
+    glEnd();
+
+    //  back
+    glColor3f( 0.5f, 0.5f, 1.0f );
+    glNormal3f( 0.0f, 0.0f, -1.0f );
+    glBegin( GL_TRIANGLE_STRIP );
+    glVertex3f(  .7f,  .7f, 1.0f );
+    glVertex3f( -.7f,  .7f, 1.0f );
+    glVertex3f(  .7f, -.7f, 1.0f );
+    glVertex3f( -.7f, -.7f, 1.0f );
+    glEnd();
+
+    //  top
+    glColor3f( 1.0f, 1.0f, 0.5f );
+    glNormal3f( 0.f, -1.f, 0.f );
+    glBegin( GL_TRIANGLE_STRIP );
+    glVertex3f(  .7f, 1.0f,  .7f );
+    glVertex3f( -.7f, 1.0f,  .7f );
+    glVertex3f(  .7f, 1.0f, -.7f );
+    glVertex3f( -.7f, 1.0f, -.7f );
+    glEnd();
+
+    //  right
+    glColor3f( 1.0f, 0.5f, 1.0f );
+    glNormal3f( -1.f, 0.f, 0.f );
+    glBegin( GL_TRIANGLE_STRIP );
+    glVertex3f( 1.0f,  .7f,  .7f );
+    glVertex3f( 1.0f, -.7f,  .7f );
+    glVertex3f( 1.0f,  .7f, -.7f );
+    glVertex3f( 1.0f, -.7f, -.7f );
+    glEnd();
+
+    //  left
+    glColor3f( 0.5f, 1.0f, 1.0f );
+    glNormal3f( 1.f, 0.f, 0.f );
+    glBegin( GL_TRIANGLE_STRIP );
+    glVertex3f( -1.0f,  .7f,  .7f );
+    glVertex3f( -1.0f, -.7f,  .7f );
+    glVertex3f( -1.0f,  .7f, -.7f );
+    glVertex3f( -1.0f, -.7f, -.7f );
+    glEnd();
+
+    glPopAttrib( );
+}
+
 
 }

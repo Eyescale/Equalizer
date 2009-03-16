@@ -25,9 +25,14 @@ protected:
     ConfigEvent _createConfigEvent();
 
 private:
+    void _draw( const uint32_t spin );
     void _testFormats();
     void _testTiledOperations();
     void _testDepthAssemble();
+    void _saveImage( const eq::Image* image,
+                     const char*      type   = "",
+                     const char*      format = "",
+                     const char*      info   = "" );
 
 private:
     eq::Frame _frame;

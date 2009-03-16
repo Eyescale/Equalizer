@@ -81,12 +81,11 @@ int main( int argc, char** argv )
 
     // 5. render three frames
     clock.reset();
-    config->startFrame( 0 );
-    config->finishAllFrames();
-    config->startFrame( 0 );
-    config->finishAllFrames();
-    config->startFrame( 0 );
-    config->finishAllFrames();
+    for( uint32_t i = 0; i < 3; ++i )
+    {
+        config->startFrame( 0 );
+        config->finishAllFrames();
+    }
     EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
                             << ( 1.0f / clock.getTimef() * 1000.f) << " FPS)"
                             << endl;
