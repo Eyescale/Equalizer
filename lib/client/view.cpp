@@ -4,7 +4,8 @@
 
 #include "view.h"
 
-#include "channel.h"
+#include "event.h"
+#include "pipe.h"
 #include "layout.h"
 #include "viewVisitor.h"
 
@@ -15,7 +16,7 @@ namespace eq
 {
 View::View()
         : _layout( 0 )
-        , _channel( 0 )
+        , _pipe( 0 )
 {
 }
 
@@ -44,18 +45,18 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 
 Config* View::getConfig()
 {
-    EQASSERT( _layout || _channel );
+    EQASSERT( _layout || _pipe );
 
     if( _layout )
     {
-        EQASSERT( !_channel );
+        EQASSERT( !_pipe );
         return _layout->getConfig();
     }
 
-    if( _channel )
+    if( _pipe )
     {
         EQASSERT( !_layout );
-        return _channel->getConfig();
+        return _pipe->getConfig();
     }
 
     return 0;
@@ -63,18 +64,18 @@ Config* View::getConfig()
 
 const Config* View::getConfig() const
 {
-    EQASSERT( _layout || _channel );
+    EQASSERT( _layout || _pipe );
 
     if( _layout )
     {
-        EQASSERT( !_channel );
+        EQASSERT( !_pipe );
         return _layout->getConfig();
     }
 
-    if( _channel )
+    if( _pipe )
     {
         EQASSERT( !_layout );
-        return _channel->getConfig();
+        return _pipe->getConfig();
     }
 
     return 0;

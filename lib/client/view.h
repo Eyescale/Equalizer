@@ -15,9 +15,9 @@ namespace server
 {
     class View;
 }
-    class Channel;
     class Config;
     class Layout;
+    class Pipe;
     class ViewVisitor;
     struct Event;
 
@@ -96,9 +96,9 @@ namespace server
         Layout* _layout;
         friend class Layout;
 
-        /** Parent channel (render-client-side). */
-        Channel* _channel;
-        friend class Channel;
+        /** Parent pipe (render-client-side). */
+        Pipe* _pipe;
+        friend class Pipe;
 
         friend class server::View;
         Viewport    _viewport;
