@@ -44,7 +44,6 @@ void AGLMessagePump::_initReceiverQueue()
     {
         _receiverQueue = GetCurrentEventQueue();
         _needGlobalLock = ( _receiverQueue == GetMainEventQueue( ));
-        EQINFO << "_needGlobalLock " << _needGlobalLock << std::endl;
     }
 
     EQASSERTINFO( _receiverQueue == GetCurrentEventQueue(),
