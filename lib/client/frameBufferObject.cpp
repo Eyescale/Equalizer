@@ -33,7 +33,7 @@ FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
 FrameBufferObject::~FrameBufferObject()
 {
     exit();
-    for( uint i = 0; i < _colors.size(); ++i )
+    for( size_t i = 0; i < _colors.size(); ++i )
     {
         delete _colors[i];
         _colors[i] = 0;
@@ -50,7 +50,7 @@ void FrameBufferObject::exit()
         _fboID = 0;
     }
 
-    for( uint i = 0; i < _colors.size(); ++i )
+    for( size_t i = 0; i < _colors.size(); ++i )
         _colors[i]->flush();
     _depth.flush();
     _stencil.flush();
@@ -58,7 +58,7 @@ void FrameBufferObject::exit()
 
 void FrameBufferObject::setColorFormat( const GLuint format )
 {
-    for( uint i = 0; i < _colors.size(); ++i )
+    for( size_t i = 0; i < _colors.size(); ++i )
         _colors[ i ]->setFormat( format );
 }
 
@@ -168,7 +168,7 @@ bool FrameBufferObject::resize( const int width, const int height )
     if( _width == width && _height == height && _valid )
        return true;
 
-    for( uint i = 0; i < _colors.size(); ++i )
+    for( size_t i = 0; i < _colors.size(); ++i )
         _colors[i]->resize( width, height );
 
     if ( _depth.isValid( ))
