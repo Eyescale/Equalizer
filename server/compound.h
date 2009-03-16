@@ -349,6 +349,9 @@ namespace server
         eq::Frustum::Type getFrustumType() const
             { return _frustum.getCurrentType(); }
 
+        /** @return the frustum. */
+        const eq::Frustum& getFrustum() const { return _frustum; }
+
         /** Update the frustum from the view or segment. */
         void updateFrustum();
 

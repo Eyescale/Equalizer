@@ -54,7 +54,7 @@ namespace server
         ServerPtr parseServer( const char* config );
 
         /** 
-         * Parse a config given as a parameter.
+         * Parse a Config given as a parameter.
          * 
          * @param config the config.
          * @return the parsed config.
@@ -62,12 +62,20 @@ namespace server
         Config* parseConfig( const char* config );
 
         /**
-         * Add a compound for each output channel.
+         * Add a Compound for each output channel.
          *
          * This function creates a compound for each output channel which is not
          * used as a destination channel yet.
          */
         static void addOutputCompounds( ServerPtr server );
+
+        /**
+         * Add a Segment and Layout for each destination channel.
+         *
+         * This function creates the appropriate views and segments for
+         * destination channels, and reassigns the compound channel.
+         */
+        static void addDestinationViews( ServerPtr server );
 
     private:
         void _parseString( const char* config );
