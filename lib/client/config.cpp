@@ -512,13 +512,13 @@ bool Config::handleEvent( const ConfigEvent* event )
             const uint32_t   originator = event->data.originator;
             EQASSERT( originator != EQ_ID_INVALID );
             if( originator == EQ_ID_INVALID )
-                return true;
+                return false;
 
             const Statistic& statistic = event->data.statistic;
             const uint32_t   frame     = statistic.frameNumber;
 
             if( frame == 0 ) // Not a frame-related stat event, ignore
-                return true;
+                return false;
 
             ScopedMutex< SpinLock > mutex( _statisticsMutex );
 
@@ -531,7 +531,7 @@ bool Config::handleEvent( const ConfigEvent* event )
                     SortedStatistics& sortedStats = frameStats.second;
                     Statistics&       statistics  = sortedStats[ originator ];
                     statistics.push_back( statistic );
-                    return true;
+                    return false;
                 }
             }
             
@@ -543,7 +543,7 @@ bool Config::handleEvent( const ConfigEvent* event )
             Statistics&       statistics  = sortedStats[ originator ];
             statistics.push_back( statistic );
             
-            return true;
+            return false;
         }
 
         case Event::VIEW_RESIZE:

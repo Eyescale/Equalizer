@@ -198,7 +198,7 @@ namespace eq
          * Handle one config event.
          * 
          * @param event the event.
-         * @return <code>true</code> if the event was handled,
+         * @return <code>true</code> if the event requires a redraw,
          *         <code>false</code> if not.
          */
         virtual bool handleEvent( const ConfigEvent* event );
