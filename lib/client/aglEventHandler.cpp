@@ -103,7 +103,12 @@ pascal OSStatus AGLEventHandler::_dispatchEventUPP(
     
     if( GetCurrentEventQueue() != target )
     {
-        EQASSERT( GetCurrentEventQueue() == GetMainEventQueue( ));
+#if 0 // some events pop up on pipe thread queues...
+        EQASSERTINFO( GetCurrentEventQueue() == GetMainEventQueue(),
+                      "target " << target << " current " << 
+                      GetCurrentEventQueue() << " main " << 
+                      GetMainEventQueue( ));
+#endif
         PostEventToQueue( target, event, kEventPriorityStandard );
     }
     return CallNextEventHandler( nextHandler, event );
