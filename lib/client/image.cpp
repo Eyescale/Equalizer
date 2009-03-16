@@ -1131,8 +1131,7 @@ void Image::writeImages( const std::string& filenameTemplate,
 struct RGBHeader
 {
     RGBHeader()
-        : magic(474),
-          compression(0),
+        : compression(0),
           bytesPerChannel(1),
           nDimensions(3),
           width(0),
@@ -1142,7 +1141,9 @@ struct RGBHeader
           maxValue(255),
           colorMode(0)
         {
+            memset( this, 0, sizeof( RGBHeader ));
             filename[0] = '\0';
+            magic = 474;
         }
 
         /**
