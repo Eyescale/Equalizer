@@ -11,6 +11,8 @@
 #include <eq/client/viewport.h>      // member
 #include <eq/client/windowSystem.h>  // for OpenGL types
 
+//#define EQ_IGNORE_ALPHA
+
 namespace eq
 {
     /**
@@ -40,6 +42,7 @@ namespace eq
             struct Chunk : public base::NonCopyable
             {
                 uint32_t size;
+                uint32_t component; // only if compressed data
                 static size_t headerSize;
 
                 EQ_ALIGN16( uint8_t data[16] );
@@ -328,8 +331,8 @@ namespace eq
         const CompressedPixels& _getCompressedPixels( const Frame::Buffer
                                                       buffer ) const;
         Texture& _getTexture( const Frame::Buffer buffer );
-        uint32_t _compressPixelData( const uint64_t* data, const uint32_t size,
-                                     uint64_t* out );
+        void _compressPixelData( const uint8_t* data, const uint32_t size,
+                                 PixelData::Chunk* chunks[4] );
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;

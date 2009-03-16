@@ -74,12 +74,20 @@ int main( int argc, char **argv )
 
     //destImage.writeImage( "noise_decomp.rgb", Frame::BUFFER_COLOR );
     data = destImage.getPixelPointer( Frame::BUFFER_COLOR );
+#ifdef EQ_IGNORE_ALPHA
     for( uint32_t i=0; i<noiseSize-7; ++i ) // last 7 pixels can be unitialized
-        TEST( noiseData[i] == data[i] );
-
+        TESTINFO( noiseData[i] == data[i] || (i%4)==3,
+                  "got " << (int)data[i] << " expected " << (int)noiseData[i]
+                         << " at " << i );
+#else
+    for( uint32_t i=0; i<noiseSize-7; ++i ) // last 7 pixels can be unitialized
+        TESTINFO( noiseData[i] == data[i],
+                  "got " << (int)data[i] << " expected " << (int)noiseData[i]
+                         << " at " << i );
+#endif
 
     // Real color data 
-    TEST( image.readImage( "../compositor/Image_1_color.rgb",
+    TEST( image.readImage( "../compositor/Result_DB_color.rgb",
                            Frame::BUFFER_COLOR ));
 
     destImage.setPixelViewport( image.getPixelViewport( ));
@@ -116,11 +124,20 @@ int main( int argc, char **argv )
     //destImage.writeImage( "../compositor/Image_1_color_decomp.rgb", 
     //                      Frame::BUFFER_COLOR );
     data = destImage.getPixelPointer( Frame::BUFFER_COLOR );
-    for( uint32_t i=0; i<colorSize-7; ++i ) // last 7 pixels can be unitialized
-        TEST( colorData[i] == data[i] );
+#ifdef EQ_IGNORE_ALPHA
+    for( uint32_t i=0; i<colorSize-7; ++i ) // last 7 pixels can be initialized
+        TESTINFO( colorData[i] == data[i] || (i%4)==3,
+                  "got " << (int)data[i] << " expected " << (int)colorData[i]
+                  << " at " << i );
+#else
+    for( uint32_t i=0; i<colorSize-7; ++i ) // last 7 pixels can be initialized
+        TESTINFO( colorData[i] == data[i],
+                  "got " << (int)data[i] << " expected " << (int)colorData[i]
+                  << " at " << i );
+#endif
 
     // Depth
-    TEST( image.readImage( "../compositor/Image_1_depth.rgb",
+    TEST( image.readImage( "../compositor/Result_DB_depth.rgb",
                            Frame::BUFFER_DEPTH ));
     const uint8_t* depthData = image.getPixelPointer( Frame::BUFFER_DEPTH);
     const uint32_t depthSize = image.getPixelDataSize( Frame::BUFFER_DEPTH);
@@ -156,6 +173,15 @@ int main( int argc, char **argv )
     //destImage.writeImage( "../compositor/Image_1_depth_decomp.rgb", 
     //                      Frame::BUFFER_DEPTH );
     data = destImage.getPixelPointer( Frame::BUFFER_DEPTH );
+#ifdef EQ_IGNORE_ALPHA
     for( uint32_t i=0; i<depthSize-7; ++i ) // last 7 pixels can be unitialized
-        TEST( depthData[i] == data[i] );
+        TESTINFO( depthData[i] == data[i] || (i%4)==3,
+                  "got " << (int)data[i] << " expected " << (int)depthData[i]
+                  << " at " << i );
+#else
+    for( uint32_t i=0; i<depthSize-7; ++i ) // last 7 pixels can be unitialized
+        TESTINFO( depthData[i] == data[i],
+                  "got " << (int)data[i] << " expected " << (int)depthData[i]
+                  << " at " << i );
+#endif
 }

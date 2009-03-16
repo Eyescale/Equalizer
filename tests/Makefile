@@ -20,3 +20,5 @@ SUBDIRS = \
 TARGETS = subdirs
 
 include $(TOP)/make/rules.mk
+
+image: compositor

@@ -31,9 +31,10 @@ namespace eq
 
 namespace
 {
-const uint64_t _rleMarker = 0xF3C553FF64F6477Full; // just a random number
+const uint64_t _rleMarker = 0x42; // just a random number
 
 typedef Image::PixelData::Chunk Chunk;
+#define RLE_DEPTH 4
 }
 
 size_t Image::PixelData::Chunk::headerSize = 16;
@@ -697,8 +698,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
     }
 
-    EQASSERT( getDepth( buffer ) == 4 )     // may change with RGB format
-    EQASSERT( size < (100 * 1024 * 1024 )); // < 100MB
+    const uint32_t depth = getDepth( buffer );
+    EQASSERT( depth == RLE_DEPTH )     // may change with RGB format
 
     Pixels& outPixels = _getPixels( buffer );
 	EQASSERT( size > 0 );
@@ -709,21 +710,24 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 
     // Get number of blocks in compressed data
     const ssize_t nChunks  = pixels.chunks.size();
-    uint64_t**    outTable = static_cast< uint64_t** >(
-        alloca( nChunks * sizeof( uint64_t* )));
+    EQASSERT( (nChunks % depth) == 0 );
+
+    const ssize_t nBlocks  = nChunks / depth;
+    uint8_t**     outTable = static_cast< uint8_t** >(
+        alloca( nBlocks * sizeof( uint8_t* )));
 
     // Prepare table with input pointer into decompressed data
     //   Needed since decompress loop is parallelized
     {
         uint8_t* out = outPixels.data.chunks[0]->data;
-        for( ssize_t i = 0; i < nChunks; ++i )
+        for( ssize_t i = 0; i < nBlocks; ++i )
         {
-            outTable[i] = reinterpret_cast< uint64_t* >( out );
-
-            const uint64_t* in  = 
-                reinterpret_cast< const uint64_t* >( pixels.chunks[i]->data );
-            const uint64_t nWords = in[0];
-            out += nWords * sizeof( uint64_t );
+            outTable[ i ] = out;
+            
+            const uint32_t* in = reinterpret_cast< const uint32_t* >( 
+                                     pixels.chunks[ i * depth ]->data );
+            const uint32_t chunkSize = in[0];
+            out += chunkSize * RLE_DEPTH;
         }
         EQASSERTINFO( size >= (uint32_t)(out-outPixels.data.chunks[0]->data-7 ),
                       "Pixel data size does not match expected image size: "
@@ -731,43 +735,119 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
                       << (uint32_t)( out - outPixels.data.chunks[0]->data ));
     }
 
+    EQASSERT( depth == 4 );
+
+#ifndef NDEBUG
+    base::Atomic< long > totalDone;
+#endif
+
     // decompress each block
     // On OS X the loop is sometimes slower when parallelized. Investigate this!
 #pragma omp parallel for
-    for( ssize_t i = 0; i < nChunks; ++i )
+    for( ssize_t i = 0; i < nBlocks; ++i )
     {
-        uint64_t* in  = reinterpret_cast< uint64_t* >( pixels.chunks[i]->data );
-        uint64_t* out = outTable[i];
+        const uint8_t* oneIn(   pixels.chunks[ i*depth + 0 ]->data + 4);
+        const uint8_t* twoIn(   pixels.chunks[ i*depth + 1 ]->data + 4);
+        const uint8_t* threeIn( pixels.chunks[ i*depth + 2 ]->data + 4);
+#ifndef EQ_IGNORE_ALPHA
+        const uint8_t* fourIn(  pixels.chunks[ i*depth + 3 ]->data + 4);
+#endif
+        uint8_t one(0), two(0), three(0), four(0xff);
+        uint8_t oneLeft(0), twoLeft(0), threeLeft(0), fourLeft(0);
 
-        uint32_t       outPos = 0;
-        const uint64_t endPos = in[0];
-        uint32_t       inPos  = 1;
+        uint32_t*       out   = reinterpret_cast< uint32_t* >( outTable[i] );
+        const uint32_t* u32In = reinterpret_cast< const uint32_t* >( 
+                                    pixels.chunks[ i * depth ]->data );
+        const uint32_t  blockSize = u32In[0];
+#ifndef NDEBUG
+        totalDone += RLE_DEPTH * blockSize;
+#endif
 
-        EQVERB << "In chunk " << i << " size " << pixels.chunks[i]->size 
-               << " @ " << (void*)in << endl;
-        EQVERB << "Out chunk " << i << " size " << endPos * sizeof( uint64_t )
+        EQVERB << "In chunk " << i << " size " 
+               << pixels.chunks[ i*depth + 0 ]->size << ", " 
+               << pixels.chunks[ i*depth + 1 ]->size << ", " 
+               << pixels.chunks[ i*depth + 2 ]->size << ", " 
+               << pixels.chunks[ i*depth + 3 ]->size
+               << " @ " << (void*)oneIn << endl;
+        EQVERB << "Out chunk " << i << " size " << blockSize
                << " @ " << (void*)out << endl;
 
-        while( outPos < endPos )
+        for( uint32_t j = 0; j < blockSize; ++j )
         {
-            const uint64_t token = in[inPos++];
-            if( token == _rleMarker )
+            if( oneLeft == 0 )
             {
-                const uint64_t symbol = in[inPos++];
-                const uint64_t nSame  = in[inPos++];
-                EQASSERT( outPos + nSame <= endPos );
-
-                for( uint32_t j = 0; j<nSame; ++j )
-                    out[outPos++] = symbol;
+                one = *oneIn; ++oneIn;
+                if( one == _rleMarker )
+                {
+                    one     = *oneIn; ++oneIn;
+                    oneLeft = *oneIn; ++oneIn;
+                }
+                else // single symbol
+                    oneLeft = 1;
             }
-            else // symbol
-                out[outPos++] = token;
+            EQASSERT( oneLeft > 0 );
+            --oneLeft;
 
-            EQASSERTINFO( ((outPos-1) << 3) <= outPixels.maxSize,
-                          "Overwrite array bounds during image decompress" );
+            if( twoLeft == 0 )
+            {
+                two = *twoIn; ++twoIn;
+                if( two == _rleMarker )
+                {
+                    two     = *twoIn; ++twoIn;
+                    twoLeft = *twoIn; ++twoIn;
+                }
+                else // single symbol
+                    twoLeft = 1;
+
+                //two <<= 8;
+            }
+            EQASSERT( twoLeft > 0 );
+            --twoLeft;
+
+            if( threeLeft == 0 )
+            {
+                three = *threeIn; ++threeIn;
+                if( three == _rleMarker )
+                {
+                    three     = *threeIn; ++threeIn;
+                    threeLeft = *threeIn; ++threeIn;
+                }
+                else // single symbol
+                    threeLeft = 1;
+
+                //three <<= 16;
+            }
+            EQASSERT( threeLeft > 0 );
+            --threeLeft;
+
+#ifndef EQ_IGNORE_ALPHA
+            if( fourLeft == 0 )
+            {
+                four = *fourIn; ++fourIn;
+                if( four == _rleMarker )
+                {
+                    four     = *fourIn; ++fourIn;
+                    fourLeft = *fourIn; ++fourIn;
+                }
+                else // single symbol
+                    fourLeft = 1;
+
+                //four <<= 24;
+            }
+            EQASSERT( fourLeft > 0 );
+            --fourLeft;
+#endif
+
+            out[j] = one + (two<<8) + (three<<16) + (four<<24);
         }
-        EQASSERT( outPos == endPos );
+
+        EQASSERT( oneLeft == 0 );
+        EQASSERT( twoLeft == 0 );
+        EQASSERT( threeLeft == 0 );
+        EQASSERT( fourLeft == 0 );
     }
+    EQASSERTINFO( totalDone == static_cast< long >( size ),
+                  totalDone << " != " << size );
 
     outPixels.state = Pixels::VALID;
 }
@@ -811,7 +891,7 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     const uint32_t size = getPixelDataSize( buffer );
 
     EQASSERT( size > 0 );
-    EQASSERT( getDepth( buffer ) == 4 )     // may change with RGB format
+    EQASSERT( getDepth( buffer ) == RLE_DEPTH );   // may change with RGB format
 
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
     if( compressedPixels.valid )
@@ -821,25 +901,24 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     compressedPixels.data.type       = getType( buffer );
     compressedPixels.data.compressed = true;
 
-    const uint64_t* data     = 
-        reinterpret_cast<const uint64_t*>( getPixelPointer( buffer ));
-    const uint32_t  nWords   = (size%8) ? (size>>3)+1 : (size>>3);
+    const uint8_t* data   = getPixelPointer( buffer );
 
     // determine number of chunks and set up output data structure
 #ifdef EQ_USE_OPENMP
-    const ssize_t nChunks = base::OMP::getNThreads() * 4;
+    const ssize_t nChunks = RLE_DEPTH * base::OMP::getNThreads() * 4;
 #else
-    const ssize_t nChunks = 1;
+    const ssize_t nChunks = RLE_DEPTH;
 #endif
     const uint32_t maxChunkSize = (size/nChunks + 1) << 1;
 
-    for( ssize_t i = 0; i<nChunks; ++i )
+    for( ssize_t i = 0; i < nChunks; ++i )
     {
         EQASSERT( compressedPixels.data.chunks.size() ==
                   compressedPixels.chunkMaxSizes.size( ));
 
         if( compressedPixels.data.chunks.size() <= static_cast< size_t >( i ))
         {
+            EQINFO << "Malloc compressed pixels, size " << maxChunkSize << endl;
             Chunk* chunk = reinterpret_cast< Chunk* >( 
                                malloc( maxChunkSize + Chunk::headerSize ));
             compressedPixels.data.chunks.push_back( chunk );
@@ -852,97 +931,159 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
                 if( compressedPixels.data.chunks[i] )
                     free( compressedPixels.data.chunks[i] );
 
+                EQINFO << "Malloc compressed pixels, size " << maxChunkSize
+                       << endl;
                 compressedPixels.data.chunks[i] = reinterpret_cast< Chunk* >( 
                                     malloc( maxChunkSize + Chunk::headerSize ));
                 compressedPixels.chunkMaxSizes[i] = maxChunkSize;
             }
         }
-        compressedPixels.data.chunks[i]->size = 0;
+        compressedPixels.data.chunks[i]->size      = 0;
+        compressedPixels.data.chunks[i]->component = i % RLE_DEPTH;
     }
 
 
-    const float width = static_cast< float >( nWords ) /
+    const float width = static_cast< float >( size ) /
                         static_cast< float >( nChunks );
 
 #pragma omp parallel for
-    for ( ssize_t i = 0; i < nChunks; ++i )
+    for ( ssize_t i = 0; i < nChunks; i += RLE_DEPTH )
     {
-        const uint32_t startIndex = static_cast< uint32_t >( i * width );
-        const uint32_t endIndex   = static_cast< uint32_t >( (i+1) * width );
-        uint64_t*      out        = reinterpret_cast< uint64_t* >(
-                                        compressedPixels.data.chunks[i]->data );
+        const uint32_t startIndex = 
+            static_cast< uint32_t >(i/RLE_DEPTH * width) * RLE_DEPTH;
+        const uint32_t nextIndex  =
+            static_cast< uint32_t >((i/RLE_DEPTH + 1) * width) * RLE_DEPTH;
+        const uint32_t inSize     = (nextIndex - startIndex) / RLE_DEPTH;
+        EQASSERT( (nextIndex - startIndex) % RLE_DEPTH == 0 );
 
-        compressedPixels.data.chunks[i]->size =
-            _compressPixelData( &data[ startIndex ], endIndex-startIndex, out );
+        _compressPixelData( &data[ startIndex ], inSize, 
+                            &compressedPixels.data.chunks[i] );
 
-        EQVERB << "In chunk " << i << " size "
-               << (endIndex-startIndex) * sizeof( uint64_t ) << " @ " 
-               << (void*)&data[ startIndex ] << endl
-               << "Out chunk " << i << " size "
-               << compressedPixels.data.chunks[i]->size << " @ " << (void*)out
-               << endl;
+        EQVERB << "In chunk " << i << " size " << inSize << '[' << startIndex
+               << '-' << nextIndex << "] @ " << (void*)&data[ startIndex ]
+               << " out " << compressedPixels.data.chunks[i+0]->size << ", "
+               << compressedPixels.data.chunks[i+1]->size << ", "
+               << compressedPixels.data.chunks[i+2]->size << ", "
+               << compressedPixels.data.chunks[i+3]->size << endl;
     }
 
     compressedPixels.valid = true;
     return compressedPixels.data;
 }
 
-#define WRITE_OUTPUT                                                    \
+#define WRITE_OUTPUT( name )                                            \
     {                                                                   \
-        if( lastSymbol == _rleMarker )                                  \
+        if( last ## name == _rleMarker )                                \
         {                                                               \
-            out[ outPos++ ] = _rleMarker;                               \
-            out[ outPos++ ] = lastSymbol;                               \
-            out[ outPos++ ] = nSame;                                    \
+            *(out ## name) = _rleMarker; ++(out ## name);               \
+            *(out ## name) = last ## name; ++(out ## name);             \
+            *(out ## name) = same ## name; ++(out ## name);             \
         }                                                               \
         else                                                            \
-            switch( nSame )                                             \
+            switch( same ## name )                                      \
             {                                                           \
                 case 0:                                                 \
                     EQUNREACHABLE;                                      \
                     break;                                              \
                 case 3:                                                 \
-                    out[ outPos++ ] = lastSymbol; /* fall through */    \
+                    *(out ## name) = last ## name;                      \
+                    ++(out ## name);                                    \
+                    /* fall through */                                  \
                 case 2:                                                 \
-                    out[ outPos++ ] = lastSymbol; /* fall through */    \
+                    *(out ## name) = last ## name;                      \
+                    ++(out ## name);                                    \
+                    /* fall through */                                  \
                 case 1:                                                 \
-                    out[ outPos++ ] = lastSymbol;                       \
+                    *(out ## name) = last ## name;                      \
+                    ++(out ## name);                                    \
                     break;                                              \
+                                                                        \
                 default:                                                \
-                    out[ outPos++ ] = _rleMarker;                       \
-                    out[ outPos++ ] = lastSymbol;                       \
-                    out[ outPos++ ] = nSame;                            \
+                    *(out ## name) = _rleMarker;   ++(out ## name);     \
+                    *(out ## name) = last ## name; ++(out ## name);     \
+                    *(out ## name) = same ## name; ++(out ## name);     \
                     break;                                              \
             }                                                           \
-        EQASSERTINFO( nWords<<1 >= outPos,                             \
-                      "Overwrite array bounds during image compress" ); \
     }
 
-uint32_t Image::_compressPixelData( const uint64_t* data, const uint32_t nWords,
-                                    uint64_t* out )
+void Image::_compressPixelData( const uint8_t* input, const uint32_t nWords,
+                                Chunk* chunks[RLE_DEPTH] )
 {
-    out[ 0 ] = nWords;
-
-    uint32_t outPos     = 1;
-    uint32_t nSame      = 1;
-    uint64_t lastSymbol = data[0];
-
-    for( uint32_t i=1; i<nWords; ++i )
+    for( uint32_t i = 0; i < RLE_DEPTH; ++i )
     {
-        const uint64_t symbol = data[i];
+        EQASSERT( chunks[ i ]->component == i );
 
-        if( symbol == lastSymbol )
-            ++nSame;
+        uint32_t* u32Out = reinterpret_cast< uint32_t* >( chunks[i]->data );
+        u32Out[0]        = nWords;
+    }
+
+    uint8_t* outOne(   chunks[ 0 ]->data + 4 /* nWords 'header' */ ); 
+    uint8_t* outTwo(   chunks[ 1 ]->data + 4 /* nWords 'header' */ ); 
+    uint8_t* outThree( chunks[ 2 ]->data + 4 /* nWords 'header' */ ); 
+    uint8_t* outFour(  chunks[ 3 ]->data + 4 /* nWords 'header' */ ); 
+
+    uint8_t lastOne( input[0] ), lastTwo( input[1] ), lastThree( input[2] ),
+            lastFour( input[3] );
+    uint8_t sameOne( 1 ), sameTwo( 1 ), sameThree( 1 ), sameFour( 1 );
+    
+    const uint32_t* data   = reinterpret_cast< const uint32_t* >( input ) + 1;
+
+    for( uint32_t i = 1; i < nWords; ++i )
+    {
+        const uint8_t* word = reinterpret_cast< const uint8_t* >( data );
+        ++data;
+
+        const uint8_t one = word[0];
+        if( one == lastOne && sameOne != 255 )
+            ++sameOne;
         else
         {
-            WRITE_OUTPUT;
-            lastSymbol = symbol;
-            nSame      = 1;
+            WRITE_OUTPUT( One );
+            lastOne = one;
+            sameOne = 1;
         }
+        
+        const uint8_t two = word[1];
+        if( two == lastTwo && sameTwo != 255 )
+            ++sameTwo;
+        else
+        {
+            WRITE_OUTPUT( Two );
+            lastTwo = two;
+            sameTwo = 1;
+        }
+        
+        const uint8_t three = word[2];
+        if( three == lastThree && sameThree != 255 )
+            ++sameThree;
+        else
+        {
+            WRITE_OUTPUT( Three );
+            lastThree = three;
+            sameThree = 1;
+        }
+        
+#ifndef EQ_IGNORE_ALPHA
+        const uint8_t four = word[3];
+        if( four == lastFour && sameFour != 255 )
+            ++sameFour;
+        else
+        {
+            WRITE_OUTPUT( Four );
+            lastFour = four;
+            sameFour = 1;
+        }
+#endif
     }
 
-    WRITE_OUTPUT;
-    return (outPos<<3);
+    WRITE_OUTPUT( One );
+    WRITE_OUTPUT( Two );
+    WRITE_OUTPUT( Three )
+    WRITE_OUTPUT( Four );
+    chunks[0]->size = outOne   - chunks[0]->data;
+    chunks[1]->size = outTwo   - chunks[1]->data;
+    chunks[2]->size = outThree - chunks[2]->data;
+    chunks[3]->size = outFour  - chunks[3]->data;
 }
 
 //---------------------------------------------------------------------------
