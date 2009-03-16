@@ -860,7 +860,7 @@ void Channel::drawStatistics()
                         break;
 
                     case Statistic::WINDOW_FINISH:
-                        glColor3f( 1.0f-dim, .5f-dim, 0.f ); 
+                        glColor3f( 1.0f-dim, 1.0f-dim, 0.f ); 
                         break;
 
                     case Statistic::WINDOW_SWAP_BARRIER:
