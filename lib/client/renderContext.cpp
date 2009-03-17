@@ -17,8 +17,6 @@ RenderContext::RenderContext()
         , ortho( vmml::Frustumf::DEFAULT )
         , headTransform( vmml::Matrix4f::IDENTITY )
         , offset( vmml::Vector2i::ZERO )
-        , screenOrigin( vmml::Vector2i::ZERO )   
-        , screenSize( vmml::Vector2i::ZERO )
         , eye( EYE_CYCLOP )
 {
 }

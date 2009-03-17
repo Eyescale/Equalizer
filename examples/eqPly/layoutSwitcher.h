@@ -60,7 +60,7 @@ protected:
             
             _layout = *i;
             canvas->useLayout( _layout );
-            EQINFO << "Using layout " << (*i)->getID() << " on " 
+            EQINFO << "Using layout " << _layout->getName() << " on " 
                    << canvas->getID() << std::endl;
 
             return eq::TRAVERSE_TERMINATE; 

@@ -517,27 +517,17 @@ const vmml::Matrix4f& Channel::getHeadTransform() const
     return _currentContext->headTransform;
 }
 
-const vmml::Vector2i& Channel::getScreenOrigin() const
-{
-    return _currentContext->screenOrigin;
-}
-
-vmml::Vector2i Channel::getScreenSize() const
-{
-    return _currentContext->screenSize;
-}
-
 vmml::Frustumf Channel::getScreenFrustum() const
 {
-    vmml::Vector2i       origin = getScreenOrigin();
-    const PixelViewport& pvp    = getPixelViewport();
-    const Pixel&         pixel  = getPixel();
+    const Pixel& pixel = getPixel();
+    PixelViewport pvp( getPixelViewport( ));
+    const Viewport& vp( getViewport( ));
 
-    origin.x += pixel.x;
-    origin.y += pixel.y;
+    pvp.x = pvp.w / vp.w * vp.x;
+    pvp.y = pvp.h / vp.h * vp.y;
+    pvp *= pixel;
 
-    return vmml::Frustumf( origin.x, origin.x + pvp.w * pixel.w,
-                           origin.y, origin.y + pvp.h * pixel.h,
+    return vmml::Frustumf( pvp.x, pvp.getXEnd(), pvp.y, pvp.getYEnd(),
                            -1.f, 1.f );
 }
 

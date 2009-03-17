@@ -102,6 +102,9 @@ void Canvas::deregister()
 
 void Canvas::useLayout( Layout* layout )
 {
+    if( _layout == layout )
+        return;
+
     _layout = layout;
     setDirty( DIRTY_LAYOUT );
 }

@@ -178,7 +178,7 @@ namespace eq
         /** @return the orthographics frustum for the current rendering task. */
         const vmml::Frustumf& getOrtho() const;
 
-        /** @return the fractional viewport wrt the destination. */
+        /** @return the fractional viewport wrt the destination view. */
         const Viewport& getViewport() const;
 
         /** @return the database range for the current rendering task. */
@@ -205,22 +205,20 @@ namespace eq
         /** @return the list of output frames, used from frameReadback(). */
         const FrameVector& getOutputFrames() { return _outputFrames; }
 
-        /** @return the position of this channel wrt the 2D virtual screen. */
-        const vmml::Vector2i& getScreenOrigin() const;
-
-        /** @return the size of the 2D virtual screen. */
-        vmml::Vector2i getScreenSize() const;
-
         /** 
-         * @return the 2D orthographic frustum for the 2D virtual screen.
-         * @sa getScreenOrigin, getPixelViewport, getPixel
+         * Returns an orthographic frustum for 2D operations on the view.
+         *
+         * One unit of the frustum covers one pixel on screen. The frustum is
+         * positioned wrt to the view.
+         *
+         * @return the 2D orthographic frustum.
          */
         vmml::Frustumf getScreenFrustum() const;
         
         /** 
          * get the channel's native (drawable) pixel viewport.
          */
-        const eq::PixelViewport& getNativePixelViewPort() const
+        const PixelViewport& getNativePixelViewPort() const
             { return _nativeContext.pvp; }
 
         /** 
@@ -263,6 +261,14 @@ namespace eq
         virtual void applyOrtho() const;
 
         /** 
+         * Apply a orthographic frustum for pixel-based 2D operations. 
+         *
+         * One unit in the frustum corresponds to one pixel on the screen. The
+         * frustum is position wrt the canvas.
+         */
+        void applyScreenFrustum() const;
+
+        /** 
          * Apply the modelling transformation to position and orient the view
          * frustum.
          */
@@ -290,17 +296,6 @@ namespace eq
 
         /** Outlines the current pixel viewport. */
         virtual void outlineViewport();
-
-        //*{
-        /** 
-         * Apply a orthographic frustum for the 2D virtual screen. 
-         *
-         * One unit matches one 2D virtual screen pixel. The frustum is
-         * positioned this channel's virtual screen position. The z-range is
-         * [-1,1].
-         */
-        void applyScreenFrustum() const;
-        //*}
 
         /**
          * @name Attributes

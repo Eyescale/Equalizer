@@ -9,6 +9,7 @@
 #include "frame.h"
 #include "node.h"
 #include "pipe.h"
+#include "segment.h"
 #include "view.h"
 #include "window.h"
 
@@ -125,6 +126,10 @@ VisitorResult ChannelUpdateVisitor::visitPost(
 void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
                                                 eq::RenderContext& context )
 {
+    const Channel* destChannel = compound->getInheritChannel();
+    EQASSERT( destChannel );
+    const View* view = destChannel->getView();
+
     context.frameID       = _frameID;
     context.pvp           = compound->getInheritPixelViewport();
     context.vp            = compound->getInheritViewport();
@@ -133,17 +138,22 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.zoom          = compound->getInheritZoom();
     context.offset.x      = context.pvp.x;
     context.offset.y      = context.pvp.y;
-    context.screenOrigin  = context.offset + compound->getInheritScreenOrigin();
-    context.screenSize    = compound->getInheritScreenSize();
     context.eye           = _eye;
     context.buffer        = _getDrawBuffer();
     context.bufferMask    = _getDrawBufferMask( compound );
+    context.view          = view;
 
-    const Channel* destChannel = compound->getInheritChannel();
-    EQASSERT( destChannel );
+    if( view )
+    {
+        const Segment* segment = destChannel->getSegment();
 
-    const View* destView   = destChannel->getView();
-    context.view           = destView;
+        // part of view covered by segment
+        Viewport contribution( segment->getViewport( ));
+        contribution.intersect( view->getViewport( ));
+        contribution.transform( view->getViewport( ));
+
+        context.vp.apply( contribution );
+    }
 
     if( _channel != destChannel &&
         compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != eq::ON )

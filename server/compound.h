@@ -302,11 +302,6 @@ namespace server
         uint32_t getInheritEyes()            const { return _inherit.eyes; }
         const Channel* getInheritChannel()   const { return _inherit.channel; }
 
-        const vmml::Vector2i& getInheritScreenOrigin() const
-            { return _inherit.screen.origin; }
-        const vmml::Vector2i& getInheritScreenSize() const
-            { return getRoot()->_screens.find( _inherit.screen.id )->second; }
-
         /** @return true if the task is set, false if not. */
         bool testInheritTask( const eq::Task task ) const
             { return (_inherit.tasks & task); }
@@ -375,20 +370,6 @@ namespace server
          * @param eyes the compound eyes.
          */
         void enableEye( const uint32_t eyes ) { _data.eyes |= eyes; }
-
-        /** Set the screen identifier. */
-        void setScreen( const uint32_t id ) { _data.screen.id = id; }
-        
-        /** @return the screeen identifier. */
-        uint32_t getScreen() const { return _data.screen.id; }
-
-        /** Set the offset from the screen's origin. */
-        void setScreenOrigin( const vmml::Vector2i& origin ) 
-            { _data.screen.origin = origin; }
-
-        /** @return the offset from the screen's origin. */
-        const vmml::Vector2i& getScreenOrigin() const
-            { return _data.screen.origin; }
         //*}
 
         /** @name Compound Operations. */
@@ -484,14 +465,6 @@ namespace server
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
 
-        struct Screen
-        {
-            Screen() : id( 1 ), origin( eq::AUTO, eq::AUTO ) {}
-
-            uint32_t       id;
-            vmml::Vector2i origin;
-        };
-
         struct InheritData
         {
             InheritData();
@@ -502,7 +475,6 @@ namespace server
             eq::Range         range;
             eq::Pixel         pixel;
             FrustumData       frustumData;
-            Screen            screen;
             eq::Zoom          zoom;
             uint32_t          buffers;
             uint32_t          eyes;
@@ -534,9 +506,6 @@ namespace server
 
         FrameVector _inputFrames;
         FrameVector _outputFrames;
-
-        typedef stde::hash_map< uint32_t, vmml::Vector2i > ScreenMap;
-        ScreenMap _screens;
 
         union // placeholder for binary-compatible changes
         {

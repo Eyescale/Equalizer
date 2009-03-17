@@ -666,15 +666,8 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
     if( !_parent )
     {
-        _screens.clear();
-
         _inherit = _data;
         _inherit.zoom = eq::Zoom::NONE; // will be reapplied below
-
-        if( _inherit.screen.origin.x == eq::AUTO )
-            _inherit.screen.origin.x = 0;
-        if( _inherit.screen.origin.y == eq::AUTO )
-            _inherit.screen.origin.y = 0;
 
         if( _inherit.eyes == EYE_UNDEFINED )
             _inherit.eyes = EYE_CYCLOP_BIT;
@@ -712,10 +705,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit = _parent->_inherit;
 
         if( !_inherit.channel )
-        {
             _inherit.channel = _data.channel;
-            _inherit.screen  = _data.screen;
-        }
 
         if( _data.frustumData.isValid( ))
             _inherit.frustumData = _data.frustumData;
@@ -749,17 +739,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         {
             _inherit.pvp = _inherit.channel->getPixelViewport();
             _inherit.vp.apply( _data.vp );
-
-            if( _inherit.pvp.isValid( ))
-            {
-                // Auto-compute our screen origin offset
-                if( _inherit.screen.origin.x == eq::AUTO )
-                    _inherit.screen.origin.x = static_cast< int32_t >(
-                        _inherit.vp.x * (_inherit.pvp.w / _inherit.vp.w));
-                if( _inherit.screen.origin.y == eq::AUTO )
-                    _inherit.screen.origin.y = static_cast< int32_t >(
-                        _inherit.vp.y * (_inherit.pvp.h / _inherit.vp.h));
-            }
         }
 
         if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
@@ -780,21 +759,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
     if( _inherit.pvp.isValid( ))
     {
-        const uint32_t screenID = _inherit.screen.id;
-        Compound*      root     = getRoot();
-
-        if( root->_screens.find( screenID ) == root->_screens.end( )) // init
-        {
-            root->_screens[ screenID ].x = 0;
-            root->_screens[ screenID ].y = 0;
-        }
-
-        vmml::Vector2i& screenSize = root->_screens[ screenID ];
-        screenSize.x = EQ_MAX( screenSize.x,
-                            _inherit.screen.origin.x + _inherit.pvp.getXEnd( ));
-        screenSize.y = EQ_MAX( screenSize.y,
-                            _inherit.screen.origin.y + _inherit.pvp.getYEnd( ));
-
         _inherit.pvp.apply( _data.pixel );
 
         // Zoom
@@ -1000,26 +964,6 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
             break;
         default: 
             break;
-    }
-
-    const uint32_t        screen = compound->getScreen();
-    const vmml::Vector2i& origin = compound->getScreenOrigin();
-    if( screen != 1 || origin != vmml::Vector2i( eq::AUTO, eq::AUTO ))
-    {
-        os << "screen   [ " << screen << ' ';
-        if( origin.x == eq::AUTO )
-            os << "AUTO";
-        else
-            os << origin.x;
-
-        os << ' ';
-
-        if( origin.y == eq::AUTO )
-            os << "AUTO";
-        else
-            os << origin.y;
-
-        os << " ]" << endl;
     }
 
     const LoadBalancerVector& loadBalancers = compound->getLoadBalancers();

@@ -198,7 +198,6 @@
 %token EQTOKEN_SWAPBARRIER
 %token EQTOKEN_NVGROUP 
 %token EQTOKEN_NVBARRIER
-%token EQTOKEN_SCREEN
 %token EQTOKEN_OUTPUTFRAME
 %token EQTOKEN_INPUTFRAME
 %token EQTOKEN_STEREO_MODE
@@ -742,7 +741,6 @@ compoundField:
         { eqCompound->setPixel( eq::Pixel( $3, $4, $5, $6 )); }
     | wall { eqCompound->setWall( wall ); }
     | projection { eqCompound->setProjection( projection ); }
-    | screen
     | loadBalancer
     | swapBarrier
     | outputFrame
@@ -845,12 +843,6 @@ projectionField:
         { projection.fov = vmml::Vector2f( $3, $4 ); }
     | EQTOKEN_HPR  '[' FLOAT FLOAT FLOAT ']'
         { projection.hpr = vmml::Vector3f( $3, $4, $5 ); }
-
-screen: EQTOKEN_SCREEN '[' UNSIGNED IATTR IATTR ']'
-    { 
-        eqCompound->setScreen( $3 ); 
-        eqCompound->setScreenOrigin( vmml::Vector2i( $4, $5 ));
-    }
 
 loadBalancer: EQTOKEN_LOADBALANCER 
     '{' { EQASSERT( !loadBalancer ); loadBalancer = new eq::server::LoadBalancer(); }
