@@ -23,7 +23,7 @@ namespace server
     /**
      * The layout. @sa eq::Layout
      */
-    class Layout : public eq::Layout
+    class Layout : public eq::Object
     {
     public:
         /** 

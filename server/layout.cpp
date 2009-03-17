@@ -22,7 +22,8 @@ Layout::Layout()
 {}
 
 Layout::Layout( const Layout& from, Config* config )
-        : _config( 0 )
+        : Object( from )
+        , _config( 0 )
 {
     for( ViewVector::const_iterator i = from._views.begin();
          i != from._views.end(); ++i )
