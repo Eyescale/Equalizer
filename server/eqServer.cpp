@@ -39,7 +39,7 @@ int main( const int argc, char** argv )
     }
 
     Loader::addOutputCompounds( server );
-    Loader::addDestinationViews( server );
+//    Loader::addDestinationViews( server );
 
     if( !server->initLocal( argc, argv ))
     {

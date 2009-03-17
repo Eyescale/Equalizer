@@ -83,7 +83,7 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
     }
 
     Loader::addOutputCompounds( server );
-    Loader::addDestinationViews( server );
+//    Loader::addDestinationViews( server );
 
     // Do not use RefPtr for easier handling
     eq::net::PairConnection* connection = new eq::net::PairConnection( 
