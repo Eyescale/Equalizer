@@ -29,7 +29,7 @@ int main( int argc, char **argv )
     uint32_t size;
 
     // Touch memory once
-    TEST( image.readImage( "../compositor/Image_1_color.rgb",
+    TEST( image.readImage( "noise.rgb",
                            Frame::BUFFER_COLOR ));
     destImage.setPixelViewport( image.getPixelViewport( ));
     destImage.setPixelData( Frame::BUFFER_COLOR,     
@@ -185,3 +185,4 @@ int main( int argc, char **argv )
                   << " at " << i );
 #endif
 }
+
