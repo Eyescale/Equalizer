@@ -115,6 +115,9 @@ public:
             if( channel && channel->getView( ))
                 return TRAVERSE_PRUNE;
 
+            if( !_canvas && compound->getFrustumType() == Frustum::TYPE_NONE )
+                return TRAVERSE_CONTINUE;
+
             Layout* layout;
 
             if( !_canvas )
