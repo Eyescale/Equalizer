@@ -175,7 +175,7 @@ void WGLPipe::_configInitWGLEW()
                                   
     HINSTANCE instance = GetModuleHandle( 0 );
     WNDCLASS  wc       = { 0 };
-    wc.lpfnWndProc   = WGLEventHandler::wndProc;    
+    wc.lpfnWndProc   = DefWindowProc;
     wc.hInstance     = instance; 
     wc.hIcon         = LoadIcon( 0, IDI_WINLOGO );
     wc.hCursor       = LoadCursor( 0, IDC_ARROW );
