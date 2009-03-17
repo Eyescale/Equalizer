@@ -29,9 +29,15 @@ namespace eq
         /** Destructs the wgl event handler. */
         virtual ~WGLEventHandler();
 
-        static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
+        static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                                          LPARAM lParam );
-        
+
+        /** 
+         * @return the function pointer of the previously installed window
+         *         event handler function.
+         */
+        WNDPROC getPreviousWndProc() { return _prevWndProc; }
+
     private:
         WGLWindowIF* _window;
         HWND         _hWnd;

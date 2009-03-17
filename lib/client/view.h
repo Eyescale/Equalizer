@@ -91,6 +91,9 @@ namespace server
             DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4,
         };
 
+        /** @return the initial frustum value of this view. */
+        const Frustum& getBaseFrustum() const { return _baseFrustum; }
+
     private:
         /** Parent layout (application-side). */
         Layout* _layout;
