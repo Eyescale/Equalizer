@@ -797,10 +797,12 @@ void Config::_syncClock()
     eq::ConfigSyncClockPacket packet;
     packet.time = _clock.getTime64();
 
+    send( _appNetNode, packet );
+
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( _appNode == node || node->isActive( ))
+        if( node->isActive( ))
         {
             net::NodePtr netNode = node->getNode();
             EQASSERT( netNode->isConnected( ));
