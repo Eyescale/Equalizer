@@ -1,0 +1,123 @@
+# 2-window test config with layouts
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 100 100 480 300 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ 580 100 480 300 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+        }
+        layout
+        {
+            name "Simple"
+            view {}
+        }
+
+        layout
+        {
+            name "2x1"
+            view
+            {
+                viewport [ 0 0 .5 1 ]
+                wall
+                {
+                    bottom_left  [ -.32 -.40 -.75 ]
+                    bottom_right [  .32 -.40 -.75 ]
+                    top_left     [ -.32  .40 -.75 ]
+                }
+            }
+            view
+            {
+                viewport [ .5 0 .5 1 ]
+                wall
+                {
+                    bottom_left  [ -.32 -.40 -.75 ]
+                    bottom_right [  .32 -.40 -.75 ]
+                    top_left     [ -.32  .40 -.75 ]
+                }
+            }
+        }
+        layout
+        {
+            name "3x1"
+            view
+            {
+                viewport [ 0 0 .3333 1 ]
+                wall
+                {
+                    bottom_left  [ -.21 -.40 -.75 ]
+                    bottom_right [  .21 -.40 -.75 ]
+                    top_left     [ -.21  .40 -.75 ]
+                }
+            }
+            view
+            {
+                viewport [ .3333 0 .3334 1 ]
+                wall
+                {
+                    bottom_left  [ -.21 -.40 -.75 ]
+                    bottom_right [  .21 -.40 -.75 ]
+                    top_left     [ -.21  .40 -.75 ]
+                }
+            }
+            view
+            {
+                viewport [ .6667 0 .3333 1 ]
+                wall
+                {
+                    bottom_left  [ -.21 -.40 -.75 ]
+                    bottom_right [  .21 -.40 -.75 ]
+                    top_left     [ -.21  .40 -.75 ]
+                }
+            }
+        }
+        layout
+        {
+            name "2x2"
+            view { viewport [ 0  0  .5 .5 ] wall {} }
+            view { viewport [ 0  .5 .5 .5 ] wall {} }
+            view { viewport [ .5 0  .5 .5 ] wall {} }
+            view { viewport [ .5 .5 .5 .5 ] wall {} }
+        }
+
+        canvas
+        {
+            layout "3x1"
+            wall
+            {
+                bottom_left  [ -.64 -.2 -1 ]
+                bottom_right [  .64 -.2 -1 ]
+                top_left     [ -.64  .2 -1 ]
+            }
+
+            segment
+            {
+                channel "channel1"
+                viewport [ 0 0 .5 1 ]
+            }
+            segment
+            {
+                channel "channel2"
+                viewport [ .5 0 .5 1 ]
+            }
+        }
+    }    
+}
