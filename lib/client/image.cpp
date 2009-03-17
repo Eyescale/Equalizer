@@ -1132,18 +1132,18 @@ struct RGBHeader
 {
     RGBHeader()
         : compression(0),
-          bytesPerChannel(1),
-          nDimensions(3),
           width(0),
           height(0),
           depth(0),
           minValue(0),
-          maxValue(255),
           colorMode(0)
         {
             memset( this, 0, sizeof( RGBHeader ));
-            filename[0] = '\0';
-            magic = 474;
+            filename[0]     = '\0';
+            magic           = 474;
+            bytesPerChannel = 1;
+            nDimensions     = 3;
+            maxValue        = 255;
         }
 
         /**
