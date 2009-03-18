@@ -995,7 +995,7 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     }
 
 void Image::_compressPixelData( const uint8_t* input, const uint32_t nWords,
-                                Chunk* chunks[RLE_DEPTH] )
+                                Chunk** chunks )
 {
     for( uint32_t i = 0; i < RLE_DEPTH; ++i )
     {

@@ -332,7 +332,7 @@ namespace eq
                                                       buffer ) const;
         Texture& _getTexture( const Frame::Buffer buffer );
         void _compressPixelData( const uint8_t* data, const uint32_t size,
-                                 PixelData::Chunk* chunks[4] );
+                                 PixelData::Chunk** chunks );
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;
