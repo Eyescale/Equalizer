@@ -617,19 +617,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 
     if( buffer == Frame::BUFFER_DEPTH )
     {
-#ifdef LEOPARD
-        void*       data = pixels.data.chunks[0]->data;
-        const float one  = 1.0f;
-        memset_pattern4( data, &one, size );
-#else
-        EQASSERT( (size % 4) == 0 );
-        const size_t nWords = (size >> 2);
-        float*       data   = reinterpret_cast< float* >(
-                                  pixels.data.chunks[0]->data );
-        for( size_t i =0; i < nWords; ++i )
-            data[i] = 1.0f;
-#endif
-
+        memset( pixels.data.chunks[0]->data, 0xFF, size );
     }
     else
     {
@@ -1305,7 +1293,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     {
         case Frame::BUFFER_DEPTH:
             setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
-            setType(   Frame::BUFFER_DEPTH, GL_FLOAT );
+            setType(   Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
             break;
 
         default:
@@ -1348,7 +1336,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     {
         EQASSERT( buffer == Frame::BUFFER_DEPTH );
         pixels.data.format = GL_DEPTH_COMPONENT;
-        pixels.data.type   = GL_FLOAT;
+        pixels.data.type   = GL_UNSIGNED_INT;
     }
 
     setPixelData( buffer, pixels.data );

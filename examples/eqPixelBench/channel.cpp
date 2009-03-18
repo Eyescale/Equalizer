@@ -257,7 +257,7 @@ void Channel::_testTiledOperations()
             eq::Image* image = images[ j ];
             image->setPBO( false );
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
-            image->setType(   eq::Frame::BUFFER_COLOR, GL_FLOAT );
+            image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_INT );
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
 
             clock.reset();
@@ -271,7 +271,8 @@ void Channel::_testTiledOperations()
 
         if( tiles == NUM_IMAGES-1 )
             for( unsigned j = 0; j <= tiles; ++j )
-                _saveImage( images[j],"GL_DEPTH_COMPONENT","GL_FLOAT","tiles" );
+                _saveImage( images[j],
+                            "GL_DEPTH_COMPONENT","GL_UNSIGNED_INT","tiles" );
 
 
         event.data.type = ConfigEvent::READBACK_PBO;
@@ -281,7 +282,7 @@ void Channel::_testTiledOperations()
             eq::Image* image = images[ j ];
             image->setPBO( true );
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
-            image->setType(   eq::Frame::BUFFER_COLOR, GL_FLOAT );
+            image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_INT );
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
         }
         clock.reset();
@@ -300,7 +301,8 @@ void Channel::_testTiledOperations()
 
         if( tiles == NUM_IMAGES-1 )
             for( unsigned j = 0; j <= tiles; ++j )
-              _saveImage(images[j],"GL_DEPTH_COMPONENT","GL_FLOAT","tiles_PBO");
+              _saveImage(images[j],
+                            "GL_DEPTH_COMPONENT","GL_UNSIGNED_INT","tiles_PBO");
 
 
         //---- readback of 'tiles' color images
@@ -431,7 +433,7 @@ void Channel::_testDepthAssemble()
         image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
         image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
         image->setFormat( eq::Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
-        image->setType(   eq::Frame::BUFFER_DEPTH, GL_FLOAT );
+        image->setType(   eq::Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
         image->clearPixelData( eq::Frame::BUFFER_COLOR );
         image->clearPixelData( eq::Frame::BUFFER_DEPTH );
 
@@ -512,6 +514,41 @@ void Channel::_draw( const uint32_t spin )
     glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
     glEnable( GL_DEPTH_TEST );
 
+#ifdef _0
+    setNearFar( 0.5f, 5.0f );
+    const GLfloat lightPosition[]    = {5.0f, 0.0f, 5.0f, 0.0f};
+    const GLfloat lightDiffuse[]     = {0.8f, 0.8f, 0.8f, 1.0f};
+
+    const GLfloat materialDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
+
+    glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
+    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
+
+    glMaterialfv( GL_FRONT, GL_DIFFUSE,   materialDiffuse );
+
+    vmml::Matrix4f rotation;
+    vmml::Vector3f translation;
+
+    translation   = vmml::Vector3f::ZERO;
+    translation.z = -2.f;
+    rotation = vmml::Matrix4f::IDENTITY;
+    rotation.rotateX( static_cast<float>( -M_PI_2 ));
+    rotation.rotateY( static_cast<float>( -M_PI_2 ));
+
+    glTranslatef( translation.x, translation.y, translation.z );
+    glMultMatrixf( rotation.ml );
+
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    glColor3f( 1.f, 1.f, 0.f );
+    glNormal3f( 1.f, -1.f, 0.f );
+    glBegin( GL_TRIANGLE_STRIP );
+        glVertex3f(  1.f, 10.f,  2.5f );
+        glVertex3f( -1.f, 10.f,  2.5f );
+        glVertex3f(  1.f,-10.f, -2.5f );
+        glVertex3f( -1.f,-10.f, -2.5f );
+    glEnd();
+
+#else
 
     const float lightPos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
     glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
@@ -582,6 +619,8 @@ void Channel::_draw( const uint32_t spin )
     glVertex3f( -1.0f,  .7f, -.7f );
     glVertex3f( -1.0f, -.7f, -.7f );
     glEnd();
+
+#endif
 
     glPopAttrib( );
 }

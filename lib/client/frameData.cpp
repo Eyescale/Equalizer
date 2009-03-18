@@ -142,7 +142,7 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
             image->setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
         }
         image->setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
-        image->setType(   Frame::BUFFER_DEPTH, GL_FLOAT );
+        image->setType(   Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
     }
     else
     {
