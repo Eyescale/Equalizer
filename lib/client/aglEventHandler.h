@@ -6,6 +6,7 @@
 #define EQ_AGLEVENTHANDLER_H
 
 #include <eq/client/eventHandler.h> // base class
+#include <eq/client/windowSystem.h> // AGL-specific types
 
 namespace eq
 {

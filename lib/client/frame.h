@@ -5,7 +5,7 @@
 #ifndef EQ_FRAME_H
 #define EQ_FRAME_H
 
-#include <eq/client/eye.h>    // member enum
+#include <eq/client/eye.h>    // enum Eye
 #include <eq/client/window.h> // nested ObjectManager type
 #include <eq/client/zoom.h>   // member
 
@@ -26,7 +26,6 @@ namespace server
     class Pipe;
     class Pixel;
     class Range;
-    class Zoom;
 
     /**
      * A holder for a frame data and parameters.

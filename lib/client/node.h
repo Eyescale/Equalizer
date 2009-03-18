@@ -5,7 +5,6 @@
 #ifndef EQ_NODE_H
 #define EQ_NODE_H
 
-#include <eq/client/commandQueue.h>   // member
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 
@@ -15,6 +14,7 @@
 
 namespace eq
 {
+    class CommandQueue;
     class FrameData;
     class NodeVisitor;
 

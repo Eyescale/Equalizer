@@ -8,6 +8,8 @@
 #include "glXEventHandler.h"
 #include "global.h"
 #include "log.h"
+#include "pipe.h"
+
 #include <sstream>
 
 using namespace eq::base;

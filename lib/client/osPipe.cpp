@@ -4,6 +4,8 @@
 
 #include "osPipe.h"
 
+#include <eq/base/debug.h>
+
 namespace eq
 {
 

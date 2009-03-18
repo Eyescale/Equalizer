@@ -1,19 +1,19 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CLIENT_H
 #define EQ_CLIENT_H
 
-#include <eq/client/commandQueue.h> // member
-#include <eq/client/nodeType.h>     // for TYPE_EQ_CLIENT enum
 #include <eq/client/types.h>        // basic types
+#include <eq/client/windowSystem.h> // WindowSystem enum
 
 #include <eq/net/command.h>         // member
 #include <eq/net/node.h>            // base class
 
 namespace eq
 {
+    class CommandQueue;
     class Server;
 
     /** 

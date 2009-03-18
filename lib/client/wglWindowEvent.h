@@ -1,12 +1,12 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WGLWINDOWEVENT_H
 #define EQ_WGLWINDOWEVENT_H
 
-#include <eq/client/event.h>
-#include <eq/client/windowSystem.h>
+#include <eq/client/event.h>        // base class
+#include <eq/client/windowSystem.h> // windows.h
 
 namespace eq
 {

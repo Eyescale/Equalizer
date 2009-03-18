@@ -5,9 +5,7 @@
 #ifndef EQ_EVENTHANDLER_H
 #define EQ_EVENTHANDLER_H
 
-#include <eq/client/event.h>
-#include <eq/client/windowSystem.h>
-
+#include <eq/client/event.h>         // member
 #include <eq/base/hash.h>
 
 namespace eq

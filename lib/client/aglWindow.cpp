@@ -9,6 +9,7 @@
 #include "aglPipe.h"
 #include "aglWindowEvent.h"
 #include "global.h"
+#include "pipe.h"
 #include "window.h"
 
 namespace eq

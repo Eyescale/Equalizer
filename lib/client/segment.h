@@ -7,6 +7,7 @@
 
 #include <eq/client/frustum.h>        // base class
 #include <eq/client/types.h>
+#include <eq/client/viewport.h>       // member
 #include <eq/client/visitorResult.h>  // enum
 
 namespace eq

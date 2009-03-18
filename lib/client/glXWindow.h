@@ -6,8 +6,8 @@
 #ifndef EQ_OS_WINDOW_GLX_H
 #define EQ_OS_WINDOW_GLX_H
 
-#include <eq/client/osWindow.h>
-#include <eq/client/glXWindowEvent.h>
+#include <eq/client/osWindow.h>       // base class
+#include <eq/client/glXWindowEvent.h> // used in inline method
 
 namespace eq
 {

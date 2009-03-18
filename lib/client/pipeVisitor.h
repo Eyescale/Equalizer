@@ -5,7 +5,7 @@
 #ifndef EQ_PIPEVISITOR_H
 #define EQ_PIPEVISITOR_H
 
-#include <eq/client/windowVisitor.h>
+#include <eq/client/windowVisitor.h> // base class
 
 namespace eq
 {

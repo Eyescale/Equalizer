@@ -6,7 +6,7 @@
 #ifndef EQ_OS_PIPE_WGL_H
 #define EQ_OS_PIPE_WGL_H
 
-#include <eq/client/osPipe.h>
+#include <eq/client/osPipe.h> // base class
 
 namespace eq
 {

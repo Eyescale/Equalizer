@@ -4,6 +4,7 @@
 
 #include "client.h"
 
+#include "commandQueue.h"
 #include "commands.h"
 #include "global.h"
 #include "init.h"

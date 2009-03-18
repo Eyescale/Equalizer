@@ -18,7 +18,6 @@ namespace eq
     class OSWindow;
     class WindowVisitor;
     struct Event;
-    struct RenderContext;
 
     /**
      * A Window represents an on-screen or off-screen drawable, and manages an

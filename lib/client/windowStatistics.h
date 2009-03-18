@@ -5,7 +5,7 @@
 #ifndef EQ_WINDOWSTATISTICS_H
 #define EQ_WINDOWSTATISTICS_H
 
-#include <eq/client/event.h>
+#include <eq/client/event.h> // member
 
 namespace eq
 {

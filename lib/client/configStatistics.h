@@ -1,12 +1,11 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CONFIGSTATISTICS_H
 #define EQ_CONFIGSTATISTICS_H
 
 #include <eq/client/configEvent.h> // member
-#include <eq/client/event.h>
 
 namespace eq
 {

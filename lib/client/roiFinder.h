@@ -4,11 +4,13 @@
 #ifndef EQ_ROI_FINDER_H
 #define EQ_ROI_FINDER_H
 
+#include "roiEmptySpaceFinder.h"
+
+#include <eq/client/image.h>   // member
+
 #include <vector>
 #include <string>
 
-#include <eq/client/image.h>
-#include "roiEmptySpaceFinder.h"
 
 namespace eq
 {

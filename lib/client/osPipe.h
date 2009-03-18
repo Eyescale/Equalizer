@@ -6,11 +6,15 @@
 #ifndef EQ_OS_PIPE_H
 #define EQ_OS_PIPE_H
 
-#include "pipe.h"
+#include <eq/client/windowSystem.h> // GLEW
 
+#include <eq/base/base.h>
+#include <string>
 
 namespace eq
 {
+    class Pipe;
+
     /**
      * The interface definition for OS-specific pipe code.
      *

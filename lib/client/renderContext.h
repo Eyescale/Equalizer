@@ -5,12 +5,12 @@
 #ifndef EQ_RENDERCONTEXT_H
 #define EQ_RENDERCONTEXT_H
 
-#include <eq/client/colorMask.h>
-#include <eq/client/eye.h>
-#include <eq/client/pixel.h>
-#include <eq/client/pixelViewport.h>
-#include <eq/client/range.h>
-#include <eq/client/zoom.h>
+#include <eq/client/colorMask.h>        // member
+#include <eq/client/eye.h>              // member
+#include <eq/client/pixel.h>            // member
+#include <eq/client/pixelViewport.h>    // member
+#include <eq/client/range.h>            // member
+#include <eq/client/zoom.h>             // member
 
 #include <eq/net/objectVersion.h>
 #include <eq/base/base.h>

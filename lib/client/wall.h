@@ -6,13 +6,14 @@
 #define EQ_WALL_H
 
 #include <eq/base/base.h>
+
 #include <vmmlib/vmmlib.h>  // member
-#include "viewport.h"
 #include <iostream>
 
 namespace eq
 {
     class Projection;
+    class Viewport;
 
     /**
      * A wall defining a view frustum.

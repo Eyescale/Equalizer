@@ -5,7 +5,7 @@
 #ifndef EQ_NODEVISITOR_H
 #define EQ_NODEVISITOR_H
 
-#include <eq/client/pipeVisitor.h>
+#include <eq/client/pipeVisitor.h> // base class
 
 namespace eq
 {

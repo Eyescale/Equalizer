@@ -4,8 +4,10 @@
    All rights reserved. */
 
 #include "glXWindow.h"
+
 #include "global.h"
 #include "glXPipe.h"
+#include "pipe.h"
 
 namespace eq
 {

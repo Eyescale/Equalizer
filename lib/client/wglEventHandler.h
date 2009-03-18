@@ -5,9 +5,7 @@
 #ifndef EQ_WGLEVENTHANDLER_H
 #define EQ_WGLEVENTHANDLER_H
 
-#include <eq/client/eventHandler.h>
-
-#include <eq/client/event.h>
+#include <eq/client/eventHandler.h> // base class
 
 namespace eq
 {

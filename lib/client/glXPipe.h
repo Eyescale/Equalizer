@@ -6,8 +6,7 @@
 #ifndef EQ_OS_PIPE_GLX_H
 #define EQ_OS_PIPE_GLX_H
 
-#include "osPipe.h"
-#include "glXWindowEvent.h"
+#include <eq/client/osPipe.h> // base class
 
 namespace eq
 {

@@ -12,7 +12,6 @@
 #endif
 #include <eq/base/monitor.h>
 
-#include <eq/client/commandQueue.h>   // member
 #include <eq/client/eye.h>            // Eye enum
 #include <eq/client/pixelViewport.h>  // member
 #include <eq/client/types.h>
@@ -28,6 +27,7 @@
 
 namespace eq
 {
+    class CommandQueue;
     class OSPipe;
     class PipeVisitor;
 

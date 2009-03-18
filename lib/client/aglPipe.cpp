@@ -4,7 +4,10 @@
    All rights reserved. */
 
 #include "aglPipe.h"
+
 #include "global.h"
+#include "pipe.h"
+
 #include <sstream>
 
 using namespace std;

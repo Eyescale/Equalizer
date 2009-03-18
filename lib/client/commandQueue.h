@@ -1,16 +1,17 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_COMMANDQUEUE_H
 #define EQ_COMMANDQUEUE_H
 
 #include <eq/net/commandQueue.h>    // base class
-#include <eq/client/messagePump.h>  // member
 #include <eq/client/windowSystem.h> // enum
 
 namespace eq
 {
+    class MessagePump;
+
     /**
      * Augments an net::CommandQueue to pump system-specific events where
      * required by the underlying window/operating system.

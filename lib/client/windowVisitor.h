@@ -5,7 +5,7 @@
 #ifndef EQ_WINDOWVISITOR_H
 #define EQ_WINDOWVISITOR_H
 
-#include <eq/client/channelVisitor.h>
+#include <eq/client/channelVisitor.h> // base class
 
 namespace eq
 {

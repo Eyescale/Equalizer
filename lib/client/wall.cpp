@@ -3,7 +3,10 @@
    All rights reserved. */
 
 #include "wall.h"
+
 #include "projection.h"
+#include "viewport.h"
+
 #include <eq/base/log.h>
 
 using namespace eq::base;

@@ -5,7 +5,7 @@
 #ifndef EQ_CONFIGDESERIALIZER_H
 #define EQ_CONFIGDESERIALIZER_H
 
-#include <eq/net/object.h>
+#include <eq/net/object.h> // base class
 
 namespace eq
 {

@@ -6,7 +6,6 @@
 #define EQ_TYPES_H
 
 #include <eq/base/refPtr.h>
-#include <eq/client/pixelViewport.h>
 
 #include <map>
 #include <vector>
@@ -23,6 +22,7 @@ class Image;
 class Layout;
 class Node;
 class Pipe;
+class PixelViewport;
 class Segment;
 class Server;
 class Texture;

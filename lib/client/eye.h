@@ -5,7 +5,7 @@
 #ifndef EQ_EYE_H
 #define EQ_EYE_H
 
-#include <eq/base/debug.h>   // for EQUNREACHABLE
+#include <eq/base/debug.h>   // for EQABORT
 #include <iostream>
 
 namespace eq
