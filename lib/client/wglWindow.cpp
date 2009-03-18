@@ -24,7 +24,7 @@ WGLWindow::WGLWindow( Window* parent )
     , _wglDC( 0 )
     , _wglDCType( WGL_DC_NONE )
     , _wglAffinityDC( 0 )
-    , _eventHandler( 0 )
+    , _wglEventHandler( 0 )
 {
     
 }
@@ -718,14 +718,14 @@ HGLRC WGLWindow::createWGLContext()
 
 void WGLWindow::initEventHandler()
 {
-    EQASSERT( !_eventHandler );
-    _eventHandler = new WGLEventHandler( this );
+    EQASSERT( !_wglEventHandler );
+    _wglEventHandler = new WGLEventHandler( this );
 }
 
 void WGLWindow::exitEventHandler()
 {
-    delete _eventHandler;
-    _eventHandler = 0;
+    delete _wglEventHandler;
+    _wglEventHandler = 0;
 }
 
 bool WGLWindow::processEvent( const WGLWindowEvent& event )

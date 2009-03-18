@@ -61,6 +61,10 @@ namespace eq
         /** @return the WGL rendering context. */
         virtual HGLRC getWGLContext() const { return _wglContext; }
 
+        /** @return the WGL event handler. */
+        const WGLEventHandler* getWGLEventHandler() const 
+            { return _wglEventHandler; }
+
         /** @name Data Access */
         //*{
         /** 
@@ -225,7 +229,7 @@ namespace eq
         WGLDCType        _wglDCType;
         HDC              _wglAffinityDC;
 
-        WGLEventHandler* _eventHandler;
+        WGLEventHandler* _wglEventHandler;
         BOOL             _screenSaverActive;
 
         union // placeholder for binary-compatible changes
