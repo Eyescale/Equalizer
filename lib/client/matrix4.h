@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch> 
-   Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+   Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_MATRIX4_H
@@ -22,12 +22,15 @@ namespace eq
         virtual ~Matrix4(){}
 
         Matrix4& operator= ( const Matrix4<T>& matrix )
-            { vmml::Matrix4<T>::operator= (matrix); return *this; }
+            { vmml::Matrix4<T>::operator= (matrix); _dirty=true; return *this; }
         Matrix4& operator= ( const vmml::Matrix4<T>& matrix )
-            { vmml::Matrix4<T>::operator= (matrix); return *this; }
+            { vmml::Matrix4<T>::operator= (matrix); _dirty=true; return *this; }
 
     protected:
+        bool _dirty;
+
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
+        virtual bool isDirty() const { return _dirty; }
         virtual void getInstanceData( net::DataOStream& os );
         virtual void applyInstanceData( net::DataIStream& is );
     };
@@ -49,6 +52,7 @@ namespace eq
 
     template< class T >
     Matrix4<T>::Matrix4() 
+            : _dirty( false )
     {
         vmml::Matrix4<T>::operator= ( vmml::Matrix4<T>::IDENTITY );
     }
@@ -56,12 +60,14 @@ namespace eq
     template< class T >
     Matrix4<T>::Matrix4( const vmml::Matrix4<T>& matrix )
             : vmml::Matrix4<T>( matrix )
+            , _dirty( false )
     {}
 
     template< class T >
     void Matrix4<T>::getInstanceData( net::DataOStream& os )
     {
         os.writeOnce( &(this->ml), sizeof( this->ml )); 
+        _dirty = false;
     }
 
     template< class T >

@@ -283,6 +283,7 @@ namespace eq
 
         /** The matrix describing the head position and orientation. */
         Matrix4f _headMatrix;
+        friend class ConfigCommitVisitor;
 
         /** The reason for the last error. */
         std::string _error;

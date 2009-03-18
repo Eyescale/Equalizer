@@ -381,6 +381,7 @@ namespace server
 
         /** The matrix defining the head's position for head tracking. */
         eq::Matrix4f _headMatrix;
+        friend class ConfigSyncVisitor;
 
         /** The eye positions in world space. */ 
         vmml::Vector3f _eyes[eq::EYE_ALL];
@@ -422,7 +423,6 @@ namespace server
         bool _init( const uint32_t initID );
 
         bool _startFrame( const uint32_t frameID );
-        void   _updateHead();
         void   _updateEyes();
         void _flushAllFrames();
         //*}

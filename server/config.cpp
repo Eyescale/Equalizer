@@ -957,17 +957,6 @@ void Config::unmap()
     _requestHandler.waitRequest( packet.requestID );
 }
 
-void Config::_updateHead()
-{
-    const uint32_t oldVersion = _headMatrix.getVersion();
-    const uint32_t newVersion = _headMatrix.sync();
-
-    if( oldVersion == newVersion )
-        return;
-
-    _updateEyes();
-}
-
 void Config::_updateEyes()
 {
     const float eyeBase_2 = .5f * getFAttribute( FATTR_EYE_BASE );
@@ -1128,8 +1117,6 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
     const eq::ConfigStartFramePacket* packet = 
         command.getPacket<eq::ConfigStartFramePacket>();
     EQVERB << "handle config frame start " << packet << endl;
-
-    _updateHead(); // TODO move
 
     if( packet->nChanges > 0 )
     {

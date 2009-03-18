@@ -20,6 +20,17 @@ namespace server
                 : _nChanges( nChanges ), _changes( changes ), _current( 0 ) {}
         virtual ~ConfigSyncVisitor() {}
 
+    virtual VisitorResult visitPre( Config* config )
+        {
+            const uint32_t  oldVersion = config->_headMatrix.getVersion();
+            const VisitorResult result = _sync( &config->_headMatrix );
+            const uint32_t  newVersion = config->_headMatrix.getVersion();
+
+            if( oldVersion != newVersion )
+                config->_updateEyes();
+
+            return result;
+        }
     virtual VisitorResult visitPre( Canvas* canvas )
         {
             return _sync( canvas );

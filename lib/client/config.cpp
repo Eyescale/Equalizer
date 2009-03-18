@@ -610,7 +610,6 @@ void Config::setWindowSystem( const WindowSystem windowSystem )
 void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
 {
     _headMatrix = matrix;
-    _headMatrix.commit();
 }
 
 void Config::freezeLoadBalancing( const bool onOff )

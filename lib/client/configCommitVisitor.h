@@ -18,6 +18,11 @@ namespace eq
         ConfigCommitVisitor() : _needFinish( false ) {}
         virtual ~ConfigCommitVisitor() {}
 
+        virtual VisitorResult visitPre( Config* config )
+            { 
+                _commit( &config->_headMatrix );
+                return TRAVERSE_CONTINUE; 
+            }
         virtual VisitorResult visitPre( Canvas* canvas )
             {
                 if( canvas->getDirty() & Canvas::DIRTY_LAYOUT )
