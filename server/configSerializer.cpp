@@ -66,7 +66,8 @@ private:
 
 void ConfigSerializer::getInstanceData( net::DataOStream& os )
 {
-    os << _config->getLatency();
+    os << _config->getLatency() 
+       << _config->getFAttribute( Config::FATTR_EYE_BASE );
 
     SerializerVisitor serializer( os );
     _config->accept( serializer );

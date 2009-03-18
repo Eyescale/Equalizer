@@ -309,6 +309,17 @@ namespace eq
             }
     };
 
+    struct ConfigSetEyeBasePacket : public ConfigPacket
+    {
+        ConfigSetEyeBasePacket()
+            {
+                command = CMD_CONFIG_SET_EYE_BASE;
+                size    = sizeof( ConfigSetEyeBasePacket );
+            }
+
+        float eyeBase;
+    };
+
     struct ConfigFreezeLoadBalancingPacket : public ConfigPacket
     {
         ConfigFreezeLoadBalancingPacket()

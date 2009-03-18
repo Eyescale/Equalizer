@@ -15,7 +15,7 @@ namespace eq
 {
 void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
 {
-    is >> _config->_latency;
+    is >> _config->_latency >> _config->_eyeBase;
 
     NodeFactory* nodeFactory = Global::getNodeFactory();
     

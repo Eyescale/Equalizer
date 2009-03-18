@@ -34,6 +34,7 @@ typedef net::CommandFunc<Config> ConfigFunc;
 
 Config::Config( ServerPtr server )
         : net::Session()
+        , _eyeBase( 0.f )
         , _lastEvent( 0 )
         , _latency( 0 )
         , _currentFrame( 0 )
@@ -604,6 +605,17 @@ void Config::setWindowSystem( const WindowSystem windowSystem )
 void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
 {
     _headMatrix = matrix;
+}
+
+void Config::setEyeBase( const float eyeBase )
+{
+    if( _eyeBase == eyeBase )
+        return;
+
+    _eyeBase = eyeBase;
+    ConfigSetEyeBasePacket packet;
+    packet.eyeBase = eyeBase;
+    send( packet );
 }
 
 void Config::freezeLoadBalancing( const bool onOff )

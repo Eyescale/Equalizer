@@ -433,6 +433,7 @@ namespace server
         net::CommandResult _cmdStartFrame( net::Command& command );
         net::CommandResult _cmdFinishAllFrames( net::Command& command ); 
         net::CommandResult _cmdCreateReply( net::Command& command );
+        net::CommandResult _cmdSetEyeBase( net::Command& command );
         net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
         net::CommandResult _cmdUnmapReply( net::Command& command );
     };

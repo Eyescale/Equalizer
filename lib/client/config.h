@@ -201,7 +201,7 @@ namespace eq
         virtual bool handleEvent( const ConfigEvent* event );
         //*}
         
-        /** @name Head Tracking. */
+        /** @name Observer Interface. */
         //*{
         /** 
          * Set the head matrix.
@@ -217,6 +217,12 @@ namespace eq
 
         /** @return the current head matrix. */
         const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
+
+        /** Set the eye separation, i.e., the distance between the eyes. */
+        void setEyeBase( const float eyeBase );
+
+        /** @return the current eye separation. */
+        float getEyeBase() const { return _eyeBase; }
         //*}
 
         /** @name Error Information. */
@@ -284,6 +290,9 @@ namespace eq
         /** The matrix describing the head position and orientation. */
         Matrix4f _headMatrix;
         friend class ConfigCommitVisitor;
+
+        /** The distance between the left and the right eye. */
+        float _eyeBase;
 
         /** The reason for the last error. */
         std::string _error;

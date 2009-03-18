@@ -186,6 +186,8 @@ void Config::setLocalNode( net::NodePtr node )
     registerCommand( eq::CMD_CONFIG_FINISH_ALL_FRAMES, 
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ),
                      serverQueue );
+    registerCommand( eq::CMD_CONFIG_SET_EYE_BASE,
+                     ConfigFunc( this, &Config::_cmdSetEyeBase ), serverQueue );
     registerCommand( eq::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
                      ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ), 
                      serverQueue );
@@ -1157,6 +1159,17 @@ net::CommandResult Config::_cmdCreateReply( net::Command& command )
         command.getPacket<eq::ConfigCreateReplyPacket>();
 
     _requestHandler.serveRequest( packet->requestID );
+    return net::COMMAND_HANDLED;
+}
+
+net::CommandResult Config::_cmdSetEyeBase( net::Command& command ) 
+{
+    const eq::ConfigSetEyeBasePacket* packet = 
+        command.getPacket<eq::ConfigSetEyeBasePacket>();
+
+    setFAttribute( FATTR_EYE_BASE, packet->eyeBase );
+    _updateEyes();
+
     return net::COMMAND_HANDLED;
 }
 
