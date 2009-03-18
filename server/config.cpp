@@ -1124,12 +1124,6 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         EQCHECK( accept( syncer ) == TRAVERSE_TERMINATE );
     }
 
-    net::NodePtr node = command.getNode();
-
-    eq::ConfigStartFrameReplyPacket reply( packet );
-    reply.frameNumber = _currentFrame + 1;
-    node->send( reply );
-
     if( !_startFrame( packet->frameID ))
     {
         EQWARN << "Start frame failed, exiting config: " << _error << std::endl;
@@ -1141,7 +1135,7 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         // unlock app
         eq::ConfigFrameFinishPacket frameFinishPacket;
         frameFinishPacket.frameNumber = _currentFrame;
-        send( node, frameFinishPacket );        
+        send( command.getNode(), frameFinishPacket );        
     }
 
     return net::COMMAND_HANDLED;

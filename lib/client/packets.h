@@ -275,23 +275,9 @@ namespace eq
                 command   = CMD_CONFIG_START_FRAME;
                 size      = sizeof( ConfigStartFramePacket );
             }
-        uint32_t requestID;
         uint32_t frameID;
         uint32_t nChanges;
         EQ_ALIGN8( net::ObjectVersion changes[1] );
-    };
-
-    struct ConfigStartFrameReplyPacket : public ConfigPacket
-    {
-        ConfigStartFrameReplyPacket(const ConfigStartFramePacket* requestPacket)
-            {
-                command     = CMD_CONFIG_START_FRAME_REPLY;
-                size        = sizeof( ConfigStartFrameReplyPacket );
-                sessionID   = requestPacket->sessionID;
-                requestID   = requestPacket->requestID;
-            }
-        uint32_t requestID;
-        uint32_t frameNumber;
     };
 
     struct ConfigReleaseFrameLocalPacket : public ConfigPacket
@@ -1059,12 +1045,6 @@ namespace eq
         return os;
     }
 
-    inline std::ostream& operator << ( std::ostream& os, 
-                                     const ConfigStartFrameReplyPacket* packet )
-    {
-        os << (ConfigPacket*)packet << " frame " << packet->frameNumber;
-        return os;
-    }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ConfigFrameFinishPacket* packet )
     {

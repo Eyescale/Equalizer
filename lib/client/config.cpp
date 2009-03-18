@@ -75,8 +75,6 @@ void Config::setLocalNode( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdInitReply ), queue );
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
                      ConfigFunc( this, &Config::_cmdExitReply ), queue );
-    registerCommand( CMD_CONFIG_START_FRAME_REPLY, 
-                     ConfigFunc( this, &Config::_cmdStartFrameReply ), 0 );
     registerCommand( CMD_CONFIG_RELEASE_FRAME_LOCAL, 
                      ConfigFunc( this, &Config::_cmdReleaseFrameLocal ), queue);
     registerCommand( CMD_CONFIG_FRAME_FINISH, 
@@ -361,19 +359,15 @@ uint32_t Config::startFrame( const uint32_t frameID )
     
     // Request new frame
     ConfigStartFramePacket packet;
-    packet.requestID = _requestHandler.registerRequest();
     packet.frameID   = frameID;
     packet.nChanges  = changes.size();
 
-    const uint32_t frameNumber = _currentFrame + 1;
     send( packet, changes );
+    ++_currentFrame;
 
-    _requestHandler.waitRequest( packet.requestID );
-    EQASSERT( frameNumber == _currentFrame );
-    EQLOG( LOG_ANY ) << "---- Started Frame ---- " << frameNumber << endl;
-
-    stat.event.data.statistic.frameNumber = frameNumber;
-    return frameNumber;
+    EQLOG( LOG_ANY ) << "---- Started Frame ---- " << _currentFrame << endl;
+    stat.event.data.statistic.frameNumber = _currentFrame;
+    return _currentFrame;
 }
 
 uint32_t Config::finishFrame()
@@ -678,17 +672,6 @@ net::CommandResult Config::_cmdExitReply( net::Command& command )
     EQINFO << "handle exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Config::_cmdStartFrameReply( net::Command& command )
-{
-    const ConfigStartFrameReplyPacket* packet =
-        command.getPacket<ConfigStartFrameReplyPacket>();
-    EQVERB << "handle frame start reply " << packet << endl;
-
-    _currentFrame = packet->frameNumber;
-    _requestHandler.serveRequest( packet->requestID );
     return net::COMMAND_HANDLED;
 }
 
