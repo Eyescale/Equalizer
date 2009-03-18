@@ -6,6 +6,7 @@
 #include "wglPipe.h"
 
 #include "global.h"
+#include "pipe.h"
 #include "wglEventHandler.h"
 
 namespace eq

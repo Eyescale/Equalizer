@@ -6,6 +6,7 @@
 #include "wglWindow.h"
 
 #include "global.h"
+#include "pipe.h"
 #include "wglEventHandler.h"
 #include "wglPipe.h"
 
