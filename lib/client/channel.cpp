@@ -523,8 +523,8 @@ vmml::Frustumf Channel::getScreenFrustum() const
     PixelViewport pvp( getPixelViewport( ));
     const Viewport& vp( getViewport( ));
 
-    pvp.x = pvp.w / vp.w * vp.x;
-    pvp.y = pvp.h / vp.h * vp.y;
+    pvp.x = static_cast<int32_t>( pvp.w / vp.w * vp.x );
+    pvp.y = static_cast<int32_t>( pvp.h / vp.h * vp.y );
     pvp *= pixel;
 
     return vmml::Frustumf( pvp.x, pvp.getXEnd(), pvp.y, pvp.getYEnd(),
