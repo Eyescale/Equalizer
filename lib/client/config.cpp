@@ -323,7 +323,6 @@ bool Config::init( const uint32_t initID )
 bool Config::exit()
 {
     finishAllFrames();
-    _running = false;
 
     ConfigExitPacket packet;
     packet.requestID = _requestHandler.registerRequest();
@@ -342,6 +341,7 @@ bool Config::exit()
     _eventQueue.release( _lastEvent );
     _eventQueue.flush();
     _lastEvent = 0;
+    _running = false;
 
     _appNode   = 0;
     _appNodeID = net::NodeID::ZERO;
@@ -484,6 +484,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 {
     switch( event->data.type )
     {
+        case Event::EXIT:
         case Event::WINDOW_CLOSE:
             _running = false;
             return true;
@@ -711,8 +712,8 @@ net::CommandResult Config::_cmdFrameFinish( net::Command& command )
 
     if( _unlockedFrame < _finishedFrame.get( ))
     {
-        EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
-               << endl;
+        EQWARN << "Finished frame " << _unlockedFrame 
+               << " was not locally unlocked, enforcing unlock" << endl;
         _unlockedFrame = _finishedFrame.get();
     }
 

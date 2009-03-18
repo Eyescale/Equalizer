@@ -59,7 +59,7 @@ namespace server
         Layout* getLayout( const LayoutPath& path );
         View* getView( const ViewPath& path );
 
-        bool    isRunning() const { return ( _state == STATE_INITIALIZED ); }
+        bool    isRunning() const { return ( _state == STATE_RUNNING ); }
 
         net::CommandQueue* getServerThreadQueue()
             { EQASSERT( _server ); return _server->getServerThreadQueue(); }
@@ -387,8 +387,10 @@ namespace server
 
         enum State
         {
-            STATE_STOPPED,
-            STATE_INITIALIZED
+            STATE_STOPPED = 0,  // next: INITIALIZING
+            STATE_INITIALIZING, // next: RUNNING
+            STATE_RUNNING,      // next: EXITING
+            STATE_EXITING,      // next: STOPPED
         }
         _state;
 

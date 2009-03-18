@@ -100,10 +100,7 @@ namespace eq
          * Exits this configuration.
          * 
          * A config which could not be exited properly may not be
-         * re-initialized. The exit function does not provide the possibility to
-         * pass an exit identifier to the exit methods, because individual
-         * entities may stopped dynamically by the server when running a config,
-         * i.e., before exit() is called.
+         * re-initialized.
          *
          * @return <code>true</code> if the exit was successful,
          *         <code>false</code> if not.

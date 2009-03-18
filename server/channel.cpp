@@ -99,7 +99,7 @@ void Channel::attachToSession( const uint32_t id, const uint32_t instanceID,
                      commandQueue );
     registerCommand( eq::CMD_CHANNEL_SET_NEARFAR,
                      ChannelFunc( this, &Channel::_cmdSetNearFar ),
-                     serverQueue );
+                     commandQueue );
     registerCommand( eq::CMD_CHANNEL_FRAME_FINISH_REPLY,
                      ChannelFunc( this, &Channel::_cmdFrameFinishReply ),
                      serverQueue );

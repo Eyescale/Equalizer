@@ -24,6 +24,7 @@
 #include "view.h"
 #include "window.h"
 
+#include <eq/client/configEvent.h>
 #include <eq/net/command.h>
 #include <eq/net/global.h>
 #include <eq/base/sleep.h>
@@ -549,6 +550,12 @@ uint32_t Config::getDistributorID()
 
 bool Config::_updateRunning()
 {
+    if( _state == STATE_STOPPED )
+        return true;
+
+    EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
+              _state == STATE_EXITING );
+
     _error.clear();
 
     if( !_connectNodes( ))
@@ -738,7 +745,7 @@ void Config::_stopNodes()
         EQASSERT( netNode.isValid( ));
 
         eq::ServerDestroyConfigPacket destroyConfigPacket;
-        destroyConfigPacket.configID  = getID();
+        destroyConfigPacket.configID = getID();
         netNode->send( destroyConfigPacket );
 
         eq::ClientExitPacket clientExitPacket;
@@ -818,6 +825,7 @@ void Config::_syncClock()
 bool Config::_init( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
+    _state = STATE_INITIALIZING;
     _currentFrame  = 0;
     _finishedFrame = 0;
     _initID = initID;
@@ -841,7 +849,7 @@ bool Config::_init( const uint32_t initID )
     if( !_updateRunning( ))
         return false;
 
-    _state = STATE_INITIALIZED;
+    _state = STATE_RUNNING;
     return true;
 }
 
@@ -851,8 +859,11 @@ bool Config::_init( const uint32_t initID )
 
 bool Config::exit()
 {
-    if( _state != STATE_INITIALIZED )
+    if( _state != STATE_RUNNING )
         EQWARN << "Exiting non-initialized config" << endl;
+
+    EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING );
+    _state = STATE_EXITING;
 
     for( vector< Compound* >::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
@@ -873,10 +884,11 @@ bool Config::exit()
     if( _headMatrix.getID() != EQ_ID_INVALID )
         deregisterObject( &_headMatrix );
 
-    _currentFrame  = 0;
-    _finishedFrame = 0;
+    eq::ConfigEvent exitEvent;
+    exitEvent.data.type = eq::Event::EXIT;
+    send( _appNetNode, exitEvent );
+    
     _state         = STATE_STOPPED;
-
     return success;
 }
 
@@ -983,13 +995,18 @@ void Config::_updateEyes()
 
 bool Config::_startFrame( const uint32_t frameID )
 {
-    EQASSERT( _state == STATE_INITIALIZED );
-
     if( !_updateRunning( ))
+    {
+        ++_currentFrame;
         return false;
+    }
 
     ++_currentFrame;
     EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
+
+    if( _state == STATE_STOPPED )
+        return true;
+    EQASSERT( _state == STATE_RUNNING );
 
     if( !_appNode->isActive( )) // release appNode local sync
     {
@@ -1096,7 +1113,7 @@ net::CommandResult Config::_cmdExit( net::Command& command )
     eq::ConfigExitReplyPacket   reply( packet );
     EQVERB << "handle config exit " << packet << endl;
 
-    if( _state == STATE_INITIALIZED )
+    if( _state == STATE_RUNNING )
         reply.result = exit();
     else
         reply.result = false;
@@ -1120,14 +1137,24 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         EQCHECK( accept( syncer ) == TRAVERSE_TERMINATE );
     }
 
+    net::NodePtr node = command.getNode();
+
     eq::ConfigStartFrameReplyPacket reply( packet );
     reply.frameNumber = _currentFrame + 1;
-    command.getNode()->send( reply );
+    node->send( reply );
 
     if( !_startFrame( packet->frameID ))
     {
+        EQWARN << "Start frame failed, exiting config: " << _error << std::endl;
         exit();
-        // TODO: tell app?
+    }
+
+    if( _state == STATE_STOPPED )
+    {
+        // unlock app
+        eq::ConfigFrameFinishPacket frameFinishPacket;
+        frameFinishPacket.frameNumber = _currentFrame;
+        send( node, frameFinishPacket );        
     }
 
     return net::COMMAND_HANDLED;

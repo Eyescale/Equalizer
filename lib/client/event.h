@@ -178,7 +178,13 @@ namespace eq
             CHANNEL_RESIZE,
             STATISTIC,
             VIEW_RESIZE,
+            EXIT,
             UNKNOWN,
+            FILL1,  // some buffer for binary-compatible patches
+            FILL2,
+            FILL3,
+            FILL4,
+            FILL5,
             USER,
             ALL // must be last
         };
