@@ -412,6 +412,7 @@ namespace eq
 
         /** The screen (GLX), GPU (Win32) or virtual screen (AGL). */
         uint32_t _device;
+
         enum State
         {
             STATE_STOPPED,

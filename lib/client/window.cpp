@@ -64,13 +64,14 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Window::Window( Pipe* parent )
-        : _lastTime ( 0.0 )
-        , _avgFPS ( 0.0 )
+        : _pipe( parent )
         , _sharedContextWindow( 0 ) // default set by pipe
         , _osWindow( 0 )
-        , _pipe( parent )
         , _tasks( TASK_NONE )
+        , _state( STATE_STOPPED )
         , _objectManager( 0 )
+        , _lastTime ( 0.0 )
+        , _avgFPS ( 0.0 )
         , _lastSwapTime( 0 )
         , _nvSwapGroup( 0 )
         , _nvSwapBarrier( 0 )
@@ -119,7 +120,7 @@ void Window::attachToSession( const uint32_t id,
     registerCommand( CMD_WINDOW_FINISH, 
                      CommandFunc<Window>( this, &Window::_cmdFinish), queue );
     registerCommand( CMD_WINDOW_THROTTLE_FRAMERATE, 
-                     CommandFunc<Window>( this, &Window::_cmdThrottleFramerate ), 
+                    CommandFunc<Window>( this, &Window::_cmdThrottleFramerate ),
                      queue );
     registerCommand( CMD_WINDOW_BARRIER, 
                      CommandFunc<Window>( this, &Window::_cmdBarrier ), 
@@ -704,21 +705,29 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
         command.getPacket<WindowConfigInitPacket>();
     EQLOG( LOG_INIT ) << "TASK window config init " << packet << endl;
 
-    if( packet->pvp.isValid( ))
-        _setPixelViewport( packet->pvp );
-    else
-        _setViewport( packet->vp );
-
-    _name  = packet->name;
-    _tasks = packet->tasks;
-    _nvSwapGroup   = packet->nvSwapGroup; 
-    _nvSwapBarrier = packet->nvSwapBarrier;
-
-    memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
+    WindowConfigInitReplyPacket reply;
     _error.clear();
 
-    WindowConfigInitReplyPacket reply;
-    reply.result = configInit( packet->initID );
+    if( _pipe->isInitialized( ))
+    {
+        _state = STATE_INITIALIZING;
+        if( packet->pvp.isValid( ))
+            _setPixelViewport( packet->pvp );
+        else
+            _setViewport( packet->vp );
+        
+        _name  = packet->name;
+        _tasks = packet->tasks;
+        _nvSwapGroup   = packet->nvSwapGroup; 
+        _nvSwapBarrier = packet->nvSwapBarrier;
+        
+        memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof(int32_t));
+
+        reply.result = configInit( packet->initID );
+    }
+    else
+        reply.result = false;
+
     EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply << endl;
 
     net::NodePtr node = command.getNode();
@@ -731,6 +740,8 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     reply.pvp            = _pvp;
     reply.drawableConfig = getDrawableConfig();
     send( node, reply );
+
+    _state = STATE_RUNNING;
     return net::COMMAND_HANDLED;
 }
 
@@ -740,18 +751,24 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
         command.getPacket<WindowConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK window config exit " << packet << endl;
 
-    if( _pipe->isInitialized( ) && _osWindow )
-    {
-        EQ_GL_CALL( makeCurrent( ));
-        _pipe->flushFrames();
-    }
-    // else emergency exit, no context available.
-
     WindowConfigExitReplyPacket reply;
-    reply.result = configExit();
+    
+    if( _state == STATE_STOPPED )
+        reply.result = true;
+    else
+    {
+        if( _pipe->isInitialized( ) && _osWindow )
+        {
+            EQ_GL_CALL( makeCurrent( ));
+            _pipe->flushFrames();
+        }
+        // else emergency exit, no context available.
+
+        reply.result = configExit();
+    }
 
     send( command.getNode(), reply );
-
+    _state = STATE_STOPPED;
     return net::COMMAND_HANDLED;
 }
 
@@ -800,8 +817,10 @@ net::CommandResult Window::_cmdFinish(net::Command& command )
 net::CommandResult  Window::_cmdThrottleFramerate( net::Command& command )
 {
 
-    WindowThrottleFramerate* packet = command.getPacket< WindowThrottleFramerate >();
-    EQLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " " << packet << endl;
+    WindowThrottleFramerate* packet = 
+        command.getPacket< WindowThrottleFramerate >();
+    EQLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
+                       << packet << endl;
     
     // throttle to given framerate
     const int64_t elapsed  = getConfig()->getTime() - _lastSwapTime;

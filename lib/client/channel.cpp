@@ -45,6 +45,7 @@ Channel::Channel( Window* parent )
         : _window( parent )
         , _currentContext( &_nativeContext )
         , _tasks( TASK_NONE )
+        , _state( STATE_STOPPED )
         , _fixedPVP( false )
         , _fbo(0)
         , _drawable( 0 )
@@ -956,27 +957,37 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
         command.getPacket<ChannelConfigInitPacket>();
     EQLOG( LOG_INIT ) << "TASK channel config init " << packet << endl;
 
-    if( packet->pvp.isValid( ))
-        _setPixelViewport( packet->pvp );
-    else
-        _setViewport( packet->vp );
-
-    _name     = packet->name;
-    _tasks    = packet->tasks;
-    _color    = packet->color;
-    _drawable = packet->drawable;
-    _nativeContext.view = packet->view;
-    _initialSize.x = _nativeContext.pvp.w;
-    _initialSize.y = _nativeContext.pvp.h;
-
-    memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
-
-    _error.clear();
     ChannelConfigInitReplyPacket reply;
-    reply.result = configInit( packet->initID );
+    _error.clear();
 
-    reply.nearPlane   = _nativeContext.frustum.nearPlane;
-    reply.farPlane    = _nativeContext.frustum.farPlane;
+    if( _window->isInitialized( ))
+    {
+        _state = STATE_INITIALIZING;
+        if( packet->pvp.isValid( ))
+            _setPixelViewport( packet->pvp );
+        else
+            _setViewport( packet->vp );
+        
+        _name     = packet->name;
+        _tasks    = packet->tasks;
+        _color    = packet->color;
+        _drawable = packet->drawable;
+        _nativeContext.view = packet->view;
+        _initialSize.x = _nativeContext.pvp.w;
+        _initialSize.y = _nativeContext.pvp.h;
+
+        memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof(int32_t));
+
+        reply.result = configInit( packet->initID );
+
+        reply.nearPlane   = _nativeContext.frustum.nearPlane;
+        reply.farPlane    = _nativeContext.frustum.farPlane;
+
+        if( reply.result )
+            _state = STATE_RUNNING;
+    }
+    else
+        reply.result = false;
 
     EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply << endl;
     send( command.getNode(), reply, _error );
@@ -990,9 +1001,13 @@ net::CommandResult Channel::_cmdConfigExit( net::Command& command )
     EQLOG( LOG_INIT ) << "Exit channel " << packet << endl;
 
     ChannelConfigExitReplyPacket reply;
-    reply.result = configExit();
+    if( _state == STATE_STOPPED )
+        reply.result = true;
+    else
+        reply.result = configExit();
 
     send( command.getNode(), reply );
+    _state = STATE_STOPPED;
     return net::COMMAND_HANDLED;
 }
 

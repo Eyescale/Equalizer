@@ -97,6 +97,8 @@ namespace eq
 
         const std::string& getName() const { return _name; }
 
+        bool isInitialized() const { return (_state == STATE_RUNNING); }
+
         /** 
          * Return the set of tasks this window's channels might execute in the
          * worst case.
@@ -428,14 +430,11 @@ namespace eq
         //*}
 
     private:
-        /** Calculates per-window frame rate */
-        void _updateFPS();
+        /** The parent pipe. */
+        Pipe* const   _pipe;
 
-        /** Used to calculate time of last frame rendering */
-        double             _lastTime;
-
-        /** averaged FPS value, to prevent FPS counter flickering */
-        double _avgFPS;
+        /** The name. */
+        std::string    _name;
 
         /** The window sharing the OpenGL context. */
         Window* _sharedContextWindow;
@@ -445,12 +444,6 @@ namespace eq
 
         /** Window-system specific functions class */
         OSWindow* _osWindow;
-
-        /** The parent pipe. */
-        Pipe* const   _pipe;
-
-        /** The name. */
-        std::string    _name;
 
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
@@ -472,8 +465,23 @@ namespace eq
         /** Drawable characteristics of this window */
         Window::DrawableConfig _drawableConfig;
 
+        enum State
+        {
+            STATE_STOPPED,
+            STATE_INITIALIZING,
+            STATE_RUNNING
+        };
+        /** The configInit/configExit state. */
+        State _state;
+
         /** OpenGL object management. */
         ObjectManager* _objectManager;
+
+        /** Used to calculate time of last frame rendering */
+        double _lastTime;
+
+        /** averaged FPS value, to prevent FPS counter flickering */
+        double _avgFPS;
 
         /** The list of render context used since the last frame start. */
         std::vector< RenderContext > _renderContexts[2];
@@ -511,6 +519,9 @@ namespace eq
 
         /** Set up _drawableConfig by querying the current context. */
         void _queryDrawableConfig();
+
+        /** Calculates per-window frame rate */
+        void _updateFPS();
 
         virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
         virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }

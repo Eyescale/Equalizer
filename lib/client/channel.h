@@ -505,6 +505,15 @@ namespace eq
         /** Worst-case set of tasks. */
         uint32_t _tasks;
 
+        enum State
+        {
+            STATE_STOPPED,
+            STATE_INITIALIZING,
+            STATE_RUNNING
+        };
+        /** The configInit/configExit state. */
+        State _state;
+
         /** server-supplied vector of output frames for current task. */
         FrameVector _outputFrames;
 
