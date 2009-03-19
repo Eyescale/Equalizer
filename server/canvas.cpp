@@ -149,34 +149,32 @@ void Canvas::addSegment( Segment* segment )
               _segments.end( ));
     
     // if segment has no frustum...
-    if(( segment->getCurrentType() == TYPE_NONE ))
+    if( segment->getCurrentType() == TYPE_NONE )
     {
-        switch( getCurrentType( )) // ... and canvas has frustum
+        if( getCurrentType() != TYPE_NONE ) // ... and canvas has frustum
         {
-            // set segment frustum = canvas frustum X segment viewport
-            case Segment::TYPE_WALL:
-            {
-                eq::Wall wallCanvas( getWall() );
-                Viewport viewport = segment->getViewport();
+            eq::Wall wall( getWall( ));
+            const Viewport& viewport( segment->getViewport( ));
                     
-                wallCanvas.apply( viewport );
-                segment->setWall( wallCanvas );
-                EQLOG( LOG_VIEW ) << "Segment " << segment->getName() 
-                                  << segment->getWall() << std::endl;
-                break;
-            }
-            case Segment::TYPE_PROJECTION:
+            wall.apply( viewport );
+            switch( getCurrentType( ))
             {
-                eq::Projection projection( getProjection( ));
-                EQUNIMPLEMENTED;
-                //to do compute new projection
-
-                
-                segment->setProjection( projection );
-                break;
+                case Frustum::TYPE_WALL:
+                    segment->setWall( wall );
+                    EQLOG( LOG_VIEW ) << "Segment " << segment->getName() 
+                                      << segment->getWall() << std::endl;
+                    break;
+                case Frustum::TYPE_PROJECTION:
+                {
+                    Projection projection( getProjection( )); // keep distance
+                    projection = wall;
+                    segment->setProjection( projection );
+                    break;
+                }
+                default: 
+                    EQUNIMPLEMENTED;
+                    break; 
             }
-            default: 
-                break; 
         }
     }
 

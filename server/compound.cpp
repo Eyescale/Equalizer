@@ -437,58 +437,74 @@ void Compound::updateFrustum()
     if( !segment || !view )
         return;
 
-    switch( view->getCurrentType( )) // derive our frustum from view:
+    if( view->getCurrentType() != Frustum::TYPE_NONE ) // frustum from view:
     {
-        case View::TYPE_WALL:
+        // set compound frustum =
+        //         segment frustum X channel/view coverage
+        const Viewport& segmentVP = segment->getViewport();
+        const Viewport& viewVP    = view->getViewport();
+        const Viewport  coverage  = viewVP.getCoverage( segmentVP );
+
+        Wall wall( view->getWall( ));
+        wall.apply( coverage );
+
+        switch( view->getCurrentType( ))
         {
-            // set compound frustum =
-            //         segment frustum X channel/view coverage
-            const Viewport& segmentVP = segment->getViewport();
-            const Viewport& viewVP    = view->getViewport();
-            const Viewport  coverage  = viewVP.getCoverage( segmentVP );
+            case Frustum::TYPE_WALL:
+                setWall( wall );
+                EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
+                return;
 
-            Wall wall( view->getWall( ));
-            wall.apply( coverage );
-            setWall( wall );
+            case Frustum::TYPE_PROJECTION:
+            {
+                Projection projection( view->getProjection( )); // keep distance
+                projection = wall;
+                setProjection( projection );
+                EQLOG( LOG_VIEW ) << "Compound projection: " << projection
+                                  << std::endl;
+                return;
+            }
 
-            EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
-            return;
+            default:
+                EQUNIMPLEMENTED;
         }
-
-        case View::TYPE_PROJECTION:
-            EQUNIMPLEMENTED;
-            return;
-
-        default: // try segment frustum
-            break;
     }
 
-    switch( segment->getCurrentType( )) // derive our frustum from segment:
+    if( segment->getCurrentType() != Frustum::TYPE_NONE ) //frustum from segment
     {
-        case View::TYPE_WALL:
+        // set compound frustum =
+        //         segment frustum X channel/segment coverage
+        const Channel* outputChannel = segment->getChannel();
+        EQASSERT( outputChannel );
+
+        const Viewport& outputVP  = outputChannel->getViewport();
+        const Viewport& channelVP = channel->getViewport();
+        const Viewport  coverage  = outputVP.getCoverage( channelVP );
+
+        Wall wall( segment->getWall( ));
+        wall.apply( coverage );
+
+        switch( segment->getCurrentType( ))
         {
-            // set compound frustum =
-            //         segment frustum X channel/segment coverage
-            const Channel* outputChannel = segment->getChannel();
-            EQASSERT( outputChannel );
+            case Frustum::TYPE_WALL:
+            {
+                setWall( wall );
+                EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
+                return;
+            }
 
-            const Viewport& outputVP  = outputChannel->getViewport();
-            const Viewport& channelVP = channel->getViewport();
-            const Viewport  coverage  = outputVP.getCoverage( channelVP );
-
-            Wall wall( segment->getWall( ));
-            wall.apply( coverage );
-            setWall( wall );
-            EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
-            break;
+            case Frustum::TYPE_PROJECTION:
+            {
+                Projection projection( segment->getProjection( ));
+                projection = wall;
+                setProjection( projection );
+                EQLOG( LOG_VIEW ) << "Compound projection: " << projection
+                                  << std::endl;
+                return;
+            }
+            default: 
+                EQUNIMPLEMENTED;
         }
-
-        case View::TYPE_PROJECTION:
-            EQUNIMPLEMENTED;
-            break;
-
-        default: 
-            break;
     }
 }
 

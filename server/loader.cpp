@@ -104,121 +104,101 @@ void Loader::addOutputCompounds( ServerPtr server )
 
 namespace
 {
+static void _addDestinationViews( Compound* compound )
+{
+    Channel* channel = compound->getChannel();
+    
+    if( channel ) // stand-alone channel
+    {
+        if( channel->getView( ))
+            return;
+        
+        Layout* layout = new Layout;
+        View*   view   = new View;
+        *static_cast< eq::Frustum* >( view ) = compound->getFrustum();
+        layout->addView( view );
+        
+        Canvas* canvas = new Canvas;
+        canvas->useLayout( layout );
+        
+        Segment* segment = new Segment;
+        segment->setChannel( channel );
+        canvas->addSegment( segment );
+        
+        Config* config = compound->getConfig();
+        config->addLayout( layout );
+        config->addCanvas( canvas );
+        
+        Channel* newChannel = config->findChannel( segment, view );
+        EQASSERT( newChannel );
+        
+        compound->setChannel( newChannel );
+        compound->setViewport( Viewport::FULL );
+        
+        return;
+    }
+       
+    // segment group
+    CompoundVector segments;
+    const CompoundVector& children = compound->getChildren();
+    for( CompoundVector::const_iterator i = children.begin();
+         i != children.end(); ++i )
+    {
+        Compound* child = *i;
+        if( child->getChannel( ))
+            segments.push_back( child );
+        else
+            _addDestinationViews( child );
+    }
+    
+    if( segments.empty( ))
+        return;
+
+    Layout* layout = new Layout;
+    View*   view   = new View;
+    layout->addView( view );
+        
+    Canvas* canvas = new Canvas;
+    canvas->useLayout( layout );
+    *static_cast< eq::Frustum* >( canvas ) = compound->getFrustum();
+    
+    for( CompoundVector::const_iterator i = segments.begin(); 
+         i != segments.end(); ++i )
+    {
+        Compound* child = *i;
+        Segment* segment = new Segment;
+
+        segment->setChannel( child->getChannel( ));
+        segment->setViewport( child->getViewport( ));
+        *static_cast< eq::Frustum* >( segment ) = child->getFrustum();
+
+        canvas->addSegment( segment );
+    }
+
+    Config* config = compound->getConfig();
+    config->addLayout( layout );
+    config->addCanvas( canvas );
+
+    for( size_t i = 0; i < segments.size(); ++i )
+    {
+        Segment* segment = canvas->getSegments()[ i ];
+        Channel* newChannel = config->findChannel( segment, view );
+        EQASSERT( newChannel );
+        
+        segments[i]->setChannel( newChannel );
+        segments[i]->setViewport( Viewport::FULL );
+    }
+}
+
 class AddDestinationViewVisitor : public ServerVisitor
 {
-public:
-    AddDestinationViewVisitor() : _canvas( 0 ), _compound( 0 ), _view( 0 ) {}
-
     virtual VisitorResult visit( Compound* compound )
         {
-            Channel* channel = compound->getChannel();
-            if( channel && channel->getView( ))
-                return TRAVERSE_PRUNE;
-
-            if( !_canvas && compound->getFrustumType() == Frustum::TYPE_NONE )
-                return TRAVERSE_CONTINUE;
-
-            Layout* layout;
-
-            if( !_canvas )
-            {
-                layout = new Layout;
-
-                if( !channel )
-                {
-                    _view = new View;
-                    *static_cast< eq::Frustum* >( _view ) = 
-                        compound->getFrustum();
-                    layout->addView( _view );
-                }
-
-                _canvas = new Canvas;
-                _canvas->useLayout( layout );
-                
-                _compound = compound;
-            }
-            else
-                layout = _canvas->getLayout();
-
-            if( channel )
-            {
-                if( compound->getFrustumType() != Frustum::TYPE_NONE )
-                {
-                    View* view = new View;
-                    view->setViewport( compound->getViewport( ));
-                    *static_cast< eq::Frustum* >( view ) = 
-                        compound->getFrustum();
-                    layout->addView( view );
-                    
-                    _views.push_back( view );
-                }
-                else
-                    _views.push_back( _view );
-
-                Segment* segment = new Segment;
-                segment->setViewport( compound->getViewport() );
-                segment->setChannel( channel );
-                _canvas->addSegment( segment );
-
-                _compounds.push_back( compound );
-            }
-
-            if( compound->isLeaf() || channel )
-                _setup( compound );
-
-            return channel ? TRAVERSE_PRUNE : TRAVERSE_CONTINUE;
-        }
-
-    virtual VisitorResult visitPost( Compound* compound )
-        { return _setup( compound ); }
-    
-private:
-    Canvas* _canvas;
-    Compound* _compound;
-    CompoundVector _compounds;
-
-    View* _view;
-    ViewVector _views;
-
-    VisitorResult _setup( Compound* compound )
-        {
-            if( compound != _compound )
-                return TRAVERSE_CONTINUE;
-            
-            EQASSERT( _canvas );
-
-            Config* config = compound->getConfig();
-            Layout* layout = _canvas->getLayout( );
-
-            config->addLayout( layout );
-            config->addCanvas( _canvas );
-
-            const SegmentVector& segments = _canvas->getSegments();
-
-            EQASSERT( segments.size() == _views.size( ));
-            EQASSERT( segments.size() == _compounds.size( ));
-
-            for( size_t i = 0; i < segments.size(); ++i )
-            {
-                if( !_views[ i ] )
-                    continue;
-
-                Channel* channel = config->findChannel( segments[i], _views[i]);
-                EQASSERT( channel );
-
-                _compounds[i]->setChannel( channel );
-                _compounds[i]->setViewport( Viewport::FULL );
-            }
-
-            _canvas = 0;
-            _compound = 0;
-            _compounds.clear();
-            _view = 0;
-            _views.clear();
-
-            return TRAVERSE_CONTINUE;
+            _addDestinationViews( compound );
+            return TRAVERSE_PRUNE;
         }
 };
+
 }
 
 void Loader::addDestinationViews( ServerPtr server )

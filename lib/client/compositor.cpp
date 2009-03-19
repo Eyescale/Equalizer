@@ -382,7 +382,7 @@ void Compositor::_assembleDBImages( Image* result,
     EQASSERT( result->getFormat( Frame::BUFFER_DEPTH ) == GL_DEPTH_COMPONENT);
     EQASSERT( result->getType( Frame::BUFFER_DEPTH )   == GL_UNSIGNED_INT );
 
-    const eq::PixelViewport resultPVP = result->getPixelViewport();
+    const eq::PixelViewport& resultPVP = result->getPixelViewport();
     uint32_t* destColor = reinterpret_cast< uint32_t* >
         ( result->getPixelPointer( Frame::BUFFER_COLOR ));
     uint32_t* destDepth = reinterpret_cast< uint32_t* >
@@ -470,7 +470,7 @@ void Compositor::_assemble2DImages( Image* result,
 
     EQVERB << "CPU-2D assembly of " << images.size() << " images" << endl;
 
-    const eq::PixelViewport resultPVP = result->getPixelViewport();
+    const eq::PixelViewport& resultPVP = result->getPixelViewport();
     uint8_t* destColor = result->getPixelPointer( Frame::BUFFER_COLOR );
     uint8_t* destDepth = result->hasPixelData( Frame::BUFFER_DEPTH ) ?
         reinterpret_cast< uint8_t* >(result->getPixelPointer( Frame::BUFFER_DEPTH))

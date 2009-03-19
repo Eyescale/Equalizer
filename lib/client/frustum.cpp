@@ -40,7 +40,7 @@ void Frustum::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 void Frustum::setWall( const Wall& wall )
 {
     _wall       = wall;
-    // TODO write '= wall' for Projection and update projection here
+    _projection = wall;
     _current    = TYPE_WALL;
     setDirty( DIRTY_WALL );
 }
@@ -48,6 +48,7 @@ void Frustum::setWall( const Wall& wall )
 void Frustum::setProjection( const Projection& projection )
 {
     _projection = projection;
+    _wall       = projection;
     _current    = TYPE_PROJECTION;
     setDirty( DIRTY_PROJECTION );
 }
