@@ -55,7 +55,7 @@ namespace eq
          * during rendering.
          * 
          * @warning Not finalized, might change in the future.
-         * @return the tasks.
+         * @return a bitwise combination of the Task enum.
          */
         uint32_t getTasks() const { return _tasks; }
 
