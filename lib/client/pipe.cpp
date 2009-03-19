@@ -676,25 +676,33 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
         command.getPacket<PipeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init pipe " << packet << endl;
 
-    _name   = packet->name;
-    _port   = packet->port;
-    _device = packet->device;
-    _tasks  = packet->tasks;
-    _pvp    = packet->pvp;
-
-    _currentFrame  = packet->frameNumber;
-    _finishedFrame = packet->frameNumber;
-    _unlockedFrame = packet->frameNumber;
-
     PipeConfigInitReplyPacket reply;
-    _node->waitInitialized();
-    _state = STATE_INITIALIZING;
-
-    _windowSystem = selectWindowSystem();
-    _setupCommandQueue();
-
     _error.clear();
-    reply.result  = configInit( packet->initID );
+
+    _node->waitInitialized();
+
+    if( _node->isRunning( ))
+    {
+        _name   = packet->name;
+        _port   = packet->port;
+        _device = packet->device;
+        _tasks  = packet->tasks;
+        _pvp    = packet->pvp;
+        
+        _currentFrame  = packet->frameNumber;
+        _finishedFrame = packet->frameNumber;
+        _unlockedFrame = packet->frameNumber;
+        
+        _state = STATE_INITIALIZING;
+
+        _windowSystem = selectWindowSystem();
+        _setupCommandQueue();
+
+        reply.result  = configInit( packet->initID );
+    }
+    else
+        reply.result = false;
+
     EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << endl;
 
     net::NodePtr node = command.getNode();

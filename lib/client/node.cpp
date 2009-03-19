@@ -48,6 +48,7 @@ Node::Node( Config* parent )
         : _config( parent )
 #endif
         , _tasks( TASK_NONE )
+        , _state( STATE_STOPPED )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
 {
@@ -450,11 +451,13 @@ net::CommandResult Node::_cmdDestroyPipe( net::Command& command )
 
 net::CommandResult Node::_cmdConfigInit( net::Command& command )
 {
+    CHECK_THREAD( _nodeThread );
+
     const NodeConfigInitPacket* packet = 
         command.getPacket<NodeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init node " << packet << endl;
 
-    CHECK_THREAD( _nodeThread );
+    _state = STATE_INITIALIZING;
     _name  = packet->name;
     _tasks = packet->tasks;
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
@@ -473,7 +476,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     if( _iAttributes[ IATTR_THREAD_MODEL ] == eq::UNDEFINED )
         _iAttributes[ IATTR_THREAD_MODEL ] = eq::DRAW_SYNC;
 
-    _initialized = true; // even if init failed we need to unlock the pipes
+    _state = reply.result ? STATE_RUNNING : STATE_INIT_FAILED;
 
     send( command.getNode(), reply, _error );
     return net::COMMAND_HANDLED;
@@ -501,7 +504,7 @@ net::CommandResult Node::_cmdConfigExit( net::Command& command )
     transmitter.join();
 #endif
 
-    _initialized = false;
+    _state = STATE_STOPPED;
     _flushObjects();
 
     send( command.getNode(), reply );

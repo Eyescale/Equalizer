@@ -97,7 +97,7 @@ namespace eq
 
         const std::string& getName() const { return _name; }
 
-        bool isInitialized() const { return (_state == STATE_RUNNING); }
+        bool isRunning() const { return (_state == STATE_RUNNING); }
 
         /** 
          * Return the set of tasks this window's channels might execute in the

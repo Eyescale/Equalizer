@@ -708,7 +708,7 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     WindowConfigInitReplyPacket reply;
     _error.clear();
 
-    if( _pipe->isInitialized( ))
+    if( _pipe->isRunning( ))
     {
         _state = STATE_INITIALIZING;
         if( packet->pvp.isValid( ))
@@ -757,7 +757,7 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
         reply.result = true;
     else
     {
-        if( _pipe->isInitialized( ) && _osWindow )
+        if( _pipe->isRunning( ) && _osWindow )
         {
             EQ_GL_CALL( makeCurrent( ));
             _pipe->flushFrames();

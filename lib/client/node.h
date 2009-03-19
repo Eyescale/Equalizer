@@ -87,8 +87,9 @@ namespace eq
         FrameData* getFrameData( const net::ObjectVersion& dataVersion );
 
         /** Wait for the node to be initialized. */
-        void waitInitialized() const { _initialized.waitEQ( true ); }
-
+        void waitInitialized() const { _state.waitGE( STATE_INIT_FAILED ); }
+        bool isRunning() const { return (_state == STATE_RUNNING); }
+        
         /** 
          * Wait for a frame to be started.
          * 
@@ -300,8 +301,15 @@ namespace eq
         /** The reason for the last error. */
         std::string            _error;
 
+        enum State
+        {
+            STATE_STOPPED,
+            STATE_INITIALIZING,
+            STATE_INIT_FAILED,
+            STATE_RUNNING
+        };
         /** The configInit/configExit state. */
-        base::Monitor<bool> _initialized;
+        base::Monitor< State > _state;
 
         /** The number of the last started frame. */
         base::Monitor<uint32_t> _currentFrame;

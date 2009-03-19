@@ -174,7 +174,7 @@ namespace eq
 
         /** Wait for the pipe to be exited. */
         void waitExited() const { _state.waitEQ( STATE_STOPPED ); }
-        bool isInitialized() const { return (_state == STATE_RUNNING); }
+        bool isRunning() const { return (_state == STATE_RUNNING); }
         
         /** 
          * Wait for a frame to be finished.

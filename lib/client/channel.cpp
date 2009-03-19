@@ -960,7 +960,7 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
     ChannelConfigInitReplyPacket reply;
     _error.clear();
 
-    if( _window->isInitialized( ))
+    if( _window->isRunning( ))
     {
         _state = STATE_INITIALIZING;
         if( packet->pvp.isValid( ))
