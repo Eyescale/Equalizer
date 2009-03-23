@@ -22,19 +22,23 @@ Frustum::~Frustum()
 void Frustum::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_TYPE )
+        os << _current;
     if( dirtyBits & DIRTY_WALL )
-        os << _current << _wall;
+        os << _wall;
     if( dirtyBits & DIRTY_PROJECTION )
-        os << _current << _projection;
+        os << _projection;
 }
 
 void Frustum::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_TYPE )
+        is >> _current;
     if( dirtyBits & DIRTY_WALL )
-        is >> _current >> _wall;
+        is >> _wall;
     if( dirtyBits & DIRTY_PROJECTION )
-        is >> _current >> _projection;
+        is >> _projection;
 }
 
 void Frustum::setWall( const Wall& wall )
@@ -42,7 +46,7 @@ void Frustum::setWall( const Wall& wall )
     _wall       = wall;
     _projection = wall;
     _current    = TYPE_WALL;
-    setDirty( DIRTY_WALL );
+    setDirty( DIRTY_TYPE | DIRTY_WALL );
 }
         
 void Frustum::setProjection( const Projection& projection )
@@ -50,9 +54,14 @@ void Frustum::setProjection( const Projection& projection )
     _projection = projection;
     _wall       = projection;
     _current    = TYPE_PROJECTION;
-    setDirty( DIRTY_PROJECTION );
+    setDirty( DIRTY_TYPE | DIRTY_PROJECTION );
 }
 
+void Frustum::unsetFrustum()
+{
+    _current = TYPE_NONE;
+    setDirty( DIRTY_TYPE );
+}
 
 std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
 {

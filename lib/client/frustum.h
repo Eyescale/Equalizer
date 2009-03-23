@@ -43,6 +43,9 @@ namespace eq
         /** @return the type of the latest specified frustum. */
         EQ_EXPORT Type getCurrentType() const { return _current; }
 
+        /** Set the last specified frustum to TYPE_NONE. */
+        void unsetFrustum();
+
     protected:
         /** @sa Object::serialize() */
         EQ_EXPORT virtual void serialize( net::DataOStream& os,
@@ -54,11 +57,12 @@ namespace eq
         /** The changed parts of the frustum since the last pack(). */
         enum DirtyBits
         {
-            DIRTY_WALL       = Object::DIRTY_CUSTOM << 0,
-            DIRTY_PROJECTION = Object::DIRTY_CUSTOM << 1,
-            DIRTY_FILL1      = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FILL2      = Object::DIRTY_CUSTOM << 3,
-            DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 4,
+            DIRTY_TYPE       = Object::DIRTY_CUSTOM << 0,
+            DIRTY_WALL       = Object::DIRTY_CUSTOM << 1,
+            DIRTY_PROJECTION = Object::DIRTY_CUSTOM << 2,
+            DIRTY_FILL1      = Object::DIRTY_CUSTOM << 3,
+            DIRTY_FILL2      = Object::DIRTY_CUSTOM << 4,
+            DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 5,
         };
 
     private:
