@@ -16,8 +16,8 @@ namespace eq
 {
 Projection::Projection()
         : origin( 0.f, 0.f, 0.f ),
-          distance( 3.f ),
-          fov( 54.f, 47.f ),
+          distance( 1.f ),
+          fov( 77.3196f, 53.1301f ),
           hpr( 0.f, 0.f, 0.f )
 {}
 

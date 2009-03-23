@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder
+                 2009, Stefan Eilemann <eilemann@equalizergraphics.com>
    All rights reserved. */
 
 #include <test.h>
@@ -9,19 +10,18 @@
 using namespace eq;
 using namespace std;
 
-// Tests the wall description
-void test1();
-void test2();
 int main( int argc, char **argv )
 {
- test1();
- //test2();
-}
-
-void test1()
-{
-    // Test 1 
+    // Test for same default values
     Projection projection;
+    Projection projection2;
+    Wall wall;
+    projection2 = wall;
+
+    TESTINFO( projection == projection2,
+              projection << std::endl << projection2 );
+
+    // Test 1 
     projection.distance = 3;
     projection.fov[0] = 90;
     projection.fov[1] = 90;
@@ -30,10 +30,8 @@ void test1()
     projection.origin[2] = 0;
 
     
-    Wall wall;
     wall = projection;
 
-    Projection projection2;
     projection2 = wall;
     
     TESTINFO( projection == projection2 , 
@@ -87,21 +85,15 @@ void test1()
     TESTINFO( projection == projection2 , "Test 4" <<
              projection << std::endl << wall << std::endl <<
              projection2 << std::endl << wall2 << std::endl ); 
-    
-}
 
-void test2()
-{
-    Wall wall;
+#if 0
+    // Test n
     wall.bottomLeft  = vmml::Vector3f( 2.4749f, -9.4749f, -5.5303f );
     wall.bottomRight = vmml::Vector3f( 4.5251f, 2.4749f, -1.4497f );
     wall.topLeft     = vmml::Vector3f( -4.5251f, -2.4749, 15.45f );
 
-    Projection projection;
-       
     projection = wall;
-  
-    Wall wall2;
-    wall2=  projection; 
+    wall2 = projection; 
     TESTINFO( wall == wall2, wall << projection << wall2 );
+#endif
 }
