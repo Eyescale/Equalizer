@@ -364,10 +364,13 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( _modelDist.empty( )) // no models
                 return true;
 
+            // current model
             const uint32_t viewID = _frameData.getCurrentViewID();
             View* view = static_cast< View* >( findView( viewID ));
             const uint32_t currentID = view ? 
                 view->getModelID() : _frameData.getModelID();
+
+            // next model
             ModelDistVector::const_iterator i;
             for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
             {
@@ -380,6 +383,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( i == _modelDist.end( ))
                 i = _modelDist.begin(); // wrap around
             
+            // set identifier on view or frame data (default model)
             const uint32_t modelID = (*i)->getID();
             if( view )
                 view->setModelID( modelID );
