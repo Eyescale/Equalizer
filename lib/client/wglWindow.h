@@ -214,10 +214,10 @@ namespace eq
         void setWGLDC( HDC dc, const WGLDCType type );
 
         /** Initialize and join a WGL_NV_swap_barrier. */ 
-        bool joinNVSwapBarrier( const uint32_t group, const uint32_t barrier );
+        bool joinNVSwapBarrier();
 
         /** Unbind a WGL_NV_swap_barrier. */ 
-        void leaveNVSwapBarrier( const uint32_t group, const uint32_t barrier );
+        void leaveNVSwapBarrier();
 
     private:
 

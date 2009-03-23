@@ -43,11 +43,7 @@ void WGLWindow::configExit( )
     HWND  hWnd           = getWGLWindowHandle();
     HPBUFFERARB hPBuffer = getWGLPBufferHandle();
 
-    const uint32_t swapGroup   = _window->getNVSwapGroup();
-    const uint32_t swapBarrier = _window->getNVSwapBarrier();
-    if( swapGroup > 0 || swapBarrier > 0 )
-        leaveNVSwapBarrier( swapGroup, swapBarrier );
-
+    leaveNVSwapBarrier();
     exitWGLAffinityDC();
     setWGLDC( 0, WGL_DC_NONE );
     setWGLContext( 0 );
@@ -258,12 +254,9 @@ bool WGLWindow::configInit()
                    << "swapsync hint" << std::endl;
     }
     
-    const uint32_t swapGroup   = _window->getNVSwapGroup();
-    const uint32_t swapBarrier = _window->getNVSwapBarrier();
-    if( (swapGroup > 0 || swapBarrier > 0) &&
-        !joinNVSwapBarrier( swapGroup, swapBarrier ))
+    if( !joinNVSwapBarrier( ))
     {
-        _window->setErrorMessage( "joinNVSwapBarrier failed" );
+        _window->setErrorMessage( "Joining NV_swap_group failed" );
         return false;
     }
 
@@ -744,9 +737,13 @@ bool WGLWindow::processEvent( const WGLWindowEvent& event )
     return WGLWindowIF::processEvent( event );
 }
 
-bool WGLWindow::joinNVSwapBarrier( const uint32_t group, 
-                                   const uint32_t barrier )
+bool WGLWindow::joinNVSwapBarrier()
 {
+    const uint32_t group   = _window->getNVSwapGroup();
+    const uint32_t barrier = _window->getNVSwapBarrier();
+    if( group == 0 && barrier == 0 )
+        return true;
+
     if( !WGLEW_NV_swap_group )
     {
         EQWARN << " NV Swap group not supported: " << endl;
@@ -788,9 +785,13 @@ bool WGLWindow::joinNVSwapBarrier( const uint32_t group,
     return true;
 }
 
-void WGLWindow::leaveNVSwapBarrier( const uint32_t group, 
-                                    const uint32_t barrier )
+void WGLWindow::leaveNVSwapBarrier()
 {
+    const uint32_t group   = _window->getNVSwapGroup();
+    const uint32_t barrier = _window->getNVSwapBarrier();
+    if( group == 0 && barrier == 0 )
+        return;
+
     EQASSERT( group );
 
     if( !WGLEW_NV_swap_group )
