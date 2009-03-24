@@ -359,7 +359,7 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
         result       = _resultImage.get();;
     }
 
-    // pre-condition check for current _assemble implementations
+    // pre-condition check for current _merge implementations
     EQASSERT( colorFormat != GL_NONE );
     EQASSERT( colorType   != GL_NONE );
 
@@ -396,12 +396,12 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
                     depthCleared = true;
                 }
 
-                _assembleDBImage( result, image, frame->getOffset( ));
+                _mergeDBImage( result, image, frame->getOffset( ));
             }
             else if( blendAlpha && image->hasAlpha( ))
-                _assembleBlendImage( result, image, frame->getOffset( ));
+                _mergeBlendImage( result, image, frame->getOffset( ));
             else
-                _assemble2DImage( result, image, frame->getOffset( ));
+                _merge2DImage( result, image, frame->getOffset( ));
         }
     }
 
@@ -419,7 +419,7 @@ bool Compositor::mergeFramesCPU( const FrameVector& frames,
 }
 
 
-void Compositor::_assembleDBImage( Image* result, const Image* image,
+void Compositor::_mergeDBImage( Image* result, const Image* image,
                                    const vmml::Vector2i& offset )
 {
     EQVERB << "CPU-DB assembly" << endl;
@@ -436,7 +436,7 @@ void Compositor::_assembleDBImage( Image* result, const Image* image,
     if( pvp == resultPVP && offset == vmml::Vector2i::ZERO )
     {
         // Use Paracomp to composite
-        if( _assembleImage_PC( PC_COMP_DEPTH, result, image ))
+        if( _mergeImage_PC( PC_COMP_DEPTH, result, image ))
             return;
 
         EQWARN << "Paracomp compositing failed, using fallback" << endl;
@@ -481,10 +481,10 @@ void Compositor::_assembleDBImage( Image* result, const Image* image,
     }
 }
 
-void Compositor::_assemble2DImage( Image* result, const Image* image,
+void Compositor::_merge2DImage( Image* result, const Image* image,
                                    const vmml::Vector2i& offset )
 {
-    // This is mostly copy&paste code from _assembleDBImage :-/
+    // This is mostly copy&paste code from _mergeDBImage :-/
     EQVERB << "CPU-2D assembly" << endl;
 
     const eq::PixelViewport& resultPVP = result->getPixelViewport();
@@ -516,7 +516,7 @@ void Compositor::_assemble2DImage( Image* result, const Image* image,
 }
 
 
-void Compositor::_assembleBlendImage( Image* result, const Image* image,
+void Compositor::_mergeBlendImage( Image* result, const Image* image,
                                       const vmml::Vector2i& offset )
 {
     EQVERB << "CPU-Blend assembly"<< endl;
@@ -541,7 +541,7 @@ void Compositor::_assembleBlendImage( Image* result, const Image* image,
     if( pvp == resultPVP && offset == vmml::Vector2i::ZERO )
     { 
         // Use Paracomp to composite
-        if( !_assembleImage_PC( PC_COMP_ALPHA_SORT2_HP,result, image ))
+        if( !_mergeImage_PC( PC_COMP_ALPHA_SORT2_HP,result, image ))
             EQWARN << "Paracomp compositing failed, using fallback" << endl;
         else
             continue; // Go to next input image
@@ -622,7 +622,7 @@ static unsigned glToPCFormat( const unsigned glFormat, const unsigned glType )
 }
 #endif
 
-bool Compositor::_assembleImage_PC( int operation, Image* result, 
+bool Compositor::_mergeImage_PC( int operation, Image* result, 
                                     const Image* source )
 {
 #ifdef EQ_USE_PARACOMP

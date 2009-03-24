@@ -166,14 +166,14 @@ namespace eq
       private:
         typedef std::pair< const Frame*, const Image* > FrameImage;
 
-        static void _assembleDBImage( Image* result, const Image* input,
-                                       const vmml::Vector2i& offset );
-        static void _assemble2DImage( Image* result, const Image* input,
-                                       const vmml::Vector2i& offset );
-        static void _assembleBlendImage( Image* result, const Image* input,
-                                         const vmml::Vector2i& offset );
-        static bool   _assembleImage_PC( int operation, Image* result,
-                                         const Image* source );
+        static void _mergeDBImage( Image* result, const Image* input,
+                                   const vmml::Vector2i& offset );
+        static void _merge2DImage( Image* result, const Image* input,
+                                   const vmml::Vector2i& offset );
+        static void _mergeBlendImage( Image* result, const Image* input,
+                                      const vmml::Vector2i& offset );
+        static bool   _mergeImage_PC( int operation, Image* result,
+                                      const Image* source );
         /** 
          * draw an image to the frame buffer using a texture quad or drawPixels.
          */
