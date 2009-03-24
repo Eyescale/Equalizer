@@ -292,16 +292,13 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
 {
     EQVERB << "Sorted CPU assembly" << endl;
 
-    // collect and categorize input images
-    vector< FrameImage > imagesDB;
-    vector< FrameImage > images2D;
-    vector< FrameImage > imagesBlend;
+    // Collect input image information and check preconditions
     PixelViewport        resultPVP;
 
-    int colorFormat = GL_BGRA;
-    int colorType   = GL_UNSIGNED_BYTE;
-    int depthFormat = GL_DEPTH_COMPONENT;
-    int depthType   = GL_UNSIGNED_INT;
+    uint32_t colorFormat = GL_NONE;
+    uint32_t colorType   = GL_NONE;
+    uint32_t depthFormat = GL_NONE;
+    uint32_t depthType   = GL_NONE;
 
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
@@ -310,6 +307,8 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
 
         EQASSERTINFO( frame->getPixel() == Pixel::ALL,
                       "CPU-based pixel recomposition not implemented" );
+        if( frame->getPixel() != Pixel::ALL )
+            return 0;
 
         const vector< Image* >& images = frame->getImages();        
         for( vector< Image* >::const_iterator j = images.begin(); 
@@ -317,25 +316,32 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
         {
             const Image* image = *j;
             EQASSERT( image->getStorageType() == Frame::TYPE_MEMORY );
+            if( image->getStorageType() != Frame::TYPE_MEMORY )
+                return 0;
 
             if( !image->hasPixelData( Frame::BUFFER_COLOR ))
                 continue;
 
             resultPVP.merge( image->getPixelViewport() + frame->getOffset( ));
-            
+
+            EQASSERT( colorFormat == GL_NONE ||
+                      colorFormat == image->getFormat( Frame::BUFFER_COLOR ));
+            EQASSERT( colorType == GL_NONE ||
+                      colorType == image->getType( Frame::BUFFER_COLOR ));
+
             colorFormat = image->getFormat( Frame::BUFFER_COLOR );
             colorType   = image->getType( Frame::BUFFER_COLOR );
 
             if( image->hasPixelData( Frame::BUFFER_DEPTH ))
             {
-                imagesDB.push_back( FrameImage( frame, image ));
+                EQASSERT( depthFormat == GL_NONE ||
+                          depthFormat == image->getFormat(Frame::BUFFER_DEPTH));
+                EQASSERT( depthType == GL_NONE ||
+                          depthType == image->getType( Frame::BUFFER_DEPTH ));
+
                 depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
                 depthType   = image->getType( Frame::BUFFER_DEPTH );
             }
-            else if( blendAlpha && image->hasAlpha( ))
-                imagesBlend.push_back( FrameImage( frame, image ));
-            else
-                images2D.push_back( FrameImage( frame, image ));
         }
     }
 
@@ -353,34 +359,70 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
         result       = _resultImage.get();;
     }
 
+    // pre-condition check for current _assemble implementations
+    EQASSERT( colorFormat != GL_NONE );
+    EQASSERT( colorType   != GL_NONE );
+
     result->setFormat( Frame::BUFFER_COLOR, colorFormat );
     result->setType(   Frame::BUFFER_COLOR, colorType );
-    result->setFormat( Frame::BUFFER_DEPTH, depthFormat );
-    result->setType(   Frame::BUFFER_DEPTH, depthType );
     result->setPixelViewport( resultPVP );
     result->clearPixelData( Frame::BUFFER_COLOR );
-    if( !imagesDB.empty( ))
-        result->clearPixelData( Frame::BUFFER_DEPTH );
+    bool depthCleared = false;
 
     // assembly
-    _assembleDBImages( result, imagesDB );
-    _assemble2DImages( result, images2D );
-    _assembleBlendImages( result, imagesBlend );
+    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    {
+        Frame* frame = *i;
+        const vector< Image* >& images = frame->getImages();        
+        for( vector< Image* >::const_iterator j = images.begin(); 
+             j != images.end(); ++j )
+        {
+            const Image* image = *j;
+
+            if( !image->hasPixelData( Frame::BUFFER_COLOR ))
+                continue;
+
+            if( image->hasPixelData( Frame::BUFFER_DEPTH ))
+            {
+                if( !depthCleared )
+                {
+                    EQASSERT( depthFormat == GL_DEPTH_COMPONENT );
+                    EQASSERT( depthType   == GL_UNSIGNED_INT );
+
+                    result->setFormat( Frame::BUFFER_DEPTH, depthFormat );
+                    result->setType(   Frame::BUFFER_DEPTH, depthType );
+                    result->clearPixelData( Frame::BUFFER_DEPTH );
+
+                    depthCleared = true;
+                }
+
+                _assembleDBImage( result, image, frame->getOffset( ));
+            }
+            else if( blendAlpha && image->hasAlpha( ))
+                _assembleBlendImage( result, image, frame->getOffset( ));
+            else
+                _assemble2DImage( result, image, frame->getOffset( ));
+        }
+    }
 
     return result;
 }
 
-
-void Compositor::_assembleDBImages( Image* result, 
-                                    const std::vector< FrameImage >& images )
+bool Compositor::mergeFramesCPU( const FrameVector& frames,
+                                 const bool blendAlpha, void* colorBuffer,
+                                 const uint32_t colorBufferSize,
+                                 void* depthBuffer,
+                                 const uint32_t depthBufferSize,
+                                 PixelViewport& outPVP )
 {
-    if( images.empty( ))
-        return;
+    return false;
+}
 
-    EQVERB << "CPU-DB assembly of " << images.size() << " images" << endl;
 
-    EQASSERT( result->getFormat( Frame::BUFFER_DEPTH ) == GL_DEPTH_COMPONENT);
-    EQASSERT( result->getType( Frame::BUFFER_DEPTH )   == GL_UNSIGNED_INT );
+void Compositor::_assembleDBImage( Image* result, const Image* image,
+                                   const vmml::Vector2i& offset )
+{
+    EQVERB << "CPU-DB assembly" << endl;
 
     const eq::PixelViewport& resultPVP = result->getPixelViewport();
     uint32_t* destColor = reinterpret_cast< uint32_t* >
@@ -388,216 +430,164 @@ void Compositor::_assembleDBImages( Image* result,
     uint32_t* destDepth = reinterpret_cast< uint32_t* >
         ( result->getPixelPointer( Frame::BUFFER_DEPTH ));
 
-    for( vector< FrameImage >::const_iterator i = images.begin();
-         i != images.end(); ++i )
-    {
-        const Frame*          frame  = i->first;
-        const Image*          image  = i->second;
-        const vmml::Vector2i& offset = frame->getOffset();
-        const PixelViewport&  pvp    = image->getPixelViewport();
-
-        EQASSERT( image->getDepth( Frame::BUFFER_COLOR ) == 4 );
-        EQASSERT( image->getDepth( Frame::BUFFER_DEPTH ) == 4 );
-        EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
-        EQASSERT( image->hasPixelData( Frame::BUFFER_DEPTH ));
-        EQASSERTINFO( image->getFormat( Frame::BUFFER_COLOR ) ==
-                      result->getFormat( Frame::BUFFER_COLOR ),
-                      image->getFormat( Frame::BUFFER_COLOR ) << " != "
-                      << result->getFormat( Frame::BUFFER_COLOR ));
-        EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
-                  result->getType( Frame::BUFFER_COLOR ));
-        EQASSERT( image->getFormat( Frame::BUFFER_DEPTH ) ==
-                  result->getFormat( Frame::BUFFER_DEPTH ));
-        EQASSERT( image->getType( Frame::BUFFER_DEPTH ) ==
-                  result->getType( Frame::BUFFER_DEPTH ));
+    const PixelViewport&  pvp    = image->getPixelViewport();
 
 #ifdef EQ_USE_PARACOMP_DEPTH
-        if( pvp == resultPVP && offset == vmml::Vector2i::ZERO )
-        {
-            // Use Paracomp to composite
-            if( !_assembleImage_PC( PC_COMP_DEPTH, result, image ))
-                EQWARN << "Paracomp compositing failed, using fallback" << endl;
-            else
-                continue; // Go to next input image
-        }
+    if( pvp == resultPVP && offset == vmml::Vector2i::ZERO )
+    {
+        // Use Paracomp to composite
+        if( _assembleImage_PC( PC_COMP_DEPTH, result, image ))
+            return;
+
+        EQWARN << "Paracomp compositing failed, using fallback" << endl;
+    }
 #endif
 
-        const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
-        const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
+    const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
+    const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
 
-        const uint32_t* color = reinterpret_cast< const uint32_t* >
-            ( image->getPixelPointer( Frame::BUFFER_COLOR ));
-        const uint32_t* depth = reinterpret_cast< const uint32_t* >
-            ( image->getPixelPointer( Frame::BUFFER_DEPTH ));
+    const uint32_t* color = reinterpret_cast< const uint32_t* >
+        ( image->getPixelPointer( Frame::BUFFER_COLOR ));
+    const uint32_t* depth = reinterpret_cast< const uint32_t* >
+        ( image->getPixelPointer( Frame::BUFFER_DEPTH ));
 
 #  pragma omp parallel for
-        for( int32_t y = 0; y < pvp.h; ++y )
+    for( int32_t y = 0; y < pvp.h; ++y )
+    {
+        const uint32_t skip =  (destY + y) * resultPVP.w + destX;
+        EQASSERT( skip * sizeof( int32_t ) <= 
+                  result->getPixelDataSize( Frame::BUFFER_COLOR ));
+        EQASSERT( skip * sizeof( uint32_t ) <= 
+                  result->getPixelDataSize( Frame::BUFFER_DEPTH ));
+
+        uint32_t* destColorIt = destColor + skip;
+        uint32_t* destDepthIt = destDepth + skip;
+        const uint32_t* colorIt = color + y * pvp.w;
+        const uint32_t* depthIt = depth + y * pvp.w;
+
+        for( int32_t x = 0; x < pvp.w; ++x )
         {
-            const uint32_t skip =  (destY + y) * resultPVP.w + destX;
-            EQASSERT( skip * sizeof( int32_t ) <= 
-                      result->getPixelDataSize( Frame::BUFFER_COLOR ));
-            EQASSERT( skip * sizeof( uint32_t ) <= 
-                      result->getPixelDataSize( Frame::BUFFER_DEPTH ));
-
-            uint32_t* destColorIt = destColor + skip;
-            uint32_t* destDepthIt = destDepth + skip;
-            const uint32_t* colorIt = color + y * pvp.w;
-            const uint32_t* depthIt = depth + y * pvp.w;
-
-            for( int32_t x = 0; x < pvp.w; ++x )
+            if( *destDepthIt > *depthIt )
             {
-                if( *destDepthIt > *depthIt )
-                {
-                    *destColorIt = *colorIt;
-                    *destDepthIt = *depthIt;
-                }
-
-                ++destColorIt;
-                ++destDepthIt;
-                ++colorIt;
-                ++depthIt;
+                *destColorIt = *colorIt;
+                *destDepthIt = *depthIt;
             }
+            
+            ++destColorIt;
+            ++destDepthIt;
+            ++colorIt;
+            ++depthIt;
         }
     }
 }
 
-void Compositor::_assemble2DImages( Image* result, 
-                                    const std::vector< FrameImage >& images )
+void Compositor::_assemble2DImage( Image* result, const Image* image,
+                                   const vmml::Vector2i& offset )
 {
-    // This is mostly copy&paste code from _assembleDBImages :-/
-    if( images.empty( ))
-        return;
-
-    EQVERB << "CPU-2D assembly of " << images.size() << " images" << endl;
+    // This is mostly copy&paste code from _assembleDBImage :-/
+    EQVERB << "CPU-2D assembly" << endl;
 
     const eq::PixelViewport& resultPVP = result->getPixelViewport();
     uint8_t* destColor = result->getPixelPointer( Frame::BUFFER_COLOR );
-    uint8_t* destDepth = result->hasPixelData( Frame::BUFFER_DEPTH ) ?
-        reinterpret_cast< uint8_t* >(result->getPixelPointer( Frame::BUFFER_DEPTH))
-        : 0;
 
-    for( vector< FrameImage >::const_iterator i = images.begin();
-         i != images.end(); ++i )
-    {
-        const Frame*          frame  = i->first;
-        const Image*          image  = i->second;
-        const vmml::Vector2i& offset = frame->getOffset();
-        const PixelViewport&  pvp    = image->getPixelViewport();
-        const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
-        const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
+    const PixelViewport&  pvp    = image->getPixelViewport();
+    const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
+    const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
 
-        EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
-        EQASSERT( image->getFormat( Frame::BUFFER_COLOR ) ==
-                  result->getFormat( Frame::BUFFER_COLOR ));
-        EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
-                  result->getType( Frame::BUFFER_COLOR ));
+    EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+    EQASSERT( image->getFormat( Frame::BUFFER_COLOR ) ==
+              result->getFormat( Frame::BUFFER_COLOR ));
+    EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
+              result->getType( Frame::BUFFER_COLOR ));
 
-        const uint8_t*   color = image->getPixelPointer( Frame::BUFFER_COLOR );
-        const size_t pixelSize = image->getDepth( Frame::BUFFER_COLOR );
-        const size_t rowLength = pvp.w * pixelSize;
+    const uint8_t*   color = image->getPixelPointer( Frame::BUFFER_COLOR );
+    const size_t pixelSize = image->getDepth( Frame::BUFFER_COLOR );
+    const size_t rowLength = pvp.w * pixelSize;
 
 #  pragma omp parallel for
-        for( int32_t y = 0; y < pvp.h; ++y )
-        {
-            const size_t skip = ( (destY + y) * resultPVP.w + destX ) *
-                                    pixelSize;
-            EQASSERT( skip + rowLength <= 
-                      result->getPixelDataSize( Frame::BUFFER_COLOR ));
+    for( int32_t y = 0; y < pvp.h; ++y )
+    {
+        const size_t skip = ( (destY + y) * resultPVP.w + destX ) * pixelSize;
+        EQASSERT( skip + rowLength <= 
+                  result->getPixelDataSize( Frame::BUFFER_COLOR ));
 
-            memcpy( destColor + skip, color + y * pvp.w * pixelSize, rowLength);
-            if( destDepth )
-            {
-                EQASSERT( pixelSize == image->getDepth( Frame::BUFFER_DEPTH ));
-                bzero( destDepth + skip, rowLength );
-            }
-        }
+        memcpy( destColor + skip, color + y * pvp.w * pixelSize, rowLength);
     }
 }
 
 
-void Compositor::_assembleBlendImages( Image* result, 
-                                       const std::vector< FrameImage >& images )
+void Compositor::_assembleBlendImage( Image* result, const Image* image,
+                                      const vmml::Vector2i& offset )
 {
-    if( images.empty( ))
-        return;
-
-    EQVERB << "CPU-Blend assembly of " << images.size() <<" images"<< endl;
+    EQVERB << "CPU-Blend assembly"<< endl;
 
     const eq::PixelViewport resultPVP = result->getPixelViewport();
     int32_t* destColor = reinterpret_cast< int32_t* >
         ( result->getPixelPointer( Frame::BUFFER_COLOR ));
 
-    for( vector< FrameImage >::const_iterator i = images.begin();
-         i != images.end(); ++i )
-    {
-        const Frame*          frame  = i->first;
-        const Image*          image  = i->second;
-        const vmml::Vector2i& offset = frame->getOffset();
-        const PixelViewport&  pvp    = image->getPixelViewport();
-        const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
-        const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
+    const PixelViewport&  pvp    = image->getPixelViewport();
+    const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
+    const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
 
-        EQASSERT( image->getDepth( Frame::BUFFER_COLOR ) == 4 );
-        EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
-        EQASSERT( image->hasAlpha( ));
-        EQASSERT( image->getFormat( Frame::BUFFER_COLOR ) ==
-                  result->getFormat( Frame::BUFFER_COLOR ));
-        EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
-                  result->getType( Frame::BUFFER_COLOR ));
-
+    EQASSERT( image->getDepth( Frame::BUFFER_COLOR ) == 4 );
+    EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+    EQASSERT( image->hasAlpha( ));
+    EQASSERT( image->getFormat( Frame::BUFFER_COLOR ) ==
+              result->getFormat( Frame::BUFFER_COLOR ));
+    EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
+              result->getType( Frame::BUFFER_COLOR ));
+    
 #ifdef EQ_USE_PARACOMP_BLEND
-        if( pvp == resultPVP && offset == vmml::Vector2i::ZERO )
-        { 
-            // Use Paracomp to composite
-            if( !_assembleImage_PC( PC_COMP_ALPHA_SORT2_HP,result, image ))
-                EQWARN << "Paracomp compositing failed, using fallback" << endl;
-            else
-                continue; // Go to next input image
-        }
+    if( pvp == resultPVP && offset == vmml::Vector2i::ZERO )
+    { 
+        // Use Paracomp to composite
+        if( !_assembleImage_PC( PC_COMP_ALPHA_SORT2_HP,result, image ))
+            EQWARN << "Paracomp compositing failed, using fallback" << endl;
+        else
+            continue; // Go to next input image
+    }
 #endif
 
-        const int32_t* color = reinterpret_cast< const int32_t* >
-                                ( image->getPixelPointer( Frame::BUFFER_COLOR ));
+    const int32_t* color = reinterpret_cast< const int32_t* >
+                               ( image->getPixelPointer( Frame::BUFFER_COLOR ));
 
-        // Check if we have enought space
-        EQASSERT( ((destY+pvp.h-1)*resultPVP.w+destX+pvp.w)*sizeof(uint32_t) <=
-                  result->getPixelDataSize( Frame::BUFFER_COLOR ));
+    // Check if we have enought space
+    EQASSERT( ((destY+pvp.h-1)*resultPVP.w+destX+pvp.w)*sizeof(uint32_t) <=
+              result->getPixelDataSize( Frame::BUFFER_COLOR ));
 
+    // Blending of two slices, none of which is on final image (i.e. result
+    // could be blended on to something else) should be performed with:
+    // glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA )
+    // which means:
+    // dstColor = 1*srcColor + srcAlpha*dstColor
+    // dstAlpha = 0*srcAlpha + srcAlpha*dstAlpha
+    // because we accumulate light which is go through (= 1-Alpha) and we
+    // already have colors as Alpha*Color
 
-        // Blending of two slices, none of which is on final image (i.e. result
-        // could be blended on to something else) should be performed with:
-        // glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA )
-        // which means:
-        // dstColor = 1*srcColor + srcAlpha*dstColor
-        // dstAlpha = 0*srcAlpha + srcAlpha*dstAlpha
-        // because we accumulate light which is go through (= 1-Alpha) and we
-        // already have colors as Alpha*Color
-
-        const int32_t* colorIt     = color;
-        int32_t*       destColorIt = destColor + destY*resultPVP.w + destX;
-        const uint32_t step        = sizeof( int32_t );
+    const int32_t* colorIt     = color;
+    int32_t*       destColorIt = destColor + destY*resultPVP.w + destX;
+    const uint32_t step        = sizeof( int32_t );
 
 #  pragma omp parallel for
-        for( int32_t y = 0; y < pvp.h; ++y )
+    for( int32_t y = 0; y < pvp.h; ++y )
+    {
+        const unsigned char* src =
+            reinterpret_cast< const unsigned char* >( colorIt );
+        unsigned char*       dst =
+            reinterpret_cast< unsigned char* >( destColorIt );
+
+        for( int32_t x = 0; x < pvp.w; ++x )
         {
-            const unsigned char* src =
-                reinterpret_cast< const unsigned char* >( colorIt );
-            unsigned char*       dst =
-                reinterpret_cast< unsigned char* >( destColorIt );
+            dst[0] = EQ_MIN( src[0] + (src[3]*dst[0] >> 8), 255 );
+            dst[1] = EQ_MIN( src[1] + (src[3]*dst[1] >> 8), 255 );
+            dst[2] = EQ_MIN( src[2] + (src[3]*dst[2] >> 8), 255 );
+            dst[3] =                   src[3]*dst[3] >> 8;
 
-            for( int32_t x = 0; x < pvp.w; ++x )
-            {
-                dst[0] = EQ_MIN( src[0] + (src[3]*dst[0] >> 8), 255 );
-                dst[1] = EQ_MIN( src[1] + (src[3]*dst[1] >> 8), 255 );
-                dst[2] = EQ_MIN( src[2] + (src[3]*dst[2] >> 8), 255 );
-                dst[3] =                   src[3]*dst[3] >> 8;
-
-                src += step;
-                dst += step;
-            }
-            colorIt     += pvp.w;
-            destColorIt += resultPVP.w;
+            src += step;
+            dst += step;
         }
+        colorIt     += pvp.w;
+        destColorIt += resultPVP.w;
     }
 }
 

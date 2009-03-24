@@ -96,6 +96,29 @@ namespace eq
         static const Image* mergeFramesCPU( const FrameVector& frames,
                                             const bool blendAlpha = false );
 
+        /** 
+         * Merge the provided frames into one main memory buffer.
+         *
+         * The called has to allocate and clear (if needed) the output buffers
+         * to hold the necessary data. All input images have to use the same
+         * format and type, which will also be the output format. The depth
+         * buffer and depth buffer size may be 0, if the images contain no depth
+         * information.
+         *
+         * The output pixel viewport receives the image size and offset wrt the
+         * destination channel.
+         *
+         * @return true if the compositing was successful, false otherwise,
+         *         e.g., a buffer is too small.
+         */
+        static bool mergeFramesCPU( const FrameVector& frames,
+                                    const bool blendAlpha,
+                                    void* colorBuffer,
+                                    const uint32_t colorBufferSize,
+                                    void* depthBuffer, 
+                                    const uint32_t depthBufferSize,
+                                    PixelViewport& outPVP );
+
         /** Assemble a frame using the default algorithm. */
         static void assembleFrame( const Frame* frame, Channel* channel );
         //*}
@@ -143,12 +166,12 @@ namespace eq
       private:
         typedef std::pair< const Frame*, const Image* > FrameImage;
 
-        static void _assembleDBImages( Image* result,
-                                       const std::vector< FrameImage >& images);
-        static void _assemble2DImages( Image* result,
-                                       const std::vector< FrameImage >& images);
-        static void _assembleBlendImages( Image* result,
-                                       const std::vector< FrameImage >& images);
+        static void _assembleDBImage( Image* result, const Image* input,
+                                       const vmml::Vector2i& offset );
+        static void _assemble2DImage( Image* result, const Image* input,
+                                       const vmml::Vector2i& offset );
+        static void _assembleBlendImage( Image* result, const Image* input,
+                                         const vmml::Vector2i& offset );
         static bool   _assembleImage_PC( int operation, Image* result,
                                          const Image* source );
         /** 
