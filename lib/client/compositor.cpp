@@ -293,13 +293,59 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
     EQVERB << "Sorted CPU assembly" << endl;
 
     // Collect input image information and check preconditions
-    PixelViewport        resultPVP;
-
+    PixelViewport destPVP;
     uint32_t colorFormat = GL_NONE;
     uint32_t colorType   = GL_NONE;
     uint32_t depthFormat = GL_NONE;
     uint32_t depthType   = GL_NONE;
 
+    if( !_collectOutputData( frames, destPVP, 
+                             colorFormat, colorType, depthFormat, depthType ))
+    {
+        return 0;
+    }
+
+    // prepare output image
+    Image* result = _resultImage.get();
+    if( !result )
+    {
+        _resultImage = new ResultImage;
+        result       = _resultImage.get();;
+    }
+
+    // pre-condition check for current _merge implementations
+    EQASSERT( colorFormat != GL_NONE );
+    EQASSERT( colorType   != GL_NONE );
+
+    result->setFormat( Frame::BUFFER_COLOR, colorFormat );
+    result->setType(   Frame::BUFFER_COLOR, colorType );
+    result->setPixelViewport( destPVP );
+    result->clearPixelData( Frame::BUFFER_COLOR );
+
+    void* destDepth = 0;
+    if( depthFormat != GL_NONE ) // at least one depth assembly
+    {
+        EQASSERT( depthFormat == GL_DEPTH_COMPONENT );
+        EQASSERT( depthType   == GL_UNSIGNED_INT );
+
+        result->setFormat( Frame::BUFFER_DEPTH, depthFormat );
+        result->setType(   Frame::BUFFER_DEPTH, depthType );
+        result->clearPixelData( Frame::BUFFER_DEPTH );
+        destDepth = result->getPixelPointer( Frame::BUFFER_DEPTH );
+    }
+
+    // assembly
+    _mergeFrames( frames, blendAlpha, 
+                  result->getPixelPointer( Frame::BUFFER_COLOR ),
+                  destDepth, destPVP );
+    return result;
+}
+
+bool Compositor::_collectOutputData( const FrameVector& frames,
+                                     PixelViewport& destPVP, 
+                                     uint32_t& colorFormat, uint32_t& colorType,
+                                     uint32_t& depthFormat, uint32_t& depthType)
+{
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         Frame* frame = *i;
@@ -308,7 +354,7 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
         EQASSERTINFO( frame->getPixel() == Pixel::ALL,
                       "CPU-based pixel recomposition not implemented" );
         if( frame->getPixel() != Pixel::ALL )
-            return 0;
+            return false;
 
         const vector< Image* >& images = frame->getImages();        
         for( vector< Image* >::const_iterator j = images.begin(); 
@@ -317,12 +363,12 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
             const Image* image = *j;
             EQASSERT( image->getStorageType() == Frame::TYPE_MEMORY );
             if( image->getStorageType() != Frame::TYPE_MEMORY )
-                return 0;
+                return false;
 
             if( !image->hasPixelData( Frame::BUFFER_COLOR ))
                 continue;
 
-            resultPVP.merge( image->getPixelViewport() + frame->getOffset( ));
+            destPVP.merge( image->getPixelViewport() + frame->getOffset( ));
 
             EQASSERT( colorFormat == GL_NONE ||
                       colorFormat == image->getFormat( Frame::BUFFER_COLOR ));
@@ -345,71 +391,13 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
         }
     }
 
-    if( !resultPVP.hasArea( ))
+    if( !destPVP.hasArea( ))
     {
-        EQWARN << "Nothing to assemble: " << resultPVP << endl;
-        return 0;
+        EQWARN << "Nothing to assemble: " << destPVP << endl;
+        return false;
     }
 
-    // prepare output image
-    Image* result = _resultImage.get();
-    if( !result )
-    {
-        _resultImage = new ResultImage;
-        result       = _resultImage.get();;
-    }
-
-    // pre-condition check for current _merge implementations
-    EQASSERT( colorFormat != GL_NONE );
-    EQASSERT( colorType   != GL_NONE );
-
-    result->setFormat( Frame::BUFFER_COLOR, colorFormat );
-    result->setType(   Frame::BUFFER_COLOR, colorType );
-    result->setPixelViewport( resultPVP );
-    result->clearPixelData( Frame::BUFFER_COLOR );
-    bool depthCleared = false;
-
-    // assembly
-    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
-    {
-        Frame* frame = *i;
-        const vector< Image* >& images = frame->getImages();        
-        for( vector< Image* >::const_iterator j = images.begin(); 
-             j != images.end(); ++j )
-        {
-            const Image* image = *j;
-
-            if( !image->hasPixelData( Frame::BUFFER_COLOR ))
-                continue;
-
-            if( image->hasPixelData( Frame::BUFFER_DEPTH ))
-            {
-                if( !depthCleared )
-                {
-                    EQASSERT( depthFormat == GL_DEPTH_COMPONENT );
-                    EQASSERT( depthType   == GL_UNSIGNED_INT );
-
-                    result->setFormat( Frame::BUFFER_DEPTH, depthFormat );
-                    result->setType(   Frame::BUFFER_DEPTH, depthType );
-                    result->clearPixelData( Frame::BUFFER_DEPTH );
-
-                    depthCleared = true;
-                }
-
-                _mergeDBImage( result->getPixelPointer( Frame::BUFFER_COLOR ),
-                               result->getPixelPointer( Frame::BUFFER_DEPTH ),
-                               resultPVP, image, frame->getOffset( ));
-            }
-            else if( blendAlpha && image->hasAlpha( ))
-                _mergeBlendImage( result->getPixelPointer(Frame::BUFFER_COLOR),
-                                  resultPVP, image, frame->getOffset( ));
-            else
-                _merge2DImage( result->getPixelPointer( Frame::BUFFER_COLOR ),
-                               resultPVP, image, frame->getOffset( ));
-        }
-    }
-
-    return result;
+    return true;
 }
 
 bool Compositor::mergeFramesCPU( const FrameVector& frames,
@@ -419,7 +407,87 @@ bool Compositor::mergeFramesCPU( const FrameVector& frames,
                                  const uint32_t depthBufferSize,
                                  PixelViewport& outPVP )
 {
-    return false;
+    EQASSERT( colorBuffer );
+    EQVERB << "Sorted CPU assembly" << endl;
+    
+    // Collect input image information and check preconditions
+    uint32_t colorFormat = GL_NONE;
+    uint32_t colorType   = GL_NONE;
+    uint32_t depthFormat = GL_NONE;
+    uint32_t depthType   = GL_NONE;
+    outPVP.invalidate();
+
+    if( !_collectOutputData( frames, outPVP, 
+                             colorFormat, colorType, depthFormat, depthType ))
+    {
+        return false;
+    }
+
+    // pre-condition check for current _merge implementations
+    EQASSERT( colorFormat != GL_NONE );
+    EQASSERT( colorType   != GL_NONE );
+
+    // check output buffers
+    const uint32_t area = outPVP.getArea();
+    const uint32_t colorPixelDepth = (colorFormat == GL_RGB) ? 3 : 4;
+
+    if( colorBufferSize < area * colorPixelDepth )
+    {
+        EQWARN << "Color output buffer to small" << endl;
+        return false;
+    }
+
+    if( depthFormat != GL_NONE ) // at least one depth assembly
+    {
+        EQASSERT( depthBuffer );
+        EQASSERT( depthFormat == GL_DEPTH_COMPONENT );
+        EQASSERT( depthType   == GL_UNSIGNED_INT );
+
+        if( !depthBuffer )
+        {
+            EQWARN << "No depth output buffer provided" << endl;
+            return false;
+        }
+
+        if( depthBufferSize < area * 4 )
+        {
+            EQWARN << "Depth output buffer to small" << endl;
+            return false;
+        }
+    }
+
+    // assembly
+    _mergeFrames( frames, blendAlpha, colorBuffer, depthBuffer, outPVP );
+    return true;
+}
+
+void Compositor::_mergeFrames( const FrameVector& frames,
+                               const bool blendAlpha, 
+                               void* colorBuffer, void* depthBuffer,
+                               const PixelViewport& destPVP )
+{
+    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    {
+        const Frame* frame = *i;
+        const ImageVector& images = frame->getImages();        
+        for( ImageVector::const_iterator j = images.begin();
+             j != images.end(); ++j )
+        {
+            const Image* image = *j;
+
+            if( !image->hasPixelData( Frame::BUFFER_COLOR ))
+                continue;
+
+            if( image->hasPixelData( Frame::BUFFER_DEPTH ))
+                _mergeDBImage( colorBuffer, depthBuffer, destPVP,
+                               image, frame->getOffset( ));
+            else if( blendAlpha && image->hasAlpha( ))
+                _mergeBlendImage( colorBuffer, destPVP, 
+                                  image, frame->getOffset( ));
+            else
+                _merge2DImage( colorBuffer, destPVP, image, frame->getOffset());
+        }
+    }
 }
 
 
