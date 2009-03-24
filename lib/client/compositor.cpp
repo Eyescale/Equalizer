@@ -564,17 +564,16 @@ void Compositor::_assembleBlendImage( Image* result, const Image* image,
     // because we accumulate light which is go through (= 1-Alpha) and we
     // already have colors as Alpha*Color
 
-    const int32_t* colorIt     = color;
-    int32_t*       destColorIt = destColor + destY*resultPVP.w + destX;
-    const uint32_t step        = sizeof( int32_t );
+    int32_t* destColorStart = destColor + destY*resultPVP.w + destX;
+    const uint32_t step = sizeof( int32_t );
 
 #  pragma omp parallel for
     for( int32_t y = 0; y < pvp.h; ++y )
     {
         const unsigned char* src =
-            reinterpret_cast< const unsigned char* >( colorIt );
+            reinterpret_cast< const uint8_t* >( color + pvp.w * y );
         unsigned char*       dst =
-            reinterpret_cast< unsigned char* >( destColorIt );
+            reinterpret_cast< uint8_t* >( destColorStart + resultPVP.w * y );
 
         for( int32_t x = 0; x < pvp.w; ++x )
         {
@@ -586,8 +585,6 @@ void Compositor::_assembleBlendImage( Image* result, const Image* image,
             src += step;
             dst += step;
         }
-        colorIt     += pvp.w;
-        destColorIt += resultPVP.w;
     }
 }
 
