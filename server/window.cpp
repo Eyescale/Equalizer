@@ -597,13 +597,18 @@ void Window::updatePost( const uint32_t frameID,
 void Window::_updateSwap( const uint32_t frameNumber )
 {
     bool doFinish = true;
-    
-    eq::WindowThrottleFramerate packetThrottle;
-    packetThrottle.minFrameTime = 1000.0f / _maxFPS;
-        
-    send( packetThrottle );
-    EQLOG( eq::LOG_TASKS ) << "TASK Throttle framerate  " << &packetThrottle << endl;
 
+    if( _maxFPS < numeric_limits< float >::max( ))
+    {
+        eq::WindowThrottleFramerate packetThrottle;
+        packetThrottle.minFrameTime = 1000.0f / _maxFPS;
+        
+        send( packetThrottle );
+        EQLOG( eq::LOG_TASKS ) << "TASK Throttle framerate  " 
+                               << &packetThrottle << endl;
+
+        _maxFPS = numeric_limits< float >::max();
+    }
     
     for( vector<net::Barrier*>::iterator i = _swapBarriers.begin();
          i != _swapBarriers.end(); ++i )
@@ -643,8 +648,6 @@ void Window::_updateSwap( const uint32_t frameNumber )
         send( packet );
         EQLOG( eq::LOG_TASKS ) << "TASK swap  " << &packet << endl;
     }
-
-    _maxFPS = numeric_limits< float >::max();
 }
 
 void Window::updateFrameFinishNT( const uint32_t currentFrame )
