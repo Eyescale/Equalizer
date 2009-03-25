@@ -8,6 +8,8 @@ Source: http://www.equalizergraphics.com/downloads/Equalizer-0.6.tar.gz
 Buildroot: /var/tmp/%{name}-%{version}-buildroot
 URL: http://www.equalizergraphics.com
 Packager: Stefan Eilemann <eilemann@gmail.com>
+Requires: glibc-devel xorg-x11-devel
+BuildRequires: gcc-c++ e2fsprogs-devel xorg-x11-devel rsync
 
 %description 
 Equalizer is the standard middleware to create parallel OpenGL-based
