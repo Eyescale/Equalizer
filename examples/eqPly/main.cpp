@@ -37,7 +37,14 @@ int main( const int argc, char** argv )
     // 1. parse arguments
     eqPly::LocalInitData initData;
     initData.parseArguments( argc, argv );
-    initData.openLogfile();
+
+    std::ofstream* logFile = 0;
+    const std::string& logFilename = initData.getLogFilename();
+    if( !logFilename.empty( ))
+    {
+        logFile = new ofstream( logFilename.c_str( ));
+        eq::base::Log::setOutput( *logFile );
+    }
     
     // 2. Equalizer initialization
     NodeFactory nodeFactory;
@@ -60,12 +67,16 @@ int main( const int argc, char** argv )
     const int ret = client->run();
 
     // 5. cleanup and exit
-    initData.closeLogfile();
     client->exitLocal();
 
     // TODO EQASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
     client = 0;
 
     eq::exit();
+
+    if( logFile )
+        logFile->close();
+    delete logFile;
+
     return ret;
 }

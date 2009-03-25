@@ -123,8 +123,8 @@ EQ_EXPORT void Log::exit()
 
 EQ_EXPORT void Log::setOutput( std::ostream& stream )
 {
-    exit();
     _logStream = &stream;
+    exit();
 }
 
 

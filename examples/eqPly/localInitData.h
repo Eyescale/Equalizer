@@ -23,12 +23,10 @@ namespace eqPly
         void parseArguments( const int argc, char** argv );
 
         const std::string& getTrackerPort() const { return _trackerPort; }
+        const std::string& getLogFilename() const { return _logFilename; }
         bool               useColor()       const { return _color; }
         bool               isResident()     const { return _isResident; }
         uint32_t           getMaxFrames()   const { return _maxFrames; }
-        
-        void openLogfile();
-        void closeLogfile();
         
         const std::vector< std::string >& getFilenames() const
             { return _filenames; }
@@ -38,12 +36,10 @@ namespace eqPly
     private:
         std::string _trackerPort;
         std::vector< std::string > _filenames;
-        std::string _logFileName;
-        std::ofstream*    _logStream; 
+        std::string _logFilename;
         uint32_t    _maxFrames;
         bool        _color;
         bool        _isResident;
-        bool        _ActiveIOFile;
     };
 }
 

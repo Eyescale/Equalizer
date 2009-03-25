@@ -49,23 +49,6 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     return *this;
 }
 
-void LocalInitData::openLogfile()
-{
-    if( _ActiveIOFile )
-    {
-        _logStream = new ofstream( _logFileName.c_str() );
-        eq::base::Log::setOutput( *_logStream );
-    }
-}
-
-void LocalInitData::closeLogfile()
-{
-    if( _ActiveIOFile )
-    {
-        _logStream->close();
-    }
-}
-
 void LocalInitData::parseArguments( const int argc, char** argv )
 {
     try
@@ -107,11 +90,10 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
                                     command, false );
         TCLAP::SwitchArg invFacesArg( "i", "iface",
-            "Invert faces (valid during binary file creation)", 
+                            "Invert faces (valid during binary file creation)", 
                                     command, false );
-                                    
-        TCLAP::ValueArg<string> logArg( "l", "log", "log ouput file",
-                                        false, "sortie.log", "string",
+        TCLAP::ValueArg<string> logArg( "l", "log", "output log file",
+                                        false, "eqPly.log", "string",
                                         command );
                                         
         command.parse( argc, argv );
@@ -159,10 +141,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                 setRenderMode( mesh::RENDER_MODE_BUFFER_OBJECT );
         }
 
-        if ( _ActiveIOFile = logArg.isSet() )
-        {
-            _logFileName = logArg.getValue();
-        }
+        if( logArg.isSet( ))
+            _logFilename = logArg.getValue();
         
         if( glslArg.isSet() )
             enableGLSL();
