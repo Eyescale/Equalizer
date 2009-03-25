@@ -1,4 +1,4 @@
-# single pipe, thrre-to-one sort-last demo configuration with a separate
+# single pipe, three-to-one sort-last demo configuration with a separate
 # destination channel
 server
 {

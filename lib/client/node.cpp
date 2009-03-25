@@ -460,6 +460,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     _state = STATE_INITIALIZING;
     _name  = packet->name;
     _tasks = packet->tasks;
+
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
 
     _currentFrame  = packet->frameNumber;
@@ -535,7 +536,8 @@ net::CommandResult Node::_cmdFrameFinish( net::Command& command )
     CHECK_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
         command.getPacket<NodeFrameFinishPacket>();
-    EQVERB << "handle node frame finish " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
+                       << endl;
 
     const uint32_t frameNumber = packet->frameNumber;
 

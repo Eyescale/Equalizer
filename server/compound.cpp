@@ -787,7 +787,8 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.zoom *= zoom;
     }
 
-    if( !_inherit.pvp.hasArea( ))
+    // Channels with no PVP do not execute tasks (ignored during init)
+    if( frameNumber != 0 && !_inherit.pvp.hasArea( ))
         _inherit.tasks = eq::TASK_NONE;
     else if( _data.tasks == eq::TASK_DEFAULT )
     {
