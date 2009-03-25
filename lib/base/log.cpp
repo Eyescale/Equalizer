@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -50,6 +50,12 @@ EQ_EXPORT unsigned   Log::topics = getLogTopics();
 EQ_EXPORT Clock      LogBuffer::_clock;
 
 static PerThread< Log > _logInstance;
+
+#ifdef NDEBUG
+    static std::ostream* _logStream = &std::cout;
+#else
+    static std::ostream* _logStream = &std::cerr;
+#endif
 
 int getLogLevel()
 {
@@ -114,6 +120,19 @@ EQ_EXPORT void Log::exit()
     _logInstance = 0;
     delete log;
 }
+
+EQ_EXPORT void Log::setOutput( std::ostream& stream )
+{
+    exit();
+    _logStream = &stream;
+}
+
+
+std::ostream& Log::getOutput()
+{
+    return *_logStream;
+}
+
 
 LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
 {

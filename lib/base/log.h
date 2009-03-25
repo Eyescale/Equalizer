@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_LOG_H
@@ -43,8 +43,8 @@ namespace base
     /** The string buffer used for logging. */
     class LogBuffer : public std::streambuf
     {
-	public:
-		LogBuffer( std::ostream& stream )
+    public:
+        LogBuffer( std::ostream& stream )
                 : _line(0), _indent(0), _blocked(0), _noHeader(0), 
                   _newLine(true), _stream(stream)
             {}
@@ -72,7 +72,7 @@ namespace base
             { _file = std::string( subdir ) + '/' + file; _line = line; }
 #endif
 
-	protected:
+    protected:
         virtual int_type overflow( LogBuffer::int_type c );
         
         virtual int sync() 
@@ -123,12 +123,8 @@ namespace base
     class Log : public std::ostream
     {
     public:
-#ifdef NDEBUG
-        Log() : std::ostream( &_logBuffer ), _logBuffer( std::cout ){}
-#else
-        Log() : std::ostream( &_logBuffer ), _logBuffer( std::cerr ){}
-#endif
 
+        Log() : std::ostream( &_logBuffer ), _logBuffer( getOutput( )){}
         virtual ~Log() { _logBuffer.pubsync(); }
 
         void indent() { _logBuffer.indent(); }
@@ -155,7 +151,13 @@ namespace base
         /** The string representation of the current log level. */
         static std::string& getLogLevelString();
 
+        /** Change the output stream */
+        static void setOutput( std::ostream& stream );
+
         void notifyPerThreadDelete() { delete this; }
+
+        /** Get the current output stream */
+        static std::ostream& getOutput ();
 
     private:
         LogBuffer _logBuffer; 

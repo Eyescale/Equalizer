@@ -37,7 +37,8 @@ int main( const int argc, char** argv )
     // 1. parse arguments
     eqPly::LocalInitData initData;
     initData.parseArguments( argc, argv );
-
+    initData.openLogfile();
+    
     // 2. Equalizer initialization
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
@@ -59,6 +60,7 @@ int main( const int argc, char** argv )
     const int ret = client->run();
 
     // 5. cleanup and exit
+    initData.closeLogfile();
     client->exitLocal();
 
     // TODO EQASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
