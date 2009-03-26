@@ -317,7 +317,8 @@ void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
                  i != _pipes.end(); ++i )
             {
                 const Pipe* pipe = *i;
-                pipe->waitFrameLocal( frameNumber );
+                if( pipe->getTasks() & TASK_DRAW )
+                    pipe->waitFrameLocal( frameNumber );
             }
             
             releaseFrameLocal( frameNumber );
@@ -341,7 +342,8 @@ void Node::frameTasksFinish( const uint32_t frameID, const uint32_t frameNumber)
                  i != _pipes.end(); ++i )
             {
                 const Pipe* pipe = *i;
-                pipe->waitFrameLocal( frameNumber );
+                if( pipe->getTasks() != TASK_NONE )
+                    pipe->waitFrameLocal( frameNumber );
             }
             
             releaseFrameLocal( frameNumber );
@@ -543,14 +545,6 @@ net::CommandResult Node::_cmdFrameFinish( net::Command& command )
 
     _finishFrame( frameNumber );
     _frameFinish( packet->frameID, frameNumber );
-
-    if( packet->syncGlobalFinish )
-    {
-        // special sync for appNode with non-threaded pipes.
-        const Config* config = getConfig();
-        config->waitFrameFinished( frameNumber );
-    }
-
     return net::COMMAND_HANDLED;
 }
 

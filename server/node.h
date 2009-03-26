@@ -155,9 +155,6 @@ namespace server
 
         /** Synchronize the completion of the rendering of a frame. */
         void finishFrame( const uint32_t frame );
-
-        /** Invoke non-threaded rendering synchronization. */
-        void updateFrameFinishNT( const uint32_t currentFrame );
         //*}
 
 
@@ -307,6 +304,8 @@ namespace server
         bool _syncConfigInit();
         void _configExit();
         bool _syncConfigExit();
+
+        void _finish( const uint32_t currentFrame );
 
         /** flush cached barriers. */
         void _flushBarriers();

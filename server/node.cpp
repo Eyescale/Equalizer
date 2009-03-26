@@ -380,9 +380,6 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
 
     _frameIDs[ frameNumber ] = frameID;
     
-    if( !_lastDrawPipe ) // happens when used channels skip a frame (DPlex, LB)
-        _lastDrawPipe = _pipes[0];
-
     eq::NodeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
@@ -396,43 +393,36 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
             pipe->update( frameID, frameNumber );
     }
 
-    const Config*  config  = getConfig();
-    const uint32_t latency = config->getLatency();
-
     eq::NodeFrameTasksFinishPacket finishPacket;
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     _send( finishPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK node tasks finish " << &finishPacket <<endl;
 
-    if( frameNumber > latency )
-        flushFrames( frameNumber - latency );
+    _finish( frameNumber );
 
     flushSendBuffer();
     _lastDrawPipe = 0;
 }
 
-void Node::updateFrameFinishNT( const uint32_t currentFrame )
+void Node::_finish( const uint32_t currentFrame )
 {
     const Config*  config  = getConfig();
     const uint32_t latency = config->getLatency();
-    if( latency == 0 || currentFrame <= latency )
-        return;
 
-    const uint32_t            frameNumber = currentFrame - latency;
-    if( _frameIDs.find( frameNumber ) == _frameIDs.end( ))
-        return; // finish already send by previous updateFrameFinishNT
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
+    {
+        const Pipe* pipe = *i;
+        if( pipe->getIAttribute( Pipe::IATTR_HINT_THREAD ))
+        {
+            if( currentFrame > latency )
+                flushFrames( currentFrame - latency );
+            return;
+        }
+    }
 
-    eq::NodeFrameFinishPacket packet;
-    packet.frameID          = _frameIDs[ frameNumber ];
-    packet.frameNumber      = frameNumber;
-    packet.syncGlobalFinish = isApplicationNode();
-
-    _send( packet );
-    _frameIDs.erase( frameNumber );
-
-    EQLOG( eq::LOG_TASKS ) << "TASK node finish frame non-threaded " << &packet
-                           << endl;
+    // else only non-threaded pipes, all local tasks are done, send finish now.
+    flushFrames( currentFrame );
 }
 
 void Node::flushFrames( const uint32_t frameNumber )
@@ -451,7 +441,7 @@ void Node::flushFrames( const uint32_t frameNumber )
 void Node::_sendFrameFinish( const uint32_t frameNumber )
 {
     if( _frameIDs.find( frameNumber ) == _frameIDs.end( ))
-        return; // finish already send by updateFrameFinishNT
+        return; // finish already send
 
     eq::NodeFrameFinishPacket packet;
     packet.frameID     = _frameIDs[ frameNumber ];

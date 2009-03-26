@@ -230,9 +230,6 @@ namespace server
          * @param frameNumber the number of the frame.
          */
         void updatePost( const uint32_t frameID, const uint32_t frameNumber );
-
-        /** Trigger the synchronization for non-threaded rendering. */
-        void updateFrameFinishNT( const uint32_t currentFrame );
         //*}
 
         /**

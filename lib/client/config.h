@@ -146,10 +146,6 @@ namespace eq
          */
         void releaseFrameLocal( const uint32_t frameNumber )
             { _unlockedFrame = frameNumber; }
-
-        /** Wait for a frame to be finished */
-        void waitFrameFinished( const uint32_t frameNumber ) const
-            { _finishedFrame.waitGE( frameNumber ); }
         //*}
 
         /** @name Event handling. */
@@ -338,6 +334,8 @@ namespace eq
         void _removeCanvas( Canvas* canvas );
         void _addLayout( Layout* layout );
         void _removeLayout( Layout* layout );
+
+        bool _needsLocalSync() const;
 
         /** 
          * Update statistics for the finished frame, push it to the local node

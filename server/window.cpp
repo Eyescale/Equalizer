@@ -550,8 +550,6 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     EQASSERT( _state == STATE_RUNNING );
     EQASSERT( _active > 0 );
 
-    if( !_lastDrawChannel ) // happens when all used channels skip a frame
-        _lastDrawChannel = _channels[0];
     _doSwap = false;
 
     eq::WindowFrameStartPacket startPacket;
@@ -626,8 +624,6 @@ void Window::_updateSwap( const uint32_t frameNumber )
             eq::WindowFinishPacket packet;
             send( packet );
             EQLOG( eq::LOG_TASKS ) << "TASK finish  " << &packet << endl;
-
-            updateFrameFinishNT( frameNumber );
             doFinish = false;
         }
 
@@ -648,16 +644,6 @@ void Window::_updateSwap( const uint32_t frameNumber )
         send( packet );
         EQLOG( eq::LOG_TASKS ) << "TASK swap  " << &packet << endl;
     }
-}
-
-void Window::updateFrameFinishNT( const uint32_t currentFrame )
-{
-    Pipe* pipe = getPipe();
-    if( pipe->isThreaded( ))
-        return;
-
-    Node* node = pipe->getNode();
-    node->updateFrameFinishNT( currentFrame );
 }
 
 //===========================================================================

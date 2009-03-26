@@ -457,12 +457,10 @@ namespace eq
             {
                 command          = CMD_NODE_FRAME_FINISH;
                 size             = sizeof( NodeFrameFinishPacket );
-                syncGlobalFinish = false;
             }
 
         uint32_t frameID;
         uint32_t frameNumber;
-        bool     syncGlobalFinish;
     };
 
     struct NodeFrameFinishReplyPacket : public net::ObjectPacket
@@ -604,18 +602,6 @@ namespace eq
             {
                 command        = CMD_PIPE_FRAME_FINISH;
                 size           = sizeof( PipeFrameFinishPacket );
-            }
-
-        uint32_t frameID;
-        uint32_t frameNumber;
-    };
-
-    struct PipeFrameNoDrawPacket : public net::ObjectPacket
-    {
-        PipeFrameNoDrawPacket()
-            {
-                command        = CMD_PIPE_FRAME_NO_DRAW;
-                size           = sizeof( PipeFrameNoDrawPacket );
             }
 
         uint32_t frameID;
@@ -1087,7 +1073,7 @@ namespace eq
                                        const NodeFrameFinishPacket* packet )
     {
         os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
-           << " id " << packet->frameID << " sync " << packet->syncGlobalFinish;
+           << " id " << packet->frameID;
         return os;
     }
 
@@ -1120,13 +1106,6 @@ namespace eq
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeFrameDrawFinishPacket* packet )
-    {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
-           << " id " << packet->frameID;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const PipeFrameNoDrawPacket* packet )
     {
         os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;

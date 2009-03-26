@@ -162,8 +162,6 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
                      PipeFunc( this, &Pipe::_cmdFrameFinish ), queue );
     registerCommand( CMD_PIPE_FRAME_DRAW_FINISH, 
                      PipeFunc( this, &Pipe::_cmdFrameDrawFinish ), queue );
-    registerCommand( CMD_PIPE_FRAME_NO_DRAW, 
-                     PipeFunc( this, &Pipe::_cmdFrameNoDraw ), 0 );
     registerCommand( CMD_PIPE_FRAME_START_CLOCK,
                      PipeFunc( this, &Pipe::_cmdFrameStartClock ), 0 );
 }
@@ -529,24 +527,6 @@ void Pipe::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
     }
 }
 
-void Pipe::frameNoDraw( const uint32_t frameID, const uint32_t frameNumber )
-{
-    const Node* node = getNode();
-    switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
-    {
-        case ASYNC:      // release
-        case DRAW_SYNC:  // release
-            releaseFrameLocal( frameNumber ); 
-            break;
-
-        case LOCAL_SYNC: // release in frameFinish
-            break;
-
-        default:
-            EQUNIMPLEMENTED;
-    }
-}
-
 void Pipe::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
 {
     const Node* node = getNode();
@@ -587,26 +567,9 @@ void Pipe::releaseFrame( const uint32_t frameNumber )
 void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 { 
     CHECK_THREAD( _pipeThread );
+    EQASSERT( _unlockedFrame + 1 == frameNumber );
 
-    if( _unlockedFrame >= frameNumber ) 
-        return; // DUP (nodraw + drawfinish)
-
-    if( _unlockedFrame + 1 == frameNumber )
-    {
-        ++_unlockedFrame;
-
-        // Catch up with saved future released frames
-        stde::usort( _unlockedFrames );
-        while( !_unlockedFrames.empty() &&
-               _unlockedFrames[0] == _unlockedFrame + 1 )
-        {
-            ++_unlockedFrame;
-            _unlockedFrames.pop_front();
-        }
-    }
-    else
-        _unlockedFrames.push_back( frameNumber ); // not yet ready - save
-    
+    _unlockedFrame = frameNumber;
     EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame.get()
                        << endl;
 }
@@ -839,23 +802,4 @@ net::CommandResult Pipe::_cmdFrameDrawFinish( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-net::CommandResult Pipe::_cmdFrameNoDraw( net::Command& command )
-{
-    if( !command.isDispatched( ))
-    {
-        net::CommandQueue* queue = getPipeThreadQueue();
-        queue->pushFront( command );
-
-        EQLOG( LOG_TASKS ) << "pushed TASK no draw " << getName() << endl;
-        return net::COMMAND_HANDLED;
-    }
-
-    CHECK_THREAD( _pipeThread );
-    PipeFrameNoDrawPacket* packet = command.getPacket< PipeFrameNoDrawPacket>();
-    EQLOG( LOG_TASKS ) << "TASK no draw " << getName() <<  " " << packet
-                       << endl;
-
-    frameNoDraw( packet->frameID, packet->frameNumber );
-    return net::COMMAND_HANDLED;
-}
 }

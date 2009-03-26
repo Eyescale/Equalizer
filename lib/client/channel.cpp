@@ -901,7 +901,7 @@ void Channel::drawStatistics()
         glVertex3f( frameMax+1.0f, nextY,         0.3f );
         glEnd();
 
-        dim += .2f;
+        dim += .1f;
     }
 
     for( std::map< uint32_t, EntityData >::const_iterator i = entities.begin();

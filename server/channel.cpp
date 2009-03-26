@@ -445,20 +445,17 @@ bool Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     EQASSERT( _state == STATE_RUNNING );
     EQASSERT( _active > 0 );
 
-    const CompoundVector& compounds = getCompounds();
-    if( !_lastDrawCompound ) // happens when a used channel skips a frame
-        _lastDrawCompound = compounds[0];
-
     eq::ChannelFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
     startPacket.viewVersion = _view ? _view->getVersion() : EQ_ID_INVALID;
 
     send( startPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK channel start frame  " << &startPacket
-                           << endl;
+    EQLOG( eq::LOG_TASKS ) << "TASK channel " << _name << " start frame  " 
+                           << &startPacket << endl;
 
     bool updated = false;
+    const CompoundVector& compounds = getCompounds();
 
     for( CompoundVector::const_iterator i = compounds.begin(); 
          i != compounds.end(); ++i )
@@ -487,8 +484,8 @@ void Channel::updatePost( const uint32_t frameID, const uint32_t frameNumber )
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     send( finishPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK channel finish frame  " << &finishPacket
-                           << endl;
+    EQLOG( eq::LOG_TASKS ) << "TASK channel " << _name << " finish frame  "
+                           << &finishPacket << endl;
     _lastDrawCompound = 0;
 }
 

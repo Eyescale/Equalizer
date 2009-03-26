@@ -18,6 +18,7 @@
 #include "nodeFactory.h"
 #include "packets.h"
 #include "server.h"
+#include "task.h"
 #include "view.h"
 
 #include <eq/net/command.h>
@@ -378,17 +379,27 @@ uint32_t Config::finishFrame()
     RefPtr< Client > client        = getClient();
     const uint32_t   frameToFinish = (_currentFrame >= _latency) ? 
                                       _currentFrame - _latency : 0;
+    const bool needsLocalSync = _needsLocalSync();
     {
         ConfigStatistics waitStat( Statistic::CONFIG_WAIT_FINISH_FRAME, this );
+        
+        // local draw sync
+        if( needsLocalSync )
+            while( _unlockedFrame < _currentFrame )
+                client->processCommand();
 
-        while( _unlockedFrame < _currentFrame || // local sync
-               _finishedFrame < frameToFinish )  // global sync
+        // local node  finish (frame-latency) sync
+        if( !_nodes.empty( ))
         {
-            client->processCommand();
-            EQVERB << "local " << _unlockedFrame << '/' << _currentFrame
-                   << " global " << _finishedFrame.get() << '/' << frameToFinish
-                   << endl;
+            EQASSERT( _nodes.size() == 1 );
+            const Node* node = _nodes.front();
+
+            while( node->getFinishedFrame() < frameToFinish )
+                client->processCommand();
         }
+
+        // global sync
+        _finishedFrame.waitGE( frameToFinish );
 
         // handle directly, it would not be processed in time using the normal
         // event flow
@@ -553,6 +564,36 @@ bool Config::handleEvent( const ConfigEvent* event )
     }
 
     return false;
+}
+
+bool Config::_needsLocalSync() const
+{
+    if( _nodes.empty( ))
+        return false;
+
+    EQASSERT( _nodes.size() == 1 );
+    const Node* node = _nodes.front();
+    switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
+    {
+        case ASYNC:
+            return false;
+            break;
+
+        case DRAW_SYNC:
+            if( !(node->getTasks() & TASK_DRAW) )
+                return false;
+            break;
+
+        case LOCAL_SYNC:
+            if( node->getTasks() == TASK_NONE )
+                return false;
+            break;
+                
+        default:
+            EQUNIMPLEMENTED;
+    }
+
+    return true;
 }
 
 void Config::_updateStatistics( const uint32_t finishedFrame )

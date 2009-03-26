@@ -44,7 +44,6 @@ namespace eq
         ServerPtr getServer();
 
         const PipeVector& getPipes() const { return _pipes; }
-
         const std::string& getName() const { return _name; }
 
         /** 
@@ -98,6 +97,8 @@ namespace eq
          */
         void waitFrameStarted( const uint32_t frameNumber ) const
             { _currentFrame.waitGE( frameNumber ); }
+
+        uint32_t getFinishedFrame() const { return _finishedFrame; }
 
         /**
          * @name Attributes
