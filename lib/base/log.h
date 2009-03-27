@@ -152,7 +152,7 @@ namespace base
         static std::string& getLogLevelString();
 
         /** Change the output stream */
-        static void setOutput( std::ostream& stream );
+        static EQ_EXPORT void setOutput( std::ostream& stream );
 
         void notifyPerThreadDelete() { delete this; }
 
