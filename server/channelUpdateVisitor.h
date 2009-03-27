@@ -72,6 +72,7 @@ namespace server
 
         void _computeFrustum( const Compound* compound,
                               eq::RenderContext& context );
+        vmml::Vector3f _getEyePosition( Compound* compound ) const;
         void   _computeFrustumCorners( vmml::Frustumf& frustum,
                                        const Compound* compound,
                                        const FrustumData& frustumData,
