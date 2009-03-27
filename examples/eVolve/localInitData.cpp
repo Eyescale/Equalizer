@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
- * All rights reserved. 
+  ! All rights reserved. 
  */
 
 #include "localInitData.h"

@@ -31,7 +31,6 @@
  lib/client/  the client-side implementation of Equalizer
  server/    the server source code
  examples/  Equalizer example programs
- proto/     quick prototypes written during development
  tests/     small programs testing certain functionality (to-be-unit-tests)
  tools/     miscellanous tools
 

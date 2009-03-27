@@ -8,7 +8,6 @@ SUBDIRS = \
 	server \
 	tools \
 	examples \
-	proto \
 	tests
 
 .PHONY: docs
@@ -23,7 +22,6 @@ docs:
 
 lib: precompile
 lib: externals
-proto: lib
 tests: lib server
 examples: lib
 server: lib
