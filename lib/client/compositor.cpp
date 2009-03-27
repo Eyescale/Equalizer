@@ -499,7 +499,8 @@ void Compositor::_mergeFrames( const FrameVector& frames,
                 _mergeBlendImage( colorBuffer, destPVP, 
                                   image, frame->getOffset( ));
             else
-                _merge2DImage( colorBuffer, destPVP, image, frame->getOffset());
+                _merge2DImage( colorBuffer, depthBuffer, destPVP, 
+                               image, frame->getOffset());
         }
     }
 }
@@ -563,14 +564,16 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
     }
 }
 
-void Compositor::_merge2DImage( void* dest, const eq::PixelViewport& destPVP,
+void Compositor::_merge2DImage( void* destColor, void* destDepth,
+                                const eq::PixelViewport& destPVP,
                                 const Image* image,
                                 const vmml::Vector2i& offset )
 {
     // This is mostly copy&paste code from _mergeDBImage :-/
     EQVERB << "CPU-2D assembly" << endl;
 
-    uint8_t* destColor = reinterpret_cast< uint8_t* >( dest );
+    uint8_t* destC = reinterpret_cast< uint8_t* >( destColor );
+    uint8_t* destD = reinterpret_cast< uint8_t* >( destDepth );
 
     const PixelViewport&  pvp    = image->getPixelViewport();
     const int32_t         destX  = offset.x + pvp.x - destPVP.x;
@@ -586,7 +589,9 @@ void Compositor::_merge2DImage( void* dest, const eq::PixelViewport& destPVP,
     for( int32_t y = 0; y < pvp.h; ++y )
     {
         const size_t skip = ( (destY + y) * destPVP.w + destX ) * pixelSize;
-        memcpy( destColor + skip, color + y * pvp.w * pixelSize, rowLength);
+        memcpy( destC + skip, color + y * pvp.w * pixelSize, rowLength);
+        if( destD ) // clear depth, for depth-assembly into existing FB
+            bzero( destD + skip, rowLength );
     }
 }
 

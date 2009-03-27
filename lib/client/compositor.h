@@ -194,7 +194,7 @@ namespace eq
                                    const PixelViewport& destPVP, 
                                    const Image* image, 
                                    const vmml::Vector2i& offset );
-        static void   _merge2DImage( void* dest, 
+        static void   _merge2DImage( void* destColor, void* destDepth,
                                      const eq::PixelViewport& destPVP,
                                      const Image* input,
                                      const vmml::Vector2i& offset );
