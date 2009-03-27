@@ -28,7 +28,10 @@ namespace eq
 namespace server
 {
 
-FrustumData::FrustumData() : _width(0.f), _height(0.f) 
+FrustumData::FrustumData()
+        : _width(0.f)
+        , _height(0.f)
+        , _type( Wall::TYPE_FIXED )
 {
 }
 
@@ -40,6 +43,7 @@ void FrustumData::applyWall( const eq::Wall& wall )
                       u[2]*v[0] - u[0]*v[2],
                       u[0]*v[1] - u[1]*v[0] );
 
+    _type   = wall.type;
     _width  = u.normalize();
     _height = v.normalize();
     w.normalize();
@@ -116,6 +120,7 @@ void FrustumData::applyProjection( const eq::Projection& projection )
 
     _width  = distance * 2.f * tanf(DEG2RAD( .5f * projection.fov[0] ));
     _height = distance * 2.f * tanf(DEG2RAD( .5f * projection.fov[1] ));
+    _type   = Wall::TYPE_FIXED;
 }
  
 std::ostream& operator << ( std::ostream& os, const FrustumData& frustumData )

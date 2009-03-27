@@ -1100,7 +1100,10 @@ net::CommandResult Config::_cmdInit( net::Command& command )
     std::string error = _error;
 
     if( reply.result )
+    {
         mapObject( &_headMatrix, packet->headMatrixID );
+        _headMatrix.getInverse( _invHeadMatrix );
+    }
     else
         exit();
 

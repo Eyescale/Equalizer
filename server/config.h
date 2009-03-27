@@ -85,6 +85,10 @@ namespace server
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
+        /** @return the inverse of the current head matrix. */
+        const vmml::Matrix4f& getInverseHeadMatrix() const
+            { return _invHeadMatrix; }
+
         /** 
          * Adds a new node to this config.
          * 
@@ -395,6 +399,7 @@ namespace server
 
         /** The matrix defining the head's position for head tracking. */
         eq::Matrix4f _headMatrix;
+        vmml::Matrix4f _invHeadMatrix;
         friend class ConfigSyncVisitor;
 
         /** The eye positions in world space. */ 

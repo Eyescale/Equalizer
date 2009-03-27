@@ -21,6 +21,7 @@
 
 #include <eq/base/base.h>
 #include <eq/client/eye.h>   // EYE enum
+#include <eq/client/wall.h>  // Wall::Type enum
 #include <vmmlib/matrix4.h>  // member
 #include <vmmlib/vector3.h>  // member
 
@@ -62,12 +63,16 @@ namespace server
 
         /** @return the frustum plane height */
         float getHeight() const { return _height; }
+
+        /** @return the projection type. */
+        eq::Wall::Type getType() const { return _type; }
         //*}
 
     private:
         float _width;
         float _height;
         vmml::Matrix4f _xfm;
+        eq::Wall::Type _type;
     };
 
     std::ostream& operator << ( std::ostream& os, const FrustumData& ); 

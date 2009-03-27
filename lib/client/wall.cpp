@@ -31,9 +31,10 @@ using namespace std;
 namespace eq
 {
 Wall::Wall()
-        : bottomLeft( -.8f, -.5f, -1.f ),
-          bottomRight( .8f, -.5f, -1.f ),
-          topLeft(    -.8f,  .5f, -1.f )
+        : bottomLeft( -.8f, -.5f, -1.f )
+        , bottomRight( .8f, -.5f, -1.f )
+        , topLeft(    -.8f,  .5f, -1.f )
+        , type( TYPE_FIXED )
 {
 }
 
@@ -74,10 +75,10 @@ void Wall::apply( const Viewport& viewport)
 
 Wall& Wall::operator = ( const Projection& projection )
 {
-       
-    
-    const float width  = abs(projection.distance * 2.0 * tanf(DEG2RAD( .5f * projection.fov[0] )));
-    const float height = abs(projection.distance * 2.0 * tanf(DEG2RAD( .5f * projection.fov[1] )));
+    const float width  = fabs( projection.distance * 2.0 * 
+                               tanf(DEG2RAD( .5f * projection.fov[0] )));
+    const float height = fabs( projection.distance * 2.0 *
+                               tanf(DEG2RAD( .5f * projection.fov[1] )));
    
     bottomLeft[0]  = -width * 0.5f;
     bottomLeft[1]  = -height * 0.5f;

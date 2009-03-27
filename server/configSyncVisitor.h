@@ -41,8 +41,10 @@ namespace server
             const uint32_t  newVersion = config->_headMatrix.getVersion();
 
             if( oldVersion != newVersion )
+            {
                 config->_updateEyes();
-
+                config->_headMatrix.getInverse( config->_invHeadMatrix );
+            }
             return result;
         }
     virtual VisitorResult visitPre( Canvas* canvas )

@@ -151,6 +151,8 @@
 %token EQTOKEN_SDP
 %token EQTOKEN_TEXTURE
 %token EQTOKEN_MEMORY
+%token EQTOKEN_FIXED
+%token EQTOKEN_HMD
 %token EQTOKEN_HOSTNAME
 %token EQTOKEN_COMMAND
 %token EQTOKEN_COMMAND_QUOTE
@@ -827,8 +829,13 @@ wallField:
         { wall.bottomLeft = vmml::Vector3f( $3, $4, $5 ); }
     | EQTOKEN_BOTTOM_RIGHT  '[' FLOAT FLOAT FLOAT ']'
         { wall.bottomRight = vmml::Vector3f( $3, $4, $5 ); }
-   |  EQTOKEN_TOP_LEFT  '[' FLOAT FLOAT FLOAT ']'
+    |  EQTOKEN_TOP_LEFT  '[' FLOAT FLOAT FLOAT ']'
         { wall.topLeft = vmml::Vector3f( $3, $4, $5 ); }
+    | EQTOKEN_TYPE wallType
+
+wallType: 
+    EQTOKEN_FIXED { wall.type = eq::Wall::TYPE_FIXED; }
+    | EQTOKEN_HMD { wall.type = eq::Wall::TYPE_HMD; }
 
 projection: EQTOKEN_PROJECTION '{' { projection = eq::Projection(); } 
                 projectionFields '}'

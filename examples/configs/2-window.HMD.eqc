@@ -1,0 +1,51 @@
+# single pipe HMD demo configuration. Distribute using two pipes for deployment
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                viewport [ 0 0 1600 1024 ]
+                window
+                {
+                    viewport [ .05 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+                type         HMD
+            }
+
+            compound
+            {
+                channel "channel1"
+                eye     [ LEFT ]
+            }
+            compound
+            { 
+                channel "channel2"
+                eye     [ RIGHT ]
+            }
+        }
+    }    
+}

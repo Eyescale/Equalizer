@@ -140,6 +140,8 @@ TCPIP                           { return EQTOKEN_TCPIP; }
 SDP                             { return EQTOKEN_SDP; }
 texture                         { return EQTOKEN_TEXTURE; } 
 memory                          { return EQTOKEN_MEMORY; }
+fixed                           { return EQTOKEN_FIXED; }
+HMD                             { return EQTOKEN_HMD; }
 hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
 command_quote                   { return EQTOKEN_COMMAND_QUOTE; }

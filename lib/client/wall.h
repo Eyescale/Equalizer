@@ -56,7 +56,7 @@ namespace eq
         
         void apply( const Viewport& viewport);
 
-        //TODO /** Set the wall parameters from a projection description. */
+        /** Set the wall parameters from a projection description. */
         Wall& operator = ( const Projection& projection );
 
         bool operator == ( const Wall& rhs ) const;
@@ -65,6 +65,13 @@ namespace eq
         vmml::Vector3f bottomLeft;
         vmml::Vector3f bottomRight;
         vmml::Vector3f topLeft;
+        
+        enum Type
+        {
+            TYPE_FIXED,
+            TYPE_HMD
+        };
+        Type type;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Wall& wall );

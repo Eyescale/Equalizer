@@ -346,7 +346,7 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
     const Config*      config      = compound->getConfig();
 
     // compute eye position in screen space
-    const vmml::Vector3f& eyeW = config->getEyePosition( _eye );
+    const vmml::Vector3f  eyeW = _getEyePosition();
     const vmml::Matrix4f& xfm  = frustumData.getTransform();
     const vmml::Vector3f  eye  = xfm * eyeW;
 
@@ -366,6 +366,37 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
         headTransform.ml[i+2] = xfm.ml[i+2] - eye[2] * xfm.ml[i+3];
         headTransform.ml[i+3] = xfm.ml[i+3];
     }
+
+    const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
+    if( isHMD )
+        headTransform *= config->getInverseHeadMatrix();
+}
+
+vmml::Vector3f ChannelUpdateVisitor::_getEyePosition( Compound* compound ) const
+{
+    const FrustumData& frustumData = compound->getInheritFrustumData();
+    const Config*      config      = compound->getConfig();
+
+    if( frustumData.getType() == Wall::TYPE_FIXED )
+        return config->getEyePosition( _eye );
+
+    switch( _eye )
+    {
+        case eq::EYE_LEFT:
+            return vmml::Vector3f(
+                -0.5*config->getFAttribute( Config::FATTR_EYE_BASE ), 0.f, 0.f);
+
+        case eq::EYE_RIGHT:
+            return vmml::Vector3f(
+                +0.5*config->getFAttribute( Config::FATTR_EYE_BASE ), 0.f, 0.f);
+
+        default:
+            EQUNIMPLEMENTED;
+        case eq::EYE_CYCLOP:
+            break;
+    }
+
+    return vmml::Vector3f( 0.f, 0.f, 0.f );
 }
 
 void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
