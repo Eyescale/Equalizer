@@ -159,8 +159,8 @@ namespace eq
             int64_t  endTime;
             int64_t  totalTime;
         };
-
-        char     resourceName[32];
+        float ratio; // compression ratio
+        char resourceName[32];
     };
 
 #   define EQ_USER_EVENT_SIZE 64

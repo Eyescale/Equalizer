@@ -272,19 +272,21 @@ namespace
 typedef Image::PixelData::Chunk Chunk;
 }
 
-int64_t FrameData::transmit( net::NodePtr toNode )
+void FrameData::transmit( net::NodePtr toNode, Event& event )
 {
+    event.statistic.ratio = 1.0f;
+
     if( _data.buffers == 0 )
     {
         EQWARN << "No buffers for frame data" << endl;
-        return 0;
+        return;
     }
 
     if ( _data.frameType == Frame::TYPE_TEXTURE )
     {
         EQWARN << "Can't transmit image of type TEXTURE" << endl;
         EQUNIMPLEMENTED;
-        return 0;
+        return;
     }
 
     net::ConnectionPtr             connection = toNode->getConnection();
@@ -293,6 +295,7 @@ int64_t FrameData::transmit( net::NodePtr toNode )
     // use compression on links up to 2 GBit/s
     const bool useCompression = ( description->bandwidth <= 262144 );
     float      compressTime   = 0.f;
+    uint64_t   rawSize( 0 ), compressedSize( 0 );
 
     FrameDataTransmitPacket packet;
     const uint64_t          packetSize = sizeof( packet ) - 8*sizeof( uint8_t );
@@ -353,6 +356,7 @@ int64_t FrameData::transmit( net::NodePtr toNode )
                 }
 
                 packet.buffers |= buffer;
+                rawSize += image->getPixelDataSize( buffer );
             }
         }
 
@@ -398,6 +402,7 @@ int64_t FrameData::transmit( net::NodePtr toNode )
 #ifdef EQ_SEND_TOKEN
         getLocalNode()->releaseSendToken( toNode );
 #endif
+        compressedSize += packet.size;
     }
 
     FrameDataReadyPacket readyPacket;
@@ -405,7 +410,10 @@ int64_t FrameData::transmit( net::NodePtr toNode )
     readyPacket.objectID  = getID();
     readyPacket.version   = getVersion();
     toNode->send( readyPacket );
-    return static_cast< int64_t >( compressTime );
+
+    event.statistic.endTime = event.statistic.startTime + compressTime;
+    event.statistic.ratio = static_cast< float >( compressedSize ) / 
+                            static_cast< float >( rawSize );
 }
 
 void FrameData::addListener( base::Monitor<uint32_t>& listener )

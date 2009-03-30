@@ -822,7 +822,9 @@ void Channel::drawStatistics()
                 float y1 = y;
                 float y2 = y - HEIGHT;
                 float z  = 0.0f;
-
+                const float x1 = startTime - xStart;
+                const float x2 = endTime   - xStart;
+                
                 switch( stat.type )
                 {
                     case Statistic::CHANNEL_CLEAR:
@@ -852,10 +854,17 @@ void Channel::drawStatistics()
                         break;
                     case Statistic::CHANNEL_COMPRESS:
                     case Statistic::NODE_COMPRESS:
+                    {
                         glColor3f( 1.0f-dim, 1.0f-dim, 1.0f-dim ); 
                         y1 -= SPACE;
                         z = 0.7f; 
+                        
+                        stringstream text;
+                        text << static_cast< unsigned >( 100.f * stat.ratio );
+                        glRasterPos3f( x2+1, y2, 0.99f );
+                        font.draw( text.str( ));
                         break;
+                    }
                     case Statistic::CHANNEL_WAIT_FRAME:
                     case Statistic::CONFIG_WAIT_FINISH_FRAME:
                         glColor3f( 1.0f-dim, 0.f, 0.f ); 
@@ -886,9 +895,6 @@ void Channel::drawStatistics()
                         break;
                 }
 
-                const float x1 = startTime - xStart;
-                const float x2 = endTime   - xStart;
-                
                 glBegin( GL_QUADS );
                 glVertex3f( x2, y1, z );
                 glVertex3f( x1, y1, z );
@@ -1197,8 +1203,7 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
 #else
         ChannelStatistics nodeEvent( Statistic::CHANNEL_TRANSMIT_NODE, this );
         ChannelStatistics compressEvent( Statistic::CHANNEL_COMPRESS, this );
-        compressEvent.event.statistic.endTime =
-            compressEvent.event.statistic.startTime + frame->transmit( toNode );
+        frame->transmit( toNode, compressEvent.event );
 #endif
     }
 

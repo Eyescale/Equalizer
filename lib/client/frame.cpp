@@ -113,10 +113,10 @@ void Frame::syncReadback()
     _frameData->syncReadback();
 }
 
-int64_t Frame::transmit( net::NodePtr toNode )
+void Frame::transmit( net::NodePtr toNode, Event& event )
 {
     EQASSERT( _frameData );
-    return _frameData->transmit( toNode );
+    _frameData->transmit( toNode, event );
 }
 
 void Frame::setReady()

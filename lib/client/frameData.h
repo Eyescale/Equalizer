@@ -113,9 +113,9 @@ namespace server
          * frame nodes. Do not use directly.
          * 
          * @param toNode the receiving node.
-         * @return the time in milliseconds used to compress images.
+         * @param event the event structure to sample compression data.
          */        
-        int64_t transmit( net::NodePtr toNode );
+        void transmit( net::NodePtr toNode, Event& event );
 
         /** 
          * Set the frame data ready.

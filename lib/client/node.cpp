@@ -417,10 +417,7 @@ void* Node::TransmitThread::run()
 
         EQLOG( LOG_ASSEMBLY ) << "node transmit " << task.data->getID()
                               << " to " << task.node->getNodeID() << endl;
-        const int64_t compressTime = task.data->transmit( task.node );
-
-        compressEvent.event.data.statistic.endTime =
-            compressEvent.event.data.statistic.startTime + compressTime;
+        task.data->transmit( task.node, compressEvent.event.data );
     }
     return 0;
 }
