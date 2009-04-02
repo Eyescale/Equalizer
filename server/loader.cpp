@@ -159,8 +159,12 @@ static void _addDestinationViews( Compound* compound )
          i != children.end(); ++i )
     {
         Compound* child = *i;
-        if( child->getChannel( ))
-            segments.push_back( child );
+        Channel* childChannel = child->getChannel();
+        if( childChannel )
+        {
+            if( !childChannel->getView( ))
+                segments.push_back( child );
+        }
         else
             _addDestinationViews( child );
     }
