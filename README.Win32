@@ -6,6 +6,9 @@
  
  The Visual Studio solution and project files are in the VS2005 directory.
 
+
+                            Remote Launching
+
  Remote launching has been tested using ssh with the cygwin OpenSSH
  port. Depending on your auto-launch command, you need to adapt the
  launch command quotes. The following caveats have been observed:
@@ -13,3 +16,10 @@
  o You'll need to add <InstPath>/bin manually to your Path variable
  o Open Computer Management->Services->CYGWIN sshd->Properties->Log On and
    activate 'Allow service to interact with the desktop'
+
+
+                               Packaging
+
+ If you want to distribute your applications based on Equalizer, you
+ will have to install the "Microsoft Visual C++ 2005 Redistributable
+ Package" on the machines you want to run the application.
