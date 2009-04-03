@@ -59,9 +59,9 @@ static LogTable _logTable[ LOG_TABLE_SIZE ] =
     LOG_TABLE_ENTRY( ALL )
 };
 
-EQ_EXPORT int        Log::level  = getLogLevel();
-EQ_EXPORT unsigned   Log::topics = getLogTopics();
-EQ_EXPORT Clock      LogBuffer::_clock;
+int        Log::level  = getLogLevel();
+unsigned   Log::topics = getLogTopics();
+Clock      LogBuffer::_clock;
 
 static PerThread< Log > _logInstance;
 
@@ -114,7 +114,7 @@ unsigned getLogTopics()
     return 0;
 }
 
-EQ_EXPORT Log& Log::instance( const char* subdir, const char* file,
+Log& Log::instance( const char* subdir, const char* file,
                               const int line )
 {
     Log* log = _logInstance.get();
@@ -128,14 +128,14 @@ EQ_EXPORT Log& Log::instance( const char* subdir, const char* file,
     return *log;
 }
 
-EQ_EXPORT void Log::exit()
+void Log::exit()
 {
     Log* log = _logInstance.get();
     _logInstance = 0;
     delete log;
 }
 
-EQ_EXPORT void Log::setOutput( std::ostream& stream )
+void Log::setOutput( std::ostream& stream )
 {
     _logStream = &stream;
     exit();
@@ -179,14 +179,14 @@ LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
 }
 
 
-EQ_EXPORT std::ostream& indent( std::ostream& os )
+std::ostream& indent( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->indent();
     return os;
 }
-EQ_EXPORT std::ostream& exdent( std::ostream& os )
+std::ostream& exdent( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
@@ -194,21 +194,21 @@ EQ_EXPORT std::ostream& exdent( std::ostream& os )
         return os;
 }
 
-EQ_EXPORT std::ostream& disableFlush( std::ostream& os )
+std::ostream& disableFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->disableFlush();
     return os;
 }
-EQ_EXPORT std::ostream& enableFlush( std::ostream& os )
+std::ostream& enableFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->enableFlush();
     return os;
 }
-EQ_EXPORT std::ostream& forceFlush( std::ostream& os )
+std::ostream& forceFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
@@ -216,14 +216,14 @@ EQ_EXPORT std::ostream& forceFlush( std::ostream& os )
     return os;
 }
 
-EQ_EXPORT std::ostream& disableHeader( std::ostream& os )
+std::ostream& disableHeader( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->disableHeader();
     return os;
 }
-EQ_EXPORT std::ostream& enableHeader( std::ostream& os )
+std::ostream& enableHeader( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )

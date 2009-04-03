@@ -112,7 +112,7 @@ namespace base
         int _line;
 
         /** Clock for time stamps */
-        static EQ_EXPORT Clock _clock;
+        static Clock _clock;
 
         /** The current indentation level. */
         int _indent;
