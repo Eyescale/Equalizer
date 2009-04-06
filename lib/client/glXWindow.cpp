@@ -64,7 +64,7 @@ bool GLXWindow::configInit( )
     const bool success = configInitGLXDrawable( visualInfo );
     XFree( visualInfo );
 
-    if( success && !_xDrawable )
+    if( !success || !_xDrawable )
     {
         _window->setErrorMessage( 
             "configInitGLXDrawable did not set a X11 drawable");
