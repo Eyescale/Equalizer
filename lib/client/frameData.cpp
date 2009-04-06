@@ -411,7 +411,7 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
     readyPacket.version   = getVersion();
     toNode->send( readyPacket );
 
-    event.statistic.endTime = event.statistic.startTime + compressTime;
+    event.statistic.endTime = event.statistic.startTime + static_cast< int64_t >(compressTime);
     event.statistic.ratio = static_cast< float >( compressedSize ) / 
                             static_cast< float >( rawSize );
 }
