@@ -209,6 +209,8 @@
 %token EQTOKEN_HINT_OFFSET
 %token EQTOKEN_PBUFFER
 %token EQTOKEN_FBO
+%token EQTOKEN_RGBA16F
+%token EQTOKEN_RGBA32F
 %token EQTOKEN_MODE
 %token EQTOKEN_2D
 %token EQTOKEN_DB
@@ -960,6 +962,8 @@ IATTR:
     | EQTOKEN_ASYNC      { $$ = eq::ASYNC; }
     | EQTOKEN_DRAW_SYNC  { $$ = eq::DRAW_SYNC; }
     | EQTOKEN_LOCAL_SYNC { $$ = eq::LOCAL_SYNC; }
+    | EQTOKEN_RGBA16F    { $$ = eq::RGBA16F; }
+    | EQTOKEN_RGBA32F    { $$ = eq::RGBA32F; }
     | INTEGER            { $$ = $1; }
 
 STRING: EQTOKEN_STRING

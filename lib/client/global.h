@@ -31,6 +31,8 @@ namespace eq
     enum IAttrValue
     {
         UNDEFINED  = -0xfffffff,
+        RGBA32F    = -13,
+        RGBA16F    = -12,
         FBO        = -11,
         LOCAL_SYNC = -10,
         DRAW_SYNC  = -9,
@@ -89,9 +91,9 @@ namespace eq
         static void leaveCarbon();
 
     private:
-		friend EQ_EXPORT bool init( const int argc, char** argv, 
+        friend EQ_EXPORT bool init( const int argc, char** argv, 
                                     NodeFactory* nodeFactory );
-		friend EQ_EXPORT bool exit();
+        friend EQ_EXPORT bool exit();
         static NodeFactory* _nodeFactory;
 
         static std::string  _server;

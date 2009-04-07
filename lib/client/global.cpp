@@ -60,6 +60,8 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                 value == WINDOW     ? "WINDOW" :
                 value == PBUFFER    ? "PBUFFER" : 
                 value == FBO        ? "FBO" : 
+                value == RGBA16F    ? "RGBA16F" :
+                value == RGBA32F    ? "RGBA32F" :
                 value == ASYNC      ? "ASYNC" : 
                 value == DRAW_SYNC  ? "DRAW_SYNC" : 
                 value == LOCAL_SYNC ? "LOCAL_SYNC" : 
