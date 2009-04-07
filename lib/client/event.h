@@ -138,6 +138,7 @@ namespace eq
             WINDOW_FINISH,
             WINDOW_SWAP_BARRIER,
             WINDOW_SWAP,
+            WINDOW_THROTTLE_FRAMERATE,
             PIPE_IDLE,
             NODE_TRANSMIT,
             NODE_COMPRESS,

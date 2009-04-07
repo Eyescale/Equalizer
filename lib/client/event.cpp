@@ -64,7 +64,14 @@ static std::string _stateEventTypeNames[Statistic::TYPE_ALL] =
     "channel transmit  ",
     "channel transmit 1",
     "channel wait frame",
+    "channel compress",
+    "window finish",
+    "window swap barrier",
     "window swap buffer",
+    "window throttle framerate",
+    "pipe idle",
+    "node transmit"
+    "node compress",
     "config start frame",
     "config finishframe",
     "config wait finish"

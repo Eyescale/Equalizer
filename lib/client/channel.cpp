@@ -880,7 +880,11 @@ void Channel::drawStatistics()
                     case Statistic::WINDOW_SWAP_BARRIER:
                         glColor3f( 1.0f-dim, 0.f, 0.f ); 
                         break;
-
+                    
+                    case Statistic::WINDOW_THROTTLE_FRAMERATE:
+                        glColor3f( 1.0f, 0.f, 1.f ); 
+                        break; 
+                           
                     case Statistic::CONFIG_START_FRAME:
                         glColor3f( .5f-dim, 1.0f-dim, .5f-dim ); 
                         z = 0.1f; 

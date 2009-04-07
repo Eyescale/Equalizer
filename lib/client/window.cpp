@@ -835,15 +835,18 @@ net::CommandResult  Window::_cmdThrottleFramerate( net::Command& command )
         command.getPacket< WindowThrottleFramerate >();
     EQLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
                        << packet << endl;
-    
+
     // throttle to given framerate
     const int64_t elapsed  = getConfig()->getTime() - _lastSwapTime;
     const float   timeLeft = packet->minFrameTime - 
     static_cast< float >( elapsed );
     
     if( timeLeft >= 1.f )
+    {
+        WindowStatistics stat( Statistic::WINDOW_THROTTLE_FRAMERATE, this );   
         base::sleep( static_cast< uint32_t >( timeLeft ));
-        
+    }
+
     _lastSwapTime = getConfig()->getTime();
         
     return net::COMMAND_HANDLED;
