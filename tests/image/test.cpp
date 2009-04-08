@@ -36,6 +36,9 @@ namespace
 typedef Image::PixelData::Chunk Chunk;
 }
 
+//#define NET_BANDWIDTH (1024.0f*1024.0f*128.0f)  //1Gb network with no overhead
+#define NET_BANDWIDTH (1024.0f*1024.0f*115.0f)  // 1Gb network, real
+
 int main( int argc, char **argv )
 {
     Image    image;
@@ -58,10 +61,15 @@ int main( int argc, char **argv )
     const uint8_t* data;
     Clock          clock;
     float          time;
+    float          totalTimeColor;
+    float          totalTimeDepth;
+    float          totalTimeComprColor;
+    float          totalTimeComprDepth;
 
     clock.reset();
     const Image::PixelData& noise =image.compressPixelData(Frame::BUFFER_COLOR);
     time = clock.getTimef();
+    totalTimeColor = time;
 
     size = 0;
     for( vector< Chunk* >::const_iterator i = noise.chunks.begin();
@@ -85,6 +93,13 @@ int main( int argc, char **argv )
     cout << argv[0] << ": Noise " << size  << "->" << noiseSize << " " << time
          << " ms, max bw " 
          << 1000.0f * saved / time / 1024.0f / 1024.0f << "MB/s" << endl;
+
+    totalTimeColor += time;
+    totalTimeComprColor = totalTimeColor;
+    totalTimeColor += 1000.0f * size / NET_BANDWIDTH; // time on 1Gb/s
+    cout << argv[0] << ": Noise " << 1000.0f / totalTimeColor 
+        << " fps, instead of " << NET_BANDWIDTH / noiseSize << " fps"
+        << " (comp-decomp " << 1000.0f / totalTimeComprColor << " fps)"<< endl;
 
     //destImage.writeImage( "noise_decomp.rgb", Frame::BUFFER_COLOR );
     data = destImage.getPixelPointer( Frame::BUFFER_COLOR );
@@ -112,6 +127,7 @@ int main( int argc, char **argv )
     clock.reset();
     const Image::PixelData& color =image.compressPixelData(Frame::BUFFER_COLOR);
     time = clock.getTimef();
+    totalTimeColor = time;
 
     size = 0;
     for( vector< Chunk* >::const_iterator i = color.chunks.begin();
@@ -129,11 +145,18 @@ int main( int argc, char **argv )
     clock.reset();
     destImage.setPixelData( Frame::BUFFER_COLOR, color );
     time = clock.getTimef();
-    
+
     cout << argv[0] << ": Color " << size  << "->" << colorSize << " " << time
          << " ms, max bw " 
          << 1000.0f * (colorSize - size) / time / 1024.0f / 1024.0f << "MB/s" 
          << endl;
+
+    totalTimeColor += time;
+    totalTimeComprColor = totalTimeColor;
+    totalTimeColor += 1000.0f * size / NET_BANDWIDTH; // time on 1Gb/s
+    cout << argv[0] << ": Color " << 1000.0f / totalTimeColor 
+        << " fps, instead of " << NET_BANDWIDTH / colorSize << " fps"
+        << " (comp-decomp " << 1000.0f / totalTimeComprColor << " fps)"<< endl;
 
     //destImage.writeImage( "../compositor/Image_1_color_decomp.rgb", 
     //                      Frame::BUFFER_COLOR );
@@ -161,6 +184,7 @@ int main( int argc, char **argv )
     clock.reset();
     const Image::PixelData& depth =image.compressPixelData(Frame::BUFFER_DEPTH);
     time = clock.getTimef();
+    totalTimeDepth = time;
 
     size = 0;
     for( vector< Chunk* >::const_iterator i = depth.chunks.begin();
@@ -183,6 +207,20 @@ int main( int argc, char **argv )
          << " ms, max bw " 
          << 1000.0f * (depthSize - size) / time / 1024.0f / 1024.0f << "MB/s" 
          << endl;
+
+    totalTimeDepth += time;
+    totalTimeComprDepth = totalTimeDepth;
+    totalTimeDepth += 1000.0f * size / NET_BANDWIDTH; // time on 1Gb/s
+    cout << argv[0] << ": Depth " << 1000.0f / totalTimeDepth 
+        << " fps, instead of " << NET_BANDWIDTH / depthSize << " fps"
+        << " (compression " << 1000.0f / totalTimeComprDepth << " fps)"<< endl;
+
+    cout << argv[0] << ": Color+Depth " 
+        << 1000.0f / (totalTimeDepth + totalTimeColor )
+        << " fps, instead of " << NET_BANDWIDTH / (colorSize + depthSize)
+        << " fps (comp-decomp "
+        << 1000.0f/(totalTimeComprColor+totalTimeComprDepth) << " fps)" << endl;
+
 
     //destImage.writeImage( "../compositor/Image_1_depth_decomp.rgb", 
     //                      Frame::BUFFER_DEPTH );
