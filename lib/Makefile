@@ -99,7 +99,6 @@ HEADER_SRC = \
 	client/layout.h \
 	client/layoutVisitor.h \
 	client/log.h \
-	client/matrix4.h \
 	client/messagePump.h \
 	client/node.h \
 	client/nodeFactory.h \
@@ -107,6 +106,7 @@ HEADER_SRC = \
 	client/nodeVisitor.h \
 	client/object.h \
 	client/objectManager.h \
+	client/observer.h \
 	client/osPipe.h \
 	client/osWindow.h \
 	client/packets.h \
@@ -216,6 +216,7 @@ CXXFILES = \
 	client/nodeStatistics.cpp \
 	client/object.cpp \
 	client/objectManager.cpp \
+	client/observer.cpp \
 	client/osPipe.cpp \
 	client/osWindow.cpp \
 	client/pipe.cpp \

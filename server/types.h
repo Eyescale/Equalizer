@@ -40,6 +40,7 @@ class ConnectionDescription;
 class Frame;
 class Layout;
 class LoadBalancer;
+class Observer;
 class Segment;
 class View;
 
@@ -55,6 +56,7 @@ typedef std::vector< Compound* >     CompoundVector;
 typedef std::vector< Frame* >        FrameVector;
 typedef std::vector< Layout* >       LayoutVector;
 typedef std::vector< LoadBalancer* > LoadBalancerVector;
+typedef std::vector< Observer* >     ObserverVector;
 typedef std::vector< Segment* >      SegmentVector;
 typedef std::vector< View* >         ViewVector;
 

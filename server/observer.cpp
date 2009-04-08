@@ -16,11 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "segment.h"
+#include "observer.h"
 
-#include "canvas.h"
 #include "config.h"
-#include "segmentVisitor.h"
+#include "paths.h"
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
@@ -29,48 +28,49 @@ using namespace eq::base;
 
 namespace eq
 {
+namespace server
+{
 
-Segment::Segment()
-        : _canvas( 0 )
+Observer::Observer()
+        : _config( 0 )
+{}
+
+Observer::Observer( const Observer& from, Config* config )
+        : eq::Observer( from )
+        , _config( 0 )
+{
+    config->addObserver( this );
+    EQASSERT( _config );
+}
+
+Observer::~Observer()
 {
 }
 
-Segment::~Segment()
+//void Observer::serialize( net::DataOStream& os, const uint64_t dirtyBits )
+
+ObserverPath Observer::getPath() const
 {
-    EQASSERT( _canvas == 0 );
+    EQASSERT( _config );
+    
+    const ObserverVector&  observers = _config->getObservers();
+    ObserverVector::const_iterator i = std::find( observers.begin(), 
+                                                  observers.end(), this );
+    EQASSERT( i != observers.end( ));
+
+    ObserverPath path;
+    path.observerIndex = std::distance( observers.begin(), i );
+    return path;
 }
 
-void Segment::serialize( net::DataOStream& os, const uint64_t dirtyBits )
+void Observer::unmap()
 {
-    Frustum::serialize( os, dirtyBits );
+    net::Session* session = getSession();
+    EQASSERT( session );
+    EQASSERT( getID() != EQ_ID_INVALID );
 
-    if( dirtyBits & DIRTY_VIEWPORT )
-        os << _vp;
+    session->unmapObject( this );
 }
 
-void Segment::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
-{
-    Frustum::deserialize( is, dirtyBits );
-
-    if( dirtyBits & DIRTY_VIEWPORT )
-        is >> _vp;
 }
-
-Config* Segment::getConfig()
-{
-    EQASSERT( _canvas );
-    return _canvas ? _canvas->getConfig() : 0;
-}
-
-const Config* Segment::getConfig() const
-{
-    EQASSERT( _canvas );
-    return _canvas ? _canvas->getConfig() : 0;
-}
-
-VisitorResult Segment::accept( SegmentVisitor& visitor )
-{
-    return visitor.visit( this );
-}
-
 }

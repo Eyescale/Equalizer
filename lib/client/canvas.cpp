@@ -25,6 +25,9 @@
 #include "nodeFactory.h"
 #include "segment.h"
 
+#include <eq/net/dataIStream.h>
+#include <eq/net/dataOStream.h>
+
 namespace eq
 {
 

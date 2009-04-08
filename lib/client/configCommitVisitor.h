@@ -34,7 +34,7 @@ namespace eq
 
         virtual VisitorResult visitPre( Config* config )
             { 
-                _commit( &config->_headMatrix );
+                _commit( &config->_observer );
                 return TRAVERSE_CONTINUE; 
             }
         virtual VisitorResult visitPre( Canvas* canvas )

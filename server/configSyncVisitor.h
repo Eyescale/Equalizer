@@ -36,14 +36,15 @@ namespace server
 
     virtual VisitorResult visitPre( Config* config )
         {
-            const uint32_t  oldVersion = config->_headMatrix.getVersion();
-            const VisitorResult result = _sync( &config->_headMatrix );
-            const uint32_t  newVersion = config->_headMatrix.getVersion();
+            const uint32_t  oldVersion = config->_observer.getVersion();
+            const VisitorResult result = _sync( &config->_observer );
+            const uint32_t  newVersion = config->_observer.getVersion();
 
             if( oldVersion != newVersion )
             {
                 config->_updateEyes();
-                config->_headMatrix.getInverse( config->_invHeadMatrix );
+                config->_observer.getHeadMatrix().getInverse(
+                    config->_invHeadMatrix );
             }
             return result;
         }

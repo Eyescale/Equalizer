@@ -24,7 +24,7 @@
 #include "server.h"        // used in inline method
 #include "visitorResult.h" // enum
 
-#include <eq/client/matrix4.h>
+#include <eq/client/observer.h>
 #include <eq/client/packets.h>
 #include <eq/net/session.h>
 
@@ -41,6 +41,7 @@ namespace server
     struct CanvasPath;
     struct ChannelPath;
     struct LayoutPath;
+    struct ObserverPath;
     struct SegmentPath;
     struct ViewPath;
 
@@ -71,6 +72,7 @@ namespace server
         Canvas* getCanvas( const CanvasPath& path );
         Segment* getSegment( const SegmentPath& path );
         Layout* getLayout( const LayoutPath& path );
+        Observer* getObserver( const ObserverPath& path );
         View* getView( const ViewPath& path );
 
         bool    isRunning() const { return ( _state == STATE_RUNNING ); }
@@ -107,6 +109,38 @@ namespace server
 
         /** @return the vector of nodes. */
         const NodeVector& getNodes() const { return _nodes; }
+
+        /** 
+         * Adds a new observer to this config.
+         * 
+         * @param observer the observer.
+         */
+        void addObserver( Observer* observer );
+
+        /** 
+         * Removes a observer from this config.
+         * 
+         * @param observer the observer
+         * @return <code>true</code> if the observer was removed,
+         *         <code>false</code> otherwise.
+         */
+        bool removeObserver( Observer* observer );
+
+        /** @return the vecotr of observers. */
+        const ObserverVector& getObservers() const { return _observers; }
+
+        /** 
+         * Find the first observer of a given name.
+         * 
+         * @param name the name of the observer to find
+         * @return the first observer with the name, or <code>0</code> if no
+         *         observer with the name exists.
+         */
+        Observer* findObserver( const std::string& name );
+        const Observer* findObserver( const std::string& name ) const;
+
+        /** @return the observer mapped to the given identifier, or 0. */
+        Observer* findObserver( const uint32_t id );
 
         /** 
          * Adds a new layout to this config.
@@ -361,6 +395,9 @@ namespace server
         /** The list of nodes. */
         NodeVector _nodes;
 
+        /** The list of observers. */
+        ObserverVector _observers;
+
         /** The list of layouts. */
         LayoutVector _layouts;
 
@@ -397,8 +434,8 @@ namespace server
         /** The last finished frame, or 0. */
         uint32_t _finishedFrame;
 
-        /** The matrix defining the head's position for head tracking. */
-        eq::Matrix4f _headMatrix;
+        /** The default observer for head tracking. */
+        eq::Observer _observer;
         vmml::Matrix4f _invHeadMatrix;
         friend class ConfigSyncVisitor;
 

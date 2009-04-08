@@ -52,6 +52,9 @@ private:
     T*                _result;
 };
 
+typedef NameFinder< ConfigVisitor, Observer > ObserverFinder;
+typedef NameFinder< ConstConfigVisitor, const Observer > ConstObserverFinder;
+
 typedef NameFinder< ConfigVisitor, Layout > LayoutFinder;
 typedef NameFinder< ConstConfigVisitor, const Layout > ConstLayoutFinder;
 

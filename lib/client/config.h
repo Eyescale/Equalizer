@@ -20,7 +20,7 @@
 #define EQ_CONFIG_H
 
 #include <eq/client/commandQueue.h>  // member
-#include <eq/client/matrix4.h>       // member
+#include <eq/client/observer.h>      // member
 #include <eq/client/types.h>         // typedefs
 #include <eq/client/visitorResult.h> // enum
 
@@ -219,14 +219,16 @@ namespace eq
          * The head matrix specifies the transformation origin->observer.
          * Together with the eye separation, this determines the eye positions.
          * The eye position and wall or projection description define the shape
-         * of the frustum and the channel's head matrix during rendering.
+         * of the frustum and the channel's head transformation during
+         * rendering.
          *
          * @param matrix the matrix
          */
         void setHeadMatrix( const vmml::Matrix4f& matrix );
 
         /** @return the current head matrix. */
-        const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
+        const vmml::Matrix4f& getHeadMatrix() const 
+            { return _observer.getHeadMatrix(); }
 
         /** Set the eye separation, i.e., the distance between the eyes. */
         void setEyeBase( const float eyeBase );
@@ -297,8 +299,8 @@ namespace eq
         /** The list of canvases, app-node only. */
         CanvasVector _canvases;
 
-        /** The matrix describing the head position and orientation. */
-        Matrix4f _headMatrix;
+        /** The default observer. */
+        Observer _observer;
         friend class ConfigCommitVisitor;
 
         /** The distance between the left and the right eye. */

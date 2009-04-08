@@ -27,6 +27,9 @@
 
 #include "../lib/client/configDeserializer.h" // header not installed
 
+#include <eq/net/dataIStream.h>
+#include <eq/net/dataOStream.h>
+
 namespace eq
 {
 namespace server

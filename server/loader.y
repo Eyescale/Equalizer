@@ -12,6 +12,7 @@
 #include "layout.h"
 #include "loadBalancer.h"
 #include "node.h"
+#include "observer.h"
 #include "paths.h"
 #include "pipe.h"
 #include "segment.h"
@@ -39,6 +40,7 @@
         static eq::server::View*        view = 0;
         static eq::server::Canvas*      canvas = 0;
         static eq::server::Segment*     segment = 0;
+        static eq::server::Observer*    observer = 0;
         static eq::server::Compound*    eqCompound = 0; // avoid name clash
         static eq::server::LoadBalancer* loadBalancer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
@@ -137,6 +139,7 @@
 %token EQTOKEN_FRAMERATE
 %token EQTOKEN_DPLEX
 %token EQTOKEN_CHANNEL
+%token EQTOKEN_OBSERVER
 %token EQTOKEN_LAYOUT
 %token EQTOKEN_VIEW
 %token EQTOKEN_CANVAS
@@ -456,6 +459,7 @@ configFields: /*null*/ | configFields configField
 configField:
     node
     | EQTOKEN_NAME STRING       { config->setName( $2 ); }
+    | observer
     | layout
     | canvas
     | compound
@@ -622,6 +626,13 @@ channelAttribute:
     EQTOKEN_HINT_STATISTICS IATTR
         { channel->setIAttribute( eq::Channel::IATTR_HINT_STATISTICS, $2 ); }
 
+
+observer: EQTOKEN_OBSERVER '{' { observer = new eq::server::Observer; }
+            observerFields '}' { config->addObserver( observer ); observer = 0;}
+observerFields: /*null*/ | observerFields observerField
+observerField:
+    EQTOKEN_NAME STRING { observer->setName( $2 ); }
+    | EQTOKEN_EYE_BASE FLOAT { observer->setEyeBase( $2 ); }
 
 layout: EQTOKEN_LAYOUT '{' { layout = new eq::server::Layout; }
             layoutFields '}' { config->addLayout( layout ); layout = 0; }

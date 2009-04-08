@@ -24,6 +24,9 @@
 #include "nodeFactory.h"
 #include "view.h"
 
+#include <eq/net/dataIStream.h>
+#include <eq/net/dataOStream.h>
+
 using namespace eq::base;
 
 namespace eq

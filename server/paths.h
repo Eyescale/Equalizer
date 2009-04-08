@@ -69,6 +69,12 @@ struct SegmentPath : public CanvasPath
     uint32_t segmentIndex;
 };
 
+struct ObserverPath
+{
+    ObserverPath( const uint32_t index = 0 ) : observerIndex( index ) {}
+    uint32_t observerIndex;
+};
+
 struct LayoutPath
 {
     LayoutPath( const uint32_t index = 0 ) : layoutIndex( index ) {}

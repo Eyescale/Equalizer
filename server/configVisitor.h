@@ -24,6 +24,7 @@
 #include "compoundVisitor.h"      // base class
 #include "layoutVisitor.h"        // base class
 #include "nodeVisitor.h"          // base class
+#include "observerVisitor.h"      // base class
 
 namespace eq
 {
@@ -36,6 +37,7 @@ namespace server
      */
     class ConfigVisitor : public NodeVisitor, 
                           public CompoundVisitor,
+                          public ObserverVisitor,
                           public LayoutVisitor,
                           public CanvasVisitor
     {
@@ -60,6 +62,7 @@ namespace server
      */
     class ConstConfigVisitor : public ConstNodeVisitor, 
                                public ConstCompoundVisitor,
+                               public ConstObserverVisitor,
                                public ConstLayoutVisitor,
                                public ConstCanvasVisitor
     {

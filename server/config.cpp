@@ -32,6 +32,7 @@
 #include "log.h"
 #include "nameFinder.h"
 #include "node.h"
+#include "observer.h"
 #include "paths.h"
 #include "segment.h"
 #include "server.h"
@@ -43,8 +44,9 @@
 #include <eq/net/global.h>
 #include <eq/base/sleep.h>
 
-#include "configSyncVisitor.h"
 #include "configAddCanvasVisitor.h"
+#include "configSyncVisitor.h"
+#include "configUnmapVisitor.h"
 
 using namespace eq::base;
 using namespace std;
@@ -110,6 +112,13 @@ Config::Config( const Config& from )
             _appNode = nodeClone;
     }
 
+    const ObserverVector& observers = from.getObservers();
+    for( ObserverVector::const_iterator i = observers.begin(); 
+         i != observers.end(); ++i )
+    {
+        new Observer( **i, this );
+    }
+
     const LayoutVector& layouts = from.getLayouts();
     for( LayoutVector::const_iterator i = layouts.begin(); 
          i != layouts.end(); ++i )
@@ -167,6 +176,16 @@ Config::~Config()
         delete layout;
     }
     _layouts.clear();
+
+    for( ObserverVector::const_iterator i = _observers.begin(); 
+         i != _observers.end(); ++i )
+    {
+        Observer* observer = *i;
+
+        observer->_config = 0;
+        delete observer;
+    }
+    _observers.clear();
 
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
@@ -228,6 +247,44 @@ bool Config::removeNode( Node* node )
 
     return true;
 }
+
+void Config::addObserver( Observer* observer )
+{
+    observer->_config = this;
+    _observers.push_back( observer );
+}
+
+bool Config::removeObserver( Observer* observer )
+{
+    vector<Observer*>::iterator i = find( _observers.begin(), _observers.end(),
+                                          observer );
+    if( i == _observers.end( ))
+        return false;
+
+    _observers.erase( i );
+//    observer->_config = 0;
+    return true;
+}
+
+Observer* Config::findObserver( const std::string& name )
+{
+    ObserverFinder finder( name );
+    accept( finder );
+    return finder.getResult();
+}
+const Observer* Config::findObserver( const std::string& name ) const
+{
+    ConstObserverFinder finder( name );
+    accept( finder );
+    return finder.getResult();
+}
+Observer* Config::findObserver( const uint32_t id )
+{
+    ObserverIDFinder finder( id );
+    accept( finder );
+    return finder.getResult();
+}
+
 
 void Config::addLayout( Layout* layout )
 {
@@ -412,6 +469,17 @@ Segment* Config::getSegment( const SegmentPath& path )
     return 0;
 }
 
+Observer* Config::getObserver( const ObserverPath& path )
+{
+    EQASSERTINFO( _observers.size() > path.observerIndex,
+                  _observers.size() << " <= " << path.observerIndex );
+
+    if( _observers.size() <= path.observerIndex )
+        return 0;
+
+    return _observers[ path.observerIndex ];
+}
+
 Layout* Config::getLayout( const LayoutPath& path )
 {
     EQASSERTINFO( _layouts.size() > path.layoutIndex,
@@ -445,6 +513,25 @@ VisitorResult _accept( C* config, V& visitor )
 
     const NodeVector& nodes = config->getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        switch( (*i)->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    const ObserverVector& observers = config->getObservers();
+    for( ObserverVector::const_iterator i = observers.begin(); 
+         i != observers.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
         {
@@ -897,8 +984,8 @@ bool Config::exit()
 
     const bool success = _updateRunning();
 
-    if( _headMatrix.getID() != EQ_ID_INVALID )
-        deregisterObject( &_headMatrix );
+    if( _observer.getID() != EQ_ID_INVALID )
+        deregisterObject( &_observer );
 
     eq::ConfigEvent exitEvent;
     exitEvent.data.type = eq::Event::EXIT;
@@ -906,52 +993,6 @@ bool Config::exit()
     
     _state         = STATE_STOPPED;
     return success;
-}
-
-namespace
-{
-class UnmapVisitor : public ConfigVisitor
-{
-public:
-    virtual ~UnmapVisitor(){}
-
-    virtual VisitorResult visitPre( Canvas* canvas )
-        {
-            _unmap( canvas );
-            return TRAVERSE_CONTINUE; 
-        }
-    virtual VisitorResult visit( Segment* segment )
-        { 
-            _unmap( segment );
-            return TRAVERSE_CONTINUE; 
-        }
-
-    virtual VisitorResult visitPre( Layout* layout )
-        { 
-            _unmap( layout );
-            return TRAVERSE_CONTINUE; 
-        }
-    virtual VisitorResult visit( View* view )
-        { 
-            _unmap( view );
-            return TRAVERSE_CONTINUE; 
-        }
-
-private:
-    void _unmap( net::Object* object )
-        {
-            EQASSERT( object->getID() != EQ_ID_INVALID );
-
-            net::Session* session = object->getSession();
-            EQASSERT( session );
-
-            if( object->isMaster( ))
-                session->deregisterObject( object );
-            else
-                session->unmapObject( object );
-        }
-
-};
 }
 
 void Config::unmap()
@@ -976,24 +1017,25 @@ void Config::unmap()
 void Config::_updateEyes()
 {
     const float eyeBase_2 = .5f * getFAttribute( FATTR_EYE_BASE );
+    const vmml::Matrix4f& head = _observer.getHeadMatrix();
 
     // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
     // OPT: don't use vector operator* due to possible simplification
 
-    _eyes[eq::EYE_CYCLOP].x = _headMatrix.m03;
-    _eyes[eq::EYE_CYCLOP].y = _headMatrix.m13;
-    _eyes[eq::EYE_CYCLOP].z = _headMatrix.m23;
-    _eyes[eq::EYE_CYCLOP]  /= _headMatrix.m33;
+    _eyes[eq::EYE_CYCLOP].x = head.m03;
+    _eyes[eq::EYE_CYCLOP].y = head.m13;
+    _eyes[eq::EYE_CYCLOP].z = head.m23;
+    _eyes[eq::EYE_CYCLOP]  /= head.m33;
 
-    _eyes[eq::EYE_LEFT].x = ( -eyeBase_2 * _headMatrix.m00 + _headMatrix.m03 );
-    _eyes[eq::EYE_LEFT].y = ( -eyeBase_2 * _headMatrix.m10 + _headMatrix.m13 );
-    _eyes[eq::EYE_LEFT].z = ( -eyeBase_2 * _headMatrix.m20 + _headMatrix.m23 );
-    _eyes[eq::EYE_LEFT]  /= ( -eyeBase_2 * _headMatrix.m30 + _headMatrix.m33 );
+    _eyes[eq::EYE_LEFT].x = ( -eyeBase_2 * head.m00 + head.m03 );
+    _eyes[eq::EYE_LEFT].y = ( -eyeBase_2 * head.m10 + head.m13 );
+    _eyes[eq::EYE_LEFT].z = ( -eyeBase_2 * head.m20 + head.m23 );
+    _eyes[eq::EYE_LEFT]  /= ( -eyeBase_2 * head.m30 + head.m33 );
 
-    _eyes[eq::EYE_RIGHT].x = ( eyeBase_2 * _headMatrix.m00 + _headMatrix.m03 );
-    _eyes[eq::EYE_RIGHT].y = ( eyeBase_2 * _headMatrix.m10 + _headMatrix.m13 );
-    _eyes[eq::EYE_RIGHT].z = ( eyeBase_2 * _headMatrix.m20 + _headMatrix.m23 );
-    _eyes[eq::EYE_RIGHT]  /= ( eyeBase_2 * _headMatrix.m30 + _headMatrix.m33 );
+    _eyes[eq::EYE_RIGHT].x = ( eyeBase_2 * head.m00 + head.m03 );
+    _eyes[eq::EYE_RIGHT].y = ( eyeBase_2 * head.m10 + head.m13 );
+    _eyes[eq::EYE_RIGHT].z = ( eyeBase_2 * head.m20 + head.m23 );
+    _eyes[eq::EYE_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 );
 
     EQVERB << "Eye position: " << _eyes[ eq:: EYE_CYCLOP ] << std::endl;
 }
@@ -1101,8 +1143,8 @@ net::CommandResult Config::_cmdInit( net::Command& command )
 
     if( reply.result )
     {
-        mapObject( &_headMatrix, packet->headMatrixID );
-        _headMatrix.getInverse( _invHeadMatrix );
+        mapObject( &_observer, packet->observerID );
+        _observer.getHeadMatrix().getInverse( _invHeadMatrix );
     }
     else
         exit();
@@ -1268,6 +1310,12 @@ ostream& operator << ( ostream& os, const Config* config )
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
         os << *i;
 
+    const ObserverVector& observers = config->getObservers();
+    for( ObserverVector::const_iterator i = observers.begin(); 
+         i !=observers.end(); ++i )
+    {
+        os << *i;
+    }
     const LayoutVector& layouts = config->getLayouts();
     for( LayoutVector::const_iterator i = layouts.begin(); 
          i !=layouts.end(); ++i )

@@ -240,7 +240,7 @@ namespace eq
 
         uint32_t requestID;
         uint32_t initID;
-        uint32_t headMatrixID;
+        uint32_t observerID;
     };
 
     struct ConfigInitReplyPacket : public ConfigPacket

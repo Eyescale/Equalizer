@@ -26,6 +26,7 @@ CXXFILES = \
 	loadBalancer.cpp \
 	loader.cpp \
 	node.cpp \
+	observer.cpp \
 	parser.cpp \
 	pipe.cpp \
 	segment.cpp \

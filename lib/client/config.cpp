@@ -312,12 +312,12 @@ bool Config::init( const uint32_t initID )
     _unlockedFrame = 0;
     _finishedFrame = 0;
 
-    registerObject( &_headMatrix );
+    registerObject( &_observer );
 
     ConfigInitPacket packet;
-    packet.requestID    = _requestHandler.registerRequest();
-    packet.initID       = initID;
-    packet.headMatrixID = _headMatrix.getID();
+    packet.requestID  = _requestHandler.registerRequest();
+    packet.initID     = initID;
+    packet.observerID = _observer.getID();
 
     send( packet );
     
@@ -328,7 +328,7 @@ bool Config::init( const uint32_t initID )
     _requestHandler.waitRequest( packet.requestID, _running );
 
     if( !_running )
-        deregisterObject( &_headMatrix );
+        deregisterObject( &_observer );
 
     handleEvents();
     return _running;
@@ -349,7 +349,7 @@ bool Config::exit()
     bool ret = false;
     _requestHandler.waitRequest( packet.requestID, ret );
 
-    deregisterObject( &_headMatrix );
+    deregisterObject( &_observer );
 
     while( tryNextEvent( )) /* flush all pending events */ ;
     _eventQueue.release( _lastEvent );
@@ -659,7 +659,7 @@ void Config::setWindowSystem( const WindowSystem windowSystem )
 
 void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
 {
-    _headMatrix = matrix;
+    _observer.setHeadMatrix( matrix );
 }
 
 void Config::setEyeBase( const float eyeBase )

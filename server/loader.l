@@ -126,6 +126,7 @@ DFR                             { return EQTOKEN_DFR; }
 DDS                             { return EQTOKEN_DDS; }
 framerate                       { return EQTOKEN_FRAMERATE; }
 channel                         { return EQTOKEN_CHANNEL; }
+observer                        { return EQTOKEN_OBSERVER; }
 layout                          { return EQTOKEN_LAYOUT; }
 view                            { return EQTOKEN_VIEW; }
 canvas                          { return EQTOKEN_CANVAS; }

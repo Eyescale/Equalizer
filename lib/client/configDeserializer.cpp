@@ -25,6 +25,9 @@
 #include "nodeFactory.h"
 #include "view.h"
 
+#include <eq/net/dataIStream.h>
+#include <eq/net/dataOStream.h>
+
 namespace eq
 {
 void ConfigDeserializer::applyInstanceData( net::DataIStream& is )

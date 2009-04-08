@@ -51,6 +51,9 @@ private:
     T*             _result;
 };
 
+typedef IDFinder< ConfigVisitor, Observer > ObserverIDFinder;
+typedef IDFinder< ConstConfigVisitor, const Observer > ConstObserverIDFinder;
+
 typedef IDFinder< ConfigVisitor, Layout > LayoutIDFinder;
 typedef IDFinder< ConstConfigVisitor, const Layout > ConstLayoutIDFinder;
 
