@@ -36,7 +36,7 @@ rpm: $(INSTALL_FILES)
 	@echo "check $(INSTALL_FILES), run 'rpmbuild -ba make/Equalizer.spec' as root"
 
 $(INSTALL_FILES):
-	@find $(BUILD_DIR) -type f > $@
+	@find $(BUILD_DIR) -type f | sed 's/^\.//' > $@
 
 # includes
 $(INCLUDE_DIR)/%: %

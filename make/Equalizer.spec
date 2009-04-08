@@ -8,8 +8,9 @@ Source: http://www.equalizergraphics.com/downloads/Equalizer-0.6.tar.gz
 Buildroot: /var/tmp/%{name}-%{version}-buildroot
 URL: http://www.equalizergraphics.com
 Packager: Stefan Eilemann <eilemann@gmail.com>
-Requires: glibc-devel xorg-x11-devel
-BuildRequires: gcc-c++ e2fsprogs-devel xorg-x11-devel rsync
+Requires: glibc-devel xorg-x11-devel Mesa glew
+BuildRequires: gcc-c++ e2fsprogs-devel xorg-x11-devel rsync Mesa bison flex glew-devel
+%define eq_build_dir build/`uname`
 
 %description 
 Equalizer is the standard middleware to create parallel OpenGL-based
@@ -27,14 +28,29 @@ Reality installations.
 make
 
 %install
-make DESTDIR=$RPM_BUILD_ROOT install
-make rpm
+mkdir -p $RPM_BUILD_ROOT%{_bindir}
+rsync -avx --exclude .svn %{eq_build_dir}/bin/ $RPM_BUILD_ROOT%{_bindir}
+
+mkdir -p $RPM_BUILD_ROOT%{_includedir}
+rsync -avx --exclude .svn --exclude GL %{eq_build_dir}/include/ $RPM_BUILD_ROOT%{_includedir}
+
+mkdir -p $RPM_BUILD_ROOT%{_libdir}
+rsync -avx --exclude .svn %{eq_build_dir}/lib/ $RPM_BUILD_ROOT%{_libdir}
+
+mkdir -p $RPM_BUILD_ROOT/%{_datadir}
+rsync -avx --exclude .svn %{eq_build_dir}/share/ $RPM_BUILD_ROOT/%{_datadir}
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files -f install.files
+%files
 %defattr(-,root,root)
+%{_libdir}/*
+%{_bindir}/*
+%{_includedir}/eq/*
+%{_includedir}/vmmlib/*
+%{_datadir}/Equalizer/*
 %doc README README.Linux RELNOTES LICENSE AUTHORS FAQ LGPL PLATFORMS ACKNOWLEDGEMENTS
 
 %changelog -f ../RELNOTES
