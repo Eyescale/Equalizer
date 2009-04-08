@@ -298,6 +298,46 @@ void VertexData::calculateBoundingBox()
 }
 
 
+/* Calculates longest axis for a set of triangles */
+Axis VertexData::getLongestAxis( const size_t start,
+                                 const size_t elements ) const
+{
+    if( start + elements > triangles.size() )
+    {
+        EQERROR << "incorrect request to getLongestAxis" << endl
+                << "start:     " << start                << endl
+                << "elements:  " << elements             << endl
+                << "sum:       " << start+elements       << endl
+                << "data size: " << triangles.size()     << endl;
+        return AXIS_X;
+    }
+
+    BoundingBox bb;
+    bb[0] = vertices[ triangles[start][0] ];
+    bb[1] = vertices[ triangles[start][0] ];
+
+    for( size_t t = start; t < start+elements; ++t )
+        for( size_t v = 0; v < 3; ++v )
+            for( size_t i = 0; i < 3; ++i )
+            {
+                bb[0][i] = min( bb[0][i], vertices[ triangles[t][v] ][i] );
+                bb[1][i] = max( bb[1][i], vertices[ triangles[t][v] ][i] );
+            }
+
+    const GLfloat bbX = bb[1][0] - bb[0][0];
+    const GLfloat bbY = bb[1][1] - bb[0][1];
+    const GLfloat bbZ = bb[1][2] - bb[0][2];
+
+    if( bbX >= bbY && bbX >= bbZ )
+        return AXIS_X;
+
+    if( bbY >= bbX && bbY >= bbZ )
+        return AXIS_Y;
+
+    return AXIS_Z;
+}
+
+
 /*  Scales the data to be within +- baseSize/2 (default 2.0) coordinates.  */
 void VertexData::scale( const float baseSize )
 {

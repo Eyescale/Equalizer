@@ -39,26 +39,27 @@ namespace mesh
     {
     public:
         VertexData();
-        
+
         bool readPlyFile( const char* file, const bool ignoreColors = false );
         void sort( const Index start, const Index length, const Axis axis );
         void scale( const float baseSize = 2.0f );
         void calculateNormals( const bool vertexNormals = true );
         void calculateBoundingBox();
         const BoundingBox& getBoundingBox() const { return _boundingBox; }
-        
+        Axis getLongestAxis( const size_t start, const size_t elements ) const;
+
         void useInvertedFaces() { _invertFaces = true; }
-        
+
         std::vector< Vertex >   vertices;
         std::vector< Color >    colors;
         std::vector< Normal >   normals;
         std::vector< Triangle > triangles;
-        
+
     private:
         void readVertices( PlyFile* file, const int nVertices, 
                            const bool readColors );
         void readTriangles( PlyFile* file, const int nFaces );
-        
+
         BoundingBox _boundingBox;
         bool        _invertFaces;
     };

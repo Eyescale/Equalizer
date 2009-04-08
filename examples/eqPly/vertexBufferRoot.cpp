@@ -43,8 +43,11 @@ void VertexBufferRoot::setupTree( VertexData& data )
 {
     // data is VertexData, _data is VertexBufferData
     _data.clear();
+
+    const Axis axis = data.getLongestAxis( 0, data.triangles.size() );
+
     VertexBufferNode::setupTree( data, 0, data.triangles.size(), 
-                                 AXIS_X, 0, _data );
+                                 axis, 0, _data );
     VertexBufferNode::updateBoundingSphere();
     VertexBufferNode::updateRange();
 }
