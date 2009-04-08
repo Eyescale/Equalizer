@@ -22,6 +22,7 @@
 #include <eq/client/canvasVisitor.h>        // base class
 #include <eq/client/layoutVisitor.h>        // base class
 #include <eq/client/nodeVisitor.h>          // base class
+#include <eq/client/observerVisitor.h>          // base class
 
 namespace eq
 {
@@ -31,6 +32,7 @@ namespace eq
      * A visitor to traverse non-const configs and children.
      */
     class ConfigVisitor : public NodeVisitor, 
+                          public ObserverVisitor,
                           public LayoutVisitor,
                           public CanvasVisitor
     {

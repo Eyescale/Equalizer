@@ -62,8 +62,9 @@ Config::Config( ServerPtr server )
 Config::~Config()
 {
     EQINFO << "Delete config @" << (void*)this << endl;
-    EQASSERT( _canvases.empty( ));
+    EQASSERT( _observers.empty( ));
     EQASSERT( _layouts.empty( ));
+    EQASSERT( _canvases.empty( ));
     
     while( tryNextEvent( )) /* flush all pending events */ ;
     _eventQueue.release( _lastEvent );
@@ -134,8 +135,16 @@ private:
     T*             _result;
 };
 
+typedef IDFinder< ConfigVisitor, Observer > ObserverIDFinder;
 typedef IDFinder< ConfigVisitor, Layout > LayoutIDFinder;
 typedef IDFinder< ConfigVisitor, View > ViewIDFinder;
+}
+
+Observer* Config::findObserver( const uint32_t id )
+{
+    ObserverIDFinder finder( id );
+    accept( finder );
+    return finder.getResult();
 }
 
 Layout* Config::findLayout( const uint32_t id )
@@ -163,6 +172,25 @@ VisitorResult _accept( C* config, V& visitor )
 
     const NodeVector& nodes = config->getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        switch( (*i)->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    const ObserverVector& observers = config->getObservers();
+    for( ObserverVector::const_iterator i = observers.begin(); 
+         i != observers.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
         {
@@ -277,18 +305,18 @@ Node* Config::_findNode( const uint32_t id )
     return 0;
 }
 
-void Config::_addCanvas( Canvas* canvas )
+void Config::_addObserver( Observer* observer )
 {
-    canvas->_config = this;
-    _canvases.push_back( canvas );
+    observer->_config = this;
+    _observers.push_back( observer );
 }
 
-void Config::_removeCanvas( Canvas* canvas )
+void Config::_removeObserver( Observer* observer )
 {
-    vector<Canvas*>::iterator i = find( _canvases.begin(), _canvases.end(),
-                                        canvas );
-    EQASSERT( i != _canvases.end( ));
-    _canvases.erase( i );
+    ObserverVector::iterator i = find( _observers.begin(), _observers.end(), 
+                                       observer );
+    EQASSERT( i != _observers.end( ));
+    _observers.erase( i );
 }
 
 void Config::_addLayout( Layout* layout )
@@ -299,10 +327,23 @@ void Config::_addLayout( Layout* layout )
 
 void Config::_removeLayout( Layout* layout )
 {
-    vector<Layout*>::iterator i = find( _layouts.begin(), _layouts.end(), 
-                                        layout );
+    LayoutVector::iterator i = find( _layouts.begin(), _layouts.end(), layout );
     EQASSERT( i != _layouts.end( ));
     _layouts.erase( i );
+}
+
+void Config::_addCanvas( Canvas* canvas )
+{
+    canvas->_config = this;
+    _canvases.push_back( canvas );
+}
+
+void Config::_removeCanvas( Canvas* canvas )
+{
+    CanvasVector::iterator i = find( _canvases.begin(), _canvases.end(),
+                                     canvas );
+    EQASSERT( i != _canvases.end( ));
+    _canvases.erase( i );
 }
 
 bool Config::init( const uint32_t initID )
@@ -312,12 +353,9 @@ bool Config::init( const uint32_t initID )
     _unlockedFrame = 0;
     _finishedFrame = 0;
 
-    registerObject( &_observer );
-
     ConfigInitPacket packet;
     packet.requestID  = _requestHandler.registerRequest();
     packet.initID     = initID;
-    packet.observerID = _observer.getID();
 
     send( packet );
     
@@ -326,9 +364,6 @@ bool Config::init( const uint32_t initID )
         client->processCommand();
 
     _requestHandler.waitRequest( packet.requestID, _running );
-
-    if( !_running )
-        deregisterObject( &_observer );
 
     handleEvents();
     return _running;
@@ -348,8 +383,6 @@ bool Config::exit()
 
     bool ret = false;
     _requestHandler.waitRequest( packet.requestID, ret );
-
-    deregisterObject( &_observer );
 
     while( tryNextEvent( )) /* flush all pending events */ ;
     _eventQueue.release( _lastEvent );
@@ -656,22 +689,41 @@ void Config::setWindowSystem( const WindowSystem windowSystem )
     client->setWindowSystem( windowSystem );    
 }
 
-
+#ifdef EQ_USE_DEPRECATED
 void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
 {
-    _observer.setHeadMatrix( matrix );
+    for( ObserverVector::const_iterator i = _observers.begin();
+         i != _observers.end(); ++i )
+    {
+        (*i)->setHeadMatrix( matrix );
+    }
+}
+
+const vmml::Matrix4f& Config::getHeadMatrix() const
+{
+    if( _observers.empty( ))
+        return vmml::Matrix4f::IDENTITY;
+
+    return _observers[0]->getHeadMatrix();
 }
 
 void Config::setEyeBase( const float eyeBase )
 {
-    if( _eyeBase == eyeBase )
-        return;
-
-    _eyeBase = eyeBase;
-    ConfigSetEyeBasePacket packet;
-    packet.eyeBase = eyeBase;
-    send( packet );
+    for( ObserverVector::const_iterator i = _observers.begin();
+         i != _observers.end(); ++i )
+    {
+        (*i)->setEyeBase( eyeBase );
+    }
 }
+
+float Config::getEyeBase() const
+{
+    if( _observers.empty( ))
+        return _eyeBase;
+
+    return _observers[0]->getEyeBase();
+}
+#endif
 
 void Config::freezeLoadBalancing( const bool onOff )
 {
@@ -808,6 +860,16 @@ net::CommandResult Config::_cmdUnmap( net::Command& command )
         nodeFactory->releaseLayout( layout );
     }
     _layouts.clear();
+
+    for( ObserverVector::const_iterator i = _observers.begin();
+         i != _observers.end(); ++i )
+    {
+        Observer* observer = *i;
+        observer->deregister();
+        observer->_config = 0;
+        nodeFactory->releaseObserver( observer );
+    }
+    _observers.clear();
 
     ConfigUnmapReplyPacket reply( packet );
     send( command.getNode(), reply );

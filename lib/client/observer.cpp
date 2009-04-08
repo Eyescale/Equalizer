@@ -19,6 +19,7 @@
 #include "observer.h"
 
 #include "config.h"
+#include "observerVisitor.h"
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
@@ -60,10 +61,15 @@ void Observer::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         is >> _headMatrix;
 }
 
+VisitorResult Observer::accept( ObserverVisitor& visitor )
+{
+    return visitor.visit( this );
+}
+
 void Observer::deregister()
 {
     EQASSERT( _config );
-    EQASSERT( !isMaster( ));
+    EQASSERT( isMaster( ));
 
     _config->deregisterObject( this );
 }

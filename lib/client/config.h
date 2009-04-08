@@ -61,6 +61,12 @@ namespace eq
         /** @return the vector of nodes instantiated on this process. */
         const NodeVector& getNodes() const { return _nodes; }
 
+        /** @return the vector of observers, app-node only. */
+        const ObserverVector& getObservers() const { return _observers; }
+
+        /** @return the observer of the given identifier, or 0. */
+        Observer* findObserver( const uint32_t id );
+
         /** @return the vector of layouts, app-node only. */
         const LayoutVector& getLayouts() const { return _layouts; }
 
@@ -211,6 +217,7 @@ namespace eq
         virtual bool handleEvent( const ConfigEvent* event );
         //*}
         
+#ifdef EQ_USE_DEPRECATED
         /** @name Observer Interface. */
         //*{
         /** 
@@ -227,15 +234,15 @@ namespace eq
         void setHeadMatrix( const vmml::Matrix4f& matrix );
 
         /** @return the current head matrix. */
-        const vmml::Matrix4f& getHeadMatrix() const 
-            { return _observer.getHeadMatrix(); }
+        const vmml::Matrix4f& getHeadMatrix() const;
 
         /** Set the eye separation, i.e., the distance between the eyes. */
         void setEyeBase( const float eyeBase );
 
         /** @return the current eye separation. */
-        float getEyeBase() const { return _eyeBase; }
+        float getEyeBase() const;
         //*}
+#endif;
 
         /** @name Error Information. */
         //*{
@@ -293,17 +300,16 @@ namespace eq
         /** Locally-instantiated nodes of this config. */
         NodeVector _nodes;
 
+        /** The list of observers, app-node only. */
+        ObserverVector _observers;
+
         /** The list of layouts, app-node only. */
         LayoutVector _layouts;
 
         /** The list of canvases, app-node only. */
         CanvasVector _canvases;
 
-        /** The default observer. */
-        Observer _observer;
-        friend class ConfigCommitVisitor;
-
-        /** The distance between the left and the right eye. */
+        /** The default distance between the left and the right eye. */
         float _eyeBase;
 
         /** The reason for the last error. */
@@ -346,10 +352,12 @@ namespace eq
         Node* _findNode( const uint32_t id );
 
         friend class ConfigDeserializer;
-        void _addCanvas( Canvas* canvas );
-        void _removeCanvas( Canvas* canvas );
+        void _addObserver( Observer* observer );
+        void _removeObserver( Observer* observer );
         void _addLayout( Layout* layout );
         void _removeLayout( Layout* layout );
+        void _addCanvas( Canvas* canvas );
+        void _removeCanvas( Canvas* canvas );
 
         bool _needsLocalSync() const;
 

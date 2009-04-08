@@ -92,7 +92,7 @@ void Layout::deregister()
     }
 
     _views.clear();
-    _config->deregisterObject( this );
+    _config->unmapObject( this );
 }
 
 VisitorResult Layout::accept( LayoutVisitor& visitor )

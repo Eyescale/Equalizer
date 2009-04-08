@@ -650,6 +650,24 @@ viewField:
         { view->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
     | wall       { view->setWall( wall ); }
     | projection { view->setProjection( projection ); }
+    | EQTOKEN_OBSERVER STRING
+      {
+          eq::server::Observer* observer = config->findObserver( $2 );
+          if( !observer )
+              yyerror( "No observer of the given name" );
+          else
+              view->setObserver( observer ); 
+      }
+    | EQTOKEN_OBSERVER UNSIGNED
+      {
+          const eq::server::ObserverPath path( $2 );
+          eq::server::Observer* observer = config->getObserver( path );
+          if( !observer )
+              yyerror( "No observer of the given index" );
+          else
+              view->setObserver( observer ); 
+      }
+
 
 canvas: EQTOKEN_CANVAS '{' { canvas = new eq::server::Canvas; }
             canvasFields '}' { config->addCanvas( canvas ); canvas = 0; }

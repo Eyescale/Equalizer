@@ -1,0 +1,182 @@
+# three-window config simulating a 5-sided cave, an HMD and an untracked view
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    name "Cave"
+                    viewport [ 25 25 600 600 ]
+                    channel 
+                    {
+                        viewport [ 0 .33333 .33333 .33333 ]
+                        name "cave-left"
+                    }
+                    channel 
+                    {
+                        viewport [ .33333 .33333 .33333 .33333 ]
+                        name "cave-front"
+                    }
+                    channel 
+                    {
+                        viewport [ .66666 .33333 .33333 .33333 ]
+                        name "cave-right"
+                    }
+                    channel 
+                    {
+                        viewport [ .33333 .66666 .33333 .33333 ]
+                        name "cave-top"
+                    }
+                    channel 
+                    {
+                        viewport [ .33333 0 .33333 .33333 ]
+                        name "cave-bottom"
+                    }
+                }
+
+                window
+                {
+                    name "HMD"
+                    viewport [ 650 25 400 200 ]
+                    channel 
+                    {
+                        viewport [ 0 0 .5 1 ]
+                        name "HMD-left"
+                    }
+                    channel 
+                    {
+                        viewport [ .5 0 .5 1 ]
+                        name "HMD-right"
+                    }
+                }
+
+                window
+                {
+                    name "Untracked"
+                    viewport [ 650 250 200 200 ]
+
+                    channel { name "untracked" }
+                }
+            }
+        }
+
+        observer { name "Cave" }
+        observer { name "HMD" }
+
+        layout { name "Cave" view { observer "Cave" }}
+        layout { name "HMD" view { observer "HMD" }}
+        layout
+        {
+            name "Untracked" 
+            view
+            {
+                wall # use view frustum to get FOV updates
+                {
+                    bottom_left  [ -.2 -.2 -.75 ]
+                    bottom_right [  .2 -.2 -.75 ]
+                    top_left     [ -.2  .2 -.75 ]
+                }
+            }
+        }
+
+        canvas
+        {
+            name "Cave"
+            layout "Cave"
+            segment
+            { 
+                channel "cave-left"
+                viewport [ 0 .33333 .33333 .33333 ]
+                wall
+                {
+                    bottom_left  [ -1 -1  1 ]
+                    bottom_right [ -1 -1 -1 ]
+                    top_left     [ -1  1  1 ]
+                }
+            }
+            segment
+            {
+                channel "cave-front"
+                viewport [ .33333 .33333 .33333 .33333 ]
+                wall
+                {
+                    bottom_left  [ -1 -1 -1 ]
+                    bottom_right [  1 -1 -1 ]
+                    top_left     [ -1  1 -1 ]
+                }
+            }
+            segment
+            { 
+                channel "cave-right"
+                viewport [ .66666 .33333 .33333 .33333 ]
+                wall
+                {
+                    bottom_left  [ 1 -1 -1 ]
+                    bottom_right [ 1 -1  1 ]
+                    top_left     [ 1  1 -1 ]
+                }
+            }
+            segment
+            {
+                channel "cave-bottom"
+                viewport [ .33333 0 .33333 .33333 ]
+                wall
+                {
+                    bottom_left  [ -1 -1  1 ]
+                    bottom_right [  1 -1  1 ]
+                    top_left     [ -1 -1 -1 ]
+                }
+            }
+            segment
+            { 
+                channel "cave-top"
+                viewport [ .33333 .66666 .33333 .33333 ]
+                wall
+                {
+                    bottom_left  [ -1  1 -1 ]
+                    bottom_right [  1  1 -1 ]
+                    top_left     [ -1  1  1 ]
+                }
+            }
+        }
+        canvas
+        {
+            name "HMD"
+            layout "HMD"
+            wall
+            {
+                bottom_left  [ -.2 -.2 -.75 ]
+                bottom_right [  .2 -.2 -.75 ]
+                top_left     [ -.2  .2 -.75 ]
+                type         HMD
+            }
+
+            segment { channel "HMD-left" }
+            segment { channel "HMD-right" }
+        }
+        canvas
+        {
+            name "Untracked"
+            layout "Untracked"
+            segment { channel "untracked" }
+        }
+
+        compound
+        {
+            compound
+            {
+                channel ( canvas "HMD" segment 0 layout "HMD" view 0 )
+                eye     [ LEFT ]
+            }
+            compound
+            { 
+                channel ( canvas "HMD" segment 1 layout "HMD" view 0 )
+                eye     [ RIGHT ]
+            }
+        }
+    }    
+}

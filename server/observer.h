@@ -22,6 +22,7 @@
 #include "types.h"
 #include "observerVisitor.h"    // used in inline method
 
+#include <eq/client/eye.h>      // enum
 #include <eq/client/observer.h> // base class
 #include <string>
 
@@ -54,12 +55,26 @@ namespace server
         //*{
         /** @return the index path to this observer. */
         ObserverPath getPath() const;
+
+        /** @return the position of an eye in world-space coordinates. */
+        const vmml::Vector3f& getEyePosition( const eq::Eye eye ) const
+            { return _eyes[ eye ]; }
+
+        /** @return the inverse of the current head matrix. */
+        const vmml::Matrix4f& getInverseHeadMatrix() const
+            { return _inverseHeadMatrix; }
+
+        /** @return the config of this observer. */
+        Config* getConfig() { return _config; }
         //*}
 
         /**
          * @name Operations
          */
         //*{
+        /** Initialize the observer parameters. */
+        void init();
+
         /** 
          * Traverse this observer using a observer visitor.
          * 
@@ -76,16 +91,27 @@ namespace server
         //*}
         
     protected:
+        /** @sa Object::deserialize */
+        virtual void deserialize( net::DataIStream& is, 
+                                  const uint64_t dirtyBits );
 
     private:
         /** The parent Config. */
         Config* _config;
         friend class Config;
 
+        /** Cached inverse head matrix. */
+        vmml::Matrix4f _inverseHeadMatrix;
+
+        /** The eye positions in world space. */ 
+        vmml::Vector3f _eyes[eq::EYE_ALL];
+
         union // placeholder for binary-compatible changes
         {
             char dummy[64];
         };
+
+        void _updateEyes();
     };
 }
 }

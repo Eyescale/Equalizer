@@ -107,6 +107,7 @@ HEADER_SRC = \
 	client/object.h \
 	client/objectManager.h \
 	client/observer.h \
+	client/observerVisitor.h \
 	client/osPipe.h \
 	client/osWindow.h \
 	client/packets.h \

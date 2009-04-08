@@ -35,6 +35,7 @@ class Frame;
 class Image;
 class Layout;
 class Node;
+class Observer;
 class Pipe;
 class PixelViewport;
 class Segment;
@@ -56,6 +57,7 @@ typedef std::vector< Frame* >    FrameVector;
 typedef std::vector< Image* >    ImageVector;
 typedef std::vector< Texture* >  TextureVector;
 
+typedef std::vector< Observer* > ObserverVector;
 typedef std::vector< Canvas* >   CanvasVector;
 typedef std::vector< Layout* >   LayoutVector;
 typedef std::vector< Segment* >  SegmentVector;

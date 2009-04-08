@@ -178,13 +178,13 @@ namespace eq
         {
             EXPOSE = 0,
             WINDOW_RESIZE,
+#ifdef EQ_USE_DEPRECATED
+            RESIZE = WINDOW_RESIZE,
+#endif
             WINDOW_CLOSE,
             WINDOW_HIDE,
             WINDOW_SHOW,
             WINDOW_SCREENSAVER,
-#ifdef EQ_USE_DEPRECATED
-            RESIZE = WINDOW_RESIZE,
-#endif
             POINTER_MOTION,
             POINTER_BUTTON_PRESS,
             POINTER_BUTTON_RELEASE,

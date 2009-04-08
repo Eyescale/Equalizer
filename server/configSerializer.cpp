@@ -22,6 +22,7 @@
 #include "config.h"
 #include "compound.h"
 #include "layout.h"
+#include "observer.h"
 #include "segment.h"
 #include "view.h"
 
@@ -41,6 +42,13 @@ class SerializerVisitor : public ConfigVisitor
 public:
     SerializerVisitor( net::DataOStream& os ) : _os( os ) {}
     virtual ~SerializerVisitor(){}
+
+    virtual VisitorResult visit( Observer* observer )
+        { 
+            _registerObject( observer->getConfig(), observer );
+            _os << eq::ConfigDeserializer::TYPE_OBSERVER << observer->getID();
+            return TRAVERSE_CONTINUE; 
+        }
 
     virtual VisitorResult visit( Segment* segment )
         { 

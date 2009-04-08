@@ -240,7 +240,6 @@ namespace eq
 
         uint32_t requestID;
         uint32_t initID;
-        uint32_t observerID;
     };
 
     struct ConfigInitReplyPacket : public ConfigPacket
@@ -321,17 +320,6 @@ namespace eq
                 command   = CMD_CONFIG_FINISH_ALL_FRAMES;
                 size      = sizeof( ConfigFinishAllFramesPacket );
             }
-    };
-
-    struct ConfigSetEyeBasePacket : public ConfigPacket
-    {
-        ConfigSetEyeBasePacket()
-            {
-                command = CMD_CONFIG_SET_EYE_BASE;
-                size    = sizeof( ConfigSetEyeBasePacket );
-            }
-
-        float eyeBase;
     };
 
     struct ConfigFreezeLoadBalancingPacket : public ConfigPacket

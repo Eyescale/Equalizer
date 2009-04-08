@@ -32,9 +32,9 @@ namespace eq
         ConfigCommitVisitor() : _needFinish( false ) {}
         virtual ~ConfigCommitVisitor() {}
 
-        virtual VisitorResult visitPre( Config* config )
+        virtual VisitorResult visit( Observer* observer )
             { 
-                _commit( &config->_observer );
+                _commit( observer );
                 return TRAVERSE_CONTINUE; 
             }
         virtual VisitorResult visitPre( Canvas* canvas )

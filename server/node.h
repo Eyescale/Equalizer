@@ -22,6 +22,8 @@
 #include "config.h"                // used in inline method
 #include "connectionDescription.h" // used in inline method
 
+#include <eq/client/node.h> // enum eq::Node::IAttribute
+
 #include <eq/net/barrier.h>
 #include <eq/net/bufferConnection.h>
 #include <eq/net/node.h>

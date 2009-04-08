@@ -31,6 +31,7 @@ namespace server
 }
     class Config;
     class Layout;
+    class Observer;
     class Pipe;
     class ViewVisitor;
     struct Event;
@@ -63,6 +64,10 @@ namespace server
 
         /** @return the layout of this view. */
         EQ_EXPORT const Layout* getLayout() const { return _layout; }
+
+        /** @return the entity tracking this view, 0 for untracked views. */
+        Observer* getObserver() { return _observer; }
+        const Observer* getObserver() const { return _observer; }
         //*}
 
         /** @name Operations */
@@ -100,6 +105,7 @@ namespace server
         enum DirtyBits
         {
             DIRTY_VIEWPORT   = Frustum::DIRTY_CUSTOM << 0,
+            DIRTY_OBSERVER   = Frustum::DIRTY_CUSTOM << 1,
             DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 2,
             DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 3,
             DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4,
@@ -119,7 +125,9 @@ namespace server
 
         friend class server::View;
         Viewport    _viewport;
-        std::string _name;
+
+        /** The observer for tracking. */
+        Observer* _observer;
 
         /** Unmodified, baseline view frustum data, used when resizing. */
         Frustum _baseFrustum;

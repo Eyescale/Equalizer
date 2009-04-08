@@ -18,9 +18,11 @@
 
 #include "view.h"
 
+#include "config.h"
 #include "event.h"
 #include "pipe.h"
 #include "layout.h"
+#include "observer.h"
 #include "viewVisitor.h"
 
 #include <eq/net/dataIStream.h>
@@ -31,6 +33,7 @@ namespace eq
 View::View()
         : _layout( 0 )
         , _pipe( 0 )
+        , _observer( 0 )
 {
 }
 
@@ -45,6 +48,8 @@ void View::serialize( net::DataOStream& os, const uint64_t dirtyBits )
     Frustum::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _viewport;
+    if( dirtyBits & DIRTY_OBSERVER )
+        os << ( _observer ? _observer->getID() : EQ_ID_INVALID );
 }
 
 void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
@@ -52,6 +57,21 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     Frustum::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
         is >> _viewport;
+    if( dirtyBits & DIRTY_OBSERVER )
+    {
+        uint32_t id;
+        is >> id;
+
+        if( id == EQ_ID_INVALID )
+            _observer = 0;
+        else
+        {
+            Config* config = getConfig();
+            EQASSERT( config );
+            _observer = config->findObserver( id );
+            EQASSERT( _observer );
+        }
+    }
 
     if( dirtyBits & DIRTY_ALL )
         _baseFrustum = *this; // save baseline data for resizing

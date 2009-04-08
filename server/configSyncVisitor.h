@@ -34,19 +34,9 @@ namespace server
                 : _nChanges( nChanges ), _changes( changes ), _current( 0 ) {}
         virtual ~ConfigSyncVisitor() {}
 
-    virtual VisitorResult visitPre( Config* config )
+    virtual VisitorResult visit( Observer* observer )
         {
-            const uint32_t  oldVersion = config->_observer.getVersion();
-            const VisitorResult result = _sync( &config->_observer );
-            const uint32_t  newVersion = config->_observer.getVersion();
-
-            if( oldVersion != newVersion )
-            {
-                config->_updateEyes();
-                config->_observer.getHeadMatrix().getInverse(
-                    config->_invHeadMatrix );
-            }
-            return result;
+            return _sync( observer );
         }
     virtual VisitorResult visitPre( Canvas* canvas )
         {

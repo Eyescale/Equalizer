@@ -16,38 +16,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_CONFIGDESERIALIZER_H
-#define EQ_CONFIGDESERIALIZER_H
+#ifndef EQ_OBSERVERVISITOR_H
+#define EQ_OBSERVERVISITOR_H
 
-#include <eq/net/object.h> // base class
+#include <eq/client/visitorResult.h>  // enum
 
 namespace eq
 {
-    class Config;
+    class Observer;
 
-    /** Helper class to receive a config, which is a net::Session */
-    class ConfigDeserializer : public net::Object
+    /**
+     * A visitor to traverse non-const observers.
+     */
+    class ObserverVisitor
     {
     public:
-        ConfigDeserializer( Config* config ) : _config( config ) {}
-        virtual ~ConfigDeserializer() {}
+        /** Constructs a new ObserverVisitor. */
+        ObserverVisitor(){}
+        
+        /** Destruct the ObserverVisitor */
+        virtual ~ObserverVisitor(){}
 
-        /** Types of the children in the serialization stream. */
-        enum Type
-        {
-            TYPE_OBSERVER,
-            TYPE_LAYOUT,
-            TYPE_CANVAS,
-            TYPE_LAST
-        };
-
-    protected:
-        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL; }
-        virtual void applyInstanceData( net::DataIStream& is );
-
-    private:
-        Config* const _config;
+        /** Visit a observer. */
+        virtual VisitorResult visit( Observer* observer )
+            { return TRAVERSE_CONTINUE; }
     };
 }
-
-#endif // EQ_CONFIGDESERIALIZER_H
+#endif // EQ_OBSERVERVISITOR_H

@@ -16,13 +16,14 @@ server
             }
         }
 
+        observer {}
         layout
         {
             name "Simple"
-            view {}
+            view { observer 0 }
         }
 
-        layout
+        layout # Note: all views are untracked (no observer)
         {
             name "2x1"
             view

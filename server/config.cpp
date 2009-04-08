@@ -58,13 +58,15 @@ namespace server
 {
 typedef net::CommandFunc<Config> ConfigFunc;
 
-#define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
+#ifdef EQ_USE_DEPRECATED
+#  define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
 std::string Config::_fAttributeStrings[FATTR_ALL] = 
 {
     MAKE_ATTR_STRING( FATTR_EYE_BASE ),
     MAKE_ATTR_STRING( FATTR_FILL1 ),
     MAKE_ATTR_STRING( FATTR_FILL2 )
 };
+#endif
 
 void Config::_construct()
 {
@@ -75,20 +77,17 @@ void Config::_construct()
     _appNode       = 0;
     _serializer    = 0;
 
-    _eyes[eq::EYE_CYCLOP] = vmml::Vector3f::ZERO;
-    _eyes[eq::EYE_LEFT]   = vmml::Vector3f::ZERO;
-    _eyes[eq::EYE_RIGHT]  = vmml::Vector3f::ZERO;
-
     EQINFO << "New config @" << (void*)this << endl;
 }
 
 Config::Config()
 {
     _construct();
-
+#ifdef EQ_USE_DEPRECATED
     const Global* global = Global::instance();    
     for( int i=0; i<FATTR_ALL; ++i )
         _fAttributes[i] = global->getConfigFAttribute( (FAttribute)i );
+#endif
 }
 
 Config::Config( const Config& from )
@@ -99,8 +98,10 @@ Config::Config( const Config& from )
     _construct();
     _appNetNode = from._appNetNode;
     _latency    = from._latency;
+#ifdef EQ_USE_DEPRECATED
     for( int i=0; i<FATTR_ALL; ++i )
         _fAttributes[i] = from.getFAttribute( (FAttribute)i );
+#endif
 
     const NodeVector& nodes = from.getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
@@ -219,8 +220,6 @@ void Config::setLocalNode( net::NodePtr node )
     registerCommand( eq::CMD_CONFIG_FINISH_ALL_FRAMES, 
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ),
                      serverQueue );
-    registerCommand( eq::CMD_CONFIG_SET_EYE_BASE,
-                     ConfigFunc( this, &Config::_cmdSetEyeBase ), serverQueue );
     registerCommand( eq::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
                      ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ), 
                      serverQueue );
@@ -262,7 +261,7 @@ bool Config::removeObserver( Observer* observer )
         return false;
 
     _observers.erase( i );
-//    observer->_config = 0;
+    observer->_config = 0;
     return true;
 }
 
@@ -300,7 +299,7 @@ bool Config::removeLayout( Layout* layout )
         return false;
 
     _layouts.erase( i );
-//    layout->_config = 0;
+    layout->_config = 0;
     return true;
 }
 
@@ -933,16 +932,21 @@ bool Config::_init( const uint32_t initID )
     _finishedFrame = 0;
     _initID = initID;
 
-    _updateEyes();
+    for( ObserverVector::const_iterator i = _observers.begin();
+         i != _observers.end(); ++i )
+    {
+        Observer* observer = *i;
+        observer->init();
+    }
 
-    for( vector< Canvas* >::const_iterator i = _canvases.begin();
+    for( CanvasVector::const_iterator i = _canvases.begin();
          i != _canvases.end(); ++i )
     {
         Canvas* canvas = *i;
         canvas->init();
     }
 
-    for( vector< Compound* >::const_iterator i = _compounds.begin();
+    for( CompoundVector::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
@@ -984,9 +988,6 @@ bool Config::exit()
 
     const bool success = _updateRunning();
 
-    if( _observer.getID() != EQ_ID_INVALID )
-        deregisterObject( &_observer );
-
     eq::ConfigEvent exitEvent;
     exitEvent.data.type = eq::Event::EXIT;
     send( _appNetNode, exitEvent );
@@ -1012,32 +1013,6 @@ void Config::unmap()
     accept( unmapper );
 
     _requestHandler.waitRequest( packet.requestID );
-}
-
-void Config::_updateEyes()
-{
-    const float eyeBase_2 = .5f * getFAttribute( FATTR_EYE_BASE );
-    const vmml::Matrix4f& head = _observer.getHeadMatrix();
-
-    // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
-    // OPT: don't use vector operator* due to possible simplification
-
-    _eyes[eq::EYE_CYCLOP].x = head.m03;
-    _eyes[eq::EYE_CYCLOP].y = head.m13;
-    _eyes[eq::EYE_CYCLOP].z = head.m23;
-    _eyes[eq::EYE_CYCLOP]  /= head.m33;
-
-    _eyes[eq::EYE_LEFT].x = ( -eyeBase_2 * head.m00 + head.m03 );
-    _eyes[eq::EYE_LEFT].y = ( -eyeBase_2 * head.m10 + head.m13 );
-    _eyes[eq::EYE_LEFT].z = ( -eyeBase_2 * head.m20 + head.m23 );
-    _eyes[eq::EYE_LEFT]  /= ( -eyeBase_2 * head.m30 + head.m33 );
-
-    _eyes[eq::EYE_RIGHT].x = ( eyeBase_2 * head.m00 + head.m03 );
-    _eyes[eq::EYE_RIGHT].y = ( eyeBase_2 * head.m10 + head.m13 );
-    _eyes[eq::EYE_RIGHT].z = ( eyeBase_2 * head.m20 + head.m23 );
-    _eyes[eq::EYE_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 );
-
-    EQVERB << "Eye position: " << _eyes[ eq:: EYE_CYCLOP ] << std::endl;
 }
 
 bool Config::_startFrame( const uint32_t frameID )
@@ -1141,12 +1116,7 @@ net::CommandResult Config::_cmdInit( net::Command& command )
     reply.result = _init( packet->initID );
     std::string error = _error;
 
-    if( reply.result )
-    {
-        mapObject( &_observer, packet->observerID );
-        _observer.getHeadMatrix().getInverse( _invHeadMatrix );
-    }
-    else
+    if( !reply.result )
         exit();
 
     EQINFO << "Config init " << (reply.result ? "successful": "failed: ") 
@@ -1221,17 +1191,6 @@ net::CommandResult Config::_cmdCreateReply( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-net::CommandResult Config::_cmdSetEyeBase( net::Command& command ) 
-{
-    const eq::ConfigSetEyeBasePacket* packet = 
-        command.getPacket<eq::ConfigSetEyeBasePacket>();
-
-    setFAttribute( FATTR_EYE_BASE, packet->eyeBase );
-    _updateEyes();
-
-    return net::COMMAND_HANDLED;
-}
-
 namespace
 {
 class FreezeVisitor : public ConfigVisitor
@@ -1297,6 +1256,7 @@ ostream& operator << ( ostream& os, const Config* config )
         os << "latency " << config->getLatency() << endl;
     os << endl;
 
+#ifdef EQ_USE_DEPRECATED
     const float value = config->getFAttribute( Config::FATTR_EYE_BASE );
     if( value != 
         Global::instance()->getConfigFAttribute( Config::FATTR_EYE_BASE ))
@@ -1305,6 +1265,7 @@ ostream& operator << ( ostream& os, const Config* config )
            << "eye_base     " << value << endl
            << exdent << "}" << endl;
     }
+#endif
 
     const NodeVector& nodes = config->getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )

@@ -28,8 +28,9 @@
 #include "pipeVisitor.h"
 #include "window.h"
 
-#include <eq/net/command.h>
 #include <eq/client/commands.h>
+#include <eq/client/packets.h>
+#include <eq/net/command.h>
 
 using namespace eq::base;
 using namespace std;

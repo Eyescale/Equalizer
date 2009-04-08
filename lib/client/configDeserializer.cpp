@@ -67,6 +67,17 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
 
         switch( type )
         {
+            case TYPE_OBSERVER:
+            {
+                Observer* observer = nodeFactory->createObserver();
+                EQASSERT( observer );
+                _config->_addObserver( observer );
+
+                EQCHECK( _config->mapObject( observer, id )); //OPT: async map
+                observer->becomeMaster();
+                break;
+            }
+                
             case TYPE_CANVAS:
             {
                 Canvas* canvas = nodeFactory->createCanvas();

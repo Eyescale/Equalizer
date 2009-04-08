@@ -24,8 +24,6 @@
 #include "server.h"        // used in inline method
 #include "visitorResult.h" // enum
 
-#include <eq/client/observer.h>
-#include <eq/client/packets.h>
 #include <eq/net/session.h>
 
 #include <iostream>
@@ -80,16 +78,8 @@ namespace server
         net::CommandQueue* getServerThreadQueue()
             { EQASSERT( _server ); return _server->getServerThreadQueue(); }
         
-        /** @return the position of an eye in world-space coordinates. */
-        const vmml::Vector3f& getEyePosition( const eq::Eye eye ) const
-            { return _eyes[ eye ]; }
-
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
-
-        /** @return the inverse of the current head matrix. */
-        const vmml::Matrix4f& getInverseHeadMatrix() const
-            { return _invHeadMatrix; }
 
         /** 
          * Adds a new node to this config.
@@ -340,6 +330,7 @@ namespace server
          */
         void unmap();
         
+#ifdef EQ_USE_DEPRECATED
         /** @name Attributes */
         //*{
         // Note: also update string array initialization in config.cpp
@@ -358,6 +349,7 @@ namespace server
         static const std::string&  getFAttributeString( const FAttribute attr )
             { return _fAttributeStrings[attr]; }
         //*}
+#endif
 
         /** @name Error information. */
         //@{
@@ -434,14 +426,6 @@ namespace server
         /** The last finished frame, or 0. */
         uint32_t _finishedFrame;
 
-        /** The default observer for head tracking. */
-        eq::Observer _observer;
-        vmml::Matrix4f _invHeadMatrix;
-        friend class ConfigSyncVisitor;
-
-        /** The eye positions in world space. */ 
-        vmml::Vector3f _eyes[eq::EYE_ALL];
-
         enum State
         {
             STATE_STOPPED = 0,  // next: INITIALIZING
@@ -479,7 +463,6 @@ namespace server
         bool _init( const uint32_t initID );
 
         bool _startFrame( const uint32_t frameID );
-        void   _updateEyes();
         void _flushAllFrames();
         //*}
 
@@ -489,7 +472,6 @@ namespace server
         net::CommandResult _cmdStartFrame( net::Command& command );
         net::CommandResult _cmdFinishAllFrames( net::Command& command ); 
         net::CommandResult _cmdCreateReply( net::Command& command );
-        net::CommandResult _cmdSetEyeBase( net::Command& command );
         net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
         net::CommandResult _cmdUnmapReply( net::Command& command );
     };

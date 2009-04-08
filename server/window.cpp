@@ -30,6 +30,7 @@
 #include "pipe.h"
 #include "windowVisitor.h"
 
+#include <eq/client/packets.h>
 #include <eq/net/command.h>
 
 using namespace eq::base;

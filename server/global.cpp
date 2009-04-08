@@ -79,10 +79,12 @@ void Global::_setupDefaults()
 #endif
 
     // config
+#ifdef EQ_USE_DEPRECATED
     for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
         _configFAttributes[i] = 0.f;
 
     _configFAttributes[Config::FATTR_EYE_BASE]         = 0.05f;
+#endif
 
     // node
     for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
@@ -163,6 +165,7 @@ void Global::_readEnvironment()
         if( envValue )
             _connectionIAttributes[i] = atol( envValue );
     }
+#ifdef EQ_USE_DEPRECATED
     for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
     {
         const string& name     = Config::getFAttributeString(
@@ -172,6 +175,7 @@ void Global::_readEnvironment()
         if( envValue )
             _configFAttributes[i] = atof( envValue );
     }
+#endif
     for( uint32_t i=0; i<eq::Node::IATTR_ALL; ++i )
     {
         const string& name     = eq::Node::getIAttributeString(
@@ -279,6 +283,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << "'" << value << "'" << endl;
     }
 
+#ifdef EQ_USE_DEPRECATED
     for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
     {
         const float value = global->_configFAttributes[i];
@@ -290,6 +295,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << value << endl;
     }
+#endif
 
     for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
     {

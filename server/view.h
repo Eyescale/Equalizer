@@ -98,7 +98,11 @@ namespace server
         
         /** @return the vector of channels. */
         const ChannelVector& getChannels() const{ return _channels; }
-        
+
+        /** Set the entity tracking this view. */
+        void setObserver( Observer* observer );
+        //*}
+
     protected:
         /** @sa eq::View::deserialize() */
         virtual void deserialize( net::DataIStream& is, 

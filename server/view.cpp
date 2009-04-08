@@ -23,6 +23,7 @@
 #include "config.h"
 #include "configVisitor.h"
 #include "layout.h"
+#include "observer.h"
 #include "paths.h"
 
 using namespace eq::base;
@@ -41,6 +42,16 @@ View::View( const View& from, Config* config )
         : eq::View( from )
         , _layout( 0 )
 {
+    if( from._observer )
+    {
+        const Observer* oldObserver = static_cast< const Observer* >( 
+            from._observer );
+        const ObserverPath path( oldObserver->getPath( ));
+
+        _observer = config->getObserver( path );
+        EQASSERT( _observer );
+    }
+
     // _channels will be added by Segment copy ctor
 }
 
@@ -155,6 +166,15 @@ ViewPath View::getPath() const
     EQASSERT( i != views.end( ));
     path.viewIndex = std::distance( views.begin(), i );
     return path;
+}
+
+void View::setObserver( Observer* observer )
+{
+    if( _observer == observer )
+        return;
+
+    _observer = observer;
+    setDirty( DIRTY_OBSERVER );
 }
 
 std::ostream& operator << ( std::ostream& os, const View* view )

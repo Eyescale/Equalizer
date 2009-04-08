@@ -56,24 +56,14 @@ namespace eq
         virtual void releaseNode( Node* node );
 
         /** 
-         * Creates a new canvas.
+         * Creates a new observer.
          * 
-         * @return the canvas.
+         * @return the observer.
          */
-        virtual Canvas* createCanvas();
+        virtual Observer* createObserver();
 
-        /** Release a canvas. */
-        virtual void releaseCanvas( Canvas* canvas );
-
-        /** 
-         * Creates a new segment.
-         * 
-         * @return the segment.
-         */
-        virtual Segment* createSegment();
-
-        /** Release a segment. */
-        virtual void releaseSegment( Segment* segment );
+        /** Release a observer. */
+        virtual void releaseObserver( Observer* observer );
 
         /** 
          * Creates a new layout.
@@ -94,6 +84,26 @@ namespace eq
 
         /** Release a view. */
         virtual void releaseView( View* view );
+
+        /** 
+         * Creates a new canvas.
+         * 
+         * @return the canvas.
+         */
+        virtual Canvas* createCanvas();
+
+        /** Release a canvas. */
+        virtual void releaseCanvas( Canvas* canvas );
+
+        /** 
+         * Creates a new segment.
+         * 
+         * @return the segment.
+         */
+        virtual Segment* createSegment();
+
+        /** Release a segment. */
+        virtual void releaseSegment( Segment* segment );
 
         /** 
          * Creates a new pipe.

@@ -22,6 +22,7 @@
 #include "compound.h"
 #include "frame.h"
 #include "node.h"
+#include "observer.h"
 #include "pipe.h"
 #include "segment.h"
 #include "view.h"
@@ -342,11 +343,9 @@ eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
 void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
                                             eq::RenderContext& context )
 {
-    const FrustumData& frustumData = compound->getInheritFrustumData();
-    const Config*      config      = compound->getConfig();
-
     // compute eye position in screen space
     const vmml::Vector3f  eyeW = _getEyePosition( compound );
+    const FrustumData& frustumData = compound->getInheritFrustumData();
     const vmml::Matrix4f& xfm  = frustumData.getTransform();
     const vmml::Vector3f  eye  = xfm * eyeW;
 
@@ -369,35 +368,52 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
 
     const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
     if( isHMD )
-        headTransform *= config->getInverseHeadMatrix();
+        headTransform *= _getInverseHeadMatrix( compound );
 }
 
 vmml::Vector3f ChannelUpdateVisitor::_getEyePosition( const Compound* compound )
     const
 {
     const FrustumData& frustumData = compound->getInheritFrustumData();
-    const Config*      config      = compound->getConfig();
+    const Channel* destChannel = compound->getInheritChannel();
+    const View* view = destChannel->getView();
+    const Observer* observer = static_cast< const Observer* >(
+        view ? view->getObserver() : 0 );
 
-    if( frustumData.getType() == Wall::TYPE_FIXED )
-        return config->getEyePosition( _eye );
+    if( observer && frustumData.getType() == Wall::TYPE_FIXED )
+        return observer->getEyePosition( _eye );
+
+    const Config* config = compound->getConfig();
+    const float eyeBase_2 = 0.5f * ( observer ? 
+      observer->getEyeBase() : config->getFAttribute( Config::FATTR_EYE_BASE ));
 
     switch( _eye )
     {
         case eq::EYE_LEFT:
-            return vmml::Vector3f(
-                -0.5*config->getFAttribute( Config::FATTR_EYE_BASE ), 0.f, 0.f);
+            return vmml::Vector3f(-eyeBase_2, 0.f, 0.f );
 
         case eq::EYE_RIGHT:
-            return vmml::Vector3f(
-                +0.5*config->getFAttribute( Config::FATTR_EYE_BASE ), 0.f, 0.f);
+            return vmml::Vector3f( eyeBase_2, 0.f, 0.f );
 
         default:
             EQUNIMPLEMENTED;
         case eq::EYE_CYCLOP:
-            break;
+            return vmml::Vector3f( 0.f, 0.f, 0.f );
     }
+}
 
-    return vmml::Vector3f( 0.f, 0.f, 0.f );
+const vmml::Matrix4f& ChannelUpdateVisitor::_getInverseHeadMatrix(
+    const Compound* compound ) const
+{
+    const Channel* destChannel = compound->getInheritChannel();
+    const View* view = destChannel->getView();
+    const Observer* observer = static_cast< const Observer* >(
+        view ? view->getObserver() : 0);
+
+    if( observer )
+        return observer->getInverseHeadMatrix();
+
+    return vmml::Matrix4f::IDENTITY;
 }
 
 void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,

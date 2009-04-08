@@ -30,6 +30,7 @@
 namespace eq
 {
     class Config;
+    class ObserverVisitor;
 
     /**
      * An Observer looks at one or more views from a certain position (head
@@ -79,6 +80,14 @@ namespace eq
          * @name Operations
          */
         //*{
+        /** 
+         * Traverse this observer using a observer visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        EQ_EXPORT VisitorResult accept( ObserverVisitor& visitor );
+
         /** Deregister this observer from its net::Session.*/
         EQ_EXPORT virtual void deregister();
         //*}

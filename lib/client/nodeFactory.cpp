@@ -24,6 +24,7 @@
 #include "config.h"
 #include "layout.h"
 #include "node.h"
+#include "observer.h"
 #include "pipe.h"
 #include "segment.h"
 #include "server.h"
@@ -51,22 +52,13 @@ void NodeFactory::releaseNode( Node* node )
     delete node;
 }
 
-Canvas* NodeFactory::createCanvas()
+Observer* NodeFactory::createObserver()
 {
-    return new Canvas();
+    return new Observer();
 }
-void NodeFactory::releaseCanvas( Canvas* canvas )
+void NodeFactory::releaseObserver( Observer* observer )
 {
-    delete canvas;
-}
-
-Segment* NodeFactory::createSegment()
-{
-    return new Segment();
-}
-void NodeFactory::releaseSegment( Segment* segment )
-{
-    delete segment;
+    delete observer;
 }
 
 Layout* NodeFactory::createLayout()
@@ -85,6 +77,24 @@ View* NodeFactory::createView()
 void NodeFactory::releaseView( View* view )
 {
     delete view;
+}
+
+Canvas* NodeFactory::createCanvas()
+{
+    return new Canvas();
+}
+void NodeFactory::releaseCanvas( Canvas* canvas )
+{
+    delete canvas;
+}
+
+Segment* NodeFactory::createSegment()
+{
+    return new Segment();
+}
+void NodeFactory::releaseSegment( Segment* segment )
+{
+    delete segment;
 }
 
 Pipe* NodeFactory::createPipe( Node* parent )
