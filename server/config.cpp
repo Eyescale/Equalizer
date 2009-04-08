@@ -58,15 +58,13 @@ namespace server
 {
 typedef net::CommandFunc<Config> ConfigFunc;
 
-#ifdef EQ_USE_DEPRECATED
-#  define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
+#define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
 std::string Config::_fAttributeStrings[FATTR_ALL] = 
 {
     MAKE_ATTR_STRING( FATTR_EYE_BASE ),
     MAKE_ATTR_STRING( FATTR_FILL1 ),
     MAKE_ATTR_STRING( FATTR_FILL2 )
 };
-#endif
 
 void Config::_construct()
 {
@@ -83,11 +81,9 @@ void Config::_construct()
 Config::Config()
 {
     _construct();
-#ifdef EQ_USE_DEPRECATED
     const Global* global = Global::instance();    
     for( int i=0; i<FATTR_ALL; ++i )
         _fAttributes[i] = global->getConfigFAttribute( (FAttribute)i );
-#endif
 }
 
 Config::Config( const Config& from )
@@ -98,10 +94,8 @@ Config::Config( const Config& from )
     _construct();
     _appNetNode = from._appNetNode;
     _latency    = from._latency;
-#ifdef EQ_USE_DEPRECATED
     for( int i=0; i<FATTR_ALL; ++i )
         _fAttributes[i] = from.getFAttribute( (FAttribute)i );
-#endif
 
     const NodeVector& nodes = from.getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
@@ -1256,7 +1250,6 @@ ostream& operator << ( ostream& os, const Config* config )
         os << "latency " << config->getLatency() << endl;
     os << endl;
 
-#ifdef EQ_USE_DEPRECATED
     const float value = config->getFAttribute( Config::FATTR_EYE_BASE );
     if( value != 
         Global::instance()->getConfigFAttribute( Config::FATTR_EYE_BASE ))
@@ -1265,7 +1258,6 @@ ostream& operator << ( ostream& os, const Config* config )
            << "eye_base     " << value << endl
            << exdent << "}" << endl;
     }
-#endif
 
     const NodeVector& nodes = config->getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )

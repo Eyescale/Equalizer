@@ -88,6 +88,8 @@ namespace eqPly
         void _loadModels();
         void _deregisterData();
         bool _handleKeyEvent( const eq::KeyEvent& event );
+        void _setHeadMatrix( const vmml::Matrix4f& matrix );
+        const vmml::Matrix4f& _getHeadMatrix() const;
     };
 }
 

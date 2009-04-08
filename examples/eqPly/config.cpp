@@ -245,7 +245,7 @@ uint32_t Config::startFrame()
     {
         _tracker.update();
         const vmml::Matrix4f& headMatrix = _tracker.getMatrix();
-        setHeadMatrix( headMatrix );
+        _setHeadMatrix( headMatrix );
     }
 
     // update database
@@ -340,7 +340,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _spinX = 0;
             _spinY = 0;
             _frameData.reset();
-            setHeadMatrix( vmml::Matrix4f::IDENTITY );
+            _setHeadMatrix( vmml::Matrix4f::IDENTITY );
             return true;
 
         case 'o':
@@ -437,44 +437,44 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         // Head Tracking Emulation
         case eq::KC_UP:
         {
-            vmml::Matrix4f headMatrix = getHeadMatrix();
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
             headMatrix.y += 0.1f;
-            setHeadMatrix( headMatrix );
+            _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_DOWN:
         {
-            vmml::Matrix4f headMatrix = getHeadMatrix();
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
             headMatrix.y -= 0.1f;
-            setHeadMatrix( headMatrix );
+            _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_RIGHT:
         {
-            vmml::Matrix4f headMatrix = getHeadMatrix();
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
             headMatrix.x += 0.1f;
-            setHeadMatrix( headMatrix );
+            _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_LEFT:
         {
-            vmml::Matrix4f headMatrix = getHeadMatrix();
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
             headMatrix.x -= 0.1f;
-            setHeadMatrix( headMatrix );
+            _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_PAGE_DOWN:
         {
-            vmml::Matrix4f headMatrix = getHeadMatrix();
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
             headMatrix.z += 0.1f;
-            setHeadMatrix( headMatrix );
+            _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_PAGE_UP:
         {
-            vmml::Matrix4f headMatrix = getHeadMatrix();
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
             headMatrix.z -= 0.1f;
-            setHeadMatrix( headMatrix );
+            _setHeadMatrix( headMatrix );
             return true;
         }
 
@@ -482,4 +482,25 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return false;
     }
 }
+
+// Note: real applications would use one tracking device per observer
+void Config::_setHeadMatrix( const vmml::Matrix4f& matrix )
+{
+    const eq::ObserverVector& observers = getObservers();
+    for( eq::ObserverVector::const_iterator i = observers.begin();
+         i != observers.end(); ++i )
+    {
+        (*i)->setHeadMatrix( matrix );
+    }
+}
+
+const vmml::Matrix4f& Config::_getHeadMatrix() const
+{
+    const eq::ObserverVector& observers = getObservers();
+    if( observers.empty( ))
+        return vmml::Matrix4f::IDENTITY;
+
+    return observers[0]->getHeadMatrix();
+}
+
 }

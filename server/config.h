@@ -330,7 +330,6 @@ namespace server
          */
         void unmap();
         
-#ifdef EQ_USE_DEPRECATED
         /** @name Attributes */
         //*{
         // Note: also update string array initialization in config.cpp
@@ -349,8 +348,7 @@ namespace server
         static const std::string&  getFAttributeString( const FAttribute attr )
             { return _fAttributeStrings[attr]; }
         //*}
-#endif
-
+ 
         /** @name Error information. */
         //@{
         /** @return the error message from the last operation. */

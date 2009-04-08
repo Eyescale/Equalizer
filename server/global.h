@@ -68,7 +68,6 @@ namespace server
             const ConnectionDescription::IAttribute attr ) const
             { return _connectionIAttributes[attr]; }
             
-#ifdef EQ_USE_DEPRECATED
         /**
          * @name Config Attributes.
          */  
@@ -77,7 +76,6 @@ namespace server
             { _configFAttributes[attr] = value; }
         float getConfigFAttribute( const Config::FAttribute attr ) const
             { return _configFAttributes[attr]; }
-#endif
 
         /**
          * @name Node Attributes.
@@ -131,9 +129,7 @@ namespace server
         char        _connectionCAttributes[ConnectionDescription::CATTR_ALL];
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
         
-#ifdef EQ_USE_DEPRECATED
         float       _configFAttributes[Config::FATTR_ALL];
-#endif
 
         int32_t     _nodeIAttributes[eq::Node::IATTR_ALL];
 
