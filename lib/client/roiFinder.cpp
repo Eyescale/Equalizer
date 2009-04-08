@@ -179,8 +179,6 @@ void ROIFinder::_init( )
     const float*    src = &_perBlockInfo[0];
           uint8_t*  dst = &_mask[0];
 
-    src += 2;   // choose BG pixels
-
     for( int32_t y = 0; y < _h; y++ )
     {
         for( int32_t x = 0; x < _w; x++ )
@@ -563,8 +561,8 @@ void ROIFinder::_readbackInfo( )
 
     // Enable & download depth texture
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_LINEAR );
 
     depthTex->bind();
 
@@ -671,6 +669,13 @@ PixelViewportVector ROIFinder::findRegions( const uint32_t         buffers,
     result.push_back( pvp );
     return result; // disable read back info usage
 
+
+/*
+    eq::base::Clock clock;
+    clock.reset();
+for( int i = 0; i < 100; i++ )
+{
+*/
     EQASSERT( glObjects );
     EQASSERTINFO( !_glObjects, "Another readback in progress?" );
     EQLOG( LOG_ASSEMBLY )   << "ROIFinder::getObjects " << pvp
@@ -702,34 +707,38 @@ PixelViewportVector ROIFinder::findRegions( const uint32_t         buffers,
 
     // Analyze readed back data and find regions of interest
 
-//    eq::base::Clock clock;
-//    clock.reset();
-
-//    static uint32_t counter = 0;
-//    std::ostringstream ss;
-//    ss << "_img_" << ++counter;
-/*
-for( int i = 0; i < 100; i++ )
-{
-*/
     _init( );
 
     _emptyFinder.update( &_mask[0], _wb, _hb );
-    _emptyFinder.setLimits( 50, 0.01 );
+    _emptyFinder.setLimits( 100, 0.02 );
     
     result.clear();
     _findAreas( result );
-/*}
+
+/*
+}
+
 
     const float time = clock.getTimef() / 100;
-    EQWARN << "=============================================" << std::endl;
-    EQWARN << "Obj finding took: " << time << " ms, " << 1000.f / time 
-           << " FPS " << std::endl << "areas found: " 
-           << resultPVPs.size() << std::endl;
-*/
-//    EQWARN << "Areas found: " << resultPVPs.size() << std::endl;
-//    _dumpDebug( ss.str( ) + "_00" );
+    const float fps  = 1000.f / time;
 
+    static float minFPS = 10000;
+    static float maxFPS = 0;
+    if( minFPS > fps ) minFPS = fps;
+    if( maxFPS < fps ) maxFPS = fps;
+
+    EQWARN << "=============================================" << std::endl;
+    EQWARN << "ROI min fps: " << minFPS << " (" << 1000.f/minFPS
+          << " ms) max fps: " << maxFPS << " (" << 1000.f/maxFPS
+          << " ms) areas found: " << result.size() << std::endl;
+*/
+
+/*
+    static uint32_t counter = 0;
+    std::ostringstream ss;
+    ss << "_img_" << ++counter;
+    _dumpDebug( ss.str( ) + "_00" );
+*/
     return result;
 }
 
