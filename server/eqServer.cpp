@@ -57,6 +57,7 @@ int main( const int argc, char** argv )
 
     Loader::addOutputCompounds( server );
     Loader::addDestinationViews( server );
+    Loader::addDefaultObserver( server );
 
     if( !server->initLocal( argc, argv ))
     {

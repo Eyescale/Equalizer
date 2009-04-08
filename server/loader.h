@@ -91,6 +91,14 @@ namespace server
          */
         static void addDestinationViews( ServerPtr server );
 
+        /**
+         * Add one observer for observer-less configurations.
+         *
+         * If a configuration has no observers, one is created and assigned to
+         * all views, which retains the behaviour of legacy configurations.
+         */
+        static void addDefaultObserver( ServerPtr server );
+
     private:
         void _parseString( const char* config );
     };

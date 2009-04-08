@@ -22,6 +22,7 @@
 #include "compound.h" 
 #include "config.h" 
 #include "layout.h" 
+#include "observer.h" 
 #include "segment.h" 
 #include "serverVisitor.h" 
 #include "view.h" 
@@ -222,6 +223,38 @@ class AddDestinationViewVisitor : public ServerVisitor
 void Loader::addDestinationViews( ServerPtr server )
 {
     AddDestinationViewVisitor visitor;
+    server->accept( visitor );
+}
+
+namespace
+{
+class AddObserverVisitor : public ServerVisitor
+{
+    virtual VisitorResult visitPre( Config* config )
+        {
+            const ObserverVector& observers = config->getObservers();
+            if( !observers.empty( ))
+                return TRAVERSE_PRUNE;
+
+            config->addObserver( new Observer );
+            return TRAVERSE_CONTINUE;            
+        }
+
+    virtual VisitorResult visit( View* view )
+        {
+            const ObserverVector& observers = view->getConfig()->getObservers();
+            EQASSERT( observers.size() == 1 );
+
+            view->setObserver( observers.front( ));
+            return TRAVERSE_CONTINUE; 
+        }
+};
+
+}
+
+void Loader::addDefaultObserver( ServerPtr server )
+{
+    AddObserverVisitor visitor;
     server->accept( visitor );
 }
 
