@@ -70,7 +70,7 @@ namespace eq
          *
          * @param matrix the matrix
          */
-        void setHeadMatrix( const vmml::Matrix4f& matrix );
+        EQ_EXPORT void setHeadMatrix( const vmml::Matrix4f& matrix );
 
         /** @return the current head matrix. */
         const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
