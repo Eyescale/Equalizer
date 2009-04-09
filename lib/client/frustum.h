@@ -58,7 +58,7 @@ namespace eq
         EQ_EXPORT Type getCurrentType() const { return _current; }
 
         /** Set the last specified frustum to TYPE_NONE. */
-        void unsetFrustum();
+        EQ_EXPORT void unsetFrustum();
 
     protected:
         /** @sa Object::serialize() */

@@ -77,7 +77,7 @@ namespace server
          * @name Operations
          */
         //*{
-        EQ_EXPORT void useLayout( Layout* layout );
+        EQ_EXPORT virtual void useLayout( Layout* layout );
 
         /** 
          * Traverse this canvas and all children using a canvas visitor.
@@ -101,7 +101,7 @@ namespace server
 
     protected:
         /** @sa Frustum::serialize */
-        void serialize( net::DataOStream& os, const uint64_t dirtyBits );
+        EQ_EXPORT void serialize( net::DataOStream& os, const uint64_t dirtyBits );
 
         /** @sa Frustum::deserialize */
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
