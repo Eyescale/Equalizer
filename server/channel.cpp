@@ -639,16 +639,16 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
     {
         os << "drawable [";
         
-        if (drawable !=  eq::Channel::FBO_COLOR)
+        if ((drawable &  eq::Channel::FBO_COLOR) != 0 )
         {
            os << " FBO_COLOR";
         }
         
-        if (drawable !=  eq::Channel::FBO_DEPTH)
+        if ((drawable &  eq::Channel::FBO_DEPTH) != 0)
         {
            os << " FBO_DEPTH"; 
         } 
-        if (drawable !=  eq::Channel::FBO_STENCIL) 
+        if ((drawable &  eq::Channel::FBO_STENCIL) != 0) 
         {
            os << " FBO_STENCIL";  
         }
