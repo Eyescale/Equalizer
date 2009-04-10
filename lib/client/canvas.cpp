@@ -56,6 +56,7 @@ void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
         else
             os << EQ_ID_INVALID;
     }
+    EQASSERT( !(dirtyBits & DIRTY_SEGMENTS ));
 }
 
 void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
@@ -76,7 +77,7 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         }
     }
 
-    if( dirtyBits & DIRTY_ALL ) // children are immutable
+    if( dirtyBits & DIRTY_SEGMENTS )
     {
         EQASSERT( _segments.empty( ));
         EQASSERT( _config );

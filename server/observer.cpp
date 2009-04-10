@@ -56,6 +56,17 @@ Observer::~Observer()
 {
 }
 
+void Observer::getInstanceData( net::DataOStream& os )
+{
+    // This function is overwritten from eq::Object, since the class is
+    // intended to be subclassed on the client side. When serializing a
+    // server::Observer, we only transmit the effective bits, not all since that
+    // potentially includes bits from subclassed eq::Observers.
+    const uint64_t dirty = DIRTY_CUSTOM - 1;
+    os << dirty;
+    serialize( os, dirty );
+}
+
 void Observer::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     eq::Observer::deserialize( is, dirtyBits );

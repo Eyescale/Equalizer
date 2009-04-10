@@ -106,6 +106,8 @@ namespace server
                                           const uint64_t dirtyBits );
 
     private:
+        virtual void getInstanceData( net::DataOStream& os );
+
         /** The parent Config. */
         Config* _config;
         friend class Config;

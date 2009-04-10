@@ -51,6 +51,7 @@ void DataIStream::read( void* data, uint64_t size )
 {
     if( !_checkBuffer( ))
     {
+        EQUNREACHABLE;
         EQERROR << "No more input data" << endl;
         return;
     }
@@ -59,6 +60,7 @@ void DataIStream::read( void* data, uint64_t size )
     
     if( _position + size > _inputSize )
     {
+        EQUNREACHABLE;
         EQERROR << "Not enough data in input buffer" << endl;
         return;
     }

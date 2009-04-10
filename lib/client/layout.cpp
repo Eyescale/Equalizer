@@ -54,7 +54,7 @@ void Layout::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
 
-    if( dirtyBits & DIRTY_ALL ) // children are immutable
+    if( dirtyBits & DIRTY_VIEWS )
     {
         EQASSERT( _views.empty( ));
         EQASSERT( _config );

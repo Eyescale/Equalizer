@@ -94,9 +94,10 @@ namespace server
         enum DirtyBits
         {
             DIRTY_LAYOUT     = Frustum::DIRTY_CUSTOM << 0,
-            DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 1,
-            DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 2,
-            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 3
+            DIRTY_SEGMENTS   = Frustum::DIRTY_CUSTOM << 1,
+            DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 2,
+            DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 3,
+            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4
         };
 
     protected:

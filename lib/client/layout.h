@@ -27,6 +27,10 @@
 
 namespace eq
 {
+namespace server
+{
+    class Layout;
+}
     class Config;
     class LayoutVisitor;
 
@@ -85,10 +89,12 @@ namespace eq
 
         enum DirtyBits
         {
-            DIRTY_FILL1      = Object::DIRTY_CUSTOM << 0,
-            DIRTY_FILL2      = Object::DIRTY_CUSTOM << 1,
-            DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 2
+            DIRTY_VIEWS      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_FILL1      = Object::DIRTY_CUSTOM << 1,
+            DIRTY_FILL2      = Object::DIRTY_CUSTOM << 2,
+            DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 3
         };
+        friend class server::Layout;
 
     private:
         /** The parent Config. */

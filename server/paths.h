@@ -112,15 +112,9 @@ inline std::ostream& operator << ( std::ostream& os, const ChannelPath& path )
     return os;
 }
 
-inline std::ostream& operator << ( std::ostream& os, const CanvasPath& path )
+inline std::ostream& operator << ( std::ostream& os, const ObserverPath& path )
 {
-    os << "canvas " << path.canvasIndex;
-    return os;
-}
-inline std::ostream& operator << ( std::ostream& os, const SegmentPath& path )
-{
-    os << static_cast< const CanvasPath& >( path ) << " segment "
-       << path.segmentIndex;
+    os << "observer " << path.observerIndex;
     return os;
 }
 
@@ -136,6 +130,17 @@ inline std::ostream& operator << ( std::ostream& os, const ViewPath& path )
     return os;
 }
 
+inline std::ostream& operator << ( std::ostream& os, const CanvasPath& path )
+{
+    os << "canvas " << path.canvasIndex;
+    return os;
+}
+inline std::ostream& operator << ( std::ostream& os, const SegmentPath& path )
+{
+    os << static_cast< const CanvasPath& >( path ) << " segment "
+       << path.segmentIndex;
+    return os;
+}
 
 }
 }

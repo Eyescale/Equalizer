@@ -119,6 +119,8 @@ namespace server
     protected:
 
     private:
+        virtual void getInstanceData( net::DataOStream& os );
+
         /** The parent canvas. */
         Canvas* _canvas;
         friend class Canvas;

@@ -24,6 +24,8 @@
 #include "paths.h"
 #include "view.h"
 
+#include <eq/net/dataOStream.h>
+
 using namespace eq::base;
 
 namespace eq
@@ -91,6 +93,17 @@ Segment::~Segment()
     _destinationChannels.clear();
     _channel = 0;
     _canvas  = 0;
+}
+
+void Segment::getInstanceData( net::DataOStream& os )
+{
+    // This function is overwritten from eq::Object, since the class is
+    // intended to be subclassed on the client side. When serializing a
+    // server::Segment, we only transmit the effective bits, not all since that
+    // potentially includes bits from subclassed eq::Segments.
+    const uint64_t dirty = DIRTY_CUSTOM - 1;
+    os << dirty;
+    serialize( os, dirty );
 }
 
 Config* Segment::getConfig()

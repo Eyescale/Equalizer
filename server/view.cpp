@@ -26,6 +26,8 @@
 #include "observer.h"
 #include "paths.h"
 
+#include <eq/net/dataOStream.h>
+
 using namespace eq::base;
 
 namespace eq
@@ -72,6 +74,17 @@ View::~View()
     if( _layout )
         _layout->removeView( this );
     _layout = 0;
+}
+
+void View::getInstanceData( net::DataOStream& os )
+{
+    // This function is overwritten from eq::Object, since the class is
+    // intended to be subclassed on the client side. When serializing a
+    // server::View, we only transmit the effective bits, not all since that
+    // potentially includes bits from subclassed eq::Views.
+    const uint64_t dirty = DIRTY_CUSTOM - 1;
+    os << dirty;
+    serialize( os, dirty );
 }
 
 namespace
@@ -192,6 +205,21 @@ std::ostream& operator << ( std::ostream& os, const View* view )
     const eq::Viewport& vp  = view->getViewport();
     if( vp.isValid( ) && vp != eq::Viewport::FULL )
         os << "viewport " << vp << std::endl;
+
+    const Observer* observer = static_cast< const Observer* >(
+        view->getObserver( ));
+    if( observer )
+    {
+        const Config* config = view->getConfig();
+        const std::string& observerName = observer->getName();
+        if( observerName.empty() ||
+            config->findObserver( observerName ) != observer )
+        {
+            os << observer->getPath() << std::endl;
+        }
+        else
+            os << "observer \"" << observer->getName() << "\"" << std::endl;
+    } 
 
     switch( view->getCurrentType( ))
     {

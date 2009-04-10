@@ -63,11 +63,22 @@ Layout::~Layout()
     _views.clear();
 }
 
+void Layout::getInstanceData( net::DataOStream& os )
+{
+    // This function is overwritten from eq::Object, since the class is
+    // intended to be subclassed on the client side. When serializing a
+    // server::Layout, we only transmit the effective bits, not all since that
+    // potentially includes bits from subclassed eq::Layouts.
+    const uint64_t dirty = eq::Layout::DIRTY_CUSTOM - 1;
+    os << dirty;
+    serialize( os, dirty );
+}
+
 void Layout::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
 
-    if( dirtyBits & DIRTY_ALL ) // children are immutable
+    if( dirtyBits & eq::Layout::DIRTY_VIEWS )
     {
         for( ViewVector::const_iterator i = _views.begin();
              i != _views.end(); ++i )

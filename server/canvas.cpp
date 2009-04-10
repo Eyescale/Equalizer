@@ -87,6 +87,17 @@ Canvas::~Canvas()
     _layout = 0;
 }
 
+void Canvas::getInstanceData( net::DataOStream& os )
+{
+    // This function is overwritten from eq::Object, since the class is
+    // intended to be subclassed on the client side. When serializing a
+    // server::Canvas, we only transmit the effective bits, not all since that
+    // potentially includes bits from subclassed eq::Canvases.
+    const uint64_t dirty = eq::Canvas::DIRTY_CUSTOM - 1;
+    os << dirty;
+    serialize( os, dirty );
+}
+
 void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
     Frustum::serialize( os, dirtyBits );
@@ -102,7 +113,7 @@ void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
             os << EQ_ID_INVALID;
     }
 
-    if( dirtyBits & DIRTY_ALL ) // children are immutable
+    if( dirtyBits & eq::Canvas::DIRTY_SEGMENTS )
     {
         for( SegmentVector::const_iterator i = _segments.begin(); 
              i != _segments.end(); ++i )

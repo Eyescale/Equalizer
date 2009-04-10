@@ -109,6 +109,8 @@ namespace server
                                   const uint64_t dirtyBits );
 
     private:
+        virtual void getInstanceData( net::DataOStream& os );
+
         /** The parent Layout. */
         Layout* _layout;
         friend class Layout;
