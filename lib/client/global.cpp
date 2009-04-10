@@ -57,8 +57,8 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                 value == QUAD       ? "QUAD" :
                 value == ANAGLYPH   ? "ANAGLYPH" :
                 value == VERTICAL   ? "VERTICAL" :
-                value == WINDOW     ? "WINDOW" :
-                value == PBUFFER    ? "PBUFFER" : 
+                value == WINDOW     ? "window" :
+                value == PBUFFER    ? "pbuffer" : 
                 value == FBO        ? "FBO" : 
                 value == RGBA16F    ? "RGBA16F" :
                 value == RGBA32F    ? "RGBA32F" :
