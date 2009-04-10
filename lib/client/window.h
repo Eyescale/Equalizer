@@ -313,6 +313,9 @@ namespace eq
 		/** @return the barrier of the NV swap barrier */
         uint32_t getNVSwapBarrier() const { return _nvSwapBarrier; }
 
+        /** @return the internal color type */
+		int getColorType();
+
     protected:
         friend class Pipe;
 

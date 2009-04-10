@@ -244,6 +244,8 @@ bool Image::hasAlpha() const
 {
     switch( getFormat( Frame::BUFFER_COLOR ))
     {
+        case GL_RGBA16F:
+        case GL_RGBA32F:
         case GL_RGBA:
         case GL_RGBA8:
         case GL_BGRA:
@@ -485,6 +487,7 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     else
     {
         fbo = _glObjects->newEqFrameBufferObject( fboKey );
+		fbo->setColorFormat( getInternalTextureFormat( buffer ) );
         fbo->init( pvp.w, pvp.h, 24, 0 );
     }
     fbo->bind();

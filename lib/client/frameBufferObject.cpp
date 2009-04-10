@@ -27,7 +27,7 @@
 namespace eq
 {
 
-FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
+FrameBufferObject::FrameBufferObject( GLEWContext* glewContext, const GLuint colorFormat  )
     : _fboID( 0 )
     , _width( 0 )
     , _height( 0 )
@@ -40,7 +40,7 @@ FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
 
     _colors.push_back( new Texture( glewContext ));
 
-    _colors[0]->setFormat( GL_RGBA );
+    _colors[0]->setFormat( colorFormat );
     _depth.setFormat( GL_DEPTH_COMPONENT );
     _stencil.setFormat( GL_STENCIL_INDEX );
 }
