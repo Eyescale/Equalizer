@@ -68,7 +68,7 @@ namespace server
         uint32_t getActiveLayoutIndex() const { return _activeLayout; }
 
         /** @return the active layout. */
-        const Layout* getActiveLayout() const;
+        EQ_EXPORT const Layout* getActiveLayout() const;
 
         /** @return the vector of child segments. */
         const SegmentVector& getSegments() const { return _segments; }        
