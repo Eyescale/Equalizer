@@ -44,7 +44,6 @@
 #include <eq/net/global.h>
 #include <eq/base/sleep.h>
 
-#include "configAddCanvasVisitor.h"
 #include "configSyncVisitor.h"
 #include "configUnmapVisitor.h"
 
@@ -331,6 +330,37 @@ const View* Config::findView( const std::string& name ) const
     return finder.getResult();
 }
 
+namespace
+{
+class ChannelViewFinder : public ConfigVisitor
+{
+public:
+    ChannelViewFinder( const Segment* const segment, const View* const view ) 
+            : _segment( segment ), _view( view ), _result( 0 ) {}
+
+    virtual ~ChannelViewFinder(){}
+
+    virtual VisitorResult visit( Channel* channel )
+        {
+            if( channel->getView() != _view )
+                return TRAVERSE_CONTINUE;
+
+            if( channel->getSegment() != _segment )
+                return TRAVERSE_CONTINUE;
+
+            _result = channel;
+            return TRAVERSE_TERMINATE;
+        }
+
+    Channel* getResult() { return _result; }
+
+private:
+    const Segment* const _segment;
+    const View* const    _view;
+    Channel*             _result;
+};
+}
+
 Channel* Config::findChannel( const Segment* segment, const View* view )
 {
     ChannelViewFinder finder( segment, view );
@@ -340,8 +370,79 @@ Channel* Config::findChannel( const Segment* segment, const View* view )
 
 void Config::addCanvas( Canvas* canvas )
 {
-    ConfigAddCanvasVisitor visitor( canvas, this );
-    accept( visitor );
+    const LayoutVector& layouts = canvas->getLayouts();
+    const SegmentVector& segments = canvas->getSegments();
+
+    for( LayoutVector::const_iterator i = layouts.begin();
+         i != layouts.end(); ++i )
+    {
+        const Layout* layout = *i;
+        if( !layout )
+            continue;
+
+        const ViewVector& views = layout->getViews();
+        for( ViewVector::const_iterator j = views.begin(); 
+             j != views.end(); ++j )
+        {
+            View* view = *j;
+
+            for( SegmentVector::const_iterator k = segments.begin();
+                 k != segments.end(); ++k )
+            {
+                Segment* segment = *k;
+                Viewport viewport = segment->getViewport();
+                viewport.intersect( view->getViewport( ));
+
+                if( !viewport.hasArea())
+                {
+                    EQLOG( LOG_VIEW )
+                        << "View " << view->getName() << view->getViewport()
+                        << " doesn't intersect " << segment->getName()
+                        << segment->getViewport() << std::endl;
+                
+                    continue;
+                }
+                      
+                Channel* segmentChannel = segment->getChannel( );
+                if (!segmentChannel)
+                {
+                    EQWARN << "Segment " << segment->getName()
+                           << " has no output channel" << std::endl;
+                    continue;
+                }
+
+                // try to reuse channel
+                Channel* channel = findChannel( segment, view );
+
+                if( !channel ) // create and add new channel
+                {
+                    Window* window = segmentChannel->getWindow();
+                    channel = new Channel( *segmentChannel, window );
+
+                    channel->setOutput( view, segment );
+                }
+
+                //----- compute channel viewport:
+                // segment/view intersection in canvas space...
+                Viewport contribution = viewport;
+                // ... in segment space...
+                contribution.transform( segment->getViewport( ));
+            
+                // segment output area
+                Viewport subViewport = segmentChannel->getViewport();
+                // ...our part of it    
+                subViewport.apply( contribution );
+            
+                channel->setViewport( subViewport );
+            
+                EQLOG( LOG_VIEW ) 
+                    << "View @" << (void*)view << ' ' << view->getViewport()
+                    << " intersects " << segment->getName()
+                    << segment->getViewport() << " at " << subViewport
+                    << " using channel @" << (void*)channel << std::endl;
+            }
+        }
+    }
 
     canvas->_config = this;
     _canvases.push_back( canvas );
@@ -350,12 +451,12 @@ void Config::addCanvas( Canvas* canvas )
 bool Config::removeCanvas( Canvas* canvas )
 {
     vector<Canvas*>::iterator i = find( _canvases.begin(), _canvases.end(),
-                                          canvas );
+                                        canvas );
     if( i == _canvases.end( ))
         return false;
 
     _canvases.erase( i );
-//    canvas->_config = 0;
+    canvas->_config = 0;
     return true;
 }
 

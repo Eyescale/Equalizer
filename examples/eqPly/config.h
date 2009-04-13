@@ -72,6 +72,7 @@ namespace eqPly
         virtual ~Config();
 
         int        _spinX, _spinY;
+        eq::Canvas* _currentCanvas;
 
         LocalInitData _initData;
         FrameData     _frameData;

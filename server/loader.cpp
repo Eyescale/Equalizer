@@ -134,7 +134,7 @@ static void _addDestinationViews( Compound* compound )
         layout->addView( view );
         
         Canvas* canvas = new Canvas;
-        canvas->useLayout( layout );
+        canvas->addLayout( layout );
         
         Segment* segment = new Segment;
         segment->setChannel( channel );
@@ -178,7 +178,7 @@ static void _addDestinationViews( Compound* compound )
     layout->addView( view );
         
     Canvas* canvas = new Canvas;
-    canvas->useLayout( layout );
+    canvas->addLayout( layout );
     *static_cast< eq::Frustum* >( canvas ) = compound->getFrustum();
     
     for( CompoundVector::const_iterator i = segments.begin(); 

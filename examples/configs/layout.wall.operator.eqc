@@ -84,6 +84,9 @@ server
         canvas
         {
             layout "3x1"
+            layout "2x2"
+            layout "1x1"
+            layout OFF
             wall
             {
                 bottom_left  [ -.32 -.20 -.75 ]

@@ -50,6 +50,7 @@ server
 
         canvas
         {
+            layout "Simple"
             layout "2x1"
             wall
             {

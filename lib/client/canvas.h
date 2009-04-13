@@ -64,20 +64,25 @@ namespace server
         /** @return the parent config. */
         const Config* getConfig() const { return _config; }
 
-        /** @return the layout used by the canvas. */
-        Layout*       getLayout()       { return _layout; }
-        /** @return the layout used by the canvas. */
-        const Layout* getLayout() const { return _layout; }
+        /** @return the index of the active layout. */
+        uint32_t getActiveLayoutIndex() const { return _activeLayout; }
+
+        /** @return the active layout. */
+        const Layout* getActiveLayout() const;
 
         /** @return the vector of child segments. */
         const SegmentVector& getSegments() const { return _segments; }        
+
+        /** @return the vector of allowed layouts. */
+        const LayoutVector& getLayouts() const { return _layouts; }        
         //*}
 
         /**
          * @name Operations
          */
         //*{
-        EQ_EXPORT virtual void useLayout( Layout* layout );
+        /** Activate the given layout on this canvas. */
+        EQ_EXPORT virtual void useLayout( const uint32_t index );
 
         /** 
          * Traverse this canvas and all children using a canvas visitor.
@@ -94,7 +99,7 @@ namespace server
         enum DirtyBits
         {
             DIRTY_LAYOUT     = Frustum::DIRTY_CUSTOM << 0,
-            DIRTY_SEGMENTS   = Frustum::DIRTY_CUSTOM << 1,
+            DIRTY_CHILDREN   = Frustum::DIRTY_CUSTOM << 1,
             DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 2,
             DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 3,
             DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4
@@ -102,7 +107,8 @@ namespace server
 
     protected:
         /** @sa Frustum::serialize */
-        EQ_EXPORT void serialize( net::DataOStream& os, const uint64_t dirtyBits );
+        EQ_EXPORT void serialize( net::DataOStream& os, 
+                                  const uint64_t dirtyBits );
 
         /** @sa Frustum::deserialize */
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
@@ -113,7 +119,10 @@ namespace server
         friend class Config;
 
         /** The currently active layout on this canvas. */
-        Layout* _layout;
+        uint32_t _activeLayout;
+
+        /** Allowed layouts on this canvas. */
+        LayoutVector _layouts;
 
         /** Child segments on this canvas. */
         SegmentVector _segments;

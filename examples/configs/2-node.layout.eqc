@@ -66,6 +66,8 @@ server
         canvas
         {
             layout "simple"
+            layout "half1"
+            layout "half2"
             wall
             {
                 bottom_left  [ -.32 -.20 -.75 ]

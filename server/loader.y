@@ -680,7 +680,7 @@ canvasField:
           if( !layout )
               yyerror( "No layout of the given name" );
           else
-              canvas->useLayout( layout ); 
+              canvas->addLayout( layout ); 
       }
     | EQTOKEN_LAYOUT UNSIGNED
       {
@@ -689,7 +689,11 @@ canvasField:
           if( !layout )
               yyerror( "No layout of the given index" );
           else
-              canvas->useLayout( layout ); 
+              canvas->addLayout( layout ); 
+      }
+    | EQTOKEN_LAYOUT EQTOKEN_OFF
+      {
+          canvas->addLayout( 0 ); 
       }
     | wall       { canvas->setWall( wall ); }
     | projection { canvas->setProjection( projection ); }

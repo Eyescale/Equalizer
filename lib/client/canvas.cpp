@@ -33,7 +33,7 @@ namespace eq
 
 Canvas::Canvas()
         : _config( 0 )
-        , _layout( 0 )
+        , _activeLayout( 0 )
 {
 }
 
@@ -47,16 +47,9 @@ void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
     Frustum::serialize( os, dirtyBits );
 
     if( dirtyBits & DIRTY_LAYOUT )
-    {
-        if( _layout )
-        {
-            EQASSERT( _layout->getID() != EQ_ID_INVALID );
-            os << _layout->getID();
-        }
-        else
-            os << EQ_ID_INVALID;
-    }
-    EQASSERT( !(dirtyBits & DIRTY_SEGMENTS ));
+        os << _activeLayout;
+
+    EQASSERT( !(dirtyBits & DIRTY_CHILDREN ));
 }
 
 void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
@@ -64,20 +57,9 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     Frustum::deserialize( is, dirtyBits );
 
     if( dirtyBits & DIRTY_LAYOUT )
-    {
-        uint32_t id;
-        is >> id;
-        if( id == EQ_ID_INVALID )
-            _layout = 0;
-        else
-        {
-            EQASSERT( _config );
-            _layout = _config->findLayout( id );
-            EQASSERT( _layout );
-        }
-    }
+        is >> _activeLayout;
 
-    if( dirtyBits & DIRTY_SEGMENTS )
+    if( dirtyBits & DIRTY_CHILDREN )
     {
         EQASSERT( _segments.empty( ));
         EQASSERT( _config );
@@ -92,6 +74,18 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 
             _config->mapObject( segment, id );
             // RO, don't: segment->becomeMaster();
+        }
+        for( is >> id; id != EQ_ID_INVALID; is >> id )
+        {
+            EQASSERT( _config );
+            if( id == EQ_ID_NONE )
+                _layouts.push_back( 0 );
+            else
+            {
+                Layout* layout = _config->findLayout( id );
+                _layouts.push_back( layout );
+                EQASSERT( layout );
+            }
         }
     }
 }
@@ -118,12 +112,18 @@ void Canvas::deregister()
     _config->deregisterObject( this );
 }
 
-void Canvas::useLayout( Layout* layout )
+const Layout* Canvas::getActiveLayout() const
 {
-    if( _layout == layout )
+    EQASSERT( _activeLayout < _layouts.size( ));
+    return _layouts[ _activeLayout ];
+}
+
+void Canvas::useLayout( const uint32_t index )
+{
+    if( _activeLayout == index )
         return;
 
-    _layout = layout;
+    _activeLayout = index;
     setDirty( DIRTY_LAYOUT );
 }
 

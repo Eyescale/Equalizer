@@ -43,13 +43,13 @@ namespace server
 
 Canvas::Canvas()
         : _config( 0 )
-        , _layout( 0 )
+        , _activeLayout( 0 )
 {}
 
 Canvas::Canvas( const Canvas& from, Config* config )
         : eq::Frustum( from )
         , _config( 0 )
-        , _layout( 0 )
+        , _activeLayout( from._activeLayout )
 {
     EQASSERT( config );
 
@@ -59,14 +59,21 @@ Canvas::Canvas( const Canvas& from, Config* config )
         addSegment( new Segment( **i, config ));
     }
 
-    if( from._layout )
+    for( LayoutVector::const_iterator i = from._layouts.begin();
+         i != from._layouts.end(); ++i )
     {
-        const LayoutPath path( from._layout->getPath( ));
-        useLayout( config->getLayout( path ));
-        EQASSERT( _layout );
+        const Layout* layout = *i;
+        if( layout )
+        {
+            const LayoutPath path( layout->getPath( ));
+            addLayout( config->getLayout( path ));
+        }
+        else
+            addLayout( 0 );
     }
 
     config->addCanvas( this );
+    EQASSERT( _config );
 }
 
 Canvas::~Canvas()
@@ -79,12 +86,13 @@ Canvas::~Canvas()
         delete segment;
     }
     _segments.clear();
+    _layouts.clear();
 
     if( _config )
         _config->removeCanvas( this );
 
     _config = 0;
-    _layout = 0;
+    _activeLayout = 0;
 }
 
 void Canvas::getInstanceData( net::DataOStream& os )
@@ -103,17 +111,9 @@ void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
     Frustum::serialize( os, dirtyBits );
 
     if( dirtyBits & eq::Canvas::DIRTY_LAYOUT )
-    {
-        if( _layout )
-        {
-            EQASSERT( _layout->getID() != EQ_ID_INVALID );
-            os << _layout->getID();
-        }
-        else
-            os << EQ_ID_INVALID;
-    }
+        os << _activeLayout;
 
-    if( dirtyBits & eq::Canvas::DIRTY_SEGMENTS )
+    if( dirtyBits & eq::Canvas::DIRTY_CHILDREN )
     {
         for( SegmentVector::const_iterator i = _segments.begin(); 
              i != _segments.end(); ++i )
@@ -121,6 +121,20 @@ void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
             Segment* segment = *i;
             EQASSERT( segment->getID() != EQ_ID_INVALID );
             os << segment->getID();
+        }
+        os << EQ_ID_INVALID;
+
+        for( LayoutVector::const_iterator i = _layouts.begin(); 
+             i != _layouts.end(); ++i )
+        {
+            Layout* layout = *i;
+            if( layout )
+            {
+                EQASSERT( layout->getID() != EQ_ID_INVALID );
+                os << layout->getID();
+            }
+            else
+                os << EQ_ID_NONE;
         }
         os << EQ_ID_INVALID;
     }
@@ -132,16 +146,9 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 
     if( dirtyBits & eq::Canvas::DIRTY_LAYOUT )
     {
-        uint32_t id;
-        is >> id;
-        if( id == EQ_ID_INVALID )
-            useLayout( 0 );
-        else
-        {
-            EQASSERT( _config );
-            useLayout( _config->findLayout( id ));
-            EQASSERTINFO( _layout, id );
-        }
+        uint32_t index;
+        is >> index;
+        _useLayout( index );
     }
 }
 
@@ -217,23 +224,31 @@ Segment* Canvas::findSegment( const std::string& name )
     return finder.getResult();
 }
 
-void Canvas::useLayout( Layout* layout )
+void Canvas::addLayout( Layout* layout )
+{
+    EQASSERT( std::find( _layouts.begin(), _layouts.end(), layout ) == 
+              _layouts.end( ));
+
+    // dest channel creation is done be Config::addCanvas
+    _layouts.push_back( layout );
+}
+
+void Canvas::_useLayout( const uint32_t index )
 {
     if( _config && _config->isRunning( ))
-        _switchLayout( _layout, layout );
+        _switchLayout( _activeLayout, index );
 
-    _layout = layout;
-    setDirty( eq::Canvas::DIRTY_LAYOUT );
+    _activeLayout = index;
 }
 
 void Canvas::init()
 {
-    _switchLayout( 0, _layout );
+    _switchLayout( EQ_ID_INVALID, _activeLayout );
 }
 
 void Canvas::exit()
 {
-    _switchLayout( _layout, 0 );
+    _switchLayout( _activeLayout, EQ_ID_INVALID );
 }
 
 namespace
@@ -318,9 +333,12 @@ private:
 };
 }
 
-void Canvas::_switchLayout( const Layout* oldLayout, const Layout* newLayout )
+void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
 {
     EQASSERT( _config );
+
+    const Layout* oldLayout = (oldIndex==EQ_ID_INVALID) ? 0 :_layouts[oldIndex];
+    const Layout* newLayout = (newIndex==EQ_ID_INVALID) ? 0 :_layouts[newIndex];
 
     for( SegmentVector::const_iterator i = _segments.begin();
          i != _segments.end(); ++i )
@@ -448,15 +466,23 @@ std::ostream& operator << ( std::ostream& os, const Canvas* canvas )
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    const Layout* layout = canvas->getLayout();
-    if( layout )
+    const LayoutVector& layouts = canvas->getLayouts();
+    for( LayoutVector::const_iterator i = layouts.begin(); 
+         i != layouts.end(); ++i )
     {
-        const Config*      config     = layout->getConfig();
-        const std::string& layoutName = layout->getName();
-        if( layoutName.empty() || config->findLayout( layoutName ) != layout )
-            os << layout->getPath() << std::endl;
+        Layout* layout = *i;
+        if( layout )
+        {
+            const Config*      config     = layout->getConfig();
+            const std::string& layoutName = layout->getName();
+            if( layoutName.empty() || 
+                config->findLayout( layoutName ) != layout )
+                os << layout->getPath() << std::endl;
+            else
+                os << "layout   \"" << layout->getName() << "\"" << std::endl;
+        }
         else
-            os << "layout   \"" << layout->getName() << "\"" << std::endl;
+            os << "layout   OFF" << std::endl;
     }
 
     os << static_cast< const eq::Frustum& >( *canvas );

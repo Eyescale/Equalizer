@@ -73,7 +73,7 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         }
     }
 
-    if( dirtyBits & DIRTY_ALL )
+    if( dirtyBits == ( DIRTY_CUSTOM - 1 ))
         _baseFrustum = *this; // save baseline data for resizing
 }
 

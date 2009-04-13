@@ -75,14 +75,15 @@ namespace server
          */
         Segment* findSegment( const std::string& name );
 
-        /** @return the currently used layout. */
-        Layout* getLayout() { return _layout; }
-        /** @return the currently used layout. */
-        const Layout* getLayout() const { return _layout; }
-
         /** @return the segment of the given path. */
         Segment* getSegment( const SegmentPath& path );
 
+        /** Add a new allowed layout to this canvas, can be 0. */
+        void addLayout( Layout* layout );
+
+        /** Get the vector of allowed layouts for this canvas. */
+        const LayoutVector& getLayouts() const { return _layouts; }
+        
         /** @return the index path to this canvas. */
         CanvasPath getPath() const;
         //*}
@@ -93,8 +94,6 @@ namespace server
         //*{
         void init();
         void exit();
-
-        void useLayout( Layout* layout );
 
         /** 
          * Traverse this canvas and all children using a canvas visitor.
@@ -125,8 +124,11 @@ namespace server
         Config* _config;
         friend class Config;
 
-        /** The currently active layout on this canvas. */
-        Layout* _layout;
+        /** The allowed layout for this canvas. */
+        LayoutVector _layouts;
+        
+        /** The currently active layout. */
+        uint32_t _activeLayout;
 
         /** Child segments on this canvas. */
         SegmentVector _segments;
@@ -136,8 +138,9 @@ namespace server
             char dummy[64];
         };
 
-        /** Run-time layout */
-        void _switchLayout( const Layout* oldLayout, const Layout* newLayout );
+        /** Run-time layout switch */
+        void _useLayout( const uint32_t index );
+        void _switchLayout( const uint32_t oldIndex, const uint32_t newIndex );
     };
 
     std::ostream& operator << ( std::ostream& os, const Canvas* canvas);

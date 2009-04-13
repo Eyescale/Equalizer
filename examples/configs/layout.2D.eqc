@@ -48,6 +48,7 @@ server
         canvas
         {
             layout "Simple"
+            layout "Scale"
             wall
             {
                 bottom_left  [ -.64 -.20 -.75 ]

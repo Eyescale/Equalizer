@@ -23,8 +23,8 @@ server
                        name "channel2"
                    }
                }
-            }
-            pipe
+           }
+           pipe
            {
                window
                {

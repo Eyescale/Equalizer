@@ -21,8 +21,6 @@
 #include "view.h"
 
 #include "modelAssigner.h"
-#include "layoutSwitcher.h"
-#include "nextViewFinder.h"
 
 using namespace std;
 
@@ -33,6 +31,7 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
         : eq::Config( parent )
         , _spinX( 5 )
         , _spinY( 5 )
+        , _currentCanvas( 0 )
         , _redraw( true )
 {
 }
@@ -94,6 +93,7 @@ bool Config::init()
         }
     }
 
+    _currentCanvas = 0;
     return true;
 }
 
@@ -274,8 +274,32 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
 
         case eq::Event::POINTER_BUTTON_PRESS:
-            _frameData.setCurrentViewID( event->data.context.view.id );
+        {
+            const uint32_t viewID = event->data.context.view.id;
+            _frameData.setCurrentViewID( viewID );
+            if( viewID == EQ_ID_INVALID )
+            {
+                _currentCanvas = 0;
+                return true;
+            }
+            
+            const eq::View* view = findView( viewID );
+            const eq::Layout* layout = view->getLayout();
+            const eq::CanvasVector& canvases = getCanvases();
+            for( eq::CanvasVector::const_iterator i = canvases.begin();
+                 i != canvases.end(); ++i )
+            {
+                eq::Canvas* canvas = *i;
+                const eq::Layout* canvasLayout = canvas->getActiveLayout();
+
+                if( canvasLayout == layout )
+                {
+                    _currentCanvas = canvas;
+                    return true;
+                }
+            }
             return true;
+        }
 
         case eq::Event::POINTER_BUTTON_RELEASE:
             if( event->data.pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE
@@ -359,16 +383,67 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _frameData.toggleHelp();
             return true;
             
+        case 'c':
+        case 'C':
+        {
+            const eq::CanvasVector& canvases = getCanvases();
+            if( canvases.empty( ))
+                return true;
+
+            _frameData.setCurrentViewID( EQ_ID_INVALID );
+
+            if( !_currentCanvas )
+            {
+                _currentCanvas = canvases.front();
+                return true;
+            }
+
+            eq::CanvasVector::const_iterator i = std::find( canvases.begin(),
+                                                            canvases.end(), 
+                                                            _currentCanvas );
+            EQASSERT( i != canvases.end( ));
+
+            ++i;
+            if( i == canvases.end( ))
+                _currentCanvas = canvases.front();
+            else
+                _currentCanvas = *i;
+            return true;
+        }
+
         case 'v':
         case 'V':
         {
-            NextViewFinder finder( _frameData.getCurrentViewID( ));
-            accept( finder );
-            const eq::View* view = finder.getResult();
-            if( view )
-                _frameData.setCurrentViewID( view->getID( ));
-            else
+            const eq::CanvasVector& canvases = getCanvases();
+            if( !_currentCanvas && !canvases.empty( ))
+                _currentCanvas = canvases.front();
+
+            if( !_currentCanvas )
+                return true;
+
+            const eq::Layout* layout = _currentCanvas->getActiveLayout();
+            if( !layout )
+                return true;
+
+            const eq::View* current = findView( _frameData.getCurrentViewID( ));
+            const eq::ViewVector& views = layout->getViews();
+            EQASSERT( !views.empty( ))
+
+            if( !current )
+            {
+                _frameData.setCurrentViewID( views.front()->getID( ));
+                return true;
+            }
+
+            eq::ViewVector::const_iterator i = std::find( views.begin(),
+                                                          views.end(), current);
+            EQASSERT( i != views.end( ));
+
+            ++i;
+            if( i == views.end( ))
                 _frameData.setCurrentViewID( EQ_ID_INVALID );
+            else
+                _frameData.setCurrentViewID( (*i)->getID( ));
             return true;
         }
 
@@ -409,18 +484,19 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'l':
         case 'L':
         {
-            const uint32_t viewID = _frameData.getCurrentViewID();
-            LayoutSwitcher switcher( viewID );
-            accept( switcher );
-            
+            if( !_currentCanvas )
+                return true;
+
             _frameData.setCurrentViewID( EQ_ID_INVALID );
-            const eq::Layout* layout = switcher.getResult();
-            if( layout )
-            {
-                const eq::ViewVector& views = layout->getViews();
-                if( !views.empty( ))
-                    _frameData.setCurrentViewID( views[0]->getID( ));
-            }
+
+            uint32_t index = _currentCanvas->getActiveLayoutIndex() + 1;
+            const eq::LayoutVector& layouts = _currentCanvas->getLayouts();
+            EQASSERT( !layouts.empty( ))
+
+            if( index >= layouts.size( ))
+                _currentCanvas->useLayout( 0 );
+            else
+                _currentCanvas->useLayout( index );
             return true;
         }
 

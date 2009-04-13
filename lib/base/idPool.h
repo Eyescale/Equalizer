@@ -28,6 +28,7 @@ namespace eq
 {
 namespace base
 {
+#   define EQ_ID_NONE    0xfffffffdu
 #   define EQ_ID_INVALID 0xfffffffeu
 #   define EQ_ID_ANY     0xffffffffu
 
