@@ -242,7 +242,7 @@ namespace eq
         /** @return the current eye separation. */
         float getEyeBase() const;
         //*}
-#endif;
+#endif
 
         /** @name Error Information. */
         //*{
