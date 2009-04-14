@@ -75,6 +75,14 @@ $(DYNAMIC_LIB): lexer.cpp parser.hpp
 
 lexer_cygwin.cpp: lexer.cpp
 
+# Compile lexer without warnings since it is auto-generated with warnings
+ifeq (Linux,${ARCH})
+$(OBJECT_DIR)/lexer.$(OBJECT_SUFFIX).o: lexer.cpp
+	@mkdir -p $(@D)
+	@$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -Wno-error -c $< -MT $@
+	$(CXX) $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\"  -Wno-error -c $< -o $@
+endif
+
 lexer.cpp: loader.l parser.cpp
 	$(FLEX) -o$@ $<
 
