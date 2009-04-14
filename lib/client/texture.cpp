@@ -72,32 +72,32 @@ void Texture::setFormat( const GLuint format )
     {
         case GL_RGBA8:
         case GL_RGBA16:
-                _format = GL_BGRA;
-                _type   = GL_UNSIGNED_BYTE;
+            _format = GL_BGRA;
+            _type   = GL_UNSIGNED_BYTE;
             break;
 
         case GL_RGBA16F:
-				_format = GL_RGBA;
-                _type   = GL_FLOAT;
+            _format = GL_RGBA;
+            _type   = GL_FLOAT;
             break;
         case GL_RGBA32F:
-                _format = GL_RGBA;
-                _type   = GL_FLOAT;
+            _format = GL_RGBA;
+            _type   = GL_FLOAT;
             break;
 
         case GL_ALPHA32F_ARB:
-                _format = GL_ALPHA;
-                _type   = GL_FLOAT;
+            _format = GL_ALPHA;
+            _type   = GL_FLOAT;
             break;
 
         case GL_RGBA32UI:
-                _format = GL_RGBA_INTEGER_EXT;
-                _type   = GL_UNSIGNED_INT;
+            _format = GL_RGBA_INTEGER_EXT;
+            _type   = GL_UNSIGNED_INT;
             break;
 
         default:
-                _format = _internalFormat;
-                _type   = GL_INT;
+            _format = _internalFormat;
+            _type   = GL_INT;
     }
 }
 

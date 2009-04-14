@@ -528,22 +528,22 @@ int WGLWindow::chooseWGLPixelFormat()
     attributes.push_back( WGL_FULL_ACCELERATION_ARB );
 
     const int colorSize = getIAttribute( Window::IATTR_PLANES_COLOR );
-	
 	const int colorBits = colorSize>0 ? colorSize : 8;
+
 	if( colorSize > 0 || colorSize == AUTO ||
 		getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
 	{
         attributes.push_back( WGL_COLOR_BITS_ARB );
         attributes.push_back( colorBits * 3 );
     }
-	else if(( WGL_ARB_pixel_format_float) && 
-	   (( colorSize == RGBA16F )|| (colorSize == RGBA32F )))
+	else if( WGLEW_ARB_pixel_format_float && 
+             ( colorSize == RGBA16F || colorSize == RGBA32F ))
 	{
 		const int colorBits = colorSize == RGBA16F ? 16 :  32;
 	/*	if( WGL_ATI_pixel_format_float )
 		{
 			attributes.push_back( WGL_PIXEL_TYPE_ARB );
-			attributes.push_back( WGL_TYPE_RGBA_FLOAT_ATI );
+			attributes.push_back( WGL_TYPE_RGBA_FLOAT_ARB );
 		}
 		else if( WGL_NV_float_buffer )*/
         {
@@ -552,8 +552,8 @@ int WGLWindow::chooseWGLPixelFormat()
         }
 		attributes.push_back( WGL_COLOR_BITS_ARB );
 		attributes.push_back( colorBits * 4);
-
 	}
+
     const int alphaSize = getIAttribute( Window::IATTR_PLANES_ALPHA );
     if( alphaSize > 0 || alphaSize == AUTO )
     {
