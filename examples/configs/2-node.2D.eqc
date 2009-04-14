@@ -1,7 +1,7 @@
 # two-to-one sort-first config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+#    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
 }
 
 server
@@ -22,7 +22,7 @@ server
         }
         node
         {
-            connection { hostname "node2" }
+#            connection { hostname "node2" }
             pipe { window { channel { name "channel2" }}}
         }
         compound

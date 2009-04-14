@@ -69,7 +69,6 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
             Config* config = getConfig();
             EQASSERT( config );
             _observer = config->findObserver( id );
-            EQASSERT( _observer );
         }
     }
 
