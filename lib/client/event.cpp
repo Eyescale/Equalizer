@@ -82,7 +82,6 @@ Event::Event()
         : type( UNKNOWN )
         , originator( EQ_ID_INVALID )
 {
-    bzero( &context, sizeof( RenderContext ));
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
