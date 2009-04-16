@@ -95,8 +95,15 @@ void SocketConnection::_tuneSocket( const Socket fd )
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
+    
+#ifdef WIN32
+    const int size = 128768;
+    setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 
+                reinterpret_cast<const char*>( &size ), sizeof( size ));
+    setsockopt( fd, SOL_SOCKET, SO_SNDBUF,
+                reinterpret_cast<const char*>( &size ), sizeof( size ));
+#endif
 }
-
 
 bool SocketConnection::_parseAddress( sockaddr_in& socketAddress )
 {
