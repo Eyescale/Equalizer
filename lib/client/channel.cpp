@@ -179,13 +179,13 @@ bool Channel::_configInitFBO()
           !GLEW_ARB_texture_non_power_of_two ||
           !GLEW_EXT_framebuffer_object )
     {
-        setErrorMessage( "Can't use FBO due to missing GL extensions" );
+    	setErrorMessage( "Can't use FBO due to missing GL extensions" );
         return false;
     }
         
     // needs glew initialized (see above)
-    _fbo = new FrameBufferObject( glewGetContext() );
-    _fbo->setColorFormat( _window->getColorType() );    
+    _fbo = new FrameBufferObject( glewGetContext(), _window->getColorType() );
+        
     if( _fbo->init( _nativeContext.pvp.w, _nativeContext.pvp.h, 
                     _drawable & FBO_DEPTH, _drawable & FBO_STENCIL ) ) 
     {
@@ -201,29 +201,22 @@ bool Channel::_configInitFBO()
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
-void Channel::setPixelViewport( const PixelViewport& pvp )
-{
-    if( !_setPixelViewport( pvp ))
-        return; // nothing changed
-
-    ChannelSetPVPPacket packet;
-    packet.pvp = pvp;
-    net::NodePtr node = getServer().get();
-    send( node, packet );
-}
-
-bool Channel::_setPixelViewport( const PixelViewport& pvp )
+void Channel::_setPixelViewport( const PixelViewport& pvp )
 {
     EQASSERT( pvp.hasArea( ));
-    if( _nativeContext.pvp == pvp || !pvp.hasArea( ))
-        return false;
+    if( !pvp.hasArea( ))
+        return;
 
     _fixedPVP = true;
+
+    if( _nativeContext.pvp == pvp && _nativeContext.vp.hasArea( ))
+        return;
+
     _nativeContext.pvp = pvp;
     _nativeContext.vp.invalidate();
 
     if( !_window )
-        return true;
+        return;
     
     const PixelViewport& windowPVP = _window->getPixelViewport();
     if( windowPVP.isValid( ))
@@ -231,7 +224,6 @@ bool Channel::_setPixelViewport( const PixelViewport& pvp )
 
     EQVERB << "Channel pvp set: " << _nativeContext.pvp << ":" 
            << _nativeContext.vp << std::endl;
-    return true;
 }
 
 void Channel::_setViewport( const Viewport& vp )
@@ -582,7 +574,7 @@ void Channel::applyFrameBufferObject()
 
 void Channel::applyBuffer()
 {
-    if (( !_fbo )&&( !_window->isFBOWindow() ))
+    if ( !_fbo )
     {
         EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
         EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));
@@ -604,41 +596,41 @@ void Channel::bindFrameBuffer()
 
 void Channel::applyColorMask() const
 {
-    const ColorMask& colorMask = getDrawBufferMask();
-    glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
+	const ColorMask& colorMask = getDrawBufferMask();
+	glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
 }
 
 void Channel::applyViewport() const
 {
-    const PixelViewport& pvp = getPixelViewport();
-    // TODO: OPT return if vp unchanged
+	const PixelViewport& pvp = getPixelViewport();
+	// TODO: OPT return if vp unchanged
 
-    if( !pvp.hasArea( ))
-    { 
-        EQERROR << "Can't apply viewport " << pvp << endl;
-        return;
-    }
+	if( !pvp.hasArea( ))
+	{ 
+		EQERROR << "Can't apply viewport " << pvp << endl;
+		return;
+	}
 
-    EQ_GL_CALL( glViewport( pvp.x, pvp.y, pvp.w, pvp.h ));
+	EQ_GL_CALL( glViewport( pvp.x, pvp.y, pvp.w, pvp.h ));
     EQ_GL_CALL( glScissor( pvp.x, pvp.y, pvp.w, pvp.h ));
 }
 
 void Channel::applyFrustum() const
 {
-    const vmml::Frustumf& frustum = getFrustum();
-    EQ_GL_CALL( glFrustum( frustum.left, frustum.right,             \
+	const vmml::Frustumf& frustum = getFrustum();
+	EQ_GL_CALL( glFrustum( frustum.left, frustum.right,             \
                            frustum.bottom, frustum.top,             \
                            frustum.nearPlane, frustum.farPlane )); 
-    EQVERB << "Apply " << frustum << endl;
+	EQVERB << "Apply " << frustum << endl;
 }
 
 void Channel::applyOrtho() const
 {
-    const vmml::Frustumf& ortho = getOrtho();
-    EQ_GL_CALL( glOrtho( ortho.left, ortho.right,               \
+	const vmml::Frustumf& ortho = getOrtho();
+	EQ_GL_CALL( glOrtho( ortho.left, ortho.right,               \
                          ortho.bottom, ortho.top,               \
                          ortho.nearPlane, ortho.farPlane )); 
-    EQVERB << "Apply " << ortho << endl;
+	EQVERB << "Apply " << ortho << endl;
 }
 
 void Channel::applyScreenFrustum() const

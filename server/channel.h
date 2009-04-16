@@ -371,7 +371,6 @@ namespace server
         net::CommandResult _cmdConfigExitReply( net::Command& command );
         net::CommandResult _cmdSetNearFar( net::Command& command );
         net::CommandResult _cmdFrameFinishReply( net::Command& command );
-        net::CommandResult _cmdSetPixelViewport( net::Command& command );
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Channel*);

@@ -970,17 +970,6 @@ namespace eq
         EQ_ALIGN8( net::NodeID        nodes[1] );
     };
 
-    struct ChannelSetPVPPacket : public net::ObjectPacket
-    {
-        ChannelSetPVPPacket()
-            {
-                command = CMD_CHANNEL_SET_PVP;
-                size    = sizeof( ChannelSetPVPPacket );
-            }
-
-        PixelViewport pvp;
-    };
-
     //------------------------------------------------------------
     // Frame Data
     //------------------------------------------------------------
