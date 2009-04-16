@@ -121,7 +121,7 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     eq::View::deserialize( is, dirtyBits );
 
-    if( dirtyBits & ( DIRTY_WALL | DIRTY_PROJECTION ))
+    if( dirtyBits & ( DIRTY_WALL | DIRTY_PROJECTION | DIRTY_OVERDRAW ))
     {
         const ChannelVector& channels = getChannels();
         Config*              config   = getConfig();

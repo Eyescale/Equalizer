@@ -529,6 +529,8 @@ namespace server
         CHECK_THREAD_DECLARE( _serverThread );
 
         //-------------------- Methods --------------------
+        void _updateInheritPVP();
+
         void _setDefaultFrameName( Frame* frame );
 
         void _fireChildAdded( Compound* child );

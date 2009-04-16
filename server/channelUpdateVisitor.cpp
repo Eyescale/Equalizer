@@ -476,7 +476,7 @@ void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
     }
 
     // adjust to viewport (screen-space decomposition)
-    // Note: may need to be computed in pvp space to avoid rounding problems
+    // Note: vp is computed pixel-correct by Compound::updateInheritData()
     const eq::Viewport vp = compound->getInheritViewport();
     if( vp != eq::Viewport::FULL && vp.isValid( ))
     {

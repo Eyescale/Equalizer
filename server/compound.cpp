@@ -462,6 +462,23 @@ void Compound::updateFrustum()
         Wall wall( view->getWall( ));
         wall.apply( coverage );
 
+        // overdraw
+        const vmml::Vector2i& overdraw = view->getOverdraw();
+        if( overdraw.x != 0 )
+        {
+            const PixelViewport& pvp = channel->getPixelViewport();
+            const float ratio = static_cast< float >( pvp.w + overdraw.x ) /
+                                static_cast< float >( pvp.w );
+            wall.resizeHorizontal( ratio );
+        }
+        if( overdraw.y != 0 )
+        {
+            const PixelViewport& pvp = channel->getPixelViewport();
+            const float ratio = static_cast< float >( pvp.h + overdraw.y ) /
+                                static_cast< float >( pvp.h );
+            wall.resizeHorizontal( ratio );
+        }
+
         switch( view->getCurrentType( ))
         {
             case Frustum::TYPE_WALL:
@@ -709,7 +726,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _inherit.phase = 0;
 
         if( _inherit.channel )
-            _inherit.pvp  = _inherit.channel->getPixelViewport();
+            _updateInheritPVP();
 
         if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = eq::Frame::BUFFER_COLOR;
@@ -767,7 +784,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         }
         else if( _inherit.channel )
         {
-            _inherit.pvp = _inherit.channel->getPixelViewport();
+            _updateInheritPVP();
             _inherit.vp.apply( _data.vp );
         }
 
@@ -815,6 +832,25 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.tasks = _data.tasks;
 
     _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);
+}
+
+void Compound::_updateInheritPVP()
+{
+    const PixelViewport oldPVP( _inherit.pvp );
+
+    const Channel* channel = _inherit.channel;
+    _inherit.pvp = channel->getPixelViewport( );
+
+    const View* view = channel->getView();
+    if( !view )
+        return;
+
+    const vmml::Vector2i& overdraw = view->getOverdraw();
+    _inherit.pvp.w += overdraw.x;
+    _inherit.pvp.h += overdraw.y;
+
+    if( oldPVP != _inherit.pvp ) // channel PVP changed
+        updateFrustum();
 }
 
 std::ostream& operator << (std::ostream& os, const Compound* compound)

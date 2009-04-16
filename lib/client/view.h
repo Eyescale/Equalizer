@@ -92,7 +92,11 @@ namespace server
          */
         EQ_EXPORT virtual bool handleEvent( const Event& event );
         //*}
-        
+
+        /** @warning  Undocumented - may not be supported in the future */
+        EQ_EXPORT void setOverdraw( const vmml::Vector2i& pixels );
+        const vmml::Vector2i& getOverdraw() const { return _overdraw; }
+
     protected:
         /** @sa Frustum::serialize() */
         EQ_EXPORT virtual void serialize( net::DataOStream& os,
@@ -106,9 +110,10 @@ namespace server
         {
             DIRTY_VIEWPORT   = Frustum::DIRTY_CUSTOM << 0,
             DIRTY_OBSERVER   = Frustum::DIRTY_CUSTOM << 1,
-            DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 2,
-            DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 3,
-            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4,
+            DIRTY_OVERDRAW   = Frustum::DIRTY_CUSTOM << 2,
+            DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 3,
+            DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 4,
+            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 5,
         };
 
         /** @return the initial frustum value of this view. */
@@ -131,6 +136,9 @@ namespace server
 
         /** Unmodified, baseline view frustum data, used when resizing. */
         Frustum _baseFrustum;
+
+        /** Enlarge size of all dest channels and adjust frustum accordingly. */
+        vmml::Vector2i _overdraw;
 
         union // placeholder for binary-compatible changes
         {

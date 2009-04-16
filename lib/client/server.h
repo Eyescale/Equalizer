@@ -59,7 +59,7 @@ namespace eq
          */
         Config* chooseConfig( const ConfigParams& parameters );
 
-        /** Undocumented - may not be supported in the future */
+        /** @warning Undocumented - may not be supported in the future */
         Config* useConfig( const ConfigParams& parameters, 
                            const std::string& config );
 

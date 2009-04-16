@@ -34,6 +34,7 @@ View::View()
         : _layout( 0 )
         , _pipe( 0 )
         , _observer( 0 )
+        , _overdraw( vmml::Vector2i::ZERO )
 {
 }
 
@@ -50,6 +51,8 @@ void View::serialize( net::DataOStream& os, const uint64_t dirtyBits )
         os << _viewport;
     if( dirtyBits & DIRTY_OBSERVER )
         os << ( _observer ? _observer->getID() : EQ_ID_INVALID );
+    if( dirtyBits & DIRTY_OVERDRAW )
+        os << _overdraw;
 }
 
 void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
@@ -71,6 +74,8 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
             _observer = config->findObserver( id );
         }
     }
+    if( dirtyBits & DIRTY_OVERDRAW )
+        is >> _overdraw;
 
     if( dirtyBits == ( DIRTY_CUSTOM - 1 ))
         _baseFrustum = *this; // save baseline data for resizing
@@ -117,6 +122,12 @@ const Config* View::getConfig() const
 const Viewport& View::getViewport() const
 {
     return _viewport;
+}
+
+void View::setOverdraw( const vmml::Vector2i& pixels )
+{
+    _overdraw = pixels;
+    setDirty( DIRTY_OVERDRAW );
 }
 
 VisitorResult View::accept( ViewVisitor& visitor )
