@@ -187,7 +187,10 @@ namespace server
          * @param buffer the buffer to disable.
          */
         void disableBuffer( const Buffer buffer );
-        
+
+        /* Set color buffer type to read */
+        void setColorType( const GLuint colorType );
+
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
         virtual void getInstanceData( net::DataOStream& os );

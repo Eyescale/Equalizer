@@ -71,6 +71,10 @@ namespace server
 
         /** The covered area. */
         void setPixelViewport( const PixelViewport& pvp ) { _data.pvp = pvp; }
+
+        /* Set color buffer type to read */
+        void setColorType( const GLuint colorType ) { _colorType = colorType; }
+        
         //*}
 
         /**
@@ -98,7 +102,7 @@ namespace server
          * retained.
          *
          * @param frame the corresponding output frame holder.
-		 * @param glObjects the GL object manager for the current GL context.
+         * @param glObjects the GL object manager for the current GL context.
          */
         void startReadback( const Frame& frame, 
                             Window::ObjectManager* glObjects );
@@ -172,7 +176,7 @@ namespace server
         struct Data
         {
             Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 ), format( 0 )
-                   , type( 0 ), frameType( Frame::TYPE_MEMORY ) {}
+                   , type( 0 ), frameType( Frame::TYPE_MEMORY ){}
 
             PixelViewport    pvp;
             vmml::Vector2i   offset;
@@ -190,6 +194,7 @@ namespace server
         ImageVector     _imageCache;
         base::SpinLock  _imageCacheLock;
 
+        GLuint     _colorType; 
         ROIFinder* _roiFinder;
 
         struct ImageVersion

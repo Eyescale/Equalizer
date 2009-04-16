@@ -82,41 +82,49 @@ void Image::flush()
 
 uint32_t Image::getDepth( const Frame::Buffer buffer ) const
 {
-    uint32_t depth = 0;
-    switch( getFormat( buffer ))
+    return getNumChannels( buffer ) * getChannelSize( buffer );
+}
+
+uint8_t Image::getNumChannels( const Frame::Buffer buffer ) const
+{
+    switch( getFormat( buffer ) )
     {
         case GL_RGBA:
         case GL_RGBA8:
         case GL_BGRA:
-            depth = 4;
-            break;
+            return 4;
 
         case GL_RGB:
         case GL_BGR:
-            depth = 3;
-            break;
+            return 3;
 
         case GL_DEPTH_COMPONENT:
         case GL_DEPTH_STENCIL_NV:
-            depth = 1;
-            break;
+            return 1;
 
         default :
             EQWARN << "Unknown number of components for format "
                    << getFormat( buffer ) << " of buffer " << buffer << endl;
             EQUNIMPLEMENTED;
-    }
+    } 
+    return 0;
+}
 
+uint8_t Image::getChannelSize( const Frame::Buffer buffer ) const
+{
     switch( getType( buffer ))
     {
         case GL_UNSIGNED_BYTE:
         case GL_UNSIGNED_INT_8_8_8_8_REV:
-            return depth; // depth *= 1;
+            return 1;
+
+        case GL_HALF_FLOAT: 
+            return 2;
 
         case GL_FLOAT:
         case GL_UNSIGNED_INT:
         case GL_UNSIGNED_INT_24_8_NV:
-            return depth * 4;
+            return 4;
 
         default :
             EQUNIMPLEMENTED;

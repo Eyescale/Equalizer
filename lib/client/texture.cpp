@@ -78,7 +78,7 @@ void Texture::setFormat( const GLuint format )
 
         case GL_RGBA16F:
             _format = GL_RGBA;
-            _type   = GL_FLOAT;
+            _type   = GL_HALF_FLOAT;
             break;
         case GL_RGBA32F:
             _format = GL_RGBA;

@@ -312,10 +312,17 @@ bool WGLWindow::configInitWGLFBO( int pixelFormat )
     }
     else // no affinity, use DC of nth device
     {
-        const HDC displayDC = createWGLDisplayDC();
-        if( !displayDC )
+        const PixelViewport pvp( 0, 0, 1, 1 );
+        _wglWindow = _createWGLWindow( pixelFormat, pvp );
+        if( !_wglWindow )
             return false;
-        setWGLDC( displayDC, WGL_DC_DISPLAY );
+
+        const HDC dc = GetDC( _wglWindow );
+        
+        if( !dc )
+            return false;
+        
+        setWGLDC( dc, WGL_DC_WINDOW );
     }
 
     PIXELFORMATDESCRIPTOR pfd = {0};
@@ -334,6 +341,49 @@ bool WGLWindow::configInitWGLFBO( int pixelFormat )
 }
 
 bool WGLWindow::configInitWGLWindow( int pixelFormat )
+{
+    // adjust window size (adds border pixels)
+    const PixelViewport& pvp = _window->getPixelViewport();
+    HWND hWnd = _createWGLWindow( pixelFormat, pvp );
+    if( !hWnd )
+        return false;
+        
+    HDC windowDC = GetDC( hWnd );
+    
+    PIXELFORMATDESCRIPTOR pfd = {0};
+    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion     = 1;
+
+    DescribePixelFormat( _wglAffinityDC ? _wglAffinityDC : windowDC, 
+                         pixelFormat, sizeof(pfd), &pfd );
+    if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
+    {
+        ReleaseDC( hWnd, windowDC );
+        _window->setErrorMessage( "Can't set window pixel format: " + 
+            base::getErrorString( GetLastError( )));
+        return false;
+    }
+    ReleaseDC( hWnd, windowDC );
+
+    ShowWindow( hWnd, SW_SHOW );
+    UpdateWindow( hWnd );
+
+    if( getIAttribute( Window::IATTR_HINT_SCREENSAVER ) != ON )
+    {
+        // Disable screen saver
+        SystemParametersInfo( SPI_GETSCREENSAVEACTIVE, 0, &_screenSaverActive,
+                              0 );
+        SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, FALSE, 0, 0 );
+        
+        // Wake up monitor
+        PostMessage( HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, -1 );
+    }
+
+    setWGLWindowHandle( hWnd );
+    return true;
+}
+
+HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
 {
     // window class
     const std::string& name = _window->getName();
@@ -383,7 +433,6 @@ bool WGLWindow::configInitWGLWindow( int pixelFormat )
     }
 
     // adjust window size (adds border pixels)
-    const PixelViewport& pvp = _window->getPixelViewport();
     RECT rect;
     rect.left   = pvp.x;
     rect.top    = pvp.y;
@@ -400,44 +449,11 @@ bool WGLWindow::configInitWGLWindow( int pixelFormat )
                                 instance, 0 );
     if( !hWnd )
     {
-        _window->setErrorMessage( "Can't create window: " + 
-                         base::getErrorString( GetLastError( )));
+        _window->setErrorMessage( "Can't create window: " );
         return false;
     }
 
-    HDC windowDC = GetDC( hWnd );
-
-    PIXELFORMATDESCRIPTOR pfd = {0};
-    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
-    pfd.nVersion     = 1;
-
-    DescribePixelFormat( _wglAffinityDC ? _wglAffinityDC : windowDC, 
-                         pixelFormat, sizeof(pfd), &pfd );
-    if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
-    {
-        ReleaseDC( hWnd, windowDC );
-        _window->setErrorMessage( "Can't set window pixel format: " + 
-            base::getErrorString( GetLastError( )));
-        return false;
-    }
-    ReleaseDC( hWnd, windowDC );
-
-    setWGLWindowHandle( hWnd );
-    ShowWindow( hWnd, SW_SHOW );
-    UpdateWindow( hWnd );
-
-    if( getIAttribute( Window::IATTR_HINT_SCREENSAVER ) != ON )
-    {
-        // Disable screen saver
-        SystemParametersInfo( SPI_GETSCREENSAVEACTIVE, 0, &_screenSaverActive,
-                              0 );
-        SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, FALSE, 0, 0 );
-        
-        // Wake up monitor
-        PostMessage( HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, -1 );
-    }
-
-    return true;
+    return hWnd;
 }
 
 bool WGLWindow::configInitWGLPBuffer( int pixelFormat )
@@ -528,31 +544,29 @@ int WGLWindow::chooseWGLPixelFormat()
     attributes.push_back( WGL_FULL_ACCELERATION_ARB );
 
     const int colorSize = getIAttribute( Window::IATTR_PLANES_COLOR );
-	const int colorBits = colorSize>0 ? colorSize : 8;
+    const int colorBits = colorSize>0 ? colorSize : 8;
 
-	if( colorSize > 0 || colorSize == AUTO ||
-		getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
-	{
+    if( colorSize > 0 || colorSize == AUTO ||
+        getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
+    {
         attributes.push_back( WGL_COLOR_BITS_ARB );
         attributes.push_back( colorBits * 3 );
     }
-	else if( WGLEW_ARB_pixel_format_float && 
-             ( colorSize == RGBA16F || colorSize == RGBA32F ))
-	{
-		const int colorBits = colorSize == RGBA16F ? 16 :  32;
-	/*	if( WGL_ATI_pixel_format_float )
-		{
-			attributes.push_back( WGL_PIXEL_TYPE_ARB );
-			attributes.push_back( WGL_TYPE_RGBA_FLOAT_ARB );
-		}
-		else if( WGL_NV_float_buffer )*/
+    else if ( colorSize == RGBA16F || colorSize == RGBA32F )
+    {
+        const int colorBits = colorSize == RGBA16F ? 16 :  32;
+
+        if ( !WGLEW_ARB_pixel_format_float )
         {
-		    attributes.push_back( WGL_FLOAT_COMPONENTS_NV );
-		    attributes.push_back( GL_TRUE );
+            _window->setErrorMessage( "Floating-point framebuffer unsupported" );
+            return 0;
         }
-		attributes.push_back( WGL_COLOR_BITS_ARB );
-		attributes.push_back( colorBits * 4);
-	}
+        attributes.push_back( WGL_PIXEL_TYPE_ARB );
+        attributes.push_back( WGL_TYPE_RGBA_FLOAT_ARB );
+        
+        attributes.push_back( WGL_COLOR_BITS_ARB );
+        attributes.push_back( colorBits * 4);
+    }
 
     const int alphaSize = getIAttribute( Window::IATTR_PLANES_ALPHA );
     if( alphaSize > 0 || alphaSize == AUTO )
@@ -660,7 +674,7 @@ int WGLWindow::chooseWGLPixelFormat()
     while( true )
     {
         UINT nFormats = 0;
-		if( !wglChoosePixelFormatARB( pfDC, &attributes[0], 0, 1,
+    if( !wglChoosePixelFormatARB( pfDC, &attributes[0], 0, 1,
                                       &pixelFormat, &nFormats ))
         {
             EQWARN << "wglChoosePixelFormat failed: " 

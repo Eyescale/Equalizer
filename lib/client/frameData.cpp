@@ -39,7 +39,7 @@ using eq::net::CommandFunc;
 
 namespace eq
 {
-FrameData::FrameData()
+FrameData::FrameData() : _colorType( GL_RGBA )
 {
     _roiFinder = new ROIFinder();
     EQINFO << "New FrameData @" << (void*)this << endl;
@@ -148,12 +148,22 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
         if( type == Frame::TYPE_TEXTURE )
         {
             image->setFormat( Frame::BUFFER_COLOR, GL_RGBA );
-            image->setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
         }
         else
         {
             image->setFormat( Frame::BUFFER_COLOR, GL_BGRA );
-            image->setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+        }
+
+        switch ( _colorType )
+        {
+            case GL_RGBA16F:  
+                image->setType(   Frame::BUFFER_COLOR, GL_HALF_FLOAT );
+                break;
+            case GL_RGBA32F:  
+                image->setType(   Frame::BUFFER_COLOR, GL_FLOAT );
+                break;
+            default:
+                image->setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
         }
         image->setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
         image->setType(   Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
@@ -305,13 +315,22 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
     packet.sessionID    = session->getID();
     packet.objectID     = getID();
     packet.version      = getVersion();
-    packet.isCompressed = useCompression;
 
     // send all images
     for( vector<Image*>::const_iterator i = _images.begin(); 
          i != _images.end(); ++i )
     {
         Image* image = *i;
+
+        const uint32_t colorType = image->getType( Frame::BUFFER_COLOR );
+        if (( colorType == GL_HALF_FLOAT ) || 
+            ( colorType == GL_FLOAT )) 
+        {
+            packet.isCompressed = false;
+        }
+        else
+            packet.isCompressed = useCompression;
+        
         vector< const Image::PixelData* > pixelDatas;
 
         packet.size    = packetSize;
@@ -329,7 +348,7 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
             {
                 packet.size += 3 * sizeof( uint32_t ); // format, type, nChunks
 
-                if( useCompression )
+                if( packet.isCompressed )
                 {
                     Clock clock;
                     const Image::PixelData& data =

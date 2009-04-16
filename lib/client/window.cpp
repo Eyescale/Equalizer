@@ -606,6 +606,11 @@ void Window::bindFrameBuffer() const
     _osWindow->bindFrameBuffer( );
 }
 
+bool Window::isFBOWindow()
+{ 
+    return _osWindow->getFBO(); 
+}
+
 void Window::swapBuffers()
 {
     _osWindow->swapBuffers();
@@ -614,12 +619,12 @@ void Window::swapBuffers()
 
 int Window::getColorType()
 {
-	switch ( getIAttribute( Window::IATTR_PLANES_COLOR ) ) 
-	{
-		case RGBA32F:  return GL_RGBA32F;
-		case RGBA16F:  return GL_RGBA16F;
-		default:  return GL_RGBA;
-	}
+    switch ( getIAttribute( Window::IATTR_PLANES_COLOR ) ) 
+    {
+        case RGBA32F:  return GL_RGBA32F;
+        case RGBA16F:  return GL_RGBA16F;
+        default:  return GL_RGBA;
+    }
 }
 
 GLEWContext* Window::glewGetContext()

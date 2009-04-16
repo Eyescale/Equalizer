@@ -111,7 +111,7 @@ namespace eq
         /** @return the generic WGL function table for the window's pipe. */
         WGLEWContext* wglewGetContext();
         //*}
-		        
+     
         /** 
          * Get the GLEW context for this window.
          * 
@@ -142,7 +142,7 @@ namespace eq
         bool _glewInitialized ;
         
         /** Frame buffer object for FBO drawables. */		
-		FrameBufferObject* _fbo; 
+        FrameBufferObject* _fbo; 
 
         union // placeholder for binary-compatible changes
         {

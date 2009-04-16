@@ -32,7 +32,7 @@ namespace eq
     {
     public: 
         /** Constructs a new Frame Buffer Object */
-        FrameBufferObject( GLEWContext* const glewContext, const GLuint colorFormat  );
+        FrameBufferObject( GLEWContext* const glewContext );
 
         /** Destruct the Frame Buffer Object */
         ~FrameBufferObject();

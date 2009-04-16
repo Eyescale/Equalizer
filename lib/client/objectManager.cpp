@@ -554,7 +554,7 @@ FrameBufferObject* ObjectManager<T>::newEqFrameBufferObject( const T& key )
         return 0;
     }
 
-    FrameBufferObject* frameBufferObject = new FrameBufferObject( _glewContext, GL_RGBA);
+    FrameBufferObject* frameBufferObject = new FrameBufferObject( _glewContext );
     _data->eqFrameBufferObjects[ key ] = frameBufferObject;
     return frameBufferObject;
 }

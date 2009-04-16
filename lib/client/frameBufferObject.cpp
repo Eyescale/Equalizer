@@ -27,7 +27,7 @@
 namespace eq
 {
 
-FrameBufferObject::FrameBufferObject( GLEWContext* glewContext, const GLuint colorFormat  )
+FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
     : _fboID( 0 )
     , _width( 0 )
     , _height( 0 )
@@ -40,7 +40,7 @@ FrameBufferObject::FrameBufferObject( GLEWContext* glewContext, const GLuint col
 
     _colors.push_back( new Texture( glewContext ));
 
-    _colors[0]->setFormat( colorFormat );
+    _colors[0]->setFormat( GL_RGBA );
     _depth.setFormat( GL_DEPTH_COMPONENT );
     _stencil.setFormat( GL_STENCIL_INDEX );
 }
@@ -115,9 +115,9 @@ bool FrameBufferObject::init( const int width    , const int height,
     if ( depthSize > 0 )
         _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height );
 
-    if ( stencilSize > 0 )
+  /*  if ( stencilSize > 0 )
         _stencil.bindToFBO( GL_STENCIL_ATTACHMENT, width, height );
-
+*/
     _width  = width;
     _height = height;
     _valid  = true;

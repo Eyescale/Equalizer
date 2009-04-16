@@ -135,6 +135,10 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
                 {
                     colorFormat = image->getFormat( Frame::BUFFER_COLOR );
                     colorType   = image->getType(   Frame::BUFFER_COLOR );
+
+                    if (( colorType == GL_HALF_FLOAT ) || 
+                        ( colorType == GL_FLOAT ))
+                        return false;
                 }
 
                 if( colorFormat != image->getFormat( Frame::BUFFER_COLOR ) ||
@@ -324,7 +328,7 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
     if( !result )
     {
         _resultImage = new ResultImage;
-        result       = _resultImage.get();;
+        result       = _resultImage.get();
     }
 
     // pre-condition check for current _merge implementations

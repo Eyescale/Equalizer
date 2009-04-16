@@ -265,6 +265,12 @@ namespace eq
         /** @return the GL function table, valid during readback. */
         GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
 
+        /** @return the number of channels in a pixel. */
+        uint8_t getNumChannels( const Frame::Buffer buffer ) const;
+
+        /** @return the size in bytes for one channel. */
+        uint8_t getChannelSize( const Frame::Buffer buffer ) const;
+
     private:
         /** All distributed data. */
         struct Data

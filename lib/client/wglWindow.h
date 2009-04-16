@@ -250,6 +250,9 @@ namespace eq
         {
             char dummy[64];
         };
+
+        /** Create an unmapped WGL window. */
+        HWND _createWGLWindow( int pixelFormat, const PixelViewport& pvp );
     };
 }
 

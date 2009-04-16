@@ -101,6 +101,12 @@ void Frame::flush()
         _frameData->flush();
 }
 
+void Frame::setColorType( const GLuint colorType )
+{
+    if( _frameData )
+        _frameData->setColorType( colorType );
+}
+
 void Frame::startReadback( Window::ObjectManager* glObjects ) 
 {
     EQASSERT( _frameData );
