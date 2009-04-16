@@ -190,7 +190,7 @@ void Texture::bindToFBO( const GLenum target, const int width,
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
 
     glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, _internalFormat, width, height,
-                    0, _format, _type, 0 );
+                  0, _format, _type, 0 );
 
     glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, GL_TEXTURE_RECTANGLE_ARB,
                                _id, 0 );

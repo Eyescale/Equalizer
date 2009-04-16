@@ -204,7 +204,7 @@ namespace base
 // development may cause false positives, e.g., when threadsafety is ensured
 // outside of the objects by the application.
 
-#  define CHECK_THREAD_DECLARE( NAME )                      \
+#define CHECK_THREAD_DECLARE( NAME )                        \
     struct NAME ## Struct                                   \
     {                                                       \
         NAME ## Struct ()                                   \
