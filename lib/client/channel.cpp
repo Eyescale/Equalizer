@@ -184,7 +184,8 @@ bool Channel::_configInitFBO()
     }
         
     // needs glew initialized (see above)
-    _fbo = new FrameBufferObject( glewGetContext(), _window->getColorType() );
+    _fbo = new FrameBufferObject( glewGetContext( ));
+    _fbo->setColorFormat( _window->getColorType( ));
         
     if( _fbo->init( _nativeContext.pvp.w, _nativeContext.pvp.h, 
                     _drawable & FBO_DEPTH, _drawable & FBO_STENCIL ) ) 
