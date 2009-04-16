@@ -39,7 +39,8 @@ using eq::net::CommandFunc;
 
 namespace eq
 {
-FrameData::FrameData() : _colorType( GL_RGBA )
+FrameData::FrameData() 
+        : _colorType( GL_RGBA )
 {
     _roiFinder = new ROIFinder();
     EQINFO << "New FrameData @" << (void*)this << endl;
@@ -146,15 +147,11 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
         image = new Image;
 
         if( type == Frame::TYPE_TEXTURE )
-        {
             image->setFormat( Frame::BUFFER_COLOR, GL_RGBA );
-        }
         else
-        {
             image->setFormat( Frame::BUFFER_COLOR, GL_BGRA );
-        }
 
-        switch ( _colorType )
+        switch( _colorType )
         {
             case GL_RGBA16F:  
                 image->setType(   Frame::BUFFER_COLOR, GL_HALF_FLOAT );
