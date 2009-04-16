@@ -117,6 +117,9 @@ void Channel::attachToSession( const uint32_t id, const uint32_t instanceID,
     registerCommand( eq::CMD_CHANNEL_FRAME_FINISH_REPLY,
                      ChannelFunc( this, &Channel::_cmdFrameFinishReply ),
                      serverQueue );
+    registerCommand( eq::CMD_CHANNEL_SET_PVP, 
+                     ChannelFunc( this, &Channel::_cmdSetPixelViewport ),
+                     commandQueue );
 }
 
 Channel::~Channel()
@@ -605,6 +608,16 @@ net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
 
     _fireLoadData(packet->frameNumber, packet->nStatistics, packet->statistics);
 
+    return net::COMMAND_HANDLED;
+}
+
+net::CommandResult Channel::_cmdSetPixelViewport( net::Command& command)
+{
+    const eq::ChannelSetPVPPacket* packet = 
+        command.getPacket<eq::ChannelSetPVPPacket>();
+    EQVERB << "handle channel set pvp " << packet << endl;
+
+    setPixelViewport( packet->pvp );
     return net::COMMAND_HANDLED;
 }
 

@@ -201,22 +201,29 @@ bool Channel::_configInitFBO()
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
-void Channel::_setPixelViewport( const PixelViewport& pvp )
+void Channel::setPixelViewport( const PixelViewport& pvp )
+{
+    if( !_setPixelViewport( pvp ))
+        return; // nothing changed
+
+    ChannelSetPVPPacket packet;
+    packet.pvp = pvp;
+    net::NodePtr node = getServer().get();
+    send( node, packet );
+}
+
+bool Channel::_setPixelViewport( const PixelViewport& pvp )
 {
     EQASSERT( pvp.hasArea( ));
-    if( !pvp.hasArea( ))
-        return;
+    if( _nativeContext.pvp == pvp || !pvp.hasArea( ))
+        return false;
 
     _fixedPVP = true;
-
-    if( _nativeContext.pvp == pvp && _nativeContext.vp.hasArea( ))
-        return;
-
     _nativeContext.pvp = pvp;
     _nativeContext.vp.invalidate();
 
     if( !_window )
-        return;
+        return true;
     
     const PixelViewport& windowPVP = _window->getPixelViewport();
     if( windowPVP.isValid( ))
@@ -224,6 +231,7 @@ void Channel::_setPixelViewport( const PixelViewport& pvp )
 
     EQVERB << "Channel pvp set: " << _nativeContext.pvp << ":" 
            << _nativeContext.vp << std::endl;
+    return true;
 }
 
 void Channel::_setViewport( const Viewport& vp )

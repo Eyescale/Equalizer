@@ -172,6 +172,15 @@ namespace eq
         /** @return the channel's current color mask for drawing. */
         const ColorMask& getDrawBufferMask() const;
 
+        /** 
+         * Set the channel's pixel viewport wrt its parent window.
+         *
+         * Updates the fractional viewport accordingly.
+         * 
+         * @param pvp the viewport in pixels.
+         */
+        void setPixelViewport( const PixelViewport& pvp );
+
         /** @return the channel's current pixel viewport. */
         const PixelViewport& getPixelViewport() const;
 
@@ -577,7 +586,7 @@ namespace eq
          * 
          * @param pvp the viewport in pixels.
          */
-        void _setPixelViewport( const PixelViewport& pvp );
+        bool _setPixelViewport( const PixelViewport& pvp );
 
         /** Notification of window pvp change. */
         void _notifyViewportChanged();
