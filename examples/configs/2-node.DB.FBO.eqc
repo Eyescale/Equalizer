@@ -10,31 +10,29 @@ server
     {
         appNode
         {   
-		pipe 
-			{ 
-				window 
-				{
-					attributes{ 
-						 
-						hint_drawable FBO
-						planes_color  RGBA32F
-						planes_depth ON
-					}
-					channel 
-					{ 
-						name "channel2" 
-					}
-				}
-			}
+            pipe 
+            { 
+                window 
+                {
+                    attributes
+                    {
+                        hint_drawable FBO
+                        planes_color  RGBA32F
+                        planes_depth  ON
+                    }
+                    channel 
+                    { 
+                        name "channel2" 
+                    }
+                }
+            }
         }
         node
         {
-
-            
-			connection 
-			{ 
-				hostname "157.26.73.115" TCPIP_port 4242  
-			}
+            connection 
+            { 
+                hostname "157.26.73.115" TCPIP_port 4242  
+            }
             pipe 
             {
                 window
