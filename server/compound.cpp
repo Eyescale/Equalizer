@@ -476,7 +476,7 @@ void Compound::updateFrustum()
             const PixelViewport& pvp = channel->getPixelViewport();
             const float ratio = static_cast< float >( pvp.h + overdraw.y ) /
                                 static_cast< float >( pvp.h );
-            wall.resizeHorizontal( ratio );
+            wall.resizeVertical( ratio );
         }
 
         switch( view->getCurrentType( ))
