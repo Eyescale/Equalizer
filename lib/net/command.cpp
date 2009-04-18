@@ -88,7 +88,8 @@ void Command::allocate( NodePtr node, NodePtr localNode, const uint64_t size )
     else if( size > _packetAllocSize )
     {
         _packetAllocSize = EQ_MAX( Packet::minSize, size );
-        _packet = static_cast<Packet*>( realloc( _packet, _packetAllocSize ));
+        free( _packet );
+        _packet = static_cast<Packet*>( malloc( _packetAllocSize ));
     }
 
     _node         = node;
