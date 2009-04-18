@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -40,53 +40,37 @@ CommandQueue::~CommandQueue()
 
 void CommandQueue::flush()
 {
-    _commandCacheLock.set();
-
     if( !empty( ))
         EQWARN << "Flushing non-empty command queue" << endl;
 
-    while( !_commands.empty( ))
+    Command* command( 0 );
+    while( (command = _commands.tryPop( )) )
     {
-        Command* command = _commands.pop();
         EQWARN << *command << endl;
-        if( command )
-            _commandCache.release( command );
+        EQASSERT( command );
+        command->release();
     }
-
-    _commandCache.flush();
-    _commandCacheLock.unset();
 }
 
-void CommandQueue::push( Command& inCommand )
+void CommandQueue::push( Command& command )
 {
-    EQASSERT( inCommand.isValid( ));
-
-    _commandCacheLock.set();
-    Command* outCommand = _commandCache.alloc( inCommand );
-    _commandCacheLock.unset();
-
-    EQASSERT( outCommand->isValid( ));
-    outCommand->_dispatched = true;
-    _commands.push( outCommand );
+    EQASSERT( command.isValid( ));
+    
+    command.retain();
+    _commands.push( &command );
 }
 
-void CommandQueue::pushFront( Command& inCommand )
+void CommandQueue::pushFront( Command& command )
 {
-    EQASSERT( inCommand.isValid( ));
-
-    _commandCacheLock.set();
-    Command* outCommand = _commandCache.alloc( inCommand );
-    _commandCacheLock.unset();
-
-    EQASSERT( outCommand->isValid( ));
-    outCommand->_dispatched = true;
-    _commands.pushFront( outCommand );
+    EQASSERT( command.isValid( ));
+    
+    command.retain();
+    _commands.pushFront( &command );
 }
 
 Command* CommandQueue::pop()
 {
     CHECK_THREAD( _thread );
-
     return _commands.pop();
 }
 
@@ -94,16 +78,6 @@ Command* CommandQueue::tryPop()
 {
     CHECK_THREAD( _thread );
     return _commands.tryPop();
-}
-
-void CommandQueue::release( Command* command )
-{
-    if( !command )
-        return;
-
-    _commandCacheLock.set();
-    _commandCache.release( command );
-    _commandCacheLock.unset();
 }
 
 Command* CommandQueue::back() const

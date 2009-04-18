@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,11 @@
 #ifndef EQNET_COMMANDCACHE_H
 #define EQNET_COMMANDCACHE_H
 
+#include <eq/net/types.h>
+
 #include <eq/base/base.h>
+#include <eq/base/thread.h> // thread-safety checks
+
 #include <vector>
 
 namespace eq
@@ -29,10 +33,10 @@ namespace net
     class Command;
     
     /**
-     * A CommandCache handles the creation of commands for the CommandQueue and
-     * the node reschedule queue.
+     * A command cache handles the reuse of allocated packets for a node.
      *
-     * The packets are copied and can therefore be retained in the queues.
+     * Commands are retained and released whenever they are not directly
+     * processed, e.g., when pushed to another thread using a CommandQueue.
      */
     class EQ_EXPORT CommandCache
     {
@@ -40,31 +44,22 @@ namespace net
         CommandCache();
         ~CommandCache();
 
-        /** 
-         * Create a new command.
-         *
-         * @param command the input command.
-         * @return the command.
-         */
-        Command *alloc( Command& command );
+        /** @return a new command. */
+        Command& alloc( NodePtr node, NodePtr localNode, const uint64_t size );
 
-        /** 
-         * Release a command.
-         *
-         * @param command the command.
-         */
-        void release( Command* command );
-
-        /** Flush all released commands. */
+        /** Flush all allocated commands. */
         void flush();
 
-        bool empty() const { return _freeCommands.empty(); }
+        bool empty() const { return _small.empty() && _big.empty(); }
+
     private:
-#pragma warning(push)
-#pragma warning(disable: 4251)
-        /** The free command cache. */
-        std::vector< Command* >       _freeCommands;
-#pragma warning(pop)
+        /** The cache for small commands. */
+        CommandVector _small;
+
+        /** The cache for big commands. */
+        CommandVector _big;
+
+        CHECK_THREAD_DECLARE( _thread );
     };
 }
 }

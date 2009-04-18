@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -44,31 +44,31 @@ void ObjectDataIStream::reset()
 {
     DataIStream::reset();
 
-    delete _lastCommand;
+    if( _lastCommand )
+        _lastCommand->release();
     _lastCommand = 0;
 
     while( !_commands.empty( ))
     {
-        delete _commands.front();
+        _commands.front()->release();
         _commands.pop_front();
     }
 
     _version = Object::VERSION_INVALID;
 }
 
-void ObjectDataIStream::addDataPacket( const Command& command )
+void ObjectDataIStream::addDataPacket( Command& command )
 {
-    // Copy packet since it is sent to all instances
-    // OPT: Do not make copy for one instance or use ref counting?
-
-    Command* copy = new Command( command );
-    _commands.push_back( copy );
+    command.retain();
+    _commands.push_back( &command );
 }
 
 const Command* ObjectDataIStream::getNextCommand()
 {
-    delete _lastCommand;
+    if( _lastCommand )
+        _lastCommand->release();
     _lastCommand = 0;
+
     if( _commands.empty( ))
         return 0;
     

@@ -67,7 +67,8 @@ Config::~Config()
     EQASSERT( _canvases.empty( ));
     
     while( tryNextEvent( )) /* flush all pending events */ ;
-    _eventQueue.release( _lastEvent );
+    if( _lastEvent )
+        _lastEvent->release();
     _eventQueue.flush();
     _lastEvent = 0;
 
@@ -385,7 +386,8 @@ bool Config::exit()
     _requestHandler.waitRequest( packet.requestID, ret );
 
     while( tryNextEvent( )) /* flush all pending events */ ;
-    _eventQueue.release( _lastEvent );
+    if( _lastEvent )
+        _lastEvent->release();
     _eventQueue.flush();
     _lastEvent = 0;
     _running = false;
@@ -507,7 +509,8 @@ void Config::sendEvent( ConfigEvent& event )
 
 const ConfigEvent* Config::nextEvent()
 {
-    _eventQueue.release( _lastEvent );
+    if( _lastEvent )
+        _lastEvent->release();
     _lastEvent = _eventQueue.pop();
     return _lastEvent->getPacket<ConfigEvent>();
 }
@@ -518,7 +521,8 @@ const ConfigEvent* Config::tryNextEvent()
     if( !command )
         return 0;
 
-    _eventQueue.release( _lastEvent );
+    if( _lastEvent )
+        _lastEvent->release();
     _lastEvent = command;
     return command->getPacket<ConfigEvent>();
 }

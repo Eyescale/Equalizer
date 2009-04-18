@@ -21,6 +21,8 @@
 
 #include <eq/base/hash.h>
 #include <eq/base/refPtr.h>
+
+#include <list>
 #include <vector>
 
 namespace eq
@@ -31,6 +33,7 @@ namespace net
 class Node;
 class Session;
 class Object;
+class Command;
 class Connection;
 class ConnectionDescription;
 
@@ -45,6 +48,8 @@ typedef stde::hash_map< uint32_t, ObjectVector > ObjectVectorHash;
 typedef std::vector< ConnectionPtr >             ConnectionVector;
 typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptionVector;
 
+typedef std::list< Command* >   CommandList;
+typedef std::vector< Command* > CommandVector;
 }
 }
 

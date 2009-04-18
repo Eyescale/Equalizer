@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,7 @@
 #ifndef EQNET_COMMAND_H
 #define EQNET_COMMAND_H
 
-#include <eq/net/node.h>
+#include <eq/net/node.h> // NodePtr members
 
 #include <eq/base/base.h>
 #include <eq/base/refPtr.h>
@@ -42,12 +42,6 @@ namespace net
     class Command 
     {
     public:
-        Command();
-        Command( const Command& from ); // deep copy (of _packet)
-        ~Command();
-        
-        void swap( Command& rhs );
-
         Packet*       getPacket()              { return _packet; }
         const Packet* getPacket() const        { return _packet; }
 
@@ -64,23 +58,46 @@ namespace net
         Packet*       operator->()       { EQASSERT(_packet); return _packet; }
         const Packet* operator->() const { EQASSERT(_packet); return _packet; }
 
-        void allocate( NodePtr node, NodePtr localNode,
-                       const uint64_t packetSize );
-        void release();
+        /** @name Usage tracking. */
+        //*{
+        bool isFree() const { return ( _refCount==0 ); }
+        void retain()  { ++_refCount; }
+        void release() 
+            {
+                EQASSERT( _refCount != 0 );
+#ifdef NDEBUG
+                --_refCount;
+#else
+                if( --_refCount==0 )
+                {
+                    // Unref nodes in command to keep node ref counts easier for
+                    // debugging.  Release builds will unref the nodes at
+                    // receiver thread exit.
+                    _node = 0;
+                    _localNode = 0;
+                }
+#endif
+            }
+        //*}
+
         bool isValid() const { return ( _packet!=0 ); }
 
-        bool isDispatched() const { return _dispatched; }
-
     private:
+        Command();
+        ~Command();
+        void alloc( NodePtr node, NodePtr localNode, const uint64_t size );
+        friend class CommandCache;
+
         Command& operator = ( Command& rhs ); // disable assignment
+        Command( const Command& from );       // disable copy
 
         NodePtr  _node;
         NodePtr  _localNode;
         Packet*  _packet;
+        base::mtLong _refCount;
         uint64_t _packetAllocSize;
 
-        bool     _dispatched;
-        friend class CommandQueue; // sets _dispatched to true
+        void _free();
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& );

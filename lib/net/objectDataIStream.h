@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -40,7 +40,7 @@ namespace net
         ObjectDataIStream();
         virtual ~ObjectDataIStream();
 
-        void addDataPacket( const Command& command );
+        void addDataPacket( Command& command );
 
         void setVersion( const uint32_t version ) { _version = version; }
         virtual uint32_t getVersion() const       { return _version.get(); }

@@ -78,7 +78,6 @@ bool Dispatcher::dispatchCommand( Command& command )
                  << typeid(*this).name() << endl );
         return false;
     }
-    EQASSERT( !command.isDispatched( ));
 #endif
 
     CommandQueue* queue = _qTable[which];
@@ -113,7 +112,6 @@ CommandResult Dispatcher::invokeCommand( Command& command )
                 << typeid(*this).name() << endl;
         return COMMAND_ERROR;
     }
-    EQASSERT( command.isDispatched( ));
 #endif
     return _vTable[which]( command );
 }

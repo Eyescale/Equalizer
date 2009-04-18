@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -72,7 +72,8 @@ protected:
     virtual void sendHeader( const void* buffer, const uint64_t size )
         {
             HeaderPacket packet;
-            eq::net::Connection::send( _connections, packet, true /*isLocked*/ );
+            eq::net::Connection::send( _connections, packet, true/*isLocked*/ );
+            EQINFO << "Sent header" << endl;
 
             sendBuffer( buffer, size );
         }
@@ -92,7 +93,7 @@ protected:
                 sendBuffer( buffer, size );
 
             FooterPacket packet;
-            eq::net::Connection::send( _connections, packet, true /*isLocked*/ );
+            eq::net::Connection::send( _connections, packet, true/*isLocked*/ );
             EQINFO << "Sent footer" << endl;
         }
 };
@@ -122,6 +123,8 @@ protected:
             *buffer = packet->data;
             *size   = packet->dataSize;
             EQINFO << "Got buffer of " << *size << " bytes" << endl;
+
+            command->release();
             return true;
         }
 
@@ -142,7 +145,7 @@ public:
 protected:
     virtual void* run()
         {
-            DataOStream             stream;
+            DataOStream               stream;
             eq::net::ConnectionVector connections;
 
             connections.push_back( _connection );
@@ -171,16 +174,15 @@ private:
 int main( int argc, char **argv )
 {
     eq::net::init( argc, argv );
-
     eq::net::ConnectionPtr connection = new eq::net::PipeConnection;
 
     TEST( connection->connect( ));
     Sender sender( connection );
     TEST( sender.start( ));
 
-    DataIStream      stream;
-    eq::net::Command command;
-    bool             receiving = true;
+    DataIStream           stream;
+    eq::net::CommandCache commandCache;
+    bool                  receiving = true;
 
     while( receiving )
     {
@@ -189,7 +191,7 @@ int main( int argc, char **argv )
         TEST( gotSize );
         TEST( size );
 
-        command.allocate( 0, 0, size );
+        eq::net::Command& command = commandCache.alloc( 0, 0, size );
         size -= sizeof( size );
 
         char*      ptr     = reinterpret_cast< char* >( command.getPacket( )) +
@@ -202,12 +204,15 @@ int main( int argc, char **argv )
         switch( command->command )
         {
             case 0: // header, nop
+                TEST( command.isFree( ));
                 break;
             case 2:
                 stream.addDataCommand( command );
+                TEST( !command.isFree( ));
                 break;
             case 4:
                 receiving = false;
+                TEST( command.isFree( ));
                 break;
             default:
                 TEST( false );
@@ -216,7 +221,7 @@ int main( int argc, char **argv )
 
     int foo;
     stream >> foo;
-    TEST( foo == 42 );
+    TESTINFO( foo == 42, foo );
 
     float fFoo;
     stream >> fFoo;

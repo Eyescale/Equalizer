@@ -311,7 +311,7 @@ void Client::processCommand()
             EQERROR << "Error handling command packet" << endl;
             abort();
     }
-    _nodeThreadQueue->release( command );
+    command->release();
 }
 
 bool Client::dispatchCommand( net::Command& command )

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,8 +18,6 @@
 
 #ifndef EQNET_COMMANDQUEUE_H
 #define EQNET_COMMANDQUEUE_H
-
-#include <eq/net/commandCache.h>
 
 #include <eq/base/lock.h>
 #include <eq/base/mtQueue.h>
@@ -57,7 +55,7 @@ namespace net
         /** 
          * Pop a command from the queue.
          *
-         * The returned packet has to be released after usage.
+         * The returned command has to be released after usage.
          * 
          * @return the next command in the queue.
          */
@@ -66,14 +64,11 @@ namespace net
         /** 
          * Try to pop a command from the queue.
          *
-         * The returned packet has to be released after usage.
+         * The returned command has to be released after usage.
          * 
          * @return the next command in the queue, or 0 if no command is queued.
          */
         virtual Command* tryPop();
-
-        /** Release a command obtained by pop() or tryPop(). */
-        void release( Command* command );
 
         /** 
          * Peek the command at the end of the queue.
@@ -98,10 +93,6 @@ namespace net
     private:
         /** Thread-safe command queue. */
         base::MTQueue< Command* >  _commands;
-        
-        /** The free command cache. */
-        CommandCache              _commandCache;
-        base::Lock                _commandCacheLock;
     };
 }
 }

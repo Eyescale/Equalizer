@@ -54,7 +54,6 @@ Node::Node()
         , _autoLaunch( false )
         , _id( true )
         , _state( STATE_STOPPED )
-        , _receivedCommand( 0 )
         , _launchID( EQ_ID_INVALID )
         , _programName( Global::getProgramName( ))
         , _workDir( Global::getWorkDir( ))
@@ -133,10 +132,6 @@ Node::~Node()
 #endif
 
     EQASSERT( _sessions.empty( ));
-
-    EQASSERT( _receivedCommand == 0 );
-    delete _receivedCommand;
-    _receivedCommand = 0;
 
     EQASSERT( !_commandThread->isRunning( ));
     delete _commandThread;
@@ -654,8 +649,6 @@ void* Node::_runReceiverThread()
 {
     EQINFO << "Entered receiver thread of " << typeid( *this ).name() << endl;
 
-    _receivedCommand = new Command;
-
     int nErrors = 0;
     while( _state == STATE_LISTENING )
     {
@@ -720,16 +713,14 @@ void* Node::_runReceiverThread()
         EQWARN << _pendingCommands.size() 
                << " commands pending while leaving command thread" << endl;
 
-    for( list<Command*>::const_iterator i = _pendingCommands.begin();
+    for( CommandList::const_iterator i = _pendingCommands.begin();
          i != _pendingCommands.end(); ++i )
-            
-        _commandCache.release( *i );
-
+    {
+        Command* command = *i;
+        command->release();
+    }
     _pendingCommands.clear();
     _commandCache.flush();
-
-    delete _receivedCommand;
-    _receivedCommand = 0;
 
     EQINFO << "Leaving receiver thread of " << typeid( *this ).name() << endl;
     return EXIT_SUCCESS;
@@ -795,37 +786,30 @@ bool Node::_handleData()
 
     EQASSERT( size );
     EQASSERT( size > sizeof( size ));
-    _receivedCommand->allocate( node, this, size );
+    Command& command = _commandCache.alloc( node, this, size );
     size -= sizeof( size );
 
-    char* ptr = reinterpret_cast< char* >(_receivedCommand->getPacket()) + 
-                    sizeof( size );
+    char* ptr = reinterpret_cast< char* >( command.getPacket()) + sizeof(size);
     const bool gotData = connection->recv( ptr, size );
 
     EQASSERT( gotData );
-    EQASSERT( _receivedCommand->isValid( ));
+    EQASSERT( command.isValid( ));
 
     if( !gotData )
     {
-        EQERROR << "Incomplete packet read: " << *_receivedCommand << endl;
+        EQERROR << "Incomplete packet read: " << command << std::endl;
         return false;
     }
 
     // This is one of the initial packets during the connection handshake, at
     // this point the remote node is not yet available.
     EQASSERTINFO( node.isValid() ||
-                  (*_receivedCommand)->datatype == DATATYPE_EQNET_NODE &&
-                  ( (*_receivedCommand)->command == CMD_NODE_CONNECT  || 
-                    (*_receivedCommand)->command == CMD_NODE_CONNECT_REPLY),
-                  *_receivedCommand << " connection " << connection );
+                  command->datatype == DATATYPE_EQNET_NODE &&
+                  ( command->command == CMD_NODE_CONNECT  || 
+                    command->command == CMD_NODE_CONNECT_REPLY),
+                  command << " connection " << connection );
 
-    _dispatchCommand( *_receivedCommand );
-
-#ifndef NDEBUG
-    // Unref nodes in command to keep node ref counts easier for debugging.
-    // Release builds will unref the nodes at receiver thread exit.
-    _receivedCommand->allocate( 0, 0, 1 );
-#endif
+    _dispatchCommand( command );
     return true;
 }
 
@@ -839,8 +823,8 @@ void Node::_dispatchCommand( Command& command )
   
     if( !dispatched )
     {
-        Command* dispCommand = _commandCache.alloc( command );
-        _pendingCommands.push_back( dispCommand );
+        command.retain();
+        _pendingCommands.push_back( &command );
     }
 }
 
@@ -883,16 +867,16 @@ void Node::_redispatchCommands()
     {
         changes = false;
 
-        for( list<Command*>::iterator i = _pendingCommands.begin();
+        for( CommandList::iterator i = _pendingCommands.begin();
              i != _pendingCommands.end(); ++i )
         {
-            Command* command = (*i);
+            Command* command = *i;
             EQASSERT( command->isValid( ));
 
             if( dispatchCommand( *command ))
             {
                 _pendingCommands.erase( i );
-                _commandCache.release( command );
+                command->release();
                 changes = true;
                 break;
             }
@@ -915,7 +899,7 @@ void* Node::_runCommandThread()
 
     while( _state == STATE_LISTENING )
     {
-        Command*            command = _commandThreadQueue.pop();
+        Command* command = _commandThreadQueue.pop();
         EQASSERT( command->isValid( ));
 
         const CommandResult result  = invokeCommand( *command );
@@ -933,7 +917,7 @@ void* Node::_runCommandThread()
                 EQUNIMPLEMENTED;
         }
 
-        _commandThreadQueue.release( command );
+        command->release();
     }
  
     _commandThreadQueue.flush();
@@ -998,7 +982,8 @@ CommandResult Node::_cmdRegisterSession( Command& command )
     Session* session = static_cast< Session* >( 
         _requestHandler.getRequestData( packet->requestID ));
 
-    EQASSERT( command.getNode() == this );
+    EQASSERTINFO( command.getNode() == this, 
+                  command.getNode() << " != " << this );
     EQASSERT( session );
 
     const uint32_t sessionID = _generateSessionID();

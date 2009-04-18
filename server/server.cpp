@@ -216,7 +216,7 @@ void Server::_handleCommands()
                 abort();
         }
 
-        _serverThreadQueue.release( command );
+        command->release();
     }
     _serverThreadQueue.flush();
 }

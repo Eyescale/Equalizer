@@ -291,7 +291,7 @@ void* Pipe::_runThread()
                 EQERROR << "Unknown command result" << endl;
                 abort();
         }
-        _pipeThreadQueue->release( command );
+        command->release();
     }
 
     EQUNREACHABLE; // since we are exited from _cmdConfigExit
@@ -717,7 +717,7 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
         EQASSERT( _thread );
 
         // cleanup
-        _pipeThreadQueue->release( &command );
+        command.release();
         _pipeThreadQueue->flush();
         
         EQINFO << "Leaving pipe thread" << endl;

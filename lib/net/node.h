@@ -20,6 +20,7 @@
 #define EQNET_NODE_H
 
 #include <eq/net/dispatcher.h>               // base class
+#include <eq/net/commandCache.h>             // member
 #include <eq/net/commandQueue.h>             // member
 #include <eq/net/connectionSet.h>            // member
 #include <eq/net/nodeID.h>                   // member
@@ -541,9 +542,6 @@ namespace net
         /** Needed for thread-safety during nodeID-based connect() */
         base::Lock _connectMutex;
 
-        /** The cache to store the last received command for reuse */
-        Command* _receivedCommand;
-
         /** The request id for the async launch operation. */
         uint32_t _launchID;
 
@@ -551,8 +549,10 @@ namespace net
         base::Clock _launchTimeout;
 
         /** Commands re-scheduled for dispatch. */
-        std::list< Command* > _pendingCommands;
-        CommandCache          _commandCache;
+        CommandList  _pendingCommands;
+
+        /** The command 'allocator' */
+        CommandCache _commandCache;
 
         /** The list of descriptions on how this node is reachable. */
         ConnectionDescriptionVector _connectionDescriptions;
