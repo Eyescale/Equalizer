@@ -7,7 +7,7 @@
 
 //  Disclaimer: Not a Boost library.
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    Modifications to use within eq::base namespace and naming conventions.
    Original at http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
 */
