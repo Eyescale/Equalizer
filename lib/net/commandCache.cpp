@@ -25,17 +25,29 @@
 using namespace std;
 
 //#define PROFILE
+// 31300 hits, 35 misses, 297640 lookups, 126976b allocated in 31 packets
+// 31300 hits, 35 misses, 49228 lookups, 135168b allocated in 34 packets
 
 namespace eq
 {
 namespace net
 {
 CommandCache::CommandCache()
-{}
+        : _smallPos( 0 )
+        , _bigPos( 0 )
+{
+    _small.push_back( new Command );
+    _big.push_back( new Command );
+}
 
 CommandCache::~CommandCache()
 {
     flush();
+    EQASSERT( _small.size() == 1 );
+    EQASSERT( _big.size() == 1 );
+
+    delete _small.front();
+    delete _big.front();
 }
 
 void CommandCache::flush()
@@ -43,10 +55,15 @@ void CommandCache::flush()
     for( CommandVector::const_iterator i=_small.begin(); i!=_small.end(); ++i )
         delete *i;
     _small.clear();
+    _smallPos = 0;
 
     for( CommandVector::const_iterator i = _big.begin(); i != _big.end(); ++i )
         delete *i;
     _big.clear();
+    _bigPos = 0;
+
+    _small.push_back( new Command );
+    _big.push_back( new Command );
 }
 
 #ifdef PROFILE
@@ -63,15 +80,24 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
 {
     CHECK_THREAD( _thread );
 
-    CommandVector& cache = (size > Packet::minSize) ? _big : _small;
-    for( CommandVector::const_iterator i = cache.begin(); 
-         i != cache.end(); ++i )
+    const bool isBig = (size > Packet::minSize);
+    CommandVector& cache = isBig ? _big : _small;
+
+    EQASSERT( !cache.empty( ));
+
+    size_t& i = isBig ? _bigPos : _smallPos;
+    const size_t cacheSize = cache.size();
+        
+    i = i % cacheSize;
+    const size_t end = i + cacheSize;
+    
+    for( ++i; i <= end; ++i )
     {
 #ifdef PROFILE
         ++_lookups;
 #endif
-
-        Command* command = *i;
+        
+        Command* command = cache[ i%cacheSize ];
         if( command->isFree( ))
         {
 #ifdef PROFILE
@@ -85,10 +111,10 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
                 {
                     mem += (*j)->_packetAllocSize;
                 }
-
+                
                 EQINFO << _hits << " hits, " << _misses << " misses, "
                        << _lookups << " lookups, " << mem << "b allocated in "
-                       << _small.size() + _big.size() << " packets" <<std::endl;
+                       << _small.size() +_big.size() << " packets" << std::endl;
             }
 #endif
             command->alloc( node, localNode, size );

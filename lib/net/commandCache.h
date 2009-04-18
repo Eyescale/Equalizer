@@ -50,14 +50,16 @@ namespace net
         /** Flush all allocated commands. */
         void flush();
 
-        bool empty() const { return _small.empty() && _big.empty(); }
-
     private:
         /** The cache for small commands. */
         CommandVector _small;
+        /** Last lookup positiong for small commands. */
+        size_t _smallPos;
 
         /** The cache for big commands. */
         CommandVector _big;
+        /** Last lookup positiong for big commands. */
+        size_t _bigPos;
 
         CHECK_THREAD_DECLARE( _thread );
     };

@@ -113,7 +113,6 @@ Node::~Node()
     EQASSERT( _connectionSet.empty( ));
     EQASSERT( _connectionNodes.empty( ));
     EQASSERT( _pendingCommands.empty( ));
-    EQASSERT( _commandCache.empty( ));
     EQASSERT( _nodes.empty( ));
     EQASSERT( _requestHandler.empty( ));
 
