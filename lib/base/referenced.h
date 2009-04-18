@@ -83,7 +83,7 @@ namespace base
                 EQASSERT( _refCount == 0 );
             }
 
-        Atomic< long > _refCount;
+        mtLong _refCount;
 #ifndef NDEBUG
         bool _hasBeenDeleted;
 #endif

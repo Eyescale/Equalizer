@@ -304,8 +304,9 @@ private:
     T        _value;
     SpinLock _lock;
 };
-
 #endif
+
+typedef Atomic< long > mtLong;
 }
 
 }
