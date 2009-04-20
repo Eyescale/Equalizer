@@ -860,16 +860,15 @@ void Compound::_updateInheritPVP()
     const PixelViewport oldPVP( _inherit.pvp );
 
     const Channel* channel = _inherit.channel;
-    EQASSERT( channel == getChannel( ));
-
     _inherit.pvp = channel->getPixelViewport( );
 
-    if( !channel->getView( ))
+    if( !channel->getView() || !_inherit.pvp.isValid( ))
     {
         EQASSERT( channel->getOverdraw() == vmml::Vector4i::ZERO );
         return;
     }
 
+    EQASSERT( channel == getChannel( ));
     const vmml::Vector4i& overdraw = channel->getOverdraw();
     _inherit.pvp.w += overdraw.x + overdraw.z;
     _inherit.pvp.h += overdraw.y + overdraw.w;
