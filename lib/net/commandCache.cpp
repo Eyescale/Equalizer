@@ -102,19 +102,31 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
         {
 #ifdef PROFILE
             const long hits = ++_hits;
-            if( (hits%100) == 0 )
+            if( (hits%1000) == 0 )
             {
-                uint64_t mem = _small.size() * Packet::minSize;
-                
+                uint64_t mem( _small.size() * Packet::minSize );
+                size_t free( 0 );
+
+                for( CommandVector::const_iterator j = _small.begin(); 
+                     j != _small.end(); ++j )
+                {
+                    const Command* cmd = *j;
+                    if( cmd->isFree( ))
+                        ++free;
+                }
                 for( CommandVector::const_iterator j = _big.begin(); 
                      j != _big.end(); ++j )
                 {
-                    mem += (*j)->_packetAllocSize;
+                    const Command* cmd = *j;
+                    mem += cmd->_packetAllocSize;
+                    if( cmd->isFree( ))
+                        ++free;
                 }
                 
                 EQINFO << _hits << " hits, " << _misses << " misses, "
                        << _lookups << " lookups, " << mem << "b allocated in "
-                       << _small.size() +_big.size() << " packets" << std::endl;
+                       << _small.size() +_big.size() << " packets (" << free
+                       << " free)" << std::endl;
             }
 #endif
             command->alloc( node, localNode, size );
@@ -125,9 +137,12 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
 #ifdef PROFILE
     ++_misses;
 #endif
+    
+    const size_t add = (cacheSize >> 3) + 1;
+    for( size_t j = 0; j < add; ++j )
+        cache.push_back( new Command );
 
-    Command* command = new Command;
-    cache.push_back( command );
+    Command* command = cache.back();
     command->alloc( node, localNode, size );
     return *command;
 }

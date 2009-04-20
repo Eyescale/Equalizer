@@ -91,13 +91,14 @@ namespace net
         Command& operator = ( Command& rhs ); // disable assignment
         Command( const Command& from );       // disable copy
 
+        void _free();
+
         NodePtr  _node;
         NodePtr  _localNode;
         Packet*  _packet;
         base::mtLong _refCount;
         uint64_t _packetAllocSize;
 
-        void _free();
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& );
