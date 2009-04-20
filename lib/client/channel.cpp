@@ -396,6 +396,7 @@ void Channel::frameReadback( const uint32_t frameID )
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         Frame* frame = *i;
+        frame->setColorType( _window->getColorType( ));
         frame->startReadback( glObjects );
     }
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
