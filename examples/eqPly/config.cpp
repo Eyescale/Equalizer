@@ -553,6 +553,48 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _setHeadMatrix( headMatrix );
             return true;
         }
+        case '.':
+        {
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.preRotateX( .1f );
+            _setHeadMatrix( headMatrix );
+            return true;
+        }
+        case ',':
+        {
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.preRotateX( -.1f );
+            _setHeadMatrix( headMatrix );
+            return true;
+        }
+        case ';':
+        {
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.preRotateY( .1f );
+            _setHeadMatrix( headMatrix );
+            return true;
+        }
+        case '\'':
+        {
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.preRotateY( -.1f );
+            _setHeadMatrix( headMatrix );
+            return true;
+        }
+        case '[':
+        {
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.preRotateZ( -.1f );
+            _setHeadMatrix( headMatrix );
+            return true;
+        }
+        case ']':
+        {
+            vmml::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.preRotateZ( .1f );
+            _setHeadMatrix( headMatrix );
+            return true;
+        }
 
         default:
             return false;

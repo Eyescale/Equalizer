@@ -1,0 +1,56 @@
+# single pipe stereo config showing normal and HMD head-tracking
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .05 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            attributes{ stereo_mode ANAGLYPH }
+            eye [ LEFT RIGHT ]
+
+            compound
+            {
+                channel "channel1"
+                wall
+                {
+                    bottom_left  [ -.32 -.20 -.75 ]
+                    bottom_right [  .32 -.20 -.75 ]
+                    top_left     [ -.32  .20 -.75 ]
+                }
+            }
+            compound
+            {
+                channel "channel2"
+                wall
+                {
+                    bottom_left  [ -.32 -.20 -.75 ]
+                    bottom_right [  .32 -.20 -.75 ]
+                    top_left     [ -.32  .20 -.75 ]
+                    type         HMD
+                }
+            }
+        }
+    }    
+}
