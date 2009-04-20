@@ -62,6 +62,48 @@ void Wall::resizeVertical( const float ratio )
     topLeft     += delta;
 }
 
+void Wall::resizeLeft( const float ratio )
+{
+    if( ratio == 1.f || ratio < 0.f )
+        return;
+
+    const vmml::Vector3f u   = bottomRight - bottomLeft;
+    const vmml::Vector3f delta = u * (ratio - 1.f);
+    bottomLeft  -= delta;
+    topLeft     -= delta;
+}
+
+void Wall::resizeRight( const float ratio )
+{
+    if( ratio == 1.f || ratio < 0.f )
+        return;
+
+    const vmml::Vector3f u   = bottomRight - bottomLeft;
+    const vmml::Vector3f delta = u * (ratio - 1.f);
+    bottomRight += delta;
+}
+
+void Wall::resizeTop( const float ratio )
+{
+    if( ratio == 1.f || ratio < 0.f )
+        return;
+
+    const vmml::Vector3f v = topLeft - bottomLeft;
+    const vmml::Vector3f delta = v * (ratio - 1.f);
+    topLeft     += delta;
+}
+
+void Wall::resizeBottom( const float ratio )
+{
+    if( ratio == 1.f || ratio < 0.f )
+        return;
+
+    const vmml::Vector3f v = topLeft - bottomLeft;
+    const vmml::Vector3f delta = v * (ratio - 1.f);
+    bottomLeft  -= delta;
+    bottomRight -= delta;
+}
+
 void Wall::apply( const Viewport& viewport)
 {
     vmml::Vector3f u = bottomRight - bottomLeft;

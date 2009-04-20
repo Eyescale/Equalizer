@@ -121,7 +121,7 @@ namespace eq
                 h = EQ_MIN( sEy, dEy ) - y;
             }
 
-        /** Compute the coverage of another Viewport on this Viewport. */
+        /** Compute the coverage of another Viewport on this viewport. */
         Viewport getCoverage( const Viewport& with ) const
             {
                 Viewport coverage( with );

@@ -235,6 +235,9 @@ namespace eq
         const PixelViewport& getNativePixelViewPort() const
             { return _nativeContext.pvp; }
 
+        /** @warning  Undocumented - may not be supported in the future */
+        const vmml::Vector4i& getOverdraw() const;
+
         /** 
          * get the FBO used as an alternate frame buffer.
          */

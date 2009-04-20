@@ -48,12 +48,40 @@ namespace eq
         void resizeHorizontal( const float ratio );
 
         /** 
-         * Resize the wall vertical.
+         * Resize the wall vertically.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
          */
         void resizeVertical( const float ratio );
         
+        /** 
+         * Resize the wall on the left side.
+         * 
+         * @param ratio the amount by which the wall is grown or shrunk.
+         */
+        void resizeLeft( const float ratio );
+
+        /** 
+         * Resize the wall on the right side.
+         * 
+         * @param ratio the amount by which the wall is grown or shrunk.
+         */
+        void resizeRight( const float ratio );
+
+        /** 
+         * Resize the wall on the top side.
+         * 
+         * @param ratio the amount by which the wall is grown or shrunk.
+         */
+        void resizeTop( const float ratio );
+
+        /** 
+         * Resize the wall on the bottom side.
+         * 
+         * @param ratio the amount by which the wall is grown or shrunk.
+         */
+        void resizeBottom( const float ratio );
+
         void apply( const Viewport& viewport);
 
         /** Set the wall parameters from a projection description. */

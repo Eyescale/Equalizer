@@ -547,6 +547,11 @@ vmml::Frustumf Channel::getScreenFrustum() const
                            -1.f, 1.f );
 }
 
+const vmml::Vector4i& Channel::getOverdraw() const
+{
+    return _currentContext->overdraw;
+}
+
 FrameBufferObject* Channel::getFrameBufferObject()
 {
     return _fbo;
@@ -1044,7 +1049,8 @@ net::CommandResult Channel::_cmdFrameStart( net::Command& command )
 
     //_grabFrame( packet->frameNumber ); single-threaded
     _nativeContext.view.version = packet->viewVersion;
-    
+    _nativeContext.overdraw     = packet->overdraw;
+
     bindFrameBuffer();
     frameStart( packet->frameID, packet->frameNumber );
 

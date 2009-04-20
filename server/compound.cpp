@@ -442,7 +442,7 @@ void Compound::updateFrustum()
     if( !isDestination( )) // only set view/segment frusta on destination
         return;
 
-    const Channel* channel = getChannel();
+    Channel* channel = getChannel();
     if( !channel )
         return;
 
@@ -464,20 +464,41 @@ void Compound::updateFrustum()
 
         // overdraw
         const vmml::Vector2i& overdraw = view->getOverdraw();
-        if( overdraw.x != 0 )
+        vmml::Vector4i channelOverdraw( vmml::Vector4i::ZERO );
+
+        if( overdraw.x && viewVP.x < segmentVP.x )
         {
             const PixelViewport& pvp = channel->getPixelViewport();
             const float ratio = static_cast< float >( pvp.w + overdraw.x ) /
                                 static_cast< float >( pvp.w );
-            wall.resizeHorizontal( ratio );
+            wall.resizeLeft( ratio );
+            channelOverdraw.x = overdraw.x;
         }
-        if( overdraw.y != 0 )
+        if( overdraw.x && viewVP.getXEnd() > segmentVP.getXEnd( ))
+        {
+            const PixelViewport& pvp = channel->getPixelViewport();
+            const float ratio = static_cast< float >( pvp.w + overdraw.x ) /
+                                static_cast< float >( pvp.w );
+            wall.resizeRight( ratio );
+            channelOverdraw.z = overdraw.x;
+        }
+        if( overdraw.y && viewVP.y < segmentVP.y )
         {
             const PixelViewport& pvp = channel->getPixelViewport();
             const float ratio = static_cast< float >( pvp.h + overdraw.y ) /
                                 static_cast< float >( pvp.h );
-            wall.resizeVertical( ratio );
+            wall.resizeBottom( ratio );
+            channelOverdraw.y = overdraw.y;
         }
+        if( overdraw.y && viewVP.getYEnd() > segmentVP.getYEnd( ))
+        {
+            const PixelViewport& pvp = channel->getPixelViewport();
+            const float ratio = static_cast< float >( pvp.h + overdraw.y ) /
+                                static_cast< float >( pvp.h );
+            wall.resizeTop( ratio );
+            channelOverdraw.w = overdraw.y;
+        }
+        channel->setOverdraw( channelOverdraw );
 
         switch( view->getCurrentType( ))
         {
@@ -839,15 +860,19 @@ void Compound::_updateInheritPVP()
     const PixelViewport oldPVP( _inherit.pvp );
 
     const Channel* channel = _inherit.channel;
+    EQASSERT( channel == getChannel( ));
+
     _inherit.pvp = channel->getPixelViewport( );
 
-    const View* view = channel->getView();
-    if( !view )
+    if( !channel->getView( ))
+    {
+        EQASSERT( channel->getOverdraw() == vmml::Vector4i::ZERO );
         return;
+    }
 
-    const vmml::Vector2i& overdraw = view->getOverdraw();
-    _inherit.pvp.w += overdraw.x;
-    _inherit.pvp.h += overdraw.y;
+    const vmml::Vector4i& overdraw = channel->getOverdraw();
+    _inherit.pvp.w += overdraw.x + overdraw.z;
+    _inherit.pvp.h += overdraw.y + overdraw.w;
 
     if( oldPVP != _inherit.pvp ) // channel PVP changed
         updateFrustum();

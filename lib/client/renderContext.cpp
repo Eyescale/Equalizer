@@ -32,6 +32,7 @@ RenderContext::RenderContext()
         , headTransform( vmml::Matrix4f::IDENTITY )
         , offset( vmml::Vector2i::ZERO )
         , eye( EYE_CYCLOP )
+        , overdraw( vmml::Vector4i::ZERO )
 {
 }
 

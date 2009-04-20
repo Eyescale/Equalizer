@@ -63,6 +63,8 @@ void Channel::_construct()
     _lastDrawCompound = 0;
     _near             = .1f;
     _far              = 10.f;
+    _overdraw         = vmml::Vector4i::ZERO;
+
     _drawable         = 0;
     _tasks            = eq::TASK_NONE;
     EQINFO << "New channel @" << (void*)this << endl;
@@ -463,6 +465,7 @@ bool Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
     startPacket.viewVersion = _view ? _view->getVersion() : EQ_ID_INVALID;
+    startPacket .overdraw   = _overdraw;
 
     send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK channel " << _name << " start frame  " 

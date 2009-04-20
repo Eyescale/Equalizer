@@ -866,6 +866,7 @@ namespace eq
         uint32_t frameID;
         uint32_t frameNumber;
         uint32_t viewVersion;
+        vmml::Vector4i overdraw;
     };
 
     struct ChannelFrameFinishPacket : public net::ObjectPacket

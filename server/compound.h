@@ -495,8 +495,8 @@ namespace server
             uint32_t          tasks;
             uint32_t          period;
             uint32_t          phase;
-            float             maxFPS;
             int32_t           iAttributes[IATTR_ALL];
+            float             maxFPS;
             bool              active;
 
             union // placeholder for binary-compatible changes

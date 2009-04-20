@@ -59,6 +59,8 @@ namespace eq
         Eye            eye;            //<! current eye pass
         net::ObjectVersion view;       //<! destination view id and version
 
+        vmml::Vector4i overdraw;
+
         union // placeholder for binary-compatible changes
         {
             char dummy[16];
