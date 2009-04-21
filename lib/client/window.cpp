@@ -410,6 +410,9 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
 
 void Window::setOSWindow( OSWindow* window )
 {
+    if( _osWindow )
+        _osWindow->exitGLEW();
+
     _osWindow = window;
 
     if( !window )
@@ -417,6 +420,7 @@ void Window::setOSWindow( OSWindow* window )
 
     // Initialize context-specific data
     makeCurrent();
+    _osWindow->initGLEW();
     _queryDrawableConfig();
     _setupObjectManager();
 }

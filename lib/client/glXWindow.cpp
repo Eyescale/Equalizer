@@ -72,7 +72,7 @@ bool GLXWindow::configInit( )
     }
 
     makeCurrent();
-    _initGlew();
+    initGLEW();
 
     const uint32_t swapGroup   = _window->getNVSwapGroup();
     const uint32_t swapBarrier = _window->getNVSwapBarrier();
@@ -586,6 +586,7 @@ void GLXWindow::configExit( )
         return;
         
     configExitFBO();
+    exitGLEW();
     
     if( _window->getNVSwapGroup() || _window->getNVSwapBarrier() )
         joinNVSwapBarrier( 0, 0 ); // unbind

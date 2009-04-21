@@ -112,6 +112,12 @@ namespace eq
         WGLEWContext* wglewGetContext();
         //*}
      
+        /** Initialize the GLEW context for this window. . */
+        void initGLEW(); 
+        
+        /** De-initialize the GLEW context. */
+        void exitGLEW() { _glewInitialized = false; }
+
         /** 
          * Get the GLEW context for this window.
          * 
@@ -128,12 +134,9 @@ namespace eq
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
 
-      protected:
+    protected:
         /** The parent eq::Window. */
         Window* const _window;
-        
-        /** Initialization glew. */
-        void _initGlew(); 
         
     private:
         /** Extended OpenGL function entries when window has a context. */

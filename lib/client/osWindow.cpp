@@ -89,8 +89,11 @@ WGLEWContext* OSWindow::wglewGetContext()
     return _window->wglewGetContext();
 }
 
-void OSWindow::_initGlew()
+void OSWindow::initGLEW()
 {
+    if( _glewInitialized )
+        return;
+
     const GLenum result = glewInit();
     if( result != GLEW_OK )
         _window->setErrorMessage( "GLEW initialization failed: " + result );

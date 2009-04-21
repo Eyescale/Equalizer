@@ -66,6 +66,7 @@ void AGLWindow::configExit( )
         aglDestroyPBuffer( pbuffer );
 
     configExitFBO();
+    exitGLEW();
     
     AGLContext context = getAGLContext();
     if( context )
@@ -132,7 +133,7 @@ bool AGLWindow::configInit( )
         return false;
 
     makeCurrent();
-    _initGlew();
+    initGLEW();
 
     if( _window->getNVSwapGroup() || _window->getNVSwapBarrier( ))
         EQWARN << "NV_swap_barrier not supported on AGL" << std::endl;

@@ -51,13 +51,16 @@ WGLWindow::~WGLWindow( )
 
 void WGLWindow::configExit( )
 {
+    leaveNVSwapBarrier();
+    configExitFBO();
+    exitGLEW();
+    
     wglMakeCurrent( 0, 0 );
 
     HGLRC context        = getWGLContext();
     HWND  hWnd           = getWGLWindowHandle();
     HPBUFFERARB hPBuffer = getWGLPBufferHandle();
 
-    leaveNVSwapBarrier();
     exitWGLAffinityDC();
     setWGLDC( 0, WGL_DC_NONE );
     setWGLContext( 0 );
@@ -252,7 +255,7 @@ bool WGLWindow::configInit()
 
     setWGLContext( context );
     makeCurrent();
-    _initGlew();
+    initGLEW();
 
     if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
     {
