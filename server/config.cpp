@@ -1125,7 +1125,7 @@ bool Config::_startFrame( const uint32_t frameID )
         return true;
     EQASSERT( _state == STATE_RUNNING );
 
-    if( !_appNode->isActive( )) // release appNode local sync
+    if( !_appNode || !_appNode->isActive( )) // release appNode local sync
     {
         ConfigReleaseFrameLocalPacket packet;
         packet.frameNumber = _currentFrame;
