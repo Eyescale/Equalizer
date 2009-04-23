@@ -707,8 +707,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
     }
 
-    const uint32_t depth = getDepth( buffer );
-    EQASSERT( depth == RLE_DEPTH )     // may change with RGB format
+    const uint32_t depth = RLE_DEPTH;
+    EQASSERT( getDepth( buffer ) == RLE_DEPTH ) // may change with RGB format 
 
     Pixels& outPixels = _getPixels( buffer );
 	EQASSERT( size > 0 );
