@@ -2,9 +2,8 @@
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -29,8 +28,8 @@ namespace net
     {
         LOG_OBJECTS = base::LOG_CUSTOM << 0,  // 16
         LOG_BARRIER = base::LOG_CUSTOM << 1,  // 32
-        LOG_WIRE    = base::LOG_CUSTOM << 2,  // 64
-        LOG_NETPERF = base::LOG_CUSTOM << 3,  // 128
+        LOG_FILL1   = base::LOG_CUSTOM << 2,  // 64
+        LOG_FILL2   = base::LOG_CUSTOM << 3,  // 128
         LOG_CUSTOM  = base::LOG_CUSTOM << 4   // 256
     };
 }

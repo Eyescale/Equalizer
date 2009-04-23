@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -16,19 +15,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef WIN32
+#ifdef WIN32
+# error not used on Win32 builds
+#endif
+
 #include "fdConnection.h"
 #include "log.h"
 
 #include <eq/base/base.h>
-#include <errno.h>
 
-#ifndef WIN32
-#  include <poll.h>
-#endif
+#include <errno.h>
+#include <poll.h>
 
 using namespace eq::base;
-using namespace std;
 
 namespace eq
 {
@@ -39,16 +38,12 @@ FDConnection::FDConnection()
           _writeFD( 0 )
 {}
 
-FDConnection::FDConnection( const FDConnection& conn )
-        : Connection( conn ),
-          _readFD( conn._readFD ),
-          _writeFD( conn._writeFD )
-{}
-
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
-int64_t FDConnection::read( void* buffer, const uint64_t bytes )
+void FDConnection::readNB( void* buffer, const uint64_t bytes ) { /* NOP */ }
+
+int64_t FDConnection::readSync( void* buffer, const uint64_t bytes )
 {
     if( _readFD < 1 )
         return -1;
@@ -57,7 +52,7 @@ int64_t FDConnection::read( void* buffer, const uint64_t bytes )
 
     if( bytesRead == 0 ) // EOF
     {
-        EQINFO << "Got EOF, closing connection" << endl;
+        EQINFO << "Got EOF, closing connection" << std::endl;
         close();
         return -1;
     }
@@ -67,8 +62,8 @@ int64_t FDConnection::read( void* buffer, const uint64_t bytes )
         if( errno == EINTR ) // if interrupted, try again
             return 0;
 
-        EQWARN << "Error during read: " << strerror( errno ) << ", " << bytes
-               << " bytes on fd " << _readFD << endl;
+        EQWARN << "Error during read: " << strerror( errno ) << ", " 
+               << bytes << "b on fd " << _readFD << std::endl;
         return -1;
     }
 
@@ -90,7 +85,7 @@ int64_t FDConnection::write( const void* buffer, const uint64_t bytes ) const
         if( errno == EINTR ) // if interrupted, try again
             return 0;
 
-        EQWARN << "Error during write: " << strerror( errno ) << endl;
+        EQWARN << "Error during write: " << strerror( errno ) << std::endl;
         return -1;
     }
 
@@ -101,7 +96,7 @@ bool FDConnection::hasData() const
 {
     pollfd fd;
     fd.events  = POLLIN;
-    fd.fd      = getReadNotifier();
+    fd.fd      = getNotifier();
     EQASSERT( fd.fd > 0 );
 
     const int nReady = poll( &fd, 1, 0 );
@@ -110,4 +105,3 @@ bool FDConnection::hasData() const
 
 }
 }
-#endif // WIN32

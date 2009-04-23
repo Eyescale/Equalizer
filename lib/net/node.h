@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -595,7 +594,8 @@ namespace net
         /** true if the send token can be granted, false otherwise. */
         bool _hasSendToken;
 
-        bool _listenToSelf();
+        bool _connectSelf();
+        void _removeConnection( ConnectionPtr connection );
         void _cleanup();
 
         void _dispatchCommand( Command& command );
@@ -608,8 +608,7 @@ namespace net
         * @return <code>true</code> if the node was launched,
         *         <code>false</code> otherwise.
         */
-        bool _launch( NodePtr node, 
-            ConnectionDescriptionPtr description );
+        bool _launch( NodePtr node, ConnectionDescriptionPtr description );
 
         /** 
         * Composes the launch command by expanding the variables in the
@@ -621,9 +620,8 @@ namespace net
         * @return the expanded launch command.
         */
         std::string _createLaunchCommand( NodePtr node,
-            ConnectionDescriptionPtr description);
-        std::string   _createRemoteCommand( NodePtr node, 
-            const char quote );
+                                          ConnectionDescriptionPtr description);
+        std::string   _createRemoteCommand( NodePtr node, const char quote );
 
         /** 
          * Find a connected node using a connection description

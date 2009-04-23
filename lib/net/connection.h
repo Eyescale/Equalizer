@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -53,7 +52,8 @@ namespace net
     /**
      * A base class to provide communication to other hosts.
      */
-    class EQ_EXPORT Connection : public base::Referenced
+    class EQ_EXPORT Connection : public base::Referenced, 
+                                 public base::NonCopyable
     {
     public:
         enum State
@@ -75,6 +75,7 @@ namespace net
          * @return the connection.
          */
         static ConnectionPtr create( ConnectionDescriptionPtr description );
+
 
         /** @name Data Access. */
         //*{
@@ -105,8 +106,9 @@ namespace net
         ConnectionDescriptionPtr getDescription() const;
         //*}
 
-        /** @name Connection Management */
-        //@{
+
+        /** @name Connection State Changes */
+        //*{
         /** 
          * Connect to the remote peer.
          *
@@ -125,18 +127,33 @@ namespace net
         virtual bool listen() { return false; }
 
         /** 
-         * Accepts the next incoming connection.
-         * 
-         * @return the accepted connection, or an invalid pointer if no
-         *         connection was accepted.
-         */
-        virtual ConnectionPtr accept() { return 0; }
-
-        /** 
          * Closes a connected or listening connection.
          */
         virtual void close(){};
-        //@}
+        //*}
+
+
+        /** @name Asynchronous accept. */
+        //*{
+        /** 
+         * Start an accept operation.
+         * 
+         * This function returns immediately. The Notifier will signal a new
+         * connection request, upon which acceptSync() should be used to finish
+         * the accept operation.
+         * 
+         * @sa acceptSync()
+         */
+        virtual void acceptNB() { EQUNIMPLEMENTED; }
+
+        /** 
+         * Complete an accept operation.
+         *
+         * @return the new connection, 0 on error.
+         */        
+        virtual ConnectionPtr acceptSync()
+            { EQUNIMPLEMENTED; return 0; }
+        //*}
 
         /** @name Listener Interface */
         //*{
@@ -148,22 +165,41 @@ namespace net
         //*}
 
 
-        /** @name Messaging API */
+        /** @name Asynchronous read from the connection */
         //*{
         /** 
-         * Read data from the connection.
+         * Start a read operation on the connection.
+         *
+         * This function returns immediately. The Notifier will signal data
+         * availibility, upon which recvSync() should be used to finish the
+         * operation.
          * 
-         * @param buffer the buffer for saving the message.
+         * @param buffer the buffer receiving the data.
          * @param bytes the number of bytes to read.
-         * @return true if all data has been read, false if not.
+         * @sa recvSync()
          */
-        bool recv( void* buffer, const uint64_t bytes );
+        void recvNB( void* buffer, const uint64_t bytes );
 
-        /** Lock the connection, no other thread can send data. */
-        void lockSend() const   { _sendLock.set(); }
-        /** Unlock the connection. */
-        void unlockSend() const { _sendLock.unset(); }
-            
+        /** 
+         * Finish reading data from the connection.
+         * 
+         * This function may block even if data availibility was signalled,
+         * i.e., when only a part of the data requested has been received.
+         * The buffer and bytes return value pointers can be 0.
+         *
+         * @param buffer return value, the buffer pointer passed to recvNB().
+         * @param bytes return value, the number of bytes read.
+         * @return true if all requested data has been read, false otherwise.
+         */
+        bool recvSync( void** buffer, uint64_t* bytes );
+
+        void getRecvData( void** buffer, uint64_t* bytes )
+            { *buffer = _aioBuffer; *bytes = _aioBytes; }
+        //*}
+
+
+        /** @name Synchronous write to the connection */
+        //*{
         /** 
          * Sends data using the connection.
          * 
@@ -175,6 +211,11 @@ namespace net
         bool send( const void* buffer, const uint64_t bytes, 
                    const bool isLocked = false ) const;
 
+        /** Lock the connection, no other thread can send data. */
+        void lockSend() const   { _sendLock.set(); }
+        /** Unlock the connection. */
+        void unlockSend() const { _sendLock.unset(); }
+            
         /** 
          * Sends a packaged message using the connection.
          * 
@@ -245,38 +286,16 @@ namespace net
                           const bool isLocked = false );
         //*}
 
-        /** @return the notifier handle to signal that data can be read. */
 #ifdef WIN32
-        typedef HANDLE ReadNotifier;
-        enum SelectResult
-        {
-            SELECT_TIMEOUT = WAIT_TIMEOUT,
-            SELECT_ERROR   = WAIT_FAILED,
-        };
+        typedef HANDLE Notifier;
 #else
-        typedef int ReadNotifier;
-        enum SelectResult
-        {
-            SELECT_TIMEOUT = 0,
-            SELECT_ERROR   = -1,
-        };
+        typedef int Notifier;
 #endif
-        virtual ReadNotifier getReadNotifier() const { return 0; }
+        /** @return the notifier signalling events on the connection. */
+        virtual Notifier getNotifier() const { return 0; }
 
     protected:
-        State                    _state; //!< The connection state
-        ConnectionDescriptionPtr _description;
-
-        mutable base::SpinLock _sendLock;
-
-        /** The listeners on state changes */
-        std::vector< ConnectionListener* > _listeners;
-
-        friend class PairConnection; // for access to read/write
-
-
         Connection();
-        Connection(const Connection& conn);
         virtual ~Connection();
 
         void _fireStateChanged();
@@ -284,16 +303,26 @@ namespace net
         /** @name Input/Output */
         //@{
         /** 
-         * Read data from the connection.
+         * Start a read operation on the connection.
          *
-         * Note the the a return value of 0 is not an error condition, it means
-         * that no data was pending on a non-blocking connection.
+         * This function returns immediately. The operation's Notifier will
+         * signal data availibility, upon which readSync() should be used to
+         * finish the operation.
          * 
-         * @param buffer the buffer for saving the message.
+         * @param buffer the buffer receiving the data.
+         * @param bytes the number of bytes to read.
+         * @sa readSync()
+         */
+        virtual void readNB( void* buffer, const uint64_t bytes ) = 0;
+
+        /** 
+         * Finish reading data from the connection.
+         * 
+         * @param buffer the buffer receiving the data.
          * @param bytes the number of bytes to read.
          * @return the number of bytes read, or -1 upon error.
          */
-        virtual int64_t read( void* buffer, const uint64_t bytes ) = 0;
+        virtual int64_t readSync( void* buffer, const uint64_t bytes ) = 0;
 
         /** 
          * Write data to the connection.
@@ -305,6 +334,20 @@ namespace net
         virtual int64_t write( const void* buffer, const uint64_t bytes )
             const = 0;
         //@}
+
+        State                    _state; //!< The connection state
+        ConnectionDescriptionPtr _description;
+
+        mutable base::SpinLock _sendLock;
+
+        /** The listeners on state changes */
+        std::vector< ConnectionListener* > _listeners;
+
+    private:
+        void*         _aioBuffer;
+        uint64_t      _aioBytes;
+
+        friend class PairConnection; // for access to read/write
     };
 
     std::ostream& operator << ( std::ostream&, const Connection* );

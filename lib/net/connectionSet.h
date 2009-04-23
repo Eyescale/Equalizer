@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -108,13 +107,10 @@ namespace net
 #endif
         base::Buffer< Connection* > _fdSetConnections;
 
-        enum SelfCommands
-        {
-            SELF_INTERRUPT = 42
-        };
-
         /** The connection to reset a running select, see constructor. */
         base::RefPtr< PipeConnection > _selfConnection;
+        /** The buffer to receive commands from _selfConnection. */
+        uint8_t _selfCommand;
 
         // result values
         ConnectionPtr _connection;
@@ -123,7 +119,6 @@ namespace net
         /** FD sets need rebuild. */
         bool _dirty;
 
-        bool _getEvent( Event& event, Connection::ReadNotifier& fd );
         void _dirtyFDSet();
         bool _setupFDSet();
         bool _buildFDSet();

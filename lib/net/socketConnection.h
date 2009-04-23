@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -49,21 +49,28 @@ namespace net
 
         virtual bool connect();
         virtual bool listen();
-        virtual ConnectionPtr accept();
+        virtual void acceptNB();
+        virtual ConnectionPtr acceptSync();
 
         virtual void close();
 
         uint16_t getPort() const;
 
 #ifdef WIN32
-        virtual ReadNotifier getReadNotifier() const;
+        virtual Notifier getNotifier() const;
 #endif
 
     protected:
         virtual ~SocketConnection();
 
+        void _initAIOAccept();
+        void _exitAIOAccept();
+        void _initAIORead();
+        void _exitAIORead();
+
 #ifdef WIN32
-        virtual int64_t read( void* buffer, const uint64_t bytes );
+        virtual void readNB( void* buffer, const uint64_t bytes );
+        virtual int64_t readSync( void* buffer, const uint64_t bytes );
         virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
 
         typedef SOCKET Socket;
@@ -81,33 +88,16 @@ namespace net
         bool _parseAddress( sockaddr_in& socketAddress );
 
 #ifdef WIN32
-        void _startAccept();
-        void _startReceive();
-        bool _createReadEvents();
-        
-        // overlapped data structures
-        OVERLAPPED _overlapped;
-        bool       _overlappedPending;
-        void*      _overlappedAcceptData;
-        SOCKET     _overlappedSocket;
-
-        enum
-        {
-            MIN_BUFFER_SIZE = 8,
-            MAX_BUFFER_SIZE = 65536,
-        };
-        typedef base::Buffer< char > Buffer;
-
-        Buffer   _pendingBuffer;
-        Buffer   _receivedBuffer;
-        uint64_t _receivedUsedBytes;
-        HANDLE   _receivedDataEvent;
-
         union
         {
             SOCKET _readFD;
             SOCKET _writeFD;
         };
+
+        // overlapped data structures
+        OVERLAPPED _overlapped;
+        void*      _overlappedAcceptData;
+        SOCKET     _overlappedSocket;
 
         CHECK_THREAD_DECLARE( _recvThread );
 #endif

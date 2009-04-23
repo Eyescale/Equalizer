@@ -2,9 +2,8 @@
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -51,16 +50,18 @@ namespace eq
             { EQINFO << "Delete X11 connection @" << (void*)this << std::endl; }
 
         Display* getDisplay() const   { return _display; }
-        virtual ReadNotifier getReadNotifier() const
+        virtual Notifier getNotifier() const
             { return ConnectionNumber( _display ); }
 
         GLXPipe* const pipe;
 
     protected:
-        virtual int64_t read( void* buffer, const uint64_t bytes )
-            { return -1; }
+        virtual void readNB( void* buffer, const uint64_t bytes )
+            { EQDONTCALL; }
+        virtual int64_t readSync( void* buffer, const uint64_t bytes )
+            { EQDONTCALL; return -1; }
         virtual int64_t write( const void* buffer, const uint64_t bytes ) const
-            { return -1; }
+            { EQDONTCALL; return -1; }
 
     private:
         Display* _display;

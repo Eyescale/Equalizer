@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -40,14 +39,16 @@ namespace net
         virtual bool connect();
         virtual void close();
 
-        virtual ReadNotifier getReadNotifier() const
-            { return _readConnection->getReadNotifier(); }
+        virtual Notifier getNotifier() const
+            { return _readConnection->getNotifier(); }
 
     protected:
         virtual ~PairConnection();
 
-        virtual int64_t read( void* buffer, const uint64_t bytes )
-            { return _readConnection.get()->read( buffer, bytes ); }
+        virtual void readNB( void* buffer, const uint64_t bytes )
+            { _readConnection->readNB( buffer, bytes ); }
+        virtual int64_t readSync( void* buffer, const uint64_t bytes )
+            { return _readConnection->readSync( buffer, bytes ); }
         virtual int64_t write( const void* buffer, const uint64_t bytes )
             const { return _writeConnection->write( buffer, bytes ); }
 

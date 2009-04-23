@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -242,7 +241,7 @@ bool Node::listen()
     if( _state != STATE_STOPPED )
         return false;
 
-    if( !_listenToSelf( ))
+    if( !_connectSelf( ))
         return false;
 
     for( ConnectionDescriptionVector::const_iterator i =
@@ -261,6 +260,9 @@ bool Node::listen()
 
         _connectionNodes[ connection ] = this;
         _connectionSet.addConnection( connection );
+        EQVERB << "Added node " << _id << " using " << connection << std::endl;
+        
+        connection->acceptNB();
     }
 
     _state = STATE_LISTENING;
@@ -293,39 +295,57 @@ bool Node::stopListening()
     const ConnectionVector& connections = _connectionSet.getConnections();
     for( ConnectionVector::const_iterator i = connections.begin();
          i != connections.end(); ++i )
-
+    {
         EQINFO << "    " << *i << endl;
+    }
 #endif
 
     EQASSERT( _requestHandler.empty( ));
     return true;
 }
 
+void Node::_removeConnection( ConnectionPtr connection )
+{
+    EQASSERT( connection.isValid( ));
+
+    _connectionSet.removeConnection( connection );
+
+    uint64_t* buffer( 0 );
+    if( !connection->isListening( ))
+    {
+        uint64_t bytes( 0 );
+        connection->getRecvData( reinterpret_cast<void**>( &buffer ), &bytes );
+        EQASSERT( buffer );
+        EQASSERT( bytes == sizeof( uint64_t ));
+    }
+
+    if( !connection->isClosed( ))
+        connection->close(); // cancels pending IO's
+    delete buffer;
+}
+
 void Node::_cleanup()
 {
     EQVERB << "Clean up stopped node" << endl;
     EQASSERTINFO( _state == STATE_STOPPED, _state );
-    EQASSERT( _connection.isValid( ));
 
-    _connectionSet.removeConnection( _connection );
+    _removeConnection( _connection );
     _connectionNodes.erase( _connection );
     _connection = 0;
 
     const ConnectionVector& connections = _connectionSet.getConnections();
-    for( ConnectionVector::const_iterator i = connections.begin(); 
-         i != connections.end(); ++i )
+    while( !connections.empty( ))
     {
-        ConnectionPtr connection = *i;
+        ConnectionPtr connection = connections.back();
         NodePtr       node       = _connectionNodes[ connection ];
 
         node->_state      = STATE_STOPPED;
         node->_connection = 0;
         _connectionNodes.erase( connection );
         _nodes.erase( node->_id );
-        connection->close();
-    }
 
-    _connectionSet.clear();
+        _removeConnection( connection );
+    }
 
     if( !_connectionNodes.empty( ))
         EQINFO << _connectionNodes.size() << " open connections during cleanup"
@@ -361,7 +381,7 @@ void Node::_cleanup()
     _nodes.clear();
 }
 
-bool Node::_listenToSelf()
+bool Node::_connectSelf()
 {
     // setup local connection to myself
     _connection = new PipeConnection;
@@ -378,8 +398,12 @@ bool Node::_listenToSelf()
     EQASSERT( _connectionNodes.find( _connection ) == _connectionNodes.end( ));
 
     _connectionNodes[ _connection ] = this;
-    _connectionSet.addConnection( _connection );
     _nodes[ _id ] = this;
+
+    _connectionSet.addConnection( _connection );
+    _connection->recvNB( new uint64_t, sizeof( uint64_t ));
+
+    EQVERB << "Added node " << _id << " using " << _connection << std::endl;
     return true;
 }
 
@@ -393,18 +417,17 @@ bool Node::connect( NodePtr node, ConnectionPtr connection )
         return false;
     }
 
+    _connectionSet.addConnection( connection );
+    connection->recvNB( new uint64_t, sizeof( uint64_t ));
+
     // send connect packet to peer
     NodeConnectPacket packet;
-
     packet.requestID = _requestHandler.registerRequest( node.get( ));
     packet.nodeID    = _id;
     packet.nodeID.convertToNetwork();
-
     packet.type      = getType();
     packet.launchID  = node->_launchID;
     node->_launchID  = EQ_ID_INVALID;
-
-    _connectionSet.addConnection( connection );
     connection->send( packet, serialize( ));
 
     bool connected = false;
@@ -728,7 +751,8 @@ void* Node::_runReceiverThread()
 void Node::_handleConnect()
 {
     ConnectionPtr connection = _connectionSet.getConnection();
-    ConnectionPtr newConn    = connection->accept();
+    ConnectionPtr newConn    = connection->acceptSync();
+    connection->acceptNB();
 
     if( !newConn )
     {
@@ -737,6 +761,7 @@ void Node::_handleConnect()
     }
 
     _connectionSet.addConnection( newConn );
+    newConn->recvNB( new uint64_t, sizeof( uint64_t ));
     // Node will be created when receiving NodeConnectPacket from other side
 }
 
@@ -745,11 +770,10 @@ void Node::_handleDisconnect()
     while( _handleData( )) ; // read remaining data off connection
 
     ConnectionPtr connection = _connectionSet.getConnection();
-    NodePtr       node;
-    if( _connectionNodes.find( connection ) != _connectionNodes.end( ))
-        node = _connectionNodes[ connection ];
-
-    EQASSERT( !node || node->_connection == connection );
+    NodePtr node;
+    ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
+    if( i != _connectionNodes.end( ))
+        node = i->second;
 
     if( node.isValid( ))
     {
@@ -759,7 +783,7 @@ void Node::_handleDisconnect()
         _nodes.erase( node->_id );
     }
 
-    _connectionSet.removeConnection( connection );
+    _removeConnection( connection );
 
     EQINFO << node << " disconnected from " << this << " connection used " 
            << connection->getRefCount() << endl;
@@ -768,31 +792,45 @@ void Node::_handleDisconnect()
 bool Node::_handleData()
 {
     ConnectionPtr connection = _connectionSet.getConnection();
-    NodePtr       node;
-
-    if( _connectionNodes.find( connection ) != _connectionNodes.end( ))
-        node = _connectionNodes[ connection ];
-
     EQASSERT( connection.isValid( ));
+
+    NodePtr node;
+    ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
+    if( i != _connectionNodes.end( ))
+        node = i->second;
     EQASSERTINFO( !node || node->_connection == connection, 
                   typeid( *node.get( )).name( ));
+
     EQVERB << "Handle data from " << node << endl;
 
-    uint64_t size;
-    const bool gotSize = connection->recv( &size, sizeof( size ));
+    uint64_t* size( 0 );
+    uint64_t bytes( 0 );
+    const bool gotSize = connection->recvSync( reinterpret_cast<void**>( &size),
+                                               &bytes );
+
     if( !gotSize ) // Some systems signal data on dead connections.
+    {
+        connection->recvNB( size, sizeof( uint64_t ));
         return false;
+    }
 
     EQASSERT( size );
-    EQASSERT( size > sizeof( size ));
-    Command& command = _commandCache.alloc( node, this, size );
-    size -= sizeof( size );
+    EQASSERT( *size );
+    EQASSERT( bytes == sizeof( uint64_t ));
+    EQASSERT( *size > sizeof( *size ));
 
-    char* ptr = reinterpret_cast< char* >( command.getPacket()) + sizeof(size);
-    const bool gotData = connection->recv( ptr, size );
+    Command& command = _commandCache.alloc( node, this, *size );
+    uint8_t* ptr = reinterpret_cast< uint8_t* >( command.getPacket()) +
+                                                 sizeof( uint64_t );
+
+    connection->recvNB( ptr, *size - sizeof( uint64_t ));
+    const bool gotData = connection->recvSync( 0, 0 );    
 
     EQASSERT( gotData );
     EQASSERT( command.isValid( ));
+
+    // start next receive
+    connection->recvNB( size, sizeof( uint64_t ));
 
     if( !gotData )
     {
@@ -1122,6 +1160,7 @@ CommandResult Node::_cmdConnect( Command& command )
     nodeID.convertToHost();
 
     EQINFO << "handle connect " << packet << endl;
+    EQASSERT( nodeID != _id );
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
     if( _nodes.find( nodeID ) != _nodes.end( ))
@@ -1134,8 +1173,12 @@ CommandResult Node::_cmdConnect( Command& command )
         NodeConnectReplyPacket reply( packet );
         connection->send( reply, serialize( ));
 
-        // close connection
-        _connectionSet.removeConnection( connection );
+        // NOTE: There used to be no close() here. If deadlocks occur, it is
+        // likely that the reply packet above can't be received by the peer
+        // because the connection is closed by us. In that case, do not close
+        // the connection here. Take care to cancel the pending IO for the next
+        // packet size, and to delete the memory for the packet size.
+        _removeConnection( connection );
         return COMMAND_HANDLED;
     }
 
@@ -1163,6 +1206,7 @@ CommandResult Node::_cmdConnect( Command& command )
     
     _connectionNodes[ connection ] = remoteNode;
     _nodes[ remoteNode->_id ]      = remoteNode;
+    EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
 
     // send our information as reply
     NodeConnectReplyPacket reply( packet );
@@ -1181,7 +1225,7 @@ CommandResult Node::_cmdConnect( Command& command )
 
 CommandResult Node::_cmdConnectReply( Command& command )
 {
-    EQASSERT( !command.getNode().isValid( ));
+    EQASSERT( !command.getNode( ));
     EQASSERT( inReceiverThread( ));
 
     const NodeConnectReplyPacket* packet = 
@@ -1198,8 +1242,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
         _nodes.find( nodeID ) != _nodes.end( )) // Node exists, probably
                                                 // simultaneous connect
     {
-        _connectionSet.removeConnection( connection );
-        connection->close();
+        _removeConnection( connection );
         
         if( packet->requestID != EQ_ID_INVALID )
             _requestHandler.serveRequest( packet->requestID, false );
@@ -1234,6 +1277,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     
     _connectionNodes[ connection ] = remoteNode;
     _nodes[ remoteNode->_id ]      = remoteNode;
+    EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
 
     if( packet->requestID != EQ_ID_INVALID )
         _requestHandler.serveRequest( packet->requestID, true );
@@ -1257,7 +1301,7 @@ CommandResult Node::_cmdDisconnect( Command& command )
         node->_state      = STATE_STOPPED;
         node->_connection = 0;
 
-        EQCHECK( _connectionSet.removeConnection( connection ));
+        _removeConnection( connection );
         EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
 
         _connectionNodes.erase( connection );

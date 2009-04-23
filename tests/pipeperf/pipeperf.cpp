@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -17,7 +16,7 @@
  */
 
 // Tests pipe() throughput
-// Usage: ./netperf
+// Usage: ./pipeperf
 
 
 #include <test.h>
@@ -85,7 +84,8 @@ int main( int argc, char **argv )
     for( unsigned i=0; i<NPACKETS; )
     {
         clock.reset();
-        if( connection->recv( buffer, PACKETSIZE ))
+        connection->recvNB( buffer, PACKETSIZE );
+        if( connection->recvSync( 0, 0 ))
         {
             cout << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s"
                  << endl;

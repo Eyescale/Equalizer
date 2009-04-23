@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -36,7 +35,16 @@
 #endif
 
 using namespace eq::base;
-using namespace std;
+
+#define SELF_INTERRUPT 42
+
+#ifdef WIN32
+#  define SELECT_TIMEOUT WAIT_TIMEOUT
+#  define SELECT_ERROR   WAIT_FAILED,
+#else
+#  define SELECT_TIMEOUT  0
+#  define SELECT_ERROR   -1
+#endif
 
 namespace eq
 {
@@ -44,7 +52,8 @@ namespace net
 {
 
 ConnectionSet::ConnectionSet()
-        : _error(0)
+        : _selfCommand( 0 )
+        , _error( 0 )
         , _dirty( true )
 {
     // Whenever another threads modifies the connection list while the
@@ -54,9 +63,10 @@ ConnectionSet::ConnectionSet()
     _selfConnection = new PipeConnection;
     if( !_selfConnection->connect( ))
     {
-        EQERROR << "Could not create connection" << endl;
+        EQERROR << "Could not create connection" << std::endl;
         return;
     }
+    _selfConnection->recvNB( &_selfCommand, sizeof( _selfCommand ));
 }
 
 ConnectionSet::~ConnectionSet()
@@ -73,7 +83,7 @@ void ConnectionSet::_dirtyFDSet()
     if( _dirty )
         return;
 
-    EQINFO << "FD set modified, restarting select" << endl;
+    EQINFO << "FD set modified, restarting select" << std::endl;
     _dirty = true;
     if( !_selfConnection->hasData( ))
     {
@@ -158,10 +168,10 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 #endif
         switch( ret )
         {
-            case Connection::SELECT_TIMEOUT:
+            case SELECT_TIMEOUT:
                 return EVENT_TIMEOUT;
 
-            case Connection::SELECT_ERROR:
+            case SELECT_ERROR:
 #ifdef WIN32
                 _error = GetLastError();
                 if( _error == WSA_INVALID_HANDLE )
@@ -176,7 +186,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 _error = errno;
 #endif
 
-                EQERROR << "Error during select: " << EQ_SOCKET_ERROR << endl;
+                EQERROR << "Error during select: " << EQ_SOCKET_ERROR << std::endl;
                 return EVENT_SELECT_ERROR;
 
             default: // SUCCESS
@@ -200,7 +210,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
                     EQVERB << "selected connection " << _connection << " of "
                            << _fdSetConnections.size << ", event " << event
-                           << endl;
+                           << std::endl;
                     return event;
                 }
         }
@@ -213,7 +223,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
     const uint32_t i = index - WAIT_OBJECT_0;
     _connection = _fdSetConnections[i];
 
-    EQASSERT( _fdSet[i] == _connection->getReadNotifier( ));
+    EQASSERT( _fdSet[i] == _connection->getNotifier( ));
     return EVENT_DATA;
 #else
     for( size_t i = 0; i < _fdSet.size; ++i )
@@ -228,11 +238,12 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
         _connection = _fdSetConnections[i];
         EQASSERT( _connection.isValid( ));
 
-        EQVERB << "Got event on connection @" << (void*)_connection.get()<<endl;
+        EQVERB << "Got event on connection @" << (void*)_connection.get()
+               << std::endl;
 
         if( pollEvents & POLLERR )
         {
-            EQINFO << "Error during poll()" << endl;
+            EQINFO << "Error during poll()" << std::endl;
             return EVENT_ERROR;
         }
 
@@ -249,7 +260,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
         if( pollEvents & POLLIN || pollEvents & POLLPRI )
             return EVENT_DATA;
 
-        EQERROR << "Unhandled poll event(s): " << pollEvents <<endl;
+        EQERROR << "Unhandled poll event(s): " << pollEvents << std::endl;
         ::abort();
     }
     return EVENT_NONE;
@@ -258,11 +269,14 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 
 ConnectionSet::Event ConnectionSet::_handleSelfCommand()
 {
-    char c = 0;
-    _connection->recv( &c, 1 );
+    EQASSERT( _connection == _selfConnection.get( ));
     _connection = 0;
+    
+    _selfConnection->recvSync( 0, 0 );
+    const uint8_t command( _selfCommand );
+    _selfConnection->recvNB( &_selfCommand, sizeof( _selfCommand ));
 
-    switch( c ) 
+    switch( command ) 
     {
         case SELF_INTERRUPT:
             return EVENT_INTERRUPT;
@@ -291,7 +305,7 @@ bool ConnectionSet::_setupFDSet()
 
 #ifdef WIN32
     // add self connection
-    HANDLE readHandle = _selfConnection->getReadNotifier();
+    HANDLE readHandle = _selfConnection->getNotifier();
     EQASSERT( readHandle );
 
     _fdSet.append( readHandle );
@@ -299,16 +313,16 @@ bool ConnectionSet::_setupFDSet()
 
     // add regular connections
     _mutex.set();
-    for( vector< ConnectionPtr >::const_iterator i = _connections.begin();
+    for( ConnectionVector::const_iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
         ConnectionPtr connection = *i;
-        readHandle = connection->getReadNotifier();
+        readHandle = connection->getNotifier();
 
         if( !readHandle )
         {
             EQINFO << "Cannot select connection " << connection
-                 << ", connection does not provide a read handle" << endl;
+                 << ", connection does not provide a read handle" << std::endl;
             _connection = connection;
 		    _mutex.unset();
             return false;
@@ -323,7 +337,7 @@ bool ConnectionSet::_setupFDSet()
     fd.events = POLLIN; // | POLLPRI;
 
     // add self 'connection'
-    fd.fd      = _selfConnection->getReadNotifier();
+    fd.fd      = _selfConnection->getNotifier();
     EQASSERT( fd.fd > 0 );
     fd.revents = 0;
 
@@ -332,24 +346,24 @@ bool ConnectionSet::_setupFDSet()
 
     // add regular connections
     _mutex.set();
-    for( vector< ConnectionPtr >::const_iterator i = _connections.begin();
+    for( ConnectionVector::const_iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
         ConnectionPtr connection = *i;
-        fd.fd = connection->getReadNotifier();
+        fd.fd = connection->getNotifier();
 
         if( fd.fd <= 0 )
         {
             EQINFO << "Cannot select connection " << connection
                    << ", connection " << typeid( *connection.get( )).name() 
-                   << " does not use a file descriptor" << endl;
+                   << " does not use a file descriptor" << std::endl;
             _connection = connection;
 		    _mutex.unset();
             return false;
         }
 
         EQVERB << "Listening on " << typeid( *connection.get( )).name() 
-               << " @" << (void*)connection.get() << endl;
+               << " @" << (void*)connection.get() << std::endl;
         fd.revents = 0;
 
         _fdSet.append( fd );
@@ -373,7 +387,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
     for( ConnectionVector::const_iterator i = connections.begin(); 
          i != connections.end(); ++i )
     {
-        os << endl << "    " << (*i).get();
+        os << std::endl << "    " << (*i).get();
     }
     
     return os;

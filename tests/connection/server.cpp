@@ -2,9 +2,8 @@
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -40,15 +39,18 @@ int main( int argc, char **argv )
     ConnectionPtr            connection = Connection::create( description );
     TEST( connection->listen( ));
 
-    RefPtr<Connection> client = connection->accept();
+    connection->acceptNB();
+    RefPtr<Connection> client = connection->acceptSync();
     cerr << "Server accepted connection" << endl;
     connection->close();
 
     char c;
-    while( client->recv( &c, 1 ))
+    client->recvNB( &c, 1 );
+    while( client->recvSync( 0, 0 ))
     {
         cerr << "Server recv: " << c << endl;
         TEST( client->send( &c, 1 ) == 1 );
+        client->recvNB( &c, 1 );
     }
 
     return EXIT_SUCCESS;

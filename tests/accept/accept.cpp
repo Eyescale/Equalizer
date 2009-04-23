@@ -2,9 +2,8 @@
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -95,7 +94,8 @@ int main( int argc, char **argv )
             TEST( connection->connect( ));
             TEST( connection->send( &data, 4, true ));
 
-            while( !connection->recv( &data, 4 ))
+            connection->recvNB( &data, 4 );
+            while( !connection->recvSync( 0, 0 ))
                 OUTPUT << "Empty read" << std::endl;
 
             connection->close();
@@ -117,32 +117,48 @@ int main( int argc, char **argv )
     else
     {
         TEST( connection->listen( ));
+        connection->acceptNB();
 
         ConnectionSet connectionSet;
         connectionSet.addConnection( connection );
-        uint32_t data;
 
         while( true )
         {
             switch( connectionSet.select( )) // ...get next request
             {
                 case ConnectionSet::EVENT_CONNECT: // new client
+                {
                     connection = connectionSet.getConnection();
-                    connection = connection->accept();
-                    TEST( connection.isValid( ));
-                    connectionSet.addConnection( connection );
+                    ConnectionPtr newConnection = connection->acceptSync();
+                    connection->acceptNB();
+
+                    TEST( newConnection.isValid( ));
+                    connection->recvNB( new uint32_t, sizeof( uint32_t ));
+                    connectionSet.addConnection( newConnection );
                     ++nConnects;
                     break;
-
+                }
                 case ConnectionSet::EVENT_ERROR:
                     OUTPUT << "Error on connection " << std::endl;
                     // no break;
                 case ConnectionSet::EVENT_DISCONNECT:
                 case ConnectionSet::EVENT_INVALID_HANDLE:  // client done
+                {
                     connection = connectionSet.getConnection();
                     connectionSet.removeConnection( connection );
-                    break;
 
+                    uint32_t* buffer( 0 );
+                    uint64_t bytes( 0 );
+                    connection->getRecvData( reinterpret_cast<void**>( &buffer),
+                                             &bytes );
+                    TEST( buffer );
+                    TEST( bytes == sizeof( uint32_t ));
+                    delete buffer;
+
+                    TESTINFO( connection->getRefCount() == 1, 
+                              connection->getRefCount( ));
+                    break;
+                }
                 case ConnectionSet::EVENT_INTERRUPT:
                     break;
 
@@ -152,12 +168,20 @@ int main( int argc, char **argv )
                     break;
 
                 case ConnectionSet::EVENT_DATA:
-                    if( connection->recv( &data, 4 ))
+                {
+                    connection = connectionSet.getConnection();
+                    void* buffer( 0 );
+                    uint64_t bytes( 0 );
+                    
+                    if( connection->recvSync( &buffer, &bytes ))
                     {
-                        TEST( connection->send( &data, 4, true ));
+                        TEST( buffer );
+                        TEST( bytes == 4 );
+                        TEST( connection->send( buffer, bytes, true ));
+                        connection->recvNB( buffer, bytes );
                     }
                     break;
-
+                }
                 default:
                     TESTINFO( false, "Not reachable" );
             }

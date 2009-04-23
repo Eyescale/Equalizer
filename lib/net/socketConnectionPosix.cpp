@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -17,7 +16,6 @@
  */
 
 using namespace eq::base;
-using namespace std;
 
 namespace eq
 {
@@ -28,7 +26,7 @@ SocketConnection::SocketConnection( const ConnectionType type )
     EQASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
     _description =  new ConnectionDescription;
     _description->type = type;
-    EQVERB << "New SocketConnection @" << (void*)this << endl;
+    EQVERB << "New SocketConnection @" << (void*)this << std::endl;
 }
 
 SocketConnection::~SocketConnection()
@@ -58,14 +56,14 @@ bool SocketConnection::connect()
     sockaddr_in socketAddress;
     if( !_parseAddress( socketAddress ))
     {
-        EQWARN << "Can't parse connection parameters" << endl;
+        EQWARN << "Can't parse connection parameters" << std::endl;
         close();
         return false;
     }
 
     if( socketAddress.sin_addr.s_addr == 0 )
     {
-        EQWARN << "Refuse to connect to 0.0.0.0" << endl;
+        EQWARN << "Refuse to connect to 0.0.0.0" << std::endl;
         close();
         return false;
     }
@@ -76,7 +74,7 @@ bool SocketConnection::connect()
     if( !connected )
     {
         EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-             << _description->TCPIP.port << "': " << EQ_SOCKET_ERROR << endl;
+             << _description->TCPIP.port << "': " << EQ_SOCKET_ERROR << std::endl;
         close();
         return false;
     }
@@ -96,7 +94,7 @@ void SocketConnection::close()
 
     const bool closed = ( ::close(_readFD) == 0 );
     if( !closed )
-        EQWARN << "Could not close socket: " << EQ_SOCKET_ERROR << endl;
+        EQWARN << "Could not close socket: " << EQ_SOCKET_ERROR << std::endl;
 
     _readFD  = INVALID_SOCKET;
     _writeFD = INVALID_SOCKET;
@@ -104,9 +102,19 @@ void SocketConnection::close()
 }
 
 //----------------------------------------------------------------------
+// Async IO handles
+//----------------------------------------------------------------------
+void SocketConnection::_initAIOAccept(){ /* NOP */ }
+void SocketConnection::_exitAIOAccept(){ /* NOP */ }
+void SocketConnection::_initAIORead(){ /* NOP */ }
+void SocketConnection::_exitAIORead(){ /* NOP */ }
+
+//----------------------------------------------------------------------
 // accept
 //----------------------------------------------------------------------
-ConnectionPtr SocketConnection::accept()
+void SocketConnection::acceptNB(){ /* NOP */ }
+ 
+ConnectionPtr SocketConnection::acceptSync()
 {
     if( _state != STATE_LISTENING )
         return 0;
@@ -122,7 +130,7 @@ ConnectionPtr SocketConnection::accept()
 
     if( fd == INVALID_SOCKET )
     {
-        EQWARN << "accept failed: " << EQ_SOCKET_ERROR << endl;
+        EQWARN << "accept failed: " << EQ_SOCKET_ERROR << std::endl;
         return 0;
     }
 
@@ -138,7 +146,7 @@ ConnectionPtr SocketConnection::accept()
     newConnection->_description->TCPIP.port   = ntohs( newAddress.sin_port );
 
     EQVERB << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
-           << ":" << ntohs( newAddress.sin_port ) <<endl;
+           << ":" << ntohs( newAddress.sin_port ) << std::endl;
 
     return newConnection;
 }

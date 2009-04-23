@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -43,41 +42,42 @@ using namespace std;
 namespace
 {
     class Receiver;
-    vector< Receiver* > _receivers;
-    eq::base::Lock      _freeThreadsLock;
-    ConnectionSet       _connectionSet;
-    eq::base::Atomic< long > _nClients;
+    ConnectionSet    _connectionSet;
+    eq::base::mtLong _nClients;
 
     class Receiver : public eq::base::Thread
     {
     public:
-        Receiver( const size_t packetSize ) { _buffer.resize( packetSize ); }
+        Receiver( const size_t packetSize, ConnectionPtr connection )
+                : _connection( connection )
+            { 
+                _buffer.resize( packetSize );
+                connection->recvNB( _buffer.data, _buffer.size );
+            }
         virtual ~Receiver() {}
 
-        bool readPacket( ConnectionPtr connection )
+        bool readPacket()
         {
             const float mBytesSec = _buffer.size / 1024.0f / 1024.0f * 1000.0f;
 
             _clock.reset();
-            if( !connection->recv( _buffer.data, _buffer.size ))
+            if( !_connection->recvSync( 0, 0 ))
                 return false;
 
             const float time = _clock.getTimef();
-            eq::net::ConnectionDescriptionPtr desc = 
-                connection->getDescription();
+            _connection->recvNB( _buffer.data, _buffer.size );
 
+            eq::net::ConnectionDescriptionPtr desc = 
+                _connection->getDescription();
             EQWARN << " Recv perf: " << mBytesSec / time << "MB/s ("
                    << time << "ms) from " << desc->getHostname() << ":"
                    << desc->TCPIP.port << endl;
             return true;
         }
 
-        void executeReceive( ConnectionPtr connection )
+        void executeReceive()
         {
             TEST( _hasConnection == false );
-            TEST( !_connection );
-
-            _connection    = connection;
             _hasConnection = true;
         }
 
@@ -87,23 +87,17 @@ namespace
             {
                 _hasConnection.waitEQ( true );
 
-                ConnectionPtr connection = _connection;
-                _connection    = 0;
-                _hasConnection = false;
-
-                if( readPacket( connection ))
+                if( readPacket( ))
                 {
-                    _connectionSet.addConnection( connection );
-
-                    _freeThreadsLock.set();
-                    _receivers.push_back( this );
-                    _freeThreadsLock.unset();
+                    _connectionSet.addConnection( _connection );
                 }
                 else // dead connection
                 {
-                    cout << --_nClients << " clients" << endl;
+                    cerr << --_nClients << " clients" << endl;
                     _connectionSet.interrupt();
                 }
+
+                _hasConnection = false;
             }
             return EXIT_SUCCESS;
         }
@@ -111,9 +105,9 @@ namespace
     private:
         Clock _clock;
 
-        eq::base::Buffer< uint8_t > _buffer;
-        eq::base::Monitor< bool >   _hasConnection;
-        ConnectionPtr               _connection;
+        eq::base::Bufferb _buffer;
+        eq::base::Monitor< bool > _hasConnection;
+        ConnectionPtr             _connection;
     };
 }
 
@@ -128,6 +122,7 @@ int main( int argc, char **argv )
     bool isClient     = true;
     bool useThreads   = false;
     size_t packetSize = 1048576;
+    size_t nPackets   = 0xffffffffu;
     size_t waitTime   = 0;
 
     try // command line parsing
@@ -138,12 +133,17 @@ int main( int argc, char **argv )
         TCLAP::ValueArg<string> serverArg( "s", "server", "run as server", 
                                            true, "", "IP[:port]" );
         TCLAP::SwitchArg threadedArg( "t", "threaded", 
-                          "Run each receive in a separate thread (server only)", 
+                         "Run each receive in a separate thread (server only)", 
                                       command, false );
         TCLAP::ValueArg<size_t> sizeArg( "p", "packetSize", "packet size", 
-                                         false, 1048576, "unsigned", command );
+                                         false, packetSize, "unsigned", 
+                                         command );
+        TCLAP::ValueArg<size_t> packetsArg( "n", "numPackets", 
+                                            "number of packets to send", 
+                                            false, nPackets, "unsigned",
+                                            command );
         TCLAP::ValueArg<size_t> waitArg( "w", "wait", 
-                                   "wait time (ms) between sends (client only)", 
+                                  "wait time (ms) between sends (client only)", 
                                          false, 0, "unsigned", command );
 
         command.xorAdd( clientArg, serverArg );
@@ -161,6 +161,8 @@ int main( int argc, char **argv )
 
         if( sizeArg.isSet( ))
             packetSize = sizeArg.getValue();
+        if( packetsArg.isSet( ))
+            nPackets = packetsArg.getValue();
         if( waitArg.isSet( ))
             waitTime = waitArg.getValue();
     }
@@ -187,12 +189,12 @@ int main( int argc, char **argv )
         Clock       clock;
         size_t      packetNum = 0;
 
-        while( true )
+        while( nPackets-- )
         {
             clock.reset();
             TEST( connection->send( buffer.data, buffer.size ));
             const float time = clock.getTimef();
-            cout << ++packetNum << " Send perf: " << mBytesSec / time 
+            cerr << ++packetNum << " Send perf: " << mBytesSec / time 
                  << "MB/s (" << time << "ms)" << endl;
             if( waitTime > 0 )
                 eq::base::sleep( waitTime );
@@ -201,6 +203,7 @@ int main( int argc, char **argv )
     else
     {
         TEST( connection->listen( ));
+        connection->acceptNB();
 
         _connectionSet.addConnection( connection );
 
@@ -209,14 +212,19 @@ int main( int argc, char **argv )
         TEST( event == ConnectionSet::EVENT_CONNECT );
 
         ConnectionPtr resultConn = _connectionSet.getConnection();
-        ConnectionPtr newConn    = resultConn->accept();
+        ConnectionPtr newConn    = resultConn->acceptSync();
+        resultConn->acceptNB();
+
         TEST( resultConn == connection );
         TEST( newConn.isValid( ));
 
-        _connectionSet.addConnection( newConn );
+        typedef std::pair< Receiver*, ConnectionPtr > RecvConn;
+        vector< RecvConn > receivers;
 
-        if( !useThreads )
-            _receivers.push_back( new Receiver( packetSize ));
+        receivers.push_back( RecvConn( new Receiver( packetSize, newConn ),
+                                       newConn ));
+
+        _connectionSet.addConnection( newConn );
 
         // Until all client have disconnected...
         _nClients = 1;
@@ -227,48 +235,68 @@ int main( int argc, char **argv )
                 case ConnectionSet::EVENT_CONNECT: // new client
                     resultConn = _connectionSet.getConnection();
                     TEST( resultConn == connection );
-                    newConn    = resultConn->accept();
+
+                    newConn = resultConn->acceptSync();
+                    resultConn->acceptNB();
                     TEST( newConn.isValid( ));
 
+                    receivers.push_back( 
+                        RecvConn( new Receiver(packetSize, newConn), newConn ));
+
                     _connectionSet.addConnection( newConn );
-                    cout << ++_nClients << " clients" << endl;
+                    cerr << ++_nClients << " clients" << endl;
                     break;
 
                 case ConnectionSet::EVENT_DATA:  // new data
+                {
                     resultConn = _connectionSet.getConnection();
+
+                    Receiver* receiver = 0;
+                    vector< RecvConn >::iterator i;
+                    for( i = receivers.begin(); i != receivers.end(); ++i )
+                    {
+                        const RecvConn& candidate = *i;
+                        if( candidate.second == resultConn )
+                        {
+                            receiver = candidate.first;
+                            break;
+                        }
+                    }
+                    TEST( receiver );
+
                     if( useThreads )
                     {
-                        Receiver* receiver = 0;
                         _connectionSet.removeConnection( resultConn );
-
-                        _freeThreadsLock.set();
-                        if( _receivers.empty( ))
-                        {
-                            receiver = new Receiver( packetSize );
-                            receiver->start();
-                        }
-                        else
-                        {
-                            receiver = _receivers.back();
-                            _receivers.pop_back();
-                        }
-                        _freeThreadsLock.unset();    
-
-                        receiver->executeReceive( resultConn );
+                        receiver->executeReceive();
                     }
-                    else if( !_receivers[0]->readPacket( resultConn ))
+                    else if( !receiver->readPacket())
                     {
                         // Connection dead?
                         _connectionSet.removeConnection( resultConn );
-                        cout << --_nClients << " clients" << endl;
+                        delete receiver;
+                        receivers.erase( i );
+                        cerr << --_nClients << " clients" << endl;
                     }
                     break;
-
+                }
                 case ConnectionSet::EVENT_DISCONNECT:
                 case ConnectionSet::EVENT_INVALID_HANDLE:  // client done
                     resultConn = _connectionSet.getConnection();
                     _connectionSet.removeConnection( resultConn );
-                    cout << --_nClients << " clients" << endl;
+
+                    for( vector< RecvConn >::iterator i = receivers.begin();
+                         i != receivers.end(); ++i )
+                    {
+                        const RecvConn& candidate = *i;
+                        if( candidate.second == resultConn )
+                        {
+                            delete candidate.first;
+                            receivers.erase( i );
+                            break;
+                        }
+                    }
+
+                    cerr << --_nClients << " clients" << endl;
                     break;
 
                 case ConnectionSet::EVENT_INTERRUPT:
@@ -278,10 +306,14 @@ int main( int argc, char **argv )
                     TESTINFO( false, "Not reachable" );
             }
         }
+
+        TESTINFO( receivers.empty(), receivers.size() );
+        TESTINFO( _connectionSet.size() == 1, _connectionSet.size() );
+        _connectionSet.clear();
     }
 
     // TODO thread tear down
-
+ 
     TESTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
     connection->close();
     return EXIT_SUCCESS;

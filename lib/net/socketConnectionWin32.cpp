@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -19,7 +18,6 @@
 #include <Mswsock.h>
 
 using namespace eq::base;
-using namespace std;
 
 #ifdef WIN32
 namespace eq
@@ -27,11 +25,8 @@ namespace eq
 namespace net
 {
 SocketConnection::SocketConnection( const ConnectionType type )
-    : _overlappedPending( false )
-    , _overlappedAcceptData( 0 )
-    , _overlappedSocket( INVALID_SOCKET )
-    , _receivedUsedBytes( std::numeric_limits< uint64_t >::max( ))
-    , _receivedDataEvent( 0 )
+        : _overlappedAcceptData( 0 )
+        , _overlappedSocket( INVALID_SOCKET )
 {
     memset( &_overlapped, 0, sizeof( _overlapped ));
 
@@ -67,14 +62,14 @@ bool SocketConnection::connect()
     sockaddr_in socketAddress;
     if( !_parseAddress( socketAddress ))
     {
-        EQWARN << "Can't parse connection parameters" << endl;
+        EQWARN << "Can't parse connection parameters" << std::endl;
         close();
         return false;
     }
 
     if( socketAddress.sin_addr.s_addr == 0 )
     {
-        EQWARN << "Refuse to connect to 0.0.0.0" << endl;
+        EQWARN << "Refuse to connect to 0.0.0.0" << std::endl;
         close();
         return false;
     }
@@ -84,21 +79,13 @@ bool SocketConnection::connect()
     if( !connected )
     {
         EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-             << _description->TCPIP.port << "': " << EQ_SOCKET_ERROR << endl;
-        close();
-        return false;
-    }
- 
-    if( !_createReadEvents( ))
-    {
+             << _description->TCPIP.port << "': " << EQ_SOCKET_ERROR << std::endl;
         close();
         return false;
     }
 
+    _initAIORead();
     _state = STATE_CONNECTED;
-    _pendingBuffer.resize( MIN_BUFFER_SIZE );
-    _receivedBuffer.resize( MIN_BUFFER_SIZE );
-    _startReceive(); // start first overlapped receive
     _fireStateChanged();
     return true;
 }
@@ -108,178 +95,82 @@ void SocketConnection::close()
     if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
         return;
 
-    if( _state == STATE_LISTENING )
-        free( _overlappedAcceptData );
+    if( isListening( ))
+        _exitAIOAccept();
+    else
+        _exitAIORead();
+
     _state = STATE_CLOSED;
     EQASSERT( _readFD > 0 ); 
 
+    const bool closed = ( ::closesocket(_readFD) == 0 );
+    if( !closed )
+        EQWARN << "Could not close socket: " << EQ_SOCKET_ERROR << std::endl;
+
+    _readFD  = INVALID_SOCKET;
+    _writeFD = INVALID_SOCKET;
+    _fireStateChanged();
+}
+
+//----------------------------------------------------------------------
+// Async IO handle
+//----------------------------------------------------------------------
+void SocketConnection::_initAIORead()
+{
+    _overlapped.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
+    EQASSERT( _overlapped.hEvent );
+
+    if( !_overlapped.hEvent )
+        EQERROR << "Can't create event for AIO notification: " 
+                << EQ_SOCKET_ERROR << std::endl;
+}
+
+void SocketConnection::_initAIOAccept()
+{
+    _initAIORead();
+    _overlappedAcceptData = malloc( 2*( sizeof( sockaddr_in ) + 16 ));
+}
+
+void SocketConnection::_exitAIOAccept()
+{
+    if( _overlappedAcceptData )
+    {
+        free( _overlappedAcceptData );
+        _overlappedAcceptData = 0;
+    }
+    
+    _exitAIORead();
+}
+void SocketConnection::_exitAIORead()
+{
     if( _overlapped.hEvent )
     {
         CloseHandle( _overlapped.hEvent );
         _overlapped.hEvent = 0;
     }
-    if( _receivedDataEvent )
-    {
-        CloseHandle( _receivedDataEvent );
-        _receivedDataEvent = 0;
-    }
-
-    const bool closed = ( ::closesocket(_readFD) == 0 );
-    if( !closed )
-        EQWARN << "Could not close socket: " << EQ_SOCKET_ERROR << endl;
-
-    _readFD  = INVALID_SOCKET;
-    _writeFD = INVALID_SOCKET;
-
-    _overlappedPending = false;
-    _pendingBuffer.clear();
-    _receivedBuffer.clear();
-    _receivedUsedBytes = std::numeric_limits< uint64_t >::max();
-    _fireStateChanged();
 }
 
 //----------------------------------------------------------------------
 // accept
 //----------------------------------------------------------------------
-ConnectionPtr SocketConnection::accept()
-{
-    CHECK_THREAD( _recvThread );
-    if( _state != STATE_LISTENING )
-        return 0;
-
-    // complete accept
-    DWORD got   = 0;
-    DWORD flags = 0;
-    if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
-    {
-        EQWARN << "Accept complete failed: " << EQ_SOCKET_ERROR 
-               << ", socket closed" << endl;
-        close();
-        return 0;
-    }
-
-    sockaddr_in* local     = 0;
-    sockaddr_in* remote    = 0;
-    int          localLen  = 0;
-    int          remoteLen = 0;
-    GetAcceptExSockaddrs( _overlappedAcceptData, 0, sizeof( sockaddr_in ) + 16,
-                          sizeof( sockaddr_in ) + 16, (sockaddr**)&local, 
-                          &localLen, (sockaddr**)&remote, &remoteLen );
-    _tuneSocket( _overlappedSocket );
-
-    SocketConnection* newConnection = new SocketConnection( _description->type);
-
-    newConnection->_readFD      = _overlappedSocket;
-    newConnection->_writeFD     = _overlappedSocket;
-    newConnection->_state       = STATE_CONNECTED;
-    newConnection->_description->bandwidth = _description->bandwidth;
-    newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
-    newConnection->_description->TCPIP.port   = ntohs( remote->sin_port );
-    newConnection->_pendingBuffer.resize( MIN_BUFFER_SIZE );
-    newConnection->_receivedBuffer.resize( MIN_BUFFER_SIZE );
-
-    _overlappedSocket  = INVALID_SOCKET;
-    _overlappedPending = false;
-    _startAccept();
-
-    if( !newConnection->_createReadEvents( ))
-    {
-        newConnection->close();
-        return 0;
-    }
-
-    newConnection->_startReceive(); // start first overlapped receive
-
-    EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
-           << ":" << ntohs( remote->sin_port ) <<endl;
-
-    return newConnection;
-}
-
-bool SocketConnection::_createReadEvents()
-{
-    // Win32 uses overlapped (async) IO. Populate the overlapped structure used
-    // for ConnectionSet::select, recv and accept.
-
-    _overlapped.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    if( !_overlapped.hEvent )
-    {
-        EQERROR << "Can't create event for read notification: " 
-                << EQ_SOCKET_ERROR << endl;
-        return false;
-    }
-
-    // The event to signal that our internal buffer has data is always set!
-    _receivedDataEvent = CreateEvent( 0, FALSE, TRUE, 0 );
-    if( !_receivedDataEvent )
-    {
-        EQERROR << "Can't create event for read notification: " 
-                << EQ_SOCKET_ERROR << endl;
-        return false;
-    }
-
-    return true;
-}
-
-Connection::ReadNotifier SocketConnection::getReadNotifier() const
-{
-    if( _state == STATE_CLOSED )
-        return 0;
-
-    if( _receivedUsedBytes < _receivedBuffer.size )
-        return _receivedDataEvent;
-
-    EQASSERT( _overlappedPending );
-    return _overlapped.hEvent;
-}
-
-void SocketConnection::_startReceive()
-{
-    EQASSERT( _state == STATE_CONNECTED );
-
-    if( _overlappedPending )
-        return;
-
-    _pendingBuffer.resize( _pendingBuffer.getMaxSize( ));
-
-    WSABUF wsaBuffer = { _pendingBuffer.size, _pendingBuffer.data };
-    DWORD  got   = 0;
-    DWORD  flags = 0;
-
-    ResetEvent( _overlapped.hEvent );
-    if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 0 )==0 ||
-        GetLastError() == WSA_IO_PENDING )
-    {
-        _overlappedPending = true;
-        return;
-    }
-
-    EQWARN << "Could not start overlapped receive: " << EQ_SOCKET_ERROR << endl;
-}
-
-void SocketConnection::_startAccept()
+void SocketConnection::acceptNB()
 {
     EQASSERT( _state == STATE_LISTENING );
-    if( _overlappedPending )
-        return;
-
-    _overlappedPending = true;
 
     // Create new accept socket
     const DWORD flags = _description->type == CONNECTIONTYPE_SDP ?
                             WSA_FLAG_OVERLAPPED | WSA_FLAG_SDP :
                             WSA_FLAG_OVERLAPPED;
 
+    EQASSERT( _overlappedAcceptData );
+    EQASSERT( _overlappedSocket == INVALID_SOCKET );
     _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0,
-        flags );
-
-    if( _description->type == CONNECTIONTYPE_SDP )
-        EQINFO << "Created SDP accept socket" << endl;
+                                   flags );
 
     if( _overlappedSocket == INVALID_SOCKET )
     {
         EQERROR << "Could not create accept socket: " << EQ_SOCKET_ERROR
-                << ", closing socket" << endl;
+                << ", closing listening socket" << std::endl;
         close();
         return;
     }
@@ -294,95 +185,113 @@ void SocketConnection::_startAccept()
     if( !AcceptEx( _readFD, _overlappedSocket, _overlappedAcceptData, 0,
                    sizeof( sockaddr_in ) + 16, sizeof( sockaddr_in ) + 16,
                    &got, &_overlapped ) &&
-         GetLastError() != WSA_IO_PENDING )
+        GetLastError() != WSA_IO_PENDING )
     {
         EQERROR << "Could not start accept operation: " << EQ_SOCKET_ERROR 
-                << ", closing connection" << endl;
+                << ", closing connection" << std::endl;
         close();
     }
 }
     
-int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
+ConnectionPtr SocketConnection::acceptSync()
+{
+    CHECK_THREAD( _recvThread );
+    if( _state != STATE_LISTENING )
+        return 0;
+
+    EQASSERT( _overlappedAcceptData );
+    EQASSERT( _overlappedSocket != INVALID_SOCKET );
+    if( _overlappedSocket == INVALID_SOCKET )
+        return 0;
+
+    // complete accept
+    DWORD got   = 0;
+    DWORD flags = 0;
+    if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
+    {
+        EQWARN << "Accept completion failed: " << EQ_SOCKET_ERROR 
+               << ", closing socket" << std::endl;
+        close();
+        return 0;
+    }
+
+    sockaddr_in* local     = 0;
+    sockaddr_in* remote    = 0;
+    int          localLen  = 0;
+    int          remoteLen = 0;
+    GetAcceptExSockaddrs( _overlappedAcceptData, 0, sizeof( sockaddr_in ) + 16,
+                          sizeof( sockaddr_in ) + 16, (sockaddr**)&local, 
+                          &localLen, (sockaddr**)&remote, &remoteLen );
+    _tuneSocket( _overlappedSocket );
+
+    SocketConnection* newConnection = new SocketConnection(_description->type );
+
+    newConnection->_readFD  = _overlappedSocket;
+    newConnection->_writeFD = _overlappedSocket;
+    _overlappedSocket       = INVALID_SOCKET;
+
+    newConnection->_state                   = STATE_CONNECTED;
+    newConnection->_description->bandwidth  = _description->bandwidth;
+    newConnection->_description->TCPIP.port = ntohs( remote->sin_port );
+    newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
+
+    EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
+           << ":" << ntohs( remote->sin_port ) <<endl;
+    return newConnection;
+}
+
+//----------------------------------------------------------------------
+// read
+//----------------------------------------------------------------------
+void SocketConnection::readNB( void* buffer, const uint64_t bytes );
+{
+    EQASSERT( _state == STATE_CONNECTED );
+
+    WSABUF wsaBuffer = { bytes, buffer };
+    DWORD  got   = 0;
+    DWORD  flags = 0;
+
+    ResetEvent( _overlapped.hEvent );
+    if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 0 ) != 0 &&
+        GetLastError() != WSA_IO_PENDING )
+    {
+        EQWARN << "Could not start overlapped receive: " << EQ_SOCKET_ERROR
+               << std::endl;
+    }
+}
+
+int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
 {
     CHECK_THREAD( _recvThread );
 
-    int64_t bytesCopied = 0;
-
-    // First use data left in already received buffer
-    if( _receivedUsedBytes < _receivedBuffer.size )
+    if( _readFD == INVALID_SOCKET )
     {
-        const uint64_t left = _receivedBuffer.size - _receivedUsedBytes;
-        bytesCopied = EQ_MIN( left, bytes );
-        EQASSERT( bytesCopied > 0 );
-
-        memcpy( buffer, _receivedBuffer.data + _receivedUsedBytes,
-                bytesCopied );
-        _receivedUsedBytes += bytesCopied;
-
-        if( _receivedUsedBytes == _receivedBuffer.size )
-            _fireStateChanged(); // the read notifier changed (internal->nw)
-    }
-    else // then complete the pending read operation
-    {
-        EQASSERT( _overlappedPending );
-        if( _readFD == INVALID_SOCKET )
-        {
-            EQERROR << "Invalid read handle" << endl;
-            return -1;
-        }
-
-        DWORD got   = 0;
-        DWORD flags = 0;
-        if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags))
-        {
-            if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
-                return 0;
-
-            EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
-                << ", closing connection" << endl;
-            close();
-            return -1;
-        }
-        if( got == 0 )
-        {
-            EQWARN << "Read operation returned with nothing read"
-                   << ", closing connection." << endl;
-            close();
-            return -1;
-        }
-
-        EQASSERTINFO( got <= _pendingBuffer.size, 
-                      got << " max " << _pendingBuffer.size );
-
-        // get data from received buffer
-        _receivedBuffer.swap( _pendingBuffer );
-        _receivedBuffer.resize( got );
-
-        bytesCopied = EQ_MIN( bytes, got );
-        EQASSERT( bytesCopied > 0 );
-
-        memcpy( buffer, _receivedBuffer.data, bytesCopied );
-        _receivedUsedBytes = bytesCopied;
-
-        // Tune receive buffer and kick off new receive
-        _overlappedPending = false;
-        _pendingBuffer.resize( EQ_MIN( bytes, MAX_BUFFER_SIZE ));
-        _startReceive();
-
-        if( _receivedUsedBytes < _receivedBuffer.size )
-            _fireStateChanged(); // the read notifier changed (nw->internal)
+        EQERROR << "Invalid read handle" << std::endl;
+        return -1;
     }
 
-    if( _receivedUsedBytes >= _receivedBuffer.size && !_overlappedPending )
+    DWORD got   = 0;
+    DWORD flags = 0;
+    if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
     {
-        EQERROR << "Internal buffer exhausted and no read operation "
-                << "is pending, closing connection" << endl;
+        if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
+            return 0;
+
+        EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
+               << ", closing connection" << std::endl;
         close();
+        return -1;
     }
 
-    SetEvent( _receivedDataEvent ); // WaitForMultipleObjects resets the event
-    CHECK_THREAD_RESET( _recvThread );
-    return bytesCopied;
+    if( got == 0 )
+    {
+        EQWARN << "Read operation returned with nothing read"
+               << ", closing connection." << std::endl;
+        close();
+        return -1;
+    }
+
+    return got;
 }
 
 int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
@@ -405,7 +314,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
         // error
         if( GetLastError( ) != WSAEWOULDBLOCK )
         {
-            EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
+            EQWARN << "Error during write: " << EQ_SOCKET_ERROR << std::endl;
             return -1;
 	    }
 

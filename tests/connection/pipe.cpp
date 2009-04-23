@@ -46,7 +46,8 @@ protected:
             TEST( _connection->getState() == Connection::STATE_CONNECTED );
 
             char text[5];
-            TEST( _connection->recv( &text, 5 ) == 5 );
+            _connection->recvNB(  &text, 5 );
+            TEST( _connection->recvSync( 0, 0 ));
             TEST( strcmp( "buh!", text ) == 0 );
 
             _connection->close();

@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -66,7 +65,7 @@ bool SocketConnection::_createSocket()
     const SOCKET fd = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0,0,flags );
 
     if( _description->type == CONNECTIONTYPE_SDP )
-        EQINFO << "Created SDP socket" << endl;
+        EQINFO << "Created SDP socket" << std::endl;
 #else
     Socket fd;
     if( _description->type == CONNECTIONTYPE_SDP )
@@ -77,7 +76,7 @@ bool SocketConnection::_createSocket()
 
     if( fd == INVALID_SOCKET )
     {
-        EQERROR << "Could not create socket: " << EQ_SOCKET_ERROR << endl;
+        EQERROR << "Could not create socket: " << EQ_SOCKET_ERROR << std::endl;
         return false;
     }
 
@@ -120,13 +119,13 @@ bool SocketConnection::_parseAddress( sockaddr_in& socketAddress )
             memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
         else
         {
-            EQWARN << "Can't resolve host " << hostname << endl;
+            EQWARN << "Can't resolve host " << hostname << std::endl;
             return false;
         }
     }
 
     EQINFO << "Address " << inet_ntoa( socketAddress.sin_addr )
-           << ":" << ntohs( socketAddress.sin_port ) << endl;
+           << ":" << ntohs( socketAddress.sin_port ) << std::endl;
     return true;
 }
 //----------------------------------------------------------------------
@@ -151,7 +150,7 @@ bool SocketConnection::listen()
 
     if( !_parseAddress( socketAddress ))
     {
-        EQWARN << "Can't parse connection parameters" << endl;
+        EQWARN << "Can't parse connection parameters" << std::endl;
         close();
         return false;
     }
@@ -164,32 +163,22 @@ bool SocketConnection::listen()
                << EQ_SOCKET_ERROR << " to "
                << inet_ntoa( socketAddress.sin_addr )
                << ":" << ntohs( socketAddress.sin_port ) << " AF " 
-               << (int)socketAddress.sin_family << endl;
+               << (int)socketAddress.sin_family << std::endl;
 
         close();
         return false;
     }
     else if( socketAddress.sin_port == 0 )
-        EQINFO << "Bound to port " << getPort() << endl;
+        EQINFO << "Bound to port " << getPort() << std::endl;
 
     const bool listening = (::listen( _readFD, 10 ) == 0);
         
     if( !listening )
     {
-        EQWARN << "Could not listen on socket: " << EQ_SOCKET_ERROR << endl;
+        EQWARN << "Could not listen on socket: " << EQ_SOCKET_ERROR << std::endl;
         close();
         return false;
     }
-
-#ifdef WIN32
-    if( !_createReadEvents( ))
-    {
-        close();
-        return false;
-    }
-    // setup data structures needed by AcceptEx
-    _overlappedAcceptData = malloc( 2*( sizeof( sockaddr_in ) + 16 ));
-#endif
 
     // get socket parameters
     sockaddr_in address; // must use new sockaddr_in variable !?!
@@ -211,16 +200,14 @@ bool SocketConnection::listen()
             _description->setHostname( inet_ntoa( address.sin_addr ));
     }
     
+    _initAIOAccept();
     _state = STATE_LISTENING;
-#ifdef WIN32
-    _startAccept();
-#endif
     _fireStateChanged();
 
     EQINFO << "Listening on " << _description->getHostname() << "["
            << inet_ntoa( socketAddress.sin_addr ) << "]:" 
            << _description->TCPIP.port << " (" << _description->toString()
-           << ")" << endl;
+           << ")" << std::endl;
     
     return true;
 }

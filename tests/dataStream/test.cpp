@@ -2,9 +2,8 @@
 /* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -186,9 +185,9 @@ int main( int argc, char **argv )
 
     while( receiving )
     {
-        uint64_t   size;
-        const bool gotSize = connection->recv( &size, sizeof( size ));
-        TEST( gotSize );
+        uint64_t size;
+        connection->recvNB( &size, sizeof( size ));
+        TEST( connection->recvSync( 0, 0 ));
         TEST( size );
 
         eq::net::Command& command = commandCache.alloc( 0, 0, size );
@@ -196,9 +195,8 @@ int main( int argc, char **argv )
 
         char*      ptr     = reinterpret_cast< char* >( command.getPacket( )) +
                                                         sizeof( size );
-        const bool gotData = connection->recv( ptr, size );
-
-        TEST( gotData );
+        connection->recvNB( ptr, size );
+        TEST( connection->recvSync( 0, 0 ) );
         TEST( command.isValid( ));
         
         switch( command->command )

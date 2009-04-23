@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -45,16 +44,10 @@ namespace net
 
 Connection::Connection()
         : _state( STATE_CLOSED )
+        , _aioBuffer( 0 )
+        , _aioBytes( 0 )
 {
     EQVERB << "New Connection @" << (void*)this << endl;
-}
-
-Connection::Connection( const Connection& from )
-        : Referenced( from )
-        , _state( from._state )
-        , _description( from._description )
-{
-    EQVERB << "New Connection copy @" << (void*)this << endl;
 }
 
 Connection::~Connection()
@@ -112,24 +105,47 @@ void Connection::_fireStateChanged()
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
-bool Connection::recv( void* buffer, const uint64_t bytes )
+void Connection::recvNB( void* buffer, const uint64_t bytes )
 {
-    EQLOG( LOG_WIRE ) << "Receiving " << bytes << " bytes on " << this << endl;
-    if( _state != STATE_CONNECTED )
+    EQASSERT( !_aioBuffer );
+    EQASSERT( !_aioBytes );
+    EQASSERT( buffer );
+    EQASSERT( bytes );
+
+    _aioBuffer = buffer;
+    _aioBytes  = bytes;
+    readNB( buffer, bytes );
+}
+
+bool Connection::recvSync( void** outBuffer, uint64_t* outBytes )
+{
+    EQASSERT( _aioBuffer );
+    EQASSERT( _aioBytes );
+
+    if( outBuffer )
+        *outBuffer = _aioBuffer;
+    if( outBytes )
+        *outBytes = _aioBytes;
+
+    void* buffer( _aioBuffer );
+    const uint64_t bytes( _aioBytes );
+    _aioBuffer = 0;
+    _aioBytes  = 0;
+
+    if( _state != STATE_CONNECTED || !buffer || !bytes )
         return false;
 
-    if( bytes > 1048576 )
-        EQLOG( LOG_NETPERF ) << "Start receive " << bytes << " bytes" << endl;
-
-    unsigned char* ptr       = static_cast<unsigned char*>(buffer);
-    uint64_t       bytesLeft = bytes;
+    uint8_t* ptr = static_cast< uint8_t* >( buffer );
+    uint64_t bytesLeft = bytes;
 
     while( bytesLeft )
     {
-        int64_t got = this->read( ptr, bytesLeft );
+        const int64_t got = readSync( ptr, bytesLeft );
 
-        if( got == -1 ) // error
+        if( got < 0 ) // error
         {
+            if( outBytes )
+                *outBytes -= bytesLeft;
             if( bytes == bytesLeft )
                 EQINFO << "Read on dead connection" << endl;
             else
@@ -141,42 +157,29 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
         {
             // ConnectionSet::select may report data on an 'empty' connection.
             // If we have nothing read so far, we have hit this case.
-            if( bytesLeft == bytes )
+            if( bytes == bytesLeft )
+            {
+                if( outBytes )
+                    *outBytes = 0;
                 return false;
-
+            }
             EQVERB << "Zero bytes read" << endl;
         }
 
-        if( bytes > 1048576 )
-            EQLOG( LOG_NETPERF ) << "Got " << got << " bytes" << endl;
-
-        bytesLeft -= got;
-        ptr += got;
-    }
-
-    if( bytes > 1048576 )
-        EQLOG( LOG_NETPERF ) << "End receive   " << bytes << " bytes" << endl;
-
-    if( Log::topics & LOG_WIRE ) // OPT
-    {
-        EQLOG( LOG_WIRE ) << disableFlush << "Received " << bytes << " bytes: ";
-        const uint32_t printBytes = EQ_MIN( bytes, 256 );
-        unsigned char* data       = static_cast<unsigned char*>(buffer);
-
-        for( uint32_t i=0; i<printBytes; i++ )
+        if( bytesLeft > static_cast< uint64_t >( got )) // partial read
         {
-            if( i%4 )
-                EQLOG( LOG_WIRE ) << " ";
-            else if( i )
-                EQLOG( LOG_WIRE ) << "|";
+            ptr += got;
+            bytesLeft -= got;
 
-            EQLOG( LOG_WIRE ) << static_cast<int>(data[i]);
+            readNB( ptr, bytesLeft );
         }
-        if( printBytes < bytes ) 
-            EQLOG( LOG_WIRE ) << "|...";
-        EQLOG( LOG_WIRE ) << endl << enableFlush;
+        else
+        {
+            EQASSERT( static_cast< uint64_t >( got ) == bytesLeft );
+            bytesLeft = 0;
+        }
     }
-            
+
     return true;
 }
 
@@ -194,39 +197,13 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     // 1) Disassemble buffer into 'small enough' pieces and use a header to
     //    reassemble correctly on the other side (aka reliable UDP)
     // 2) Introduce a send thread with a thread-safe task queue
-    ScopedMutex<SpinLock> mutex( isLocked ? 0 : &_sendLock );
+    ScopedMutex< SpinLock > mutex( isLocked ? 0 : &_sendLock );
 
-    const unsigned char* ptr = static_cast<const unsigned char*>(buffer);
-
-    if( Log::topics & LOG_WIRE ) // OPT
-    {
-        EQLOG( LOG_WIRE ) << disableFlush << "Sending " << bytes 
-                          << " bytes on " << (void*)this << ":";
-        const uint32_t printBytes = EQ_MIN( bytes, 256 );
-
-        for( uint32_t i=0; i<printBytes; ++i )
-        {
-            if( i%4 )
-                EQLOG( LOG_WIRE ) << " ";
-            else if( i )
-                EQLOG( LOG_WIRE ) << "|";
-
-            EQLOG( LOG_WIRE ) << static_cast<int>(ptr[i]);
-        }
-        if( printBytes < bytes ) 
-            EQLOG( LOG_WIRE ) << "|...";
-        EQLOG( LOG_WIRE ) << endl << enableFlush;
-    }
-
-    if( bytes > 1048576 )
-        EQLOG( LOG_NETPERF ) << "Start transmit " << bytes << " bytes" << endl;
-
+    const uint8_t* ptr = static_cast< const uint8_t* >( buffer );
     uint64_t bytesLeft = bytes;
     while( bytesLeft )
     {
         const int64_t wrote = this->write( ptr, bytesLeft );
-        if( bytes > 1048576 )
-            EQLOG( LOG_NETPERF ) << "Wrote " << wrote << " bytes" << endl;
 
         if( wrote == -1 ) // error
         {
@@ -240,9 +217,6 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
         bytesLeft -= wrote;
         ptr += wrote;
     }
-
-    if( bytes > 1048576 )
-        EQLOG( LOG_NETPERF ) << "End transmit   " << bytes << " bytes" << endl;
     return true;
 }
 

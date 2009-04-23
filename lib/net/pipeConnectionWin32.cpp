@@ -124,7 +124,7 @@ int64_t PipeConnection::read( void* buffer, const uint64_t bytes )
         close();
         return -1;
     }
-        
+
     _mutex.set();
     EQASSERT( _size >= bytesRead );
     _size -= bytesRead;
