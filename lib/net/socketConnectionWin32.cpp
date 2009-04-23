@@ -228,6 +228,7 @@ ConnectionPtr SocketConnection::acceptSync()
 
     newConnection->_readFD  = _overlappedSocket;
     newConnection->_writeFD = _overlappedSocket;
+    newConnection->_initAIORead();
     _overlappedSocket       = INVALID_SOCKET;
 
     newConnection->_state                   = STATE_CONNECTED;
@@ -236,18 +237,20 @@ ConnectionPtr SocketConnection::acceptSync()
     newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
 
     EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
-           << ":" << ntohs( remote->sin_port ) <<endl;
+           << ":" << ntohs( remote->sin_port ) << std::endl;
     return newConnection;
 }
 
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
-void SocketConnection::readNB( void* buffer, const uint64_t bytes );
+void SocketConnection::readNB( void* buffer, const uint64_t bytes )
 {
-    EQASSERT( _state == STATE_CONNECTED );
+    if( _state == STATE_CLOSED )
+        return;
 
-    WSABUF wsaBuffer = { bytes, buffer };
+    WSABUF wsaBuffer = { EQ_MIN( bytes, 1048576 ),
+                         reinterpret_cast< char* >( buffer ) };
     DWORD  got   = 0;
     DWORD  flags = 0;
 
@@ -302,7 +305,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     DWORD  wrote;
     WSABUF wsaBuffer = 
         { 
-            EQ_MIN( bytes, MAX_BUFFER_SIZE ),
+            EQ_MIN( bytes, 1048576 ),
             const_cast<char*>( static_cast< const char* >( buffer )) 
         };
 
@@ -328,7 +331,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
 	    const int result = select( _writeFD+1, 0, &set, 0, 0 );
 	    if( result <= 0 )
     	{
-	    	EQWARN << "Error during select: " << EQ_SOCKET_ERROR <<endl;
+            EQWARN << "Error during select: " << EQ_SOCKET_ERROR << std::endl;
 		    return -1;
 	    }
 #endif

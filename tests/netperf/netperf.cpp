@@ -69,9 +69,9 @@ namespace
 
             eq::net::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
-            EQWARN << " Recv perf: " << mBytesSec / time << "MB/s ("
-                   << time << "ms) from " << desc->getHostname() << ":"
-                   << desc->TCPIP.port << endl;
+            cerr << " Recv perf: " << mBytesSec / time << "MB/s ("
+                 << time << "ms) from " << desc->getHostname() << ":"
+                 << desc->TCPIP.port << endl;
             return true;
         }
 

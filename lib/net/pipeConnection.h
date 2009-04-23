@@ -48,7 +48,7 @@ namespace net
         virtual void close();
 
 #ifdef WIN32
-        virtual ReadNotifier getReadNotifier() const { return _dataPending; }
+        virtual Notifier getNotifier() const { return _dataPending; }
         bool hasData() const 
             { return WaitForSingleObject( _dataPending, 0 ) == WAIT_OBJECT_0; }
 #endif
@@ -57,8 +57,8 @@ namespace net
         PipeConnection( const PipeConnection& conn );
 
 #ifdef WIN32
-        virtual void readNB( AIOHandle* operation );
-        virtual int64_t readSync( AIOHandle* operation );
+        virtual void readNB( void* buffer, const uint64_t bytes );
+        virtual int64_t readSync( void* buffer, const uint64_t bytes );
         virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
 #endif
 

@@ -40,7 +40,7 @@ using namespace eq::base;
 
 #ifdef WIN32
 #  define SELECT_TIMEOUT WAIT_TIMEOUT
-#  define SELECT_ERROR   WAIT_FAILED,
+#  define SELECT_ERROR   WAIT_FAILED
 #else
 #  define SELECT_TIMEOUT  0
 #  define SELECT_ERROR   -1

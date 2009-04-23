@@ -57,7 +57,7 @@ namespace net
         uint16_t getPort() const;
 
 #ifdef WIN32
-        virtual Notifier getNotifier() const;
+        virtual Notifier getNotifier() const { return _overlapped.hEvent; }
 #endif
 
     protected:

@@ -102,8 +102,8 @@ void PipeConnection::close()
     _state = STATE_CLOSED;
     _fireStateChanged();
 }
-
-int64_t PipeConnection::read( void* buffer, const uint64_t bytes )
+void PipeConnection::readNB( void* buffer, const uint64_t bytes ) { /* NOP */ }
+int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes )
 {
     if( !_readHandle )
         return -1;
