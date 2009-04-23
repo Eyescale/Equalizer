@@ -133,16 +133,6 @@ namespace net
         virtual ConnectionPtr accept() { return 0; }
 
         /** 
-         * Accepts the next incoming connection with a timeout.
-         * 
-         * @param timeout the amount of time to wait in milliseconds, if set
-         *                to <code>-1</code> the method blocks indefinitely.
-         * @return the accepted connection, or an invalid pointer if no
-         *         connection was accepted.
-         */
-        virtual ConnectionPtr accept( const int timeout );
-
-        /** 
          * Closes a connected or listening connection.
          */
         virtual void close(){};

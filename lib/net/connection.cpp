@@ -86,52 +86,6 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
     return connection;
 }
 
-ConnectionPtr Connection::accept( const int timeout )
-{
-    if( _state != STATE_LISTENING )
-        return 0;
-
-    // prepare select 'set'
-    const ReadNotifier notifier = getReadNotifier();
-    
-    if( notifier == 0 )
-    {
-        // Could implement the same using a setjmp() + alarm().
-        EQWARN << "Cannot accept on connection, does not use a file descriptor"
-               << endl;
-        return 0;
-    }
-
-#ifdef WIN32
-    const DWORD waitTime = timeout > 0 ? timeout : INFINITE;
-    const DWORD ret = WaitForSingleObject( notifier, waitTime );
-#else
-    const ReadNotifier fd = getReadNotifier();
-    fd_set fdSet;
-    FD_ZERO( &fdSet );
-    FD_SET( fd, &fdSet );
-
-    // wait for a connection
-    timeval tv;
-    tv.tv_sec  = timeout / 1000 ;
-    tv.tv_usec = (timeout - tv.tv_sec*1000) * 1000;
-
-    const int ret = ::select( fd+1, &fdSet, 0, 0, timeout ? &tv : 0 );
-#endif
-    switch( ret )
-    {
-        case SELECT_TIMEOUT:
-            return 0;
-
-        case SELECT_ERROR:
-            EQWARN << "Error during select(): " << EQ_SOCKET_ERROR << endl;
-            return 0;
-
-        default: // SUCCESS
-            return accept();
-    }
-}
-
 void Connection::addListener( ConnectionListener* listener )
 {
     _listeners.push_back( listener );
