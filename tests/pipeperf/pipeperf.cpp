@@ -58,7 +58,7 @@ protected:
                 clock.reset();
                 TEST( _connection->send( buffer, packetSize ));
 
-                cout << "Send perf: " << mBytesSec / clock.getTimef()
+                cerr << "Send perf: " << mBytesSec / clock.getTimef()
                      << "MB/s (" << mBytes << "MB)" <<  endl;
             }
 
@@ -93,8 +93,8 @@ int main( int argc, char **argv )
         connection->recvNB( buffer, packetSize );
         TEST( connection->recvSync( 0, 0 ));
 
-        cout << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s ("
-             << mBytes << "MB)" <<  endl;
+        cerr << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s ("
+             << mBytes << "MB)" << std::endl;
     }
 
     TEST( sender.join( ));

@@ -2,9 +2,8 @@
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -82,10 +81,17 @@ namespace eq
          */
         void resizeBottom( const float ratio );
 
+        /** Compute the sub-frustum for a 2D area on the full wall. */
         void apply( const Viewport& viewport);
 
         /** Set the wall parameters from a projection description. */
         Wall& operator = ( const Projection& projection );
+
+        /** @return the width of the wall. */
+        float getWidth() const { return (bottomRight - bottomLeft).length(); }
+
+        /** @return the height of the wall. */
+        float getHeight() const { return (topLeft - bottomLeft).length(); }
 
         bool operator == ( const Wall& rhs ) const;
         bool operator != ( const Wall& rhs ) const;
