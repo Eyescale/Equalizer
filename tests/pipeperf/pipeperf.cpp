@@ -32,7 +32,7 @@ using namespace eq::net;
 using namespace eq::base;
 using namespace std;
 
-#define MAXPACKETSIZE (512 * 1048576)
+#define MAXPACKETSIZE (256 * 1048576)
 
 class Sender : public Thread
 {
@@ -91,11 +91,10 @@ int main( int argc, char **argv )
 
         clock.reset();
         connection->recvNB( buffer, packetSize );
-        if( connection->recvSync( 0, 0 ))
-        {
-            cout << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s ("
-                 << mBytes << "MB)" <<  endl;
-        }
+        TEST( connection->recvSync( 0, 0 ));
+
+        cout << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s ("
+             << mBytes << "MB)" <<  endl;
     }
 
     TEST( sender.join( ));
