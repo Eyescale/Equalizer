@@ -96,14 +96,14 @@ void PairConnection::close()
     _readConnection->close();
     _writeConnection->close();
 
-    // clear all pointers to break circular RefPtr dependency to sibling. This
-    // prohibits reopening the pair connection!
-    _sibling->_readConnection  = 0;
-    _sibling->_writeConnection = 0;
-    _sibling->_sibling         = 0;
-    _readConnection  = 0;
-    _writeConnection = 0;
-    _sibling         = 0;
+    // Break circular RefPtr dependency to sibling. This prohibits reopening the
+    // pair connection!
+    _sibling->_sibling = 0;
+
+    _readConnection    = 0;
+    _writeConnection   = 0;
+    _sibling           = 0;
 }
+
 }
 }
