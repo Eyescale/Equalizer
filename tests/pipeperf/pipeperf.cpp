@@ -32,8 +32,7 @@ using namespace eq::net;
 using namespace eq::base;
 using namespace std;
 
-#define PACKETSIZE (100 * 1048576)
-#define NPACKETS   10
+#define MAXPACKETSIZE (512 * 1048576)
 
 class Sender : public Thread
 {
@@ -47,16 +46,20 @@ public:
 protected:
     virtual void* run()
         {
-            void* buffer = calloc( 1, PACKETSIZE );
-            const float mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
-
+            void* buffer = calloc( 1, MAXPACKETSIZE );
             Clock    clock;
-            for( unsigned i=0; i<NPACKETS; ++i )
+
+            for( uint64_t packetSize = MAXPACKETSIZE; packetSize >= 1048576;
+                 packetSize = packetSize >> 1 )
             {
+                const float mBytes    = packetSize / 1024.0f / 1024.0f;
+                const float mBytesSec = mBytes * 1000.0f;
+
                 clock.reset();
-                TEST( _connection->send( buffer, PACKETSIZE ));
-                cout << "Send perf: " << mBytesSec / clock.getTimef() << "MB/s"
-                     << endl;
+                TEST( _connection->send( buffer, packetSize ));
+
+                cout << "Send perf: " << mBytesSec / clock.getTimef()
+                     << "MB/s (" << mBytes << "MB)" <<  endl;
             }
 
             free( buffer );
@@ -77,19 +80,21 @@ int main( int argc, char **argv )
     Sender sender( connection );
     TEST( sender.start( ));
 
-    void* buffer = calloc( 1, PACKETSIZE );
-    const float mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
-
+    void* buffer = calloc( 1, MAXPACKETSIZE );
     Clock clock;
-    for( unsigned i=0; i<NPACKETS; )
+
+    for( uint64_t packetSize = MAXPACKETSIZE; packetSize >= 1048576;
+         packetSize = packetSize >> 1 )
     {
+        const float mBytes    = packetSize / 1024.0f / 1024.0f;
+        const float mBytesSec = mBytes * 1000.0f;
+
         clock.reset();
-        connection->recvNB( buffer, PACKETSIZE );
+        connection->recvNB( buffer, packetSize );
         if( connection->recvSync( 0, 0 ))
         {
-            cout << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s"
-                 << endl;
-            ++i;
+            cout << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s ("
+                 << mBytes << "MB)" <<  endl;
         }
     }
 
