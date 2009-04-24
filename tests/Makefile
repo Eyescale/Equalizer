@@ -14,8 +14,7 @@ SUBDIRS = \
 	openmp \
 	pipeperf \
 	session \
-	wall \
-	wallProjection
+	frustum
 
 TARGETS = subdirs
 
