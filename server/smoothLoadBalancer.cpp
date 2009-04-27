@@ -2,9 +2,8 @@
 /* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -27,6 +26,10 @@
 
 using namespace eq::base;
 using namespace std;
+
+#define USE_AVERAGE
+#define VSYNC_CAP 60.f
+#define SLOWDOWN  1.05f
 
 namespace eq
 {
@@ -116,44 +119,68 @@ void SmoothLoadBalancer::update( const uint32_t frameNumber )
         _init();
 
     // find starting point of contiguous block
-    const size_t size = _times.size();
-    size_t       from = 0;
-    for( size_t i = 0; i < size; ++i )
+    const ssize_t size = static_cast< ssize_t >( _times.size( ));
+    ssize_t       from = 0;
+    if( size > 0 )
     {
-        if( _times[i].second == 0.f )
+        for( ssize_t i = size-1; i >= 0; --i )
+        {
+            if( _times[i].second != 0.f )
+                continue;
+
             from = i;
+            break;
+        }
     }
 
-    // find max time in block
-    const Config*  config        = compound->getConfig();
-    const uint32_t finishedFrame = config->getFinishedFrame();
-
+    // find max / avg time in block
     size_t nSamples = 0;
-    float  maxTime  = 0.f;
+#ifdef USE_AVERAGE
+    float sumTime = 0.f;
+#else
+    float maxTime  = 0.f;
+#endif
+
     for( ++from; from < size && nSamples < _nSamples; ++from )
     {
         const FrameTime& time = _times[from];
-        if( time.second == 0.f || time.first < finishedFrame )
-            continue;
-
         EQASSERT( time.first > 0 );
+        EQASSERT( time.second != 0.f );
+
         ++nSamples;
+#ifdef USE_AVERAGE
+        sumTime += time.second;
+#else
         maxTime = EQ_MAX( maxTime, time.second );
+#endif
         EQLOG( LOG_LB ) << "Using " << time.first << ", " << time.second << "ms"
                         << endl;
     }
 
     if( nSamples == _nSamples )       // If we have a full set
-        while( from < _times.size( )) //  delete all older samples
-            _times.pop_back();
+        while( from < static_cast< ssize_t >( _times.size( )))
+            _times.pop_back();            //  delete all older samples
 
     if( nSamples > 0 )
     {
         //TODO: totalTime *= 1.f - damping;
-        const float fps = 1000.f / maxTime;
-        EQLOG( LOG_LB ) << fps << " Hz from " << nSamples << " samples, "
-                        << maxTime << "ms" << endl;
-        compound->setMaxFPS( fps );
+#ifdef USE_AVERAGE
+        const float time = (sumTime / nSamples) * SLOWDOWN;
+#else
+        const float time = maxTime * SLOWDOWN;
+#endif
+
+        const float fps = 1000.f / time;
+#ifdef VSYNC_CAP
+        if( fps > VSYNC_CAP )
+            compound->setMaxFPS( numeric_limits< float >::max( ));
+        else
+#endif
+            compound->setMaxFPS( fps );
+
+        EQLOG( LOG_LB ) << fps << " Hz from " << nSamples << "/" 
+                        << _times.size() << " samples, " << time << "ms" 
+                        << std::endl;
     }
 
     _times.push_front( FrameTime( frameNumber, 0.f ));
