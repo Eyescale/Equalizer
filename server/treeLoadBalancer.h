@@ -2,9 +2,8 @@
 /* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -69,14 +68,13 @@ namespace server
 
         struct Data
         {
-            Data() : compound(0), startTime( -1.f ), endTime( -1.f ) {}
+            Data() : compound(0), time( -1.f ) {}
 
             Compound*    compound;
             eq::Viewport vp;
             eq::Range    range;
-            float        startTime;
-            float        endTime;
-            float        load;          //<! (endTime-startTime)/vp.area
+            float        time;
+            float        load;          //<! time/vp.area
         };
 
         typedef std::vector< Data >                  LBDataVector;

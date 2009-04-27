@@ -2,9 +2,8 @@
 /* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -153,18 +152,24 @@ void TreeLoadBalancer::notifyLoadData( Channel* channel,
     float startTime = numeric_limits< float >::max();
     float endTime   = 0.0f;
     bool  loadSet   = false;
+    float transmitTime = 0.0f;
+
     for( uint32_t i = 0; i < nStatistics && !loadSet; ++i )
     {
         const eq::Statistic& data = statistics[i];
         switch( data.type )
         {
+            case eq::Statistic::CHANNEL_TRANSMIT:
+#ifdef EQ_ASYNC_TRANSMIT
+                transmitTime = data.endTime - data.startTime;
+                break;
+#else
+                // no break;
+#endif
             case eq::Statistic::CHANNEL_CLEAR:
             case eq::Statistic::CHANNEL_DRAW:
                 //case eq::Statistic::CHANNEL_DRAW_FINISH:
             case eq::Statistic::CHANNEL_READBACK:
-#ifndef EQ_ASYNC_TRANSMIT
-            case eq::Statistic::CHANNEL_TRANSMIT:
-#endif
                 startTime = EQ_MIN( startTime, data.startTime );
                 endTime   = EQ_MAX( endTime, data.endTime );
                 break;
@@ -204,13 +209,13 @@ void TreeLoadBalancer::notifyLoadData( Channel* channel,
             if( data.vp.getArea() <= 0.f )
                 return;
 
-            data.startTime = startTime;
-            data.endTime   = endTime;
-            data.load      = (endTime - startTime) / data.vp.getArea();
-            EQLOG( LOG_LB ) << "Added load " << data.load << " (t=" 
-                            << endTime-startTime << ") for " 
-                            << channel->getName() << " " << data.vp << ", "
-                            << data.range << " @ " << frameNumber << endl;
+            data.time = endTime - startTime;
+            data.time = EQ_MAX( data.time, transmitTime );
+            data.load = data.time / data.vp.getArea();
+            EQLOG( LOG_LB ) << "Added load " << data.load << " (t=" << data.time
+                            << ") for " << channel->getName() << " " << data.vp
+                            << ", " << data.range << " @ " << frameNumber
+                            << std::endl;
             return;
 
             // Note: if the same channel is used twice as a child, the 
@@ -235,7 +240,7 @@ void TreeLoadBalancer::_checkHistory()
         {
             const Data& data = *j;
 
-            if( data.startTime < 0.f || data.endTime < 0.f )
+            if( data.time < 0.f )
                 isComplete = false;
         }
 
@@ -257,9 +262,8 @@ void TreeLoadBalancer::_checkHistory()
         frameData.first = 0; // frameNumber
         items.resize( 1 );
         
-        items[0].startTime = 0.f;
-        items[0].endTime   = 1.f;
-        items[0].load      = 1.f;
+        items[0].time = 1.f;
+        items[0].load = 1.f;
     }
 }
 
@@ -298,13 +302,11 @@ void TreeLoadBalancer::_computeSplit()
 
     // Compute total rendering time
     float totalTime = 0.0f;
-    float endTime   = 0.0f;
 
     for( LBDataVector::const_iterator i = items.begin(); i != items.end(); ++i )
     {  
         const Data& data = *i;
-        totalTime += ( data.endTime - data.startTime );
-        endTime  = EQ_MAX( endTime, data.endTime );
+        totalTime += data.time;
     }
 
     const Compound* compound   = _parent.getCompound();
@@ -325,7 +327,7 @@ void TreeLoadBalancer::_computeSplit()
 }
 
 float TreeLoadBalancer::_assignTargetTimes( Node* node, const float totalTime, 
-                                        const float resourceTime )
+                                            const float resourceTime )
 {
     if( node->compound )
     {
@@ -348,8 +350,7 @@ float TreeLoadBalancer::_assignTargetTimes( Node* node, const float totalTime,
                 continue;
 
             // found our last rendering time -> use this to smoothen the change:
-            time = (1.f - damping) * resourceTime +
-                   damping         * (data.endTime - data.startTime);
+            time = (1.f - damping) * resourceTime + damping * data.time;
             break;
         }
 #endif
@@ -403,11 +404,8 @@ void TreeLoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
         data.range    = range;
         data.compound = compound;
 
-        if( !vp.hasArea() || !range.isValid( )) // will not render
-        {
-            data.startTime = 0.f;
-            data.endTime   = 0.f;
-        } 
+        if( !vp.hasArea() || !range.hasData( )) // will not render
+            data.time = 0.f;
 
         LBFrameData&  frameData = _history.back();
         LBDataVector& items     = frameData.second;
@@ -770,7 +768,6 @@ void TreeLoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
 
             EQLOG( LOG_LB ) << "Split " << range << " at pos " << splitPos
                             << endl;
-
 
             eq::Range childRange = range;
             childRange.end       = splitPos;

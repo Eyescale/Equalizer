@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -839,9 +838,12 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.zoom *= zoom;
     }
 
-    // Channels with no PVP do not execute tasks (ignored during init)
-    if( frameNumber != 0 && !_inherit.pvp.hasArea( ))
+    // Channels with no PVP or range do not execute tasks (ignored during init)
+    if( frameNumber != 0 &&
+        ( !_inherit.pvp.hasArea() || !_inherit.range.hasData( )) )
+    {
         _inherit.tasks = eq::TASK_NONE;
+    }
     else if( _data.tasks == eq::TASK_DEFAULT )
     {
         if( isLeaf( ))
