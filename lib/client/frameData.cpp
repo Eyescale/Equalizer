@@ -2,9 +2,8 @@
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -146,22 +145,6 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
         _imageCacheLock.unset();
         image = new Image;
 
-        if( type == Frame::TYPE_TEXTURE )
-            image->setFormat( Frame::BUFFER_COLOR, GL_RGBA );
-        else
-            image->setFormat( Frame::BUFFER_COLOR, GL_BGRA );
-
-        switch( _colorType )
-        {
-            case GL_RGBA16F:  
-                image->setType(   Frame::BUFFER_COLOR, GL_HALF_FLOAT );
-                break;
-            case GL_RGBA32F:  
-                image->setType(   Frame::BUFFER_COLOR, GL_FLOAT );
-                break;
-            default:
-                image->setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
-        }
         image->setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
         image->setType(   Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
     }
@@ -175,6 +158,24 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
     }
 
     image->setStorageType( type );
+
+    if( type == Frame::TYPE_TEXTURE )
+        image->setFormat( Frame::BUFFER_COLOR, GL_RGBA );
+    else
+        image->setFormat( Frame::BUFFER_COLOR, GL_BGRA );
+
+    switch( _colorType )
+    {
+        case GL_RGBA16F:  
+            image->setType(   Frame::BUFFER_COLOR, GL_HALF_FLOAT );
+            break;
+        case GL_RGBA32F:  
+            image->setType(   Frame::BUFFER_COLOR, GL_FLOAT );
+            break;
+        default:
+            image->setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+    }
+
     return image;
 }
 
