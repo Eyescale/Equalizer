@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -42,9 +41,10 @@ void ObjectDeltaDataOStream::sendBuffer( const void* buffer,
                                          const uint64_t size )
 {
     ObjectDeltaDataPacket deltaPacket;
-    deltaPacket.deltaSize = size;
-    deltaPacket.sessionID = _object->getSession()->getID();
-    deltaPacket.objectID  = _object->getID();
+    deltaPacket.deltaSize  = size;
+    deltaPacket.sessionID  = _object->getSession()->getID();
+    deltaPacket.objectID   = _object->getID();
+    deltaPacket.instanceID = _instanceID;
 
     EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << " to " 
                          << _connections.size() << " receivers " << endl;
@@ -55,10 +55,11 @@ void ObjectDeltaDataOStream::sendFooter( const void* buffer,
                                          const uint64_t size )
 {
     ObjectDeltaPacket deltaPacket;
-    deltaPacket.version   = _version;
-    deltaPacket.deltaSize = size;
-    deltaPacket.sessionID = _object->getSession()->getID();
-    deltaPacket.objectID  = _object->getID();
+    deltaPacket.version    = _version;
+    deltaPacket.deltaSize  = size;
+    deltaPacket.sessionID  = _object->getSession()->getID();
+    deltaPacket.objectID   = _object->getID();
+    deltaPacket.instanceID = _instanceID;
 
     EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << " to " 
                          << _connections.size() << " receivers " << endl;
