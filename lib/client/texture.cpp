@@ -70,8 +70,16 @@ void Texture::setFormat( const GLuint format )
 
     switch( format )
     {
+        // depth format
+        case GL_DEPTH_COMPONENT:
+            _format = GL_DEPTH_COMPONENT;
+            _type   = GL_UNSIGNED_INT;
+            break;
+
+        // color formats
         case GL_RGBA8:
         case GL_RGBA16:
+        case GL_BGRA:
             _format = GL_BGRA;
             _type   = GL_UNSIGNED_BYTE;
             break;
@@ -97,7 +105,7 @@ void Texture::setFormat( const GLuint format )
 
         default:
             _format = _internalFormat;
-            _type   = GL_INT;
+            _type   = GL_UNSIGNED_BYTE;
     }
 }
 
@@ -146,6 +154,8 @@ void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
 void Texture::upload( const Image* image, const Frame::Buffer which )
 {
     CHECK_THREAD( _thread );
+
+    setFormat( image->getInternalTextureFormat( which ));
     EQASSERT( _internalFormat != 0 );
 
     const eq::PixelViewport& pvp = image->getPixelViewport();

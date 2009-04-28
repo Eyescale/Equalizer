@@ -959,15 +959,12 @@ void Compositor::_drawPixels( const Image* image,
             return;
         }
         // else use texture with filtering to zoom
-        
-        Channel*               channel = op.channel;
-        Window*                window  = channel->getWindow();
-        Window::ObjectManager* objects = window->getObjectManager();
+
+        Window::ObjectManager* objects = op.channel->getObjectManager();
 
         Texture* texture = objects->obtainEqTexture(
             which == Frame::BUFFER_COLOR ? colorKey : depthKey );
 
-        texture->setFormat( image->getInternalTextureFormat( which ));
         texture->upload( image, which );
     }
     else // texture image
@@ -986,8 +983,10 @@ void Compositor::_drawPixels( const Image* image,
 
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S,
+                     GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
+                     GL_CLAMP_TO_EDGE );
 
     if( op.zoom == eq::Zoom::NONE )
     {
@@ -995,8 +994,7 @@ void Compositor::_drawPixels( const Image* image,
                          GL_NEAREST );
         glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
                          GL_NEAREST );
-    }
-    else
+    }else
     {
         glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
                          GL_LINEAR );
@@ -1063,7 +1061,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
     // Z-Based sort-last assembly
     glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );
     glEnable( GL_STENCIL_TEST );
-    
+
     // test who is in front and mark in stencil buffer
     glEnable( GL_DEPTH_TEST );
 
@@ -1080,13 +1078,13 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
     }
 
     _drawPixels( image, op, Frame::BUFFER_DEPTH );
-    
+
     glDisable( GL_DEPTH_TEST );
 
     // draw front-most, visible pixels using stencil mask
     glStencilFunc( GL_EQUAL, 1, 1 );
     glStencilOp( GL_KEEP, GL_ZERO, GL_ZERO );
-    
+
     _drawPixels( image, op, Frame::BUFFER_COLOR );
 
     glDisable( GL_STENCIL_TEST );
@@ -1099,9 +1097,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp 
                           << endl;
 
-    Channel*               channel = op.channel; // needed for glewGetContext
-    Window*                window  = channel->getWindow();
-    Window::ObjectManager* objects = window->getObjectManager();
+    Window::ObjectManager* objects = op.channel->getObjectManager();
     
     GLuint program = objects->getProgram( shaderDBKey );
 
@@ -1165,10 +1161,8 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         image->getTexture( Frame::BUFFER_COLOR ).bind();
     else
     {
-        Texture*          texture = objects->obtainEqTexture( colorDBKey );
-        const Frame::Buffer which = Frame::BUFFER_COLOR;
-        texture->setFormat( image->getInternalTextureFormat( which ));
-        texture->upload( image, which );
+        Texture* texture = objects->obtainEqTexture( colorDBKey );
+        texture->upload( image, Frame::BUFFER_COLOR );
     }
 
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
@@ -1181,10 +1175,8 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         image->getTexture( Frame::BUFFER_DEPTH ).bind();
     else
     {
-        Texture*          texture = objects->obtainEqTexture( depthDBKey );
-        const Frame::Buffer which = Frame::BUFFER_DEPTH;
-        texture->setFormat( image->getInternalTextureFormat( which ));
-        texture->upload( image, which );
+        Texture* texture = objects->obtainEqTexture( depthDBKey );
+        texture->upload( image, Frame::BUFFER_DEPTH );
     }
 
     // Draw a quad using shader & textures in the right place

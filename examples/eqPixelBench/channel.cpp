@@ -160,7 +160,7 @@ void Channel::_testFormats()
     event.area.x = pvp.w;
 
     Clock                      clock;
-    eq::Window::ObjectManager* glObjects = getWindow()->getObjectManager();
+    eq::Window::ObjectManager* glObjects = getObjectManager();
 
     //----- test all default format/type combinations
     glGetError();
@@ -250,7 +250,7 @@ void Channel::_testTiledOperations()
     event.area.x = pvp.w;
 
     Clock                      clock;
-    eq::Window::ObjectManager* glObjects = getWindow()->getObjectManager();
+    eq::Window::ObjectManager* glObjects = getObjectManager();
 
     //----- test tiled assembly algorithms
     eq::PixelViewport subPVP = pvp;
@@ -433,7 +433,7 @@ void Channel::_testDepthAssemble()
     event.area.x = pvp.w;
 
     Clock                      clock;
-    eq::Window::ObjectManager* glObjects = getWindow()->getObjectManager();
+    eq::Window::ObjectManager* glObjects = getObjectManager();
 
 
     //----- test depth-based assembly algorithms

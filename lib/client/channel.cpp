@@ -143,6 +143,13 @@ ServerPtr Channel::getServer()
     return ( _window ? _window->getServer() : 0 );
 }
 
+Window::ObjectManager* Channel::getObjectManager()
+{
+    EQASSERT( _window );
+    return _window->getObjectManager();
+}
+
+
 GLEWContext* Channel::glewGetContext()
 {
     EQASSERT( _window );
@@ -390,7 +397,7 @@ void Channel::frameReadback( const uint32_t frameID )
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
-    Window::ObjectManager* glObjects = getWindow()->getObjectManager();
+    Window::ObjectManager* glObjects = getObjectManager();
 
     const FrameVector& frames = getOutputFrames();
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
@@ -729,7 +736,7 @@ void Channel::drawStatistics()
     glDisable( GL_LIGHTING );
     glEnable( GL_DEPTH_TEST );
 
-    const util::BitmapFont& font =_window->getObjectManager()->getDefaultFont();
+    const util::BitmapFont& font = getObjectManager()->getDefaultFont();
 
     int64_t       xStart = 0;
     PixelViewport pvp    = _window->getPixelViewport();

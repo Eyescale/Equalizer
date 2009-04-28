@@ -295,8 +295,7 @@ void Channel::frameAssemble( const uint32_t frameID )
             dbFrames.erase( dbFrames.begin( ));
         else if( coveredPVP.hasArea())
         {
-            eq::Window*                window    = getWindow();
-            eq::Window::ObjectManager* glObjects = window->getObjectManager();
+            eq::Window::ObjectManager* glObjects = getObjectManager();
 
             _frame.setOffset( vmml::Vector2i( 0, 0 ));
             _frame.setZoom( zoom );

@@ -490,7 +490,7 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     else
     {
         fbo = _glObjects->newEqFrameBufferObject( fboKey );
-		fbo->setColorFormat( getInternalTextureFormat( buffer ) );
+        fbo->setColorFormat( getInternalTextureFormat( buffer ) );
         fbo->init( pvp.w, pvp.h, 24, 0 );
     }
     fbo->bind();
@@ -1239,8 +1239,12 @@ void Image::writeImage( const std::string& filename,
                 image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
             for( size_t j = 0; j < nBytes; j += depth )
                 image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            // invert alpha
             for( size_t j = 3; j < nBytes; j += depth )
-                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            {
+                uint8_t val = 255 - data[j];
+                image.write( reinterpret_cast<const char*>( &val ), 1 );
+            }
             break;
 
         default:

@@ -16,6 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+//#define EQ_USEROI
+
 #include "roiFinder.h"
 #include "roiFragmentShader_glsl.h"
 
@@ -513,8 +515,6 @@ void ROIFinder::_findAreas( PixelViewportVector& resultPVPs )
         PixelViewport& pvp = resultPVPs[i];
         pvp.x += _pvp.x;
         pvp.y += _pvp.y;
-        pvp.w++;
-        pvp.h++;
 
         pvp.apply( Zoom( GRID_SIZE, GRID_SIZE ));
     }
@@ -563,6 +563,10 @@ void ROIFinder::_readbackInfo( )
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,GL_LINEAR );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S,
+                                                            GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
+                                                            GL_CLAMP_TO_EDGE );
 
     depthTex->bind();
 
@@ -578,14 +582,14 @@ void ROIFinder::_readbackInfo( )
                                                         GL_FRAGMENT_SHADER );
         EQASSERT( shader != Window::ObjectManager::INVALID );
 
-        const GLchar* vShaderPtr = roiFragmentShader_glsl.c_str();
-        EQ_GL_CALL( glShaderSource( shader, 1, &vShaderPtr, 0 ));
+        const GLchar* fShaderPtr = roiFragmentShader_glsl.c_str();
+        EQ_GL_CALL( glShaderSource( shader, 1, &fShaderPtr, 0 ));
         EQ_GL_CALL( glCompileShader( shader ));
 
         GLint status;
         glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
         if( !status )
-            EQERROR << "Failed to compile fragment shader for DB compositing"
+            EQERROR << "Failed to compile fragment shader for ROI finder"
                     << std::endl;
 
         program = _glObjects->newProgram( shaderRBInfo );
@@ -596,7 +600,7 @@ void ROIFinder::_readbackInfo( )
         glGetProgramiv( program, GL_LINK_STATUS, &status );
         if( !status )
         {
-            EQWARN << "Failed to link shader program for DB compositing"
+            EQWARN << "Failed to link shader program for ROI finder"
                    << std::endl;
             return;
         }
@@ -618,18 +622,23 @@ void ROIFinder::_readbackInfo( )
     glDisable( GL_DEPTH_TEST );
     glColor3f( 1.0f, 1.0f, 1.0f );
 
+    const float tEndX = (_pvp.w-1)*16.0f+1.0f;
+    const float tEndY = (_pvp.h-1)*16.0f+1.0f;;
+    const float vEndX = _pvp.w;
+    const float vEndY = _pvp.h;
+
     glBegin( GL_QUADS );
-        glTexCoord2f( 0.0f, 0.0f );
-        glVertex3f(   0   , 0   , 0.0f );
+        glTexCoord2f(  0.0f, 0.0f );
+        glVertex3f(    0.0f, 0.0f, 0.0f );
 
-        glTexCoord2f( _pvp.w, 0.0f       );
-        glVertex3f(   _pvp.w, 0   , 0.0f );
+        glTexCoord2f( tEndX, 0.0f );
+        glVertex3f(   vEndX, 0.0f, 0.0f );
 
-        glTexCoord2f( _pvp.w, _pvp.h       );
-        glVertex3f(   _pvp.w, _pvp.h, 0.0f );
+        glTexCoord2f( tEndX, tEndY );
+        glVertex3f(   vEndX, vEndY, 0.0f );
 
-        glTexCoord2f( 0.0f, _pvp.h       );
-        glVertex3f(   0   , _pvp.h, 0.0f );
+        glTexCoord2f(  0.0f, tEndY );
+        glVertex3f(    0.0f, vEndY, 0.0f );
     glEnd();
 
 
@@ -666,9 +675,11 @@ PixelViewportVector ROIFinder::findRegions( const uint32_t         buffers,
                                             Window::ObjectManager* glObjects )
 {
     PixelViewportVector result;
+
+#ifndef EQ_USEROI
     result.push_back( pvp );
     return result; // disable read back info usage
-
+#endif
 
 /*
     eq::base::Clock clock;
@@ -710,7 +721,7 @@ for( int i = 0; i < 100; i++ )
     _init( );
 
     _emptyFinder.update( &_mask[0], _wb, _hb );
-    _emptyFinder.setLimits( 100, 0.02 );
+    _emptyFinder.setLimits( 200, 0.02 );
     
     result.clear();
     _findAreas( result );
@@ -739,6 +750,7 @@ for( int i = 0; i < 100; i++ )
     ss << "_img_" << ++counter;
     _dumpDebug( ss.str( ) + "_00" );
 */
+//    EQWARN << "Areas found: " << result.size() << std::endl;
     return result;
 }
 

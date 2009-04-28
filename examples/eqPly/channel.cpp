@@ -355,9 +355,7 @@ void Channel::_drawHelp()
     glDisable( GL_LIGHTING );
     glDisable( GL_DEPTH_TEST );
 
-    const eq::Window* window = getWindow();
-    const eq::util::BitmapFont& font = 
-        window->getObjectManager()->getDefaultFont();
+    const eq::util::BitmapFont& font = getObjectManager()->getDefaultFont();
 
     glColor3f( 1.f, 1.f, 1.f );
 

@@ -20,7 +20,6 @@ uniform sampler2DRect depth;
 void main(void)
 {
     vec2  pos = gl_TexCoord[0].st;
-    pos *= vec2(16,16);
 
     float bg  = 1.0;
     float s;

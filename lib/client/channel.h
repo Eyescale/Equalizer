@@ -24,6 +24,7 @@
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h> // enum
 #include <eq/client/windowSystem.h>  // GLEWContext
+#include <eq/client/window.h>
 
 #include <eq/net/object.h>           // base class
 #include <vmmlib/vmmlib.h>           // Frustum definition 
@@ -83,6 +84,8 @@ namespace eq
         const Config* getConfig() const;
 
         ServerPtr getServer();
+
+        Window::ObjectManager* getObjectManager();
 
         /** 
          * Get the GLEW context for this channel.
