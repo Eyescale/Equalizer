@@ -960,7 +960,8 @@ void Compositor::_drawPixels( const Image* image,
         }
         // else use texture with filtering to zoom
 
-        Window::ObjectManager* objects = op.channel->getObjectManager();
+        Channel* channel = op.channel; // needed for glewGetContext
+        Window::ObjectManager* objects = channel->getObjectManager();
 
         Texture* texture = objects->obtainEqTexture(
             which == Frame::BUFFER_COLOR ? colorKey : depthKey );
@@ -1097,8 +1098,9 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp 
                           << endl;
 
-    Window::ObjectManager* objects = op.channel->getObjectManager();
-    
+    Channel*               channel = op.channel; // needed for glewGetContext
+    Window::ObjectManager* objects = channel->getObjectManager();
+
     GLuint program = objects->getProgram( shaderDBKey );
 
     if( program == Window::ObjectManager::INVALID )
