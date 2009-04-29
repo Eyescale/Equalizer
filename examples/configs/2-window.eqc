@@ -9,6 +9,7 @@ server
             {
                 window
                 {
+                    name "left"
                     viewport [ 100 100 480 300 ]
                     channel
                     {
@@ -17,6 +18,7 @@ server
                 }
                 window
                 {
+                    name "right"
                     viewport [ 580 100 480 300 ]
                     channel
                     {

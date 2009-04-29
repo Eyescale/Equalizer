@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -45,6 +44,8 @@ namespace eVolve
         virtual void frameDraw( const uint32_t frameID );
         virtual void frameAssemble( const uint32_t frameID );
         virtual void frameReadback( const uint32_t frameID );
+        virtual void frameFinish( const uint32_t frameID, 
+                                  const uint32_t frameNumber );
 
         /** Applies the perspective or orthographic frustum. */
         virtual void applyFrustum() const;
@@ -54,9 +55,7 @@ namespace eVolve
         void frameClear( const uint32_t frameID );
 
     private:
-
         void _startAssemble();
-        void _finishAssemble();
 
         void _orderFrames( eq::FrameVector& frames );
 

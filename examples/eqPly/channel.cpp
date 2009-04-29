@@ -3,9 +3,8 @@
    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -136,21 +135,12 @@ void Channel::frameDraw( const uint32_t frameID )
         glEnd();
     }
 
-    if( range == eq::Range::ALL )
-        _drawLogo();
-
     if( frameData.showHelp( ))
         _drawHelp();
 
 #ifndef NDEBUG
     outlineViewport();
 #endif
-}
-
-void Channel::frameAssemble( const uint32_t frameID )
-{
-    eq::Channel::frameAssemble( frameID );
-    _drawLogo();
 }
 
 const FrameData& Channel::_getFrameData() const
@@ -289,6 +279,14 @@ void Channel::_drawModel( const Model* model )
 #endif    
 }
 
+void Channel::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
+{
+    if( getView( )) // destination channel
+        _drawLogo();
+
+    eq::Channel::frameFinish( frameID, frameNumber );
+}
+
 void Channel::_drawLogo()
 {
     const Window*  window      = static_cast<Window*>( getWindow( ));
@@ -298,13 +296,6 @@ void Channel::_drawLogo()
     window->getLogoTexture( texture, size );
     if( !texture )
         return;
-        
-    const eq::Zoom& zoom = getZoom();
-        
-    const float newX = size.x * zoom.x;
-    const float newY = size.y * zoom.y;
-        
-    const float delta = 5.0f * zoom.x ;
         
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     glMatrixMode( GL_PROJECTION );
@@ -328,16 +319,16 @@ void Channel::_drawLogo()
     glColor3f( 1.0f, 1.0f, 1.0f );
     glBegin( GL_TRIANGLE_STRIP ); {
         glTexCoord2f( 0.0f, 0.0f );
-        glVertex3f( delta, delta, 0.0f );
+        glVertex3f( 5.0f, 5.0f, 0.0f );
         
         glTexCoord2f( size.x, 0.0f );
-        glVertex3f( newX + delta, delta, 0.0f );
+        glVertex3f( size.x + 5.0f, 5.0f, 0.0f );
         
         glTexCoord2f( 0.0f, size.y );
-        glVertex3f( delta, newY + delta, 0.0f );
+        glVertex3f( 5.0f, size.y + 5.0f, 0.0f );
         
         glTexCoord2f( size.x, size.y );
-        glVertex3f( newX + delta, newY + delta, 0.0f );
+        glVertex3f( size.x + 5.0f, size.y + 5.0f, 0.0f );
     } glEnd();
     
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
