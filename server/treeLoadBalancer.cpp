@@ -310,10 +310,17 @@ void TreeLoadBalancer::_computeSplit()
     }
 
     const Compound* compound   = _parent.getCompound();
-    const size_t    nResources = compound->getChildren().size();
+    const CompoundVector& children = compound->getChildren();
+    float nResources( 0.f );
+    for( CompoundVector::const_iterator i = children.begin(); 
+         i != children.end(); ++i )
+    {
+        nResources += (*i)->getUsage();
+    }
+
     const float     timeLeft   = totalTime / nResources;
     EQLOG( LOG_LB ) << "Render time " << totalTime << ", per resource "
-                    << timeLeft << endl;
+                    << timeLeft << ", " << nResources << " resources" << endl;
 
     const float leftover = _assignTargetTimes( _tree, totalTime, timeLeft );
     if( leftover > 2.f * totalTime * numeric_limits< float >::epsilon( ))
@@ -332,9 +339,10 @@ void TreeLoadBalancer::_computeSplit()
 float TreeLoadBalancer::_assignTargetTimes( Node* node, const float totalTime, 
                                             const float resourceTime )
 {
-    if( node->compound )
+    const Compound* compound = node->compound;
+    if( compound )
     {
-        float time = resourceTime; // default
+        float time = resourceTime * compound->getUsage(); // default
 
 #if 1 // disable to remove damping code
         float damping = _parent.getDamping();
@@ -346,22 +354,22 @@ float TreeLoadBalancer::_assignTargetTimes( Node* node, const float totalTime,
         for( LBDataVector::const_iterator i = items.begin(); 
              i != items.end(); ++i )
         {
-            const Data&     data     = *i;
-            const Compound* compound = data.compound;
+            const Data& data = *i;
+            const Compound* candidate = data.compound;
 
-            if( compound != node->compound )
+            if( compound != candidate )
                 continue;
 
             // found our last rendering time -> use this to smoothen the change:
-            time = (1.f - damping) * resourceTime + damping * data.time;
+            time = (1.f - damping) * time + damping * data.time;
             break;
         }
 #endif
 
         node->time = EQ_MIN( time, totalTime );
-        EQLOG( LOG_LB ) << "Channel " << node->compound->getChannel()->getName()
-                        << " target " << node->time << ", left " 
-                        << totalTime - node->time << endl;
+        EQLOG( LOG_LB ) << compound->getChannel()->getName() << " usage " 
+                        << compound->getUsage() << " target " << node->time
+                        << ", left " << totalTime - node->time << std::endl;
 
         return totalTime - node->time;
     }
@@ -558,9 +566,9 @@ void TreeLoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
         case LoadBalancer::MODE_HORIZONTAL:
         {
             EQASSERT( range == eq::Range::ALL );
-            float         timeLeft = node->left->time;
-            float         splitPos = vp.y;
-            LBDataVector  workingSet = sortedData[LoadBalancer::MODE_HORIZONTAL];
+            float        timeLeft = node->left->time;
+            float        splitPos = vp.y;
+            LBDataVector workingSet = sortedData[LoadBalancer::MODE_HORIZONTAL];
 
             while( timeLeft > 0.f && !workingSet.empty( ))
             {

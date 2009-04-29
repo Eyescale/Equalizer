@@ -412,6 +412,12 @@ namespace server
         /** @return if the compound is activated and current (DPlex). */
         bool isActive() const;
 
+        /** Set the percentage the resource should be used. */
+        void setUsage( const float usage ) { _usage = usage; }
+
+        /** @return the percentage the resource should be used. */
+        float getUsage() const { return _usage; }
+
         /** 
          * Initializes this compound.
          */
@@ -478,6 +484,9 @@ namespace server
 
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
+
+        /** Percentage the resource should be used. */
+        float _usage;
 
         struct InheritData
         {
