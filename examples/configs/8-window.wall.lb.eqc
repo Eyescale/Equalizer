@@ -1,4 +1,4 @@
-# 
+# 8-to-2 wall load-balancing example configuration
 server
 {
     config
@@ -91,10 +91,13 @@ server
         
         compound
         {
+#            loadBalancer { mode VIEW }
             compound
             {
                 channel ( segment 0 view 0 )
                 loadBalancer{ mode 2D }
+                swapbarrier{}
+
 #                compound { channel "left-src" }
 #                compound { channel "source1" outputframe{ name "ls1" }}
 #                compound { channel "source2" outputframe{ name "ls2"  }}
@@ -115,6 +118,8 @@ server
             {
                 channel ( segment 1 view 0 )
                 loadBalancer{ mode 2D }
+                swapbarrier{}
+
 #                compound { channel "right-src" }
                 compound { channel "source1" outputframe{ name "rs1" }}
                 compound { channel "source2" outputframe{ name "rs2" }}

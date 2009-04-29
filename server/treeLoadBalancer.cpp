@@ -316,12 +316,15 @@ void TreeLoadBalancer::_computeSplit()
                     << timeLeft << endl;
 
     const float leftover = _assignTargetTimes( _tree, totalTime, timeLeft );
-    EQASSERT( leftover <= totalTime * numeric_limits< float >::epsilon( ));
-    if( leftover > totalTime * numeric_limits< float >::epsilon( ))
+    if( leftover > 2.f * totalTime * numeric_limits< float >::epsilon( ))
     {
         EQWARN << "Load balancer failure: " << leftover
                << "ms not assigned for next frame" << endl;
     }
+
+    EQASSERTINFO( leftover <= 2.f*totalTime * numeric_limits<float>::epsilon(),
+                  leftover << " > " << 
+                  2.f * totalTime * numeric_limits< float >::epsilon( ));
 
     _computeSplit( _tree, sortedData, eq::Viewport(), eq::Range() );
 }
