@@ -1114,13 +1114,8 @@ void Image::writeImages( const std::string& filenameTemplate,
         for( uint32_t d = 0; d < depth; d+=4 )
         {
             ostringstream stringstream;
-            if( depth > 4)
-            {
-                EQASSERT( (depth % 4) == 0 );
-                stringstream << "_" << d / 4;
-            }
             writeImage( filenameTemplate + stringstream.str() + ".rgb",
-                        buffer, d );
+                        buffer );
         }
     }
 
@@ -1137,15 +1132,8 @@ void Image::writeImages( const std::string& filenameTemplate,
 struct RGBHeader
 {
     RGBHeader()
-        : compression(0),
-          width(0),
-          height(0),
-          depth(0),
-          minValue(0),
-          colorMode(0)
         {
             memset( this, 0, sizeof( RGBHeader ));
-            filename[0]     = '\0';
             magic           = 474;
             bytesPerChannel = 1;
             nDimensions     = 3;
@@ -1190,8 +1178,7 @@ struct RGBHeader
 ;
 
 void Image::writeImage( const std::string& filename,
-                        const Frame::Buffer buffer, 
-                        const uint32_t shift ) const
+                        const Frame::Buffer buffer ) const
 {
     const size_t  nPixels = _pvp.w * _pvp.h;
     const Pixels& pixels  = _getPixels( buffer );
@@ -1206,51 +1193,74 @@ void Image::writeImage( const std::string& filename,
         return;
     }
 
-    const size_t depth   = getDepth( buffer );
     RGBHeader    header;
 
     header.width  = _pvp.w;
     header.height = _pvp.h;
-    header.depth  = depth > 4 ? 4 : depth;
+
+    header.bytesPerChannel = getChannelSize( buffer );
+    header.depth = getNumChannels( buffer );
+
+    if( header.depth == 1 ) // depth
+    {
+        EQASSERT( (header.bytesPerChannel % 4) == 0 );
+        header.depth = 4;
+        header.bytesPerChannel /= 4;
+    }
+    EQASSERT( header.bytesPerChannel > 0 );
+    if( header.bytesPerChannel > 2 )
+        EQWARN << static_cast< int >( header.bytesPerChannel ) 
+               << " bytes per channel not supported by RGB spec" << std::endl;
+
+    const uint8_t bpc = header.bytesPerChannel;
+    const uint16_t nChannels = header.depth;
+
     strncpy( header.filename, filename.c_str(), 80 );
 
     header.convert();
     image.write( reinterpret_cast<const char *>( &header ), sizeof( header ));
 
     // Each channel is saved separately
-    const size_t   nBytes = nPixels * depth;
-    const uint8_t* data   = getPixelPointer( buffer ) + shift;
+    const size_t depth  = nChannels * bpc;
+    const size_t nBytes = nPixels * depth;
+    const char* data = reinterpret_cast<const char*>( getPixelPointer( buffer));
 
     switch( getFormat( buffer ))
     {
         case GL_BGR:
-            for( size_t j = 2; j < nBytes; j += depth )
-                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
-            for( size_t j = 1; j < nBytes; j += depth )
-                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            for( size_t j = 2 * bpc; j < nBytes; j += depth )
+                image.write( &data[j], bpc );
+            for( size_t j = 1 * bpc; j < nBytes; j += depth )
+                image.write( &data[j], bpc );
             for( size_t j = 0; j < nBytes; j += depth )
-                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+                image.write( &data[j], bpc );
             break;
 
         case GL_BGRA:
-            for( size_t j = 2; j < nBytes; j += depth )
-                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
-            for( size_t j = 1; j < nBytes; j += depth )
-                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            for( size_t j = 2 * bpc; j < nBytes; j += depth )
+                image.write( &data[j], bpc );
+            for( size_t j = 1 * bpc; j < nBytes; j += depth )
+                image.write( &data[j], bpc );
             for( size_t j = 0; j < nBytes; j += depth )
-                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+                image.write( &data[j], bpc );
             // invert alpha
-            for( size_t j = 3; j < nBytes; j += depth )
+            for( size_t j = 3 * bpc; j < nBytes; j += depth )
             {
-                uint8_t val = 255 - data[j];
-                image.write( reinterpret_cast<const char*>( &val ), 1 );
+                if( bpc == 1 )
+                {
+                    const uint8_t val = 255 - 
+                        *reinterpret_cast< const uint8_t* >( &data[j] );
+                    image.write( reinterpret_cast<const char*>( &val ), 1 );
+                }
+                else
+                    image.write(&data[j], bpc );
             }
             break;
 
         default:
-            for( size_t i = 0; i < depth; ++i )
-                for( size_t j = i; j < nBytes; j += depth )
-                    image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            for( size_t i = 0; i < nChannels; ++i )
+                for( size_t j = i * bpc; j < nBytes; j += depth )
+                    image.write(&data[j], bpc );
     }
 
     image.close();
@@ -1296,15 +1306,14 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         return false;
     }
 
-    const size_t depth = header.depth;
+    const size_t nChannels = header.depth;
 
-    if( header.bytesPerChannel != 1 ||
-        header.nDimensions != 3 ||
+    if( header.nDimensions != 3 ||
         header.minValue != 0 ||
         header.maxValue != 255 ||
         header.colorMode != 0 ||
-        ( buffer == Frame::BUFFER_COLOR && depth != 3 && depth != 4 ) ||
-        ( buffer == Frame::BUFFER_DEPTH && depth != 4 ))
+        ( buffer == Frame::BUFFER_COLOR && nChannels != 3 && nChannels != 4 ) ||
+        ( buffer == Frame::BUFFER_DEPTH && nChannels != 4 ))
     {
         EQERROR << "Unsupported image type " << filename << endl;
         image.close();
@@ -1314,6 +1323,14 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     switch( buffer )
     {
         case Frame::BUFFER_DEPTH:
+            if( header.bytesPerChannel != 1 )
+            {
+                EQERROR << "Unsupported channel depth " 
+                        << static_cast< int >( header.bytesPerChannel ) << endl;
+                image.close();
+                return false;
+            }
+
             setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
             setType(   Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
             break;
@@ -1321,22 +1338,43 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         default:
             EQUNREACHABLE;
         case Frame::BUFFER_COLOR:
-            setFormat( Frame::BUFFER_COLOR, (depth==4) ? GL_RGBA : GL_RGB );
-            setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+            setFormat( Frame::BUFFER_COLOR, (nChannels==4) ? GL_RGBA : GL_RGB );
+            switch( header.bytesPerChannel )
+            {
+                case 1:
+                    setType( Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+                    break;
+                case 2:
+                    setType( Frame::BUFFER_COLOR, GL_HALF_FLOAT );
+                    break;
+                case 4:
+                    setType( Frame::BUFFER_COLOR, GL_FLOAT );
+                    break;
+                default:
+                    EQERROR << "Unsupported channel depth " 
+                            << static_cast< int >( header.bytesPerChannel )
+                            << std::endl;
+                    image.close();
+                    return false;
+            }
             break;
     }
 
-    const size_t     nPixels = header.width * header.height;
-    const size_t     nBytes  = nPixels * depth;
-    Pixels           pixels;
+    const uint8_t bpc     = header.bytesPerChannel;
+    const size_t  depth   = nChannels * bpc;
+    const size_t  nPixels = header.width * header.height;
+    const size_t  nBytes  = nPixels * depth;
+    Pixels        pixels;
 
+    pixels.data.format = getFormat( buffer );
+    pixels.data.type   = getType( buffer );
     pixels.resize( nBytes );
-    uint8_t* data = pixels.data.chunks[0]->data;
+    char* data = reinterpret_cast< char* >( pixels.data.chunks[0]->data );
 
     // Each channel is saved separately
     for( size_t i = 0; i < depth; ++i )
-        for( size_t j = i; j < nBytes; j += depth )
-            image.read( reinterpret_cast<char*>( &data[j] ), 1 );
+        for( size_t j = i * bpc; j < nBytes; j += depth )
+            image.read( &data[j], bpc );
 
     if( image.bad() || image.eof( ))
     {
@@ -1348,18 +1386,6 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     const PixelViewport pvp( 0, 0, header.width, header.height );
     if( pvp != getPixelViewport( ))
         setPixelViewport( pvp );
-
-    if( buffer == Frame::BUFFER_COLOR )
-    {
-        pixels.data.format = (depth==3) ? GL_RGB : GL_RGBA;
-        pixels.data.type   = GL_UNSIGNED_BYTE;
-    }
-    else
-    {
-        EQASSERT( buffer == Frame::BUFFER_DEPTH );
-        pixels.data.format = GL_DEPTH_COMPONENT;
-        pixels.data.type   = GL_UNSIGNED_INT;
-    }
 
     setPixelData( buffer, pixels.data );
 
