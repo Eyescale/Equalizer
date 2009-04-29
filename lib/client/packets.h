@@ -855,7 +855,12 @@ namespace eq
         float    farPlane;
     };
 
-    struct ChannelFrameStartPacket : public net::ObjectPacket
+    struct ChannelTaskPacket : public net::ObjectPacket
+    {
+        RenderContext context;
+    };
+
+    struct ChannelFrameStartPacket : public ChannelTaskPacket
     {
         ChannelFrameStartPacket()
             {
@@ -863,13 +868,10 @@ namespace eq
                 size           = sizeof( ChannelFrameStartPacket );
             }
 
-        uint32_t frameID;
         uint32_t frameNumber;
-        uint32_t viewVersion;
-        vmml::Vector4i overdraw;
     };
 
-    struct ChannelFrameFinishPacket : public net::ObjectPacket
+    struct ChannelFrameFinishPacket : public ChannelTaskPacket
     {
         ChannelFrameFinishPacket()
             {
@@ -877,7 +879,6 @@ namespace eq
                 size           = sizeof( ChannelFrameFinishPacket );
             }
 
-        uint32_t frameID;
         uint32_t frameNumber;
     };
 
@@ -910,11 +911,6 @@ namespace eq
         uint32_t frameNumber;
     };
         
-    struct ChannelTaskPacket : public net::ObjectPacket
-    {
-        RenderContext context;
-    };
-
     struct ChannelFrameClearPacket : public ChannelTaskPacket
     {
         ChannelFrameClearPacket()
@@ -1178,8 +1174,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ChannelFrameStartPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
-           << " id " << packet->frameID;
+        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

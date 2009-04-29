@@ -1051,28 +1051,32 @@ net::CommandResult Channel::_cmdConfigExit( net::Command& command )
 
 net::CommandResult Channel::_cmdFrameStart( net::Command& command )
 {
-    const ChannelFrameStartPacket* packet = 
+    ChannelFrameStartPacket* packet = 
         command.getPacket<ChannelFrameStartPacket>();
     EQVERB << "handle channel frame start " << packet << endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
-    _nativeContext.view.version = packet->viewVersion;
-    _nativeContext.overdraw     = packet->overdraw;
+    _nativeContext.view     = packet->context.view;
+    _nativeContext.overdraw = packet->context.overdraw;
 
+    _currentContext = &packet->context;
     bindFrameBuffer();
-    frameStart( packet->frameID, packet->frameNumber );
+    frameStart( packet->context.frameID, packet->frameNumber );
+    _currentContext = &_nativeContext;
 
     return net::COMMAND_HANDLED;
 }
 
 net::CommandResult Channel::_cmdFrameFinish( net::Command& command )
 {
-    const ChannelFrameFinishPacket* packet =
+    ChannelFrameFinishPacket* packet =
         command.getPacket<ChannelFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
                        << endl;
 
-    frameFinish( packet->frameID, packet->frameNumber );
+    _currentContext = &packet->context;
+    frameFinish( packet->context.frameID, packet->frameNumber );
+    _currentContext = &_nativeContext;
 
     ChannelFrameFinishReplyPacket reply( packet );
     reply.nStatistics = _statistics.size();

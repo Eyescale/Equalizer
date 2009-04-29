@@ -233,16 +233,7 @@ namespace server
          * @param frameNumber the number of the frame.
          * @return true if at least one rendering task was sent.
          */
-        bool updateDraw( const uint32_t frameID, const uint32_t frameNumber );
-
-        /** 
-         * Trigger the post-draw operations.
-         *
-         * @param frameID a per-frame identifier passed to all rendering
-         *                methods.
-         * @param frameNumber the number of the frame.
-         */
-        void updatePost( const uint32_t frameID, const uint32_t frameNumber );
+        bool update( const uint32_t frameID, const uint32_t frameNumber );
 
         void send( net::ObjectPacket& packet );
         void send( net::ObjectPacket& packet, const std::string& string );
@@ -364,6 +355,9 @@ namespace server
         bool _syncConfigInit();
         void _configExit();
         bool _syncConfigExit();
+
+        void _setupRenderContext( const uint32_t frameID,
+                                  eq::RenderContext& context );
 
         void _fireLoadData( const uint32_t frameNumber, 
                             const uint32_t nStatistics,

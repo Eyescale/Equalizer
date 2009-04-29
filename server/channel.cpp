@@ -456,16 +456,34 @@ bool Channel::_syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-bool Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
+void Channel::_setupRenderContext( const uint32_t frameID, 
+                                   eq::RenderContext& context )
+{
+    context.frameID       = frameID;
+    context.pvp           = _pvp;
+    context.vp            = _vp;
+    context.view          = _view;
+    context.overdraw      = _overdraw;
+
+    if( !_view || !_segment )
+        return;
+
+    // part of view covered by segment
+    Viewport contribution( _segment->getViewport( ));
+    contribution.intersect( _view->getViewport( ));
+    contribution.transform( _view->getViewport( ));
+
+    context.vp.apply( contribution );
+}
+
+bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_RUNNING );
     EQASSERT( _active > 0 );
 
     eq::ChannelFrameStartPacket startPacket;
-    startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
-    startPacket.viewVersion = _view ? _view->getVersion() : EQ_ID_INVALID;
-    startPacket .overdraw   = _overdraw;
+    _setupRenderContext( frameID, startPacket.context );
 
     send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK channel " << _name << " start frame  " 
@@ -492,18 +510,16 @@ bool Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
         updated |= visitor.isUpdated();
     }
 
-    return updated;
-}
-
-void Channel::updatePost( const uint32_t frameID, const uint32_t frameNumber )
-{
     eq::ChannelFrameFinishPacket finishPacket;
-    finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
+    finishPacket.context = startPacket.context;
+
     send( finishPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK channel " << _name << " finish frame  "
                            << &finishPacket << endl;
     _lastDrawCompound = 0;
+
+    return updated;
 }
 
 void Channel::send( net::ObjectPacket& packet ) 
@@ -618,10 +634,38 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
     
     os << disableFlush << disableHeader << "channel" << endl;
     os << "{" << endl << indent;
-    
+
     const std::string& name = channel->getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << endl;
+
+    const Segment* segment = channel->getSegment();
+    const View*    view    = channel->getView();
+    if( view && segment )
+    {
+        os << "path     ( ";
+
+        const Config* config = channel->getConfig();
+        const std::string& segmentName = segment->getName();
+        if( !segmentName.empty() && 
+            config->findSegment( segmentName ) == segment )
+        {
+            os << "segment \"" << segmentName << "\" ";
+        }
+        else
+            os << segment->getPath() << ' ';
+        
+        const std::string& viewName = view->getName();
+        if( !viewName.empty() && 
+            config->findView( viewName ) == view )
+        {
+            os << "view \"" << viewName << '\"';
+        }
+        else
+            os << view->getPath();
+        
+        os << " )" << endl; 
+    }
 
     const eq::Viewport& vp  = channel->getViewport();
     if( vp.isValid( ) && !channel->_fixedPVP )

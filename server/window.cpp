@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -574,28 +573,18 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     EQLOG( eq::LOG_TASKS ) << "TASK window start frame  " << &startPacket 
                            << endl;
 
-    for( vector< Channel* >::const_iterator i = _channels.begin(); 
+    for( ChannelVector::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
         if( channel->isActive( ))
-        {
-            _doSwap |= channel->updateDraw( frameID, frameNumber );
-        }
+            _doSwap |= channel->update( frameID, frameNumber );
     }
 }
 
 void Window::updatePost( const uint32_t frameID, 
                          const uint32_t frameNumber )
 {
-    for( vector< Channel* >::const_iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
-    {
-        Channel* channel = *i;
-        if( channel->isActive( ))
-            channel->updatePost( frameID, frameNumber );
-    }
-
     _updateSwap( frameNumber );
 
     eq::WindowFrameFinishPacket finishPacket;
