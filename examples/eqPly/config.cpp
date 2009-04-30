@@ -2,9 +2,8 @@
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -333,8 +332,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                      event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
                                                        eq::PTR_BUTTON3 ))
             {
-                _frameData.moveCamera( 0.f, 0.f,
-                                       .005f * event->data.pointerMotion.dy );
+                _advance = -event->data.pointerMotion.dy;
+                _frameData.moveCamera( 0.f, 0.f, .005f * _advance );
                 _redraw = true;
             }
             else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
@@ -522,12 +521,6 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         // Head Tracking Emulation
         case eq::KC_UP:
         {
-            if( _frameData.usePilotMode() )
-            {
-                _advance++;
-                return true;
-            }//else
-
             vmml::Matrix4f headMatrix = _getHeadMatrix();
             headMatrix.y += 0.1f;
             _setHeadMatrix( headMatrix );
@@ -535,12 +528,6 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         }
         case eq::KC_DOWN:
         {
-            if( _frameData.usePilotMode() )
-            {
-                _advance--;
-                return true;
-            }//else
-
             vmml::Matrix4f headMatrix = _getHeadMatrix();
             headMatrix.y -= 0.1f;
             _setHeadMatrix( headMatrix );

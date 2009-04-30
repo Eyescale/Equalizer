@@ -103,7 +103,8 @@ void Channel::frameDraw( const uint32_t frameID )
     {
         glMultMatrixf( frameData.getCameraRotation().ml );
         glTranslatef( translation.x, translation.y, translation.z );
-    }else
+    }
+    else
     {
         glTranslatef( translation.x, translation.y, translation.z );
         glMultMatrixf( frameData.getCameraRotation().ml );
@@ -387,13 +388,11 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
           vmml::Matrix4f  translation = vmml::Matrix4f::IDENTITY;
     translation.setTranslation( frameData.getCameraTranslation());
 
-    vmml::Matrix4f headTransform = getHeadTransform();
+    const vmml::Matrix4f& headTransform( getHeadTransform( ));
     vmml::Matrix4f modelView;
     if( frameData.usePilotMode())
-    {
-        headTransform = headTransform * rotation;
-        modelView = headTransform * translation;
-    }else
+        modelView = headTransform * rotation * translation;
+    else
         modelView = headTransform * translation * rotation;
 
     const vmml::Frustumf&  frustum       = getFrustum();

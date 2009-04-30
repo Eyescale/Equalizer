@@ -2,9 +2,8 @@
 /* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -128,7 +127,7 @@ void FrameData::spinCamera( const float x, const float y )
     setDirty( DIRTY_CAMERA );
 }
 
-void FrameData::moveCamera( float x, float y, float z )
+void FrameData::moveCamera( const float x, const float y, const float z )
 {
     if( _pilotMode )
     {
@@ -136,14 +135,15 @@ void FrameData::moveCamera( float x, float y, float z )
         vmml::Vector4f shift = _rotation.getInverse( tmp ) *
                                 vmml::Vector4f( x, y, z, 1 );
 
-        x = shift.x;
-        y = shift.y;
-        z = shift.z;
+        _translation += shift;
+    }
+    else
+    {
+        _translation.x += x;
+        _translation.y += y;
+        _translation.z += z;
     }
 
-    _translation.x += x;
-    _translation.y += y;
-    _translation.z += z;
     setDirty( DIRTY_CAMERA );
 }
 
