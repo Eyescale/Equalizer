@@ -31,6 +31,7 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
         : eq::Config( parent )
         , _spinX( 5 )
         , _spinY( 5 )
+        , _advance( 0 )
         , _currentCanvas( 0 )
         , _redraw( true )
 {
@@ -250,6 +251,7 @@ uint32_t Config::startFrame()
 
     // update database
     _frameData.spinCamera( -0.001f * _spinX, -0.001f * _spinY );
+    _frameData.moveCamera( 0.0f, 0.0f, 0.001f*_advance );
     const uint32_t version = _frameData.commit();
 
     _redraw = false;
@@ -258,7 +260,8 @@ uint32_t Config::startFrame()
 
 bool Config::needsRedraw()
 {
-    return ( _spinX != 0 || _spinY != 0 || _tracker.isRunning() || _redraw );
+    return ( _spinX != 0 || _spinY != 0 || _advance != 0 ||
+             _tracker.isRunning() || _redraw );
 }
 
 bool Config::handleEvent( const eq::ConfigEvent* event )
@@ -307,6 +310,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             {
                 _spinX = event->data.pointerButtonRelease.dx;
                 _spinY = event->data.pointerButtonRelease.dy;
+                if( _spinX == 0 && _spinY == 0 )
+                    _advance = 0;
                 _redraw = true;
             }
             return true;
@@ -360,9 +365,13 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 {
     switch( event.key )
     {
+        case 'p':
+        case 'P':
+            _frameData.togglePilotMode();
         case ' ':
-            _spinX = 0;
-            _spinY = 0;
+            _spinX   = 0;
+            _spinY   = 0;
+            _advance = 0;
             _frameData.reset();
             _setHeadMatrix( vmml::Matrix4f::IDENTITY );
             return true;
@@ -513,6 +522,12 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         // Head Tracking Emulation
         case eq::KC_UP:
         {
+            if( _frameData.usePilotMode() )
+            {
+                _advance++;
+                return true;
+            }//else
+
             vmml::Matrix4f headMatrix = _getHeadMatrix();
             headMatrix.y += 0.1f;
             _setHeadMatrix( headMatrix );
@@ -520,6 +535,12 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         }
         case eq::KC_DOWN:
         {
+            if( _frameData.usePilotMode() )
+            {
+                _advance--;
+                return true;
+            }//else
+
             vmml::Matrix4f headMatrix = _getHeadMatrix();
             headMatrix.y -= 0.1f;
             _setHeadMatrix( headMatrix );

@@ -104,9 +104,9 @@ Where:
 
                 Left Mouse Button:         Rotate model
 
-                Middle Mouse Button:       Move model in X, Y
+                Middle Mouse Button:       Move model in Z;
 
-                Right Mouse Button:        Move model in Z
+                Right Mouse Button:        Move model in X, Y
 
                 <Cursor Keys>:             Move head in x,y plane
 
@@ -121,3 +121,5 @@ Where:
                 s:                         Toggle statistics overlay
 
                 m:                         Switch rendering mode
+
+                p:                         Switch to Walk Through mode

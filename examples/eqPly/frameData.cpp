@@ -29,6 +29,7 @@ FrameData::FrameData()
         , _statistics( false )
         , _help( false )
         , _wireframe( false )
+        , _pilotMode( false )
         , _currentViewID( EQ_ID_INVALID )
 {
     reset();
@@ -42,7 +43,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
         os << _translation << _rotation;
     if( dirtyBits & DIRTY_FLAGS )
         os << _modelID << _renderMode << _color << _ortho << _statistics
-           << _help << _wireframe;
+           << _help << _wireframe << _pilotMode;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
 }
@@ -55,7 +56,7 @@ void FrameData::deserialize( eq::net::DataIStream& is,
         is >> _translation >> _rotation;
     if( dirtyBits & DIRTY_FLAGS )
         is >> _modelID >> _renderMode >> _color >> _ortho >> _statistics
-           >> _help >> _wireframe;
+           >> _help >> _wireframe >> _pilotMode;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
 }
@@ -102,6 +103,12 @@ void FrameData::toggleWireframe()
     setDirty( DIRTY_FLAGS );
 }
 
+void FrameData::togglePilotMode()
+{
+    _pilotMode = !_pilotMode;
+    setDirty( DIRTY_FLAGS );
+}
+
 void FrameData::toggleRenderMode()
 {
     _renderMode = static_cast< mesh::RenderMode >(
@@ -121,12 +128,22 @@ void FrameData::spinCamera( const float x, const float y )
     setDirty( DIRTY_CAMERA );
 }
 
-void FrameData::moveCamera( const float x, const float y, const float z )
+void FrameData::moveCamera( float x, float y, float z )
 {
+    if( _pilotMode )
+    {
+        bool tmp;
+        vmml::Vector4f shift = _rotation.getInverse( tmp ) *
+                                vmml::Vector4f( x, y, z, 1 );
+
+        x = shift.x;
+        y = shift.y;
+        z = shift.z;
+    }
+
     _translation.x += x;
     _translation.y += y;
     _translation.z += z;
-
     setDirty( DIRTY_CAMERA );
 }
 
@@ -135,8 +152,11 @@ void FrameData::reset()
     _translation   = vmml::Vector3f::ZERO;
     _translation.z = -2.f;
     _rotation = vmml::Matrix4f::IDENTITY;
-    _rotation.rotateX( static_cast<float>( -M_PI_2 ));
-    _rotation.rotateY( static_cast<float>( -M_PI_2 ));
+    if( !_pilotMode )
+    {
+        _rotation.rotateX( static_cast<float>( -M_PI_2 ));
+        _rotation.rotateY( static_cast<float>( -M_PI_2 ));
+    }
     setDirty( DIRTY_CAMERA );
 }
 

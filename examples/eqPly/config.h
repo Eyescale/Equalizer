@@ -71,7 +71,8 @@ namespace eqPly
     protected:
         virtual ~Config();
 
-        int        _spinX, _spinY;
+        int         _spinX, _spinY;
+        int         _advance;
         eq::Canvas* _currentCanvas;
 
         LocalInitData _initData;

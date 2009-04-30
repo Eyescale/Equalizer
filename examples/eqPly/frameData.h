@@ -57,6 +57,7 @@ namespace eqPly
         void toggleStatistics();
         void toggleHelp();
         void toggleWireframe();
+        void togglePilotMode();
         void toggleRenderMode();
 
         uint32_t getModelID() const { return _modelID; }
@@ -65,13 +66,14 @@ namespace eqPly
         bool useStatistics() const { return _statistics; }
         bool showHelp() const { return _help; }
         bool useWireframe() const { return _wireframe; }
+        bool usePilotMode() const { return _pilotMode; }
         mesh::RenderMode getRenderMode() const { return _renderMode; }
         //*}
 
         /** @name Camera parameters. */
         //*{
         void spinCamera( const float x, const float y );
-        void moveCamera( const float x, const float y, const float z );
+        void moveCamera(       float x,       float y, float z );
 
         const vmml::Matrix4f& getCameraRotation() const
             { return _rotation; }
@@ -112,6 +114,7 @@ namespace eqPly
         bool             _statistics;
         bool             _help;
         bool             _wireframe;
+        bool             _pilotMode;
 
         uint32_t _currentViewID;
     };

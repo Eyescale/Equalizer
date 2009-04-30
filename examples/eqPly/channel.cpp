@@ -99,8 +99,15 @@ void Channel::frameDraw( const uint32_t frameID )
                    frameData.useWireframe() ? GL_LINE : GL_FILL );
 
     const vmml::Vector3f& translation = frameData.getCameraTranslation();
-    glTranslatef( translation.x, translation.y, translation.z );
-    glMultMatrixf( frameData.getCameraRotation().ml );
+    if( frameData.usePilotMode())
+    {
+        glMultMatrixf( frameData.getCameraRotation().ml );
+        glTranslatef( translation.x, translation.y, translation.z );
+    }else
+    {
+        glTranslatef( translation.x, translation.y, translation.z );
+        glMultMatrixf( frameData.getCameraRotation().ml );
+    }
 
     const Model*     model  = _getModel();
     const eq::Range& range  = getRange();
@@ -211,7 +218,7 @@ void Channel::_drawModel( const Model* model )
             continue;
             
         // bounding sphere view frustum culling
-        const vmml::Visibility visibility = 
+        const vmml::Visibility visibility =
             culler.testSphere( treeNode->getBoundingSphere( ));
 
         switch( visibility )
@@ -376,12 +383,20 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
     // setup frustum cull helper
     const FrameData& frameData = _getFrameData();
 
-    vmml::Matrix4f view( frameData.getCameraRotation( ));
-    view.setTranslation( frameData.getCameraTranslation( ));
+    const vmml::Matrix4f& rotation    = frameData.getCameraRotation();
+          vmml::Matrix4f  translation = vmml::Matrix4f::IDENTITY;
+    translation.setTranslation( frameData.getCameraTranslation());
+
+    vmml::Matrix4f headTransform = getHeadTransform();
+    vmml::Matrix4f modelView;
+    if( frameData.usePilotMode())
+    {
+        headTransform = headTransform * rotation;
+        modelView = headTransform * translation;
+    }else
+        modelView = headTransform * translation * rotation;
 
     const vmml::Frustumf&  frustum       = getFrustum();
-    const vmml::Matrix4f&  headTransform = getHeadTransform();
-    const vmml::Matrix4f   modelView     = headTransform * view;
     const vmml::Matrix4f   projection    = frameData.useOrtho() ?
                                                frustum.computeOrthoMatrix() :
                                                frustum.computeMatrix();
