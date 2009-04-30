@@ -99,16 +99,10 @@ void Channel::frameDraw( const uint32_t frameID )
                    frameData.useWireframe() ? GL_LINE : GL_FILL );
 
     const vmml::Vector3f& translation = frameData.getCameraTranslation();
-    if( frameData.usePilotMode())
-    {
-        glMultMatrixf( frameData.getCameraRotation().ml );
-        glTranslatef( translation.x, translation.y, translation.z );
-    }
-    else
-    {
-        glTranslatef( translation.x, translation.y, translation.z );
-        glMultMatrixf( frameData.getCameraRotation().ml );
-    }
+
+    glMultMatrixf( frameData.getCameraRotation().ml );
+    glTranslatef( translation.x, translation.y, translation.z );
+    glMultMatrixf( frameData.getModelRotation().ml );
 
     const Model*     model  = _getModel();
     const eq::Range& range  = getRange();
@@ -384,22 +378,18 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
     // setup frustum cull helper
     const FrameData& frameData = _getFrameData();
 
-    const vmml::Matrix4f& rotation    = frameData.getCameraRotation();
+    const vmml::Matrix4f& rotation       = frameData.getCameraRotation();
+    const vmml::Matrix4f& modelRotation  = frameData.getModelRotation();
           vmml::Matrix4f  translation = vmml::Matrix4f::IDENTITY;
     translation.setTranslation( frameData.getCameraTranslation());
 
-    const vmml::Matrix4f& headTransform( getHeadTransform( ));
-    vmml::Matrix4f modelView;
-    if( frameData.usePilotMode())
-        modelView = headTransform * rotation * translation;
-    else
-        modelView = headTransform * translation * rotation;
+    const vmml::Matrix4f headTransform = getHeadTransform() * rotation;
+    const vmml::Matrix4f modelView = headTransform*translation*modelRotation;
 
-    const vmml::Frustumf&  frustum       = getFrustum();
-    const vmml::Matrix4f   projection    = frameData.useOrtho() ?
+    const vmml::Frustumf& frustum      = getFrustum();
+    const vmml::Matrix4f  projection   = frameData.useOrtho() ?
                                                frustum.computeOrthoMatrix() :
                                                frustum.computeMatrix();
-
     culler.setup( projection * modelView );
 
     // compute dynamic near/far plane of whole model

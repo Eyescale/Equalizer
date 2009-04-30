@@ -39,7 +39,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
 {
     eq::Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
-        os << _translation << _rotation;
+        os << _translation << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         os << _modelID << _renderMode << _color << _ortho << _statistics
            << _help << _wireframe << _pilotMode;
@@ -52,7 +52,7 @@ void FrameData::deserialize( eq::net::DataIStream& is,
 {
     eq::Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
-        is >> _translation >> _rotation;
+        is >> _translation >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         is >> _modelID >> _renderMode >> _color >> _ortho >> _statistics
            >> _help >> _wireframe >> _pilotMode;
@@ -127,6 +127,16 @@ void FrameData::spinCamera( const float x, const float y )
     setDirty( DIRTY_CAMERA );
 }
 
+void FrameData::spinModel( const float x, const float y )
+{
+    if( x == 0.f && y == 0.f )
+        return;
+
+    _modelRotation.preRotateX( x );
+    _modelRotation.preRotateY( y );
+    setDirty( DIRTY_CAMERA );
+}
+
 void FrameData::moveCamera( const float x, const float y, const float z )
 {
     if( _pilotMode )
@@ -147,16 +157,39 @@ void FrameData::moveCamera( const float x, const float y, const float z )
     setDirty( DIRTY_CAMERA );
 }
 
+void FrameData::setTranslation( const vmml::Vector3f& translation )
+{
+    _translation = translation;
+    setDirty( DIRTY_CAMERA );
+}
+
+void FrameData::setRotation( const vmml::Vector3f& rotation )
+{
+    _rotation = vmml::Matrix4f::IDENTITY;
+    _rotation.rotateX( rotation.x );
+    _rotation.rotateY( rotation.y );
+    _rotation.rotateZ( rotation.z );
+    setDirty( DIRTY_CAMERA );
+}
+
+void FrameData::setModelRotation(  const vmml::Vector3f& rotation )
+{
+    _modelRotation = vmml::Matrix4f::IDENTITY;
+    _modelRotation.rotateX( rotation.x );
+    _modelRotation.rotateY( rotation.y );
+    _modelRotation.rotateZ( rotation.z );
+    setDirty( DIRTY_CAMERA );
+}
+
+
 void FrameData::reset()
 {
     _translation   = vmml::Vector3f::ZERO;
     _translation.z = -2.f;
-    _rotation = vmml::Matrix4f::IDENTITY;
-    if( !_pilotMode )
-    {
-        _rotation.rotateX( static_cast<float>( -M_PI_2 ));
-        _rotation.rotateY( static_cast<float>( -M_PI_2 ));
-    }
+    _rotation      = vmml::Matrix4f::IDENTITY;
+    _modelRotation = vmml::Matrix4f::IDENTITY;
+    _modelRotation.rotateX( static_cast<float>( -M_PI_2 ));
+    _modelRotation.rotateY( static_cast<float>( -M_PI_2 ));
     setDirty( DIRTY_CAMERA );
 }
 

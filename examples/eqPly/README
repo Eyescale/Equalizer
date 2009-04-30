@@ -60,7 +60,9 @@ Usage
 
 
 Where: 
-
+   -t <string>,  --pf <string>
+     File with path
+     
    -i,  --iface
      Invert faces (valid during binary file creation)
 
@@ -123,3 +125,21 @@ Where:
                 m:                         Switch rendering mode
 
                 p:                         Switch to Walk Through mode
+
+
+    If option -t is specified, eqPly will try to use provided file as a set of
+    reference camera positions for rendering. Format of this file is following:
+
+    - first line should contain 3 values which are initial rotation of a model
+
+    - every next line should contain 7 values which are:
+      1    : integer - number of frames to reach that state from previous one
+      2,3,4: float   - position of camera
+      5,6,7: float   - rotation of camera
+
+    Position and rotation of camera are interpolated between states. Number of
+    frames should start from 0 and be positive. If you want to have your path to
+    be a loop, then last position and rotation should be the same as first ones
+    (there is no interpolation between last and first positions). All angles are
+    specified in degrees. Check "examples/eqPly/pathExample.txt" for an example.
+

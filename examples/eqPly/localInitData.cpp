@@ -53,6 +53,7 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _color       = from._color;        
     _isResident  = from._isResident;
     _filenames    = from._filenames;
+    _pathFilename = from._pathFilename;
 
     setWindowSystem( from.getWindowSystem( ));
     setRenderMode( from.getRenderMode( ));
@@ -109,6 +110,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::ValueArg<string> logArg( "l", "log", "output log file",
                                         false, "eqPly.log", "string",
                                         command );
+        TCLAP::ValueArg<string> pthArg( "t", "pf", "File with path",
+                                       false, "", "string", command );
                                         
         command.parse( argc, argv );
 
@@ -140,7 +143,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 
         if( residentArg.isSet( ))
             _isResident = true;
-        
+
         if( modeArg.isSet() )
         {
             string mode = modeArg.getValue();
@@ -154,6 +157,9 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             else if( mode == "vbo" )
                 setRenderMode( mesh::RENDER_MODE_BUFFER_OBJECT );
         }
+
+        if( pthArg.isSet( ))
+            _pathFilename = pthArg.getValue();
 
         if( logArg.isSet( ))
             _logFilename = logArg.getValue();

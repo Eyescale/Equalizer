@@ -38,10 +38,11 @@ namespace eqPly
 
         const std::string& getTrackerPort() const { return _trackerPort; }
         const std::string& getLogFilename() const { return _logFilename; }
+        const std::string& getPathFilename()const { return _pathFilename; }
         bool               useColor()       const { return _color; }
         bool               isResident()     const { return _isResident; }
         uint32_t           getMaxFrames()   const { return _maxFrames; }
-        
+
         const std::vector< std::string >& getFilenames() const
             { return _filenames; }
 
@@ -51,6 +52,7 @@ namespace eqPly
         std::string _trackerPort;
         std::vector< std::string > _filenames;
         std::string _logFilename;
+        std::string _pathFilename;
         uint32_t    _maxFrames;
         bool        _color;
         bool        _isResident;

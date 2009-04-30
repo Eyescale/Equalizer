@@ -80,6 +80,32 @@ namespace eqPly
 
         Tracker _tracker;
 
+        struct Step
+        {
+            Step( int frame_, const vmml::Vector3f& translation_,
+                              const vmml::Vector3f& rotation_  )
+                : frame( frame_ ), translation( translation_ ),
+                  rotation( rotation_ ){};
+
+            int frame;
+            vmml::Vector3f translation;
+            vmml::Vector3f rotation;
+        };
+        struct Path
+        {
+            Path() : _curStep( 0 ), _curFrame( 0 ) {}
+            bool valid() const { return !_steps.empty(); }
+            void addStep( const Step& step ) { _steps.push_back( step ); }
+            const Step getNextStep();
+
+            vmml::Vector3f modelRotation;
+
+        private:
+            std::vector< Step > _steps;
+            uint _curStep;
+            int  _curFrame;
+        } _path;
+
         ModelVector     _models;
         ModelDistVector _modelDist;
         eq::base::SpinLock _modelLock;
@@ -88,6 +114,7 @@ namespace eqPly
 
     private:
         void _loadModels();
+        void _loadPath();
         void _deregisterData();
         bool _handleKeyEvent( const eq::KeyEvent& event );
         void _setHeadMatrix( const vmml::Matrix4f& matrix );

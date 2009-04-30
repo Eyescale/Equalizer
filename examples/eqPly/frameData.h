@@ -52,6 +52,10 @@ namespace eqPly
         void setColor( const bool onOff );
         void setRenderMode( const mesh::RenderMode mode );
 
+        void setTranslation(   const vmml::Vector3f& translation );
+        void setRotation(      const vmml::Vector3f& rotation    );
+        void setModelRotation( const vmml::Vector3f& rotation    );
+
         void toggleOrtho();
         void toggleStatistics();
         void toggleHelp();
@@ -72,10 +76,13 @@ namespace eqPly
         /** @name Camera parameters. */
         //*{
         void spinCamera( const float x, const float y );
+        void spinModel(  const float x, const float y );
         void moveCamera( const float x, const float y, const float z );
 
         const vmml::Matrix4f& getCameraRotation() const
             { return _rotation; }
+        const vmml::Matrix4f& getModelRotation() const
+            { return _modelRotation; }
         const vmml::Vector3f& getCameraTranslation() const
             { return _translation; }
         //*}
@@ -104,6 +111,7 @@ namespace eqPly
 
     private:
         vmml::Matrix4f _rotation;
+        vmml::Matrix4f _modelRotation;
         vmml::Vector3f _translation;
         
         uint32_t         _modelID;
