@@ -780,8 +780,8 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
          i != channels.end(); ++i )
     {
         const Channel* channel = *i;
-//        if( channel->getView() && channel->getSegment( ))
-//            continue; // don't print generated channels for now
+        if( channel->getView() && channel->getSegment( ))
+            continue; // don't print generated channels for now
 
         os << channel;
     }
