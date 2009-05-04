@@ -36,7 +36,7 @@ namespace eq
     {
     public:
         ROIFinder();
-        virtual ~ROIFinder(){};
+        virtual ~ROIFinder() {}
 
         PixelViewportVector findRegions( const uint32_t         buffers,
                                          const PixelViewport&   pvp,

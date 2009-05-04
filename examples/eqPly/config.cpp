@@ -131,7 +131,7 @@ void Config::_loadPath()
 
         _frameData.reset();
 
-        uint count = 0;
+        uint32_t count = 0;
         float v[7];
         int frameNum = 0;
         while ( !file.eof( ))

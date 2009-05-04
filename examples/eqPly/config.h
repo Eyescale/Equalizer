@@ -102,7 +102,7 @@ namespace eqPly
 
         private:
             std::vector< Step > _steps;
-            uint _curStep;
+            uint32_t _curStep;
             int  _curFrame;
         } _path;
 
