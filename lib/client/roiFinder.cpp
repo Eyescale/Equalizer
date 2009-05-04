@@ -672,12 +672,14 @@ static PixelViewport _getBoundingPVP( const PixelViewport& pvp )
 PixelViewportVector ROIFinder::findRegions( const uint32_t         buffers,
                                             const PixelViewport&   pvp,
                                             const Zoom&            zoom,
+                                            const uint32_t         stage,
+                                            const uint32_t         frameID,
                                             Window::ObjectManager* glObjects )
 {
     PixelViewportVector result;
+    result.push_back( pvp );
 
 #ifndef EQ_USEROI
-    result.push_back( pvp );
     return result; // disable read back info usage
 #endif
 
@@ -707,6 +709,10 @@ for( int i = 0; i < 100; i++ )
         return result;
     }
 
+/*    uint8_t* ticket;
+    if( !_roiTracker.useROIFinder( pvp, stage, frameID, ticket ))
+        return result;
+*/
     _resize( _getBoundingPVP( pvp ));
 
     // go through depth buffer and check min/max/BG values
@@ -725,6 +731,7 @@ for( int i = 0; i < 100; i++ )
     
     result.clear();
     _findAreas( result );
+//    _roiTracker.updateDelay( result, ticket );
 
 /*
 }

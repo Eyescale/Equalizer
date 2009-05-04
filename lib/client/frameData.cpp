@@ -201,7 +201,9 @@ void FrameData::startReadback( const Frame& frame,
     PixelViewportVector pvps;
 
     if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
-        pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom, glObjects);
+        pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
+//                    frame.getAssemblyStage(), frame.getFrameID(), glObjects );
+                    0, 0, glObjects );
     else
         pvps.push_back( absPVP );
 

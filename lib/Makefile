@@ -225,6 +225,7 @@ CXXFILES = \
 	client/projection.cpp \
 	client/range.cpp \
 	client/roiFinder.cpp \
+	client/roiTracker.cpp \
 	client/roiEmptySpaceFinder.cpp \
 	client/renderContext.cpp \
 	client/segment.cpp \

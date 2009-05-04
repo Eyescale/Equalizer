@@ -19,6 +19,7 @@
 #define EQ_ROI_FINDER_H
 
 #include "roiEmptySpaceFinder.h"
+#include "roiTracker.h"
 
 #include <eq/client/image.h>   // member
 
@@ -40,6 +41,8 @@ namespace eq
         PixelViewportVector findRegions( const uint32_t         buffers,
                                          const PixelViewport&   pvp,
                                          const Zoom&            zoom,
+                                         const uint32_t         stage,
+                                         const uint32_t         frameID,
                                          Window::ObjectManager* glObjects );
 
         /** @return the GL function table, valid during readback. */
@@ -130,6 +133,8 @@ namespace eq
         uint8_t _histY[256];
 
         Image _tmpImg; //! used for dumping debug info
+
+        ROITracker _roiTracker;
 
         /** The GL object manager, valid during a readback operation. */
         Window::ObjectManager* _glObjects;
