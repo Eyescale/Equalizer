@@ -171,7 +171,7 @@ namespace net
          * Start a read operation on the connection.
          *
          * This function returns immediately. The Notifier will signal data
-         * availibility, upon which recvSync() should be used to finish the
+         * availability, upon which recvSync() should be used to finish the
          * operation.
          * 
          * @param buffer the buffer receiving the data.
@@ -183,9 +183,11 @@ namespace net
         /** 
          * Finish reading data from the connection.
          * 
-         * This function may block even if data availibility was signalled,
+         * This function may block even if data availability was signaled,
          * i.e., when only a part of the data requested has been received.
-         * The buffer and bytes return value pointers can be 0.
+         * The buffer and bytes return value pointers can be 0. This method uses
+         * readNB() and readSync() to fill a buffer, potentially using multiple
+         * reads.
          *
          * @param buffer return value, the buffer pointer passed to recvNB().
          * @param bytes return value, the number of bytes read.
@@ -195,6 +197,32 @@ namespace net
 
         void getRecvData( void** buffer, uint64_t* bytes )
             { *buffer = _aioBuffer; *bytes = _aioBytes; }
+
+        /** 
+         * Start a read operation on the connection.
+         *
+         * This function returns immediately. The operation's Notifier will
+         * signal data availability, upon which readSync() should be used to
+         * finish the operation.
+         * 
+         * @param buffer the buffer receiving the data.
+         * @param bytes the number of bytes to read.
+         * @sa readSync()
+         */
+        virtual void readNB( void* buffer, const uint64_t bytes ) = 0;
+
+        /** 
+         * Finish reading data from the connection.
+         *
+         * This method is the low-level counterpart to recvNB() and recvSync().
+         * It may return with a partial read.
+         * 
+         * @param buffer the buffer receiving the data.
+         * @param bytes the number of bytes to read.
+         * @return the number of bytes read, or -1 upon error.
+         */
+        virtual int64_t readSync( void* buffer, const uint64_t bytes ) = 0;
+
         //*}
 
 
@@ -302,28 +330,6 @@ namespace net
 
         /** @name Input/Output */
         //@{
-        /** 
-         * Start a read operation on the connection.
-         *
-         * This function returns immediately. The operation's Notifier will
-         * signal data availibility, upon which readSync() should be used to
-         * finish the operation.
-         * 
-         * @param buffer the buffer receiving the data.
-         * @param bytes the number of bytes to read.
-         * @sa readSync()
-         */
-        virtual void readNB( void* buffer, const uint64_t bytes ) = 0;
-
-        /** 
-         * Finish reading data from the connection.
-         * 
-         * @param buffer the buffer receiving the data.
-         * @param bytes the number of bytes to read.
-         * @return the number of bytes read, or -1 upon error.
-         */
-        virtual int64_t readSync( void* buffer, const uint64_t bytes ) = 0;
-
         /** 
          * Write data to the connection.
          * 
