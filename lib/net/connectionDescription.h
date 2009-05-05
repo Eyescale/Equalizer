@@ -114,7 +114,8 @@ namespace net
         std::string _hostname;
     };
 
-    std::ostream& operator << ( std::ostream&, const ConnectionDescription* );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&,
+                                          const ConnectionDescription* );
 }
 }
 

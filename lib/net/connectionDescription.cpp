@@ -205,7 +205,8 @@ const string& ConnectionDescription::getLaunchCommand() const
     return _launchCommand;
 }
 
-std::ostream& operator << ( std::ostream& os, const ConnectionDescription* desc)
+EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                      const ConnectionDescription* desc)
 {
     if( !desc )
     {
