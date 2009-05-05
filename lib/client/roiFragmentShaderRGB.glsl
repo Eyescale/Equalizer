@@ -22,14 +22,14 @@ void main(void)
     vec2  pos = gl_TexCoord[0].st;
 
     float bg  = 1.0;
-    float s;
+    vec3 s;
     for( float y = .5; y < 15.0; y+=2.0 )
     {
         for( float x = .5; x < 15.0; x+=2.0 )
         {
-            s = texture2DRect( texture, pos + vec2( x, y )).x;
+            s = texture2DRect( texture, pos + vec2( x, y )).rgb;
 
-            if( s != 1.0 )
+            if( s != vec3( .0, .0, .0 ))
             {
                 bg = .0;
                 x = 16.0;

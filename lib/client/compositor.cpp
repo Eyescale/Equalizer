@@ -805,7 +805,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
 {
     const vector< Image* >& images = frame->getImages();
     if( images.empty( ))
-        EQWARN << "No images to assemble" << endl;
+        EQINFO << "No images to assemble" << endl;
 
     ImageOp operation;
     operation.channel = channel;

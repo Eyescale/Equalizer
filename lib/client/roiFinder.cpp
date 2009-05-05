@@ -16,10 +16,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-//#define EQ_USEROI
+//#define EQ_USE_ROI
+//#define EQ_USE_DEPTH_TEXTURE
 
 #include "roiFinder.h"
+
+#ifdef EQ_USE_DEPTH_TEXTURE
 #include "roiFragmentShader_glsl.h"
+#else 
+#include "roiFragmentShaderRGB_glsl.h"
+#endif
 
 #include "frameBufferObject.h"
 #include "log.h"
@@ -536,12 +542,17 @@ void ROIFinder::_readbackInfo( )
     PixelViewport pvp = _pvp;
     pvp.apply( Zoom( GRID_SIZE, GRID_SIZE ));
 
-    // copy depth frame buffer to texture
-    const void* depthBufferKey = _getInfoKey( );
-    Texture*    depthTex       = _glObjects->obtainEqTexture( depthBufferKey );
+    // copy frame buffer to texture
+    const void* bufferKey = _getInfoKey( );
+    Texture*    texture   = _glObjects->obtainEqTexture( bufferKey );
 
-    depthTex->setFormat( GL_DEPTH_COMPONENT );
-    depthTex->copyFromFrameBuffer( pvp );
+#ifdef EQ_USE_DEPTH_TEXTURE
+    texture->setFormat( GL_DEPTH_COMPONENT );
+#else
+    texture->setFormat( GL_RGBA );
+#endif
+
+    texture->copyFromFrameBuffer( pvp );
 
     // draw zoomed quad into FBO
     const void*     fboKey = _getInfoKey( );
@@ -568,7 +579,7 @@ void ROIFinder::_readbackInfo( )
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
                                                             GL_CLAMP_TO_EDGE );
 
-    depthTex->bind();
+    texture->bind();
 
     // Enable shaders
     //
@@ -582,7 +593,11 @@ void ROIFinder::_readbackInfo( )
                                                         GL_FRAGMENT_SHADER );
         EQASSERT( shader != Window::ObjectManager::INVALID );
 
+#ifdef EQ_USE_DEPTH_TEXTURE
         const GLchar* fShaderPtr = roiFragmentShader_glsl.c_str();
+#else
+        const GLchar* fShaderPtr = roiFragmentShaderRGB_glsl.c_str();
+#endif
         EQ_GL_CALL( glShaderSource( shader, 1, &fShaderPtr, 0 ));
         EQ_GL_CALL( glCompileShader( shader ));
 
@@ -608,8 +623,8 @@ void ROIFinder::_readbackInfo( )
         // use fragment shader and setup uniforms
         EQ_GL_CALL( glUseProgram( program ));
 
-        const GLint depthParam = glGetUniformLocation( program, "depth" );
-        glUniform1i( depthParam, 0 );
+        const GLint param = glGetUniformLocation( program, "texture" );
+        glUniform1i( param, 0 );
     }
     else
     {
@@ -650,7 +665,7 @@ void ROIFinder::_readbackInfo( )
     fbo->unbind();
 
     // finish readback of info
-    Texture* texture = fbo->getColorTextures()[0];
+    texture = fbo->getColorTextures()[0];
     texture->download( &_perBlockInfo[0], GL_RGBA, GL_FLOAT );
 }
 
@@ -679,7 +694,7 @@ PixelViewportVector ROIFinder::findRegions( const uint32_t         buffers,
     PixelViewportVector result;
     result.push_back( pvp );
 
-#ifndef EQ_USEROI
+#ifndef EQ_USE_ROI
     return result; // disable read back info usage
 #endif
 

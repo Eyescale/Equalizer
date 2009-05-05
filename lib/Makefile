@@ -242,7 +242,8 @@ CXXFILES = \
 	util/bitmapFont.cpp
 
 SHADERS = \
-	client/roiFragmentShader_glsl.h
+	client/roiFragmentShader_glsl.h \
+	client/roiFragmentShaderRGB_glsl.h
 
 
 CFILES += \
