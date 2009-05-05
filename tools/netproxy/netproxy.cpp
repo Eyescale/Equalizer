@@ -46,12 +46,14 @@ int main( int argc, char **argv )
     ConnectionDescriptionPtr listen = new ConnectionDescription;
     listen->type       = CONNECTIONTYPE_TCPIP;
     listen->TCPIP.port = Global::getDefaultPort();
-    listen->fromString( std::string( argv[1] ));
+    std::string listenArg( argv[1] );
+    listen->fromString( listenArg );
 
     ConnectionDescriptionPtr forward = new ConnectionDescription;
     forward->type       = CONNECTIONTYPE_TCPIP;
     forward->TCPIP.port = Global::getDefaultPort() + 1;
-    forward->fromString( std::string( argv[2] ));
+    std::string forwardArg( argv[2] );
+    forward->fromString( forwardArg );
 
     // wait for input connection
     ConnectionPtr connection = Connection::create( listen );
@@ -65,7 +67,7 @@ int main( int argc, char **argv )
 
     ConnectionSet connections;
     connections.addConnection( connection );
-    const ConnectionSet::Event event = connections.select();
+    connections.select();
 
     // remove listener, add input connection
     connection = connections.getConnection();
