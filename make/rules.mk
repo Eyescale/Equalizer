@@ -5,7 +5,7 @@
 all: $(TARGETS)
 
 # top level precompile command(s)
-precompile: $(CXX_DEFINES_FILE)
+precompile: $(CXX_DEFINES_FILE) $(BUILD_MODE)
 
 $(CXX_DEFINES_FILE)::
 	@echo "/* Generated from CXXFLAGS during build */" > $@.tmp
@@ -19,6 +19,13 @@ $(CXX_DEFINES_FILE)::
 	@echo "#endif // EQ_DEFINES_H" >> $@.tmp
 	@cmp -s $@ $@.tmp || cp $@.tmp $@
 	@rm $@.tmp
+
+$(BUILD_MODE)::
+	@if [ ! -f $(BUILD_DIR)/._$(BUILD_MODE) ]; then \
+		rm -rf $(BUILD_DIR)/bin $(BUILD_DIR)/lib; rm -f $(BUILD_DIR)/._*; \
+		mkdir -p $(BUILD_DIR); touch $(BUILD_DIR)/._$(BUILD_MODE); fi;
+
+$(SIMPLE_PROGRAMS) : $(BUILD_DIR)/._$(BUILD_MODE)
 
 # recursive subdir rules
 subdirs: $(SUBDIRS) 

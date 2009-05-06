@@ -100,8 +100,16 @@ endif
 
 endif # top-level
 
+#build mode
+ifeq ($(findstring -g, $(CXXFLAGS)),-g)
+    BUILD_MODE     = Debug
+else
+    BUILD_MODE     = Release
+endif # -g
+
 # defines
-CXX_DEFINES       = $(sort $(filter -D%,$(CXXFLAGS)))
+CXX_DEFINES_TMP   = $(sort $(filter -D%,$(CXXFLAGS)))
+CXX_DEFINES       = $(CXX_DEFINES_TMP:NDEBUG=)
 CXX_DEFINES_FILE ?= lib/base/defines.h
 CXX_DEFINES_TXT   = $(CXX_DEFINES:-D%= %)
 
@@ -115,7 +123,7 @@ SHARE_DIR       = $(BUILD_DIR)/share/Equalizer
 
 # source code variables
 SIMPLE_CXXFILES = $(wildcard *.cpp)
-OBJECT_DIR      = $(TOP)/obj/$(SUBDIR)
+OBJECT_DIR      = $(TOP)/obj/$(BUILD_MODE)/$(SUBDIR)
 OBJECT_SUFFIX   = $(ARCH)
 
 OBJECTS         = $(CXXFILES:%.cpp=$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o) \
