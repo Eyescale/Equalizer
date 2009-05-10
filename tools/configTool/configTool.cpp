@@ -18,7 +18,6 @@
 
 #include "configTool.h"
 
-
 #ifndef WIN32
 #  include <sys/param.h>
 #endif
@@ -46,13 +45,15 @@ int main( int argc, char** argv )
 }
 
 ConfigTool::ConfigTool()
-        : _mode( MODE_2D ),
-          _nPipes( 1 ),
-          _nChannels( 4 ),
-          _useDestination( true ),
-          _columns( 3 ),
-          _rows( 2 ),
-          _nodesFile( "" )
+        :_mode( MODE_2D )
+        ,_nPipes( 1 )
+        ,_nChannels( 4 )
+        ,_useDestination( true )
+        ,_columns( 3 )
+        ,_rows( 2 )
+        ,_nodesFile( "" )
+        ,_resX( 1024 )
+        ,_resY( 768 )
 {}
 
 bool ConfigTool::parseArguments( int argc, char** argv )
@@ -95,6 +96,15 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                                           "file with list of node-names",
                                           false, "", "filename", command );
 
+        TCLAP::MultiArg<unsigned> resArg( "r", "resolution",
+                                          "output window resolution", 
+                                          false, "unsigned", command );
+
+        TCLAP::ValueArg<string> descrArg( "d", "descr",
+                                      "file with channels per-node description",
+                                          false, "", "filename", command );
+
+
         command.parse( argc, argv );
 
         if( nodesArg.isSet( ))
@@ -102,6 +112,13 @@ bool ConfigTool::parseArguments( int argc, char** argv )
             _nodesFile = nodesArg.getValue();
         }
 
+        if( resArg.isSet( ))
+        {
+            _resX = resArg.getValue()[0];
+
+            if( resArg.getValue().size() > 1 )
+                _resY = resArg.getValue()[1];
+        }
 
         if( pipeArg.isSet( ))
             _nPipes = pipeArg.getValue();
@@ -150,6 +167,11 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                 cerr << "Unknown mode " << mode << endl;
                 return false;
             }
+        }
+
+        if( descrArg.isSet( ))
+        {
+            _descrFile = descrArg.getValue();
         }
     }
     catch( TCLAP::ArgException& exception )
@@ -245,20 +267,28 @@ void ConfigTool::_writeResources() const
                  << "                {" << endl
                  << "                    name     \"window" << channel << "\""
                  << endl;
-            if( channel == 0 && !_fullScreen ) // destination window
+            if( channel == 0 ) // destination window
+            {
                 cout << "                    attributes" << endl
-                     << "                    {" << endl
-                     << "                        hint_fullscreen   OFF" << endl
-                     << "                        hint_drawable     window" <<endl
+                     << "                    {" << endl;
+                if( !_fullScreen )
+                    cout << "                        hint_fullscreen   OFF"
+                         << endl;
+                cout << "                        hint_drawable     window"
+                     << endl
                      << "                        hint_doublebuffer ON" << endl
-                     << "                    }" << endl
-                     << "                    viewport [ 100 100 1280 800 ]" << endl;
+                     << "                    }" << endl;
+             }
 
-            cout << "                    channel" << endl
-                 << "                    {" << endl
-                 << "                        name     \"channel" << channel 
-                 << "\"" << endl
-                 << "                    }" << endl
+            cout << "                    viewport [ ";
+            if( !_fullScreen && channel == 0 )
+                cout << "100 100 ";
+            else
+                cout << "0 0 ";
+            cout << _resX << " " << _resY << " ]" << endl;
+
+            cout << "                    channel { name \"channel" << channel
+                 << "\" }" << endl
                  << "                }" << endl
                  << "            }" << endl;
             ++channel;
@@ -269,6 +299,12 @@ void ConfigTool::_writeResources() const
 
 void ConfigTool::_writeCompound() const
 {
+    if( _descrFile != "" )
+    {
+        _writeFromDescription();
+        return;
+    }
+
     switch( _mode )
     {
         case MODE_2D:
@@ -705,4 +741,6 @@ void ConfigTool::_writeWall() const
 
     cout << "        }" << endl;
 }
+
+
 

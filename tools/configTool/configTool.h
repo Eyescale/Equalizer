@@ -49,6 +49,10 @@ private:
     unsigned _columns, _rows;
 
     std::string _nodesFile;
+    std::string _descrFile;
+
+    unsigned _resX, _resY;
+
 
     void _writeResources()  const;
     void _writeCompound()   const;
@@ -59,6 +63,8 @@ private:
     void _writeDSAC()       const;
     void _writeDPlex()      const;
     void _writeWall()       const;
+    void _writeFromDescription() const;
+
 };
 
 #endif // EQ_CONFIGTOOL_H

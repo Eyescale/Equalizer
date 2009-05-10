@@ -4,7 +4,8 @@ include $(TOP)/make/system.mk
 PROGRAM = configTool
 
 CXXFILES = \
-	configTool.cpp
+	configTool.cpp \
+	writeFromFile.cpp
 
 CXXFLAGS += -I../../examples/include
 
