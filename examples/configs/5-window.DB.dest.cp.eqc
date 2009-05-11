@@ -1,0 +1,108 @@
+# four-to-one sort-last single-pipe demo configuration with copying of resulted
+# data to separate destination channel
+
+global
+{
+    EQ_WINDOW_IATTR_PLANES_STENCIL ON
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    name     "window1"
+                    viewport [ 650 25 600 450 ]
+                    channel { name "channel1"  }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    name     "window2"
+                    viewport [ 1300 25 600 450 ]
+                    channel { name "channel2"  }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    name     "window3"
+                    viewport [ 650 550 600 450 ]
+                    channel { name "channel3"  }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    name     "window4"
+                    viewport [ 1300 550 600 450 ]
+                    channel { name "channel4"  }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    name     "result"
+                    viewport [ 25 25 600 450 ]
+                    channel { name "channel5"  }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel5"
+            buffer  [ COLOR DEPTH ]
+            task    [ CLEAR ASSEMBLE ] 
+
+            wall
+            {
+                bottom_left  [ -.5 -.5 -1 ]
+                bottom_right [  .5 -.5 -1 ]
+                top_left     [ -.5  .5 -1 ]
+            }
+            
+            compound
+            { 
+                channel "channel1"
+                range   [ 0 .25 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel2"
+                range   [ .25 .5 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel3"
+                range   [ .5 .75 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel4"
+
+                compound
+                {
+                    range   [ .75 1 ]
+                }
+                inputframe { name "frame.channel1" }
+                inputframe { name "frame.channel2" }
+                inputframe { name "frame.channel3" }
+                outputframe { buffer [ COLOR DEPTH ] viewport [ 0 0 1 1 ] }
+            }
+            inputframe { name "frame.channel4" }
+        }
+    }
+}

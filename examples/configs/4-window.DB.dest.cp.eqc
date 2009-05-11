@@ -1,0 +1,94 @@
+# three-to-one sort-last single-pipe demo configuration with copying of resulted
+# data to separate destination channel. Uses large viewports for screenshots and
+# compositing tests
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    name     "window1"
+                    viewport [ 25 25 1280 1024 ]
+                    channel { name "channel1"  }
+                }
+                window
+                {
+                    name     "window2"
+                    viewport [ 450 25 1280 1024 ]
+                    channel { name "channel2"  }
+                }
+                window
+                {
+                    name     "window3"
+                    viewport [ 25 450 1280 1024 ]
+                    channel { name "channel3"  }
+                }
+                window
+                {
+                    name     "window4"
+                    viewport [ 250 450 1280 1024 ]
+                    channel { name "channel4"  }
+                }
+                window
+                {
+                    name     "window5"
+                    viewport [ 450 450 1280 1024 ]
+                    attributes{ planes_stencil ON }
+                    channel { name "channel5"  }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel5"
+            buffer  [ COLOR DEPTH ]
+            task    [ CLEAR ASSEMBLE ] 
+
+            wall
+            {
+                bottom_left  [ -.5 -.5 -1 ]
+                bottom_right [  .5 -.5 -1 ]
+                top_left     [ -.5  .5 -1 ]
+            }
+            
+            compound
+            { 
+                channel "channel1"
+                range   [ 0 .333 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel2"
+                range   [ .333 .666 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel3"
+                range   [ .666 1 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel4"
+                compound
+                {
+                    buffer  [ COLOR DEPTH ]
+                    task    [ CLEAR ASSEMBLE ] 
+                    inputframe { name "frame.channel1" }
+                    inputframe { name "frame.channel2" }
+                    inputframe { name "frame.channel3" }
+                }
+
+                outputframe { buffer [ COLOR DEPTH ] viewport [ 0 0 1 1 ] }
+            }
+            inputframe { name "frame.channel4" }
+        }
+    }
+}
