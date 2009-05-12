@@ -63,7 +63,7 @@ private:
     void _writeDSAC()       const;
     void _writeDPlex()      const;
     void _writeWall()       const;
-    //void _writeFromDescription() const;
+    void _writeFromDescription() const;
 
 };
 
