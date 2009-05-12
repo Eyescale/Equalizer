@@ -301,7 +301,7 @@ void ConfigTool::_writeCompound() const
 {
     if( _descrFile != "" )
     {
-        _writeFromDescription();
+      //  _writeFromDescription();
         return;
     }
 
