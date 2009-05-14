@@ -54,13 +54,15 @@ Config::~Config()
 bool Config::init()
 {
     _loadModels();
-    _loadPath();
+
+    if( !_animation.isValid( ))
+        _animation.loadAnimation( _initData.getPathFilename( ));
 
     // init distributed objects
     _frameData.setColor( _initData.useColor( ));
     _frameData.setRenderMode( _initData.getRenderMode( ));
     registerObject( &_frameData );
-    
+
     _initData.setFrameDataID( _frameData.getID( ));
     registerObject( &_initData );
 
@@ -103,49 +105,6 @@ bool Config::exit()
     // retain models and distributors for possible other config runs, destructor
     // deletes it
     return ret;
-}
-
-void Config::_loadPath()
-{
-    const std::string& fileName = _initData.getPathFilename();
-    if( !_path.valid() && fileName != "" )
-    {
-        std::ifstream file;
-        file.open( fileName.c_str( ));
-        if( !file )
-        {
-            EQERROR << "Path file could not be opened" << std::endl;
-            return;
-        }
-
-        // read model pre-rotation
-        file >> _path.modelRotation.x;
-        file >> _path.modelRotation.y;
-        file >> _path.modelRotation.z;
-
-        const float m = static_cast<float>(M_PI_2) / 90.0;
-        _path.modelRotation *= m;
-
-        _frameData.reset();
-
-        uint32_t count = 0;
-        float v[7];
-        int frameNum = 0;
-        while ( !file.eof( ))
-        {
-            file >> v[count++];
-            if( count == 7 )
-            {
-                count = 0;
-                frameNum += EQ_MAX( static_cast<int>( v[0] ), 1 );
-
-                _path.addStep( Step( frameNum,
-                               vmml::Vector3f(  v[1]  , v[2]  , v[3]   ),
-                               vmml::Vector3f( -v[5]*m, v[4]*m, v[6]*m )));
-            }
-        }
-        file.close();
-    }
 }
 
 
@@ -293,12 +252,14 @@ uint32_t Config::startFrame()
     }
 
     // update database
-    if( _path.valid())
+    if( _animation.isValid( ))
     {
-        const Step& curStep = _path.getNextStep();
-        _frameData.setModelRotation( _path.modelRotation );
-        _frameData.setRotation(    curStep.rotation      );
-        _frameData.setTranslation( curStep.translation   );
+        const vmml::Vector3f&  modelRotation = _animation.getModelRotation();
+        const CameraAnimation::Step& curStep = _animation.getNextStep();
+
+        _frameData.setModelRotation( modelRotation        );
+        _frameData.setRotation(     curStep.rotation      );
+        _frameData.setTranslation(  curStep.translation   );
     }else
     {
         _frameData.spinModel( -0.001f * _spinX, -0.001f * _spinY );
@@ -308,44 +269,6 @@ uint32_t Config::startFrame()
 
     _redraw = false;
     return eq::Config::startFrame( version );
-}
-
-const Config::Step Config::Path::getNextStep()
-{
-    EQASSERT( _steps.size() > 0 );
-    EQASSERT( _curStep < _steps.size() );
-
-    if( _steps.size() == 1 )
-        return _steps[ _curStep ];
-
-    EQASSERT( _curStep < _steps.size()-1 );
-
-    _curFrame++;
-    if( _curFrame > _steps[_curStep+1].frame )
-    {
-        if( _curStep == _steps.size()-2 )
-        {
-            _curFrame = 1;
-            _curStep  = 0;
-        }else
-            _curStep++;
-    }
-    //else
-    const Step& curStep  = _steps[ _curStep   ];
-    const Step& nextStep = _steps[ _curStep+1 ];
-
-    if( _curFrame < curStep.frame )
-        _curFrame = curStep.frame+1;
-
-    const float interval  = nextStep.frame - curStep.frame;
-    const float curCoeff  = ( nextStep.frame - _curFrame ) / interval;
-    const float nextCoeff = ( _curFrame - curStep.frame ) / interval;
-
-    Step result( _curFrame,
-                 curStep.translation*curCoeff + nextStep.translation*nextCoeff,
-                 curStep.rotation   *curCoeff + nextStep.rotation   *nextCoeff);
-
-    return result;
 }
 
 

@@ -17,8 +17,8 @@
  */
 
 
-#ifndef EQPLY_VERTEXBUFFERDIST_H
-#define EQPLY_VERTEXBUFFERDIST_H
+#ifndef EQ_PLY_VERTEXBUFFERDIST_H
+#define EQ_PLY_VERTEXBUFFERDIST_H
 
 #include "vertexBufferRoot.h"
 
@@ -59,4 +59,4 @@ namespace eqPly
 }
 
 
-#endif // EQPLY_VERTEXBUFFERDIST_H
+#endif // EQ_PLY_VERTEXBUFFERDIST_H

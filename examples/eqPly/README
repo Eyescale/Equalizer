@@ -60,9 +60,9 @@ Usage
 
 
 Where: 
-   -t <string>,  --pf <string>
-     File with path
-     
+   -a <string>,  --cameraPath <string>
+     File containing camera path animation
+
    -i,  --iface
      Invert faces (valid during binary file creation)
 

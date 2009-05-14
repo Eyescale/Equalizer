@@ -16,14 +16,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQPLY_CONFIG_H
-#define EQPLY_CONFIG_H
+#ifndef EQ_PLY_CONFIG_H
+#define EQ_PLY_CONFIG_H
 
 #include <eq/eq.h>
 
-#include "localInitData.h" // member
-#include "frameData.h"     // member
-#include "tracker.h"       // member
+// members
+#include "localInitData.h"
+#include "frameData.h"
+#include "tracker.h"
+#include "cameraAnimation.h"
 
 namespace eqPly
 {
@@ -80,35 +82,11 @@ namespace eqPly
 
         Tracker _tracker;
 
-        struct Step
-        {
-            Step( int frame_, const vmml::Vector3f& translation_,
-                              const vmml::Vector3f& rotation_  )
-                : frame( frame_ ), translation( translation_ ),
-                  rotation( rotation_ ){};
-
-            int frame;
-            vmml::Vector3f translation;
-            vmml::Vector3f rotation;
-        };
-        struct Path
-        {
-            Path() : _curStep( 0 ), _curFrame( 0 ) {}
-            bool valid() const { return !_steps.empty(); }
-            void addStep( const Step& step ) { _steps.push_back( step ); }
-            const Step getNextStep();
-
-            vmml::Vector3f modelRotation;
-
-        private:
-            std::vector< Step > _steps;
-            uint32_t _curStep;
-            int  _curFrame;
-        } _path;
-
         ModelVector     _models;
         ModelDistVector _modelDist;
         eq::base::SpinLock _modelLock;
+
+        CameraAnimation _animation;
 
         bool _redraw;
 
@@ -122,4 +100,4 @@ namespace eqPly
     };
 }
 
-#endif // EQPLY_CONFIG_H
+#endif // EQ_PLY_CONFIG_H

@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQPLY_MODELASSIGNER_H
-#define EQPLY_MODELASSIGNER_H
+#ifndef EQ_PLY_MODELASSIGNER_H
+#define EQ_PLY_MODELASSIGNER_H
 
 namespace eqPly
 {
@@ -48,4 +48,4 @@ private:
 };
 
 }
-#endif // EQPLY_MODELASSIGNER_H
+#endif // EQ_PLY_MODELASSIGNER_H

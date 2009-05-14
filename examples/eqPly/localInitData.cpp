@@ -110,9 +110,10 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::ValueArg<string> logArg( "l", "log", "output log file",
                                         false, "eqPly.log", "string",
                                         command );
-        TCLAP::ValueArg<string> pthArg( "t", "pf", "File with path",
-                                       false, "", "string", command );
-                                        
+        TCLAP::ValueArg<string> pthArg( "a", "cameraPath",
+                                        "File containing camera path animation",
+                                        false, "", "string", command );
+
         command.parse( argc, argv );
 
         if( modelArg.isSet( ))
