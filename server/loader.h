@@ -84,7 +84,7 @@ namespace server
         static void addOutputCompounds( ServerPtr server );
 
         /**
-         * Add a Segment and Layout for each destination channel.
+         * Add segments and layouts for dest channels in non-view configs.
          *
          * This function creates the appropriate views and segments for
          * destination channels, and reassigns the compound channel.
