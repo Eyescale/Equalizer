@@ -18,10 +18,7 @@
 #include "config.h"
 
 #include "view.h"
-
 #include "modelAssigner.h"
-
-using namespace std;
 
 namespace eqPly
 {
@@ -78,7 +75,7 @@ bool Config::init()
     if( !_initData.getTrackerPort().empty( ))
     {
         if( !_tracker.init( _initData.getTrackerPort() ))
-            EQWARN << "Failed to initialise tracker" << endl;
+            EQWARN << "Failed to initialise tracker" << std::endl;
         else
         {
             // Set up position of tracking system wrt world space
@@ -90,7 +87,7 @@ bool Config::init()
             m = vmml::Matrix4f::IDENTITY;
             m.rotateZ( -M_PI_2 );
             _tracker.setSensorToObject( m );
-            EQINFO << "Tracker initialized" << endl;
+            EQINFO << "Tracker initialized" << std::endl;
         }
     }
 
@@ -113,7 +110,7 @@ void Config::_loadPath()
     const std::string& fileName = _initData.getPathFilename();
     if( !_path.valid() && fileName != "" )
     {
-        ifstream file;
+        std::ifstream file;
         file.open( fileName.c_str( ));
         if( !file )
         {
@@ -161,7 +158,7 @@ void Config::_loadModels()
               i != filenames.end(); ++i )
         {
             const std::string& filename = *i;
-            EQINFO << "Loading model " << filename << endl;
+            EQINFO << "Loading model " << filename << std::endl;
      
             Model* model = new Model;
 
@@ -170,7 +167,7 @@ void Config::_loadModels()
         
             if ( !model->readFromFile( filename.c_str() ) )
             {
-                EQWARN << "Can't load model: " << filename << endl;
+                EQWARN << "Can't load model: " << filename << std::endl;
                 delete model;
             }
             else
@@ -239,7 +236,9 @@ void Config::mapData( const uint32_t initDataID )
         unmapObject( &_initData ); // data was retrieved, unmap immediately
     }
     else  // appNode, _initData is registered already
+    {
         EQASSERT( _initData.getID() == initDataID );
+    }
 }
 
 void Config::unmapData()
