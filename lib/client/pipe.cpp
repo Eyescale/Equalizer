@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -366,6 +365,32 @@ View* Pipe::getView( const net::ObjectVersion& viewVersion )
     
     view->sync( viewVersion.version );
     return view;
+}
+
+void Pipe::_releaseViews()
+{
+    for( bool changed = true; changed; )
+    {
+        changed = false;
+        for( ViewHash::iterator i = _views.begin(); 
+             i != _views.end() && !changed; ++i )
+        {
+            View* view = i->second;
+            if( view->getVersion() + 20 > view->getHeadVersion( ))
+                continue;
+
+            // release view to avoid memory leaks due to deltas piling up.
+            net::Session* session = getSession();
+            session->unmapObject( view );
+            
+            _views.erase( i );
+
+            NodeFactory* nodeFactory = Global::getNodeFactory();
+            nodeFactory->releaseView( view );
+
+            changed = true;
+        }
+    }
 }
 
 void Pipe::_flushViews()
@@ -775,7 +800,6 @@ net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
     CHECK_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
         command.getPacket<PipeFrameFinishPacket>();
-    EQVERB << "handle pipe frame finish " << packet << endl;
     EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << endl;
 
     const uint32_t frameNumber = packet->frameNumber;
@@ -801,6 +825,7 @@ net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
         releaseFrame( frameNumber );
     }
 
+    _releaseViews();
     return net::COMMAND_HANDLED;
 }
 
