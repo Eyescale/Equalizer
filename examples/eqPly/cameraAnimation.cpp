@@ -1,9 +1,8 @@
 /* Copyright (c) 2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -70,7 +69,7 @@ bool CameraAnimation::loadAnimation( const std::string& fileName )
 {
     _steps.clear();
 
-    if( fileName== "" )
+    if( fileName.empty( ))
         return false;
 
     std::ifstream file;
@@ -86,7 +85,7 @@ bool CameraAnimation::loadAnimation( const std::string& fileName )
     file >> _modelRotation.y;
     file >> _modelRotation.z;
 
-    const float m = static_cast<float>(M_PI_2) / 90.0;
+    const float m = static_cast<float>(M_PI_2) / 90.f;
     _modelRotation *= m;
 
     uint32_t count = 0;

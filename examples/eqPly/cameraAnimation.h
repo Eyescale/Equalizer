@@ -1,9 +1,8 @@
 /* Copyright (c) 2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -25,8 +24,8 @@ namespace eqPly
 {
 
     /**
-     * Loads sequnce on intermediate camera positions and provides this
-     * information on per-frame basis.
+     * Loads sequence of camera positions and interpolates them on a per-frame
+     * basis.
      */
     class CameraAnimation
     {
@@ -60,8 +59,8 @@ namespace eqPly
             vmml::Vector3f translation;
             vmml::Vector3f rotation;
         };
-    private:
 
+    private:
         vmml::Vector3f      _modelRotation;
         std::vector< Step > _steps;
         uint32_t            _curStep;

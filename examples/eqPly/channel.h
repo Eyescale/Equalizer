@@ -20,7 +20,6 @@
 
 #include "eqPly.h"
 #include "frameData.h"
-#include "cameraAnimation.h"
 
 #include <eq/eq.h>
 
