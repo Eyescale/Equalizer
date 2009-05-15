@@ -1049,20 +1049,25 @@ ServerPtr Loader::loadFile( const std::string& filename )
 
     loader::server = 0;
     config = 0;
-    eqLoader_parse();
+    const bool error = ( eqLoader_parse() != 0 );
 
     fclose( yyin );
     eq::loader::loader = 0;
 
     if( loader::server.isValid( ))
     {
-        const server::ConfigVector& configs = loader::server->getConfigs();
-        for( server::ConfigVector::const_iterator i = configs.begin();
-             i != configs.end(); ++i )
+        if( error )
+            loader::server = 0;
+        else
         {
-            Config* config = *i;
-            if( config->getName().empty( ))
-                config->setName( filename );
+            const server::ConfigVector& configs = loader::server->getConfigs();
+            for( server::ConfigVector::const_iterator i = configs.begin();
+                 i != configs.end(); ++i )
+            {
+                Config* config = *i;
+                if( config->getName().empty( ))
+                    config->setName( filename );
+            }
         }
     }
 
@@ -1081,7 +1086,9 @@ void Loader::_parseString( const char* data )
 
     loader::server = 0;
     config = 0;
-    eqLoader_parse();
+    const bool error = ( eqLoader_parse() != 0 );
+    if( error )
+        loader::server = 0;
 
     eq::loader::loader = 0;
 }
