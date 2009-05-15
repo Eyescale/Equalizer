@@ -22,11 +22,17 @@ server
 #            {
                 window
                 {
-                    viewport [ 0 0.1 1 0.5 ]
-                    name "Two-projector Wall"
+                    viewport [ 0 0.1 .5 0.5 ]
+                    name "Left Projector"
                     
-                    channel { viewport [ 0  0 .5 1 ] name "wall1" }
-                    channel { viewport [ .5 0 .5 1 ] name "wall2" }
+                    channel { name "wall1" }
+                }
+                window
+                {
+                    viewport [ .5 0.1 .5 0.5 ]
+                    name "Right Projector"
+
+                    channel { name "wall2" }
                 }
             }
         }
@@ -83,9 +89,9 @@ server
 
         canvas
         {
+            layout "1x1"
             layout "3x1"
             layout "2x2"
-            layout "1x1"
             layout OFF
             wall
             {

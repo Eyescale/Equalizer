@@ -182,17 +182,17 @@ namespace eq
          * Get the channel's current position wrt the destination channel.
          *
          * Note that computing this value from the current viewport and pixel
-         * viewport inaccurate because it neglects rounding of the pixel
+         * viewport is inaccurate because it neglects rounding of the pixel
          * viewport done by the server.
          *
          * @return the channel's current position wrt the destination channel.
          */
         const vmml::Vector2i& getPixelOffset() const;
 
-        /** @return the perspectivefrustum for the current rendering task. */
+        /** @return the perspective frustum for the current rendering task. */
         const vmml::Frustumf& getFrustum() const;
 
-        /** @return the orthographics frustum for the current rendering task. */
+        /** @return the orthographic frustum for the current rendering task. */
         const vmml::Frustumf& getOrtho() const;
 
         /** @return the fractional viewport wrt the destination view. */
@@ -226,7 +226,7 @@ namespace eq
          * Returns an orthographic frustum for 2D operations on the view.
          *
          * One unit of the frustum covers one pixel on screen. The frustum is
-         * positioned wrt to the view.
+         * positioned relative to the view.
          *
          * @return the 2D orthographic frustum.
          */
