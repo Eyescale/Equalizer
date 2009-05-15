@@ -1,9 +1,10 @@
+
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -22,12 +23,11 @@
 typedef unsigned long long eq_uint64_t;
 
 
-#ifdef EQ_DSO_EXPORT
-   #define EQ_EXPORT_DSO __declspec(dllexport) 
+#ifdef EQ_PLUGIN
+   #define EQ_PLUGIN_API __declspec(dllexport) 
 #else
-   #define EQ_EXPORT_DSO __declspec(dllimport)
+   #define EQ_PLUGIN_API __declspec(dllimport)
 #endif
-
 
 
 #ifdef __cplusplus
@@ -96,30 +96,30 @@ extern "C"
     #define EQ_COMPRESSOR_IGNORE_MSE 8
 
     // query interface
-    EQ_EXPORT_DSO size_t EqCompressorGetNumCompressors();
-    EQ_EXPORT_DSO void EqCompressorGetInfo( const size_t n,
+    EQ_PLUGIN_API size_t EqCompressorGetNumCompressors();
+    EQ_PLUGIN_API void EqCompressorGetInfo( const size_t n,
                                            EqCompressorInfo* const info );
 
     // lifecycle management
-    EQ_EXPORT_DSO void* EqCompressorNewCompressor( const unsigned name );
-    EQ_EXPORT_DSO void EqCompressorDeleteCompressor( void* const compressor );
+    EQ_PLUGIN_API void* EqCompressorNewCompressor( const unsigned name );
+    EQ_PLUGIN_API void EqCompressorDeleteCompressor( void* const compressor );
 
     // Note: 0 is allowed (for state-less decompressors)
-    EQ_EXPORT_DSO void* EqCompressorNewDecompressor( const unsigned name );
-    EQ_EXPORT_DSO void EqCompressorDeleteDecompressor( const unsigned name,
+    EQ_PLUGIN_API void* EqCompressorNewDecompressor( const unsigned name );
+    EQ_PLUGIN_API void EqCompressorDeleteDecompressor( const unsigned name,
                                                     void* const decompressor );
 
     // worker functions
-    EQ_EXPORT_DSO void EqCompressorCompress( void* const compressor, 
+    EQ_PLUGIN_API void EqCompressorCompress( void* const compressor, 
                                     void* const in, const eq_uint64_t* inDims,
                                     const eq_uint64_t flags );
-    EQ_EXPORT_DSO unsigned EqCompressorGetNumResults( void* const compressor );
-    EQ_EXPORT_DSO void EqCompressorGetResult( void* const compressor, 
+    EQ_PLUGIN_API unsigned EqCompressorGetNumResults( void* const compressor );
+    EQ_PLUGIN_API void EqCompressorGetResult( void* const compressor, 
                                        const unsigned i, 
                                        void** const out, 
                                        eq_uint64_t* const outSize );
 
-    EQ_EXPORT_DSO void EqCompressorDecompress(    void* const decompressor, 
+    EQ_PLUGIN_API void EqCompressorDecompress(    void* const decompressor, 
                                               const void** const in, 
                                               const eq_uint64_t* const inSizes,
                                               const unsigned numInputs,
