@@ -13,7 +13,9 @@ HEADER_SRC = \
 	base/compareAndSwap.h \
 	base/debug.h \
 	base/defines.h \
+	base/dso.h \
 	base/executionListener.h \
+	base/fileSearch.h \
 	base/hash.h \
 	base/idPool.h \
 	base/init.h \
@@ -142,6 +144,7 @@ HEADER_SRC = \
 CXXFILES = \
 	base/barrier.cpp \
 	base/debug.cpp \
+	base/dso.cpp \
 	base/idPool.cpp \
 	base/init.cpp \
 	base/launcher.cpp \
