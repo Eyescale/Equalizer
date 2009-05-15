@@ -260,9 +260,14 @@ uint32_t Config::startFrame()
         _frameData.setModelRotation( modelRotation        );
         _frameData.setRotation(     curStep.rotation      );
         _frameData.setTranslation(  curStep.translation   );
-    }else
+    }
+    else
     {
-        _frameData.spinModel( -0.001f * _spinX, -0.001f * _spinY );
+        if( _frameData.usePilotMode())
+            _frameData.spinCamera( -0.001f * _spinX, -0.001f * _spinY );
+        else
+            _frameData.spinModel( -0.001f * _spinX, -0.001f * _spinY );
+
         _frameData.moveCamera( 0.0f, 0.0f, 0.001f*_advance );
     }
     const uint32_t version = _frameData.commit();
@@ -319,48 +324,46 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         }
 
         case eq::Event::POINTER_BUTTON_RELEASE:
-            if( event->data.pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE
-                && event->data.pointerButtonRelease.button  == eq::PTR_BUTTON1 )
+        {
+            const eq::PointerEvent& releaseEvent = 
+                event->data.pointerButtonRelease;
+            if( releaseEvent.buttons == eq::PTR_BUTTON_NONE)
             {
-                const int spinX = event->data.pointerButtonRelease.dx;
-                const int spinY = event->data.pointerButtonRelease.dy;
-                if( spinX == 0 && spinY == 0 )
-                    _advance = 0;
-
-                if( !_frameData.usePilotMode())
+                if( releaseEvent.button == eq::PTR_BUTTON1 )
                 {
-                    _spinX = spinX;
-                    _spinY = spinY;
+                    _spinX = releaseEvent.dx;
+                    _spinY = releaseEvent.dy;
+                    _redraw = true;
+                    return true;
                 }
-
-                _redraw = true;
+                if( releaseEvent.button == eq::PTR_BUTTON2 )
+                {
+                    _advance = -releaseEvent.dy;
+                    _redraw = true;
+                    return true;
+                }
             }
-            return true;
-
+            break;
+        }
         case eq::Event::POINTER_MOTION:
             if( event->data.pointerMotion.buttons == eq::PTR_BUTTON_NONE )
                 return true;
 
             if( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 )
             {
-                if( !_frameData.usePilotMode())
-                {
-                    _spinX = 0;
-                    _spinY = 0;
-                }
+                _spinX = 0;
+                _spinY = 0;
 
                 if( _frameData.usePilotMode())
                     _frameData.spinCamera(-0.005f*event->data.pointerMotion.dx,
                                           -0.005f*event->data.pointerMotion.dy);
                 else
-                    _frameData.spinModel(-0.005f*event->data.pointerMotion.dx,
+                    _frameData.spinModel( -0.005f*event->data.pointerMotion.dx,
                                           -0.005f*event->data.pointerMotion.dy);
 
                 _redraw = true;
             }
-            else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 ||
-                     event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
-                                                       eq::PTR_BUTTON3 ))
+            else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 )
             {
                 _advance = -event->data.pointerMotion.dy;
                 _frameData.moveCamera( 0.f, 0.f, .005f * _advance );
