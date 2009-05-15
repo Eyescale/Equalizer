@@ -2,9 +2,8 @@
 /* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -57,7 +56,8 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
     }
     _config->_layouts.clear();
 
-    // map all config children as master
+    // map all config children
+    net::ObjectVector objects; // save objects to convert to master
     Type type;
     for( is >> type; type != TYPE_LAST; is >> type )
     {
@@ -74,7 +74,7 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
                 _config->_addObserver( observer );
 
                 EQCHECK( _config->mapObject( observer, id )); //OPT: async map
-                observer->becomeMaster();
+                objects.push_back( observer );
                 break;
             }
                 
@@ -85,7 +85,7 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
                 _config->_addCanvas( canvas );
 
                 EQCHECK( _config->mapObject( canvas, id )); //OPT: async mapping
-                canvas->becomeMaster();
+                objects.push_back( canvas );
                 break;
             }
 
@@ -96,13 +96,21 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
                 _config->_addLayout( layout );
 
                 EQCHECK( _config->mapObject( layout, id )); //OPT: async mapping
-                // RO, don't: layout->becomeMaster();
+                // RO, don't convert to master
                 break;
             }
                 
             default:
                 EQUNIMPLEMENTED;
         }
+    }
+
+    // Convert objects to master after all the mapping has happened, since the
+    // objects refer to each other using identifiers during deserialization.
+    for( net::ObjectVector::const_iterator i = objects.begin();
+         i != objects.end(); ++i )
+    {
+        (*i)->becomeMaster();
     }
 }
 
