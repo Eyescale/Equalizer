@@ -15,17 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "smoothLoadBalancer.h"
+#include "framerateEqualizer.h"
 
-#include "compound.h"
-#include "compoundVisitor.h"
-#include "config.h"
-#include "log.h"
+#include "../compound.h"
+#include "../compoundVisitor.h"
+#include "../config.h"
+#include "../log.h"
 
 #include <eq/base/debug.h>
-
-using namespace eq::base;
-using namespace std;
 
 #define USE_AVERAGE
 #define VSYNC_CAP 60.f
@@ -79,16 +76,69 @@ private:
 // The smooth load balancer adapts the framerate of the compound to be the
 // average frame rate of all children, taking the DPlex period into account.
 
-SmoothLoadBalancer::SmoothLoadBalancer( const LoadBalancer& parent )
-        : LoadBalancerIF( parent )
-        , _nSamples( 0 )
+FramerateEqualizer::FramerateEqualizer()
+        : _nSamples( 0 )
 {
-    EQINFO << "New SmoothLoadBalancer @" << (void*)this << endl;
+    EQINFO << "New FramerateEqualizer @" << (void*)this << std::endl;
 }
 
-SmoothLoadBalancer::~SmoothLoadBalancer()
+FramerateEqualizer::FramerateEqualizer( const FramerateEqualizer& from )
+        : Equalizer( from )
+        , _nSamples( 0 )
 {
-    const Compound*       compound = _parent.getCompound();
+}
+
+FramerateEqualizer::~FramerateEqualizer()
+{
+    attach( 0 );
+}
+
+void FramerateEqualizer::attach( Compound* compound )
+{
+    _exit();
+    Equalizer::attach( compound );
+}
+
+
+void FramerateEqualizer::_init()
+{
+    const Compound* compound = getCompound();
+
+    if( _nSamples > 0 || !compound )
+        return;
+
+    _nSamples = 1;
+
+    // Subscribe to child channel load events
+    const CompoundVector& children = compound->getChildren();
+    
+    EQASSERT( _loadListeners.empty( ));
+    _loadListeners.resize( children.size( ));
+    
+    for( size_t i = 0; i < children.size(); ++i )
+    {
+        Compound*      child        = children[i];
+        const uint32_t period       = child->getInheritPeriod();
+        LoadListener&  loadListener = _loadListeners[i];
+        
+        loadListener.parent = this;
+        loadListener.period = period;
+        
+        LoadSubscriber subscriber( &loadListener );
+        child->accept( subscriber );
+        
+        _nSamples = EQ_MAX( _nSamples, period );
+    }
+
+    _nSamples = EQ_MIN( _nSamples, 100 );
+}
+
+void FramerateEqualizer::_exit()
+{
+    const Compound* compound = getCompound();
+    if( !compound || _nSamples == 0 )
+        return;
+
     const CompoundVector& children = compound->getChildren();
 
     EQASSERT( _loadListeners.size() == children.size( ));
@@ -96,27 +146,27 @@ SmoothLoadBalancer::~SmoothLoadBalancer()
     {
         Compound*      child        = children[i];
         LoadListener&  loadListener = _loadListeners[i];
-
+        
         LoadUnsubscriber unsubscriber( &loadListener );
         child->accept( unsubscriber );
     }
-
+    
     _loadListeners.clear();
     _times.clear();
+    _nSamples = 0;
 }
 
-void SmoothLoadBalancer::update( const uint32_t frameNumber )
-{
-    Compound* compound = _parent.getCompound();
 
-    if( _parent.isFrozen( ))
+void FramerateEqualizer::notifyUpdatePre( Compound* compound, 
+                                          const uint32_t frameNumber )
+{
+    if( isFrozen( ))
     {
-        compound->setMaxFPS( numeric_limits< float >::max( ));
+        compound->setMaxFPS( std::numeric_limits< float >::max( ));
         return;
     }
 
-    if( _nSamples == 0 )
-        _init();
+    _init();
 
     // find starting point of contiguous block
     const ssize_t size = static_cast< ssize_t >( _times.size( ));
@@ -154,7 +204,7 @@ void SmoothLoadBalancer::update( const uint32_t frameNumber )
         maxTime = EQ_MAX( maxTime, time.second );
 #endif
         EQLOG( LOG_LB ) << "Using " << time.first << ", " << time.second << "ms"
-                        << endl;
+                        << std::endl;
     }
 
     if( nSamples == _nSamples )       // If we have a full set
@@ -173,7 +223,7 @@ void SmoothLoadBalancer::update( const uint32_t frameNumber )
         const float fps = 1000.f / time;
 #ifdef VSYNC_CAP
         if( fps > VSYNC_CAP )
-            compound->setMaxFPS( numeric_limits< float >::max( ));
+            compound->setMaxFPS( std::numeric_limits< float >::max( ));
         else
 #endif
             compound->setMaxFPS( fps );
@@ -187,44 +237,14 @@ void SmoothLoadBalancer::update( const uint32_t frameNumber )
     EQASSERT( _times.size() < 210 );
 }
 
-bool SmoothLoadBalancer::_init()
-{
-    _nSamples = 1;
-
-    // Subscribe to child channel load events
-    const Compound*       compound = _parent.getCompound();
-    const CompoundVector& children = compound->getChildren();
-    
-    EQASSERT( _loadListeners.empty( ));
-    _loadListeners.resize( children.size( ));
-
-    for( size_t i = 0; i < children.size(); ++i )
-    {
-        Compound*      child        = children[i];
-        const uint32_t period       = child->getInheritPeriod();
-        LoadListener&  loadListener = _loadListeners[i];
-
-        loadListener.parent = this;
-        loadListener.period = period;
-
-        LoadSubscriber subscriber( &loadListener );
-        child->accept( subscriber );
-
-        _nSamples = EQ_MAX( _nSamples, period );
-    }
-
-    _nSamples = EQ_MIN( _nSamples, 100 );       
-    return true;
-}
-
-void SmoothLoadBalancer::LoadListener::notifyLoadData( 
+void FramerateEqualizer::LoadListener::notifyLoadData( 
                             Channel* channel,
                             const uint32_t frameNumber, 
                             const uint32_t nStatistics,
                             const eq::Statistic* statistics  )
 {
-    // gather and notify load data
-    float startTime = numeric_limits< float >::max();
+    // gather required load data
+    float startTime = std::numeric_limits< float >::max();
     float endTime   = 0.0f;
     for( uint32_t i = 0; i < nStatistics; ++i )
     {
@@ -247,10 +267,10 @@ void SmoothLoadBalancer::LoadListener::notifyLoadData(
         }
     }
     
-    if( startTime == numeric_limits< float >::max( ))
+    if( startTime == std::numeric_limits< float >::max( ))
         return;
     
-    for( deque< FrameTime >::iterator i = parent->_times.begin();
+    for( std::deque< FrameTime >::iterator i = parent->_times.begin();
          i != parent->_times.end(); ++i )
     {
         FrameTime& frameTime = *i;
@@ -261,8 +281,15 @@ void SmoothLoadBalancer::LoadListener::notifyLoadData(
         frameTime.second = EQ_MAX( frameTime.second, time );
         EQLOG( LOG_LB ) << "Frame " << frameNumber << " channel " 
                         << channel->getName() << " time " << time
-                        << " period " << period << endl;
+                        << " period " << period << std::endl;
     }
+}
+
+std::ostream& operator << ( std::ostream& os, const FramerateEqualizer* lb )
+{
+    if( lb )
+        os << "framerate_equalizer {}" << std::endl;
+    return os;
 }
 
 }

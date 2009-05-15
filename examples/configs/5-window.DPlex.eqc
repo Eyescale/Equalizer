@@ -50,7 +50,7 @@ server
             }
             channel "dest"
 
-            loadBalancer { mode DPLEX }
+            framerate_equalizer {}
 
             compound
             { 

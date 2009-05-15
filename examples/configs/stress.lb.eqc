@@ -91,7 +91,7 @@ server
                     bottom_right [  .32 -.20 -.75 ]
                     top_left     [ -.32  .20 -.75 ]
                 }
-                loadBalancer { mode VERTICAL }
+                load_equalizer{ mode VERTICAL }
 
                 compound { channel "channel2" outputframe{ }}
                 compound { channel "channel3" outputframe{ }}

@@ -24,10 +24,10 @@
 #include "configUpdateDataVisitor.h"
 #include "configSerializer.h"
 #include "constCompoundVisitor.h"
+#include "equalizers/equalizer.h"
 #include "global.h"
 #include "idFinder.h"
 #include "layout.h"
-#include "loadBalancer.h"
 #include "log.h"
 #include "nameFinder.h"
 #include "node.h"
@@ -1298,12 +1298,12 @@ public:
     /** Visit a non-leaf compound on the down traversal. */
     virtual VisitorResult visitPre( Compound* compound )
         { 
-            const LoadBalancerVector& loadBalancers = 
-                compound->getLoadBalancers();
-            for( LoadBalancerVector::const_iterator i = loadBalancers.begin();
-                 i != loadBalancers.end(); ++i )
+            const EqualizerVector& equalizers = 
+                compound->getEqualizers();
+            for( EqualizerVector::const_iterator i = equalizers.begin();
+                 i != equalizers.end(); ++i )
             {
-                (*i)->setFreeze( _freeze );
+                (*i)->setFrozen( _freeze );
             }
             return TRAVERSE_CONTINUE; 
         }

@@ -2,9 +2,8 @@
 /* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -39,7 +38,7 @@ class Compound;
 class ConnectionDescription;
 class Frame;
 class Layout;
-class LoadBalancer;
+class Equalizer;
 class Observer;
 class Segment;
 class View;
@@ -55,7 +54,7 @@ typedef std::vector< Canvas* >       CanvasVector;
 typedef std::vector< Compound* >     CompoundVector;
 typedef std::vector< Frame* >        FrameVector;
 typedef std::vector< Layout* >       LayoutVector;
-typedef std::vector< LoadBalancer* > LoadBalancerVector;
+typedef std::vector< Equalizer* >    EqualizerVector;
 typedef std::vector< Observer* >     ObserverVector;
 typedef std::vector< Segment* >      SegmentVector;
 typedef std::vector< View* >         ViewVector;

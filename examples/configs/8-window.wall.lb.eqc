@@ -91,11 +91,11 @@ server
         
         compound
         {
-#            loadBalancer { mode VIEW }
+#            view_equallizer
             compound
             {
                 channel ( segment 0 view 0 )
-                loadBalancer{ mode 2D }
+                load_equalizer { mode 2D }
                 swapbarrier{}
 
 #                compound { channel "left-src" }
@@ -117,7 +117,7 @@ server
             compound
             {
                 channel ( segment 1 view 0 )
-                loadBalancer{ mode 2D }
+                load_equalizer { mode 2D }
                 swapbarrier{}
 
 #                compound { channel "right-src" }

@@ -85,7 +85,7 @@ server
                 channel "channel-first"
                 task    [ CLEAR ASSEMBLE ] 
                 range   [ 0 .5 ]
-                loadBalancer { mode 2D }
+                load_equalizer { mode 2D }
 
                 compound
                 {
@@ -106,7 +106,7 @@ server
                 channel "channel-second"
                 task    [ CLEAR ASSEMBLE ] 
                 range   [ .5 1 ]
-                loadBalancer { mode 2D }
+                load_equalizer { mode 2D }
 
                 compound
                 {

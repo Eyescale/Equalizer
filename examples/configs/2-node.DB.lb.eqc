@@ -33,7 +33,7 @@ server
         {
             channel "channel1"
             buffer  [ COLOR DEPTH ]
-            loadBalancer { mode DB }
+            load_equalizer { mode DB }
 
             wall
             {

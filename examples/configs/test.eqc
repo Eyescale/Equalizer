@@ -94,7 +94,7 @@ server
             compound
             {
                 channel ( segment 0 view 0 )
-                loadBalancer{ mode 2D }
+                load_equalizer { mode 2D }
 #                compound { channel "left-src" }
 #                compound { channel "source1" outputframe{ name "ls1" }}
 #                compound { channel "source2" outputframe{ name "ls2"  }}
@@ -114,7 +114,7 @@ server
             compound
             {
                 channel ( segment 1 view 0 )
-                loadBalancer{ mode 2D }
+                load_equalizer { mode 2D }
 #                compound { channel "right-src" }
                 compound { channel "source1" outputframe{ name "rs1" }}
                 compound { channel "source2" outputframe{ name "rs2" }}

@@ -2,9 +2,8 @@
 /* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -16,81 +15,91 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "dfrLoadBalancer.h"
+#include "dfrEqualizer.h"
 
-#include "compound.h"
-#include "compoundVisitor.h"
-#include "config.h"
-#include "log.h"
+#include "../compound.h"
+#include "../compoundVisitor.h"
+#include "../config.h"
+#include "../log.h"
 
 #include <eq/base/debug.h>
 #include <eq/client/zoom.h>
-using namespace eq::base;
-using namespace std;
 
 #define QUICK_ADAPT
-#define NB_ELEMENT_MAX 100
+#define MAX_ELEMENTS 100
 
 namespace eq
 {
 namespace server
 {
 
-DFRLoadBalancer::DFRLoadBalancer( const LoadBalancer& parent )
-        : LoadBalancerIF( parent )
-        , _compound( _parent.getCompound() )
-        , _fpsLastFrame ( _parent.getFrameRate() )
-        , _average ( _parent.getFrameRate() )
+DFREqualizer::DFREqualizer()
+        : _frameRate( 10.f )
+        , _damping( .5f )
+        , _fpsLastFrame ( _frameRate )
+        , _average ( _frameRate )
+        , _sizeAverage( 0 )
         , _newValueReady ( false )
         , _count ( 0 )
 {    
-    Channel* channel = _compound->getChannel();
-    
-    const float damping = EQ_MAX( _parent.getDamping(), 0.f );
-    
-    _sizeAverage = (int) ( NB_ELEMENT_MAX * damping ) + 1;
-    
-    EQASSERT( channel );
-    // Subscribe to channel load notification
-    if ( _compound->getParent() && channel)
-        channel->addListener( this );
-
-    EQINFO << "New DFRLoadBalancer @" << (void*)this << endl;
+    EQINFO << "New DFREqualizer @" << (void*)this << std::endl;
 }
 
-DFRLoadBalancer::~DFRLoadBalancer()
+DFREqualizer::~DFREqualizer()
 {
-
-    Channel*  channel   = _compound->getChannel();
-
-    EQASSERT( channel );
-    // Unsubscribe to channel load notification
-    channel->removeListener( this );
-    EQINFO << "Remove DFRLoadBalancer @" << (void*)this << endl;
+    attach( 0 );
+    EQINFO << "Delete DFREqualizer @" << (void*)this << std::endl;
 }
 
-void DFRLoadBalancer::update( const uint32_t frameNumber )
+void DFREqualizer::attach( Compound* compound )
 {
-    if ( _parent.isFrozen())
+    Compound* oldCompound = getCompound();
+    if( oldCompound )
     {
-        _compound->setZoom( Zoom::NONE );  
+        Channel*  channel   = oldCompound->getChannel();
+        EQASSERT( channel );
+
+        // Unsubscribe to channel load notification
+        channel->removeListener( this );
+    }
+
+    Equalizer::attach( compound );
+    
+    if( compound )
+    {
+        _sizeAverage = (int) ( MAX_ELEMENTS * _damping ) + 1;
+
+        Channel* channel = compound->getChannel();
+        EQASSERT( channel );
+    
+        // Subscribe to channel load notification
+        if ( compound->getParent() && channel )
+            channel->addListener( this );
+    }
+}
+
+void DFREqualizer::notifyUpdatePre( Compound* compound, 
+                                    const uint32_t frameNumber )
+{
+    EQASSERT( compound == getCompound( ));
+
+    if( isFrozen( ))
+    {
+        compound->setZoom( Zoom::NONE );  
         return;    
     }
    
-   Zoom newZoom = _compound->getZoom();
-
 #ifdef QUICK_ADAPT
     if ( !_newValueReady )
         return;
    
    _newValueReady = false;    
    
-   EQASSERT( _parent.getDamping() >= 0.f );
-   EQASSERT( _parent.getDamping() <= 1.f );
+   EQASSERT( _damping >= 0.f );
+   EQASSERT( _damping <= 1.f );
 
-   const float target = _parent.getFrameRate();
-   const float factor = ( sqrtf( _fpsLastFrame / target ) - 1.f ) * 
-                            _parent.getDamping() + 1.0f;
+   const float factor = ( sqrtf( _fpsLastFrame / _frameRate ) - 1.f ) * 
+                            _damping + 1.0f;
 
 #else
 
@@ -103,10 +112,11 @@ void DFRLoadBalancer::update( const uint32_t frameNumber )
 
    const float factor = sqrtf( _average / _parent.getFrameRate() );
    // EQINFO << "Frame " << frameNumber << " fps " << _average
-   //                    << endl;
+   //                    << std::endl;
       
 #endif
 
+   Zoom newZoom( compound->getZoom( ));
    newZoom *= factor;
 
    //EQINFO << _fpsLastFrame << ": " << factor << " = " << newZoom 
@@ -114,10 +124,10 @@ void DFRLoadBalancer::update( const uint32_t frameNumber )
 
    // clip zoom factor to min( 128px ), max( channel pvp )
 
-   const Compound*          parent = _compound->getParent();
+   const Compound*          parent = compound->getParent();
    const eq::PixelViewport& pvp    = parent->getInheritPixelViewport();
    
-   const Channel*           channel    = _compound->getChannel();
+   const Channel*           channel    = compound->getChannel();
    const eq::PixelViewport& channelPVP = channel->getPixelViewport();
    
    const float minZoom = 128.f / EQ_MIN( static_cast< float >( pvp.h ),
@@ -131,16 +141,15 @@ void DFRLoadBalancer::update( const uint32_t frameNumber )
    newZoom.x = EQ_MIN( newZoom.x, maxZoom );
    newZoom.y = newZoom.x; 
    
-   _compound->setZoom( newZoom );
+   compound->setZoom( newZoom );
 }
 
-void DFRLoadBalancer::notifyLoadData( Channel* channel,
-                                      const uint32_t frameNumber, 
-                                      const uint32_t nStatistics,
-                                      const eq::Statistic* statistics  )
+void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
+                                   const uint32_t nStatistics,
+                                   const eq::Statistic* statistics  )
 {
     // gather and notify load data
-    float startTime = numeric_limits< float >::max();
+    float startTime = std::numeric_limits< float >::max();
     float endTime   = 0.0f;
     for( uint32_t i = 0; i < nStatistics; ++i )
     {
@@ -163,7 +172,7 @@ void DFRLoadBalancer::notifyLoadData( Channel* channel,
         }
     }
     
-    if( startTime == numeric_limits< float >::max( ))
+    if( startTime == std::numeric_limits< float >::max( ))
         return;
     
     const float time = endTime - startTime;
@@ -181,7 +190,24 @@ void DFRLoadBalancer::notifyLoadData( Channel* channel,
 
    EQLOG( LOG_LB ) << "Frame " << frameNumber << " channel " 
                         << channel->getName() << " time " << time
-                        << endl;
+                        << std::endl;
+}
+
+std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )
+{
+    if( !lb )
+        return os;
+
+    os << base::disableFlush
+       << "DFR_equalizer " << std::endl
+       << '{' << std::endl
+       << "    framerate " << lb->getFrameRate() << std::endl;
+
+    if( lb->getDamping() != 0.5f )
+        os << "    damping " << lb->getDamping() << std::endl;
+    
+    os << '}' << std::endl << base::enableFlush;
+    return os;
 }
 
 }

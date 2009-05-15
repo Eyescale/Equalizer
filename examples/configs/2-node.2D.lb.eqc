@@ -28,7 +28,7 @@ server
         compound
         {
             channel "channel1"
-            loadBalancer { mode 2D }
+            load_equalizer { mode 2D }
 
             wall
             {

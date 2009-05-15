@@ -49,9 +49,8 @@ server
             { 
 
                 channel "channel1"
-                loadBalancer 
+                DFR_equalizer
                 { 
-                     mode DFR 
                      framerate 15.0
                      damping 0.5
                 }

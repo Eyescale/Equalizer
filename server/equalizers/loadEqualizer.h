@@ -15,11 +15,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQS_TREELOADBALANCER_H
-#define EQS_TREELOADBALANCER_H
+#ifndef EQS_LOADEQUALIZER_H
+#define EQS_LOADEQUALIZER_H
 
-#include "channelListener.h" // base class
-#include "loadBalancer.h"    // base class LoadBalancerIF
+#include "../channelListener.h" // base class
+#include "equalizer.h"          // base class
 
 #include <eq/client/range.h>
 #include <eq/client/viewport.h>
@@ -31,15 +31,42 @@ namespace eq
 {
 namespace server
 {
-    /** Adapts the 2D tiling or range of the associated compound's children. */
-    class TreeLoadBalancer : public LoadBalancerIF, protected ChannelListener
+    class LoadEqualizer;
+    std::ostream& operator << ( std::ostream& os, const LoadEqualizer* );
+
+    /** Adapts the 2D tiling or DB range of the attached compound's children. */
+    class LoadEqualizer : public Equalizer, protected ChannelListener
     {
     public:
-        TreeLoadBalancer( const LoadBalancer& parent );
-        virtual ~TreeLoadBalancer();
+        LoadEqualizer();
+        LoadEqualizer( const LoadEqualizer& from );
+        virtual ~LoadEqualizer();
+        virtual Equalizer* clone() const { return new LoadEqualizer( *this ); }
+        virtual void toStream( std::ostream& os ) const { os << this; }
 
-        /** @sa LoadBalancerIF::update */
-        virtual void update( const uint32_t frameNumber );
+        enum Mode
+        {
+            MODE_DB = 0,     //!< Adapt for a sort-last decomposition
+            MODE_HORIZONTAL, //!< Adapt for sort-first using horizontal stripes
+            MODE_VERTICAL,   //!< Adapt for sort-first using vertical stripes
+            MODE_2D          //!< Adapt for a sort-first decomposition
+        };
+
+        /** Set the load balancer adaptation mode. */
+        void setMode( const Mode mode ) { _mode = mode; }
+
+        /** @return the load balancer adaptation mode. */
+        Mode getMode() const { return _mode; }
+
+        /** Set the damping factor for the viewport or range adjustment.  */
+        void setDamping( const float damping ) { _damping = damping; }
+
+        /** @return the damping factor. */
+        float getDamping() const { return _damping; }
+
+        /** @sa CompoundListener::notifyUpdatePre */
+        virtual void notifyUpdatePre( Compound* compound, 
+                                      const uint32_t frameNumber );
 
         /** @sa ChannelListener::notifyLoadData */
         virtual void notifyLoadData( Channel* channel, 
@@ -48,20 +75,22 @@ namespace server
                                      const eq::Statistic* statistics );
 
     private:
+        Mode  _mode;    //!< The current adaptation mode
+        float _damping; //!< The damping factor,  (0: No damping, 1: No changes)
+        
         struct Node
         {
-            Node() : left(0), right(0), compound(0), 
-                     splitMode( LoadBalancer::MODE_VERTICAL ) , time( 0.0f ) {}
+            Node() : left(0), right(0), compound(0), splitMode( MODE_VERTICAL )
+                   , time( 0.0f ) {}
             ~Node() { delete left; delete right; }
 
             Node*     left;      //<! Left child (only on non-leafs)
             Node*     right;     //<! Right child (only on non-leafs)
             Compound* compound;  //<! The corresponding child (only on leafs)
-            LoadBalancer::Mode splitMode; //<! What to adapt
+            LoadEqualizer::Mode splitMode; //<! What to adapt
             float     time;      //<! target render time for next frame
         };
-        friend std::ostream& operator << ( std::ostream& os,
-                                           const TreeLoadBalancer::Node* node );
+        friend std::ostream& operator << ( std::ostream& os, const Node* node );
         typedef std::vector< Node* > LBNodeVector;
 
         Node* _tree; // <! The binary split tree of all children
@@ -83,8 +112,6 @@ namespace server
         
         std::deque< LBFrameData > _history;
         
-        bool _freeze;
-        
         //-------------------- Methods --------------------
         /** @return true if we have a valid LB tree */
         Node* _buildTree( const CompoundVector& children );
@@ -102,19 +129,16 @@ namespace server
         void _computeSplit( Node* node, LBDataVector* sortedData,
                             const eq::Viewport& vp, const eq::Range& range );
 
-        static bool _compareX( const TreeLoadBalancer::Data& data1,
-                               const TreeLoadBalancer::Data& data2 )
+        static bool _compareX( const Data& data1, const Data& data2 )
             { return data1.vp.x < data2.vp.x; }
-
-        static bool _compareY( const TreeLoadBalancer::Data& data1,
-                               const TreeLoadBalancer::Data& data2 )
+        static bool _compareY( const Data& data1, const Data& data2 )
             { return data1.vp.y < data2.vp.y; }
-
-        static bool _compareRange( const TreeLoadBalancer::Data& data1,
-                                   const TreeLoadBalancer::Data& data2 )
+        static bool _compareRange( const Data& data1, const Data& data2 )
             { return data1.range.start < data2.range.start; }
     };
+
+    std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Mode );
 }
 }
 
-#endif // EQS_LOADBALANCER_H
+#endif // EQS_LOADEQUALIZER_H

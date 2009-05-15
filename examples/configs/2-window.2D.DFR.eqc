@@ -40,12 +40,12 @@ server
             {
                 channel "source2"
 
-                loadBalancer { mode VERTICAL }
+                load_equalizer { mode VERTICAL }
                 compound {}
                 compound { channel "source1" outputframe{} }
                 inputframe { name "frame.source1" }
 
-                loadBalancer { mode DFR framerate 20.5 }
+                DFR_equalizer { framerate 20.5 }
                 outputframe{ }
             }
 

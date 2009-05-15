@@ -27,10 +27,10 @@
 #include "compoundUpdateOutputVisitor.h"
 #include "config.h"
 #include "constCompoundVisitor.h"
+#include "equalizers/equalizer.h"
 #include "frame.h"
 #include "frameData.h"
 #include "global.h"
-#include "loadBalancer.h"
 #include "log.h"
 #include "paths.h"
 #include "segment.h"
@@ -117,10 +117,10 @@ Compound::Compound( const Compound& from, Config* config, Compound* parent )
         new Compound( **i, 0, this );
     }
 
-    for( LoadBalancerVector::const_iterator i = from._loadBalancers.begin();
-         i != from._loadBalancers.end(); ++i )
+    for( EqualizerVector::const_iterator i = from._equalizers.begin();
+         i != from._equalizers.end(); ++i )
     {
-        addLoadBalancer( new LoadBalancer( **i ));
+        addEqualizer( (*i)->clone( ));
     }
 
     if( from._swapBarrier )
@@ -144,14 +144,14 @@ Compound::~Compound()
     delete _swapBarrier;
     _swapBarrier = 0;
 
-    for( LoadBalancerVector::const_iterator i = _loadBalancers.begin();
-         i != _loadBalancers.end(); ++i )
+    for( EqualizerVector::const_iterator i = _equalizers.begin();
+         i != _equalizers.end(); ++i )
     {
-        LoadBalancer* loadBalancer = *i;
-        loadBalancer->attach( 0 );
-        delete loadBalancer;
+        Equalizer* equalizer = *i;
+        equalizer->attach( 0 );
+        delete equalizer;
     }
-    _loadBalancers.clear();
+    _equalizers.clear();
 
     for( CompoundVector::const_iterator i = _children.begin(); 
          i != _children.end(); ++i )
@@ -289,12 +289,12 @@ const Window* Compound::getWindow() const
     return 0;
 }
 
-void Compound::addLoadBalancer( LoadBalancer* loadBalancer )
+void Compound::addEqualizer( Equalizer* equalizer )
 {
-    if( loadBalancer )
-        loadBalancer->attach( this );
+    if( equalizer )
+        equalizer->attach( this );
     
-    _loadBalancers.push_back( loadBalancer );
+    _equalizers.push_back( equalizer );
 }
 
 bool Compound::isActive() const 
@@ -1061,9 +1061,9 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
             break;
     }
 
-    const LoadBalancerVector& loadBalancers = compound->getLoadBalancers();
-    for( LoadBalancerVector::const_iterator i = loadBalancers.begin();
-         i != loadBalancers.end(); ++i )
+    const EqualizerVector& equalizers = compound->getEqualizers();
+    for( EqualizerVector::const_iterator i = equalizers.begin();
+         i != equalizers.end(); ++i )
     {
         os << *i;
     }

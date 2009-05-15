@@ -1,4 +1,5 @@
 
+
 /* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -15,10 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "treeLoadBalancer.h"
+#include "loadEqualizer.h"
 
-#include "compound.h"
-#include "log.h"
+#include "../compound.h"
+#include "../log.h"
 
 #include <eq/client/client.h>
 #include <eq/client/server.h>
@@ -34,20 +35,28 @@ namespace server
 
 #define MIN_PIXELS 8
 
-std::ostream& operator << ( std::ostream& os, const TreeLoadBalancer::Node* );
+std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* );
 
 // The tree load balancer organizes the children in a binary tree. At each
 // level, a relative split position is determined by balancing the left subtree
 // against the right subtree.
 
-TreeLoadBalancer::TreeLoadBalancer( const LoadBalancer& parent )
-        : LoadBalancerIF( parent ),
-          _tree( 0 )
+LoadEqualizer::LoadEqualizer()
+        : _mode( MODE_2D )
+        , _damping( .5f )
+        , _tree( 0 )
 {
-    EQINFO << "New TreeLoadBalancer @" << (void*)this << endl;
+    EQINFO << "New LoadEqualizer @" << (void*)this << endl;
 }
 
-TreeLoadBalancer::~TreeLoadBalancer()
+LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
+        : Equalizer( from )
+        , ChannelListener( from )
+        , _mode( from._mode )
+        , _damping( from._damping )
+        , _tree( 0 )
+{}
+LoadEqualizer::~LoadEqualizer()
 {
     _clearTree( _tree );
     delete _tree;
@@ -56,14 +65,15 @@ TreeLoadBalancer::~TreeLoadBalancer()
     _history.clear();
 }
 
-void TreeLoadBalancer::update( const uint32_t frameNumber )
+void LoadEqualizer::notifyUpdatePre( Compound* compound,
+                                     const uint32_t frameNumber )
 {
-    if( _parent.isFrozen( ))
+    if( isFrozen( ))
         return;
 
     if( !_tree )
     {
-        const Compound*       compound = _parent.getCompound();
+        EQASSERT( compound == getCompound( ));
         const CompoundVector& children = compound->getChildren();
         if( children.empty( )) // leaf compound, can't do anything.
             return;
@@ -80,19 +90,16 @@ void TreeLoadBalancer::update( const uint32_t frameNumber )
     _computeSplit();
 }
 
-TreeLoadBalancer::Node* TreeLoadBalancer::_buildTree( 
-    const CompoundVector& compounds )
+LoadEqualizer::Node* LoadEqualizer::_buildTree( const CompoundVector& compounds)
 {
-    Node*                    node     = new Node;
-    const LoadBalancer::Mode mode     = _parent.getMode();
+    Node* node = new Node;
 
     if( compounds.size() == 1 )
     {
         Compound*                compound = compounds[0];
 
         node->compound  = compound;
-        node->splitMode = ( mode == LoadBalancer::MODE_2D ) ? 
-                              LoadBalancer::MODE_VERTICAL : mode;
+        node->splitMode = ( _mode == MODE_2D ) ? MODE_VERTICAL : _mode;
 
         Channel* channel = compound->getChannel();
         EQASSERT( channel );
@@ -113,18 +120,17 @@ TreeLoadBalancer::Node* TreeLoadBalancer::_buildTree(
     node->left  = _buildTree( left );
     node->right = _buildTree( right );
 
-    if( mode == LoadBalancer::MODE_2D )
-        node->splitMode = 
-            ( node->right->splitMode == LoadBalancer::MODE_VERTICAL ) ? 
-                LoadBalancer::MODE_HORIZONTAL : LoadBalancer::MODE_VERTICAL;
+    if( _mode == MODE_2D )
+        node->splitMode = ( node->right->splitMode == MODE_VERTICAL ) ? 
+                              MODE_HORIZONTAL : MODE_VERTICAL;
     else
-        node->splitMode = mode;
+        node->splitMode = _mode;
     node->time      = 0.0f;
 
     return node;
 }
 
-void TreeLoadBalancer::_clearTree( Node* node )
+void LoadEqualizer::_clearTree( Node* node )
 {
     if( !node )
         return;
@@ -142,13 +148,12 @@ void TreeLoadBalancer::_clearTree( Node* node )
     }
 }
 
-void TreeLoadBalancer::notifyLoadData( Channel* channel, 
-                                       const uint32_t frameNumber,
-                                       const uint32_t nStatistics,
-                                       const eq::Statistic* statistics  )
+void LoadEqualizer::notifyLoadData( Channel* channel,
+                                    const uint32_t frameNumber,
+                                    const uint32_t nStatistics,
+                                    const eq::Statistic* statistics )
 {
-
-    // gather and notify load data
+    // gather relevant load data
     float startTime = numeric_limits< float >::max();
     float endTime   = 0.0f;
     bool  loadSet   = false;
@@ -224,7 +229,7 @@ void TreeLoadBalancer::notifyLoadData( Channel* channel,
     }
 }
 
-void TreeLoadBalancer::_checkHistory()
+void LoadEqualizer::_checkHistory()
 {
     // 1. Find youngest complete load data set
     uint32_t useFrame = 0;
@@ -267,7 +272,7 @@ void TreeLoadBalancer::_checkHistory()
     }
 }
 
-void TreeLoadBalancer::_computeSplit()
+void LoadEqualizer::_computeSplit()
 {
     EQASSERT( !_history.empty( ));
     
@@ -277,14 +282,14 @@ void TreeLoadBalancer::_computeSplit()
     // sort load items for each of the split directions
     LBDataVector sortedData[3] = { items, items, items };
 
-    if( _parent.getMode() == LoadBalancer::MODE_DB )
+    if( _mode == MODE_DB )
     {
-        LBDataVector& rangeData = sortedData[LoadBalancer::MODE_DB];
+        LBDataVector& rangeData = sortedData[ MODE_DB ];
         sort( rangeData.begin(), rangeData.end(), _compareRange );
     }
     else
     {
-        LBDataVector& xData = sortedData[LoadBalancer::MODE_VERTICAL];
+        LBDataVector& xData = sortedData[ MODE_VERTICAL ];
         sort( xData.begin(), xData.end(), _compareX );
 
         for( LBDataVector::const_iterator i = xData.begin(); i != xData.end();
@@ -295,7 +300,7 @@ void TreeLoadBalancer::_computeSplit()
                 frameData.first << endl;
         }
 
-        LBDataVector& yData = sortedData[LoadBalancer::MODE_HORIZONTAL];
+        LBDataVector& yData = sortedData[ MODE_HORIZONTAL ];
         sort( yData.begin(), yData.end(), _compareY );
     }
 
@@ -309,7 +314,7 @@ void TreeLoadBalancer::_computeSplit()
         totalTime += data.time;
     }
 
-    const Compound* compound   = _parent.getCompound();
+    const Compound* compound = getCompound();
     const CompoundVector& children = compound->getChildren();
     float nResources( 0.f );
     for( CompoundVector::const_iterator i = children.begin(); 
@@ -336,18 +341,16 @@ void TreeLoadBalancer::_computeSplit()
     _computeSplit( _tree, sortedData, eq::Viewport(), eq::Range() );
 }
 
-float TreeLoadBalancer::_assignTargetTimes( Node* node, const float totalTime, 
-                                            const float resourceTime )
+float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime, 
+                                         const float resourceTime )
 {
     const Compound* compound = node->compound;
     if( compound )
     {
         float time = resourceTime * compound->getUsage(); // default
 
-#if 1 // disable to remove damping code
-        float damping = _parent.getDamping();
-        EQASSERT( damping >= 0.f );
-        EQASSERT( damping <= 1.f );
+        EQASSERT( _damping >= 0.f );
+        EQASSERT( _damping <= 1.f );
 
         const LBFrameData&  frameData = _history.front();
         const LBDataVector& items     = frameData.second;
@@ -361,10 +364,9 @@ float TreeLoadBalancer::_assignTargetTimes( Node* node, const float totalTime,
                 continue;
 
             // found our last rendering time -> use this to smoothen the change:
-            time = (1.f - damping) * time + damping * data.time;
+            time = (1.f - _damping) * time + _damping * data.time;
             break;
         }
-#endif
 
         node->time = EQ_MIN( time, totalTime );
         EQLOG( LOG_LB ) << compound->getChannel()->getName() << " usage " 
@@ -386,9 +388,9 @@ float TreeLoadBalancer::_assignTargetTimes( Node* node, const float totalTime,
     return timeLeft;
 }
 
-void TreeLoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
-                                      const eq::Viewport& vp, 
-                                      const eq::Range& range )
+void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
+                                   const eq::Viewport& vp,
+                                   const eq::Range& range )
 {
     const float time = node->time;
     EQLOG( LOG_LB ) << "_computeSplit " << vp << ", " << range << " time "
@@ -429,13 +431,13 @@ void TreeLoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
 
     switch( node->splitMode )
     {
-        case LoadBalancer::MODE_VERTICAL:
+        case MODE_VERTICAL:
         {
             EQASSERT( range == eq::Range::ALL );
 
             float          timeLeft = node->left->time;
             float          splitPos = vp.x;
-            LBDataVector workingSet = sortedData[LoadBalancer::MODE_VERTICAL];
+            LBDataVector workingSet = sortedData[ MODE_VERTICAL ];
 
             while( timeLeft > 0.f && !workingSet.empty( ))
             {
@@ -540,7 +542,7 @@ void TreeLoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
             EQLOG( LOG_LB ) << "Split " << vp << " at X " << splitPos << endl;
 
             // Ensure minimum size
-            const Compound* root    = _parent.getCompound();
+            const Compound* root    = getCompound();
             const float     epsilon = static_cast< float >( MIN_PIXELS ) /
                                       root->getInheritPixelViewport().w;
 
@@ -563,12 +565,12 @@ void TreeLoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
             break;
         }
 
-        case LoadBalancer::MODE_HORIZONTAL:
+        case MODE_HORIZONTAL:
         {
             EQASSERT( range == eq::Range::ALL );
             float        timeLeft = node->left->time;
             float        splitPos = vp.y;
-            LBDataVector workingSet = sortedData[LoadBalancer::MODE_HORIZONTAL];
+            LBDataVector workingSet = sortedData[ MODE_HORIZONTAL ];
 
             while( timeLeft > 0.f && !workingSet.empty( ))
             {
@@ -672,7 +674,7 @@ void TreeLoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
 
             EQLOG( LOG_LB ) << "Split " << vp << " at Y " << splitPos << endl;
 
-            const Compound* root    = _parent.getCompound();
+            const Compound* root    = getCompound();
             const float     epsilon = static_cast< float >( MIN_PIXELS ) /
                                       root->getInheritPixelViewport().h;
 
@@ -694,12 +696,12 @@ void TreeLoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
             break;
         }
 
-        case LoadBalancer::MODE_DB:
+        case MODE_DB:
         {
             EQASSERT( vp == eq::Viewport::FULL );
             float          timeLeft = node->left->time;
             float          splitPos = range.start;
-            LBDataVector workingSet = sortedData[LoadBalancer::MODE_DB];
+            LBDataVector workingSet = sortedData[ MODE_DB ];
 
             while( timeLeft > 0.f && !workingSet.empty( ))
             {
@@ -795,7 +797,7 @@ void TreeLoadBalancer::_computeSplit( Node* node, LBDataVector* sortedData,
     }
 }
 
-ostream& operator << ( ostream& os, const TreeLoadBalancer::Node* node )
+ostream& operator << ( ostream& os, const LoadEqualizer::Node* node )
 {
     if( !node )
         return os;
@@ -810,6 +812,33 @@ ostream& operator << ( ostream& os, const TreeLoadBalancer::Node* node )
            << endl << indent << node->left << node->right << exdent;
 
     os << enableFlush;
+    return os;
+}
+
+std::ostream& operator << ( std::ostream& os, 
+                            const LoadEqualizer::Mode mode )
+{
+    os << ( mode == LoadEqualizer::MODE_2D         ? "2D" :
+            mode == LoadEqualizer::MODE_VERTICAL   ? "VERTICAL" :
+            mode == LoadEqualizer::MODE_HORIZONTAL ? "HORIZONTAL" :
+            mode == LoadEqualizer::MODE_DB         ? "DB" : "ERROR" );
+    return os;
+}
+
+std::ostream& operator << ( std::ostream& os, const LoadEqualizer* lb )
+{
+    if( !lb )
+        return os;
+
+    os << disableFlush
+       << "load_equalizer" << endl
+       << '{' << endl
+       << "    mode    " << lb->getMode() << endl;
+  
+    if( lb->getDamping() != 0.5f )
+        os << "    damping " << lb->getDamping() << endl;
+
+    os << '}' << endl << enableFlush;
     return os;
 }
 

@@ -15,15 +15,17 @@ CXXFILES = \
 	configSerializer.cpp \
 	configUpdateDataVisitor.cpp \
 	connectionDescription.cpp \
-        ddsLoadBalancer.cpp \
-        dfrLoadBalancer.cpp \
+	equalizers/dfrEqualizer.cpp \
+	equalizers/framerateEqualizer.cpp \
+	equalizers/equalizer.cpp \
+	equalizers/loadEqualizer.cpp \
+	equalizers/monitorEqualizer.cpp \
 	frame.cpp \
 	frameData.cpp \
 	frustum.cpp \
 	frustumData.cpp \
 	global.cpp \
 	layout.cpp \
-	loadBalancer.cpp \
 	loader.cpp \
 	node.cpp \
 	observer.cpp \
@@ -31,10 +33,8 @@ CXXFILES = \
 	pipe.cpp \
 	segment.cpp \
 	server.cpp \
-	smoothLoadBalancer.cpp \
 	startLocalServer.cpp \
 	swapBarrier.cpp \
-	treeLoadBalancer.cpp \
 	view.cpp \
 	window.cpp
 

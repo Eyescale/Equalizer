@@ -71,7 +71,7 @@ server
         compound
         { 
             channel ( layout "Scale" segment 0 view 0 )
-            loadBalancer { mode 2D }
+            load_equalizer { mode 2D }
             compound {}
             compound { channel "channel2" outputframe{} }
             inputframe{ name "frame.channel2" }

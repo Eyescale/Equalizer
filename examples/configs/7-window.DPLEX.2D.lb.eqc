@@ -84,7 +84,7 @@ server
                 bottom_right [  .32 -.2 -.75 ]
                 top_left     [ -.32  .2 -.75 ]
             }
-            loadBalancer { mode DPLEX }
+            framerate_equalizer {}
 
             compound
             {
@@ -92,7 +92,7 @@ server
                 task    [ CLEAR ASSEMBLE ] 
                 period 2 phase 0
 
-                loadBalancer { mode 2D }
+                load_equalizer { mode 2D }
 
                 compound
                 {
@@ -113,7 +113,7 @@ server
                 channel "channel-odd"
                 task    [ CLEAR ASSEMBLE ] 
                 period 2 phase 1
-                loadBalancer { mode 2D }
+                load_equalizer { mode 2D }
 
                 compound
                 {

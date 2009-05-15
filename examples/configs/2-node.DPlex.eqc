@@ -44,7 +44,7 @@ server
                 top_left     [ -.32  .20 -.75 ]
             }
 
-            loadBalancer { mode DPLEX }
+            framerate_equalizer {}
 
             compound
             { 

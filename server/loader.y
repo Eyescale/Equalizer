@@ -1,16 +1,32 @@
 
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
-   All rights reserved. */
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
+ *  
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 %{
 #include "loader.h"
 
 #include "canvas.h"
 #include "compound.h"
+#include "equalizers/dfrEqualizer.h"
+#include "equalizers/framerateEqualizer.h"
+#include "equalizers/loadEqualizer.h"
+#include "equalizers/monitorEqualizer.h"
 #include "frame.h"
 #include "global.h"
 #include "layout.h"
-#include "loadBalancer.h"
 #include "node.h"
 #include "observer.h"
 #include "paths.h"
@@ -42,7 +58,8 @@
         static eq::server::Segment*     segment = 0;
         static eq::server::Observer*    observer = 0;
         static eq::server::Compound*    eqCompound = 0; // avoid name clash
-        static eq::server::LoadBalancer* loadBalancer = 0;
+        static eq::server::DFREqualizer* dfrEqualizer = 0;
+        static eq::server::LoadEqualizer* loadEqualizer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
         static eq::server::Frame*       frame = 0;
         static eq::server::ConnectionDescriptionPtr connectionDescription;
@@ -146,6 +163,10 @@
 %token EQTOKEN_SEGMENT
 %token EQTOKEN_COMPOUND
 %token EQTOKEN_LOADBALANCER
+%token EQTOKEN_DFREQUALIZER
+%token EQTOKEN_FRAMERATEEQUALIZER
+%token EQTOKEN_LOADEQUALIZER
+%token EQTOKEN_MONITOREQUALIZER
 %token EQTOKEN_DAMPING
 %token EQTOKEN_CONNECTION
 %token EQTOKEN_NAME
@@ -231,7 +252,7 @@
     unsigned                _unsigned;
     float                   _float;
     eq::net::ConnectionType   _connectionType;
-    eq::server::LoadBalancer::Mode _loadBalancerMode;
+    eq::server::LoadEqualizer::Mode _loadEqualizerMode;
     float                   _viewport[4];
 }
 
@@ -240,7 +261,7 @@
 %type <_int>              INTEGER IATTR;
 %type <_unsigned>         UNSIGNED colorMask colorMaskBit colorMaskBits;
 %type <_connectionType>   connectionType;
-%type <_loadBalancerMode> loadBalancerMode;
+%type <_loadEqualizerMode> loadEqualizerMode;
 %type <_viewport>         viewport;
 %type <_float>            FLOAT;
 
@@ -779,6 +800,7 @@ compoundField:
     | wall { eqCompound->setWall( wall ); }
     | projection { eqCompound->setProjection( projection ); }
     | loadBalancer
+    | equalizer
     | swapBarrier
     | outputFrame
     | inputFrame
@@ -886,24 +908,106 @@ projectionField:
     | EQTOKEN_HPR  '[' FLOAT FLOAT FLOAT ']'
         { projection.hpr = vmml::Vector3f( $3, $4, $5 ); }
 
-loadBalancer: EQTOKEN_LOADBALANCER 
-    '{' { EQASSERT( !loadBalancer ); loadBalancer = new eq::server::LoadBalancer(); }
-         loadBalancerFields
-    '}' { eqCompound->addLoadBalancer( loadBalancer ); loadBalancer = 0; }
+loadBalancer: 
+    EQTOKEN_LOADBALANCER '{' loadBalancerFields '}'
+    {
+        EQWARN << "Deprecated loadBalancer specification, "
+               << " use new ???_equalizer grammar" << std::endl;
+
+        dfrEqualizer = 0;
+        loadEqualizer = 0;
+    }
 
 loadBalancerFields: /*null*/ | loadBalancerFields loadBalancerField
 loadBalancerField:
-    EQTOKEN_MODE loadBalancerMode { loadBalancer->setMode( $2 ) }
-    | EQTOKEN_DAMPING FLOAT       { loadBalancer->setDamping( $2 ) }
-    | EQTOKEN_FRAMERATE FLOAT     { loadBalancer->setFrameRate( $2 ) }
+    EQTOKEN_MODE loadBalancerMode
+    | EQTOKEN_DAMPING FLOAT
+    {
+        if( loadEqualizer )
+            loadEqualizer->setDamping( $2 );
+        else if( dfrEqualizer )
+            dfrEqualizer->setDamping( $2 );
+    }
+    | EQTOKEN_FRAMERATE FLOAT     { dfrEqualizer->setFrameRate( $2 ) }
 
-loadBalancerMode: EQTOKEN_2D { $$ = eq::server::LoadBalancer::MODE_2D; }
-    | EQTOKEN_DB             { $$ = eq::server::LoadBalancer::MODE_DB; }
-    | EQTOKEN_HORIZONTAL     { $$ = eq::server::LoadBalancer::MODE_HORIZONTAL; }
-    | EQTOKEN_VERTICAL       { $$ = eq::server::LoadBalancer::MODE_VERTICAL; }
-    | EQTOKEN_DPLEX          { $$ = eq::server::LoadBalancer::MODE_DPLEX; }
-    | EQTOKEN_DFR            { $$ = eq::server::LoadBalancer::MODE_DFR; } 
-    | EQTOKEN_DDS            { $$ = eq::server::LoadBalancer::MODE_DDS; } 
+loadBalancerMode:
+    EQTOKEN_2D
+    {
+        loadEqualizer = new eq::server::LoadEqualizer;
+        loadEqualizer->setMode( eq::server::LoadEqualizer::MODE_2D );
+        eqCompound->addEqualizer( loadEqualizer );
+    }
+    | EQTOKEN_DB             
+    {
+        loadEqualizer = new eq::server::LoadEqualizer;
+        loadEqualizer->setMode( eq::server::LoadEqualizer::MODE_DB );
+        eqCompound->addEqualizer( loadEqualizer );
+    }
+    | EQTOKEN_HORIZONTAL     
+    {
+        loadEqualizer = new eq::server::LoadEqualizer;
+        loadEqualizer->setMode( eq::server::LoadEqualizer::MODE_HORIZONTAL );
+        eqCompound->addEqualizer( loadEqualizer );
+    }
+    | EQTOKEN_VERTICAL       
+    {
+        loadEqualizer = new eq::server::LoadEqualizer;
+        loadEqualizer->setMode( eq::server::LoadEqualizer::MODE_VERTICAL );
+        eqCompound->addEqualizer( loadEqualizer );
+    }
+    | EQTOKEN_DPLEX          
+    {
+        eqCompound->addEqualizer( new eq::server::FramerateEqualizer );
+    }
+    | EQTOKEN_DFR            
+    {
+        dfrEqualizer = new eq::server::DFREqualizer;
+        eqCompound->addEqualizer( dfrEqualizer );
+    }
+    | EQTOKEN_DDS            
+    {
+        eqCompound->addEqualizer( new eq::server::MonitorEqualizer );
+    }
+
+equalizer: dfrEqualizer | framerateEqualizer | loadEqualizer | monitorEqualizer
+dfrEqualizer: EQTOKEN_DFREQUALIZER '{' 
+    { dfrEqualizer = new eq::server::DFREqualizer; }
+    dfrEqualizerFields '}' 
+    {
+        eqCompound->addEqualizer( dfrEqualizer );
+        dfrEqualizer = 0; 
+    }
+framerateEqualizer: EQTOKEN_FRAMERATEEQUALIZER '{' '}'
+    {
+        eqCompound->addEqualizer( new eq::server::FramerateEqualizer );
+    }
+loadEqualizer: EQTOKEN_LOADEQUALIZER '{' 
+    { loadEqualizer = new eq::server::LoadEqualizer; }
+    loadEqualizerFields '}' 
+    {
+        eqCompound->addEqualizer( loadEqualizer );
+        loadEqualizer = 0; 
+    }
+monitorEqualizer: EQTOKEN_MONITOREQUALIZER '{' '}'
+    {
+        eqCompound->addEqualizer( new eq::server::MonitorEqualizer );
+    }
+
+dfrEqualizerFields: /* null */ | dfrEqualizerFields dfrEqualizerField
+dfrEqualizerField:
+    EQTOKEN_DAMPING FLOAT      { dfrEqualizer->setDamping( $2 ); }
+    | EQTOKEN_FRAMERATE FLOAT  { dfrEqualizer->setFrameRate( $2 ) }
+
+loadEqualizerFields: /* null */ | loadEqualizerFields loadEqualizerField
+loadEqualizerField:
+    EQTOKEN_DAMPING FLOAT            { loadEqualizer->setDamping( $2 ); }
+    | EQTOKEN_MODE loadEqualizerMode { loadEqualizer->setMode( $2 ); }
+
+loadEqualizerMode: 
+    EQTOKEN_2D           { $$ = eq::server::LoadEqualizer::MODE_2D; }
+    | EQTOKEN_DB         { $$ = eq::server::LoadEqualizer::MODE_DB; }
+    | EQTOKEN_HORIZONTAL { $$ = eq::server::LoadEqualizer::MODE_HORIZONTAL; }
+    | EQTOKEN_VERTICAL   { $$ = eq::server::LoadEqualizer::MODE_VERTICAL; }
     
 
 swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
