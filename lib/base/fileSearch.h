@@ -63,35 +63,34 @@ static StringVector fileSearch( const std::string directory,
 #else
 
     // only foo*bar pattern are implemented
-    const size_t findPos = data.find( '*' );
+    const size_t findPos = pattern.find( '*' );
     
-    if( findPos == string::npos )
+    if( findPos == std::string::npos )
     {
         EQWARN << "Error fileSearch foo*bar pattern invalid !!!!" 
                 << std::endl;
-        FindClose( hSearch );
-        return;
+        return pluginDirectories;
     }
     const std::string first = pattern.substr( 0, findPos );
     const std::string second = pattern.substr( findPos + 1 );
   
-    DIR* dir = opendir( path.c_str() );
+    DIR* dir = opendir( directory.c_str() );
     
     if( dir != 0 )
     {
         struct dirent* entry;
         
-        while (( ent = readdir( rep )) != 0)
+        while (( entry = readdir( dir )) != 0)
         {
-            if(( strncmp( ent->d_name, first.c_str(), first.size() ) == 0) && 
-               ( strcmp( ent->d_name, second.c_str() ) >= 0) )
+            if(( strncmp( entry->d_name, first.c_str(), first.size() ) == 0) && 
+               ( strcmp( entry->d_name, second.c_str() ) >= 0) )
             {
-                std::string file( ent->d_name );
+                std::string file( entry->d_name );
                 pluginDirectories.push_back( file );  
             }   
         }
         
-        closedir(rep);
+        closedir(dir);
      }
 
 #endif
