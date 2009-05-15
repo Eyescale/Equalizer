@@ -112,7 +112,7 @@ namespace eq
         WGLEWContext* wglewGetContext();
         //*}
      
-        /** Initialize the GLEW context for this window. . */
+        /** Initialize the GLEW context for this window. */
         void initGLEW(); 
         
         /** De-initialize the GLEW context. */
