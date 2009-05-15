@@ -208,13 +208,11 @@ void ROIFinder::_fillWithColor( const PixelViewport& pvp,
             dst[ y * _wb + x ] = val; 
 }
 
-#ifndef NDEBUG
 void ROIFinder::_invalidateAreas( Area* areas, uint8_t num )
 {
     for( uint8_t i = 0; i < num; i++ )
         areas[i].valid = false;
 }
-#endif
 
 void ROIFinder::_updateSubArea( const uint8_t type )
 {

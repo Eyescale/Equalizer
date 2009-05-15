@@ -50,7 +50,7 @@
         EQERROR << "##### Abort: " << info << " #####" << std::endl \
                 << eq::base::forceFlush; }
 
-#else // DEBUG
+#else // NDEBUG
 
 namespace eq
 {
@@ -88,7 +88,7 @@ namespace base
         EQERROR << "Abort: " << info << std::endl << eq::base::forceFlush; \
         eq::base::abortDebug(); }
 
-#endif // DEBUG
+#endif // NDEBUG
 
 #define EQSAFECAST( to, in ) static_cast< to >( in );   \
     EQASSERT( in == 0 || dynamic_cast< to >( static_cast< to >( in )))

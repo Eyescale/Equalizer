@@ -84,9 +84,8 @@ namespace base
             }
 
         mtLong _refCount;
-#ifndef NDEBUG
+
         bool _hasBeenDeleted;
-#endif
     };
 }
 

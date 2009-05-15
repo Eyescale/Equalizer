@@ -361,7 +361,7 @@ void Channel::frameClear( const uint32_t frameID )
         const vmml::Vector3ub color = getUniqueColor();
         glClearColor( color.r/255.0f, color.g/255.0f, color.b/255.0f, 1.0f );
     }
-#endif // DEBUG
+#endif // NDEBUG
 
     EQ_GL_CALL( glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ));
 }

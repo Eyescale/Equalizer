@@ -72,7 +72,7 @@ void Channel::frameClear( const uint32_t frameID )
         const vmml::Vector3ub color = getUniqueColor();
         glClearColor( color.r/255.0f, color.g/255.0f, color.b/255.0f, 1.0f );
     }
-#endif // DEBUG
+#endif // NDEBUG
     else
         glClearColor( 0.f, 0.f, 0.f, 1.0f );
 

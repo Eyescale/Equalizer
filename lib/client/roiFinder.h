@@ -83,9 +83,8 @@ namespace eq
         /** find areas in current mask*/
         void _findAreas( PixelViewportVector& resultPVPs );
 
-#ifndef NDEBUG
+        //** Only used in debug build, to invalidate unused areas */
         void _invalidateAreas( Area* areas, uint8_t num );
-#endif
 
         struct Dims
         {
@@ -103,9 +102,8 @@ namespace eq
             int32_t       emptySize;
             PixelViewport pvp;
             PixelViewport hole;
-#ifndef NDEBUG
-            bool          valid;
-#endif
+
+            bool          valid; // Used in debug build only
         };
 
         Area  _tmpAreas[17];  //!< possible arreas
