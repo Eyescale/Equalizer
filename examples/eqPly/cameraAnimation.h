@@ -19,6 +19,8 @@
 
 #include <vmmlib/vmmlib.h>
 #include <vmmlib/vector3.h>
+#include <eq/base/base.h>
+#include <math.h>
 
 namespace eqPly
 {

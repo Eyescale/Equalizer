@@ -21,7 +21,14 @@
 
 typedef unsigned long long eq_uint64_t;
 
-#define EQ_DSO_DLLEXPORT __declspec(dllexport) 
+
+#ifdef EQ_DSO_EXPORT
+   #define EQ_EXPORT_DSO __declspec(dllexport) 
+#else
+   #define EQ_EXPORT_DSO __declspec(dllimport)
+#endif
+
+
 
 #ifdef __cplusplus
 extern "C"
@@ -89,31 +96,30 @@ extern "C"
     #define EQ_COMPRESSOR_IGNORE_MSE 8
 
     // query interface
-    EQ_DSO_DLLEXPORT size_t EqCompressorGetNumCompressors();
-    EQ_DSO_DLLEXPORT void EqCompressorGetInfo( const size_t n,
+    EQ_EXPORT_DSO size_t EqCompressorGetNumCompressors();
+    EQ_EXPORT_DSO void EqCompressorGetInfo( const size_t n,
                                            EqCompressorInfo* const info );
 
     // lifecycle management
-    EQ_DSO_DLLEXPORT void* EqCompressorNewCompressor( const unsigned name );
-    EQ_DSO_DLLEXPORT void EqCompressorDeleteCompressor( void* const compressor );
+    EQ_EXPORT_DSO void* EqCompressorNewCompressor( const unsigned name );
+    EQ_EXPORT_DSO void EqCompressorDeleteCompressor( void* const compressor );
 
     // Note: 0 is allowed (for state-less decompressors)
-    EQ_DSO_DLLEXPORT void* EqCompressorNewDecompressor( const unsigned name );
-    EQ_DSO_DLLEXPORT void EqCompressorDeleteDecompressor( const unsigned name,
+    EQ_EXPORT_DSO void* EqCompressorNewDecompressor( const unsigned name );
+    EQ_EXPORT_DSO void EqCompressorDeleteDecompressor( const unsigned name,
                                                     void* const decompressor );
 
     // worker functions
-    EQ_DSO_DLLEXPORT void EqCompressorCompress( void* const compressor, 
+    EQ_EXPORT_DSO void EqCompressorCompress( void* const compressor, 
                                     void* const in, const eq_uint64_t* inDims,
                                     const eq_uint64_t flags );
-    EQ_DSO_DLLEXPORT unsigned EqCompressorGetNumResults( void* const compressor );
-    EQ_DSO_DLLEXPORT void EqCompressorGetResult( void* const compressor, 
+    EQ_EXPORT_DSO unsigned EqCompressorGetNumResults( void* const compressor );
+    EQ_EXPORT_DSO void EqCompressorGetResult( void* const compressor, 
                                        const unsigned i, 
                                        void** const out, 
                                        eq_uint64_t* const outSize );
 
-    EQ_DSO_DLLEXPORT void EqCompressorDecompress( 
-                                              void* const decompressor, 
+    EQ_EXPORT_DSO void EqCompressorDecompress(    void* const decompressor, 
                                               const void** const in, 
                                               const eq_uint64_t* const inSizes,
                                               const unsigned numInputs,
