@@ -83,6 +83,7 @@ HEADER_SRC = \
 	client/commandQueue.h \
 	client/commands.h \
 	client/compositor.h \
+	client/compressor.h \
 	client/config.h \
 	client/configEvent.h \
 	client/configParams.h \
@@ -117,6 +118,7 @@ HEADER_SRC = \
 	client/pipeVisitor.h \
 	client/pixel.h \
 	client/pixelViewport.h \
+	client/pluginRegistry.h \
 	client/projection.h \
 	client/range.h \
 	client/renderContext.h \
@@ -199,6 +201,7 @@ CXXFILES = \
 	client/colorMask.cpp \
 	client/commandQueue.cpp \
 	client/compositor.cpp \
+	client/compressor.cpp \
 	client/config.cpp \
 	client/configDeserializer.cpp \
 	client/configEvent.cpp \
@@ -225,6 +228,7 @@ CXXFILES = \
 	client/osWindow.cpp \
 	client/pipe.cpp \
 	client/pipeStatistics.cpp \
+	client/pluginRegistry.cpp \
 	client/projection.cpp \
 	client/range.cpp \
 	client/roiFinder.cpp \

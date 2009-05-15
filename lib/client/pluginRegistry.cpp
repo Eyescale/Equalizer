@@ -42,14 +42,15 @@ void PluginRegistry::init()
         const std::string& directory = *i;
         // search the number of files in the director<y
 #ifdef WIN32
-        StringVector& files = base::fileSearch( directory, 
+        StringVector files = base::fileSearch( directory, 
                                                 "libeqCompressor*.dll" );
         const char DIRSEP = '\\';
 #elif defined (Darwin)
-        StringVector& files = base::fileSearch( directory, 
+        StringVector files = base::fileSearch( directory, 
                                                 "libeqCompressor*dylib" );
+        const char DIRSEP = '/';
 #else
-        StringVector& files = base::fileSearch( directory,
+        StringVector files = base::fileSearch( directory,
                                                 "libeqCompressor*so" );
         const char DIRSEP = '/';
 #endif

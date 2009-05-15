@@ -31,11 +31,14 @@
 #include <sys/types.h>
 
 typedef unsigned long long eq_uint64_t;
-
+#ifdef WIN32
 #ifdef EQ_PLUGIN
    #define EQ_PLUGIN_API __declspec(dllexport) 
 #else
    #define EQ_PLUGIN_API __declspec(dllimport)
+#endif
+#else // WIN32
+#  define EQ_PLUGIN_API
 #endif
 /** @endcond */
 

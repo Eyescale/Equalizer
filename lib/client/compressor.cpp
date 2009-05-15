@@ -76,7 +76,7 @@ bool Compressor::implementsType( const uint32_t name )
     for( std::vector<EqCompressorInfo>::const_iterator i = _infos.begin(); 
          i != _infos.end(); ++i )
     {
-        if ( i->name == name )
+        if ( i->type == name )
             return true;
     }
 
