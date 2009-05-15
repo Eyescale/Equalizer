@@ -48,7 +48,7 @@ static StringVector fileSearch( const std::string directory,
         EQWARN << "Error to search file " 
                 << std::endl;
         FindClose( hSearch );
-        return;
+        return pluginDirectories;
     }
 
     find = true;

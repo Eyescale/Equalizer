@@ -18,16 +18,65 @@
 
 #include "global.h"
 #include "nodeFactory.h"
+#include "pluginRegistry.h"
+#include <algorithm>
 
 namespace eq
 {
 EQ_EXPORT NodeFactory* Global::_nodeFactory = 0;
+
+// initialized by EQ_PLUGIN_PATH:
+namespace
+{
+// build a directory vector from EQ_PLUGIN_PATH
+static StringVector _initPluginDirectory(const char *env)
+{
+     
+    StringVector pluginDirectories;
+
+    if( env )
+    {
+        std::string envString( env );
+#ifdef WIN32
+        const char separator = ';';
+#else
+        const char separator = ':';
+#endif
+        
+        do
+        {
+            size_t nextPos = envString.find( separator );
+            if ( nextPos == std::string::npos )
+                nextPos = envString.size();
+            std::string path = envString.substr( 0, nextPos );
+            if ( nextPos == envString.size())
+                envString = "";
+            else
+                envString = envString.substr( nextPos + 1, envString.size() );
+
+            pluginDirectories.push_back( path );
+            
+        }while( envString.size() != 0 ); 
+    }
+    else
+    {
+        pluginDirectories.push_back( "/usr/local/share/Equalizer/plugins" );
+        pluginDirectories.push_back( ".eqPlugins" );
+    }
+    return pluginDirectories;
+}
+}
+
+EQ_EXPORT PluginRegistry* Global::_pluginRegistry = new PluginRegistry();
 std::string Global::_server;
 std::string Global::_configFile;
 
 #ifdef AGL
 static base::Lock _carbonLock;
 #endif
+
+EQ_EXPORT StringVector Global::_pluginDirectories = 
+     _initPluginDirectory( getenv("EQ_PLUGIN_PATH") );
 
 void Global::enterCarbon()
 {
@@ -42,6 +91,30 @@ void Global::leaveCarbon()
     _carbonLock.unset();
 #endif
 }
+
+
+
+// initialized by EQ_PLUGIN_PATH:
+EQ_EXPORT const StringVector& Global::getPluginDirectories()
+{
+    return _pluginDirectories;
+}
+
+void  Global::addPluginDirectory( const std::string& path )
+{
+    _pluginDirectories.push_back( path );
+}
+
+void  Global::removePluginDirectory( const std::string& path )
+{
+
+    StringVector::iterator i = find(_pluginDirectories.begin(), _pluginDirectories.end(), path);
+
+    if( i != _pluginDirectories.end( ))
+        _pluginDirectories.erase( i );
+}
+
+
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                       const IAttrValue value )

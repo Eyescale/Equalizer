@@ -21,12 +21,14 @@
 
 #include <eq/base/base.h>
 #include <eq/base/lock.h> // member
+#include <eq/client/types.h>
 #include <string>
 
 namespace eq
 {
     class NodeFactory;
-
+    class PluginRegistry;
+    
     /** Possible values for some integer attributes */
     enum IAttrValue
     {
@@ -90,6 +92,21 @@ namespace eq
         /** Global unlock for all non-thread-safe Carbon API calls */
         static void leaveCarbon();
 
+        /**
+          * @return all directories to search for compressor DSOs during
+          *         eq::init().
+          */
+        static const StringVector& getPluginDirectories();
+
+        /** add a new directory to search for compressor DSOs. */
+        static void  addPluginDirectory( const std::string& path );
+
+        /** remove a plugin directory */
+        static void  removePluginDirectory( const std::string& path );
+
+        /** @return the plugin registry. */
+        static PluginRegistry* getPluginRegistry() { return _pluginRegistry; }
+
     private:
         friend EQ_EXPORT bool init( const int argc, char** argv, 
                                     NodeFactory* nodeFactory );
@@ -98,6 +115,8 @@ namespace eq
 
         static std::string  _server;
         static std::string  _configFile;
+        static PluginRegistry* _pluginRegistry;
+        static StringVector _pluginDirectories;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

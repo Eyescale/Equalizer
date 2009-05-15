@@ -31,6 +31,7 @@ class Canvas;
 class Channel;
 class Client;
 class Config;
+class Compressor;
 class Frame;
 class Image;
 class Layout;
@@ -52,7 +53,7 @@ typedef std::vector< Node* >     NodeVector;
 typedef std::vector< Pipe* >     PipeVector;
 typedef std::vector< Window* >   WindowVector;
 typedef std::vector< Channel* >  ChannelVector;
-
+typedef std::vector< Compressor* >   CompressorVector;
 typedef std::vector< Frame* >    FrameVector;
 typedef std::vector< Image* >    ImageVector;
 typedef std::vector< Texture* >  TextureVector;
@@ -62,6 +63,7 @@ typedef std::vector< Canvas* >   CanvasVector;
 typedef std::vector< Layout* >   LayoutVector;
 typedef std::vector< Segment* >  SegmentVector;
 typedef std::vector< View* >     ViewVector;
+typedef std::vector< std::string >   StringVector;
 
 typedef std::vector< Viewport >      ViewportVector;
 typedef std::vector< PixelViewport > PixelViewportVector;

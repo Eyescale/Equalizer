@@ -24,6 +24,7 @@
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
+#include "pluginRegistry.h"
 #include "server.h"
 #include "version.h"
 
@@ -79,8 +80,12 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
         }
     }
     
-	EQASSERT( nodeFactory );
+    EQASSERT( nodeFactory );
     Global::_nodeFactory = nodeFactory;
+
+    // init all available plugins
+    PluginRegistry* pluginRegistry = Global::getPluginRegistry();
+    pluginRegistry->init(); 
 
     return net::init( argc, argv );
 }
@@ -90,6 +95,10 @@ EQ_EXPORT bool exit()
 #ifdef EQ_USE_PARACOMP
     pcSystemFinalize();
 #endif
+
+    // de-initialize registered plugins
+    PluginRegistry* pluginRegistry = Global::getPluginRegistry();
+    pluginRegistry->exit(); 
 
     Global::_nodeFactory = 0;
     return net::exit();
