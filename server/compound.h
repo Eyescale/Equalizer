@@ -301,6 +301,8 @@ namespace server
         uint32_t getInheritBuffers() const { return _inherit.buffers; }
         const eq::PixelViewport& getInheritPixelViewport() const 
             { return _inherit.pvp; }
+        const vmml::Vector4i& getInheritOverdraw() const
+            { return _inherit.overdraw; }
         const eq::Viewport& getInheritViewport() const { return _inherit.vp; }
         const eq::Range& getInheritRange()   const { return _inherit.range; }
         const eq::Pixel& getInheritPixel()   const { return _inherit.pixel; }
@@ -494,6 +496,7 @@ namespace server
             Channel*          channel;
             eq::Viewport      vp;
             eq::PixelViewport pvp;
+            vmml::Vector4i    overdraw;
             eq::Range         range;
             eq::Pixel         pixel;
             FrustumData       frustumData;
@@ -538,6 +541,7 @@ namespace server
 
         //-------------------- Methods --------------------
         void _updateInheritPVP();
+        void _updateInheritOverdraw();
 
         void _setDefaultFrameName( Frame* frame );
 

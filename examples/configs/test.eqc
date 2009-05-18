@@ -1,4 +1,4 @@
-# 
+# 2-window test config with layouts
 server
 {
     config
@@ -9,128 +9,131 @@ server
             {
                 window
                 {
-                    name "left"
-                    viewport [ 0.2 0.05 0.3 0.3 ]
-                    
-                    channel { name "left-src" }
-                    channel { name "left-dst" }
+                    attributes { hint_drawable pbuffer }
+                    channel { name "buffer" }
+                }
+
+                window
+                {
+                    viewport [ 100 100 480 300 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ 580 100 480 300 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
                 }
             }
-            pipe
-            {
-                window
-                {
-                    name "right"
-                    viewport [ 0.5 0.05 0.3 0.3 ]
-                    
-                    channel { name "right-src" }
-                    channel { name "right-dst" }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    name "source1"
-                    viewport [ 0.025 0.4 0.3 0.3 ]
-                    channel { name "source1" }
-                }
-                window
-                {
-                    name "source2"
-                    viewport [ 0.35 0.4 0.3 0.3 ]
-                    channel { name "source2" }
-                }
-                window
-                {
-                    name "source3"
-                    viewport [ 0.675 0.4 0.3 0.3 ]
-                    channel { name "source3" }
-                }
-                window
-                {
-                    name "source4"
-                    viewport [ 0.025 0.7 0.3 0.3 ]
-                    channel { name "source4" }
-                }
-                window
-                {
-                    name "source5"
-                    viewport [ 0.35 0.7 0.3 0.3 ]
-                    channel { name "source5" }
-                }
-                window
-                {
-                    name "source6"
-                    viewport [ 0.675 0.7 0.3 0.3 ]
-                    channel { name "source6" }
-                }
-            }
+        }
+        layout
+        {
+            name "Simple"
+            view {}
         }
 
         layout
         {
-            name "1x1"
-            view {}
+            name "2x1"
+            view
+            {
+                viewport [ 0 0 .5 1 ]
+                wall
+                {
+                    bottom_left  [ -.32 -.40 -.75 ]
+                    bottom_right [  .32 -.40 -.75 ]
+                    top_left     [ -.32  .40 -.75 ]
+                }
+            }
+            view
+            {
+                viewport [ .5 0 .5 1 ]
+                wall
+                {
+                    bottom_left  [ -.32 -.40 -.75 ]
+                    bottom_right [  .32 -.40 -.75 ]
+                    top_left     [ -.32  .40 -.75 ]
+                }
+            }
+        }
+        layout
+        {
+            name "3x1"
+            view
+            {
+                viewport [ 0 0 .3333 1 ]
+                wall
+                {
+                    bottom_left  [ -.21 -.40 -.75 ]
+                    bottom_right [  .21 -.40 -.75 ]
+                    top_left     [ -.21  .40 -.75 ]
+                }
+            }
+            view
+            {
+                viewport [ .3333 0 .3334 1 ]
+                wall
+                {
+                    bottom_left  [ -.21 -.40 -.75 ]
+                    bottom_right [  .21 -.40 -.75 ]
+                    top_left     [ -.21  .40 -.75 ]
+                }
+            }
+            view
+            {
+                viewport [ .6667 0 .3333 1 ]
+                wall
+                {
+                    bottom_left  [ -.21 -.40 -.75 ]
+                    bottom_right [  .21 -.40 -.75 ]
+                    top_left     [ -.21  .40 -.75 ]
+                }
+            }
+        }
+        layout
+        {
+            name "2x2"
+            view { viewport [ 0  0  .5 .5 ] wall {} }
+            view { viewport [ 0  .5 .5 .5 ] wall {} }
+            view { viewport [ .5 0  .5 .5 ] wall {} }
+            view { viewport [ .5 .5 .5 .5 ] wall {} }
         }
 
         canvas
         {
-            layout "1x1"
-
+            layout "3x1"
+            layout "2x1"
+            layout "2x2"
+            layout "Simple"
             wall
             {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
+                bottom_left  [ -.64 -.2 -1 ]
+                bottom_right [  .64 -.2 -1 ]
+                top_left     [ -.64  .2 -1 ]
             }
 
-            segment { channel "left-dst" viewport [ 0  0 .5 1 ] }
-            segment { channel "right-dst" viewport [ .5 0 .5 1 ] }
+            segment
+            {
+                channel "channel1"
+                viewport [ 0 0 .5 1 ]
+            }
+            segment
+            {
+                channel "channel2"
+                viewport [ .5 0 .5 1 ]
+            }
         }
-        
         compound
         {
-            compound
-            {
-                channel ( segment 0 view 0 )
-                load_equalizer { mode 2D }
-#                compound { channel "left-src" }
-#                compound { channel "source1" outputframe{ name "ls1" }}
-#                compound { channel "source2" outputframe{ name "ls2"  }}
-#                compound { channel "source3" outputframe{ name "ls3"  }}
-                compound { channel "source4" outputframe{ name "ls4"  }}
-                compound { channel "source5" outputframe{ name "ls5"  }}
-                compound { channel "source6" outputframe{ name "ls6"  }}
-                compound { channel "right-src" outputframe{ name "lrs"  }}
-                inputframe{ name "ls1" }
-                inputframe{ name "ls2" }
-                inputframe{ name "ls3" }
-                inputframe{ name "ls4" }
-                inputframe{ name "ls5" }
-                inputframe{ name "ls6" }
-                inputframe{ name "lrs" }
-            }
-            compound
-            {
-                channel ( segment 1 view 0 )
-                load_equalizer { mode 2D }
-#                compound { channel "right-src" }
-                compound { channel "source1" outputframe{ name "rs1" }}
-                compound { channel "source2" outputframe{ name "rs2" }}
-                compound { channel "source3" outputframe{ name "rs3" }}
-#                compound { channel "source4" outputframe{ name "rs4" }}
-#                compound { channel "source5" outputframe{ name "rs5" }}
-#                compound { channel "source6" outputframe{ name "rs6" }}
-                compound { channel "left-src" outputframe{ name "rls" }}
-                inputframe{ name "rs1" }
-                inputframe{ name "rs2" }
-                inputframe{ name "rs3" }
-                inputframe{ name "rs4" }
-                inputframe{ name "rs5" }
-                inputframe{ name "rs6" }
-                inputframe{ name "rls" }
-            }
+            channel ( canvas 0 segment 0 layout "3x1" view 1 )
+            compound{ viewport [ 0 0 .5 1 ] }
+            compound{ channel "buffer" viewport [ .5 0 .5 1 ] outputframe{} }
+            inputframe{ name "frame.buffer" }
         }
-    }    
+    }
 }

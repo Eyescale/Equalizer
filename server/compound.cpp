@@ -191,6 +191,7 @@ Compound::~Compound()
 
 Compound::InheritData::InheritData()
         : channel( 0 )
+        , overdraw( vmml::Vector4i::ZERO )
         , buffers( eq::Frame::BUFFER_UNDEFINED )
         , eyes( EYE_UNDEFINED )
         , tasks( eq::TASK_DEFAULT )
@@ -803,6 +804,8 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             // correctly.
             const Viewport vp = _inherit.pvp.getSubVP( _parent->_inherit.pvp );
             _inherit.vp.apply( vp );
+            
+            _updateInheritOverdraw();
         }
         else if( _inherit.channel )
         {
@@ -873,12 +876,41 @@ void Compound::_updateInheritPVP()
     }
 
     EQASSERT( channel == getChannel( ));
-    const vmml::Vector4i& overdraw = channel->getOverdraw();
-    _inherit.pvp.w += overdraw.x + overdraw.z;
-    _inherit.pvp.h += overdraw.y + overdraw.w;
+    _inherit.overdraw = channel->getOverdraw();
+    _inherit.pvp.w += _inherit.overdraw.x + _inherit.overdraw.z;
+    _inherit.pvp.h += _inherit.overdraw.y + _inherit.overdraw.w;
 
     if( oldPVP != _inherit.pvp ) // channel PVP changed
+    {
         updateFrustum();
+        EQASSERT( _inherit.overdraw == channel->getOverdraw( ));
+    }
+}
+
+void Compound::_updateInheritOverdraw()
+{
+    const PixelViewport& pvp = _inherit.pvp;
+    const PixelViewport& parentPVP = _parent->_inherit.pvp;
+
+    _inherit.overdraw.x -= pvp.x - parentPVP.x;
+    _inherit.overdraw.y -= pvp.y - parentPVP.y;
+    _inherit.overdraw.z -= parentPVP.getXEnd() - pvp.getXEnd();
+    _inherit.overdraw.w -= parentPVP.getYEnd() - pvp.getYEnd();
+
+    _inherit.overdraw.x = EQ_MAX( _inherit.overdraw.x, 0 );
+    _inherit.overdraw.y = EQ_MAX( _inherit.overdraw.y, 0 );
+    _inherit.overdraw.z = EQ_MAX( _inherit.overdraw.z, 0 );
+    _inherit.overdraw.w = EQ_MAX( _inherit.overdraw.w, 0 );
+
+    _inherit.overdraw.x = EQ_MIN( _inherit.overdraw.x, pvp.w );
+    _inherit.overdraw.y = EQ_MIN( _inherit.overdraw.y, pvp.h );
+    _inherit.overdraw.z = EQ_MIN( _inherit.overdraw.z, pvp.w );
+    _inherit.overdraw.w = EQ_MIN( _inherit.overdraw.w, pvp.h );
+
+    EQASSERTINFO( pvp.w >= _inherit.overdraw.x + _inherit.overdraw.z, 
+                  pvp.w << " < " << _inherit.overdraw.x + _inherit.overdraw.z );
+    EQASSERTINFO( pvp.h >= _inherit.overdraw.y + _inherit.overdraw.w, 
+                  pvp.h << " < " << _inherit.overdraw.y + _inherit.overdraw.w );
 }
 
 std::ostream& operator << (std::ostream& os, const Compound* compound)
