@@ -540,6 +540,7 @@ namespace server
         CHECK_THREAD_DECLARE( _serverThread );
 
         //-------------------- Methods --------------------
+        void _updateOverdraw( Wall& wall );
         void _updateInheritPVP();
         void _updateInheritOverdraw();
 

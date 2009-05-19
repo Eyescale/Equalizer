@@ -462,45 +462,9 @@ void Compound::updateFrustum()
         const Viewport  coverage  = viewVP.getCoverage( segmentVP );
 
         Wall wall( view->getWall( ));
+
         wall.apply( coverage );
-
-        // overdraw
-        const vmml::Vector2i& overdraw = view->getOverdraw();
-        vmml::Vector4i channelOverdraw( vmml::Vector4i::ZERO );
-
-        if( overdraw.x && viewVP.x < segmentVP.x )
-        {
-            const PixelViewport& pvp = channel->getPixelViewport();
-            const float ratio = static_cast< float >( pvp.w + overdraw.x ) /
-                                static_cast< float >( pvp.w );
-            wall.resizeLeft( ratio );
-            channelOverdraw.x = overdraw.x;
-        }
-        if( overdraw.x && viewVP.getXEnd() > segmentVP.getXEnd( ))
-        {
-            const PixelViewport& pvp = channel->getPixelViewport();
-            const float ratio = static_cast< float >( pvp.w + overdraw.x ) /
-                                static_cast< float >( pvp.w );
-            wall.resizeRight( ratio );
-            channelOverdraw.z = overdraw.x;
-        }
-        if( overdraw.y && viewVP.y < segmentVP.y )
-        {
-            const PixelViewport& pvp = channel->getPixelViewport();
-            const float ratio = static_cast< float >( pvp.h + overdraw.y ) /
-                                static_cast< float >( pvp.h );
-            wall.resizeBottom( ratio );
-            channelOverdraw.y = overdraw.y;
-        }
-        if( overdraw.y && viewVP.getYEnd() > segmentVP.getYEnd( ))
-        {
-            const PixelViewport& pvp = channel->getPixelViewport();
-            const float ratio = static_cast< float >( pvp.h + overdraw.y ) /
-                                static_cast< float >( pvp.h );
-            wall.resizeTop( ratio );
-            channelOverdraw.w = overdraw.y;
-        }
-        channel->setOverdraw( channelOverdraw );
+        _updateOverdraw( wall );
 
         switch( view->getCurrentType( ))
         {
@@ -536,7 +500,9 @@ void Compound::updateFrustum()
         const Viewport  coverage  = outputVP.getCoverage( channelVP );
 
         Wall wall( segment->getWall( ));
+
         wall.apply( coverage );
+        _updateOverdraw( wall );
 
         switch( segment->getCurrentType( ))
         {
@@ -560,6 +526,60 @@ void Compound::updateFrustum()
                 EQUNIMPLEMENTED;
         }
     }
+}
+
+void Compound::_updateOverdraw( Wall& wall )
+{
+    Channel* channel = getChannel();
+    EQASSERT( channel );
+    if( !channel )
+        return;
+
+    const Segment* segment = channel->getSegment();
+    const View*    view    = channel->getView();
+    EQASSERT( segment && view );
+    if( !segment || !view )
+        return;
+
+    const Viewport& segmentVP = segment->getViewport();
+    const Viewport& viewVP    = view->getViewport();
+    const vmml::Vector2i& overdraw = view->getOverdraw();
+    vmml::Vector4i channelOverdraw( vmml::Vector4i::ZERO );
+
+    if( overdraw.x && viewVP.x < segmentVP.x )
+    {
+        const PixelViewport& pvp = channel->getPixelViewport();
+        const float ratio = static_cast< float >( pvp.w + overdraw.x ) /
+                            static_cast< float >( pvp.w );
+        wall.resizeLeft( ratio );
+        channelOverdraw.x = overdraw.x;
+    }
+    if( overdraw.x && viewVP.getXEnd() > segmentVP.getXEnd( ))
+    {
+        const PixelViewport& pvp = channel->getPixelViewport();
+        const float ratio = static_cast< float >( pvp.w + overdraw.x ) /
+                            static_cast< float >( pvp.w );
+        wall.resizeRight( ratio );
+        channelOverdraw.z = overdraw.x;
+    }
+    if( overdraw.y && viewVP.y < segmentVP.y )
+    {
+        const PixelViewport& pvp = channel->getPixelViewport();
+        const float ratio = static_cast< float >( pvp.h + overdraw.y ) /
+                            static_cast< float >( pvp.h );
+        wall.resizeBottom( ratio );
+        channelOverdraw.y = overdraw.y;
+    }
+    if( overdraw.y && viewVP.getYEnd() > segmentVP.getYEnd( ))
+    {
+        const PixelViewport& pvp = channel->getPixelViewport();
+        const float ratio = static_cast< float >( pvp.h + overdraw.y ) /
+                            static_cast< float >( pvp.h );
+        wall.resizeTop( ratio );
+        channelOverdraw.w = overdraw.y;
+    }
+
+    channel->setOverdraw( channelOverdraw );
 }
 
 //---------------------------------------------------------------------------
