@@ -160,12 +160,36 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
 
     if( view )
     {
+        // compute inherit vp (part of view covered by segment)
         const Segment* segment = destChannel->getSegment();
+        EQASSERT( segment );
 
-        // part of view covered by segment
         Viewport contribution( segment->getViewport( ));
         contribution.intersect( view->getViewport( ));
         contribution.transform( view->getViewport( ));
+        
+        const vmml::Vector4i& overdraw = destChannel->getOverdraw();
+        const PixelViewport& pvp = destChannel->getPixelViewport();
+        EQASSERT( pvp.hasArea( ));
+
+        const float xDelta(( static_cast< float >( overdraw.x + pvp.w ) /
+                             static_cast< float >( pvp.w ) - 1.0f ) * 
+                           contribution.w );
+        EQINFO << destChannel->getName() << " " << xDelta << std::endl;
+        contribution.x -= xDelta;
+        contribution.w += (( static_cast< float >( overdraw.z + pvp.w ) /
+                             static_cast< float >( pvp.w ) - 1.0f ) * 
+                           contribution.w ); 
+        contribution.w += xDelta;
+
+        const float yDelta(( static_cast< float >( overdraw.y + pvp.h ) /
+                             static_cast< float >( pvp.h ) - 1.0f ) *
+                           contribution.h ); 
+        contribution.y -= yDelta;
+        contribution.h += (( static_cast< float >( overdraw.w + pvp.h ) /
+                             static_cast< float >( pvp.h ) - 1.0f ) *
+                           contribution.h ); 
+        contribution.h += yDelta;
 
         context.vp.apply( contribution );
     }

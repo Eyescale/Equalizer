@@ -854,7 +854,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.pvp.apply( _data.pixel );
 
         // Zoom
-        const eq::PixelViewport unzoomedPVP = _inherit.pvp;
+        const eq::PixelViewport unzoomedPVP( _inherit.pvp );
         _inherit.pvp.apply( _data.zoom );
 
         // Compute the inherit zoom to be pixel-correct with the integer-rounded
@@ -887,24 +887,29 @@ void Compound::_updateInheritPVP()
     const PixelViewport oldPVP( _inherit.pvp );
 
     const Channel* channel = _inherit.channel;
+    const View* view = channel->getView();
+
     _inherit.pvp = channel->getPixelViewport( );
 
-    if( !channel->getView() || !_inherit.pvp.isValid( ))
+    if( !view || !_inherit.pvp.isValid( ))
     {
         EQASSERT( channel->getOverdraw() == vmml::Vector4i::ZERO );
         return;
     }
-
     EQASSERT( channel == getChannel( ));
-    _inherit.overdraw = channel->getOverdraw();
-    _inherit.pvp.w += _inherit.overdraw.x + _inherit.overdraw.z;
-    _inherit.pvp.h += _inherit.overdraw.y + _inherit.overdraw.w;
+
+    // enlarge pvp by overdraw
+    const vmml::Vector4i& overdraw = channel->getOverdraw();
+    _inherit.pvp.w += overdraw.x + overdraw.z;
+    _inherit.pvp.h += overdraw.y + overdraw.w;
 
     if( oldPVP != _inherit.pvp ) // channel PVP changed
     {
         updateFrustum();
-        EQASSERT( _inherit.overdraw == channel->getOverdraw( ));
+        EQASSERT( overdraw == channel->getOverdraw( ));
     }
+
+    _inherit.overdraw = overdraw;
 }
 
 void Compound::_updateInheritOverdraw()
