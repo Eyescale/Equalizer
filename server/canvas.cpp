@@ -243,12 +243,12 @@ void Canvas::_useLayout( const uint32_t index )
 
 void Canvas::init()
 {
-    _switchLayout( EQ_ID_INVALID, _activeLayout );
+    _switchLayout( EQ_ID_NONE, _activeLayout );
 }
 
 void Canvas::exit()
 {
-    _switchLayout( _activeLayout, EQ_ID_INVALID );
+    _switchLayout( _activeLayout, EQ_ID_NONE );
 }
 
 namespace
@@ -337,8 +337,9 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
 {
     EQASSERT( _config );
 
-    const Layout* oldLayout = (oldIndex==EQ_ID_INVALID) ? 0 :_layouts[oldIndex];
-    const Layout* newLayout = (newIndex==EQ_ID_INVALID) ? 0 :_layouts[newIndex];
+    const size_t nLayouts = _layouts.size();
+    const Layout* oldLayout = (oldIndex >= nLayouts) ? 0 :_layouts[oldIndex];
+    const Layout* newLayout = (newIndex >= nLayouts) ? 0 :_layouts[newIndex];
 
     for( SegmentVector::const_iterator i = _segments.begin();
          i != _segments.end(); ++i )

@@ -27,26 +27,27 @@ server
                 }
             }
         }
-        compound
-        { 
+        observer {}
+        layout { view { observer 0 }}
+        canvas
+        {
+            layout 0
             wall
             {
                 bottom_left  [ -.64 -.2 -1 ]
                 bottom_right [  .64 -.2 -1 ]
                 top_left     [ -.64  .2 -1 ]
             }
-
-            compound
+            segment
             { 
                 channel "channel1"
                 viewport [ 0 0 .5 1 ]
             }
-            compound
+            segment
             { 
                 channel "channel2"
                 viewport [ .5 0 .5 1 ]
             }
-
         }
     }    
 }
