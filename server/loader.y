@@ -675,7 +675,10 @@ viewField:
       {
           eq::server::Observer* observer = config->findObserver( $2 );
           if( !observer )
+          {
               yyerror( "No observer of the given name" );
+              YYERROR;
+          }
           else
               view->setObserver( observer ); 
       }
@@ -684,7 +687,10 @@ viewField:
           const eq::server::ObserverPath path( $2 );
           eq::server::Observer* observer = config->getObserver( path );
           if( !observer )
+          {
               yyerror( "No observer of the given index" );
+              YYERROR;
+          }
           else
               view->setObserver( observer ); 
       }
@@ -699,7 +705,10 @@ canvasField:
       {
           eq::server::Layout* layout = config->findLayout( $2 );
           if( !layout )
+          {
               yyerror( "No layout of the given name" );
+              YYERROR;
+          }
           else
               canvas->addLayout( layout ); 
       }
@@ -708,7 +717,10 @@ canvasField:
           const eq::server::LayoutPath path( $2 );
           eq::server::Layout* layout = config->getLayout( path );
           if( !layout )
+          {
               yyerror( "No layout of the given index" );
+              YYERROR;
+          }
           else
               canvas->addLayout( layout ); 
       }
@@ -729,7 +741,10 @@ segmentField:
         {
             eq::server::Channel* channel = config->findChannel( $2 );
             if( !channel )
+            {
                 yyerror( "No channel of the given name" );
+                YYERROR;
+            }
             else
                 segment->setChannel( channel );
         }
@@ -759,21 +774,30 @@ compoundField:
       {
           eq::server::Channel* channel = config->findChannel( $2 );
           if( !channel )
+          {
               yyerror( "No channel of the given name" );
+              YYERROR;
+          }
           else
               eqCompound->setChannel( channel );
       }
     | EQTOKEN_CHANNEL viewSegmentRef
       {
           if( !segment || !view )
+          {
               yyerror( "Incomplete channel reference (view or segment missing)" );
+              YYERROR;
+          }
           else
           {
               eq::server::Channel* channel = config->findChannel(segment, view);
               if( channel )
                   eqCompound->setChannel( channel );
               else
+              {
                   yyerror( "No channel for the given view and segment" );
+                  YYERROR;
+              }
           }
 
           canvas = 0;
@@ -806,7 +830,7 @@ compoundField:
     | inputFrame
     | EQTOKEN_ATTRIBUTES '{' compoundAttributes '}'
 
-viewSegmentRef: 
+viewSegmentRef:
     '(' {
             canvas = 0;
             segment = 0;
