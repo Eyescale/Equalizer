@@ -21,10 +21,14 @@
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
 
+#include <vector> // WAR: vector4.h does not include std::vector. Fix vector4.h
+                  //      after vmmlib upgrade and remove this.
+#include <vmmlib/vector4.h>
 #include <iostream>
 
 namespace eq
 {
+    class PixelViewport;
     class Viewport;
     std::ostream& operator << ( std::ostream& os, const Viewport& vp );
 
@@ -136,6 +140,11 @@ namespace eq
 
                 return coverage;
             }
+
+        /** Apply the view coverage to this viewport. */
+        void applyView( const Viewport& segmentVP, const Viewport& viewVP,
+                        const PixelViewport& pvp, 
+                        const vmml::Vector4i& overdraw );
 
         float x;
         float y;

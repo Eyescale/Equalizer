@@ -460,19 +460,14 @@ void Channel::_setupRenderContext( const uint32_t frameID,
 {
     context.frameID       = frameID;
     context.pvp           = _pvp;
-    context.vp            = _vp;
     context.view          = _view;
     context.overdraw      = _overdraw;
 
     if( !_view || !_segment )
-        return;
-
-    // part of view covered by segment
-    Viewport contribution( _segment->getViewport( ));
-    contribution.intersect( _view->getViewport( ));
-    contribution.transform( _view->getViewport( ));
-
-    context.vp.apply( contribution );
+        context.vp            = _vp;
+    else
+        context.vp.applyView( _segment->getViewport(), _view->getViewport(),
+                              _pvp, _overdraw );
 }
 
 bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
