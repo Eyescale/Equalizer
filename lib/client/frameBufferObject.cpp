@@ -196,5 +196,11 @@ bool FrameBufferObject::resize( const int width, const int height )
 
     return _checkFBOStatus();
 }
+
+PixelViewport FrameBufferObject::getPixelViewport() const
+{
+    return PixelViewport( 0, 0, _width, _height );
+}
+
 }
 

@@ -17,22 +17,17 @@ server
                         drawable [ FBO_COLOR FBO_DEPTH ]
                         name "buffer"
                     }
-                    channel
-                    {
-                        drawable [ FBO_COLOR FBO_DEPTH ]
-                        name "target"
-                    }
 
                     channel
                     {
-                        name "copy"
+                        name "channel"
                     }
                 }
             }
         }
         compound
         {
-            channel "copy"
+            channel "channel"
             buffer  [ COLOR DEPTH ]
 
             wall
@@ -43,19 +38,16 @@ server
             }
             
             compound
+            {
+                range   [ 0 .5 ]
+            }
+            compound
             { 
                 channel "buffer"
                 range   [ .5 1 ]
                 outputframe { name "frame.buffer" }
             }
-            compound
-            {
-                channel "target"
-                range   [ 0 .5 ]
-                inputframe { name "frame.buffer" }
-                outputframe { name "frame.target" buffer [ COLOR ] }
-            }
-            inputframe { name "frame.target" }
+            inputframe { name "frame.buffer" }
         }
-    }
+    }    
 }
