@@ -1242,6 +1242,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
         _nodes.find( nodeID ) != _nodes.end( )) // Node exists, probably
                                                 // simultaneous connect
     {
+        EQINFO << "ignoring connect reply, node already connected" << endl;
         _removeConnection( connection );
         
         if( packet->requestID != EQ_ID_INVALID )
@@ -1260,7 +1261,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
         remoteNode->_connectionDescriptions.clear(); //get actual data from peer
     }
 
-    if( !remoteNode.isValid( ))
+    if( !remoteNode )
         remoteNode = createNode( packet->type );
 
     EQASSERT( remoteNode->getType() == packet->type );
@@ -1380,7 +1381,7 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
 
     string data = packet->nodeData;
     if( !node->deserialize( data ))
-        EQWARN << "Failed do initialize node data" << endl;
+        EQWARN << "Failed to initialize node data" << endl;
     EQASSERT( data.empty( ));
 
     node->setAutoLaunch( false );
@@ -1586,7 +1587,11 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
         // connect failed - maybe simultaneous connect from peer?
         iter = _nodes.find( nodeID );
         if( iter != _nodes.end( ))
-            return iter->second;
+        {
+            node = iter->second;
+            EQASSERT( node->isConnected( ));
+            return node;
+        }
         
         EQWARN << "Node connection failed" << endl;
         return 0;
