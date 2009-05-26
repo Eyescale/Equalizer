@@ -1,10 +1,10 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* 
+ * Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -19,6 +19,8 @@
 #ifndef EQNET_COMMANDRESULT_H
 #define EQNET_COMMANDRESULT_H
 
+#include <iostream>
+
 namespace eq
 {
 namespace net
@@ -29,6 +31,14 @@ namespace net
         COMMAND_DISCARD,     //*< Discard command, used by Objects
         COMMAND_ERROR        //*< An unrecoverable error occured
     };
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const CommandResult& result )
+    {
+        os << ( result == COMMAND_HANDLED ? "handled" :
+                result == COMMAND_DISCARD ? "discard" :
+                result == COMMAND_ERROR   ? "error" : "UNKNOWN" );
+        return os;
+    }
 }
 }
 

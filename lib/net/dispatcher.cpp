@@ -92,7 +92,7 @@ bool Dispatcher::dispatchCommand( Command& command )
 #  ifdef EQ_SEND_TOKEN
         return( result == COMMAND_HANDLED );
 #  else
-        EQASSERT( result == COMMAND_HANDLED );
+        EQASSERTINFO( result == COMMAND_HANDLED, result );
 #  endif
 #endif
     }
