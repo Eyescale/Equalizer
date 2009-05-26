@@ -1,0 +1,356 @@
+global
+{
+    EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER  OFF
+    EQ_WINDOW_IATTR_HINT_DRAWABLE      pbuffer
+    EQ_WINDOW_IATTR_PLANES_STENCIL     ON
+}
+server
+{
+    connection { hostname "127.0.0.1" }
+    config
+    {
+        node
+        {
+            name       "node0"
+            connection { hostname "127.0.0.1" }
+            pipe
+            {
+                name     "pipe0n0"
+                device   0
+                window
+                {
+                    name     "window0"
+                    attributes
+                    {
+                        hint_fullscreen   OFF
+                        hint_drawable     window
+                        hint_doublebuffer ON
+                    }
+                    viewport [ 100 100 1024 768 ]
+                    channel { name "channel0" }
+                }
+            }
+        }
+        node
+        {
+            name       "node1"
+            connection { hostname "127.0.0.1" }
+            pipe
+            {
+                name     "pipe0n1"
+                device   0
+                window
+                {
+                    name     "window1"
+                    viewport [ 0 0 1024 768 ]
+                    channel { name "channel1" }
+                }
+            }
+        }
+        node
+        {
+            name       "node2"
+            connection { hostname "127.0.0.1" }
+            pipe
+            {
+                name     "pipe0n2"
+                device   0
+                window
+                {
+                    name     "window2"
+                    viewport [ 0 0 1024 768 ]
+                    channel { name "channel2" }
+                }
+            }
+        }
+        node
+        {
+            name       "node3"
+            connection { hostname "127.0.0.1" }
+            pipe
+            {
+                name     "pipe0n3"
+                device   0
+                window
+                {
+                    name     "window3"
+                    viewport [ 0 0 1024 768 ]
+                    channel { name "channel3" }
+                }
+            }
+        }
+        node
+        {
+            name       "node4"
+            connection { hostname "127.0.0.1" }
+            pipe
+            {
+                name     "pipe0n4"
+                device   0
+                window
+                {
+                    name     "window4"
+                    viewport [ 0 0 1024 768 ]
+                    channel { name "channel4" }
+                }
+            }
+        }
+        node
+        {
+            name       "node5"
+            connection { hostname "127.0.0.1" }
+            pipe
+            {
+                name     "pipe0n5"
+                device   0
+                window
+                {
+                    name     "window5"
+                    viewport [ 0 0 1024 768 ]
+                    channel { name "channel5" }
+                }
+            }
+        }
+        node
+        {
+            name       "node6"
+            connection { hostname "127.0.0.1" }
+            pipe
+            {
+                name     "pipe0n6"
+                device   0
+                window
+                {
+                    name     "window6"
+                    viewport [ 0 0 1024 768 ]
+                    channel { name "channel6" }
+                }
+            }
+        }
+        node
+        {
+            name       "node7"
+            connection { hostname "127.0.0.1" }
+            pipe
+            {
+                name     "pipe0n7"
+                device   0
+                window
+                {
+                    name     "window7"
+                    viewport [ 0 0 1024 768 ]
+                    channel { name "channel7" }
+                }
+            }
+        }
+        compound
+        {
+            channel   "channel0"
+            buffer    [ COLOR DEPTH ]
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+            compound
+            {
+                channel   "channel0"
+                compound
+                {
+                    range     [ 0.00000 0.12500 ]
+                    outputframe{ name "tile1.channel0" viewport [ 0 0.12500 1 0.12500 ] }
+                    outputframe{ name "tile2.channel0" viewport [ 0 0.25000 1 0.12500 ] }
+                    outputframe{ name "tile3.channel0" viewport [ 0 0.37500 1 0.12500 ] }
+                    outputframe{ name "tile4.channel0" viewport [ 0 0.50000 1 0.12500 ] }
+                    outputframe{ name "tile5.channel0" viewport [ 0 0.62500 1 0.12500 ] }
+                    outputframe{ name "tile6.channel0" viewport [ 0 0.75000 1 0.12500 ] }
+                    outputframe{ name "tile7.channel0" viewport [ 0 0.87500 1 0.12500 ] }
+                }
+                inputframe{ name "tile0.channel1" }
+                inputframe{ name "tile0.channel2" }
+                inputframe{ name "tile0.channel3" }
+                inputframe{ name "tile0.channel4" }
+                inputframe{ name "tile0.channel5" }
+                inputframe{ name "tile0.channel6" }
+                inputframe{ name "tile0.channel7" }
+            }
+
+            compound
+            {
+                channel   "channel1"
+                compound
+                {
+                    range     [ 0.12500 0.25000 ]
+                    outputframe{ name "tile0.channel1" viewport [ 0 0.00000 1 0.12500 ] }
+                    outputframe{ name "tile2.channel1" viewport [ 0 0.25000 1 0.12500 ] }
+                    outputframe{ name "tile3.channel1" viewport [ 0 0.37500 1 0.12500 ] }
+                    outputframe{ name "tile4.channel1" viewport [ 0 0.50000 1 0.12500 ] }
+                    outputframe{ name "tile5.channel1" viewport [ 0 0.62500 1 0.12500 ] }
+                    outputframe{ name "tile6.channel1" viewport [ 0 0.75000 1 0.12500 ] }
+                    outputframe{ name "tile7.channel1" viewport [ 0 0.87500 1 0.12500 ] }
+                }
+                inputframe{ name "tile1.channel0" }
+                inputframe{ name "tile1.channel2" }
+                inputframe{ name "tile1.channel3" }
+                inputframe{ name "tile1.channel4" }
+                inputframe{ name "tile1.channel5" }
+                inputframe{ name "tile1.channel6" }
+                inputframe{ name "tile1.channel7" }
+                outputframe{ name "frame.channel1" buffer [ COLOR ] viewport [ 0 0.12500 1 0.12500 ] }
+            }
+
+            compound
+            {
+                channel   "channel2"
+                compound
+                {
+                    range     [ 0.25000 0.37500 ]
+                    outputframe{ name "tile0.channel2" viewport [ 0 0.00000 1 0.12500 ] }
+                    outputframe{ name "tile1.channel2" viewport [ 0 0.12500 1 0.12500 ] }
+                    outputframe{ name "tile3.channel2" viewport [ 0 0.37500 1 0.12500 ] }
+                    outputframe{ name "tile4.channel2" viewport [ 0 0.50000 1 0.12500 ] }
+                    outputframe{ name "tile5.channel2" viewport [ 0 0.62500 1 0.12500 ] }
+                    outputframe{ name "tile6.channel2" viewport [ 0 0.75000 1 0.12500 ] }
+                    outputframe{ name "tile7.channel2" viewport [ 0 0.87500 1 0.12500 ] }
+                }
+                inputframe{ name "tile2.channel0" }
+                inputframe{ name "tile2.channel1" }
+                inputframe{ name "tile2.channel3" }
+                inputframe{ name "tile2.channel4" }
+                inputframe{ name "tile2.channel5" }
+                inputframe{ name "tile2.channel6" }
+                inputframe{ name "tile2.channel7" }
+                outputframe{ name "frame.channel2" buffer [ COLOR ] viewport [ 0 0.25000 1 0.12500 ] }
+            }
+
+            compound
+            {
+                channel   "channel3"
+                compound
+                {
+                    range     [ 0.37500 0.50000 ]
+                    outputframe{ name "tile0.channel3" viewport [ 0 0.00000 1 0.12500 ] }
+                    outputframe{ name "tile1.channel3" viewport [ 0 0.12500 1 0.12500 ] }
+                    outputframe{ name "tile2.channel3" viewport [ 0 0.25000 1 0.12500 ] }
+                    outputframe{ name "tile4.channel3" viewport [ 0 0.50000 1 0.12500 ] }
+                    outputframe{ name "tile5.channel3" viewport [ 0 0.62500 1 0.12500 ] }
+                    outputframe{ name "tile6.channel3" viewport [ 0 0.75000 1 0.12500 ] }
+                    outputframe{ name "tile7.channel3" viewport [ 0 0.87500 1 0.12500 ] }
+                }
+                inputframe{ name "tile3.channel0" }
+                inputframe{ name "tile3.channel1" }
+                inputframe{ name "tile3.channel2" }
+                inputframe{ name "tile3.channel4" }
+                inputframe{ name "tile3.channel5" }
+                inputframe{ name "tile3.channel6" }
+                inputframe{ name "tile3.channel7" }
+                outputframe{ name "frame.channel3" buffer [ COLOR ] viewport [ 0 0.37500 1 0.12500 ] }
+            }
+
+            compound
+            {
+                channel   "channel4"
+                compound
+                {
+                    range     [ 0.50000 0.62500 ]
+                    outputframe{ name "tile0.channel4" viewport [ 0 0.00000 1 0.12500 ] }
+                    outputframe{ name "tile1.channel4" viewport [ 0 0.12500 1 0.12500 ] }
+                    outputframe{ name "tile2.channel4" viewport [ 0 0.25000 1 0.12500 ] }
+                    outputframe{ name "tile3.channel4" viewport [ 0 0.37500 1 0.12500 ] }
+                    outputframe{ name "tile5.channel4" viewport [ 0 0.62500 1 0.12500 ] }
+                    outputframe{ name "tile6.channel4" viewport [ 0 0.75000 1 0.12500 ] }
+                    outputframe{ name "tile7.channel4" viewport [ 0 0.87500 1 0.12500 ] }
+                }
+                inputframe{ name "tile4.channel0" }
+                inputframe{ name "tile4.channel1" }
+                inputframe{ name "tile4.channel2" }
+                inputframe{ name "tile4.channel3" }
+                inputframe{ name "tile4.channel5" }
+                inputframe{ name "tile4.channel6" }
+                inputframe{ name "tile4.channel7" }
+                outputframe{ name "frame.channel4" buffer [ COLOR ] viewport [ 0 0.50000 1 0.12500 ] }
+            }
+
+            compound
+            {
+                channel   "channel5"
+                compound
+                {
+                    range     [ 0.62500 0.75000 ]
+                    outputframe{ name "tile0.channel5" viewport [ 0 0.00000 1 0.12500 ] }
+                    outputframe{ name "tile1.channel5" viewport [ 0 0.12500 1 0.12500 ] }
+                    outputframe{ name "tile2.channel5" viewport [ 0 0.25000 1 0.12500 ] }
+                    outputframe{ name "tile3.channel5" viewport [ 0 0.37500 1 0.12500 ] }
+                    outputframe{ name "tile4.channel5" viewport [ 0 0.50000 1 0.12500 ] }
+                    outputframe{ name "tile6.channel5" viewport [ 0 0.75000 1 0.12500 ] }
+                    outputframe{ name "tile7.channel5" viewport [ 0 0.87500 1 0.12500 ] }
+                }
+                inputframe{ name "tile5.channel0" }
+                inputframe{ name "tile5.channel1" }
+                inputframe{ name "tile5.channel2" }
+                inputframe{ name "tile5.channel3" }
+                inputframe{ name "tile5.channel4" }
+                inputframe{ name "tile5.channel6" }
+                inputframe{ name "tile5.channel7" }
+                outputframe{ name "frame.channel5" buffer [ COLOR ] viewport [ 0 0.62500 1 0.12500 ] }
+            }
+
+            compound
+            {
+                channel   "channel6"
+                compound
+                {
+                    range     [ 0.75000 0.87500 ]
+                    outputframe{ name "tile0.channel6" viewport [ 0 0.00000 1 0.12500 ] }
+                    outputframe{ name "tile1.channel6" viewport [ 0 0.12500 1 0.12500 ] }
+                    outputframe{ name "tile2.channel6" viewport [ 0 0.25000 1 0.12500 ] }
+                    outputframe{ name "tile3.channel6" viewport [ 0 0.37500 1 0.12500 ] }
+                    outputframe{ name "tile4.channel6" viewport [ 0 0.50000 1 0.12500 ] }
+                    outputframe{ name "tile5.channel6" viewport [ 0 0.62500 1 0.12500 ] }
+                    outputframe{ name "tile7.channel6" viewport [ 0 0.87500 1 0.12500 ] }
+                }
+                inputframe{ name "tile6.channel0" }
+                inputframe{ name "tile6.channel1" }
+                inputframe{ name "tile6.channel2" }
+                inputframe{ name "tile6.channel3" }
+                inputframe{ name "tile6.channel4" }
+                inputframe{ name "tile6.channel5" }
+                inputframe{ name "tile6.channel7" }
+                outputframe{ name "frame.channel6" buffer [ COLOR ] viewport [ 0 0.75000 1 0.12500 ] }
+            }
+
+            compound
+            {
+                channel   "channel7"
+                compound
+                {
+                    range     [ 0.87500 1 ]
+                    outputframe{ name "tile0.channel7" viewport [ 0 0.00000 1 0.12500 ] }
+                    outputframe{ name "tile1.channel7" viewport [ 0 0.12500 1 0.12500 ] }
+                    outputframe{ name "tile2.channel7" viewport [ 0 0.25000 1 0.12500 ] }
+                    outputframe{ name "tile3.channel7" viewport [ 0 0.37500 1 0.12500 ] }
+                    outputframe{ name "tile4.channel7" viewport [ 0 0.50000 1 0.12500 ] }
+                    outputframe{ name "tile5.channel7" viewport [ 0 0.62500 1 0.12500 ] }
+                    outputframe{ name "tile6.channel7" viewport [ 0 0.75000 1 0.12500 ] }
+                }
+                inputframe{ name "tile7.channel0" }
+                inputframe{ name "tile7.channel1" }
+                inputframe{ name "tile7.channel2" }
+                inputframe{ name "tile7.channel3" }
+                inputframe{ name "tile7.channel4" }
+                inputframe{ name "tile7.channel5" }
+                inputframe{ name "tile7.channel6" }
+                outputframe{ name "frame.channel7" buffer [ COLOR ] viewport [ 0 0.87500 1 0.12500 ] }
+            }
+
+            inputframe{ name "frame.channel1" }
+            inputframe{ name "frame.channel2" }
+            inputframe{ name "frame.channel3" }
+            inputframe{ name "frame.channel4" }
+            inputframe{ name "frame.channel5" }
+            inputframe{ name "frame.channel6" }
+            inputframe{ name "frame.channel7" }
+        }
+    }
+}
