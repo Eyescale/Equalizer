@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -91,7 +90,8 @@ int main( int argc, char **argv )
 
     lock.set();
     eq::base::RefPtr< Server >        server   = new Server;
-    eq::net::ConnectionDescriptionPtr connDesc = new eq::net::ConnectionDescription;
+    eq::net::ConnectionDescriptionPtr connDesc = 
+        new eq::net::ConnectionDescription;
     
     connDesc->type       = eq::net::CONNECTIONTYPE_TCPIP;
     connDesc->TCPIP.port = 4242;
@@ -100,12 +100,16 @@ int main( int argc, char **argv )
     server->addConnectionDescription( connDesc );
     TEST( server->listen( ));
 
-    eq::net::NodePtr client = new eq::net::Node;
-    TEST( client->listen( ));
-
     eq::net::NodePtr serverProxy = new eq::net::Node;
-
     serverProxy->addConnectionDescription( connDesc );
+
+    connDesc = new eq::net::ConnectionDescription;
+    connDesc->type       = eq::net::CONNECTIONTYPE_TCPIP;
+    connDesc->setHostname( "localhost" );
+
+    eq::net::NodePtr client = new eq::net::Node;
+    client->addConnectionDescription( connDesc );
+    TEST( client->listen( ));
     TEST( client->connect( serverProxy ));
 
     DataPacket packet;
