@@ -2,9 +2,8 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -49,20 +48,6 @@ protected:
         }
 };
 
-class Session : public eq::net::Session
-{
-    eq::net::Object* instanciateObject( const uint32_t type, const void* data, 
-                                        const uint64_t dataSize )
-        {
-            if( type == eq::net::Object::TYPE_MANAGED_CUSTOM )
-            {
-                TEST( *(int*)data == 42 );
-                return new TestObject();
-            }
-            return eq::net::Session::instanciateObject( type, data, dataSize );
-        }
-};
-
 RefPtr<eq::net::Connection> connection;
 volatile uint32_t         testID = EQ_ID_INVALID;
 
@@ -82,7 +67,7 @@ protected:
             TEST( server->connect( nodeProxy, pipeConnection->getChildEnd( )));
             TEST( nodeProxy->isConnected( ));
                         
-            Session session;
+            eq::net::Session session;
             TEST( server->mapSession( server, &session, "foo" ));
 
             while( testID == EQ_ID_INVALID ); // spin for test object
@@ -116,7 +101,7 @@ int main( int argc, char **argv )
     TEST( node->connect( serverProxy, connection ));
     TEST( serverProxy->isConnected( ));
 
-    Session session;
+    eq::net::Session session;
     TEST( node->mapSession( serverProxy, &session, "foo" ));
     
     TestObject obj;

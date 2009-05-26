@@ -38,7 +38,7 @@ Application Structure
    commands received from the server. These callback functions typically
    receive an identifier defined by the application to provide contextual
    information. For example, the node's init method receives the identifier
-   of the InitData object, as defined by the application. It instanciates the
+   of the InitData object, as defined by the application. It instantiates the
    object and loads the polygonal model named by the InitData. A seperate
    document describes all task methods.
 
