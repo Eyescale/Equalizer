@@ -35,13 +35,12 @@ static StringVector fileSearch( const std::string directory,
 #ifdef WIN32_VC
 
     WIN32_FIND_DATA file;
-    
-    SetCurrentDirectory ( directory.c_str() ); 
 
+    const std::string search = directory + '\\' + pattern;
     HANDLE hSearch;
-    bool find;
+    bool find; 
     
-    hSearch=FindFirstFile( pattern.c_str(), &file );
+    hSearch=FindFirstFile( search.c_str(), &file );
     
     if(hSearch ==  INVALID_HANDLE_VALUE)
     {
@@ -99,4 +98,4 @@ static StringVector fileSearch( const std::string directory,
 }
 
 }
-#endif //EQBASE_EXECUTIONLISTENER_H
+#endif //EQBASE_FILESEARCH_H
