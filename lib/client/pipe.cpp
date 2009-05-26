@@ -373,7 +373,7 @@ void Pipe::_releaseViews()
     {
         changed = false;
         for( ViewHash::iterator i = _views.begin(); 
-             i != _views.end() && !changed; ++i )
+             i != _views.end(); ++i )
         {
             View* view = i->second;
             if( view->getVersion() + 20 > view->getHeadVersion( ))
@@ -389,6 +389,7 @@ void Pipe::_releaseViews()
             nodeFactory->releaseView( view );
 
             changed = true;
+			break;
         }
     }
 }
