@@ -2,6 +2,7 @@
 # of singlepipe and multipipe nodes.
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         latency 10

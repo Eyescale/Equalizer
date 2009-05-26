@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -139,6 +138,17 @@ namespace net
 
         /** Unlock all connections during disable. */
         void _unlockConnections();
+
+        /** Write a vector of trivial data. */
+        template< typename T > 
+        DataOStream& _writeFlatVector( const std::vector< T >& value )
+        {
+            const uint64_t nElems = value.size();
+            write( &nElems, sizeof( nElems ));
+            if( nElems > 0 )
+                write( &value.front(), nElems * sizeof( T ));
+            return *this;
+        }
     };
 
 }
@@ -167,6 +177,50 @@ namespace net
         out.convertToNetwork();
         write( &out, sizeof( out ));
         return *this;
+    }
+
+    // std::vector specialization/optimization for trivial data types
+    template<>
+    inline DataOStream& DataOStream::operator << ( const std::vector< uint8_t >&
+                                                   value )
+    {
+        return _writeFlatVector( value );
+    }
+    template<>
+    inline DataOStream& DataOStream::operator << ( const std::vector< uint32_t>&
+                                                   value )
+    {
+        return _writeFlatVector( value );
+    }
+    template<>
+    inline DataOStream& DataOStream::operator << ( const std::vector< int32_t >&
+                                                   value )
+    {
+        return _writeFlatVector( value );
+    }
+    template<>
+    inline DataOStream& DataOStream::operator << ( const std::vector< uint64_t>&
+                                                   value )
+    {
+        return _writeFlatVector( value );
+    }
+    template<>
+    inline DataOStream& DataOStream::operator << ( const std::vector< int64_t >&
+                                                   value )
+    {
+        return _writeFlatVector( value );
+    }
+    template<>
+    inline DataOStream& DataOStream::operator << ( const std::vector< float >& 
+                                                   value )
+    {
+        return _writeFlatVector( value );
+    }
+    template<>
+    inline DataOStream& DataOStream::operator << ( const std::vector< double >& 
+                                                   value )
+    {
+        return _writeFlatVector( value );
     }
 }
 }

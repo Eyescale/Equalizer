@@ -2,9 +2,8 @@
 /* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -96,6 +95,18 @@ namespace net
          * necessary, return false if no data is left. 
          */
         bool _checkBuffer();
+
+        /** Read a vector of trivial data. */
+        template< typename T >
+        DataIStream& _readFlatVector ( std::vector< T >& value )
+        {
+            uint64_t nElems = 0;
+            read( &nElems, sizeof( nElems ));
+            value.resize( nElems );
+            if( nElems > 0 )
+                read( &value.front(), nElems * sizeof( T ));            
+            return *this; 
+        }
     };
 }
 }
@@ -116,7 +127,8 @@ namespace net
             str.clear();
         else
         {
-            str.assign( static_cast< const char* >(getRemainingBuffer( )), nElems );
+            str.assign( static_cast< const char* >( getRemainingBuffer( )), 
+                        nElems );
             advanceBuffer( nElems );
         }
         return *this; 
@@ -127,6 +139,43 @@ namespace net
         read( &nodeID, sizeof( nodeID ));
         nodeID.convertToHost();
         return *this;
+    }
+
+    // std::vector specialization/optimization for trivial data types
+    template<>
+    inline DataIStream& DataIStream::operator >> (std::vector< uint8_t >& value)
+    {
+        return _readFlatVector( value );
+    }
+    template<>
+    inline DataIStream& DataIStream::operator >> (std::vector< uint32_t>& value)
+    {
+        return _readFlatVector( value );
+    }
+    template<>
+    inline DataIStream& DataIStream::operator >> (std::vector< int32_t >& value)
+    {
+        return _readFlatVector( value );
+    }
+    template<>
+    inline DataIStream& DataIStream::operator >> (std::vector< uint64_t>& value)
+    {
+        return _readFlatVector( value );
+    }
+    template<>
+    inline DataIStream& DataIStream::operator >> (std::vector< int64_t >& value)
+    {
+        return _readFlatVector( value );
+    }
+    template<>
+    inline DataIStream& DataIStream::operator >> ( std::vector< float >& value )
+    {
+        return _readFlatVector( value );
+    }
+    template<>
+    inline DataIStream& DataIStream::operator >> ( std::vector< double >& value)
+    {
+        return _readFlatVector( value );
     }
 }
 }
