@@ -269,7 +269,6 @@ bool Node::listen()
 
     EQVERB << typeid(*this).name() << " starting command and receiver thread "
            << endl;
-    _commandThread->start();
     _receiverThread->start();
 
     EQINFO << this << " listening." << endl;
@@ -285,8 +284,6 @@ bool Node::stopListening()
     send( packet );
 
     EQCHECK( _receiverThread->join( ));
-    EQCHECK( _commandThread->join( ));
-
     _cleanup();
 
     EQINFO << _connectionSet.size() << " connections open after stopListening"
@@ -670,6 +667,7 @@ void Node::releaseSendToken( NodePtr node )
 void* Node::_runReceiverThread()
 {
     EQINFO << "Entered receiver thread of " << typeid( *this ).name() << endl;
+    _commandThread->start();
 
     int nErrors = 0;
     while( _state == STATE_LISTENING )
@@ -741,6 +739,8 @@ void* Node::_runReceiverThread()
         Command* command = *i;
         command->release();
     }
+
+    EQCHECK( _commandThread->join( ));
     _pendingCommands.clear();
     _commandCache.flush();
 
