@@ -1,0 +1,5 @@
+
+This directory contains patches for some experimental features. In the
+trunk, these are changes which are untested and likely to introduce new
+bugs. In a release branch, these are features of bug fixes back-ported
+after the initial release.
