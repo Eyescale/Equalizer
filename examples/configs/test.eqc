@@ -1,61 +1,121 @@
-# single window, two-to-one sort-last demo configuration
+global
+{
+    EQ_WINDOW_IATTR_HINT_DRAWABLE window
+}
 server
 {
     config
     {
+        latency 2
         appNode
         {
             pipe
             {
+                attributes { hint_thread  OFF }
                 window
                 {
-                    viewport [ .25 .25 .5 .5 ]
-                    attributes{ planes_stencil ON }
-                    
-                    channel
-                    {
-                        drawable [ FBO_COLOR FBO_DEPTH ]
-                        name "buffer"
-                    }
-                    channel
-                    {
-                        drawable [ FBO_COLOR FBO_DEPTH ]
-                        name "target"
-                    }
-
-                    channel
-                    {
-                        name "copy"
-                    }
+                    viewport [ 400 400 400 400 ]
+                    channel { name "dgen" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 0 0 400 400 ]
+                    channel { name "channel2" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    attributes { hint_drawable pbuffer }
+                    viewport [ 0 0 400 400 ]
+                    channel { name "helper2" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 400 0 400 400 ]
+                    channel { name "channel3" }
                 }
             }
         }
-        compound
+        layout
         {
-            channel "copy"
-            buffer  [ COLOR DEPTH ]
+            name "appNode"
+            view
+            {
+                viewport [ 0 0 1 1 ]
+                wall
+                {
+                    bottom_left  [ -.32 -.20 -.75 ]
+                    bottom_right [  .32 -.20 -.75 ]
+                    top_left     [ -.32  .20 -.75 ]
+                }
+            }
+        }
+        layout
+        {
+            name "wall"
+            view {}
+        }
 
+        canvas
+        {
+            layout "appNode"
             wall
             {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
+                bottom_left  [ -.64 -.20 -.75 ]
+                bottom_right [  .64 -.20 -.75 ]
+                top_left     [ -.64  .20 -.75 ]
             }
-            
-            compound
-            { 
-                channel "buffer"
-                range   [ .5 1 ]
-                outputframe { name "frame.buffer" }
+
+            segment
+            {
+                channel "dgen"
+                viewport [ 0 0 1 1 ]
             }
+        }
+        canvas
+        {
+            layout "wall"
+            wall
+            {
+                bottom_left  [-1.  -.5 -2 ]
+                bottom_right [ 1.  -.5 -2 ]
+                top_left     [-1.   .5 -2 ]
+            }
+
+            segment
+            {
+                channel "channel2"
+                viewport [ 0 0 .5 1 ]
+
+            }
+            segment
+            {
+                channel "channel3"
+                viewport [ .5 0 .5 1 ]
+            }
+        }
+        compound
+        { 
+            channel ( canvas 1 layout "wall" segment 0 view 0 )
             compound
             {
-                channel "target"
-                range   [ 0 .5 ]
-                inputframe { name "frame.buffer" }
-                outputframe { name "frame.target" buffer [ COLOR ] }
+                viewport [ 0.0 0.0 0.5 1.0 ]
             }
-            inputframe { name "frame.target" }
+            compound
+            { 
+                channel "helper2"
+                viewport [ 0.5 0.0 0.5 1.0 ] 
+                outputframe{} 
+            }
+            inputframe{ name "frame.helper2" }
         }
-    }
+    }    
 }

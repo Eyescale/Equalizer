@@ -52,7 +52,10 @@ void Viewport::applyView( const Viewport& segmentVP, const Viewport& viewVP,
                        contribution.h ); 
     contribution.h += yDelta;
     
-    apply( contribution );
+    x = contribution.x + x * contribution.w;
+    y = contribution.y + y * contribution.h;
+    w *= contribution.w;
+    h *= contribution.h;
 }
 
 
