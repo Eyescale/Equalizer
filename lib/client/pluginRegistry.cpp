@@ -62,11 +62,11 @@ void PluginRegistry::init()
             // build path + name of library
             const std::string libraryName = directory + DIRSEP + *j;
            
-            Compressor* compressor = new Compressor();       
-            _compressors.push_back( compressor );
-            compressor->init( libraryName );
-            
-
+            Compressor* compressor = new Compressor(); 
+            if( compressor->init( libraryName ))
+                _compressors.push_back( compressor );
+            else
+                delete compressor;
         }
     }
 }
