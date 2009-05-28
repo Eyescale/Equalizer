@@ -16,7 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/** @file compressor.h
+/** 
+ * @file compressor.h
+ * 
  * The API to create runtime-loadable compression plugins.
  *
  * The functions in this header file are to be implemented in a dynamic shared

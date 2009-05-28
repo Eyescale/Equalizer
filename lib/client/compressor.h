@@ -1,4 +1,6 @@
-/* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+
+/*
+ * Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -21,6 +23,11 @@
 #include <eq/base/dso.h>
 #include <eq/plugin/compressor.h>
 
+/**
+ * @file client/compressor.h
+ * 
+ * Helper class for storing the function pointers of one compressor plugin.
+ */
 namespace eq
 {
     typedef void*  ( *NewCompressor_t )     ( const unsigned );
