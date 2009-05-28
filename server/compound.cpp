@@ -197,6 +197,7 @@ Compound::InheritData::InheritData()
         , tasks( eq::TASK_DEFAULT )
         , period( EQ_UNDEFINED_UINT32 )
         , phase( EQ_UNDEFINED_UINT32 )
+        , taskID( 0 )
         , maxFPS( numeric_limits< float >::max( ))
         , active( true )
 {

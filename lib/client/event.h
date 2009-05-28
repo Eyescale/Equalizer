@@ -149,6 +149,7 @@ namespace eq
 
         Type     type;
         uint32_t frameNumber;
+        uint32_t task;
         union
         {
             int64_t  startTime;

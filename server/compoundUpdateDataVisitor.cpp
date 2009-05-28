@@ -33,20 +33,16 @@ namespace server
 CompoundUpdateDataVisitor::CompoundUpdateDataVisitor(
     const uint32_t frameNumber )
         : _frameNumber( frameNumber )
+        , _taskID( 0 )
 {}
 
 VisitorResult CompoundUpdateDataVisitor::visit(
     Compound* compound )
 {
     compound->fireUpdatePre( _frameNumber );
-
-#if 0
-    View& view = compound->getView();
-    if( view.getID() != EQ_ID_INVALID )
-        view.sync();
-#endif
-
     compound->updateInheritData( _frameNumber );
+    compound->setInheritTaskID( _taskID++ );
+
     _updateDrawFinish( compound );
     return TRAVERSE_CONTINUE;    
 }

@@ -45,7 +45,7 @@ void ViewEqualizer::attach( Compound* compound )
 }
 
 void ViewEqualizer::notifyUpdatePre( Compound* compound, 
-                                        const uint32_t frameNumber )
+                                     const uint32_t frameNumber )
 {
 }
 

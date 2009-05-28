@@ -316,7 +316,10 @@ namespace server
         uint32_t getInheritTasks()           const { return _inherit.tasks; }
         uint32_t getInheritEyes()            const { return _inherit.eyes; }
         const Channel* getInheritChannel()   const { return _inherit.channel; }
-
+        
+        void setInheritTaskID( const uint32_t id ) { _inherit.taskID = id; }
+        uint32_t getInheritTaskID()          const { return _inherit.taskID; }
+        
         /** @return true if the task is set, false if not. */
         bool testInheritTask( const eq::Task task ) const
             { return (_inherit.tasks & task); }
@@ -506,6 +509,7 @@ namespace server
             uint32_t          tasks;
             uint32_t          period;
             uint32_t          phase;
+            uint32_t          taskID;
             int32_t           iAttributes[IATTR_ALL];
             float             maxFPS;
             bool              active;

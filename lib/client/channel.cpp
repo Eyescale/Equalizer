@@ -560,6 +560,11 @@ const vmml::Vector4i& Channel::getOverdraw() const
     return _currentContext->overdraw;
 }
 
+uint32_t Channel::getTaskID() const
+{
+    return _currentContext->taskID;
+}
+
 FrameBufferObject* Channel::getFrameBufferObject()
 {
     return _fbo;
