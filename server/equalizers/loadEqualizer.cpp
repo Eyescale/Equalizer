@@ -79,7 +79,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
             return;
 
         _tree = _buildTree( children );
-        EQINFO << "LB tree: " << _tree;
+        EQLOG( LOG_LB ) << "LB tree: " << _tree;
     }
     _checkHistory();
 
@@ -602,8 +602,10 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                                   currentPos << " > " << end );
                 }
             }
-            EQASSERTINFO( timeLeft <= .001f, timeLeft );
+
             EQLOG( LOG_LB ) << "Should split at X " << splitPos << endl;
+            // There might be more time left due to MIN_PIXEL rounding by parent
+            // EQASSERTINFO( timeLeft <= .001f, timeLeft );
 
             // Ensure minimum size
             const Compound* root = getCompound();
@@ -748,9 +750,10 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                                   currentPos << " > " << end );
                 }
             }
-            EQASSERTINFO( timeLeft <= .001f, timeLeft );
 
             EQLOG( LOG_LB ) << "Should split at Y " << splitPos << endl;
+            // There might be more time left due to MIN_PIXEL rounding by parent
+            // EQASSERTINFO( timeLeft <= .001f, timeLeft );
 
             const Compound* root = getCompound();
             if( node->left->usage == 0.f )
@@ -870,7 +873,8 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                     EQASSERTINFO( currentPos<=end, currentPos << " > " << end );
                 }
             }
-            EQASSERTINFO( timeLeft <= .001f, timeLeft );
+            // There might be more time left due to MIN_PIXEL rounding by parent
+            // EQASSERTINFO( timeLeft <= .001f, timeLeft );
 
             if( node->left->usage == 0.f )
                 splitPos = range.start;

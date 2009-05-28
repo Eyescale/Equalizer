@@ -121,9 +121,9 @@ server
                 load_equalizer { mode 2D }
                 swapbarrier{}
 
-                compound { channel "left-src" }
+                compound {}
                 compound { channel "source1" outputframe{ name "ls1" }}
-#                compound { channel "source2" outputframe{ name "ls2"  }}
+                compound { channel "source2" outputframe{ name "ls2"  }}
 #                compound { channel "source3" outputframe{ name "ls3"  }}
 #                compound { channel "source4" outputframe{ name "ls4"  }}
 #                compound { channel "source5" outputframe{ name "ls5"  }}
@@ -143,9 +143,9 @@ server
                 load_equalizer { mode 2D }
                 swapbarrier{}
 
-                compound { channel "right-src" }
+                compound {}
                 compound { channel "source1" outputframe{ name "rs1" }}
-#                compound { channel "source2" outputframe{ name "rs2" }}
+                compound { channel "source2" outputframe{ name "rs2" }}
 #                compound { channel "source3" outputframe{ name "rs3" }}
 #                compound { channel "source4" outputframe{ name "rs4" }}
 #                compound { channel "source5" outputframe{ name "rs5" }}

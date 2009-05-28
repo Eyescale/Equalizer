@@ -283,6 +283,10 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
                 compound->setUsage( leftOver );
                 load.missing = 1;
+                EQLOG( LOG_LB ) << "  Use " 
+                                << static_cast< unsigned >( leftOver*100.f+.5f )
+                                << "% of " << compound->getPipe()->getName()
+                                << std::endl;
             }
         }
 
