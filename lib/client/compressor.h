@@ -50,7 +50,7 @@ namespace eq
                 void** const, uint64_t* const );
                 
     typedef void   ( *DecompressFunc_t )
-              ( const unsigned, void* const, const void** const, 
+              ( void* const, const void** const, 
                 const uint64_t* const, const uint32_t, void* const, 
                 uint64_t* const, const uint64_t );
                 
@@ -106,8 +106,8 @@ namespace eq
       bool implementsType( const uint32_t name );
 
   private:
-        CompressorInfoVector _infos;
-        base::DSO _dso;
+      CompressorInfoVector _infos;
+      base::DSO _dso;
    
   };
 
