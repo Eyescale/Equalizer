@@ -418,7 +418,7 @@ void ViewEqualizer::Listener::clear()
     _taskIDs.clear();
 }
 
-ViewEqualizer::Listener::Load ViewEqualizer::Listener::Load::NONE( 0, 0, 1.0f );
+ViewEqualizer::Listener::Load ViewEqualizer::Listener::Load::NONE( 0, 0, 1 );
 ViewEqualizer::Listener::Load::Load( const uint32_t frame_, 
                                      const uint32_t missing_,
                                      const int64_t time_ )
