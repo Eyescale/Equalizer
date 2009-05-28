@@ -87,7 +87,7 @@ namespace server
         struct Node
         {
             Node() : left(0), right(0), compound(0), splitMode( MODE_VERTICAL )
-                   , time( 0.0f ) {}
+                   , time( 0.0f ), usage( 0.0f ) {}
             ~Node() { delete left; delete right; }
 
             Node*     left;      //<! Left child (only on non-leafs)
@@ -95,6 +95,7 @@ namespace server
             Compound* compound;  //<! The corresponding child (only on leafs)
             LoadEqualizer::Mode splitMode; //<! What to adapt
             float     time;      //<! target render time for next frame
+            float     usage;     //<! total usage of subtree
         };
         friend std::ostream& operator << ( std::ostream& os, const Node* node );
         typedef std::vector< Node* > LBNodeVector;
@@ -103,13 +104,13 @@ namespace server
 
         struct Data
         {
-            Data() : channel( 0 ), taskID( 0 ), time( -1.f ) {}
+            Data() : channel( 0 ), taskID( 0 ), time( -1 ) {}
 
             Channel*     channel;
             uint32_t     taskID;
             eq::Viewport vp;
             eq::Range    range;
-            float        time;
+            int64_t      time;
             float        load;          //<! time/vp.area
         };
 
@@ -132,6 +133,8 @@ namespace server
         void _computeSplit();
         float _assignTargetTimes( Node* node, const float totalTime, 
                                   const float resourceTime );
+        void _assignLeftoverTime( Node* node, const float time );
+        void _removeEmpty( LBDataVector& items );
         void _computeSplit( Node* node, LBDataVector* sortedData,
                             const eq::Viewport& vp, const eq::Range& range );
 

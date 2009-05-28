@@ -3,11 +3,13 @@ server
 {
     config
     {
+        latency 0
         # Render Resources
         appNode
         {
             pipe
             {
+                name "GPU 1"
                 window
                 {
                     name "left"
@@ -20,6 +22,7 @@ server
             }
             pipe
             {
+                name "GPU 2"
                 window
                 {
                     name "right"

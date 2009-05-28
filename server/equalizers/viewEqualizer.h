@@ -79,14 +79,12 @@ namespace server
                 static Load NONE;
 
                 Load( const uint32_t frame_, const uint32_t missing_,
-                      const float time_, const float nResources_ );
+                      const int64_t time_ );
                 bool operator == ( const Load& rhs ) const;
 
                 uint32_t frame;
                 uint32_t missing;
-                float time;
-                float nResources;
-
+                int64_t time;
             };
 
             /** @return the frame number of the youngest complete load. */
@@ -94,8 +92,7 @@ namespace server
             /** Delete older loads and return the load belonging to the frame.*/
             const Load& useLoad( const uint32_t frameNumber );
             /** Insert a new, empty load for the given frame. */
-            void newLoad( const uint32_t frameNumber, const uint32_t nChannels,
-                          const float nResources );
+            void newLoad( const uint32_t frameNumber, const uint32_t nChannels);
 
         private:
             typedef base::PtrHash< Channel*, uint32_t > TaskIDHash;
@@ -108,15 +105,24 @@ namespace server
         };
 
         typedef std::vector< Listener > ListenerVector;
+        /** Per-child listener gathering load data. */
         ListenerVector _listeners;
+
+        /** The total number of available resources. */
+        size_t _nPipes;
 
         /** Update channel load subscription. */
         void _updateListeners();
+        /** Update resource count. */
+        void _updateResources();
         /** Assign resources to children. */
         void _update( const uint32_t frameNumber );
         /** Find the frame number to use for update. */
         uint32_t _findInputFrameNumber() const;
     };
+
+    std::ostream& operator << ( std::ostream& os, 
+                                const ViewEqualizer::Listener::Load& load );
 }
 }
 

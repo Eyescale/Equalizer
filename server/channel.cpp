@@ -541,6 +541,8 @@ void Channel::send( net::ObjectPacket& packet, const std::string& string )
 void Channel::addListener( ChannelListener* listener )
 {
     CHECK_THREAD( _serverThread );
+    EQASSERT( std::find( _listeners.begin(), _listeners.end(), listener ) ==
+              _listeners.end( ));
 
     _listeners.push_back( listener );
 }

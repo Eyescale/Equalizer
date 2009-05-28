@@ -19,7 +19,11 @@
 
 #include "../compound.h"
 #include "../compoundVisitor.h"
+#include "../constCompoundVisitor.h"
 #include "../log.h"
+#include "../pipe.h"
+
+#define MIN_USAGE .1f // 10%
 
 namespace eq
 {
@@ -31,12 +35,14 @@ typedef std::vector< ViewEqualizer::Listener::Load > LoadVector;
 }
 
 ViewEqualizer::ViewEqualizer()
+        : _nPipes( 0 )
 {
     EQINFO << "New view equalizer @" << (void*)this << std::endl;
 }
 
 ViewEqualizer::ViewEqualizer( const ViewEqualizer& from )
         : Equalizer( from )
+        , _nPipes( 0 )
 {}
 
 ViewEqualizer::~ViewEqualizer()
@@ -71,6 +77,7 @@ void ViewEqualizer::notifyUpdatePre( Compound* compound,
     EQASSERT( compound == getCompound( ));
 
     _updateListeners();
+    _updateResources();
     _update( frameNumber );
 }
 
@@ -80,8 +87,8 @@ class PreviousAssigner : public CompoundVisitor
 {
 public:
     PreviousAssigner( float& nResources,
-                      base::PtrHash< Channel*, float >& channelUsage )
-            : _nResources( nResources ), _channelUsage( channelUsage )
+                      base::PtrHash< Pipe*, float >& pipeUsage )
+            : _nResources( nResources ), _pipeUsage( pipeUsage )
             , _numChannels( 0 ) {}
     
     virtual VisitorResult visitLeaf( Compound* compound )
@@ -89,27 +96,33 @@ public:
             if( compound->getUsage() == 0.0f ) // not previously used
                 return TRAVERSE_CONTINUE;
 
-            if( _nResources == 0.0f ) // done
-                compound->setUsage( 0.0f );
-
-            Channel* channel = compound->getChannel();
-            EQASSERT( channel );
-            
-            if( _channelUsage.find( channel ) == _channelUsage.end( ))
-                _channelUsage[ channel ] = 0.0f;
-            
-            float& channelUsage = _channelUsage[ channel ];
-            if( channelUsage > 0.0f ) // channel already partly used
+            compound->setUsage( 0.0f ); // reset to unused
+            if( _nResources <= MIN_USAGE ) // done
                 return TRAVERSE_CONTINUE;
 
-            const float use = EQ_MIN( 1.0f, _nResources );
-            EQLOG( LOG_LB ) << "Use " << static_cast< unsigned >( use * 100.f )
-                            << "% of " << channel->getName() << std::endl;
-            channelUsage = use;
+            Pipe* pipe = compound->getPipe();
+            EQASSERT( pipe );
+            
+            if( _pipeUsage.find( pipe ) == _pipeUsage.end( ))
+                _pipeUsage[ pipe ] = 0.0f;
+            
+            float& pipeUsage = _pipeUsage[ pipe ];
+            if( pipeUsage > 0.0f ) // pipe already partly used
+                return TRAVERSE_CONTINUE;
+
+            float use = EQ_MIN( 1.0f, _nResources );
+            if( use + MIN_USAGE > 1.0f )
+                use = 1.0f;
+
+            pipeUsage = use;
             compound->setUsage( use );
             _nResources -= use;
             ++_numChannels;
 
+            EQLOG( LOG_LB ) << "  Use " 
+                            << static_cast< unsigned >( use * 100.f + .5f )
+                            << "% of " << pipe->getName() << ", "
+                            << _nResources * 100.f << "% left" << std::endl;
             return TRAVERSE_CONTINUE;
         }
     
@@ -117,7 +130,7 @@ public:
 
 private:
     float& _nResources;
-    base::PtrHash< Channel*, float >& _channelUsage;
+    base::PtrHash< Pipe*, float >& _pipeUsage;
     uint32_t _numChannels;
 };
 
@@ -125,63 +138,73 @@ class NewAssigner : public CompoundVisitor
 {
 public:
     NewAssigner( float& nResources, 
-                 base::PtrHash< Channel*, float >& channelUsage )
-            : _nResources( nResources ), _channelUsage( channelUsage )
-            , _numChannels( 0 ) {}
+                 base::PtrHash< Pipe*, float >& pipeUsage )
+            : _nResources( nResources ), _pipeUsage( pipeUsage )
+            , _numChannels( 0 )
+            , _fallback( 0 ) {}
     
     virtual VisitorResult visitLeaf( Compound* compound )
         {
+            if( !_fallback )
+                _fallback = compound;
+
             if( compound->getUsage() != 0.0f ) // already used
                 return TRAVERSE_CONTINUE;
 
-            Channel* channel = compound->getChannel();
-            EQASSERT( channel );
+            Pipe* pipe = compound->getPipe();
+            EQASSERT( pipe );
             
-            if( _channelUsage.find( channel ) == _channelUsage.end( ))
-                _channelUsage[ channel ] = 0.0f;
+            if( _pipeUsage.find( pipe ) == _pipeUsage.end( ))
+                _pipeUsage[ pipe ] = 0.0f;
             
-            float& channelUsage = _channelUsage[ channel ];
-
-            if( channelUsage == 1.0f )
+            float& pipeUsage = _pipeUsage[ pipe ];
+            if( pipeUsage >= 1.0f )
                 return TRAVERSE_CONTINUE;
 
-            if( channelUsage > 0.0f ) // channel already partly used
+            if( pipeUsage > 0.0f ) // pipe already partly used
             {
-                EQASSERT( channelUsage < 1.0f );
+                EQASSERT( pipeUsage < 1.0f );
 
-                const float use = 1.0f - channelUsage;
+                float use = 1.0f - pipeUsage;
+                use = EQ_MAX( use, MIN_USAGE );
+
                 compound->setUsage( use );
                 _nResources -= use;
-                channelUsage = 1.0f; // Don't use more than two times
-                EQLOG( LOG_LB ) << "Use " 
-                                << static_cast< unsigned >( use * 100.f )
-                                << "% of " << channel->getName() << std::endl;
+                pipeUsage = 1.0f; // Don't use more than twice
+                EQLOG( LOG_LB ) << "  Use " 
+                                << static_cast< unsigned >( use * 100.f + .5f )
+                                << "% of " << pipe->getName() << ", "
+                                << _nResources * 100.f << "% left" << std::endl;
             }
             else
             {
-                EQASSERT( channelUsage == 0.0f )
+                EQASSERT( pipeUsage == 0.0f );
 
-                const float use = EQ_MIN( 1.0f, _nResources );
+                float use = EQ_MIN( 1.0f, _nResources );
+
                 compound->setUsage( use );
                 _nResources -= use;
-                channelUsage = use;
-                EQLOG( LOG_LB ) << "Use " 
-                                << static_cast< unsigned >( use * 100.f )
-                                << "% of " << channel->getName() << std::endl;
+                pipeUsage = use;
+                EQLOG( LOG_LB ) << "  Use " 
+                                << static_cast< unsigned >( use * 100.f + .5f )
+                                << "% of " << pipe->getName() << ", "
+                                << _nResources * 100.f << "% left" << std::endl;
             }
             ++_numChannels;
 
-            if( _nResources <= 0.f )
+            if( _nResources <= MIN_USAGE )
                 return TRAVERSE_TERMINATE; // done
             return TRAVERSE_CONTINUE;
         }
     
     uint32_t getNumChannels() const { return _numChannels; }
+    Compound* getFallback() { return _fallback; }
 
 private:
     float& _nResources;
-    base::PtrHash< Channel*, float >& _channelUsage;
+    base::PtrHash< Pipe*, float >& _pipeUsage;
     uint32_t _numChannels;
+    Compound* _fallback;
 };
 
 }
@@ -189,11 +212,11 @@ private:
 void ViewEqualizer::_update( const uint32_t frameNumber )
 {
     const uint32_t frame = _findInputFrameNumber();
+    EQLOG( LOG_LB ) << "Using data from frame " << frame << std::endl;
 
     //----- Gather data for frame
     LoadVector loads;
-    float totalTime( 0.0f );
-    float nResources( 0.0f );
+    int64_t totalTime( 0 );
 
     for( ListenerVector::iterator i = _listeners.begin();
          i != _listeners.end(); ++i )
@@ -202,35 +225,33 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         const Listener::Load& load = listener.useLoad( frame );
 
         totalTime += load.time;
-        nResources += load.nResources;
         loads.push_back( load );
     }
 
-    if( nResources == 0.0f ) // no data
-    {
-        EQASSERT( totalTime == 0.0f );
-        totalTime = 1.0f;
-        nResources = 1.0f;
-    }
+    if( totalTime == 0 ) // no data
+        totalTime = 1;
 
-    const float resourceTime( totalTime / nResources );
+    const float resourceTime( static_cast< float >( totalTime ) / 
+                              static_cast< float >( _nPipes ));
+    EQLOG( LOG_LB ) << resourceTime << "ms/resource" << std::endl;
 
     //----- Assign new resource usage
     const CompoundVector& children = getCompound()->getChildren();
     const size_t size( _listeners.size( ));
     EQASSERT( children.size() == size );
-    base::PtrHash< Channel*, float > channelUsage;
+    base::PtrHash< Pipe*, float > pipeUsage;
     float* leftOvers = static_cast< float* >( alloca( size * sizeof( float )));
 
     // use previous' frames resources
     for( size_t i = 0; i < size; ++i )
     {
-        EQLOG( LOG_LB ) << "----- balance step 1 for view " << i << std::endl;
         Listener::Load& load = loads[ i ];
         EQASSERT( load.missing == 0 );
 
         float segmentResources( load.time / resourceTime );
-        PreviousAssigner assigner( segmentResources, channelUsage );
+        EQLOG( LOG_LB ) << "----- balance step 1 for view " << i << " using "
+                        << segmentResources << " resources" << std::endl;
+        PreviousAssigner assigner( segmentResources, pipeUsage );
         Compound* child = children[ i ];
         
         child->accept( assigner );
@@ -242,21 +263,31 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     for( size_t i = 0; i < size; ++i )
     {
         float& leftOver = leftOvers[i];
-        if( leftOver <= 0.f )
-            continue;
-
-        EQLOG( LOG_LB ) << "----- balance step 2 for view " << i << std::endl;
-        NewAssigner assigner( leftOver, channelUsage );
-        Compound* child = children[ i ];
-        
-        child->accept( assigner );
-
         Listener::Load& load = loads[ i ];
-        load.missing += assigner.getNumChannels();
+
+        if( leftOver > MIN_USAGE || load.missing == 0 )
+        {
+            EQLOG( LOG_LB ) << "----- balance step 2 for view " << i <<" using "
+                            << leftOver << " resources" << std::endl;
+            NewAssigner assigner( leftOver, pipeUsage );
+            Compound* child = children[ i ];
         
+            child->accept( assigner );
+            load.missing += assigner.getNumChannels();
+
+            if( load.missing == 0 ) // assign at least one resource
+            {
+                Compound* compound = assigner.getFallback();
+                EQASSERT( compound );
+                EQASSERT( leftOver > 0 );
+
+                compound->setUsage( leftOver );
+                load.missing = 1;
+            }
+        }
+
         Listener& listener = _listeners[ i ];
-        listener.newLoad( frameNumber, load.missing,
-                          load.time / resourceTime - leftOver );
+        listener.newLoad( frameNumber, load.missing );
     }
 }
 
@@ -294,8 +325,39 @@ void ViewEqualizer::_updateListeners()
     for( size_t i = 0; i < nChildren; ++i )
     {
         Listener& listener = _listeners[ i ];        
-        listener.update( compound );
+        listener.update( children[i] );
     }
+}
+
+namespace
+{
+class PipeCounter : public ConstCompoundVisitor
+{
+public:
+    virtual VisitorResult visitLeaf( const Compound* compound )
+        {
+            const Pipe* pipe = compound->getPipe();
+            EQASSERT( pipe );
+            _pipes.insert( pipe );
+            return TRAVERSE_CONTINUE; 
+        }
+
+    size_t getNPipes() const { return _pipes.size(); }
+
+private:
+    std::set< const Pipe* > _pipes;
+};
+}
+
+void ViewEqualizer::_updateResources()
+{
+    if( _nPipes > 0 )
+        return;
+
+    PipeCounter counter;
+    getCompound()->accept( counter );
+    _nPipes = counter.getNPipes();
+    EQASSERT( _nPipes > 0 );
 }
 
 //---------------------------------------------------------------------------
@@ -320,6 +382,9 @@ public:
             {
                 channel->addListener( _listener );
                 _taskIDs[ channel ] = compound->getTaskID();
+                EQLOG( LOG_LB ) << "Subscribed " << (void*)_listener << " to "
+                                << channel->getName() << " using task " 
+                                << _taskIDs[ channel ] << std::endl;
             }
             else
                 EQASSERTINFO( 0, 
@@ -334,7 +399,6 @@ private:
     ChannelListener* const _listener;
     base::PtrHash< Channel*, uint32_t >& _taskIDs;
 };
-
 }
 
 void ViewEqualizer::Listener::update( Compound* compound )
@@ -354,20 +418,15 @@ void ViewEqualizer::Listener::clear()
     _taskIDs.clear();
 }
 
-ViewEqualizer::Listener::Load ViewEqualizer::Listener::Load::NONE( 0, 0, 
-                                                                   1.f, 1 );
+ViewEqualizer::Listener::Load ViewEqualizer::Listener::Load::NONE( 0, 0, 1.0f );
 ViewEqualizer::Listener::Load::Load( const uint32_t frame_, 
                                      const uint32_t missing_,
-                                     const float time_, 
-                                     const float nResources_ )
-        : frame( frame_ ), missing( missing ), time( time_ )
-        , nResources( nResources_ ) 
-{}
+                                     const int64_t time_ )
+        : frame( frame_ ), missing( missing_ ), time( time_ ) {}
 
 bool ViewEqualizer::Listener::Load::operator == ( const Load& rhs ) const
 {
-    return ( frame == rhs.frame && missing == rhs.missing &&
-             time == rhs.time && nResources == rhs.nResources );
+    return ( frame == rhs.frame && missing == rhs.missing && time == rhs.time );
 }
 
 void ViewEqualizer::Listener::notifyLoadData( Channel* channel, 
@@ -383,10 +442,9 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     const uint32_t taskID = _taskIDs[ channel ];
     
     // gather relevant load data
-    float startTime = std::numeric_limits< float >::max();
-    float endTime   = 0.0f;
+    int64_t startTime = std::numeric_limits< int64_t >::max();
+    int64_t endTime   = 0;
     bool  loadSet   = false;
-    float transmitTime = 0.0f;
     
     for( uint32_t i = 0; i < nStatistics && !loadSet; ++i )
     {
@@ -396,13 +454,6 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
         
         switch( data.type )
         {
-            case eq::Statistic::CHANNEL_TRANSMIT:
-#ifdef EQ_ASYNC_TRANSMIT
-                transmitTime = data.endTime - data.startTime;
-                break;
-#else
-                // no break;
-#endif
             case eq::Statistic::CHANNEL_CLEAR:
             case eq::Statistic::CHANNEL_DRAW:
             case eq::Statistic::CHANNEL_READBACK:
@@ -419,17 +470,18 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
                 break;
         }
     }
-    
-    float time( 0.f );
-    if( startTime != std::numeric_limits< float >::max( ))
-    {
-        time = endTime - startTime;
-        time = EQ_MAX( time, transmitTime );
-    }
 
-    EQASSERT( load.missing > 0 );
+    if( startTime == std::numeric_limits< int64_t >::max( ))
+        return;
+    
+    EQASSERTINFO( load.missing > 0, load );
+
+    const int64_t time = endTime - startTime;
     load.time += time;
     --load.missing;
+
+    EQLOG( LOG_LB ) << "Task " << taskID << ", added time " << time << " to "
+                    << load << std::endl;
 }
 
 uint32_t ViewEqualizer::Listener::findYoungestLoad() const
@@ -448,10 +500,13 @@ ViewEqualizer::Listener::useLoad( const uint32_t frame )
 {
     for( LoadDeque::iterator i = _loads.begin(); i != _loads.end(); ++i )
     {
-        const Load& load = *i;
+        Load& load = *i;
         if( load.frame == frame )
         {
             EQASSERT( load.missing == 0 );
+            if( load.time == 0 )
+                load.time = 1;
+
             ++i;
             _loads.erase( i, _loads.end( ));
             return load;
@@ -475,16 +530,23 @@ ViewEqualizer::Listener::_getLoad( const uint32_t frame )
 }
 
 void ViewEqualizer::Listener::newLoad( const uint32_t frameNumber, 
-                                       const uint32_t nChannels,
-                                       const float nResources )
+                                       const uint32_t nChannels )
 {
-    _loads.push_front( Load( frameNumber, nChannels, 0.0f, nResources ));
+    _loads.push_front( Load( frameNumber, nChannels, 0.0f ));
 }
 
-std::ostream& operator << ( std::ostream& os, const ViewEqualizer* equalizer)
+std::ostream& operator << ( std::ostream& os, const ViewEqualizer* equalizer )
 {
     if( equalizer )
         os << "view_equalizer {}" << std::endl;
+    return os;
+}
+
+std::ostream& operator << ( std::ostream& os, 
+                            const ViewEqualizer::Listener::Load& load )
+{
+    os << "frame " << load.frame << " missing " << load.missing << " t " 
+       << load.time;
     return os;
 }
 

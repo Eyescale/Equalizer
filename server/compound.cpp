@@ -292,6 +292,22 @@ const Window* Compound::getWindow() const
     return 0;
 }
 
+Pipe* Compound::getPipe()
+{
+    Channel* channel = getChannel();
+    if( channel )
+        return channel->getPipe();
+    return 0;
+}
+
+const Pipe* Compound::getPipe() const
+{
+    const Channel* channel = getChannel();
+    if( channel )
+        return channel->getPipe();
+    return 0;
+}
+
 void Compound::addEqualizer( Equalizer* equalizer )
 {
     if( equalizer )

@@ -7,6 +7,7 @@ server
         {
             pipe
             {
+                name "GPU 1"
                 window
                 {
                     name "left"
@@ -18,6 +19,7 @@ server
             }
             pipe
             {
+                name "GPU 2"
                 window
                 {
                     name "right"
@@ -29,36 +31,57 @@ server
             }
             pipe
             {
+                name "GPU 3"
                 window
                 {
                     name "source1"
                     viewport [ 0.025 0.4 0.3 0.3 ]
                     channel { name "source1" }
                 }
+            }
+            pipe
+            {
+                name "GPU 4"
                 window
                 {
                     name "source2"
                     viewport [ 0.35 0.4 0.3 0.3 ]
                     channel { name "source2" }
                 }
+            }
+            pipe
+            {
+                name "GPU 5"
                 window
                 {
                     name "source3"
                     viewport [ 0.675 0.4 0.3 0.3 ]
                     channel { name "source3" }
                 }
+            }
+            pipe
+            {
+                name "GPU 6"
                 window
                 {
                     name "source4"
                     viewport [ 0.025 0.7 0.3 0.3 ]
                     channel { name "source4" }
                 }
+            }
+            pipe
+            {
+                name "GPU 7"
                 window
                 {
                     name "source5"
                     viewport [ 0.35 0.7 0.3 0.3 ]
                     channel { name "source5" }
                 }
+            }
+            pipe
+            {
+                name "GPU 8"
                 window
                 {
                     name "source6"
@@ -100,11 +123,11 @@ server
 
                 compound { channel "left-src" }
                 compound { channel "source1" outputframe{ name "ls1" }}
-                compound { channel "source2" outputframe{ name "ls2"  }}
-                compound { channel "source3" outputframe{ name "ls3"  }}
-                compound { channel "source4" outputframe{ name "ls4"  }}
-                compound { channel "source5" outputframe{ name "ls5"  }}
-                compound { channel "source6" outputframe{ name "ls6"  }}
+#                compound { channel "source2" outputframe{ name "ls2"  }}
+#                compound { channel "source3" outputframe{ name "ls3"  }}
+#                compound { channel "source4" outputframe{ name "ls4"  }}
+#                compound { channel "source5" outputframe{ name "ls5"  }}
+#                compound { channel "source6" outputframe{ name "ls6"  }}
                 compound { channel "right-src" outputframe{ name "lrs"  }}
                 inputframe{ name "ls1" }
                 inputframe{ name "ls2" }
@@ -122,11 +145,11 @@ server
 
                 compound { channel "right-src" }
                 compound { channel "source1" outputframe{ name "rs1" }}
-                compound { channel "source2" outputframe{ name "rs2" }}
-                compound { channel "source3" outputframe{ name "rs3" }}
-                compound { channel "source4" outputframe{ name "rs4" }}
-                compound { channel "source5" outputframe{ name "rs5" }}
-                compound { channel "source6" outputframe{ name "rs6" }}
+#                compound { channel "source2" outputframe{ name "rs2" }}
+#                compound { channel "source3" outputframe{ name "rs3" }}
+#                compound { channel "source4" outputframe{ name "rs4" }}
+#                compound { channel "source5" outputframe{ name "rs5" }}
+#                compound { channel "source6" outputframe{ name "rs6" }}
                 compound { channel "left-src" outputframe{ name "rls" }}
                 inputframe{ name "rs1" }
                 inputframe{ name "rs2" }

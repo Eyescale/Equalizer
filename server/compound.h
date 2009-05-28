@@ -179,6 +179,9 @@ namespace server
         Window* getWindow();
         const Window* getWindow() const;
 
+        Pipe* getPipe();
+        const Pipe* getPipe() const;
+
         /** @return the frustum of this compound. */
         Frustum& getFrustum() { return _frustum; }
 

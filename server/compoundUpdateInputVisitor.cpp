@@ -62,7 +62,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
 
         if( iter == _outputFrames.end())
         {
-            EQWARN << "Can't find matching output frame, ignoring input frame "
+            EQVERB << "Can't find matching output frame, ignoring input frame "
                    << name << endl;
             frame->unsetData();
             continue;
