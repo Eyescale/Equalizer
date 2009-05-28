@@ -103,7 +103,10 @@ namespace server
 
             Load& _getLoad( const uint32_t frameNumber );
         };
+        friend std::ostream& operator << ( std::ostream& os, 
+                                    const ViewEqualizer::Listener::Load& load );
 
+        typedef std::vector< Listener::Load > LoadVector;
         typedef std::vector< Listener > ListenerVector;
         /** Per-child listener gathering load data. */
         ListenerVector _listeners;

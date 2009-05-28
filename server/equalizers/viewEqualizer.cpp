@@ -29,10 +29,6 @@ namespace eq
 {
 namespace server
 {
-namespace
-{
-typedef std::vector< ViewEqualizer::Listener::Load > LoadVector;
-}
 
 ViewEqualizer::ViewEqualizer()
         : _nPipes( 0 )
