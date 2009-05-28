@@ -188,9 +188,8 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
     ++_count;
 #endif
 
-   EQLOG( LOG_LB ) << "Frame " << frameNumber << " channel " 
-                        << channel->getName() << " time " << time
-                        << std::endl;
+   EQLOG( LOG_LB1 ) << "Frame " << frameNumber << " channel "
+                    << channel->getName() << " time " << time << std::endl;
 }
 
 std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )

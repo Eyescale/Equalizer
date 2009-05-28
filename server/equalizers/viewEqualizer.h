@@ -93,6 +93,8 @@ namespace server
             const Load& useLoad( const uint32_t frameNumber );
             /** Insert a new, empty load for the given frame. */
             void newLoad( const uint32_t frameNumber, const uint32_t nChannels);
+            /** @return the size of the history stash. */
+            size_t getNLoads() const { return _loads.size(); }
 
         private:
             typedef base::PtrHash< Channel*, uint32_t > TaskIDHash;

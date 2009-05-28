@@ -3,7 +3,6 @@ server
 {
     config
     {
-        latency 0
         # Render Resources
         appNode
         {
@@ -72,6 +71,7 @@ server
                 compound { }
                 compound { channel "channel2" outputframe { }}
                 inputframe { name "frame.channel2" }
+                swapbarrier {}
             }
             compound
             { 
@@ -81,6 +81,7 @@ server
                 compound { }
                 compound { channel "channel1" outputframe { }}
                 inputframe { name "frame.channel1" }
+                swapbarrier {}
             }
         }
     }    

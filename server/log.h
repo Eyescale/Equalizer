@@ -27,8 +27,9 @@ namespace server
 {
     enum LogTopics
     {
-        LOG_LB       = LOG_SERVER << 0,   // 8192
-        LOG_VIEW     = LOG_SERVER << 1    // 16384
+        LOG_LB1      = LOG_SERVER << 0,   // 8192
+        LOG_LB2      = LOG_SERVER << 1,   // 16384
+        LOG_VIEW     = LOG_SERVER << 2    // 32768
     };
 }
 }

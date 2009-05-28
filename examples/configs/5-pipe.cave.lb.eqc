@@ -1,0 +1,173 @@
+# single-machine config simulating a 5-sided cave with 2x2 meter walls, using 
+# cross-loadbalancing. Switch windows to full-screen and distribute to
+# separate GPUs and machines for deployment.
+
+global
+{
+    EQ_WINDOW_IATTR_HINT_DECORATION OFF
+}
+
+server
+{
+    config
+    {
+        latency 0
+        appNode
+        {
+            pipe
+            {
+                name "GPU left"
+                window
+                {
+                    viewport [ 10 260 250 250 ]
+                    channel { name "channel-left" }
+                }
+            }
+            pipe
+            {
+                name "GPU front"
+                window
+                {
+                    viewport [ 260 260 250 250 ]
+                    channel { name "channel-front" }
+                }
+            }
+            pipe
+            {
+                name "GPU right"
+                window
+                {
+                    viewport [ 510 260 250 250 ]
+                    channel { name "channel-right" }
+                }
+            }
+            pipe
+            {
+                name "GPU top"
+                window
+                {
+                    viewport [ 260 510 250 250 ]
+                    channel { name "channel-top" }
+                }
+            }
+            pipe
+            {
+                name "GPU bottom"
+                window
+                {
+                    viewport [ 260 10 250 250 ]
+                    channel { name "channel-bottom" }
+                }
+            }
+        }
+        compound
+        {
+            view_equalizer {}
+            compound
+            { 
+                channel "channel-left"
+                wall
+                {
+                    bottom_left  [ -1 -1  1 ]
+                    bottom_right [ -1 -1 -1 ]
+                    top_left     [ -1  1  1 ]
+                }
+
+                load_equalizer {}
+                compound{ }
+                compound{ channel "channel-front" outputframe{ name "front1" }}
+                compound{ channel "channel-right" outputframe{ name "right1" }}
+                compound{ channel "channel-top" outputframe{ name "top1" }}
+                compound{ channel "channel-bottom" outputframe{ name "bottom1"}}
+                inputframe { name "front1" }
+                inputframe { name "right1" }
+                inputframe { name "top1" }
+                inputframe { name "bottom1" }
+            }
+            compound
+            {
+                channel "channel-front"
+                wall
+                {
+                    bottom_left  [ -1 -1 -1 ]
+                    bottom_right [  1 -1 -1 ]
+                    top_left     [ -1  1 -1 ]
+                }
+
+                load_equalizer {}
+                compound{ }
+                compound{ channel "channel-left" outputframe{ name "left2" }}
+                compound{ channel "channel-right" outputframe{ name "right2" }}
+                compound{ channel "channel-top" outputframe{ name "top2" }}
+                compound{ channel "channel-bottom" outputframe{ name "bottom2"}}
+                inputframe { name "left2" }
+                inputframe { name "right2" }
+                inputframe { name "top2" }
+                inputframe { name "bottom2" }
+            }
+            compound
+            { 
+                channel "channel-right"
+                wall
+                {
+                    bottom_left  [ 1 -1 -1 ]
+                    bottom_right [ 1 -1  1 ]
+                    top_left     [ 1  1 -1 ]
+                }
+
+                load_equalizer {}
+                compound{ }
+                compound{ channel "channel-left" outputframe{ name "left3" }}
+                compound{ channel "channel-front" outputframe{ name "front3" }}
+                compound{ channel "channel-top" outputframe{ name "top3" }}
+                compound{ channel "channel-bottom" outputframe{ name "bottom3"}}
+                inputframe { name "left3" }
+                inputframe { name "front3" }
+                inputframe { name "top3" }
+                inputframe { name "bottom3" }
+            }
+            compound
+            {
+                channel "channel-top"
+                wall
+                {
+                    bottom_left  [ -1 -1  1 ]
+                    bottom_right [  1 -1  1 ]
+                    top_left     [ -1 -1 -1 ]
+                }
+
+                load_equalizer {}
+                compound{ }
+                compound{ channel "channel-left" outputframe{ name "left4" }}
+                compound{ channel "channel-front" outputframe{ name "front4" }}
+                compound{ channel "channel-right" outputframe{ name "right4" }}
+                compound{ channel "channel-bottom" outputframe{ name "bottom4"}}
+                inputframe { name "left4" }
+                inputframe { name "front4" }
+                inputframe { name "right4" }
+                inputframe { name "bottom4" }
+            }
+            compound
+            { 
+                channel "channel-bottom"
+                wall
+                {
+                    bottom_left  [ -1  1 -1 ]
+                    bottom_right [  1  1 -1 ]
+                    top_left     [ -1  1  1 ]
+                }
+
+                load_equalizer {}
+                compound{ }
+                compound{ channel "channel-left" outputframe{ name "left5" }}
+                compound{ channel "channel-front" outputframe{ name "front5" }}
+                compound{ channel "channel-right" outputframe{ name "right5" }}
+                compound{ channel "channel-top" outputframe{ name "top5" }}
+                inputframe { name "left5" }
+                inputframe { name "front5" }
+                inputframe { name "right5" }
+                inputframe { name "top5" }
+            }
+        }
+    }    
+}

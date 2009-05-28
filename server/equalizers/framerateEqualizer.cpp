@@ -203,7 +203,7 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 #else
         maxTime = EQ_MAX( maxTime, time.second );
 #endif
-        EQLOG( LOG_LB ) << "Using " << time.first << ", " << time.second << "ms"
+        EQLOG( LOG_LB2 ) << "Using " << time.first << ", " << time.second << "ms"
                         << std::endl;
     }
 
@@ -228,7 +228,7 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 #endif
             compound->setMaxFPS( fps );
 
-        EQLOG( LOG_LB ) << fps << " Hz from " << nSamples << "/" 
+        EQLOG( LOG_LB2 ) << fps << " Hz from " << nSamples << "/" 
                         << _times.size() << " samples, " << time << "ms" 
                         << std::endl;
     }
@@ -279,7 +279,7 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
 
         const float time = (endTime - startTime) / period;
         frameTime.second = EQ_MAX( frameTime.second, time );
-        EQLOG( LOG_LB ) << "Frame " << frameNumber << " channel " 
+        EQLOG( LOG_LB2 ) << "Frame " << frameNumber << " channel " 
                         << channel->getName() << " time " << time
                         << " period " << period << std::endl;
     }
