@@ -34,9 +34,15 @@
 #  define isatty _isatty
 #endif
 
-void yyerror(char *);
 int yylineno = 0;
 const char* yyinString = 0;
+
+void yyerror( char *errmsg )
+{
+    EQERROR << "Parse error: '" << errmsg << "', line " << yylineno
+            << " at '" << yytext << "'" << std::endl;
+    YY_FLUSH_BUFFER;
+}
 
 /* Override YY_INPUT to read from a char* if specified. YY_INPUT_FILE is C&P 
  * from the generated YY_INPUT */

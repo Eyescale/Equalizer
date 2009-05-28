@@ -9,6 +9,7 @@ SUBDIRS = \
 	connection \
 	dataStream \
 	image \
+	loader \
 	netperf \
 	node \
 	openmp \

@@ -1154,12 +1154,6 @@ INTEGER: EQTOKEN_INTEGER                   { $$ = atoi( yytext ); }
 UNSIGNED: EQTOKEN_UNSIGNED                 { $$ = atoi( yytext ); }
 %%
 
-void yyerror( char *errmsg )
-{
-    EQERROR << "Parse error: '" << errmsg << "', line " << yylineno
-            << " at '" << yytext << "'" << std::endl;
-}
-
 namespace eq
 {
 namespace server
