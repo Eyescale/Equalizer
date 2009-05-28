@@ -157,7 +157,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.buffer        = _getDrawBuffer();
     context.bufferMask    = _getDrawBufferMask( compound );
     context.view          = view;
-    context.taskID        = compound->getInheritTaskID();
+    context.taskID        = compound->getTaskID();
 
     if( view )
     {

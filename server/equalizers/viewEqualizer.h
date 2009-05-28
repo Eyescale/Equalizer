@@ -19,6 +19,7 @@
 #define EQS_VIEWEQUALIZER_H
 
 #include "equalizer.h"          // base class
+#include "../channelListener.h" // base class
 
 #include <eq/client/types.h>
 #include <deque>
@@ -50,6 +51,24 @@ namespace server
                                       const uint32_t frameNumber );
         
     private:
+        class Listener : public ChannelListener
+        {
+        public:
+            Listener();
+            Listener( const Listener& from );
+            virtual ~Listener();
+
+            const Listener& operator = ( const Listener& from );
+
+        private:
+
+            Channel* _channel;
+        };
+
+        typedef std::vector< Listener > ListenerVector;
+        ListenerVector _listeners;
+
+        void _updateListeners();
     };
 }
 }

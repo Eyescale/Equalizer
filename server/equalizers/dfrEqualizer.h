@@ -64,6 +64,11 @@ namespace server
                                      const uint32_t frameNumber,
                                      const uint32_t nStatistics,
                                      const eq::Statistic* statistics  );
+
+    protected:
+        virtual void notifyChildAdded( Compound* compound, Compound* child ){}
+        virtual void notifyChildRemove( Compound* compound, Compound* child ){}
+
     private:
         float _frameRate; //!< target framerate
         float _damping; //!< The damping factor,  (0: No damping, 1: No changes)

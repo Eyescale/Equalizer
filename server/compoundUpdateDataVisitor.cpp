@@ -39,9 +39,9 @@ CompoundUpdateDataVisitor::CompoundUpdateDataVisitor(
 VisitorResult CompoundUpdateDataVisitor::visit(
     Compound* compound )
 {
+    compound->setTaskID( _taskID++ );
     compound->fireUpdatePre( _frameNumber );
     compound->updateInheritData( _frameNumber );
-    compound->setInheritTaskID( _taskID++ );
 
     _updateDrawFinish( compound );
     return TRAVERSE_CONTINUE;    

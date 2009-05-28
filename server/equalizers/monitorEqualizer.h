@@ -48,8 +48,15 @@ namespace server
         /** @sa CompoundListener::notifyUpdatePre */
         virtual void notifyUpdatePre( Compound* compound, 
                                       const uint32_t frameNumber );
+
+    protected:
+        virtual void notifyChildAdded( Compound* compound, Compound* child ){}
+        virtual void notifyChildRemove( Compound* compound, Compound* child ){}
         
     private:
+        /** Init the source frame viewports. */
+        void _updateViewports();
+
         /** compute destination size, input frame offset and
             output frame zoom value */
         void _updateZoomAndOffset();

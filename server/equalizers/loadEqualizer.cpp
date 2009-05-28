@@ -56,6 +56,7 @@ LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
         , _damping( from._damping )
         , _tree( 0 )
 {}
+
 LoadEqualizer::~LoadEqualizer()
 {
     _clearTree( _tree );

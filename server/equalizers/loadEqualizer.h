@@ -74,6 +74,12 @@ namespace server
                                      const uint32_t nStatistics,
                                      const eq::Statistic* statistics );
 
+    protected:
+        virtual void notifyChildAdded( Compound* compound, Compound* child )
+            { EQASSERT( !_tree ); }
+        virtual void notifyChildRemove( Compound* compound, Compound* child )
+            { EQASSERT( !_tree ); }
+
     private:
         Mode  _mode;    //!< The current adaptation mode
         float _damping; //!< The damping factor,  (0: No damping, 1: No changes)

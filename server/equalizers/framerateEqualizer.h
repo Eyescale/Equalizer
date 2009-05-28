@@ -53,6 +53,12 @@ namespace server
         /** @sa CompoundListener::notifyUpdatePre */
         virtual void notifyUpdatePre( Compound* compound, 
                                       const uint32_t frameNumber );
+
+    protected:
+        virtual void notifyChildAdded( Compound* compound, Compound* child )
+            { EQASSERT( _nSamples == 0 ); }
+        virtual void notifyChildRemove( Compound* compound, Compound* child )
+            { EQASSERT( _nSamples == 0 ); }
         
     private:
         /** Frame number with max time. */

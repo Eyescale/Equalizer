@@ -57,6 +57,12 @@ namespace server
         bool isFrozen() const { return _frozen; }
 
     private:
+        // override in sub-classes to handle dynamic compounds.
+        virtual void notifyChildAdded( Compound* compound, Compound* child )
+            { EQUNIMPLEMENTED }
+        virtual void notifyChildRemove( Compound* compound, Compound* child )
+            { EQUNIMPLEMENTED }
+
         Compound* _compound;       //!< The attached compound
         bool      _frozen;
     };

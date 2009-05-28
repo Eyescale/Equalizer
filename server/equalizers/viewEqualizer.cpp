@@ -39,14 +39,68 @@ ViewEqualizer::~ViewEqualizer()
     EQINFO << "Delete view equalizer @" << (void*)this << std::endl;
 }
 
+ViewEqualizer::Listener::Listener()
+        : _channel( 0 )
+{
+}
+
+ViewEqualizer::Listener::Listener( const Listener& from )
+        : ChannelListener()
+        , _channel( from._channel )
+{
+    if( _channel )
+        _channel->addListener( this );
+}
+
+const ViewEqualizer::Listener::Listener& 
+ViewEqualizer::Listener::operator = ( const Listener& from )
+{
+    if( _channel )
+        _channel->removeListener( this );
+
+    _channel = from._channel;
+
+    if( _channel )
+        _channel->addListener( this );
+
+    return *this;
+}
+
+ViewEqualizer::Listener::~Listener()
+{
+    if( _channel )
+        _channel->removeListener( this );
+}
+
 void ViewEqualizer::attach( Compound* compound )
 {
+    _listeners.clear();
     Equalizer::attach( compound );
 }
 
 void ViewEqualizer::notifyUpdatePre( Compound* compound, 
                                      const uint32_t frameNumber )
 {
+    EQASSERT( compound == getCompound( ));
+
+    _updateListeners();
+}
+
+void ViewEqualizer::_updateListeners()
+{
+#if 0
+    const Compound* compound = getCompound();
+    const CompoundVector& children = compound->getChildren();
+    const size_t nChildren = children.size();
+
+    _listeners.resize( nChildren );
+    for( size_t i = 0; i < nChildren; ++i )
+    {
+        Listener& listener = _listeners[ i ];
+        
+        listener->update( compound );
+    }
+#endif
 }
 
 std::ostream& operator << ( std::ostream& os, const ViewEqualizer* equalizer)

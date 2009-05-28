@@ -91,54 +91,57 @@ MonitorEqualizer::~MonitorEqualizer()
 
 void MonitorEqualizer::attach( Compound* compound )
 {
-    if( compound )
-    {
-        _outputFrames.clear();
-        _viewports.clear();
-    }
-
+    _outputFrames.clear();
+    _viewports.clear();
     Equalizer::attach( compound );
-
-    if( compound )
-    {
-        const FrameVector& inputFrames = compound->getInputFrames();
-        for( FrameVector::const_iterator i = inputFrames.begin(); 
-             i != inputFrames.end(); ++i )
-        {
-            const Frame* frame = *i;
-            const Compound* root = compound->getRoot();
-
-            // find the output frame
-            OutputFrameFinder frameFinder( frame->getName() );
-            root->accept( frameFinder );
-            Frame* outputFrame = frameFinder.getResult();
-
-            _outputFrames.push_back( outputFrame );
-            _viewports.push_back( eq::Viewport::FULL );
-        
-            if( outputFrame )
-            {
-                const Channel* channel = outputFrame->getChannel();
-                const Segment* segment = channel->getSegment();
-                const View* view =  channel->getView();
-        
-                if( view )
-                {
-                    Viewport viewport( segment->getViewport( ));
-                    viewport.intersect( view->getViewport( ));
-                    
-                    _viewports.back() = viewport;
-                }
-            }
-        }
-        _updateZoomAndOffset();
-    }
 }
 
 void MonitorEqualizer::notifyUpdatePre( Compound* compound, 
                                         const uint32_t frameNumber )
 {
+    _updateViewports();
     _updateZoomAndOffset();
+}
+
+void MonitorEqualizer::_updateViewports()
+{
+    if( !_outputFrames.empty( ))
+        return;
+
+    Compound* compound = getCompound();
+    if( !compound )
+        return;
+
+    const FrameVector& inputFrames = compound->getInputFrames();
+    for( FrameVector::const_iterator i = inputFrames.begin(); 
+         i != inputFrames.end(); ++i )
+    {
+        const Frame* frame = *i;
+        const Compound* root = compound->getRoot();
+
+        // find the output frame
+        OutputFrameFinder frameFinder( frame->getName() );
+        root->accept( frameFinder );
+        Frame* outputFrame = frameFinder.getResult();
+        
+        _outputFrames.push_back( outputFrame );
+        _viewports.push_back( eq::Viewport::FULL );
+        
+        if( outputFrame )
+        {
+            const Channel* channel = outputFrame->getChannel();
+            const Segment* segment = channel->getSegment();
+            const View* view =  channel->getView();
+        
+            if( view )
+            {
+                Viewport viewport( segment->getViewport( ));
+                viewport.intersect( view->getViewport( ));
+                
+                _viewports.back() = viewport;
+            }
+        }
+    }
 }
 
 void MonitorEqualizer::_updateZoomAndOffset()
@@ -148,7 +151,8 @@ void MonitorEqualizer::_updateZoomAndOffset()
 
     const FrameVector& inputFrames( compound->getInputFrames( ));
     const size_t size( inputFrames.size( ));
-    EQASSERT( size == _outputFrames.size( ));
+    EQASSERTINFO( size == _outputFrames.size(), 
+                  size << " != " << _outputFrames.size( ));
     EQASSERT( size == _viewports.size( ));
 
     for( size_t i = 0; i < size; ++i )

@@ -251,6 +251,12 @@ namespace server
 
         void setMaxFPS( const float fps )          { _data.maxFPS = fps; }
         float getMaxFPS() const                    { return _data.maxFPS; }
+
+        void setUsage( const float usage )         { _usage = usage; }
+        float getUsage() const                     { return _usage; }
+
+        void setTaskID( const uint32_t id )        { _taskID = id; }
+        uint32_t getTaskID() const                 { return _taskID; }
         //*}
 
         /** @name IO object access. */
@@ -316,9 +322,6 @@ namespace server
         uint32_t getInheritTasks()           const { return _inherit.tasks; }
         uint32_t getInheritEyes()            const { return _inherit.eyes; }
         const Channel* getInheritChannel()   const { return _inherit.channel; }
-        
-        void setInheritTaskID( const uint32_t id ) { _inherit.taskID = id; }
-        uint32_t getInheritTaskID()          const { return _inherit.taskID; }
         
         /** @return true if the task is set, false if not. */
         bool testInheritTask( const eq::Task task ) const
@@ -416,12 +419,6 @@ namespace server
         /** @return if the compound is activated and current (DPlex). */
         bool isActive() const;
 
-        /** Set the percentage the resource should be used. */
-        void setUsage( const float usage ) { _usage = usage; }
-
-        /** @return the percentage the resource should be used. */
-        float getUsage() const { return _usage; }
-
         /** 
          * Initializes this compound.
          */
@@ -492,6 +489,9 @@ namespace server
         /** Percentage the resource should be used. */
         float _usage;
 
+        /** Unique identifier for channel tasks. */
+        uint32_t _taskID;
+
         struct InheritData
         {
             InheritData();
@@ -509,7 +509,6 @@ namespace server
             uint32_t          tasks;
             uint32_t          period;
             uint32_t          phase;
-            uint32_t          taskID;
             int32_t           iAttributes[IATTR_ALL];
             float             maxFPS;
             bool              active;
