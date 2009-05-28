@@ -157,6 +157,14 @@ void FrameData::moveCamera( const float x, const float y, const float z )
     setDirty( DIRTY_CAMERA );
 }
 
+void FrameData::setCameraPosition( const float x, const float y, const float z )
+{
+    _translation.x = x;
+    _translation.y = y;
+    _translation.z = z;
+    setDirty( DIRTY_CAMERA );
+}
+
 void FrameData::setTranslation( const vmml::Vector3f& translation )
 {
     _translation = translation;
