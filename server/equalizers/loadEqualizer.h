@@ -103,9 +103,10 @@ namespace server
 
         struct Data
         {
-            Data() : compound(0), time( -1.f ) {}
+            Data() : channel( 0 ), taskID( 0 ), time( -1.f ) {}
 
-            Compound*    compound;
+            Channel*     channel;
+            uint32_t     taskID;
             eq::Viewport vp;
             eq::Range    range;
             float        time;
@@ -113,7 +114,6 @@ namespace server
         };
 
         typedef std::vector< Data >                  LBDataVector;
-        typedef std::deque< Data >                   LBDataDeque;
         typedef std::pair< uint32_t,  LBDataVector > LBFrameData;
         
         std::deque< LBFrameData > _history;

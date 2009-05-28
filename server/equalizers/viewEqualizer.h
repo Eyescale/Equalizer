@@ -19,7 +19,7 @@
 #define EQS_VIEWEQUALIZER_H
 
 #include "equalizer.h"          // base class
-#include "../channelListener.h" // base class
+#include "../channelListener.h" // nested base class
 
 #include <eq/client/types.h>
 #include <eq/base/hash.h>
@@ -34,7 +34,10 @@ namespace server
     class ViewEqualizer;
     std::ostream& operator << ( std::ostream& os, const ViewEqualizer* );
 
-    /** Destination-driven scaling.*/
+    /** 
+     * An Equalizer allocating resources to multiple destination channels of a
+     * single view.
+     */
     class ViewEqualizer : public Equalizer
     {
     public:            
@@ -52,7 +55,6 @@ namespace server
                                       const uint32_t frameNumber );
 
     protected:        
-        // override in sub-classes to handle dynamic compounds.
         virtual void notifyChildAdded( Compound* compound, Compound* child )
             { EQASSERT( _listeners.empty( )); }
         virtual void notifyChildRemove( Compound* compound, Compound* child )
@@ -72,16 +74,48 @@ namespace server
                                          const uint32_t frameNumber,
                                          const uint32_t nStatistics,
                                          const eq::Statistic* statistics );
+            struct Load
+            {
+                static Load NONE;
+
+                Load( const uint32_t frame_, const uint32_t missing_,
+                      const float time_, const float nResources_ );
+                bool operator == ( const Load& rhs ) const;
+
+                uint32_t frame;
+                uint32_t missing;
+                float time;
+                float nResources;
+
+            };
+
+            /** @return the frame number of the youngest complete load. */
+            uint32_t findYoungestLoad() const;
+            /** Delete older loads and return the load belonging to the frame.*/
+            const Load& useLoad( const uint32_t frameNumber );
+            /** Insert a new, empty load for the given frame. */
+            void newLoad( const uint32_t frameNumber, const uint32_t nChannels,
+                          const float nResources );
 
         private:
             typedef base::PtrHash< Channel*, uint32_t > TaskIDHash;
             TaskIDHash _taskIDs;
+
+            typedef std::deque< Load > LoadDeque;
+            LoadDeque _loads;
+
+            Load& _getLoad( const uint32_t frameNumber );
         };
 
         typedef std::vector< Listener > ListenerVector;
         ListenerVector _listeners;
 
+        /** Update channel load subscription. */
         void _updateListeners();
+        /** Assign resources to children. */
+        void _update( const uint32_t frameNumber );
+        /** Find the frame number to use for update. */
+        uint32_t _findInputFrameNumber() const;
     };
 }
 }

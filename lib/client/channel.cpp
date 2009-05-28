@@ -1098,9 +1098,8 @@ net::CommandResult Channel::_cmdFrameClear( net::Command& command )
         command.getPacket<ChannelFrameClearPacket>();
     EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet << endl;
 
-    ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
-
     _setRenderContext( packet->context );
+    ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
     frameClear( packet->context.frameID );
     _currentContext = &_nativeContext;
 
@@ -1113,9 +1112,8 @@ net::CommandResult Channel::_cmdFrameDraw( net::Command& command )
         command.getPacket<ChannelFrameDrawPacket>();
     EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet << endl;
 
-    ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
-
     _setRenderContext( packet->context );
+    ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
     frameDraw( packet->context.frameID );
     _currentContext = &_nativeContext;
 
@@ -1142,8 +1140,8 @@ net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
                                        << packet << endl;
 
-    ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
     _setRenderContext( packet->context );
+    ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
@@ -1174,8 +1172,8 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
                                        << packet << endl;
 
-    ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
     _currentContext = &packet->context;
+    ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {

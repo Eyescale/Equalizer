@@ -39,7 +39,7 @@ CompoundUpdateDataVisitor::CompoundUpdateDataVisitor(
 VisitorResult CompoundUpdateDataVisitor::visit(
     Compound* compound )
 {
-    compound->setTaskID( _taskID++ );
+    compound->setTaskID( ++_taskID );
     compound->fireUpdatePre( _frameNumber );
     compound->updateInheritData( _frameNumber );
 

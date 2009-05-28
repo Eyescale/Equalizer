@@ -43,7 +43,7 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
     event.statistic.type        = type;
     event.statistic.frameNumber = channel->getPipe()->getCurrentFrame();
     event.statistic.task        = channel->getTaskID();
-    
+
     const std::string& name = channel->getName();
     if( name.empty( ))
         snprintf( event.statistic.resourceName, 32, "channel %d",

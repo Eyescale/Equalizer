@@ -1,5 +1,4 @@
 
-
 /* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -154,45 +153,6 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                                     const uint32_t nStatistics,
                                     const eq::Statistic* statistics )
 {
-    // gather relevant load data
-    float startTime = numeric_limits< float >::max();
-    float endTime   = 0.0f;
-    bool  loadSet   = false;
-    float transmitTime = 0.0f;
-
-    for( uint32_t i = 0; i < nStatistics && !loadSet; ++i )
-    {
-        const eq::Statistic& data = statistics[i];
-        switch( data.type )
-        {
-            case eq::Statistic::CHANNEL_TRANSMIT:
-#ifdef EQ_ASYNC_TRANSMIT
-                transmitTime = data.endTime - data.startTime;
-                break;
-#else
-                // no break;
-#endif
-            case eq::Statistic::CHANNEL_CLEAR:
-            case eq::Statistic::CHANNEL_DRAW:
-                //case eq::Statistic::CHANNEL_DRAW_FINISH:
-            case eq::Statistic::CHANNEL_READBACK:
-                startTime = EQ_MIN( startTime, data.startTime );
-                endTime   = EQ_MAX( endTime, data.endTime );
-                break;
-                
-                // assemble blocks on frames, stop using subsequent data
-            case eq::Statistic::CHANNEL_ASSEMBLE:
-                loadSet = true;
-                break;
-                
-            default:
-                break;
-        }
-    }
-    
-    if( startTime == numeric_limits< float >::max( ))
-        return;
-    
     for( deque< LBFrameData >::iterator i = _history.begin();
          i != _history.end(); ++i )
     {
@@ -204,17 +164,59 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
         LBDataVector& items = frameData.second;
         for( LBDataVector::iterator j = items.begin(); j != items.end(); ++j )
         {
-            Data&     data     = *j;
-            Compound* compound = data.compound;
-            EQASSERT( compound );
-
-            if( compound->getChannel() != channel )
+            Data& data = *j;
+            if( data.channel != channel )
                 continue;
 
             // Found corresponding historical data item
+            const uint32_t taskID = data.taskID;
+            EQASSERTINFO( taskID > 0, channel->getName( ));
+
             if( data.vp.getArea() <= 0.f )
                 return;
 
+            // gather relevant load data
+            float startTime = numeric_limits< float >::max();
+            float endTime   = 0.0f;
+            bool  loadSet   = false;
+            float transmitTime = 0.0f;
+
+            for( uint32_t k = 0; k < nStatistics && !loadSet; ++k )
+            {
+                const eq::Statistic& stat = statistics[k];
+                if( stat.task != taskID ) // from different compound
+                    continue;
+
+                switch( stat.type )
+                {
+                    case eq::Statistic::CHANNEL_TRANSMIT:
+#ifdef EQ_ASYNC_TRANSMIT
+                        transmitTime = stat.endTime - stat.startTime;
+                        break;
+#else
+                        // no break;
+#endif
+                    case eq::Statistic::CHANNEL_CLEAR:
+                    case eq::Statistic::CHANNEL_DRAW:
+                    case eq::Statistic::CHANNEL_READBACK:
+                        startTime = EQ_MIN( startTime, stat.startTime );
+                        endTime   = EQ_MAX( endTime, stat.endTime );
+                        break;
+                
+                    // assemble blocks on input frames, stop using subsequent
+                    // data
+                    case eq::Statistic::CHANNEL_ASSEMBLE:
+                        loadSet = true;
+                        break;
+                
+                    default:
+                        break;
+                }
+            }
+    
+            if( startTime == numeric_limits< float >::max( ))
+                return;
+    
             data.time = endTime - startTime;
             data.time = EQ_MAX( data.time, transmitTime );
             data.load = data.time / data.vp.getArea();
@@ -268,8 +270,11 @@ void LoadEqualizer::_checkHistory()
         frameData.first = 0; // frameNumber
         items.resize( 1 );
         
-        items[0].time = 1.f;
-        items[0].load = 1.f;
+        Data& data = items.front();
+        data.time = 1.f;
+        data.load = 1.f;
+        EQASSERT( data.taskID == 0 );
+        EQASSERT( data.channel == 0 );
     }
 }
 
@@ -308,7 +313,6 @@ void LoadEqualizer::_computeSplit()
 
     // Compute total rendering time
     float totalTime = 0.0f;
-
     for( LBDataVector::const_iterator i = items.begin(); i != items.end(); ++i )
     {  
         const Data& data = *i;
@@ -359,9 +363,9 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
              i != items.end(); ++i )
         {
             const Data& data = *i;
-            const Compound* candidate = data.compound;
+            const uint32_t taskID = data.taskID;
 
-            if( compound != candidate )
+            if( compound->getTaskID() != taskID )
                 continue;
 
             // found our last rendering time -> use this to smoothen the change:
@@ -414,9 +418,11 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
         // save data for later use
         Data data;
-        data.vp       = vp;
-        data.range    = range;
-        data.compound = compound;
+        data.vp      = vp;
+        data.range   = range;
+        data.channel = compound->getChannel();
+        data.taskID  = compound->getTaskID();
+        EQASSERT( data.taskID > 0 );
 
         if( !vp.hasArea() || !range.hasData( )) // will not render
             data.time = 0.f;
