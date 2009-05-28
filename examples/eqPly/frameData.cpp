@@ -181,7 +181,6 @@ void FrameData::setModelRotation(  const vmml::Vector3f& rotation )
     setDirty( DIRTY_CAMERA );
 }
 
-
 void FrameData::reset()
 {
     _translation   = vmml::Vector3f::ZERO;

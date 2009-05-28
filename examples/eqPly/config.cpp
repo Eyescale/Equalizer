@@ -409,6 +409,14 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _setHeadMatrix( vmml::Matrix4f::IDENTITY );
             return true;
 
+        case 'i':
+        case 'I':
+            _frameData.setCameraPosition( 0.f, 0.f, 0.f );
+            _spinX   = 0;
+            _spinY   = 0;
+            _advance = 0;
+            return true;
+
         case 'o':
         case 'O':
             _frameData.toggleOrtho();
