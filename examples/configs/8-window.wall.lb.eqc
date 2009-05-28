@@ -124,10 +124,10 @@ server
                 compound {}
                 compound { channel "source1" outputframe{ name "ls1" }}
                 compound { channel "source2" outputframe{ name "ls2"  }}
-#                compound { channel "source3" outputframe{ name "ls3"  }}
-#                compound { channel "source4" outputframe{ name "ls4"  }}
-#                compound { channel "source5" outputframe{ name "ls5"  }}
-#                compound { channel "source6" outputframe{ name "ls6"  }}
+                compound { channel "source3" outputframe{ name "ls3"  }}
+                compound { channel "source4" outputframe{ name "ls4"  }}
+                compound { channel "source5" outputframe{ name "ls5"  }}
+                compound { channel "source6" outputframe{ name "ls6"  }}
                 compound { channel "right-src" outputframe{ name "lrs"  }}
                 inputframe{ name "ls1" }
                 inputframe{ name "ls2" }
@@ -146,10 +146,10 @@ server
                 compound {}
                 compound { channel "source1" outputframe{ name "rs1" }}
                 compound { channel "source2" outputframe{ name "rs2" }}
-#                compound { channel "source3" outputframe{ name "rs3" }}
-#                compound { channel "source4" outputframe{ name "rs4" }}
-#                compound { channel "source5" outputframe{ name "rs5" }}
-#                compound { channel "source6" outputframe{ name "rs6" }}
+                compound { channel "source3" outputframe{ name "rs3" }}
+                compound { channel "source4" outputframe{ name "rs4" }}
+                compound { channel "source5" outputframe{ name "rs5" }}
+                compound { channel "source6" outputframe{ name "rs6" }}
                 compound { channel "left-src" outputframe{ name "rls" }}
                 inputframe{ name "rs1" }
                 inputframe{ name "rs2" }

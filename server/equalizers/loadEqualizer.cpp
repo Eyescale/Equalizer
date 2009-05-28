@@ -592,14 +592,11 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 {
                     splitPos += (width * timeLeft / currentTime );
                     timeLeft = 0.0f;
-                    EQASSERTINFO( splitPos <= end, splitPos << " > " << end );
                 }
                 else
                 {
                     timeLeft -= currentTime;
                     splitPos  = currentPos;
-                    EQASSERTINFO( currentPos <= end, 
-                                  currentPos << " > " << end );
                 }
             }
 
@@ -740,14 +737,11 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 {
                     splitPos += (height * timeLeft / currentTime );
                     timeLeft = 0.0f;
-                    EQASSERTINFO( splitPos <= end, splitPos << " > " << end );
                 }
                 else
                 {
                     timeLeft -= currentTime;
                     splitPos  = currentPos;
-                    EQASSERTINFO( currentPos <= end,
-                                  currentPos << " > " << end );
                 }
             }
 
@@ -864,13 +858,11 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                     const float width = currentPos - splitPos;
                     splitPos += (width * timeLeft / currentLoad );
                     timeLeft = 0.0f;
-                    EQASSERTINFO( splitPos <= end, splitPos << " > " << end );
                 }
                 else
                 {
                     timeLeft -= currentLoad;
                     splitPos  = currentPos;
-                    EQASSERTINFO( currentPos<=end, currentPos << " > " << end );
                 }
             }
             // There might be more time left due to MIN_PIXEL rounding by parent
