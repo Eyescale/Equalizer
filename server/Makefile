@@ -20,6 +20,7 @@ CXXFILES = \
 	equalizers/equalizer.cpp \
 	equalizers/loadEqualizer.cpp \
 	equalizers/monitorEqualizer.cpp \
+	equalizers/viewEqualizer.cpp \
 	frame.cpp \
 	frameData.cpp \
 	frustum.cpp \

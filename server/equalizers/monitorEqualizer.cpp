@@ -76,7 +76,7 @@ private:
 
 MonitorEqualizer::MonitorEqualizer()
 {
-    EQINFO << "New DDS LoadBalancer @" << (void*)this << endl;
+    EQINFO << "New monitor equalizer @" << (void*)this << endl;
 }
 
 MonitorEqualizer::MonitorEqualizer( const MonitorEqualizer& from )
@@ -86,7 +86,7 @@ MonitorEqualizer::MonitorEqualizer( const MonitorEqualizer& from )
 MonitorEqualizer::~MonitorEqualizer()
 {
     attach( 0 );
-    EQINFO << "Delete MonitorEqualizer @" << (void*)this << endl;
+    EQINFO << "Delete monitor equalizer @" << (void*)this << endl;
 }
 
 void MonitorEqualizer::attach( Compound* compound )

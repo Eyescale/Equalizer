@@ -150,6 +150,7 @@ DFR_equalizer                   { return EQTOKEN_DFREQUALIZER; }
 framerate_equalizer             { return EQTOKEN_FRAMERATEEQUALIZER; }
 load_equalizer                  { return EQTOKEN_LOADEQUALIZER; }
 monitor_equalizer               { return EQTOKEN_MONITOREQUALIZER; }
+view_equalizer                  { return EQTOKEN_VIEWEQUALIZER; }
 damping                         { return EQTOKEN_DAMPING; }
 connection                      { return EQTOKEN_CONNECTION; }
 name                            { return EQTOKEN_NAME; }

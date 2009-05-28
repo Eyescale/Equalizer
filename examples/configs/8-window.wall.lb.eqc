@@ -91,17 +91,17 @@ server
         
         compound
         {
-#            view_equallizer
+            view_equalizer {}
             compound
             {
                 channel ( segment 0 view 0 )
                 load_equalizer { mode 2D }
                 swapbarrier{}
 
-#                compound { channel "left-src" }
-#                compound { channel "source1" outputframe{ name "ls1" }}
-#                compound { channel "source2" outputframe{ name "ls2"  }}
-#                compound { channel "source3" outputframe{ name "ls3"  }}
+                compound { channel "left-src" }
+                compound { channel "source1" outputframe{ name "ls1" }}
+                compound { channel "source2" outputframe{ name "ls2"  }}
+                compound { channel "source3" outputframe{ name "ls3"  }}
                 compound { channel "source4" outputframe{ name "ls4"  }}
                 compound { channel "source5" outputframe{ name "ls5"  }}
                 compound { channel "source6" outputframe{ name "ls6"  }}
@@ -120,13 +120,13 @@ server
                 load_equalizer { mode 2D }
                 swapbarrier{}
 
-#                compound { channel "right-src" }
+                compound { channel "right-src" }
                 compound { channel "source1" outputframe{ name "rs1" }}
                 compound { channel "source2" outputframe{ name "rs2" }}
                 compound { channel "source3" outputframe{ name "rs3" }}
-#                compound { channel "source4" outputframe{ name "rs4" }}
-#                compound { channel "source5" outputframe{ name "rs5" }}
-#                compound { channel "source6" outputframe{ name "rs6" }}
+                compound { channel "source4" outputframe{ name "rs4" }}
+                compound { channel "source5" outputframe{ name "rs5" }}
+                compound { channel "source6" outputframe{ name "rs6" }}
                 compound { channel "left-src" outputframe{ name "rls" }}
                 inputframe{ name "rs1" }
                 inputframe{ name "rs2" }

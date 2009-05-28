@@ -24,6 +24,7 @@
 #include "equalizers/framerateEqualizer.h"
 #include "equalizers/loadEqualizer.h"
 #include "equalizers/monitorEqualizer.h"
+#include "equalizers/viewEqualizer.h"
 #include "frame.h"
 #include "global.h"
 #include "layout.h"
@@ -167,6 +168,7 @@
 %token EQTOKEN_FRAMERATEEQUALIZER
 %token EQTOKEN_LOADEQUALIZER
 %token EQTOKEN_MONITOREQUALIZER
+%token EQTOKEN_VIEWEQUALIZER
 %token EQTOKEN_DAMPING
 %token EQTOKEN_CONNECTION
 %token EQTOKEN_NAME
@@ -993,7 +995,9 @@ loadBalancerMode:
         eqCompound->addEqualizer( new eq::server::MonitorEqualizer );
     }
 
-equalizer: dfrEqualizer | framerateEqualizer | loadEqualizer | monitorEqualizer
+equalizer: dfrEqualizer | framerateEqualizer | loadEqualizer | 
+           monitorEqualizer | viewEqualizer
+        
 dfrEqualizer: EQTOKEN_DFREQUALIZER '{' 
     { dfrEqualizer = new eq::server::DFREqualizer; }
     dfrEqualizerFields '}' 
@@ -1015,6 +1019,10 @@ loadEqualizer: EQTOKEN_LOADEQUALIZER '{'
 monitorEqualizer: EQTOKEN_MONITOREQUALIZER '{' '}'
     {
         eqCompound->addEqualizer( new eq::server::MonitorEqualizer );
+    }
+viewEqualizer: EQTOKEN_VIEWEQUALIZER '{' '}'
+    {
+        eqCompound->addEqualizer( new eq::server::ViewEqualizer );
     }
 
 dfrEqualizerFields: /* null */ | dfrEqualizerFields dfrEqualizerField
