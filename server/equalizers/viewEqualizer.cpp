@@ -18,6 +18,7 @@
 #include "viewEqualizer.h"
 
 #include "../compound.h"
+#include "../compoundVisitor.h"
 
 namespace eq
 {
@@ -40,41 +41,22 @@ ViewEqualizer::~ViewEqualizer()
 }
 
 ViewEqualizer::Listener::Listener()
-        : _channel( 0 )
 {
-}
-
-ViewEqualizer::Listener::Listener( const Listener& from )
-        : ChannelListener()
-        , _channel( from._channel )
-{
-    if( _channel )
-        _channel->addListener( this );
-}
-
-const ViewEqualizer::Listener::Listener& 
-ViewEqualizer::Listener::operator = ( const Listener& from )
-{
-    if( _channel )
-        _channel->removeListener( this );
-
-    _channel = from._channel;
-
-    if( _channel )
-        _channel->addListener( this );
-
-    return *this;
 }
 
 ViewEqualizer::Listener::~Listener()
 {
-    if( _channel )
-        _channel->removeListener( this );
 }
 
 void ViewEqualizer::attach( Compound* compound )
 {
+    for( ListenerVector::iterator i = _listeners.begin();
+         i != _listeners.end(); ++i )
+    {
+        (*i).clear();
+    }
     _listeners.clear();
+
     Equalizer::attach( compound );
 }
 
@@ -88,19 +70,84 @@ void ViewEqualizer::notifyUpdatePre( Compound* compound,
 
 void ViewEqualizer::_updateListeners()
 {
-#if 0
-    const Compound* compound = getCompound();
+    if( !_listeners.empty( ))
+    {
+        EQASSERT( getCompound()->getChildren().size() == _listeners.size( ));
+        return;
+    }
+
+    Compound* compound = getCompound();
     const CompoundVector& children = compound->getChildren();
     const size_t nChildren = children.size();
 
     _listeners.resize( nChildren );
     for( size_t i = 0; i < nChildren; ++i )
     {
-        Listener& listener = _listeners[ i ];
-        
-        listener->update( compound );
+        Listener& listener = _listeners[ i ];        
+        listener.update( compound );
     }
-#endif
+}
+
+namespace
+{
+class LoadSubscriber : public CompoundVisitor
+{
+public:
+    LoadSubscriber( ChannelListener* listener, 
+                    base::PtrHash< Channel*, uint32_t >& taskIDs ) 
+            : _listener( listener )
+            , _taskIDs( taskIDs ) {}
+
+    virtual VisitorResult visitLeaf( Compound* compound )
+        {
+            Channel* channel = compound->getChannel();
+            EQASSERT( channel );
+
+            if( _taskIDs.find( channel ) == _taskIDs.end( ))
+            {
+                channel->addListener( _listener );
+                _taskIDs[ channel ] = compound->getTaskID();
+            }
+            else
+                EQASSERTINFO( 0, 
+                              "View equalizer does not support using channel "<<
+                              channel->getName() <<
+                              " multiple times in one branch" );
+
+            return TRAVERSE_CONTINUE; 
+        }
+
+private:
+    ChannelListener* const _listener;
+    base::PtrHash< Channel*, uint32_t >& _taskIDs;
+};
+
+}
+
+void ViewEqualizer::Listener::update( Compound* compound )
+{
+    EQASSERT( _taskIDs.empty( ));
+    LoadSubscriber subscriber( this, _taskIDs );
+    compound->accept( subscriber );
+}
+
+void ViewEqualizer::Listener::clear()
+{
+    for( TaskIDHash::const_iterator i = _taskIDs.begin(); 
+         i != _taskIDs.end(); ++i )
+    {
+        i->first->removeListener( this );
+    }
+    _taskIDs.clear();
+}
+
+
+void ViewEqualizer::Listener::notifyLoadData( Channel* channel, 
+                                              const uint32_t frameNumber,
+                                              const uint32_t nStatistics,
+                                              const eq::Statistic* statistics )
+{
+    // TBD
 }
 
 std::ostream& operator << ( std::ostream& os, const ViewEqualizer* equalizer)

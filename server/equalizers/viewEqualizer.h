@@ -22,6 +22,7 @@
 #include "../channelListener.h" // base class
 
 #include <eq/client/types.h>
+#include <eq/base/hash.h>
 #include <deque>
 #include <map>
 
@@ -49,20 +50,32 @@ namespace server
         /** @sa CompoundListener::notifyUpdatePre */
         virtual void notifyUpdatePre( Compound* compound, 
                                       const uint32_t frameNumber );
-        
+
+    protected:        
+        // override in sub-classes to handle dynamic compounds.
+        virtual void notifyChildAdded( Compound* compound, Compound* child )
+            { EQASSERT( _listeners.empty( )); }
+        virtual void notifyChildRemove( Compound* compound, Compound* child )
+            { EQASSERT( _listeners.empty( )); }
+
     private:
         class Listener : public ChannelListener
         {
         public:
             Listener();
-            Listener( const Listener& from );
             virtual ~Listener();
 
-            const Listener& operator = ( const Listener& from );
+            void update( Compound* compound );
+            void clear();
+
+            virtual void notifyLoadData( Channel* channel, 
+                                         const uint32_t frameNumber,
+                                         const uint32_t nStatistics,
+                                         const eq::Statistic* statistics );
 
         private:
-
-            Channel* _channel;
+            typedef base::PtrHash< Channel*, uint32_t > TaskIDHash;
+            TaskIDHash _taskIDs;
         };
 
         typedef std::vector< Listener > ListenerVector;
