@@ -44,8 +44,7 @@ namespace eVolve
         virtual void frameDraw( const uint32_t frameID );
         virtual void frameAssemble( const uint32_t frameID );
         virtual void frameReadback( const uint32_t frameID );
-        virtual void frameFinish( const uint32_t frameID, 
-                                  const uint32_t frameNumber );
+        virtual void frameViewFinish( const uint32_t frameID );
 
         /** Applies the perspective or orthographic frustum. */
         virtual void applyFrustum() const;
@@ -58,8 +57,6 @@ namespace eVolve
         void _startAssemble();
 
         void _orderFrames( eq::FrameVector& frames );
-
-        void _drawLogo();
 
         void _calcMVandITMV( vmml::Matrix4d& modelviewM, 
                              vmml::Matrix3d& modelviewITM ) const;

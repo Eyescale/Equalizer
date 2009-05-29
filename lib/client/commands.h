@@ -164,6 +164,8 @@ namespace eq
         CMD_CHANNEL_FRAME_ASSEMBLE,
         CMD_CHANNEL_FRAME_READBACK,
         CMD_CHANNEL_FRAME_TRANSMIT,
+        CMD_CHANNEL_FRAME_VIEW_START,
+        CMD_CHANNEL_FRAME_VIEW_FINISH,
         CMD_CHANNEL_FILL1, // some buffer for binary-compatible patches
         CMD_CHANNEL_FILL2,
         CMD_CHANNEL_FILL3,

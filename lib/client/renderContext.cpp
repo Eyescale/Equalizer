@@ -39,8 +39,8 @@ RenderContext::RenderContext()
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                       const RenderContext& ctx )
 {
-    os << disableFlush << "ID " << ctx.frameID << " pvp " << ctx.pvp << " vp "
-       << ctx.vp << " " << ctx.range << " " << ctx.eye << enableFlush;
+    os << "ID " << ctx.frameID << " pvp " << ctx.pvp << " vp " << ctx.vp << " "
+       << ctx.range << " " << ctx.eye;
     return os;
 }
 }

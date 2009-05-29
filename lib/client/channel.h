@@ -473,6 +473,26 @@ namespace eq
          */
         virtual void frameReadback( const uint32_t frameID );
 
+        /** 
+         * Start updating a destination channel.
+         *
+         * Called on each destination channel, e.g., channels which are defined
+         * by a view/segment intersection, updating a part of a display.
+         * 
+         * @param frameID the per-frame identifier.
+         */
+        virtual void frameViewStart( const uint32_t frameID ) { /* nop */ }
+
+        /** 
+         * Finish updating a destination channel.
+         *
+         * This is typically used to do operations on the output channel after
+         * it has been fully updated, e.g., to draw a 2D overlay.
+         *
+         * @param frameID the per-frame identifier.
+         */
+        virtual void frameViewFinish( const uint32_t frameID ) { /* nop */ }
+
         /**
          * Setup the OpenGL state for a readback or assemble operation.
          *
@@ -607,6 +627,8 @@ namespace eq
         net::CommandResult _cmdFrameAssemble( net::Command& command );
         net::CommandResult _cmdFrameReadback( net::Command& command );
         net::CommandResult _cmdFrameTransmit( net::Command& command );
+        net::CommandResult _cmdFrameViewStart( net::Command& command );
+        net::CommandResult _cmdFrameViewFinish( net::Command& command );
     };
 }
 

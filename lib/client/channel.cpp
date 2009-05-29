@@ -101,6 +101,10 @@ void Channel::attachToSession( const uint32_t id,
                      ChannelFunc( this, &Channel::_cmdFrameReadback ), queue );
     registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
                      ChannelFunc( this, &Channel::_cmdFrameTransmit ), queue );
+    registerCommand( CMD_CHANNEL_FRAME_VIEW_START, 
+                     ChannelFunc( this, &Channel::_cmdFrameViewStart ), queue );
+    registerCommand( CMD_CHANNEL_FRAME_VIEW_FINISH, 
+                     ChannelFunc( this, &Channel::_cmdFrameViewFinish ), queue);
 }
 
 Pipe* Channel::getPipe()
@@ -1236,4 +1240,35 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
 
     return net::COMMAND_HANDLED;
 }
+
+net::CommandResult Channel::_cmdFrameViewStart( net::Command& command )
+{
+    ChannelFrameViewStartPacket* packet = 
+        command.getPacket<ChannelFrameViewStartPacket>();
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view start " << getName() <<  " "
+                                       << packet << endl;
+
+    _currentContext = &packet->context;
+    // TBD ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+    frameViewStart( packet->context.frameID );
+    _currentContext = &_nativeContext;
+
+    return net::COMMAND_HANDLED;
+}
+
+net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
+{
+    ChannelFrameViewFinishPacket* packet = 
+        command.getPacket<ChannelFrameViewFinishPacket>();
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view finish " << getName() <<  " "
+                                       << packet << endl;
+
+    _currentContext = &packet->context;
+    // TBD ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+    frameViewFinish( packet->context.frameID );
+    _currentContext = &_nativeContext;
+
+    return net::COMMAND_HANDLED;
+}
+
 }

@@ -281,16 +281,9 @@ void Channel::_drawModel( const Model* model )
 #endif    
 }
 
-void Channel::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
+void Channel::frameViewFinish( const uint32_t frameID )
 {
-    if( getView( )) // destination channel
-        _drawLogo();
-
-    eq::Channel::frameFinish( frameID, frameNumber );
-}
-
-void Channel::_drawLogo()
-{
+    // Draw the overlay logo
     const Window*  window      = static_cast<Window*>( getWindow( ));
     GLuint         texture;
     vmml::Vector2i size;

@@ -56,18 +56,20 @@ VisitorResult ChannelUpdateVisitor::visitPre(
 
     _updateDrawFinish( compound );
 
-    if( compound->getChannel() != _channel || 
-        !compound->testInheritEye( _eye ) )
-        
+    if( compound->getChannel() != _channel || !compound->testInheritEye( _eye ))
         return TRAVERSE_CONTINUE;
 
+    eq::RenderContext context;
+    _setupRenderContext( compound, context );
+
     _updateFrameRate( compound );
+    _updateViewStart( compound, context );
 
     if( compound->testInheritTask( eq::TASK_CLEAR ))
     {
         eq::ChannelFrameClearPacket clearPacket;        
-        
-        _setupRenderContext( compound, clearPacket.context );
+        clearPacket.context = context;
+
         _channel->send( clearPacket );
         _updated = true;
         EQLOG( eq::LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
@@ -81,18 +83,17 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
     if( !compound->isActive( ))
         return TRAVERSE_PRUNE;    
 
-    if( compound->getChannel() != _channel ||
-        !compound->testInheritEye( _eye ) )
+    if( compound->getChannel() != _channel || !compound->testInheritEye( _eye ))
     {
         _updateDrawFinish( compound );
         return TRAVERSE_CONTINUE;
     }
 
-    _updateFrameRate( compound );
-
+    // OPT: Send render context once before task packets?
     eq::RenderContext context;
     _setupRenderContext( compound, context );
-    // OPT: Send render context once before task packets?
+    _updateFrameRate( compound );
+    _updateViewStart( compound, context );
 
     if( compound->testInheritTask( eq::TASK_CLEAR ))
     {
@@ -125,13 +126,12 @@ VisitorResult ChannelUpdateVisitor::visitPost(
     if( !compound->isActive( ))
         return TRAVERSE_PRUNE;    
 
-    if( compound->getChannel() != _channel || !compound->getInheritTasks() ||
-        !compound->testInheritEye( _eye ))
-
+    if( compound->getChannel() != _channel || !compound->testInheritEye( _eye ))
         return TRAVERSE_CONTINUE;
 
     eq::RenderContext context;
     _setupRenderContext( compound, context );
+
     _updatePostDraw( compound, context );
     return TRAVERSE_CONTINUE;
 }
@@ -269,7 +269,7 @@ void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
     const float maxFPS = compound->getInheritMaxFPS();
     Window*     window = _channel->getWindow();
 
-    if( maxFPS <  window->getMaxFPS())
+    if( maxFPS < window->getMaxFPS())
         window->setMaxFPS( maxFPS );
 }
 
@@ -495,6 +495,7 @@ void ChannelUpdateVisitor::_updatePostDraw( const Compound* compound,
 {
     _updateAssemble( compound, context );
     _updateReadback( compound, context );
+    _updateViewFinish( compound, context );
 }
 
 void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
@@ -535,10 +536,10 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
 void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
                                             const eq::RenderContext& context )
 {
-    const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
     if( !compound->testInheritTask( eq::TASK_READBACK ))
         return;
 
+    const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
     EQASSERT( !outputFrames.empty( ));
 
     FrameVector                frames;
@@ -617,6 +618,38 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 
         _channel->send<net::NodeID>( transmitPacket, nodeIDs );
     }        
+}
+
+void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
+                                             const eq::RenderContext& context )
+{
+    const Channel* channel = compound->getChannel();
+    if( !compound->isDestination() || !channel->getView( ))
+        return;
+    
+    // view start task
+    eq::ChannelFrameViewStartPacket packet;
+    packet.context   = context;
+
+    EQLOG( eq::LOG_TASKS ) << "TASK view start " << _channel->getName() <<  " "
+                           << &packet << endl;
+    _channel->send( packet );
+}
+
+void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
+                                              const eq::RenderContext& context )
+{
+    const Channel* channel = compound->getChannel();
+    if( !compound->isDestination() || !channel->getView( ))
+        return;
+    
+    // view finish task
+    eq::ChannelFrameViewFinishPacket packet;
+    packet.context   = context;
+
+    EQLOG( eq::LOG_TASKS ) << "TASK view finish " << _channel->getName() <<  " "
+                           << &packet << endl;
+    _channel->send( packet );
 }
 
 }

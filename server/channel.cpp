@@ -461,20 +461,7 @@ void Channel::_setupRenderContext( const uint32_t frameID,
     context.frameID       = frameID;
     context.pvp           = _pvp;
     context.view          = _view;
-    context.overdraw      = _overdraw;
-
-    if( !_view || !_segment )
-    {
-        context.vp            = _vp;
-        EQASSERT( context.overdraw == vmml::Vector4i::ZERO );
-    }
-    else
-    {
-        context.pvp.w += _overdraw.x + _overdraw.z;
-        context.pvp.h += _overdraw.y + _overdraw.w;
-        context.vp.applyView( _segment->getViewport(), _view->getViewport(),
-                              _pvp, _overdraw );
-    }
+    context.vp            = _vp;
 }
 
 bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )

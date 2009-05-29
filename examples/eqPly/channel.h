@@ -43,15 +43,13 @@ namespace eqPly
         virtual bool configInit( const uint32_t initID );
         virtual void frameClear( const uint32_t frameID );
         virtual void frameDraw( const uint32_t frameID );
-        virtual void frameFinish( const uint32_t frameID, 
-                                  const uint32_t frameNumber );
+        virtual void frameViewFinish( const uint32_t frameID );
 
         /** Applies the perspective or orthographic frustum. */
         virtual void applyFrustum() const;
 
     private:
         void _drawModel( const Model* model );
-        void _drawLogo();
         void _drawHelp();
         void _initFrustum( vmml::FrustumCullerf& frustum, 
                            const vmml::Vector4f& boundingSphere );

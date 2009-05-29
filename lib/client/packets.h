@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -967,6 +966,24 @@ namespace eq
         EQ_ALIGN8( net::NodeID        nodes[1] );
     };
 
+    struct ChannelFrameViewStartPacket : public ChannelTaskPacket
+    {
+        ChannelFrameViewStartPacket()
+            {
+                command       = CMD_CHANNEL_FRAME_VIEW_START;
+                size          = sizeof( ChannelFrameViewStartPacket );
+            }
+    };
+        
+    struct ChannelFrameViewFinishPacket : public ChannelTaskPacket
+    {
+        ChannelFrameViewFinishPacket()
+            {
+                command       = CMD_CHANNEL_FRAME_VIEW_FINISH;
+                size          = sizeof( ChannelFrameViewFinishPacket );
+            }
+    };
+        
     //------------------------------------------------------------
     // Frame Data
     //------------------------------------------------------------
