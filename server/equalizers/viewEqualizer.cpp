@@ -297,7 +297,16 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
          i != _listeners.end(); ++i )
     {
         Listener& listener = *i;
+#if 1
         const Listener::Load& load = listener.useLoad( frame );
+#else
+        Listener::Load load = listener.useLoad( frame );
+        if( load.nResources )
+        {
+            load.time /= static_cast< float >( load.nResources );
+            load.time *= sqrtf( static_cast< float >( load.nResources ));
+        }
+#endif
 
         totalTime += load.time;
         loads.push_back( load );
@@ -523,7 +532,8 @@ ViewEqualizer::Listener::Load ViewEqualizer::Listener::Load::NONE( 0, 0, 1 );
 ViewEqualizer::Listener::Load::Load( const uint32_t frame_, 
                                      const uint32_t missing_,
                                      const int64_t time_ )
-        : frame( frame_ ), missing( missing_ ), time( time_ ) {}
+        : frame( frame_ ), missing( missing_ ), nResources( missing_ )
+        , time( time_ ) {}
 
 bool ViewEqualizer::Listener::Load::operator == ( const Load& rhs ) const
 {

@@ -84,6 +84,7 @@ namespace server
 
                 uint32_t frame;
                 uint32_t missing;
+                uint32_t nResources;
                 int64_t time;
             };
 
