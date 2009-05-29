@@ -56,7 +56,7 @@ std::string Channel::_iAttributeStrings[IATTR_ALL] = {
 
 Channel::Channel( Window* parent )
         : _window( parent )
-        , _currentContext( &_nativeContext )
+        , _context( &_nativeContext )
         , _tasks( TASK_NONE )
         , _state( STATE_STOPPED )
         , _fixedPVP( false )
@@ -316,8 +316,8 @@ void Channel::_notifyViewportChanged()
 
 void Channel::setNearFar( const float nearPlane, const float farPlane )
 {
-    if( _currentContext->frustum.nearPlane == nearPlane && 
-        _currentContext->frustum.farPlane == farPlane )
+    if( _context->frustum.nearPlane == nearPlane && 
+        _context->frustum.farPlane == farPlane )
     {
         return;
     }
@@ -327,12 +327,12 @@ void Channel::setNearFar( const float nearPlane, const float farPlane )
     _nativeContext.ortho.nearPlane  = nearPlane;
     _nativeContext.ortho.farPlane   = farPlane;
 
-    if( _currentContext != &_nativeContext )
+    if( _context != &_nativeContext )
     {
-        _currentContext->frustum.adjustNear( nearPlane );
-        _currentContext->frustum.farPlane = farPlane;
-        _currentContext->ortho.nearPlane = nearPlane;
-        _currentContext->ortho.farPlane  = farPlane;
+        _context->frustum.adjustNear( nearPlane );
+        _context->frustum.farPlane = farPlane;
+        _context->ortho.nearPlane = nearPlane;
+        _context->ortho.farPlane  = farPlane;
     }
 
     ChannelSetNearFarPacket packet;
@@ -476,73 +476,73 @@ void Channel::resetAssemblyState()
 
 void Channel::_setRenderContext( RenderContext& context )
 {
-    _currentContext = &context;
+    _context = &context;
     _window->addRenderContext( context );
 }
 
 const Viewport& Channel::getViewport() const
 {
-    return _currentContext->vp;
+    return _context->vp;
 }
 
 const PixelViewport& Channel::getPixelViewport() const
 {
-    return _currentContext->pvp;
+    return _context->pvp;
 }
 
 const vmml::Vector2i& Channel::getPixelOffset() const
 {
-    return _currentContext->offset;
+    return _context->offset;
 }
 
 uint32_t Channel::getDrawBuffer() const
 {
-    return _currentContext->buffer;
+    return _context->buffer;
 }
 
 uint32_t Channel::getReadBuffer() const
 {
-    return _currentContext->buffer;
+    return _context->buffer;
 }
 
 const ColorMask& Channel::getDrawBufferMask() const
 {
-    return _currentContext->bufferMask;
+    return _context->bufferMask;
 }
 
 const vmml::Frustumf& Channel::getFrustum() const
 {
-    return _currentContext->frustum;
+    return _context->frustum;
 }
 
 const vmml::Frustumf& Channel::getOrtho() const
 {
-    return _currentContext->ortho;
+    return _context->ortho;
 }
 
 const Range& Channel::getRange() const
 {
-    return _currentContext->range;
+    return _context->range;
 }
 
 const Pixel& Channel::getPixel() const
 {
-    return _currentContext->pixel;
+    return _context->pixel;
 }
 
 const Zoom& Channel::getZoom() const
 {
-    return _currentContext->zoom;
+    return _context->zoom;
 }
 
 Eye Channel::getEye() const
 {
-    return _currentContext->eye;
+    return _context->eye;
 }
 
 const vmml::Matrix4f& Channel::getHeadTransform() const
 {
-    return _currentContext->headTransform;
+    return _context->headTransform;
 }
 
 vmml::Frustumf Channel::getScreenFrustum() const
@@ -561,12 +561,12 @@ vmml::Frustumf Channel::getScreenFrustum() const
 
 const vmml::Vector4i& Channel::getOverdraw() const
 {
-    return _currentContext->overdraw;
+    return _context->overdraw;
 }
 
 uint32_t Channel::getTaskID() const
 {
-    return _currentContext->taskID;
+    return _context->taskID;
 }
 
 FrameBufferObject* Channel::getFrameBufferObject()
@@ -577,7 +577,7 @@ FrameBufferObject* Channel::getFrameBufferObject()
 const View* Channel::getView()
 {
     Pipe* pipe = getPipe();
-    return pipe->getView( _currentContext->view );
+    return pipe->getView( _context->view );
 }
 
 //---------------------------------------------------------------------------
@@ -688,7 +688,7 @@ bool Channel::processEvent( const Event& event )
             if( !view )
                 return true;
 
-            EQASSERT( _currentContext == &_nativeContext );
+            EQASSERT( _context == &_nativeContext );
             // transform to view event, which is meaningful for the config 
             configEvent.data.type       = Event::VIEW_RESIZE;
             configEvent.data.originator = view->getID();
@@ -1068,10 +1068,10 @@ net::CommandResult Channel::_cmdFrameStart( net::Command& command )
     _nativeContext.view     = packet->context.view;
     _nativeContext.overdraw = packet->context.overdraw;
 
-    _currentContext = &packet->context;
+    _context = &packet->context;
     bindFrameBuffer();
     frameStart( packet->context.frameID, packet->frameNumber );
-    _currentContext = &_nativeContext;
+    _context = &_nativeContext;
 
     return net::COMMAND_HANDLED;
 }
@@ -1083,9 +1083,9 @@ net::CommandResult Channel::_cmdFrameFinish( net::Command& command )
     EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
                        << endl;
 
-    _currentContext = &packet->context;
+    _context = &packet->context;
     frameFinish( packet->context.frameID, packet->frameNumber );
-    _currentContext = &_nativeContext;
+    _context = &_nativeContext;
 
     ChannelFrameFinishReplyPacket reply( packet );
     reply.nStatistics = _statistics.size();
@@ -1105,7 +1105,7 @@ net::CommandResult Channel::_cmdFrameClear( net::Command& command )
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
     frameClear( packet->context.frameID );
-    _currentContext = &_nativeContext;
+    _context = &_nativeContext;
 
     return net::COMMAND_HANDLED;
 }
@@ -1119,7 +1119,7 @@ net::CommandResult Channel::_cmdFrameDraw( net::Command& command )
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
     frameDraw( packet->context.frameID );
-    _currentContext = &_nativeContext;
+    _context = &_nativeContext;
 
     return net::COMMAND_HANDLED;
 }
@@ -1164,7 +1164,7 @@ net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
         (*i)->setData( 0 );
     }
     _inputFrames.clear();
-    _currentContext = &_nativeContext;
+    _context = &_nativeContext;
 
     return net::COMMAND_HANDLED;
 }
@@ -1176,7 +1176,7 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
                                        << packet << endl;
 
-    _currentContext = &packet->context;
+    _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
@@ -1196,7 +1196,7 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
     }
 
     _outputFrames.clear();
-    _currentContext = &_nativeContext;
+    _context = &_nativeContext;
     return net::COMMAND_HANDLED;
 }
 
@@ -1248,10 +1248,10 @@ net::CommandResult Channel::_cmdFrameViewStart( net::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view start " << getName() <<  " "
                                        << packet << endl;
 
-    _currentContext = &packet->context;
+    _setRenderContext( packet->context );
     // TBD ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
     frameViewStart( packet->context.frameID );
-    _currentContext = &_nativeContext;
+    _context = &_nativeContext;
 
     return net::COMMAND_HANDLED;
 }
@@ -1260,13 +1260,13 @@ net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
 {
     ChannelFrameViewFinishPacket* packet = 
         command.getPacket<ChannelFrameViewFinishPacket>();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view finish " << getName() <<  " "
-                                       << packet << endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view finish " << getName()
+                                      <<  " " << packet << endl;
 
-    _currentContext = &packet->context;
+    _setRenderContext( packet->context );
     // TBD ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
     frameViewFinish( packet->context.frameID );
-    _currentContext = &_nativeContext;
+    _context = &_nativeContext;
 
     return net::COMMAND_HANDLED;
 }

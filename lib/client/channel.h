@@ -528,7 +528,7 @@ namespace eq
         RenderContext _nativeContext;
 
         /** The rendering parameters for the current operation. */
-        RenderContext* _currentContext;
+        RenderContext* _context;
             
         /** The name. */
         std::string    _name;
