@@ -1,0 +1,89 @@
+# 2-window 'PowerWall' config using cross-loadbalancing with sort-last
+server
+{
+    config
+    {
+        # Render Resources
+        appNode
+        {
+            pipe
+            {
+                name "GPU 1"
+                window
+                {
+                    name "left"
+                    viewport [ 100 100 480 300 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+            }
+            pipe
+            {
+                name "GPU 2"
+                window
+                {
+                    name "right"
+                    viewport [ 580 100 480 300 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+        }
+        
+        # Output Resources
+        observer {}
+        layout { view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall
+            {
+                bottom_left  [ -.64 -.2 -1 ]
+                bottom_right [  .64 -.2 -1 ]
+                top_left     [ -.64  .2 -1 ]
+            }
+            segment
+            { 
+                channel "channel1"
+                viewport [ 0 0 .5 1 ]
+            }
+            segment
+            { 
+                channel "channel2"
+                viewport [ .5 0 .5 1 ]
+            }
+        }
+        
+        # Render Description
+        compound
+        {
+            view_equalizer {}
+            buffer [ COLOR DEPTH ]
+
+            compound
+            { 
+                channel ( segment 0 view 0 )
+                load_equalizer { mode DB }
+                
+                compound { }
+                compound { channel "channel2" outputframe { }}
+                inputframe { name "frame.channel2" }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel ( segment 1 view 0 )
+                load_equalizer { mode DB }
+                
+                compound { }
+                compound { channel "channel1" outputframe { }}
+                inputframe { name "frame.channel1" }
+                swapbarrier {}
+            }
+        }
+    }    
+}
