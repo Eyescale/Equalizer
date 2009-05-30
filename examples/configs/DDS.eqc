@@ -9,6 +9,7 @@ server
            {
                window
                {
+                   name "Left Segment"
                    viewport [ 100 100 480 300 ]
                    channel
                    {
@@ -17,6 +18,7 @@ server
                }
                window
                {
+                   name "Right Segment"
                    viewport [ 580 100 480 300 ]
                    channel
                    {
@@ -28,7 +30,8 @@ server
            {
                window
                {
-                   viewport [ 100 400 900 300 ]
+                   name "Operator"
+                   viewport [ 340 425 480 150 ]
                    channel { name "viewer" }
                }
            }
@@ -46,9 +49,9 @@ server
            layout "Simple"
            wall
            {
-               bottom_left  [ -.32 -.20 -.75 ]
-               bottom_right [  .32 -.20 -.75 ]
-               top_left     [ -.32  .20 -.75 ]
+               bottom_left  [ -.48 -.15 -.75 ]
+               bottom_right [  .48 -.15 -.75 ]
+               top_left     [ -.48  .15 -.75 ]
            }
 
            segment
