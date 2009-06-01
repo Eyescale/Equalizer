@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -29,12 +28,17 @@ namespace base
 {
     /**
      * Base class for referenced objects.
+     * 
+     * Implements reference-counted objects which destroy themselves once they
+     * are no longer referenced. Uses an Atomic variable to keep the reference
+     * count access thread-safe and efficient.
+     *
      * @sa RefPtr
      */
-    class EQ_EXPORT Referenced 
+    class Referenced 
     {
     public:
-        // TODO: optional thread-safety
+        /** Increase the reference count. */
         void ref()   
         {
 #ifndef NDEBUG
@@ -42,6 +46,11 @@ namespace base
 #endif
             ++_refCount;
         }
+
+        /** 
+         * Decrease the reference count and delete this object when the
+         * reference count reaches 0.
+         */
         void unref() 
             { 
 #ifndef NDEBUG
@@ -53,9 +62,11 @@ namespace base
                     delete this;
             }
 
+        /** @return the current reference count. */
         int  getRefCount() const { return _refCount; }
 
     protected:
+        /** Construct a new reference-counted object. */
         Referenced()
             : _refCount(0)
 #ifndef NDEBUG
@@ -63,6 +74,7 @@ namespace base
 #endif
             {}
 
+        /** Construct a new copy of a reference-counted object. */
         Referenced( const Referenced& ) 
             : _refCount(0)
 #ifndef NDEBUG
@@ -70,6 +82,7 @@ namespace base
 #endif
             {}
 
+        /** Destruct a reference-counted object. */
         virtual ~Referenced() 
             {
 #ifndef NDEBUG
@@ -83,8 +96,8 @@ namespace base
                 EQASSERT( _refCount == 0 );
             }
 
+    private:
         mtLong _refCount;
-
         bool _hasBeenDeleted;
     };
 }

@@ -272,7 +272,8 @@ ServerPtr Config::getServer()
 { 
     net::NodePtr node = net::Session::getServer();
     EQASSERT( dynamic_cast< Server* >( node.get( )));
-    return RefPtr_static_cast< net::Node, Server >( node );
+    ServerPtr server = static_cast< Server* >( node.get( ));
+    return server;
 }
 
 ClientPtr Config::getClient()

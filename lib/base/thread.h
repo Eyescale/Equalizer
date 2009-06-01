@@ -34,21 +34,21 @@ namespace eq
 namespace base
 {
     class ExecutionListener;
-    class ThreadPrivate; //<! @internal
+    class ThreadPrivate;
 
     /**
      * An abstraction for an execution thread.
      */
-    class EQ_EXPORT Thread 
+    class Thread 
     {
     public:
         /** 
          * Constructs a new thread.
          */
-        Thread();
+        EQ_EXPORT Thread();
 
         /** Destructs the thread. */
-        virtual ~Thread();
+        EQ_EXPORT virtual ~Thread();
 
         /** 
          * Starts the thread.
@@ -60,7 +60,7 @@ namespace base
          *         <code>false</code> otherwise.
          * @sa init(), run(), addListener()
          */
-        bool start();
+        EQ_EXPORT bool start();
 
         /** 
          * The init function for the child thread.
@@ -92,14 +92,14 @@ namespace base
          *
          * @param retVal the return value of the thread.
          */
-        virtual void exit( void* retVal = 0 );
+        EQ_EXPORT virtual void exit( void* retVal = 0 );
 
         /** 
          * Cancel (stop) the child thread.
          *
          * This function is not to be called from the child thread.
          */
-        void cancel();
+        EQ_EXPORT void cancel();
 
         /** 
          * Wait for the exit of the child thread.
@@ -109,7 +109,7 @@ namespace base
          * @return <code>true</code> if the thread was joined,
          *         <code>false</code> otherwise.
          */
-        bool join( void** retVal=0 );
+        EQ_EXPORT bool join( void** retVal=0 );
 
         /** 
          * Return if the thread is stopped.
@@ -139,27 +139,27 @@ namespace base
          * @return <code>true</code> if the current thread has is the same
          *         thread as this thread, <code>false</code> if not.
          */
-        bool isCurrent() const;
+        EQ_EXPORT bool isCurrent() const;
 
         /** 
          * Add a new thread state listener.
          * 
          * @param listener the listener.
          */
-        static void addListener( ExecutionListener* listener );
+        EQ_EXPORT static void addListener( ExecutionListener* listener );
 
         /** 
          * Remove a thread state listener.
          * 
          * @param listener the listener.
          */
-        static bool removeListener( ExecutionListener* listener );
+        EQ_EXPORT static bool removeListener( ExecutionListener* listener );
 
         /** Remove all registered listeners, used at exit. */
-        static void removeAllListeners();
+        EQ_EXPORT static void removeAllListeners();
 
         /** @return a unique identifier for the calling thread. */
-        static size_t getSelfThreadID();
+        EQ_EXPORT static size_t getSelfThreadID();
 
         /** @internal */
         static void pinCurrentThread();
@@ -203,6 +203,7 @@ namespace base
 // development may cause false positives, e.g., when threadsafety is ensured
 // outside of the objects by the application.
 
+/** Declare a thread id variable to be used for thread-safety checks. */
 #define CHECK_THREAD_DECLARE( NAME )                        \
     struct NAME ## Struct                                   \
     {                                                       \

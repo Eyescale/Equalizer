@@ -339,7 +339,8 @@ void Channel::setNearFar( const float nearPlane, const float farPlane )
     packet.nearPlane = nearPlane;
     packet.farPlane  = farPlane;
     
-    net::NodePtr node = RefPtr_static_cast< Server, net::Node >( getServer( ));
+    ServerPtr server = getServer();
+    net::NodePtr node = server.get();
     send( node, packet );
 }
 

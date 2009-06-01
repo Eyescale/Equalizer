@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1q as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -30,26 +29,27 @@ namespace eq
 {
 namespace base
 {
-    struct RefPtr_scast{};
-
     /**
-     * A smart reference pointer
+     * A smart reference pointer.
+     *
+     * Relies on the held object to implement ref and unref correctly.
      */
     template<class T> class RefPtr 
     {
     public:
+        /** Construct a new, empty reference pointer. */
         RefPtr()                     : _ptr( 0 )         {}
+        /** Construct a reference pointer from a C pointer. */
         RefPtr( T* const ptr )       : _ptr( ptr )       { ref(); }
+        /** Construct a copy of a reference pointer. */
         RefPtr( const RefPtr& from ) : _ptr( from._ptr ) { ref(); }
-        
-        template<class from>
-        RefPtr( RefPtr<from> const &f, RefPtr_scast )
-            { _ptr = static_cast<T*>(f._ptr); ref(); }
-
-
+        /** Destruct this reference pointer. */
         ~RefPtr() { unref(); _ptr = 0; }
 
+        /** Artificially reference the held object. */
         void ref()   { if(_ptr) _ptr->ref(); }
+
+        /** Artificially dereference the held object. */
         void unref() 
         {
             if(_ptr)
@@ -65,6 +65,7 @@ namespace base
             }
         }
 
+        /** Assign another reference pointer to this reference pointer. */
         RefPtr& operator = ( const RefPtr& rhs )
             {
                 if( _ptr == rhs._ptr )
@@ -76,6 +77,8 @@ namespace base
                 if( tmp ) tmp->unref();
                 return *this;
             }
+
+        /** Assign a C pointer to this reference pointer. */
         RefPtr& operator = ( T* ptr )
             {
                 if( _ptr == ptr )
@@ -88,47 +91,50 @@ namespace base
                 return *this;
             }
 
+        /** @return true if both reference pointers hold the same C pointer */
         bool operator == ( const RefPtr& rhs ) const 
             { return ( _ptr==rhs._ptr ); }
+        /** @return true if both reference pointer hold different C pointer */
         bool operator != ( const RefPtr& rhs ) const
             { return ( _ptr!=rhs._ptr ); }
+        /** @return true if the left RefPtr is smaller then the right. */
         bool operator <  ( const RefPtr& rhs ) const
             { return ( _ptr < rhs._ptr ); }
+        /** @return true if the right RefPtr is smaller then the left. */
         bool operator >  ( const RefPtr& rhs ) const
             { return ( _ptr > rhs._ptr ); }
+        /** @return true if the RefPtr is empty. */
         bool operator ! () const               { return ( _ptr==0 ); }
 
+        /** @return true if the reference pointers holds the C pointer */
         bool operator == ( const T* ptr ) const { return ( _ptr==ptr ); }
+        /** @return true if the reference pointers does not hold the C pointer*/
         bool operator != ( const T* ptr ) const { return ( _ptr!=ptr ); }
-        bool operator <  ( const T* ptr ) const { return ( _ptr < ptr ); }
-        bool operator >  ( const T* ptr ) const { return ( _ptr > ptr ); }
 
+        /** Access the held object. */
         T*       operator->()       
             { EQASSERTINFO( _ptr, typeid(*this).name( )); return _ptr; }
+        /** Access the held object. */
         const T* operator->() const
             { EQASSERTINFO( _ptr, typeid(*this).name( )); return _ptr; }
+        /** Access the held object. */
         T&       operator*()        
             { EQASSERTINFO( _ptr, typeid(*this).name( )); return *_ptr; }
+        /** Access the held object. */
         const T& operator*() const  
             { EQASSERTINFO( _ptr, typeid(*this).name( )); return *_ptr; }
 
+        /** @return the C pointer. */
         T*       get()                { return _ptr; }
+        /** @return the C pointer. */
         const T* get() const          { return _ptr; }
-        T&       getReference()       { EQASSERT( _ptr ); return *_ptr; }
-        const T& getReference() const { EQASSERT( _ptr ); return *_ptr; }
 
+        /** @return true if the RefPtr holds a non-NULL pointer. */
         bool isValid() const { return ( _ptr != 0 ); }
         
     private:
         T* _ptr;
-
-        template<class U> friend class RefPtr;
     };
-
-    // cast functions
-    template<class from, class to> RefPtr<to> RefPtr_static_cast( RefPtr<from>
-                                                                  const &f )
-    { return RefPtr<to>( f, RefPtr_scast() ); }
 
     template< class T >
     inline std::ostream& operator << ( std::ostream& os, const RefPtr<T>& rp )

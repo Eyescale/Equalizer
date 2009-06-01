@@ -65,12 +65,12 @@ GLXEventHandler::~GLXEventHandler()
     for( net::ConnectionVector::const_iterator i = connections.begin(); 
          i != connections.end(); ++i )
     {
-        X11ConnectionPtr connection = 
-            RefPtr_static_cast< net::Connection, X11Connection >( *i );
-        
-        if( connection->pipe == _pipe )
+        net::ConnectionPtr connection = *i;
+        X11ConnectionPtr x11Connection = static_cast< X11Connection* >( 
+                                             connection.get( ));
+        if( x11Connection->pipe == _pipe )
         {
-            _pipeConnections->removeConnection( *i );
+            _pipeConnections->removeConnection( connection );
             EQASSERTINFO( connection->getRefCount() == 1,
                           connection->getRefCount( ));
             break;
@@ -141,10 +141,11 @@ void GLXEventHandler::dispatchAll()
     for( net::ConnectionVector::const_iterator i = connections.begin(); 
          i != connections.end(); ++i )
     {
-        X11ConnectionPtr connection = 
-            RefPtr_static_cast< net::Connection, X11Connection >( *i );
+        net::ConnectionPtr connection = *i;
+        X11ConnectionPtr x11Connection = static_cast< X11Connection* >( 
+                                             connection.get( ));
         
-        _handleEvents( connection );
+        _handleEvents( x11Connection );
     }
 }
 

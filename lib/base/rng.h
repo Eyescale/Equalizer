@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -26,10 +25,16 @@ namespace eq
 {
 namespace base
 {
-    /** A random number generator */
-    class EQ_EXPORT RNG
+    /**
+     * A random number generator.
+     *
+     * Generates a set of random, or if not supported by the operating system,
+     * pseudo-random numbers. Each instance creates its own set of numbers.
+     */
+    class RNG
     {
     public:
+        /** Construct a new random number generator. */
         RNG()
         {
 #ifdef Linux
@@ -39,6 +44,7 @@ namespace base
             reseed();
         }
 
+        /** Destruct the random number generator. */
         ~RNG()
         {
 #ifdef Linux
@@ -47,6 +53,7 @@ namespace base
 #endif
         }
 
+        /** Re-initialize the seed value for pseudo RNG's. */
         void reseed()
         {
 #ifdef Linux
@@ -60,6 +67,7 @@ namespace base
 #endif
         }
 
+        /** @return a random number. */
         template< typename T >
         T get()
         {
@@ -77,12 +85,11 @@ namespace base
 
             EQASSERTINFO( RAND_MAX >= 32767, RAND_MAX );
 
-            unsigned char* bytes = reinterpret_cast< unsigned char* >( &value );
+            uint8_t* bytes = reinterpret_cast< uint8_t* >( &value );
             for( size_t i=0; i<sizeof( T ); ++i )
                 bytes[i] = ( rand() & 255 );
 #else // Darwin
-            unsigned char* bytes = 
-                reinterpret_cast< unsigned char* >( &value );
+            uint8_t* bytes = reinterpret_cast< uint8_t* >( &value );
             for( size_t i=0; i<sizeof( T ); ++i )
                 bytes[i] = ( random() & 255 );
 #endif

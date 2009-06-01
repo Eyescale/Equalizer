@@ -18,7 +18,7 @@
 #ifndef EQBASE_TIMEDLOCK_H
 #define EQBASE_TIMEDLOCK_H
 
-#include <eq/base/thread.h>
+#include <eq/base/base.h>
 
 namespace eq
 {
@@ -33,10 +33,10 @@ namespace base
     {
     public:
         /** Constructs a new timed lock. */
-        TimedLock();
+        EQ_EXPORT TimedLock();
 
         /** Destructs the lock. */
-        ~TimedLock();
+        EQ_EXPORT ~TimedLock();
 
         /** 
          * Set the lock. 
@@ -47,12 +47,12 @@ namespace base
          * @return <code>true</code> if the lock was acquired,
          *         <code>false</code> if not.
          */
-        bool set( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        EQ_EXPORT bool set( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
         /** 
          * Releases the lock.
          */
-        void unset();
+        EQ_EXPORT void unset();
 
         /** 
          * Attempts to set the lock.
@@ -60,7 +60,7 @@ namespace base
          * @return <code>true</code> if the lock was acquired,
          *         <code>false</code> if not.
          */
-        bool trySet();
+        EQ_EXPORT bool trySet();
 
         /** 
          * Tests if the lock is set.
@@ -68,7 +68,7 @@ namespace base
          * @return <code>true</code> if the lock is set,
          *         <code>false</code> if it is not set.
          */
-        bool test(); 
+        EQ_EXPORT bool test(); 
 
     private:
         TimedLockPrivate* _data;

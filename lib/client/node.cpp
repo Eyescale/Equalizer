@@ -280,8 +280,8 @@ void Node::releaseFrame( const uint32_t frameNumber )
     NodeFrameFinishReplyPacket packet;
     packet.frameNumber = frameNumber;
 
-    net::NodePtr node = 
-        RefPtr_static_cast< Server, net::Node >( _config->getServer( ));
+    ServerPtr server = _config->getServer();
+    net::NodePtr node = server.get();
     send( node, packet );
 }
 

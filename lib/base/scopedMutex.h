@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -30,7 +29,7 @@ namespace base
      * 
      * The mutex is automatically set upon creation, and released when the
      * scoped mutex is destroyed, e.g., when the scope is left. The scoped mutex
-     * does nothing if a NULL pointer for the lock/spin lock is passed.
+     * does nothing if a 0 pointer for the lock is passed.
      */
     class ScopedMutex
     {
@@ -38,10 +37,12 @@ namespace base
         /** 
          * Constructs a new scoped mutex using the given lock.
          * 
-         * @param lock the mutex to set and unset.
+         * @param lock the mutex to set and unset, or 0.
          */
         explicit ScopedMutex( Lock* lock ) : _lock( lock )
             { if( lock ) lock->set(); }
+
+        /** Constructs a new scoped mutex using the given lock. */
         explicit ScopedMutex( Lock& lock ) : _lock( &lock )
             { lock.set(); }
 
