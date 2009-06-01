@@ -573,9 +573,6 @@ namespace eq
         
         /** The statistics events gathered during the current frame. */
         std::vector< Statistic > _statistics;
-#ifdef EQ_ASYNC_TRANSMIT
-        base::SpinLock _statisticsLock;
-#endif
 
         /** The initial channel size, used for view resize events. */
         vmml::Vector2i _initialSize;

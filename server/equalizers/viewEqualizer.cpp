@@ -644,7 +644,7 @@ void ViewEqualizer::Listener::newLoad( const uint32_t frameNumber,
                                        const uint32_t nChannels )
 {
     EQASSERT( nChannels > 0 );
-    _loads.push_front( Load( frameNumber, nChannels, 0.0f ));
+    _loads.push_front( Load( frameNumber, nChannels, 0 ));
 }
 
 std::ostream& operator << ( std::ostream& os, const ViewEqualizer* equalizer )

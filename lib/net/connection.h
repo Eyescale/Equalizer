@@ -26,7 +26,7 @@
 #include <eq/base/refPtr.h>
 #include <eq/base/referenced.h>
 #include <eq/base/scopedMutex.h>
-#include <eq/base/spinLock.h>
+#include <eq/base/lock.h>
 
 #include <sys/types.h>
 #include <string.h>
@@ -344,7 +344,7 @@ namespace net
         State                    _state; //!< The connection state
         ConnectionDescriptionPtr _description;
 
-        mutable base::SpinLock _sendLock;
+        mutable base::Lock _sendLock;
 
         /** The listeners on state changes */
         std::vector< ConnectionListener* > _listeners;

@@ -1,10 +1,9 @@
  
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -50,7 +49,7 @@ RequestHandler::~RequestHandler()
 
 uint32_t RequestHandler::registerRequest( void* data )
 {
-    ScopedMutex< Lock > mutex( _mutex );
+    ScopedMutex mutex( _mutex );
     if( !_mutex )
         CHECK_THREAD( _thread );
 
@@ -72,7 +71,7 @@ uint32_t RequestHandler::registerRequest( void* data )
 
 void RequestHandler::unregisterRequest( const uint32_t requestID )
 {
-    ScopedMutex< Lock > mutex( _mutex );
+    ScopedMutex mutex( _mutex );
     if( !_mutex )
         CHECK_THREAD( _thread );
 
@@ -145,7 +144,7 @@ bool RequestHandler::_waitRequest( const uint32_t requestID,
     if( requestServed )
         result = request->result;
 
-    ScopedMutex< Lock > mutex( _mutex );
+    ScopedMutex mutex( _mutex );
     iter = _requests.find( requestID );
     _requests.erase( iter );
     _freeRequests.push_front( request );
@@ -155,7 +154,7 @@ bool RequestHandler::_waitRequest( const uint32_t requestID,
 
 void* RequestHandler::getRequestData( const uint32_t requestID )
 {
-    ScopedMutex< Lock > mutex( _mutex );
+    ScopedMutex mutex( _mutex );
     RequestHash::const_iterator i = _requests.find( requestID );
     if( i == _requests.end( ))
         return 0;
@@ -205,7 +204,7 @@ void RequestHandler::serveRequest( const uint32_t requestID, bool result )
     
 bool RequestHandler::isServed( const uint32_t requestID ) const
 {
-    ScopedMutex< Lock > mutex( _mutex );
+    ScopedMutex mutex( _mutex );
     RequestHash::const_iterator iter = _requests.find( requestID );
     if( iter == _requests.end( ))
         return false;

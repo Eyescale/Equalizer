@@ -93,7 +93,7 @@ namespace net
 
     private:
         /** Mutex protecting changes to the set. */
-        base::SpinLock _mutex;
+        base::Lock _mutex;
 
         /** The connections to handle */
         ConnectionVector _connections;

@@ -24,8 +24,6 @@
 #include <eq/client/window.h>         // Window::IAttribute enum
 #include <eq/client/windowSystem.h>   // GLEWContext
 
-#include <eq/base/spinLock.h>       
-
 namespace eq
 {
     class FrameBufferObject;

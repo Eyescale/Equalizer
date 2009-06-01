@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -26,7 +25,7 @@
 #include "scopedMutex.h"
 #include "executionListener.h"
 
-#include <eq/base/spinLock.h>
+#include <eq/base/lock.h>
 
 #include <errno.h>
 #include <string.h>
@@ -53,9 +52,9 @@ namespace base
 {
 namespace
 {
-static SpinLock& _listenerLock()
+static Lock& _listenerLock()
 {
-    static SpinLock lock;
+    static Lock lock;
     return lock;
 }
 
@@ -284,13 +283,13 @@ size_t Thread::getSelfThreadID()
 
 void Thread::addListener( ExecutionListener* listener )
 {
-    ScopedMutex< SpinLock > mutex( _listenerLock() );
+    ScopedMutex mutex( _listenerLock() );
     _listeners().push_back( listener );
 }
 
 bool Thread::removeListener( ExecutionListener* listener )
 {
-    ScopedMutex< SpinLock > mutex( _listenerLock() );
+    ScopedMutex mutex( _listenerLock() );
 
     vector< ExecutionListener* >::iterator i = find( _listeners().begin(),
                                                      _listeners().end(),
@@ -325,8 +324,8 @@ void Thread::removeAllListeners()
 void Thread::pinCurrentThread()
 {
 #ifdef EQ_WIN32_THREAD_AFFINITY
-    static SpinLock lock;
-    ScopedMutex< SpinLock > mutex( lock );
+    static Lock lock;
+    ScopedMutex mutex( lock );
 
     static DWORD_PTR processMask = 0;
     static DWORD_PTR processor   = 0;

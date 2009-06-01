@@ -227,7 +227,7 @@ const NodeID& Session::getIDMaster( const uint32_t id )
     send( packet );
     _requestHandler.waitRequest( packet.requestID );
 
-    ScopedMutex< base::SpinLock > mutex( _idMasterMutex );
+    ScopedMutex mutex( _idMasterMutex );
     EQLOG( LOG_OBJECTS ) << "Master node for id " << id << ": " 
         << _pollIDMaster( id ) << endl;
     return _pollIDMaster( id );
@@ -643,7 +643,7 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
 
     IDMasterInfo info = { packet->start, packet->start+packet->range, nodeID };
 
-    ScopedMutex< base::SpinLock > mutex( _idMasterMutex );
+    ScopedMutex mutex( _idMasterMutex );
     _idMasterInfos.push_back( info );
 
     if( packet->requestID != EQ_ID_INVALID ) // need to ack set operation
@@ -705,7 +705,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
 
         IDMasterInfo info = { packet->start, packet->end, nodeID };
 
-        ScopedMutex< base::SpinLock > mutex( _idMasterMutex );
+        ScopedMutex mutex( _idMasterMutex );
         _idMasterInfos.push_back( info );
     }
     // else not found

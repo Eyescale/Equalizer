@@ -17,7 +17,7 @@
  */
 
 /** 
- * @file compressor.h
+ * @file interface/compressor.h
  * 
  * The API to create runtime-loadable compression plugins.
  *

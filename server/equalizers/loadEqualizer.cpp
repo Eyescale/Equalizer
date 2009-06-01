@@ -481,7 +481,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
         EQASSERT( data.taskID > 0 );
 
         if( !vp.hasArea() || !range.hasData( )) // will not render
-            data.time = 0.f;
+            data.time = 0;
 
         LBFrameData&  frameData = _history.back();
         LBDataVector& items     = frameData.second;

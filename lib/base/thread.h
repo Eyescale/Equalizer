@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -35,10 +34,10 @@ namespace eq
 namespace base
 {
     class ExecutionListener;
-    class ThreadPrivate;
+    class ThreadPrivate; //<! @internal
 
     /**
-     * An abstraction to create a new execution thread.
+     * An abstraction for an execution thread.
      */
     class EQ_EXPORT Thread 
     {
@@ -59,7 +58,7 @@ namespace base
          * 
          * @return <code>true</code> if the thread was launched,
          *         <code>false</code> otherwise.
-         * @sa init(), run()
+         * @sa init(), run(), addListener()
          */
         bool start();
 
@@ -67,11 +66,11 @@ namespace base
          * The init function for the child thread.
          *
          * The parent thread will not be unlocked before this function has been
-         * executed. If the thread initialisation fails, that is, this method
+         * executed. If the thread initialization fails, that is, this method
          * did return false, the thread will be stopped and the start() method
          * will return false.
          * 
-         * @return the success value of the thread initialisation.
+         * @return the success value of the thread initialization.
          */
         virtual bool init(){ return true; }
 
@@ -86,7 +85,7 @@ namespace base
         virtual void* run() = 0;
 
         /** 
-         * Exits the child thread immediately.
+         * Exit the child thread immediately.
          * 
          * This function does not return. It is only to be called from the child
          * thread. The thread listeners will be notified.
@@ -96,14 +95,14 @@ namespace base
         virtual void exit( void* retVal = 0 );
 
         /** 
-         * Cancels (stops) the child thread.
+         * Cancel (stop) the child thread.
          *
          * This function is not to be called from the child thread.
          */
         void cancel();
 
         /** 
-         * Waits for the exit of the child thread.
+         * Wait for the exit of the child thread.
          *
          * @param retVal output value for the return value of the child, can be
          *               <code>0</code>.
@@ -113,7 +112,7 @@ namespace base
         bool join( void** retVal=0 );
 
         /** 
-         * Returns if the thread is stopped.
+         * Return if the thread is stopped.
          * 
          * Note that the thread may be neither running nor stopped if it is
          * currently starting or stopping.
@@ -124,7 +123,7 @@ namespace base
         bool isStopped() const { return ( _state == STATE_STOPPED ); }
 
         /** 
-         * Returns if the thread is running.
+         * Return if the thread is running.
          * 
          * Note that the thread may be neither running nor stopped if it is
          * currently starting or stopping.
@@ -135,7 +134,7 @@ namespace base
         bool isRunning() const { return ( _state == STATE_RUNNING ); }
 
         /** 
-         * Returns if this thread is the current (calling) thread.
+         * Returns if this thread object is the current (calling) thread.
          * 
          * @return <code>true</code> if the current thread has is the same
          *         thread as this thread, <code>false</code> if not.

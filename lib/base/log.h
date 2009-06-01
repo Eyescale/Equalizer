@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -14,6 +13,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/**
+ * @file base/log.h
+ * 
+ * This file contains the logging classes for Equalizer. The macros EQERROR,
+ * EQWARN, EQINFO and EQVERB output messages at their respective logging level,
+ * if the level is active. They use a per-thread base::Log instance, which is a
+ * std::ostream.
  */
 
 #ifndef EQBASE_LOG_H
@@ -40,21 +48,25 @@ namespace base
     /** The logging levels. */
     enum LogLevel
     {
-        LOG_ERROR = 1,
-        LOG_WARN,
-        LOG_INFO,
-        LOG_VERB,
+        LOG_ERROR = 1, //!< Output critical errors
+        LOG_WARN,      //!< Output potentially critical warnings
+        LOG_INFO,      //!< Output informational messages
+        LOG_VERB,      //!< Be noisy
         LOG_ALL
     };
 
-    /** The logging topics. */
+    /** 
+     * The logging topics.
+     * 
+     * @sa net/log.h, client/log.h
+     */
     enum LogTopic
     {
-        LOG_CUSTOM = 0x10,       // 16
-        LOG_ANY    = 0xfffu      // Does not include user-level events.
+        LOG_CUSTOM = 0x10,       //!< Log topics for other namespaces start here
+        LOG_ANY    = 0xffffu     //!< Log all Equalizer topics
     };
 
-    /** The string buffer used for logging. */
+    /** The string buffer used for logging. @internal */
     class LogBuffer : public std::streambuf
     {
     public:
@@ -133,7 +145,7 @@ namespace base
         std::ostream& _stream;
     };
 
-    /** The logging class */
+    /** The logging class. @internal */
     class Log : public std::ostream
     {
     public:
@@ -184,22 +196,28 @@ namespace base
 
     };
 
-    /** The ostream indent manipulator. */
+    /** 
+     * Increases the indentation level of the Log stream, causing subsequent
+     * lines to be intended by four characters.
+     */
     EQ_EXPORT std::ostream& indent( std::ostream& os );
-    /** The ostream exdent manipulator. */
+    /** Decrease the indent of the Log stream. */
     EQ_EXPORT std::ostream& exdent( std::ostream& os );
-    /** The ostream flush disable manipulator. */
+
+    /** Disable flushing of the Log stream. */
     EQ_EXPORT std::ostream& disableFlush( std::ostream& os );
-    /** The ostream flush enable manipulator. */
+    /** Re-enable flushing of the Log stream. */
     EQ_EXPORT std::ostream& enableFlush( std::ostream& os );
-    /** The ostream forced flush manipulator. */
+    /** Flush the Log stream regardless of the auto-flush state. */
     EQ_EXPORT std::ostream& forceFlush( std::ostream& os );
-    /** The ostream header disable manipulator. */
+
+    /** Disable printing of the Log header for subsequent lines. */
     EQ_EXPORT std::ostream& disableHeader( std::ostream& os );
-    /** The ostream header enable manipulator. */
+    /** Re-enable printing of the Log header for subsequent lines. */
     EQ_EXPORT std::ostream& enableHeader( std::ostream& os );
 
 #ifdef WIN32
+    /** @return the given Win32 error as a string. @warning WIN32 only. */
     inline std::string getErrorString( const DWORD error )
     {
         char text[512] = "";
@@ -209,6 +227,7 @@ namespace base
             text[length-2] = '\0';
         return std::string( text );
     }
+    /** @return the last Win32 error as a string. @warning WIN32 only. */
     inline std::string getLastErrorString()
     {
          return getErrorString( GetLastError( ));
@@ -221,14 +240,20 @@ namespace base
 #  define SUBDIR ""
 #endif
 
+/** Output an error message to the per-thread Log stream. */
 #define EQERROR (eq::base::Log::level >= eq::base::LOG_ERROR) &&    \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+/** Output a warning message to the per-thread Log stream. */
 #define EQWARN  (eq::base::Log::level >= eq::base::LOG_WARN)  &&    \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+/** Output an informational message to the per-thread Log stream. */
 #define EQINFO  (eq::base::Log::level >= eq::base::LOG_INFO)  &&    \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+/** Output a verbatim message to the per-thread Log stream. */
 #define EQVERB  (eq::base::Log::level >= eq::base::LOG_VERB)  &&    \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+
+/** Output a message pertaining to a topic to the per-thread Log stream. */
 #define EQLOG(topic)  (eq::base::Log::topics & (topic))  &&  \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 

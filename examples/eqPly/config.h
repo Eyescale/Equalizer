@@ -84,7 +84,7 @@ namespace eqPly
 
         ModelVector     _models;
         ModelDistVector _modelDist;
-        eq::base::SpinLock _modelLock;
+        eq::base::Lock  _modelLock;
 
         CameraAnimation _animation;
 

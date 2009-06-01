@@ -7,7 +7,7 @@
 
 //  Disclaimer: Not a Boost library.
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
    Modifications to use within eq::base namespace and naming conventions.
    Original at http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
 */
@@ -16,8 +16,6 @@
 #define EQBASE_COMPAREANDSWAP_H
 
 #include <eq/base/base.h>
-#include <eq/base/spinLock.h>       // used in inline function
-#include <eq/base/scopedMutex.h>    // used in inline function
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1300)
 #  include <intrin.h>
@@ -72,9 +70,11 @@ inline bool compareAndSwap(volatile C * addr, D old, D nw)
                                     reinterpret_cast<AO_t>(nw));
 #else
 #  warning ("CompareAndSwap emulation")
+#  include <eq/base/lock.h>           // used in inline function
+#  include <eq/base/scopedMutex.h>    // used in inline function
 
-    static SpinLock guard;
-    ScopedMutex< SpinLock > lock(guard);
+    static Lock guard;
+    ScopedMutex lock(guard);
 
     if (*addr == old)
     {

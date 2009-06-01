@@ -35,7 +35,7 @@
 #include <eq/net/objectVersion.h>
 
 #include <eq/base/refPtr.h>
-#include <eq/base/spinLock.h>
+#include <eq/base/lock.h>
 #include <eq/base/thread.h>
 
 namespace eq
@@ -433,7 +433,7 @@ namespace eq
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
-        base::SpinLock        _frameTimeMutex;
+        base::Lock            _frameTimeMutex;
 
         /** The base time for the currently active frame. */
         int64_t _frameTime;

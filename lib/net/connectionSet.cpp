@@ -105,7 +105,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
 {
     EQASSERT( connection->isConnected() || connection->isListening( ));
     {
-        base::ScopedMutex< SpinLock > mutex( _mutex );
+        base::ScopedMutex mutex( _mutex );
         EQASSERTINFO( _connections.size() < 63,
             "Connection set can't handle more than 63 connections" );
         _connections.push_back( connection );
@@ -117,7 +117,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
 bool ConnectionSet::removeConnection( ConnectionPtr connection )
 {
     {
-        ScopedMutex< SpinLock > mutex( _mutex );
+        ScopedMutex mutex( _mutex );
         ConnectionVector::iterator i = find( _connections.begin(),
                                              _connections.end(), connection );
         if( i == _connections.end( ))

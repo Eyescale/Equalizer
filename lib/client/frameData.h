@@ -190,9 +190,9 @@ namespace server
 
         friend class eq::server::FrameData;
 
-        ImageVector     _images;
-        ImageVector     _imageCache;
-        base::SpinLock  _imageCacheLock;
+        ImageVector  _images;
+        ImageVector  _imageCache;
+        base::Lock   _imageCacheLock;
 
         GLuint     _colorType; 
         ROIFinder* _roiFinder;

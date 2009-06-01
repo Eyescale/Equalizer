@@ -17,7 +17,6 @@
 
 #include <eq/base/nonCopyable.h>    // base class
 #include <eq/base/compareAndSwap.h> // used in inline methods
-#include <eq/base/spinLock.h>       // used in inline methods
 
 namespace eq
 {
@@ -25,54 +24,60 @@ namespace base
 {
 #if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
 
+/** An variable with atomic operations. */
 template <typename T>
 class Atomic: public NonCopyable
 {
 public:
+    /** Construct a new atomic variable with an initial value. */
     explicit Atomic( T v = 0 )
             : _value(v)
     {}
 
+    /** @return the current value */
     operator T(void) const
     {
         return __sync_fetch_and_add(&_value, 0);
     }
 
+    /** Assign a new value */
     void operator =(T v)
     {
         _value = v;
         __sync_synchronize();
     }
 
+    /** Atomically add a value and return the new value. */
     T operator +=(T v)
     {
         return __sync_add_and_fetch(&_value, v);
     }
 
+    /** Atomically substract a value and return the new value. */
     T operator -=(T v)
     {
         return __sync_sub_and_fetch(&_value, v);
     }
 
-    /* prefix operator */
+    /** Atomically increment by one and return the new value. */
     T operator ++(void)
     {
         return __sync_add_and_fetch(&_value, 1);
     }
 
-    /* prefix operator */
+    /** Atomically decrement by one and return the new value. */
     T operator --(void)
     {
         return __sync_sub_and_fetch(&_value, 1);
     }
 
-    /* postfix operator */
+    /** Atomically increment by one and return the old value. */
     T operator ++(int)
     {
         return __sync_fetch_and_add(&_value, 1);
     }
 
-    /* postfix operator */
+    /** Atomically decrement by one and return the new value. */
     T operator --(int)
     {
         return __sync_fetch_and_sub(&_value, 1);
@@ -224,6 +229,8 @@ private:
 };
 
 #else
+#  warning ("Atomic emulation")
+#  include <eq/base/lock.h>       // used in inline methods
 
 template <typename T>
 class Atomic: public NonCopyable
@@ -301,8 +308,8 @@ public:
     }
 
 private:
-    T        _value;
-    SpinLock _lock;
+    T    _value;
+    Lock _lock;
 };
 #endif
 

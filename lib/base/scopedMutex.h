@@ -32,7 +32,6 @@ namespace base
      * scoped mutex is destroyed, e.g., when the scope is left. The scoped mutex
      * does nothing if a NULL pointer for the lock/spin lock is passed.
      */
-    template< typename T > // T == Lock or SpinLock
     class ScopedMutex
     {
     public:
@@ -41,9 +40,9 @@ namespace base
          * 
          * @param lock the mutex to set and unset.
          */
-        explicit ScopedMutex( T* lock ) : _lock( lock )
+        explicit ScopedMutex( Lock* lock ) : _lock( lock )
             { if( lock ) lock->set(); }
-        explicit ScopedMutex( T& lock ) : _lock( &lock )
+        explicit ScopedMutex( Lock& lock ) : _lock( &lock )
             { lock.set(); }
 
         /** Destructs the scoped mutex and unsets the mutex. */
@@ -51,7 +50,7 @@ namespace base
 
     private:
         ScopedMutex(){}
-        T* _lock;
+        Lock* _lock;
     };
 }
 }

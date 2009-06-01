@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,11 +25,16 @@
 #include <eq/base/base.h>
 #include <eq/client/Compressor.h>
 
+/**
+ * @file examples/compressor.h
+ * 
+ * Compression plugin provided with Equalizer.
+ */
+
 namespace eq
 {
 namespace plugin
 {
-                                                                                    
     typedef void  (*CompressorGetInfo_t)( EqCompressorInfo* const );
     typedef void* (*NewCompressor_t)();
 
@@ -69,9 +75,7 @@ namespace plugin
       unsigned _name;  
       const uint32_t _numChannels;
       bool _swizzleData;
-      
-        
-    };                                                                                                                      
+    }; 
 }
 }
 

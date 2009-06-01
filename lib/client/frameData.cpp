@@ -251,7 +251,7 @@ void FrameData::_setReady( const uint32_t version )
                   "v" << getVersion() << " ready " << _readyVersion << " new "
                       << version );
 
-    base::ScopedMutex< base::Lock > mutex( _listenersMutex );
+    base::ScopedMutex mutex( _listenersMutex );
 #ifndef NDEBUG
     for( list<ImageVersion>::iterator i = _pendingImages.begin();
          i != _pendingImages.end(); ++i )

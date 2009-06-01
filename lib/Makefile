@@ -35,7 +35,6 @@ HEADER_SRC = \
 	base/scopedMutex.h \
 	base/sema.h \
 	base/sleep.h \
-	base/spinLock.h \
 	base/stdExt.h \
 	base/thread.h \
 	base/timedLock.h \
@@ -156,7 +155,6 @@ CXXFILES = \
 	base/omp.cpp \
 	base/requestHandler.cpp \
 	base/sema.cpp \
-	base/spinLock.cpp \
 	base/thread.cpp \
 	base/timedLock.cpp \
 	net/barrier.cpp \

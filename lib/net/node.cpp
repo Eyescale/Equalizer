@@ -1551,7 +1551,7 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     // mutex is to register connecting nodes with this local node, and handle
     // all cases correctly, which is far more complex. Node connections only
     // happen a lot during initialization, and are therefore not time-critical.
-    ScopedMutex< Lock > mutex( _connectMutex );
+    ScopedMutex mutex( _connectMutex );
     EQINFO << "Connecting node " << nodeID << endl;
 
     iter = _nodes.find( nodeID );
