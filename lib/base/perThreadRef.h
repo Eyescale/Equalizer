@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -29,34 +28,46 @@ namespace base
 {
     class PerThreadRefPrivate;
 
-    /**
-     * Implements a thread-specific storage for RefPtr's.
-     * 
-     * OPT: using __thread storage where available might be beneficial.
-     */
+    /** Thread-specific storage for a RefPtr. */
     template<typename T> class PerThreadRef
     {
     public:
+        /** Construct a new per-thread reference pointer. */
         PerThreadRef();
+        /** Destruct a per-thread reference pointer. */
         virtual ~PerThreadRef();
 
+        /** Assign a reference pointer to the thread-local storage. */
         PerThreadRef<T>& operator = ( RefPtr< T > data );
+        /** Assign a reference pointer to the thread-local storage. */
         PerThreadRef<T>& operator = ( const PerThreadRef<T>& rhs );
 
+        /** @return the reference pointer from the thread-local storage. */
         RefPtr< const T > get() const;
+        /** @return the reference pointer from the thread-local storage. */
         RefPtr< T > get();
+
+        /** @return the C pointer of the RefPtr from the thread-local storage.*/
         T* getPointer();
+        /** Access the object held by the RefPtr in the thread-local storage.*/
         T* operator->();
+        /** Access the object held by the RefPtr in the thread-local storage.*/
         const T* operator->() const;
 
+        /** @return true if the two objects hold the same C pointer. */
         bool operator == ( const PerThreadRef& rhs ) const 
             { return ( get() == rhs.get( )); }
+        /** @return true if the two objects hold the same C pointer. */
         bool operator == ( const RefPtr< T >& rhs ) const
             { return ( get()==rhs ); }
+        /** @return false if the two objects hold the same C pointer. */
         bool operator != ( const RefPtr< T >& rhs ) const
             { return ( get()!=rhs ); }
 
+        /** @return true if the thread-local storage holds a 0 pointer. */
         bool operator ! () const;
+
+        /** @return true if the thread-local storage holds a non-0 pointer. */
         bool isValid() const;
 
     private:
