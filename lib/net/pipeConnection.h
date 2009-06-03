@@ -33,7 +33,7 @@ namespace net
     /**
      * A uni-directional pipe connection.
      */
-    class EQ_EXPORT PipeConnection 
+    class PipeConnection 
 #ifdef WIN32
         : public Connection
 #else
@@ -41,8 +41,8 @@ namespace net
 #endif
     {
     public:
-        PipeConnection();
-        virtual ~PipeConnection();
+        EQ_EXPORT PipeConnection();
+        EQ_EXPORT virtual ~PipeConnection();
 
         virtual bool connect();
         virtual void close();
