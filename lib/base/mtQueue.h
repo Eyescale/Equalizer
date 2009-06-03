@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -29,21 +28,19 @@ namespace eq
 {
 namespace base
 {
-class MTQueuePrivate;
+    class MTQueuePrivate;
 
     /**
-     * A queue with a blocking pop() implementation, typically used between two
-     * execution threads.
+     * A queue with a blocking read access, typically used between two execution
+     * threads.
      */
     template< typename T > class MTQueue
     {
     public:
-        /** 
-         * Constructs a new queue.
-         */
+        /** Construct a new queue. */
         MTQueue();
 
-        /** Destructs the Queue. */
+        /** Destruct this Queue. */
         ~MTQueue();
 
         /** @return true if the queue is empty, false otherwise. */
@@ -55,18 +52,29 @@ class MTQueuePrivate;
         /** Retrieve and pop the front element from the queue, may block. */
         T pop();
 
-        /** Try to get the front element from the queue, returns 0 if empty. */
+        /** 
+         * @return the first element of the queue, or NONE if the queue is
+         *         empty.
+         */
         T tryPop();
 
+        /** 
+         * @return the last element of the queue, or NONE if the queue is
+         *         empty.
+         */
         T back() const;
+
+        /** Push a new element to the back of the queue. */
         void push( const T& element );
+
+        /** Push a new element to the front of the queue. */
         void pushFront( const T& element );
 
+        /** None element, returned by tryPop() and back(). */
         static const T NONE;
 
     private:
         std::deque< T > _queue;
-
         MTQueuePrivate* _data;
     };
 

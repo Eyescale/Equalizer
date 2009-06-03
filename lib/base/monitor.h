@@ -2,9 +2,8 @@
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -43,35 +42,56 @@ namespace base
     template< typename T > class Monitor : public NonCopyable
     {
     public:
-        /** 
-         * Constructs a new monitor for the given thread type.
-         */
+        /** Constructs a new monitor with a default value of 0. */
         Monitor() : _value( static_cast<T>( 0 ))    { _construct(); }
+        /** Constructs a new monitor with a given default value. */
         Monitor( const T& value ) : _value( value ) { _construct(); }
-
-        void _construct();
         
         /** Destructs the monitor. */
         ~Monitor();
 
         /** @name Changing the monitored value. */
         //*{
-        Monitor& operator++ ();    // prefix only
-        Monitor& operator-- ();    // prefix only
+        Monitor& operator++ ();  //!< Increment the monitored value, prefix only
+        Monitor& operator-- ();  //!< Decrement the monitored value, prefix only
+
+        /** Assign a new value. */
         Monitor& operator = ( const T& value )
             {
                 set( value );
                 return *this;
             }
 
+        /** Set a new value. */
         void set( const T& value );
         //*}
 
         /** @name Monitor the value. */
         //*{
+        /**
+         * Block until the monitor has the given value.
+         * @return the value when reaching the condition.
+         */
         const T& waitEQ( const T& value ) const;
+
+        /**
+         * Block until the monitor has not the given value.
+         * @return the value when reaching the condition.
+         */
         const T& waitNE( const T& value ) const;
+
+        /**
+         * Block until the monitor has a value greater or equal to the given
+         * value.
+         * @return the value when reaching the condition.
+         */
         const T& waitGE( const T& value ) const;
+
+        /**
+         * Block until the monitor has a value less or equal to the given
+         * value.
+         * @return the value when reaching the condition.
+         */
         const T& waitLE( const T& value ) const;
         //*}
 
@@ -98,17 +118,26 @@ namespace base
             { return _value >= rhs._value; }
         //*}
 
+        /** @name Data Access. */
+        //*{
+        /** @return the current value. */
         const T& get() const { return _value; }
+
+        /** @return the current plus given value. */
         T operator + ( const T& value ) const { return _value + value; }
+        //*}
 
     private:
         T _value;
         MonitorPrivate* _data;
+
+        void _construct();
     };
 
 typedef Monitor< bool >     Monitorb;
 typedef Monitor< uint32_t > Monitoru;
 
+/** Print the monitor to the given output stream. */
 template< typename T >
 std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor );
 }

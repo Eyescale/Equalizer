@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -33,39 +32,44 @@ namespace base
      * overhead when resizing (>1ms).
      * This buffer just memcpy's elements, i.e., it should be used on PODs only
      * since the copy constructor or assignment operator is not called on the
-     * copied elements.
+     * copied elements. Primarily used for binary data, e.g., in eq::Image.
      */
     template< typename T >
     class Buffer
     {
     public:
+        /** Construct a new, empty buffer. */
         Buffer() : data(0), size(0), _maxSize(0) {}
+
+        /** Destruct the buffer. */
         ~Buffer() { clear(); }
 
         /** Flush the buffer, deleting all data. */
         void clear() { if( data ) free( data ); data=0; size=0; _maxSize=0; }
 
-        /** Copy constructor - transfers ownership! */
+        /** Copy constructor, transfers ownership to new Buffer. */
         Buffer( Buffer& from )
             {
                 data = from.data; size = from.size; _maxSize = from._maxSize;
                 from.data = 0; from.size = 0; from._maxSize = 0;
             }
 
-        /** Assignment operator */
+        /** Assignment operator, copies data from Buffer. */
         const Buffer& operator = ( Buffer& from )
             {
                 replace( from.data, from.size );
                 return *this;
             }
 
+        /** Direct access to the element at the given index. */
         T&       operator[]( const size_t position )
             { EQASSERT( size > position ); return data[ position ]; }
+        /** Direct const access to the element at the given index. */
         const T& operator[]( const size_t position) const
             { EQASSERT( size > position ); return data[ position ]; }
 
         /** 
-         * Ensure that the buffer contains at least newSize elements, retains
+         * Ensure that the buffer contains at least newSize elements, retaining
          * existing data.
          */
         void resize( const uint64_t newSize )
@@ -84,8 +88,8 @@ namespace base
             }
 
         /** 
-         * Ensure that the buffer contains at least newSize elements, deletes
-         * existing data.
+         * Ensure that the buffer contains at least newSize elements,
+         * potentially deleting existing data.
          */
         void reserve( const uint64_t newSize )
             { 
@@ -99,7 +103,7 @@ namespace base
                 _maxSize = size;
             }
 
-        /** Append addSize elements to the buffer, increasing its size. */
+        /** Append addSize elements to the buffer, increasing the size. */
         void append( const T* addData, const uint64_t addSize )
             {
                 EQASSERT( addData );
@@ -110,14 +114,14 @@ namespace base
                 memcpy( data + oldSize, addData, addSize * sizeof( T ));
             }
 
-        /** Append one elements to the buffer, increasing its size. */
+        /** Append one element to the buffer, increasing the size. */
         void append( const T& element )
             {
                 resize( size + 1 );
                 data[ size - 1 ] = element;
             }
 
-        /** Replace the existing data. */
+        /** Replace the existing data with new data. */
         void replace( const void* newData, const uint64_t newSize )
             {
                 EQASSERT( newData );
@@ -128,7 +132,7 @@ namespace base
                 size = newSize;
             }
 
-        /** Swap the buffer contents */
+        /** Swap the buffer contents with another Buffer. */
         void swap( Buffer& buffer )
             {
                 T*             tmpData    = buffer.data;
@@ -149,6 +153,7 @@ namespace base
 
         /** A pointer to the data. */
         T*    data;
+
         /** The number of valid items in data. */
         uint64_t size;
 

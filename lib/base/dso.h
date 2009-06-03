@@ -1,4 +1,5 @@
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published 
@@ -25,35 +26,36 @@ namespace base
 {
 
 /** Helper to access dynamic shared objects (DSO) */
-class EQ_EXPORT DSO 
+class DSO 
 {
-
 public:
+    /** Construct a new dynamic shared object. */
+    EQ_EXPORT DSO() : _dso( 0 ) {}
 
-    /** build an helper for open DSO */
-    DSO() : _dso( 0 ) {}
-    
-    /** open DSO */
-    bool open( const std::string& fileName );
+    /** 
+     * Open a dynamic shared object.
+     * 
+     * @param fileName The file name of the DSO.
+     * @return true if the DSO was opened, false upon error.
+     */
+    EQ_EXPORT bool open( const std::string& fileName );
 
-    /** close DSO, invalidates retrieved function pointers */
-    void close();
+    /** Close the DSO, which invalidates retrieved function pointers */
+    EQ_EXPORT void close();
     
     /** @return a function pointer in the DSO, or 0 if the function is not
       *         exported by the DSO. */
-    void* getFunctionPointer( const std::string& functionName );
+    EQ_EXPORT void* getFunctionPointer( const std::string& functionName );
 
 
 private:
-
 #ifdef WIN32
         HMODULE _dso;
 #else
         void* _dso;
 #endif
-
-
 };
+
 }
 }
 

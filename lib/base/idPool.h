@@ -2,9 +2,8 @@
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -28,14 +27,16 @@ namespace eq
 {
 namespace base
 {
-#   define EQ_ID_NONE    0xfffffffdu
-#   define EQ_ID_INVALID 0xfffffffeu
-#   define EQ_ID_ANY     0xffffffffu
+#   define EQ_ID_NONE    0xfffffffdu //!< None/NULL identifier
+#   define EQ_ID_INVALID 0xfffffffeu //!< Invalid/unset identifier
+#   define EQ_ID_ANY     0xffffffffu //!< Any/all identifiers
 
     /**
      * A identifier pool.
      * 
-     * Manages unique identifiers.
+     * Manages re-usable, unique identifiers. Can allocate up to MAX_CAPACITY
+     * identifiers. Used in Equalizer for session-unique object
+     * identifiers. Access to the identifier pool is thread-safe.
      */
     class IDPool 
     {
@@ -46,7 +47,7 @@ namespace base
         };
 
         /** 
-         * Constructs a new identifier pool.
+         * Construct a new identifier pool.
          *
          * @param initialCapacity the initial capacity of the pool, the
          *                        identifiers from initialCapacity to
@@ -54,7 +55,7 @@ namespace base
          */
         IDPool( const uint32_t initialCapacity );
 
-        /** Destructs the identifier pool. */
+        /** Destruct the identifier pool. */
         ~IDPool();
         
         /** 

@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -37,15 +36,11 @@ namespace eq
 {
 namespace base
 {
-/** 
- * A class for time measurements.
- */
-    class EQ_EXPORT Clock
+    /** A class for time measurements. */
+    class Clock
     {
     public :
-        /** 
-         * Constructs a new clock.
-         */
+        /** Construct a new clock. */
         Clock() 
             {
                 reset();
@@ -56,14 +51,10 @@ namespace base
 #endif
             }
 
-        /** 
-         * Destroys the clock.
-         */
+        /** Destroy the clock. */
         virtual ~Clock() {}
 
-        /** 
-         * Resets the base time of the clock to the current time.
-         */
+        /** Reset the base time of the clock to the current time. */
         void reset()   
             {
 #ifdef Darwin
@@ -131,9 +122,7 @@ namespace base
             }
 
         /** 
-         * Returns the time elapsed since the last clock reset.
-         * 
-         * @return the elapsed time in milliseconds
+         * @return the elapsed time in milliseconds since the last clock reset.
          */
         float getTimef() const
             {
@@ -155,9 +144,7 @@ namespace base
             }
 
         /** 
-         * Returns the time elapsed since the last clock reset.
-         * 
-         * @return the elapsed time in milliseconds
+         * @return the elapsed time in milliseconds since the last clock reset.
          */
         int64_t getTime64() const
             {
@@ -180,9 +167,7 @@ namespace base
             }
 
         /** 
-         * Returns the time elapsed since the last clock reset.
-         * 
-         * @return the elapsed time in milliseconds
+         * @return the elapsed time in milliseconds since the last clock reset.
          */
         double getTimed() const
             {

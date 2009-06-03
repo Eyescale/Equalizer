@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -32,29 +31,38 @@ namespace base
     class PerThreadPrivate;
 
     /**
-     * Implements a thread-specific storage for C++ objects.
+     * Implements thread-specific storage for C++ objects.
      * 
      * The object has to implement notifyPerThreadDelete().
-     *
-     * OPT: using __thread storage where available might be beneficial.
      */
     template<typename T> class PerThread : public ExecutionListener
     {
     public:
+        /** Construct a new per-thread variable. */
         PerThread();
+        /** Destruct the per-thread variable. */
         virtual ~PerThread();
 
+        /** Assign an object to the thread-local storage. */        
         PerThread<T>& operator = ( const T* data );
+        /** Assign an object from another thread-local storage. */
         PerThread<T>& operator = ( const PerThread<T>& rhs );
 
+        /** @return the held object pointer. */
         T* get();
+        /** @return the held object pointer. */
         const T* get() const;
+        /** Access the thread-local object. */
         T* operator->();
+        /** Access the thread-local object. */
         const T* operator->() const;
 
+        /** @return true if the thread-local variables hold the same object. */
         bool operator == ( const PerThread& rhs ) const 
             { return ( get() == rhs.get( )); }
+        /** @return true if the thread-local variable holds the same object. */
         bool operator == ( const T* rhs ) const { return ( get()==rhs ); }
+        /** @return true if the thread-local variable holds another object. */
         bool operator != ( const T* rhs ) const { return ( get()!=rhs ); }
 
     protected:

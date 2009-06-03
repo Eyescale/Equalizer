@@ -190,11 +190,12 @@ namespace base
 
         static void _notifyStarted();
         static void _notifyStopping();
-        friend void _notifyStopping( void* );
+        friend void _notifyStopping( void* ); //!< @internal
 
         friend std::ostream& operator << ( std::ostream& os, const Thread* );
     };
 
+    /** Print the thread to the given output stream. */
     std::ostream& operator << ( std::ostream& os, const Thread* thread );
 
 // thread-safety checks

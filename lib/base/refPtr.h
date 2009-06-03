@@ -136,6 +136,7 @@ namespace base
         T* _ptr;
     };
 
+    /** Print the reference pointer to the given output stream. */
     template< class T >
     inline std::ostream& operator << ( std::ostream& os, const RefPtr<T>& rp )
     {

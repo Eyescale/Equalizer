@@ -29,7 +29,7 @@ namespace base
      * A random number generator.
      *
      * Generates a set of random, or if not supported by the operating system,
-     * pseudo-random numbers. Each instance creates its own set of numbers.
+     * pseudo-random numbers. Each instance creates its own series of numbers.
      */
     class RNG
     {

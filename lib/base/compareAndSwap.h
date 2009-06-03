@@ -34,6 +34,7 @@ namespace base
 #if (defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )) || defined(_MSC_VER) || defined(_WIN32) || defined(__APPLE__) || defined(AO_HAVE_compare_and_swap_full)
 #  define EQ_HAS_COMPARE_AND_SWAP
 
+/** Perform a memory barrier (atomic operations) */
 inline void memoryBarrier()
 {
 #if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
@@ -53,6 +54,10 @@ inline void memoryBarrier()
 #endif
 }
 
+/** 
+ * Atomically replace the value at addr and return true if the value at addr
+ * matched old.
+ */
 template <class C, class D>
 inline bool compareAndSwap(volatile C * addr, D old, D nw)
 {

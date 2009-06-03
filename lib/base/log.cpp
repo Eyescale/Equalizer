@@ -37,6 +37,8 @@ namespace base
 static int      getLogLevel();
 static unsigned getLogTopics();
 
+namespace
+{
 class LogTable
 {
 public:
@@ -58,6 +60,7 @@ static LogTable _logTable[ LOG_TABLE_SIZE ] =
     LOG_TABLE_ENTRY( VERB ),
     LOG_TABLE_ENTRY( ALL )
 };
+}
 
 int        Log::level  = getLogLevel();
 unsigned   Log::topics = getLogTopics();

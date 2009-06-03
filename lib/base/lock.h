@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -27,46 +26,38 @@ namespace base
 {
     class LockPrivate;
 
-    /**
-     * A lock (mutex) primitive.
-     */
-    class EQ_EXPORT Lock 
+    /** A lock (mutex) primitive. */
+    class Lock
     {
     public:
-        /** 
-         * Constructs a new lock.
-         */
-        Lock();
+        /** Construct a new lock. */
+        EQ_EXPORT Lock();
 
 
-        /** Destructs the lock. */
-        ~Lock();
+        /** Destruct the lock. */
+        EQ_EXPORT ~Lock();
 
-        /** 
-         * Sets the lock. 
-         */
-        void set();
+        /** Acquire the lock. */
+        EQ_EXPORT void set();
 
-        /** 
-         * Releases the lock.
-         */
-        void unset();
+        /** Release the lock. */
+        EQ_EXPORT void unset();
 
         /** 
-         * Attempts to set the lock.
+         * Attempt to acquire the lock.
          * 
          * @return <code>true</code> if the lock was set, <code>false</code> if
          *         it was not set.
          */
-        bool trySet();
+        EQ_EXPORT bool trySet();
 
         /** 
-         * Tests if the lock is set.
+         * Test if the lock is set.
          * 
          * @return <code>true</code> if the lock is set, <code>false</code> if
          *         it is not set.
          */
-        bool test(); 
+        EQ_EXPORT bool test(); 
 
     private:
         LockPrivate* _data;

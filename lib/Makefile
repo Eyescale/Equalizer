@@ -6,7 +6,6 @@ MODULE = eq
 HEADER_SRC = \
 	eq.h \
 	base/atomic.h \
-	base/barrier.h \
 	base/base.h \
 	base/buffer.h \
 	base/clock.h \
@@ -142,7 +141,6 @@ HEADER_SRC = \
 	util/util.h
 
 CXXFILES = \
-	base/barrier.cpp \
 	base/debug.cpp \
 	base/dso.cpp \
 	base/idPool.cpp \
