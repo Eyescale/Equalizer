@@ -54,7 +54,7 @@ namespace net
      * has at least one Connection through which is reachable. A Node provides
      * the basic communication facilities through message passing.
      */
-    class EQ_EXPORT Node : public Dispatcher, public base::Referenced
+    class Node : public Dispatcher, public base::Referenced
     {
     public:
         enum State 
@@ -68,7 +68,7 @@ namespace net
         /** 
          * Constructs a new Node.
          */
-        Node();
+        EQ_EXPORT Node();
 
         /** @name Data Access. */
         //*{
@@ -119,7 +119,7 @@ namespace net
          * @return <code>true</code> if the client was successfully initialized,
          *         <code>false</code> otherwise.
          */
-        virtual bool initLocal( const int argc, char** argv );
+        EQ_EXPORT virtual bool initLocal( const int argc, char** argv );
 
         /** Exit a local, listening node. */
         virtual bool exitLocal() { return stopListening(); }
@@ -139,7 +139,7 @@ namespace net
          *         <code>false</code> if not.
          * @sa connect
          */
-        virtual bool listen();
+        EQ_EXPORT virtual bool listen();
 
         /** 
          * Stops this node.
@@ -150,7 +150,7 @@ namespace net
          * @return <code>true</code> if the node was stopped, <code>false</code>
          *         if it was not stopped.
          */
-        virtual bool stopListening();
+        EQ_EXPORT virtual bool stopListening();
 
         /** 
          * Connects a node to this listening node.
@@ -183,7 +183,7 @@ namespace net
          *         <code>false</code> otherwise.
          * @sa initConnect, syncConnect
          */
-        bool connect( NodePtr node );
+        EQ_EXPORT bool connect( NodePtr node );
 
         /** 
          * Start connecting and potentially launching a node using the
@@ -197,7 +197,7 @@ namespace net
          *         <code>false</code> otherwise.
          * @sa syncConnect
          */
-        bool initConnect( NodePtr node );
+        EQ_EXPORT bool initConnect( NodePtr node );
 
         /** 
          * Synchronize the connection initiated by initConnect().
@@ -210,7 +210,7 @@ namespace net
          *         <code>false</code> otherwise.
          * @sa initConnect
          */
-        bool syncConnect( NodePtr node );
+        EQ_EXPORT bool syncConnect( NodePtr node );
 
         /** 
          * Create and connect a node given by an identifier.
@@ -228,7 +228,7 @@ namespace net
          * @return <code>true</code> if the node was disconnected correctly,
          *         <code>false</code> otherwise.
          */
-        bool disconnect( NodePtr node );
+        EQ_EXPORT bool disconnect( NodePtr node );
 
         /** 
          * Ensures the connectivity of this node.
@@ -263,7 +263,7 @@ namespace net
          * 
          * @param cd the connection description.
          */
-        void addConnectionDescription( ConnectionDescriptionPtr cd );
+        EQ_EXPORT void addConnectionDescription( ConnectionDescriptionPtr cd );
         
         /** 
          * Removes a connection description.
@@ -400,7 +400,7 @@ namespace net
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool registerSession( Session* session );
+        EQ_EXPORT bool registerSession( Session* session );
 
         /** Deregister a (master) session. */
         bool deregisterSession( Session* session )
@@ -428,7 +428,7 @@ namespace net
          * @return <code>true</code> if the session was unmapped,
          *         <code>false</code> if there was an error.
          */
-        bool unmapSession( Session* session );
+        EQ_EXPORT bool unmapSession( Session* session );
 
         /** @return the mapped session with the given identifier, or 0. */
         Session* getSession( const uint32_t id );
@@ -442,7 +442,7 @@ namespace net
          * @param clientArgs the client arguments as specified by the server.
          * @return the success value of the run.
          */
-        virtual bool runClient( const std::string& clientArgs );
+        EQ_EXPORT virtual bool runClient( const std::string& clientArgs );
 
         /** Return the command queue to the command thread. */
         CommandQueue* getCommandThreadQueue() 
@@ -458,13 +458,13 @@ namespace net
         const NodeID& getNodeID() const { return _id; }
 
         /** Serialize the node's information. */
-        std::string serialize() const;
+        EQ_EXPORT std::string serialize() const;
         /** Deserialize the node information, consumes given data. */
-        bool deserialize( std::string& data );
+        EQ_EXPORT bool deserialize( std::string& data );
 
     protected:
         /** Destructs this node. */
-        virtual ~Node();
+        EQ_EXPORT virtual ~Node();
 
         /** 
          * Dispatches a packet to the registered command queue.
@@ -473,7 +473,7 @@ namespace net
          * @return the result of the operation.
          * @sa invokeCommand
          */
-        virtual bool dispatchCommand( Command& command );
+        EQ_EXPORT virtual bool dispatchCommand( Command& command );
 
         /** 
          * Invokes the command handler method for the packet.
@@ -482,7 +482,7 @@ namespace net
          * @return the result of the operation.
          * @sa Dispatcher::invokeCommand
          */
-        virtual CommandResult invokeCommand( Command& command );
+        EQ_EXPORT virtual CommandResult invokeCommand( Command& command );
 
         /** 
          * The main loop for auto-launched clients. 

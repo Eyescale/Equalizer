@@ -52,8 +52,7 @@ namespace net
     /**
      * A base class to provide communication to other hosts.
      */
-    class EQ_EXPORT Connection : public base::Referenced, 
-                                 public base::NonCopyable
+    class Connection : public base::Referenced, public base::NonCopyable
     {
     public:
         enum State
@@ -74,7 +73,8 @@ namespace net
          * @param description describing the connection to be created.
          * @return the connection.
          */
-        static ConnectionPtr create( ConnectionDescriptionPtr description );
+        EQ_EXPORT static ConnectionPtr create( ConnectionDescriptionPtr 
+                                                   description );
 
 
         /** @name Data Access. */
@@ -103,7 +103,7 @@ namespace net
         void setDescription( ConnectionDescriptionPtr description );
 
         /** @return the description for this connection. */
-        ConnectionDescriptionPtr getDescription() const;
+        EQ_EXPORT ConnectionDescriptionPtr getDescription() const;
         //*}
 
 
@@ -178,7 +178,7 @@ namespace net
          * @param bytes the number of bytes to read.
          * @sa recvSync()
          */
-        void recvNB( void* buffer, const uint64_t bytes );
+        EQ_EXPORT void recvNB( void* buffer, const uint64_t bytes );
 
         /** 
          * Finish reading data from the connection.
@@ -193,7 +193,7 @@ namespace net
          * @param bytes return value, the number of bytes read.
          * @return true if all requested data has been read, false otherwise.
          */
-        bool recvSync( void** buffer, uint64_t* bytes );
+        EQ_EXPORT bool recvSync( void** buffer, uint64_t* bytes );
 
         void getRecvData( void** buffer, uint64_t* bytes )
             { *buffer = _aioBuffer; *bytes = _aioBytes; }
@@ -236,8 +236,8 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if all data has been read, false if not.
          */
-        bool send( const void* buffer, const uint64_t bytes, 
-                   const bool isLocked = false ) const;
+        EQ_EXPORT bool send( const void* buffer, const uint64_t bytes, 
+                             const bool isLocked = false ) const;
 
         /** Lock the connection, no other thread can send data. */
         void lockSend() const   { _sendLock.set(); }
@@ -285,8 +285,8 @@ namespace net
          * @param size the data size in bytes.
          * @return true if all data has been read, false if not.
          */
-        bool send( Packet& packet, const void* data, const uint64_t size )
-            const;
+        EQ_EXPORT bool send( Packet& packet, const void* data,
+                             const uint64_t size ) const;
 
         /** 
          * Sends a packaged message to multiple connections.
