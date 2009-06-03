@@ -25,7 +25,7 @@ lib: precompile externals plugins
 tests: lib server
 examples: lib
 server: lib
-tools: lib
+tools: server
 
 postcompile: subdirs
 	@echo

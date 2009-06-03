@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -17,6 +16,16 @@
  */
 
 #include "configTool.h"
+
+#include <server/equalizers/framerateEqualizer.h>
+#include <server/canvas.h>
+#include <server/frame.h>
+#include <server/global.h>
+#include <server/layout.h>
+#include <server/node.h>
+#include <server/segment.h>
+#include <server/view.h>
+#include <server/window.h>
 
 #ifndef WIN32
 #  include <sys/param.h>
@@ -34,6 +43,7 @@
 #include <fstream>
 
 
+using namespace eq::server;
 using namespace std;
 
 int main( int argc, char** argv )
@@ -185,28 +195,25 @@ bool ConfigTool::parseArguments( int argc, char** argv )
 
 void ConfigTool::writeConfig() const
 {
-    cout.setf( std::ios::right, std::ios::adjustfield );
-    cout.fill( '0' );
+    Global* global = Global::instance();
+    global->setWindowIAttribute( eq::Window::IATTR_HINT_FULLSCREEN, eq::ON );
+    global->setWindowIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER, eq::OFF );
+    global->setWindowIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::PBUFFER );
 
-    cout << "global" << endl;
-    cout << "{" << endl;
-    cout << "    EQ_WINDOW_IATTR_HINT_FULLSCREEN    ON" << endl;
-    cout << "    EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER  OFF" << endl;
-    cout << "    EQ_WINDOW_IATTR_HINT_DRAWABLE      pbuffer" << endl;
     if( _mode != MODE_2D )
-        cout << "    EQ_WINDOW_IATTR_PLANES_STENCIL     ON" << endl;
-    cout << "}" << endl;
+        global->setWindowIAttribute( eq::Window::IATTR_PLANES_STENCIL, eq::ON );
 
-    cout << "server" << endl;
-    cout << "{" << endl;
-    cout << "    config" << endl;
-    cout << "    {" << endl;
+    ServerPtr server = new Server;
+    Config* config = new Config;
+    server->addConfig( config );
 
-    _writeResources();
-    _writeCompound();
+    _writeResources( config );
+    _writeCompound( config );
 
-    cout << "    }" << endl;
-    cout << "}" << endl;
+    eq::base::Log::instance( "", "", 0 ) << eq::base::disableHeader
+                                         << global << server.get()
+                                         << std::endl << eq::base::enableHeader
+                                         << eq::base::disableFlush;
 }
 
 void readNodenames
@@ -233,71 +240,81 @@ void readNodenames
     }
 }
 
-void ConfigTool::_writeResources() const
+void ConfigTool::_writeResources( Config* config ) const
 {
-
     const unsigned nNodes  = _nChannels/_nPipes + 1;
-    unsigned       channel = 0;
-
+    unsigned       c = 0;
     vector<string> nodesNames;
 
     readNodenames( _nodesFile, nNodes, nodesNames );
 
-    for( unsigned node=0; node < nNodes && channel < _nChannels; ++node )
+    for( unsigned n=0; n < nNodes && c < _nChannels; ++n )
     {
         std::ostringstream nodeName;
-        if( node < nodesNames.size() )
-            nodeName << nodesNames[node];
+        if( n < nodesNames.size() )
+            nodeName << nodesNames[ n ];
         else
-            nodeName << "node" << node;
+            nodeName << "node" << n;
 
-        cout << "        node" << endl
-             << "        {" << endl
-             << "            name       \"node" << node << "\""<< endl
-             << "            connection { hostname \"" << nodeName.str() 
-             << "\" }"<< endl;
-        for( unsigned pipe=0; pipe < _nPipes && channel < _nChannels; ++pipe )
+        Node* node = new Node;
+        config->addNode( node );
+
+        node->setName( nodeName.str( ));
+
+        ConnectionDescriptionPtr connectionDescription = 
+            new ConnectionDescription;
+        connectionDescription->setHostname( nodeName.str( ));
+        node->addConnectionDescription( connectionDescription );
+
+        for( unsigned p=0; p < _nPipes && c < _nChannels; ++p )
         {
-            cout << "            pipe" << endl
-                 << "            {" << endl
-                 << "                name     \"pipe" << pipe << "n" << node 
-                 << "\"" << endl
-                 << "                device   " << pipe << endl
-                 << "                window" << endl
-                 << "                {" << endl
-                 << "                    name     \"window" << channel << "\""
-                 << endl;
-            if( channel == 0 ) // destination window
+            Pipe* pipe = new Pipe;
+            node->addPipe( pipe );
+
+            std::ostringstream pipeName;
+            pipeName << "pipe" << n;
+            pipe->setName( pipeName.str( ));
+            pipe->setDevice( p );
+            
+            eq::server::Window* window = new eq::server::Window;
+            pipe->addWindow( window );
+
+            std::ostringstream windowName;
+            windowName << "window" << c;
+            window->setName( windowName.str( ));
+
+            if( c == 0 ) // destination window
             {
-                cout << "                    attributes" << endl
-                     << "                    {" << endl;
                 if( !_fullScreen )
-                    cout << "                        hint_fullscreen   OFF"
-                         << endl;
-                cout << "                        hint_drawable     window"
-                     << endl
-                     << "                        hint_doublebuffer ON" << endl
-                     << "                    }" << endl;
-             }
+                    window->setIAttribute( eq::Window::IATTR_HINT_FULLSCREEN, 
+                                           eq::OFF );
+                window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, 
+                                       eq::WINDOW );
+                window->setIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER, 
+                                       eq::ON );
+            }
 
-            cout << "                    viewport [ ";
-            if( !_fullScreen && channel == 0 )
-                cout << "100 100 ";
-            else
-                cout << "0 0 ";
-            cout << _resX << " " << _resY << " ]" << endl;
+            eq::PixelViewport viewport( 0, 0, _resX, _resY );
+            if( !_fullScreen && c == 0 )
+            {
+                viewport.x = 100;
+                viewport.y = 100;
+            }
+            window->setPixelViewport( viewport );
 
-            cout << "                    channel { name \"channel" << channel
-                 << "\" }" << endl
-                 << "                }" << endl
-                 << "            }" << endl;
-            ++channel;
+            Channel* channel = new Channel;
+            window->addChannel( channel );
+
+            std::ostringstream channelName;
+            channelName << "channel" << c;
+            channel->setName( channelName.str( ));
+
+            ++c;            
         }
-        cout << "        }" << endl;
     }
 }
 
-void ConfigTool::_writeCompound() const
+void ConfigTool::_writeCompound( Config* config ) const
 {
     if( _descrFile != "" )
     {
@@ -308,31 +325,31 @@ void ConfigTool::_writeCompound() const
     switch( _mode )
     {
         case MODE_2D:
-            _write2D();
+            _write2D( config );
             break;
 
         case MODE_DB:
-            _writeDB();
+            _writeDB( config );
             break;
 
         case MODE_DB_DS:
-            _writeDS();
+            _writeDS( config );
             break;
 
         case MODE_DB_DS_AC:
-            _writeDSAC();
+            _writeDSAC( config );
             break;
 
         case MODE_DB_STREAM:
-            _writeDBStream();
+            _writeDBStream( config );
             break;
 
         case MODE_DPLEX:
-            _writeDPlex();
+            _writeDPlex( config );
             break;
 
         case MODE_WALL:
-            _writeWall();
+            _writeWall( config );
             break;
 
         default:
@@ -342,120 +359,146 @@ void ConfigTool::_writeCompound() const
     }
 }
 
-void ConfigTool::_write2D() const
+void ConfigTool::_write2D( Config* config ) const
 {
-    cout << "        compound" << endl
-         << "        {" << endl
-         << "            channel   \"channel0\"" << endl
-         << "            wall" << endl
-         << "            {" << endl
-         << "                bottom_left  [ -.32 -.20 -.75 ]" << endl
-         << "                bottom_right [  .32 -.20 -.75 ]" << endl
-         << "                top_left     [ -.32  .20 -.75 ]" << endl
-         << "            }" << endl;
+    Compound* compound = new Compound;
+    config->addCompound( compound );
+
+    Channel* channel = config->findChannel( "channel0" );
+    compound->setChannel( channel );
+    
+    eq::Wall wall;
+    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    compound->setWall( wall );
 
     const unsigned step = static_cast< unsigned >
         ( 100000.0f / ( _useDestination ? _nChannels : _nChannels - 1 ));
     unsigned y = 0;
     for( unsigned i = _useDestination ? 0 : 1; i<_nChannels; ++i )
     {
-        cout << "            compound" << endl
-             << "            {" << endl
-             << "                channel   \"channel" << i << "\"" << endl;
+        Compound* child = new Compound;
+        compound->addChild( child );
+
+        std::ostringstream channelName;
+        channelName << "channel" << i;
+        
+        Channel* childChannel = config->findChannel( channelName.str( ));
+        child->setChannel( childChannel );
 
         if( i == _nChannels - 1 ) // last - correct rounding 'error'
         {
-            if( y==0 ) //only one channel
+            if( y!=0 ) // more than one channel
             {
-                cout << "                viewport  [ 0 0 1 1 ]" << endl;
-            }else
-            {
-                cout << "                viewport  [ 0 0."
-                     << setw(5) << y << " 1 0."
-                     << setw(5) << 100000-y << " ]" << endl;
+                child->setViewport( 
+                    eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
+                                  1.f,
+                                  static_cast< float >( 100000-y )/100000.f ));
             }
         }
         else
-            cout << "                viewport  [ 0 0." << setw(5) << y << " 1 0."
-                 << setw(5) << step << " ]" << endl;
+            child->setViewport( 
+                eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
+                              1.f, static_cast< float >( step )/100000.f ));
 
-        if( i != 0 ) 
-            cout << "                outputframe{ name \"frame.channel" << i <<"\"}"
-                 << endl;
+        if( i != 0 )
+        {
+            Frame* frame = new Frame;
+            std::ostringstream frameName;
+            frameName << "frame.channel" << i;
+            frame->setName( frameName.str( ));
+            child->addOutputFrame( frame );
 
-        cout << "            }" << endl;
-
-        if( i != 0 ) 
-	  cout << "            inputframe{ name \"frame.channel" << i <<"\" }" 
-	       << endl << endl;
+            frame = new Frame;
+            frame->setName( frameName.str( ));
+            compound->addInputFrame( frame );
+        }
  
         y += step;
     }
-
-    cout << "        }" << endl;    
 }
 
-void ConfigTool::_writeDB() const
+void ConfigTool::_writeDB( Config* config ) const
 {
-    cout << "        compound" << endl
-         << "        {" << endl
-         << "            channel   \"channel0\"" << endl
-         << "            buffer    [ COLOR DEPTH ]" << endl
-         << "            wall" << endl
-         << "            {" << endl
-         << "                bottom_left  [ -.32 -.20 -.75 ]" << endl
-         << "                bottom_right [  .32 -.20 -.75 ]" << endl
-         << "                top_left     [ -.32  .20 -.75 ]" << endl
-         << "            }" << endl;
+    Compound* compound = new Compound;
+    config->addCompound( compound );
+
+    Channel* channel = config->findChannel( "channel0" );
+    compound->setChannel( channel );
+    compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
+
     if( !_useDestination )
-        cout << "            task      [ CLEAR ASSEMBLE ]" << endl;
+        compound->setTasks( eq::TASK_CLEAR | eq::TASK_ASSEMBLE );
+
+    eq::Wall wall;
+    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    compound->setWall( wall );
 
     const unsigned step = static_cast< unsigned >
         ( 100000.0f / ( _useDestination ? _nChannels : _nChannels - 1 ));
     unsigned start = 0;
+
     for( unsigned i = _useDestination ? 0 : 1; i<_nChannels; ++i )
     {
-        cout << "            compound" << endl
-             << "            {" << endl
-             << "                channel   \"channel" << i << "\"" << endl;
+        Compound* child = new Compound;
+        compound->addChild( child );
+
+        std::ostringstream channelName;
+        channelName << "channel" << i;
+        
+        Channel* childChannel = config->findChannel( channelName.str( ));
+        child->setChannel( childChannel );
 
         if( i == _nChannels - 1 ) // last - correct rounding 'error'
-            cout << "                range     [ 0." << setw(5) << start << " 1 ]"
-                 << endl;
+        {
+            if( i!=0 ) // more than one channel
+            {
+                child->setRange(
+                    eq::Range( static_cast< float >( start )/100000.f, 1.f ));
+            }
+        }
         else
-            cout << "                range     [ 0." << setw(5) << start << " 0."
-                 << setw(5) << start + step << " ]" << endl;
+            child->setRange(
+                eq::Range( static_cast< float >( start )/100000.f,
+                           static_cast< float >( start + step )/100000.f ));
 
-        if( i != 0 ) 
-            cout << "                outputframe{ name \"frame.channel" << i <<"\"}"
-                 << endl;
+        if( i != 0 )
+        {
+            Frame* frame = new Frame;
+            std::ostringstream frameName;
+            frameName << "frame.channel" << i;
+            frame->setName( frameName.str( ));
+            child->addOutputFrame( frame );
 
-        cout << "            }" << endl;
-
-	if( i != 0 )
-	  cout << "            inputframe{ name \"frame.channel" << i <<"\" }" << endl
-	       << endl;
+            frame = new Frame;
+            frame->setName( frameName.str( ));
+            compound->addInputFrame( frame );
+        }
  
         start += step;
     }
-
-    cout << "        }" << endl;    
 }
 
-void ConfigTool::_writeDBStream() const
+void ConfigTool::_writeDBStream( Config* config ) const
 {
-    cout << "        compound" << endl
-         << "        {" << endl
-         << "            channel   \"channel0\"" << endl
-         << "            buffer    [ COLOR DEPTH ]" << endl
-         << "            wall" << endl
-         << "            {" << endl
-         << "                bottom_left  [ -.32 -.20 -.75 ]" << endl
-         << "                bottom_right [  .32 -.20 -.75 ]" << endl
-         << "                top_left     [ -.32  .20 -.75 ]" << endl
-         << "            }" << endl;
+    Compound* compound = new Compound;
+    config->addCompound( compound );
+
+    Channel* channel = config->findChannel( "channel0" );
+    compound->setChannel( channel );
+    compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
+
     if( !_useDestination )
-        cout << "            task      [ CLEAR ASSEMBLE ]" << endl;
+        compound->setTasks( eq::TASK_CLEAR | eq::TASK_ASSEMBLE );
+
+    eq::Wall wall;
+    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    compound->setWall( wall );
 
     const unsigned nDraw = _useDestination ? _nChannels : _nChannels - 1;
     const unsigned step  = static_cast< unsigned >( 100000.0f / ( nDraw ));
@@ -463,125 +506,170 @@ void ConfigTool::_writeDBStream() const
     unsigned start = 0;
     for( unsigned i = _nChannels; i>stop; --i )
     {
-        cout << "            compound" << endl
-             << "            {" << endl
-             << "                channel   \"channel" << i-1 << "\"" << endl;
+        Compound* child = new Compound;
+        compound->addChild( child );
+
+        std::ostringstream channelName;
+        channelName << "channel" << i-1;
+        
+        Channel* childChannel = config->findChannel( channelName.str( ));
+        child->setChannel( childChannel );
 
         if( i-1 == stop ) // last - correct rounding error
-            cout << "                range     [ 0." << setw(5) << start
-                 << " 1 ]" << endl;
+            child->setRange(
+                eq::Range( static_cast< float >( start )/100000.f, 1.f ));
         else
-            cout << "                range     [ 0." << setw(5) << start
-                 << " 0." << setw(5) << start + step << " ]" << endl;
+            child->setRange(
+                eq::Range( static_cast< float >( start )/100000.f,
+                           static_cast< float >( start + step )/100000.f ));
 
         if( i != _nChannels )
-            cout << "                inputframe{  name \"frame.channel" << i
-                 << "\" }" << endl;
- 
-        if( i != 1 ) 
-            cout << "                outputframe{ name \"frame.channel" << i-1
-                 <<"\" }" << endl;
+        {
+            Frame* frame = new Frame;
+            std::ostringstream frameName;
+            frameName << "frame.channel" << i;
+            frame->setName( frameName.str( ));
+            child->addInputFrame( frame );
+        }
 
-        cout << "            }" << endl;
+        if( i != 1 ) 
+        {
+            Frame* frame = new Frame;
+            std::ostringstream frameName;
+            frameName << "frame.channel" << i-1;
+            frame->setName( frameName.str( ));
+            child->addOutputFrame( frame );
+        }
+ 
         start += step;
     }
     if( !_useDestination )
-        cout << "            inputframe{ name \"frame.channel1\" }" << endl;
-
-    cout << "        }" << endl;    
+    {
+        Frame* frame = new Frame;
+        frame->setName( "frame.channel1" );
+        compound->addInputFrame( frame );
+    }
 }
 
-void ConfigTool::_writeDS() const
+void ConfigTool::_writeDS( Config* config ) const
 {
-    cout << "        compound" << endl
-         << "        {" << endl
-         << "            channel   \"channel0\"" << endl
-         << "            buffer    [ COLOR DEPTH ]" << endl
-         << "            wall" << endl
-         << "            {" << endl
-         << "                bottom_left  [ -.32 -.20 -.75 ]" << endl
-         << "                bottom_right [  .32 -.20 -.75 ]" << endl
-         << "                top_left     [ -.32  .20 -.75 ]" << endl
-         << "            }" << endl;
+    Compound* compound = new Compound;
+    config->addCompound( compound );
+
+    Channel* channel = config->findChannel( "channel0" );
+    compound->setChannel( channel );
+    compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
+
+    eq::Wall wall;
+    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    compound->setWall( wall );
+
 
     const unsigned step = static_cast< unsigned >
         ( 100000.0f / ( _useDestination ? _nChannels : _nChannels - 1 ));
     unsigned start = 0;
     for( unsigned i = _useDestination ? 0 : 1; i<_nChannels; ++i )
     {
-        cout << "            compound" << endl
-             << "            {" << endl
-             << "                channel   \"channel" << i << "\"" << endl;
+        Compound* child = new Compound;
+        compound->addChild( child );
+
+        std::ostringstream channelName;
+        channelName << "channel" << i;
+        
+        Channel* childChannel = config->findChannel( channelName.str( ));
+        child->setChannel( childChannel );
 
         // leaf draw + tile readback compound
-        cout << "                compound" << endl
-             << "                {" << endl;
+        Compound* drawChild = new Compound;
+        child->addChild( drawChild );
+
         if( i == _nChannels - 1 ) // last - correct rounding 'error'
-            cout << "                    range     [ 0." << setw(5) << start 
-                 << " 1 ]" << endl;
+        {
+            drawChild->setRange(
+                eq::Range( static_cast< float >( start )/100000.f, 1.f ));
+        }
         else
-            cout << "                    range     [ 0." << setw(5) << start 
-                 << " 0." << setw(5) << start + step << " ]" << endl;
+            drawChild->setRange(
+                eq::Range( static_cast< float >( start )/100000.f,
+                           static_cast< float >( start + step )/100000.f ));
         
         unsigned y = 0;
         for( unsigned j = _useDestination ? 0 : 1; j<_nChannels; ++j )
         {
             if( i != j )
             {
-                cout << "                    outputframe{ name \"tile" << j 
-                     << ".channel" << i << "\" ";
+                Frame* frame = new Frame;
+                std::ostringstream frameName;
+                frameName << "tile" << j << ".channel" << i;
+                frame->setName( frameName.str( ));
+                drawChild->addOutputFrame( frame );
+
                 if( j == _nChannels - 1 ) // last - correct rounding 'error'
-                    cout << "viewport [ 0 0." << setw(5) << y << " 1 0." << setw(5)
-                         << 100000-y << " ]";
+                {
+                    frame->setViewport( 
+                        eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
+                                      1.f,
+                                   static_cast< float >( 100000-y )/100000.f ));
+                }
                 else
-                    cout << "viewport [ 0 0." << setw(5) << y << " 1 0." << setw(5)
-                         << step << " ]";
-                cout << " }" << endl;
+                    frame->setViewport( 
+                        eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
+                                  1.f, static_cast< float >( step )/100000.f ));
             }
             // else own tile, is in place
 
             y += step;
         }
-        cout << "                }" << endl;
-
+ 
         // input tiles from other channels
         for( unsigned j = _useDestination ? 0 : 1; j<_nChannels; ++j )
         {
             if( i == j ) // own tile, is in place
                 continue;
 
-            cout << "                inputframe{ name \"tile" << i << ".channel"
-                 << j <<"\" }" << endl;
+            Frame* frame = new Frame;
+            std::ostringstream frameName;
+            frameName << "tile" << i << ".channel" << j;
+            frame->setName( frameName.str( ));
+            child->addInputFrame( frame );
         }
 
         // assembled color tile output, if not already in place
         if( i != 0 )
         {
-            cout << "                outputframe{ name \"frame.channel" << i <<"\"";
-            cout << " buffer [ COLOR ] ";
-            if( i == _nChannels - 1 ) // last - correct rounding 'error'
-                cout << "viewport [ 0 0." << setw(5) << start << " 1 0." << setw(5)
-                     << 100000 - start << " ]";
-            else
-                cout << "viewport [ 0 0." << setw(5) << start << " 1 0." << setw(5)
-                     << step << " ]";
-            cout << " }" << endl;
-        }
-        cout << "            }" << endl
-             << endl;
+            Frame* frame = new Frame;
+            child->addOutputFrame( frame );
 
+            std::ostringstream frameName;
+            frameName << "frame.channel" << i;
+            frame->setName( frameName.str( ));
+            frame->setBuffers( eq::Frame::BUFFER_COLOR );
+
+            if( i == _nChannels - 1 ) // last - correct rounding 'error'
+            {
+                frame->setViewport( 
+                    eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
+                                  1.f,
+                               static_cast< float >( 100000-start )/100000.f ));
+            }
+            else
+                frame->setViewport( 
+                    eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
+                                  1.f, static_cast< float >( step )/100000.f ));
+
+            // gather assembled input tiles
+            frame = new Frame;
+            frame->setName( frameName.str( ));
+            compound->addInputFrame( frame );
+        }
         start += step;
     }
-
-    // gather assembled input tiles
-    for( unsigned i = 1; i<_nChannels; ++i )
-        cout << "            inputframe{ name \"frame.channel" << i << "\" }" 
-             << endl;
-    cout << "        }" << endl;    
 }
 
-// each node has 2 GPU and compositing performed on separate GPU
-void ConfigTool::_writeDSAC() const
+// each node has two GPUs and compositing is performed on second GPU
+void ConfigTool::_writeDSAC( Config* config ) const
 {
     cout << "        compound" << endl
          << "        {" << endl
@@ -671,75 +759,88 @@ void ConfigTool::_writeDSAC() const
     cout << "        }" << endl;    
 }
 
-void ConfigTool::_writeDPlex() const
+void ConfigTool::_writeDPlex( Config* config ) const
 {
-    cout << "        compound" << endl
-         << "        {" << endl
-         << "            channel     \"channel0\"" << endl
-         << "            buffer      [ COLOR DEPTH ]" << endl
-         << "            wall" << endl
-         << "            {" << endl
-         << "                bottom_left  [ -.32 -.20 -.75 ]" << endl
-         << "                bottom_right [  .32 -.20 -.75 ]" << endl
-         << "                top_left     [ -.32  .20 -.75 ]" << endl
-         << "            }" << endl
-         << "            task        [ CLEAR ASSEMBLE ]" << endl
-         << "            loadBalancer{ mode DPLEX }" << endl;
+    Compound* compound = new Compound;
+    config->addCompound( compound );
 
+    Channel* channel = config->findChannel( "channel0" );
+    compound->setChannel( channel );
+    
+    eq::Wall wall;
+    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    compound->setWall( wall );
+    compound->setTasks( eq::TASK_CLEAR | eq::TASK_ASSEMBLE );
+    compound->addEqualizer( new FramerateEqualizer );
+    
     const unsigned period = _nChannels - 1;
     unsigned       phase  = 0;
     for( unsigned i = 1; i<_nChannels; ++i )
     {
-        cout << "            compound" << endl
-             << "            {" << endl
-             << "                channel   \"channel" << i << "\"" << endl
-             << "                period " << period << " phase " << phase <<endl
-             << "                outputframe{ name \"frame.DPlex\" }" << endl
-             << "            }" << endl;
+        Compound* child = new Compound;
+        compound->addChild( child );
+
+        std::ostringstream channelName;
+        channelName << "channel" << i;
+        
+        Channel* childChannel = config->findChannel( channelName.str( ));
+        child->setChannel( childChannel );
+
+        child->setPeriod( period );
+        child->setPhase( phase );
+
+        Frame* frame = new Frame;
+        frame->setName( "frame.DPlex" );
+        child->addOutputFrame( frame );
 
         ++phase;
     }
     
-    cout << "            inputframe{ name \"frame.DPlex\" }" << endl
-         << "        }" << endl;    
+    Frame* frame = new Frame;
+    frame->setName( "frame.DPlex" );
+    compound->addInputFrame( frame );
 }
 
-void ConfigTool::_writeWall() const
+void ConfigTool::_writeWall( Config* config ) const
 {
-    cout << "        compound" << endl
-         << "        {" << endl;
+    Layout* layout = new Layout;
+    config->addLayout( layout );
+    layout->setName( "1x1" );
+    layout->addView( new View );
 
-    const float screenW =  0.60;       //screen width in meters
-    const float screenH =  0.48;       //screen height in meters
-    const float screenD = -0.41*_rows; //screen distance to viewer in meters
+    Canvas* canvas = new Canvas;
+    config->addCanvas( canvas );    
+    canvas->setName( "wall" );
+    
+    eq::Wall wall;
+    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    canvas->setWall( wall );
 
-    const float utmostLeft    = -screenW*_columns / 2;
-    const float utmostBottom  = -screenH*_rows / 2;
-
-    cout << setiosflags(ios::fixed) << setprecision(5);
+    const float width  = 1.0f / static_cast< float >( _rows );
+    const float height = 1.0f / static_cast< float >( _columns );
 
     for( unsigned row = 0; row < _rows; ++row )
+    {
         for( unsigned column = 0; column < _columns; ++column )
         {
-            const float b = utmostBottom  + screenH*row; //bottom
-            const float l = utmostLeft + screenW*column; //left
-            const float r = l + screenW;            //right
-            const float t = b + screenH;            //top
-            const float d = screenD;                //distance
-            cout
-            << "            compound" << endl
-            << "            {"        << endl
-            << "                channel   \"channel" << row*_columns + column << "\"" << endl
-            << "                wall" << endl
-            << "                {" << endl
-            << "                    bottom_left  [ "<< l <<" "<< b <<" "<< d <<"]" << endl
-            << "                    bottom_right [ "<< r <<" "<< b <<" "<< d <<"]" << endl
-            << "                    top_left     [ "<< l <<" "<< t <<" "<< d <<"]" << endl
-            << "                }" << endl
-            << "            }" << endl;
-        }
+            Segment* segment = new Segment;
+            std::ostringstream segmentName;
+            segmentName << "segment_" << row << "_" << column;
+            segment->setName( segmentName.str( ));
+            segment->setViewport( eq::Viewport( width * row, height * column,
+                                                width, height ));
+            std::ostringstream channelName;
+            channelName << "channel" << column + row * _columns;
+            Channel* segmentChannel = config->findChannel( channelName.str( ));
+            segment->setChannel( segmentChannel );
 
-    cout << "        }" << endl;
+            canvas->addSegment( segment );
+        }
+    }
 }
 
 

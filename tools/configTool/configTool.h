@@ -1,10 +1,9 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -19,6 +18,7 @@
 #ifndef EQ_CONFIGTOOL_H
 #define EQ_CONFIGTOOL_H
 
+#include <server/config.h>
 #include <string>
 
 class ConfigTool
@@ -54,15 +54,15 @@ private:
     unsigned _resX, _resY;
 
 
-    void _writeResources()  const;
-    void _writeCompound()   const;
-    void _write2D()         const;
-    void _writeDB()         const;
-    void _writeDBStream()   const;
-    void _writeDS()         const;
-    void _writeDSAC()       const;
-    void _writeDPlex()      const;
-    void _writeWall()       const;
+    void _writeResources( eq::server::Config* config )  const;
+    void _writeCompound( eq::server::Config* config )   const;
+    void _write2D( eq::server::Config* config )         const;
+    void _writeDB( eq::server::Config* config )         const;
+    void _writeDBStream( eq::server::Config* config )   const;
+    void _writeDS( eq::server::Config* config )         const;
+    void _writeDSAC( eq::server::Config* config )       const;
+    void _writeDPlex( eq::server::Config* config )      const;
+    void _writeWall( eq::server::Config* config )       const;
     void _writeFromDescription() const;
 
 };
