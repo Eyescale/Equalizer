@@ -41,7 +41,7 @@ namespace server
         /** 
          * Constructs a new Segment.
          */
-        Segment();
+        EQSERVER_EXPORT Segment();
 
         /** Creates a new, deep copy of a segment. */
         Segment( const Segment& from, Config* config );
@@ -85,7 +85,7 @@ namespace server
          * 
          * @param vp the fractional viewport.
          */
-        void setViewport( const eq::Viewport& vp );
+        EQSERVER_EXPORT void setViewport( const eq::Viewport& vp );
 
         /** @return the segment's viewport. */
         const eq::Viewport& getViewport() const { return _vp; }

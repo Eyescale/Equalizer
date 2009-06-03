@@ -45,7 +45,7 @@ namespace server
         /** 
          * Constructs a new Canvas.
          */
-        Canvas();
+        EQSERVER_EXPORT Canvas();
 
         /** Creates a new, deep copy of a canvas. */
         Canvas( const Canvas& from, Config* config );
@@ -61,7 +61,7 @@ namespace server
         const Config* getConfig() const { return _config; }
 
         /** Add a new segment to this canvas. */
-        void addSegment( Segment* segment );
+        EQSERVER_EXPORT void addSegment( Segment* segment );
         
         /** @return the vector of child segments. */
         const SegmentVector& getSegments() const { return _segments; }

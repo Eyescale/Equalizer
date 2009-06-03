@@ -43,7 +43,7 @@ namespace server
         /** 
          * Constructs a new Layout.
          */
-        Layout();
+        EQSERVER_EXPORT Layout();
 
         /** Creates a new, deep copy of a layout. */
         Layout( const Layout& from, Config* config );
@@ -56,7 +56,7 @@ namespace server
          */
         //*{
         /** Add a new view to this layout. */
-        void addView( View* view );
+        EQSERVER_EXPORT void addView( View* view );
         
         /** remove the view from this layout. */
         bool removeView( View* view );

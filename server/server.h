@@ -140,7 +140,7 @@ namespace server
         net::CommandResult _cmdShutdown( net::Command& command );
     };
 
-    std::ostream& operator << ( std::ostream& os, const Server* server );
+    EQSERVER_EXPORT std::ostream& operator << ( std::ostream&, const Server* );
 }
 }
 #endif // EQSERVER_SERVER_H

@@ -52,7 +52,7 @@ namespace server
         /** 
          * Constructs a new Config.
          */
-        Config();
+        EQSERVER_EXPORT Config();
         virtual ~Config();
 
         /** 
@@ -86,7 +86,7 @@ namespace server
          * 
          * @param node the node.
          */
-        void addNode( Node* node );
+        EQSERVER_EXPORT void addNode( Node* node );
 
         /** 
          * Removes a node from this config.
@@ -137,7 +137,7 @@ namespace server
          * 
          * @param layout the layout.
          */
-        void addLayout( Layout* layout );
+        EQSERVER_EXPORT void addLayout( Layout* layout );
 
         /** 
          * Removes a layout from this config.
@@ -179,7 +179,7 @@ namespace server
          * 
          * @param canvas the canvas.
          */
-        void addCanvas( Canvas* canvas );
+        EQSERVER_EXPORT void addCanvas( Canvas* canvas );
 
         /** 
          * Removes a canvas from this config.
@@ -217,7 +217,7 @@ namespace server
          * 
          * @param compound the compound.
          */
-        void addCompound( Compound* compound );
+        EQSERVER_EXPORT void addCompound( Compound* compound );
 
         /** 
          * Removes a compound from this config.
@@ -238,7 +238,7 @@ namespace server
          * @return the first channel with the name, or <code>0</code> if no
          *         channel with the name exists.
          */
-        Channel* findChannel( const std::string& name );
+        EQSERVER_EXPORT Channel* findChannel( const std::string& name );
         const Channel* findChannel( const std::string& name ) const;
 
         /** 

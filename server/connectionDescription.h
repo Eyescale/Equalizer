@@ -28,7 +28,7 @@ namespace server
     class ConnectionDescription : public net::ConnectionDescription
     {
     public:
-        ConnectionDescription();
+        EQSERVER_EXPORT ConnectionDescription();
 
         /**
          * @name Attributes

@@ -39,7 +39,7 @@ namespace server
     class View : public eq::View
     {
     public:
-        View();
+        EQSERVER_EXPORT View();
 
         /** Creates a new, deep copy of a view. */
         View( const View& from, Config* config );

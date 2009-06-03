@@ -41,7 +41,7 @@ namespace server
         /** 
          * Constructs a new Frame.
          */
-        Frame();
+        EQSERVER_EXPORT Frame();
         Frame( const Frame& from );
 
         /**

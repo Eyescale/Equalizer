@@ -60,7 +60,7 @@ namespace server
         /** 
          * Constructs a new Node.
          */
-        Node();
+        EQSERVER_EXPORT Node();
 
         /** 
          * Constructs a new deep copy of a node.
@@ -99,7 +99,7 @@ namespace server
          * 
          * @param pipe the pipe.
          */
-        void addPipe( Pipe* pipe );
+        EQSERVER_EXPORT void addPipe( Pipe* pipe );
 
         /** 
          * Removes a pipe from this node.

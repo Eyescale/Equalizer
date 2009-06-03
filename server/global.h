@@ -149,10 +149,11 @@ namespace server
         void _setupDefaults();
         void _readEnvironment();
 
-        friend std::ostream& operator << ( std::ostream&, const Global* );
+        friend EQSERVER_EXPORT std::ostream& operator << ( std::ostream&,
+                                                           const Global* );
     };
 
-    std::ostream& operator << ( std::ostream& os, const Global* global );
+    EQSERVER_EXPORT std::ostream& operator << ( std::ostream&, const Global* );
 }
 }
 #endif // EQSERVER_GLOBAL_H

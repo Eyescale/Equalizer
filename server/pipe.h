@@ -60,7 +60,7 @@ namespace server
         /** 
          * Constructs a new Pipe.
          */
-        Pipe();
+        EQSERVER_EXPORT Pipe();
 
         /** 
          * Constructs a new deep copy of a pipe.
@@ -92,7 +92,7 @@ namespace server
          * 
          * @param window the window.
          */
-        void addWindow( Window* window );
+        EQSERVER_EXPORT void addWindow( Window* window );
 
         /** 
          * Removes a window from this config.

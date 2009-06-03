@@ -40,7 +40,7 @@ namespace server
     class FramerateEqualizer : public Equalizer
     {
     public:
-        FramerateEqualizer();
+        EQSERVER_EXPORT FramerateEqualizer();
         FramerateEqualizer( const FramerateEqualizer& from );
         virtual ~FramerateEqualizer();
         virtual Equalizer* clone() const
