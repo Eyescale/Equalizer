@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,7 +32,7 @@ namespace net
      *
      * @sa Node
      */
-    class EQ_EXPORT ConnectionDescription : public base::Referenced
+    class ConnectionDescription : public base::Referenced
     {
     public:
         ConnectionDescription() 
@@ -72,8 +72,8 @@ namespace net
         char launchCommandQuote;
 
         /** @return this description as a string. */
-        std::string toString() const;
-        void serialize( std::ostream& os ) const;
+        EQ_EXPORT std::string toString() const;
+        EQ_EXPORT void serialize( std::ostream& os ) const;
 
         /** 
          * Reads the connection description from a string.
@@ -84,20 +84,21 @@ namespace net
          * @return <code>true</code> if the information was read correctly, 
          *         <code>false</code> if not.
          */
-        bool fromString( std::string& data );
+        EQ_EXPORT bool fromString( std::string& data );
 
         /** @name Data Access
          *
          * std::strings are not public because of DLL allocation issues.
          */
         //*{
-        void setHostname( const std::string& hostname );
-        const std::string& getHostname() const;
-        void setLaunchCommand( const std::string& launchCommand );
-        const std::string& getLaunchCommand() const;
+        EQ_EXPORT void setHostname( const std::string& hostname );
+        EQ_EXPORT const std::string& getHostname() const;
+        EQ_EXPORT void setLaunchCommand( const std::string& launchCommand );
+        EQ_EXPORT const std::string& getLaunchCommand() const;
         //*}
+
     protected:
-        virtual ~ConnectionDescription() {}
+        EQ_EXPORT virtual ~ConnectionDescription() {}
 
     private:
         /** 
