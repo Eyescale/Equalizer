@@ -277,7 +277,7 @@ extern "C"
      * @param compressor the compressor instance.
      * @param i the result index to return.
      * @param out the return value to store the result pointer.
-     * @param outSize the return value to store the result size.
+     * @param outSize the return value to store the result size in bytes.
      */
     EQ_PLUGIN_API void EqCompressorGetResult( void* const compressor, 
                                               const unsigned i, 
@@ -293,7 +293,7 @@ extern "C"
      *
      * @param decompressor the decompressor instance, can be 0.
      * @param in the pointer to an array of input data pointers.
-     * @param inSizes the array of input data sizes.
+     * @param inSizes the array of input data sizes in bytes.
      * @param numInputs the number of input data elements.
      * @param out the pointer to a pre-allocated buffer for the uncompressed
      *            output result.
