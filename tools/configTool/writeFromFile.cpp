@@ -16,6 +16,7 @@
  */
 
 #include "configTool.h"
+#include "frame.h"
 
 #include <server/equalizers/framerateEqualizer.h>
 #include <server/canvas.h>

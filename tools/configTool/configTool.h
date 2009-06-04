@@ -19,32 +19,8 @@
 #define EQ_CONFIGTOOL_H
 
 #include <server/config.h>
-#include <server/frame.h>
+
 #include <string>
-#include <iostream>
-#include <fstream>
-
-
-class Frame : public eq::server::Frame
-{
-public:
-    Frame( char* name ) : eq::server::Frame()
-    {
-        setName( std::string( name ));
-    }
-    Frame( std::ostringstream& name ) : eq::server::Frame()
-    {
-        setName( name.str( ));
-    }
-    Frame(      std::ostringstream& name,
-          const eq::Viewport&       vp,
-                bool                colorOnly = false ) : eq::server::Frame()
-    {
-        setName( name.str( ));
-        setViewport( vp );
-        if( colorOnly ) setBuffers( eq::Frame::BUFFER_COLOR );
-    }
-};
 
 class ConfigTool
 {
