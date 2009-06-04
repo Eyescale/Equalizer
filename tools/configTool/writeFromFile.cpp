@@ -17,14 +17,23 @@
 
 #include "configTool.h"
 
+#include <server/equalizers/framerateEqualizer.h>
+#include <server/canvas.h>
+#include <server/global.h>
+#include <server/layout.h>
+#include <server/node.h>
+#include <server/segment.h>
+#include <server/view.h>
+#include <server/window.h>
+
+#include <eq/client/viewport.h>
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include <eq/client/viewport.h>
 
 #ifndef MIN
 #  define MIN(a,b) ((a)<(b)?(a):(b))
@@ -36,45 +45,43 @@
 
 
 using namespace std;
+using namespace eq::server;
 
-// levels of indention
-static string _s0("        ");
-static string _s1("            ");
-static string _s2("                ");
-static string _s3("                    ");
-
-// endl
-static string _e( "\n" );
 
 /** 2D decomposition based on precalculated grid */
-static void _mode2D( const vector<float>& xMarks,
+static void _mode2D(       Config*        config,
+                     const vector<float>& xMarks,
                      const vector<float>& yMarks  )
 {
-    const unsigned raws      = yMarks.size() - 1;
-    const unsigned columns   = xMarks.size() - 1;
+    Compound* compound =  config->getCompounds()[0];
+
+    const unsigned raws    = yMarks.size() - 1;
+    const unsigned columns = xMarks.size() - 1;
 
     unsigned i = 0;
     for( unsigned y = 0; y < raws; ++y )
     for( unsigned x = 0; x < columns; ++x )
     {
-        cout <<_s1<< "compound" << _e
-             <<_s1<< "{" << _e
-             <<_s1<< "    channel   \"channel" << i << "\"" << _e
-             <<_s1<< "    viewport  [ " << xMarks[x  ]           << " "
-                                        << yMarks[y  ]           << " "
-                                        << xMarks[x+1]-xMarks[x] << " "
-                                        << yMarks[y+1]-yMarks[y] << " ]" <<_e;
-        if( i != 0 )
-        {
-            cout
-             <<_s1<< "    outputframe{ name \"frame.channel"<< i <<"\"}" <<_e;
-        }
-        cout <<_s1<< "}" << _e;
+        Compound* child = new Compound;
+        compound->addChild( child );
+
+        std::ostringstream channelName;
+        channelName << "channel" << i;
+
+        Channel* childChannel = config->findChannel( channelName.str( ));
+        child->setChannel( childChannel );
+
+        child->setViewport( 
+            eq::Viewport( xMarks[x  ],           yMarks[y  ],
+                          xMarks[x+1]-xMarks[x], yMarks[y+1]-yMarks[y] ));
 
         if( i != 0 )
         {
-            cout
-             <<_s1<< "inputframe{ name \"frame.channel" << i <<"\" }" <<_e<<_e;
+            std::ostringstream frameName;
+            frameName << "frame.channel" << i;
+
+            child->addOutputFrame(   new ::Frame( frameName ));
+            compound->addInputFrame( new ::Frame( frameName ));
         }
         i++;
     }
@@ -82,9 +89,12 @@ static void _mode2D( const vector<float>& xMarks,
 
 /** Pure DB rendering when each node compose result from its pipes and transmit
     only one set of images to the destination node. */
-static void _modeDB( const unsigned nChannels,
+static void _modeDB(       Config*  config,
+                     const unsigned nChannels,
                      const unsigned nPipes    )
 {
+    Compound* compound = config->getCompounds()[0];
+
     vector<float> ranges( nChannels + 1, 0 );
     ranges[ nChannels ] = 1.0;
     for( unsigned i = 1; i < nChannels; ++i )
@@ -94,51 +104,51 @@ static void _modeDB( const unsigned nChannels,
     // for each node
     for( unsigned n = 0 ; n < nChannels/nPipes; ++n )
     {
+        Compound* childNode = compound;
+
         if( n != 0 ) // don't create separate compound for dst channel
         {
-            cout
-             <<_s1<< "compound" <<_e
-             <<_s1<< "{" <<_e
-             <<_s1<< "    channel \"channel" << n*nPipes << "\"" <<_e;
+            childNode = new Compound;
+            compound->addChild( childNode );
+
+            std::ostringstream channelName;
+            channelName << "channel" << n*nPipes;
+
+            Channel* childChannel = config->findChannel( channelName.str( ));
+            childNode->setChannel( childChannel );
         }
 
-        const string s = (n == 0) ? _s1 : _s2;
-    // for each gpu on the node
-    for( unsigned p = 0; p < nPipes; ++p )
-    {
-        cout <<s<< "compound" <<_e
-             <<s<< "{" <<_e;
-
-        if( i != n*nPipes )
+        // for each gpu on the node
+        for( unsigned p = 0; p < nPipes; ++p )
         {
-            cout
-             <<s<< "    channel \"channel" << i << "\"" <<_e;
-        }
-        cout <<s<< "    range [ " << ranges[ i   ] << " " 
-                                  << ranges[ i+1 ] << " ]" <<_e;
+            Compound* childPipe = new Compound;
+            childNode->addChild( childPipe );
 
-        if( i != n*nPipes ) 
-        {
-            cout
-             <<s<< "    outputframe{ name \"frame.channel" << i <<"\"}" <<_e;
-        }
-        cout <<s<< "}" <<_e;
+            childPipe->setRange( eq::Range( ranges[ i ], ranges[ i+1 ] ));
 
-        if( i != n*nPipes )
-        {
-            cout
-             <<s<< "inputframe{ name \"frame.channel" << i <<"\" }" <<_e<<_e;
-        }
+            if( i != n*nPipes )
+            {
+                std::ostringstream channelName;
+                channelName << "channel" << i;
 
-        i++;
-    }
+                Channel* childChannel = config->findChannel( channelName.str());
+                childPipe->setChannel( childChannel );
+
+                std::ostringstream frameName;
+                frameName << "frame.channel" << i;
+
+                childPipe->addOutputFrame( new ::Frame( frameName ));
+                childNode->addInputFrame(  new ::Frame( frameName ));
+            }
+            i++;
+        }
         if( n != 0 ) // dst channel has no output
         {
-            cout
-             <<_s2<< "outputframe{ name \"frame.channel" << n*nPipes <<"\"}"<<_e
-             <<_s1<< "}" <<_e
-             <<_s1<< "inputframe{ name \"frame.channel" << n*nPipes <<"\"}"<<_e
-             <<_e;
+            std::ostringstream frameName;
+            frameName << "frame.channel" << n*nPipes;
+
+            childNode->addOutputFrame( new ::Frame( frameName ));
+            compound->addInputFrame(   new ::Frame( frameName ));
         }
     }
 }
@@ -158,12 +168,15 @@ static eq::Viewport _unite( const eq::Viewport& vp1, const eq::Viewport& vp2 )
 
 /** DB_ds rendering when each node compose result from its pipes on to first 
     pipe, then result is used in DB_ds compositing between nodes */
-static void _modeDS( const unsigned               nChannels,
+static void _modeDS(       Config*                config,
+                     const unsigned               nChannels,
                      const unsigned               nPipes,
                      const vector< vector<int> >& descr,
                      const vector<float>&         xMarks,
                      const vector<float>&         yMarks  )
 {
+    Compound* compound = config->getCompounds()[0];
+
     vector<float> ranges( nChannels + 1, 0 );
     ranges[ nChannels ] = 1.0;
     for( unsigned i = 1; i < nChannels; ++i )
@@ -172,7 +185,7 @@ static void _modeDS( const unsigned               nChannels,
     const unsigned nNodes = nChannels/nPipes;
     if( descr.size() < nNodes )
     {
-        cerr << "Description file is incomplete" <<_e;
+        cerr << "Description file is incomplete" << std::endl;
         return;
     }
 
@@ -188,7 +201,7 @@ static void _modeDS( const unsigned               nChannels,
             if( vals[j] >= cells || vals[j] < 0 )
             {
                 cerr << "description of region is invalid: "
-                     << vals[j] << " no such cell" << _e;
+                     << vals[j] << " no such cell" << std::endl;
                 return;
             }
     }
@@ -216,90 +229,76 @@ static void _modeDS( const unsigned               nChannels,
     // for each node
     for( unsigned n = 0 ; n < nNodes; ++n )
     {
+        Compound* child = compound;
+
         if( n != 0 ) // don't create separate compound for dst channel
         {
-            cout
-             <<_s1<< "compound" <<_e
-             <<_s1<< "{" <<_e
-             <<_s1<< "    channel   \"channel" << n*nPipes << "\"" <<_e;
+            child = new Compound;
+            compound->addChild( child );
+
+            std::ostringstream channelName;
+            channelName << "channel" << n*nPipes;
+
+            Channel* childChannel = config->findChannel( channelName.str( ));
+            child->setChannel( childChannel );
         }
 
-        const string sT = (n == 0) ? _s1 : _s2;
-        cout
-         <<sT<< "compound" <<_e
-         <<sT<< "{" <<_e;
+        Compound* childNode = new Compound;
+        child->addChild( childNode );
 
-        const string s = (n == 0) ? _s2 : _s3;
-
-    // for each gpu on the node
-    for( unsigned p = 0; p < nPipes; ++p )
-    {
-
-        cout <<s<< "compound" <<_e
-             <<s<< "{" <<_e;
-
-        if( i != n*nPipes )
+        // for each gpu on the node
+        for( unsigned p = 0; p < nPipes; ++p )
         {
-            cout
-             <<s<< "    channel \"channel" << i << "\"" <<_e;
-        }
-        cout <<s<< "    range [ " << ranges[ i   ] << " " 
-                                      << ranges[ i+1 ] << " ]" <<_e;
+            Compound* childPipe = new Compound;
+            childNode->addChild( childPipe );
 
-        if( i != n*nPipes ) // output all except first gpu per node
-        {
-            cout
-             <<s<< "    outputframe{ name \"frame.channel" << i <<"\" }" <<_e;
-        }
-        cout <<s<< "}" <<_e;
+            childPipe->setRange( eq::Range( ranges[ i ], ranges[ i+1 ] ));
 
-        if( i != n*nPipes ) // compose results from other gpu's on to first
-        {
-            cout
-             <<s<< "inputframe{ name \"frame.channel" << i <<"\" }" <<_e<<_e;
+            if( i != n*nPipes )
+            {
+                std::ostringstream channelName;
+                channelName << "channel" << i;
+
+                Channel* childChannel = config->findChannel( channelName.str());
+                childPipe->setChannel( childChannel );
+
+
+                std::ostringstream frameName;
+                frameName << "frame.channel" << i;
+
+                childPipe->addOutputFrame( new ::Frame( frameName ));
+                childNode->addInputFrame(  new ::Frame( frameName ));
+            }
+            i++;
         }
 
-        i++;
-    }
-        // output parts to compose on othe nodes
         for( unsigned k = 0; k < nNodes; ++k )
             if( k != n )
             {
-                const eq::Viewport& v = vp[k];
-                cout
-                 <<s<< "outputframe{ name \"fr" << k*nPipes << ".ch" << n*nPipes
-                    << "\" viewport[ "<<v.x<<" "<<v.y<<" "<<v.w<<" "<<v.h <<" ]"
-                    << " }"<<_e;
-            }
+                // output parts to compose on other nodes
+                std::ostringstream frameName;
+                frameName << "fr" << k*nPipes << ".ch" << n*nPipes;
 
-        cout
-         <<sT<< "}" <<_e;
+                childNode->addOutputFrame( new ::Frame( frameName, vp[k] ));
 
-        // input parts from other nodes to compose on current node
-        for( unsigned k = 0; k < nNodes; ++k)
-            if( k != n )
-            {
-                cout
-                 <<sT<< "inputframe{ name \"fr" << n*nPipes << ".ch" <<k*nPipes
-                    << "\" }"<<_e;
+                // input parts from other nodes to compose on current node
+                frameName.str("");
+                frameName<< "fr" << n*nPipes << ".ch" << k*nPipes;
+
+                child->addInputFrame( new ::Frame( frameName ));
             }
 
         // output color result for final compositing on the first node
         if( n != 0 )
         {
-            const eq::Viewport& v = vp[n];
-            cout
-             <<sT<< "outputframe{ name \"frame.channel" << n*nPipes
-                 << "\"" << " buffer [ COLOR ] "
-                 << "viewport[ "<<v.x<<" "<<v.y<<" "<<v.w<<" "<<v.h <<" ]"
-                 << " }" <<_e
-             <<_s1<< "}" <<_e
-             <<_s1<< "inputframe{ name \"frame.channel" << n*nPipes <<"\" }"<<_e
-             <<_e;
+            std::ostringstream frameName;
+            frameName << "frame.channel" << n*nPipes;
+
+            child->addOutputFrame(   new ::Frame( frameName, vp[n], true ));
+            compound->addInputFrame( new ::Frame( frameName ));
         }
     }
 }
-
 
 static bool _split( vector<float>& res, unsigned len, unsigned parts,
                                                       unsigned align )
@@ -346,8 +345,11 @@ align 16
  from the grid (-C, -R in the command line to specify grid dimensions).
  Values per node only used for DB_ds configs.
 
+ Note: You can use only first line, in which case areas will be assigned
+       automatically based on a grid. One cell of grid per area.
+
 */
-void ConfigTool::_writeFromDescription() const
+void ConfigTool::_writeFromDescription( Config* config ) const
 {
     // read description file
     std::ifstream inStream;
@@ -403,6 +405,10 @@ void ConfigTool::_writeFromDescription() const
 
     inStream.close();
 
+    if( descr.size() == 0 )
+        for( unsigned i = 0; i < _nChannels/_nPipes; ++i )
+            descr.push_back( vector<int>( 1, i ));
+
     vector<float> xMarks;
     vector<float> yMarks;
 
@@ -413,32 +419,34 @@ void ConfigTool::_writeFromDescription() const
         return;
 
 
-    cout <<_s0<< "compound" <<_e
-         <<_s0<< "{" <<_e
-         <<_s0<< "    channel \"channel0\"" <<_e;
+    Compound* compound = new Compound;
+    config->addCompound( compound );
+
+    Channel* channel = config->findChannel( "channel0" );
+    compound->setChannel( channel );
+
+    eq::Wall wall;
+    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    compound->setWall( wall );
 
     if( _mode != MODE_2D )
-    cout <<_s0<< "    buffer [ COLOR DEPTH ]" <<_e;
-
-    cout <<_s0<< "    wall" <<_e
-         <<_s0<< "    {" <<_e
-         <<_s0<< "        bottom_left  [ -.32 -.20 -.75 ]" <<_e
-         <<_s0<< "        bottom_right [  .32 -.20 -.75 ]" <<_e
-         <<_s0<< "        top_left     [ -.32  .20 -.75 ]" <<_e
-         <<_s0<< "    }" <<_e;
+        compound->setBuffers( eq::Frame::BUFFER_COLOR |
+                              eq::Frame::BUFFER_DEPTH );
 
     switch( _mode )
     {
         case MODE_2D:
-            _mode2D( xMarks, yMarks );
+            _mode2D( config, xMarks, yMarks );
             break;
 
         case MODE_DB:
-            _modeDB( _nChannels, _nPipes );
+            _modeDB( config, _nChannels, _nPipes );
             break;
 
         case MODE_DB_DS:
-            _modeDS( _nChannels, _nPipes, descr, xMarks, yMarks );
+            _modeDS( config, _nChannels, _nPipes, descr, xMarks, yMarks );
             break;
 
         default:
@@ -447,5 +455,5 @@ void ConfigTool::_writeFromDescription() const
             exit( EXIT_FAILURE );
     }
 
-    cout <<_s0<< "}" <<_e;
+
 }

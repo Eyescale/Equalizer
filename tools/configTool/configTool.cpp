@@ -19,7 +19,6 @@
 
 #include <server/equalizers/framerateEqualizer.h>
 #include <server/canvas.h>
-#include <server/frame.h>
 #include <server/global.h>
 #include <server/layout.h>
 #include <server/node.h>
@@ -272,7 +271,7 @@ void ConfigTool::_writeResources( Config* config ) const
             node->addPipe( pipe );
 
             std::ostringstream pipeName;
-            pipeName << "pipe" << n;
+            pipeName << "pipe" << p << "n" << n;
             pipe->setName( pipeName.str( ));
             pipe->setDevice( p );
             
@@ -318,7 +317,7 @@ void ConfigTool::_writeCompound( Config* config ) const
 {
     if( _descrFile != "" )
     {
-        _writeFromDescription();
+        _writeFromDescription( config );
         return;
     }
 
@@ -404,15 +403,11 @@ void ConfigTool::_write2D( Config* config ) const
 
         if( i != 0 )
         {
-            Frame* frame = new Frame;
             std::ostringstream frameName;
             frameName << "frame.channel" << i;
-            frame->setName( frameName.str( ));
-            child->addOutputFrame( frame );
 
-            frame = new Frame;
-            frame->setName( frameName.str( ));
-            compound->addInputFrame( frame );
+            child->addOutputFrame(   new ::Frame( frameName ));
+            compound->addInputFrame( new ::Frame( frameName ));
         }
  
         y += step;
@@ -467,15 +462,11 @@ void ConfigTool::_writeDB( Config* config ) const
 
         if( i != 0 )
         {
-            Frame* frame = new Frame;
             std::ostringstream frameName;
             frameName << "frame.channel" << i;
-            frame->setName( frameName.str( ));
-            child->addOutputFrame( frame );
 
-            frame = new Frame;
-            frame->setName( frameName.str( ));
-            compound->addInputFrame( frame );
+            child->addOutputFrame(   new ::Frame( frameName ));
+            compound->addInputFrame( new ::Frame( frameName ));
         }
  
         start += step;
@@ -525,30 +516,24 @@ void ConfigTool::_writeDBStream( Config* config ) const
 
         if( i != _nChannels )
         {
-            Frame* frame = new Frame;
             std::ostringstream frameName;
             frameName << "frame.channel" << i;
-            frame->setName( frameName.str( ));
-            child->addInputFrame( frame );
+
+            child->addInputFrame( new ::Frame( frameName ));
         }
 
         if( i != 1 ) 
         {
-            Frame* frame = new Frame;
             std::ostringstream frameName;
             frameName << "frame.channel" << i-1;
-            frame->setName( frameName.str( ));
-            child->addOutputFrame( frame );
+
+            child->addOutputFrame( new ::Frame( frameName ));
         }
  
         start += step;
     }
     if( !_useDestination )
-    {
-        Frame* frame = new Frame;
-        frame->setName( "frame.channel1" );
-        compound->addInputFrame( frame );
-    }
+        compound->addInputFrame( new ::Frame( "frame.channel1" ));
 }
 
 void ConfigTool::_writeDS( Config* config ) const
@@ -600,69 +585,51 @@ void ConfigTool::_writeDS( Config* config ) const
         {
             if( i != j )
             {
-                Frame* frame = new Frame;
                 std::ostringstream frameName;
                 frameName << "tile" << j << ".channel" << i;
-                frame->setName( frameName.str( ));
-                drawChild->addOutputFrame( frame );
 
+                eq::Viewport vp;
                 if( j == _nChannels - 1 ) // last - correct rounding 'error'
                 {
-                    frame->setViewport( 
-                        eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
-                                      1.f,
-                                   static_cast< float >( 100000-y )/100000.f ));
+                    vp = eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
+                              1.f, static_cast< float >( 100000-y )/100000.f );
                 }
                 else
-                    frame->setViewport( 
-                        eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
-                                  1.f, static_cast< float >( step )/100000.f ));
+                    vp = eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
+                                  1.f, static_cast< float >( step )/100000.f );
+
+                drawChild->addOutputFrame( new ::Frame( frameName, vp ));
+
+                // input tiles from other channels
+                frameName.str("");
+                frameName << "tile" << i << ".channel" << j;
+
+                child->addInputFrame(      new ::Frame( frameName ));
             }
             // else own tile, is in place
 
             y += step;
         }
  
-        // input tiles from other channels
-        for( unsigned j = _useDestination ? 0 : 1; j<_nChannels; ++j )
-        {
-            if( i == j ) // own tile, is in place
-                continue;
-
-            Frame* frame = new Frame;
-            std::ostringstream frameName;
-            frameName << "tile" << i << ".channel" << j;
-            frame->setName( frameName.str( ));
-            child->addInputFrame( frame );
-        }
-
         // assembled color tile output, if not already in place
         if( i != 0 )
         {
-            Frame* frame = new Frame;
-            child->addOutputFrame( frame );
-
             std::ostringstream frameName;
             frameName << "frame.channel" << i;
-            frame->setName( frameName.str( ));
-            frame->setBuffers( eq::Frame::BUFFER_COLOR );
 
+            eq::Viewport vp;
             if( i == _nChannels - 1 ) // last - correct rounding 'error'
             {
-                frame->setViewport( 
-                    eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
+                vp = eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
                                   1.f,
-                               static_cast< float >( 100000-start )/100000.f ));
+                               static_cast< float >( 100000-start )/100000.f );
             }
             else
-                frame->setViewport( 
-                    eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
-                                  1.f, static_cast< float >( step )/100000.f ));
+                vp = eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
+                                  1.f, static_cast< float >( step )/100000.f );
 
-            // gather assembled input tiles
-            frame = new Frame;
-            frame->setName( frameName.str( ));
-            compound->addInputFrame( frame );
+            child->addOutputFrame(   new ::Frame( frameName, vp, true ));
+            compound->addInputFrame( new ::Frame( frameName ));
         }
         start += step;
     }
@@ -790,17 +757,12 @@ void ConfigTool::_writeDPlex( Config* config ) const
 
         child->setPeriod( period );
         child->setPhase( phase );
-
-        Frame* frame = new Frame;
-        frame->setName( "frame.DPlex" );
-        child->addOutputFrame( frame );
+        child->addOutputFrame( new ::Frame( "frame.DPlex" ));
 
         ++phase;
     }
-    
-    Frame* frame = new Frame;
-    frame->setName( "frame.DPlex" );
-    compound->addInputFrame( frame );
+
+    compound->addInputFrame( new ::Frame( "frame.DPlex" ));
 }
 
 void ConfigTool::_writeWall( Config* config ) const
