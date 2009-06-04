@@ -58,7 +58,7 @@ bool Channel::configInit( const uint32_t initID )
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
 
     // chose projection type
-    setNearFar( 0.0001f, 10.0f );
+    setNearFar( 0.001f, 10.0f );
 
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {

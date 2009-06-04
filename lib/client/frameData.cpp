@@ -146,7 +146,7 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
         image = new Image;
 
         image->setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
-        image->setType(   Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
+        image->setType( Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
     }
     else
     {
@@ -167,13 +167,13 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
     switch( _colorType )
     {
         case GL_RGBA16F:  
-            image->setType(   Frame::BUFFER_COLOR, GL_HALF_FLOAT );
+            image->setType( Frame::BUFFER_COLOR, GL_HALF_FLOAT );
             break;
         case GL_RGBA32F:  
-            image->setType(   Frame::BUFFER_COLOR, GL_FLOAT );
+            image->setType( Frame::BUFFER_COLOR, GL_FLOAT );
             break;
         default:
-            image->setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+            image->setType( Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
     }
 
     return image;
