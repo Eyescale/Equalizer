@@ -140,13 +140,14 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes ) const
     if( !_writeHandle )
         return -1;
 
+    const DWORD write = EQ_MIN( static_cast<DWORD>( bytes ), 4096 );
+
     _mutex.set();
-    _size += bytes; // speculatively 'write' everything
+    _size += write; // speculatively 'write' everything
     _mutex.unset();
 
     DWORD bytesWritten = 0;
-    const BOOL ret = WriteFile( _writeHandle, buffer, static_cast<DWORD>(bytes),
-                                &bytesWritten, 0 );
+    const BOOL ret = WriteFile( _writeHandle, buffer, write, &bytesWritten, 0 );
 
     if( ret == 0 ) // Error
     {
@@ -156,8 +157,8 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes ) const
     }
 
     _mutex.set();
-    EQASSERT( _size >= bytes - bytesWritten );
-    _size -= (bytes - bytesWritten); // correct size
+    EQASSERT( _size >= write - bytesWritten );
+    _size -= (write - bytesWritten); // correct size
 
     if( _size > 0 )
         SetEvent( _dataPending );
