@@ -359,26 +359,23 @@ void Window::_resetSwapBarriers()
     _swapBarriers.clear();
 }
 
-net::Barrier* Window::newSwapBarrier()
+net::Barrier* Window::joinSwapBarrier( net::Barrier* barrier )
 {
-    Node*         node    = getNode();
-    net::Barrier* barrier = node->getBarrier();
-    _masterSwapBarriers.push_back( barrier );
+    if( !barrier )
+    {
+        Node* node = getNode();
+        barrier = node->getBarrier();
+        _masterSwapBarriers.push_back( barrier );
+    }
 
-    joinSwapBarrier( barrier );
-    return barrier;
-}
-
-void Window::joinSwapBarrier( net::Barrier* barrier )
-{ 
     barrier->increase();
     _swapBarriers.push_back( barrier );
-
+    return barrier;
 }
 
 void Window::joinNVSwapBarrier( const SwapBarrier* barrier )
 { 
-    if ( _nvSwapBarrier )
+    if( _nvSwapBarrier )
         EQWARN << "Only one NV_swap_group barrier per window allowed, "
                << "overwriting previous one" << endl;
 
@@ -387,7 +384,7 @@ void Window::joinNVSwapBarrier( const SwapBarrier* barrier )
 
 void Window::leaveNVSwapBarrier( const SwapBarrier* barrier )
 { 
-    if ( _nvSwapBarrier == barrier )
+    if( _nvSwapBarrier == barrier )
         _nvSwapBarrier = 0;
 }
 

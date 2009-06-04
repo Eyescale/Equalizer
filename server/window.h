@@ -182,19 +182,14 @@ namespace server
          */
         void notifyViewportChanged();
 
-        /**
-         * Create a new swap barrier and join it for the next update.
-         *
-         * @return the created swap barrier.
-         */
-        net::Barrier* newSwapBarrier();
-
         /** 
          * Join a swap barrier for the next update.
          * 
-         * @param barrier the swap barrier.
+         * @param barrier the net::Barrier for the swap barrier group, or 0 if
+         *                this is the first window.
+         * @return the net::Barrier for the swap barrier group.
          */
-        void joinSwapBarrier( net::Barrier* barrier );
+        net::Barrier* joinSwapBarrier( net::Barrier* barrier );
 
         /** 
          * Join a NV_swap_group barrier during init.
