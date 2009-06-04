@@ -637,8 +637,6 @@ namespace eq
         int32_t        tasks;
         PixelViewport  pvp;
         Viewport       vp;
-        uint32_t       nvSwapGroup;
-        uint32_t       nvSwapBarrier;
         EQ_ALIGN8( char name[8] );
     };
 
@@ -736,8 +734,20 @@ namespace eq
                 command = CMD_WINDOW_BARRIER;
                 size    = sizeof( WindowBarrierPacket );
             }
-        uint32_t barrierID;
-        uint32_t barrierVersion;
+        net::ObjectVersion barrier;
+    };
+    
+    struct WindowNVBarrierPacket : public net::ObjectPacket
+    {
+        WindowNVBarrierPacket()
+            {
+                command = CMD_WINDOW_NV_BARRIER;
+                size    = sizeof( WindowNVBarrierPacket );
+            }
+
+        uint32_t group;
+        uint32_t barrier;
+        net::ObjectVersion netBarrier;
     };
 
     struct WindowSwapPacket : public net::ObjectPacket
@@ -1171,8 +1181,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const WindowBarrierPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " barrier " << packet->barrierID
-           << " version " << packet->barrierVersion;
+        os << (net::ObjectPacket*)packet << " barrier " << packet->barrier;
         return os;
     }
 

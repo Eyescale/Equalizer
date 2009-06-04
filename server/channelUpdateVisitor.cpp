@@ -585,10 +585,10 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         for( vector<Frame*>::const_iterator j = inputFrames.begin();
              j != inputFrames.end(); ++j )
         {
-            const Frame*        inputFrame   = *j;
-            const Node*         inputNode    = inputFrame->getNode();
+            const Frame* inputFrame   = *j;
+            const Node*  inputNode    = inputFrame->getNode();
             net::NodePtr inputNetNode = inputNode->getNode();
-            net::NodeID       nodeID       = inputNetNode->getNodeID();
+            net::NodeID  nodeID       = inputNetNode->getNodeID();
             EQASSERT( node );
 
             if( nodeID == outputNodeID ) // TODO filter: buffers, vp, eye

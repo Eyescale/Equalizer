@@ -207,15 +207,25 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
     if( !swapBarrier )
         return;
 
-    if( swapBarrier->isNvSwapBarrier() )
-        return;
-    
     Window* window = compound->getWindow();
+    EQASSERT( window );
     if( !window )
         return;
 
-    const std::string& name = swapBarrier->getName();
-    _swapBarriers[name] = window->joinSwapBarrier( _swapBarriers[name] );
+    if( swapBarrier->isNvSwapBarrier( ))
+    {
+        if( !window->hasNVSwapBarrier( ))
+        {
+            const std::string name( "__NV_swap_group_protection_barrier__" );
+            _swapBarriers[name] = 
+                window->joinNVSwapBarrier( swapBarrier, _swapBarriers[name] );
+        }
+    }
+    else
+    {
+        const std::string& name = swapBarrier->getName();
+        _swapBarriers[name] = window->joinSwapBarrier( _swapBarriers[name] );
+    }
 }
 
 }

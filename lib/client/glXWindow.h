@@ -3,9 +3,8 @@
                           , Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -54,10 +53,10 @@ namespace eq
         virtual ~GLXWindow( );
 
         virtual void configExit( );
-
         virtual void makeCurrent() const;
-
         virtual void swapBuffers();
+        virtual void joinNVSwapBarrier( const uint32_t group,
+                                        const uint32_t barrier );
 
         //* @name GLX/X11 initialization
         //*{
@@ -170,6 +169,8 @@ namespace eq
         XID        _xDrawable;
         /** The glX rendering context. */
         GLXContext _glXContext;
+        /** The currently joined swap group. */
+        uint32_t _glXNVSwapGroup;
 
         union // placeholder for binary-compatible changes
         {

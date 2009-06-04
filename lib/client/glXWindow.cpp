@@ -3,9 +3,8 @@
                           , Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -31,6 +30,7 @@ GLXWindow::GLXWindow( Window* parent )
     : GLXWindowIF( parent )
     , _xDrawable ( 0 )
     , _glXContext( 0 )
+    , _glXNVSwapGroup( 0 )
 {
     
 }
@@ -73,12 +73,6 @@ bool GLXWindow::configInit( )
 
     makeCurrent();
     initGLEW();
-
-    if( !joinNVSwapBarrier( ))
-    {
-        _window->setErrorMessage( "Joining NV_swap_group failed" );
-        return false;
-    }
 
     if (getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         configInitFBO();
@@ -624,12 +618,10 @@ void GLXWindow::swapBuffers()
     glXSwapBuffers( display, _xDrawable );
 }
 
-bool GLXWindow::joinNVSwapBarrier()
+void GLXWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 {
-    const uint32_t group   = _window->getNVSwapGroup();
-    const uint32_t barrier = _window->getNVSwapBarrier();
     if( group == 0 && barrier == 0 )
-        return true;
+        return;
 
 #if 0
     EQWARN << "Entering untested function GLXWindow::joinNVSwapBarrier"
@@ -638,7 +630,7 @@ bool GLXWindow::joinNVSwapBarrier()
     if ( !GLXEW_NV_swap_group )
     {
         EQWARN << "NV Swap group extension not supported" << std::endl;
-        return true;
+        return;
     }
 
     const Display* display = getXDisplay();
@@ -653,7 +645,7 @@ bool GLXWindow::joinNVSwapBarrier()
         EQWARN << "Failed to initialize GLX_NV_swap_group: requested group "
                << group << " greater than maxGroups (" << maxGroups << ")"
                << std::endl;
-        return false;
+        return;
     }
 
     if( barrier > maxBarrier )
@@ -661,53 +653,43 @@ bool GLXWindow::joinNVSwapBarrier()
         EQWARN << "Failed to initialize GLX_NV_swap_group: requested barrier "
                << barrier << "greater than maxBarriers (" << maxBarriers << ")"
                << std::endl;
-        return false;
+        return;
     }
 
     if( !glxJoinSwapGroupNV( display, _xDrawable, group ))
     {
         EQWARN << "Failed to join swap group " << group << std::endl;
-        return false;
+        return;
     }
+
+    _glXNVSwapGroup = group;
 
     if( !glxBindSwapBarrierNV( group, barrier ))
     {
         EQWARN << "Failed to bind swap barrier " << barrier << std::endl;
-        return false;
+        return;
     }
     
     return true; 
 #else
     EQUNIMPLEMENTED;
-    return true;
+    return;
 #endif
 }
 
 void GLXWindow::leaveNVSwapBarrier()
 {
-    const uint32_t group   = _window->getNVSwapGroup();
-    const uint32_t barrier = _window->getNVSwapBarrier();
-    if( group == 0 && barrier == 0 )
+    if( _glXNVSwapGroup == 0)
         return;
 
 #if 0
-    if( !GLXEW_NV_swap_group )
-        return;
-
     const Display* display = getXDisplay();
     const int screen = DefaultScreen( display );
 
-    uint32_t maxBarrier = 0;
-    uint32_t maxGroup = 0;
-    glxQueryMaxSwapGroupsNV( display, screen, &maxGroup, &maxBarrier )
-
-    if( group > maxGroup || barrier > maxBarrier )
-        return;
-
-    if( barrier )
-        glxBindSwapBarrierNV( group, 0 );
-
+    glxBindSwapBarrierNV( _glXNVSwapGroup, 0 );
     glxJoinSwapGroupNV( display, _xDrawable, 0 );
+    
+    _glXNVSwapGroup = 0;
 #else
     EQUNIMPLEMENTED;
 #endif

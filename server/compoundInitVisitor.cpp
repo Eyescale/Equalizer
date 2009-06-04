@@ -51,19 +51,6 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
         compound->activate();
     }
     
-    if( channel )
-    {
-        const SwapBarrier* swapBarrier = compound->getSwapBarrier();
-        if( swapBarrier )
-        {
-            if( swapBarrier->isNvSwapBarrier( ))
-            {
-                Window* window = channel->getWindow();
-                window->joinNVSwapBarrier( swapBarrier );
-            }
-        }
-    }
-
     Config*        config  = compound->getConfig();
     const uint32_t latency = config->getLatency();
     EQASSERT( config );

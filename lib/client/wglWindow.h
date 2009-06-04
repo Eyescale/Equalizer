@@ -2,9 +2,8 @@
  *                        , Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -62,6 +61,8 @@ namespace eq
         virtual void configExit( );
         virtual void makeCurrent() const;
         virtual void swapBuffers();
+        virtual void joinNVSwapBarrier( const uint32_t group,
+                                        const uint32_t barrier );
 
         /** @return the Win32 window handle. */
         virtual HWND getWGLWindowHandle() const { return _wglWindow; }
@@ -227,9 +228,6 @@ namespace eq
          */
         void setWGLDC( HDC dc, const WGLDCType type );
 
-        /** Initialize and join a WGL_NV_swap_barrier. */ 
-        bool joinNVSwapBarrier();
-
         /** Unbind a WGL_NV_swap_barrier. */ 
         void leaveNVSwapBarrier();
 
@@ -245,6 +243,8 @@ namespace eq
 
         WGLEventHandler* _wglEventHandler;
         BOOL             _screenSaverActive;
+
+        uint32_t         _wglNVSwapGroup;
 
         union // placeholder for binary-compatible changes
         {

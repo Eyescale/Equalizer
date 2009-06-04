@@ -308,11 +308,6 @@ namespace eq
         /* Draw FPS count */
         virtual void drawFPS() const;
 
-        /* @return the group of the NV swap barrier. */ 
-        uint32_t getNVSwapGroup() const { return _nvSwapGroup; } 
-        /** @return the barrier of the NV swap barrier */
-        uint32_t getNVSwapBarrier() const { return _nvSwapBarrier; }
-
         /** @return the internal color type */
         int getColorType();
         
@@ -514,11 +509,6 @@ namespace eq
         /** The time of the last swap command. */
         int64_t _lastSwapTime;
 
-        /** The swap group to use for the window. */
-        uint32_t _nvSwapGroup; 
-        /** The swap barrier to use for the window. */
-        uint32_t _nvSwapBarrier;
-
         union // placeholder for binary-compatible changes
         {
             char dummy[64];
@@ -543,6 +533,9 @@ namespace eq
         /** Calculates per-window frame rate */
         void _updateFPS();
 
+        /** Enter the given barrier. */
+        void _enterBarrier( net::ObjectVersion barrier );
+
         virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
         virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
 
@@ -554,8 +547,9 @@ namespace eq
         net::CommandResult _cmdFrameStart( net::Command& command );
         net::CommandResult _cmdFrameFinish( net::Command& command );
         net::CommandResult _cmdThrottleFramerate( net::Command& command );
-        net::CommandResult _cmdBarrier( net::Command& command );
         net::CommandResult _cmdFinish( net::Command& command );
+        net::CommandResult _cmdBarrier( net::Command& command );
+        net::CommandResult _cmdNVBarrier( net::Command& command );
         net::CommandResult _cmdSwap( net::Command& command );
         net::CommandResult _cmdFrameDrawFinish( net::Command& command );
 

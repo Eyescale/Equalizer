@@ -51,6 +51,7 @@ void Window::_construct()
     _maxFPS          = numeric_limits< float >::max();
     _doSwap          = false;
     _nvSwapBarrier   = 0;
+    _nvNetBarrier    = 0;
     EQINFO << "New window @" << (void*)this << endl;
 }
 
@@ -355,6 +356,7 @@ void Window::_resetSwapBarriers()
             
         node->releaseBarrier( *i );
 
+    _nvNetBarrier = 0;
     _masterSwapBarriers.clear();
     _swapBarriers.clear();
 }
@@ -373,20 +375,17 @@ net::Barrier* Window::joinSwapBarrier( net::Barrier* barrier )
     return barrier;
 }
 
-void Window::joinNVSwapBarrier( const SwapBarrier* barrier )
+net::Barrier* Window::joinNVSwapBarrier( const SwapBarrier* swapBarrier,
+                                         net::Barrier* netBarrier )
 { 
-    if( _nvSwapBarrier )
-        EQWARN << "Only one NV_swap_group barrier per window allowed, "
-               << "overwriting previous one" << endl;
+    EQASSERTINFO( !_nvSwapBarrier, 
+                  "Only one NV_swap_group barrier per window allowed" );
 
-    _nvSwapBarrier = barrier;
+    _nvSwapBarrier = swapBarrier;
+    _nvNetBarrier = joinSwapBarrier( netBarrier );
+    return _nvNetBarrier;
 }
 
-void Window::leaveNVSwapBarrier( const SwapBarrier* barrier )
-{ 
-    if( _nvSwapBarrier == barrier )
-        _nvSwapBarrier = 0;
-}
 
 void Window::send( net::ObjectPacket& packet ) 
 {
@@ -486,18 +485,6 @@ void Window::_configInit( const uint32_t initID )
     memcpy( packet.iAttributes, _iAttributes, 
             eq::Window::IATTR_ALL * sizeof( int32_t ));
     
-    EQASSERT( !_nvSwapBarrier || _nvSwapBarrier->isNvSwapBarrier() )
-    if ( _nvSwapBarrier && _nvSwapBarrier->isNvSwapBarrier() )
-    {
-        packet.nvSwapBarrier = _nvSwapBarrier->getNVSwapBarrier();
-        packet.nvSwapGroup   = _nvSwapBarrier->getNVSwapGroup();
-    }
-    else
-    {
-        packet.nvSwapBarrier = 0;
-        packet.nvSwapGroup   = 0;
-    }
-
     EQLOG( LOG_INIT ) << "Init Window" << std::endl;
     _send( packet, _name );
     EQLOG( eq::LOG_TASKS ) << "TASK window configInit  " << &packet << endl;
@@ -549,6 +536,7 @@ bool Window::_syncConfigExit()
     getConfig()->deregisterObject( this );
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
+    _nvSwapBarrier = 0;
     _tasks = eq::TASK_NONE;
     return success;
 }
@@ -620,7 +608,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
             continue;
         }
 
-        if( doFinish )
+        if( doFinish && barrier != _nvNetBarrier )
         {
             eq::WindowFinishPacket packet;
             send( packet );
@@ -629,11 +617,34 @@ void Window::_updateSwap( const uint32_t frameNumber )
         }
 
         eq::WindowBarrierPacket packet;
-
-        packet.barrierID      = barrier->getID();
-        packet.barrierVersion = barrier->getVersion();
+        packet.barrier = barrier;
         send( packet );
+
         EQLOG( eq::LOG_TASKS ) << "TASK barrier  " << &packet << endl;
+    }
+
+    if( _nvNetBarrier )
+    {
+        if( _nvNetBarrier->getHeight() <= 1 )
+        {
+            EQWARN << "Ignoring NV swap barrier of height "
+                   << _nvNetBarrier->getHeight() << std::endl;
+        }
+        else
+        {
+            EQASSERT( _nvSwapBarrier );
+            EQASSERT( _nvSwapBarrier->isNvSwapBarrier( ));
+            // Entering the NV_swap_group. The _nvNetBarrier is also part of
+            // _swapBarriers, which means that the pre-join was already sync'ed
+            // with a barrier.
+
+            // Now enter the swap group and post-sync with the barrier again.
+            eq::WindowNVBarrierPacket packet;
+            packet.barrier = _nvSwapBarrier->getNVSwapBarrier();
+            packet.group   = _nvSwapBarrier->getNVSwapGroup();
+            packet.netBarrier = _nvNetBarrier;
+            send( packet );
+        }
     }
 
     _resetSwapBarriers();

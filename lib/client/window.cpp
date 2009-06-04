@@ -86,8 +86,6 @@ Window::Window( Pipe* parent )
         , _lastTime ( 0.0 )
         , _avgFPS ( 0.0 )
         , _lastSwapTime( 0 )
-        , _nvSwapGroup( 0 )
-        , _nvSwapBarrier( 0 )
 {
     parent->_addWindow( this );
     EQINFO << " New eq::Window @" << (void*)this << endl;
@@ -137,6 +135,9 @@ void Window::attachToSession( const uint32_t id,
                      queue );
     registerCommand( CMD_WINDOW_BARRIER, 
                      CommandFunc<Window>( this, &Window::_cmdBarrier ), 
+                     queue );
+    registerCommand( CMD_WINDOW_NV_BARRIER, 
+                     CommandFunc<Window>( this, &Window::_cmdNVBarrier ), 
                      queue );
     registerCommand( CMD_WINDOW_SWAP, 
                      CommandFunc<Window>( this, &Window::_cmdSwap), queue );
@@ -636,6 +637,16 @@ GLEWContext* Window::glewGetContext()
     return _osWindow->glewGetContext();
 }
 
+void Window::_enterBarrier( net::ObjectVersion barrier )
+{
+    EQLOG( net::LOG_BARRIER ) << "swap barrier " << barrier << std::endl;
+    Node* node = getNode();
+    net::Barrier* netBarrier = node->getBarrier( barrier );
+
+    WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
+    netBarrier->enter();
+}
+
 //======================================================================
 // event-handler methods
 //======================================================================
@@ -750,8 +761,6 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
         
         _name  = packet->name;
         _tasks = packet->tasks;
-        _nvSwapGroup   = packet->nvSwapGroup; 
-        _nvSwapBarrier = packet->nvSwapBarrier;
         
         memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof(int32_t));
 
@@ -877,15 +886,21 @@ net::CommandResult Window::_cmdBarrier( net::Command& command )
         command.getPacket<WindowBarrierPacket>();
     EQVERB << "handle barrier " << packet << endl;
     EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << endl;
-    EQLOG( net::LOG_BARRIER ) << "swap barrier " << packet->barrierID
-                                << " v" << packet->barrierVersion <<endl;
     
-    Node*           node    = getNode();
-    net::Barrier* barrier = node->getBarrier( packet->barrierID, 
-                                              packet->barrierVersion );
+    _enterBarrier( packet->barrier );
+    return net::COMMAND_HANDLED;
+}
 
-    WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
-    barrier->enter();
+net::CommandResult Window::_cmdNVBarrier( net::Command& command )
+{
+    const WindowNVBarrierPacket* packet = 
+        command.getPacket<WindowNVBarrierPacket>();
+    EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << endl;
+    
+    EQASSERT( _osWindow );
+    _osWindow->joinNVSwapBarrier( packet->group, packet->barrier );
+
+    _enterBarrier( packet->netBarrier );
     return net::COMMAND_HANDLED;
 }
 

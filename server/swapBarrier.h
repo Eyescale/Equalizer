@@ -33,8 +33,7 @@ namespace server
      *
      * Swap barriers with the same name are linked together, that is, all
      * compounds holding a swap barrier with the same name synchronize their
-     * window's swap command. The same Barrier is set up for all swap barriers
-     * of the same name during compound init.
+     * window's swap command.
      */
     class SwapBarrier
     {
@@ -48,7 +47,6 @@ namespace server
         //*{
         void setName( const std::string& name ) { _name = name; }
         const std::string getName() const { return _name; }
-        //*}
 
         const uint32_t getNVSwapGroup() const   { return _nvSwapGroup ; }
         void setNVSwapGroup( uint32_t nvGroup ) { _nvSwapGroup = nvGroup; }
@@ -59,6 +57,7 @@ namespace server
 
         bool isNvSwapBarrier() const
             { return ( _nvSwapBarrier || _nvSwapGroup ); }
+        //*}
 
     private:
         std::string _name;

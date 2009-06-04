@@ -57,17 +57,6 @@ VisitorResult CompoundExitVisitor::visit( Compound* compound )
         config->deregisterObject( frame );
     }
 
-    const SwapBarrier* swapBarrier = compound->getSwapBarrier();
-    if( swapBarrier )
-    {
-        if( swapBarrier->isNvSwapBarrier( ))
-        {
-            Window* window = compound->getWindow();
-            if( window )
-                window->leaveNVSwapBarrier( swapBarrier );
-        }
-    }
-
     Channel* channel = compound->getChannel();
     if( compound->isDestination() && !channel->getSegment( ))
     {

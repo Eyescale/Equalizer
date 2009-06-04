@@ -3,9 +3,8 @@
  *                        , Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -76,6 +75,18 @@ namespace eq
 
         /** Swap the front and back buffer, for doublebuffered drawables. */
         virtual void swapBuffers() = 0;
+
+        /** 
+         * Join a NV_swap_group.
+         *
+         * See WGL or GLX implementation and OpenGL extension for details on how
+         * to implement this function.
+         * 
+         * @param group the swap group name.
+         * @param barrier the swap barrier name.
+         */
+        virtual void joinNVSwapBarrier( const uint32_t group,
+                                        const uint32_t barrier ) = 0;
         //*}
 
         /** @name Frame Buffer Object support. */

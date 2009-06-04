@@ -39,6 +39,7 @@ WGLWindow::WGLWindow( Window* parent )
     , _wglDCType( WGL_DC_NONE )
     , _wglAffinityDC( 0 )
     , _wglEventHandler( 0 )
+    , _wglNVSwapGroup( 0 )
 {
     
 }
@@ -270,12 +271,6 @@ bool WGLWindow::configInit()
                    << "swapsync hint" << std::endl;
     }
     
-    if( !joinNVSwapBarrier( ))
-    {
-        _window->setErrorMessage( "Joining NV_swap_group failed" );
-        return false;
-    }
-
     if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         return configInitFBO();
 
@@ -788,17 +783,15 @@ bool WGLWindow::processEvent( const WGLWindowEvent& event )
     return WGLWindowIF::processEvent( event );
 }
 
-bool WGLWindow::joinNVSwapBarrier()
+void WGLWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 {
-    const uint32_t group   = _window->getNVSwapGroup();
-    const uint32_t barrier = _window->getNVSwapBarrier();
     if( group == 0 && barrier == 0 )
-        return true;
+        return;
 
     if( !WGLEW_NV_swap_group )
     {
         EQWARN << "NV Swap group extension not supported" << endl;
-        return true;
+        return;
     }
 
     const HDC dc = _wglAffinityDC ? _wglAffinityDC : _wglDC;
@@ -812,7 +805,7 @@ bool WGLWindow::joinNVSwapBarrier()
         EQWARN << "Failed to initialize WGL_NV_swap_group: requested group "
                << group << " greater than maxGroups (" << maxGroups << ")"
                << std::endl;
-        return false;
+        return;
     }
 
     if( barrier > maxBarrier )
@@ -820,19 +813,20 @@ bool WGLWindow::joinNVSwapBarrier()
         EQWARN << "Failed to initialize WGL_NV_swap_group: requested barrier "
                << barrier << "greater than maxBarriers (" << maxBarriers << ")"
                << std::endl;
-        return false;
+        return;
     }
 
     if( !wglJoinSwapGroupNV( dc, group ))
     {
         EQWARN << "Failed to join swap group " << group << std::endl;
-        return false;
+        return;
     }
+    _wglNVSwapGroup = group;
 
     if( !wglBindSwapBarrierNV( group, barrier ))
     {
         EQWARN << "Failed to bind swap barrier " << barrier << std::endl;
-        return false;
+        return;
     }
     
     return true;
@@ -840,28 +834,14 @@ bool WGLWindow::joinNVSwapBarrier()
 
 void WGLWindow::leaveNVSwapBarrier()
 {
-    const uint32_t group   = _window->getNVSwapGroup();
-    const uint32_t barrier = _window->getNVSwapBarrier();
-    if( group == 0 && barrier == 0 )
-        return;
-
-    EQASSERT( group );
-
-    if( !WGLEW_NV_swap_group )
+    if( _wglNVSwapGroup == 0 )
         return;
 
     const HDC dc = _wglAffinityDC ? _wglAffinityDC : _wglDC;
 
-    uint32_t maxBarrier = 0;
-    uint32_t maxGroup = 0;
-    wglQueryMaxSwapGroupsNV( dc, &maxGroup, &maxBarrier );
-
-    if( group > maxGroup || barrier > maxBarrier )
-        return;
-
-    if( barrier )
-        wglBindSwapBarrierNV( group, 0 );
-
+    wglBindSwapBarrierNV( _wglNVSwapGroup, 0 );
     wglJoinSwapGroupNV( dc, 0 );
+
+    _wglNVSwapGroup = 0;
 }
 }

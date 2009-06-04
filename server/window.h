@@ -192,15 +192,20 @@ namespace server
         net::Barrier* joinSwapBarrier( net::Barrier* barrier );
 
         /** 
-         * Join a NV_swap_group barrier during init.
+         * Join a NV_swap_group barrier for the next update.
          * 
-         * @param barrier the NV swap barrier.
+         * @param swapBarrier the swap barrier containing the NV_swap_group
+         *                    parameters.
+         * @param netBarrier the net::Barrier to protect the entry from the
+         *                   NV_swap_group , or 0 if this is the first window
+         *                   entering.
+         * @return the net::Barrier for protecting the swap group entry.
          */
-        void joinNVSwapBarrier( const SwapBarrier* barrier ); 
+        net::Barrier* joinNVSwapBarrier( const SwapBarrier* swapBarrier,
+                                         net::Barrier* netBarrier );
 
-        /** Leave the NV_swap_group barrier. */
-        void leaveNVSwapBarrier( const SwapBarrier* barrier );
-        
+        /** @return true if this window has entered a NV_swap_group. */
+        bool hasNVSwapBarrier() const { return (_nvSwapBarrier != 0); }
 
         /** The last drawing channel for this entity. @internal */
         void setLastDrawChannel( const Channel* channel )
@@ -323,6 +328,9 @@ namespace server
         
         /** The hardware swap barrier to use. */
         const SwapBarrier* _nvSwapBarrier;
+
+        /** The network barrier used to protect hardware barrier entry. */
+        net::Barrier* _nvNetBarrier;
 
         /** The last draw channel for this entity */
         const Channel* _lastDrawChannel;
