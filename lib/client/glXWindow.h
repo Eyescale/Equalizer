@@ -160,7 +160,10 @@ namespace eq
         //*}
 
         /** Initialize and join a GLX_NV_swap_barrier. */ 
-        bool joinNVSwapBarrier( const uint32_t group, const uint32_t barrier );
+        bool joinNVSwapBarrier();
+
+        /** Unbind a GLX_NV_swap_barrier. */ 
+        void leaveNVSwapBarrier();
 
     private:
         /** The X11 drawable ID of the window. */

@@ -797,7 +797,7 @@ bool WGLWindow::joinNVSwapBarrier()
 
     if( !WGLEW_NV_swap_group )
     {
-        EQWARN << " NV Swap group not supported: " << endl;
+        EQWARN << "NV Swap group extension not supported" << endl;
         return true;
     }
 
@@ -810,14 +810,16 @@ bool WGLWindow::joinNVSwapBarrier()
     if( group > maxGroup )
     {
         EQWARN << "Failed to initialize WGL_NV_swap_group: requested group "
-               << "greater than maxGroups " << std::endl;
+               << group << " greater than maxGroups (" << maxGroups << ")"
+               << std::endl;
         return false;
     }
 
     if( barrier > maxBarrier )
     {
         EQWARN << "Failed to initialize WGL_NV_swap_group: requested barrier "
-               << "greater than maxBarriers " << std::endl;
+               << barrier << "greater than maxBarriers (" << maxBarriers << ")"
+               << std::endl;
         return false;
     }
 
