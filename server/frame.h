@@ -114,7 +114,7 @@ namespace server
         void commitData();
 
         /** Commit the frame */
-        virtual uint32_t commit();
+        EQSERVER_EXPORT virtual uint32_t commit();
 
         /** 
          * Cycle the current FrameData.
@@ -181,10 +181,10 @@ namespace server
         //*}
         
     protected:
-        virtual ~Frame();
-        virtual ChangeType getChangeType() const { return INSTANCE; }
-        virtual void getInstanceData( net::DataOStream& os );
-        virtual void applyInstanceData( net::DataIStream& is );
+        EQSERVER_EXPORT virtual ~Frame();
+        EQSERVER_EXPORT virtual ChangeType getChangeType() const { return INSTANCE; }
+        EQSERVER_EXPORT virtual void getInstanceData( net::DataOStream& os );
+        EQSERVER_EXPORT virtual void applyInstanceData( net::DataIStream& is );
 
     private:
         /** The parent compound. */
