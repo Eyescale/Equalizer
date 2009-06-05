@@ -34,7 +34,6 @@ DFREqualizer::DFREqualizer()
         : _target( 10.f )
         , _damping( .5f )
         , _current ( _target )
-        , _newValueReady ( false )
 {    
     EQINFO << "New DFREqualizer @" << (void*)this << std::endl;
 }
@@ -81,43 +80,38 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
         return;    
     }
    
-    if ( !_newValueReady )
-        return;
-   
-   _newValueReady = false;    
-   
-   EQASSERT( _damping >= 0.f );
-   EQASSERT( _damping <= 1.f );
+    EQASSERT( _damping >= 0.f );
+    EQASSERT( _damping <= 1.f );
 
-   const float factor = ( sqrtf( _current / _target ) - 1.f ) * 
-                            _damping + 1.0f;
+    const float factor = ( sqrtf( _current / _target ) - 1.f ) * 
+        _damping + 1.0f;
 
-   Zoom newZoom( compound->getZoom( ));
-   newZoom *= factor;
+    Zoom newZoom( compound->getZoom( ));
+    newZoom *= factor;
 
-   //EQINFO << _current << ": " << factor << " = " << newZoom 
-   //       << std::endl;
+    //EQINFO << _current << ": " << factor << " = " << newZoom 
+    //       << std::endl;
 
-   // clip zoom factor to min( 128px ), max( channel pvp )
+    // clip zoom factor to min( 128px ), max( channel pvp )
 
-   const Compound*          parent = compound->getParent();
-   const eq::PixelViewport& pvp    = parent->getInheritPixelViewport();
+    const Compound*          parent = compound->getParent();
+    const eq::PixelViewport& pvp    = parent->getInheritPixelViewport();
    
-   const Channel*           channel    = compound->getChannel();
-   const eq::PixelViewport& channelPVP = channel->getPixelViewport();
+    const Channel*           channel    = compound->getChannel();
+    const eq::PixelViewport& channelPVP = channel->getPixelViewport();
    
-   const float minZoom = 128.f / EQ_MIN( static_cast< float >( pvp.h ),
-                                         static_cast< float >( pvp.w ));
-   const float maxZoom = EQ_MIN( static_cast< float >( channelPVP.w ) /
-                                 static_cast< float >( pvp.w ),
-                                 static_cast< float >( channelPVP.h ) /
-                                 static_cast< float >( pvp.h ));
+    const float minZoom = 128.f / EQ_MIN( static_cast< float >( pvp.h ),
+                                          static_cast< float >( pvp.w ));
+    const float maxZoom = EQ_MIN( static_cast< float >( channelPVP.w ) /
+                                  static_cast< float >( pvp.w ),
+                                  static_cast< float >( channelPVP.h ) /
+                                  static_cast< float >( pvp.h ));
    
-   newZoom.x = EQ_MAX( newZoom.x, minZoom ); 
-   newZoom.x = EQ_MIN( newZoom.x, maxZoom );
-   newZoom.y = newZoom.x; 
+    newZoom.x = EQ_MAX( newZoom.x, minZoom ); 
+    newZoom.x = EQ_MIN( newZoom.x, maxZoom );
+    newZoom.y = newZoom.x; 
    
-   compound->setZoom( newZoom );
+    compound->setZoom( newZoom );
 }
 
 void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
@@ -156,11 +150,9 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
     if ( time <= 0.0f ) 
         return;
          
-    _newValueReady = true;
     _current = 1000.0f / time;
-
-   EQLOG( LOG_LB1 ) << "Frame " << frameNumber << " channel "
-                    << channel->getName() << " time " << time << std::endl;
+    EQLOG( LOG_LB1 ) << "Frame " << frameNumber << " channel "
+                     << channel->getName() << " time " << time << std::endl;
 }
 
 std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )
