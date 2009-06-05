@@ -1,4 +1,4 @@
-diff --git a/src/lib/net/commands.h b/src/lib/net/commands.h
+!diff --git a/src/lib/net/commands.h b/src/lib/net/commands.h
 index 6b2ebde..eae2a0e 100644
 --- a/src/lib/net/commands.h
 +++ b/src/lib/net/commands.h
