@@ -803,7 +803,7 @@ void WGLWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
     if( group > maxGroup )
     {
         EQWARN << "Failed to initialize WGL_NV_swap_group: requested group "
-               << group << " greater than maxGroups (" << maxGroups << ")"
+               << group << " greater than maxGroups (" << maxGroup << ")"
                << std::endl;
         return;
     }
@@ -811,7 +811,7 @@ void WGLWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
     if( barrier > maxBarrier )
     {
         EQWARN << "Failed to initialize WGL_NV_swap_group: requested barrier "
-               << barrier << "greater than maxBarriers (" << maxBarriers << ")"
+               << barrier << "greater than maxBarriers (" << maxBarrier << ")"
                << std::endl;
         return;
     }
@@ -829,7 +829,7 @@ void WGLWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         return;
     }
     
-    return true;
+    return;
 }
 
 void WGLWindow::leaveNVSwapBarrier()
