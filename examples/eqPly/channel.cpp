@@ -413,7 +413,7 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
         const float width  = fabs( frustum.right - frustum.left );
         const float height = fabs( frustum.top - frustum.bottom );
         const float size   = EQ_MIN( width, height );
-        const float minNear = frustum.nearPlane / size * .0001f;
+        const float minNear = frustum.nearPlane / size * .001f;
 
         const float zNear = EQ_MAX( minNear, -nearPoint.z );
         const float zFar  = EQ_MAX( zNear * 2.f, -farPoint.z );
