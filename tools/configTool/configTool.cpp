@@ -407,8 +407,8 @@ void ConfigTool::_write2D( Config* config ) const
             std::ostringstream frameName;
             frameName << "frame.channel" << i;
 
-            child->addOutputFrame(   new ::Frame( frameName ));
-            compound->addInputFrame( new ::Frame( frameName ));
+            child->addOutputFrame(   ::Frame::create( frameName ));
+            compound->addInputFrame( ::Frame::create( frameName ));
         }
  
         y += step;
@@ -466,8 +466,8 @@ void ConfigTool::_writeDB( Config* config ) const
             std::ostringstream frameName;
             frameName << "frame.channel" << i;
 
-            child->addOutputFrame(   new ::Frame( frameName ));
-            compound->addInputFrame( new ::Frame( frameName ));
+            child->addOutputFrame(   ::Frame::create( frameName ));
+            compound->addInputFrame( ::Frame::create( frameName ));
         }
  
         start += step;
@@ -520,7 +520,7 @@ void ConfigTool::_writeDBStream( Config* config ) const
             std::ostringstream frameName;
             frameName << "frame.channel" << i;
 
-            child->addInputFrame( new ::Frame( frameName ));
+            child->addInputFrame( ::Frame::create( frameName ));
         }
 
         if( i != 1 ) 
@@ -528,13 +528,13 @@ void ConfigTool::_writeDBStream( Config* config ) const
             std::ostringstream frameName;
             frameName << "frame.channel" << i-1;
 
-            child->addOutputFrame( new ::Frame( frameName ));
+            child->addOutputFrame( ::Frame::create( frameName ));
         }
  
         start += step;
     }
     if( !_useDestination )
-        compound->addInputFrame( new ::Frame( "frame.channel1" ));
+        compound->addInputFrame( ::Frame::create( "frame.channel1" ));
 }
 
 void ConfigTool::_writeDS( Config* config ) const
@@ -599,13 +599,13 @@ void ConfigTool::_writeDS( Config* config ) const
                     vp = eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
                                   1.f, static_cast< float >( step )/100000.f );
 
-                drawChild->addOutputFrame( new ::Frame( frameName, vp ));
+                drawChild->addOutputFrame( ::Frame::create( frameName, vp ));
 
                 // input tiles from other channels
                 frameName.str("");
                 frameName << "tile" << i << ".channel" << j;
 
-                child->addInputFrame(      new ::Frame( frameName ));
+                child->addInputFrame(      ::Frame::create( frameName ));
             }
             // else own tile, is in place
 
@@ -629,8 +629,8 @@ void ConfigTool::_writeDS( Config* config ) const
                 vp = eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
                                   1.f, static_cast< float >( step )/100000.f );
 
-            child->addOutputFrame(   new ::Frame( frameName, vp, true ));
-            compound->addInputFrame( new ::Frame( frameName ));
+            child->addOutputFrame(   ::Frame::create( frameName, vp, true ));
+            compound->addInputFrame( ::Frame::create( frameName ));
         }
         start += step;
     }
@@ -758,12 +758,12 @@ void ConfigTool::_writeDPlex( Config* config ) const
 
         child->setPeriod( period );
         child->setPhase( phase );
-        child->addOutputFrame( new ::Frame( "frame.DPlex" ));
+        child->addOutputFrame( ::Frame::create( "frame.DPlex" ));
 
         ++phase;
     }
 
-    compound->addInputFrame( new ::Frame( "frame.DPlex" ));
+    compound->addInputFrame( ::Frame::create( "frame.DPlex" ));
 }
 
 void ConfigTool::_writeWall( Config* config ) const

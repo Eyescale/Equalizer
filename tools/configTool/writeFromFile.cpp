@@ -1,9 +1,8 @@
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
  *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -81,8 +80,8 @@ static void _mode2D(       Config*        config,
             std::ostringstream frameName;
             frameName << "frame.channel" << i;
 
-            child->addOutputFrame(   new ::Frame( frameName ));
-            compound->addInputFrame( new ::Frame( frameName ));
+            child->addOutputFrame(   ::Frame::create( frameName ));
+            compound->addInputFrame( ::Frame::create( frameName ));
         }
         i++;
     }
@@ -138,8 +137,8 @@ static void _modeDB(       Config*  config,
                 std::ostringstream frameName;
                 frameName << "frame.channel" << i;
 
-                childPipe->addOutputFrame( new ::Frame( frameName ));
-                childNode->addInputFrame(  new ::Frame( frameName ));
+                childPipe->addOutputFrame( ::Frame::create( frameName ));
+                childNode->addInputFrame(  ::Frame::create( frameName ));
             }
             i++;
         }
@@ -148,8 +147,8 @@ static void _modeDB(       Config*  config,
             std::ostringstream frameName;
             frameName << "frame.channel" << n*nPipes;
 
-            childNode->addOutputFrame( new ::Frame( frameName ));
-            compound->addInputFrame(   new ::Frame( frameName ));
+            childNode->addOutputFrame( ::Frame::create( frameName ));
+            compound->addInputFrame(   ::Frame::create( frameName ));
         }
     }
 }
@@ -267,8 +266,8 @@ static void _modeDS(       Config*                config,
                 std::ostringstream frameName;
                 frameName << "frame.channel" << i;
 
-                childPipe->addOutputFrame( new ::Frame( frameName ));
-                childNode->addInputFrame(  new ::Frame( frameName ));
+                childPipe->addOutputFrame( ::Frame::create( frameName ));
+                childNode->addInputFrame(  ::Frame::create( frameName ));
             }
             i++;
         }
@@ -280,13 +279,13 @@ static void _modeDS(       Config*                config,
                 std::ostringstream frameName;
                 frameName << "fr" << k*nPipes << ".ch" << n*nPipes;
 
-                childNode->addOutputFrame( new ::Frame( frameName, vp[k] ));
+                childNode->addOutputFrame( ::Frame::create( frameName, vp[k] ));
 
                 // input parts from other nodes to compose on current node
                 frameName.str("");
                 frameName<< "fr" << n*nPipes << ".ch" << k*nPipes;
 
-                child->addInputFrame( new ::Frame( frameName ));
+                child->addInputFrame( ::Frame::create( frameName ));
             }
 
         // output color result for final compositing on the first node
@@ -295,8 +294,8 @@ static void _modeDS(       Config*                config,
             std::ostringstream frameName;
             frameName << "frame.channel" << n*nPipes;
 
-            child->addOutputFrame(   new ::Frame( frameName, vp[n], true ));
-            compound->addInputFrame( new ::Frame( frameName ));
+            child->addOutputFrame(   ::Frame::create( frameName, vp[n], true ));
+            compound->addInputFrame( ::Frame::create( frameName ));
         }
     }
 }

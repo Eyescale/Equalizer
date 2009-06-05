@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Makhinya Maxim
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,24 +26,30 @@
 #include <fstream>
 
 
-class Frame : public eq::server::Frame
+class Frame
 {
 public:
-    Frame( char* name ) : eq::server::Frame()
+    static inline eq::server::Frame* create( const char* name )
     {
-        setName( std::string( name ));
+        eq::server::Frame* frame = new eq::server::Frame;
+        frame->setName( std::string( name ));
+        return frame;
     }
-    Frame( std::ostringstream& name ) : eq::server::Frame()
+
+    static inline eq::server::Frame* create( std::ostringstream& name )
     {
-        setName( name.str( ));
+        return create( name.str().c_str( ));
     }
-    Frame(      std::ostringstream& name,
+
+    static inline eq::server::Frame* create(      std::ostringstream& name,
           const eq::Viewport&       vp,
-                bool                colorOnly = false ) : eq::server::Frame()
+                bool                colorOnly = false )
     {
-        setName( name.str( ));
-        setViewport( vp );
-        if( colorOnly ) setBuffers( eq::Frame::BUFFER_COLOR );
+        eq::server::Frame* frame = create( name );
+        frame->setViewport( vp );
+        if( colorOnly )
+            frame->setBuffers( eq::Frame::BUFFER_COLOR );
+        return frame;
     }
 };
 
