@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,17 +24,18 @@ namespace eq
 {
 /** 
  * @namespace eq::net
- * @brief The Equalizer networking abstraction layer.
+ * @brief The Equalizer network layer.
  *
- * The Equalizer network abstraction layer provides the basic functionality to
- * enable execution on distributed and shared memory machines.
+ * The Equalizer network layer provides basic functionality for network
+ * communication, such as Connection and ConnectionSet, as well as higher-level
+ * functionality such as Node, Session and Object.
  */
 namespace net
 {
     class Node;
 
     /** 
-     * Initializes the Equalizer client library.
+     * Initialize the Equalizer network classes.
      * 
      * @param argc the command line argument count.
      * @param argv the command line argument values.
@@ -44,7 +45,7 @@ namespace net
     EQ_EXPORT bool init( const int argc, char** argv );
 
     /**
-     * De-initializes the Equalizer client library.
+     * De-initialize the Equalizer network classes.
      *
      * @return <code>true</code> if the library was successfully de-initialised,
      *         <code>false</code> otherwise.

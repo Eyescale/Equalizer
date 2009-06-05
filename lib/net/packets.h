@@ -70,6 +70,7 @@ namespace net
         NodePacket(){ datatype = DATATYPE_EQNET_NODE; }
     };
 
+/** @cond IGNORE */
     struct NodeStopPacket : public NodePacket
     {
         NodeStopPacket()
@@ -263,7 +264,7 @@ namespace net
                 size    = sizeof( NodeReleaseSendTokenPacket );
             }
     };
-
+/** @endcond */
 
     //------------------------------------------------------------
     // Session
@@ -275,6 +276,7 @@ namespace net
         uint32_t paddingSessionPacket; // pad to multiple-of-8
     };
 
+/** @cond IGNORE */
     struct SessionAckRequestPacket : public SessionPacket
     {
         SessionAckRequestPacket( const uint32_t requestID_ )
@@ -482,6 +484,7 @@ namespace net
         uint32_t            objectID;
         uint32_t            objectInstanceID;
     };
+/** @endcond */
 
     //------------------------------------------------------------
     // Object
@@ -497,6 +500,7 @@ namespace net
         uint32_t instanceID;
     };
 
+/** @cond IGNORE */
     struct ObjectInstanceDataPacket : public ObjectPacket
     {
         ObjectInstanceDataPacket()
@@ -609,6 +613,7 @@ namespace net
                 size    = sizeof( BarrierEnterReplyPacket );
             }
     };
+/** @endcond */
 
     //------------------------------------------------------------
     // ostream operators

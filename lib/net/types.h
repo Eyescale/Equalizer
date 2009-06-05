@@ -36,19 +36,28 @@ class Command;
 class Connection;
 class ConnectionDescription;
 
+/** A reference pointer for Node pointers. */
 typedef base::RefPtr< Node >                  NodePtr;
+/** A reference pointer for Connection pointers. */
 typedef base::RefPtr< Connection >            ConnectionPtr;
+/** A reference pointer for ConnectionDescription pointers. */
 typedef base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
+/** A vector of NodePtr's. */
 typedef std::vector< NodePtr >                   NodeVector;
-typedef stde::hash_map< uint32_t, Session* >     SessionHash;
+/** A vector of Objects. */
 typedef std::vector< Object* >                   ObjectVector;
-typedef stde::hash_map< uint32_t, ObjectVector > ObjectVectorHash;
+/** A vector of ConnectionPtr's. */
 typedef std::vector< ConnectionPtr >             ConnectionVector;
+/** A vector of ConnectionDescriptionPtr's. */
 typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptionVector;
 
-typedef std::list< Command* >   CommandList;
+/** @cond IGNORE */
 typedef std::vector< Command* > CommandVector;
+typedef stde::hash_map< uint32_t, Session* >     SessionHash;
+typedef stde::hash_map< uint32_t, ObjectVector > ObjectVectorHash;
+typedef std::list< Command* >   CommandList;
+/** @endcond */
 }
 }
 

@@ -36,7 +36,8 @@ namespace net
     /** 
      * An object change manager handling versioned objects without any
      * buffering.
-     * Uses the DeltaSlaveCM for slaves.
+     * DeltaSlaveCM is the counterpart for slave instances.
+     * @internal
      */
     class UnbufferedMasterCM : public ObjectCM
     {

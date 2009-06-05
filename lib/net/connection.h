@@ -51,39 +51,47 @@ namespace net
 
     /**
      * A base class to provide communication to other hosts.
+     *
+     * Connections are stream-oriented point-to-point communications. The
+     * parameters of a Connection are described in a ConnectionDescription,
+     * which is used in listen() and connect(). A Connection has a State, which
+     * changes when calling listen(), connect() or close(), or whenever the
+     * underlying connection is closed by the operating system.
+     *
+     * The Connection class defines the interface for connections, various
+     * derived classes implement it for various low-level communication
+     * protocols, e.g., SocketConnection for TCP/IP. An implementation may not
+     * implement all the functionality defined in this interface.
+     *
+     * The Connection is used reference-counted in eq::net, since it has
+     * multiple owners, such as the ConnectionSet and Node.
      */
     class Connection : public base::Referenced, public base::NonCopyable
     {
     public:
-        enum State
+        enum State //! The current state of the Connection
         {
-            STATE_CLOSED,
-            STATE_CONNECTING,
-            STATE_CONNECTED,
-            STATE_LISTENING
+            STATE_CLOSED,     //!< Closed, initial state
+            STATE_CONNECTING, //!< A connect() or listen() is in progress
+            STATE_CONNECTED,  //!< The connection has been connected and is open
+            STATE_LISTENING   //!< The connection is listening for connects
         };
 
         /** 
-         * Creates a new connection.
+         * Create a new connection.
          *
          * This factory method creates a new concrete connection for the
-         * requested type. The concrete connection may not support all
-         * functionality of the Connection interface.
+         * requested type. The description is set on the created Connection.
          * 
-         * @param description describing the connection to be created.
+         * @param description the connection parameters.
          * @return the connection.
          */
         EQ_EXPORT static ConnectionPtr create( ConnectionDescriptionPtr 
                                                    description );
 
-
-        /** @name Data Access. */
+        /** @name Data Access */
         //*{
-        /** 
-         * Returns the state of this connection.
-         * 
-         * @return the state of this connection.
-         */
+        /** @return the State of this connection. */
         State getState() const { return _state; }
 
         /** @return true if the connection is in the closed state. */
@@ -100,7 +108,7 @@ namespace net
          * 
          * @param description the connection parameters.
          */
-        void setDescription( ConnectionDescriptionPtr description );
+        EQ_EXPORT void setDescription( ConnectionDescriptionPtr description );
 
         /** @return the description for this connection. */
         EQ_EXPORT ConnectionDescriptionPtr getDescription() const;
@@ -112,14 +120,19 @@ namespace net
         /** 
          * Connect to the remote peer.
          *
+         * The ConnectionDescription of this connection is used to identify the
+         * peer's parameters.
+         *
          * @return <code>true</code> if the connection was successfully
          *         connected, <code>false</code> if not.
          */
         virtual bool connect() { return false; }
         
         /** 
-         * Put the connection into the listening state for a new incoming
-         * connection.
+         * Put the connection into the listening state.
+         *
+         * The ConnectionDescription of this connection is used to identify the
+         * listening parameters.
          *
          * @return <code>true</code> if the connection is listening for new
          *         incoming connections, <code>false</code> if not.
@@ -127,18 +140,26 @@ namespace net
         virtual bool listen() { return false; }
 
         /** 
-         * Closes a connected or listening connection.
+         * Close a connected or listening connection.
          */
         virtual void close(){};
         //*}
 
+        /** @name Listener Interface */
+        //*{
+        /** Add a listener for connection state changes. */
+        void addListener( ConnectionListener* listener );
 
-        /** @name Asynchronous accept. */
+        /** Remove a listener for connection state changes. */
+        void removeListener( ConnectionListener* listener );
+        //*}
+
+        /** @name Asynchronous accept */
         //*{
         /** 
          * Start an accept operation.
          * 
-         * This function returns immediately. The Notifier will signal a new
+         * This method returns immediately. The Notifier will signal a new
          * connection request, upon which acceptSync() should be used to finish
          * the accept operation.
          * 
@@ -155,17 +176,8 @@ namespace net
             { EQUNIMPLEMENTED; return 0; }
         //*}
 
-        /** @name Listener Interface */
-        //*{
-        /** Add a listener for connection state changes. */
-        void addListener( ConnectionListener* listener );
 
-        /** Remove a listener for connection state changes. */
-        void removeListener( ConnectionListener* listener );
-        //*}
-
-
-        /** @name Asynchronous read from the connection */
+        /** @name Asynchronous read */
         //*{
         /** 
          * Start a read operation on the connection.
@@ -183,11 +195,10 @@ namespace net
         /** 
          * Finish reading data from the connection.
          * 
-         * This function may block even if data availability was signaled,
-         * i.e., when only a part of the data requested has been received.
-         * The buffer and bytes return value pointers can be 0. This method uses
-         * readNB() and readSync() to fill a buffer, potentially using multiple
-         * reads.
+         * This function may block even if data availability was signaled, i.e.,
+         * when only a part of the data requested has been received.  The buffer
+         * and bytes return value pointers can be 0. This method uses readNB()
+         * and readSync() to fill a buffer, potentially by using multiple reads.
          *
          * @param buffer return value, the buffer pointer passed to recvNB().
          * @param bytes return value, the number of bytes read.
@@ -200,6 +211,8 @@ namespace net
 
         /** 
          * Start a read operation on the connection.
+         *
+         * This method is the low-level counterpart to recvNB().
          *
          * This function returns immediately. The operation's Notifier will
          * signal data availability, upon which readSync() should be used to
@@ -214,7 +227,7 @@ namespace net
         /** 
          * Finish reading data from the connection.
          *
-         * This method is the low-level counterpart to recvNB() and recvSync().
+         * This method is the low-level counterpart to recvSync().
          * It may return with a partial read.
          * 
          * @param buffer the buffer receiving the data.
@@ -222,19 +235,23 @@ namespace net
          * @return the number of bytes read, or -1 upon error.
          */
         virtual int64_t readSync( void* buffer, const uint64_t bytes ) = 0;
-
         //*}
-
 
         /** @name Synchronous write to the connection */
         //*{
         /** 
-         * Sends data using the connection.
+         * Send data using the connection.
+         *
+         * A send may be performed using multiple write() operations. For
+         * thread-safe sending from multiple threads it is therefore crucial to
+         * protect the send() operation internally. If the connection is not
+         * already locked externally, it will use an internal mutex.
          * 
          * @param buffer the buffer containing the message.
          * @param bytes the number of bytes to send.
          * @param isLocked true if the connection is locked externally.
          * @return true if all data has been read, false if not.
+         * @sa lockSend(), unlockSend()
          */
         EQ_EXPORT bool send( const void* buffer, const uint64_t bytes, 
                              const bool isLocked = false ) const;
@@ -256,6 +273,11 @@ namespace net
         /** 
          * Sends a packaged message including a string using the connection.
          * 
+         * The packet has to define a 8-byte-aligned, 8-char string at the end
+         * of the packet. When the packet is sent the whole string is appended
+         * to the packet, so that the receiver has to do nothing special to
+         * receive and use the full packet.
+         *
          * @param packet the message packet.
          * @param string the string.
          * @return true if all data has been read, false if not.
@@ -279,7 +301,7 @@ namespace net
         /** 
          * Sends a packaged message including additional data using the
          * connection.
-         * 
+         *
          * @param packet the message packet.
          * @param data the data.
          * @param size the data size in bytes.
@@ -314,6 +336,10 @@ namespace net
                           const bool isLocked = false );
         //*}
 
+        /**
+         * The Notifier used by the ConnectionSet to dedect readyness of a
+         * Connection.
+         */
 #ifdef WIN32
         typedef HANDLE Notifier;
 #else
