@@ -74,6 +74,7 @@ namespace server
         float _damping; //!< The damping factor,  (0: No damping, 1: No changes)
 
         float _current; //!< Framerate of the last finished frame
+        int64_t _lastTime; //!< Last frames' timestamp
     };
 
 }

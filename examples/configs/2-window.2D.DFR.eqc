@@ -45,7 +45,7 @@ server
                 compound { channel "source1" outputframe{} }
                 inputframe { name "frame.source1" }
 
-                DFR_equalizer { framerate 20.5 }
+                DFR_equalizer { framerate 15 }
                 outputframe{ }
             }
 

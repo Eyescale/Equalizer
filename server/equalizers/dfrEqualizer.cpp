@@ -34,6 +34,7 @@ DFREqualizer::DFREqualizer()
         : _target( 10.f )
         , _damping( .5f )
         , _current ( _target )
+        , _lastTime( 0 )
 {    
     EQINFO << "New DFREqualizer @" << (void*)this << std::endl;
 }
@@ -119,8 +120,7 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
                                    const eq::Statistic* statistics  )
 {
     // gather and notify load data
-    float startTime = std::numeric_limits< float >::max();
-    float endTime   = 0.0f;
+    int64_t endTime = 0;
     for( uint32_t i = 0; i < nStatistics; ++i )
     {
         const eq::Statistic& data = statistics[i];
@@ -133,8 +133,7 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
 #ifndef EQ_ASYNC_TRANSMIT
             case eq::Statistic::CHANNEL_TRANSMIT:
 #endif
-                startTime = EQ_MIN( startTime, data.startTime );               
-                endTime   = EQ_MAX( endTime,   data.endTime );
+                endTime = EQ_MAX( endTime, data.endTime );
                 break;
                 
             default:
@@ -142,15 +141,16 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
         }
     }
     
-    if( startTime == std::numeric_limits< float >::max( ))
+    if( endTime == 0 )
         return;
     
-    const float time = endTime - startTime;
-    
-    if ( time <= 0.0f ) 
+    const int64_t time = endTime - _lastTime;
+    _lastTime = endTime;
+
+    if( _lastTime <= 0 || time <= 0 ) 
         return;
          
-    _current = 1000.0f / time;
+    _current = 1000.0f / static_cast< float >( time );
     EQLOG( LOG_LB1 ) << "Frame " << frameNumber << " channel "
                      << channel->getName() << " time " << time << std::endl;
 }
