@@ -25,22 +25,16 @@
 #include <eq/base/debug.h>
 #include <eq/client/zoom.h>
 
-#define QUICK_ADAPT
-#define MAX_ELEMENTS 100
-
 namespace eq
 {
 namespace server
 {
 
 DFREqualizer::DFREqualizer()
-        : _frameRate( 10.f )
+        : _target( 10.f )
         , _damping( .5f )
-        , _fpsLastFrame ( _frameRate )
-        , _average ( _frameRate )
-        , _sizeAverage( 0 )
+        , _current ( _target )
         , _newValueReady ( false )
-        , _count ( 0 )
 {    
     EQINFO << "New DFREqualizer @" << (void*)this << std::endl;
 }
@@ -67,8 +61,6 @@ void DFREqualizer::attach( Compound* compound )
     
     if( compound )
     {
-        _sizeAverage = (int) ( MAX_ELEMENTS * _damping ) + 1;
-
         Channel* channel = compound->getChannel();
         EQASSERT( channel );
     
@@ -89,7 +81,6 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
         return;    
     }
    
-#ifdef QUICK_ADAPT
     if ( !_newValueReady )
         return;
    
@@ -98,28 +89,13 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
    EQASSERT( _damping >= 0.f );
    EQASSERT( _damping <= 1.f );
 
-   const float factor = ( sqrtf( _fpsLastFrame / _frameRate ) - 1.f ) * 
+   const float factor = ( sqrtf( _current / _target ) - 1.f ) * 
                             _damping + 1.0f;
-
-#else
-
-   if ( _count <= _sizeAverage )
-        return;
-
-   _average = _average / (_count-1);
-   _average = 0.f;
-   _count   = 0;
-
-   const float factor = sqrtf( _average / _parent.getFrameRate() );
-   // EQINFO << "Frame " << frameNumber << " fps " << _average
-   //                    << std::endl;
-      
-#endif
 
    Zoom newZoom( compound->getZoom( ));
    newZoom *= factor;
 
-   //EQINFO << _fpsLastFrame << ": " << factor << " = " << newZoom 
+   //EQINFO << _current << ": " << factor << " = " << newZoom 
    //       << std::endl;
 
    // clip zoom factor to min( 128px ), max( channel pvp )
@@ -181,12 +157,7 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
         return;
          
     _newValueReady = true;
-    _fpsLastFrame = 1000.0f / time;
-
-#ifndef QUICK_ADAPT
-    _average = _average + _fpsLastFrame;
-    ++_count;
-#endif
+    _current = 1000.0f / time;
 
    EQLOG( LOG_LB1 ) << "Frame " << frameNumber << " channel "
                     << channel->getName() << " time " << time << std::endl;

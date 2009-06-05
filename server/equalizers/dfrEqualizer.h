@@ -41,10 +41,10 @@ namespace server
         virtual void toStream( std::ostream& os ) const { os << this; }
 
         /** Set the average frame rate for the DFREqualizer  */
-        void setFrameRate( const float frameRate ) { _frameRate = frameRate; }
+        void setFrameRate( const float frameRate ) { _target = frameRate; }
 
         /** Get the average frame rate for the DFREqualizer  */ 
-        float getFrameRate() const{ return _frameRate; }
+        float getFrameRate() const{ return _target; }
 
         /** Set the damping factor for the zoom adjustment.  */
         void setDamping( const float damping ) { _damping = damping; }
@@ -70,15 +70,11 @@ namespace server
         virtual void notifyChildRemove( Compound* compound, Compound* child ){}
 
     private:
-        float _frameRate; //!< target framerate
+        float _target; //!< target framerate
         float _damping; //!< The damping factor,  (0: No damping, 1: No changes)
 
-        float _fpsLastFrame;
-        float _average;    
-        int _sizeAverage;
+        float _current; //!< Framerate of the last finished frame
         bool _newValueReady;
-                
-        int _count ;
     };
 
 }
