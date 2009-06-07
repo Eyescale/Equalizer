@@ -15,26 +15,26 @@ server
             {
                 window
                 {
-                    viewport [ 25 25 1200 1200 ]
+                    viewport [ 25 25 800 800 ]
                     
-                    channel { name "clear" viewport [ 0 0 600 600 ] }
-                    channel { name "2D1" viewport [ 0 0 300 300 ] }
-                    channel { name "2D2" viewport [ 0 300 300 300 ] }
-                    channel { name "2D3" viewport [ 300 0 300 300 ] }
-                    channel { name "2D" viewport [ 300 300 300 300 ] }
-                    channel { name "DB1" viewport [ 300 900 300 300 ] }
-                    channel { name "DB2" viewport [ 0 900 300 300 ] }
-                    channel { name "DB3" viewport [ 0 600 300 300 ] }
-                    channel { name "DB" viewport [ 300 600 300 300 ] }
-                    channel { name "DPlex1" viewport [ 900 900 300 300 ] }
-                    channel { name "DPlex2" viewport [ 600 900 300 300 ] }
-                    channel { name "DPlex3" viewport [ 900 600 300 300 ] }
-                    channel { name "DPlex" viewport [ 600 600 300 300 ] }
-                    channel { name "Eye1" viewport [ 900 300 300 300 ] }
-                    channel { name "Eye" viewport [ 600 300 300 300 ] }
-                    channel { name "Pixel1" viewport [ 900 0 150 300 ] }
-                    channel { name "Pixel2" viewport [ 1050 0 150 300 ] }
-                    channel { name "Pixel" viewport [ 600 0 300 300 ] }
+                    channel { name "clear" viewport [ .5 .5 .5 .5 ] }
+                    channel { name "DPlex1" viewport [ 0 0 .25 .25 ] }
+                    channel { name "DPlex2" viewport [ 0 .25 .25 .25 ] }
+                    channel { name "DPlex3" viewport [ .25 0 .25 .25 ] }
+                    channel { name "DPlex" viewport [ .25 .25 .25 .25 ] }
+                    channel { name "DB1" viewport [ .25 .75 .25 .25 ] }
+                    channel { name "DB2" viewport [ 0 .75 .25 .25 ] }
+                    channel { name "DB3" viewport [ 0 .5 .25 .25 ] }
+                    channel { name "DB" viewport [ .25 .5 .25 .25 ] }
+                    channel { name "2D1" viewport [ .5 .75 .25 .25 ] }
+                    channel { name "2D2" viewport [ .75 .5 .25 .25 ] }
+                    channel { name "2D3" viewport [ .75 .75 .25 .25 ] }
+                    channel { name "2D" viewport [ .5 .5 .25 .25 ] }
+                    channel { name "Eye1" viewport [ .75 .25 .25 .25 ] }
+                    channel { name "Eye" viewport [ .5 .25 .25 .25 ] }
+                    channel { name "Pixel1" viewport [ .75 0 .125 .25 ] }
+                    channel { name "Pixel2" viewport [ .875 0 .125 .25 ] }
+                    channel { name "Pixel" viewport [ .5 0 .25 .25 ] }
                 }
             }
         }
