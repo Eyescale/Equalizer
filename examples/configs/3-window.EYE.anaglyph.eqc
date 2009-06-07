@@ -1,0 +1,74 @@
+# single pipe eye decomposition demo configuration
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 50 50 300 300 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                        viewport [ 400 50 300 300 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+                window
+                {
+                    viewport [ 225 400 300 300 ]
+                    channel
+                    {
+                        name "destination"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            channel "destination"
+            attributes{ stereo_mode ANAGLYPH }
+
+            wall
+            {
+                bottom_left  [ -.32 -.32 -.75 ]
+                bottom_right [  .32 -.32 -.75 ]
+                top_left     [ -.32  .32 -.75 ]
+            }
+
+            compound  # right eye draw operation on channel1
+            { 
+                channel "channel1"
+                eye     [ RIGHT ]
+                outputframe {}
+            }
+            compound  # left eye draw operation on channel2
+            {
+                channel "channel2"
+                eye     [ LEFT ]
+                outputframe {}
+            }
+            compound
+            {
+                task [ CLEAR ASSEMBLE ]
+                eye  [ RIGHT ]
+                inputframe { name "frame.channel1" }
+            }
+            compound
+            {
+                task [ CLEAR ASSEMBLE ]
+                eye  [ LEFT ]
+                inputframe { name "frame.channel2" }
+            }
+        }
+    }    
+}

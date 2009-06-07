@@ -1,0 +1,167 @@
+# 1-window config showing basic decomposition modes
+global
+{
+    EQ_WINDOW_IATTR_PLANES_STENCIL ON
+    EQ_COMPOUND_IATTR_STEREO_MODE anaglyph
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 25 25 1200 1200 ]
+                    
+                    channel { name "clear" viewport [ 0 0 600 600 ] }
+                    channel { name "2D1" viewport [ 0 0 300 300 ] }
+                    channel { name "2D2" viewport [ 0 300 300 300 ] }
+                    channel { name "2D3" viewport [ 300 0 300 300 ] }
+                    channel { name "2D" viewport [ 300 300 300 300 ] }
+                    channel { name "DB1" viewport [ 300 900 300 300 ] }
+                    channel { name "DB2" viewport [ 0 900 300 300 ] }
+                    channel { name "DB3" viewport [ 0 600 300 300 ] }
+                    channel { name "DB" viewport [ 300 600 300 300 ] }
+                    channel { name "DPlex1" viewport [ 900 900 300 300 ] }
+                    channel { name "DPlex2" viewport [ 600 900 300 300 ] }
+                    channel { name "DPlex3" viewport [ 900 600 300 300 ] }
+                    channel { name "DPlex" viewport [ 600 600 300 300 ] }
+                    channel { name "Eye1" viewport [ 900 300 300 300 ] }
+                    channel { name "Eye" viewport [ 600 300 300 300 ] }
+                    channel { name "Pixel1" viewport [ 900 0 300 150 ] }
+                    channel { name "Pixel2" viewport [ 900 150 300 150 ] }
+                    channel { name "Pixel" viewport [ 600 0 300 300 ] }
+                }
+            }
+        }
+
+
+        compound
+        {
+            task [ CLEAR ]
+            channel "clear"
+            wall{ }
+        }
+        compound
+        { 
+            channel "2D"
+            wall 
+            {
+                bottom_left  [ -.32 -.32 -.75 ]
+                bottom_right [  .32 -.32 -.75 ]
+                top_left     [ -.32  .32 -.75 ]
+            }
+            load_equalizer {}
+            compound {}
+            compound { channel "2D1" outputframe { }}
+            compound { channel "2D2" outputframe { }}
+            compound { channel "2D3" outputframe { }}
+            inputframe{ name "frame.2D1" }
+            inputframe{ name "frame.2D2" }
+            inputframe{ name "frame.2D3" }
+        }
+        compound
+        { 
+            channel "DB"
+            buffer [ COLOR DEPTH ]
+            wall
+            {
+                bottom_left  [ -.32 -.32 -.75 ]
+                bottom_right [  .32 -.32 -.75 ]
+                top_left     [ -.32  .32 -.75 ]
+            }
+            compound { range [ 0. .25 ] }
+            compound { range [ .25 .5 ] channel "DB1" outputframe { }}
+            compound { range [ .5 .75 ] channel "DB2" outputframe { }}
+            compound { range [ .75 1. ] channel "DB3" outputframe { }}
+            inputframe{ name "frame.DB1" }
+            inputframe{ name "frame.DB2" }
+            inputframe{ name "frame.DB3" }
+        }
+        compound
+        { 
+            channel "DPlex"
+            wall
+            {
+                bottom_left  [ -.32 -.32 -.75 ]
+                bottom_right [  .32 -.32 -.75 ]
+                top_left     [ -.32  .32 -.75 ]
+            }
+           
+            compound 
+            {
+                period 3 phase 0
+                channel "DPlex1"
+                outputframe { name "DPlex" }
+            }
+            compound
+            {
+                period 3 phase 1
+                channel "DPlex2"
+                outputframe { name "DPlex" }
+            }
+            compound
+            {
+                period 3 phase 2
+                channel "DPlex3"
+                outputframe { name "DPlex" }
+            }
+            inputframe{ name "DPlex" }
+        }
+        compound
+        { 
+            channel "Eye"
+            wall
+            {
+                bottom_left  [ -.32 -.32 -.75 ]
+                bottom_right [  .32 -.32 -.75 ]
+                top_left     [ -.32  .32 -.75 ]
+            }
+           
+            compound { eye [ RIGHT ] }
+            compound { eye [ LEFT ] channel "Eye1" outputframe{ }}
+            
+            eye [ LEFT ]
+            inputframe{ name "frame.Eye1" }
+        }
+        compound
+        { 
+            channel "Eye"
+            wall
+            {
+                bottom_left  [ -.32 -.32 -.75 ]
+                bottom_right [  .32 -.32 -.75 ]
+                top_left     [ -.32  .32 -.75 ]
+            }
+           
+            compound { eye [ RIGHT ] channel "Eye" }
+            compound { eye [ LEFT ] channel "Eye1" outputframe{ }}
+            compound
+            {
+                task [ ASSEMBLE ]
+                eye [ LEFT ]
+                inputframe{ name "frame.Eye1" }
+            }
+        }
+        compound
+        { 
+            channel "Pixel"
+            wall
+            {
+                bottom_left  [ -.32 -.32 -.75 ]
+                bottom_right [  .32 -.32 -.75 ]
+                top_left     [ -.32  .32 -.75 ]
+            }
+           
+            compound { pixel [ 0 0 1 2 ] channel "Pixel1" outputframe{ }}
+            compound { pixel [ 0 1 1 2 ] channel "Pixel2" outputframe{ }}
+            
+            inputframe{ name "frame.Pixel1" }
+            inputframe{ name "frame.Pixel2" }
+        }
+    }    
+}
