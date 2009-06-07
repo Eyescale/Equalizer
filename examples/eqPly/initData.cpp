@@ -36,6 +36,7 @@ InitData::InitData()
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _useGLSL( false )
         , _invFaces( false )
+        , _logo( true )
 {}
 
 InitData::~InitData()
@@ -45,12 +46,14 @@ InitData::~InitData()
 
 void InitData::getInstanceData( eq::net::DataOStream& os )
 {
-    os << _frameDataID << _windowSystem << _renderMode << _useGLSL << _invFaces;
+    os << _frameDataID << _windowSystem << _renderMode << _useGLSL << _invFaces
+       << _logo;
 }
 
 void InitData::applyInstanceData( eq::net::DataIStream& is )
 {
-    is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces;
+    is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces
+       >> _logo;
 
     EQASSERT( _frameDataID != EQ_ID_INVALID );
     EQINFO << "New InitData instance" << endl;

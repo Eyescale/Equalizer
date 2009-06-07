@@ -42,10 +42,13 @@ bool Window::configInitGL( const uint32_t initID )
 
     EQASSERT( !_state );
     _state = new VertexBufferState( getObjectManager( ));
-    _loadLogo();
 
     const Config*   config   = static_cast< const Config* >( getConfig( ));
     const InitData& initData = config->getInitData();
+
+    if( initData.showLogo( ))
+        _loadLogo();
+
     if( initData.useGLSL() )
         _loadShaders();
 

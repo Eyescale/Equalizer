@@ -52,18 +52,26 @@ Application Structure
 
 Usage
 
-   ./build/Darwin/bin/eqPly.app/Contents/MacOS/eqPly  [-i] [-g] [-c
+   ./build/Darwin/bin/eqPly.app/Contents/MacOS/eqPly  [-o] [-a <string>]
+                                        [-l <string>] [-i] [-g] [-c
                                         <string>] [-w <string>] [-n
                                         <unsigned>] [-r] [-b] [-p <string>]
-                                        [-m <string>] [--] [--version]
+                                        [-m <string>] ...  [--] [--version]
                                         [-h]
 
 
 Where: 
+
+   -o,  --noOverlay
+     Disable overlay logo
+
    -a <string>,  --cameraPath <string>
      File containing camera path animation
 
-   -i,  --iface
+   -l <string>,  --log <string>
+     output log file
+
+   -i,  --invertFaces
      Invert faces (valid during binary file creation)
 
    -g,  --glsl
@@ -81,13 +89,13 @@ Where:
    -r,  --resident
      Keep client resident (see resident node documentation on website)
 
-   -b,  --bw
+   -b,  --blackAndWhite
      Don't use colors from ply file
 
    -p <string>,  --port <string>
      tracking device port
 
-   -m <string>,  --model <string>
+   -m <string>,  --model <string>  (accepted multiple times)
      ply model file name
 
    --,  --ignore_rest
@@ -102,30 +110,37 @@ Where:
 
    eqPly - Equalizer polygonal rendering example
 
-        Run-time commands:
+   	Run-time commands:
 
-                Left Mouse Button:         Rotate model
+   		Left Mouse Button:         Rotate model
 
-                Middle Mouse Button:       Move model in Z;
+   		Middle Mouse Button:       Move model in X, Y
 
-                Right Mouse Button:        Move model in X, Y
+   		Right Mouse Button:        Move model in Z
 
-                <Cursor Keys>:             Move head in x,y plane
+   		<Cursor Keys>:             Move head in X,Y plane
 
-                <Page Up,Down>:            Move head in Z
+   		<Page Up,Down>:            Move head in Z
 
-                <Esc>, All Mouse Buttons:  Exit program
+   		<Esc>, All Mouse Buttons:  Exit program
 
-                <Space>, r:                Reset camera
+   		<Space>:                   Reset camera
 
-                o:                         Toggle perspective/orthographic
+   		i:                         Reset camera for Immersive Setups
 
-                s:                         Toggle statistics overlay
+   		o:                         Toggle perspective/orthographic
 
-                m:                         Switch rendering mode
+   		s:                         Toggle statistics overlay
 
-                p:                         Switch to Walk Through mode
+   		F1, h:                     Toggle help overlay
 
+   		w:                         Toggle wireframe mode
+
+   		r:                         Switch rendering mode
+
+   		v:                         Switch active view
+
+   		m:                         Switch model for active view
 
     If option -t is specified, eqPly will try to use provided file as a set of
     reference camera positions for rendering. Format of this file is following:

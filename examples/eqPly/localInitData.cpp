@@ -1,6 +1,5 @@
 
-/*
- * Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -60,6 +59,9 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
         enableGLSL();
     if( from.useInvertedFaces( )) 
         enableInvertedFaces();
+    if( !from.showLogo( )) 
+        disableLogo();
+
     return *this;
 }
 
@@ -87,7 +89,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::ValueArg<string> portArg( "p", "port", "tracking device port",
                                          false, "/dev/ttyS0", "string",
                                          command );
-        TCLAP::SwitchArg colorArg( "b", "bw", "Don't use colors from ply file", 
+        TCLAP::SwitchArg colorArg( "b", "blackAndWhite", 
+                                   "Don't use colors from ply file", 
                                    command, false );
         TCLAP::SwitchArg residentArg( "r", "resident", 
            "Keep client resident (see resident node documentation on website)", 
@@ -103,15 +106,17 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                        false, "auto", "string", command );
         TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
                                     command, false );
-        TCLAP::SwitchArg invFacesArg( "i", "iface",
+        TCLAP::SwitchArg invFacesArg( "i", "invertFaces",
                             "Invert faces (valid during binary file creation)", 
                                     command, false );
         TCLAP::ValueArg<string> logArg( "l", "log", "output log file",
                                         false, "eqPly.log", "string",
                                         command );
-        TCLAP::ValueArg<string> pthArg( "a", "cameraPath",
+        TCLAP::ValueArg<string> pathArg( "a", "cameraPath",
                                         "File containing camera path animation",
-                                        false, "", "string", command );
+                                         false, "", "string", command );
+        TCLAP::SwitchArg overlayArg( "o", "noOverlay", "Disable overlay logo", 
+                                     command, false );
 
         command.parse( argc, argv );
 
@@ -158,8 +163,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                 setRenderMode( mesh::RENDER_MODE_BUFFER_OBJECT );
         }
 
-        if( pthArg.isSet( ))
-            _pathFilename = pthArg.getValue();
+        if( pathArg.isSet( ))
+            _pathFilename = pathArg.getValue();
 
         if( logArg.isSet( ))
             _logFilename = logArg.getValue();
@@ -168,6 +173,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             enableGLSL();
         if( invFacesArg.isSet() )
             enableInvertedFaces();
+        if( overlayArg.isSet( ))
+            disableLogo();
     }
     catch( TCLAP::ArgException& exception )
     {
