@@ -92,7 +92,7 @@ Channel::Channel( const Channel& from, Window* window )
     _drawable = from._drawable;
     // Don't copy view and segment. Will be re-set by segment copy ctor
 
-    window->addChannel( this );
+    window->insertChannel( &from, this );
 
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];

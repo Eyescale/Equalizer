@@ -78,11 +78,19 @@ namespace server
          */
         //*{
         /** 
-         * Adds a new channel to this window.
+         * Add a new channel to this window.
          * 
          * @param channel the channel.
          */
         void addChannel( Channel* channel );
+
+        /** 
+         * Insert a new channel before the given channel.
+         * 
+         * @param position the channel before which to insert.
+         * @param channel the channel to insert.
+         */
+        void insertChannel( const Channel* position, Channel* channel );
 
         /** 
          * Removes a channel from this window.

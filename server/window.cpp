@@ -135,6 +135,15 @@ void Window::addChannel( Channel* channel )
     channel->notifyViewportChanged();
 }
 
+void Window::insertChannel( const Channel* position, Channel* channel )
+{
+    ChannelVector::iterator i = std::find( _channels.begin(), _channels.end(),
+                                           position );
+    _channels.insert( i, channel );
+    channel->_window = this;
+    channel->notifyViewportChanged();    
+}
+
 bool Window::removeChannel( Channel* channel )
 {
     ChannelVector::iterator i = find( _channels.begin(), _channels.end(),
