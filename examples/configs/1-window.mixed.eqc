@@ -32,8 +32,8 @@ server
                     channel { name "DPlex" viewport [ 600 600 300 300 ] }
                     channel { name "Eye1" viewport [ 900 300 300 300 ] }
                     channel { name "Eye" viewport [ 600 300 300 300 ] }
-                    channel { name "Pixel1" viewport [ 900 0 300 150 ] }
-                    channel { name "Pixel2" viewport [ 900 150 300 150 ] }
+                    channel { name "Pixel1" viewport [ 900 0 150 300 ] }
+                    channel { name "Pixel2" viewport [ 1050 0 150 300 ] }
                     channel { name "Pixel" viewport [ 600 0 300 300 ] }
                 }
             }
@@ -157,8 +157,8 @@ server
                 top_left     [ -.32  .32 -.75 ]
             }
            
-            compound { pixel [ 0 0 1 2 ] channel "Pixel1" outputframe{ }}
-            compound { pixel [ 0 1 1 2 ] channel "Pixel2" outputframe{ }}
+            compound { pixel [ 0 0 2 1 ] channel "Pixel1" outputframe{ }}
+            compound { pixel [ 1 0 2 1 ] channel "Pixel2" outputframe{ }}
             
             inputframe{ name "frame.Pixel1" }
             inputframe{ name "frame.Pixel2" }
