@@ -68,9 +68,6 @@ LoadEqualizer::~LoadEqualizer()
 void LoadEqualizer::notifyUpdatePre( Compound* compound,
                                      const uint32_t frameNumber )
 {
-    if( isFrozen( ))
-        return;
-
     if( !_tree )
     {
         EQASSERT( compound == getCompound( ));
@@ -82,6 +79,9 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
         EQLOG( LOG_LB2 ) << "LB tree: " << _tree;
     }
     _checkHistory();
+
+    if( isFrozen( )) // execute code above to not leak memory
+        return;
 
     // compute new data
     _history.push_back( LBFrameData( ));

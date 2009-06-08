@@ -312,6 +312,9 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         loads.push_back( load );
     }
 
+    if( isFrozen( )) // execute code above to not leak memory
+        return;
+
     if( totalTime == 0 ) // no data
         totalTime = 1;
 

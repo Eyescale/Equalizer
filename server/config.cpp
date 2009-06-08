@@ -1295,11 +1295,9 @@ public:
 
     FreezeVisitor( const bool freeze ) : _freeze( freeze ) {}
 
-    /** Visit a non-leaf compound on the down traversal. */
-    virtual VisitorResult visitPre( Compound* compound )
+    virtual VisitorResult visit( Compound* compound )
         { 
-            const EqualizerVector& equalizers = 
-                compound->getEqualizers();
+            const EqualizerVector& equalizers = compound->getEqualizers();
             for( EqualizerVector::const_iterator i = equalizers.begin();
                  i != equalizers.end(); ++i )
             {

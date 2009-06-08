@@ -88,6 +88,7 @@ namespace eqPly
         CameraAnimation _animation;
 
         bool _redraw;
+        bool _freeze;
 
     private:
         void _loadModels();

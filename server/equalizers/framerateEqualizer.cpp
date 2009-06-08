@@ -160,12 +160,6 @@ void FramerateEqualizer::_exit()
 void FramerateEqualizer::notifyUpdatePre( Compound* compound, 
                                           const uint32_t frameNumber )
 {
-    if( isFrozen( ))
-    {
-        compound->setMaxFPS( std::numeric_limits< float >::max( ));
-        return;
-    }
-
     _init();
 
     // find starting point of contiguous block
@@ -210,6 +204,12 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
     if( nSamples == _nSamples )       // If we have a full set
         while( from < static_cast< ssize_t >( _times.size( )))
             _times.pop_back();            //  delete all older samples
+
+    if( isFrozen( )) // execute code above to not leak memory
+    {
+        compound->setMaxFPS( std::numeric_limits< float >::max( ));
+        return;
+    }
 
     if( nSamples > 0 )
     {

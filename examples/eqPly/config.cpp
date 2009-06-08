@@ -30,6 +30,7 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
         , _advance( 0 )
         , _currentCanvas( 0 )
         , _redraw( true )
+        , _freeze( false )
 {
 }
 
@@ -427,6 +428,12 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _frameData.toggleStatistics();
             return true;
             
+        case 'f':
+        case 'F':
+            _freeze = !_freeze;
+            freezeLoadBalancing( _freeze );
+            return true;
+
         case eq::KC_F1:
         case 'h':
         case 'H':
