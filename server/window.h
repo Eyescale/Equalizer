@@ -85,9 +85,9 @@ namespace server
         void addChannel( Channel* channel );
 
         /** 
-         * Insert a new channel before the given channel.
+         * Insert a new channel after the given channel.
          * 
-         * @param position the channel before which to insert.
+         * @param position the channel after which to insert.
          * @param channel the channel to insert.
          */
         void insertChannel( const Channel* position, Channel* channel );
