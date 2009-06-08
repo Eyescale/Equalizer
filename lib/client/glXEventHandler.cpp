@@ -70,6 +70,7 @@ GLXEventHandler::~GLXEventHandler()
         if( x11Connection->pipe == _pipe )
         {
             _pipeConnections->removeConnection( connection );
+            x11Connection = 0;
             EQASSERTINFO( connection->getRefCount() == 1,
                           connection->getRefCount( ));
             break;
