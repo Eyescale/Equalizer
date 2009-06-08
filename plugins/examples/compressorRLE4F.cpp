@@ -27,11 +27,13 @@ void CompressorRLE4F::compress( void* const inData,
                                 const uint64_t inSize, 
                                 const bool ignoreAlpha )
 {
-    _setupResults( inSize );
+    const uint64_t size = inSize * 4 * 4 ;
+
+    _setupResults( size );
 
     const uint32_t numResult = _results.size();
 
-    const float width = static_cast< float >( inSize ) / 
+    const float width = static_cast< float >( size ) / 
                         static_cast< float >( numResult );
     
     uint32_t* const data = (uint32_t* const )inData;

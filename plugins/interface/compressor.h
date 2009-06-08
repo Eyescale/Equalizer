@@ -292,6 +292,7 @@ extern "C"
      * and output size see EqCompressorCompress.
      *
      * @param decompressor the decompressor instance, can be 0.
+     * @param name compressor is used if decompressor = 0
      * @param in the pointer to an array of input data pointers.
      * @param inSizes the array of input data sizes in bytes.
      * @param numInputs the number of input data elements.
@@ -302,6 +303,7 @@ extern "C"
      * @sa EqCompressorCompress
      */
     EQ_PLUGIN_API void EqCompressorDecompress( void* const decompressor, 
+                                               const unsigned name,
                                                const void** const in, 
                                                const eq_uint64_t* const inSizes,
                                                const unsigned numInputs,

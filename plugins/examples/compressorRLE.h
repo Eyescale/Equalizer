@@ -59,14 +59,27 @@ namespace eq
 {
 namespace plugin
 {
+
+    /**
+    * An interace for compressor / uncompressor RLE data 
+    *
+    */
     class CompressorRLE : public Compressor
         {
         public:
+            /** @name CompressorRLE */
+            /*@{*/
+            /** 
+             * Compress data with an algorithm RLE.
+             * 
+             * @param the number channel.
+             */
             CompressorRLE( const uint32_t numChannels )
                         : Compressor( numChannels ){}
             virtual ~CompressorRLE(){} 
             
         protected:
+            /** an header for each result of compression */
             struct Header
             {
                 Header( uint64_t size64, bool useAlphaBool)
@@ -77,11 +90,26 @@ namespace plugin
                 uint32_t useAlpha;
             };
 
+            /** @name _writeHeader */
+            /*@{*/
+            /** 
+             * write header value for each start buffer result of compression
+             */
             void _writeHeader( Result** results, 
                                const Header& header );
            
+            /** @name _readHeader */
+            /*@{*/
+            /** 
+             * read header value
+             */    
             Header _readHeader( const uint8_t* data8 );
-
+            
+            /** @name _setupResults */
+            /*@{*/
+            /** 
+             * compute the number result need for compress data
+             */    
             void _setupResults( const uint64_t inSize );
         };
     

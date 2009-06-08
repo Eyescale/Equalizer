@@ -28,10 +28,11 @@ void CompressorRLE4B::compress( void* const inData,
                                 const uint64_t inSize, 
                                 const bool useAlpha )
 {
-    _setupResults( inSize );
+    const uint64_t size = inSize * 4 ;
+    _setupResults( size );
 
     const size_t numResults = _results.size();
-    const float width = static_cast< float >( inSize ) /  
+    const float width = static_cast< float >( size ) /  
                         static_cast< float >( numResults );
 
     uint8_t* const data = reinterpret_cast< uint8_t* const >( inData );
@@ -87,7 +88,6 @@ void CompressorRLE4B::_compress( const uint8_t* input, const uint64_t size,
             sameThree( 1 ), 
             sameFour ( 1 );
     
-    const uint32_t* data   = &swizzleData;
     uint8_t one, two, three, four;
 
     for( uint32_t i = 1; i < size; ++i )
@@ -131,7 +131,7 @@ void CompressorRLE4B::_compress( const uint8_t* input, const uint64_t size,
         
         if ( useAlpha ) 
         {
-            const uint8_t four = word[3];
+            four = word[3];
             if( four == lastFour && sameFour != 255 )
                 ++sameFour;
             else

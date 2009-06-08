@@ -21,18 +21,19 @@ namespace eq
 {
 namespace plugin
 {
-const uint64_t _rleMarker = 0xF3C553FF64F6477Full; // just a random number
+const uint64_t _rleMarker = 0x42; // just a random number
 
 
 void CompressorRLE3B::compress( void* const inData, 
                                 const uint64_t inSize, 
                                 const bool useAlpha )
 {
-    _setupResults( inSize );
+     const uint64_t size = inSize * 3 ;
+    _setupResults( size );
 
     const uint32_t numResult = _results.size();
    
-    const float width = static_cast< float >( inSize ) /  
+    const float width = static_cast< float >( size ) /  
                         static_cast< float >( numResult );
     
     uint8_t* const data = (uint8_t* const )inData;
@@ -160,7 +161,6 @@ void CompressorRLE3B::decompress( const void** const inData,
             reinterpret_cast< const uint64_t* >( inData8[i] );
         const uint64_t  blockSize = u64In[0];
 
-        bool ignoreAlpha = (bool)*oneIn;
         oneIn++;
         
         for( uint32_t j = 0; j < blockSize; ++j )

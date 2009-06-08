@@ -22,7 +22,7 @@
 
 #include <eq/plugin/compressor.h>
 #include <eq/base/base.h>
-#include <eq/client/Compressor.h>
+#include <eq/client/compressor.h>
 
 /**
  * @file examples/compressor.h
@@ -48,32 +48,69 @@ namespace plugin
 
     typedef base::Bufferb Result;
 
+     /**
+     * An interace for compressor / uncompressor data
+     *
+     */
     class Compressor
     {
     public:
+        /**
+         * Construct a new compressor.
+         *
+         * @param buffer the number channel.
+         */
         Compressor( const uint32_t numChannel );
 
-        virtual ~Compressor(){}
-        
+        virtual ~Compressor();
+
+        /** @name compress */
+        /*@{*/
+        /**
+         * compress Data.
+         *
+         * @param data to compress.
+         * @param number data to compress.
+         * @param use alpha channel in compression.
+         */
         virtual void compress( void* const inData, 
                                const uint64_t inSize, 
                                const bool useAlpha ) = 0;
 
+        /** @name decompress */
+        /*@{*/
+        /**
+         * uncompress Data.
+         *
+         * @param data(s) to compress.
+         * @param size(s)of the data to compress.
+         * @param result of uncompressed data.
+         * @param size of the result.
+         */
         virtual void decompress( const void** const inData, 
                                  const uint64_t* const inSizes, 
                                  void* const outData, 
                                  const uint64_t* const outSize )=0;
 
-
+        /** @name getResults */
+        /*@{*/
+        /**
+         * get the number results that compression use to save data
+         */
         std::vector< Result* >& getResults(){ return _results; }
-        
+
+        /** @name getName */
+        /*@{*/
+        /**
+         * get the compressor's name
+         */
         unsigned getName(){ return _name; }
 
     protected: 
-      std::vector< Result* > _results;     //!< The pixel data
-      unsigned _name;  
-      const uint32_t _numChannels;
-      bool _swizzleData;
+      std::vector< Result* > _results;  //!< The compressed data
+      unsigned _name;                   // name compressor
+      const uint32_t _numChannels;      // number channel
+      bool _swizzleData;                // using swizzle data
     }; 
 }
 }

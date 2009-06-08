@@ -42,6 +42,7 @@ namespace plugin
         getInfo = 0;
         newCompressor = 0;  
     }
+    
     Functions _findFunctions( const unsigned name )
     {
         const size_t size = EqCompressorGetNumCompressors();
@@ -53,7 +54,7 @@ namespace plugin
                 return _functions[i];
         }
 
-        EQASSERT( 0 );
+//        EQASSERT( 0 );
         return Functions();
     }
 }
@@ -120,6 +121,7 @@ EQ_PLUGIN_API unsigned EqCompressorGetNumResults(
 
 
 EQ_PLUGIN_API void EqCompressorDecompress( void* const decompressor, 
+                                           const unsigned name,
                                            const void** const in, 
                                            const eq_uint64_t* const inSizes,
                                            const unsigned numInputs,
@@ -127,13 +129,20 @@ EQ_PLUGIN_API void EqCompressorDecompress( void* const decompressor,
                                            eq_uint64_t* const outDims,
                                            const eq_uint64_t flags )
 {
+
     const uint64_t outSize = ( flags & EQ_COMPRESSOR_DATA_1D) ?
                            outDims[1] : outDims[1] * outDims[3];
     uint64_t numInput64 = numInputs;
-
-    (( eq::plugin::Compressor* )( decompressor ))->decompress( 
-        in, &numInput64, out, &outSize );
-
+    if (decompressor)
+    {
+        (( eq::plugin::Compressor* )( decompressor ))->decompress( 
+            in, &numInput64, out, &outSize );
+        return;
+    } 
+    /*
+    eq::plugin::Functions& functions = eq::plugin::_findFunctions( name );
+    functions->decompress( in, &numInput64, out, &outSize );
+    */
 }
 
 namespace eq
@@ -145,8 +154,16 @@ namespace plugin
         , _swizzleData( false ) 
     { 
         _results.resize( numChannels );
-        for (size_t i = 0; i < numChannels; i++)
+        for ( size_t i = 0; i < numChannels; i++ )
             _results[i] = new Result;
+    }
+
+    Compressor::~Compressor()
+    {
+        for ( size_t i = 0; i < _results.size(); i++ )
+            delete ( _results[i] );
+            
+        _results.clear();
     }
 }
 }

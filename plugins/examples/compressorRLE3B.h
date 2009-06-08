@@ -24,26 +24,74 @@ namespace eq
 {
 namespace plugin
 {
+
+/**
+ * A class for compress / uncompress RLE 3 bytes
+ *
+ */
 class CompressorRLE3B : public CompressorRLE
 {
 public:
+   /** @name CompressorRLE3B */
+   /*@{*/ 
+   /**
+    * Construct a new compressor RLE 3 Bytes.
+    *
+    */
     CompressorRLE3B(): CompressorRLE( 3 ){};
-    virtual ~CompressorRLE3B(){} 
+
+    /** @name compress */
+    /*@{*/
+    /**
+     * compress Data.
+     *
+     * @param data to compress.
+     * @param number data to compress.
+     * @param use alpha channel in compression.
+     */
     virtual void compress( void* const inData, 
                            const uint64_t inSize, 
                            const bool useAlpha );
 
+    /** @name decompress */
+    /*@{*/
+    /**
+     * uncompress Data.
+     *
+     * @param data(s) to compress.
+     * @param size(s)of the data to compress.
+     * @param result of uncompressed data.
+     * @param size of the result.
+     */
     virtual void decompress( const void** const inData, 
                              const uint64_t* const inSizes, 
                              void* const outData, 
                              const uint64_t* const outSize );    
-    
+
+    /** @name getNewCompressor */
+    /*@{*/
+    /**
+     * get a new instance of compressor RLE 3 bytes.
+     *
+     */                             
     static void* getNewCompressor( )
-                                   { return new eq::plugin::CompressorRLE3B; }
-    
+              { return new eq::plugin::CompressorRLE3B; }
+
+    /** @name getNewDecompressor */
+    /*@{*/
+    /**
+     * NOT IMPLEMENTED.
+     *
+     */
     static void* getNewDecompressor( ){ return 0; }
 
-
+    /** @name getInfo */
+    /*@{*/
+    /**
+     * get information about this compressor.
+     *
+     * @param info about this compressor.
+     */
     static void  getInfo( EqCompressorInfo* const info )
     {
          info->version = EQ_COMPRESSOR_VERSION;
@@ -57,6 +105,13 @@ public:
          info->speed = 0.95f;
     }
 
+    /** @name getFunctions */
+    /*@{*/
+    /**
+     * get the pointer functions for work with.
+     *
+     * @param info about this compressor.
+     */
     static Functions getFunctions()
     {
         Functions functions;
@@ -72,20 +127,48 @@ private:
     void _unswizzlePixelData( uint32_t* data, const bool useAlpha  );
 };
 
+/**
+ * A class for compress / uncompress RLE 3 bytes
+ *
+ */
 class CompressorDiffRLE3B : public CompressorRLE3B
 {
 public:
+   /** @name CompressorDiffRLE3B */
+   /*@{*/ 
+   /**
+    * Construct a new compressor RLE 3 Bytes with swizzle Data.
+    *
+    */
     CompressorDiffRLE3B():CompressorRLE3B()
     { 
         _swizzleData = true; 
         _name = EQ_COMPRESSOR_DIFF_RLE_3_BYTE;
     }
+    /** @name getNewCompressor */
+    /*@{*/
+    /**
+     * get a new instance of compressor RLE 3 bytes.
+     *
+     */
     static void* getNewCompressor( )
                                    { return new eq::plugin::CompressorDiffRLE3B; }
-    
+
+    /** @name getNewDecompressor */
+    /*@{*/
+    /**
+     * NOT IMPLEMENTED.
+     *
+     */
     static void* getNewDecompressor( ){ return 0; }
 
-
+    /** @name getFunctions */
+    /*@{*/
+    /**
+     * get the pointer functions for work with.
+     *
+     * @param info about this compressor.
+     */
     static void  getInfo( EqCompressorInfo* const info )
     {
          info->version = EQ_COMPRESSOR_VERSION;
@@ -98,7 +181,14 @@ public:
          info->ratio = .8f;
          info->speed = 0.95f;
     }
-
+    
+    /** @name getFunctions */
+    /*@{*/
+    /**
+     * get the pointer functions for work with.
+     *
+     * @param info about this compressor.
+     */
     static Functions getFunctions()
     {
         Functions functions;

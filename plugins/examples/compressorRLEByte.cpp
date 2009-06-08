@@ -92,9 +92,9 @@ void CompressorRLEByte::_compress( const uint8_t* input,
 
 
 void CompressorRLEByte::decompress( const void** const inData, 
-                                  const uint64_t* const inSizes,
-                                  void* const outData, 
-                                  const uint64_t* const outSize )
+                                    const uint64_t* const inSizes,
+                                    void* const outData, 
+                                    const uint64_t* const outSize )
 {
 
     const uint8_t** inData8 = reinterpret_cast< const uint8_t** >( inData );
