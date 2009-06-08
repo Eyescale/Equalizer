@@ -85,13 +85,20 @@ Session::~Session()
 }
 
 
-void Session::setLocalNode( NodePtr node )
+void Session::_setLocalNode( NodePtr node )
 {
     EQASSERT( _requestHandler.empty( ));
 
     _localNode = node;
     if( !_localNode.isValid( ))
         return; // TODO deregister command functions?
+
+    notifyMapped( node );
+}
+
+void Session::notifyMapped( NodePtr node )
+{
+    EQASSERT( node.isValid( ));
 
     CommandQueue* queue = node->getCommandThreadQueue();
 

@@ -51,8 +51,15 @@ namespace net
         /** @return the identifier of this session. */
         uint32_t getID() const { return _id; }
 
-        /** Set the local node to which this session is mapped */
-        virtual void setLocalNode( NodePtr node );
+        /** 
+         * Notification that this session has been mapped to a node.
+         * 
+         * Typically used by sub-classes to register command handlers. Always
+         * call the parent's notifyMapped() first.
+         *
+         * @param node the node to which the session has been mapped.
+         */
+        virtual void notifyMapped( NodePtr node );
 
         /** @return the local node holding this session. */
         NodePtr getLocalNode(){ return _localNode; }
@@ -276,6 +283,9 @@ namespace net
         base::RequestHandler _requestHandler;
 
     private:
+        /** Set the local node to which this session is mapped */
+        void _setLocalNode( NodePtr node );
+
         friend class Node;
         /** The local node managing the session. */
         NodePtr _localNode;

@@ -275,8 +275,8 @@ namespace eq
 
     protected:
 
-        /** @sa eq::net::Session::setLocalNode() */
-        virtual void setLocalNode( net::NodePtr node );
+        /** @sa eq::net::Session::notifyMapped() */
+        virtual void notifyMapped( net::NodePtr node );
 
     private:
         /** The node identifier of the node running the application thread. */

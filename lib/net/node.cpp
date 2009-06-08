@@ -480,7 +480,7 @@ void Node::_addSession( Session* session, NodePtr server,
     session->_server    = server;
     session->_id        = sessionID;
     session->_isMaster  = ( server==this && isLocal( ));
-    session->setLocalNode( this );
+    session->_setLocalNode( this );
     if( session->_isMaster )
         session->_idPool.freeIDs( 1, IDPool::MAX_CAPACITY );
 
@@ -504,7 +504,7 @@ void Node::_removeSession( Session* session )
     EQINFO << "Erased session " << session->getID() << ", " << _sessions.size()
            << " left" << std::endl;
 
-    session->setLocalNode( 0 );
+    session->_setLocalNode( 0 );
     session->_server    = 0;
     session->_id        = EQ_ID_INVALID;
     session->_isMaster  = false;

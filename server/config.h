@@ -361,8 +361,8 @@ namespace server
         uint32_t getInitID(){ return _initID; }
 
     protected:
-        /** @sa net::Session::setLocalNode. */
-        virtual void setLocalNode( net::NodePtr node );
+        /** @sa net::Session::notifyMapped. */
+        virtual void notifyMapped( net::NodePtr node );
 
     private:
         /** The config name */

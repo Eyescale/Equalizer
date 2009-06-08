@@ -75,11 +75,9 @@ Config::~Config()
     _appNode   = 0;
 }
 
-void Config::setLocalNode( net::NodePtr node )
+void Config::notifyMapped( net::NodePtr node )
 {
-    net::Session::setLocalNode( node );
-    if( !node )
-        return;
+    net::Session::notifyMapped( node );
 
     ServerPtr          server = getServer();
     net::CommandQueue* queue  = server->getNodeThreadQueue();

@@ -190,12 +190,9 @@ Config::~Config()
     _nodes.clear();
 }
 
-void Config::setLocalNode( net::NodePtr node )
+void Config::notifyMapped( net::NodePtr node )
 {
-    net::Session::setLocalNode( node );
-    
-    if( !node ) 
-        return;
+    net::Session::notifyMapped( node );
 
     net::CommandQueue* serverQueue  = getServerThreadQueue();
     net::CommandQueue* commandQueue = getCommandThreadQueue();
