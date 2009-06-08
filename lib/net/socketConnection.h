@@ -33,9 +33,7 @@ namespace eq
 {
 namespace net
 {
-    /**
-     * A TCP/IP-based socket connection.
-     */
+    /** A socket connection (TCPIP or SDP). */
     class SocketConnection
 #ifdef WIN32
         : public Connection
@@ -44,18 +42,23 @@ namespace net
 #endif
     {
     public:
-        SocketConnection( const ConnectionType type );
+        /** 
+         * Create a new socket-based connection
+         * 
+         * @param type the connection type, can be CONNECTIONTYPE_TCPIP or
+         *             CONNECTIONTYPE_SDP.
+         */
+        SocketConnection( const ConnectionType type = CONNECTIONTYPE_TCPIP );
 
-        virtual bool connect();
-        virtual bool listen();
-        virtual void acceptNB();
-        virtual ConnectionPtr acceptSync();
+        virtual bool connect();             //!< @sa Connection::connect
+        virtual bool listen();              //!< @sa Connection::listen
+        virtual void acceptNB();            //!< @sa Connection::acceptNB
+        virtual ConnectionPtr acceptSync(); //!< @sa Connection::acceptSync
+        virtual void close();               //!< @sa Connection::close
 
-        virtual void close();
-
-        uint16_t getPort() const;
 
 #ifdef WIN32
+        /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const { return _overlapped.hEvent; }
 #endif
 
@@ -85,6 +88,7 @@ namespace net
         bool _createSocket();
         void _tuneSocket( const Socket fd );
         bool _parseAddress( sockaddr_in& socketAddress );
+        uint16_t _getPort() const;
 
 #ifdef WIN32
         union

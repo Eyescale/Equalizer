@@ -32,6 +32,7 @@ namespace net
 
     /** 
      * An object change manager handling a static master instance.
+     * @internal
      */
     class StaticMasterCM : public ObjectCM
     {

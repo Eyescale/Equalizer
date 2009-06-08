@@ -36,20 +36,19 @@ namespace net
      * set of nodes. The master node registers the session, which makes this
      * node the session server and assigns a node-unique identifier to the
      * session. All other nodes map the session using this identifier.
+     *
+     * A received SessionPacket is dispatched to the locally-mapped session of
+     * the same identifier.
      */
     class EQ_EXPORT Session : public Dispatcher
     {
     public:
-        /** Constructs a new session. */
+        /** Construct a new session. */
         Session();
 
         virtual ~Session();
 
-        /** 
-         * Returns the identifier of this session.
-         * 
-         * @return the identifier.
-         */
+        /** @return the identifier of this session. */
         uint32_t getID() const { return _id; }
 
         /** Set the local node to which this session is mapped */

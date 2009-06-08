@@ -33,6 +33,7 @@ namespace net
 
     /** 
      * An object change manager handling static object slave instances.
+     * @internal
      */
     class StaticSlaveCM : public ObjectCM
     {

@@ -169,7 +169,7 @@ bool SocketConnection::listen()
         return false;
     }
     else if( socketAddress.sin_port == 0 )
-        EQINFO << "Bound to port " << getPort() << std::endl;
+        EQINFO << "Bound to port " << _getPort() << std::endl;
 
     const bool listening = (::listen( _readFD, 10 ) == 0);
         
@@ -212,7 +212,7 @@ bool SocketConnection::listen()
     return true;
 }
 
-uint16_t SocketConnection::getPort() const
+uint16_t SocketConnection::_getPort() const
 {
     sockaddr_in address;
     socklen_t used = sizeof(address);
