@@ -90,14 +90,14 @@ namespace net
          * 
          * @param name the program name to start this node.
          */
-        void setProgramName( const std::string& name ) { _programName = name; }
+        EQ_EXPORT void setProgramName( const std::string& name );
 
         /** 
          * Set the working directory to start this node.
          * 
          * @param name the working directory to start this node.
          */
-        void setWorkDir( const std::string& name ) { _workDir = name; }
+        EQ_EXPORT void setWorkDir( const std::string& name );
         //@}
 
         /**

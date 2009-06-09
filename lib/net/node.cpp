@@ -151,6 +151,16 @@ bool Node::operator == ( const Node* node ) const
     return ( this == node );
 }
 
+void Node::setProgramName( const std::string& name )
+{
+	_programName = name;
+}
+
+void Node::setWorkDir( const std::string& name )
+{
+	_workDir = name;
+}
+
 bool Node::initLocal( const int argc, char** argv )
 {
 #ifndef NDEBUG

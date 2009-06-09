@@ -635,7 +635,7 @@ CommandResult Session::_cmdGenIDs( Command& command )
     EQVERB << "Cmd gen IDs: " << packet << endl;
 
     SessionGenIDsReplyPacket reply( packet );
-    const uint32_t range = EQ_MAX( range, MIN_ID_RANGE );
+    const uint32_t range = EQ_MAX( packet->range, MIN_ID_RANGE );
 
     reply.id = _idPool.genIDs( range );
     reply.allocated = range;
