@@ -49,7 +49,7 @@ namespace eq
                 void** const, uint64_t* const );
                 
     typedef void   ( *DecompressFunc_t )
-              ( void* const, const void** const, 
+              ( void* const, const unsigned, const void** const, 
                 const uint64_t* const, const uint32_t, void* const, 
                 uint64_t* const, const uint64_t );
                 

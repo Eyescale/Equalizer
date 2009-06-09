@@ -27,24 +27,67 @@ namespace plugin
 class CompressorRLEByte : public CompressorRLE
 {
 public:
-
+    /** @name CompressorRLEByte */
+    /*@{*/
+    /** 
+     * Compress data with an algorithm RLE and process it for each byte.
+     * 
+     * @param the number channel.
+     */
     CompressorRLEByte(): CompressorRLE( 1 ){}
-    virtual ~CompressorRLEByte(){} 
+    
+    /** @name compress */
+    /*@{*/
+    /**
+     * compress Data.
+     *
+     * @param inData data to compress.
+     * @param inSize number data to compress.
+     * @param useAlpha use alpha channel in compression.
+     */
     virtual void compress( void* const inData, 
                            const uint64_t inSize, 
                            const bool useAlpha );
 
-    virtual void decompress( const void** const inData, 
-                             const uint64_t* const inSizes, 
-                             void* const outData, 
-                             const uint64_t* const outSize ); 
+    /** @name decompress */
+    /*@{*/
+    /**
+     * uncompress Data.
+     *
+     * @param inData data(s) to compress.
+     * @param inSizes size(s)of the data to compress.
+     * @param outData result of uncompressed data.
+     * @param outSize size of the result.
+     */
+     virtual void decompress( const void** const inData, 
+                              const uint64_t* const inSizes, 
+                              void* const outData, 
+                              const uint64_t* const outSize ); 
     
+    /** @name getNewCompressor */
+    /*@{*/
+    /**
+     * get a new instance of compressor RLE bytes.
+     *
+     */         
     static void* getNewCompressor( )
                                    { return new eq::plugin::CompressorRLEByte; }
     
+    /** @name getNewDecompressor */
+    /*@{*/
+    /**
+     * NOT IMPLEMENTED.
+     *
+     */
     static void* getNewDecompressor( ){ return 0; }
 
-
+    /** @name getInfo */
+    /*@{*/
+    /**
+     * get information about this compressor.
+     *
+     * @param info about this compressor.
+     */
     static void  getInfo( EqCompressorInfo* const info )
     {
          info->version = EQ_COMPRESSOR_VERSION;
@@ -58,6 +101,13 @@ public:
          info->speed = 0.95f;
     }
 
+    /** @name getFunctions */
+    /*@{*/
+    /**
+     * get the pointer functions for work with.
+     *
+     * @param info about this compressor.
+     */
     static Functions getFunctions()
     {
         Functions functions;

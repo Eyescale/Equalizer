@@ -45,28 +45,28 @@ public:
     /**
      * compress Data.
      *
-     * @param data to compress.
-     * @param number data to compress.
-     * @param use alpha channel in compression.
+     * @param inData data to compress.
+     * @param inSize number data to compress.
+     * @param useAlpha use alpha channel in compression.
      */
     virtual void compress( void* const inData, 
                            const uint64_t inSize, 
                            const bool useAlpha );
-
+    
     /** @name decompress */
     /*@{*/
     /**
      * uncompress Data.
      *
-     * @param data(s) to compress.
-     * @param size(s)of the data to compress.
-     * @param result of uncompressed data.
-     * @param size of the result.
+     * @param inData data(s) to compress.
+     * @param inSizes size(s)of the data to compress.
+     * @param outData result of uncompressed data.
+     * @param outSize size of the result.
      */
     virtual void decompress( const void** const inData, 
                              const uint64_t* const inSizes, 
                              void* const outData, 
-                             const uint64_t* const outSize );    
+                             const uint64_t* const outSize );     
 
     /** @name getNewCompressor */
     /*@{*/
@@ -110,7 +110,6 @@ public:
     /**
      * get the pointer functions for work with.
      *
-     * @param info about this compressor.
      */
     static Functions getFunctions()
     {
@@ -152,7 +151,7 @@ public:
      *
      */
     static void* getNewCompressor( )
-                                   { return new eq::plugin::CompressorDiffRLE3B; }
+                                 { return new eq::plugin::CompressorDiffRLE3B; }
 
     /** @name getNewDecompressor */
     /*@{*/
@@ -187,7 +186,6 @@ public:
     /**
      * get the pointer functions for work with.
      *
-     * @param info about this compressor.
      */
     static Functions getFunctions()
     {

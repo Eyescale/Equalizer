@@ -58,7 +58,7 @@ namespace plugin
         /**
          * Construct a new compressor.
          *
-         * @param buffer the number channel.
+         * @param numChannel buffer the number channel.
          */
         Compressor( const uint32_t numChannel );
 
@@ -69,9 +69,9 @@ namespace plugin
         /**
          * compress Data.
          *
-         * @param data to compress.
-         * @param number data to compress.
-         * @param use alpha channel in compression.
+         * @param inData data to compress.
+         * @param inSize number data to compress.
+         * @param useAlpha use alpha channel in compression.
          */
         virtual void compress( void* const inData, 
                                const uint64_t inSize, 
@@ -82,10 +82,10 @@ namespace plugin
         /**
          * uncompress Data.
          *
-         * @param data(s) to compress.
-         * @param size(s)of the data to compress.
-         * @param result of uncompressed data.
-         * @param size of the result.
+         * @param inData data(s) to compress.
+         * @param inSizes size(s)of the data to compress.
+         * @param outData result of uncompressed data.
+         * @param outSize size of the result.
          */
         virtual void decompress( const void** const inData, 
                                  const uint64_t* const inSizes, 

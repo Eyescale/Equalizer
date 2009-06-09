@@ -555,7 +555,7 @@ WARN_LOGFILE           =
 INPUT                  = lib \
                          examples \
                          externals/vmmlib \
-                         plugins/interface \
+                         plugins \
                          server
 
 # This tag can be used to specify the character encoding of the source files 

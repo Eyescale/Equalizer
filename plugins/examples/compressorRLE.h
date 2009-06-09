@@ -72,11 +72,10 @@ namespace plugin
             /** 
              * Compress data with an algorithm RLE.
              * 
-             * @param the number channel.
+             * @param numChannels the number channel.
              */
             CompressorRLE( const uint32_t numChannels )
-                        : Compressor( numChannels ){}
-            virtual ~CompressorRLE(){} 
+                        : Compressor( numChannels ){} 
             
         protected:
             /** an header for each result of compression */
