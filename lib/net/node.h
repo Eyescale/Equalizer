@@ -277,9 +277,8 @@ namespace net
          * 
          * @return the number of stored connection descriptions. 
          */
-        const ConnectionDescriptionVector& getConnectionDescriptions() const 
-            { return _connectionDescriptions; }
-
+        EQ_EXPORT const ConnectionDescriptionVector& getConnectionDescriptions()
+                            const;
         /** 
          * Returns the connection to this node.
          * 
@@ -595,6 +594,7 @@ namespace net
         bool _hasSendToken;
 
         bool _connectSelf();
+        EQ_EXPORT void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
         void _cleanup();
 

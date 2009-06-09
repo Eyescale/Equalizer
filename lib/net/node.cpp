@@ -161,6 +161,11 @@ void Node::setWorkDir( const std::string& name )
 	_workDir = name;
 }
 
+const ConnectionDescriptionVector& Node::getConnectionDescriptions() const 
+{
+    return _connectionDescriptions;
+}
+
 bool Node::initLocal( const int argc, char** argv )
 {
 #ifndef NDEBUG
@@ -388,6 +393,12 @@ void Node::_cleanup()
     _nodes.clear();
 }
 
+void Node::_addConnection( ConnectionPtr connection )
+{
+    _connectionSet.addConnection( connection );
+    connection->recvNB( new uint64_t, sizeof( uint64_t ));
+}
+
 bool Node::_connectSelf()
 {
     // setup local connection to myself
@@ -407,8 +418,7 @@ bool Node::_connectSelf()
     _connectionNodes[ _connection ] = this;
     _nodes[ _id ] = this;
 
-    _connectionSet.addConnection( _connection );
-    _connection->recvNB( new uint64_t, sizeof( uint64_t ));
+    _addConnection( _connection );
 
     EQVERB << "Added node " << _id << " using " << _connection << std::endl;
     return true;
@@ -424,8 +434,7 @@ bool Node::connect( NodePtr node, ConnectionPtr connection )
         return false;
     }
 
-    _connectionSet.addConnection( connection );
-    connection->recvNB( new uint64_t, sizeof( uint64_t ));
+    _addConnection( connection );
 
     // send connect packet to peer
     NodeConnectPacket packet;
@@ -770,8 +779,7 @@ void Node::_handleConnect()
         return;
     }
 
-    _connectionSet.addConnection( newConn );
-    newConn->recvNB( new uint64_t, sizeof( uint64_t ));
+    _addConnection( newConn );
     // Node will be created when receiving NodeConnectPacket from other side
 }
 

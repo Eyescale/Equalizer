@@ -113,8 +113,7 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
     }
 
     eq::net::ConnectionPtr sibling = connection->getSibling();
-    sibling->recvNB( new uint64_t, sizeof( uint64_t ));
-    server->_connectionSet.addConnection( sibling );
+    server->_addConnection( sibling );
 
     if( !_serverThread.start( server ))
     {
