@@ -84,7 +84,6 @@ Session::~Session()
     _objects.clear();
 }
 
-
 void Session::_setLocalNode( NodePtr node )
 {
     EQASSERT( _requestHandler.empty( ));
@@ -94,6 +93,15 @@ void Session::_setLocalNode( NodePtr node )
         return; // TODO deregister command functions?
 
     notifyMapped( node );
+}
+
+CommandQueue* Session::getCommandThreadQueue();
+{
+    EQASSERT( _localNode.isValid( ));
+    if( !_localNode )
+        return 0;
+
+    return _localNode->getCommandThreadQueue();
 }
 
 void Session::notifyMapped( NodePtr node )

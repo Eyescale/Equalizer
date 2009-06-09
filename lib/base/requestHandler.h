@@ -95,10 +95,14 @@ namespace base
          */
         EQ_EXPORT bool waitRequest( const uint32_t requestID, void*& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+
+        /** Wait for a request with a uint32_t result. */
         EQ_EXPORT bool waitRequest( const uint32_t requestID, uint32_t& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        /** Wait for a request with a bool result. */
         EQ_EXPORT bool waitRequest( const uint32_t requestID, bool& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        /** Wait for a request without a result. */
         EQ_EXPORT bool waitRequest( const uint32_t requestID );
 
         /** 
@@ -135,6 +139,7 @@ namespace base
     private:
         Lock*        _mutex;
 
+        //! @cond IGNORE
         struct Request
         {
             Request()
@@ -153,7 +158,8 @@ namespace base
                 bool     rBool;
             } result;
         };
-        
+        // @endcond
+
         typedef stde::hash_map<uint32_t, Request*> RequestHash;
 
         uint32_t            _requestID;

@@ -54,14 +54,20 @@ namespace net
         /** @return the identifier of this session. */
         uint32_t getID() const { return _id; }
 
-        /** @return the local node to which this session is mapped. */
+        /**
+         * @return the local node to which this session is mapped, or 0 if the
+         *         session is not mapped.
+         */
         NodePtr getLocalNode(){ return _localNode; }
 
-        /** @return the queue to the command thread of the local node. */
-        CommandQueue* getCommandThreadQueue() 
-            { return _localNode->getCommandThreadQueue(); }
+        /**
+         * @return the queue to the command thread of the local node, or 0 if
+         *         the session is not mapped.
+         */
+        CommandQueue* getCommandThreadQueue();
 
-        /** @return the server hosting this session. */
+        /** @return the server hosting this session, or 0 if the session is not
+         *          mapped.. */
         NodePtr getServer(){ return _server; }
         //*}
 
@@ -70,7 +76,7 @@ namespace net
         //*{
 
         /** 
-         * Dispatches a command packet to the appropriate command queue.
+         * Dispatches a command packet to the registered command queue.
          *
          * Session packets are dispatch on this session, object packets to the
          * appropriate objects mapped on this session.
@@ -82,7 +88,7 @@ namespace net
         virtual bool dispatchCommand( Command& packet );
 
         /** 
-         * Invokes the appropriate handler method for a command packet.
+         * Invokes the registered handler method for a command packet.
          * 
          * For object packets, invocation is forwarded to the appropriate
          * object(s).
@@ -343,10 +349,10 @@ namespace net
                 packet.sessionID = _id;
                 node->send( packet, data, size );
             }
-        //*}
 
         /** Registers request for packets awaiting a return value. */
         base::RequestHandler _requestHandler;
+        //*}
 
     private:
         /** Set the local node to which this session is mapped */
