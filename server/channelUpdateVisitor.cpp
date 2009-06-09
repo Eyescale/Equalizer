@@ -48,15 +48,26 @@ ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
         , _updated( false )
 {}
 
-VisitorResult ChannelUpdateVisitor::visitPre( 
-    const Compound* compound )
+bool ChannelUpdateVisitor::_skipCompound( const Compound* compound )
+{
+    if( compound->getChannel() != _channel ||
+        !compound->testInheritEye( _eye ) ||
+        compound->getInheritTasks() == TASK_NONE )
+    {
+        return true;
+    }
+
+    return false;
+}
+
+VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
 {
     if( !compound->isActive( ))
         return TRAVERSE_PRUNE;    
 
     _updateDrawFinish( compound );
 
-    if( compound->getChannel() != _channel || !compound->testInheritEye( _eye ))
+    if( _skipCompound( compound ))
         return TRAVERSE_CONTINUE;
 
     eq::RenderContext context;
@@ -83,7 +94,7 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
     if( !compound->isActive( ))
         return TRAVERSE_PRUNE;    
 
-    if( compound->getChannel() != _channel || !compound->testInheritEye( _eye ))
+    if( _skipCompound( compound ))
     {
         _updateDrawFinish( compound );
         return TRAVERSE_CONTINUE;
@@ -120,13 +131,12 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
     return TRAVERSE_CONTINUE;
 }
 
-VisitorResult ChannelUpdateVisitor::visitPost(
-    const Compound* compound )
+VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
 {
     if( !compound->isActive( ))
         return TRAVERSE_PRUNE;    
 
-    if( compound->getChannel() != _channel || !compound->testInheritEye( _eye ))
+    if( _skipCompound( compound ))
         return TRAVERSE_CONTINUE;
 
     eq::RenderContext context;
@@ -501,10 +511,10 @@ void ChannelUpdateVisitor::_updatePostDraw( const Compound* compound,
 void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
                                             const eq::RenderContext& context )
 {
-    const std::vector< Frame* >& inputFrames = compound->getInputFrames();
     if( !compound->testInheritTask( eq::TASK_ASSEMBLE ))
         return;
 
+    const std::vector< Frame* >& inputFrames = compound->getInputFrames();
     EQASSERT( !inputFrames.empty( ));
 
     vector<net::ObjectVersion> frameIDs;

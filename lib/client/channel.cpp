@@ -444,17 +444,23 @@ void Channel::setupAssemblyState()
     glPolygonMode( GL_FRONT, GL_FILL );
 
     EQASSERT( _window );    
-    const PixelViewport& pvp = _fbo ?
-        _fbo->getPixelViewport() : _window->getPixelViewport();
-    EQASSERT( pvp.isValid( ));
+    // copy to be thread-safe when pvp changes
+    const PixelViewport pvp(
+        _fbo ? _fbo->getPixelViewport() : _window->getPixelViewport( ));
 
-    glViewport( 0, 0, pvp.w, pvp.h );
-    glScissor( 0, 0, pvp.w, pvp.h );
+    if( pvp.hasArea( ))
+    {
+        glViewport( 0, 0, pvp.w, pvp.h );
+        glScissor( 0, 0, pvp.w, pvp.h );
+    }
+    else
+        EQERROR << "Can't apply viewport " << pvp << endl;
 
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
-    glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
+    if( pvp.hasArea( ))
+        glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
 
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();

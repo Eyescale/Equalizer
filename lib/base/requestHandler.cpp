@@ -215,5 +215,6 @@ bool RequestHandler::isServed( const uint32_t requestID ) const
 
     return false;
 }
+
 }
 }
