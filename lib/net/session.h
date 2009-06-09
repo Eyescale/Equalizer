@@ -260,7 +260,8 @@ namespace net
         //*}
 
 
-
+        /** @name Notifications */
+        //*{
         /** 
          * Notification that this session has been mapped to a node.
          * 
@@ -270,9 +271,11 @@ namespace net
          * @param node the node to which the session has been mapped.
          */
         virtual void notifyMapped( NodePtr node );
-
+        //*}
 
     protected:
+        /** @name Sending session packets */
+        //*{
         /** 
          * Send a session packet to a node.
          * 
@@ -290,22 +293,35 @@ namespace net
          * Send a packet to the session's server node.
          * 
          * @param packet the packet.
+         */
+        void send( SessionPacket& packet )
+            { 
+                packet.sessionID = _id;
+                _server->send( packet );
+            }
+
+        /** 
+         * Send a packet containing additional data to the session's server.
+         * 
+         * @param packet the packet.
+         * @param data the data to attach to the packet.
+         */
+        template< typename T >
+        void send( SessionPacket& packet, const std::vector<T>& data )
+            { 
+                packet.sessionID = _id;
+                _server->send( packet, data );
+            }
+
+
+        /** 
+         * Send a packet containing a string to a node.
+         * 
+         * @param node the target node.
+         * @param packet the packet.
+         * @param text the string to attach to the packet.
          * @return the success status of the transaction.
          */
-        bool send( SessionPacket& packet )
-            { 
-                packet.sessionID = _id;
-                return _server->send( packet );
-            }
-
-        template< typename T >
-        bool send( SessionPacket& packet, const std::vector<T>& data )
-            { 
-                packet.sessionID = _id;
-                return _server->send( packet, data );
-            }
-
-
         void send( NodePtr node, SessionPacket& packet, 
                    const std::string& text )
             {
@@ -313,14 +329,23 @@ namespace net
                 node->send( packet, text );
             }
 
+        /** 
+         * Send a packet containing additional data to a node.
+         * 
+         * @param node the target node.
+         * @param packet the packet.
+         * @param data the data to attach to the packet.
+         * @param size the size of the data.
+         */
         void send( NodePtr node, SessionPacket& packet, 
                    const void* data, const uint64_t size )
             {
                 packet.sessionID = _id;
                 node->send( packet, data, size );
             }
+        //*}
 
-        /** Registers request packets waiting for a return value. */
+        /** Registers request for packets awaiting a return value. */
         base::RequestHandler _requestHandler;
 
     private:
@@ -346,6 +371,7 @@ namespace net
         /** The identifiers for node-local instance identifiers. */
         uint32_t _instanceIDs;
 
+        //! @cond IGNORE
         /** Stores a mapping from a block of identifiers to a master node. */
         struct IDMasterInfo
         {
@@ -353,6 +379,7 @@ namespace net
             uint32_t end;
             NodeID   master;
         };
+        //! @endcond
 
         /** The id->master mapping table. */
         std::vector<IDMasterInfo> _idMasterInfos;
