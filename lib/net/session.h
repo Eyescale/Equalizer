@@ -46,65 +46,83 @@ namespace net
         /** Construct a new session. */
         Session();
 
+        /** Destruct this session. */
         virtual ~Session();
 
+        /** @name Data Access */
+        //*{
         /** @return the identifier of this session. */
         uint32_t getID() const { return _id; }
 
-        /** 
-         * Notification that this session has been mapped to a node.
-         * 
-         * Typically used by sub-classes to register command handlers. Always
-         * call the parent's notifyMapped() first.
-         *
-         * @param node the node to which the session has been mapped.
-         */
-        virtual void notifyMapped( NodePtr node );
-
-        /** @return the local node holding this session. */
+        /** @return the local node to which this session is mapped. */
         NodePtr getLocalNode(){ return _localNode; }
 
-        /** @return the command queue to the command thread. */
+        /** @return the queue to the command thread of the local node. */
         CommandQueue* getCommandThreadQueue() 
             { return _localNode->getCommandThreadQueue(); }
 
         /** @return the server hosting this session. */
         NodePtr getServer(){ return _server; }
+        //*}
+
+
+        /** @name Command Packet Dispatch */
+        //*{
 
         /** 
          * Dispatches a command packet to the appropriate command queue.
+         *
+         * Session packets are dispatch on this session, object packets to the
+         * appropriate objects mapped on this session.
          * 
          * @param packet the command packet.
-         * @return the result of the operation.
+         * @return true if the command was dispatched, false otherwise.
          * @sa Dispatcher::dispatchCommand
          */
         virtual bool dispatchCommand( Command& packet );
 
         /** 
-         * Dispatches a command packet to the appropriate handler method.
+         * Invokes the appropriate handler method for a command packet.
          * 
-         * @param packet the command packet.
-         * @return the result of the operation.
-         * @sa Dispatcher::invokeCommand
+         * For object packets, invocation is forwarded to the appropriate
+         * object(s).
+         *
+         * @param packet the command packet.  @return the result of
+         * the operation.  @sa Dispatcher::invokeCommand
          */
         virtual CommandResult invokeCommand( Command& packet );
+        //*}
 
         /**
          * @name Identifier management
          */
         //*{
         /** 
-         * Generates a continous block of unique identifiers.
+         * Generate a continous block of unique identifiers.
+         *
+         * The identifiers are unique within this session. Identifiers are
+         * reused when they are freed, that is, the same identifier might be
+         * returned twice from this function during runtime, if it was freed in
+         * between.
+         *
+         * Out-of-IDs is signalled by returning EQ_ID_INVALID. This should
+         * rarely happen, since approximately 2^32 identifiers are
+         * available. However, ID fragmentation or generous ID allocation might
+         * deplete this pool.
          * 
          * @param range the size of the block.
-         * @return the first identifier of the block, or <code>0</code> if no
-         *         identifier is available.
+         * @return the first identifier of the block, or EQ_ID_INVALID if no
+         *         continous block of identifiers for the request is available.
+         * @sa base::IDPool
          */
         uint32_t genIDs( const uint32_t range );
 
         /** 
-         * Frees a continous block of unique identifiers.
-         * 
+         * Free a continous block of unique identifiers.
+         *
+         * The block size does not need to match the block size during
+         * allocation of the identifiers.
+         *
          * @param start the first identifier in the block.
          * @param range the size of the block.
          */
@@ -146,6 +164,18 @@ namespace net
         const NodeID& getIDMaster( const uint32_t id );
         //*}
 
+
+
+        /** 
+         * Notification that this session has been mapped to a node.
+         * 
+         * Typically used by sub-classes to register command handlers. Always
+         * call the parent's notifyMapped() first.
+         *
+         * @param node the node to which the session has been mapped.
+         */
+        virtual void notifyMapped( NodePtr node );
+
         /**
          * @name Object Registration
          */
@@ -153,8 +183,11 @@ namespace net
         /** 
          * Register a distributed object.
          *
-         * The assigned identifier is unique across all registered objects in
-         * the session.
+         * Registering a distributed object assigns a session-unique identifier
+         * to this object, and makes this object the master version. The
+         * identifier is used to map slave instances of the object. Master
+         * versions of objects are typically writable and can commit new
+         * versions of the distributed object.
          *
          * @param object the object instance.
          */

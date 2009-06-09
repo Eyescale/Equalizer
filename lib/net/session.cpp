@@ -148,21 +148,23 @@ uint32_t Session::genIDs( const uint32_t range )
 {
     uint32_t id = _idPool.genIDs( range );
     if( id != EQ_ID_INVALID || _isMaster )
+    {
+        if( id == EQ_ID_INVALID )
+            EQWARN << "Out of session identifiers" << std::endl;
         return id;
+    }
 
     SessionGenIDsPacket packet;
     packet.requestID = _requestHandler.registerRequest();
-    packet.range     = EQ_MAX(range, MIN_ID_RANGE);
+    packet.range     = range;
 
     send( packet );
     _requestHandler.waitRequest( packet.requestID, id );
+    
+    if( id == EQ_ID_INVALID )
+        EQWARN << "Out of session identifiers" << std::endl;
 
-    if( id == EQ_ID_INVALID || range >= MIN_ID_RANGE )
-        return id;
-
-    // We allocated more IDs than requested - let the pool handle the details
-    _idPool.freeIDs( id, MIN_ID_RANGE );
-    return _idPool.genIDs( range );
+    return id;
 }
 
 void Session::freeIDs( const uint32_t start, const uint32_t range )
@@ -622,8 +624,10 @@ CommandResult Session::_cmdGenIDs( Command& command )
     EQVERB << "Cmd gen IDs: " << packet << endl;
 
     SessionGenIDsReplyPacket reply( packet );
+    const uint32_t range = EQ_MAX( range, MIN_ID_RANGE );
 
-    reply.id = _idPool.genIDs( packet->range );
+    reply.id = _idPool.genIDs( range );
+    reply.allocated = range;
     send( command.getNode(), reply );
     return COMMAND_HANDLED;
 }
@@ -634,7 +638,14 @@ CommandResult Session::_cmdGenIDsReply( Command& command )
     const SessionGenIDsReplyPacket* packet =
         command.getPacket<SessionGenIDsReplyPacket>();
     EQVERB << "Cmd gen IDs reply: " << packet << endl;
+
     _requestHandler.serveRequest( packet->requestID, packet->id );
+
+    const size_t additional = packet->allocated - packet->requested;
+    if( packet->id != EQ_ID_INVALID && additional > 0 )
+        // Merge additional identifiers into local pool
+        _idPool.freeIDs( packet->id + packet->requested, additional );
+
     return COMMAND_HANDLED;
 }
 

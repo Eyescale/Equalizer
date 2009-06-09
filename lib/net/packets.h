@@ -308,10 +308,13 @@ namespace net
                 command   = CMD_SESSION_GEN_IDS_REPLY;
                 size      = sizeof( SessionGenIDsReplyPacket ); 
                 requestID = request->requestID;
+                requested = request->range;
             }
 
         uint32_t requestID;
         uint32_t id;
+        uint32_t requested;
+        uint32_t allocated;
     };
 
     struct SessionSetIDMasterPacket : public SessionPacket
