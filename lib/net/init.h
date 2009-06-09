@@ -24,7 +24,7 @@ namespace eq
 {
 /** 
  * @namespace eq::net
- * @brief The Equalizer network layer.
+ * @brief Equalizer network layer.
  *
  * The Equalizer network layer provides basic functionality for network
  * communication, such as Connection and ConnectionSet, as well as higher-level

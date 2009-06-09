@@ -23,10 +23,10 @@
 namespace eq
 {
 /**
- * @brief Equalizer OS abstraction layer.
+ * @brief Equalizer utility layer.
  *
- * The eq::base namespace implements basic functionality to abstract the
- * underlying operating system and implements common helper classes.
+ * The eq::base namespace provides C++ classes to abstract the underlying
+ * operating system and implements common helper functionality.
  */
 namespace base
 {
