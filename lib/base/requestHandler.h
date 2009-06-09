@@ -124,16 +124,20 @@ namespace base
         EQ_EXPORT void* getRequestData( const uint32_t requestID );
 
         /** 
-         * Serve a request.
+         * Serve a request with a void* result.
          * 
          * @param requestID the request identifier.
          * @param result the result of the request.
          */
         EQ_EXPORT void serveRequest( const uint32_t requestID, void* result=0 );
+        /** Serve a request with a uint32_t result. */
         EQ_EXPORT void serveRequest( const uint32_t requestID, uint32_t result);
+        /** Serve a request with a bool result. */
         EQ_EXPORT void serveRequest( const uint32_t requestID, bool result );
 
+        /** @return true if this request handler was created thread-safe. */
 		bool isThreadSafe() const { return ( _mutex != 0 ); }
+        /** @return true if this request handler has no pending requests. */
         bool empty()        const { return _requests.empty( ); }
 
     private:

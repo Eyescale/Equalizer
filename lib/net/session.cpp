@@ -95,7 +95,7 @@ void Session::_setLocalNode( NodePtr node )
     notifyMapped( node );
 }
 
-CommandQueue* Session::getCommandThreadQueue();
+CommandQueue* Session::getCommandThreadQueue()
 {
     EQASSERT( _localNode.isValid( ));
     if( !_localNode )
