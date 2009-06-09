@@ -45,7 +45,7 @@ namespace net
         /**
          * @name Versioning
          */
-        //*{
+        //@{
         virtual uint32_t commitNB() { EQDONTCALL; return EQ_ID_INVALID; }
         virtual uint32_t commitSync( const uint32_t commitID )
             { EQDONTCALL; return Object::VERSION_NONE; }
@@ -64,7 +64,7 @@ namespace net
         virtual uint32_t getHeadVersion() const { return Object::VERSION_NONE; }
         virtual uint32_t getVersion() const     { return Object::VERSION_NONE; }
         virtual uint32_t getOldestVersion() const {return Object::VERSION_NONE;}
-        //*}
+        //@}
 
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const

@@ -51,7 +51,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         /** @return the config of this view. */
         Config* getConfig();
 
@@ -99,10 +99,10 @@ namespace server
          *          intersection. */
         const ChannelVector& getDestinationChannels() const 
             { return _destinationChannels; }
-        //*}
+        //@}
         
         /** Operations */
-        //*{
+        //@{
         /** 
          * Traverse this segment using a segment visitor.
          * 
@@ -113,7 +113,7 @@ namespace server
             { return visitor.visit( this ); }
         VisitorResult accept( ConstSegmentVisitor& visitor ) const
             { return visitor.visit( this ); }
-        //*}
+        //@}
 
     protected:
 

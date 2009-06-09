@@ -51,7 +51,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         /** @return the index path to this observer. */
         ObserverPath getPath() const;
 
@@ -65,12 +65,12 @@ namespace server
 
         /** @return the config of this observer. */
         Config* getConfig() { return _config; }
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** Initialize the observer parameters. */
         void init();
 
@@ -87,7 +87,7 @@ namespace server
 
         /** Unmap this observer and all its children. */
         void unmap();
-        //*}
+        //@}
         
     protected:
         /** @sa Object::deserialize */

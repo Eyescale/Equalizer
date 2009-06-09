@@ -43,7 +43,7 @@ namespace server
         SwapBarrier() : _nvSwapGroup( 0 ), _nvSwapBarrier( 0 ) {}
 
         /** @name Data Access. */
-        //*{
+        //@{
         void setName( const std::string& name ) { _name = name; }
         const std::string getName() const { return _name; }
 
@@ -56,7 +56,7 @@ namespace server
 
         bool isNvSwapBarrier() const
             { return ( _nvSwapBarrier || _nvSwapGroup ); }
-        //*}
+        //@}
 
     private:
         std::string _name;

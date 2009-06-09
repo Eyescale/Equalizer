@@ -30,8 +30,8 @@ namespace eq
         AGLPipe( Pipe* parent );
         virtual ~AGLPipe( );
 
-        //* @name AGL initialization
-        //*{
+        /** @name AGL initialization */
+        //@{
         /** 
          * Initialize this pipe for the AGL window system.
          * 
@@ -45,7 +45,7 @@ namespace eq
          * @return true if the deinitialization was successful, false otherwise.
          */
         virtual void configExit( );
-        //*}
+        //@}
 
         /** @return the CG display ID for this pipe. */
         CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
@@ -53,7 +53,7 @@ namespace eq
     private:
 
         /** @name Data Access. */
-        //*{
+        //@{
         /** 
          * Set the CG display ID for this pipe.
          * 
@@ -63,7 +63,7 @@ namespace eq
          * @param id the CG display ID for this pipe.
          */
         void _setCGDisplayID( CGDirectDisplayID id );
-        //*}
+        //@}
 
         /** Window-system specific display information. */
         CGDirectDisplayID _cgDisplayID;

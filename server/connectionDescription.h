@@ -32,7 +32,7 @@ namespace server
         /**
          * @name Attributes
          */
-        //*{
+        //@{
         // Note: also update string array init in connectionDescription.cpp
         enum SAttribute
         {
@@ -61,7 +61,7 @@ namespace server
             IATTR_FILL2,
             IATTR_ALL
         };
-        //*}
+        //@}
 
         static const std::string&  getSAttributeString( const SAttribute attr )
             { return _sAttributeStrings[attr]; }

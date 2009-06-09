@@ -91,7 +91,7 @@ namespace eq
         virtual ~Window();
 
         /** @name Data Access */
-        //*{
+        //@{
         net::CommandQueue* getPipeThreadQueue();
 
         /** @return the pipe of this window. */
@@ -200,12 +200,12 @@ namespace eq
         /** Get the last rendering context at the x, y position. */
         bool getRenderContext( const int32_t x, const int32_t y,
                                RenderContext& context ) const;
-        //*}
+        //@}
 
         /**
          * @name Attributes
          */
-        //*{
+        //@{
         // Note: also update string array initialization in window.cpp
         /** Window (visual) attributes, used during configInit(). */
         enum IAttribute
@@ -236,21 +236,21 @@ namespace eq
             { return _iAttributes[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
             { return _iAttributeStrings[attr]; }
-        //*}
+        //@}
 
         /** @name Actions */
-        //*{
+        //@{
         /** Flush outstanding rendering requests. */
         virtual void flush() const { glFlush(); } 
         /** Finish outstanding rendering requests. */
         virtual void finish() const { glFinish(); }
-        //*}
+        //@}
 
         /** 
          * @name Interface to and from the OSWindow, the window-system specific 
          *       pieces for a Window.
          */
-        //*{
+        //@{
         /**
          * Set the OS-specific window.
          * 
@@ -264,10 +264,10 @@ namespace eq
         const OSWindow* getOSWindow() const { return _osWindow; }
         OSWindow*       getOSWindow()       { return _osWindow; }
 
-        //*}
+        //@}
 
         /** @name Error information. */
-        //*{
+        //@{
         /** 
          * Set a message why the last operation failed.
          * 
@@ -277,7 +277,7 @@ namespace eq
          * @param message the error message.
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
-        //*}
+        //@}
 
         /**
          * @name Callbacks
@@ -285,7 +285,7 @@ namespace eq
          * The callbacks are called by Equalizer during rendering to execute
          * various actions.
          */
-        //*{
+        //@{
 
         /** 
          * Process a received event.
@@ -299,7 +299,7 @@ namespace eq
          */
         virtual bool processEvent( const Event& event );
 
-        //*}
+        //@}
 
         /** Returns averaged FPS count (averaging is not longer than 2 sec) */
         double getFPS() const { return _avgFPS; }
@@ -320,7 +320,7 @@ namespace eq
                                       net::Session* session );
 
         /** @name Actions */
-        //*{
+        //@{
         /** 
          * Start a frame by unlocking all child resources.
          * 
@@ -341,7 +341,7 @@ namespace eq
          * @param frameNumber the frame to release.
          */
         void releaseFrameLocal( const uint32_t frameNumber ) { /* nop */ }
-        //*}
+        //@}
 
         /**
          * @name Callbacks
@@ -349,7 +349,7 @@ namespace eq
          * The callbacks are called by Equalizer during rendering to execute
          * various actions.
          */
-        //*{
+        //@{
 
         /** 
          * Initialize this window.
@@ -441,7 +441,7 @@ namespace eq
 
         /** Swap the front and back buffer of the window. */
         virtual void swapBuffers();
-        //*}
+        //@}
 
     private:
         /** The parent pipe. */

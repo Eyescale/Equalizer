@@ -81,7 +81,7 @@ namespace eq
             { return _wglEventHandler; }
 
         /** @name Data Access */
-        //*{
+        //@{
         /** 
          * Set the Win32 window handle for this window.
          * 
@@ -112,10 +112,10 @@ namespace eq
          * @param context the WGL rendering context.
          */
         virtual void setWGLContext( HGLRC context );
-        //*}
+        //@}
 
-        //* @name WGL/Win32 initialization
-        //*{
+        /** @name WGL/Win32 initialization */
+        //@{
         /** 
          * Initialize this window for the WGL window system.
          *
@@ -207,7 +207,7 @@ namespace eq
         virtual void initEventHandler();
         virtual void exitEventHandler();
         virtual bool processEvent( const WGLWindowEvent& event );
-        //*}
+        //@}
 
     protected:
         /** The type of the Win32 device context. */

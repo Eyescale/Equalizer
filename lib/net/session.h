@@ -50,7 +50,7 @@ namespace net
         virtual ~Session();
 
         /** @name Data Access */
-        //*{
+        //@{
         /** @return the identifier of this session. */
         uint32_t getID() const { return _id; }
 
@@ -69,11 +69,11 @@ namespace net
         /** @return the server hosting this session, or 0 if the session is not
          *          mapped.. */
         NodePtr getServer(){ return _server; }
-        //*}
+        //@}
 
 
         /** @name Command Packet Dispatch */
-        //*{
+        //@{
 
         /** 
          * Dispatches a command packet to the registered command queue.
@@ -97,13 +97,13 @@ namespace net
          * the operation.  @sa Dispatcher::invokeCommand
          */
         virtual CommandResult invokeCommand( Command& packet );
-        //*}
+        //@}
 
 
         /**
          * @name Identifier management
          */
-        //*{
+        //@{
         /** 
          * Generate a continous block of unique identifiers.
          *
@@ -169,13 +169,13 @@ namespace net
          *         set for the identifier.
          */
         const NodeID& getIDMaster( const uint32_t id );
-        //*}
+        //@}
 
 
         /**
          * @name Object Registration
          */
-        //*{
+        //@{
         /** 
          * Register a distributed object.
          *
@@ -263,11 +263,11 @@ namespace net
          * @param object the attached object.
          */
         void detachObject( Object* object );
-        //*}
+        //@}
 
 
         /** @name Notifications */
-        //*{
+        //@{
         /** 
          * Notification that this session has been mapped to a node.
          * 
@@ -277,11 +277,11 @@ namespace net
          * @param node the node to which the session has been mapped.
          */
         virtual void notifyMapped( NodePtr node );
-        //*}
+        //@}
 
     protected:
         /** @name Sending session packets */
-        //*{
+        //@{
         /** 
          * Send a session packet to a node.
          * 
@@ -352,7 +352,7 @@ namespace net
 
         /** Registers request for packets awaiting a return value. */
         base::RequestHandler _requestHandler;
-        //*}
+        //@}
 
     private:
         /** Set the local node to which this session is mapped */

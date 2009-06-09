@@ -65,10 +65,10 @@ namespace eq
         };
 
         /** @name Data Access */
-        //*{
+        //@{
 
         /** @name Image parameters */
-        //*{
+        //@{
         /**
          * Set the (OpenGL) format of the pixel data for a buffer.
          * Invalidates the pixel data.
@@ -133,11 +133,11 @@ namespace eq
 
         /** Reset the image to its default state. */
         void reset();
-        //*}
+        //@}
 
 
         /** @name Pixel data */
-        //*{
+        //@{
         /** @return a pointer to the raw pixel data. */
         const uint8_t* getPixelPointer( const Frame::Buffer buffer ) const;
         uint8_t* getPixelPointer( const Frame::Buffer buffer );
@@ -196,11 +196,11 @@ namespace eq
 
         /** @return if this image should use PBO for image transfers. */
         bool getPBO() const             { return _usePBO; }
-        //*}
+        //@}
 
 
         /** @name Texture access */
-        //*{
+        //@{
         /** Get the texture of this image. */
         const Texture& getTexture( const Frame::Buffer buffer ) const;
 
@@ -215,14 +215,13 @@ namespace eq
          *         buffer. 
          */
         uint32_t getInternalTextureFormat( const Frame::Buffer which ) const;
-        //*}
-        //*}
+        //@}
 
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /**
          * Start reading back an image from the frame buffer.
          *
@@ -258,7 +257,7 @@ namespace eq
 
         /** Delete all cache data of this image. */
         void flush();
-        //*}
+        //@}
 
         /** @return the GL function table, valid during readback. */
         GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }

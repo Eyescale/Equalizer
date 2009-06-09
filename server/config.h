@@ -62,7 +62,7 @@ namespace server
         /**
          * @name Data Access.
          */
-        //*{
+        //@{
         Server* getServer() { return _server; }
         
         Channel* getChannel( const ChannelPath& path );
@@ -257,7 +257,7 @@ namespace server
          */
         VisitorResult accept( ConfigVisitor& visitor );
         VisitorResult accept( ConstConfigVisitor& visitor ) const;
-        //*}
+        //@}
 
         /** 
          * Set the maximum accepted latency for this config.
@@ -330,7 +330,7 @@ namespace server
         void unmap();
         
         /** @name Attributes */
-        //*{
+        //@{
         // Note: also update string array initialization in config.cpp
         enum FAttribute
         {
@@ -346,7 +346,7 @@ namespace server
             { return _fAttributes[attr]; }
         static const std::string&  getFAttributeString( const FAttribute attr )
             { return _fAttributeStrings[attr]; }
-        //*}
+        //@}
  
         /** @name Error information. */
         //@{
@@ -444,7 +444,7 @@ namespace server
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** common code for all constructors */
         void _construct();
 
@@ -461,7 +461,7 @@ namespace server
 
         bool _startFrame( const uint32_t frameID );
         void _flushAllFrames();
-        //*}
+        //@}
 
         /** The command functions. */
         net::CommandResult _cmdInit( net::Command& command );

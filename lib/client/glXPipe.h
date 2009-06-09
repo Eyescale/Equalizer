@@ -32,8 +32,8 @@ namespace eq
         GLXPipe( Pipe* parent );
         virtual ~GLXPipe( );
 
-        //* @name GLX/X11 initialization
-        //*{
+        /** @name GLX/X11 initialization */
+        //@{
         /** 
          * Initialize this pipe for the GLX window system.
          * 
@@ -52,7 +52,7 @@ namespace eq
         virtual void initEventHandler();
         /** Exit the GLX-specific event handler. */
         virtual void exitEventHandler();
-        //*}
+        //@}
 
         /** @return the X display connection for this pipe. */
         Display* getXDisplay() const { return _xDisplay; }

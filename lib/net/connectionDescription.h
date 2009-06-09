@@ -47,7 +47,7 @@ namespace net
         /** The network protocol for the connection. */
         ConnectionType type;
 
-        ///** The bandwidth in kilobyte per second for this connection. */
+        /** The bandwidth in kilobyte per second for this connection. */
         int32_t bandwidth;
 
         /** 
@@ -90,12 +90,12 @@ namespace net
          *
          * std::strings are not public because of DLL allocation issues.
          */
-        //*{
+        //@{
         EQ_EXPORT void setHostname( const std::string& hostname );
         EQ_EXPORT const std::string& getHostname() const;
         EQ_EXPORT void setLaunchCommand( const std::string& launchCommand );
         EQ_EXPORT const std::string& getLaunchCommand() const;
-        //*}
+        //@}
 
     protected:
         EQ_EXPORT virtual ~ConnectionDescription() {}

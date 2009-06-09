@@ -82,7 +82,7 @@ namespace eq
         /** find areas in current mask*/
         void _findAreas( PixelViewportVector& resultPVPs );
 
-        //** Only used in debug build, to invalidate unused areas */
+        /** Only used in debug build, to invalidate unused areas */
         void _invalidateAreas( Area* areas, uint8_t num );
 
         struct Dims

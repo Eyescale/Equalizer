@@ -49,7 +49,7 @@ namespace eq
         };
 
         /** @name Frame-based operations. */
-        //*{
+        //@{
         /** 
          * Assemble all frames in an arbitrary order using the best algorithm
          * on the given channel
@@ -134,11 +134,11 @@ namespace eq
 
         /** Assemble a frame using the default algorithm. */
         static void assembleFrame( const Frame* frame, Channel* channel );
-        //*}
+        //@}
 
         
         /** @name Image-based operations. */
-        //*{
+        //@{
         /** 
          * Start assembling an image.
          * 
@@ -174,7 +174,7 @@ namespace eq
          */
         static void assembleImageDB_GLSL( const Image* image, 
                                           const ImageOp& op );
-        //*}
+        //@}
                                 
       private:
         typedef std::pair< const Frame*, const Image* > FrameImage;

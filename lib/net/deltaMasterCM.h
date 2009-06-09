@@ -48,7 +48,7 @@ namespace net
         /**
          * @name Versioning
          */
-        //*{
+        //@{
         virtual uint32_t commitNB();
         virtual uint32_t commitSync( const uint32_t commitID );
 
@@ -66,7 +66,7 @@ namespace net
         virtual uint32_t getHeadVersion() const { return _version; }
         virtual uint32_t getVersion() const     { return _version; }
         virtual uint32_t getOldestVersion() const;
-        //*}
+        //@}
 
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const

@@ -55,7 +55,7 @@ namespace net
         /**
          * @name Versioning
          */
-        //*{
+        //@{
         /** 
          * Start committing a new version.
          * 
@@ -109,7 +109,7 @@ namespace net
 
         /** @return the oldest available version. */
         virtual uint32_t getOldestVersion() const = 0;
-        //*}
+        //@}
 
         /** @return if this instance is the master version. */
         virtual bool isMaster() const = 0;

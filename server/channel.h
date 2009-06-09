@@ -88,7 +88,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         Config* getConfig();
         const Config* getConfig() const;
 
@@ -199,12 +199,12 @@ namespace server
         void setLastDrawCompound( const Compound* compound )
             { _lastDrawCompound = compound; }
         const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** Update (init and exit) this channel as needed. */
         void updateRunning( const uint32_t initID );
 
@@ -238,26 +238,26 @@ namespace server
         void send( net::ObjectPacket& packet, const std::string& string );
         template< typename T >
         void send( net::ObjectPacket &packet, const std::vector<T>& data );
-        //*}
+        //@}
 
         /** @name Channel listener interface. */
-        //*{
+        //@{
         /** Register a channel listener. */
         void addListener( ChannelListener* listener );
         /** Deregister a channel listener. */
         void removeListener( ChannelListener* listener );
-        //*}
+        //@}
 
        /**
          * @name Attributes
          */
-        //*{
+        //@{
         void setIAttribute( const eq::Channel::IAttribute attr,
                             const int32_t value )
             { _iAttributes[attr] = value; }
         int32_t  getIAttribute( const eq::Channel::IAttribute attr ) const
             { return _iAttributes[attr]; }
-        //*}
+        //@}
 
         /** @name Error information. */
         //@{

@@ -135,7 +135,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         void setPort( const uint32_t port )      { _port = port; }
         uint32_t getPort() const                 { return _port; }
         void setDevice( const uint32_t device )  { _device = device; }
@@ -159,12 +159,12 @@ namespace server
         void setLastDrawWindow( const Window* window )
             { _lastDrawWindow = window; }
         const Window* getLastDrawWindow() const { return _lastDrawWindow; }
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** Update (init and exit) this pipe and its children as needed. */
         void updateRunning( const uint32_t initID, const uint32_t frameNumber );
 
@@ -179,12 +179,12 @@ namespace server
          * @param frameNumber the number of the frame.
          */
         void update( const uint32_t frameID, const uint32_t frameNumber );
-        //*}
+        //@}
 
         /**
          * @name Attributes
          */
-        //*{
+        //@{
         // Note: also update string array initialization in pipe.cpp
         enum IAttribute
         {
@@ -203,7 +203,7 @@ namespace server
 
         bool isThreaded() const
             { return (getIAttribute( IATTR_HINT_THREAD ) != eq::OFF ); }
-        //*}
+        //@}
 
         /** @name Error information. */
         //@{

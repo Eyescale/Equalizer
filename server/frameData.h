@@ -39,7 +39,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         /** Set the number of the frame when this data was last used. */
         void setFrameNumber( const uint32_t number ) { _frameNumber = number; }
         uint32_t getFrameNumber() const { return _frameNumber; }
@@ -81,7 +81,7 @@ namespace server
          */
         void setType( const eq::Frame::Type type ){ _data.frameType = type; }
 
-        //*}
+        //@}
 
     protected:
         virtual ~FrameData(){}

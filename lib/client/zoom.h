@@ -36,10 +36,10 @@ namespace eq
         /**
          * @name Constructors
          */
-        //*{
+        //@{
         Zoom() : vmml::Vector2f( 1.f, 1.f )  {}
         Zoom( const float x_, const float y_ ) : vmml::Vector2f( x_, y_ ) {}
-        //*}
+        //@}
 
         /** @return true if this zoom defines a valid zoom factor. */
         bool isValid() const { return ( x!=0.f && y!=0.f ); }

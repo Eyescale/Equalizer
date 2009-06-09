@@ -42,11 +42,11 @@ namespace eq
         virtual ~OSPipe( );
 
         /** @name Methods forwarded from eq::Pipe */
-        //*{
+        //@{
         virtual bool configInit( ) = 0;
 
         virtual void configExit( ) = 0;
-        //*}
+        //@}
 
         /** @return the reason of the last error. */
         const std::string & getErrorMessage() const { return _error; }
@@ -59,7 +59,7 @@ namespace eq
 
     protected:
         /** @name Error information. */
-        //*{
+        //@{
         /** 
          * Set a message why the last operation failed.
          * 
@@ -69,7 +69,7 @@ namespace eq
          * @param message the error message.
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
-        //*}
+        //@}
 
         /** The parent eq::Pipe. */
         Pipe* const _pipe;

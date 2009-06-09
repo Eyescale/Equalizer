@@ -75,7 +75,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         const vmml::Vector2i& getOffset() const { return _data.offset; }
         void setOffset( const vmml::Vector2i& offset ) { _data.offset = offset;}
 
@@ -108,12 +108,12 @@ namespace server
 
         const net::ObjectVersion& getDataVersion( const Eye eye ) const
             { return _data.frameData[ eye ]; }
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
 
         /** Clear the frame, recycles the images attached to the frame data. */
         void clear();
@@ -178,7 +178,7 @@ namespace server
          * @param listener the listener.
          */
         void removeListener( base::Monitor<uint32_t>& listener );
-        //*}
+        //@}
 
         /** 
          * Disable the usage of a frame buffer attachment for all images.

@@ -40,13 +40,13 @@ namespace eq
         Server();
 
         /** @name Data Access */
-        //*{
+        //@{
         void setClient( ClientPtr client );
         ClientPtr getClient(){ return _client; }
 
         net::CommandQueue* getNodeThreadQueue();
         net::CommandQueue* getCommandThreadQueue();
-        //*}
+        //@}
 
         /** 
          * Chooses a configuration on the server.

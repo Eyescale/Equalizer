@@ -92,7 +92,7 @@ namespace server
         /**
          * @name Attributes
          */
-        //*{
+        //@{
         // Note: also update string array initialization in compound.cpp
         enum IAttribute
         {
@@ -108,7 +108,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         /** 
          * Adds a new child to this compound.
          * 
@@ -260,10 +260,10 @@ namespace server
 
         void setTaskID( const uint32_t id )        { _taskID = id; }
         uint32_t getTaskID() const                 { return _taskID; }
-        //*}
+        //@}
 
         /** @name IO object access. */
-        //*{
+        //@{
         /** 
          * Set a swap barrier.
          *
@@ -297,7 +297,7 @@ namespace server
 
         /** @return the vector of output frames. */
         const FrameVector& getOutputFrames() const { return _outputFrames; }
-        //*}
+        //@}
 
         /** 
          * @name Inherit data access needed during channel update.
@@ -306,7 +306,7 @@ namespace server
          * data used by the compound. The inherit data is updated at the
          * beginning of each update().
          */
-        //*{
+        //@{
         uint32_t getInheritBuffers() const { return _inherit.buffers; }
         const eq::PixelViewport& getInheritPixelViewport() const 
             { return _inherit.pvp; }
@@ -337,12 +337,12 @@ namespace server
         /** @return true if the eye pass is used, false if not. */
         bool testInheritEye( const eq::Eye eye ) const
             { return ( _inherit.eyes & (1<<eye) ); }
-        //*}
+        //@}
 
         /**
          * @name Frustum Operations
          */
-        //*{
+        //@{
         /** 
          * Set the compound's frustum using a wall description.
          * 
@@ -394,10 +394,10 @@ namespace server
          * @param eyes the compound eyes.
          */
         void enableEye( const uint32_t eyes ) { _data.eyes |= eyes; }
-        //*}
+        //@}
 
         /** @name Compound Operations. */
-        //*{
+        //@{
         /** 
          * Traverse the compound and all children using a compound visitor.
          * 
@@ -441,10 +441,10 @@ namespace server
 
         /** Update the inherit data of this compound. */
         void updateInheritData( const uint32_t frameNumber );
-        //*}
+        //@}
 
         /** @name Compound listener interface. */
-        //*{
+        //@{
         /** Register a compound listener. */
         void addListener( CompoundListener* listener );
         /** Deregister a compound listener. */
@@ -452,19 +452,19 @@ namespace server
 
         /** Notify all listeners that the compound is about to be updated. */
         void fireUpdatePre( const uint32_t frameNumber );
-        //*}
+        //@}
         
         /**
          * @name Attributes
          */
-        //*{
+        //@{
         void setIAttribute( const IAttribute attr, const int32_t value )
             { _data.iAttributes[attr] = value; }
         int32_t  getIAttribute( const IAttribute attr ) const
             { return _data.iAttributes[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
             { return _iAttributeStrings[attr]; }
-        //*}
+        //@}
 
         typedef stde::hash_map<std::string, net::Barrier*> BarrierMap;
         typedef stde::hash_map<std::string, Frame*>        FrameMap;

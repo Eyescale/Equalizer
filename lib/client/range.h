@@ -33,12 +33,12 @@ namespace eq
         /**
          * @name Constructors
          */
-        //*{
+        //@{
         Range() : start(0.f), end(1.f)  {}
 
         Range( const float start_, const float end_ )
                 : start(start_), end(end_) {}
-        //*}
+        //@}
 
         void apply( const Range& rhs )
             {

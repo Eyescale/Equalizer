@@ -32,6 +32,10 @@ namespace net
 {
     /**
      * A uni-directional pipe connection.
+     *
+     * The pipe connection is implemented using anonymous pipes, and can
+     * therefore only be used between related threads. A PairConnection can be
+     * used to create a bi-directional communication using two pipe connections.
      */
     class PipeConnection 
 #ifdef WIN32
@@ -41,7 +45,9 @@ namespace net
 #endif
     {
     public:
+        /** Construct a new pipe connection. */
         EQ_EXPORT PipeConnection();
+        /** Destruct this pipe connection. */
         EQ_EXPORT virtual ~PipeConnection();
 
         virtual bool connect();
@@ -54,8 +60,6 @@ namespace net
 #endif
 
     protected:
-        PipeConnection( const PipeConnection& conn );
-
 #ifdef WIN32
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes );

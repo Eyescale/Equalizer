@@ -76,7 +76,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         /** 
          * Add a new channel to this window.
          * 
@@ -222,12 +222,12 @@ namespace server
         /** The maximum frame rate for this window. @internal */
         void setMaxFPS( const float fps ) { _maxFPS = fps; }
         float getMaxFPS() const { return _maxFPS; }
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** Update (init and exit) this window and its children as needed. */
         void updateRunning( const uint32_t initID );
 
@@ -251,18 +251,18 @@ namespace server
          * @param frameNumber the number of the frame.
          */
         void updatePost( const uint32_t frameID, const uint32_t frameNumber );
-        //*}
+        //@}
 
         /**
          * @name Attributes
          */
-        //*{
+        //@{
         void setIAttribute( const eq::Window::IAttribute attr,
                             const int32_t value )
             { _iAttributes[attr] = value; }
         int32_t  getIAttribute( const eq::Window::IAttribute attr ) const
             { return _iAttributes[attr]; }
-        //*}
+        //@}
 
         /** @name Error information. */
         //@{

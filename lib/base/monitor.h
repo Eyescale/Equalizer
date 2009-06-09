@@ -51,7 +51,7 @@ namespace base
         ~Monitor();
 
         /** @name Changing the monitored value. */
-        //*{
+        //@{
         Monitor& operator++ ();  //!< Increment the monitored value, prefix only
         Monitor& operator-- ();  //!< Decrement the monitored value, prefix only
 
@@ -64,10 +64,10 @@ namespace base
 
         /** Set a new value. */
         void set( const T& value );
-        //*}
+        //@}
 
         /** @name Monitor the value. */
-        //*{
+        //@{
         /**
          * Block until the monitor has the given value.
          * @return the value when reaching the condition.
@@ -93,10 +93,10 @@ namespace base
          * @return the value when reaching the condition.
          */
         const T& waitLE( const T& value ) const;
-        //*}
+        //@}
 
         /** @name Comparison Operators. */
-        //*{
+        //@{
         bool operator == ( const T& value ) const { return _value == value; }
         bool operator != ( const T& value ) const { return _value != value; }
         bool operator < ( const T& value ) const { return _value < value; }
@@ -116,16 +116,16 @@ namespace base
             { return _value <= rhs._value; }
         bool operator >= ( const Monitor<T>& rhs ) const
             { return _value >= rhs._value; }
-        //*}
+        //@}
 
         /** @name Data Access. */
-        //*{
+        //@{
         /** @return the current value. */
         const T& get() const { return _value; }
 
         /** @return the current plus given value. */
         T operator + ( const T& value ) const { return _value + value; }
-        //*}
+        //@}
 
     private:
         T _value;

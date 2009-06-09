@@ -105,7 +105,7 @@ namespace net
         /**
          * @name Versioning
          */
-        //*{
+        //@{
         /** @return how the changes are to be handled. */
         virtual ChangeType getChangeType() const { return STATIC; }
 
@@ -231,10 +231,10 @@ namespace net
          */
         virtual void notifyNewHeadVersion( const uint32_t version )
             { EQASSERT( getVersion()==VERSION_NONE||version<getVersion()+100 );}
-        //*}
+        //@}
 
         /** @name Methods used by session during mapping. */
-        //*{
+        //@{
         /** 
          * Setup the change manager.
          * 
@@ -246,7 +246,7 @@ namespace net
         void setupChangeManager( const Object::ChangeType type, 
                                   const bool master, 
                               const uint32_t masterInstanceID = EQ_ID_INVALID );
-        //*}
+        //@}
 
     protected:
         /** Copy constructor. */
@@ -258,7 +258,7 @@ namespace net
         /**
          * @name Automatic Instantiation and Versioning
          */
-        //*{
+        //@{
         /** 
          * Serialize the instance information about this managed object.
          *
@@ -299,7 +299,7 @@ namespace net
          * @param is the input data stream.
          */
         virtual void unpack( DataIStream& is ) { applyInstanceData( is ); }
-        //*}
+        //@}
 
         /** @return the master object instance identifier. */
         EQ_EXPORT uint32_t getMasterInstanceID() const;
@@ -322,7 +322,7 @@ namespace net
         EQ_EXPORT void removeSlave( NodePtr node );
 
         /** @name Packet Transmission */
-        //*{
+        //@{
         bool send( NodePtr node, ObjectPacket& packet );
         bool send( NodePtr node, ObjectPacket& packet,
                    const std::string& string );
@@ -332,7 +332,7 @@ namespace net
         //bool send( NodeVector& nodes, ObjectPacket& packet );
         bool send( NodeVector nodes, ObjectPacket& packet, const void* data,
                    const uint64_t size );
-        //*}
+        //@}
 
     private:
         /** Indicates if this instance is the copy on the server node. */

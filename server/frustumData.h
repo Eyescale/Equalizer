@@ -44,16 +44,16 @@ namespace server
         void invalidate()    { _width = 0.f; _height = 0.f; }
 
         /** @name Data Update. */
-        //*{
+        //@{
         /** Update the frustum data using the given projection. */
         void applyProjection( const eq::Projection& projection );
 
         /** Update the frustum data using the given wall. */
         void applyWall( const eq::Wall& wall );
-        //*}
+        //@}
 
         /** @name Data Access. */
-        //*{
+        //@{
         /** @return the frustum plane transformation */
         const vmml::Matrix4f& getTransform() const { return _xfm; }
 
@@ -65,7 +65,7 @@ namespace server
 
         /** @return the projection type. */
         eq::Wall::Type getType() const { return _type; }
-        //*}
+        //@}
 
     private:
         float _width;

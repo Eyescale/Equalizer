@@ -116,7 +116,7 @@ namespace eq
         /**
          * @name Attributes
          */
-        //*{
+        //@{
         // Note: also update string array initialization in node.cpp
         /** Node attributes. */
         enum IAttribute
@@ -134,7 +134,7 @@ namespace eq
             { return _iAttributes[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
             { return _iAttributeStrings[attr]; }
-        //*}
+        //@}
 
 #ifdef EQ_ASYNC_TRANSMIT
         class TransmitThread : public base::Thread
@@ -175,7 +175,7 @@ namespace eq
                                       net::Session* session );
 
         /** @name Actions */
-        //*{
+        //@{
         /** 
          * Start a frame by unlocking all child resources.
          * 
@@ -197,7 +197,7 @@ namespace eq
          * @param frameNumber the frame to release.
          */
         void releaseFrameLocal( const uint32_t frameNumber );
-        //*}
+        //@}
 
         /**
          * @name Callbacks
@@ -205,7 +205,7 @@ namespace eq
          * The callbacks are called by Equalizer during rendering to execute
          * various actions.
          */
-        //*{
+        //@{
 
         /** 
          * Initialises this node.
@@ -279,10 +279,10 @@ namespace eq
          */
         virtual void frameTasksFinish( const uint32_t frameID, 
                                       const uint32_t frameNumber );
-        //*}
+        //@}
 
         /** @name Error information. */
-        //*{
+        //@{
         /** 
          * Set a message why the last operation failed.
          * 
@@ -292,7 +292,7 @@ namespace eq
          * @param message the error message.
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
-        //*}
+        //@}
 
     private:
         /** The parent config */

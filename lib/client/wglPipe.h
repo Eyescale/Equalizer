@@ -30,8 +30,8 @@ namespace eq
         WGLPipe( Pipe* parent );
         virtual ~WGLPipe( );
 
-        //* @name WGL initialization
-        //*{
+        //@ @name WGL initialization
+        //@{
         /** 
          * Initialize this pipe for the WGL window system.
          * 
@@ -45,7 +45,7 @@ namespace eq
          * @return true if the deinitialization was successful, false otherwise.
          */
         virtual void configExit( );
-        //*}
+        //@}
 
         /**
          * Create a device context bound only to the display device of this

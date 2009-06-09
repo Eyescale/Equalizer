@@ -53,7 +53,7 @@ namespace server
         /** 
          * @name Data Access
          */
-        //*{
+        //@{
         /** The enabled frame buffer attachments. */
         uint32_t getBuffers() const { return _data.buffers; }
         void     setBuffers( const uint32_t buffers ){ _data.buffers = buffers;}
@@ -74,12 +74,12 @@ namespace server
         /* Set color buffer type to read */
         void setColorType( const GLuint colorType ) { _colorType = colorType; }
         
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
 
         /** Flush the frame by deleting all images. */
         void flush();
@@ -156,7 +156,7 @@ namespace server
          */
         void disableBuffer( const Frame::Buffer buffer )
             { _data.buffers &= ~buffer; }
-        //*}
+        //@}
 
         /** @warning internal use only. */
         void update( const uint32_t version );

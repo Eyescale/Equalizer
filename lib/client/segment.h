@@ -51,7 +51,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         /** @return the config of this view. */
         EQ_EXPORT Config* getConfig();
 
@@ -60,10 +60,10 @@ namespace server
 
         /** @return the segment's viewport. */
         const eq::Viewport& getViewport() const { return _vp; }
-        //*}
+        //@}
         
         /** Operations */
-        //*{
+        //@{
         /** 
          * Traverse this segment using a segment visitor.
          * 
@@ -71,7 +71,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         EQ_EXPORT VisitorResult accept( SegmentVisitor& visitor );
-        //*}
+        //@}
 
     protected:
         /** @sa Frustum::serialize */

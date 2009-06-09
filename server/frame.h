@@ -46,7 +46,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         Compound* getCompound() const { return _compound; }
         Channel* getChannel() const 
             { return _compound ? _compound->getChannel() :0; }
@@ -103,12 +103,12 @@ namespace server
 
         /** @return the frame buffers used by this frame. */
         uint32_t getBuffers() const { return _buffers; }
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** Commit the frame's data (used for output frames only) */
         void commitData();
 
@@ -142,7 +142,7 @@ namespace server
 
         /** Reset the frame and delete all frame datas. */
         void flush();
-        //*}
+        //@}
 
         /**
          * @name Inherit data access.
@@ -152,7 +152,7 @@ namespace server
          * is the data used by client-side frame class for readback and
          * assembly.
          */
-        //*{
+        //@{
         /** 
          * Set the offset of the frame.
          *
@@ -177,7 +177,7 @@ namespace server
 
         /** @return the inherit zoom factor. */
         const eq::Zoom& getInheritZoom() const { return _inherit.zoom; }
-        //*}
+        //@}
         
     protected:
         EQSERVER_EXPORT virtual ~Frame();

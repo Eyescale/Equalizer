@@ -67,17 +67,17 @@ namespace net
         void disableSave();
 
         /** @name Data Access. */
-        //*{
+        //@{
         /** @return if data was sent since the last enable() */
         bool hasSentData() const { return _dataSent; }
 
         /** @return the buffer with the saved data. */
         const base::Bufferb& getSaveBuffer() const 
             { EQASSERT( _save ); return _buffer; }
-        //*}
+        //@}
 
         /** @name Basic data output */
-        //*{
+        //@{
         /** Write a POD data item. */
         template< typename T >
         DataOStream& operator << ( const T& value )
@@ -96,7 +96,7 @@ namespace net
 
         void write( const void* data, uint64_t size );
         void writeOnce( const void* data, uint64_t size );
-        //*}
+        //@}
 
  
     protected:

@@ -41,7 +41,7 @@ namespace eq
         virtual ~OSWindow( );
         
         /** @name Methods forwarded from eq::Window */
-        //*{
+        //@{
         /** 
          * Initialize this OS window.
          * 
@@ -87,10 +87,10 @@ namespace eq
          */
         virtual void joinNVSwapBarrier( const uint32_t group,
                                         const uint32_t barrier ) = 0;
-        //*}
+        //@}
 
         /** @name Frame Buffer Object support. */
-        //*{
+        //@{
         /** Build and initialize the FBO. */
         bool configInitFBO();
 
@@ -99,10 +99,10 @@ namespace eq
 
         /** @return the FBO of this window, or 0 if no FBO is used. */
         const FrameBufferObject* getFBO() const { return _fbo; }
-        //*}
+        //@}
 
         /** @name Convenience interface to eq::Window methods */
-        //*{
+        //@{
         Window* getWindow() { return _window; }
         const Window* getWindow() const { return _window; }
 
@@ -119,7 +119,7 @@ namespace eq
 
         /** @return the generic WGL function table for the window's pipe. */
         WGLEWContext* wglewGetContext();
-        //*}
+        //@}
      
         /** Initialize the GLEW context for this window. */
         void initGLEW(); 

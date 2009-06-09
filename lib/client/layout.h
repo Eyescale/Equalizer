@@ -57,18 +57,18 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         /** Get the list of views. */
         const ViewVector& getViews() const { return _views; }
 
         Config* getConfig() { return _config; }
         const Config* getConfig() const { return _config; }
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** 
          * Traverse this layout and all children using a layout visitor.
          * 
@@ -79,7 +79,7 @@ namespace server
 
         /** Deregister this layout, and all children, from its net::Session.*/
         EQ_EXPORT virtual void deregister();
-        //*}
+        //@}
         
     protected:
         /** @sa Object::deserialize */

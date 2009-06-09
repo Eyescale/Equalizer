@@ -40,13 +40,13 @@ namespace eq
         /**
          * @name Constructors
          */
-        //*{
+        //@{
         Pixel() : x( 0 ), y( 0 ), w( 1 ), h( 1 )  {}
 
         Pixel( const uint32_t x_, const uint32_t y_, 
                const uint32_t w_, const uint32_t h_ )
                 : x( x_ ), y( y_ ), w( w_ ), h( h_ ) {}
-        //*}
+        //@}
 
         void apply( const Pixel& rhs )
             {

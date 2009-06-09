@@ -55,7 +55,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         Config* getConfig()             { return _config; }
         const Config* getConfig() const { return _config; }
 
@@ -85,12 +85,12 @@ namespace server
         
         /** @return the index path to this canvas. */
         CanvasPath getPath() const;
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         void init();
         void exit();
 
@@ -105,7 +105,7 @@ namespace server
 
         /** Unmap this canvas and all its children. */
         void unmap();
-        //*}
+        //@}
         
     protected:
         /** @sa Frustum::serialize */

@@ -48,7 +48,7 @@ namespace eq
         virtual ~Config();
 
         /** @name Data Access */
-        //*{
+        //@{
         ClientPtr getClient();
         ServerPtr getServer();
 
@@ -104,10 +104,10 @@ namespace eq
 
         /** @return the global time in ms. */
         int64_t getTime() const { return _clock.getTime64(); }
-        //*}
+        //@}
 
         /** @name Operations. */
-        //*{
+        //@{
         /** 
          * Initializes this configuration.
          * 
@@ -126,12 +126,12 @@ namespace eq
          *         <code>false</code> if not.
          */
         virtual bool exit();
-        //*}
+        //@}
 
         /**
          * @name Frame Control
          */
-        //*{
+        //@{
         /** 
          * Requests a new frame of rendering.
          * 
@@ -166,10 +166,10 @@ namespace eq
          */
         void releaseFrameLocal( const uint32_t frameNumber )
             { _unlockedFrame = frameNumber; }
-        //*}
+        //@}
 
         /** @name Event handling. */
-        //*{
+        //@{
         /** 
          * Send an event to the application node.
          * 
@@ -215,11 +215,11 @@ namespace eq
          *         <code>false</code> if not.
          */
         virtual bool handleEvent( const ConfigEvent* event );
-        //*}
+        //@}
         
 #ifdef EQ_USE_DEPRECATED
         /** @name Observer Interface. */
-        //*{
+        //@{
         /** 
          * Set the head matrix.
          *
@@ -241,18 +241,18 @@ namespace eq
 
         /** @return the current eye separation. */
         float getEyeBase() const;
-        //*}
+        //@}
 #endif
 
         /** @name Error Information. */
-        //*{
+        //@{
         /** @return the error message from the last operation. */
         const std::string& getErrorMessage() const { return _error; }
-        //*}
+        //@}
 
 #ifdef EQ_TRANSMISSION_API
         /** @name Data Transmission. */
-        //*{
+        //@{
         /** 
          * Send data to all active render client nodes.
          * 
@@ -260,7 +260,7 @@ namespace eq
          * @param size the data size.
          */
         void broadcastData( const void* data, uint64_t size );
-        //*}
+        //@}
 #endif
 
         /** Undocumented */

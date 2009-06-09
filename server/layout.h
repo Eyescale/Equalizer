@@ -53,7 +53,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         /** Add a new view to this layout. */
         EQSERVER_EXPORT void addView( View* view );
         
@@ -80,12 +80,12 @@ namespace server
 
         /** @return the index path to this layout. */
         LayoutPath getPath() const;
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** 
          * Traverse this layout and all children using a layout visitor.
          * 
@@ -97,7 +97,7 @@ namespace server
 
         /** Unmap this layout and all its children. */
         void unmap();
-        //*}
+        //@}
         
     protected:
         /** @sa Object::serialize */

@@ -71,7 +71,7 @@ namespace net
         EQ_EXPORT Node();
 
         /** @name Data Access. */
-        //*{
+        //@{
         bool operator == ( const Node* n ) const;
 
         /** 
@@ -98,7 +98,7 @@ namespace net
          * @param name the working directory to start this node.
          */
         void setWorkDir( const std::string& name ) { _workDir = name; }
-        //*}
+        //@}
 
         /**
          * @name State Changes
@@ -106,7 +106,7 @@ namespace net
          * The following methods affect the state of the node by changing it's
          * connectivity to the network.
          */
-        //*{
+        //@{
         /** 
          * Initialize a local, listening node.
          *
@@ -243,13 +243,13 @@ namespace net
                     return _connection;
                 return 0;
             }
-        //*}
+        //@}
 
 
         /**
          * @name Connectivity information. 
          */
-        //*{
+        //@{
         /** 
          * Returns if the node is local.
          * 
@@ -286,7 +286,7 @@ namespace net
          * @return the connection to this node. 
          */
         ConnectionPtr getConnection() const { return _connection; }
-        //*}
+        //@}
 
         /**
          * @name Messaging API
@@ -390,7 +390,7 @@ namespace net
         /**
          * @name Session management
          */
-        //*{
+        //@{
         /**
          * Register a new session using this node as the session server.
          *
@@ -434,7 +434,7 @@ namespace net
         Session* getSession( const uint32_t id );
 
         bool hasSessions() const { return !_sessions.empty(); }
-        //*}
+        //@}
 
         /** 
          * Runs this node as a client to a server.

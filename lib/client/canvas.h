@@ -57,7 +57,7 @@ namespace server
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         /** @return the parent config. */
         Config*       getConfig()       { return _config; }
         /** @return the parent config. */
@@ -74,12 +74,12 @@ namespace server
 
         /** @return the vector of allowed layouts. */
         const LayoutVector& getLayouts() const { return _layouts; }        
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** Activate the given layout on this canvas. */
         EQ_EXPORT virtual void useLayout( const uint32_t index );
 
@@ -93,7 +93,7 @@ namespace server
 
         /** Deregister this canvas, and all children, from its net::Session.*/
         EQ_EXPORT virtual void deregister();
-        //*}
+        //@}
 
         enum DirtyBits
         {

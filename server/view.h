@@ -46,7 +46,7 @@ namespace server
         virtual ~View();
 
         /** @name Operations */
-        //*{
+        //@{
         /** 
          * Traverse this view using a view visitor.
          * 
@@ -57,10 +57,10 @@ namespace server
             { return visitor.visit( this ); }
         VisitorResult accept( ConstViewVisitor& visitor ) const
             { return visitor.visit( this ); }
-        //*}
+        //@}
         
         /** @name Data Access. */
-        //*{
+        //@{
         /** Set the area covered by this wrt it parent Layout. */
         void setViewport( const Viewport& viewport );
 
@@ -100,7 +100,7 @@ namespace server
 
         /** Set the entity tracking this view. */
         void setObserver( Observer* observer );
-        //*}
+        //@}
 
     protected:
         /** @sa eq::View::deserialize() */

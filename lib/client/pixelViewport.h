@@ -39,13 +39,13 @@ namespace eq
         /**
          * @name Constructors
          */
-        //*{
+        //@{
         PixelViewport() : x(0), y(0), w(-1), h(-1)  {}
 
         PixelViewport( const int32_t x_, const int32_t y_, 
                        const int32_t w_, const int32_t h_ )
                 : x(x_), y(y_), w(w_), h(h_)  {}
-        //*}
+        //@}
 
         /** 
          * Invalidates the pixel viewport.
@@ -70,7 +70,7 @@ namespace eq
         /**
          * @name Operators
          */
-        //*{
+        //@{
         void apply( const Viewport& rhs )
             {
                 // honor position over size to avoid rounding artifacts
@@ -254,12 +254,12 @@ namespace eq
                 h = EQ_MIN( sEy, dEy ) - y;
             }
 
-        //*}
+        //@}
 
         /**
          * @name Tests
          */
-        //*{
+        //@{
         /** @returns true if the point (pX,pY) is inside, false if not. */
         bool isPointInside( const int32_t pX, const int32_t pY ) const
             {

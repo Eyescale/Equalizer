@@ -58,7 +58,7 @@ namespace net
         const Packet* operator->() const { EQASSERT(_packet); return _packet; }
 
         /** @name Usage tracking. */
-        //*{
+        //@{
         bool isFree() const { return ( _refCount==0 ); }
         void retain()  { ++_refCount; }
         void release() 
@@ -77,7 +77,7 @@ namespace net
                 }
 #endif
             }
-        //*}
+        //@}
 
         bool isValid() const { return ( _packet!=0 ); }
 

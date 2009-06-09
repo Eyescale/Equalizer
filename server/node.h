@@ -67,7 +67,7 @@ namespace server
         Node( const Node& from, Config* config );
 
         /** @name Data Access. */
-        //*{
+        //@{
         Config* getConfig() const { return _config; }
         Server* getServer() const
             { return _config ? _config->getServer() : 0; }
@@ -140,12 +140,12 @@ namespace server
         void setLastDrawPipe( const Pipe* pipe )
             { _lastDrawPipe = pipe; }
         const Pipe* getLastDrawPipe() const { return _lastDrawPipe;}
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** Update (init and exit) this node and its children as needed. */
         void updateRunning( const uint32_t initID, const uint32_t frameNumber );
 
@@ -170,24 +170,24 @@ namespace server
 
         /** Synchronize the completion of the rendering of a frame. */
         void finishFrame( const uint32_t frame );
-        //*}
+        //@}
 
 
         /** @name Attributes */
-        //*{
+        //@{
         void setIAttribute( const eq::Node::IAttribute attr, 
                             const int32_t value )
             { _iAttributes[attr] = value; }
         int32_t  getIAttribute( const eq::Node::IAttribute attr ) const
             { return _iAttributes[attr]; }
-        //*}
+        //@}
 
         /**
          * @name Barrier Cache
          *
          * Caches barriers for which this node is the master.
          */
-        //*{
+        //@{
         /** 
          * Get a new barrier of height 0.
          * 
@@ -201,7 +201,7 @@ namespace server
          * @param barrier the barrier.
          */
         void releaseBarrier( net::Barrier* barrier );
-        //*}
+        //@}
 
         void send( net::SessionPacket& packet ) 
             { 
@@ -242,10 +242,10 @@ namespace server
             const { return _connectionDescriptions; }
 
         /** @name Error information. */
-        //*{
+        //@{
         /** @return the error message from the last operation. */
         const std::string& getErrorMessage() const { return _error; }
-        //*}
+        //@}
 
     protected:
         virtual ~Node();

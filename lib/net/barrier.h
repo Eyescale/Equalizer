@@ -57,15 +57,15 @@ namespace net
          * After a change, the barrier should be committed and synced to the
          * same version on all nodes entering the barrier.
          */
-        //*{
+        //@{
         void setHeight( const uint32_t height ) { _height = height; }
         void increase() { ++_height; }
 
         uint32_t getHeight() const { return _height; }
-        //*}
+        //@}
 
         /** @name Operations */
-        //*{
+        //@{
         /** 
          * Enters the barrier and blocks until the barrier has been reached.
          *
@@ -73,7 +73,7 @@ namespace net
          * the barrier.
          */
         void enter();
-        //*}
+        //@}
 
     protected:
         virtual void attachToSession( const uint32_t id, 

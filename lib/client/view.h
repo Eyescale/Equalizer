@@ -48,7 +48,7 @@ namespace server
         EQ_EXPORT virtual ~View();
 
         /** @name Data Access. */
-        //*{
+        //@{
         /** @return the viewport of the view. */
         EQ_EXPORT const Viewport& getViewport() const;
 
@@ -67,10 +67,10 @@ namespace server
         /** @return the entity tracking this view, 0 for untracked views. */
         Observer* getObserver() { return _observer; }
         const Observer* getObserver() const { return _observer; }
-        //*}
+        //@}
 
         /** @name Operations */
-        //*{
+        //@{
         /** 
          * Traverse this view using a view visitor.
          * 
@@ -90,7 +90,7 @@ namespace server
          * @return true when the event was handled, false if not.
          */
         EQ_EXPORT virtual bool handleEvent( const Event& event );
-        //*}
+        //@}
 
         /** @warning  Undocumented - may not be supported in the future */
         EQ_EXPORT void setOverdraw( const vmml::Vector2i& pixels );

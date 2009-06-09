@@ -41,12 +41,12 @@ namespace eq
         /**
          * @name Constructors
          */
-        //*{
+        //@{
         Viewport() : x(0.0f), y(0.0f), w(1.0f), h(1.0f)  {}
 
         Viewport( const float x_, const float y_, const float w_,const float h_)
                 : x(x_), y(y_), w(w_), h(h_)  {}
-        //*}
+        //@}
 
         void invalidate() { x=0.0f; y=0.0f; w=-1.0f; h=-1.0f; }
         void apply ( const Viewport& rhs )

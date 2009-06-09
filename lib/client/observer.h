@@ -51,7 +51,7 @@ namespace eq
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         /** Set the eye separation of this observer. */
         EQ_EXPORT void setEyeBase( const float eyeBase );
 
@@ -73,12 +73,12 @@ namespace eq
 
         /** @return the current head matrix. */
         const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** 
          * Traverse this observer using a observer visitor.
          * 
@@ -89,7 +89,7 @@ namespace eq
 
         /** Deregister this observer from its net::Session.*/
         EQ_EXPORT virtual void deregister();
-        //*}
+        //@}
         
     protected:
         /** @sa Object::serialize */

@@ -40,7 +40,7 @@ namespace net
         virtual ~DataIStream();
 
         /** @name Basic data input */
-        //*{ 
+        //@{ 
         /** Read a POD data item. */
         template< typename T >
         DataIStream& operator >> ( T& value )
@@ -75,7 +75,7 @@ namespace net
         virtual size_t nRemainingBuffers() const = 0;
 
         virtual uint32_t getVersion() const { return Object::VERSION_NONE; }
-        //*}
+        //@}
 
         virtual void reset();
  

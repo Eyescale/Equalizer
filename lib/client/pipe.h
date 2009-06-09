@@ -62,7 +62,7 @@ namespace eq
         virtual ~Pipe();
 
         /** @name Data Access. */
-        //*{
+        //@{
         net::CommandQueue* getPipeThreadQueue();
         Node*       getNode()       { return _node; }
         const Node* getNode() const { return _node; }
@@ -155,12 +155,12 @@ namespace eq
 
         /** @return the generic WGL function table for the pipe. */
         WGLEWContext* wglewGetContext();
-        //*}
+        //@}
 
         /**
          * @name Operations
          */
-        //*{
+        //@{
         /** 
          * Get an assembly frame.
          * 
@@ -183,7 +183,7 @@ namespace eq
 
         /** @internal @return the view for the given identifier and version. */
         View* getView( const net::ObjectVersion& viewVersion );
-        //*}
+        //@}
 
         /** Wait for the pipe to be exited. */
         void waitExited() const { _state.waitEQ( STATE_STOPPED ); }
@@ -217,7 +217,7 @@ namespace eq
          * @name Interface to and from the OSPipe, the window-system specific 
          *       pieces for a pipe.
          */
-        //*{
+        //@{
         /**
          * Set the OS-specific pipe.
          * 
@@ -229,10 +229,10 @@ namespace eq
         const OSPipe* getOSPipe() const { return _osPipe; }
               OSPipe* getOSPipe()       { return _osPipe; }
 
-        //*}
+        //@}
 
         /** @name Error information. */
-        //*{
+        //@{
         /** 
          * Set a message why the last operation failed.
          * 
@@ -242,13 +242,13 @@ namespace eq
          * @param message the error message.
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
-        //*}
+        //@}
 
     protected:
         friend class Node;
 
         /** @name Actions */
-        //*{
+        //@{
         /** 
          * Start a frame by unlocking all child resources.
          * 
@@ -275,7 +275,7 @@ namespace eq
          * @param frameNumber the frame to release.
          */
         void releaseFrameLocal( const uint32_t frameNumber );
-        //*}
+        //@}
 
         /**
          * @name Callbacks
@@ -283,7 +283,7 @@ namespace eq
          * The callbacks are called by Equalizer during rendering to execute
          * various actions.
          */
-        //*{
+        //@{
         /** 
          * Tests wether a particular windowing system is supported by this pipe
          * and all its windows.
@@ -364,7 +364,7 @@ namespace eq
                                       const uint32_t frameNumber );
 
         /** @name Configuration. */
-        //*{
+        //@{
         /** 
          * Enable or disable automatic or external OS event dispatch for the
          * pipe thread.
@@ -374,7 +374,7 @@ namespace eq
          * @sa Event handling documentation on website.
          */
         virtual bool useMessagePump() { return true; }
-        //*}
+        //@}
 
         /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 

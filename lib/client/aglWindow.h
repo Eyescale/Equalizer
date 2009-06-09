@@ -71,7 +71,7 @@ namespace eq
         virtual AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
 
         /** @name Data Access */
-        //*{
+        //@{
         /** 
          * Set the AGL rendering context for this window.
          * 
@@ -96,10 +96,10 @@ namespace eq
          * @param pbuffer the PBuffer.
          */
         virtual void setAGLPBuffer( AGLPbuffer pbuffer );
-        //*}
+        //@}
 
-        //* @name AGL/Carbon initialization
-        //*{
+        /** @name AGL/Carbon initialization */
+        //@{
         /** 
          * Initialize this window for the AGL window system.
          *
@@ -194,7 +194,7 @@ namespace eq
 
         virtual void initEventHandler();
         virtual void exitEventHandler();
-       //*}
+       //@}
 
         virtual bool processEvent( const AGLWindowEvent& event );
 

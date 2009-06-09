@@ -50,11 +50,11 @@ namespace net
          */
         SocketConnection( const ConnectionType type = CONNECTIONTYPE_TCPIP );
 
-        virtual bool connect();             //!< @sa Connection::connect
-        virtual bool listen();              //!< @sa Connection::listen
-        virtual void acceptNB();            //!< @sa Connection::acceptNB
-        virtual ConnectionPtr acceptSync(); //!< @sa Connection::acceptSync
-        virtual void close();               //!< @sa Connection::close
+        virtual bool connect();            
+        virtual bool listen();             
+        virtual void acceptNB();           
+        virtual ConnectionPtr acceptSync();
+        virtual void close();              
 
 
 #ifdef WIN32
@@ -65,11 +65,6 @@ namespace net
     protected:
         virtual ~SocketConnection();
 
-        void _initAIOAccept();
-        void _exitAIOAccept();
-        void _initAIORead();
-        void _exitAIORead();
-
 #ifdef WIN32
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes );
@@ -77,14 +72,21 @@ namespace net
 
         typedef SOCKET Socket;
 #else
+        //! @cond IGNORE
         typedef int    Socket;
         enum
         {
             INVALID_SOCKET = -1
         };
+        //! @endcond
 #endif
 
     private:
+        void _initAIOAccept();
+        void _exitAIOAccept();
+        void _initAIORead();
+        void _exitAIORead();
+
         bool _createSocket();
         void _tuneSocket( const Socket fd );
         bool _parseAddress( sockaddr_in& socketAddress );

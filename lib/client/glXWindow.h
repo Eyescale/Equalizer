@@ -58,8 +58,8 @@ namespace eq
         virtual void joinNVSwapBarrier( const uint32_t group,
                                         const uint32_t barrier );
 
-        //* @name GLX/X11 initialization
-        //*{
+        /** @name GLX/X11 initialization */
+        //@{
         /** 
          * Initialize this window for the GLX window system.
          *
@@ -80,7 +80,7 @@ namespace eq
         /** @return GLX display */
         virtual Display* getXDisplay();
         virtual Display* getXDisplay() const;
-        //*}
+        //@}
 
     protected:
         /** 
@@ -132,10 +132,10 @@ namespace eq
          * @return true if the PBuffer was created, false otherwise.
          */
         virtual bool configInitGLXPBuffer( XVisualInfo* visualInfo );
-        //*}
+        //@}
 
         /** @name Data Access */
-        //*{
+        //@{
         /** 
          * Set the X11 drawable ID for this window.
          * 
@@ -156,7 +156,7 @@ namespace eq
          * @param context the GLX rendering context.
          */
         virtual void setGLXContext( GLXContext context );
-        //*}
+        //@}
 
         /** Initialize and join a GLX_NV_swap_barrier. */ 
         bool joinNVSwapBarrier();

@@ -69,7 +69,7 @@ namespace eq
         /**
          * @name Data Access
          */
-        //*{
+        //@{
         Window*       getWindow()       { return _window; }
         const Window* getWindow() const { return _window; }
 
@@ -155,7 +155,7 @@ namespace eq
 
         /** Add a new statistics event for the current frame. */
         void addStatistic( Event& event );
-        //*}
+        //@}
 
         /**
          * @name Context-specific data access.
@@ -164,7 +164,7 @@ namespace eq
          * they are called from, typically the data for the current rendering
          * task.
          */
-        //*{
+        //@{
         /** @return the channel's current draw buffer. */
         uint32_t getDrawBuffer() const;
 
@@ -247,7 +247,7 @@ namespace eq
          * get the FBO used as an alternate frame buffer.
          */
         FrameBufferObject* getFrameBufferObject();
-        //*}
+        //@}
 
         /**
          * @name Operations
@@ -256,7 +256,7 @@ namespace eq
          * are just convenience wrappers applying context-specific data to the
          * OpenGL state.
          */
-        //*{
+        //@{
         /** 
          * Apply the current rendering buffer, including the color mask.
          */
@@ -322,7 +322,7 @@ namespace eq
         /**
          * @name Attributes
          */
-        //*{
+        //@{
         // Note: also update string array initialization in channel.cpp
         enum IAttribute
         {
@@ -336,16 +336,16 @@ namespace eq
             { return _iAttributes[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
             { return _iAttributeStrings[attr]; }
-        //*}
+        //@}
 #if 0
         /** @name Scene Object Access. */
-        //*{
+        //@{
         SceneObject* getNextSceneObject();
         SceneObject* checkNextSceneObject();
         //void putSceneObject( SceneObject* object );
         void passSceneObject( SceneObject* object );
         void flushSceneObjects();
-        //*}
+        //@}
 #endif
 
     protected:
@@ -356,7 +356,7 @@ namespace eq
                               net::Session* session );
 
         /** @name Actions */
-        //*{
+        //@{
         /** 
          * Start a frame by unlocking all child resources.
          * 
@@ -377,7 +377,7 @@ namespace eq
          * @param frameNumber the frame to release.
          */
         void releaseFrameLocal( const uint32_t frameNumber ) { /* nop */ }
-        //*}
+        //@}
 
         /**
          * @name Callbacks
@@ -385,7 +385,7 @@ namespace eq
          * The callbacks are called by Equalizer during rendering to execute
          * various actions.
          */
-        //*{
+        //@{
         /** 
          * Initialize this channel.
          * 
@@ -505,10 +505,10 @@ namespace eq
          * Reset the OpenGL state after an assembly operation.
          */
         virtual void resetAssemblyState();
-        //*}
+        //@}
 
         /** @name Error information. */
-        //*{
+        //@{
         /** 
          * Set a message why the last operation failed.
          * 
@@ -518,7 +518,7 @@ namespace eq
          * @param message the error message.
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
-        //*}
+        //@}
     private:
         //-------------------- Members --------------------
         /** The parent window. */

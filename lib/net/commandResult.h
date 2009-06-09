@@ -27,9 +27,9 @@ namespace net
 {
     enum CommandResult
     {
-        COMMAND_HANDLED,     //*< The command was handled
-        COMMAND_DISCARD,     //*< Discard command, used by Objects
-        COMMAND_ERROR        //*< An unrecoverable error occured
+        COMMAND_HANDLED,     //!< The command was handled
+        COMMAND_DISCARD,     //!< Discard command, used by Objects
+        COMMAND_ERROR        //!< An unrecoverable error occured
     };
     inline std::ostream& operator << ( std::ostream& os, 
                                        const CommandResult& result )

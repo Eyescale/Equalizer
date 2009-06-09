@@ -50,7 +50,7 @@ namespace net
     enum ConnectionType;
 
     /**
-     * A base class to provide communication to other hosts.
+     * An interface definition for communication between hosts.
      *
      * Connections are stream-oriented point-to-point communications. The
      * parameters of a Connection are described in a ConnectionDescription,
@@ -90,7 +90,7 @@ namespace net
                                                    description );
 
         /** @name Data Access */
-        //*{
+        //@{
         /** @return the State of this connection. */
         State getState() const { return _state; }
 
@@ -104,7 +104,7 @@ namespace net
         bool isListening() const { return _state == STATE_LISTENING; }
 
         /** 
-         * Set the connection's description.
+         * Set the connection parameter description.
          * 
          * @param description the connection parameters.
          */
@@ -112,11 +112,11 @@ namespace net
 
         /** @return the description for this connection. */
         EQ_EXPORT ConnectionDescriptionPtr getDescription() const;
-        //*}
+        //@}
 
 
         /** @name Connection State Changes */
-        //*{
+        //@{
         /** 
          * Connect to the remote peer.
          *
@@ -143,19 +143,19 @@ namespace net
          * Close a connected or listening connection.
          */
         virtual void close(){};
-        //*}
+        //@}
 
         /** @name Listener Interface */
-        //*{
+        //@{
         /** Add a listener for connection state changes. */
         void addListener( ConnectionListener* listener );
 
         /** Remove a listener for connection state changes. */
         void removeListener( ConnectionListener* listener );
-        //*}
+        //@}
 
         /** @name Asynchronous accept */
-        //*{
+        //@{
         /** 
          * Start an accept operation.
          * 
@@ -174,11 +174,11 @@ namespace net
          */        
         virtual ConnectionPtr acceptSync()
             { EQUNIMPLEMENTED; return 0; }
-        //*}
+        //@}
 
 
         /** @name Asynchronous read */
-        //*{
+        //@{
         /** 
          * Start a read operation on the connection.
          *
@@ -235,10 +235,10 @@ namespace net
          * @return the number of bytes read, or -1 upon error.
          */
         virtual int64_t readSync( void* buffer, const uint64_t bytes ) = 0;
-        //*}
+        //@}
 
         /** @name Synchronous write to the connection */
-        //*{
+        //@{
         /** 
          * Send data using the connection.
          *
@@ -334,7 +334,7 @@ namespace net
         static bool send( const ConnectionVector& connections, Packet& packet,
                           const void* data, const uint64_t size,
                           const bool isLocked = false );
-        //*}
+        //@}
 
         /**
          * The Notifier used by the ConnectionSet to dedect readyness of a
@@ -368,18 +368,19 @@ namespace net
         //@}
 
         State                    _state; //!< The connection state
-        ConnectionDescriptionPtr _description;
+        ConnectionDescriptionPtr _description; //!< The connection parameters
 
+        /** The lock used to protect multiple write calls. */
         mutable base::Lock _sendLock;
-
-        /** The listeners on state changes */
-        std::vector< ConnectionListener* > _listeners;
 
     private:
         void*         _aioBuffer;
         uint64_t      _aioBytes;
 
-        friend class PairConnection; // for access to read/write
+        /** The listeners on state changes */
+        std::vector< ConnectionListener* > _listeners;
+
+        friend class PairConnection; //!< for access to read/write
     };
 
     std::ostream& operator << ( std::ostream&, const Connection* );
