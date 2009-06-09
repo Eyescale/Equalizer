@@ -30,7 +30,7 @@ namespace eq
         WGLPipe( Pipe* parent );
         virtual ~WGLPipe( );
 
-        //@ @name WGL initialization
+        /** @name WGL initialization */
         //@{
         /** 
          * Initialize this pipe for the WGL window system.
