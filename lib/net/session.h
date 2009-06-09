@@ -93,6 +93,7 @@ namespace net
         virtual CommandResult invokeCommand( Command& packet );
         //*}
 
+
         /**
          * @name Identifier management
          */
@@ -165,17 +166,6 @@ namespace net
         //*}
 
 
-
-        /** 
-         * Notification that this session has been mapped to a node.
-         * 
-         * Typically used by sub-classes to register command handlers. Always
-         * call the parent's notifyMapped() first.
-         *
-         * @param node the node to which the session has been mapped.
-         */
-        virtual void notifyMapped( NodePtr node );
-
         /**
          * @name Object Registration
          */
@@ -190,8 +180,9 @@ namespace net
          * versions of the distributed object.
          *
          * @param object the object instance.
+         * @return true if the object was registered, false otherwise.
          */
-        void registerObject( Object* object );
+        bool registerObject( Object* object );
 
         /** 
          * Deregister a distributed object.
@@ -204,9 +195,8 @@ namespace net
          * Map a distributed object.
          *
          * The mapped object becomes a slave instance of the master version
-         * registered to the provided identifier. The version can be used to map
-         * a specific version. If this version does no longer exist, mapObject()
-         * will fail.
+         * which was registered to the provided identifier. The given version
+         * can be used to map a specific version.
          * 
          * If VERSION_NONE is provided, the slave instance is not initialized
          * with any data from the master. This is useful if the object has been
@@ -214,9 +204,14 @@ namespace net
          * system.
          * 
          * If VERSION_OLDEST is provided, the oldest available version is
-         * mapped. If the requested version is newer than the head version,
+         * mapped. If the requested version does no longer exist, mapObject()
+         * will fail. If the requested version is newer than the head version,
          * mapObject() will block until the requested version is available.
-         * 
+         *
+         * Mapping an object is a potentially time-consuming operation. Using
+         * mapObjectNB() and mapObjectSync() to asynchronously map multiple
+         * objects in parallel improves performance of this operation.
+         *
          * @param object the object.
          * @param id the master object identifier.
          * @param version the initial version.
@@ -263,9 +258,23 @@ namespace net
          */
         void detachObject( Object* object );
         //*}
-        
+
+
+
         /** 
-         * Send a packet to a node.
+         * Notification that this session has been mapped to a node.
+         * 
+         * Typically used by sub-classes to register command handlers. Always
+         * call the parent's notifyMapped() first.
+         *
+         * @param node the node to which the session has been mapped.
+         */
+        virtual void notifyMapped( NodePtr node );
+
+
+    protected:
+        /** 
+         * Send a session packet to a node.
          * 
          * @param node the target node.
          * @param packet the packet.
@@ -277,7 +286,6 @@ namespace net
                 node->send( packet );
             }
 
-    protected:
         /** 
          * Send a packet to the session's server node.
          * 

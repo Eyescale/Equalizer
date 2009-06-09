@@ -451,12 +451,14 @@ void Session::unmapObject( Object* object )
     detachObject( object );
 }
 
-void Session::registerObject( Object* object )
+bool Session::registerObject( Object* object )
 {
     EQASSERT( object->getID() == EQ_ID_INVALID );
 
     const uint32_t id = genIDs( 1 );
     EQASSERT( id != EQ_ID_INVALID );
+    if( id == EQ_ID_INVALID )
+        return false;
 
     const uint32_t requestID = _setIDMasterNB( id, 1, _localNode->getNodeID( ));
     object->setupChangeManager( object->getChangeType(), true );
@@ -465,6 +467,7 @@ void Session::registerObject( Object* object )
     _setIDMasterSync( requestID ); // sync, master knows our ID now
     EQLOG( LOG_OBJECTS ) << "Registered " << typeid( *object ).name()
                          << " to id " << id << endl;
+    return true;
 }
 
 void Session::deregisterObject( Object* object )
@@ -780,7 +783,7 @@ CommandResult Session::_cmdMapObject( Command& command )
 {
     CHECK_THREAD( _receiverThread );
     const SessionMapObjectPacket* packet = 
-        command.getPacket<SessionMapObjectPacket>();
+        command.getPacket< SessionMapObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << endl;
 
     Object* object = static_cast<Object*>( _requestHandler.getRequestData( 

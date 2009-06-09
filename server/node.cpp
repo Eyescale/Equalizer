@@ -314,7 +314,8 @@ void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
     EQLOG( LOG_INIT ) << "Create node" << std::endl;
     eq::ConfigCreateNodePacket createNodePacket;
     createNodePacket.nodeID = getID();
-    _config->send( _node, createNodePacket );
+    createNodePacket.sessionID = _config->getID();
+    _node->send( createNodePacket );
 
     EQLOG( LOG_INIT ) << "Init node" << std::endl;
     eq::NodeConfigInitPacket packet;
@@ -360,7 +361,8 @@ void Node::_configExit()
     EQLOG( LOG_INIT ) << "Destroy node" << std::endl;
     eq::ConfigDestroyNodePacket destroyNodePacket;
     destroyNodePacket.nodeID = getID();
-    _config->send( _node, destroyNodePacket );
+    destroyNodePacket.sessionID = _config->getID();
+    _node->send( destroyNodePacket );
 }
 
 bool Node::_syncConfigExit()
