@@ -32,18 +32,18 @@ namespace eq
     /** 
      * The client represents a network node in the cluster.
      */
-    class EQ_EXPORT Client : public net::Node
+    class Client : public net::Node
     {
     public:
         /** 
          * Constructs a new client.
          */
-        Client();
+        EQ_EXPORT Client();
 
         /**
          * Destructs the client.
          */
-        virtual ~Client();
+        EQ_EXPORT virtual ~Client();
 
         /** 
          * Open and connect an Equalizer server to the local client.
@@ -51,7 +51,7 @@ namespace eq
          * @param server the server.
          * @return true if the server was connected, false if not.
          */
-        bool connectServer( ServerPtr server );
+        EQ_EXPORT bool connectServer( ServerPtr server );
 
         /** 
          * Disconnect and close the connection of an Equalizer server to the
@@ -60,34 +60,34 @@ namespace eq
          * @param server the server.
          * @return true if the server was disconnected, false if not.
          */
-        bool disconnectServer( ServerPtr server );
+        EQ_EXPORT bool disconnectServer( ServerPtr server );
 
         /** 
          * Get and process one command from the node command queue. Used
-         * internally to run nonthreaded commands.
+         * internally to run non-threaded commands.
          */
-        void processCommand();
+        EQ_EXPORT void processCommand();
 
         /** @sa net::Node::listen() */
-        virtual bool listen();
+        EQ_EXPORT virtual bool listen();
         /** @sa net::Node::stopListening() */
-        virtual bool stopListening();
+        EQ_EXPORT virtual bool stopListening();
 
         /** 
          * Set the window system for the client's message pump, used by
          * non-threaded pipes.
          * @internal
          */
-        void setWindowSystem( const WindowSystem windowSystem );
+        EQ_EXPORT void setWindowSystem( const WindowSystem windowSystem );
 
         /** Return the command queue to the main node thread. */
         CommandQueue* getNodeThreadQueue() { return _nodeThreadQueue; }
 
     protected:
         /** @sa net::Node::clientLoop */
-        virtual bool clientLoop();
+        EQ_EXPORT virtual bool clientLoop();
         /** @sa net::Node::exitClient(). */
-        virtual bool exitClient();
+        EQ_EXPORT virtual bool exitClient();
 
     private:
         /** The command->node command queue. */
@@ -101,13 +101,13 @@ namespace eq
         };
 
         /** @sa net::Node::createNode */
-        virtual net::NodePtr createNode( const uint32_t type );
+        EQ_EXPORT virtual net::NodePtr createNode( const uint32_t type );
         
         /** @sa net::Node::dispatchCommand */
-        virtual bool dispatchCommand( net::Command& command );
+        EQ_EXPORT virtual bool dispatchCommand( net::Command& command );
 
         /** @sa net::Node::invokeCommand */
-        virtual net::CommandResult invokeCommand( net::Command& command );
+        EQ_EXPORT virtual net::CommandResult invokeCommand( net::Command& );
 
         /** The command functions. */
         net::CommandResult _cmdExit( net::Command& command );

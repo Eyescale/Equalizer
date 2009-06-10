@@ -29,22 +29,22 @@ namespace eq
     /**
      * Base class for window system-specific event handlers
      */
-    class EQ_EXPORT EventHandler
+    class EventHandler
     {
     public:
 
     protected:
         /** Constructs a new event handler. */
-        EventHandler() : _lastEventWindow( 0 ) {}
+        EQ_EXPORT EventHandler() : _lastEventWindow( 0 ) {}
 
         /** Destructs the event handler. */
-        virtual ~EventHandler(){}
+        EQ_EXPORT virtual ~EventHandler(){}
 
         /** Compute the mouse move delta from the previous pointer event. */
-        void _computePointerDelta( const Window* window, Event& event );
+        EQ_EXPORT void _computePointerDelta(const Window* window, Event& event);
 
         /** Find and set the rendering context at the mouse position. */
-        void _getRenderContext( const Window* window, Event& event );
+        EQ_EXPORT void _getRenderContext( const Window* window, Event& event );
 
         /** The previous pointer event to compute mouse movement deltas. */
         Event _lastPointerEvent;

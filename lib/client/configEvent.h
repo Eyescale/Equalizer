@@ -36,7 +36,7 @@ namespace eq
      *
      * When subclassing, make sure to set the packet size.
      */
-    struct EQ_EXPORT ConfigEvent : public ConfigPacket
+    struct ConfigEvent : public ConfigPacket
     {
     public:
         ConfigEvent()

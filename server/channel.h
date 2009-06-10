@@ -52,7 +52,7 @@ namespace server
     /**
      * The channel.
      */
-    class EQSERVER_EXPORT Channel : public net::Object
+    class Channel : public net::Object
     {
     public:
         enum State
@@ -70,7 +70,7 @@ namespace server
         /** 
          * Constructs a new Channel.
          */
-        Channel();
+        EQSERVER_EXPORT Channel();
 
         /** 
          * Constructs a new deep copy of a channel.
@@ -92,8 +92,8 @@ namespace server
         Config* getConfig();
         const Config* getConfig() const;
 
-        Node* getNode();
-        const Node* getNode() const;
+        EQSERVER_EXPORT Node* getNode();
+        EQSERVER_EXPORT const Node* getNode() const;
 
         Pipe* getPipe();
         const Pipe* getPipe() const;
@@ -115,8 +115,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ChannelVisitor& visitor );
-        VisitorResult accept( ConstChannelVisitor& visitor ) const;
+        EQSERVER_EXPORT VisitorResult accept( ChannelVisitor& visitor );
+        EQSERVER_EXPORT VisitorResult accept( ConstChannelVisitor& ) const;
 
         /** Increase channel activition count. */
         void activate();

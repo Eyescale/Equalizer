@@ -44,7 +44,7 @@ namespace eq
      * delete - delete.
      */
     template< typename T >
-    class EQ_EXPORT ObjectManager : public base::NonCopyable
+    class ObjectManager : public base::NonCopyable
     {
     public:
         enum
@@ -53,57 +53,57 @@ namespace eq
         };
 
         /** Construct a new object manager. */
-        ObjectManager( GLEWContext* const glewContext );
+        EQ_EXPORT ObjectManager( GLEWContext* const glewContext );
 
         /** Construct a new object manager sharing data with another manager. */
-        ObjectManager( GLEWContext* const glewContext, ObjectManager* shared );
+        EQ_EXPORT ObjectManager( GLEWContext* const glewContext, ObjectManager* shared );
 
-        virtual ~ObjectManager();
+        EQ_EXPORT virtual ~ObjectManager();
 
         /** @return the number of object managers currently sharing the data. */
         int getSharedUsage() const { return _data->getRefCount(); }
 
-        void deleteAll();
+        EQ_EXPORT void deleteAll();
 
-        GLuint getList( const T& key );
-        GLuint newList( const T& key, const GLsizei num = 1 );
-        GLuint obtainList( const T& key, const GLsizei num = 1 );
-        void   deleteList( const T& key );
+        EQ_EXPORT GLuint getList( const T& key );
+        EQ_EXPORT GLuint newList( const T& key, const GLsizei num = 1 );
+        EQ_EXPORT GLuint obtainList( const T& key, const GLsizei num = 1 );
+        EQ_EXPORT void   deleteList( const T& key );
 
-        GLuint getTexture( const T& key );
-        GLuint newTexture( const T& key );
-        GLuint obtainTexture( const T& key );
-        void   deleteTexture( const T& key );
+        EQ_EXPORT GLuint getTexture( const T& key );
+        EQ_EXPORT GLuint newTexture( const T& key );
+        EQ_EXPORT GLuint obtainTexture( const T& key );
+        EQ_EXPORT void   deleteTexture( const T& key );
 
-        bool   supportsBuffers() const;
-        GLuint getBuffer( const T& key );
-        GLuint newBuffer( const T& key );
-        GLuint obtainBuffer( const T& key );
-        void   deleteBuffer( const T& key );
+        EQ_EXPORT bool   supportsBuffers() const;
+        EQ_EXPORT GLuint getBuffer( const T& key );
+        EQ_EXPORT GLuint newBuffer( const T& key );
+        EQ_EXPORT GLuint obtainBuffer( const T& key );
+        EQ_EXPORT void   deleteBuffer( const T& key );
 
-        bool   supportsPrograms() const;
-        GLuint getProgram( const T& key );
-        GLuint newProgram( const T& key );
-        GLuint obtainProgram( const T& key );
-        void   deleteProgram( const T& key );
+        EQ_EXPORT bool   supportsPrograms() const;
+        EQ_EXPORT GLuint getProgram( const T& key );
+        EQ_EXPORT GLuint newProgram( const T& key );
+        EQ_EXPORT GLuint obtainProgram( const T& key );
+        EQ_EXPORT void   deleteProgram( const T& key );
 
-        bool   supportsShaders() const;
-        GLuint getShader( const T& key );
-        GLuint newShader( const T& key, const GLenum type );
-        GLuint obtainShader( const T& key, const GLenum type );
-        void   deleteShader( const T& key );
+        EQ_EXPORT bool   supportsShaders() const;
+        EQ_EXPORT GLuint getShader( const T& key );
+        EQ_EXPORT GLuint newShader( const T& key, const GLenum type );
+        EQ_EXPORT GLuint obtainShader( const T& key, const GLenum type );
+        EQ_EXPORT void   deleteShader( const T& key );
 
-        bool     supportsEqTexture() const;
-        Texture* getEqTexture( const T& key );
-        Texture* newEqTexture( const T& key );
-        Texture* obtainEqTexture( const T& key );
-        void     deleteEqTexture( const T& key );
+        EQ_EXPORT bool     supportsEqTexture() const;
+        EQ_EXPORT Texture* getEqTexture( const T& key );
+        EQ_EXPORT Texture* newEqTexture( const T& key );
+        EQ_EXPORT Texture* obtainEqTexture( const T& key );
+        EQ_EXPORT void     deleteEqTexture( const T& key );
 
-        bool               supportsEqFrameBufferObject() const;
-        FrameBufferObject* getEqFrameBufferObject( const T& key );
-        FrameBufferObject* newEqFrameBufferObject( const T& key );
-        FrameBufferObject* obtainEqFrameBufferObject( const T& key );
-        void               deleteEqFrameBufferObject( const T& key );
+        EQ_EXPORT bool               supportsEqFrameBufferObject() const;
+        EQ_EXPORT FrameBufferObject* getEqFrameBufferObject( const T& key );
+        EQ_EXPORT FrameBufferObject* newEqFrameBufferObject( const T& key );
+        EQ_EXPORT FrameBufferObject* obtainEqFrameBufferObject( const T& key );
+        EQ_EXPORT void               deleteEqFrameBufferObject( const T& key );
 
         const GLEWContext* glewGetContext() const { return _glewContext; }
         GLEWContext* glewGetContext()             { return _glewContext; }

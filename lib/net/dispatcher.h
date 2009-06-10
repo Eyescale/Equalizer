@@ -40,12 +40,12 @@ namespace net
      * Provides packet dispatch through a command queue and command handler
      * table. Returns the result of the invoked command handlers.
      */
-    class EQ_EXPORT Dispatcher
+    class Dispatcher
     {
     public:
-        Dispatcher() {}
-		Dispatcher( const Dispatcher& from ) {}
-        virtual ~Dispatcher() {}
+        EQ_EXPORT Dispatcher();
+		EQ_EXPORT Dispatcher( const Dispatcher& from );
+        EQ_EXPORT virtual ~Dispatcher();
 
         /** NOP assignment operator. */
         const Dispatcher& operator = ( const Dispatcher& ) { return *this; }
@@ -58,7 +58,7 @@ namespace net
          *         be dispatched again later)
          * @sa registerCommand
          */
-        virtual bool dispatchCommand( Command& command );
+        EQ_EXPORT virtual bool dispatchCommand( Command& command );
 
         /** 
          * Handles a received command packet for this object by calling the
@@ -68,7 +68,7 @@ namespace net
          * @return the result of the operation.
          * @sa registerCommand
          */
-        virtual CommandResult invokeCommand( Command& command );
+        EQ_EXPORT virtual CommandResult invokeCommand( Command& command );
  
     protected:
         /** 
@@ -97,9 +97,9 @@ namespace net
         CommandResult _cmdUnknown( Command& command );
 
     private:
-        void _registerCommand( const uint32_t command, 
-                               const CommandFunc< Dispatcher >& func,
-                               CommandQueue* destinationQueue );
+        EQ_EXPORT void _registerCommand( const uint32_t command, 
+                                         const CommandFunc< Dispatcher >& func,
+                                         CommandQueue* destinationQueue );
 
         /** The command handler function table. */
         std::vector< CommandFunc< Dispatcher > > _vTable;

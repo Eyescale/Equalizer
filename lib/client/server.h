@@ -31,21 +31,21 @@ namespace eq
     class Node;
     struct ServerPacket;
 
-    class EQ_EXPORT Server : public net::Node
+    class Server : public net::Node
     {
     public:
         /** 
          * Constructs a new server.
          */
-        Server();
+        EQ_EXPORT Server();
 
         /** @name Data Access */
         //@{
         void setClient( ClientPtr client );
         ClientPtr getClient(){ return _client; }
 
-        net::CommandQueue* getNodeThreadQueue();
-        net::CommandQueue* getCommandThreadQueue();
+        EQ_EXPORT net::CommandQueue* getNodeThreadQueue();
+        EQ_EXPORT net::CommandQueue* getCommandThreadQueue();
         //@}
 
         /** 
@@ -56,11 +56,11 @@ namespace eq
          *         config was found.
          * @sa ConfigParams
          */
-        Config* chooseConfig( const ConfigParams& parameters );
+        EQ_EXPORT Config* chooseConfig( const ConfigParams& parameters );
 
         /** @warning Undocumented - may not be supported in the future */
-        Config* useConfig( const ConfigParams& parameters, 
-                           const std::string& config );
+        EQ_EXPORT Config* useConfig( const ConfigParams& parameters, 
+                                     const std::string& config );
 
         /** 
          * Releases the configuration.
@@ -70,16 +70,16 @@ namespace eq
          *
          * @param config the configuration.
          */
-        void releaseConfig( Config* config );
+        EQ_EXPORT void releaseConfig( Config* config );
 
         /** Undocumented - may not be supported in the future */
-        bool shutdown();
+        EQ_EXPORT bool shutdown();
 
     protected:
         /**
          * Destructs this server.
          */
-        virtual ~Server();
+        EQ_EXPORT virtual ~Server();
 
     private:
         /** The local client connected to the server */

@@ -48,7 +48,7 @@ namespace server
     /**
      * The window.
      */
-    class EQSERVER_EXPORT Window : public net::Object
+    class Window : public net::Object
     {
     public:
         enum State
@@ -66,7 +66,7 @@ namespace server
         /** 
          * Constructs a new Window.
          */
-        Window();
+        EQSERVER_EXPORT Window();
 
         /** 
          * Constructs a new deep copy of a window.
@@ -82,7 +82,7 @@ namespace server
          * 
          * @param channel the channel.
          */
-        void addChannel( Channel* channel );
+        EQSERVER_EXPORT void addChannel( Channel* channel );
 
         /** 
          * Insert a new channel after the given channel.
@@ -133,8 +133,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( WindowVisitor& visitor );
-        VisitorResult accept( ConstWindowVisitor& visitor ) const;
+        EQSERVER_EXPORT VisitorResult accept( WindowVisitor& visitor );
+        EQSERVER_EXPORT VisitorResult accept( ConstWindowVisitor& ) const;
 
         /** Increase window activition count. */
         void activate();
@@ -159,7 +159,7 @@ namespace server
          * 
          * @param pvp the viewport in pixels.
          */
-        void setPixelViewport( const eq::PixelViewport& pvp );
+        EQSERVER_EXPORT void setPixelViewport( const eq::PixelViewport& pvp );
 
         /** 
          * Return this window's pixel viewport.

@@ -31,7 +31,7 @@ namespace eq
     /**
      * Processes image with depth information and selects areas for read back.
      */
-    class EQ_EXPORT ROIFinder
+    class ROIFinder
     {
     public:
         ROIFinder();

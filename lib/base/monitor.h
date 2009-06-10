@@ -52,8 +52,10 @@ namespace base
 
         /** @name Changing the monitored value. */
         //@{
-        Monitor& operator++ ();  //!< Increment the monitored value, prefix only
-        Monitor& operator-- ();  //!< Decrement the monitored value, prefix only
+        /** Increment the monitored value, prefix only */
+        Monitor& operator++ ();
+        /** Decrement the monitored value, prefix only */
+        Monitor& operator-- ();
 
         /** Assign a new value. */
         Monitor& operator = ( const T& value )

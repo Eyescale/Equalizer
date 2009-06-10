@@ -31,14 +31,14 @@ namespace eq
      * by a 'wndproc' callback in the thread which created the window. Each
      * window has its own WGLEventHandler
      */
-    class EQ_EXPORT WGLEventHandler : public EventHandler
+    class WGLEventHandler : public EventHandler
     {
     public:
-        /** Constructs a new wgl event handler. */
-        WGLEventHandler( WGLWindowIF* window );
+        /** Constructs a new WGL event handler. */
+        EQ_EXPORT WGLEventHandler( WGLWindowIF* window );
 
-        /** Destructs the wgl event handler. */
-        virtual ~WGLEventHandler();
+        /** Destructs the WGL event handler. */
+        EQ_EXPORT virtual ~WGLEventHandler();
 
         /** 
          * @return the function pointer of the previously installed window

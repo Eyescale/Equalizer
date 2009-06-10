@@ -38,21 +38,21 @@ namespace eq
      * The configuration groups all processes of the application in a single
      * net::Session.
      */
-    class EQ_EXPORT Config : public net::Session
+    class Config : public net::Session
     {
     public:
         /** Constructs a new config. */
-        Config( ServerPtr parent );
+        EQ_EXPORT Config( ServerPtr parent );
 
         /** Destructs a config. */
-        virtual ~Config();
+        EQ_EXPORT virtual ~Config();
 
         /** @name Data Access */
         //@{
-        ClientPtr getClient();
-        ServerPtr getServer();
+        EQ_EXPORT ClientPtr getClient();
+        EQ_EXPORT ServerPtr getServer();
 
-        CommandQueue* getNodeThreadQueue();
+        EQ_EXPORT CommandQueue* getNodeThreadQueue();
 
         uint32_t getCurrentFrame()  const { return _currentFrame; }
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
@@ -71,10 +71,10 @@ namespace eq
         const LayoutVector& getLayouts() const { return _layouts; }
 
         /** @return the layout of the given identifier, or 0. */
-        Layout* findLayout( const uint32_t id );
+        EQ_EXPORT Layout* findLayout( const uint32_t id );
 
         /** @return the view of the given identifier, or 0. */
-        View* findView( const uint32_t id );
+        EQ_EXPORT View* findView( const uint32_t id );
 
         /** @return the vector of canvases, app-node only. */
         const CanvasVector& getCanvases() const { return _canvases; }
@@ -88,10 +88,10 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ConfigVisitor& visitor );
+        EQ_EXPORT VisitorResult accept( ConfigVisitor& visitor );
 
         /** Get all received statistics. */
-        void getStatistics( std::vector< FrameStatistics >& statistics );
+        EQ_EXPORT void getStatistics( std::vector< FrameStatistics >& stats );
 
         /**
          * @return true while the config is initialized and no exit event
@@ -114,7 +114,7 @@ namespace eq
          * @param initID an identifier to be passed to all init methods.
          * @return true if the initialization was successful, false if not.
          */
-        virtual bool init( const uint32_t initID );
+        EQ_EXPORT virtual bool init( const uint32_t initID );
 
         /** 
          * Exits this configuration.
@@ -125,7 +125,7 @@ namespace eq
          * @return <code>true</code> if the exit was successful,
          *         <code>false</code> if not.
          */
-        virtual bool exit();
+        EQ_EXPORT virtual bool exit();
         //@}
 
         /**
@@ -139,7 +139,7 @@ namespace eq
          *                methods.
          * @return the frame number of the new frame.
          */
-        virtual uint32_t startFrame( const uint32_t frameID );
+        EQ_EXPORT virtual uint32_t startFrame( const uint32_t frameID );
 
         /** 
          * Finish the rendering of a frame.
@@ -147,14 +147,14 @@ namespace eq
          * @return the frame number of the finished frame, or <code>0</code> if
          *         no frame has been finished.
          */
-        virtual uint32_t finishFrame();
+        EQ_EXPORT virtual uint32_t finishFrame();
 
         /**
          * Finish rendering all pending frames.
          *
          * @return the frame number of the last finished frame.
          */
-        virtual uint32_t finishAllFrames();
+        EQ_EXPORT virtual uint32_t finishAllFrames();
 
         /** 
          * Release the local synchronization of the config for a frame.
@@ -175,7 +175,7 @@ namespace eq
          * 
          * @param event the event.
          */
-        void sendEvent( ConfigEvent& event );
+        EQ_EXPORT void sendEvent( ConfigEvent& event );
 
         /** 
          * Get the next received event on the application node.
@@ -184,7 +184,7 @@ namespace eq
          * 
          * @return a config event.
          */
-        const ConfigEvent* nextEvent();
+        EQ_EXPORT const ConfigEvent* nextEvent();
 
         /** 
          * Try to get an event on the application node.
@@ -193,7 +193,7 @@ namespace eq
          * 
          * @return a config event, or 0 if no events are pending.
          */
-        const ConfigEvent* tryNextEvent();
+        EQ_EXPORT const ConfigEvent* tryNextEvent();
 
         /** @return true if events are pending. */
         bool checkEvent() const { return !_eventQueue.empty(); }
@@ -205,7 +205,7 @@ namespace eq
          * default implementation calls handleEvent() on all pending events,
          * without blocking.
          */
-        virtual void handleEvents();
+        EQ_EXPORT virtual void handleEvents();
 
         /** 
          * Handle one config event.
@@ -214,7 +214,7 @@ namespace eq
          * @return <code>true</code> if the event requires a redraw,
          *         <code>false</code> if not.
          */
-        virtual bool handleEvent( const ConfigEvent* event );
+        EQ_EXPORT virtual bool handleEvent( const ConfigEvent* event );
         //@}
         
 #ifdef EQ_USE_DEPRECATED
@@ -231,16 +231,16 @@ namespace eq
          *
          * @param matrix the matrix
          */
-        void setHeadMatrix( const vmml::Matrix4f& matrix );
+        EQ_EXPORT void setHeadMatrix( const vmml::Matrix4f& matrix );
 
         /** @return the current head matrix. */
-        const vmml::Matrix4f& getHeadMatrix() const;
+        EQ_EXPORT const vmml::Matrix4f& getHeadMatrix() const;
 
         /** Set the eye separation, i.e., the distance between the eyes. */
-        void setEyeBase( const float eyeBase );
+        EQ_EXPORT void setEyeBase( const float eyeBase );
 
         /** @return the current eye separation. */
-        float getEyeBase() const;
+        EQ_EXPORT float getEyeBase() const;
         //@}
 #endif
 
@@ -264,7 +264,7 @@ namespace eq
 #endif
 
         /** Undocumented */
-        void freezeLoadBalancing( const bool onOff );
+        EQ_EXPORT void freezeLoadBalancing( const bool onOff );
 
         /** 
          * Set the window system for the config's message pump, used by
@@ -276,7 +276,7 @@ namespace eq
     protected:
 
         /** @sa eq::net::Session::notifyMapped() */
-        virtual void notifyMapped( net::NodePtr node );
+        EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
 
     private:
         /** The node identifier of the node running the application thread. */

@@ -28,22 +28,22 @@ namespace net
      * A meta connection consisting of two (unidirectional) connections
      * providing bidirectional communication.
      */
-    class EQ_EXPORT PairConnection : public Connection
+    class PairConnection : public Connection
     {
     public:
-        PairConnection( ConnectionPtr readConnection,
-                        ConnectionPtr writeConnection );
+        EQ_EXPORT PairConnection( ConnectionPtr readConnection,
+                                  ConnectionPtr writeConnection );
 
-        ConnectionPtr getSibling();
+        EQ_EXPORT ConnectionPtr getSibling();
 
-        virtual bool connect();
-        virtual void close();
+        EQ_EXPORT virtual bool connect();
+        EQ_EXPORT virtual void close();
 
         virtual Notifier getNotifier() const
             { return _readConnection->getNotifier(); }
 
     protected:
-        virtual ~PairConnection();
+        EQ_EXPORT virtual ~PairConnection();
 
         virtual void readNB( void* buffer, const uint64_t bytes )
             { _readConnection->readNB( buffer, bytes ); }

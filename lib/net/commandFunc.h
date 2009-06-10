@@ -41,7 +41,7 @@ namespace net
 
         template< typename O > CommandFunc( const O& from )
                 : _object( from._object ),
-                  _func( 
+                  _func(
                       static_cast<CommandResult (T::*)( Command& )>(from._func))
             {}
 

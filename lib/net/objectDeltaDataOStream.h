@@ -29,7 +29,7 @@ namespace net
     /**
      * The DataOStream for object delta version data.
      */
-    class EQ_EXPORT ObjectDeltaDataOStream : public ObjectDataOStream
+    class ObjectDeltaDataOStream : public ObjectDataOStream
     {
     public:
         ObjectDeltaDataOStream( const Object* object );

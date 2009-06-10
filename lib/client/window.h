@@ -48,7 +48,7 @@ namespace eq
      * to synchronize the state of OpenGL objects between windows. Therefore,
      * Equalizer calls flush() at the end of each frame for each window.
      */
-    class EQ_EXPORT Window : public net::Object
+    class Window : public net::Object
     {
     public:
         /** Stores current drawable characteristics. */
@@ -85,27 +85,27 @@ namespace eq
         };
 
         /** Constructs a new window. */
-        Window( Pipe* parent );
+        EQ_EXPORT Window( Pipe* parent );
 
         /** Destructs the window. */
-        virtual ~Window();
+        EQ_EXPORT virtual ~Window();
 
         /** @name Data Access */
         //@{
-        net::CommandQueue* getPipeThreadQueue();
+        EQ_EXPORT net::CommandQueue* getPipeThreadQueue();
 
         /** @return the pipe of this window. */
         const Pipe* getPipe() const { return _pipe; }
         Pipe*       getPipe()       { return _pipe; }
 
-        const Node* getNode() const; 
-        Node*       getNode();
+        EQ_EXPORT const Node* getNode() const; 
+        EQ_EXPORT Node*       getNode();
 
-        const Config* getConfig() const;
-        Config*       getConfig();
+        EQ_EXPORT const Config* getConfig() const;
+        EQ_EXPORT Config*       getConfig();
 
-        ClientPtr getClient();
-        ServerPtr getServer();
+        EQ_EXPORT ClientPtr getClient();
+        EQ_EXPORT ServerPtr getServer();
 
         const ChannelVector& getChannels() { return _channels; }
 
@@ -131,7 +131,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( WindowVisitor& visitor );
+        EQ_EXPORT VisitorResult accept( WindowVisitor& visitor );
 
         /** 
          * Set the window with which this window shares the OpenGL context,
@@ -162,10 +162,10 @@ namespace eq
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        GLEWContext* glewGetContext();
+        EQ_EXPORT GLEWContext* glewGetContext();
 
         /** @return the generic WGL function table for the window's pipe. */
-        WGLEWContext* wglewGetContext();
+        EQ_EXPORT WGLEWContext* wglewGetContext();
 
         /** @return information about the current drawable. */
         const DrawableConfig& getDrawableConfig() const 
@@ -182,12 +182,12 @@ namespace eq
          * 
          * @param pvp the viewport in pixels.
          */
-        void setPixelViewport( const PixelViewport& pvp );
+        EQ_EXPORT void setPixelViewport( const PixelViewport& pvp );
         
         /** 
          * @return the window's pixel viewport
          */
-        const PixelViewport& getPixelViewport() const { return _pvp; }
+        EQ_EXPORT const PixelViewport& getPixelViewport() const { return _pvp; }
 
         /** 
          * @return the window's fractional viewport.
@@ -198,8 +198,8 @@ namespace eq
         void addRenderContext( const RenderContext& context );
 
         /** Get the last rendering context at the x, y position. */
-        bool getRenderContext( const int32_t x, const int32_t y,
-                               RenderContext& context ) const;
+        EQ_EXPORT bool getRenderContext( const int32_t x, const int32_t y,
+                                         RenderContext& context ) const;
         //@}
 
         /**
@@ -230,12 +230,11 @@ namespace eq
             IATTR_ALL
         };
 
-        void setIAttribute( const IAttribute attr, const int32_t value )
-            { _iAttributes[attr] = value; }
-        int32_t  getIAttribute( const IAttribute attr ) const
-            { return _iAttributes[attr]; }
-        static const std::string&  getIAttributeString( const IAttribute attr )
-            { return _iAttributeStrings[attr]; }
+        EQ_EXPORT void setIAttribute( const IAttribute attr,
+                                      const int32_t value );
+        EQ_EXPORT int32_t  getIAttribute( const IAttribute attr ) const;
+        EQ_EXPORT static const std::string& getIAttributeString(
+                                                const IAttribute attr );
         //@}
 
         /** @name Actions */
@@ -259,7 +258,7 @@ namespace eq
          * e.g., swapBuffers() to the OS window. The os-specific window has to
          * be initialized.
          */
-        void setOSWindow( OSWindow* window );
+        EQ_EXPORT void setOSWindow( OSWindow* window );
 
         const OSWindow* getOSWindow() const { return _osWindow; }
         OSWindow*       getOSWindow()       { return _osWindow; }
@@ -276,7 +275,7 @@ namespace eq
          *
          * @param message the error message.
          */
-        void setErrorMessage( const std::string& message ) { _error = message; }
+        EQ_EXPORT void setErrorMessage( const std::string& message );
         //@}
 
         /**
@@ -297,7 +296,7 @@ namespace eq
          * @param event the received window system event.
          * @return true when the event was handled, false if not.
          */
-        virtual bool processEvent( const Event& event );
+        EQ_EXPORT virtual bool processEvent( const Event& event );
 
         //@}
 
@@ -305,19 +304,20 @@ namespace eq
         double getFPS() const { return _avgFPS; }
 
         /* Draw FPS count */
-        virtual void drawFPS() const;
+        EQ_EXPORT virtual void drawFPS() const;
 
         /** @return the internal color type */
         int getColorType();
         
-        /** @return true if FBO is using */
-        bool isFBOWindow();
+        /** @return true if FBO is used */
+        EQ_EXPORT bool isFBOWindow();
+
     protected:
         friend class Pipe;
 
-        virtual void attachToSession( const uint32_t id, 
-                                      const uint32_t instanceID, 
-                                      net::Session* session );
+        EQ_EXPORT virtual void attachToSession( const uint32_t id, 
+                                                const uint32_t instanceID, 
+                                                net::Session* session );
 
         /** @name Actions */
         //@{
@@ -356,14 +356,14 @@ namespace eq
          * 
          * @param initID the init identifier.
          */
-        virtual bool configInit( const uint32_t initID );
+        EQ_EXPORT virtual bool configInit( const uint32_t initID );
 
         /** 
          * Initialize the OS-specific window.
          *
          * @sa setOSWindow()
          */
-        virtual bool configInitOSWindow( const uint32_t initID );
+        EQ_EXPORT virtual bool configInitOSWindow( const uint32_t initID );
 
         /** 
          * Initialize the OpenGL state for this window.
@@ -372,13 +372,13 @@ namespace eq
          * @return <code>true</code> if the initialization was successful,
          *         <code>false</code> if not.
          */
-        virtual bool configInitGL( const uint32_t initID );
+        EQ_EXPORT virtual bool configInitGL( const uint32_t initID );
 
         /** Exit this window. */
-        virtual bool configExit();
+        EQ_EXPORT virtual bool configExit();
 
         /** De-initialize the OS-specific window. */
-        virtual bool configExitOSWindow();
+        EQ_EXPORT virtual bool configExitOSWindow();
 
         /** De-initializer the OpenGL state for this window. */
         virtual bool configExitGL() { return true; }
@@ -409,9 +409,8 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finish.
          */
-        virtual void frameFinish( const uint32_t frameID, 
-                                  const uint32_t frameNumber )
-            { releaseFrame( frameNumber ); flush(); _updateFPS(); }
+        EQ_EXPORT virtual void frameFinish( const uint32_t frameID, 
+                                            const uint32_t frameNumber );
 
         /** 
          * Finish drawing.
@@ -434,13 +433,13 @@ namespace eq
          * this method will only call OSWindow::makeCurrent if it has not been
          * done before for this window.
          */
-        virtual void makeCurrent( const bool cache = true ) const;
+        EQ_EXPORT virtual void makeCurrent( const bool cache = true ) const;
 
         /** Bind the window's FBO, if it uses one. */
-        virtual void bindFrameBuffer() const;
+        EQ_EXPORT virtual void bindFrameBuffer() const;
 
         /** Swap the front and back buffer of the window. */
-        virtual void swapBuffers();
+        EQ_EXPORT virtual void swapBuffers();
         //@}
 
     private:

@@ -28,10 +28,10 @@ namespace eq
 {
 namespace server
 {
-    class ViewPath;
-    class LayoutPath;
     class LayoutVisitor;
     class ConstLayoutVisitor;
+    struct LayoutPath;
+    struct ViewPath;
 
     /**
      * The layout. @sa eq::Layout

@@ -636,8 +636,8 @@ void ROIFinder::_readbackInfo( )
 
     const float tEndX = (_pvp.w-1)*16.0f+1.0f;
     const float tEndY = (_pvp.h-1)*16.0f+1.0f;;
-    const float vEndX = _pvp.w;
-    const float vEndY = _pvp.h;
+    const float vEndX = static_cast< float >( _pvp.w );
+    const float vEndY = static_cast< float >( _pvp.h );
 
     glBegin( GL_QUADS );
         glTexCoord2f(  0.0f, 0.0f );
@@ -739,7 +739,7 @@ for( int i = 0; i < 100; i++ )
     _init( );
 
     _emptyFinder.update( &_mask[0], _wb, _hb );
-    _emptyFinder.setLimits( 200, 0.02 );
+    _emptyFinder.setLimits( 200, 0.02f );
     
     result.clear();
     _findAreas( result );

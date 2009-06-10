@@ -18,12 +18,11 @@
 #ifndef EQS_CHANNEL_LISTENER_H
 #define EQS_CHANNEL_LISTENER_H
 
+#include <eq/client/event.h>
 #include <eq/base/base.h>
 
 namespace eq
 {
-
-class Statistic;
 
 namespace server
 {

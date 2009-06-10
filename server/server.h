@@ -46,13 +46,13 @@ namespace server
     /**
      * The Equalizer server.
      */
-    class EQSERVER_EXPORT Server : public net::Node
+    class Server : public net::Node
     {
     public:
         /** 
          * Constructs a new Server.
          */
-        Server();
+        EQSERVER_EXPORT Server();
 
         /** 
          * Runs the server.
@@ -60,7 +60,7 @@ namespace server
          * @return <code>true</code> if the server did run successfully,
          *         <code>false</code> if not.
          */
-        bool run();
+        EQSERVER_EXPORT bool run();
 
         void registerConfig( Config* config );
         
@@ -69,7 +69,7 @@ namespace server
          * 
          * @param config the config.
          */
-        void addConfig( Config* config );
+        EQSERVER_EXPORT void addConfig( Config* config );
 
         /** 
          * Remove a config from this config.
@@ -93,8 +93,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ServerVisitor& visitor );
-        VisitorResult accept( ConstServerVisitor& visitor ) const;
+        EQSERVER_EXPORT VisitorResult accept( ServerVisitor& visitor );
+        EQSERVER_EXPORT VisitorResult accept( ConstServerVisitor& ) const;
 
     protected:
         virtual ~Server();

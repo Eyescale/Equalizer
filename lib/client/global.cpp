@@ -22,7 +22,7 @@
 
 namespace eq
 {
-EQ_EXPORT NodeFactory* Global::_nodeFactory = 0;
+NodeFactory* Global::_nodeFactory = 0;
 
 // initialized by EQ_PLUGIN_PATH:
 namespace
@@ -66,7 +66,7 @@ static StringVector _initPluginDirectory(const char *env)
 }
 }
 
-EQ_EXPORT PluginRegistry* Global::_pluginRegistry = new PluginRegistry();
+PluginRegistry* Global::_pluginRegistry = new PluginRegistry();
 std::string Global::_server;
 std::string Global::_configFile;
 
@@ -74,8 +74,28 @@ std::string Global::_configFile;
 static base::Lock _carbonLock;
 #endif
 
-EQ_EXPORT StringVector Global::_pluginDirectories = 
+StringVector Global::_pluginDirectories = 
      _initPluginDirectory( getenv("EQ_PLUGIN_PATH") );
+
+void Global::setServer( const std::string& server )
+{
+    _server = server;
+}
+
+const std::string& Global::getServer()
+{
+    return _server;
+}
+
+void Global::setConfigFile( const std::string& configFile )
+{
+    _configFile = configFile;
+}
+
+const std::string& Global::getConfigFile()
+{
+    return _configFile;
+}
 
 void Global::enterCarbon()
 {

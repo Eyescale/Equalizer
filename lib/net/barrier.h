@@ -33,23 +33,23 @@ namespace net
     /**
      * A networked, versioned barrier.
      */
-    class EQ_EXPORT Barrier : public Object
+    class Barrier : public Object
     {
     public:
         /** 
          * Constructs a new barrier.
          */
-        Barrier( NodePtr master, const uint32_t height = 0 );
+        EQ_EXPORT Barrier( NodePtr master, const uint32_t height = 0 );
 
         /** 
          * Constructs a new barrier.
          */
-        Barrier();
+        EQ_EXPORT Barrier();
 
         /**
          * Destructs the barrier.
          */
-        virtual ~Barrier();
+        EQ_EXPORT virtual ~Barrier();
 
         /** 
          * @name Data Access
@@ -72,7 +72,7 @@ namespace net
          * The implementation assumes that the master node instance also enters
          * the barrier.
          */
-        void enter();
+        EQ_EXPORT void enter();
         //@}
 
     protected:

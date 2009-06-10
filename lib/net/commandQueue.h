@@ -32,21 +32,21 @@ namespace net
     /**
      * A CommandQueue is a thread-safe queue for command packets.
      */
-    class EQ_EXPORT CommandQueue : public base::NonCopyable
+    class CommandQueue : public base::NonCopyable
     {
     public:
-        CommandQueue();
-        virtual ~CommandQueue();
+        EQ_EXPORT CommandQueue();
+        EQ_EXPORT virtual ~CommandQueue();
 
         /** 
          * Push a command to the queue.
          * 
          * @param packet the command packet.
          */
-        virtual void push( Command& packet );
+        EQ_EXPORT virtual void push( Command& packet );
 
         /** Push a command to the front of the queue. */
-        virtual void pushFront( Command& packet );
+        EQ_EXPORT virtual void pushFront( Command& packet );
 
         /** Wake up the command queue, pop() will return 0. */
         virtual void wakeup() { _commands.push( static_cast< Command* >( 0 )); }
@@ -58,7 +58,7 @@ namespace net
          * 
          * @return the next command in the queue.
          */
-        virtual Command* pop();
+        EQ_EXPORT virtual Command* pop();
 
         /** 
          * Try to pop a command from the queue.
@@ -67,14 +67,14 @@ namespace net
          * 
          * @return the next command in the queue, or 0 if no command is queued.
          */
-        virtual Command* tryPop();
+        EQ_EXPORT virtual Command* tryPop();
 
         /** 
          * Peek the command at the end of the queue.
          *
          * @return the last command in the queue, or 0 if no command is queued.
          */
-        Command* back() const;
+        EQ_EXPORT Command* back() const;
 
         /** 
          * @return <code>true</code> if the command queue is empty,

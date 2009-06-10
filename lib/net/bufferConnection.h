@@ -28,22 +28,23 @@ namespace net
     /**
      * A proxy connection buffering outgoing data into a memory region.
      */
-    class EQ_EXPORT BufferConnection : public Connection
+    class BufferConnection : public Connection
     {
     public:
-        BufferConnection();
-        virtual ~BufferConnection();
+        EQ_EXPORT BufferConnection();
+        EQ_EXPORT virtual ~BufferConnection();
 
-        void sendBuffer( ConnectionPtr connection );
+        EQ_EXPORT void sendBuffer( ConnectionPtr connection );
 
-        uint64_t getSize() const { return _buffer.size; }
+        EQ_EXPORT uint64_t getSize() const { return _buffer.size; }
 
     protected:
         virtual void readNB( void* buffer, const uint64_t bytes )
             { EQDONTCALL; }
         virtual int64_t readSync( void* buffer, const uint64_t bytes )
             { EQDONTCALL; return -1; }
-        virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
+        EQ_EXPORT virtual int64_t write( const void* buffer,
+                                         const uint64_t bytes ) const;
 
     private:
         mutable base::Bufferb _buffer;

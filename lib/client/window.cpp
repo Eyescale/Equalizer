@@ -148,7 +148,7 @@ void Window::attachToSession( const uint32_t id,
 
 void Window::_updateFPS()
 {
-    const double curTime      = getConfig()->getTime();
+    const double curTime      = static_cast< float >( getConfig()->getTime( ));
     const double curInterval  = curTime - _lastTime;
 
     const bool   isFirstFrame = _lastTime == 0.0;
@@ -409,6 +409,21 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
     return false;
 }
 
+void Window::setIAttribute( const IAttribute attr, const int32_t value )
+{
+    _iAttributes[attr] = value;
+}
+
+int32_t  Window::getIAttribute( const IAttribute attr ) const
+{
+    return _iAttributes[attr];
+}
+
+const std::string&  Window::getIAttributeString( const IAttribute attr )
+{
+    return _iAttributeStrings[attr];
+}
+
 void Window::setOSWindow( OSWindow* window )
 {
     if( _osWindow )
@@ -424,6 +439,13 @@ void Window::setOSWindow( OSWindow* window )
     _osWindow->initGLEW();
     _queryDrawableConfig();
     _setupObjectManager();
+}
+
+void Window::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
+{
+    releaseFrame( frameNumber );
+    flush();
+    _updateFPS();
 }
 
 //----------------------------------------------------------------------
@@ -645,6 +667,11 @@ void Window::_enterBarrier( net::ObjectVersion barrier )
 
     WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
     netBarrier->enter();
+}
+
+void Window::setErrorMessage( const std::string& message )
+{
+    _error = message;
 }
 
 //======================================================================

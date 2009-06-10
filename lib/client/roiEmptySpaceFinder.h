@@ -28,7 +28,7 @@ namespace eq
     /**
      * Finds largest empty regions.
      */
-    class EQ_EXPORT ROIEmptySpaceFinder
+    class ROIEmptySpaceFinder
     {
     public:
         ROIEmptySpaceFinder() : _mask( 0 ) {};

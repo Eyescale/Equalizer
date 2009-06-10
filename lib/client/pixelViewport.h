@@ -145,7 +145,8 @@ namespace eq
                     return Viewport::FULL;
 
                 if( !rhs.hasArea( ))
-                    return Viewport( x, y, 0.f, 0.f );
+                    return Viewport( static_cast<float>( x ), 
+                                     static_cast<float>( y ), 0.f, 0.f );
 
                 return Viewport(  ( x - rhs.x )/ static_cast<float>( rhs.w ),
                                   ( y - rhs.y )/ static_cast<float>( rhs.h ),

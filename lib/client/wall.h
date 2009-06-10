@@ -34,58 +34,58 @@ namespace eq
      * The three points describe the bottom left, bottom right and top left
      * coordinate of the wall in real-world coordinates.
      */
-    class EQ_EXPORT Wall
+    class Wall
     {
     public:
-        Wall();
+        EQ_EXPORT Wall();
 
         /** 
          * Resize the wall horizontally.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
          */
-        void resizeHorizontal( const float ratio );
+        EQ_EXPORT void resizeHorizontal( const float ratio );
 
         /** 
          * Resize the wall vertically.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
          */
-        void resizeVertical( const float ratio );
+        EQ_EXPORT void resizeVertical( const float ratio );
         
         /** 
          * Resize the wall on the left side.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
          */
-        void resizeLeft( const float ratio );
+        EQ_EXPORT void resizeLeft( const float ratio );
 
         /** 
          * Resize the wall on the right side.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
          */
-        void resizeRight( const float ratio );
+        EQ_EXPORT void resizeRight( const float ratio );
 
         /** 
          * Resize the wall on the top side.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
          */
-        void resizeTop( const float ratio );
+        EQ_EXPORT void resizeTop( const float ratio );
 
         /** 
          * Resize the wall on the bottom side.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
          */
-        void resizeBottom( const float ratio );
+        EQ_EXPORT void resizeBottom( const float ratio );
 
         /** Compute the sub-frustum for a 2D area on the full wall. */
-        void apply( const Viewport& viewport);
+        EQ_EXPORT void apply( const Viewport& viewport);
 
         /** Set the wall parameters from a projection description. */
-        Wall& operator = ( const Projection& projection );
+        EQ_EXPORT Wall& operator = ( const Projection& projection );
 
         /** @return the width of the wall. */
         float getWidth() const { return (bottomRight - bottomLeft).length(); }
@@ -93,8 +93,8 @@ namespace eq
         /** @return the height of the wall. */
         float getHeight() const { return (topLeft - bottomLeft).length(); }
 
-        bool operator == ( const Wall& rhs ) const;
-        bool operator != ( const Wall& rhs ) const;
+        EQ_EXPORT bool operator == ( const Wall& rhs ) const;
+        EQ_EXPORT bool operator != ( const Wall& rhs ) const;
 
         vmml::Vector3f bottomLeft;
         vmml::Vector3f bottomRight;

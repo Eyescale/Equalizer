@@ -24,7 +24,7 @@
 namespace eq
 {
     /** A window-system event for a WGLWindowIF */
-    class EQ_EXPORT WGLWindowEvent : public Event
+    class WGLWindowEvent : public Event
     {
     public:
         // Native event data

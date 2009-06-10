@@ -40,14 +40,14 @@ namespace net
      * A received SessionPacket is dispatched to the locally-mapped session of
      * the same identifier.
      */
-    class EQ_EXPORT Session : public Dispatcher
+    class Session : public Dispatcher
     {
     public:
         /** Construct a new session. */
-        Session();
+        EQ_EXPORT Session();
 
         /** Destruct this session. */
-        virtual ~Session();
+        EQ_EXPORT virtual ~Session();
 
         /** @name Data Access */
         //@{
@@ -64,7 +64,7 @@ namespace net
          * @return the queue to the command thread of the local node, or 0 if
          *         the session is not mapped.
          */
-        CommandQueue* getCommandThreadQueue();
+        EQ_EXPORT CommandQueue* getCommandThreadQueue();
 
         /** @return the server hosting this session, or 0 if the session is not
          *          mapped.. */
@@ -85,7 +85,7 @@ namespace net
          * @return true if the command was dispatched, false otherwise.
          * @sa Dispatcher::dispatchCommand
          */
-        virtual bool dispatchCommand( Command& packet );
+        EQ_EXPORT virtual bool dispatchCommand( Command& packet );
 
         /** 
          * Invokes the registered handler method for a command packet.
@@ -96,7 +96,7 @@ namespace net
          * @param packet the command packet.  @return the result of
          * the operation.  @sa Dispatcher::invokeCommand
          */
-        virtual CommandResult invokeCommand( Command& packet );
+        EQ_EXPORT virtual CommandResult invokeCommand( Command& packet );
         //@}
 
 
@@ -122,7 +122,7 @@ namespace net
          *         continous block of identifiers for the request is available.
          * @sa base::IDPool
          */
-        uint32_t genIDs( const uint32_t range );
+        EQ_EXPORT uint32_t genIDs( const uint32_t range );
 
         /** 
          * Free a continous block of unique identifiers.
@@ -133,7 +133,7 @@ namespace net
          * @param start the first identifier in the block.
          * @param range the size of the block.
          */
-        void freeIDs( const uint32_t start, const uint32_t range );
+        EQ_EXPORT void freeIDs( const uint32_t start, const uint32_t range );
 
         /** 
          * Set the master node for a block of identifiers.
@@ -150,7 +150,7 @@ namespace net
          * @param range the size of the block.
          * @param master the master node for the block of identifiers.
          */
-        void setIDMaster( const uint32_t start, const uint32_t range, 
+        EQ_EXPORT void setIDMaster( const uint32_t start, const uint32_t range, 
                           const NodeID& master );
 
         /** 
@@ -159,7 +159,8 @@ namespace net
          * @param start the first identifier of the block.
          * @param range the size of the block.
          */
-        void unsetIDMaster( const uint32_t start, const uint32_t range );
+        EQ_EXPORT void unsetIDMaster( const uint32_t start, 
+                                      const uint32_t range );
 
         /** 
          * Returns the master node id for an identifier.
@@ -168,7 +169,7 @@ namespace net
          * @return the master node, or Node::ZERO if no master node is
          *         set for the identifier.
          */
-        const NodeID& getIDMaster( const uint32_t id );
+        EQ_EXPORT const NodeID& getIDMaster( const uint32_t id );
         //@}
 
 
@@ -188,14 +189,14 @@ namespace net
          * @param object the object instance.
          * @return true if the object was registered, false otherwise.
          */
-        bool registerObject( Object* object );
+        EQ_EXPORT bool registerObject( Object* object );
 
         /** 
          * Deregister a distributed object.
          *
          * @param object the object instance.
          */
-        void deregisterObject( Object* object );
+        EQ_EXPORT void deregisterObject( Object* object );
 
         /** 
          * Map a distributed object.
@@ -226,21 +227,21 @@ namespace net
          *         available.
          * @sa registerObject
          */
-        bool mapObject( Object* object, const uint32_t id, 
+        EQ_EXPORT bool mapObject( Object* object, const uint32_t id, 
                         const uint32_t version = Object::VERSION_OLDEST );
 
         /** Start mapping a distributed object. */
-        uint32_t mapObjectNB( Object* object, const uint32_t id, 
+        EQ_EXPORT uint32_t mapObjectNB( Object* object, const uint32_t id, 
                               const uint32_t version = Object::VERSION_OLDEST );
         /** Finalize the mapping of a distributed object. */
-        bool mapObjectSync( const uint32_t requestID );
+        EQ_EXPORT bool mapObjectSync( const uint32_t requestID );
 
         /** 
          * Unmap a mapped object.
          * 
          * @param object the mapped object.
          */
-        void unmapObject( Object* object );
+        EQ_EXPORT void unmapObject( Object* object );
 
         /** 
          * Attach an object to an identifier.
@@ -254,7 +255,7 @@ namespace net
          * @param instanceID the node-local instance identifier, or
          *                   EQ_ID_INVALID if this method should generate one.
          */
-        void attachObject( Object* object, const uint32_t id, 
+        EQ_EXPORT void attachObject( Object* object, const uint32_t id, 
                            const uint32_t instanceID );
 
         /** 
@@ -262,7 +263,7 @@ namespace net
          * 
          * @param object the attached object.
          */
-        void detachObject( Object* object );
+        EQ_EXPORT void detachObject( Object* object );
         //@}
 
 
@@ -276,7 +277,7 @@ namespace net
          *
          * @param node the node to which the session has been mapped.
          */
-        virtual void notifyMapped( NodePtr node );
+        EQ_EXPORT virtual void notifyMapped( NodePtr node );
         //@}
 
     protected:

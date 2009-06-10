@@ -44,7 +44,7 @@ namespace eq
      * rendering-relevant tasks, such as clear, draw, assemble and readback. It
      * is a child of a Window.
      */
-    class EQ_EXPORT Channel : public net::Object
+    class Channel : public net::Object
     {
     public:
     
@@ -61,10 +61,10 @@ namespace eq
         };
         
         /** Constructs a new channel. */
-        Channel( Window* parent );
+        EQ_EXPORT Channel( Window* parent );
 
         /** Destructs the channel. */
-        virtual ~Channel();
+        EQ_EXPORT virtual ~Channel();
 
         /**
          * @name Data Access
@@ -73,18 +73,18 @@ namespace eq
         Window*       getWindow()       { return _window; }
         const Window* getWindow() const { return _window; }
 
-        Pipe*       getPipe();
-        const Pipe* getPipe() const;
+        EQ_EXPORT Pipe*       getPipe();
+        EQ_EXPORT const Pipe* getPipe() const;
 
-        Node*       getNode();
-        const Node* getNode() const;
+        EQ_EXPORT Node*       getNode();
+        EQ_EXPORT const Node* getNode() const;
 
-        Config*       getConfig();
-        const Config* getConfig() const;
+        EQ_EXPORT Config*       getConfig();
+        EQ_EXPORT const Config* getConfig() const;
 
-        ServerPtr getServer();
+        EQ_EXPORT ServerPtr getServer();
 
-        Window::ObjectManager* getObjectManager();
+        EQ_EXPORT Window::ObjectManager* getObjectManager();
 
         /** 
          * Get the GLEW context for this channel.
@@ -100,8 +100,8 @@ namespace eq
          * @return the extended OpenGL function table for the channel's OpenGL
          *         context.
          */
-        GLEWContext*       glewGetContext();
-        const GLEWContext* glewGetContext() const;
+        EQ_EXPORT GLEWContext*       glewGetContext();
+        EQ_EXPORT const GLEWContext* glewGetContext() const;
         
         /** @return the name of the window. */
         const std::string& getName() const { return _name; }
@@ -122,7 +122,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ChannelVisitor& visitor );
+        EQ_EXPORT VisitorResult accept( ChannelVisitor& visitor );
 
         /** 
          * Set the near and far planes for this channel.
@@ -135,7 +135,7 @@ namespace eq
          * @param nearPlane the near plane.
          * @param farPlane the far plane.
          */
-        void setNearFar( const float nearPlane, const float farPlane );
+        EQ_EXPORT void setNearFar( const float nearPlane, const float farPlane );
 
         /** Return a stable, unique color for this channel. */
         const vmml::Vector3ub& getUniqueColor() const { return _color; }
@@ -151,10 +151,10 @@ namespace eq
          * 
          * @return the channel's view, or 0 if it does not have a view.
          */
-        const View* getView();
+        EQ_EXPORT const View* getView();
 
         /** Add a new statistics event for the current frame. */
-        void addStatistic( Event& event );
+        EQ_EXPORT void addStatistic( Event& event );
         //@}
 
         /**
@@ -166,16 +166,16 @@ namespace eq
          */
         //@{
         /** @return the channel's current draw buffer. */
-        uint32_t getDrawBuffer() const;
+        EQ_EXPORT uint32_t getDrawBuffer() const;
 
         /** @return the channel's current read buffer. */
-        uint32_t getReadBuffer() const;
+        EQ_EXPORT uint32_t getReadBuffer() const;
 
         /** @return the channel's current color mask for drawing. */
-        const ColorMask& getDrawBufferMask() const;
+        EQ_EXPORT const ColorMask& getDrawBufferMask() const;
 
         /** @return the channel's current pixel viewport. */
-        const PixelViewport& getPixelViewport() const;
+        EQ_EXPORT const PixelViewport& getPixelViewport() const;
 
         /**
          * Get the channel's current position wrt the destination channel.
@@ -186,34 +186,34 @@ namespace eq
          *
          * @return the channel's current position wrt the destination channel.
          */
-        const vmml::Vector2i& getPixelOffset() const;
+        EQ_EXPORT const vmml::Vector2i& getPixelOffset() const;
 
         /** @return the perspective frustum for the current rendering task. */
-        const vmml::Frustumf& getFrustum() const;
+        EQ_EXPORT const vmml::Frustumf& getFrustum() const;
 
         /** @return the orthographic frustum for the current rendering task. */
-        const vmml::Frustumf& getOrtho() const;
+        EQ_EXPORT const vmml::Frustumf& getOrtho() const;
 
         /** @return the fractional viewport wrt the destination view. */
-        const Viewport& getViewport() const;
+        EQ_EXPORT const Viewport& getViewport() const;
 
         /** @return the database range for the current rendering task. */
-        const Range& getRange() const;
+        EQ_EXPORT const Range& getRange() const;
 
         /** @return the pixel decomposition for the current rendering task. */
-        const Pixel& getPixel() const;
+        EQ_EXPORT const Pixel& getPixel() const;
 
         /** @return the up/downscale factor for the current rendering task. */
-        const Zoom& getZoom() const;
+        EQ_EXPORT const Zoom& getZoom() const;
 
         /** @return the currently rendered eye pass. */
-        Eye getEye() const;
+        EQ_EXPORT Eye getEye() const;
 
         /**
          * @return the view transformation to position and orient the view
          *         frustum.
          */
-        const vmml::Matrix4f& getHeadTransform() const;
+        EQ_EXPORT const vmml::Matrix4f& getHeadTransform() const;
 
         /** @return the list of input frames, used from frameAssemble(). */
         const FrameVector& getInputFrames() { return _inputFrames; }
@@ -229,7 +229,7 @@ namespace eq
          *
          * @return the 2D orthographic frustum.
          */
-        vmml::Frustumf getScreenFrustum() const;
+        EQ_EXPORT vmml::Frustumf getScreenFrustum() const;
         
         /** 
          * get the channel's native (drawable) pixel viewport.
@@ -238,15 +238,15 @@ namespace eq
             { return _nativeContext.pvp; }
 
         /** @warning  Undocumented - may not be supported in the future */
-        const vmml::Vector4i& getOverdraw() const;
+        EQ_EXPORT const vmml::Vector4i& getOverdraw() const;
 
         /** @warning  Undocumented - may not be supported in the future */
-        uint32_t getTaskID() const;
+        EQ_EXPORT uint32_t getTaskID() const;
 
         /** 
          * get the FBO used as an alternate frame buffer.
          */
-        FrameBufferObject* getFrameBufferObject();
+        EQ_EXPORT FrameBufferObject* getFrameBufferObject();
         //@}
 
         /**
@@ -260,27 +260,27 @@ namespace eq
         /** 
          * Apply the current rendering buffer, including the color mask.
          */
-        virtual void applyBuffer();
+        EQ_EXPORT virtual void applyBuffer();
 
         /** 
          * Apply the current color mask.
          */
-        virtual void applyColorMask() const;
+        EQ_EXPORT virtual void applyColorMask() const;
 
         /** 
          * Apply the OpenGL viewport for the current rendering task.
          */
-        virtual void applyViewport() const;
+        EQ_EXPORT virtual void applyViewport() const;
 
         /**
          * Apply the perspective frustum matrix for the current rendering task.
          */
-        virtual void applyFrustum() const;
+        EQ_EXPORT virtual void applyFrustum() const;
 
         /**
          * Apply the orthographic frustum matrix for the current rendering task.
          */
-        virtual void applyOrtho() const;
+        EQ_EXPORT virtual void applyOrtho() const;
 
         /** 
          * Apply a orthographic frustum for pixel-based 2D operations. 
@@ -288,18 +288,18 @@ namespace eq
          * One unit in the frustum corresponds to one pixel on the screen. The
          * frustum is position wrt the canvas.
          */
-        void applyScreenFrustum() const;
+        EQ_EXPORT void applyScreenFrustum() const;
 
         /** 
-         * Apply the modelling transformation to position and orient the view
+         * Apply the modeling transformation to position and orient the view
          * frustum.
          */
-        virtual void applyHeadTransform() const;
+        EQ_EXPORT virtual void applyHeadTransform() const;
 
         /** 
          * Apply the current alternate frame buffer.
          */
-        virtual void applyFrameBufferObject();
+        EQ_EXPORT virtual void applyFrameBufferObject();
         
         /** 
          * Process a received event.
@@ -311,13 +311,13 @@ namespace eq
          * @param event the received event.
          * @return true when the event was handled, false if not.
          */
-        virtual bool processEvent( const Event& event );
+        EQ_EXPORT virtual bool processEvent( const Event& event );
 
         /** Draw a statistics overlay. */
-        virtual void drawStatistics();
+        EQ_EXPORT virtual void drawStatistics();
 
         /** Outlines the current pixel viewport. */
-        virtual void outlineViewport();
+        EQ_EXPORT virtual void outlineViewport();
 
         /**
          * @name Attributes
@@ -332,10 +332,9 @@ namespace eq
             IATTR_ALL
         };
         
-        int32_t  getIAttribute( const IAttribute attr ) const
-            { return _iAttributes[attr]; }
-        static const std::string&  getIAttributeString( const IAttribute attr )
-            { return _iAttributeStrings[attr]; }
+        EQ_EXPORT int32_t getIAttribute( const IAttribute attr ) const;
+        EQ_EXPORT static const std::string& getIAttributeString(
+                                                        const IAttribute attr );
         //@}
 #if 0
         /** @name Scene Object Access. */
@@ -351,9 +350,9 @@ namespace eq
     protected:
         friend class Window;
 
-        void attachToSession( const uint32_t id, 
-                              const uint32_t instanceID, 
-                              net::Session* session );
+        EQ_EXPORT void attachToSession( const uint32_t id, 
+                                        const uint32_t instanceID, 
+                                        net::Session* session );
 
         /** @name Actions */
         //@{
@@ -391,17 +390,17 @@ namespace eq
          * 
          * @param initID the init identifier.
          */
-        virtual bool configInit( const uint32_t initID );
+        EQ_EXPORT virtual bool configInit( const uint32_t initID );
 
         /** 
          * Exit this channel.
          */
-        virtual bool configExit();
+        EQ_EXPORT virtual bool configExit();
 
         /** 
          * Rebind the current alternate rendering buffer.
          */
-        void bindFrameBuffer();
+        EQ_EXPORT void bindFrameBuffer();
         
         /**
          * Start rendering a frame.
@@ -448,14 +447,14 @@ namespace eq
          * 
          * @param frameID the per-frame identifier.
          */
-        virtual void frameClear( const uint32_t frameID );
+        EQ_EXPORT virtual void frameClear( const uint32_t frameID );
 
         /** 
          * Draw the scene.
          * 
          * @param frameID the per-frame identifier.
          */
-        virtual void frameDraw( const uint32_t frameID );
+        EQ_EXPORT virtual void frameDraw( const uint32_t frameID );
 
         /** 
          * Assemble input frames.
@@ -463,7 +462,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @sa getInputFrames
          */
-        virtual void frameAssemble( const uint32_t frameID );
+        EQ_EXPORT virtual void frameAssemble( const uint32_t frameID );
 
         /** 
          * Read back the rendered scene.
@@ -471,7 +470,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @sa getOutputFrames
          */
-        virtual void frameReadback( const uint32_t frameID );
+        EQ_EXPORT virtual void frameReadback( const uint32_t frameID );
 
         /** 
          * Start updating a destination channel.
@@ -499,12 +498,12 @@ namespace eq
          * The default implementation is very conservative and saves any state
          * which is potentially changed by the assembly routines.
          */
-        virtual void setupAssemblyState();
+        EQ_EXPORT virtual void setupAssemblyState();
 
         /**
          * Reset the OpenGL state after an assembly operation.
          */
-        virtual void resetAssemblyState();
+        EQ_EXPORT virtual void resetAssemblyState();
         //@}
 
         /** @name Error information. */
@@ -517,8 +516,9 @@ namespace eq
          *
          * @param message the error message.
          */
-        void setErrorMessage( const std::string& message ) { _error = message; }
+        EQ_EXPORT void setErrorMessage( const std::string& message );
         //@}
+
     private:
         //-------------------- Members --------------------
         /** The parent window. */

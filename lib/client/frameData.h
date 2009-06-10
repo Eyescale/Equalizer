@@ -44,11 +44,11 @@ namespace server
      * A frame data holds multiple images and is used by frames.
      * It is not intended to be used directly by application code.
      */
-    class EQ_EXPORT FrameData : public net::Object
+    class FrameData : public net::Object
     {
     public:
-        FrameData();
-        virtual ~FrameData();
+        EQ_EXPORT FrameData();
+        EQ_EXPORT virtual ~FrameData();
 
         /** 
          * @name Data Access
@@ -89,10 +89,10 @@ namespace server
          * 
          * @return the image.
          */
-        Image* newImage( const eq::Frame::Type type = Frame::TYPE_MEMORY );
+        EQ_EXPORT Image* newImage( const eq::Frame::Type type = Frame::TYPE_MEMORY );
 
         /** Clear the frame by recycling the attached images. */
-        void clear();
+        EQ_EXPORT void clear();
 
         /** 
          * Read back a set of images according to the current frame data.

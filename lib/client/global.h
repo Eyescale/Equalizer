@@ -54,7 +54,7 @@ namespace eq
     /** 
      * Global parameter handling for the Equalizer client library. 
      */
-    class EQ_EXPORT Global
+    class Global
     {
     public:
         /** @return the node factory. */
@@ -65,22 +65,20 @@ namespace eq
          * 
          * @param server the default server.
          */
-        static void setServer( const std::string& server )
-            { _server = server; }
+        EQ_EXPORT static void setServer( const std::string& server );
 
         /** @return the default Equalizer server. */
-        static const std::string& getServer() { return _server; }
+        EQ_EXPORT static const std::string& getServer();
 
         /** 
          * Set the config file for the app-local server.
          * 
          * @param configFile the default configFile.
          */
-        static void setConfigFile( const std::string& configFile )
-            { _configFile = configFile; }
+        EQ_EXPORT static void setConfigFile( const std::string& configFile );
 
         /** @return the default config file for the app-local server. */
-        static const std::string& getConfigFile() { return _configFile; }
+        EQ_EXPORT static const std::string& getConfigFile();
 
         /** 
          * Global lock for all non-thread-safe Carbon API calls. 
@@ -95,21 +93,21 @@ namespace eq
           * @return all directories to search for compressor DSOs during
           *         eq::init().
           */
-        static const StringVector& getPluginDirectories();
+        EQ_EXPORT static const StringVector& getPluginDirectories();
 
         /** add a new directory to search for compressor DSOs. */
-        static void  addPluginDirectory( const std::string& path );
+        EQ_EXPORT static void  addPluginDirectory( const std::string& path );
 
         /** remove a plugin directory */
-        static void  removePluginDirectory( const std::string& path );
+        EQ_EXPORT static void  removePluginDirectory( const std::string& path );
 
         /** @return the plugin registry. */
         static PluginRegistry* getPluginRegistry() { return _pluginRegistry; }
 
     private:
-        friend EQ_EXPORT bool init( const int argc, char** argv, 
+        EQ_EXPORT friend bool init( const int argc, char** argv, 
                                     NodeFactory* nodeFactory );
-        friend EQ_EXPORT bool exit();
+        EQ_EXPORT friend bool exit();
         static NodeFactory* _nodeFactory;
 
         static std::string  _server;

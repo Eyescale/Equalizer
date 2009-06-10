@@ -450,6 +450,31 @@ WGLEWContext* Pipe::wglewGetContext()
     return _osPipe->wglewGetContext();
 }
 
+void Pipe::waitExited() const
+{
+    _state.waitEQ( STATE_STOPPED );
+}
+
+bool Pipe::isRunning() const
+{
+    return (_state == STATE_RUNNING);
+}
+
+void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
+{
+    _finishedFrame.waitGE( frameNumber );
+}
+
+void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
+{
+    _unlockedFrame.waitGE( frameNumber );
+}
+
+uint32_t Pipe::getFinishedFrame() const
+{
+    return _finishedFrame.get();
+}
+
 
 //---------------------------------------------------------------------------
 // pipe-thread methods

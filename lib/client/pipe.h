@@ -52,26 +52,26 @@ namespace eq
      * the pipe is non-threaded, in which case the tasks are executed on the
      * Node's main thread.
      */
-    class EQ_EXPORT Pipe : public net::Object
+    class Pipe : public net::Object
     {
     public:
         /** Constructs a new pipe. */
-        Pipe( Node* parent );
+        EQ_EXPORT Pipe( Node* parent );
 
         /** Destructs the pipe. */
-        virtual ~Pipe();
+        EQ_EXPORT virtual ~Pipe();
 
         /** @name Data Access. */
         //@{
-        net::CommandQueue* getPipeThreadQueue();
+        EQ_EXPORT net::CommandQueue* getPipeThreadQueue();
         Node*       getNode()       { return _node; }
         const Node* getNode() const { return _node; }
 
-        Config* getConfig();
-        const Config* getConfig() const;
+        EQ_EXPORT Config* getConfig();
+        EQ_EXPORT const Config* getConfig() const;
 
-        ClientPtr getClient();
-        ServerPtr getServer();
+        EQ_EXPORT ClientPtr getClient();
+        EQ_EXPORT ServerPtr getServer();
 
         const WindowVector& getWindows() const { return _windows; }
 
@@ -91,7 +91,7 @@ namespace eq
 
         bool isThreaded() const { return ( _thread != 0 ); }
         uint32_t getCurrentFrame()  const { return _currentFrame; }
-        uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
+        EQ_EXPORT uint32_t getFinishedFrame() const;
 
         /** 
          * Traverse this pipe and all children using a pipe visitor.
@@ -99,7 +99,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( PipeVisitor& visitor );
+        EQ_EXPORT VisitorResult accept( PipeVisitor& visitor );
 
         /**
          * Set the pipes's pixel viewport.
@@ -151,10 +151,10 @@ namespace eq
         WindowSystem getWindowSystem() const { return _windowSystem; }
 
         /** @return the time in ms elapsed since the frame started. */
-        int64_t getFrameTime() const;
+        EQ_EXPORT int64_t getFrameTime() const;
 
         /** @return the generic WGL function table for the pipe. */
-        WGLEWContext* wglewGetContext();
+        EQ_EXPORT WGLEWContext* wglewGetContext();
         //@}
 
         /**
@@ -186,8 +186,8 @@ namespace eq
         //@}
 
         /** Wait for the pipe to be exited. */
-        void waitExited() const { _state.waitEQ( STATE_STOPPED ); }
-        bool isRunning() const { return (_state == STATE_RUNNING); }
+        EQ_EXPORT void waitExited() const;
+        EQ_EXPORT bool isRunning() const;
         
         /** 
          * Wait for a frame to be finished.
@@ -195,8 +195,7 @@ namespace eq
          * @param frameNumber the frame number.
          * @sa releaseFrame()
          */
-        void waitFrameFinished( const uint32_t frameNumber ) const
-            { _finishedFrame.waitGE( frameNumber ); }
+        EQ_EXPORT void waitFrameFinished( const uint32_t frameNumber ) const;
 
         /** 
          * Wait for a frame to be released locally.
@@ -204,8 +203,7 @@ namespace eq
          * @param frameNumber the frame number.
          * @sa releaseFrameLocal()
          */
-        void waitFrameLocal( const uint32_t frameNumber ) const
-            { _unlockedFrame.waitGE( frameNumber ); }
+        EQ_EXPORT void waitFrameLocal( const uint32_t frameNumber ) const;
 
         /** Start the pipe thread. */
         void startThread();
@@ -254,14 +252,14 @@ namespace eq
          * 
          * @param frameNumber the frame to start.
          */
-        void startFrame( const uint32_t frameNumber );
+        EQ_EXPORT void startFrame( const uint32_t frameNumber );
 
         /** 
          * Signal the completion of a frame to the parent.
          * 
          * @param frameNumber the frame to end.
          */
-        void releaseFrame( const uint32_t frameNumber );
+        EQ_EXPORT void releaseFrame( const uint32_t frameNumber );
 
         /** 
          * Release the local synchronization of the parent for a frame.
@@ -274,7 +272,7 @@ namespace eq
          * 
          * @param frameNumber the frame to release.
          */
-        void releaseFrameLocal( const uint32_t frameNumber );
+        EQ_EXPORT void releaseFrameLocal( const uint32_t frameNumber );
         //@}
 
         /**
@@ -292,7 +290,8 @@ namespace eq
          * @return <code>true</code> if the window system is supported,
          *         <code>false</code> if not.
          */
-        virtual bool supportsWindowSystem( const WindowSystem system ) const;
+        EQ_EXPORT virtual bool supportsWindowSystem( const WindowSystem system )
+                                   const;
 
         /** 
          * Return the window system to be used by this pipe.
@@ -302,19 +301,19 @@ namespace eq
          * 
          * @return the window system currently used by this pipe.
          */
-        virtual WindowSystem selectWindowSystem() const;
+        EQ_EXPORT virtual WindowSystem selectWindowSystem() const;
 
         /** 
          * Initialises this pipe.
          * 
          * @param initID the init identifier.
          */
-        virtual bool configInit( const uint32_t initID );
+        EQ_EXPORT virtual bool configInit( const uint32_t initID );
 
         /** 
          * Exit this pipe.
          */
-        virtual bool configExit();
+        EQ_EXPORT virtual bool configExit();
 
         /**
          * Start rendering a frame.
@@ -332,8 +331,8 @@ namespace eq
          * @sa Config::beginFrame(), Node::startFrame(), 
          *     Node::waitFrameStarted()
          */
-        virtual void frameStart( const uint32_t frameID, 
-                                 const uint32_t frameNumber );
+        EQ_EXPORT virtual void frameStart( const uint32_t frameID, 
+                                           const uint32_t frameNumber );
 
         /**
          * Finish rendering a frame.
@@ -348,8 +347,8 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finish.
          */
-        virtual void frameFinish( const uint32_t frameID, 
-                                  const uint32_t frameNumber );
+        EQ_EXPORT virtual void frameFinish( const uint32_t frameID, 
+                                            const uint32_t frameNumber );
 
         /** 
          * Finish drawing.
@@ -360,8 +359,8 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finished with draw.
          */
-        virtual void frameDrawFinish( const uint32_t frameID, 
-                                      const uint32_t frameNumber );
+        EQ_EXPORT virtual void frameDrawFinish( const uint32_t frameID, 
+                                                const uint32_t frameNumber );
 
         /** @name Configuration. */
         //@{
@@ -377,9 +376,9 @@ namespace eq
         //@}
 
         /** @sa net::Object::attachToSession. */
-        virtual void attachToSession( const uint32_t id, 
-                                      const uint32_t instanceID, 
-                                      net::Session* session );
+        EQ_EXPORT virtual void attachToSession( const uint32_t id, 
+                                                const uint32_t instanceID, 
+                                                net::Session* session );
 
     private:
         //-------------------- Members --------------------

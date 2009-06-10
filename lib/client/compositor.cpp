@@ -1017,13 +1017,13 @@ void Compositor::_drawPixels( const Image* image,
         glTexCoord2f( 0.0f, 0.0f );
         glVertex3f( startX, startY, 0.0f );
 
-        glTexCoord2f( pvp.w, 0.0f );
+        glTexCoord2f( static_cast< float >( pvp.w ), 0.0f );
         glVertex3f( endX, startY, 0.0f );
 
-        glTexCoord2f( pvp.w, pvp.h );
+        glTexCoord2f( static_cast<float>( pvp.w ), static_cast<float>( pvp.h ));
         glVertex3f( endX, endY, 0.0f );
         
-        glTexCoord2f( 0.0f, pvp.h );
+        glTexCoord2f( 0.0f, static_cast< float >( pvp.h ));
         glVertex3f( startX, endY, 0.0f );
     glEnd();
 
@@ -1192,22 +1192,25 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         ( op.offset.y + pvp.y * op.pixel.h + op.pixel.y );
     const float endY   = static_cast< float >
         ( op.offset.y + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y );
+    
+    const float w = static_cast< float >( pvp.w );
+    const float h = static_cast< float >( pvp.h );
 
     glBegin( GL_TRIANGLE_STRIP );
     glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f );
     glMultiTexCoord2f( GL_TEXTURE1, 0.0f, 0.0f );
     glVertex3f( startX, startY, 0.0f );
 
-    glMultiTexCoord2f( GL_TEXTURE0, pvp.w, 0.0f );
-    glMultiTexCoord2f( GL_TEXTURE1, pvp.w, 0.0f );
+    glMultiTexCoord2f( GL_TEXTURE0, w, 0.0f );
+    glMultiTexCoord2f( GL_TEXTURE1, w, 0.0f );
     glVertex3f( endX, startY, 0.0f );
 
-    glMultiTexCoord2f( GL_TEXTURE0, 0.0f, pvp.h );
-    glMultiTexCoord2f( GL_TEXTURE1, 0.0f, pvp.h );
+    glMultiTexCoord2f( GL_TEXTURE0, 0.0f, h );
+    glMultiTexCoord2f( GL_TEXTURE1, 0.0f, h );
     glVertex3f( startX, endY, 0.0f );
 
-    glMultiTexCoord2f( GL_TEXTURE0, pvp.w, pvp.h );
-    glMultiTexCoord2f( GL_TEXTURE1, pvp.w, pvp.h );
+    glMultiTexCoord2f( GL_TEXTURE0, w, h );
+    glMultiTexCoord2f( GL_TEXTURE1, w, h );
     glVertex3f( endX, endY, 0.0f );
 
     glEnd();

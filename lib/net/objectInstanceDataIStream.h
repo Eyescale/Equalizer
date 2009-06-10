@@ -31,7 +31,7 @@ namespace net
     /**
      * The DataIStream for object instance data.
      */
-    class EQ_EXPORT ObjectInstanceDataIStream : public ObjectDataIStream
+    class ObjectInstanceDataIStream : public ObjectDataIStream
     {
     public:
         ObjectInstanceDataIStream();

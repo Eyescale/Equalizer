@@ -332,7 +332,9 @@ void LoadEqualizer::_computeSplit()
     EQLOG( LOG_LB2 ) << "Render time " << totalTime << ", per resource "
                     << timeLeft << ", " << nResources << " resources" << endl;
 
-    const float leftover = _assignTargetTimes( _tree, totalTime, timeLeft );
+    const float leftover = _assignTargetTimes( _tree, 
+                                               static_cast<float>( totalTime ),
+                                               timeLeft );
     _assignLeftoverTime( _tree, leftover );
     _computeSplit( _tree, sortedData, eq::Viewport(), eq::Range() );
 }

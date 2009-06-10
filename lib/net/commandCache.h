@@ -37,7 +37,7 @@ namespace net
      * Commands are retained and released whenever they are not directly
      * processed, e.g., when pushed to another thread using a CommandQueue.
      */
-    class EQ_EXPORT CommandCache
+    class CommandCache
     {
     public:
         CommandCache();

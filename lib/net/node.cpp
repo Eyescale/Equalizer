@@ -666,6 +666,13 @@ bool Node::deserialize( std::string& data )
     return true;
 }
 
+NodePtr Node::createNode( const uint32_t type )
+{
+    EQASSERTINFO( type == TYPE_EQNET_NODE, type );
+    return new Node();
+}
+
+
 void Node::acquireSendToken( NodePtr node )
 {
     NodeAcquireSendTokenPacket packet;
@@ -1624,7 +1631,8 @@ bool Node::_launch( NodePtr node,
     EQASSERT( node->getState() == STATE_STOPPED );
 
     node->_launchID = _requestHandler.registerRequest( node.get() );
-    node->_launchTimeout.setAlarm( description->launchTimeout );
+    node->_launchTimeout.setAlarm( 
+        static_cast< float >( description->launchTimeout ));
 
     const string launchCommand = _createLaunchCommand( node, description );
 

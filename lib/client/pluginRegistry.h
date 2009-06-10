@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -13,6 +14,7 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 #ifndef EQ_PLUGINREGISTRY_H
 #define EQ_PLUGINREGISTRY_H
 
@@ -21,7 +23,7 @@
 namespace eq 
 {
 
-class EQ_EXPORT PluginRegistry
+class PluginRegistry
 {
 public:
 

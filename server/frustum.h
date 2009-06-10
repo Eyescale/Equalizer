@@ -24,7 +24,7 @@ namespace eq
 {
 namespace server
 {
-    struct FrustumData;
+    class FrustumData;
 
     /** 
      * Extends the eq::Frustum to update server-side generic frustum data.

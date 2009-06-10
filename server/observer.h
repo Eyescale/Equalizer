@@ -29,7 +29,7 @@ namespace eq
 {
 namespace server
 {
-    class ObserverPath;
+    struct ObserverPath;
 
     /**
      * The observer. @sa eq::Observer

@@ -160,8 +160,7 @@ namespace net
          * @return <code>true</code> if the node was connected correctly,
          *         <code>false</code> otherwise.
          */
-        bool connect( NodePtr node, 
-                      ConnectionPtr connection );
+        bool connect( NodePtr node, ConnectionPtr connection );
 
         /** 
          * Get a node by identifier.
@@ -500,8 +499,7 @@ namespace net
          * @return the node.
          * @sa getType()
          */
-        virtual NodePtr createNode( const uint32_t type )
-        { EQASSERTINFO( type == TYPE_EQNET_NODE, type ); return new Node(); }
+        EQ_EXPORT virtual NodePtr createNode( const uint32_t type );
 
         /** Registers request packets waiting for a return value. */
         base::RequestHandler _requestHandler;

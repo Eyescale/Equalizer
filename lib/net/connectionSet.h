@@ -43,7 +43,7 @@ namespace net
      *
      * From the set, a connection with pending events can be selected.
      */
-    class EQ_EXPORT ConnectionSet : public ConnectionListener
+    class ConnectionSet : public ConnectionListener
     {
     public:
         enum Event
@@ -60,12 +60,12 @@ namespace net
             EVENT_ALL
         };
 
-        ConnectionSet();
-        ~ConnectionSet();
+        EQ_EXPORT ConnectionSet();
+        EQ_EXPORT ~ConnectionSet();
 
-        void addConnection( ConnectionPtr connection );
-        bool removeConnection( ConnectionPtr connection );
-        void clear();
+        EQ_EXPORT void addConnection( ConnectionPtr connection );
+        EQ_EXPORT bool removeConnection( ConnectionPtr connection );
+        EQ_EXPORT void clear();
         size_t size()  const { return _connections.size(); }
         bool   empty() const { return _connections.empty(); }
 
@@ -81,12 +81,12 @@ namespace net
          *                indefinitly.
          * @return The event occured during selection.
          */
-        Event select( const int timeout = -1 );
+        EQ_EXPORT Event select( const int timeout = -1 );
 
         /**
          * Interrupt the current or next select call.
          */
-        void interrupt();
+        EQ_EXPORT void interrupt();
 
         int           getError()     { return _error; }
         ConnectionPtr getConnection(){ return _connection; }

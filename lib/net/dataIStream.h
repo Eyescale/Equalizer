@@ -33,7 +33,7 @@ namespace net
      *
      * Derived classes send the data using command packets.
      */
-    class EQ_EXPORT DataIStream
+    class DataIStream
     {
     public:
         DataIStream();
@@ -60,16 +60,16 @@ namespace net
         }
 
         /** Read a number of bytes into a buffer.  */
-        void read( void* data, uint64_t size );
+        EQ_EXPORT void read( void* data, uint64_t size );
 
         /** Get the pointer to the data remaining in the current buffer. */
-        const void*    getRemainingBuffer();
+        EQ_EXPORT const void*    getRemainingBuffer();
 
         /** Get the size of the data remaining in the current buffer. */
-        uint64_t       getRemainingBufferSize();
+        EQ_EXPORT uint64_t       getRemainingBufferSize();
 
         /** Advance the current buffer by a number of bytes. */
-        void           advanceBuffer( const uint64_t offset ); 
+        EQ_EXPORT void           advanceBuffer( const uint64_t offset ); 
 
         /** Get the number of remaining buffers. */
         virtual size_t nRemainingBuffers() const = 0;

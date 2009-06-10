@@ -481,6 +481,11 @@ void Channel::resetAssemblyState()
     EQ_GL_ERROR( "after  resetAssemblyState" );
 }
 
+void Channel::setErrorMessage( const std::string& message )
+{
+    _error = message;
+}
+
 void Channel::_setRenderContext( RenderContext& context )
 {
     _context = &context;
@@ -562,7 +567,10 @@ vmml::Frustumf Channel::getScreenFrustum() const
     pvp.y = static_cast<int32_t>( pvp.h / vp.h * vp.y );
     pvp *= pixel;
 
-    return vmml::Frustumf( pvp.x, pvp.getXEnd(), pvp.y, pvp.getYEnd(),
+    return vmml::Frustumf( static_cast< float >( pvp.x ),
+                           static_cast< float >( pvp.getXEnd( )),
+                           static_cast< float >( pvp.y ),
+                           static_cast< float >( pvp.getYEnd( )),
                            -1.f, 1.f );
 }
 
@@ -792,7 +800,7 @@ void Channel::drawStatistics()
 
     xMax  /= scale;
     xStart = xMax - pvp.getXEnd() + SPACE;
-    uint32_t                       nextY = pvp.getYEnd() - SPACE;
+    uint32_t nextY = pvp.getYEnd() - SPACE;
 
     std::map< uint32_t, EntityData > entities;
 
@@ -849,11 +857,11 @@ void Channel::drawStatistics()
                 if( endTime < xStart || endTime == startTime )
                     continue;
 
-                float y1 = y;
-                float y2 = y - HEIGHT;
+                float y1 = static_cast< float >( y );
+                float y2 = static_cast< float >( y - HEIGHT );
                 float z  = 0.0f;
-                const float x1 = startTime - xStart;
-                const float x2 = endTime   - xStart;
+                const float x1 = static_cast< float >( startTime - xStart );
+                const float x2 = static_cast< float >( endTime   - xStart );
                 
                 switch( stat.type )
                 {
@@ -941,18 +949,23 @@ void Channel::drawStatistics()
         frameMin -= xStart;
         frameMax -= xStart;
 
+        float x = static_cast< float >( frameMin );
+        const float y1 = static_cast< float >( nextY );
+        const float y2 = static_cast< float >( pvp.getYEnd( ));
+
         glBegin( GL_QUADS );
         glColor3f( .5f-dim, 1.0f-dim, .5f-dim );
-        glVertex3f( frameMin+1.0f, pvp.getYEnd(), 0.3f );
-        glVertex3f( frameMin,      pvp.getYEnd(), 0.3f );
-        glVertex3f( frameMin,      nextY,         0.3f );
-        glVertex3f( frameMin+1.0f, nextY,         0.3f );
+        glVertex3f( x+1.0f, y2, 0.3f );
+        glVertex3f( x,      y2, 0.3f );
+        glVertex3f( x,      y1, 0.3f );
+        glVertex3f( x+1.0f, y1, 0.3f );
 
+        x = static_cast< float >( frameMax );
         glColor3f( .5f-dim, .5f-dim, .5f-dim );
-        glVertex3f( frameMax+1.0f, pvp.getYEnd(), 0.3f );
-        glVertex3f( frameMax,      pvp.getYEnd(), 0.3f );
-        glVertex3f( frameMax,      nextY,         0.3f );
-        glVertex3f( frameMax+1.0f, nextY,         0.3f );
+        glVertex3f( x+1.0f, y2, 0.3f );
+        glVertex3f( x,      y2, 0.3f );
+        glVertex3f( x,      y1, 0.3f );
+        glVertex3f( x+1.0f, y1, 0.3f );
         glEnd();
 
         dim += .1f;
@@ -1001,6 +1014,15 @@ void Channel::outlineViewport()
     resetAssemblyState();
 }
 
+int32_t Channel::getIAttribute( const IAttribute attr ) const
+{
+    return _iAttributes[attr];
+}
+
+const std::string& Channel::getIAttributeString( const IAttribute attr )
+{
+    return _iAttributeStrings[attr];
+}
 
 //---------------------------------------------------------------------------
 // command handlers

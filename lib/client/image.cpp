@@ -463,7 +463,7 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     EQASSERT( _glObjects->supportsEqTexture( ));
     EQASSERT( _glObjects->supportsEqFrameBufferObject( ));
 
-    PixelViewport      pvp = _pvp;
+    PixelViewport pvp = _pvp;
     pvp.apply( zoom );
     if( !pvp.hasArea( ))
         return;
@@ -514,14 +514,16 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
         glTexCoord2f( 0.0f, 0.0f );
         glVertex3f( 0, 0, 0.0f );
 
-        glTexCoord2f( _pvp.w, 0.0f );
-        glVertex3f( pvp.w, 0, 0.0f );
+        glTexCoord2f( static_cast< float >( _pvp.w ), 0.0f );
+        glVertex3f( static_cast< float >( pvp.w ), 0, 0.0f );
 
-        glTexCoord2f( _pvp.w, _pvp.h );
-        glVertex3f( pvp.w, pvp.h, 0.0f );
+        glTexCoord2f( static_cast< float >( _pvp.w ),
+                      static_cast< float >( _pvp.h ));
+        glVertex3f( static_cast< float >( pvp.w ),
+                    static_cast< float >( pvp.h ), 0.0f );
 
-        glTexCoord2f( 0.0f, _pvp.h );
-        glVertex3f( 0, pvp.h, 0.0f );
+        glTexCoord2f( 0.0f, static_cast< float >( _pvp.h ));
+        glVertex3f( 0, static_cast< float >( pvp.h ), 0.0f );
     glEnd();
 
     // restore state

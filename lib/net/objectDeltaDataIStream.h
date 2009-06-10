@@ -29,7 +29,7 @@ namespace net
     /**
      * The DataIStream for object delta version data.
      */
-    class EQ_EXPORT ObjectDeltaDataIStream : public ObjectDataIStream
+    class ObjectDeltaDataIStream : public ObjectDataIStream
     {
     public:
         ObjectDeltaDataIStream();

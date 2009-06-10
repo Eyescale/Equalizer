@@ -43,7 +43,7 @@ namespace server
     /**
      * A holder for a frame data and parameters.
      */
-    class EQ_EXPORT Frame : public net::Object
+    class Frame : public net::Object
     {
     public:
         /** 
@@ -69,8 +69,8 @@ namespace server
         /** 
          * Constructs a new Frame.
          */
-        Frame();
-        virtual ~Frame();
+        EQ_EXPORT Frame();
+        EQ_EXPORT virtual ~Frame();
 
         /**
          * @name Data Access
@@ -80,14 +80,14 @@ namespace server
         void setOffset( const vmml::Vector2i& offset ) { _data.offset = offset;}
 
         /** The enabled frame buffer attachments. */
-        uint32_t getBuffers() const;
+        EQ_EXPORT uint32_t getBuffers() const;
 
         /** @return the database-range relative to the destination channel. */
-        const Range& getRange() const;
-        void         setRange( const Range& range );
+        EQ_EXPORT const Range& getRange() const;
+        EQ_EXPORT void         setRange( const Range& range );
 
         /** @return the pixel parameters relative to the destination channel. */
-        const Pixel& getPixel() const;
+        EQ_EXPORT const Pixel& getPixel() const;
 
         /** @return the zoom factor for readback or assemble. */
         const Zoom& getZoom() const { return _data.zoom; }
@@ -97,14 +97,14 @@ namespace server
         void setZoom( const Zoom& zoom ) { _data.zoom = zoom; }
 
         /** The images of this frame */
-        const ImageVector& getImages() const;
+        EQ_EXPORT const ImageVector& getImages() const;
 
         /** Set the data for this frame. */
         void setData( FrameData* data ) { _frameData = data; }
         FrameData* getData() { return _frameData; }
 
         /** Set the pixel viewport of the frame's data */
-        void setPixelViewport( const PixelViewport& pvp );
+        EQ_EXPORT void setPixelViewport( const PixelViewport& pvp );
 
         const net::ObjectVersion& getDataVersion( const Eye eye ) const
             { return _data.frameData[ eye ]; }
@@ -116,7 +116,7 @@ namespace server
         //@{
 
         /** Clear the frame, recycles the images attached to the frame data. */
-        void clear();
+        EQ_EXPORT void clear();
 
         /** Clear the frame and free all images attached to the frame data. */
         void flush();
@@ -128,10 +128,10 @@ namespace server
          *
          * @param glObjects the GL object manager for the current GL context.
          */
-        void startReadback( Window::ObjectManager* glObjects );
+        EQ_EXPORT void startReadback( Window::ObjectManager* glObjects );
         
         /** Synchronize the image readback. */
-        void syncReadback();
+        EQ_EXPORT void syncReadback();
 
         /** 
          * Transmit the frame data to the specified node.
@@ -160,10 +160,10 @@ namespace server
          * 
          * @return true if the frame is ready, false if not. 
          */
-        bool isReady() const;
+        EQ_EXPORT bool isReady() const;
 
         /** Wait for the frame to become available. */
-        void waitReady() const;
+        EQ_EXPORT void waitReady() const;
 
         /** 
          * Add a listener which will be incremented when the frame is ready.
@@ -185,10 +185,10 @@ namespace server
          * 
          * @param buffer the buffer to disable.
          */
-        void disableBuffer( const Buffer buffer );
+        EQ_EXPORT void disableBuffer( const Buffer buffer );
 
         /* Set color buffer type to read */
-        void setColorType( const GLuint colorType );
+        EQ_EXPORT void setColorType( const GLuint colorType );
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }

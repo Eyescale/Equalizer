@@ -31,6 +31,16 @@ namespace eq
 namespace net
 {
 
+Dispatcher::Dispatcher()
+{}
+
+Dispatcher::Dispatcher( const Dispatcher& from )
+{}
+
+Dispatcher::~Dispatcher()
+{
+}
+
 //===========================================================================
 // command handling
 //===========================================================================

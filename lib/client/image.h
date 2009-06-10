@@ -33,12 +33,12 @@ namespace eq
      *
      * An image holds color and depth information for a rectangular region.
      */
-    class EQ_EXPORT Image
+    class Image
     {
     public:
         /** Constructs a new Image. */
-        Image();
-        virtual ~Image();
+        EQ_EXPORT Image();
+        EQ_EXPORT virtual ~Image();
 
         struct PixelData : public base::NonCopyable
         {
@@ -76,10 +76,11 @@ namespace eq
          * @param buffer the buffer type.
          * @param format the format.
          */
-        void setFormat( const Frame::Buffer buffer, const uint32_t format );
+        EQ_EXPORT void setFormat( const Frame::Buffer buffer,
+                                  const uint32_t format );
 
         /** @return the (OpenGL) format of the pixel data. */
-        uint32_t getFormat( const Frame::Buffer buffer ) const;
+        EQ_EXPORT uint32_t getFormat( const Frame::Buffer buffer ) const;
 
         /**
          * Set the (OpenGL) type of the pixel data for a buffer.
@@ -88,16 +89,17 @@ namespace eq
          * @param buffer the buffer type.
          * @param type the type.
          */
-        void setType( const Frame::Buffer buffer, const uint32_t type );
+        EQ_EXPORT void setType( const Frame::Buffer buffer, 
+                                const uint32_t type );
 
         /** @return the (OpenGL) type of the pixel data. */
-        uint32_t getType( const Frame::Buffer buffer ) const;
+        EQ_EXPORT uint32_t getType( const Frame::Buffer buffer ) const;
 
         /** @return the size of a single image pixel (format*type) in bytes. */
-        uint32_t getDepth( const Frame::Buffer buffer ) const;
+        EQ_EXPORT uint32_t getDepth( const Frame::Buffer buffer ) const;
 
         /** @return true if the image has a color buffer with alpha. */
-        bool hasAlpha() const;
+        EQ_EXPORT bool hasAlpha() const;
 
         /** 
          * Set the frame pixel storage type. 
@@ -114,7 +116,7 @@ namespace eq
         Frame::Type getStorageType() const{ return _type; }
 
         /** @return true if the image buffer has valid data. */
-        bool hasData( const Frame::Buffer buffer ) const;
+        EQ_EXPORT bool hasData( const Frame::Buffer buffer ) const;
 
         /** @return the fractional viewport of the image. */
         //const eq::Viewport& getViewport() const { return _data.vp; }
@@ -126,31 +128,34 @@ namespace eq
          *
          * @param pvp the pixel viewport.
          */
-        void setPixelViewport( const PixelViewport& pvp );
+        EQ_EXPORT void setPixelViewport( const PixelViewport& pvp );
 
         /** @return the pixel viewport of the image with in the frame buffer. */
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
         /** Reset the image to its default state. */
-        void reset();
+        EQ_EXPORT void reset();
         //@}
 
 
         /** @name Pixel data */
         //@{
         /** @return a pointer to the raw pixel data. */
-        const uint8_t* getPixelPointer( const Frame::Buffer buffer ) const;
-        uint8_t* getPixelPointer( const Frame::Buffer buffer );
+        EQ_EXPORT const uint8_t* getPixelPointer( const Frame::Buffer buffer )
+                                     const;
+        EQ_EXPORT uint8_t* getPixelPointer( const Frame::Buffer buffer );
 
         /** @return the size of the raw pixel data in bytes */
         uint32_t getPixelDataSize( const Frame::Buffer buffer ) const
             { return _pvp.getArea() * getDepth( buffer ); }
 
         /** @return the pixel data. */
-        const PixelData& getPixelData( const Frame::Buffer buffer ) const;
+        EQ_EXPORT const PixelData& getPixelData( const Frame::Buffer buffer )
+                                       const;
 
         /** @return the compressed pixel data. */
-        const PixelData& compressPixelData( const Frame::Buffer buffer );
+        EQ_EXPORT const PixelData& compressPixelData( const Frame::Buffer 
+                                                          buffer );
 
         /**
          * @return true if the image has pixel data for the buffer, false if
@@ -164,10 +169,10 @@ namespace eq
          *
          * @param buffer the image buffer to clear.
          */
-        void clearPixelData( const Frame::Buffer buffer );
+        EQ_EXPORT void clearPixelData( const Frame::Buffer buffer );
 
         /** Validate an image buffer without initializing its content. */
-        void validatePixelData( const Frame::Buffer buffer );
+        EQ_EXPORT void validatePixelData( const Frame::Buffer buffer );
 
         /**
          * Set the pixel data of one of the image buffers.
@@ -178,7 +183,8 @@ namespace eq
          * @param buffer the image buffer to set.
          * @param data the buffer data of size pvp.w * pvp.h * depth.
          */
-        void setPixelData( const Frame::Buffer buffer, const uint8_t* data );
+        EQ_EXPORT void setPixelData( const Frame::Buffer buffer, 
+                                     const uint8_t* data );
 
         /**
          * Set the pixel data of one of the image buffers.
@@ -189,7 +195,8 @@ namespace eq
          * @param buffer the image buffer to set.
          * @param data the pixel data.
          */
-        void setPixelData( const Frame::Buffer buffer, const PixelData& data );
+        EQ_EXPORT void setPixelData( const Frame::Buffer buffer,
+                                     const PixelData& data );
 
         /** Switch PBO usage for image transfers on or off. */
         void setPBO( const bool onOff ) { _usePBO = onOff; }
@@ -202,19 +209,20 @@ namespace eq
         /** @name Texture access */
         //@{
         /** Get the texture of this image. */
-        const Texture& getTexture( const Frame::Buffer buffer ) const;
+        EQ_EXPORT const Texture& getTexture( const Frame::Buffer buffer ) const;
 
         /**
          * @return true if the image has texture data for the buffer, false if
          * not.
          */
-        bool hasTextureData( const Frame::Buffer buffer ) const;
+        EQ_EXPORT bool hasTextureData( const Frame::Buffer buffer ) const;
 
         /** 
          * @return the internal format a texture should use for the given
          *         buffer. 
          */
-        uint32_t getInternalTextureFormat( const Frame::Buffer which ) const;
+        EQ_EXPORT uint32_t getInternalTextureFormat( const Frame::Buffer which )
+                               const;
         //@}
 
 
@@ -231,25 +239,27 @@ namespace eq
          * @param glObjects the GL object manager for the current GL context.
          * @sa setStorageType()
          */
-        void startReadback( const uint32_t buffers, const PixelViewport& pvp,
-                            const Zoom& zoom, Window::ObjectManager* glObjects);
+        EQ_EXPORT void startReadback( const uint32_t buffers, 
+                                      const PixelViewport& pvp,
+                                      const Zoom& zoom,
+                                      Window::ObjectManager* glObjects );
 
         /** Make sure that the last readback operation is complete. */
-        void syncReadback();
+        EQ_EXPORT void syncReadback();
 
         /** Writes the pixel data as rgb image files. */
-        void writeImage( const std::string& filename,
-                         const Frame::Buffer buffer ) const;
+        EQ_EXPORT void writeImage( const std::string& filename,
+                                   const Frame::Buffer buffer ) const;
 
         /** Writes all valid pixel data as separate images. */
-        void writeImages( const std::string& filenameTemplate, 
-                          const Frame::Buffer buffer ) const;
+        EQ_EXPORT void writeImages( const std::string& filenameTemplate, 
+                                    const Frame::Buffer buffer ) const;
 
-        void writeImages( const std::string& filenameTemplate ) const;
+        EQ_EXPORT void writeImages( const std::string& filenameTemplate ) const;
 
         /** Read pixel data from an uncompressed rgb image file. */
-        bool readImage( const std::string& filename, 
-                        const Frame::Buffer buffer   );
+        EQ_EXPORT bool readImage( const std::string& filename, 
+                                  const Frame::Buffer buffer   );
 
         /** Setting image offset, used after readback to correct position 
             if necessary */
@@ -263,10 +273,10 @@ namespace eq
         GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
 
         /** @return the number of channels in a pixel. */
-        uint8_t getNumChannels( const Frame::Buffer buffer ) const;
+        EQ_EXPORT uint8_t getNumChannels( const Frame::Buffer buffer ) const;
 
         /** @return the size in bytes for one channel. */
-        uint8_t getChannelSize( const Frame::Buffer buffer ) const;
+        EQ_EXPORT uint8_t getChannelSize( const Frame::Buffer buffer ) const;
 
     private:
         /** All distributed data. */

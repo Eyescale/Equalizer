@@ -36,14 +36,14 @@ namespace eq
      *
      * Each node is executed in a seperate process.
      */
-    class EQ_EXPORT Node : public net::Object
+    class Node : public net::Object
     {
     public:
         /** Constructs a new node. */
-        Node( Config* parent );
+        EQ_EXPORT Node( Config* parent );
 
         /** Destructs the node. */
-        virtual ~Node();
+        EQ_EXPORT virtual ~Node();
 
         /** 
          * Returns the config of this node.
@@ -53,8 +53,8 @@ namespace eq
         Config*       getConfig()       { return _config; }
         const Config* getConfig() const { return _config; }
 
-        ClientPtr getClient();
-        ServerPtr getServer();
+        EQ_EXPORT ClientPtr getClient();
+        EQ_EXPORT ServerPtr getServer();
 
         const PipeVector& getPipes() const { return _pipes; }
         const std::string& getName() const { return _name; }
@@ -71,7 +71,7 @@ namespace eq
          */
         uint32_t getTasks() const { return _tasks; }
 
-        CommandQueue* getNodeThreadQueue();
+        EQ_EXPORT CommandQueue* getNodeThreadQueue();
 
         /** 
          * Traverse this node and all children using a node visitor.
@@ -79,7 +79,7 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( NodeVisitor& visitor );
+        EQ_EXPORT VisitorResult accept( NodeVisitor& visitor );
 
         /** 
          * Get a network barrier. 
@@ -95,12 +95,13 @@ namespace eq
          * 
          * @param dataVersion the frame data identifier and version.
          * @return the frame.
+         * @internal
          */
         FrameData* getFrameData( const net::ObjectVersion& dataVersion );
 
         /** Wait for the node to be initialized. */
-        void waitInitialized() const { _state.waitGE( STATE_INIT_FAILED ); }
-        bool isRunning() const { return (_state == STATE_RUNNING); }
+        EQ_EXPORT void waitInitialized() const;
+        EQ_EXPORT bool isRunning() const;
         
         /** 
          * Wait for a frame to be started.
@@ -108,8 +109,7 @@ namespace eq
          * @param frameNumber the frame number.
          * @sa releaseFrame()
          */
-        void waitFrameStarted( const uint32_t frameNumber ) const
-            { _currentFrame.waitGE( frameNumber ); }
+        EQ_EXPORT void waitFrameStarted( const uint32_t frameNumber ) const;
 
         uint32_t getFinishedFrame() const { return _finishedFrame; }
 
@@ -128,12 +128,11 @@ namespace eq
             IATTR_ALL
         };
 
-        void setIAttribute( const IAttribute attr, const int32_t value )
-            { _iAttributes[attr] = value; }
-        int32_t  getIAttribute( const IAttribute attr ) const
-            { return _iAttributes[attr]; }
-        static const std::string&  getIAttributeString( const IAttribute attr )
-            { return _iAttributeStrings[attr]; }
+        EQ_EXPORT void setIAttribute( const IAttribute attr,
+                                      const int32_t value );
+        EQ_EXPORT int32_t getIAttribute( const IAttribute attr ) const;
+        EQ_EXPORT static const std::string& getIAttributeString(
+                                                        const IAttribute attr );
         //@}
 
 #ifdef EQ_ASYNC_TRANSMIT
@@ -170,9 +169,9 @@ namespace eq
     protected:
         friend class Config;
 
-        virtual void attachToSession( const uint32_t id, 
-                                      const uint32_t instanceID, 
-                                      net::Session* session );
+        EQ_EXPORT virtual void attachToSession( const uint32_t id, 
+                                                const uint32_t instanceID, 
+                                                net::Session* session );
 
         /** @name Actions */
         //@{
@@ -181,22 +180,21 @@ namespace eq
          * 
          * @param frameNumber the frame to start.
          */
-        void startFrame( const uint32_t frameNumber ) 
-            { _currentFrame = frameNumber; }
+        EQ_EXPORT void startFrame( const uint32_t frameNumber );
 
         /** 
          * Signal the completion of a frame to the parent.
          * 
          * @param frameNumber the frame to end.
          */
-        void releaseFrame( const uint32_t frameNumber );
+        EQ_EXPORT void releaseFrame( const uint32_t frameNumber );
 
         /** 
          * Release the local synchronization of the parent for a frame.
          * 
          * @param frameNumber the frame to release.
          */
-        void releaseFrameLocal( const uint32_t frameNumber );
+        EQ_EXPORT void releaseFrameLocal( const uint32_t frameNumber );
         //@}
 
         /**
@@ -231,8 +229,8 @@ namespace eq
          * @param frameNumber the frame to start.
          * @sa startFrame(), Config::beginFrame()
          */
-        virtual void frameStart( const uint32_t frameID, 
-                                 const uint32_t frameNumber );
+        EQ_EXPORT virtual void frameStart( const uint32_t frameID, 
+                                           const uint32_t frameNumber );
 
         /**
          * Finish rendering a frame.
@@ -260,8 +258,8 @@ namespace eq
          * @param frameNumber the frame finished with draw.
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
          */
-        virtual void frameDrawFinish( const uint32_t frameID, 
-                                      const uint32_t frameNumber );
+        EQ_EXPORT virtual void frameDrawFinish( const uint32_t frameID, 
+                                                const uint32_t frameNumber );
 
         /** 
          * Finish all rendering tasks.
@@ -277,8 +275,8 @@ namespace eq
          * @param frameNumber the frame finished with draw.
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
          */
-        virtual void frameTasksFinish( const uint32_t frameID, 
-                                      const uint32_t frameNumber );
+        EQ_EXPORT virtual void frameTasksFinish( const uint32_t frameID, 
+                                                 const uint32_t frameNumber );
         //@}
 
         /** @name Error information. */
@@ -291,7 +289,7 @@ namespace eq
          *
          * @param message the error message.
          */
-        void setErrorMessage( const std::string& message ) { _error = message; }
+        EQ_EXPORT void setErrorMessage( const std::string& message );
         //@}
 
     private:

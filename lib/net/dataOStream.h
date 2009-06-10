@@ -35,7 +35,7 @@ namespace net
      *
      * Derived classes send the data using command packets.
      */
-    class EQ_EXPORT DataOStream
+    class DataOStream
     {
     public:
         DataOStream();
@@ -94,8 +94,8 @@ namespace net
                 return *this;
             }
 
-        void write( const void* data, uint64_t size );
-        void writeOnce( const void* data, uint64_t size );
+        EQ_EXPORT void write( const void* data, uint64_t size );
+        EQ_EXPORT void writeOnce( const void* data, uint64_t size );
         //@}
 
  

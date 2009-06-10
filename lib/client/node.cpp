@@ -235,6 +235,26 @@ FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
     return frameData;
 }
 
+void Node::waitInitialized() const
+{
+    _state.waitGE( STATE_INIT_FAILED );
+}
+
+bool Node::isRunning() const
+{
+    return (_state == STATE_RUNNING);
+}
+
+void Node::waitFrameStarted( const uint32_t frameNumber ) const
+{
+    _currentFrame.waitGE( frameNumber );
+}
+
+void Node::startFrame( const uint32_t frameNumber ) 
+{
+    _currentFrame = frameNumber;
+}
+
 void Node::_finishFrame( const uint32_t frameNumber ) const
 {
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
@@ -367,6 +387,11 @@ void Node::frameTasksFinish( const uint32_t frameID, const uint32_t frameNumber)
     }
 }
 
+void Node::setErrorMessage( const std::string& message )
+{
+    _error = message;
+}
+
 void Node::_flushObjects()
 {
     net::Session* session = getSession();
@@ -392,6 +417,21 @@ void Node::_flushObjects()
     }
     _frameDatas.clear();
     _frameDatasMutex.unset();
+}
+
+void Node::setIAttribute( const IAttribute attr, const int32_t value )
+{
+    _iAttributes[attr] = value;
+}
+
+int32_t Node::getIAttribute( const IAttribute attr ) const
+{
+    return _iAttributes[attr];
+}
+
+const std::string& Node::getIAttributeString( const IAttribute attr )
+{
+    return _iAttributeStrings[attr];
 }
 
 #ifdef EQ_ASYNC_TRANSMIT

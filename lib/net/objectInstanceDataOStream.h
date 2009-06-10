@@ -29,7 +29,7 @@ namespace net
     /**
      * The DataOStream for object instance data.
      */
-    class EQ_EXPORT ObjectInstanceDataOStream : public ObjectDataOStream
+    class ObjectInstanceDataOStream : public ObjectDataOStream
     {
     public:
         ObjectInstanceDataOStream( const Object* object );

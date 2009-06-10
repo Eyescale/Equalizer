@@ -86,14 +86,11 @@ namespace base
         virtual ~Referenced() 
             {
 #ifndef NDEBUG
+                EQASSERT( !_hasBeenDeleted );
                 _hasBeenDeleted = true;
 #endif
-                if( _refCount!=0 ) 
-                {
-                    EQERROR << "Deleting object with ref count " << _refCount
-                            << std::endl;
-                }
-                EQASSERT( _refCount == 0 );
+                EQASSERTINFO( _refCount == 0,
+                              "Deleting object with ref count " << _refCount );
             }
 
     private:
