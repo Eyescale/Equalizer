@@ -141,8 +141,8 @@ VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
 
     eq::RenderContext context;
     _setupRenderContext( compound, context );
-
     _updatePostDraw( compound, context );
+
     return TRAVERSE_CONTINUE;
 }
 
@@ -195,10 +195,9 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
 void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
 {
     // Test if this is not the last eye pass of this compound
-    if( compound->getInheritEyes() + 1 >
-        static_cast< uint32_t >( 1<<( _eye + 1 )) ||
-		// or we don't actually draw this eye
-		!compound->testInheritEye( _eye ))
+    if( compound->getInheritEyes() + 1 > static_cast< uint32_t >( 1<<( _eye+1 ))
+        // or we don't actually draw this eye
+		|| !compound->testInheritEye( _eye ))
     {
         return;
     }
@@ -633,8 +632,8 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
                                              const eq::RenderContext& context )
 {
-    const Channel* channel = compound->getChannel();
-    if( !compound->isDestination() || !channel->getView( ))
+    EQASSERT( !_skipCompound( compound ));
+    if( !compound->testInheritTask( eq::TASK_VIEW ))
         return;
     
     // view start task
@@ -649,8 +648,8 @@ void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
 void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
                                               const eq::RenderContext& context )
 {
-    const Channel* channel = compound->getChannel();
-    if( !compound->isDestination() || !channel->getView( ))
+    EQASSERT( !_skipCompound( compound ));
+    if( !compound->testInheritTask( eq::TASK_VIEW ))
         return;
     
     // view finish task

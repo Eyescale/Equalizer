@@ -42,6 +42,7 @@ server
         {
             channel "channel"
             task    [ CLEAR ] 
+            eye [ LEFT RIGHT ]
 
             wall
             {

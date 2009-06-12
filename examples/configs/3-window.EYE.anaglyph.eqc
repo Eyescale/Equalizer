@@ -37,6 +37,7 @@ server
         {
             channel "destination"
             attributes{ stereo_mode ANAGLYPH }
+            eye [ LEFT RIGHT ]
 
             wall
             {

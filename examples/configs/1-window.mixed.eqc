@@ -121,24 +121,9 @@ server
                 bottom_right [  .32 -.32 -.75 ]
                 top_left     [ -.32  .32 -.75 ]
             }
-           
+            eye [ LEFT RIGHT ]
+
             compound { eye [ RIGHT ] }
-            compound { eye [ LEFT ] channel "Eye1" outputframe{ }}
-            
-            eye [ LEFT ]
-            inputframe{ name "frame.Eye1" }
-        }
-        compound
-        { 
-            channel "Eye"
-            wall
-            {
-                bottom_left  [ -.32 -.32 -.75 ]
-                bottom_right [  .32 -.32 -.75 ]
-                top_left     [ -.32  .32 -.75 ]
-            }
-           
-            compound { eye [ RIGHT ] channel "Eye" }
             compound { eye [ LEFT ] channel "Eye1" outputframe{ }}
             compound
             {

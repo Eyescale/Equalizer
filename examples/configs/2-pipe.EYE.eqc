@@ -32,6 +32,7 @@ server
                 bottom_right [  1 -1 -1 ]
                 top_left     [ -1  1 -1 ]
             }
+            eye [ LEFT RIGHT ]
 
             compound
             {
@@ -43,9 +44,12 @@ server
                 eye [ RIGHT ]
                 outputframe {}
             }
-
-            eye [ RIGHT ]
-            inputframe { name "frame.channel-right" }
+            compound
+            {
+                task [ ASSEMBLE ]
+                eye [ RIGHT ]
+                inputframe { name "frame.channel-right" }
+            }
         }
     }    
 }

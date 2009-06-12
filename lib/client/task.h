@@ -31,7 +31,8 @@ namespace eq
     enum Task
     {
         TASK_NONE     = EQ_BIT_NONE,
-        TASK_DEFAULT  = EQ_BIT1,   //!< ALL for leaf, else ASSEMBLE|READBACK
+        TASK_DEFAULT  = EQ_BIT1,   //!< leaf: all, other ASSEMBLE|READBACK|VIEW
+        TASK_VIEW     = EQ_BIT2,   //!< View start/finish
         TASK_CLEAR    = EQ_BIT5,   //!< Clear the framebuffer
         TASK_CULL     = EQ_BIT9,   //!< Cull data [unused]
         TASK_DRAW     = EQ_BIT13,  //!< Draw data to the framebuffer

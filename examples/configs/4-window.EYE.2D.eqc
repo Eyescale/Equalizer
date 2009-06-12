@@ -43,6 +43,7 @@ server
         {
             channel "destination"
             attributes{ stereo_mode ANAGLYPH } # remove for quad-buffered stereo
+            eye [ LEFT RIGHT ]
 
             wall
             {

@@ -881,10 +881,12 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.zoom *= zoom;
     }
 
-    // Channels with no PVP or range do not execute tasks (ignored during init)
+    // Tasks
     if( frameNumber != 0 &&
         ( !_inherit.pvp.hasArea() || !_inherit.range.hasData( )) )
     {
+        // Channels with no PVP or range do not execute tasks (ignored during
+        // init)
         _inherit.tasks = eq::TASK_NONE;
     }
     else if( _data.tasks == eq::TASK_DEFAULT )
@@ -897,6 +899,12 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     else
         _inherit.tasks = _data.tasks;
 
+    if( isDestination() && getChannel()->getView( ))
+        _inherit.tasks |= eq::TASK_VIEW;
+    else
+        _inherit.tasks &= ~eq::TASK_VIEW;        
+
+    // DPlex activation
     _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);
 }
 

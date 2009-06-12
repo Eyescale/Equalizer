@@ -71,6 +71,7 @@ server
         {
             channel "channel-all"
             attributes{ stereo_mode ANAGLYPH }
+            eye [ LEFT RIGHT ]
 
             wall
             {
