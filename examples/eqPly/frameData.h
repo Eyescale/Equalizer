@@ -60,6 +60,7 @@ namespace eqPly
         void toggleStatistics();
         void toggleHelp();
         void toggleWireframe();
+        void toggleUseColor();
         void togglePilotMode();
         void toggleRenderMode();
 

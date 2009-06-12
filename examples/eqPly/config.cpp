@@ -439,7 +439,12 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'H':
             _frameData.toggleHelp();
             return true;
-            
+
+        case 'd':
+        case 'D':
+            _frameData.toggleUseColor();
+            return true;
+
         case 'c':
         case 'C':
         {

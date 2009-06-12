@@ -44,9 +44,13 @@ static const std::string _help(
     string( "\t\ts:                         Toggle statistics overlay\n" ) +
     string( "\t\tF1, h:                     Toggle help overlay\n" ) +
     string( "\t\tw:                         Toggle wireframe mode\n" ) +
-    string( "\t\tr:                         Switch rendering mode\n" ) +
+    string( "\t\td:                         Toggle decomposition demo mode\n" ) +
+    string( "\t\tp:                         Switch pilot mode (trackball, walk)\n" ) +
+    string( "\t\tr:                         Switch rendering mode (display list, VBO, immediate)\n" ) +
+    string( "\t\tv:                         Switch active canvas\n" ) +
     string( "\t\tv:                         Switch active view\n" ) +
-    string( "\t\tm:                         Switch model for active view\n" ));
+    string( "\t\tm:                         Switch model for active view\n" ) +
+    string( "\t\tl:                         Switch layout for active canvas\n" ));
 }
 
 const std::string& EqPly::getHelp()

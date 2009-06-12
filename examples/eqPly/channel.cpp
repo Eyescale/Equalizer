@@ -105,20 +105,18 @@ void Channel::frameDraw( const uint32_t frameID )
     glMultMatrixf( frameData.getModelRotation().ml );
 
     const Model*     model  = _getModel();
-    const eq::Range& range  = getRange();
 
-    if( !frameData.useColor( ))
+    if( frameData.useColor( ))
     {
-        glColor3f( .75f, .75f, .75f );
+        if( model && !model->hasColors( ))
+        {
+            glColor3f( .75f, .75f, .75f );
+        }
     }
-    else if( range != eq::Range::ALL ) // Color DB-patches
+    else
     {
         const vmml::Vector3ub color = getUniqueColor();
         glColor3ub( color.r, color.g, color.b );
-    }
-    else if( model && !model->hasColors( ))
-    {
-        glColor3f( .75f, .75f, .75f );
     }
 
     if( model )
@@ -137,12 +135,6 @@ void Channel::frameDraw( const uint32_t frameID )
         glEnd();
     }
 
-    if( frameData.showHelp( ))
-        _drawHelp();
-
-#ifndef NDEBUG
-    outlineViewport();
-#endif
 }
 
 const FrameData& Channel::_getFrameData() const
@@ -182,8 +174,7 @@ void Channel::_drawModel( const Model* model )
     const eq::Range&     range     = getRange();
     vmml::FrustumCullerf culler;
 
-    state.setColors( frameData.useColor() && range == eq::Range::ALL && 
-                     model->hasColors() );
+    state.setColors( frameData.useColor() && model->hasColors( ));
     _initFrustum( culler, model->getBoundingSphere( ));
 
     const eq::Pipe* pipe = getPipe();
@@ -282,6 +273,15 @@ void Channel::_drawModel( const Model* model )
 }
 
 void Channel::frameViewFinish( const uint32_t frameID )
+{
+    _drawLogo();
+
+    const FrameData& frameData = _getFrameData();
+    if( frameData.showHelp( ))
+        _drawHelp();
+}
+
+void Channel::_drawLogo()
 {
     // Draw the overlay logo
     const Window*  window      = static_cast<Window*>( getWindow( ));

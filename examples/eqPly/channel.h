@@ -50,6 +50,7 @@ namespace eqPly
 
     private:
         void _drawModel( const Model* model );
+        void _drawLogo();
         void _drawHelp();
         void _initFrustum( vmml::FrustumCullerf& frustum, 
                            const vmml::Vector4f& boundingSphere );

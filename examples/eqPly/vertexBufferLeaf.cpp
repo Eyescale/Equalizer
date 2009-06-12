@@ -233,7 +233,12 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
     default:
     {
         if( data[0] == state.INVALID )
-            data[0] = state.newDisplayList( this );
+        {
+            char* key = (char*)( this );
+            if( state.useColors( ))
+                ++key;
+            data[0] = state.newDisplayList( key );
+        }
         glNewList( data[0], GL_COMPILE );
         renderImmediate( state );
         glEndList();
@@ -294,7 +299,12 @@ void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
 inline
 void VertexBufferLeaf::renderDisplayList( VertexBufferState& state ) const
 {
-    GLuint displayList = state.getDisplayList( this );
+    char* key = (char*)( this );
+    if( state.useColors( ))
+        ++key;
+
+    GLuint displayList = state.getDisplayList( key );
+
     if( displayList == state.INVALID )
         setupRendering( state, &displayList );
     

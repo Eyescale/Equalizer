@@ -102,6 +102,12 @@ void FrameData::toggleWireframe()
     setDirty( DIRTY_FLAGS );
 }
 
+void FrameData::toggleUseColor()
+{
+    _color = !_color;
+    setDirty( DIRTY_FLAGS );
+}
+
 void FrameData::togglePilotMode()
 {
     _pilotMode = !_pilotMode;
