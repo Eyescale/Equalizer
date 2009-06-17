@@ -164,6 +164,18 @@ namespace eq
         char resourceName[32];
     };
 
+    struct MagellanEvent
+    {
+        uint32_t button;       //<! fired button
+        uint32_t buttons;      //<! current state of all buttons
+        int16_t xAxis;
+        int16_t yAxis;
+        int16_t zAxis;
+        int16_t xRotation;
+        int16_t yRotation;
+        int16_t zRotation;
+    };
+
 #   define EQ_USER_EVENT_SIZE 64
     struct UserEvent
     {
@@ -194,6 +206,7 @@ namespace eq
             STATISTIC,
             VIEW_RESIZE,
             EXIT,
+            MAGELLAN_AXIS,
             UNKNOWN,
             FILL1,  // some buffer for binary-compatible patches
             FILL2,
@@ -209,22 +222,23 @@ namespace eq
 
         union // event data
         {
-            ResizeEvent  resize;
-            ResizeEvent  show;
-            ResizeEvent  hide;
+            ResizeEvent   resize;
+            ResizeEvent   show;
+            ResizeEvent   hide;
             
-            PointerEvent pointer;
-            PointerEvent pointerMotion;
-            PointerEvent pointerButtonPress;
-            PointerEvent pointerButtonRelease;
+            PointerEvent  pointer;
+            PointerEvent  pointerMotion;
+            PointerEvent  pointerButtonPress;
+            PointerEvent  pointerButtonRelease;
 
-            KeyEvent     key;
-            KeyEvent     keyPress;
-            KeyEvent     keyRelease;
+            KeyEvent      key;
+            KeyEvent      keyPress;
+            KeyEvent      keyRelease;
 
-            Statistic    statistic;
+            Statistic     statistic;
+            MagellanEvent magellan;
 
-            UserEvent    user;
+            UserEvent     user;
         };
      
         RenderContext context; //<! The last rendering context at (x,y)
@@ -236,6 +250,7 @@ namespace eq
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const PointerEvent& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const KeyEvent& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const Statistic& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const MagellanEvent& );
 }
 
 #endif // EQ_EVENT_H

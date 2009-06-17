@@ -47,6 +47,7 @@ static std::string _eventTypeNames[ Event::ALL ] =
     "channel resize",
     "statistic",
     "view resize",
+    "magellan axis",
     "unknown",
     "user-specific"
 };
@@ -85,7 +86,7 @@ Event::Event()
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
 {
-    os << disableFlush << event.type << ':' << event.originator << ' ';
+    os << event.type << ':' << event.originator << ' ';
     switch( event.type )
     {
         case Event::EXPOSE:
@@ -113,11 +114,15 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
 
         case Event::STATISTIC:
             os << event.statistic;
+
+        case Event::MAGELLAN_AXIS:
+            os << event.magellan;
+
         default:
             break;
     }
     
-    os << /*", context " << event.context <<*/ enableFlush;
+    //os << ", context " << event.context <<;
     return os;
 }
 
@@ -174,4 +179,13 @@ std::ostream& operator << ( std::ostream& os, const Statistic& event )
        << event.startTime << " - " << event.endTime;
     return os;
 }
+
+std::ostream& operator << ( std::ostream& os, const MagellanEvent& event )
+{
+    os << " buttons " << event.buttons << " trans " << event.xAxis << ", "
+       << event.yAxis << ", " << event.zAxis << " rot " << event.xRotation
+       << ", " << event.yRotation << ", " << event.zRotation;
+    return os;
+}
+
 }

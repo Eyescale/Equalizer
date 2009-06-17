@@ -28,7 +28,7 @@ namespace base
 {
 
 /* @return all file names matching the given pattern in the given directory*/
-static StringVector fileSearch( const std::string directory,  
+inline StringVector fileSearch( const std::string directory,  
                                 const std::string pattern )
 {
     StringVector files;
@@ -91,7 +91,19 @@ static StringVector fileSearch( const std::string directory,
 #endif
     return files;
 }
+
+inline std::string getBasename( const std::string& filename )
+{
+    size_t lastSeparator = 0;
+    const size_t length = filename.length();
+
+    for( size_t i = 0; i < length; ++i )
+        if( filename[ i ] == '/' || filename[i] == '\\' )
+            lastSeparator = i+1;
+
+    return filename.substr( lastSeparator, length );
 }
 
+}
 }
 #endif //EQBASE_FILESEARCH_H

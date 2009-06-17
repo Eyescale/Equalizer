@@ -379,6 +379,18 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             return true;
 
+        case eq::Event::MAGELLAN_AXIS:
+            _spinX = 0;
+            _spinY = 0;
+            _frameData.spinModel(  0.0001f * event->data.magellan.zRotation,
+                                  -0.0001f * event->data.magellan.xRotation,
+                                  -0.0001f * event->data.magellan.yRotation );
+            _frameData.moveCamera(  0.0001f * event->data.magellan.xAxis,
+                                   -0.0001f * event->data.magellan.zAxis,
+                                    0.0001f * event->data.magellan.yAxis );
+            _redraw = true;
+            return true;
+
         case eq::Event::EXPOSE:
         case eq::Event::WINDOW_RESIZE:
         case eq::Event::WINDOW_CLOSE:

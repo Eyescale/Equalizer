@@ -33,6 +33,10 @@
 #include "server.h"
 #include "task.h"
 
+#ifdef AGL
+#  include "aglEventHandler.h"
+#endif
+
 #include <eq/base/scopedMutex.h>
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
@@ -243,6 +247,30 @@ void Node::waitInitialized() const
 bool Node::isRunning() const
 {
     return (_state == STATE_RUNNING);
+}
+
+bool Node::configInit( const uint32_t initID )
+{
+#ifdef EQ_USE_MAGELLAN
+#  ifdef AGL
+    AGLEventHandler::initMagellan( this );
+#  else
+    EQUNIMPLEMENTED;
+#  endif
+#endif
+    return true;
+}
+
+bool Node::configExit()
+{
+#ifdef EQ_USE_MAGELLAN
+#  ifdef AGL
+    AGLEventHandler::exitMagellan( this );
+#  else
+    EQUNIMPLEMENTED;
+#  endif
+#endif
+    return true;
 }
 
 void Node::waitFrameStarted( const uint32_t frameNumber ) const

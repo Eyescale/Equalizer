@@ -116,27 +116,5 @@ server
 
             segment { channel "operator" }
         }
-
-        compound { channel ( segment 0 layout "1x1" view 0 ) }
-        compound { channel ( segment 1 layout "1x1" view 0 ) }
-
-        compound { channel ( segment 0 layout "3x1" view 0 ) }
-        compound { channel ( segment 0 layout "3x1" view 1 ) }
-        compound { channel ( segment 1 layout "3x1" view 1 ) }
-        compound { channel ( segment 1 layout "3x1" view 2 ) }
-
-        compound { channel ( segment 0 layout "2x2" view 0 ) }
-        compound { channel ( segment 0 layout "2x2" view 1 ) }
-        compound { channel ( segment 1 layout "2x2" view 2 ) }
-        compound { channel ( segment 1 layout "2x2" view 3 ) }
-
-        compound { channel ( canvas 1 segment 0 layout "1x1" view 0 ) }
-        compound { channel ( canvas 1 segment 0 layout "3x1" view 0 ) }
-        compound { channel ( canvas 1 segment 0 layout "3x1" view 1 ) }
-        compound { channel ( canvas 1 segment 0 layout "3x1" view 2 ) }
-        compound { channel ( canvas 1 segment 0 layout "2x2" view 0 ) }
-        compound { channel ( canvas 1 segment 0 layout "2x2" view 1 ) }
-        compound { channel ( canvas 1 segment 0 layout "2x2" view 2 ) }
-        compound { channel ( canvas 1 segment 0 layout "2x2" view 3 ) }
     }    
 }

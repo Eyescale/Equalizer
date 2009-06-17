@@ -17,12 +17,21 @@
 
 #include "aglEventHandler.h"
 
+#include "aglWindow.h"
+#include "aglWindowEvent.h"
+#include "config.h"
+#include "configEvent.h"
 #include "global.h"
 #include "log.h"
 #include "pipe.h"
 #include "window.h"
-#include "aglWindow.h"
-#include "aglWindowEvent.h"
+
+#include <eq/net/global.h>
+#include <eq/base/fileSearch.h>
+
+#ifdef EQ_USE_MAGELLAN
+#  include <3DconnexionClient/ConnexionClientAPI.h>
+#endif
 
 using namespace eq::base;
 using namespace std;
@@ -488,4 +497,102 @@ uint32_t AGLEventHandler::_getKey( EventRef event )
             return KC_VOID;
     }
 }
+
+
+#ifdef EQ_USE_MAGELLAN
+extern "C" OSErr InstallConnexionHandlers( ConnexionMessageHandlerProc, 
+                                           ConnexionAddedHandlerProc, 
+                                           ConnexionRemovedHandlerProc ) 
+    __attribute__((weak_import));
+
+namespace
+{
+static uint16_t _magellanID = 0;
+static Node*    _magellanNode = 0;
+
+void _magellanEventHandler( io_connect_t connection, natural_t messageType, 
+                            void *messageArgument ) 
+{ 
+    switch (messageType) 
+    { 
+        case kConnexionMsgDeviceState: 
+        {
+            ConnexionDeviceState *state = static_cast< ConnexionDeviceState* >(
+                                                              messageArgument );
+            if( state->client == _magellanID ) 
+            { 
+                // decipher what command/event is being reported by the driver 
+                switch( state->command ) 
+                { 
+                    case kConnexionCmdHandleAxis: 
+                    {
+                        ConfigEvent event;
+                        event.data.type = Event::MAGELLAN_AXIS;
+                        event.data.originator = _magellanNode->getID();
+                        event.data.magellan.button = 0;
+                        event.data.magellan.buttons = state->buttons;
+                        event.data.magellan.xAxis = state->axis[0];
+                        event.data.magellan.yAxis = state->axis[1];
+                        event.data.magellan.zAxis = state->axis[2];
+                        event.data.magellan.xRotation = state->axis[3];
+                        event.data.magellan.yRotation = state->axis[4];
+                        event.data.magellan.zRotation = state->axis[5];
+                        
+                        _magellanNode->getConfig()->sendEvent( event );
+                        break; 
+                    }
+                    case kConnexionCmdHandleButtons: 
+                        EQINFO << "Magellan button" << std::endl;
+                        // state->buttons reports the buttons that are pressed 
+                        break; 
+                }                 
+            } 
+            break; 
+        }
+        default: 
+            // other messageTypes can happen and should be ignored 
+            break; 
+    } 
+}
+
+}
+#endif
+
+void AGLEventHandler::initMagellan( Node* node )
+{
+#ifdef EQ_USE_MAGELLAN
+    if( _magellanNode )
+        EQINFO << "Space Mouse already installed" << std::endl;
+    else if( !InstallConnexionHandlers )
+        EQWARN << "Space Mouse drivers not installed" << std::endl;
+    else if( InstallConnexionHandlers( _magellanEventHandler, 0, 0 ) != noErr )
+        EQWARN << "Can't install Space Mouse connexion handlers" << std::endl;
+    else
+    {
+        std::string program( '\0' + 
+                            base::getBasename( net::Global::getProgramName( )));
+        program[0] = program.length() - 1;
+        EQINFO << program << std::endl;
+
+        _magellanID = RegisterConnexionClient( 0, (uint8_t*)program.c_str( ),
+                                               kConnexionClientModeTakeOver,
+                                               kConnexionMaskAll );
+        _magellanNode = node;
+    }
+#endif
+}
+
+void AGLEventHandler::exitMagellan( Node* node )
+{
+#ifdef EQ_USE_MAGELLAN
+    if( _magellanID && _magellanNode == node )
+    {
+        UnregisterConnexionClient( _magellanID );
+        CleanupConnexionHandlers();
+        _magellanID = 0;
+        _magellanNode = 0;
+    }
+#endif
+}
+
 }

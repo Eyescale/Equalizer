@@ -24,6 +24,7 @@
 namespace eq
 {
     class AGLWindowIF;
+    class Node;
     class X11Connection;
 
     /**
@@ -37,6 +38,9 @@ namespace eq
         
         /** @sa EventHandler::deregisterWindow. */
         virtual ~AGLEventHandler();
+
+        static void initMagellan( Node* node );
+        static void exitMagellan( Node* node );
 
     private:
         AGLWindowIF* const _window;

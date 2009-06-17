@@ -4,6 +4,7 @@ DSO_LDFLAGS     += -dynamiclib
 WINDOW_SYSTEM   ?= GLX AGL
 
 #USE_OPENMP       = 1
+#EQ_USE_MAGELLAN = 1
 AR               = libtool
 ARFLAGS          = -static
 PC_LIBRARY_PATH ?= /opt/paracomp/lib
@@ -53,4 +54,9 @@ else
  # default bison on Tiger and earlier is too old, use fink or macports version
  BISONS       = $(wildcard /opt/local/bin/bison /sw/bin/bison )
  BISON        = $(word 1, $(BISONS))
+endif
+
+ifdef EQ_USE_MAGELLAN
+  WINDOW_SYSTEM_LIBS += -framework 3DconnexionClient
+  CXXFLAGS     += -DEQ_USE_MAGELLAN
 endif

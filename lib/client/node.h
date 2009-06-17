@@ -210,12 +210,12 @@ namespace eq
          * 
          * @param initID the init identifier.
          */
-        virtual bool configInit( const uint32_t initID ){ return true; }
+        virtual bool configInit( const uint32_t initID );
 
         /** 
          * Exit this node.
          */
-        virtual bool configExit(){ return true; }
+        virtual bool configExit();
 
         /**
          * Start rendering a frame.
