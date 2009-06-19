@@ -1,12 +1,7 @@
-/* Eq-Specific Defines used by XCode */
-
 #ifndef EQ_DEFINES_H
 #define EQ_DEFINES_H
 #ifndef AGL
 #  define AGL
-#endif
-#ifndef GLX
-#  define GLX
 #endif
 #ifndef Darwin
 #  define Darwin
@@ -20,7 +15,10 @@
 #ifndef GLEW_MX
 #  define GLEW_MX
 #endif
+#ifndef GLX
+#  define GLX
+#endif
 #ifndef LEOPARD
 #  define LEOPARD
 #endif
-#endif // EQ_DEFINES_H
+#endif // EQ_DEFINES_H 

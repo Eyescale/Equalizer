@@ -8,7 +8,6 @@ all: $(TARGETS)
 precompile: $(CXX_DEFINES_FILE) $(BUILD_MODE)
 
 $(CXX_DEFINES_FILE)::
-	@echo "/* Generated from CXXFLAGS during build */" > $@.tmp
 	@echo "#ifndef EQ_DEFINES_H" >> $@.tmp
 	@echo "#define EQ_DEFINES_H" >> $@.tmp
 	@for line in $(CXX_DEFINES_TXT); do  \
