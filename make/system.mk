@@ -9,8 +9,8 @@ ARCH    ?= $(subst .,_,$(subst -,_,$(shell uname)))
 SUBARCH ?= $(shell uname -m)
 RELARCH ?= $(shell uname -r)
 
-include $(TOP)/make/$(ARCH).mk
 -include $(TOP)/make/local.mk
+include $(TOP)/make/$(ARCH).mk
 
 DOXYGEN         ?= Doxygen
 FLEX            ?= flex
