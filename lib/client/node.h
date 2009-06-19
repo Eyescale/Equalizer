@@ -210,12 +210,12 @@ namespace eq
          * 
          * @param initID the init identifier.
          */
-        virtual bool configInit( const uint32_t initID );
+        EQ_EXPORT virtual bool configInit( const uint32_t initID );
 
         /** 
          * Exit this node.
          */
-        virtual bool configExit();
+        EQ_EXPORT virtual bool configExit();
 
         /**
          * Start rendering a frame.
