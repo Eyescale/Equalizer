@@ -127,6 +127,7 @@ void Global::_setupDefaults()
 #else
     _channelIAttributes[eq::Channel::IATTR_HINT_STATISTICS] = eq::NICEST;
 #endif
+    _channelIAttributes[eq::Channel::IATTR_HINT_SENDTOKEN] = eq::OFF;
 
     // compound
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )

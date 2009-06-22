@@ -40,6 +40,7 @@ namespace eq
 {
 FrameData::FrameData() 
         : _colorType( GL_RGBA )
+        , _useSendToken( false )
 {
     _roiFinder = new ROIFinder();
     EQINFO << "New FrameData @" << (void*)this << endl;
@@ -383,9 +384,9 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
             continue;
         
         // send image pixel data packet
-#ifdef EQ_SEND_TOKEN
-        getLocalNode()->acquireSendToken( toNode );
-#endif
+        if( _useSendToken )
+            getLocalNode()->acquireSendToken( toNode );
+
         connection->lockSend();
         connection->send( &packet, packetSize, true );
 #ifndef NDEBUG
@@ -418,9 +419,8 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
 #endif
 
         connection->unlockSend();
-#ifdef EQ_SEND_TOKEN
-        getLocalNode()->releaseSendToken( toNode );
-#endif
+        if( _useSendToken )
+            getLocalNode()->releaseSendToken( toNode );
         compressedSize += packet.size;
     }
 

@@ -708,7 +708,9 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
         }
         
         os << ( i==eq::Channel::IATTR_HINT_STATISTICS ?
-                    "hint_statistics   " : "ERROR" )
+                "hint_statistics   " :
+                i==eq::Channel::IATTR_HINT_SENDTOKEN ?
+                    "hint_sendtoken    " : "ERROR" )
            << static_cast<eq::IAttrValue>( value ) << endl;
     }
     

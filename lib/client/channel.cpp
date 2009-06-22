@@ -50,6 +50,7 @@ typedef net::CommandFunc<Channel> ChannelFunc;
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CHANNEL_") + #attr )
 std::string Channel::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
+    MAKE_ATTR_STRING( IATTR_HINT_SENDTOKEN ),
     MAKE_ATTR_STRING( IATTR_FILL1 ),
     MAKE_ATTR_STRING( IATTR_FILL2 )
 };
@@ -1257,6 +1258,7 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
 
+        frame->useSendToken( getIAttribute( IATTR_HINT_SENDTOKEN ) == ON );
 #ifdef EQ_ASYNC_TRANSMIT
         getNode()->transmitter.send( frame->getData(), toNode, 
                                      getPipe()->getCurrentFrame( ));

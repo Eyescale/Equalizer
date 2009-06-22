@@ -327,6 +327,7 @@ namespace eq
         enum IAttribute
         {
             IATTR_HINT_STATISTICS,
+            IATTR_HINT_SENDTOKEN,
             IATTR_FILL1,
             IATTR_FILL2,
             IATTR_ALL

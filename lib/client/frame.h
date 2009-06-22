@@ -187,8 +187,11 @@ namespace server
          */
         EQ_EXPORT void disableBuffer( const Buffer buffer );
 
-        /* Set color buffer type to read */
+        /** Set color buffer type to read */
         EQ_EXPORT void setColorType( const GLuint colorType );
+
+        /** @internal */
+        void useSendToken( const bool use );
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }

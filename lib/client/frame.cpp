@@ -148,6 +148,12 @@ void Frame::disableBuffer( const Buffer buffer )
     _frameData->disableBuffer( buffer );
 }
 
+void Frame::useSendToken( const bool use )
+{
+    EQASSERT( _frameData );
+    _frameData->useSendToken( use );
+}
+
 
 void Frame::addListener( base::Monitor<uint32_t>& listener )
 {

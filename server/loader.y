@@ -117,6 +117,7 @@
 %token EQTOKEN_COMPOUND_IATTR_UPDATE_FOV
 %token EQTOKEN_COMPOUND_IATTR_HINT_OFFSET
 %token EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS
+%token EQTOKEN_CHANNEL_IATTR_HINT_SENDTOKEN
 %token EQTOKEN_SERVER
 %token EQTOKEN_CONFIG
 %token EQTOKEN_APPNODE
@@ -129,6 +130,7 @@
 %token EQTOKEN_HINT_FULLSCREEN
 %token EQTOKEN_HINT_DECORATION
 %token EQTOKEN_HINT_STATISTICS
+%token EQTOKEN_HINT_SENDTOKEN
 %token EQTOKEN_HINT_SWAPSYNC
 %token EQTOKEN_HINT_DRAWABLE
 %token EQTOKEN_HINT_THREAD
@@ -418,6 +420,11 @@ global:
          eq::server::Global::instance()->setChannelIAttribute(
              eq::Channel::IATTR_HINT_STATISTICS, $2 );
      }
+     | EQTOKEN_CHANNEL_IATTR_HINT_SENDTOKEN IATTR
+     {
+         eq::server::Global::instance()->setChannelIAttribute(
+             eq::Channel::IATTR_HINT_SENDTOKEN, $2 );
+     }
      | EQTOKEN_COMPOUND_IATTR_STEREO_MODE IATTR 
      { 
          eq::server::Global::instance()->setCompoundIAttribute( 
@@ -648,6 +655,8 @@ channelAttributes: /*null*/ | channelAttributes channelAttribute
 channelAttribute:
     EQTOKEN_HINT_STATISTICS IATTR
         { channel->setIAttribute( eq::Channel::IATTR_HINT_STATISTICS, $2 ); }
+    | EQTOKEN_HINT_SENDTOKEN IATTR
+        { channel->setIAttribute( eq::Channel::IATTR_HINT_SENDTOKEN, $2 ); }
 
 
 observer: EQTOKEN_OBSERVER '{' { observer = new eq::server::Observer; }

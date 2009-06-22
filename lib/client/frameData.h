@@ -156,6 +156,9 @@ namespace server
          */
         void disableBuffer( const Frame::Buffer buffer )
             { _data.buffers &= ~buffer; }
+ 
+        /** @internal */
+        void useSendToken( const bool use ) { _useSendToken = use; }
         //@}
 
         /** @warning internal use only. */
@@ -214,6 +217,8 @@ namespace server
         std::vector< base::Monitor<uint32_t>* > _listeners;
         base::Lock                              _listenersMutex;
 
+        bool _useSendToken;
+        
         union // placeholder for binary-compatible changes
         {
             char dummy[64];
