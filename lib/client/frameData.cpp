@@ -318,7 +318,6 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
          i != _images.end(); ++i )
     {
         Image* image = *i;
-
         vector< const Image::PixelData* > pixelDatas;
 
         packet.size    = packetSize;
@@ -330,7 +329,7 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
         // Prepare image pixel data
         Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
 
-        // for each picture attachment
+        // for each image attachment
         for( unsigned j = 0; j < 2; ++j )
         {
             Frame::Buffer buffer = buffers[j];
@@ -361,7 +360,7 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
                     pixelDatas.push_back( &data );
 
                     packet.size += sizeof( uint64_t );
-                    packet.size += data.chunk.size;
+                    packet.size += data.pixels.size;
                 }
 
                 packet.buffers |= buffer;
@@ -400,21 +399,21 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
             {
                 for( uint32_t k = 0 ; k < data->lengthData.size; ++k )
                 {
-                    uint64_t channelSize[1] = { data->lengthData[k] };
-                    connection->send( channelSize, sizeof( uint64_t ), true );
-                    connection->send( data->outCompressed[k], channelSize[0], true );
+                    const uint64_t dataSize = data->lengthData[k];
+                    connection->send( &dataSize, sizeof( dataSize ), true );
+                    connection->send( data->outCompressed[k], dataSize, true );
 #ifndef NDEBUG
-                    sentBytes += sizeof( uint64_t ) + channelSize[0];
+                    sentBytes += sizeof( dataSize ) + dataSize;
 #endif
                 }
             }
             else
             {
-                uint64_t channelSize[1] = { data->chunk.size };
-                connection->send( channelSize, sizeof( uint64_t ), true );
-                connection->send( data->chunk.data, data->chunk.size, true );
+                const uint64_t dataSize = data->pixels.size;
+                connection->send( &dataSize, sizeof( dataSize ), true );
+                connection->send( data->pixels.data, dataSize, true );
 #ifndef NDEBUG
-                sentBytes += sizeof( uint64_t ) + data->chunk.size;
+                sentBytes += sizeof( dataSize ) + dataSize;
 #endif
             }
         }
@@ -523,14 +522,14 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
                 const uint64_t* u64Data = reinterpret_cast< uint64_t* >( data );
                 data += sizeof( uint64_t );
 
-                pixelData.chunk.replace(data, *u64Data);
+                pixelData.pixels.replace( data, *u64Data );
                 data += *u64Data;
             }
 
             image->setPixelData( buffer, pixelData );
 
             // Prevent ~PixelData from freeing pointers
-            pixelData.chunk.clear();
+            pixelData.pixels.clear();
             pixelData.lengthData.clear();
             pixelData.outCompressed.clear();
         }

@@ -32,7 +32,7 @@ using namespace std;
 
 namespace
 {
-typedef Image::PixelData::Chunk Chunk;
+typedef eq::base::Bufferb Chunk;
 }
 
 //#define NET_BANDWIDTH (1024.0f*1024.0f*128.0f)  //1Gb network with no overhead

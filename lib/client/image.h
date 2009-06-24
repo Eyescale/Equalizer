@@ -48,16 +48,18 @@ namespace eq
             ~PixelData();
             void flush();
 
-            uint32_t format;       //!< the GL format
-            uint32_t type;         //!< the GL type
-            uint32_t compressorName; // used in frameData
+            uint32_t format;         //!< the GL format
+            uint32_t type;           //!< the GL type
+            uint32_t compressorName; //!< the compressor used
             
-            base::Bufferb chunk;     //!< The pixel data
+            base::Bufferb pixels;   //!< The pixel data
             
             // compressed Pixel data
             base::Buffer< uint64_t > lengthData;
             base::Buffer< void * >   outCompressed;
-        
+
+        private:
+            friend class Image;
         };
 
         /** @name Data Access */
@@ -332,32 +334,31 @@ namespace eq
         /** The individual parameters for a buffer. */
         class Attachment
         {
-            public:  
-
-                Attachment ()
+        public:  
+            
+            Attachment ()
                     : compressorName( EQ_COMPRESSOR_NONE )
                     , compressor(0)
                     , plugin(0)
-                    {}
+                {}
 
-                /** The name of compressor used to 
-                    compress/uncompress pixel data */
-                uint32_t compressorName;
+            /** The name of compressor used to compress/uncompress pixel data.*/
+            uint32_t compressorName;
 
-                // compressor instance
-                void* compressor;
+            /** The compressor instance. */
+            void* compressor;
 
-                /** compression plugin used to allocate instances */
-                Compressor* plugin;
+            /** Compression plugin handle used to allocate instances */
+            Compressor* plugin;
 
-                /** The color for this component image. */
-                Texture texture;
+            /** The color for this component image. */
+            Texture texture;
 
-                // data pixel for the picture
-                Pixels pixels;
+            /** Current pixel data. */
+            Pixels pixels;
 
-                // compressed data pixel for the picture
-                CompressedPixels compressedPixels;
+            /** compressed pixel data. */
+            CompressedPixels compressedPixels;
         }; 
         
         Attachment _color;

@@ -290,13 +290,13 @@ bool Image::hasTextureData( const Frame::Buffer buffer ) const
 const uint8_t* Image::getPixelPointer( const Frame::Buffer buffer ) const
 {
     EQASSERT( hasPixelData( buffer ));
-    return _getPixels( buffer ).data.chunk.data;
+    return _getPixels( buffer ).data.pixels.data;
 }
 
 uint8_t* Image::getPixelPointer( const Frame::Buffer buffer )
 {
     EQASSERT( hasPixelData( buffer ));
-    return _getPixels( buffer ).data.chunk.data;
+    return _getPixels( buffer ).data.pixels.data;
 }
 
 const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
@@ -344,7 +344,7 @@ void Image::Pixels::resize( uint32_t size )
     if( size%8 )
         size += 8 - (size%8);
 
-    data.chunk.reserve( size );
+    data.pixels.reserve( size );
 }
 
 const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
@@ -389,8 +389,8 @@ void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
 
         pixels.resize( size );
         glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
-                      getType( buffer ), pixels.data.chunk.data );
-        pixels.data.chunk.size = size;
+                      getType( buffer ), pixels.data.pixels.data );
+        pixels.data.pixels.size = size;
         pixels.state = Pixels::VALID;
         return;
     }
@@ -557,13 +557,13 @@ void Image::_syncReadbackPBO( const Frame::Buffer buffer )
 
     Pixels& pixels = _getPixels( buffer );
     pixels.resize( size );
-    pixels.data.chunk.size = size;
+    pixels.data.pixels.size = size;
     EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo ));
     const void* data = glMapBuffer( GL_PIXEL_PACK_BUFFER, GL_READ_ONLY );
     EQ_GL_ERROR( "glMapBuffer" );
     EQASSERT( data );
 
-    memcpy( pixels.data.chunk.data, data, size );
+    memcpy( pixels.data.pixels.data, data, size );
 
     glUnmapBuffer( GL_PIXEL_PACK_BUFFER );
     glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
@@ -576,7 +576,7 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
     Pixels& pixels = _getPixels( buffer );
     const size_t size = getPixelDataSize( buffer );
     pixels.resize( size );
-    pixels.data.chunk.size = size;
+    pixels.data.pixels.size = size;
     const void*  bufferKey = _getBufferKey( buffer );
     FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( bufferKey );
     EQASSERT( fbo != 0 );
@@ -584,7 +584,7 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
     switch( buffer )
     {
         case Frame::BUFFER_COLOR:
-            fbo->getColorTextures()[0]->download( pixels.data.chunk.data,
+            fbo->getColorTextures()[0]->download( pixels.data.pixels.data,
                                                   getFormat( buffer ), 
                                                   getType( buffer ));
             break;
@@ -592,7 +592,7 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
         default:
             EQUNIMPLEMENTED;
         case Frame::BUFFER_DEPTH:
-            fbo->getDepthTexture().download( pixels.data.chunk.data,
+            fbo->getDepthTexture().download( pixels.data.pixels.data,
                                              getFormat( buffer ), 
                                              getType( buffer ));
             break;
@@ -622,13 +622,13 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 
     if( buffer == Frame::BUFFER_DEPTH )
     {
-        memset( pixels.data.chunk.data, 0xFF, size );
+        memset( pixels.data.pixels.data, 0xFF, size );
     }
     else
     {
         if( getDepth( Frame::BUFFER_COLOR ) == 4 )
         {
-            uint8_t* data = pixels.data.chunk.data;
+            uint8_t* data = pixels.data.pixels.data;
 #ifdef LEOPARD
             const unsigned char pixel[4] = { 0, 0, 0, 255 };
             memset_pattern4( data, &pixel, size );
@@ -642,7 +642,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 #endif
         }
         else
-            bzero( pixels.data.chunk.data, size );
+            bzero( pixels.data.pixels.data, size );
     }
 }
 
@@ -666,8 +666,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const uint8_t* data )
 
     Pixels& pixels = _getPixels( buffer );
     pixels.resize( size );
-    pixels.data.chunk.size = size;
-    memcpy( pixels.data.chunk.data, data, size );
+    pixels.data.pixels.size = size;
+    memcpy( pixels.data.pixels.data, data, size );
     pixels.state = Pixels::VALID;
 
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
@@ -686,9 +686,9 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     if( pixels.compressorName == EQ_COMPRESSOR_NONE )
     {
 
-        EQASSERT( size == pixels.chunk.size );
+        EQASSERT( size == pixels.pixels.size );
 
-        setPixelData( buffer, pixels.chunk.data );
+        setPixelData( buffer, pixels.pixels.data );
         return;
     }
 
@@ -705,11 +705,11 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     attachment.compressedPixels.valid = false;
 
     // Get number of blocks in compressed data
-    const uint64_t nChunks  = pixels.lengthData.size;
-    EQASSERT(( depth % nChunks ) == 0 );
+    const uint64_t nPixelss  = pixels.lengthData.size;
+    EQASSERT(( depth % nPixelss ) == 0 );
 
     void* outData = 
-        reinterpret_cast< uint8_t* >( outPixels.data.chunk.data );
+        reinterpret_cast< uint8_t* >( outPixels.data.pixels.data );
 
     uint64_t outDim[4] = { 0, _pvp.w, 0, _pvp.h}; 
 
@@ -719,7 +719,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
                                    attachment.compressorName, 
                                    ( const void ** )pixels.outCompressed.data,
                                    pixels.lengthData.data,
-                                   nChunks,
+                                   nPixelss,
                                    outData, 
                                    outDim,
                                    EQ_COMPRESSOR_DATA_2D );
@@ -777,7 +777,7 @@ void Image::Pixels::flush()
 
 void Image::PixelData::flush()
 {
-    chunk.clear();
+    pixels.clear();
     format = GL_FALSE;
     type   = GL_FALSE;
     compressorName = EQ_COMPRESSOR_NONE;
@@ -1114,7 +1114,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     pixels.data.format = getFormat( buffer );
     pixels.data.type   = getType( buffer );
     pixels.resize( nBytes );
-    char* data = reinterpret_cast< char* >( pixels.data.chunk.data );
+    char* data = reinterpret_cast< char* >( pixels.data.pixels.data );
 
     // Each channel is saved separately
     for( size_t i = 0; i < depth; ++i )
