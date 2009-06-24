@@ -1008,7 +1008,6 @@ namespace eq
         uint32_t      version;
         uint32_t      buffers;
         PixelViewport pvp;
-        bool          isCompressed;
         EQ_ALIGN8( uint8_t data[8] );
     };
 

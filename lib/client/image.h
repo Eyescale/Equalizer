@@ -23,11 +23,11 @@
 #include <eq/client/texture.h>       // member
 #include <eq/client/viewport.h>      // member
 #include <eq/client/windowSystem.h>  // for OpenGL types
-
-//#define EQ_IGNORE_ALPHA
+#include <eq/plugin/compressor.h>
 
 namespace eq
 {
+    class Compressor;
     /**
      * A holder for pixel data.
      *
@@ -43,25 +43,21 @@ namespace eq
         struct PixelData : public base::NonCopyable
         {
             PixelData() : format( GL_FALSE ), type( GL_FALSE )
-                        , compressed( false )
+                        , compressorName( EQ_COMPRESSOR_NONE )
                 {}
             ~PixelData();
             void flush();
 
             uint32_t format;       //!< the GL format
             uint32_t type;         //!< the GL type
-            bool     compressed;   //!< Chunks are RLE-compressed
+            uint32_t compressorName; // used in frameData
             
-            struct Chunk : public base::NonCopyable
-            {
-                uint32_t size;
-                uint32_t component; // only if compressed data
-                static size_t headerSize;
-
-                EQ_ALIGN16( uint8_t data[16] );
-            };
-
-            std::vector< Chunk* > chunks;     //!< The pixel data
+            base::Bufferb chunk;     //!< The pixel data
+            
+            // compressed Pixel data
+            base::Buffer< uint64_t > lengthData;
+            base::Buffer< void * >   outCompressed;
+        
         };
 
         /** @name Data Access */
@@ -303,20 +299,16 @@ namespace eq
                 VALID
             };
 
-            Pixels() : maxSize(0), pboSize(0), state( INVALID )
-                { data.chunks.push_back( 0 ); }
+            Pixels() : pboSize(0), state( INVALID ){}
 
             void resize( uint32_t size );
             void flush();
 
             PixelData data;
-            uint32_t  maxSize; // the size of the allocation
             uint32_t  pboSize; // the size of the PBO
             State     state;   // current state
         };
 
-        Pixels _colorPixels;
-        Pixels _depthPixels;
 
         class CompressedPixels
         {
@@ -324,25 +316,59 @@ namespace eq
             void flush();
 
             PixelData data;
-            std::vector< uint32_t > chunkMaxSizes;
-
             bool valid;   // data is currently valid
         };
 
-        CompressedPixels _compressedColorPixels;
-        CompressedPixels _compressedDepthPixels;
 
-        /** The color texture for this image. */
-        Texture _colorTexture;
-
-        /** The depth texture for this image. */
-        Texture _depthTexture;
+        /** @return an apropriate compressor name for the buffer data type.*/
+        uint32_t _getCompressorName( const Frame::Buffer buffer );
 
         /** The GL object manager, valid during a readback operation. */
         Window::ObjectManager* _glObjects;
 
         /** The storage type for the pixel data. */
         Frame::Type _type;
+
+        /** The individual parameters for a buffer. */
+        class Attachment
+        {
+            public:  
+
+                Attachment ()
+                    : compressorName( EQ_COMPRESSOR_NONE )
+                    , compressor(0)
+                    , plugin(0)
+                    {}
+
+                /** The name of compressor used to 
+                    compress/uncompress pixel data */
+                uint32_t compressorName;
+
+                // compressor instance
+                void* compressor;
+
+                /** compression plugin used to allocate instances */
+                Compressor* plugin;
+
+                /** The color for this component image. */
+                Texture texture;
+
+                // data pixel for the picture
+                Pixels pixels;
+
+                // compressed data pixel for the picture
+                CompressedPixels compressedPixels;
+        }; 
+        
+        Attachment _color;
+        Attachment _depth;
+
+        Attachment& _getAttachment( const Frame::Buffer buffer );
+
+        /** Find and activate a compressor / uncompressor engine */
+        void _allocCompressor( const Frame::Buffer buffer,
+                               uint32_t compressorName );
+
 
         /** PBO Usage. */
         bool _usePBO;
@@ -352,14 +378,12 @@ namespace eq
             char dummy[64];
         };
 
-        Pixels&           _getPixels( const Frame::Buffer buffer );
+        Pixels& _getPixels( const Frame::Buffer buffer );
         CompressedPixels& _getCompressedPixels( const Frame::Buffer buffer );
         const Pixels&           _getPixels( const Frame::Buffer buffer ) const;
         const CompressedPixels& _getCompressedPixels( const Frame::Buffer
                                                       buffer ) const;
         Texture& _getTexture( const Frame::Buffer buffer );
-        void _compressPixelData( const uint8_t* data, const uint32_t size,
-                                 PixelData::Chunk** chunks );
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;

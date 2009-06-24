@@ -30,7 +30,7 @@
 #include <eq/net/session.h>
 #include <eq/base/monitor.h>
 #include <algorithm>
-
+#include <eq/plugin/compressor.h>
 
 using namespace eq::base;
 using namespace std;
@@ -278,10 +278,6 @@ void FrameData::_setReady( const uint32_t version )
     }
 }
 
-namespace
-{
-typedef Image::PixelData::Chunk Chunk;
-}
 
 void FrameData::transmit( net::NodePtr toNode, Event& event )
 {
@@ -323,15 +319,6 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
     {
         Image* image = *i;
 
-        const uint32_t colorType = image->getType( Frame::BUFFER_COLOR );
-        if (( colorType == GL_HALF_FLOAT ) || 
-            ( colorType == GL_FLOAT )) 
-        {
-            packet.isCompressed = false;
-        }
-        else
-            packet.isCompressed = useCompression;
-        
         vector< const Image::PixelData* > pixelDatas;
 
         packet.size    = packetSize;
@@ -342,28 +329,30 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
 
         // Prepare image pixel data
         Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
+
+        // for each picture attachment
         for( unsigned j = 0; j < 2; ++j )
         {
             Frame::Buffer buffer = buffers[j];
             if( image->hasPixelData( buffer ))
             {
-                packet.size += 3 * sizeof( uint32_t ); // format, type, nChunks
+                // format, type, nChunks, compressor name
+                packet.size += 4 * sizeof( uint32_t ); 
 
-                if( packet.isCompressed )
+                if( useCompression )
                 {
                     Clock clock;
                     const Image::PixelData& data =
                         image->compressPixelData( buffer );
                     compressTime += clock.getTimef();
-
+                    
                     pixelDatas.push_back( &data );
-
-                    for( vector< Chunk* >::const_iterator k =
-                             data.chunks.begin(); k != data.chunks.end(); ++k )
+                    
+                    const uint32_t numElements = data.lengthData.size;
+                    for( uint32_t k = 0 ; k < numElements; ++k )
                     {
-                        const Chunk* chunk = *k;
-                        packet.size += chunk->headerSize;
-                        packet.size += chunk->size;
+                        packet.size += sizeof( uint64_t );
+                        packet.size += data.lengthData[ k ];
                     }
                 }
                 else
@@ -371,8 +360,8 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
                     const Image::PixelData& data = image->getPixelData( buffer);
                     pixelDatas.push_back( &data );
 
-                    packet.size += data.chunks[0]->headerSize;
-                    packet.size += data.chunks[0]->size;
+                    packet.size += sizeof( uint64_t );
+                    packet.size += data.chunk.size;
                 }
 
                 packet.buffers |= buffer;
@@ -395,21 +384,37 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
 
         for( uint32_t j=0; j < pixelDatas.size(); ++j )
         {
-            const Image::PixelData* data = pixelDatas[j];
-            uint32_t imageHeader[3] = { data->format, data->type, 
-                                        data->chunks.size() };
-            connection->send( imageHeader, 3 * sizeof( uint32_t ), true );
 #ifndef NDEBUG
-            sentBytes += 3 * sizeof( uint32_t );
+            sentBytes += 4 * sizeof( uint32_t );
 #endif
+            const Image::PixelData* data = pixelDatas[j];
+            const uint32_t imageHeader[4] =
+                  { data->format,
+                    data->type, 
+                    data->compressorName,
+                    useCompression ? 1 : data->lengthData.size };
 
-            for( vector< Chunk* >::const_iterator k = 
-                     data->chunks.begin(); k != data->chunks.end(); ++k )
+            connection->send( imageHeader, 4 * sizeof( uint32_t ), true );
+            
+            if( useCompression )
             {
-                const Chunk* chunk = *k;
-                connection->send( chunk, chunk->headerSize + chunk->size, true);
+                for( uint32_t k = 0 ; k < data->lengthData.size; ++k )
+                {
+                    uint64_t channelSize[1] = { data->lengthData[k] };
+                    connection->send( channelSize, sizeof( uint64_t ), true );
+                    connection->send( data->outCompressed[k], channelSize[0], true );
 #ifndef NDEBUG
-                sentBytes += chunk->headerSize + chunk->size;
+                    sentBytes += sizeof( uint64_t ) + channelSize[0];
+#endif
+                }
+            }
+            else
+            {
+                uint64_t channelSize[1] = { data->chunk.size };
+                connection->send( channelSize, sizeof( uint64_t ), true );
+                connection->send( data->chunk.data, data->chunk.size, true );
+#ifndef NDEBUG
+                sentBytes += sizeof( uint64_t ) + data->chunk.size;
 #endif
             }
         }
@@ -491,26 +496,43 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
             Image::PixelData pixelData;
             const uint32_t*  u32Data   = reinterpret_cast< uint32_t* >( data );
             
-            pixelData.format     = u32Data[0];
-            pixelData.type       = u32Data[1];
-            pixelData.compressed = packet->isCompressed;
-
-            const uint32_t nChunks = u32Data[2];
+            pixelData.format         = u32Data[0];
+            pixelData.type           = u32Data[1];
+            pixelData.compressorName = u32Data[2];
+            const uint32_t nChunks   = u32Data[3];
             
-            data += 3 * sizeof( uint32_t );
+            data += 4 * sizeof( uint32_t );
             
-            for( uint32_t j=0; j < nChunks; ++j )
+            if ( pixelData.compressorName != EQ_COMPRESSOR_NONE )
             {
-                Chunk* chunk = reinterpret_cast< Chunk* >( data );
+                pixelData.outCompressed.resize( nChunks );
+                pixelData.lengthData.resize( nChunks );
+                for( uint32_t j = 0; j < nChunks; ++j )
+                {
+                    const uint64_t*  u64Data   = 
+                                          reinterpret_cast< uint64_t* >( data );
+                    data += sizeof( uint64_t );
+                    
+                    pixelData.outCompressed.data[j] = data;
+                    pixelData.lengthData.data[j] = *u64Data; 
+                    data += *u64Data;
+                }
+            }
+            else
+            {
+                const uint64_t* u64Data = reinterpret_cast< uint64_t* >( data );
+                data += sizeof( uint64_t );
 
-                pixelData.chunks.push_back( chunk );
-                data += chunk->headerSize + chunk->size;
+                pixelData.chunk.replace(data, *u64Data);
+                data += *u64Data;
             }
 
             image->setPixelData( buffer, pixelData );
 
             // Prevent ~PixelData from freeing pointers
-            pixelData.chunks.clear();
+            pixelData.chunk.clear();
+            pixelData.lengthData.clear();
+            pixelData.outCompressed.clear();
         }
     }
 

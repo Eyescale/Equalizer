@@ -26,6 +26,8 @@
 
 #include <eq/base/omp.h>
 #include <eq/net/node.h>
+#include <eq/client/compressor.h>
+#include <eq/client/pluginRegistry.h>
 
 #include <fstream>
 
@@ -42,15 +44,6 @@ using namespace std;
 namespace eq
 {
 
-namespace
-{
-const uint64_t _rleMarker = 0x42; // just a random number
-
-typedef Image::PixelData::Chunk Chunk;
-#define RLE_DEPTH 4
-}
-
-size_t Image::PixelData::Chunk::headerSize = 16;
 
 Image::Image()
         : _glObjects( 0 )
@@ -71,12 +64,12 @@ void Image::reset()
 
 void Image::flush()
 {
-    _colorPixels.flush();
-    _depthPixels.flush();
-    _compressedColorPixels.flush();
-    _compressedDepthPixels.flush();
-    _colorTexture.flush();
-    _depthTexture.flush();
+    _color.pixels.flush();
+    _depth.pixels.flush();
+    _color.compressedPixels.flush();
+    _depth.compressedPixels.flush();
+    _color.texture.flush();
+    _depth.texture.flush();
 }
 
 uint32_t Image::getDepth( const Frame::Buffer buffer ) const
@@ -158,29 +151,13 @@ uint32_t Image::getInternalTextureFormat( const Frame::Buffer which ) const
 
 Image::Pixels& Image::_getPixels( const Frame::Buffer buffer )
 {
-    switch( buffer )
-    {
-        case Frame::BUFFER_COLOR:
-            return _colorPixels;
-
-        default:
-            EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
-            return _depthPixels;
-    }
+    return _getAttachment( buffer ).pixels;
 }
 
 Image::CompressedPixels& Image::_getCompressedPixels(
     const Frame::Buffer buffer )
 {
-    switch( buffer )
-    {
-        case Frame::BUFFER_COLOR:
-            return _compressedColorPixels;
-
-        default:
-            EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
-            return _compressedDepthPixels;
-    }
+    return _getAttachment( buffer ).compressedPixels;
 }
 
 const Image::Pixels& Image::_getPixels( const Frame::Buffer buffer ) const
@@ -188,12 +165,12 @@ const Image::Pixels& Image::_getPixels( const Frame::Buffer buffer ) const
     switch( buffer )
     {
         case Frame::BUFFER_COLOR:
-            return _colorPixels;
+            return _color.pixels;
 
         case Frame::BUFFER_DEPTH:
         default:
             EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
-            return _depthPixels;
+            return _depth.pixels;
     }
 }
 
@@ -203,11 +180,11 @@ const Image::CompressedPixels& Image::_getCompressedPixels(
     switch( buffer )
     {
         case Frame::BUFFER_COLOR:
-            return _compressedColorPixels;
+            return _color.compressedPixels;
 
         default:
             EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
-            return _compressedDepthPixels;
+            return _depth.compressedPixels;
     }
 }
 
@@ -246,6 +223,39 @@ uint32_t Image::getType( const Frame::Buffer buffer ) const
     EQASSERT( pixels.data.type );
     return pixels.data.type;
 }
+ 
+uint32_t Image::_getCompressorName(const Frame::Buffer buffer)
+{
+    const uint32_t numChannels = getNumChannels( buffer ); 
+    const uint32_t type = getType( buffer );
+
+    if ( numChannels == 4 )
+    {
+        switch( type )
+        {
+        case GL_FLOAT:
+            return EQ_COMPRESSOR_RLE_4_FLOAT;
+        case GL_HALF_FLOAT:
+            return EQ_COMPRESSOR_RLE_4_HALF_FLOAT;
+        case GL_UNSIGNED_BYTE:
+            return EQ_COMPRESSOR_DIFF_RLE_4_BYTE;
+        default:
+            break;
+        }
+    }
+    
+    if ( numChannels == 3 && type == GL_UNSIGNED_BYTE )
+    {
+        return EQ_COMPRESSOR_RLE_3_BYTE;
+    }
+    
+    if ( numChannels == 1 && type == GL_UNSIGNED_INT)
+    {
+        return EQ_COMPRESSOR_DIFF_RLE_4_BYTE;
+    }
+    
+    return EQ_COMPRESSOR_RLE_BYTE;
+}
 
 bool Image::hasAlpha() const
 {
@@ -280,17 +290,13 @@ bool Image::hasTextureData( const Frame::Buffer buffer ) const
 const uint8_t* Image::getPixelPointer( const Frame::Buffer buffer ) const
 {
     EQASSERT( hasPixelData( buffer ));
-    EQASSERT( _getPixels( buffer ).data.chunks.size() == 1 );
-
-    return _getPixels( buffer ).data.chunks[0]->data;
+    return _getPixels( buffer ).data.chunk.data;
 }
 
 uint8_t* Image::getPixelPointer( const Frame::Buffer buffer )
 {
     EQASSERT( hasPixelData( buffer ));
-    EQASSERT( _getPixels( buffer ).data.chunks.size() == 1 );
-
-    return _getPixels( buffer ).data.chunks[0]->data;
+    return _getPixels( buffer ).data.chunk.data;
 }
 
 const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
@@ -310,8 +316,8 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     _glObjects = glObjects;
     _pvp       = pvp;
 
-    _colorPixels.state = Pixels::INVALID;
-    _depthPixels.state = Pixels::INVALID;
+    _color.pixels.state = Pixels::INVALID;
+    _depth.pixels.state = Pixels::INVALID;
 
     if( buffers & Frame::BUFFER_COLOR )
         _startReadback( Frame::BUFFER_COLOR, zoom );
@@ -334,25 +340,11 @@ void Image::syncReadback()
 
 void Image::Pixels::resize( uint32_t size )
 {
-    EQASSERT( data.chunks.size() == 1 );
-
-    if( maxSize >= size )
-    {
-        data.chunks[0]->size = size;
-        return;
-    }
-
-    // round to next 8-byte alignment (compress uses 8-byte tokens)
+    // round to next 8-byte alignment (compress might use 8-byte tokens)
     if( size%8 )
         size += 8 - (size%8);
 
-    if( data.chunks[0] )
-        free( data.chunks[0] );
-    
-    data.chunks[0] = reinterpret_cast< Chunk* >( malloc( size + 
-                                                         Chunk::headerSize ));
-    data.chunks[0]->size = size;
-    maxSize = size;
+    data.chunk.reserve( size );
 }
 
 const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
@@ -397,7 +389,8 @@ void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
 
         pixels.resize( size );
         glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
-                      getType( buffer ), pixels.data.chunks[0]->data );
+                      getType( buffer ), pixels.data.chunk.data );
+        pixels.data.chunk.size = size;
         pixels.state = Pixels::VALID;
         return;
     }
@@ -411,27 +404,17 @@ const Texture& Image::getTexture( const Frame::Buffer buffer ) const
     switch( buffer )
     {
         case Frame::BUFFER_COLOR:
-            return _colorTexture;
+            return _color.texture;
             
         default:
             EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
-            return _depthTexture;
+            return _depth.texture;
     }
 }   
 
 Texture& Image::_getTexture( const Frame::Buffer buffer )
 {
-    switch( buffer )
-    {
-        case Frame::BUFFER_COLOR:
-            return _colorTexture;
-            
-        default:
-            EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
-            return _depthTexture;
-    }
-
-
+    return _getAttachment( buffer ).texture;
 }   
 
 void Image::_startReadbackPBO( const Frame::Buffer buffer )
@@ -574,13 +557,13 @@ void Image::_syncReadbackPBO( const Frame::Buffer buffer )
 
     Pixels& pixels = _getPixels( buffer );
     pixels.resize( size );
-
+    pixels.data.chunk.size = size;
     EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo ));
     const void* data = glMapBuffer( GL_PIXEL_PACK_BUFFER, GL_READ_ONLY );
     EQ_GL_ERROR( "glMapBuffer" );
     EQASSERT( data );
 
-    memcpy( pixels.data.chunks[0]->data, data, size );
+    memcpy( pixels.data.chunk.data, data, size );
 
     glUnmapBuffer( GL_PIXEL_PACK_BUFFER );
     glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
@@ -593,7 +576,7 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
     Pixels& pixels = _getPixels( buffer );
     const size_t size = getPixelDataSize( buffer );
     pixels.resize( size );
-
+    pixels.data.chunk.size = size;
     const void*  bufferKey = _getBufferKey( buffer );
     FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( bufferKey );
     EQASSERT( fbo != 0 );
@@ -601,7 +584,7 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
     switch( buffer )
     {
         case Frame::BUFFER_COLOR:
-            fbo->getColorTextures()[0]->download( pixels.data.chunks[0]->data,
+            fbo->getColorTextures()[0]->download( pixels.data.chunk.data,
                                                   getFormat( buffer ), 
                                                   getType( buffer ));
             break;
@@ -609,7 +592,7 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
         default:
             EQUNIMPLEMENTED;
         case Frame::BUFFER_DEPTH:
-            fbo->getDepthTexture().download( pixels.data.chunks[0]->data,
+            fbo->getDepthTexture().download( pixels.data.chunk.data,
                                              getFormat( buffer ), 
                                              getType( buffer ));
             break;
@@ -622,10 +605,10 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
 void Image::setPixelViewport( const PixelViewport& pvp )
 {
     _pvp = pvp;
-    _colorPixels.state = Pixels::INVALID;
-    _depthPixels.state = Pixels::INVALID;
-    _compressedColorPixels.valid = false;
-    _compressedDepthPixels.valid = false;
+    _color.pixels.state = Pixels::INVALID;
+    _depth.pixels.state = Pixels::INVALID;
+    _color.compressedPixels.valid = false;
+    _depth.compressedPixels.valid = false;
 }
 
 void Image::clearPixelData( const Frame::Buffer buffer )
@@ -639,13 +622,13 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 
     if( buffer == Frame::BUFFER_DEPTH )
     {
-        memset( pixels.data.chunks[0]->data, 0xFF, size );
+        memset( pixels.data.chunk.data, 0xFF, size );
     }
     else
     {
         if( getDepth( Frame::BUFFER_COLOR ) == 4 )
         {
-            uint8_t* data = pixels.data.chunks[0]->data;
+            uint8_t* data = pixels.data.chunk.data;
 #ifdef LEOPARD
             const unsigned char pixel[4] = { 0, 0, 0, 255 };
             memset_pattern4( data, &pixel, size );
@@ -659,7 +642,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 #endif
         }
         else
-            bzero( pixels.data.chunks[0]->data, size );
+            bzero( pixels.data.chunk.data, size );
     }
 }
 
@@ -683,7 +666,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const uint8_t* data )
 
     Pixels& pixels = _getPixels( buffer );
     pixels.resize( size );
-    memcpy( pixels.data.chunks[0]->data, data, size );
+    pixels.data.chunk.size = size;
+    memcpy( pixels.data.chunk.data, data, size );
     pixels.state = Pixels::VALID;
 
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
@@ -699,194 +683,104 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     if( size == 0 )
         return;
 
-    if( !pixels.compressed )
+    if( pixels.compressorName == EQ_COMPRESSOR_NONE )
     {
-        EQASSERT( pixels.chunks.size() == 1 );
-        EQASSERT( size == pixels.chunks[0]->size );
 
-        setPixelData( buffer, pixels.chunks[0]->data );
+        EQASSERT( size == pixels.chunk.size );
+
+        setPixelData( buffer, pixels.chunk.data );
         return;
     }
 
-    const uint32_t depth = RLE_DEPTH;
-    EQASSERT( getDepth( buffer ) == RLE_DEPTH ) // may change with RGB format 
+    _allocCompressor( buffer, 
+                      pixels.compressorName );
+
+    const uint32_t depth = getDepth( buffer );
 
     Pixels& outPixels = _getPixels( buffer );
-	EQASSERT( size > 0 );
+    EQASSERT( size > 0 );
     outPixels.resize( size );
 
-    CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
-    compressedPixels.valid = false;
+    Attachment& attachment = _getAttachment( buffer );
+    attachment.compressedPixels.valid = false;
 
     // Get number of blocks in compressed data
-    const ssize_t nChunks  = pixels.chunks.size();
-    EQASSERT( (nChunks % depth) == 0 );
+    const uint64_t nChunks  = pixels.lengthData.size;
+    EQASSERT(( depth % nChunks ) == 0 );
 
-    const ssize_t nBlocks  = nChunks / depth;
-    uint8_t**     outTable = static_cast< uint8_t** >(
-        alloca( nBlocks * sizeof( uint8_t* )));
+    void* outData = 
+        reinterpret_cast< uint8_t* >( outPixels.data.chunk.data );
 
-    // Prepare table with input pointer into decompressed data
-    //   Needed since decompress loop is parallelized
-    {
-        uint8_t* out = outPixels.data.chunks[0]->data;
-        for( ssize_t i = 0; i < nBlocks; ++i )
-        {
-            outTable[ i ] = out;
-            
-            const uint32_t* in = reinterpret_cast< const uint32_t* >( 
-                                     pixels.chunks[ i * depth ]->data );
-            const uint32_t chunkSize = in[0];
-            out += chunkSize * RLE_DEPTH;
-        }
-        EQASSERTINFO( size >= (uint32_t)(out-outPixels.data.chunks[0]->data-7 ),
-                      "Pixel data size does not match expected image size: "
-                      << size << " ? " 
-                      << (uint32_t)( out - outPixels.data.chunks[0]->data ));
-    }
+    uint64_t outDim[4] = { 0, _pvp.w, 0, _pvp.h}; 
 
-#ifndef NDEBUG
-    base::Atomic< long > totalDone;
-#endif
+    EQASSERT( attachment.plugin != 0 );
+    
+    attachment.plugin->decompress( attachment.compressor,
+                                   attachment.compressorName, 
+                                   ( const void ** )pixels.outCompressed.data,
+                                   pixels.lengthData.data,
+                                   nChunks,
+                                   outData, 
+                                   outDim,
+                                   EQ_COMPRESSOR_DATA_2D );
+    
 
-    // decompress each block
-    // On OS X the loop is sometimes slower when parallelized. Investigate this!
-#pragma omp parallel for
-    for( ssize_t i = 0; i < nBlocks; ++i )
-    {
-        const uint8_t* oneIn(   pixels.chunks[ i*depth + 0 ]->data + 4);
-        const uint8_t* twoIn(   pixels.chunks[ i*depth + 1 ]->data + 4);
-        const uint8_t* threeIn( pixels.chunks[ i*depth + 2 ]->data + 4);
-#ifndef EQ_IGNORE_ALPHA
-        const uint8_t* fourIn(  pixels.chunks[ i*depth + 3 ]->data + 4);
-#endif
-        uint8_t one(0), two(0), three(0), four(0xff);
-        uint8_t oneLeft(0), twoLeft(0), threeLeft(0), fourLeft(0);
-
-        uint32_t*       out   = reinterpret_cast< uint32_t* >( outTable[i] );
-        const uint32_t* u32In = reinterpret_cast< const uint32_t* >( 
-                                    pixels.chunks[ i * depth ]->data );
-        const uint32_t  blockSize = u32In[0];
-#ifndef NDEBUG
-        totalDone += RLE_DEPTH * blockSize;
-#endif
-
-        EQVERB << "In chunk " << i << " size " 
-               << pixels.chunks[ i*depth + 0 ]->size << ", " 
-               << pixels.chunks[ i*depth + 1 ]->size << ", " 
-               << pixels.chunks[ i*depth + 2 ]->size << ", " 
-               << pixels.chunks[ i*depth + 3 ]->size
-               << " @ " << (void*)oneIn << endl;
-        EQVERB << "Out chunk " << i << " size " << blockSize
-               << " @ " << (void*)out << endl;
-
-        for( uint32_t j = 0; j < blockSize; ++j )
-        {
-            if( oneLeft == 0 )
-            {
-                one = *oneIn; ++oneIn;
-                if( one == _rleMarker )
-                {
-                    one     = *oneIn; ++oneIn;
-                    oneLeft = *oneIn; ++oneIn;
-                }
-                else // single symbol
-                    oneLeft = 1;
-            }
-            EQASSERT( oneLeft > 0 );
-            --oneLeft;
-
-            if( twoLeft == 0 )
-            {
-                two = *twoIn; ++twoIn;
-                if( two == _rleMarker )
-                {
-                    two     = *twoIn; ++twoIn;
-                    twoLeft = *twoIn; ++twoIn;
-                }
-                else // single symbol
-                    twoLeft = 1;
-
-                //two <<= 8;
-            }
-            EQASSERT( twoLeft > 0 );
-            --twoLeft;
-
-            if( threeLeft == 0 )
-            {
-                three = *threeIn; ++threeIn;
-                if( three == _rleMarker )
-                {
-                    three     = *threeIn; ++threeIn;
-                    threeLeft = *threeIn; ++threeIn;
-                }
-                else // single symbol
-                    threeLeft = 1;
-
-                //three <<= 16;
-            }
-            EQASSERT( threeLeft > 0 );
-            --threeLeft;
-
-#ifndef EQ_IGNORE_ALPHA
-            if( fourLeft == 0 )
-            {
-                four = *fourIn; ++fourIn;
-                if( four == _rleMarker )
-                {
-                    four     = *fourIn; ++fourIn;
-                    fourLeft = *fourIn; ++fourIn;
-                }
-                else // single symbol
-                    fourLeft = 1;
-
-                //four <<= 24;
-            }
-            EQASSERT( fourLeft > 0 );
-            --fourLeft;
-#endif
-
-            out[j] = one + (two<<8) + (three<<16) + (four<<24);
-        }
-
-        EQASSERT( oneLeft == 0 );
-        EQASSERT( twoLeft == 0 );
-        EQASSERT( threeLeft == 0 );
-        EQASSERT( fourLeft == 0 );
-    }
-    EQASSERTINFO( totalDone == static_cast< long >( size ),
-                  totalDone << " != " << size );
 
     outPixels.state = Pixels::VALID;
+}
+
+Image::Attachment& Image::_getAttachment( const Frame::Buffer buffer )
+{
+   switch( buffer )
+   {
+       case Frame::BUFFER_COLOR:
+           return _color;
+       case Frame::BUFFER_DEPTH:
+           return _depth;
+       default:
+           EQUNIMPLEMENTED;
+   }
+   return _color;
+}
+
+/** Find and activate a compressor engine */
+void Image::_allocCompressor( const Frame::Buffer buffer,
+                              uint32_t compressorName )
+{
+    Attachment& attachment = _getAttachment( buffer );
+    if ( !attachment.plugin || 
+       ( attachment.compressorName != compressorName ))
+    {
+        attachment.compressorName = compressorName;
+        if ( attachment.compressor )
+            attachment.plugin->deleteCompressor( attachment.compressor );
+                 
+        attachment.plugin = 
+               Global::getPluginRegistry()->findCompressor( compressorName );
+        attachment.compressor = 
+                    attachment.plugin->newCompressor( compressorName );
+    }
 }
 
 void Image::CompressedPixels::flush()
 {
     data.flush();
-    chunkMaxSizes.clear();
     valid = false;
 }
 
 void Image::Pixels::flush()
 {
-    maxSize = 0;
     pboSize = 0;
     state = INVALID;
     data.flush();
-    data.chunks.push_back( 0 );
 }
 
 void Image::PixelData::flush()
 {
-    while( !chunks.empty( ))
-    {
-        if( chunks.back( ))
-            free( chunks.back( ));
-        chunks.pop_back();
-    }
+    chunk.clear();
     format = GL_FALSE;
     type   = GL_FALSE;
-    compressed = false;
+    compressorName = EQ_COMPRESSOR_NONE;
 }
 
 Image::PixelData::~PixelData()
@@ -896,203 +790,52 @@ Image::PixelData::~PixelData()
 
 const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 {
-    const uint32_t size = getPixelDataSize( buffer );
+    const uint64_t size = getPixelDataSize( buffer );
 
     EQASSERT( size > 0 );
-    EQASSERT( getDepth( buffer ) == RLE_DEPTH );   // may change with RGB format
 
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
     if( compressedPixels.valid )
         return compressedPixels.data;
 
-    compressedPixels.data.format     = getFormat( buffer );
-    compressedPixels.data.type       = getType( buffer );
-    compressedPixels.data.compressed = true;
+    compressedPixels.data.compressorName  = _getCompressorName(buffer);
+    _allocCompressor( buffer, compressedPixels.data.compressorName );
 
-    const uint8_t* data   = getPixelPointer( buffer );
+    compressedPixels.data.format  = getFormat( buffer );
+    compressedPixels.data.type    = getType( buffer );
 
-    // determine number of chunks and set up output data structure
-#ifdef EQ_USE_OPENMP
-    const ssize_t nChunks = RLE_DEPTH * base::OMP::getNThreads() * 4;
-#else
-    const ssize_t nChunks = RLE_DEPTH;
-#endif
-    const uint32_t maxChunkSize = (size/nChunks + 1) << 1;
+    uint64_t inDims[4]  = { 0, _pvp.w, 0, _pvp.h}; 
 
-    for( ssize_t i = 0; i < nChunks; ++i )
+    Attachment& attachment = _getAttachment( buffer );
+    
+    EQASSERT( attachment.plugin != 0 );
+    
+    attachment.plugin->compress( attachment.compressor, 
+                                 getPixelPointer( buffer ), 
+                                 inDims, EQ_COMPRESSOR_DATA_2D );
+
+    const size_t numResults = 
+        attachment.plugin->getNumResults( attachment.compressor );
+    
+    compressedPixels.data.outCompressed.resize( numResults );
+    compressedPixels.data.lengthData.resize( numResults );
+
+    for( size_t i = 0; i < numResults ; i++ )
     {
-        EQASSERT( compressedPixels.data.chunks.size() ==
-                  compressedPixels.chunkMaxSizes.size( ));
-
-        if( compressedPixels.data.chunks.size() <= static_cast< size_t >( i ))
-        {
-            EQINFO << "Malloc compressed pixels, size " << maxChunkSize << endl;
-            Chunk* chunk = reinterpret_cast< Chunk* >( 
-                               malloc( maxChunkSize + Chunk::headerSize ));
-            compressedPixels.data.chunks.push_back( chunk );
-            compressedPixels.chunkMaxSizes.push_back( maxChunkSize );
-        }
-        else
-        {
-            if( compressedPixels.chunkMaxSizes[i] < maxChunkSize )
-            {
-                if( compressedPixels.data.chunks[i] )
-                    free( compressedPixels.data.chunks[i] );
-
-                EQINFO << "Malloc compressed pixels, size " << maxChunkSize
-                       << endl;
-                compressedPixels.data.chunks[i] = reinterpret_cast< Chunk* >( 
-                                    malloc( maxChunkSize + Chunk::headerSize ));
-                compressedPixels.chunkMaxSizes[i] = maxChunkSize;
-            }
-        }
-        compressedPixels.data.chunks[i]->size      = 0;
-        compressedPixels.data.chunks[i]->component = i % RLE_DEPTH;
+        attachment.plugin->getResult( 
+                    attachment.compressor,
+                    i, 
+                    &compressedPixels.data.outCompressed.data[i], 
+                    &compressedPixels.data.lengthData.data[i] );
     }
 
-
-    const float width = static_cast< float >( size ) /
-                        static_cast< float >( nChunks );
-
-#pragma omp parallel for
-    for ( ssize_t i = 0; i < nChunks; i += RLE_DEPTH )
-    {
-        const uint32_t startIndex = 
-            static_cast< uint32_t >(i/RLE_DEPTH * width) * RLE_DEPTH;
-        const uint32_t nextIndex  =
-            static_cast< uint32_t >((i/RLE_DEPTH + 1) * width) * RLE_DEPTH;
-        const uint32_t inSize     = (nextIndex - startIndex) / RLE_DEPTH;
-        EQASSERT( (nextIndex - startIndex) % RLE_DEPTH == 0 );
-
-        _compressPixelData( &data[ startIndex ], inSize, 
-                            &compressedPixels.data.chunks[i] );
-
-        EQVERB << "In chunk " << i << " size " << inSize << '[' << startIndex
-               << '-' << nextIndex << "] @ " << (void*)&data[ startIndex ]
-               << " out " << compressedPixels.data.chunks[i+0]->size << ", "
-               << compressedPixels.data.chunks[i+1]->size << ", "
-               << compressedPixels.data.chunks[i+2]->size << ", "
-               << compressedPixels.data.chunks[i+3]->size << endl;
-    }
 
     compressedPixels.valid = true;
     return compressedPixels.data;
 }
 
-#define WRITE_OUTPUT( name )                                            \
-    {                                                                   \
-        if( last ## name == _rleMarker )                                \
-        {                                                               \
-            *(out ## name) = _rleMarker; ++(out ## name);               \
-            *(out ## name) = last ## name; ++(out ## name);             \
-            *(out ## name) = same ## name; ++(out ## name);             \
-        }                                                               \
-        else                                                            \
-            switch( same ## name )                                      \
-            {                                                           \
-                case 0:                                                 \
-                    EQUNREACHABLE;                                      \
-                    break;                                              \
-                case 3:                                                 \
-                    *(out ## name) = last ## name;                      \
-                    ++(out ## name);                                    \
-                    /* fall through */                                  \
-                case 2:                                                 \
-                    *(out ## name) = last ## name;                      \
-                    ++(out ## name);                                    \
-                    /* fall through */                                  \
-                case 1:                                                 \
-                    *(out ## name) = last ## name;                      \
-                    ++(out ## name);                                    \
-                    break;                                              \
-                                                                        \
-                default:                                                \
-                    *(out ## name) = _rleMarker;   ++(out ## name);     \
-                    *(out ## name) = last ## name; ++(out ## name);     \
-                    *(out ## name) = same ## name; ++(out ## name);     \
-                    break;                                              \
-            }                                                           \
-    }
 
-void Image::_compressPixelData( const uint8_t* input, const uint32_t nWords,
-                                PixelData::Chunk** chunks )
-{
-    for( uint32_t i = 0; i < RLE_DEPTH; ++i )
-    {
-        EQASSERT( chunks[ i ]->component == i );
 
-        uint32_t* u32Out = reinterpret_cast< uint32_t* >( chunks[i]->data );
-        u32Out[0]        = nWords;
-    }
-
-    uint8_t* outOne(   chunks[ 0 ]->data + 4 /* nWords 'header' */ ); 
-    uint8_t* outTwo(   chunks[ 1 ]->data + 4 /* nWords 'header' */ ); 
-    uint8_t* outThree( chunks[ 2 ]->data + 4 /* nWords 'header' */ ); 
-    uint8_t* outFour(  chunks[ 3 ]->data + 4 /* nWords 'header' */ ); 
-
-    uint8_t lastOne( input[0] ), lastTwo( input[1] ), lastThree( input[2] ),
-            lastFour( input[3] );
-    uint8_t sameOne( 1 ), sameTwo( 1 ), sameThree( 1 ), sameFour( 1 );
-    
-    const uint32_t* data   = reinterpret_cast< const uint32_t* >( input ) + 1;
-
-    for( uint32_t i = 1; i < nWords; ++i )
-    {
-        const uint8_t* word = reinterpret_cast< const uint8_t* >( data );
-        ++data;
-
-        const uint8_t one = word[0];
-        if( one == lastOne && sameOne != 255 )
-            ++sameOne;
-        else
-        {
-            WRITE_OUTPUT( One );
-            lastOne = one;
-            sameOne = 1;
-        }
-        
-        const uint8_t two = word[1];
-        if( two == lastTwo && sameTwo != 255 )
-            ++sameTwo;
-        else
-        {
-            WRITE_OUTPUT( Two );
-            lastTwo = two;
-            sameTwo = 1;
-        }
-        
-        const uint8_t three = word[2];
-        if( three == lastThree && sameThree != 255 )
-            ++sameThree;
-        else
-        {
-            WRITE_OUTPUT( Three );
-            lastThree = three;
-            sameThree = 1;
-        }
-        
-#ifndef EQ_IGNORE_ALPHA
-        const uint8_t four = word[3];
-        if( four == lastFour && sameFour != 255 )
-            ++sameFour;
-        else
-        {
-            WRITE_OUTPUT( Four );
-            lastFour = four;
-            sameFour = 1;
-        }
-#endif
-    }
-
-    WRITE_OUTPUT( One );
-    WRITE_OUTPUT( Two );
-    WRITE_OUTPUT( Three )
-    WRITE_OUTPUT( Four );
-    chunks[0]->size = outOne   - chunks[0]->data;
-    chunks[1]->size = outTwo   - chunks[1]->data;
-    chunks[2]->size = outThree - chunks[2]->data;
-    chunks[3]->size = outFour  - chunks[3]->data;
-}
 
 //---------------------------------------------------------------------------
 // IO
@@ -1371,7 +1114,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     pixels.data.format = getFormat( buffer );
     pixels.data.type   = getType( buffer );
     pixels.resize( nBytes );
-    char* data = reinterpret_cast< char* >( pixels.data.chunks[0]->data );
+    char* data = reinterpret_cast< char* >( pixels.data.chunk.data );
 
     // Each channel is saved separately
     for( size_t i = 0; i < depth; ++i )

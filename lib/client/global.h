@@ -23,6 +23,8 @@
 #include <eq/client/types.h>
 #include <string>
 
+bool testInitPluginDirectory();
+
 namespace eq
 {
     class NodeFactory;
@@ -108,6 +110,10 @@ namespace eq
         EQ_EXPORT friend bool init( const int argc, char** argv, 
                                     NodeFactory* nodeFactory );
         EQ_EXPORT friend bool exit();
+
+        static StringVector _initPluginDirectory( const char *env );
+        friend bool ::testInitPluginDirectory();
+
         static NodeFactory* _nodeFactory;
 
         static std::string  _server;

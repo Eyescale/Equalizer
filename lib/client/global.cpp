@@ -25,46 +25,9 @@ namespace eq
 NodeFactory* Global::_nodeFactory = 0;
 
 // initialized by EQ_PLUGIN_PATH:
-namespace
-{
+
 // build a directory vector from EQ_PLUGIN_PATH
-static StringVector _initPluginDirectory(const char *env)
-{
-     
-    StringVector pluginDirectories;
 
-    if( env )
-    {
-        std::string envString( env );
-#ifdef WIN32
-        const char separator = ';';
-#else
-        const char separator = ':';
-#endif
-        
-        do
-        {
-            size_t nextPos = envString.find( separator );
-            if ( nextPos == std::string::npos )
-                nextPos = envString.size();
-            std::string path = envString.substr( 0, nextPos );
-            if ( nextPos == envString.size())
-                envString = "";
-            else
-                envString = envString.substr( nextPos + 1, envString.size() );
-
-            pluginDirectories.push_back( path );
-            
-        }while( envString.size() != 0 ); 
-    }
-    else
-    {
-        pluginDirectories.push_back( "/usr/local/share/Equalizer/plugins" );
-        pluginDirectories.push_back( ".eqPlugins" );
-    }
-    return pluginDirectories;
-}
-}
 
 PluginRegistry* Global::_pluginRegistry = new PluginRegistry();
 std::string Global::_server;
@@ -134,6 +97,45 @@ void  Global::removePluginDirectory( const std::string& path )
 }
 
 
+StringVector Global::_initPluginDirectory( const char *env )
+{
+     
+    StringVector pluginDirectories;
+
+    if( env )
+    {
+        std::string envString( env );
+#ifdef WIN32
+        const char separator = ';';
+#else
+        const char separator = ':';
+#endif
+        
+        do
+        {
+            size_t nextPos = envString.find( separator );
+            if ( nextPos == std::string::npos )
+                nextPos = envString.size();
+
+            std::string path = envString.substr( 0, nextPos );
+            if ( nextPos == envString.size())
+                envString = "";
+            else
+                envString = envString.substr( nextPos + 1, envString.size() );
+
+            if( !path.empty( ))
+                pluginDirectories.push_back( path );
+            
+        }while( envString.size() != 0 ); 
+    }
+    else
+    {
+        pluginDirectories.push_back( "/usr/local/share/Equalizer/plugins" );
+        pluginDirectories.push_back( ".eqPlugins" );
+    }
+    return pluginDirectories;
+
+}
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                       const IAttrValue value )
