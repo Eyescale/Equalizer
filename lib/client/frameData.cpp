@@ -343,24 +343,31 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
                     Clock clock;
                     const Image::PixelData& data =
                         image->compressPixelData( buffer );
-                    compressTime += clock.getTimef();
+                    if( data.isCompressed )
+                        compressTime += clock.getTimef();
                     
                     pixelDatas.push_back( &data );
-                    
-                    const uint32_t numElements = data.lengthData.size;
-                    for( uint32_t k = 0 ; k < numElements; ++k )
-                    {
-                        packet.size += sizeof( uint64_t );
-                        packet.size += data.lengthData[ k ];
-                    }
                 }
                 else
                 {
                     const Image::PixelData& data = image->getPixelData( buffer);
                     pixelDatas.push_back( &data );
+                }
 
+                const Image::PixelData* data = pixelDatas.back();
+                if( data->isCompressed )
+                {
+                    const uint32_t numElements = data->compressedSize.size();
+                    for( uint32_t k = 0 ; k < numElements; ++k )
+                    {
+                        packet.size += sizeof( uint64_t );
+                        packet.size += data->compressedSize[ k ];
+                    }
+                }
+                else
+                {
                     packet.size += sizeof( uint64_t );
-                    packet.size += data.pixels.size;
+                    packet.size += data->pixels.size;
                 }
 
                 packet.buffers |= buffer;
@@ -391,17 +398,17 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
                   { data->format,
                     data->type, 
                     data->compressorName,
-                    useCompression ? 1 : data->lengthData.size };
+                    data->isCompressed ? 1 : data->compressedSize.size() };
 
             connection->send( imageHeader, 4 * sizeof( uint32_t ), true );
             
-            if( useCompression )
+            if( data->isCompressed )
             {
-                for( uint32_t k = 0 ; k < data->lengthData.size; ++k )
+                for( uint32_t k = 0 ; k < data->compressedSize.size(); ++k )
                 {
-                    const uint64_t dataSize = data->lengthData[k];
+                    const uint64_t dataSize = data->compressedSize[k];
                     connection->send( &dataSize, sizeof( dataSize ), true );
-                    connection->send( data->outCompressed[k], dataSize, true );
+                    connection->send( data->compressedData[k], dataSize, true );
 #ifndef NDEBUG
                     sentBytes += sizeof( dataSize ) + dataSize;
 #endif
@@ -434,7 +441,8 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
     readyPacket.version   = getVersion();
     toNode->send( readyPacket );
 
-    event.statistic.endTime = event.statistic.startTime + static_cast< int64_t >(compressTime);
+    event.statistic.endTime = event.statistic.startTime + 
+                              static_cast< int64_t >(compressTime);
     event.statistic.ratio = static_cast< float >( compressedSize ) / 
                             static_cast< float >( rawSize );
 }
@@ -504,16 +512,17 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
             
             if ( pixelData.compressorName != EQ_COMPRESSOR_NONE )
             {
-                pixelData.outCompressed.resize( nChunks );
-                pixelData.lengthData.resize( nChunks );
+                pixelData.compressedSize.resize( nChunks );
+                pixelData.compressedData.resize( nChunks );
+
                 for( uint32_t j = 0; j < nChunks; ++j )
                 {
                     const uint64_t*  u64Data   = 
                                           reinterpret_cast< uint64_t* >( data );
                     data += sizeof( uint64_t );
                     
-                    pixelData.outCompressed.data[j] = data;
-                    pixelData.lengthData.data[j] = *u64Data; 
+                    pixelData.compressedSize[j] = *u64Data; 
+                    pixelData.compressedData[j] = data;
                     data += *u64Data;
                 }
             }
@@ -530,8 +539,8 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
 
             // Prevent ~PixelData from freeing pointers
             pixelData.pixels.clear();
-            pixelData.lengthData.clear();
-            pixelData.outCompressed.clear();
+            pixelData.compressedSize.clear();
+            pixelData.compressedData.clear();
         }
     }
 

@@ -30,11 +30,6 @@ using namespace std;
 // threshold upon which the compression is slower than sending uncompressed
 // data.
 
-namespace
-{
-typedef eq::base::Bufferb Chunk;
-}
-
 //#define NET_BANDWIDTH (1024.0f*1024.0f*128.0f)  //1Gb network with no overhead
 #define NET_BANDWIDTH (1024.0f*1024.0f*115.0f)  // 1Gb network, real
 
@@ -71,10 +66,10 @@ int main( int argc, char **argv )
     totalTimeColor = time;
 
     size = 0;
-    for( vector< Chunk* >::const_iterator i = noise.chunks.begin();
-         i != noise.chunks.end(); ++i )
+    for( vector< uint64_t >::const_iterator i = noise.compressedSize.begin();
+         i != noise.compressedSize.end(); ++i )
     {
-        size += (*i)->size;
+        size += *i;
     }
 
     const ssize_t saved = static_cast< ssize_t >( noiseSize ) - 
@@ -129,10 +124,10 @@ int main( int argc, char **argv )
     totalTimeColor = time;
 
     size = 0;
-    for( vector< Chunk* >::const_iterator i = color.chunks.begin();
-         i != color.chunks.end(); ++i )
+    for( vector< uint64_t >::const_iterator i = color.compressedSize.begin();
+         i != color.compressedSize.end(); ++i )
     {
-        size += (*i)->size;
+        size += *i;
     }
     cout << argv[0] << ": Color " << colorSize << "->" << size << " " 
          << 100.0f * size / colorSize << "%, " << time << " ms ("
@@ -186,10 +181,10 @@ int main( int argc, char **argv )
     totalTimeDepth = time;
 
     size = 0;
-    for( vector< Chunk* >::const_iterator i = depth.chunks.begin();
-         i != depth.chunks.end(); ++i )
+    for( vector< uint64_t >::const_iterator i = depth.compressedSize.begin();
+         i != depth.compressedSize.end(); ++i )
     {
-        size += (*i)->size;
+        size += *i;
     }
     cout << argv[0] << ": Depth " << depthSize << "->" << size << " " 
          << 100.0f * size / depthSize << "%, " << time << " ms ("

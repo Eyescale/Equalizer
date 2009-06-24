@@ -29,15 +29,13 @@
  */
 namespace eq
 {
-    typedef void*  ( *NewCompressor_t )     ( const unsigned );
+    typedef void*  ( *NewCompressor_t ) ( const unsigned );
     
-    typedef void   ( *DeleteCompressor_t )  
-              ( void* const );
+    typedef void   ( *DeleteCompressor_t ) ( void* const );
               
-    typedef void*  ( *NewDecompressor_t )   ( const unsigned );
+    typedef void*  ( *NewDecompressor_t ) ( const unsigned );
     
-    typedef void   ( *DeleteDecompressor_t )
-              ( const unsigned, void* const );
+    typedef void   ( *DeleteDecompressor_t ) ( void* const );
               
     typedef void   ( *CompressFunc_t)       
               ( void* const, void* const, const uint64_t*,
@@ -49,8 +47,8 @@ namespace eq
                 void** const, uint64_t* const );
                 
     typedef void   ( *DecompressFunc_t )
-              ( void* const, const unsigned, const void** const, 
-                const uint64_t* const, const uint32_t, void* const, 
+              ( void* const, const unsigned, const void* const*, 
+                const uint64_t* const, const unsigned, void* const, 
                 uint64_t* const, const uint64_t );
                 
     typedef void  (*CompressorGetInfo_t) 
@@ -68,41 +66,44 @@ namespace eq
 
       Compressor(){}
 
-      /* init and link a plugin compressor */
+      /** init and link a plugin compressor */
       bool init( const std::string& libraryName );
       
-      /* unlink and free all memory pointer */
+      /** unlink and free all memory pointer */
       void exit();
 
-      /* Get a new compressor instance  */
+      /** Get a new compressor instance  */
       NewCompressor_t newCompressor;
         
-      /* Get a new decompressor instance  */
+      /** Get a new decompressor instance  */
       NewDecompressor_t    newDecompressor;
        
-      /* delete the compressor instance parametre  */     
+      /** delete the compressor instance parametre  */     
       DeleteCompressor_t   deleteCompressor;
         
-      /* delete the decompressor instance parametre  */ 
+      /** delete the decompressor instance parametre  */ 
       DeleteDecompressor_t deleteDecompressor;
       
-      /* compress data */
+      /** compress data */
       CompressFunc_t       compress;
 
-      /* decompress data */
+      /** decompress data */
       DecompressFunc_t     decompress;
       
-      /* get the number array that found the results of compressing  */
+      /** get the number array that found the results of compressing  */
       GetNumResultsFunc_t  getNumResults;
 
-      /* get the number compressor found in the plugin  */
+      /** get the number compressor found in the plugin  */
       GetNumCompressors_t  getNumCompressors;
 
-      /* get the number compressor found in the plugin  */
+      /** get the number compressor found in the plugin  */
       GetResultFunc_t   getResult;
       
-      /* return true if name is found in the DSO compressor */
+      /** @return true if name is found in the DSO compressor */
       bool implementsType( const uint32_t name );
+
+      /** @return the information for all compressors contained in the DSO. */
+      const CompressorInfoVector& getInfos() const { return _infos; }
 
   private:
       CompressorInfoVector _infos;

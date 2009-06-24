@@ -104,25 +104,29 @@ extern "C"
      */
     /*@{*/
     /** Data is processed in one-byte tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_BYTE       1   // uint8_t
+    #define EQ_COMPRESSOR_DATATYPE_BYTE       1
     /** Data is processed in four-byte tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_UNSIGNED   2   // uint32_t
+    #define EQ_COMPRESSOR_DATATYPE_UNSIGNED   2
     /** Data is processed in float16 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_HALF_FLOAT 3   // float16_t
+    #define EQ_COMPRESSOR_DATATYPE_HALF_FLOAT 3
     /** Data is processed in float32 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_FLOAT      4   // float32_t
+    #define EQ_COMPRESSOR_DATATYPE_FLOAT      4
 
 
     /** Data is processed in three interleaved streams of one-byte tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_3_BYTE       1024 // uint8_t[3] (e.g. RGB)
+    #define EQ_COMPRESSOR_DATATYPE_3_BYTE       1024
     /** Data is processed in four interleaved streams of one-byte tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_4_BYTE       1025 // uint8_t[4] (e.g. RGBA)
+    #define EQ_COMPRESSOR_DATATYPE_4_BYTE       1025
     /** Data is processed in four interleaved streams of float16 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT 1026 // float16_t[4] eg RGBA16f
+    #define EQ_COMPRESSOR_DATATYPE_3_HALF_FLOAT 1026
+    /** Data is processed in four interleaved streams of float16 tokens. */
+    #define EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT 1027
     /** Data is processed in four interleaved streams of float32 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_4_FLOAT      1027 // float32_t[4] eg RGBA32f
+    #define EQ_COMPRESSOR_DATATYPE_3_FLOAT      1028
+    /** Data is processed in four interleaved streams of float32 tokens. */
+    #define EQ_COMPRESSOR_DATATYPE_4_FLOAT      1029
     /**Data is processed in two interleaved streams, one 24 bit and one 8 bit.*/
-    #define EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE  2048 // e.g. DEPTH_STENCIL
+    #define EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE  2048
     /*@}*/
 
     /**
@@ -172,7 +176,7 @@ extern "C"
         unsigned version;
 
         /** The type name of the compressor (output). */
-        unsigned type;
+        unsigned name;
         /** The token type supported by the compressor (output). */
         unsigned tokenType;
         /** Capabilities supported by the compressor (output). */
@@ -189,7 +193,7 @@ extern "C"
     EQ_PLUGIN_API size_t EqCompressorGetNumCompressors();
     /** Query information of the nth compressor in the DSO. */
     EQ_PLUGIN_API void EqCompressorGetInfo( const size_t n,
-                                           EqCompressorInfo* const info );
+                                            EqCompressorInfo* const info );
     /*@}*/
 
     /** @name Compressor lifecycle management. */
@@ -252,13 +256,16 @@ extern "C"
      * overwritten on subsequent compression runs.
      *
      * @param compressor the compressor instance.
+     * @param name the type name of the compressor.
      * @param in the pointer to the input data.
      * @param inDims the dimensions of the input data.
      * @param flags capability flags for the compression.
      */
     EQ_PLUGIN_API void EqCompressorCompress( void* const compressor, 
-                                    void* const in, const eq_uint64_t* inDims,
-                                    const eq_uint64_t flags );
+                                             const unsigned name,
+                                             void* const in, 
+                                             const eq_uint64_t* inDims,
+                                             const eq_uint64_t flags );
 
     /** 
      * Return the number of results produced by the last compression.
@@ -267,19 +274,23 @@ extern "C"
      * on structured data or using parallel compression routines.
      * 
      * @param compressor the compressor instance.
+     * @param name the type name of the compressor.
      * @return the number of output results.
      */
-    EQ_PLUGIN_API unsigned EqCompressorGetNumResults( void* const compressor );
+    EQ_PLUGIN_API unsigned EqCompressorGetNumResults( void* const compressor,
+                                                      const unsigned name );
 
     /** 
      * Return the ith result of the last compression.
      * 
      * @param compressor the compressor instance.
+     * @param name the type name of the compressor.
      * @param i the result index to return.
      * @param out the return value to store the result pointer.
      * @param outSize the return value to store the result size in bytes.
      */
     EQ_PLUGIN_API void EqCompressorGetResult( void* const compressor, 
+                                              const unsigned name,
                                               const unsigned i, 
                                               void** const out, 
                                               eq_uint64_t* const outSize );
@@ -292,7 +303,7 @@ extern "C"
      * and output size see EqCompressorCompress.
      *
      * @param decompressor the decompressor instance, can be 0.
-     * @param name compressor is used if decompressor = 0
+     * @param name the type name of the decompressor.
      * @param in the pointer to an array of input data pointers.
      * @param inSizes the array of input data sizes in bytes.
      * @param numInputs the number of input data elements.
@@ -304,7 +315,7 @@ extern "C"
      */
     EQ_PLUGIN_API void EqCompressorDecompress( void* const decompressor, 
                                                const unsigned name,
-                                               const void** const in, 
+                                               const void* const* in, 
                                                const eq_uint64_t* const inSizes,
                                                const unsigned numInputs,
                                                void* const out,
