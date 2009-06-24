@@ -13,4 +13,4 @@ TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)
 
 include $(TOP)/make/rules.mk
 
-$(SIMPLE_PROGRAMS): $(wildcard $(TOP)/lib/client/image.*)
+$(SIMPLE_PROGRAMS): $(wildcard $(TOP)/lib/client/image.*) $(wildcard $(TOP)/lib/compressor/*)

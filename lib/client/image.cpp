@@ -238,6 +238,9 @@ uint32_t Image::_getCompressorTokenType( const Frame::Buffer buffer ) const
 uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
 {
     const uint32_t tokenType = _getCompressorTokenType( buffer );
+    uint32_t name = EQ_COMPRESSOR_NONE;
+    float ratio = 1.0f;
+
     EQINFO << "Searching compressor for token type " << tokenType << std::endl;
 
     PluginRegistry* registry = Global::getPluginRegistry();
@@ -256,12 +259,16 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
             const EqCompressorInfo& info = *j;
             EQINFO << "Trying compressor " << info << std::endl;
 
-            if( info.tokenType == tokenType ) // TODO: be smarter
-                return info.name;
+            if( info.tokenType == tokenType && // TODO: be smarter
+                ratio > info.ratio )
+            {
+                name = info.name;
+                ratio = info.ratio;
+            }
         }
     }
 
-    return EQ_COMPRESSOR_NONE;
+    return name;
 }
 
 bool Image::hasAlpha() const
@@ -690,7 +697,6 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     }
 
     Memory& memory = attachment.memory;
-    const uint32_t depth = getDepth( buffer );
 
     EQASSERT( size > 0 );
     memory.resize( size );
@@ -698,7 +704,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 
     // Get number of blocks in compressed data
     const uint64_t nBlocks  = pixels.compressedSize.size();
-    EQASSERT(( depth % nBlocks ) == 0 );
+    EQASSERT(( getDepth( buffer ) % nBlocks ) == 0 );
     EQASSERT( nBlocks == pixels.compressedData.size( ));
 
     void* outData = reinterpret_cast< uint8_t* >( memory.pixels.data );
@@ -841,15 +847,14 @@ Image::PixelData::~PixelData()
 
 const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 {
-    const uint64_t size = getPixelDataSize( buffer );
-    EQASSERT( size > 0 );
+    EQASSERT( getPixelDataSize( buffer ) > 0 );
 
     Attachment& attachment = _getAttachment( buffer );
     Memory& memory = attachment.memory;
     if( memory.isCompressed )
         return memory;
 
-    memory.compressorName = _getCompressorName(buffer);
+    memory.compressorName = _getCompressorName( buffer );
     if( !_allocCompressor( attachment, memory.compressorName ))
     {
         EQWARN << "No compressor found for current pixel format" << std::endl;

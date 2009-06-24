@@ -117,7 +117,7 @@ public:
     {
         CompressorRLE4B::getInfo( info );
         info->name = EQ_COMPRESSOR_DIFF_RLE_4_BYTE;
-        info->ratio = .7f;
+        info->ratio = .9f;
         info->speed = 0.9f;
     }
     
