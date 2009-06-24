@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,17 +16,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-#ifndef EQ_PLUGIN_COMPRESSOR
-#define EQ_PLUGIN_COMPRESSOR 
+#ifndef EQ_COMPRESSOR_COMPRESSOR
+#define EQ_COMPRESSOR_COMPRESSOR 
 
-#define EQ_PLUGIN
-
+#define EQ_PLUGIN_BUILD
 #include <eq/plugin/compressor.h>
+
 #include <eq/base/base.h>
-#include <eq/client/compressor.h>
+#include <eq/base/buffer.h>
+
+#include <vector>
 
 /**
- * @file examples/compressor.h
+ * @file compressor/compressor.h
  * 
  * Compression plugin provided with Equalizer.
  */
@@ -46,7 +49,7 @@ namespace plugin
     };
     
 
-    typedef base::Bufferb Result;
+    typedef eq::base::Bufferb Result;
 
      /**
      * An interace for compressor / uncompressor data
@@ -73,7 +76,7 @@ namespace plugin
          * @param inSize number data to compress.
          * @param useAlpha use alpha channel in compression.
          */
-        virtual void compress( void* const inData, 
+        virtual void compress( void* const inData,
                                const uint64_t inSize, 
                                const bool useAlpha ) = 0;
 
@@ -87,7 +90,7 @@ namespace plugin
          * @param outData result of uncompressed data.
          * @param outSize size of the result.
          */
-        virtual void decompress( const void** const inData, 
+        virtual void decompress( const void* const* inData, 
                                  const uint64_t* const inSizes, 
                                  void* const outData, 
                                  const uint64_t* const outSize )=0;
@@ -97,7 +100,7 @@ namespace plugin
         /**
          * get the number results that compression use to save data
          */
-        std::vector< Result* >& getResults(){ return _results; }
+        const std::vector< Result* >& getResults() const { return _results; }
 
         /** @name getName */
         /*@{*/
@@ -115,4 +118,5 @@ namespace plugin
 }
 }
 
-#endif
+#endif // EQ_COMPRESSOR_COMPRESSOR
+

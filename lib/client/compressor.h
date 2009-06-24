@@ -1,6 +1,6 @@
 
-/*
- * Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,9 +18,10 @@
 
 #ifndef EQ_COMPRESSOR_H
 #define EQ_COMPRESSOR_H
-#include <eq/eq.h>
-#include <eq/base/dso.h>
+
+#include <eq/client/types.h>
 #include <eq/plugin/compressor.h>
+#include <eq/base/dso.h>
 
 /**
  * @file client/compressor.h
@@ -29,88 +30,80 @@
  */
 namespace eq
 {
-    typedef void*  ( *NewCompressor_t ) ( const unsigned );
-    
-    typedef void   ( *DeleteCompressor_t ) ( void* const );
-              
-    typedef void*  ( *NewDecompressor_t ) ( const unsigned );
-    
-    typedef void   ( *DeleteDecompressor_t ) ( void* const );
-              
-    typedef void   ( *CompressFunc_t)       
-              ( void* const, void* const, const uint64_t*,
-                                    const uint64_t );
-    typedef size_t ( *GetNumResultsFunc_t ) (  void* const );
-              
-    typedef void   ( *GetResultFunc_t )
-              ( void* const, const uint32_t, 
-                void** const, uint64_t* const );
-                
-    typedef void   ( *DecompressFunc_t )
-              ( void* const, const unsigned, const void* const*, 
-                const uint64_t* const, const unsigned, void* const, 
-                uint64_t* const, const uint64_t );
-                
-    typedef void  (*CompressorGetInfo_t) 
-             ( const size_t, EqCompressorInfo* const );
-                                      
-    typedef std::vector< EqCompressorInfo >  CompressorInfoVector;
-  
     /**
      * The mirror class for use easily all function of a dso compressor.
      */
-  class Compressor
-  {
-  public:
-      typedef size_t ( *GetNumCompressors_t ) ( );
+    class Compressor
+    {
+    public:
+        typedef size_t ( *GetNumCompressors_t ) ();
+        typedef void   ( *GetInfo_t ) ( const size_t, EqCompressorInfo* const );
+        typedef void*  ( *NewCompressor_t ) ( const unsigned );
+        typedef void   ( *DeleteCompressor_t ) ( void* const );
+        typedef void*  ( *NewDecompressor_t ) ( const unsigned );
+        typedef void   ( *DeleteDecompressor_t ) ( void* const );
+        typedef void   ( *Compress_t ) ( void* const, const unsigned, 
+                                         void* const, const uint64_t*,
+                                         const uint64_t );
+        typedef size_t ( *GetNumResults_t ) ( void* const, const unsigned );
+        typedef void   ( *GetResult_t ) ( void* const, const unsigned, 
+                                          const unsigned, void** const, 
+                                          uint64_t* const );
+        typedef void   ( *Decompress_t ) ( void* const, const unsigned,
+                                           const void* const*,
+                                           const uint64_t* const,
+                                           const unsigned, void* const, 
+                                           uint64_t* const, 
+                                           const uint64_t );
 
-      Compressor(){}
+        Compressor(){}
 
-      /** init and link a plugin compressor */
-      bool init( const std::string& libraryName );
+        /** init and link a plugin compressor */
+        bool init( const std::string& libraryName );
       
-      /** unlink and free all memory pointer */
-      void exit();
+        /** unlink and free all memory pointer */
+        void exit();
 
-      /** Get a new compressor instance  */
-      NewCompressor_t newCompressor;
+        /** Get a new compressor instance  */
+        NewCompressor_t newCompressor;
         
-      /** Get a new decompressor instance  */
-      NewDecompressor_t    newDecompressor;
+        /** Get a new decompressor instance  */
+        NewDecompressor_t    newDecompressor;
        
-      /** delete the compressor instance parametre  */     
-      DeleteCompressor_t   deleteCompressor;
+        /** delete the compressor instance parametre  */     
+        DeleteCompressor_t   deleteCompressor;
         
-      /** delete the decompressor instance parametre  */ 
-      DeleteDecompressor_t deleteDecompressor;
+        /** delete the decompressor instance parametre  */ 
+        DeleteDecompressor_t deleteDecompressor;
       
-      /** compress data */
-      CompressFunc_t       compress;
+        /** compress data */
+        Compress_t       compress;
 
-      /** decompress data */
-      DecompressFunc_t     decompress;
+        /** decompress data */
+        Decompress_t     decompress;
       
-      /** get the number array that found the results of compressing  */
-      GetNumResultsFunc_t  getNumResults;
+        /** get the number array that found the results of compressing  */
+        GetNumResults_t  getNumResults;
 
-      /** get the number compressor found in the plugin  */
-      GetNumCompressors_t  getNumCompressors;
+        /** get the number compressor found in the plugin  */
+        GetNumCompressors_t  getNumCompressors;
 
-      /** get the number compressor found in the plugin  */
-      GetResultFunc_t   getResult;
+        /** get the number compressor found in the plugin  */
+        GetResult_t   getResult;
       
-      /** @return true if name is found in the DSO compressor */
-      bool implementsType( const uint32_t name );
+        /** @return true if name is found in the DSO compressor */
+        bool implementsType( const uint32_t name );
 
-      /** @return the information for all compressors contained in the DSO. */
-      const CompressorInfoVector& getInfos() const { return _infos; }
+        /** @return the information for all compressors contained in the DSO. */
+        const CompressorInfoVector& getInfos() const { return _infos; }
 
-  private:
-      CompressorInfoVector _infos;
-      base::DSO _dso;
-   
-  };
+    private:
+        CompressorInfoVector _infos;
+        base::DSO _dso;   
+    };
 
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, 
+                                          const EqCompressorInfo& );
 }
 
 #endif //EQ_COMPRESSOR_H

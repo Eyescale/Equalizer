@@ -39,6 +39,8 @@ void PluginRegistry::init()
          i != directories.end(); ++i )
     {
         const std::string& directory = *i;
+        EQINFO << "Searching compressors in " << directory << std::endl;
+
         // search the number of files in the director<y
 #ifdef WIN32
         StringVector files = base::fileSearch( directory, 
@@ -63,7 +65,13 @@ void PluginRegistry::init()
            
             Compressor* compressor = new Compressor(); 
             if( compressor->init( libraryName ))
+            {
                 _compressors.push_back( compressor );
+                EQINFO << "Found compressor " << libraryName << " @" 
+                       << (void*)compressor << " providing "
+                       << compressor->getInfos().size() << " engines"
+                       << std::endl;
+            }
             else
                 delete compressor;
         }

@@ -135,13 +135,14 @@ void CompressorRLE3B::_compress( const uint8_t* input, const uint64_t size,
 }
 
 
-void CompressorRLE3B::decompress( const void** const inData, 
+void CompressorRLE3B::decompress( const void* const* inData, 
                                   const uint64_t* const inSizes,
                                   void* const outData, 
                                   const uint64_t* const outSize )
 {
 
-    const uint8_t** inData8 = reinterpret_cast< const uint8_t** >( inData );
+    const uint8_t* const* inData8 = reinterpret_cast< const uint8_t* const* >(
+                                        inData );
     uint8_t*       out   = reinterpret_cast< uint8_t* >( outData );
 
     // decompress 

@@ -1,4 +1,6 @@
+
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,26 +23,25 @@ namespace eq
 
 bool Compressor::init( const std::string& libraryName )
 {
-
     if( !_dso.open( libraryName ))
         return false;        
     
     getNumCompressors = ( GetNumCompressors_t )
         ( _dso.getFunctionPointer( "EqCompressorGetNumCompressors" ));
     
-    CompressorGetInfo_t getInfo = ( CompressorGetInfo_t )
+    GetInfo_t getInfo = ( GetInfo_t )
         ( _dso.getFunctionPointer( "EqCompressorGetInfo" ));
     
-    compress = ( CompressFunc_t)
+    compress = ( Compress_t )
         ( _dso.getFunctionPointer( "EqCompressorCompress" ));
        
-    decompress = ( DecompressFunc_t)
+    decompress = ( Decompress_t )
         ( _dso.getFunctionPointer( "EqCompressorDecompress" ));
 
-    getNumResults = ( GetNumResultsFunc_t)
+    getNumResults = ( GetNumResults_t )
         ( _dso.getFunctionPointer( "EqCompressorGetNumResults" ));
     
-    getResult = ( GetResultFunc_t)
+    getResult = ( GetResult_t )
         ( _dso.getFunctionPointer( "EqCompressorGetResult" ));
     
     deleteDecompressor = ( DeleteDecompressor_t )
@@ -59,7 +60,11 @@ bool Compressor::init( const std::string& libraryName )
     if (!( newDecompressor && newCompressor && deleteCompressor && 
           deleteDecompressor && getResult && getNumResults && 
           decompress && compress && getInfo && getNumCompressors ))
-       return false;
+    {
+        EQWARN << "Initializing compression DSO " << libraryName 
+               << " failed, at least one entry point missing" << std::endl;
+        return false;
+    }
 
     const size_t nCompressors = getNumCompressors();
     _infos.resize( nCompressors );
@@ -98,4 +103,13 @@ void Compressor::exit()
     getResult = 0;
 
 }
+
+std::ostream& operator << ( std::ostream& os, const EqCompressorInfo& info )
+{
+    os << "v" << info.version << " name " << info.name << " token "
+       << info.tokenType << " cap " << info.capabilities << " quality "
+       << info.quality << " ratio " << info.ratio << " speed " << info.speed;
+    return os;
+}
+
 }

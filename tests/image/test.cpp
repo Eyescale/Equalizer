@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,8 +17,10 @@
 
 #include <test.h>
 
-#include <eq/base/clock.h>
 #include <eq/client/image.h>
+#include <eq/client/init.h>
+#include <eq/client/nodeFactory.h>
+#include <eq/base/clock.h>
 
 #include <numeric>
 
@@ -38,6 +40,9 @@ int main( int argc, char **argv )
     Image    image;
     Image    destImage;
     uint32_t size;
+
+    eq::NodeFactory nodeFactory;
+    eq::init( argc, argv, &nodeFactory );
 
     // Touch memory once
     TEST( image.readImage( "noise.rgb",
@@ -230,5 +235,7 @@ int main( int argc, char **argv )
                   "got " << (int)data[i] << " expected " << (int)depthData[i]
                   << " at " << i );
 #endif
+
+    eq::exit();
 }
 

@@ -41,7 +41,7 @@ inline StringVector fileSearch( const std::string directory,
     
     if( hSearch == INVALID_HANDLE_VALUE )
     {
-        EQINFO << "Error finding the first file to match " << pattern << " in "
+        EQVERB << "Error finding the first file to match " << pattern << " in "
                << directory << std::endl;
         FindClose( hSearch );
         return files;
@@ -72,7 +72,7 @@ inline StringVector fileSearch( const std::string directory,
     DIR* dir = opendir( directory.c_str() );
     if( dir == 0 )
     {
-        EQINFO << "Can't open directory " << directory << std::endl;
+        EQVERB << "Can't open directory " << directory << std::endl;
         return files;
     }
 

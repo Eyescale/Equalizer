@@ -18,27 +18,32 @@
 #include "global.h"
 #include "nodeFactory.h"
 #include "pluginRegistry.h"
+
+#include <eq/net/global.h>
+
 #include <algorithm>
+
+#ifdef WIN32_API
+#  include <direct.h>
+#  define getcwd _getcwd
+#  ifndef MAXPATHLEN
+#    define MAXPATHLEN 1024
+#  endif
+#endif
+
 
 namespace eq
 {
 NodeFactory* Global::_nodeFactory = 0;
-
-// initialized by EQ_PLUGIN_PATH:
-
-// build a directory vector from EQ_PLUGIN_PATH
-
-
 PluginRegistry* Global::_pluginRegistry = new PluginRegistry();
 std::string Global::_server;
 std::string Global::_configFile;
+StringVector Global::_pluginDirectories = _initPluginDirectories();
 
 #ifdef AGL
 static base::Lock _carbonLock;
 #endif
 
-StringVector Global::_pluginDirectories = 
-     _initPluginDirectory( getenv("EQ_PLUGIN_PATH") );
 
 void Global::setServer( const std::string& server )
 {
@@ -74,8 +79,6 @@ void Global::leaveCarbon()
 #endif
 }
 
-
-
 // initialized by EQ_PLUGIN_PATH:
 EQ_EXPORT const StringVector& Global::getPluginDirectories()
 {
@@ -97,44 +100,54 @@ void  Global::removePluginDirectory( const std::string& path )
 }
 
 
-StringVector Global::_initPluginDirectory( const char *env )
+StringVector Global::_initPluginDirectories()
 {
-     
     StringVector pluginDirectories;
 
-    if( env )
-    {
-        std::string envString( env );
-#ifdef WIN32
-        const char separator = ';';
-#else
-        const char separator = ':';
-#endif
-        
-        do
-        {
-            size_t nextPos = envString.find( separator );
-            if ( nextPos == std::string::npos )
-                nextPos = envString.size();
+    char* env = getenv("EQ_PLUGIN_PATH") ;
+    std::string envString( env ? env : "" );
 
-            std::string path = envString.substr( 0, nextPos );
-            if ( nextPos == envString.size())
-                envString = "";
-            else
-                envString = envString.substr( nextPos + 1, envString.size() );
-
-            if( !path.empty( ))
-                pluginDirectories.push_back( path );
-            
-        }while( envString.size() != 0 ); 
-    }
-    else
+    if( envString.empty( ))
     {
         pluginDirectories.push_back( "/usr/local/share/Equalizer/plugins" );
         pluginDirectories.push_back( ".eqPlugins" );
-    }
-    return pluginDirectories;
 
+        char cwd[MAXPATHLEN];
+        getcwd( cwd, MAXPATHLEN );
+        pluginDirectories.push_back( cwd );
+
+#ifdef Darwin
+        env = getenv( "DYLD_LIBRARY_PATH" );
+#else
+        env = getenv( "LD_LIBRARY_PATH" );
+#endif
+        if( env )
+            envString = env;
+    }
+
+#ifdef WIN32
+    const char separator = ';';
+#else
+    const char separator = ':';
+#endif
+        
+    while( !envString.empty( ))
+    {
+        size_t nextPos = envString.find( separator );
+        if ( nextPos == std::string::npos )
+            nextPos = envString.size();
+
+        std::string path = envString.substr( 0, nextPos );
+        if ( nextPos == envString.size())
+            envString = "";
+        else
+            envString = envString.substr( nextPos + 1, envString.size() );
+
+        if( !path.empty( ))
+            pluginDirectories.push_back( path );
+    }
+
+    return pluginDirectories;
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

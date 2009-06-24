@@ -26,15 +26,16 @@
  * Plugin.
  */
 
-#ifndef EQ_PLUGIN_INTERFACECOMPRESSOR
-#define EQ_PLUGIN_INTERFACECOMPRESSOR
+#ifndef EQ_PLUGIN_COMPRESSOR
+#define EQ_PLUGIN_COMPRESSOR
 
 /** @cond IGNORE */
 #include <sys/types.h>
 
 typedef unsigned long long eq_uint64_t;
+
 #ifdef WIN32
-#ifdef EQ_PLUGIN
+#ifdef EQ_PLUGIN_BUILD
    #define EQ_PLUGIN_API __declspec(dllexport) 
 #else
    #define EQ_PLUGIN_API __declspec(dllimport)
@@ -325,4 +326,4 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-#endif
+#endif // EQ_PLUGIN_COMPRESSOR

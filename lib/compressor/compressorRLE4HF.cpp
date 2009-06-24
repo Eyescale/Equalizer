@@ -162,13 +162,14 @@ void CompressorRLE4HF::_compress( const uint16_t* input,
 }
 
 
-void CompressorRLE4HF::decompress( const void** const inData, 
+void CompressorRLE4HF::decompress( const void* const* inData, 
                                    const uint64_t* const inSizes,
                                    void* const outData, 
                                    const uint64_t* const outSize )
 {
     
-    const uint16_t** inData16 = reinterpret_cast< const uint16_t** >( inData );
+    const uint16_t* const* inData16 = reinterpret_cast< const uint16_t* const* >
+                                          ( inData );
     uint16_t*             out = reinterpret_cast< uint16_t* >( outData );
 
     // decompress 

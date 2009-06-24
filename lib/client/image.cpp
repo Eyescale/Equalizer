@@ -20,6 +20,7 @@
 #include "frame.h"
 #include "frameBufferObject.h"
 #include "frameData.h"
+#include "global.h"
 #include "pixel.h"
 #include "log.h"
 #include "windowSystem.h"
@@ -237,6 +238,7 @@ uint32_t Image::_getCompressorTokenType( const Frame::Buffer buffer ) const
 uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
 {
     const uint32_t tokenType = _getCompressorTokenType( buffer );
+    EQINFO << "Searching compressor for token type " << tokenType << std::endl;
 
     PluginRegistry* registry = Global::getPluginRegistry();
     const CompressorVector& compressors = registry->getCompressors();
@@ -244,12 +246,16 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
          i != compressors.end(); ++i )
     {
         const Compressor* compressor = *i;
+        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
+
         const CompressorInfoVector& infos = compressor->getInfos();
         
         for( CompressorInfoVector::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;
+            EQINFO << "Trying compressor " << info << std::endl;
+
             if( info.tokenType == tokenType ) // TODO: be smarter
                 return info.name;
         }
@@ -792,9 +798,8 @@ bool Image::_allocDecompressor( Attachment& attachment, uint32_t name )
 
         attachment.compressor.instance = 
             attachment.compressor.plugin->newDecompressor( name );
-        EQASSERT( attachment.compressor.instance );
     }
-    return ( attachment.compressor.instance != 0 );
+    return true;
 }
 
 void Image::Memory::flush()
@@ -841,13 +846,13 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     const uint64_t inDims[4]  = { _pvp.x, _pvp.w, _pvp.y, _pvp.h}; 
     
     EQASSERT( attachment.compressor.plugin != 0 );
-    attachment.compressor.plugin->compress( attachment.compressor.instance, 
+    attachment.compressor.plugin->compress( attachment.compressor.instance,
+                                            attachment.compressor.name,
                                             memory.pixels.data,
                                             inDims, EQ_COMPRESSOR_DATA_2D );
 
-    const size_t numResults = 
-        attachment.compressor.plugin->getNumResults( 
-                                               attachment.compressor.instance );
+    const size_t numResults = attachment.compressor.plugin->getNumResults( 
+        attachment.compressor.instance, attachment.compressor.name );
     
     memory.compressedSize.resize( numResults );
     memory.compressedData.resize( numResults );
@@ -855,6 +860,7 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     for( size_t i = 0; i < numResults ; i++ )
     {
         attachment.compressor.plugin->getResult( attachment.compressor.instance,
+                                                 attachment.compressor.name,
                                                  i, 
                                                  &memory.compressedData[i], 
                                                  &memory.compressedSize[i] );

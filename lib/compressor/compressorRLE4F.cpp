@@ -154,13 +154,14 @@ void CompressorRLE4F::_compress( const uint32_t* input, const uint64_t size,
 }
 
 
-void CompressorRLE4F::decompress( const void** const inData, 
+void CompressorRLE4F::decompress( const void* const* inData, 
                                   const uint64_t* const inSizes,
                                   void* const outData, 
                                   const uint64_t* const outSize )
 {
 
-    const uint32_t** inData32 = reinterpret_cast< const uint32_t** >( inData );
+    const uint32_t* const* inData32 = reinterpret_cast< const uint32_t* const* >
+                                          ( inData );
     uint32_t*       out   = reinterpret_cast< uint32_t* >( outData );
     // decompress 
     // On OS X the loop is sometimes slower when parallelized. 

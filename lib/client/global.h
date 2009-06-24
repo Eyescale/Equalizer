@@ -23,12 +23,11 @@
 #include <eq/client/types.h>
 #include <string>
 
-bool testInitPluginDirectory();
-
 namespace eq
 {
     class NodeFactory;
     class PluginRegistry;
+    bool testInitPluginDirectories();
     
     /** Possible values for some integer attributes */
     enum IAttrValue
@@ -111,8 +110,8 @@ namespace eq
                                     NodeFactory* nodeFactory );
         EQ_EXPORT friend bool exit();
 
-        static StringVector _initPluginDirectory( const char *env );
-        friend bool ::testInitPluginDirectory();
+        static StringVector _initPluginDirectories();
+        friend bool testInitPluginDirectories();
 
         static NodeFactory* _nodeFactory;
 

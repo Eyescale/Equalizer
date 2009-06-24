@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -59,7 +60,7 @@ public:
      * @param outData result of uncompressed data.
      * @param outSize size of the result.
      */
-     virtual void decompress( const void** const inData, 
+     virtual void decompress( const void* const* inData, 
                               const uint64_t* const inSizes, 
                               void* const outData, 
                               const uint64_t* const outSize ); 
@@ -91,7 +92,7 @@ public:
     static void  getInfo( EqCompressorInfo* const info )
     {
          info->version = EQ_COMPRESSOR_VERSION;
-         info->type = EQ_COMPRESSOR_RLE_BYTE;
+         info->name = EQ_COMPRESSOR_RLE_BYTE;
          info->capabilities = EQ_COMPRESSOR_DATA_1D;
          info->tokenType = EQ_COMPRESSOR_DATATYPE_BYTE;
 

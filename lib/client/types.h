@@ -23,6 +23,8 @@
 #include <map>
 #include <vector>
 
+struct EqCompressorInfo;
+
 namespace eq
 {
 
@@ -74,7 +76,8 @@ typedef base::RefPtr< Client >        ClientPtr;
 typedef base::RefPtr< Server >        ServerPtr;
 
 //----- Others
-typedef std::vector< Statistic >                Statistics;
+typedef std::vector< Statistic >         Statistics;
+typedef std::vector< EqCompressorInfo >  CompressorInfoVector;
 
 // originator id -> statistics
 typedef std::map< uint32_t, Statistics >        SortedStatistics;

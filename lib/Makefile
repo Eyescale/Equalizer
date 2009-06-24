@@ -2,6 +2,7 @@
 include $(TOP)/make/system.mk
 
 MODULE = eq
+SUBDIRS = compressor
 
 HEADER_SRC = \
 	eq.h \
@@ -80,7 +81,6 @@ HEADER_SRC = \
 	client/commandQueue.h \
 	client/commands.h \
 	client/compositor.h \
-	client/compressor.h \
 	client/config.h \
 	client/configEvent.h \
 	client/configParams.h \
@@ -306,6 +306,6 @@ CXXFLAGS += $(WINDOW_SYSTEM_INCS) -DEQUALIZER_EXPORTS
 CFLAGS   += -DGLEW_BUILD -DEQ_DEFINES_H
 LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
 
-TARGETS = $(SHADERS) $(HEADERS) $(DYNAMIC_LIB)
+TARGETS = $(SHADERS) $(HEADERS) $(DYNAMIC_LIB) subdirs
 
 include $(TOP)/make/rules.mk
