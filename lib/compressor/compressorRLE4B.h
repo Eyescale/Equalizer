@@ -29,28 +29,11 @@ namespace plugin
 class CompressorRLE4B : public CompressorRLE
 {
 public:
-
-    /** @name CompressorRLE4B */
-    /*@{*/
-    /** 
-     * Compress data with an algorithm RLE and process it for 
-     * each byte length 4 vector.
-     * 
-     * @param the number channel.
-     */
     CompressorRLE4B() {}
 
-    /** @name compress */
-    /*@{*/
-    /**
-     * compress Data.
-     *
-     * @param inData data to compress.
-     * @param nPixels number data to compress.
-     * @param useAlpha use alpha channel in compression.
-     */
     virtual void compress( const void* const inData, const uint64_t nPixels, 
-                           const bool useAlpha );
+                           const bool useAlpha )
+        { compress( inData, nPixels, useAlpha, false ); }
     
     static void decompress( const void* const* inData, 
                             const uint64_t* const inSizes, 
@@ -60,21 +43,8 @@ public:
 
     static void* getNewCompressor( ){ return new eq::plugin::CompressorRLE4B; }
     
-    /** @name getNewCompressor */
-    /*@{*/
-    /**
-     * get a new instance of compressor RLE 4 bytes.
-     *
-     */         
     static void* getNewDecompressor( ){ return 0; }
     
-    /** @name getInfo */
-    /*@{*/
-    /**
-     * get information about this compressor.
-     *
-     * @param info about this compressor.
-     */
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version = EQ_COMPRESSOR_VERSION;
@@ -88,13 +58,6 @@ public:
         info->speed = 0.95f;
     }
 
-    /** @name getFunctions */
-    /*@{*/
-    /**
-     * get the pointer functions for work with.
-     *
-     * @param info about this compressor.
-     */
     static Functions getFunctions()
     {
         Functions functions;
@@ -104,6 +67,10 @@ public:
         functions.decompress         = decompress;
         return functions;
     }
+
+protected:
+    void compress( const void* const inData, const uint64_t nPixels, 
+                   const bool useAlpha, const bool swizzle );
 };
 
 
@@ -120,10 +87,7 @@ public:
      * @param the number channel.
      */
     CompressorDiffRLE4B():CompressorRLE4B() 
-    { 
-        _swizzleData = true; 
-        _name = EQ_COMPRESSOR_DIFF_RLE_4_BYTE;
-    }
+    {}
     
     /** @name getNewCompressor */
     /*@{*/
@@ -173,6 +137,10 @@ public:
         functions.decompress         = decompress;
         return functions;
     }
+
+    virtual void compress( const void* const inData, const uint64_t nPixels, 
+                           const bool useAlpha )
+        { CompressorRLE4B::compress( inData, nPixels, useAlpha, true ); }
 
     static void decompress( const void* const* inData, 
                             const uint64_t* const inSizes, 

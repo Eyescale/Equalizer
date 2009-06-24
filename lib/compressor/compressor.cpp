@@ -161,9 +161,7 @@ namespace eq
 namespace plugin
 {
 Compressor::Compressor()
-        : _swizzleData( false ) 
-{ 
-}
+{}
 
 Compressor::~Compressor()
 {

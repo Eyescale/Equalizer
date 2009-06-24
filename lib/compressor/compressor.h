@@ -91,18 +91,8 @@ namespace plugin
          */
         const std::vector< Result* >& getResults() const { return _results; }
 
-        /** @name getName */
-        /*@{*/
-        /**
-         * get the compressor's name
-         */
-        unsigned getName(){ return _name; }
-
     protected: 
         std::vector< Result* > _results;  //!< The compressed data
-        unsigned _name;                   // name compressor
-
-        bool _swizzleData;                // using swizzle data
     }; 
 }
 }

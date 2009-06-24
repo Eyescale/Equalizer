@@ -266,7 +266,7 @@ static inline void _decompress( const void* const* inData,
 }
 
 void CompressorRLE4B::compress( const void* const inData, const uint64_t inSize,
-                                const bool useAlpha )
+                                const bool useAlpha, const bool swizzle )
 {
     const uint64_t size = inSize * 4 ;
     _setupResults( 4, size );
@@ -287,7 +287,7 @@ void CompressorRLE4B::compress( const void* const inData, const uint64_t inSize,
         const uint64_t chunkSize = ( nextIndex - startIndex ) / 4;
 
         if( useAlpha )
-            if( _swizzleData )
+            if( swizzle )
                 _compress< SwizzleUInt32, UseAlpha >( &data[ startIndex ],
                                                       chunkSize,
                                                       &_results[i] );
@@ -296,7 +296,7 @@ void CompressorRLE4B::compress( const void* const inData, const uint64_t inSize,
                                                   chunkSize,
                                                   &_results[i] );
         else
-            if( _swizzleData )
+            if( swizzle )
                 _compress< SwizzleUInt24, NoAlpha >( &data[ startIndex ], 
                                                      chunkSize,
                                                      &_results[i] );
