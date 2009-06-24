@@ -35,7 +35,7 @@ public:
      * 
      * @param the number channel.
      */
-    CompressorRLEByte(): CompressorRLE( 1 ){}
+    CompressorRLEByte(){}
     
     /** @name compress */
     /*@{*/
@@ -46,7 +46,7 @@ public:
      * @param inSize number data to compress.
      * @param useAlpha use alpha channel in compression.
      */
-    virtual void compress( void* const inData, 
+    virtual void compress( const void* const inData, 
                            const uint64_t inSize, 
                            const bool useAlpha );
 
@@ -60,10 +60,10 @@ public:
      * @param outData result of uncompressed data.
      * @param outSize size of the result.
      */
-     virtual void decompress( const void* const* inData, 
-                              const uint64_t* const inSizes, 
-                              void* const outData, 
-                              const uint64_t* const outSize ); 
+    static void decompress( const void* const* inData, 
+                            const uint64_t* const inSizes,
+                            const unsigned numInputs, void* const outData,
+                            const uint64_t outSize, const bool useAlpha);
     
     /** @name getNewCompressor */
     /*@{*/
@@ -112,13 +112,15 @@ public:
     static Functions getFunctions()
     {
         Functions functions;
+        functions.name               = EQ_COMPRESSOR_RLE_BYTE;
         functions.getInfo            = getInfo;
         functions.newCompressor      = getNewCompressor;       
+        functions.decompress         = decompress;
         return functions;
     }
 
 private:
-    void _compress( const uint8_t* input, const uint64_t size, 
+    void _compress( const uint8_t* const input, const uint64_t size, 
                     Result** results );
 };
 }

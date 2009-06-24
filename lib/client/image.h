@@ -23,7 +23,6 @@
 #include <eq/client/texture.h>       // member
 #include <eq/client/viewport.h>      // member
 #include <eq/client/windowSystem.h>  // for OpenGL types
-#include <eq/plugin/compressor.h>
 
 namespace eq
 {
@@ -42,10 +41,7 @@ namespace eq
 
         struct PixelData : public base::NonCopyable
         {
-            PixelData() : format( GL_FALSE ), type( GL_FALSE )
-                        , compressorName( EQ_COMPRESSOR_NONE )
-                        , isCompressed( false )
-                {}
+            PixelData();
             ~PixelData();
             void flush();
 
@@ -326,11 +322,9 @@ namespace eq
         class Attachment
         {
         public:  
-            
             struct CompressorData
             {
-                CompressorData() : name( EQ_COMPRESSOR_NONE ), instance( 0 )
-                                 , plugin( 0 ), isCompressor( true ) {}
+                CompressorData();
                 void flush();
 
                 uint32_t name;      //!< the name of the (de)compressor

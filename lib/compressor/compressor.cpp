@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,43 +27,53 @@ namespace eq
 {
 namespace plugin
 {
+namespace
+{
     Functions _functions[] =
     {   
         eq::plugin::CompressorRLE4B::getFunctions(),
         eq::plugin::CompressorDiffRLE4B::getFunctions(),
+#if 0
         eq::plugin::CompressorRLEByte::getFunctions(),
         eq::plugin::CompressorRLE3B::getFunctions(),
-        eq::plugin::CompressorDiffRLE3B::getFunctions(),
         eq::plugin::CompressorRLE4F::getFunctions(),
-        eq::plugin::CompressorRLE4HF::getFunctions()
+        eq::plugin::CompressorRLE4HF::getFunctions(),
+#endif
+        Functions()
     };
-    
-    Functions::Functions()
+
+    Functions& _findFunctions( const unsigned name )
     {
-        getInfo = 0;
-        newCompressor = 0;  
-    }
-    
-    Functions _findFunctions( const unsigned name )
-    {
-        const size_t size = EqCompressorGetNumCompressors();
-        for( size_t i = 0 ; i < size; i++ )
+        for( size_t i = 0; true; ++i )
         {
-            EqCompressorInfo info;
-            EqCompressorGetInfo( i, &info );
-            if( info.name == name )
+            if( _functions[i].name == name )
                 return _functions[i];
+
+            if( _functions[i].name == 0 )
+            {
+                // EQASSERT( 0 );
+                return _functions[i];
+            }
         }
 
-//        EQASSERT( 0 );
-        return Functions();
+        // UNREACHABLE
+        return _functions[0];
     }
+}
+    
+Functions::Functions()
+        : name( 0 )
+        , getInfo( 0 )
+        , newCompressor( 0 )
+        , decompress( 0 )
+{}
+    
 }
 }
 
 EQ_PLUGIN_API size_t EqCompressorGetNumCompressors()
 {
-    return sizeof( eq::plugin::_functions ) / sizeof( eq::plugin::Functions );
+    return sizeof( eq::plugin::_functions )/sizeof( eq::plugin::Functions ) - 1;
 }
            
 EQ_PLUGIN_API void EqCompressorGetInfo( const size_t n, 
@@ -83,22 +94,29 @@ EQ_PLUGIN_API void EqCompressorDeleteCompressor( void* const compressor )
 }
 
 EQ_PLUGIN_API void* EqCompressorNewDecompressor( const unsigned name ) 
-                { return 0; }
-EQ_PLUGIN_API void EqCompressorDeleteDecompressor( void* const decompressor ) 
-                { /* nop */ }
+{
+    return 0;
+}
 
-EQ_PLUGIN_API void EqCompressorCompress( void* const compressor,
+EQ_PLUGIN_API void EqCompressorDeleteDecompressor( void* const decompressor ) 
+{
+    assert( decompressor == 0 );
+    /* nop */
+}
+
+EQ_PLUGIN_API void EqCompressorCompress( void* const compressorPtr,
                                          const unsigned name,
                                          void* const in, 
                                          const uint64_t* inDims,
                                          const uint64_t flags )
 {
     const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_MSE);
-    const uint64_t inSize =  (flags & EQ_COMPRESSOR_DATA_1D) ?
-                             inDims[1]: inDims[1] * inDims[3];
+    const uint64_t nPixels = (flags & EQ_COMPRESSOR_DATA_1D) ?
+                                  inDims[1]: inDims[1] * inDims[3];
 
-    reinterpret_cast< eq::plugin::Compressor* >
-        ( compressor )->compress( in, inSize, useAlpha );
+    eq::plugin::Compressor* compressor = 
+        reinterpret_cast< eq::plugin::Compressor* >( compressorPtr );
+    compressor->compress( in, nPixels, useAlpha );
 }
 
 EQ_PLUGIN_API unsigned EqCompressorGetNumResults( void* const compressor,
@@ -130,41 +148,30 @@ EQ_PLUGIN_API void EqCompressorDecompress( void* const decompressor,
                                            eq_uint64_t* const outDims,
                                            const eq_uint64_t flags )
 {
-
+    const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_MSE);
     const uint64_t outSize = ( flags & EQ_COMPRESSOR_DATA_1D) ?
                            outDims[1] : outDims[1] * outDims[3];
-    uint64_t numInput64 = numInputs;
-    if (decompressor)
-    {
-        (( eq::plugin::Compressor* )( decompressor ))->decompress( 
-            in, &numInput64, out, &outSize );
-        return;
-    } 
-    /*
+
     eq::plugin::Functions& functions = eq::plugin::_findFunctions( name );
-    functions->decompress( in, &numInput64, out, &outSize );
-    */
+    functions.decompress( in, inSizes, numInputs, out, outSize, useAlpha );
 }
 
 namespace eq
 {
 namespace plugin
 {
-    Compressor::Compressor( const uint32_t numChannels )
-        : _numChannels( numChannels )
-        , _swizzleData( false ) 
-    { 
-        _results.resize( numChannels );
-        for ( size_t i = 0; i < numChannels; i++ )
-            _results[i] = new Result;
-    }
+Compressor::Compressor()
+        : _swizzleData( false ) 
+{ 
+}
 
-    Compressor::~Compressor()
-    {
-        for ( size_t i = 0; i < _results.size(); i++ )
-            delete ( _results[i] );
+Compressor::~Compressor()
+{
+    for ( size_t i = 0; i < _results.size(); i++ )
+        delete ( _results[i] );
             
-        _results.clear();
-    }
+    _results.clear();
+}
+
 }
 }

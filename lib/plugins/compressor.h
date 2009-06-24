@@ -17,7 +17,7 @@
  */
 
 /** 
- * @file interface/compressor.h
+ * @file plugins/compressor.h
  * 
  * The API to create runtime-loadable compression plugins.
  *
@@ -26,8 +26,8 @@
  * Plugin.
  */
 
-#ifndef EQ_PLUGIN_COMPRESSOR
-#define EQ_PLUGIN_COMPRESSOR
+#ifndef EQ_PLUGINS_COMPRESSOR
+#define EQ_PLUGINS_COMPRESSOR
 
 /** @cond IGNORE */
 #include <sys/types.h>
@@ -299,7 +299,7 @@ extern "C"
     /** 
      * Decompress data.
      * 
-     * The decompressor get all result pointers as produced by the compressor
+     * The decompressor gets all result pointers as produced by the compressor
      * as input. The routine should use the output buffer fully. For dimensions
      * and output size see EqCompressorCompress.
      *
@@ -326,4 +326,4 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-#endif // EQ_PLUGIN_COMPRESSOR
+#endif // EQ_PLUGINS_COMPRESSOR

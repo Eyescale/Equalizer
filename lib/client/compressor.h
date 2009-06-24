@@ -20,8 +20,8 @@
 #define EQ_COMPRESSOR_H
 
 #include <eq/client/types.h>
-#include <eq/plugin/compressor.h>
-#include <eq/base/dso.h>
+#include <eq/base/dso.h>           // member
+#include <eq/plugins/compressor.h> // member
 
 /**
  * @file client/compressor.h

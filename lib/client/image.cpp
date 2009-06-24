@@ -17,18 +17,18 @@
 
 #include "image.h"
 
+#include "compressor.h"
 #include "frame.h"
 #include "frameBufferObject.h"
 #include "frameData.h"
 #include "global.h"
 #include "pixel.h"
+#include "pluginRegistry.h"
 #include "log.h"
 #include "windowSystem.h"
 
 #include <eq/base/omp.h>
 #include <eq/net/node.h>
-#include <eq/client/compressor.h>
-#include <eq/client/pluginRegistry.h>
 
 #include <fstream>
 
@@ -693,7 +693,6 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     const uint32_t depth = getDepth( buffer );
 
     EQASSERT( size > 0 );
-
     memory.resize( size );
     memory.isCompressed = false;
 
@@ -747,6 +746,13 @@ const Image::Attachment& Image::_getAttachment( const Frame::Buffer buffer )
    }
    return _color;
 }
+
+Image::Attachment::CompressorData::CompressorData()
+        : name( EQ_COMPRESSOR_NONE )
+        , instance( 0 )
+        , plugin( 0 )
+        , isCompressor( true )
+{}
 
 void Image::Attachment::CompressorData::flush()
 {
@@ -809,6 +815,13 @@ void Image::Memory::flush()
     isCompressed = false;
     PixelData::flush();
 }
+
+Image::PixelData::PixelData()
+        : format( GL_FALSE )
+        , type( GL_FALSE )
+        , compressorName( EQ_COMPRESSOR_NONE )
+        , isCompressed( false )
+{}
 
 void Image::PixelData::flush()
 {

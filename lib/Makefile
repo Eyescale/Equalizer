@@ -5,6 +5,7 @@ MODULE = eq
 SUBDIRS = compressor
 
 HEADER_SRC = \
+	plugins/compressor.h \
 	eq.h \
 	base/atomic.h \
 	base/base.h \
@@ -115,7 +116,6 @@ HEADER_SRC = \
 	client/pipeVisitor.h \
 	client/pixel.h \
 	client/pixelViewport.h \
-	client/pluginRegistry.h \
 	client/projection.h \
 	client/range.h \
 	client/renderContext.h \

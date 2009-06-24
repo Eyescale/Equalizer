@@ -4,7 +4,6 @@ include make/system.mk
 
 SUBDIRS = \
 	externals \
-	plugins \
 	lib \
 	server \
 	tools \
@@ -21,7 +20,7 @@ include make/rules.mk
 docs:
 	@$(DOXYGEN) Doxyfile
 
-lib: precompile externals plugins
+lib: precompile externals
 tests: lib server
 examples: lib
 server: lib

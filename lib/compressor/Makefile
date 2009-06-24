@@ -6,15 +6,11 @@ MODULE = eqCompressorRLE
 CXXFILES = \
 	compressor.cpp \
 	compressorRLE.cpp \
-	compressorRLE3B.cpp \
 	compressorRLE4B.cpp \
-	compressorRLE4F.cpp \
-	compressorRLE4HF.cpp \
-	compressorRLEByte.cpp
-
-CXXFLAGS += $(WINDOW_SYSTEM_INCS) -DEQUALIZER_EXPORTS
-CFLAGS   += -DGLEW_BUILD -DEQ_DEFINES_H
-LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
+#	compressorRLE3B.cpp \
+#	compressorRLE4F.cpp \
+#	compressorRLE4HF.cpp \
+#	compressorRLEByte.cpp
 
 TARGETS = $(DYNAMIC_LIB)
 

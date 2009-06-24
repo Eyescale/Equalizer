@@ -36,7 +36,7 @@ public:
      * 
      * @param the number channel.
      */
-    CompressorRLE4F(): CompressorRLE( 4 ){} 
+    CompressorRLE4F() {} 
     
     /** @name compress */
     /*@{*/
@@ -47,9 +47,9 @@ public:
      * @param inSize number data to compress.
      * @param useAlpha use alpha channel in compression.
      */
-    virtual void compress( void* const inData, 
-                          const uint64_t inSize, 
-                          const bool useAlpha );
+    virtual void compress( const void* const inData, 
+                           const uint64_t inSize, 
+                           const bool useAlpha );
     
     /** @name decompress */
     /*@{*/
@@ -61,10 +61,10 @@ public:
      * @param outData result of uncompressed data.
      * @param outSize size of the result.
      */
-    virtual void decompress( const void* const* inData, 
-                             const uint64_t* const inSizes, 
-                             void* const outData, 
-                             const uint64_t* const outSize );     
+    static void decompress( const void* const* inData, 
+                            const uint64_t* const inSizes,
+                            const unsigned numInputs, void* const outData, 
+                            const uint64_t outSize, const bool useAlpha );
     
     static void* getNewCompressor( )
                                    { return new eq::plugin::CompressorRLE4F; }
@@ -97,12 +97,14 @@ public:
     static Functions getFunctions()
     {
         Functions functions;
+        functions.name               = EQ_COMPRESSOR_RLE_4_FLOAT;
         functions.getInfo            = getInfo;
         functions.newCompressor      = getNewCompressor;       
+        functions.decompress         = decompress;
         return functions;
     }
 private:
-    void _compress( const uint32_t* input, const uint64_t size, 
+    void _compress( const uint32_t* const input, const uint64_t size, 
                     Result** results,const bool useAlpha );
 };
 

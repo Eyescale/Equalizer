@@ -1,4 +1,6 @@
+
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,9 +27,8 @@ namespace plugin
 const uint16_t _rleMarker = 0xFFFF; 
 
 
-void CompressorRLE4HF::compress( void* const inData, 
-                                 const uint64_t inSize, 
-                                 const bool useAlpha )
+void CompressorRLE4HF::compress( const void* const inData, 
+                                 const uint64_t inSize, const bool useAlpha )
 {
     const uint64_t size = inSize * 2 * 2 ;
     _setupResults( size );
@@ -61,7 +62,7 @@ void CompressorRLE4HF::compress( void* const inData,
 
 }
 
-void CompressorRLE4HF::_compress( const uint16_t* input, 
+void CompressorRLE4HF::_compress( const uint16_t* const input, 
                                   const uint64_t size, 
                                   Result** results, 
                                   const bool useAlpha )
@@ -164,8 +165,8 @@ void CompressorRLE4HF::_compress( const uint16_t* input,
 
 void CompressorRLE4HF::decompress( const void* const* inData, 
                                    const uint64_t* const inSizes,
-                                   void* const outData, 
-                                   const uint64_t* const outSize )
+                                   void* const outData, const uint64_t outSize,
+                                   const bool useAlpha )
 {
     
     const uint16_t* const* inData16 = reinterpret_cast< const uint16_t* const* >

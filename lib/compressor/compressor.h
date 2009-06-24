@@ -20,7 +20,7 @@
 #define EQ_COMPRESSOR_COMPRESSOR 
 
 #define EQ_PLUGIN_BUILD
-#include <eq/plugin/compressor.h>
+#include <eq/plugins/compressor.h>
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>
@@ -39,13 +39,18 @@ namespace plugin
 {
     typedef void  (*CompressorGetInfo_t)( EqCompressorInfo* const );
     typedef void* (*NewCompressor_t)();
+    typedef void (*Decompress_t)( const void* const*, const uint64_t* const,
+                                  const unsigned, void* const, const uint64_t,
+                                  const bool );
 
     struct Functions
     {
         Functions();
 
+        unsigned                 name;
         CompressorGetInfo_t      getInfo;
         NewCompressor_t          newCompressor;
+        Decompress_t             decompress;
     };
     
 
@@ -60,10 +65,8 @@ namespace plugin
     public:
         /**
          * Construct a new compressor.
-         *
-         * @param numChannel buffer the number channel.
          */
-        Compressor( const uint32_t numChannel );
+        Compressor();
 
         virtual ~Compressor();
 
@@ -73,27 +76,13 @@ namespace plugin
          * compress Data.
          *
          * @param inData data to compress.
-         * @param inSize number data to compress.
+         * @param nPixels number data to compress.
          * @param useAlpha use alpha channel in compression.
          */
-        virtual void compress( void* const inData,
-                               const uint64_t inSize, 
+        virtual void compress( const void* const inData,
+                               const uint64_t nPixels, 
                                const bool useAlpha ) = 0;
 
-        /** @name decompress */
-        /*@{*/
-        /**
-         * uncompress Data.
-         *
-         * @param inData data(s) to compress.
-         * @param inSizes size(s)of the data to compress.
-         * @param outData result of uncompressed data.
-         * @param outSize size of the result.
-         */
-        virtual void decompress( const void* const* inData, 
-                                 const uint64_t* const inSizes, 
-                                 void* const outData, 
-                                 const uint64_t* const outSize )=0;
 
         /** @name getResults */
         /*@{*/
@@ -110,10 +99,10 @@ namespace plugin
         unsigned getName(){ return _name; }
 
     protected: 
-      std::vector< Result* > _results;  //!< The compressed data
-      unsigned _name;                   // name compressor
-      const uint32_t _numChannels;      // number channel
-      bool _swizzleData;                // using swizzle data
+        std::vector< Result* > _results;  //!< The compressed data
+        unsigned _name;                   // name compressor
+
+        bool _swizzleData;                // using swizzle data
     }; 
 }
 }

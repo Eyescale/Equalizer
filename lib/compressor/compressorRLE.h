@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,41 +20,51 @@
 #define EQ_PLUGIN_COMPRESSORRLE
 
 #include "compressor.h"
-const uint64_t _rleMarker = 0xF3C553FF64F6477Full; // just a random number
+//const uint64_t _rleMarker = 0xF3C553FF64F6477Full; // just a random number
 
 #define WRITE_OUTPUT( name )                                            \
     {                                                                   \
-        if( last ## name == _rleMarker )                                \
+        if( name ## Last == _rleMarker )                                \
         {                                                               \
-            *(out ## name) = _rleMarker; ++(out ## name);               \
-            *(out ## name) = last ## name; ++(out ## name);             \
-            *(out ## name) = same ## name; ++(out ## name);             \
+            *(name ## Out) = _rleMarker; ++(name ## Out);               \
+            *(name ## Out) = _rleMarker; ++(name ## Out);               \
+            *(name ## Out) = name ## Same; ++(name ## Out);             \
         }                                                               \
         else                                                            \
-            switch( same ## name )                                      \
+            switch( name ## Same )                                      \
             {                                                           \
                 case 0:                                                 \
                     break;                                              \
                 case 3:                                                 \
-                    *(out ## name) = last ## name;                      \
-                    ++(out ## name);                                    \
+                    *(name ## Out) = name ## Last;                      \
+                    ++(name ## Out);                                    \
                     /* fall through */                                  \
                 case 2:                                                 \
-                    *(out ## name) = last ## name;                      \
-                    ++(out ## name);                                    \
+                    *(name ## Out) = name ## Last;                      \
+                    ++(name ## Out);                                    \
                     /* fall through */                                  \
                 case 1:                                                 \
-                    *(out ## name) = last ## name;                      \
-                    ++(out ## name);                                    \
+                    *(name ## Out) = name ## Last;                      \
+                    ++(name ## Out);                                    \
                     break;                                              \
                                                                         \
                 default:                                                \
-                    *(out ## name) = _rleMarker;   ++(out ## name);     \
-                    *(out ## name) = last ## name; ++(out ## name);     \
-                    *(out ## name) = same ## name; ++(out ## name);     \
+                    *(name ## Out) = _rleMarker;   ++(name ## Out);     \
+                    *(name ## Out) = name ## Last; ++(name ## Out);     \
+                    *(name ## Out) = name ## Same; ++(name ## Out);     \
                     break;                                              \
             }                                                           \
     }
+
+#define WRITE( name )                                                   \
+    if( name == name ## Last && name ## Same != 255 )                   \
+        ++(name ## Same );                                              \
+    else                                                                \
+    {                                                                   \
+        WRITE_OUTPUT( name );                                           \
+        name ## Last = name;                                            \
+        name ## Same = 1;                                               \
+    } 
 
 namespace eq
 {
@@ -71,45 +82,13 @@ namespace plugin
             /*@{*/
             /** 
              * Compress data with an algorithm RLE.
-             * 
-             * @param numChannels the number channel.
              */
-            CompressorRLE( const uint32_t numChannels )
-                        : Compressor( numChannels ){} 
+            CompressorRLE() {}
             
         protected:
-            /** an header for each result of compression */
-            struct Header
-            {
-                Header( uint64_t size64, bool useAlphaBool)
-                    : size( size64 )
-                    , useAlpha( useAlphaBool ){}
-
-                uint64_t size;
-                uint32_t useAlpha;
-            };
-
-            /** @name _writeHeader */
-            /*@{*/
-            /** 
-             * write header value for each start buffer result of compression
-             */
-            void _writeHeader( Result** results, 
-                               const Header& header );
-           
-            /** @name _readHeader */
-            /*@{*/
-            /** 
-             * read header value
-             */    
-            Header _readHeader( const uint8_t* data8 );
-            
-            /** @name _setupResults */
-            /*@{*/
-            /** 
-             * compute the number result need for compress data
-             */    
-            void _setupResults( const uint64_t inSize );
+            /** Allocate the output arrays conservatively. */
+            void _setupResults( const uint32_t nChannels, 
+                                const uint64_t inSize );
         };
     
 }

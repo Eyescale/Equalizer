@@ -38,7 +38,7 @@ public:
      * 
      * @param the number channel.
      */
-    CompressorRLE4B(): CompressorRLE( 4 ){} 
+    CompressorRLE4B() {}
 
     /** @name compress */
     /*@{*/
@@ -46,27 +46,16 @@ public:
      * compress Data.
      *
      * @param inData data to compress.
-     * @param inSize number data to compress.
+     * @param nPixels number data to compress.
      * @param useAlpha use alpha channel in compression.
      */
-    virtual void compress( void* const inData, 
-                          const uint64_t inSize, 
-                          const bool useAlpha );
+    virtual void compress( const void* const inData, const uint64_t nPixels, 
+                           const bool useAlpha );
     
-    /** @name decompress */
-    /*@{*/
-    /**
-     * uncompress Data.
-     *
-     * @param inData data(s) to compress.
-     * @param inSizes size(s)of the data to compress.
-     * @param outData result of uncompressed data.
-     * @param outSize size of the result.
-     */
-    virtual void decompress( const void* const* inData, 
-                             const uint64_t* const inSizes, 
-                             void* const outData, 
-                             const uint64_t* const outSize );    
+    static void decompress( const void* const* inData, 
+                            const uint64_t* const inSizes, 
+                            const unsigned numInputs, void* const outData, 
+                            const uint64_t outSize, const bool useAlpha);
     
 
     static void* getNewCompressor( ){ return new eq::plugin::CompressorRLE4B; }
@@ -109,16 +98,12 @@ public:
     static Functions getFunctions()
     {
         Functions functions;
+        functions.name               = EQ_COMPRESSOR_RLE_4_BYTE;
         functions.getInfo            = getInfo;
         functions.newCompressor      = getNewCompressor;       
+        functions.decompress         = decompress;
         return functions;
     }
-
-private:
-    void _compress( const uint8_t* input, const uint64_t size, Result** results,
-                    const bool ignoreAlpha );
-    void _swizzlePixelData( uint32_t* data, const bool useAlpha );
-    void _unswizzlePixelData( uint32_t* data, const bool useAlpha  );
 };
 
 
@@ -182,10 +167,17 @@ public:
     static Functions getFunctions()
     {
         Functions functions;
+        functions.name               = EQ_COMPRESSOR_DIFF_RLE_4_BYTE;
         functions.getInfo            = getInfo;
         functions.newCompressor      = getNewCompressor;       
+        functions.decompress         = decompress;
         return functions;
     }
+
+    static void decompress( const void* const* inData, 
+                            const uint64_t* const inSizes, 
+                            const unsigned numInputs, void* const outData, 
+                            const uint64_t outSize, const bool useAlpha );
 };    
 }
 }

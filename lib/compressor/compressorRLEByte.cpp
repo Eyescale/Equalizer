@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,9 +26,9 @@ namespace plugin
 {
 const uint64_t _rleMarker = 0x42; // just a random number
 
-void CompressorRLEByte::compress( void* const inData, 
-                                const uint64_t inSize, 
-                                const bool useAlpha )
+void CompressorRLEByte::compress( const void* const inData, 
+                                  const uint64_t inSize, 
+                                  const bool useAlpha )
 {
     _setupResults( inSize );
 
@@ -36,9 +37,10 @@ void CompressorRLEByte::compress( void* const inData,
     const float width = static_cast< float >( inSize ) /  
         static_cast< float >( numResult );
     
-    uint8_t* const data = (uint8_t* const )inData;
+    const uint8_t* const data = 
+        reinterpret_cast< const uint8_t* const >( inData );
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for ( size_t i = 0; i < numResult; i += 4 )
     {
         const uint32_t startIndex = 
@@ -61,7 +63,7 @@ void CompressorRLEByte::compress( void* const inData,
 
 }
 
-void CompressorRLEByte::_compress( const uint8_t* input, 
+void CompressorRLEByte::_compress( const uint8_t* const input, 
                                    const uint64_t size, 
                                    Result** results)
 {    
@@ -93,8 +95,8 @@ void CompressorRLEByte::_compress( const uint8_t* input,
 
 void CompressorRLEByte::decompress( const void* const* inData, 
                                     const uint64_t* const inSizes,
-                                    void* const outData, 
-                                    const uint64_t* const outSize )
+                                    void* const outData, const uint64_t outSize,
+                                    const bool useAlpha )
 {
 
     const uint8_t* const* inData8 = reinterpret_cast< const uint8_t* const* >(

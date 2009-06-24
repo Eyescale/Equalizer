@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,7 +24,7 @@ namespace plugin
 // nan number
 const uint64_t _rleMarker = 0xFFFFFFFF; // 
 //const uint64_t _rleMarker = 0x42; // just a random number
-void CompressorRLE4F::compress( void* const inData, 
+void CompressorRLE4F::compress( const void* const inData, 
                                 const uint64_t inSize, 
                                 const bool ignoreAlpha )
 {
@@ -60,8 +61,9 @@ void CompressorRLE4F::compress( void* const inData,
     }
 }
 
-void CompressorRLE4F::_compress( const uint32_t* input, const uint64_t size, 
-                                 Result** results, const bool useAlpha )
+void CompressorRLE4F::_compress( const uint32_t* const input,
+                                 const uint64_t size, Result** results,
+                                 const bool useAlpha )
 {
 
     size_t sizeHeader  = sizeof( Header ) / 4 ;
@@ -156,8 +158,9 @@ void CompressorRLE4F::_compress( const uint32_t* input, const uint64_t size,
 
 void CompressorRLE4F::decompress( const void* const* inData, 
                                   const uint64_t* const inSizes,
-                                  void* const outData, 
-                                  const uint64_t* const outSize )
+                                  const unsigned numInputs,
+                                  void* const outData, const uint64_t outSize,
+                                  const bool useAlpha )
 {
 
     const uint32_t* const* inData32 = reinterpret_cast< const uint32_t* const* >
@@ -166,21 +169,20 @@ void CompressorRLE4F::decompress( const void* const* inData,
     // decompress 
     // On OS X the loop is sometimes slower when parallelized. 
     // Investigate this!
-    uint64_t numBlock = inSizes[0] / 4;
-    for( uint64_t i = 0; i < numBlock ; i++ )
+    assert( (numInputs%4) == 0 );
+    uint64_t numBlocks = numInputs / 4;
+    for( uint64_t i = 0; i < numBlocks ; ++i )
     {
-        
-        size_t sizeHeader  = sizeof( Header ) / 4 ;
-        const uint32_t* oneIn  = inData32[ i*4 + 0 ] + sizeHeader;
-        const uint32_t* twoIn  = inData32[ i*4 + 1 ] + sizeHeader;
-        const uint32_t* threeIn= inData32[ i*4 + 2 ] + sizeHeader;
-        const uint32_t* fourIn = inData32[ i*4 + 3 ] + sizeHeader;
+        const uint32_t* oneIn  = inData32[ i*4 + 0 ];
+        const uint32_t* twoIn  = inData32[ i*4 + 1 ];
+        const uint32_t* threeIn= inData32[ i*4 + 2 ];
+        const uint32_t* fourIn = inData32[ i*4 + 3 ];
         
         uint32_t one(0), two(0), three(0), four(0);
         uint32_t oneLeft(0), twoLeft(0), threeLeft(0), fourLeft(0);
         
         Header header = _readHeader( 
-            reinterpret_cast<const uint8_t*> ( inData32[i*4] ) );
+            reinterpret_cast< const uint8_t* >( inData32[i*4] ) );
 
         for( uint32_t j = 0; j < header.size / 4; ++j )
         { 

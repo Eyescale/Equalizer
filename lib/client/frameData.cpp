@@ -30,7 +30,7 @@
 #include <eq/net/session.h>
 #include <eq/base/monitor.h>
 #include <algorithm>
-#include <eq/plugin/compressor.h>
+#include <eq/plugins/compressor.h>
 
 using namespace eq::base;
 using namespace std;
