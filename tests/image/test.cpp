@@ -33,6 +33,7 @@
 // Tests the functionality and speed of the image compression.
 //#define WRITE_DECOMPRESSED
 //#define WRITE_COMPRESSED
+#define COMPARE_RESULT
 
 int main( int argc, char **argv )
 {
@@ -149,6 +150,7 @@ int main( int argc, char **argv )
                               buffer );
 #endif
 
+#ifdef COMPARE_RESULT
         const uint8_t* destData = destImage.getPixelPointer( buffer );
 #ifdef EQ_IGNORE_ALPHA
         // last 7 pixels can be unitialized
@@ -161,6 +163,7 @@ int main( int argc, char **argv )
             TESTINFO( data[j] == destData[j],
                       "got " << (int)destData[j] << " expected " << (int)data[j]
                              << " at " << j );
+#endif
 #endif
     }
 

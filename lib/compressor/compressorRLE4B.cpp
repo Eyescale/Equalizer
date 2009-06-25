@@ -172,19 +172,19 @@ static inline void _decompress( const void* const* inData,
 
     const uint8_t* const* inData8 = reinterpret_cast< const uint8_t* const* >(
         inData );
-    uint32_t* out = reinterpret_cast< uint32_t* >( outData );
 
     // decompress 
     // On OS X the loop is sometimes slower when parallelized. Investigate this!
     assert( (numInputs%4) == 0 );
-    for( unsigned i = 0; i < numInputs ; i+=4 )
+
+#pragma omp parallel for
+    for( ssize_t i = 0; i < numInputs ; i+=4 )
     {
         const uint32_t startIndex = static_cast< uint32_t >( i/4.f * width ) *4;
         const uint32_t nextIndex  =
             static_cast< uint32_t >(( i/4.f + 1.f ) * width ) * 4;
         const uint64_t chunkSize = ( nextIndex - startIndex ) / 4;
-        assert( startIndex == static_cast< uint32_t >
-                ( out - reinterpret_cast< uint32_t* >( outData )) * 4 );
+        uint32_t* out = reinterpret_cast< uint32_t* >( outData ) + startIndex/4;
 
         const uint8_t* oneIn  = inData8[ i + 0 ];
         const uint8_t* twoIn  = inData8[ i + 1 ];
