@@ -83,8 +83,8 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
     Global::_nodeFactory = nodeFactory;
 
     // init all available plugins
-    PluginRegistry* pluginRegistry = Global::getPluginRegistry();
-    pluginRegistry->init(); 
+    PluginRegistry& pluginRegistry = Global::getPluginRegistry();
+    pluginRegistry.init(); 
 
     return net::init( argc, argv );
 }
@@ -96,8 +96,8 @@ EQ_EXPORT bool exit()
 #endif
 
     // de-initialize registered plugins
-    PluginRegistry* pluginRegistry = Global::getPluginRegistry();
-    pluginRegistry->exit(); 
+    PluginRegistry& pluginRegistry = Global::getPluginRegistry();
+    pluginRegistry.exit(); 
 
     Global::_nodeFactory = 0;
     return net::exit();

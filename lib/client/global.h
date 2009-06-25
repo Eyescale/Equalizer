@@ -103,7 +103,7 @@ namespace eq
         EQ_EXPORT static void  removePluginDirectory( const std::string& path );
 
         /** @return the plugin registry. */
-        static PluginRegistry* getPluginRegistry() { return _pluginRegistry; }
+        static PluginRegistry& getPluginRegistry() { return _pluginRegistry; }
 
     private:
         EQ_EXPORT friend bool init( const int argc, char** argv, 
@@ -117,7 +117,7 @@ namespace eq
 
         static std::string  _server;
         static std::string  _configFile;
-        static PluginRegistry* _pluginRegistry;
+        static PluginRegistry _pluginRegistry;
         static StringVector _pluginDirectories;
     };
 

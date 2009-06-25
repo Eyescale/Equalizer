@@ -36,7 +36,7 @@
 namespace eq
 {
 NodeFactory* Global::_nodeFactory = 0;
-PluginRegistry* Global::_pluginRegistry = new PluginRegistry();
+PluginRegistry Global::_pluginRegistry;
 std::string Global::_server;
 std::string Global::_configFile;
 StringVector Global::_pluginDirectories = _initPluginDirectories();

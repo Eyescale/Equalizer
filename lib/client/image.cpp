@@ -243,8 +243,8 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
 
     EQINFO << "Searching compressor for token type " << tokenType << std::endl;
 
-    PluginRegistry* registry = Global::getPluginRegistry();
-    const CompressorVector& compressors = registry->getCompressors();
+    const PluginRegistry& registry = Global::getPluginRegistry();
+    const CompressorVector& compressors = registry.getCompressors();
     for( CompressorVector::const_iterator i = compressors.begin();
          i != compressors.end(); ++i )
     {
@@ -782,8 +782,8 @@ bool Image::_allocCompressor( Attachment& attachment, uint32_t name )
         attachment.compressor.name = name;
         attachment.compressor.isCompressor = true;
 
-        PluginRegistry* registry = Global::getPluginRegistry();
-        attachment.compressor.plugin = registry->findCompressor( name );
+        PluginRegistry& registry = Global::getPluginRegistry();
+        attachment.compressor.plugin = registry.findCompressor( name );
         if( !attachment.compressor.plugin )
             return false;
 
@@ -803,8 +803,8 @@ bool Image::_allocDecompressor( Attachment& attachment, uint32_t name )
         attachment.compressor.name = name;
         attachment.compressor.isCompressor = false;
 
-        PluginRegistry* registry = Global::getPluginRegistry();
-        attachment.compressor.plugin = registry->findCompressor( name );
+        PluginRegistry& registry = Global::getPluginRegistry();
+        attachment.compressor.plugin = registry.findCompressor( name );
         if( !attachment.compressor.plugin )
             return false;
 
