@@ -167,6 +167,7 @@ int main( int argc, char **argv )
 #endif
     }
 
+    image.flush();
     eq::exit();
 }
 
