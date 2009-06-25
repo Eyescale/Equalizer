@@ -277,7 +277,7 @@ void CompressorRLE4B::compress( const void* const inData, const uint64_t inSize,
     const uint64_t size = inSize * 4 ;
     _setupResults( 4, size );
 
-    const size_t numResults = _results.size();
+    const ssize_t numResults = _results.size();
     const float width = static_cast< float >( size ) /  
                         static_cast< float >( numResults );
 
@@ -285,7 +285,7 @@ void CompressorRLE4B::compress( const void* const inData, const uint64_t inSize,
         reinterpret_cast< const uint8_t* const >( inData );
     
 #pragma omp parallel for
-    for( size_t i = 0; i < numResults ; i += 4 )
+    for( ssize_t i = 0; i < numResults ; i += 4 )
     {
         const uint32_t startIndex = static_cast< uint32_t >( i/4 * width ) * 4;
         const uint32_t nextIndex = 

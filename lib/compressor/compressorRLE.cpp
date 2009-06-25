@@ -17,6 +17,7 @@
  */
 
 #include "compressorRLE.h"
+#include <eq/base/omp.h>
 
 namespace eq
 {

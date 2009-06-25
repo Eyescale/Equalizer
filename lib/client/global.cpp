@@ -19,6 +19,7 @@
 #include "nodeFactory.h"
 #include "pluginRegistry.h"
 
+#include <eq/base/fileSearch.h>
 #include <eq/net/global.h>
 
 #include <algorithm>
@@ -115,6 +116,13 @@ StringVector Global::_initPluginDirectories()
         char cwd[MAXPATHLEN];
         getcwd( cwd, MAXPATHLEN );
         pluginDirectories.push_back( cwd );
+
+#ifdef WIN32
+        if( GetModuleFileName( 0, cwd, MAXPATHLEN ) > 0 )
+        {
+            pluginDirectories.push_back( base::getDirname( cwd ));
+        }
+#endif
 
 #ifdef Darwin
         env = getenv( "DYLD_LIBRARY_PATH" );

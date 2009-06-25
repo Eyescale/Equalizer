@@ -44,7 +44,7 @@ void PluginRegistry::init()
         // search the number of files in the director<y
 #ifdef WIN32
         StringVector files = base::fileSearch( directory, 
-                                                "libeqCompressor*.dll" );
+                                                "EqualizerCompressor*.dll" );
         const char DIRSEP = '\\';
 #elif defined (Darwin)
         StringVector files = base::fileSearch( directory, 
@@ -61,7 +61,8 @@ void PluginRegistry::init()
              j != files.end(); ++j )
         {
             // build path + name of library
-            const std::string libraryName = directory + DIRSEP + *j;
+            const std::string libraryName = 
+                directory.empty() ? *j : directory + DIRSEP + *j;
            
             Compressor* compressor = new Compressor(); 
             if( compressor->init( libraryName ))

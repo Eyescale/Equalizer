@@ -19,7 +19,6 @@
 #define EQBASE_OMP_H
 
 #include <eq/base/base.h>     // for EQ_EXPORT
-#include <eq/base/debug.h>    // for EQ_ERROR
 
 #ifdef EQ_USE_OPENMP
 #  include <omp.h>

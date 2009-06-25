@@ -36,7 +36,8 @@ inline StringVector fileSearch( const std::string directory,
 #ifdef WIN32_VC
 
     WIN32_FIND_DATA file;
-    const std::string search = directory + '\\' + pattern;
+    const std::string search = 
+        directory.empty() ? pattern : directory + '\\' + pattern;
     HANDLE hSearch = FindFirstFile( search.c_str(), &file );
     
     if( hSearch == INVALID_HANDLE_VALUE )
@@ -102,6 +103,18 @@ inline std::string getBasename( const std::string& filename )
             lastSeparator = i+1;
 
     return filename.substr( lastSeparator, length );
+}
+
+inline std::string getDirname( const std::string& filename )
+{
+    size_t lastSeparator = 0;
+    const size_t length = filename.length();
+
+    for( size_t i = 0; i < length; ++i )
+        if( filename[ i ] == '/' || filename[i] == '\\' )
+            lastSeparator = i+1;
+
+    return filename.substr( 0, lastSeparator );
 }
 
 }
