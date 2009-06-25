@@ -17,6 +17,7 @@
 
 #include <test.h>
 
+#include <eq/plugins/compressor.h>
 #include <eq/client/global.h>
 #include <eq/client/image.h>
 #include <eq/client/init.h>
@@ -63,6 +64,11 @@ int main( int argc, char **argv )
     destImage.setPixelData( eq::Frame::BUFFER_COLOR,     
                             image.compressPixelData( eq::Frame::BUFFER_COLOR ));
 
+    TEST( image.readImage( images.front(), eq::Frame::BUFFER_DEPTH ));
+    destImage.setPixelViewport( image.getPixelViewport( ));
+    destImage.setPixelData( eq::Frame::BUFFER_DEPTH,     
+                            image.compressPixelData( eq::Frame::BUFFER_DEPTH ));
+
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
     std::cout << "COMPRESSOR,                            IMAGE,       SIZE,"
@@ -72,29 +78,35 @@ int main( int argc, char **argv )
          i != images.end(); ++i )
     {
         const std::string& filename = *i;
+        const size_t depthPos = filename.find( "depth" );
+        const eq::Frame::Buffer buffer = (depthPos == std::string::npos) ?
+            eq::Frame::BUFFER_COLOR : eq::Frame::BUFFER_DEPTH;
 
-        TEST( image.readImage( filename, eq::Frame::BUFFER_COLOR ));
+        TEST( image.readImage( filename, buffer ));
         destImage.setPixelViewport( image.getPixelViewport( ));
 
-        const uint8_t* data = image.getPixelPointer( eq::Frame::BUFFER_COLOR );
-        const uint32_t size = image.getPixelDataSize( eq::Frame::BUFFER_COLOR );
+        const uint8_t* data = image.getPixelPointer( buffer );
+        const uint32_t size = image.getPixelDataSize( buffer );
 
         eq::base::Clock clock;
         clock.reset();
         const eq::Image::PixelData& compressedPixels =
-            image.compressPixelData( eq::Frame::BUFFER_COLOR );
+            image.compressPixelData( buffer );
         const float compressTime = clock.getTimef();
 
         uint32_t compressedSize = 0;
-        for( std::vector< uint64_t >::const_iterator j = 
-                 compressedPixels.compressedSize.begin();
-             j != compressedPixels.compressedSize.end(); ++j )
-        {
-            compressedSize += *j;
-        }
+        if( compressedPixels.compressorName == EQ_COMPRESSOR_NONE )
+            compressedSize = size;
+        else 
+            for( std::vector< uint64_t >::const_iterator j = 
+                     compressedPixels.compressedSize.begin();
+                 j != compressedPixels.compressedSize.end(); ++j )
+            {
+                compressedSize += *j;
+            }
 
         clock.reset();
-        destImage.setPixelData( eq::Frame::BUFFER_COLOR, compressedPixels );
+        destImage.setPixelData( buffer, compressedPixels );
         const float decompressTime = clock.getTimef();
 
         std::cout  << std::setw(2) << compressedPixels.compressorName << ", "
@@ -103,10 +115,9 @@ int main( int argc, char **argv )
                    << std::setw(10) << compressTime << ", " << std::setw(10)
                    << decompressTime << std::endl;
 
-        //destImage.writeImage( "decomp_" + filename, eq::Frame::BUFFER_COLOR );
+        //destImage.writeImage( "decomp_" + filename, buffer );
 
-        const uint8_t* destData = 
-            destImage.getPixelPointer( eq::Frame::BUFFER_COLOR );
+        const uint8_t* destData = destImage.getPixelPointer( buffer );
 #ifdef EQ_IGNORE_ALPHA
         // last 7 pixels can be unitialized
         for( uint32_t j = 0; j < size-7; ++j )

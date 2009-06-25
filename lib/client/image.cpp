@@ -220,6 +220,7 @@ uint32_t Image::_getCompressorTokenType( const Frame::Buffer buffer ) const
             switch( getType( buffer ))
             {
                 case GL_FLOAT:
+                    return EQ_COMPRESSOR_DATATYPE_FLOAT;
                 case GL_UNSIGNED_INT:
                     EQASSERT( buffer == Frame::BUFFER_DEPTH );
                     // Note: compressing as four bytes is better right now.
