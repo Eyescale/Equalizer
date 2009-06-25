@@ -348,9 +348,9 @@ namespace eq
         const Attachment& _getAttachment( const Frame::Buffer buffer ) const;
 
         /** Find and activate a compression engine */
-        bool Image::_allocCompressor( Attachment& attachment, uint32_t name );
+        bool _allocCompressor( Attachment& attachment, uint32_t name );
         /** Find and activate a decompression engine */
-        bool Image::_allocDecompressor( Attachment& attachment, uint32_t name );
+        bool _allocDecompressor( Attachment& attachment, uint32_t name );
 
 
         /** PBO Usage. */

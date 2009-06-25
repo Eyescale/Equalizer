@@ -500,11 +500,12 @@ public:
                 EQLOG( LOG_LB1 ) << _taskIDs[ channel ] << ' ';
             }
             else
+            {
                 EQASSERTINFO( 0, 
                               "View equalizer does not support using channel "<<
                               channel->getName() <<
                               " multiple times in one branch" );
-
+            }
             return TRAVERSE_CONTINUE; 
         }
 

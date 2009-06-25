@@ -17,7 +17,8 @@
  */
 
 #include "compressorRLE.h"
-#include <eq/base/omp.h>
+
+#include "../base/omp.cpp" // WAR: directly include eq code to avoid duplication
 
 namespace eq
 {
@@ -28,7 +29,7 @@ void CompressorRLE::_setupResults( const uint32_t nChannels,
 {
     // determine number of chunks and set up output data structure
 #ifdef EQ_USE_OPENMP
-    const ssize_t nChunks = nChannels * base::OMP::getNThreads() * 4;
+    const size_t nChunks = nChannels * base::OMP::getNThreads() * 4;
 #else
     const size_t nChunks = nChannels;
 #endif
