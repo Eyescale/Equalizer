@@ -158,6 +158,11 @@ StringVector Global::_initPluginDirectories()
     return pluginDirectories;
 }
 
+PluginRegistry& Global::getPluginRegistry()
+{
+    return _pluginRegistry;
+}
+
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                       const IAttrValue value )
 {

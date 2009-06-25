@@ -34,7 +34,7 @@ public:
     void exit();
 
     /* @return all registered compressors plugins */
-    const CompressorVector& getCompressors() const;
+    EQ_EXPORT const CompressorVector& getCompressors() const;
 
     /* @return the compressor with the given name, or 0. */
     Compressor* findCompressor( const uint32_t name );
