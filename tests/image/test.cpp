@@ -27,9 +27,12 @@
 #include <eq/base/fileSearch.h>
 
 #include <numeric>
+#include <fstream>
 
 
 // Tests the functionality and speed of the image compression.
+//#define WRITE_DECOMPRESSED
+//#define WRITE_COMPRESSED
 
 int main( int argc, char **argv )
 {
@@ -40,21 +43,27 @@ int main( int argc, char **argv )
     const eq::CompressorVector& compressors = plugins.getCompressors();
     TEST( !compressors.empty( ));
 
-    eq::StringVector images = eq::base::fileSearch( "images", "*.rgb" );
-    for( size_t i=0; i < images.size(); ++i )
+    eq::StringVector images;
+    eq::StringVector candidates = eq::base::fileSearch( "images", "*.rgb" );
+    for( eq::StringVector::const_iterator i = candidates.begin();
+        i != candidates.end(); ++i )
     {
-        images[i] = "images/" + images[i];
+        const std::string& filename = *i;
+        const size_t decompPos = filename.find( "decomp_" );
+        if( decompPos == std::string::npos )
+            images.push_back( "images/" + filename );
     }
 
-    const eq::StringVector images2 = eq::base::fileSearch( "../compositor", 
-                                                           "Result*.rgb" );
-    for( eq::StringVector::const_iterator i = images2.begin();
-         i != images2.end(); ++i )
+    candidates = eq::base::fileSearch( "../compositor", "Result*.rgb" );
+    for( eq::StringVector::const_iterator i = candidates.begin();
+        i != candidates.end(); ++i )
     {
-        images.push_back( "../compositor/" + *i );
+        const std::string& filename = *i;
+        const size_t decompPos = filename.find( "decomp_" );
+        if( decompPos == std::string::npos )
+            images.push_back( "../compositor/" + filename );
     }
     TEST( !images.empty( ));
-
 
     // Touch memory once
     eq::Image image;
@@ -93,17 +102,36 @@ int main( int argc, char **argv )
         const eq::Image::PixelData& compressedPixels =
             image.compressPixelData( buffer );
         const float compressTime = clock.getTimef();
+        TEST( compressedPixels.compressedSize.size() ==
+              compressedPixels.compressedData.size( ));
 
         uint32_t compressedSize = 0;
         if( compressedPixels.compressorName == EQ_COMPRESSOR_NONE )
             compressedSize = size;
         else 
+        {
+#ifdef WRITE_COMPRESSED
+            std::ofstream comp( std::string( filename + ".comp" ).c_str(), 
+                                std::ios::out | std::ios::binary ); 
+            TEST( comp.is_open( ));
+            std::vector< void* >::const_iterator compData = 
+                compressedPixels.compressedData.begin();
+#endif
+
             for( std::vector< uint64_t >::const_iterator j = 
                      compressedPixels.compressedSize.begin();
                  j != compressedPixels.compressedSize.end(); ++j )
             {
                 compressedSize += *j;
+#ifdef WRITE_COMPRESSED
+                comp.write( reinterpret_cast< const char* >( *compData ), *j );
+                ++compData;
+#endif
             }
+#ifdef WRITE_COMPRESSED
+            comp.close();
+#endif
+        }
 
         clock.reset();
         destImage.setPixelData( buffer, compressedPixels );
@@ -115,7 +143,11 @@ int main( int argc, char **argv )
                    << std::setw(10) << compressTime << ", " << std::setw(10)
                    << decompressTime << std::endl;
 
-        //destImage.writeImage( "decomp_" + filename, buffer );
+#ifdef WRITE_DECOMPRESSED
+        destImage.writeImage( eq::base::getDirname( filename ) + "/" + 
+                              "decomp_" + eq::base::getFilename( filename ),
+                              buffer );
+#endif
 
         const uint8_t* destData = destImage.getPixelPointer( buffer );
 #ifdef EQ_IGNORE_ALPHA

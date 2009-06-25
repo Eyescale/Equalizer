@@ -79,13 +79,20 @@ inline StringVector fileSearch( const std::string directory,
 
     struct dirent* entry;
     
-    while (( entry = readdir( dir )) != 0)
+    while(( entry = readdir( dir )) != 0 )
     {
-        if(( strncmp( entry->d_name, first.c_str(), first.size() ) == 0) && 
-           ( strcmp( entry->d_name, second.c_str() ) >= 0) )
+        const std::string candidate( entry->d_name );
+        if( candidate.find( first ) != 0 )
+            continue; // doesn't start with filename
+
+        const size_t end = candidate.find( second );
+        if( end == std::string::npos ||                 // not found
+            end + second.size() < candidate.size_t( ))  // not at the end
         {
-            files.push_back( entry->d_name );  
-        }   
+            continue;
+        }
+
+        files.push_back( entry->d_name );  
     }
         
     closedir(dir);
@@ -93,7 +100,7 @@ inline StringVector fileSearch( const std::string directory,
     return files;
 }
 
-inline std::string getBasename( const std::string& filename )
+inline std::string getFilename( const std::string& filename )
 {
     size_t lastSeparator = 0;
     const size_t length = filename.length();

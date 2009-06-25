@@ -570,7 +570,7 @@ void AGLEventHandler::initMagellan( Node* node )
     else
     {
         std::string program( '\0' + 
-                            base::getBasename( net::Global::getProgramName( )));
+                            base::getFilename( net::Global::getProgramName( )));
         program[0] = program.length() - 1;
         EQINFO << program << std::endl;
 

@@ -709,7 +709,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     EQASSERT( nBlocks == pixels.compressedData.size( ));
 
     void* outData = reinterpret_cast< uint8_t* >( memory.pixels.data );
-    uint64_t outDim[4] = { _pvp.x, _pvp.w, _pvp.y, _pvp.h}; 
+    uint64_t outDim[4] = { _pvp.x, _pvp.w, _pvp.y, _pvp.h }; 
 
     EQASSERT( attachment.compressor.plugin != 0 );
     EQASSERT( !attachment.compressor.isCompressor );

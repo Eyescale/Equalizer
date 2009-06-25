@@ -136,6 +136,7 @@ EQ_PLUGIN_API void EqCompressorGetResult( void* const compressor,
     
     *out = (void*)(result->data);
     *outSize = result->size;
+    assert( result->getMaxSize() >= result->size );
 }
 
 
