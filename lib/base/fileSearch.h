@@ -86,8 +86,8 @@ inline StringVector fileSearch( const std::string directory,
             continue; // doesn't start with filename
 
         const size_t end = candidate.find( second );
-        if( end == std::string::npos ||                 // not found
-            end + second.size() < candidate.size_t( ))  // not at the end
+        if( end == std::string::npos ||               // not found
+            end + second.size() < candidate.size( ))  // not at the end
         {
             continue;
         }
