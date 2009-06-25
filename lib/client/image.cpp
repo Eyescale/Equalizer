@@ -705,7 +705,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 
     // Get number of blocks in compressed data
     const uint64_t nBlocks  = pixels.compressedSize.size();
-    EQASSERT(( getDepth( buffer ) % nBlocks ) == 0 );
+    EQASSERT(( nBlocks % getDepth( buffer ) ) == 0 );
     EQASSERT( nBlocks == pixels.compressedData.size( ));
 
     void* outData = reinterpret_cast< uint8_t* >( memory.pixels.data );

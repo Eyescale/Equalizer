@@ -213,7 +213,6 @@ static inline void _decompress( const void* const* inData,
             }
             --oneLeft;
 
-
             if( twoLeft == 0 )
             {
                 two = *twoIn; ++twoIn;
@@ -226,7 +225,6 @@ static inline void _decompress( const void* const* inData,
                     twoLeft = 1;
             }
             --twoLeft;
-
 
             if( threeLeft == 0 )
             {
@@ -258,11 +256,12 @@ static inline void _decompress( const void* const* inData,
                 }
                 --fourLeft;
 
-                out[j] = swizzleFunc::deswizzle( 
+                *out = swizzleFunc::deswizzle( 
                     one + (two<<8) + (three<<16) + (four<<24) );
             }
             else
-                out[j] = swizzleFunc::deswizzle( one + (two<<8) + (three<<16) );
+                *out = swizzleFunc::deswizzle( one + (two<<8) + (three<<16) );
+            ++out;
         }
         assert( static_cast<uint64_t>(oneIn-inData8[i+0])   == inSizes[i+0] );
         assert( static_cast<uint64_t>(twoIn-inData8[i+1])   == inSizes[i+1] );
