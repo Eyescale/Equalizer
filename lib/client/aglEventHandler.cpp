@@ -521,31 +521,35 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
                                                               messageArgument );
             if( state->client == _magellanID ) 
             { 
+                ConfigEvent event;
+                event.data.originator = _magellanNode->getID();
+                event.data.magellan.buttons = state->buttons;
+                event.data.magellan.xAxis = state->axis[0];
+                event.data.magellan.yAxis = state->axis[1];
+                event.data.magellan.zAxis = state->axis[2];
+                event.data.magellan.xRotation = state->axis[3];
+                event.data.magellan.yRotation = state->axis[4];
+                event.data.magellan.zRotation = state->axis[5];
+
                 // decipher what command/event is being reported by the driver 
                 switch( state->command ) 
                 { 
                     case kConnexionCmdHandleAxis: 
-                    {
-                        ConfigEvent event;
                         event.data.type = Event::MAGELLAN_AXIS;
-                        event.data.originator = _magellanNode->getID();
                         event.data.magellan.button = 0;
-                        event.data.magellan.buttons = state->buttons;
-                        event.data.magellan.xAxis = state->axis[0];
-                        event.data.magellan.yAxis = state->axis[1];
-                        event.data.magellan.zAxis = state->axis[2];
-                        event.data.magellan.xRotation = state->axis[3];
-                        event.data.magellan.yRotation = state->axis[4];
-                        event.data.magellan.zRotation = state->axis[5];
+                        break; 
+
+                    case kConnexionCmdHandleButtons:
+                        event.data.type = Event::MAGELLAN_BUTTON;
+                        event.data.magellan.button = state->value;
+                        break; 
                         
-                        _magellanNode->getConfig()->sendEvent( event );
-                        break; 
-                    }
-                    case kConnexionCmdHandleButtons: 
-                        EQINFO << "Magellan button" << std::endl;
-                        // state->buttons reports the buttons that are pressed 
-                        break; 
+                    default:
+                        EQASSERTINFO( 0, "Unimplemented space mouse command " <<
+                                      state->command );
                 }                 
+                        
+                _magellanNode->getConfig()->sendEvent( event );
             } 
             break; 
         }

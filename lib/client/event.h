@@ -207,6 +207,7 @@ namespace eq
             VIEW_RESIZE,
             EXIT,
             MAGELLAN_AXIS,
+            MAGELLAN_BUTTON,
             UNKNOWN,
             FILL1,  // some buffer for binary-compatible patches
             FILL2,

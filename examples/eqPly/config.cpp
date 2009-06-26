@@ -391,6 +391,13 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             _redraw = true;
             return true;
 
+        case eq::Event::MAGELLAN_BUTTON:
+            if( event->data.magellan.button == eq::PTR_BUTTON1 )
+                _frameData.toggleUseColor();
+
+            _redraw = true;
+            return true;
+
         case eq::Event::EXPOSE:
         case eq::Event::WINDOW_RESIZE:
         case eq::Event::WINDOW_CLOSE:
