@@ -193,11 +193,23 @@ namespace eq
         EQ_EXPORT void setPixelData( const Frame::Buffer buffer,
                                      const PixelData& data );
 
-        /** Switch PBO usage for image transfers on or off. */
-        void setPBO( const bool onOff ) { _usePBO = onOff; }
+        /** Switch PBO usage for image transfers on. */
+        void enablePBO() { _usePBO = true; }
+
+        /** Switch PBO usage for image transfers off. */
+        void disablePBO() { _usePBO = false; }
 
         /** @return if this image should use PBO for image transfers. */
-        bool usePBO() const             { return _usePBO; }
+        bool usePBO() const { return _usePBO; }
+
+        /** Enable compression and transport of alpha data. */
+        void enableAlphaUsage();
+
+        /** Disable compression and transport of alpha data. */
+        void disableAlphaUsage();
+
+        /** @return true if alpha data can be ignored. */
+        bool ignoreAlpha() const { return _ignoreAlpha; }
         //@}
 
 
@@ -352,9 +364,11 @@ namespace eq
         /** Find and activate a decompression engine */
         bool _allocDecompressor( Attachment& attachment, uint32_t name );
 
-
         /** PBO Usage. */
         bool _usePBO;
+
+        /** Alpha channel significance. */
+        bool _ignoreAlpha;
 
         union // placeholder for binary-compatible changes
         {
@@ -363,6 +377,8 @@ namespace eq
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;
+
+        bool _canIgnoreAlpha( const Frame::Buffer buffer ) const;
 
         void _startReadback( const Frame::Buffer buffer, const Zoom& zoom );
         void _startReadbackPBO( const Frame::Buffer buffer );

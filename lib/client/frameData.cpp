@@ -323,6 +323,7 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
         packet.size    = packetSize;
         packet.buffers = Frame::BUFFER_NONE;
         packet.pvp     = image->getPixelViewport();
+        packet.ignoreAlpha = image->ignoreAlpha();
 
         EQASSERT( packet.pvp.isValid( ));
 
@@ -492,6 +493,7 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
     uint8_t* data  = const_cast< uint8_t* >( packet->data );
 
     image->setPixelViewport( packet->pvp );
+    packet->ignoreAlpha ? image->disableAlphaUsage() :image->enableAlphaUsage();
 
     Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
     for( unsigned i = 0; i < 2; ++i )

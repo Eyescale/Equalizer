@@ -177,7 +177,7 @@ void Channel::_testFormats()
         image->setFormat( eq::Frame::BUFFER_COLOR, _enums[i].format );
         image->setType(   eq::Frame::BUFFER_COLOR, _enums[i].type );
         image->clearPixelData( eq::Frame::BUFFER_COLOR );
-        image->setPBO( false );
+        image->disablePBO();
 
         // read
         clock.reset();
@@ -198,7 +198,7 @@ void Channel::_testFormats()
         {
             event.data.type = ConfigEvent::READBACK_PBO;
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
-            image->setPBO( true );
+            image->enablePBO();
 
             // read
             clock.reset();
@@ -276,7 +276,7 @@ void Channel::_testTiledOperations()
         {
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
-            image->setPBO( false );
+            image->disablePBO();
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_INT );
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
@@ -301,7 +301,7 @@ void Channel::_testTiledOperations()
         for( unsigned j = 0; j <= tiles; ++j )
         {
             eq::Image* image = images[ j ];
-            image->setPBO( true );
+            image->enablePBO();
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_INT );
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
@@ -335,7 +335,7 @@ void Channel::_testTiledOperations()
         {
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
-            image->setPBO( false );
+            image->disablePBO();
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
@@ -359,7 +359,7 @@ void Channel::_testTiledOperations()
         for( unsigned j = 0; j <= tiles; ++j )
         {
             eq::Image* image = images[ j ];
-            image->setPBO( true );
+            image->enablePBO();
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
             image->clearPixelData( eq::Frame::BUFFER_COLOR );

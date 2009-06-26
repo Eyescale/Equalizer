@@ -81,7 +81,7 @@ int main( int argc, char **argv )
 
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
-    std::cout << "COMPRESSOR,                            IMAGE,       SIZE,"
+    std::cout << "COMPRESSOR,                            IMAGE,       SIZE, A,"
               << " COMPRESSED,     t_comp,   t_decomp" << std::endl;
 
     for( eq::StringVector::const_iterator i = images.begin();
@@ -99,6 +99,7 @@ int main( int argc, char **argv )
         const uint32_t size = image.getPixelDataSize( buffer );
 
         eq::base::Clock clock;
+      again:
         clock.reset();
         const eq::Image::PixelData& compressedPixels =
             image.compressPixelData( buffer );
@@ -140,9 +141,9 @@ int main( int argc, char **argv )
 
         std::cout  << std::setw(2) << compressedPixels.compressorName << ", "
                    << std::setw(40) << filename << ", " << std::setw(10) << size
-                   << ", " << std::setw(10) << compressedSize << ", " 
-                   << std::setw(10) << compressTime << ", " << std::setw(10)
-                   << decompressTime << std::endl;
+                   << ", " << !image.ignoreAlpha() << ", " << std::setw(10) 
+                   << compressedSize << ", " << std::setw(10) << compressTime
+                   << ", " << std::setw(10) << decompressTime << std::endl;
 
 #ifdef WRITE_DECOMPRESSED
         destImage.writeImage( eq::base::getDirname( filename ) + "/" + 
@@ -152,19 +153,25 @@ int main( int argc, char **argv )
 
 #ifdef COMPARE_RESULT
         const uint8_t* destData = destImage.getPixelPointer( buffer );
-#ifdef EQ_IGNORE_ALPHA
         // last 7 pixels can be unitialized
         for( uint32_t j = 0; j < size-7; ++j )
-            TESTINFO( data[j] == destData[j] || (i%4)==3,
-                      "got " << (int)destData[j] << " expected " << (int)data[j]
-                             << " at " << j );
-#else
-        for( uint32_t j = 0; j < size-7; ++j )
-            TESTINFO( data[j] == destData[j],
-                      "got " << (int)destData[j] << " expected " << (int)data[j]
-                             << " at " << j );
+        {
+            TESTINFO( data[j] == destData[j] ||
+                      ( image.ignoreAlpha() && (j%4)==3 ),
+                      "got " << (int)destData[j] << " expected " <<
+                      (int)data[j] << " at " << j );
+        }
 #endif
-#endif
+
+        if( buffer == eq::Frame::BUFFER_COLOR &&
+            image.hasAlpha() && !image.ignoreAlpha( ))
+        {
+            image.disableAlphaUsage();
+            destImage.disableAlphaUsage();
+            goto again;
+        }
+        image.enableAlphaUsage();
+        destImage.enableAlphaUsage();
     }
 
     image.flush();

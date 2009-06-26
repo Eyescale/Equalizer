@@ -60,6 +60,7 @@ Image::~Image()
 void Image::reset()
 {
     _usePBO = false;
+    _ignoreAlpha = false;
     setPixelViewport( PixelViewport( ));
 }
 
@@ -235,7 +236,13 @@ uint32_t Image::_getCompressorTokenType( const Frame::Buffer buffer ) const
 
     return 0;
 }
- 
+
+bool Image::_canIgnoreAlpha( const Frame::Buffer buffer ) const
+{ 
+    return ( buffer == Frame::BUFFER_COLOR && _ignoreAlpha &&
+             getNumChannels( Frame::BUFFER_COLOR ) == 4 );
+}
+
 uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
 {
     const uint32_t tokenType = _getCompressorTokenType( buffer );
@@ -260,11 +267,18 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
             const EqCompressorInfo& info = *j;
             EQINFO << "Trying compressor " << info << std::endl;
 
+            float infoRatio = info.ratio;
+            if( _canIgnoreAlpha( buffer ) && 
+                ( info.capabilities & EQ_COMPRESSOR_IGNORE_MSE ))
+            {
+                infoRatio *= .75f;
+            }
+
             if( info.tokenType == tokenType && // TODO: be smarter
-                ratio > info.ratio )
+                ratio > infoRatio )
             {
                 name = info.name;
-                ratio = info.ratio;
+                ratio = infoRatio;
             }
         }
     }
@@ -296,6 +310,26 @@ bool Image::hasData( const Frame::Buffer buffer ) const
     EQASSERT( _type == Frame::TYPE_TEXTURE );
     return hasTextureData( buffer );
 }
+
+void Image::enableAlphaUsage()
+{
+    if( !_ignoreAlpha )
+        return;
+
+    _ignoreAlpha = false;
+    _color.memory.isCompressed = false;
+    _depth.memory.isCompressed = false;
+}    
+
+void Image::disableAlphaUsage()
+{
+    if( _ignoreAlpha )
+        return;
+
+    _ignoreAlpha = true;
+    _color.memory.isCompressed = false;
+    _depth.memory.isCompressed = false;
+}    
 
 bool Image::hasTextureData( const Frame::Buffer buffer ) const
 {
@@ -710,6 +744,9 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 
     void* outData = reinterpret_cast< uint8_t* >( memory.pixels.data );
     uint64_t outDim[4] = { _pvp.x, _pvp.w, _pvp.y, _pvp.h }; 
+    uint64_t flags = EQ_COMPRESSOR_DATA_2D;
+    if( _canIgnoreAlpha( buffer ))
+        flags |= EQ_COMPRESSOR_IGNORE_MSE;
 
     EQASSERT( attachment.compressor.plugin != 0 );
     EQASSERT( !attachment.compressor.isCompressor );
@@ -718,10 +755,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
                                               attachment.compressor.name,
                                               &pixels.compressedData.front(),
                                               &pixels.compressedSize.front(),
-                                              nBlocks,
-                                              outData, 
-                                              outDim,
-                                              EQ_COMPRESSOR_DATA_2D );
+                                              nBlocks, outData, 
+                                              outDim, flags );
     memory.state = Memory::VALID;
 }
 
@@ -865,10 +900,14 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     const uint64_t inDims[4]  = { _pvp.x, _pvp.w, _pvp.y, _pvp.h}; 
     
     EQASSERT( attachment.compressor.plugin != 0 );
+    uint64_t flags = EQ_COMPRESSOR_DATA_2D;
+    if( _canIgnoreAlpha( buffer ))
+        flags |= EQ_COMPRESSOR_IGNORE_MSE;
+
     attachment.compressor.plugin->compress( attachment.compressor.instance,
                                             attachment.compressor.name,
                                             memory.pixels.data,
-                                            inDims, EQ_COMPRESSOR_DATA_2D );
+                                            inDims, flags );
 
     const size_t numResults = attachment.compressor.plugin->getNumResults( 
         attachment.compressor.instance, attachment.compressor.name );
