@@ -74,6 +74,8 @@ namespace server
         /* Set color buffer type to read */
         void setColorType( const GLuint colorType ) { _colorType = colorType; }
         
+        /** Enable/disable alpha usage for newly allocated images. */
+        void setAlphaUsage( const bool useAlpha ) { _useAlpha = useAlpha; }
         //@}
 
         /**
@@ -89,7 +91,7 @@ namespace server
          * 
          * @return the image.
          */
-        EQ_EXPORT Image* newImage( const eq::Frame::Type type = Frame::TYPE_MEMORY );
+        EQ_EXPORT Image* newImage( const Frame::Type type = Frame::TYPE_MEMORY);
 
         /** Clear the frame by recycling the attached images. */
         EQ_EXPORT void clear();
@@ -217,6 +219,7 @@ namespace server
         std::vector< base::Monitor<uint32_t>* > _listeners;
         base::Lock                              _listenersMutex;
 
+        bool _useAlpha;
         bool _useSendToken;
         
         union // placeholder for binary-compatible changes

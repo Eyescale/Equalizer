@@ -79,9 +79,6 @@ namespace server
         const vmml::Vector2i& getOffset() const { return _data.offset; }
         void setOffset( const vmml::Vector2i& offset ) { _data.offset = offset;}
 
-        /** The enabled frame buffer attachments. */
-        EQ_EXPORT uint32_t getBuffers() const;
-
         /** @return the database-range relative to the destination channel. */
         EQ_EXPORT const Range& getRange() const;
         EQ_EXPORT void         setRange( const Range& range );
@@ -180,6 +177,9 @@ namespace server
         void removeListener( base::Monitor<uint32_t>& listener );
         //@}
 
+        /** @return the enabled frame buffer attachments. */
+        EQ_EXPORT uint32_t getBuffers() const;
+
         /** 
          * Disable the usage of a frame buffer attachment for all images.
          * 
@@ -189,6 +189,9 @@ namespace server
 
         /** Set color buffer type to read */
         EQ_EXPORT void setColorType( const GLuint colorType );
+
+        /** Enable/disable alpha usage for newly allocated images. */
+        EQ_EXPORT void setAlphaUsage( const bool useAlpha );
 
         /** @internal */
         void useSendToken( const bool use );

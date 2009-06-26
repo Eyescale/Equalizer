@@ -137,6 +137,19 @@ void Channel::frameDraw( const uint32_t frameID )
 
 }
 
+void Channel::frameReadback( const uint32_t frameID )
+{
+    // OPT: Drop alpha channel from all frames during network transport
+    const eq::FrameVector& frames = getOutputFrames();
+    for( eq::FrameVector::const_iterator i = frames.begin(); 
+         i != frames.end(); ++i )
+    {
+        (*i)->setAlphaUsage( false );
+    }
+
+    eq::Channel::frameReadback( frameID );
+}
+
 const FrameData& Channel::_getFrameData() const
 {
     const Pipe* pipe = static_cast<const Pipe*>( getPipe( ));

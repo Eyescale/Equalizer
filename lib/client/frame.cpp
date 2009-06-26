@@ -106,6 +106,12 @@ void Frame::setColorType( const GLuint colorType )
         _frameData->setColorType( colorType );
 }
 
+void Frame::setAlphaUsage( const bool useAlpha )
+{
+    if( _frameData )
+        _frameData->setAlphaUsage( useAlpha );
+}
+
 void Frame::startReadback( Window::ObjectManager* glObjects ) 
 {
     EQASSERT( _frameData );

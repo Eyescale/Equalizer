@@ -40,6 +40,7 @@ namespace eq
 {
 FrameData::FrameData() 
         : _colorType( GL_RGBA )
+        , _useAlpha( true )
         , _useSendToken( false )
 {
     _roiFinder = new ROIFinder();
@@ -159,6 +160,7 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
     }
 
     image->setStorageType( type );
+    _useAlpha ? image->enableAlphaUsage() : image->disableAlphaUsage();
 
     if( type == Frame::TYPE_TEXTURE )
         image->setFormat( Frame::BUFFER_COLOR, GL_RGBA );
