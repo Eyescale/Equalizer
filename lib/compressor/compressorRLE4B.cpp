@@ -173,8 +173,6 @@ static inline void _decompress( const void* const* inData,
     const uint8_t* const* inData8 = reinterpret_cast< const uint8_t* const* >(
         inData );
 
-    // decompress 
-    // On OS X the loop is sometimes slower when parallelized. Investigate this!
     assert( (numInputs%4) == 0 );
 
 #pragma omp parallel for

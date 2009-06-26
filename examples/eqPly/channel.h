@@ -43,6 +43,7 @@ namespace eqPly
         virtual bool configInit( const uint32_t initID );
         virtual void frameClear( const uint32_t frameID );
         virtual void frameDraw( const uint32_t frameID );
+        virtual void frameReadback( const uint32_t frameID );
         virtual void frameViewFinish( const uint32_t frameID );
 
         /** Applies the perspective or orthographic frustum. */

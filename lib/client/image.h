@@ -203,10 +203,10 @@ namespace eq
         bool usePBO() const { return _usePBO; }
 
         /** Enable compression and transport of alpha data. */
-        void enableAlphaUsage();
+        EQ_EXPORT void enableAlphaUsage();
 
         /** Disable compression and transport of alpha data. */
-        void disableAlphaUsage();
+        EQ_EXPORT void disableAlphaUsage();
 
         /** @return true if alpha data can be ignored. */
         bool ignoreAlpha() const { return _ignoreAlpha; }
@@ -273,7 +273,7 @@ namespace eq
         void setOffset( int32_t x, int32_t y ) { _pvp.x = x; _pvp.y = y; }
 
         /** Delete all cache data of this image. */
-        void flush();
+        EQ_EXPORT void flush();
         //@}
 
         /** @return the GL function table, valid during readback. */
