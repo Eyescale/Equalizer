@@ -178,7 +178,7 @@ static inline void _decompress( const void* const* inData,
     assert( (numInputs%4) == 0 );
 
 #pragma omp parallel for
-    for( ssize_t i = 0; i < numInputs ; i+=4 )
+    for( ssize_t i = 0; i < static_cast< ssize_t >( numInputs ) ; i+=4 )
     {
         const uint32_t startIndex = static_cast< uint32_t >( i/4.f * width ) *4;
         const uint32_t nextIndex  =
