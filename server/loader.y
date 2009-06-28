@@ -83,6 +83,8 @@
     extern int yylineno;
 %}
 
+%token EQTOKEN_HEADER
+%token EQTOKEN_ASCII
 %token EQTOKEN_GLOBAL
 %token EQTOKEN_CONNECTION_SATTR_HOSTNAME
 %token EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND
@@ -271,7 +273,13 @@
 
 %%
 
-file:   global server | global config;
+file:   header global server | header global config;
+
+header: /* null */ | EQTOKEN_HEADER FLOAT EQTOKEN_ASCII
+    {
+        eq::server::Global::instance()->setConfigFAttribute( 
+            eq::server::Config::FATTR_VERSION, $2 );
+    }
 
 global: EQTOKEN_GLOBAL '{' globals '}' 
         | /* null */

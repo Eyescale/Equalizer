@@ -335,6 +335,7 @@ namespace server
         enum FAttribute
         {
             FATTR_EYE_BASE,
+            FATTR_VERSION,
             FATTR_FILL1,
             FATTR_FILL2,
             FATTR_ALL

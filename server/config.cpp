@@ -60,6 +60,7 @@ typedef net::CommandFunc<Config> ConfigFunc;
 std::string Config::_fAttributeStrings[FATTR_ALL] = 
 {
     MAKE_ATTR_STRING( FATTR_EYE_BASE ),
+    MAKE_ATTR_STRING( FATTR_VERSION ),
     MAKE_ATTR_STRING( FATTR_FILL1 ),
     MAKE_ATTR_STRING( FATTR_FILL2 )
 };
@@ -1344,6 +1345,10 @@ ostream& operator << ( ostream& os, const Config* config )
     if( config->getLatency() != 1 )
         os << "latency " << config->getLatency() << endl;
     os << endl;
+
+    EQASSERTINFO( config->getFAttribute( Config::FATTR_VERSION ) ==
+                  Global::instance()->getConfigFAttribute(Config::FATTR_VERSION)
+                  , "Per-config versioning not implemented" );
 
     const float value = config->getFAttribute( Config::FATTR_EYE_BASE );
     if( value != 

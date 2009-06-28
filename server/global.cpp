@@ -19,9 +19,6 @@
 
 #include "colorMask.h"
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace server
@@ -138,7 +135,7 @@ void Global::_readEnvironment()
 {
     for( uint32_t i=0; i<ConnectionDescription::SATTR_ALL; ++i )
     {
-        const string& name     = ConnectionDescription::getSAttributeString(
+        const std::string& name = ConnectionDescription::getSAttributeString(
             (ConnectionDescription::SAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
@@ -147,7 +144,7 @@ void Global::_readEnvironment()
     }
     for( uint32_t i=0; i<ConnectionDescription::CATTR_ALL; ++i )
     {
-        const string& name     = ConnectionDescription::getCAttributeString(
+        const std::string& name = ConnectionDescription::getCAttributeString(
             (ConnectionDescription::CAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
@@ -156,7 +153,7 @@ void Global::_readEnvironment()
     }
     for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
     {
-        const string& name     = ConnectionDescription::getIAttributeString(
+        const std::string& name = ConnectionDescription::getIAttributeString(
             (ConnectionDescription::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
@@ -165,7 +162,7 @@ void Global::_readEnvironment()
     }
     for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
     {
-        const string& name     = Config::getFAttributeString(
+        const std::string& name     = Config::getFAttributeString(
             (Config::FAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
@@ -175,7 +172,7 @@ void Global::_readEnvironment()
 
     for( uint32_t i=0; i<eq::Node::IATTR_ALL; ++i )
     {
-        const string& name     = eq::Node::getIAttributeString(
+        const std::string& name     = eq::Node::getIAttributeString(
             (eq::Node::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
@@ -184,7 +181,7 @@ void Global::_readEnvironment()
     }
     for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
     {
-        const string& name     = Pipe::getIAttributeString(
+        const std::string& name     = Pipe::getIAttributeString(
             (Pipe::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
@@ -193,7 +190,7 @@ void Global::_readEnvironment()
     }
     for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )
     {
-        const string& name     = eq::Window::getIAttributeString(
+        const std::string& name     = eq::Window::getIAttributeString(
             (eq::Window::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
@@ -202,7 +199,7 @@ void Global::_readEnvironment()
     }
     for( uint32_t i=0; i<eq::Channel::IATTR_ALL; ++i )
     {
-        const string& name     = eq::Channel::getIAttributeString(
+        const std::string& name     = eq::Channel::getIAttributeString(
             (eq::Channel::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
@@ -211,7 +208,7 @@ void Global::_readEnvironment()
     }
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
     {
-        const string& name     = Compound::getIAttributeString(
+        const std::string& name     = Compound::getIAttributeString(
             (Compound::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
@@ -227,8 +224,11 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
     Global reference;
     reference._setupDefaults(); // ignore environment variables
 
-    os << disableFlush << disableHeader << "global" << endl;
-    os << '{' << indent << endl;
+    os << base::disableFlush << base::disableHeader
+       << "#Equalizer " << global->getConfigFAttribute( Config::FATTR_VERSION )
+       << " ascii" << std::endl << std::endl
+       << "global" << std::endl
+       << '{' << base::indent << std::endl;
 
     for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
     {
@@ -236,9 +236,9 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._connectionIAttributes[i] )
             continue;
 
-        const string& name = ConnectionDescription::getIAttributeString( 
+        const std::string& name = ConnectionDescription::getIAttributeString( 
             static_cast<ConnectionDescription::IAttribute>( i ));
-        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' );
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' );
                 
         switch( i )
         { 
@@ -253,19 +253,19 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
             default:
                 os << value;
         }
-        os << endl;
+        os << std::endl;
     }
 
     for( uint32_t i=0; i<ConnectionDescription::SATTR_ALL; ++i )
     {
-        const string& value = global->_connectionSAttributes[i];
+        const std::string& value = global->_connectionSAttributes[i];
         if( value == reference._connectionSAttributes[i] )
             continue;
 
-        const string& name = ConnectionDescription::getSAttributeString( 
+        const std::string& name = ConnectionDescription::getSAttributeString( 
             static_cast<ConnectionDescription::SAttribute>( i ));
-        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << "\"" << value << "\"" << endl;
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << "\"" << value << "\"" << std::endl;
     }
 
     for( uint32_t i=0; i<ConnectionDescription::CATTR_ALL; ++i )
@@ -274,22 +274,25 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._connectionCAttributes[i] )
             continue;
 
-        const string& name = ConnectionDescription::getCAttributeString( 
+        const std::string& name = ConnectionDescription::getCAttributeString( 
             static_cast<ConnectionDescription::CAttribute>( i ));
-        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << "'" << value << "'" << endl;
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << "'" << value << "'" << std::endl;
     }
 
     for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
     {
+        if( i == Config::FATTR_VERSION )
+            continue;
+
         const float value = global->_configFAttributes[i];
         if( value == reference._configFAttributes[i] )
             continue;
 
-        const string& name = Config::getFAttributeString( 
+        const std::string& name = Config::getFAttributeString( 
             static_cast<Config::FAttribute>( i ));
-        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << value << endl;
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << value << std::endl;
     }
 
     for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
@@ -298,10 +301,10 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._nodeIAttributes[i] )
             continue;
 
-        const string& name = eq::Node::getIAttributeString( 
+        const std::string& name = eq::Node::getIAttributeString( 
             static_cast<eq::Node::IAttribute>( i ));
-        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << static_cast<eq::IAttrValue>( value ) << endl;
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << static_cast<eq::IAttrValue>( value ) << std::endl;
     }
 
     for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
@@ -310,10 +313,10 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._pipeIAttributes[i] )
             continue;
 
-        const string& name = Pipe::getIAttributeString( 
+        const std::string& name = Pipe::getIAttributeString( 
             static_cast<Pipe::IAttribute>( i ));
-        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << static_cast<eq::IAttrValue>( value ) << endl;
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << static_cast<eq::IAttrValue>( value ) << std::endl;
     }
 
     for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )
@@ -322,10 +325,10 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._windowIAttributes[i] )
             continue;
 
-        const string& name = eq::Window::getIAttributeString( 
+        const std::string& name = eq::Window::getIAttributeString( 
             static_cast<eq::Window::IAttribute>( i ));
-        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << static_cast<eq::IAttrValue>( value ) << endl;
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << static_cast<eq::IAttrValue>( value ) << std::endl;
     }
 
     for( uint32_t i=0; i<eq::Channel::IATTR_ALL; ++i )
@@ -334,10 +337,10 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._channelIAttributes[i] )
             continue;
 
-        const string& name = eq::Channel::getIAttributeString(
+        const std::string& name = eq::Channel::getIAttributeString(
             static_cast<eq::Channel::IAttribute>( i ));
-        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << static_cast<eq::IAttrValue>( value ) << endl;
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << static_cast<eq::IAttrValue>( value ) << std::endl;
     }
 
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
@@ -346,19 +349,19 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._compoundIAttributes[i] )
             continue;
 
-        const string& name = Compound::getIAttributeString(
+        const std::string& name = Compound::getIAttributeString(
             static_cast<Compound::IAttribute>( i ));
-        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' );
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' );
 
         switch( i )
         {
             case Compound::IATTR_STEREO_MODE:
-                os << static_cast<eq::IAttrValue>( value ) << endl;
+                os << static_cast<eq::IAttrValue>( value ) << std::endl;
                 break;
 
             case Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK:
             case Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK:
-                os << ColorMask( value ) << endl;
+                os << ColorMask( value ) << std::endl;
                 break;
 
             default:
@@ -366,7 +369,8 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         }
     }
 
-    os << exdent << '}' << endl << enableHeader << enableFlush;
+    os << base::exdent << '}' << std::endl
+       << base::enableHeader << base::enableFlush;
     return os;
 }
 

@@ -1,10 +1,9 @@
-Fix image test
+Implement 2780183: Add config file version
 
 [ ] May break build
 [ ] Breaks existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
-

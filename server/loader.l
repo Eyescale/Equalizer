@@ -39,7 +39,7 @@ const char* yyinString = 0;
 
 void yyerror( char *errmsg )
 {
-    EQERROR << "Parse error: '" << errmsg << "', line " << yylineno
+    EQERROR << "Parse error: '" << errmsg << "', line " << yylineno+1
             << " at '" << yytext << "'" << std::endl;
     YY_FLUSH_BUFFER;
 }
@@ -70,6 +70,8 @@ void yyerror( char *errmsg )
 
 %%
 
+#Equalizer                       { return EQTOKEN_HEADER; }
+ascii                            { return EQTOKEN_ASCII; }
 global                           { return EQTOKEN_GLOBAL; }
 EQ_CONNECTION_SATTR_HOSTNAME     { return EQTOKEN_CONNECTION_SATTR_HOSTNAME; }
 EQ_CONNECTION_SATTR_LAUNCH_COMMAND { return EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND; }
