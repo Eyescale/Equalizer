@@ -1,8 +1,8 @@
-[Description]
+Fix image test
 
 [ ] May break build
 [ ] Breaks existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization

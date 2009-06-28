@@ -17,12 +17,13 @@
 
 #include <test.h>
 
+#include "../../lib/client/pluginRegistry.h"
+
 #include <eq/plugins/compressor.h>
 #include <eq/client/global.h>
 #include <eq/client/image.h>
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
-#include <eq/client/pluginRegistry.h>
 #include <eq/base/clock.h>
 #include <eq/base/fileSearch.h>
 
