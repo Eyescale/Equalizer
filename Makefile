@@ -43,9 +43,6 @@ endif
 ifeq ($(findstring WGL, $(WINDOW_SYSTEM)),WGL)
 	@echo "    WGL/Win32 windowing"
 endif
-ifeq ($(findstring EQ_ASYNC_TRANSMIT, $(DEFFLAGS)),EQ_ASYNC_TRANSMIT)
-	@echo "    Asynchronous image network transfers"
-endif
 ifeq ($(findstring EQ_USE_OPENMP, $(DEFFLAGS)),EQ_USE_OPENMP)
 	@echo "    OpenMP (http://www.openmp.org/)"
 endif

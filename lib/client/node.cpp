@@ -58,12 +58,8 @@ std::string Node::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Node::Node( Config* parent )
-#ifdef EQ_ASYNC_TRANSMIT
         : transmitter( this )
         , _config( parent )
-#else
-        : _config( parent )
-#endif
         , _tasks( TASK_NONE )
         , _state( STATE_STOPPED )
         , _unlockedFrame( 0 )
@@ -462,7 +458,6 @@ const std::string& Node::getIAttributeString( const IAttribute attr )
     return _iAttributeStrings[attr];
 }
 
-#ifdef EQ_ASYNC_TRANSMIT
 void Node::TransmitThread::send( FrameData* data, net::NodePtr node, 
                                  const uint32_t frameNumber )
 {
@@ -488,8 +483,6 @@ void* Node::TransmitThread::run()
     }
     return 0;
 }
-
-#endif
 
 //---------------------------------------------------------------------------
 // command handlers
@@ -547,9 +540,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     _unlockedFrame = packet->frameNumber;
     _finishedFrame = packet->frameNumber;
 
-#ifdef EQ_ASYNC_TRANSMIT
     transmitter.start();
-#endif
     _error.clear();
     NodeConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
@@ -580,10 +571,8 @@ net::CommandResult Node::_cmdConfigExit( net::Command& command )
     NodeConfigExitReplyPacket reply;
     reply.result = configExit();
 
-#ifdef EQ_ASYNC_TRANSMIT
     transmitter.send( 0, 0, 0 );
     transmitter.join();
-#endif
 
     _state = STATE_STOPPED;
     _flushObjects();

@@ -6,9 +6,6 @@
 #ifndef Darwin
 #  define Darwin
 #endif
-#ifndef EQ_ASYNC_TRANSMIT
-#  define EQ_ASYNC_TRANSMIT
-#endif
 #ifndef EQ_CHECK_THREADSAFETY
 #  define EQ_CHECK_THREADSAFETY
 #endif

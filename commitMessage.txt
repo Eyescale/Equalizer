@@ -1,9 +1,9 @@
-Implement 2780183: Add config file version
+Remove EQ_ASYNC_TRANSMIT define and make async transmits default
 
 [ ] May break build
 [ ] Breaks existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

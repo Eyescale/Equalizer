@@ -135,7 +135,6 @@ namespace eq
                                                         const IAttribute attr );
         //@}
 
-#ifdef EQ_ASYNC_TRANSMIT
         class TransmitThread : public base::Thread
         {
         public:
@@ -164,7 +163,6 @@ namespace eq
         };
 
         TransmitThread transmitter;
-#endif
 
     protected:
         friend class Config;

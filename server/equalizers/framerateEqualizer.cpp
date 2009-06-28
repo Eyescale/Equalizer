@@ -255,9 +255,6 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
             case eq::Statistic::CHANNEL_DRAW:
             case eq::Statistic::CHANNEL_ASSEMBLE:
             case eq::Statistic::CHANNEL_READBACK:
-#ifndef EQ_ASYNC_TRANSMIT
-            case eq::Statistic::CHANNEL_TRANSMIT:
-#endif
                 startTime = EQ_MIN( startTime, data.startTime );
                 endTime   = EQ_MAX( endTime, data.endTime );
                 break;

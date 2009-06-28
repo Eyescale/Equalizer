@@ -33,7 +33,4 @@
 #ifndef LITTLE_ENDIAN
 #  define LITTLE_ENDIAN
 #endif
-#ifndef EQ_ASYNC_TRANSMIT
-#  define EQ_ASYNC_TRANSMIT
-#endif
 #endif // EQ_DEFINES_H

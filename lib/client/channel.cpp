@@ -882,16 +882,9 @@ void Channel::drawStatistics()
                         glColor3f( 1.0f-dim, .5f-dim, .5f-dim ); 
                         break;
                     case Statistic::NODE_TRANSMIT:
-                    case Statistic::CHANNEL_TRANSMIT:
                         glColor3f( 0.f, 0.f, 1.0f-dim ); 
                         z = 0.5f; 
                         break;
-                    case Statistic::CHANNEL_TRANSMIT_NODE:
-                        glColor3f( 0.5f-dim, 0.5f-dim, 1.0f-dim ); 
-                        y1 -= SPACE;
-                        z = 0.6f; 
-                        break;
-                    case Statistic::CHANNEL_COMPRESS:
                     case Statistic::NODE_COMPRESS:
                     {
                         glColor3f( 1.0f-dim, 1.0f-dim, 1.0f-dim ); 
@@ -1237,10 +1230,6 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
                                       << packet << endl;
 
-#ifndef EQ_ASYNC_TRANSMIT
-    ChannelStatistics event( Statistic::CHANNEL_TRANSMIT, this );
-#endif
-
     net::Session* session   = getSession();
     net::NodePtr  localNode = session->getLocalNode();
     net::NodePtr  server    = session->getServer();
@@ -1259,14 +1248,8 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
                               << frame << " to " << nodeID << endl;
 
         frame->useSendToken( getIAttribute( IATTR_HINT_SENDTOKEN ) == ON );
-#ifdef EQ_ASYNC_TRANSMIT
         getNode()->transmitter.send( frame->getData(), toNode, 
                                      getPipe()->getCurrentFrame( ));
-#else
-        ChannelStatistics nodeEvent( Statistic::CHANNEL_TRANSMIT_NODE, this );
-        ChannelStatistics compressEvent( Statistic::CHANNEL_COMPRESS, this );
-        frame->transmit( toNode, compressEvent.event );
-#endif
     }
 
     return net::COMMAND_HANDLED;
