@@ -1,9 +1,9 @@
-Fix network transmission of images
+Add base::MemoryMap class
 
-[ ] May break build
+[x] May break build
 [ ] Breaks existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
