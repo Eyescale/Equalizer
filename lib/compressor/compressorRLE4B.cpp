@@ -198,61 +198,13 @@ static inline void _decompress( const void* const* inData,
             assert( static_cast<uint64_t>(twoIn-inData8[i+1]) <= inSizes[i+1] );
             assert( static_cast<uint64_t>(threeIn-inData8[i+2]) <=inSizes[i+2]);
 
-            if( oneLeft == 0 )
-            {
-                one = *oneIn; ++oneIn;
-                if( one == _rleMarker )
-                {
-                    one     = *oneIn; ++oneIn;
-                    oneLeft = *oneIn; ++oneIn;
-                }
-                else // single symbol
-                    oneLeft = 1;
-            }
-            --oneLeft;
-
-            if( twoLeft == 0 )
-            {
-                two = *twoIn; ++twoIn;
-                if( two == _rleMarker )
-                {
-                    two     = *twoIn; ++twoIn;
-                    twoLeft = *twoIn; ++twoIn;
-                }
-                else // single symbol
-                    twoLeft = 1;
-            }
-            --twoLeft;
-
-            if( threeLeft == 0 )
-            {
-                three = *threeIn; ++threeIn;
-                if( three == _rleMarker )
-                {
-                    three     = *threeIn; ++threeIn;
-                    threeLeft = *threeIn; ++threeIn;
-                }
-                else // single symbol
-                    threeLeft = 1;
-            }
-            --threeLeft;
+            READ( one );
+            READ( two );
+            READ( three );
 
             if( alphaFunc::use( ))
             {
-                assert( static_cast<uint64_t>( fourIn-inData8[i+3] ) <=
-                        inSizes[i+3] );
-                if( fourLeft == 0 )
-                {
-                    four = *fourIn; ++fourIn;
-                    if( four == _rleMarker )
-                    {
-                        four     = *fourIn; ++fourIn;
-                        fourLeft = *fourIn; ++fourIn;
-                    }
-                    else // single symbol
-                        fourLeft = 1;
-                }
-                --fourLeft;
+                READ( four );
 
                 *out = swizzleFunc::deswizzle( 
                     one + (two<<8) + (three<<16) + (four<<24) );

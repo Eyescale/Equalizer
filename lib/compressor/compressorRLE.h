@@ -70,6 +70,25 @@
         name ## Same = 1;                                               \
     } 
 
+#define READ( name )                                        \
+    if( name ## Left == 0 )                                 \
+    {                                                       \
+        name = *name ## In;                                 \
+        if( name == _rleMarker )                            \
+        {                                                   \
+            name = name ## In[1];                           \
+            name ## Left = name ## In[2];                   \
+            name ## In += 3;                                \
+        }                                                   \
+        else                                                \
+        {                                                   \
+            name ## Left = 1;                               \
+            ++name ## In;                                   \
+        }                                                   \
+    }                                                       \
+    --name ## Left; 
+
+
 namespace eq
 {
 namespace plugin
