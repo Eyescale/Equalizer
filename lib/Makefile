@@ -61,6 +61,7 @@ HEADER_SRC = \
 	net/global.h \
 	net/init.h \
 	net/log.h \
+	net/namedPipeConnection.h \
 	net/net.h \
 	net/node.h \
 	net/nodeID.h \
@@ -172,6 +173,7 @@ CXXFILES = \
 	net/fullSlaveCM.cpp \
 	net/global.cpp \
 	net/init.cpp \
+	net/namedPipeConnection.cpp \
 	net/node.cpp \
 	net/nodeID.cpp \
 	net/object.cpp \
