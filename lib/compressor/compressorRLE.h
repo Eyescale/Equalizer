@@ -26,9 +26,10 @@
     {                                                                   \
         if( name ## Last == _rleMarker )                                \
         {                                                               \
-            *(name ## Out) = _rleMarker; ++(name ## Out);               \
-            *(name ## Out) = _rleMarker; ++(name ## Out);               \
-            *(name ## Out) = name ## Same; ++(name ## Out);             \
+            name ## Out[0] = _rleMarker;                                \
+            name ## Out[1] = _rleMarker;                                \
+            name ## Out[2] = name ## Same;                              \
+            name ## Out += 3;                                           \
         }                                                               \
         else                                                            \
             switch( name ## Same )                                      \
@@ -36,22 +37,25 @@
                 case 0:                                                 \
                     break;                                              \
                 case 3:                                                 \
-                    *(name ## Out) = name ## Last;                      \
-                    ++(name ## Out);                                    \
-                    /* fall through */                                  \
+                    name ## Out[0] = name ## Last;                      \
+                    name ## Out[1] = name ## Last;                      \
+                    name ## Out[2] = name ## Last;                      \
+                    name ## Out += 3;                                   \
+                    break;                                              \
                 case 2:                                                 \
-                    *(name ## Out) = name ## Last;                      \
-                    ++(name ## Out);                                    \
-                    /* fall through */                                  \
+                    name ## Out[0] = name ## Last;                      \
+                    name ## Out[1] = name ## Last;                      \
+                    name ## Out += 2;                                   \
+                    break;                                              \
                 case 1:                                                 \
-                    *(name ## Out) = name ## Last;                      \
+                    name ## Out[0] = name ## Last;                      \
                     ++(name ## Out);                                    \
                     break;                                              \
-                                                                        \
                 default:                                                \
-                    *(name ## Out) = _rleMarker;   ++(name ## Out);     \
-                    *(name ## Out) = name ## Last; ++(name ## Out);     \
-                    *(name ## Out) = name ## Same; ++(name ## Out);     \
+                    name ## Out[0] = _rleMarker;                        \
+                    name ## Out[1] = name ## Last;                      \
+                    name ## Out[2] = name ## Same;                      \
+                    name ## Out += 3;                                   \
                     break;                                              \
             }                                                           \
     }
