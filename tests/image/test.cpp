@@ -68,9 +68,19 @@ int main( int argc, char **argv )
     TEST( !images.empty( ));
 
     // Touch memory once
+    eq::base::Clock clock;
     eq::Image image;
     eq::Image destImage;
+    
+    clock.reset();
     TEST( image.readImage( images.front(), eq::Frame::BUFFER_COLOR ));
+    const float loadTime = clock.getTimef();
+
+    std::cout.setf( std::ios::right, std::ios::adjustfield );
+    std::cout.precision( 5 );
+    std::cout << "Load " << images.front() << ": " << loadTime << "ms" 
+              << std::endl;
+
     destImage.setPixelViewport( image.getPixelViewport( ));
     destImage.setPixelData( eq::Frame::BUFFER_COLOR,     
                             image.compressPixelData( eq::Frame::BUFFER_COLOR ));
@@ -80,8 +90,6 @@ int main( int argc, char **argv )
     destImage.setPixelData( eq::Frame::BUFFER_DEPTH,     
                             image.compressPixelData( eq::Frame::BUFFER_DEPTH ));
 
-    std::cout.setf( std::ios::right, std::ios::adjustfield );
-    std::cout.precision( 5 );
     std::cout << "COMPRESSOR,                            IMAGE,       SIZE, A,"
               << " COMPRESSED,     t_comp,   t_decomp" << std::endl;
 
@@ -99,7 +107,6 @@ int main( int argc, char **argv )
         const uint8_t* data = image.getPixelPointer( buffer );
         const uint32_t size = image.getPixelDataSize( buffer );
 
-        eq::base::Clock clock;
       again:
         clock.reset();
         const eq::Image::PixelData& compressedPixels =

@@ -27,6 +27,7 @@
 #include "log.h"
 #include "windowSystem.h"
 
+#include <eq/base/memoryMap.h>
 #include <eq/base/omp.h>
 #include <eq/net/node.h>
 
@@ -1106,41 +1107,37 @@ void Image::writeImage( const std::string& filename,
 
 bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 {
-    ifstream image( filename.c_str(), ios::in | ios::binary );
-    if( !image.is_open( ))
+    base::MemoryMap image;
+    const uint8_t* addr = static_cast< const uint8_t* >( image.map( filename ));
+
+    if( !addr )
     {
         EQERROR << "Can't open " << filename << " for reading" << endl;
         return false;
     }
 
     RGBHeader header;
-    image.read( reinterpret_cast<char *>( &header ), sizeof( header ));
-
-    if( image.bad() || image.eof( ))
-    {
-        EQERROR << "Error during image header input " << filename << endl;
-        image.close();
-        return false;
-    }
+    memcpy( &header, addr, sizeof( header ));
+    addr += sizeof( header );
 
     header.convert();
 
     if( header.magic != 474)
     {
         EQERROR << "Bad magic number " << filename << endl;
-        image.close();
+        image.unmap();
         return false;
     }
     if( header.width == 0 || header.height == 0 )
     {
         EQERROR << "Zero-sized image " << filename << endl;
-        image.close();
+        image.unmap();
         return false;
     }
     if( header.compression != 0)
     {
         EQERROR << "Unsupported compression " << filename << endl;
-        image.close();
+        image.unmap();
         return false;
     }
 
@@ -1154,7 +1151,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         ( buffer == Frame::BUFFER_DEPTH && nChannels != 4 ))
     {
         EQERROR << "Unsupported image type " << filename << endl;
-        image.close();
+        image.unmap();
         return false;
     }
 
@@ -1165,7 +1162,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
             {
                 EQERROR << "Unsupported channel depth " 
                         << static_cast< int >( header.bytesPerChannel ) << endl;
-                image.close();
+                image.unmap();
                 return false;
             }
 
@@ -1192,42 +1189,35 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
                     EQERROR << "Unsupported channel depth " 
                             << static_cast< int >( header.bytesPerChannel )
                             << std::endl;
-                    image.close();
+                    image.unmap();
                     return false;
             }
             break;
-    }
-
-    const uint8_t bpc     = header.bytesPerChannel;
-    const size_t  depth   = nChannels * bpc;
-    const size_t  nPixels = header.width * header.height;
-    const size_t  nBytes  = nPixels * depth;
-    Memory        memory;
-
-    memory.format = getFormat( buffer );
-    memory.type   = getType( buffer );
-    memory.resize( nBytes );
-    char* data = reinterpret_cast< char* >( memory.pixels.data );
-
-    // Each channel is saved separately
-    for( size_t i = 0; i < depth; ++i )
-        for( size_t j = i * bpc; j < nBytes; j += depth )
-            image.read( &data[j], bpc );
-
-    if( image.bad() || image.eof( ))
-    {
-        EQERROR << "Error during image data input " << filename << endl;
-        image.close();
-        return false;
     }
 
     const PixelViewport pvp( 0, 0, header.width, header.height );
     if( pvp != getPixelViewport( ))
         setPixelViewport( pvp );
 
-    setPixelData( buffer, memory );
+    validatePixelData( buffer );
 
-    image.close();
+    Memory& memory = _getAttachment( buffer ).memory;;
+    uint8_t* data = reinterpret_cast< uint8_t* >( memory.pixels.data );
+
+    const uint8_t bpc     = header.bytesPerChannel;
+    const size_t  depth   = nChannels * bpc;
+    const size_t  nPixels = header.width * header.height;
+    const size_t  nBytes  = nPixels * depth;
+
+    // Each channel is saved separately
+    for( size_t i = 0; i < depth; ++i )
+        for( size_t j = i * bpc; j < nBytes; j += depth )
+        {
+            memcpy( &data[j], addr, bpc );
+            addr += bpc;
+        }
+
+    image.unmap();
     return true;
 }
 

@@ -1,6 +1,6 @@
-Add base::MemoryMap class
+Improve image load time, and unit test execution speed, by using MemoryMap.
 
-[x] May break build
+[ ] May break build
 [ ] Breaks existing applications
 [ ] Bugfix
 [x] New Feature

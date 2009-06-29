@@ -23,6 +23,7 @@ HEADER_SRC = \
 	base/launcher.h \
 	base/lock.h \
 	base/log.h \
+	base/memoryMap.h \
 	base/monitor.h \
 	base/mtQueue.h \
 	base/nonCopyable.h \
@@ -148,6 +149,7 @@ CXXFILES = \
 	base/launcher.cpp \
 	base/lock.cpp \
 	base/log.cpp \
+	base/memoryMap.cpp \
 	base/monitor.cpp \
 	base/omp.cpp \
 	base/requestHandler.cpp \

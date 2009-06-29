@@ -30,8 +30,8 @@ class MemoryMap
 {
 public:
     /** Construct a new memory mapper. */
-    EQ_EXPORT MemoryMap() : _memoryMap( 0 ) {}
-
+    EQ_EXPORT MemoryMap();
+    EQ_EXPORT virtual ~MemoryMap();
     /** 
      * Map a file to a memory address.
      *
@@ -40,7 +40,7 @@ public:
      * @param fileName The filename of the file to map.
      * @return the pointer to the mapped file, or 0 upon error.
      */
-    EQ_EXPORT void* map( const std::string& fileName );
+    EQ_EXPORT const void* map( const std::string& fileName );
 
     /** Unmap the file. */
     EQ_EXPORT void unmap();

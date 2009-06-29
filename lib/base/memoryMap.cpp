@@ -17,6 +17,14 @@
 
 #include "memoryMap.h"
 
+#include "debug.h"
+
+#include <fcntl.h>
+#include <sys/stat.h>
+#ifndef WIN32
+#   include <sys/mman.h>
+#endif
+
 namespace eq
 {
 namespace base
@@ -31,7 +39,13 @@ MemoryMap::MemoryMap()
         , _ptr( 0 )
 {}
 
-void* MemoryMap::map( const std::string& filename )
+MemoryMap::~MemoryMap()
+{
+    if( _ptr )
+        unmap();
+}
+
+const void* MemoryMap::map( const std::string& filename )
 {
     if( _ptr )
     {
@@ -65,7 +79,7 @@ void* MemoryMap::map( const std::string& filename )
 
     // try to open binary file
     _fd = open( filename.c_str(), O_RDONLY );
-    if( fd < 0 )
+    if( _fd < 0 )
     {
         EQWARN << "Can't open " << filename << std::endl;
         return 0;
@@ -106,7 +120,7 @@ void MemoryMap::unmap()
     struct stat status;
     fstat( _fd, &status );
 
-    munmap( _ptr, status.st__size );
+    munmap( _ptr, status.st_size );
     close( _fd );
     
     _ptr = 0;
