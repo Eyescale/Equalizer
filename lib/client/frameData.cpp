@@ -401,7 +401,7 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
                   { data->format,
                     data->type, 
                     data->compressorName,
-                    data->isCompressed ? 1 : data->compressedSize.size() };
+                    data->isCompressed ? data->compressedSize.size() : 1 };
 
             connection->send( imageHeader, 4 * sizeof( uint32_t ), true );
             

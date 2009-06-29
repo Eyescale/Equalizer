@@ -1,9 +1,9 @@
-Remove EQ_ASYNC_TRANSMIT define and make async transmits default
+Fix network transmission of images
 
 [ ] May break build
 [ ] Breaks existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
