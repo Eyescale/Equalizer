@@ -61,7 +61,6 @@ HEADER_SRC = \
 	net/global.h \
 	net/init.h \
 	net/log.h \
-	net/namedPipeConnection.h \
 	net/net.h \
 	net/node.h \
 	net/nodeID.h \
