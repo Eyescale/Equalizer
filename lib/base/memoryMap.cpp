@@ -64,16 +64,16 @@ const void* MemoryMap::map( const std::string& filename )
     }
 
     // create a file mapping
-    _map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, filename );
+    _map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, filename.c_str( ));
     CloseHandle( file );
-    if( !map )
+    if( !_map )
     {
         EQWARN << "File mapping failed." << std::endl;
         return 0;
     }
     
     // get a view of the mapping
-    _ptr = MapViewOfFile( map, FILE_MAP_READ, 0, 0, 0 );
+    _ptr = MapViewOfFile( _map, FILE_MAP_READ, 0, 0, 0 );
 
 #else // POSIX
 

@@ -1,9 +1,9 @@
-Improve image load time, and unit test execution speed, by using MemoryMap.
+Fix Win32 build
 
 [ ] May break build
 [ ] Breaks existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
