@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -48,6 +48,10 @@ void ConnectionDescription::serialize( std::ostream& os ) const
             break;
 
         case CONNECTIONTYPE_PIPE:
+            os << "ANON_PIPE";
+            break;
+
+        case CONNECTIONTYPE_NAMEDPIPE:
             os << "PIPE";
             break;
     }        
@@ -62,6 +66,9 @@ void ConnectionDescription::serialize( std::ostream& os ) const
         case CONNECTIONTYPE_SDP:
             os << SEPARATOR << TCPIP.port;
             break;
+        case CONNECTIONTYPE_NAMEDPIPE:
+            os << SEPARATOR << _filename;
+            break;
 
         default:
             break;
@@ -74,6 +81,7 @@ bool ConnectionDescription::fromString( std::string& data )
     {
         size_t nextPos = data.find( SEPARATOR );
         // assume hostname[:port[:type]|:type] format
+        // assume filename:PIPE format
         if( nextPos == string::npos )
         {
             type     = CONNECTIONTYPE_TCPIP;
@@ -101,7 +109,11 @@ bool ConnectionDescription::fromString( std::string& data )
                 else if( token == "SDP" )
                     type = CONNECTIONTYPE_SDP;
                 else if( token == "PIPE" )
-                    type = CONNECTIONTYPE_PIPE;
+                {
+                    type = CONNECTIONTYPE_NAMEDPIPE;
+                    setFilename( _hostname );
+                    _hostname ="";
+                }
                 else
                     goto error;
             }
@@ -117,8 +129,10 @@ bool ConnectionDescription::fromString( std::string& data )
             type = CONNECTIONTYPE_TCPIP;
         else if( typeStr == "SDP" )
             type = CONNECTIONTYPE_SDP;
-        else if( typeStr == "PIPE" )
+        else if( typeStr == "ANON_PIPE" )
             type = CONNECTIONTYPE_PIPE;
+        else if( typeStr == "PIPE" )
+            type = CONNECTIONTYPE_NAMEDPIPE;
         else
             goto error;
 
@@ -172,7 +186,16 @@ bool ConnectionDescription::fromString( std::string& data )
                 TCPIP.port        = atoi( port.c_str( ));
                 break;
             }
-
+            case CONNECTIONTYPE_NAMEDPIPE:
+            {
+                nextPos = data.find( SEPARATOR );
+                if( nextPos == string::npos )
+                    goto error;
+                
+                _filename         = data.substr( 0, nextPos );
+                data              = data.substr( nextPos + 1 );
+                break;
+            }
             default:
                 break;
         }
@@ -189,6 +212,15 @@ void ConnectionDescription::setHostname( const std::string& hostname )
     _hostname = hostname;
 }
 
+void ConnectionDescription::setFilename( const std::string& filename )
+{
+    _filename = filename;
+}
+
+const std::string& ConnectionDescription::getFilename() const
+{
+    return _filename;
+}
 const string& ConnectionDescription::getHostname() const
 {
     return _hostname;
@@ -215,7 +247,8 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
 
     os << "connection " << ( desc->type == net::CONNECTIONTYPE_TCPIP ? "tcp/ip":
                              desc->type == net::CONNECTIONTYPE_SDP   ? "sdp"   :
-                             desc->type == net::CONNECTIONTYPE_PIPE  ? "pipe"  :
+                             desc->type == net::CONNECTIONTYPE_PIPE  ? "anonpipe"  :
+                             desc->type == net::CONNECTIONTYPE_NAMEDPIPE  ? "pipe"  :
                              "ERROR" ) 
        << ' ' << desc->getHostname() << ':' << desc->TCPIP.port;
     return os;

@@ -23,7 +23,7 @@
 #include "node.h"
 #include "pipeConnection.h"
 #include "socketConnection.h"
-
+#include "namedPipeConnection.h"
 #include <errno.h>
 
 #ifdef WIN32
@@ -69,7 +69,10 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
         case CONNECTIONTYPE_PIPE:
             connection = new PipeConnection();
             break;
-
+            
+        case CONNECTIONTYPE_NAMEDPIPE:
+            connection = new NamedPipeConnection(description->type);
+            break;
         default:
             EQWARN << "Connection type not implemented" << endl;
             return connection;

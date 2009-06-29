@@ -78,6 +78,7 @@ EQ_CONNECTION_SATTR_LAUNCH_COMMAND { return EQTOKEN_CONNECTION_SATTR_LAUNCH_COMM
 EQ_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE; }
 EQ_CONNECTION_IATTR_TYPE         { return EQTOKEN_CONNECTION_IATTR_TYPE; }
 EQ_CONNECTION_IATTR_TCPIP_PORT   { return EQTOKEN_CONNECTION_IATTR_TCPIP_PORT; }
+EQ_CONNECTION_SATTR_PIPE_FILENAME { return EQTOKEN_CONNECTION_SATTR_PIPE_FILENAME; }
 EQ_CONNECTION_IATTR_PORT         { return EQTOKEN_CONNECTION_IATTR_PORT; }
 EQ_CONNECTION_IATTR_BANDWIDTH    { return EQTOKEN_CONNECTION_IATTR_BANDWIDTH; }
 EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT; }
@@ -167,6 +168,7 @@ name                            { return EQTOKEN_NAME; }
 type                            { return EQTOKEN_TYPE; }
 TCPIP                           { return EQTOKEN_TCPIP; }
 SDP                             { return EQTOKEN_SDP; }
+NAMEDPIPE                       { return EQTOKEN_PIPE; }
 texture                         { return EQTOKEN_TEXTURE; } 
 memory                          { return EQTOKEN_MEMORY; }
 fixed                           { return EQTOKEN_FIXED; }
@@ -176,6 +178,7 @@ command                         { return EQTOKEN_COMMAND; }
 command_quote                   { return EQTOKEN_COMMAND_QUOTE; }
 timeout                         { return EQTOKEN_TIMEOUT; }
 TCPIP_port                      { return EQTOKEN_TCPIP_PORT; }
+NAMEDPIPE_filename              { return EQTOKEN_PIPE_FILENAME; }
 task                            { return EQTOKEN_TASK; }
 eye                             { return EQTOKEN_EYE; }
 eyeBase                         { return EQTOKEN_EYE_BASE; }

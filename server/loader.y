@@ -92,6 +92,7 @@
 %token EQTOKEN_CONNECTION_IATTR_TYPE
 %token EQTOKEN_CONNECTION_IATTR_TCPIP_PORT
 %token EQTOKEN_CONNECTION_IATTR_PORT
+%token EQTOKEN_CONNECTION_SATTR_PIPE_FILENAME
 %token EQTOKEN_CONNECTION_IATTR_BANDWIDTH
 %token EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
@@ -179,6 +180,7 @@
 %token EQTOKEN_TYPE
 %token EQTOKEN_TCPIP
 %token EQTOKEN_SDP
+%token EQTOKEN_PIPE
 %token EQTOKEN_TEXTURE
 %token EQTOKEN_MEMORY
 %token EQTOKEN_FIXED
@@ -188,6 +190,7 @@
 %token EQTOKEN_COMMAND_QUOTE
 %token EQTOKEN_TIMEOUT
 %token EQTOKEN_TCPIP_PORT
+%token EQTOKEN_PIPE_FILENAME
 %token EQTOKEN_TASK
 %token EQTOKEN_EYE
 %token EQTOKEN_EYE_BASE
@@ -317,6 +320,11 @@ global:
      {
          eq::server::Global::instance()->setConnectionIAttribute(
              eq::server::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
+     }
+     | EQTOKEN_CONNECTION_SATTR_PIPE_FILENAME STRING
+     {
+         eq::server::Global::instance()->setConnectionSAttribute(
+             eq::server::ConnectionDescription::SATTR_PIPE_FILENAME, $2 );
      }
      | EQTOKEN_CONNECTION_IATTR_BANDWIDTH UNSIGNED
      {
@@ -462,6 +470,7 @@ global:
 connectionType: 
     EQTOKEN_TCPIP { $$ = eq::net::CONNECTIONTYPE_TCPIP; }
     | EQTOKEN_SDP { $$ = eq::net::CONNECTIONTYPE_SDP; }
+    | EQTOKEN_PIPE { $$ = eq::net::CONNECTIONTYPE_NAMEDPIPE; }
 
 server: EQTOKEN_SERVER '{' { server = new eq::server::Server(); }
         serverConnections
@@ -551,6 +560,7 @@ connectionField:
     | EQTOKEN_TCPIP_PORT UNSIGNED { connectionDescription->TCPIP.port = $2; }
     | EQTOKEN_PORT UNSIGNED       { connectionDescription->TCPIP.port = $2; }
     | EQTOKEN_BANDWIDTH UNSIGNED  { connectionDescription->bandwidth = $2; }
+    | EQTOKEN_PIPE_FILENAME STRING { connectionDescription->setFilename($2); }
 
 nodeAttributes: /*null*/ | nodeAttributes nodeAttribute
 nodeAttribute:

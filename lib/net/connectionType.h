@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,9 +25,10 @@ namespace net
     /** The supported network protocols. */
     enum ConnectionType
     {
-        CONNECTIONTYPE_TCPIP,   //!< TCP/IP sockets
-        CONNECTIONTYPE_SDP,     //!< SDP sockets (InfiniBand)
-        CONNECTIONTYPE_PIPE     //!< pipe() based uni-directional connection
+        CONNECTIONTYPE_TCPIP,     //!< TCP/IP sockets
+        CONNECTIONTYPE_SDP,       //!< SDP sockets (InfiniBand)
+        CONNECTIONTYPE_PIPE,      //!< pipe() based uni-directional connection
+        CONNECTIONTYPE_NAMEDPIPE  //!< Named-pipe based bi-directional connection
     };
 }
 }

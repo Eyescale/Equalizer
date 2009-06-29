@@ -95,6 +95,8 @@ namespace net
         EQ_EXPORT const std::string& getHostname() const;
         EQ_EXPORT void setLaunchCommand( const std::string& launchCommand );
         EQ_EXPORT const std::string& getLaunchCommand() const;
+        EQ_EXPORT void setFilename( const std::string& filename );
+        EQ_EXPORT const std::string& getFilename() const;
         //@}
 
     protected:
@@ -113,6 +115,9 @@ namespace net
 
         /** The host name. */
         std::string _hostname;
+
+        /** The name file using for a pipe. */
+        std::string _filename;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream&,

@@ -245,6 +245,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
             case ConnectionDescription::IATTR_TYPE:
                 os << ( value == net::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
                         value == net::CONNECTIONTYPE_SDP   ? "SDP" : 
+                        value == net::CONNECTIONTYPE_NAMEDPIPE   ? "PIPE" :
                         "PIPE" );
                 break;
             case ConnectionDescription::IATTR_LAUNCH_TIMEOUT:
