@@ -303,7 +303,7 @@ bool ConnectionSet::_setupFDSet()
     EQASSERT( readHandle );
 
     _fdSet.append( readHandle );
-    _fdSetConnections.append( _selfConnection );
+    _fdSetConnections.append( _selfConnection.get( ));
 
     // add regular connections
     _mutex.set();
