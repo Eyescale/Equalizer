@@ -253,10 +253,10 @@ void VertexData::calculateNormals( const bool vertexNormals )
     Index   i0, i1, i2;
     for( size_t i = 0; i < triangles.size(); ++i )
     {
-        i0 = triangles[i][0];
-        i1 = triangles[i][1];
-        i2 = triangles[i][2];
-        triangleNormal.normal( vertices[i0], vertices[i1], vertices[i2] );
+        i0 = triangles[i].at(0);
+        i1 = triangles[i].at(1);
+        i2 = triangles[i].at(2);
+        triangleNormal.compute_normal( vertices[i0], vertices[i1], vertices[i2] );
         
         // count emtpy normals in debug mode
         #ifndef NDEBUG
@@ -277,7 +277,7 @@ void VertexData::calculateNormals( const bool vertexNormals )
     // normalize all the normals
     if( vertexNormals )
         for( size_t i = 0; i < vertices.size(); ++i )
-            normals[i].normalise();
+            normals[i].normalize();
     
     #ifndef NDEBUG
     if( wrongNormals > 0 )

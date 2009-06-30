@@ -38,7 +38,7 @@ namespace eqPly
         Window( eq::Pipe* parent ) 
                 : eq::Window( parent ), _state( 0 ), _logoTexture( 0 ) {}
 
-        void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
+        void getLogoTexture( GLuint& id, eq::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }
         
         VertexBufferState& getState() { return *_state; }
@@ -55,7 +55,7 @@ namespace eqPly
         VertexBufferState* _state;
 
         GLuint         _logoTexture;
-        vmml::Vector2i _logoSize;
+        eq::Vector2i   _logoSize;
 
         void _loadLogo();
         void _loadShaders();

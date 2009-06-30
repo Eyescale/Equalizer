@@ -193,7 +193,7 @@ Compound::~Compound()
 
 Compound::InheritData::InheritData()
         : channel( 0 )
-        , overdraw( vmml::Vector4i::ZERO )
+        , overdraw( Vector4i::ZERO )
         , buffers( eq::Frame::BUFFER_UNDEFINED )
         , eyes( EYE_UNDEFINED )
         , tasks( eq::TASK_DEFAULT )
@@ -561,40 +561,40 @@ void Compound::_updateOverdraw( Wall& wall )
 
     const Viewport& segmentVP = segment->getViewport();
     const Viewport& viewVP    = view->getViewport();
-    const vmml::Vector2i& overdraw = view->getOverdraw();
-    vmml::Vector4i channelOverdraw( vmml::Vector4i::ZERO );
+    const Vector2i& overdraw = view->getOverdraw();
+    Vector4i channelOverdraw( Vector4i::ZERO );
 
-    if( overdraw.x && viewVP.x < segmentVP.x )
+    if( overdraw.x() && viewVP.x < segmentVP.x )
     {
         const PixelViewport& pvp = channel->getPixelViewport();
-        const float ratio = static_cast< float >( pvp.w + overdraw.x ) /
+        const float ratio = static_cast< float >( pvp.w + overdraw.x() ) /
                             static_cast< float >( pvp.w );
         wall.resizeLeft( ratio );
-        channelOverdraw.x = overdraw.x;
+        channelOverdraw.x() = overdraw.x();
     }
-    if( overdraw.x && viewVP.getXEnd() > segmentVP.getXEnd( ))
+    if( overdraw.x() && viewVP.getXEnd() > segmentVP.getXEnd( ))
     {
         const PixelViewport& pvp = channel->getPixelViewport();
-        const float ratio = static_cast< float >( pvp.w + overdraw.x ) /
+        const float ratio = static_cast< float >( pvp.w + overdraw.x() ) /
                             static_cast< float >( pvp.w );
         wall.resizeRight( ratio );
-        channelOverdraw.z = overdraw.x;
+        channelOverdraw.z() = overdraw.x();
     }
-    if( overdraw.y && viewVP.y < segmentVP.y )
+    if( overdraw.y() && viewVP.y < segmentVP.y )
     {
         const PixelViewport& pvp = channel->getPixelViewport();
-        const float ratio = static_cast< float >( pvp.h + overdraw.y ) /
+        const float ratio = static_cast< float >( pvp.h + overdraw.y() ) /
                             static_cast< float >( pvp.h );
         wall.resizeBottom( ratio );
-        channelOverdraw.y = overdraw.y;
+        channelOverdraw.y() = overdraw.y();
     }
-    if( overdraw.y && viewVP.getYEnd() > segmentVP.getYEnd( ))
+    if( overdraw.y() && viewVP.getYEnd() > segmentVP.getYEnd( ))
     {
         const PixelViewport& pvp = channel->getPixelViewport();
-        const float ratio = static_cast< float >( pvp.h + overdraw.y ) /
+        const float ratio = static_cast< float >( pvp.h + overdraw.y() ) /
                             static_cast< float >( pvp.h );
         wall.resizeTop( ratio );
-        channelOverdraw.w = overdraw.y;
+        channelOverdraw.w() = overdraw.y();
     }
 
     channel->setOverdraw( channelOverdraw );
@@ -919,15 +919,15 @@ void Compound::_updateInheritPVP()
 
     if( !view || !_inherit.pvp.isValid( ))
     {
-        EQASSERT( channel->getOverdraw() == vmml::Vector4i::ZERO );
+        EQASSERT( channel->getOverdraw() == Vector4i::ZERO );
         return;
     }
     EQASSERT( channel == getChannel( ));
 
     // enlarge pvp by overdraw
-    const vmml::Vector4i& overdraw = channel->getOverdraw();
-    _inherit.pvp.w += overdraw.x + overdraw.z;
-    _inherit.pvp.h += overdraw.y + overdraw.w;
+    const Vector4i& overdraw = channel->getOverdraw();
+    _inherit.pvp.w += overdraw.x() + overdraw.z();
+    _inherit.pvp.h += overdraw.y() + overdraw.w();
 
     if( oldPVP != _inherit.pvp ) // channel PVP changed
     {
@@ -943,25 +943,27 @@ void Compound::_updateInheritOverdraw()
     const PixelViewport& pvp = _inherit.pvp;
     const PixelViewport& parentPVP = _parent->_inherit.pvp;
 
-    _inherit.overdraw.x -= pvp.x - parentPVP.x;
-    _inherit.overdraw.y -= pvp.y - parentPVP.y;
-    _inherit.overdraw.z -= parentPVP.getXEnd() - pvp.getXEnd();
-    _inherit.overdraw.w -= parentPVP.getYEnd() - pvp.getYEnd();
+    _inherit.overdraw.x() -= pvp.x - parentPVP.x;
+    _inherit.overdraw.y() -= pvp.y - parentPVP.y;
+    _inherit.overdraw.z() -= parentPVP.getXEnd() - pvp.getXEnd();
+    _inherit.overdraw.w() -= parentPVP.getYEnd() - pvp.getYEnd();
 
-    _inherit.overdraw.x = EQ_MAX( _inherit.overdraw.x, 0 );
-    _inherit.overdraw.y = EQ_MAX( _inherit.overdraw.y, 0 );
-    _inherit.overdraw.z = EQ_MAX( _inherit.overdraw.z, 0 );
-    _inherit.overdraw.w = EQ_MAX( _inherit.overdraw.w, 0 );
+    _inherit.overdraw.x() = EQ_MAX( _inherit.overdraw.x(), 0 );
+    _inherit.overdraw.y() = EQ_MAX( _inherit.overdraw.y(), 0 );
+    _inherit.overdraw.z() = EQ_MAX( _inherit.overdraw.z(), 0 );
+    _inherit.overdraw.w() = EQ_MAX( _inherit.overdraw.w(), 0 );
 
-    _inherit.overdraw.x = EQ_MIN( _inherit.overdraw.x, pvp.w );
-    _inherit.overdraw.y = EQ_MIN( _inherit.overdraw.y, pvp.h );
-    _inherit.overdraw.z = EQ_MIN( _inherit.overdraw.z, pvp.w );
-    _inherit.overdraw.w = EQ_MIN( _inherit.overdraw.w, pvp.h );
+    _inherit.overdraw.x() = EQ_MIN( _inherit.overdraw.x(), pvp.w );
+    _inherit.overdraw.y() = EQ_MIN( _inherit.overdraw.y(), pvp.h );
+    _inherit.overdraw.z() = EQ_MIN( _inherit.overdraw.z(), pvp.w );
+    _inherit.overdraw.w() = EQ_MIN( _inherit.overdraw.w(), pvp.h );
 
-    EQASSERTINFO( pvp.w >= _inherit.overdraw.x + _inherit.overdraw.z, 
-                  pvp.w << " < " << _inherit.overdraw.x + _inherit.overdraw.z );
-    EQASSERTINFO( pvp.h >= _inherit.overdraw.y + _inherit.overdraw.w, 
-                  pvp.h << " < " << _inherit.overdraw.y + _inherit.overdraw.w );
+    EQASSERTINFO( pvp.w >= _inherit.overdraw.x() + _inherit.overdraw.z(), 
+                  pvp.w << " < " << 
+                  _inherit.overdraw.x() + _inherit.overdraw.z( ));
+    EQASSERTINFO( pvp.h >= _inherit.overdraw.y() + _inherit.overdraw.w(), 
+                  pvp.h << " < " <<
+                  _inherit.overdraw.y() + _inherit.overdraw.w( ));
 }
 
 std::ostream& operator << (std::ostream& os, const Compound* compound)

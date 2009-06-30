@@ -20,10 +20,11 @@
 
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
+#include <eq/client/types.h>
 
 #include <vector>         // WAR: vector4.h does not include these headers. Fix 
 #include <limits> //      vector4.h after vmmlib upgrade and remove them
-#include <vmmlib/vector4.h>
+
 #include <iostream>
 
 namespace eq
@@ -145,7 +146,7 @@ namespace eq
         EQ_EXPORT void applyView( const Viewport& segmentVP, 
                                   const Viewport& viewVP,
                                   const PixelViewport& pvp, 
-                                  const vmml::Vector4i& overdraw );
+                                  const Vector4i& overdraw );
 
         float x;
         float y;

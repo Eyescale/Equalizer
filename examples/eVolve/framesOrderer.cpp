@@ -33,21 +33,21 @@ static bool cmpRangesInc(const eq::Frame* frame1, const eq::Frame* frame2)
 
 
 void orderFrames( eq::FrameVector&      frames,
-                  const vmml::Matrix4d& modelviewM,
-                  const vmml::Matrix3d& modelviewITM,
-                  const vmml::Matrix4f& rotation,
+                  const eq::Matrix4d& modelviewM,
+                  const eq::Matrix3d& modelviewITM,
+                  const eq::Matrix4f& rotation,
                   const bool            orthographic )
 {
     if( orthographic )
     {
-        const bool orientation = rotation.ml[10] < 0;
+        const bool orientation = rotation.array[10] < 0;
         sort( frames.begin(), frames.end(),
               orientation ? cmpRangesInc : cmpRangesDec );
         return;
     }
     // else perspective projection
 
-    vmml::Vector3d norm = modelviewITM * vmml::Vector3d( 0.0, 0.0, 1.0 );
+    eq::Vector3d norm = modelviewITM * eq::Vector3d( 0.0, 0.0, 1.0 );
     norm.normalize();
 
     sort( frames.begin(), frames.end(), cmpRangesInc );
@@ -62,15 +62,15 @@ void orderFrames( eq::FrameVector&      frames,
         const eq::Frame* frame = *i;
         const double     px    = -1.0 + frame->getRange().end*2.0;
 
-        vmml::Vector4d pS = 
-            modelviewM * vmml::Vector4d( 0.0, 0.0, px , 1.0 );
-            
-        dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
+        const eq::Vector4d pS = 
+            modelviewM * eq::Vector4d( 0.0, 0.0, px , 1.0 );
+        eq::Vector3d pSsub( pS.get_sub_vector< 3 >( 0 ));
+        dotVals.push_back( norm.dot( pSsub.normalize() ) );
     }
 
-    const vmml::Vector4d pS = modelviewM * vmml::Vector4d( 0.0, 0.0,-1.0, 1.0 );
-    dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
-
+    const eq::Vector4d pS = modelviewM * eq::Vector4d( 0.0, 0.0,-1.0, 1.0 );
+    eq::Vector3d pSsub = pS.get_sub_vector< 3 >( 0 ) ;
+    dotVals.push_back( norm.dot( pSsub.normalize() ) );
     //check if any slices need to be rendered in reverse order
     size_t minPos = std::numeric_limits< size_t >::max();
     for( size_t i=0; i<dotVals.size()-1; i++ )
@@ -94,3 +94,4 @@ void orderFrames( eq::FrameVector&      frames,
 }
 
 }
+

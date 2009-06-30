@@ -106,7 +106,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         //----- Set frame data parameters:
         // 1) offset is position wrt destination view
-        frameData->setOffset( vmml::Vector2i( framePVP.x, framePVP.y ));
+        frameData->setOffset( Vector2i( framePVP.x, framePVP.y ));
 
         // 2) pvp is area within channel
         framePVP.x = (int32_t)(frameVP.x * inheritPVP.w);
@@ -129,14 +129,12 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         if( compound->getInheritChannel() == channel ||
             compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) == eq::ON )
         {
-            frame->setInheritOffset(
-                vmml::Vector2i( inheritPVP.x, inheritPVP.y ));
+            frame->setInheritOffset( Vector2i( inheritPVP.x, inheritPVP.y ));
         }
         else
         {
             const eq::PixelViewport& nativePVP = channel->getPixelViewport();
-            frame->setInheritOffset(
-                vmml::Vector2i( nativePVP.x, nativePVP.y ));
+            frame->setInheritOffset( Vector2i( nativePVP.x, nativePVP.y ));
         }
 
         // 2) zoom
@@ -164,13 +162,13 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
     {
         zoom_1 = compound->getInheritZoom();
         EQASSERT( zoom_1.isValid( ));
-        zoom.x = 1.0f / zoom_1.x;
-        zoom.y = 1.0f / zoom_1.y;
+        zoom.x() = 1.0f / zoom_1.x();
+        zoom.y() = 1.0f / zoom_1.y();
     }
     else
     {
-        zoom_1.x = 1.0f / zoom.x;
-        zoom_1.y = 1.0f / zoom.y;
+        zoom_1.x() = 1.0f / zoom.x();
+        zoom_1.y() = 1.0f / zoom.y();
     }
 
     if( frame->getType( ) == eq::Frame::TYPE_TEXTURE )
@@ -184,15 +182,15 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
         eq::Zoom inputZoom;
         /* Output frames downscale pixel data during readback, and upscale it on
          * the input frame by setting the input frame's inherit zoom. */
-        if( zoom.x > 1.0f )
+        if( zoom.x() > 1.0f )
         {
-            inputZoom.x = zoom_1.x;
-            zoom.x      = 1.f;
+            inputZoom.x() = zoom_1.x();
+            zoom.x()      = 1.f;
         }
-        if( zoom.y > 1.0f )
+        if( zoom.y() > 1.0f )
         {
-            inputZoom.y = zoom_1.y;
-            zoom.y      = 1.f;
+            inputZoom.y() = zoom_1.y();
+            zoom.y()      = 1.f;
         }
 
         FrameData* frameData = frame->getMasterData();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,37 +15,31 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_PIXELBENCH_CONFIGEVENT_H
-#define EQ_PIXELBENCH_CONFIGEVENT_H
+#include "eye.h"
 
-#include <eq/eq.h>
+#include <eq/base/debug.h>   // for EQABORT
 
-namespace eqPixelBench
+namespace eq
 {
-struct ConfigEvent : public eq::ConfigEvent
+std::ostream& operator << ( std::ostream& os, const Eye& eye )
 {
-public:
-    enum Type
+    switch( eye )
     {
-        READBACK = eq::Event::USER,
-        READBACK_PBO,
-        ASSEMBLE,
-        START_LATENCY
-    };
-
-    ConfigEvent()
-        {
-            size = sizeof( ConfigEvent );
-        }
-
-    // channel name is in user event data
-    char           formatType[64];
-    eq::Vector2i area;
-    float          msec;
-};
-
-std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
+        case EYE_LEFT: 
+            os << "left eye";
+            break;
+        case EYE_RIGHT: 
+            os << "right eye";
+            break;
+        case EYE_CYCLOP: 
+            os << "cyclop eye";
+            break;
+        case EYE_ALL: 
+        default: 
+            EQABORT( "Invalid eye value" );
+    }
+    
+    return os;
 }
 
-#endif // EQ_PIXELBENCH_CONFIGEVENT_H
-
+}

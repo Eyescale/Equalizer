@@ -19,8 +19,8 @@
 #define EQ_PROJECTION_H
 
 #include <eq/base/base.h>
-#include <vmmlib/vmmlib.h> // member
- 
+#include <eq/client/types.h>
+  
 #include <iostream>
 
 namespace eq
@@ -59,10 +59,10 @@ namespace eq
         EQ_EXPORT bool operator == ( const Projection& rhs ) const;
         EQ_EXPORT bool operator != ( const Projection& rhs ) const;
         
-        vmml::Vector3f origin;
-        float          distance;
-        vmml::Vector2f fov;
-        vmml::Vector3f hpr;
+        Vector3f origin;
+        float    distance;
+        Vector2f fov;
+        Vector3f hpr;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Projection& );

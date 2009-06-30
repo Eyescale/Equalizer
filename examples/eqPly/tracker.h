@@ -47,7 +47,7 @@ namespace eqPly
          *
          * @param matrix the world to emitter matrix.
          */
-        void setWorldToEmitter( const vmml::Matrix4f& matrix )
+        void setWorldToEmitter( const eq::Matrix4f& matrix )
             { _worldToEmitter = matrix; }
 
         /** 
@@ -56,7 +56,7 @@ namespace eqPly
          *
          * @param matrix the sensor to object matrix.
          */
-        void setSensorToObject( const vmml::Matrix4f& matrix )
+        void setSensorToObject( const eq::Matrix4f& matrix )
             { _sensorToObject = matrix; }
 
         /**
@@ -85,7 +85,7 @@ namespace eqPly
          *
          * @return the transformation matrix.
          */
-        const vmml::Matrix4f& getMatrix() const { return _matrix; }
+        const eq::Matrix4f& getMatrix() const { return _matrix; }
 
     private:
         bool _update(); //update without state checking
@@ -98,12 +98,12 @@ namespace eqPly
         int   _fd;
 
         /** matrix defining the orientation and position of the tracked object. */
-        vmml::Matrix4f _matrix;
+        eq::Matrix4f _matrix;
 
         /** world to emitter transformation */
-        vmml::Matrix4f _worldToEmitter;
+        eq::Matrix4f _worldToEmitter;
         /** sensor to object transformation */
-        vmml::Matrix4f _sensorToObject;
+        eq::Matrix4f _sensorToObject;
     };
 }
 

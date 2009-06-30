@@ -23,9 +23,9 @@
 namespace eVolve
 {
 void orderFrames( eq::FrameVector&      frames,
-                  const vmml::Matrix4d& modelviewM,
-                  const vmml::Matrix3d& modelviewITM,
-                  const vmml::Matrix4f& rotation,
+                  const eq::Matrix4d& modelviewM,
+                  const eq::Matrix3d& modelviewITM,
+                  const eq::Matrix4f& rotation,
                   const bool            orthographic );
 }
 

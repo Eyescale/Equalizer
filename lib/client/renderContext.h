@@ -23,12 +23,13 @@
 #include <eq/client/pixel.h>            // member
 #include <eq/client/pixelViewport.h>    // member
 #include <eq/client/range.h>            // member
+#include <eq/client/types.h>
 #include <eq/client/zoom.h>             // member
 
 #include <eq/net/objectVersion.h>
 #include <eq/base/base.h>
 
-#include <vmmlib/vmmlib.h>
+
 
 namespace eq
 {
@@ -45,20 +46,20 @@ namespace eq
         uint32_t       buffer;         //<! buffer as passed to glDrawBuffer() 
         ColorMask      bufferMask;     //<! color mask for anaglyph stereo
         PixelViewport  pvp;            //<! pixel viewport of channel wrt window
-        vmml::Frustumf frustum;        //<! frustum for projection matrix
-        vmml::Frustumf ortho;          //<! ortho frustum for projection matrix
-        vmml::Matrix4f headTransform;  //<! frustum transform for modelview
+        Frustumf       frustum;        //<! frustum for projection matrix
+        Frustumf       ortho;          //<! ortho frustum for projection matrix
+        Matrix4f       headTransform;  //<! frustum transform for modelview
 
         Viewport       vp;             //<! fractional viewport wrt dest channel
         Range          range;          //<! database-range wrt to dest channel
         Pixel          pixel;          //<! pixel decomposition wrt to dest
         Zoom           zoom;           //<! up/downsampling wrt to dest
-        vmml::Vector2i offset;         //<! absolute position wrt dest channel
+        Vector2i       offset;         //<! absolute position wrt dest channel
 
         Eye            eye;            //<! current eye pass
         net::ObjectVersion view;       //<! destination view id and version
 
-        vmml::Vector4i overdraw;
+        Vector4i overdraw;
         uint32_t       taskID;
 
         union // placeholder for binary-compatible changes

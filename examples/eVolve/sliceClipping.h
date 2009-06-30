@@ -17,7 +17,6 @@
 
 #include <eq/eq.h>
 
-
 #ifndef EVOLVE_SLICECLIPPING_H
 #define EVOLVE_SLICECLIPPING_H
 
@@ -34,25 +33,25 @@ struct SliceClipper
     static const float  v1[24];
     static const float  v2[24];
 
-    typedef vmml::Vector3f float3;
+    typedef eq::Vector3f float3;
 
     void updatePerFrameInfo
     (
-        const vmml::Matrix4d&   modelviewM,
-        const vmml::Matrix3d&   modelviewITM,
+        const eq::Matrix4d&   modelviewM,
+        const eq::Matrix3d&   modelviewITM,
         const double            sliceDistance,
         const eq::Range&        range
     );
 
-    vmml::Vector3f getPosition
+    eq::Vector3f getPosition
     (
         const int vertexNum,
         const int sliceNum
     ) const;
 
     float           shaderVertices[24];
-    vmml::Vector3f  viewVecf;
-    vmml::Vector4d  viewVec;
+    eq::Vector3f    viewVecf;
+    eq::Vector4d    viewVec;
     int             frontIndex;
     double          sliceDistance;
     double          planeStart;

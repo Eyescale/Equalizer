@@ -203,6 +203,7 @@ CXXFILES = \
 	client/configStatistics.cpp \
 	client/event.cpp \
 	client/eventHandler.cpp \
+	client/eye.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
 	client/frameBufferObject.cpp \

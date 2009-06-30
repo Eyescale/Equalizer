@@ -35,8 +35,8 @@ namespace eqPly
 {
 Tracker::Tracker()
         : _running( false ),
-          _worldToEmitter( vmml::Matrix4f::IDENTITY ),
-          _sensorToObject( vmml::Matrix4f::IDENTITY )
+          _worldToEmitter( eq::Matrix4f::IDENTITY ),
+          _sensorToObject( eq::Matrix4f::IDENTITY )
 {
 }
 
@@ -154,33 +154,33 @@ bool Tracker::_update()
    const short roll = (buffer[11]<<8 | buffer[10]);
 
    // 32640 is 360 degrees (2pi) -> scale is 1/5194.81734
-   const vmml::Vector3f hpr( head  / -5194.81734f + M_PI,
+   const eq::Vector3f hpr( head  / -5194.81734f + M_PI,
                              pitch / -5194.81734f + 2.0f * M_PI,
                              roll  / -5194.81734f + 2.0f * M_PI );
 
-   vmml::Vector3f pos;
+   eq::Vector3f pos;
 
    // highest value for y and z position of the tracker sensor is 32639,
    // after that it switches back to zero (and vice versa if descending values).
-   pos.x = ypos;
-   if( pos.x > 16320 )             //32640 / 2 = 16320
-      pos.x -= 32640;
+   pos.x() = ypos;
+   if( pos.x() > 16320 )             //32640 / 2 = 16320
+      pos.x() -= 32640;
    
-   pos.y = zpos;
-   if( pos.y > 16320 )
-      pos.y -= 32640;
+   pos.y() = zpos;
+   if( pos.y() > 16320 )
+      pos.y() -= 32640;
 
-   pos.z = xpos;
+   pos.z() = xpos;
 
    pos /= 18000.f; // scale to meter
 
    // position and rotation are stored in transformation matrix
    // and matrix is scaled to the application's units
-   _matrix = vmml::Matrix4f::IDENTITY;
-   _matrix.rotateX( hpr.x );
-   _matrix.rotateY( hpr.y );
-   _matrix.rotateZ( hpr.z );
-   _matrix.setTranslation( pos );
+   _matrix = eq::Matrix4f::IDENTITY;
+   _matrix.rotate_x( hpr.x() );
+   _matrix.rotate_y( hpr.y() );
+   _matrix.rotate_z( hpr.z() );
+   _matrix.set_translation( pos );
 
    EQINFO << "Tracker pos " << pos << " hpr " << hpr << " = " << _matrix;
 

@@ -33,7 +33,7 @@ View::View()
         : _layout( 0 )
         , _pipe( 0 )
         , _observer( 0 )
-        , _overdraw( vmml::Vector2i::ZERO )
+        , _overdraw( Vector2i::ZERO )
 {
 }
 
@@ -123,7 +123,7 @@ const Viewport& View::getViewport() const
     return _viewport;
 }
 
-void View::setOverdraw( const vmml::Vector2i& pixels )
+void View::setOverdraw( const Vector2i& pixels )
 {
     _overdraw = pixels;
     setDirty( DIRTY_OVERDRAW );

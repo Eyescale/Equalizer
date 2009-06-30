@@ -20,7 +20,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/log.h>
-#include <vmmlib/vector2.h>  // base class
+#include <eq/client/types.h>  // base class
 
 namespace eq
 {
@@ -30,31 +30,31 @@ namespace eq
      * The x, y paramenters determine the factor by which the channel's
      * rendering is zoomed.
      */
-    class Zoom : public vmml::Vector2f
+    class Zoom : public Vector2f
     {
     public:
         /**
          * @name Constructors
          */
         //@{
-        Zoom() : vmml::Vector2f( 1.f, 1.f )  {}
-        Zoom( const float x_, const float y_ ) : vmml::Vector2f( x_, y_ ) {}
+        Zoom() : Vector2f( 1.f, 1.f )  {}
+        Zoom( const float x_, const float y_ ) : Vector2f( x_, y_ ) {}
         //@}
 
         /** @return true if this zoom defines a valid zoom factor. */
-        bool isValid() const { return ( x!=0.f && y!=0.f ); }
+        bool isValid() const { return ( x() != 0.f && y() != 0.f ); }
 
         /** Enforce the zoom to be valid. */
         void validate()
             {
-                if( x == 0.f ) x = 1.f;
-                if( y == 0.f ) y = 1.f;
+                if( x() == 0.f ) x() = 1.f;
+                if( y() == 0.f ) y() = 1.f;
             }
             
 
         
         /** Make the zoom factor invalid. */
-        void invalidate() { x = y = 0.f; }
+        void invalidate() { x() = y() = 0.f; }
 
         EQ_EXPORT static const Zoom NONE;
     };
@@ -62,7 +62,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, const Zoom& zoom )
     {
         if( zoom.isValid( ))
-            os << "zoom     [ " << zoom.x << ' ' << zoom.y << " ]";
+            os << "zoom     [ " << zoom.x() << ' ' << zoom.y() << " ]";
         return os;
     }
 }

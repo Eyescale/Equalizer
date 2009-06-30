@@ -36,19 +36,19 @@ namespace eVolve
 
         void reset()
             {
-                data.translation   = vmml::Vector3f::ZERO;
-                data.translation.z = -2.f;
-                data.rotation = vmml::Matrix4f::IDENTITY;
-                data.rotation.rotateX( static_cast<float>( -M_PI_2 ));
-                data.rotation.rotateY( static_cast<float>( -M_PI_2 ));
+                data.translation   = eq::Vector3f::ZERO;
+                data.translation.z() = -2.f;
+                data.rotation = eq::Matrix4f::IDENTITY;
+                data.rotation.rotate_x( static_cast<float>( -M_PI_2 ));
+                data.rotation.rotate_y( static_cast<float>( -M_PI_2 ));
             }
 
         struct Data
         {
             Data() : ortho( false ), statistics( false ) {}
 
-            vmml::Matrix4f rotation;
-            vmml::Vector3f translation;
+            eq::Matrix4f rotation;
+            eq::Vector3f translation;
             bool           ortho;
             bool           statistics;
         } data;

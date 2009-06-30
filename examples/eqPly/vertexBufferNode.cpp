@@ -2,7 +2,7 @@
     vertexBufferNode.cpp
     Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
     Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
-  *
+ *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
@@ -96,16 +96,19 @@ const BoundingSphere& VertexBufferNode::updateBoundingSphere()
     const BoundingSphere& sphere2 = _right->updateBoundingSphere();
     
     // compute enclosing sphere
-    const Vertex center1( sphere1.xyzw );
-    const Vertex center2( sphere2.xyzw );
-    const Vertex c1ToC2     = center2 - center1;
-    const Vertex c1ToC2Norm = c1ToC2.getNormalized();
+    const Vertex center1( sphere1.array );
+    const Vertex center2( sphere2.array );
+    Vertex c1ToC2     = center2 - center1;
+    c1ToC2.normalize();
     
-    const Vertex outer1 = center1 - c1ToC2Norm * sphere1.radius;
-    const Vertex outer2 = center2 + c1ToC2Norm * sphere2.radius;
+    const Vertex outer1 = center1 - c1ToC2 * sphere1.w();
+    const Vertex outer2 = center2 + c1ToC2 * sphere2.w();
 
-    _boundingSphere        = Vertex( outer1 + outer2 ) * 0.5f;
-    _boundingSphere.radius = Vertex( outer1 - outer2 ).length() * 0.5f;
+    Vertex vertexBoundingSphere = Vertex( outer1 + outer2 ) * 0.5f; 
+    _boundingSphere.x() = vertexBoundingSphere.x();
+    _boundingSphere.y() = vertexBoundingSphere.y();
+    _boundingSphere.z() = vertexBoundingSphere.z();
+    _boundingSphere.w() = Vertex( outer1 - outer2 ).length() * 0.5f;
     
 #ifndef NDEBUG
     MESHINFO << "Exiting VertexBufferNode::updateBoundingSphere" 

@@ -317,23 +317,23 @@ void Channel::_notifyViewportChanged()
 
 void Channel::setNearFar( const float nearPlane, const float farPlane )
 {
-    if( _context->frustum.nearPlane == nearPlane && 
-        _context->frustum.farPlane == farPlane )
+    if( _context->frustum.near_plane() == nearPlane && 
+        _context->frustum.far_plane() == farPlane )
     {
         return;
     }
 
-    _nativeContext.frustum.adjustNear( nearPlane );
-    _nativeContext.frustum.farPlane = farPlane;
-    _nativeContext.ortho.nearPlane  = nearPlane;
-    _nativeContext.ortho.farPlane   = farPlane;
+    _nativeContext.frustum.adjust_near( nearPlane );
+    _nativeContext.frustum.far_plane() = farPlane;
+    _nativeContext.ortho.near_plane()  = nearPlane;
+    _nativeContext.ortho.far_plane()   = farPlane;
 
     if( _context != &_nativeContext )
     {
-        _context->frustum.adjustNear( nearPlane );
-        _context->frustum.farPlane = farPlane;
-        _context->ortho.nearPlane = nearPlane;
-        _context->ortho.farPlane  = farPlane;
+        _context->frustum.adjust_near( nearPlane );
+        _context->frustum.far_plane() = farPlane;
+        _context->ortho.near_plane() = nearPlane;
+        _context->ortho.far_plane()  = farPlane;
     }
 
     ChannelSetNearFarPacket packet;
@@ -363,8 +363,8 @@ void Channel::frameClear( const uint32_t frameID )
 #ifndef NDEBUG
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
-        const vmml::Vector3ub color = getUniqueColor();
-        glClearColor( color.r/255.0f, color.g/255.0f, color.b/255.0f, 1.0f );
+        const Vector3ub color = getUniqueColor();
+        glClearColor( color.r()/255.0f, color.g()/255.0f, color.b()/255.0f, 1.0f );
     }
 #endif // NDEBUG
 
@@ -503,7 +503,7 @@ const PixelViewport& Channel::getPixelViewport() const
     return _context->pvp;
 }
 
-const vmml::Vector2i& Channel::getPixelOffset() const
+const Vector2i& Channel::getPixelOffset() const
 {
     return _context->offset;
 }
@@ -523,12 +523,12 @@ const ColorMask& Channel::getDrawBufferMask() const
     return _context->bufferMask;
 }
 
-const vmml::Frustumf& Channel::getFrustum() const
+const Frustumf& Channel::getFrustum() const
 {
     return _context->frustum;
 }
 
-const vmml::Frustumf& Channel::getOrtho() const
+const Frustumf& Channel::getOrtho() const
 {
     return _context->ortho;
 }
@@ -553,12 +553,12 @@ Eye Channel::getEye() const
     return _context->eye;
 }
 
-const vmml::Matrix4f& Channel::getHeadTransform() const
+const Matrix4f& Channel::getHeadTransform() const
 {
     return _context->headTransform;
 }
 
-vmml::Frustumf Channel::getScreenFrustum() const
+Frustumf Channel::getScreenFrustum() const
 {
     const Pixel& pixel = getPixel();
     PixelViewport pvp( getPixelViewport( ));
@@ -568,14 +568,14 @@ vmml::Frustumf Channel::getScreenFrustum() const
     pvp.y = static_cast<int32_t>( pvp.h / vp.h * vp.y );
     pvp *= pixel;
 
-    return vmml::Frustumf( static_cast< float >( pvp.x ),
-                           static_cast< float >( pvp.getXEnd( )),
-                           static_cast< float >( pvp.y ),
-                           static_cast< float >( pvp.getYEnd( )),
-                           -1.f, 1.f );
+    return eq::Frustumf( static_cast< float >( pvp.x ),
+                         static_cast< float >( pvp.getXEnd( )),
+                         static_cast< float >( pvp.y ),
+                         static_cast< float >( pvp.getYEnd( )),
+                         -1.f, 1.f );
 }
 
-const vmml::Vector4i& Channel::getOverdraw() const
+const Vector4i& Channel::getOverdraw() const
 {
     return _context->overdraw;
 }
@@ -656,35 +656,35 @@ void Channel::applyViewport() const
 
 void Channel::applyFrustum() const
 {
-    const vmml::Frustumf& frustum = getFrustum();
-    EQ_GL_CALL( glFrustum( frustum.left, frustum.right,             \
-                           frustum.bottom, frustum.top,             \
-                           frustum.nearPlane, frustum.farPlane )); 
+    const Frustumf& frustum = getFrustum();
+    EQ_GL_CALL( glFrustum( frustum.left(), frustum.right(),             \
+                           frustum.bottom(), frustum.top(),             \
+                           frustum.near_plane(), frustum.far_plane() )); 
     EQVERB << "Apply " << frustum << endl;
 }
 
 void Channel::applyOrtho() const
 {
-    const vmml::Frustumf& ortho = getOrtho();
-    EQ_GL_CALL( glOrtho( ortho.left, ortho.right,               \
-                         ortho.bottom, ortho.top,               \
-                         ortho.nearPlane, ortho.farPlane )); 
+    const Frustumf& ortho = getOrtho();
+    EQ_GL_CALL( glOrtho( ortho.left(), ortho.right(),               \
+                         ortho.bottom(), ortho.top(),               \
+                         ortho.near_plane(), ortho.far_plane() )); 
     EQVERB << "Apply " << ortho << endl;
 }
 
 void Channel::applyScreenFrustum() const
 {
-    const vmml::Frustumf frustum = getScreenFrustum();
-    EQ_GL_CALL( glOrtho( frustum.left, frustum.right,               \
-                         frustum.bottom, frustum.top,               \
-                         frustum.nearPlane, frustum.farPlane ));
+    const Frustumf frustum = getScreenFrustum();
+    EQ_GL_CALL( glOrtho( frustum.left(), frustum.right(),               \
+                         frustum.bottom(), frustum.top(),               \
+                         frustum.near_plane(), frustum.far_plane() ));
     EQVERB << "Apply " << frustum << endl;
 }
 
 void Channel::applyHeadTransform() const
 {
-    const vmml::Matrix4f& xfm = getHeadTransform();
-    EQ_GL_CALL( glMultMatrixf( xfm.ml ));
+    const Matrix4f& xfm = getHeadTransform();
+    EQ_GL_CALL( glMultMatrixf( xfm.array ));
     EQVERB << "Apply head transform: " << xfm << endl;
 }
 
@@ -710,8 +710,8 @@ bool Channel::processEvent( const Event& event )
             configEvent.data.originator = view->getID();
 
             ResizeEvent& resize = configEvent.data.resize;
-            resize.dw = resize.w / static_cast< float >( _initialSize.x );
-            resize.dh = resize.h / static_cast< float >( _initialSize.y );
+            resize.dw = resize.w / static_cast< float >( _initialSize.x() );
+            resize.dh = resize.h / static_cast< float >( _initialSize.y() );
             break;
         }
 
@@ -1043,15 +1043,15 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
         _color    = packet->color;
         _drawable = packet->drawable;
         _nativeContext.view = packet->view;
-        _initialSize.x = _nativeContext.pvp.w;
-        _initialSize.y = _nativeContext.pvp.h;
+        _initialSize.x() = _nativeContext.pvp.w;
+        _initialSize.y() = _nativeContext.pvp.h;
 
         memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof(int32_t));
 
         reply.result = configInit( packet->initID );
 
-        reply.nearPlane   = _nativeContext.frustum.nearPlane;
-        reply.farPlane    = _nativeContext.frustum.farPlane;
+        reply.nearPlane   = _nativeContext.frustum.near_plane();
+        reply.farPlane    = _nativeContext.frustum.far_plane();
 
         if( reply.result )
             _state = STATE_RUNNING;

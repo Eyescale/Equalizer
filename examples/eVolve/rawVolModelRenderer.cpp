@@ -44,10 +44,10 @@ static void renderSlices( const SliceClipper& sliceClipper )
         glBegin( GL_POLYGON );
         for( int i = 0; i < 6; ++i )
         {
-            vmml::Vector3f pos =
+            eq::Vector3f pos =
                     sliceClipper.getPosition( i, numberOfSlices-1-s );
 
-            glVertex4f( pos.x, pos.y, pos.z, 1.0 );
+            glVertex4f( pos.x(), pos.y(), pos.z(), 1.0 );
         }
         glEnd();
     }
@@ -58,7 +58,7 @@ void RawVolumeModelRenderer::_putVolumeDataToShader
 (
     const VolumeInfo&     volumeInfo,
     const double          sliceDistance,
-    const vmml::Matrix4f& invRotationM
+    const eq::Matrix4f& invRotationM
 )
 {
     EQASSERT( _glewContext );
@@ -112,20 +112,20 @@ void RawVolumeModelRenderer::_putVolumeDataToShader
     // rotate viewPosition in the oposite direction of model rotation
     // to keep light position constant but not recalculate normals 
     // in the fragment shader
-    // viewPosition = invRotationM * vmml::Vector4f( 0, 0, 1, 0 );
+    // viewPosition = invRotationM * eq::Vector4f( 0, 0, 1, 0 );
     tParamNameGL = glGetUniformLocationARB(  shader,  "viewVec"       );
-    glUniform3fARB( tParamNameGL, invRotationM.ml[8],
-                                  invRotationM.ml[9],
-                                  invRotationM.ml[10] ); //f-shader
+    glUniform3fARB( tParamNameGL, invRotationM.array[8],
+                                  invRotationM.array[9],
+                                  invRotationM.array[10] ); //f-shader
 }
 
 
 bool RawVolumeModelRenderer::render
 (
     const eq::Range&        range,
-    const vmml::Matrix4d&   modelviewM,
-    const vmml::Matrix3d&   modelviewITM,
-    const vmml::Matrix4f&   invRotationM
+    const eq::Matrix4d&   modelviewM,
+    const eq::Matrix3d&   modelviewITM,
+    const eq::Matrix4f&   invRotationM
 )
 {
     VolumeInfo volumeInfo;

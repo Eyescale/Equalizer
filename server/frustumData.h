@@ -21,8 +21,8 @@
 #include <eq/base/base.h>
 #include <eq/client/eye.h>   // EYE enum
 #include <eq/client/wall.h>  // Wall::Type enum
-#include <vmmlib/matrix4.h>  // member
-#include <vmmlib/vector3.h>  // member
+#include <vmmlib/matrix.hpp>  // member
+#include <vmmlib/vector.hpp>  // member
 
 namespace eq
 {
@@ -55,7 +55,7 @@ namespace server
         /** @name Data Access. */
         //@{
         /** @return the frustum plane transformation */
-        const vmml::Matrix4f& getTransform() const { return _xfm; }
+        const Matrix4f& getTransform() const { return _xfm; }
 
         /** @return the frustum plane width */
         float getWidth() const { return _width; }
@@ -70,7 +70,7 @@ namespace server
     private:
         float _width;
         float _height;
-        vmml::Matrix4f _xfm;
+        Matrix4f _xfm;
         eq::Wall::Type _type;
     };
 

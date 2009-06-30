@@ -426,9 +426,9 @@ void ConfigTool::_writeFromDescription( Config* config ) const
     compound->setChannel( channel );
 
     eq::Wall wall;
-    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
     compound->setWall( wall );
 
     if( _mode != MODE_2D )

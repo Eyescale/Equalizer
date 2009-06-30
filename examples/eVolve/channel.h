@@ -22,7 +22,7 @@
 #include "frameData.h"
 
 #include <eq/eq.h>
-
+#include <eq/client/types.h>
 
 namespace eVolve
 {
@@ -58,20 +58,12 @@ namespace eVolve
 
         void _orderFrames( eq::FrameVector& frames );
 
-        void _calcMVandITMV( vmml::Matrix4d& modelviewM, 
-                             vmml::Matrix3d& modelviewITM ) const;
+        void _calcMVandITMV( eq::Matrix4f& modelviewM, 
+                             eq::Matrix3f& modelviewITM ) const;
 
         const FrameData::Data& _getFrameData() const;
 
-        vmml::Vector4f _bgColor; // background color
-
-        enum BGColorMode
-        {
-            BG_SOLID_BLACK    = 0,
-            BG_SOLID_COLORED  = 1
-        } 
-            _bgColorMode;
-
+        eq::Vector3f _bgColor; //!< background color
         eq::Frame _frame;     //!< Readback buffer for DB compositing
         eq::Range _drawRange; //!< The range from the last draw of this frame
     };

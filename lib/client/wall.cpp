@@ -42,8 +42,8 @@ void Wall::resizeHorizontal( const float ratio )
     if( ratio == 1.f || ratio < 0.f )
         return;
 
-    const vmml::Vector3f u_2   = (bottomRight - bottomLeft) * .5f;
-    const vmml::Vector3f delta = u_2 * (ratio - 1.f);
+    const Vector3f u_2   = (bottomRight - bottomLeft) * .5f;
+    const Vector3f delta = u_2 * (ratio - 1.f);
     bottomLeft  -= delta;
     bottomRight += delta;
     topLeft     -= delta;
@@ -54,8 +54,8 @@ void Wall::resizeVertical( const float ratio )
     if( ratio == 1.f || ratio < 0.f )
         return;
 
-    const vmml::Vector3f v_2   = (topLeft - bottomLeft) * .5f;
-    const vmml::Vector3f delta = v_2 * (ratio - 1.f);
+    const Vector3f v_2   = (topLeft - bottomLeft) * .5f;
+    const Vector3f delta = v_2 * (ratio - 1.f);
     bottomLeft  -= delta;
     bottomRight -= delta;
     topLeft     += delta;
@@ -66,8 +66,8 @@ void Wall::resizeLeft( const float ratio )
     if( ratio == 1.f || ratio < 0.f )
         return;
 
-    const vmml::Vector3f u   = bottomRight - bottomLeft;
-    const vmml::Vector3f delta = u * (ratio - 1.f);
+    const Vector3f u   = bottomRight - bottomLeft;
+    const Vector3f delta = u * (ratio - 1.f);
     bottomLeft  -= delta;
     topLeft     -= delta;
 }
@@ -77,8 +77,8 @@ void Wall::resizeRight( const float ratio )
     if( ratio == 1.f || ratio < 0.f )
         return;
 
-    const vmml::Vector3f u   = bottomRight - bottomLeft;
-    const vmml::Vector3f delta = u * (ratio - 1.f);
+    const Vector3f u   = bottomRight - bottomLeft;
+    const Vector3f delta = u * (ratio - 1.f);
     bottomRight += delta;
 }
 
@@ -87,8 +87,8 @@ void Wall::resizeTop( const float ratio )
     if( ratio == 1.f || ratio < 0.f )
         return;
 
-    const vmml::Vector3f v = topLeft - bottomLeft;
-    const vmml::Vector3f delta = v * (ratio - 1.f);
+    const Vector3f v = topLeft - bottomLeft;
+    const Vector3f delta = v * (ratio - 1.f);
     topLeft     += delta;
 }
 
@@ -97,16 +97,16 @@ void Wall::resizeBottom( const float ratio )
     if( ratio == 1.f || ratio < 0.f )
         return;
 
-    const vmml::Vector3f v = topLeft - bottomLeft;
-    const vmml::Vector3f delta = v * (ratio - 1.f);
+    const Vector3f v = topLeft - bottomLeft;
+    const Vector3f delta = v * (ratio - 1.f);
     bottomLeft  -= delta;
     bottomRight -= delta;
 }
 
 void Wall::apply( const Viewport& viewport)
 {
-    vmml::Vector3f u = bottomRight - bottomLeft;
-    vmml::Vector3f v = topLeft - bottomLeft;
+    Vector3f u = bottomRight - bottomLeft;
+    Vector3f v = topLeft - bottomLeft;
     
     bottomLeft  = bottomLeft + u * viewport.x + v * viewport.y;
     bottomRight = bottomLeft + u * viewport.w;
@@ -138,30 +138,25 @@ Wall& Wall::operator = ( const Projection& projection )
     const float cosR       = cos(DEG2RAD( projection.hpr[2]));
     const float sinR       = sin(DEG2RAD( projection.hpr[2]));
 
-    vmml::Matrix3f  mat ;
+    Matrix3f  mat ;
     const float cosPsinH      =   cosP * sinH;
     const float sinPsinH      =   sinP * sinH;
 
-    mat.ml[0]  =   cosH * cosR;
-    mat.ml[1]  =  -cosH * sinR;
-    mat.ml[2]  =  -sinH;
-    mat.ml[3]  = -sinPsinH * cosR + cosP * sinR;
-    mat.ml[4]  =  sinPsinH * sinR + cosP * cosR;
-    mat.ml[5]  =  -sinP * cosH;
-    mat.ml[6]  =  cosPsinH * cosR + sinP * sinR;
-    mat.ml[7]  = -cosPsinH * sinR + sinP * cosR;
-    mat.ml[8] =   cosP * cosH;
+    mat.array[0]  =   cosH * cosR;
+    mat.array[1]  =  -cosH * sinR;
+    mat.array[2]  =  -sinH;
+    mat.array[3]  = -sinPsinH * cosR + cosP * sinR;
+    mat.array[4]  =  sinPsinH * sinR + cosP * cosR;
+    mat.array[5]  =  -sinP * cosH;
+    mat.array[6]  =  cosPsinH * cosR + sinP * sinR;
+    mat.array[7]  = -cosPsinH * sinR + sinP * cosR;
+    mat.array[8] =   cosP * cosH;
 
     bottomLeft  = mat * bottomLeft;
     bottomRight = mat * bottomRight;
     topLeft     = mat * topLeft;
     
-    vmml::Vector3f u = bottomRight - bottomLeft;
-    vmml::Vector3f v = topLeft - bottomLeft;
-    u.normalize();
-    v.normalize();
-    
-    vmml::Vector3f w(&mat.ml[6]);
+    Vector3f w( mat.array[6], mat.array[7], mat.array[8] );
     
     bottomLeft  = bottomLeft  + projection.origin  + w *  projection.distance;
     bottomRight = bottomRight + projection.origin  + w *  projection.distance;
@@ -172,16 +167,16 @@ Wall& Wall::operator = ( const Projection& projection )
 
 bool Wall::operator == ( const Wall& rhs ) const
 {
-    return ( bottomLeft  == rhs.bottomLeft  &&
-             bottomRight == rhs.bottomRight &&
-             topLeft     == rhs.topLeft );
+    return ( bottomLeft.equals( rhs.bottomLeft, 0.0001f )   &&
+             bottomRight.equals( rhs.bottomRight, 0.0001f ) &&
+             topLeft.equals( rhs.topLeft, 0.0001f ));
 }
 
 bool Wall::operator != ( const Wall& rhs ) const
 {
-    return ( bottomLeft  != rhs.bottomLeft  ||
-             bottomRight != rhs.bottomRight ||
-             topLeft     != rhs.topLeft );
+    return ( !bottomLeft.equals( rhs.bottomLeft, 0.0001f )   ||
+             !bottomRight.equals( rhs.bottomRight, 0.0001f ) ||
+             !topLeft.equals( rhs.topLeft, 0.0001f ));
 }
 
 ostream& operator << ( ostream& os, const Wall& wall )

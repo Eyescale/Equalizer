@@ -23,7 +23,6 @@
 #include <eq/client/types.h>          // type definitions
 #include <eq/base/base.h>             // EQ_EXPORT definition
 
-#include <vmmlib/vector2.h>
 #include <vector>
 
 namespace eq
@@ -39,11 +38,11 @@ namespace eq
         struct ImageOp
         {
             ImageOp() : channel( 0 ), buffers( 0 )
-                      , offset( vmml::Vector2i::ZERO ) {}
+                      , offset( Vector2i::ZERO ) {}
 
             Channel*       channel; //!< The destination channel
             uint32_t       buffers; //!< The Frame buffer attachments to use
-            vmml::Vector2i offset;  //!< The offset wrt destination window
+            Vector2i offset;  //!< The offset wrt destination window
             Pixel          pixel;   //!< The pixel decomposition parameters
             Zoom           zoom;    //!< The zoom factor
         };
@@ -185,22 +184,26 @@ namespace eq
                                         uint32_t& colorType,
                                         uint32_t& depthFormat,
                                         uint32_t& depthType );
+                                        
         static void _mergeFrames( const FrameVector& frames,
                                   const bool blendAlpha, 
                                   void* colorBuffer, void* depthBuffer,
                                   const PixelViewport& destPVP );
+                                  
         static void   _mergeDBImage( void* destColor, void* destDepth,
-                                   const PixelViewport& destPVP, 
-                                   const Image* image, 
-                                   const vmml::Vector2i& offset );
+                                     const PixelViewport& destPVP, 
+                                     const Image* image, 
+                                     const Vector2i& offset );
+                                     
         static void   _merge2DImage( void* destColor, void* destDepth,
-                                     const eq::PixelViewport& destPVP,
+                                     const PixelViewport& destPVP,
                                      const Image* input,
-                                     const vmml::Vector2i& offset );
+                                     const Vector2i& offset );
+                                     
         static void   _mergeBlendImage( void* dest, 
-                                        const eq::PixelViewport& destPVP, 
+                                        const PixelViewport& destPVP, 
                                         const Image* input,
-                                        const vmml::Vector2i& offset );
+                                        const Vector2i& offset );
         static bool     _mergeImage_PC( int operation, void* destColor, 
                                         void* destDepth, const Image* source );
         /** 

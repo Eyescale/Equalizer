@@ -512,7 +512,7 @@ void Compositor::_mergeFrames( const FrameVector& frames,
 void Compositor::_mergeDBImage( void* destColor, void* destDepth,
                                 const PixelViewport& destPVP,
                                 const Image* image, 
-                                const vmml::Vector2i& offset )
+                                const Vector2i& offset )
 {
     EQASSERT( destColor && destDepth );
 
@@ -534,8 +534,8 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
     }
 #endif
 
-    const int32_t         destX  = offset.x + pvp.x - destPVP.x;
-    const int32_t         destY  = offset.y + pvp.y - destPVP.y;
+    const int32_t         destX  = offset.x() + pvp.x - destPVP.x;
+    const int32_t         destY  = offset.y() + pvp.y - destPVP.y;
 
     const uint32_t* color = reinterpret_cast< const uint32_t* >
         ( image->getPixelPointer( Frame::BUFFER_COLOR ));
@@ -570,7 +570,7 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
 void Compositor::_merge2DImage( void* destColor, void* destDepth,
                                 const eq::PixelViewport& destPVP,
                                 const Image* image,
-                                const vmml::Vector2i& offset )
+                                const Vector2i& offset )
 {
     // This is mostly copy&paste code from _mergeDBImage :-/
     EQVERB << "CPU-2D assembly" << endl;
@@ -579,8 +579,8 @@ void Compositor::_merge2DImage( void* destColor, void* destDepth,
     uint8_t* destD = reinterpret_cast< uint8_t* >( destDepth );
 
     const PixelViewport&  pvp    = image->getPixelViewport();
-    const int32_t         destX  = offset.x + pvp.x - destPVP.x;
-    const int32_t         destY  = offset.y + pvp.y - destPVP.y;
+    const int32_t         destX  = offset.x() + pvp.x - destPVP.x;
+    const int32_t         destY  = offset.y() + pvp.y - destPVP.y;
 
     EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
 
@@ -601,15 +601,15 @@ void Compositor::_merge2DImage( void* destColor, void* destDepth,
 
 void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
                                    const Image* image,
-                                   const vmml::Vector2i& offset )
+                                   const Vector2i& offset )
 {
     EQVERB << "CPU-Blend assembly"<< endl;
 
     int32_t* destColor = reinterpret_cast< int32_t* >( dest );
 
     const PixelViewport&  pvp    = image->getPixelViewport();
-    const int32_t         destX  = offset.x + pvp.x - destPVP.x;
-    const int32_t         destY  = offset.y + pvp.y - destPVP.y;
+    const int32_t         destX  = offset.x() + pvp.x - destPVP.x;
+    const int32_t         destY  = offset.y() + pvp.y - destPVP.y;
 
     EQASSERT( image->getDepth( Frame::BUFFER_COLOR ) == 4 );
     EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
@@ -878,12 +878,12 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
         const float step   = static_cast< float >( op.pixel.w );
 
         const float startX = 
-            static_cast< float >( op.offset.x + pvp.x ) + 0.5f - 
+            static_cast< float >( op.offset.x() + pvp.x ) + 0.5f - 
             static_cast< float >( op.pixel.w );
         const float endX   = startX + width + op.pixel.w + step;
 
         const float startY = 
-            static_cast< float >( op.offset.y + pvp.y + op.pixel.y );
+            static_cast< float >( op.offset.y() + pvp.y + op.pixel.y );
         const float endY   = static_cast< float >( startY + pvp.h*op.pixel.h );
 
         glBegin( GL_QUADS );
@@ -902,11 +902,11 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
         const float step   = static_cast< float >( op.pixel.h );
 
         const float startX = 
-            static_cast< float >( op.offset.x + pvp.x + op.pixel.x );
+            static_cast< float >( op.offset.x() + pvp.x + op.pixel.x );
         const float endX   = static_cast< float >( startX + pvp.w*op.pixel.w );
 
         const float startY = 
-            static_cast< float >( op.offset.y + pvp.y ) + 0.5f - 
+            static_cast< float >( op.offset.y() + pvp.y ) + 0.5f - 
             static_cast< float >( op.pixel.h );
         const float endY   = startY + height + op.pixel.h + step;
 
@@ -950,7 +950,7 @@ void Compositor::_drawPixels( const Image* image,
 
         if( op.zoom == eq::Zoom::NONE )
         {
-            glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );
+            glRasterPos2i( op.offset.x() + pvp.x, op.offset.y() + pvp.y );
             glDrawPixels( pvp.w, pvp.h, 
                           image->getFormat( which ), 
                           image->getType( which ), 
@@ -1005,13 +1005,13 @@ void Compositor::_drawPixels( const Image* image,
     glColor3f( 1.0f, 1.0f, 1.0f );
 
     const float startX = static_cast< float >
-         ( op.offset.x + pvp.x * op.pixel.w + op.pixel.x ) * op.zoom.x;
+         ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x ) * op.zoom.x();
     const float endX   = static_cast< float >
-         ( op.offset.x + (pvp.x + pvp.w) * op.pixel.w + op.pixel.x ) *op.zoom.x;
+         ( op.offset.x() + (pvp.x + pvp.w) * op.pixel.w + op.pixel.x ) *op.zoom.x();
     const float startY = static_cast< float >
-         ( op.offset.y + pvp.y * op.pixel.h + op.pixel.y ) * op.zoom.y;
+         ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y ) * op.zoom.y();
     const float endY   = static_cast< float >
-         ( op.offset.y + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y ) *op.zoom.y;
+         ( op.offset.y() + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y ) *op.zoom.y();
 
     glBegin( GL_QUADS );
         glTexCoord2f( 0.0f, 0.0f );
@@ -1059,7 +1059,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
     EQASSERT( image->hasData( Frame::BUFFER_DEPTH ));
 
     // Z-Based sort-last assembly
-    glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );
+    glRasterPos2i( op.offset.x() + pvp.x, op.offset.y() + pvp.y );
     glEnable( GL_STENCIL_TEST );
 
     // test who is in front and mark in stencil buffer
@@ -1185,13 +1185,13 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     glColor3f( 1.0f, 1.0f, 1.0f );
 
     const float startX = static_cast< float >
-        ( op.offset.x + pvp.x * op.pixel.w + op.pixel.x );
+        ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x );
     const float endX   = static_cast< float >
-        ( op.offset.x + (pvp.x + pvp.w) * op.pixel.w + op.pixel.x );
+        ( op.offset.x() + (pvp.x + pvp.w) * op.pixel.w + op.pixel.x );
     const float startY = static_cast< float >
-        ( op.offset.y + pvp.y * op.pixel.h + op.pixel.y );
+        ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y );
     const float endY   = static_cast< float >
-        ( op.offset.y + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y );
+        ( op.offset.y() + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y );
     
     const float w = static_cast< float >( pvp.w );
     const float h = static_cast< float >( pvp.h );

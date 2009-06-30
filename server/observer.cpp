@@ -33,7 +33,7 @@ namespace server
 
 Observer::Observer()
         : _config( 0 )
-        , _inverseHeadMatrix( vmml::Matrix4f::IDENTITY )
+        , _inverseHeadMatrix( Matrix4f::IDENTITY )
 {
 #ifdef EQ_USE_DEPRECATED
     setEyeBase(Global::instance()->getConfigFAttribute(Config::FATTR_EYE_BASE));
@@ -73,7 +73,7 @@ void Observer::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & ( DIRTY_EYE_BASE | DIRTY_HEAD ))
         _updateEyes();
     if( dirtyBits & DIRTY_HEAD )
-        getHeadMatrix().getInverse( _inverseHeadMatrix );
+        getHeadMatrix().inverse( _inverseHeadMatrix );
 }
 
 ObserverPath Observer::getPath() const
@@ -102,31 +102,31 @@ void Observer::unmap()
 void Observer::init()
 {
     _updateEyes();
-    getHeadMatrix().getInverse( _inverseHeadMatrix );
+    getHeadMatrix().inverse( _inverseHeadMatrix );
 }
     
 void Observer::_updateEyes()
 {
     const float eyeBase_2 = .5f * getEyeBase();
-    const vmml::Matrix4f& head = getHeadMatrix();
+    const Matrix4f& head = getHeadMatrix();
 
     // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
     // OPT: don't use vector operator* due to possible simplification
 
-    _eyes[eq::EYE_CYCLOP].x = head.m03;
-    _eyes[eq::EYE_CYCLOP].y = head.m13;
-    _eyes[eq::EYE_CYCLOP].z = head.m23;
-    _eyes[eq::EYE_CYCLOP]  /= head.m33;
+    _eyes[eq::EYE_CYCLOP].x() = head.at( 0, 3 );
+    _eyes[eq::EYE_CYCLOP].y() = head.at( 1, 3 );
+    _eyes[eq::EYE_CYCLOP].z() = head.at( 2, 3 );
+    _eyes[eq::EYE_CYCLOP]    /= head.at( 3, 3 );
 
-    _eyes[eq::EYE_LEFT].x = ( -eyeBase_2 * head.m00 + head.m03 );
-    _eyes[eq::EYE_LEFT].y = ( -eyeBase_2 * head.m10 + head.m13 );
-    _eyes[eq::EYE_LEFT].z = ( -eyeBase_2 * head.m20 + head.m23 );
-    _eyes[eq::EYE_LEFT]  /= ( -eyeBase_2 * head.m30 + head.m33 );
+    _eyes[eq::EYE_LEFT].x() = ( -eyeBase_2 * head.at( 0, 0 ) + head.at( 0, 3 ));
+    _eyes[eq::EYE_LEFT].y() = ( -eyeBase_2 * head.at( 1, 0 ) + head.at( 1, 3 ));
+    _eyes[eq::EYE_LEFT].z() = ( -eyeBase_2 * head.at( 2, 0 ) + head.at( 2, 3 ));
+    _eyes[eq::EYE_LEFT]    /= ( -eyeBase_2 * head.at( 3, 0 ) + head.at( 3, 3 ));
 
-    _eyes[eq::EYE_RIGHT].x = ( eyeBase_2 * head.m00 + head.m03 );
-    _eyes[eq::EYE_RIGHT].y = ( eyeBase_2 * head.m10 + head.m13 );
-    _eyes[eq::EYE_RIGHT].z = ( eyeBase_2 * head.m20 + head.m23 );
-    _eyes[eq::EYE_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 );
+    _eyes[eq::EYE_RIGHT].x() = ( eyeBase_2 * head.at( 0, 0 ) + head.at( 0, 3 ));
+    _eyes[eq::EYE_RIGHT].y() = ( eyeBase_2 * head.at( 1, 0 ) + head.at( 1, 3 ));
+    _eyes[eq::EYE_RIGHT].z() = ( eyeBase_2 * head.at( 2, 0 ) + head.at( 2, 3 ));
+    _eyes[eq::EYE_RIGHT]    /= ( eyeBase_2 * head.at( 3, 0 ) + head.at( 3, 3 ));
 
     EQVERB << "Eye position: " << _eyes[ eq:: EYE_CYCLOP ] << std::endl;
 }

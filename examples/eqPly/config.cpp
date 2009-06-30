@@ -83,12 +83,12 @@ bool Config::init()
         {
             // Set up position of tracking system wrt world space
             // Note: this depends on the physical installation.
-            vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
+            eq::Matrix4f m( eq::Matrix4f::IDENTITY );
             m.scale( 1.f, 1.f, -1.f );
             _tracker.setWorldToEmitter( m );
 
-            m = vmml::Matrix4f::IDENTITY;
-            m.rotateZ( -M_PI_2 );
+            m = eq::Matrix4f::IDENTITY;
+            m.rotate_z( -M_PI_2 );
             _tracker.setSensorToObject( m );
             EQINFO << "Tracker initialized" << std::endl;
         }
@@ -248,14 +248,14 @@ uint32_t Config::startFrame()
     if( _tracker.isRunning() )
     {
         _tracker.update();
-        const vmml::Matrix4f& headMatrix = _tracker.getMatrix();
+        const eq::Matrix4f& headMatrix = _tracker.getMatrix();
         _setHeadMatrix( headMatrix );
     }
 
     // update database
     if( _animation.isValid( ))
     {
-        const vmml::Vector3f&  modelRotation = _animation.getModelRotation();
+        const eq::Vector3f&  modelRotation = _animation.getModelRotation();
         const CameraAnimation::Step& curStep = _animation.getNextStep();
 
         _frameData.setModelRotation( modelRotation        );
@@ -426,7 +426,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _spinY   = 0;
             _advance = 0;
             _frameData.reset();
-            _setHeadMatrix( vmml::Matrix4f::IDENTITY );
+            _setHeadMatrix( eq::Matrix4f::IDENTITY );
             return true;
 
         case 'i':
@@ -594,85 +594,85 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         // Head Tracking Emulation
         case eq::KC_UP:
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.y += 0.1f;
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.y() += 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_DOWN:
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.y -= 0.1f;
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.y() -= 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_RIGHT:
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.x += 0.1f;
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.x() += 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_LEFT:
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.x -= 0.1f;
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.x() -= 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_PAGE_DOWN:
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.z += 0.1f;
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.z() += 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_PAGE_UP:
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.z -= 0.1f;
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.z() -= 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case '.':
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.preRotateX( .1f );
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.pre_rotate_x( .1f );
             _setHeadMatrix( headMatrix );
             return true;
         }
         case ',':
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.preRotateX( -.1f );
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.pre_rotate_x( -.1f );
             _setHeadMatrix( headMatrix );
             return true;
         }
         case ';':
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.preRotateY( .1f );
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.pre_rotate_y( .1f );
             _setHeadMatrix( headMatrix );
             return true;
         }
         case '\'':
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.preRotateY( -.1f );
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.pre_rotate_y( -.1f );
             _setHeadMatrix( headMatrix );
             return true;
         }
         case '[':
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.preRotateZ( -.1f );
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.pre_rotate_z( -.1f );
             _setHeadMatrix( headMatrix );
             return true;
         }
         case ']':
         {
-            vmml::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.preRotateZ( .1f );
+            eq::Matrix4f headMatrix = _getHeadMatrix();
+            headMatrix.pre_rotate_z( .1f );
             _setHeadMatrix( headMatrix );
             return true;
         }
@@ -683,7 +683,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 }
 
 // Note: real applications would use one tracking device per observer
-void Config::_setHeadMatrix( const vmml::Matrix4f& matrix )
+void Config::_setHeadMatrix( const eq::Matrix4f& matrix )
 {
     const eq::ObserverVector& observers = getObservers();
     for( eq::ObserverVector::const_iterator i = observers.begin();
@@ -693,11 +693,11 @@ void Config::_setHeadMatrix( const vmml::Matrix4f& matrix )
     }
 }
 
-const vmml::Matrix4f& Config::_getHeadMatrix() const
+const eq::Matrix4f& Config::_getHeadMatrix() const
 {
     const eq::ObserverVector& observers = getObservers();
     if( observers.empty( ))
-        return vmml::Matrix4f::IDENTITY;
+        return eq::Matrix4f::IDENTITY;
 
     return observers[0]->getHeadMatrix();
 }

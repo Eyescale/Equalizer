@@ -49,10 +49,10 @@ namespace server
             { _data.pvp = pvp; }
 
         /** Set the position of the data relative to the window. */
-        void setOffset( const vmml::Vector2i& offset ) 
+        void setOffset( const Vector2i& offset ) 
             { _data.offset = offset; }
         /** @return the position of the data relative to the window. */
-        const vmml::Vector2i& getOffset() const { return _data.offset; }
+        const Vector2i& getOffset() const { return _data.offset; }
 
         /** Set the (color, depth) buffers of the source frame. */
         void setBuffers( const uint32_t buffers ) 

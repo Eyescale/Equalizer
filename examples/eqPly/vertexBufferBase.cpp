@@ -29,16 +29,16 @@ void VertexBufferBase::renderBoundingSphere(VertexBufferState& state ) const
         displayList = state.newDisplayList( &_boundingSphere );
         glNewList( displayList, GL_COMPILE );
 
-        const float x  = _boundingSphere.center.x;
-        const float y  = _boundingSphere.center.y;
-        const float z  = _boundingSphere.center.z;
-        const float x1 = x - _boundingSphere.radius;
-        const float x2 = x + _boundingSphere.radius;
-        const float y1 = y - _boundingSphere.radius;
-        const float y2 = y + _boundingSphere.radius;
-        const float z1 = z - _boundingSphere.radius;
-        const float z2 = z + _boundingSphere.radius;
-        const float size = _boundingSphere.radius;
+        const float x  = _boundingSphere.x();
+        const float y  = _boundingSphere.y();
+        const float z  = _boundingSphere.z();
+        const float x1 = x - _boundingSphere.w();
+        const float x2 = x + _boundingSphere.w();
+        const float y1 = y - _boundingSphere.w();
+        const float y2 = y + _boundingSphere.w();
+        const float z1 = z - _boundingSphere.w();
+        const float z2 = z + _boundingSphere.w();
+        const float size = _boundingSphere.w();
 
 //        glDisable( GL_LIGHTING );
         glBegin( GL_QUADS );

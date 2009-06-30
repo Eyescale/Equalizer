@@ -20,6 +20,8 @@
 
 #include <eq/base/refPtr.h>
 
+#include <vmmlib/vmmlib.hpp>
+
 #include <map>
 #include <vector>
 
@@ -85,6 +87,25 @@ typedef std::map< uint32_t, Statistics >        SortedStatistics;
 // frame id, config statistics
 typedef std::pair< uint32_t, SortedStatistics > FrameStatistics;
 
+
+// vmml types definition 
+typedef vmml::matrix< 3, 3, double > Matrix3d;
+typedef vmml::matrix< 4, 4, double > Matrix4d;
+typedef vmml::matrix< 4, 4, float >  Matrix4f;
+typedef vmml::matrix< 3, 3, float >  Matrix3f;
+typedef vmml::vector< 2, int > Vector2i;
+typedef vmml::vector< 3, int > Vector3i;
+typedef vmml::vector< 4, int > Vector4i;
+typedef vmml::vector< 4, double >Vector4d;
+typedef vmml::vector< 3, double >Vector3d;
+typedef vmml::vector< 2, float > Vector2f;
+typedef vmml::vector< 3, float > Vector3f;
+typedef vmml::vector< 4, float > Vector4f;
+typedef vmml::vector< 3, unsigned char > Vector3ub;
+typedef vmml::frustum< float >  Frustumf;
+//typedef vmml::frustum< double > Frustumd;
+typedef vmml::frustum_culler< float >  FrustumCullerf;
+//typedef vmml::frustum_culler< double > FrustumCullerd;
 
 }
 #endif // EQ_TYPES_H

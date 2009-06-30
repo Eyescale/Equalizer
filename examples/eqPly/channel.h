@@ -53,8 +53,8 @@ namespace eqPly
         void _drawModel( const Model* model );
         void _drawLogo();
         void _drawHelp();
-        void _initFrustum( vmml::FrustumCullerf& frustum, 
-                           const vmml::Vector4f& boundingSphere );
+        void _initFrustum( eq::FrustumCullerf& frustum, 
+                           const eq::Vector4f& boundingSphere );
 
         const FrameData& _getFrameData() const;
         const Model*     _getModel();

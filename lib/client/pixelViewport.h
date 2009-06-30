@@ -21,10 +21,11 @@
 #include <eq/client/viewport.h> // used in inline method
 #include <eq/client/pixel.h>    // used in inline method
 #include <eq/client/zoom.h>     // used in inline method
+#include <eq/client/types.h>
 
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
-#include <vmmlib/vector2.h>
+
 
 #include <limits>
 
@@ -114,10 +115,10 @@ namespace eq
                 if( zoom == Zoom::NONE )
                     return;
 
-                x = static_cast< int32_t >( x * zoom.x + .5f );
-                y = static_cast< int32_t >( y * zoom.y + .5f );
-                w = static_cast< int32_t >( w * zoom.x + .5f );
-                h = static_cast< int32_t >( h * zoom.y + .5f );
+                x = static_cast< int32_t >( x * zoom.x() + .5f );
+                y = static_cast< int32_t >( y * zoom.y() + .5f );
+                w = static_cast< int32_t >( w * zoom.x() + .5f );
+                h = static_cast< int32_t >( h * zoom.y() + .5f );
             }
 
         const PixelViewport getSubPVP( const Viewport& rhs ) const
@@ -173,9 +174,9 @@ namespace eq
         /** @return the Y end position */
         int32_t getYEnd() const { return y+h; }
 
-        const PixelViewport operator + ( const vmml::Vector2i& offset ) const
+        const PixelViewport operator + ( const Vector2i& offset ) const
             {
-                return PixelViewport( x+offset.x, y+offset.y, w, h );
+                return PixelViewport( x+offset.x(), y+offset.y(), w, h );
             }
 
         const PixelViewport operator * ( const eq::Pixel& pixel ) const

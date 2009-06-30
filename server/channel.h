@@ -271,9 +271,9 @@ namespace server
         /* Get the channel's drawable. */
         uint32_t getDrawable() const { return _drawable; }
 
-        void setOverdraw( const vmml::Vector4i& overdraw )
+        void setOverdraw( const Vector4i& overdraw )
             { _overdraw = overdraw; }
-        const vmml::Vector4i& getOverdraw() const { return _overdraw; }
+        const Vector4i& getOverdraw() const { return _overdraw; }
 
     protected:
         /** Registers request packets waiting for a return value. */
@@ -323,7 +323,7 @@ namespace server
         /** Frustum far plane. */
         float        _far;
 
-        vmml::Vector4i    _overdraw;
+        Vector4i    _overdraw;
 
         /** Worst-case set of tasks. */
         uint32_t _tasks;
@@ -348,7 +348,7 @@ namespace server
         /** common code for all constructors */
         void _construct();
 
-        vmml::Vector3ub _getUniqueColor() const;
+        Vector3ub _getUniqueColor() const;
 
         void _configInit( const uint32_t initID );
         bool _syncConfigInit();

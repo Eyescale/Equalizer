@@ -52,8 +52,8 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
     if( event->msec < 0.0f )
         os << "error 0x" << hex << static_cast< int >( -event->msec ) << dec;
     else
-        os << static_cast< uint32_t >( event->area.getArea() / event->msec
-                                       / 1048.576f )
+        os << static_cast< uint32_t >( event->area.x() * event->area.y() / 
+                                       event->msec  / 1048.576f )
            << "MPix/sec (" << event->msec << "ms, " << 1000.0f / event->msec
            << "FPS)";
     return os;

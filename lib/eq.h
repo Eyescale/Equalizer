@@ -65,7 +65,7 @@
 #include <eq/net/net.h>
 #include <eq/util/util.h>
 
-#include <vmmlib/vmmlib.h>
+#include <vmmlib/vmmlib.hpp>
 
 #ifdef EQ_USE_DEPRECATED
 namespace eqBase = ::eq::base;

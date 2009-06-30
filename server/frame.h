@@ -159,16 +159,16 @@ namespace server
          * The offset defines relative data position wrt to the current
          * destination channel of the source.
          */
-        void setInheritOffset( const vmml::Vector2i& offset )
+        void setInheritOffset( const Vector2i& offset )
             { _inherit.offset = offset; }
         
         /** @return the frame offset. */
-        const vmml::Vector2i& getOffset() const { return _data.offset; }
+        const Vector2i& getOffset() const { return _data.offset; }
 
         /** 
          * Set the offset of the frame.
          */
-        void setOffset( const vmml::Vector2i& offset )
+        void setOffset( const Vector2i& offset )
            { _data.offset = offset; }
         
         /** Set the inherit frame zoom factor. */

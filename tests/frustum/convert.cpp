@@ -97,7 +97,7 @@ int main( int argc, char **argv )
     projection2 = wall;
     Wall wall2;
     wall2=  projection2; 
-    TESTINFO( projection == projection2 , "Test 4" <<
+    TESTINFO( wall == wall2 , "Test 4" <<
              projection << std::endl << wall << std::endl <<
              projection2 << std::endl << wall2 << std::endl ); 
 

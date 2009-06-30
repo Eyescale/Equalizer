@@ -20,7 +20,7 @@
 
 #include <eq/base/base.h>
 
-#include <vmmlib/vmmlib.h>  // member
+#include <eq/client/types.h>
 #include <iostream>
 
 namespace eq
@@ -96,9 +96,9 @@ namespace eq
         EQ_EXPORT bool operator == ( const Wall& rhs ) const;
         EQ_EXPORT bool operator != ( const Wall& rhs ) const;
 
-        vmml::Vector3f bottomLeft;
-        vmml::Vector3f bottomRight;
-        vmml::Vector3f topLeft;
+        Vector3f bottomLeft;
+        Vector3f bottomRight;
+        Vector3f topLeft;
         
         enum Type
         {

@@ -368,9 +368,9 @@ void ConfigTool::_write2D( Config* config ) const
     compound->setChannel( channel );
     
     eq::Wall wall;
-    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
     compound->setWall( wall );
 
     const unsigned step = static_cast< unsigned >
@@ -428,9 +428,9 @@ void ConfigTool::_writeDB( Config* config ) const
         compound->setTasks( eq::TASK_CLEAR | eq::TASK_ASSEMBLE );
 
     eq::Wall wall;
-    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
     compound->setWall( wall );
 
     const unsigned step = static_cast< unsigned >
@@ -487,9 +487,9 @@ void ConfigTool::_writeDBStream( Config* config ) const
         compound->setTasks( eq::TASK_CLEAR | eq::TASK_ASSEMBLE );
 
     eq::Wall wall;
-    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
     compound->setWall( wall );
 
     const unsigned nDraw = _useDestination ? _nChannels : _nChannels - 1;
@@ -547,9 +547,9 @@ void ConfigTool::_writeDS( Config* config ) const
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
 
     eq::Wall wall;
-    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
     compound->setWall( wall );
 
 
@@ -736,9 +736,9 @@ void ConfigTool::_writeDPlex( Config* config ) const
     compound->setChannel( channel );
     
     eq::Wall wall;
-    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
     compound->setWall( wall );
     compound->setTasks( eq::TASK_CLEAR | eq::TASK_ASSEMBLE );
     compound->addEqualizer( new FramerateEqualizer );
@@ -778,9 +778,9 @@ void ConfigTool::_writeWall( Config* config ) const
     canvas->setName( "wall" );
     
     eq::Wall wall;
-    wall.bottomLeft  = vmml::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = vmml::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = vmml::Vector3f( -.32f,  .2f, -.75f );
+    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
+    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
+    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
     canvas->setWall( wall );
 
     const float width  = 1.0f / static_cast< float >( _rows );

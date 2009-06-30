@@ -31,7 +31,7 @@ namespace eq
 Observer::Observer()
         : _config( 0 )
         , _eyeBase( 0.05f )
-        , _headMatrix( vmml::Matrix4f::IDENTITY )
+        , _headMatrix( Matrix4f::IDENTITY )
 {
 }
 
@@ -79,7 +79,7 @@ void Observer::setEyeBase( const float eyeBase )
     setDirty( DIRTY_EYE_BASE );
 }
 
-void Observer::setHeadMatrix( const vmml::Matrix4f& matrix )
+void Observer::setHeadMatrix( const Matrix4f& matrix )
 {
     _headMatrix = matrix;
     setDirty( DIRTY_HEAD );

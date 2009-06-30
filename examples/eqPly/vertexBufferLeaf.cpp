@@ -118,19 +118,22 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     }
     
     // 1b) get inner sphere of bounding box as an initial estimate
-    _boundingSphere.center.x = ( boundingBox[0].x + boundingBox[1].x ) * 0.5f;
-    _boundingSphere.center.y = ( boundingBox[0].y + boundingBox[1].y ) * 0.5f;
-    _boundingSphere.center.z = ( boundingBox[0].z + boundingBox[1].z ) * 0.5f;
+    _boundingSphere.x() = 
+                             ( boundingBox[0].x() + boundingBox[1].x() ) * 0.5f;
+    _boundingSphere.y() = 
+                             ( boundingBox[0].y() + boundingBox[1].y() ) * 0.5f;
+    _boundingSphere.z() = 
+                             ( boundingBox[0].z() + boundingBox[1].z() ) * 0.5f;
 
-    _boundingSphere.radius  = EQ_MAX( boundingBox[1].x - boundingBox[0].x,
-                                      boundingBox[1].y - boundingBox[0].y );
-    _boundingSphere.radius  = EQ_MAX( boundingBox[1].z - boundingBox[0].z,
-                                      _boundingSphere.radius );
-    _boundingSphere.radius *= .5f;
+    _boundingSphere.w()  = EQ_MAX( boundingBox[1].x() - boundingBox[0].x(),
+                                      boundingBox[1].y() - boundingBox[0].y() );
+    _boundingSphere.w()  = EQ_MAX( boundingBox[1].z() - boundingBox[0].z(),
+                                      _boundingSphere.w() );
+    _boundingSphere.w() *= .5f;
 
-    float  radius        = _boundingSphere.radius;
+    float  radius        = _boundingSphere.w();
     float  radiusSquared =  radius * radius;
-    Vertex center( _boundingSphere.xyzw );
+    Vertex center( _boundingSphere.array );
 
     // 2) test all points to be in the estimated bounding sphere
     for( Index offset = 0; offset < _indexLength; ++offset )
@@ -140,7 +143,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
                                   _globalData.indices[_indexStart + offset] ];
         
         const Vertex centerToPoint   = vertex - center;
-        const float  distanceSquared = centerToPoint.lengthSquared();
+        const float  distanceSquared = centerToPoint.squared_length();
         if( distanceSquared <= radiusSquared ) // point is inside existing BS
             continue;
 
@@ -150,17 +153,21 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
 
         radius        = ( radius + distance ) * .5f;
         radiusSquared = radius * radius;
-        center       += centerToPoint.getNormalized() * ( 0.5f * delta );
+        const Vertex normdelta = normalize( centerToPoint ) * ( 0.5f * delta );
+  
+        center       += normdelta;
 
-        EQASSERTINFO( Vertex( vertex-center ).lengthSquared() <= 
+        EQASSERTINFO( Vertex( vertex-center ).squared_length() <= 
                       ( radiusSquared + 2.f* numeric_limits<float>::epsilon( )),
                       vertex << " c " << center << " r " << radius << " (" 
                              << Vertex( vertex-center ).length() << ")" );
     }
 
     // store optimal bounding sphere 
-    _boundingSphere        = center;
-    _boundingSphere.radius = radius;
+    _boundingSphere.x() = center.x();
+    _boundingSphere.y() = center.y();
+    _boundingSphere.z() = center.z();
+    _boundingSphere.w() = radius;
 
 #ifndef NDEBUG
     MESHINFO << "Exiting VertexBufferLeaf::updateBoundingSphere" 

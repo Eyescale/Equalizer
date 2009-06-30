@@ -35,7 +35,7 @@
 #include <eq/client/zoom.h>
 #include <eq/net/barrier.h>
 #include <eq/base/thread.h>
-#include <vmmlib/vector2.h>
+#include <vmmlib/vector.hpp>
 #include <iostream>
 #include <vector>
 
@@ -310,7 +310,7 @@ namespace server
         uint32_t getInheritBuffers() const { return _inherit.buffers; }
         const eq::PixelViewport& getInheritPixelViewport() const 
             { return _inherit.pvp; }
-        const vmml::Vector4i& getInheritOverdraw() const
+        const Vector4i& getInheritOverdraw() const
             { return _inherit.overdraw; }
         const eq::Viewport& getInheritViewport() const { return _inherit.vp; }
         const eq::Range& getInheritRange()   const { return _inherit.range; }
@@ -503,7 +503,7 @@ namespace server
             Channel*          channel;
             eq::Viewport      vp;
             eq::PixelViewport pvp;
-            vmml::Vector4i    overdraw;
+            Vector4i          overdraw;
             eq::Range         range;
             eq::Pixel         pixel;
             FrustumData       frustumData;

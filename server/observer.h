@@ -56,11 +56,11 @@ namespace server
         ObserverPath getPath() const;
 
         /** @return the position of an eye in world-space coordinates. */
-        const vmml::Vector3f& getEyePosition( const eq::Eye eye ) const
+        const Vector3f& getEyePosition( const eq::Eye eye ) const
             { return _eyes[ eye ]; }
 
         /** @return the inverse of the current head matrix. */
-        const vmml::Matrix4f& getInverseHeadMatrix() const
+        const Matrix4f& getInverseHeadMatrix() const
             { return _inverseHeadMatrix; }
 
         /** @return the config of this observer. */
@@ -102,10 +102,10 @@ namespace server
         friend class Config;
 
         /** Cached inverse head matrix. */
-        vmml::Matrix4f _inverseHeadMatrix;
+        Matrix4f _inverseHeadMatrix;
 
         /** The eye positions in world space. */ 
-        vmml::Vector3f _eyes[eq::EYE_ALL];
+        Vector3f _eyes[eq::EYE_ALL];
 
         union // placeholder for binary-compatible changes
         {

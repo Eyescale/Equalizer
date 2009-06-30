@@ -28,7 +28,7 @@
 #include <eq/client/viewport.h>
 #include <eq/client/zoom.h>
 #include <eq/base/debug.h>
-#include <vmmlib/vmmlib.h>
+#include <vmmlib/vmmlib.hpp>
 
 using namespace eq::base;
 using namespace std;
@@ -170,7 +170,7 @@ void MonitorEqualizer::_updateZoomAndOffset()
             static_cast< float >( pvp.w ) * viewport.x );
         const int32_t offsetY = static_cast< int32_t >(
             static_cast< float >( pvp.h ) * viewport.y );
-        frame->setOffset( vmml::Vector2i( offsetX, offsetY ));
+        frame->setOffset( Vector2i( offsetX, offsetY ));
         
         // compute and apply output frame zoom
         const int32_t width   = static_cast< int32_t >(

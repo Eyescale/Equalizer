@@ -27,6 +27,7 @@
 namespace eq
 {
     class Compressor;
+
     /**
      * A holder for pixel data.
      *
@@ -390,6 +391,7 @@ namespace eq
 
         friend std::ostream& operator << ( std::ostream& os, const Image* );
     };
+
     std::ostream& operator << ( std::ostream& os, const Image* image );
 };
 #endif // EQ_IMAGE_H

@@ -936,11 +936,11 @@ wall: EQTOKEN_WALL '{' { wall = eq::Wall(); } wallFields '}'
 wallFields:  /*null*/ | wallFields wallField
 wallField:
     EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']'
-        { wall.bottomLeft = vmml::Vector3f( $3, $4, $5 ); }
+        { wall.bottomLeft = eq::Vector3f( $3, $4, $5 ); }
     | EQTOKEN_BOTTOM_RIGHT  '[' FLOAT FLOAT FLOAT ']'
-        { wall.bottomRight = vmml::Vector3f( $3, $4, $5 ); }
+        { wall.bottomRight = eq::Vector3f( $3, $4, $5 ); }
     |  EQTOKEN_TOP_LEFT  '[' FLOAT FLOAT FLOAT ']'
-        { wall.topLeft = vmml::Vector3f( $3, $4, $5 ); }
+        { wall.topLeft = eq::Vector3f( $3, $4, $5 ); }
     | EQTOKEN_TYPE wallType
 
 wallType: 
@@ -953,13 +953,13 @@ projection: EQTOKEN_PROJECTION '{' { projection = eq::Projection(); }
 projectionFields:  /*null*/ | projectionFields projectionField
 projectionField:
     EQTOKEN_ORIGIN  '[' FLOAT FLOAT FLOAT ']'
-        { projection.origin = vmml::Vector3f( $3, $4, $5 ); }
+        { projection.origin = eq::Vector3f( $3, $4, $5 ); }
     | EQTOKEN_DISTANCE FLOAT
         { projection.distance = $2; }
     | EQTOKEN_FOV  '[' FLOAT FLOAT ']'
-        { projection.fov = vmml::Vector2f( $3, $4 ); }
+        { projection.fov = eq::Vector2f( $3, $4 ); }
     | EQTOKEN_HPR  '[' FLOAT FLOAT FLOAT ']'
-        { projection.hpr = vmml::Vector3f( $3, $4, $5 ); }
+        { projection.hpr = eq::Vector3f( $3, $4, $5 ); }
 
 loadBalancer: 
     EQTOKEN_LOADBALANCER '{' loadBalancerFields '}'

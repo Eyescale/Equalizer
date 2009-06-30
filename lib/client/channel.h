@@ -26,7 +26,6 @@
 #include <eq/client/window.h>
 
 #include <eq/net/object.h>           // base class
-#include <vmmlib/vmmlib.h>           // Frustum definition 
 
 namespace eq
 {
@@ -135,10 +134,10 @@ namespace eq
          * @param nearPlane the near plane.
          * @param farPlane the far plane.
          */
-        EQ_EXPORT void setNearFar( const float nearPlane, const float farPlane );
+        EQ_EXPORT void setNearFar( const float nearPlane, const float farPlane);
 
         /** Return a stable, unique color for this channel. */
-        const vmml::Vector3ub& getUniqueColor() const { return _color; }
+        const Vector3ub& getUniqueColor() const { return _color; }
 
         /** 
          * Get the channel's view.
@@ -186,13 +185,13 @@ namespace eq
          *
          * @return the channel's current position wrt the destination channel.
          */
-        EQ_EXPORT const vmml::Vector2i& getPixelOffset() const;
+        EQ_EXPORT const Vector2i& getPixelOffset() const;
 
         /** @return the perspective frustum for the current rendering task. */
-        EQ_EXPORT const vmml::Frustumf& getFrustum() const;
+        EQ_EXPORT const Frustumf& getFrustum() const;
 
         /** @return the orthographic frustum for the current rendering task. */
-        EQ_EXPORT const vmml::Frustumf& getOrtho() const;
+        EQ_EXPORT const Frustumf& getOrtho() const;
 
         /** @return the fractional viewport wrt the destination view. */
         EQ_EXPORT const Viewport& getViewport() const;
@@ -213,7 +212,7 @@ namespace eq
          * @return the view transformation to position and orient the view
          *         frustum.
          */
-        EQ_EXPORT const vmml::Matrix4f& getHeadTransform() const;
+        EQ_EXPORT const Matrix4f& getHeadTransform() const;
 
         /** @return the list of input frames, used from frameAssemble(). */
         const FrameVector& getInputFrames() { return _inputFrames; }
@@ -229,8 +228,8 @@ namespace eq
          *
          * @return the 2D orthographic frustum.
          */
-        EQ_EXPORT vmml::Frustumf getScreenFrustum() const;
-        
+        EQ_EXPORT Frustumf getScreenFrustum() const;
+
         /** 
          * get the channel's native (drawable) pixel viewport.
          */
@@ -238,7 +237,7 @@ namespace eq
             { return _nativeContext.pvp; }
 
         /** @warning  Undocumented - may not be supported in the future */
-        EQ_EXPORT const vmml::Vector4i& getOverdraw() const;
+        EQ_EXPORT const Vector4i& getOverdraw() const;
 
         /** @warning  Undocumented - may not be supported in the future */
         EQ_EXPORT uint32_t getTaskID() const;
@@ -535,7 +534,7 @@ namespace eq
         std::string    _name;
         
         /** A unique color assigned by the server during config init. */
-        vmml::Vector3ub _color;
+        Vector3ub _color;
 
         /** The reason for the last error. */
         std::string     _error;
@@ -576,7 +575,7 @@ namespace eq
         std::vector< Statistic > _statistics;
 
         /** The initial channel size, used for view resize events. */
-        vmml::Vector2i _initialSize;
+        Vector2i _initialSize;
 
         union // placeholder for binary-compatible changes
         {

@@ -21,6 +21,7 @@
 #include <eq/client/frustum.h>        // base class
 #include <eq/client/viewport.h>       // member
 #include <eq/client/visitorResult.h>  // enum
+#include <eq/client/types.h>          // member
 
 namespace eq
 {
@@ -93,8 +94,8 @@ namespace server
         //@}
 
         /** @warning  Undocumented - may not be supported in the future */
-        EQ_EXPORT void setOverdraw( const vmml::Vector2i& pixels );
-        const vmml::Vector2i& getOverdraw() const { return _overdraw; }
+        EQ_EXPORT void setOverdraw( const Vector2i& pixels );
+        const Vector2i& getOverdraw() const { return _overdraw; }
 
     protected:
         /** @sa Frustum::serialize() */
@@ -139,7 +140,7 @@ namespace server
         Frustum _baseFrustum;
 
         /** Enlarge size of all dest channels and adjust frustum accordingly. */
-        vmml::Vector2i _overdraw;
+        Vector2i _overdraw;
 
         union // placeholder for binary-compatible changes
         {

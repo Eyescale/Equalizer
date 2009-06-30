@@ -33,7 +33,7 @@ namespace eVolve
         GLuint newDisplayList( const void* key )
             { return getObjectManager()->newList( key ); }
 
-        void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
+        void getLogoTexture( GLuint& id, eq::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }
 
         GLEWContext* glewGetContext() { return getObjectManager()->glewGetContext(); }
@@ -46,7 +46,7 @@ namespace eVolve
 
     private:
         GLuint         _logoTexture;
-        vmml::Vector2i _logoSize;
+        eq::Vector2i _logoSize;
 
         void _loadLogo();
     };

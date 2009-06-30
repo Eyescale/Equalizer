@@ -81,9 +81,9 @@ bool CameraAnimation::loadAnimation( const std::string& fileName )
     }
 
     // read model pre-rotation
-    file >> _modelRotation.x;
-    file >> _modelRotation.y;
-    file >> _modelRotation.z;
+    file >> _modelRotation.x();
+    file >> _modelRotation.y();
+    file >> _modelRotation.z();
 
     const float m = static_cast<float>(M_PI_2) / 90.f;
     _modelRotation *= m;
@@ -100,8 +100,8 @@ bool CameraAnimation::loadAnimation( const std::string& fileName )
             frameNum += EQ_MAX( static_cast<int>( v[0] ), 1 );
 
             _steps.push_back( Step( frameNum,
-                             vmml::Vector3f(  v[1]  , v[2]  , v[3]   ),
-                             vmml::Vector3f( -v[5]*m, v[4]*m, v[6]*m )));
+                             eq::Vector3f(  v[1]  , v[2]  , v[3]   ),
+                             eq::Vector3f( -v[5]*m, v[4]*m, v[6]*m )));
         }
     }
     file.close();

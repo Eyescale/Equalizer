@@ -1,9 +1,9 @@
-Remove some net headers from distribution
+Update to VMML 1.0 branch (svn:externals update to follow)
 
-[ ] May break build
+[x] Will break build
 [ ] Breaks existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

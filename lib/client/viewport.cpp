@@ -24,7 +24,7 @@ EQ_EXPORT const eq::Viewport eq::Viewport::FULL;
 namespace eq
 {
 void Viewport::applyView( const Viewport& segmentVP, const Viewport& viewVP,
-                      const PixelViewport& pvp, const vmml::Vector4i& overdraw )
+                      const PixelViewport& pvp, const Vector4i& overdraw )
 {
     // part of view covered by segment
     Viewport contribution( segmentVP );
@@ -34,20 +34,20 @@ void Viewport::applyView( const Viewport& segmentVP, const Viewport& viewVP,
     // extend by overdraw percentage
     EQASSERT( pvp.hasArea( ));
 
-    const float xDelta(( static_cast< float >( overdraw.x + pvp.w ) /
+    const float xDelta(( static_cast< float >( overdraw.x() + pvp.w ) /
                          static_cast< float >( pvp.w ) - 1.0f ) * 
                        contribution.w );
     contribution.x -= xDelta;
-    contribution.w += (( static_cast< float >( overdraw.z + pvp.w ) /
+    contribution.w += (( static_cast< float >( overdraw.z() + pvp.w ) /
                          static_cast< float >( pvp.w ) - 1.0f ) * 
                        contribution.w ); 
     contribution.w += xDelta;
 
-    const float yDelta(( static_cast< float >( overdraw.y + pvp.h ) /
+    const float yDelta(( static_cast< float >( overdraw.y() + pvp.h ) /
                          static_cast< float >( pvp.h ) - 1.0f ) *
                        contribution.h ); 
     contribution.y -= yDelta;
-    contribution.h += (( static_cast< float >( overdraw.w + pvp.h ) /
+    contribution.h += (( static_cast< float >( overdraw.w() + pvp.h ) /
                          static_cast< float >( pvp.h ) - 1.0f ) *
                        contribution.h ); 
     contribution.h += yDelta;

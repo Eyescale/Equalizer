@@ -22,6 +22,7 @@
 #include <eq/client/commands.h>
 #include <eq/client/node.h>          // Node::IATTR_ALL enum
 #include <eq/client/renderContext.h> // member
+#include <eq/client/types.h>         // member
 #include <eq/client/viewport.h>      // member
 #include <eq/client/window.h>        // Window::IATTR_ALL enum
 
@@ -812,7 +813,7 @@ namespace eq
         int32_t         tasks;
         PixelViewport   pvp;
         Viewport        vp;
-        vmml::Vector3ub color;
+        Vector3ub color;
         net::ObjectVersion view;
         EQ_ALIGN8( char name[8] );
     };

@@ -16,11 +16,10 @@
 
 #ifndef EQ_PLY_CAMERAANIMATION_H
 #define EQ_PLY_CAMERAANIMATION_H
-
-#include <vmmlib/vmmlib.h>
-#include <vmmlib/vector3.h>
+#include <eq/eq.h>
 #include <eq/base/base.h>
 #include <math.h>
+#include <string>
 
 namespace eqPly
 {
@@ -42,28 +41,28 @@ namespace eqPly
 
         Step getNextStep();
 
-        const vmml::Vector3f& getModelRotation() const { return _modelRotation;}
+        const eq::Vector3f& getModelRotation() const { return _modelRotation;}
 
         struct Step
         {
             Step()
                 : frame( 0 )
-                , translation( vmml::Vector3f( .0f, .0f, -1.0f ))
-                , rotation(    vmml::Vector3f( .0f, .0f,   .0f )){}
+                , translation( eq::Vector3f( .0f, .0f, -1.0f ))
+                , rotation(    eq::Vector3f( .0f, .0f,   .0f )){}
 
-            Step( int frame_, const vmml::Vector3f& translation_,
-                              const vmml::Vector3f& rotation_  )
+            Step( int frame_, const eq::Vector3f& translation_,
+                              const eq::Vector3f& rotation_  )
                 : frame( frame_ )
                 , translation( translation_ ),
                   rotation( rotation_ ){}
 
             int frame;
-            vmml::Vector3f translation;
-            vmml::Vector3f rotation;
+            eq::Vector3f translation;
+            eq::Vector3f rotation;
         };
 
     private:
-        vmml::Vector3f      _modelRotation;
+        eq::Vector3f        _modelRotation;
         std::vector< Step > _steps;
         uint32_t            _curStep;
         int32_t             _curFrame;

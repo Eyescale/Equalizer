@@ -34,8 +34,7 @@ namespace eVolve
 {
 Channel::Channel( eq::Window* parent )
     : eq::Channel( parent )
-    , _bgColor   ( 0.0f, 0.0f, 0.0f, 1.0f )
-    , _bgColorMode( BG_SOLID_COLORED )
+    , _bgColor( eq::Vector3f::ZERO )
     , _drawRange( eq::Range::ALL )
 {
     eq::FrameData* frameData = new eq::FrameData;
@@ -66,11 +65,6 @@ bool Channel::configInit( const uint32_t initID )
         _bgColor /= 255.f;
     }
 
-    if( _bgColor.r + _bgColor.g + _bgColor.b <= 0.0f )
-        _bgColorMode = BG_SOLID_BLACK;
-    else
-        _bgColorMode = BG_SOLID_COLORED;
-
     return true;
 }
 
@@ -86,7 +80,7 @@ void Channel::frameClear( const uint32_t frameID )
     applyViewport();
 
     if( getRange() == eq::Range::ALL )
-        glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
+        glClearColor( _bgColor.r(), _bgColor.g(), _bgColor.b(), 1.0f );
     else
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
 
@@ -94,7 +88,7 @@ void Channel::frameClear( const uint32_t frameID )
 }
 
 
-static void setLights( vmml::Matrix4f& invRotationM )
+static void setLights( eq::Matrix4f& invRotationM )
 {
     GLfloat lightAmbient[]  = {0.05f, 0.05f, 0.05f, 1.0f};
     GLfloat lightDiffuse[]  = {0.9f , 0.9f , 0.9f , 1.0f};
@@ -109,7 +103,7 @@ static void setLights( vmml::Matrix4f& invRotationM )
     // light position constant and avoid recalculating normals in the fragment
     // shader
     glPushMatrix();
-    glMultMatrixf( invRotationM.ml );
+    glMultMatrixf( invRotationM.array );
     glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
     glPopMatrix();
 }
@@ -121,20 +115,20 @@ void Channel::frameDraw( const uint32_t frameID )
     eq::Channel::frameDraw( frameID );
 
     const FrameData::Data& frameData = _getFrameData();
-    vmml::Matrix4f         invRotationM;
-    frameData.rotation.getInverse( invRotationM );
+    eq::Matrix4f         invRotationM;
+    frameData.rotation.inverse( invRotationM );
     setLights( invRotationM );
 
-    glTranslatef(  frameData.translation.x, frameData.translation.y, 
-                   frameData.translation.z );
-    glMultMatrixf( frameData.rotation.ml );
+    glTranslatef(  frameData.translation.x(), frameData.translation.y(), 
+                   frameData.translation.z() );
+    glMultMatrixf( frameData.rotation.array );
 
     Pipe*     pipe     = static_cast<Pipe*>( getPipe( ));
     Renderer* renderer = pipe->getRenderer();
     EQASSERT( renderer );
 
-    vmml::Matrix4d  modelviewM;     // modelview matrix
-    vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
+    eq::Matrix4f  modelviewM;     // modelview matrix
+    eq::Matrix3f  modelviewITM;   // modelview inversed transposed matrix
     _calcMVandITMV( modelviewM, modelviewITM );
 
     const eq::Range& range = getRange();
@@ -167,8 +161,8 @@ void Channel::applyFrustum() const
 
 
 void Channel::_calcMVandITMV(
-    vmml::Matrix4d& modelviewM,
-    vmml::Matrix3d& modelviewITM ) const
+                            eq::Matrix4f& modelviewM,
+                            eq::Matrix3f& modelviewITM ) const
 {
     const FrameData::Data& frameData = _getFrameData();
     const Pipe*            pipe      = static_cast< const Pipe* >( getPipe( ));
@@ -178,28 +172,28 @@ void Channel::_calcMVandITMV(
     {
         const VolumeScaling& volScaling = renderer->getVolumeScaling();
         
-        vmml::Matrix4f scale( 
-            volScaling.W, 0, 0, 0,
-            0, volScaling.H, 0, 0,
-            0, 0, volScaling.D, 0,
-            0, 0,            0, 1 );
-
+        eq::Matrix4f scale( eq::Matrix4f::ZERO );
+        scale.at(0,0) = volScaling.W;
+        scale.at(1,1) = volScaling.H;
+        scale.at(2,2) = volScaling.D;
+        scale.at(3,3) = 1.f;
+        
         modelviewM = scale * frameData.rotation;
     }
-    modelviewM.setTranslation( frameData.translation );
+    modelviewM.set_translation( frameData.translation );
 
     modelviewM = getHeadTransform() * modelviewM;
 
     //calculate inverse transposed matrix
-    vmml::Matrix4d modelviewIM;
-    modelviewM.getInverse( modelviewIM );
-    modelviewITM = modelviewIM.getTransposed();
+    eq::Matrix4f modelviewIM;
+    modelviewM.inverse( modelviewIM );
+    eq::Matrix3f( modelviewIM ).transpose_to(  modelviewITM  );
 }
 
 
 static void _expandPVP( eq::PixelViewport& pvp, 
                         const vector< eq::Image* >& images,
-                        const vmml::Vector2i& offset )
+                        const eq::Vector2i& offset )
 {
     for( vector< eq::Image* >::const_iterator i = images.begin();
          i != images.end(); ++i )
@@ -214,7 +208,7 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 {
     // clear given area
     glScissor(  pvp.x, pvp.y, pvp.w, pvp.h );
-    glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
+    glClearColor( _bgColor.r(), _bgColor.g(), _bgColor.b(), 1.0f );
     glClear( GL_COLOR_BUFFER_BIT );
 
     // restore assembly state
@@ -224,10 +218,10 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 
 void Channel::_orderFrames( eq::FrameVector& frames )
 {
-          vmml::Matrix4d   modelviewM;   // modelview matrix
-          vmml::Matrix3d   modelviewITM; // modelview inversed transposed matrix
+    eq::Matrix4f           modelviewM;   // modelview matrix
+    eq::Matrix3f           modelviewITM; // modelview inversed transposed matrix
     const FrameData::Data& frameData = _getFrameData();
-    const vmml::Matrix4f&  rotation  = frameData.rotation;
+    const eq::Matrix4f&    rotation  = frameData.rotation;
 
     if( !frameData.ortho )
         _calcMVandITMV( modelviewM, modelviewITM );
@@ -287,13 +281,13 @@ void Channel::frameAssemble( const uint32_t frameID )
     // check if current frame is in proper position, read back if not
     if( !composeOnly )
     {
-        if( _bgColorMode == BG_SOLID_BLACK && dbFrames.front() == &_frame )
+        if( _bgColor == eq::Vector3f::ZERO && dbFrames.front() == &_frame )
             dbFrames.erase( dbFrames.begin( ));
         else if( coveredPVP.hasArea())
         {
             eq::Window::ObjectManager* glObjects = getObjectManager();
 
-            _frame.setOffset( vmml::Vector2i( 0, 0 ));
+            _frame.setOffset( eq::Vector2i( 0, 0 ));
             _frame.setZoom( zoom );
             _frame.setPixelViewport( coveredPVP );
             _frame.startReadback( glObjects );
@@ -301,7 +295,7 @@ void Channel::frameAssemble( const uint32_t frameID )
             _frame.syncReadback();
 
             // offset for assembly
-            _frame.setOffset( vmml::Vector2i( coveredPVP.x, coveredPVP.y ));
+            _frame.setOffset( eq::Vector2i( coveredPVP.x, coveredPVP.y ));
         }
     }
 
@@ -338,7 +332,7 @@ void Channel::frameViewFinish( const uint32_t frameID )
     // Draw the overlay logo
     const Window*  window      = static_cast<Window*>( getWindow( ));
     GLuint         texture;
-    vmml::Vector2i size;
+    eq::Vector2i size;
 
     window->getLogoTexture( texture, size );
     if( !texture )
@@ -367,14 +361,14 @@ void Channel::frameViewFinish( const uint32_t frameID )
         glTexCoord2f( 0.0f, 0.0f );
         glVertex3f( 5.0f, 5.0f, 0.0f );
 
-        glTexCoord2f( size.x, 0.0f );
-        glVertex3f( size.x + 5.0f, 5.0f, 0.0f );
+        glTexCoord2f( size.x(), 0.0f );
+        glVertex3f( size.x() + 5.0f, 5.0f, 0.0f );
 
-        glTexCoord2f( 0.0f, size.y );
-        glVertex3f( 5.0f, size.y + 5.0f, 0.0f );
+        glTexCoord2f( 0.0f, size.y() );
+        glVertex3f( 5.0f, size.y() + 5.0f, 0.0f );
 
-        glTexCoord2f( size.x, size.y );
-        glVertex3f( size.x + 5.0f, size.y + 5.0f, 0.0f );
+        glTexCoord2f( size.x(), size.y() );
+        glVertex3f( size.x() + 5.0f, size.y() + 5.0f, 0.0f );
     } glEnd();
 
     glDisable( GL_TEXTURE_RECTANGLE_ARB );

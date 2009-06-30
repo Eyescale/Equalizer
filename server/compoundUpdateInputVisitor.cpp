@@ -74,7 +74,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         const eq::Viewport&        frameVP = frame->getViewport();
         const eq::PixelViewport& inheritPVP=compound->getInheritPixelViewport();
         eq::PixelViewport         framePVP = inheritPVP.getSubPVP( frameVP );
-        vmml::Vector2i frameOffset = outputFrame->getMasterData()->getOffset();
+        Vector2i frameOffset = outputFrame->getMasterData()->getOffset();
 
         frameOffset += frame->getOffset();
          
@@ -83,8 +83,8 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         {
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.
-            frameOffset.x -= framePVP.x;
-            frameOffset.y -= framePVP.y;
+            frameOffset.x() -= framePVP.x;
+            frameOffset.y() -= framePVP.y;
         }
         frame->setInheritOffset( frameOffset );
 

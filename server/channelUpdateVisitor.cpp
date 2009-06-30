@@ -161,8 +161,8 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.range         = compound->getInheritRange();
     context.pixel         = compound->getInheritPixel();
     context.zoom          = compound->getInheritZoom();
-    context.offset.x      = context.pvp.x;
-    context.offset.y      = context.pvp.y;
+    context.offset.x()    = context.pvp.x;
+    context.offset.y()    = context.pvp.y;
     context.eye           = _eye;
     context.buffer        = _getDrawBuffer();
     context.bufferMask    = _getDrawBufferMask( compound );
@@ -197,7 +197,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     // Test if this is not the last eye pass of this compound
     if( compound->getInheritEyes() + 1 > static_cast< uint32_t >( 1<<( _eye+1 ))
         // or we don't actually draw this eye
-		|| !compound->testInheritEye( _eye ))
+        || !compound->testInheritEye( _eye ))
     {
         return;
     }
@@ -353,10 +353,10 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
                                             eq::RenderContext& context )
 {
     // compute eye position in screen space
-    const vmml::Vector3f  eyeW = _getEyePosition( compound );
+    const Vector3f  eyeW = _getEyePosition( compound );
     const FrustumData& frustumData = compound->getInheritFrustumData();
-    const vmml::Matrix4f& xfm  = frustumData.getTransform();
-    const vmml::Vector3f  eye  = xfm * eyeW;
+    const Matrix4f& xfm  = frustumData.getTransform();
+    const Vector3f  eye  = xfm * eyeW;
 
     EQVERB << "Eye position world: " << eyeW << " screen " << eye << endl;
 
@@ -366,13 +366,13 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
 
     // compute head transform
     // headTransform = -trans(eye) * view matrix (frustum position)
-    vmml::Matrix4f& headTransform = context.headTransform;
+    Matrix4f& headTransform = context.headTransform;
     for( int i=0; i<16; i += 4 )
     {
-        headTransform.ml[i]   = xfm.ml[i]   - eye[0] * xfm.ml[i+3];
-        headTransform.ml[i+1] = xfm.ml[i+1] - eye[1] * xfm.ml[i+3];
-        headTransform.ml[i+2] = xfm.ml[i+2] - eye[2] * xfm.ml[i+3];
-        headTransform.ml[i+3] = xfm.ml[i+3];
+        headTransform.array[i]   = xfm.array[i]   - eye[0] * xfm.array[i+3];
+        headTransform.array[i+1] = xfm.array[i+1] - eye[1] * xfm.array[i+3];
+        headTransform.array[i+2] = xfm.array[i+2] - eye[2] * xfm.array[i+3];
+        headTransform.array[i+3] = xfm.array[i+3];
     }
 
     const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
@@ -380,7 +380,7 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
         headTransform *= _getInverseHeadMatrix( compound );
 }
 
-vmml::Vector3f ChannelUpdateVisitor::_getEyePosition( const Compound* compound )
+Vector3f ChannelUpdateVisitor::_getEyePosition( const Compound* compound )
     const
 {
     const FrustumData& frustumData = compound->getInheritFrustumData();
@@ -399,19 +399,19 @@ vmml::Vector3f ChannelUpdateVisitor::_getEyePosition( const Compound* compound )
     switch( _eye )
     {
         case eq::EYE_LEFT:
-            return vmml::Vector3f(-eyeBase_2, 0.f, 0.f );
+            return Vector3f(-eyeBase_2, 0.f, 0.f );
 
         case eq::EYE_RIGHT:
-            return vmml::Vector3f( eyeBase_2, 0.f, 0.f );
+            return Vector3f( eyeBase_2, 0.f, 0.f );
 
         default:
             EQUNIMPLEMENTED;
         case eq::EYE_CYCLOP:
-            return vmml::Vector3f( 0.f, 0.f, 0.f );
+            return Vector3f( 0.f, 0.f, 0.f );
     }
 }
 
-const vmml::Matrix4f& ChannelUpdateVisitor::_getInverseHeadMatrix(
+const Matrix4f& ChannelUpdateVisitor::_getInverseHeadMatrix(
     const Compound* compound ) const
 {
     const Channel* destChannel = compound->getInheritChannel();
@@ -422,35 +422,35 @@ const vmml::Matrix4f& ChannelUpdateVisitor::_getInverseHeadMatrix(
     if( observer )
         return observer->getInverseHeadMatrix();
 
-    return vmml::Matrix4f::IDENTITY;
+    return Matrix4f::IDENTITY;
 }
 
-void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
+void ChannelUpdateVisitor::_computeFrustumCorners( Frustumf& frustum,
                                                    const Compound* compound,
                                                  const FrustumData& frustumData,
-                                                   const vmml::Vector3f& eye,
+                                                   const Vector3f& eye,
                                                    const bool ortho )
 {
     const Channel* destination = compound->getInheritChannel();
-    destination->getNearFar( &frustum.nearPlane, &frustum.farPlane );
+    destination->getNearFar( &frustum.near_plane(), &frustum.far_plane() );
 
-    const float ratio    = ortho ? 1.0f : frustum.nearPlane / eye.z;
+    const float ratio    = ortho ? 1.0f : frustum.near_plane() / eye.z();
     const float width_2  = frustumData.getWidth()  * .5f;
     const float height_2 = frustumData.getHeight() * .5f;
 
-    if( eye.z > 0 || ortho )
+    if( eye.z() > 0 || ortho )
     {
-        frustum.left   =  ( -width_2  - eye.x ) * ratio;
-        frustum.right  =  (  width_2  - eye.x ) * ratio;
-        frustum.bottom =  ( -height_2 - eye.y ) * ratio;
-        frustum.top    =  (  height_2 - eye.y ) * ratio;
+        frustum.left()   =  ( -width_2  - eye.x() ) * ratio;
+        frustum.right()  =  (  width_2  - eye.x() ) * ratio;
+        frustum.bottom() =  ( -height_2 - eye.y() ) * ratio;
+        frustum.top()    =  (  height_2 - eye.y() ) * ratio;
     }
     else // eye behind near plane - 'mirror' x
     {
-        frustum.left   =  (  width_2  - eye.x ) * ratio;
-        frustum.right  =  ( -width_2  - eye.x ) * ratio;
-        frustum.bottom =  (  height_2 + eye.y ) * ratio;
-        frustum.top    =  ( -height_2 + eye.y ) * ratio;
+        frustum.left()   =  (  width_2  - eye.x() ) * ratio;
+        frustum.right()  =  ( -width_2  - eye.x() ) * ratio;
+        frustum.bottom() =  (  height_2 + eye.y() ) * ratio;
+        frustum.top()    =  ( -height_2 + eye.y() ) * ratio;
     }
 
     // move frustum according to pixel decomposition
@@ -462,25 +462,25 @@ void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
         
         if( pixel.w > 1 )
         {
-            const float         frustumWidth = frustum.right - frustum.left;
+            const float         frustumWidth = frustum.right() - frustum.left();
             const float           pixelWidth = frustumWidth / 
                                                static_cast<float>( destPVP.w );
             const float               jitter = pixelWidth * pixel.x - 
                                                pixelWidth * .5f;
 
-            frustum.left  += jitter;
-            frustum.right += jitter;
+            frustum.left()  += jitter;
+            frustum.right() += jitter;
         }
         if( pixel.h > 1 )
         {
-            const float        frustumHeight = frustum.bottom - frustum.top;
+            const float        frustumHeight = frustum.bottom() - frustum.top();
             const float          pixelHeight = frustumHeight / 
                                                static_cast<float>( destPVP.h );
             const float               jitter = pixelHeight * pixel.y + 
                                                pixelHeight * .5f;
 
-            frustum.top    -= jitter;
-            frustum.bottom -= jitter;
+            frustum.top()    -= jitter;
+            frustum.bottom() -= jitter;
         }
     }
 
@@ -489,13 +489,13 @@ void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
     const eq::Viewport vp = compound->getInheritViewport();
     if( vp != eq::Viewport::FULL && vp.isValid( ))
     {
-        const float frustumWidth = frustum.right - frustum.left;
-        frustum.left  += frustumWidth * vp.x;
-        frustum.right  = frustum.left + frustumWidth * vp.w;
+        const float frustumWidth = frustum.right() - frustum.left();
+        frustum.left()  += frustumWidth * vp.x;
+        frustum.right()  = frustum.left() + frustumWidth * vp.w;
         
-        const float frustumHeight = frustum.top - frustum.bottom;
-        frustum.bottom += frustumHeight * vp.y;
-        frustum.top     = frustum.bottom + frustumHeight * vp.h;
+        const float frustumHeight = frustum.top() - frustum.bottom();
+        frustum.bottom() += frustumHeight * vp.y;
+        frustum.top()     = frustum.bottom() + frustumHeight * vp.h;
     }
 }
 

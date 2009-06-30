@@ -61,8 +61,8 @@ namespace eVolve
 
 void SliceClipper::updatePerFrameInfo
 (
-    const vmml::Matrix4d&   modelviewM,
-    const vmml::Matrix3d&   modelviewITM,
+    const eq::Matrix4d&   modelviewM,
+    const eq::Matrix3d&   modelviewITM,
     const double            newSliceDistance,
     const eq::Range&        range
 )
@@ -71,28 +71,28 @@ void SliceClipper::updatePerFrameInfo
     double zRe = -1+2.*range.end;
 
     //rendering parallelepipid's verteces
-    vmml::Vector4d vertices[8];
-    vertices[0] = vmml::Vector4d(-1.0,-1.0,zRs, 1.0);
-    vertices[1] = vmml::Vector4d( 1.0,-1.0,zRs, 1.0);
-    vertices[2] = vmml::Vector4d(-1.0, 1.0,zRs, 1.0);
-    vertices[3] = vmml::Vector4d( 1.0, 1.0,zRs, 1.0);
+    eq::Vector4d vertices[8];
+    vertices[0] = eq::Vector4d(-1.0,-1.0,zRs, 1.0);
+    vertices[1] = eq::Vector4d( 1.0,-1.0,zRs, 1.0);
+    vertices[2] = eq::Vector4d(-1.0, 1.0,zRs, 1.0);
+    vertices[3] = eq::Vector4d( 1.0, 1.0,zRs, 1.0);
 
-    vertices[4] = vmml::Vector4d(-1.0,-1.0,zRe, 1.0);
-    vertices[5] = vmml::Vector4d( 1.0,-1.0,zRe, 1.0);
-    vertices[6] = vmml::Vector4d(-1.0, 1.0,zRe, 1.0);
-    vertices[7] = vmml::Vector4d( 1.0, 1.0,zRe, 1.0);
+    vertices[4] = eq::Vector4d(-1.0,-1.0,zRe, 1.0);
+    vertices[5] = eq::Vector4d( 1.0,-1.0,zRe, 1.0);
+    vertices[6] = eq::Vector4d(-1.0, 1.0,zRe, 1.0);
+    vertices[7] = eq::Vector4d( 1.0, 1.0,zRe, 1.0);
 
     for( int i=0; i<8; i++ )
         for( int j=0; j<3; j++)
             shaderVertices[ i*3+j ] = vertices[i][j];
 
 
-    this->viewVec = vmml::Vector4d( -modelviewM.ml[ 2],
-                                    -modelviewM.ml[ 6],
-                                    -modelviewM.ml[10],
-                                    0.0                 );
+    this->viewVec = eq::Vector4d( -modelviewM.array[ 2],
+                                  -modelviewM.array[ 6],
+                                  -modelviewM.array[10],
+                                  0.0                 );
 
-    viewVecf = vmml::Vector3f( viewVec.x, viewVec.y, viewVec.z );
+    viewVecf = eq::Vector3f( viewVec.x(), viewVec.y(), viewVec.z() );
 
     sliceDistance = newSliceDistance;
 
@@ -114,7 +114,7 @@ void SliceClipper::updatePerFrameInfo
 }
 
 
-vmml::Vector3f SliceClipper::getPosition
+eq::Vector3f SliceClipper::getPosition
 (
     const int vertexNum,
     const int sliceNum
@@ -156,3 +156,4 @@ vmml::Vector3f SliceClipper::getPosition
 
 
 }
+

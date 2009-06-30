@@ -95,8 +95,8 @@ namespace eqPly
         void _loadPath();
         void _deregisterData();
         bool _handleKeyEvent( const eq::KeyEvent& event );
-        void _setHeadMatrix( const vmml::Matrix4f& matrix );
-        const vmml::Matrix4f& _getHeadMatrix() const;
+        void _setHeadMatrix( const eq::Matrix4f& matrix );
+        const eq::Matrix4f& _getHeadMatrix() const;
     };
 }
 

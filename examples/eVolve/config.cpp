@@ -63,8 +63,8 @@ bool Config::exit()
 uint32_t Config::startFrame()
 {
     // update database
-    _frameData.data.rotation.preRotateX( -0.001f * _spinX );
-    _frameData.data.rotation.preRotateY( -0.001f * _spinY );
+    _frameData.data.rotation.pre_rotate_x( -0.001f * _spinX );
+    _frameData.data.rotation.pre_rotate_y( -0.001f * _spinY );
     const uint32_t version = _frameData.commit();
 
     return eq::Config::startFrame( version );
@@ -118,23 +118,23 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 _spinX = 0;
                 _spinY = 0;
 
-                _frameData.data.rotation.preRotateX( 
+                _frameData.data.rotation.pre_rotate_x( 
                     -0.005f * event->data.pointerMotion.dx );
-                _frameData.data.rotation.preRotateY(
+                _frameData.data.rotation.pre_rotate_y(
                     -0.005f * event->data.pointerMotion.dy );
             }
             else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 ||
                      event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
                                                        eq::PTR_BUTTON3 ))
             {
-                _frameData.data.translation.z +=
+                _frameData.data.translation.z() +=
                     .005f * event->data.pointerMotion.dy;
             }
             else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
-                _frameData.data.translation.x += 
+                _frameData.data.translation.x() += 
                     .0005f * event->data.pointerMotion.dx;
-                _frameData.data.translation.y -= 
+                _frameData.data.translation.y() -= 
                     .0005f * event->data.pointerMotion.dy;
             }
             return true;

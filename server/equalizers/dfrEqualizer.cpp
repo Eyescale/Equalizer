@@ -108,9 +108,9 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
                                   static_cast< float >( channelPVP.h ) /
                                   static_cast< float >( pvp.h ));
    
-    newZoom.x = EQ_MAX( newZoom.x, minZoom ); 
-    newZoom.x = EQ_MIN( newZoom.x, maxZoom );
-    newZoom.y = newZoom.x; 
+   newZoom.x() = EQ_MAX( newZoom.x(), minZoom ); 
+   newZoom.x() = EQ_MIN( newZoom.x(), maxZoom );
+   newZoom.y() = newZoom.x(); 
    
     compound->setZoom( newZoom );
 }

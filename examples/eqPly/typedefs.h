@@ -1,6 +1,7 @@
 /*  
     typedefs.h
     Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+    Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com>
   *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -48,7 +49,7 @@
 #   define MESHINFO    std::cout
 #endif
 
-#include <vmmlib/vmmlib.h>
+#include <vmmlib/vmmlib.hpp>
 
 #include <exception>
 #include <iostream>
@@ -59,11 +60,11 @@ namespace mesh
     
     
     // basic type definitions   
-    typedef vmml::Vector3< GLfloat >    Vertex;
-    typedef vmml::Vector4< GLubyte >    Color;
-    typedef vmml::Vector3< GLfloat >    Normal;
-    typedef size_t                      Index;
-    typedef GLushort                    ShortIndex;
+    typedef vmml::vector< 3, GLfloat >    Vertex;
+    typedef vmml::vector< 4, GLubyte >    Color;
+    typedef vmml::vector< 3, GLfloat >    Normal;
+    typedef size_t                        Index;
+    typedef GLushort                      ShortIndex;
     
     
     // mesh exception
@@ -109,9 +110,9 @@ namespace mesh
     
     
     // compound type definitions
-    typedef vmml::Vector3< Index >      Triangle;
+    typedef vmml::vector< 3, Index >      Triangle;
     typedef ArrayWrapper< Vertex, 2 >   BoundingBox;
-    typedef vmml::Vector4< float >      BoundingSphere;
+    typedef vmml::vector< 4, float >    BoundingSphere;
     typedef ArrayWrapper< float, 2 >    Range;
     
     

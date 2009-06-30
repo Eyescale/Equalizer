@@ -22,6 +22,7 @@
 #include <eq/client/pixelViewport.h> // member
 #include <eq/client/pixel.h>         // member
 #include <eq/client/range.h>         // member
+#include <eq/client/types.h>         // member
 
 #include <eq/base/monitor.h>         // member
 #include <eq/net/object.h>           // base class
@@ -179,11 +180,11 @@ namespace server
     private:
         struct Data
         {
-            Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 ), format( 0 )
+            Data() : offset( Vector2i::ZERO ), buffers( 0 ), format( 0 )
                    , type( 0 ), frameType( Frame::TYPE_MEMORY ){}
 
             PixelViewport    pvp;
-            vmml::Vector2i   offset;
+            Vector2i         offset;
             uint32_t         buffers;
             uint32_t         format;
             uint32_t         type;

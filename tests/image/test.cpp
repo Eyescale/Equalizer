@@ -27,6 +27,9 @@
 #include <eq/base/clock.h>
 #include <eq/base/fileSearch.h>
 
+
+#include <eq/client/frame.h>    // enum Eye
+
 #include <numeric>
 #include <fstream>
 

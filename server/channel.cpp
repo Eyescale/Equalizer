@@ -62,7 +62,7 @@ void Channel::_construct()
     _lastDrawCompound = 0;
     _near             = .1f;
     _far              = 10.f;
-    _overdraw         = vmml::Vector4i::ZERO;
+    _overdraw         = Vector4i::ZERO;
 
     _drawable         = 0;
     _tasks            = eq::TASK_NONE;
@@ -267,16 +267,16 @@ void Channel::addTasks( const uint32_t tasks )
     _window->addTasks( tasks );
 }
 
-vmml::Vector3ub Channel::_getUniqueColor() const
+Vector3ub Channel::_getUniqueColor() const
 {
-    vmml::Vector3ub color = vmml::Vector3ub::ZERO;
+    Vector3ub color = Vector3ub::ZERO;
     uint32_t  value = (reinterpret_cast< size_t >( this ) & 0xffffffffu);
 
     for( unsigned i=0; i<8; ++i )
     {
-        color.r |= ( value&1 << (7-i) ); value >>= 1;
-        color.g |= ( value&1 << (7-i) ); value >>= 1;
-        color.b |= ( value&1 << (7-i) ); value >>= 1;
+        color.r() |= ( value&1 << (7-i) ); value >>= 1;
+        color.g() |= ( value&1 << (7-i) ); value >>= 1;
+        color.b() |= ( value&1 << (7-i) ); value >>= 1;
     }
     
     return color;

@@ -128,8 +128,8 @@ void FrameData::spinCamera( const float x, const float y )
     if( x == 0.f && y == 0.f )
         return;
 
-    _rotation.preRotateX( x );
-    _rotation.preRotateY( y );
+    _rotation.pre_rotate_x( x );
+    _rotation.pre_rotate_y( y );
     setDirty( DIRTY_CAMERA );
 }
 
@@ -138,8 +138,8 @@ void FrameData::spinModel( const float x, const float y )
     if( x == 0.f && y == 0.f )
         return;
 
-    _modelRotation.preRotateX( x );
-    _modelRotation.preRotateY( y );
+    _modelRotation.pre_rotate_x( x );
+    _modelRotation.pre_rotate_y( y );
     setDirty( DIRTY_CAMERA );
 }
 
@@ -148,9 +148,9 @@ void FrameData::spinModel( const float x, const float y, const float z )
     if( x == 0.f && y == 0.f && z == 0.f )
         return;
 
-    _modelRotation.preRotateX( x );
-    _modelRotation.preRotateY( y );
-    _modelRotation.preRotateZ( z );
+    _modelRotation.pre_rotate_x( x );
+    _modelRotation.pre_rotate_y( y );
+    _modelRotation.pre_rotate_z( z );
     setDirty( DIRTY_CAMERA );
 }
 
@@ -158,17 +158,17 @@ void FrameData::moveCamera( const float x, const float y, const float z )
 {
     if( _pilotMode )
     {
-        bool tmp;
-        vmml::Vector4f shift = _rotation.getInverse( tmp ) *
-                                vmml::Vector4f( x, y, z, 1 );
+        eq::Matrix4f matInverse;
+        compute_inverse( _rotation, matInverse );
+        eq::Vector4f shift = matInverse * eq::Vector4f( x, y, z, 1 );
 
         _translation += shift;
     }
     else
     {
-        _translation.x += x;
-        _translation.y += y;
-        _translation.z += z;
+        _translation.x() += x;
+        _translation.y() += y;
+        _translation.z() += z;
     }
 
     setDirty( DIRTY_CAMERA );
@@ -176,44 +176,44 @@ void FrameData::moveCamera( const float x, const float y, const float z )
 
 void FrameData::setCameraPosition( const float x, const float y, const float z )
 {
-    _translation.x = x;
-    _translation.y = y;
-    _translation.z = z;
+    _translation.x() = x;
+    _translation.y() = y;
+    _translation.z() = z;
     setDirty( DIRTY_CAMERA );
 }
 
-void FrameData::setTranslation( const vmml::Vector3f& translation )
+void FrameData::setTranslation( const eq::Vector3f& translation )
 {
     _translation = translation;
     setDirty( DIRTY_CAMERA );
 }
 
-void FrameData::setRotation( const vmml::Vector3f& rotation )
+void FrameData::setRotation( const eq::Vector3f& rotation )
 {
-    _rotation = vmml::Matrix4f::IDENTITY;
-    _rotation.rotateX( rotation.x );
-    _rotation.rotateY( rotation.y );
-    _rotation.rotateZ( rotation.z );
+    _rotation = eq::Matrix4f::IDENTITY;
+    _rotation.rotate_x( rotation.x() );
+    _rotation.rotate_y( rotation.y() );
+    _rotation.rotate_z( rotation.z() );
     setDirty( DIRTY_CAMERA );
 }
 
-void FrameData::setModelRotation(  const vmml::Vector3f& rotation )
+void FrameData::setModelRotation(  const eq::Vector3f& rotation )
 {
-    _modelRotation = vmml::Matrix4f::IDENTITY;
-    _modelRotation.rotateX( rotation.x );
-    _modelRotation.rotateY( rotation.y );
-    _modelRotation.rotateZ( rotation.z );
+    _modelRotation = eq::Matrix4f::IDENTITY;
+    _modelRotation.rotate_x( rotation.x() );
+    _modelRotation.rotate_y( rotation.y() );
+    _modelRotation.rotate_z( rotation.z() );
     setDirty( DIRTY_CAMERA );
 }
 
 void FrameData::reset()
 {
-    _translation   = vmml::Vector3f::ZERO;
-    _translation.z = -2.f;
-    _rotation      = vmml::Matrix4f::IDENTITY;
-    _modelRotation = vmml::Matrix4f::IDENTITY;
-    _modelRotation.rotateX( static_cast<float>( -M_PI_2 ));
-    _modelRotation.rotateY( static_cast<float>( -M_PI_2 ));
+    _translation   = eq::Vector3f::ZERO;
+    _translation.z() = -2.f;
+    _rotation      = eq::Matrix4f::IDENTITY;
+    _modelRotation = eq::Matrix4f::IDENTITY;
+    _modelRotation.rotate_x( static_cast<float>( -M_PI_2 ));
+    _modelRotation.rotate_y( static_cast<float>( -M_PI_2 ));
     setDirty( DIRTY_CAMERA );
 }
 

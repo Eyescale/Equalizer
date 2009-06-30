@@ -20,11 +20,11 @@
 
 #include <eq/client/eye.h>    // enum Eye
 #include <eq/client/window.h> // nested ObjectManager type
+#include <eq/client/types.h>  // member
 #include <eq/client/zoom.h>   // member
 
 #include <eq/base/monitor.h>
 #include <eq/net/object.h>
-#include <vmmlib/vector2.h>
 
 namespace eq
 {
@@ -76,8 +76,8 @@ namespace server
          * @name Data Access
          */
         //@{
-        const vmml::Vector2i& getOffset() const { return _data.offset; }
-        void setOffset( const vmml::Vector2i& offset ) { _data.offset = offset;}
+        const Vector2i& getOffset() const { return _data.offset; }
+        void setOffset( const Vector2i& offset ) { _data.offset = offset;}
 
         /** @return the database-range relative to the destination channel. */
         EQ_EXPORT const Range& getRange() const;
@@ -209,9 +209,9 @@ namespace server
         friend class eq::server::Frame;
         struct Data
         {
-            Data() : offset( vmml::Vector2i::ZERO ), zoom( 0.f, 0.f ) {}
+            Data() : offset( Vector2i::ZERO ), zoom( 0.f, 0.f ) {}
 
-            vmml::Vector2i     offset;
+            Vector2i     offset;
             Zoom               zoom;
             net::ObjectVersion frameData[EYE_ALL];
         }

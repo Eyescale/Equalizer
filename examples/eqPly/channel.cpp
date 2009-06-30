@@ -69,8 +69,8 @@ void Channel::frameClear( const uint32_t frameID )
 #ifndef NDEBUG
     else if( getenv( "EQ_TAINT_CHANNELS" ))
     {
-        const vmml::Vector3ub color = getUniqueColor();
-        glClearColor( color.r/255.0f, color.g/255.0f, color.b/255.0f, 1.0f );
+        const eq::Vector3ub color = getUniqueColor();
+        glClearColor( color.r()/255.0f, color.g()/255.0f, color.b()/255.0f, 1.0f );
     }
 #endif // NDEBUG
     else
@@ -98,11 +98,11 @@ void Channel::frameDraw( const uint32_t frameID )
     glPolygonMode( GL_FRONT_AND_BACK, 
                    frameData.useWireframe() ? GL_LINE : GL_FILL );
 
-    const vmml::Vector3f& translation = frameData.getCameraTranslation();
+    const eq::Vector3f& translation = frameData.getCameraTranslation();
 
-    glMultMatrixf( frameData.getCameraRotation().ml );
-    glTranslatef( translation.x, translation.y, translation.z );
-    glMultMatrixf( frameData.getModelRotation().ml );
+    glMultMatrixf( frameData.getCameraRotation().array );
+    glTranslatef( translation.x(), translation.y(), translation.z() );
+    glMultMatrixf( frameData.getModelRotation().array );
 
     const Model*     model  = _getModel();
 
@@ -115,8 +115,8 @@ void Channel::frameDraw( const uint32_t frameID )
     }
     else
     {
-        const vmml::Vector3ub color = getUniqueColor();
-        glColor3ub( color.r, color.g, color.b );
+        const eq::Vector3ub color = getUniqueColor();
+        glColor3ub( color.r(), color.g(), color.b() );
     }
 
     if( model )
@@ -185,7 +185,7 @@ void Channel::_drawModel( const Model* model )
     VertexBufferState&   state     = window->getState();
     const FrameData&     frameData = _getFrameData();
     const eq::Range&     range     = getRange();
-    vmml::FrustumCullerf culler;
+    eq::FrustumCullerf culler;
 
     state.setColors( frameData.useColor() && model->hasColors( ));
     _initFrustum( culler, model->getBoundingSphere( ));
@@ -218,7 +218,7 @@ void Channel::_drawModel( const Model* model )
             
         // bounding sphere view frustum culling
         const vmml::Visibility visibility =
-            culler.testSphere( treeNode->getBoundingSphere( ));
+            culler.test_sphere( treeNode->getBoundingSphere( ));
 
         switch( visibility )
         {
@@ -299,7 +299,7 @@ void Channel::_drawLogo()
     // Draw the overlay logo
     const Window*  window      = static_cast<Window*>( getWindow( ));
     GLuint         texture;
-    vmml::Vector2i size;
+    eq::Vector2i size;
         
     window->getLogoTexture( texture, size );
     if( !texture )
@@ -329,14 +329,14 @@ void Channel::_drawLogo()
         glTexCoord2f( 0.0f, 0.0f );
         glVertex3f( 5.0f, 5.0f, 0.0f );
         
-        glTexCoord2f( size.x, 0.0f );
-        glVertex3f( size.x + 5.0f, 5.0f, 0.0f );
+        glTexCoord2f( size.x(), 0.0f );
+        glVertex3f( size.x() + 5.0f, 5.0f, 0.0f );
         
-        glTexCoord2f( 0.0f, size.y );
-        glVertex3f( 5.0f, size.y + 5.0f, 0.0f );
+        glTexCoord2f( 0.0f, size.y() );
+        glVertex3f( 5.0f, size.y() + 5.0f, 0.0f );
         
-        glTexCoord2f( size.x, size.y );
-        glVertex3f( size.x + 5.0f, size.y + 5.0f, 0.0f );
+        glTexCoord2f( size.x(), size.y() );
+        glVertex3f( size.x() + 5.0f, size.y() + 5.0f, 0.0f );
     } glEnd();
     
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
@@ -378,58 +378,58 @@ void Channel::_drawHelp()
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
-void Channel::_initFrustum( vmml::FrustumCullerf& culler,
-                            const vmml::Vector4f& boundingSphere )
+void Channel::_initFrustum( eq::FrustumCullerf& culler,
+                            const BoundingSphere& boundingSphere )
 {
     // setup frustum cull helper
     const FrameData& frameData = _getFrameData();
 
-    const vmml::Matrix4f& rotation       = frameData.getCameraRotation();
-    const vmml::Matrix4f& modelRotation  = frameData.getModelRotation();
-          vmml::Matrix4f  translation = vmml::Matrix4f::IDENTITY;
-    translation.setTranslation( frameData.getCameraTranslation());
+    const eq::Matrix4f& rotation       = frameData.getCameraRotation();
+    const eq::Matrix4f& modelRotation  = frameData.getModelRotation();
+          eq::Matrix4f  translation = eq::Matrix4f::IDENTITY;
+    translation.set_translation( frameData.getCameraTranslation());
 
-    const vmml::Matrix4f headTransform = getHeadTransform() * rotation;
-    const vmml::Matrix4f modelView = headTransform*translation*modelRotation;
+    const eq::Matrix4f headTransform = getHeadTransform() * rotation;
+    const eq::Matrix4f modelView = headTransform*translation*modelRotation;
 
-    const vmml::Frustumf& frustum      = getFrustum();
-    const vmml::Matrix4f  projection   = frameData.useOrtho() ?
-                                               frustum.computeOrthoMatrix() :
-                                               frustum.computeMatrix();
+    const eq::Frustumf& frustum      = getFrustum();
+    const eq::Matrix4f  projection   = frameData.useOrtho() ?
+                                               frustum.compute_ortho_matrix() :
+                                               frustum.compute_matrix();
     culler.setup( projection * modelView );
 
     // compute dynamic near/far plane of whole model
-    vmml::Matrix4f modelInv;
-    headTransform.getInverse( modelInv );
+    eq::Matrix4f modelInv;
+    compute_inverse( headTransform, modelInv );
 
-    const vmml::Vector3f zero  = modelInv * vmml::Vector3f::ZERO;
-    vmml::Vector3f       front = modelInv * vmml::Vector3f( 0.0f, 0.0f, -1.0f );
+    const eq::Vector3f zero  = modelInv * eq::Vector3f::ZERO;
+    eq::Vector3f       front = modelInv * eq::Vector3f( 0.0f, 0.0f, -1.0f );
 
     front -= zero;
     front.normalize();
-    front.scale( boundingSphere.radius );
+    front *= boundingSphere.w();
 
-    const vmml::Vector3f center = vmml::Vector3f( boundingSphere.xyzw ) + 
-                             vmml::Vector3f( frameData.getCameraTranslation( ));
-    const vmml::Vector3f nearPoint  = headTransform * ( center - front );
-    const vmml::Vector3f farPoint   = headTransform * ( center + front );
+    const eq::Vector3f center = boundingSphere.get_sub_vector< 3 >() + 
+                                frameData.getCameraTranslation( ).get_sub_vector< 3 >();
+    const eq::Vector3f nearPoint  = headTransform * ( center - front );
+    const eq::Vector3f farPoint   = headTransform * ( center + front );
 
     if( frameData.useOrtho( ))
     {
-        EQASSERT( fabs( farPoint.z - nearPoint.z ) > 
+        EQASSERT( fabs( farPoint.z() - nearPoint.z() ) > 
                   numeric_limits< float >::epsilon( ));
-        setNearFar( -nearPoint.z, -farPoint.z );
+        setNearFar( -nearPoint.z(), -farPoint.z() );
     }
     else
     {
         // estimate minimal value of near plane based on frustum size
-        const float width  = fabs( frustum.right - frustum.left );
-        const float height = fabs( frustum.top - frustum.bottom );
+        const float width  = fabs( frustum.right() - frustum.left() );
+        const float height = fabs( frustum.top() - frustum.bottom() );
         const float size   = EQ_MIN( width, height );
-        const float minNear = frustum.nearPlane / size * .001f;
+        const float minNear = frustum.near_plane() / size * .001f;
 
-        const float zNear = EQ_MAX( minNear, -nearPoint.z );
-        const float zFar  = EQ_MAX( zNear * 2.f, -farPoint.z );
+        const float zNear = EQ_MAX( minNear, -nearPoint.z() );
+        const float zFar  = EQ_MAX( zNear * 2.f, -farPoint.z() );
 
         setNearFar( zNear, zFar );
     }

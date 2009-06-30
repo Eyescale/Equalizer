@@ -22,8 +22,6 @@
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 
-#include <vmmlib/matrix4.h>  // member
-
 #include <string>
 
 namespace eq
@@ -69,10 +67,10 @@ namespace eq
          *
          * @param matrix the matrix
          */
-        EQ_EXPORT void setHeadMatrix( const vmml::Matrix4f& matrix );
+        EQ_EXPORT void setHeadMatrix( const Matrix4f& matrix );
 
         /** @return the current head matrix. */
-        const vmml::Matrix4f& getHeadMatrix() const { return _headMatrix; }
+        const Matrix4f& getHeadMatrix() const { return _headMatrix; }
         //@}
 
         /**
@@ -117,7 +115,7 @@ namespace eq
         float _eyeBase;
 
         /** The current head position. */
-        vmml::Matrix4f _headMatrix;
+        Matrix4f _headMatrix;
 
         union // placeholder for binary-compatible changes
         {

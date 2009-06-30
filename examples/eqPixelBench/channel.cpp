@@ -94,8 +94,8 @@ void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
         else
             snprintf( event.data.user.data, 32, "%s", name.c_str( ));
         event.data.user.data[31] = '\0';
-        event.area.x = 0;
-        event.area.y = 0;
+        event.area.x() = 0;
+        event.area.y() = 0;
 
         snprintf( event.formatType, 64, "Latency between app and render start");
         event.data.type = ConfigEvent::START_LATENCY;
@@ -153,10 +153,10 @@ void Channel::_testFormats()
 
     eq::Config*              config = getConfig();
     const eq::PixelViewport& pvp    = getPixelViewport();
-    const vmml::Vector2i     offset( pvp.x, pvp.y );
+    const eq::Vector2i     offset( pvp.x, pvp.y );
 
     ConfigEvent event = _createConfigEvent();
-    event.area.x = pvp.w;
+    event.area.x() = pvp.w;
 
     Clock                      clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
@@ -172,7 +172,7 @@ void Channel::_testFormats()
             _enums[i].formatString, _enums[i].typeString );
         event.formatType[63] = '\0';
         event.data.type = ConfigEvent::READBACK;
-        event.area.y = pvp.h;
+        event.area.y() = pvp.h;
 
         image->setFormat( eq::Frame::BUFFER_COLOR, _enums[i].format );
         image->setType(   eq::Frame::BUFFER_COLOR, _enums[i].type );
@@ -243,10 +243,10 @@ void Channel::_testTiledOperations()
 
     eq::Config*              config = getConfig();
     const eq::PixelViewport& pvp    = getPixelViewport();
-    const vmml::Vector2i     offset( pvp.x, pvp.y );
+    const eq::Vector2i     offset( pvp.x, pvp.y );
 
     ConfigEvent event = _createConfigEvent();
-    event.area.x = pvp.w;
+    event.area.x() = pvp.w;
 
     Clock                      clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
@@ -265,7 +265,7 @@ void Channel::_testTiledOperations()
     {
         _draw( 0 );
 
-        event.area.y = subPVP.h * (tiles+1);
+        event.area.y() = subPVP.h * (tiles+1);
 
         //---- readback of 'tiles' depth images
         event.data.type = ConfigEvent::READBACK;
@@ -426,10 +426,10 @@ void Channel::_testDepthAssemble()
 
     eq::Config*              config = getConfig();
     const eq::PixelViewport& pvp    = getPixelViewport();
-    const vmml::Vector2i     offset( pvp.x, pvp.y );
+    const eq::Vector2i     offset( pvp.x, pvp.y );
 
     ConfigEvent event = _createConfigEvent();
-    event.area.x = pvp.w;
+    event.area.x() = pvp.w;
 
     Clock                      clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
@@ -443,7 +443,7 @@ void Channel::_testDepthAssemble()
         image->setPixelViewport( pvp );
     }
 
-    event.area.y = pvp.h;
+    event.area.y() = pvp.h;
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
@@ -547,14 +547,14 @@ void Channel::_draw( const uint32_t spin )
 
     glMaterialfv( GL_FRONT, GL_DIFFUSE,   materialDiffuse );
 
-    vmml::Matrix4f rotation;
-    vmml::Vector3f translation;
+    eq::Matrix4f rotation;
+    eq::Vector3f translation;
 
-    translation   = vmml::Vector3f::ZERO;
+    translation   = eq::Vector3f::ZERO;
     translation.z = -2.f;
-    rotation = vmml::Matrix4f::IDENTITY;
-    rotation.rotateX( static_cast<float>( -M_PI_2 ));
-    rotation.rotateY( static_cast<float>( -M_PI_2 ));
+    rotation = eq::Matrix4f::IDENTITY;
+    rotation.rotate_x( static_cast<float>( -M_PI_2 ));
+    rotation.rotate_y( static_cast<float>( -M_PI_2 ));
 
     glTranslatef( translation.x, translation.y, translation.z );
     glMultMatrixf( rotation.ml );
