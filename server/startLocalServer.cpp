@@ -22,7 +22,6 @@
 
 #include <eq/net/node.h>
 #include <eq/net/pairConnection.h>
-#include <eq/net/pipeConnection.h>
 
 using namespace eq::server;
 using namespace eq::base;
@@ -99,9 +98,13 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
     Loader::addDestinationViews( server );
     Loader::addDefaultObserver( server );
 
+    eq::net::ConnectionDescriptionPtr desc = new ConnectionDescription;
+    desc->type = eq::net::CONNECTIONTYPE_PIPE;
+
     // Do not use RefPtr for easier handling
     eq::net::PairConnection* connection = new eq::net::PairConnection( 
-        new eq::net::PipeConnection, new eq::net::PipeConnection );
+        eq::net::Connection::create( desc ),
+        eq::net::Connection::create( desc ));
 
     // Wrap in one RefPtr to do correct reference counting and avoid deletion
     eq::net::ConnectionPtr  conn = connection;

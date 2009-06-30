@@ -21,18 +21,13 @@
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
-#include <eq/net/pipeConnection.h>
 
 #include <iostream>
-
-using namespace eq::base;
-using namespace eq::net;
-using namespace std;
 
 class Server : public eq::base::Thread
 {
 public:
-    void start( RefPtr<Connection> connection )
+    void start( eq::net::ConnectionPtr connection )
         {
             _connection = connection;
             eq::base::Thread::start();
@@ -42,7 +37,8 @@ protected:
     virtual void* run()
         {
             TEST( _connection.isValid( ));
-            TEST( _connection->getState() == Connection::STATE_CONNECTED );
+            TEST( _connection->getState() == 
+                  eq::net::Connection::STATE_CONNECTED );
 
             char text[5];
             _connection->recvNB(  &text, 5 );
@@ -54,14 +50,16 @@ protected:
             return EXIT_SUCCESS;
         }
 private:
-    RefPtr<Connection> _connection;
+    eq::net::ConnectionPtr _connection;
 };
 
 int main( int argc, char **argv )
 {
     eq::net::init( argc, argv );
 
-    RefPtr<Connection>  connection = new PipeConnection();
+    eq::net::ConnectionDescriptionPtr desc = new eq::net::ConnectionDescription;
+    desc->type = eq::net::CONNECTIONTYPE_PIPE;
+    eq::net::ConnectionPtr connection = eq::net::Connection::create( desc );
     TEST( connection->connect( ));
 
     Server server;

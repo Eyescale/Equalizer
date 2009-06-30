@@ -1,9 +1,9 @@
-Fix Win32 build
+Remove some net headers from distribution
 
 [ ] May break build
 [ ] Breaks existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

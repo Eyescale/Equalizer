@@ -173,7 +173,9 @@ private:
 int main( int argc, char **argv )
 {
     eq::net::init( argc, argv );
-    eq::net::ConnectionPtr connection = new eq::net::PipeConnection;
+    eq::net::ConnectionDescriptionPtr desc = new eq::net::ConnectionDescription;
+    desc->type = eq::net::CONNECTIONTYPE_PIPE;
+    eq::net::ConnectionPtr connection = eq::net::Connection::create( desc );
 
     TEST( connection->connect( ));
     Sender sender( connection );

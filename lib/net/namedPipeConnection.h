@@ -25,7 +25,7 @@
 #ifdef WIN32
 #  include <eq/net/connection.h>
 #else
-#  include <eq/net/fdConnection.h>
+#  include "fdConnection.h"
 #  include <netinet/in.h>
 #endif
 

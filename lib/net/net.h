@@ -27,7 +27,6 @@
 #include <eq/net/init.h>
 #include <eq/net/nodeID.h>
 #include <eq/net/object.h>
-#include <eq/net/pipeConnection.h>
 
 #endif // EQNET_H
 

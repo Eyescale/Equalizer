@@ -57,7 +57,6 @@ HEADER_SRC = \
 	net/connectionType.h \
 	net/dataIStream.h \
 	net/dataOStream.h \
-	net/fdConnection.h \
 	net/global.h \
 	net/init.h \
 	net/log.h \
@@ -70,7 +69,6 @@ HEADER_SRC = \
 	net/objectVersion.h \
 	net/packets.h \
 	net/pairConnection.h \
-	net/pipeConnection.h \
 	net/session.h \
 	net/types.h \
 	client/canvas.h \
@@ -136,7 +134,6 @@ HEADER_SRC = \
 	client/windowStatistics.h \
 	client/windowSystem.h \
 	client/windowVisitor.h \
-	client/X11Connection.h \
 	client/zoom.h \
 	util/bitmapFont.h \
 	util/util.h

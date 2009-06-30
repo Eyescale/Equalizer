@@ -85,20 +85,14 @@ void ConnectionSet::_dirtyFDSet()
 
     EQINFO << "FD set modified, restarting select" << std::endl;
     _dirty = true;
-    if( !_selfConnection->hasData( ))
-    {
-        const char c = SELF_INTERRUPT;
-        _selfConnection->send( &c, 1, true );
-    }
+
+    interrupt();
 }
 
 void ConnectionSet::interrupt()
 {
-    if( !_selfConnection->hasData( ))
-    {
-        const char c = SELF_INTERRUPT;
-        _selfConnection->send( &c, 1, true );
-    }
+    const char c = SELF_INTERRUPT;
+    _selfConnection->send( &c, 1, true );
 }
 
 void ConnectionSet::addConnection( ConnectionPtr connection )
@@ -196,7 +190,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     if( event == EVENT_NONE )
                          break;
 
-                    if( _connection == _selfConnection.get( ))
+                    if( _connection == _selfConnection )
                     {
                         EQASSERT( event == EVENT_DATA );
                         event = _handleSelfCommand();
@@ -269,7 +263,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 
 ConnectionSet::Event ConnectionSet::_handleSelfCommand()
 {
-    EQASSERT( _connection == _selfConnection.get( ));
+    EQASSERT( _connection == _selfConnection );
     _connection = 0;
     
     _selfConnection->recvSync( 0, 0 );
@@ -309,7 +303,7 @@ bool ConnectionSet::_setupFDSet()
     EQASSERT( readHandle );
 
     _fdSet.append( readHandle );
-    _fdSetConnections.append( _selfConnection.get( ));
+    _fdSetConnections.append( _selfConnection );
 
     // add regular connections
     _mutex.set();

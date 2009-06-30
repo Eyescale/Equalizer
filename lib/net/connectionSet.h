@@ -19,7 +19,6 @@
 #define EQNET_CONNECTION_SET_H
 
 #include <eq/net/connectionListener.h> // base class
-#include <eq/net/pipeConnection.h>     // RefPtr member
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>
@@ -36,7 +35,6 @@ namespace net
 {
     class Message;
     class Network;
-    class PipeConnection;
 
     /**
      * A set of connections. 
@@ -108,7 +106,7 @@ namespace net
         base::Buffer< Connection* > _fdSetConnections;
 
         /** The connection to reset a running select, see constructor. */
-        base::RefPtr< PipeConnection > _selfConnection;
+        ConnectionPtr _selfConnection;
         /** The buffer to receive commands from _selfConnection. */
         uint8_t _selfCommand;
 
