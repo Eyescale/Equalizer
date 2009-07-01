@@ -36,12 +36,6 @@
             {                                                           \
                 case 0:                                                 \
                     break;                                              \
-                case 3:                                                 \
-                    name ## Out[0] = name ## Last;                      \
-                    name ## Out[1] = name ## Last;                      \
-                    name ## Out[2] = name ## Last;                      \
-                    name ## Out += 3;                                   \
-                    break;                                              \
                 case 2:                                                 \
                     name ## Out[0] = name ## Last;                      \
                     name ## Out[1] = name ## Last;                      \

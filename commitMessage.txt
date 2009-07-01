@@ -1,11 +1,10 @@
 Compression Plugin:
-- recompress if compressor has been reallocated
-- Reorder test output and provide sub-totals
+- Minor optimization
 
 [ ] Will break build
 [ ] Breaks existing applications
-[x] Bugfix
-[x] New Feature
-[x] Cleanup
-[ ] Optimization
+[ ] Bugfix
+[ ] New Feature
+[ ] Cleanup
+[x] Optimization
 [ ] Documentation
