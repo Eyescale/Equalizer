@@ -648,8 +648,6 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
         case MODE_HORIZONTAL:
         {
-            if( node->left->usage > 0.f && node->right->usage > 0.f )
-
             EQASSERT( range == eq::Range::ALL );
             float        timeLeft = node->left->time;
             float        splitPos = vp.y;

@@ -68,7 +68,7 @@
         WRITE_OUTPUT( name );                                           \
         name ## Last = name;                                            \
         name ## Same = 1;                                               \
-    } 
+    }
 
 #define READ( name )                                        \
     if( name ## Left == 0 )                                 \

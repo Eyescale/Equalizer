@@ -854,6 +854,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
         attachment.compressor.flush();
         attachment.compressor.name = name;
         attachment.compressor.isCompressor = true;
+        attachment.memory.isCompressed = false;
 
         PluginRegistry& registry = Global::getPluginRegistry();
         attachment.compressor.plugin = registry.findCompressor( name );

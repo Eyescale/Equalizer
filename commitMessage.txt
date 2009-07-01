@@ -1,9 +1,11 @@
-Use new DSO class to load server DLL
+Compression Plugin:
+- recompress if compressor has been reallocated
+- Reorder test output and provide sub-totals
 
 [ ] Will break build
 [ ] Breaks existing applications
-[ ] Bugfix
-[ ] New Feature
+[x] Bugfix
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
