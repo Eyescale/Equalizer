@@ -1,11 +1,9 @@
-Compression Plugin:
-- extend unit test to iterate over all possible compressors per image
-- Suppress loading compressor DSOs twice if they are found in different dirs
+Use new DSO class to load server DLL
 
 [ ] Will break build
 [ ] Breaks existing applications
-[x] Bugfix
-[x] New Feature
+[ ] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

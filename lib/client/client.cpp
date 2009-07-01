@@ -27,13 +27,7 @@
 
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
-
-#ifdef WIN32
-#  define EQ_DL_ERROR getErrorString( GetLastError( ))
-#else
-#  include <dlfcn.h>
-#  define EQ_DL_ERROR dlerror()
-#endif
+#include <eq/base/dso.h>
 
 using namespace eq::base;
 using namespace std;
@@ -150,52 +144,36 @@ bool Client::connectServer( ServerPtr server )
 
 namespace
 {
-#ifdef WIN32_VC
-static HMODULE _libeqserver = 0;
-#elif defined (WIN32)
-static HMODULE _libeqserver = 0;
-#elif defined (Darwin)
-static void* _libeqserver = 0;
-#else
-static void* _libeqserver = 0;
-#endif
+base::DSO _libeqserver;
 }
 
 typedef net::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
 
 net::ConnectionPtr _startLocalServer()
 {
-    if( !_libeqserver )
-    {
+    if( !_libeqserver.open(
 #ifdef WIN32_VC
-        _libeqserver = LoadLibrary( "EqualizerServer.dll" );
+         "EqualizerServer.dll"
 #elif defined (WIN32)
-        _libeqserver = LoadLibrary( "libeqserver.dll" );
+        "libeqserver.dll"
 #elif defined (Darwin)
-        _libeqserver = dlopen( "libeqserver.dylib", RTLD_LAZY );
+        "libeqserver.dylib"
 #else
-        _libeqserver = dlopen( "libeqserver.so", RTLD_LAZY );
+        "libeqserver.so"
 #endif
-    }
-
-    if( !_libeqserver )
+                           ))
     {
-        EQWARN << "Can't open Equalizer server library: " << EQ_DL_ERROR <<endl;
+        EQWARN << "Can't open Equalizer server library" << std::endl;
         return 0;
     }
 
-#ifdef WIN32
     eqsStartLocalServer_t eqsStartLocalServer = (eqsStartLocalServer_t)
-        GetProcAddress( _libeqserver, "eqsStartLocalServer" );
-#else
-    eqsStartLocalServer_t eqsStartLocalServer = (eqsStartLocalServer_t)
-        dlsym( _libeqserver, "eqsStartLocalServer" );
-#endif
+        _libeqserver.getFunctionPointer( "eqsStartLocalServer" );
 
     if( !eqsStartLocalServer )
     {
-        EQWARN << "Can't find server entry function eqsStartLocalServer: "
-               << EQ_DL_ERROR << endl;
+        EQWARN << "Can't find server entry function eqsStartLocalServer"
+               << std::endl;
         return 0;
     }
 
@@ -206,28 +184,18 @@ typedef void (*eqsJoinLocalServer_t)();
 
 static void _joinLocalServer()
 {
-    if( !_libeqserver )
-    {
-        EQWARN << "Equalizer server library not opened" << endl;
-        return;
-    }
-
-#ifdef WIN32
     eqsJoinLocalServer_t eqsJoinLocalServer = (eqsJoinLocalServer_t)
-        GetProcAddress( _libeqserver, "eqsJoinLocalServer" );
-#else
-    eqsJoinLocalServer_t eqsJoinLocalServer = (eqsJoinLocalServer_t)
-        dlsym( _libeqserver, "eqsJoinLocalServer" );
-#endif
+        _libeqserver.getFunctionPointer( "eqsJoinLocalServer" );
 
     if( !eqsJoinLocalServer )
     {
-        EQWARN << "Can't find server entry function eqsJoinLocalServer: "
-               << EQ_DL_ERROR << endl;
+        EQWARN << "Can't find server entry function eqsJoinLocalServer"
+               << std::endl;
         return;
     }
 
     eqsJoinLocalServer();
+    _libeqserver.close();
 }
 
 bool Client::disconnectServer( ServerPtr server )
