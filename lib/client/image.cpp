@@ -244,6 +244,36 @@ bool Image::_canIgnoreAlpha( const Frame::Buffer buffer ) const
              getNumChannels( Frame::BUFFER_COLOR ) == 4 );
 }
 
+std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
+    const
+{
+    const uint32_t tokenType = _getCompressorTokenType( buffer );
+    EQINFO << "Searching compressors for token type " << tokenType << std::endl;
+
+    const PluginRegistry& registry = Global::getPluginRegistry();
+    const CompressorVector& compressors = registry.getCompressors();
+    std::vector< uint32_t > names;
+
+    for( CompressorVector::const_iterator i = compressors.begin();
+         i != compressors.end(); ++i )
+    {
+        const Compressor* compressor = *i;
+        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
+
+        const CompressorInfoVector& infos = compressor->getInfos();
+        
+        for( CompressorInfoVector::const_iterator j = infos.begin();
+             j != infos.end(); ++j )
+        {
+            const EqCompressorInfo& info = *j;
+            if( info.tokenType == tokenType )
+                names.push_back( info.name );
+        }
+    }
+
+    return names;
+}
+
 uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
 {
     const uint32_t tokenType = _getCompressorTokenType( buffer );
@@ -266,7 +296,8 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;
-            EQINFO << "Trying compressor " << info << std::endl;
+            if( info.tokenType != tokenType )
+                continue;
 
             float infoRatio = info.ratio;
             if( _canIgnoreAlpha( buffer ) && 
@@ -275,8 +306,7 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
                 infoRatio *= .75f;
             }
 
-            if( info.tokenType == tokenType && // TODO: be smarter
-                ratio > infoRatio )
+            if( ratio > infoRatio ) // TODO: be smarter
             {
                 name = info.name;
                 ratio = infoRatio;
@@ -719,7 +749,6 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     if( pixels.compressorName == EQ_COMPRESSOR_NONE )
     {
         EQASSERT( size == pixels.pixels.size );
-
         setPixelData( buffer, pixels.pixels.data );
         return;
     }
@@ -792,7 +821,7 @@ const Image::Attachment& Image::_getAttachment( const Frame::Buffer buffer )
 }
 
 Image::Attachment::CompressorData::CompressorData()
-        : name( EQ_COMPRESSOR_NONE )
+        : name( 0 )
         , instance( 0 )
         , plugin( 0 )
         , isCompressor( true )
@@ -812,8 +841,14 @@ void Image::Attachment::CompressorData::flush()
 }
 
 /** Find and activate a compression engine */
-bool Image::_allocCompressor( Attachment& attachment, uint32_t name )
+bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
+#ifndef NDEBUG
+    const std::vector< uint32_t > names( findCompressors( buffer ));
+    EQASSERT( std::find( names.begin(), names.end(), name) != names.end( ));
+#endif
+
+    Attachment& attachment = _getAttachment( buffer );
     if( !attachment.compressor.plugin || attachment.compressor.name != name )
     {
         attachment.compressor.flush();
@@ -828,6 +863,7 @@ bool Image::_allocCompressor( Attachment& attachment, uint32_t name )
         attachment.compressor.instance =
             attachment.compressor.plugin->newCompressor( name );
         EQASSERT( attachment.compressor.instance );
+        EQINFO << "Instantiated compressor of type " << name << std::endl;
     }
     return ( attachment.compressor.instance != 0 );
 }
@@ -863,7 +899,7 @@ void Image::Memory::flush()
 Image::PixelData::PixelData()
         : format( GL_FALSE )
         , type( GL_FALSE )
-        , compressorName( EQ_COMPRESSOR_NONE )
+        , compressorName( 0 )
         , isCompressed( false )
 {}
 
@@ -872,7 +908,7 @@ void Image::PixelData::flush()
     pixels.clear();
     format = GL_FALSE;
     type   = GL_FALSE;
-    compressorName = EQ_COMPRESSOR_NONE;
+    compressorName = 0;
     isCompressed = false;
     compressedSize.clear();
     compressedData.clear();
@@ -892,8 +928,12 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     if( memory.isCompressed )
         return memory;
 
-    memory.compressorName = _getCompressorName( buffer );
-    if( !_allocCompressor( attachment, memory.compressorName ))
+    if( attachment.compressor.name == 0 )
+        memory.compressorName = _getCompressorName( buffer );
+    else
+        memory.compressorName = attachment.compressor.name;
+
+    if( !allocCompressor( buffer, memory.compressorName ))
     {
         EQWARN << "No compressor found for current pixel format" << std::endl;
         return memory;

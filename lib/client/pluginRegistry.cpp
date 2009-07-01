@@ -56,7 +56,7 @@ void PluginRegistry::init()
         const char DIRSEP = '/';
 #endif
         
-        // for each file in the directoy
+        // for each file in the directory
         for( StringVector::const_iterator j = files.begin();
              j != files.end(); ++j )
         {
@@ -65,7 +65,22 @@ void PluginRegistry::init()
                 directory.empty() ? *j : directory + DIRSEP + *j;
            
             Compressor* compressor = new Compressor(); 
-            if( compressor->init( libraryName ))
+            bool add = compressor->init( libraryName );
+
+            // Simple test to avoid using the same dll twice
+            const CompressorInfoVector& infos = compressor->getInfos();
+            if( infos.empty( ))
+                add = false;
+            
+            for( CompressorVector::const_iterator k = _compressors.begin();
+                 add && k != _compressors.end(); ++k )
+            {
+                const CompressorInfoVector& infos2 = (*k)->getInfos();
+                if( infos.front().name == infos2.front().name )
+                    add = false;
+            }
+
+            if( add )
             {
                 _compressors.push_back( compressor );
                 EQINFO << "Found compressor " << libraryName << " @" 
@@ -89,6 +104,8 @@ void PluginRegistry::exit()
         compressor->exit();
         delete compressor;
     }
+
+    _compressors.clear();
 }
 
 Compressor* PluginRegistry::findCompressor( const uint32_t name )

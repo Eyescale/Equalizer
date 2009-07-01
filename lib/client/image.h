@@ -286,6 +286,20 @@ namespace eq
         /** @return the size in bytes for one channel. */
         EQ_EXPORT uint8_t getChannelSize( const Frame::Buffer buffer ) const;
 
+        /** 
+         * @return the list of possible compressors for the given buffer.
+         * @internal
+         */
+        EQ_EXPORT std::vector< uint32_t > 
+        findCompressors( const Frame::Buffer buffer ) const;
+
+        /**
+         * Re-allocate, if needed, a compressor instance.
+         * @internal
+         */
+        EQ_EXPORT bool allocCompressor( const Frame::Buffer buffer, 
+                                        const uint32_t name );
+
     private:
         /** All distributed data. */
         struct Data
@@ -360,8 +374,6 @@ namespace eq
         Attachment& _getAttachment( const Frame::Buffer buffer );
         const Attachment& _getAttachment( const Frame::Buffer buffer ) const;
 
-        /** Find and activate a compression engine */
-        bool _allocCompressor( Attachment& attachment, uint32_t name );
         /** Find and activate a decompression engine */
         bool _allocDecompressor( Attachment& attachment, uint32_t name );
 

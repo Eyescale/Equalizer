@@ -44,10 +44,6 @@ int main( int argc, char **argv )
     eq::NodeFactory nodeFactory;
     TEST( eq::init( argc, argv, &nodeFactory ));
 
-    const eq::PluginRegistry& plugins = eq::Global::getPluginRegistry();
-    const eq::CompressorVector& compressors = plugins.getCompressors();
-    TEST( !compressors.empty( ));
-
     eq::StringVector images;
     eq::StringVector candidates = eq::base::fileSearch( "images", "*.rgb" );
     for( eq::StringVector::const_iterator i = candidates.begin();
@@ -110,79 +106,90 @@ int main( int argc, char **argv )
         const uint8_t* data = image.getPixelPointer( buffer );
         const uint32_t size = image.getPixelDataSize( buffer );
 
-      again:
-        clock.reset();
-        const eq::Image::PixelData& compressedPixels =
-            image.compressPixelData( buffer );
-        const float compressTime = clock.getTimef();
-        TEST( compressedPixels.compressedSize.size() ==
-              compressedPixels.compressedData.size( ));
-
-        uint32_t compressedSize = 0;
-        if( compressedPixels.compressorName == EQ_COMPRESSOR_NONE )
-            compressedSize = size;
-        else 
+        const std::vector<uint32_t> compressors( image.findCompressors(buffer));
+        for( std::vector<uint32_t>::const_iterator j = compressors.begin();
+             j != compressors.end(); ++j )
         {
+            image.allocCompressor( buffer, *j );
+
+          again:
+            clock.reset();
+            const eq::Image::PixelData& compressedPixels =
+                image.compressPixelData( buffer );
+            const float compressTime = clock.getTimef();
+
+            TEST( compressedPixels.compressedSize.size() ==
+                  compressedPixels.compressedData.size( ));
+            TESTINFO( *j == compressedPixels.compressorName,
+                      *j << " != " << compressedPixels.compressorName );
+
+            uint32_t compressedSize = 0;
+            if( compressedPixels.compressorName == EQ_COMPRESSOR_NONE )
+                compressedSize = size;
+            else 
+            {
 #ifdef WRITE_COMPRESSED
-            std::ofstream comp( std::string( filename + ".comp" ).c_str(), 
-                                std::ios::out | std::ios::binary ); 
-            TEST( comp.is_open( ));
-            std::vector< void* >::const_iterator compData = 
-                compressedPixels.compressedData.begin();
+                std::ofstream comp( std::string( filename + ".comp" ).c_str(), 
+                                    std::ios::out | std::ios::binary ); 
+                TEST( comp.is_open( ));
+                std::vector< void* >::const_iterator compData = 
+                    compressedPixels.compressedData.begin();
 #endif
 
-            for( std::vector< uint64_t >::const_iterator j = 
-                     compressedPixels.compressedSize.begin();
-                 j != compressedPixels.compressedSize.end(); ++j )
-            {
-                compressedSize += *j;
+                for( std::vector< uint64_t >::const_iterator k = 
+                         compressedPixels.compressedSize.begin();
+                     k != compressedPixels.compressedSize.end(); ++k )
+                {
+                    compressedSize += *k;
 #ifdef WRITE_COMPRESSED
-                comp.write( reinterpret_cast< const char* >( *compData ), *j );
-                ++compData;
+                    comp.write( reinterpret_cast<const char*>( *compData ), *k);
+                    ++compData;
+#endif
+                }
+#ifdef WRITE_COMPRESSED
+                comp.close();
 #endif
             }
-#ifdef WRITE_COMPRESSED
-            comp.close();
-#endif
-        }
 
-        clock.reset();
-        destImage.setPixelData( buffer, compressedPixels );
-        const float decompressTime = clock.getTimef();
+            clock.reset();
+            destImage.setPixelData( buffer, compressedPixels );
+            const float decompressTime = clock.getTimef();
 
-        std::cout  << std::setw(2) << compressedPixels.compressorName << ", "
-                   << std::setw(40) << filename << ", " << std::setw(10) << size
-                   << ", " << !image.ignoreAlpha() << ", " << std::setw(10) 
-                   << compressedSize << ", " << std::setw(10) << compressTime
-                   << ", " << std::setw(10) << decompressTime << std::endl;
+            std::cout  << std::setw(2) << *j << ", " << std::setw(40)
+                       << filename << ", " << std::setw(10) << size << ", "
+                       << !image.ignoreAlpha() << ", " << std::setw(10) 
+                       << compressedSize << ", " << std::setw(10)
+                       << compressTime << ", " << std::setw(10)
+                       << decompressTime << std::endl;
 
 #ifdef WRITE_DECOMPRESSED
-        destImage.writeImage( eq::base::getDirname( filename ) + "/" + 
-                              "decomp_" + eq::base::getFilename( filename ),
-                              buffer );
+            destImage.writeImage( eq::base::getDirname( filename ) + "/" + 
+                                  "decomp_" + eq::base::getFilename( filename ),
+                                  buffer );
 #endif
 
 #ifdef COMPARE_RESULT
-        const uint8_t* destData = destImage.getPixelPointer( buffer );
-        // last 7 pixels can be unitialized
-        for( uint32_t j = 0; j < size-7; ++j )
-        {
-            TESTINFO( data[j] == destData[j] ||
-                      ( image.ignoreAlpha() && (j%4)==3 ),
-                      "got " << (int)destData[j] << " expected " <<
-                      (int)data[j] << " at " << j );
-        }
+            const uint8_t* destData = destImage.getPixelPointer( buffer );
+            // last 7 pixels can be unitialized
+            for( uint32_t k = 0; k < size-7; ++k )
+            {
+                TESTINFO( data[k] == destData[k] ||
+                          ( image.ignoreAlpha() && (k%4)==3 ),
+                          "got " << (int)destData[k] << " expected " <<
+                          (int)data[k] << " at " << k );
+            }
 #endif
 
-        if( buffer == eq::Frame::BUFFER_COLOR &&
-            image.hasAlpha() && !image.ignoreAlpha( ))
-        {
-            image.disableAlphaUsage();
-            destImage.disableAlphaUsage();
-            goto again;
+            if( buffer == eq::Frame::BUFFER_COLOR &&
+                image.hasAlpha() && !image.ignoreAlpha( ))
+            {
+                image.disableAlphaUsage();
+                destImage.disableAlphaUsage();
+                goto again;
+            }
+            image.enableAlphaUsage();
+            destImage.enableAlphaUsage();
         }
-        image.enableAlphaUsage();
-        destImage.enableAlphaUsage();
     }
 
     image.flush();

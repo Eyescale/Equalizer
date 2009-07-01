@@ -1,9 +1,11 @@
-Update to VMML 1.0 branch (svn:externals update to follow)
+Compression Plugin:
+- extend unit test to iterate over all possible compressors per image
+- Suppress loading compressor DSOs twice if they are found in different dirs
 
-[x] Will break build
+[ ] Will break build
 [ ] Breaks existing applications
-[ ] Bugfix
+[x] Bugfix
 [x] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
