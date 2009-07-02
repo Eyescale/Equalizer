@@ -21,8 +21,8 @@ using namespace eq::base;
 #define EQ_MAXBUFFSIZE 655535
 
 #ifdef WIN32
-namespace eq
-{
+nmespace eq
+{ 
 namespace net
 {
 
@@ -47,22 +47,22 @@ NamedPipeConnection::~NamedPipeConnection()
 //----------------------------------------------------------------------
 bool NamedPipeConnection::connect()
 {
-	EQASSERT( _description->type == CONNECTIONTYPE_NAMEDPIPE );
-	
-	if( _state != STATE_CLOSED )
+    EQASSERT( _description->type == CONNECTIONTYPE_NAMEDPIPE );
+     
+    if( _state != STATE_CLOSED )
         return false;
 
-	_state = STATE_CONNECTING;
+    _state = STATE_CONNECTING;
     _fireStateChanged();
-	
-	if( !_createNamedPipe( ))
+
+    if( !_createNamedPipe( ))
         return false;
 
-	_initAIORead();
+    _initAIORead();
     _state = STATE_CONNECTED;
     _fireStateChanged();
-	
-	return true;
+
+    return true;
 }
 
 void NamedPipeConnection::close()
@@ -88,14 +88,14 @@ void NamedPipeConnection::close()
 bool NamedPipeConnection::_createNamedPipe()
 {
     _readFD = CreateFile( 
-			 _description->getFilename().c_str(),   // pipe name 
-			 GENERIC_READ |         // read and write access 
-			 GENERIC_WRITE, 
-			 0,                     // no sharing 
-			 0,                     // default security attributes
-			 OPEN_EXISTING,         // opens existing pipe 
-			 FILE_FLAG_OVERLAPPED,  // default attributes 
-			 0);                    // no template file 
+             _description->getFilename().c_str(),   // pipe name 
+             GENERIC_READ |         // read and write access 
+             GENERIC_WRITE, 
+             0,                     // no sharing 
+             0,                     // default security attributes
+             OPEN_EXISTING,         // opens existing pipe 
+             FILE_FLAG_OVERLAPPED,  // default attributes 
+             0);                    // no template file 
 
     if( _readFD != INVALID_HANDLE_VALUE ) 
        return true;
@@ -110,12 +110,12 @@ bool NamedPipeConnection::_createNamedPipe()
 
     if ( !WaitNamedPipe( _description->getFilename().c_str(), 2000 )) 
     { 
-	    EQERROR << "Can't create named pipe: " 
+        EQERROR << "Can't create named pipe: " 
                 << GetLastError() << std::endl; 
-	    return false;	 
+        return false; 
     }
 
-	return _readFD != INVALID_HANDLE_VALUE;
+    return _readFD != INVALID_HANDLE_VALUE;
 }
 
 //----------------------------------------------------------------------
@@ -123,7 +123,7 @@ bool NamedPipeConnection::_createNamedPipe()
 //----------------------------------------------------------------------
 bool NamedPipeConnection::listen()
 {
-	EQASSERT( _description->type == CONNECTIONTYPE_NAMEDPIPE );
+    EQASSERT( _description->type == CONNECTIONTYPE_NAMEDPIPE );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -170,7 +170,7 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
 //----------------------------------------------------------------------
 void NamedPipeConnection::_initAIORead()
 {
-	_overlapped->hEvent = CreateEvent( 0, true, true, 0 );
+    _overlapped->hEvent = CreateEvent( 0, true, true, 0 );
     EQASSERT( _overlapped->hEvent );
 
     if( !_overlapped->hEvent )
@@ -189,9 +189,9 @@ void NamedPipeConnection::_exitAIOAccept()
 }
 void NamedPipeConnection::_exitAIORead()
 {
-	if( _overlapped && _overlapped->hEvent ) 
+    if( _overlapped && _overlapped->hEvent ) 
     {
-		CloseHandle( _overlapped->hEvent );
+        CloseHandle( _overlapped->hEvent );
         _overlapped->hEvent = 0;
     }
 }
@@ -268,7 +268,7 @@ ConnectionPtr NamedPipeConnection::acceptSync()
 
     newConnection->setDescription( _description );
     newConnection->_readFD  = _readFD;
-	newConnection->_overlapped = _overlapped;
+    newConnection->_overlapped = _overlapped;
     newConnection->_state = STATE_CONNECTED;
 
     _overlapped = new OVERLAPPED();
@@ -319,8 +319,8 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes )
     {
         EQWARN << "Read complete failed: " << GetLastError()  
                << std::endl;
-		close();	
-		return 0;
+        close();
+        return 0;
 
     }
 
@@ -337,17 +337,17 @@ int64_t NamedPipeConnection::write( const void* buffer,
     DWORD use = EQ_MIN( bytes, EQ_MAXBUFFSIZE );
 
     if( WriteFile( _readFD,      // pipe handle 
-				   buffer ,      // message 
-				   use,          // message length 
-				   &wrote,            // bytes written 
-				   0 ))
+                   buffer ,      // message 
+                   use,          // message length 
+                   &wrote,            // bytes written 
+                   0 ))
     {
-	    return wrote;
+        return wrote;
     }
 
     EQWARN << "Write error:" << GetLastError()  
                << std::endl;
-	
+ 
     return -1;  
 }
 }

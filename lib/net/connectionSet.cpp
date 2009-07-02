@@ -318,7 +318,7 @@ bool ConnectionSet::_setupFDSet()
             EQINFO << "Cannot select connection " << connection
                  << ", connection does not provide a read handle" << std::endl;
             _connection = connection;
-		    _mutex.unset();
+            _mutex.unset();
             return false;
         }
         
@@ -352,7 +352,7 @@ bool ConnectionSet::_setupFDSet()
                    << ", connection " << typeid( *connection.get( )).name() 
                    << " does not use a file descriptor" << std::endl;
             _connection = connection;
-		    _mutex.unset();
+            _mutex.unset();
             return false;
         }
 
