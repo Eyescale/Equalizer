@@ -29,13 +29,22 @@ namespace base
 class MemoryMap 
 {
 public:
-    /** Construct a new memory mapper. */
+    /** Construct a new memory map. */
     EQ_EXPORT MemoryMap();
+
+    /** 
+     * Destruct the memory map.
+     *
+     * Unmaps the file, if it is still mapped.
+     * @sa unmap()
+     */
     EQ_EXPORT virtual ~MemoryMap();
+
     /** 
      * Map a file to a memory address.
      *
-     * Currently the file is only mapped read-only.
+     * Currently the file is only mapped read-only. The file is automatically
+     * unmapped when the memory map is deleted.
      *
      * @param fileName The filename of the file to map.
      * @return the pointer to the mapped file, or 0 upon error.
@@ -45,6 +54,12 @@ public:
     /** Unmap the file. */
     EQ_EXPORT void unmap();
 
+    /** @return the pointer to the memory map. */
+    const void* getAddress() const { return _ptr; }
+
+    /** @return the size of the memory map. */
+    size_t getSize() const { return _size; }
+
 private:
 #ifdef WIN32
     HANDLE _map;
@@ -53,6 +68,7 @@ private:
 #endif
 
     void* _ptr;
+    size_t _size;
 };
 
 }

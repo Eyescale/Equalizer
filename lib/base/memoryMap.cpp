@@ -37,6 +37,7 @@ MemoryMap::MemoryMap()
         : _fd( 0 )
 #endif
         , _ptr( 0 )
+        , _size( 0 )
 {}
 
 MemoryMap::~MemoryMap()
@@ -65,7 +66,6 @@ const void* MemoryMap::map( const std::string& filename )
 
     // create a file mapping
     _map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, filename.c_str( ));
-    CloseHandle( file );
     if( !_map )
     {
         EQWARN << "File mapping failed." << std::endl;
@@ -74,7 +74,13 @@ const void* MemoryMap::map( const std::string& filename )
     
     // get a view of the mapping
     _ptr = MapViewOfFile( _map, FILE_MAP_READ, 0, 0, 0 );
+    
+    // get size
+    DWORD highSize;
+    const DWORD lowSize = GetFileSize( file, &highSize );
+    _size = lowSize | (highSize << 32);
 
+    CloseHandle( file );
 #else // POSIX
 
     // try to open binary file
@@ -90,11 +96,14 @@ const void* MemoryMap::map( const std::string& filename )
     fstat( _fd, &status );
     
     // create memory mapped file
-    _ptr = mmap( 0, status.st_size, PROT_READ, MAP_SHARED, _fd, 0 );
+    _size = status.st_size;
+    _ptr = mmap( 0, _size, PROT_READ, MAP_SHARED, _fd, 0 );
+
     if( _ptr == MAP_FAILED )
     {
         close( _fd );
         _ptr = 0;
+        _size = 0;
         _fd = 0;
     }
 #endif
@@ -115,15 +124,14 @@ void MemoryMap::unmap()
     CloseHandle( _map );
     
     _ptr = 0;
+    _size = 0;
     _map = 0;
 #else
-    struct stat status;
-    fstat( _fd, &status );
-
-    munmap( _ptr, status.st_size );
+    munmap( _ptr, _size );
     close( _fd );
     
     _ptr = 0;
+    _size = 0;
     _fd = 0;
 #endif
 }

@@ -843,12 +843,23 @@ void Image::Attachment::CompressorData::flush()
 /** Find and activate a compression engine */
 bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
+    EQASSERT( name != 0 );
+
+    Attachment& attachment = _getAttachment( buffer );
+    if( name == EQ_COMPRESSOR_NONE )
+    {
+        attachment.compressor.flush();
+        attachment.compressor.name = name;
+        attachment.compressor.isCompressor = true;
+        attachment.memory.isCompressed = false;
+        return true;
+    }
+        
 #ifndef NDEBUG
     const std::vector< uint32_t > names( findCompressors( buffer ));
     EQASSERT( std::find( names.begin(), names.end(), name) != names.end( ));
 #endif
 
-    Attachment& attachment = _getAttachment( buffer );
     if( !attachment.compressor.plugin || attachment.compressor.name != name )
     {
         attachment.compressor.flush();
@@ -934,7 +945,8 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     else
         memory.compressorName = attachment.compressor.name;
 
-    if( !allocCompressor( buffer, memory.compressorName ))
+    if( !allocCompressor( buffer, memory.compressorName ) || 
+        memory.compressorName == EQ_COMPRESSOR_NONE )
     {
         EQWARN << "No compressor found for current pixel format" << std::endl;
         return memory;
@@ -1138,7 +1150,7 @@ void Image::writeImage( const std::string& filename,
             break;
 
         default:
-            for( size_t i = 0; i < nChannels; ++i )
+            for( size_t i = 0; i < nChannels; i += bpc )
                 for( size_t j = i * bpc; j < nBytes; j += depth )
                     image.write(&data[j], bpc );
     }
@@ -1157,6 +1169,13 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         return false;
     }
 
+    const size_t size = image.getSize();
+    if( size < sizeof( RGBHeader ))
+    {
+        EQERROR << "Image " << filename << " too small" << endl;
+        return false;
+    }
+
     RGBHeader header;
     memcpy( &header, addr, sizeof( header ));
     addr += sizeof( header );
@@ -1166,19 +1185,16 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     if( header.magic != 474)
     {
         EQERROR << "Bad magic number " << filename << endl;
-        image.unmap();
         return false;
     }
     if( header.width == 0 || header.height == 0 )
     {
         EQERROR << "Zero-sized image " << filename << endl;
-        image.unmap();
         return false;
     }
     if( header.compression != 0)
     {
         EQERROR << "Unsupported compression " << filename << endl;
-        image.unmap();
         return false;
     }
 
@@ -1192,9 +1208,20 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         ( buffer == Frame::BUFFER_DEPTH && nChannels != 4 ))
     {
         EQERROR << "Unsupported image type " << filename << endl;
-        image.unmap();
         return false;
     }
+
+    const uint8_t bpc     = header.bytesPerChannel;
+    const size_t  depth   = nChannels * bpc;
+    const size_t  nPixels = header.width * header.height;
+    const size_t  nBytes  = nPixels * depth;
+
+    if( size < sizeof( RGBHeader ) + nBytes )
+    {
+        EQERROR << "Image " << filename << " too small" << endl;
+        return false;
+    }
+    EQASSERT( size == sizeof( RGBHeader ) + nBytes );
 
     switch( buffer )
     {
@@ -1203,8 +1230,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
             {
                 EQERROR << "Unsupported channel depth " 
                         << static_cast< int >( header.bytesPerChannel ) << endl;
-                image.unmap();
-                return false;
+                        return false;
             }
 
             setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
@@ -1230,7 +1256,6 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
                     EQERROR << "Unsupported channel depth " 
                             << static_cast< int >( header.bytesPerChannel )
                             << std::endl;
-                    image.unmap();
                     return false;
             }
             break;
@@ -1242,23 +1267,22 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     validatePixelData( buffer );
 
-    Memory& memory = _getAttachment( buffer ).memory;;
+    Memory& memory = _getAttachment( buffer ).memory;
     uint8_t* data = reinterpret_cast< uint8_t* >( memory.pixels.data );
-
-    const uint8_t bpc     = header.bytesPerChannel;
-    const size_t  depth   = nChannels * bpc;
-    const size_t  nPixels = header.width * header.height;
-    const size_t  nBytes  = nPixels * depth;
+    EQASSERTINFO( nBytes <= memory.pixels.size, 
+                  nBytes << " > " << memory.pixels.size );
 
     // Each channel is saved separately
-    for( size_t i = 0; i < depth; ++i )
+    for( size_t i = 0; i < depth; i += bpc )
         for( size_t j = i * bpc; j < nBytes; j += depth )
         {
+            EQASSERT( addr + bpc - ( const uint8_t* )( image.getAddress( )) <= 
+                      static_cast< ssize_t >( size ));
+
             memcpy( &data[j], addr, bpc );
             addr += bpc;
         }
 
-    image.unmap();
     return true;
 }
 

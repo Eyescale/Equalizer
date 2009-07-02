@@ -1,10 +1,11 @@
-Compression Plugin:
-- Minor optimization
+- Extend base::MemoryMap
+- Improve robustness of image reader
+- Fix float image bugs
 
 [ ] Will break build
 [ ] Breaks existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[ ] Cleanup
-[x] Optimization
+[x] Cleanup
+[ ] Optimization
 [ ] Documentation
