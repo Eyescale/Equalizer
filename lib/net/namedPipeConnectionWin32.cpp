@@ -21,7 +21,7 @@ using namespace eq::base;
 #define EQ_MAXBUFFSIZE 655535
 
 #ifdef WIN32
-nmespace eq
+namespace eq
 { 
 namespace net
 {
