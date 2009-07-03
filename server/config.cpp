@@ -73,6 +73,7 @@ void Config::_construct()
     _state         = STATE_STOPPED;
     _appNode       = 0;
     _serializer    = 0;
+    base::Log::setClock( &_clock );
 
     EQINFO << "New config @" << (void*)this << endl;
 }
@@ -189,6 +190,8 @@ Config::~Config()
         delete node;
     }
     _nodes.clear();
+
+    base::Log::setClock( 0 );
 }
 
 void Config::notifyMapped( net::NodePtr node )
@@ -1171,7 +1174,8 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
 
     // do not use send/_bufferedTasks, not thread-safe!
     _appNetNode->send( packet );
-    EQLOG( eq::LOG_TASKS ) << "TASK config frame finished  " << &packet << endl;
+    EQLOG( eq::LOG_TASKS ) << "TASK config frame finished  " << &packet
+                           << std::endl;
 }
 
 void Config::_flushAllFrames()
