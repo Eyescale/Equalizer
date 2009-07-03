@@ -174,7 +174,8 @@ LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
             const int prec  = _stringStream.precision();
 
             _stringStream.precision( 4 );
-            _stringStream << std::setw(5) << _clock->getMSf() << " ";
+            _stringStream << std::setw(5) << (_clock->getTime64() % 100000)
+                          << " ";
             _stringStream.precision( prec );
 #endif
         }
