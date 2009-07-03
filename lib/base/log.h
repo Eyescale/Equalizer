@@ -123,9 +123,6 @@ namespace base
         /** The current line logging. */
         int _line;
 
-        /** Clock for time stamps */
-        static Clock _clock;
-
         /** The current indentation level. */
         int _indent;
 
@@ -177,13 +174,23 @@ namespace base
         /** The string representation of the current log level. */
         static std::string& getLogLevelString();
 
-        /** Change the output stream */
+        /** Change the output stream. */
         static EQ_EXPORT void setOutput( std::ostream& stream );
 
-        void notifyPerThreadDelete() { delete this; }
-
-        /** Get the current output stream */
+        /** Get the current output stream. @internal */
         static std::ostream& getOutput ();
+
+        /**
+         * Set the reference clock.
+         *
+         * The clock will be used instantly by all log outputs. Use 0 to reset
+         * the clock to the default clock.
+         *
+         * @param clock the reference clock.
+         */
+        static EQ_EXPORT void setClock( Clock* clock );
+
+        void notifyPerThreadDelete() { delete this; }
 
     private:
         LogBuffer _logBuffer; 

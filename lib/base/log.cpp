@@ -63,7 +63,8 @@ static LogTable _logTable[ LOG_TABLE_SIZE ] =
 
 int        Log::level  = getLogLevel();
 unsigned   Log::topics = getLogTopics();
-Clock      LogBuffer::_clock;
+Clock      _defaultClock;
+Clock*     _clock = &_defaultClock;
 
 static PerThread< Log > _logInstance;
 
@@ -143,6 +144,13 @@ void Log::setOutput( std::ostream& stream )
     exit();
 }
 
+void Log::setClock( Clock* clock )
+{
+    if( clock )
+        _clock = clock;
+    else
+        _clock = &_defaultClock;
+}
 
 std::ostream& Log::getOutput()
 {
@@ -166,7 +174,7 @@ LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
             const int prec  = _stringStream.precision();
 
             _stringStream.precision( 4 );
-            _stringStream << std::setw(5) << _clock.getMSf() << " ";
+            _stringStream << std::setw(5) << _clock->getMSf() << " ";
             _stringStream.precision( prec );
 #endif
         }

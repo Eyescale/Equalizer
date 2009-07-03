@@ -56,6 +56,7 @@ Config::Config( ServerPtr server )
         , _finishedFrame( 0 )
         , _running( false )
 {
+    base::Log::setClock( &_clock );
 }
 
 Config::~Config()
@@ -73,6 +74,7 @@ Config::~Config()
 
     _appNodeID = net::NodeID::ZERO;
     _appNode   = 0;
+    base::Log::setClock( 0 );
 }
 
 void Config::notifyMapped( net::NodePtr node )
