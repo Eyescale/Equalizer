@@ -33,6 +33,7 @@ void PluginRegistry::init()
 
     // add self
     _initCompressor( "" );
+    EQASSERT( _compressors.size() == 1 );
 
     // search all plugin directories for compressor DSOs
     const StringVector& directories = Global::getPluginDirectories();

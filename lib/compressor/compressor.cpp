@@ -60,7 +60,18 @@ namespace
         return _functions[0];
     }
 }
-    
+
+Compressor::Compressor()
+{}
+
+Compressor::~Compressor()
+{
+    for ( size_t i = 0; i < _results.size(); i++ )
+        delete ( _results[i] );
+
+    _results.clear();
+}
+
 Compressor::Functions::Functions()
         : name( 0 )
         , getInfo( 0 )
@@ -71,42 +82,42 @@ Compressor::Functions::Functions()
 }
 }
 
-EQ_PLUGIN_API size_t EqCompressorGetNumCompressors()
+size_t EqCompressorGetNumCompressors()
 {
     return sizeof( eq::plugin::_functions ) /
            sizeof( eq::plugin::Compressor::Functions ) - 1;
 }
            
-EQ_PLUGIN_API void EqCompressorGetInfo( const size_t n, 
+void EqCompressorGetInfo( const size_t n, 
                                         EqCompressorInfo* const info )
 {
     return eq::plugin::_functions[ n ].getInfo( info );
 }
 
-EQ_PLUGIN_API void* EqCompressorNewCompressor( const unsigned name )
+void* EqCompressorNewCompressor( const unsigned name )
 {
     const eq::plugin::Compressor::Functions& functions = 
         eq::plugin::_findFunctions( name );
     return functions.newCompressor( );
 }
 
-EQ_PLUGIN_API void EqCompressorDeleteCompressor( void* const compressor )
+void EqCompressorDeleteCompressor( void* const compressor )
 {
     delete reinterpret_cast< eq::plugin::Compressor* >( compressor );
 }
 
-EQ_PLUGIN_API void* EqCompressorNewDecompressor( const unsigned name ) 
+void* EqCompressorNewDecompressor( const unsigned name ) 
 {
     return 0;
 }
 
-EQ_PLUGIN_API void EqCompressorDeleteDecompressor( void* const decompressor ) 
+void EqCompressorDeleteDecompressor( void* const decompressor ) 
 {
     assert( decompressor == 0 );
     /* nop */
 }
 
-EQ_PLUGIN_API void EqCompressorCompress( void* const compressorPtr,
+void EqCompressorCompress( void* const compressorPtr,
                                          const unsigned name,
                                          void* const in, 
                                          const uint64_t* inDims,
@@ -121,13 +132,13 @@ EQ_PLUGIN_API void EqCompressorCompress( void* const compressorPtr,
     compressor->compress( in, nPixels, useAlpha );
 }
 
-EQ_PLUGIN_API unsigned EqCompressorGetNumResults( void* const compressor,
+unsigned EqCompressorGetNumResults( void* const compressor,
                                                   const unsigned name )
 {
     return (( eq::plugin::Compressor* )( compressor ))->getResults().size();
 }
 
-EQ_PLUGIN_API void EqCompressorGetResult( void* const compressor, 
+void EqCompressorGetResult( void* const compressor, 
                                           const unsigned name,
                                           const unsigned i, 
                                           void** const out, 
@@ -142,7 +153,7 @@ EQ_PLUGIN_API void EqCompressorGetResult( void* const compressor,
 }
 
 
-EQ_PLUGIN_API void EqCompressorDecompress( void* const decompressor, 
+void EqCompressorDecompress( void* const decompressor, 
                                            const unsigned name,
                                            const void* const* in, 
                                            const eq_uint64_t* const inSizes,
@@ -158,22 +169,4 @@ EQ_PLUGIN_API void EqCompressorDecompress( void* const decompressor,
     eq::plugin::Compressor::Functions& functions = 
         eq::plugin::_findFunctions( name );
     functions.decompress( in, inSizes, numInputs, out, nPixels, useAlpha );
-}
-
-namespace eq
-{
-namespace plugin
-{
-Compressor::Compressor()
-{}
-
-Compressor::~Compressor()
-{
-    for ( size_t i = 0; i < _results.size(); i++ )
-        delete ( _results[i] );
-            
-    _results.clear();
-}
-
-}
 }

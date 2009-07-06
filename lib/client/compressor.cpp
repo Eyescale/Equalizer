@@ -67,6 +67,7 @@ bool Compressor::init( const std::string& libraryName )
     }
 
     const size_t nCompressors = getNumCompressors();
+    EQASSERT( nCompressors > 0 );
     _infos.resize( nCompressors );
 
     for( size_t i = 0; i < nCompressors; ++i )

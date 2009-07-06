@@ -51,7 +51,7 @@ extern "C"
 {
 #endif
  
-    /** @name Compressor plugin API Versioning */
+    /** @name Compressor Plugin API Versioning */
     /*@{*/
     /** The version of the Compressor API described by this header. */
     #define EQ_COMPRESSOR_VERSION 1
