@@ -46,7 +46,17 @@ public:
             three = (input & 0xff0000) >> 16;
         }
 
-    static inline uint32_t deswizzle( const uint32_t input ) { return input; }
+    static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
+                                      const uint8_t three, const uint8_t four )
+    {
+        return one + (two<<8) + (three<<16) + (four<<24);
+    }
+
+    static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
+                                      const uint8_t three )
+    {
+        return one + (two<<8) + (three<<16);
+    }
 };
 
 class SwizzleUInt32
@@ -72,8 +82,10 @@ public:
                                 uint8_t& two, uint8_t& three )
         { assert( 0 ); }
 
-    static inline uint32_t deswizzle( const uint32_t input )
+    static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
+                                      const uint8_t three, const uint8_t four )
     {
+        const uint32_t input = one + (two<<8) + (three<<16) + (four<<24);
         return ((  input & ( EQ_BIT32 | EQ_BIT31 | EQ_BIT22 | EQ_BIT21 | 
                              EQ_BIT11 | EQ_BIT12 | EQ_BIT2 | EQ_BIT1 ))        |
                 (( input & ( EQ_BIT26 | EQ_BIT25 )) >>18 )                     |
@@ -85,6 +97,10 @@ public:
                 (( input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT14 | 
                              EQ_BIT13 | EQ_BIT4  | EQ_BIT3 ))<<6 ));
     }
+
+    static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
+                                      const uint8_t three )
+        { assert( 0 ); return 0; }
 };
  
 class SwizzleUInt24
@@ -108,8 +124,14 @@ public:
                           EQ_BIT17 )) >> 10 )),
                                   one, two, three );
     }
-    static inline uint32_t deswizzle( const uint32_t input )
+    static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
+                                      const uint8_t three, const uint8_t four )
+        { assert( 0 ); return 0; }
+
+    static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
+                                      const uint8_t three )
     {
+        const uint32_t input = one + (two<<8) + (three<<16);
         return ((  input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT22 | EQ_BIT13 | 
                              EQ_BIT12 | EQ_BIT3  | EQ_BIT2  | EQ_BIT1 )) |
                 (( input & ( EQ_BIT21 | EQ_BIT20 | EQ_BIT19 ))>>5 )      |
@@ -118,7 +140,7 @@ public:
                              EQ_BIT15 | EQ_BIT14 ))>>10 )                |
                 (( input & ( EQ_BIT11 | EQ_BIT10 | EQ_BIT9  | 
                              EQ_BIT8  | EQ_BIT7 ))<<10 ));
-    }    
+    }
 };  
 
 class UseAlpha
@@ -223,19 +245,23 @@ static inline void _decompress( const void* const* inData,
             assert( static_cast<uint64_t>(twoIn-inData8[i+1]) <= inSizes[i+1] );
             assert( static_cast<uint64_t>(threeIn-inData8[i+2]) <=inSizes[i+2]);
 
-            READ( one );
-            READ( two );
-            READ( three );
-
             if( alphaFunc::use( ))
             {
+                READ( one );
+                READ( two );
+                READ( three );
                 READ( four );
 
-                *out = swizzleFunc::deswizzle( 
-                    one + (two<<8) + (three<<16) + (four<<24) );
+                *out = swizzleFunc::deswizzle( one, two, three, four );
             }
             else
-                *out = swizzleFunc::deswizzle( one + (two<<8) + (three<<16) );
+            {
+                READ( one );
+                READ( two );
+                READ( three );
+
+                *out = swizzleFunc::deswizzle( one, two, three );
+            }
             ++out;
         }
         assert( static_cast<uint64_t>(oneIn-inData8[i+0])   == inSizes[i+0] );
