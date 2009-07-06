@@ -157,7 +157,7 @@ public:
 
 template< typename swizzleFunc, typename alphaFunc >
 static inline void _compress( const void* const input, const uint64_t size,
-                              Result** results )
+                              Compressor::Result** results )
 {
     uint8_t* oneOut(   results[ 0 ]->data ); 
     uint8_t* twoOut(   results[ 1 ]->data ); 
@@ -211,9 +211,9 @@ template< typename swizzleFunc, typename alphaFunc >
 static inline void _decompress( const void* const* inData,
                                 const uint64_t* const inSizes,
                                 const unsigned numInputs,
-                                void* const outData, const uint64_t outSize )
+                                void* const outData, const uint64_t nPixels )
 {
-    const uint64_t size = outSize * 4 ;
+    const uint64_t size = nPixels * 4 ;
     const float width = static_cast< float >( size ) /  
                         static_cast< float >( numInputs );
 
@@ -316,30 +316,30 @@ void CompressorRLE4B::decompress( const void* const* inData,
                                   const uint64_t* const inSizes, 
                                   const unsigned numInputs,
                                   void* const outData, 
-                                  const uint64_t outSize,
+                                  const uint64_t nPixels,
                                   const bool useAlpha )
 {
     if( useAlpha )
         _decompress< NoSwizzle, UseAlpha >( inData, inSizes, numInputs, 
-                                            outData, outSize );
+                                            outData, nPixels );
     else
         _decompress< NoSwizzle, NoAlpha >( inData, inSizes, numInputs,
-                                           outData, outSize );
+                                           outData, nPixels );
 }
 
 void CompressorDiffRLE4B::decompress( const void* const* inData, 
                                       const uint64_t* const inSizes, 
                                       const unsigned numInputs,
                                       void* const outData,
-                                      const uint64_t outSize,
+                                      const uint64_t nPixels,
                                       const bool useAlpha )
 {
     if( useAlpha )
         _decompress< SwizzleUInt32, UseAlpha >( inData, inSizes, numInputs,
-                                                outData, outSize );
+                                                outData, nPixels );
     else
         _decompress< SwizzleUInt24, NoAlpha >( inData, inSizes, numInputs,
-                                               outData, outSize );
+                                               outData, nPixels );
 }
 
     

@@ -37,32 +37,27 @@ namespace eq
 {
 namespace plugin
 {
-    typedef void  (*CompressorGetInfo_t)( EqCompressorInfo* const );
-    typedef void* (*NewCompressor_t)();
-    typedef void (*Decompress_t)( const void* const*, const uint64_t* const,
-                                  const unsigned, void* const, const uint64_t,
-                                  const bool );
-
-    struct Functions
-    {
-        Functions();
-
-        unsigned                 name;
-        CompressorGetInfo_t      getInfo;
-        NewCompressor_t          newCompressor;
-        Decompress_t             decompress;
-    };
-    
-
-    typedef eq::base::Bufferb Result;
-
-     /**
-     * An interace for compressor / uncompressor data
-     *
-     */
     class Compressor
     {
     public:
+        typedef void  (*CompressorGetInfo_t)( EqCompressorInfo* const );
+        typedef void* (*NewCompressor_t)();
+        typedef void (*Decompress_t)( const void* const*, const uint64_t* const,
+                                      const unsigned, void* const, 
+                                      const uint64_t, const bool );
+
+        struct Functions
+        {
+            Functions();
+            
+            unsigned                 name;
+            CompressorGetInfo_t      getInfo;
+            NewCompressor_t          newCompressor;
+            Decompress_t             decompress;
+        };
+    
+        typedef eq::base::Bufferb Result;
+
         /**
          * Construct a new compressor.
          */
