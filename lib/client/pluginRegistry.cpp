@@ -29,7 +29,10 @@ namespace eq
 
 void PluginRegistry::init()
 {
-   EQASSERT( _compressors.empty( ));
+    EQASSERT( _compressors.empty( ));
+
+    // add self
+    _initCompressor( "" );
 
     // search all plugin directories for compressor DSOs
     const StringVector& directories = Global::getPluginDirectories();
@@ -63,37 +66,39 @@ void PluginRegistry::init()
             // build path + name of library
             const std::string libraryName = 
                 directory.empty() ? *j : directory + DIRSEP + *j;
-           
-            Compressor* compressor = new Compressor(); 
-            bool add = compressor->init( libraryName );
-
-            // Simple test to avoid using the same dll twice
-            const CompressorInfoVector& infos = compressor->getInfos();
-            if( infos.empty( ))
-                add = false;
-            
-            for( CompressorVector::const_iterator k = _compressors.begin();
-                 add && k != _compressors.end(); ++k )
-            {
-                const CompressorInfoVector& infos2 = (*k)->getInfos();
-                if( infos.front().name == infos2.front().name )
-                    add = false;
-            }
-
-            if( add )
-            {
-                _compressors.push_back( compressor );
-                EQINFO << "Found compressor " << libraryName << " @" 
-                       << (void*)compressor << " providing "
-                       << compressor->getInfos().size() << " engines"
-                       << std::endl;
-            }
-            else
-                delete compressor;
+            _initCompressor( libraryName );
         }
     }
 }
 
+void PluginRegistry::_initCompressor( const std::string& filename )
+{
+    Compressor* compressor = new Compressor(); 
+    bool add = compressor->init( filename );
+
+    // Simple test to avoid using the same dll twice
+    const CompressorInfoVector& infos = compressor->getInfos();
+    if( infos.empty( ))
+        add = false;
+            
+    for( CompressorVector::const_iterator i = _compressors.begin();
+         add && i != _compressors.end(); ++i )
+    {
+        const CompressorInfoVector& infos2 = (*i)->getInfos();
+        if( infos.front().name == infos2.front().name )
+            add = false;
+    }
+
+    if( add )
+    {
+        _compressors.push_back( compressor );
+        EQINFO << "Found compressor " << filename << " @" << (void*)compressor
+               << " providing " << compressor->getInfos().size() << " engines"
+               << std::endl;
+    }
+    else
+        delete compressor;
+}
 
 void PluginRegistry::exit()
 {

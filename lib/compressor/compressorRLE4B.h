@@ -38,7 +38,7 @@ public:
     static void decompress( const void* const* inData, 
                             const uint64_t* const inSizes, 
                             const unsigned numInputs, void* const outData, 
-                            const uint64_t outSize, const bool useAlpha);
+                            const uint64_t nPixels, const bool useAlpha );
     
 
     static void* getNewCompressor( ){ return new eq::plugin::CompressorRLE4B; }
@@ -145,7 +145,7 @@ public:
     static void decompress( const void* const* inData, 
                             const uint64_t* const inSizes, 
                             const unsigned numInputs, void* const outData, 
-                            const uint64_t outSize, const bool useAlpha );
+                            const uint64_t nPixels, const bool useAlpha );
 };    
 }
 }

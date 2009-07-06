@@ -39,17 +39,29 @@ bool DSO::open( const std::string& fileName )
         return false;
     }
 
-#ifdef WIN32
-    _dso = LoadLibrary( fileName.c_str() );
-#else
-    _dso = dlopen( fileName.c_str(), RTLD_LAZY );
-#endif
-
-    if( !_dso )
+    if( fileName.empty( ))
     {
-        EQWARN << "Can't open library: " << EQ_DL_ERROR << std::endl;
-        return false;
+#ifdef WIN32
+        EQUNIMPLEMENTED;
+        _dso = 0;
+#else
+        _dso = RTLD_DEFAULT;
+#endif
     }
+    else
+    {
+#ifdef WIN32
+        _dso = LoadLibrary( fileName.c_str() );
+#else
+        _dso = dlopen( fileName.c_str(), RTLD_LAZY | RTLD_LOCAL );
+#endif
+        if( !_dso )
+        {
+            EQWARN << "Can't open library: " << EQ_DL_ERROR << std::endl;
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -69,13 +81,6 @@ void DSO::close()
 
 void* DSO::getFunctionPointer( const std::string& name )
 {
-    if( !_dso )
-    {
-        EQWARN << "Attempting to retrieve function pointer from closed DSO"
-               << std::endl;
-        return 0;
-    }
-
 #ifdef WIN32
     return GetProcAddress( _dso, name.c_str() );
 #else

@@ -18,8 +18,6 @@
 
 #include "compressorRLE.h"
 
-#include "../base/omp.cpp" // WAR: directly include eq code to avoid duplication
-
 namespace eq
 {
 namespace plugin

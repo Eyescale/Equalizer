@@ -41,6 +41,9 @@ public:
 
 private:
     CompressorVector _compressors;
+
+    /** Initialize a single DSO .*/
+    void _initCompressor( const std::string& filename );
 };
 
 }

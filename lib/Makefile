@@ -2,7 +2,6 @@
 include $(TOP)/make/system.mk
 
 MODULE = eq
-SUBDIRS = compressor
 
 HEADER_SRC = \
 	plugins/compressor.h \
@@ -241,7 +240,10 @@ CXXFILES = \
 	client/windowStatistics.cpp \
 	client/windowSystem.cpp \
 	client/zoom.cpp \
-	util/bitmapFont.cpp
+	util/bitmapFont.cpp \
+	compressor/compressor.cpp \
+	compressor/compressorRLE.cpp \
+	compressor/compressorRLE4B.cpp
 
 SHADERS = \
 	client/roiFragmentShader_glsl.h \
