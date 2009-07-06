@@ -78,7 +78,7 @@ const void* MemoryMap::map( const std::string& filename )
     // get size
     DWORD highSize;
     const DWORD lowSize = GetFileSize( file, &highSize );
-    _size = lowSize | (highSize << 32);
+    _size = lowSize | ( static_cast< uint64_t >( highSize ) << 32 );
 
     CloseHandle( file );
 #else // POSIX

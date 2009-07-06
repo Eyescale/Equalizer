@@ -19,11 +19,9 @@
 #ifndef EQ_COMPRESSOR_H
 #define EQ_COMPRESSOR_H
 
+#include <eq/plugins/compressor.h> // member
 #include <eq/client/types.h>
 #include <eq/base/dso.h>           // member
-
-#define EQ_PLUGIN_BUILD
-#include <eq/plugins/compressor.h> // member
 
 /**
  * @file client/compressor.h

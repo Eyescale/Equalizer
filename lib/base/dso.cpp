@@ -17,6 +17,8 @@
  */
 
 #include "dso.h"
+
+#include "debug.h"
 #include "log.h"
 
 #ifdef WIN32

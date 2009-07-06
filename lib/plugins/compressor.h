@@ -35,11 +35,11 @@
 typedef unsigned long long eq_uint64_t;
 
 #ifdef WIN32
-#ifdef EQ_PLUGIN_BUILD
-   #define EQ_PLUGIN_API __declspec(dllexport) 
-#else
-   #define EQ_PLUGIN_API __declspec(dllimport)
-#endif
+#  ifdef EQ_PLUGIN_BUILD
+#    define EQ_PLUGIN_API __declspec(dllexport) 
+#  else
+#    define EQ_PLUGIN_API __declspec(dllimport)
+#  endif
 #else // WIN32
 #  define EQ_PLUGIN_API
 #endif
