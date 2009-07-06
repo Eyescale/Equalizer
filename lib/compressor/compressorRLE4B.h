@@ -53,9 +53,9 @@ public:
                              EQ_COMPRESSOR_IGNORE_MSE;
         info->tokenType = EQ_COMPRESSOR_DATATYPE_4_BYTE;
 
-        info->quality = 1.f;
-        info->ratio = .8f;
-        info->speed = 0.95f;
+        info->quality = 1.0f;
+        info->ratio   = 1.0f;
+        info->speed   = 1.0f;
     }
 
     static Functions getFunctions()
@@ -117,8 +117,8 @@ public:
     {
         CompressorRLE4B::getInfo( info );
         info->name = EQ_COMPRESSOR_DIFF_RLE_4_BYTE;
-        info->ratio = .9f;
-        info->speed = 0.9f;
+        info->ratio = 0.85f;
+        info->speed = 1.1f;
     }
     
     /** @name getFunctions */

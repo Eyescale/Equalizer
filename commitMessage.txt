@@ -1,10 +1,8 @@
-- Extend base::MemoryMap
-- Improve robustness of image reader
-- Fix float image bugs
+Use measured data for RLE 4 Byte compressor
 
 [ ] Will break build
 [ ] Breaks existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
