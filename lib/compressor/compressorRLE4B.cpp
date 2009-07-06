@@ -29,26 +29,49 @@ namespace
 class NoSwizzle
 {
 public:
-    static uint32_t swizzle( const uint32_t input ) { return input; }
-    static uint32_t deswizzle( const uint32_t input ) { return input; }
+    static inline void swizzle( const uint32_t input, uint8_t& one,
+                                uint8_t& two, uint8_t& three, uint8_t& four ) 
+        {
+            one = input & 0xff;
+            two = (input & 0xff00) >> 8;
+            three = (input & 0xff0000) >> 16;
+            four = (input & 0xff000000) >> 24;
+        }
+
+    static inline void swizzle( const uint32_t input, uint8_t& one,
+                                uint8_t& two, uint8_t& three )
+        {
+            one = input & 0xff;
+            two = (input & 0xff00) >> 8;
+            three = (input & 0xff0000) >> 16;
+        }
+
+    static inline uint32_t deswizzle( const uint32_t input ) { return input; }
 };
 
 class SwizzleUInt32
 {
 public:
-    static inline uint32_t swizzle( const uint32_t input )
+    static inline void swizzle( const uint32_t input, uint8_t& one,
+                                uint8_t& two, uint8_t& three, uint8_t& four ) 
     {
-        return (( input &  ( EQ_BIT32 | EQ_BIT31 | EQ_BIT22 | EQ_BIT21 | 
-                             EQ_BIT12 | EQ_BIT11 | EQ_BIT2 | EQ_BIT1 ))        |
-                (( input & ( EQ_BIT8  | EQ_BIT7 ))<<18 )                       |
-                (( input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT14 | EQ_BIT13 ))<<6 ) |
-                (( input & ( EQ_BIT16 | EQ_BIT15 | EQ_BIT6  | 
-                             EQ_BIT5  | EQ_BIT4  | EQ_BIT3 )) <<12 )           |
-                (( input & ( EQ_BIT28 | EQ_BIT27 | EQ_BIT26 | EQ_BIT25 ))>>18) |
-                (( input & ( EQ_BIT18 | EQ_BIT17 ))>>12)                       |
-                (( input & ( EQ_BIT30 | EQ_BIT29 | EQ_BIT20 | EQ_BIT19 |
-                             EQ_BIT10 | EQ_BIT9 ))>>6 ));
+        return NoSwizzle::swizzle(
+            (( input &  ( EQ_BIT32 | EQ_BIT31 | EQ_BIT22 | EQ_BIT21 | 
+                          EQ_BIT12 | EQ_BIT11 | EQ_BIT2 | EQ_BIT1 ))        |
+             (( input & ( EQ_BIT8  | EQ_BIT7 ))<<18 )                       |
+             (( input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT14 | EQ_BIT13 ))<<6 ) |
+             (( input & ( EQ_BIT16 | EQ_BIT15 | EQ_BIT6  | 
+                          EQ_BIT5  | EQ_BIT4  | EQ_BIT3 )) <<12 )           |
+             (( input & ( EQ_BIT28 | EQ_BIT27 | EQ_BIT26 | EQ_BIT25 ))>>18) |
+             (( input & ( EQ_BIT18 | EQ_BIT17 ))>>12)                       |
+             (( input & ( EQ_BIT30 | EQ_BIT29 | EQ_BIT20 | EQ_BIT19 |
+                          EQ_BIT10 | EQ_BIT9 ))>>6 )),
+                                  one, two, three, four );
     }
+    static inline void swizzle( const uint32_t input, uint8_t& one,
+                                uint8_t& two, uint8_t& three )
+        { assert( 0 ); }
+
     static inline uint32_t deswizzle( const uint32_t input )
     {
         return ((  input & ( EQ_BIT32 | EQ_BIT31 | EQ_BIT22 | EQ_BIT21 | 
@@ -67,16 +90,23 @@ public:
 class SwizzleUInt24
 {
 public:
-    static inline uint32_t swizzle( const uint32_t input )
+    static inline void swizzle( const uint32_t input, uint8_t& one,
+                                uint8_t& two, uint8_t& three, uint8_t& four )
+        { assert( 0 ); }
+
+    static inline void swizzle( const uint32_t input, uint8_t& one,
+                                uint8_t& two, uint8_t& three ) 
     {
-        return (( input &  ( EQ_BIT24 | EQ_BIT23 | EQ_BIT22 | EQ_BIT13 | 
-                             EQ_BIT12 | EQ_BIT3  | EQ_BIT2  | EQ_BIT1 )) |
-                (( input & ( EQ_BIT16 | EQ_BIT15 | EQ_BIT14 )) << 5 )    | 
-                (( input & ( EQ_BIT11 | EQ_BIT10 | EQ_BIT9  )) >> 5 )    |
-                (( input & ( EQ_BIT8  | EQ_BIT7  | EQ_BIT6  | EQ_BIT5  |
-                             EQ_BIT4  )) << 10 )                         |
-                (( input & ( EQ_BIT21 | EQ_BIT20 | EQ_BIT19 | EQ_BIT18 |
-                             EQ_BIT17 )) >> 10 ));
+        return NoSwizzle::swizzle(
+            (( input &  ( EQ_BIT24 | EQ_BIT23 | EQ_BIT22 | EQ_BIT13 | 
+                          EQ_BIT12 | EQ_BIT3  | EQ_BIT2  | EQ_BIT1 )) |
+             (( input & ( EQ_BIT16 | EQ_BIT15 | EQ_BIT14 )) << 5 )    | 
+             (( input & ( EQ_BIT11 | EQ_BIT10 | EQ_BIT9  )) >> 5 )    |
+             (( input & ( EQ_BIT8  | EQ_BIT7  | EQ_BIT6  | EQ_BIT5  |
+                          EQ_BIT4  )) << 10 )                         |
+             (( input & ( EQ_BIT21 | EQ_BIT20 | EQ_BIT19 | EQ_BIT18 |
+                          EQ_BIT17 )) >> 10 )),
+                                  one, two, three );
     }
     static inline uint32_t deswizzle( const uint32_t input )
     {
@@ -103,12 +133,6 @@ public:
     static inline bool use() { return false; }
 };
 
-union ByteWord
-{
-    uint8_t  bytes[4];
-    uint32_t word;
-};
-
 template< typename swizzleFunc, typename alphaFunc >
 static inline void _compress( const void* const input, const uint64_t size,
                               Result** results )
@@ -118,34 +142,35 @@ static inline void _compress( const void* const input, const uint64_t size,
     uint8_t* threeOut( results[ 2 ]->data ); 
     uint8_t* fourOut(  results[ 3 ]->data ); 
 
-    const uint32_t* input32 = reinterpret_cast< const uint32_t* >( input );
-    ByteWord token;
-    token.word = swizzleFunc::swizzle( *input32 );
+    uint8_t oneLast(0), twoLast(0), threeLast(0), fourLast(0);
 
-    uint8_t oneLast( token.bytes[0] ), twoLast( token.bytes[1] ),
-            threeLast( token.bytes[2] ), fourLast( token.bytes[3] );
+    const uint32_t* input32 = reinterpret_cast< const uint32_t* >( input );
+    if( alphaFunc::use( ))
+        swizzleFunc::swizzle( *input32, oneLast, twoLast, threeLast, fourLast );
+    else
+        swizzleFunc::swizzle( *input32, oneLast, twoLast, threeLast );
     
     uint8_t oneSame( 1 ), twoSame( 1 ), threeSame( 1 ), fourSame( 1 );
-    uint8_t one, two, three, four;
+    uint8_t one(0), two(0), three(0), four(0);
     
-    for( uint32_t i = 1; i < size; ++i )
+    for( uint64_t i = 1; i < size; ++i )
     {
         ++input32;
-        token.word = swizzleFunc::swizzle( *input32 );
-        
-        one = token.bytes[0];
-        WRITE( one );
-
-        two = token.bytes[1];
-        WRITE( two );
-
-        three = token.bytes[2];
-        WRITE( three );
 
         if( alphaFunc::use( ))
         {
-            four = token.bytes[3];
+            swizzleFunc::swizzle( *input32, one, two, three, four );
+            WRITE( one );
+            WRITE( two );
+            WRITE( three );
             WRITE( four );
+        }
+        else
+        {
+            swizzleFunc::swizzle( *input32, one, two, three );
+            WRITE( one );
+            WRITE( two );
+            WRITE( three );
         }
     }
 

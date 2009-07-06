@@ -1,9 +1,9 @@
-Use measured data for RLE 4 Byte compressor
+Generalize and optimize RLE4B compressor
 
 [ ] Will break build
 [ ] Breaks existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation
