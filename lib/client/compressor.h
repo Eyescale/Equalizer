@@ -21,6 +21,8 @@
 
 #include <eq/client/types.h>
 #include <eq/base/dso.h>           // member
+
+#define EQ_PLUGIN_BUILD
 #include <eq/plugins/compressor.h> // member
 
 /**

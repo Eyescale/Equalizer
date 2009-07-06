@@ -18,6 +18,7 @@
 #include "frameData.h"
 
 #include "commands.h"
+#include "compressor.h"
 #include "image.h"
 #include "log.h"
 #include "packets.h"
@@ -30,7 +31,6 @@
 #include <eq/net/session.h>
 #include <eq/base/monitor.h>
 #include <algorithm>
-#include <eq/plugins/compressor.h>
 
 using namespace eq::base;
 using namespace std;

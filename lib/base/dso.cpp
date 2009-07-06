@@ -42,8 +42,8 @@ bool DSO::open( const std::string& fileName )
     if( fileName.empty( ))
     {
 #ifdef WIN32
-        EQUNIMPLEMENTED;
-        _dso = 0;
+        _dso = GetModuleHandle( 0 );
+        EQASSERT( _dso );
 #else
         _dso = RTLD_DEFAULT;
 #endif
@@ -71,7 +71,8 @@ void DSO::close()
         return;
 
 #ifdef WIN32
-     FreeLibrary( _dso ) ;
+    if( _dso != GetModuleHandle( 0 ))
+        FreeLibrary( _dso ) ;
 #else
      dlclose ( _dso );
 #endif
