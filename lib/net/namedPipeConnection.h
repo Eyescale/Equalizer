@@ -51,13 +51,13 @@ namespace net
         virtual bool listen();
         virtual void acceptNB();
         virtual ConnectionPtr acceptSync();
-		
+        
         virtual void close();
 
 
 #ifdef WIN32
         virtual Notifier getNotifier() const {
-            return _overlapped->hEvent; }
+            return _overlapped.hEvent; }
 #endif
 
     protected:
@@ -85,7 +85,7 @@ namespace net
         bool _connectToNewClient( HANDLE hPipe ) ;
 
         // overlapped data structures
-        LPOVERLAPPED _overlapped;
+        OVERLAPPED _overlapped;
 
         CHECK_THREAD_DECLARE( _recvThread );
 
@@ -94,4 +94,4 @@ namespace net
 }
 }
 
-#endif //EQNET_NAMEDPIPECONNECTION_H
+#endif //EQNET_NAMEDPIPECONNECTION_H 

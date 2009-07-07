@@ -27,8 +27,9 @@ namespace net
 {
 
 NamedPipeConnection::NamedPipeConnection( const ConnectionType type )
-        : _overlapped( new OVERLAPPED( ))
 {
+    memset( &_overlapped, 0, sizeof( _overlapped ));
+    
     EQASSERT( type == CONNECTIONTYPE_NAMEDPIPE );
     _description =  new ConnectionDescription;
     _description->type = type;
@@ -37,9 +38,6 @@ NamedPipeConnection::NamedPipeConnection( const ConnectionType type )
 NamedPipeConnection::~NamedPipeConnection()
 {
     close();
-
-    if ( _overlapped )
-        delete _overlapped;
 }
 
 //----------------------------------------------------------------------
@@ -87,6 +85,13 @@ void NamedPipeConnection::close()
 
 bool NamedPipeConnection::_createNamedPipe()
 {
+    if ( !WaitNamedPipe( _description->getFilename().c_str(), 20000 )) 
+    { 
+        EQERROR << "Can't create named pipe: " 
+                << GetLastError() << std::endl; 
+        return false; 
+
+    }    
     _readFD = CreateFile( 
              _description->getFilename().c_str(),   // pipe name 
              GENERIC_READ |         // read and write access 
@@ -106,13 +111,6 @@ bool NamedPipeConnection::_createNamedPipe()
                 << GetLastError() << std::endl; 
         return false;
      
-    }
-
-    if ( !WaitNamedPipe( _description->getFilename().c_str(), 2000 )) 
-    { 
-        EQERROR << "Can't create named pipe: " 
-                << GetLastError() << std::endl; 
-        return false; 
     }
 
     return _readFD != INVALID_HANDLE_VALUE;
@@ -141,7 +139,7 @@ bool NamedPipeConnection::listen()
 bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe ) 
 { 
    // Start an overlapped connection for this pipe instance. 
-   const bool fConnected = ConnectNamedPipe( hPipe, _overlapped ); 
+   const bool fConnected = ConnectNamedPipe( hPipe, &_overlapped ); 
 
    EQASSERT( !fConnected );
  
@@ -153,7 +151,7 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
  
       // Client is already connected, so signal an event. 
       case ERROR_PIPE_CONNECTED: 
-         if( SetEvent( _overlapped->hEvent ) ) 
+         if( SetEvent( _overlapped.hEvent ) ) 
             return true; 
 
          // fall through
@@ -170,10 +168,10 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
 //----------------------------------------------------------------------
 void NamedPipeConnection::_initAIORead()
 {
-    _overlapped->hEvent = CreateEvent( 0, true, true, 0 );
-    EQASSERT( _overlapped->hEvent );
+    _overlapped.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
+    EQASSERT( _overlapped.hEvent );
 
-    if( !_overlapped->hEvent )
+    if( !_overlapped.hEvent )
         EQERROR << "Can't create event for AIO notification: " 
                 << GetLastError()  << std::endl;
 }
@@ -189,10 +187,10 @@ void NamedPipeConnection::_exitAIOAccept()
 }
 void NamedPipeConnection::_exitAIORead()
 {
-    if( _overlapped && _overlapped->hEvent ) 
+    if(  _overlapped.hEvent ) 
     {
-        CloseHandle( _overlapped->hEvent );
-        _overlapped->hEvent = 0;
+        CloseHandle( _overlapped.hEvent );
+        _overlapped.hEvent = 0;
     }
 }
 
@@ -202,7 +200,7 @@ void NamedPipeConnection::_exitAIORead()
 void NamedPipeConnection::acceptNB()
 {
     EQASSERT( _state == STATE_LISTENING );
-    ResetEvent( _overlapped->hEvent );
+    ResetEvent( _overlapped.hEvent );
 
 
 #if 0
@@ -253,10 +251,15 @@ ConnectionPtr NamedPipeConnection::acceptSync()
     // complete accept
     DWORD got   = 0;
     DWORD flags = 0;
-    if( !GetOverlappedResult( _readFD, _overlapped, &got, TRUE ))
+    if( !GetOverlappedResult( _readFD, &_overlapped, &got, TRUE ))
     {
+        if (GetLastError() == ERROR_PIPE_CONNECTED) 
+        {        
+            return 0; 
+        }
         EQWARN << "Accept completion failed: " << GetLastError()  
                << ", closing named pipe" << std::endl;
+         
         close();
         return 0;
     }
@@ -268,13 +271,11 @@ ConnectionPtr NamedPipeConnection::acceptSync()
 
     newConnection->setDescription( _description );
     newConnection->_readFD  = _readFD;
-    newConnection->_overlapped = _overlapped;
     newConnection->_state = STATE_CONNECTED;
+    newConnection->_initAIORead();
 
-    _overlapped = new OVERLAPPED();
-    
-    _initAIOAccept();
-
+    newConnection->_state  = STATE_CONNECTED;
+    newConnection->_description->setFilename( _description->getFilename() );
     _readFD = INVALID_HANDLE_VALUE;
 
     EQINFO << "accepted connection" << std::endl;
@@ -289,14 +290,14 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
     if( _state == STATE_CLOSED )
         return;
 
-    ResetEvent( _overlapped->hEvent );
+    ResetEvent( _overlapped.hEvent );
     DWORD use = EQ_MIN( bytes, EQ_MAXBUFFSIZE );
 
     if( !ReadFile( _readFD,         // pipe handle 
                    buffer,          // buffer to receive reply 
                    use,             // size of buffer 
                    0,               // number of bytes read 
-                   _overlapped )    // not overlapped 
+                   &_overlapped )    // not overlapped 
                    &&   (  GetLastError() != ERROR_IO_PENDING ) )
     {
         EQWARN << "Could not start overlapped receive: " << GetLastError() 
@@ -315,10 +316,14 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes )
     }
 
     DWORD got   = 0;
-    if( !GetOverlappedResult( _readFD, _overlapped, &got, true ))
+    if( !GetOverlappedResult( _readFD, &_overlapped, &got, true ))
     {
         EQWARN << "Read complete failed: " << GetLastError()  
                << std::endl;
+        if (GetLastError() == ERROR_PIPE_CONNECTED) 
+        {        
+            return 0; 
+        } 
         close();
         return 0;
 
