@@ -288,9 +288,9 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
          i != compressors.end(); ++i )
     {
         const Compressor* compressor = *i;
-        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
-
         const CompressorInfoVector& infos = compressor->getInfos();
+
+        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
         
         for( CompressorInfoVector::const_iterator j = infos.begin();
              j != infos.end(); ++j )
@@ -314,6 +314,7 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
         }
     }
 
+    EQINFO << "Selected compressor " << name << std::endl;
     return name;
 }
 
@@ -855,17 +856,17 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
         return true;
     }
         
-#ifndef NDEBUG
-    const std::vector< uint32_t > names( findCompressors( buffer ));
-    EQASSERT( std::find( names.begin(), names.end(), name) != names.end( ));
-#endif
-
     if( !attachment.compressor.plugin || attachment.compressor.name != name )
     {
         attachment.compressor.flush();
         attachment.compressor.name = name;
         attachment.compressor.isCompressor = true;
         attachment.memory.isCompressed = false;
+
+#ifndef NDEBUG
+        const std::vector< uint32_t > names( findCompressors( buffer ));
+        EQASSERT( std::find( names.begin(), names.end(), name) != names.end( ));
+#endif
 
         PluginRegistry& registry = Global::getPluginRegistry();
         attachment.compressor.plugin = registry.findCompressor( name );
@@ -948,7 +949,8 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     if( !allocCompressor( buffer, memory.compressorName ) || 
         memory.compressorName == EQ_COMPRESSOR_NONE )
     {
-        EQWARN << "No compressor found for current pixel format" << std::endl;
+        EQWARN << "No compressor found for token type " 
+               << _getCompressorTokenType( buffer ) << std::endl;
         return memory;
     }
 

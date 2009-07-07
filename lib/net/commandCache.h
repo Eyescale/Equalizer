@@ -50,15 +50,17 @@ namespace net
         void flush();
 
     private:
-        /** The cache for small commands. */
-        CommandVector _small;
-        /** Last lookup position for small commands. */
-        size_t _smallPos;
+        enum Cache
+        {
+            CACHE_SMALL,
+            CACHE_BIG,
+            CACHE_ALL
+        };
 
-        /** The cache for big commands. */
-        CommandVector _big;
-        /** Last lookup position for big commands. */
-        size_t _bigPos;
+        /** The caches. */
+        CommandVector _caches[ CACHE_ALL ];
+        /** Last lookup position in each cache. */
+        size_t _positions[ CACHE_ALL ];
 
         CHECK_THREAD_DECLARE( _thread );
     };

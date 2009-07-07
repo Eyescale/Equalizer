@@ -80,6 +80,7 @@ namespace net
         //@}
 
         bool isValid() const { return ( _packet!=0 ); }
+        uint64_t getAllocationSize() const { return _packetAllocSize; }
 
     private:
         Command();
@@ -97,7 +98,6 @@ namespace net
         Packet*  _packet;
         base::mtLong _refCount;
         uint64_t _packetAllocSize;
-
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& );

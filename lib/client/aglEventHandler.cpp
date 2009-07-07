@@ -576,7 +576,6 @@ void AGLEventHandler::initMagellan( Node* node )
         std::string program( '\0' + 
                             base::getFilename( net::Global::getProgramName( )));
         program[0] = program.length() - 1;
-        EQINFO << program << std::endl;
 
         _magellanID = RegisterConnexionClient( 0, (uint8_t*)program.c_str( ),
                                                kConnexionClientModeTakeOver,

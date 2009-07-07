@@ -23,6 +23,7 @@
 
 using namespace std;
 
+#define COMPACT
 //#define PROFILE
 // 31300 hits, 35 misses, 297640 lookups, 126976b allocated in 31 packets
 // 31300 hits, 35 misses, 49228 lookups, 135168b allocated in 34 packets
@@ -32,37 +33,40 @@ namespace eq
 namespace net
 {
 CommandCache::CommandCache()
-        : _smallPos( 0 )
-        , _bigPos( 0 )
 {
-    _small.push_back( new Command );
-    _big.push_back( new Command );
+    for( size_t i = 0; i < CACHE_ALL; ++i )
+    {
+        _caches[ i ].push_back( new Command );
+        _positions[ i ] = 0;
+    }
 }
 
 CommandCache::~CommandCache()
 {
     flush();
-    EQASSERT( _small.size() == 1 );
-    EQASSERT( _big.size() == 1 );
 
-    delete _small.front();
-    delete _big.front();
+    for( size_t i = 0; i < CACHE_ALL; ++i )
+    {
+        EQASSERT( _caches[i].size() == 1 );
+        delete _caches[i].front();
+        _caches[i].clear();
+    }
 }
 
 void CommandCache::flush()
 {
-    for( CommandVector::const_iterator i=_small.begin(); i!=_small.end(); ++i )
-        delete *i;
-    _small.clear();
-    _smallPos = 0;
-
-    for( CommandVector::const_iterator i = _big.begin(); i != _big.end(); ++i )
-        delete *i;
-    _big.clear();
-    _bigPos = 0;
-
-    _small.push_back( new Command );
-    _big.push_back( new Command );
+    for( size_t i = 0; i < CACHE_ALL; ++i )
+    {
+        CommandVector& cache = _caches[ i ];
+        for( CommandVector::const_iterator j = cache.begin(); 
+             j != cache.end(); ++j )
+        {
+            delete *j;
+        }
+        cache.clear();
+        _positions[ i ] = 0;
+        cache.push_back( new Command );
+    }
 }
 
 #ifdef PROFILE
@@ -79,15 +83,50 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
 {
     CHECK_THREAD( _thread );
 
-    const bool isBig = (size > Packet::minSize);
-    CommandVector& cache = isBig ? _big : _small;
+    const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
+    CommandVector& cache = _caches[ which ];
+    size_t& i = _positions[ which ];
 
     EQASSERT( !cache.empty( ));
 
-    size_t& i = isBig ? _bigPos : _smallPos;
-    const size_t cacheSize = cache.size();
-        
+#ifdef COMPACT
+    const unsigned highWater = (which == CACHE_BIG) ? 10 : 1000;
+    if( cache.size() > highWater && (i%10) == 0 )
+    {
+        int64_t keepFree( 30 * 1024 * 1024 );
+        keepFree = EQ_MAX( keepFree, 10 );
+#  ifdef PROFILE
+        size_t freed( 0 );
+#  endif
+
+        for( i = 0; i < cache.size(); ++i )
+        {
+            const Command* cmd = cache[i];
+            if( !cmd->isFree( ))
+                continue;
+            
+            if( keepFree > 0 )
+            {
+                keepFree -= cmd->getAllocationSize();
+                continue;
+            }
+
+            cache.erase( cache.begin() + i );
+            delete cmd;
+#  ifdef PROFILE
+            ++freed;
+#  endif
+        }
+#  ifdef PROFILE
+        EQINFO << "Freed " << freed << " packets, remaining " << cache.size()
+               << std::endl;
+#  endif
+    }
+#endif
+
+    const size_t cacheSize = cache.size();        
     i = i % cacheSize;
+
     const size_t end = i + cacheSize;
     
     for( ++i; i <= end; ++i )
@@ -103,29 +142,29 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
             const long hits = ++_hits;
             if( (hits%1000) == 0 )
             {
-                uint64_t mem( _small.size() * Packet::minSize );
+                size_t mem( 0 );
                 size_t free( 0 );
+                size_t packets( 0 );
 
-                for( CommandVector::const_iterator j = _small.begin(); 
-                     j != _small.end(); ++j )
+                for( size_t j = 0; j < CACHE_ALL; ++j )
                 {
-                    const Command* cmd = *j;
-                    if( cmd->isFree( ))
-                        ++free;
-                }
-                for( CommandVector::const_iterator j = _big.begin(); 
-                     j != _big.end(); ++j )
-                {
-                    const Command* cmd = *j;
-                    mem += cmd->_packetAllocSize;
-                    if( cmd->isFree( ))
-                        ++free;
+                    CommandVector& cache1 = _caches[ j ];
+                    packets += cache1.size();
+
+                    for( CommandVector::const_iterator k = cache1.begin(); 
+                         k != cache1.end(); ++k )
+                    {
+                        const Command* cmd = *k;
+                        mem += cmd->_packetAllocSize;
+                        if( cmd->isFree( ))
+                            ++free;
+                    }
                 }
                 
                 EQINFO << _hits << " hits, " << _misses << " misses, "
                        << _lookups << " lookups, " << mem << "b allocated in "
-                       << _small.size() +_big.size() << " packets (" << free
-                       << " free)" << std::endl;
+                       << packets << " packets (" << free << " free)"
+                       << std::endl;
             }
 #endif
             command->alloc( node, localNode, size );
