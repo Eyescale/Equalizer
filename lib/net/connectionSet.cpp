@@ -215,9 +215,12 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 {
 #ifdef WIN32
     const uint32_t i = index - WAIT_OBJECT_0;
-    _connection = _fdSetConnections[i];
+    if( i >= MAXIMUM_WAIT_OBJECTS )
+        return EVENT_INTERRUPT;
 
+    _connection = _fdSetConnections[i];
     EQASSERT( _fdSet[i] == _connection->getNotifier( ));
+
     return EVENT_DATA;
 #else
     for( size_t i = 0; i < _fdSet.size; ++i )
