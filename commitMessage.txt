@@ -1,9 +1,9 @@
-Untested Win32 code for last change.
+Update compressor DSO creation doc
 
-[x] Will break Win32 build
+[ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

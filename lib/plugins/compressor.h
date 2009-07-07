@@ -21,9 +21,23 @@
  * 
  * The API to create runtime-loadable compression plugins.
  *
- * The functions in this header file are to be implemented in a dynamic shared
- * object (DLL on Windows, shared library on POSIX) to create a Compression
- * Plugin.
+ * To implement a compression plugin, the following steps are to be taken:
+ * <ul>
+ *   <li>Create a new shared library named EqualizerCompressorNAME.dll (Win32),
+ *       libeqCompressorNAME.dylib (Mac OS X) or libeqCompressorNAME.so
+ *       (Linux).</li>
+ *   <li>Define EQ_PLUGIN_API and then include eq/plugins/compressor.h (this
+ *       header file).</li>
+ *   <li>Implement all C functions from this header file. You can use the
+ *       default Equalizer compressors in src/lib/compressor as a template.</li>
+ *   <li>Put the library in the plugin search path (see
+ *       eq::Global::getPluginDirectories(), defaults to EQ_PLUGIN_PATH or
+ *       "/usr/local/share/Equalizer/plugins;.eqPlugins;$LD_LIBRARY_PATH".</li>
+ *   <li>Run the image unit test (tests/image) to verify your plugin.</li>
+ *   <li>Set the compression ratio and speed according to the output of the
+ *       image unit test. Use the Equalizer RLE compressor as baseline.</li>
+ *   <li>Request official names for your compressors.</li>
+ * </ul>
  */
 
 #ifndef EQ_PLUGINS_COMPRESSOR
