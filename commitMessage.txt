@@ -1,9 +1,9 @@
-Update compressor DSO creation doc
+Win32: Close TCP connection on error in readNB()
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

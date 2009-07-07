@@ -259,7 +259,8 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
         GetLastError() != WSA_IO_PENDING )
     {
         EQWARN << "Could not start overlapped receive: " << EQ_SOCKET_ERROR
-               << std::endl;
+               << ", closing connection" << std::endl;
+        close();
     }
 }
 
