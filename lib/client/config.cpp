@@ -694,7 +694,7 @@ void Config::setWindowSystem( const WindowSystem windowSystem )
 }
 
 #ifdef EQ_USE_DEPRECATED
-void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
+void Config::setHeadMatrix( const eq::Matrix4f& matrix )
 {
     for( ObserverVector::const_iterator i = _observers.begin();
          i != _observers.end(); ++i )
@@ -703,10 +703,10 @@ void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
     }
 }
 
-const vmml::Matrix4f& Config::getHeadMatrix() const
+const eq::Matrix4f& Config::getHeadMatrix() const
 {
     if( _observers.empty( ))
-        return vmml::Matrix4f::IDENTITY;
+        return eq::Matrix4f::IDENTITY;
 
     return _observers[0]->getHeadMatrix();
 }
