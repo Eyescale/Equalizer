@@ -1,4 +1,4 @@
-dos2unix
+Port win32 network hang patch from 0.6 to trunk
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
