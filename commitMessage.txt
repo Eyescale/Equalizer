@@ -1,4 +1,4 @@
-Win32: Close TCP connection on error in readNB()
+dos2unix
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
