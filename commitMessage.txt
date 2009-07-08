@@ -1,4 +1,4 @@
-Fix output of layout compound channels
+Add Cedric's 64 client win32 patch
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
