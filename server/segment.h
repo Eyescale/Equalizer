@@ -75,6 +75,10 @@ namespace server
         Channel* getChannel()               { return _channel; }
         const Channel* getChannel() const   { return _channel; }
 
+        /** Return the parent canvas of this segment. */
+        Canvas* getCanvas()               { return _canvas; }
+        const Canvas* getCanvas() const   { return _canvas; }
+
         /** 
          * Set the segment's viewport wrt its canvas.
          *

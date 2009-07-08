@@ -17,6 +17,7 @@
 
 #include "compound.h"
 
+#include "canvas.h"
 #include "channel.h"
 #include "colorMask.h"
 #include "compoundExitVisitor.h"
@@ -31,6 +32,7 @@
 #include "frame.h"
 #include "frameData.h"
 #include "global.h"
+#include "layout.h"
 #include "log.h"
 #include "paths.h"
 #include "segment.h"
@@ -1006,6 +1008,16 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
                     if( !segmentName.empty() && 
                         config->findSegment( segmentName ) == segment )
                     {
+                        const Canvas* canvas = segment->getCanvas();
+                        const std::string& canvasName = canvas->getName();
+                        if( !canvasName.empty() && 
+                            config->findCanvas( canvasName ) == canvas )
+                        {
+                            os << "canvas \"" << canvasName << "\" ";
+                        }
+                        else
+                            os << canvas->getPath() << ' ';
+
                         os << "segment \"" << segmentName << "\" ";
                     }
                     else
@@ -1015,6 +1027,16 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
                     if( !viewName.empty() && 
                         config->findView( viewName ) == view )
                     {
+                        const Layout* layout = view->getLayout();
+                        const std::string& layoutName = layout->getName();
+                        if( !layoutName.empty() && 
+                            config->findLayout( layoutName ) == layout )
+                        {
+                            os << "layout \"" << layoutName << "\" ";
+                        }
+                        else
+                            os << layout->getPath() << ' ';
+
                         os << "view \"" << viewName << '\"';
                     }
                     else

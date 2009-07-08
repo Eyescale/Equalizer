@@ -1,9 +1,9 @@
-Port win32 network hang patch from 0.6 to trunk
+Fix output of layout compound channels
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

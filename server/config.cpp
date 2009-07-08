@@ -467,6 +467,13 @@ Canvas* Config::findCanvas( const std::string& name )
     return finder.getResult();
 }
 
+const Canvas* Config::findCanvas( const std::string& name ) const
+{
+    ConstCanvasFinder finder( name );
+    accept( finder );
+    return finder.getResult();
+}
+
 Segment* Config::findSegment( const std::string& name )
 {
     SegmentFinder finder( name );

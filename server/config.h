@@ -200,6 +200,7 @@ namespace server
          *         canvas with the name exists.
          */
         Canvas* findCanvas( const std::string& name );
+        const Canvas* findCanvas( const std::string& name ) const;
 
         /** 
          * Find the first segment of a given name.
