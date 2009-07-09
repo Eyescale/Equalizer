@@ -80,8 +80,7 @@ bool ConnectionDescription::fromString( std::string& data )
 {
     {
         size_t nextPos = data.find( SEPARATOR );
-        // assume hostname[:port[:type]|:type] format
-        // assume filename:PIPE format
+        // assume hostname[:port[:type]|:type] or filename:PIPE format
         if( nextPos == string::npos )
         {
             type     = CONNECTIONTYPE_TCPIP;
@@ -122,6 +121,7 @@ bool ConnectionDescription::fromString( std::string& data )
             return true;
         }
 
+        // else assume SEPARATOR-delimeted list
         const string typeStr = data.substr( 0, nextPos );
         data                 = data.substr( nextPos + 1 );
 
