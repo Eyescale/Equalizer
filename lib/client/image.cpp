@@ -747,7 +747,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     if( size == 0 )
         return;
 
-    if( pixels.compressorName == EQ_COMPRESSOR_NONE )
+    if( pixels.compressorName <= EQ_COMPRESSOR_NONE )
     {
         EQASSERT( size == pixels.pixels.size );
         setPixelData( buffer, pixels.pixels.data );
@@ -758,7 +758,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     if( !_allocDecompressor( attachment, pixels.compressorName ))
     {
         EQASSERTINFO( 0,
-           "Can't allocate decompressor, mismatched compressor installation?" );
+                      "Can't allocate decompressor " << pixels.compressorName <<
+                      ", mismatched compressor installation?" );
         return;
     }
 

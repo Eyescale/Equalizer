@@ -170,14 +170,13 @@ LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
             _stringStream << getpid()  << " " 
                           << eq::base::Thread::getSelfThreadID()
                           << " " << _file << ":" << _line << " ";
-#ifndef NDEBUG
-            const int prec  = _stringStream.precision();
 
-            _stringStream.precision( 4 );
+            const int prec = _stringStream.precision();
+
+            _stringStream.precision( 5 );
             _stringStream << std::setw(5) << (_clock->getTime64() % 100000)
                           << " ";
             _stringStream.precision( prec );
-#endif
         }
 
         for( int i=0; i<_indent; ++i )

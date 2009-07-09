@@ -380,7 +380,7 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
 
         if( pixelDatas.empty( ))
             continue;
-        
+
         // send image pixel data packet
         if( _useSendToken )
             getLocalNode()->acquireSendToken( toNode );
@@ -514,7 +514,7 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
             
             data += 4 * sizeof( uint32_t );
             
-            if ( pixelData.compressorName != EQ_COMPRESSOR_NONE )
+            if( pixelData.compressorName > EQ_COMPRESSOR_NONE )
             {
                 pixelData.compressedSize.resize( nChunks );
                 pixelData.compressedData.resize( nChunks );
