@@ -21,7 +21,7 @@ namespace eq
 {
 namespace net
 {
-NamedPipeConnection::NamedPipeConnection( const ConnectionType type )
+NamedPipeConnection::NamedPipeConnection()
 {
     
 }
