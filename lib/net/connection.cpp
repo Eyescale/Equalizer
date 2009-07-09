@@ -71,7 +71,7 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             break;
             
         case CONNECTIONTYPE_NAMEDPIPE:
-            connection = new NamedPipeConnection(description->type);
+            connection = new NamedPipeConnection();
             break;
         default:
             EQWARN << "Connection type not implemented" << endl;
@@ -342,6 +342,23 @@ void Connection::setDescription( ConnectionDescriptionPtr description )
     EQASSERTINFO( _description->type == description->type,
                   "Wrong connection type in description" );
     _description = description;
+
+    if( _description->bandwidth > 0 )
+        return;
+
+    switch( description->type )
+    {
+        case CONNECTIONTYPE_NAMEDPIPE:
+            _description->bandwidth = 768000;
+            break;
+        case CONNECTIONTYPE_SDP:
+            _description->bandwidth = 819200;
+            break;
+        case CONNECTIONTYPE_TCPIP:
+        default:
+            _description->bandwidth = 102400;
+            break;
+    }
 }
 
 std::ostream& operator << ( std::ostream& os, const Connection* connection )

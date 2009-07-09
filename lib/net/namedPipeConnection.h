@@ -45,7 +45,7 @@ namespace net
 #endif
     {
     public:
-        NamedPipeConnection( const ConnectionType type );
+        NamedPipeConnection();
 
         virtual bool connect();
         virtual bool listen();

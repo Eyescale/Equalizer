@@ -40,12 +40,3 @@
 
 #  include "namedPipeConnectionPosix.cpp"
 #endif
-
-namespace eq
-{
-namespace net
-{
-
-}
-}
-

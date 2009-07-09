@@ -26,13 +26,13 @@ namespace eq
 namespace net
 {
 
-NamedPipeConnection::NamedPipeConnection( const ConnectionType type )
+NamedPipeConnection::NamedPipeConnection()
 {
     memset( &_overlapped, 0, sizeof( _overlapped ));
     
-    EQASSERT( type == CONNECTIONTYPE_NAMEDPIPE );
     _description =  new ConnectionDescription;
-    _description->type = type;
+    _description->type = CONNECTIONTYPE_NAMEDPIPE;
+    _description->bandwidth = 768000;
 }
 
 NamedPipeConnection::~NamedPipeConnection()
@@ -265,8 +265,7 @@ ConnectionPtr NamedPipeConnection::acceptSync()
     }
 
 
-    NamedPipeConnection* newConnection = 
-        new NamedPipeConnection( _description->type );
+    NamedPipeConnection* newConnection = new NamedPipeConnection;
     ConnectionPtr conn( newConnection );
 
     newConnection->setDescription( _description );
