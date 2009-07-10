@@ -31,14 +31,14 @@ class CompressorRLE4B : public CompressorRLE
 public:
     CompressorRLE4B() {}
 
-    virtual void compress( const void* const inData, const uint64_t nPixels, 
+    virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
                            const bool useAlpha )
         { compress( inData, nPixels, useAlpha, false ); }
     
     static void decompress( const void* const* inData, 
-                            const uint64_t* const inSizes, 
+                            const eq_uint64_t* const inSizes, 
                             const unsigned numInputs, void* const outData, 
-                            const uint64_t nPixels, const bool useAlpha );
+                            const eq_uint64_t nPixels, const bool useAlpha );
     
 
     static void* getNewCompressor( ){ return new eq::plugin::CompressorRLE4B; }
@@ -69,7 +69,7 @@ public:
     }
 
 protected:
-    void compress( const void* const inData, const uint64_t nPixels, 
+    void compress( const void* const inData, const eq_uint64_t nPixels, 
                    const bool useAlpha, const bool swizzle );
 };
 
@@ -138,14 +138,14 @@ public:
         return functions;
     }
 
-    virtual void compress( const void* const inData, const uint64_t nPixels, 
+    virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
                            const bool useAlpha )
         { CompressorRLE4B::compress( inData, nPixels, useAlpha, true ); }
 
     static void decompress( const void* const* inData, 
-                            const uint64_t* const inSizes, 
+                            const eq_uint64_t* const inSizes, 
                             const unsigned numInputs, void* const outData, 
-                            const uint64_t nPixels, const bool useAlpha );
+                            const eq_uint64_t nPixels, const bool useAlpha );
 };    
 }
 }

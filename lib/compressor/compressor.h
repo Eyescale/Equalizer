@@ -41,9 +41,10 @@ namespace plugin
     public:
         typedef void  (*CompressorGetInfo_t)( EqCompressorInfo* const );
         typedef void* (*NewCompressor_t)();
-        typedef void (*Decompress_t)( const void* const*, const uint64_t* const,
+        typedef void (*Decompress_t)( const void* const*, const 
+                                      eq_uint64_t* const,
                                       const unsigned, void* const, 
-                                      const uint64_t, const bool );
+                                      const eq_uint64_t, const bool );
 
         struct Functions
         {
@@ -74,7 +75,7 @@ namespace plugin
          * @param useAlpha use alpha channel in compression.
          */
         virtual void compress( const void* const inData,
-                               const uint64_t nPixels, 
+                               const eq_uint64_t nPixels, 
                                const bool useAlpha ) = 0;
 
 

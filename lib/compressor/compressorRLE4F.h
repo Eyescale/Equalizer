@@ -48,7 +48,7 @@ public:
      * @param useAlpha use alpha channel in compression.
      */
     virtual void compress( const void* const inData, 
-                           const uint64_t inSize, 
+                           const eq_uint64_t inSize, 
                            const bool useAlpha );
     
     /** @name decompress */
@@ -62,9 +62,9 @@ public:
      * @param outSize size of the result.
      */
     static void decompress( const void* const* inData, 
-                            const uint64_t* const inSizes,
+                            const eq_uint64_t* const inSizes,
                             const unsigned numInputs, void* const outData, 
-                            const uint64_t outSize, const bool useAlpha );
+                            const eq_uint64_t outSize, const bool useAlpha );
     
     static void* getNewCompressor( )
                                    { return new eq::plugin::CompressorRLE4F; }
@@ -104,7 +104,7 @@ public:
         return functions;
     }
 private:
-    void _compress( const uint32_t* const input, const uint64_t size, 
+    void _compress( const uint32_t* const input, const eq_uint64_t size, 
                     Result** results,const bool useAlpha );
 };
 

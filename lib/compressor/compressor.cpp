@@ -120,11 +120,11 @@ void EqCompressorDeleteDecompressor( void* const decompressor )
 void EqCompressorCompress( void* const compressorPtr,
                                          const unsigned name,
                                          void* const in, 
-                                         const uint64_t* inDims,
-                                         const uint64_t flags )
+                                         const eq_uint64_t* inDims,
+                                         const eq_uint64_t flags )
 {
     const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_MSE);
-    const uint64_t nPixels = (flags & EQ_COMPRESSOR_DATA_1D) ?
+    const eq_uint64_t nPixels = (flags & EQ_COMPRESSOR_DATA_1D) ?
                                   inDims[1]: inDims[1] * inDims[3];
 
     eq::plugin::Compressor* compressor = 
@@ -163,7 +163,7 @@ void EqCompressorDecompress( void* const decompressor,
                                            const eq_uint64_t flags )
 {
     const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_MSE);
-    const uint64_t nPixels = ( flags & EQ_COMPRESSOR_DATA_1D) ?
+    const eq_uint64_t nPixels = ( flags & EQ_COMPRESSOR_DATA_1D) ?
                            outDims[1] : outDims[1] * outDims[3];
 
     eq::plugin::Compressor::Functions& functions = 

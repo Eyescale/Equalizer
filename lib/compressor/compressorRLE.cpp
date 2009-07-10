@@ -25,7 +25,7 @@ namespace eq
 namespace plugin
 {
 void CompressorRLE::_setupResults( const uint32_t nChannels,
-                                   const uint64_t inSize )
+                                   const eq_uint64_t inSize )
 {
     // determine number of chunks and set up output data structure
 #ifdef EQ_USE_OPENMP
@@ -37,7 +37,7 @@ void CompressorRLE::_setupResults( const uint32_t nChannels,
     while( _results.size() < nChunks )
         _results.push_back( new Result );
 
-    const uint64_t maxChunkSize = (inSize/nChunks + 1) * 3;
+    const eq_uint64_t maxChunkSize = (inSize/nChunks + 1) * 3;
     for( size_t i = 0; i < nChunks; ++i )
         _results[i]->resize( maxChunkSize );
 }

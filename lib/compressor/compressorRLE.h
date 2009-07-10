@@ -105,7 +105,7 @@ namespace plugin
         protected:
             /** Allocate the output arrays conservatively. */
             void _setupResults( const uint32_t nChannels, 
-                                const uint64_t inSize );
+                                const eq_uint64_t inSize );
         };
     
 }

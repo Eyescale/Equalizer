@@ -31,13 +31,13 @@ class CompressorRLE3B : public CompressorRLE
 public:
     CompressorRLE3B() {}
 
-    virtual void compress( const void* const inData, const uint64_t inSize, 
+    virtual void compress( const void* const inData, const eq_uint64_t inSize, 
                            const bool useAlpha );
     
     static void decompress( const void* const* inData,
-                            const uint64_t* const inSizes, 
+                            const eq_uint64_t* const inSizes, 
                             const unsigned numInputs, void* const outData, 
-                            const uint64_t outSize, const bool useAlpha );
+                            const eq_uint64_t outSize, const bool useAlpha );
 
     static void* getNewCompressor() { return new eq::plugin::CompressorRLE3B; }
     static void* getNewDecompressor() { return 0; }
@@ -65,7 +65,7 @@ public:
     }
 
 private:
-    void _compress( const uint8_t* const input, const uint64_t size, 
+    void _compress( const uint8_t* const input, const eq_uint64_t size, 
                     Result** results );
 };
 
