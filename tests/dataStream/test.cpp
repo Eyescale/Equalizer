@@ -106,7 +106,7 @@ public:
             _commands.push( command );
         }
 
-    virtual size_t nRemainingBuffers() const { return _commands.size(); }
+    virtual size_t nRemainingBuffers() const { return _commands.getSize(); }
 
 protected:
     virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size )

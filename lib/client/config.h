@@ -196,7 +196,7 @@ namespace eq
         EQ_EXPORT const ConfigEvent* tryNextEvent();
 
         /** @return true if events are pending. */
-        bool checkEvent() const { return !_eventQueue.empty(); }
+        bool checkEvent() const { return !_eventQueue.isEmpty(); }
 
         /**
          * Handle all config events.

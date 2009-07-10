@@ -109,7 +109,7 @@ net::Command* CommandQueue::pop()
             _messagePump->dispatchAll(); // non-blocking
 
         // Poll for a command
-        if( !empty( ))
+        if( !isEmpty( ))
             return net::CommandQueue::pop();
 
         if( _messagePump )

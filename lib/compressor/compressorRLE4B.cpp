@@ -159,10 +159,10 @@ template< typename swizzleFunc, typename alphaFunc >
 static inline void _compress( const void* const input, const eq_uint64_t size,
                               Compressor::Result** results )
 {
-    uint8_t* oneOut(   results[ 0 ]->data ); 
-    uint8_t* twoOut(   results[ 1 ]->data ); 
-    uint8_t* threeOut( results[ 2 ]->data ); 
-    uint8_t* fourOut(  results[ 3 ]->data ); 
+    uint8_t* oneOut(   results[ 0 ]->getData() ); 
+    uint8_t* twoOut(   results[ 1 ]->getData() ); 
+    uint8_t* threeOut( results[ 2 ]->getData() ); 
+    uint8_t* fourOut(  results[ 3 ]->getData() ); 
 
     uint8_t oneLast(0), twoLast(0), threeLast(0), fourLast(0);
 
@@ -201,10 +201,19 @@ static inline void _compress( const void* const input, const eq_uint64_t size,
     WRITE_OUTPUT( three )
     WRITE_OUTPUT( four );
 
-    results[0]->size = oneOut   - results[0]->data;
-    results[1]->size = twoOut   - results[1]->data;
-    results[2]->size = threeOut - results[2]->data;
-    results[3]->size = fourOut  - results[3]->data;
+    assert( results[0]->getMaxSize() >= 
+            static_cast< size_t >( oneOut   - results[0]->getData( )));
+    assert( results[1]->getMaxSize() >= 
+            static_cast< size_t >( twoOut   - results[1]->getData( )));
+    assert( results[2]->getMaxSize() >= 
+            static_cast< size_t >( threeOut - results[2]->getData( )));
+    assert( results[3]->getMaxSize() >= 
+            static_cast< size_t >( fourOut  - results[3]->getData( )));
+
+    results[0]->resize( oneOut   - results[0]->getData( ));
+    results[1]->resize( twoOut   - results[1]->getData( ));
+    results[2]->resize( threeOut - results[2]->getData( ));
+    results[3]->resize( fourOut  - results[3]->getData( ));
 }
 
 template< typename swizzleFunc, typename alphaFunc >

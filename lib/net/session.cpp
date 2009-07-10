@@ -86,7 +86,7 @@ Session::~Session()
 
 void Session::_setLocalNode( NodePtr node )
 {
-    EQASSERT( _requestHandler.empty( ));
+    EQASSERT( _requestHandler.isEmpty( ));
 
     _localNode = node;
     if( !_localNode.isValid( ))

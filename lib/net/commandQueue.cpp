@@ -39,7 +39,7 @@ CommandQueue::~CommandQueue()
 
 void CommandQueue::flush()
 {
-    if( !empty( ))
+    if( !isEmpty( ))
         EQWARN << "Flushing non-empty command queue" << endl;
 
     Command* command( 0 );

@@ -370,7 +370,7 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
                 else
                 {
                     packet.size += sizeof( uint64_t );
-                    packet.size += data->pixels.size;
+                    packet.size += data->pixels.getSize();
                 }
 
                 packet.buffers |= buffer;
@@ -419,9 +419,9 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
             }
             else
             {
-                const uint64_t dataSize = data->pixels.size;
+                const uint64_t dataSize = data->pixels.getSize();
                 connection->send( &dataSize, sizeof( dataSize ), true );
-                connection->send( data->pixels.data, dataSize, true );
+                connection->send( data->pixels.getData(), dataSize, true );
 #ifndef NDEBUG
                 sentBytes += sizeof( dataSize ) + dataSize;
 #endif

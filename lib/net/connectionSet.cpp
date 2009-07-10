@@ -155,10 +155,11 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
         // poll for a result
 #ifdef WIN32
         const DWORD waitTime = timeout > 0 ? timeout : INFINITE;
-        const DWORD ret = WaitForMultipleObjectsEx( _fdSet.size, _fdSet.data,
+        const DWORD ret = WaitForMultipleObjectsEx( _fdSet.getSize(),
+                                                    _fdSet.getData(),
                                                     FALSE, waitTime, TRUE );
 #else
-        const int ret = poll( _fdSet.data, _fdSet.size, timeout );
+        const int ret = poll( _fdSet.getData(), _fdSet.getSize(), timeout );
 #endif
         switch( ret )
         {
@@ -203,7 +204,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                         event = EVENT_CONNECT;
 
                     EQVERB << "selected connection " << _connection << " of "
-                           << _fdSetConnections.size << ", event " << event
+                           << _fdSetConnections.getSize() << ", event " << event
                            << std::endl;
                     return event;
                 }
@@ -223,7 +224,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 
     return EVENT_DATA;
 #else
-    for( size_t i = 0; i < _fdSet.size; ++i )
+    for( size_t i = 0; i < _fdSet.getSize(); ++i )
     {
         const pollfd& pollFD = _fdSet[i];
         if( pollFD.revents == 0 )
@@ -297,8 +298,8 @@ bool ConnectionSet::_setupFDSet()
     }
 
     _dirty = false;
-    _fdSet.size = 0;
-    _fdSetConnections.size = 0;
+    _fdSet.resize( 0 );
+    _fdSetConnections.resize( 0 );
 
 #ifdef WIN32
     // add self connection

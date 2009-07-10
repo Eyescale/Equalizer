@@ -52,20 +52,20 @@ namespace
                 : _connection( connection )
             { 
                 _buffer.resize( packetSize );
-                connection->recvNB( _buffer.data, _buffer.size );
+                connection->recvNB( _buffer.getData(), _buffer.getSize() );
             }
         virtual ~Receiver() {}
 
         bool readPacket()
         {
-            const float mBytesSec = _buffer.size / 1024.0f / 1024.0f * 1000.0f;
+            const float mBytesSec = _buffer.getSize() / 1024.f / 1024.f *1000.f;
 
             _clock.reset();
             if( !_connection->recvSync( 0, 0 ))
                 return false;
 
             const float time = _clock.getTimef();
-            _connection->recvNB( _buffer.data, _buffer.size );
+            _connection->recvNB( _buffer.getData(), _buffer.getSize() );
 
             eq::net::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
@@ -185,14 +185,14 @@ int main( int argc, char **argv )
         eq::base::Buffer< uint8_t > buffer;
         buffer.resize( packetSize );
 
-        const float mBytesSec = buffer.size / 1024.0f / 1024.0f * 1000.0f;
+        const float mBytesSec = buffer.getSize() / 1024.0f / 1024.0f * 1000.0f;
         Clock       clock;
         size_t      packetNum = 0;
 
         while( nPackets-- )
         {
             clock.reset();
-            TEST( connection->send( buffer.data, buffer.size ));
+            TEST( connection->send( buffer.getData(), buffer.getSize() ));
             const float time = clock.getTimef();
             cerr << ++packetNum << " Send perf: " << mBytesSec / time 
                  << "MB/s (" << time << "ms)" << endl;

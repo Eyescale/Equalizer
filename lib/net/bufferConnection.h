@@ -36,7 +36,7 @@ namespace net
 
         EQ_EXPORT void sendBuffer( ConnectionPtr connection );
 
-        EQ_EXPORT uint64_t getSize() const { return _buffer.size; }
+        EQ_EXPORT uint64_t getSize() const { return _buffer.getSize(); }
 
     protected:
         virtual void readNB( void* buffer, const uint64_t bytes )

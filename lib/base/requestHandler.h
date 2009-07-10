@@ -138,7 +138,7 @@ namespace base
         /** @return true if this request handler was created thread-safe. */
 		bool isThreadSafe() const { return ( _mutex != 0 ); }
         /** @return true if this request handler has no pending requests. */
-        bool empty()        const { return _requests.empty( ); }
+        bool isEmpty()      const { return _requests.empty( ); }
 
     private:
         Lock*        _mutex;

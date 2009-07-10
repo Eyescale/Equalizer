@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -89,7 +89,7 @@ void DataOStream::enable()
     _bufferStart = 0;
     _dataSent = false;
     _buffered = true;
-    _buffer.size = 0;
+    _buffer.resize( 0 );
     _enabled  = true;
 }
 
@@ -103,7 +103,7 @@ void DataOStream::resend( const NodePtr node )
     connection->lockSend();
     _connections.push_back( connection );
 
-    sendSingle( _buffer.data, _buffer.size );
+    sendSingle( _buffer.getData(), _buffer.getSize() );
 
     _connections.clear();
     connection->unlockSend();
@@ -117,16 +117,16 @@ void DataOStream::disable()
     if( _dataSent )
     {
         if( !_connections.empty( ))
-            sendFooter( _buffer.data + _bufferStart, 
-                        _buffer.size - _bufferStart );
+            sendFooter( _buffer.getData() + _bufferStart, 
+                        _buffer.getSize() - _bufferStart );
 
         _dataSent = true;
     }
-    else if( _buffer.size > 0 )
+    else if( _buffer.getSize() > 0 )
     {
         EQASSERT( _bufferStart == 0 );
         if( !_connections.empty( ))
-            sendSingle( _buffer.data, _buffer.size );
+            sendSingle( _buffer.getData(), _buffer.getSize() );
 
         _dataSent = true;
     }
@@ -163,14 +163,14 @@ void DataOStream::disableBuffering()
 
 void DataOStream::enableSave()
 {
-    EQASSERTINFO( !_enabled || ( !_dataSent && _buffer.size == 0 ),
+    EQASSERTINFO( !_enabled || ( !_dataSent && _buffer.getSize() == 0 ),
                   "Can't enable saving after data has been written" );
     _save = true;
 }
 
 void DataOStream::disableSave()
 {
-    EQASSERTINFO( !_enabled || (!_dataSent && _buffer.size == 0 ),
+    EQASSERTINFO( !_enabled || (!_dataSent && _buffer.getSize() == 0 ),
                   "Can't disable saving after data has been written" );
     _save = false;
 }
@@ -187,7 +187,7 @@ void DataOStream::write( const void* data, uint64_t size )
         return;
     }
 
-    if( _buffer.size - _bufferStart > _highWaterMark )
+    if( _buffer.getSize() - _bufferStart > _highWaterMark )
         flush();
 }
 
@@ -212,18 +212,19 @@ void DataOStream::writeOnce( const void* data, uint64_t size )
 void DataOStream::flush()
 {
     EQASSERT( _enabled );
-    _sendBuffer( _buffer.data + _bufferStart, _buffer.size - _bufferStart );
+    _sendBuffer( _buffer.getData() + _bufferStart, 
+                 _buffer.getSize() - _bufferStart );
     _resetStart();
 }
 
 void DataOStream::_resetStart()
 {
     if( _save )
-        _bufferStart = _buffer.size;
+        _bufferStart = _buffer.getSize();
     else
     {
         _bufferStart = 0;
-        _buffer.size = 0;
+        _buffer.resize( 0 );
     }
 }
 

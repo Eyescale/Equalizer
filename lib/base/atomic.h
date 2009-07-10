@@ -77,7 +77,7 @@ public:
         return __sync_fetch_and_add(&_value, 1);
     }
 
-    /** Atomically decrement by one and return the new value. */
+    /** Atomically decrement by one and return the old value. */
     T operator --(int)
     {
         return __sync_fetch_and_sub(&_value, 1);

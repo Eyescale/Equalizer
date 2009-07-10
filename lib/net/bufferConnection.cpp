@@ -33,7 +33,7 @@ BufferConnection::BufferConnection()
 
 BufferConnection::~BufferConnection()
 {
-    if( _buffer.size )
+    if( !_buffer.isEmpty( ))
         EQWARN << "Deleting BufferConnection with buffered data" << endl;
 }
 
@@ -45,7 +45,7 @@ int64_t BufferConnection::write( const void* buffer, const uint64_t bytes) const
 
 void BufferConnection::sendBuffer( ConnectionPtr connection )
 {
-    if( _buffer.size == 0 )
+    if( _buffer.isEmpty( ))
         return;
 
     if( !connection )
@@ -54,8 +54,8 @@ void BufferConnection::sendBuffer( ConnectionPtr connection )
         return;
     }
 
-    EQCHECK( connection->send( _buffer.data, _buffer.size ));
-    _buffer.size = 0;
+    EQCHECK( connection->send( _buffer.getData(), _buffer.getSize() ));
+    _buffer.resize( 0 );
 }
 }
 }

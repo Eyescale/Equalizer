@@ -376,13 +376,13 @@ const Texture& Image::getTexture( const Frame::Buffer buffer ) const
 const uint8_t* Image::getPixelPointer( const Frame::Buffer buffer ) const
 {
     EQASSERT( hasPixelData( buffer ));
-    return _getAttachment( buffer ).memory.pixels.data;
+    return _getAttachment( buffer ).memory.pixels.getData();
 }
 
 uint8_t* Image::getPixelPointer( const Frame::Buffer buffer )
 {
     EQASSERT( hasPixelData( buffer ));
-    return _getAttachment( buffer ).memory.pixels.data;
+    return _getAttachment( buffer ).memory.pixels.getData();
 }
 
 const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
@@ -431,7 +431,7 @@ void Image::Memory::resize( uint32_t size )
         size += 8 - (size%8);
 
     pixels.reserve( size );
-    pixels.size = size;
+    pixels.resize( size );
 }
 
 const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
@@ -476,7 +476,7 @@ void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
 
         memory.resize( size );
         glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
-                      getType( buffer ), memory.pixels.data );
+                      getType( buffer ), memory.pixels.getData() );
         memory.state = Memory::VALID;
         return;
     }
@@ -631,7 +631,7 @@ void Image::_syncReadbackPBO( const Frame::Buffer buffer )
     EQ_GL_ERROR( "glMapBuffer" );
     EQASSERT( data );
 
-    memcpy( memory.pixels.data, data, size );
+    memcpy( memory.pixels.getData(), data, size );
 
     glUnmapBuffer( GL_PIXEL_PACK_BUFFER );
     glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
@@ -652,7 +652,7 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
     switch( buffer )
     {
         case Frame::BUFFER_COLOR:
-            fbo->getColorTextures()[0]->download( memory.pixels.data,
+            fbo->getColorTextures()[0]->download( memory.pixels.getData(),
                                                   getFormat( buffer ), 
                                                   getType( buffer ));
             break;
@@ -660,7 +660,7 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
         default:
             EQUNIMPLEMENTED;
         case Frame::BUFFER_DEPTH:
-            fbo->getDepthTexture().download( memory.pixels.data,
+            fbo->getDepthTexture().download( memory.pixels.getData(),
                                              getFormat( buffer ), 
                                              getType( buffer ));
             break;
@@ -690,13 +690,13 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 
     if( buffer == Frame::BUFFER_DEPTH )
     {
-        memset( memory.pixels.data, 0xFF, size );
+        memset( memory.pixels.getData(), 0xFF, size );
     }
     else
     {
         if( getDepth( Frame::BUFFER_COLOR ) == 4 )
         {
-            uint8_t* data = memory.pixels.data;
+            uint8_t* data = memory.pixels.getData();
 #ifdef LEOPARD
             const unsigned char pixel[4] = { 0, 0, 0, 255 };
             memset_pattern4( data, &pixel, size );
@@ -710,7 +710,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 #endif
         }
         else
-            bzero( memory.pixels.data, size );
+            bzero( memory.pixels.getData(), size );
     }
 }
 
@@ -733,7 +733,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const uint8_t* data )
     Memory& memory = _getAttachment( buffer ).memory;
 
     memory.resize( size );
-    memcpy( memory.pixels.data, data, size );
+    memcpy( memory.pixels.getData(), data, size );
     memory.state = Memory::VALID;
     memory.isCompressed = false;
 }
@@ -749,8 +749,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 
     if( pixels.compressorName <= EQ_COMPRESSOR_NONE )
     {
-        EQASSERT( size == pixels.pixels.size );
-        setPixelData( buffer, pixels.pixels.data );
+        EQASSERT( size == pixels.pixels.getSize() );
+        setPixelData( buffer, pixels.pixels.getData() );
         return;
     }
 
@@ -775,7 +775,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
                  nBlocks << ", " << getDepth( buffer ));
     EQASSERT( nBlocks == pixels.compressedData.size( ));
 
-    void* outData = reinterpret_cast< uint8_t* >( memory.pixels.data );
+    void* outData = reinterpret_cast< uint8_t* >( memory.pixels.getData() );
     uint64_t outDim[4] = { _pvp.x, _pvp.w, _pvp.y, _pvp.h }; 
     uint64_t flags = EQ_COMPRESSOR_DATA_2D;
     if( _canIgnoreAlpha( buffer ))
@@ -964,7 +964,7 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 
     attachment.compressor.plugin->compress( attachment.compressor.instance,
                                             attachment.compressor.name,
-                                            memory.pixels.data,
+                                            memory.pixels.getData(),
                                             inDims, flags );
 
     const size_t numResults = attachment.compressor.plugin->getNumResults( 
@@ -1271,9 +1271,9 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     validatePixelData( buffer );
 
     Memory& memory = _getAttachment( buffer ).memory;
-    uint8_t* data = reinterpret_cast< uint8_t* >( memory.pixels.data );
-    EQASSERTINFO( nBytes <= memory.pixels.size, 
-                  nBytes << " > " << memory.pixels.size );
+    uint8_t* data = reinterpret_cast< uint8_t* >( memory.pixels.getData() );
+    EQASSERTINFO( nBytes <= memory.pixels.getSize(), 
+                  nBytes << " > " << memory.pixels.getSize() );
 
     // Each channel is saved separately
     for( size_t i = 0; i < depth; i += bpc )

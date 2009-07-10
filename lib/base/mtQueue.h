@@ -44,10 +44,10 @@ namespace base
         ~MTQueue();
 
         /** @return true if the queue is empty, false otherwise. */
-        bool empty() const { return _queue.empty(); }
+        bool isEmpty() const { return _queue.empty(); }
 
         /** @return the number of items currently in the queue. */
-        size_t size() const { return _queue.size(); }
+        size_t getSize() const { return _queue.size(); }
 
         /** Retrieve and pop the front element from the queue, may block. */
         T pop();

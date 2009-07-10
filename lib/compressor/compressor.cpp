@@ -144,12 +144,12 @@ void EqCompressorGetResult( void* const compressor,
                                           void** const out, 
                                           eq_uint64_t* const outSize )
 {
-    const eq::plugin::Compressor::Result* result = 
+    eq::plugin::Compressor::Result* result = 
         (( eq::plugin::Compressor* )( compressor ))->getResults()[ i ];
     
-    *out = (void*)(result->data);
-    *outSize = result->size;
-    assert( result->getMaxSize() >= result->size );
+    *out = result->getData();
+    *outSize = result->getSize();
+    assert( result->getMaxSize() >= result->getSize( ));
 }
 
 

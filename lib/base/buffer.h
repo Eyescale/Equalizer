@@ -39,126 +39,139 @@ namespace base
     {
     public:
         /** Construct a new, empty buffer. */
-        Buffer() : data(0), size(0), _maxSize(0) {}
+        Buffer() : _data(0), _size(0), _maxSize(0) {}
 
         /** Destruct the buffer. */
         ~Buffer() { clear(); }
 
-        /** Flush the buffer, deleting all data. */
-        void clear() { if( data ) free( data ); data=0; size=0; _maxSize=0; }
+        /** Flush the buffer, deleting all _data. */
+        void clear() 
+            { if( _data ) free( _data ); _data=0; _size=0; _maxSize=0; }
 
         /** Copy constructor, transfers ownership to new Buffer. */
         Buffer( Buffer& from )
             {
-                data = from.data; size = from.size; _maxSize = from._maxSize;
-                from.data = 0; from.size = 0; from._maxSize = 0;
+                _data = from._data; _size = from._size; _maxSize =from._maxSize;
+                from._data = 0; from._size = 0; from._maxSize = 0;
             }
 
-        /** Assignment operator, copies data from Buffer. */
+        /** Assignment operator, copies _data from Buffer. */
         const Buffer& operator = ( Buffer& from )
             {
-                replace( from.data, from.size );
+                replace( from._data, from._size );
                 return *this;
             }
 
         /** Direct access to the element at the given index. */
         T&       operator[]( const size_t position )
-            { EQASSERT( size > position ); return data[ position ]; }
+            { EQASSERT( _size > position ); return _data[ position ]; }
         /** Direct const access to the element at the given index. */
         const T& operator[]( const size_t position) const
-            { EQASSERT( size > position ); return data[ position ]; }
+            { EQASSERT( _size > position ); return _data[ position ]; }
 
         /** 
          * Ensure that the buffer contains at least newSize elements, retaining
-         * existing data.
+         * existing _data.
          */
         void resize( const uint64_t newSize )
             { 
-                size = newSize;
+                _size = newSize;
                 if( newSize <= _maxSize )
                     return;
                 
                 const size_t nBytes = newSize * sizeof( T );
-                if( data )
-                    data = static_cast< T* >( realloc( data, nBytes ));
+                if( _data )
+                    _data = static_cast< T* >( realloc( _data, nBytes ));
                 else
-                    data = static_cast< T* >( malloc( nBytes ));
+                    _data = static_cast< T* >( malloc( nBytes ));
                 
                 _maxSize = newSize;
             }
 
         /** 
          * Ensure that the buffer contains at least newSize elements,
-         * potentially deleting existing data.
+         * potentially deleting existing _data.
          */
         void reserve( const uint64_t newSize )
             { 
                 if( newSize <= _maxSize )
                     return;
 
-                if( data )
-                    free( data );
+                if( _data )
+                    free( _data );
                 
-                data = static_cast< T* >( malloc( newSize * sizeof( T )));
-                _maxSize = size;
+                _data = static_cast< T* >( malloc( newSize * sizeof( T )));
+                _maxSize = _size;
             }
 
-        /** Append addSize elements to the buffer, increasing the size. */
+        /** Append addSize elements to the buffer, increasing the _size. */
         void append( const T* addData, const uint64_t addSize )
             {
                 EQASSERT( addData );
                 EQASSERT( addSize );
 
-                const uint64_t oldSize = size;
+                const uint64_t oldSize = _size;
                 resize( oldSize + addSize );
-                memcpy( data + oldSize, addData, addSize * sizeof( T ));
+                memcpy( _data + oldSize, addData, addSize * sizeof( T ));
             }
 
-        /** Append one element to the buffer, increasing the size. */
+        /** Append one element to the buffer, increasing the _size. */
         void append( const T& element )
             {
-                resize( size + 1 );
-                data[ size - 1 ] = element;
+                resize( _size + 1 );
+                _data[ _size - 1 ] = element;
             }
 
-        /** Replace the existing data with new data. */
+        /** Replace the existing _data with new _data. */
         void replace( const void* newData, const uint64_t newSize )
             {
                 EQASSERT( newData );
                 EQASSERT( newSize );
 
                 reserve( newSize );
-                memcpy( data, newData, newSize * sizeof( T ));
-                size = newSize;
+                memcpy( _data, newData, newSize * sizeof( T ));
+                _size = newSize;
             }
 
         /** Swap the buffer contents with another Buffer. */
         void swap( Buffer& buffer )
             {
-                T*             tmpData    = buffer.data;
-                const uint64_t tmpSize    = buffer.size;
+                T*             tmpData    = buffer._data;
+                const uint64_t tmpSize    = buffer._size;
                 const uint64_t tmpMaxSize = buffer._maxSize;
 
-                buffer.data = data;
-                buffer.size = size;
+                buffer._data = _data;
+                buffer._size = _size;
                 buffer._maxSize = _maxSize;
 
-                data     = tmpData;
-                size     = tmpSize;
+                _data     = tmpData;
+                _size     = tmpSize;
                 _maxSize = tmpMaxSize;
             }
 
-        /** @return the maximum size of the buffer. */
+        /** @return a pointer to the _data. */
+        T* getData() { return _data; }
+
+        /** @return a const pointer to the _data. */
+        const T* getData() const { return _data; }
+
+        /** @return the size. */
+        uint64_t getSize() const { return _size; }
+        
+        /** @return true if the buffer is empty, false if not. */
+        bool isEmpty() const { return (_size==0); }
+        
+        /** @return the maximum _size of the buffer. */
         uint64_t getMaxSize() const { return _maxSize; }
 
-        /** A pointer to the data. */
-        T*    data;
-
-        /** The number of valid items in data. */
-        uint64_t size;
-
     private:
-        /** The allocation size of the buffer. */
+        /** A pointer to the _data. */
+        T*    _data;
+
+        /** The number of valid items in _data. */
+        uint64_t _size;
+
+        /** The allocation _size of the buffer. */
         uint64_t _maxSize;
     };
 

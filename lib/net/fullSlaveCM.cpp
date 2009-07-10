@@ -57,7 +57,7 @@ FullSlaveCM::~FullSlaveCM()
     delete _mutex;
     _mutex = 0;
 
-    while( !_queuedVersions.empty( ))
+    while( !_queuedVersions.isEmpty( ))
         delete _queuedVersions.pop();
 
     delete _currentDeltaStream;
@@ -109,7 +109,7 @@ uint32_t FullSlaveCM::sync( const uint32_t version )
 
 void FullSlaveCM::_syncToHead()
 {
-    if( _queuedVersions.empty( ))
+    if( _queuedVersions.isEmpty( ))
         return;
 
     for( ObjectDataIStream* is = _queuedVersions.tryPop(); 

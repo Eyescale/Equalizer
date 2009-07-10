@@ -113,7 +113,7 @@ Node::~Node()
     EQASSERT( _connectionNodes.empty( ));
     EQASSERT( _pendingCommands.empty( ));
     EQASSERT( _nodes.empty( ));
-    EQASSERT( _requestHandler.empty( ));
+    EQASSERT( _requestHandler.isEmpty( ));
 
 #ifndef NDEBUG
     if( !_sessions.empty( ))
@@ -312,7 +312,7 @@ bool Node::stopListening()
     }
 #endif
 
-    EQASSERT( _requestHandler.empty( ));
+    EQASSERT( _requestHandler.isEmpty( ));
     return true;
 }
 

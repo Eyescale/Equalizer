@@ -469,7 +469,7 @@ void* Node::TransmitThread::run()
     while( true )
     {
         const Task task = _tasks.pop();
-        if( _tasks.empty() && !task.node )
+        if( _tasks.isEmpty() && !task.node )
             return 0; // exit thread
         
         NodeStatistics event( Statistic::NODE_TRANSMIT, _node,

@@ -180,11 +180,11 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
     const Bufferb&       buffer     = data->os.getSaveBuffer();
     ObjectInstancePacket instPacket;
     instPacket.instanceID = instanceID;
-    instPacket.dataSize   = buffer.size;
+    instPacket.dataSize   = buffer.getSize();
     instPacket.version    = data->os.getVersion();
     instPacket.sequence   = 0;
 
-    _object->send( node, instPacket, buffer.data, buffer.size );
+    _object->send( node, instPacket, buffer.getData(), buffer.getSize() );
 
     if( i == _deltaDatas.rend( ))
         return;

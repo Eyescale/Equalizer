@@ -80,13 +80,13 @@ namespace net
          * @return <code>true</code> if the command queue is empty,
          *         <code>false</code> if not. 
          */
-        bool empty() const { return _commands.empty(); }
+        bool isEmpty() const { return _commands.isEmpty(); }
 
         /** Flush all cached commands. */
         virtual void flush();
 
         /** @return the size of the queue. */
-        size_t size() const { return _commands.size(); }
+        size_t getSize() const { return _commands.getSize(); }
 
         CHECK_THREAD_DECLARE( _thread );
     private:
