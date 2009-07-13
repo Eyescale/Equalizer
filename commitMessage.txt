@@ -1,4 +1,4 @@
-Flush compressor on image type change
+image test: re-touch memory after compression engine change
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

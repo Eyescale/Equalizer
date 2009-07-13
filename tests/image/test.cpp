@@ -90,30 +90,12 @@ int main( int argc, char **argv )
     }
     TEST( !images.empty( ));
 
-    // Touch memory once
     eq::base::Clock clock;
     eq::Image image;
     eq::Image destImage;
     
-    clock.reset();
-    TEST( image.readImage( images.front(), eq::Frame::BUFFER_COLOR ));
-    const float loadTime = clock.getTimef();
-
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
-    std::cout << "Load " << images.front() << ": " << loadTime << "ms" 
-              << std::endl;
-
-    destImage.setPixelViewport( image.getPixelViewport( ));
-    destImage.setPixelData( eq::Frame::BUFFER_COLOR,     
-                            image.compressPixelData( eq::Frame::BUFFER_COLOR ));
-
-    TEST( image.readImage( images.front(), eq::Frame::BUFFER_DEPTH ));
-    destImage.setPixelViewport( image.getPixelViewport( ));
-    destImage.setPixelData( eq::Frame::BUFFER_DEPTH,     
-                            image.compressPixelData( eq::Frame::BUFFER_DEPTH ));
-
-
     std::cout << "COMPRESSOR,                            IMAGE,       SIZE, A,"
               << " COMPRESSED,     t_comp,   t_decomp" << std::endl;
 
@@ -123,6 +105,34 @@ int main( int argc, char **argv )
          i != names.end(); ++i )
     {
         const uint32_t name = *i;
+
+        // Touch memory once: find suitable image
+        for( eq::StringVector::const_iterator j = images.begin();
+             j != images.end(); ++j )
+        {
+            const std::string& filename = *j;
+            TEST( image.readImage( filename, eq::Frame::BUFFER_COLOR ));
+
+            const std::vector< uint32_t > compressors(
+                image.findCompressors( eq::Frame::BUFFER_COLOR ));
+
+            if( std::find( compressors.begin(), compressors.end(), name ) ==
+                compressors.end( ))
+            {
+                continue; // Compressor not suitable for current image
+            }
+
+            destImage.setPixelViewport( image.getPixelViewport( ));
+            destImage.setPixelData( eq::Frame::BUFFER_COLOR,     
+                            image.compressPixelData( eq::Frame::BUFFER_COLOR ));
+
+            TEST( image.readImage( images.front(), eq::Frame::BUFFER_DEPTH ));
+            destImage.setPixelViewport( image.getPixelViewport( ));
+            destImage.setPixelData( eq::Frame::BUFFER_DEPTH,     
+                            image.compressPixelData( eq::Frame::BUFFER_DEPTH ));
+
+            break;
+        }
 
         // For alpha, ignore alpha...
         bool alpha = true;
