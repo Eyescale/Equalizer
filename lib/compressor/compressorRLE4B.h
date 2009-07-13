@@ -37,12 +37,11 @@ public:
     
     static void decompress( const void* const* inData, 
                             const eq_uint64_t* const inSizes, 
-                            const unsigned numInputs, void* const outData, 
+                            const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
     
 
     static void* getNewCompressor( ){ return new eq::plugin::CompressorRLE4B; }
-    
     static void* getNewDecompressor( ){ return 0; }
     
     static void getInfo( EqCompressorInfo* const info )
@@ -54,7 +53,7 @@ public:
         info->tokenType = EQ_COMPRESSOR_DATATYPE_4_BYTE;
 
         info->quality = 1.0f;
-        info->ratio   = 1.0f;
+        info->ratio   = .59f;
         info->speed   = 1.0f;
     }
 
@@ -78,16 +77,7 @@ protected:
 class CompressorDiffRLE4B : public CompressorRLE4B
 {
 public:
-    /** @name CompressorDiffRLE4B */
-    /*@{*/
-    /** 
-     * Compress data with an algorithm RLE diff and process it for 
-     * each byte length 4 vector.
-     * 
-     * @param the number channel.
-     */
-    CompressorDiffRLE4B():CompressorRLE4B() 
-    {}
+    CompressorDiffRLE4B():CompressorRLE4B() {}
     
     /** @name getNewCompressor */
     /*@{*/
@@ -117,7 +107,7 @@ public:
     {
         CompressorRLE4B::getInfo( info );
         info->name = EQ_COMPRESSOR_DIFF_RLE_4_BYTE;
-        info->ratio = 0.85f;
+        info->ratio = 0.50f;
         info->speed = 1.1f;
     }
     
@@ -144,7 +134,7 @@ public:
 
     static void decompress( const void* const* inData, 
                             const eq_uint64_t* const inSizes, 
-                            const unsigned numInputs, void* const outData, 
+                            const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
 };    
 }

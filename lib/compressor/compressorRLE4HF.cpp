@@ -18,244 +18,88 @@
  
 #include "compressorRLE4HF.h"
 
+namespace
+{
+// NaN
+static const uint16_t _rleMarker = 0xffff; 
+}
+
+#include "compressorRLE.ipp"
+
 namespace eq
 {
 namespace plugin
 {
 
-// nan number
-const uint16_t _rleMarker = 0xFFFF; 
+namespace
+{
+class NoSwizzle
+{
+public:
+    static inline void swizzle( const uint64_t input, uint16_t& one,
+                                uint16_t& two, uint16_t& three, uint16_t& four )
+        {
+            one   = input & 0xffffull;
+            two   = (input & 0xffff0000ull) >> 16;
+            three = (input & 0xffff00000000ull) >> 32;
+            four  = (input & 0xffff000000000000ull) >> 48;
+        }
 
+    static inline void swizzle( const uint64_t input, uint16_t& one,
+                                uint16_t& two, uint16_t& three )
+        {
+            one   = input & 0xffffull;
+            two   = (input & 0xffff0000ull) >> 16;
+            three = (input & 0xffff00000000ull) >> 32;
+        }
+
+    static inline uint64_t deswizzle( const uint16_t one, const uint16_t two,
+                                      const uint16_t three, const uint16_t four)
+    {
+        return 
+            one +
+            ( static_cast< uint64_t >( two ) << 16 ) +
+            ( static_cast< uint64_t > ( three ) << 32) +
+            ( static_cast< uint64_t > ( four ) << 48 );
+    }
+
+    static inline uint64_t deswizzle( const uint16_t one, const uint16_t two,
+                                      const uint16_t three )
+    {
+        return 
+            one +
+            ( static_cast< uint64_t >( two ) << 16 ) +
+            ( static_cast< uint64_t > ( three ) << 32);
+    }
+};
+}
 
 void CompressorRLE4HF::compress( const void* const inData, 
-                                 const uint64_t inSize, const bool useAlpha )
+                                 const eq_uint64_t nPixels, const bool useAlpha,
+                                 const bool swizzle )
 {
-    const uint64_t size = inSize * 2 * 2 ;
-    _setupResults( size );
-
-    const uint32_t numResult = _results.size();
-
-    const float width = static_cast< float >( size ) /  
-                        static_cast< float >( numResult );
-
-    uint16_t* const data = (uint16_t* const )inData;
-     
-    #pragma omp parallel for
-    for ( size_t i = 0; i < numResult; i += 4 )
-    {
-        const uint32_t startIndex = 
-            static_cast< uint32_t >( i/_numChannels * width ) * 
-                         _numChannels;
-        
-        const uint32_t nextIndex  =
-            static_cast< uint32_t >(( i/_numChannels + 1 ) * width ) * 
-                         _numChannels;
-
-        const uint64_t inSizeParallel = (nextIndex - startIndex) / 
-                         _numChannels;
-        
-        _writeHeader( &_results[i], Header( inSizeParallel, useAlpha ) );
-
-        _compress( &data[ startIndex ], inSizeParallel / 2, 
-                            &_results[i],useAlpha );
-    }
-
+    assert( !swizzle );
+    if( useAlpha )
+        _compress< uint64_t, uint16_t, NoSwizzle, UseAlpha >(
+            inData, nPixels, useAlpha, swizzle, _results );
+    else
+        _compress< uint64_t, uint16_t, NoSwizzle, NoAlpha >(
+            inData, nPixels, useAlpha, swizzle, _results );
 }
-
-void CompressorRLE4HF::_compress( const uint16_t* const input, 
-                                  const uint64_t size, 
-                                  Result** results, 
-                                  const bool useAlpha )
-{
-    size_t sizeHeader  = sizeof( Header ) / 2 ;
-    uint16_t* outOne  ( reinterpret_cast<uint16_t*>
-                        ( results[ 0 ]->data) + sizeHeader ); 
-    uint16_t* outTwo  ( reinterpret_cast<uint16_t*>
-                        ( results[ 1 ]->data) + sizeHeader ); 
-    uint16_t* outThree( reinterpret_cast<uint16_t*>
-                        ( results[ 2 ]->data) + sizeHeader ); 
-    uint16_t* outFour ( reinterpret_cast<uint16_t*>
-                        ( results[ 3 ]->data) + sizeHeader ); 
-
-    uint16_t lastOne  ( input[0] ), 
-             lastTwo  ( input[1] ), 
-             lastThree( input[2] ),
-             lastFour ( input[3] );
-
-    uint16_t sameOne  ( 1 ), 
-             sameTwo  ( 1 ), 
-             sameThree( 1 ), 
-             sameFour ( 1 );
-    
-    // step four because it's in outOne, .... outFour.
-    const uint16_t* data   = reinterpret_cast< const uint16_t* >( input ) +
-                             _numChannels;
-    uint16_t one;
-    uint16_t two;
-    uint16_t three;
-    uint16_t four;
-    
-    for( uint32_t i = 0; i < size; ++i )
-    {
-        const uint16_t* word = reinterpret_cast< const uint16_t* >( data );
-        
-        one = word[0];
-        if( one == lastOne && sameOne != 0xFFFF )
-            ++sameOne;
-        else
-        {
-            WRITE_OUTPUT( One );
-            lastOne = one;
-            sameOne = 1;
-        }
-
-     
-        two = word[1];
-        if( two == lastTwo && sameTwo != 0xFFFF )
-            ++sameTwo;
-        else
-        {
-            WRITE_OUTPUT( Two );
-            lastTwo = two;
-            sameTwo = 1;
-        }
-
-
-        three = word[2];
-        if( three == lastThree && sameThree != 0xFFFF )
-            ++sameThree;
-        else
-        {
-            WRITE_OUTPUT( Three );
-            lastThree = three;
-            sameThree = 1;
-        }
-
-
-        if ( useAlpha ) 
-        {
-            four = word[3];
-            if( four == lastFour && sameFour != 0xFFFF )
-                ++sameFour;
-            else
-            {
-                WRITE_OUTPUT( Four );
-                lastFour = four;
-                sameFour = 1;
-            }
-        }
-        data +=4;
-    }
-
-    WRITE_OUTPUT( One );
-    WRITE_OUTPUT( Two );
-    WRITE_OUTPUT( Three );
-    WRITE_OUTPUT( Four );
-    
-    _results[0]->size = reinterpret_cast< const uint8_t* >(outOne)   - 
-                        _results[0]->data;
-    _results[1]->size = reinterpret_cast< const uint8_t* >(outTwo)   - 
-                        _results[1]->data;
-    _results[2]->size = reinterpret_cast< const uint8_t* >(outThree) - 
-                        _results[2]->data;
-    _results[3]->size = reinterpret_cast< const uint8_t* >(outFour)  - 
-                        _results[3]->data;
-}
-
 
 void CompressorRLE4HF::decompress( const void* const* inData, 
-                                   const uint64_t* const inSizes,
-                                   void* const outData, const uint64_t outSize,
+                                   const eq_uint64_t* const inSizes,
+                                   const unsigned nInputs, void* const outData, 
+                                   const eq_uint64_t nPixels, 
                                    const bool useAlpha )
 {
-    
-    const uint16_t* const* inData16 = reinterpret_cast< const uint16_t* const* >
-                                          ( inData );
-    uint16_t*             out = reinterpret_cast< uint16_t* >( outData );
-
-    // decompress 
-    // On OS X the loop is sometimes slower when parallelized. Investigate this!
-    uint64_t numBlock = inSizes[0] / 4;
-    size_t sizeHeader  = sizeof( Header ) / 2 ;
-
-    for( uint64_t i = 0; i < numBlock ; i++ )
-    {
-        
-        const uint16_t* oneIn   = inData16[ i*4 + 0 ] + sizeHeader;
-        const uint16_t* twoIn   = inData16[ i*4 + 1 ] + sizeHeader;
-        const uint16_t* threeIn = inData16[ i*4 + 2 ] + sizeHeader;
-        const uint16_t* fourIn  = inData16[ i*4 + 3 ] + sizeHeader;
-                
-        uint16_t one(0), two(0), three(0), four(0);
-        uint16_t oneLeft(0), twoLeft(0), threeLeft(0), fourLeft(0);
-
-        Header header = _readHeader( 
-            reinterpret_cast<const uint8_t*> ( inData16[i*4] ) );
-        
-        for( uint32_t j = 0; j < header.size / 2; ++j )
-        { 
-            if( oneLeft == 0 )
-            {
-                one = *oneIn; ++oneIn;
-                if( one == _rleMarker )
-                {
-                    one     = *oneIn; ++oneIn;
-                    oneLeft = *oneIn; ++oneIn;
-                }
-                else // single symbol
-                    oneLeft = 1;
-            }
-
-            --oneLeft;
-            out[j*4] = one; 
-            if( twoLeft == 0 )
-            {
-                two = *twoIn; ++twoIn;
-                if( two == _rleMarker )
-                {
-                    two     = *twoIn; ++twoIn;
-                    twoLeft = *twoIn; ++twoIn;
-                }
-                else // single symbol
-                    twoLeft = 1;
-
-                //two <<= 8;
-            }
-            --twoLeft;
-
-            out[j*4+1] = two;
-            if( threeLeft == 0 )
-            {
-               three = *threeIn; ++threeIn;
-               if( three == _rleMarker )
-               {
-                   three     = *threeIn; ++threeIn;
-                   threeLeft = *threeIn; ++threeIn;
-               }
-               else // single symbol
-                   threeLeft = 1;
-
-                  
-            }
-            --threeLeft;
-            out[j*4+2] = three;
-
-            if( fourLeft == 0 )
-            {
-               four = *fourIn; ++fourIn;
-               if( four == _rleMarker )
-               {
-                   four     = *fourIn; ++fourIn;
-                   fourLeft = *fourIn; ++fourIn;
-               }
-               else // single symbol
-                   fourLeft = 1;
-
-            }
-            --fourLeft;
-            out[j*4+3] = four;
-       }
-    }
+    if( useAlpha )
+        _decompress< uint64_t, uint16_t, NoSwizzle, UseAlpha >( 
+            inData, inSizes, nInputs, outData, nPixels );
+    else
+        _decompress< uint64_t, uint16_t, NoSwizzle, NoAlpha >(
+            inData, inSizes, nInputs, outData, nPixels );
 }
+
 }
 }

@@ -33,11 +33,11 @@ namespace
     {   
         eq::plugin::CompressorRLE4B::getFunctions(),
         eq::plugin::CompressorDiffRLE4B::getFunctions(),
+        eq::plugin::CompressorRLE4HF::getFunctions(),
 #if 0
         eq::plugin::CompressorRLEByte::getFunctions(),
         eq::plugin::CompressorRLE3B::getFunctions(),
         eq::plugin::CompressorRLE4F::getFunctions(),
-        eq::plugin::CompressorRLE4HF::getFunctions(),
 #endif
         Compressor::Functions()
     };
@@ -51,12 +51,12 @@ namespace
 
             if( _functions[i].name == 0 )
             {
-                // EQASSERT( 0 );
+                assert( 0 ); // UNREACHABLE
                 return _functions[i];
             }
         }
 
-        // UNREACHABLE
+        assert( 0 ); // UNREACHABLE
         return _functions[0];
     }
 }

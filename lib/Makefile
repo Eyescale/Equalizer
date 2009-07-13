@@ -243,7 +243,8 @@ CXXFILES = \
 	util/bitmapFont.cpp \
 	compressor/compressor.cpp \
 	compressor/compressorRLE.cpp \
-	compressor/compressorRLE4B.cpp
+	compressor/compressorRLE4B.cpp \
+	compressor/compressorRLE4HF.cpp
 
 SHADERS = \
 	client/roiFragmentShader_glsl.h \

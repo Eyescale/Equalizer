@@ -1,4 +1,8 @@
-Templatize compression entry point
+Compressor:
+- Re-add float16 compressor
+- Add float16 & 32 images to unit test
+- Fix compression ratios in info
+- Fix unit test for float16
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

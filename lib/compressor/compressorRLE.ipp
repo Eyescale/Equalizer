@@ -83,10 +83,14 @@ static inline void _compress( const void* const input, const uint64_t nPixels,
 {
     const PixelType* pixel = reinterpret_cast< const PixelType* >( input );
 
-    ComponentType* oneOut(   results[ 0 ]->getData( )); 
-    ComponentType* twoOut(   results[ 1 ]->getData( )); 
-    ComponentType* threeOut( results[ 2 ]->getData( )); 
-    ComponentType* fourOut(  results[ 3 ]->getData( )); 
+    ComponentType* oneOut(   reinterpret_cast< ComponentType* >( 
+                                 results[ 0 ]->getData( ))); 
+    ComponentType* twoOut(   reinterpret_cast< ComponentType* >( 
+                                 results[ 1 ]->getData( )));
+    ComponentType* threeOut( reinterpret_cast< ComponentType* >( 
+                                 results[ 2 ]->getData( )));
+    ComponentType* fourOut(  reinterpret_cast< ComponentType* >( 
+                                 results[ 3 ]->getData( )));
 
     ComponentType oneLast(0), twoLast(0), threeLast(0), fourLast(0);
     if( alphaFunc::use( ))
@@ -158,7 +162,10 @@ static inline void _decompress( const void* const* inData,
                                 const unsigned nInputs,
                                 void* const outData, const uint64_t nPixels )
 {
-    assert( (nInputs%4) == 0 );
+    assert( (nInputs % 4) == 0 );
+    assert( (inSizes[0] % sizeof( ComponentType )) == 0 ); 
+    assert( (inSizes[1] % sizeof( ComponentType )) == 0 ); 
+    assert( (inSizes[2] % sizeof( ComponentType )) == 0 ); 
 
     const uint64_t nElems = nPixels * 4;
     const float width = static_cast< float >( nElems ) /  
@@ -187,9 +194,12 @@ static inline void _decompress( const void* const* inData,
    
         for( uint64_t j = 0; j < chunkSize ; ++j )
         {
-            assert( static_cast< uint64_t >( oneIn-in[i+0])   <= inSizes[i+0] );
-            assert( static_cast< uint64_t >( twoIn-in[i+1])   <= inSizes[i+1] );
-            assert( static_cast< uint64_t >( threeIn-in[i+2]) <= inSizes[i+2] );
+            assert( static_cast< uint64_t >( oneIn-in[i+0])   <= 
+                    inSizes[i+0] / sizeof( ComponentType ) );
+            assert( static_cast< uint64_t >( twoIn-in[i+1])   <=
+                    inSizes[i+1] / sizeof( ComponentType ) );
+            assert( static_cast< uint64_t >( threeIn-in[i+2]) <=
+                    inSizes[i+2] / sizeof( ComponentType ) );
 
             if( alphaFunc::use( ))
             {
@@ -210,9 +220,12 @@ static inline void _decompress( const void* const* inData,
             }
             ++out;
         }
-        assert( static_cast< uint64_t >( oneIn-in[i+0])   == inSizes[i+0] );
-        assert( static_cast< uint64_t >( twoIn-in[i+1])   == inSizes[i+1] );
-        assert( static_cast< uint64_t >( threeIn-in[i+2]) == inSizes[i+2] );
+        assert( static_cast< uint64_t >( oneIn-in[i+0] )   ==
+                inSizes[i+0] / sizeof( ComponentType ) );
+        assert( static_cast< uint64_t >( twoIn-in[i+1] )   ==
+                inSizes[i+1] / sizeof( ComponentType ) );
+        assert( static_cast< uint64_t >( threeIn-in[i+2] ) ==
+                inSizes[i+2] / sizeof( ComponentType ) );
     }
 }
 

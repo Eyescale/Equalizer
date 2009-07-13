@@ -91,9 +91,6 @@ namespace eq
         /** @return the (OpenGL) type of the pixel data. */
         EQ_EXPORT uint32_t getType( const Frame::Buffer buffer ) const;
 
-        /** @return the size of a single image pixel (format*type) in bytes. */
-        EQ_EXPORT uint32_t getDepth( const Frame::Buffer buffer ) const;
-
         /** @return true if the image has a color buffer with alpha. */
         EQ_EXPORT bool hasAlpha() const;
 
@@ -282,6 +279,9 @@ namespace eq
 
         /** @return the size in bytes for one channel. */
         EQ_EXPORT uint8_t getChannelSize( const Frame::Buffer buffer ) const;
+
+        /** @return the size in bytes for one pixel (nChannels*channelSize). */
+        EQ_EXPORT uint32_t getDepth( const Frame::Buffer buffer ) const;
 
         /** 
          * @return the list of possible compressors for the given buffer.

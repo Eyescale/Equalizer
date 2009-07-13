@@ -29,88 +29,33 @@ namespace plugin
 class CompressorRLE4HF : public CompressorRLE
 {
 public:
-    
-    /** @name CompressorRLE4HF */
-    /*@{*/
-    /** 
-     * Compress data with an algorithm RLE and process it for 
-     * each half float length 4 vector.
-     * 
-     * @param the number channel.
-     */
     CompressorRLE4HF() {}
-    
-    /** @name compress */
-    /*@{*/
-    /**
-     * compress Data.
-     *
-     * @param inData data to compress.
-     * @param inSize number data to compress.
-     * @param useAlpha use alpha channel in compression.
-     */
-    virtual void compress( const void* const inData, 
-                           const eq_uint64_t inSize, 
-                           const bool useAlpha );
-    
-    /** @name decompress */
-    /*@{*/
-    /**
-     * uncompress Data.
-     *
-     * @param inData data(s) to compress.
-     * @param inSizes size(s)of the data to compress.
-     * @param outData result of uncompressed data.
-     * @param outSize size of the result.
-     */
-    static void decompress( const void* const* inData, 
-                            const eq_uint64_t* const inSizes,
-                            const unsigned numInputs, void* const outData, 
-                            const eq_uint64_t outSize, const bool useAlpha );
-    
-    /** @name getNewCompressor */
-    /*@{*/
-    /**
-     * get a new instance of compressor RLE 4 half float.
-     *
-     */         
-    static void* getNewCompressor( )
-                                   { return new eq::plugin::CompressorRLE4HF; }
-    
-    /** @name getNewDecompressor */
-    /*@{*/
-    /**
-     * NOT IMPLEMENTED.
-     *
-     */  
-    static void* getNewDecompressor( ){ return 0; }
 
-    /** @name getInfo */
-    /*@{*/
-    /**
-     * get information about this compressor.
-     *
-     * @param info about this compressor.
-     */
-    static void  getInfo( EqCompressorInfo* const info )
-    {
-         info->version = EQ_COMPRESSOR_VERSION;
-         info->name = EQ_COMPRESSOR_RLE_4_HALF_FLOAT;
-         info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D |
-                              EQ_COMPRESSOR_IGNORE_MSE;
-         info->tokenType = EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT;
-         info->quality = 1.f;
-         info->ratio = .8f;
-         info->speed = 0.95f;
-    }
+    virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { compress( inData, nPixels, useAlpha, false ); }
     
-    /** @name getFunctions */
-    /*@{*/
-    /**
-     * get the pointer functions for work with.
-     *
-     * @param info about this compressor.
-     */
+    static void decompress( const void* const* inData, 
+                            const eq_uint64_t* const inSizes, 
+                            const unsigned nInputs, void* const outData, 
+                            const eq_uint64_t nPixels, const bool useAlpha );
+    
+
+    static void* getNewCompressor( ){ return new eq::plugin::CompressorRLE4HF; }
+    static void* getNewDecompressor( ){ return 0; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        info->version = EQ_COMPRESSOR_VERSION;
+        info->name = EQ_COMPRESSOR_RLE_4_HALF_FLOAT;
+        info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D | 
+                             EQ_COMPRESSOR_IGNORE_MSE;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT;
+        info->quality = 1.f;
+        info->ratio = .45f;
+        info->speed = 1.f;
+    }
+
     static Functions getFunctions()
     {
         Functions functions;
@@ -120,9 +65,10 @@ public:
         functions.decompress         = decompress;
         return functions;
     }
-private:
-    void _compress( const uint16_t* const input, const eq_uint64_t size, 
-                    Result** results,const bool useAlpha );
+
+protected:
+    void compress( const void* const inData, const eq_uint64_t nPixels, 
+                   const bool useAlpha, const bool swizzle );
 };
 
 }

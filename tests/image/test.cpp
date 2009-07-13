@@ -234,8 +234,24 @@ int main( int argc, char **argv )
                 // last 7 pixels can be unitialized
                 for( uint32_t k = 0; k < size-7; ++k )
                 {
-                    TESTINFO( data[k] == destData[k] ||
-                              ( image.ignoreAlpha() && (k%4)==3 ),
+                    if( image.ignoreAlpha() && 
+                        buffer == eq::Frame::BUFFER_COLOR )
+                    {
+                        const uint8_t channelSize = 
+                            image.getChannelSize( buffer );
+                        EQASSERT( channelSize == 1 || channelSize == 2 ||
+                                  channelSize == 4 );
+
+                        // Don't test alpha if alpha is ignored
+                        if( ( channelSize == 1 && (k%4)==3 ) ||
+                            ( channelSize == 2 && (k%8)>=6 ) ||
+                            ( channelSize == 4 && (k%16)>=12 ))
+                        {
+                            continue;
+                        }
+                    }
+                        
+                    TESTINFO( data[k] == destData[k],
                               "got " << (int)destData[k] << " expected " <<
                               (int)data[k] << " at " << k );
                 }
