@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
  *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
@@ -16,11 +17,6 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
-namespace eq
-{
-namespace plugin
-{
 
 namespace
 {
@@ -83,14 +79,14 @@ public:
 template< typename PixelType, typename ComponentType,
           typename swizzleFunc, typename alphaFunc >
 static inline void _compress( const void* const input, const uint64_t size,
-                              Compressor::Result** results )
+                              eq::plugin::Compressor::Result** results )
 {
     const PixelType* pixel = reinterpret_cast< const PixelType* >( input );
 
-    ComponentType* oneOut(   results[ 0 ]->data ); 
-    ComponentType* twoOut(   results[ 1 ]->data ); 
-    ComponentType* threeOut( results[ 2 ]->data ); 
-    ComponentType* fourOut(  results[ 3 ]->data ); 
+    ComponentType* oneOut(   results[ 0 ]->getData( )); 
+    ComponentType* twoOut(   results[ 1 ]->getData( )); 
+    ComponentType* threeOut( results[ 2 ]->getData( )); 
+    ComponentType* fourOut(  results[ 3 ]->getData( )); 
 
     ComponentType oneLast(0), twoLast(0), threeLast(0), fourLast(0);
     if( alphaFunc::use( ))
@@ -138,13 +134,14 @@ static inline void _compress( const void* const input, const uint64_t size,
 }
 
 #if 0
-template< typename swizzleFunc, typename alphaFunc >
+template< typename PixelType, typename ComponentType,
+          typename swizzleFunc, typename alphaFunc >
 static inline void _decompress( const void* const* inData,
                                 const uint64_t* const inSizes,
                                 const unsigned numInputs,
                                 void* const outData, const uint64_t nPixels )
 {
-    const uint64_t size = nPixels * 4 ;
+    const uint64_t size = nPixels * sizeof( PixelType );
     const float width = static_cast< float >( size ) /  
                         static_cast< float >( numInputs );
 
@@ -273,6 +270,5 @@ void CompressorDiffRLE4B::decompress( const void* const* inData,
                                                outData, nPixels );
 }
 #endif
-    
-}
+
 }

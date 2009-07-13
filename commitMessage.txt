@@ -1,9 +1,9 @@
-Remove defunct image method
+Templatize compression routine
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

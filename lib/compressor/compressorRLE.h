@@ -22,48 +22,6 @@
 #include "compressor.h"
 //const uint64_t _rleMarker = 0xF3C553FF64F6477Full; // just a random number
 
-#define WRITE_OUTPUT( name )                                            \
-    {                                                                   \
-        if( name ## Last == _rleMarker )                                \
-        {                                                               \
-            name ## Out[0] = _rleMarker;                                \
-            name ## Out[1] = _rleMarker;                                \
-            name ## Out[2] = name ## Same;                              \
-            name ## Out += 3;                                           \
-        }                                                               \
-        else                                                            \
-            switch( name ## Same )                                      \
-            {                                                           \
-                case 0:                                                 \
-                    break;                                              \
-                case 2:                                                 \
-                    name ## Out[0] = name ## Last;                      \
-                    name ## Out[1] = name ## Last;                      \
-                    name ## Out += 2;                                   \
-                    break;                                              \
-                case 1:                                                 \
-                    name ## Out[0] = name ## Last;                      \
-                    ++(name ## Out);                                    \
-                    break;                                              \
-                default:                                                \
-                    name ## Out[0] = _rleMarker;                        \
-                    name ## Out[1] = name ## Last;                      \
-                    name ## Out[2] = name ## Same;                      \
-                    name ## Out += 3;                                   \
-                    break;                                              \
-            }                                                           \
-    }
-
-#define WRITE( name )                                                   \
-    if( name == name ## Last && name ## Same != 255 )                   \
-        ++(name ## Same );                                              \
-    else                                                                \
-    {                                                                   \
-        WRITE_OUTPUT( name );                                           \
-        name ## Last = name;                                            \
-        name ## Same = 1;                                               \
-    }
-
 #define READ( name )                                        \
     if( name ## Left == 0 )                                 \
     {                                                       \

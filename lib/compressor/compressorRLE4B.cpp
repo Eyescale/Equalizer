@@ -18,11 +18,17 @@
 
 #include "compressorRLE4B.h"
 
+namespace
+{
+static const uint8_t _rleMarker = 0x42; // just a random number
+}
+
+#include "compressorRLE.ipp"
+
 namespace eq
 {
 namespace plugin
 {
-static const uint8_t _rleMarker = 0x42; // just a random number
 
 namespace
 {
@@ -143,79 +149,6 @@ public:
     }
 };  
 
-class UseAlpha
-{
-public:
-    static inline bool use() { return true; }
-};
-
-class NoAlpha
-{
-public:
-    static inline bool use() { return false; }
-};
-
-template< typename swizzleFunc, typename alphaFunc >
-static inline void _compress( const void* const input, const eq_uint64_t size,
-                              Compressor::Result** results )
-{
-    uint8_t* oneOut(   results[ 0 ]->getData() ); 
-    uint8_t* twoOut(   results[ 1 ]->getData() ); 
-    uint8_t* threeOut( results[ 2 ]->getData() ); 
-    uint8_t* fourOut(  results[ 3 ]->getData() ); 
-
-    uint8_t oneLast(0), twoLast(0), threeLast(0), fourLast(0);
-
-    const uint32_t* input32 = reinterpret_cast< const uint32_t* >( input );
-    if( alphaFunc::use( ))
-        swizzleFunc::swizzle( *input32, oneLast, twoLast, threeLast, fourLast );
-    else
-        swizzleFunc::swizzle( *input32, oneLast, twoLast, threeLast );
-    
-    uint8_t oneSame( 1 ), twoSame( 1 ), threeSame( 1 ), fourSame( 1 );
-    uint8_t one(0), two(0), three(0), four(0);
-    
-    for( eq_uint64_t i = 1; i < size; ++i )
-    {
-        ++input32;
-
-        if( alphaFunc::use( ))
-        {
-            swizzleFunc::swizzle( *input32, one, two, three, four );
-            WRITE( one );
-            WRITE( two );
-            WRITE( three );
-            WRITE( four );
-        }
-        else
-        {
-            swizzleFunc::swizzle( *input32, one, two, three );
-            WRITE( one );
-            WRITE( two );
-            WRITE( three );
-        }
-    }
-
-    WRITE_OUTPUT( one );
-    WRITE_OUTPUT( two );
-    WRITE_OUTPUT( three )
-    WRITE_OUTPUT( four );
-
-    assert( results[0]->getMaxSize() >= 
-            static_cast< size_t >( oneOut   - results[0]->getData( )));
-    assert( results[1]->getMaxSize() >= 
-            static_cast< size_t >( twoOut   - results[1]->getData( )));
-    assert( results[2]->getMaxSize() >= 
-            static_cast< size_t >( threeOut - results[2]->getData( )));
-    assert( results[3]->getMaxSize() >= 
-            static_cast< size_t >( fourOut  - results[3]->getData( )));
-
-    results[0]->setSize( oneOut   - results[0]->getData( ));
-    results[1]->setSize( twoOut   - results[1]->getData( ));
-    results[2]->setSize( threeOut - results[2]->getData( ));
-    results[3]->setSize( fourOut  - results[3]->getData( ));
-}
-
 template< typename swizzleFunc, typename alphaFunc >
 static inline void _decompress( const void* const* inData,
                                 const eq_uint64_t* const inSizes,
@@ -280,8 +213,9 @@ static inline void _decompress( const void* const* inData,
 }
 }
 
-void CompressorRLE4B::compress( const void* const inData, const eq_uint64_t inSize,
-                                const bool useAlpha, const bool swizzle )
+void CompressorRLE4B::compress( const void* const inData, 
+                                const eq_uint64_t inSize, const bool useAlpha,
+                                const bool swizzle )
 {
     const eq_uint64_t size = inSize * 4 ;
     _setupResults( 4, size );
@@ -303,21 +237,18 @@ void CompressorRLE4B::compress( const void* const inData, const eq_uint64_t inSi
 
         if( useAlpha )
             if( swizzle )
-                _compress< SwizzleUInt32, UseAlpha >( &data[ startIndex ],
-                                                      chunkSize,
-                                                      &_results[i] );
+                _compress< uint32_t, uint8_t, SwizzleUInt32, UseAlpha >(
+                    &data[ startIndex ], chunkSize, &_results[i] );
             else
-                _compress< NoSwizzle, UseAlpha >( &data[ startIndex ],
-                                                  chunkSize,
-                                                  &_results[i] );
+                _compress< uint32_t, uint8_t, NoSwizzle, UseAlpha >(
+                    &data[ startIndex ], chunkSize, &_results[i] );
         else
             if( swizzle )
-                _compress< SwizzleUInt24, NoAlpha >( &data[ startIndex ], 
-                                                     chunkSize,
-                                                     &_results[i] );
+                _compress< uint32_t, uint8_t, SwizzleUInt24, NoAlpha >(
+                    &data[ startIndex ], chunkSize, &_results[i] );
             else
-                _compress< NoSwizzle, NoAlpha >( &data[ startIndex ], chunkSize,
-                                                 &_results[i] );
+                _compress< uint32_t, uint8_t, NoSwizzle, NoAlpha >(
+                    &data[ startIndex ], chunkSize, &_results[i] );
     }
 }
 
