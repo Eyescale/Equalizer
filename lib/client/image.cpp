@@ -158,7 +158,7 @@ void Image::setFormat( const Frame::Buffer buffer, const uint32_t format )
 
     memory.format = format;
     memory.state = Memory::INVALID;
-    memory.isCompressed = false;
+    allocCompressor( buffer, 0 );
 
     _getAttachment( buffer ).texture.setFormat( format );
 }
@@ -170,8 +170,8 @@ void Image::setType( const Frame::Buffer buffer, const uint32_t type )
         return;
 
     memory.type = type;
-    memory.isCompressed = false;
     memory.state = Memory::INVALID;
+    allocCompressor( buffer, 0 );
 }
 
 uint32_t Image::getFormat( const Frame::Buffer buffer ) const
@@ -833,22 +833,22 @@ void Image::Attachment::CompressorData::flush()
 {
     if( !instance )
         return;
+    EQASSERT( plugin );
 
     if( isCompressor )
         plugin->deleteCompressor( instance );
     else
         plugin->deleteDecompressor( instance );
 
+    plugin = 0;
     instance = 0;
 }
 
 /** Find and activate a compression engine */
 bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
-    EQASSERT( name != 0 );
-
     Attachment& attachment = _getAttachment( buffer );
-    if( name == EQ_COMPRESSOR_NONE )
+    if( name <= EQ_COMPRESSOR_NONE )
     {
         attachment.compressor.flush();
         attachment.compressor.name = name;
@@ -946,6 +946,8 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         memory.compressorName = _getCompressorName( buffer );
     else
         memory.compressorName = attachment.compressor.name;
+
+    EQASSERT( memory.compressorName != 0 );
 
     if( !allocCompressor( buffer, memory.compressorName ) || 
         memory.compressorName == EQ_COMPRESSOR_NONE )

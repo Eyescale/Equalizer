@@ -1,13 +1,9 @@
-Compressor:
-- Re-add float16 compressor
-- Add float16 & 32 images to unit test
-- Fix compression ratios in info
-- Fix unit test for float16
+Flush compressor on image type change
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
