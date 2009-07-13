@@ -89,7 +89,7 @@ void DataOStream::enable()
     _bufferStart = 0;
     _dataSent = false;
     _buffered = true;
-    _buffer.resize( 0 );
+    _buffer.setSize( 0 );
     _enabled  = true;
 }
 
@@ -224,7 +224,7 @@ void DataOStream::_resetStart()
     else
     {
         _bufferStart = 0;
-        _buffer.resize( 0 );
+        _buffer.setSize( 0 );
     }
 }
 

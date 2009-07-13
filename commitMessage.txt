@@ -1,9 +1,9 @@
-Clone eqPly code to contrib/simPly for student work.
+Cleanup in base::Buffer usage
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

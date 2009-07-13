@@ -155,6 +155,23 @@ namespace base
         /** @return a const pointer to the _data. */
         const T* getData() const { return _data; }
 
+        /**
+         * Set the size of the buffer without changing its allocation.
+         *
+         * This method only modifies the size parameter. If the current
+         * allocation of the buffer is too small, it asserts, returns false and
+         * does not change the size.
+         */
+        bool setSize( const uint64_t size )
+            {
+                EQASSERT( size <= _maxSize );
+                if( size > _maxSize )
+                    return false;
+
+                _size = size;
+                return true;
+            }
+                    
         /** @return the size. */
         uint64_t getSize() const { return _size; }
         

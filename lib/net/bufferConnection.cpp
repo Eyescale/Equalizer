@@ -55,7 +55,7 @@ void BufferConnection::sendBuffer( ConnectionPtr connection )
     }
 
     EQCHECK( connection->send( _buffer.getData(), _buffer.getSize() ));
-    _buffer.resize( 0 );
+    _buffer.setSize( 0 );
 }
 }
 }

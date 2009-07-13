@@ -298,8 +298,8 @@ bool ConnectionSet::_setupFDSet()
     }
 
     _dirty = false;
-    _fdSet.resize( 0 );
-    _fdSetConnections.resize( 0 );
+    _fdSet.setSize( 0 );
+    _fdSetConnections.setSize( 0 );
 
 #ifdef WIN32
     // add self connection

@@ -210,10 +210,10 @@ static inline void _compress( const void* const input, const eq_uint64_t size,
     assert( results[3]->getMaxSize() >= 
             static_cast< size_t >( fourOut  - results[3]->getData( )));
 
-    results[0]->resize( oneOut   - results[0]->getData( ));
-    results[1]->resize( twoOut   - results[1]->getData( ));
-    results[2]->resize( threeOut - results[2]->getData( ));
-    results[3]->resize( fourOut  - results[3]->getData( ));
+    results[0]->setSize( oneOut   - results[0]->getData( ));
+    results[1]->setSize( twoOut   - results[1]->getData( ));
+    results[2]->setSize( threeOut - results[2]->getData( ));
+    results[3]->setSize( fourOut  - results[3]->getData( ));
 }
 
 template< typename swizzleFunc, typename alphaFunc >
