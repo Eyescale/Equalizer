@@ -18,6 +18,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <eq/base/omp.h>
+
 namespace
 {
 
@@ -234,7 +236,7 @@ static void _setupResults( const uint32_t nChannels, const eq_uint64_t inSize,
 {
     // determine number of chunks and set up output data structure
 #ifdef EQ_USE_OPENMP
-    const size_t nChunks = nChannels * base::OMP::getNThreads() * 4;
+    const size_t nChunks = nChannels * eq::base::OMP::getNThreads() * 4;
 #else
     const size_t nChunks = nChannels;
 #endif
