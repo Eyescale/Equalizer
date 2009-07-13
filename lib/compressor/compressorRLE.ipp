@@ -133,7 +133,24 @@ static inline void _compress( const void* const input, const uint64_t size,
                          results[3]->getData( ));
 }
 
-#if 0
+#define READ( name )                                        \
+    if( name ## Left == 0 )                                 \
+    {                                                       \
+        name = *name ## In;                                 \
+        if( name == _rleMarker )                            \
+        {                                                   \
+            name = name ## In[1];                           \
+            name ## Left = name ## In[2];                   \
+            name ## In += 3;                                \
+        }                                                   \
+        else                                                \
+        {                                                   \
+            name ## Left = 1;                               \
+            ++name ## In;                                   \
+        }                                                   \
+    }                                                       \
+    --name ## Left; 
+
 template< typename PixelType, typename ComponentType,
           typename swizzleFunc, typename alphaFunc >
 static inline void _decompress( const void* const* inData,
@@ -141,37 +158,38 @@ static inline void _decompress( const void* const* inData,
                                 const unsigned numInputs,
                                 void* const outData, const uint64_t nPixels )
 {
-    const uint64_t size = nPixels * sizeof( PixelType );
-    const float width = static_cast< float >( size ) /  
+    assert( (numInputs%4) == 0 );
+
+    const uint64_t nElems = nPixels * 4;
+    const float width = static_cast< float >( nElems ) /  
                         static_cast< float >( numInputs );
 
-    const ComponentType* const* inData8 = reinterpret_cast< const ComponentType* const* >(
-        inData );
-
-    assert( (numInputs%4) == 0 );
+    const ComponentType* const* in = 
+        reinterpret_cast< const ComponentType* const* >( inData );
 
 #pragma omp parallel for
     for( ssize_t i = 0; i < static_cast< ssize_t >( numInputs ) ; i+=4 )
     {
-        const uint32_t startIndex = static_cast< uint32_t >( i/4.f * width ) *4;
-        const uint32_t nextIndex  =
-            static_cast< uint32_t >(( i/4.f + 1.f ) * width ) * 4;
+        const uint64_t startIndex = static_cast<uint64_t>( i/4.f * width ) * 4;
+        const uint64_t nextIndex  =
+            static_cast< uint64_t >(( i/4.f + 1.f ) * width ) * 4;
         const uint64_t chunkSize = ( nextIndex - startIndex ) / 4;
-        PixelType* out = reinterpret_cast< PixelType* >( outData ) + startIndex/4;
+        PixelType* out = reinterpret_cast< PixelType* >( outData ) + 
+                         startIndex / 4;
 
-        const ComponentType* oneIn  = inData8[ i + 0 ];
-        const ComponentType* twoIn  = inData8[ i + 1 ];
-        const ComponentType* threeIn= inData8[ i + 2 ];
-        const ComponentType* fourIn = inData8[ i + 3 ];
+        const ComponentType* oneIn   = in[ i + 0 ];
+        const ComponentType* twoIn   = in[ i + 1 ];
+        const ComponentType* threeIn = in[ i + 2 ];
+        const ComponentType* fourIn  = in[ i + 3 ];
         
         ComponentType one(0), two(0), three(0), four(0);
         ComponentType oneLeft(0), twoLeft(0), threeLeft(0), fourLeft(0);
    
-        for( PixelType j = 0; j < chunkSize ; ++j )
+        for( uint64_t j = 0; j < chunkSize ; ++j )
         {
-            assert( static_cast<uint64_t>(oneIn-inData8[i+0]) <= inSizes[i+0] );
-            assert( static_cast<uint64_t>(twoIn-inData8[i+1]) <= inSizes[i+1] );
-            assert( static_cast<uint64_t>(threeIn-inData8[i+2]) <=inSizes[i+2]);
+            assert( static_cast< uint64_t >( oneIn-in[i+0])   <= inSizes[i+0] );
+            assert( static_cast< uint64_t >( twoIn-in[i+1])   <= inSizes[i+1] );
+            assert( static_cast< uint64_t >( threeIn-in[i+2]) <= inSizes[i+2] );
 
             if( alphaFunc::use( ))
             {
@@ -192,13 +210,13 @@ static inline void _decompress( const void* const* inData,
             }
             ++out;
         }
-        assert( static_cast<uint64_t>(oneIn-inData8[i+0])   == inSizes[i+0] );
-        assert( static_cast<uint64_t>(twoIn-inData8[i+1])   == inSizes[i+1] );
-        assert( static_cast<uint64_t>(threeIn-inData8[i+2]) == inSizes[i+2] );
+        assert( static_cast< uint64_t >( oneIn-in[i+0])   == inSizes[i+0] );
+        assert( static_cast< uint64_t >( twoIn-in[i+1])   == inSizes[i+1] );
+        assert( static_cast< uint64_t >( threeIn-in[i+2]) == inSizes[i+2] );
     }
 }
-}
 
+#if 0
 void CompressorRLE4B::compress( const void* const inData, const uint64_t inSize,
                                 const bool useAlpha, const bool swizzle )
 {

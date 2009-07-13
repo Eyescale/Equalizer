@@ -1,4 +1,4 @@
-Templatize compression routine
+Templatize decompression routine
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

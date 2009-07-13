@@ -22,24 +22,6 @@
 #include "compressor.h"
 //const uint64_t _rleMarker = 0xF3C553FF64F6477Full; // just a random number
 
-#define READ( name )                                        \
-    if( name ## Left == 0 )                                 \
-    {                                                       \
-        name = *name ## In;                                 \
-        if( name == _rleMarker )                            \
-        {                                                   \
-            name = name ## In[1];                           \
-            name ## Left = name ## In[2];                   \
-            name ## In += 3;                                \
-        }                                                   \
-        else                                                \
-        {                                                   \
-            name ## Left = 1;                               \
-            ++name ## In;                                   \
-        }                                                   \
-    }                                                       \
-    --name ## Left; 
-
 
 namespace eq
 {

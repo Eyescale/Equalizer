@@ -149,68 +149,6 @@ public:
     }
 };  
 
-template< typename swizzleFunc, typename alphaFunc >
-static inline void _decompress( const void* const* inData,
-                                const eq_uint64_t* const inSizes,
-                                const unsigned numInputs,
-                                void* const outData, const eq_uint64_t nPixels )
-{
-    const eq_uint64_t size = nPixels * 4 ;
-    const float width = static_cast< float >( size ) /  
-                        static_cast< float >( numInputs );
-
-    const uint8_t* const* inData8 = reinterpret_cast< const uint8_t* const* >(
-        inData );
-
-    assert( (numInputs%4) == 0 );
-
-#pragma omp parallel for
-    for( ssize_t i = 0; i < static_cast< ssize_t >( numInputs ) ; i+=4 )
-    {
-        const uint32_t startIndex = static_cast< uint32_t >( i/4.f * width ) *4;
-        const uint32_t nextIndex  =
-            static_cast< uint32_t >(( i/4.f + 1.f ) * width ) * 4;
-        const eq_uint64_t chunkSize = ( nextIndex - startIndex ) / 4;
-        uint32_t* out = reinterpret_cast< uint32_t* >( outData ) + startIndex/4;
-
-        const uint8_t* oneIn  = inData8[ i + 0 ];
-        const uint8_t* twoIn  = inData8[ i + 1 ];
-        const uint8_t* threeIn= inData8[ i + 2 ];
-        const uint8_t* fourIn = inData8[ i + 3 ];
-        
-        uint8_t one(0), two(0), three(0), four(0);
-        uint8_t oneLeft(0), twoLeft(0), threeLeft(0), fourLeft(0);
-   
-        for( uint32_t j = 0; j < chunkSize ; ++j )
-        {
-            assert( static_cast<eq_uint64_t>(oneIn-inData8[i+0])<=inSizes[i+0] );
-            assert( static_cast<eq_uint64_t>(twoIn-inData8[i+1])<=inSizes[i+1] );
-            assert(static_cast<eq_uint64_t>(threeIn-inData8[i+2])<=inSizes[i+2]);
-
-            if( alphaFunc::use( ))
-            {
-                READ( one );
-                READ( two );
-                READ( three );
-                READ( four );
-
-                *out = swizzleFunc::deswizzle( one, two, three, four );
-            }
-            else
-            {
-                READ( one );
-                READ( two );
-                READ( three );
-
-                *out = swizzleFunc::deswizzle( one, two, three );
-            }
-            ++out;
-        }
-        assert( static_cast<eq_uint64_t>(oneIn-inData8[i+0])   == inSizes[i+0] );
-        assert( static_cast<eq_uint64_t>(twoIn-inData8[i+1])   == inSizes[i+1] );
-        assert( static_cast<eq_uint64_t>(threeIn-inData8[i+2]) == inSizes[i+2] );
-    }
-}
 }
 
 void CompressorRLE4B::compress( const void* const inData, 
@@ -260,11 +198,11 @@ void CompressorRLE4B::decompress( const void* const* inData,
                                   const bool useAlpha )
 {
     if( useAlpha )
-        _decompress< NoSwizzle, UseAlpha >( inData, inSizes, numInputs, 
-                                            outData, nPixels );
+        _decompress< uint32_t, uint8_t, NoSwizzle, UseAlpha >( 
+            inData, inSizes, numInputs, outData, nPixels );
     else
-        _decompress< NoSwizzle, NoAlpha >( inData, inSizes, numInputs,
-                                           outData, nPixels );
+        _decompress< uint32_t, uint8_t, NoSwizzle, NoAlpha >(
+            inData, inSizes, numInputs, outData, nPixels );
 }
 
 void CompressorDiffRLE4B::decompress( const void* const* inData, 
@@ -275,11 +213,11 @@ void CompressorDiffRLE4B::decompress( const void* const* inData,
                                       const bool useAlpha )
 {
     if( useAlpha )
-        _decompress< SwizzleUInt32, UseAlpha >( inData, inSizes, numInputs,
-                                                outData, nPixels );
+        _decompress< uint32_t, uint8_t, SwizzleUInt32, UseAlpha >(
+            inData, inSizes, numInputs, outData, nPixels );
     else
-        _decompress< SwizzleUInt24, NoAlpha >( inData, inSizes, numInputs,
-                                               outData, nPixels );
+        _decompress< uint32_t, uint8_t, SwizzleUInt24, NoAlpha >(
+            inData, inSizes, numInputs, outData, nPixels );
 }
 
     
