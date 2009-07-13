@@ -1,4 +1,4 @@
-Cleanup in base::Buffer usage
+Remove defunct image method
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

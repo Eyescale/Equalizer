@@ -260,9 +260,6 @@ namespace eq
                                    const Frame::Buffer buffer ) const;
 
         /** Writes all valid pixel data as separate images. */
-        EQ_EXPORT void writeImages( const std::string& filenameTemplate, 
-                                    const Frame::Buffer buffer ) const;
-
         EQ_EXPORT void writeImages( const std::string& filenameTemplate ) const;
 
         /** Read pixel data from an uncompressed rgb image file. */

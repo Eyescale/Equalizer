@@ -993,29 +993,9 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 
 void Image::writeImages( const std::string& filenameTemplate ) const
 {
-    writeImages( filenameTemplate + "_color", Frame::BUFFER_COLOR );
-    writeImages( filenameTemplate + "_depth", Frame::BUFFER_DEPTH );
+    writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR );
+    writeImage( filenameTemplate + "_depth.rgb", Frame::BUFFER_DEPTH );
 }
-
-
-void Image::writeImages( const std::string& filenameTemplate,
-                         const Frame::Buffer buffer ) const
-{
-    const Memory& memory = _getAttachment( buffer ).memory;
-
-    if( memory.state == Memory::VALID )
-    {
-        const uint32_t depth = getDepth( buffer );
-        for( uint32_t d = 0; d < depth; d+=4 )
-        {
-            ostringstream stringstream;
-            writeImage( filenameTemplate + stringstream.str() + ".rgb",
-                        buffer );
-        }
-    }
-
-}
-
 
 #define SWAP_SHORT(v) ( v = (v&0xff) << 8 | (v&0xff00) >> 8 )
 #define SWAP_INT(v)   ( v = (v&0xff) << 24 | (v&0xff00) << 8 |      \
