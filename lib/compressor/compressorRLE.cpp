@@ -18,29 +18,3 @@
 
 #include "compressorRLE.h"
 
-#include <eq/base/omp.h>
-
-namespace eq
-{
-namespace plugin
-{
-void CompressorRLE::_setupResults( const uint32_t nChannels,
-                                   const eq_uint64_t inSize )
-{
-    // determine number of chunks and set up output data structure
-#ifdef EQ_USE_OPENMP
-    const size_t nChunks = nChannels * base::OMP::getNThreads() * 4;
-#else
-    const size_t nChunks = nChannels;
-#endif
-
-    while( _results.size() < nChunks )
-        _results.push_back( new Result );
-
-    const eq_uint64_t maxChunkSize = (inSize/nChunks + 1) * 3;
-    for( size_t i = 0; i < nChunks; ++i )
-        _results[i]->resize( maxChunkSize );
-}
-
-}
-}

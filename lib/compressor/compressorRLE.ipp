@@ -78,7 +78,7 @@ public:
 
 template< typename PixelType, typename ComponentType,
           typename swizzleFunc, typename alphaFunc >
-static inline void _compress( const void* const input, const uint64_t size,
+static inline void _compress( const void* const input, const uint64_t nPixels,
                               eq::plugin::Compressor::Result** results )
 {
     const PixelType* pixel = reinterpret_cast< const PixelType* >( input );
@@ -97,7 +97,7 @@ static inline void _compress( const void* const input, const uint64_t size,
     ComponentType oneSame( 1 ), twoSame( 1 ), threeSame( 1 ), fourSame( 1 );
     ComponentType one(0), two(0), three(0), four(0);
     
-    for( uint64_t i = 1; i < size; ++i )
+    for( uint64_t i = 1; i < nPixels; ++i )
     {
         ++pixel;
 
@@ -155,24 +155,24 @@ template< typename PixelType, typename ComponentType,
           typename swizzleFunc, typename alphaFunc >
 static inline void _decompress( const void* const* inData,
                                 const uint64_t* const inSizes,
-                                const unsigned numInputs,
+                                const unsigned nInputs,
                                 void* const outData, const uint64_t nPixels )
 {
-    assert( (numInputs%4) == 0 );
+    assert( (nInputs%4) == 0 );
 
     const uint64_t nElems = nPixels * 4;
     const float width = static_cast< float >( nElems ) /  
-                        static_cast< float >( numInputs );
+                        static_cast< float >( nInputs );
 
     const ComponentType* const* in = 
         reinterpret_cast< const ComponentType* const* >( inData );
 
 #pragma omp parallel for
-    for( ssize_t i = 0; i < static_cast< ssize_t >( numInputs ) ; i+=4 )
+    for( ssize_t i = 0; i < static_cast< ssize_t >( nInputs ) ; i+=4 )
     {
-        const uint64_t startIndex = static_cast<uint64_t>( i/4.f * width ) * 4;
+        const uint64_t startIndex = static_cast<uint64_t>( i/4 * width ) * 4;
         const uint64_t nextIndex  =
-            static_cast< uint64_t >(( i/4.f + 1.f ) * width ) * 4;
+            static_cast< uint64_t >(( i/4 + 1 ) * width ) * 4;
         const uint64_t chunkSize = ( nextIndex - startIndex ) / 4;
         PixelType* out = reinterpret_cast< PixelType* >( outData ) + 
                          startIndex / 4;
@@ -216,77 +216,55 @@ static inline void _decompress( const void* const* inData,
     }
 }
 
-#if 0
-void CompressorRLE4B::compress( const void* const inData, const uint64_t inSize,
-                                const bool useAlpha, const bool swizzle )
+static void _setupResults( const uint32_t nChannels, const eq_uint64_t inSize,
+                           eq::plugin::Compressor::ResultVector& results )
 {
-    const uint64_t size = inSize * 4 ;
-    _setupResults( 4, size );
+    // determine number of chunks and set up output data structure
+#ifdef EQ_USE_OPENMP
+    const size_t nChunks = nChannels * base::OMP::getNThreads() * 4;
+#else
+    const size_t nChunks = nChannels;
+#endif
 
-    const ssize_t numResults = _results.size();
-    const float width = static_cast< float >( size ) /  
-                        static_cast< float >( numResults );
+    while( results.size() < nChunks )
+        results.push_back( new eq::plugin::Compressor::Result );
+
+    // The maximum possible size is twice the input size for each chunk, since
+    // the worst case scenario is input made of tupels of 'rle marker, data'
+    const eq_uint64_t maxChunkSize = (inSize/nChunks + 1) * 2;
+    for( size_t i = 0; i < nChunks; ++i )
+        results[i]->resize( maxChunkSize );
+}
+
+template< typename PixelType, typename ComponentType,
+          typename swizzleFunc, typename alphaFunc >
+static inline void _compress( const void* const inData, 
+                              const eq_uint64_t nPixels, const bool useAlpha,
+                              const bool swizzle, 
+                              eq::plugin::Compressor::ResultVector& results )
+{
+    const uint64_t size = nPixels * sizeof( PixelType );
+    _setupResults( 4, size, results );
+
+    const uint64_t nElems = nPixels * 4;
+    const uint64_t nResults = results.size();
+    const float width = static_cast< float >( nElems ) /  
+                        static_cast< float >( nResults );
 
     const ComponentType* const data = 
         reinterpret_cast< const ComponentType* const >( inData );
     
 #pragma omp parallel for
-    for( ssize_t i = 0; i < numResults ; i += 4 )
+    for( ssize_t i = 0; i < static_cast< ssize_t >( nResults ) ; i += 4 )
     {
-        const uint32_t startIndex = static_cast< uint32_t >( i/4 * width ) * 4;
-        const uint32_t nextIndex = 
-            static_cast< uint32_t >(( i/4 + 1 ) * width ) * 4;
+        const uint64_t startIndex = static_cast< uint64_t >( i/4 * width ) * 4;
+        const uint64_t nextIndex = 
+            static_cast< uint64_t >(( i/4 + 1 ) * width ) * 4;
         const uint64_t chunkSize = ( nextIndex - startIndex ) / 4;
 
-        if( useAlpha )
-            if( swizzle )
-                _compress< SwizzleUInt32, UseAlpha >( &data[ startIndex ],
-                                                      chunkSize,
-                                                      &_results[i] );
-            else
-                _compress< NoSwizzle, UseAlpha >( &data[ startIndex ],
-                                                  chunkSize,
-                                                  &_results[i] );
-        else
-            if( swizzle )
-                _compress< SwizzleUInt24, NoAlpha >( &data[ startIndex ], 
-                                                     chunkSize,
-                                                     &_results[i] );
-            else
-                _compress< NoSwizzle, NoAlpha >( &data[ startIndex ], chunkSize,
-                                                 &_results[i] );
+        _compress< PixelType, ComponentType, swizzleFunc, alphaFunc >(
+            &data[ startIndex ], chunkSize, &results[i] );
     }
 }
-
-void CompressorRLE4B::decompress( const void* const* inData, 
-                                  const uint64_t* const inSizes, 
-                                  const unsigned numInputs,
-                                  void* const outData, 
-                                  const uint64_t nPixels,
-                                  const bool useAlpha )
-{
-    if( useAlpha )
-        _decompress< NoSwizzle, UseAlpha >( inData, inSizes, numInputs, 
-                                            outData, nPixels );
-    else
-        _decompress< NoSwizzle, NoAlpha >( inData, inSizes, numInputs,
-                                           outData, nPixels );
-}
-
-void CompressorDiffRLE4B::decompress( const void* const* inData, 
-                                      const uint64_t* const inSizes, 
-                                      const unsigned numInputs,
-                                      void* const outData,
-                                      const uint64_t nPixels,
-                                      const bool useAlpha )
-{
-    if( useAlpha )
-        _decompress< SwizzleUInt32, UseAlpha >( inData, inSizes, numInputs,
-                                                outData, nPixels );
-    else
-        _decompress< SwizzleUInt24, NoAlpha >( inData, inSizes, numInputs,
-                                               outData, nPixels );
-}
-#endif
 
 }

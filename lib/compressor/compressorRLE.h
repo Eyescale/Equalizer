@@ -41,11 +41,6 @@ namespace plugin
              * Compress data with an algorithm RLE.
              */
             CompressorRLE() {}
-            
-        protected:
-            /** Allocate the output arrays conservatively. */
-            void _setupResults( const uint32_t nChannels, 
-                                const eq_uint64_t inSize );
         };
     
 }

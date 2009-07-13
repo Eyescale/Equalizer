@@ -152,42 +152,23 @@ public:
 }
 
 void CompressorRLE4B::compress( const void* const inData, 
-                                const eq_uint64_t inSize, const bool useAlpha,
+                                const eq_uint64_t nPixels, const bool useAlpha,
                                 const bool swizzle )
 {
-    const eq_uint64_t size = inSize * 4 ;
-    _setupResults( 4, size );
-
-    const ssize_t numResults = _results.size();
-    const float width = static_cast< float >( size ) /  
-                        static_cast< float >( numResults );
-
-    const uint8_t* const data = 
-        reinterpret_cast< const uint8_t* const >( inData );
-    
-#pragma omp parallel for
-    for( ssize_t i = 0; i < numResults ; i += 4 )
-    {
-        const uint32_t startIndex = static_cast< uint32_t >( i/4 * width ) * 4;
-        const uint32_t nextIndex = 
-            static_cast< uint32_t >(( i/4 + 1 ) * width ) * 4;
-        const eq_uint64_t chunkSize = ( nextIndex - startIndex ) / 4;
-
-        if( useAlpha )
-            if( swizzle )
-                _compress< uint32_t, uint8_t, SwizzleUInt32, UseAlpha >(
-                    &data[ startIndex ], chunkSize, &_results[i] );
-            else
-                _compress< uint32_t, uint8_t, NoSwizzle, UseAlpha >(
-                    &data[ startIndex ], chunkSize, &_results[i] );
+    if( useAlpha )
+        if( swizzle )
+            _compress< uint32_t, uint8_t, SwizzleUInt32, UseAlpha >(
+                inData, nPixels, useAlpha, swizzle, _results );
         else
-            if( swizzle )
-                _compress< uint32_t, uint8_t, SwizzleUInt24, NoAlpha >(
-                    &data[ startIndex ], chunkSize, &_results[i] );
-            else
-                _compress< uint32_t, uint8_t, NoSwizzle, NoAlpha >(
-                    &data[ startIndex ], chunkSize, &_results[i] );
-    }
+            _compress< uint32_t, uint8_t, NoSwizzle, UseAlpha >(
+                inData, nPixels, useAlpha, swizzle, _results );
+    else
+        if( swizzle )
+            _compress< uint32_t, uint8_t, SwizzleUInt24, NoAlpha >(
+                inData, nPixels, useAlpha, swizzle, _results );
+        else
+            _compress< uint32_t, uint8_t, NoSwizzle, NoAlpha >(
+                inData, nPixels, useAlpha, swizzle, _results );
 }
 
 void CompressorRLE4B::decompress( const void* const* inData, 
@@ -220,6 +201,5 @@ void CompressorDiffRLE4B::decompress( const void* const* inData,
             inData, inSizes, numInputs, outData, nPixels );
 }
 
-    
 }
 }

@@ -56,8 +56,6 @@ namespace plugin
             Decompress_t             decompress;
         };
     
-        typedef eq::base::Bufferb Result;
-
         /**
          * Construct a new compressor.
          */
@@ -79,15 +77,18 @@ namespace plugin
                                const bool useAlpha ) = 0;
 
 
+        typedef eq::base::Bufferb Result;
+        typedef std::vector< Result* > ResultVector;
+
         /** @name getResults */
         /*@{*/
         /**
          * get the number results that compression use to save data
          */
-        const std::vector< Result* >& getResults() const { return _results; }
+        const ResultVector& getResults() const { return _results; }
 
     protected: 
-        std::vector< Result* > _results;  //!< The compressed data
+        ResultVector _results;  //!< The compressed data
     }; 
 }
 }
