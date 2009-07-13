@@ -1,9 +1,4 @@
-# two nodes with one FBO RGBA32F
-global
-{
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
-}
-
+# two node DB decomposition using a source float FBO
 server
 {
     config
@@ -17,7 +12,7 @@ server
                     attributes
                     {
                         hint_drawable FBO
-                        planes_color  RGBA32F
+                        planes_color  RGBA16F
                         planes_depth  ON
                     }
                     channel 
@@ -31,14 +26,13 @@ server
         {
             connection 
             { 
-                hostname "157.26.73.115" TCPIP_port 4242  
+                hostname "127.0.0.1"
             }
             pipe 
             {
                 window
                 {
-                    viewport [ 640 400 1280 800 ]
-                    attributes{ hint_fullscreen OFF }
+                    viewport [ .25 .25 .5 .5 ]
                     attributes { planes_stencil ON }
                     channel { name "channel1" }
                 }

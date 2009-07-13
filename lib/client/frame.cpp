@@ -52,6 +52,11 @@ void Frame::applyInstanceData( net::DataIStream& is )
     is >> _data;
 }
 
+const std::string& Frame::getName() const
+{
+    return _name;
+}
+
 uint32_t Frame::getBuffers() const
 {
     EQASSERT( _frameData );

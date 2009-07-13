@@ -76,6 +76,8 @@ namespace server
          * @name Data Access
          */
         //@{
+        EQ_EXPORT const std::string& getName() const;
+
         const Vector2i& getOffset() const { return _data.offset; }
         void setOffset( const Vector2i& offset ) { _data.offset = offset;}
 
