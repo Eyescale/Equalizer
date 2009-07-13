@@ -1,9 +1,9 @@
-eq::base API cleanups based on Phil's review
+Clone eqPly code to contrib/simPly for student work.
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

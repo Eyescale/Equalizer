@@ -74,7 +74,7 @@ bool GLXWindow::configInit( )
     makeCurrent();
     initGLEW();
 
-    if (getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
+    if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         configInitFBO();
 
     return success;
