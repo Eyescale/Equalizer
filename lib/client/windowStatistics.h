@@ -18,7 +18,7 @@
 #ifndef EQ_WINDOWSTATISTICS_H
 #define EQ_WINDOWSTATISTICS_H
 
-#include <eq/client/event.h> // member
+#include <eq/client/statisticSampler.h> // base class
 
 namespace eq
 {
@@ -27,15 +27,11 @@ namespace eq
     /**
      * Holds one statistics event, used for profiling.
      */
-    class WindowStatistics
+    class WindowStatistics : public StatisticSampler< Window >
     {
     public:
         WindowStatistics( const Statistic::Type type, Window* window );
-        ~WindowStatistics();
-
-    private:
-        Event         _event;
-        Window* const _window;
+        virtual ~WindowStatistics();
     };
 }
 

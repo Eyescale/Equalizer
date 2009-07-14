@@ -18,7 +18,7 @@
 #ifndef EQ_CHANNELSTATISTICS_H
 #define EQ_CHANNELSTATISTICS_H
 
-#include <eq/client/event.h> // enum Statistic::Type
+#include <eq/client/statisticSampler.h> // base class
 
 namespace eq
 {
@@ -27,17 +27,12 @@ namespace eq
     /**
      * Holds one statistics event, used for profiling.
      */
-    class ChannelStatistics
+    class ChannelStatistics : public StatisticSampler< Channel >
     {
     public:
         EQ_EXPORT ChannelStatistics( const Statistic::Type type, 
                                      Channel* channel );
-        EQ_EXPORT ~ChannelStatistics();
-
-        Event event;
-
-    private:
-        Channel* const _channel;
+        virtual EQ_EXPORT ~ChannelStatistics();
     };
 }
 

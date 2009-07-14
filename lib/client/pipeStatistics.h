@@ -18,7 +18,7 @@
 #ifndef EQ_PIPESTATISTICS_H
 #define EQ_PIPESTATISTICS_H
 
-#include <eq/client/configEvent.h> // member
+#include <eq/client/statisticSampler.h> // base class
 
 namespace eq
 {
@@ -27,16 +27,11 @@ namespace eq
     /**
      * Holds one statistics event, used for profiling.
      */
-    class PipeStatistics
+    class PipeStatistics : public StatisticSampler< Pipe >
     {
     public:
         PipeStatistics( const Statistic::Type type, Pipe* pipe );
-        ~PipeStatistics();
-
-        ConfigEvent event;
-
-    private:
-        Pipe* const _pipe;
+        virtual ~PipeStatistics();
     };
 }
 

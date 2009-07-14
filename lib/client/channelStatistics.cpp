@@ -32,46 +32,43 @@ namespace eq
 
 ChannelStatistics::ChannelStatistics( const Statistic::Type type, 
                                       Channel* channel )
-        : _channel( channel )
+        : StatisticSampler< Channel >( type, channel, 
+                                       channel->getPipe()->getCurrentFrame( ))
 {
     const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
 
-    event.type                  = Event::STATISTIC;
-    event.originator            = channel->getID();
-    event.statistic.type        = type;
-    event.statistic.frameNumber = channel->getPipe()->getCurrentFrame();
-    event.statistic.task        = channel->getTaskID();
+    event.data.statistic.task = channel->getTaskID();
 
     const std::string& name = channel->getName();
     if( name.empty( ))
-        snprintf( event.statistic.resourceName, 32, "channel %d",
+        snprintf( event.data.statistic.resourceName, 32, "channel %d",
                   channel->getID( ));
     else
-        snprintf( event.statistic.resourceName, 32, "%s", name.c_str( ));
+        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
 
     if( hint == NICEST )
         channel->getWindow()->finish();
 
-    event.statistic.startTime  = channel->getConfig()->getTime();
-    event.statistic.endTime    = 0;
+    event.data.statistic.startTime  = channel->getConfig()->getTime();
+    event.data.statistic.endTime    = 0;
 }
 
 
 ChannelStatistics::~ChannelStatistics()
 {
-    const int32_t hint =_channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
+    const int32_t hint = _owner->getIAttribute( Channel::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
 
     if( hint == NICEST )
-        _channel->getWindow()->finish();
+        _owner->getWindow()->finish();
 
-    if( event.statistic.endTime == 0 )
-        event.statistic.endTime = _channel->getConfig()->getTime();
+    if( event.data.statistic.endTime == 0 )
+        event.data.statistic.endTime = _owner->getConfig()->getTime();
 
-    _channel->addStatistic( event );
+    _owner->addStatistic( event.data );
 }
 
 }

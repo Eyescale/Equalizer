@@ -1008,6 +1008,7 @@ namespace eq
 
         uint32_t      version;
         uint32_t      buffers;
+        uint32_t      frameNumber;
         PixelViewport pvp;
         bool          ignoreAlpha;
 

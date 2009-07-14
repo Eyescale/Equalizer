@@ -881,21 +881,26 @@ void Channel::drawStatistics()
                     case Statistic::CHANNEL_READBACK:
                         glColor3f( 1.0f-dim, .5f-dim, .5f-dim ); 
                         break;
-                    case Statistic::NODE_TRANSMIT:
+                    case Statistic::FRAME_TRANSMIT:
                         glColor3f( 0.f, 0.f, 1.0f-dim ); 
                         z = 0.5f; 
                         break;
-                    case Statistic::NODE_COMPRESS:
+                    case Statistic::FRAME_DECOMPRESS:
+                        glColor3f( .7f-dim, 1.f-dim, .7f-dim ); 
+                        z = 0.5f; 
+                        break;
+                    case Statistic::FRAME_COMPRESS:
                     {
-                        glColor3f( 1.0f-dim, 1.0f-dim, 1.0f-dim ); 
-                        y1 -= SPACE;
                         z = 0.7f; 
                         
+                        glColor3f( 0.f, 0.f, 0.f );
                         stringstream text;
                         text << static_cast< unsigned >( 100.f * stat.ratio ) 
                              << '%';
-                        glRasterPos3f( x2+1, y2, 0.99f );
+                        glRasterPos3f( x1+1, y2, 0.99f );
+
                         font.draw( text.str( ));
+                        glColor3f( .7f-dim, .7f-dim, 1.f-dim ); 
                         break;
                     }
                     case Statistic::CHANNEL_WAIT_FRAME:

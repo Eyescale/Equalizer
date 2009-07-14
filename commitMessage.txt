@@ -1,12 +1,13 @@
-- Update AUTHORS
-- Fix one doxygen warning
-- Tweak compression ration statistic rendering
-
+Statistics:
+- Create common base class
+- Move transmit/compress stats to framedata 
+- Create decompression statistic
+- Tweak frame transmission stats overlay
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

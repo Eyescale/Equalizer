@@ -139,9 +139,9 @@ namespace server
          * frame nodes. Do not use directly.
          * 
          * @param toNode the receiving node.
-         * @param event the event structure to sample compression data.
-         */
-        void transmit( net::NodePtr toNode, Event& event );
+         * @param frameNumber the current frame number
+         */        
+        void transmit( net::NodePtr toNode, const uint32_t frameNumber );
 
         /** 
          * Set the frame ready.

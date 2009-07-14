@@ -29,18 +29,13 @@ namespace eq
 {
 
 PipeStatistics::PipeStatistics( const Statistic::Type type, Pipe* pipe )
-        : _pipe( pipe )
+        : StatisticSampler< Pipe >( type, pipe, pipe->getCurrentFrame( ))
 {
 #if 0
     const int32_t hint = _pipe->getIAttribute( Pipe::IATTR_HINT_STATISTICS );
     if( hint == OFF )
         return;
 #endif
-
-    event.data.type                  = Event::STATISTIC;
-    event.data.originator            = pipe->getID();
-    event.data.statistic.type        = type;
-    event.data.statistic.frameNumber = pipe->getCurrentFrame();
 
     const std::string& name = pipe->getName();
     if( name.empty( ))
@@ -57,7 +52,7 @@ PipeStatistics::PipeStatistics( const Statistic::Type type, Pipe* pipe )
 PipeStatistics::~PipeStatistics()
 {
 #if 0
-    const int32_t hint = _pipe->getIAttribute( Pipe::IATTR_HINT_STATISTICS);
+    const int32_t hint = _owner->getIAttribute( Pipe::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
 #endif
@@ -65,7 +60,7 @@ PipeStatistics::~PipeStatistics()
     if( event.data.statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
-    Config* config = _pipe->getConfig();
+    Config* config = _owner->getConfig();
     if( event.data.statistic.endTime == 0 )
         event.data.statistic.endTime = config->getTime();
     config->sendEvent( event );

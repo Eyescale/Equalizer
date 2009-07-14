@@ -119,9 +119,9 @@ namespace server
          * frame nodes. Do not use directly.
          * 
          * @param toNode the receiving node.
-         * @param event the event structure to sample compression data.
+         * @param frameNumber the current frame number
          */        
-        void transmit( net::NodePtr toNode, Event& event );
+        void transmit( net::NodePtr toNode, const uint32_t frameNumber );
 
         /** 
          * Set the frame data ready.
@@ -183,14 +183,14 @@ namespace server
             Data() : offset( Vector2i::ZERO ), buffers( 0 ), format( 0 )
                    , type( 0 ), frameType( Frame::TYPE_MEMORY ){}
 
-            PixelViewport    pvp;
-            Vector2i         offset;
-            uint32_t         buffers;
-            uint32_t         format;
-            uint32_t         type;
-            Frame::Type      frameType;
-            Range            range; //<! database-range of src wrt to dest
-            Pixel            pixel; //<! pixel decomposition of source
+            PixelViewport pvp;
+            Vector2i      offset;
+            uint32_t      buffers;
+            uint32_t      format;
+            uint32_t      type;
+            Frame::Type   frameType;
+            Range         range;     //<! database-range of src wrt to dest
+            Pixel         pixel;     //<! pixel decomposition of source
         } _data;
 
         friend class eq::server::FrameData;
@@ -236,10 +236,6 @@ namespace server
 
         /** Set a specific version ready. */
         void _setReady( const uint32_t version );
-
-        void _transmit( net::NodePtr toNode,
-                        FrameDataTransmitPacket& packet,
-                        const Frame::Buffer buffers );
 
         /* The command handlers. */
         net::CommandResult _cmdTransmit( net::Command& command );

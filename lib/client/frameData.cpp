@@ -19,6 +19,7 @@
 
 #include "commands.h"
 #include "compressor.h"
+#include "frameDataStatistics.h"
 #include "image.h"
 #include "log.h"
 #include "packets.h"
@@ -281,9 +282,9 @@ void FrameData::_setReady( const uint32_t version )
 }
 
 
-void FrameData::transmit( net::NodePtr toNode, Event& event )
+void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber )
 {
-    event.statistic.ratio = 1.0f;
+    FrameDataStatistics event( Statistic::FRAME_TRANSMIT, this, frameNumber );
 
     if( _data.buffers == 0 )
     {
@@ -303,8 +304,6 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
 
     // use compression on links up to 2 GBit/s
     const bool useCompression = ( description->bandwidth <= 262144 );
-    float      compressTime   = 0.f;
-    uint64_t   rawSize( 0 ), compressedSize( 0 );
 
     FrameDataTransmitPacket packet;
     const uint64_t          packetSize = sizeof( packet ) - 8*sizeof( uint8_t );
@@ -314,6 +313,7 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
     packet.sessionID    = session->getID();
     packet.objectID     = getID();
     packet.version      = getVersion();
+    packet.frameNumber  = frameNumber;
 
     // send all images
     for( vector<Image*>::const_iterator i = _images.begin(); 
@@ -329,53 +329,55 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
 
         EQASSERT( packet.pvp.isValid( ));
 
-        // Prepare image pixel data
-        Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
-
-        // for each image attachment
-        for( unsigned j = 0; j < 2; ++j )
         {
-            Frame::Buffer buffer = buffers[j];
-            if( image->hasPixelData( buffer ))
+            uint64_t rawSize( 0 );
+            FrameDataStatistics compressEvent( Statistic::FRAME_COMPRESS, this, 
+                                               frameNumber );
+            compressEvent.event.data.statistic.ratio = 1.0f;
+            if( !useCompression )
+                compressEvent.event.data.statistic.frameNumber = 0;
+
+            // Prepare image pixel data
+            Frame::Buffer buffers[] = {Frame::BUFFER_COLOR,Frame::BUFFER_DEPTH};
+
+            // for each image attachment
+            for( unsigned j = 0; j < 2; ++j )
             {
-                // format, type, nChunks, compressor name
-                packet.size += 4 * sizeof( uint32_t ); 
-
-                if( useCompression )
+                Frame::Buffer buffer = buffers[j];
+                if( image->hasPixelData( buffer ))
                 {
-                    Clock clock;
-                    const Image::PixelData& data =
-                        image->compressPixelData( buffer );
-                    if( data.isCompressed )
-                        compressTime += clock.getTimef();
+                    // format, type, nChunks, compressor name
+                    packet.size += 4 * sizeof( uint32_t ); 
+
+                    const Image::PixelData& data = useCompression ?
+                        image->compressPixelData( buffer ) : 
+                        image->getPixelData( buffer );
+                    pixelDatas.push_back( &data );
                     
-                    pixelDatas.push_back( &data );
-                }
-                else
-                {
-                    const Image::PixelData& data = image->getPixelData( buffer);
-                    pixelDatas.push_back( &data );
-                }
-
-                const Image::PixelData* data = pixelDatas.back();
-                if( data->isCompressed )
-                {
-                    const uint32_t numElements = data->compressedSize.size();
-                    for( uint32_t k = 0 ; k < numElements; ++k )
+                    if( data.isCompressed )
+                    {
+                        const uint32_t nElements = data.compressedSize.size();
+                        for( uint32_t k = 0 ; k < nElements; ++k )
+                        {
+                            packet.size += sizeof( uint64_t );
+                            packet.size += data.compressedSize[ k ];
+                        }
+                    }
+                    else
                     {
                         packet.size += sizeof( uint64_t );
-                        packet.size += data->compressedSize[ k ];
+                        packet.size += data.pixels.getSize();
                     }
-                }
-                else
-                {
-                    packet.size += sizeof( uint64_t );
-                    packet.size += data->pixels.getSize();
-                }
 
-                packet.buffers |= buffer;
-                rawSize += image->getPixelDataSize( buffer );
+                    packet.buffers |= buffer;
+                    rawSize += image->getPixelDataSize( buffer );
+                }
             }
+
+            if( rawSize > 0 )
+                compressEvent.event.data.statistic.ratio =
+                    static_cast< float >( packet.size ) /
+                    static_cast< float >( rawSize );
         }
 
         if( pixelDatas.empty( ))
@@ -435,7 +437,6 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
         connection->unlockSend();
         if( _useSendToken )
             getLocalNode()->releaseSendToken( toNode );
-        compressedSize += packet.size;
     }
 
     FrameDataReadyPacket readyPacket;
@@ -443,11 +444,6 @@ void FrameData::transmit( net::NodePtr toNode, Event& event )
     readyPacket.objectID  = getID();
     readyPacket.version   = getVersion();
     toNode->send( readyPacket );
-
-    event.statistic.endTime = event.statistic.startTime + 
-                              static_cast< int64_t >(compressTime);
-    event.statistic.ratio = static_cast< float >( compressedSize ) / 
-                            static_cast< float >( rawSize );
 }
 
 void FrameData::addListener( base::Monitor<uint32_t>& listener )
@@ -487,6 +483,9 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
         << packet->pvp << " v" << packet->version << endl;
 
     EQASSERT( packet->pvp.isValid( ));
+
+    FrameDataStatistics event( Statistic::FRAME_DECOMPRESS, this, 
+                               packet->frameNumber );
 
     Image*   image = _allocImage( Frame::TYPE_MEMORY );
     // Note on the const_cast: since the PixelData structure stores non-const

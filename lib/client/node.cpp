@@ -26,7 +26,6 @@
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
-#include "nodeStatistics.h"
 #include "nodeVisitor.h"
 #include "packets.h"
 #include "pipe.h"
@@ -472,14 +471,9 @@ void* Node::TransmitThread::run()
         if( _tasks.isEmpty() && !task.node )
             return 0; // exit thread
         
-        NodeStatistics event( Statistic::NODE_TRANSMIT, _node,
-                              task.frameNumber );
-        NodeStatistics compressEvent( Statistic::NODE_COMPRESS, _node, 
-                                      task.frameNumber );
-
         EQLOG( LOG_ASSEMBLY ) << "node transmit " << task.data->getID()
                               << " to " << task.node->getNodeID() << endl;
-        task.data->transmit( task.node, compressEvent.event.data );
+        task.data->transmit( task.node, task.frameNumber );
     }
     return 0;
 }

@@ -9,16 +9,9 @@ server
             { 
                 window 
                 {
-                    attributes
-                    {
-                        hint_drawable FBO
-                        planes_color  RGBA16F
-                        planes_depth  ON
-                    }
-                    channel 
-                    { 
-                        name "channel2" 
-                    }
+                    viewport [ .25 .25 .5 .5 ]
+                    attributes { planes_stencil ON }
+                    channel { name "channel1" }
                 }
             }
         }
@@ -32,9 +25,13 @@ server
             {
                 window
                 {
-                    viewport [ .25 .25 .5 .5 ]
-                    attributes { planes_stencil ON }
-                    channel { name "channel1" }
+                    attributes
+                    {
+                        hint_drawable FBO
+                        planes_color  RGBA16F
+                        planes_depth  ON
+                    }
+                    channel { name "channel2" }
                 }
             }
         }

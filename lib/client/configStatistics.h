@@ -18,7 +18,7 @@
 #ifndef EQ_CONFIGSTATISTICS_H
 #define EQ_CONFIGSTATISTICS_H
 
-#include <eq/client/configEvent.h> // member
+#include <eq/client/statisticSampler.h> // base class
 
 namespace eq
 {
@@ -27,17 +27,13 @@ namespace eq
     /**
      * Holds one statistics event, used for profiling.
      */
-    class ConfigStatistics
+    class ConfigStatistics : public StatisticSampler< Config >
     {
     public:
         ConfigStatistics( const Statistic::Type type, Config* config );
-        ~ConfigStatistics();
+        virtual ~ConfigStatistics();
 
-        ConfigEvent event;
         bool        ignore;
-
-    private:
-        Config*     _config;
     };
 }
 
