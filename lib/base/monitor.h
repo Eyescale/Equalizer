@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <string.h>
 #include <iostream>
+#include <typeinfo>
 
 
 namespace eq

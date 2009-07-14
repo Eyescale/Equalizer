@@ -21,6 +21,7 @@
 #include <eq/base/base.h>     // for EQ_EXPORT
 #include <eq/base/debug.h>    // for EQERROR
 #include <eq/base/atomic.h>   // member
+#include <typeinfo>
 
 namespace eq
 {

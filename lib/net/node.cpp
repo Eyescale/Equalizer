@@ -866,9 +866,9 @@ bool Node::_handleData()
     // This is one of the initial packets during the connection handshake, at
     // this point the remote node is not yet available.
     EQASSERTINFO( node.isValid() ||
-                  command->datatype == DATATYPE_EQNET_NODE &&
+                 ( command->datatype == DATATYPE_EQNET_NODE &&
                   ( command->command == CMD_NODE_CONNECT  || 
-                    command->command == CMD_NODE_CONNECT_REPLY),
+                    command->command == CMD_NODE_CONNECT_REPLY)),
                   command << " connection " << connection );
 
     _dispatchCommand( command );
