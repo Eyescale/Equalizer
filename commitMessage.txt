@@ -1,13 +1,9 @@
-Statistics:
-- Create common base class
-- Move transmit/compress stats to framedata 
-- Create decompression statistic
-- Tweak frame transmission stats overlay
+Statistics: missing files
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
