@@ -1,15 +1,12 @@
-Compressor:
-- Remove unused compressors
-- Remove now-empty intermediate class CompressorRLE
-- Create new Compressor for unsigned int (depth), based on RLE4B
-- Alloc unsigned compressor in image for unsigned data
-- Add missing virtual destructors
-- Cleanup include protection defines
+- Update AUTHORS
+- Fix one doxygen warning
+- Tweak compression ration statistic rendering
+
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[x] Bugfix
-[x] New Feature
+[ ] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

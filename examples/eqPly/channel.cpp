@@ -18,17 +18,12 @@
 
 #include "channel.h"
 
-#include "frameData.h"
 #include "initData.h"
 #include "config.h"
 #include "pipe.h"
 #include "view.h"
 #include "window.h"
 #include "vertexBufferState.h"
-
-using namespace eq::base;
-using namespace std;
-using namespace mesh;
 
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
@@ -181,10 +176,10 @@ const Model* Channel::_getModel()
 
 void Channel::_drawModel( const Model* model )
 {
-    Window*              window    = static_cast<Window*>( getWindow() );
-    VertexBufferState&   state     = window->getState();
-    const FrameData&     frameData = _getFrameData();
-    const eq::Range&     range     = getRange();
+    Window*            window    = static_cast<Window*>( getWindow() );
+    VertexBufferState& state     = window->getState();
+    const FrameData&   frameData = _getFrameData();
+    const eq::Range&   range     = getRange();
     eq::FrustumCullerf culler;
 
     state.setColors( frameData.useColor() && model->hasColors( ));
@@ -198,7 +193,7 @@ void Channel::_drawModel( const Model* model )
     model->beginRendering( state );
     
     // start with root node
-    vector< const VertexBufferBase* > candidates;
+    std::vector< const mesh::VertexBufferBase* > candidates;
     candidates.push_back( model );
 
 #ifndef NDEBUG
@@ -208,7 +203,7 @@ void Channel::_drawModel( const Model* model )
 
     while( !candidates.empty() )
     {
-        const VertexBufferBase* treeNode = candidates.back();
+        const mesh::VertexBufferBase* treeNode = candidates.back();
         candidates.pop_back();
             
         // completely out of range check
@@ -239,8 +234,8 @@ void Channel::_drawModel( const Model* model )
 
             case vmml::VISIBILITY_PARTIAL:
             {
-                const VertexBufferBase* left  = treeNode->getLeft();
-                const VertexBufferBase* right = treeNode->getRight();
+                const mesh::VertexBufferBase* left  = treeNode->getLeft();
+                const mesh::VertexBufferBase* right = treeNode->getRight();
             
                 if( !left && !right )
                 {
@@ -281,7 +276,7 @@ void Channel::_drawModel( const Model* model )
     EQLOG( LOG_CULL ) 
         << getName() << " rendered " << verticesRendered * 100 / verticesTotal
         << "% of model, overlap <= " << verticesOverlap * 100 / verticesTotal
-        << "%" << endl;
+        << "%" << std::endl;
 #endif    
 }
 
@@ -379,7 +374,7 @@ void Channel::_drawHelp()
 }
 
 void Channel::_initFrustum( eq::FrustumCullerf& culler,
-                            const BoundingSphere& boundingSphere )
+                            const mesh::BoundingSphere& boundingSphere )
 {
     // setup frustum cull helper
     const FrameData& frameData = _getFrameData();
@@ -410,14 +405,14 @@ void Channel::_initFrustum( eq::FrustumCullerf& culler,
     front *= boundingSphere.w();
 
     const eq::Vector3f center = boundingSphere.get_sub_vector< 3 >() + 
-                                frameData.getCameraTranslation( ).get_sub_vector< 3 >();
+                        frameData.getCameraTranslation( ).get_sub_vector< 3 >();
     const eq::Vector3f nearPoint  = headTransform * ( center - front );
     const eq::Vector3f farPoint   = headTransform * ( center + front );
 
     if( frameData.useOrtho( ))
     {
         EQASSERT( fabs( farPoint.z() - nearPoint.z() ) > 
-                  numeric_limits< float >::epsilon( ));
+                  std::numeric_limits< float >::epsilon( ));
         setNearFar( -nearPoint.z(), -farPoint.z() );
     }
     else

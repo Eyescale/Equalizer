@@ -19,7 +19,9 @@
 #define EQ_PLY_CHANNEL_H
 
 #include "eqPly.h"
-#include "frameData.h"
+
+//#include "frameData.h"
+#include "typedefs.h"
 
 #include <eq/eq.h>
 
@@ -54,7 +56,7 @@ namespace eqPly
         void _drawLogo();
         void _drawHelp();
         void _initFrustum( eq::FrustumCullerf& frustum, 
-                           const eq::Vector4f& boundingSphere );
+                           const mesh::BoundingSphere& boundingSphere );
 
         const FrameData& _getFrameData() const;
         const Model*     _getModel();

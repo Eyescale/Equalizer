@@ -892,7 +892,8 @@ void Channel::drawStatistics()
                         z = 0.7f; 
                         
                         stringstream text;
-                        text << static_cast< unsigned >( 100.f * stat.ratio );
+                        text << static_cast< unsigned >( 100.f * stat.ratio ) 
+                             << '%';
                         glRasterPos3f( x2+1, y2, 0.99f );
                         font.draw( text.str( ));
                         break;

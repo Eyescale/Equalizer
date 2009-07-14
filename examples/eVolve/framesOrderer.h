@@ -22,11 +22,11 @@
 
 namespace eVolve
 {
-void orderFrames( eq::FrameVector&      frames,
+void orderFrames( eq::FrameVector&    frames,
                   const eq::Matrix4d& modelviewM,
                   const eq::Matrix3d& modelviewITM,
                   const eq::Matrix4f& rotation,
-                  const bool            orthographic );
+                  const bool          orthographic );
 }
 
 #endif //EVOLVE_FRAMES_ORDERER_H
