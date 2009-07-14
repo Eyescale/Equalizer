@@ -88,8 +88,7 @@ size_t EqCompressorGetNumCompressors()
            sizeof( eq::plugin::Compressor::Functions ) - 1;
 }
            
-void EqCompressorGetInfo( const size_t n, 
-                                        EqCompressorInfo* const info )
+void EqCompressorGetInfo( const size_t n, EqCompressorInfo* const info )
 {
     return eq::plugin::_functions[ n ].getInfo( info );
 }
@@ -117,35 +116,34 @@ void EqCompressorDeleteDecompressor( void* const decompressor )
     /* nop */
 }
 
-void EqCompressorCompress( void* const compressorPtr,
-                                         const unsigned name,
-                                         void* const in, 
-                                         const eq_uint64_t* inDims,
-                                         const eq_uint64_t flags )
+void EqCompressorCompress( void* const ptr, const unsigned name,
+                           void* const in, const eq_uint64_t* inDims,
+                           const eq_uint64_t flags )
 {
     const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_MSE);
     const eq_uint64_t nPixels = (flags & EQ_COMPRESSOR_DATA_1D) ?
                                   inDims[1]: inDims[1] * inDims[3];
 
     eq::plugin::Compressor* compressor = 
-        reinterpret_cast< eq::plugin::Compressor* >( compressorPtr );
+        reinterpret_cast< eq::plugin::Compressor* >( ptr );
     compressor->compress( in, nPixels, useAlpha );
 }
 
-unsigned EqCompressorGetNumResults( void* const compressor,
-                                                  const unsigned name )
+unsigned EqCompressorGetNumResults( void* const ptr,
+                                    const unsigned name )
 {
-    return (( eq::plugin::Compressor* )( compressor ))->getResults().size();
+    eq::plugin::Compressor* compressor = 
+        reinterpret_cast< eq::plugin::Compressor* >( ptr );
+    return compressor->getResults().size();
 }
 
-void EqCompressorGetResult( void* const compressor, 
-                                          const unsigned name,
-                                          const unsigned i, 
-                                          void** const out, 
-                                          eq_uint64_t* const outSize )
+void EqCompressorGetResult( void* const ptr, const unsigned name,
+                            const unsigned i, void** const out, 
+                            eq_uint64_t* const outSize )
 {
-    eq::plugin::Compressor::Result* result = 
-        (( eq::plugin::Compressor* )( compressor ))->getResults()[ i ];
+    eq::plugin::Compressor* compressor = 
+        reinterpret_cast< eq::plugin::Compressor* >( ptr );
+    eq::plugin::Compressor::Result* result = compressor->getResults()[ i ];
     
     *out = result->getData();
     *outSize = result->getSize();
@@ -153,14 +151,12 @@ void EqCompressorGetResult( void* const compressor,
 }
 
 
-void EqCompressorDecompress( void* const decompressor, 
-                                           const unsigned name,
-                                           const void* const* in, 
-                                           const eq_uint64_t* const inSizes,
-                                           const unsigned numInputs,
-                                           void* const out,
-                                           eq_uint64_t* const outDims,
-                                           const eq_uint64_t flags )
+void EqCompressorDecompress( void* const decompressor, const unsigned name,
+                             const void* const* in,
+                             const eq_uint64_t* const inSizes,
+                             const unsigned nInputs,
+                             void* const out, eq_uint64_t* const outDims,
+                             const eq_uint64_t flags )
 {
     const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_MSE);
     const eq_uint64_t nPixels = ( flags & EQ_COMPRESSOR_DATA_1D) ?
@@ -168,5 +164,5 @@ void EqCompressorDecompress( void* const decompressor,
 
     eq::plugin::Compressor::Functions& functions = 
         eq::plugin::_findFunctions( name );
-    functions.decompress( in, inSizes, numInputs, out, nPixels, useAlpha );
+    functions.decompress( in, inSizes, nInputs, out, nPixels, useAlpha );
 }
