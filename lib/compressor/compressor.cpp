@@ -17,11 +17,10 @@
  */
 
 #include "compressor.h"
-#include "compressorRLEByte.h" 
-#include "compressorRLE3B.h" 
+
 #include "compressorRLE4B.h"
-#include "compressorRLE4F.h"
 #include "compressorRLE4HF.h"
+#include "compressorRLEU.h"
 
 namespace eq
 {
@@ -34,6 +33,7 @@ namespace
         eq::plugin::CompressorRLE4B::getFunctions(),
         eq::plugin::CompressorDiffRLE4B::getFunctions(),
         eq::plugin::CompressorRLE4HF::getFunctions(),
+        eq::plugin::CompressorRLEU::getFunctions(),
 #if 0
         eq::plugin::CompressorRLEByte::getFunctions(),
         eq::plugin::CompressorRLE3B::getFunctions(),

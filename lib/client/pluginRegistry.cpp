@@ -45,7 +45,7 @@ void PluginRegistry::init()
         const std::string& directory = *i;
         EQINFO << "Searching compressors in " << directory << std::endl;
 
-        // search the number of files in the director<y
+        // search the number of files in the director
 #ifdef WIN32
         StringVector files = base::fileSearch( directory, 
                                                 "EqualizerCompressor*.dll" );
@@ -77,7 +77,6 @@ void PluginRegistry::_initCompressor( const std::string& filename )
     Compressor* compressor = new Compressor(); 
     bool add = compressor->init( filename );
 
-    // Simple test to avoid using the same dll twice
     const CompressorInfoVector& infos = compressor->getInfos();
     if( infos.empty( ))
         add = false;
@@ -86,6 +85,7 @@ void PluginRegistry::_initCompressor( const std::string& filename )
          add && i != _compressors.end(); ++i )
     {
         const CompressorInfoVector& infos2 = (*i)->getInfos();
+        // Simple test to avoid using the same dll twice
         if( infos.front().name == infos2.front().name )
             add = false;
     }

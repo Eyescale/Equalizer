@@ -17,19 +17,20 @@
  */
 
  
-#ifndef EQ_PLUGIN_RLE4HALFFLOATCOMPRESSOR
-#define EQ_PLUGIN_RLE4HALFFLOATCOMPRESSOR
+#ifndef EQ_PLUGIN_COMPRESSORRLE4HF
+#define EQ_PLUGIN_COMPRESSORRLE4HF
 
-#include "compressorRLE.h"
+#include "compressor.h"
 
 namespace eq
 {
 namespace plugin
 {
-class CompressorRLE4HF : public CompressorRLE
+class CompressorRLE4HF : public Compressor
 {
 public:
     CompressorRLE4HF() {}
+    virtual ~CompressorRLE4HF() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
                            const bool useAlpha )
@@ -73,4 +74,4 @@ protected:
 
 }
 }
-#endif
+#endif // EQ_PLUGIN_COMPRESSORRLE4HF

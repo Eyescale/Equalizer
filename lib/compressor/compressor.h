@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-#ifndef EQ_COMPRESSOR_COMPRESSOR
-#define EQ_COMPRESSOR_COMPRESSOR 
+#ifndef EQ_PLUGIN_COMPRESSOR
+#define EQ_PLUGIN_COMPRESSOR 
 
 #include <eq/plugins/compressor.h>
 
@@ -93,5 +93,5 @@ namespace plugin
 }
 }
 
-#endif // EQ_COMPRESSOR_COMPRESSOR
+#endif // EQ_PLUGIN_COMPRESSOR
 

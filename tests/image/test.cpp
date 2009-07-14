@@ -268,12 +268,14 @@ int main( int argc, char **argv )
 #endif
             }
 
-            std::cout  << std::setw(2) << name << ",                           "
-                       << "         Total, " << std::setw(10) << totalSize
-                       << ", " << !image.ignoreAlpha() << ", " << std::setw(10) 
-                       << totalCompressedSize << ", " << std::setw(10)
-                       << totalCompressTime << ", " << std::setw(10)
-                       << totalDecompressTime << std::endl;
+            if( totalSize > 0 )
+                std::cout  << std::setw(2) << name 
+                           << ",                           "
+                           << "         Total, " << std::setw(10) << totalSize
+                           << ", " << !image.ignoreAlpha() << ", " 
+                           << std::setw(10) << totalCompressedSize << ", " 
+                           << std::setw(10) << totalCompressTime << ", " 
+                           << std::setw(10) << totalDecompressTime << std::endl;
             
             if( alpha )
             {

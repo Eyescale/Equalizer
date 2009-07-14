@@ -16,20 +16,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-#ifndef EQ_PLUGIN_RLE4BYTECOMPRESSOR
-#define EQ_PLUGIN_RLE4BYTECOMPRESSOR
+#ifndef EQ_PLUGIN_COMPRESSORRLE4B
+#define EQ_PLUGIN_COMPRESSORRLE4B
 
-#include "compressorRLE.h"
+#include "compressor.h"
 
 namespace eq
 {
 namespace plugin
 {
 
-class CompressorRLE4B : public CompressorRLE
+class CompressorRLE4B : public Compressor
 {
 public:
     CompressorRLE4B() {}
+    virtual ~CompressorRLE4B() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
                            const bool useAlpha )
@@ -77,8 +78,9 @@ protected:
 class CompressorDiffRLE4B : public CompressorRLE4B
 {
 public:
-    CompressorDiffRLE4B():CompressorRLE4B() {}
-    
+    CompressorDiffRLE4B() {}
+    virtual ~CompressorDiffRLE4B() {}
+
     /** @name getNewCompressor */
     /*@{*/
     /**
@@ -139,4 +141,4 @@ public:
 };    
 }
 }
-#endif
+#endif // EQ_PLUGIN_COMPRESSORRLE4B

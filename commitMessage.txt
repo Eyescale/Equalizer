@@ -1,9 +1,15 @@
-Compressor: cosmetic cleanups
+Compressor:
+- Remove unused compressors
+- Remove now-empty intermediate class CompressorRLE
+- Create new Compressor for unsigned int (depth), based on RLE4B
+- Alloc unsigned compressor in image for unsigned data
+- Add missing virtual destructors
+- Cleanup include protection defines
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[ ] Bugfix
-[ ] New Feature
+[x] Bugfix
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
