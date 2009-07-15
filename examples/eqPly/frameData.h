@@ -20,8 +20,6 @@
 
 #include "eqPly.h"
 
-#include <eq/eq.h>
-
 namespace eqPly
 {
     class View;
@@ -38,7 +36,6 @@ namespace eqPly
     class FrameData : public eq::Object
     {
     public:
-
         FrameData();
 
         virtual ~FrameData() {};
@@ -49,7 +46,7 @@ namespace eqPly
         //*{
         void setModelID( const uint32_t id );
 
-        void setColor( const bool onOff );
+        void setColorMode( const ColorMode color );
         void setRenderMode( const mesh::RenderMode mode );
 
         void setTranslation(   const eq::Vector3f& translation );
@@ -60,12 +57,12 @@ namespace eqPly
         void toggleStatistics();
         void toggleHelp();
         void toggleWireframe();
-        void toggleUseColor();
+        void toggleColorMode();
         void togglePilotMode();
         void toggleRenderMode();
 
         uint32_t getModelID() const { return _modelID; }
-        bool useColor() const { return _color; }
+        ColorMode getColorMode() const { return _colorMode; }
         bool useOrtho() const { return _ortho; }
         bool useStatistics() const { return _statistics; }
         bool showHelp() const { return _help; }
@@ -119,7 +116,7 @@ namespace eqPly
         
         uint32_t         _modelID;
         mesh::RenderMode _renderMode;
-        bool             _color;
+        ColorMode        _colorMode;
         bool             _ortho;
         bool             _statistics;
         bool             _help;

@@ -60,7 +60,9 @@ bool Config::init()
         _animation.loadAnimation( _initData.getPathFilename( ));
 
     // init distributed objects
-    _frameData.setColor( _initData.useColor( ));
+    if( !_initData.useColor( ))
+        _frameData.setColorMode( COLOR_WHITE );
+
     _frameData.setRenderMode( _initData.getRenderMode( ));
     registerObject( &_frameData );
 
@@ -382,6 +384,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         case eq::Event::MAGELLAN_AXIS:
             _spinX = 0;
             _spinY = 0;
+            _advance = 0;
             _frameData.spinModel(  0.0001f * event->data.magellan.zRotation,
                                   -0.0001f * event->data.magellan.xRotation,
                                   -0.0001f * event->data.magellan.yRotation );
@@ -393,7 +396,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::MAGELLAN_BUTTON:
             if( event->data.magellan.button == eq::PTR_BUTTON1 )
-                _frameData.toggleUseColor();
+                _frameData.toggleColorMode();
 
             _redraw = true;
             return true;
@@ -461,7 +464,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
         case 'd':
         case 'D':
-            _frameData.toggleUseColor();
+            _frameData.toggleColorMode();
             return true;
 
         case 'c':

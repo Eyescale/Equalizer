@@ -52,6 +52,14 @@ namespace eqPly
         const LocalInitData& _initData;
     };
 
+    enum ColorMode
+    {
+        COLOR_MODEL, //!< Render using the colors defined in the ply file
+        COLOR_DEMO,  //!< Use a unique color to demonstrate decomposition
+        COLOR_WHITE, //!< Render in solid white (mostly for anaglyph stereo)
+        COLOR_ALL    //!< @internal, must be last
+    };
+
     enum LogTopics
     {
         LOG_STATS = eq::LOG_CUSTOM << 0, // 65536

@@ -23,7 +23,7 @@ namespace eqPly
 FrameData::FrameData()
         : _modelID( EQ_ID_INVALID )
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
-        , _color( true )
+        , _colorMode( COLOR_MODEL )
         , _ortho( false )
         , _statistics( false )
         , _help( false )
@@ -41,7 +41,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_CAMERA )
         os << _translation << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
-        os << _modelID << _renderMode << _color << _ortho << _statistics
+        os << _modelID << _renderMode << _colorMode << _ortho << _statistics
            << _help << _wireframe << _pilotMode;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
@@ -54,7 +54,7 @@ void FrameData::deserialize( eq::net::DataIStream& is,
     if( dirtyBits & DIRTY_CAMERA )
         is >> _translation >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
-        is >> _modelID >> _renderMode >> _color >> _ortho >> _statistics
+        is >> _modelID >> _renderMode >> _colorMode >> _ortho >> _statistics
            >> _help >> _wireframe >> _pilotMode;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
@@ -66,9 +66,9 @@ void FrameData::setModelID( const uint32_t id )
     setDirty( DIRTY_FLAGS );
 }
 
-void FrameData::setColor( const bool onOff )
+void FrameData::setColorMode( const ColorMode mode )
 {
-    _color = onOff;
+    _colorMode = mode;
     setDirty( DIRTY_FLAGS );
 }
 
@@ -102,9 +102,9 @@ void FrameData::toggleWireframe()
     setDirty( DIRTY_FLAGS );
 }
 
-void FrameData::toggleUseColor()
+void FrameData::toggleColorMode()
 {
-    _color = !_color;
+    _colorMode = static_cast< ColorMode >(( _colorMode + 1) % COLOR_ALL );
     setDirty( DIRTY_FLAGS );
 }
 

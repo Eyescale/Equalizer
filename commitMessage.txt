@@ -1,5 +1,6 @@
-- Tweak pipe idle stat overlay
-- Relax view equalizer assertion, was triggered due to async events
+Eqply:
+- implement three color modes (model, demo, B&W)
+- stop zooming on spacemouse move
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

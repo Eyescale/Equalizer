@@ -101,17 +101,25 @@ void Channel::frameDraw( const uint32_t frameID )
 
     const Model*     model  = _getModel();
 
-    if( frameData.useColor( ))
+    switch( frameData.getColorMode( ))
     {
-        if( model && !model->hasColors( ))
-        {
+        default:
+            EQUNIMPLEMENTED;
+        case COLOR_MODEL:
+            if( !model || model->hasColors( ))
+                break;
+            // else fall through
+
+        case COLOR_WHITE:
             glColor3f( .75f, .75f, .75f );
+            break;
+            
+        case COLOR_DEMO:
+        {
+            const eq::Vector3ub color = getUniqueColor();
+            glColor3ub( color.r(), color.g(), color.b() );
+            break;
         }
-    }
-    else
-    {
-        const eq::Vector3ub color = getUniqueColor();
-        glColor3ub( color.r(), color.g(), color.b() );
     }
 
     if( model )
@@ -182,7 +190,11 @@ void Channel::_drawModel( const Model* model )
     const eq::Range&   range     = getRange();
     eq::FrustumCullerf culler;
 
-    state.setColors( frameData.useColor() && model->hasColors( ));
+    if( frameData.getColorMode() == COLOR_MODEL && model->hasColors( ))
+        state.setColors( true );
+    else
+        state.setColors( false );
+
     _initFrustum( culler, model->getBoundingSphere( ));
 
     const eq::Pipe* pipe = getPipe();
