@@ -76,7 +76,8 @@ void DSO::close()
     if( _dso != GetModuleHandle( 0 ))
         FreeLibrary( _dso ) ;
 #else
-     dlclose ( _dso );
+    if( _dso != RTLD_DEFAULT )
+        dlclose ( _dso );
 #endif
 
     _dso = 0;
