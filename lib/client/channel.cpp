@@ -1013,7 +1013,7 @@ void Channel::drawStatistics()
         const IdleData& data = i->second;
         EQASSERT( data.nIdle > 0 );
 
-        text << " " << data.name << " " << data.idle / data.nIdle << "%";
+        text << " " << data.name << ":" << data.idle / data.nIdle << "%";
     }
 
     font.draw( text.str( ));

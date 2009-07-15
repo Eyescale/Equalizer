@@ -301,7 +301,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         const Listener::Load& load = listener.useLoad( frame );
 #else
         Listener::Load load = listener.useLoad( frame );
-        if( load.nResources )
+        if( load.nResources > 0 )
         {
             load.time /= static_cast< float >( load.nResources );
             load.time *= sqrtf( static_cast< float >( load.nResources ));
@@ -398,8 +398,8 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         }
 
         Listener& listener = _listeners[ i ];
-        EQASSERTINFO( listener.getNLoads()<=child->getConfig()->getLatency() +1,
-                      listener.getNLoads( ));
+        EQASSERTINFO(listener.getNLoads()<=child->getConfig()->getLatency() + 3,
+                     listener );
         listener.newLoad( frameNumber, load.missing );
     }
 }
@@ -437,7 +437,8 @@ void ViewEqualizer::_updateListeners()
     _listeners.resize( nChildren );
     for( size_t i = 0; i < nChildren; ++i )
     {
-        EQLOG( LOG_LB1 ) << base::disableFlush << "Tasks for view " << i << ": ";
+        EQLOG( LOG_LB1 ) << base::disableFlush << "Tasks for view " << i 
+                         << ": ";
         Listener& listener = _listeners[ i ];        
         listener.update( children[i] );
         EQLOG( LOG_LB1 ) << std::endl << base::enableFlush;
@@ -656,6 +657,20 @@ std::ostream& operator << ( std::ostream& os, const ViewEqualizer* equalizer )
     if( equalizer )
         os << "view_equalizer {}" << std::endl;
     return os;
+}
+
+std::ostream& operator << ( std::ostream& os,
+                            const ViewEqualizer::Listener& listener )
+{
+    os << base::disableFlush << "Listener" << std::endl
+       << base::indent;
+    for( ViewEqualizer::Listener::LoadDeque::const_iterator i = 
+             listener._loads.begin(); i != listener._loads.end(); ++i )
+    {
+        os << *i << std::endl;
+    }
+    os << base::exdent << base::enableFlush;
+    return os; 
 }
 
 std::ostream& operator << ( std::ostream& os, 

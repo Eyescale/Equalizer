@@ -1,4 +1,10 @@
 # 8-to-2 wall load-balancing example configuration
+global
+{
+    EQ_WINDOW_IATTR_HINT_SWAPSYNC OFF
+    EQ_WINDOW_IATTR_HINT_STATISTICS OFF
+}
+
 server
 {
     config
@@ -12,7 +18,8 @@ server
                 {
                     name "left"
                     viewport [ 0.2 0.05 0.3 0.3 ]
-                    
+                    attributes { hint_swapsync ON }
+
                     channel { name "left-src" }
                     channel { name "left-dst" }
                 }
@@ -24,6 +31,7 @@ server
                 {
                     name "right"
                     viewport [ 0.5 0.05 0.3 0.3 ]
+                    attributes { hint_swapsync ON }
                     
                     channel { name "right-src" }
                     channel { name "right-dst" }

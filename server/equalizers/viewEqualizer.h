@@ -105,9 +105,13 @@ namespace server
             LoadDeque _loads;
 
             Load& _getLoad( const uint32_t frameNumber );
+            friend std::ostream& operator << ( std::ostream& os, 
+                                               const ViewEqualizer::Listener& );
         };
         friend std::ostream& operator << ( std::ostream& os, 
-                                    const ViewEqualizer::Listener::Load& load );
+                                           const ViewEqualizer::Listener& );
+        friend std::ostream& operator << ( std::ostream& os, 
+                                         const ViewEqualizer::Listener::Load& );
 
         typedef std::vector< Listener::Load > LoadVector;
         typedef std::vector< Listener > ListenerVector;
@@ -126,7 +130,8 @@ namespace server
         /** Find the frame number to use for update. */
         uint32_t _findInputFrameNumber() const;
     };
-
+    std::ostream& operator << ( std::ostream& os,
+                                const ViewEqualizer::Listener& listener );
     std::ostream& operator << ( std::ostream& os, 
                                 const ViewEqualizer::Listener::Load& load );
 }

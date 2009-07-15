@@ -1,8 +1,9 @@
-Improve pipe idle statistics overlay by merging them into one line for all pipes
+- Tweak pipe idle stat overlay
+- Relax view equalizer assertion, was triggered due to async events
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
