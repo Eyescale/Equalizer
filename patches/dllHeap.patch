@@ -1,0 +1,4013 @@
+Index: lib/base/log.h
+===================================================================
+--- lib/base/log.h	(revision 3178)
++++ lib/base/log.h	(working copy)
+@@ -147,8 +147,8 @@
+     {
+     public:
+ 
+-        Log() : std::ostream( &_logBuffer ), _logBuffer( getOutput( )){}
+-        virtual ~Log() { _logBuffer.pubsync(); }
++        EQ_EXPORT Log() : std::ostream( &_logBuffer ), _logBuffer( getOutput( )){}
++        EQ_EXPORT ~Log() { _logBuffer.pubsync(); }
+ 
+         void indent() { _logBuffer.indent(); }
+         void exdent() { _logBuffer.exdent(); }
+Index: lib/client/channel.h
+===================================================================
+--- lib/client/channel.h	(revision 3178)
++++ lib/client/channel.h	(working copy)
+@@ -43,7 +43,7 @@
+      * rendering-relevant tasks, such as clear, draw, assemble and readback. It
+      * is a child of a Window.
+      */
+-    class Channel : public net::Object
++    class EQ_EXPORT Channel : public net::Object
+     {
+     public:
+     
+@@ -60,10 +60,10 @@
+         };
+         
+         /** Constructs a new channel. */
+-        EQ_EXPORT Channel( Window* parent );
++        Channel( Window* parent );
+ 
+         /** Destructs the channel. */
+-        EQ_EXPORT virtual ~Channel();
++        virtual ~Channel();
+ 
+         /**
+          * @name Data Access
+@@ -72,18 +72,18 @@
+         Window*       getWindow()       { return _window; }
+         const Window* getWindow() const { return _window; }
+ 
+-        EQ_EXPORT Pipe*       getPipe();
+-        EQ_EXPORT const Pipe* getPipe() const;
++        Pipe*       getPipe();
++        const Pipe* getPipe() const;
+ 
+-        EQ_EXPORT Node*       getNode();
+-        EQ_EXPORT const Node* getNode() const;
++        Node*       getNode();
++        const Node* getNode() const;
+ 
+-        EQ_EXPORT Config*       getConfig();
+-        EQ_EXPORT const Config* getConfig() const;
++        Config*       getConfig();
++        const Config* getConfig() const;
+ 
+-        EQ_EXPORT ServerPtr getServer();
++        ServerPtr getServer();
+ 
+-        EQ_EXPORT Window::ObjectManager* getObjectManager();
++        Window::ObjectManager* getObjectManager();
+ 
+         /** 
+          * Get the GLEW context for this channel.
+@@ -99,8 +99,8 @@
+          * @return the extended OpenGL function table for the channel's OpenGL
+          *         context.
+          */
+-        EQ_EXPORT GLEWContext*       glewGetContext();
+-        EQ_EXPORT const GLEWContext* glewGetContext() const;
++        GLEWContext*       glewGetContext();
++        const GLEWContext* glewGetContext() const;
+         
+         /** @return the name of the window. */
+         const std::string& getName() const { return _name; }
+@@ -121,7 +121,7 @@
+          * @param visitor the visitor.
+          * @return the result of the visitor traversal.
+          */
+-        EQ_EXPORT VisitorResult accept( ChannelVisitor& visitor );
++        VisitorResult accept( ChannelVisitor& visitor );
+ 
+         /** 
+          * Set the near and far planes for this channel.
+@@ -134,7 +134,7 @@
+          * @param nearPlane the near plane.
+          * @param farPlane the far plane.
+          */
+-        EQ_EXPORT void setNearFar( const float nearPlane, const float farPlane);
++        void setNearFar( const float nearPlane, const float farPlane);
+ 
+         /** Return a stable, unique color for this channel. */
+         const Vector3ub& getUniqueColor() const { return _color; }
+@@ -150,10 +150,10 @@
+          * 
+          * @return the channel's view, or 0 if it does not have a view.
+          */
+-        EQ_EXPORT const View* getView();
++        const View* getView();
+ 
+         /** Add a new statistics event for the current frame. */
+-        EQ_EXPORT void addStatistic( Event& event );
++        void addStatistic( Event& event );
+         //@}
+ 
+         /**
+@@ -165,16 +165,16 @@
+          */
+         //@{
+         /** @return the channel's current draw buffer. */
+-        EQ_EXPORT uint32_t getDrawBuffer() const;
++        uint32_t getDrawBuffer() const;
+ 
+         /** @return the channel's current read buffer. */
+-        EQ_EXPORT uint32_t getReadBuffer() const;
++        uint32_t getReadBuffer() const;
+ 
+         /** @return the channel's current color mask for drawing. */
+-        EQ_EXPORT const ColorMask& getDrawBufferMask() const;
++        const ColorMask& getDrawBufferMask() const;
+ 
+         /** @return the channel's current pixel viewport. */
+-        EQ_EXPORT const PixelViewport& getPixelViewport() const;
++        const PixelViewport& getPixelViewport() const;
+ 
+         /**
+          * Get the channel's current position wrt the destination channel.
+@@ -185,34 +185,34 @@
+          *
+          * @return the channel's current position wrt the destination channel.
+          */
+-        EQ_EXPORT const Vector2i& getPixelOffset() const;
++        const Vector2i& getPixelOffset() const;
+ 
+         /** @return the perspective frustum for the current rendering task. */
+-        EQ_EXPORT const Frustumf& getFrustum() const;
++        const Frustumf& getFrustum() const;
+ 
+         /** @return the orthographic frustum for the current rendering task. */
+-        EQ_EXPORT const Frustumf& getOrtho() const;
++        const Frustumf& getOrtho() const;
+ 
+         /** @return the fractional viewport wrt the destination view. */
+-        EQ_EXPORT const Viewport& getViewport() const;
++        const Viewport& getViewport() const;
+ 
+         /** @return the database range for the current rendering task. */
+-        EQ_EXPORT const Range& getRange() const;
++        const Range& getRange() const;
+ 
+         /** @return the pixel decomposition for the current rendering task. */
+-        EQ_EXPORT const Pixel& getPixel() const;
++        const Pixel& getPixel() const;
+ 
+         /** @return the up/downscale factor for the current rendering task. */
+-        EQ_EXPORT const Zoom& getZoom() const;
++        const Zoom& getZoom() const;
+ 
+         /** @return the currently rendered eye pass. */
+-        EQ_EXPORT Eye getEye() const;
++        Eye getEye() const;
+ 
+         /**
+          * @return the view transformation to position and orient the view
+          *         frustum.
+          */
+-        EQ_EXPORT const Matrix4f& getHeadTransform() const;
++        const Matrix4f& getHeadTransform() const;
+ 
+         /** @return the list of input frames, used from frameAssemble(). */
+         const FrameVector& getInputFrames() { return _inputFrames; }
+@@ -228,7 +228,7 @@
+          *
+          * @return the 2D orthographic frustum.
+          */
+-        EQ_EXPORT Frustumf getScreenFrustum() const;
++        Frustumf getScreenFrustum() const;
+ 
+         /** 
+          * get the channel's native (drawable) pixel viewport.
+@@ -237,15 +237,15 @@
+             { return _nativeContext.pvp; }
+ 
+         /** @warning  Undocumented - may not be supported in the future */
+-        EQ_EXPORT const Vector4i& getOverdraw() const;
++        const Vector4i& getOverdraw() const;
+ 
+         /** @warning  Undocumented - may not be supported in the future */
+-        EQ_EXPORT uint32_t getTaskID() const;
++        uint32_t getTaskID() const;
+ 
+         /** 
+          * get the FBO used as an alternate frame buffer.
+          */
+-        EQ_EXPORT FrameBufferObject* getFrameBufferObject();
++        FrameBufferObject* getFrameBufferObject();
+         //@}
+ 
+         /**
+@@ -259,27 +259,27 @@
+         /** 
+          * Apply the current rendering buffer, including the color mask.
+          */
+-        EQ_EXPORT virtual void applyBuffer();
++        virtual void applyBuffer();
+ 
+         /** 
+          * Apply the current color mask.
+          */
+-        EQ_EXPORT virtual void applyColorMask() const;
++        virtual void applyColorMask() const;
+ 
+         /** 
+          * Apply the OpenGL viewport for the current rendering task.
+          */
+-        EQ_EXPORT virtual void applyViewport() const;
++        virtual void applyViewport() const;
+ 
+         /**
+          * Apply the perspective frustum matrix for the current rendering task.
+          */
+-        EQ_EXPORT virtual void applyFrustum() const;
++        virtual void applyFrustum() const;
+ 
+         /**
+          * Apply the orthographic frustum matrix for the current rendering task.
+          */
+-        EQ_EXPORT virtual void applyOrtho() const;
++        virtual void applyOrtho() const;
+ 
+         /** 
+          * Apply a orthographic frustum for pixel-based 2D operations. 
+@@ -287,18 +287,18 @@
+          * One unit in the frustum corresponds to one pixel on the screen. The
+          * frustum is position wrt the canvas.
+          */
+-        EQ_EXPORT void applyScreenFrustum() const;
++        void applyScreenFrustum() const;
+ 
+         /** 
+          * Apply the modeling transformation to position and orient the view
+          * frustum.
+          */
+-        EQ_EXPORT virtual void applyHeadTransform() const;
++        virtual void applyHeadTransform() const;
+ 
+         /** 
+          * Apply the current alternate frame buffer.
+          */
+-        EQ_EXPORT virtual void applyFrameBufferObject();
++        virtual void applyFrameBufferObject();
+         
+         /** 
+          * Process a received event.
+@@ -310,13 +310,13 @@
+          * @param event the received event.
+          * @return true when the event was handled, false if not.
+          */
+-        EQ_EXPORT virtual bool processEvent( const Event& event );
++        virtual bool processEvent( const Event& event );
+ 
+         /** Draw a statistics overlay. */
+-        EQ_EXPORT virtual void drawStatistics();
++        virtual void drawStatistics();
+ 
+         /** Outlines the current pixel viewport. */
+-        EQ_EXPORT virtual void outlineViewport();
++        virtual void outlineViewport();
+ 
+         /**
+          * @name Attributes
+@@ -332,8 +332,8 @@
+             IATTR_ALL
+         };
+         
+-        EQ_EXPORT int32_t getIAttribute( const IAttribute attr ) const;
+-        EQ_EXPORT static const std::string& getIAttributeString(
++        int32_t getIAttribute( const IAttribute attr ) const;
++        static const std::string& getIAttributeString(
+                                                         const IAttribute attr );
+         //@}
+ #if 0
+@@ -350,7 +350,7 @@
+     protected:
+         friend class Window;
+ 
+-        EQ_EXPORT void attachToSession( const uint32_t id, 
++        void attachToSession( const uint32_t id, 
+                                         const uint32_t instanceID, 
+                                         net::Session* session );
+ 
+@@ -390,17 +390,17 @@
+          * 
+          * @param initID the init identifier.
+          */
+-        EQ_EXPORT virtual bool configInit( const uint32_t initID );
++        virtual bool configInit( const uint32_t initID );
+ 
+         /** 
+          * Exit this channel.
+          */
+-        EQ_EXPORT virtual bool configExit();
++        virtual bool configExit();
+ 
+         /** 
+          * Rebind the current alternate rendering buffer.
+          */
+-        EQ_EXPORT void bindFrameBuffer();
++        void bindFrameBuffer();
+         
+         /**
+          * Start rendering a frame.
+@@ -447,14 +447,14 @@
+          * 
+          * @param frameID the per-frame identifier.
+          */
+-        EQ_EXPORT virtual void frameClear( const uint32_t frameID );
++        virtual void frameClear( const uint32_t frameID );
+ 
+         /** 
+          * Draw the scene.
+          * 
+          * @param frameID the per-frame identifier.
+          */
+-        EQ_EXPORT virtual void frameDraw( const uint32_t frameID );
++        virtual void frameDraw( const uint32_t frameID );
+ 
+         /** 
+          * Assemble input frames.
+@@ -462,7 +462,7 @@
+          * @param frameID the per-frame identifier.
+          * @sa getInputFrames
+          */
+-        EQ_EXPORT virtual void frameAssemble( const uint32_t frameID );
++        virtual void frameAssemble( const uint32_t frameID );
+ 
+         /** 
+          * Read back the rendered scene.
+@@ -470,7 +470,7 @@
+          * @param frameID the per-frame identifier.
+          * @sa getOutputFrames
+          */
+-        EQ_EXPORT virtual void frameReadback( const uint32_t frameID );
++        virtual void frameReadback( const uint32_t frameID );
+ 
+         /** 
+          * Start updating a destination channel.
+@@ -498,12 +498,12 @@
+          * The default implementation is very conservative and saves any state
+          * which is potentially changed by the assembly routines.
+          */
+-        EQ_EXPORT virtual void setupAssemblyState();
++        virtual void setupAssemblyState();
+ 
+         /**
+          * Reset the OpenGL state after an assembly operation.
+          */
+-        EQ_EXPORT virtual void resetAssemblyState();
++        virtual void resetAssemblyState();
+         //@}
+ 
+         /** @name Error information. */
+@@ -516,7 +516,7 @@
+          *
+          * @param message the error message.
+          */
+-        EQ_EXPORT void setErrorMessage( const std::string& message );
++        void setErrorMessage( const std::string& message );
+         //@}
+ 
+     private:
+Index: lib/client/channelStatistics.h
+===================================================================
+--- lib/client/channelStatistics.h	(revision 3178)
++++ lib/client/channelStatistics.h	(working copy)
+@@ -27,12 +27,12 @@
+     /**
+      * Holds one statistics event, used for profiling.
+      */
+-    class ChannelStatistics
++    class EQ_EXPORT ChannelStatistics
+     {
+     public:
+-        EQ_EXPORT ChannelStatistics( const Statistic::Type type, 
++        ChannelStatistics( const Statistic::Type type, 
+                                      Channel* channel );
+-        EQ_EXPORT ~ChannelStatistics();
++        ~ChannelStatistics();
+ 
+         Event event;
+ 
+Index: lib/client/client.h
+===================================================================
+--- lib/client/client.h	(revision 3178)
++++ lib/client/client.h	(working copy)
+@@ -32,18 +32,18 @@
+     /** 
+      * The client represents a network node in the cluster.
+      */
+-    class Client : public net::Node
++    class EQ_EXPORT Client : public net::Node
+     {
+     public:
+         /** 
+          * Constructs a new client.
+          */
+-        EQ_EXPORT Client();
++        Client();
+ 
+         /**
+          * Destructs the client.
+          */
+-        EQ_EXPORT virtual ~Client();
++        virtual ~Client();
+ 
+         /** 
+          * Open and connect an Equalizer server to the local client.
+@@ -51,7 +51,7 @@
+          * @param server the server.
+          * @return true if the server was connected, false if not.
+          */
+-        EQ_EXPORT bool connectServer( ServerPtr server );
++        bool connectServer( ServerPtr server );
+ 
+         /** 
+          * Disconnect and close the connection of an Equalizer server to the
+@@ -60,34 +60,34 @@
+          * @param server the server.
+          * @return true if the server was disconnected, false if not.
+          */
+-        EQ_EXPORT bool disconnectServer( ServerPtr server );
++        bool disconnectServer( ServerPtr server );
+ 
+         /** 
+          * Get and process one command from the node command queue. Used
+          * internally to run non-threaded commands.
+          */
+-        EQ_EXPORT void processCommand();
++        void processCommand();
+ 
+         /** @sa net::Node::listen() */
+-        EQ_EXPORT virtual bool listen();
++        virtual bool listen();
+         /** @sa net::Node::stopListening() */
+-        EQ_EXPORT virtual bool stopListening();
++        virtual bool stopListening();
+ 
+         /** 
+          * Set the window system for the client's message pump, used by
+          * non-threaded pipes.
+          * @internal
+          */
+-        EQ_EXPORT void setWindowSystem( const WindowSystem windowSystem );
++        void setWindowSystem( const WindowSystem windowSystem );
+ 
+         /** Return the command queue to the main node thread. */
+         CommandQueue* getNodeThreadQueue() { return _nodeThreadQueue; }
+ 
+     protected:
+         /** @sa net::Node::clientLoop */
+-        EQ_EXPORT virtual bool clientLoop();
++        virtual bool clientLoop();
+         /** @sa net::Node::exitClient(). */
+-        EQ_EXPORT virtual bool exitClient();
++        virtual bool exitClient();
+ 
+     private:
+         /** The command->node command queue. */
+@@ -101,13 +101,13 @@
+         };
+ 
+         /** @sa net::Node::createNode */
+-        EQ_EXPORT virtual net::NodePtr createNode( const uint32_t type );
++        virtual net::NodePtr createNode( const uint32_t type );
+         
+         /** @sa net::Node::dispatchCommand */
+-        EQ_EXPORT virtual bool dispatchCommand( net::Command& command );
++        virtual bool dispatchCommand( net::Command& command );
+ 
+         /** @sa net::Node::invokeCommand */
+-        EQ_EXPORT virtual net::CommandResult invokeCommand( net::Command& );
++        virtual net::CommandResult invokeCommand( net::Command& );
+ 
+         /** The command functions. */
+         net::CommandResult _cmdExit( net::Command& command );
+Index: lib/client/config.h
+===================================================================
+--- lib/client/config.h	(revision 3178)
++++ lib/client/config.h	(working copy)
+@@ -38,21 +38,21 @@
+      * The configuration groups all processes of the application in a single
+      * net::Session.
+      */
+-    class Config : public net::Session
++    class EQ_EXPORT Config : public net::Session
+     {
+     public:
+         /** Constructs a new config. */
+-        EQ_EXPORT Config( ServerPtr parent );
++        Config( ServerPtr parent );
+ 
+         /** Destructs a config. */
+-        EQ_EXPORT virtual ~Config();
++        virtual ~Config();
+ 
+         /** @name Data Access */
+         //@{
+-        EQ_EXPORT ClientPtr getClient();
+-        EQ_EXPORT ServerPtr getServer();
++        ClientPtr getClient();
++        ServerPtr getServer();
+ 
+-        EQ_EXPORT CommandQueue* getNodeThreadQueue();
++        CommandQueue* getNodeThreadQueue();
+ 
+         uint32_t getCurrentFrame()  const { return _currentFrame; }
+         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
+@@ -71,10 +71,10 @@
+         const LayoutVector& getLayouts() const { return _layouts; }
+ 
+         /** @return the layout of the given identifier, or 0. */
+-        EQ_EXPORT Layout* findLayout( const uint32_t id );
++        Layout* findLayout( const uint32_t id );
+ 
+         /** @return the view of the given identifier, or 0. */
+-        EQ_EXPORT View* findView( const uint32_t id );
++        View* findView( const uint32_t id );
+ 
+         /** @return the vector of canvases, app-node only. */
+         const CanvasVector& getCanvases() const { return _canvases; }
+@@ -88,10 +88,10 @@
+          * @param visitor the visitor.
+          * @return the result of the visitor traversal.
+          */
+-        EQ_EXPORT VisitorResult accept( ConfigVisitor& visitor );
++        VisitorResult accept( ConfigVisitor& visitor );
+ 
+         /** Get all received statistics. */
+-        EQ_EXPORT void getStatistics( std::vector< FrameStatistics >& stats );
++        void getStatistics( std::vector< FrameStatistics >& stats );
+ 
+         /**
+          * @return true while the config is initialized and no exit event
+@@ -114,7 +114,7 @@
+          * @param initID an identifier to be passed to all init methods.
+          * @return true if the initialization was successful, false if not.
+          */
+-        EQ_EXPORT virtual bool init( const uint32_t initID );
++        virtual bool init( const uint32_t initID );
+ 
+         /** 
+          * Exits this configuration.
+@@ -125,7 +125,7 @@
+          * @return <code>true</code> if the exit was successful,
+          *         <code>false</code> if not.
+          */
+-        EQ_EXPORT virtual bool exit();
++        virtual bool exit();
+         //@}
+ 
+         /**
+@@ -139,7 +139,7 @@
+          *                methods.
+          * @return the frame number of the new frame.
+          */
+-        EQ_EXPORT virtual uint32_t startFrame( const uint32_t frameID );
++        virtual uint32_t startFrame( const uint32_t frameID );
+ 
+         /** 
+          * Finish the rendering of a frame.
+@@ -147,14 +147,14 @@
+          * @return the frame number of the finished frame, or <code>0</code> if
+          *         no frame has been finished.
+          */
+-        EQ_EXPORT virtual uint32_t finishFrame();
++        virtual uint32_t finishFrame();
+ 
+         /**
+          * Finish rendering all pending frames.
+          *
+          * @return the frame number of the last finished frame.
+          */
+-        EQ_EXPORT virtual uint32_t finishAllFrames();
++        virtual uint32_t finishAllFrames();
+ 
+         /** 
+          * Release the local synchronization of the config for a frame.
+@@ -175,7 +175,7 @@
+          * 
+          * @param event the event.
+          */
+-        EQ_EXPORT void sendEvent( ConfigEvent& event );
++        void sendEvent( ConfigEvent& event );
+ 
+         /** 
+          * Get the next received event on the application node.
+@@ -184,7 +184,7 @@
+          * 
+          * @return a config event.
+          */
+-        EQ_EXPORT const ConfigEvent* nextEvent();
++        const ConfigEvent* nextEvent();
+ 
+         /** 
+          * Try to get an event on the application node.
+@@ -193,7 +193,7 @@
+          * 
+          * @return a config event, or 0 if no events are pending.
+          */
+-        EQ_EXPORT const ConfigEvent* tryNextEvent();
++        const ConfigEvent* tryNextEvent();
+ 
+         /** @return true if events are pending. */
+         bool checkEvent() const { return !_eventQueue.isEmpty(); }
+@@ -205,7 +205,7 @@
+          * default implementation calls handleEvent() on all pending events,
+          * without blocking.
+          */
+-        EQ_EXPORT virtual void handleEvents();
++        virtual void handleEvents();
+ 
+         /** 
+          * Handle one config event.
+@@ -214,7 +214,7 @@
+          * @return <code>true</code> if the event requires a redraw,
+          *         <code>false</code> if not.
+          */
+-        EQ_EXPORT virtual bool handleEvent( const ConfigEvent* event );
++        virtual bool handleEvent( const ConfigEvent* event );
+         //@}
+         
+ #ifdef EQ_USE_DEPRECATED
+@@ -231,16 +231,16 @@
+          *
+          * @param matrix the matrix
+          */
+-        EQ_EXPORT void setHeadMatrix( const vmml::Matrix4f& matrix );
++        void setHeadMatrix( const vmml::Matrix4f& matrix );
+ 
+         /** @return the current head matrix. */
+-        EQ_EXPORT const vmml::Matrix4f& getHeadMatrix() const;
++        const vmml::Matrix4f& getHeadMatrix() const;
+ 
+         /** Set the eye separation, i.e., the distance between the eyes. */
+-        EQ_EXPORT void setEyeBase( const float eyeBase );
++        void setEyeBase( const float eyeBase );
+ 
+         /** @return the current eye separation. */
+-        EQ_EXPORT float getEyeBase() const;
++        float getEyeBase() const;
+         //@}
+ #endif
+ 
+@@ -264,7 +264,7 @@
+ #endif
+ 
+         /** Undocumented */
+-        EQ_EXPORT void freezeLoadBalancing( const bool onOff );
++        void freezeLoadBalancing( const bool onOff );
+ 
+         /** 
+          * Set the window system for the config's message pump, used by
+@@ -276,7 +276,7 @@
+     protected:
+ 
+         /** @sa eq::net::Session::notifyMapped() */
+-        EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
++        virtual void notifyMapped( net::NodePtr node );
+ 
+     private:
+         /** The node identifier of the node running the application thread. */
+Index: lib/client/configEvent.h
+===================================================================
+--- lib/client/configEvent.h	(revision 3178)
++++ lib/client/configEvent.h	(working copy)
+@@ -36,7 +36,7 @@
+      *
+      * When subclassing, make sure to set the packet size.
+      */
+-    struct ConfigEvent : public ConfigPacket
++    struct EQ_EXPORT ConfigEvent : public ConfigPacket
+     {
+     public:
+         ConfigEvent()
+Index: lib/client/eventHandler.h
+===================================================================
+--- lib/client/eventHandler.h	(revision 3178)
++++ lib/client/eventHandler.h	(working copy)
+@@ -29,22 +29,22 @@
+     /**
+      * Base class for window system-specific event handlers
+      */
+-    class EventHandler
++    class EQ_EXPORT EventHandler
+     {
+     public:
+ 
+     protected:
+         /** Constructs a new event handler. */
+-        EQ_EXPORT EventHandler() : _lastEventWindow( 0 ) {}
++        EventHandler() : _lastEventWindow( 0 ) {}
+ 
+         /** Destructs the event handler. */
+-        EQ_EXPORT virtual ~EventHandler(){}
++        virtual ~EventHandler(){}
+ 
+         /** Compute the mouse move delta from the previous pointer event. */
+-        EQ_EXPORT void _computePointerDelta(const Window* window, Event& event);
++        void _computePointerDelta(const Window* window, Event& event);
+ 
+         /** Find and set the rendering context at the mouse position. */
+-        EQ_EXPORT void _getRenderContext( const Window* window, Event& event );
++        void _getRenderContext( const Window* window, Event& event );
+ 
+         /** The previous pointer event to compute mouse movement deltas. */
+         Event _lastPointerEvent;
+Index: lib/client/frame.h
+===================================================================
+--- lib/client/frame.h	(revision 3178)
++++ lib/client/frame.h	(working copy)
+@@ -43,7 +43,7 @@
+     /**
+      * A holder for a frame data and parameters.
+      */
+-    class Frame : public net::Object
++    class EQ_EXPORT Frame : public net::Object
+     {
+     public:
+         /** 
+@@ -69,24 +69,24 @@
+         /** 
+          * Constructs a new Frame.
+          */
+-        EQ_EXPORT Frame();
+-        EQ_EXPORT virtual ~Frame();
++        Frame();
++        virtual ~Frame();
+ 
+         /**
+          * @name Data Access
+          */
+         //@{
+-        EQ_EXPORT const std::string& getName() const;
++        const std::string& getName() const;
+ 
+         const Vector2i& getOffset() const { return _data.offset; }
+         void setOffset( const Vector2i& offset ) { _data.offset = offset;}
+ 
+         /** @return the database-range relative to the destination channel. */
+-        EQ_EXPORT const Range& getRange() const;
+-        EQ_EXPORT void         setRange( const Range& range );
++        const Range& getRange() const;
++        void         setRange( const Range& range );
+ 
+         /** @return the pixel parameters relative to the destination channel. */
+-        EQ_EXPORT const Pixel& getPixel() const;
++        const Pixel& getPixel() const;
+ 
+         /** @return the zoom factor for readback or assemble. */
+         const Zoom& getZoom() const { return _data.zoom; }
+@@ -96,14 +96,14 @@
+         void setZoom( const Zoom& zoom ) { _data.zoom = zoom; }
+ 
+         /** The images of this frame */
+-        EQ_EXPORT const ImageVector& getImages() const;
++        const ImageVector& getImages() const;
+ 
+         /** Set the data for this frame. */
+         void setData( FrameData* data ) { _frameData = data; }
+         FrameData* getData() { return _frameData; }
+ 
+         /** Set the pixel viewport of the frame's data */
+-        EQ_EXPORT void setPixelViewport( const PixelViewport& pvp );
++        void setPixelViewport( const PixelViewport& pvp );
+ 
+         const net::ObjectVersion& getDataVersion( const Eye eye ) const
+             { return _data.frameData[ eye ]; }
+@@ -115,7 +115,7 @@
+         //@{
+ 
+         /** Clear the frame, recycles the images attached to the frame data. */
+-        EQ_EXPORT void clear();
++        void clear();
+ 
+         /** Clear the frame and free all images attached to the frame data. */
+         void flush();
+@@ -127,10 +127,10 @@
+          *
+          * @param glObjects the GL object manager for the current GL context.
+          */
+-        EQ_EXPORT void startReadback( Window::ObjectManager* glObjects );
++        void startReadback( Window::ObjectManager* glObjects );
+         
+         /** Synchronize the image readback. */
+-        EQ_EXPORT void syncReadback();
++        void syncReadback();
+ 
+         /** 
+          * Transmit the frame data to the specified node.
+@@ -159,10 +159,10 @@
+          * 
+          * @return true if the frame is ready, false if not. 
+          */
+-        EQ_EXPORT bool isReady() const;
++        bool isReady() const;
+ 
+         /** Wait for the frame to become available. */
+-        EQ_EXPORT void waitReady() const;
++        void waitReady() const;
+ 
+         /** 
+          * Add a listener which will be incremented when the frame is ready.
+@@ -180,20 +180,20 @@
+         //@}
+ 
+         /** @return the enabled frame buffer attachments. */
+-        EQ_EXPORT uint32_t getBuffers() const;
++        uint32_t getBuffers() const;
+ 
+         /** 
+          * Disable the usage of a frame buffer attachment for all images.
+          * 
+          * @param buffer the buffer to disable.
+          */
+-        EQ_EXPORT void disableBuffer( const Buffer buffer );
++        void disableBuffer( const Buffer buffer );
+ 
+         /** Set color buffer type to read */
+-        EQ_EXPORT void setColorType( const GLuint colorType );
++        void setColorType( const GLuint colorType );
+ 
+         /** Enable/disable alpha usage for newly allocated images. */
+-        EQ_EXPORT void setAlphaUsage( const bool useAlpha );
++        void setAlphaUsage( const bool useAlpha );
+ 
+         /** @internal */
+         void useSendToken( const bool use );
+Index: lib/client/frameData.h
+===================================================================
+--- lib/client/frameData.h	(revision 3178)
++++ lib/client/frameData.h	(working copy)
+@@ -45,11 +45,11 @@
+      * A frame data holds multiple images and is used by frames.
+      * It is not intended to be used directly by application code.
+      */
+-    class FrameData : public net::Object
++    class EQ_EXPORT FrameData : public net::Object
+     {
+     public:
+-        EQ_EXPORT FrameData();
+-        EQ_EXPORT virtual ~FrameData();
++        FrameData();
++        virtual ~FrameData();
+ 
+         /** 
+          * @name Data Access
+@@ -92,10 +92,10 @@
+          * 
+          * @return the image.
+          */
+-        EQ_EXPORT Image* newImage( const Frame::Type type = Frame::TYPE_MEMORY);
++        Image* newImage( const Frame::Type type = Frame::TYPE_MEMORY);
+ 
+         /** Clear the frame by recycling the attached images. */
+-        EQ_EXPORT void clear();
++        void clear();
+ 
+         /** 
+          * Read back a set of images according to the current frame data.
+Index: lib/client/global.h
+===================================================================
+--- lib/client/global.h	(revision 3178)
++++ lib/client/global.h	(working copy)
+@@ -55,7 +55,7 @@
+     /** 
+      * Global parameter handling for the Equalizer client library. 
+      */
+-    class Global
++    class EQ_EXPORT Global
+     {
+     public:
+         /** @return the node factory. */
+@@ -66,20 +66,20 @@
+          * 
+          * @param server the default server.
+          */
+-        EQ_EXPORT static void setServer( const std::string& server );
++        static void setServer( const std::string& server );
+ 
+         /** @return the default Equalizer server. */
+-        EQ_EXPORT static const std::string& getServer();
++        static const std::string& getServer();
+ 
+         /** 
+          * Set the config file for the app-local server.
+          * 
+          * @param configFile the default configFile.
+          */
+-        EQ_EXPORT static void setConfigFile( const std::string& configFile );
++        static void setConfigFile( const std::string& configFile );
+ 
+         /** @return the default config file for the app-local server. */
+-        EQ_EXPORT static const std::string& getConfigFile();
++        static const std::string& getConfigFile();
+ 
+         /** 
+          * Global lock for all non-thread-safe Carbon API calls. 
+@@ -94,21 +94,21 @@
+           * @return all directories to search for compressor DSOs during
+           *         eq::init().
+           */
+-        EQ_EXPORT static const StringVector& getPluginDirectories();
++        static const StringVector& getPluginDirectories();
+ 
+         /** add a new directory to search for compressor DSOs. */
+-        EQ_EXPORT static void  addPluginDirectory( const std::string& path );
++        static void  addPluginDirectory( const std::string& path );
+ 
+         /** remove a plugin directory */
+-        EQ_EXPORT static void  removePluginDirectory( const std::string& path );
++        static void  removePluginDirectory( const std::string& path );
+ 
+         /** @return the plugin registry. */
+-        EQ_EXPORT static PluginRegistry& getPluginRegistry();
++        static PluginRegistry& getPluginRegistry();
+ 
+     private:
+-        EQ_EXPORT friend bool init( const int argc, char** argv, 
++        friend EQ_EXPORT bool init( const int argc, char** argv, 
+                                     NodeFactory* nodeFactory );
+-        EQ_EXPORT friend bool exit();
++        friend EQ_EXPORT bool exit();
+ 
+         static StringVector _initPluginDirectories();
+         friend bool testInitPluginDirectories();
+Index: lib/client/image.h
+===================================================================
+--- lib/client/image.h	(revision 3178)
++++ lib/client/image.h	(working copy)
+@@ -33,12 +33,12 @@
+      *
+      * An image holds color and depth information for a rectangular region.
+      */
+-    class Image
++    class EQ_EXPORT Image
+     {
+     public:
+         /** Constructs a new Image. */
+-        EQ_EXPORT Image();
+-        EQ_EXPORT virtual ~Image();
++        Image();
++        virtual ~Image();
+ 
+         struct PixelData : public base::NonCopyable
+         {
+@@ -72,11 +72,11 @@
+          * @param buffer the buffer type.
+          * @param format the format.
+          */
+-        EQ_EXPORT void setFormat( const Frame::Buffer buffer,
++        void setFormat( const Frame::Buffer buffer,
+                                   const uint32_t format );
+ 
+         /** @return the (OpenGL) format of the pixel data. */
+-        EQ_EXPORT uint32_t getFormat( const Frame::Buffer buffer ) const;
++        uint32_t getFormat( const Frame::Buffer buffer ) const;
+ 
+         /**
+          * Set the (OpenGL) type of the pixel data for a buffer.
+@@ -85,14 +85,14 @@
+          * @param buffer the buffer type.
+          * @param type the type.
+          */
+-        EQ_EXPORT void setType( const Frame::Buffer buffer, 
++        void setType( const Frame::Buffer buffer, 
+                                 const uint32_t type );
+ 
+         /** @return the (OpenGL) type of the pixel data. */
+-        EQ_EXPORT uint32_t getType( const Frame::Buffer buffer ) const;
++        uint32_t getType( const Frame::Buffer buffer ) const;
+ 
+         /** @return true if the image has a color buffer with alpha. */
+-        EQ_EXPORT bool hasAlpha() const;
++        bool hasAlpha() const;
+ 
+         /** 
+          * Set the frame pixel storage type. 
+@@ -109,7 +109,7 @@
+         Frame::Type getStorageType() const{ return _type; }
+ 
+         /** @return true if the image buffer has valid data. */
+-        EQ_EXPORT bool hasData( const Frame::Buffer buffer ) const;
++        bool hasData( const Frame::Buffer buffer ) const;
+ 
+         /** @return the fractional viewport of the image. */
+         //const eq::Viewport& getViewport() const { return _data.vp; }
+@@ -121,33 +121,33 @@
+          *
+          * @param pvp the pixel viewport.
+          */
+-        EQ_EXPORT void setPixelViewport( const PixelViewport& pvp );
++        void setPixelViewport( const PixelViewport& pvp );
+ 
+         /** @return the pixel viewport of the image with in the frame buffer. */
+         const PixelViewport& getPixelViewport() const { return _pvp; }
+ 
+         /** Reset the image to its default state. */
+-        EQ_EXPORT void reset();
++        void reset();
+         //@}
+ 
+ 
+         /** @name Pixel data */
+         //@{
+         /** @return a pointer to the raw pixel data. */
+-        EQ_EXPORT const uint8_t* getPixelPointer( const Frame::Buffer buffer )
++        const uint8_t* getPixelPointer( const Frame::Buffer buffer )
+                                      const;
+-        EQ_EXPORT uint8_t* getPixelPointer( const Frame::Buffer buffer );
++        uint8_t* getPixelPointer( const Frame::Buffer buffer );
+ 
+         /** @return the size of the raw pixel data in bytes */
+         uint32_t getPixelDataSize( const Frame::Buffer buffer ) const
+             { return _pvp.getArea() * getDepth( buffer ); }
+ 
+         /** @return the pixel data. */
+-        EQ_EXPORT const PixelData& getPixelData( const Frame::Buffer buffer )
++        const PixelData& getPixelData( const Frame::Buffer buffer )
+                                        const;
+ 
+         /** @return compress, if needed, and return the pixel data. */
+-        EQ_EXPORT const PixelData& compressPixelData( const Frame::Buffer 
++        const PixelData& compressPixelData( const Frame::Buffer 
+                                                           buffer );
+ 
+         /**
+@@ -162,10 +162,10 @@
+          *
+          * @param buffer the image buffer to clear.
+          */
+-        EQ_EXPORT void clearPixelData( const Frame::Buffer buffer );
++        void clearPixelData( const Frame::Buffer buffer );
+ 
+         /** Validate an image buffer without initializing its content. */
+-        EQ_EXPORT void validatePixelData( const Frame::Buffer buffer );
++        void validatePixelData( const Frame::Buffer buffer );
+ 
+         /**
+          * Set the pixel data of one of the image buffers.
+@@ -176,7 +176,7 @@
+          * @param buffer the image buffer to set.
+          * @param data the buffer data of size pvp.w * pvp.h * depth.
+          */
+-        EQ_EXPORT void setPixelData( const Frame::Buffer buffer, 
++        void setPixelData( const Frame::Buffer buffer, 
+                                      const uint8_t* data );
+ 
+         /**
+@@ -188,7 +188,7 @@
+          * @param buffer the image buffer to set.
+          * @param data the pixel data.
+          */
+-        EQ_EXPORT void setPixelData( const Frame::Buffer buffer,
++        void setPixelData( const Frame::Buffer buffer,
+                                      const PixelData& data );
+ 
+         /** Switch PBO usage for image transfers on. */
+@@ -201,10 +201,10 @@
+         bool usePBO() const { return _usePBO; }
+ 
+         /** Enable compression and transport of alpha data. */
+-        EQ_EXPORT void enableAlphaUsage();
++        void enableAlphaUsage();
+ 
+         /** Disable compression and transport of alpha data. */
+-        EQ_EXPORT void disableAlphaUsage();
++        void disableAlphaUsage();
+ 
+         /** @return true if alpha data can be ignored. */
+         bool ignoreAlpha() const { return _ignoreAlpha; }
+@@ -214,19 +214,19 @@
+         /** @name Texture access */
+         //@{
+         /** Get the texture of this image. */
+-        EQ_EXPORT const Texture& getTexture( const Frame::Buffer buffer ) const;
++        const Texture& getTexture( const Frame::Buffer buffer ) const;
+ 
+         /**
+          * @return true if the image has texture data for the buffer, false if
+          * not.
+          */
+-        EQ_EXPORT bool hasTextureData( const Frame::Buffer buffer ) const;
++        bool hasTextureData( const Frame::Buffer buffer ) const;
+ 
+         /** 
+          * @return the internal format a texture should use for the given
+          *         buffer. 
+          */
+-        EQ_EXPORT uint32_t getInternalTextureFormat( const Frame::Buffer which )
++        uint32_t getInternalTextureFormat( const Frame::Buffer which )
+                                const;
+         //@}
+ 
+@@ -244,23 +244,23 @@
+          * @param glObjects the GL object manager for the current GL context.
+          * @sa setStorageType()
+          */
+-        EQ_EXPORT void startReadback( const uint32_t buffers, 
++        void startReadback( const uint32_t buffers, 
+                                       const PixelViewport& pvp,
+                                       const Zoom& zoom,
+                                       Window::ObjectManager* glObjects );
+ 
+         /** Make sure that the last readback operation is complete. */
+-        EQ_EXPORT void syncReadback();
++        void syncReadback();
+ 
+         /** Writes the pixel data as rgb image files. */
+-        EQ_EXPORT void writeImage( const std::string& filename,
++        void writeImage( const std::string& filename,
+                                    const Frame::Buffer buffer ) const;
+ 
+         /** Writes all valid pixel data as separate images. */
+-        EQ_EXPORT void writeImages( const std::string& filenameTemplate ) const;
++        void writeImages( const std::string& filenameTemplate ) const;
+ 
+         /** Read pixel data from an uncompressed rgb image file. */
+-        EQ_EXPORT bool readImage( const std::string& filename, 
++        bool readImage( const std::string& filename, 
+                                   const Frame::Buffer buffer   );
+ 
+         /** Setting image offset, used after readback to correct position 
+@@ -268,33 +268,33 @@
+         void setOffset( int32_t x, int32_t y ) { _pvp.x = x; _pvp.y = y; }
+ 
+         /** Delete all cache data of this image. */
+-        EQ_EXPORT void flush();
++        void flush();
+         //@}
+ 
+         /** @return the GL function table, valid during readback. */
+         GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
+ 
+         /** @return the number of channels in a pixel. */
+-        EQ_EXPORT uint8_t getNumChannels( const Frame::Buffer buffer ) const;
++        uint8_t getNumChannels( const Frame::Buffer buffer ) const;
+ 
+         /** @return the size in bytes for one channel. */
+-        EQ_EXPORT uint8_t getChannelSize( const Frame::Buffer buffer ) const;
++        uint8_t getChannelSize( const Frame::Buffer buffer ) const;
+ 
+         /** @return the size in bytes for one pixel (nChannels*channelSize). */
+-        EQ_EXPORT uint32_t getDepth( const Frame::Buffer buffer ) const;
++        uint32_t getDepth( const Frame::Buffer buffer ) const;
+ 
+         /** 
+          * @return the list of possible compressors for the given buffer.
+          * @internal
+          */
+-        EQ_EXPORT std::vector< uint32_t > 
++        std::vector< uint32_t > 
+         findCompressors( const Frame::Buffer buffer ) const;
+ 
+         /**
+          * Re-allocate, if needed, a compressor instance.
+          * @internal
+          */
+-        EQ_EXPORT bool allocCompressor( const Frame::Buffer buffer, 
++        bool allocCompressor( const Frame::Buffer buffer, 
+                                         const uint32_t name );
+ 
+     private:
+Index: lib/client/node.h
+===================================================================
+--- lib/client/node.h	(revision 3178)
++++ lib/client/node.h	(working copy)
+@@ -36,14 +36,14 @@
+      *
+      * Each node is executed in a seperate process.
+      */
+-    class Node : public net::Object
++    class EQ_EXPORT Node : public net::Object
+     {
+     public:
+         /** Constructs a new node. */
+-        EQ_EXPORT Node( Config* parent );
++        Node( Config* parent );
+ 
+         /** Destructs the node. */
+-        EQ_EXPORT virtual ~Node();
++        virtual ~Node();
+ 
+         /** 
+          * Returns the config of this node.
+@@ -53,8 +53,8 @@
+         Config*       getConfig()       { return _config; }
+         const Config* getConfig() const { return _config; }
+ 
+-        EQ_EXPORT ClientPtr getClient();
+-        EQ_EXPORT ServerPtr getServer();
++        ClientPtr getClient();
++        ServerPtr getServer();
+ 
+         const PipeVector& getPipes() const { return _pipes; }
+         const std::string& getName() const { return _name; }
+@@ -71,7 +71,7 @@
+          */
+         uint32_t getTasks() const { return _tasks; }
+ 
+-        EQ_EXPORT CommandQueue* getNodeThreadQueue();
++        CommandQueue* getNodeThreadQueue();
+ 
+         /** 
+          * Traverse this node and all children using a node visitor.
+@@ -79,7 +79,7 @@
+          * @param visitor the visitor.
+          * @return the result of the visitor traversal.
+          */
+-        EQ_EXPORT VisitorResult accept( NodeVisitor& visitor );
++        VisitorResult accept( NodeVisitor& visitor );
+ 
+         /** 
+          * Get a network barrier. 
+@@ -100,8 +100,8 @@
+         FrameData* getFrameData( const net::ObjectVersion& dataVersion );
+ 
+         /** Wait for the node to be initialized. */
+-        EQ_EXPORT void waitInitialized() const;
+-        EQ_EXPORT bool isRunning() const;
++        void waitInitialized() const;
++        bool isRunning() const;
+         
+         /** 
+          * Wait for a frame to be started.
+@@ -109,7 +109,7 @@
+          * @param frameNumber the frame number.
+          * @sa releaseFrame()
+          */
+-        EQ_EXPORT void waitFrameStarted( const uint32_t frameNumber ) const;
++        void waitFrameStarted( const uint32_t frameNumber ) const;
+ 
+         uint32_t getFinishedFrame() const { return _finishedFrame; }
+ 
+@@ -128,10 +128,10 @@
+             IATTR_ALL
+         };
+ 
+-        EQ_EXPORT void setIAttribute( const IAttribute attr,
++        void setIAttribute( const IAttribute attr,
+                                       const int32_t value );
+-        EQ_EXPORT int32_t getIAttribute( const IAttribute attr ) const;
+-        EQ_EXPORT static const std::string& getIAttributeString(
++        int32_t getIAttribute( const IAttribute attr ) const;
++        static const std::string& getIAttributeString(
+                                                         const IAttribute attr );
+         //@}
+ 
+@@ -167,7 +167,7 @@
+     protected:
+         friend class Config;
+ 
+-        EQ_EXPORT virtual void attachToSession( const uint32_t id, 
++        virtual void attachToSession( const uint32_t id, 
+                                                 const uint32_t instanceID, 
+                                                 net::Session* session );
+ 
+@@ -178,21 +178,21 @@
+          * 
+          * @param frameNumber the frame to start.
+          */
+-        EQ_EXPORT void startFrame( const uint32_t frameNumber );
++        void startFrame( const uint32_t frameNumber );
+ 
+         /** 
+          * Signal the completion of a frame to the parent.
+          * 
+          * @param frameNumber the frame to end.
+          */
+-        EQ_EXPORT void releaseFrame( const uint32_t frameNumber );
++        void releaseFrame( const uint32_t frameNumber );
+ 
+         /** 
+          * Release the local synchronization of the parent for a frame.
+          * 
+          * @param frameNumber the frame to release.
+          */
+-        EQ_EXPORT void releaseFrameLocal( const uint32_t frameNumber );
++        void releaseFrameLocal( const uint32_t frameNumber );
+         //@}
+ 
+         /**
+@@ -208,12 +208,12 @@
+          * 
+          * @param initID the init identifier.
+          */
+-        EQ_EXPORT virtual bool configInit( const uint32_t initID );
++        virtual bool configInit( const uint32_t initID );
+ 
+         /** 
+          * Exit this node.
+          */
+-        EQ_EXPORT virtual bool configExit();
++        virtual bool configExit();
+ 
+         /**
+          * Start rendering a frame.
+@@ -227,7 +227,7 @@
+          * @param frameNumber the frame to start.
+          * @sa startFrame(), Config::beginFrame()
+          */
+-        EQ_EXPORT virtual void frameStart( const uint32_t frameID, 
++        virtual void frameStart( const uint32_t frameID, 
+                                            const uint32_t frameNumber );
+ 
+         /**
+@@ -256,7 +256,7 @@
+          * @param frameNumber the frame finished with draw.
+          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
+          */
+-        EQ_EXPORT virtual void frameDrawFinish( const uint32_t frameID, 
++        virtual void frameDrawFinish( const uint32_t frameID, 
+                                                 const uint32_t frameNumber );
+ 
+         /** 
+@@ -273,7 +273,7 @@
+          * @param frameNumber the frame finished with draw.
+          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
+          */
+-        EQ_EXPORT virtual void frameTasksFinish( const uint32_t frameID, 
++        virtual void frameTasksFinish( const uint32_t frameID, 
+                                                  const uint32_t frameNumber );
+         //@}
+ 
+@@ -287,7 +287,7 @@
+          *
+          * @param message the error message.
+          */
+-        EQ_EXPORT void setErrorMessage( const std::string& message );
++        void setErrorMessage( const std::string& message );
+         //@}
+ 
+     private:
+Index: lib/client/objectManager.h
+===================================================================
+--- lib/client/objectManager.h	(revision 3178)
++++ lib/client/objectManager.h	(working copy)
+@@ -44,7 +44,7 @@
+      * delete - delete.
+      */
+     template< typename T >
+-    class ObjectManager : public base::NonCopyable
++    class EQ_EXPORT ObjectManager : public base::NonCopyable
+     {
+     public:
+         enum
+@@ -53,57 +53,57 @@
+         };
+ 
+         /** Construct a new object manager. */
+-        EQ_EXPORT ObjectManager( GLEWContext* const glewContext );
++        ObjectManager( GLEWContext* const glewContext );
+ 
+         /** Construct a new object manager sharing data with another manager. */
+-        EQ_EXPORT ObjectManager( GLEWContext* const glewContext, ObjectManager* shared );
++        ObjectManager( GLEWContext* const glewContext, ObjectManager* shared );
+ 
+-        EQ_EXPORT virtual ~ObjectManager();
++        virtual ~ObjectManager();
+ 
+         /** @return the number of object managers currently sharing the data. */
+         int getSharedUsage() const { return _data->getRefCount(); }
+ 
+-        EQ_EXPORT void deleteAll();
++        void deleteAll();
+ 
+-        EQ_EXPORT GLuint getList( const T& key );
+-        EQ_EXPORT GLuint newList( const T& key, const GLsizei num = 1 );
+-        EQ_EXPORT GLuint obtainList( const T& key, const GLsizei num = 1 );
+-        EQ_EXPORT void   deleteList( const T& key );
++        GLuint getList( const T& key );
++        GLuint newList( const T& key, const GLsizei num = 1 );
++        GLuint obtainList( const T& key, const GLsizei num = 1 );
++        void   deleteList( const T& key );
+ 
+-        EQ_EXPORT GLuint getTexture( const T& key );
+-        EQ_EXPORT GLuint newTexture( const T& key );
+-        EQ_EXPORT GLuint obtainTexture( const T& key );
+-        EQ_EXPORT void   deleteTexture( const T& key );
++        GLuint getTexture( const T& key );
++        GLuint newTexture( const T& key );
++        GLuint obtainTexture( const T& key );
++        void   deleteTexture( const T& key );
+ 
+-        EQ_EXPORT bool   supportsBuffers() const;
+-        EQ_EXPORT GLuint getBuffer( const T& key );
+-        EQ_EXPORT GLuint newBuffer( const T& key );
+-        EQ_EXPORT GLuint obtainBuffer( const T& key );
+-        EQ_EXPORT void   deleteBuffer( const T& key );
++        bool   supportsBuffers() const;
++        GLuint getBuffer( const T& key );
++        GLuint newBuffer( const T& key );
++        GLuint obtainBuffer( const T& key );
++        void   deleteBuffer( const T& key );
+ 
+-        EQ_EXPORT bool   supportsPrograms() const;
+-        EQ_EXPORT GLuint getProgram( const T& key );
+-        EQ_EXPORT GLuint newProgram( const T& key );
+-        EQ_EXPORT GLuint obtainProgram( const T& key );
+-        EQ_EXPORT void   deleteProgram( const T& key );
++        bool   supportsPrograms() const;
++        GLuint getProgram( const T& key );
++        GLuint newProgram( const T& key );
++        GLuint obtainProgram( const T& key );
++        void   deleteProgram( const T& key );
+ 
+-        EQ_EXPORT bool   supportsShaders() const;
+-        EQ_EXPORT GLuint getShader( const T& key );
+-        EQ_EXPORT GLuint newShader( const T& key, const GLenum type );
+-        EQ_EXPORT GLuint obtainShader( const T& key, const GLenum type );
+-        EQ_EXPORT void   deleteShader( const T& key );
++        bool   supportsShaders() const;
++        GLuint getShader( const T& key );
++        GLuint newShader( const T& key, const GLenum type );
++        GLuint obtainShader( const T& key, const GLenum type );
++        void   deleteShader( const T& key );
+ 
+-        EQ_EXPORT bool     supportsEqTexture() const;
+-        EQ_EXPORT Texture* getEqTexture( const T& key );
+-        EQ_EXPORT Texture* newEqTexture( const T& key );
+-        EQ_EXPORT Texture* obtainEqTexture( const T& key );
+-        EQ_EXPORT void     deleteEqTexture( const T& key );
++        bool     supportsEqTexture() const;
++        Texture* getEqTexture( const T& key );
++        Texture* newEqTexture( const T& key );
++        Texture* obtainEqTexture( const T& key );
++        void     deleteEqTexture( const T& key );
+ 
+-        EQ_EXPORT bool               supportsEqFrameBufferObject() const;
+-        EQ_EXPORT FrameBufferObject* getEqFrameBufferObject( const T& key );
+-        EQ_EXPORT FrameBufferObject* newEqFrameBufferObject( const T& key );
+-        EQ_EXPORT FrameBufferObject* obtainEqFrameBufferObject( const T& key );
+-        EQ_EXPORT void               deleteEqFrameBufferObject( const T& key );
++        bool               supportsEqFrameBufferObject() const;
++        FrameBufferObject* getEqFrameBufferObject( const T& key );
++        FrameBufferObject* newEqFrameBufferObject( const T& key );
++        FrameBufferObject* obtainEqFrameBufferObject( const T& key );
++        void               deleteEqFrameBufferObject( const T& key );
+ 
+         const GLEWContext* glewGetContext() const { return _glewContext; }
+         GLEWContext* glewGetContext()             { return _glewContext; }
+Index: lib/client/pipe.h
+===================================================================
+--- lib/client/pipe.h	(revision 3178)
++++ lib/client/pipe.h	(working copy)
+@@ -52,26 +52,26 @@
+      * the pipe is non-threaded, in which case the tasks are executed on the
+      * Node's main thread.
+      */
+-    class Pipe : public net::Object
++    class EQ_EXPORT Pipe : public net::Object
+     {
+     public:
+         /** Constructs a new pipe. */
+-        EQ_EXPORT Pipe( Node* parent );
++        Pipe( Node* parent );
+ 
+         /** Destructs the pipe. */
+-        EQ_EXPORT virtual ~Pipe();
++        virtual ~Pipe();
+ 
+         /** @name Data Access. */
+         //@{
+-        EQ_EXPORT net::CommandQueue* getPipeThreadQueue();
++        net::CommandQueue* getPipeThreadQueue();
+         Node*       getNode()       { return _node; }
+         const Node* getNode() const { return _node; }
+ 
+-        EQ_EXPORT Config* getConfig();
+-        EQ_EXPORT const Config* getConfig() const;
++        Config* getConfig();
++        const Config* getConfig() const;
+ 
+-        EQ_EXPORT ClientPtr getClient();
+-        EQ_EXPORT ServerPtr getServer();
++        ClientPtr getClient();
++        ServerPtr getServer();
+ 
+         const WindowVector& getWindows() const { return _windows; }
+ 
+@@ -91,7 +91,7 @@
+ 
+         bool isThreaded() const { return ( _thread != 0 ); }
+         uint32_t getCurrentFrame()  const { return _currentFrame; }
+-        EQ_EXPORT uint32_t getFinishedFrame() const;
++        uint32_t getFinishedFrame() const;
+ 
+         /** 
+          * Traverse this pipe and all children using a pipe visitor.
+@@ -99,7 +99,7 @@
+          * @param visitor the visitor.
+          * @return the result of the visitor traversal.
+          */
+-        EQ_EXPORT VisitorResult accept( PipeVisitor& visitor );
++        VisitorResult accept( PipeVisitor& visitor );
+ 
+         /**
+          * Set the pipes's pixel viewport.
+@@ -151,10 +151,10 @@
+         WindowSystem getWindowSystem() const { return _windowSystem; }
+ 
+         /** @return the time in ms elapsed since the frame started. */
+-        EQ_EXPORT int64_t getFrameTime() const;
++        int64_t getFrameTime() const;
+ 
+         /** @return the generic WGL function table for the pipe. */
+-        EQ_EXPORT WGLEWContext* wglewGetContext();
++        WGLEWContext* wglewGetContext();
+         //@}
+ 
+         /**
+@@ -186,8 +186,8 @@
+         //@}
+ 
+         /** Wait for the pipe to be exited. */
+-        EQ_EXPORT void waitExited() const;
+-        EQ_EXPORT bool isRunning() const;
++        void waitExited() const;
++        bool isRunning() const;
+         
+         /** 
+          * Wait for a frame to be finished.
+@@ -195,7 +195,7 @@
+          * @param frameNumber the frame number.
+          * @sa releaseFrame()
+          */
+-        EQ_EXPORT void waitFrameFinished( const uint32_t frameNumber ) const;
++        void waitFrameFinished( const uint32_t frameNumber ) const;
+ 
+         /** 
+          * Wait for a frame to be released locally.
+@@ -203,7 +203,7 @@
+          * @param frameNumber the frame number.
+          * @sa releaseFrameLocal()
+          */
+-        EQ_EXPORT void waitFrameLocal( const uint32_t frameNumber ) const;
++        void waitFrameLocal( const uint32_t frameNumber ) const;
+ 
+         /** Start the pipe thread. */
+         void startThread();
+@@ -252,14 +252,14 @@
+          * 
+          * @param frameNumber the frame to start.
+          */
+-        EQ_EXPORT void startFrame( const uint32_t frameNumber );
++        void startFrame( const uint32_t frameNumber );
+ 
+         /** 
+          * Signal the completion of a frame to the parent.
+          * 
+          * @param frameNumber the frame to end.
+          */
+-        EQ_EXPORT void releaseFrame( const uint32_t frameNumber );
++        void releaseFrame( const uint32_t frameNumber );
+ 
+         /** 
+          * Release the local synchronization of the parent for a frame.
+@@ -272,7 +272,7 @@
+          * 
+          * @param frameNumber the frame to release.
+          */
+-        EQ_EXPORT void releaseFrameLocal( const uint32_t frameNumber );
++        void releaseFrameLocal( const uint32_t frameNumber );
+         //@}
+ 
+         /**
+@@ -290,7 +290,7 @@
+          * @return <code>true</code> if the window system is supported,
+          *         <code>false</code> if not.
+          */
+-        EQ_EXPORT virtual bool supportsWindowSystem( const WindowSystem system )
++        virtual bool supportsWindowSystem( const WindowSystem system )
+                                    const;
+ 
+         /** 
+@@ -301,19 +301,19 @@
+          * 
+          * @return the window system currently used by this pipe.
+          */
+-        EQ_EXPORT virtual WindowSystem selectWindowSystem() const;
++        virtual WindowSystem selectWindowSystem() const;
+ 
+         /** 
+          * Initialises this pipe.
+          * 
+          * @param initID the init identifier.
+          */
+-        EQ_EXPORT virtual bool configInit( const uint32_t initID );
++        virtual bool configInit( const uint32_t initID );
+ 
+         /** 
+          * Exit this pipe.
+          */
+-        EQ_EXPORT virtual bool configExit();
++        virtual bool configExit();
+ 
+         /**
+          * Start rendering a frame.
+@@ -331,7 +331,7 @@
+          * @sa Config::beginFrame(), Node::startFrame(), 
+          *     Node::waitFrameStarted()
+          */
+-        EQ_EXPORT virtual void frameStart( const uint32_t frameID, 
++        virtual void frameStart( const uint32_t frameID, 
+                                            const uint32_t frameNumber );
+ 
+         /**
+@@ -347,7 +347,7 @@
+          * @param frameID the per-frame identifier.
+          * @param frameNumber the frame to finish.
+          */
+-        EQ_EXPORT virtual void frameFinish( const uint32_t frameID, 
++        virtual void frameFinish( const uint32_t frameID, 
+                                             const uint32_t frameNumber );
+ 
+         /** 
+@@ -359,7 +359,7 @@
+          * @param frameID the per-frame identifier.
+          * @param frameNumber the frame to finished with draw.
+          */
+-        EQ_EXPORT virtual void frameDrawFinish( const uint32_t frameID, 
++        virtual void frameDrawFinish( const uint32_t frameID, 
+                                                 const uint32_t frameNumber );
+ 
+         /** @name Configuration. */
+@@ -376,7 +376,7 @@
+         //@}
+ 
+         /** @sa net::Object::attachToSession. */
+-        EQ_EXPORT virtual void attachToSession( const uint32_t id, 
++        virtual void attachToSession( const uint32_t id, 
+                                                 const uint32_t instanceID, 
+                                                 net::Session* session );
+ 
+Index: lib/client/pluginRegistry.h
+===================================================================
+--- lib/client/pluginRegistry.h	(revision 3178)
++++ lib/client/pluginRegistry.h	(working copy)
+@@ -23,7 +23,7 @@
+ namespace eq 
+ {
+ 
+-class PluginRegistry
++class EQ_EXPORT PluginRegistry
+ {
+ public:
+ 
+@@ -34,7 +34,7 @@
+     void exit();
+ 
+     /* @return all registered compressors plugins */
+-    EQ_EXPORT const CompressorVector& getCompressors() const;
++    const CompressorVector& getCompressors() const;
+ 
+     /* @return the compressor with the given name, or 0. */
+     Compressor* findCompressor( const uint32_t name );
+Index: lib/client/projection.h
+===================================================================
+--- lib/client/projection.h	(revision 3178)
++++ lib/client/projection.h	(working copy)
+@@ -34,30 +34,30 @@
+      * wall at the given distance. The fov defines the horizontal and
+      * vertical field of view of the projector.
+      */
+-    class Projection
++    class EQ_EXPORT Projection
+     {
+     public:
+-        EQ_EXPORT Projection();
++        Projection();
+ 
+         /** 
+          * Resize the horizontal FOV.
+          * 
+          * @param ratio the amount by which the FOV is grown or shrunk.
+          */
+-        EQ_EXPORT void resizeHorizontal( const float ratio );
++        void resizeHorizontal( const float ratio );
+ 
+         /** 
+          * Resize the vertical FOV.
+          * 
+          * @param ratio the amount by which the FOV is grown or shrunk.
+          */
+-        EQ_EXPORT void resizeVertical( const float ratio );
++        void resizeVertical( const float ratio );
+ 
+         /** Set the projection parameters from a wall description. */
+-        EQ_EXPORT Projection& operator = ( const Wall& wall );
++        Projection& operator = ( const Wall& wall );
+ 
+-        EQ_EXPORT bool operator == ( const Projection& rhs ) const;
+-        EQ_EXPORT bool operator != ( const Projection& rhs ) const;
++        bool operator == ( const Projection& rhs ) const;
++        bool operator != ( const Projection& rhs ) const;
+         
+         Vector3f origin;
+         float    distance;
+Index: lib/client/server.h
+===================================================================
+--- lib/client/server.h	(revision 3178)
++++ lib/client/server.h	(working copy)
+@@ -31,21 +31,21 @@
+     class Node;
+     struct ServerPacket;
+ 
+-    class Server : public net::Node
++    class EQ_EXPORT Server : public net::Node
+     {
+     public:
+         /** 
+          * Constructs a new server.
+          */
+-        EQ_EXPORT Server();
++        Server();
+ 
+         /** @name Data Access */
+         //@{
+         void setClient( ClientPtr client );
+         ClientPtr getClient(){ return _client; }
+ 
+-        EQ_EXPORT net::CommandQueue* getNodeThreadQueue();
+-        EQ_EXPORT net::CommandQueue* getCommandThreadQueue();
++        net::CommandQueue* getNodeThreadQueue();
++        net::CommandQueue* getCommandThreadQueue();
+         //@}
+ 
+         /** 
+@@ -56,10 +56,10 @@
+          *         config was found.
+          * @sa ConfigParams
+          */
+-        EQ_EXPORT Config* chooseConfig( const ConfigParams& parameters );
++        Config* chooseConfig( const ConfigParams& parameters );
+ 
+         /** @warning Undocumented - may not be supported in the future */
+-        EQ_EXPORT Config* useConfig( const ConfigParams& parameters, 
++        Config* useConfig( const ConfigParams& parameters, 
+                                      const std::string& config );
+ 
+         /** 
+@@ -70,16 +70,16 @@
+          *
+          * @param config the configuration.
+          */
+-        EQ_EXPORT void releaseConfig( Config* config );
++        void releaseConfig( Config* config );
+ 
+         /** Undocumented - may not be supported in the future */
+-        EQ_EXPORT bool shutdown();
++        bool shutdown();
+ 
+     protected:
+         /**
+          * Destructs this server.
+          */
+-        EQ_EXPORT virtual ~Server();
++        virtual ~Server();
+ 
+     private:
+         /** The local client connected to the server */
+Index: lib/client/wall.h
+===================================================================
+--- lib/client/wall.h	(revision 3178)
++++ lib/client/wall.h	(working copy)
+@@ -34,58 +34,58 @@
+      * The three points describe the bottom left, bottom right and top left
+      * coordinate of the wall in real-world coordinates.
+      */
+-    class Wall
++    class EQ_EXPORT Wall
+     {
+     public:
+-        EQ_EXPORT Wall();
++        Wall();
+ 
+         /** 
+          * Resize the wall horizontally.
+          * 
+          * @param ratio the amount by which the wall is grown or shrunk.
+          */
+-        EQ_EXPORT void resizeHorizontal( const float ratio );
++        void resizeHorizontal( const float ratio );
+ 
+         /** 
+          * Resize the wall vertically.
+          * 
+          * @param ratio the amount by which the wall is grown or shrunk.
+          */
+-        EQ_EXPORT void resizeVertical( const float ratio );
++        void resizeVertical( const float ratio );
+         
+         /** 
+          * Resize the wall on the left side.
+          * 
+          * @param ratio the amount by which the wall is grown or shrunk.
+          */
+-        EQ_EXPORT void resizeLeft( const float ratio );
++        void resizeLeft( const float ratio );
+ 
+         /** 
+          * Resize the wall on the right side.
+          * 
+          * @param ratio the amount by which the wall is grown or shrunk.
+          */
+-        EQ_EXPORT void resizeRight( const float ratio );
++        void resizeRight( const float ratio );
+ 
+         /** 
+          * Resize the wall on the top side.
+          * 
+          * @param ratio the amount by which the wall is grown or shrunk.
+          */
+-        EQ_EXPORT void resizeTop( const float ratio );
++        void resizeTop( const float ratio );
+ 
+         /** 
+          * Resize the wall on the bottom side.
+          * 
+          * @param ratio the amount by which the wall is grown or shrunk.
+          */
+-        EQ_EXPORT void resizeBottom( const float ratio );
++        void resizeBottom( const float ratio );
+ 
+         /** Compute the sub-frustum for a 2D area on the full wall. */
+-        EQ_EXPORT void apply( const Viewport& viewport);
++        void apply( const Viewport& viewport);
+ 
+         /** Set the wall parameters from a projection description. */
+-        EQ_EXPORT Wall& operator = ( const Projection& projection );
++        Wall& operator = ( const Projection& projection );
+ 
+         /** @return the width of the wall. */
+         float getWidth() const { return (bottomRight - bottomLeft).length(); }
+@@ -93,8 +93,8 @@
+         /** @return the height of the wall. */
+         float getHeight() const { return (topLeft - bottomLeft).length(); }
+ 
+-        EQ_EXPORT bool operator == ( const Wall& rhs ) const;
+-        EQ_EXPORT bool operator != ( const Wall& rhs ) const;
++        bool operator == ( const Wall& rhs ) const;
++        bool operator != ( const Wall& rhs ) const;
+ 
+         Vector3f bottomLeft;
+         Vector3f bottomRight;
+Index: lib/client/wglEventHandler.h
+===================================================================
+--- lib/client/wglEventHandler.h	(revision 3178)
++++ lib/client/wglEventHandler.h	(working copy)
+@@ -31,14 +31,14 @@
+      * by a 'wndproc' callback in the thread which created the window. Each
+      * window has its own WGLEventHandler
+      */
+-    class WGLEventHandler : public EventHandler
++    class EQ_EXPORT WGLEventHandler : public EventHandler
+     {
+     public:
+         /** Constructs a new WGL event handler. */
+-        EQ_EXPORT WGLEventHandler( WGLWindowIF* window );
++        WGLEventHandler( WGLWindowIF* window );
+ 
+         /** Destructs the WGL event handler. */
+-        EQ_EXPORT virtual ~WGLEventHandler();
++        virtual ~WGLEventHandler();
+ 
+         /** 
+          * @return the function pointer of the previously installed window
+Index: lib/client/wglWindowEvent.h
+===================================================================
+--- lib/client/wglWindowEvent.h	(revision 3178)
++++ lib/client/wglWindowEvent.h	(working copy)
+@@ -24,7 +24,7 @@
+ namespace eq
+ {
+     /** A window-system event for a WGLWindowIF */
+-    class WGLWindowEvent : public Event
++    class EQ_EXPORT WGLWindowEvent : public Event
+     {
+     public:
+         // Native event data
+Index: lib/client/window.h
+===================================================================
+--- lib/client/window.h	(revision 3178)
++++ lib/client/window.h	(working copy)
+@@ -48,7 +48,7 @@
+      * to synchronize the state of OpenGL objects between windows. Therefore,
+      * Equalizer calls flush() at the end of each frame for each window.
+      */
+-    class Window : public net::Object
++    class EQ_EXPORT Window : public net::Object
+     {
+     public:
+         /** Stores current drawable characteristics. */
+@@ -85,27 +85,27 @@
+         };
+ 
+         /** Constructs a new window. */
+-        EQ_EXPORT Window( Pipe* parent );
++        Window( Pipe* parent );
+ 
+         /** Destructs the window. */
+-        EQ_EXPORT virtual ~Window();
++        virtual ~Window();
+ 
+         /** @name Data Access */
+         //@{
+-        EQ_EXPORT net::CommandQueue* getPipeThreadQueue();
++        net::CommandQueue* getPipeThreadQueue();
+ 
+         /** @return the pipe of this window. */
+         const Pipe* getPipe() const { return _pipe; }
+         Pipe*       getPipe()       { return _pipe; }
+ 
+-        EQ_EXPORT const Node* getNode() const; 
+-        EQ_EXPORT Node*       getNode();
++        const Node* getNode() const; 
++        Node*       getNode();
+ 
+-        EQ_EXPORT const Config* getConfig() const;
+-        EQ_EXPORT Config*       getConfig();
++        const Config* getConfig() const;
++        Config*       getConfig();
+ 
+-        EQ_EXPORT ClientPtr getClient();
+-        EQ_EXPORT ServerPtr getServer();
++        ClientPtr getClient();
++        ServerPtr getServer();
+ 
+         const ChannelVector& getChannels() { return _channels; }
+ 
+@@ -131,7 +131,7 @@
+          * @param visitor the visitor.
+          * @return the result of the visitor traversal.
+          */
+-        EQ_EXPORT VisitorResult accept( WindowVisitor& visitor );
++        VisitorResult accept( WindowVisitor& visitor );
+ 
+         /** 
+          * Set the window with which this window shares the OpenGL context,
+@@ -162,10 +162,10 @@
+          * @return the extended OpenGL function table for the window's OpenGL
+          *         context.
+          */
+-        EQ_EXPORT GLEWContext* glewGetContext();
++        GLEWContext* glewGetContext();
+ 
+         /** @return the generic WGL function table for the window's pipe. */
+-        EQ_EXPORT WGLEWContext* wglewGetContext();
++        WGLEWContext* wglewGetContext();
+ 
+         /** @return information about the current drawable. */
+         const DrawableConfig& getDrawableConfig() const 
+@@ -182,12 +182,12 @@
+          * 
+          * @param pvp the viewport in pixels.
+          */
+-        EQ_EXPORT void setPixelViewport( const PixelViewport& pvp );
++        void setPixelViewport( const PixelViewport& pvp );
+         
+         /** 
+          * @return the window's pixel viewport
+          */
+-        EQ_EXPORT const PixelViewport& getPixelViewport() const { return _pvp; }
++        const PixelViewport& getPixelViewport() const { return _pvp; }
+ 
+         /** 
+          * @return the window's fractional viewport.
+@@ -198,7 +198,7 @@
+         void addRenderContext( const RenderContext& context );
+ 
+         /** Get the last rendering context at the x, y position. */
+-        EQ_EXPORT bool getRenderContext( const int32_t x, const int32_t y,
++        bool getRenderContext( const int32_t x, const int32_t y,
+                                          RenderContext& context ) const;
+         //@}
+ 
+@@ -230,10 +230,10 @@
+             IATTR_ALL
+         };
+ 
+-        EQ_EXPORT void setIAttribute( const IAttribute attr,
++        void setIAttribute( const IAttribute attr,
+                                       const int32_t value );
+-        EQ_EXPORT int32_t  getIAttribute( const IAttribute attr ) const;
+-        EQ_EXPORT static const std::string& getIAttributeString(
++        int32_t  getIAttribute( const IAttribute attr ) const;
++        static const std::string& getIAttributeString(
+                                                 const IAttribute attr );
+         //@}
+ 
+@@ -258,7 +258,7 @@
+          * e.g., swapBuffers() to the OS window. The os-specific window has to
+          * be initialized.
+          */
+-        EQ_EXPORT void setOSWindow( OSWindow* window );
++        void setOSWindow( OSWindow* window );
+ 
+         const OSWindow* getOSWindow() const { return _osWindow; }
+         OSWindow*       getOSWindow()       { return _osWindow; }
+@@ -275,7 +275,7 @@
+          *
+          * @param message the error message.
+          */
+-        EQ_EXPORT void setErrorMessage( const std::string& message );
++        void setErrorMessage( const std::string& message );
+         //@}
+ 
+         /**
+@@ -296,7 +296,7 @@
+          * @param event the received window system event.
+          * @return true when the event was handled, false if not.
+          */
+-        EQ_EXPORT virtual bool processEvent( const Event& event );
++        virtual bool processEvent( const Event& event );
+ 
+         //@}
+ 
+@@ -304,18 +304,18 @@
+         double getFPS() const { return _avgFPS; }
+ 
+         /* Draw FPS count */
+-        EQ_EXPORT virtual void drawFPS() const;
++        virtual void drawFPS() const;
+ 
+         /** @return the internal color type */
+         int getColorType();
+         
+         /** @return true if FBO is used */
+-        EQ_EXPORT bool isFBOWindow();
++        bool isFBOWindow();
+ 
+     protected:
+         friend class Pipe;
+ 
+-        EQ_EXPORT virtual void attachToSession( const uint32_t id, 
++        virtual void attachToSession( const uint32_t id, 
+                                                 const uint32_t instanceID, 
+                                                 net::Session* session );
+ 
+@@ -356,14 +356,14 @@
+          * 
+          * @param initID the init identifier.
+          */
+-        EQ_EXPORT virtual bool configInit( const uint32_t initID );
++        virtual bool configInit( const uint32_t initID );
+ 
+         /** 
+          * Initialize the OS-specific window.
+          *
+          * @sa setOSWindow()
+          */
+-        EQ_EXPORT virtual bool configInitOSWindow( const uint32_t initID );
++        virtual bool configInitOSWindow( const uint32_t initID );
+ 
+         /** 
+          * Initialize the OpenGL state for this window.
+@@ -372,13 +372,13 @@
+          * @return <code>true</code> if the initialization was successful,
+          *         <code>false</code> if not.
+          */
+-        EQ_EXPORT virtual bool configInitGL( const uint32_t initID );
++        virtual bool configInitGL( const uint32_t initID );
+ 
+         /** Exit this window. */
+-        EQ_EXPORT virtual bool configExit();
++        virtual bool configExit();
+ 
+         /** De-initialize the OS-specific window. */
+-        EQ_EXPORT virtual bool configExitOSWindow();
++        virtual bool configExitOSWindow();
+ 
+         /** De-initializer the OpenGL state for this window. */
+         virtual bool configExitGL() { return true; }
+@@ -409,7 +409,7 @@
+          * @param frameID the per-frame identifier.
+          * @param frameNumber the frame to finish.
+          */
+-        EQ_EXPORT virtual void frameFinish( const uint32_t frameID, 
++        virtual void frameFinish( const uint32_t frameID, 
+                                             const uint32_t frameNumber );
+ 
+         /** 
+@@ -433,13 +433,13 @@
+          * this method will only call OSWindow::makeCurrent if it has not been
+          * done before for this window.
+          */
+-        EQ_EXPORT virtual void makeCurrent( const bool cache = true ) const;
++        virtual void makeCurrent( const bool cache = true ) const;
+ 
+         /** Bind the window's FBO, if it uses one. */
+-        EQ_EXPORT virtual void bindFrameBuffer() const;
++        virtual void bindFrameBuffer() const;
+ 
+         /** Swap the front and back buffer of the window. */
+-        EQ_EXPORT virtual void swapBuffers();
++        virtual void swapBuffers();
+         //@}
+ 
+     private:
+Index: lib/net/barrier.h
+===================================================================
+--- lib/net/barrier.h	(revision 3178)
++++ lib/net/barrier.h	(working copy)
+@@ -33,23 +33,23 @@
+     /**
+      * A networked, versioned barrier.
+      */
+-    class Barrier : public Object
++    class EQ_EXPORT Barrier : public Object
+     {
+     public:
+         /** 
+          * Constructs a new barrier.
+          */
+-        EQ_EXPORT Barrier( NodePtr master, const uint32_t height = 0 );
++        Barrier( NodePtr master, const uint32_t height = 0 );
+ 
+         /** 
+          * Constructs a new barrier.
+          */
+-        EQ_EXPORT Barrier();
++        Barrier();
+ 
+         /**
+          * Destructs the barrier.
+          */
+-        EQ_EXPORT virtual ~Barrier();
++        virtual ~Barrier();
+ 
+         /** 
+          * @name Data Access
+@@ -72,7 +72,7 @@
+          * The implementation assumes that the master node instance also enters
+          * the barrier.
+          */
+-        EQ_EXPORT void enter();
++        void enter();
+         //@}
+ 
+     protected:
+Index: lib/net/bufferConnection.h
+===================================================================
+--- lib/net/bufferConnection.h	(revision 3178)
++++ lib/net/bufferConnection.h	(working copy)
+@@ -28,22 +28,22 @@
+     /**
+      * A proxy connection buffering outgoing data into a memory region.
+      */
+-    class BufferConnection : public Connection
++    class EQ_EXPORT BufferConnection : public Connection
+     {
+     public:
+-        EQ_EXPORT BufferConnection();
+-        EQ_EXPORT virtual ~BufferConnection();
++        BufferConnection();
++        virtual ~BufferConnection();
+ 
+-        EQ_EXPORT void sendBuffer( ConnectionPtr connection );
++        void sendBuffer( ConnectionPtr connection );
+ 
+-        EQ_EXPORT uint64_t getSize() const { return _buffer.getSize(); }
++        uint64_t getSize() const { return _buffer.getSize(); }
+ 
+     protected:
+         virtual void readNB( void* buffer, const uint64_t bytes )
+             { EQDONTCALL; }
+         virtual int64_t readSync( void* buffer, const uint64_t bytes )
+             { EQDONTCALL; return -1; }
+-        EQ_EXPORT virtual int64_t write( const void* buffer,
++        virtual int64_t write( const void* buffer,
+                                          const uint64_t bytes ) const;
+ 
+     private:
+Index: lib/net/commandCache.h
+===================================================================
+--- lib/net/commandCache.h	(revision 3178)
++++ lib/net/commandCache.h	(working copy)
+@@ -37,7 +37,7 @@
+      * Commands are retained and released whenever they are not directly
+      * processed, e.g., when pushed to another thread using a CommandQueue.
+      */
+-    class CommandCache
++    class EQ_EXPORT CommandCache
+     {
+     public:
+         CommandCache();
+Index: lib/net/commandQueue.h
+===================================================================
+--- lib/net/commandQueue.h	(revision 3178)
++++ lib/net/commandQueue.h	(working copy)
+@@ -32,21 +32,21 @@
+     /**
+      * A CommandQueue is a thread-safe queue for command packets.
+      */
+-    class CommandQueue : public base::NonCopyable
++    class EQ_EXPORT CommandQueue : public base::NonCopyable
+     {
+     public:
+-        EQ_EXPORT CommandQueue();
+-        EQ_EXPORT virtual ~CommandQueue();
++        CommandQueue();
++        virtual ~CommandQueue();
+ 
+         /** 
+          * Push a command to the queue.
+          * 
+          * @param packet the command packet.
+          */
+-        EQ_EXPORT virtual void push( Command& packet );
++        virtual void push( Command& packet );
+ 
+         /** Push a command to the front of the queue. */
+-        EQ_EXPORT virtual void pushFront( Command& packet );
++        virtual void pushFront( Command& packet );
+ 
+         /** Wake up the command queue, pop() will return 0. */
+         virtual void wakeup() { _commands.push( static_cast< Command* >( 0 )); }
+@@ -58,7 +58,7 @@
+          * 
+          * @return the next command in the queue.
+          */
+-        EQ_EXPORT virtual Command* pop();
++        virtual Command* pop();
+ 
+         /** 
+          * Try to pop a command from the queue.
+@@ -67,14 +67,14 @@
+          * 
+          * @return the next command in the queue, or 0 if no command is queued.
+          */
+-        EQ_EXPORT virtual Command* tryPop();
++        virtual Command* tryPop();
+ 
+         /** 
+          * Peek the command at the end of the queue.
+          *
+          * @return the last command in the queue, or 0 if no command is queued.
+          */
+-        EQ_EXPORT Command* back() const;
++        Command* back() const;
+ 
+         /** 
+          * @return <code>true</code> if the command queue is empty,
+Index: lib/net/connectionDescription.h
+===================================================================
+--- lib/net/connectionDescription.h	(revision 3178)
++++ lib/net/connectionDescription.h	(working copy)
+@@ -32,7 +32,7 @@
+      *
+      * @sa Node
+      */
+-    class ConnectionDescription : public base::Referenced
++    class EQ_EXPORT ConnectionDescription : public base::Referenced
+     {
+     public:
+         ConnectionDescription() 
+@@ -72,8 +72,8 @@
+         char launchCommandQuote;
+ 
+         /** @return this description as a string. */
+-        EQ_EXPORT std::string toString() const;
+-        EQ_EXPORT void serialize( std::ostream& os ) const;
++        std::string toString() const;
++        void serialize( std::ostream& os ) const;
+ 
+         /** 
+          * Reads the connection description from a string.
+@@ -84,23 +84,23 @@
+          * @return <code>true</code> if the information was read correctly, 
+          *         <code>false</code> if not.
+          */
+-        EQ_EXPORT bool fromString( std::string& data );
++        bool fromString( std::string& data );
+ 
+         /** @name Data Access
+          *
+          * std::strings are not public because of DLL allocation issues.
+          */
+         //@{
+-        EQ_EXPORT void setHostname( const std::string& hostname );
+-        EQ_EXPORT const std::string& getHostname() const;
+-        EQ_EXPORT void setLaunchCommand( const std::string& launchCommand );
+-        EQ_EXPORT const std::string& getLaunchCommand() const;
+-        EQ_EXPORT void setFilename( const std::string& filename );
+-        EQ_EXPORT const std::string& getFilename() const;
++        void setHostname( const std::string& hostname );
++        const std::string& getHostname() const;
++        void setLaunchCommand( const std::string& launchCommand );
++        const std::string& getLaunchCommand() const;
++        void setFilename( const std::string& filename );
++        const std::string& getFilename() const;
+         //@}
+ 
+     protected:
+-        EQ_EXPORT virtual ~ConnectionDescription() {}
++        virtual ~ConnectionDescription() {}
+ 
+     private:
+         /** 
+Index: lib/net/connectionSet.h
+===================================================================
+--- lib/net/connectionSet.h	(revision 3178)
++++ lib/net/connectionSet.h	(working copy)
+@@ -41,7 +41,7 @@
+      *
+      * From the set, a connection with pending events can be selected.
+      */
+-    class ConnectionSet : public ConnectionListener
++    class EQ_EXPORT ConnectionSet : public ConnectionListener
+     {
+     public:
+         enum Event
+@@ -58,12 +58,12 @@
+             EVENT_ALL
+         };
+ 
+-        EQ_EXPORT ConnectionSet();
+-        EQ_EXPORT ~ConnectionSet();
++        ConnectionSet();
++        ~ConnectionSet();
+ 
+-        EQ_EXPORT void addConnection( ConnectionPtr connection );
+-        EQ_EXPORT bool removeConnection( ConnectionPtr connection );
+-        EQ_EXPORT void clear();
++        void addConnection( ConnectionPtr connection );
++        bool removeConnection( ConnectionPtr connection );
++        void clear();
+         size_t size()  const { return _connections.size(); }
+         bool   empty() const { return _connections.empty(); }
+ 
+@@ -79,12 +79,12 @@
+          *                indefinitly.
+          * @return The event occured during selection.
+          */
+-        EQ_EXPORT Event select( const int timeout = -1 );
++        Event select( const int timeout = -1 );
+ 
+         /**
+          * Interrupt the current or next select call.
+          */
+-        EQ_EXPORT void interrupt();
++        void interrupt();
+ 
+         int           getError()     { return _error; }
+         ConnectionPtr getConnection(){ return _connection; }
+Index: lib/net/dataIStream.h
+===================================================================
+--- lib/net/dataIStream.h	(revision 3178)
++++ lib/net/dataIStream.h	(working copy)
+@@ -33,7 +33,7 @@
+      *
+      * Derived classes send the data using command packets.
+      */
+-    class DataIStream
++    class EQ_EXPORT DataIStream
+     {
+     public:
+         DataIStream();
+@@ -60,16 +60,16 @@
+         }
+ 
+         /** Read a number of bytes into a buffer.  */
+-        EQ_EXPORT void read( void* data, uint64_t size );
++        void read( void* data, uint64_t size );
+ 
+         /** Get the pointer to the data remaining in the current buffer. */
+-        EQ_EXPORT const void*    getRemainingBuffer();
++        const void*    getRemainingBuffer();
+ 
+         /** Get the size of the data remaining in the current buffer. */
+-        EQ_EXPORT uint64_t       getRemainingBufferSize();
++        uint64_t       getRemainingBufferSize();
+ 
+         /** Advance the current buffer by a number of bytes. */
+-        EQ_EXPORT void           advanceBuffer( const uint64_t offset ); 
++        void           advanceBuffer( const uint64_t offset ); 
+ 
+         /** Get the number of remaining buffers. */
+         virtual size_t nRemainingBuffers() const = 0;
+Index: lib/net/dataOStream.h
+===================================================================
+--- lib/net/dataOStream.h	(revision 3178)
++++ lib/net/dataOStream.h	(working copy)
+@@ -35,7 +35,7 @@
+      *
+      * Derived classes send the data using command packets.
+      */
+-    class DataOStream
++    class EQ_EXPORT DataOStream
+     {
+     public:
+         DataOStream();
+@@ -94,8 +94,8 @@
+                 return *this;
+             }
+ 
+-        EQ_EXPORT void write( const void* data, uint64_t size );
+-        EQ_EXPORT void writeOnce( const void* data, uint64_t size );
++        void write( const void* data, uint64_t size );
++        void writeOnce( const void* data, uint64_t size );
+         //@}
+ 
+  
+Index: lib/net/dispatcher.h
+===================================================================
+--- lib/net/dispatcher.h	(revision 3178)
++++ lib/net/dispatcher.h	(working copy)
+@@ -40,12 +40,12 @@
+      * Provides packet dispatch through a command queue and command handler
+      * table. Returns the result of the invoked command handlers.
+      */
+-    class Dispatcher
++    class EQ_EXPORT Dispatcher
+     {
+     public:
+-        EQ_EXPORT Dispatcher();
+-		EQ_EXPORT Dispatcher( const Dispatcher& from );
+-        EQ_EXPORT virtual ~Dispatcher();
++        Dispatcher();
++		Dispatcher( const Dispatcher& from );
++        virtual ~Dispatcher();
+ 
+         /** NOP assignment operator. */
+         const Dispatcher& operator = ( const Dispatcher& ) { return *this; }
+@@ -58,7 +58,7 @@
+          *         be dispatched again later)
+          * @sa registerCommand
+          */
+-        EQ_EXPORT virtual bool dispatchCommand( Command& command );
++        virtual bool dispatchCommand( Command& command );
+ 
+         /** 
+          * Handles a received command packet for this object by calling the
+@@ -68,7 +68,7 @@
+          * @return the result of the operation.
+          * @sa registerCommand
+          */
+-        EQ_EXPORT virtual CommandResult invokeCommand( Command& command );
++        virtual CommandResult invokeCommand( Command& command );
+  
+     protected:
+         /** 
+@@ -97,7 +97,7 @@
+         CommandResult _cmdUnknown( Command& command );
+ 
+     private:
+-        EQ_EXPORT void _registerCommand( const uint32_t command, 
++        void _registerCommand( const uint32_t command, 
+                                          const CommandFunc< Dispatcher >& func,
+                                          CommandQueue* destinationQueue );
+ 
+Index: lib/net/node.cpp
+===================================================================
+--- lib/net/node.cpp	(revision 3178)
++++ lib/net/node.cpp	(working copy)
+@@ -666,13 +666,6 @@
+     return true;
+ }
+ 
+-NodePtr Node::createNode( const uint32_t type )
+-{
+-    EQASSERTINFO( type == TYPE_EQNET_NODE, type );
+-    return new Node();
+-}
+-
+-
+ void Node::acquireSendToken( NodePtr node )
+ {
+     NodeAcquireSendTokenPacket packet;
+Index: lib/net/node.h
+===================================================================
+--- lib/net/node.h	(revision 3178)
++++ lib/net/node.h	(working copy)
+@@ -54,7 +54,7 @@
+      * has at least one Connection through which is reachable. A Node provides
+      * the basic communication facilities through message passing.
+      */
+-    class Node : public Dispatcher, public base::Referenced
++    class EQ_EXPORT Node : public Dispatcher, public base::Referenced
+     {
+     public:
+         enum State 
+@@ -68,7 +68,7 @@
+         /** 
+          * Constructs a new Node.
+          */
+-        EQ_EXPORT Node();
++        Node();
+ 
+         /** @name Data Access. */
+         //@{
+@@ -90,14 +90,14 @@
+          * 
+          * @param name the program name to start this node.
+          */
+-        EQ_EXPORT void setProgramName( const std::string& name );
++        void setProgramName( const std::string& name );
+ 
+         /** 
+          * Set the working directory to start this node.
+          * 
+          * @param name the working directory to start this node.
+          */
+-        EQ_EXPORT void setWorkDir( const std::string& name );
++        void setWorkDir( const std::string& name );
+         //@}
+ 
+         /**
+@@ -119,7 +119,7 @@
+          * @return <code>true</code> if the client was successfully initialized,
+          *         <code>false</code> otherwise.
+          */
+-        EQ_EXPORT virtual bool initLocal( const int argc, char** argv );
++        virtual bool initLocal( const int argc, char** argv );
+ 
+         /** Exit a local, listening node. */
+         virtual bool exitLocal() { return stopListening(); }
+@@ -139,7 +139,7 @@
+          *         <code>false</code> if not.
+          * @sa connect
+          */
+-        EQ_EXPORT virtual bool listen();
++        virtual bool listen();
+ 
+         /** 
+          * Stops this node.
+@@ -150,7 +150,7 @@
+          * @return <code>true</code> if the node was stopped, <code>false</code>
+          *         if it was not stopped.
+          */
+-        EQ_EXPORT virtual bool stopListening();
++        virtual bool stopListening();
+ 
+         /** 
+          * Connects a node to this listening node.
+@@ -182,7 +182,7 @@
+          *         <code>false</code> otherwise.
+          * @sa initConnect, syncConnect
+          */
+-        EQ_EXPORT bool connect( NodePtr node );
++        bool connect( NodePtr node );
+ 
+         /** 
+          * Start connecting and potentially launching a node using the
+@@ -196,7 +196,7 @@
+          *         <code>false</code> otherwise.
+          * @sa syncConnect
+          */
+-        EQ_EXPORT bool initConnect( NodePtr node );
++        bool initConnect( NodePtr node );
+ 
+         /** 
+          * Synchronize the connection initiated by initConnect().
+@@ -209,7 +209,7 @@
+          *         <code>false</code> otherwise.
+          * @sa initConnect
+          */
+-        EQ_EXPORT bool syncConnect( NodePtr node );
++        bool syncConnect( NodePtr node );
+ 
+         /** 
+          * Create and connect a node given by an identifier.
+@@ -227,7 +227,7 @@
+          * @return <code>true</code> if the node was disconnected correctly,
+          *         <code>false</code> otherwise.
+          */
+-        EQ_EXPORT bool disconnect( NodePtr node );
++        bool disconnect( NodePtr node );
+ 
+         /** 
+          * Ensures the connectivity of this node.
+@@ -262,7 +262,7 @@
+          * 
+          * @param cd the connection description.
+          */
+-        EQ_EXPORT void addConnectionDescription( ConnectionDescriptionPtr cd );
++        void addConnectionDescription( ConnectionDescriptionPtr cd );
+         
+         /** 
+          * Removes a connection description.
+@@ -276,7 +276,7 @@
+          * 
+          * @return the number of stored connection descriptions. 
+          */
+-        EQ_EXPORT const ConnectionDescriptionVector& getConnectionDescriptions()
++        const ConnectionDescriptionVector& getConnectionDescriptions()
+                             const;
+         /** 
+          * Returns the connection to this node.
+@@ -398,7 +398,7 @@
+          * @return <code>true</code> if the session was mapped,
+          *         <code>false</code> if not.
+          */
+-        EQ_EXPORT bool registerSession( Session* session );
++        bool registerSession( Session* session );
+ 
+         /** Deregister a (master) session. */
+         bool deregisterSession( Session* session )
+@@ -426,7 +426,7 @@
+          * @return <code>true</code> if the session was unmapped,
+          *         <code>false</code> if there was an error.
+          */
+-        EQ_EXPORT bool unmapSession( Session* session );
++        bool unmapSession( Session* session );
+ 
+         /** @return the mapped session with the given identifier, or 0. */
+         Session* getSession( const uint32_t id );
+@@ -440,7 +440,7 @@
+          * @param clientArgs the client arguments as specified by the server.
+          * @return the success value of the run.
+          */
+-        EQ_EXPORT virtual bool runClient( const std::string& clientArgs );
++        virtual bool runClient( const std::string& clientArgs );
+ 
+         /** Return the command queue to the command thread. */
+         CommandQueue* getCommandThreadQueue() 
+@@ -456,13 +456,13 @@
+         const NodeID& getNodeID() const { return _id; }
+ 
+         /** Serialize the node's information. */
+-        EQ_EXPORT std::string serialize() const;
++        std::string serialize() const;
+         /** Deserialize the node information, consumes given data. */
+-        EQ_EXPORT bool deserialize( std::string& data );
++        bool deserialize( std::string& data );
+ 
+     protected:
+         /** Destructs this node. */
+-        EQ_EXPORT virtual ~Node();
++        virtual ~Node();
+ 
+         /** 
+          * Dispatches a packet to the registered command queue.
+@@ -471,7 +471,7 @@
+          * @return the result of the operation.
+          * @sa invokeCommand
+          */
+-        EQ_EXPORT virtual bool dispatchCommand( Command& command );
++        virtual bool dispatchCommand( Command& command );
+ 
+         /** 
+          * Invokes the command handler method for the packet.
+@@ -480,7 +480,7 @@
+          * @return the result of the operation.
+          * @sa Dispatcher::invokeCommand
+          */
+-        EQ_EXPORT virtual CommandResult invokeCommand( Command& command );
++        virtual CommandResult invokeCommand( Command& command );
+ 
+         /** 
+          * The main loop for auto-launched clients. 
+@@ -499,7 +499,11 @@
+          * @return the node.
+          * @sa getType()
+          */
+-        EQ_EXPORT virtual NodePtr createNode( const uint32_t type );
++        virtual NodePtr createNode( const uint32_t type )
++		{
++			EQASSERTINFO( type == TYPE_EQNET_NODE, type );
++			return new Node();
++		}
+ 
+         /** Registers request packets waiting for a return value. */
+         base::RequestHandler _requestHandler;
+@@ -592,7 +596,7 @@
+         bool _hasSendToken;
+ 
+         bool _connectSelf();
+-        EQ_EXPORT void _addConnection( ConnectionPtr connection );
++        void _addConnection( ConnectionPtr connection );
+         void _removeConnection( ConnectionPtr connection );
+         void _cleanup();
+ 
+Index: lib/net/objectDataIStream.h
+===================================================================
+--- lib/net/objectDataIStream.h	(revision 3178)
++++ lib/net/objectDataIStream.h	(working copy)
+@@ -33,7 +33,7 @@
+     /**
+      * The DataIStream for object data.
+      */
+-    class ObjectDataIStream : public DataIStream
++    class EQ_EXPORT ObjectDataIStream : public DataIStream
+     {
+     public:
+         ObjectDataIStream();
+Index: lib/net/objectDataOStream.h
+===================================================================
+--- lib/net/objectDataOStream.h	(revision 3178)
++++ lib/net/objectDataOStream.h	(working copy)
+@@ -30,7 +30,7 @@
+     /**
+      * The DataOStream for object data.
+      */
+-    class ObjectDataOStream : public DataOStream
++    class EQ_EXPORT ObjectDataOStream : public DataOStream
+     {
+     public:
+         ObjectDataOStream( const Object* object )
+Index: lib/net/objectDeltaDataIStream.h
+===================================================================
+--- lib/net/objectDeltaDataIStream.h	(revision 3178)
++++ lib/net/objectDeltaDataIStream.h	(working copy)
+@@ -29,7 +29,7 @@
+     /**
+      * The DataIStream for object delta version data.
+      */
+-    class ObjectDeltaDataIStream : public ObjectDataIStream
++    class EQ_EXPORT ObjectDeltaDataIStream : public ObjectDataIStream
+     {
+     public:
+         ObjectDeltaDataIStream();
+Index: lib/net/objectDeltaDataOStream.h
+===================================================================
+--- lib/net/objectDeltaDataOStream.h	(revision 3178)
++++ lib/net/objectDeltaDataOStream.h	(working copy)
+@@ -29,7 +29,7 @@
+     /**
+      * The DataOStream for object delta version data.
+      */
+-    class ObjectDeltaDataOStream : public ObjectDataOStream
++    class EQ_EXPORT ObjectDeltaDataOStream : public ObjectDataOStream
+     {
+     public:
+         ObjectDeltaDataOStream( const Object* object );
+Index: lib/net/objectInstanceDataIStream.h
+===================================================================
+--- lib/net/objectInstanceDataIStream.h	(revision 3178)
++++ lib/net/objectInstanceDataIStream.h	(working copy)
+@@ -31,7 +31,7 @@
+     /**
+      * The DataIStream for object instance data.
+      */
+-    class ObjectInstanceDataIStream : public ObjectDataIStream
++    class EQ_EXPORT ObjectInstanceDataIStream : public ObjectDataIStream
+     {
+     public:
+         ObjectInstanceDataIStream();
+Index: lib/net/objectInstanceDataOStream.h
+===================================================================
+--- lib/net/objectInstanceDataOStream.h	(revision 3178)
++++ lib/net/objectInstanceDataOStream.h	(working copy)
+@@ -29,7 +29,7 @@
+     /**
+      * The DataOStream for object instance data.
+      */
+-    class ObjectInstanceDataOStream : public ObjectDataOStream
++    class EQ_EXPORT ObjectInstanceDataOStream : public ObjectDataOStream
+     {
+     public:
+         ObjectInstanceDataOStream( const Object* object );
+Index: lib/net/pairConnection.h
+===================================================================
+--- lib/net/pairConnection.h	(revision 3178)
++++ lib/net/pairConnection.h	(working copy)
+@@ -28,22 +28,22 @@
+      * A meta connection consisting of two (unidirectional) connections
+      * providing bidirectional communication.
+      */
+-    class PairConnection : public Connection
++    class EQ_EXPORT PairConnection : public Connection
+     {
+     public:
+-        EQ_EXPORT PairConnection( ConnectionPtr readConnection,
++        PairConnection( ConnectionPtr readConnection,
+                                   ConnectionPtr writeConnection );
+ 
+-        EQ_EXPORT ConnectionPtr getSibling();
++        ConnectionPtr getSibling();
+ 
+-        EQ_EXPORT virtual bool connect();
+-        EQ_EXPORT virtual void close();
++        virtual bool connect();
++        virtual void close();
+ 
+         virtual Notifier getNotifier() const
+             { return _readConnection->getNotifier(); }
+ 
+     protected:
+-        EQ_EXPORT virtual ~PairConnection();
++        virtual ~PairConnection();
+ 
+         virtual void readNB( void* buffer, const uint64_t bytes )
+             { _readConnection->readNB( buffer, bytes ); }
+Index: lib/net/session.h
+===================================================================
+--- lib/net/session.h	(revision 3178)
++++ lib/net/session.h	(working copy)
+@@ -40,14 +40,14 @@
+      * A received SessionPacket is dispatched to the locally-mapped session of
+      * the same identifier.
+      */
+-    class Session : public Dispatcher
++    class EQ_EXPORT Session : public Dispatcher
+     {
+     public:
+         /** Construct a new session. */
+-        EQ_EXPORT Session();
++        Session();
+ 
+         /** Destruct this session. */
+-        EQ_EXPORT virtual ~Session();
++        virtual ~Session();
+ 
+         /** @name Data Access */
+         //@{
+@@ -64,7 +64,7 @@
+          * @return the queue to the command thread of the local node, or 0 if
+          *         the session is not mapped.
+          */
+-        EQ_EXPORT CommandQueue* getCommandThreadQueue();
++        CommandQueue* getCommandThreadQueue();
+ 
+         /** @return the server hosting this session, or 0 if the session is not
+          *          mapped.. */
+@@ -85,7 +85,7 @@
+          * @return true if the command was dispatched, false otherwise.
+          * @sa Dispatcher::dispatchCommand
+          */
+-        EQ_EXPORT virtual bool dispatchCommand( Command& packet );
++        virtual bool dispatchCommand( Command& packet );
+ 
+         /** 
+          * Invokes the registered handler method for a command packet.
+@@ -96,7 +96,7 @@
+          * @param packet the command packet.  @return the result of
+          * the operation.  @sa Dispatcher::invokeCommand
+          */
+-        EQ_EXPORT virtual CommandResult invokeCommand( Command& packet );
++        virtual CommandResult invokeCommand( Command& packet );
+         //@}
+ 
+ 
+@@ -122,7 +122,7 @@
+          *         continous block of identifiers for the request is available.
+          * @sa base::IDPool
+          */
+-        EQ_EXPORT uint32_t genIDs( const uint32_t range );
++        uint32_t genIDs( const uint32_t range );
+ 
+         /** 
+          * Free a continous block of unique identifiers.
+@@ -133,7 +133,7 @@
+          * @param start the first identifier in the block.
+          * @param range the size of the block.
+          */
+-        EQ_EXPORT void freeIDs( const uint32_t start, const uint32_t range );
++        void freeIDs( const uint32_t start, const uint32_t range );
+ 
+         /** 
+          * Set the master node for a block of identifiers.
+@@ -150,7 +150,7 @@
+          * @param range the size of the block.
+          * @param master the master node for the block of identifiers.
+          */
+-        EQ_EXPORT void setIDMaster( const uint32_t start, const uint32_t range, 
++        void setIDMaster( const uint32_t start, const uint32_t range, 
+                           const NodeID& master );
+ 
+         /** 
+@@ -159,7 +159,7 @@
+          * @param start the first identifier of the block.
+          * @param range the size of the block.
+          */
+-        EQ_EXPORT void unsetIDMaster( const uint32_t start, 
++        void unsetIDMaster( const uint32_t start, 
+                                       const uint32_t range );
+ 
+         /** 
+@@ -169,7 +169,7 @@
+          * @return the master node, or Node::ZERO if no master node is
+          *         set for the identifier.
+          */
+-        EQ_EXPORT const NodeID& getIDMaster( const uint32_t id );
++        const NodeID& getIDMaster( const uint32_t id );
+         //@}
+ 
+ 
+@@ -189,14 +189,14 @@
+          * @param object the object instance.
+          * @return true if the object was registered, false otherwise.
+          */
+-        EQ_EXPORT bool registerObject( Object* object );
++        bool registerObject( Object* object );
+ 
+         /** 
+          * Deregister a distributed object.
+          *
+          * @param object the object instance.
+          */
+-        EQ_EXPORT void deregisterObject( Object* object );
++        void deregisterObject( Object* object );
+ 
+         /** 
+          * Map a distributed object.
+@@ -227,21 +227,21 @@
+          *         available.
+          * @sa registerObject
+          */
+-        EQ_EXPORT bool mapObject( Object* object, const uint32_t id, 
++        bool mapObject( Object* object, const uint32_t id, 
+                         const uint32_t version = Object::VERSION_OLDEST );
+ 
+         /** Start mapping a distributed object. */
+-        EQ_EXPORT uint32_t mapObjectNB( Object* object, const uint32_t id, 
++        uint32_t mapObjectNB( Object* object, const uint32_t id, 
+                               const uint32_t version = Object::VERSION_OLDEST );
+         /** Finalize the mapping of a distributed object. */
+-        EQ_EXPORT bool mapObjectSync( const uint32_t requestID );
++        bool mapObjectSync( const uint32_t requestID );
+ 
+         /** 
+          * Unmap a mapped object.
+          * 
+          * @param object the mapped object.
+          */
+-        EQ_EXPORT void unmapObject( Object* object );
++        void unmapObject( Object* object );
+ 
+         /** 
+          * Attach an object to an identifier.
+@@ -255,7 +255,7 @@
+          * @param instanceID the node-local instance identifier, or
+          *                   EQ_ID_INVALID if this method should generate one.
+          */
+-        EQ_EXPORT void attachObject( Object* object, const uint32_t id, 
++        void attachObject( Object* object, const uint32_t id, 
+                            const uint32_t instanceID );
+ 
+         /** 
+@@ -263,7 +263,7 @@
+          * 
+          * @param object the attached object.
+          */
+-        EQ_EXPORT void detachObject( Object* object );
++        void detachObject( Object* object );
+         //@}
+ 
+ 
+@@ -277,7 +277,7 @@
+          *
+          * @param node the node to which the session has been mapped.
+          */
+-        EQ_EXPORT virtual void notifyMapped( NodePtr node );
++        virtual void notifyMapped( NodePtr node );
+         //@}
+ 
+     protected:
+Index: server/channel.h
+===================================================================
+--- server/channel.h	(revision 3178)
++++ server/channel.h	(working copy)
+@@ -52,7 +52,7 @@
+     /**
+      * The channel.
+      */
+-    class Channel : public net::Object
++    class EQSERVER_EXPORT Channel : public net::Object
+     {
+     public:
+         enum State
+@@ -70,7 +70,7 @@
+         /** 
+          * Constructs a new Channel.
+          */
+-        EQSERVER_EXPORT Channel();
++        Channel();
+ 
+         /** 
+          * Constructs a new deep copy of a channel.
+@@ -92,8 +92,8 @@
+         Config* getConfig();
+         const Config* getConfig() const;
+ 
+-        EQSERVER_EXPORT Node* getNode();
+-        EQSERVER_EXPORT const Node* getNode() const;
++        Node* getNode();
++        const Node* getNode() const;
+ 
+         Pipe* getPipe();
+         const Pipe* getPipe() const;
+@@ -115,8 +115,8 @@
+          * @param visitor the visitor.
+          * @return the result of the visitor traversal.
+          */
+-        EQSERVER_EXPORT VisitorResult accept( ChannelVisitor& visitor );
+-        EQSERVER_EXPORT VisitorResult accept( ConstChannelVisitor& ) const;
++        VisitorResult accept( ChannelVisitor& visitor );
++        VisitorResult accept( ConstChannelVisitor& ) const;
+ 
+         /** Increase channel activition count. */
+         void activate();
+Index: server/compound.h
+===================================================================
+--- server/compound.h	(revision 3178)
++++ server/compound.h	(working copy)
+@@ -52,13 +52,13 @@
+     /**
+      * The compound.
+      */
+-    class Compound
++    class EQSERVER_EXPORT Compound
+     {
+     public:
+         /** 
+          * Constructs a new Compound.
+          */
+-        EQSERVER_EXPORT Compound();
++        Compound();
+ 
+         /**
+          * Constructs a new, deep copy of the passed compound
+@@ -114,7 +114,7 @@
+          * 
+          * @param child the child.
+          */
+-        EQSERVER_EXPORT void addChild( Compound* child );
++        void addChild( Compound* child );
+ 
+         /** 
+          * Removes a child from this compound.
+@@ -163,7 +163,7 @@
+          * 
+          * @param channel the channel.
+          */
+-        EQSERVER_EXPORT void setChannel( Channel* channel );
++        void setChannel( Channel* channel );
+ 
+         /** 
+          * Return the channel of this compound.
+@@ -173,8 +173,8 @@
+          *
+          * @return the channel of this compound.
+          */
+-        EQSERVER_EXPORT Channel* getChannel();
+-        EQSERVER_EXPORT const Channel* getChannel() const;
++        Channel* getChannel();
++        const Channel* getChannel() const;
+ 
+         Window* getWindow();
+         const Window* getWindow() const;
+@@ -186,7 +186,7 @@
+         Frustum& getFrustum() { return _frustum; }
+ 
+         /** Attach a load balancer to this compound. */
+-        EQSERVER_EXPORT void addEqualizer( Equalizer* equalizer );
++        void addEqualizer( Equalizer* equalizer );
+ 
+         /** Get the attached load balancers. */
+         const EqualizerVector& getEqualizers() const
+@@ -283,7 +283,7 @@
+          *
+          * @param frame the input frame.
+          */
+-        EQSERVER_EXPORT void addInputFrame( Frame* frame );
++        void addInputFrame( Frame* frame );
+ 
+         /** @return the vector of input frames. */
+         const FrameVector& getInputFrames() const {return _inputFrames; }
+@@ -293,7 +293,7 @@
+          *
+          * @param frame the output frame.
+          */
+-        EQSERVER_EXPORT void addOutputFrame( Frame* frame );
++        void addOutputFrame( Frame* frame );
+ 
+         /** @return the vector of output frames. */
+         const FrameVector& getOutputFrames() const { return _outputFrames; }
+@@ -348,7 +348,7 @@
+          * 
+          * @param wall the wall description.
+          */
+-        EQSERVER_EXPORT void setWall( const eq::Wall& wall );
++        void setWall( const eq::Wall& wall );
+         
+         /** @return the last specified wall description. */
+         const eq::Wall& getWall() const { return _frustum.getWall(); }
+@@ -358,7 +358,7 @@
+          * 
+          * @param projection the projection description.
+          */
+-        EQSERVER_EXPORT void setProjection( const eq::Projection& projection );
++        void setProjection( const eq::Projection& projection );
+ 
+         /** @return the last specified projection description. */
+         const eq::Projection& getProjection() const 
+@@ -404,10 +404,10 @@
+          * @param visitor the visitor.
+          * @return the result of the visitor traversal.
+          */
+-        EQSERVER_EXPORT VisitorResult accept( ConstCompoundVisitor& visitor )
++        VisitorResult accept( ConstCompoundVisitor& visitor )
+                                           const;
+         /** Non-const version of accept(). */
+-        EQSERVER_EXPORT VisitorResult accept( CompoundVisitor& visitor );
++        VisitorResult accept( CompoundVisitor& visitor );
+ 
+ 
+         /** Activate the compound tree. */
+Index: server/server.h
+===================================================================
+--- server/server.h	(revision 3178)
++++ server/server.h	(working copy)
+@@ -46,13 +46,13 @@
+     /**
+      * The Equalizer server.
+      */
+-    class Server : public net::Node
++    class EQSERVER_EXPORT Server : public net::Node
+     {
+     public:
+         /** 
+          * Constructs a new Server.
+          */
+-        EQSERVER_EXPORT Server();
++        Server();
+ 
+         /** 
+          * Runs the server.
+@@ -60,7 +60,7 @@
+          * @return <code>true</code> if the server did run successfully,
+          *         <code>false</code> if not.
+          */
+-        EQSERVER_EXPORT bool run();
++        bool run();
+ 
+         void registerConfig( Config* config );
+         
+@@ -69,7 +69,7 @@
+          * 
+          * @param config the config.
+          */
+-        EQSERVER_EXPORT void addConfig( Config* config );
++        void addConfig( Config* config );
+ 
+         /** 
+          * Remove a config from this config.
+@@ -93,8 +93,8 @@
+          * @param visitor the visitor.
+          * @return the result of the visitor traversal.
+          */
+-        EQSERVER_EXPORT VisitorResult accept( ServerVisitor& visitor );
+-        EQSERVER_EXPORT VisitorResult accept( ConstServerVisitor& ) const;
++        VisitorResult accept( ServerVisitor& visitor );
++        VisitorResult accept( ConstServerVisitor& ) const;
+ 
+     protected:
+         virtual ~Server();
+Index: server/window.h
+===================================================================
+--- server/window.h	(revision 3178)
++++ server/window.h	(working copy)
+@@ -48,7 +48,7 @@
+     /**
+      * The window.
+      */
+-    class Window : public net::Object
++    class EQSERVER_EXPORT Window : public net::Object
+     {
+     public:
+         enum State
+@@ -66,7 +66,7 @@
+         /** 
+          * Constructs a new Window.
+          */
+-        EQSERVER_EXPORT Window();
++        Window();
+ 
+         /** 
+          * Constructs a new deep copy of a window.
+@@ -82,7 +82,7 @@
+          * 
+          * @param channel the channel.
+          */
+-        EQSERVER_EXPORT void addChannel( Channel* channel );
++        void addChannel( Channel* channel );
+ 
+         /** 
+          * Insert a new channel after the given channel.
+@@ -133,8 +133,8 @@
+          * @param visitor the visitor.
+          * @return the result of the visitor traversal.
+          */
+-        EQSERVER_EXPORT VisitorResult accept( WindowVisitor& visitor );
+-        EQSERVER_EXPORT VisitorResult accept( ConstWindowVisitor& ) const;
++        VisitorResult accept( WindowVisitor& visitor );
++        VisitorResult accept( ConstWindowVisitor& ) const;
+ 
+         /** Increase window activition count. */
+         void activate();
+@@ -159,7 +159,7 @@
+          * 
+          * @param pvp the viewport in pixels.
+          */
+-        EQSERVER_EXPORT void setPixelViewport( const eq::PixelViewport& pvp );
++        void setPixelViewport( const eq::PixelViewport& pvp );
+ 
+         /** 
+          * Return this window's pixel viewport.
+Index: VS2005/accept.vcproj
+===================================================================
+--- VS2005/accept.vcproj	(revision 3178)
++++ VS2005/accept.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../examples/include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../examples/include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/affinityCheck.vcproj
+===================================================================
+--- VS2005/affinityCheck.vcproj	(revision 3178)
++++ VS2005/affinityCheck.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../externals&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../externals&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/base/refPtr.vcproj
+===================================================================
+--- VS2005/base/refPtr.vcproj	(revision 3178)
++++ VS2005/base/refPtr.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/compositor.vcproj
+===================================================================
+--- VS2005/compositor.vcproj	(revision 3178)
++++ VS2005/compositor.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/ConfigTool.vcproj
+===================================================================
+--- VS2005/ConfigTool.vcproj	(revision 3178)
++++ VS2005/ConfigTool.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WIN32_VC;_CRT_SECURE_NO_DEPRECATE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -130,7 +130,7 @@
+ 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WIN32_VC;_CRT_SECURE_NO_DEPRECATE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -207,7 +207,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../..&quot;;&quot;$(InputDir)../../examples/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;WIN32_VC;_CRT_SECURE_NO_DEPRECATE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -287,7 +287,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../..&quot;;&quot;$(InputDir)../../examples/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;WIN32_VC;_CRT_SECURE_NO_DEPRECATE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/eqHello.vcproj
+===================================================================
+--- VS2005/eqHello.vcproj	(revision 3178)
++++ VS2005/eqHello.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/eqPly Example.vcproj
+===================================================================
+--- VS2005/eqPly Example.vcproj	(revision 3178)
++++ VS2005/eqPly Example.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/Equalizer Server Library.vcproj
+===================================================================
+--- VS2005/Equalizer Server Library.vcproj	(revision 3178)
++++ VS2005/Equalizer Server Library.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_WINDOWS;_USRDLL;EQUALIZERSERVERLIBRARY_EXPORTS"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="2"
+@@ -133,7 +133,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_WINDOWS;_USRDLL;EQUALIZERSERVERLIBRARY_EXPORTS"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="2"
+@@ -213,7 +213,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(ProjectDir)../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_WINDOWS;_USRDLL;EQUALIZERSERVERLIBRARY_EXPORTS"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="2"
+@@ -298,7 +298,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(ProjectDir)../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_WINDOWS;_USRDLL;EQUALIZERSERVERLIBRARY_EXPORTS"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="2"
+Index: VS2005/Equalizer Server.vcproj
+===================================================================
+--- VS2005/Equalizer Server.vcproj	(revision 3178)
++++ VS2005/Equalizer Server.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/Equalizer.vcproj
+===================================================================
+--- VS2005/Equalizer.vcproj	(revision 3178)
++++ VS2005/Equalizer.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EQUALIZER_EXPORTS;EQ_PLUGIN_BUILD;_CRT_SECURE_NO_DEPRECATE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				OpenMP="true"
+ 				UsePrecompiledHeader="0"
+@@ -134,7 +134,7 @@
+ 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EQUALIZER_EXPORTS;EQ_PLUGIN_BUILD;_CRT_SECURE_NO_DEPRECATE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				OpenMP="true"
+ 				UsePrecompiledHeader="0"
+@@ -217,7 +217,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EQUALIZER_EXPORTS;EQ_PLUGIN_BUILD;_CRT_SECURE_NO_DEPRECATE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				OpenMP="true"
+ 				UsePrecompiledHeader="0"
+@@ -303,7 +303,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EQUALIZER_EXPORTS;EQ_PLUGIN_BUILD;_CRT_SECURE_NO_DEPRECATE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				OpenMP="true"
+ 				UsePrecompiledHeader="0"
+@@ -8667,6 +8667,46 @@
+ 			Filter="dll;lib"
+ 			>
+ 			<File
++				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.dll"
++				>
++				<FileConfiguration
++					Name="Debug|Win32"
++					ExcludedFromBuild="true"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++					/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug|x64"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++						Description="copying library (x64)"
++						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
++						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
++					/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Release|Win32"
++					ExcludedFromBuild="true"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++					/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Release|x64"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++						Description="copying library (x64)"
++						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
++						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
++					/>
++				</FileConfiguration>
++			</File>
++			<File
+ 				RelativePath="..\Windows\pthreads\lib\pthreadVC2.dll"
+ 				>
+ 				<FileConfiguration
+@@ -8713,7 +8753,7 @@
+ 				</FileConfiguration>
+ 			</File>
+ 			<File
+-				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.dll"
++				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.lib"
+ 				>
+ 				<FileConfiguration
+ 					Name="Debug|Win32"
+@@ -8798,46 +8838,6 @@
+ 					/>
+ 				</FileConfiguration>
+ 			</File>
+-			<File
+-				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.lib"
+-				>
+-				<FileConfiguration
+-					Name="Debug|Win32"
+-					ExcludedFromBuild="true"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-					/>
+-				</FileConfiguration>
+-				<FileConfiguration
+-					Name="Debug|x64"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-						Description="copying library (x64)"
+-						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
+-						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
+-					/>
+-				</FileConfiguration>
+-				<FileConfiguration
+-					Name="Release|Win32"
+-					ExcludedFromBuild="true"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-					/>
+-				</FileConfiguration>
+-				<FileConfiguration
+-					Name="Release|x64"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-						Description="copying library (x64)"
+-						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
+-						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
+-					/>
+-				</FileConfiguration>
+-			</File>
+ 		</Filter>
+ 		<File
+ 			RelativePath="..\AUTHORS"
+Index: VS2005/eVolve.vcproj
+===================================================================
+--- VS2005/eVolve.vcproj	(revision 3178)
++++ VS2005/eVolve.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/frustumTest.vcproj
+===================================================================
+--- VS2005/frustumTest.vcproj	(revision 3178)
++++ VS2005/frustumTest.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/image.vcproj
+===================================================================
+--- VS2005/image.vcproj	(revision 3178)
++++ VS2005/image.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/netPerf.vcproj
+===================================================================
+--- VS2005/netPerf.vcproj	(revision 3178)
++++ VS2005/netPerf.vcproj	(working copy)
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="Windows-1252"?>
+ <VisualStudioProject
+ 	ProjectType="Visual C++"
+-	Version="8.00"
++	Version="8,00"
+ 	Name="NetPerf"
+ 	ProjectGUID="{891B47F2-0A50-4D42-A724-95886FA1F149}"
+ 	RootNamespace="NetPerf"
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../examples/include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../examples/include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/netProxy.vcproj
+===================================================================
+--- VS2005/netProxy.vcproj	(revision 3178)
++++ VS2005/netProxy.vcproj	(working copy)
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="Windows-1252"?>
+ <VisualStudioProject
+ 	ProjectType="Visual C++"
+-	Version="8.00"
++	Version="8,00"
+ 	Name="NetProxy"
+ 	ProjectGUID="{BA9D9327-A284-419A-B5E3-A2EBCD84165E}"
+ 	RootNamespace="NetProxy"
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../examples/include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../examples/include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/pipePerf.vcproj
+===================================================================
+--- VS2005/pipePerf.vcproj	(revision 3178)
++++ VS2005/pipePerf.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)..&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+Index: VS2005/pixelBench.vcproj
+===================================================================
+--- VS2005/pixelBench.vcproj	(revision 3178)
++++ VS2005/pixelBench.vcproj	(working copy)
+@@ -48,7 +48,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -132,7 +132,7 @@
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+-				RuntimeLibrary="3"
++				RuntimeLibrary="1"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -211,7 +211,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
+@@ -293,7 +293,7 @@
+ 				Name="VCCLCompilerTool"
+ 				AdditionalIncludeDirectories="&quot;$(InputDir)../include&quot;;&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;NDEBUG;_CONSOLE"
+-				RuntimeLibrary="2"
++				RuntimeLibrary="0"
+ 				RuntimeTypeInfo="true"
+ 				UsePrecompiledHeader="0"
+ 				WarningLevel="1"
