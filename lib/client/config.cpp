@@ -493,6 +493,8 @@ uint32_t Config::finishAllFrames()
 
 void Config::sendEvent( ConfigEvent& event )
 {
+    EQASSERT( event.data.type != Event::STATISTIC ||
+              event.data.statistic.type != Statistic::NONE );
     EQASSERT( _appNodeID );
 
     if( !_appNode )
@@ -567,16 +569,20 @@ bool Config::handleEvent( const ConfigEvent* event )
         {
             EQLOG( LOG_STATS ) << event->data << endl;
 
-            const uint32_t   originator = event->data.originator;
+            const uint32_t originator = event->data.originator;
             EQASSERT( originator != EQ_ID_INVALID );
             if( originator == EQ_ID_INVALID )
                 return false;
 
             const Statistic& statistic = event->data.statistic;
             const uint32_t   frame     = statistic.frameNumber;
+            EQASSERT( statistic.type != Statistic::NONE )
 
-            if( frame == 0 ) // Not a frame-related stat event, ignore
+            if( frame == 0 ||      // Not a frame-related stat event or
+                statistic.type == Statistic::NONE ) // No event-type set
+            {
                 return false;
+            }
 
             ScopedMutex mutex( _statisticsMutex );
 

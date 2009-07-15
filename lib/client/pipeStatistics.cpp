@@ -32,7 +32,7 @@ PipeStatistics::PipeStatistics( const Statistic::Type type, Pipe* pipe )
         : StatisticSampler< Pipe >( type, pipe, pipe->getCurrentFrame( ))
 {
 #if 0
-    const int32_t hint = _pipe->getIAttribute( Pipe::IATTR_HINT_STATISTICS );
+    const int32_t hint = pipe->getIAttribute( Pipe::IATTR_HINT_STATISTICS );
     if( hint == OFF )
         return;
 #endif

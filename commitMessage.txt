@@ -1,9 +1,9 @@
-Statistics: missing files
+Improve pipe idle statistics overlay by merging them into one line for all pipes
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -733,12 +733,19 @@ namespace
 
 struct EntityData
 {
-    EntityData() : yPos( 0 ), idle( 0 ), nIdle( 0 ) {}
+    EntityData() : yPos( 0 ) {}
     uint32_t yPos;
+    std::string name;
+};
+
+struct IdleData
+{
+    IdleData() : idle( 0 ), nIdle( 0 ) {}
     uint32_t idle;
     uint32_t nIdle;
     std::string name;
 };
+
 }
 
 void Channel::drawStatistics()
@@ -804,6 +811,7 @@ void Channel::drawStatistics()
     uint32_t nextY = pvp.getYEnd() - SPACE;
 
     std::map< uint32_t, EntityData > entities;
+    std::map< uint32_t, IdleData >   idles;
 
     float dim = 0.0f;
     for( vector< FrameStatistics >::reverse_iterator i = statistics.rbegin();
@@ -843,7 +851,17 @@ void Channel::drawStatistics()
 
                 if( stat.type == Statistic::PIPE_IDLE )
                 {
-                    EntityData& data = entities[ id ];
+                    IdleData& data = idles[ id ];
+                    std::map< uint32_t, EntityData >::iterator l = 
+                        entities.find( id );
+
+                    if( l != entities.end( ))
+                    {
+                        entities.erase( l );
+                        nextY += (HEIGHT + SPACE);
+                        data.name = stat.resourceName;
+                    }
+                    
                     data.idle += (stat.idleTime * 100ll / stat.totalTime);
                     ++data.nIdle;
                     continue;
@@ -975,21 +993,30 @@ void Channel::drawStatistics()
          i != entities.end(); ++i )
     {
         const EntityData& data = i->second;
-        ostringstream text;
 
-        text << data.name;
-        if( data.nIdle > 0 )
-            text << "  " << data.idle / data.nIdle << "% idle";
-            
         glColor3f( 1.f, 1.f, 1.f );
         glRasterPos3f( 100.f, data.yPos-SPACE-12.0f, 0.99f );
-        font.draw( text.str( ));
+        font.draw( data.name );
     }
 
     glColor3f( 1.f, 1.f, 1.f );
-    ostringstream scaleText;
-    scaleText << ": " << scale << "ms/pixel";
-    font.draw( scaleText.str( ));
+    glRasterPos3f( 100.f, nextY-SPACE-12.0f, 0.99f );
+    ostringstream text;
+    text << scale << "ms/pixel";
+
+    if( !idles.empty( ))
+        text << ", Idle:";
+
+    for( std::map< uint32_t, IdleData >::const_iterator i = idles.begin();
+         i != idles.end(); ++i )
+    {
+        const IdleData& data = i->second;
+        EQASSERT( data.nIdle > 0 );
+
+        text << " " << data.name << " " << data.idle / data.nIdle << "%";
+    }
+
+    font.draw( text.str( ));
 
     _window->drawFPS();
     EQ_GL_CALL( resetAssemblyState( ));

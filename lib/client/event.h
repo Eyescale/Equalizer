@@ -188,9 +188,6 @@ namespace eq
         {
             EXPOSE = 0,
             WINDOW_RESIZE,
-#ifdef EQ_USE_DEPRECATED
-            RESIZE = WINDOW_RESIZE,
-#endif
             WINDOW_CLOSE,
             WINDOW_HIDE,
             WINDOW_SHOW,
