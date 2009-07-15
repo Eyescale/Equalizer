@@ -1,11 +1,10 @@
-Eqply:
-- implement three color modes (model, demo, B&W)
-- stop zooming on spacemouse move
+Fix 1997583: eqPly: ortho frustum culling broken
+-- also fix frustum of stress.threads.eqc
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

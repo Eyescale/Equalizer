@@ -399,9 +399,9 @@ void Channel::_initFrustum( eq::FrustumCullerf& culler,
     const eq::Matrix4f headTransform = getHeadTransform() * rotation;
     const eq::Matrix4f modelView = headTransform*translation*modelRotation;
 
-    const eq::Frustumf& frustum      = getFrustum();
-    const eq::Matrix4f  projection   = frameData.useOrtho() ?
-                                               frustum.compute_ortho_matrix() :
+    const bool ortho = frameData.useOrtho();
+    const eq::Frustumf& frustum      = ortho ? getOrtho() : getFrustum();
+    const eq::Matrix4f  projection   = ortho ? frustum.compute_ortho_matrix() :
                                                frustum.compute_matrix();
     culler.setup( projection * modelView );
 
