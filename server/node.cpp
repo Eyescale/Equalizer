@@ -32,9 +32,6 @@
 #include <eq/net/command.h>
 #include <eq/client/packets.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace server
@@ -45,11 +42,11 @@ void Node::_construct()
 {
     _active         = 0;
     _config         = 0;
-    _tasks          = eq::TASK_NONE;
+    _tasks          = TASK_NONE;
     _lastDrawPipe   = 0;
     _flushedFrame   = 0;
     _finishedFrame  = 0;
-    EQINFO << "New node @" << (void*)this << endl;
+    EQINFO << "New node @" << (void*)this << std::endl;
 }
 
 Node::Node()
@@ -90,7 +87,7 @@ Node::Node( const Node& from, Config* config )
 
 Node::~Node()
 {
-    EQINFO << "Delete node @" << (void*)this << endl;
+    EQINFO << "Delete node @" << (void*)this << std::endl;
 
     if( _config )
         _config->removeNode( this );
@@ -112,11 +109,11 @@ void Node::attachToSession( const uint32_t id, const uint32_t instanceID,
     
     net::CommandQueue* queue = getCommandThreadQueue();
 
-    registerCommand( eq::CMD_NODE_CONFIG_INIT_REPLY, 
+    registerCommand( CMD_NODE_CONFIG_INIT_REPLY, 
                      NodeFunc( this, &Node::_cmdConfigInitReply ), queue );
-    registerCommand( eq::CMD_NODE_CONFIG_EXIT_REPLY, 
+    registerCommand( CMD_NODE_CONFIG_EXIT_REPLY, 
                      NodeFunc( this, &Node::_cmdConfigExitReply ), queue );
-    registerCommand( eq::CMD_NODE_FRAME_FINISH_REPLY,
+    registerCommand( CMD_NODE_FRAME_FINISH_REPLY,
                      NodeFunc( this, &Node::_cmdFrameFinishReply ), queue );
 }
 
@@ -312,13 +309,13 @@ void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
     _config->registerObject( this );
 
     EQLOG( LOG_INIT ) << "Create node" << std::endl;
-    eq::ConfigCreateNodePacket createNodePacket;
+    ConfigCreateNodePacket createNodePacket;
     createNodePacket.nodeID = getID();
     createNodePacket.sessionID = _config->getID();
     _node->send( createNodePacket );
 
     EQLOG( LOG_INIT ) << "Init node" << std::endl;
-    eq::NodeConfigInitPacket packet;
+    NodeConfigInitPacket packet;
     packet.initID      = initID;
     packet.tasks       = _tasks;
     packet.frameNumber = frameNumber;
@@ -340,7 +337,7 @@ bool Node::_syncConfigInit()
     if( success )
         _state = STATE_RUNNING;
     else
-        EQWARN << "Node initialization failed: " << _error << endl;
+        EQWARN << "Node initialization failed: " << _error << std::endl;
 
     return success;
 }
@@ -354,12 +351,12 @@ void Node::_configExit()
     _state = STATE_EXITING;
 
     EQLOG( LOG_INIT ) << "Exit node" << std::endl;
-    eq::NodeConfigExitPacket packet;
+    NodeConfigExitPacket packet;
     _send( packet );
     flushSendBuffer();
 
     EQLOG( LOG_INIT ) << "Destroy node" << std::endl;
-    eq::ConfigDestroyNodePacket destroyNodePacket;
+    ConfigDestroyNodePacket destroyNodePacket;
     destroyNodePacket.nodeID = getID();
     destroyNodePacket.sessionID = _config->getID();
     _node->send( destroyNodePacket );
@@ -377,7 +374,7 @@ bool Node::_syncConfigExit()
     _config->deregisterObject( this );
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
-    _tasks = eq::TASK_NONE;
+    _tasks = TASK_NONE;
     _frameIDs.clear();
     _flushBarriers();
     return success;
@@ -388,17 +385,17 @@ bool Node::_syncConfigExit()
 //---------------------------------------------------------------------------
 void Node::update( const uint32_t frameID, const uint32_t frameNumber )
 {
-    EQVERB << "Start frame " << frameNumber << endl;
+    EQVERB << "Start frame " << frameNumber << std::endl;
     EQASSERT( _state == STATE_RUNNING );
     EQASSERT( _active > 0 );
 
     _frameIDs[ frameNumber ] = frameID;
     
-    eq::NodeFrameStartPacket startPacket;
+    NodeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
     _send( startPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK node start frame " << &startPacket << endl;
+    EQLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
 
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
@@ -407,11 +404,12 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
             pipe->update( frameID, frameNumber );
     }
 
-    eq::NodeFrameTasksFinishPacket finishPacket;
+    NodeFrameTasksFinishPacket finishPacket;
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     _send( finishPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK node tasks finish " << &finishPacket <<endl;
+    EQLOG( LOG_TASKS ) << "TASK node tasks finish " << &finishPacket
+                           << std::endl;
 
     _finish( frameNumber );
 
@@ -419,16 +417,45 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     _lastDrawPipe = 0;
 }
 
+uint32_t Node::_getFinishLatency() const
+{
+    switch( getIAttribute( eq::Node::IATTR_THREAD_MODEL ))
+    {
+        case DRAW_SYNC:
+            if( _tasks & TASK_DRAW )
+            {
+                // More than one frame latency doesn't make sense, since the
+                // draw sync for frame+1 does not allow for more
+                const Config* config = getConfig();
+                const uint32_t latency = config->getLatency();
+
+                return EQ_MIN( latency, 1 );
+            }
+
+        case LOCAL_SYNC:
+            if( _tasks != TASK_NONE )
+                // local sync enforces no latency
+                return 0;
+            break;
+
+        case ASYNC:
+            break;
+        default:
+            EQUNIMPLEMENTED;
+    }
+
+    const Config* config = getConfig();
+    return config->getLatency();
+}
+
 void Node::_finish( const uint32_t currentFrame )
 {
-    const Config*  config  = getConfig();
-    const uint32_t latency = config->getLatency();
-
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
         if( pipe->getIAttribute( Pipe::IATTR_HINT_THREAD ))
         {
+            const uint32_t latency = _getFinishLatency();
             if( currentFrame > latency )
                 flushFrames( currentFrame - latency );
             return;
@@ -441,7 +468,7 @@ void Node::_finish( const uint32_t currentFrame )
 
 void Node::flushFrames( const uint32_t frameNumber )
 {
-    EQVERB << "Flush frames including " << frameNumber << endl;
+    EQVERB << "Flush frames including " << frameNumber << std::endl;
 
     while( _flushedFrame < frameNumber )
     {
@@ -457,13 +484,13 @@ void Node::_sendFrameFinish( const uint32_t frameNumber )
     if( _frameIDs.find( frameNumber ) == _frameIDs.end( ))
         return; // finish already send
 
-    eq::NodeFrameFinishPacket packet;
+    NodeFrameFinishPacket packet;
     packet.frameID     = _frameIDs[ frameNumber ];
     packet.frameNumber = frameNumber;
 
     _send( packet );
     _frameIDs.erase( frameNumber );
-    EQLOG( eq::LOG_TASKS ) << "TASK node finish frame  " << &packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK node finish frame  " << &packet << std::endl;
 }
 
 //---------------------------------------------------------------------------
@@ -494,7 +521,7 @@ void Node::releaseBarrier( net::Barrier* barrier )
 
 void Node::_flushBarriers()
 {
-    for( vector< net::Barrier* >::const_iterator i =_barriers.begin(); 
+    for( std::vector< net::Barrier* >::const_iterator i =_barriers.begin(); 
          i != _barriers.end(); ++ i )
     {
         net::Barrier* barrier = *i;
@@ -514,21 +541,24 @@ void Node::flushSendBuffer()
 //===========================================================================
 net::CommandResult Node::_cmdConfigInitReply( net::Command& command )
 {
-    const eq::NodeConfigInitReplyPacket* packet = 
-        command.getPacket<eq::NodeConfigInitReplyPacket>();
-    EQVERB << "handle configInit reply " << packet << endl;
+    const NodeConfigInitReplyPacket* packet = 
+        command.getPacket<NodeConfigInitReplyPacket>();
+    EQVERB << "handle configInit reply " << packet << std::endl;
     EQASSERT( _state == STATE_INITIALIZING );
 
     _error = packet->error;
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
+    memcpy( _iAttributes, packet->iAttributes, 
+            eq::Node::IATTR_ALL * sizeof( int32_t ));
+
     return net::COMMAND_HANDLED;
 }
 
 net::CommandResult Node::_cmdConfigExitReply( net::Command& command )
 {
-    const eq::NodeConfigExitReplyPacket* packet =
-        command.getPacket<eq::NodeConfigExitReplyPacket>();
-    EQVERB << "handle configExit reply " << packet << endl;
+    const NodeConfigExitReplyPacket* packet =
+        command.getPacket<NodeConfigExitReplyPacket>();
+    EQVERB << "handle configExit reply " << packet << std::endl;
     EQASSERT( _state == STATE_EXITING );
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
@@ -537,9 +567,9 @@ net::CommandResult Node::_cmdConfigExitReply( net::Command& command )
 
 net::CommandResult Node::_cmdFrameFinishReply( net::Command& command )
 {
-    const eq::NodeFrameFinishReplyPacket* packet = 
-        command.getPacket<eq::NodeFrameFinishReplyPacket>();
-    EQVERB << "handle frame finish reply " << packet << endl;
+    const NodeFrameFinishReplyPacket* packet = 
+        command.getPacket<NodeFrameFinishReplyPacket>();
+    EQVERB << "handle frame finish reply " << packet << std::endl;
     
     _finishedFrame = packet->frameNumber;
     _config->notifyNodeFrameFinished( packet->frameNumber );
@@ -547,23 +577,23 @@ net::CommandResult Node::_cmdFrameFinishReply( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-ostream& operator << ( ostream& os, const Node* node )
+std::ostream& operator << ( std::ostream& os, const Node* node )
 {
     if( !node )
         return os;
     
-    os << disableFlush << disableHeader;
+    os << base::disableFlush << base::disableHeader;
     const Config* config = node->getConfig();
     if( config && config->isApplicationNode( node ))
-        os << "appNode" << endl;
+        os << "appNode" << std::endl;
     else
-        os << "node" << endl;
+        os << "node" << std::endl;
 
-    os << "{" << endl << indent;
+    os << "{" << std::endl << base::indent;
 
     const std::string& name = node->getName();
     if( !name.empty( ))
-        os << "name     \"" << name << "\"" << endl;
+        os << "name     \"" << name << "\"" << std::endl;
 
     const ConnectionDescriptionVector& descriptions = 
         node->getConnectionDescriptions();
@@ -584,8 +614,8 @@ ostream& operator << ( ostream& os, const Node* node )
 
         if( !attrPrinted )
         {
-            os << endl << "attributes" << endl;
-            os << "{" << endl << indent;
+            os << std::endl << "attributes" << std::endl;
+            os << "{" << std::endl << base::indent;
             attrPrinted = true;
         }
         
@@ -594,17 +624,18 @@ ostream& operator << ( ostream& os, const Node* node )
                 i==eq::Node::IATTR_HINT_STATISTICS ?
                     "hint_statistics    " :
                 "ERROR" )
-           << static_cast<eq::IAttrValue>( value ) << endl;
+           << static_cast<IAttrValue>( value ) << std::endl;
     }
     
     if( attrPrinted )
-        os << exdent << "}" << endl << endl;
+        os << base::exdent << "}" << std::endl << std::endl;
 
     const PipeVector& pipes = node->getPipes();
     for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
         os << *i;
 
-    os << exdent << "}" << endl << enableHeader << enableFlush;
+    os << base::exdent << "}" << std::endl
+       << base::enableHeader << base::enableFlush;
     return os;
 }
 

@@ -320,6 +320,7 @@ namespace server
         void _configExit();
         bool _syncConfigExit();
 
+        uint32_t _getFinishLatency() const;
         void _finish( const uint32_t currentFrame );
 
         /** flush cached barriers. */

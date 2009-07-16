@@ -394,6 +394,7 @@ namespace eq
                 error[0]  = '\0';
             }
 
+        int32_t  iAttributes[ eq::Node::IATTR_ALL ];
         bool     result;
         EQ_ALIGN8( char error[8] );
     };

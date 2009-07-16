@@ -1,5 +1,9 @@
-Fix 1997583: eqPly: ortho frustum culling broken
--- also fix frustum of stress.threads.eqc
+Fix DPlex with draw_sync thread model and non-threaded destination channel
+
+Send the node frame finish commands earlier (-latency for async, -1 for
+draw_sync, 0 for local_sync), which is anyways enforced by the
+respective thread model.
+
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

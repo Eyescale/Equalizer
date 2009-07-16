@@ -544,6 +544,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
 
     _state = reply.result ? STATE_RUNNING : STATE_INIT_FAILED;
 
+    memcpy( reply.iAttributes, _iAttributes, IATTR_ALL * sizeof( int32_t ));
     send( command.getNode(), reply, _error );
     return net::COMMAND_HANDLED;
 }
