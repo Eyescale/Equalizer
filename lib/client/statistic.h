@@ -35,12 +35,12 @@ namespace eq
             CHANNEL_DRAW,
             CHANNEL_DRAW_FINISH,
             CHANNEL_ASSEMBLE,
-            CHANNEL_READBACK,
             CHANNEL_WAIT_FRAME,
+            CHANNEL_READBACK,
             WINDOW_FINISH,
+            WINDOW_THROTTLE_FRAMERATE,
             WINDOW_SWAP_BARRIER,
             WINDOW_SWAP,
-            WINDOW_THROTTLE_FRAMERATE,
             PIPE_IDLE,
             FRAME_TRANSMIT,
             FRAME_COMPRESS,
@@ -48,7 +48,7 @@ namespace eq
             CONFIG_START_FRAME,
             CONFIG_FINISH_FRAME,
             CONFIG_WAIT_FINISH_FRAME,
-            TYPE_ALL          // must be last
+            ALL          // must be last
         };
 
         Type     type;
@@ -67,7 +67,8 @@ namespace eq
         float ratio; // compression ratio
         char resourceName[32];
 
-        static Vector3f& getColor( const Type type );
+        static const std::string& getName( const Type type );
+        static const Vector3f& getColor( const Type type );
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const Statistic& );

@@ -917,8 +917,7 @@ void Channel::drawStatistics()
                         break;
                 }
                 
-                Vector3f color( Statistic::getColor( stat.type ) - dim );
-                color.clamp();
+                const Vector3f color( Statistic::getColor( stat.type ) - dim );
                 glColor3fv( color.array );
 
                 glBegin( GL_QUADS );
@@ -988,7 +987,65 @@ void Channel::drawStatistics()
     font.draw( text.str( ));
     
     // Legend
+    nextY -= SPACE;
+    float x = 0.f;
+    float z = 0.f;
+
+    glRasterPos3f( x+1.f, nextY-12.f, z );
+    glColor3f( 1.f, 1.f, 1.f );
+    font.draw( "channel" );
+
+    for( size_t i = 1; i < Statistic::CONFIG_START_FRAME; ++i )
+    {
+        const Statistic::Type type = static_cast< Statistic::Type >( i );
+        if( type == Statistic::CHANNEL_DRAW_FINISH ||
+            type == Statistic::PIPE_IDLE )
+        {
+            continue;
+        }
+
+        if( type == Statistic::WINDOW_FINISH )
+        {
+            x = 0.f;
+            nextY -= (HEIGHT + SPACE);
+            z = 0.f;
+
+            glColor3f( 1.f, 1.f, 1.f );
+            glRasterPos3f( x+1.f, nextY-12.f, z );
+            font.draw( "window" );
+        }
+        else if( type == Statistic::FRAME_TRANSMIT )
+        {
+            x = 0.f;
+            nextY -= (HEIGHT + SPACE);
+            z = 0.f;
+
+            glColor3f( 1.f, 1.f, 1.f );
+            glRasterPos3f( x+1.f, nextY-12.f, z );
+            font.draw( "frame" );
+        }
+
+        x += 60.f;
+        const float x2 = x + 60.f - SPACE; 
+        const float y2 = static_cast< float >( nextY - HEIGHT );
+
+        z += 0.01f;
+        glColor3fv( Statistic::getColor( type ).array );
+        glBegin( GL_QUADS );
+        glVertex3f( x2, nextY, z );
+        glVertex3f( x,  nextY, z );
+        glVertex3f( x,  y2,    z );
+        glVertex3f( x2, y2,    z );
+        glEnd();
+
+        z += 0.01f;
+        glColor3f( 0.f, 0.f, 0.f );
+        glRasterPos3f( x+1.f, nextY-12.f, z );
+        font.draw( Statistic::getName( type ));
+    }
+    // nextY -= (HEIGHT + SPACE);
     
+    glColor3f( 1.f, 1.f, 1.f );
     _window->drawFPS();
     EQ_GL_CALL( resetAssemblyState( ));
 }
