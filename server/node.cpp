@@ -431,6 +431,7 @@ uint32_t Node::_getFinishLatency() const
 
                 return EQ_MIN( latency, 1 );
             }
+            break;
 
         case LOCAL_SYNC:
             if( _tasks != TASK_NONE )

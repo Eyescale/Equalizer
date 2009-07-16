@@ -367,13 +367,15 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
 {
     const eq::ServerShutdownPacket* packet = 
         command.getPacket< eq::ServerShutdownPacket >();
-    EQINFO << "Handle shutdown " << packet << endl;
 
     eq::ServerShutdownReplyPacket reply( packet );
 
     reply.result = _appConfigs.empty();
     if( reply.result )
+    {
         _running = false;
+        EQINFO << "Shutting down server" << endl;
+    }
     else
         EQWARN << "Ignoring shutdown request, " << _appConfigs.size() 
                << " configs still active" << endl;
