@@ -1,9 +1,12 @@
-Fix 64-but Linux build.
+Fix 2822348: No latency when event-driven
+
+Replace broad 'finishAllFrames' with gradual command execution when no
+new frame needs to be finished yet.
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [x] Bugfix
-[ ] New Feature
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

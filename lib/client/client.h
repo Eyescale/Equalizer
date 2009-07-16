@@ -62,9 +62,12 @@ namespace eq
          */
         EQ_EXPORT bool disconnectServer( ServerPtr server );
 
+        /** @return true if the client has commands pending, false otherwise. */
+        EQ_EXPORT bool hasCommands();
+
         /** 
          * Get and process one command from the node command queue. Used
-         * internally to run non-threaded commands.
+         * internally to run node commands.
          */
         EQ_EXPORT void processCommand();
 

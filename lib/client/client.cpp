@@ -262,6 +262,11 @@ bool Client::exitClient()
     return (net::Node::exitClient() & eq::exit( ));
 }
 
+bool Client::hasCommands()
+{
+    return !_nodeThreadQueue->isEmpty();
+}
+
 void Client::processCommand()
 {
     net::Command* command = _nodeThreadQueue->pop();

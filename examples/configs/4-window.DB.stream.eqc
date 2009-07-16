@@ -1,7 +1,7 @@
 # single pipe, four-to-one sort-last demo configuration with stream compositing
 global
 {
-    EQ_WINDOW_IATTR_HINT_SWAPSYNC 0
+    EQ_WINDOW_IATTR_HINT_SWAPSYNC   OFF
     EQ_WINDOW_IATTR_HINT_STATISTICS OFF
 }
 
