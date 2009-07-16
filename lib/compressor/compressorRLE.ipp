@@ -160,9 +160,9 @@ static inline void _compress( const void* const input, const uint64_t nPixels,
 template< typename PixelType, typename ComponentType,
           typename swizzleFunc, typename alphaFunc >
 static inline void _decompress( const void* const* inData,
-                                const uint64_t* const inSizes,
+                                const eq_uint64_t* const inSizes,
                                 const unsigned nInputs,
-                                void* const outData, const uint64_t nPixels )
+                                void* const outData, const eq_uint64_t nPixels )
 {
     assert( (nInputs % 4) == 0 );
     assert( (inSizes[0] % sizeof( ComponentType )) == 0 ); 

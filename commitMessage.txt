@@ -1,9 +1,4 @@
-Fix DPlex with draw_sync thread model and non-threaded destination channel
-
-Send the node frame finish commands earlier (-latency for async, -1 for
-draw_sync, 0 for local_sync), which is anyways enforced by the
-respective thread model.
-
+Fix 64-but Linux build.
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
