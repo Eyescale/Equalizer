@@ -660,7 +660,7 @@ void Channel::applyFrustum() const
     EQ_GL_CALL( glFrustum( frustum.left(), frustum.right(),             \
                            frustum.bottom(), frustum.top(),             \
                            frustum.near_plane(), frustum.far_plane() )); 
-    EQVERB << "Apply " << frustum << endl;
+    EQVERB << "Perspective " << frustum << endl;
 }
 
 void Channel::applyOrtho() const
@@ -669,7 +669,7 @@ void Channel::applyOrtho() const
     EQ_GL_CALL( glOrtho( ortho.left(), ortho.right(),               \
                          ortho.bottom(), ortho.top(),               \
                          ortho.near_plane(), ortho.far_plane() )); 
-    EQVERB << "Apply " << ortho << endl;
+    EQVERB << "Orthographic " << ortho << endl;
 }
 
 void Channel::applyScreenFrustum() const
@@ -995,12 +995,12 @@ void Channel::drawStatistics()
         const EntityData& data = i->second;
 
         glColor3f( 1.f, 1.f, 1.f );
-        glRasterPos3f( 100.f, data.yPos-SPACE-12.0f, 0.99f );
+        glRasterPos3f( 60.f, data.yPos-SPACE-12.0f, 0.99f );
         font.draw( data.name );
     }
 
     glColor3f( 1.f, 1.f, 1.f );
-    glRasterPos3f( 100.f, nextY-SPACE-12.0f, 0.99f );
+    glRasterPos3f( 60.f, nextY-SPACE-12.0f, 0.99f );
     ostringstream text;
     text << scale << "ms/pixel";
 
