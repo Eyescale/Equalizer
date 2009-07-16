@@ -884,29 +884,6 @@ void Channel::drawStatistics()
                 
                 switch( stat.type )
                 {
-                    case Statistic::CHANNEL_CLEAR:
-                        glColor3f( .5f-dim, 1.0f-dim, .5f-dim );
-                        break;
-                    case Statistic::CHANNEL_DRAW:
-                        glColor3f( 0.f, 1.0f-dim, 0.f ); 
-                        break;
-                    case Statistic::CHANNEL_DRAW_FINISH:
-                        glColor3f( 0.f, .5f-dim, 0.f ); 
-                        break;
-                    case Statistic::CHANNEL_ASSEMBLE:
-                        glColor3f( 1.0f-dim, 1.0f-dim, 0.f ); 
-                        break;
-                    case Statistic::CHANNEL_READBACK:
-                        glColor3f( 1.0f-dim, .5f-dim, .5f-dim ); 
-                        break;
-                    case Statistic::FRAME_TRANSMIT:
-                        glColor3f( 0.f, 0.f, 1.0f-dim ); 
-                        z = 0.5f; 
-                        break;
-                    case Statistic::FRAME_DECOMPRESS:
-                        glColor3f( .7f-dim, 1.f-dim, .7f-dim ); 
-                        z = 0.5f; 
-                        break;
                     case Statistic::FRAME_COMPRESS:
                     {
                         z = 0.7f; 
@@ -918,42 +895,31 @@ void Channel::drawStatistics()
                         glRasterPos3f( x1+1, y2, 0.99f );
 
                         font.draw( text.str( ));
-                        glColor3f( .7f-dim, .7f-dim, 1.f-dim ); 
                         break;
                     }
+
+                    case Statistic::FRAME_TRANSMIT:
+                    case Statistic::FRAME_DECOMPRESS:
+                        z = 0.5f; 
+                        break;
+
                     case Statistic::CHANNEL_WAIT_FRAME:
                     case Statistic::CONFIG_WAIT_FINISH_FRAME:
-                        glColor3f( 1.0f-dim, 0.f, 0.f ); 
                         y1 -= SPACE;
                         y2 += SPACE;
-                        z = 0.1f; 
-                        break;
-
-                    case Statistic::WINDOW_FINISH:
-                        glColor3f( 1.0f-dim, 1.0f-dim, 0.f ); 
-                        break;
-
-                    case Statistic::WINDOW_SWAP_BARRIER:
-                        glColor3f( 1.0f-dim, 0.f, 0.f ); 
-                        break;
-                    
-                    case Statistic::WINDOW_THROTTLE_FRAMERATE:
-                        glColor3f( 1.0f, 0.f, 1.f ); 
-                        break; 
-                           
+                        // no break;
                     case Statistic::CONFIG_START_FRAME:
-                        glColor3f( .5f-dim, 1.0f-dim, .5f-dim ); 
                         z = 0.1f; 
-                        break;
-                    case Statistic::CONFIG_FINISH_FRAME:
-                        glColor3f( .5f-dim, .5f-dim, .5f-dim ); 
                         break;
 
                     default:
-                        glColor3f( 1.0f-dim, 1.0f-dim, 1.0f-dim ); 
-                        z = 0.2f; 
+                        z = 0.0f; 
                         break;
                 }
+                
+                Vector3f color( Statistic::getColor( stat.type ) - dim );
+                color.clamp();
+                glColor3fv( color.array );
 
                 glBegin( GL_QUADS );
                 glVertex3f( x2, y1, z );

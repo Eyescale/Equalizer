@@ -1,4 +1,4 @@
-Separate statistic and event header
+Move statistic event color to statistic class
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

@@ -18,6 +18,7 @@
 #ifndef EQ_STATISTIC_H
 #define EQ_STATISTIC_H
 
+#include <eq/client/types.h>
 #include <eq/base/base.h>
 
 #include <iostream>
@@ -27,7 +28,7 @@ namespace eq
     /** A statistics event. */
     struct Statistic
     {
-        enum Type // Also update string table in statistic.cpp
+        enum Type // Also update string and color table in statistic.cpp
         {
             NONE = 0,
             CHANNEL_CLEAR,
@@ -65,6 +66,8 @@ namespace eq
         };
         float ratio; // compression ratio
         char resourceName[32];
+
+        static Vector3f& getColor( const Type type );
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const Statistic& );
