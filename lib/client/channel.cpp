@@ -968,7 +968,7 @@ void Channel::drawStatistics()
     // Global stats (scale, GPU idle)
     glColor3f( 1.f, 1.f, 1.f );
     nextY -= (HEIGHT + SPACE);
-    glRasterPos3f( 60.f, nextY, 0.99f );
+    glRasterPos3f( 60.f, static_cast< float >( nextY ), 0.99f );
     ostringstream text;
     text << scale << "ms/pixel";
 
@@ -1027,15 +1027,16 @@ void Channel::drawStatistics()
 
         x += 60.f;
         const float x2 = x + 60.f - SPACE; 
+        const float y1 = static_cast< float >( nextY );
         const float y2 = static_cast< float >( nextY - HEIGHT );
 
         z += 0.01f;
         glColor3fv( Statistic::getColor( type ).array );
         glBegin( GL_QUADS );
-        glVertex3f( x2, nextY, z );
-        glVertex3f( x,  nextY, z );
-        glVertex3f( x,  y2,    z );
-        glVertex3f( x2, y2,    z );
+        glVertex3f( x2, y1, z );
+        glVertex3f( x,  y1, z );
+        glVertex3f( x,  y2, z );
+        glVertex3f( x2, y2, z );
         glEnd();
 
         z += 0.01f;
