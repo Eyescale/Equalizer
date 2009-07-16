@@ -1,4 +1,10 @@
 # single pipe, four-to-one sort-last demo configuration with stream compositing
+global
+{
+    EQ_WINDOW_IATTR_HINT_SWAPSYNC 0
+    EQ_WINDOW_IATTR_HINT_STATISTICS OFF
+}
+
 server
 {
     config
@@ -49,8 +55,13 @@ server
                 window
                 {
                     viewport [ .55 .5 .4 .3 ]
-                    attributes{ planes_stencil ON }
                     name "window4"
+                    attributes 
+                    {
+                        planes_stencil ON
+                        hint_swapsync  ON
+                        hint_statistics NICEST
+                    }
 
                     channel
                     {

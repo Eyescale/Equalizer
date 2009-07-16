@@ -2,6 +2,7 @@
 global
 {
     EQ_WINDOW_IATTR_HINT_SWAPSYNC 0
+    EQ_WINDOW_IATTR_HINT_STATISTICS OFF
 }
 
 server
@@ -32,7 +33,7 @@ server
                 window
                 {
                     viewport [ 340 750 480 300 ]
-                    attributes { hint_swapsync 1 }
+                    attributes { hint_swapsync ON hint_statistics NICEST }
                     channel
                     {
                         name "dest"
