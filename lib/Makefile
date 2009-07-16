@@ -120,6 +120,7 @@ HEADER_SRC = \
 	client/segment.h \
 	client/segmentVisitor.h \
 	client/server.h \
+	client/statistic.h \
 	client/statisticSampler.h \
 	client/task.h \
 	client/texture.h \
@@ -232,6 +233,7 @@ CXXFILES = \
 	client/renderContext.cpp \
 	client/segment.cpp \
 	client/server.cpp \
+	client/statistic.cpp \
 	client/texture.cpp \
 	client/version.cpp \
 	client/view.cpp \

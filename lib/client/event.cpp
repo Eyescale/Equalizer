@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,9 +19,6 @@
 
 #include <eq/base/idPool.h>
 
-using namespace std;
-using namespace eq::base;
-
 #ifdef WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #else
@@ -30,7 +27,8 @@ using namespace eq::base;
 
 namespace eq
 {
-namespace{
+namespace
+{
 /** String representation of event types. */
 static std::string _eventTypeNames[ Event::ALL ] =
 {
@@ -50,28 +48,6 @@ static std::string _eventTypeNames[ Event::ALL ] =
     "magellan axis",
     "unknown",
     "user-specific"
-};
-
-/** String representation of statistic event types. */
-static std::string _stateEventTypeNames[Statistic::TYPE_ALL] =
-{
-    "NO EVENT          ",
-    "channel clear     ",
-    "channel draw      ",
-    "channel finishdraw",
-    "channel assemble  ",
-    "channel readback  ",
-    "channel wait frame",
-    "window finish",
-    "window swap barrier",
-    "window swap buffer",
-    "window throttle framerate",
-    "pipe idle",
-    "node transmit"
-    "node compress",
-    "config start frame",
-    "config finishframe",
-    "config wait finish"
 };
 }
 
@@ -165,15 +141,7 @@ std::ostream& operator << ( std::ostream& os, const PointerEvent& event )
 
 std::ostream& operator << ( std::ostream& os, const KeyEvent& event )
 {
-    os << "key " << event.key << ' ' << endl;
-    return os;
-}
-
-std::ostream& operator << ( std::ostream& os, const Statistic& event )
-{
-    os << event.resourceName << ": " << _stateEventTypeNames[ event.type ]
-       << ' ' << event.frameNumber << ' ' << event.task << ' ' 
-       << event.startTime << " - " << event.endTime;
+    os << "key " << event.key << ' ';
     return os;
 }
 

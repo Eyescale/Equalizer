@@ -1,12 +1,9 @@
-Fix 2822348: No latency when event-driven
-
-Replace broad 'finishAllFrames' with gradual command execution when no
-new frame needs to be finished yet.
+Separate statistic and event header
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[x] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] Bugfix
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -21,10 +21,10 @@
 #ifndef EQ_EVENT_H
 #define EQ_EVENT_H
 
-#include <eq/client/renderContext.h> // used as member
+#include <eq/client/renderContext.h> // member
+#include <eq/client/statistic.h>     // member
 
 #include <eq/base/base.h>
-#include <eq/base/log.h>
 
 namespace eq
 {
@@ -118,48 +118,6 @@ namespace eq
     {
         uint32_t key; // KC_? for special keys, ascii code otherwise
         // TODO modifier state
-    };
-
-    struct Statistic
-    {
-        enum Type // Also update string table in event.cpp
-        {
-            NONE = 0,
-            CHANNEL_CLEAR,
-            CHANNEL_DRAW,
-            CHANNEL_DRAW_FINISH,
-            CHANNEL_ASSEMBLE,
-            CHANNEL_READBACK,
-            CHANNEL_WAIT_FRAME,
-            WINDOW_FINISH,
-            WINDOW_SWAP_BARRIER,
-            WINDOW_SWAP,
-            WINDOW_THROTTLE_FRAMERATE,
-            PIPE_IDLE,
-            FRAME_TRANSMIT,
-            FRAME_COMPRESS,
-            FRAME_DECOMPRESS,
-            CONFIG_START_FRAME,
-            CONFIG_FINISH_FRAME,
-            CONFIG_WAIT_FINISH_FRAME,
-            TYPE_ALL          // must be last
-        };
-
-        Type     type;
-        uint32_t frameNumber;
-        uint32_t task;
-        union
-        {
-            int64_t  startTime;
-            int64_t  idleTime;
-        };
-        union
-        {
-            int64_t  endTime;
-            int64_t  totalTime;
-        };
-        float ratio; // compression ratio
-        char resourceName[32];
     };
 
     struct MagellanEvent

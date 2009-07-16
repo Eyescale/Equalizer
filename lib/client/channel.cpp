@@ -989,6 +989,7 @@ void Channel::drawStatistics()
         dim += .1f;
     }
 
+    // Entitity names
     for( std::map< uint32_t, EntityData >::const_iterator i = entities.begin();
          i != entities.end(); ++i )
     {
@@ -999,8 +1000,10 @@ void Channel::drawStatistics()
         font.draw( data.name );
     }
 
+    // Global stats (scale, GPU idle)
     glColor3f( 1.f, 1.f, 1.f );
-    glRasterPos3f( 60.f, nextY-SPACE-12.0f, 0.99f );
+    nextY -= (HEIGHT + SPACE);
+    glRasterPos3f( 60.f, nextY, 0.99f );
     ostringstream text;
     text << scale << "ms/pixel";
 
@@ -1017,7 +1020,9 @@ void Channel::drawStatistics()
     }
 
     font.draw( text.str( ));
-
+    
+    // Legend
+    
     _window->drawFPS();
     EQ_GL_CALL( resetAssemblyState( ));
 }
