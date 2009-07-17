@@ -19,6 +19,8 @@
 #define EQBASE_RNG_H
 
 #include <eq/base/debug.h> // for EQASSERT
+#include <eq/base/nonCopyable.h>
+
 #include <fcntl.h>
 
 namespace eq
@@ -31,7 +33,7 @@ namespace base
      * Generates a set of random, or if not supported by the operating system,
      * pseudo-random numbers. Each instance creates its own series of numbers.
      */
-    class RNG
+    class RNG : public NonCopyable
     {
     public:
         /** Construct a new random number generator. */

@@ -19,6 +19,7 @@
 #define EQBASE_LOCK_H
 
 #include <eq/base/base.h>
+#include <eq/base/nonCopyable.h>
 
 namespace eq
 {
@@ -27,7 +28,7 @@ namespace base
     class LockPrivate;
 
     /** A lock (mutex) primitive. */
-    class Lock
+    class Lock : public NonCopyable
     {
     public:
         /** Construct a new lock. */

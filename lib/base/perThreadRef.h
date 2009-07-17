@@ -29,13 +29,13 @@ namespace base
     class PerThreadRefPrivate;
 
     /** Thread-specific storage for a RefPtr. */
-    template<typename T> class PerThreadRef
+    template< typename T > class PerThreadRef : public NonCopyable
     {
     public:
         /** Construct a new per-thread reference pointer. */
         PerThreadRef();
         /** Destruct a per-thread reference pointer. */
-        virtual ~PerThreadRef();
+        ~PerThreadRef();
 
         /** Assign a reference pointer to the thread-local storage. */
         PerThreadRef<T>& operator = ( RefPtr< T > data );

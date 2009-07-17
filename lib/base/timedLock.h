@@ -19,6 +19,7 @@
 #define EQBASE_TIMEDLOCK_H
 
 #include <eq/base/base.h>
+#include <eq/base/nonCopyable.h>
 
 namespace eq
 {
@@ -29,7 +30,7 @@ namespace base
     /**
      * A mutex with timeout capabilities.
      */
-    class TimedLock 
+    class TimedLock : public NonCopyable
     {
     public:
         /** Constructs a new timed lock. */

@@ -19,6 +19,7 @@
 #define EQBASE_IDPOOL_H
 
 #include <eq/base/base.h>
+#include <eq/base/nonCopyable.h>
 #include <eq/base/thread.h>
 
 #include <list>
@@ -38,7 +39,7 @@ namespace base
      * identifiers. Used in Equalizer for session-unique object
      * identifiers. Access to the identifier pool is thread-safe.
      */
-    class IDPool 
+    class IDPool : public NonCopyable
     {
     public:
         enum MaxCapacity

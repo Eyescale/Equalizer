@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
  *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
@@ -19,42 +20,44 @@
 #define EQBASE_DSO_H
 
 #include <eq/base/base.h>
+#include <eq/base/nonCopyable.h>
+
 #include <string>
+
 namespace eq
 {
 namespace base
 {
 
-/** Helper to access dynamic shared objects (DSO) */
-class DSO 
-{
-public:
-    /** Construct a new dynamic shared object. */
-    EQ_EXPORT DSO() : _dso( 0 ) {}
+    /** Helper to access dynamic shared objects (DSO) */
+    class DSO : public NonCopyable
+    {
+    public:
+        /** Construct a new dynamic shared object. */
+        EQ_EXPORT DSO() : _dso( 0 ) {}
 
-    /** 
-     * Open a dynamic shared object.
-     * 
-     * @param fileName The file name of the DSO.
-     * @return true if the DSO was opened, false upon error.
-     */
-    EQ_EXPORT bool open( const std::string& fileName );
+        /** 
+         * Open a dynamic shared object.
+         * 
+         * @param fileName The file name of the DSO.
+         * @return true if the DSO was opened, false upon error.
+         */
+        EQ_EXPORT bool open( const std::string& fileName );
 
-    /** Close the DSO, which invalidates retrieved function pointers */
-    EQ_EXPORT void close();
+        /** Close the DSO, which invalidates retrieved function pointers */
+        EQ_EXPORT void close();
     
-    /** @return a function pointer in the DSO, or 0 if the function is not
-      *         exported by the DSO. */
-    EQ_EXPORT void* getFunctionPointer( const std::string& functionName );
+        /** @return a function pointer in the DSO, or 0 if the function is not
+         *         exported by the DSO. */
+        EQ_EXPORT void* getFunctionPointer( const std::string& functionName );
 
-
-private:
+    private:
 #ifdef WIN32
         HMODULE _dso;
 #else
         void* _dso;
 #endif
-};
+    };
 
 }
 }

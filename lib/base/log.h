@@ -74,7 +74,8 @@ namespace base
                 : _line(0), _indent(0), _blocked(0), _noHeader(0), 
                   _newLine(true), _stream(stream)
             {}
-        
+        virtual ~LogBuffer() {}
+
         void indent() { ++_indent; }
         void exdent() { --_indent; }
 

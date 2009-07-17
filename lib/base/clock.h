@@ -52,7 +52,7 @@ namespace base
             }
 
         /** Destroy the clock. */
-        virtual ~Clock() {}
+        ~Clock() {}
 
         /** Reset the base time of the clock to the current time. */
         void reset()   

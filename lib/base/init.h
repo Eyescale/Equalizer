@@ -26,7 +26,8 @@ namespace eq
  * @brief Equalizer utility layer.
  *
  * The eq::base namespace provides C++ classes to abstract the underlying
- * operating system and implements common helper functionality.
+ * operating system and implements common helper functionality. Classes with
+ * non-virtual destructors are not intended to be subclassed.
  */
 namespace base
 {

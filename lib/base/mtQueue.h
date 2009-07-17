@@ -40,8 +40,14 @@ namespace base
         /** Construct a new queue. */
         MTQueue();
 
+        /** Construct a copy of a queue. */
+        MTQueue( const MTQueue< T >& from );
+
         /** Destruct this Queue. */
         ~MTQueue();
+
+        /** Assign the values of another queue */
+        MTQueue< T >& operator = ( const MTQueue< T >& from ); 
 
         /** @return true if the queue is empty, false otherwise. */
         bool isEmpty() const { return _queue.empty(); }
@@ -76,6 +82,8 @@ namespace base
     private:
         std::deque< T > _queue;
         MTQueuePrivate* _data;
+
+        void _init();
     };
 
 //----------------------------------------------------------------------
@@ -106,9 +114,22 @@ template< typename T > const T MTQueue<T>::NONE = 0;
 
 template< typename T >
 MTQueue<T>::MTQueue()
+        : _data( new MTQueuePrivate )
 {
-    _data = new MTQueuePrivate;
+    _init();
+}
 
+template< typename T >
+MTQueue< T >::MTQueue( const MTQueue< T >& from )
+        : _queue( from._queue )
+        , _data( new MTQueuePrivate )
+{
+    _init();
+}
+
+template< typename T >
+void MTQueue< T >::_init()
+{
     // mutex init
     int error = pthread_mutex_init( &_data->mutex, 0 );
     if( error )
@@ -126,6 +147,17 @@ MTQueue<T>::MTQueue()
         return;
     }
 }
+
+template< typename T >
+MTQueue< T >& MTQueue< T >::operator = ( const MTQueue< T >& from )
+{
+    pthread_mutex_lock( &_data->mutex );
+    _queue = from._queue;
+    pthread_cond_signal( &_data->cond );
+    pthread_mutex_unlock( &_data->mutex );
+    return *this;
+}
+
 
 template< typename T >
 MTQueue<T>::~MTQueue()

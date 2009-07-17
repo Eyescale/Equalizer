@@ -23,6 +23,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/executionListener.h>
+#include <eq/base/nonCopyable.h>
 
 namespace eq
 {
@@ -35,13 +36,14 @@ namespace base
      * 
      * The object has to implement notifyPerThreadDelete().
      */
-    template<typename T> class PerThread : public ExecutionListener
+    template<typename T> class PerThread : public ExecutionListener, 
+                                           public NonCopyable
     {
     public:
         /** Construct a new per-thread variable. */
         PerThread();
         /** Destruct the per-thread variable. */
-        virtual ~PerThread();
+        ~PerThread();
 
         /** Assign an object to the thread-local storage. */        
         PerThread<T>& operator = ( const T* data );

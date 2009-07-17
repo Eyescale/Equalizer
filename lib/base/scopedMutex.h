@@ -19,6 +19,7 @@
 #define EQBASE_SCOPEDMUTEX_H
 
 #include <eq/base/lock.h>
+#include <eq/base/nonCopyable.h>
 
 namespace eq
 {
@@ -31,7 +32,7 @@ namespace base
      * scoped mutex is destroyed, e.g., when the scope is left. The scoped mutex
      * does nothing if a 0 pointer for the lock is passed.
      */
-    class ScopedMutex
+    class ScopedMutex : public NonCopyable
     {
     public:
         /** 

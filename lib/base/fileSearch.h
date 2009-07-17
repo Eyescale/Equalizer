@@ -100,6 +100,7 @@ inline StringVector fileSearch( const std::string directory,
     return files;
 }
 
+/** @return the file name part of a path */
 inline std::string getFilename( const std::string& filename )
 {
     size_t lastSeparator = 0;
@@ -112,6 +113,7 @@ inline std::string getFilename( const std::string& filename )
     return filename.substr( lastSeparator, length );
 }
 
+/** @return the directory name part of a path */
 inline std::string getDirname( const std::string& filename )
 {
     size_t lastSeparator = 0;

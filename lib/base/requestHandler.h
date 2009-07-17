@@ -44,7 +44,7 @@ namespace base
      * serveRequest() and deleteRequest() are supposed to be called only from
      * one 'serving' thread.
      */
-    class RequestHandler
+    class RequestHandler : public NonCopyable
     {
 
     public:
