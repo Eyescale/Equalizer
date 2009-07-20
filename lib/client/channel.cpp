@@ -293,7 +293,7 @@ void Channel::_notifyViewportChanged()
         _nativeContext.vp = _nativeContext.pvp.getSubVP( windowPVP );
     else            // update pixel viewport
     {
-        eq::PixelViewport pvp = windowPVP.getSubPVP( _nativeContext.vp );
+        const eq::PixelViewport pvp = windowPVP.getSubPVP( _nativeContext.vp );
         if( _nativeContext.pvp == pvp )
             return;
 
@@ -596,6 +596,12 @@ const View* Channel::getView()
     return pipe->getView( _context->view );
 }
 
+const View* Channel::getNativeView()
+{
+    Pipe* pipe = getPipe();
+    return pipe->getView( _nativeContext.view );
+}
+
 //---------------------------------------------------------------------------
 // apply convenience methods
 //---------------------------------------------------------------------------
@@ -700,11 +706,10 @@ bool Channel::processEvent( const Event& event )
 
         case Event::CHANNEL_RESIZE:
         {
-            const View* view = getView();
+            const View* view = getNativeView();
             if( !view )
                 return true;
 
-            EQASSERT( _context == &_nativeContext );
             // transform to view event, which is meaningful for the config 
             configEvent.data.type       = Event::VIEW_RESIZE;
             configEvent.data.originator = view->getID();

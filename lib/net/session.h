@@ -211,7 +211,9 @@ namespace net
          * system.
          * 
          * If VERSION_OLDEST is provided, the oldest available version is
-         * mapped. If the requested version does no longer exist, mapObject()
+         * mapped.
+         * 
+         * If the requested version does no longer exist, mapObject()
          * will fail. If the requested version is newer than the head version,
          * mapObject() will block until the requested version is available.
          *

@@ -1,4 +1,4 @@
-eq::base namespace API cleanups
+Make Channel::processEvent callable from main thread
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

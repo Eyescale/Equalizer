@@ -332,8 +332,9 @@ void Window::setPixelViewport( const PixelViewport& pvp )
 
     for( std::vector<Channel*>::iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
-
+    {
         (*i)->_notifyViewportChanged();
+    }
 }
 
 bool Window::_setPixelViewport( const PixelViewport& pvp )
@@ -846,7 +847,8 @@ net::CommandResult Window::_cmdFrameStart( net::Command& command )
 
     const WindowFrameStartPacket* packet = 
         command.getPacket<WindowFrameStartPacket>();
-    EQVERB << "handle window frame start " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK frame start " << getName() <<  " " << packet
+                       << std::endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
 

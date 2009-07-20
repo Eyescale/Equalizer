@@ -297,7 +297,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
          i != _listeners.end(); ++i )
     {
         Listener& listener = *i;
-#if 1
+#if 0
         const Listener::Load& load = listener.useLoad( frame );
 #else
         Listener::Load load = listener.useLoad( frame );

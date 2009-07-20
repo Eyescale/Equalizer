@@ -152,6 +152,12 @@ namespace eq
          */
         EQ_EXPORT const View* getView();
 
+        /**
+         * @return the channel's native view, or 0 if it is not an output
+         *         channel.
+         */
+        EQ_EXPORT const View* getNativeView();
+
         /** Add a new statistics event for the current frame. */
         EQ_EXPORT void addStatistic( Event& event );
         //@}
