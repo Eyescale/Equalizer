@@ -101,6 +101,8 @@ namespace eqPly
         virtual void deserialize( eq::net::DataIStream& is,
                                   const uint64_t dirtyBits );
 
+        virtual ChangeType getChangeType() const { return DELTA; }
+
         /** The changed parts of the data since the last pack(). */
         enum DirtyBits
         {

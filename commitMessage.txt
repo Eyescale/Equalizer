@@ -1,9 +1,9 @@
-Make connection send and write non-const
+eqPly: Fix assertion on layout switch
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

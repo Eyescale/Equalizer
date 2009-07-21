@@ -92,7 +92,9 @@ uint32_t FullSlaveCM::sync( const uint32_t version )
         return _version;
     }
 
-    EQASSERTINFO( _version <= version, "can't sync to older version of object");
+    EQASSERTINFO( _version <= version,
+                  "can't sync to older version of object (" << _version << 
+                  ", " << version <<")");
 
     while( _version < version )
     {

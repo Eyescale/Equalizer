@@ -65,6 +65,7 @@ bool Config::init()
 
     _frameData.setRenderMode( _initData.getRenderMode( ));
     registerObject( &_frameData );
+    _frameData.setAutoObsolete( getLatency( ));
 
     _initData.setFrameDataID( _frameData.getID( ));
     registerObject( &_initData );
