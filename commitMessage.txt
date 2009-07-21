@@ -1,4 +1,4 @@
-Add undocumented/unsupported overdraw clamping, some code cleanups
+Make connection send and write non-const
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

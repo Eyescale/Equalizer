@@ -50,7 +50,7 @@ namespace net
         virtual int64_t readSync( void* buffer, const uint64_t bytes )
             { return _readConnection->readSync( buffer, bytes ); }
         virtual int64_t write( const void* buffer, const uint64_t bytes )
-            const { return _writeConnection->write( buffer, bytes ); }
+            { return _writeConnection->write( buffer, bytes ); }
 
     private:
         PairConnection( PairConnection* sibling );

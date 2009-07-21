@@ -37,7 +37,7 @@ BufferConnection::~BufferConnection()
         EQWARN << "Deleting BufferConnection with buffered data" << endl;
 }
 
-int64_t BufferConnection::write( const void* buffer, const uint64_t bytes) const
+int64_t BufferConnection::write( const void* buffer, const uint64_t bytes )
 {
     _buffer.append( reinterpret_cast< const uint8_t* >( buffer ), bytes );
     return bytes;

@@ -43,7 +43,7 @@ namespace net
 
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes );
-        virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
+        virtual int64_t write( const void* buffer, const uint64_t bytes );
 
         int   _readFD;     //!< The read file descriptor.
         int   _writeFD;    //!< The write file descriptor.

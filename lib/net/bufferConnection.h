@@ -44,7 +44,7 @@ namespace net
         virtual int64_t readSync( void* buffer, const uint64_t bytes )
             { EQDONTCALL; return -1; }
         EQ_EXPORT virtual int64_t write( const void* buffer,
-                                         const uint64_t bytes ) const;
+                                         const uint64_t bytes );
 
     private:
         mutable base::Bufferb _buffer;

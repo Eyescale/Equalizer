@@ -190,7 +190,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes )
 // write
 //----------------------------------------------------------------------
 bool Connection::send( const void* buffer, const uint64_t bytes, 
-                       const bool isLocked ) const
+                       const bool isLocked )
 {
     if( _state != STATE_CONNECTED )
         return false;
@@ -223,8 +223,8 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     return true;
 }
 
-bool Connection::send( Packet& packet, const void* data, 
-                       const uint64_t dataSize ) const
+bool Connection::send( Packet& packet, const void* data,
+                       const uint64_t dataSize )
 {
     if( dataSize == 0 )
         return send( packet );
@@ -269,7 +269,8 @@ bool Connection::send( const ConnectionVector& connections,
     for( ConnectionVector::const_iterator i= connections.begin(); 
          i<connections.end(); ++i )
     {        
-        if( !(*i)->send( &packet, packet.size, isLocked ))
+        ConnectionPtr connection = *i;
+        if( !connection->send( &packet, packet.size, isLocked ))
             return false;
     }
     return true;
@@ -323,7 +324,8 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
     for( ConnectionVector::const_iterator i= connections.begin(); 
          i<connections.end(); ++i )
     {        
-        if( !(*i)->send( buffer, size, isLocked ))
+        ConnectionPtr connection = *i;
+        if( !connection->send( buffer, size, isLocked ))
             return false;
     }
 

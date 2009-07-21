@@ -5,7 +5,7 @@
 #define ASSEMBLE_THRESHOLD (4096)
 
 template< typename T >
-bool Connection::send( Packet &packet, const std::vector<T>& data ) const
+bool Connection::send( Packet &packet, const std::vector<T>& data )
 { 
     if( data.size() == 0 )
         return send( packet );

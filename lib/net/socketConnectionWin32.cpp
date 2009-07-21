@@ -301,7 +301,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
     return got;
 }
 
-int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
+int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
 {
     if( _writeFD == INVALID_SOCKET )
         return -1;

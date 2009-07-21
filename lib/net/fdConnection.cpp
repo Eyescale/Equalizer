@@ -73,7 +73,7 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes )
 //----------------------------------------------------------------------
 // write
 //----------------------------------------------------------------------
-int64_t FDConnection::write( const void* buffer, const uint64_t bytes ) const
+int64_t FDConnection::write( const void* buffer, const uint64_t bytes )
 {
     if( _writeFD < 1 )
         return -1;

@@ -134,7 +134,7 @@ int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes )
     return bytesRead;
 }
 
-int64_t PipeConnection::write( const void* buffer, const uint64_t bytes ) const
+int64_t PipeConnection::write( const void* buffer, const uint64_t bytes )
 {
     if( !_writeHandle )
         return -1;

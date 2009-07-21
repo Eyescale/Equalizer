@@ -71,7 +71,7 @@ namespace net
 #ifdef WIN32
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes );
-        virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
+        virtual int64_t write( const void* buffer, const uint64_t bytes );
 #else
 
 #endif

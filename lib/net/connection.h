@@ -254,7 +254,7 @@ namespace net
          * @sa lockSend(), unlockSend()
          */
         EQ_EXPORT bool send( const void* buffer, const uint64_t bytes, 
-                             const bool isLocked = false ) const;
+                             const bool isLocked = false );
 
         /** Lock the connection, no other thread can send data. */
         void lockSend() const   { _sendLock.set(); }
@@ -267,7 +267,7 @@ namespace net
          * @param packet the message packet.
          * @return true if all data has been read, false if not.
          */
-        bool send( const Packet& packet ) const
+        bool send( const Packet& packet )
             { return send( &packet, packet.size); }
 
         /** 
@@ -282,7 +282,7 @@ namespace net
          * @param string the string.
          * @return true if all data has been read, false if not.
          */
-        bool send( Packet& packet, const std::string& string ) const
+        bool send( Packet& packet, const std::string& string )
             { return send( packet, string.c_str(), string.size()+1 ); }
 
         /** 
@@ -296,7 +296,7 @@ namespace net
          * @return true if all data has been read, false if not.
          */
         template< typename T >
-        bool send( Packet& packet, const std::vector<T>& data ) const;
+        bool send( Packet& packet, const std::vector<T>& data );
 
         /** 
          * Sends a packaged message including additional data using the
@@ -308,7 +308,7 @@ namespace net
          * @return true if all data has been read, false if not.
          */
         EQ_EXPORT bool send( Packet& packet, const void* data,
-                             const uint64_t size ) const;
+                             const uint64_t size );
 
         /** 
          * Sends a packaged message to multiple connections.
@@ -363,8 +363,7 @@ namespace net
          * @param bytes the number of bytes to write.
          * @return the number of bytes written, or -1 upon error.
          */
-        virtual int64_t write( const void* buffer, const uint64_t bytes )
-            const = 0;
+        virtual int64_t write( const void* buffer, const uint64_t bytes ) = 0;
         //@}
 
         State                    _state; //!< The connection state

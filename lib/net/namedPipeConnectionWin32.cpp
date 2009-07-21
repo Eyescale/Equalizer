@@ -333,8 +333,7 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes )
     return got;
 }
 
-int64_t NamedPipeConnection::write( const void* buffer, 
-                                    const uint64_t bytes ) const
+int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
 {
     if( _readFD == INVALID_HANDLE_VALUE )
         return -1;
