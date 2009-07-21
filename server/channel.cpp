@@ -63,6 +63,7 @@ void Channel::_construct()
     _near             = .1f;
     _far              = 10.f;
     _overdraw         = Vector4i::ZERO;
+    _maxSize          = Vector2i::ZERO;
 
     _drawable         = 0;
     _tasks            = eq::TASK_NONE;
@@ -563,9 +564,10 @@ net::CommandResult Channel::_cmdConfigInitReply( net::Command& command )
         command.getPacket<eq::ChannelConfigInitReplyPacket>();
     EQVERB << "handle channel configInit reply " << packet << endl;
 
-    _near  = packet->nearPlane;
-    _far   = packet->farPlane;
-    _error = packet->error;
+    _near    = packet->nearPlane;
+    _far     = packet->farPlane;
+    _maxSize = packet->maxSize;
+    _error   = packet->error;
 
     if( packet->result )
         _state = STATE_INIT_SUCCESS;

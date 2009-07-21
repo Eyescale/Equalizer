@@ -563,40 +563,82 @@ void Compound::_updateOverdraw( Wall& wall )
 
     const Viewport& segmentVP = segment->getViewport();
     const Viewport& viewVP    = view->getViewport();
-    const Vector2i& overdraw = view->getOverdraw();
+    const Vector2i& overdraw  = view->getOverdraw();
     Vector4i channelOverdraw( Vector4i::ZERO );
 
+    // compute overdraw
     if( overdraw.x() && viewVP.x < segmentVP.x )
-    {
-        const PixelViewport& pvp = channel->getPixelViewport();
-        const float ratio = static_cast< float >( pvp.w + overdraw.x() ) /
-                            static_cast< float >( pvp.w );
-        wall.resizeLeft( ratio );
         channelOverdraw.x() = overdraw.x();
-    }
+
     if( overdraw.x() && viewVP.getXEnd() > segmentVP.getXEnd( ))
-    {
-        const PixelViewport& pvp = channel->getPixelViewport();
-        const float ratio = static_cast< float >( pvp.w + overdraw.x() ) /
-                            static_cast< float >( pvp.w );
-        wall.resizeRight( ratio );
         channelOverdraw.z() = overdraw.x();
-    }
+
     if( overdraw.y() && viewVP.y < segmentVP.y )
-    {
-        const PixelViewport& pvp = channel->getPixelViewport();
-        const float ratio = static_cast< float >( pvp.h + overdraw.y() ) /
-                            static_cast< float >( pvp.h );
-        wall.resizeBottom( ratio );
         channelOverdraw.y() = overdraw.y();
-    }
+
     if( overdraw.y() && viewVP.getYEnd() > segmentVP.getYEnd( ))
+        channelOverdraw.w() = overdraw.y();
+
+    // clamp to max channel size
+    const Vector2i& maxSize = channel->getMaxSize();
+    if( maxSize != Vector2i::ZERO )
+    {
+        const PixelViewport& channelPVP = channel->getPixelViewport();
+
+        const int32_t xOverdraw = channelOverdraw.x() + channelOverdraw.z();
+        const int32_t xSize = xOverdraw + channelPVP.w;
+        if( xSize > maxSize.x( ))
+        {
+            const uint32_t maxOverdraw = maxSize.x() - channelPVP.w;
+            const float ratio = static_cast< float >( maxOverdraw ) / 
+                                static_cast< float >( xOverdraw );
+            channelOverdraw.x() = channelOverdraw.x() * ratio;
+            channelOverdraw.z() = maxOverdraw - channelOverdraw.x();
+        }
+
+        const int32_t yOverdraw = channelOverdraw.y() + channelOverdraw.w();
+        const int32_t ySize = yOverdraw + channelPVP.h;
+        if( ySize > maxSize.y( ))
+        {
+            const uint32_t maxOverdraw = maxSize.y() - channelPVP.h;
+            const float ratio = static_cast< float >( maxOverdraw ) / 
+                                static_cast< float >( yOverdraw );
+            channelOverdraw.y() = channelOverdraw.y() * ratio;
+            channelOverdraw.w() = maxOverdraw - channelOverdraw.y();
+        }
+    }
+
+    // apply to frustum
+    if( channelOverdraw.x() > 0 )
     {
         const PixelViewport& pvp = channel->getPixelViewport();
-        const float ratio = static_cast< float >( pvp.h + overdraw.y() ) /
-                            static_cast< float >( pvp.h );
+        const float ratio = static_cast<float>( pvp.w + channelOverdraw.x( )) /
+                            static_cast<float>( pvp.w );
+        wall.resizeLeft( ratio );
+    }
+
+    if( channelOverdraw.z() > 0 )
+    {
+        const PixelViewport& pvp = channel->getPixelViewport();
+        const float ratio = static_cast<float>( pvp.w + channelOverdraw.z( )) /
+                            static_cast<float>( pvp.w );
+        wall.resizeRight( ratio );
+    }
+
+    if( channelOverdraw.y() > 0 )
+    {
+        const PixelViewport& pvp = channel->getPixelViewport();
+        const float ratio = static_cast<float>( pvp.h + channelOverdraw.y( )) /
+                            static_cast<float>( pvp.h );
+        wall.resizeBottom( ratio );
+    }
+
+    if( channelOverdraw.w() > 0 )
+    {
+        const PixelViewport& pvp = channel->getPixelViewport();
+        const float ratio = static_cast<float>( pvp.h + channelOverdraw.w( )) /
+                            static_cast<float>( pvp.h );
         wall.resizeTop( ratio );
-        channelOverdraw.w() = overdraw.y();
     }
 
     channel->setOverdraw( channelOverdraw );

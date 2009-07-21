@@ -274,6 +274,7 @@ namespace server
         void setOverdraw( const Vector4i& overdraw )
             { _overdraw = overdraw; }
         const Vector4i& getOverdraw() const { return _overdraw; }
+        const Vector2i& getMaxSize()  const { return _maxSize; }
 
     protected:
         /** Registers request packets waiting for a return value. */
@@ -324,6 +325,7 @@ namespace server
         float        _far;
 
         Vector4i    _overdraw;
+        Vector2i    _maxSize;
 
         /** Worst-case set of tasks. */
         uint32_t _tasks;

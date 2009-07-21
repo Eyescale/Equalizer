@@ -95,7 +95,6 @@ namespace eq
          * points. Therefore, any supported GL function can be called directly
          * from an initialized Channel.
          * 
-         * @warning Not finalized, might change in the future.
          * @return the extended OpenGL function table for the channel's OpenGL
          *         context.
          */
@@ -242,10 +241,13 @@ namespace eq
         const PixelViewport& getNativePixelViewPort() const
             { return _nativeContext.pvp; }
 
-        /** @warning  Undocumented - may not be supported in the future */
+        /** @internal  Undocumented - may not be supported in the future */
         EQ_EXPORT const Vector4i& getOverdraw() const;
 
-        /** @warning  Undocumented - may not be supported in the future */
+        /** @internal  Undocumented - may not be supported in the future */
+        EQ_EXPORT void setMaxSize( const Vector2i& size );
+
+        /** @internal  Undocumented - may not be supported in the future */
         EQ_EXPORT uint32_t getTaskID() const;
 
         /** 
@@ -559,6 +561,7 @@ namespace eq
             STATE_INITIALIZING,
             STATE_RUNNING
         };
+
         /** The configInit/configExit state. */
         State _state;
 
@@ -582,6 +585,9 @@ namespace eq
 
         /** The initial channel size, used for view resize events. */
         Vector2i _initialSize;
+
+        /** The maximum size (used to clamp overdraw right now) */
+        Vector2i _maxSize;
 
         union // placeholder for binary-compatible changes
         {

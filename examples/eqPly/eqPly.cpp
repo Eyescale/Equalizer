@@ -114,7 +114,7 @@ int EqPly::run()
             if( hasCommands( )) // execute non-critical pending commands
             {
                 processCommand();
-                config->handleEvents();
+                config->handleEvents(); // non-blocking
             }
             else  // no pending commands, block on user event
             {

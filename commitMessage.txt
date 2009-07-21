@@ -1,9 +1,9 @@
-Make Channel::processEvent callable from main thread (2nd try)
+Add undocumented/unsupported overdraw clamping, some code cleanups
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

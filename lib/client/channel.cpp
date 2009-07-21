@@ -63,6 +63,8 @@ Channel::Channel( Window* parent )
         , _fixedPVP( false )
         , _fbo(0)
         , _drawable( 0 )
+        , _initialSize( Vector2i::ZERO )
+        , _maxSize( Vector2i::ZERO )
 {
     parent->_addChannel( this );
     EQINFO << " New eq::Channel @" << (void*)this << endl;
@@ -579,6 +581,12 @@ const Vector4i& Channel::getOverdraw() const
 {
     return _context->overdraw;
 }
+
+void Channel::setMaxSize( const Vector2i& size )
+{
+    _maxSize = size;
+}
+
 
 uint32_t Channel::getTaskID() const
 {
@@ -1119,6 +1127,7 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
 
         reply.nearPlane   = _nativeContext.frustum.near_plane();
         reply.farPlane    = _nativeContext.frustum.far_plane();
+        reply.maxSize     = _maxSize;
 
         if( reply.result )
             _state = STATE_RUNNING;

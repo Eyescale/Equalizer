@@ -828,6 +828,7 @@ namespace eq
                 error[0]  = '\0';
             }
 
+        Vector2i maxSize;
         float    nearPlane;
         float    farPlane;
         bool     result;
