@@ -20,7 +20,7 @@
 using namespace eq::base;
 #define EQ_PIPE_BUFFER_SIZE 515072
 #define EQ_READ_BUFFER_SIZE 257536
-#define EQ_WRITE_BUFFER_SIZE 128768
+#define EQ_WRITE_BUFFER_SIZE 257536
 
 #ifdef WIN32
 namespace eq
@@ -30,7 +30,8 @@ namespace net
 
 NamedPipeConnection::NamedPipeConnection()
 {
-    memset( &_overlapped, 0, sizeof( _overlapped ));
+    memset( &_read, 0, sizeof( _read ));
+    memset( &_write, 0, sizeof( _write ));
     
     _description =  new ConnectionDescription;
     _description->type = CONNECTIONTYPE_NAMEDPIPE;
@@ -141,7 +142,7 @@ bool NamedPipeConnection::listen()
 bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe ) 
 { 
    // Start an overlapped connection for this pipe instance. 
-   const bool fConnected = ConnectNamedPipe( hPipe, &_overlapped ); 
+   const bool fConnected = ConnectNamedPipe( hPipe, &_read ); 
 
    EQASSERT( !fConnected );
  
@@ -153,7 +154,7 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
  
       // Client is already connected, so signal an event. 
       case ERROR_PIPE_CONNECTED: 
-         if( SetEvent( _overlapped.hEvent ) ) 
+         if( SetEvent( _read.hEvent ) ) 
             return true; 
 
          // fall through
@@ -170,11 +171,13 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
 //----------------------------------------------------------------------
 void NamedPipeConnection::_initAIORead()
 {
-    _overlapped.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    EQASSERT( _overlapped.hEvent );
+    _read.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
+    EQASSERT( _read.hEvent );
+    _write.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
+    EQASSERT( _write.hEvent );
 
-    if( !_overlapped.hEvent )
-        EQERROR << "Can't create event for AIO notification: " 
+    if( !_read.hEvent || !_write.hEvent )
+        EQERROR << "Can't create events for AIO notification: " 
                 << EQ_PIPE_ERROR  << std::endl;
 }
 
@@ -189,10 +192,15 @@ void NamedPipeConnection::_exitAIOAccept()
 }
 void NamedPipeConnection::_exitAIORead()
 {
-    if(  _overlapped.hEvent ) 
+    if(  _read.hEvent ) 
     {
-        CloseHandle( _overlapped.hEvent );
-        _overlapped.hEvent = 0;
+        CloseHandle( _read.hEvent );
+        _read.hEvent = 0;
+    }
+    if(  _write.hEvent ) 
+    {
+        CloseHandle( _write.hEvent );
+        _write.hEvent = 0;
     }
 }
 
@@ -202,7 +210,7 @@ void NamedPipeConnection::_exitAIORead()
 void NamedPipeConnection::acceptNB()
 {
     EQASSERT( _state == STATE_LISTENING );
-    ResetEvent( _overlapped.hEvent );
+    ResetEvent( _read.hEvent );
 
 
 #if 0
@@ -252,7 +260,7 @@ ConnectionPtr NamedPipeConnection::acceptSync()
     // complete accept
     DWORD got   = 0;
     DWORD flags = 0;
-    if( !GetOverlappedResult( _readFD, &_overlapped, &got, TRUE ))
+    if( !GetOverlappedResult( _readFD, &_read, &got, TRUE ))
     {
         if (GetLastError() == ERROR_PIPE_CONNECTED) 
         {        
@@ -289,15 +297,11 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
     if( _state == STATE_CLOSED )
         return;
 
-    ResetEvent( _overlapped.hEvent );
+    ResetEvent( _read.hEvent );
     DWORD use = EQ_MIN( bytes, EQ_READ_BUFFER_SIZE );
 
-    if( !ReadFile( _readFD,         // pipe handle 
-                   buffer,          // buffer to receive reply 
-                   use,             // size of buffer 
-                   0,               // number of bytes read 
-                   &_overlapped )    // not overlapped 
-                   &&   (  GetLastError() != ERROR_IO_PENDING ) )
+    if( !ReadFile( _readFD, buffer, use, 0, &_read ) &&
+         GetLastError() != ERROR_IO_PENDING )
     {
         EQWARN << "Could not start overlapped receive: " << EQ_PIPE_ERROR
                << ", closing connection" << std::endl;
@@ -316,7 +320,7 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes )
     }
 
     DWORD got   = 0;
-    if( !GetOverlappedResult( _readFD, &_overlapped, &got, true ))
+    if( !GetOverlappedResult( _readFD, &_read, &got, true ))
     {
         if( GetLastError() == ERROR_PIPE_CONNECTED ) 
         {        
@@ -341,18 +345,30 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
     DWORD wrote;
     DWORD use = EQ_MIN( bytes, EQ_WRITE_BUFFER_SIZE );
 
-    if( WriteFile( _readFD,      // pipe handle 
-                   buffer ,      // message 
-                   use,          // message length 
-                   &wrote,       // bytes written 
-                   0 ))
+    ResetEvent( _write.hEvent );
+    if( !WriteFile( _readFD, buffer, use, &wrote, &_write ) &&
+        GetLastError() != ERROR_IO_PENDING )
     {
-        return wrote;
+        EQWARN << "Could not start write: " << EQ_PIPE_ERROR
+            << ", closing connection" << std::endl;
+        close();
     }
 
-    EQWARN << "Write error: " << EQ_PIPE_ERROR << std::endl;
- 
-    return -1;  
+    DWORD got   = 0;
+    if( !GetOverlappedResult( _readFD, &_write, &got, true ))
+    {
+        if( GetLastError() == ERROR_PIPE_CONNECTED ) 
+        {        
+            return 0; 
+        } 
+
+        EQWARN << "Write complete failed: " << EQ_PIPE_ERROR 
+               << ", closing connection" << std::endl;
+        close();
+        return -1;
+    }
+
+    return got;
 }
 }
 }

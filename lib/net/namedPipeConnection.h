@@ -57,7 +57,7 @@ namespace net
 
 #ifdef WIN32
         virtual Notifier getNotifier() const {
-            return _overlapped.hEvent; }
+            return _read.hEvent; }
 #endif
 
     protected:
@@ -85,7 +85,8 @@ namespace net
         bool _connectToNewClient( HANDLE hPipe ) ;
 
         // overlapped data structures
-        OVERLAPPED _overlapped;
+        OVERLAPPED _read;
+        OVERLAPPED _write;
 
         CHECK_THREAD_DECLARE( _recvThread );
 
