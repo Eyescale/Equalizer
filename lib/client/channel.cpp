@@ -706,13 +706,13 @@ bool Channel::processEvent( const Event& event )
 
         case Event::CHANNEL_RESIZE:
         {
-            const View* view = getNativeView();
-            if( !view )
+            const uint32_t viewID = _nativeContext.view.id;
+            if( viewID == EQ_ID_INVALID )
                 return true;
 
             // transform to view event, which is meaningful for the config 
             configEvent.data.type       = Event::VIEW_RESIZE;
-            configEvent.data.originator = view->getID();
+            configEvent.data.originator = viewID;
 
             ResizeEvent& resize = configEvent.data.resize;
             resize.dw = resize.w / static_cast< float >( _initialSize.x() );

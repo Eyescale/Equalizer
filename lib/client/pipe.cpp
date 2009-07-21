@@ -346,6 +346,7 @@ void Pipe::flushFrames()
 
 View* Pipe::getView( const net::ObjectVersion& viewVersion )
 {
+    CHECK_THREAD( _pipeThread );
     if( viewVersion.id == EQ_ID_INVALID )
         return 0;
 
@@ -369,6 +370,7 @@ View* Pipe::getView( const net::ObjectVersion& viewVersion )
 
 void Pipe::_releaseViews()
 {
+    CHECK_THREAD( _pipeThread );
     for( bool changed = true; changed; )
     {
         changed = false;
@@ -396,6 +398,7 @@ void Pipe::_releaseViews()
 
 void Pipe::_flushViews()
 {
+    CHECK_THREAD( _pipeThread );
     NodeFactory*  nodeFactory = Global::getNodeFactory();
     net::Session* session     = getSession();
 

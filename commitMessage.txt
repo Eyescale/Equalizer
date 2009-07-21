@@ -1,4 +1,4 @@
-Make Channel::processEvent callable from main thread
+Make Channel::processEvent callable from main thread (2nd try)
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
