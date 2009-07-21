@@ -154,7 +154,7 @@ void Window::_updateFPS()
     const bool   isFirstFrame = _lastTime == 0.0;
     _lastTime = curTime;
 
-    if( isFirstFrame )
+    if( isFirstFrame || curInterval < 1e-3 )
         return;
 
     const double curFPS = 1000.0 / curInterval;
