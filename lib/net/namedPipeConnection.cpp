@@ -31,7 +31,7 @@
 #include <sys/types.h>
 
 #ifdef WIN32
-#  define EQ_SOCKET_ERROR getErrorString( GetLastError( )) << \
+#  define EQ_PIPE_ERROR getErrorString( GetLastError( )) << \
     "(" << GetLastError() << ")"
 #  include "namedPipeConnectionWin32.cpp"
 

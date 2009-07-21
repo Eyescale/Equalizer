@@ -245,12 +245,29 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
         return os;
     }
 
-    os << "connection " << ( desc->type == net::CONNECTIONTYPE_TCPIP ? "tcp/ip":
-                             desc->type == net::CONNECTIONTYPE_SDP   ? "sdp"   :
-                             desc->type == net::CONNECTIONTYPE_PIPE  ? "anonpipe"  :
-                             desc->type == net::CONNECTIONTYPE_NAMEDPIPE  ? "pipe"  :
+    os << "connection " << ( desc->type == CONNECTIONTYPE_TCPIP ? "tcp/ip":
+                             desc->type == CONNECTIONTYPE_SDP   ? "sdp"   :
+                             desc->type == CONNECTIONTYPE_PIPE  ? "anonpipe" :
+                             desc->type == CONNECTIONTYPE_NAMEDPIPE  ? "pipe" :
                              "ERROR" ) 
-       << ' ' << desc->getHostname() << ':' << desc->TCPIP.port;
+       << ' ' << desc->getHostname() << ':';
+
+    switch( desc->type )
+    {
+        case CONNECTIONTYPE_TCPIP:
+        case CONNECTIONTYPE_SDP:
+            os << desc->TCPIP.port;
+            break;
+
+        case CONNECTIONTYPE_NAMEDPIPE:
+            os << desc->getFilename();
+            break;
+
+        default:
+        case CONNECTIONTYPE_PIPE:
+            break;
+    }
+
     return os;
 }
 

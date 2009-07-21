@@ -70,8 +70,7 @@ namespace
             eq::net::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
             cerr << " Recv perf: " << mBytesSec / time << "MB/s ("
-                 << time << "ms) from " << desc->getHostname() << ":"
-                 << desc->TCPIP.port << endl;
+                 << time << "ms) from " << desc.get() << endl;
             return true;
         }
 

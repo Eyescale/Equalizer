@@ -18,7 +18,9 @@
 
 
 using namespace eq::base;
-#define EQ_MAXBUFFSIZE 655535
+#define EQ_PIPE_BUFFER_SIZE 515072
+#define EQ_READ_BUFFER_SIZE 257536
+#define EQ_WRITE_BUFFER_SIZE 128768
 
 #ifdef WIN32
 namespace eq
@@ -75,7 +77,7 @@ void NamedPipeConnection::close()
 
     EQASSERT( _readFD > 0 ); 
     if( !DisconnectNamedPipe( _readFD ))
-        EQERROR << "Could not close named pipe: " << GetLastError()
+        EQERROR << "Could not close named pipe: " << EQ_PIPE_ERROR
                 << std::endl;
 
     _readFD = INVALID_HANDLE_VALUE;
@@ -108,7 +110,7 @@ bool NamedPipeConnection::_createNamedPipe()
     if( GetLastError() != ERROR_PIPE_BUSY ) 
     {
         EQERROR << "Can't create named pipe: " 
-                << GetLastError() << std::endl; 
+                << EQ_PIPE_ERROR << std::endl; 
         return false;
      
     }
@@ -157,7 +159,7 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
          // fall through
       default: 
       {
-         EQWARN << "ConnectNamedPipe failed : " << GetLastError() << std::endl;
+         EQWARN << "ConnectNamedPipe failed : " << EQ_PIPE_ERROR << std::endl;
          return false;
       }
    } 
@@ -173,7 +175,7 @@ void NamedPipeConnection::_initAIORead()
 
     if( !_overlapped.hEvent )
         EQERROR << "Can't create event for AIO notification: " 
-                << GetLastError()  << std::endl;
+                << EQ_PIPE_ERROR  << std::endl;
 }
 
 void NamedPipeConnection::_initAIOAccept()
@@ -224,16 +226,15 @@ void NamedPipeConnection::acceptNB()
                      PIPE_READMODE_BYTE |         // message-read  
                      PIPE_WAIT,                   // blocking mode 
                      PIPE_UNLIMITED_INSTANCES,    // number of instances 
-                     EQ_MAXBUFFSIZE,              // output buffer size 
-                     EQ_MAXBUFFSIZE,              // input buffer size 
+                     EQ_PIPE_BUFFER_SIZE,         // output buffer size 
+                     EQ_PIPE_BUFFER_SIZE,         // input buffer size 
                      0,                           // default time-out (unused)
                      0 /*&sa*/);                  // default security attributes 
 
     if ( _readFD == INVALID_HANDLE_VALUE ) 
     {
         EQERROR << "Could not create named pipe: " 
-                << GetLastError()
-                << " file : " << _description->getFilename().c_str() 
+                << EQ_PIPE_ERROR << " file : " << _description->getFilename()
                 << std::endl;
         close();
         return;
@@ -257,7 +258,7 @@ ConnectionPtr NamedPipeConnection::acceptSync()
         {        
             return 0; 
         }
-        EQWARN << "Accept completion failed: " << GetLastError()  
+        EQWARN << "Accept completion failed: " << EQ_PIPE_ERROR
                << ", closing named pipe" << std::endl;
          
         close();
@@ -274,7 +275,6 @@ ConnectionPtr NamedPipeConnection::acceptSync()
     newConnection->_initAIORead();
 
     newConnection->_state  = STATE_CONNECTED;
-    newConnection->_description->setFilename( _description->getFilename() );
     _readFD = INVALID_HANDLE_VALUE;
 
     EQINFO << "accepted connection" << std::endl;
@@ -290,7 +290,7 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
         return;
 
     ResetEvent( _overlapped.hEvent );
-    DWORD use = EQ_MIN( bytes, EQ_MAXBUFFSIZE );
+    DWORD use = EQ_MIN( bytes, EQ_READ_BUFFER_SIZE );
 
     if( !ReadFile( _readFD,         // pipe handle 
                    buffer,          // buffer to receive reply 
@@ -299,8 +299,9 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
                    &_overlapped )    // not overlapped 
                    &&   (  GetLastError() != ERROR_IO_PENDING ) )
     {
-        EQWARN << "Could not start overlapped receive: " << GetLastError() 
-               << std::endl;
+        EQWARN << "Could not start overlapped receive: " << EQ_PIPE_ERROR
+               << ", closing connection" << std::endl;
+        close();
     }
 }
 
@@ -317,12 +318,13 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes )
     DWORD got   = 0;
     if( !GetOverlappedResult( _readFD, &_overlapped, &got, true ))
     {
-        EQWARN << "Read complete failed: " << GetLastError()  
-               << std::endl;
-        if (GetLastError() == ERROR_PIPE_CONNECTED) 
+        if( GetLastError() == ERROR_PIPE_CONNECTED ) 
         {        
             return 0; 
         } 
+
+        EQWARN << "Read complete failed: " << EQ_PIPE_ERROR 
+               << ", closing connection" << std::endl;
         close();
         return 0;
 
@@ -332,25 +334,24 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes )
 }
 
 int64_t NamedPipeConnection::write( const void* buffer, 
-                                    const uint64_t bytes) const
+                                    const uint64_t bytes ) const
 {
     if( _readFD == INVALID_HANDLE_VALUE )
         return -1;
 
     DWORD wrote;
-    DWORD use = EQ_MIN( bytes, EQ_MAXBUFFSIZE );
+    DWORD use = EQ_MIN( bytes, EQ_WRITE_BUFFER_SIZE );
 
     if( WriteFile( _readFD,      // pipe handle 
                    buffer ,      // message 
                    use,          // message length 
-                   &wrote,            // bytes written 
+                   &wrote,       // bytes written 
                    0 ))
     {
         return wrote;
     }
 
-    EQWARN << "Write error:" << GetLastError()  
-               << std::endl;
+    EQWARN << "Write error: " << EQ_PIPE_ERROR << std::endl;
  
     return -1;  
 }
