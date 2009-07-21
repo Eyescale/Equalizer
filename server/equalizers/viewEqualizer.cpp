@@ -303,8 +303,10 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         Listener::Load load = listener.useLoad( frame );
         if( load.nResources > 0 )
         {
-            load.time /= static_cast< float >( load.nResources );
-            load.time *= sqrtf( static_cast< float >( load.nResources ));
+            const float time = static_cast< float >( load.time ) /
+                               static_cast< float >( load.nResources );
+            load.time = static_cast< int64_t >( 
+                time * sqrtf( static_cast< float >( load.nResources )));
         }
 #endif
 

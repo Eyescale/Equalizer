@@ -423,13 +423,10 @@ void Image::syncReadback()
     _glObjects = 0;
 }
 
-void Image::Memory::resize( uint32_t size )
+void Image::Memory::resize( const uint32_t size )
 {
-    // round to next 8-byte alignment (compress might use 8-byte tokens)
-    if( size%8 )
-        size += 8 - (size%8);
-
-    pixels.reserve( size );
+    // Allocate some more bytes so that compressors can use larger tokens
+    pixels.reserve( size+32 );
     pixels.resize( size );
 }
 

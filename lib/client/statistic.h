@@ -44,7 +44,7 @@ namespace eq
             PIPE_IDLE,
             FRAME_TRANSMIT,
             FRAME_COMPRESS,
-            FRAME_DECOMPRESS,
+            FRAME_RECEIVE,
             CONFIG_START_FRAME,
             CONFIG_FINISH_FRAME,
             CONFIG_WAIT_FINISH_FRAME,

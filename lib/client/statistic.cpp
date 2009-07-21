@@ -46,7 +46,7 @@ static std::string _statisticNames[Statistic::ALL] =
     "pipe idle",
     "transmit",
     "compress",
-    "decompress",
+    "receive",
     "start frame",
     "finish frame",
     "wait finish"

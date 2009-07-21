@@ -904,7 +904,7 @@ void Channel::drawStatistics()
                     }
 
                     case Statistic::FRAME_TRANSMIT:
-                    case Statistic::FRAME_DECOMPRESS:
+                    case Statistic::FRAME_RECEIVE:
                         z = 0.5f; 
                         break;
 

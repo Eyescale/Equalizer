@@ -484,7 +484,7 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
 
     EQASSERT( packet->pvp.isValid( ));
 
-    FrameDataStatistics event( Statistic::FRAME_DECOMPRESS, this, 
+    FrameDataStatistics event( Statistic::FRAME_RECEIVE, this, 
                                packet->frameNumber );
 
     Image*   image = _allocImage( Frame::TYPE_MEMORY );
@@ -520,28 +520,30 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
 
                 for( uint32_t j = 0; j < nChunks; ++j )
                 {
-                    const uint64_t*  u64Data   = 
-                                          reinterpret_cast< uint64_t* >( data );
+                    const uint64_t size = *reinterpret_cast< uint64_t*>( data );
                     data += sizeof( uint64_t );
                     
-                    pixelData.compressedSize[j] = *u64Data; 
+                    pixelData.compressedSize[j] = size; 
                     pixelData.compressedData[j] = data;
-                    data += *u64Data;
+                    data += size;
                 }
+
+                image->setPixelData( buffer, pixelData );
             }
             else
             {
-                const uint64_t* u64Data = reinterpret_cast< uint64_t* >( data );
+                const uint64_t size = *reinterpret_cast< uint64_t* >( data );
                 data += sizeof( uint64_t );
 
-                pixelData.pixels.replace( data, *u64Data );
-                data += *u64Data;
+                image->setFormat( buffer, pixelData.format );
+                image->setType( buffer, pixelData.type );
+                EQASSERT( size == image->getPixelDataSize( buffer ));
+
+                image->setPixelData( buffer, data );
+                data += size;
             }
 
-            image->setPixelData( buffer, pixelData );
-
             // Prevent ~PixelData from freeing pointers
-            pixelData.pixels.clear();
             pixelData.compressedSize.clear();
             pixelData.compressedData.clear();
         }

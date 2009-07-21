@@ -315,7 +315,7 @@ namespace eq
         public:
             Memory() : state( INVALID ), pboSize(0) {}
 
-            void resize( uint32_t size );
+            void resize( const uint32_t size );
             void flush();
 
             enum State
