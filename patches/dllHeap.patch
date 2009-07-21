@@ -1,6 +1,6 @@
 Index: lib/base/clock.h
 ===================================================================
---- lib/base/clock.h	(revision 3189)
+--- lib/base/clock.h	(revision 3207)
 +++ lib/base/clock.h	(working copy)
 @@ -37,7 +37,7 @@
  namespace base
@@ -13,50 +13,50 @@ Index: lib/base/clock.h
          /** Construct a new clock. */
 Index: lib/base/dso.h
 ===================================================================
---- lib/base/dso.h	(revision 3189)
+--- lib/base/dso.h	(revision 3207)
 +++ lib/base/dso.h	(working copy)
-@@ -26,11 +26,11 @@
+@@ -30,11 +30,11 @@
  {
  
- /** Helper to access dynamic shared objects (DSO) */
--class DSO 
-+class EQ_EXPORT DSO 
- {
- public:
-     /** Construct a new dynamic shared object. */
--    EQ_EXPORT DSO() : _dso( 0 ) {}
-+    DSO() : _dso( 0 ) {}
+     /** Helper to access dynamic shared objects (DSO) */
+-    class DSO : public NonCopyable
++    class EQ_EXPORT DSO : public NonCopyable
+     {
+     public:
+         /** Construct a new dynamic shared object. */
+-        EQ_EXPORT DSO() : _dso( 0 ) {}
++        DSO() : _dso( 0 ) {}
  
-     /** 
-      * Open a dynamic shared object.
-@@ -38,14 +38,14 @@
-      * @param fileName The file name of the DSO.
-      * @return true if the DSO was opened, false upon error.
-      */
--    EQ_EXPORT bool open( const std::string& fileName );
-+    bool open( const std::string& fileName );
+         /** 
+          * Open a dynamic shared object.
+@@ -42,14 +42,14 @@
+          * @param fileName The file name of the DSO.
+          * @return true if the DSO was opened, false upon error.
+          */
+-        EQ_EXPORT bool open( const std::string& fileName );
++        bool open( const std::string& fileName );
  
-     /** Close the DSO, which invalidates retrieved function pointers */
--    EQ_EXPORT void close();
-+    void close();
+         /** Close the DSO, which invalidates retrieved function pointers */
+-        EQ_EXPORT void close();
++        void close();
      
-     /** @return a function pointer in the DSO, or 0 if the function is not
-       *         exported by the DSO. */
--    EQ_EXPORT void* getFunctionPointer( const std::string& functionName );
-+    void* getFunctionPointer( const std::string& functionName );
+         /** @return a function pointer in the DSO, or 0 if the function is not
+          *         exported by the DSO. */
+-        EQ_EXPORT void* getFunctionPointer( const std::string& functionName );
++        void* getFunctionPointer( const std::string& functionName );
  
- 
- private:
+     private:
+ #ifdef WIN32
 Index: lib/base/lock.h
 ===================================================================
---- lib/base/lock.h	(revision 3189)
+--- lib/base/lock.h	(revision 3207)
 +++ lib/base/lock.h	(working copy)
-@@ -27,21 +27,21 @@
+@@ -28,21 +28,21 @@
      class LockPrivate;
  
      /** A lock (mutex) primitive. */
--    class Lock
-+    class EQ_EXPORT Lock
+-    class Lock : public NonCopyable
++    class EQ_EXPORT Lock : public NonCopyable
      {
      public:
          /** Construct a new lock. */
@@ -78,7 +78,7 @@ Index: lib/base/lock.h
  
          /** 
           * Attempt to acquire the lock.
-@@ -49,7 +49,7 @@
+@@ -50,7 +50,7 @@
           * @return <code>true</code> if the lock was set, <code>false</code> if
           *         it was not set.
           */
@@ -87,7 +87,7 @@ Index: lib/base/lock.h
  
          /** 
           * Test if the lock is set.
-@@ -57,7 +57,7 @@
+@@ -58,7 +58,7 @@
           * @return <code>true</code> if the lock is set, <code>false</code> if
           *         it is not set.
           */
@@ -98,9 +98,9 @@ Index: lib/base/lock.h
          LockPrivate* _data;
 Index: lib/base/log.h
 ===================================================================
---- lib/base/log.h	(revision 3189)
+--- lib/base/log.h	(revision 3207)
 +++ lib/base/log.h	(working copy)
-@@ -147,8 +147,8 @@
+@@ -148,8 +148,8 @@
      {
      public:
  
@@ -113,7 +113,7 @@ Index: lib/base/log.h
          void exdent() { _logBuffer.exdent(); }
 Index: lib/base/omp.h
 ===================================================================
---- lib/base/omp.h	(revision 3189)
+--- lib/base/omp.h	(revision 3207)
 +++ lib/base/omp.h	(working copy)
 @@ -29,11 +29,11 @@
  namespace base
@@ -131,7 +131,7 @@ Index: lib/base/omp.h
          static int _nThreads;
 Index: lib/client/channel.h
 ===================================================================
---- lib/client/channel.h	(revision 3189)
+--- lib/client/channel.h	(revision 3207)
 +++ lib/client/channel.h	(working copy)
 @@ -43,7 +43,7 @@
       * rendering-relevant tasks, such as clear, draw, assemble and readback. It
@@ -211,12 +211,19 @@ Index: lib/client/channel.h
  
          /** Return a stable, unique color for this channel. */
          const Vector3ub& getUniqueColor() const { return _color; }
-@@ -150,10 +150,10 @@
+@@ -150,16 +150,16 @@
           * 
           * @return the channel's view, or 0 if it does not have a view.
           */
 -        EQ_EXPORT const View* getView();
 +        const View* getView();
+ 
+         /**
+          * @return the channel's native view, or 0 if it is not an output
+          *         channel.
+          */
+-        EQ_EXPORT const View* getNativeView();
++        const View* getNativeView();
  
          /** Add a new statistics event for the current frame. */
 -        EQ_EXPORT void addStatistic( Event& event );
@@ -224,7 +231,7 @@ Index: lib/client/channel.h
          //@}
  
          /**
-@@ -165,16 +165,16 @@
+@@ -171,16 +171,16 @@
           */
          //@{
          /** @return the channel's current draw buffer. */
@@ -245,7 +252,7 @@ Index: lib/client/channel.h
  
          /**
           * Get the channel's current position wrt the destination channel.
-@@ -185,34 +185,34 @@
+@@ -191,34 +191,34 @@
           *
           * @return the channel's current position wrt the destination channel.
           */
@@ -289,7 +296,7 @@ Index: lib/client/channel.h
  
          /** @return the list of input frames, used from frameAssemble(). */
          const FrameVector& getInputFrames() { return _inputFrames; }
-@@ -228,7 +228,7 @@
+@@ -234,7 +234,7 @@
           *
           * @return the 2D orthographic frustum.
           */
@@ -298,7 +305,7 @@ Index: lib/client/channel.h
  
          /** 
           * get the channel's native (drawable) pixel viewport.
-@@ -237,15 +237,15 @@
+@@ -243,15 +243,15 @@
              { return _nativeContext.pvp; }
  
          /** @warning  Undocumented - may not be supported in the future */
@@ -317,7 +324,7 @@ Index: lib/client/channel.h
          //@}
  
          /**
-@@ -259,27 +259,27 @@
+@@ -265,27 +265,27 @@
          /** 
           * Apply the current rendering buffer, including the color mask.
           */
@@ -350,7 +357,7 @@ Index: lib/client/channel.h
  
          /** 
           * Apply a orthographic frustum for pixel-based 2D operations. 
-@@ -287,18 +287,18 @@
+@@ -293,18 +293,18 @@
           * One unit in the frustum corresponds to one pixel on the screen. The
           * frustum is position wrt the canvas.
           */
@@ -372,7 +379,7 @@ Index: lib/client/channel.h
          
          /** 
           * Process a received event.
-@@ -310,13 +310,13 @@
+@@ -316,13 +316,13 @@
           * @param event the received event.
           * @return true when the event was handled, false if not.
           */
@@ -389,7 +396,7 @@ Index: lib/client/channel.h
  
          /**
           * @name Attributes
-@@ -332,8 +332,8 @@
+@@ -338,8 +338,8 @@
              IATTR_ALL
          };
          
@@ -400,7 +407,7 @@ Index: lib/client/channel.h
                                                          const IAttribute attr );
          //@}
  #if 0
-@@ -350,7 +350,7 @@
+@@ -356,7 +356,7 @@
      protected:
          friend class Window;
  
@@ -409,7 +416,7 @@ Index: lib/client/channel.h
                                          const uint32_t instanceID, 
                                          net::Session* session );
  
-@@ -390,17 +390,17 @@
+@@ -396,17 +396,17 @@
           * 
           * @param initID the init identifier.
           */
@@ -430,7 +437,7 @@ Index: lib/client/channel.h
          
          /**
           * Start rendering a frame.
-@@ -447,14 +447,14 @@
+@@ -453,14 +453,14 @@
           * 
           * @param frameID the per-frame identifier.
           */
@@ -447,7 +454,7 @@ Index: lib/client/channel.h
  
          /** 
           * Assemble input frames.
-@@ -462,7 +462,7 @@
+@@ -468,7 +468,7 @@
           * @param frameID the per-frame identifier.
           * @sa getInputFrames
           */
@@ -456,7 +463,7 @@ Index: lib/client/channel.h
  
          /** 
           * Read back the rendered scene.
-@@ -470,7 +470,7 @@
+@@ -476,7 +476,7 @@
           * @param frameID the per-frame identifier.
           * @sa getOutputFrames
           */
@@ -465,7 +472,7 @@ Index: lib/client/channel.h
  
          /** 
           * Start updating a destination channel.
-@@ -498,12 +498,12 @@
+@@ -504,12 +504,12 @@
           * The default implementation is very conservative and saves any state
           * which is potentially changed by the assembly routines.
           */
@@ -480,7 +487,7 @@ Index: lib/client/channel.h
          //@}
  
          /** @name Error information. */
-@@ -516,7 +516,7 @@
+@@ -522,7 +522,7 @@
           *
           * @param message the error message.
           */
@@ -491,7 +498,7 @@ Index: lib/client/channel.h
      private:
 Index: lib/client/channelStatistics.h
 ===================================================================
---- lib/client/channelStatistics.h	(revision 3189)
+--- lib/client/channelStatistics.h	(revision 3207)
 +++ lib/client/channelStatistics.h	(working copy)
 @@ -27,12 +27,12 @@
      /**
@@ -511,7 +518,7 @@ Index: lib/client/channelStatistics.h
  
 Index: lib/client/client.h
 ===================================================================
---- lib/client/client.h	(revision 3189)
+--- lib/client/client.h	(revision 3207)
 +++ lib/client/client.h	(working copy)
 @@ -32,18 +32,18 @@
      /** 
@@ -544,16 +551,20 @@ Index: lib/client/client.h
  
          /** 
           * Disconnect and close the connection of an Equalizer server to the
-@@ -60,34 +60,34 @@
+@@ -60,37 +60,37 @@
           * @param server the server.
           * @return true if the server was disconnected, false if not.
           */
 -        EQ_EXPORT bool disconnectServer( ServerPtr server );
 +        bool disconnectServer( ServerPtr server );
  
+         /** @return true if the client has commands pending, false otherwise. */
+-        EQ_EXPORT bool hasCommands();
++        bool hasCommands();
+ 
          /** 
           * Get and process one command from the node command queue. Used
-          * internally to run non-threaded commands.
+          * internally to run node commands.
           */
 -        EQ_EXPORT void processCommand();
 +        void processCommand();
@@ -586,7 +597,7 @@ Index: lib/client/client.h
  
      private:
          /** The command->node command queue. */
-@@ -101,13 +101,13 @@
+@@ -104,13 +104,13 @@
          };
  
          /** @sa net::Node::createNode */
@@ -605,7 +616,7 @@ Index: lib/client/client.h
          net::CommandResult _cmdExit( net::Command& command );
 Index: lib/client/config.h
 ===================================================================
---- lib/client/config.h	(revision 3189)
+--- lib/client/config.h	(revision 3207)
 +++ lib/client/config.h	(working copy)
 @@ -38,21 +38,21 @@
       * The configuration groups all processes of the application in a single
@@ -791,7 +802,7 @@ Index: lib/client/config.h
          /** The node identifier of the node running the application thread. */
 Index: lib/client/configEvent.h
 ===================================================================
---- lib/client/configEvent.h	(revision 3189)
+--- lib/client/configEvent.h	(revision 3207)
 +++ lib/client/configEvent.h	(working copy)
 @@ -36,7 +36,7 @@
       *
@@ -804,7 +815,7 @@ Index: lib/client/configEvent.h
          ConfigEvent()
 Index: lib/client/eventHandler.h
 ===================================================================
---- lib/client/eventHandler.h	(revision 3189)
+--- lib/client/eventHandler.h	(revision 3207)
 +++ lib/client/eventHandler.h	(working copy)
 @@ -29,22 +29,22 @@
      /**
@@ -836,7 +847,7 @@ Index: lib/client/eventHandler.h
          Event _lastPointerEvent;
 Index: lib/client/frame.h
 ===================================================================
---- lib/client/frame.h	(revision 3189)
+--- lib/client/frame.h	(revision 3207)
 +++ lib/client/frame.h	(working copy)
 @@ -43,7 +43,7 @@
      /**
@@ -957,7 +968,7 @@ Index: lib/client/frame.h
          void useSendToken( const bool use );
 Index: lib/client/frameData.h
 ===================================================================
---- lib/client/frameData.h	(revision 3189)
+--- lib/client/frameData.h	(revision 3207)
 +++ lib/client/frameData.h	(working copy)
 @@ -45,11 +45,11 @@
       * A frame data holds multiple images and is used by frames.
@@ -989,7 +1000,7 @@ Index: lib/client/frameData.h
           * Read back a set of images according to the current frame data.
 Index: lib/client/global.h
 ===================================================================
---- lib/client/global.h	(revision 3189)
+--- lib/client/global.h	(revision 3207)
 +++ lib/client/global.h	(working copy)
 @@ -55,7 +55,7 @@
      /** 
@@ -1055,7 +1066,7 @@ Index: lib/client/global.h
          friend bool testInitPluginDirectories();
 Index: lib/client/image.h
 ===================================================================
---- lib/client/image.h	(revision 3189)
+--- lib/client/image.h	(revision 3207)
 +++ lib/client/image.h	(working copy)
 @@ -33,12 +33,12 @@
       *
@@ -1292,7 +1303,7 @@ Index: lib/client/image.h
      private:
 Index: lib/client/node.h
 ===================================================================
---- lib/client/node.h	(revision 3189)
+--- lib/client/node.h	(revision 3207)
 +++ lib/client/node.h	(working copy)
 @@ -36,14 +36,14 @@
       *
@@ -1462,7 +1473,7 @@ Index: lib/client/node.h
      private:
 Index: lib/client/objectManager.h
 ===================================================================
---- lib/client/objectManager.h	(revision 3189)
+--- lib/client/objectManager.h	(revision 3207)
 +++ lib/client/objectManager.h	(working copy)
 @@ -44,7 +44,7 @@
       * delete - delete.
@@ -1570,7 +1581,7 @@ Index: lib/client/objectManager.h
          GLEWContext* glewGetContext()             { return _glewContext; }
 Index: lib/client/pipe.h
 ===================================================================
---- lib/client/pipe.h	(revision 3189)
+--- lib/client/pipe.h	(revision 3207)
 +++ lib/client/pipe.h	(working copy)
 @@ -52,26 +52,26 @@
       * the pipe is non-threaded, in which case the tasks are executed on the
@@ -1763,7 +1774,7 @@ Index: lib/client/pipe.h
  
 Index: lib/client/pluginRegistry.h
 ===================================================================
---- lib/client/pluginRegistry.h	(revision 3189)
+--- lib/client/pluginRegistry.h	(revision 3207)
 +++ lib/client/pluginRegistry.h	(working copy)
 @@ -23,7 +23,7 @@
  namespace eq 
@@ -1785,7 +1796,7 @@ Index: lib/client/pluginRegistry.h
      Compressor* findCompressor( const uint32_t name );
 Index: lib/client/projection.h
 ===================================================================
---- lib/client/projection.h	(revision 3189)
+--- lib/client/projection.h	(revision 3207)
 +++ lib/client/projection.h	(working copy)
 @@ -34,30 +34,30 @@
       * wall at the given distance. The fov defines the horizontal and
@@ -1827,7 +1838,7 @@ Index: lib/client/projection.h
          float    distance;
 Index: lib/client/server.h
 ===================================================================
---- lib/client/server.h	(revision 3189)
+--- lib/client/server.h	(revision 3207)
 +++ lib/client/server.h	(working copy)
 @@ -31,21 +31,21 @@
      class Node;
@@ -1890,7 +1901,7 @@ Index: lib/client/server.h
          /** The local client connected to the server */
 Index: lib/client/wall.h
 ===================================================================
---- lib/client/wall.h	(revision 3189)
+--- lib/client/wall.h	(revision 3207)
 +++ lib/client/wall.h	(working copy)
 @@ -34,58 +34,58 @@
       * The three points describe the bottom left, bottom right and top left
@@ -1974,7 +1985,7 @@ Index: lib/client/wall.h
          Vector3f bottomRight;
 Index: lib/client/wglEventHandler.h
 ===================================================================
---- lib/client/wglEventHandler.h	(revision 3189)
+--- lib/client/wglEventHandler.h	(revision 3207)
 +++ lib/client/wglEventHandler.h	(working copy)
 @@ -31,14 +31,14 @@
       * by a 'wndproc' callback in the thread which created the window. Each
@@ -1996,7 +2007,7 @@ Index: lib/client/wglEventHandler.h
           * @return the function pointer of the previously installed window
 Index: lib/client/wglWindowEvent.h
 ===================================================================
---- lib/client/wglWindowEvent.h	(revision 3189)
+--- lib/client/wglWindowEvent.h	(revision 3207)
 +++ lib/client/wglWindowEvent.h	(working copy)
 @@ -24,7 +24,7 @@
  namespace eq
@@ -2009,7 +2020,7 @@ Index: lib/client/wglWindowEvent.h
          // Native event data
 Index: lib/client/window.h
 ===================================================================
---- lib/client/window.h	(revision 3189)
+--- lib/client/window.h	(revision 3207)
 +++ lib/client/window.h	(working copy)
 @@ -48,7 +48,7 @@
       * to synchronize the state of OpenGL objects between windows. Therefore,
@@ -2228,7 +2239,7 @@ Index: lib/client/window.h
      private:
 Index: lib/net/barrier.h
 ===================================================================
---- lib/net/barrier.h	(revision 3189)
+--- lib/net/barrier.h	(revision 3207)
 +++ lib/net/barrier.h	(working copy)
 @@ -33,23 +33,23 @@
      /**
@@ -2269,7 +2280,7 @@ Index: lib/net/barrier.h
      protected:
 Index: lib/net/bufferConnection.h
 ===================================================================
---- lib/net/bufferConnection.h	(revision 3189)
+--- lib/net/bufferConnection.h	(revision 3207)
 +++ lib/net/bufferConnection.h	(working copy)
 @@ -28,22 +28,22 @@
      /**
@@ -2302,7 +2313,7 @@ Index: lib/net/bufferConnection.h
      private:
 Index: lib/net/commandCache.h
 ===================================================================
---- lib/net/commandCache.h	(revision 3189)
+--- lib/net/commandCache.h	(revision 3207)
 +++ lib/net/commandCache.h	(working copy)
 @@ -37,7 +37,7 @@
       * Commands are retained and released whenever they are not directly
@@ -2315,7 +2326,7 @@ Index: lib/net/commandCache.h
          CommandCache();
 Index: lib/net/commandQueue.h
 ===================================================================
---- lib/net/commandQueue.h	(revision 3189)
+--- lib/net/commandQueue.h	(revision 3207)
 +++ lib/net/commandQueue.h	(working copy)
 @@ -32,21 +32,21 @@
      /**
@@ -2372,7 +2383,7 @@ Index: lib/net/commandQueue.h
           * @return <code>true</code> if the command queue is empty,
 Index: lib/net/connectionDescription.h
 ===================================================================
---- lib/net/connectionDescription.h	(revision 3189)
+--- lib/net/connectionDescription.h	(revision 3207)
 +++ lib/net/connectionDescription.h	(working copy)
 @@ -32,7 +32,7 @@
       *
@@ -2428,7 +2439,7 @@ Index: lib/net/connectionDescription.h
          /** 
 Index: lib/net/connectionSet.h
 ===================================================================
---- lib/net/connectionSet.h	(revision 3189)
+--- lib/net/connectionSet.h	(revision 3207)
 +++ lib/net/connectionSet.h	(working copy)
 @@ -41,7 +41,7 @@
       *
@@ -2474,7 +2485,7 @@ Index: lib/net/connectionSet.h
          ConnectionPtr getConnection(){ return _connection; }
 Index: lib/net/dataIStream.h
 ===================================================================
---- lib/net/dataIStream.h	(revision 3189)
+--- lib/net/dataIStream.h	(revision 3207)
 +++ lib/net/dataIStream.h	(working copy)
 @@ -33,7 +33,7 @@
       *
@@ -2508,7 +2519,7 @@ Index: lib/net/dataIStream.h
          virtual size_t nRemainingBuffers() const = 0;
 Index: lib/net/dataOStream.h
 ===================================================================
---- lib/net/dataOStream.h	(revision 3189)
+--- lib/net/dataOStream.h	(revision 3207)
 +++ lib/net/dataOStream.h	(working copy)
 @@ -35,7 +35,7 @@
       *
@@ -2532,7 +2543,7 @@ Index: lib/net/dataOStream.h
   
 Index: lib/net/dispatcher.h
 ===================================================================
---- lib/net/dispatcher.h	(revision 3189)
+--- lib/net/dispatcher.h	(revision 3207)
 +++ lib/net/dispatcher.h	(working copy)
 @@ -40,12 +40,12 @@
       * Provides packet dispatch through a command queue and command handler
@@ -2580,7 +2591,7 @@ Index: lib/net/dispatcher.h
  
 Index: lib/net/node.cpp
 ===================================================================
---- lib/net/node.cpp	(revision 3189)
+--- lib/net/node.cpp	(revision 3207)
 +++ lib/net/node.cpp	(working copy)
 @@ -666,13 +666,6 @@
      return true;
@@ -2598,7 +2609,7 @@ Index: lib/net/node.cpp
      NodeAcquireSendTokenPacket packet;
 Index: lib/net/node.h
 ===================================================================
---- lib/net/node.h	(revision 3189)
+--- lib/net/node.h	(revision 3207)
 +++ lib/net/node.h	(working copy)
 @@ -54,7 +54,7 @@
       * has at least one Connection through which is reachable. A Node provides
@@ -2802,7 +2813,7 @@ Index: lib/net/node.h
  
 Index: lib/net/objectDataIStream.h
 ===================================================================
---- lib/net/objectDataIStream.h	(revision 3189)
+--- lib/net/objectDataIStream.h	(revision 3207)
 +++ lib/net/objectDataIStream.h	(working copy)
 @@ -33,7 +33,7 @@
      /**
@@ -2815,7 +2826,7 @@ Index: lib/net/objectDataIStream.h
          ObjectDataIStream();
 Index: lib/net/objectDataOStream.h
 ===================================================================
---- lib/net/objectDataOStream.h	(revision 3189)
+--- lib/net/objectDataOStream.h	(revision 3207)
 +++ lib/net/objectDataOStream.h	(working copy)
 @@ -30,7 +30,7 @@
      /**
@@ -2828,7 +2839,7 @@ Index: lib/net/objectDataOStream.h
          ObjectDataOStream( const Object* object )
 Index: lib/net/objectDeltaDataIStream.h
 ===================================================================
---- lib/net/objectDeltaDataIStream.h	(revision 3189)
+--- lib/net/objectDeltaDataIStream.h	(revision 3207)
 +++ lib/net/objectDeltaDataIStream.h	(working copy)
 @@ -29,7 +29,7 @@
      /**
@@ -2841,7 +2852,7 @@ Index: lib/net/objectDeltaDataIStream.h
          ObjectDeltaDataIStream();
 Index: lib/net/objectDeltaDataOStream.h
 ===================================================================
---- lib/net/objectDeltaDataOStream.h	(revision 3189)
+--- lib/net/objectDeltaDataOStream.h	(revision 3207)
 +++ lib/net/objectDeltaDataOStream.h	(working copy)
 @@ -29,7 +29,7 @@
      /**
@@ -2854,7 +2865,7 @@ Index: lib/net/objectDeltaDataOStream.h
          ObjectDeltaDataOStream( const Object* object );
 Index: lib/net/objectInstanceDataIStream.h
 ===================================================================
---- lib/net/objectInstanceDataIStream.h	(revision 3189)
+--- lib/net/objectInstanceDataIStream.h	(revision 3207)
 +++ lib/net/objectInstanceDataIStream.h	(working copy)
 @@ -31,7 +31,7 @@
      /**
@@ -2867,7 +2878,7 @@ Index: lib/net/objectInstanceDataIStream.h
          ObjectInstanceDataIStream();
 Index: lib/net/objectInstanceDataOStream.h
 ===================================================================
---- lib/net/objectInstanceDataOStream.h	(revision 3189)
+--- lib/net/objectInstanceDataOStream.h	(revision 3207)
 +++ lib/net/objectInstanceDataOStream.h	(working copy)
 @@ -29,7 +29,7 @@
      /**
@@ -2880,7 +2891,7 @@ Index: lib/net/objectInstanceDataOStream.h
          ObjectInstanceDataOStream( const Object* object );
 Index: lib/net/pairConnection.h
 ===================================================================
---- lib/net/pairConnection.h	(revision 3189)
+--- lib/net/pairConnection.h	(revision 3207)
 +++ lib/net/pairConnection.h	(working copy)
 @@ -28,22 +28,22 @@
       * A meta connection consisting of two (unidirectional) connections
@@ -2913,7 +2924,7 @@ Index: lib/net/pairConnection.h
              { _readConnection->readNB( buffer, bytes ); }
 Index: lib/net/session.h
 ===================================================================
---- lib/net/session.h	(revision 3189)
+--- lib/net/session.h	(revision 3207)
 +++ lib/net/session.h	(working copy)
 @@ -40,14 +40,14 @@
       * A received SessionPacket is dispatched to the locally-mapped session of
@@ -3022,7 +3033,7 @@ Index: lib/net/session.h
  
          /** 
           * Map a distributed object.
-@@ -227,21 +227,21 @@
+@@ -229,21 +229,21 @@
           *         available.
           * @sa registerObject
           */
@@ -3048,7 +3059,7 @@ Index: lib/net/session.h
  
          /** 
           * Attach an object to an identifier.
-@@ -255,7 +255,7 @@
+@@ -257,7 +257,7 @@
           * @param instanceID the node-local instance identifier, or
           *                   EQ_ID_INVALID if this method should generate one.
           */
@@ -3057,7 +3068,7 @@ Index: lib/net/session.h
                             const uint32_t instanceID );
  
          /** 
-@@ -263,7 +263,7 @@
+@@ -265,7 +265,7 @@
           * 
           * @param object the attached object.
           */
@@ -3066,7 +3077,7 @@ Index: lib/net/session.h
          //@}
  
  
-@@ -277,7 +277,7 @@
+@@ -279,7 +279,7 @@
           *
           * @param node the node to which the session has been mapped.
           */
@@ -3077,7 +3088,7 @@ Index: lib/net/session.h
      protected:
 Index: server/channel.h
 ===================================================================
---- server/channel.h	(revision 3189)
+--- server/channel.h	(revision 3207)
 +++ server/channel.h	(working copy)
 @@ -52,7 +52,7 @@
      /**
@@ -3121,7 +3132,7 @@ Index: server/channel.h
          void activate();
 Index: server/compound.h
 ===================================================================
---- server/compound.h	(revision 3189)
+--- server/compound.h	(revision 3207)
 +++ server/compound.h	(working copy)
 @@ -52,13 +52,13 @@
      /**
@@ -3228,7 +3239,7 @@ Index: server/compound.h
          /** Activate the compound tree. */
 Index: server/server.h
 ===================================================================
---- server/server.h	(revision 3189)
+--- server/server.h	(revision 3207)
 +++ server/server.h	(working copy)
 @@ -46,13 +46,13 @@
      /**
@@ -3277,7 +3288,7 @@ Index: server/server.h
          virtual ~Server();
 Index: server/window.h
 ===================================================================
---- server/window.h	(revision 3189)
+--- server/window.h	(revision 3207)
 +++ server/window.h	(working copy)
 @@ -48,7 +48,7 @@
      /**
@@ -3328,7 +3339,7 @@ Index: server/window.h
           * Return this window's pixel viewport.
 Index: VS2005/accept.vcproj
 ===================================================================
---- VS2005/accept.vcproj	(revision 3189)
+--- VS2005/accept.vcproj	(revision 3207)
 +++ VS2005/accept.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3368,7 +3379,7 @@ Index: VS2005/accept.vcproj
  				WarningLevel="1"
 Index: VS2005/affinityCheck.vcproj
 ===================================================================
---- VS2005/affinityCheck.vcproj	(revision 3189)
+--- VS2005/affinityCheck.vcproj	(revision 3207)
 +++ VS2005/affinityCheck.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3408,7 +3419,7 @@ Index: VS2005/affinityCheck.vcproj
  				WarningLevel="1"
 Index: VS2005/base/refPtr.vcproj
 ===================================================================
---- VS2005/base/refPtr.vcproj	(revision 3189)
+--- VS2005/base/refPtr.vcproj	(revision 3207)
 +++ VS2005/base/refPtr.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3448,7 +3459,7 @@ Index: VS2005/base/refPtr.vcproj
  				WarningLevel="1"
 Index: VS2005/compositor.vcproj
 ===================================================================
---- VS2005/compositor.vcproj	(revision 3189)
+--- VS2005/compositor.vcproj	(revision 3207)
 +++ VS2005/compositor.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3488,7 +3499,7 @@ Index: VS2005/compositor.vcproj
  				WarningLevel="1"
 Index: VS2005/ConfigTool.vcproj
 ===================================================================
---- VS2005/ConfigTool.vcproj	(revision 3189)
+--- VS2005/ConfigTool.vcproj	(revision 3207)
 +++ VS2005/ConfigTool.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WIN32_VC;_CRT_SECURE_NO_DEPRECATE"
@@ -3528,7 +3539,7 @@ Index: VS2005/ConfigTool.vcproj
  				WarningLevel="1"
 Index: VS2005/eqHello.vcproj
 ===================================================================
---- VS2005/eqHello.vcproj	(revision 3189)
+--- VS2005/eqHello.vcproj	(revision 3207)
 +++ VS2005/eqHello.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3568,7 +3579,7 @@ Index: VS2005/eqHello.vcproj
  				WarningLevel="1"
 Index: VS2005/eqPly Example.vcproj
 ===================================================================
---- VS2005/eqPly Example.vcproj	(revision 3189)
+--- VS2005/eqPly Example.vcproj	(revision 3207)
 +++ VS2005/eqPly Example.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3608,7 +3619,7 @@ Index: VS2005/eqPly Example.vcproj
  				WarningLevel="1"
 Index: VS2005/Equalizer Server Library.vcproj
 ===================================================================
---- VS2005/Equalizer Server Library.vcproj	(revision 3189)
+--- VS2005/Equalizer Server Library.vcproj	(revision 3207)
 +++ VS2005/Equalizer Server Library.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_WINDOWS;_USRDLL;EQUALIZERSERVERLIBRARY_EXPORTS"
@@ -3648,7 +3659,7 @@ Index: VS2005/Equalizer Server Library.vcproj
  				WarningLevel="2"
 Index: VS2005/Equalizer Server.vcproj
 ===================================================================
---- VS2005/Equalizer Server.vcproj	(revision 3189)
+--- VS2005/Equalizer Server.vcproj	(revision 3207)
 +++ VS2005/Equalizer Server.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3688,7 +3699,7 @@ Index: VS2005/Equalizer Server.vcproj
  				WarningLevel="1"
 Index: VS2005/Equalizer.vcproj
 ===================================================================
---- VS2005/Equalizer.vcproj	(revision 3189)
+--- VS2005/Equalizer.vcproj	(revision 3207)
 +++ VS2005/Equalizer.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EQUALIZER_EXPORTS;EQ_PLUGIN_BUILD;_CRT_SECURE_NO_DEPRECATE"
@@ -3726,7 +3737,7 @@ Index: VS2005/Equalizer.vcproj
  				RuntimeTypeInfo="true"
  				OpenMP="true"
  				UsePrecompiledHeader="0"
-@@ -8711,6 +8711,46 @@
+@@ -8755,6 +8755,46 @@
  			Filter="dll;lib"
  			>
  			<File
@@ -3773,7 +3784,7 @@ Index: VS2005/Equalizer.vcproj
  				RelativePath="..\Windows\pthreads\lib\pthreadVC2.dll"
  				>
  				<FileConfiguration
-@@ -8757,7 +8797,7 @@
+@@ -8801,7 +8841,7 @@
  				</FileConfiguration>
  			</File>
  			<File
@@ -3782,7 +3793,7 @@ Index: VS2005/Equalizer.vcproj
  				>
  				<FileConfiguration
  					Name="Debug|Win32"
-@@ -8842,46 +8882,6 @@
+@@ -8886,46 +8926,6 @@
  					/>
  				</FileConfiguration>
  			</File>
@@ -3831,7 +3842,7 @@ Index: VS2005/Equalizer.vcproj
  			RelativePath="..\AUTHORS"
 Index: VS2005/eVolve.vcproj
 ===================================================================
---- VS2005/eVolve.vcproj	(revision 3189)
+--- VS2005/eVolve.vcproj	(revision 3207)
 +++ VS2005/eVolve.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3871,7 +3882,7 @@ Index: VS2005/eVolve.vcproj
  				WarningLevel="1"
 Index: VS2005/frustumTest.vcproj
 ===================================================================
---- VS2005/frustumTest.vcproj	(revision 3189)
+--- VS2005/frustumTest.vcproj	(revision 3207)
 +++ VS2005/frustumTest.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3911,7 +3922,7 @@ Index: VS2005/frustumTest.vcproj
  				WarningLevel="1"
 Index: VS2005/image.vcproj
 ===================================================================
---- VS2005/image.vcproj	(revision 3189)
+--- VS2005/image.vcproj	(revision 3207)
 +++ VS2005/image.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3951,7 +3962,7 @@ Index: VS2005/image.vcproj
  				WarningLevel="1"
 Index: VS2005/netPerf.vcproj
 ===================================================================
---- VS2005/netPerf.vcproj	(revision 3189)
+--- VS2005/netPerf.vcproj	(revision 3207)
 +++ VS2005/netPerf.vcproj	(working copy)
 @@ -1,7 +1,7 @@
  <?xml version="1.0" encoding="Windows-1252"?>
@@ -4000,7 +4011,7 @@ Index: VS2005/netPerf.vcproj
  				WarningLevel="1"
 Index: VS2005/netProxy.vcproj
 ===================================================================
---- VS2005/netProxy.vcproj	(revision 3189)
+--- VS2005/netProxy.vcproj	(revision 3207)
 +++ VS2005/netProxy.vcproj	(working copy)
 @@ -1,7 +1,7 @@
  <?xml version="1.0" encoding="Windows-1252"?>
@@ -4049,7 +4060,7 @@ Index: VS2005/netProxy.vcproj
  				WarningLevel="1"
 Index: VS2005/pipePerf.vcproj
 ===================================================================
---- VS2005/pipePerf.vcproj	(revision 3189)
+--- VS2005/pipePerf.vcproj	(revision 3207)
 +++ VS2005/pipePerf.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -4089,7 +4100,7 @@ Index: VS2005/pipePerf.vcproj
  				WarningLevel="1"
 Index: VS2005/pixelBench.vcproj
 ===================================================================
---- VS2005/pixelBench.vcproj	(revision 3189)
+--- VS2005/pixelBench.vcproj	(revision 3207)
 +++ VS2005/pixelBench.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
