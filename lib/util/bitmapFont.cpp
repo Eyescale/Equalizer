@@ -58,23 +58,24 @@ BitmapFont::~BitmapFont()
 {
 }
 
-bool BitmapFont::initFont( const std::string& fontName )
+bool BitmapFont::initFont( const std::string& name, const uint32_t size )
 {
     const Pipe* pipe = _window->getPipe();
     switch( pipe->getWindowSystem( ))
     {
         case WINDOW_SYSTEM_GLX:
-            return _initFontGLX( fontName );
+            return _initFontGLX( name, size );
         case WINDOW_SYSTEM_WGL:
-            return _initFontWGL( fontName );
+            return _initFontWGL( name, size );
         case WINDOW_SYSTEM_AGL:
-            return _initFontAGL( fontName );
+            return _initFontAGL( name, size );
         default:
             return false;
     }
 }
 
-bool BitmapFont::_initFontGLX( const std::string& fontName )
+bool BitmapFont::_initFontGLX( const std::string& name,
+                               const uint32_t size )
 {
 #ifdef GLX
     Pipe*    pipe    = _window->getPipe();
@@ -86,14 +87,18 @@ bool BitmapFont::_initFontGLX( const std::string& fontName )
     Display* display = osPipe->getXDisplay();
     EQASSERT( display );
 
-    string font = fontName;
-    if( font == normal )
-        font = "-*-times-*-r-*-*-12-*-*-*-*-*-*-*"; // see xfontsel
+    // see xfontsel
+    stringstream font( "-*-" );
+    if( name == normal )
+        font << "times";
+    else
+        font << name;
+    font << "-*-r-*-*-" << size << "-*-*-*-*-*-*-*";
 
-    XFontStruct* fontStruct = XLoadQueryFont( display, font.c_str( )); 
+    XFontStruct* fontStruct = XLoadQueryFont( display, font.str().c_str( )); 
     if( !fontStruct )
     {
-        EQWARN << "Can't load font " << font << ", using fixed" << endl;
+        EQWARN << "Can't load font " << font.str() << ", using fixed" << endl;
         fontStruct = XLoadQueryFont( display, "fixed" ); 
     }
 
@@ -109,7 +114,8 @@ bool BitmapFont::_initFontGLX( const std::string& fontName )
 #endif
 }
 
-bool BitmapFont::_initFontWGL( const std::string& fontName )
+bool BitmapFont::_initFontWGL( const std::string& name,
+                               const uint32_t size )
 {
 #ifdef WGL
     const OSWindow*    osWindow  = _window->getOSWindow();
@@ -130,7 +136,7 @@ bool BitmapFont::_initFontWGL( const std::string& fontName )
 
     LOGFONT font;
     memset( &font, 0, sizeof( font ));
-    font.lfHeight = -12;
+    font.lfHeight = -size;
     font.lfWeight = FW_NORMAL;
     font.lfCharSet = ANSI_CHARSET;
     font.lfOutPrecision = OUT_DEFAULT_PRECIS;
@@ -138,16 +144,17 @@ bool BitmapFont::_initFontWGL( const std::string& fontName )
     font.lfQuality = DEFAULT_QUALITY;
     font.lfPitchAndFamily = FF_DONTCARE | DEFAULT_QUALITY;
 
-    if( fontName == normal )
+    if( name == normal )
         strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
     else
-        strncpy( font.lfFaceName, fontName.c_str(), LF_FACESIZE );
+        strncpy( font.lfFaceName, name.c_str(), LF_FACESIZE );
+
     font.lfFaceName[ LF_FACESIZE-1 ] = '\0';
 
     HFONT newFont = CreateFontIndirect( &font );
     if( !newFont )
     {
-        EQWARN << "Can't load font " << fontName << ", using Times New Roman" 
+        EQWARN << "Can't load font " << name << ", using Times New Roman" 
                << endl;
 
         strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
@@ -172,7 +179,8 @@ bool BitmapFont::_initFontWGL( const std::string& fontName )
 #endif
 }
 
-bool BitmapFont::_initFontAGL( const std::string& fontName )
+bool BitmapFont::_initFontAGL( const std::string& name,
+                               const uint32_t size )
 {
 #ifdef AGL
     const OSWindow*    osWindow  = _window->getOSWindow();
@@ -188,12 +196,12 @@ bool BitmapFont::_initFontAGL( const std::string& fontName )
     EQASSERT( context );
 
     CFStringRef cfFontName;
-    if( fontName == normal )
+    if( name == normal )
         cfFontName = CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
                                                 kCFStringEncodingMacRoman );
     else
         cfFontName = 
-            CFStringCreateWithCString( kCFAllocatorDefault, fontName.c_str(),
+            CFStringCreateWithCString( kCFAllocatorDefault, name.c_str(),
                                    kCFStringEncodingMacRoman );
 
     ATSFontFamilyRef font = ATSFontFamilyFindFromName( cfFontName, 
@@ -202,7 +210,7 @@ bool BitmapFont::_initFontAGL( const std::string& fontName )
 
     if( font == 0 )
     {
-        EQWARN << "Can't load font " << fontName << ", using Georgia" << endl;
+        EQWARN << "Can't load font " << name << ", using Georgia" << endl;
         cfFontName = 
             CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
                                        kCFStringEncodingMacRoman );
@@ -213,7 +221,7 @@ bool BitmapFont::_initFontAGL( const std::string& fontName )
     EQASSERT( font );
 
     _setupLists( 127 );
-    if( !aglUseFont( context, font, ::normal, 12, 0, 256, (long)_lists ))
+    if( !aglUseFont( context, font, ::normal, size, 0, 256, (long)_lists ))
     {
         _setupLists( 0 );
         return false;

@@ -364,12 +364,11 @@ void Channel::_drawHelp()
     glDisable( GL_LIGHTING );
     glDisable( GL_DEPTH_TEST );
 
-    const eq::util::BitmapFont& font = getObjectManager()->getDefaultFont();
-
     glColor3f( 1.f, 1.f, 1.f );
 
     if( frameData.showHelp( ))
     {
+        const eq::util::BitmapFont& font = getObjectManager()->getDefaultFont();
         std::string help = EqPly::getHelp();
         float y = 340.f;
 
@@ -389,6 +388,8 @@ void Channel::_drawHelp()
 
     if( !message.empty( ))
     {
+        const eq::util::BitmapFont& font = getObjectManager()->getMediumFont();
+
         const eq::Viewport& vp = getViewport();
         const eq::PixelViewport& pvp = getPixelViewport();
 

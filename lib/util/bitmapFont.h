@@ -44,7 +44,8 @@ namespace util
 
         const static std::string normal; //!< a normal default font
 
-        bool initFont( const std::string& fontName = BitmapFont::normal );
+        bool initFont( const std::string& name = normal,
+                       const uint32_t size = 12 );
         void draw( const std::string& text ) const;
 
     private:
@@ -52,9 +53,9 @@ namespace util
         Window* const _window;
         GLuint        _lists;
 
-        bool _initFontGLX( const std::string& fontName );
-        bool _initFontWGL( const std::string& fontName );
-        bool _initFontAGL( const std::string& fontName );
+        bool _initFontGLX( const std::string& name, const uint32_t size );
+        bool _initFontWGL( const std::string& name, const uint32_t size );
+        bool _initFontAGL( const std::string& name, const uint32_t size );
 
         void _setupLists( const GLsizei num );
     };

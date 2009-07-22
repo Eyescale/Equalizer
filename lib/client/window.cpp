@@ -559,7 +559,8 @@ void Window::_setupObjectManager()
     else
         _objectManager = new ObjectManager( this );
 
-    _objectManager->_font.initFont();
+    _objectManager->_smallFont.initFont();
+    _objectManager->_mediumFont.initFont( util::BitmapFont::normal, 20 );
 }
 
 void Window::_releaseObjectManager()

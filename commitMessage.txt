@@ -1,9 +1,10 @@
-Don't use statically-initialized objects in static initializer.
+Extend bitmap font with font size, create medium-size font in
+Window::OM, use it for eqPly
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

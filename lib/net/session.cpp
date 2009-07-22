@@ -564,7 +564,7 @@ CommandResult Session::_invokeObjectCommand( Command& command )
 
     // create copy of objects vector for thread-safety
     ObjectVector objects = _objects[id];
-    EQASSERT( !objects.empty( ));
+    EQASSERTINFO( !objects.empty(), objPacket );
 
     _objectsMutex.unset();
 

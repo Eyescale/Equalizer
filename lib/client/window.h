@@ -67,20 +67,27 @@ namespace eq
         public:
             ObjectManager( Window* window ) 
                     : eq::ObjectManager<const void *>(window->glewGetContext( ))
-                    , _font( window )
+                    , _smallFont( window )
+                    , _mediumFont( window )
                 {}
             ObjectManager( Window* window, ObjectManager* shared ) 
                     : eq::ObjectManager<const void *>(window->glewGetContext(),
                                                       shared )
-                    , _font( window )
+                    , _smallFont( window )
+                    , _mediumFont( window )
                 {}
             virtual ~ObjectManager(){}
             
             /** @return A generic bitmap font renderer */
-            const util::BitmapFont& getDefaultFont() const { return _font; }
+            const util::BitmapFont& getDefaultFont() const { return _smallFont;}
+
+            /** @return A medium-sized bitmap font renderer */
+            const util::BitmapFont& getMediumFont() const { return _mediumFont;}
 
         private:
-            util::BitmapFont _font;
+            util::BitmapFont _smallFont;
+            util::BitmapFont _mediumFont;
+
             friend class Window;
         };
 
