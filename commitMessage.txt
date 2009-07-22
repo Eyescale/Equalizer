@@ -1,4 +1,4 @@
-Fix X11 bitmap font
+Improve swap group logging
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
