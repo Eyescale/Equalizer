@@ -314,7 +314,10 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         loads.push_back( load );
     }
 
-    if( isFrozen( )) // execute code above to not leak memory
+    const Compound* compound = getCompound();
+
+    if( isFrozen() || !compound->isActive() || _nPipes == 0 )
+        // always execute code above to not leak memory
         return;
 
     if( totalTime == 0 ) // no data
@@ -325,7 +328,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     EQLOG( LOG_LB1 ) << resourceTime << "ms/resource" << std::endl;
 
     //----- Assign new resource usage
-    const CompoundVector& children = getCompound()->getChildren();
+    const CompoundVector& children = compound->getChildren();
     const size_t size( _listeners.size( ));
     EQASSERT( children.size() == size );
     base::PtrHash< Pipe*, float > pipeUsage;
@@ -338,6 +341,9 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         EQASSERT( load.missing == 0 );
 
         Compound* child = children[ i ];
+        if( !child->isActive( ))
+            continue;
+
         float segmentResources( load.time / resourceTime );
 
         EQLOG( LOG_LB1 ) << "----- balance step 1 for view " << i << " (" 
@@ -355,6 +361,8 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     {
         Listener::Load& load = loads[ i ];
         Compound* child = children[ i ];
+        if( !child->isActive( ))
+            continue;
 
         float& leftOver = leftOvers[i];
         EQLOG( LOG_LB1 ) << "----- balance step 2 for view " << i << " (" 
@@ -369,9 +377,16 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     // satisfy left-overs
     for( size_t i = 0; i < size; ++i )
     {
+        Listener& listener = _listeners[ i ];
+        EQASSERTINFO( listener.getNLoads() <= getConfig()->getLatency() + 3,
+                      listener );
+
         float& leftOver = leftOvers[i];
         Listener::Load& load = loads[ i ];
         Compound* child = children[ i ];
+
+        if( !child->isActive( ))
+            continue;
 
         if( leftOver > MIN_USAGE || load.missing == 0 )
         {
@@ -385,23 +400,20 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
             if( load.missing == 0 ) // assign at least one resource
             {
-                Compound* compound = assigner.getFallback();
-                EQASSERT( compound );
+                Compound* fallback = assigner.getFallback();
+                EQASSERT( fallback );
                 EQASSERT( leftOver > 0 );
 
-                compound->setUsage( leftOver );
+                fallback->setUsage( leftOver );
                 load.missing = 1;
                 EQLOG( LOG_LB1 ) << "  Use " 
                                 << static_cast< unsigned >( leftOver*100.f+.5f )
-                                << "% of " << compound->getPipe()->getName()
-                                << " task " << compound->getTaskID()
+                                << "% of " << fallback->getPipe()->getName()
+                                << " task " << fallback->getTaskID()
                                 << std::endl;
             }
         }
 
-        Listener& listener = _listeners[ i ];
-        EQASSERTINFO(listener.getNLoads()<=child->getConfig()->getLatency() + 3,
-                     listener );
         listener.newLoad( frameNumber, load.missing );
     }
 }
@@ -452,8 +464,14 @@ namespace
 class PipeCounter : public ConstCompoundVisitor
 {
 public:
+    virtual VisitorResult visitPre( const Compound* compound )
+        { return compound->isActive() ? TRAVERSE_CONTINUE : TRAVERSE_PRUNE; }
+
     virtual VisitorResult visitLeaf( const Compound* compound )
         {
+            if( !compound->isActive( ))
+                return TRAVERSE_PRUNE;
+
             const Pipe* pipe = compound->getPipe();
             EQASSERT( pipe );
             _pipes.insert( pipe );
@@ -475,7 +493,6 @@ void ViewEqualizer::_updateResources()
     PipeCounter counter;
     getCompound()->accept( counter );
     _nPipes = counter.getNPipes();
-    EQASSERT( _nPipes > 0 );
 }
 
 //---------------------------------------------------------------------------

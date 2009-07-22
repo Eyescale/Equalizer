@@ -205,8 +205,9 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
         while( from < static_cast< ssize_t >( _times.size( )))
             _times.pop_back();            //  delete all older samples
 
-    if( isFrozen( )) // execute code above to not leak memory
+    if( isFrozen() || !compound->isActive( ))
     {
+        // always execute code above to not leak memory
         compound->setMaxFPS( std::numeric_limits< float >::max( ));
         return;
     }

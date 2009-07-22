@@ -180,11 +180,15 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event )
 
     Rect      rect;
     WindowRef carbonWindow = _window->getCarbonWindow();
-    GetWindowPortBounds( carbonWindow, &rect );
+
+    GetWindowBounds( carbonWindow, kWindowContentRgn, &rect );
     windowEvent.resize.x = rect.top;
     windowEvent.resize.y = rect.left;
     windowEvent.resize.h = rect.bottom - rect.top;
     windowEvent.resize.w = rect.right  - rect.left;
+
+    if( window->getIAttribute( Window::IATTR_HINT_DECORATION ) != OFF )
+        windowEvent.resize.y -= EQ_AGL_MENUBARHEIGHT;
 
     switch( GetEventKind( event ))
     {

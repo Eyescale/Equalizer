@@ -97,7 +97,12 @@ bool Config::init()
         }
     }
 
-    _currentCanvas = 0;
+    const eq::CanvasVector& canvases = getCanvases();
+    if( canvases.empty( ))
+        _currentCanvas = 0;
+    else
+        _currentCanvas = canvases.front();
+    
     return true;
 }
 

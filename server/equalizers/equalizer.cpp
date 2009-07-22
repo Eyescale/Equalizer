@@ -18,6 +18,7 @@
 #include "equalizer.h"
 
 #include "../compound.h"
+#include "../config.h"
 #include "../log.h"
 
 #include <eq/client/client.h>
@@ -60,6 +61,12 @@ void Equalizer::attach( Compound* compound )
         _compound = compound;
         compound->addListener( this );
     }
+}
+
+const Config* Equalizer::getConfig() const
+{
+    EQASSERT( _compound );
+    return _compound->getConfig();
 }
 
 }

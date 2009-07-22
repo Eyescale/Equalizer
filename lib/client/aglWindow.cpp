@@ -548,11 +548,11 @@ void AGLWindow::setCarbonWindow( WindowRef window )
     Global::enterCarbon();
     if( GetWindowBounds( window, kWindowContentRgn, &rect ) == noErr )
     {
-        PixelViewport pvp;
-        pvp.x = rect.left;
-        pvp.y = rect.top;
-        pvp.w = rect.right - rect.left;
-        pvp.h = rect.bottom - rect.top;
+        PixelViewport pvp( rect.left, rect.top,
+                           rect.right - rect.left, rect.bottom - rect.top );
+
+        if( getIAttribute( Window::IATTR_HINT_DECORATION ) != OFF )
+            pvp.y -= EQ_AGL_MENUBARHEIGHT;
 
         _window->setPixelViewport( pvp );
     }

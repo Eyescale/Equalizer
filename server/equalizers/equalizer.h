@@ -50,6 +50,9 @@ namespace server
         const Compound* getCompound() const { return _compound; }
         Compound* getCompound()             { return _compound; }
 
+        /** @return the config. */
+        const Config* getConfig() const;
+
         /** Attach to a compound and detach the previous compound. */
         virtual void attach( Compound* compound );
 
