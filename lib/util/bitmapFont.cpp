@@ -88,7 +88,9 @@ bool BitmapFont::_initFontGLX( const std::string& name,
     EQASSERT( display );
 
     // see xfontsel
-    stringstream font( "-*-" );
+    stringstream font;
+    font << "-*-";
+
     if( name == normal )
         font << "times";
     else

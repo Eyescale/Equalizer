@@ -408,7 +408,7 @@ void Channel::_drawHelp()
             
             font.draw( message.substr( 0, pos ));
             message = message.substr( pos + 1 );
-            y -= 16.f;
+            y -= 22.f;
         }
         // last line
         glRasterPos3f( 10.f - xOffset, y, 0.99f );

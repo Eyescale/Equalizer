@@ -104,7 +104,7 @@ bool Config::init()
     else
         _currentCanvas = canvases.front();
 
-    _setMessage( "Welcome to eqPly\n Press F1 for help" );
+    _setMessage( "Welcome to eqPly\nPress F1 for help" );
     return true;
 }
 

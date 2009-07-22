@@ -1,10 +1,9 @@
-Extend bitmap font with font size, create medium-size font in
-Window::OM, use it for eqPly
+Fix X11 bitmap font
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
