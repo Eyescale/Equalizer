@@ -1,10 +1,9 @@
-- tweak multi-compound config
-- eqPly: add message overlay
+Don't use statically-initialized objects in static initializer.
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [x] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
