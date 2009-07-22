@@ -1,8 +1,5 @@
-- add new config showing all features through layout switch
-- eqPly: make first canvas current on init to facilitate layout switching
-- AGL: Fix window PVP setting to avoid 'moving windows' on layout switch
-- Fix view and load equalizer to work when being on inactive compounds
-- 
+- tweak multi-compound config
+- eqPly: add message overlay
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

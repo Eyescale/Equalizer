@@ -93,6 +93,12 @@ namespace eqPly
         uint32_t getCurrentViewID() const { return _currentViewID; }
         //*}
 
+        /** @name Message overlay. */
+        //*{
+        void setMessage( const std::string& message );
+        const std::string& getMessage() const { return _message; }
+        //*}
+
     protected:
         /** @sa Object::serialize() */
         virtual void serialize( eq::net::DataOStream& os,
@@ -106,9 +112,10 @@ namespace eqPly
         /** The changed parts of the data since the last pack(). */
         enum DirtyBits
         {
-            DIRTY_CAMERA = eq::Object::DIRTY_CUSTOM << 0,
-            DIRTY_FLAGS  = eq::Object::DIRTY_CUSTOM << 1,
-            DIRTY_VIEW   = eq::Object::DIRTY_CUSTOM << 2,
+            DIRTY_CAMERA  = eq::Object::DIRTY_CUSTOM << 0,
+            DIRTY_FLAGS   = eq::Object::DIRTY_CUSTOM << 1,
+            DIRTY_VIEW    = eq::Object::DIRTY_CUSTOM << 2,
+            DIRTY_MESSAGE = eq::Object::DIRTY_CUSTOM << 3,
         };
 
     private:
@@ -126,6 +133,7 @@ namespace eqPly
         bool             _pilotMode;
 
         uint32_t _currentViewID;
+        std::string _message;
     };
 }
 

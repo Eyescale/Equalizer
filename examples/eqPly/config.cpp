@@ -29,6 +29,7 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
         , _spinY( 5 )
         , _advance( 0 )
         , _currentCanvas( 0 )
+        , _messageTime( 0 )
         , _redraw( true )
         , _freeze( false )
 {
@@ -102,7 +103,8 @@ bool Config::init()
         _currentCanvas = 0;
     else
         _currentCanvas = canvases.front();
-    
+
+    _setMessage( "Welcome to eqPly\n Press F1 for help" );
     return true;
 }
 
@@ -288,6 +290,16 @@ uint32_t Config::startFrame()
 
 bool Config::needsRedraw()
 {
+    if( _messageTime > 0 )
+    {
+        if( getTime() - _messageTime > 2000 ) // reset message after two seconds
+        {
+            _messageTime = 0;
+            _frameData.setMessage( "" );
+        }
+        return true;
+    }
+
     return ( _spinX != 0 || _spinY != 0 || _advance != 0 ||
              _tracker.isRunning() || _redraw );
 }
@@ -584,9 +596,26 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             EQASSERT( !layouts.empty( ))
 
             if( index >= layouts.size( ))
-                _currentCanvas->useLayout( 0 );
+                index = 0;
+
+            _currentCanvas->useLayout( index );
+            
+            const eq::Layout* layout = _currentCanvas->getLayouts()[index];
+            std::ostringstream stream;
+            stream << "Layout ";
+            if( layout )
+            {
+                const std::string& name = layout->getName();
+                if( name.empty( ))
+                    stream << index;
+                else
+                    stream << name;
+            }
             else
-                _currentCanvas->useLayout( index );
+                stream << "NONE";
+            
+            stream << " active";
+            _setMessage( stream.str( ));
             return true;
         }
 
@@ -709,6 +738,12 @@ const eq::Matrix4f& Config::_getHeadMatrix() const
         return eq::Matrix4f::IDENTITY;
 
     return observers[0]->getHeadMatrix();
+}
+
+void Config::_setMessage( const std::string& message )
+{
+    _frameData.setMessage( message );
+    _messageTime = getTime();
 }
 
 }

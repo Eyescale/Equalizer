@@ -159,22 +159,37 @@ server
         }
         layout
         {
-            name "wall-LB"
+            name "WallLB"
             view {}
+        }
+        layout
+        {
+            name "MultiLevel"
+            view
+            {
+                viewport [ 0 .5 .5 .5 ]
+                wall
+                {
+                    bottom_left  [ -.5 -.5 -1 ]
+                    bottom_right [  .5 -.5 -1 ]
+                    top_left     [ -.5  .5 -1 ]
+                }
+            }
         }
 
         # Canvas using all layouts
         canvas
         {
-            layout "BinarySwap"
+            layout "wall"
+            layout "2D"
+            layout "WallLB"
+            layout "DB"
             layout "DirectSend"
+            layout "BinarySwap"
+            layout "Eye"
             layout "DPlex"
             layout "Pixel"
-            layout "Eye"
-            layout "DB"
-            layout "2D"
-            layout "wall"
-            layout "wall-LB"
+            layout "MultiLevel"
 
             wall
             {
@@ -204,7 +219,7 @@ server
                 channel "channel4"
             }
         }
-        
+
         # wall compound - need swap barrier
         compound
         {
@@ -291,6 +306,7 @@ server
         compound
         {
             channel ( segment 0 layout "Eye" view 0 )
+            eye [ LEFT RIGHT ]
 
             compound
             {
@@ -555,7 +571,7 @@ server
             view_equalizer {}
             compound
             {
-                channel ( segment 0 layout "wall-LB" view 0 )
+                channel ( segment 0 layout "WallLB" view 0 )
                 load_equalizer {}
 
                 compound{ }
@@ -570,7 +586,7 @@ server
             }
             compound
             {
-                channel ( segment 1 layout "wall-LB" view 0 )
+                channel ( segment 1 layout "WallLB" view 0 )
                 load_equalizer {}
 
                 compound{ }
@@ -585,7 +601,7 @@ server
             }
             compound
             {
-                channel ( segment 2 layout "wall-LB" view 0 )
+                channel ( segment 2 layout "WallLB" view 0 )
                 load_equalizer {}
 
                 compound{ }
@@ -600,7 +616,7 @@ server
             }
             compound
             {
-                channel ( segment 3 layout "wall-LB" view 0 )
+                channel ( segment 3 layout "WallLB" view 0 )
                 load_equalizer {}
 
                 compound{ }
@@ -613,6 +629,53 @@ server
 
                 swapbarrier {}
             }
-        }        
+        }
+
+        compound
+        {
+            channel ( segment 0 layout "MultiLevel" view 0 )
+            task    [ CLEAR ASSEMBLE ] 
+            buffer  [ COLOR DEPTH ]
+
+            compound
+            {
+                range   [ 0 .5 ]
+#                load_equalizer { mode 2D }
+
+                compound
+                {
+                    channel  "channel4"
+                    viewport [ 0 0 1 .5 ]
+                    outputframe {}
+                }
+                compound
+                {
+                    channel  "channel2"
+                    viewport [ 0 .5 1 .5 ]
+                    outputframe {}
+                }
+            }
+            compound
+            {
+                range   [ .5 1 ]
+#                load_equalizer { mode 2D }
+
+                compound
+                {
+                    channel  "channel3"
+                    viewport [ 0 0 1 .5 ]
+                    outputframe {}
+                }
+                compound
+                {
+                    task    [ DRAW READBACK ] 
+                    viewport [ 0 .5 1 .5 ]
+                }
+            }
+
+            inputframe{ name "frame.channel2" }
+            inputframe{ name "frame.channel3" }
+            inputframe{ name "frame.channel4" }
+        }
     }
 }

@@ -295,10 +295,7 @@ void Channel::_drawModel( const Model* model )
 void Channel::frameViewFinish( const uint32_t frameID )
 {
     _drawLogo();
-
-    const FrameData& frameData = _getFrameData();
-    if( frameData.showHelp( ))
-        _drawHelp();
+    _drawHelp();
 }
 
 void Channel::_drawLogo()
@@ -354,6 +351,12 @@ void Channel::_drawLogo()
 
 void Channel::_drawHelp()
 {
+    const FrameData& frameData = _getFrameData();
+    std::string message = frameData.getMessage();
+
+    if( !frameData.showHelp() && message.empty( ))
+        return;
+
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
@@ -365,22 +368,51 @@ void Channel::_drawHelp()
 
     glColor3f( 1.f, 1.f, 1.f );
 
-    std::string help = EqPly::getHelp();
-    float y = 340.f;
-
-    for( size_t pos = help.find( '\n' ); pos != std::string::npos;
-         pos = help.find( '\n' ))
+    if( frameData.showHelp( ))
     {
-        glRasterPos3f( 10.f, y, 0.99f );
-        glColor3f( 1.f, 1.f, 1.f );
+        std::string help = EqPly::getHelp();
+        float y = 340.f;
 
-        const std::string line( help.substr( 0, pos ));
-        help = help.substr( pos + 1 );
-        font.draw( line );
-        y -= 16.f;
+        for( size_t pos = help.find( '\n' ); pos != std::string::npos;
+             pos = help.find( '\n' ))
+        {
+            glRasterPos3f( 10.f, y, 0.99f );
+            
+            font.draw( help.substr( 0, pos ));
+            help = help.substr( pos + 1 );
+            y -= 16.f;
+        }
+        // last line
+        glRasterPos3f( 10.f, y, 0.99f );
+        font.draw( help );
     }
-    glRasterPos3f( 10.f, y, 0.99f );
-    font.draw( help );
+
+    if( !message.empty( ))
+    {
+        const eq::Viewport& vp = getViewport();
+        const eq::PixelViewport& pvp = getPixelViewport();
+
+        const float width = pvp.w / vp.w;
+        const float xOffset = vp.x * width;
+
+        const float height = pvp.h / vp.h;
+        const float yOffset = vp.y * height;
+        const float yMiddle = 0.5f * height;
+        float y = yMiddle - yOffset;
+
+        for( size_t pos = message.find( '\n' ); pos != std::string::npos;
+             pos = message.find( '\n' ))
+        {
+            glRasterPos3f( 10.f - xOffset, y, 0.99f );
+            
+            font.draw( message.substr( 0, pos ));
+            message = message.substr( pos + 1 );
+            y -= 16.f;
+        }
+        // last line
+        glRasterPos3f( 10.f - xOffset, y, 0.99f );
+        font.draw( message );
+    }
 
     EQ_GL_CALL( resetAssemblyState( ));
 }

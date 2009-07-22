@@ -87,6 +87,8 @@ namespace eqPly
 
         CameraAnimation _animation;
 
+        uint64_t _messageTime;
+
         bool _redraw;
         bool _freeze;
 
@@ -97,6 +99,7 @@ namespace eqPly
         bool _handleKeyEvent( const eq::KeyEvent& event );
         void _setHeadMatrix( const eq::Matrix4f& matrix );
         const eq::Matrix4f& _getHeadMatrix() const;
+        void _setMessage( const std::string& message );
     };
 }
 

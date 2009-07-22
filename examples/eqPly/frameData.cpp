@@ -45,6 +45,8 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
            << _help << _wireframe << _pilotMode;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
+    if( dirtyBits & DIRTY_MESSAGE )
+        os << _message;
 }
 
 void FrameData::deserialize( eq::net::DataIStream& is,
@@ -58,6 +60,8 @@ void FrameData::deserialize( eq::net::DataIStream& is,
            >> _help >> _wireframe >> _pilotMode;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
+    if( dirtyBits & DIRTY_MESSAGE )
+        is >> _message;
 }
 
 void FrameData::setModelID( const uint32_t id )
@@ -221,6 +225,15 @@ void FrameData::setCurrentViewID( const uint32_t id )
 {
     _currentViewID = id;
     setDirty( DIRTY_VIEW );
+}
+
+void FrameData::setMessage( const std::string& message )
+{
+    if( _message == message )
+        return;
+
+    _message = message;
+    setDirty( DIRTY_MESSAGE );
 }
 
 }

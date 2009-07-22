@@ -72,7 +72,6 @@ server
                 {
                 }
 
-                inputframe{ name "frame.channel-first-1" }
             }
             compound
             {
