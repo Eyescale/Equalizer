@@ -21,7 +21,7 @@
 namespace
 {
  // just a random number
-static const uint64_t _rleMarker = 0xE3A49A3D0254B9C1llu;
+static const uint64_t _rleMarker = 0xE3A49A3D0254B9C1ull;
 }
 
 #include "compressorRLE.ipp"
