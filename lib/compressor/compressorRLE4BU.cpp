@@ -185,7 +185,7 @@ void CompressorRLE4BU::decompress( const void* const* inData,
             else // symbol
                 out[outPos++] = token;
 
-            EQASSERTINFO( ((outPos-1) << 3) <= size,
+            EQASSERTINFO( ((outPos-1) << 3) <= nPixels*4,
                           "Overwrite array bounds during decompress" );
         }
         EQASSERT( outPos == endPos );
