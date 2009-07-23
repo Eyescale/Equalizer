@@ -1,4 +1,5 @@
-Improve swap group logging
+Some cleanups on full-token RLE4B compressor, set info according to
+reference set, fix release warnings.
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

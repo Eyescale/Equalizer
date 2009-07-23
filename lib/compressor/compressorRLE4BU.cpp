@@ -16,42 +16,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-#include "compressorRLE4U.h"
+#include "compressorRLE4BU.h"
 
 namespace
 {
-// NaN
-static const uint64_t _rleMarker = 0xE3A49A3D; // just a random number
+ // just a random number
+static const uint64_t _rleMarker = 0xE3A49A3D0254B9C1llu;
 }
+
+#include "compressorRLE.ipp"
 
 namespace eq
 {
 namespace plugin
 {
 
-
-static void _setupResults( const uint32_t nChannels, const eq_uint64_t inSize,
-                           eq::plugin::Compressor::ResultVector& results )
-{
-    // determine number of chunks and set up output data structure
-#ifdef EQ_USE_OPENMP
-    const size_t nChunks = nChannels * eq::base::OMP::getNThreads() * 4;
-#else
-    const size_t nChunks = nChannels;
-#endif
-
-    while( results.size() < nChunks )
-        results.push_back( new eq::plugin::Compressor::Result );
-
-    // The maximum possible size is twice the input size for each chunk, since
-    // the worst case scenario is input made of tupels of 'rle marker, data'
-    const eq_uint64_t maxChunkSize = (inSize/nChunks + 1) * 2;
-    for( size_t i = 0; i < nChunks; ++i )
-        results[i]->resize( maxChunkSize );
-}
-
-
-#define WRITE_OUTPUT                                                    \
+#define WRITE_SINGLE_OUTPUT                                             \
     {                                                                   \
         if( lastSymbol == _rleMarker )                                  \
         {                                                               \
@@ -100,17 +80,17 @@ static uint64_t _compress( const uint64_t* data, const uint64_t nWords,
             ++nSame;
         else
         {
-            WRITE_OUTPUT;
+            WRITE_SINGLE_OUTPUT;
             lastSymbol = symbol;
             nSame      = 1;
         }
     }
 
-    WRITE_OUTPUT;
+    WRITE_SINGLE_OUTPUT;
     return (outPos<<3);
 }
 
-void CompressorRLE4U::compress( const void* const inData,
+void CompressorRLE4BU::compress( const void* const inData,
                                   const eq_uint64_t nPixels,
                                   const bool        useAlpha )
 {
@@ -119,8 +99,8 @@ void CompressorRLE4U::compress( const void* const inData,
 
     _setupResults( 1, size, _results );
 
-    const uint64_t nElems   = (size%8) ? (size>>3)+1 : (size>>3);
-    const uint64_t nResults = _results.size();
+    const uint64_t nElems  = (size%8) ? (size>>3)+1 : (size>>3);
+    const ssize_t nResults = _results.size();
 
 
     const float width = static_cast< float >( nElems ) /
@@ -130,7 +110,7 @@ void CompressorRLE4U::compress( const void* const inData,
         reinterpret_cast< const uint64_t* const >( inData );
 
 #pragma omp parallel for
-    for ( uint64_t i = 0; i < nResults; ++i )
+    for( ssize_t i = 0; i < nResults; ++i )
     {
         const uint64_t startIndex = static_cast< uint64_t >( i * width );
         const uint64_t endIndex   = static_cast< uint64_t >( (i+1) * width );
@@ -138,13 +118,13 @@ void CompressorRLE4U::compress( const void* const inData,
                                                      _results[i]->getData( ));
 
         const uint64_t cSize = _compress( &data[ startIndex ],
-                                                    endIndex-startIndex, out );
+                                          endIndex-startIndex, out );
         _results[i]->setSize( cSize );
     }
 }
 
 
-void CompressorRLE4U::decompress( const void* const* inData, 
+void CompressorRLE4BU::decompress( const void* const* inData, 
                                    const eq_uint64_t* const inSizes,
                                    const unsigned nInputs, void* const outData, 
                                    const eq_uint64_t nPixels, 
@@ -153,8 +133,6 @@ void CompressorRLE4U::decompress( const void* const* inData,
 
     if( nPixels == 0 )
         return;
-
-    const uint64_t size = nPixels * sizeof( uint32_t );
 
     // Prepare table with input pointer into decompressed data
     //   Needed since decompress loop is parallelized
@@ -172,17 +150,18 @@ void CompressorRLE4U::decompress( const void* const* inData,
             const uint64_t nWords = in[0];
             out += nWords * sizeof( uint64_t );
         }
+
         EQASSERTINFO(
-                size >= (uint64_t)(out-reinterpret_cast<uint8_t*>(outData)-7),
+            nPixels*4 >= (uint64_t)(out-reinterpret_cast<uint8_t*>(outData)-7),
                 "Pixel data size does not match expected image size: "
-                << size << " ? " 
+                << nPixels*4 << " ? " 
                 << (uint64_t)(out-reinterpret_cast<uint8_t*>(outData)-7));
     }
 
     // decompress each block
     // On OS X the loop is sometimes slower when parallelized. Investigate this!
 #pragma omp parallel for
-    for( unsigned i = 0; i < nInputs; ++i )
+    for( ssize_t i = 0; i < static_cast< ssize_t >( nInputs ); ++i )
     {
         const uint64_t* in  = reinterpret_cast< const uint64_t* >( inData[i] );
               uint64_t* out = outTable[i];

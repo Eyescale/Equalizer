@@ -831,7 +831,6 @@ void WGLWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
     
     EQINFO << "Joined swap group " << group << " and barrier " << barrier
            << std::endl;
-    return;
 }
 
 void WGLWindow::leaveNVSwapBarrier()

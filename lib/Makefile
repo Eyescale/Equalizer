@@ -246,7 +246,7 @@ CXXFILES = \
 	util/bitmapFont.cpp \
 	compressor/compressor.cpp \
 	compressor/compressorRLE4B.cpp \
-	compressor/compressorRLE4U.cpp \
+	compressor/compressorRLE4BU.cpp \
 	compressor/compressorRLE4HF.cpp
 
 SHADERS = \
