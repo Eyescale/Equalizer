@@ -7,6 +7,7 @@ CXXFILES = \
 	compressor.cpp \
 	compressorRLE.cpp \
 	compressorRLE4B.cpp \
+	compressorRLE4U.cpp \
 	compressorRLE4HF.cpp
 
 TARGETS = $(DYNAMIC_LIB)

@@ -99,6 +99,8 @@ extern "C"
     #define EQ_COMPRESSOR_DIFF_RLE_3_BYTE  0x8u
     /** Differential RLE Compression of three 1-byte tokens. */
     #define EQ_COMPRESSOR_DIFF_RLE_4_BYTE  0x9u
+    /** RLE Compression of one 4-byte token. */
+    #define EQ_COMPRESSOR_RLE_4_BYTE_UNSIGNED  0xau
 
     /**
      * Private types -FOR DEVELOPMENT ONLY-.
