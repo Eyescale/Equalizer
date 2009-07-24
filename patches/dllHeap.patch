@@ -1,6 +1,6 @@
 Index: lib/base/clock.h
 ===================================================================
---- lib/base/clock.h	(revision 3207)
+--- lib/base/clock.h	(revision 3227)
 +++ lib/base/clock.h	(working copy)
 @@ -37,7 +37,7 @@
  namespace base
@@ -13,7 +13,7 @@ Index: lib/base/clock.h
          /** Construct a new clock. */
 Index: lib/base/dso.h
 ===================================================================
---- lib/base/dso.h	(revision 3207)
+--- lib/base/dso.h	(revision 3227)
 +++ lib/base/dso.h	(working copy)
 @@ -30,11 +30,11 @@
  {
@@ -49,7 +49,7 @@ Index: lib/base/dso.h
  #ifdef WIN32
 Index: lib/base/lock.h
 ===================================================================
---- lib/base/lock.h	(revision 3207)
+--- lib/base/lock.h	(revision 3227)
 +++ lib/base/lock.h	(working copy)
 @@ -28,21 +28,21 @@
      class LockPrivate;
@@ -98,7 +98,7 @@ Index: lib/base/lock.h
          LockPrivate* _data;
 Index: lib/base/log.h
 ===================================================================
---- lib/base/log.h	(revision 3207)
+--- lib/base/log.h	(revision 3227)
 +++ lib/base/log.h	(working copy)
 @@ -148,8 +148,8 @@
      {
@@ -113,7 +113,7 @@ Index: lib/base/log.h
          void exdent() { _logBuffer.exdent(); }
 Index: lib/base/omp.h
 ===================================================================
---- lib/base/omp.h	(revision 3207)
+--- lib/base/omp.h	(revision 3227)
 +++ lib/base/omp.h	(working copy)
 @@ -29,11 +29,11 @@
  namespace base
@@ -129,9 +129,226 @@ Index: lib/base/omp.h
  
      private:
          static int _nThreads;
+Index: lib/base/referenced.h
+===================================================================
+--- lib/base/referenced.h	(revision 3227)
++++ lib/base/referenced.h	(working copy)
+@@ -36,7 +36,7 @@
+      *
+      * @sa RefPtr
+      */
+-    class Referenced 
++    class EQ_EXPORT Referenced 
+     {
+     public:
+         /** Increase the reference count. */
+Index: lib/base/requestHandler.h
+===================================================================
+--- lib/base/requestHandler.h	(revision 3227)
++++ lib/base/requestHandler.h	(working copy)
+@@ -44,7 +44,7 @@
+      * serveRequest() and deleteRequest() are supposed to be called only from
+      * one 'serving' thread.
+      */
+-    class RequestHandler : public NonCopyable
++    class EQ_EXPORT RequestHandler : public NonCopyable
+     {
+ 
+     public:
+@@ -55,10 +55,10 @@
+          *                   thread-safe and can be called from multiple
+          *                   threads.
+          */
+-        EQ_EXPORT RequestHandler( const bool threadSafe = false );
++        RequestHandler( const bool threadSafe = false );
+ 
+         /** Destruct the request handler. */
+-        EQ_EXPORT ~RequestHandler();
++        ~RequestHandler();
+ 
+         /** 
+          * Register a new request.
+@@ -67,7 +67,7 @@
+          *             0.
+          * @return the request identifier.
+          */
+-        EQ_EXPORT uint32_t registerRequest( void* data = 0 );
++        uint32_t registerRequest( void* data = 0 );
+ 
+         /** 
+          * Unregister a request.
+@@ -78,7 +78,7 @@
+          * 
+          * @param requestID the request identifier.
+          */
+-        EQ_EXPORT void unregisterRequest( const uint32_t requestID );
++        void unregisterRequest( const uint32_t requestID );
+ 
+         /** 
+          * Wait a given time for the completion of a request.
+@@ -93,17 +93,17 @@
+          *                indefinitely.
+          * @return true if the request was served, false if not.
+          */
+-        EQ_EXPORT bool waitRequest( const uint32_t requestID, void*& result,
++        bool waitRequest( const uint32_t requestID, void*& result,
+                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+ 
+         /** Wait for a request with a uint32_t result. */
+-        EQ_EXPORT bool waitRequest( const uint32_t requestID, uint32_t& result,
++        bool waitRequest( const uint32_t requestID, uint32_t& result,
+                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+         /** Wait for a request with a bool result. */
+-        EQ_EXPORT bool waitRequest( const uint32_t requestID, bool& result,
++        bool waitRequest( const uint32_t requestID, bool& result,
+                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+         /** Wait for a request without a result. */
+-        EQ_EXPORT bool waitRequest( const uint32_t requestID );
++        bool waitRequest( const uint32_t requestID );
+ 
+         /** 
+          * Poll for the completion of a request.
+@@ -113,7 +113,7 @@
+          * @param requestID the request identifier.
+          * @return true if the request has been served, false if it is pending.
+          */
+-        EQ_EXPORT bool isServed( const uint32_t requestID ) const;
++        bool isServed( const uint32_t requestID ) const;
+ 
+         /** 
+          * Retrieve the user-specific data for a request.
+@@ -121,7 +121,7 @@
+          * @param requestID the request identifier.
+          * @return the user-specific data for the request.
+          */
+-        EQ_EXPORT void* getRequestData( const uint32_t requestID );
++        void* getRequestData( const uint32_t requestID );
+ 
+         /** 
+          * Serve a request with a void* result.
+@@ -129,11 +129,11 @@
+          * @param requestID the request identifier.
+          * @param result the result of the request.
+          */
+-        EQ_EXPORT void serveRequest( const uint32_t requestID, void* result=0 );
++        void serveRequest( const uint32_t requestID, void* result=0 );
+         /** Serve a request with a uint32_t result. */
+-        EQ_EXPORT void serveRequest( const uint32_t requestID, uint32_t result);
++        void serveRequest( const uint32_t requestID, uint32_t result);
+         /** Serve a request with a bool result. */
+-        EQ_EXPORT void serveRequest( const uint32_t requestID, bool result );
++        void serveRequest( const uint32_t requestID, bool result );
+ 
+         /** @return true if this request handler was created thread-safe. */
+ 		bool isThreadSafe() const { return ( _mutex != 0 ); }
+Index: lib/base/rng.h
+===================================================================
+--- lib/base/rng.h	(revision 3227)
++++ lib/base/rng.h	(working copy)
+@@ -33,7 +33,7 @@
+      * Generates a set of random, or if not supported by the operating system,
+      * pseudo-random numbers. Each instance creates its own series of numbers.
+      */
+-    class RNG : public NonCopyable
++    class EQ_EXPORT RNG : public NonCopyable
+     {
+     public:
+         /** Construct a new random number generator. */
+Index: lib/base/thread.h
+===================================================================
+--- lib/base/thread.h	(revision 3227)
++++ lib/base/thread.h	(working copy)
+@@ -39,16 +39,16 @@
+     /**
+      * An abstraction for an execution thread.
+      */
+-    class Thread 
++    class EQ_EXPORT Thread 
+     {
+     public:
+         /** 
+          * Constructs a new thread.
+          */
+-        EQ_EXPORT Thread();
++        Thread();
+ 
+         /** Destructs the thread. */
+-        EQ_EXPORT virtual ~Thread();
++        virtual ~Thread();
+ 
+         /** 
+          * Starts the thread.
+@@ -60,7 +60,7 @@
+          *         <code>false</code> otherwise.
+          * @sa init(), run(), addListener()
+          */
+-        EQ_EXPORT bool start();
++        bool start();
+ 
+         /** 
+          * The init function for the child thread.
+@@ -92,14 +92,14 @@
+          *
+          * @param retVal the return value of the thread.
+          */
+-        EQ_EXPORT virtual void exit( void* retVal = 0 );
++        virtual void exit( void* retVal = 0 );
+ 
+         /** 
+          * Cancel (stop) the child thread.
+          *
+          * This function is not to be called from the child thread.
+          */
+-        EQ_EXPORT void cancel();
++        void cancel();
+ 
+         /** 
+          * Wait for the exit of the child thread.
+@@ -109,7 +109,7 @@
+          * @return <code>true</code> if the thread was joined,
+          *         <code>false</code> otherwise.
+          */
+-        EQ_EXPORT bool join( void** retVal=0 );
++        bool join( void** retVal=0 );
+ 
+         /** 
+          * Return if the thread is stopped.
+@@ -139,27 +139,27 @@
+          * @return <code>true</code> if the current thread has is the same
+          *         thread as this thread, <code>false</code> if not.
+          */
+-        EQ_EXPORT bool isCurrent() const;
++        bool isCurrent() const;
+ 
+         /** 
+          * Add a new thread state listener.
+          * 
+          * @param listener the listener.
+          */
+-        EQ_EXPORT static void addListener( ExecutionListener* listener );
++        static void addListener( ExecutionListener* listener );
+ 
+         /** 
+          * Remove a thread state listener.
+          * 
+          * @param listener the listener.
+          */
+-        EQ_EXPORT static bool removeListener( ExecutionListener* listener );
++        static bool removeListener( ExecutionListener* listener );
+ 
+         /** Remove all registered listeners, used at exit. */
+-        EQ_EXPORT static void removeAllListeners();
++        static void removeAllListeners();
+ 
+         /** @return a unique identifier for the calling thread. */
+-        EQ_EXPORT static size_t getSelfThreadID();
++        static size_t getSelfThreadID();
+ 
+         /** @internal */
+         static void pinCurrentThread();
 Index: lib/client/channel.h
 ===================================================================
---- lib/client/channel.h	(revision 3207)
+--- lib/client/channel.h	(revision 3227)
 +++ lib/client/channel.h	(working copy)
 @@ -43,7 +43,7 @@
       * rendering-relevant tasks, such as clear, draw, assemble and readback. It
@@ -182,7 +399,7 @@ Index: lib/client/channel.h
  
          /** 
           * Get the GLEW context for this channel.
-@@ -99,8 +99,8 @@
+@@ -98,8 +98,8 @@
           * @return the extended OpenGL function table for the channel's OpenGL
           *         context.
           */
@@ -193,7 +410,7 @@ Index: lib/client/channel.h
          
          /** @return the name of the window. */
          const std::string& getName() const { return _name; }
-@@ -121,7 +121,7 @@
+@@ -120,7 +120,7 @@
           * @param visitor the visitor.
           * @return the result of the visitor traversal.
           */
@@ -202,7 +419,7 @@ Index: lib/client/channel.h
  
          /** 
           * Set the near and far planes for this channel.
-@@ -134,7 +134,7 @@
+@@ -133,7 +133,7 @@
           * @param nearPlane the near plane.
           * @param farPlane the far plane.
           */
@@ -211,7 +428,7 @@ Index: lib/client/channel.h
  
          /** Return a stable, unique color for this channel. */
          const Vector3ub& getUniqueColor() const { return _color; }
-@@ -150,16 +150,16 @@
+@@ -149,16 +149,16 @@
           * 
           * @return the channel's view, or 0 if it does not have a view.
           */
@@ -231,7 +448,7 @@ Index: lib/client/channel.h
          //@}
  
          /**
-@@ -171,16 +171,16 @@
+@@ -170,16 +170,16 @@
           */
          //@{
          /** @return the channel's current draw buffer. */
@@ -252,7 +469,7 @@ Index: lib/client/channel.h
  
          /**
           * Get the channel's current position wrt the destination channel.
-@@ -191,34 +191,34 @@
+@@ -190,34 +190,34 @@
           *
           * @return the channel's current position wrt the destination channel.
           */
@@ -296,7 +513,7 @@ Index: lib/client/channel.h
  
          /** @return the list of input frames, used from frameAssemble(). */
          const FrameVector& getInputFrames() { return _inputFrames; }
-@@ -234,7 +234,7 @@
+@@ -233,7 +233,7 @@
           *
           * @return the 2D orthographic frustum.
           */
@@ -305,14 +522,18 @@ Index: lib/client/channel.h
  
          /** 
           * get the channel's native (drawable) pixel viewport.
-@@ -243,15 +243,15 @@
+@@ -242,18 +242,18 @@
              { return _nativeContext.pvp; }
  
-         /** @warning  Undocumented - may not be supported in the future */
+         /** @internal  Undocumented - may not be supported in the future */
 -        EQ_EXPORT const Vector4i& getOverdraw() const;
 +        const Vector4i& getOverdraw() const;
  
-         /** @warning  Undocumented - may not be supported in the future */
+         /** @internal  Undocumented - may not be supported in the future */
+-        EQ_EXPORT void setMaxSize( const Vector2i& size );
++        void setMaxSize( const Vector2i& size );
+ 
+         /** @internal  Undocumented - may not be supported in the future */
 -        EQ_EXPORT uint32_t getTaskID() const;
 +        uint32_t getTaskID() const;
  
@@ -324,7 +545,7 @@ Index: lib/client/channel.h
          //@}
  
          /**
-@@ -265,27 +265,27 @@
+@@ -267,27 +267,27 @@
          /** 
           * Apply the current rendering buffer, including the color mask.
           */
@@ -357,7 +578,7 @@ Index: lib/client/channel.h
  
          /** 
           * Apply a orthographic frustum for pixel-based 2D operations. 
-@@ -293,18 +293,18 @@
+@@ -295,18 +295,18 @@
           * One unit in the frustum corresponds to one pixel on the screen. The
           * frustum is position wrt the canvas.
           */
@@ -379,7 +600,7 @@ Index: lib/client/channel.h
          
          /** 
           * Process a received event.
-@@ -316,13 +316,13 @@
+@@ -318,13 +318,13 @@
           * @param event the received event.
           * @return true when the event was handled, false if not.
           */
@@ -396,7 +617,7 @@ Index: lib/client/channel.h
  
          /**
           * @name Attributes
-@@ -338,8 +338,8 @@
+@@ -340,8 +340,8 @@
              IATTR_ALL
          };
          
@@ -407,7 +628,7 @@ Index: lib/client/channel.h
                                                          const IAttribute attr );
          //@}
  #if 0
-@@ -356,7 +356,7 @@
+@@ -358,7 +358,7 @@
      protected:
          friend class Window;
  
@@ -416,7 +637,7 @@ Index: lib/client/channel.h
                                          const uint32_t instanceID, 
                                          net::Session* session );
  
-@@ -396,17 +396,17 @@
+@@ -398,17 +398,17 @@
           * 
           * @param initID the init identifier.
           */
@@ -437,7 +658,7 @@ Index: lib/client/channel.h
          
          /**
           * Start rendering a frame.
-@@ -453,14 +453,14 @@
+@@ -455,14 +455,14 @@
           * 
           * @param frameID the per-frame identifier.
           */
@@ -454,7 +675,7 @@ Index: lib/client/channel.h
  
          /** 
           * Assemble input frames.
-@@ -468,7 +468,7 @@
+@@ -470,7 +470,7 @@
           * @param frameID the per-frame identifier.
           * @sa getInputFrames
           */
@@ -463,7 +684,7 @@ Index: lib/client/channel.h
  
          /** 
           * Read back the rendered scene.
-@@ -476,7 +476,7 @@
+@@ -478,7 +478,7 @@
           * @param frameID the per-frame identifier.
           * @sa getOutputFrames
           */
@@ -472,7 +693,7 @@ Index: lib/client/channel.h
  
          /** 
           * Start updating a destination channel.
-@@ -504,12 +504,12 @@
+@@ -506,12 +506,12 @@
           * The default implementation is very conservative and saves any state
           * which is potentially changed by the assembly routines.
           */
@@ -487,7 +708,7 @@ Index: lib/client/channel.h
          //@}
  
          /** @name Error information. */
-@@ -522,7 +522,7 @@
+@@ -524,7 +524,7 @@
           *
           * @param message the error message.
           */
@@ -498,7 +719,7 @@ Index: lib/client/channel.h
      private:
 Index: lib/client/channelStatistics.h
 ===================================================================
---- lib/client/channelStatistics.h	(revision 3207)
+--- lib/client/channelStatistics.h	(revision 3227)
 +++ lib/client/channelStatistics.h	(working copy)
 @@ -27,12 +27,12 @@
      /**
@@ -518,7 +739,7 @@ Index: lib/client/channelStatistics.h
  
 Index: lib/client/client.h
 ===================================================================
---- lib/client/client.h	(revision 3207)
+--- lib/client/client.h	(revision 3227)
 +++ lib/client/client.h	(working copy)
 @@ -32,18 +32,18 @@
      /** 
@@ -616,7 +837,7 @@ Index: lib/client/client.h
          net::CommandResult _cmdExit( net::Command& command );
 Index: lib/client/config.h
 ===================================================================
---- lib/client/config.h	(revision 3207)
+--- lib/client/config.h	(revision 3227)
 +++ lib/client/config.h	(working copy)
 @@ -38,21 +38,21 @@
       * The configuration groups all processes of the application in a single
@@ -802,7 +1023,7 @@ Index: lib/client/config.h
          /** The node identifier of the node running the application thread. */
 Index: lib/client/configEvent.h
 ===================================================================
---- lib/client/configEvent.h	(revision 3207)
+--- lib/client/configEvent.h	(revision 3227)
 +++ lib/client/configEvent.h	(working copy)
 @@ -36,7 +36,7 @@
       *
@@ -815,7 +1036,7 @@ Index: lib/client/configEvent.h
          ConfigEvent()
 Index: lib/client/eventHandler.h
 ===================================================================
---- lib/client/eventHandler.h	(revision 3207)
+--- lib/client/eventHandler.h	(revision 3227)
 +++ lib/client/eventHandler.h	(working copy)
 @@ -29,22 +29,22 @@
      /**
@@ -847,7 +1068,7 @@ Index: lib/client/eventHandler.h
          Event _lastPointerEvent;
 Index: lib/client/frame.h
 ===================================================================
---- lib/client/frame.h	(revision 3207)
+--- lib/client/frame.h	(revision 3227)
 +++ lib/client/frame.h	(working copy)
 @@ -43,7 +43,7 @@
      /**
@@ -968,7 +1189,7 @@ Index: lib/client/frame.h
          void useSendToken( const bool use );
 Index: lib/client/frameData.h
 ===================================================================
---- lib/client/frameData.h	(revision 3207)
+--- lib/client/frameData.h	(revision 3227)
 +++ lib/client/frameData.h	(working copy)
 @@ -45,11 +45,11 @@
       * A frame data holds multiple images and is used by frames.
@@ -1000,7 +1221,7 @@ Index: lib/client/frameData.h
           * Read back a set of images according to the current frame data.
 Index: lib/client/global.h
 ===================================================================
---- lib/client/global.h	(revision 3207)
+--- lib/client/global.h	(revision 3227)
 +++ lib/client/global.h	(working copy)
 @@ -55,7 +55,7 @@
      /** 
@@ -1066,7 +1287,7 @@ Index: lib/client/global.h
          friend bool testInitPluginDirectories();
 Index: lib/client/image.h
 ===================================================================
---- lib/client/image.h	(revision 3207)
+--- lib/client/image.h	(revision 3227)
 +++ lib/client/image.h	(working copy)
 @@ -33,12 +33,12 @@
       *
@@ -1303,7 +1524,7 @@ Index: lib/client/image.h
      private:
 Index: lib/client/node.h
 ===================================================================
---- lib/client/node.h	(revision 3207)
+--- lib/client/node.h	(revision 3227)
 +++ lib/client/node.h	(working copy)
 @@ -36,14 +36,14 @@
       *
@@ -1473,7 +1694,7 @@ Index: lib/client/node.h
      private:
 Index: lib/client/objectManager.h
 ===================================================================
---- lib/client/objectManager.h	(revision 3207)
+--- lib/client/objectManager.h	(revision 3227)
 +++ lib/client/objectManager.h	(working copy)
 @@ -44,7 +44,7 @@
       * delete - delete.
@@ -1581,7 +1802,7 @@ Index: lib/client/objectManager.h
          GLEWContext* glewGetContext()             { return _glewContext; }
 Index: lib/client/pipe.h
 ===================================================================
---- lib/client/pipe.h	(revision 3207)
+--- lib/client/pipe.h	(revision 3227)
 +++ lib/client/pipe.h	(working copy)
 @@ -52,26 +52,26 @@
       * the pipe is non-threaded, in which case the tasks are executed on the
@@ -1774,7 +1995,7 @@ Index: lib/client/pipe.h
  
 Index: lib/client/pluginRegistry.h
 ===================================================================
---- lib/client/pluginRegistry.h	(revision 3207)
+--- lib/client/pluginRegistry.h	(revision 3227)
 +++ lib/client/pluginRegistry.h	(working copy)
 @@ -23,7 +23,7 @@
  namespace eq 
@@ -1796,7 +2017,7 @@ Index: lib/client/pluginRegistry.h
      Compressor* findCompressor( const uint32_t name );
 Index: lib/client/projection.h
 ===================================================================
---- lib/client/projection.h	(revision 3207)
+--- lib/client/projection.h	(revision 3227)
 +++ lib/client/projection.h	(working copy)
 @@ -34,30 +34,30 @@
       * wall at the given distance. The fov defines the horizontal and
@@ -1838,7 +2059,7 @@ Index: lib/client/projection.h
          float    distance;
 Index: lib/client/server.h
 ===================================================================
---- lib/client/server.h	(revision 3207)
+--- lib/client/server.h	(revision 3227)
 +++ lib/client/server.h	(working copy)
 @@ -31,21 +31,21 @@
      class Node;
@@ -1901,7 +2122,7 @@ Index: lib/client/server.h
          /** The local client connected to the server */
 Index: lib/client/wall.h
 ===================================================================
---- lib/client/wall.h	(revision 3207)
+--- lib/client/wall.h	(revision 3227)
 +++ lib/client/wall.h	(working copy)
 @@ -34,58 +34,58 @@
       * The three points describe the bottom left, bottom right and top left
@@ -1985,7 +2206,7 @@ Index: lib/client/wall.h
          Vector3f bottomRight;
 Index: lib/client/wglEventHandler.h
 ===================================================================
---- lib/client/wglEventHandler.h	(revision 3207)
+--- lib/client/wglEventHandler.h	(revision 3227)
 +++ lib/client/wglEventHandler.h	(working copy)
 @@ -31,14 +31,14 @@
       * by a 'wndproc' callback in the thread which created the window. Each
@@ -2007,7 +2228,7 @@ Index: lib/client/wglEventHandler.h
           * @return the function pointer of the previously installed window
 Index: lib/client/wglWindowEvent.h
 ===================================================================
---- lib/client/wglWindowEvent.h	(revision 3207)
+--- lib/client/wglWindowEvent.h	(revision 3227)
 +++ lib/client/wglWindowEvent.h	(working copy)
 @@ -24,7 +24,7 @@
  namespace eq
@@ -2020,7 +2241,7 @@ Index: lib/client/wglWindowEvent.h
          // Native event data
 Index: lib/client/window.h
 ===================================================================
---- lib/client/window.h	(revision 3207)
+--- lib/client/window.h	(revision 3227)
 +++ lib/client/window.h	(working copy)
 @@ -48,7 +48,7 @@
       * to synchronize the state of OpenGL objects between windows. Therefore,
@@ -2031,7 +2252,7 @@ Index: lib/client/window.h
      {
      public:
          /** Stores current drawable characteristics. */
-@@ -85,27 +85,27 @@
+@@ -92,27 +92,27 @@
          };
  
          /** Constructs a new window. */
@@ -2068,7 +2289,7 @@ Index: lib/client/window.h
  
          const ChannelVector& getChannels() { return _channels; }
  
-@@ -131,7 +131,7 @@
+@@ -138,7 +138,7 @@
           * @param visitor the visitor.
           * @return the result of the visitor traversal.
           */
@@ -2077,7 +2298,7 @@ Index: lib/client/window.h
  
          /** 
           * Set the window with which this window shares the OpenGL context,
-@@ -162,10 +162,10 @@
+@@ -169,10 +169,10 @@
           * @return the extended OpenGL function table for the window's OpenGL
           *         context.
           */
@@ -2090,7 +2311,7 @@ Index: lib/client/window.h
  
          /** @return information about the current drawable. */
          const DrawableConfig& getDrawableConfig() const 
-@@ -182,12 +182,12 @@
+@@ -189,12 +189,12 @@
           * 
           * @param pvp the viewport in pixels.
           */
@@ -2105,7 +2326,7 @@ Index: lib/client/window.h
  
          /** 
           * @return the window's fractional viewport.
-@@ -198,7 +198,7 @@
+@@ -205,7 +205,7 @@
          void addRenderContext( const RenderContext& context );
  
          /** Get the last rendering context at the x, y position. */
@@ -2114,7 +2335,7 @@ Index: lib/client/window.h
                                           RenderContext& context ) const;
          //@}
  
-@@ -230,10 +230,10 @@
+@@ -237,10 +237,10 @@
              IATTR_ALL
          };
  
@@ -2128,7 +2349,7 @@ Index: lib/client/window.h
                                                  const IAttribute attr );
          //@}
  
-@@ -258,7 +258,7 @@
+@@ -265,7 +265,7 @@
           * e.g., swapBuffers() to the OS window. The os-specific window has to
           * be initialized.
           */
@@ -2137,7 +2358,7 @@ Index: lib/client/window.h
  
          const OSWindow* getOSWindow() const { return _osWindow; }
          OSWindow*       getOSWindow()       { return _osWindow; }
-@@ -275,7 +275,7 @@
+@@ -282,7 +282,7 @@
           *
           * @param message the error message.
           */
@@ -2146,7 +2367,7 @@ Index: lib/client/window.h
          //@}
  
          /**
-@@ -296,7 +296,7 @@
+@@ -303,7 +303,7 @@
           * @param event the received window system event.
           * @return true when the event was handled, false if not.
           */
@@ -2155,7 +2376,7 @@ Index: lib/client/window.h
  
          //@}
  
-@@ -304,18 +304,18 @@
+@@ -311,18 +311,18 @@
          double getFPS() const { return _avgFPS; }
  
          /* Draw FPS count */
@@ -2177,7 +2398,7 @@ Index: lib/client/window.h
                                                  const uint32_t instanceID, 
                                                  net::Session* session );
  
-@@ -356,14 +356,14 @@
+@@ -363,14 +363,14 @@
           * 
           * @param initID the init identifier.
           */
@@ -2194,7 +2415,7 @@ Index: lib/client/window.h
  
          /** 
           * Initialize the OpenGL state for this window.
-@@ -372,13 +372,13 @@
+@@ -379,13 +379,13 @@
           * @return <code>true</code> if the initialization was successful,
           *         <code>false</code> if not.
           */
@@ -2211,7 +2432,7 @@ Index: lib/client/window.h
  
          /** De-initializer the OpenGL state for this window. */
          virtual bool configExitGL() { return true; }
-@@ -409,7 +409,7 @@
+@@ -416,7 +416,7 @@
           * @param frameID the per-frame identifier.
           * @param frameNumber the frame to finish.
           */
@@ -2220,7 +2441,7 @@ Index: lib/client/window.h
                                              const uint32_t frameNumber );
  
          /** 
-@@ -433,13 +433,13 @@
+@@ -440,13 +440,13 @@
           * this method will only call OSWindow::makeCurrent if it has not been
           * done before for this window.
           */
@@ -2239,7 +2460,7 @@ Index: lib/client/window.h
      private:
 Index: lib/net/barrier.h
 ===================================================================
---- lib/net/barrier.h	(revision 3207)
+--- lib/net/barrier.h	(revision 3227)
 +++ lib/net/barrier.h	(working copy)
 @@ -33,23 +33,23 @@
      /**
@@ -2280,7 +2501,7 @@ Index: lib/net/barrier.h
      protected:
 Index: lib/net/bufferConnection.h
 ===================================================================
---- lib/net/bufferConnection.h	(revision 3207)
+--- lib/net/bufferConnection.h	(revision 3227)
 +++ lib/net/bufferConnection.h	(working copy)
 @@ -28,22 +28,22 @@
      /**
@@ -2308,12 +2529,12 @@ Index: lib/net/bufferConnection.h
              { EQDONTCALL; return -1; }
 -        EQ_EXPORT virtual int64_t write( const void* buffer,
 +        virtual int64_t write( const void* buffer,
-                                          const uint64_t bytes ) const;
+                                          const uint64_t bytes );
  
      private:
 Index: lib/net/commandCache.h
 ===================================================================
---- lib/net/commandCache.h	(revision 3207)
+--- lib/net/commandCache.h	(revision 3227)
 +++ lib/net/commandCache.h	(working copy)
 @@ -37,7 +37,7 @@
       * Commands are retained and released whenever they are not directly
@@ -2326,7 +2547,7 @@ Index: lib/net/commandCache.h
          CommandCache();
 Index: lib/net/commandQueue.h
 ===================================================================
---- lib/net/commandQueue.h	(revision 3207)
+--- lib/net/commandQueue.h	(revision 3227)
 +++ lib/net/commandQueue.h	(working copy)
 @@ -32,21 +32,21 @@
      /**
@@ -2381,9 +2602,80 @@ Index: lib/net/commandQueue.h
  
          /** 
           * @return <code>true</code> if the command queue is empty,
+Index: lib/net/connection.h
+===================================================================
+--- lib/net/connection.h	(revision 3227)
++++ lib/net/connection.h	(working copy)
+@@ -66,7 +66,7 @@
+      * The Connection is used reference-counted in eq::net, since it has
+      * multiple owners, such as the ConnectionSet and Node.
+      */
+-    class Connection : public base::Referenced, public base::NonCopyable
++    class EQ_EXPORT Connection : public base::Referenced, public base::NonCopyable
+     {
+     public:
+         enum State //! The current state of the Connection
+@@ -86,7 +86,7 @@
+          * @param description the connection parameters.
+          * @return the connection.
+          */
+-        EQ_EXPORT static ConnectionPtr create( ConnectionDescriptionPtr 
++        static ConnectionPtr create( ConnectionDescriptionPtr 
+                                                    description );
+ 
+         /** @name Data Access */
+@@ -108,10 +108,10 @@
+          * 
+          * @param description the connection parameters.
+          */
+-        EQ_EXPORT void setDescription( ConnectionDescriptionPtr description );
++        void setDescription( ConnectionDescriptionPtr description );
+ 
+         /** @return the description for this connection. */
+-        EQ_EXPORT ConnectionDescriptionPtr getDescription() const;
++        ConnectionDescriptionPtr getDescription() const;
+         //@}
+ 
+ 
+@@ -190,7 +190,7 @@
+          * @param bytes the number of bytes to read.
+          * @sa recvSync()
+          */
+-        EQ_EXPORT void recvNB( void* buffer, const uint64_t bytes );
++        void recvNB( void* buffer, const uint64_t bytes );
+ 
+         /** 
+          * Finish reading data from the connection.
+@@ -204,7 +204,7 @@
+          * @param bytes return value, the number of bytes read.
+          * @return true if all requested data has been read, false otherwise.
+          */
+-        EQ_EXPORT bool recvSync( void** buffer, uint64_t* bytes );
++        bool recvSync( void** buffer, uint64_t* bytes );
+ 
+         void getRecvData( void** buffer, uint64_t* bytes )
+             { *buffer = _aioBuffer; *bytes = _aioBytes; }
+@@ -253,7 +253,7 @@
+          * @return true if all data has been read, false if not.
+          * @sa lockSend(), unlockSend()
+          */
+-        EQ_EXPORT bool send( const void* buffer, const uint64_t bytes, 
++        bool send( const void* buffer, const uint64_t bytes, 
+                              const bool isLocked = false );
+ 
+         /** Lock the connection, no other thread can send data. */
+@@ -307,7 +307,7 @@
+          * @param size the data size in bytes.
+          * @return true if all data has been read, false if not.
+          */
+-        EQ_EXPORT bool send( Packet& packet, const void* data,
++        bool send( Packet& packet, const void* data,
+                              const uint64_t size );
+ 
+         /** 
 Index: lib/net/connectionDescription.h
 ===================================================================
---- lib/net/connectionDescription.h	(revision 3207)
+--- lib/net/connectionDescription.h	(revision 3227)
 +++ lib/net/connectionDescription.h	(working copy)
 @@ -32,7 +32,7 @@
       *
@@ -2439,7 +2731,7 @@ Index: lib/net/connectionDescription.h
          /** 
 Index: lib/net/connectionSet.h
 ===================================================================
---- lib/net/connectionSet.h	(revision 3207)
+--- lib/net/connectionSet.h	(revision 3227)
 +++ lib/net/connectionSet.h	(working copy)
 @@ -41,7 +41,7 @@
       *
@@ -2485,7 +2777,7 @@ Index: lib/net/connectionSet.h
          ConnectionPtr getConnection(){ return _connection; }
 Index: lib/net/dataIStream.h
 ===================================================================
---- lib/net/dataIStream.h	(revision 3207)
+--- lib/net/dataIStream.h	(revision 3227)
 +++ lib/net/dataIStream.h	(working copy)
 @@ -33,7 +33,7 @@
       *
@@ -2519,7 +2811,7 @@ Index: lib/net/dataIStream.h
          virtual size_t nRemainingBuffers() const = 0;
 Index: lib/net/dataOStream.h
 ===================================================================
---- lib/net/dataOStream.h	(revision 3207)
+--- lib/net/dataOStream.h	(revision 3227)
 +++ lib/net/dataOStream.h	(working copy)
 @@ -35,7 +35,7 @@
       *
@@ -2543,7 +2835,7 @@ Index: lib/net/dataOStream.h
   
 Index: lib/net/dispatcher.h
 ===================================================================
---- lib/net/dispatcher.h	(revision 3207)
+--- lib/net/dispatcher.h	(revision 3227)
 +++ lib/net/dispatcher.h	(working copy)
 @@ -40,12 +40,12 @@
       * Provides packet dispatch through a command queue and command handler
@@ -2591,7 +2883,7 @@ Index: lib/net/dispatcher.h
  
 Index: lib/net/node.cpp
 ===================================================================
---- lib/net/node.cpp	(revision 3207)
+--- lib/net/node.cpp	(revision 3227)
 +++ lib/net/node.cpp	(working copy)
 @@ -666,13 +666,6 @@
      return true;
@@ -2609,7 +2901,7 @@ Index: lib/net/node.cpp
      NodeAcquireSendTokenPacket packet;
 Index: lib/net/node.h
 ===================================================================
---- lib/net/node.h	(revision 3207)
+--- lib/net/node.h	(revision 3227)
 +++ lib/net/node.h	(working copy)
 @@ -54,7 +54,7 @@
       * has at least one Connection through which is reachable. A Node provides
@@ -2813,7 +3105,7 @@ Index: lib/net/node.h
  
 Index: lib/net/objectDataIStream.h
 ===================================================================
---- lib/net/objectDataIStream.h	(revision 3207)
+--- lib/net/objectDataIStream.h	(revision 3227)
 +++ lib/net/objectDataIStream.h	(working copy)
 @@ -33,7 +33,7 @@
      /**
@@ -2826,7 +3118,7 @@ Index: lib/net/objectDataIStream.h
          ObjectDataIStream();
 Index: lib/net/objectDataOStream.h
 ===================================================================
---- lib/net/objectDataOStream.h	(revision 3207)
+--- lib/net/objectDataOStream.h	(revision 3227)
 +++ lib/net/objectDataOStream.h	(working copy)
 @@ -30,7 +30,7 @@
      /**
@@ -2839,7 +3131,7 @@ Index: lib/net/objectDataOStream.h
          ObjectDataOStream( const Object* object )
 Index: lib/net/objectDeltaDataIStream.h
 ===================================================================
---- lib/net/objectDeltaDataIStream.h	(revision 3207)
+--- lib/net/objectDeltaDataIStream.h	(revision 3227)
 +++ lib/net/objectDeltaDataIStream.h	(working copy)
 @@ -29,7 +29,7 @@
      /**
@@ -2852,7 +3144,7 @@ Index: lib/net/objectDeltaDataIStream.h
          ObjectDeltaDataIStream();
 Index: lib/net/objectDeltaDataOStream.h
 ===================================================================
---- lib/net/objectDeltaDataOStream.h	(revision 3207)
+--- lib/net/objectDeltaDataOStream.h	(revision 3227)
 +++ lib/net/objectDeltaDataOStream.h	(working copy)
 @@ -29,7 +29,7 @@
      /**
@@ -2865,7 +3157,7 @@ Index: lib/net/objectDeltaDataOStream.h
          ObjectDeltaDataOStream( const Object* object );
 Index: lib/net/objectInstanceDataIStream.h
 ===================================================================
---- lib/net/objectInstanceDataIStream.h	(revision 3207)
+--- lib/net/objectInstanceDataIStream.h	(revision 3227)
 +++ lib/net/objectInstanceDataIStream.h	(working copy)
 @@ -31,7 +31,7 @@
      /**
@@ -2878,7 +3170,7 @@ Index: lib/net/objectInstanceDataIStream.h
          ObjectInstanceDataIStream();
 Index: lib/net/objectInstanceDataOStream.h
 ===================================================================
---- lib/net/objectInstanceDataOStream.h	(revision 3207)
+--- lib/net/objectInstanceDataOStream.h	(revision 3227)
 +++ lib/net/objectInstanceDataOStream.h	(working copy)
 @@ -29,7 +29,7 @@
      /**
@@ -2891,7 +3183,7 @@ Index: lib/net/objectInstanceDataOStream.h
          ObjectInstanceDataOStream( const Object* object );
 Index: lib/net/pairConnection.h
 ===================================================================
---- lib/net/pairConnection.h	(revision 3207)
+--- lib/net/pairConnection.h	(revision 3227)
 +++ lib/net/pairConnection.h	(working copy)
 @@ -28,22 +28,22 @@
       * A meta connection consisting of two (unidirectional) connections
@@ -2922,9 +3214,34 @@ Index: lib/net/pairConnection.h
  
          virtual void readNB( void* buffer, const uint64_t bytes )
              { _readConnection->readNB( buffer, bytes ); }
+Index: lib/net/pipeConnection.h
+===================================================================
+--- lib/net/pipeConnection.h	(revision 3227)
++++ lib/net/pipeConnection.h	(working copy)
+@@ -37,7 +37,7 @@
+      * therefore only be used between related threads. A PairConnection can be
+      * used to create a bi-directional communication using two pipe connections.
+      */
+-    class PipeConnection 
++    class EQ_EXPORT PipeConnection 
+ #ifdef WIN32
+         : public Connection
+ #else
+@@ -46,9 +46,9 @@
+     {
+     public:
+         /** Construct a new pipe connection. */
+-        EQ_EXPORT PipeConnection();
++        PipeConnection();
+         /** Destruct this pipe connection. */
+-        EQ_EXPORT virtual ~PipeConnection();
++        virtual ~PipeConnection();
+ 
+         virtual bool connect();
+         virtual void close();
 Index: lib/net/session.h
 ===================================================================
---- lib/net/session.h	(revision 3207)
+--- lib/net/session.h	(revision 3227)
 +++ lib/net/session.h	(working copy)
 @@ -40,14 +40,14 @@
       * A received SessionPacket is dispatched to the locally-mapped session of
@@ -3088,7 +3405,7 @@ Index: lib/net/session.h
      protected:
 Index: server/channel.h
 ===================================================================
---- server/channel.h	(revision 3207)
+--- server/channel.h	(revision 3227)
 +++ server/channel.h	(working copy)
 @@ -52,7 +52,7 @@
      /**
@@ -3132,7 +3449,7 @@ Index: server/channel.h
          void activate();
 Index: server/compound.h
 ===================================================================
---- server/compound.h	(revision 3207)
+--- server/compound.h	(revision 3227)
 +++ server/compound.h	(working copy)
 @@ -52,13 +52,13 @@
      /**
@@ -3239,7 +3556,7 @@ Index: server/compound.h
          /** Activate the compound tree. */
 Index: server/server.h
 ===================================================================
---- server/server.h	(revision 3207)
+--- server/server.h	(revision 3227)
 +++ server/server.h	(working copy)
 @@ -46,13 +46,13 @@
      /**
@@ -3288,7 +3605,7 @@ Index: server/server.h
          virtual ~Server();
 Index: server/window.h
 ===================================================================
---- server/window.h	(revision 3207)
+--- server/window.h	(revision 3227)
 +++ server/window.h	(working copy)
 @@ -48,7 +48,7 @@
      /**
@@ -3339,7 +3656,7 @@ Index: server/window.h
           * Return this window's pixel viewport.
 Index: VS2005/accept.vcproj
 ===================================================================
---- VS2005/accept.vcproj	(revision 3207)
+--- VS2005/accept.vcproj	(revision 3227)
 +++ VS2005/accept.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3379,7 +3696,7 @@ Index: VS2005/accept.vcproj
  				WarningLevel="1"
 Index: VS2005/affinityCheck.vcproj
 ===================================================================
---- VS2005/affinityCheck.vcproj	(revision 3207)
+--- VS2005/affinityCheck.vcproj	(revision 3227)
 +++ VS2005/affinityCheck.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3419,7 +3736,7 @@ Index: VS2005/affinityCheck.vcproj
  				WarningLevel="1"
 Index: VS2005/base/refPtr.vcproj
 ===================================================================
---- VS2005/base/refPtr.vcproj	(revision 3207)
+--- VS2005/base/refPtr.vcproj	(revision 3227)
 +++ VS2005/base/refPtr.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3459,7 +3776,7 @@ Index: VS2005/base/refPtr.vcproj
  				WarningLevel="1"
 Index: VS2005/compositor.vcproj
 ===================================================================
---- VS2005/compositor.vcproj	(revision 3207)
+--- VS2005/compositor.vcproj	(revision 3227)
 +++ VS2005/compositor.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3499,7 +3816,7 @@ Index: VS2005/compositor.vcproj
  				WarningLevel="1"
 Index: VS2005/ConfigTool.vcproj
 ===================================================================
---- VS2005/ConfigTool.vcproj	(revision 3207)
+--- VS2005/ConfigTool.vcproj	(revision 3227)
 +++ VS2005/ConfigTool.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WIN32_VC;_CRT_SECURE_NO_DEPRECATE"
@@ -3537,9 +3854,29 @@ Index: VS2005/ConfigTool.vcproj
  				RuntimeTypeInfo="true"
  				UsePrecompiledHeader="0"
  				WarningLevel="1"
+Index: VS2005/copyBuild.bat
+===================================================================
+--- VS2005/copyBuild.bat	(revision 3227)
++++ VS2005/copyBuild.bat	(working copy)
+@@ -1,5 +1,5 @@
+ 
+-set base_dir=c:\<ChangeMe>
++set base_dir="D:\DEV\C++\RTTSOFTWARE_1_0\trunk"
+ 
+ set inc_dir=%base_dir%\include
+ set bin_dir=%base_dir%\bin
+@@ -34,5 +34,8 @@
+ copy ..\build\VS2005\x64\Release\*.dll %dll_dir%\x64\Release
+ copy ..\build\VS2005\x64\Release\*.lib %lib_dir%\x64\Release
+ 
++copy ..\server\*.h %inc_dir%\eq\server
++copy ..\server\equalizers\*.h %inc_dir%\eq\server\equalizers
++
+ "%ProgramFiles%\TortoiseSVN\bin\SubWCRev.exe" .. > %inc_dir%\eq\Version.txt
+ pause
 Index: VS2005/eqHello.vcproj
 ===================================================================
---- VS2005/eqHello.vcproj	(revision 3207)
+--- VS2005/eqHello.vcproj	(revision 3227)
 +++ VS2005/eqHello.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3579,7 +3916,7 @@ Index: VS2005/eqHello.vcproj
  				WarningLevel="1"
 Index: VS2005/eqPly Example.vcproj
 ===================================================================
---- VS2005/eqPly Example.vcproj	(revision 3207)
+--- VS2005/eqPly Example.vcproj	(revision 3227)
 +++ VS2005/eqPly Example.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3619,7 +3956,7 @@ Index: VS2005/eqPly Example.vcproj
  				WarningLevel="1"
 Index: VS2005/Equalizer Server Library.vcproj
 ===================================================================
---- VS2005/Equalizer Server Library.vcproj	(revision 3207)
+--- VS2005/Equalizer Server Library.vcproj	(revision 3227)
 +++ VS2005/Equalizer Server Library.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_WINDOWS;_USRDLL;EQUALIZERSERVERLIBRARY_EXPORTS"
@@ -3659,7 +3996,7 @@ Index: VS2005/Equalizer Server Library.vcproj
  				WarningLevel="2"
 Index: VS2005/Equalizer Server.vcproj
 ===================================================================
---- VS2005/Equalizer Server.vcproj	(revision 3207)
+--- VS2005/Equalizer Server.vcproj	(revision 3227)
 +++ VS2005/Equalizer Server.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3699,7 +4036,7 @@ Index: VS2005/Equalizer Server.vcproj
  				WarningLevel="1"
 Index: VS2005/Equalizer.vcproj
 ===================================================================
---- VS2005/Equalizer.vcproj	(revision 3207)
+--- VS2005/Equalizer.vcproj	(revision 3227)
 +++ VS2005/Equalizer.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EQUALIZER_EXPORTS;EQ_PLUGIN_BUILD;_CRT_SECURE_NO_DEPRECATE"
@@ -3737,7 +4074,7 @@ Index: VS2005/Equalizer.vcproj
  				RuntimeTypeInfo="true"
  				OpenMP="true"
  				UsePrecompiledHeader="0"
-@@ -8755,6 +8755,46 @@
+@@ -8763,6 +8763,46 @@
  			Filter="dll;lib"
  			>
  			<File
@@ -3784,7 +4121,7 @@ Index: VS2005/Equalizer.vcproj
  				RelativePath="..\Windows\pthreads\lib\pthreadVC2.dll"
  				>
  				<FileConfiguration
-@@ -8801,7 +8841,7 @@
+@@ -8809,7 +8849,7 @@
  				</FileConfiguration>
  			</File>
  			<File
@@ -3793,7 +4130,7 @@ Index: VS2005/Equalizer.vcproj
  				>
  				<FileConfiguration
  					Name="Debug|Win32"
-@@ -8886,46 +8926,6 @@
+@@ -8894,46 +8934,6 @@
  					/>
  				</FileConfiguration>
  			</File>
@@ -3842,7 +4179,7 @@ Index: VS2005/Equalizer.vcproj
  			RelativePath="..\AUTHORS"
 Index: VS2005/eVolve.vcproj
 ===================================================================
---- VS2005/eVolve.vcproj	(revision 3207)
+--- VS2005/eVolve.vcproj	(revision 3227)
 +++ VS2005/eVolve.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3882,7 +4219,7 @@ Index: VS2005/eVolve.vcproj
  				WarningLevel="1"
 Index: VS2005/frustumTest.vcproj
 ===================================================================
---- VS2005/frustumTest.vcproj	(revision 3207)
+--- VS2005/frustumTest.vcproj	(revision 3227)
 +++ VS2005/frustumTest.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3922,7 +4259,7 @@ Index: VS2005/frustumTest.vcproj
  				WarningLevel="1"
 Index: VS2005/image.vcproj
 ===================================================================
---- VS2005/image.vcproj	(revision 3207)
+--- VS2005/image.vcproj	(revision 3227)
 +++ VS2005/image.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -3962,7 +4299,7 @@ Index: VS2005/image.vcproj
  				WarningLevel="1"
 Index: VS2005/netPerf.vcproj
 ===================================================================
---- VS2005/netPerf.vcproj	(revision 3207)
+--- VS2005/netPerf.vcproj	(revision 3227)
 +++ VS2005/netPerf.vcproj	(working copy)
 @@ -1,7 +1,7 @@
  <?xml version="1.0" encoding="Windows-1252"?>
@@ -4011,7 +4348,7 @@ Index: VS2005/netPerf.vcproj
  				WarningLevel="1"
 Index: VS2005/netProxy.vcproj
 ===================================================================
---- VS2005/netProxy.vcproj	(revision 3207)
+--- VS2005/netProxy.vcproj	(revision 3227)
 +++ VS2005/netProxy.vcproj	(working copy)
 @@ -1,7 +1,7 @@
  <?xml version="1.0" encoding="Windows-1252"?>
@@ -4060,7 +4397,7 @@ Index: VS2005/netProxy.vcproj
  				WarningLevel="1"
 Index: VS2005/pipePerf.vcproj
 ===================================================================
---- VS2005/pipePerf.vcproj	(revision 3207)
+--- VS2005/pipePerf.vcproj	(revision 3227)
 +++ VS2005/pipePerf.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
@@ -4100,7 +4437,7 @@ Index: VS2005/pipePerf.vcproj
  				WarningLevel="1"
 Index: VS2005/pixelBench.vcproj
 ===================================================================
---- VS2005/pixelBench.vcproj	(revision 3207)
+--- VS2005/pixelBench.vcproj	(revision 3227)
 +++ VS2005/pixelBench.vcproj	(working copy)
 @@ -48,7 +48,7 @@
  				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE"
