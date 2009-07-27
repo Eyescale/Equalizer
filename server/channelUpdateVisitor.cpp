@@ -175,9 +175,10 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
         const Segment* segment = destChannel->getSegment();
         EQASSERT( segment );
 
-        context.vp.applyView( segment->getViewport(), view->getViewport(),
-                              destChannel->getPixelViewport(),
-                              destChannel->getOverdraw( ));
+        const PixelViewport& pvp = destChannel->getPixelViewport();
+        if( pvp.hasArea( ))
+            context.vp.applyView( segment->getViewport(), view->getViewport(),
+                                  pvp, destChannel->getOverdraw( ));
     }
 
     if( _channel != destChannel &&
