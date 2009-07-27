@@ -122,7 +122,6 @@ namespace eq
         enum IAttribute
         {
             IATTR_THREAD_MODEL,           //!< Threading model
-            IATTR_HINT_STATISTICS,        //!< Statistics gathering mode
             IATTR_FILL1,
             IATTR_FILL2,
             IATTR_ALL

@@ -190,6 +190,7 @@
 %token EQTOKEN_TIMEOUT
 %token EQTOKEN_TCPIP_PORT
 %token EQTOKEN_PIPE_FILENAME
+%token EQTOKEN_FILENAME
 %token EQTOKEN_TASK
 %token EQTOKEN_EYE
 %token EQTOKEN_EYE_BASE
@@ -347,8 +348,8 @@ global:
      }
      | EQTOKEN_NODE_IATTR_HINT_STATISTICS IATTR
      {
-         eq::server::Global::instance()->setNodeIAttribute(
-             eq::Node::IATTR_HINT_STATISTICS, $2 );
+         EQWARN << "Ignoring deprecated attribute Node::IATTR_HINT_STATISTICS"
+                << std::endl;
      }
      | EQTOKEN_PIPE_IATTR_HINT_THREAD IATTR
      {
@@ -560,13 +561,18 @@ connectionField:
     | EQTOKEN_PORT UNSIGNED       { connectionDescription->TCPIP.port = $2; }
     | EQTOKEN_BANDWIDTH UNSIGNED  { connectionDescription->bandwidth = $2; }
     | EQTOKEN_PIPE_FILENAME STRING { connectionDescription->setFilename($2); }
+    | EQTOKEN_FILENAME STRING     { connectionDescription->setFilename($2); }
 
 nodeAttributes: /*null*/ | nodeAttributes nodeAttribute
 nodeAttribute:
     EQTOKEN_THREAD_MODEL IATTR 
         { node->setIAttribute( eq::Node::IATTR_THREAD_MODEL, $2 ); }
     | EQTOKEN_HINT_STATISTICS IATTR
-        { node->setIAttribute( eq::Node::IATTR_HINT_STATISTICS, $2 ); }
+        {
+            EQWARN
+                << "Ignoring deprecated attribute Node::IATTR_HINT_STATISTICS"
+                << std::endl;
+        }
 
 
 pipe: EQTOKEN_PIPE '{' 

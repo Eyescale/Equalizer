@@ -168,7 +168,7 @@ name                            { return EQTOKEN_NAME; }
 type                            { return EQTOKEN_TYPE; }
 TCPIP                           { return EQTOKEN_TCPIP; }
 SDP                             { return EQTOKEN_SDP; }
-NAMEDPIPE                       { return EQTOKEN_PIPE; }
+PIPE                            { return EQTOKEN_PIPE; }
 texture                         { return EQTOKEN_TEXTURE; } 
 memory                          { return EQTOKEN_MEMORY; }
 fixed                           { return EQTOKEN_FIXED; }
@@ -178,7 +178,8 @@ command                         { return EQTOKEN_COMMAND; }
 command_quote                   { return EQTOKEN_COMMAND_QUOTE; }
 timeout                         { return EQTOKEN_TIMEOUT; }
 TCPIP_port                      { return EQTOKEN_TCPIP_PORT; }
-NAMEDPIPE_filename              { return EQTOKEN_PIPE_FILENAME; }
+PIPE_filename                   { return EQTOKEN_PIPE_FILENAME; }
+filename                        { return EQTOKEN_FILENAME; }
 task                            { return EQTOKEN_TASK; }
 eye                             { return EQTOKEN_EYE; }
 eyeBase                         { return EQTOKEN_EYE_BASE; }

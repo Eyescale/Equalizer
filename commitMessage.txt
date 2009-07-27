@@ -1,5 +1,7 @@
-Some cleanups on full-token RLE4B compressor, set info according to
-reference set, fix release warnings.
+Cleanups:
+- simplify eqPly coloring code
+- remove unused node statistics hint
+- rename NAMEDPIPE->PIPE in file format
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

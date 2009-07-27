@@ -84,12 +84,6 @@ void Global::_setupDefaults()
     for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
         _nodeIAttributes[i] = eq::UNDEFINED;
 
-#ifdef NDEBUG
-    _nodeIAttributes[eq::Node::IATTR_HINT_STATISTICS]   = eq::FASTEST;
-#else
-    _nodeIAttributes[eq::Node::IATTR_HINT_STATISTICS]   = eq::NICEST;
-#endif
-
     // pipe
     for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
         _pipeIAttributes[i] = eq::UNDEFINED;

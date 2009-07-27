@@ -622,8 +622,6 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
         
         os << ( i==eq::Node::IATTR_THREAD_MODEL ?
                     "thread_model       " :
-                i==eq::Node::IATTR_HINT_STATISTICS ?
-                    "hint_statistics    " :
                 "ERROR" )
            << static_cast<IAttrValue>( value ) << std::endl;
     }

@@ -99,36 +99,21 @@ void Channel::frameDraw( const uint32_t frameID )
     glTranslatef( translation.x(), translation.y(), translation.z() );
     glMultMatrixf( frameData.getModelRotation().array );
 
-    const Model*     model  = _getModel();
-
-    switch( frameData.getColorMode( ))
+    if( frameData.getColorMode() == COLOR_DEMO )
     {
-        default:
-            EQUNIMPLEMENTED;
-        case COLOR_MODEL:
-            if( !model || model->hasColors( ))
-                break;
-            // else fall through
-
-        case COLOR_WHITE:
-            glColor3f( .75f, .75f, .75f );
-            break;
-            
-        case COLOR_DEMO:
-        {
-            const eq::Vector3ub color = getUniqueColor();
-            glColor3ub( color.r(), color.g(), color.b() );
-            break;
-        }
+        const eq::Vector3ub color = getUniqueColor();
+        glColor3ub( color.r(), color.g(), color.b() );
     }
+    else
+        glColor3f( .75f, .75f, .75f );
 
+    const Model* model = _getModel();
     if( model )
     {
         _drawModel( model );
     }
     else
     {
-        glColor3f( 1.f, 1.f, 0.f );
         glNormal3f( 0.f, -1.f, 0.f );
         glBegin( GL_TRIANGLE_STRIP );
         glVertex3f(  .25f, 0.f,  .25f );
@@ -137,7 +122,6 @@ void Channel::frameDraw( const uint32_t frameID )
         glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
     }
-
 }
 
 void Channel::frameReadback( const uint32_t frameID )
