@@ -18,4 +18,4 @@
 #ifndef LEOPARD
 #  define LEOPARD
 #endif
-#endif // EQ_DEFINES_H 
+#endif // EQ_DEFINES_H
