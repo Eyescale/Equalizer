@@ -176,11 +176,46 @@ server
                 }
             }
         }
+        layout
+        {
+            name "MultiView"
+            view
+            {
+                viewport [ 0 0 .4 .4 ]
+                wall
+                {
+                    bottom_left  [ -.5 -.5 -1 ]
+                    bottom_right [  .5 -.5 -1 ]
+                    top_left     [ -.5  .5 -1 ]
+                }
+            }
+            view
+            {
+                viewport [ .4 0 .6 .4 ]
+                wall
+                {
+                    bottom_left  [ -.6 -.4 -1 ]
+                    bottom_right [  .6 -.4 -1 ]
+                    top_left     [ -.6  .4 -1 ]
+                }
+            }
+            view
+            {
+                viewport [ 0 .4 1 .6 ]
+                wall
+                {
+                    bottom_left  [ -1 -.6 -1 ]
+                    bottom_right [  1 -.6 -1 ]
+                    top_left     [ -1  .6 -1 ]
+                }
+            }
+        }
 
         # Canvas using all layouts
         canvas
         {
             layout "wall"
+            layout "MultiView"
             layout "2D"
             layout "WallLB"
             layout "DB"
@@ -241,6 +276,31 @@ server
             compound
             {
                 channel ( segment 3 layout "wall" view 0 )
+                swapbarrier {}
+            }
+        }
+
+        # wall compound - need swap barrier
+        compound
+        {
+            compound
+            {
+                channel ( segment 0 layout "MultiView" view 2 )
+                swapbarrier {}
+            }
+            compound
+            {
+                channel ( segment 1 layout "MultiView" view 2 )
+                swapbarrier {}
+            }
+            compound
+            {
+                channel ( segment 2 layout "MultiView" view 2 )
+                swapbarrier {}
+            }
+            compound
+            {
+                channel ( segment 3 layout "MultiView" view 2 )
                 swapbarrier {}
             }
         }
