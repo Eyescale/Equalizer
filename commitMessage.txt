@@ -1,9 +1,9 @@
-Update Programming Guide
+Make 4-window.all the default config file.
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

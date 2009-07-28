@@ -38,7 +38,7 @@ namespace eq
 NodeFactory* Global::_nodeFactory = 0;
 PluginRegistry Global::_pluginRegistry;
 std::string Global::_server;
-std::string Global::_configFile;
+std::string Global::_configFile = "examples/configs/4-window.all.eqc";
 StringVector Global::_pluginDirectories = _initPluginDirectories();
 
 #ifdef AGL

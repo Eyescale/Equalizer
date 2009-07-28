@@ -81,13 +81,18 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
     }
 
     Loader    loader;
-    ServerPtr server = file.empty() ? loader.parseServer( CONFIG ) :
-                                      loader.loadFile( file );
+    ServerPtr server;
+
+    if( !file.empty( ))
+        server = loader.loadFile( file );
+    if( !server )
+        server = loader.parseServer( CONFIG );
     if( !server )
     {
         EQERROR << "Failed to load configuration" << endl;
         return 0;
     }
+
     if( !server->listen( ))
     {
         EQERROR << "Failed to setup server listener" << endl;
