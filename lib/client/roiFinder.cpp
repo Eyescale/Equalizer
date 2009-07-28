@@ -15,12 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-//#define EQ_USE_ROI
-//#define EQ_USE_DEPTH_TEXTURE
+//#define EQ_USE_ROI                // use ROI
+#define EQ_ROI_USE_TRACKER        // disable ROI in case it can't help
+//#define EQ_ROI_USE_DEPTH_TEXTURE  // use depth texture instead of color
+
+//#define EQ_ROI_TEST_SPEED         // measure and print ROI speed
 
 #include "roiFinder.h"
 
-#ifdef EQ_USE_DEPTH_TEXTURE
+#ifdef EQ_ROI_USE_DEPTH_TEXTURE
 #include "roiFragmentShader_glsl.h"
 #else 
 #include "roiFragmentShaderRGB_glsl.h"
@@ -50,8 +53,12 @@ ROIFinder::ROIFinder()
     _tmpAreas[0].emptySize = 0;
 }
 
-void ROIFinder::_dumpDebug( const std::string file )
+void ROIFinder::_dumpDebug( const uint32_t stage )
 {
+    static uint32_t counter = 0;
+    std::ostringstream ss;
+    ss << "_img_" << ++counter << "_" << stage;
+
     _tmpImg.reset();
     _tmpImg.setPixelViewport( PixelViewport( 0, 0, _wb, _hb ));
 
@@ -74,11 +81,14 @@ void ROIFinder::_dumpDebug( const std::string file )
             dst += 3;
         }
 
-    _tmpImg.writeImages( file );
+    EQWARN << "Dumping ROI image: " << ss.str( ) << std::endl;
+    _tmpImg.writeImages( ss.str( ));
 }
 
 
-void ROIFinder::_calcHist( const PixelViewport& pvp, const uint8_t* src )
+
+PixelViewport ROIFinder::_getObjectPVP( const PixelViewport& pvp,
+                                        const uint8_t*       src )
 {
     EQASSERT( pvp.x >= 0 && pvp.x+pvp.w <= _wb &&
               pvp.y >= 0 && pvp.y+pvp.h <= _hb );
@@ -99,20 +109,7 @@ void ROIFinder::_calcHist( const PixelViewport& pvp, const uint8_t* src )
         s += _wb;
     }
 
-    // equalize histogram values
-    for( int32_t x = 0; x < pvp.w; x++ )
-        _histX[ x ] = _histX[ x ] * 255 / pvp.h;
-
-    for( int32_t y = 0; y < pvp.h; y++ )
-        _histY[ y ] = _histY[ y ] * 255 / pvp.w;
-}
-
-
-PixelViewport ROIFinder::_getObjectPVP( const PixelViewport& pvp,
-                                              const uint8_t* src )
-{
-    _calcHist( pvp, src );
-
+    // Find AABB based on X and Y axis historgams
     int32_t xMin = pvp.w;
     for( int32_t x = 0; x < pvp.w; x++ )
         if( _histX[x] != 0 )
@@ -183,6 +180,9 @@ void ROIFinder::_init( )
     memset( &_mask[0]   , 0, _mask.size( ));
     memset( &_tmpMask[0], 0, _tmpMask.size( ));
 
+    EQASSERT( static_cast<int32_t>(_perBlockInfo.size()) >= _w*_h*4 );
+    EQASSERT( static_cast<int32_t>(_mask.size())         >= _wb*_h  );
+
     const float*    src = &_perBlockInfo[0];
           uint8_t*  dst = &_mask[0];
 
@@ -193,8 +193,8 @@ void ROIFinder::_init( )
             if( src[x*4] < 1.0 )
                 dst[x] = 255;
         }
-        dst += _wb;
         src += _w*4;
+        dst += _wb;
     }
 }
 
@@ -512,8 +512,12 @@ void ROIFinder::_findAreas( PixelViewportVector& resultPVPs )
     // correct position and sizes
     for( uint32_t i = 0; i < resultPVPs.size(); i++ )
     {
-        _fillWithColor( resultPVPs[i], &_tmpMask[0], 
+#ifndef NDEBUG
+        // fill temporary array with found regions to 
+        // dump it later in _dumpDebug
+        _fillWithColor( resultPVPs[i], &_tmpMask[0],
                         255 - i*200/resultPVPs.size( ));
+#endif
 
         PixelViewport& pvp = resultPVPs[i];
         pvp.x += _pvp.x;
@@ -538,12 +542,16 @@ void ROIFinder::_readbackInfo( )
 
     PixelViewport pvp = _pvp;
     pvp.apply( Zoom( GRID_SIZE, GRID_SIZE ));
+    pvp.w = EQ_MIN( pvp.w+pvp.x, _pvpOriginal.w+_pvpOriginal.x ) - pvp.x;
+    pvp.h = EQ_MIN( pvp.h+pvp.y, _pvpOriginal.h+_pvpOriginal.y ) - pvp.y;
+
+    EQASSERT( pvp.isValid());
 
     // copy frame buffer to texture
     const void* bufferKey = _getInfoKey( );
     Texture*    texture   = _glObjects->obtainEqTexture( bufferKey );
 
-#ifdef EQ_USE_DEPTH_TEXTURE
+#ifdef EQ_ROI_USE_DEPTH_TEXTURE
     texture->setFormat( GL_DEPTH_COMPONENT );
 #else
     texture->setFormat( GL_RGBA );
@@ -567,16 +575,17 @@ void ROIFinder::_readbackInfo( )
     }
     fbo->bind();
 
+    texture->bind();
+
     // Enable & download depth texture
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
+
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,GL_LINEAR );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_LINEAR );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S,
                                                             GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
                                                             GL_CLAMP_TO_EDGE );
-
-    texture->bind();
 
     // Enable shaders
     //
@@ -590,7 +599,7 @@ void ROIFinder::_readbackInfo( )
                                                         GL_FRAGMENT_SHADER );
         EQASSERT( shader != Window::ObjectManager::INVALID );
 
-#ifdef EQ_USE_DEPTH_TEXTURE
+#ifdef EQ_ROI_USE_DEPTH_TEXTURE
         const GLchar* fShaderPtr = roiFragmentShader_glsl.c_str();
 #else
         const GLchar* fShaderPtr = roiFragmentShaderRGB_glsl.c_str();
@@ -620,7 +629,7 @@ void ROIFinder::_readbackInfo( )
         // use fragment shader and setup uniforms
         EQ_GL_CALL( glUseProgram( program ));
 
-        const GLint param = glGetUniformLocation( program, "texture" );
+        GLint param = glGetUniformLocation( program, "texture" );
         glUniform1i( param, 0 );
     }
     else
@@ -631,37 +640,24 @@ void ROIFinder::_readbackInfo( )
 
     // Draw Quad
     glDisable( GL_LIGHTING );
-    glDisable( GL_DEPTH_TEST );
     glColor3f( 1.0f, 1.0f, 1.0f );
 
-    const float tEndX = (_pvp.w-1)*16.0f+1.0f;
-    const float tEndY = (_pvp.h-1)*16.0f+1.0f;;
-    const float vEndX = static_cast< float >( _pvp.w );
-    const float vEndY = static_cast< float >( _pvp.h );
-
     glBegin( GL_QUADS );
-        glTexCoord2f(  0.0f, 0.0f );
-        glVertex3f(    0.0f, 0.0f, 0.0f );
-
-        glTexCoord2f( tEndX, 0.0f );
-        glVertex3f(   vEndX, 0.0f, 0.0f );
-
-        glTexCoord2f( tEndX, tEndY );
-        glVertex3f(   vEndX, vEndY, 0.0f );
-
-        glTexCoord2f(  0.0f, tEndY );
-        glVertex3f(    0.0f, vEndY, 0.0f );
+        glVertex3i(      0,      0, 0 );
+        glVertex3i( _pvp.w,      0, 0 );
+        glVertex3i( _pvp.w, _pvp.h, 0 );
+        glVertex3i(      0, _pvp.h, 0 );
     glEnd();
 
-
     // restore state
-    glEnable( GL_DEPTH_TEST );
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     EQ_GL_CALL( glUseProgram( 0 ));
 
     fbo->unbind();
 
     // finish readback of info
+    EQASSERT( static_cast<int32_t>(_perBlockInfo.size()) >= _pvp.w*_pvp.h*4 );
+
     texture = fbo->getColorTextures()[0];
     texture->download( &_perBlockInfo[0], GL_RGBA, GL_FLOAT );
 }
@@ -695,12 +691,12 @@ PixelViewportVector ROIFinder::findRegions( const uint32_t         buffers,
     return result; // disable read back info usage
 #endif
 
-/*
-    eq::base::Clock clock;
+#ifdef EQ_ROI_TEST_SPEED
+    eq::base::Clock clock; 
     clock.reset();
-for( int i = 0; i < 100; i++ )
-{
-*/
+for( int i = 0; i < 100; i++ ) {
+#endif
+
     EQASSERT( glObjects );
     EQASSERTINFO( !_glObjects, "Another readback in progress?" );
     EQLOG( LOG_ASSEMBLY )   << "ROIFinder::getObjects " << pvp
@@ -714,61 +710,58 @@ for( int i = 0; i < 100; i++ )
         return result;
     }
 
-    if( !(buffers & Frame::BUFFER_DEPTH ))
-    {
-        EQWARN << "No depth buffer, R-B optimization impossible" 
-               << std::endl;
-        return result;
-    }
-
-/*    uint8_t* ticket;
+#ifdef EQ_ROI_USE_TRACKER
+//    EQWARN << "frID: " << frameID << " stage: " << stage << std::endl;
+    uint8_t* ticket;
     if( !_roiTracker.useROIFinder( pvp, stage, frameID, ticket ))
         return result;
-*/
+#endif
+
+    _pvpOriginal = pvp;
     _resize( _getBoundingPVP( pvp ));
 
     // go through depth buffer and check min/max/BG values
     // render to and read-back usefull info from FBO
-
     _glObjects = glObjects;
     _readbackInfo();
     _glObjects = 0;
 
     // Analyze readed back data and find regions of interest
-
     _init( );
+//    _dumpDebug( 0 );
 
     _emptyFinder.update( &_mask[0], _wb, _hb );
-    _emptyFinder.setLimits( 200, 0.02f );
+    _emptyFinder.setLimits( 200, 0.002f );
     
     result.clear();
     _findAreas( result );
-//    _roiTracker.updateDelay( result, ticket );
+//    _dumpDebug( 1 );
 
-/*
+#ifdef EQ_ROI_USE_TRACKER
+    _roiTracker.updateDelay( result, ticket );
+#endif
+
+#ifdef EQ_ROI_TEST_SPEED
 }
-
-
     const float time = clock.getTimef() / 100;
     const float fps  = 1000.f / time;
 
-    static float minFPS = 10000;
-    static float maxFPS = 0;
-    if( minFPS > fps ) minFPS = fps;
-    if( maxFPS < fps ) maxFPS = fps;
+    static float minFPS = 10000;    minFPS = EQ_MIN( fps, minFPS );
+    static float maxFPS = 0;        maxFPS = EQ_MAX( fps, maxFPS );
+    static float sumFPS = 0;        sumFPS += fps;
+    static float frames = 0;        frames++;
 
+    const float avgFPS = sumFPS / frames;
     EQWARN << "=============================================" << std::endl;
     EQWARN << "ROI min fps: " << minFPS << " (" << 1000.f/minFPS
           << " ms) max fps: " << maxFPS << " (" << 1000.f/maxFPS
+          << " ms) avg fps: " << avgFPS << " (" << 1000.f/avgFPS
+          << " ms) cur fps: " << fps    << " (" << 1000.f/fps
           << " ms) areas found: " << result.size() << std::endl;
-*/
 
-/*
-    static uint32_t counter = 0;
-    std::ostringstream ss;
-    ss << "_img_" << ++counter;
-    _dumpDebug( ss.str( ) + "_00" );
-*/
+    if( frames < 5 ) { minFPS = 10000; maxFPS = 0; }
+#endif //EQ_ROI_TEST_SPEED
+
 //    EQWARN << "Areas found: " << result.size() << std::endl;
     return result;
 }

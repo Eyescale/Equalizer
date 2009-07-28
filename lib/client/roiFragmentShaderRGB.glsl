@@ -18,21 +18,67 @@ uniform sampler2DRect texture;
 
 void main(void)
 {
-    vec2  pos = gl_TexCoord[0].st;
+    vec2  pos = (gl_FragCoord.xy - vec2( 0.5, 0.5 ))*16.0;
 
     float bg  = 1.0;
+
     vec3 s;
-    for( float y = .5; y < 15.0; y+=2.0 )
+    for( float y = .0; y < 15.1; y+=2.0 )
     {
-        for( float x = .5; x < 15.0; x+=2.0 )
+        if( bg < .5 )
+            break;
+        for( float x = .0; x < 15.1; x+=2.0 )
+        {
+            s = texture2DRect( texture, pos + vec2( x, y )).rgb;
+            if( s != vec3( .0, .0, .0 ))
+            {
+                bg = .0;
+                break;
+            }
+        }
+    }
+    for( float y = 1.0; y < 15.1; y+=2.0 )
+    {
+        if( bg < .5 )
+            break;
+        for( float x = 1.0; x < 15.1; x+=2.0 )
         {
             s = texture2DRect( texture, pos + vec2( x, y )).rgb;
 
             if( s != vec3( .0, .0, .0 ))
             {
                 bg = .0;
-                x = 16.0;
-                y = 16.0;
+                break;
+            }
+        }
+    }
+    for( float y = .0; y < 15.1; y+=2.0 )
+    {
+        if( bg < .5 )
+            break;
+        for( float x = 1.0; x < 15.1; x+=2.0 )
+        {
+            s = texture2DRect( texture, pos + vec2( x, y )).rgb;
+
+            if( s != vec3( .0, .0, .0 ))
+            {
+                bg = .0;
+                break;
+            }
+        }
+    }
+    for( float y = 1.0; y < 15.1; y+=2.0 )
+    {
+        if( bg < .5 )
+            break;
+        for( float x = .0; x < 15.1; x+=2.0 )
+        {
+            s = texture2DRect( texture, pos + vec2( x, y )).rgb;
+
+            if( s != vec3( .0, .0, .0 ))
+            {
+                bg = .0;
+                break;
             }
         }
     }
