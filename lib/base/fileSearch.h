@@ -48,13 +48,9 @@ inline StringVector fileSearch( const std::string directory,
         return files;
     }
 
-    bool found = true;
-    do
-    {   /* search and add files */
+    files.push_back( file.cFileName );    
+    while( FindNextFile( hSearch, &file ))
         files.push_back( file.cFileName );    
-        found = FindNextFile( hSearch, &file );
-    }
-    while( found );
     
     FindClose( hSearch );
 #else

@@ -1,9 +1,9 @@
-Make 4-window.all the default config file.
+eqPly: recursively search directories for models
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

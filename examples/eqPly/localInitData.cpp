@@ -36,12 +36,12 @@ LocalInitData::LocalInitData()
         , _color( true )
         , _isResident( false )
 {
-    _filenames.push_back( "examples/eqPly/rockerArm.ply" );
-    _filenames.push_back( "../examples/eqPly/rockerArm.ply" );
-    _filenames.push_back( "../share/data/rockerArm.ply" );
-    _filenames.push_back( "/opt/local/share/data/rockerArm.ply" );
-    _filenames.push_back( "/usr/local/share/data/rockerArm.ply" );
-    _filenames.push_back( "/usr/share/data/rockerArm.ply" );
+    _filenames.push_back( "examples/eqPly/" );
+    _filenames.push_back( "../examples/eqPly/" );
+    _filenames.push_back( "../share/data/" );
+    _filenames.push_back( "/opt/local/share/data/" );
+    _filenames.push_back( "/usr/local/share/data/" );
+    _filenames.push_back( "/usr/share/data/" );
 }
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
@@ -84,7 +84,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         const std::string& desc = EqPly::getHelp();
 
         TCLAP::CmdLine command( desc );
-        TCLAP::MultiArg<string> modelArg( "m", "model", "ply model file name", 
+        TCLAP::MultiArg<string> modelArg( "m", "model", 
+                                          "ply model file name or directory", 
                                           false, "string", command );
         TCLAP::ValueArg<string> portArg( "p", "port", "tracking device port",
                                          false, "/dev/ttyS0", "string",

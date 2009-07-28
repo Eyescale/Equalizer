@@ -118,30 +118,65 @@ bool Config::exit()
     return ret;
 }
 
+namespace
+{
+static bool _isPlyfile( const std::string& filename )
+{
+    const size_t size = filename.length();
+    if( size < 5 )
+        return false;
+
+    if( filename[size-4] != '.' || filename[size-3] != 'p' ||
+        filename[size-2] != 'l' || filename[size-1] != 'y' )
+    {
+        return false;
+    }
+    return true;
+}
+}
 
 void Config::_loadModels()
 {
     if( _models.empty( )) // only load on the first config run
     {
-        const std::vector< std::string >& filenames = _initData.getFilenames();
-        for(  std::vector< std::string >::const_iterator i = filenames.begin();
-              i != filenames.end(); ++i )
+        eq::StringVector filenames = _initData.getFilenames();
+        while( !filenames.empty( ))
         {
-            const std::string& filename = *i;
-            EQINFO << "Loading model " << filename << std::endl;
+            const std::string filename = filenames.back();
+            filenames.pop_back();
+            EQINFO << "Loading " << filename << std::endl;
      
-            Model* model = new Model;
-
-            if( _initData.useInvertedFaces() )
-                model->useInvertedFaces();
-        
-            if ( !model->readFromFile( filename.c_str() ) )
+            if( _isPlyfile( filename ))
             {
-                EQWARN << "Can't load model: " << filename << std::endl;
-                delete model;
+                Model* model = new Model;
+
+                if( _initData.useInvertedFaces() )
+                    model->useInvertedFaces();
+        
+                if( !model->readFromFile( filename.c_str() ) )
+                {
+                    EQWARN << "Can't load model: " << filename << std::endl;
+                    delete model;
+                }
+                else
+                    _models.push_back( model );
             }
             else
-                _models.push_back( model );
+            {
+                const std::string basename = eq::base::getFilename( filename );
+                if( basename == "." || basename == ".." )
+                    continue;
+
+                // recursively search directories
+                const eq::StringVector subFiles = 
+                    eq::base::fileSearch( filename, "*" );
+
+                for( eq::StringVector::const_iterator i = subFiles.begin();
+                     i != subFiles.end(); ++i )
+                {
+                    filenames.push_back( filename + '/' + *i );
+                }
+            }
         }
     }
     
