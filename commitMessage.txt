@@ -1,12 +1,9 @@
-Cleanups:
-- simplify eqPly coloring code
-- remove unused node statistics hint
-- rename NAMEDPIPE->PIPE in file format
+Update Programming Guide
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
