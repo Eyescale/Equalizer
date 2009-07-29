@@ -33,7 +33,11 @@ namespace eqPly
 InitData::InitData()
         : _frameDataID( EQ_ID_INVALID )
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
+#ifdef Darwin
+        , _renderMode( mesh::RENDER_MODE_BUFFER_OBJECT )
+#else
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
+#endif
         , _useGLSL( false )
         , _invFaces( false )
         , _logo( true )

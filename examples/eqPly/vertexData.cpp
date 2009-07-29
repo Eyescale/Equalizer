@@ -1,8 +1,8 @@
 /*  
-    vertexData.cpp
-    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
-                  2009, Stefan Eilemann <eile@equalizergraphics.com>
-  *
+ *  vertexData.cpp
+ *  Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+ *                2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
@@ -135,7 +135,7 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
 
 
 /*  Open a PLY file and read vertex, color and index data.  */
-bool VertexData::readPlyFile( const char* filename, const bool ignoreColors )
+bool VertexData::readPlyFile( const std::string& filename )
 {
     int     nPlyElems;
     char**  elemNames;
@@ -143,7 +143,7 @@ bool VertexData::readPlyFile( const char* filename, const bool ignoreColors )
     float   version;
     bool    result = false;
     
-    PlyFile* file = ply_open_for_reading( const_cast< char* >( filename ), 
+    PlyFile* file = ply_open_for_reading( const_cast<char*>( filename.c_str( )),
                                           &nPlyElems, &elemNames, 
                                           &fileType, &version );
     if( !file )
@@ -186,12 +186,9 @@ bool VertexData::readPlyFile( const char* filename, const bool ignoreColors )
                 if( equal_strings( props[j]->name, "red" ) )
                     hasColors = true;
             
-            if( ignoreColors )
-                MESHINFO << "Colors in PLY file ignored per request." << endl;
-            
-            readVertices( file, nElems, hasColors && !ignoreColors );
+            readVertices( file, nElems, hasColors );
             MESHASSERT( vertices.size() == static_cast< size_t >( nElems ) );
-            if( hasColors && !ignoreColors )
+            if( hasColors )
             {
                 MESHASSERT( colors.size() == static_cast< size_t >( nElems ));
             }

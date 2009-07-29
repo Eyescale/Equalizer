@@ -1,7 +1,7 @@
 /*  
-    vertexData.h
-    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
-  *
+ *  Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+ *                2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
@@ -39,7 +39,7 @@ namespace mesh
     public:
         VertexData();
 
-        bool readPlyFile( const char* file, const bool ignoreColors = false );
+        bool readPlyFile( const std::string& file );
         void sort( const Index start, const Index length, const Axis axis );
         void scale( const float baseSize = 2.0f );
         void calculateNormals( const bool vertexNormals = true );

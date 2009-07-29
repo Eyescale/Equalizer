@@ -1,9 +1,12 @@
-eqPly: recursively search directories for models
+eqPly:
+- Add message with new model name when switching model
+- Switch to faster VBO rendering on OS X
+- Start using std::string in kd-Tree
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
 [x] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

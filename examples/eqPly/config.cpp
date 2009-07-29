@@ -615,6 +615,8 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
                 view->setModelID( modelID );
             else
                 _frameData.setModelID( modelID );
+
+            _setMessage( "Model " + getModel( modelID )->getName() + " active" );
             return true;
         }
 

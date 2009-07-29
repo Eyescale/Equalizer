@@ -1,7 +1,7 @@
 /*  
-    vertexBufferRoot.cpp
-    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
-  *
+ *  Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+ *                2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
@@ -120,7 +120,7 @@ bool isArchitectureLittleEndian()
 
 
 /*  Construct architecture dependent file name.  */
-string getArchitectureFilename( const char* filename )
+string getArchitectureFilename( const std::string& filename )
 {
     ostringstream oss;
     oss << filename << ( isArchitectureLittleEndian() ? ".le" : ".be" );
@@ -130,7 +130,7 @@ string getArchitectureFilename( const char* filename )
 
 
 /*  Functions extracted out of readFromFile to enhance readability.  */
-bool VertexBufferRoot::_constructFromPly( const char* filename )
+bool VertexBufferRoot::_constructFromPly( const std::string& filename )
 {
     MESHINFO << "Constructing new from PLY file." << endl;
     
@@ -152,19 +152,20 @@ bool VertexBufferRoot::_constructFromPly( const char* filename )
     return true;
 }
 
-bool VertexBufferRoot::_readBinary( const char* filename )
+bool VertexBufferRoot::_readBinary( const std::string& filename )
 {
 #ifdef WIN32
     // try to open binary file
-    HANDLE file = CreateFile( filename, GENERIC_READ, FILE_SHARE_READ, 0,
-                              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0 );
+    HANDLE file = CreateFile( filename.c_str(), GENERIC_READ, FILE_SHARE_READ,
+                              0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0 );
     if( file == INVALID_HANDLE_VALUE )
         return false;
     
     MESHINFO << "Reading cached binary representation." << endl;
     
     // create a file mapping
-    HANDLE map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, filename );
+    HANDLE map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, 
+                                    filename.c_str( ));
     CloseHandle( file );
     if( !map )
     {
@@ -204,7 +205,7 @@ bool VertexBufferRoot::_readBinary( const char* filename )
     
 #else
     // try to open binary file
-    int fd = open( filename, O_RDONLY );
+    int fd = open( filename.c_str(), O_RDONLY );
     if( fd < 0 )
         return false;
     
@@ -245,18 +246,23 @@ bool VertexBufferRoot::_readBinary( const char* filename )
 
 
 /*  Read binary kd-tree representation, construct from ply if unavailable.  */
-bool VertexBufferRoot::readFromFile( const char* filename )
+bool VertexBufferRoot::readFromFile( const std::string& filename )
 {
-    if( _readBinary( getArchitectureFilename( filename ).c_str( )))
+    if( _readBinary( getArchitectureFilename( filename )))
+    {
+        _name = filename;
         return true;
+    }
     if( _constructFromPly( filename ))
+    {
+        _name = filename;
         return true;
-
+    }
     return false;
 }
 
 /*  Write binary representation of the kd-tree to file.  */
-bool VertexBufferRoot::writeToFile( const char* filename )
+bool VertexBufferRoot::writeToFile( const std::string& filename )
 {
     bool result = false;
     

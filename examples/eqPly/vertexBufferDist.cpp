@@ -1,6 +1,6 @@
 /*  
- *   Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
- * *
+ *   Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
@@ -140,7 +140,8 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
             EQASSERT( _root );
             const mesh::VertexBufferData& data = _root->_data;
             
-            os << data.vertices << data.colors << data.normals << data.indices;
+            os << data.vertices << data.colors << data.normals << data.indices 
+               << _root->_name;
         }
     }
     else
@@ -175,7 +176,8 @@ void VertexBufferDist::applyInstanceData( eq::net::DataIStream& is )
             mesh::VertexBufferRoot* root = new mesh::VertexBufferRoot;
             mesh::VertexBufferData& data = root->_data;
 
-            is >> data.vertices >> data.colors >> data.normals >> data.indices;
+            is >> data.vertices >> data.colors >> data.normals >> data.indices
+               >> root->_name;
 
             node  = root;
             _root = root;

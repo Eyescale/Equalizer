@@ -1,7 +1,7 @@
 /*  
-    vertexBufferRoot.h
-    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
-  *
+ *  Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+ *                2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
@@ -14,10 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
-    
-    Header file of the VertexBufferRoot class.
-*/
+ */
 
 
 #ifndef MESH_VERTEXBUFFERROOT_H
@@ -44,22 +41,26 @@ namespace mesh
         void endRendering( VertexBufferState& state ) const;
         
         void setupTree( VertexData& data );
-        bool writeToFile( const char* filename );
-        bool readFromFile( const char* filename );
+        bool writeToFile( const std::string& filename );
+        bool readFromFile( const std::string& filename );
         bool hasColors() const { return _data.colors.size() > 0; }
 
         void useInvertedFaces() { _invertFaces = true; }
+
+        const std::string& getName() const { return _name; }
 
     protected:
         virtual void toStream( std::ostream& os );
         virtual void fromMemory( char* start );
         
     private:
-        bool _constructFromPly( const char* filename );
-        bool _readBinary( const char* filename );
+        bool _constructFromPly( const std::string& filename );
+        bool _readBinary( const std::string& filename );
         
         VertexBufferData _data;
         bool             _invertFaces;
+        std::string      _name;
+
         friend class eqPly::VertexBufferDist;
     };
     
