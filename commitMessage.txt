@@ -1,9 +1,9 @@
-Introduce debug heap checks in Win32 (untested)
+Add README with valgrind command line
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
