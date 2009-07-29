@@ -592,7 +592,8 @@ void Compound::_updateOverdraw( Wall& wall )
             const uint32_t maxOverdraw = maxSize.x() - channelPVP.w;
             const float ratio = static_cast< float >( maxOverdraw ) / 
                                 static_cast< float >( xOverdraw );
-            channelOverdraw.x() = static_cast<int>( channelOverdraw.x()*ratio );
+            channelOverdraw.x() = static_cast< int >(
+                channelOverdraw.x() * ratio + .5f );
             channelOverdraw.z() = maxOverdraw - channelOverdraw.x();
         }
 
@@ -603,7 +604,8 @@ void Compound::_updateOverdraw( Wall& wall )
             const uint32_t maxOverdraw = maxSize.y() - channelPVP.h;
             const float ratio = static_cast< float >( maxOverdraw ) / 
                                 static_cast< float >( yOverdraw );
-            channelOverdraw.y() = static_cast<int>( channelOverdraw.y()*ratio );
+            channelOverdraw.y() = static_cast< int >(
+                channelOverdraw.y() * ratio +.5f );
             channelOverdraw.w() = maxOverdraw - channelOverdraw.y();
         }
     }
