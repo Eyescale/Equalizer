@@ -1,4 +1,4 @@
-Add README with valgrind command line
+Update README with valgrind command line
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

@@ -1,1 +1,1 @@
-valgrind --tool=memcheck -v --track-origins=yes --leak-check=full ./build/Linux/bin/eqPly -n 10 >& valgrind.out
+valgrind --tool=memcheck -v --track-origins=yes --leak-check=full --show-reachable=yes ./build/Linux/bin/eqPly -n 10 >& valgrind.out
