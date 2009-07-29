@@ -46,10 +46,6 @@
 #include <eq/net/command.h>
 #include <sstream>
 
-using namespace eq::base;
-using namespace std;
-using eq::net::CommandFunc;
-
 namespace eq
 {
 namespace
@@ -75,7 +71,7 @@ Pipe::Pipe( Node* parent )
         , _currentWindow( 0 )
 {
     parent->_addPipe( this );
-    EQINFO << " New eq::Pipe @" << (void*)this << endl;
+    EQINFO << " New eq::Pipe @" << (void*)this << std::endl;
 }
 
 Pipe::~Pipe()
@@ -241,7 +237,7 @@ void Pipe::_setupCommandQueue()
     if( !useMessagePump( ))
         return;
 
-    EQINFO << "Pipe message pump set up for " << _windowSystem << endl;
+    EQINFO << "Pipe message pump set up for " << _windowSystem << std::endl;
 
     // Switch the node thread message pumps for non-threaded pipes
     if( !_thread )
@@ -264,7 +260,7 @@ void Pipe::_setupCommandQueue()
 
 void* Pipe::_runThread()
 {
-    EQINFO << "Entered pipe thread" << endl;
+    EQINFO << "Entered pipe thread" << std::endl;
     CHECK_THREAD( _pipeThread );
 
     Config* config = getConfig();
@@ -284,11 +280,12 @@ void* Pipe::_runThread()
                 break;
 
             case net::COMMAND_ERROR:
-                EQERROR << "Error handling command packet" << endl;
-                abort();
+                EQABORT( "Error handling command packet" );
+                break;
+
             default:
-                EQERROR << "Unknown command result" << endl;
-                abort();
+                EQABORT( "Unknown command result" );
+                break;
         }
         command->release();
     }
@@ -514,8 +511,8 @@ bool Pipe::configInit( const uint32_t initID )
 #endif
 
         default:
-            EQERROR << "Unknown windowing system: " << _windowSystem << endl;
-            setErrorMessage( "Unknown windowing system" );
+            EQERROR << "Unknown window system: " << _windowSystem << std::endl;
+            setErrorMessage( "Unknown window system" );
             return false;
     }
 
@@ -524,7 +521,7 @@ bool Pipe::configInit( const uint32_t initID )
     {
         setErrorMessage( "OS Pipe initialization failed: " + 
                          osPipe->getErrorMessage( ));
-        EQERROR << _error << endl;
+        EQERROR << _error << std::endl;
         delete osPipe;
         return false;
     }
@@ -547,7 +544,7 @@ bool Pipe::configExit()
     }
     //else
 
-    EQWARN << "Window system "<< _windowSystem <<" was not initialized" << endl;
+    EQWARN << "Window system "<< _windowSystem <<" not initialized" << std::endl;
     return false;
 }
 
@@ -622,14 +619,14 @@ void Pipe::startFrame( const uint32_t frameNumber )
 { 
     CHECK_THREAD( _pipeThread );
     _currentFrame = frameNumber; 
-    EQLOG( LOG_TASKS ) << "---- Started Frame ---- " << frameNumber << endl;
+    EQLOG( LOG_TASKS ) << "---- Started Frame ---- " << frameNumber << std::endl;
 }
 
 void Pipe::releaseFrame( const uint32_t frameNumber )
 { 
     CHECK_THREAD( _pipeThread );
     _finishedFrame = frameNumber; 
-    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber << endl;
+    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber << std::endl;
 }
 
 void Pipe::releaseFrameLocal( const uint32_t frameNumber )
@@ -639,7 +636,7 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 
     _unlockedFrame = frameNumber;
     EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame.get()
-                       << endl;
+                       << std::endl;
 }
 
 //---------------------------------------------------------------------------
@@ -649,7 +646,7 @@ net::CommandResult Pipe::_cmdCreateWindow(  net::Command& command  )
 {
     const PipeCreateWindowPacket* packet = 
         command.getPacket<PipeCreateWindowPacket>();
-    EQLOG( LOG_INIT ) << "Create window " << packet << endl;
+    EQLOG( LOG_INIT ) << "Create window " << packet << std::endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
     getConfig()->attachObject( window, packet->windowID, EQ_ID_INVALID );
@@ -665,7 +662,7 @@ net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
 {
     const PipeDestroyWindowPacket* packet =
         command.getPacket<PipeDestroyWindowPacket>();
-    EQLOG( LOG_INIT ) << "Destroy window " << packet << endl;
+    EQLOG( LOG_INIT ) << "Destroy window " << packet << std::endl;
 
     Window* window = _findWindow( packet->windowID );
     EQASSERT( window );
@@ -705,7 +702,7 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
     CHECK_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
         command.getPacket<PipeConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "Init pipe " << packet << endl;
+    EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
 
     PipeConfigInitReplyPacket reply;
     _error.clear();
@@ -734,7 +731,7 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
     else
         reply.result = false;
 
-    EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << endl;
+    EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
 
     net::NodePtr node = command.getNode();
 
@@ -756,7 +753,7 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
     CHECK_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
         command.getPacket<PipeConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << endl;
+    EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
 
     PipeConfigExitReplyPacket reply;
     reply.result = configExit();
@@ -774,7 +771,7 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
         command.release();
         _pipeThreadQueue->flush();
         
-        EQINFO << "Leaving pipe thread" << endl;
+        EQINFO << "Leaving pipe thread" << std::endl;
         _thread->exit( EXIT_SUCCESS );
         EQUNREACHABLE;
     }
@@ -784,7 +781,7 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
 
 net::CommandResult Pipe::_cmdFrameStartClock( net::Command& command )
 {
-	EQVERB << "start frame clock" << endl;
+	EQVERB << "start frame clock" << std::endl;
     _frameTimeMutex.set();
     _frameTimes.push_back( getConfig()->getTime( ));
     _frameTimeMutex.unset();
@@ -796,8 +793,8 @@ net::CommandResult Pipe::_cmdFrameStart( net::Command& command )
     CHECK_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
         command.getPacket<PipeFrameStartPacket>();
-    EQVERB << "handle pipe frame start " << packet << endl;
-    EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << endl;
+    EQVERB << "handle pipe frame start " << packet << std::endl;
+    EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << std::endl;
 
     const int64_t lastFrameTime = _frameTime;
 
@@ -829,7 +826,7 @@ net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
     CHECK_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
         command.getPacket<PipeFrameFinishPacket>();
-    EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << endl;
+    EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
     EQASSERTINFO( _currentFrame >= frameNumber, 
@@ -850,7 +847,7 @@ net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
 
     if( _finishedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not released, enforcing unlock" << endl;
+        EQWARN << "Finished frame was not released, enforcing unlock" << std::endl;
         releaseFrame( frameNumber );
     }
 
@@ -864,7 +861,7 @@ net::CommandResult Pipe::_cmdFrameDrawFinish( net::Command& command )
     PipeFrameDrawFinishPacket* packet = 
         command.getPacket< PipeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
-                       << endl;
+                       << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
     return net::COMMAND_HANDLED;

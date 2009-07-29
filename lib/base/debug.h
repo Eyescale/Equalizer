@@ -24,18 +24,38 @@
 // assertions
 #define EQ_NO_RELEASE_ASSERT
 
+namespace eq
+{
+namespace base
+{
+/** Used to trap into an infinite loop to allow debugging of assertions */
+EQ_EXPORT void abort();
+
+/** Check the consistency of the heap and abort on error (Win32 only). */
+EQ_EXPORT void checkHeap();
+}
+}
+
 #ifdef NDEBUG
 #  ifdef EQ_NO_RELEASE_ASSERT
-#    define EQASSERT( x )
-#    define EQASSERTINFO( x, info )
+#    define EQASSERT(x)
+#    define EQASSERTINFO(x, info)
 #    define EQCHECK(x) { x; }
 #  else
-#    define EQASSERT(x) { if( !(x) )                                      \
-              EQERROR << "##### Assert: " << #x << " #####" << std::endl  \
-                      << eq::base::forceFlush; }
-#    define EQASSERTINFO(x, info) { if( !(x) )                            \
-              EQERROR << "##### Assert: " << #x << " [" << info << "] #####" \
-                      << std::endl << eq::base::forceFlush; }
+#    define EQASSERT(x)                                                 \
+    {                                                                   \
+        if( !(x) )                                                      \
+            EQERROR << "##### Assert: " << #x << " #####" << std::endl  \
+                    << eq::base::forceFlush;                            \
+        eq::base::checkHeap();                                          \
+    }
+#    define EQASSERTINFO(x, info)                                       \
+    {                                                                   \
+        if( !(x) )                                                      \
+            EQERROR << "##### Assert: " << #x << " [" << info << "] #####" \
+                    << std::endl << eq::base::forceFlush;               \
+        eq::base::checkHeap();                                          \
+    }
 #    define EQCHECK(x) { const bool eqResult = x; EQASSERTINFO( eqResult, #x ) }
 #  endif
 #  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl \
@@ -51,41 +71,43 @@
 
 #else // NDEBUG
 
-namespace eq
-{
-namespace base
-{
-    /** Used to trap into an infinite loop to allow debugging of assertions */
-    EQ_EXPORT void abortDebug();
-}
-}
-
-#  define EQASSERT(x) { if( !(x) )                                      \
-        { EQERROR << "Assert: " << #x << std::endl << eq::base::forceFlush; \
-      eq::base::abortDebug(); }}
-#  define EQASSERTINFO(x, info) { if( !(x) )                            \
+#  define EQASSERT(x)                                                   \
+    {                                                                   \
+        if( !(x) )                                                      \
+        {                                                               \
+            EQERROR << "Assert: " << #x << std::endl << eq::base::forceFlush; \
+            eq::base::abort();                                     \
+        }                                                               \
+        eq::base::checkHeap();                                          \
+    } 
+#  define EQASSERTINFO(x, info)                                         \
+    {                                                                   \
+        if( !(x) )                                                      \
         {                                                               \
             EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl \
-                    << eq::base::forceFlush;                              \
-            eq::base::abortDebug();                                       \
-        }}
+                    << eq::base::forceFlush;                            \
+            eq::base::abort();                                          \
+        }                                                               \
+        eq::base::checkHeap();                                          \
+    }
+
 #  define EQUNIMPLEMENTED                                               \
     { EQERROR << "Unimplemented code in " << typeid(*this).name()       \
-              << std::endl << eq::base::forceFlush;                       \
-        eq::base::abortDebug(); }
+              << std::endl << eq::base::forceFlush;                     \
+        eq::base::abort(); }
 #  define EQUNREACHABLE                                          \
     { EQERROR << "Unreachable code in " << typeid(*this).name()  \
-              << std::endl << eq::base::forceFlush;                \
-        eq::base::abortDebug(); }
+              << std::endl << eq::base::forceFlush;              \
+        eq::base::abort(); }
 #  define EQDONTCALL                                                    \
     { EQERROR << "Code is not supposed to be called in this context, type " \
               << typeid(*this).name() << std::endl << eq::base::forceFlush; \
-        eq::base::abortDebug(); }
+        eq::base::abort(); }
 
 #  define EQCHECK(x) { const bool eqResult = x; EQASSERTINFO( eqResult, #x ) }
 #  define EQABORT( info ) {                                             \
         EQERROR << "Abort: " << info << std::endl << eq::base::forceFlush; \
-        eq::base::abortDebug(); }
+        eq::base::abort(); }
 
 #endif // NDEBUG
 

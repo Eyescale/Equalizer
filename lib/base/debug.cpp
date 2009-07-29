@@ -18,7 +18,12 @@
 #include "debug.h"
 
 #ifndef NDEBUG
-EQ_EXPORT void eq::base::abortDebug()
+namespace eq
+{
+namespace base
+{
+
+EQ_EXPORT void abort()
 {
     // if EQ_ABORT_WAIT is set, spin forever to allow identifying and debugging
     // crashed nodes.
@@ -26,5 +31,21 @@ EQ_EXPORT void eq::base::abortDebug()
         while( true ) ;
 
     ::abort();
+}
+
+EQ_EXPORT void checkHeap()
+{
+#ifdef WIN32
+    if( _heapchk() != _HEAPOK )
+    {
+        EQERROR << disableFlush << "Abort: heap corruption detected" << std::endl
+                << "    Set breakpoint in " << __FILE__ << ':' << __LINE__ + 1 
+                << " to debug" << std::endl << enableFlush;
+    }
+#else
+#endif
+}
+
+}
 }
 #endif

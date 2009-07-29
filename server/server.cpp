@@ -36,9 +36,6 @@
 
 #include <sstream>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace server
@@ -60,7 +57,7 @@ Server::Server()
     registerCommand( eq::CMD_SERVER_SHUTDOWN,
                      ServerFunc( this, &Server::_cmdShutdown ),
                      &_serverThreadQueue );
-    EQINFO << "New server @" << (void*)this << endl;
+    EQINFO << "New server @" << (void*)this << std::endl;
 }
 
 Server::~Server()
@@ -138,12 +135,13 @@ bool Server::run()
 
     if( _configs.empty( ))
     {
-        EQERROR << "No configurations loaded" << endl;
+        EQERROR << "No configurations loaded" << std::endl;
         return false;
     }
 
-    EQINFO << disableFlush << "Running server: " << endl << indent 
-           << Global::instance() << this << exdent << enableFlush;
+    EQINFO << base::disableFlush << "Running server: " << std::endl
+           << base::indent << Global::instance() << this << base::exdent
+           << base::enableFlush;
 
     _handleCommands();
     return true;
@@ -159,7 +157,7 @@ void Server::registerConfig( Config* config )
 {
     if( config->getName().empty( ))
     {
-        ostringstream stringStream;
+        std::ostringstream stringStream;
         stringStream << "EQ_CONFIG_" << (++_configID);
         config->setName( stringStream.str( ));
     }
@@ -208,11 +206,11 @@ void Server::_handleCommands()
                 break;
 
             case net::COMMAND_ERROR:
-                EQERROR << "Error handling command " << command << endl;
-                abort();
+                EQABORT( "Error handling command " << command );
+                break;
             default:
-                EQERROR << "Unknown command result" << endl;
-                abort();
+                EQABORT( "Unknown command result" );
+                break;
         }
 
         command->release();
@@ -224,7 +222,7 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
 {
     const eq::ServerChooseConfigPacket* packet = 
         command.getPacket<eq::ServerChooseConfigPacket>();
-    EQINFO << "Handle choose config " << packet << endl;
+    EQINFO << "Handle choose config " << packet << std::endl;
 
     // TODO
     Config* config = _configs.empty() ? 0 : _configs[0];
@@ -245,17 +243,17 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     registerConfig( appConfig );
 
     // TODO: move to open?: appConfig->setAppName( appName );
-    const string rendererInfo = packet->rendererInfo;
-    const size_t colonPos     = rendererInfo.find( '#' );
-    const string workDir      = rendererInfo.substr( 0, colonPos );
-    const string renderClient = rendererInfo.substr( colonPos + 1 );
+    const std::string rendererInfo = packet->rendererInfo;
+    const size_t      colonPos     = rendererInfo.find( '#' );
+    const std::string workDir      = rendererInfo.substr( 0, colonPos );
+    const std::string renderClient = rendererInfo.substr( colonPos + 1 );
  
     const uint32_t configID = appConfig->getID();
     appConfig->setWorkDir( workDir );
     appConfig->setRenderClient( renderClient );
     _appConfigs[configID] = appConfig;
 
-    const string& name = appConfig->getName();
+    const std::string& name = appConfig->getName();
 
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = configID;
@@ -274,16 +272,16 @@ net::CommandResult Server::_cmdUseConfig( net::Command& command )
 {
     const eq::ServerUseConfigPacket* packet = 
         command.getPacket<eq::ServerUseConfigPacket>();
-    EQINFO << "Handle use config " << packet << endl;
+    EQINFO << "Handle use config " << packet << std::endl;
 
-    string       configInfo   = packet->configInfo;
-    size_t       colonPos     = configInfo.find( '#' );
-    const string workDir      = configInfo.substr( 0, colonPos );
+    std::string    configInfo = packet->configInfo;
+    size_t           colonPos = configInfo.find( '#' );
+    const std::string workDir = configInfo.substr( 0, colonPos );
     
-    configInfo                = configInfo.substr( colonPos + 1 );
-    colonPos                  = configInfo.find( '#' );
-    const string renderClient = configInfo.substr( 0, colonPos );
-    const string configData   = configInfo.substr( colonPos + 1 );
+    configInfo = configInfo.substr( colonPos + 1 );
+    colonPos   = configInfo.find( '#' );
+    const std::string renderClient = configInfo.substr( 0, colonPos );
+    const std::string configData   = configInfo.substr( colonPos + 1 );
  
     Loader loader;
     Config* config = loader.parseConfig( configData.c_str( ));
@@ -293,13 +291,14 @@ net::CommandResult Server::_cmdUseConfig( net::Command& command )
 
     if( !config )
     {
-        EQWARN << "Use config parsing failed " << endl;
+        EQWARN << "Use config parsing failed " << std::endl;
         reply.configID = EQ_ID_INVALID;
         node->send( reply );
         return net::COMMAND_HANDLED;
     }
 
-    EQINFO << "Using config: " << endl << Global::instance() << config << endl;
+    EQINFO << "Using config: " << std::endl << Global::instance() << config
+           << std::endl;
     config->setApplicationNetNode( node );
     config->_server = this;
     registerConfig( config );
@@ -309,7 +308,7 @@ net::CommandResult Server::_cmdUseConfig( net::Command& command )
     config->setRenderClient( renderClient );
     _appConfigs[configID] = config;
 
-    const string& name = config->getName();
+    const std::string& name = config->getName();
 
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = configID;
@@ -327,7 +326,7 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
 {
     const eq::ServerReleaseConfigPacket* packet = 
         command.getPacket<eq::ServerReleaseConfigPacket>();
-    EQINFO << "Handle release config " << packet << endl;
+    EQINFO << "Handle release config " << packet << std::endl;
 
     eq::ServerReleaseConfigReplyPacket reply( packet );
     Config*                            config = _appConfigs[packet->configID];
@@ -335,14 +334,14 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
 
     if( !config )
     {
-        EQWARN << "Release request for unknown config" << endl;
+        EQWARN << "Release request for unknown config" << std::endl;
         node->send( reply );
         return net::COMMAND_HANDLED;
     }
 
     if( config->isRunning( ))
     {
-        EQWARN << "Release of running configuration" << endl;
+        EQWARN << "Release of running configuration" << std::endl;
         config->exit(); // Make sure config is exited
     }
 
@@ -358,7 +357,7 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
     delete config;
 
     node->send( reply );
-    EQLOG( LOG_ANY ) << "----- Released Config -----" << endl;
+    EQLOG( base::LOG_ANY ) << "----- Released Config -----" << std::endl;
 
     return net::COMMAND_HANDLED;
 }
@@ -374,11 +373,11 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
     if( reply.result )
     {
         _running = false;
-        EQINFO << "Shutting down server" << endl;
+        EQINFO << "Shutting down server" << std::endl;
     }
     else
         EQWARN << "Ignoring shutdown request, " << _appConfigs.size() 
-               << " configs still active" << endl;
+               << " configs still active" << std::endl;
 
     net::NodePtr node = command.getNode();
     node->send( reply );
@@ -390,8 +389,8 @@ std::ostream& operator << ( std::ostream& os, const Server* server )
     if( !server )
         return os;
     
-    os << disableFlush << disableHeader << "server " << endl;
-    os << "{" << endl << indent;
+    os << base::disableFlush << base::disableHeader << "server " << std::endl;
+    os << "{" << std::endl << base::indent;
     
     const net::ConnectionDescriptionVector& cds =
         server->getConnectionDescriptions();
@@ -406,7 +405,8 @@ std::ostream& operator << ( std::ostream& os, const Server* server )
 
         os << *i;
     
-    os << exdent << "}"  << enableHeader << enableFlush << endl;
+    os << base::exdent << "}"  << base::enableHeader << base::enableFlush
+       << std::endl;
 
     return os;
 }

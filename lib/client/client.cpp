@@ -29,9 +29,6 @@
 #include <eq/net/connection.h>
 #include <eq/base/dso.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 typedef net::CommandFunc<Client> ClientFunc;
@@ -43,12 +40,12 @@ Client::Client()
         : _nodeThreadQueue( 0 )
         , _running( false )
 {
-    EQINFO << "New client at " << (void*)this << endl;
+    EQINFO << "New client at " << (void*)this << std::endl;
 }
 
 Client::~Client()
 {
-    EQINFO << "Delete client at " << (void*)this << endl;
+    EQINFO << "Delete client at " << (void*)this << std::endl;
     stopListening();
 }
 
@@ -70,12 +67,12 @@ void Client::setWindowSystem( const WindowSystem windowSystem )
     {
         _nodeThreadQueue->setWindowSystem( windowSystem );
         EQINFO << "Client command message pump set up for " << windowSystem
-               << endl;
+               << std::endl;
     }
     else if( _nodeThreadQueue->getWindowSystem() != windowSystem )
         EQWARN << "Can't switch to window system " << windowSystem 
                << ", already using " <<  _nodeThreadQueue->getWindowSystem()
-               << endl;
+               << std::endl;
 }
 
 bool Client::stopListening()
@@ -100,16 +97,15 @@ bool Client::connectServer( ServerPtr server )
             new net::ConnectionDescription;
         connDesc->TCPIP.port = EQ_DEFAULT_PORT;
     
-        const string globalServer = Global::getServer();
-        const char*  envServer    = getenv( "EQ_SERVER" );
-        string       address      = !globalServer.empty() ? globalServer :
-                                    envServer             ? envServer : 
-                                    "localhost";
+        const std::string globalServer = Global::getServer();
+        const char* envServer = getenv( "EQ_SERVER" );
+        std::string address = !globalServer.empty() ? globalServer :
+                               envServer            ? envServer : "localhost";
 
         if( !connDesc->fromString( address ))
-            EQWARN << "Can't parse server address " << address << endl;
+            EQWARN << "Can't parse server address " << address << std::endl;
         EQASSERT( address.empty( ));
-        EQINFO << "Connecting to " << connDesc->toString() << endl;
+        EQINFO << "Connecting to " << connDesc->toString() << std::endl;
 
         server->addConnectionDescription( connDesc );
 
@@ -202,7 +198,7 @@ bool Client::disconnectServer( ServerPtr server )
 {
     if( !server->isConnected( ))
     {
-        EQWARN << "Trying to disconnect unconnected server" << endl;
+        EQWARN << "Trying to disconnect unconnected server" << std::endl;
         return false;
     }
 
@@ -218,7 +214,7 @@ bool Client::disconnectServer( ServerPtr server )
 
     const int success = disconnect( server.get( ));
     if( !success )
-        EQWARN << "Server disconnect failed" << endl;
+        EQWARN << "Server disconnect failed" << std::endl;
 
     // cleanup
     _nodeThreadQueue->flush();
@@ -244,7 +240,7 @@ net::NodePtr Client::createNode( const uint32_t type )
 
 bool Client::clientLoop()
 {
-    EQINFO << "Entered client loop" << endl;
+    EQINFO << "Entered client loop" << std::endl;
 
     _running = true;
     while( _running )
@@ -280,15 +276,15 @@ void Client::processCommand()
             break;
             
         case net::COMMAND_ERROR:
-            EQERROR << "Error handling command packet" << endl;
-            abort();
+            EQABORT( "Error handling command packet" );
+            break;
     }
     command->release();
 }
 
 bool Client::dispatchCommand( net::Command& command )
 {
-    EQVERB << "dispatchCommand " << command << endl;
+    EQVERB << "dispatchCommand " << command << std::endl;
 
     switch( command->datatype )
     {
@@ -312,7 +308,7 @@ bool Client::dispatchCommand( net::Command& command )
 
 net::CommandResult Client::invokeCommand( net::Command& command )
 {
-    EQVERB << "invokeCommand " << command << endl;
+    EQVERB << "invokeCommand " << command << std::endl;
 
     switch( command->datatype )
     {
