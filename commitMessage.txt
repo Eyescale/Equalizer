@@ -1,12 +1,9 @@
-eqPly:
-- Add message with new model name when switching model
-- Switch to faster VBO rendering on OS X
-- Start using std::string in kd-Tree
+eqPly: make VBO rendering less verbose
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

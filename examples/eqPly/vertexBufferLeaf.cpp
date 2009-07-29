@@ -203,7 +203,6 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
 
     case RENDER_MODE_BUFFER_OBJECT:
     {
-        MESHINFO << "Setting up VBO rendering for leaf " << this << "." << endl;
         const char* charThis = reinterpret_cast< const char* >( this );
         
         if( data[VERTEX_OBJECT] == state.INVALID )
