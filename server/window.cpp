@@ -49,7 +49,8 @@ void Window::_construct()
     _fixedPVP        = false;
     _lastDrawChannel = 0;
     _maxFPS          = numeric_limits< float >::max();
-    _doSwap          = false;
+    _swapFinish      = false;
+    _swap            = false;
     _nvSwapBarrier   = 0;
     _nvNetBarrier    = 0;
     EQINFO << "New window @" << (void*)this << endl;
@@ -375,13 +376,51 @@ void Window::_resetSwapBarriers()
 
 net::Barrier* Window::joinSwapBarrier( net::Barrier* barrier )
 {
+    _swapFinish = true;
+
     if( !barrier )
     {
         Node* node = getNode();
         barrier = node->getBarrier();
+        barrier->increase();
+
         _masterSwapBarriers.push_back( barrier );
+        _swapBarriers.push_back( barrier );
+        return barrier;
     }
 
+    EQASSERT( _pipe );
+    const WindowVector& windows = _pipe->getWindows();
+    bool beforeSelf = true;
+
+    // Check if another window in the same thread is using the swap barrier
+    for( WindowVector::const_iterator i = windows.begin(); 
+         i != windows.end(); ++i )
+    {
+        Window* window = *i;
+
+        if( window == this ) // skip self
+        {
+            beforeSelf = false;
+            continue;
+        }
+
+        net::BarrierVector& barriers = window->_swapBarriers;
+        net::BarrierVector::iterator j =
+            std::find( barriers.begin(), barriers.end(), barrier );
+        if( j == barriers.end( ))
+            continue;
+
+        if( beforeSelf ) // some earlier window will do the barrier for us
+            return barrier;
+            
+        // else we will do the barrier, remove from later window
+        barriers.erase( j );
+        _swapBarriers.push_back( barrier );
+        return barrier;
+    }
+
+    // No other window on this pipe does the barrier yet
     barrier->increase();
     _swapBarriers.push_back( barrier );
     return barrier;
@@ -394,7 +433,18 @@ net::Barrier* Window::joinNVSwapBarrier( const SwapBarrier* swapBarrier,
                   "Only one NV_swap_group barrier per window allowed" );
 
     _nvSwapBarrier = swapBarrier;
-    _nvNetBarrier = joinSwapBarrier( netBarrier );
+    _nvNetBarrier = netBarrier;
+    // no _swapFinish = true since NV_swap_group takes care of this
+
+    if( !_nvNetBarrier )
+    {
+        Node* node = getNode();
+        _nvNetBarrier = node->getBarrier();
+        _masterSwapBarriers.push_back( _nvNetBarrier );
+    }
+
+    _nvNetBarrier->increase();
+    _swapBarriers.push_back( _nvNetBarrier );
     return _nvNetBarrier;
 }
 
@@ -561,7 +611,7 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     EQASSERT( _state == STATE_RUNNING );
     EQASSERT( _active > 0 );
 
-    _doSwap = false;
+    _swap = false;
 
     eq::WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
@@ -575,7 +625,15 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     {
         Channel* channel = *i;
         if( channel->isActive( ))
-            _doSwap |= channel->update( frameID, frameNumber );
+            _swap |= channel->update( frameID, frameNumber );
+    }
+
+    if( _swapFinish )
+    {
+        eq::WindowFinishPacket packet;
+        send( packet );
+        EQLOG( eq::LOG_TASKS ) << "TASK finish  " << &packet << endl;
+        _swapFinish = false;
     }
 }
 
@@ -595,8 +653,6 @@ void Window::updatePost( const uint32_t frameID,
 
 void Window::_updateSwap( const uint32_t frameNumber )
 {
-    bool doFinish = true;
-
     if( _maxFPS < numeric_limits< float >::max( ))
     {
         eq::WindowThrottleFramerate packetThrottle;
@@ -613,19 +669,12 @@ void Window::_updateSwap( const uint32_t frameNumber )
          i != _swapBarriers.end(); ++i )
     {
         const net::Barrier*   barrier = *i;
+
         if( barrier->getHeight() <= 1 )
         {
-            EQWARN << "Ignoring swap barrier of height " << barrier->getHeight()
+            EQINFO << "Ignoring swap barrier of height " << barrier->getHeight()
                    << endl;
             continue;
-        }
-
-        if( doFinish && barrier != _nvNetBarrier )
-        {
-            eq::WindowFinishPacket packet;
-            send( packet );
-            EQLOG( eq::LOG_TASKS ) << "TASK finish  " << &packet << endl;
-            doFinish = false;
         }
 
         eq::WindowBarrierPacket packet;
@@ -661,7 +710,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
 
     _resetSwapBarriers();
 
-    if( _doSwap )
+    if( _swap )
     {
         eq::WindowSwapPacket packet;
 

@@ -1,5 +1,11 @@
 # stress-test config using multiple windows and a swap barrier, using a mixture
 # of singlepipe and multipipe nodes.
+
+global
+{
+    EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER OFF
+}
+
 server
 {
     config
@@ -12,6 +18,7 @@ server
                 window
                 {
                     viewport [ .025 .025 .3 .3 ]
+                    attributes { hint_doublebuffer ON }
                     channel { name "channel1" }
                 }
             }

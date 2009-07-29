@@ -32,6 +32,7 @@ namespace net
 class Node;
 class Session;
 class Object;
+class Barrier;
 class Command;
 class Connection;
 class ConnectionDescription;
@@ -47,6 +48,8 @@ typedef base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 typedef std::vector< NodePtr >                   NodeVector;
 /** A vector of Objects. */
 typedef std::vector< Object* >                   ObjectVector;
+/** A vector of Barriers. */
+typedef std::vector< Barrier* >                  BarrierVector;
 /** A vector of ConnectionPtr's. */
 typedef std::vector< ConnectionPtr >             ConnectionVector;
 /** A vector of ConnectionDescriptionPtr's. */

@@ -319,8 +319,14 @@ namespace server
         /** The maximum frame rate allowed for this window. */
         float _maxFPS;
 
-        /** true if something was done during the last update. */
-        bool _doSwap;
+        /** The flag if the window has to execute a finish */
+        bool _swapFinish;
+
+        /** 
+         * The flag if the window has to swap, i.e, something was done during
+         * the last update.
+         */
+        bool _swap;
 
         /** 
          * true if the pixel viewport is immutable, false if the viewport is
@@ -329,10 +335,10 @@ namespace server
         bool _fixedPVP;
 
         /** The list of master swap barriers for the current frame. */
-        std::vector<net::Barrier*> _masterSwapBarriers;
+        net::BarrierVector _masterSwapBarriers;
         /** The list of slave swap barriers for the current frame. */
-        std::vector<net::Barrier*> _swapBarriers;
-        
+        net::BarrierVector _swapBarriers;
+
         /** The hardware swap barrier to use. */
         const SwapBarrier* _nvSwapBarrier;
 

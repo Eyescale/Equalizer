@@ -1,9 +1,20 @@
-eqPly: make VBO rendering less verbose
+Implement 2509147: Passive stereo swap sync with one pipe
+
+Multiple windows on the same pipe can now join the same software swap
+barrier. All windows will execute a finish, but the barrier will only be
+executed by the first window. Since all windows have finished before
+swapBuffers, the first window will block in the barrier, and all
+subsequent windows will swap immediately afterwards since all commands
+have been finished already. Each window will flush at the end of a frame
+to ensure timely execution of the swap command.
+
+The behaviour of passive stereo on one pipe with hardware swapbarrier
+needs to be tested.
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

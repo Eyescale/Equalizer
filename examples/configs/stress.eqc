@@ -193,7 +193,7 @@ server
                     bottom_right [  2   -2.5 -4 ]
                     top_left     [  0.8 -0.6 -4 ]
                 }
-                // no swapbarrier {} - same pipe thread as channel8
+                swapbarrier {}
             }
         }
     }    
