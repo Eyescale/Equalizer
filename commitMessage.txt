@@ -1,4 +1,4 @@
-Release Candidate of Programming Guide
+Programming Guide: update standalone cover
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
