@@ -1,62 +1,52 @@
-# 2-window DFRLoadBalancer config
+# 1-window DFR (fixed-framerate) config
 server
 {
     config
     {
-  
         appNode
         {
             pipe
             {
                 window
                 {
-                    name "render buffer"
-                    # attributes { hint_drawable pbuffer }
-                    viewport [ 500 100 1000 800 ]
-                    channel
-                    {
-                        name "channel1"
-                    }
-                }
-            }
-
-            pipe
-            {
-                window
-                {
                     name "Dynamic Frame Resize"
                     viewport [ 20 100 480 300 ]
+
                     channel
                     {
-                        name "dest"
+                        name "buffer"
+                        viewport [ 0 0 2048 2048 ]
+                        drawable [ FBO_COLOR ]
+                    }
+                    channel
+                    {
+                        name "channel"
                     }
                 }
             }
         }
         compound
         { 
+            channel "channel"
             wall
             {
                 bottom_left  [ -.32 -.2 -1 ]
                 bottom_right [  .32 -.2 -1 ]
                 top_left     [ -.32  .2 -1 ]
             }
-            channel "dest"
-
-            
 
             compound
             { 
-                channel "channel1"
+                channel "buffer"
                 DFR_equalizer
                 { 
                      framerate 15.0
                      damping 0.5
                 }
-                outputframe { name "frame.DFR" }
+                outputframe { type texture }
             }
 
-            inputframe { name "frame.DFR" }
+            inputframe { name "frame.buffer" }
         }
     }    
 }

@@ -22,7 +22,7 @@
 #include <eq/base/log.h>
 
 // assertions
-#define EQ_NO_RELEASE_ASSERT
+// #define EQ_RELEASE_ASSERT
 
 namespace eq
 {
@@ -37,11 +37,8 @@ EQ_EXPORT void checkHeap();
 }
 
 #ifdef NDEBUG
-#  ifdef EQ_NO_RELEASE_ASSERT
-#    define EQASSERT(x)
-#    define EQASSERTINFO(x, info)
-#    define EQCHECK(x) { x; }
-#  else
+
+#  ifdef EQ_RELEASE_ASSERT
 #    define EQASSERT(x)                                                 \
     {                                                                   \
         if( !(x) )                                                      \
@@ -57,7 +54,12 @@ EQ_EXPORT void checkHeap();
         eq::base::checkHeap();                                          \
     }
 #    define EQCHECK(x) { const bool eqResult = x; EQASSERTINFO( eqResult, #x ) }
+#  else
+#    define EQASSERT(x)
+#    define EQASSERTINFO(x, info)
+#    define EQCHECK(x) { x; }
 #  endif
+
 #  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl \
                                     << eq::base::forceFlush; }
 #  define EQUNREACHABLE   { EQERROR << "Unreachable code" << std::endl  \

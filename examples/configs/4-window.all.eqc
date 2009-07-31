@@ -89,6 +89,20 @@ server
         }
         layout
         {
+            name "DB_Stream"
+            view
+            {
+                viewport [ 0 .5 .5 .5 ]
+                wall
+                {
+                    bottom_left  [ -.5 -.5 -1 ]
+                    bottom_right [  .5 -.5 -1 ]
+                    top_left     [ -.5  .5 -1 ]
+                }
+            }
+        }
+        layout
+        {
             name "DirectSend"
             view
             {
@@ -219,6 +233,7 @@ server
             layout "2D"
             layout "WallLB"
             layout "DB"
+            layout "DB_Stream"
             layout "DirectSend"
             layout "BinarySwap"
             layout "Eye"
@@ -360,6 +375,39 @@ server
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
             inputframe { name "frame.channel4" }
+        }            
+
+        # DB_Stream compound
+        compound
+        {
+            channel ( segment 0 layout "DB_Stream" view 0 )
+            buffer [ COLOR DEPTH ]
+
+            compound
+            { 
+                channel "channel4"
+                range [ 0 .25 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel3"
+                range [ .25 .5 ]
+                inputframe { name "frame.channel4" }
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel2"
+                range [ .5 .75 ]
+                inputframe { name "frame.channel3" }
+                outputframe {}
+            }
+            compound
+            {
+                range [ .75 1 ]
+                inputframe { name "frame.channel2" }
+            }
         }            
 
         # Eye compound

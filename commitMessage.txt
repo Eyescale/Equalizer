@@ -3,7 +3,7 @@ Update README with valgrind command line
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
