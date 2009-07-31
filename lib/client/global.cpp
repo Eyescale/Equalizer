@@ -118,8 +118,7 @@ StringVector Global::_initPluginDirectories()
         pluginDirectories.push_back( ".eqPlugins" );
 
         char cwd[MAXPATHLEN];
-        getcwd( cwd, MAXPATHLEN );
-        pluginDirectories.push_back( cwd );
+        pluginDirectories.push_back( getcwd( cwd, MAXPATHLEN ));
 
 #ifdef WIN32
         if( GetModuleFileName( 0, cwd, MAXPATHLEN ) > 0 )

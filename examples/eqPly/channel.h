@@ -53,7 +53,7 @@ namespace eqPly
 
     private:
         void _drawModel( const Model* model );
-        void _drawLogo();
+        void _drawOverlay();
         void _drawHelp();
         void _initFrustum( eq::FrustumCullerf& frustum, 
                            const mesh::BoundingSphere& boundingSphere );

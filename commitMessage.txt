@@ -1,9 +1,10 @@
-Fix release warnings on gcc 4.2/Ubuntu 8.04
+Subtle, potential bugfix related to getcwd()
+eqPly: outline view
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[ ] Bugfix
-[ ] New Feature
+[x] Bugfix
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

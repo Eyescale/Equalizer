@@ -278,20 +278,18 @@ void Channel::_drawModel( const Model* model )
 
 void Channel::frameViewFinish( const uint32_t frameID )
 {
-    _drawLogo();
+    _drawOverlay();
     _drawHelp();
 }
 
-void Channel::_drawLogo()
+void Channel::_drawOverlay()
 {
     // Draw the overlay logo
-    const Window*  window      = static_cast<Window*>( getWindow( ));
-    GLuint         texture;
-    eq::Vector2i size;
+    const Window* window      = static_cast<Window*>( getWindow( ));
+    GLuint        texture;
+    eq::Vector2i  size;
         
     window->getLogoTexture( texture, size );
-    if( !texture )
-        return;
         
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     glMatrixMode( GL_PROJECTION );
@@ -302,33 +300,54 @@ void Channel::_drawLogo()
     
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_LIGHTING );
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    
-    glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, texture );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                    GL_LINEAR );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
-                    GL_LINEAR );
-    
     glColor3f( 1.0f, 1.0f, 1.0f );
-    glBegin( GL_TRIANGLE_STRIP ); {
-        glTexCoord2f( 0.0f, 0.0f );
-        glVertex3f( 5.0f, 5.0f, 0.0f );
+
+    // border
+    const eq::PixelViewport& pvp = getPixelViewport();
+    const eq::Viewport& vp = getViewport();
+    const float w = pvp.w / vp.w - .5f;
+    const float h = pvp.h / vp.h - .5f;
+    EQINFO << w << ", " << h << std::endl;
+
+    glBegin( GL_LINE_LOOP );
+    {
+        glVertex3f( .5f, .5f, 0.f );
+        glVertex3f(   w, .5f, 0.f );
+        glVertex3f(   w,   h, 0.f );
+        glVertex3f( .5f,   h, 0.f );
+    } 
+    glEnd();
+
+    // logo
+    if( texture )
+    {
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
         
-        glTexCoord2f( size.x(), 0.0f );
-        glVertex3f( size.x() + 5.0f, 5.0f, 0.0f );
-        
-        glTexCoord2f( 0.0f, size.y() );
-        glVertex3f( 5.0f, size.y() + 5.0f, 0.0f );
-        
-        glTexCoord2f( size.x(), size.y() );
-        glVertex3f( size.x() + 5.0f, size.y() + 5.0f, 0.0f );
-    } glEnd();
+        glEnable( GL_TEXTURE_RECTANGLE_ARB );
+        glBindTexture( GL_TEXTURE_RECTANGLE_ARB, texture );
+        glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
+                         GL_LINEAR );
+        glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
+                         GL_LINEAR );
     
-    glDisable( GL_TEXTURE_RECTANGLE_ARB );
-    glDisable( GL_BLEND );
+        glBegin( GL_TRIANGLE_STRIP ); {
+            glTexCoord2f( 0.0f, 0.0f );
+            glVertex3f( 5.0f, 5.0f, 0.0f );
+            
+            glTexCoord2f( size.x(), 0.0f );
+            glVertex3f( size.x() + 5.0f, 5.0f, 0.0f );
+            
+            glTexCoord2f( 0.0f, size.y() );
+            glVertex3f( 5.0f, size.y() + 5.0f, 0.0f );
+            
+            glTexCoord2f( size.x(), size.y() );
+            glVertex3f( size.x() + 5.0f, size.y() + 5.0f, 0.0f );
+        } glEnd();
+    
+        glDisable( GL_TEXTURE_RECTANGLE_ARB );
+        glDisable( GL_BLEND );
+    }
     glEnable( GL_LIGHTING );
     glEnable( GL_DEPTH_TEST );
 }
