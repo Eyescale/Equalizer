@@ -1,9 +1,9 @@
-Update README with valgrind command line
+Remove some more config files
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
