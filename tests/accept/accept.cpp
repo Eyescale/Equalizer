@@ -147,13 +147,13 @@ int main( int argc, char **argv )
                     connection = connectionSet.getConnection();
                     connectionSet.removeConnection( connection );
 
-                    uint32_t* buffer( 0 );
+                    void* bufferPtr( 0 );
                     uint64_t bytes( 0 );
-                    connection->getRecvData( reinterpret_cast<void**>( &buffer),
-                                             &bytes );
-                    TEST( buffer );
+                    connection->getRecvData( &bufferPtr, &bytes );
+
+                    TEST( bufferPtr );
                     TEST( bytes == sizeof( uint32_t ));
-                    delete buffer;
+                    delete reinterpret_cast< uint32_t* >( bufferPtr );
 
                     TESTINFO( connection->getRefCount() == 1, 
                               connection->getRefCount( ));

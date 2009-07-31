@@ -316,24 +316,30 @@ bool Node::stopListening()
     return true;
 }
 
+void Node::_addConnection( ConnectionPtr connection )
+{
+    _connectionSet.addConnection( connection );
+    connection->recvNB( new uint64_t, sizeof( uint64_t ));
+}
+
 void Node::_removeConnection( ConnectionPtr connection )
 {
     EQASSERT( connection.isValid( ));
 
     _connectionSet.removeConnection( connection );
 
-    uint64_t* buffer( 0 );
+    void* buffer( 0 );
     if( !connection->isListening( ))
     {
         uint64_t bytes( 0 );
-        connection->getRecvData( reinterpret_cast<void**>( &buffer ), &bytes );
+        connection->getRecvData( &buffer, &bytes );
         EQASSERT( buffer );
         EQASSERT( bytes == sizeof( uint64_t ));
     }
 
     if( !connection->isClosed( ))
         connection->close(); // cancels pending IO's
-    delete buffer;
+    delete reinterpret_cast< uint64_t* >( buffer );
 }
 
 void Node::_cleanup()
@@ -391,12 +397,6 @@ void Node::_cleanup()
 #endif
 
     _nodes.clear();
-}
-
-void Node::_addConnection( ConnectionPtr connection )
-{
-    _connectionSet.addConnection( connection );
-    connection->recvNB( new uint64_t, sizeof( uint64_t ));
 }
 
 bool Node::_connectSelf()
@@ -828,34 +828,34 @@ bool Node::_handleData()
 
     EQVERB << "Handle data from " << node << endl;
 
-    uint64_t* size( 0 );
+    void* sizePtr( 0 );
     uint64_t bytes( 0 );
-    const bool gotSize = connection->recvSync( reinterpret_cast<void**>( &size),
-                                               &bytes );
+    const bool gotSize = connection->recvSync( &sizePtr, &bytes );
 
     if( !gotSize ) // Some systems signal data on dead connections.
     {
-        connection->recvNB( size, sizeof( uint64_t ));
+        connection->recvNB( sizePtr, sizeof( uint64_t ));
         return false;
     }
 
+    EQASSERT( sizePtr );
+    const uint64_t size = *reinterpret_cast< uint64_t* >( sizePtr );
     EQASSERT( size );
-    EQASSERT( *size );
     EQASSERT( bytes == sizeof( uint64_t ));
-    EQASSERT( *size > sizeof( *size ));
+    EQASSERT( size > sizeof( size ));
 
-    Command& command = _commandCache.alloc( node, this, *size );
+    Command& command = _commandCache.alloc( node, this, size );
     uint8_t* ptr = reinterpret_cast< uint8_t* >( command.getPacket()) +
                                                  sizeof( uint64_t );
 
-    connection->recvNB( ptr, *size - sizeof( uint64_t ));
+    connection->recvNB( ptr, size - sizeof( uint64_t ));
     const bool gotData = connection->recvSync( 0, 0 );    
 
     EQASSERT( gotData );
     EQASSERT( command.isValid( ));
 
     // start next receive
-    connection->recvNB( size, sizeof( uint64_t ));
+    connection->recvNB( sizePtr, sizeof( uint64_t ));
 
     if( !gotData )
     {
