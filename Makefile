@@ -61,5 +61,5 @@ else
 endif
 	@echo
 
-RELNOTES: ../../trunk/website/build/documents/RelNotes/RelNotes_0.6.html
+RELNOTES: ../../trunk/website/build/documents/RelNotes/RelNotes_0.9.html
 	links -dump $< > $@
