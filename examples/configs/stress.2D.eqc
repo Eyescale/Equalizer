@@ -1,3 +1,5 @@
+#Equalizer 1.0 ascii
+
 # stress-test config doing a many-to-one sort-first decomposition
 server
 {

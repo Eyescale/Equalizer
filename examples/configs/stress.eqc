@@ -1,3 +1,5 @@
+#Equalizer 1.0 ascii
+
 # stress-test config using multiple windows and a swap barrier, using a mixture
 # of singlepipe and multipipe nodes.
 server

@@ -1,3 +1,5 @@
+#Equalizer 1.0 ascii
+
 # 2-window sort-first, constant-framerate config running on a single pipe.
 server
 {

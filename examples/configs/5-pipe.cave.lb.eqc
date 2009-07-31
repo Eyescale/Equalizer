@@ -1,3 +1,5 @@
+#Equalizer 1.0 ascii
+
 # single-machine config simulating a 5-sided cave with 2x2 meter walls, using 
 # cross-loadbalancing. Switch windows to full-screen and distribute to
 # separate GPUs and machines for deployment.

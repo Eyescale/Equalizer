@@ -1,3 +1,5 @@
+#Equalizer 1.0 ascii
+
 # one pipe fullscreen config using two channels for passive stereo output.
 # assumes 8x3 aspect ratio of the pipe - change wall coordinates to adapt
 server

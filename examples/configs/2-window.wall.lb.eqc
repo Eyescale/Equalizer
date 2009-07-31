@@ -1,3 +1,5 @@
+#Equalizer 1.0 ascii
+
 # 2-window 'PowerWall' config using cross-loadbalancing with sort-first
 server
 {

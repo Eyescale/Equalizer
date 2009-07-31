@@ -1,3 +1,5 @@
+#Equalizer 1.0 ascii
+
 # Simple config executing the rendering from the application thread
 global
 {

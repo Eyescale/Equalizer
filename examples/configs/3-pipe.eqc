@@ -1,3 +1,5 @@
+#Equalizer 1.0 ascii
+
 # Simulating a three pipe system on a single pipe. Projections are set up for a
 # 1.5m high wall, 4x3 aspect ratio and 10% overlap. Add pipe device numbers and
 # use fullscreen windows to get a production setup.

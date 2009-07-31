@@ -1,9 +1,9 @@
-Programming Guide: update standalone cover
+Version all config files
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
