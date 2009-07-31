@@ -1,9 +1,9 @@
-Remove some more config files
+Release Candidate of Programming Guide
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
