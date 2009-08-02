@@ -235,7 +235,8 @@ void FrameData::syncReadback()
         {
             static uint32_t counter = 0;
             ostringstream stringstream;
-            stringstream << "Image_" << ++counter;
+
+            stringstream << "Image_" << setfill( '0' ) << setw(5) << ++counter;
             image->writeImages( stringstream.str( ));
         }
 #endif

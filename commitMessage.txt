@@ -1,10 +1,11 @@
-Subtle, potential bugfix related to getcwd()
-eqPly: outline view
+Better naming of dumped images
+Remove debug print from eqPly
+Minor bugfix with overlay message
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
-[x] Bugfix
-[x] New Feature
+[ ] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

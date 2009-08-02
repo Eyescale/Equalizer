@@ -302,12 +302,12 @@ void Channel::_drawOverlay()
     glDisable( GL_LIGHTING );
     glColor3f( 1.0f, 1.0f, 1.0f );
 
+#if 1
     // border
     const eq::PixelViewport& pvp = getPixelViewport();
     const eq::Viewport& vp = getViewport();
     const float w = pvp.w / vp.w - .5f;
     const float h = pvp.h / vp.h - .5f;
-    EQINFO << w << ", " << h << std::endl;
 
     glBegin( GL_LINE_LOOP );
     {
@@ -317,6 +317,7 @@ void Channel::_drawOverlay()
         glVertex3f( .5f,   h, 0.f );
     } 
     glEnd();
+#endif
 
     // logo
     if( texture )

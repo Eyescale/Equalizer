@@ -1,0 +1,69 @@
+#Equalizer 1.0 ascii
+
+# Configuration to create youtube stereo video:
+#  Capture the border-less window OR
+#  Enable the outputframe and set EQ_DUMP_IMAGES to 255 to dump rgb images
+#  Use the other window to drive the application
+#  Tag videos with yt3d:enable=true
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                device 1
+                window
+                {
+                    viewport [ 25 25 1280 720 ]
+#                    viewport [ 25 25 640 360 ]
+                    attributes { hint_decoration OFF }
+                    channel { viewport [  0 0 .5 1 ] name "left" }
+                    channel { viewport [ .5 0 .5 1 ] name "right" }
+                    channel { name "dump" }
+                }
+                window
+                {
+                    name "Control"
+                    viewport [ 25 800 640 360 ]
+                    
+                    channel { name "channel" }
+                }
+            }
+        }
+        compound
+        { 
+            wall
+            {
+                bottom_left  [ -.64 -.36 -.75 ]
+                bottom_right [  .64 -.36 -.75 ]
+                top_left     [ -.64  .36 -.75 ]
+            }
+
+            compound
+            {
+                channel "channel"
+                attributes { stereo_mode ANAGLYPH }
+#                eye [ LEFT RIGHT ]
+            }
+            compound
+            {
+                channel "left"
+                eye [ LEFT ]
+            }
+            compound
+            {
+                channel "right"
+                eye [ RIGHT ]
+            }
+            compound
+            {
+                channel "dump"
+                task [ READBACK ]
+#                outputframe {}
+            }
+        }
+    }    
+}
