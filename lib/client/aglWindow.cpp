@@ -25,6 +25,9 @@
 #include "pipe.h"
 #include "window.h"
 
+#define ERROR( code )                                               \
+    std::string( reinterpret_cast< const char* >( aglErrorString( code )))
+
 namespace eq
 {
 
@@ -325,9 +328,9 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
 
     AGLContext    shareCtx    = 0;
     const Window* shareWindow = _window->getSharedContextWindow();
-    if( shareWindow )
+    const OSWindow* shareOSWindow = shareWindow ? shareWindow->getOSWindow() : 0;
+    if( shareOSWindow )
     {
-        const OSWindow*  shareOSWindow = shareWindow->getOSWindow();
 
         EQASSERT( dynamic_cast< const AGLWindow* >( shareOSWindow ));
         const AGLWindow* shareAGLWindow = static_cast< const AGLWindow* >(
@@ -341,7 +344,7 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
     if( !context ) 
     {
         _window->setErrorMessage( "Could not create AGL context: " + 
-                                  aglGetError( ));
+                                  ERROR( aglGetError( )));
         Global::leaveCarbon();
         return 0;
     }
@@ -402,14 +405,16 @@ bool AGLWindow::configInitAGLPBuffer()
     if( !aglCreatePBuffer( pvp.w, pvp.h, GL_TEXTURE_RECTANGLE_EXT, GL_RGBA,
                            0, &pbuffer ))
     {
-        _window->setErrorMessage( "Could not create PBuffer: " + aglGetError());
+        _window->setErrorMessage( "Could not create PBuffer: " + 
+                                  ERROR( aglGetError( )));
         return false;
     }
 
     // attach to context
     if( !aglSetPBuffer( context, pbuffer, 0, 0, aglGetVirtualScreen( context )))
     {
-        _window->setErrorMessage( "aglSetPBuffer failed: " + aglGetError( ));
+        _window->setErrorMessage( "aglSetPBuffer failed: " +
+                                  ERROR( aglGetError( )));
         return false;
     }
 
@@ -461,12 +466,16 @@ bool AGLWindow::configInitAGLWindow()
     }
 
     // window
-    WindowAttributes winAttributes = kWindowStandardDocumentAttributes |
-                                     kWindowStandardHandlerAttribute   |
-                                     kWindowInWindowMenuAttribute;
+    const bool decoration = getIAttribute(Window::IATTR_HINT_DECORATION) != OFF;
+    WindowAttributes winAttributes = ( decoration ? 
+                                       kWindowStandardDocumentAttributes :
+                                       kWindowNoTitleBarAttribute | 
+                                       kWindowNoShadowAttribute   |
+                                       kWindowResizableAttribute  ) | 
+        kWindowStandardHandlerAttribute | kWindowInWindowMenuAttribute;
+
     // top, left, bottom, right
     const PixelViewport   pvp = _window->getPixelViewport();
-    const bool     decoration = (getIAttribute( Window::IATTR_HINT_DECORATION ) != OFF);
     const int32_t  menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
     Rect           windowRect = { pvp.y + menuHeight, pvp.x, 
                                   pvp.y + pvp.h + menuHeight,
@@ -474,19 +483,21 @@ bool AGLWindow::configInitAGLWindow()
     WindowRef      windowRef;
 
     Global::enterCarbon();
-    const OSStatus status     = CreateNewWindow( kDocumentWindowClass, 
-                                                 winAttributes,
-                                                 &windowRect, &windowRef );
+    const OSStatus status = CreateNewWindow( kDocumentWindowClass,
+                                             winAttributes,
+                                             &windowRect, &windowRef );
     if( status != noErr )
     {
-        _window->setErrorMessage( "Could not create carbon window: " + status );
+        std::stringstream error;
+        error << "Could not create carbon window: " << status;
+        _window->setErrorMessage( error.str( ));
         Global::leaveCarbon();
         return false;
     }
 
     // window title
-    const std::string&      name = _window->getName();
-          std::stringstream windowTitle;
+    const std::string& name = _window->getName();
+    std::stringstream windowTitle;
 
     if( name.empty( ))
     {
@@ -507,14 +518,16 @@ bool AGLWindow::configInitAGLWindow()
 #ifdef LEOPARD
     if( !aglSetWindowRef( context, windowRef ))
     {
-        _window->setErrorMessage( "aglSetWindowRef failed: " + aglGetError( ));
+        _window->setErrorMessage( "aglSetWindowRef failed: " +
+                                  ERROR( aglGetError( )));
         Global::leaveCarbon();
         return false;
     }
 #else
     if( !aglSetDrawable( context, GetWindowPort( windowRef )))
     {
-        _window->setErrorMessage( "aglSetDrawable failed: " + aglGetError( ));
+        _window->setErrorMessage( "aglSetDrawable failed: " +
+                                  ERROR( aglGetError( )));
         Global::leaveCarbon();
         return false;
     }
