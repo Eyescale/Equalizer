@@ -19,6 +19,7 @@
 #define EQNET_DATAISTREAM_H
 
 #include <eq/net/object.h>  // nested VERSION_NONE enum
+#include <eq/net/types.h>
 #include <eq/base/buffer.h> // member
 
 #include <iostream>
@@ -111,7 +112,6 @@ namespace net
 }
 }
 
-#include <eq/net/nodeID.h>
 namespace eq
 {
 namespace net

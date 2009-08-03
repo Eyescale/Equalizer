@@ -20,7 +20,6 @@
 
 #include "objectInstanceDataOStream.h"
 
-#include <eq/net/nodeID.h>             // for NodeIDHash
 #include <eq/net/objectCM.h>           // base class
 #include <eq/net/types.h>              // for NodeVector
 
@@ -36,6 +35,7 @@ namespace net
     /** 
      * An object change manager handling full versions and deltas for the master
      * instance.
+     * @internal
      */
     class DeltaMasterCM : public ObjectCM
     {
@@ -86,7 +86,7 @@ namespace net
         NodeVector _slaves;
 
         /** The number of object instances subscribed per slave node. */
-        NodeIDHash< uint32_t > _slavesCount;
+        base::UUIDHash< uint32_t > _slavesCount;
 
         /** The current version. */
         uint32_t _version;

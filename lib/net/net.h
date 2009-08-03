@@ -25,7 +25,6 @@
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 #include <eq/net/init.h>
-#include <eq/net/nodeID.h>
 #include <eq/net/object.h>
 
 #endif // EQNET_H

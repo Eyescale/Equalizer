@@ -20,7 +20,6 @@
 
 #include "objectInstanceDataOStream.h"
 
-#include <eq/net/nodeID.h>             // for NodeIDHash
 #include <eq/net/objectCM.h>           // base class
 #include <eq/net/types.h>              // for NodeVector
 
@@ -88,7 +87,7 @@ namespace net
         NodeVector _slaves;
 
         /** The number of object instances subscribed per slave node. */
-        NodeIDHash< uint32_t > _slavesCount;
+        base::UUIDHash< uint32_t > _slavesCount;
 
         /** The current head version. */
         uint32_t _version;

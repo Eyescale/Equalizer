@@ -33,7 +33,7 @@ namespace net
     /**
      * A std::ostream buffering and/or retaining data in a binary format.
      *
-     * Derived classes send the data using command packets.
+     * Derived classes send the data using the appropriate command packets.
      */
     class DataOStream
     {
@@ -154,7 +154,6 @@ namespace net
 }
 }
 
-#include <eq/net/nodeID.h>
 namespace eq
 {
 namespace net

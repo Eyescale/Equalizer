@@ -22,8 +22,8 @@
 #include <eq/net/commandCache.h>             // member
 #include <eq/net/commandQueue.h>             // member
 #include <eq/net/connectionSet.h>            // member
-#include <eq/net/nodeID.h>                   // member
 #include <eq/net/nodeType.h>                 // for TYPE_EQNET_NODE enum
+#include <eq/net/types.h>
 
 #include <eq/base/base.h>
 #include <eq/base/perThread.h>
@@ -526,7 +526,7 @@ namespace net
                                                              std::string& ));
 
         /** The connected nodes. */
-        NodeIDHash< NodePtr > _nodes;
+        base::UUIDHash< NodePtr > _nodes;
 
         /** The node for each connection. */
         typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;

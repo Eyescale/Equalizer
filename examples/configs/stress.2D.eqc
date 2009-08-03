@@ -3,6 +3,7 @@
 # stress-test config doing a many-to-one sort-first decomposition
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         latency 10

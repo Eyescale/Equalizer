@@ -386,7 +386,7 @@ void Node::_cleanup()
         EQINFO << _nodes.size() << " nodes connected during cleanup" << endl;
 
 #ifndef NDEBUG
-    for( NodeIDHash< NodePtr >::const_iterator i = _nodes.begin();
+    for( base::UUIDHash< NodePtr >::const_iterator i = _nodes.begin();
          i != _nodes.end(); ++i )
     {
         NodePtr node = i->second;
@@ -459,7 +459,7 @@ bool Node::connect( NodePtr node, ConnectionPtr connection )
 
 NodePtr Node::getNode( const NodeID& id ) const
 { 
-    NodeIDHash< NodePtr >::const_iterator iter = _nodes.find( id );
+    base::UUIDHash< NodePtr >::const_iterator iter = _nodes.find( id );
     if( iter == _nodes.end( ))
         return 0;
     return iter->second;
@@ -1541,7 +1541,7 @@ NodePtr Node::connect( const NodeID& nodeID )
     
     // Extract all node pointers - _nodes hash might be modified later
     NodeVector nodes;
-    for( NodeIDHash< NodePtr >::const_iterator i = _nodes.begin();
+    for( base::UUIDHash< NodePtr >::const_iterator i = _nodes.begin();
          i != _nodes.end(); ++i )
     {
         NodePtr node = i->second;
@@ -1566,7 +1566,7 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
 {
     EQASSERT( nodeID != NodeID::ZERO );
 
-    NodeIDHash< NodePtr >::const_iterator iter = _nodes.find( nodeID );
+    base::UUIDHash< NodePtr >::const_iterator iter = _nodes.find( nodeID );
     if( iter != _nodes.end( ))
         return iter->second;
 

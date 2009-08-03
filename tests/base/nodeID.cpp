@@ -17,7 +17,7 @@
 
 #include "test.h"
 
-#include <eq/net/nodeID.h>
+#include <eq/net/types.h>
 
 #include <stdlib.h>
 

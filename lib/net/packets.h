@@ -19,7 +19,7 @@
 #define EQNET_PACKETS_H
 
 #include <eq/net/commands.h> // used for CMD_ enums
-#include <eq/net/nodeID.h>   // member
+#include <eq/net/types.h>
 
 #include <eq/base/idPool.h> // for EQ_ID_*
 

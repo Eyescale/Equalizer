@@ -21,7 +21,6 @@
 #include "objectDeltaDataOStream.h" // member
 
 #include <eq/net/objectCM.h> // base class
-#include <eq/net/nodeID.h>   // for NodeIDHash
 #include <eq/net/types.h>    // for NodeVector
 
 #include <deque>
@@ -35,6 +34,7 @@ namespace net
     /** 
      * An object change manager handling only full versions for the master
      * instance.
+     * @internal
      */
     class FullMasterCM : public ObjectCM
     {
@@ -85,7 +85,7 @@ namespace net
         NodeVector _slaves;
 
         /** The number of object instances subscribed per slave node. */
-        NodeIDHash< uint32_t > _slavesCount;
+        base::UUIDHash< uint32_t > _slavesCount;
 
         /** The current version. */
         uint32_t _version;

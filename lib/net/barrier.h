@@ -18,9 +18,9 @@
 #ifndef EQNET_BARRIER_H
 #define EQNET_BARRIER_H
 
-#include <eq/net/object.h>
-#include <eq/net/nodeID.h>
-#include <eq/base/monitor.h>
+#include <eq/net/object.h>   // base class
+#include <eq/net/types.h>
+#include <eq/base/monitor.h> // member
 
 #include <map>
 

@@ -39,6 +39,7 @@ HEADER_SRC = \
 	base/thread.h \
 	base/timedLock.h \
 	base/types.h \
+	base/uuid.h \
 	net/barrier.h \
 	net/dispatcher.h \
 	net/bufferConnection.h \
@@ -61,7 +62,6 @@ HEADER_SRC = \
 	net/log.h \
 	net/net.h \
 	net/node.h \
-	net/nodeID.h \
 	net/nodeType.h \
 	net/object.h \
 	net/objectCM.h\
@@ -153,6 +153,7 @@ CXXFILES = \
 	base/requestHandler.cpp \
 	base/thread.cpp \
 	base/timedLock.cpp \
+	base/uuid.cpp \
 	net/barrier.cpp \
 	net/dispatcher.cpp \
 	net/bufferConnection.cpp \
@@ -172,7 +173,6 @@ CXXFILES = \
 	net/init.cpp \
 	net/namedPipeConnection.cpp \
 	net/node.cpp \
-	net/nodeID.cpp \
 	net/object.cpp \
 	net/objectCM.cpp \
 	net/objectDataIStream.cpp \

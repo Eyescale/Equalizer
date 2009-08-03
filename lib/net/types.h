@@ -20,6 +20,7 @@
 
 #include <eq/base/hash.h>
 #include <eq/base/refPtr.h>
+#include <eq/base/uuid.h>
 
 #include <list>
 #include <vector>
@@ -36,6 +37,9 @@ class Barrier;
 class Command;
 class Connection;
 class ConnectionDescription;
+
+/** A unique identifier for nodes. */
+typedef base::UUID NodeID;
 
 /** A reference pointer for Node pointers. */
 typedef base::RefPtr< Node >                  NodePtr;
