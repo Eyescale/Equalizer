@@ -1,6 +1,4 @@
-Better naming of dumped images
-Remove debug print from eqPly
-Minor bugfix with overlay message
+Minor tweak of youtube stereo config
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

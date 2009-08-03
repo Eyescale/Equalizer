@@ -58,12 +58,12 @@ server
                 channel "right"
                 eye [ RIGHT ]
             }
-            compound
-            {
-                channel "dump"
-                task [ READBACK ]
+#            compound
+#            {
+#                channel "dump"
+#                task [ READBACK ]
 #                outputframe {}
-            }
+#            }
         }
     }    
 }
