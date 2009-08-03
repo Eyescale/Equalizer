@@ -43,15 +43,20 @@ namespace eq
 
         /** @name Methods forwarded from eq::Pipe */
         //@{
+        /** Initialize the GPU. */
         virtual bool configInit( ) = 0;
 
+        /** De-initialize the GPU. */
         virtual void configExit( ) = 0;
         //@}
 
         /** @return the reason of the last error. */
         const std::string & getErrorMessage() const { return _error; }
 
+        /** @return the parent Pipe. */
         Pipe* getPipe() { return _pipe; }
+        
+        /** @return the parent Pipe. */
         const Pipe* getPipe() const { return _pipe; }
 
         /** @return the generic WGL function table for the pipe. */

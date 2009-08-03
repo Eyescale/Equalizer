@@ -31,6 +31,7 @@ namespace eqPixelBench
 {
 namespace
 {
+#pragma warning(disable: 411) // class defines no constructor to initialize ...
 struct EnumMap
 {
     const char*    formatString;
@@ -38,6 +39,7 @@ struct EnumMap
     const uint32_t format;
     const uint32_t type;
 };
+#pragma warning(default: 411)
 
 #define ENUM_MAP_ITEM( format, type )          \
     { #format, #type, format, type }

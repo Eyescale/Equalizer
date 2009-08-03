@@ -107,7 +107,7 @@ void CompressorRLE4BU::compress( const void* const inData,
                         static_cast< float >( nResults );
 
     const uint64_t* const data =
-        reinterpret_cast< const uint64_t* const >( inData );
+        reinterpret_cast< const uint64_t* >( inData );
 
 #pragma omp parallel for
     for( ssize_t i = 0; i < nResults; ++i )

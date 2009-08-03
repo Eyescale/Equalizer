@@ -864,31 +864,31 @@ static int calculateAndSaveDerivatives( const string& dst,
                 const unsigned char * prvP = curP  - wh;
                 const unsigned char * nxtP = curP  + wh;
                 int32_t gx = 
-                      nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
-                    3*nxtP[  1   ]+ 6*curP[  1   ]+ 3*prvP[  1   ]+
-                      nxtP[  1-w ]+ 3*curP[  1-w ]+   prvP[  1-w ]-
+                      nxtP[  w+1 ]+ 3*curP[  w+1 ]+   prvP[  w+1 ]+
+                    3*nxtP[    1 ]+ 6*curP[    1 ]+ 3*prvP[    1 ]+
+                      nxtP[ -w+1 ]+ 3*curP[ -w+1 ]+   prvP[ -w+1 ]-
 
-                      nxtP[ -1+w ]- 3*curP[ -1+w ]-   prvP[ -1+w ]-
-                    3*nxtP[ -1   ]- 6*curP[ -1   ]- 3*prvP[ -1   ]-
-                      nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
+                      nxtP[  w-1 ]- 3*curP[  w-1 ]-   prvP[  w-1 ]-
+                    3*nxtP[   -1 ]- 6*curP[   -1 ]- 3*prvP[   -1 ]-
+                      nxtP[ -w-1 ]- 3*curP[ -w-1 ]-   prvP[ -w-1 ];
 
                 int32_t gy = 
-                      nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
-                    3*nxtP[    w ]+ 6*curP[    w ]+ 3*prvP[    w ]+
-                      nxtP[ -1+w ]+ 3*curP[ -1+w ]+   prvP[ -1+w ]-
+                      nxtP[  w+1 ]+ 3*curP[  w+1 ]+   prvP[  w+1 ]+
+                    3*nxtP[  w   ]+ 6*curP[  w   ]+ 3*prvP[  w   ]+
+                      nxtP[  w-1 ]+ 3*curP[  w-1 ]+   prvP[  w-1 ]-
 
-                      nxtP[  1-w ]- 3*curP[  1-w ]-   prvP[  1-w ]-
-                    3*nxtP[   -w ]- 6*curP[   -w ]- 3*prvP[   -w ]-
-                      nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
+                      nxtP[ -w+1 ]- 3*curP[ -w+1 ]-   prvP[ -w+1 ]-
+                    3*nxtP[ -w   ]- 6*curP[ -w   ]- 3*prvP[ -w   ]-
+                      nxtP[ -w-1 ]- 3*curP[ -w-1 ]-   prvP[ -w-1 ];
 
                 int32_t gz = 
-                      nxtP[  1+w ]+ 3*nxtP[  1   ]+   nxtP[  1-w ]+
-                    3*nxtP[    w ]+ 6*nxtP[  0   ]+ 3*nxtP[   -w ]+
-                      nxtP[ -1+w ]+ 3*nxtP[ -1   ]+   nxtP[ -1-w ]-
+                      nxtP[  w+1 ]+ 3*nxtP[    1 ]+   nxtP[ -w+1 ]+
+                    3*nxtP[  w   ]+ 6*nxtP[    0 ]+ 3*nxtP[ -w   ]+
+                      nxtP[  w-1 ]+ 3*nxtP[   -1 ]+   nxtP[ -w-1 ]-
 
-                      prvP[  1+w ]- 3*prvP[  1   ]-   prvP[  1-w ]-
-                    3*prvP[   +w ]- 6*prvP[  0   ]- 3*prvP[   -w ]-
-                      prvP[ -1+w ]- 3*prvP[ -1   ]-   prvP[ -1-w ];
+                      prvP[  w+1 ]- 3*prvP[    1 ]-   prvP[ -w+1 ]-
+                    3*prvP[  w   ]- 6*prvP[    0 ]- 3*prvP[ -w   ]-
+                      prvP[  w-1 ]- 3*prvP[   -1 ]-   prvP[ -w-1 ];
 
 
                 int32_t length = static_cast<int32_t>(

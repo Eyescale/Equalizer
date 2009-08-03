@@ -1,4 +1,4 @@
-Doxygen tweaks
+ICC warning fixes (Max Makhinya, partial)
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
@@ -6,4 +6,4 @@ Doxygen tweaks
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

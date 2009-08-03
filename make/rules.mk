@@ -96,8 +96,8 @@ endif # PROGRAMS
 
 %.testOk: %
 	env EQ_LOG_LEVEL=WARN \
-		LD_LIBRARY_PATH="$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib:$(LD_LIBRARY_PATH)" \
-		DYLD_LIBRARY_PATH="$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib:$(DYLD_LIBRARY_PATH)" \
+		LD_LIBRARY_PATH="$(LD_PATH):$(LD_LIBRARY_PATH)" \
+		DYLD_LIBRARY_PATH="$(LD_PATH):$(DYLD_LIBRARY_PATH)" \
 		PATH="$(PATH):$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib" \
 		./$< && touch $@ || rm -f $@
 

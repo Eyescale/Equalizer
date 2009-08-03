@@ -22,6 +22,7 @@ export CFLAGS
 export CXXFLAGS
 export LDFLAGS
 export LD
+export LD_PATH
 export PC_LIBRARY_PATH
 
 # helper variables for directory-dependent stuff
@@ -48,6 +49,7 @@ SHADERS_PARSER  = $(TOP)/make/stringify.pl
 ifeq (0,${MAKELEVEL}) # top-level invocation - one-time declarations below
 
 LD        = $(CXX) # use c++ compiler for linking
+LD_PATH   = $(PWD)/$(LIBRARY_DIR)
 
 ifeq ($(findstring -O, $(CXXFLAGS)),-O) # assume release build...
 ifeq ($(findstring -g, $(CXXFLAGS)),-g) # ... unless -g was specified
@@ -68,10 +70,11 @@ endif
 
 # ICC settings
 ifeq ($(findstring icc, $(CXX)),icc)
-    ICC_DIR    ?= /opt/intel/cc/10.1.014
+    ICC_DIR    ?= /opt/intel/Compiler/11.1/046/
     DEFFLAGS   += -DEQ_USE_OPENMP
-    CXXFLAGS   += -openmp
-    LDFLAGS    += -L$(ICC_DIR)/lib -lirc -lguide -limf -lsvml
+    CXXFLAGS   += -openmp -Wno-deprecated -Wno-overloaded-virtual
+    LDFLAGS    += -L$(ICC_DIR)/lib/intel64 -lirc -lguide -limf -lsvml -lpthread
+    LD_PATH    += :$(ICC_DIR)/lib/intel64
     LD          = g++
 endif # icc
 

@@ -267,7 +267,7 @@ static inline void _compress( const void* const inData,
                         static_cast< float >( nResults );
 
     const ComponentType* const data = 
-        reinterpret_cast< const ComponentType* const >( inData );
+        reinterpret_cast< const ComponentType* >( inData );
     
 #pragma omp parallel for
     for( ssize_t i = 0; i < static_cast< ssize_t >( nResults ) ; i += 4 )

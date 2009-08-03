@@ -82,7 +82,7 @@ namespace base
         void disableFlush() { ++_blocked; } // use counted variable to allow
         void enableFlush()                  //   nested enable/disable calls
             { 
-                assert( _blocked && "Too many enableFlush on log stream" );
+                assert( _blocked );// Too many enableFlush on log stream
                 --_blocked;
                 if( !_blocked ) 
                     pubsync();

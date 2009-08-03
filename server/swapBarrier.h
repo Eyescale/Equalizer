@@ -47,10 +47,10 @@ namespace server
         void setName( const std::string& name ) { _name = name; }
         const std::string getName() const { return _name; }
 
-        const uint32_t getNVSwapGroup() const   { return _nvSwapGroup ; }
+        uint32_t getNVSwapGroup() const   { return _nvSwapGroup ; }
         void setNVSwapGroup( uint32_t nvGroup ) { _nvSwapGroup = nvGroup; }
 
-        const uint32_t getNVSwapBarrier() const { return _nvSwapBarrier; }
+        uint32_t getNVSwapBarrier() const { return _nvSwapBarrier; }
         void setNVSwapBarrier( uint32_t nvBarrier ) 
             { _nvSwapBarrier = nvBarrier; }
 
