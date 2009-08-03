@@ -39,7 +39,7 @@ namespace eq
 namespace net
 {
     /**
-     * Wraps the universally unique node identifier.
+     * Provides a universally unique node identifier.
      *
      * Not to be subclassed.
      */

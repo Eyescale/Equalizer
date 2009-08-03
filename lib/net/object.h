@@ -33,7 +33,13 @@ namespace net
     class Session;
     struct ObjectPacket;
 
-    /** A generic, distributed object. */
+    /** 
+     * A generic, distributed object.
+     *
+     * Please refer to the Programming Guide and examples on how to develop and
+     * use distributed objects.
+     * @sa eq::Object
+     */
     class Object : public Dispatcher
     {
     public:
@@ -67,39 +73,59 @@ namespace net
 #endif
         };
 
-        /** 
-         * Construct a new object.
-         */
+        /** Construct a new distributed object. */
         EQ_EXPORT Object();
 
+        /** Destruct the distributed object. */
         EQ_EXPORT virtual ~Object();
 
+        /** Called when object is attached to session. @internal */
         EQ_EXPORT virtual void attachToSession( const uint32_t id, 
                                                 const uint32_t instanceID, 
                                                 Session* session );
+
+        /** Called when object is detached from session. @internal */
         EQ_EXPORT virtual void detachFromSession();
 
         /** 
          * Make this object thread safe.
          * 
          * The caller has to ensure that no other thread is using this object
-         * when this function is called. It is primarily used by the session
-         * during object instantiation.
-         * @sa Session::getObject().
+         * when this function is called. If you don't call this function,
+         * certain operations, e.g., sync(), are not-threadsafe.
          */
         EQ_EXPORT virtual void makeThreadSafe();  
+        
+        /** @return true if the object has been made threadsafe, false if not. */
         bool isThreadSafe() const      { return _threadSafe; }
 
+        /**
+         * @return the local node to which this object is mapped, or 0 if the
+         *         object is not mapped.
+         */
         NodePtr getLocalNode();
+
+        /**
+         * @return the session to which this object is mapped, or 0 if the
+         *         object is not mapped.
+         */
         const Session* getSession() const { return _session; }
+
+        /**
+         * @return the session to which this object is mapped, or 0 if the
+         *         object is not mapped.
+         */
         Session* getSession()             { return _session; }
 
         /** @return the session-wide unique object identifier. */
         uint32_t getID() const         { return _id; }
+
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
 
-        /** @return if this instance is the master version. */
+        /** 
+         * @return true if this instance is the master version, false otherwise.
+         */
         EQ_EXPORT bool isMaster() const;
 
         /**
@@ -323,15 +349,16 @@ namespace net
 
         /** @name Packet Transmission */
         //@{
+        /** Send a packet to peer object instance(s) on another node. */
         bool send( NodePtr node, ObjectPacket& packet );
+
+        /** Send a packet to peer object instance(s) on another node. */
         bool send( NodePtr node, ObjectPacket& packet,
                    const std::string& string );
+
+        /** Send a packet to peer object instance(s) on another node. */
         bool send( NodePtr node, ObjectPacket& packet, 
                    const void* data, const uint64_t size );
-
-        //bool send( NodeVector& nodes, ObjectPacket& packet );
-        bool send( NodeVector nodes, ObjectPacket& packet, const void* data,
-                   const uint64_t size );
         //@}
 
     private:

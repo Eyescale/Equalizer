@@ -29,7 +29,8 @@ namespace net
     class Node;
 
     /** 
-     * The object change manager doing nothing, for unmapped objects.
+     * The NOP object change manager for unmapped objects.
+     * @internal
      */
     class NullCM : public ObjectCM
     {

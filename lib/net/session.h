@@ -93,8 +93,9 @@ namespace net
          * For object packets, invocation is forwarded to the appropriate
          * object(s).
          *
-         * @param packet the command packet.  @return the result of
-         * the operation.  @sa Dispatcher::invokeCommand
+         * @param packet the command packet.
+         * @return the result of the operation.
+         * @sa Dispatcher::invokeCommand
          */
         EQ_EXPORT virtual CommandResult invokeCommand( Command& packet );
         //@}

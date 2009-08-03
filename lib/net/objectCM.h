@@ -33,7 +33,8 @@ namespace net
      *
      * Each object has a change manager to create and store version
      * information. The type of change manager depends on the object
-     * implementation and if it is the master object or a slave object.
+     * implementation, and if it is the master object or a slave object.
+     * @internal
      */
     class ObjectCM : public Dispatcher
     {

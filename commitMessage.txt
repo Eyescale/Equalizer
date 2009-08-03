@@ -1,4 +1,4 @@
-ICC warning fixes (Max Makhinya, partial)
+Doxygen cleanups
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

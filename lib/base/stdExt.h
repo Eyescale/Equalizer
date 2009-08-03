@@ -31,16 +31,16 @@
 #ifdef __GNUC__              // GCC 3.1 and later
 #  include <ext/hash_map>
 #  include <ext/hash_set>
-/** Alias stde namespace to uniformly access stl extensions. */
+/* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = __gnu_cxx; 
 #else                        //  other compilers
 #  include <hash_map>
 #  include <hash_set>
 #  ifdef WIN32
-/** Alias stde namespace to uniformly access stl extensions. */
+/* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = stdext;
 #  else
-/** Alias stde namespace to uniformly access stl extensions. */
+/* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = std;
 #  endif
 #endif

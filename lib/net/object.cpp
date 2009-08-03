@@ -138,7 +138,8 @@ void Object::_setChangeManager( ObjectCM* cm )
 void Object::makeThreadSafe()
 {
     EQASSERT( _id == EQ_ID_INVALID );
-    if( _threadSafe ) return;
+    if( _threadSafe )
+        return;
 
     _threadSafe = true;
     _cm->makeThreadSafe();
@@ -173,20 +174,6 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, data, size );
-}
-
-bool Object::send( NodeVector nodes, ObjectPacket& packet, const void* data,
-                   const uint64_t size )
-{
-    EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
-    packet.sessionID = _session->getID();
-    packet.objectID  = _id;
-
-    ConnectionVector connections;
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-        connections.push_back( (*i)->getConnection( ));
-
-    return Connection::send( connections, packet, data, size );
 }
 
 void Object::becomeMaster()
