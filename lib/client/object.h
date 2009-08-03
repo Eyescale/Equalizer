@@ -83,7 +83,7 @@ namespace eq
         /** 
          * The changed parts of the object since the last pack().
          *
-         * Subclasses should define their own enum, starting at DIRTY_CUSTOM.
+         * Subclasses should define their own bits, starting at DIRTY_CUSTOM.
          */
         enum DirtyBits
         {

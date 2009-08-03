@@ -24,6 +24,7 @@
 
 namespace eq
 {
+    /** A distributed Object for frustum data */
     class Frustum : public Object
     {
     public:

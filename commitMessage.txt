@@ -1,5 +1,4 @@
-Shorten default config name to filename
-Minor cleanup in pixelbench
+Doxygen tweaks
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
@@ -7,4 +6,4 @@ Minor cleanup in pixelbench
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

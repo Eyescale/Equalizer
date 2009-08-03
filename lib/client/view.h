@@ -68,6 +68,10 @@ namespace server
         /** @return the entity tracking this view, 0 for untracked views. */
         Observer* getObserver() { return _observer; }
         const Observer* getObserver() const { return _observer; }
+
+        /** @warning  Undocumented - may not be supported in the future */
+        EQ_EXPORT void setOverdraw( const Vector2i& pixels );
+        const Vector2i& getOverdraw() const { return _overdraw; }
         //@}
 
         /** @name Operations */
@@ -92,10 +96,6 @@ namespace server
          */
         EQ_EXPORT virtual bool handleEvent( const Event& event );
         //@}
-
-        /** @warning  Undocumented - may not be supported in the future */
-        EQ_EXPORT void setOverdraw( const Vector2i& pixels );
-        const Vector2i& getOverdraw() const { return _overdraw; }
 
     protected:
         /** @sa Frustum::serialize() */
