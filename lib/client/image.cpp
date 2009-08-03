@@ -1017,7 +1017,8 @@ struct RGBHeader
          */
         void convert()
         {
-#if defined(__i386__) || defined(__amd64__) || defined (__ia64) || defined(WIN32)
+#if defined(__i386__) || defined(__amd64__) || defined (__ia64) || \
+    defined(__x86_64) || defined(WIN32)
             SWAP_SHORT(magic);
             SWAP_SHORT(nDimensions);
             SWAP_SHORT(width);

@@ -221,6 +221,17 @@ inline Monitor<T>& Monitor<T>::operator++ ()
     return *this;
 }
 
+template<>  
+inline Monitor< bool >& Monitor< bool >::operator++ ()
+{
+   pthread_mutex_lock( &_data->mutex );
+   assert( !_value );
+   _value = !_value;
+   pthread_cond_broadcast( &_data->cond );
+   pthread_mutex_unlock( &_data->mutex );
+   return *this;
+}
+
 template< typename T > 
 inline Monitor<T>& Monitor<T>::operator-- ()
 {

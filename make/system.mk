@@ -74,7 +74,7 @@ ifeq ($(findstring icc, $(CXX)),icc)
     DEFFLAGS   += -DEQ_USE_OPENMP
     CXXFLAGS   += -openmp -Wno-deprecated -Wno-overloaded-virtual
     LDFLAGS    += -L$(ICC_DIR)/lib/intel64 -lirc -lguide -limf -lsvml -lpthread
-    LD_PATH    += :$(ICC_DIR)/lib/intel64
+    LD_PATH    = $(PWD)/$(LIBRARY_DIR):$(ICC_DIR)/lib/intel64
     LD          = g++
 endif # icc
 
