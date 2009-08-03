@@ -1,4 +1,5 @@
-Minor tweak of youtube stereo config
+Shorten default config name to filename
+Minor cleanup in pixelbench
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications

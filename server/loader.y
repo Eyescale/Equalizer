@@ -39,6 +39,7 @@
 #include "window.h"
 
 #include <eq/base/base.h>
+#include <eq/base/fileSearch.h>
 #include <string>
 
     namespace eq
@@ -1228,7 +1229,7 @@ ServerPtr Loader::loadFile( const std::string& filename )
             {
                 Config* config = *i;
                 if( config->getName().empty( ))
-                    config->setName( filename );
+                    config->setName( eq::base::getFilename( filename ));
             }
         }
     }

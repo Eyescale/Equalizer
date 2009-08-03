@@ -194,27 +194,27 @@ void Channel::_testFormats()
         _saveImage( image, _enums[i].typeString, _enums[i].formatString,
                     "formats" );
 
-        if( error == GL_NO_ERROR ) // PBO readback
-        {
-            event.data.type = ConfigEvent::READBACK_PBO;
-            image->clearPixelData( eq::Frame::BUFFER_COLOR );
-            image->enablePBO();
+        if( error != GL_NO_ERROR )
+            continue;
 
-            // read
-            clock.reset();
-            image->startReadback( eq::Frame::BUFFER_COLOR, pvp, eq::Zoom(),
-                                  glObjects );
-            image->syncReadback();
-            event.msec = clock.getTimef();
-
-            error = glGetError();
-            if( error != GL_NO_ERROR )
-                event.msec = - static_cast<float>( error );
-            config->sendEvent( event );
-
-            _saveImage( image, _enums[i].typeString, _enums[i].formatString,
-                        "formats_PBO" );
-        }
+        // PBO readback
+        event.data.type = ConfigEvent::READBACK_PBO;
+        image->clearPixelData( eq::Frame::BUFFER_COLOR );
+        image->enablePBO();
+        
+        clock.reset();
+        image->startReadback( eq::Frame::BUFFER_COLOR, pvp, eq::Zoom(),
+                              glObjects );
+        image->syncReadback();
+        event.msec = clock.getTimef();
+        
+        error = glGetError();
+        if( error != GL_NO_ERROR )
+            event.msec = - static_cast<float>( error );
+        config->sendEvent( event );
+        
+        _saveImage( image, _enums[i].typeString, _enums[i].formatString,
+                    "formats_PBO" );
 
         // draw
         event.data.type = ConfigEvent::ASSEMBLE;
