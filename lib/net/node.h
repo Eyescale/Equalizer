@@ -49,36 +49,33 @@ namespace net
     /**
      * Manages a node.
      *
-     * A node represents a separate entity in the peer-to-peer network,
-     * typically a process on a cluster node or on a shared-memory system. It
-     * has at least one Connection through which is reachable. A Node provides
-     * the basic communication facilities through message passing.
+     * A node represents a separate entity in a peer-to-peer network, typically
+     * a process on a cluster node or on a shared-memory system. It should have
+     * at least one Connection through which is reachable. A Node provides the
+     * basic communication facilities through message passing. Nodes manage
+     * sessions, that is, one or more Session can be mapped to a Node, in which
+     * case the node will dispatch packets to these sessions.
      */
     class Node : public Dispatcher, public base::Referenced
     {
     public:
+        /** The state of the node. */
         enum State 
         {
-            STATE_STOPPED,   // initial               
-            STATE_LAUNCHED,  // remote node, launched
-            STATE_CONNECTED, // remote node, connected  
-            STATE_LISTENING  // local node, listening
+            STATE_STOPPED,   //!< initial state
+            STATE_LAUNCHED,  //!< proxy for a remote node, launched
+            STATE_CONNECTED, //!< proxy for a remote node, connected  
+            STATE_LISTENING  //!< local node, listening
         };
 
-        /** 
-         * Constructs a new Node.
-         */
+        /** Construct a new Node. */
         EQ_EXPORT Node();
 
         /** @name Data Access. */
         //@{
         bool operator == ( const Node* n ) const;
 
-        /** 
-         * Returns the state of this node.
-         * 
-         * @return the state of this node.
-         */
+        /**  @return the state of this node. */
         State getState()    const { return _state; }
         bool  isConnected() const 
             { return (_state == STATE_CONNECTED || _state == STATE_LISTENING); }
@@ -98,12 +95,20 @@ namespace net
          * @param name the working directory to start this node.
          */
         EQ_EXPORT void setWorkDir( const std::string& name );
+
+        /** 
+         * Get a node by identifier.
+         * 
+         * @param id the node identifier.
+         * @return the node.
+         */
+        NodePtr getNode( const NodeID& id ) const;
         //@}
 
         /**
          * @name State Changes
          *
-         * The following methods affect the state of the node by changing it's
+         * The following methods affect the state of the node by changing its
          * connectivity to the network.
          */
         //@{
@@ -112,7 +117,9 @@ namespace net
          *
          * This function does not return when the command line option
          * '--eq-client' is present. This is used for remote nodes which have
-         * been auto-launched by another node, e.g., remote render clients.
+         * been auto-launched by another node, e.g., remote render clients. One
+         * or more '--eq-listen &lt;connection description&gt;' parameters might
+         * be used to add listening connections to this node.
          *
          * @param argc the command line argument count.
          * @param argv the command line argument values.
@@ -128,7 +135,7 @@ namespace net
         virtual bool exitClient() { return exitLocal(); }
 
         /** 
-         * Initializes this node.
+         * Open all connections and put this node into the listening state.
          *
          * The node will spawn a thread locally and listen on all connections
          * described for incoming commands. The node will be in the listening
@@ -142,7 +149,7 @@ namespace net
         EQ_EXPORT virtual bool listen();
 
         /** 
-         * Stops this node.
+         * Stop this node.
          * 
          * If this node is listening, the node will stop listening and terminate
          * its receiver thread.
@@ -153,7 +160,11 @@ namespace net
         EQ_EXPORT virtual bool stopListening();
 
         /** 
-         * Connects a node to this listening node.
+         * Connect a node proxy to this node.
+         *
+         * This node has to be in the listening state. The node proxy will be
+         * put in the connected state upon success. The connection has to be
+         * connected.
          *
          * @param node the remote node.
          * @param connection the connection to the remote node.
@@ -161,14 +172,6 @@ namespace net
          *         <code>false</code> otherwise.
          */
         bool connect( NodePtr node, ConnectionPtr connection );
-
-        /** 
-         * Get a node by identifier.
-         * 
-         * @param id the node identifier.
-         * @return the node.
-         */
-        NodePtr getNode( const NodeID& id ) const;
 
         /** 
          * Connect and potentially launch a node to this listening node, using
@@ -228,20 +231,6 @@ namespace net
          *         <code>false</code> otherwise.
          */
         EQ_EXPORT bool disconnect( NodePtr node );
-
-        /** 
-         * Ensures the connectivity of this node.
-         *
-         * @return <code>true</code> if this node is connected,
-         *         <code>false</code> otherwise.
-         */
-        ConnectionPtr checkConnection()
-            {
-                ConnectionPtr connection = _connection;
-                if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
-                    return _connection;
-                return 0;
-            }
         //@}
 
 
@@ -290,6 +279,20 @@ namespace net
          * @name Messaging API
          */
         //@{
+        /** 
+         * Ensures the connectivity of this node.
+         *
+         * @return <code>true</code> if this node is connected,
+         *         <code>false</code> otherwise.
+         */
+        ConnectionPtr checkConnection()
+            {
+                ConnectionPtr connection = _connection;
+                if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
+                    return _connection;
+                return 0;
+            }
+
         /** 
          * Sends a packet to this node.
          * 

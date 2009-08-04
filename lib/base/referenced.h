@@ -60,7 +60,7 @@ namespace base
                 EQASSERT( _refCount > 0 ); 
                 const bool deleteMe = (--_refCount==0);
                 if( deleteMe )
-                    delete this;
+                    deleteReferenced( this );
             }
 
         /** @return the current reference count. */
@@ -93,6 +93,9 @@ namespace base
                 EQASSERTINFO( _refCount == 0,
                               "Deleting object with ref count " << _refCount );
             }
+
+    protected:
+        void deleteReferenced( Referenced* object );
 
     private:
         mtLong _refCount;

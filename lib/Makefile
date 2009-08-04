@@ -150,6 +150,7 @@ CXXFILES = \
 	base/memoryMap.cpp \
 	base/monitor.cpp \
 	base/omp.cpp \
+	base/referenced.cpp \
 	base/requestHandler.cpp \
 	base/thread.cpp \
 	base/timedLock.cpp \
