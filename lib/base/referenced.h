@@ -95,7 +95,7 @@ namespace base
             }
 
     protected:
-        void deleteReferenced( Referenced* object );
+        EQ_EXPORT void deleteReferenced( Referenced* object );
 
     private:
         mtLong _refCount;

@@ -770,7 +770,7 @@ void WGLWindow::exitEventHandler()
 
 bool WGLWindow::processEvent( const WGLWindowEvent& event )
 {
-    if( event.type == Event::EXPOSE )
+    if( event.type == Event::WINDOW_EXPOSE )
     {
         EQASSERT( _wglWindow ); // PBuffers should not generate paint events
 
