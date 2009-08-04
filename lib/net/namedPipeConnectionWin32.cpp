@@ -90,11 +90,10 @@ bool NamedPipeConnection::_createNamedPipe()
 {
     if ( !WaitNamedPipe( _description->getFilename().c_str(), 20000 )) 
     { 
-        EQERROR << "Can't create named pipe: " 
-                << GetLastError() << std::endl; 
+        EQERROR << "Can't create named pipe: " << EQ_PIPE_ERROR << std::endl; 
         return false; 
-
     }    
+
     _readFD = CreateFile( 
              _description->getFilename().c_str(),   // pipe name 
              GENERIC_READ |         // read and write access 
