@@ -62,10 +62,10 @@ void orderFrames( eq::FrameVector&    frames,
         const eq::Frame* frame = *i;
         const double     px    = -1.0 + frame->getRange().end*2.0;
 
-        const eq::Vector4d pS = 
-            modelviewM * eq::Vector4d( 0.0, 0.0, px , 1.0 );
+        const eq::Vector4d pS = modelviewM * eq::Vector4d( 0.0, 0.0, px , 1.0 );
         eq::Vector3d pSsub( pS.get_sub_vector< 3 >( 0 ));
-        dotVals.push_back( norm.dot( pSsub.normalize() ) );
+        pSsub.normalize();
+        dotVals.push_back( norm.dot( pSsub ));
     }
 
     const eq::Vector4d pS = modelviewM * eq::Vector4d( 0.0, 0.0,-1.0, 1.0 );
