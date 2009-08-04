@@ -29,20 +29,26 @@ namespace eq
 {
 namespace net
 {
-    /**
-     * A std::istream-like input data stream for binary data.
-     *
-     * Derived classes send the data using command packets.
-     */
+    /** A std::istream-like input data stream for binary data. */
     class DataIStream
     {
     public:
+        /** @name Internal */
+        //@{ 
         DataIStream();
         virtual ~DataIStream();
 
-        /** @name Basic data input */
-        //@{ 
-        /** Read a POD data item. */
+        /** Get the number of remaining buffers. */
+        virtual size_t nRemainingBuffers() const = 0;
+
+        virtual uint32_t getVersion() const { return Object::VERSION_NONE; }
+
+        virtual void reset();
+        //@}
+
+        /** @name Data input */
+        //@{
+        /** Read a plain data item. */
         template< typename T >
         DataIStream& operator >> ( T& value )
             { read( &value, sizeof( value )); return *this; }
@@ -60,25 +66,28 @@ namespace net
             return *this; 
         }
 
-        /** Read a number of bytes into a buffer.  */
+        /** Read a number of bytes from the stream into a buffer.  */
         EQ_EXPORT void read( void* data, uint64_t size );
 
-        /** Get the pointer to the data remaining in the current buffer. */
+        /** 
+         * Get the pointer to the remaining data in the current buffer.
+         *
+         * The data written by the DataOStream on the other end is bucketized,
+         * that is, it is sent in multiple blocks. The remaining buffer and its
+         * size points into one of the buffers, that is, not all the data sent
+         * is returned by this function. However, a write operation on the other
+         * end is never segmented, that is, if the application writes n bytes to
+         * the DataOStream, a symmetric read from the DataIStream has at least n
+         * bytes available.
+         */
         EQ_EXPORT const void*    getRemainingBuffer();
 
-        /** Get the size of the data remaining in the current buffer. */
+        /** Get the size of the remaining data in the current buffer. */
         EQ_EXPORT uint64_t       getRemainingBufferSize();
 
         /** Advance the current buffer by a number of bytes. */
         EQ_EXPORT void           advanceBuffer( const uint64_t offset ); 
-
-        /** Get the number of remaining buffers. */
-        virtual size_t nRemainingBuffers() const = 0;
-
-        virtual uint32_t getVersion() const { return Object::VERSION_NONE; }
         //@}
-
-        virtual void reset();
  
     protected:
         virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size ) =0;
@@ -116,7 +125,9 @@ namespace eq
 {
 namespace net
 {
-    // Some template specializations
+    /** @name Specialized input operators */
+    //@{
+    /** Read a std::string. */
     template<>
     inline DataIStream& DataIStream::operator >> ( std::string& str )
     { 
@@ -133,50 +144,65 @@ namespace net
         }
         return *this; 
     }
+
+    /** Read a base::UUID */
     template<>
-    inline DataIStream& DataIStream::operator >> ( NodeID& nodeID )
+    inline DataIStream& DataIStream::operator >> ( base::UUID& id )
     { 
-        read( &nodeID, sizeof( nodeID ));
-        nodeID.convertToHost();
+        read( &id, sizeof( id ));
+        id.convertToHost();
         return *this;
     }
 
-    // std::vector specialization/optimization for trivial data types
+    /** Optimized specialization to read a std::vector of uint8_t. */
     template<>
     inline DataIStream& DataIStream::operator >> (std::vector< uint8_t >& value)
     {
         return _readFlatVector( value );
     }
+
+    /** Optimized specialization to read a std::vector of uint32_t. */
     template<>
     inline DataIStream& DataIStream::operator >> (std::vector< uint32_t>& value)
     {
         return _readFlatVector( value );
     }
+
+    /** Optimized specialization to read a std::vector of int32_t. */
     template<>
     inline DataIStream& DataIStream::operator >> (std::vector< int32_t >& value)
     {
         return _readFlatVector( value );
     }
+
+    /** Optimized specialization to read a std::vector of uint64_t. */
     template<>
     inline DataIStream& DataIStream::operator >> (std::vector< uint64_t>& value)
     {
         return _readFlatVector( value );
     }
+
+    /** Optimized specialization to read a std::vector of int64_t. */
     template<>
     inline DataIStream& DataIStream::operator >> (std::vector< int64_t >& value)
     {
         return _readFlatVector( value );
     }
+
+    /** Optimized specialization to read a std::vector of float. */
     template<>
     inline DataIStream& DataIStream::operator >> ( std::vector< float >& value )
     {
         return _readFlatVector( value );
     }
+
+    /** Optimized specialization to read a std::vector of double. */
     template<>
     inline DataIStream& DataIStream::operator >> ( std::vector< double >& value)
     {
         return _readFlatVector( value );
     }
+    //@}
 }
 }
 

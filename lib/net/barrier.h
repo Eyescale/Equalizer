@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,25 +30,26 @@ namespace net
 {
     class Node;
 
-    /**
-     * A networked, versioned barrier.
-     */
+    /** A networked, versioned barrier. */
     class Barrier : public Object
     {
     public:
         /** 
-         * Constructs a new barrier.
+         * Construct a new barrier.
+         *
+         * The master node will maintain the barrier state. It has to be
+         * reachable from all other nodes participating in the barrier.
+         *
+         * This instance should be registered as the master version of the
+         * barrier with the session. Note the node of the object master, i.e.,
+         * this instance, and the barrier master node might be different.
          */
         EQ_EXPORT Barrier( NodePtr master, const uint32_t height = 0 );
 
-        /** 
-         * Constructs a new barrier.
-         */
+        /** Construct a new barrier, to be mapped to the master version. */
         EQ_EXPORT Barrier();
 
-        /**
-         * Destructs the barrier.
-         */
+        /** Destruct the barrier. */
         EQ_EXPORT virtual ~Barrier();
 
         /** 
@@ -58,16 +59,20 @@ namespace net
          * same version on all nodes entering the barrier.
          */
         //@{
+        /** Set the number of participants in the barrier. */
         void setHeight( const uint32_t height ) { _height = height; }
+
+        /** Add one participant to the barrier. */
         void increase() { ++_height; }
 
+        /** @return the number of participants. */
         uint32_t getHeight() const { return _height; }
         //@}
 
         /** @name Operations */
         //@{
         /** 
-         * Enters the barrier and blocks until the barrier has been reached.
+         * Enter the barrier, blocks until the barrier has been reached.
          *
          * The implementation assumes that the master node instance also enters
          * the barrier.

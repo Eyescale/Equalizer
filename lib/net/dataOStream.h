@@ -38,6 +38,8 @@ namespace net
     class DataOStream
     {
     public:
+        /** @name Internal */
+        //@{
         DataOStream();
         virtual ~DataOStream();
 
@@ -53,9 +55,6 @@ namespace net
         /** Disable, flush and unlock the output to the current receivers. */
         void disable();
 
-        /** Flush the buffer. */
-        void flush();
-
         /** Enable aggregation/copy of data before sending it. */
         void enableBuffering();
         /** Disable aggregation/copy of data before sending it. */
@@ -66,8 +65,6 @@ namespace net
         /** Disable copying of all data into a saved buffer. */
         void disableSave();
 
-        /** @name Data Access. */
-        //@{
         /** @return if data was sent since the last enable() */
         bool hasSentData() const { return _dataSent; }
 
@@ -76,9 +73,12 @@ namespace net
             { EQASSERT( _save ); return _buffer; }
         //@}
 
-        /** @name Basic data output */
+        /** @name Data output */
         //@{
-        /** Write a POD data item. */
+        /** Flush remaining data in the buffer. */
+        void flush();
+
+        /** Write a plain data item by copying it to the stream. */
         template< typename T >
         DataOStream& operator << ( const T& value )
             { write( &value, sizeof( value )); return *this; }
@@ -94,12 +94,17 @@ namespace net
                 return *this;
             }
 
+        /** Write a number of bytes from data into the stream. */
         EQ_EXPORT void write( const void* data, uint64_t size );
+
+        /** Write one block of data into the stream and close it immediately. */
         EQ_EXPORT void writeOnce( const void* data, uint64_t size );
         //@}
 
  
     protected:
+        /** @name Packet sending, implemented by the subclasses */
+        //@{
         /** Send the leading data (packet) to the receivers */
         virtual void sendHeader( const void* buffer, const uint64_t size ) = 0;
         /** Send a data buffer (packet) to the receivers. */
@@ -109,6 +114,7 @@ namespace net
         /** Send only one data item (packet) to the receivers */
         virtual void sendSingle( const void* buffer, const uint64_t size )
             { sendHeader( buffer, size ); sendFooter( 0, 0 ); }
+        //@}
 
         /** Locked connections to the receivers, if _enabled */
         ConnectionVector _connections;
@@ -158,7 +164,9 @@ namespace eq
 {
 namespace net
 {
-    // Some template specializations
+    /** @name Specialized output operators */
+    //@{
+    /** Write a std::string. */
     template<>
     inline DataOStream& DataOStream::operator << ( const std::string& str )
     { 
@@ -169,58 +177,73 @@ namespace net
 
         return *this;
     }
+
+    /** Write a base::UUID. */
     template<>
-    inline DataOStream& DataOStream::operator << ( const NodeID& nodeID )
+    inline DataOStream& DataOStream::operator << ( const base::UUID& id )
     { 
-        NodeID out( nodeID );
+        base::UUID out( id );
         out.convertToNetwork();
         write( &out, sizeof( out ));
         return *this;
     }
 
-    // std::vector specialization/optimization for trivial data types
+    /** Optimized specialization to write a std::vector of uint8_t. */
     template<>
     inline DataOStream& DataOStream::operator << ( const std::vector< uint8_t >&
                                                    value )
     {
         return _writeFlatVector( value );
     }
+
+    /** Optimized specialization to write a std::vector of uint32_t. */
     template<>
     inline DataOStream& DataOStream::operator << ( const std::vector< uint32_t>&
                                                    value )
     {
         return _writeFlatVector( value );
     }
+
+    /** Optimized specialization to write a std::vector of int32_t. */
     template<>
     inline DataOStream& DataOStream::operator << ( const std::vector< int32_t >&
                                                    value )
     {
         return _writeFlatVector( value );
     }
+
+    /** Optimized specialization to write a std::vector of uint64_t. */
     template<>
     inline DataOStream& DataOStream::operator << ( const std::vector< uint64_t>&
                                                    value )
     {
         return _writeFlatVector( value );
     }
+
+    /** Optimized specialization to write a std::vector of int64_t. */
     template<>
     inline DataOStream& DataOStream::operator << ( const std::vector< int64_t >&
                                                    value )
     {
         return _writeFlatVector( value );
     }
+
+    /** Optimized specialization to write a std::vector of float. */
     template<>
     inline DataOStream& DataOStream::operator << ( const std::vector< float >& 
                                                    value )
     {
         return _writeFlatVector( value );
     }
+
+    /** Optimized specialization to write a std::vector of double. */
     template<>
     inline DataOStream& DataOStream::operator << ( const std::vector< double >& 
                                                    value )
     {
         return _writeFlatVector( value );
     }
+    //@}
 }
 }
 #endif //EQNET_DATAOSTREAM_H

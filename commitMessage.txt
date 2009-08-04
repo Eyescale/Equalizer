@@ -1,11 +1,9 @@
-Rename net::NodeID -> base::UUID
-
-Needs 'make clean'
+Doxygen tweaks
 
 [ ] Will break Win32 build
 [ ] Breaks existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
