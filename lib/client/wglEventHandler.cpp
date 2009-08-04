@@ -242,7 +242,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             if( GetUpdateRect( hWnd, 0, false ) == 0 ) // No 'expose'
                 return DefWindowProc( hWnd, uMsg, wParam, lParam );
 
-            event.type = Event::EXPOSE;
+            event.type = Event::WINDOW_EXPOSE;
             break;
         }
 

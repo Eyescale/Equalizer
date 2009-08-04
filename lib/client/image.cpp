@@ -1000,6 +1000,7 @@ void Image::writeImages( const std::string& filenameTemplate ) const
 #ifdef WIN32
 #  pragma pack(1)
 #endif
+/** @cond IGNORE */
 struct RGBHeader
 {
     RGBHeader()
@@ -1044,6 +1045,7 @@ struct RGBHeader
     unsigned colorMode;
     char fill[404];
 }
+/** @endcond */
 #ifndef WIN32
   __attribute__((packed))
 #endif

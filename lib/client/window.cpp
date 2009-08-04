@@ -699,7 +699,7 @@ bool Window::processEvent( const Event& event )
             if( event.key.key == KC_VOID )
                 return true; //ignore
             // else fall through
-        case Event::EXPOSE:
+        case Event::WINDOW_EXPOSE:
         case Event::WINDOW_CLOSE:
         case Event::POINTER_MOTION:
         case Event::POINTER_BUTTON_PRESS:

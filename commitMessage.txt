@@ -1,7 +1,8 @@
-Don't inline referenced destruction
+Rename Event::EXPOSE -> Event::WINDOW_EXPOSE
+Doxygen cleanups
 
 [ ] Will break Win32 build
-[ ] Breaks existing applications
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup

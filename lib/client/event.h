@@ -85,7 +85,6 @@ namespace eq
      * Mouse pointer button definition. The enums are defined as masks, so that
      * the state of all buttons can be OR'd using the same enum.
      */
-
     enum PointerButton
     {
         PTR_BUTTON_NONE = EQ_BIT_NONE,
@@ -96,6 +95,7 @@ namespace eq
         PTR_BUTTON5     = EQ_BIT5
     };
 
+    /** Event for a resized entitity (Window, Channel, View). */
     struct ResizeEvent
     {
         int32_t x; //<! relative to parent
@@ -105,6 +105,8 @@ namespace eq
         float dw;  //<! view only: relative to baseline
         float dh;
     };
+
+    /** Event for a pointer motion or click. */
     struct PointerEvent
     {
         int32_t x;             //<! relative to entity (window)
@@ -114,12 +116,15 @@ namespace eq
         uint32_t buttons;      //<! current state of all buttons
         uint32_t button;       //<! fired button
     };
+
+    /** Event for a key press. */
     struct KeyEvent
     {
         uint32_t key; // KC_? for special keys, ascii code otherwise
         // TODO modifier state
     };
 
+    /** Event for a SpaceMouse movement or click. */
     struct MagellanEvent
     {
         uint32_t button;       //<! fired button
@@ -133,69 +138,81 @@ namespace eq
     };
 
 #   define EQ_USER_EVENT_SIZE 64
+    /** User-defined event. */
     struct UserEvent
     {
         char data[ EQ_USER_EVENT_SIZE ];
     };
 
+    /** Event structure to report window system and internal events. */
     struct Event
     {
+        /** Construct a new event. */
         EQ_EXPORT Event();
 
+        /** The type of the event. */
         enum Type // Also update string table in event.cpp
         {
-            EXPOSE = 0,
-            WINDOW_RESIZE,
-            WINDOW_CLOSE,
-            WINDOW_HIDE,
-            WINDOW_SHOW,
-            WINDOW_SCREENSAVER,
-            POINTER_MOTION,
+            WINDOW_EXPOSE = 0,    //!< A window is dirty
+            WINDOW_RESIZE,        //!< Window resize data in resize
+            WINDOW_CLOSE,         //!< A window has been closed 
+            WINDOW_HIDE,          //!< A window is hidden
+            WINDOW_SHOW,          //!< A window is shown
+            WINDOW_SCREENSAVER,   //!< A window screensaver request (Win32 only)
+            POINTER_MOTION,       //!< Pointer movement data in pointerMotion
+            /** Pointer button press data in pointerButtonPress */
             POINTER_BUTTON_PRESS,
+            /** Pointer button release data in pointerButtonRelease */
             POINTER_BUTTON_RELEASE,
-            KEY_PRESS,
-            KEY_RELEASE,
-            CHANNEL_RESIZE,
-            STATISTIC,
-            VIEW_RESIZE,
-            EXIT,
-            MAGELLAN_AXIS,
-            MAGELLAN_BUTTON,
+            KEY_PRESS,            //!< Key press data in keyPress
+            KEY_RELEASE,          //!< Key release data in keyRelease
+            CHANNEL_RESIZE,       //!< Channel resize data in resize
+            STATISTIC,            //!< Statistic event in statistic
+            VIEW_RESIZE,          //!< View resize data in resize
+            EXIT,                 //!< Exit request due to runtime error
+            MAGELLAN_AXIS,        //!< SpaceMouse movement data in magellan
+            MAGELLAN_BUTTON,      //!< SpaceMouse button data in magellan
             UNKNOWN,
             FILL1,  // some buffer for binary-compatible patches
             FILL2,
             FILL3,
             FILL4,
             FILL5,
+            /** User-defined events have to be of this type or higher */
             USER,
             ALL // must be last
         };
 
+        /** The event type */
         uint32_t type;
+
+        /** The identifier of the entity emitting the event. */
         uint32_t originator;
 
-        union // event data
+        /** Data for the event corresponding to the event type. */
+        union
         {
-            ResizeEvent   resize;
-            ResizeEvent   show;
-            ResizeEvent   hide;
+            ResizeEvent   resize;             //!< Resize event data
+            ResizeEvent   show;               //!< Window show event data
+            ResizeEvent   hide;               //!< Window hide event data
             
-            PointerEvent  pointer;
-            PointerEvent  pointerMotion;
-            PointerEvent  pointerButtonPress;
-            PointerEvent  pointerButtonRelease;
+            PointerEvent  pointer;            //!< Pointer event data
+            PointerEvent  pointerMotion;      //!< Pointer motion data
+            PointerEvent  pointerButtonPress; //!< Mouse button press data
+            PointerEvent  pointerButtonRelease; //!< Mouse button release data
 
-            KeyEvent      key;
-            KeyEvent      keyPress;
-            KeyEvent      keyRelease;
+            KeyEvent      key;                //!< Key event data
+            KeyEvent      keyPress;           //!< Key press event data
+            KeyEvent      keyRelease;         //!< Key release event data
 
-            Statistic     statistic;
-            MagellanEvent magellan;
+            Statistic     statistic;          //!< Statistic event
+            MagellanEvent magellan;           //!< SpaceMouse data
 
-            UserEvent     user;
+            UserEvent     user;               //!< User-defined event data
         };
      
-        RenderContext context; //<! The last rendering context at (x,y)
+        /** The last rendering context for the pointer position. */
+        RenderContext context;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const Event& );

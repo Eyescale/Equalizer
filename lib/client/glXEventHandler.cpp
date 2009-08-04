@@ -231,7 +231,7 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event, Pipe* pipe )
             if( xEvent.xexpose.count ) // Only report last expose event
                 return;
                 
-            event.type = Event::EXPOSE;
+            event.type = Event::WINDOW_EXPOSE;
             break;
 
         case ConfigureNotify:

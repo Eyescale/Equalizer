@@ -24,26 +24,14 @@ using namespace std;
 namespace eq
 {
 ConfigParams::ConfigParams()
+        : _renderClient( net::Global::getProgramName( ))
+        , _workDir( net::Global::getWorkDir( ))
 {
-    _renderClient = net::Global::getProgramName();
-    _workDir      = net::Global::getWorkDir();
-
 //     compoundModes = 
 //         COMPOUND_MODE_2D    | 
 //         COMPOUND_MODE_DPLEX |
 //         COMPOUND_MODE_EYE   |
 //         COMPOUND_MODE_FSAA;
-}
-
-ConfigParams& ConfigParams::operator = ( const ConfigParams& rhs )
-{
-    if( this == &rhs )
-        return *this;
- 
-    _renderClient  = rhs._renderClient;
-    _workDir       = rhs._workDir;
-//    compoundModes = rhs.compoundModes;
-    return *this;
 }
 
 

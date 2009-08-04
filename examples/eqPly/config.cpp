@@ -454,7 +454,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             _redraw = true;
             return true;
 
-        case eq::Event::EXPOSE:
+        case eq::Event::WINDOW_EXPOSE:
         case eq::Event::WINDOW_RESIZE:
         case eq::Event::WINDOW_CLOSE:
         case eq::Event::VIEW_RESIZE:

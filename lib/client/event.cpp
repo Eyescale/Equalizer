@@ -32,7 +32,7 @@ namespace
 /** String representation of event types. */
 static std::string _eventTypeNames[ Event::ALL ] =
 {
-    "expose",
+    "window expose",
     "window resize",
     "window close",
     "window show",
@@ -62,7 +62,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
     os << event.type << ':' << event.originator << ' ';
     switch( event.type )
     {
-        case Event::EXPOSE:
+        case Event::WINDOW_EXPOSE:
         case Event::WINDOW_CLOSE:
             break;
 

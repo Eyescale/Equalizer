@@ -48,6 +48,7 @@ namespace eq
         ClientPacket(){ datatype = DATATYPE_EQ_CLIENT; }
     };
 
+/** @cond IGNORE */
     struct ClientExitPacket : public ClientPacket
     {
         ClientExitPacket()
@@ -56,6 +57,7 @@ namespace eq
                 size    = sizeof( ClientExitPacket );
             }
     };
+/** @endcond */
 
     //------------------------------------------------------------
     // Server
@@ -65,6 +67,7 @@ namespace eq
         ServerPacket(){ datatype = DATATYPE_EQ_SERVER; }
     };
 
+/** @cond IGNORE */
     struct ServerChooseConfigPacket : public ServerPacket
     {
         ServerChooseConfigPacket()
@@ -189,12 +192,14 @@ namespace eq
         uint32_t requestID;
         bool     result;
     };
+/** @endcond */
 
     //------------------------------------------------------------
     // Config
     //------------------------------------------------------------
     typedef net::SessionPacket ConfigPacket;
 
+/** @cond IGNORE */
     struct ConfigCreateReplyPacket : public ConfigPacket
     {
         ConfigCreateReplyPacket( const ServerCreateConfigPacket* request )
@@ -1234,6 +1239,7 @@ namespace eq
         os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
         return os;
     }
+/** @endcond */
 }
 
 #endif // EQ_PACKETS_H
