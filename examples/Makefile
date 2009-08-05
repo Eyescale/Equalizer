@@ -8,7 +8,6 @@ OPTIONAL = \
 SUBDIRS = \
 	configs \
 	eqHello \
-	eqNbody \
 	eqPly \
 	eqPixelBench \
 	$(OPTIONAL)
