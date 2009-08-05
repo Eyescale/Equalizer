@@ -184,21 +184,18 @@ void Session::freeIDs( const uint32_t start, const uint32_t range )
 //---------------------------------------------------------------------------
 // identifier master node mapping
 //---------------------------------------------------------------------------
-void Session::setIDMaster( const uint32_t start, const uint32_t range, 
-                           const NodeID& master )
+void Session::setIDMaster( const uint32_t id, const NodeID& master )
 {
     CHECK_NOT_THREAD( _commandThread );
-    _setIDMasterSync( _setIDMasterNB( start, range, master ));
+    _setIDMasterSync( _setIDMasterNB( id, master ));
 }
 
-uint32_t Session::_setIDMasterNB( const uint32_t start, const uint32_t range, 
-                                  const NodeID& master )
+uint32_t Session::_setIDMasterNB( const uint32_t id, const NodeID& master )
 {
     CHECK_NOT_THREAD( _commandThread );
 
     SessionSetIDMasterPacket packet;
-    packet.start    = start;
-    packet.range    = range;
+    packet.id       = id;
     packet.masterID = master;
     packet.masterID.convertToNetwork();
     
@@ -217,14 +214,11 @@ void Session::_setIDMasterSync( const uint32_t requestID )
 
 const NodeID& Session::_pollIDMaster( const uint32_t id ) const 
 {
-    for( vector<IDMasterInfo>::const_iterator i = _idMasterInfos.begin();
-         i != _idMasterInfos.end(); ++i )
-    {
-        const IDMasterInfo& info = *i;
-        if( id >= info.start && id < info.end )
-            return info.master;
-    }
-    return NodeID::ZERO;
+    NodeIDHash::const_iterator i = _idMasters.find( id );
+    if( i == _idMasters.end( ))
+        return NodeID::ZERO;
+
+    return i->second;
 }
 
 const NodeID& Session::getIDMaster( const uint32_t id )
@@ -468,7 +462,7 @@ bool Session::registerObject( Object* object )
     if( id == EQ_ID_INVALID )
         return false;
 
-    const uint32_t requestID = _setIDMasterNB( id, 1, _localNode->getNodeID( ));
+    const uint32_t requestID = _setIDMasterNB( id, _localNode->getNodeID( ));
     object->setupChangeManager( object->getChangeType(), true );
 
     EQCHECK( mapObject( object, id ));
@@ -669,11 +663,10 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
 
     NodeID nodeID = packet->masterID;
     nodeID.convertToHost();
-
-    IDMasterInfo info = { packet->start, packet->start+packet->range, nodeID };
+    EQASSERT( nodeID != NodeID::ZERO );
 
     ScopedMutex mutex( _idMasterMutex );
-    _idMasterInfos.push_back( info );
+    _idMasters[ packet->id ] = nodeID;
 
     if( packet->requestID != EQ_ID_INVALID ) // need to ack set operation
     {
@@ -698,25 +691,9 @@ CommandResult Session::_cmdGetIDMaster( Command& command )
     EQLOG( LOG_OBJECTS ) << "handle get idMaster " << packet << endl;
 
     SessionGetIDMasterReplyPacket reply( packet );
-    reply.start = 0;
+    reply.masterID = _pollIDMaster( packet->id );
 
-    const uint32_t id     = packet->id;
-    const uint32_t nInfos = _idMasterInfos.size();
-    NodePtr        node   = command.getNode();
-    for( uint32_t i=0; i<nInfos; ++i )
-    {
-        IDMasterInfo& info = _idMasterInfos[i];
-        if( id >= info.start && id < info.end )
-        {
-            reply.start    = info.start;
-            reply.end      = info.end;
-            reply.masterID = info.master;
-            reply.masterID.convertToNetwork();
-            break;
-        }
-    }
-
-    send( node, reply );
+    send( command.getNode(), reply );
     return COMMAND_HANDLED;
 }
 
@@ -727,15 +704,13 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
         command.getPacket<SessionGetIDMasterReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "handle get idMaster reply " << packet << endl;
 
-    if( packet->start != 0 )
+    NodeID nodeID = packet->masterID;
+    nodeID.convertToHost();
+
+    if( nodeID != NodeID::ZERO )
     {
-        NodeID nodeID = packet->masterID;
-        nodeID.convertToHost();
-
-        IDMasterInfo info = { packet->start, packet->end, nodeID };
-
         ScopedMutex mutex( _idMasterMutex );
-        _idMasterInfos.push_back( info );
+        _idMasters[ packet->id ] = packet->masterID;
     }
     // else not found
 

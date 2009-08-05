@@ -137,7 +137,7 @@ namespace net
         EQ_EXPORT void freeIDs( const uint32_t start, const uint32_t range );
 
         /** 
-         * Set the master node for a block of identifiers.
+         * Set the master node for an identifier.
          * 
          * This can be used to identify the node which is responsible for the
          * object, action or information associated with an identifier. The
@@ -147,21 +147,17 @@ namespace net
          * The master node must be reachable from this node and known by the
          * session server node.
          *
-         * @param start the first identifier of the block.
-         * @param range the size of the block.
+         * @param id the identifier.
          * @param master the master node for the block of identifiers.
          */
-        EQ_EXPORT void setIDMaster( const uint32_t start, const uint32_t range, 
-                          const NodeID& master );
+        EQ_EXPORT void setIDMaster( const uint32_t id, const NodeID& master );
 
         /** 
-         * Delete the master node for a block of identifiers.
+         * Delete the master node for an identifiers.
          * 
-         * @param start the first identifier of the block.
-         * @param range the size of the block.
+         * @param id the identifier.
          */
-        EQ_EXPORT void unsetIDMaster( const uint32_t start, 
-                                      const uint32_t range );
+        EQ_EXPORT void unsetIDMaster( const uint32_t id );
 
         /** 
          * Returns the master node id for an identifier.
@@ -381,19 +377,10 @@ namespace net
         /** The identifiers for node-local instance identifiers. */
         uint32_t _instanceIDs;
 
-        //! @cond IGNORE
-        /** Stores a mapping from a block of identifiers to a master node. */
-        struct IDMasterInfo
-        {
-            uint32_t start;
-            uint32_t end;
-            NodeID   master;
-        };
-        //! @endcond
-
+        typedef stde::hash_map< uint32_t, NodeID > NodeIDHash;
         /** The id->master mapping table. */
-        std::vector<IDMasterInfo> _idMasterInfos;
-        base::Lock                _idMasterMutex;
+        NodeIDHash _idMasters;
+        base::Lock _idMasterMutex;
         
         /** All registered and mapped objects. */
         ObjectVectorHash _objects;
@@ -416,8 +403,7 @@ namespace net
                             const uint32_t instanceID );
         void _detachObject( Object* object );
 
-        uint32_t _setIDMasterNB( const uint32_t start, const uint32_t range, 
-                                 const NodeID& master );
+        uint32_t _setIDMasterNB( const uint32_t id, const NodeID& master );
         void _setIDMasterSync( const uint32_t requestID );
 
 

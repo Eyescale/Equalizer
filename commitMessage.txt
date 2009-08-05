@@ -1,11 +1,9 @@
-Doxygen cleanups:
-- Remove _EXPORT macros from output
-- Put Release Notes in one place for doxygen and website
+Optimize session id master code
 
 [ ] Will break Win32 build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

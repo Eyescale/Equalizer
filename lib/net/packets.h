@@ -327,8 +327,7 @@ namespace net
             }
 
         NodeID   masterID;
-        uint32_t start;
-        uint32_t range;
+        uint32_t id;
         uint32_t requestID;
     };
 
@@ -351,12 +350,12 @@ namespace net
                 command   = CMD_SESSION_GET_ID_MASTER_REPLY;
                 size      = sizeof( SessionGetIDMasterReplyPacket );
                 requestID = request->requestID;
+                id        = request->id;
             }
 
         NodeID   masterID;
         uint32_t requestID;
-        uint32_t start;
-        uint32_t end;
+        uint32_t id;
     };
 
     struct SessionGetObjectPacket : public SessionPacket
@@ -701,8 +700,8 @@ namespace net
     inline std::ostream& operator << ( std::ostream& os, 
                                    const SessionGetIDMasterReplyPacket* packet )
     {
-        os << (SessionPacket*)packet << " IDs " << packet->start << "-" 
-           << packet->end << " master " << packet->masterID;
+        os << (SessionPacket*)packet << " ID " << packet->id << " master "
+           << packet->masterID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
