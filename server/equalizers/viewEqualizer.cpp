@@ -627,7 +627,7 @@ uint32_t ViewEqualizer::Listener::findYoungestLoad() const
         if( load.missing == 0 )
             return load.frame;
     }
-    return std::numeric_limits< uint32_t >::max();
+    return 0;
 }
 
 const ViewEqualizer::Listener::Load& 
