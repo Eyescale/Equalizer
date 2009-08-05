@@ -45,7 +45,9 @@ using namespace std;
 
 namespace eq
 {
+/** @cond IGNORE */
 typedef net::CommandFunc<Channel> ChannelFunc;
+/** @endcond */
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CHANNEL_") + #attr )
 std::string Channel::_iAttributeStrings[IATTR_ALL] = {

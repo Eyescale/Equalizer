@@ -75,7 +75,9 @@ namespace eq
         uint32_t  _getKey( XEvent& event );
     };
 
+    /** @cond IGNORE */
     typedef base::RefPtr< GLXEventHandler::EventSet > GLXEventSetPtr; 
+    /** @endcond */
 }
 
 #endif // EQ_GLXEVENTHANDLER_H

@@ -50,10 +50,13 @@
 
 using namespace eq::base;
 using namespace std;
-using eq::net::CommandFunc;
 
 namespace eq
 {
+
+/** @cond IGNORE */
+typedef net::CommandFunc<Window> WindowFunc;
+/** @endcond */
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_WINDOW_") + #attr )
 std::string Window::_iAttributeStrings[IATTR_ALL] = {
@@ -111,38 +114,38 @@ void Window::attachToSession( const uint32_t id,
     net::CommandQueue* queue = _pipe->getPipeThreadQueue();
 
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
-                     CommandFunc<Window>( this, &Window::_cmdCreateChannel ), 
+                     WindowFunc( this, &Window::_cmdCreateChannel ), 
                      queue );
     registerCommand( CMD_WINDOW_DESTROY_CHANNEL,
-                     CommandFunc<Window>( this, &Window::_cmdDestroyChannel ), 
+                     WindowFunc( this, &Window::_cmdDestroyChannel ), 
                      queue );
     registerCommand( CMD_WINDOW_CONFIG_INIT,
-                     CommandFunc<Window>( this, &Window::_cmdConfigInit ), 
+                     WindowFunc( this, &Window::_cmdConfigInit ), 
                      queue );
     registerCommand( CMD_WINDOW_CONFIG_EXIT, 
-                     CommandFunc<Window>( this, &Window::_cmdConfigExit ), 
+                     WindowFunc( this, &Window::_cmdConfigExit ), 
                      queue );
     registerCommand( CMD_WINDOW_FRAME_START,
-                     CommandFunc<Window>( this, &Window::_cmdFrameStart ), 
+                     WindowFunc( this, &Window::_cmdFrameStart ), 
                      queue );
     registerCommand( CMD_WINDOW_FRAME_FINISH,
-                     CommandFunc<Window>( this, &Window::_cmdFrameFinish ), 
+                     WindowFunc( this, &Window::_cmdFrameFinish ), 
                      queue );
     registerCommand( CMD_WINDOW_FINISH, 
-                     CommandFunc<Window>( this, &Window::_cmdFinish), queue );
+                     WindowFunc( this, &Window::_cmdFinish), queue );
     registerCommand( CMD_WINDOW_THROTTLE_FRAMERATE, 
-                    CommandFunc<Window>( this, &Window::_cmdThrottleFramerate ),
+                    WindowFunc( this, &Window::_cmdThrottleFramerate ),
                      queue );
     registerCommand( CMD_WINDOW_BARRIER, 
-                     CommandFunc<Window>( this, &Window::_cmdBarrier ), 
+                     WindowFunc( this, &Window::_cmdBarrier ), 
                      queue );
     registerCommand( CMD_WINDOW_NV_BARRIER, 
-                     CommandFunc<Window>( this, &Window::_cmdNVBarrier ), 
+                     WindowFunc( this, &Window::_cmdNVBarrier ), 
                      queue );
     registerCommand( CMD_WINDOW_SWAP, 
-                     CommandFunc<Window>( this, &Window::_cmdSwap), queue );
+                     WindowFunc( this, &Window::_cmdSwap), queue );
     registerCommand( CMD_WINDOW_FRAME_DRAW_FINISH, 
-                     CommandFunc<Window>( this, &Window::_cmdFrameDrawFinish ), 
+                     WindowFunc( this, &Window::_cmdFrameDrawFinish ), 
                      queue );
 }
 

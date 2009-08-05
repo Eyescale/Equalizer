@@ -31,15 +31,21 @@ namespace eq
     class Node;
     struct ServerPacket;
 
+    /**
+     * Proxy object for the connection to an Equalizer server.
+     *
+     * The server manages the configurations for a set of Equalizer
+     * applications. This proxy object is used to connect to a server and obtain
+     * and release a Config from the server.
+     * @sa Client::connectServer
+     */
     class Server : public net::Node
     {
     public:
-        /** 
-         * Constructs a new server.
-         */
+        /** Construct a new server. */
         EQ_EXPORT Server();
 
-        /** @name Data Access */
+        /** @name Internal */
         //@{
         void setClient( ClientPtr client );
         ClientPtr getClient(){ return _client; }
@@ -49,11 +55,10 @@ namespace eq
         //@}
 
         /** 
-         * Chooses a configuration on the server.
+         * Choose a configuration on the server.
          * 
          * @param parameters the configuration parameters
-         * @return The chosen config, or <code>0</code> if no matching
-         *         config was found.
+         * @return The chosen config, or 0if no matching config was found.
          * @sa ConfigParams
          */
         EQ_EXPORT Config* chooseConfig( const ConfigParams& parameters );
@@ -63,7 +68,7 @@ namespace eq
                                      const std::string& config );
 
         /** 
-         * Releases the configuration.
+         * Release a configuration.
          * 
          * The passed configuration will be destroyed by this function and is no
          * longer valid after the call.

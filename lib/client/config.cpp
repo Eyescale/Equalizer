@@ -44,7 +44,9 @@ using namespace std;
 
 namespace eq
 {
+/** @cond IGNORE */
 typedef net::CommandFunc<Config> ConfigFunc;
+/** @endcond */
 
 Config::Config( ServerPtr server )
         : net::Session()

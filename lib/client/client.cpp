@@ -31,10 +31,15 @@
 
 namespace eq
 {
+/** @cond IGNORE */
 typedef net::CommandFunc<Client> ClientFunc;
 
 static net::ConnectionPtr _startLocalServer();
 static void _joinLocalServer();
+
+typedef net::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
+typedef void (*eqsJoinLocalServer_t)();
+/** @endcond */
 
 Client::Client()
         : _nodeThreadQueue( 0 )
@@ -143,8 +148,6 @@ namespace
 base::DSO _libeqserver;
 }
 
-typedef net::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
-
 net::ConnectionPtr _startLocalServer()
 {
     if( !_libeqserver.open(
@@ -175,8 +178,6 @@ net::ConnectionPtr _startLocalServer()
 
     return eqsStartLocalServer( Global::getConfigFile( ));
 }
-
-typedef void (*eqsJoinLocalServer_t)();
 
 static void _joinLocalServer()
 {

@@ -1,9 +1,9 @@
-Fix division by zero during view resize
+Typedef and doxygen cleanups
 
 [ ] Will break Win32 build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

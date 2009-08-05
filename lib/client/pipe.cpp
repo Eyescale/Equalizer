@@ -53,7 +53,9 @@ namespace
 static const Window* _ntCurrentWindow = 0;
 }
 
+/** @cond IGNORE */
 typedef net::CommandFunc<Pipe> PipeFunc;
+/** @endcond */
 
 Pipe::Pipe( Node* parent )
         : _osPipe( 0 )

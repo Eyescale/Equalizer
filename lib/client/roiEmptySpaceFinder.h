@@ -22,9 +22,6 @@
 
 namespace eq
 {
-    typedef std::vector<uint8_t>    byteVec;
-    typedef std::vector<uint16_t>   shortVec;
-
     /**
      * Finds largest empty regions.
      */
@@ -72,7 +69,7 @@ namespace eq
         int16_t _limAbs;
         float   _limRel;
 
-        shortVec _data;
+        UShortVector _data;
         const uint8_t* _mask;
     };
 }

@@ -42,11 +42,12 @@
 
 using namespace eq::base;
 using namespace std;
-using eq::net::CommandFunc;
 
 namespace eq
 {
+/** @cond IGNORE */
 typedef net::CommandFunc<Node> NodeFunc;
+/** @endcond */
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_NODE_") + #attr )
 std::string Node::_iAttributeStrings[IATTR_ALL] = {
