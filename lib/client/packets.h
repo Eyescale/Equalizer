@@ -40,6 +40,7 @@ namespace eq
         DATATYPE_EQ_CUSTOM = 1<<8 // 256
     };
 
+/** @cond IGNORE */
     //------------------------------------------------------------
     // Client
     //------------------------------------------------------------
@@ -48,7 +49,6 @@ namespace eq
         ClientPacket(){ datatype = DATATYPE_EQ_CLIENT; }
     };
 
-/** @cond IGNORE */
     struct ClientExitPacket : public ClientPacket
     {
         ClientExitPacket()

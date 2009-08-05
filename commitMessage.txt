@@ -1,9 +1,9 @@
-Optimize session id master code
+Fix division by zero during view resize
 
 [ ] Will break Win32 build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
-[x] Optimization
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation

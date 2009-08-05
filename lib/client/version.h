@@ -25,13 +25,15 @@
 namespace eq
 {
     // Equalizer version macros and functions
-#   define EQ_VERSION_MAJOR 0
+#   define EQ_VERSION_MAJOR 0 //!< The current major version
 #   define EQ_VERSION_MINOR 9
 #   define EQ_VERSION_PATCH 0
 
+    /** Information about the current Equalizer version. */
     class Version
     {
     public:
+        /** @return the current major version of Equalizer */
         static uint32_t getMajor();
         static uint32_t getMinor();
         static uint32_t getPatch();

@@ -141,6 +141,8 @@ bool View::handleEvent( const Event& event )
         case Event::VIEW_RESIZE:
         {
             const ResizeEvent& resize = event.resize;
+            if( resize.dw == 0.f || resize.dh == 0.f )
+                return true;
 
             switch( getCurrentType( ))
             {
