@@ -22,29 +22,28 @@
 
 namespace eq 
 {
+    /** The registry for all loaded Equalizer plugins. */
+    class PluginRegistry
+    {
+    public:
 
-class PluginRegistry
-{
-public:
+        /* Search all global plugin directories and register found DSOs */
+        void init();
+        
+        /* Exit all library and free all plugins */
+        void exit();
+        
+        /* @return all registered compressors plugins */
+        EQ_EXPORT const CompressorVector& getCompressors() const;
 
-    /* Search all global plugin directories and register found DSOs */
-    void init();
-    
-    /* Exit all library and free all plugins */
-    void exit();
+        /* @return the compressor with the given name, or 0. */
+        Compressor* findCompressor( const uint32_t name );
 
-    /* @return all registered compressors plugins */
-    EQ_EXPORT const CompressorVector& getCompressors() const;
+    private:
+        CompressorVector _compressors;
 
-    /* @return the compressor with the given name, or 0. */
-    Compressor* findCompressor( const uint32_t name );
-
-private:
-    CompressorVector _compressors;
-
-    /** Initialize a single DSO .*/
-    void _initCompressor( const std::string& filename );
-};
-
+        /** Initialize a single DSO .*/
+        void _initCompressor( const std::string& filename );
+    };
 }
 #endif // EQ_PLUGINREGISTRY_H

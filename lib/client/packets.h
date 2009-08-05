@@ -57,7 +57,6 @@ namespace eq
                 size    = sizeof( ClientExitPacket );
             }
     };
-/** @endcond */
 
     //------------------------------------------------------------
     // Server
@@ -67,7 +66,6 @@ namespace eq
         ServerPacket(){ datatype = DATATYPE_EQ_SERVER; }
     };
 
-/** @cond IGNORE */
     struct ServerChooseConfigPacket : public ServerPacket
     {
         ServerChooseConfigPacket()
@@ -192,14 +190,12 @@ namespace eq
         uint32_t requestID;
         bool     result;
     };
-/** @endcond */
 
     //------------------------------------------------------------
     // Config
     //------------------------------------------------------------
     typedef net::SessionPacket ConfigPacket;
 
-/** @cond IGNORE */
     struct ConfigCreateReplyPacket : public ConfigPacket
     {
         ConfigCreateReplyPacket( const ServerCreateConfigPacket* request )

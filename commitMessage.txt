@@ -1,8 +1,9 @@
-Rename Event::EXPOSE -> Event::WINDOW_EXPOSE
-Doxygen cleanups
+Doxygen cleanups:
+- Remove _EXPORT macros from output
+- Put Release Notes in one place for doxygen and website
 
 [ ] Will break Win32 build
-[x] May break existing applications
+[ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
