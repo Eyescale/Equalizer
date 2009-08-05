@@ -1,0 +1,71 @@
+# 2-window sort-first config running on a single pipe.
+global
+{
+}
+
+server
+{
+    connection { hostname "localhost" }
+    config
+    {
+        appNode
+        {
+            connection { hostname "localhost" }
+            pipe
+            {
+				device 0
+                window
+                {
+                    name "CUDA_GL:0"
+                    viewport [ .05 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+            }
+        }
+        node
+        {
+            connection { hostname "localhost" port 2345 }
+            pipe
+            {
+				device 1
+                window
+                {
+                    name "CUDA:1"
+                    viewport [ .55 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel1"
+
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+            
+            compound
+            {
+                range   [ 0 .5 ]
+                viewport [ 0 0 .5 1 ]
+            }
+            compound
+            { 
+                channel "channel2"
+                range   [ .5 1 ]
+                viewport [ .5 0 .5 1 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+        }
+    }    
+}

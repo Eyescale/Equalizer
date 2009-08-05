@@ -1,0 +1,48 @@
+
+                    Equalizer n-body example for CUDA
+
+Overview
+
+  The eqNbody example is based on the article "Fast N-body Simulation with CUDA"
+  by Lars Nyland, Mark Harris, and Jan F. Prins. 
+  
+  The purpose of this simple example is to demonstrate how Equalizer can be used
+  to perform distributed GPU computing tasks using CUDA. We illustrate the basic
+  principles of how compute data can be shared across different nodes in a 
+  typical GPGPU configuration using common Equalizer functionality.
+
+Current design restrictions
+
+  Since we have to interoperate with OpenGL a GL context has to exist before 
+  we setup CUDA, it is thus not possible to initialise and use CUDA directly on 
+  the pipe.
+  
+  Moreover, as we use the compound mechanism to control the task scheduling
+  (through a 2D range) the GPU computing related functionality has to be 
+  implemented in the draw function of the channel.
+  
+Data distribution
+
+  Initially, the whole dataset is distributed to all nodes of the config using 
+  the common framedata mechanism. Each node then updates a specific subset of 
+  the data, renders the next frame and sends the updated data directly to all 
+  other nodes [1]. For this data synchronization we use shared data proxy 
+  objects which distribute a given subset of the data directly to all other 
+  nodes [2].
+  This approach requires a 2-stage initialisation phase, as each channel has to 
+  receive the IDs of all the proxy objects through the framedata mechanism 
+  before using them. The communication from the nodes to the application is 
+  implemented using custom config events.
+  
+Configuration files
+
+  As we encode some information in the window names we provide extra 2D config
+  files for this example.
+  
+  
+  [1] Please note that in this example every node updates its data subset each 
+      frame, which then has to be transferred to all other nodes (and GPUs!) to 
+	  compute the next frame. This is a worst-case scenario and should be 
+	  avoided in real production code!
+	  
+  [2] For simplicity reasons, the local data proxy always has index 0.

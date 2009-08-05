@@ -1,0 +1,116 @@
+# 4-window sort-first config running on 4 pipes, 2 per node.
+global
+{
+}
+
+server
+{
+    connection { hostname "localhost" }
+    config
+    {
+        appNode
+        {
+            connection { hostname "localhost" }
+            pipe
+            {
+				device 0
+                window
+                {
+                    name "CUDA_GL:0"
+                    viewport [ .05 .55 .4 .3 ]
+                    channel
+                    {
+                        name "channel10"
+                    }
+                }
+            }
+            pipe
+            {
+				device 0
+                window
+                {
+                    name "CUDA_GL:1"
+                    viewport [ .05 .05 .4 .3 ]
+                    channel
+                    {
+                        name "channel11"
+                    }
+                }
+            }
+        }
+        node
+        {
+			connection { hostname "localhost" port 2345 }
+			pipe
+            {
+				device 0
+                window
+                {
+                    name "CUDA_GL:2"
+                    viewport [ .55 .55 .4 .3 ]
+                    channel
+                    {
+                        name "channel20"
+                    }
+                }
+            }
+            pipe
+            {
+				device 0
+                window
+                {
+                    name "CUDA_GL:3"
+                    viewport [ .55 .05 .4 .3 ]
+                    channel
+                    {
+                        name "channel21"
+                    }
+                }
+            }
+
+        }
+        compound
+        {
+            channel "channel10"
+
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+            
+            compound
+            {
+                viewport [ 0 0 .25 1 ]
+                range   [ 0 .25 ]
+            }
+            compound
+            {
+#                task [ CLEAR ]
+                channel "channel11"
+                viewport [ 0.25 0 .25 1 ]
+                range   [ 0.25 0.5 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel20"
+                viewport [ .5 0 .25 1 ]
+                range   [ 0.5 0.75 ]
+                outputframe {}
+            }
+            compound
+            {
+#                task [ CLEAR ]
+                channel "channel21"
+                viewport [ 0.75 0 .25 1 ]
+                range   [ 0.75 1 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel11" }
+            inputframe { name "frame.channel20" }
+            inputframe { name "frame.channel21" }
+        }
+    }    
+}
