@@ -1,4 +1,4 @@
-Doxygen cleanups
+Minor log improvement
 
 [ ] Will break Win32 build
 [ ] May break existing applications

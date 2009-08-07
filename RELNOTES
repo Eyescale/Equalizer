@@ -193,7 +193,6 @@
    The following bugs were known at release time. Please file a Bug Report if
    you find any other issue with this release.
 
-     * 2828296: eVolve depth compositing is broken
      * 2796444: Race during simultaneous node connect
      * 2642034: Win32: max 64 connections possible
      * 2609161: zoom: depth readback does not work

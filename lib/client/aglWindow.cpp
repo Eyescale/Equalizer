@@ -361,7 +361,8 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
 
     Global::leaveCarbon();
 
-    EQINFO << "Created AGL context " << context << std::endl;
+    EQINFO << "Created AGL context " << context << " shared with " << shareCtx
+           << std::endl;
     return context;
 }
 

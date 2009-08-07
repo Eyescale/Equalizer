@@ -265,7 +265,6 @@ for easier data distribution of dynamic, versioned objects</li>
   Report</a> if you find any other issue with this release.
 </p>
 <ul>
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2828296&group_id=170962&atid=856209">2828296</a>: eVolve depth compositing is broken</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2796444&group_id=170962&atid=856209">2796444</a>: Race during simultaneous node connect</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2642034&group_id=170962&atid=856209">2642034</a>: Win32: max 64 connections possible</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2609161&group_id=170962&atid=856209">2609161</a>: zoom: depth readback does not work</li>
