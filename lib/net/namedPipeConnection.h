@@ -90,6 +90,7 @@ namespace net
 
         CHECK_THREAD_DECLARE( _recvThread );
 
+        std::string _getFilename() const;
 #endif
     };
 }

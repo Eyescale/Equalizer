@@ -43,6 +43,15 @@ NamedPipeConnection::~NamedPipeConnection()
     close();
 }
 
+std::string NamedPipeConnection::_getFilename() const
+{
+    const std::string& filename = _description->getFilename();
+    if( filename.find( "\\\\.\\pipe\\" ) == 0 )
+        return filename;
+
+    return "\\\\.\\pipe\\" + filename;
+}
+
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
@@ -88,14 +97,15 @@ void NamedPipeConnection::close()
 
 bool NamedPipeConnection::_createNamedPipe()
 {
-    if ( !WaitNamedPipe( _description->getFilename().c_str(), 20000 )) 
+    const std::string filename = _getFilename();
+    if ( !WaitNamedPipe( filename.c_str(), 20000 )) 
     { 
         EQERROR << "Can't create named pipe: " << EQ_PIPE_ERROR << std::endl; 
         return false; 
     }    
 
     _readFD = CreateFile( 
-             _description->getFilename().c_str(),   // pipe name 
+             filename.c_str(),      // pipe name 
              GENERIC_READ |         // read and write access 
              GENERIC_WRITE, 
              0,                     // no sharing 
@@ -225,8 +235,9 @@ void NamedPipeConnection::acceptNB()
 #endif
 
     // Start accept
+    const std::string filename = _getFilename();
     _readFD = CreateNamedPipe( 
-             _description->getFilename().c_str(), // pipe name 
+                     filename.c_str(),            // pipe name 
                      PIPE_ACCESS_DUPLEX |         // read/write access 
                      FILE_FLAG_OVERLAPPED,        // overlapped mode 
                      PIPE_TYPE_BYTE |             // message-type  
@@ -241,8 +252,7 @@ void NamedPipeConnection::acceptNB()
     if ( _readFD == INVALID_HANDLE_VALUE ) 
     {
         EQERROR << "Could not create named pipe: " 
-                << EQ_PIPE_ERROR << " file : " << _description->getFilename()
-                << std::endl;
+                << EQ_PIPE_ERROR << " file : " << filename << std::endl;
         close();
         return;
     }
