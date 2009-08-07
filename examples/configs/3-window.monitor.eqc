@@ -27,9 +27,6 @@ server
                        name "channel2"
                    }
                }
-           }
-           pipe
-           {
                window
                {
                    name "Operator"
@@ -67,6 +64,13 @@ server
                viewport [ .5 0 .5 1 ]
            }
        }
+       canvas
+       {
+           layout "Simple"
+           wall {}
+           segment { channel "viewer" }
+       }
+
        compound
        {
            compound
@@ -81,7 +85,7 @@ server
            }
            compound
            {
-               channel "viewer"
+               channel ( canvas 1 segment 0 layout "Simple" view 0 )
                monitor_equalizer {}
                task [ CLEAR ASSEMBLE ]
                inputframe{ name "frame.channel1" }
