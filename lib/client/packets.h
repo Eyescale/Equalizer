@@ -33,6 +33,7 @@ namespace eq
     class Pipe;
     class Window;
 
+/** @cond IGNORE */
     enum DataType
     {
         DATATYPE_EQ_CLIENT = net::DATATYPE_EQNET_CUSTOM, // 128
@@ -40,7 +41,6 @@ namespace eq
         DATATYPE_EQ_CUSTOM = 1<<8 // 256
     };
 
-/** @cond IGNORE */
     //------------------------------------------------------------
     // Client
     //------------------------------------------------------------

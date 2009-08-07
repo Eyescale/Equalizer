@@ -1,4 +1,4 @@
-Typedef and doxygen cleanups
+Doxygen cleanups
 
 [ ] Will break Win32 build
 [ ] May break existing applications

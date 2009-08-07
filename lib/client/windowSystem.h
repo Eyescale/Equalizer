@@ -24,12 +24,13 @@
 
 namespace eq
 {
+    /** The list of possible window systems. */
     enum WindowSystem
     {
         WINDOW_SYSTEM_NONE = 0, // must be first
-        WINDOW_SYSTEM_AGL,
-        WINDOW_SYSTEM_GLX,
-        WINDOW_SYSTEM_WGL,
+        WINDOW_SYSTEM_AGL,  //!< AGL/Carbon
+        WINDOW_SYSTEM_GLX,  //!< GLX/X11
+        WINDOW_SYSTEM_WGL,  //!< WGL/Win32
         WINDOW_SYSTEM_ALL      // must be last
     };
 
@@ -141,6 +142,7 @@ typedef bool  BOOL;
 
 namespace eq
 {
+/** Output an error OpenGL in a human-readable form to EQWARN */
 EQ_EXPORT void debugGLError( const std::string& when, const GLenum error, 
                    const char* file, const int line );
 }

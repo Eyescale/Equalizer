@@ -12,7 +12,7 @@ SUBDIRS = \
 
 .PHONY: docs
 
-TARGETS     = precompile subdirs postcompile # docs
+TARGETS     = precompile subdirs postcompile RELNOTES # docs
 CLEAN_EXTRA = $(INSTALL_FILES)
 
 include make/rules.mk
@@ -61,5 +61,5 @@ else
 endif
 	@echo
 
-RELNOTES: ../../trunk/website/build/documents/RelNotes/RelNotes_0.9.html
+RELNOTES: lib/RelNotes.dox
 	links -dump $< > $@

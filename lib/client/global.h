@@ -27,29 +27,40 @@ namespace eq
 {
     class NodeFactory;
     class PluginRegistry;
+
+    /** @cond IGNORE */
     bool testInitPluginDirectories();
-    
-    /** Possible values for some integer attributes */
+    /** @endcond */
+
+    /** Possible values for integer attributes */
     enum IAttrValue
     {
-        UNDEFINED  = -0xfffffff,
-        RGBA32F    = -13,
-        RGBA16F    = -12,
-        FBO        = -11,
-        LOCAL_SYNC = -10,
-        DRAW_SYNC  = -9,
-        ASYNC      = -8,
-        PBUFFER    = -7,
-        WINDOW     = -6,
-        VERTICAL   = -5,
-        QUAD       = -4,
-        ANAGLYPH   = -3,
+        UNDEFINED  = -0xfffffff, //!< Undefined value
+        RGBA32F    = -13, //!< Float32 framebuffer (Window::IATTR_PLANES_COLOR)
+        RGBA16F    = -12, //!< Float16 framebuffer (Window::IATTR_PLANES_COLOR)
+        FBO        = -11, //!< FBO drawable (Window::IATTR_HINT_DRAWABLE)
+        LOCAL_SYNC = -10, //!< Full local sync (Node::IATTR_THREAD_MODEL)
+        DRAW_SYNC  = -9,  //!< Local draw sync (Node::IATTR_THREAD_MODEL)
+        ASYNC      = -8,  //!< No local sync (Node::IATTR_THREAD_MODEL)
+        PBUFFER    = -7,  //!< PBuffer drawable (Window::IATTR_HINT_DRAWABLE)
+        WINDOW     = -6,  //!< Window drawable (Window::IATTR_HINT_DRAWABLE)
+        VERTICAL   = -5,  //!< Vertical load-balancing
+        QUAD       = -4,  //!< Quad-buffered stereo decomposition
+        ANAGLYPH   = -3,  //!< Anaglyphic stereo decomposition
+        /** 
+         * Nicest statisics gathering (Window::IATTR_HINT_STATISTICS,
+         * Channel::IATTR_HINT_STATISTICS)
+         */
         NICEST     = -2,
-        AUTO       = -1,
-        OFF        = 0,
-        ON         = 1,
+        AUTO       = -1,  //!< Automatic selection (various attributes)
+        OFF        = 0,   //!< disabled (various attributes)
+        ON         = 1,   //!< enabled (various attributes)
+        /** 
+         * Fastest statisics gathering (Window::IATTR_HINT_STATISTICS,
+         * Channel::IATTR_HINT_STATISTICS)
+         */
         FASTEST    = ON,
-        HORIZONTAL = ON
+        HORIZONTAL = ON   //!< Horizontal load-balancing
     };
 
     /** 

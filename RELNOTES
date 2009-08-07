@@ -1,6 +1,3 @@
-
-                        Release Notes for Equalizer 0.6
-
      * 1. Introduction
           * 1.1. Features
      * 2. New in this release
@@ -8,10 +5,11 @@
           * 2.2. Enhancements
           * 2.3. Optimizations
           * 2.4. Examples
-          * 2.5. API Changes
-          * 2.6. Documentation
-          * 2.7. Bug Fixes
-          * 2.8. Known Bugs
+          * 2.5. Tools
+          * 2.6. API Changes
+          * 2.7. Documentation
+          * 2.8. Bug Fixes
+          * 2.9. Known Bugs
      * 3. About
           * 3.1. Operating System Support
           * 3.2. Window System Support
@@ -20,12 +18,12 @@
 
 1. Introduction
 
-   Welcome to Equalizer, a framework for the development and deployment of
-   parallel, scalable OpenGL applications. Equalizer 0.6 delivers major new
-   features, most notably support for DPlex compounds and automatic
-   load-balancing.
+   Welcome to Equalizer, the standard middleware to create and deploy
+   parallel, scalable OpenGL applications. Equalizer 0.9 delivers major new
+   features, most notably major new scalability features and a plugin API for
+   image compression.
 
-   Equalizer 0.6 can be retrieved by downloading the source code.
+   Equalizer 0.9 can be retrieved by downloading the source code.
 
   1.1. Features
 
@@ -33,131 +31,176 @@
    development and deployment of scalable OpenGL applications. A detailed
    feature list can be found on the Equalizer website.
 
-     * Runtime Configurability: An Equalizer application can run on any
-       configuration, from laptops to large-scale visualization clusters,
-       without recompilation. The runtime configuration is externalized from
-       the application to a system-wide resource server.
-     * Runtime Scalability: An Equalizer application can aggregate multiple
-       CPU's, GPU's and computers to increase the rendering performance of a
-       single or multiple views.
+     * Runtime Configurability: An Equalizer application is configured at
+       runtime and can be deployed on laptops, multi-GPU workstations and
+       large-scale visualization clusters without recompilation.
+     * Runtime Scalability: An Equalizer application can benefit from
+       multiple graphics cards, processors and computers to scale rendering
+       performance, visual quality and display size.
      * Distributed Execution: Equalizer applications can be written to
        support cluster-based execution. The task of distributing the
        application data is facilitated by support for versioned, distributed
        objects.
      * Support for Stereo and Immersive Environments: Equalizer supports both
-       active and passive stereo rendering, as well as head tracking, used in
-       immersive Virtual Reality installations.
+       active and passive stereo rendering, as well as head tracking and
+       head-mounted displays used in immersive Virtual Reality installations.
 
 2. New in this release
 
-   Equalizer 0.6 contains the following features, enhancements, bug fixes and
+   Equalizer 0.9 contains the following features, enhancements, bug fixes and
    documentation changes:
 
   2.1. New Features
 
-     * Automatic 2D and DB load-balancing
-     * Support for DPlex (time-multiplex, SFR) compounds
-     * Statistics Overlay to understand and eliminate bottlenecks in the
-       rendering pipeline
-     * Easy configuration of thread synchronization model
-     * View API to modify the view parameters during rendering
-     * New OSWindow interface to simplify window system integration
-     * New 2D bitmap font to draw text
-     * Support for orthographic projections
-     * Support for OpenGL accumulation buffer and multisample setup
-     * Support for using Paracomp as a compositing backend
+     * Automatic cross-segment load-balancing for multi-display installations
+     * Dynamic Frame Resolution (DFR) for constant framerate rendering
+     * Compression Plugin API for runtime-loadable image compression engines
+     * Canvas and Layout API for runtime-switchable layouts and resource
+       configurations
+          * Simple configuration of physical projection system
+          * Logical view layouts on multi-segment projection surfaces
+          * Simple 2D operations on multi-segment projection surfaces
+          * Run-time (de-)activation of nodes, pipes, windows and channels
+     * Support for multiple observers in a single configuration
+     * Support for Head-Mounted Displays (HMD)
+     * Monitor Equalizer for the observation of other views
+     * Up- and down-scaling for source channel pixel viewports, including
+       zoom support for compositing
+     * Support for hardware swapbuffer synchronization with nVidia G-Sync
+     * Support for Framebuffer Objects (FBO)
+     * Support for half_float and float PBuffers and FBOs
+     * Spacemouse support (AGL only)
+     * New helper class to handle dynamic libraries
+     * New helper class for memory-mapped files
 
   2.2. Enhancements
 
-     * Upgraded GLEW to version 1.5.1
-     * Automatic image compression for 'slow' (< 2GBit) connections
-     * Alpha-blending support in the CPU-based compositor
-     * Support for two-dimensional pixel compound kernels
-     * Support for using multiple clients with the netperf benchmark tool
-     * Support window swap buffer vertical retrace synchronization on WGL
-     * Add show and hide window events
+     * Improved statistics overlay (added legend, FPS counter, image
+       compression ratio, pipe idle ratio, framerate throttle statistic)
+     * New helper class eq::Object for easier data distribution of dynamic,
+       versioned objects
+     * Texture-based frames for optimal compositing on a single GPU
+     * Upgraded to VMMlib 1.0
+     * Abstraction for window-system specific code through OSPipe interface
+     * AGL event handling follows same threading model as GLX and WGL
+     * Config file versioning
+     * Synchronize clock used for logging across all nodes
+     * Improved handling for event-driven applications
 
   2.3. Optimizations
 
-     * Improved overall performance by using atomic operations for reference
-       counted objects
-     * Improved performance when using non-threaded pipes
-     * Asynchronous network frame transmission during compositing
-     * Assertions are disabled in release builds
-     * Switch to CriticalSection for Win32 locks
+     * Lock-free network packet cache for low-latency, high-performance
+       packet dispatch
+     * Network layer uses asynchronous IO semantics and has better
+       performance on Windows
+     * Per-component and differential RLE image compressor
+     * Use GL_UNSIGNED_INT depth buffer instead of GL_FLOAT for better
+       performance and compression
+     * DPlex framerate equalizer optimizations
+     * Faster serialization of std::vectors in distributed objects
+     * Named pipe connection for fast local communication on Windows
 
   2.4. Examples
 
-     * eqPly: network-based instead of file-based model distribution
-     * eqPly: added head-tracking emulation
-     * eqPly: implemented event-driven execution
+     * eqOSG: new OpenSceneGraph-based example
+     * eqPly: added wireframe mode
+     * eqPly: added multi-model support
+     * eqPly: full support of the new layout API
+     * eqPly: added help overlay on 'F1'
+     * eqPly: optimized kD-tree layout
+     * eqPly: added walk-through mode
+     * eqPly: added loadable camera paths
+     * eqPly: added Spacemouse support (AGL only)
+     * eqPly: added command-line option to disable overlay logo
+     * eqPly: unified coloring to demonstrate decomposition
 
-  2.5. API Changes
+  2.5. Tools
 
-     * The compound attribute UPDATE_FOV has been removed, since view updates
-       are handled by the application, using the new View API.
-     * Event::RESIZE has been deprecated. Use Event::WINDOW_RESIZE instead.
-     * The new OSWindow interface moved all window system functionality from
-       the eq::Window to different subclasses of OSWindow. Applications
-       integrating with their own windowing code have to implement an
-       OSWindow containing all the window system code, and instantiate this
-       OSWindow in Window::configInitOSWindow. Please refer to the
-       Programming Guide for a detailed description of the Window System
-       Interface.
-     * The OSWindow interface also caused some cleanups in the event
-       handling. Most notably, the classes ChannelEvent and WindowEvent are
-       now unneeded and have been removed. The former base class Event is now
-       used in the appropriate places.
-     * The eqBase, eqNet and eqServer namespaces have been renamed to
-       eq::base, eq::net and eq::server, respectively. Application developers
-       are encouraged to make the necessary changes, but can define
-       EQ_USE_DEPRECATED if these changes are not feasible.
+     * affinityCheck: new command-line tool to list available affinity GPUs
+       (WGL only)
+     * configTool: added support for having an async compositing GPU for DB
+     * configTool: added support for setting the destination window
+       resolution
 
-  2.6. Documentation
+  2.6. API Changes
 
-     * The Programming Guide has been extended to 62 pages and 37 figures.
-     * View API
-     * Statistics Overlay
+   The following changes breaking compatibility with Equalizer 0.6 source
+   code were made:
 
-  2.7. Bug Fixes
+     * VMMlib, the vector and matrix library used by Equalizer, was upgraded
+       to version 1.0. The API of this library changed, and all type
+       definitions used by Equalizer now reside in the eq namespace instead
+       of the vmml namespace.
+     * The View API introduced in 0.6 has been replaced by the more powerful
+       Layout/Canvas/Observer API
+     * All window system specific calls have been moved from eq::Pipe to the
+       corresponding eq::OSPipe implementation.
+     * Config::setHeadMatrix and Config::setEyeBase have been deprecated. Use
+       Config::getObservers, Observer::setHeadMatrix and Observer::setEyeBase
+       instead.
+     * The ChannelVisitor::Result type has been renamed to the generic
+       VisitorResult type used by all visitors.
+     * The access to pixel data in eq::Image has been slightly changed by the
+       introduction of compression plugins.
+     * The enum Node::IATTR_HINT_STATISTICS has been removed since it is not
+       used anymore.
+     * Reference counting of OpenGL objects allocated by eq::ObjectManager
+       has been removed. This functionality proved unnecessary and
+       complicated the API.
+     * The enum value Event::EXPOSE has been renamed to Event::WINDOW_EXPOSE.
 
-   Equalizer 0.6 includes various bugfixes over the 0.5 release, including
+  2.7. Documentation
+
+   The following documentation has been added or substantially improved since
+   the last release:
+
+     * The Programming and User Guide has been extended to TBD pages and TBD
+       figures.
+     * Quickstart and Demo Guide
+     * Equalizer: A Scalable Parallel Rendering Framework, IEEE Transactions
+       on Visualization and Computer Graphics, vol. 15, no. 3, pp. 436-452,
+       May/June 2009.
+     * API Documentation
+     * GPU Affinity Checker
+     * Hardware swapbarrier for synchronization of multipipe displays
+     * Compression Plugin API is the official interface to create binary
+       plugins for data compression.
+     * Layout API provides a way to configure physical projection surfaces
+       with logical layouts and multiple observers.
+
+  2.8. Bug Fixes
+
+   Equalizer 0.9 includes various bugfixes over the 0.6 release, including
    the following:
 
-     * 2369549: Crash in wglSwapIntervalEXT
-     * 2284482: Head tracking broken with VS release builds
-     * 2263716: 5-channel.cave.eqc has wrong top/bottom wall
-     * 2166278: eq::net::Object with instance never uses pack/unpack
-     * 2149563: WGL: Update region is reset by event handler
-     * 2047816: name field in config missing
-     * 2033860: frameDrawFinish called too early and too often
-     * 2032643: eqHello: process-local server object gets not deleted.
-     * 2032631: Nullpointer exception and crash
-     * 2032643: process-local server object gets not deleted
-     * 2033860: frameDrawFinish called too early and too often
-     * 2149563: WGL: Update region is reset by event handler
-     * 2026837: swapbarrier calls increase with single-buffered windows
-     * 1997751: defines for EQ_BIT17 - EQ_BIT20 are wrong
-     * 1996988: AGL reports key press twice
-     * 1997579: Important WGL key events not reported
-     * Fixed a big memory leak in the packet handling code, as well as
-       numerous small bug fixes and code cleanups
-     * 1994798: Compound::getNode null pointer read
-     * 1981854: AGL: PBuffer with Fullscreen broken
-     * 1960225: Problems with windows getting focus on mac
-     * 1960098: eqPly crashes during rendering
-
-  2.8. Known Bugs
-
+     * 2822348: No latency when event-driven
+     * 2803528: assertion with zero area pvps
+     * 2797391: Error state in parser not reset
+     * 2788964: Suspicious compiler warning
+     * 2782038: Mapping of multiple Objects of type DELTA creates assertions
+     * 2778587: eqServer crashes when running without an appNode
+     * 2688797: Configs with no appNode crash
+     * 2592240: DPlex LB breaks swapbarrier
+     * 2556921: AGL context updates broken
+     * 2545209: crashes on specific configs
+     * 2458583: Mouse buttons are numbered differently between AGL and GLX
      * 2268547: fullscreen windows not always active on Win32
-     * 2151376: Irregular Pixel kernels do not work
-     * 2003195: Ortho frusta ignore eye offset
-     * 2003132: 3-wnd.DB.ds is broken on some ppc machines for eqPly
      * 1997583: eqPly: ortho frustum culling broken
-     * 1959418: DB Compositing fails on MacBook with GMA X3100
+     * 1816670: eVolve: binary swap configs don't work
+
+  2.9. Known Bugs
+
+   The following bugs were known at release time. Please file a Bug Report if
+   you find any other issue with this release.
+
+     * 2828296: eVolve depth compositing is broken
+     * 2796444: Race during simultaneous node connect
+     * 2642034: Win32: max 64 connections possible
+     * 2609161: zoom: depth readback does not work
+     * 2556940: zoom: FBO usage
+     * 2003195: Ortho frustra ignores eye offset
      * 1854948: eVolve: lighting ignores head transformation
      * 1854929: eqPly GLSL shader has artefacts
-     * 1816670: eVolve: binary swap configs don't work
 
 3. About
 
@@ -166,11 +209,11 @@
    system. A compatibility matrix can be found on the Equalizer website.
 
    Equalizer requires at least OpenGL 1.1, but uses newer OpenGL features
-   when available. Version 0.5.0 has been tested on:
+   when available. Version 0.9 has been tested on:
 
   3.1. Operating System Support
 
-     * Linux: Ubuntu 6.10 (x64, i386), RHEL4 (x64, i386)
+     * Linux: Ubuntu 8.04, 9.04 (i386)
      * Windows: XP with Visual Studio 2005 (i386, x64) and Cygwin (i386)
      * Mac OS X: 10.5 (PowerPC, i386)
 
@@ -182,7 +225,7 @@
 
   3.3. Documentation
 
-   The Programming Guide is available as a hard-copy and online. API
+   The Programming and User Guide is available as a hard-copy and online. API
    documentation can be found on the Equalizer website. Equalizer does not
    yet have an Users Guide.
 

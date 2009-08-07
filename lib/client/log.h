@@ -22,15 +22,16 @@
 
 namespace eq
 {
+    /** Defines selective logging classes enabled by setting EQ_LOG_TOPICS. */
     enum LogTopics
     {
-        LOG_ASSEMBLY = net::LOG_CUSTOM << 0,   // 256
-        LOG_TASKS    = net::LOG_CUSTOM << 1,   // 512
-        LOG_EVENTS   = net::LOG_CUSTOM << 2,   // 1024
-        LOG_STATS    = net::LOG_CUSTOM << 3,   // 2048
-        LOG_INIT     = net::LOG_CUSTOM << 4,   // 4096
-        LOG_SERVER   = net::LOG_CUSTOM << 5,   // 8192
-        LOG_CUSTOM   = 0x10000                 // 65536
+        LOG_ASSEMBLY = net::LOG_CUSTOM << 0,   //!< Log compositing tasks (256)
+        LOG_TASKS    = net::LOG_CUSTOM << 1,   //!< Log rendering tasks (512)
+        LOG_EVENTS   = net::LOG_CUSTOM << 2,   //!< Log events (1024)
+        LOG_STATS    = net::LOG_CUSTOM << 3,   //!< Log statistic events (2048)
+        LOG_INIT     = net::LOG_CUSTOM << 4,   //!< Log initialization (4096)
+        LOG_SERVER   = net::LOG_CUSTOM << 5,   //!< Server-side logging (8192)
+        LOG_CUSTOM   = 0x10000                 //!< User-defined log topics
     };
 }
 #endif // EQ_LOG_H

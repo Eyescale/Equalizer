@@ -22,6 +22,7 @@
 
 namespace eq
 {
+/** @cond IGNORE */
     enum ServerCommand
     {
         CMD_SERVER_CHOOSE_CONFIG        = net::CMD_NODE_CUSTOM,
@@ -186,6 +187,7 @@ namespace eq
         CMD_FRAMEDATA_FILL5,
         CMD_FRAMEDATA_CUSTOM
     };
+/** @endcond */
 };
 
 #endif // EQ_COMMANDS_H

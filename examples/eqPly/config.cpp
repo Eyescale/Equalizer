@@ -617,8 +617,11 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
                 _frameData.setModelID( modelID );
             
             if( view )
-                _setMessage( "Model " + getModel( modelID )->getName() + 
-                             " active" );
+            {
+                const Model* model = getModel( modelID );
+                _setMessage( "Model " + eq::base::getFilename( model->getName( ))
+                             + " active" );
+            }
             return true;
         }
 

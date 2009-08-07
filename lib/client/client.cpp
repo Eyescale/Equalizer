@@ -143,6 +143,7 @@ bool Client::connectServer( ServerPtr server )
     return false;
 }
 
+/** @cond IGNORE */
 namespace
 {
 base::DSO _libeqserver;
@@ -194,6 +195,7 @@ static void _joinLocalServer()
     eqsJoinLocalServer();
     _libeqserver.close();
 }
+/** @endcond */
 
 bool Client::disconnectServer( ServerPtr server )
 {
