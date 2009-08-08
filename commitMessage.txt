@@ -1,9 +1,9 @@
-Minor log improvement
+Final version of 0.9 Programming and User Guide
 
 [ ] Will break Win32 build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
