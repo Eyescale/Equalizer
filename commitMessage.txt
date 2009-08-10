@@ -1,4 +1,4 @@
-Fix near/far calculation bug in eqPly
+Minor RelNotes update
 
 [ ] Will break Win32 build
 [ ] May break existing applications
