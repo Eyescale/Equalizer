@@ -1,12 +1,9 @@
-Fix 2834063: eqPly and eVolve freezes on Mac with glx
-
-The interrupt events for the GLX message pump where never handled in
-this setup, causing the interrupt() to block eventually.
+Minor config file tweak
 
 [ ] Will break Win32 build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

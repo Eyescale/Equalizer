@@ -3,28 +3,30 @@
 # two-to-one sort-first config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_WINDOW_IATTR_HINT_DRAWABLE pbuffer
 }
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
         {
+            connection { hostname "127.0.0.1" }
             pipe 
             {
                 window
                 {
                     viewport [ .25 .25 .5 .5 ]
-                    attributes{ hint_fullscreen OFF }
+                    attributes{ hint_drawable window }
                     channel { name "channel1" }
                 }
             }
         }
         node
         {
-            connection { hostname "node2" }
+            connection { hostname "127.0.0.1" }
             pipe { window { channel { name "channel2" }}}
         }
         compound
