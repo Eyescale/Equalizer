@@ -1,4 +1,4 @@
-Minor Makefile fix
+dos2unix
 
 [ ] Will break Win32 build
 [ ] May break existing applications
