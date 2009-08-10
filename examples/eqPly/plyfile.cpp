@@ -2263,20 +2263,23 @@ void get_binary_item(
 
   switch (type) {
     case PLY_CHAR:
-      fread (ptr, 1, 1, plyfile->fp);
+      if( fread (ptr, 1, 1, plyfile->fp) <= 0 )
+          abort();
       *int_val = *((char *) ptr);
       *uint_val = *int_val;
       *double_val = *int_val;
       break;
       case PLY_UCHAR:
       case PLY_UINT8:
-          fread (ptr, 1, 1, plyfile->fp);
+          if( fread (ptr, 1, 1, plyfile->fp) <= 0 )
+              abort();
           *uint_val = *((unsigned char *) ptr);
           *int_val = *uint_val;
           *double_val = *uint_val;
           break;
       case PLY_SHORT:
-          fread (ptr, 2, 1, plyfile->fp);
+          if( fread (ptr, 2, 1, plyfile->fp) <= 0 )
+              abort();
           if( plyfile->file_type == PLY_BINARY_BE )
           {
               swap2BE(ptr);
@@ -2290,7 +2293,8 @@ void get_binary_item(
           *double_val = *int_val;
           break;
       case PLY_USHORT:
-          fread (ptr, 2, 1, plyfile->fp);
+          if( fread (ptr, 2, 1, plyfile->fp) <= 0 )
+              abort();
           if( plyfile->file_type == PLY_BINARY_BE )
           {
               swap2BE(ptr);
@@ -2305,7 +2309,8 @@ void get_binary_item(
           break;
       case PLY_INT:
       case PLY_INT32:
-          fread (ptr, 4, 1, plyfile->fp);
+          if( fread (ptr, 4, 1, plyfile->fp) <= 0 )
+              abort();
           if( plyfile->file_type == PLY_BINARY_BE )
           {
               swap4BE(ptr);
@@ -2319,7 +2324,8 @@ void get_binary_item(
           *double_val = *int_val;
           break;
       case PLY_UINT:
-          fread (ptr, 4, 1, plyfile->fp);
+          if( fread (ptr, 4, 1, plyfile->fp) <= 0 )
+              abort();
           if( plyfile->file_type == PLY_BINARY_BE )
           {
               swap4BE(ptr);
@@ -2334,7 +2340,8 @@ void get_binary_item(
           break;
       case PLY_FLOAT:
       case PLY_FLOAT32:
-          fread (ptr, 4, 1, plyfile->fp);
+          if( fread (ptr, 4, 1, plyfile->fp) <= 0 )
+              abort();
           if( plyfile->file_type == PLY_BINARY_BE )
           {
               swap4BE(ptr);
@@ -2348,7 +2355,8 @@ void get_binary_item(
           *uint_val = (unsigned int) *double_val;
           break;
       case PLY_DOUBLE:
-          fread (ptr, 8, 1, plyfile->fp);
+          if( fread (ptr, 8, 1, plyfile->fp) <= 0 )
+              abort();
           if( plyfile->file_type == PLY_BINARY_BE )
           {
               swap8BE(ptr);

@@ -1,4 +1,4 @@
-Rename eqNbody->eqNBody, add to release notes
+Fix some Ubuntu warnings
 
 [ ] Will break Win32 build
 [ ] May break existing applications
