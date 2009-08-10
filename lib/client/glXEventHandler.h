@@ -69,6 +69,9 @@ namespace eq
 
         static void _handleEvents( X11ConnectionPtr connection );
 
+        /** @return true if something was handled, false on timeout */
+        static bool _dispatch( const int timeout );
+
         void _processEvent( GLXWindowEvent& event, Pipe* pipe );
         uint32_t  _getButtonState( XEvent& event );
         uint32_t  _getButtonAction( XEvent& event );

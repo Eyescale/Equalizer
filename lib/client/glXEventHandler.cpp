@@ -47,7 +47,6 @@ GLXEventHandler::GLXEventHandler( GLXPipe* pipe )
 {
     if( !_pipeConnections )
     {
-        EQINFO << "Set glX event set" << endl;
         _pipeConnections = new GLXEventHandler::EventSet;
     }
     
@@ -98,11 +97,16 @@ void GLXEventHandler::clearEventSet()
 
 void GLXEventHandler::dispatchOne()
 {
+    _dispatch( -1 );
+}
+
+bool GLXEventHandler::_dispatch( const int timeout )
+{
     GLXEventSetPtr connections = _pipeConnections.get();
     if( !connections )
-        return;
+        return false;
 
-    const net::ConnectionSet::Event event = connections->select( );
+    const net::ConnectionSet::Event event = connections->select( timeout );
     switch( event )
     {
         case net::ConnectionSet::EVENT_DISCONNECT:
@@ -121,13 +125,16 @@ void GLXEventHandler::dispatchOne()
             break;
 
         case net::ConnectionSet::EVENT_CONNECT:
-        case net::ConnectionSet::EVENT_TIMEOUT:   
         case net::ConnectionSet::EVENT_ERROR:      
         default:
             EQWARN << "Error during select" << endl;
             break;
-                
+
+        case net::ConnectionSet::EVENT_TIMEOUT:
+            return false;
     }
+
+    return true;
 }
 
 void GLXEventHandler::dispatchAll()
@@ -147,6 +154,9 @@ void GLXEventHandler::dispatchAll()
         
         _handleEvents( x11Connection );
     }
+
+    while( _dispatch( 0 )) // handle disconnect and interrupt events
+        ;
 }
 
 void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
