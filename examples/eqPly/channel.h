@@ -55,6 +55,7 @@ namespace eqPly
         void _drawModel( const Model* model );
         void _drawOverlay();
         void _drawHelp();
+        void _updateNearFar( const mesh::BoundingSphere& boundingSphere );
         void _initFrustum( eq::FrustumCullerf& frustum, 
                            const mesh::BoundingSphere& boundingSphere );
 
