@@ -80,15 +80,23 @@ void NamedPipeConnection::close()
     if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
         return;
 
-    if( isListening( ))
-        _exitAIOAccept();
-    else
-        _exitAIORead();
-
     EQASSERT( _readFD > 0 ); 
-    if( !DisconnectNamedPipe( _readFD ))
-        EQERROR << "Could not close named pipe: " << EQ_PIPE_ERROR
-                << std::endl;
+
+    if( isListening( ))
+    {
+        _exitAIOAccept();
+
+        if( !DisconnectNamedPipe( _readFD ))
+            EQERROR << "Could not disconnect named pipe: " << EQ_PIPE_ERROR
+                    << std::endl;
+    }
+    else
+    {
+        _exitAIORead();
+        if( !CloseHandle( _readFD ))
+            EQERROR << "Could not close named pipe: " << EQ_PIPE_ERROR
+                    << std::endl;
+    }
 
     _readFD = INVALID_HANDLE_VALUE;
     _state = STATE_CLOSED;

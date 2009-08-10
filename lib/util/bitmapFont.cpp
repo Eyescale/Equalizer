@@ -138,7 +138,7 @@ bool BitmapFont::_initFontWGL( const std::string& name,
 
     LOGFONT font;
     memset( &font, 0, sizeof( font ));
-    font.lfHeight = -size;
+    font.lfHeight = -static_cast< LONG >( size );
     font.lfWeight = FW_NORMAL;
     font.lfCharSet = ANSI_CHARSET;
     font.lfOutPrecision = OUT_DEFAULT_PRECIS;
