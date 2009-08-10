@@ -1,4 +1,4 @@
-Fix some Ubuntu warnings
+Disable deprecation warnings on Linux
 
 [ ] Will break Win32 build
 [ ] May break existing applications
