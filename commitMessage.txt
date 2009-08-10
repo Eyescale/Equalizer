@@ -1,4 +1,4 @@
-Update eqOSG example (Tomas Garcia-Pozuelo Barrios)
+Minor Makefile fix
 
 [ ] Will break Win32 build
 [ ] May break existing applications

@@ -62,4 +62,4 @@ endif
 	@echo
 
 RELNOTES: lib/RelNotes.dox
-	links -dump $< > $@
+	-links -dump $< > $@
