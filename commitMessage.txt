@@ -1,4 +1,4 @@
-Minor config file tweak
+Update eqOSG example (Tomas Garcia-Pozuelo Barrios)
 
 [ ] Will break Win32 build
 [ ] May break existing applications
