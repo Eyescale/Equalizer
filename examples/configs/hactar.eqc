@@ -27,7 +27,7 @@ server
         }
         node
         {
-            connection { hostname "node2" }
+            connection { hostname "node10" }
             pipe { window { channel { name "channel4" }}}
         }
         node

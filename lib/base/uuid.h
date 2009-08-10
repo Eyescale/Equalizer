@@ -72,37 +72,37 @@ namespace base
         bool operator == ( const UUID& rhs ) const
             { 
                 RPC_STATUS status; 
-                return ( UuidEqual( const_cast<::UUID*>( &_id ), 
-                                    const_cast<::UUID*>( &rhs._id ),
+                return ( UuidEqual( const_cast< ::UUID* >( &_id ), 
+                                    const_cast< ::UUID* >( &rhs._id ),
                                     &status ) == TRUE );
             }
         bool operator != ( const UUID& rhs ) const
             { 
                 RPC_STATUS status; 
-                return ( UuidEqual( const_cast<::UUID*>( &_id ), 
-                                    const_cast<::UUID*>( &rhs._id ),
+                return ( UuidEqual( const_cast< ::UUID* >( &_id ), 
+                                    const_cast< ::UUID* >( &rhs._id ),
                                     &status ) == FALSE );
             }
 
         bool operator <  ( const UUID& rhs ) const
             { 
                 RPC_STATUS status; 
-                return UuidCompare( const_cast<::UUID*>( &_id ), 
-                                    const_cast<::UUID*>( &rhs._id ),
+                return UuidCompare( const_cast< ::UUID* >( &_id ), 
+                                    const_cast< ::UUID* >( &rhs._id ),
                                     &status ) < 0;
             }
         bool operator >  ( const UUID& rhs ) const
             { 
                 RPC_STATUS status; 
-                return UuidCompare( const_cast<::UUID*>( &_id ), 
-                                    const_cast<::UUID*>( &rhs._id ),
+                return UuidCompare( const_cast< ::UUID* >( &_id ), 
+                                    const_cast< ::UUID* >( &rhs._id ),
                                     &status ) > 0;
             }
 
         bool operator ! () const 
             {
                 RPC_STATUS status; 
-                return ( UuidIsNil( const_cast<::UUID*>( &_id ), &status )==TRUE);
+                return ( UuidIsNil( const_cast< ::UUID* >( &_id ), &status )==TRUE);
             }
 
         void convertToNetwork()
@@ -208,7 +208,7 @@ namespace base
     {
 #ifdef WIN32
         unsigned char* uuid;
-        UuidToString( const_cast<::UUID*>( &id._id ), &uuid );
+        UuidToString( const_cast< ::UUID* >( &id._id ), &uuid );
         os << uuid;
         RpcStringFree( &uuid );
 #else

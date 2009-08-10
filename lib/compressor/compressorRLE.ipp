@@ -176,7 +176,9 @@ static inline void _decompress( const void* const* inData,
     const ComponentType* const* in = 
         reinterpret_cast< const ComponentType* const* >( inData );
 
+#ifdef EQ_USE_OPENMP
 #pragma omp parallel for
+#endif
     for( ssize_t i = 0; i < static_cast< ssize_t >( nInputs ) ; i+=4 )
     {
         const uint64_t startIndex = static_cast<uint64_t>( i/4 * width ) * 4;
@@ -269,7 +271,9 @@ static inline void _compress( const void* const inData,
     const ComponentType* const data = 
         reinterpret_cast< const ComponentType* >( inData );
     
+#ifdef EQ_USE_OPENMP
 #pragma omp parallel for
+#endif
     for( ssize_t i = 0; i < static_cast< ssize_t >( nResults ) ; i += 4 )
     {
         const uint64_t startIndex = static_cast< uint64_t >( i/4 * width ) * 4;

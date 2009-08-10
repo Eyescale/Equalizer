@@ -109,7 +109,9 @@ void CompressorRLE4BU::compress( const void* const inData,
     const uint64_t* const data =
         reinterpret_cast< const uint64_t* >( inData );
 
+#ifdef EQ_USE_OPENMP
 #pragma omp parallel for
+#endif
     for( ssize_t i = 0; i < nResults; ++i )
     {
         const uint64_t startIndex = static_cast< uint64_t >( i * width );
@@ -160,7 +162,9 @@ void CompressorRLE4BU::decompress( const void* const* inData,
 
     // decompress each block
     // On OS X the loop is sometimes slower when parallelized. Investigate this!
+#ifdef EQ_USE_OPENMP
 #pragma omp parallel for
+#endif
     for( ssize_t i = 0; i < static_cast< ssize_t >( nInputs ); ++i )
     {
         const uint64_t* in  = reinterpret_cast< const uint64_t* >( inData[i] );

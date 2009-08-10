@@ -34,7 +34,9 @@ void* runChild( void* arg )
 {
     unsigned char data[ LOOPSIZE ];
 
+#ifdef EQ_USE_OPENMP
 #  pragma omp parallel for
+#endif
     for( int i = 0; i < LOOPSIZE; ++i )
     {
         data[i] = static_cast< unsigned char >( i % 256 );
