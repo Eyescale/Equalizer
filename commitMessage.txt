@@ -1,9 +1,9 @@
-Disable deprecation warnings on Linux
+Fix near/far calculation bug in eqPly
 
 [ ] Will break Win32 build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

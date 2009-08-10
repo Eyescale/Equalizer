@@ -224,7 +224,7 @@ for easier data distribution of dynamic, versioned objects</li>
       A Scalable Parallel Rendering Framework</a>, IEEE Transactions on
     Visualization and Computer Graphics, vol. 15, no. 3, pp. 436-452, May/June
     2009.</li>
-  <li><a href="http://www.equalizergraphics.com/documents/Developer/API/index.html">API Documentation</a></li>
+  <li><a href="http://www.equalizergraphics.com/documents/Developer/API-0.9/index.html">API Documentation</a></li>
   <li><a href="http://www.equalizergraphics.com/downloads/tools.html">GPU
       Affinity Checker</a>
   <li><a href="http://www.equalizergraphics.com/documents/design/swapBarrier.html#gsync">Hardware
@@ -312,7 +312,7 @@ for easier data distribution of dynamic, versioned objects</li>
 <p>
   The Programming and User Guide is available as a 
   <a href="http://www.lulu.com/content/paperback-book/equalizer-09-programming-and-user-guide/7501548">hard-copy</a>
-  and <a href="http://www.equalizergraphics.com/survey.html">online</a>. <a href="http://www.equalizergraphics.com/documents/Developer/API/index.html">API documentation</a> can be
+  and <a href="http://www.equalizergraphics.com/survey.html">online</a>. <a href="http://www.equalizergraphics.com/documents/Developer/API-0.9/index.html">API documentation</a> can be
   found on the Equalizer website. Equalizer does not yet have an Users Guide.
 </p>
 <p>

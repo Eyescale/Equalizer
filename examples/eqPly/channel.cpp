@@ -76,6 +76,10 @@ void Channel::frameClear( const uint32_t frameID )
 
 void Channel::frameDraw( const uint32_t frameID )
 {
+    const Model* model = _getModel();
+    if( model )
+        _updateNearFar( model->getBoundingSphere( ));
+
     // Setup OpenGL state
     eq::Channel::frameDraw( frameID );
 
@@ -107,7 +111,6 @@ void Channel::frameDraw( const uint32_t frameID )
     else
         glColor3f( .75f, .75f, .75f );
 
-    const Model* model = _getModel();
     if( model )
     {
         _drawModel( model );
@@ -422,27 +425,15 @@ void Channel::_drawHelp()
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
-void Channel::_initFrustum( eq::FrustumCullerf& culler,
-                            const mesh::BoundingSphere& boundingSphere )
+void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
 {
-    // setup frustum cull helper
-    const FrameData& frameData = _getFrameData();
-
-    const eq::Matrix4f& rotation       = frameData.getCameraRotation();
-    const eq::Matrix4f& modelRotation  = frameData.getModelRotation();
-          eq::Matrix4f  translation = eq::Matrix4f::IDENTITY;
-    translation.set_translation( frameData.getCameraTranslation());
-
-    const eq::Matrix4f headTransform = getHeadTransform() * rotation;
-    const eq::Matrix4f modelView = headTransform*translation*modelRotation;
-
-    const bool ortho = frameData.useOrtho();
-    const eq::Frustumf& frustum      = ortho ? getOrtho() : getFrustum();
-    const eq::Matrix4f  projection   = ortho ? frustum.compute_ortho_matrix() :
-                                               frustum.compute_matrix();
-    culler.setup( projection * modelView );
-
     // compute dynamic near/far plane of whole model
+    const FrameData& frameData = _getFrameData();
+    const bool ortho = frameData.useOrtho();
+
+    const eq::Matrix4f& rotation     = frameData.getCameraRotation();
+    const eq::Matrix4f headTransform = getHeadTransform() * rotation;
+
     eq::Matrix4f modelInv;
     compute_inverse( headTransform, modelInv );
 
@@ -458,7 +449,7 @@ void Channel::_initFrustum( eq::FrustumCullerf& culler,
     const eq::Vector3f nearPoint  = headTransform * ( center - front );
     const eq::Vector3f farPoint   = headTransform * ( center + front );
 
-    if( frameData.useOrtho( ))
+    if( ortho )
     {
         EQASSERT( fabs( farPoint.z() - nearPoint.z() ) > 
                   std::numeric_limits< float >::epsilon( ));
@@ -467,6 +458,7 @@ void Channel::_initFrustum( eq::FrustumCullerf& culler,
     else
     {
         // estimate minimal value of near plane based on frustum size
+        const eq::Frustumf& frustum = getFrustum();
         const float width  = fabs( frustum.right() - frustum.left() );
         const float height = fabs( frustum.top() - frustum.bottom() );
         const float size   = EQ_MIN( width, height );
@@ -477,5 +469,25 @@ void Channel::_initFrustum( eq::FrustumCullerf& culler,
 
         setNearFar( zNear, zFar );
     }
+}
+
+void Channel::_initFrustum( eq::FrustumCullerf& culler,
+                            const mesh::BoundingSphere& boundingSphere )
+{
+    // setup frustum cull helper
+    const FrameData& frameData = _getFrameData();
+    const eq::Matrix4f& rotation     = frameData.getCameraRotation();
+    const eq::Matrix4f& modelRotation = frameData.getModelRotation();
+          eq::Matrix4f  translation   = eq::Matrix4f::IDENTITY;
+    translation.set_translation( frameData.getCameraTranslation());
+
+    const eq::Matrix4f modelView = 
+        getHeadTransform() * rotation * translation * modelRotation;
+
+    const bool ortho = frameData.useOrtho();
+    const eq::Frustumf& frustum      = ortho ? getOrtho() : getFrustum();
+    const eq::Matrix4f  projection   = ortho ? frustum.compute_ortho_matrix() :
+                                               frustum.compute_matrix();
+    culler.setup( projection * modelView );
 }
 }
