@@ -103,6 +103,7 @@
   2.4. Examples
 
      * eqOSG: new OpenSceneGraph-based example
+     * eqNBody: new, preliminary example showing integration with CUDA
      * eqPly: added wireframe mode
      * eqPly: added multi-model support
      * eqPly: full support of the new layout API

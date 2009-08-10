@@ -149,6 +149,7 @@ for easier data distribution of dynamic, versioned objects</li>
 <h3>2.4. Examples</h3>
 <ul>
   <li>eqOSG: new OpenSceneGraph-based example</li>
+  <li>eqNBody: new, preliminary example showing integration with CUDA</li>
   <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: added wireframe mode</li>
   <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: added multi-model support</li>
   <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: full support of the new layout API</li>

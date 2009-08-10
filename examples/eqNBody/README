@@ -42,7 +42,7 @@ Configuration files
   
   [1] Please note that in this example every node updates its data subset each 
       frame, which then has to be transferred to all other nodes (and GPUs!) to 
-	  compute the next frame. This is a worst-case scenario and should be 
-	  avoided in real production code!
+      compute the next frame. This is a worst-case scenario and should be 
+      avoided in real production code!
 	  
   [2] For simplicity reasons, the local data proxy always has index 0.

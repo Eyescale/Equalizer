@@ -1,4 +1,4 @@
-dos2unix
+Rename eqNbody->eqNBody, add to release notes
 
 [ ] Will break Win32 build
 [ ] May break existing applications

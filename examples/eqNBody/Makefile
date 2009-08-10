@@ -4,7 +4,7 @@ include $(TOP)/make/system.mk
 NVCC = nvcc
 CUFLAGS = --compile
 
-PROGRAM = eqNbody
+PROGRAM = eqNBody
 
 CXXFILES = \
 	channel.cpp \
@@ -21,7 +21,7 @@ CXXFILES = \
 	pipe.cpp \
 	render_particles.cpp \
 	window.cpp
-	
+
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS) -I/usr/local/cuda/include
 LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)  nbody.o -L/usr/local/cuda/lib -lcuda -lcudart #-deviceemu
 
