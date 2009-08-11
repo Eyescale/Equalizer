@@ -739,8 +739,7 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
     output[0].width     = pvp.w;
     output[0].height    = pvp.h;
     output[0].rowLength = pvp.w * output[0].size;
-    output[0].address   = destColor
-
+    output[0].address   = destColor;
     
     const bool useDepth = ( operation == PC_COMP_DEPTH );
     if( useDepth )
