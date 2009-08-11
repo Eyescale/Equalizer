@@ -1,8 +1,44 @@
-diff --git lib/client/compositor.cpp lib/client/compositor.cpp
-index ac6f6fd..7efedf8 100644
---- lib/client/compositor.cpp
-+++ lib/client/compositor.cpp
-@@ -524,7 +524,7 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
+Index: patches/paracomp.patch
+===================================================================
+--- patches/paracomp.patch	(revision 3331)
++++ patches/paracomp.patch	(working copy)
+@@ -1,29 +1,2 @@
+-diff --git lib/client/compositor.cpp lib/client/compositor.cpp
+-index ac6f6fd..7efedf8 100644
+---- lib/client/compositor.cpp
+-+++ lib/client/compositor.cpp
+-@@ -524,7 +524,7 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
+-     const PixelViewport&  pvp    = image->getPixelViewport();
+- 
+- #ifdef EQ_USE_PARACOMP_DEPTH
+--    if( pvp == destPVP && offset == vmml::Vector2i::ZERO )
+-+    if( pvp == destPVP && offset == eq::Vector2i::ZERO )
+-     {
+-         // Use Paracomp to composite
+-         if( _mergeImage_PC( PC_COMP_DEPTH, destColor, destDepth, image ))
+-@@ -620,13 +620,13 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
+-     EQASSERT( image->hasAlpha( ));
+-     
+- #ifdef EQ_USE_PARACOMP_BLEND
+--    if( pvp == destPVP && offset == vmml::Vector2i::ZERO )
+-+    if( pvp == destPVP && offset == eq::Vector2i::ZERO )
+-     { 
+-         // Use Paracomp to composite
+-         if( !_mergeImage_PC( PC_COMP_ALPHA_SORT2_HP, dest, 0, image ))
+-             EQWARN << "Paracomp compositing failed, using fallback" << endl;
+-         else
+--            continue; // Go to next input image
+-+            return; // Go to next input image
+-     }
+- #endif
+- 
++Index: patches/paracomp.patch
++===================================================================
+Index: lib/client/compositor.cpp
+===================================================================
+--- lib/client/compositor.cpp	(revision 3320)
++++ lib/client/compositor.cpp	(working copy)
+@@ -524,7 +524,7 @@
      const PixelViewport&  pvp    = image->getPixelViewport();
  
  #ifdef EQ_USE_PARACOMP_DEPTH
@@ -11,7 +47,7 @@ index ac6f6fd..7efedf8 100644
      {
          // Use Paracomp to composite
          if( _mergeImage_PC( PC_COMP_DEPTH, destColor, destDepth, image ))
-@@ -620,13 +620,13 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
+@@ -620,13 +620,13 @@
      EQASSERT( image->hasAlpha( ));
      
  #ifdef EQ_USE_PARACOMP_BLEND
@@ -27,3 +63,13 @@ index ac6f6fd..7efedf8 100644
      }
  #endif
  
+@@ -739,8 +739,7 @@
+     output[0].width     = pvp.w;
+     output[0].height    = pvp.h;
+     output[0].rowLength = pvp.w * output[0].size;
+-    output[0].address   = destColor
+-
++    output[0].address   = destColor;
+     
+     const bool useDepth = ( operation == PC_COMP_DEPTH );
+     if( useDepth )
