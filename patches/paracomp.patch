@@ -1,0 +1,29 @@
+diff --git lib/client/compositor.cpp lib/client/compositor.cpp
+index ac6f6fd..7efedf8 100644
+--- lib/client/compositor.cpp
++++ lib/client/compositor.cpp
+@@ -524,7 +524,7 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
+     const PixelViewport&  pvp    = image->getPixelViewport();
+ 
+ #ifdef EQ_USE_PARACOMP_DEPTH
+-    if( pvp == destPVP && offset == vmml::Vector2i::ZERO )
++    if( pvp == destPVP && offset == eq::Vector2i::ZERO )
+     {
+         // Use Paracomp to composite
+         if( _mergeImage_PC( PC_COMP_DEPTH, destColor, destDepth, image ))
+@@ -620,13 +620,13 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
+     EQASSERT( image->hasAlpha( ));
+     
+ #ifdef EQ_USE_PARACOMP_BLEND
+-    if( pvp == destPVP && offset == vmml::Vector2i::ZERO )
++    if( pvp == destPVP && offset == eq::Vector2i::ZERO )
+     { 
+         // Use Paracomp to composite
+         if( !_mergeImage_PC( PC_COMP_ALPHA_SORT2_HP, dest, 0, image ))
+             EQWARN << "Paracomp compositing failed, using fallback" << endl;
+         else
+-            continue; // Go to next input image
++            return; // Go to next input image
+     }
+ #endif
+ 
