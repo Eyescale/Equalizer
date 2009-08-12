@@ -24,6 +24,8 @@ namespace eq
 {
 namespace net
 {
+ObjectVersion NONE;
+
 ObjectVersion::ObjectVersion()
         : id( EQ_ID_INVALID ), version( Object::VERSION_NONE )
 {}

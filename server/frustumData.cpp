@@ -39,8 +39,8 @@ void FrustumData::applyWall( const eq::Wall& wall )
     Vector3f u = wall.bottomRight - wall.bottomLeft;
     Vector3f v = wall.topLeft - wall.bottomLeft;
     Vector3f w( u[1]*v[2] - u[2]*v[1],
-                      u[2]*v[0] - u[0]*v[2],
-                      u[0]*v[1] - u[1]*v[0] );
+                u[2]*v[0] - u[0]*v[2],
+                u[0]*v[1] - u[1]*v[0] );
 
     _type   = wall.type;
     _width  = u.normalize();
@@ -62,9 +62,9 @@ void FrustumData::applyWall( const eq::Wall& wall )
     _xfm.array[10] = w[2];
     _xfm.array[11] = 0.;
 
-    const Vector3f center((wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
-                                (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
-                                (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f);
+    const Vector3f center( (wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
+                           (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
+                           (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f );
 
     _xfm.array[12] = -(u[0]*center[0] + u[1]*center[1] + u[2]*center[2]);
     _xfm.array[13] = -(v[0]*center[0] + v[1]*center[1] + v[2]*center[2]);
@@ -91,7 +91,7 @@ void FrustumData::applyProjection( const eq::Projection& projection )
 
     // translation = HPR x -origin
     const Vector3f& origin   = projection.origin;
-    const float           distance = projection.distance;
+    const float     distance = projection.distance;
     const Vector3f  trans(
                -( rot[0]*origin[0] + rot[3]*origin[1] + rot[6]*origin[2] ),
                -( rot[1]*origin[0] + rot[4]*origin[1] + rot[7]*origin[2] ),

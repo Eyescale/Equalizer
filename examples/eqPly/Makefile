@@ -29,6 +29,9 @@ SHADERS = \
 	fragmentShader_glsl.h \
 	vertexShader_glsl.h
 
+PLYFILES = \
+	$(SHARE_DIR)/data/rockerArm.ply \
+	 $(SHARE_DIR)/data/screwdriver.ply
 
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
@@ -40,14 +43,14 @@ ifeq "${SUBARCH}" "ia64"
 endif
 endif
 
-TARGETS = $(SHADERS) $(PROGRAMS) $(SHARE_DIR)/data/rockerArm.ply
+TARGETS = $(SHADERS) $(PROGRAMS) $(PLYFILES)
 
 include $(TOP)/make/rules.mk
 
 README: ../../../website/build/documents/user/eqPly.html
 	links -dump $< > $@
 
-$(SHARE_DIR)/data/rockerArm.ply: rockerArm.ply
+$(SHARE_DIR)/data/%.ply: %.ply
 	@mkdir -p $(@D)
 	cp $< $@
 

@@ -49,6 +49,8 @@ bool Channel::configInit( const uint32_t initID )
         return false;
 
     setNearFar( 0.1f, 10.0f );
+    _model = 0;
+    _modelID = EQ_ID_INVALID;
     return true;
 }
 
@@ -162,13 +164,17 @@ const Model* Channel::_getModel()
 {
     Config*     config = static_cast< Config* >( getConfig( ));
     const View* view   = static_cast< const View* >( getView( ));
+    const FrameData& frameData = _getFrameData();
     EQASSERT( !view || dynamic_cast< const View* >( getView( )));
 
-    if( view )
-        return config->getModel( view->getModelID( ));
+    const uint32_t id = view ? view->getModelID() : frameData.getModelID();
+    if( id != _modelID )
+    {
+        _model = config->getModel( id );
+        _modelID = id;
+    }
 
-    const FrameData& frameData = _getFrameData();
-    return config->getModel( frameData.getModelID( ));
+    return _model;
 }
 
 void Channel::_drawModel( const Model* model )

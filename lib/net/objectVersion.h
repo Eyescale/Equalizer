@@ -38,6 +38,9 @@ namespace net
         
         uint32_t id;
         uint32_t version;
+
+        /** An unset object version. */
+        static ObjectVersion NONE;
     };
 
     inline std::ostream& operator << (std::ostream& os, const ObjectVersion& ov)

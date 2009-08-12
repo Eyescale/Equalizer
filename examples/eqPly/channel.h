@@ -37,7 +37,8 @@ namespace eqPly
     class Channel : public eq::Channel
     {
     public:
-        Channel( eq::Window* parent ) : eq::Channel( parent ) {}
+        Channel( eq::Window* parent ) 
+                : eq::Channel( parent ), _model(0), _modelID( EQ_ID_INVALID ) {}
 
     protected:
         virtual ~Channel() {}
@@ -61,6 +62,9 @@ namespace eqPly
 
         const FrameData& _getFrameData() const;
         const Model*     _getModel();
+
+        const Model* _model;
+        uint32_t     _modelID;
     };
 }
 
