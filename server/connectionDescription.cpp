@@ -74,7 +74,7 @@ ConnectionDescription::ConnectionDescription()
             TCPIP.port = global->getConnectionIAttribute( IATTR_TCPIP_PORT );
             break;
         case net::CONNECTIONTYPE_NAMEDPIPE:
-            setFilename( global->getConnectionSAttribute( SATTR_PIPE_FILENAME ));
+            setFilename( global->getConnectionSAttribute( SATTR_PIPE_FILENAME));
             break;
         default:
             break;

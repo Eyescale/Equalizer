@@ -413,7 +413,7 @@ void Session::unmapObject( Object* object )
 {
     const uint32_t id = object->getID();
     if( id == EQ_ID_INVALID ) // not registered
-		return;
+        return;
 
     EQLOG( LOG_OBJECTS ) << "Unmap " << typeid( *object ).name() << " from id "
         << object->getID() << endl;

@@ -165,7 +165,7 @@ namespace base
         static void pinCurrentThread();
 
     private:
-		ThreadPrivate* _data;
+        ThreadPrivate* _data;
         /** The current state of this thread. */
         enum State
         {

@@ -212,7 +212,7 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
             data.time = endTime - startTime;
             data.time = EQ_MAX( data.time, 1 );
             data.load = static_cast< float >( data.time ) / data.vp.getArea();
-            EQLOG( LOG_LB2 ) << "Added load " << data.load << " (t=" << data.time
+            EQLOG( LOG_LB2 ) << "Added load "<< data.load << " (t=" << data.time
                             << ") for " << channel->getName() << " " << data.vp
                             << ", " << data.range << " @ " << frameNumber
                             << std::endl;

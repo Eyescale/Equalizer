@@ -370,7 +370,7 @@ void VertexBufferLeaf::toStream( std::ostream& os )
     os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ) );
     VertexBufferBase::toStream( os );
     os.write( reinterpret_cast< char* >( &_vertexStart ), sizeof( Index ) );
-    os.write( reinterpret_cast< char* >( &_vertexLength ), sizeof( ShortIndex ) );
+    os.write( reinterpret_cast< char* >( &_vertexLength ),sizeof( ShortIndex ));
     os.write( reinterpret_cast< char* >( &_indexStart ), sizeof( Index ) );
     os.write( reinterpret_cast< char* >( &_indexLength ), sizeof( Index ) );
 }

@@ -31,13 +31,17 @@ namespace eq
 namespace base
 {
 
-#if (defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )) || defined(_MSC_VER) || defined(_WIN32) || defined(__APPLE__) || defined(AO_HAVE_compare_and_swap_full)
+#if (defined(__GNUC__) && \
+    ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )) || \
+    defined(_MSC_VER) || defined(_WIN32) || defined(__APPLE__) || \
+    defined(AO_HAVE_compare_and_swap_full)
 #  define EQ_HAS_COMPARE_AND_SWAP
 
 /** Perform a memory barrier (atomic operations) */
 inline void memoryBarrier()
 {
-#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
+#if defined(__GNUC__) && \
+    ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
     __sync_synchronize();
 #elif defined(_MSC_VER) && (_MSC_VER >= 1300)
     _ReadWriteBarrier();
@@ -47,7 +51,8 @@ inline void memoryBarrier()
     AO_nop_full();
 #elif defined( __PPC__ )
     asm volatile("sync":::"memory");
-#elif defined( __i386__ ) || defined( __i486__ ) || defined( __i586__ ) || defined( __i686__ ) || defined( __x86_64__ )
+#elif defined( __i386__ ) || defined( __i486__ ) || defined( __i586__ ) || \
+      defined( __i686__ ) || defined( __x86_64__ )
     asm volatile("mfence":::"memory");
 #else
 #   warning "no memory barrier implemented for this platform"
@@ -61,7 +66,8 @@ inline void memoryBarrier()
 template <class C, class D>
 inline bool compareAndSwap(volatile C * addr, D old, D nw)
 {
-#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
+#if defined(__GNUC__) && \
+    ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
     return __sync_bool_compare_and_swap(addr, old, nw);
 #elif defined(_MSC_VER)
     return _InterlockedCompareExchange(addr,nw,old) == old;

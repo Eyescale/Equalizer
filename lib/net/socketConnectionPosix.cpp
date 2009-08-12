@@ -76,7 +76,8 @@ bool SocketConnection::connect()
     if( !connected )
     {
         EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-             << _description->TCPIP.port << "': " << EQ_SOCKET_ERROR << std::endl;
+               << _description->TCPIP.port << "': " << EQ_SOCKET_ERROR
+               << std::endl;
         close();
         return false;
     }

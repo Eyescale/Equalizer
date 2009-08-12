@@ -255,7 +255,7 @@ void NamedPipeConnection::acceptNB()
                      EQ_PIPE_BUFFER_SIZE,         // output buffer size 
                      EQ_PIPE_BUFFER_SIZE,         // input buffer size 
                      0,                           // default time-out (unused)
-                     0 /*&sa*/);                  // default security attributes 
+                     0 /*&sa*/);                  // default security attributes
 
     if ( _readFD == INVALID_HANDLE_VALUE ) 
     {

@@ -253,7 +253,9 @@ void VertexData::calculateNormals( const bool vertexNormals )
         i0 = triangles[i].at(0);
         i1 = triangles[i].at(1);
         i2 = triangles[i].at(2);
-        triangleNormal.compute_normal( vertices[i0], vertices[i1], vertices[i2] );
+        triangleNormal.compute_normal( vertices[i0],
+                                       vertices[i1],
+                                       vertices[i2] );
         
         // count emtpy normals in debug mode
         #ifndef NDEBUG

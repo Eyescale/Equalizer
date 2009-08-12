@@ -697,21 +697,22 @@ void ConfigTool::_writeDSAC( Config* config ) const
         // input tiles from other channels
         for( unsigned j = 0; j<nChannels; ++j )
         {
-            cout << "                inputframe{ name \"tile" << i*2+1 << ".channel"
-                 << j*2+1 <<"\" }" << endl;
+            cout << "                inputframe{ name \"tile" << i*2+1
+                 << ".channel" << j*2+1 <<"\" }" << endl;
         }
 
         // assembled color tile output, if not already in place
         if( i!=0 )
         {
-            cout << "                outputframe{ name \"frame.channel" << i*2 <<"\"";
+            cout << "                outputframe{ name \"frame.channel" 
+                 << i*2 <<"\"";
             cout << " buffer [ COLOR ] ";
             if( i == nChannels - 1 ) // last - correct rounding 'error'
-                cout << "viewport [ 0 0." << setw(5) << start << " 1 0." << setw(5)
-                     << 100000 - start << " ]";
+                cout << "viewport [ 0 0." << setw(5) << start << " 1 0."
+                     << setw(5) << 100000 - start << " ]";
             else
-                cout << "viewport [ 0 0." << setw(5) << start << " 1 0." << setw(5)
-                     << step << " ]";
+                cout << "viewport [ 0 0." << setw(5) << start << " 1 0."
+                     << setw(5) << step << " ]";
             cout << " }" << endl;
         }
 
@@ -805,6 +806,3 @@ void ConfigTool::_writeWall( Config* config ) const
         }
     }
 }
-
-
-

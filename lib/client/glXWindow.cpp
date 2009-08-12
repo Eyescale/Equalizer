@@ -224,8 +224,8 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
         const int attribute = backoffAttributes.back();
         backoffAttributes.pop_back();
 
-        std::vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
-                                           attribute );
+        std::vector<int>::iterator iter = find( attributes.begin(),
+                                                attributes.end(), attribute );
         EQASSERT( iter != attributes.end( ));
         if( *iter == GLX_STENCIL_SIZE ) // two-elem attribute
             attributes.erase( iter, iter+2 );
@@ -294,8 +294,8 @@ bool GLXWindow::configInitGLXDrawable( XVisualInfo* visualInfo )
         case FBO:
         {
             const PixelViewport pvp( 0, 0, 1, 1 );
-			_xDrawable = _createGLXWindow( visualInfo, pvp );
-			return (_xDrawable != 0 );
+            _xDrawable = _createGLXWindow( visualInfo, pvp );
+            return (_xDrawable != 0 );
         }
 
         default:

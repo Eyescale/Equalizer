@@ -22,7 +22,8 @@ namespace eq
 {
 namespace base
 {
-#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
+#if defined(__GNUC__) && \
+    ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
 
 /** An variable with atomic operations. */
 template <typename T>

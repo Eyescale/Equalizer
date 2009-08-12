@@ -59,7 +59,8 @@ public:
                 return false;
 
             registerCommand( eq::net::CMD_NODE_CUSTOM, 
-                             eq::net::CommandFunc<Server>(this, &Server::command),
+                             eq::net::CommandFunc<Server>(
+                                                       this, &Server::command),
                              getCommandThreadQueue( ));
             return true;
         }

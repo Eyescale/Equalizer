@@ -136,7 +136,7 @@ namespace base
         EQ_EXPORT void serveRequest( const uint32_t requestID, bool result );
 
         /** @return true if this request handler was created thread-safe. */
-		bool isThreadSafe() const { return ( _mutex != 0 ); }
+        bool isThreadSafe() const { return ( _mutex != 0 ); }
         /** @return true if this request handler has no pending requests. */
         bool isEmpty()      const { return _requests.empty( ); }
 

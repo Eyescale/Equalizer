@@ -102,7 +102,8 @@ namespace base
         bool operator ! () const 
             {
                 RPC_STATUS status; 
-                return ( UuidIsNil( const_cast< ::UUID* >( &_id ), &status )==TRUE);
+                return ( UuidIsNil( const_cast< ::UUID* >( &_id ),
+                                    &status) == TRUE );
             }
 
         void convertToNetwork()

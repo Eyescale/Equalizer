@@ -153,12 +153,12 @@ bool Node::operator == ( const Node* node ) const
 
 void Node::setProgramName( const std::string& name )
 {
-	_programName = name;
+    _programName = name;
 }
 
 void Node::setWorkDir( const std::string& name )
 {
-	_workDir = name;
+    _workDir = name;
 }
 
 const ConnectionDescriptionVector& Node::getConnectionDescriptions() const 

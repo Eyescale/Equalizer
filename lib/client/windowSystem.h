@@ -81,11 +81,11 @@ namespace eq
 #    define WGL_NV_gpu_affinity 1
 DECLARE_HANDLE(HGPUNV);
 typedef struct _GPU_DEVICE {
-	DWORD  cb;
-	CHAR   DeviceName[32];
-	CHAR   DeviceString[128];
-	DWORD  Flags;
-	RECT   rcVirtualScreen;
+    DWORD  cb;
+    CHAR   DeviceName[32];
+    CHAR   DeviceString[128];
+    DWORD  Flags;
+    RECT   rcVirtualScreen;
 } GPU_DEVICE, *PGPU_DEVICE;
 
 #    ifdef WGL_WGLEXT_PROTOTYPES

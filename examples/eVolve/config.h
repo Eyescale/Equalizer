@@ -52,7 +52,8 @@ namespace eVolve
         FrameData     _frameData;
 
     private:
-        static void _applyRotation( float m[16], const float dx, const float dy );
+        static void _applyRotation( float m[16], const float dx,
+                                                 const float dy );
     };
 }
 

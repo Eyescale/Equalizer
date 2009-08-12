@@ -1012,11 +1012,11 @@ void Compositor::_drawPixels( const Image* image,
     const float startX = static_cast< float >
          ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x ) * op.zoom.x();
     const float endX   = static_cast< float >
-         ( op.offset.x() + (pvp.x + pvp.w) * op.pixel.w + op.pixel.x ) *op.zoom.x();
+         (op.offset.x() + (pvp.x+pvp.w) * op.pixel.w + op.pixel.x) *op.zoom.x();
     const float startY = static_cast< float >
          ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y ) * op.zoom.y();
     const float endY   = static_cast< float >
-         ( op.offset.y() + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y ) *op.zoom.y();
+         (op.offset.y() + (pvp.y+pvp.h) * op.pixel.h + op.pixel.y) *op.zoom.y();
 
     glBegin( GL_QUADS );
         glTexCoord2f( 0.0f, 0.0f );
@@ -1115,7 +1115,12 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                                                   GL_FRAGMENT_SHADER );
         EQASSERT( shader != Window::ObjectManager::INVALID );
 
-        const char* source = "uniform sampler2DRect color; uniform sampler2DRect depth; void main(void){ gl_FragColor = texture2DRect( color, gl_TexCoord[0].st ); gl_FragDepth = texture2DRect( depth, gl_TexCoord[0].st ).x; }";
+        const char* source =
+            "uniform sampler2DRect color; \
+             uniform sampler2DRect depth; \
+             void main(void){ \
+                 gl_FragColor = texture2DRect( color, gl_TexCoord[0].st ); \
+                 gl_FragDepth = texture2DRect( depth, gl_TexCoord[0].st ).x; }";
 
         EQ_GL_CALL( glShaderSource( shader, 1, &source, 0 ));
         EQ_GL_CALL( glCompileShader( shader ));

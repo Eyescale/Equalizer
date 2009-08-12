@@ -729,8 +729,8 @@ void ply_put_comment(PlyFile *plyfile, const char *comment)
     }
   else
     {
-    plyfile->comments = (char **) realloc (plyfile->comments,
-                                           sizeof (char *) * (plyfile->num_comments + 1));
+    plyfile->comments = (char **) realloc (plyfile->comments, sizeof (char *) *
+                                                   (plyfile->num_comments + 1));
     }
   
   /* add comment to list */
@@ -757,8 +757,8 @@ void ply_put_obj_info(PlyFile *plyfile, const char *obj_info)
     }
   else
     {
-    plyfile->obj_info = (char **) realloc (plyfile->obj_info,
-                                           sizeof (char *) * (plyfile->num_obj_info + 1));
+    plyfile->obj_info = (char **) realloc (plyfile->obj_info, sizeof (char *) *
+                                                  (plyfile->num_obj_info + 1));
     }
   
   /* add info to list */
@@ -1480,7 +1480,8 @@ void ply_close(PlyFile *plyfile)
     if ( elem->name ) {free(elem->name);}
     for (j=0; j<elem->nprops; j++)
       {
-      if ( elem->props[j]->name ) {free(const_cast<char *>(elem->props[j]->name));}
+      if ( elem->props[j]->name )
+         {free(const_cast<char *>(elem->props[j]->name));}
       free (elem->props[j]);
       }
     free (elem->props);

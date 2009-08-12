@@ -169,7 +169,7 @@ bool ROIEmptySpaceFinder::_updateMaximalEmptyRegion(
     return updated;
 }
 
-PixelViewport ROIEmptySpaceFinder::getLargestEmptyArea(const PixelViewport& pvp )
+PixelViewport ROIEmptySpaceFinder::getLargestEmptyArea(const PixelViewport& pvp)
 const
 {
     EQASSERT(   pvp.x >= 0    && pvp.w > 0 &&

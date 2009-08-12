@@ -197,8 +197,8 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 #else
         maxTime = EQ_MAX( maxTime, time.second );
 #endif
-        EQLOG( LOG_LB2 ) << "Using " << time.first << ", " << time.second << "ms"
-                        << std::endl;
+        EQLOG( LOG_LB2 ) << "Using " << time.first << ", " << time.second
+                         << "ms" << std::endl;
     }
 
     if( nSamples == _nSamples )       // If we have a full set

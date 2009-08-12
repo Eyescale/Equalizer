@@ -82,15 +82,15 @@
 namespace eq
 {
     class Config;
-	class NodeFactory;
+    class NodeFactory;
 
     /** 
      * Initialize the Equalizer client library.
      *
      * @param argc the command line argument count.
      * @param argv the command line argument values.
-	 * @param nodeFactory the factory for allocating Equalizer objects.
-	 *
+     * @param nodeFactory the factory for allocating Equalizer objects.
+     *
      * @return <code>true</code> if the library was successfully initialised,
      *         <code>false</code> otherwise.
      */

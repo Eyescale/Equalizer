@@ -56,7 +56,8 @@ namespace eq
         EQ_EXPORT ObjectManager( GLEWContext* const glewContext );
 
         /** Construct a new object manager sharing data with another manager. */
-        EQ_EXPORT ObjectManager( GLEWContext* const glewContext, ObjectManager* shared );
+        EQ_EXPORT ObjectManager( GLEWContext* const glewContext,
+                                 ObjectManager* shared );
 
         EQ_EXPORT virtual ~ObjectManager();
 

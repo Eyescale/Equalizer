@@ -323,21 +323,21 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
         {
             EQWARN << "Error during write: " << EQ_SOCKET_ERROR << std::endl;
             return -1;
-	    }
+        }
 
-	    // Buffer full - try again
+        // Buffer full - try again
 #if 1
         // Wait for writable socket
-    	fd_set set;
-	    FD_ZERO( &set );
-	    FD_SET( _writeFD, &set );
+        fd_set set;
+        FD_ZERO( &set );
+        FD_SET( _writeFD, &set );
 
-	    const int result = select( _writeFD+1, 0, &set, 0, 0 );
-	    if( result <= 0 )
-    	{
+        const int result = select( _writeFD+1, 0, &set, 0, 0 );
+        if( result <= 0 )
+        {
             EQWARN << "Error during select: " << EQ_SOCKET_ERROR << std::endl;
-		    return -1;
-	    }
+            return -1;
+        }
 #endif
     }
 

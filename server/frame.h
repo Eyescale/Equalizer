@@ -181,7 +181,8 @@ namespace server
         
     protected:
         EQSERVER_EXPORT virtual ~Frame();
-        EQSERVER_EXPORT virtual ChangeType getChangeType() const { return INSTANCE; }
+        EQSERVER_EXPORT virtual ChangeType getChangeType() const 
+                                                            { return INSTANCE; }
         EQSERVER_EXPORT virtual void getInstanceData( net::DataOStream& os );
         EQSERVER_EXPORT virtual void applyInstanceData( net::DataIStream& is );
 

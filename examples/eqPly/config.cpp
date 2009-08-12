@@ -619,7 +619,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( view )
             {
                 const Model* model = getModel( modelID );
-                _setMessage( "Model " + eq::base::getFilename( model->getName( ))
+                _setMessage( "Model " + eq::base::getFilename( model->getName())
                              + " active" );
             }
             return true;

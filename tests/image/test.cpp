@@ -127,7 +127,7 @@ int main( int argc, char **argv )
                             image.compressPixelData( eq::Frame::BUFFER_COLOR ));
 
             TESTINFO( image.readImage( images.front(), eq::Frame::BUFFER_DEPTH),
-		      images.front( ));
+              images.front( ));
             destImage.setPixelViewport( image.getPixelViewport( ));
             destImage.setPixelData( eq::Frame::BUFFER_DEPTH,     
                             image.compressPixelData( eq::Frame::BUFFER_DEPTH ));

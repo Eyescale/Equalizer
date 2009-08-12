@@ -79,7 +79,8 @@ namespace eqPly
         bool update();
 
         /**
-         * Gets the transformation matrix with the position and orientation data.
+         * Gets the transformation matrix with the position and orientation
+         * data.
          *
          * This function will not communicate with the tracker,.
          *
@@ -97,7 +98,10 @@ namespace eqPly
 
         int   _fd;
 
-        /** matrix defining the orientation and position of the tracked object. */
+        /**
+         * Matrix defining the orientation and position of the tracked 
+         * object.
+         */
         eq::Matrix4f _matrix;
 
         /** world to emitter transformation */

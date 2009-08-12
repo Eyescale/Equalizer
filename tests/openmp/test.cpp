@@ -53,7 +53,7 @@ int main( int argc, char **argv )
     pthread_attr_init( &attributes );
     pthread_attr_setscope( &attributes, PTHREAD_SCOPE_SYSTEM );
 
-	pthread_t threadIDs[NTHREADS];
+    pthread_t threadIDs[NTHREADS];
 
     for( int i = 0; i < NTHREADS; ++i )
         pthread_create( &threadIDs[i], &attributes, runChild, 0 );

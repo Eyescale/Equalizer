@@ -41,7 +41,7 @@ EQ_EXPORT void checkHeap()
     static mtLong count( 0 );
     if( ( ++count % 1000 ) == 0 && _heapchk() != _HEAPOK )
     {
-        EQERROR << disableFlush << "Abort: heap corruption detected" << std::endl
+        EQERROR << disableFlush << "Abort: heap corruption detected"<< std::endl
                 << "    Set breakpoint in " << __FILE__ << ':' << __LINE__ + 1 
                 << " to debug" << std::endl << enableFlush;
     }

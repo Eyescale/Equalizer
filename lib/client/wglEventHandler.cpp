@@ -232,8 +232,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
         }
 
-		case WM_CLOSE:
-		case WM_DESTROY:
+        case WM_CLOSE:
+        case WM_DESTROY:
             event.type = Event::WINDOW_CLOSE;
             break;
 
@@ -301,10 +301,10 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
 
-			if( GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 )
-				event.pointerButtonRelease.button = PTR_BUTTON4;
-			else
-				event.pointerButtonRelease.button = PTR_BUTTON5;
+            if( GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 )
+                event.pointerButtonRelease.button = PTR_BUTTON4;
+            else
+                event.pointerButtonRelease.button = PTR_BUTTON5;
 
             _buttonState |= event.pointerButtonPress.button;
             _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));

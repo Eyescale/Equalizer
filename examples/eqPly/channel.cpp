@@ -65,7 +65,9 @@ void Channel::frameClear( const uint32_t frameID )
     else if( getenv( "EQ_TAINT_CHANNELS" ))
     {
         const eq::Vector3ub color = getUniqueColor();
-        glClearColor( color.r()/255.0f, color.g()/255.0f, color.b()/255.0f, 1.0f );
+        glClearColor( color.r()/255.0f,
+                      color.g()/255.0f,
+                      color.b()/255.0f, 1.0f );
     }
 #endif // NDEBUG
     else

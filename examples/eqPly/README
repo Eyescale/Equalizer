@@ -110,37 +110,37 @@ Where:
 
    eqPly - Equalizer polygonal rendering example
 
-   	Run-time commands:
+    Run-time commands:
 
-   		Left Mouse Button:         Rotate model
+        Left Mouse Button:         Rotate model
 
-   		Middle Mouse Button:       Move model in X, Y
+        Middle Mouse Button:       Move model in X, Y
 
-   		Right Mouse Button:        Move model in Z
+        Right Mouse Button:        Move model in Z
 
-   		<Cursor Keys>:             Move head in X,Y plane
+        <Cursor Keys>:             Move head in X,Y plane
 
-   		<Page Up,Down>:            Move head in Z
+        <Page Up,Down>:            Move head in Z
 
-   		<Esc>, All Mouse Buttons:  Exit program
+        <Esc>, All Mouse Buttons:  Exit program
 
-   		<Space>:                   Reset camera
+        <Space>:                   Reset camera
 
-   		i:                         Reset camera for Immersive Setups
+        i:                         Reset camera for Immersive Setups
 
-   		o:                         Toggle perspective/orthographic
+        o:                         Toggle perspective/orthographic
 
-   		s:                         Toggle statistics overlay
+        s:                         Toggle statistics overlay
 
-   		F1, h:                     Toggle help overlay
+        F1, h:                     Toggle help overlay
 
-   		w:                         Toggle wireframe mode
+        w:                         Toggle wireframe mode
 
-   		r:                         Switch rendering mode
+        r:                         Switch rendering mode
 
-   		v:                         Switch active view
+        v:                         Switch active view
 
-   		m:                         Switch model for active view
+        m:                         Switch model for active view
 
     If option -t is specified, eqPly will try to use provided file as a set of
     reference camera positions for rendering. Format of this file is following:

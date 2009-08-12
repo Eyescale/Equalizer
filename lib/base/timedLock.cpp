@@ -91,7 +91,8 @@ bool TimedLock::set( const uint32_t timeout )
             ts.tv_sec  += tb.time;
             ts.tv_nsec += tb.millitm * 1000000;
             
-            int error = pthread_cond_timedwait( &_data->cond, &_data->mutex, &ts );
+            int error = pthread_cond_timedwait( &_data->cond,
+                                                &_data->mutex, &ts );
             if( error == ETIMEDOUT )
             {
                 acquired = false;

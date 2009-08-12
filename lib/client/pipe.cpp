@@ -390,7 +390,7 @@ void Pipe::_releaseViews()
             nodeFactory->releaseView( view );
 
             changed = true;
-			break;
+            break;
         }
     }
 }
@@ -546,7 +546,8 @@ bool Pipe::configExit()
     }
     //else
 
-    EQWARN << "Window system "<< _windowSystem <<" not initialized" << std::endl;
+    EQWARN << "Window system "<< _windowSystem << " not initialized" 
+           << std::endl;
     return false;
 }
 
@@ -621,14 +622,14 @@ void Pipe::startFrame( const uint32_t frameNumber )
 { 
     CHECK_THREAD( _pipeThread );
     _currentFrame = frameNumber; 
-    EQLOG( LOG_TASKS ) << "---- Started Frame ---- " << frameNumber << std::endl;
+    EQLOG( LOG_TASKS ) << "---- Started Frame ---- "<< frameNumber << std::endl;
 }
 
 void Pipe::releaseFrame( const uint32_t frameNumber )
 { 
     CHECK_THREAD( _pipeThread );
     _finishedFrame = frameNumber; 
-    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber << std::endl;
+    EQLOG( LOG_TASKS ) << "---- Finished Frame --- "<< frameNumber << std::endl;
 }
 
 void Pipe::releaseFrameLocal( const uint32_t frameNumber )
@@ -783,7 +784,7 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
 
 net::CommandResult Pipe::_cmdFrameStartClock( net::Command& command )
 {
-	EQVERB << "start frame clock" << std::endl;
+    EQVERB << "start frame clock" << std::endl;
     _frameTimeMutex.set();
     _frameTimes.push_back( getConfig()->getTime( ));
     _frameTimeMutex.unset();
@@ -849,7 +850,8 @@ net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
 
     if( _finishedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not released, enforcing unlock" << std::endl;
+        EQWARN << "Finished frame was not released, enforcing unlock"
+               << std::endl;
         releaseFrame( frameNumber );
     }
 

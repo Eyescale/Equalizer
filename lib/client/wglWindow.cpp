@@ -557,7 +557,7 @@ int WGLWindow::chooseWGLPixelFormat()
 
         if ( !WGLEW_ARB_pixel_format_float )
         {
-            _window->setErrorMessage( "Floating-point framebuffer unsupported" );
+            _window->setErrorMessage( "Floating-point framebuffer unsupported");
             return 0;
         }
         attributes.push_back( WGL_PIXEL_TYPE_ARB );

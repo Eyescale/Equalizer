@@ -181,7 +181,8 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 _error = errno;
 #endif
 
-                EQERROR << "Error during select: " << EQ_SOCKET_ERROR << std::endl;
+                EQERROR << "Error during select: " << EQ_SOCKET_ERROR
+                        << std::endl;
                 return EVENT_SELECT_ERROR;
 
             default: // SUCCESS

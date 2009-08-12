@@ -36,8 +36,8 @@ public:
 int main( int argc, char** argv )
 {
     // 1. initialization of local node
-	NodeFactory nodeFactory;
-	if( !eq::init( argc, argv, &nodeFactory ))
+    NodeFactory nodeFactory;
+    if( !eq::init( argc, argv, &nodeFactory ))
     {
         EQERROR << "Equalizer init failed" << endl;
         return EXIT_FAILURE;

@@ -175,7 +175,7 @@ bool SocketConnection::listen()
         
     if( !listening )
     {
-        EQWARN << "Could not listen on socket: " << EQ_SOCKET_ERROR << std::endl;
+        EQWARN << "Could not listen on socket: "<< EQ_SOCKET_ERROR << std::endl;
         close();
         return false;
     }

@@ -538,7 +538,8 @@ bool ObjectManager<T>::supportsEqFrameBufferObject() const
 template< typename T >
 FrameBufferObject* ObjectManager<T>::getEqFrameBufferObject( const T& key )
 {
-    if( _data->eqFrameBufferObjects.find( key ) == _data->eqFrameBufferObjects.end( ))
+    if( _data->eqFrameBufferObjects.find( key ) ==
+        _data->eqFrameBufferObjects.end( ))
         return 0;
 
     return _data->eqFrameBufferObjects[ key ];
@@ -547,13 +548,15 @@ FrameBufferObject* ObjectManager<T>::getEqFrameBufferObject( const T& key )
 template< typename T >
 FrameBufferObject* ObjectManager<T>::newEqFrameBufferObject( const T& key )
 {
-    if( _data->eqFrameBufferObjects.find( key ) != _data->eqFrameBufferObjects.end( ))
+    if( _data->eqFrameBufferObjects.find( key ) !=
+        _data->eqFrameBufferObjects.end( ))
     {
         EQWARN << "Requested new eqFrameBufferObject for existing key" << endl;
         return 0;
     }
 
-    FrameBufferObject* frameBufferObject = new FrameBufferObject( _glewContext );
+    FrameBufferObject* frameBufferObject = 
+                                        new FrameBufferObject( _glewContext );
     _data->eqFrameBufferObjects[ key ] = frameBufferObject;
     return frameBufferObject;
 }
@@ -570,7 +573,8 @@ FrameBufferObject* ObjectManager<T>::obtainEqFrameBufferObject( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteEqFrameBufferObject( const T& key )
 {
-    if( _data->eqFrameBufferObjects.find( key ) == _data->eqFrameBufferObjects.end( ))
+    if( _data->eqFrameBufferObjects.find( key ) ==
+        _data->eqFrameBufferObjects.end( ))
         return;
 
     FrameBufferObject* frameBufferObject = _data->eqFrameBufferObjects[ key ];

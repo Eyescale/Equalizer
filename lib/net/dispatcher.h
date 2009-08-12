@@ -44,7 +44,7 @@ namespace net
     {
     public:
         EQ_EXPORT Dispatcher();
-		EQ_EXPORT Dispatcher( const Dispatcher& from );
+        EQ_EXPORT Dispatcher( const Dispatcher& from );
         EQ_EXPORT virtual ~Dispatcher();
 
         /** NOP assignment operator. */

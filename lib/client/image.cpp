@@ -476,7 +476,6 @@ void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
         memory.state = Memory::VALID;
         return;
     }
-
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
     _startReadbackZoom( buffer, zoom );
 }

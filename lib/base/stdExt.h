@@ -76,7 +76,7 @@ namespace std
         template< typename P >
         size_t operator()( const P& key ) const
         {
-            return reinterpret_cast<size_t>(key);	 
+            return reinterpret_cast<size_t>(key);
         }
     };
     template<> 
@@ -85,7 +85,7 @@ namespace std
         template< typename P >
         size_t operator()( const P& key ) const
         {
-            return reinterpret_cast<size_t>(key);	 
+            return reinterpret_cast<size_t>(key);
         }
     };
 #    endif

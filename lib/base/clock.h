@@ -178,7 +178,8 @@ namespace base
 #elif defined (WIN32)
                 LARGE_INTEGER now;
                 QueryPerformanceCounter( &now );
-                return 1000.0 * (now.QuadPart - _start.QuadPart) / _frequency.QuadPart;
+                return 1000.0 * (now.QuadPart - _start.QuadPart) /
+                                                            _frequency.QuadPart;
 #else
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );

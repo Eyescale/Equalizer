@@ -178,8 +178,9 @@ void Texture::download( void* buffer, const uint32_t format,
 {
     CHECK_THREAD( _thread );
     EQASSERT( _defined );
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
-    glGetTexImage( GL_TEXTURE_RECTANGLE_ARB, 0, format, type, buffer );
+    EQ_GL_CALL( glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id ));
+    EQ_GL_CALL( glGetTexImage( GL_TEXTURE_RECTANGLE_ARB, 0,
+                                            format, type, buffer ));
 }
 
 void Texture::download( void* buffer ) const

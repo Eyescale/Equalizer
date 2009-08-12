@@ -96,7 +96,7 @@ namespace net
          */
         EQ_EXPORT virtual void makeThreadSafe();  
         
-        /** @return true if the object has been made threadsafe, false if not. */
+        /** @return true if the object has been made threadsafe, false if not.*/
         bool isThreadSafe() const      { return _threadSafe; }
 
         /**

@@ -86,7 +86,7 @@ pthread_key_t _createCleanupKey()
 class ThreadPrivate
 {
 public:
-	pthread_t threadID;
+    pthread_t threadID;
 };
 
 Thread::Thread()
@@ -102,8 +102,8 @@ Thread::Thread()
 
 Thread::~Thread()
 {
-	delete _data;
-	_data = 0;
+    delete _data;
+    _data = 0;
 }
 
 void* Thread::runChild( void* arg )
@@ -382,16 +382,16 @@ std::ostream& operator << ( std::ostream& os, const Thread* thread )
 #else
     os << "Thread " << thread->_data->threadID;
 #endif
-	os << " state " 
-		<< ( thread->_state == Thread::STATE_STOPPED ? "stopped" :
-			thread->_state == Thread::STATE_STARTING ? "starting" :
-			thread->_state == Thread::STATE_RUNNING ? "running" :
-			thread->_state == Thread::STATE_STOPPING ? "stopping" : "unknown" );
+    os << " state " 
+       << ( thread->_state == Thread::STATE_STOPPED  ? "stopped"  :
+            thread->_state == Thread::STATE_STARTING ? "starting" :
+            thread->_state == Thread::STATE_RUNNING  ? "running"  :
+            thread->_state == Thread::STATE_STOPPING ? "stopping" : "unknown" );
 
 #ifdef PTW32_VERSION
-	os << " called from " << pthread_self().p;
+    os << " called from " << pthread_self().p;
 #else
-	os << " called from " << pthread_self();
+    os << " called from " << pthread_self();
 #endif
 
     return os;

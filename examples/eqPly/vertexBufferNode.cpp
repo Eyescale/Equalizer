@@ -79,7 +79,7 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
                         data.getLongestAxis( median, rightLength ) : AXIS_X;
 
     static_cast< VertexBufferNode* >
-            ( _left )->setupTree( data, start, leftLength, newAxisLeft, depth+1, 
+            ( _left )->setupTree( data, start, leftLength, newAxisLeft, depth+1,
                                   globalData );
     static_cast< VertexBufferNode* >
         ( _right )->setupTree( data, median, rightLength, newAxisRight, depth+1,

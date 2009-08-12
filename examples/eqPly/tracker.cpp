@@ -227,7 +227,7 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       // try to read remaining bytes, returns # of read bytes
       const ssize_t received = read( _fd, &buffer[size-remaining], remaining );
       if( received == -1 )
-      {	
+      {
          EQERROR << "Read error: " << strerror( errno ) << endl;
          return false;
       }

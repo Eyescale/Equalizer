@@ -29,7 +29,11 @@ using namespace eq::server;
 using namespace eq::base;
 using namespace std;
 
-#define CONFIG "server{ config{ appNode{ pipe { window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}} compound { channel \"channel\" wall { bottom_left [ -.8 -.5 -1 ] bottom_right [  .8 -.5 -1 ] top_left [ -.8  .5 -1 ] }}}}"
+#define CONFIG "server{ config{ appNode{ pipe {                            \
+    window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}}    \
+    compound { channel \"channel\" wall { bottom_left  [ -.8 -.5 -1 ]      \
+                                          bottom_right [  .8 -.5 -1 ]      \
+                                          top_left     [ -.8  .5 -1 ] }}}}"
 
 int main( const int argc, char** argv )
 {

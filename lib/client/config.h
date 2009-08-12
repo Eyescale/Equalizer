@@ -99,8 +99,8 @@ namespace eq
          */
         bool isRunning() const { return _running; }
 
-		/** Stop running the config. */
-		void stopRunning() { _running = false; }
+        /** Stop running the config. */
+        void stopRunning() { _running = false; }
 
         /** @return the global time in ms. */
         int64_t getTime() const { return _clock.getTime64(); }

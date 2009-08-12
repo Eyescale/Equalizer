@@ -194,7 +194,7 @@ bool Channel::_configInitFBO()
           !GLEW_ARB_texture_non_power_of_two ||
           !GLEW_EXT_framebuffer_object )
     {
-    	setErrorMessage( "Can't use FBO due to missing GL extensions" );
+        setErrorMessage( "Can't use FBO due to missing GL extensions" );
         return false;
     }
         
@@ -368,7 +368,9 @@ void Channel::frameClear( const uint32_t frameID )
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
         const Vector3ub color = getUniqueColor();
-        glClearColor( color.r()/255.0f, color.g()/255.0f, color.b()/255.0f, 1.0f );
+        glClearColor( color.r()/255.0f,
+                      color.g()/255.0f,
+                      color.b()/255.0f, 1.0f );
     }
 #endif // NDEBUG
 

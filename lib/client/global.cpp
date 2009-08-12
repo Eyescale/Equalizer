@@ -98,7 +98,8 @@ void  Global::addPluginDirectory( const std::string& path )
 void  Global::removePluginDirectory( const std::string& path )
 {
 
-    StringVector::iterator i = find(_pluginDirectories.begin(), _pluginDirectories.end(), path);
+    StringVector::iterator i = find( _pluginDirectories.begin(),
+                                     _pluginDirectories.end(), path );
 
     if( i != _pluginDirectories.end( ))
         _pluginDirectories.erase( i );

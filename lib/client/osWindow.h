@@ -153,7 +153,7 @@ namespace eq
         
         bool _glewInitialized ;
         
-        /** Frame buffer object for FBO drawables. */		
+        /** Frame buffer object for FBO drawables. */
         FrameBufferObject* _fbo; 
 
         union // placeholder for binary-compatible changes
