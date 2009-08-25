@@ -44,7 +44,7 @@ namespace eqNbody
 	private:
 		void _compute(const uint32_t frameID, const FrameData& fd);
 		void _draw(const uint32_t frameID, const FrameData& fd);
-		void _update();
+		void _assemble(const uint32_t frameID, const FrameData& fd);
 
         void _initLocalProxy();
         void _initCUDAController();

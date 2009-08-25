@@ -60,7 +60,7 @@ namespace eqNbody
 		
 		_compute(frameID, fd);
 		_draw(frameID, fd);
-		_update();
+		_assemble(frameID, fd);
 	}	
 
 	void Channel::_compute(const uint32_t frameID, const FrameData& fd)
@@ -96,7 +96,7 @@ namespace eqNbody
 #endif
 	}
 
-	void Channel::_update()
+	void Channel::_assemble(const uint32_t frameID, const FrameData& fd)
 	{
 		const eq::Range& range = getRange();
 
@@ -108,7 +108,7 @@ namespace eqNbody
 		// Commit the local changes
 		uint32_t version = _dataProxy[0].commit();
 
-		// Tell the others what version to sync
+		// Tell the others what version to sync.
 		_sendEvent(ConfigEvent::PROXY_CHANGED, version, _dataProxy[0].getID(), range);
 	}
 	
@@ -143,28 +143,18 @@ namespace eqNbody
 		
 		Window *w = static_cast<eqNbody::Window*>(getWindow());			
 		const InitData& initData = config->getInitData();		
-		
-		unsigned int devID = w->getDeviceID();
-		unsigned int mode = w->getMode();
-		
-		bool sysready	= false;
-		bool usePBO		= (mode == WINDOW_CUDA_GL) ? true : false;
-		bool useGL		= (mode == WINDOW_CUDA_GL) ? true : false;
 				
+		unsigned int mode = w->getMode();
+		bool usePBO	= (mode == WINDOW_CUDA_GL) ? true : false;
+						
 		switch(mode) {
 			case WINDOW_CUDA_GL:
-				EQINFO << "*** Channel::_initCUDAController WINDOW_CUDA_GL usePBO= " << usePBO << ", useGL= " << useGL << std::endl;
-				sysready = _controller.init(devID, initData, fd.getPos(), usePBO, useGL);
-				EQASSERT( sysready );
-				break;
 			case WINDOW_CUDA:
-				EQINFO << "*** Channel::_initCUDAController WINDOW_CUDA usePBO= " << usePBO << ", useGL= " << useGL << std::endl;
-				sysready = _controller.init(devID, initData, fd.getPos(), usePBO, useGL);
+				bool sysready = _controller.init(initData, fd.getPos(), usePBO);
 				EQASSERT( sysready );
 				break;
 			case WINDOW_GL:
 				EQINFO << "GL window - no CUDA controller initialisation!" << std::endl;
-				sysready = true;
 				break;
 			default:
 				EQWARN << "Unknown mode - no CUDA controller initialisation!" << std::endl;
@@ -195,9 +185,7 @@ namespace eqNbody
 		for(unsigned int i=1; i< frameData.getNumDataProxies(); i++) {			
 			unsigned int pid = _dataProxy[i].getID();
 			unsigned int version = frameData.getVersionForProxyID(pid);
-						
-			EQINFO << "SYNC ID= " << pid << std::endl;
-			
+
 			// ...and sync!
 			_dataProxy[i].sync(version);
 		}

@@ -17,6 +17,7 @@
 
 #include "controller.h"
 #include "initData.h"
+#include "nbody.h"
 
 #include <GL/glew.h>
 
@@ -27,25 +28,6 @@
 #include <eq/base/log.h>
 
 using namespace std;
-
-extern "C"
-{
-    void cudaInit(int argc, char **argv);
-    void setDeviceSoftening(float softening);
-    void allocateNBodyArrays(float* vel[2], int numBytes);
-    void deleteNBodyArrays(float* vel[2]);
-    void integrateNbodySystem(float* newPos, float* newVel, 
-                              float* oldPos, float* oldVel,
-                              unsigned int pboOldPos, unsigned int pboNewPos,
-                              float deltaTime, float damping, 
-							  unsigned int numBodies, int offset, int length, int p, int q,
-							  int bUsePBO);
-    void copyArrayFromDevice(float* host, const float* device, unsigned int pbo, int numBytes);
-    void copyArrayToDevice(float* device, const float* host, int numBytes);
-    void registerGLBufferObject(unsigned int pbo);
-    void unregisterGLBufferObject(unsigned int pbo);
-	void threadSync();
-}
 
 namespace eqNbody
 {
@@ -69,7 +51,7 @@ namespace eqNbody
 		_currentWrite = 1;
 	}
 		
-	bool Controller::init( int devID, const InitData& initData, float* hPos, bool usePBO, bool useGL )
+	bool Controller::init( const InitData& initData, float* hPos, bool usePBO )
 	{		
 		_numBodies	= initData.getNumBodies();
 		_p			= initData.getP();
@@ -90,27 +72,6 @@ namespace eqNbody
 			_p = _numBodies;
 		}
 				
-		// Setup the CUDA device
-		if( devID == -1 ) {
-			_devID = _getMaxGflopsDeviceId();
-			EQWARN << "No CUDA device, using the fastest device: " << _devID << std::endl;
-		}
-		else {
-			_devID = devID;
-		}
-		
-		if(useGL) {
-			cudaGLSetGLDevice( _devID );
-		}
-		else {
-			cudaSetDevice( _devID );
-		}
-		
-		cudaGetDevice(&_devID);
-		cudaGetDeviceProperties(&_props, _devID);
-		
-		EQINFO << "Using CUDA device: " << _devID << std::endl;
-
 		if (usePBO)
 		{
 			// create the position pixel buffer objects for rendering
@@ -123,7 +84,6 @@ namespace eqNbody
 				
 				int size = 0;
 				glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, (GLint*)&size); 
-				
 				if ((unsigned)size != 4 * (sizeof(float) * _numBodies)) {
 					EQERROR << "WARNING: Pixel Buffer Object allocation failed" << endl;
 				}
@@ -272,37 +232,5 @@ namespace eqNbody
 	{
 		threadSync();
 	}
-	
-	int Controller::_getMaxGflopsDeviceId()
-	{		
-#if __DEVICE_EMULATION__
-		return 0;
-#else		
-        int device_count = 0;
-		cudaGetDeviceCount( &device_count );
-        
-		cudaDeviceProp device_properties;
-		int max_gflops_device = 0;
-		int max_gflops = 0;
 		
-		int current_device = 0;
-		cudaGetDeviceProperties( &device_properties, current_device );
-		max_gflops = device_properties.multiProcessorCount * device_properties.clockRate;
-		++current_device;
-		
-		while( current_device < device_count )
-		{
-			cudaGetDeviceProperties( &device_properties, current_device );
-			int gflops = device_properties.multiProcessorCount * device_properties.clockRate;
-			if( gflops > max_gflops )
-			{
-				max_gflops        = gflops;
-				max_gflops_device = current_device;
-			}
-			++current_device;
-		}
-		return max_gflops_device;
-#endif
-	}
-	
 }

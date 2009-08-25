@@ -51,6 +51,14 @@ namespace eqNbody
 		
 	void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 	{								
+		static bool isInitialized = false;
+		
+		// Allocate the CUDA memory after proper CUDA initialisation!
+		if(isInitialized == false) {
+			_frameData.initHostData();			
+			isInitialized = true;
+		}		
+		
 		// Sync for the next frame - wait for the data broadcast!
 		_frameData.sync( frameID );
 		eq::Pipe::frameStart( frameID, frameNumber );

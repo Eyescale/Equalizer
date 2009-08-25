@@ -10,6 +10,8 @@ Overview
   to perform distributed GPU computing tasks using CUDA. We illustrate the basic
   principles of how compute data can be shared across different nodes in a 
   typical GPGPU configuration using common Equalizer functionality.
+  
+  This preliminary example has been tested only on Mac OS X and CUDA 2.2.
 
 Current design restrictions
 

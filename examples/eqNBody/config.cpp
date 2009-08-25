@@ -34,21 +34,19 @@ namespace eqNbody
 	bool Config::init()
 	{			
 		// init distributed objects
-		registerObject( &_frameData );
-		
 		_frameData.init( _initData.getNumBodies() );
-		_frameData.updateParameters(NBODY_CONFIG_SHELL, 2.12f, 2.98f, 0.016f);
+		registerObject( &_frameData );		
 
 		_initData.setFrameDataID( _frameData.getID( ));
 		registerObject( &_initData );
-				
+
 		// init config
 		if( !eq::Config::init( _initData.getID( )))
 		{
 			_deregisterData();
 			return false;
 		}
-				
+
 		return true;
 	}
 	
@@ -89,6 +87,16 @@ namespace eqNbody
 	
 	uint32_t Config::startFrame()
 	{
+		static bool isInitialized = false;
+		
+		// Allocate the CUDA memory after the CUDA device initialisation!
+		if(isInitialized == false) {
+			_frameData.initHostData();
+			_frameData.updateParameters(NBODY_CONFIG_SHELL, 2.12f, 2.98f, 0.016f);
+			
+			isInitialized = true;
+		}		
+		
 		// Get current version...
 		uint32_t version = _frameData.getVersion();
 				

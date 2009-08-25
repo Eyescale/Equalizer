@@ -16,8 +16,15 @@
  */
 
 #include "frameData.h"
+#include "nbody.h"
 
 #include <vector_types.h>
+#include <cuda.h>
+#include <cuda_runtime_api.h>
+
+#ifdef CUDART_VERSION >= 2020
+# define ENABLE_HOSTALLOC
+#endif
 
 extern "C" {
 	float v3_normalize(float3& vector)
@@ -50,7 +57,7 @@ extern "C" {
 namespace eqNbody
 {
 	
-	FrameData::FrameData() : _statistics( true ) , _numDataProxies(0)
+	FrameData::FrameData() : _statistics( true ) , _numDataProxies(0), _hPos(0), _hVel(0), _hCol(0)
 	{		
 		_numBodies		= 0;
 		_deltaTime		= 0.0f;
@@ -65,13 +72,15 @@ namespace eqNbody
 	}
 	
 	void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
-	{
+	{		
 		eq::Object::serialize( os, dirtyBits );
 		
 		if( dirtyBits & DIRTY_DATA ) {
-			os.write(_hPos, sizeof(float)*_numBodies*4);
-			os.write(_hVel, sizeof(float)*_numBodies*4);
-			os.write(_hCol, sizeof(float)*_numBodies*4);
+			if(_hPos && _hVel && _hCol) {
+				os.write(_hPos, sizeof(float)*_numBodies*4);
+				os.write(_hVel, sizeof(float)*_numBodies*4);
+				os.write(_hCol, sizeof(float)*_numBodies*4);
+			}
 		}
 		
 		if( dirtyBits & DIRTY_FLAGS ) {
@@ -90,9 +99,11 @@ namespace eqNbody
 		eq::Object::deserialize( is, dirtyBits );
 		
 		if( dirtyBits & DIRTY_DATA ) {
-			is.read(_hPos, sizeof(float)*_numBodies*4);
-			is.read(_hVel, sizeof(float)*_numBodies*4);
-			is.read(_hCol, sizeof(float)*_numBodies*4);
+			if(_hPos && _hVel && _hCol) {
+				is.read(_hPos, sizeof(float)*_numBodies*4);
+				is.read(_hVel, sizeof(float)*_numBodies*4);
+				is.read(_hCol, sizeof(float)*_numBodies*4);
+			}
 		}
 		
 		if( dirtyBits & DIRTY_FLAGS ) {
@@ -180,17 +191,25 @@ namespace eqNbody
 	void FrameData::init(const unsigned int numBodies)
 	{
 		_numBodies	= numBodies;
+				
+		setDirty( DIRTY_FLAGS );
+	}
+	
+	void FrameData::initHostData()
+	{		
+#ifdef ENABLE_HOSTALLOC
+        allocateHostArrays(&_hPos, &_hVel, &_hCol, _numBodies*4*sizeof(float));
+#else
+		_hPos		= new float[_numBodies*4];
+		_hVel		= new float[_numBodies*4];
+		_hCol		= new float[_numBodies*4];
+#endif
 		
-		_hPos		= new float[numBodies*4];
-		_hVel		= new float[numBodies*4];
-		_hCol		= new float[numBodies*4];
-		
-		memset(_hPos, 0, numBodies*4*sizeof(float));
-		memset(_hVel, 0, numBodies*4*sizeof(float));
-		memset(_hCol, 0, numBodies*4*sizeof(float));
+		memset(_hPos, 0, _numBodies*4*sizeof(float));
+		memset(_hVel, 0, _numBodies*4*sizeof(float));
+		memset(_hCol, 0, _numBodies*4*sizeof(float));
 		
 		setDirty( DIRTY_DATA );
-		setDirty( DIRTY_FLAGS );
 	}
 	
 	void FrameData::exit()
@@ -198,9 +217,13 @@ namespace eqNbody
 		_numDataProxies = 0;
 		_numBodies		= 0;
 
+#ifdef ENABLE_HOSTALLOC
+        deleteHostArrays(_hPos, _hVel, _hCol);
+#else
 		delete [] _hPos;
 		delete [] _hVel;	
 		delete [] _hCol;	
+#endif
 	}
 	
 	void FrameData::updateParameters(NBodyConfig config, float clusterScale, float velocityScale, float ts)

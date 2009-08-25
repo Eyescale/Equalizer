@@ -44,6 +44,22 @@ void setDeviceSoftening(float softening)
     cudaMemcpyToSymbol("softeningSquared", &softeningSq, sizeof(float), 0, cudaMemcpyHostToDevice);
 }
 
+void allocateHostArrays(float** pos, float** vel, float** col, int numBytes)
+{
+	unsigned int flags = cudaHostAllocDefault; // cudaHostAllocWriteCombined
+								
+	cudaHostAlloc( (void**)pos, numBytes, flags);
+	cudaHostAlloc( (void**)vel, numBytes, flags);
+	cudaHostAlloc( (void**)col, numBytes, flags);
+}
+
+void deleteHostArrays(float* pos, float *vel, float *col)
+{
+	cudaFreeHost(pos);
+	cudaFreeHost(vel);
+	cudaFreeHost(col);
+}
+
 void allocateNBodyArrays(float* vel[2], int numBytes)
 {    
     cudaMalloc((void**)&vel[0], numBytes);

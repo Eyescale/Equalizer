@@ -39,18 +39,21 @@ namespace eqNbody
     public:
         Window( eq::Pipe* parent ) : eq::Window( parent ), _device(0) {}
 		
-		unsigned int getDeviceID() { return _device; }
+		unsigned int getCUDADeviceID() { return _device; }
 		unsigned int getMode() { return _mode; }
 		
     protected:
         virtual ~Window() {}
 
 		virtual bool configInit( const uint32_t initID );		
+		virtual bool configInitCUDA();		
         virtual void swapBuffers();		
 		
     private:
-		unsigned int	_device;
-		Mode			_mode;
+		int	_getMaxGflopsDeviceId();
+
+		int		_device;
+		Mode	_mode;
     };
 }
 

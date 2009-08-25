@@ -39,6 +39,7 @@ namespace eqNbody
         virtual ~FrameData();
 
 		void init(unsigned int numBodies);
+		void initHostData();
 		void exit();		
 
 		void updateParameters(NBodyConfig config, float clusterScale, float velocityScale, float ts);

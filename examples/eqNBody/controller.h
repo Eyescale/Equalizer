@@ -39,7 +39,7 @@ namespace eqNbody
     public:
         Controller();
 
-		bool init( int devID, const InitData& initData, float* hPos = NULL, bool usePBO=true, bool useGL = true);
+		bool init(const InitData& initData, float* hPos = NULL, bool usePBO=true);
 		bool exit();
 		
 		void compute(const unsigned int frameID, const FrameData& fd, const eq::Range& range);
@@ -53,8 +53,6 @@ namespace eqNbody
 		void synchronizeGPUThreads() const;
 		
     private:
-		int _getMaxGflopsDeviceId();
-
 		ParticleRenderer _renderer;
 		
 		unsigned int	_numBodies;
@@ -65,10 +63,7 @@ namespace eqNbody
 
 		float*			_dPos[2];		// position data on the GPU
 		float*			_dVel[2];		// velocity data on the GPU
-								
-		int				_devID;
-		cudaDeviceProp	_props;
-		
+										
 		unsigned int	_pbo[2];		// buffers
 		unsigned int	_currentRead;	// current read buffer
 		unsigned int	_currentWrite;	// current write buffer		
