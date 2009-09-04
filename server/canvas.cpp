@@ -336,6 +336,8 @@ private:
 void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
 {
     EQASSERT( _config );
+    if( oldIndex == newIndex )
+        return;
 
     const size_t nLayouts = _layouts.size();
     const Layout* oldLayout = (oldIndex >= nLayouts) ? 0 :_layouts[oldIndex];
