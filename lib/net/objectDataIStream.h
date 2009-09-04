@@ -49,6 +49,13 @@ namespace net
 
         virtual void reset();
 
+        enum Type
+        {
+            TYPE_INSTANCE,
+            TYPE_DELTA
+        };
+        virtual Type getType() const = 0;
+
     protected:
         const Command* getNextCommand();
 

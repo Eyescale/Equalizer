@@ -367,9 +367,8 @@ namespace net
         friend class Session;
 
         friend class DeltaMasterCM;
-        friend class DeltaSlaveCM;
         friend class FullMasterCM;
-        friend class FullSlaveCM;
+        friend class VersionedSlaveCM;
         friend class StaticMasterCM;
         friend class StaticSlaveCM;
         friend class UnbufferedMasterCM;

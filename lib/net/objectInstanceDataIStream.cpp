@@ -29,7 +29,6 @@ namespace eq
 namespace net
 {
 ObjectInstanceDataIStream::ObjectInstanceDataIStream()
-    : _sequence( EQ_ID_INVALID ) // only for safety check - remove me later!
 {
 }
 
@@ -52,11 +51,6 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
                 command->getPacket< ObjectInstanceDataPacket >();
             *buffer = packet->data;
             *size   = packet->dataSize;
-
-            EQASSERTINFO( ( _sequence==EQ_ID_INVALID && packet->sequence==0 )||
-                          ( _sequence+1 == packet->sequence ),
-                          "have " << _sequence << " got " << packet->sequence);
-            _sequence = packet->sequence;
             return true;
         }
 
@@ -66,11 +60,6 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
                 command->getPacket< ObjectInstancePacket >();
             *buffer = packet->data;
             *size   = packet->dataSize;
-
-            EQASSERTINFO( ( _sequence==EQ_ID_INVALID && packet->sequence==0 )||
-                ( _sequence+1 == packet->sequence ),
-                "have " << _sequence << " got " << packet->sequence);
-            _sequence = EQ_ID_INVALID; // last in stream
             return true;
         }
         

@@ -33,6 +33,9 @@ namespace eq
 {
 namespace net
 {
+
+typedef ObjectDeltaDataOStream DeltaData;
+        
 DeltaMasterCM::DeltaMasterCM( Object* object )
         : _object( object ),
           _version( Object::VERSION_NONE ),
@@ -78,26 +81,12 @@ DeltaMasterCM::~DeltaMasterCM()
 
     _instanceDatas.clear();
 
-    for( std::deque< DeltaData* >::const_iterator i = _deltaDatas.begin();
-         i != _deltaDatas.end(); ++i )
-
-        delete *i;
-
-    _deltaDatas.clear();
-
     for(std::vector<InstanceData*>::const_iterator i=_instanceDataCache.begin();
          i != _instanceDataCache.end(); ++i )
 
         delete *i;
     
     _instanceDataCache.clear();
-
-    for( std::vector<DeltaData*>::const_iterator i =_deltaDataCache.begin();
-         i != _deltaDataCache.end(); ++i )
-
-        delete *i;
-    
-    _deltaDataCache.clear();
 }
 
 uint32_t DeltaMasterCM::commitNB()
@@ -130,12 +119,8 @@ void DeltaMasterCM::_obsolete()
         if( lastInstanceData->commitCount < (_commitCount - _nVersions) &&
             _instanceDatas.size() > 1 )
         {
-            EQASSERT( !_deltaDatas.empty( ));
             _instanceDataCache.push_back( lastInstanceData );
             _instanceDatas.pop_back();
-
-            _deltaDataCache.push_back( _deltaDatas.back( ));        
-            _deltaDatas.pop_back();
         }
         _checkConsistency();
         return;
@@ -145,13 +130,6 @@ void DeltaMasterCM::_obsolete()
     {
         _instanceDataCache.push_back( _instanceDatas.back( ));
         _instanceDatas.pop_back();
-        
-        if( _nVersions > 0 )
-        {
-            EQASSERT( !_deltaDatas.empty( ));
-            _deltaDataCache.push_back( _deltaDatas.back( ));        
-            _deltaDatas.pop_back();
-        }
         _checkConsistency();
     }
 }
@@ -188,41 +166,40 @@ void DeltaMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
         return;
     }
 
+    const uint32_t oldest  = getOldestVersion();
     const uint32_t version = (inVersion == Object::VERSION_OLDEST) ?
-                                 getOldestVersion() : inVersion;
+                                 oldest : inVersion;
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID() 
                          << " with v" << version << endl;
 
-    EQASSERT( version >= getOldestVersion( ));
+    EQASSERT( version >= oldest );
 
-    // send initial instance data
+    // send all instance datas, starting at initial version
     deque< InstanceData* >::reverse_iterator i = _instanceDatas.rbegin();
     while( (*i)->os.getVersion() < version && i != _instanceDatas.rend( ))
+    {
         ++i;
-
-    InstanceData* data = (i == _instanceDatas.rend( )) ? 
-                             _instanceDatas.back() : *i;
-    EQASSERT( data );
-    EQASSERT( data->os.getVersion() <= version );
-
-    data->os.setInstanceID( instanceID );
-    data->os.resend( node );
+    }
 
     if( i == _instanceDatas.rend( ))
-        return;
-
-    // send all deltas since initial instance data
-    const uint32_t deltaVersion = data->os.getVersion() + 1;
-    for( deque< DeltaData* >::reverse_iterator j = _deltaDatas.rbegin();
-         j != _deltaDatas.rend(); ++j )
     {
-        DeltaData* deltaData = *j;
-        if( deltaData->getVersion() < deltaVersion )
-            continue;
+        InstanceData* data = _instanceDatas.back();
+        EQASSERT( data );
+        EQASSERT( data->os.getVersion() <= version );
 
-        deltaData->setInstanceID( instanceID );
-        deltaData->resend( node );
+        data->os.setInstanceID( instanceID );
+        data->os.resend( node );
+    }
+    else for( ; i != _instanceDatas.rend(); ++i )
+    {
+        InstanceData* data = *i;
+        EQASSERT( data );
+        EQASSERTINFO( data->os.getVersion() >= version, 
+                      data->os.getVersion() << " < " << version );
+
+        data->os.setInstanceID( instanceID );
+        data->os.resend( node );
     }
 }
 
@@ -268,20 +245,6 @@ void DeltaMasterCM::_checkConsistency() const
     if( _version == Object::VERSION_NONE )
         return;
 
-    EQASSERT( _instanceDatas.size() == _deltaDatas.size() + 1 );
-
-    if( !( _obsoleteFlags & Object::AUTO_OBSOLETE_COUNT_COMMITS ))
-    {   // count versions
-        if( _version > _nVersions )
-        {
-            EQASSERT( _deltaDatas.size() == _nVersions );
-        }
-        else
-        {
-            EQASSERT( _instanceDatas.size() == _version );
-        }
-    }
-
     uint32_t version = _version;
     for( deque< InstanceData* >::const_iterator i = _instanceDatas.begin();
          i != _instanceDatas.end(); ++i )
@@ -289,16 +252,6 @@ void DeltaMasterCM::_checkConsistency() const
         const InstanceData* data = *i;
         EQASSERT( data->os.getVersion() == version );
         EQASSERT( data->os.getVersion() > 0 );
-        --version;
-    }
-
-    version = _version;
-    for( deque< DeltaData* >::const_iterator i = _deltaDatas.begin();
-         i != _deltaDatas.end(); ++i )
-    {
-        const DeltaData* data = *i;
-        EQASSERT( data->getVersion() == version );
-        EQASSERT( data->getVersion() > 0 );
         --version;
     }
 #endif
@@ -325,25 +278,6 @@ DeltaMasterCM::InstanceData* DeltaMasterCM::_newInstanceData()
     return instanceData;
 }
 
-DeltaMasterCM::DeltaData* DeltaMasterCM::_newDeltaData()
-{
-    DeltaData* deltaData;
-
-    if( _deltaDataCache.empty( ))
-        deltaData = new DeltaData( _object );
-    else
-    {
-        deltaData = _deltaDataCache.back();
-        _deltaDataCache.pop_back();
-    }
-
-    deltaData->disableSave();
-    deltaData->enableBuffering();
-    deltaData->setInstanceID( EQ_ID_ANY );
-    return deltaData;
-}
-
-
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -354,22 +288,18 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
 
     EQASSERT( _version != Object::VERSION_NONE );
-    EQASSERT( _instanceDatas.size() == _deltaDatas.size() + 1 );
 
     ++_commitCount;
 
-    DeltaData* deltaData = _newDeltaData();
-    const bool  saveDelta  = ( _nVersions > 0 );
-    if( saveDelta ) deltaData->enableSave();
+    DeltaData deltaData( _object );
 
-    deltaData->setVersion( _version + 1 );
-    deltaData->enable( _slaves );
-    _object->pack( *deltaData );
-    deltaData->disable();
+    deltaData.setVersion( _version + 1 );
+    deltaData.enable( _slaves );
+    _object->pack( deltaData );
+    deltaData.disable();
 
-    if( !deltaData->hasSentData( ))
+    if( !deltaData.hasSentData( ))
     {
-        _deltaDataCache.push_back( deltaData );
         _obsolete();
         _checkConsistency();
 
@@ -380,11 +310,6 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
     ++_version;
     EQASSERT( _version );
     
-    if( saveDelta )
-        _deltaDatas.push_front( deltaData );
-    else
-        _deltaDataCache.push_back( deltaData );
-
     // save instance data
     InstanceData* instanceData = _newInstanceData();
     instanceData->os.enableSave();

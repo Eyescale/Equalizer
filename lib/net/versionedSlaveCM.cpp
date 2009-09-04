@@ -16,7 +16,7 @@
  */
 
 #include <pthread.h>
-#include "fullSlaveCM.h"
+#include "versionedSlaveCM.h"
 
 #include "command.h"
 #include "commands.h"
@@ -35,24 +35,28 @@ namespace eq
 {
 namespace net
 {
-typedef CommandFunc<FullSlaveCM> CmdFunc;
+typedef CommandFunc<VersionedSlaveCM> CmdFunc;
 
-FullSlaveCM::FullSlaveCM( Object* object, uint32_t masterInstanceID )
-        : StaticSlaveCM( object )
+VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
+        : _object( object )
         , _version( Object::VERSION_NONE )
         , _mutex( 0 )
-        , _currentDeltaStream( 0 )
+        , _currentIStream( 0 )
         , _masterInstanceID( masterInstanceID )
 {
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
+                     CmdFunc( this, &VersionedSlaveCM::_cmdInstanceData ), 0 );
+    registerCommand( CMD_OBJECT_INSTANCE,
+                     CmdFunc( this, &VersionedSlaveCM::_cmdInstance ), 0 );
     registerCommand( CMD_OBJECT_DELTA_DATA,
-                     CmdFunc( this, &FullSlaveCM::_cmdDeltaData ), 0 );
+                     CmdFunc( this, &VersionedSlaveCM::_cmdDeltaData ), 0 );
     registerCommand( CMD_OBJECT_DELTA,
-                     CmdFunc( this, &FullSlaveCM::_cmdDelta ), 0 );
+                     CmdFunc( this, &VersionedSlaveCM::_cmdDelta ), 0 );
     registerCommand( CMD_OBJECT_VERSION,
-                     CmdFunc( this, &FullSlaveCM::_cmdVersion ), 0 );
+                     CmdFunc( this, &VersionedSlaveCM::_cmdVersion ), 0 );
 }
 
-FullSlaveCM::~FullSlaveCM()
+VersionedSlaveCM::~VersionedSlaveCM()
 {
     delete _mutex;
     _mutex = 0;
@@ -60,20 +64,21 @@ FullSlaveCM::~FullSlaveCM()
     while( !_queuedVersions.isEmpty( ))
         delete _queuedVersions.pop();
 
-    delete _currentDeltaStream;
-    _currentDeltaStream = 0;
+    delete _currentIStream;
+    _currentIStream = 0;
 
     _version = Object::VERSION_NONE;
 }
 
-void FullSlaveCM::makeThreadSafe()
+void VersionedSlaveCM::makeThreadSafe()
 {
-    if( _mutex ) return;
+    if( _mutex ) 
+        return;
 
     _mutex = new Lock;
 }
 
-uint32_t FullSlaveCM::sync( const uint32_t version )
+uint32_t VersionedSlaveCM::sync( const uint32_t version )
 {
     EQLOG( LOG_OBJECTS ) << "sync to v" << version << ", id " 
                          << _object->getID() << "." << _object->getInstanceID()
@@ -109,7 +114,7 @@ uint32_t FullSlaveCM::sync( const uint32_t version )
     return _version;
 }
 
-void FullSlaveCM::_syncToHead()
+void VersionedSlaveCM::_syncToHead()
 {
     if( _queuedVersions.isEmpty( ))
         return;
@@ -127,7 +132,7 @@ void FullSlaveCM::_syncToHead()
 }
 
 
-uint32_t FullSlaveCM::getHeadVersion() const
+uint32_t VersionedSlaveCM::getHeadVersion() const
 {
     ObjectDataIStream* is = _queuedVersions.back();
     if( is )
@@ -136,13 +141,20 @@ uint32_t FullSlaveCM::getHeadVersion() const
     return _version;    
 }
 
-void FullSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
+void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
 {
     EQASSERT( is );
     EQASSERTINFO( _version == is->getVersion() - 1, "Expected version " 
                   << _version + 1 << ", got " << is->getVersion() );
-    
-    _object->unpack( *is );
+
+    if( is->getType() == ObjectDataIStream::TYPE_INSTANCE )
+        _object->applyInstanceData( *is );
+    else
+    {
+        EQASSERT( is->getType() == ObjectDataIStream::TYPE_DELTA );
+        _object->unpack( *is );
+    }
+
     _version = is->getVersion();
     EQLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
                          << _object->getID() << "." << _object->getInstanceID()
@@ -154,19 +166,21 @@ void FullSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
 }
 
 
-void FullSlaveCM::applyMapData()
+void VersionedSlaveCM::applyMapData()
 {
-    EQASSERTINFO( _currentIStream, typeid( *_object ).name() << " id " <<
-                  _object->getID() << "." << _object->getInstanceID( ));
+    ObjectDataIStream* is = _queuedVersions.pop();
+    EQASSERTINFO( is->getType() == ObjectDataIStream::TYPE_INSTANCE,
+                  typeid( *_object ).name() << " id " << _object->getID() <<
+                  "." << _object->getInstanceID( ));
 
-    _currentIStream->waitReady();
+    _object->applyInstanceData( *is );
+    _version = is->getVersion();
 
-    _object->applyInstanceData( *_currentIStream );
-    _version = _currentIStream->getVersion();
+    if( is->getRemainingBufferSize() > 0 || is->nRemainingBuffers() > 0 )
+        EQWARN << "Object " << typeid( *_object ).name() 
+            << " did not unpack all data" << endl;
 
-    delete _currentIStream;
-    _currentIStream = 0;
-
+    delete is;
     EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
                          << "." << _object->getInstanceID() << " v" << _version
                          << " ready" << std::endl;
@@ -176,38 +190,70 @@ void FullSlaveCM::applyMapData()
 // command handlers
 //---------------------------------------------------------------------------
 
-CommandResult FullSlaveCM::_cmdDeltaData( Command& command )
+CommandResult VersionedSlaveCM::_cmdInstanceData( Command& command )
 {
-    if( !_currentDeltaStream )
-        _currentDeltaStream = new ObjectDeltaDataIStream;
+    if( !_currentIStream )
+        _currentIStream = new ObjectInstanceDataIStream;
 
-    _currentDeltaStream->addDataPacket( command );
+    _currentIStream->addDataPacket( command );
     return COMMAND_HANDLED;
 }
 
-CommandResult FullSlaveCM::_cmdDelta( Command& command )
+CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
 {
-    if( !_currentDeltaStream )
-        _currentDeltaStream = new ObjectDeltaDataIStream;
+    if( !_currentIStream )
+        _currentIStream = new ObjectInstanceDataIStream;
 
-    const ObjectDeltaPacket* packet = command.getPacket<ObjectDeltaPacket>();
-    EQLOG( LOG_OBJECTS ) << "cmd delta " << command << endl;
+    const ObjectInstancePacket* packet = 
+        command.getPacket<ObjectInstancePacket>();
+    EQLOG( LOG_OBJECTS ) << "cmd instance " << command << endl;
 
-    _currentDeltaStream->addDataPacket( command );
-    _currentDeltaStream->setVersion( packet->version );
+    _currentIStream->addDataPacket( command );
+    _currentIStream->setVersion( packet->version );
     
     EQLOG( LOG_OBJECTS ) << "v" << packet->version << ", id "
                          << _object->getID() << "." << _object->getInstanceID()
                          << " ready" << endl;
 
-    _queuedVersions.push( _currentDeltaStream );
+    _queuedVersions.push( _currentIStream );
     _object->notifyNewHeadVersion( packet->version );
-    _currentDeltaStream = 0;
+    _currentIStream = 0;
 
     return COMMAND_HANDLED;
 }
 
-CommandResult FullSlaveCM::_cmdVersion( Command& command )
+CommandResult VersionedSlaveCM::_cmdDeltaData( Command& command )
+{
+    if( !_currentIStream )
+        _currentIStream = new ObjectDeltaDataIStream;
+
+    _currentIStream->addDataPacket( command );
+    return COMMAND_HANDLED;
+}
+
+CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
+{
+    if( !_currentIStream )
+        _currentIStream = new ObjectDeltaDataIStream;
+
+    const ObjectDeltaPacket* packet = command.getPacket<ObjectDeltaPacket>();
+    EQLOG( LOG_OBJECTS ) << "cmd delta " << command << endl;
+
+    _currentIStream->addDataPacket( command );
+    _currentIStream->setVersion( packet->version );
+    
+    EQLOG( LOG_OBJECTS ) << "v" << packet->version << ", id "
+                         << _object->getID() << "." << _object->getInstanceID()
+                         << " ready" << endl;
+
+    _queuedVersions.push( _currentIStream );
+    _object->notifyNewHeadVersion( packet->version );
+    _currentIStream = 0;
+
+    return COMMAND_HANDLED;
+}
+
+CommandResult VersionedSlaveCM::_cmdVersion( Command& command )
 {
     const ObjectVersionPacket* packet = 
         command.getPacket< ObjectVersionPacket >();

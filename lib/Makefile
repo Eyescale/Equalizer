@@ -169,7 +169,7 @@ CXXFILES = \
 	net/deltaMasterCM.cpp \
 	net/fdConnection.cpp \
 	net/fullMasterCM.cpp \
-	net/fullSlaveCM.cpp \
+	net/versionedSlaveCM.cpp \
 	net/global.cpp \
 	net/init.cpp \
 	net/namedPipeConnection.cpp \

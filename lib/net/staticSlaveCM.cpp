@@ -33,16 +33,16 @@ namespace eq
 {
 namespace net
 {
+typedef CommandFunc< StaticSlaveCM > CmdFunc;
+
 StaticSlaveCM::StaticSlaveCM( Object* object )
         : _object( object )
         , _currentIStream( new ObjectInstanceDataIStream )
 {
     registerCommand( CMD_OBJECT_INSTANCE_DATA,
-           CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstanceData ),
-                     0 );
+                     CmdFunc( this, &StaticSlaveCM::_cmdInstanceData ), 0 );
     registerCommand( CMD_OBJECT_INSTANCE,
-               CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstance ),
-                     0 );
+                     CmdFunc( this, &StaticSlaveCM::_cmdInstance ), 0 );
 }
 
 StaticSlaveCM::~StaticSlaveCM()

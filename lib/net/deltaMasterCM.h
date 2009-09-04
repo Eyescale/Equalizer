@@ -112,19 +112,11 @@ namespace net
             uint32_t commitCount;
         };
         
-        typedef ObjectDeltaDataOStream DeltaData;
-        
         /** The list of full instance datas, head version first. */
         std::deque< InstanceData* > _instanceDatas;
-
-        /** The list of delta datas, (head-1):head delta first. */
-        std::deque< DeltaData* > _deltaDatas;
-        
         std::vector< InstanceData* > _instanceDataCache;
-        std::vector< DeltaData* >   _deltaDataCache;
 
-        DeltaData*   _newDeltaData();
-        InstanceData* _newInstanceData();
+        InstanceData*   _newInstanceData();
 
         void _obsolete();
         void _checkConsistency() const;

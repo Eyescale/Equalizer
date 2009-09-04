@@ -1,9 +1,14 @@
-eqPly: Model caching improvement
+Refactor behaviour of DELTA objects by sending oldest..newest
+instanceData instead of oldest instance data, oldest+1..newest
+deltaData:
+- reduces memory footprint since delta data is not saved anymore
+- potentially increases network bandwidth during mapping
+- simplifies change manager code
 
 [ ] Will break Win32 build
-[ ] May break existing applications
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

@@ -37,11 +37,10 @@ namespace net
         ObjectInstanceDataIStream();
         virtual ~ObjectInstanceDataIStream();
 
+        virtual Type getType() const { return TYPE_INSTANCE; }
+
     protected:
         virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size );
-
-    private:
-        uint32_t _sequence;
     };
 }
 }

@@ -35,6 +35,8 @@ namespace net
         ObjectDeltaDataIStream();
         virtual ~ObjectDeltaDataIStream();
 
+        virtual Type getType() const { return TYPE_DELTA; }
+
     protected:
         virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size );
     };

@@ -15,11 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_FULLSLAVECM_H
-#define EQNET_FULLSLAVECM_H
+#ifndef EQNET_VERSIONEDSLAVECM_H
+#define EQNET_VERSIONEDSLAVECM_H
 
-#include "staticSlaveCM.h"     // base class
-
+#include <eq/net/objectCM.h>     // base class
 #include <eq/net/commandQueue.h> // member
 #include <eq/net/object.h>       // nested enum (Object::Version)
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
@@ -33,14 +32,13 @@ namespace net
     class ObjectDeltaDataIStream;
 
     /** 
-     * An object change manager handling full instance versions for slave
-     * instances.
+     * An object change manager handling changes for versioned slave instances.
      */
-    class FullSlaveCM : public StaticSlaveCM
+    class VersionedSlaveCM : public ObjectCM
     {
     public:
-        FullSlaveCM( Object* object, uint32_t masterInstanceID );
-        virtual ~FullSlaveCM();
+        VersionedSlaveCM( Object* object, uint32_t masterInstanceID );
+        virtual ~VersionedSlaveCM();
 
         virtual void makeThreadSafe();
 
@@ -77,36 +75,40 @@ namespace net
 
         virtual void applyMapData();
 
-    protected:
+    private:
+        /** The managed object. */
+        Object* _object;
+
         /** The current version. */
         uint32_t _version;
 
-        /** The change queue. */
-        base::MTQueue< ObjectDataIStream* > _queuedVersions;
-
-        /** Apply the data in the input stream to the object */
-        virtual void _unpackOneVersion( ObjectDataIStream* is );
-
-    private:
         /** The mutex, if thread safety is enabled. */
         base::Lock* _mutex;
 
         /** istream for receiving the current version */
-        ObjectDataIStream* _currentDeltaStream;
+        ObjectDataIStream* _currentIStream;
+
+        /** The change queue. */
+        base::MTQueue< ObjectDataIStream* > _queuedVersions;
 
         /** The instance identifier of the master object. */
         uint32_t _masterInstanceID;
 
         void _syncToHead();
 
+        /** Apply the data in the input stream to the object */
+        virtual void _unpackOneVersion( ObjectDataIStream* is );
+
         /* The command handlers. */
+        CommandResult _cmdInstanceData( Command& command );
+        CommandResult _cmdInstance( Command& command );
         CommandResult _cmdDeltaData( Command& command );
         CommandResult _cmdDelta( Command& command );
-        CommandResult _cmdVersion( Command& pkg );
+        CommandResult _cmdVersion( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };
 }
 }
 
-#endif // EQNET_FULLSLAVECM_H
+#endif // EQNET_VERSIONEDSLAVECM_H

@@ -22,7 +22,7 @@
 #include "dataOStream.h"
 #include "deltaMasterCM.h"
 #include "fullMasterCM.h"
-#include "fullSlaveCM.h"
+#include "versionedSlaveCM.h"
 #include "log.h"
 #include "nullCM.h"
 #include "objectCM.h"
@@ -73,6 +73,8 @@ Object::~Object()
     _cm = 0;
 }
 
+typedef CommandFunc<Object> CmdFunc;
+
 void Object::attachToSession( const uint32_t id, const uint32_t instanceID, 
                               Session* session )
 {
@@ -87,19 +89,19 @@ void Object::attachToSession( const uint32_t id, const uint32_t instanceID,
     CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( CMD_OBJECT_INSTANCE_DATA,
-                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+                     CmdFunc( this, &Object::_cmdForward ), queue );
     registerCommand( CMD_OBJECT_INSTANCE,
-                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+                     CmdFunc( this, &Object::_cmdForward ), queue );
     registerCommand( CMD_OBJECT_DELTA_DATA, 
-                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+                     CmdFunc( this, &Object::_cmdForward ), queue );
     registerCommand( CMD_OBJECT_DELTA, 
-                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+                     CmdFunc( this, &Object::_cmdForward ), queue );
     registerCommand( CMD_OBJECT_COMMIT, 
-                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+                     CmdFunc( this, &Object::_cmdForward ), queue );
     registerCommand( CMD_OBJECT_NEW_MASTER, 
-                     CommandFunc<Object>( this, &Object::_cmdNewMaster ),queue);
+                     CmdFunc( this, &Object::_cmdNewMaster ),queue );
     registerCommand( CMD_OBJECT_VERSION, 
-                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+                     CmdFunc( this, &Object::_cmdForward ), queue );
 
     EQINFO << _id << '.' << _instanceID << ": " << typeid( *this ).name()
            << (isMaster() ? " master" : " slave") << std::endl;
@@ -243,19 +245,22 @@ void Object::setupChangeManager( const Object::ChangeType type,
             if( master )
                 _setChangeManager( new FullMasterCM( this ));
             else
-                _setChangeManager( new FullSlaveCM( this, masterInstanceID ));
+                _setChangeManager( new VersionedSlaveCM( this, 
+                                                         masterInstanceID ));
             break;
         case Object::DELTA:
             if( master )
                 _setChangeManager( new DeltaMasterCM( this ));
             else
-                _setChangeManager( new FullSlaveCM( this, masterInstanceID ));
+                _setChangeManager( new VersionedSlaveCM( this,
+                                                         masterInstanceID ));
             break;
         case Object::UNBUFFERED:
             if( master )
                 _setChangeManager( new UnbufferedMasterCM( this ));
             else
-                _setChangeManager( new FullSlaveCM( this, masterInstanceID ));
+                _setChangeManager( new VersionedSlaveCM( this,
+                                                         masterInstanceID ));
             break;
 
         default: EQUNIMPLEMENTED;
