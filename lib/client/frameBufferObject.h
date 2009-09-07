@@ -26,44 +26,76 @@
 
 namespace eq
 {
-    /** A C++ class to abstract GL frame buffer objects */
+    /** A C++ class to abstract OpenGL frame buffer objects */
     class FrameBufferObject 
     {
     public: 
-        /** Constructs a new Frame Buffer Object */
-        FrameBufferObject( GLEWContext* const glewContext );
+        /** Construct a new Frame Buffer Object */
+        EQ_EXPORT FrameBufferObject( GLEWContext* const glewContext );
 
         /** Destruct the Frame Buffer Object */
-        ~FrameBufferObject();
-
-        /** Initialize the Frame Buffer Object */
-        bool init( const int width, const int height, 
-                   const int depthSize, const int stencilSize );
+        EQ_EXPORT ~FrameBufferObject();
 
         /**
-         * Set format for all color textures, if desired format differs 
-         * from default. This function should be called before init function.
+         * Set format for all color textures, if desired format differs from the
+         * default format GL_RGBA. This function should be called before init().
          *
          * @param format new format of color texture
          */
-        void setColorFormat( const GLuint format );
+        EQ_EXPORT void setColorFormat( const GLuint format );
+
+        /**
+         * Add one color texture to the FBO.
+         * 
+         * One color texture is automatically created in the constructor. The
+         * maximum number of textures per FBO is 16. Added color textures will
+         * have the same format as the existing texture(s). This function has to
+         * be called on an uninitialized FBO.
+         *
+         * @return false if color texture can't be added, otherwise true
+         */
+        bool addColorTexture();
+
+        /**
+         * Initialize the Frame Buffer Object
+         * 
+         * @param width the initial width of the rendering buffer.
+         * @param height the initial height of the rendering buffer.
+         * @param depthSize The bit depth of the depth attachment
+         * @param stencilSize The bit depth of the stencil attachment.
+         * @return true on success, false otherwise
+         * @sa resize(), getErrorMessage()
+         */
+        EQ_EXPORT bool init( const int width, const int height, 
+                             const int depthSize, const int stencilSize );
 
         /** De-initialize the Frame Buffer Object. */
-        void exit();
+        EQ_EXPORT void exit();
 
-        /** Bind to the Frame Buffer Object */
-        void bind();
+        /**
+         * Bind to the Frame Buffer Object as the read and draw buffer of the
+         * current context.
+         * @sa getErrorMessage()
+         */
+        EQ_EXPORT void bind();
 
-        /** Unbind any Frame Buffer Object */
-        void unbind();
+        /**
+         * Unbind any Frame Buffer Object and use the default drawable for the
+         * current context.
+         */
+        EQ_EXPORT void unbind();
 
-        /* Resize FBO, if needed. */
-        bool resize( const int width, const int height );
+        /**
+         * Resize the FBO.
+         * 
+         * The FBO has to be initialized and bound. It is not changed if the
+         * size does not change.
+         * @return true on success, false on error.
+         * @sa getErrorMessage()
+         */
+        EQ_EXPORT bool resize( const int width, const int height );
 
-        GLEWContext* glewGetContext() { return _glewContext; }
-        const GLEWContext* glewGetContext() const { return _glewContext; }
-
-        /** @return the color texture. */
+        /** @return the color textures. */
         const TextureVector& getColorTextures() const { return _colors; }
 
         /** @return the depth texture. */
@@ -76,16 +108,10 @@ namespace eq
         const std::string& getErrorMessage() { return _error; }
 
         /** @return the size of this framebuffer object. */
-        PixelViewport getPixelViewport() const;
+        EQ_EXPORT PixelViewport getPixelViewport() const;
 
-        /**
-         * Add one texture to FBO. When FBO class is created it has one color
-         * texture by default. Maximal number of textures per FBO is 16. Added
-         * color texture will have the same format as already added textures.
-         *
-         * @return false if color texture can't be added, otherwise true
-         */
-        bool addColorTexture( );
+        GLEWContext* glewGetContext() { return _glewContext; }
+        const GLEWContext* glewGetContext() const { return _glewContext; }
 
     private:
         GLuint _fboID;

@@ -113,9 +113,12 @@ bool FrameBufferObject::init( const int width    , const int height,
     if ( depthSize > 0 )
         _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height );
 
-  /*  if ( stencilSize > 0 )
+    if ( stencilSize > 0 )
+    {
+        EQUNIMPLEMENTED; // stencil FBO textures don't work?
         _stencil.bindToFBO( GL_STENCIL_ATTACHMENT, width, height );
-*/
+    }
+
     _width  = width;
     _height = height;
     _valid  = true;

@@ -180,12 +180,18 @@ void Texture::download( void* buffer, const uint32_t format,
     EQASSERT( _defined );
     EQ_GL_CALL( glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id ));
     EQ_GL_CALL( glGetTexImage( GL_TEXTURE_RECTANGLE_ARB, 0,
-                                            format, type, buffer ));
+                               format, type, buffer ));
 }
 
 void Texture::download( void* buffer ) const
 {
     download( buffer, _format, _type );
+}
+
+void Texture::bind() const
+{
+    EQASSERT( _id );
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
 }
 
 void Texture::bindToFBO( const GLenum target, const int width, 
@@ -198,10 +204,8 @@ void Texture::bindToFBO( const GLenum target, const int width,
     _generate();
 
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id );
-
     glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, _internalFormat, width, height,
                   0, _format, _type, 0 );
-
     glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, GL_TEXTURE_RECTANGLE_ARB,
                                _id, 0 );
 

@@ -38,45 +38,50 @@ namespace eq
     class Texture : public base::NonCopyable
     {
     public:
-        /** Constructs a new Texture. */
-        Texture( GLEWContext* const glewContext = 0 );
-        ~Texture();
+        /** Construct a new Texture. */
+        EQ_EXPORT Texture( GLEWContext* const glewContext = 0 );
+        EQ_EXPORT virtual ~Texture();
 
         /** Clear the texture, including the GL texture name. */
-        void flush();
+        EQ_EXPORT void flush();
 
         /** Set the internal format of the texture. */
-        void setFormat( const GLuint format );
+        EQ_EXPORT void setFormat( const GLuint format );
 
         /** @return the internal format of the texture. */
         GLuint getFormat() const { return _internalFormat; }
 
-        /** Copy the specified area from the current read buffer to 0,0. */
-        void copyFromFrameBuffer( const PixelViewport& pvp );
+        /** 
+         * Copy the specified area from the current read buffer to the
+         * texture at 0,0.
+         */
+        EQ_EXPORT void copyFromFrameBuffer( const PixelViewport& pvp );
 
         /** Copy the specified image buffer to the texture at 0,0. */
-        void upload( const Image* image, const Frame::Buffer which );
+        EQ_EXPORT void upload( const Image* image, const Frame::Buffer which );
 
         /** Copy the texture data to the given memory address. */
-        void download( void* buffer, const uint32_t format, 
-                       const uint32_t type ) const;
+        EQ_EXPORT void download( void* buffer, const uint32_t format, 
+                                 const uint32_t type ) const;
 
-        /** Copy the texture data to the given memory address, using internal 
-            format and type. */
-        void download( void* buffer ) const;
+        /**
+         * Copy the texture data to the given memory address, using the internal
+         * format and type.
+         */
+        EQ_EXPORT void download( void* buffer ) const;
 
         /** Bind the texture. */
-        void bind() const
-            { EQASSERT( _id ); glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _id ); }
+        EQ_EXPORT void bind() const;
 
         /** Create and bind a texture to the current FBO. */
-        void bindToFBO( const GLenum target, const int width, const int height);
+        EQ_EXPORT void bindToFBO( const GLenum target, const int width,
+                                  const int height );
 
         /** Resize the texture. */
-        void resize( const int width, const int height );
+        EQ_EXPORT void resize( const int width, const int height );
 
         /** @return true if the texture can be bound. */
-        bool isValid() const;
+        EQ_EXPORT bool isValid() const;
 
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }

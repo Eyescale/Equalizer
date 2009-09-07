@@ -1,9 +1,9 @@
-Fix rare assertion on layout switch
+Document and export FrameBufferObject and Texture API.
 
 [ ] Will break Win32 build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
