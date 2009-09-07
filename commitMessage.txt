@@ -1,4 +1,4 @@
-Document and export FrameBufferObject and Texture API.
+Export FrameBufferObject::addColorTexture
 
 [ ] Will break Win32 build
 [ ] May break existing applications

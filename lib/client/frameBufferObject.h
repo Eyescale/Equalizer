@@ -54,7 +54,7 @@ namespace eq
          *
          * @return false if color texture can't be added, otherwise true
          */
-        bool addColorTexture();
+        EQ_EXPORT bool addColorTexture();
 
         /**
          * Initialize the Frame Buffer Object
