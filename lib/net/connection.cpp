@@ -24,7 +24,9 @@
 #include "pipeConnection.h"
 #include "socketConnection.h"
 #include "namedPipeConnection.h"
-#include "IBConnection.h"
+#ifdef EQ_INFINIBAND
+    #include "IBConnection.h"
+#endif //EQ_INFINIBAND
 #include <errno.h>
 
 #ifdef WIN32
