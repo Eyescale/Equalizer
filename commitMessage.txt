@@ -1,9 +1,9 @@
-Export FrameBufferObject::addColorTexture
+Minor PUG updates based on print version
 
 [ ] Will break Win32 build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
