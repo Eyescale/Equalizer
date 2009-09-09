@@ -71,6 +71,7 @@ ConnectionDescription::ConnectionDescription()
     {
         case net::CONNECTIONTYPE_TCPIP:
         case net::CONNECTIONTYPE_SDP:
+        case net::CONNECTIONTYPE_IB:
             TCPIP.port = global->getConnectionIAttribute( IATTR_TCPIP_PORT );
             break;
         case net::CONNECTIONTYPE_NAMEDPIPE:
@@ -96,9 +97,11 @@ std::ostream& operator << ( std::ostream& os,
                 desc->type == net::CONNECTIONTYPE_SDP   ? "SDP" : 
                 desc->type == net::CONNECTIONTYPE_PIPE  ? "ANON_PIPE" :
                 desc->type == net::CONNECTIONTYPE_NAMEDPIPE  ? "PIPE" :
+                desc->type == net::CONNECTIONTYPE_IB  ? "IB" :
                 "ERROR" ) << endl;
     
     if (( desc->type == net::CONNECTIONTYPE_TCPIP ) || 
+        ( desc->type == net::CONNECTIONTYPE_IB ) || 
         ( desc->type == net::CONNECTIONTYPE_SDP ))
     {
         if( desc->TCPIP.port != global->getConnectionIAttribute( 

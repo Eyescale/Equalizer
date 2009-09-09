@@ -33,4 +33,9 @@
 #ifndef LITTLE_ENDIAN
 #  define LITTLE_ENDIAN
 #endif
+#if 0
+#ifndef EQ_INFINIBAND
+#  define EQ_INFINIBAND
+#endif
+#endif
 #endif // EQ_DEFINES_H

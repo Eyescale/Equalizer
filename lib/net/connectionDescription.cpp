@@ -54,6 +54,10 @@ void ConnectionDescription::serialize( std::ostream& os ) const
         case CONNECTIONTYPE_NAMEDPIPE:
             os << "PIPE";
             break;
+
+        case CONNECTIONTYPE_IB:
+            os << "IB";
+            break;
     }        
 
     os << SEPARATOR << bandwidth << SEPARATOR << _launchCommand 
@@ -64,6 +68,7 @@ void ConnectionDescription::serialize( std::ostream& os ) const
     {
         case CONNECTIONTYPE_TCPIP:
         case CONNECTIONTYPE_SDP:
+        case CONNECTIONTYPE_IB:        
             os << SEPARATOR << TCPIP.port;
             break;
         case CONNECTIONTYPE_NAMEDPIPE:
@@ -107,6 +112,8 @@ bool ConnectionDescription::fromString( std::string& data )
                     type = CONNECTIONTYPE_TCPIP;
                 else if( token == "SDP" )
                     type = CONNECTIONTYPE_SDP;
+                else if( token == "IB" )
+                    type = CONNECTIONTYPE_IB;
                 else if( token == "PIPE" )
                 {
                     type = CONNECTIONTYPE_NAMEDPIPE;
@@ -133,6 +140,8 @@ bool ConnectionDescription::fromString( std::string& data )
             type = CONNECTIONTYPE_PIPE;
         else if( typeStr == "PIPE" )
             type = CONNECTIONTYPE_NAMEDPIPE;
+        else if( typeStr == "IB" )
+            type = CONNECTIONTYPE_IB;
         else
             goto error;
 
@@ -176,6 +185,7 @@ bool ConnectionDescription::fromString( std::string& data )
         {
             case CONNECTIONTYPE_TCPIP:
             case CONNECTIONTYPE_SDP:
+            case CONNECTIONTYPE_IB:
             {
                 nextPos = data.find( SEPARATOR );
                 if( nextPos == string::npos )
@@ -249,6 +259,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                              desc->type == CONNECTIONTYPE_SDP   ? "sdp"   :
                              desc->type == CONNECTIONTYPE_PIPE  ? "anonpipe" :
                              desc->type == CONNECTIONTYPE_NAMEDPIPE  ? "pipe" :
+                             desc->type == CONNECTIONTYPE_IB  ? "ib"  :
                              "ERROR" ) 
        << ' ' << desc->getHostname() << ':';
 
@@ -256,6 +267,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
     {
         case CONNECTIONTYPE_TCPIP:
         case CONNECTIONTYPE_SDP:
+        case CONNECTIONTYPE_IB:
             os << desc->TCPIP.port;
             break;
 

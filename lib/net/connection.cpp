@@ -24,6 +24,7 @@
 #include "pipeConnection.h"
 #include "socketConnection.h"
 #include "namedPipeConnection.h"
+#include "IBConnection.h"
 #include <errno.h>
 
 #ifdef WIN32
@@ -72,6 +73,14 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             
         case CONNECTIONTYPE_NAMEDPIPE:
             connection = new NamedPipeConnection();
+            break;
+        case CONNECTIONTYPE_IB:
+#ifdef EQ_INFINIBAND
+            connection = new IBConnection();
+#else 
+            EQERROR << "forget EQ_INFINIBAND pre-processor Definition"  
+                    << endl;
+#endif //EQ_INFINIBAND
             break;
         default:
             EQWARN << "Connection type not implemented" << endl;
@@ -353,6 +362,7 @@ void Connection::setDescription( ConnectionDescriptionPtr description )
         case CONNECTIONTYPE_NAMEDPIPE:
             _description->bandwidth = 768000;
             break;
+        case CONNECTIONTYPE_IB:
         case CONNECTIONTYPE_SDP:
             _description->bandwidth = 819200;
             break;

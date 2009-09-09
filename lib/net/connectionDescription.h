@@ -65,7 +65,7 @@ namespace net
                 /** The listening port. */
                 uint16_t port;
 
-            } TCPIP, SDP;
+            } TCPIP, SDP, IB;
         };
 
         /** The character to quote the launch command arguments */
