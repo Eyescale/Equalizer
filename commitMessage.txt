@@ -1,9 +1,13 @@
-Minor PUG updates based on print version
+More 10.6 build changes:
+- clean up Darwin.mk
+- Disable GLX since the X11 gl.h does not agree with glew.h
+- Fix deprecation warnings in glew.c
+- Fix loader warning
 
 [ ] Will break Win32 build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

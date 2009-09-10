@@ -268,7 +268,7 @@ void Channel::frameAssemble( const uint32_t frameID )
         return;
     }
 
-    //calculate correct frames sequence
+    // calculate correct frames sequence
     if( !composeOnly && coveredPVP.hasArea( ))
     {
         _frame.clear();

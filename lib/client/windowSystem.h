@@ -49,8 +49,6 @@ namespace eq
 #  endif
 #endif
 
-#define GL_GLEXT_PROTOTYPES
-
 #ifdef GLX
 #  include <X11/Xlib.h>
 #  include <GL/glx.h>

@@ -4,7 +4,7 @@
 
 DSO_SUFFIX       = dylib
 DSO_LDFLAGS     += -dynamiclib
-WINDOW_SYSTEM   ?= GLX AGL
+WINDOW_SYSTEM   ?= AGL
 
 AR               = libtool
 ARFLAGS          = -static
@@ -14,43 +14,39 @@ ifeq (0,${MAKELEVEL})
   CXXFLAGS        += -Wextra
 endif
 
-ifeq ($(findstring 10., $(RELARCH)),10.)
+ifeq ($(findstring 10., $(RELARCH)),10.) # 10.6
   LEOPARD       = 1
-  CXXFLAGS     += -DLEOPARD
-  AGL_OR_64BIT  = AGL
-  ARCHFLAGS    ?= -arch i386
-
-ifeq ($(findstring icc, $(CXX)),icc)
-  ARCHFLAGS     ?= -m32
-endif
-
-ifeq ($(findstring 64BIT, $(AGL_OR_64BIT)), 64BIT)
-  ARCHFLAGS     ?= -arch i386 -arch x86_64
-  WINDOW_SYSTEM  = GLX
-else
-  WINDOW_SYSTEM  = AGL
-endif # 64BIT
 endif # SNOWLEOPARD
 
-ifeq ($(findstring 9., $(RELARCH)),9.)
+ifeq ($(findstring 9., $(RELARCH)),9.) # 10.5
   LEOPARD       = 1
+endif # LEOPARD
+
+ifdef LEOPARD
   CXXFLAGS     += -DLEOPARD
-  AGL_OR_64BIT  = AGL
 
 ifeq ($(findstring icc, $(CXX)),icc)
   ARCHFLAGS     ?= -m32
+endif # icc
+
+ifeq ($(findstring AGL, $(WINDOW_SYSTEM)), AGL)
+  AGL_32BIT_ONLY = 1
 endif
 
-ifeq ($(findstring 64BIT, $(AGL_OR_64BIT)), 64BIT)
-  ARCHFLAGS     ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
-  WINDOW_SYSTEM  = GLX
-endif # 64BIT
-
 ifeq ($(findstring i386, $(SUBARCH)), i386)
+ifdef AGL_32BIT_ONLY
   ARCHFLAGS ?= -arch i386 -arch ppc
+else
+  ARCHFLAGS     ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
+endif # 64BIT
+else
+ifdef AGL_32BIT_ONLY
+  ARCHFLAGS     ?= -arch ppc -arch ppc64
 else
   ARCHFLAGS ?= -arch ppc
 endif
+endif
+
 endif # LEOPARD
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
