@@ -14,6 +14,24 @@ ifeq (0,${MAKELEVEL})
   CXXFLAGS        += -Wextra
 endif
 
+ifeq ($(findstring 10., $(RELARCH)),10.)
+  LEOPARD       = 1
+  CXXFLAGS     += -DLEOPARD
+  AGL_OR_64BIT  = AGL
+  ARCHFLAGS    ?= -arch i386
+
+ifeq ($(findstring icc, $(CXX)),icc)
+  ARCHFLAGS     ?= -m32
+endif
+
+ifeq ($(findstring 64BIT, $(AGL_OR_64BIT)), 64BIT)
+  ARCHFLAGS     ?= -arch i386 -arch x86_64
+  WINDOW_SYSTEM  = GLX
+else
+  WINDOW_SYSTEM  = AGL
+endif # 64BIT
+endif # SNOWLEOPARD
+
 ifeq ($(findstring 9., $(RELARCH)),9.)
   LEOPARD       = 1
   CXXFLAGS     += -DLEOPARD
@@ -27,13 +45,13 @@ ifeq ($(findstring 64BIT, $(AGL_OR_64BIT)), 64BIT)
   ARCHFLAGS     ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
   WINDOW_SYSTEM  = GLX
 endif # 64BIT
-endif # LEOPARD
 
 ifeq ($(findstring i386, $(SUBARCH)), i386)
   ARCHFLAGS ?= -arch i386 -arch ppc
 else
   ARCHFLAGS ?= -arch ppc
 endif
+endif # LEOPARD
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
