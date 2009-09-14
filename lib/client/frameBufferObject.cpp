@@ -53,22 +53,6 @@ FrameBufferObject::~FrameBufferObject()
     }
 }
 
-void FrameBufferObject::exit()
-{
-    CHECK_THREAD( _thread );
-    if( _fboID )
-    {
-        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
-        glDeleteFramebuffersEXT( 1, &_fboID );
-        _fboID = 0;
-    }
-
-    for( size_t i = 0; i < _colors.size(); ++i )
-        _colors[i]->flush();
-    _depth.flush();
-    _stencil.flush();
-}
-
 void FrameBufferObject::setColorFormat( const GLuint format )
 {
     for( size_t i = 0; i < _colors.size(); ++i )
@@ -114,15 +98,39 @@ bool FrameBufferObject::init( const int width    , const int height,
         _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height );
 
     if ( stencilSize > 0 )
-    {
-        EQUNIMPLEMENTED; // stencil FBO textures don't work?
+        // Note: stencil FBO textures often don't work
         _stencil.bindToFBO( GL_STENCIL_ATTACHMENT, width, height );
-    }
 
     _width  = width;
     _height = height;
-    _valid  = true;
-    return _checkFBOStatus();
+
+    _valid = _checkFBOStatus();
+    if( _valid )
+        return true;
+    // else
+
+    exit();
+    return false;
+}
+
+void FrameBufferObject::exit()
+{
+    CHECK_THREAD( _thread );
+    if( _fboID )
+    {
+        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
+        glDeleteFramebuffersEXT( 1, &_fboID );
+        _fboID = 0;
+    }
+
+    for( size_t i = 0; i < _colors.size(); ++i )
+        _colors[i]->flush();
+    _depth.flush();
+    _stencil.flush();
+
+    _valid = false;
+    _width = 0;
+    _height = 0;
 }
 
 bool FrameBufferObject::_checkFBOStatus()
@@ -160,7 +168,7 @@ bool FrameBufferObject::_checkFBOStatus()
             break;
     }
 
-    EQERROR << _error << std::endl;
+    EQWARN << _error << std::endl;
     return false;
 }
 

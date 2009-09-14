@@ -419,6 +419,16 @@ const std::string&  Window::getIAttributeString( const IAttribute attr )
     return _iAttributeStrings[attr];
 }
 
+uint32_t Window::getColorType()
+{
+    switch( getIAttribute( Window::IATTR_PLANES_COLOR ))
+    {
+        case RGBA32F:  return GL_RGBA32F;
+        case RGBA16F:  return GL_RGBA16F;
+        default:       return GL_RGBA;
+    }
+}
+
 void Window::setOSWindow( OSWindow* window )
 {
     if( _osWindow )
@@ -650,16 +660,6 @@ void Window::swapBuffers()
 {
     _osWindow->swapBuffers();
     EQVERB << "----- SWAP -----" << endl;
-}
-
-int Window::getColorType()
-{
-    switch ( getIAttribute( Window::IATTR_PLANES_COLOR ) ) 
-    {
-        case RGBA32F:  return GL_RGBA32F;
-        case RGBA16F:  return GL_RGBA16F;
-        default:  return GL_RGBA;
-    }
 }
 
 GLEWContext* Window::glewGetContext()

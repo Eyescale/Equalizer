@@ -329,13 +329,12 @@ namespace eq
          */
         EQ_EXPORT virtual bool processEvent( const Event& event );
 
+        /** Render the current framerate as on overlay on the window. */
+        EQ_EXPORT virtual void drawFPS() const;
         //@}
 
-        /* Draw FPS count */
-        EQ_EXPORT virtual void drawFPS() const;
-
         /** @return the internal color type */
-        int getColorType();
+        uint32_t getColorType();
         
         /** @return true if FBO is used */
         EQ_EXPORT bool isFBOWindow();

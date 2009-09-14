@@ -202,13 +202,31 @@ bool Channel::_configInitFBO()
     _fbo = new FrameBufferObject( glewGetContext( ));
     _fbo->setColorFormat( _window->getColorType( ));
         
-    if( _fbo->init( _nativeContext.pvp.w, _nativeContext.pvp.h, 
-                    _drawable & FBO_DEPTH, _drawable & FBO_STENCIL ) ) 
+    int depthSize = 0;
+    if( _drawable & FBO_DEPTH )
     {
-         return true;
+        depthSize = _window->getIAttribute( Window::IATTR_PLANES_DEPTH );
+
+        if( depthSize < 1 )
+            depthSize = 24;
     }
 
-    setErrorMessage( "FBO initialization failed" );
+    int stencilSize = 0;
+    if( _drawable & FBO_STENCIL )
+    {
+        stencilSize = _window->getIAttribute( Window::IATTR_PLANES_STENCIL );
+
+        if( stencilSize < 1 )
+            stencilSize = 1;
+    }
+
+    const PixelViewport& pvp = _nativeContext.pvp;
+
+    if( _fbo->init( pvp.w, pvp.h, depthSize, stencilSize ))
+        return true;
+    // else
+
+    setErrorMessage( "FBO initialization failed: " + _fbo->getErrorMessage( ));
     delete _fbo;
     _fbo = 0;
     return false;

@@ -58,7 +58,7 @@ server
             {
                 channel "channel3"
                 range   [ 0 .5 ]
-                outputframe {}
+                outputframe { type texture }
             }
             compound
             {

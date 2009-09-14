@@ -18,7 +18,7 @@ server
                     {
                         name "buffer"
                         viewport [ 0 0 2048 2048 ]
-                        drawable [ FBO_COLOR ]
+                        drawable [ FBO_COLOR FBO_DEPTH ]
                     }
                     channel
                     {

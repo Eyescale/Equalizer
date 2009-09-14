@@ -1,6 +1,6 @@
-eq API cleanups:
-- Separate DrawableConfig from window
-- Use float for Window FPS counter
+Implement 'stencil AUTO' properly for FBO's:
+- Fix FBO::init on error
+- Back up on stencil if set to 'auto'
 
 [ ] May break build
 [x] May break existing applications

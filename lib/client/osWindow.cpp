@@ -121,6 +121,13 @@ bool OSWindow::configInitFBO()
     if( _fbo->init( pvp.w, pvp.h, depthSize, stencilSize ) )
         return true;
     
+    if( getIAttribute( Window::IATTR_PLANES_STENCIL ) == AUTO && 
+        _fbo->init( pvp.w, pvp.h, depthSize, 0 ))
+    {
+        return true;
+    }
+    // else
+
     _window->setErrorMessage( "FBO initialization failed: " + 
                               _fbo->getErrorMessage( ));
     delete _fbo;
