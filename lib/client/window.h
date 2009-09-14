@@ -154,8 +154,9 @@ namespace eq
         EQ_EXPORT VisitorResult accept( WindowVisitor& visitor );
 
         /** 
-         * Set the window with which this window shares the OpenGL context,
-         * defaults to the first window of the pipe.
+         * Set the window with which this window shares the OpenGL context.
+         * 
+         * By default it is set to the first window of the pipe.
          */
         void setSharedContextWindow( Window* sharedContextWindow )
             { _sharedContextWindow = sharedContextWindow; }
@@ -215,7 +216,14 @@ namespace eq
         /** Add a channel's rendering context to the current frame's list */
         void addRenderContext( const RenderContext& context );
 
-        /** Get the last rendering context at the x, y position. */
+        /** 
+         * Get the last rendering context at the x, y position.
+         *
+         * If no render context is found on the given position, false is
+         * returned and context is not modified.
+         *
+         * @return true if a render context was found, false otherwise.
+         */
         EQ_EXPORT bool getRenderContext( const int32_t x, const int32_t y,
                                          RenderContext& context ) const;
 
@@ -259,16 +267,20 @@ namespace eq
             IATTR_PLANES_ACCUM,          //!< No of accumulation buffer planes
             IATTR_PLANES_ACCUM_ALPHA,    //!< No of alpha accum buffer planes
             IATTR_PLANES_SAMPLES,        //!< No of multisample (AA) planes
-            IATTR_FILL1,
-            IATTR_FILL2,
+            IATTR_FILL1,                 //!< Reserved for future extensions
+            IATTR_FILL2,                 //!< Reserved for future extensions
             IATTR_ALL
         };
 
+        /** Set a window attribute. */
         EQ_EXPORT void setIAttribute( const IAttribute attr,
                                       const int32_t value );
+
+        /** @return the value of a window attribute. */
         EQ_EXPORT int32_t  getIAttribute( const IAttribute attr ) const;
+        /** @return the name of a window attribute. */
         EQ_EXPORT static const std::string& getIAttributeString(
-                                                const IAttribute attr );
+                                                        const IAttribute attr );
         //@}
 
         /** @name Actions */
@@ -284,17 +296,21 @@ namespace eq
         /**
          * Set the OS-specific window.
          * 
-         * The OS-specific window implements the window-system-dependent part,
-         * e.g., the drawable creation. This window forwards certain calls, 
-         * e.g., swapBuffers() to the OS window. The os-specific window has to
-         * be initialized.
+         * The OSWindow implements the window-system-dependent part, e.g., the
+         * drawable creation. This window forwards certain calls, e.g.,
+         * swapBuffers() to the OSWindow. The os-specific window has to be
+         * initialized.
          */
         EQ_EXPORT void setOSWindow( OSWindow* window );
 
+        /** @return the OS-specific window implementation. */
         const OSWindow* getOSWindow() const { return _osWindow; }
+        /** @return the OS-specific window implementation. */
         OSWindow*       getOSWindow()       { return _osWindow; }
 
+        /** @return the OS-specific pipe implementation. */
         const OSPipe* getOSPipe() const;
+        /** @return the OS-specific pipe implementation. */
         OSPipe*       getOSPipe(); 
         //@}
 
@@ -304,7 +320,7 @@ namespace eq
          * Set a message why the last operation failed.
          * 
          * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within the configInit method.
+         * example to Config::init when called from the configInit() method.
          *
          * @param message the error message.
          */
@@ -330,7 +346,10 @@ namespace eq
          * @return true when the event was handled, false if not.
          */
         EQ_EXPORT virtual bool processEvent( const Event& event );
+        //@}
 
+        /** @name Actions */
+        //@{
         /** Render the current framerate as on overlay on the window. */
         EQ_EXPORT virtual void drawFPS() const;
         //@}
@@ -338,6 +357,7 @@ namespace eq
     protected:
         friend class Pipe;
 
+        /** @internal */
         EQ_EXPORT virtual void attachToSession( const uint32_t id, 
                                                 const uint32_t instanceID, 
                                                 net::Session* session );
@@ -359,7 +379,7 @@ namespace eq
         void releaseFrame( const uint32_t frameNumber ) { /* currently nop */ }
 
         /** 
-         * Release the local synchronization of the parent for a frame.
+         * Signal the release of the local synchronization to the parent.
          * 
          * @param frameNumber the frame to release.
          */
@@ -403,7 +423,7 @@ namespace eq
         /** De-initialize the OS-specific window. */
         EQ_EXPORT virtual bool configExitOSWindow();
 
-        /** De-initializer the OpenGL state for this window. */
+        /** De-initialize the OpenGL state for this window. */
         virtual bool configExitGL() { return true; }
 
         /**

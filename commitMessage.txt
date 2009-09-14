@@ -1,7 +1,7 @@
-Remove Window::isFBOWindow, doxygen cleanups
+Window doxygen updates
 
 [ ] May break build
-[x] May break existing applications
+[ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
