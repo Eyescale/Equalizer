@@ -116,9 +116,6 @@ namespace eq
         const Config* getConfig() const;
 
         int32_t getIAttribute( const Window::IAttribute attr ) const;
-
-        /** @return the generic WGL function table for the window's pipe. */
-        WGLEWContext* wglewGetContext();
         //@}
      
         /** Initialize the GLEW context for this window. */

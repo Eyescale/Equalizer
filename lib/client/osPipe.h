@@ -19,8 +19,6 @@
 #ifndef EQ_OS_PIPE_H
 #define EQ_OS_PIPE_H
 
-#include <eq/client/windowSystem.h> // GLEW
-
 #include <eq/base/base.h>
 #include <string>
 
@@ -59,9 +57,6 @@ namespace eq
         /** @return the parent Pipe. */
         const Pipe* getPipe() const { return _pipe; }
 
-        /** @return the generic WGL function table for the pipe. */
-        WGLEWContext* wglewGetContext() { return _wglewContext; }
-
     protected:
         /** @name Error information. */
         //@{
@@ -81,9 +76,6 @@ namespace eq
 
         /** The reason for the last error. */
         std::string _error;
-
-        /** Extended OpenGL function entries - WGL. */
-        WGLEWContext*   _wglewContext;
 
         union // placeholder for binary-compatible changes
         {

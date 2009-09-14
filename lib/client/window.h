@@ -171,9 +171,6 @@ namespace eq
          */
         EQ_EXPORT GLEWContext* glewGetContext();
 
-        /** @return the generic WGL function table for the window's pipe. */
-        EQ_EXPORT WGLEWContext* wglewGetContext();
-
         /** @return information about the current drawable. */
         const DrawableConfig& getDrawableConfig() const 
             { return _drawableConfig; }

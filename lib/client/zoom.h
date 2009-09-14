@@ -33,11 +33,10 @@ namespace eq
     class Zoom : public Vector2f
     {
     public:
-        /**
-         * @name Constructors
-         */
-        //@{
+        /** Construct a new zoom specification set to 1, 1. */
         Zoom() : Vector2f( 1.f, 1.f )  {}
+
+        /** Construct a new zoom specification. */
         Zoom( const float x_, const float y_ ) : Vector2f( x_, y_ ) {}
         //@}
 
@@ -50,12 +49,11 @@ namespace eq
                 if( x() == 0.f ) x() = 1.f;
                 if( y() == 0.f ) y() = 1.f;
             }
-            
 
-        
         /** Make the zoom factor invalid. */
         void invalidate() { x() = y() = 0.f; }
 
+        /** The zoom NONE (1,1) value. */
         EQ_EXPORT static const Zoom NONE;
     };
 

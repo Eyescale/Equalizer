@@ -25,12 +25,12 @@ namespace eq
     class Window;
 
     /**
-     * A visitor to traverse a non-const windows and children.
+     * A visitor to traverse non-const windows and children.
      */
     class WindowVisitor : public ChannelVisitor
     {
     public:
-        /** Constructs a new WindowVisitor. */
+        /** Construct a new WindowVisitor. */
         WindowVisitor(){}
         
         /** Destruct the WindowVisitor */

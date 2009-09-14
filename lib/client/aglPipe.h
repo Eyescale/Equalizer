@@ -20,6 +20,7 @@
 #define EQ_OS_PIPE_AGL_H
 
 #include <eq/client/osPipe.h> // base class
+#include <eq/client/os.h>     // CG types
 
 namespace eq
 {

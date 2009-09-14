@@ -30,6 +30,15 @@ using namespace std;
 namespace eq
 {
 
+WGLEWContext* WGLWindowIF::wglewGetContext()
+{
+    EQASSERT( _window );
+    OSPipe* pipe = _window->getOSPipe();
+    EQASSERT( dynamic_cast< WGLPipe* >( pipe ));
+    return static_cast< WGLPipe* >( _pipe )->wglewGetContext();
+}
+
+
 WGLWindow::WGLWindow( Window* parent )
     : WGLWindowIF( parent )
     , _wglWindow( 0 )

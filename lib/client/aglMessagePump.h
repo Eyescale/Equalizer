@@ -19,7 +19,7 @@
 #define EQ_AGLMESSAGEPUMP_H
 
 #include <eq/client/messagePump.h>  // base class
-#include <eq/client/windowSystem.h> // EventQueueRef definition
+#include <eq/client/os.h>           // EventQueueRef definition
 
 namespace eq
 {

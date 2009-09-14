@@ -47,6 +47,10 @@ namespace eq
         /** @return the Win32 affinity device context, if used. */
         virtual HDC getWGLAffinityDC() { return 0; }
 
+        /** @return the generic WGL function table for the window's pipe. */
+        WGLEWContext* wglewGetContext();
+
+        /** Process an event received from WGL. */
         virtual bool processEvent( const WGLWindowEvent& event )
             { return _window->processEvent( event ); }
     };

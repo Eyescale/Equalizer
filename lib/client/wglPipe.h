@@ -20,6 +20,7 @@
 #define EQ_OS_PIPE_WGL_H
 
 #include <eq/client/osPipe.h> // base class
+#include <eq/client/os.h>     // GLEW
 
 namespace eq
 {
@@ -69,11 +70,17 @@ namespace eq
          */
         HDC createWGLDisplayDC();
 
+        /** @return the generic WGL function table for the pipe. */
+        WGLEWContext* wglewGetContext() { return &_wglewContext; }
+
     private:
 
         void _configInitWGLEW();
 
         bool _getGPUHandle( HGPUNV& handle );
+
+        /** Extended WGL function entries. */
+        WGLEWContext   _wglewContext;
 
         union // placeholder for binary-compatible changes
         {

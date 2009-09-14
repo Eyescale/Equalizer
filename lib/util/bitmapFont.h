@@ -19,7 +19,7 @@
 #define EQUTIL_BITMAPFONT_H
 
 #include <eq/base/base.h>
-#include <eq/client/windowSystem.h> // GL prototypes
+#include <eq/client/os.h> // GL prototypes
 
 #include <string>
 

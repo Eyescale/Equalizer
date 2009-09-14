@@ -1,7 +1,10 @@
-Minor code cleanups
+eq API cleanups:
+- refactor WindowSystem enum from os-specific OpenGL include handling
+- Move WGLEWContext to wglPipe, Window classes
 
-[ ] Will break Win32 build
-[ ] May break existing applications
+
+[x] May break build
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup

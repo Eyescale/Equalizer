@@ -26,10 +26,11 @@
 #include <eq/base/monitor.h>
 
 #include <eq/client/eye.h>            // Eye enum
+#include <eq/client/os.h>             // WGLEWContext
 #include <eq/client/pixelViewport.h>  // member
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
-#include <eq/client/windowSystem.h>   // WGLEWContext
+#include <eq/client/windowSystem.h>   // enum
 
 #include <eq/net/object.h>
 #include <eq/net/objectVersion.h>
@@ -152,9 +153,6 @@ namespace eq
 
         /** @return the time in ms elapsed since the frame started. */
         EQ_EXPORT int64_t getFrameTime() const;
-
-        /** @return the generic WGL function table for the pipe. */
-        EQ_EXPORT WGLEWContext* wglewGetContext();
         //@}
 
         /**

@@ -107,6 +107,7 @@ HEADER_SRC = \
 	client/objectManager.h \
 	client/observer.h \
 	client/observerVisitor.h \
+	client/os.h \
 	client/osPipe.h \
 	client/osWindow.h \
 	client/packets.h \
@@ -221,6 +222,7 @@ CXXFILES = \
 	client/object.cpp \
 	client/objectManager.cpp \
 	client/observer.cpp \
+	client/os.cpp \
 	client/osPipe.cpp \
 	client/osWindow.cpp \
 	client/pipe.cpp \

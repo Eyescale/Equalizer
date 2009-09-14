@@ -23,6 +23,7 @@
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
+#include "os.h"
 #include "pluginRegistry.h"
 #include "server.h"
 #include "version.h"

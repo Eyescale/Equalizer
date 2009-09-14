@@ -20,6 +20,7 @@
 #define EQ_OS_PIPE_GLX_H
 
 #include <eq/client/osPipe.h> // base class
+#include <eq/client/os.h>     // X11 types
 
 namespace eq
 {

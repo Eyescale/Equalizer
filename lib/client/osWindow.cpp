@@ -82,12 +82,6 @@ int32_t OSWindow::getIAttribute( const Window::IAttribute attr ) const
     return _window->getIAttribute( attr );
 }
 
-WGLEWContext* OSWindow::wglewGetContext()
-{
-    EQASSERT( _window );
-    return _window->wglewGetContext();
-}
-
 void OSWindow::initGLEW()
 {
     if( _glewInitialized )

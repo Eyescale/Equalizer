@@ -18,7 +18,7 @@
 #ifndef EQ_OBJECTMANAGER_H
 #define EQ_OBJECTMANAGER_H
 
-#include <eq/client/windowSystem.h>   // OpenGL types
+#include <eq/client/os.h>             // OpenGL types
 #include <eq/base/base.h>             // EQ_EXPORT definition
 #include <eq/base/debug.h>            // EQASSERT definition
 #include <eq/base/hash.h>             // member

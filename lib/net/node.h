@@ -383,7 +383,7 @@ namespace net
          * This causes the receiver thread to redispatch all pending commands,
          * which are normally only redispatched when a new command is received.
          */
-        void flushCommands() { _connectionSet.interrupt(); }
+        void flushCommands() { _incoming.interrupt(); }
 
         void acquireSendToken( NodePtr toNode );
         void releaseSendToken( NodePtr toNode );
@@ -525,7 +525,7 @@ namespace net
         ConnectionPtr _connection;
 
         /** The connection set of all connections from/to this node. */
-        ConnectionSet _connectionSet;
+        ConnectionSet _incoming;
         friend eq::net::ConnectionPtr (::eqsStartLocalServer(const
                                                              std::string& ));
 

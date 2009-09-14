@@ -22,8 +22,8 @@
 
 #include <eq/client/colorMask.h>
 #include <eq/client/eye.h>
+#include <eq/client/os.h>
 #include <eq/client/renderContext.h>
-#include <eq/client/windowSystem.h>
 
 namespace eq
 {

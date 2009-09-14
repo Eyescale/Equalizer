@@ -267,12 +267,6 @@ ServerPtr Window::getServer()
     return ( _pipe ? _pipe->getServer() : 0 );
 }
 
-WGLEWContext* Window::wglewGetContext()
-{ 
-    EQASSERT( _pipe );
-    return _pipe->wglewGetContext();
-}
-
 VisitorResult Window::accept( WindowVisitor& visitor )
 { 
     VisitorResult result = visitor.visitPre( this );

@@ -20,7 +20,7 @@
 
 #include <eq/client/eventHandler.h> // base class
 #include <eq/client/types.h>        // basic typedefs
-#include <eq/client/windowSystem.h> // XEvent type
+#include <eq/client/os.h>           // XEvent type
 
 #include <eq/net/connectionSet.h>
 

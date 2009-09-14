@@ -447,11 +447,6 @@ void Pipe::joinThread()
     _pipeThreadQueue = 0;
 }
 
-WGLEWContext* Pipe::wglewGetContext()
-{ 
-    return _osPipe->wglewGetContext();
-}
-
 void Pipe::waitExited() const
 {
     _state.waitEQ( STATE_STOPPED );
@@ -493,21 +488,21 @@ bool Pipe::configInit( const uint32_t initID )
     {
 #ifdef GLX
         case WINDOW_SYSTEM_GLX:
-            EQINFO << "Pipe: using GLXWindow" << std::endl;
+            EQINFO << "Using GLXPipe" << std::endl;
             osPipe = new GLXPipe( this );
             break;
 #endif
 
 #ifdef AGL
         case WINDOW_SYSTEM_AGL:
-            EQINFO << "Pipe: using AGLWindow" << std::endl;
+            EQINFO << "Using AGLPipe" << std::endl;
             osPipe = new AGLPipe( this );
             break;
 #endif
 
 #ifdef WGL
         case WINDOW_SYSTEM_WGL:
-            EQINFO << "Pipe: using WGLWindow" << std::endl;
+            EQINFO << "Using WGLPipe" << std::endl;
             osPipe = new WGLPipe( this );
             break;
 #endif

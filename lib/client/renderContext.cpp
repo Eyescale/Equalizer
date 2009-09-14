@@ -17,7 +17,7 @@
 
 #include "renderContext.h"
 
-#include "windowSystem.h"
+#include "os.h"
 
 using namespace eq::base;
 
