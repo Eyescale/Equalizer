@@ -267,6 +267,7 @@ namespace net
          */
         EQ_EXPORT const ConnectionDescriptionVector& getConnectionDescriptions()
                             const;
+
         /** 
          * Returns the connection to this node.
          * 
@@ -289,7 +290,7 @@ namespace net
             {
                 ConnectionPtr connection = _connection;
                 if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
-                    return _connection;
+                    return connection;
                 return 0;
             }
 

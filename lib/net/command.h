@@ -67,7 +67,7 @@ namespace net
 #ifdef NDEBUG
                 --_refCount;
 #else
-                if( --_refCount==0 )
+                if( --_refCount == 0 )
                 {
                     // Unref nodes in command to keep node ref counts easier for
                     // debugging.  Release builds will unref the nodes at

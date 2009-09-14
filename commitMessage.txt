@@ -1,12 +1,8 @@
-More 10.6 build changes:
-- clean up Darwin.mk
-- Disable GLX since the X11 gl.h does not agree with glew.h
-- Fix deprecation warnings in glew.c
-- Fix loader warning
+Minor code cleanups
 
 [ ] Will break Win32 build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

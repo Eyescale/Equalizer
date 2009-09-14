@@ -109,7 +109,7 @@ Node::~Node()
 {
     EQINFO << "Delete Node @" << (void*)this << " " << _id << endl;
     EQASSERT( _connection == 0 );
-    EQASSERT( _connectionSet.empty( ));
+    EQASSERT( _incoming.empty( ));
     EQASSERT( _connectionNodes.empty( ));
     EQASSERT( _pendingCommands.empty( ));
     EQASSERT( _nodes.empty( ));
@@ -274,7 +274,7 @@ bool Node::listen()
         }
 
         _connectionNodes[ connection ] = this;
-        _connectionSet.addConnection( connection );
+        _incoming.addConnection( connection );
         EQVERB << "Added node " << _id << " using " << connection << std::endl;
         
         connection->acceptNB();
@@ -301,10 +301,10 @@ bool Node::stopListening()
     EQCHECK( _receiverThread->join( ));
     _cleanup();
 
-    EQINFO << _connectionSet.size() << " connections open after stopListening"
+    EQINFO << _incoming.size() << " connections open after stopListening"
            << endl;
 #ifndef NDEBUG
-    const ConnectionVector& connections = _connectionSet.getConnections();
+    const ConnectionVector& connections = _incoming.getConnections();
     for( ConnectionVector::const_iterator i = connections.begin();
          i != connections.end(); ++i )
     {
@@ -318,7 +318,7 @@ bool Node::stopListening()
 
 void Node::_addConnection( ConnectionPtr connection )
 {
-    _connectionSet.addConnection( connection );
+    _incoming.addConnection( connection );
     connection->recvNB( new uint64_t, sizeof( uint64_t ));
 }
 
@@ -326,7 +326,7 @@ void Node::_removeConnection( ConnectionPtr connection )
 {
     EQASSERT( connection.isValid( ));
 
-    _connectionSet.removeConnection( connection );
+    _incoming.removeConnection( connection );
 
     void* buffer( 0 );
     if( !connection->isListening( ))
@@ -351,7 +351,7 @@ void Node::_cleanup()
     _connectionNodes.erase( _connection );
     _connection = 0;
 
-    const ConnectionVector& connections = _connectionSet.getConnections();
+    const ConnectionVector& connections = _incoming.getConnections();
     while( !connections.empty( ))
     {
         ConnectionPtr connection = connections.back();
@@ -698,7 +698,7 @@ void* Node::_runReceiverThread()
     int nErrors = 0;
     while( _state == STATE_LISTENING )
     {
-        const ConnectionSet::Event result = _connectionSet.select();
+        const ConnectionSet::Event result = _incoming.select();
         switch( result )
         {
             case ConnectionSet::EVENT_CONNECT:
@@ -713,7 +713,7 @@ void* Node::_runReceiverThread()
             case ConnectionSet::EVENT_INVALID_HANDLE:
             {
                 _handleDisconnect();
-                EQVERB << &_connectionSet << endl;
+                EQVERB << &_incoming << endl;
                 break;
             } 
 
@@ -776,7 +776,7 @@ void* Node::_runReceiverThread()
 
 void Node::_handleConnect()
 {
-    ConnectionPtr connection = _connectionSet.getConnection();
+    ConnectionPtr connection = _incoming.getConnection();
     ConnectionPtr newConn    = connection->acceptSync();
     connection->acceptNB();
 
@@ -794,7 +794,7 @@ void Node::_handleDisconnect()
 {
     while( _handleData( )) ; // read remaining data off connection
 
-    ConnectionPtr connection = _connectionSet.getConnection();
+    ConnectionPtr connection = _incoming.getConnection();
     NodePtr node;
     ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
     if( i != _connectionNodes.end( ))
@@ -816,7 +816,7 @@ void Node::_handleDisconnect()
 
 bool Node::_handleData()
 {
-    ConnectionPtr connection = _connectionSet.getConnection();
+    ConnectionPtr connection = _incoming.getConnection();
     EQASSERT( connection.isValid( ));
 
     NodePtr node;
@@ -1027,7 +1027,7 @@ CommandResult Node::_cmdStop( Command& command )
     EQASSERT( _state == STATE_LISTENING );
 
     _state = STATE_STOPPED;
-    _connectionSet.interrupt();
+    _incoming.interrupt();
 
     return COMMAND_HANDLED;
 }
@@ -1179,7 +1179,7 @@ CommandResult Node::_cmdConnect( Command& command )
     EQASSERT( inReceiverThread( ));
 
     const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
-    ConnectionPtr        connection = _connectionSet.getConnection();
+    ConnectionPtr        connection = _incoming.getConnection();
 
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
@@ -1255,7 +1255,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
 
     const NodeConnectReplyPacket* packet = 
         command.getPacket<NodeConnectReplyPacket>();
-    ConnectionPtr connection = _connectionSet.getConnection();
+    ConnectionPtr connection = _incoming.getConnection();
 
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
