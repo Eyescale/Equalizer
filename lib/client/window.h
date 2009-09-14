@@ -29,6 +29,7 @@
 
 namespace eq
 {
+    class OSPipe;
     class OSWindow;
     class WindowVisitor;
     struct Event;
@@ -155,7 +156,6 @@ namespace eq
         Window* getSharedContextWindow() 
             { return _sharedContextWindow; }
 
-
         /** 
          * Get the GLEW context for this window.
          * 
@@ -267,6 +267,8 @@ namespace eq
         const OSWindow* getOSWindow() const { return _osWindow; }
         OSWindow*       getOSWindow()       { return _osWindow; }
 
+        const OSPipe* getOSPipe() const;
+        OSPipe*       getOSPipe(); 
         //@}
 
         /** @name Error information. */

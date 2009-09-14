@@ -439,6 +439,18 @@ void Window::setOSWindow( OSWindow* window )
     _setupObjectManager();
 }
 
+const OSPipe* Window::getOSPipe() const
+{
+    EQASSERT( _pipe );
+    return _pipe->getOSPipe();
+}
+
+OSPipe* Window::getOSPipe()
+{
+    EQASSERT( _pipe );
+    return _pipe->getOSPipe();
+}
+
 void Window::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
 {
     releaseFrame( frameNumber );
