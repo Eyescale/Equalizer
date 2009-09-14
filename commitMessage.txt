@@ -1,6 +1,4 @@
-Implement 'stencil AUTO' properly for FBO's:
-- Fix FBO::init on error
-- Back up on stencil if set to 'auto'
+Remove Window::isFBOWindow, doxygen cleanups
 
 [ ] May break build
 [x] May break existing applications

@@ -651,11 +651,6 @@ void Window::bindFrameBuffer() const
     _osWindow->bindFrameBuffer( );
 }
 
-bool Window::isFBOWindow()
-{ 
-    return _osWindow->getFBO(); 
-}
-
 void Window::swapBuffers()
 {
     _osWindow->swapBuffers();

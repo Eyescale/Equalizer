@@ -29,6 +29,7 @@
 #include "log.h"
 #include "node.h"
 #include "nodeFactory.h"
+#include "osWindow.h"
 #include "packets.h"
 #include "pipe.h"
 #include "range.h"
@@ -649,7 +650,7 @@ void Channel::applyFrameBufferObject()
 
 void Channel::applyBuffer()
 {
-    if (( !_fbo )&&( !_window->isFBOWindow() ))
+    if( !_fbo && _window->getOSWindow()->getFBO() == 0 )
     {
         EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
         EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));

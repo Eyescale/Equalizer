@@ -101,7 +101,7 @@ namespace eq
 
         /** @name Data Access */
         //@{
-        EQ_EXPORT net::CommandQueue* getPipeThreadQueue();
+        EQ_EXPORT net::CommandQueue* getPipeThreadQueue(); //!< @internal
 
         /** @return the Pipe of this window. */
         const Pipe* getPipe() const { return _pipe; }
@@ -189,6 +189,8 @@ namespace eq
 
         /** @return the window's object manager instance. */
         ObjectManager* getObjectManager() { return _objectManager; }
+
+        /** @return the window's object manager instance. */
         const ObjectManager* getObjectManager() const { return _objectManager; }
 
         /** 
@@ -217,11 +219,14 @@ namespace eq
         EQ_EXPORT bool getRenderContext( const int32_t x, const int32_t y,
                                          RenderContext& context ) const;
 
-        /** Returns the window's average framerate.
-         *
-         *
-         */
+        /** @return the window's average framerate */
         float getFPS() const { return _avgFPS; }
+
+        /**
+         * @return the OpenGL texture type corresponding to the window's color
+         *         drawable configuration
+         */
+        uint32_t getColorType();
         //@}
 
         /**
@@ -274,10 +279,7 @@ namespace eq
         virtual void finish() const { glFinish(); }
         //@}
 
-        /** 
-         * @name Interface to and from the OSWindow, the window-system specific 
-         *       pieces for a Window.
-         */
+        /**  @name OSWindow interface */
         //@{
         /**
          * Set the OS-specific window.
@@ -332,12 +334,6 @@ namespace eq
         /** Render the current framerate as on overlay on the window. */
         EQ_EXPORT virtual void drawFPS() const;
         //@}
-
-        /** @return the internal color type */
-        uint32_t getColorType();
-        
-        /** @return true if FBO is used */
-        EQ_EXPORT bool isFBOWindow();
 
     protected:
         friend class Pipe;
