@@ -85,6 +85,7 @@ HEADER_SRC = \
 	client/configParams.h \
 	client/configStatistics.h \
 	client/configVisitor.h \
+	client/drawableConfig.h \
 	client/event.h \
 	client/eventHandler.h \
 	client/eye.h \

@@ -1,9 +1,11 @@
-Fix build
+eq API cleanups:
+- Separate DrawableConfig from window
+- Use float for Window FPS counter
 
 [ ] May break build
-[ ] May break existing applications
-[x] Bugfix
+[x] May break existing applications
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

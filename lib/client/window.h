@@ -18,9 +18,10 @@
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
 
-#include <eq/client/objectManager.h> // member
-#include <eq/client/pixelViewport.h> // member
-#include <eq/client/renderContext.h> // member
+#include <eq/client/drawableConfig.h> // member
+#include <eq/client/objectManager.h>  // member
+#include <eq/client/pixelViewport.h>  // member
+#include <eq/client/renderContext.h>  // member
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h> // enum
 
@@ -38,30 +39,30 @@ namespace eq
      * A Window represents an on-screen or off-screen drawable, and manages an
      * OpenGL context.
      *
-     * A Window is a child of a Pipe. The task methods for all windows of a pipe
-     * are executed sequentially in the same thread, in the order they are
-     * stored on the Pipe.
+     * A window uses an OSWindow implementation to manage the operating system
+     * specific handling of window and context creation.
      *
-     * The default window initialization methods do initialize all windows of
-     * the same Pipe with a shared context, so that OpenGL objects can be reused
-     * between them for optimal GPU memory usage. Please note that each window
-     * might have it's own OpenGL command buffer, thus glFlush is needed
-     * to synchronize the state of OpenGL objects between windows. Therefore,
-     * Equalizer calls flush() at the end of each frame for each window.
+     * A Window is a child of a Pipe. The task methods for all windows of a pipe
+     * are executed in the same pipe thread. All window and subsequent channel
+     * task methods are executed in the order the windows are defined on the
+     * pipe, with the exception of the swap and finish tasks, which are executed
+     * after all windows have been updated. This ensures that all windows of a
+     * given pipe swap at the same time.
+     *
+     * The default window initialization methods initialize all windows of the
+     * same pipe with a shared context, so that OpenGL objects can be reused
+     * between them for optimal GPU memory usage. The window facilitates OpenGL
+     * object management by providing a Window::ObjectManager for allocating and
+     * sharing OpenGL objects.
+     *
+     * Please note that each window potentially has its own OpenGL command
+     * buffer, thus glFlush is needed to synchronize the state of OpenGL objects
+     * between windows. Therefore, Equalizer calls flush() at the end of each
+     * frame for each window.
      */
     class Window : public net::Object
     {
     public:
-        /** Stores current drawable characteristics. */
-        struct DrawableConfig
-        {
-            int32_t stencilBits;
-            int32_t alphaBits;
-            float   glVersion;
-            bool    stereo;
-            bool    doublebuffered;
-        };
-        
         /** The per-window object manager */
         class ObjectManager : public eq::ObjectManager< const void* >
         {
@@ -92,33 +93,44 @@ namespace eq
             friend class Window;
         };
 
-        /** Constructs a new window. */
+        /** Construct a new window. */
         EQ_EXPORT Window( Pipe* parent );
 
-        /** Destructs the window. */
+        /** Destruct the window. */
         EQ_EXPORT virtual ~Window();
 
         /** @name Data Access */
         //@{
         EQ_EXPORT net::CommandQueue* getPipeThreadQueue();
 
-        /** @return the pipe of this window. */
+        /** @return the Pipe of this window. */
         const Pipe* getPipe() const { return _pipe; }
+        /** @return the Pipe of this window. */
         Pipe*       getPipe()       { return _pipe; }
 
+        /** @return the Node of this window. */
         EQ_EXPORT const Node* getNode() const; 
+        /** @return the Node of this window. */
         EQ_EXPORT Node*       getNode();
 
+        /** @return the Config of this window. */
         EQ_EXPORT const Config* getConfig() const;
+        /** @return the Config of this window. */
         EQ_EXPORT Config*       getConfig();
 
+        /** @return the Client of this window. */
         EQ_EXPORT ClientPtr getClient();
+
+        /** @return the Server of this window. */
         EQ_EXPORT ServerPtr getServer();
 
+        /** @return a vector of all channels of this window. */
         const ChannelVector& getChannels() { return _channels; }
 
+        /** @return the name of this window. */
         const std::string& getName() const { return _name; }
 
+        /** @return true if this window is running, false otherwise. */
         bool isRunning() const { return (_state == STATE_RUNNING); }
 
         /** 
@@ -172,7 +184,7 @@ namespace eq
         EQ_EXPORT GLEWContext* glewGetContext();
 
         /** @return information about the current drawable. */
-        const DrawableConfig& getDrawableConfig() const 
+        const DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
 
         /** @return the window's object manager instance. */
@@ -204,6 +216,12 @@ namespace eq
         /** Get the last rendering context at the x, y position. */
         EQ_EXPORT bool getRenderContext( const int32_t x, const int32_t y,
                                          RenderContext& context ) const;
+
+        /** Returns the window's average framerate.
+         *
+         *
+         */
+        float getFPS() const { return _avgFPS; }
         //@}
 
         /**
@@ -211,15 +229,22 @@ namespace eq
          */
         //@{
         // Note: also update string array initialization in window.cpp
-        /** Window (visual) attributes, used during configInit(). */
+        /** 
+         * Window attributes.
+         *
+         * Most of these attributes are used by the OSWindow implementation to
+         * configure the window during configInit(). An OSWindow implementation
+         * might not respect all attributes, e.g., IATTR_HINT_SWAPSYNC is not
+         * implemented by the GLXWindow.
+         */
         enum IAttribute
         {
-            IATTR_HINT_STEREO,           //!< Active Stereo
+            IATTR_HINT_STEREO,           //!< Active stereo
             IATTR_HINT_DOUBLEBUFFER,     //!< Front and back buffer
             IATTR_HINT_FULLSCREEN,       //!< Fullscreen drawable
             IATTR_HINT_DECORATION,       //!< Window decorations
             IATTR_HINT_SWAPSYNC,         //!< Swap sync on vertical retrace
-            IATTR_HINT_DRAWABLE,         //!< Drawable type
+            IATTR_HINT_DRAWABLE,         //!< Window, pbuffer or FBO
             IATTR_HINT_STATISTICS,       //!< Statistics gathering hint
             IATTR_HINT_SCREENSAVER,      //!< Screensaver (de)activation (WGL)
             IATTR_PLANES_COLOR,          //!< No of per-component color planes
@@ -305,9 +330,6 @@ namespace eq
         EQ_EXPORT virtual bool processEvent( const Event& event );
 
         //@}
-
-        /** Returns averaged FPS count (averaging is not longer than 2 sec) */
-        double getFPS() const { return _avgFPS; }
 
         /* Draw FPS count */
         EQ_EXPORT virtual void drawFPS() const;
@@ -482,7 +504,7 @@ namespace eq
         eq::Viewport      _vp;
 
         /** Drawable characteristics of this window */
-        Window::DrawableConfig _drawableConfig;
+        DrawableConfig _drawableConfig;
 
         enum State
         {
@@ -497,10 +519,10 @@ namespace eq
         ObjectManager* _objectManager;
 
         /** Used to calculate time of last frame rendering */
-        double _lastTime;
+        float _lastTime;
 
         /** averaged FPS value, to prevent FPS counter flickering */
-        double _avgFPS;
+        float _avgFPS;
 
         /** The list of render context used since the last frame start. */
         std::vector< RenderContext > _renderContexts[2];
@@ -559,8 +581,6 @@ namespace eq
 
         CHECK_THREAD_DECLARE( _pipeThread );
     };
-
-    std::ostream& operator << ( std::ostream& , const Window::DrawableConfig& );
 }
 
 #endif // EQ_WINDOW_H

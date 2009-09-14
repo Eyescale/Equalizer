@@ -652,9 +652,9 @@ namespace eq
                 error[0]  = '\0';
             }
 
-        PixelViewport           pvp;
-        Window::DrawableConfig  drawableConfig;
-        bool                    result;
+        PixelViewport   pvp;
+        DrawableConfig  drawableConfig;
+        bool            result;
         EQ_ALIGN8( char error[8] );
     };
 

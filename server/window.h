@@ -118,7 +118,7 @@ namespace server
 
         Channel* getChannel( const ChannelPath& path );
 
-        const eq::Window::DrawableConfig& getDrawableConfig() const
+        const eq::DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
 
         net::CommandQueue* getServerThreadQueue();
@@ -283,7 +283,7 @@ namespace server
                                       const uint32_t instanceID, 
                                       net::Session* session );
     private:
-        eq::Window::DrawableConfig _drawableConfig;
+        eq::DrawableConfig _drawableConfig;
 
         /** The window's name */
         std::string _name;

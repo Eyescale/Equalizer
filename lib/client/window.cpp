@@ -151,39 +151,36 @@ void Window::attachToSession( const uint32_t id,
 
 void Window::_updateFPS()
 {
-    const double curTime      = static_cast< float >( getConfig()->getTime( ));
-    const double curInterval  = curTime - _lastTime;
+    const float curTime      = static_cast< float >( getConfig()->getTime( ));
+    const float curInterval  = curTime - _lastTime;
 
-    const bool   isFirstFrame = _lastTime == 0.0;
+    const bool   isFirstFrame = _lastTime == 0.0f;
     _lastTime = curTime;
 
-    if( isFirstFrame || curInterval < 1e-3 )
+    if( isFirstFrame || curInterval < 1e-3f )
         return;
 
-    const double curFPS = 1000.0 / curInterval;
+    const float curFPS = 1000.0f / curInterval;
 
-    if( curFPS < 1.0 ) //don't average FPS if rendering is too slow
+    if( curFPS < 1.0f || // don't average FPS if rendering is too slow
+        // or if current frame rate differs a lot from average (rendering loop
+        // was paused)
+        ( _avgFPS > 10.f * curFPS || 10.f * _avgFPS < curFPS ))
     {
         _avgFPS = curFPS;
         return;
     }
-    //else  average some last frames FPS
+    //else  average FPS over time
 
-    // check if current frame rate too differ from average
-    // (can happen when rendering loop was paused)
-    if( _avgFPS > 10*curFPS || 10*_avgFPS < curFPS )
-        _avgFPS = curFPS;
-
-    // We calculate weighted sum of average frame rate with current 
-    // frame rate to prevent FPS count flickering.
+    // We calculate weighted sum of average frame rate with current frame rate
+    // to prevent FPS count flickering.
     //
-    // Weighted sum calculation here is following:
-    // _avgFPS = (curFPS * _avgFPS + 1 * curFPS ) / ( curFPS + 1 );
-    // the higher current frame rate (FR), the less it affects averaged
-    // FR, this is equivalent of averaging with many frames, i.e. when
-    // rendering is fast, we suppress FPS counter flickering stronger.
-    // following line is a simplification of the equation above:
-    _avgFPS = curFPS * ( _avgFPS + 1 ) / ( curFPS + 1 );
+    // Weighted sum calculation here is the following:
+    _avgFPS = curFPS * ( _avgFPS + 1.f ) / ( curFPS + 1.f );
+
+    // The higher current frame rate, the less it affects averaged FR. This is
+    // equivalent of averaging over many frames, i.e. when rendering is fast, we
+    // suppress FPS counter flickering stronger.
 }
 
 
@@ -946,7 +943,6 @@ net::CommandResult Window::_cmdSwap( net::Command& command )
     EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
                        << endl;
 
-
     if( _drawableConfig.doublebuffered )
     {
         // swap
@@ -968,18 +964,4 @@ net::CommandResult Window::_cmdFrameDrawFinish( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-std::ostream& operator << ( std::ostream& os,
-                            const Window::DrawableConfig& config )
-{
-    os << "GL" << config.glVersion;
-    if( config.stereo )
-        os << "|ST";
-    if( config.doublebuffered )
-        os << "|DB";
-    if( config.stencilBits )
-        os << "|st" << config.stencilBits;
-    if( config.alphaBits )
-        os << "|a" << config.alphaBits;
-    return os;
-}
 }

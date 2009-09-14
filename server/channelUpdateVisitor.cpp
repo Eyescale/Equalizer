@@ -285,7 +285,7 @@ void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
 
 GLenum ChannelUpdateVisitor::_getDrawBuffer() const
 {
-    const eq::Window::DrawableConfig& drawableConfig = 
+    const eq::DrawableConfig& drawableConfig =
         _channel->getWindow()->getDrawableConfig();
     
     if( !drawableConfig.stereo )
