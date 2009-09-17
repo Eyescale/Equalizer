@@ -68,7 +68,7 @@ public:
 
     int64_t _waitPollCQ( uint32_t bytes );
     // post cqes to record rdma writes completing on receiving host
-    int64_t  postRdmaRecvs( void* buffer, uint32_t bytes);
+    int64_t  readSync( void* buffer, uint32_t bytes);
 
     ib_qp_handle_t getQueuePair(){ return _queuePair; }
     int getSQpNum() { return _queuePairAttr.num; }

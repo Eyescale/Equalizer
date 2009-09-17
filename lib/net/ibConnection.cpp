@@ -15,9 +15,12 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 #include "ibConnection.h"
+
 #ifdef EQ_INFINIBAND
-#pragma comment ( lib, "C:\\Program Files\\Mellanox\\MLNX_WinOF\\SDK\\lib\\user\\objfre_wnet_x86\\i386\\ibal.lib")
+
+#pragma comment ( lib, "ibal.lib" )
 
 
 #include "Connection.h"
@@ -307,7 +310,7 @@ int64_t IBConnection::readSync( void* buffer, const uint64_t bytes )
 {
    CHECK_THREAD( _recvThread );
     
-   int64_t nbRead = _interface.postRdmaRecvs( buffer, bytes );
+   int64_t nbRead = _interface.readSync( buffer, bytes );
    return nbRead;
 }
 

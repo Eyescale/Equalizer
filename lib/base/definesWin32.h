@@ -19,11 +19,6 @@
 #ifndef GLEW_MX
 #  define GLEW_MX
 #endif
-#if 0
-#  ifndef EQ_WIN32_SDP_JOIN_WAR // see thread.cpp
-#    define EQ_WIN32_SDP_JOIN_WAR
-#  endif
-#endif
 #ifdef _OPENMP
 #  define EQ_USE_OPENMP
 #endif
@@ -33,9 +28,14 @@
 #ifndef LITTLE_ENDIAN
 #  define LITTLE_ENDIAN
 #endif
-#if 0
-#ifndef EQ_INFINIBAND
-#  define EQ_INFINIBAND
+
+#if 0 // Enable for IB builds (needs WinOF 2.0 installed)
+#  ifndef EQ_INFINIBAND
+#    define EQ_INFINIBAND
+#  endif
+#  ifndef EQ_WIN32_SDP_JOIN_WAR // see thread.cpp
+#    define EQ_WIN32_SDP_JOIN_WAR
+#  endif
 #endif
-#endif
+
 #endif // EQ_DEFINES_H

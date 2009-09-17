@@ -258,15 +258,13 @@ void IBInterface::readNB( void* buffer, const uint64_t bytes )
 }
 
 
-int64_t IBInterface::postRdmaRecvs( void* buffer, uint32_t bytes )
+int64_t IBInterface::readSync( void* buffer, uint32_t bytes )
 {
-    uint32_t sizebuf = _readBlock.buf.getSize();
+    const uint32_t sizebuf = _readBlock.buf.getSize();
     
     // if no data in buffer, we ask for a receive operation
     while ( sizebuf == 0 )
-    {
         sizebuf = _waitPollCQ( bytes );
-    }
     
     // if no data, it's a problem 
     if ( sizebuf == 0 )
