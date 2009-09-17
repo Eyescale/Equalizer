@@ -58,8 +58,18 @@ server
         # Layouts - one for each demo mode
         layout
         {
-            name "wall"
+            name "Wall"
             view {}
+        }
+        layout
+        {
+            name "Stereo"
+            view {}
+        }
+        layout
+        {
+            name "HMD"
+            view { viewport [ 0 .5 1 .5 ] }
         }
         layout
         {
@@ -230,7 +240,9 @@ server
         # Canvas using all layouts
         canvas
         {
-            layout "wall"
+            layout "Wall"
+            layout "Stereo"
+            layout "HMD"
             layout "MultiView"
             layout "2D"
             layout "WallLB"
@@ -277,22 +289,97 @@ server
         {
             compound
             {
-                channel ( segment 0 layout "wall" view 0 )
+                channel ( segment 0 layout "Wall" view 0 )
                 swapbarrier {}
             }
             compound
             {
-                channel ( segment 1 layout "wall" view 0 )
+                channel ( segment 1 layout "Wall" view 0 )
                 swapbarrier {}
             }
             compound
             {
-                channel ( segment 2 layout "wall" view 0 )
+                channel ( segment 2 layout "Wall" view 0 )
                 swapbarrier {}
             }
             compound
             {
-                channel ( segment 3 layout "wall" view 0 )
+                channel ( segment 3 layout "Wall" view 0 )
+                swapbarrier {}
+            }
+        }
+
+        # Stereo compound - need swap barrier
+        compound
+        {
+            eye [ LEFT RIGHT ]
+            compound
+            {
+                channel ( segment 0 layout "Stereo" view 0 )
+                swapbarrier {}
+            }
+            compound
+            {
+                channel ( segment 1 layout "Stereo" view 0 )
+                swapbarrier {}
+            }
+            compound
+            {
+                channel ( segment 2 layout "Stereo" view 0 )
+                swapbarrier {}
+            }
+            compound
+            {
+                channel ( segment 3 layout "Stereo" view 0 )
+                swapbarrier {}
+            }
+        }
+
+        # HMD compound - need swap barrier
+        compound
+        {
+            attributes
+            {
+                stereo_anaglyph_left_mask    [ RED GREEN BLUE ]
+                stereo_anaglyph_right_mask   [ RED GREEN BLUE ]
+            }
+
+            compound
+            {
+                channel ( segment 0 layout "HMD" view 0 )
+                eye [ LEFT ]
+
+                # Workaround: Normally one view pre HMD is configured, with two
+                # fully overlapping segments on the canvas.
+                # Since we want to reuse the existing non-overlapping segments,
+                # we configure the view to span both segments and overwrite
+                # the computed frustum by inserting this child
+                compound
+                {
+                    wall
+                    {
+                        bottom_left  [ -.5 -.5 -1 ]
+                        bottom_right [  .5 -.5 -1 ]
+                        top_left     [ -.5  .5 -1 ]
+                        type HMD
+                    }
+                }
+                swapbarrier {}
+            }
+            compound
+            {
+                channel ( segment 1 layout "HMD" view 0 )
+                eye [ RIGHT ]
+                compound
+                {
+                    wall
+                    {
+                        bottom_left  [ -.5 -.5 -1 ]
+                        bottom_right [  .5 -.5 -1 ]
+                        top_left     [ -.5  .5 -1 ]
+                        type HMD
+                    }
+                }
                 swapbarrier {}
             }
         }
