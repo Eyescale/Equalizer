@@ -23,19 +23,15 @@
 #include "node.h"
 #include "pipeConnection.h"
 #include "socketConnection.h"
-#include "namedPipeConnection.h"
-#ifdef EQ_INFINIBAND
-    #include "IBConnection.h"
-#endif //EQ_INFINIBAND
-#include <errno.h>
 
 #ifdef WIN32
-#  define EQ_SOCKET_ERROR getErrorString( WSAGetLastError( ))
-#  include <malloc.h>
-#else
-#  define EQ_SOCKET_ERROR strerror( errno )
-#  include <alloca.h>
+#  include "namedPipeConnection.h"
 #endif
+#ifdef EQ_INFINIBAND
+    #include "IBConnection.h"
+#endif
+
+#include <errno.h>
 
 using namespace eq::base;
 using namespace std;
@@ -73,17 +69,18 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             connection = new PipeConnection();
             break;
             
+#ifdef WIN32
         case CONNECTIONTYPE_NAMEDPIPE:
             connection = new NamedPipeConnection();
             break;
-        case CONNECTIONTYPE_IB:
+#endif
+
 #ifdef EQ_INFINIBAND
+        case CONNECTIONTYPE_IB:
             connection = new IBConnection();
-#else 
-            EQERROR << "forget EQ_INFINIBAND pre-processor Definition"  
-                    << endl;
-#endif //EQ_INFINIBAND
             break;
+#endif
+
         default:
             EQWARN << "Connection type not implemented" << endl;
             return connection;

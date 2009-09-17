@@ -174,7 +174,6 @@ CXXFILES = \
 	net/versionedSlaveCM.cpp \
 	net/global.cpp \
 	net/init.cpp \
-	net/namedPipeConnection.cpp \
 	net/node.cpp \
 	net/object.cpp \
 	net/objectCM.cpp \
