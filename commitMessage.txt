@@ -1,4 +1,4 @@
-Window doxygen updates
+Update XCode project
 
 [ ] May break build
 [ ] May break existing applications
