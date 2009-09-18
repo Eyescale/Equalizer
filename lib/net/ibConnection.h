@@ -15,11 +15,13 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#include <eq/base/base.h>
-#ifdef EQ_INFINIBAND
 #ifndef EQNET_IBCONNECTION_H
 #define EQNET_IBCONNECTION_H
-#include "SocketConnection.h"
+
+#include <eq/base/base.h>
+#ifdef EQ_INFINIBAND
+
+#include "socketConnection.h"
 
 #include "ibAdapter.h"
 #include "ibCompletionQueue.h"
@@ -85,5 +87,6 @@ public:
 };
 }
 }
-#endif //EQNET_IBConnection_H 
 #endif //EQ_INFINIBAND
+
+#endif //EQNET_IBCONNECTION_H 

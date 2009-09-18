@@ -97,15 +97,15 @@ bool SocketConnection::connect()
     if( !_createSocket( ))
         return false;
 
-    sockaddr_in socketAddress;
-    if( !_parseAddress( socketAddress ))
+    sockaddr_in address;
+    if( !_parseAddress( address ))
     {
         EQWARN << "Can't parse connection parameters" << std::endl;
         close();
         return false;
     }
 
-    if( socketAddress.sin_addr.s_addr == 0 )
+    if( address.sin_addr.s_addr == 0 )
     {
         EQWARN << "Refuse to connect to 0.0.0.0" << std::endl;
         close();
@@ -113,11 +113,11 @@ bool SocketConnection::connect()
     }
 
 #ifdef WIN32
-    const bool connected = WSAConnect( _readFD, (sockaddr*)&socketAddress, 
-                                       sizeof(socketAddress), 0, 0, 0, 0 ) == 0;
+    const bool connected = WSAConnect( _readFD, (sockaddr*)&address, 
+                                       sizeof( address ), 0, 0, 0, 0 ) == 0;
 #else
-    const bool connected = (::connect( _readFD, (sockaddr*)&socketAddress, 
-            sizeof(socketAddress)) == 0);
+    const bool connected = (::connect( _readFD, (sockaddr*)&address, 
+                                       sizeof( address )) == 0);
 #endif
 
     if( !connected )
@@ -496,19 +496,19 @@ void SocketConnection::_tuneSocket( const Socket fd )
 #endif
 }
 
-bool SocketConnection::_parseAddress( sockaddr_in& socketAddress )
+bool SocketConnection::_parseAddress( sockaddr_in& address )
 {
-    socketAddress.sin_family      = AF_INET;
-    socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
-    socketAddress.sin_port        = htons( _description->TCPIP.port );
-    memset( &(socketAddress.sin_zero), 0, 8 ); // zero the rest
+    address.sin_family      = AF_INET;
+    address.sin_addr.s_addr = htonl( INADDR_ANY );
+    address.sin_port        = htons( _description->TCPIP.port );
+    memset( &(address.sin_zero), 0, 8 ); // zero the rest
 
     const std::string& hostname = _description->getHostname();
     if( !hostname.empty( ))
     {
         hostent *hptr = gethostbyname( hostname.c_str( ));
         if( hptr )
-            memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
+            memcpy( &address.sin_addr.s_addr, hptr->h_addr, hptr->h_length );
         else
         {
             EQWARN << "Can't resolve host " << hostname << std::endl;
@@ -516,8 +516,8 @@ bool SocketConnection::_parseAddress( sockaddr_in& socketAddress )
         }
     }
 
-    EQINFO << "Address " << inet_ntoa( socketAddress.sin_addr )
-           << ":" << ntohs( socketAddress.sin_port ) << std::endl;
+    EQINFO << "Address " << inet_ntoa( address.sin_addr )
+           << ":" << ntohs( address.sin_port ) << std::endl;
     return true;
 }
 //----------------------------------------------------------------------
@@ -537,30 +537,29 @@ bool SocketConnection::listen()
     if( !_createSocket())
         return false;
 
-    sockaddr_in socketAddress;
+    sockaddr_in address;
     const size_t size = sizeof( sockaddr_in ); 
 
-    if( !_parseAddress( socketAddress ))
+    if( !_parseAddress( address ))
     {
         EQWARN << "Can't parse connection parameters" << std::endl;
         close();
         return false;
     }
 
-    const bool bound = (::bind(_readFD, (sockaddr *)&socketAddress, size) == 0);
+    const bool bound = (::bind(_readFD, (sockaddr *)&address, size) == 0);
 
     if( !bound )
     {
         EQWARN << "Could not bind socket " << _readFD << ": " 
-               << EQ_SOCKET_ERROR << " to "
-               << inet_ntoa( socketAddress.sin_addr )
-               << ":" << ntohs( socketAddress.sin_port ) << " AF " 
-               << (int)socketAddress.sin_family << std::endl;
+               << EQ_SOCKET_ERROR << " to " << inet_ntoa( address.sin_addr )
+               << ":" << ntohs( address.sin_port ) << " AF "
+               << (int)address.sin_family << std::endl;
 
         close();
         return false;
     }
-    else if( socketAddress.sin_port == 0 )
+    else if( address.sin_port == 0 )
         EQINFO << "Bound to port " << _getPort() << std::endl;
 
     const bool listening = (::listen( _readFD, 10 ) == 0);
@@ -573,8 +572,7 @@ bool SocketConnection::listen()
     }
 
     // get socket parameters
-    sockaddr_in address; // must use new sockaddr_in variable !?!
-    socklen_t   used = sizeof(address);
+    socklen_t used = size;
     getsockname( _readFD, (struct sockaddr *)&address, &used ); 
 
     _description->TCPIP.port = ntohs( address.sin_port );
@@ -597,9 +595,8 @@ bool SocketConnection::listen()
     _fireStateChanged();
 
     EQINFO << "Listening on " << _description->getHostname() << "["
-           << inet_ntoa( socketAddress.sin_addr ) << "]:" 
-           << _description->TCPIP.port << " (" << _description->toString()
-           << ")" << std::endl;
+           << inet_ntoa( address.sin_addr ) << "]:" << _description->TCPIP.port
+           << " (" << _description->toString() << ")" << std::endl;
     
     return true;
 }
@@ -607,7 +604,7 @@ bool SocketConnection::listen()
 uint16_t SocketConnection::_getPort() const
 {
     sockaddr_in address;
-    socklen_t used = sizeof(address);
+    socklen_t used = sizeof( address );
     getsockname( _readFD, (struct sockaddr *) &address, &used ); 
     return ntohs(address.sin_port);
 }

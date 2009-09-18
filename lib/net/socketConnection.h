@@ -89,7 +89,7 @@ namespace net
 
         bool _createSocket();
         void _tuneSocket( const Socket fd );
-        bool _parseAddress( sockaddr_in& socketAddress );
+        bool _parseAddress( sockaddr_in& address );
         uint16_t _getPort() const;
 
 #ifdef WIN32

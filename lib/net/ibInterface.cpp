@@ -260,7 +260,7 @@ void IBInterface::readNB( void* buffer, const uint64_t bytes )
 
 int64_t IBInterface::readSync( void* buffer, uint32_t bytes )
 {
-    const uint32_t sizebuf = _readBlock.buf.getSize();
+    uint32_t sizebuf = _readBlock.buf.getSize();
     
     // if no data in buffer, we ask for a receive operation
     while ( sizebuf == 0 )
