@@ -387,8 +387,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             {
                 if( releaseEvent.button == eq::PTR_BUTTON1 )
                 {
-                    _spinX = releaseEvent.dx;
-                    _spinY = releaseEvent.dy;
+                    _spinX = releaseEvent.dy;
+                    _spinY = releaseEvent.dx;
                     _redraw = true;
                     return true;
                 }
@@ -411,11 +411,11 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 _spinY = 0;
 
                 if( _frameData.usePilotMode())
-                    _frameData.spinCamera(-0.005f*event->data.pointerMotion.dx,
-                                          -0.005f*event->data.pointerMotion.dy);
+                    _frameData.spinCamera(-0.005f*event->data.pointerMotion.dy,
+                                          -0.005f*event->data.pointerMotion.dx);
                 else
-                    _frameData.spinModel( -0.005f*event->data.pointerMotion.dx,
-                                          -0.005f*event->data.pointerMotion.dy);
+                    _frameData.spinModel( -0.005f*event->data.pointerMotion.dy,
+                                          -0.005f*event->data.pointerMotion.dx);
 
                 _redraw = true;
             }
@@ -427,8 +427,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
-                _frameData.moveCamera(  .0005f * event->data.pointerMotion.dx,
-                                       -.0005f * event->data.pointerMotion.dy,
+                _frameData.moveCamera(  .0005f * event->data.pointerMotion.dy,
+                                       -.0005f * event->data.pointerMotion.dx,
                                        0.f );
                 _redraw = true;
             }

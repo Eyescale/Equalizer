@@ -20,7 +20,6 @@
 
 #include "eqPly.h"
 
-//#include "frameData.h"
 #include "typedefs.h"
 
 #include <eq/eq.h>

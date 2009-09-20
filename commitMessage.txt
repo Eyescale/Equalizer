@@ -1,9 +1,9 @@
-Add two new features to 'all' config, update Quickstart Guide accordingly
+Bump vmmlib, fix usage of pre_rotate_ in examples.
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
