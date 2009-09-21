@@ -1,4 +1,4 @@
-Bump vmmlib, fix usage of pre_rotate_ in examples.
+Fix newly introduced assertions, dos2unix
 
 [ ] May break build
 [ ] May break existing applications

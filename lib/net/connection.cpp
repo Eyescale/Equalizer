@@ -56,8 +56,8 @@ Connection::~Connection()
     _state = STATE_CLOSED;
     _description = 0;
 
-    EQASSERTINFO( !_aioBytes && _aioBytes != 0,
-                  "Pending IO operation during connection destruction" );
+//    EQASSERTINFO( !_aioBytes && _aioBytes == 0,
+//                  "Pending IO operation during connection destruction" );
 
     EQVERB << "Delete Connection @" << (void*)this << endl;
 }
