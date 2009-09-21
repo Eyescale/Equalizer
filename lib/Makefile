@@ -173,7 +173,7 @@ CXXFILES = \
 	net/fullMasterCM.cpp \
 	net/global.cpp \
 	net/init.cpp \
-	net/ipmcConnection.cpp \
+	net/mcipConnection.cpp \
 	net/node.cpp \
 	net/object.cpp \
 	net/objectCM.cpp \

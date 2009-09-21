@@ -19,7 +19,7 @@
 
 #include "connectionDescription.h"
 #include "connectionListener.h"
-#include "ipmcConnection.h"
+#include "mcipConnection.h"
 #include "log.h"
 #include "node.h"
 #include "pipeConnection.h"
@@ -89,8 +89,8 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             break;
 #endif
 
-        case CONNECTIONTYPE_IPMC:
-            connection = new IPMCConnection;
+        case CONNECTIONTYPE_MCIP:
+            connection = new MCIPConnection;
             break;
 
         default:

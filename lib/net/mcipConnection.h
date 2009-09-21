@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_IPMCCONNECTION_H
-#define EQNET_IPMCCONNECTION_H
+#ifndef EQNET_MCIPCONNECTION_H
+#define EQNET_MCIPCONNECTION_H
 
 #include <eq/net/connection.h> // base class
 
@@ -28,10 +28,10 @@ namespace net
      * A facade for hiding different IP-based reliable multicast
      * implementations.
      */
-    class IPMCConnection : public Connection
+    class MCIPConnection : public Connection
     {
     public:
-        IPMCConnection();
+        MCIPConnection();
 
         virtual bool connect();
         virtual bool listen();
@@ -46,7 +46,7 @@ namespace net
         virtual Notifier getNotifier() const;
 
     protected:
-        virtual ~IPMCConnection();
+        virtual ~MCIPConnection();
 
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
@@ -55,4 +55,4 @@ namespace net
     };
 }
 }
-#endif //EQNET_IPMCCONNECTION_H
+#endif //EQNET_MCIPCONNECTION_H

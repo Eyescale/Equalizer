@@ -30,7 +30,7 @@ namespace net
         CONNECTIONTYPE_PIPE,      //!< pipe() based uni-directional connection
         CONNECTIONTYPE_NAMEDPIPE, //!< Named pipe based bidirectional connection
         CONNECTIONTYPE_IB,        //!< Infiniband based RDMA
-        CONNECTIONTYPE_IPMC       //!< IP-based multicast connection
+        CONNECTIONTYPE_MCIP       //!< IP-based multicast connection
     };
 }
 }

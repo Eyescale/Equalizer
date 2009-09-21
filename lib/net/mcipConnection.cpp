@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "ipmcConnection.h"
+#include "mcipConnection.h"
 
 #ifdef EQ_PGM
 #  include "pgmConnection.h"
@@ -26,18 +26,18 @@ namespace eq
 namespace net
 {
 
-IPMCConnection::IPMCConnection()
+MCIPConnection::MCIPConnection()
 {
     _description =  new ConnectionDescription;
-    _description->type = CONNECTIONTYPE_IPMC;
+    _description->type = CONNECTIONTYPE_MCIP;
     _description->bandwidth = 102400;
 }
 
-IPMCConnection::~IPMCConnection()
+MCIPConnection::~MCIPConnection()
 {
 }
 
-bool IPMCConnection::connect()
+bool MCIPConnection::connect()
 {
 #ifdef EQ_PGM
     _impl = new PGMConnection();
@@ -53,7 +53,7 @@ bool IPMCConnection::connect()
     return false;
 }
 
-bool IPMCConnection::listen()
+bool MCIPConnection::listen()
 {
 #ifdef EQ_PGM
     _impl = new PGMConnection();
@@ -68,7 +68,7 @@ bool IPMCConnection::listen()
     return false;
 }
 
-void IPMCConnection::close()
+void MCIPConnection::close()
 {
     if( !_impl )
         return;
@@ -77,14 +77,14 @@ void IPMCConnection::close()
     _impl = 0;
 }
 
-void IPMCConnection::acceptNB()
+void MCIPConnection::acceptNB()
 {
     EQASSERT( _impl.isValid( ));
     if( _impl.isValid( ))
         _impl->acceptNB();
 }
 
-ConnectionPtr IPMCConnection::acceptSync()
+ConnectionPtr MCIPConnection::acceptSync()
 {
     EQASSERT( _impl.isValid( ));
     if( _impl.isValid( ))
@@ -93,14 +93,14 @@ ConnectionPtr IPMCConnection::acceptSync()
     return 0;
 }
 
-void IPMCConnection::readNB( void* buffer, const uint64_t bytes )
+void MCIPConnection::readNB( void* buffer, const uint64_t bytes )
 {
     EQASSERT( _impl.isValid( ));
     if( _impl.isValid( ))
         _impl->readNB( buffer, bytes );
 }
 
-int64_t IPMCConnection::readSync( void* buffer, const uint64_t bytes )
+int64_t MCIPConnection::readSync( void* buffer, const uint64_t bytes )
 {
     EQASSERT( _impl.isValid( ));
     if( _impl.isValid( ))
@@ -109,7 +109,7 @@ int64_t IPMCConnection::readSync( void* buffer, const uint64_t bytes )
     return -1;
 }
 
-Connection::Notifier IPMCConnection::getNotifier() const
+Connection::Notifier MCIPConnection::getNotifier() const
 {
     EQASSERT( _impl.isValid( ));
     if( _impl.isValid( ))
@@ -118,7 +118,7 @@ Connection::Notifier IPMCConnection::getNotifier() const
     return 0;
 }
 
-int64_t IPMCConnection::write( const void* buffer, const uint64_t bytes )
+int64_t MCIPConnection::write( const void* buffer, const uint64_t bytes )
 {
     EQASSERT( _impl.isValid( ));
     if( _impl.isValid( ))

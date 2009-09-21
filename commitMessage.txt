@@ -1,9 +1,9 @@
-Fix newly introduced assertions, dos2unix
+Rename multicast/ip connection, fix ConnectionDescription
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

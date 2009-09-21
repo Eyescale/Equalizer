@@ -58,6 +58,10 @@ void ConnectionDescription::serialize( std::ostream& os ) const
         case CONNECTIONTYPE_IB:
             os << "IB";
             break;
+
+        case CONNECTIONTYPE_MCIP:
+            os << "MCIP";
+            break;
     }        
 
     os << SEPARATOR << bandwidth << SEPARATOR << _launchCommand 
@@ -114,6 +118,8 @@ bool ConnectionDescription::fromString( std::string& data )
                     type = CONNECTIONTYPE_SDP;
                 else if( token == "IB" )
                     type = CONNECTIONTYPE_IB;
+                else if( token == "MCIP" )
+                    type = CONNECTIONTYPE_MCIP;
                 else if( token == "PIPE" )
                 {
                     type = CONNECTIONTYPE_NAMEDPIPE;
@@ -142,6 +148,8 @@ bool ConnectionDescription::fromString( std::string& data )
             type = CONNECTIONTYPE_NAMEDPIPE;
         else if( typeStr == "IB" )
             type = CONNECTIONTYPE_IB;
+        else if( typeStr == "MCIP" )
+            type = CONNECTIONTYPE_MCIP;
         else
             goto error;
 
@@ -260,6 +268,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                              desc->type == CONNECTIONTYPE_PIPE  ? "anonpipe" :
                              desc->type == CONNECTIONTYPE_NAMEDPIPE  ? "pipe" :
                              desc->type == CONNECTIONTYPE_IB  ? "ib"  :
+                             desc->type == CONNECTIONTYPE_MCIP ? "mc/ip" :
                              "ERROR" ) 
        << ' ' << desc->getHostname() << ':';
 
@@ -277,12 +286,12 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
 
         default:
         case CONNECTIONTYPE_PIPE:
+        case CONNECTIONTYPE_MCIP:
             break;
     }
 
     return os;
 }
-
 
 }
 }
