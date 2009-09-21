@@ -1,4 +1,4 @@
-Rename multicast/ip connection (vcproj file)
+Fix Posix build
 
 [ ] May break build
 [ ] May break existing applications

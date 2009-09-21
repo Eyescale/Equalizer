@@ -19,12 +19,14 @@
 
 #include "atomic.h"
 
-#ifndef NDEBUG
+#include <errno.h>
+
 namespace eq
 {
 namespace base
 {
 
+#ifndef NDEBUG
 EQ_EXPORT void abort()
 {
     // if EQ_ABORT_WAIT is set, spin forever to allow identifying and debugging
@@ -48,6 +50,7 @@ EQ_EXPORT void checkHeap()
 #else
 #endif
 }
+#endif // DEBUG
 
 EQ_EXPORT std::ostream& sysError( std::ostream& os )
 {
@@ -69,4 +72,3 @@ EQ_EXPORT std::ostream& sysError( std::ostream& os )
 
 }
 }
-#endif
