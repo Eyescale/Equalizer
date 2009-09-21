@@ -19,6 +19,7 @@
 
 #include "connectionDescription.h"
 #include "connectionListener.h"
+#include "ipmcConnection.h"
 #include "log.h"
 #include "node.h"
 #include "pipeConnection.h"
@@ -73,20 +74,24 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             break;
 
         case CONNECTIONTYPE_PIPE:
-            connection = new PipeConnection();
+            connection = new PipeConnection;
             break;
             
 #ifdef WIN32
         case CONNECTIONTYPE_NAMEDPIPE:
-            connection = new NamedPipeConnection();
+            connection = new NamedPipeConnection;
             break;
 #endif
 
 #ifdef EQ_INFINIBAND
         case CONNECTIONTYPE_IB:
-            connection = new IBConnection();
+            connection = new IBConnection;
             break;
 #endif
+
+        case CONNECTIONTYPE_IPMC:
+            connection = new IPMCConnection;
+            break;
 
         default:
             EQWARN << "Connection type not implemented" << endl;

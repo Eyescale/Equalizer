@@ -29,7 +29,8 @@ namespace net
         CONNECTIONTYPE_SDP,       //!< SDP sockets (InfiniBand)
         CONNECTIONTYPE_PIPE,      //!< pipe() based uni-directional connection
         CONNECTIONTYPE_NAMEDPIPE, //!< Named pipe based bidirectional connection
-        CONNECTIONTYPE_IB         //!< Infiniband based RDMA
+        CONNECTIONTYPE_IB,        //!< Infiniband based RDMA
+        CONNECTIONTYPE_IPMC       //!< IP-based multicast connection
     };
 }
 }

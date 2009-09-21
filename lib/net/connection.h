@@ -329,6 +329,15 @@ namespace net
         static bool send( const ConnectionVector& connections, Packet& packet,
                           const void* data, const uint64_t size,
                           const bool isLocked = false );
+
+        /** 
+         * Write data to the connection.
+         * 
+         * @param buffer the buffer containing the message.
+         * @param bytes the number of bytes to write.
+         * @return the number of bytes written, or -1 upon error.
+         */
+        virtual int64_t write( const void* buffer, const uint64_t bytes ) = 0;
         //@}
 
         /**
@@ -349,18 +358,6 @@ namespace net
 
         void _fireStateChanged();
 
-        /** @name Input/Output */
-        //@{
-        /** 
-         * Write data to the connection.
-         * 
-         * @param buffer the buffer containing the message.
-         * @param bytes the number of bytes to write.
-         * @return the number of bytes written, or -1 upon error.
-         */
-        virtual int64_t write( const void* buffer, const uint64_t bytes ) = 0;
-        //@}
-
         State                    _state; //!< The connection state
         ConnectionDescriptionPtr _description; //!< The connection parameters
 
@@ -373,8 +370,6 @@ namespace net
 
         /** The listeners on state changes */
         std::vector< ConnectionListener* > _listeners;
-
-        friend class PairConnection; //!< for access to read/write
     };
 
     std::ostream& operator << ( std::ostream&, const Connection* );

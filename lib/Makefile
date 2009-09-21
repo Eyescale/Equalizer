@@ -158,7 +158,6 @@ CXXFILES = \
 	base/timedLock.cpp \
 	base/uuid.cpp \
 	net/barrier.cpp \
-	net/dispatcher.cpp \
 	net/bufferConnection.cpp \
 	net/command.cpp \
 	net/commandCache.cpp \
@@ -169,11 +168,12 @@ CXXFILES = \
 	net/dataIStream.cpp \
 	net/dataOStream.cpp \
 	net/deltaMasterCM.cpp \
+	net/dispatcher.cpp \
 	net/fdConnection.cpp \
 	net/fullMasterCM.cpp \
-	net/versionedSlaveCM.cpp \
 	net/global.cpp \
 	net/init.cpp \
+	net/ipmcConnection.cpp \
 	net/node.cpp \
 	net/object.cpp \
 	net/objectCM.cpp \
@@ -191,6 +191,7 @@ CXXFILES = \
 	net/staticMasterCM.cpp \
 	net/staticSlaveCM.cpp \
 	net/unbufferedMasterCM.cpp \
+	net/versionedSlaveCM.cpp \
 	client/canvas.cpp \
 	client/channel.cpp \
 	client/channelStatistics.cpp \
