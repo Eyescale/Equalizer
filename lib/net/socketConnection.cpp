@@ -75,7 +75,6 @@ SocketConnection::SocketConnection( const ConnectionType type )
 
 SocketConnection::~SocketConnection()
 {
-    close();
 }
 
 //----------------------------------------------------------------------

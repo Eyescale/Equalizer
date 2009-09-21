@@ -40,15 +40,15 @@ namespace net
 
 IBConnection::IBConnection( ) 
 { 
-    _description =  new ConnectionDescription;
+    _description = new ConnectionDescription;
     _description->type = CONNECTIONTYPE_IB;
     _description->bandwidth = 819200;
 }
 
 IBConnection::~IBConnection()
 { 
-    close(); 
 }
+
 eq::net::Connection::Notifier IBConnection::getNotifier() const 
 {
     if( isListening( ) )

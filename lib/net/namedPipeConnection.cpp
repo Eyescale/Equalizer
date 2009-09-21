@@ -55,7 +55,6 @@ NamedPipeConnection::NamedPipeConnection()
 
 NamedPipeConnection::~NamedPipeConnection()
 {
-    close();
 }
 
 std::string NamedPipeConnection::_getFilename() const

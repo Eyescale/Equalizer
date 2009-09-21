@@ -32,10 +32,6 @@
 #include <string.h>
 #include <vector>
 
-#ifdef WIN32_API
-#  include <malloc.h>     // for alloca()
-#endif
-
 #ifdef WIN32
 #  define EQ_DEFAULT_PORT (4242)
 #else
@@ -142,7 +138,7 @@ namespace net
         /** 
          * Close a connected or listening connection.
          */
-        virtual void close(){};
+        virtual void close() {}
         //@}
 
         /** @name Listener Interface */
@@ -172,8 +168,7 @@ namespace net
          *
          * @return the new connection, 0 on error.
          */        
-        virtual ConnectionPtr acceptSync()
-            { EQUNIMPLEMENTED; return 0; }
+        virtual ConnectionPtr acceptSync() { EQUNIMPLEMENTED; return 0; }
         //@}
 
 

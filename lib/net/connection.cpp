@@ -28,7 +28,7 @@
 #  include "namedPipeConnection.h"
 #endif
 #ifdef EQ_INFINIBAND
-    #include "IBConnection.h"
+#  include "IBConnection.h"
 #endif
 
 #include <errno.h>
@@ -51,7 +51,14 @@ Connection::Connection()
 
 Connection::~Connection()
 {
+    if( !isClosed( ))
+        close();
     _state = STATE_CLOSED;
+    _description = 0;
+
+    EQASSERTINFO( !_aioBytes && _aioBytes != 0,
+                  "Pending IO operation during connection destruction" );
+
     EQVERB << "Delete Connection @" << (void*)this << endl;
 }
 

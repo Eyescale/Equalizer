@@ -40,6 +40,7 @@ namespace net
 
     protected:
         FDConnection();
+        virtual ~FDConnection() {}
 
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes );

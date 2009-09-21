@@ -42,9 +42,9 @@ PipeConnection::PipeConnection()
 
 PipeConnection::~PipeConnection()
 {
-    close();
 #ifdef WIN32
     CloseHandle( _dataPending );
+    _dataPending = 0;
 #endif
 }
 
