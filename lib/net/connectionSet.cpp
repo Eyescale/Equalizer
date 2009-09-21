@@ -28,14 +28,6 @@
 #include <algorithm>
 #include <errno.h>
 
-#ifdef WIN32
-#  define EQ_SOCKET_ERROR getErrorString( _error ) << '(' << _error << ')'
-#else
-#  define EQ_SOCKET_ERROR strerror( _error )
-#endif
-
-using namespace eq::base;
-
 #define SELF_INTERRUPT 42
 
 #ifdef WIN32
@@ -111,7 +103,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
 bool ConnectionSet::removeConnection( ConnectionPtr connection )
 {
     {
-        ScopedMutex mutex( _mutex );
+        base::ScopedMutex mutex( _mutex );
         ConnectionVector::iterator i = find( _connections.begin(),
                                              _connections.end(), connection );
         if( i == _connections.end( ))
@@ -181,7 +173,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 _error = errno;
 #endif
 
-                EQERROR << "Error during select: " << EQ_SOCKET_ERROR
+                EQERROR << "Error during select: " << base::sysError
                         << std::endl;
                 return EVENT_SELECT_ERROR;
 

@@ -338,8 +338,9 @@ bool WGLWindow::configInitWGLFBO( int pixelFormat )
     DescribePixelFormat( _wglDC, pixelFormat, sizeof( pfd ), &pfd );
     if( !SetPixelFormat( _wglDC, pixelFormat, &pfd ))
     {
-        _window->setErrorMessage( "Can't set window pixel format: " + 
-            base::getErrorString( GetLastError( )));
+        std::ostringstream error;
+        error << "Can't set window pixel format: " << base::sysError;
+        _window->setErrorMessage( error.str( ));
         return false;
     }
 
@@ -365,8 +366,9 @@ bool WGLWindow::configInitWGLWindow( int pixelFormat )
     if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
     {
         ReleaseDC( hWnd, windowDC );
-        _window->setErrorMessage( "Can't set window pixel format: " + 
-            base::getErrorString( GetLastError( )));
+        std::ostringstream error;
+        error <<  "Can't set window pixel format: " << base::sysError;
+        _window->setErrorMessage( error.str( ));
         return false;
     }
     ReleaseDC( hWnd, windowDC );
@@ -410,8 +412,9 @@ HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
 
     if( !RegisterClass( &wc ))
     {
-        _window->setErrorMessage( "Can't register window class: " + 
-                                  base::getLastErrorString( ));
+        std::ostringstream error;
+        error << "Can't register window class: " << base::sysError;
+        _window->setErrorMessage( error.str( ));
         return false;
     }
 
@@ -433,8 +436,9 @@ HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
         if( ChangeDisplaySettings( &deviceMode, CDS_FULLSCREEN ) != 
             DISP_CHANGE_SUCCESSFUL )
         {
-            _window->setErrorMessage( "Can't switch to fullscreen mode: " + 
-                base::getErrorString( GetLastError( )));
+            std::ostringstream error;
+            error << "Can't switch to fullscreen mode: " << base::sysError;
+            _window->setErrorMessage( error.str( ));
             return false;
         }
         windowStyle = WS_POPUP | WS_MAXIMIZE;
@@ -487,8 +491,9 @@ bool WGLWindow::configInitWGLPBuffer( int pixelFormat )
     DeleteDC( displayDC );
     if( !pBuffer )
     {
-        _window->setErrorMessage( "Can't create PBuffer: " + 
-            base::getErrorString( GetLastError( )));
+        std::ostringstream error;
+        error << "Can't create PBuffer: " << base::sysError;
+        _window->setErrorMessage( error.str( ));
         return false;
     }
 
@@ -686,7 +691,7 @@ int WGLWindow::chooseWGLPixelFormat()
                                       &pixelFormat, &nFormats ))
         {
             EQWARN << "wglChoosePixelFormat failed: " 
-                << base::getLastErrorString() << std::endl;
+                << base::sysError << std::endl;
         }
 
         if( (pixelFormat && nFormats > 0) ||  // found one or
@@ -710,8 +715,9 @@ int WGLWindow::chooseWGLPixelFormat()
 
     if( pixelFormat == 0 )
     {
-        _window->setErrorMessage( "Can't find matching pixel format: " + 
-            base::getErrorString( GetLastError( )));
+        std::ostringstream error;
+        error << "Can't find matching pixel format: " << base::sysError;
+        _window->setErrorMessage( error.str( ));
         return 0;
     }
  
@@ -724,8 +730,9 @@ int WGLWindow::chooseWGLPixelFormat()
         DescribePixelFormat( _wglAffinityDC, pixelFormat, sizeof(pfd), &pfd );
         if( !SetPixelFormat( _wglAffinityDC, pixelFormat, &pfd ))
         {
-            _window->setErrorMessage( "Can't set device pixel format: " + 
-                base::getErrorString( GetLastError( )));
+            std::ostringstream error;
+            error << "Can't set device pixel format: " << base::sysError;
+            _window->setErrorMessage( error.str( ));
             return 0;
         }
     }
@@ -741,8 +748,9 @@ HGLRC WGLWindow::createWGLContext()
     HGLRC context = wglCreateContext(_wglAffinityDC ? _wglAffinityDC : _wglDC );
     if( !context )
     {
-        _window->setErrorMessage( "Can't create OpenGL context: " + 
-            base::getErrorString( GetLastError( )));
+        std::ostringstream error;
+        error << "Can't create OpenGL context: " << base::sysError;
+        _window->setErrorMessage( error.str( ));
         return 0;
     }
 
@@ -758,8 +766,7 @@ HGLRC WGLWindow::createWGLContext()
         HGLRC shareCtx = shareWGLWindow->getWGLContext();
 
         if( shareCtx && !wglShareLists( shareCtx, context ))
-            EQWARN << "Context sharing failed: " << base::getLastErrorString()
-                   << endl;
+            EQWARN << "Context sharing failed: " << base::sysError << std::endl;
     }
 
     return context;

@@ -98,7 +98,7 @@ namespace eq
         void configExitFBO();
 
         /** @return the FBO of this window, or 0 if no FBO is used. */
-        const FrameBufferObject* getFBO() const { return _fbo; }
+        const FrameBufferObject* getFrameBufferObject() const { return _fbo; }
         //@}
 
         /** @name Convenience interface to eq::Window methods */

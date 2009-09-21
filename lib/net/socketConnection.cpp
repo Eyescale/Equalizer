@@ -90,16 +90,15 @@ bool SocketConnection::connect()
     _state = STATE_CONNECTING;
     _fireStateChanged();
 
-    if( !_createSocket( ))
-        return false;
-
     sockaddr_in address;
     if( !_parseAddress( address ))
     {
         EQWARN << "Can't parse connection parameters" << std::endl;
-        close();
         return false;
     }
+
+    if( !_createSocket( ))
+        return false;
 
     if( address.sin_addr.s_addr == 0 )
     {
@@ -530,18 +529,17 @@ bool SocketConnection::listen()
     _state = STATE_CONNECTING;
     _fireStateChanged();
 
-    if( !_createSocket())
-        return false;
-
     sockaddr_in address;
     const size_t size = sizeof( sockaddr_in ); 
 
     if( !_parseAddress( address ))
     {
         EQWARN << "Can't parse connection parameters" << std::endl;
-        close();
         return false;
     }
+
+    if( !_createSocket())
+        return false;
 
     const bool bound = (::bind(_readFD, (sockaddr *)&address, size) == 0);
 

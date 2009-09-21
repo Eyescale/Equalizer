@@ -650,7 +650,7 @@ void Channel::applyFrameBufferObject()
 
 void Channel::applyBuffer()
 {
-    if( !_fbo && _window->getOSWindow()->getFBO() == 0 )
+    if( !_fbo && _window->getOSWindow()->getFrameBufferObject() == 0 )
     {
         EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
         EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));

@@ -29,9 +29,6 @@
 #define KEY_MSG_SIZE ( sizeof "0000:000000:000000:00000000:0000000000000000" )
 #define KEY_PRINT_FMT "%04x:%06x:%06x:%08x:%016I64x"
 #define KEY_SCAN_FMT "%x:%x:%x:%x:%x"
-#define EQ_SOCKET_ERROR eq::base::getErrorString( GetLastError( )) << \
-    "(" << GetLastError() << ")"
-
 
 namespace eq
 { 

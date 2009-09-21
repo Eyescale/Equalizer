@@ -52,7 +52,7 @@ EQ_EXPORT bool init( const int argc, char** argv )
     if( WSAStartup( wsVersion, &wsData ) != 0 )
     {
         EQERROR << "Initialization of Windows Sockets failed" 
-                << base::getErrorString( GetLastError( )) << endl;
+                << base::sysError << endl;
         return false;
     }
 #endif
@@ -76,7 +76,7 @@ EQ_EXPORT bool exit()
     if( WSACleanup() != 0 )
     {
         EQERROR << "Cleanup of Windows Sockets failed" 
-                << base::getErrorString( GetLastError( )) << endl;
+                << base::sysError << endl;
         return false;
     }
 #endif

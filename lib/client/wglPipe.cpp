@@ -116,8 +116,9 @@ bool WGLPipe::createWGLAffinityDC( HDC& affinityDC )
     affinityDC = wglCreateAffinityDCNV( hGPU );
     if( !affinityDC )
     {
-        setErrorMessage( "Can't create affinity DC: " +
-                         base::getErrorString( GetLastError( )));
+        std::stringstream error;
+        error << "Can't create affinity DC: " << base::sysError;
+        setErrorMessage( error.str( ));
         return false;
     }
 
@@ -135,16 +136,18 @@ HDC WGLPipe::createWGLDisplayDC()
 
     if( !EnumDisplayDevices( 0, device, &devInfo, 0 ))
     {
-        _pipe->setErrorMessage( "Can't enumerate display devices: " + 
-                                    base::getLastErrorString());
+        std::ostringstream error;
+        error << "Can't enumerate display devices: " << base::sysError;
+        _pipe->setErrorMessage( error.str( ));
         return 0;
     }
 
     const HDC displayDC = CreateDC( "DISPLAY", devInfo.DeviceName, 0, 0 );
     if( !displayDC )
     {
-        _pipe->setErrorMessage( "Can't create device context: " + 
-                                     base::getLastErrorString( ));
+        std::ostringstream error;
+        error << "Can't create device context: " << base::sysError;
+        _pipe->setErrorMessage( error.str( ));
         return 0;
     }
 
@@ -198,7 +201,7 @@ void WGLPipe::_configInitWGLEW()
     if( !RegisterClass( &wc ))
     {
         EQWARN << "Can't register temporary window class: " 
-               << base::getErrorString( GetLastError( )) << endl;
+               << base::sysError << endl;
         return;
     }
 
@@ -215,7 +218,7 @@ void WGLPipe::_configInitWGLEW()
     if( !hWnd )
     {
         EQWARN << "Can't create temporary window: "
-               << base::getErrorString( GetLastError( )) << endl;
+               << base::sysError << endl;
         UnregisterClass( classStr.c_str(),  instance );
         return;
     }
@@ -231,7 +234,7 @@ void WGLPipe::_configInitWGLEW()
     if( pf == 0 )
     {
         EQWARN << "Can't find temporary pixel format: "
-               << base::getErrorString( GetLastError( )) << endl;
+               << base::sysError << endl;
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
         return;
@@ -240,7 +243,7 @@ void WGLPipe::_configInitWGLEW()
     if( !SetPixelFormat( dc, pf, &pfd ))
     {
         EQWARN << "Can't set pixel format: " 
-               << base::getErrorString( GetLastError( )) << endl;
+               << base::sysError << endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -252,7 +255,7 @@ void WGLPipe::_configInitWGLEW()
     if( !context )
     {
          EQWARN << "Can't create temporary OpenGL context: " 
-                << base::getErrorString( GetLastError( )) << endl;
+                << base::sysError << endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );

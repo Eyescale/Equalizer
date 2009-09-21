@@ -22,7 +22,7 @@
 #include "log.h"
 
 #ifdef WIN32
-#  define EQ_DL_ERROR getErrorString( GetLastError( ))
+#  define EQ_DL_ERROR sysError
 #else
 #  include <dlfcn.h>
 #  define EQ_DL_ERROR dlerror()
