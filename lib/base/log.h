@@ -224,23 +224,6 @@ namespace base
     /** Re-enable printing of the Log header for subsequent lines. */
     EQ_EXPORT std::ostream& enableHeader( std::ostream& os );
 
-#ifdef WIN32
-    /** @return the given Win32 error as a string. @warning WIN32 only. */
-    inline std::string getErrorString( const DWORD error )
-    {
-        char text[512] = "";
-        FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, 0, error, 0, text, 511, 0 );
-        const size_t length = strlen( text );
-        if( length>2 && text[length-2] == '\r' )
-            text[length-2] = '\0';
-        return std::string( text );
-    }
-    /** @return the last Win32 error as a string. @warning WIN32 only. */
-    inline std::string getLastErrorString()
-    {
-         return getErrorString( GetLastError( ));
-    }
-#endif
 }
 }
 

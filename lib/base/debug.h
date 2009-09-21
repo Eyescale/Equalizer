@@ -33,6 +33,13 @@ EQ_EXPORT void abort();
 
 /** Check the consistency of the heap and abort on error (Win32 only). */
 EQ_EXPORT void checkHeap();
+
+/** 
+ * Print a textual description of the current system error, e.g., errno or
+ * GetLastError(). 
+ */
+EQ_EXPORT std::ostream& sysError( std::ostream& os );
+
 }
 }
 

@@ -36,8 +36,6 @@
 #  ifndef WSA_FLAG_SDP
 #    define WSA_FLAG_SDP 0x40
 #  endif
-#  define EQ_SOCKET_ERROR base::getErrorString( GetLastError( )) << \
-    "(" << GetLastError() << ")"
 #else
 #  include <arpa/inet.h>
 #  include <netdb.h>
@@ -47,7 +45,6 @@
 #  ifndef AF_INET_SDP
 #    define AF_INET_SDP 27
 #  endif
-#  define EQ_SOCKET_ERROR strerror( errno ) << "(" << errno << ")"
 #endif
 
 namespace eq
@@ -122,7 +119,7 @@ bool SocketConnection::connect()
     if( !connected )
     {
         EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->TCPIP.port << "': " << EQ_SOCKET_ERROR
+               << _description->TCPIP.port << "': " << base::sysError
                << std::endl;
         close();
         return false;
@@ -154,7 +151,7 @@ void SocketConnection::close()
 #endif
 
     if( !closed )
-        EQWARN << "Could not close socket: " << EQ_SOCKET_ERROR << std::endl;
+        EQWARN << "Could not close socket: " << base::sysError << std::endl;
 
     _readFD  = INVALID_SOCKET;
     _writeFD = INVALID_SOCKET;
@@ -172,7 +169,7 @@ void SocketConnection::_initAIORead()
 
     if( !_overlapped.hEvent )
         EQERROR << "Can't create event for AIO notification: " 
-                << EQ_SOCKET_ERROR << std::endl;
+                << base::sysError << std::endl;
 }
 
 void SocketConnection::_initAIOAccept()
@@ -226,7 +223,7 @@ void SocketConnection::acceptNB()
 
     if( _overlappedSocket == INVALID_SOCKET )
     {
-        EQERROR << "Could not create accept socket: " << EQ_SOCKET_ERROR
+        EQERROR << "Could not create accept socket: " << base::sysError
                 << ", closing listening socket" << std::endl;
         close();
         return;
@@ -244,7 +241,7 @@ void SocketConnection::acceptNB()
                    &got, &_overlapped ) &&
         GetLastError() != WSA_IO_PENDING )
     {
-        EQERROR << "Could not start accept operation: " << EQ_SOCKET_ERROR 
+        EQERROR << "Could not start accept operation: " << base::sysError 
                 << ", closing connection" << std::endl;
         close();
     }
@@ -266,7 +263,7 @@ ConnectionPtr SocketConnection::acceptSync()
     DWORD flags = 0;
     if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
     {
-        EQWARN << "Accept completion failed: " << EQ_SOCKET_ERROR 
+        EQWARN << "Accept completion failed: " << base::sysError 
                << ", closing socket" << std::endl;
         close();
         return 0;
@@ -318,7 +315,7 @@ ConnectionPtr SocketConnection::acceptSync()
 
     if( fd == INVALID_SOCKET )
     {
-        EQWARN << "accept failed: " << EQ_SOCKET_ERROR << std::endl;
+        EQWARN << "accept failed: " << base::sysError << std::endl;
         return 0;
     }
 
@@ -361,7 +358,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
     if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 0 ) != 0 &&
         GetLastError() != WSA_IO_PENDING )
     {
-        EQWARN << "Could not start overlapped receive: " << EQ_SOCKET_ERROR
+        EQWARN << "Could not start overlapped receive: " << base::sysError
                << ", closing connection" << std::endl;
         close();
     }
@@ -384,7 +381,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
         if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
             return 0;
 
-        EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
+        EQWARN << "Read complete failed: " << base::sysError 
                << ", closing connection" << std::endl;
         close();
         return -1;
@@ -421,7 +418,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
         // error
         if( GetLastError( ) != WSAEWOULDBLOCK )
         {
-            EQWARN << "Error during write: " << EQ_SOCKET_ERROR << std::endl;
+            EQWARN << "Error during write: " << base::sysError << std::endl;
             return -1;
         }
 
@@ -435,7 +432,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
         const int result = select( _writeFD+1, 0, &set, 0, 0 );
         if( result <= 0 )
         {
-            EQWARN << "Error during select: " << EQ_SOCKET_ERROR << std::endl;
+            EQWARN << "Error during select: " << base::sysError << std::endl;
             return -1;
         }
 #endif
@@ -467,7 +464,7 @@ bool SocketConnection::_createSocket()
 
     if( fd == INVALID_SOCKET )
     {
-        EQERROR << "Could not create socket: " << EQ_SOCKET_ERROR << std::endl;
+        EQERROR << "Could not create socket: " << base::sysError << std::endl;
         return false;
     }
 
@@ -551,7 +548,7 @@ bool SocketConnection::listen()
     if( !bound )
     {
         EQWARN << "Could not bind socket " << _readFD << ": " 
-               << EQ_SOCKET_ERROR << " to " << inet_ntoa( address.sin_addr )
+               << base::sysError << " to " << inet_ntoa( address.sin_addr )
                << ":" << ntohs( address.sin_port ) << " AF "
                << (int)address.sin_family << std::endl;
 
@@ -565,7 +562,7 @@ bool SocketConnection::listen()
         
     if( !listening )
     {
-        EQWARN << "Could not listen on socket: "<< EQ_SOCKET_ERROR << std::endl;
+        EQWARN << "Could not listen on socket: "<< base::sysError << std::endl;
         close();
         return false;
     }

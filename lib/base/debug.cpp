@@ -49,6 +49,24 @@ EQ_EXPORT void checkHeap()
 #endif
 }
 
+EQ_EXPORT std::ostream& sysError( std::ostream& os )
+{
+#ifdef WIN32
+    const DWORD error = GetLastError();
+    char text[512] = "";
+    FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, 0, error, 0, text, 511, 0 );
+    const size_t length = strlen( text );
+    if( length>2 && text[length-2] == '\r' )
+        text[length-2] = '\0';
+
+    os << text << " (" << error << ")";
+#else
+    os << strerror( errno ) << " (" << errno << ")";
+#endif
+
+    return os;
+}
+
 }
 }
 #endif

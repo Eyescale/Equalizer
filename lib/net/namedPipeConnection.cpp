@@ -31,8 +31,6 @@
 #include <sys/types.h>
 
 #ifdef WIN32
-#  define EQ_PIPE_ERROR base::getErrorString( GetLastError( )) <<   \
-    "(" << GetLastError() << ")"
 
 #define EQ_PIPE_BUFFER_SIZE 515072
 #define EQ_READ_BUFFER_SIZE 257536
@@ -101,14 +99,14 @@ void NamedPipeConnection::close()
         _exitAIOAccept();
 
         if( !DisconnectNamedPipe( _readFD ))
-            EQERROR << "Could not disconnect named pipe: " << EQ_PIPE_ERROR
+            EQERROR << "Could not disconnect named pipe: " << base::sysError
                     << std::endl;
     }
     else
     {
         _exitAIORead();
         if( !CloseHandle( _readFD ))
-            EQERROR << "Could not close named pipe: " << EQ_PIPE_ERROR
+            EQERROR << "Could not close named pipe: " << base::sysError
                     << std::endl;
     }
 
@@ -122,7 +120,7 @@ bool NamedPipeConnection::_createNamedPipe()
     const std::string filename = _getFilename();
     if ( !WaitNamedPipe( filename.c_str(), 20000 )) 
     { 
-        EQERROR << "Can't create named pipe: " << EQ_PIPE_ERROR << std::endl; 
+        EQERROR << "Can't create named pipe: " << base::sysError << std::endl; 
         return false; 
     }    
 
@@ -142,7 +140,7 @@ bool NamedPipeConnection::_createNamedPipe()
     if( GetLastError() != ERROR_PIPE_BUSY ) 
     {
         EQERROR << "Can't create named pipe: " 
-                << EQ_PIPE_ERROR << std::endl; 
+                << base::sysError << std::endl; 
         return false;
      
     }
@@ -191,7 +189,7 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
          // fall through
       default: 
       {
-         EQWARN << "ConnectNamedPipe failed : " << EQ_PIPE_ERROR << std::endl;
+         EQWARN << "ConnectNamedPipe failed : " << base::sysError << std::endl;
          return false;
       }
    } 
@@ -209,7 +207,7 @@ void NamedPipeConnection::_initAIORead()
 
     if( !_read.hEvent || !_write.hEvent )
         EQERROR << "Can't create events for AIO notification: " 
-                << EQ_PIPE_ERROR  << std::endl;
+                << base::sysError  << std::endl;
 }
 
 void NamedPipeConnection::_initAIOAccept()
@@ -274,7 +272,7 @@ void NamedPipeConnection::acceptNB()
     if ( _readFD == INVALID_HANDLE_VALUE ) 
     {
         EQERROR << "Could not create named pipe: " 
-                << EQ_PIPE_ERROR << " file : " << filename << std::endl;
+                << base::sysError << " file : " << filename << std::endl;
         close();
         return;
     }
@@ -297,7 +295,7 @@ ConnectionPtr NamedPipeConnection::acceptSync()
         {        
             return 0; 
         }
-        EQWARN << "Accept completion failed: " << EQ_PIPE_ERROR
+        EQWARN << "Accept completion failed: " << base::sysError
                << ", closing named pipe" << std::endl;
          
         close();
@@ -334,7 +332,7 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
     if( !ReadFile( _readFD, buffer, use, 0, &_read ) &&
          GetLastError() != ERROR_IO_PENDING )
     {
-        EQWARN << "Could not start overlapped receive: " << EQ_PIPE_ERROR
+        EQWARN << "Could not start overlapped receive: " << base::sysError
                << ", closing connection" << std::endl;
         close();
     }
@@ -358,7 +356,7 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes )
             return 0; 
         } 
 
-        EQWARN << "Read complete failed: " << EQ_PIPE_ERROR 
+        EQWARN << "Read complete failed: " << base::sysError 
                << ", closing connection" << std::endl;
         close();
         return 0;
@@ -380,7 +378,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
     if( !WriteFile( _readFD, buffer, use, &wrote, &_write ) &&
         GetLastError() != ERROR_IO_PENDING )
     {
-        EQWARN << "Could not start write: " << EQ_PIPE_ERROR
+        EQWARN << "Could not start write: " << base::sysError
             << ", closing connection" << std::endl;
         close();
     }
@@ -393,7 +391,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
             return 0; 
         } 
 
-        EQWARN << "Write complete failed: " << EQ_PIPE_ERROR 
+        EQWARN << "Write complete failed: " << base::sysError 
                << ", closing connection" << std::endl;
         close();
         return -1;
