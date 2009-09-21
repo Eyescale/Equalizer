@@ -31,6 +31,9 @@
 #ifdef EQ_INFINIBAND
 #  include "IBConnection.h"
 #endif
+#ifdef EQ_PGM
+#  include "PGMConnection.h"
+#endif
 
 #include <errno.h>
 
@@ -92,6 +95,13 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
         case CONNECTIONTYPE_MCIP:
             connection = new MCIPConnection;
             break;
+
+#ifdef EQ_PGM
+        case CONNECTIONTYPE_MCIP_PGM:
+            connection = new PGMConnection;
+            break;
+
+#endif
 
         default:
             EQWARN << "Connection type not implemented" << endl;

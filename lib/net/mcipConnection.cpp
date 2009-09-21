@@ -40,12 +40,15 @@ MCIPConnection::~MCIPConnection()
 bool MCIPConnection::connect()
 {
 #ifdef EQ_PGM
+    _description->type = CONNECTIONTYPE_MCIP_PGM;
+
     _impl = new PGMConnection();
     _impl->setDescription( _description );
     if( _impl->connect( ))
         return true;
     // else
 
+    _description->type = CONNECTIONTYPE_MCIP;    
     _impl = 0;
 #endif
     // TODO: implement and try UDP-based reliable multicast

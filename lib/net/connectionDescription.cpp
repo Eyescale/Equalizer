@@ -62,6 +62,10 @@ void ConnectionDescription::serialize( std::ostream& os ) const
         case CONNECTIONTYPE_MCIP:
             os << "MCIP";
             break;
+
+        case CONNECTIONTYPE_MCIP_PGM:
+            os << "PGM";
+            break;
     }        
 
     os << SEPARATOR << bandwidth << SEPARATOR << _launchCommand 
@@ -73,6 +77,8 @@ void ConnectionDescription::serialize( std::ostream& os ) const
         case CONNECTIONTYPE_TCPIP:
         case CONNECTIONTYPE_SDP:
         case CONNECTIONTYPE_IB:        
+        case CONNECTIONTYPE_MCIP:
+        case CONNECTIONTYPE_MCIP_PGM:
             os << SEPARATOR << TCPIP.port;
             break;
         case CONNECTIONTYPE_NAMEDPIPE:
@@ -120,6 +126,8 @@ bool ConnectionDescription::fromString( std::string& data )
                     type = CONNECTIONTYPE_IB;
                 else if( token == "MCIP" )
                     type = CONNECTIONTYPE_MCIP;
+                else if( token == "PGM" )
+                    type = CONNECTIONTYPE_MCIP_PGM;
                 else if( token == "PIPE" )
                 {
                     type = CONNECTIONTYPE_NAMEDPIPE;
@@ -134,7 +142,7 @@ bool ConnectionDescription::fromString( std::string& data )
             return true;
         }
 
-        // else assume SEPARATOR-delimeted list
+        // else assume SEPARATOR-delimited list
         const string typeStr = data.substr( 0, nextPos );
         data                 = data.substr( nextPos + 1 );
 
@@ -150,6 +158,8 @@ bool ConnectionDescription::fromString( std::string& data )
             type = CONNECTIONTYPE_IB;
         else if( typeStr == "MCIP" )
             type = CONNECTIONTYPE_MCIP;
+        else if( typeStr == "PGM" )
+            type = CONNECTIONTYPE_MCIP_PGM;
         else
             goto error;
 
@@ -194,6 +204,8 @@ bool ConnectionDescription::fromString( std::string& data )
             case CONNECTIONTYPE_TCPIP:
             case CONNECTIONTYPE_SDP:
             case CONNECTIONTYPE_IB:
+            case CONNECTIONTYPE_MCIP:
+            case CONNECTIONTYPE_MCIP_PGM:
             {
                 nextPos = data.find( SEPARATOR );
                 if( nextPos == string::npos )
@@ -269,6 +281,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                              desc->type == CONNECTIONTYPE_NAMEDPIPE  ? "pipe" :
                              desc->type == CONNECTIONTYPE_IB  ? "ib"  :
                              desc->type == CONNECTIONTYPE_MCIP ? "mc/ip" :
+                             desc->type == CONNECTIONTYPE_MCIP_PGM ? "pgm" :
                              "ERROR" ) 
        << ' ' << desc->getHostname() << ':';
 
@@ -277,6 +290,8 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
         case CONNECTIONTYPE_TCPIP:
         case CONNECTIONTYPE_SDP:
         case CONNECTIONTYPE_IB:
+        case CONNECTIONTYPE_MCIP:
+        case CONNECTIONTYPE_MCIP_PGM:
             os << desc->TCPIP.port;
             break;
 
@@ -286,7 +301,6 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
 
         default:
         case CONNECTIONTYPE_PIPE:
-        case CONNECTIONTYPE_MCIP:
             break;
     }
 
