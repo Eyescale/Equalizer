@@ -1,12 +1,7 @@
-Rework Window::ObjectManager and Font handling:
-- Window::ObjectManager is just a typedef now
-- ObjectManager handles BitmapFonts as well
-- Some doxygen and code cleanups
-
-See eqPly files for application-relevant changes.
+eq::Window doxygen cleanups
 
 [ ] May break build
-[x] May break existing applications
+[ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup

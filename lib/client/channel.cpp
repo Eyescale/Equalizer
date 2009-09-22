@@ -515,7 +515,7 @@ void Channel::setErrorMessage( const std::string& message )
 void Channel::_setRenderContext( RenderContext& context )
 {
     _context = &context;
-    _window->addRenderContext( context );
+    _window->_addRenderContext( context );
 }
 
 const Viewport& Channel::getViewport() const

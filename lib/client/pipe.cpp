@@ -650,9 +650,6 @@ net::CommandResult Pipe::_cmdCreateWindow(  net::Command& command  )
     getConfig()->attachObject( window, packet->windowID, EQ_ID_INVALID );
     
     EQASSERT( !_windows.empty( ));
-    if( window != _windows[0] )
-        window->setSharedContextWindow( _windows[0] );
-
     return net::COMMAND_HANDLED;
 }
 

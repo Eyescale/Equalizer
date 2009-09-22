@@ -87,7 +87,7 @@ const char* _mediumFontKey = "eq_medium_font";
 
 Window::Window( Pipe* parent )
         : _pipe( parent )
-        , _sharedContextWindow( 0 ) // default set by pipe
+        , _sharedContextWindow( 0 ) // default set below
         , _osWindow( 0 )
         , _tasks( TASK_NONE )
         , _state( STATE_STOPPED )
@@ -96,6 +96,10 @@ Window::Window( Pipe* parent )
         , _avgFPS ( 0.0 )
         , _lastSwapTime( 0 )
 {
+    const WindowVector& windows = parent->getWindows();
+    if( !windows.empty( ))
+        setSharedContextWindow( windows.front( ));
+
     parent->_addWindow( this );
     EQINFO << " New eq::Window @" << (void*)this << endl;
 }
@@ -375,7 +379,7 @@ void Window::_setViewport( const Viewport& vp )
 //----------------------------------------------------------------------
 // render context
 //----------------------------------------------------------------------
-void Window::addRenderContext( const RenderContext& context )
+void Window::_addRenderContext( const RenderContext& context )
 {
     CHECK_THREAD( _pipeThread );
     _renderContexts[BACK].push_back( context );

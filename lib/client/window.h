@@ -52,7 +52,7 @@ namespace eq
      * The default window initialization methods initialize all windows of the
      * same pipe with a shared context, so that OpenGL objects can be reused
      * between them for optimal GPU memory usage. The window facilitates OpenGL
-     * object management by providing a Window::ObjectManager for allocating and
+     * object management by providing an ObjectManager for allocating and
      * sharing OpenGL objects.
      *
      * Please note that each window potentially has its own OpenGL command
@@ -130,20 +130,68 @@ namespace eq
         EQ_EXPORT VisitorResult accept( WindowVisitor& visitor );
 
         /** 
+         * Set the window's pixel viewport wrt its parent pipe.
+         *
+         * Updates the fractional viewport of the window and its channels
+         * accordingly.
+         * 
+         * @param pvp the viewport in pixels.
+         */
+        EQ_EXPORT void setPixelViewport( const PixelViewport& pvp );
+        
+        /** 
+         * @return the window's pixel viewport
+         */
+        EQ_EXPORT const PixelViewport& getPixelViewport() const { return _pvp; }
+
+        /** @return the window's fractional viewport. */
+        const Viewport& getViewport() const { return _vp; }
+
+        /** 
+         * Get the last rendering context at the x, y position.
+         *
+         * If no render context is found on the given position, false is
+         * returned and context is not modified.
+         *
+         * @return true if a render context was found, false otherwise.
+         */
+        EQ_EXPORT bool getRenderContext( const int32_t x, const int32_t y,
+                                         RenderContext& context ) const;
+
+        /** @return the window's average framerate */
+        float getFPS() const { return _avgFPS; }
+        //@}
+
+        /** @name OpenGL context handling and sharing */
+        //@{
+        /** 
          * Set the window with which this window shares the OpenGL context.
          * 
-         * By default it is set to the first window of the pipe.
+         * By default it is set to the first window of the pipe in the
+         * window's constructor. The shared context window is used during
+         * initialization to setup the OpenGL context and ObjectManager.
          */
         void setSharedContextWindow( Window* sharedContextWindow )
             { _sharedContextWindow = sharedContextWindow; }
 
         /** @return the window with which this window shares the GL context */
-        const Window* getSharedContextWindow() const 
+        const Window* getSharedContextWindow() const
             { return _sharedContextWindow; }
 
         /** @return the window with which this window shares the GL context */
-        Window* getSharedContextWindow() 
-            { return _sharedContextWindow; }
+        Window* getSharedContextWindow() { return _sharedContextWindow; }
+
+        /** @return the window's object manager instance. */
+        ObjectManager* getObjectManager() { return _objectManager; }
+
+        /** @return the window's object manager instance. */
+        const ObjectManager* getObjectManager() const { return _objectManager; }
+
+        /** @return the small bitmap font used for overlays. */
+        EQ_EXPORT const Font* getSmallFont() const;
+
+        /** @return the medium bitmap font used for overlays. */
+        EQ_EXPORT const Font* getMediumFont() const;
 
         /** 
          * Get the GLEW context for this window.
@@ -163,54 +211,6 @@ namespace eq
         /** @return information about the current drawable. */
         const DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
-
-        /** @return the window's object manager instance. */
-        ObjectManager* getObjectManager() { return _objectManager; }
-
-        /** @return the window's object manager instance. */
-        const ObjectManager* getObjectManager() const { return _objectManager; }
-
-        /** @return the small bitmap font used for overlays. */
-        EQ_EXPORT const Font* getSmallFont() const;
-
-        /** @return the medium bitmap font used for overlays. */
-        EQ_EXPORT const Font* getMediumFont() const;
-
-        /** 
-         * Set the window's pixel viewport wrt its parent pipe.
-         *
-         * Updates the fractional viewport accordingly.
-         * 
-         * @param pvp the viewport in pixels.
-         */
-        EQ_EXPORT void setPixelViewport( const PixelViewport& pvp );
-        
-        /** 
-         * @return the window's pixel viewport
-         */
-        EQ_EXPORT const PixelViewport& getPixelViewport() const { return _pvp; }
-
-        /** 
-         * @return the window's fractional viewport.
-         */
-        const Viewport& getViewport() const { return _vp; }
-
-        /** Add a channel's rendering context to the current frame's list */
-        void addRenderContext( const RenderContext& context );
-
-        /** 
-         * Get the last rendering context at the x, y position.
-         *
-         * If no render context is found on the given position, false is
-         * returned and context is not modified.
-         *
-         * @return true if a render context was found, false otherwise.
-         */
-        EQ_EXPORT bool getRenderContext( const int32_t x, const int32_t y,
-                                         RenderContext& context ) const;
-
-        /** @return the window's average framerate */
-        float getFPS() const { return _avgFPS; }
 
         /**
          * @return the OpenGL texture type corresponding to the window's color
@@ -267,10 +267,40 @@ namespace eq
 
         /** @name Actions */
         //@{
-        /** Flush outstanding rendering requests. */
-        virtual void flush() const { glFlush(); } 
-        /** Finish outstanding rendering requests. */
+        /** 
+         * Flush outstanding rendering requests.
+         *
+         * Called at the end of each frame from frameFinish() to ensure timely
+         * execution of pending rendering requests.
+         */
+        virtual void flush() const { glFlush(); }
+
+        /** 
+         * Finish outstanding rendering requests.
+         *
+         * Called before a software swap barrier to ensure that the window will
+         * swap directly after the barrier is left.
+         */
         virtual void finish() const { glFinish(); }
+
+        /** 
+         * Make the window's drawable and context current.
+         *
+         * GL drivers tend to be behave sub-optimally if two many makeCurrent
+         * calls happen in a multi-threaded program. When caching is enabled,
+         * this method will only call OSWindow::makeCurrent if it has not been
+         * done before for this window.
+         */
+        EQ_EXPORT virtual void makeCurrent( const bool cache = true ) const;
+
+        /** Bind the window's FBO, if it uses one. */
+        EQ_EXPORT virtual void bindFrameBuffer() const;
+
+        /** Swap the front and back buffer of the window. */
+        EQ_EXPORT virtual void swapBuffers();
+
+        /** Render the current framerate as on overlay on the window. */
+        EQ_EXPORT virtual void drawFPS() const;
         //@}
 
         /**  @name OSWindow interface */
@@ -280,7 +310,7 @@ namespace eq
          * 
          * The OSWindow implements the window-system-dependent part, e.g., the
          * drawable creation. This window forwards certain calls, e.g.,
-         * swapBuffers() to the OSWindow. The os-specific window has to be
+         * swapBuffers(), to the OSWindow. The os-specific window has to be
          * initialized.
          */
         EQ_EXPORT void setOSWindow( OSWindow* window );
@@ -328,12 +358,6 @@ namespace eq
          * @return true when the event was handled, false if not.
          */
         EQ_EXPORT virtual bool processEvent( const Event& event );
-        //@}
-
-        /** @name Actions */
-        //@{
-        /** Render the current framerate as on overlay on the window. */
-        EQ_EXPORT virtual void drawFPS() const;
         //@}
 
     protected:
@@ -449,22 +473,6 @@ namespace eq
         virtual void frameDrawFinish( const uint32_t frameID, 
                                       const uint32_t frameNumber )
             { releaseFrameLocal( frameNumber ); }
-
-        /** 
-         * Make the window's drawable and context current.
-         *
-         * GL drivers tend to be behave sub-optimally if two many makeCurrent
-         * calls happen in a multi-threaded program. When caching is enabled,
-         * this method will only call OSWindow::makeCurrent if it has not been
-         * done before for this window.
-         */
-        EQ_EXPORT virtual void makeCurrent( const bool cache = true ) const;
-
-        /** Bind the window's FBO, if it uses one. */
-        EQ_EXPORT virtual void bindFrameBuffer() const;
-
-        /** Swap the front and back buffer of the window. */
-        EQ_EXPORT virtual void swapBuffers();
         //@}
 
     private:
@@ -541,6 +549,9 @@ namespace eq
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );
         Channel* _findChannel( const uint32_t id );
+
+        /** Add a channel's rendering context to the current frame's list */
+        void _addRenderContext( const RenderContext& context );
 
         bool _setPixelViewport( const PixelViewport& pvp );
         void _setViewport( const Viewport& vp );
