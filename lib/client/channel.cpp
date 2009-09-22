@@ -804,7 +804,7 @@ void Channel::drawStatistics()
     glDisable( GL_LIGHTING );
     glEnable( GL_DEPTH_TEST );
 
-    const util::BitmapFont& font = getObjectManager()->getDefaultFont();
+    const Window::Font* font = _window->getSmallFont();
 
     int64_t       xStart = 0;
     PixelViewport pvp    = _window->getPixelViewport();
@@ -930,7 +930,7 @@ void Channel::drawStatistics()
                              << '%';
                         glRasterPos3f( x1+1, y2, 0.99f );
 
-                        font.draw( text.str( ));
+                        font->draw( text.str( ));
                         break;
                     }
 
@@ -998,7 +998,7 @@ void Channel::drawStatistics()
 
         glColor3f( 1.f, 1.f, 1.f );
         glRasterPos3f( 60.f, data.yPos-SPACE-12.0f, 0.99f );
-        font.draw( data.name );
+        font->draw( data.name );
     }
 
     // Global stats (scale, GPU idle)
@@ -1020,7 +1020,7 @@ void Channel::drawStatistics()
         text << " " << data.name << ":" << data.idle / data.nIdle << "%";
     }
 
-    font.draw( text.str( ));
+    font->draw( text.str( ));
     
     // Legend
     nextY -= SPACE;
@@ -1029,7 +1029,7 @@ void Channel::drawStatistics()
 
     glRasterPos3f( x+1.f, nextY-12.f, z );
     glColor3f( 1.f, 1.f, 1.f );
-    font.draw( "channel" );
+    font->draw( "channel" );
 
     for( size_t i = 1; i < Statistic::CONFIG_START_FRAME; ++i )
     {
@@ -1048,7 +1048,7 @@ void Channel::drawStatistics()
 
             glColor3f( 1.f, 1.f, 1.f );
             glRasterPos3f( x+1.f, nextY-12.f, z );
-            font.draw( "window" );
+            font->draw( "window" );
         }
         else if( type == Statistic::FRAME_TRANSMIT )
         {
@@ -1058,7 +1058,7 @@ void Channel::drawStatistics()
 
             glColor3f( 1.f, 1.f, 1.f );
             glRasterPos3f( x+1.f, nextY-12.f, z );
-            font.draw( "frame" );
+            font->draw( "frame" );
         }
 
         x += 60.f;
@@ -1078,7 +1078,7 @@ void Channel::drawStatistics()
         z += 0.01f;
         glColor3f( 0.f, 0.f, 0.f );
         glRasterPos3f( x+1.f, nextY-12.f, z );
-        font.draw( Statistic::getName( type ));
+        font->draw( Statistic::getName( type ));
     }
     // nextY -= (HEIGHT + SPACE);
     

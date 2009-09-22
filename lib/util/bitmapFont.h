@@ -26,6 +26,7 @@
 namespace eq
 {
 class Window;
+template< typename T > class ObjectManager;
 
 /** 
  * @namespace eq::util
@@ -36,28 +37,29 @@ class Window;
 namespace util
 {
     /** A wrapper around agl, wgl and glx bitmap fonts. */
-    class EQ_EXPORT BitmapFont
+    template< typename OMT > class BitmapFont
     {
     public:
-        BitmapFont( Window* window );
-        ~BitmapFont();
+        EQ_EXPORT BitmapFont( ObjectManager< OMT >& gl, const OMT& key );
+        EQ_EXPORT ~BitmapFont();
 
-        const static std::string normal; //!< a normal default font
-
-        bool init( const std::string& name = normal, const uint32_t size = 12 );
-        void exit();
-        void draw( const std::string& text ) const;
+        EQ_EXPORT bool init( Window* window, const std::string& name,
+                             const uint32_t size = 12 );
+        EQ_EXPORT void exit();
+        EQ_EXPORT void draw( const std::string& text ) const;
 
     private:
+        ObjectManager< OMT >& _gl;
+        const OMT             _key;
 
-        Window* const _window;
-        GLuint        _lists;
+        bool _initGLX( Window* window, const std::string& name,
+                       const uint32_t size );
+        bool _initWGL( Window* window, const std::string& name,
+                       const uint32_t size );
+        bool _initAGL( Window* window, const std::string& name,
+                       const uint32_t size );
 
-        bool _initGLX( const std::string& name, const uint32_t size );
-        bool _initWGL( const std::string& name, const uint32_t size );
-        bool _initAGL( const std::string& name, const uint32_t size );
-
-        void _setupLists( const GLsizei num );
+        GLuint _setupLists( const GLsizei num );
     };
 }
 }

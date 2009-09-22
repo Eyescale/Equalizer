@@ -383,7 +383,7 @@ void Channel::_drawHelp()
 
     if( frameData.showHelp( ))
     {
-        const eq::util::BitmapFont& font = getObjectManager()->getDefaultFont();
+        const eq::Window::Font* font = getWindow()->getSmallFont();
         std::string help = EqPly::getHelp();
         float y = 340.f;
 
@@ -392,18 +392,18 @@ void Channel::_drawHelp()
         {
             glRasterPos3f( 10.f, y, 0.99f );
             
-            font.draw( help.substr( 0, pos ));
+            font->draw( help.substr( 0, pos ));
             help = help.substr( pos + 1 );
             y -= 16.f;
         }
         // last line
         glRasterPos3f( 10.f, y, 0.99f );
-        font.draw( help );
+        font->draw( help );
     }
 
     if( !message.empty( ))
     {
-        const eq::util::BitmapFont& font = getObjectManager()->getMediumFont();
+        const eq::Window::Font* font = getWindow()->getMediumFont();
 
         const eq::Viewport& vp = getViewport();
         const eq::PixelViewport& pvp = getPixelViewport();
@@ -421,13 +421,13 @@ void Channel::_drawHelp()
         {
             glRasterPos3f( 10.f - xOffset, y, 0.99f );
             
-            font.draw( message.substr( 0, pos ));
+            font->draw( message.substr( 0, pos ));
             message = message.substr( pos + 1 );
             y -= 22.f;
         }
         // last line
         glRasterPos3f( 10.f - xOffset, y, 0.99f );
-        font.draw( message );
+        font->draw( message );
     }
 
     EQ_GL_CALL( resetAssemblyState( ));

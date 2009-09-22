@@ -25,7 +25,6 @@
 #include <eq/base/base.h>
 #include <eq/base/log.h>
 
-#include <errno.h>
 #include <sstream>
 #include <string.h>
 #include <sys/types.h>

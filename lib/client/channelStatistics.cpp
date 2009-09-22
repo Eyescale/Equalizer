@@ -52,7 +52,6 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
         channel->getWindow()->finish();
 
     event.data.statistic.startTime  = channel->getConfig()->getTime();
-    event.data.statistic.endTime    = 0;
 }
 
 

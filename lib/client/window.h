@@ -63,35 +63,11 @@ namespace eq
     class Window : public net::Object
     {
     public:
-        /** The per-window object manager */
-        class ObjectManager : public eq::ObjectManager< const void* >
-        {
-        public:
-            ObjectManager( Window* window ) 
-                    : eq::ObjectManager<const void *>(window->glewGetContext( ))
-                    , _smallFont( window )
-                    , _mediumFont( window )
-                {}
-            ObjectManager( Window* window, ObjectManager* shared ) 
-                    : eq::ObjectManager<const void *>(window->glewGetContext(),
-                                                      shared )
-                    , _smallFont( window )
-                    , _mediumFont( window )
-                {}
-            virtual ~ObjectManager(){}
-            
-            /** @return A generic bitmap font renderer */
-            const util::BitmapFont& getDefaultFont() const { return _smallFont;}
+        /** The per-window object manager. */
+        typedef eq::ObjectManager< const void* > ObjectManager;
 
-            /** @return A medium-sized bitmap font renderer */
-            const util::BitmapFont& getMediumFont() const { return _mediumFont;}
-
-        private:
-            util::BitmapFont _smallFont;
-            util::BitmapFont _mediumFont;
-
-            friend class Window;
-        };
+        /** Fonts used for overlays. */
+        typedef util::BitmapFont< const void* > Font;
 
         /** Construct a new window. */
         EQ_EXPORT Window( Pipe* parent );
@@ -193,6 +169,12 @@ namespace eq
 
         /** @return the window's object manager instance. */
         const ObjectManager* getObjectManager() const { return _objectManager; }
+
+        /** @return the small bitmap font used for overlays. */
+        EQ_EXPORT const Font* getSmallFont() const;
+
+        /** @return the medium bitmap font used for overlays. */
+        EQ_EXPORT const Font* getMediumFont() const;
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.

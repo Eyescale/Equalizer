@@ -20,14 +20,17 @@
 #include "frameBufferObject.h"
 #include "texture.h"
 
+#include <eq/util/bitmapFont.h>
+
 #include <string.h>
 
-using namespace eq;
 using namespace std;
 using namespace stde;
 
 // instantiate desired key types -- see end of file
 
+namespace eq
+{
 template< typename T >
 ObjectManager< T >::ObjectManager( GLEWContext* const glewContext )
         : _glewContext( glewContext )
@@ -86,9 +89,15 @@ ObjectManager<T>::SharedData::~SharedData()
 
     if( !eqTextures.empty( ))
         EQWARN << eqTextures.size() 
-               << " eq::Texture's still allocated in ObjectManager destructor" 
+               << " eq::Texture still allocated in ObjectManager destructor" 
                << endl;
     eqTextures.clear();
+
+    if( !eqFonts.empty( ))
+        EQWARN << eqFonts.size() 
+               << " eq::BitmapFont still allocated in ObjectManager destructor" 
+               << endl;
+    eqFonts.clear();
 
     if( !eqFrameBufferObjects.empty( ))
         EQWARN << eqFrameBufferObjects.size() 
@@ -156,7 +165,18 @@ void ObjectManager<T>::deleteAll()
     }
     _data->eqTextures.clear();
 
-    for( typename FrameBufferObjectHash::const_iterator i = 
+    for( typename FontHash::const_iterator i = _data->eqFonts.begin(); 
+         i != _data->eqFonts.end(); ++i )
+    {
+        util::BitmapFont< T >* font = i->second;
+        EQVERB << "Delete eq::Font " << i->first << " @" << (void*)font
+               << endl;
+        font->exit();
+        delete font;
+    }
+    _data->eqFonts.clear();
+
+    for( typename FBOHash::const_iterator i =
              _data->eqFrameBufferObjects.begin();
          i != _data->eqFrameBufferObjects.end(); ++i )
     {
@@ -528,6 +548,52 @@ void   ObjectManager<T>::deleteEqTexture( const T& key )
     delete texture;
 }
 
+// eq::util::BitmapFont object functions
+template< typename T >
+util::BitmapFont< T >* ObjectManager<T>::getEqBitmapFont( const T& key )
+{
+    if( _data->eqFonts.find( key ) == _data->eqFonts.end( ))
+        return 0;
+
+    return _data->eqFonts[ key ];
+}
+
+template< typename T >
+util::BitmapFont< T >* ObjectManager<T>::newEqBitmapFont( const T& key )
+{
+    if( _data->eqFonts.find( key ) != _data->eqFonts.end( ))
+    {
+        EQWARN << "Requested new eqFont for existing key" << endl;
+        return 0;
+    }
+
+    util::BitmapFont< T >* font = new util::BitmapFont<T>( *this, key );
+    _data->eqFonts[ key ] = font;
+    return font;
+}
+
+template< typename T >
+util::BitmapFont< T >* ObjectManager<T>::obtainEqBitmapFont( const T& key )
+{
+    util::BitmapFont< T >* font = getEqBitmapFont( key );
+    if( font )
+        return font;
+    return newEqBitmapFont( key );
+}
+
+template< typename T >
+void ObjectManager<T>::deleteEqBitmapFont( const T& key )
+{
+    if( _data->eqFonts.find( key ) == _data->eqFonts.end( ))
+        return;
+
+    util::BitmapFont< T >* font = _data->eqFonts[ key ];
+    _data->eqFonts.erase( key );
+
+    font->exit();
+    delete font;
+}
+
 // eq::FrameBufferObject object functions
 template< typename T >
 bool ObjectManager<T>::supportsEqFrameBufferObject() const
@@ -585,6 +651,6 @@ void ObjectManager<T>::deleteEqFrameBufferObject( const T& key )
 }
 
 // instantiate desired key types
-//   Instantiation has to be explicit to have all instantiations in the client
-//   library, due to the way the heap is handled with Win32 dll's.
 template class ObjectManager< const void* >;
+}
+

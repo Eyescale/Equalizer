@@ -22,11 +22,23 @@
 
 namespace eq
 {
-    /** Holds one statistics event. */
-    template< typename Owner >
-    class StatisticSampler
+    /** 
+     * Utility to sample an statistics event.
+     *
+     * Holds a ConfigEvent, which is initialized from the owner's data during
+     * initialization. Subclasses implement the constructor and destructor to
+     * sample the times and process the gathered statistics.
+     */
+    template< typename Owner > class StatisticSampler
     {
     public:
+        /** 
+         * Construct a new statistics sampler.
+         * 
+         * @param type The statistics type.
+         * @param owner The originator of the statistics event.
+         * @param frameNumber The current frame.
+         */
         StatisticSampler( const Statistic::Type type, Owner* owner, 
                           const uint32_t frameNumber )
                 : _owner( owner )
@@ -38,14 +50,17 @@ namespace eq
                 event.data.statistic.type        = type;
                 event.data.statistic.frameNumber = frameNumber;
                 event.data.statistic.resourceName[0] = '\0';
+                event.data.statistic.startTime   = 0;
+                event.data.statistic.endTime     = 0;
             }
 
+        /** Destruct and finish statistics sampleing. */
         virtual ~StatisticSampler() {}
 
-        ConfigEvent event;
+        ConfigEvent event; //!< The statistics event.
 
     protected:
-        Owner* const  _owner;
+        Owner* const _owner;
     };
 }
 

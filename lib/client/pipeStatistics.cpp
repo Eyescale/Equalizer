@@ -45,7 +45,6 @@ PipeStatistics::PipeStatistics( const Statistic::Type type, Pipe* pipe )
         snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
 
     event.data.statistic.startTime  = pipe->getConfig()->getTime();
-    event.data.statistic.endTime    = 0;
 }
 
 

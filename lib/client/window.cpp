@@ -79,6 +79,12 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_FILL2 )
 };
 
+namespace
+{
+const char* _smallFontKey  = "eq_small_font";
+const char* _mediumFontKey = "eq_medium_font";
+}
+
 Window::Window( Pipe* parent )
         : _pipe( parent )
         , _sharedContextWindow( 0 ) // default set by pipe
@@ -189,13 +195,13 @@ void Window::drawFPS() const
     ostringstream fpsText;
     fpsText << setprecision(3) << getFPS() << " FPS";
 
-    const util::BitmapFont& font = getObjectManager()->getDefaultFont();
-    const PixelViewport&    pvp  = getPixelViewport();
+    const Font* font = getSmallFont();
+    const PixelViewport& pvp = getPixelViewport();
 
     glRasterPos3f( pvp.w - 60.f, 10.f , 0.99f );
     glColor3f( 1.f, 1.f, 1.f );
 
-    font.draw( fpsText.str( ));
+    font->draw( fpsText.str( ));
 }
 
 void Window::_addChannel( Channel* channel )
@@ -571,25 +577,47 @@ void Window::_setupObjectManager()
     ObjectManager* sharedOM = sharedWindow ? sharedWindow->getObjectManager():0;
 
     if( sharedOM )
-        _objectManager = new ObjectManager( this, sharedOM );
+        _objectManager = new ObjectManager( glewGetContext(), sharedOM );
     else
-        _objectManager = new ObjectManager( this );
+        _objectManager = new ObjectManager( glewGetContext( ));
 
-    _objectManager->_smallFont.init();
-    _objectManager->_mediumFont.init( util::BitmapFont::normal, 20 );
+    Font* font = _objectManager->newEqBitmapFont( _smallFontKey );
+    font->init( this, "" );
+
+    font = _objectManager->newEqBitmapFont( _mediumFontKey );
+    font->init( this, "", 20 );
 }
 
 void Window::_releaseObjectManager()
 {
     if( _objectManager && _objectManager->getSharedUsage() == 1 )
     {
-        _objectManager->_mediumFont.exit();
-        _objectManager->_smallFont.exit();
+        _objectManager->deleteEqBitmapFont( _smallFontKey );
+        _objectManager->deleteEqBitmapFont( _mediumFontKey );
         _objectManager->deleteAll();
     }
 
     delete _objectManager;
     _objectManager = 0;
+}
+
+const Window::Font* Window::getSmallFont() const
+{
+    EQASSERT( _objectManager );
+    if( _objectManager )
+    {
+        EQASSERT( _objectManager->getEqBitmapFont( _smallFontKey ));
+        return _objectManager->getEqBitmapFont( _smallFontKey );
+    }
+    return 0;
+}
+
+const Window::Font* Window::getMediumFont() const
+{
+    EQASSERT( _objectManager );
+    if( _objectManager )
+        return _objectManager->getEqBitmapFont( _mediumFontKey );
+    return 0;
 }
 
 bool Window::configInitGL( const uint32_t initID )

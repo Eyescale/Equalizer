@@ -1,8 +1,13 @@
-Implement missing BitmapFont::exit
+Rework Window::ObjectManager and Font handling:
+- Window::ObjectManager is just a typedef now
+- ObjectManager handles BitmapFonts as well
+- Some doxygen and code cleanups
+
+See eqPly files for application-relevant changes.
 
 [ ] May break build
-[ ] May break existing applications
-[x] Bugfix
+[x] May break existing applications
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

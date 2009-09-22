@@ -44,56 +44,55 @@ namespace eq
 {
 namespace util
 {
-const string BitmapFont::normal( "EQ_UTIL_BITMAPFONT_NORMAL" );
 
-BitmapFont::BitmapFont( Window* window )
-        : _window( window )
-        , _lists ( Window::ObjectManager::INVALID )
+template< typename OMT >
+BitmapFont< OMT >::BitmapFont( ObjectManager< OMT >& gl, const OMT& key )
+        : _gl( gl )
+        , _key( key )
 {
-    EQASSERT( window );
 }
 
-
-BitmapFont::~BitmapFont()
+template< typename OMT >
+BitmapFont< OMT >::~BitmapFont()
 {
-    if( _lists != Window::ObjectManager::INVALID )
+    const GLuint lists = _gl.getList( _key );
+    if( lists != Window::ObjectManager::INVALID )
         EQWARN << "OpenGL BitmapFont was not freed" << std::endl;
 }
 
-bool BitmapFont::init( const std::string& name, const uint32_t size )
+template< typename OMT >
+bool BitmapFont< OMT >::init( Window* window, const std::string& name,
+                         const uint32_t size )
 {
-    const Pipe* pipe = _window->getPipe();
+    const Pipe* pipe = window->getPipe();
     switch( pipe->getWindowSystem( ))
     {
         case WINDOW_SYSTEM_GLX:
-            return _initGLX( name, size );
+            return _initGLX( window, name, size );
         case WINDOW_SYSTEM_WGL:
-            return _initWGL( name, size );
+            return _initWGL( window, name, size );
         case WINDOW_SYSTEM_AGL:
-            return _initAGL( name, size );
+            return _initAGL( window, name, size );
         default:
             return false;
     }
+
+    EQASSERTINFO( _gl.getList( _key ) != Window::ObjectManager::INVALID, 
+                  "Font initialization failed" );
 }
 
-void BitmapFont::exit()
+template< typename OMT >
+void BitmapFont< OMT >::exit()
 {
-    if( _lists == Window::ObjectManager::INVALID )
-        return;
-    
-    EQASSERT( _window );
-    Window::ObjectManager* gl = _window->getObjectManager();
-    EQASSERT( gl );
-
-    gl->deleteList( this );
-    _lists = Window::ObjectManager::INVALID;
+    _setupLists( 0 );
 }
 
-bool BitmapFont::_initGLX( const std::string& name,
-                               const uint32_t size )
+template< typename OMT >
+bool BitmapFont< OMT >::_initGLX( Window* window, const std::string& name,
+                             const uint32_t size )
 {
 #ifdef GLX
-    Pipe*    pipe    = _window->getPipe();
+    Pipe* pipe = window->getPipe();
     EQASSERT( pipe );
     EQASSERT( pipe->getOSPipe( ));
     EQASSERT( dynamic_cast< const GLXPipe* >( pipe->getOSPipe( )));
@@ -106,7 +105,7 @@ bool BitmapFont::_initGLX( const std::string& name,
     stringstream font;
     font << "-*-";
 
-    if( name == normal )
+    if( name.empty( ))
         font << "times";
     else
         font << name;
@@ -121,8 +120,8 @@ bool BitmapFont::_initGLX( const std::string& name,
 
     EQASSERT( fontStruct );
 
-    _setupLists( 127 );
-    glXUseXFont( fontStruct->fid, 0, 127, _lists );
+    const GLuint lists = _setupLists( 127 );
+    glXUseXFont( fontStruct->fid, 0, 127, lists );
 
     XFreeFont( display, fontStruct );
     return true;
@@ -131,11 +130,12 @@ bool BitmapFont::_initGLX( const std::string& name,
 #endif
 }
 
-bool BitmapFont::_initWGL( const std::string& name,
-                               const uint32_t size )
+template< typename OMT >
+bool BitmapFont< OMT >::_initWGL( Window* window, const std::string& name,
+                             const uint32_t size )
 {
 #ifdef WGL
-    const OSWindow*    osWindow  = _window->getOSWindow();
+    const OSWindow*    osWindow  = window->getOSWindow();
     const WGLWindowIF* wglWindow = dynamic_cast< const WGLWindowIF* >(osWindow);
 
     if( !wglWindow )
@@ -161,7 +161,7 @@ bool BitmapFont::_initWGL( const std::string& name,
     font.lfQuality = DEFAULT_QUALITY;
     font.lfPitchAndFamily = FF_DONTCARE | DEFAULT_QUALITY;
 
-    if( name == normal )
+    if( name.empty( ))
         strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
     else
         strncpy( font.lfFaceName, name.c_str(), LF_FACESIZE );
@@ -181,8 +181,8 @@ bool BitmapFont::_initWGL( const std::string& name,
 
     HFONT oldFont = static_cast< HFONT >( SelectObject( dc, newFont ));
 
-    _setupLists( 256 );
-    const bool ret = wglUseFontBitmaps( dc, 0 , 255, _lists );
+    const GLuint lists = _setupLists( 256 );
+    const bool ret = wglUseFontBitmaps( dc, 0 , 255, lists );
     
     SelectObject( dc, oldFont );
     //DeleteObject( newFont );
@@ -196,11 +196,12 @@ bool BitmapFont::_initWGL( const std::string& name,
 #endif
 }
 
-bool BitmapFont::_initAGL( const std::string& name,
-                               const uint32_t size )
+template< typename OMT >
+bool BitmapFont< OMT >::_initAGL( Window* window, const std::string& name,
+                             const uint32_t size )
 {
 #ifdef AGL
-    const OSWindow*    osWindow  = _window->getOSWindow();
+    const OSWindow*    osWindow  = window->getOSWindow();
     const AGLWindowIF* aglWindow = dynamic_cast< const AGLWindowIF* >(osWindow);
 
     if( !aglWindow )
@@ -213,7 +214,7 @@ bool BitmapFont::_initAGL( const std::string& name,
     EQASSERT( context );
 
     CFStringRef cfFontName;
-    if( name == normal )
+    if( name.empty( ))
         cfFontName = CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
                                                 kCFStringEncodingMacRoman );
     else
@@ -237,8 +238,8 @@ bool BitmapFont::_initAGL( const std::string& name,
     }
     EQASSERT( font );
 
-    _setupLists( 127 );
-    if( !aglUseFont( context, font, ::normal, size, 0, 256, (long)_lists ))
+    const GLuint lists = _setupLists( 127 );
+    if( !aglUseFont( context, font, normal, size, 0, 256, (long)lists ))
     {
         _setupLists( 0 );
         return false;
@@ -250,43 +251,40 @@ bool BitmapFont::_initAGL( const std::string& name,
 #endif
 }
 
-void BitmapFont::_setupLists( const GLsizei num )
+template< typename OMT >
+GLuint BitmapFont< OMT >::_setupLists( const GLsizei num )
 {
-    Window::ObjectManager* gl = _window->getObjectManager();
-    EQASSERT( gl );
-
-    if( _lists != Window::ObjectManager::INVALID )
-        gl->deleteList( this );
+    GLuint lists = _gl.getList( _key );
+    if( lists != Window::ObjectManager::INVALID )
+        _gl.deleteList( _key );
 
     if( num == 0 )
-        _lists = Window::ObjectManager::INVALID;
+        lists = Window::ObjectManager::INVALID;
     else
     {
-        _lists = gl->newList( this, num );
-        EQASSERT( _lists != Window::ObjectManager::INVALID );
+        lists = _gl.newList( _key, num );
+        EQASSERT( lists != Window::ObjectManager::INVALID );
     }
+    return lists;
 }
 
-void BitmapFont::draw( const std::string& text ) const
+template< typename OMT >
+void BitmapFont< OMT >::draw( const std::string& text ) const
 {
-    const Pipe* pipe = _window->getPipe();
-    switch( pipe->getWindowSystem( ))
-    {
-        case WINDOW_SYSTEM_GLX:
-        case WINDOW_SYSTEM_AGL:
-        case WINDOW_SYSTEM_WGL:
-            if( _lists != Window::ObjectManager::INVALID )
-            {
-                glListBase( _lists );
-                glCallLists( text.size(), GL_UNSIGNED_BYTE, text.c_str( ));
-                glListBase( 0 );
-            }
-            break;
+    const GLuint lists = _gl.getList( _key );
+    EQASSERTINFO( lists != Window::ObjectManager::INVALID, 
+                  "Font not initialized" );
 
-        default:
-            EQUNIMPLEMENTED;
+    if( lists != Window::ObjectManager::INVALID )
+    {
+        glListBase( lists );
+        glCallLists( text.size(), GL_UNSIGNED_BYTE, text.c_str( ));
+        glListBase( 0 );
     }
 }
+
+// instantiate desired key types
+template class BitmapFont< const void* >;
 
 }
 }

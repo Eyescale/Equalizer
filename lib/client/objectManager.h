@@ -19,6 +19,7 @@
 #define EQ_OBJECTMANAGER_H
 
 #include <eq/client/os.h>             // OpenGL types
+
 #include <eq/base/base.h>             // EQ_EXPORT definition
 #include <eq/base/debug.h>            // EQASSERT definition
 #include <eq/base/hash.h>             // member
@@ -27,6 +28,10 @@
 
 namespace eq
 {
+namespace util
+{
+    template< typename T > class BitmapFont;
+}
     class FrameBufferObject;
     class Texture;
 
@@ -109,6 +114,11 @@ namespace eq
         const GLEWContext* glewGetContext() const { return _glewContext; }
         GLEWContext* glewGetContext()             { return _glewContext; }
 
+        EQ_EXPORT util::BitmapFont< T >* getEqBitmapFont( const T& key );
+        EQ_EXPORT util::BitmapFont< T >* newEqBitmapFont( const T& key );
+        EQ_EXPORT util::BitmapFont< T >* obtainEqBitmapFont( const T& key );
+        EQ_EXPORT void                   deleteEqBitmapFont( const T& key );
+
     private:
         GLEWContext* const _glewContext;
 
@@ -120,7 +130,8 @@ namespace eq
 
         typedef stde::hash_map< T, Object >     ObjectHash;
         typedef stde::hash_map< T, Texture* >   TextureHash;
-        typedef stde::hash_map< T, FrameBufferObject* > FrameBufferObjectHash;
+        typedef stde::hash_map< T, FrameBufferObject* > FBOHash;
+        typedef stde::hash_map< T, util::BitmapFont< T >* > FontHash;
 
         struct SharedData : public base::Referenced
         {
@@ -132,7 +143,8 @@ namespace eq
             ObjectHash programs;
             ObjectHash shaders;
             TextureHash eqTextures;
-            FrameBufferObjectHash eqFrameBufferObjects;
+            FBOHash eqFrameBufferObjects;
+            FontHash eqFonts;
 
             union // placeholder for binary-compatible changes
             {
