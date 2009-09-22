@@ -56,25 +56,40 @@ BitmapFont::BitmapFont( Window* window )
 
 BitmapFont::~BitmapFont()
 {
+    if( _lists != Window::ObjectManager::INVALID )
+        EQWARN << "OpenGL BitmapFont was not freed" << std::endl;
 }
 
-bool BitmapFont::initFont( const std::string& name, const uint32_t size )
+bool BitmapFont::init( const std::string& name, const uint32_t size )
 {
     const Pipe* pipe = _window->getPipe();
     switch( pipe->getWindowSystem( ))
     {
         case WINDOW_SYSTEM_GLX:
-            return _initFontGLX( name, size );
+            return _initGLX( name, size );
         case WINDOW_SYSTEM_WGL:
-            return _initFontWGL( name, size );
+            return _initWGL( name, size );
         case WINDOW_SYSTEM_AGL:
-            return _initFontAGL( name, size );
+            return _initAGL( name, size );
         default:
             return false;
     }
 }
 
-bool BitmapFont::_initFontGLX( const std::string& name,
+void BitmapFont::exit()
+{
+    if( _lists == Window::ObjectManager::INVALID )
+        return;
+    
+    EQASSERT( _window );
+    Window::ObjectManager* gl = _window->getObjectManager();
+    EQASSERT( gl );
+
+    gl->deleteList( this );
+    _lists = Window::ObjectManager::INVALID;
+}
+
+bool BitmapFont::_initGLX( const std::string& name,
                                const uint32_t size )
 {
 #ifdef GLX
@@ -116,7 +131,7 @@ bool BitmapFont::_initFontGLX( const std::string& name,
 #endif
 }
 
-bool BitmapFont::_initFontWGL( const std::string& name,
+bool BitmapFont::_initWGL( const std::string& name,
                                const uint32_t size )
 {
 #ifdef WGL
@@ -181,7 +196,7 @@ bool BitmapFont::_initFontWGL( const std::string& name,
 #endif
 }
 
-bool BitmapFont::_initFontAGL( const std::string& name,
+bool BitmapFont::_initAGL( const std::string& name,
                                const uint32_t size )
 {
 #ifdef AGL

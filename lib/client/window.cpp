@@ -575,14 +575,18 @@ void Window::_setupObjectManager()
     else
         _objectManager = new ObjectManager( this );
 
-    _objectManager->_smallFont.initFont();
-    _objectManager->_mediumFont.initFont( util::BitmapFont::normal, 20 );
+    _objectManager->_smallFont.init();
+    _objectManager->_mediumFont.init( util::BitmapFont::normal, 20 );
 }
 
 void Window::_releaseObjectManager()
 {
     if( _objectManager && _objectManager->getSharedUsage() == 1 )
+    {
+        _objectManager->_mediumFont.exit();
+        _objectManager->_smallFont.exit();
         _objectManager->deleteAll();
+    }
 
     delete _objectManager;
     _objectManager = 0;

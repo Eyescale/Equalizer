@@ -44,8 +44,8 @@ namespace util
 
         const static std::string normal; //!< a normal default font
 
-        bool initFont( const std::string& name = normal,
-                       const uint32_t size = 12 );
+        bool init( const std::string& name = normal, const uint32_t size = 12 );
+        void exit();
         void draw( const std::string& text ) const;
 
     private:
@@ -53,9 +53,9 @@ namespace util
         Window* const _window;
         GLuint        _lists;
 
-        bool _initFontGLX( const std::string& name, const uint32_t size );
-        bool _initFontWGL( const std::string& name, const uint32_t size );
-        bool _initFontAGL( const std::string& name, const uint32_t size );
+        bool _initGLX( const std::string& name, const uint32_t size );
+        bool _initWGL( const std::string& name, const uint32_t size );
+        bool _initAGL( const std::string& name, const uint32_t size );
 
         void _setupLists( const GLsizei num );
     };
