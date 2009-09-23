@@ -397,7 +397,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
 
 int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
 {
-    if( _writeFD == INVALID_SOCKET )
+    if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
 
     DWORD  wrote;

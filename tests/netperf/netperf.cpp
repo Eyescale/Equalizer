@@ -26,6 +26,7 @@
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/connectionSet.h>
+#include <eq/net/connectionType.h>
 #include <eq/net/init.h>
 
 #ifndef MIN
@@ -179,7 +180,16 @@ int main( int argc, char **argv )
 
     if( isClient )
     {
-        TEST( connection->connect( ));
+        ConnectionPtr readConnection = connection;
+
+        if( description->type >= eq::net::CONNECTIONTYPE_MULTICAST )
+        {
+            TEST( connection->listen( ));
+        }
+        else
+        {
+            TEST( connection->connect( ));
+        }
 
         eq::base::Buffer< uint8_t > buffer;
         buffer.resize( packetSize );

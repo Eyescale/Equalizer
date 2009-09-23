@@ -92,25 +92,25 @@ void NamedPipeConnection::close()
     if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
         return;
 
-    EQASSERT( _readFD > 0 ); 
+    EQASSERT( _fd > 0 ); 
 
     if( isListening( ))
     {
         _exitAIOAccept();
 
-        if( !DisconnectNamedPipe( _readFD ))
+        if( !DisconnectNamedPipe( _fd ))
             EQERROR << "Could not disconnect named pipe: " << base::sysError
                     << std::endl;
     }
     else
     {
         _exitAIORead();
-        if( !CloseHandle( _readFD ))
+        if( !CloseHandle( _fd ))
             EQERROR << "Could not close named pipe: " << base::sysError
                     << std::endl;
     }
 
-    _readFD = INVALID_HANDLE_VALUE;
+    _fd = INVALID_HANDLE_VALUE;
     _state = STATE_CLOSED;
     _fireStateChanged();
 }
@@ -124,7 +124,7 @@ bool NamedPipeConnection::_createNamedPipe()
         return false; 
     }    
 
-    _readFD = CreateFile( 
+    _fd = CreateFile( 
              filename.c_str(),      // pipe name 
              GENERIC_READ |         // read and write access 
              GENERIC_WRITE, 
@@ -134,7 +134,7 @@ bool NamedPipeConnection::_createNamedPipe()
              FILE_FLAG_OVERLAPPED,  // default attributes 
              0);                    // no template file 
 
-    if( _readFD != INVALID_HANDLE_VALUE ) 
+    if( _fd != INVALID_HANDLE_VALUE ) 
        return true;
 
     if( GetLastError() != ERROR_PIPE_BUSY ) 
@@ -145,7 +145,7 @@ bool NamedPipeConnection::_createNamedPipe()
      
     }
 
-    return _readFD != INVALID_HANDLE_VALUE;
+    return _fd != INVALID_HANDLE_VALUE;
 }
 
 //----------------------------------------------------------------------
@@ -256,7 +256,7 @@ void NamedPipeConnection::acceptNB()
 
     // Start accept
     const std::string filename = _getFilename();
-    _readFD = CreateNamedPipe( 
+    _fd = CreateNamedPipe( 
                      filename.c_str(),            // pipe name 
                      PIPE_ACCESS_DUPLEX |         // read/write access 
                      FILE_FLAG_OVERLAPPED,        // overlapped mode 
@@ -269,7 +269,7 @@ void NamedPipeConnection::acceptNB()
                      0,                           // default time-out (unused)
                      0 /*&sa*/);                  // default security attributes
 
-    if ( _readFD == INVALID_HANDLE_VALUE ) 
+    if ( _fd == INVALID_HANDLE_VALUE ) 
     {
         EQERROR << "Could not create named pipe: " 
                 << base::sysError << " file : " << filename << std::endl;
@@ -277,7 +277,7 @@ void NamedPipeConnection::acceptNB()
         return;
     }
 
-    _connectToNewClient( _readFD );
+    _connectToNewClient( _fd );
 }
 
 ConnectionPtr NamedPipeConnection::acceptSync()
@@ -289,7 +289,7 @@ ConnectionPtr NamedPipeConnection::acceptSync()
     // complete accept
     DWORD got   = 0;
     DWORD flags = 0;
-    if( !GetOverlappedResult( _readFD, &_read, &got, TRUE ))
+    if( !GetOverlappedResult( _fd, &_read, &got, TRUE ))
     {
         if (GetLastError() == ERROR_PIPE_CONNECTED) 
         {        
@@ -307,12 +307,12 @@ ConnectionPtr NamedPipeConnection::acceptSync()
     ConnectionPtr conn( newConnection );
 
     newConnection->setDescription( _description );
-    newConnection->_readFD  = _readFD;
+    newConnection->_fd  = _fd;
     newConnection->_state = STATE_CONNECTED;
     newConnection->_initAIORead();
 
     newConnection->_state  = STATE_CONNECTED;
-    _readFD = INVALID_HANDLE_VALUE;
+    _fd = INVALID_HANDLE_VALUE;
 
     EQINFO << "accepted connection" << std::endl;
     return conn;
@@ -329,7 +329,7 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
     ResetEvent( _read.hEvent );
     DWORD use = EQ_MIN( bytes, EQ_READ_BUFFER_SIZE );
 
-    if( !ReadFile( _readFD, buffer, use, 0, &_read ) &&
+    if( !ReadFile( _fd, buffer, use, 0, &_read ) &&
          GetLastError() != ERROR_IO_PENDING )
     {
         EQWARN << "Could not start overlapped receive: " << base::sysError
@@ -342,14 +342,14 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes )
 {
     CHECK_THREAD( _recvThread );
 
-    if( _readFD == INVALID_HANDLE_VALUE )
+    if( _fd == INVALID_HANDLE_VALUE )
     {
         EQERROR << "Invalid read handle" << std::endl;
         return -1;
     }
 
     DWORD got   = 0;
-    if( !GetOverlappedResult( _readFD, &_read, &got, true ))
+    if( !GetOverlappedResult( _fd, &_read, &got, true ))
     {
         if( GetLastError() == ERROR_PIPE_CONNECTED ) 
         {        
@@ -368,14 +368,14 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes )
 
 int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
 {
-    if( _readFD == INVALID_HANDLE_VALUE )
+    if( _state != STATE_CONNECTED || _fd == INVALID_HANDLE_VALUE )
         return -1;
 
     DWORD wrote;
     DWORD use = EQ_MIN( bytes, EQ_WRITE_BUFFER_SIZE );
 
     ResetEvent( _write.hEvent );
-    if( !WriteFile( _readFD, buffer, use, &wrote, &_write ) &&
+    if( !WriteFile( _fd, buffer, use, &wrote, &_write ) &&
         GetLastError() != ERROR_IO_PENDING )
     {
         EQWARN << "Could not start write: " << base::sysError
@@ -384,7 +384,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
     }
 
     DWORD got   = 0;
-    if( !GetOverlappedResult( _readFD, &_write, &got, true ))
+    if( !GetOverlappedResult( _fd, &_write, &got, true ))
     {
         if( GetLastError() == ERROR_PIPE_CONNECTED ) 
         {        

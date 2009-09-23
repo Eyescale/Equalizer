@@ -313,16 +313,19 @@ int64_t IBConnection::readSync( void* buffer, const uint64_t bytes )
 
 int64_t IBConnection::write( const void* buffer, const uint64_t bytes)
 {
-   int64_t numWrites = _interface.postRdmaWrite( buffer, bytes );
+    if( _state != STATE_CONNECTED )
+        return -1;
 
-   if ( numWrites > 0 )
-       return numWrites;
+    int64_t numWrites = _interface.postRdmaWrite( buffer, bytes );
 
-   close();
-
-   return -1;
-
+    if ( numWrites > 0 )
+        return numWrites;
+    
+    close();
+    
+    return -1;
 }
+
 }
 }
 #endif //EQ_INFINIBAND

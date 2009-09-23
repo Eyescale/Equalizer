@@ -365,8 +365,11 @@ int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes )
 
 int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
 {
-    if( _writeFD == INVALID_SOCKET )
+    if( _writeFD == INVALID_SOCKET ||
+        ( _state != STATE_CONNECTED && _state != STATE_LISTENING ))
+    {
         return -1;
+    }
 
     DWORD  wrote;
     WSABUF wsaBuffer = 
@@ -412,9 +415,9 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
 {
 #ifdef WIN32
     const DWORD flags = WSA_FLAG_OVERLAPPED;
-    const SOCKET fd = WSASocket( AF_INET, SOCK_RDM, IPPROTO_RM, 0,0, flags );
+    const SOCKET fd = WSASocket( AF_INET, SOCK_RDM, IPPROTO_RM, 0, 0, flags );
 #else
-    Socket fd = ::socket( AF_INET, TBD, TBD );
+    const Socket fd = ::socket( AF_INET, TBD, TBD );
 #endif
 
     if( fd == INVALID_SOCKET )
@@ -429,14 +432,13 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
 
     if( !bound )
     {
-        EQWARN << "Could not bind socket " << _readFD << ": " 
-               << base::sysError << " to "
-               << inet_ntoa( address.sin_addr )
-               << ":" << ntohs( address.sin_port ) << " AF " 
-               << (int)address.sin_family << std::endl;
+        EQWARN << "Could not bind socket " << fd << ": " << base::sysError
+               << " to " << inet_ntoa( address.sin_addr ) << ":" 
+               << ntohs( address.sin_port ) << " AF " << (int)address.sin_family
+               << std::endl;
 
         close();
-        return false;
+        return INVALID_SOCKET;
     }
 
     return fd;
@@ -516,29 +518,14 @@ bool PGMConnection::listen()
     if( _readFD == INVALID_SOCKET )
         return false;
     
-    const bool bound = (::bind( _readFD, (sockaddr *)&address, size ) == 0);
-
-    if( !bound )
-    {
-        EQWARN << "Could not bind socket " << _readFD << ": " 
-               << base::sysError << " to "
-               << inet_ntoa( address.sin_addr )
-               << ":" << ntohs( address.sin_port ) << " AF " 
-               << (int)address.sin_family << std::endl;
-
-        close();
-        return false;
-    }
-
     const bool listening = (::listen( _readFD, 10 ) == 0);
         
     if( !listening )
     {
-        EQWARN << "Could not listen on PGM: "<< base::sysError << std::endl;
+        EQWARN << "Could not listen on socket: "<< base::sysError << std::endl;
         close();
         return false;
     }
-
 
     // get listening socket parameters
     socklen_t used = size;

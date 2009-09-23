@@ -80,7 +80,7 @@ namespace net
         bool _createNamedPipe();
 
 #ifdef WIN32
-        HANDLE _readFD;
+        HANDLE _fd;
 
         bool _connectToNewClient( HANDLE hPipe ) ;
 

@@ -134,7 +134,7 @@ int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes )
 
 int64_t PipeConnection::write( const void* buffer, const uint64_t bytes )
 {
-    if( !_writeHandle )
+    if( _state != STATE_CONNECTED || !_writeHandle )
         return -1;
 
     const DWORD write = EQ_MIN( static_cast<DWORD>( bytes ), 4096 );
