@@ -15,16 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <limits>
-
 #include "socketConnection.h"
 
 #include "connectionDescription.h"
-#include "node.h"
 
 #include <eq/base/base.h>
 #include <eq/base/log.h>
 
+#include <limits>
 #include <sstream>
 #include <string.h>
 #include <sys/types.h>
@@ -277,6 +275,7 @@ ConnectionPtr SocketConnection::acceptSync()
     _tuneSocket( _overlappedSocket );
 
     SocketConnection* newConnection = new SocketConnection(_description->type );
+    ConnectionPtr connection( newConnection ); // to keep ref-counting correct
 
     newConnection->_readFD  = _overlappedSocket;
     newConnection->_writeFD = _overlappedSocket;
@@ -290,7 +289,7 @@ ConnectionPtr SocketConnection::acceptSync()
 
     EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
            << ":" << ntohs( remote->sin_port ) << std::endl;
-    return newConnection;
+    return connection;
 }
 
 #else // !WIN32

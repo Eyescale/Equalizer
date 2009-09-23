@@ -22,6 +22,9 @@
 #ifdef _OPENMP
 #  define EQ_USE_OPENMP
 #endif
+#ifndef EQ_PGM
+#  define EQ_PGM
+#endif
 #ifndef EQ_CHECK_THREADSAFETY
 #  define EQ_CHECK_THREADSAFETY
 #endif

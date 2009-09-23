@@ -58,16 +58,13 @@ namespace net
         void _initAIORead();
         void _exitAIORead();
 
-        bool _createSocket();
+        SOCKET _initSocket( sockaddr_in address );
         void _tuneSocket( SOCKET socket );
         bool _parseAddress( sockaddr_in& address );
         uint16_t _getPort() const;
 
-        union
-        {
-            SOCKET _readFD;
-            SOCKET _writeFD;
-        };
+        SOCKET _readFD;
+        SOCKET _writeFD;
 
         // overlapped data structures
         OVERLAPPED _overlapped;
@@ -79,4 +76,5 @@ namespace net
 }
 }
 
-#endif //EQNET_PGMCONNECTION_H
+#endif // EQ_PGM
+#endif // EQNET_PGMCONNECTION_H

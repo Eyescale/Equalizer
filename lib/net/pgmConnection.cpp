@@ -15,12 +15,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <limits>
-
 #include "PGMConnection.h"
 
+#ifdef EQ_PGM
+
 #include "connectionDescription.h"
-#include "node.h"
 
 #include <eq/base/base.h>
 #include <eq/base/log.h>
@@ -32,6 +31,7 @@
 
 #ifdef WIN32
 #  include <Mswsock.h>
+#  include <wsrm.h>
 #else
 #  include <arpa/inet.h>
 #  include <netdb.h>
@@ -46,7 +46,7 @@ namespace net
 PGMConnection::PGMConnection()
 #ifdef WIN32
         : _overlappedAcceptData( 0 )
-        , _overlappedPGM( INVALID_SOCKET )
+        , _overlappedSocket( INVALID_SOCKET )
 #endif
 {
 #ifdef WIN32
@@ -69,52 +69,15 @@ PGMConnection::~PGMConnection()
 //----------------------------------------------------------------------
 bool PGMConnection::connect()
 {
-TBD
-    EQASSERT( _description->type == CONNECTIONTYPE_MCIP_PGM );
-    if( _state != STATE_CLOSED )
-        return false;
-
-    _state = STATE_CONNECTING;
-    _fireStateChanged();
-
-    sockaddr_in address;
-    if( !_parseAddress( address ))
-    {
-        EQWARN << "Can't parse connection parameters" << std::endl;
-        return false;
-    }
-
-    if( !_createSocket( ))
-        return false;
-
-    if( address.sin_addr.s_addr == 0 )
-    {
-        EQWARN << "Refuse to connect to 0.0.0.0" << std::endl;
-        close();
-        return false;
-    }
-
-#ifdef WIN32
-    const bool connected = WSAConnect( _readFD, (sockaddr*)&address, 
-                                       sizeof(address), 0, 0, 0, 0 ) == 0;
-#else
-    const bool connected = (::connect( _readFD, (sockaddr*)&address, 
-            sizeof(address)) == 0);
-#endif
-
-    if( !connected )
-    {
-        EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->TCPIP.port << "': " << base::sysError
-               << std::endl;
-        close();
-        return false;
-    }
-
-    _initAIORead();
-    _state = STATE_CONNECTED;
-    _fireStateChanged();
-    return true;
+    EQASSERTINFO( false,
+                  base::disableFlush <<
+                  "Multicast connections are not connected." << std::endl <<
+                  "Each member listens on the group address." << std::endl <<
+                  "The send operation triggers the accept on each member," <<
+                  std::endl << 
+                  "which creates a connected connection for the sender." <<
+                  std::endl << base::enableFlush );
+    return false;
 }
 
 void PGMConnection::close()
@@ -130,17 +93,34 @@ void PGMConnection::close()
     _state = STATE_CLOSED;
     EQASSERT( _readFD > 0 ); 
 
+    if( _readFD > 0 )
+    {
 #ifdef WIN32
-    const bool closed = ( ::closePGM(_readFD) == 0 );
+        const bool closed = ( ::closesocket( _readFD ) == 0 );
 #else
-    const bool closed = ( ::close(_readFD) == 0 );
+        const bool closed = ( ::close( _readFD ) == 0 );
+#endif
+        
+        if( !closed )
+            EQWARN << "Could not close read socket: " << base::sysError
+                   << std::endl;
+    }
+
+    if( _writeFD > 0 && isListening( ))
+    {
+#ifdef WIN32
+        const bool closed = ( ::closesocket( _writeFD ) == 0 );
+#else
+        const bool closed = ( ::close( _writeFD ) == 0 );
 #endif
 
-    if( !closed )
-        EQWARN << "Could not close PGM: " << base::sysError << std::endl;
+        if( !closed )
+            EQWARN << "Could not close write socket: " << base::sysError
+                   << std::endl;
+    }
 
-    _readFD  = INVALID_PGM;
-    _writeFD = INVALID_PGM;
+    _readFD  = INVALID_SOCKET;
+    _writeFD = INVALID_SOCKET;
     _fireStateChanged();
 }
 
@@ -197,32 +177,29 @@ void PGMConnection::acceptNB()
 {
     EQASSERT( _state == STATE_LISTENING );
 
-    // Create new accept PGM
-    const DWORD flags = _description->type == CONNECTIONTYPE_SDP ?
-                            WSA_FLAG_OVERLAPPED | WSA_FLAG_SDP :
-                            WSA_FLAG_OVERLAPPED;
+    // Create new accept socket
+    const DWORD flags = WSA_FLAG_OVERLAPPED;
 
     EQASSERT( _overlappedAcceptData );
-    EQASSERT( _overlappedPGM == INVALID_PGM );
-    _overlappedPGM = WSAPGM( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0,
-                                   flags );
+    EQASSERT( _overlappedSocket == INVALID_SOCKET );
+    _overlappedSocket = WSASocket( AF_INET, SOCK_RDM, IPPROTO_RM, 0,0, flags );
 
-    if( _overlappedPGM == INVALID_PGM )
+    if( _overlappedSocket == INVALID_SOCKET )
     {
-        EQERROR << "Could not create accept PGM: " << base::sysError
-                << ", closing listening PGM" << std::endl;
+        EQERROR << "Could not create accept socket: " << base::sysError
+                << ", closing connection" << std::endl;
         close();
         return;
     }
 
     const int on = 1;
-    setsockopt( _overlappedPGM, SOL_PGM, SO_UPDATE_ACCEPT_CONTEXT,
+    setsockopt( _overlappedSocket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT,
         reinterpret_cast<const char*>( &on ), sizeof( on ));
 
     // Start accept
     ResetEvent( _overlapped.hEvent );
     DWORD got;
-    if( !AcceptEx( _readFD, _overlappedPGM, _overlappedAcceptData, 0,
+    if( !AcceptEx( _readFD, _overlappedSocket, _overlappedAcceptData, 0,
                    sizeof( sockaddr_in ) + 16, sizeof( sockaddr_in ) + 16,
                    &got, &_overlapped ) &&
         GetLastError() != WSA_IO_PENDING )
@@ -240,8 +217,8 @@ ConnectionPtr PGMConnection::acceptSync()
         return 0;
 
     EQASSERT( _overlappedAcceptData );
-    EQASSERT( _overlappedPGM != INVALID_PGM );
-    if( _overlappedPGM == INVALID_PGM )
+    EQASSERT( _overlappedSocket != INVALID_SOCKET );
+    if( _overlappedSocket == INVALID_SOCKET )
         return 0;
 
     // complete accept
@@ -250,7 +227,7 @@ ConnectionPtr PGMConnection::acceptSync()
     if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
     {
         EQWARN << "Accept completion failed: " << base::sysError 
-               << ", closing PGM" << std::endl;
+               << ", closing connection" << std::endl;
         close();
         return 0;
     }
@@ -262,23 +239,24 @@ ConnectionPtr PGMConnection::acceptSync()
     GetAcceptExSockaddrs( _overlappedAcceptData, 0, sizeof( sockaddr_in ) + 16,
                           sizeof( sockaddr_in ) + 16, (sockaddr**)&local, 
                           &localLen, (sockaddr**)&remote, &remoteLen );
-    _tunePGM( _overlappedPGM );
+    _tuneSocket( _overlappedSocket );
 
-    PGMConnection* newConnection = new PGMConnection(_description->type );
+    PGMConnection* newConnection = new PGMConnection;
+    ConnectionPtr connection( newConnection ); // to keep ref-counting correct
 
-    newConnection->_readFD  = _overlappedPGM;
-    newConnection->_writeFD = _overlappedPGM;
+    newConnection->_readFD  = _overlappedSocket;
+    newConnection->_writeFD = _writeFD;
     newConnection->_initAIORead();
-    _overlappedPGM       = INVALID_PGM;
+    _overlappedSocket       = INVALID_SOCKET;
 
     newConnection->_state                   = STATE_CONNECTED;
     newConnection->_description->bandwidth  = _description->bandwidth;
-    newConnection->_description->TCPIP.port = ntohs( remote->sin_port );
+    newConnection->_description->MCIP.port  = ntohs( remote->sin_port );
     newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
 
     EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
            << ":" << ntohs( remote->sin_port ) << std::endl;
-    return newConnection;
+    return connection;
 }
 
 #else // !WIN32
@@ -287,13 +265,14 @@ void PGMConnection::acceptNB(){ /* NOP */ }
  
 ConnectionPtr PGMConnection::acceptSync()
 {
+    TBD
     if( _state != STATE_LISTENING )
         return 0;
 
     sockaddr_in newAddress;
     socklen_t   newAddressLen = sizeof( newAddress );
 
-    PGM    fd;
+    SOCKET    fd;
     unsigned  nTries = 1000;
     do
         fd = ::accept( _readFD, (sockaddr*)&newAddress, &newAddressLen );
@@ -354,7 +333,7 @@ int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes )
 {
     CHECK_THREAD( _recvThread );
 
-    if( _readFD == INVALID_PGM )
+    if( _readFD == INVALID_SOCKET )
     {
         EQERROR << "Invalid read handle" << std::endl;
         return -1;
@@ -386,7 +365,7 @@ int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes )
 
 int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
 {
-    if( _writeFD == INVALID_PGM )
+    if( _writeFD == INVALID_SOCKET )
         return -1;
 
     DWORD  wrote;
@@ -429,11 +408,11 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
 }
 #endif // WIN32
 
-Socket PGMConnection::_createSocket()
+SOCKET PGMConnection::_initSocket( sockaddr_in address )
 {
 #ifdef WIN32
     const DWORD flags = WSA_FLAG_OVERLAPPED;
-    const Socket fd = WSASocket( AF_INET, SOCK_RDM, IPPROTO_RM, 0,0, flags );
+    const SOCKET fd = WSASocket( AF_INET, SOCK_RDM, IPPROTO_RM, 0,0, flags );
 #else
     Socket fd = ::socket( AF_INET, TBD, TBD );
 #endif
@@ -445,6 +424,21 @@ Socket PGMConnection::_createSocket()
     }
 
     _tuneSocket( fd );
+
+    const bool bound = (::bind( fd, (sockaddr*)&address, sizeof(address)) == 0);
+
+    if( !bound )
+    {
+        EQWARN << "Could not bind socket " << _readFD << ": " 
+               << base::sysError << " to "
+               << inet_ntoa( address.sin_addr )
+               << ":" << ntohs( address.sin_port ) << " AF " 
+               << (int)address.sin_family << std::endl;
+
+        close();
+        return false;
+    }
+
     return fd;
 }
 
@@ -469,6 +463,10 @@ void PGMConnection::_tuneSocket( const SOCKET fd )
 
 bool PGMConnection::_parseAddress( sockaddr_in& address )
 {
+    if( _description->MCIP.port == 0 )
+        _description->MCIP.port = EQ_DEFAULT_PORT;
+    EQASSERT( _description->MCIP.port != 0 );
+
     address.sin_family      = AF_INET;
     address.sin_addr.s_addr = htonl( INADDR_ANY );
     address.sin_port        = htons( _description->MCIP.port );
@@ -513,8 +511,8 @@ bool PGMConnection::listen()
         return false;
     }
 
-    // create a 'listening' read socket
-    _readFD = _createSocket();
+    //-- create a 'listening' read socket
+    _readFD = _initSocket( address );
     if( _readFD == INVALID_SOCKET )
         return false;
     
@@ -522,7 +520,7 @@ bool PGMConnection::listen()
 
     if( !bound )
     {
-        EQWARN << "Could not bind PGM " << _readFD << ": " 
+        EQWARN << "Could not bind socket " << _readFD << ": " 
                << base::sysError << " to "
                << inet_ntoa( address.sin_addr )
                << ":" << ntohs( address.sin_port ) << " AF " 
@@ -531,8 +529,6 @@ bool PGMConnection::listen()
         close();
         return false;
     }
-    else if( address.sin_port == 0 )
-        EQINFO << "Bound to port " << _getPort() << std::endl;
 
     const bool listening = (::listen( _readFD, 10 ) == 0);
         
@@ -543,12 +539,12 @@ bool PGMConnection::listen()
         return false;
     }
 
-    // get PGM parameters
-    sockaddr_in address; // must use new sockaddr_in variable !?!
-    socklen_t   used = sizeof(address);
+
+    // get listening socket parameters
+    socklen_t used = size;
     getsockname( _readFD, (struct sockaddr *)&address, &used ); 
 
-    _description->TCPIP.port = ntohs( address.sin_port );
+    _description->MCIP.port = ntohs( address.sin_port );
 
     const std::string& hostname = _description->getHostname();
     if( hostname.empty( ))
@@ -564,6 +560,40 @@ bool PGMConnection::listen()
     }
     
     _initAIOAccept();
+
+    
+    //-- create a connected 'write' socket
+    address.sin_family      = AF_INET;
+    address.sin_addr.s_addr = htonl( INADDR_ANY );
+    address.sin_port        = htons( 0 );
+    memset( &(address.sin_zero), 0, 8 ); // zero the rest
+
+    _writeFD = _initSocket( address );
+    if( _writeFD == INVALID_SOCKET )
+    {
+        close();
+        return false;
+    }
+
+    _parseAddress( address );
+    
+#ifdef WIN32
+    const bool connected = WSAConnect( _writeFD, (sockaddr*)&address, 
+                                       size, 0, 0, 0, 0 ) == 0;
+#else
+    const bool connected = (::connect( _readFD, (sockaddr*)&address, 
+                                       size ) == 0);
+#endif
+
+    if( !connected )
+    {
+        EQWARN << "Could not connect to '" << _description->getHostname() << ":"
+               << _description->MCIP.port << "': " << base::sysError
+               << std::endl;
+        close();
+        return false;
+    }
+
     _state = STATE_LISTENING;
     _fireStateChanged();
 
@@ -575,6 +605,7 @@ bool PGMConnection::listen()
     return true;
 }
 
+}
+}
 
-}
-}
+#endif // EQ_PGM
