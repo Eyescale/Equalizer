@@ -1,4 +1,4 @@
-fix Posix build
+fix PPC/AGL build
 
 [ ] May break build
 [ ] May break existing applications

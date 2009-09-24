@@ -37,13 +37,13 @@ ifeq ($(findstring i386, $(SUBARCH)), i386)
 ifdef AGL_32BIT_ONLY
   ARCHFLAGS ?= -arch i386 -arch ppc
 else
-  ARCHFLAGS     ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
+  ARCHFLAGS ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
 endif # 64BIT
 else
 ifdef AGL_32BIT_ONLY
-  ARCHFLAGS     ?= -arch ppc -arch ppc64
-else
   ARCHFLAGS ?= -arch ppc
+else
+  ARCHFLAGS ?= -arch ppc -arch ppc64
 endif
 endif
 
