@@ -98,25 +98,21 @@ std::ostream& operator << ( std::ostream& os,
                 desc->type == net::CONNECTIONTYPE_PIPE  ? "ANON_PIPE" :
                 desc->type == net::CONNECTIONTYPE_NAMEDPIPE  ? "PIPE" :
                 desc->type == net::CONNECTIONTYPE_IB  ? "IB" :
+                desc->type == net::CONNECTIONTYPE_MCIP  ? "MCIP" :
+                desc->type == net::CONNECTIONTYPE_MCIP_PGM  ? "MCIP" :
                 "ERROR" ) << endl;
     
-    if (( desc->type == net::CONNECTIONTYPE_TCPIP ) || 
-        ( desc->type == net::CONNECTIONTYPE_SDP ) || 
-        ( desc->type == net::CONNECTIONTYPE_IB ) ||
-        ( desc->type == net::CONNECTIONTYPE_MCIP ) ||
-        ( desc->type == net::CONNECTIONTYPE_MCIP_PGM ))
-    {
-        if( desc->port != global->getConnectionIAttribute( 
-            ConnectionDescription::IATTR_PORT ))
-        os << "port    " << desc->port << endl;
-    }
+    if( desc->getHostname() != global->getConnectionSAttribute( 
+            ConnectionDescription::SATTR_HOSTNAME ))
+        os << "hostname      \"" << desc->getHostname() << "\"" << endl;
 
-    if ( desc->type == net::CONNECTIONTYPE_NAMEDPIPE )
-    {
-        if( desc->getFilename() != global->getConnectionSAttribute( 
+    if( desc->port != global->getConnectionIAttribute( 
+            ConnectionDescription::IATTR_PORT ))
+        os << "port          " << desc->port << endl;
+
+    if( desc->getFilename() != global->getConnectionSAttribute( 
             ConnectionDescription::SATTR_FILENAME ))
-            os << "filename \"" << desc->getFilename() << "\"" << endl;
-    }
+        os << "filename \"" << desc->getFilename() << "\"" << endl;
 
     if( desc->bandwidth != global->getConnectionIAttribute( 
             ConnectionDescription::IATTR_BANDWIDTH ))
@@ -125,14 +121,6 @@ std::ostream& operator << ( std::ostream& os,
     if( desc->launchTimeout != global->getConnectionIAttribute( 
             ConnectionDescription::IATTR_LAUNCH_TIMEOUT ))
         os << "timeout       " << desc->launchTimeout << endl;
-
-    if (( desc->type == net::CONNECTIONTYPE_TCPIP ) || 
-        ( desc->type == net::CONNECTIONTYPE_SDP ))
-    {
-        if( desc->getHostname() != global->getConnectionSAttribute( 
-                ConnectionDescription::SATTR_HOSTNAME ))
-            os << "hostname      \"" << desc->getHostname() << "\"" << endl;
-    }
 
     if( desc->getLaunchCommand() != global->getConnectionSAttribute( 
             ConnectionDescription::SATTR_LAUNCH_COMMAND ))

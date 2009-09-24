@@ -18,7 +18,8 @@
 #ifndef EQNET_MCIPCONNECTION_H
 #define EQNET_MCIPCONNECTION_H
 
-#include <eq/net/connection.h> // base class
+#include <eq/net/connection.h>         // base class
+#include <eq/net/connectionListener.h> // base class
 
 namespace eq
 {
@@ -28,7 +29,7 @@ namespace net
      * A facade for hiding different IP-based reliable multicast
      * implementations.
      */
-    class MCIPConnection : public Connection
+    class MCIPConnection : public Connection, public ConnectionListener
     {
     public:
         MCIPConnection();
@@ -49,6 +50,8 @@ namespace net
         virtual ~MCIPConnection();
 
         virtual int64_t write( const void* buffer, const uint64_t bytes );
+
+        virtual void notifyStateChanged( Connection* connection );
 
     private:
         ConnectionPtr _impl;

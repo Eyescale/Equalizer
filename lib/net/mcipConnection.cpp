@@ -43,12 +43,14 @@ bool MCIPConnection::connect()
     _description->type = CONNECTIONTYPE_MCIP_PGM;
 
     _impl = new PGMConnection();
+    _impl->addListener( this );
     _impl->setDescription( _description );
     if( _impl->connect( ))
         return true;
     // else
 
     _description->type = CONNECTIONTYPE_MCIP;    
+    _impl->removeListener( this );
     _impl = 0;
 #endif
     // TODO: implement and try UDP-based reliable multicast
@@ -59,12 +61,17 @@ bool MCIPConnection::connect()
 bool MCIPConnection::listen()
 {
 #ifdef EQ_PGM
+    _description->type = CONNECTIONTYPE_MCIP_PGM;
+
     _impl = new PGMConnection();
+    _impl->addListener( this );
     _impl->setDescription( _description );
     if( _impl->listen( ))
         return true;
     // else
 
+    _description->type = CONNECTIONTYPE_MCIP;    
+    _impl->removeListener( this );
     _impl = 0;
 #endif
     // TODO: implement and try UDP-based reliable multicast
@@ -77,6 +84,7 @@ void MCIPConnection::close()
         return;
 
     _impl->close();
+    _impl->removeListener( this );
     _impl = 0;
 }
 
@@ -128,6 +136,16 @@ int64_t MCIPConnection::write( const void* buffer, const uint64_t bytes )
         return _impl->write( buffer, bytes );
     // else
     return -1;
+}
+
+void MCIPConnection::notifyStateChanged( Connection* connection )
+{
+    EQASSERT( _impl == connection );
+    if( _state == connection->getState( ))
+        return;
+
+    _state = connection->getState();
+    _fireStateChanged();
 }
 
 }

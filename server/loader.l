@@ -81,7 +81,6 @@ EQ_CONNECTION_IATTR_TCPIP_PORT   { return EQTOKEN_CONNECTION_IATTR_PORT; }
 EQ_CONNECTION_IATTR_PORT         { return EQTOKEN_CONNECTION_IATTR_PORT; }
 EQ_CONNECTION_SATTR_PIPE_FILENAME { return EQTOKEN_CONNECTION_SATTR_FILENAME; }
 EQ_CONNECTION_SATTR_FILENAME     { return EQTOKEN_CONNECTION_SATTR_FILENAME; }
-EQ_CONNECTION_IATTR_PORT         { return EQTOKEN_CONNECTION_IATTR_PORT; }
 EQ_CONNECTION_IATTR_BANDWIDTH    { return EQTOKEN_CONNECTION_IATTR_BANDWIDTH; }
 EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT; }
 EQ_CONFIG_FATTR_EYE_BASE         { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
@@ -172,6 +171,7 @@ TCPIP                           { return EQTOKEN_TCPIP; }
 SDP                             { return EQTOKEN_SDP; }
 IB                              { return EQTOKEN_IB; }
 PIPE                            { return EQTOKEN_PIPE; }
+MCIP                            { return EQTOKEN_MCIP; }
 texture                         { return EQTOKEN_TEXTURE; } 
 memory                          { return EQTOKEN_MEMORY; }
 fixed                           { return EQTOKEN_FIXED; }
