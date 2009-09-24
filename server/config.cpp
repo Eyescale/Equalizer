@@ -966,8 +966,13 @@ void Config::_stopNodes()
 
         node->setNode( 0 );
 
-        while( netNode->getState() == net::Node::STATE_CONNECTED && --nSleeps )
-            base::sleep( 100 ); // ms
+        if( nSleeps )
+        {
+            while( netNode->isConnected() && --nSleeps )
+            {
+                base::sleep( 100 ); // ms
+            }
+        }
 
         if( netNode->getState() == net::Node::STATE_CONNECTED )
         {
