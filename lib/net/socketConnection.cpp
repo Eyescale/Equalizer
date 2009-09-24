@@ -37,6 +37,7 @@
 #  include <arpa/inet.h>
 #  include <netdb.h>
 #  include <netinet/tcp.h>
+#  include <sys/errno.h>
 #  include <sys/socket.h>
 
 #  ifndef AF_INET_SDP
