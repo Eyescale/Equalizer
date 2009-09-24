@@ -33,7 +33,7 @@ int main( int argc, char **argv )
     ConnectionDescriptionPtr description = new ConnectionDescription;
     description->type = CONNECTIONTYPE_TCPIP;
     description->setHostname( "localhost" );
-    description->TCPIP.port = 4242;
+    description->port = 4242;
 
     ConnectionPtr            connection = Connection::create( description );
     TEST( connection->connect( ));
