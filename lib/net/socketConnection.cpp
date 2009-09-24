@@ -81,7 +81,7 @@ bool SocketConnection::connect()
     if( _state != STATE_CLOSED )
         return false;
 
-    if( _description->TCPIP.port == 0 )
+    if( _description->port == 0 )
         return false;
 
     _state = STATE_CONNECTING;
@@ -115,8 +115,7 @@ bool SocketConnection::connect()
     if( !connected )
     {
         EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->TCPIP.port << "': " << base::sysError
-               << std::endl;
+               << _description->port << "': " << base::sysError << std::endl;
         close();
         return false;
     }
@@ -282,9 +281,9 @@ ConnectionPtr SocketConnection::acceptSync()
     newConnection->_initAIORead();
     _overlappedSocket       = INVALID_SOCKET;
 
-    newConnection->_state                   = STATE_CONNECTED;
-    newConnection->_description->bandwidth  = _description->bandwidth;
-    newConnection->_description->TCPIP.port = ntohs( remote->sin_port );
+    newConnection->_state                  = STATE_CONNECTED;
+    newConnection->_description->bandwidth = _description->bandwidth;
+    newConnection->_description->port      = ntohs( remote->sin_port );
     newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
 
     EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
@@ -325,7 +324,7 @@ ConnectionPtr SocketConnection::acceptSync()
     newConnection->_state       = STATE_CONNECTED;
     newConnection->_description->bandwidth = _description->bandwidth;
     newConnection->_description->setHostname( inet_ntoa( newAddress.sin_addr ));
-    newConnection->_description->TCPIP.port   = ntohs( newAddress.sin_port );
+    newConnection->_description->port      = ntohs( newAddress.sin_port );
 
     EQVERB << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
            << ":" << ntohs( newAddress.sin_port ) << std::endl;
@@ -493,7 +492,7 @@ bool SocketConnection::_parseAddress( sockaddr_in& address )
 {
     address.sin_family      = AF_INET;
     address.sin_addr.s_addr = htonl( INADDR_ANY );
-    address.sin_port        = htons( _description->TCPIP.port );
+    address.sin_port        = htons( _description->port );
     memset( &(address.sin_zero), 0, 8 ); // zero the rest
 
     const std::string& hostname = _description->getHostname();
@@ -567,7 +566,7 @@ bool SocketConnection::listen()
     socklen_t used = size;
     getsockname( _readFD, (struct sockaddr *)&address, &used ); 
 
-    _description->TCPIP.port = ntohs( address.sin_port );
+    _description->port = ntohs( address.sin_port );
 
     const std::string& hostname = _description->getHostname();
     if( hostname.empty( ))
@@ -587,7 +586,7 @@ bool SocketConnection::listen()
     _fireStateChanged();
 
     EQINFO << "Listening on " << _description->getHostname() << "["
-           << inet_ntoa( address.sin_addr ) << "]:" << _description->TCPIP.port
+           << inet_ntoa( address.sin_addr ) << "]:" << _description->port
            << " (" << _description->toString() << ")" << std::endl;
     
     return true;

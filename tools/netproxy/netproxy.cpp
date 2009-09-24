@@ -44,14 +44,14 @@ int main( int argc, char **argv )
     eq::net::init( argc, argv );
 
     ConnectionDescriptionPtr listen = new ConnectionDescription;
-    listen->type       = CONNECTIONTYPE_TCPIP;
-    listen->TCPIP.port = Global::getDefaultPort();
+    listen->type = CONNECTIONTYPE_TCPIP;
+    listen->port = Global::getDefaultPort();
     std::string listenArg( argv[1] );
     listen->fromString( listenArg );
 
     ConnectionDescriptionPtr forward = new ConnectionDescription;
-    forward->type       = CONNECTIONTYPE_TCPIP;
-    forward->TCPIP.port = Global::getDefaultPort() + 1;
+    forward->type = CONNECTIONTYPE_TCPIP;
+    forward->port = Global::getDefaultPort() + 1;
     std::string forwardArg( argv[2] );
     forward->fromString( forwardArg );
 

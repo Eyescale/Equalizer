@@ -77,8 +77,10 @@ EQ_CONNECTION_SATTR_HOSTNAME     { return EQTOKEN_CONNECTION_SATTR_HOSTNAME; }
 EQ_CONNECTION_SATTR_LAUNCH_COMMAND { return EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND; }
 EQ_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE; }
 EQ_CONNECTION_IATTR_TYPE         { return EQTOKEN_CONNECTION_IATTR_TYPE; }
-EQ_CONNECTION_IATTR_TCPIP_PORT   { return EQTOKEN_CONNECTION_IATTR_TCPIP_PORT; }
-EQ_CONNECTION_SATTR_PIPE_FILENAME { return EQTOKEN_CONNECTION_SATTR_PIPE_FILENAME; }
+EQ_CONNECTION_IATTR_TCPIP_PORT   { return EQTOKEN_CONNECTION_IATTR_PORT; }
+EQ_CONNECTION_IATTR_PORT         { return EQTOKEN_CONNECTION_IATTR_PORT; }
+EQ_CONNECTION_SATTR_PIPE_FILENAME { return EQTOKEN_CONNECTION_SATTR_FILENAME; }
+EQ_CONNECTION_SATTR_FILENAME     { return EQTOKEN_CONNECTION_SATTR_FILENAME; }
 EQ_CONNECTION_IATTR_PORT         { return EQTOKEN_CONNECTION_IATTR_PORT; }
 EQ_CONNECTION_IATTR_BANDWIDTH    { return EQTOKEN_CONNECTION_IATTR_BANDWIDTH; }
 EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT; }
@@ -178,8 +180,9 @@ hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
 command_quote                   { return EQTOKEN_COMMAND_QUOTE; }
 timeout                         { return EQTOKEN_TIMEOUT; }
-TCPIP_port                      { return EQTOKEN_TCPIP_PORT; }
-PIPE_filename                   { return EQTOKEN_PIPE_FILENAME; }
+TCPIP_port                      { return EQTOKEN_PORT; }
+port                            { return EQTOKEN_PORT; }
+PIPE_filename                   { return EQTOKEN_FILENAME; }
 filename                        { return EQTOKEN_FILENAME; }
 task                            { return EQTOKEN_TASK; }
 eye                             { return EQTOKEN_EYE; }
@@ -203,7 +206,6 @@ range                           { return EQTOKEN_RANGE; }
 period                          { return EQTOKEN_PERIOD; }
 phase                           { return EQTOKEN_PHASE; }
 pixel                           { return EQTOKEN_PIXEL; }
-port                            { return EQTOKEN_PORT; }
 bandwidth                       { return EQTOKEN_BANDWIDTH; }
 device                          { return EQTOKEN_DEVICE; }
 wall                            { return EQTOKEN_WALL; }

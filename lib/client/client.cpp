@@ -100,7 +100,7 @@ bool Client::connectServer( ServerPtr server )
     {
         net::ConnectionDescriptionPtr connDesc = 
             new net::ConnectionDescription;
-        connDesc->TCPIP.port = EQ_DEFAULT_PORT;
+        connDesc->port = EQ_DEFAULT_PORT;
     
         const std::string globalServer = Global::getServer();
         const char* envServer = getenv( "EQ_SERVER" );

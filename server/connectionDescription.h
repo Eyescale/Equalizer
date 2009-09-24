@@ -37,7 +37,7 @@ namespace server
         enum SAttribute
         {
             SATTR_HOSTNAME,
-            SATTR_PIPE_FILENAME,
+            SATTR_FILENAME,
             SATTR_LAUNCH_COMMAND,
             SATTR_FILL1,
             SATTR_FILL2,
@@ -55,7 +55,7 @@ namespace server
         enum IAttribute
         {
             IATTR_TYPE,
-            IATTR_TCPIP_PORT,
+            IATTR_PORT,
             IATTR_LAUNCH_TIMEOUT,
             IATTR_BANDWIDTH,
             IATTR_FILL1,

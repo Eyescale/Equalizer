@@ -79,7 +79,7 @@ void ConnectionDescription::serialize( std::ostream& os ) const
         case CONNECTIONTYPE_IB:        
         case CONNECTIONTYPE_MCIP:
         case CONNECTIONTYPE_MCIP_PGM:
-            os << SEPARATOR << TCPIP.port;
+            os << SEPARATOR << port;
             break;
         case CONNECTIONTYPE_NAMEDPIPE:
             os << SEPARATOR << _filename;
@@ -117,7 +117,7 @@ bool ConnectionDescription::fromString( std::string& data )
                 data               = data.substr( nextPos + 1 );
                 
                 if( !token.empty() && isdigit( token[0] )) // port
-                    TCPIP.port = atoi( token.c_str( ));
+                    port = atoi( token.c_str( ));
                 else if( token == "TCPIP" )
                     type = CONNECTIONTYPE_TCPIP;
                 else if( token == "SDP" )
@@ -211,9 +211,9 @@ bool ConnectionDescription::fromString( std::string& data )
                 if( nextPos == string::npos )
                     goto error;
             
-                const string port = data.substr( 0, nextPos );
-                data              = data.substr( nextPos + 1 );
-                TCPIP.port        = atoi( port.c_str( ));
+                const string portStr = data.substr( 0, nextPos );
+                data                 = data.substr( nextPos + 1 );
+                port                 = atoi( portStr.c_str( ));
                 break;
             }
             case CONNECTIONTYPE_NAMEDPIPE:
@@ -292,7 +292,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
         case CONNECTIONTYPE_IB:
         case CONNECTIONTYPE_MCIP:
         case CONNECTIONTYPE_MCIP_PGM:
-            os << desc->TCPIP.port;
+            os << desc->port;
             break;
 
         case CONNECTIONTYPE_NAMEDPIPE:

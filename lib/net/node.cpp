@@ -192,7 +192,7 @@ bool Node::initLocal( const int argc, char** argv )
             {
                 string                        data = argv[++i];
                 ConnectionDescriptionPtr desc = new ConnectionDescription;
-                desc->TCPIP.port = Global::getDefaultPort();
+                desc->port = Global::getDefaultPort();
 
                 if( desc->fromString( data ))
                 {
@@ -223,8 +223,8 @@ bool Node::initLocal( const int argc, char** argv )
     if( _connectionDescriptions.empty( )) // add default listener
     {
         ConnectionDescriptionPtr connDesc = new ConnectionDescription;
-        connDesc->type       = CONNECTIONTYPE_TCPIP;
-        connDesc->TCPIP.port = Global::getDefaultPort();
+        connDesc->type = CONNECTIONTYPE_TCPIP;
+        connDesc->port = Global::getDefaultPort();
         addConnectionDescription( connDesc );
     }
 

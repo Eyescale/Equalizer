@@ -91,9 +91,8 @@
 %token EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND
 %token EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE
 %token EQTOKEN_CONNECTION_IATTR_TYPE
-%token EQTOKEN_CONNECTION_IATTR_TCPIP_PORT
 %token EQTOKEN_CONNECTION_IATTR_PORT
-%token EQTOKEN_CONNECTION_SATTR_PIPE_FILENAME
+%token EQTOKEN_CONNECTION_SATTR_FILENAME
 %token EQTOKEN_CONNECTION_IATTR_BANDWIDTH
 %token EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
@@ -190,8 +189,7 @@
 %token EQTOKEN_COMMAND
 %token EQTOKEN_COMMAND_QUOTE
 %token EQTOKEN_TIMEOUT
-%token EQTOKEN_TCPIP_PORT
-%token EQTOKEN_PIPE_FILENAME
+%token EQTOKEN_PORT
 %token EQTOKEN_FILENAME
 %token EQTOKEN_TASK
 %token EQTOKEN_EYE
@@ -219,7 +217,6 @@
 %token EQTOKEN_PERIOD
 %token EQTOKEN_PHASE
 %token EQTOKEN_PIXEL
-%token EQTOKEN_PORT
 %token EQTOKEN_BANDWIDTH
 %token EQTOKEN_DEVICE
 %token EQTOKEN_WALL
@@ -313,20 +310,15 @@ global:
          eq::server::Global::instance()->setConnectionIAttribute( 
              eq::server::ConnectionDescription::IATTR_TYPE, $2 ); 
      }
-     | EQTOKEN_CONNECTION_IATTR_TCPIP_PORT UNSIGNED
-     {
-         eq::server::Global::instance()->setConnectionIAttribute(
-             eq::server::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
-     }
      | EQTOKEN_CONNECTION_IATTR_PORT UNSIGNED
      {
          eq::server::Global::instance()->setConnectionIAttribute(
-             eq::server::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
+             eq::server::ConnectionDescription::IATTR_PORT, $2 );
      }
-     | EQTOKEN_CONNECTION_SATTR_PIPE_FILENAME STRING
+     | EQTOKEN_CONNECTION_SATTR_FILENAME STRING
      {
          eq::server::Global::instance()->setConnectionSAttribute(
-             eq::server::ConnectionDescription::SATTR_PIPE_FILENAME, $2 );
+             eq::server::ConnectionDescription::SATTR_FILENAME, $2 );
      }
      | EQTOKEN_CONNECTION_IATTR_BANDWIDTH UNSIGNED
      {
@@ -484,7 +476,7 @@ serverConnection: EQTOKEN_CONNECTION
         '{' { 
                 connectionDescription = new eq::server::ConnectionDescription;
                 connectionDescription->setHostname( "" );
-                connectionDescription->TCPIP.port = EQ_DEFAULT_PORT;
+                connectionDescription->port = EQ_DEFAULT_PORT;
             }
             connectionFields '}' 
             { 
@@ -560,10 +552,8 @@ connectionField:
     | EQTOKEN_COMMAND   STRING  { connectionDescription->setLaunchCommand($2); }
     | EQTOKEN_COMMAND_QUOTE CHARACTER { connectionDescription->launchCommandQuote = $2; }
     | EQTOKEN_TIMEOUT   UNSIGNED  { connectionDescription->launchTimeout = $2; }
-    | EQTOKEN_TCPIP_PORT UNSIGNED { connectionDescription->TCPIP.port = $2; }
-    | EQTOKEN_PORT UNSIGNED       { connectionDescription->TCPIP.port = $2; }
+    | EQTOKEN_PORT UNSIGNED       { connectionDescription->port = $2; }
     | EQTOKEN_BANDWIDTH UNSIGNED  { connectionDescription->bandwidth = $2; }
-    | EQTOKEN_PIPE_FILENAME STRING { connectionDescription->setFilename($2); }
     | EQTOKEN_FILENAME STRING     { connectionDescription->setFilename($2); }
 
 nodeAttributes: /*null*/ | nodeAttributes nodeAttribute

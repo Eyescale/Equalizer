@@ -38,10 +38,10 @@ namespace net
         ConnectionDescription() 
                 : type( CONNECTIONTYPE_TCPIP )
                 , bandwidth( 0 )
+                , port( 0 )
                 , launchTimeout( 10000 )
                 , launchCommandQuote( '\'' )
             {
-                TCPIP.port = 0;
             }
 
         /** The network protocol for the connection. */
@@ -50,23 +50,14 @@ namespace net
         /** The bandwidth in kilobyte per second for this connection. */
         int32_t bandwidth;
 
+        /** The listening port (TCPIP, SDP, IB, MCIP). */
+        uint16_t port;
+
         /** 
          * The amount of time in milliseconds to wait before a node is
          * considered unreachable during start.
          */
         int32_t launchTimeout;
-
-        /** The individual parameters for the connection. */
-        union
-        {
-            /** TCP/IP parameters */
-            struct
-            {
-                /** The listening port. */
-                uint16_t port;
-
-            } TCPIP, SDP, IB, MCIP;
-        };
 
         /** The character to quote the launch command arguments */
         char launchCommandQuote;
@@ -93,6 +84,16 @@ namespace net
         //@{
         EQ_EXPORT void setHostname( const std::string& hostname );
         EQ_EXPORT const std::string& getHostname() const;
+
+        /** 
+         * Set the command to spawn a new process on a node.
+         *
+         * The default is '"ssh -n %h %c >& %h.%n.log"', with:
+         * 
+         * %h - hostname
+         * %c - command
+         * %n - unique node identifier
+         */
         EQ_EXPORT void setLaunchCommand( const std::string& launchCommand );
         EQ_EXPORT const std::string& getLaunchCommand() const;
         EQ_EXPORT void setFilename( const std::string& filename );
@@ -103,14 +104,7 @@ namespace net
         EQ_EXPORT virtual ~ConnectionDescription() {}
 
     private:
-        /** 
-         * The command to spawn a new process on the node, e.g., 
-         * "ssh eile@node1".
-         * 
-         * %h - hostname
-         * %c - command
-         * %n - unique node identifier
-         */
+        /** Command to launch render client on node. */
         std::string _launchCommand; 
 
         /** The host name. */

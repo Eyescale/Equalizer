@@ -116,8 +116,8 @@ int main( int argc, char **argv )
     TEST( eq::net::init( argc, argv ));
 
     ConnectionDescriptionPtr description = new ConnectionDescription;
-    description->type       = CONNECTIONTYPE_TCPIP;
-    description->TCPIP.port = 4242;
+    description->type = CONNECTIONTYPE_TCPIP;
+    description->port = 4242;
 
     bool isClient     = true;
     bool useThreads   = false;

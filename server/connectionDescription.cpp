@@ -72,10 +72,10 @@ ConnectionDescription::ConnectionDescription()
         case net::CONNECTIONTYPE_TCPIP:
         case net::CONNECTIONTYPE_SDP:
         case net::CONNECTIONTYPE_IB:
-            TCPIP.port = global->getConnectionIAttribute( IATTR_TCPIP_PORT );
+            port = global->getConnectionIAttribute( IATTR_PORT );
             break;
         case net::CONNECTIONTYPE_NAMEDPIPE:
-            setFilename( global->getConnectionSAttribute( SATTR_PIPE_FILENAME));
+            setFilename( global->getConnectionSAttribute( SATTR_FILENAME));
             break;
         default:
             break;
@@ -101,19 +101,21 @@ std::ostream& operator << ( std::ostream& os,
                 "ERROR" ) << endl;
     
     if (( desc->type == net::CONNECTIONTYPE_TCPIP ) || 
-        ( desc->type == net::CONNECTIONTYPE_IB ) || 
-        ( desc->type == net::CONNECTIONTYPE_SDP ))
+        ( desc->type == net::CONNECTIONTYPE_SDP ) || 
+        ( desc->type == net::CONNECTIONTYPE_IB ) ||
+        ( desc->type == net::CONNECTIONTYPE_MCIP ) ||
+        ( desc->type == net::CONNECTIONTYPE_MCIP_PGM ))
     {
-        if( desc->TCPIP.port != global->getConnectionIAttribute( 
-            ConnectionDescription::IATTR_TCPIP_PORT ))
-        os << "TCPIP_port    " << desc->TCPIP.port << endl;
+        if( desc->port != global->getConnectionIAttribute( 
+            ConnectionDescription::IATTR_PORT ))
+        os << "port    " << desc->port << endl;
     }
 
     if ( desc->type == net::CONNECTIONTYPE_NAMEDPIPE )
     {
         if( desc->getFilename() != global->getConnectionSAttribute( 
-            ConnectionDescription::SATTR_PIPE_FILENAME ))
-            os << "PIPE_filename \"" << desc->getFilename() << "\"" << endl;
+            ConnectionDescription::SATTR_FILENAME ))
+            os << "filename \"" << desc->getFilename() << "\"" << endl;
     }
 
     if( desc->bandwidth != global->getConnectionIAttribute( 

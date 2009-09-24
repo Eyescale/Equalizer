@@ -56,8 +56,8 @@ void Global::_setupDefaults()
 
     _connectionIAttributes[ConnectionDescription::IATTR_TYPE] = 
         net::CONNECTIONTYPE_TCPIP;
-    _connectionIAttributes[ConnectionDescription::IATTR_TCPIP_PORT]     = 0;
-    _connectionIAttributes[ConnectionDescription::IATTR_BANDWIDTH]      = 0;
+    _connectionIAttributes[ConnectionDescription::IATTR_PORT]     = 0;
+    _connectionIAttributes[ConnectionDescription::IATTR_BANDWIDTH]= 0;
     _connectionIAttributes[ConnectionDescription::IATTR_LAUNCH_TIMEOUT] = 
         60000; // ms
     

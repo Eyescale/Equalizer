@@ -251,7 +251,7 @@ ConnectionPtr PGMConnection::acceptSync()
 
     newConnection->_state                   = STATE_CONNECTED;
     newConnection->_description->bandwidth  = _description->bandwidth;
-    newConnection->_description->MCIP.port  = ntohs( remote->sin_port );
+    newConnection->_description->port       = ntohs( remote->sin_port );
     newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
 
     EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
@@ -446,32 +446,35 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
 
 void PGMConnection::_tuneSocket( const SOCKET fd )
 {
-#if 0 // TBD
     const int on         = 1;
-    setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, 
+//    setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, 
+//                reinterpret_cast<const char*>( &on ), sizeof( on ));
+    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
-    setsockopt( fd, SOL_PGM, SO_REUSEADDR, 
-                reinterpret_cast<const char*>( &on ), sizeof( on ));
-    
+    setsockopt( fd, IPPROTO_RM, RM_HIGH_SPEED_INTRANET_OPT,
+                 reinterpret_cast<const char*>( &on ), sizeof( on ));
+
 #ifdef WIN32
     const int size = 128768;
-    setsockopt( fd, SOL_PGM, SO_RCVBUF, 
+    setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 
                 reinterpret_cast<const char*>( &size ), sizeof( size ));
-    setsockopt( fd, SOL_PGM, SO_SNDBUF,
+    setsockopt( fd, SOL_SOCKET, SO_SNDBUF,
                 reinterpret_cast<const char*>( &size ), sizeof( size ));
-#endif
 #endif
 }
 
 bool PGMConnection::_parseAddress( sockaddr_in& address )
 {
-    if( _description->MCIP.port == 0 )
-        _description->MCIP.port = EQ_DEFAULT_PORT;
-    EQASSERT( _description->MCIP.port != 0 );
+    if( _description->port == 0 )
+        _description->port = EQ_DEFAULT_PORT;
+    if( _description->getHostname().empty( ))
+        _description->setHostname( "239.255.42.42" );
+
+    EQASSERT( _description->port != 0 );
 
     address.sin_family      = AF_INET;
     address.sin_addr.s_addr = htonl( INADDR_ANY );
-    address.sin_port        = htons( _description->MCIP.port );
+    address.sin_port        = htons( _description->port );
     memset( &(address.sin_zero), 0, 8 ); // zero the rest
 
     const std::string& hostname = _description->getHostname();
@@ -531,7 +534,7 @@ bool PGMConnection::listen()
     socklen_t used = size;
     getsockname( _readFD, (struct sockaddr *)&address, &used ); 
 
-    _description->MCIP.port = ntohs( address.sin_port );
+    _description->port = ntohs( address.sin_port );
 
     const std::string& hostname = _description->getHostname();
     if( hostname.empty( ))
@@ -575,8 +578,7 @@ bool PGMConnection::listen()
     if( !connected )
     {
         EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->MCIP.port << "': " << base::sysError
-               << std::endl;
+               << _description->port << "': " << base::sysError << std::endl;
         close();
         return false;
     }
@@ -585,9 +587,8 @@ bool PGMConnection::listen()
     _fireStateChanged();
 
     EQINFO << "Listening on " << _description->getHostname() << "["
-           << inet_ntoa( address.sin_addr ) << "]:" 
-           << _description->TCPIP.port << " (" << _description->toString()
-           << ")" << std::endl;
+           << inet_ntoa( address.sin_addr ) << "]:" << _description->port
+           << " (" << _description->toString() << ")" << std::endl;
     
     return true;
 }
