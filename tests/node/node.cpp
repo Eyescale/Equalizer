@@ -94,8 +94,8 @@ int main( int argc, char **argv )
     eq::net::ConnectionDescriptionPtr connDesc = 
         new eq::net::ConnectionDescription;
     
-    connDesc->type = eq::net::CONNECTIONTYPE_TCPIP;
-    connDesc->port = 4242;
+    connDesc->type       = eq::net::CONNECTIONTYPE_TCPIP;
+    connDesc->TCPIP.port = 4242;
     connDesc->setHostname( "localhost" );
 
     server->addConnectionDescription( connDesc );
