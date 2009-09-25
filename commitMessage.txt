@@ -1,9 +1,9 @@
-fix PPC/AGL build
+Netperf: time-based instead of packet-based performance reporting
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

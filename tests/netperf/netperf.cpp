@@ -51,6 +51,9 @@ namespace
     public:
         Receiver( const size_t packetSize, ConnectionPtr connection )
                 : _connection( connection )
+                , _mBytesSec( packetSize / 1024.f / 1024.f * 1000.f )
+                , _time( 0.f )
+                , _nSamples( 0 )
             { 
                 _buffer.resize( packetSize );
                 connection->recvNB( _buffer.getData(), _buffer.getSize() );
@@ -59,19 +62,24 @@ namespace
 
         bool readPacket()
         {
-            const float mBytesSec = _buffer.getSize() / 1024.f / 1024.f *1000.f;
-
             _clock.reset();
             if( !_connection->recvSync( 0, 0 ))
                 return false;
 
-            const float time = _clock.getTimef();
             _connection->recvNB( _buffer.getData(), _buffer.getSize() );
+            _time += _clock.getTimef();
+            ++_nSamples;
 
-            eq::net::ConnectionDescriptionPtr desc = 
+            if( _time < 1000.f )
+                return true;
+
+           eq::net::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
-            cerr << " Recv perf: " << mBytesSec / time << "MB/s ("
-                 << time << "ms) from " << desc.get() << endl;
+            cerr << "Recv perf: " << _mBytesSec / _time * _nSamples 
+                 << "MB/s (" << _nSamples / _time * 1000.f  << "pps) from "
+                 << desc.get() << endl;
+            _time = 0.f;
+            _nSamples = 0;
             return true;
         }
 
@@ -108,6 +116,9 @@ namespace
         eq::base::Bufferb _buffer;
         eq::base::Monitor< bool > _hasConnection;
         ConnectionPtr             _connection;
+        const float _mBytesSec;
+        float       _time;
+        size_t      _nSamples;
     };
 }
 
@@ -196,18 +207,30 @@ int main( int argc, char **argv )
 
         const float mBytesSec = buffer.getSize() / 1024.0f / 1024.0f * 1000.0f;
         Clock       clock;
-        size_t      packetNum = 0;
+        size_t      lastOutput = nPackets;
 
+        clock.reset();
         while( nPackets-- )
         {
-            clock.reset();
             TEST( connection->send( buffer.getData(), buffer.getSize() ));
             const float time = clock.getTimef();
-            cerr << ++packetNum << " Send perf: " << mBytesSec / time 
-                 << "MB/s (" << time << "ms)" << endl;
-            if( waitTime > 0 )
-                eq::base::sleep( waitTime );
+            if( time > 1000.f )
+            {
+                const size_t nSamples = lastOutput - nPackets;
+                cerr << "Send perf: " << mBytesSec / time * nSamples 
+                     << "MB/s (" << nSamples / time * 1000.f  << "pps)" << endl;
+
+                if( waitTime > 0 )
+                    eq::base::sleep( waitTime );
+                lastOutput = nPackets;
+                clock.reset();
+            }
         }
+        const float time = clock.getTimef();
+        const size_t nSamples = lastOutput - nPackets;
+        if( nSamples != 0 )
+            cerr << "Send perf: " << mBytesSec / time * nSamples 
+                 << "MB/s (" << nSamples / time * 1000.f  << "pps)" << endl;
     }
     else
     {

@@ -688,7 +688,7 @@ int WGLWindow::chooseWGLPixelFormat()
     {
         UINT nFormats = 0;
     if( !wglChoosePixelFormatARB( pfDC, &attributes[0], 0, 1,
-                                      &pixelFormat, &nFormats ))
+                                  &pixelFormat, &nFormats ))
         {
             EQWARN << "wglChoosePixelFormat failed: " 
                 << base::sysError << std::endl;
