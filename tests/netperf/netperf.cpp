@@ -42,7 +42,6 @@ using namespace std;
 
 namespace
 {
-    class Receiver;
     ConnectionSet    _connectionSet;
     eq::base::mtLong _nClients;
 
@@ -58,6 +57,7 @@ namespace
                 _buffer.resize( packetSize );
                 connection->recvNB( _buffer.getData(), _buffer.getSize() );
             }
+
         virtual ~Receiver() {}
 
         bool readPacket()
@@ -89,23 +89,29 @@ namespace
             _hasConnection = true;
         }
 
+        void stop()
+        {
+            TEST( _hasConnection == false );
+            _connection = 0;
+            _hasConnection = true;
+        }
+
         virtual void* run()
         {
-            while( true )
+            _hasConnection.waitEQ( true );
+            while( _connection.isValid( ))
             {
-                _hasConnection.waitEQ( true );
-
-                if( readPacket( ))
-                {
-                    _connectionSet.addConnection( _connection );
-                }
-                else // dead connection
+                if( !readPacket( )) // dead connection
                 {
                     cerr << --_nClients << " clients" << endl;
                     _connectionSet.interrupt();
+                    _connection = 0;
+                    return EXIT_SUCCESS;
                 }
 
                 _hasConnection = false;
+                _connectionSet.addConnection( _connection );
+                _hasConnection.waitEQ( true );
             }
             return EXIT_SUCCESS;
         }
@@ -255,6 +261,8 @@ int main( int argc, char **argv )
 
         receivers.push_back( RecvConn( new Receiver( packetSize, newConn ),
                                        newConn ));
+        if( useThreads )
+            receivers.back().first->start();
 
         _connectionSet.addConnection( newConn );
 
@@ -274,6 +282,8 @@ int main( int argc, char **argv )
 
                     receivers.push_back( 
                         RecvConn( new Receiver(packetSize, newConn), newConn ));
+                    if( useThreads )
+                        receivers.back().first->start();
 
                     _connectionSet.addConnection( newConn );
                     cerr << ++_nClients << " clients" << endl;
@@ -322,8 +332,14 @@ int main( int argc, char **argv )
                         const RecvConn& candidate = *i;
                         if( candidate.second == resultConn )
                         {
-                            delete candidate.first;
+                            Receiver* receiver = candidate.first;
                             receivers.erase( i );
+                            if( useThreads )
+                            {
+                                receiver->stop();
+                                receiver->join();
+                            }
+                            delete receiver;
                             break;
                         }
                     }
@@ -344,8 +360,6 @@ int main( int argc, char **argv )
         _connectionSet.clear();
     }
 
-    // TODO thread tear down
- 
     TESTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
     connection->close();
     return EXIT_SUCCESS;

@@ -1,9 +1,9 @@
-Netperf: time-based instead of packet-based performance reporting
+Netperf: Fix threaded receiver
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
