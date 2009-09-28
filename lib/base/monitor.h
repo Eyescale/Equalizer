@@ -26,6 +26,18 @@
 #include <typeinfo>
 
 
+#ifdef PTHREAD_MUTEX_INITIALIZER // Crude test if pthread.h was included
+#  ifndef HAVE_PTHREAD_H
+#    define HAVE_PTHREAD_H
+#  endif
+#  ifndef EQUALIZER_EXPORTS // pthread.h included, not building Eq (inline impl)
+#    define EQ_PT_EXPORT
+#  endif
+#endif
+#ifndef EQ_PT_EXPORT // pthread.h not included or building eq (explicit export)
+#  define EQ_PT_EXPORT EQ_EXPORT 
+#endif 
+
 namespace eq
 {
 namespace base
@@ -44,19 +56,20 @@ namespace base
     {
     public:
         /** Constructs a new monitor with a default value of 0. */
-        Monitor() : _value( static_cast<T>( 0 ))    { _construct(); }
+        Monitor() : _value( static_cast<T>( 0 )) { _construct(); }
+
         /** Constructs a new monitor with a given default value. */
         Monitor( const T& value ) : _value( value ) { _construct(); }
         
         /** Destructs the monitor. */
-        ~Monitor();
+        EQ_PT_EXPORT ~Monitor();
 
         /** @name Changing the monitored value. */
         //@{
         /** Increment the monitored value, prefix only */
-        Monitor& operator++ ();
+        EQ_PT_EXPORT Monitor& operator++ ();
         /** Decrement the monitored value, prefix only */
-        Monitor& operator-- ();
+        EQ_PT_EXPORT Monitor& operator-- ();
 
         /** Assign a new value. */
         Monitor& operator = ( const T& value )
@@ -66,7 +79,7 @@ namespace base
             }
 
         /** Set a new value. */
-        void set( const T& value );
+        EQ_PT_EXPORT void set( const T& value );
         //@}
 
         /** @name Monitor the value. */
@@ -75,27 +88,27 @@ namespace base
          * Block until the monitor has the given value.
          * @return the value when reaching the condition.
          */
-        const T& waitEQ( const T& value ) const;
+        EQ_PT_EXPORT const T& waitEQ( const T& value ) const;
 
         /**
          * Block until the monitor has not the given value.
          * @return the value when reaching the condition.
          */
-        const T& waitNE( const T& value ) const;
+        EQ_PT_EXPORT const T& waitNE( const T& value ) const;
 
         /**
          * Block until the monitor has a value greater or equal to the given
          * value.
          * @return the value when reaching the condition.
          */
-        const T& waitGE( const T& value ) const;
+        EQ_PT_EXPORT const T& waitGE( const T& value ) const;
 
         /**
          * Block until the monitor has a value less or equal to the given
          * value.
          * @return the value when reaching the condition.
          */
-        const T& waitLE( const T& value ) const;
+        EQ_PT_EXPORT const T& waitLE( const T& value ) const;
         //@}
 
         /** @name Comparison Operators. */
@@ -141,7 +154,7 @@ typedef Monitor< bool >     Monitorb;
 typedef Monitor< uint32_t > Monitoru;
 
 /** Print the monitor to the given output stream. */
-template< typename T >
+EQ_PT_EXPORT template< typename T >
 std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor );
 }
 }
@@ -149,13 +162,6 @@ std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor );
 //----------------------------------------------------------------------
 // implementation
 //----------------------------------------------------------------------
-
-// Crude test if pthread.h was included
-#ifdef PTHREAD_MUTEX_INITIALIZER
-#  ifndef HAVE_PTHREAD_H
-#    define HAVE_PTHREAD_H
-#  endif
-#endif
 
 // Monitor for uint32_t and bool are explicitly instantiated in monitor.cpp
 // Monitors for other types can be created by including pthread.h before this

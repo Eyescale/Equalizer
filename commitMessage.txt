@@ -1,11 +1,9 @@
-- Fix build
-- untested udp connection as basis for a reliable multicast connection
-- simplifies connection description output and (de-)serialization
+Fix exports on explicitely instantiated eq::base::Monitor (Test for Marc)
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[x] New Feature
+[ ] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
