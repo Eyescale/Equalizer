@@ -1,4 +1,4 @@
-
+n
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -583,13 +583,15 @@ void Window::_setupObjectManager()
     if( sharedOM )
         _objectManager = new ObjectManager( glewGetContext(), sharedOM );
     else
+    {
         _objectManager = new ObjectManager( glewGetContext( ));
 
-    Font* font = _objectManager->newEqBitmapFont( _smallFontKey );
-    font->init( this, "" );
+        Font* font = _objectManager->newEqBitmapFont( _smallFontKey );
+        font->init( this, "" );
 
-    font = _objectManager->newEqBitmapFont( _mediumFontKey );
-    font->init( this, "", 20 );
+        font = _objectManager->newEqBitmapFont( _mediumFontKey );
+        font->init( this, "", 20 );
+    }
 }
 
 void Window::_releaseObjectManager()
