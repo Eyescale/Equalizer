@@ -28,6 +28,34 @@ namespace net
 
 #define SEPARATOR '#'
 
+namespace
+{
+static ConnectionType _getConnectionType( const std::string& string )
+{
+    if( string == "TCPIP" )
+        return CONNECTIONTYPE_TCPIP;
+    if( string == "SDP" )
+        return CONNECTIONTYPE_SDP;
+    if( string == "ANON_PIPE" )
+        return CONNECTIONTYPE_PIPE;
+    if( string == "PIPE" )
+        return CONNECTIONTYPE_NAMEDPIPE;
+    if( string == "IB" )
+        return CONNECTIONTYPE_IB;
+    if( string == "UDP" )
+        return CONNECTIONTYPE_UDP;
+    if( string == "MCIP" )
+        return CONNECTIONTYPE_MCIP;
+    if( string == "PGM" )
+        return CONNECTIONTYPE_MCIP_PGM;
+    if( string == "RSP" )
+        return CONNECTIONTYPE_MCIP_RSP;
+    
+    EQASSERTINFO( false, "Not implemented" );
+    return CONNECTIONTYPE_NONE;
+}
+}
+
 string ConnectionDescription::toString() const
 {
     ostringstream description;
@@ -37,58 +65,10 @@ string ConnectionDescription::toString() const
 
 void ConnectionDescription::serialize( std::ostream& os ) const
 {
-    switch( type )
-    {
-        case CONNECTIONTYPE_TCPIP:
-            os << "TCPIP";
-            break;
-
-        case CONNECTIONTYPE_SDP:
-            os << "SDP";
-            break;
-
-        case CONNECTIONTYPE_PIPE:
-            os << "ANON_PIPE";
-            break;
-
-        case CONNECTIONTYPE_NAMEDPIPE:
-            os << "PIPE";
-            break;
-
-        case CONNECTIONTYPE_IB:
-            os << "IB";
-            break;
-
-        case CONNECTIONTYPE_MCIP:
-            os << "MCIP";
-            break;
-
-        case CONNECTIONTYPE_MCIP_PGM:
-            os << "PGM";
-            break;
-    }        
-
-    os << SEPARATOR << bandwidth << SEPARATOR << _launchCommand 
+    os << type << SEPARATOR << bandwidth << SEPARATOR << _launchCommand 
        << SEPARATOR << static_cast<int>( launchCommandQuote )
-       << SEPARATOR << launchTimeout << SEPARATOR << _hostname ;
-    
-    switch( type )
-    {
-        case CONNECTIONTYPE_TCPIP:
-        case CONNECTIONTYPE_SDP:
-        case CONNECTIONTYPE_IB:        
-        case CONNECTIONTYPE_MCIP:
-        case CONNECTIONTYPE_MCIP_PGM:
-            os << SEPARATOR << port;
-            break;
-        case CONNECTIONTYPE_NAMEDPIPE:
-            os << SEPARATOR << _filename;
-            break;
-
-        default:
-            break;
-    }
-    os << SEPARATOR;
+       << SEPARATOR << launchTimeout << SEPARATOR << _hostname  << SEPARATOR
+       << port << SEPARATOR << _filename;
 }
 
 bool ConnectionDescription::fromString( std::string& data )
@@ -118,24 +98,12 @@ bool ConnectionDescription::fromString( std::string& data )
                 
                 if( !token.empty() && isdigit( token[0] )) // port
                     port = atoi( token.c_str( ));
-                else if( token == "TCPIP" )
-                    type = CONNECTIONTYPE_TCPIP;
-                else if( token == "SDP" )
-                    type = CONNECTIONTYPE_SDP;
-                else if( token == "IB" )
-                    type = CONNECTIONTYPE_IB;
-                else if( token == "MCIP" )
-                    type = CONNECTIONTYPE_MCIP;
-                else if( token == "PGM" )
-                    type = CONNECTIONTYPE_MCIP_PGM;
-                else if( token == "PIPE" )
-                {
-                    type = CONNECTIONTYPE_NAMEDPIPE;
-                    setFilename( _hostname );
-                    _hostname ="";
-                }
                 else
-                    goto error;
+                {
+                    type = _getConnectionType( token );
+                    if( type == CONNECTIONTYPE_NONE )
+                        goto error;
+                }
             }
 
             data.clear();
@@ -146,21 +114,8 @@ bool ConnectionDescription::fromString( std::string& data )
         const string typeStr = data.substr( 0, nextPos );
         data                 = data.substr( nextPos + 1 );
 
-        if( typeStr == "TCPIP" )
-            type = CONNECTIONTYPE_TCPIP;
-        else if( typeStr == "SDP" )
-            type = CONNECTIONTYPE_SDP;
-        else if( typeStr == "ANON_PIPE" )
-            type = CONNECTIONTYPE_PIPE;
-        else if( typeStr == "PIPE" )
-            type = CONNECTIONTYPE_NAMEDPIPE;
-        else if( typeStr == "IB" )
-            type = CONNECTIONTYPE_IB;
-        else if( typeStr == "MCIP" )
-            type = CONNECTIONTYPE_MCIP;
-        else if( typeStr == "PGM" )
-            type = CONNECTIONTYPE_MCIP_PGM;
-        else
+        type = _getConnectionType( typeStr );
+        if( type == CONNECTIONTYPE_NONE )
             goto error;
 
         nextPos = data.find( SEPARATOR );
@@ -199,36 +154,19 @@ bool ConnectionDescription::fromString( std::string& data )
         _hostname = data.substr( 0, nextPos );
         data      = data.substr( nextPos + 1 );
 
-        switch( this->type )
-        {
-            case CONNECTIONTYPE_TCPIP:
-            case CONNECTIONTYPE_SDP:
-            case CONNECTIONTYPE_IB:
-            case CONNECTIONTYPE_MCIP:
-            case CONNECTIONTYPE_MCIP_PGM:
-            {
-                nextPos = data.find( SEPARATOR );
-                if( nextPos == string::npos )
-                    goto error;
-            
-                const string portStr = data.substr( 0, nextPos );
-                data                 = data.substr( nextPos + 1 );
-                port                 = atoi( portStr.c_str( ));
-                break;
-            }
-            case CONNECTIONTYPE_NAMEDPIPE:
-            {
-                nextPos = data.find( SEPARATOR );
-                if( nextPos == string::npos )
-                    goto error;
-                
-                _filename         = data.substr( 0, nextPos );
-                data              = data.substr( nextPos + 1 );
-                break;
-            }
-            default:
-                break;
-        }
+        nextPos = data.find( SEPARATOR );
+        if( nextPos == string::npos )
+            goto error;
+        
+        const string portStr = data.substr( 0, nextPos );
+        data                 = data.substr( nextPos + 1 );
+        port                 = atoi( portStr.c_str( ));
+
+        nextPos = data.find( SEPARATOR );
+        if( nextPos != string::npos )
+            goto error;
+
+        _filename = data;
     }
     return true;
 
@@ -275,34 +213,8 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
         return os;
     }
 
-    os << "connection " << ( desc->type == CONNECTIONTYPE_TCPIP ? "tcp/ip":
-                             desc->type == CONNECTIONTYPE_SDP   ? "sdp"   :
-                             desc->type == CONNECTIONTYPE_PIPE  ? "anonpipe" :
-                             desc->type == CONNECTIONTYPE_NAMEDPIPE  ? "pipe" :
-                             desc->type == CONNECTIONTYPE_IB  ? "ib"  :
-                             desc->type == CONNECTIONTYPE_MCIP ? "mc/ip" :
-                             desc->type == CONNECTIONTYPE_MCIP_PGM ? "pgm" :
-                             "ERROR" ) 
-       << ' ' << desc->getHostname() << ':';
-
-    switch( desc->type )
-    {
-        case CONNECTIONTYPE_TCPIP:
-        case CONNECTIONTYPE_SDP:
-        case CONNECTIONTYPE_IB:
-        case CONNECTIONTYPE_MCIP:
-        case CONNECTIONTYPE_MCIP_PGM:
-            os << desc->port;
-            break;
-
-        case CONNECTIONTYPE_NAMEDPIPE:
-            os << desc->getFilename();
-            break;
-
-        default:
-        case CONNECTIONTYPE_PIPE:
-            break;
-    }
+    os << "connection " << desc->type << ' ' << desc->getHostname() << ':'
+       << desc->port << desc->getFilename();
 
     return os;
 }

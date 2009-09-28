@@ -1,9 +1,11 @@
-Netperf: Fix threaded receiver
+- Fix build
+- untested udp connection as basis for a reliable multicast connection
+- simplifies connection description output and (de-)serialization
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[ ] New Feature
+[x] Bugfix
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

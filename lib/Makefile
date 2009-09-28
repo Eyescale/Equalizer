@@ -190,6 +190,7 @@ CXXFILES = \
 	net/socketConnection.cpp \
 	net/staticMasterCM.cpp \
 	net/staticSlaveCM.cpp \
+	net/udpConnection.cpp \
 	net/unbufferedMasterCM.cpp \
 	net/versionedSlaveCM.cpp \
 	client/canvas.cpp \

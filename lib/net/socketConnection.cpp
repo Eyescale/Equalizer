@@ -129,12 +129,12 @@ bool SocketConnection::connect()
 
 void SocketConnection::close()
 {
-    if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
+    if( _state == STATE_CLOSED )
         return;
 
     if( isListening( ))
         _exitAIOAccept();
-    else
+    else if( isConnected( ))
         _exitAIORead();
 
     _state = STATE_CLOSED;
