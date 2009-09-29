@@ -28,7 +28,14 @@ namespace base
 {
     class PerThreadRefPrivate;
 
-    /** Thread-specific storage for a RefPtr. */
+    /** 
+     * Thread-specific storage for a RefPtr.
+     * 
+     * To instantiate the template code for this class, applications have to
+     * include pthread.h before this file. pthread.h is not automatically
+     * included to avoid hard to resolve type conflicts with other header files
+     * on Windows.
+     */
     template< typename T > class PerThreadRef : public NonCopyable
     {
     public:
@@ -85,10 +92,6 @@ namespace base
 #    define HAVE_PTHREAD_H
 #  endif
 #endif
-
-// The application has to include pthread.h if it wants to instantiate new
-// types, since on Windows the use of pthreads-Win32 library includes might
-// create hard to resolve type conflicts with other header files.
 
 #ifdef HAVE_PTHREAD_H
 
