@@ -52,7 +52,7 @@ namespace base
      *
      * Template instantiations for uint32_t and bool are at the end of
      * monitor.cpp. Monitors for other types can be created by including 
-     * pthread.h before this file. This file is not automatically included to
+     * pthread.h before this file. pthread.h is not automatically included to
      * avoid hard to resolve type conflicts with other header files on Windows. 
      */
     template< typename T > class Monitor : public NonCopyable

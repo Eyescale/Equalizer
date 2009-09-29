@@ -1,9 +1,9 @@
-Improve doxygen (document all command line parameters)
+Minor doxygen tweak
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [x] Documentation
