@@ -69,7 +69,13 @@ namespace net
         /** 
          * Reads the connection description from a string.
          * 
-         * The string is consumed as the description is parsed.
+         * The string is consumed as the description is parsed. Two different
+         * formats are recognized, a human-readable and a machine-readable. The
+         * human-readable version has the format
+         * <code>hostname[:port][:type]</code> or
+         * <code>filename:PIPE</code>. The <code>type</code> parameter can be
+         * TCPIP, SDP, IB, MCIP or PGM. The machine-readable format contains all
+         * connection description parameters and is not documented.
          *
          * @param data the string containing the connection description.
          * @return <code>true</code> if the information was read correctly, 

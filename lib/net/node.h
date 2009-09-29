@@ -115,11 +115,19 @@ namespace net
         /** 
          * Initialize a local, listening node.
          *
-         * This function does not return when the command line option
-         * '--eq-client' is present. This is used for remote nodes which have
-         * been auto-launched by another node, e.g., remote render clients. One
-         * or more '--eq-listen &lt;connection description&gt;' parameters might
-         * be used to add listening connections to this node.
+         * The following command line options are recognized by this method:
+         * <ul>
+         *   <li>--eq-client to launch a client. This is used for remote nodes
+         *         which have  been auto-launched by another node, e.g., remote
+         *         render clients. This method does not return when this command
+         *         line option is present.</li>
+         *   <li>'--eq-listen &lt;connection description&gt;' to add listening
+         *         connections to this node. This parameter might be used
+         *         multiple times (cf. ConnectionDescription::fromString).</li>
+         * </ul>
+         *
+         * Please note that further command line parameters are recognized by
+         * eq::init().
          *
          * @param argc the command line argument count.
          * @param argv the command line argument values.

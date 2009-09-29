@@ -1,4 +1,4 @@
-Fix exports on explicitely instantiated eq::base::Monitor (Test for Marc)
+Improve doxygen (document all command line parameters)
 
 [ ] May break build
 [ ] May break existing applications
@@ -6,4 +6,4 @@ Fix exports on explicitely instantiated eq::base::Monitor (Test for Marc)
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
