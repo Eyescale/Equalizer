@@ -75,7 +75,7 @@ bool ConnectionDescription::fromString( std::string& data )
 {
     {
         size_t nextPos = data.find( SEPARATOR );
-        // assume hostname[:port[:type]|:type] or filename:PIPE format
+        // assume hostname[:port][:type] or filename:PIPE format
         if( nextPos == string::npos )
         {
             type     = CONNECTIONTYPE_TCPIP;
@@ -101,7 +101,12 @@ bool ConnectionDescription::fromString( std::string& data )
                 else
                 {
                     type = _getConnectionType( token );
-                    if( type == CONNECTIONTYPE_NONE )
+                    if( type == CONNECTIONTYPE_NAMEDPIPE )
+                    {
+                        _filename = _hostname;
+                        _hostname.clear();
+                    }
+                    else if( type == CONNECTIONTYPE_NONE )
                         goto error;
                 }
             }
