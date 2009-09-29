@@ -50,7 +50,10 @@ namespace base
      * A monitor has a value, which can be monitored to reach a certain
      * state. The caller is blocked until the condition is fulfilled.
      *
-     * Template instantiations are at the end of monitor.cpp.
+     * Template instantiations for uint32_t and bool are at the end of
+     * monitor.cpp. Monitors for other types can be created by including 
+     * pthread.h before this file. This file is not automatically included to
+     * avoid hard to resolve type conflicts with other header files on Windows. 
      */
     template< typename T > class Monitor : public NonCopyable
     {
@@ -147,28 +150,26 @@ namespace base
         T _value;
         MonitorPrivate* _data;
 
-        void _construct();
+        EQ_PT_EXPORT void _construct();
     };
 
 typedef Monitor< bool >     Monitorb;
 typedef Monitor< uint32_t > Monitoru;
 
 /** Print the monitor to the given output stream. */
-EQ_PT_EXPORT template< typename T >
-std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor );
+template< typename T >
+inline std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor )
+{
+    os << "Monitor< " << monitor.get() << " >";
+    return os;
+}
+
 }
 }
 
 //----------------------------------------------------------------------
 // implementation
 //----------------------------------------------------------------------
-
-// Monitor for uint32_t and bool are explicitly instantiated in monitor.cpp
-// Monitors for other types can be created by including pthread.h before this
-// file.  
-// The application has to include pthread.h since on Windows the use of
-// pthreads-Win32 library includes might create hard to resolve type conflicts
-// with other header files.
 
 #ifdef HAVE_PTHREAD_H
 
@@ -307,12 +308,6 @@ inline const T& Monitor<T>::waitLE( const T& value ) const
     return newValue;
 }
 
-template< typename T >
-std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor )
-{
-    os << "Monitor< " << monitor.get() << " >";
-    return os;
-}
 }
 }
 #endif // HAVE_PTHREAD_H
