@@ -84,6 +84,7 @@ bool NamedPipeConnection::connect()
     _state = STATE_CONNECTED;
     _fireStateChanged();
 
+    EQINFO << "Connected " << _description << std::endl;
     return true;
 }
 
@@ -164,6 +165,8 @@ bool NamedPipeConnection::listen()
     _initAIOAccept();
     _state = STATE_LISTENING;
     _fireStateChanged();
+
+    EQINFO << "Listening on " << _description << std::endl;
     return true;
 }
 

@@ -81,6 +81,8 @@ bool IBConnection::connect()
         _socketConnection = 0;
         return false;
     }
+
+    EQINFO << "Connected " << _description << std::endl;
     return true;
 }
 
@@ -153,17 +155,20 @@ bool IBConnection::_preRegister( )
 {
     if( !_adapter.open() )
     {
-        close();     
+        EQWARN << "Can't open IB adapter" << std::endl;
+        close();
         return false;
     }
     if( !_completionQueue.create( &_adapter )) 
     {
+        EQWARN << "Can't create completion queue" << std::endl;
         close();
         return false;
     }
     
     if( !_interface.create( &_adapter, &_completionQueue ))
     {
+        EQWARN << "Can't create IB interface" << std::endl;
         close();
         return false;
     }
@@ -191,6 +196,7 @@ bool IBConnection::_establish( bool isServer )
                      _serverExchDest( &myDest, &remDest);
     if ( !rc )
     {
+        EQWARN << "Can't exchange IB parameters with peer" << std::endl;
         close();
         return false;
     }
@@ -214,6 +220,7 @@ bool IBConnection::_establish( bool isServer )
 
     if ( !rc )
     {
+        EQWARN << "Can't exchange IB parameters with peer" << std::endl;
         close();
         return false;
     }

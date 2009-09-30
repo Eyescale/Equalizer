@@ -124,6 +124,7 @@ bool SocketConnection::connect()
     _initAIORead();
     _state = STATE_CONNECTED;
     _fireStateChanged();
+    EQINFO << "Connected " << _description << std::endl;
     return true;
 }
 

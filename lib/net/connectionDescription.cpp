@@ -68,7 +68,7 @@ void ConnectionDescription::serialize( std::ostream& os ) const
     os << type << SEPARATOR << bandwidth << SEPARATOR << _launchCommand 
        << SEPARATOR << static_cast<int>( launchCommandQuote )
        << SEPARATOR << launchTimeout << SEPARATOR << _hostname  << SEPARATOR
-       << port << SEPARATOR << _filename;
+       << port << SEPARATOR << _filename << SEPARATOR;
 }
 
 bool ConnectionDescription::fromString( std::string& data )
@@ -168,10 +168,11 @@ bool ConnectionDescription::fromString( std::string& data )
         port                 = atoi( portStr.c_str( ));
 
         nextPos = data.find( SEPARATOR );
-        if( nextPos != string::npos )
+        if( nextPos == string::npos )
             goto error;
 
-        _filename = data;
+        _filename = data.substr( 0, nextPos );
+        data = data.substr( nextPos + 1 );;
     }
     return true;
 
