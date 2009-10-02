@@ -22,6 +22,7 @@
 #include "config.h"                  // nested enum
 #include "connectionDescription.h"   // nested enum
 #include "pipe.h"                    // nested enum
+#include "node.h"                    // nested enum
 
 //#include <eq/client/global.h>
 #include <eq/client/node.h>      // nested enum
@@ -53,13 +54,6 @@ namespace server
             const ConnectionDescription::SAttribute attr ) const
             { return _connectionSAttributes[attr]; }
 
-        void setConnectionCAttribute( const ConnectionDescription::CAttribute 
-                                      attr, const char value )
-            { _connectionCAttributes[attr] = value; }
-        char getConnectionCAttribute(
-            const ConnectionDescription::CAttribute attr ) const
-            { return _connectionCAttributes[attr]; }
-
         void setConnectionIAttribute( const ConnectionDescription::IAttribute 
                                       attr, const int32_t value)
             { _connectionIAttributes[attr] = value; }
@@ -79,8 +73,19 @@ namespace server
         /**
          * @name Node Attributes.
          */  
+        void setNodeSAttribute( const Node::SAttribute attr,
+                                const std::string& value )
+            { _nodeSAttributes[attr] = value; }
+        const std::string& getNodeSAttribute( const Node::SAttribute attr) const
+            { return _nodeSAttributes[attr]; }
+
+        void setNodeCAttribute( const Node::CAttribute attr, const char value )
+            { _nodeCAttributes[attr] = value; }
+        char getNodeCAttribute( const Node::CAttribute attr ) const
+            { return _nodeCAttributes[attr]; }
+
         void setNodeIAttribute( const eq::Node::IAttribute attr,
-                                    const int32_t value )
+                                const int32_t value )
             { _nodeIAttributes[attr] = value; }
         int32_t getNodeIAttribute( const eq::Node::IAttribute attr ) const
             { return _nodeIAttributes[attr]; }
@@ -125,11 +130,12 @@ namespace server
         Global();
         
         std::string _connectionSAttributes[ConnectionDescription::SATTR_ALL];
-        char        _connectionCAttributes[ConnectionDescription::CATTR_ALL];
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
         
         float       _configFAttributes[Config::FATTR_ALL];
 
+        std::string _nodeSAttributes[Node::SATTR_ALL];
+        char        _nodeCAttributes[Node::CATTR_ALL];
         int32_t     _nodeIAttributes[eq::Node::IATTR_ALL];
 
         int32_t     _pipeIAttributes[Pipe::IATTR_ALL];

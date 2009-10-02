@@ -175,11 +175,43 @@ namespace server
 
         /** @name Attributes */
         //@{
+        // Note: also update string array init in node.cpp
+        enum SAttribute
+        {
+            SATTR_LAUNCH_COMMAND,
+            SATTR_FILL1,
+            SATTR_FILL2,
+            SATTR_ALL
+        };
+
+        enum CAttribute
+        {
+            CATTR_LAUNCH_COMMAND_QUOTE,
+            CATTR_FILL1,
+            CATTR_FILL2,
+            CATTR_ALL
+        };
+
+        void setSAttribute( const SAttribute attr, const std::string& value )
+            { _sattributes[attr] = value; }
+        const std::string&  getSAttribute( const SAttribute attr ) const
+            { return _sattributes[attr]; }
+
+        void setCAttribute( const CAttribute attr, const char value )
+            { _cattributes[attr] = value; }
+        char getCAttribute( const CAttribute attr ) const
+            { return _cattributes[attr]; }
+
         void setIAttribute( const eq::Node::IAttribute attr, 
                             const int32_t value )
             { _iAttributes[attr] = value; }
         int32_t  getIAttribute( const eq::Node::IAttribute attr ) const
             { return _iAttributes[attr]; }
+
+        static const std::string&  getSAttributeString( const SAttribute attr )
+            { return _sAttributeStrings[attr]; }
+        static const std::string&  getCAttributeString( const CAttribute attr )
+            { return _cAttributeStrings[attr]; }
         //@}
 
         /**
@@ -261,8 +293,19 @@ namespace server
         /** The node name */
         std::string _name;
 
+        /** String attributes. */
+        std::string _sattributes[SATTR_ALL];
+
+        /** Character attributes. */
+        char _cattributes[CATTR_ALL];
+
         /** Integer attributes. */
         int32_t _iAttributes[eq::Node::IATTR_ALL];
+
+        /** String representation of string attributes. */
+        static std::string _sAttributeStrings[SATTR_ALL];
+        /** String representation of character attributes. */
+        static std::string _cAttributeStrings[CATTR_ALL];
 
         /** The parent config. */
         Config* _config;

@@ -38,25 +38,15 @@ namespace server
         {
             SATTR_HOSTNAME,
             SATTR_FILENAME,
-            SATTR_LAUNCH_COMMAND,
             SATTR_FILL1,
             SATTR_FILL2,
             SATTR_ALL
-        };
-
-        enum CAttribute
-        {
-            CATTR_LAUNCH_COMMAND_QUOTE,
-            CATTR_FILL1,
-            CATTR_FILL2,
-            CATTR_ALL
         };
 
         enum IAttribute
         {
             IATTR_TYPE,
             IATTR_PORT,
-            IATTR_LAUNCH_TIMEOUT,
             IATTR_BANDWIDTH,
             IATTR_FILL1,
             IATTR_FILL2,
@@ -66,8 +56,6 @@ namespace server
 
         static const std::string&  getSAttributeString( const SAttribute attr )
             { return _sAttributeStrings[attr]; }
-        static const std::string&  getCAttributeString( const CAttribute attr )
-            { return _cAttributeStrings[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
             { return _iAttributeStrings[attr]; }
 
@@ -77,8 +65,6 @@ namespace server
     private:
         /** String representation of string attributes. */
         static std::string _sAttributeStrings[SATTR_ALL];
-        /** String representation of character attributes. */
-        static std::string _cAttributeStrings[CATTR_ALL];
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
 

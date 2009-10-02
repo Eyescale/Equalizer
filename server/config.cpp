@@ -793,6 +793,8 @@ bool Config::_updateRunning()
 bool Config::_connectNodes()
 {
     bool success = true;
+    base::Clock clock;
+
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
@@ -806,7 +808,7 @@ bool Config::_connectNodes()
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isActive() && !_syncConnectNode( node ))
+        if( node->isActive() && !_syncConnectNode( node, clock ))
             success = false;
     }
 
@@ -831,6 +833,12 @@ static net::NodePtr _createNetNode( Node* node )
             new net::ConnectionDescription( *desc ));
     }
 
+    netNode->setLaunchTimeout( 
+        node->getIAttribute( eq::Node::IATTR_LAUNCH_TIMEOUT ));
+    netNode->setLaunchCommand( 
+        node->getSAttribute( Node::SATTR_LAUNCH_COMMAND ));
+    netNode->setLaunchCommandQuote( 
+        node->getCAttribute( Node::CATTR_LAUNCH_COMMAND_QUOTE ));
     netNode->setAutoLaunch( true );
     return netNode;
 }
@@ -842,7 +850,7 @@ bool Config::_connectNode( Node* node )
 
     net::NodePtr netNode = node->getNode();
     if( netNode.isValid( ))
-        return ( netNode->getState() == net::Node::STATE_CONNECTED );
+        return netNode->isConnected();
 
     net::NodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
@@ -874,7 +882,7 @@ bool Config::_connectNode( Node* node )
     return true;
 }
 
-bool Config::_syncConnectNode( Node* node )
+bool Config::_syncConnectNode( Node* node, const base::Clock& clock )
 {
     EQASSERT( node->isActive( ));
 
@@ -885,7 +893,10 @@ bool Config::_syncConnectNode( Node* node )
     net::NodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
-    if( !localNode->syncConnect( netNode ))
+    const int64_t timeLeft = netNode->getLaunchTimeout() - clock.getTime64();
+    const uint32_t timeOut = EQ_MAX( timeLeft, 0 );
+
+    if( !localNode->syncConnect( netNode, timeOut ))
     {
         stringstream nodeString;
         nodeString << netNode->serialize();

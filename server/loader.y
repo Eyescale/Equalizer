@@ -88,15 +88,15 @@
 %token EQTOKEN_ASCII
 %token EQTOKEN_GLOBAL
 %token EQTOKEN_CONNECTION_SATTR_HOSTNAME
-%token EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND
-%token EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE
 %token EQTOKEN_CONNECTION_IATTR_TYPE
 %token EQTOKEN_CONNECTION_IATTR_PORT
 %token EQTOKEN_CONNECTION_SATTR_FILENAME
 %token EQTOKEN_CONNECTION_IATTR_BANDWIDTH
-%token EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
+%token EQTOKEN_NODE_SATTR_LAUNCH_COMMAND
+%token EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE
 %token EQTOKEN_NODE_IATTR_THREAD_MODEL
+%token EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_NODE_IATTR_HINT_STATISTICS
 %token EQTOKEN_PIPE_IATTR_HINT_THREAD
 %token EQTOKEN_WINDOW_IATTR_HINT_STEREO
@@ -187,9 +187,9 @@
 %token EQTOKEN_FIXED
 %token EQTOKEN_HMD
 %token EQTOKEN_HOSTNAME
-%token EQTOKEN_COMMAND
-%token EQTOKEN_COMMAND_QUOTE
-%token EQTOKEN_TIMEOUT
+%token EQTOKEN_LAUNCH_COMMAND
+%token EQTOKEN_LAUNCH_COMMAND_QUOTE
+%token EQTOKEN_LAUNCH_TIMEOUT
 %token EQTOKEN_PORT
 %token EQTOKEN_FILENAME
 %token EQTOKEN_TASK
@@ -296,16 +296,6 @@ global:
          eq::server::Global::instance()->setConnectionSAttribute(
              eq::server::ConnectionDescription::SATTR_HOSTNAME, $2 );
      }
-     | EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND STRING
-     {
-         eq::server::Global::instance()->setConnectionSAttribute(
-             eq::server::ConnectionDescription::SATTR_LAUNCH_COMMAND, $2 );
-     }
-     | EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE CHARACTER
-     {
-         eq::server::Global::instance()->setConnectionCAttribute(
-             eq::server::ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE, $2 );
-     }
      | EQTOKEN_CONNECTION_IATTR_TYPE connectionType 
      { 
          eq::server::Global::instance()->setConnectionIAttribute( 
@@ -326,20 +316,30 @@ global:
          eq::server::Global::instance()->setConnectionIAttribute(
              eq::server::ConnectionDescription::IATTR_BANDWIDTH, $2 );
      }
-     | EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT UNSIGNED
-     {
-         eq::server::Global::instance()->setConnectionIAttribute(
-             eq::server::ConnectionDescription::IATTR_LAUNCH_TIMEOUT, $2 );
-     }
      | EQTOKEN_CONFIG_FATTR_EYE_BASE FLOAT
      {
          eq::server::Global::instance()->setConfigFAttribute(
              eq::server::Config::FATTR_EYE_BASE, $2 );
      }
+     | EQTOKEN_NODE_SATTR_LAUNCH_COMMAND STRING
+     {
+         eq::server::Global::instance()->setNodeSAttribute(
+             eq::server::Node::SATTR_LAUNCH_COMMAND, $2 );
+     }
+     | EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE CHARACTER
+     {
+         eq::server::Global::instance()->setNodeCAttribute(
+             eq::server::Node::CATTR_LAUNCH_COMMAND_QUOTE, $2 );
+     }
      | EQTOKEN_NODE_IATTR_THREAD_MODEL IATTR
      {
          eq::server::Global::instance()->setNodeIAttribute(
              eq::Node::IATTR_THREAD_MODEL, $2 );
+     }
+     | EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT UNSIGNED
+     {
+         eq::server::Global::instance()->setNodeIAttribute(
+             eq::Node::IATTR_LAUNCH_TIMEOUT, $2 );
      }
      | EQTOKEN_NODE_IATTR_HINT_STATISTICS IATTR
      {
@@ -551,17 +551,21 @@ connectionFields: /*null*/ | connectionFields connectionField
 connectionField:
     EQTOKEN_TYPE connectionType   { connectionDescription->type = $2; }
     | EQTOKEN_HOSTNAME  STRING    { connectionDescription->setHostname($2); }
-    | EQTOKEN_COMMAND   STRING  { connectionDescription->setLaunchCommand($2); }
-    | EQTOKEN_COMMAND_QUOTE CHARACTER { connectionDescription->launchCommandQuote = $2; }
-    | EQTOKEN_TIMEOUT   UNSIGNED  { connectionDescription->launchTimeout = $2; }
     | EQTOKEN_PORT UNSIGNED       { connectionDescription->port = $2; }
     | EQTOKEN_BANDWIDTH UNSIGNED  { connectionDescription->bandwidth = $2; }
     | EQTOKEN_FILENAME STRING     { connectionDescription->setFilename($2); }
 
 nodeAttributes: /*null*/ | nodeAttributes nodeAttribute
 nodeAttribute:
-    EQTOKEN_THREAD_MODEL IATTR 
+    EQTOKEN_LAUNCH_COMMAND STRING 
+        { node->setSAttribute( eq::server::Node::SATTR_LAUNCH_COMMAND, $2 ); }
+    | EQTOKEN_LAUNCH_COMMAND_QUOTE CHARACTER 
+        { node->setCAttribute( eq::server::Node::CATTR_LAUNCH_COMMAND_QUOTE,
+                               $2 ); }
+    | EQTOKEN_THREAD_MODEL IATTR 
         { node->setIAttribute( eq::Node::IATTR_THREAD_MODEL, $2 ); }
+    | EQTOKEN_LAUNCH_TIMEOUT IATTR 
+        { node->setIAttribute( eq::Node::IATTR_LAUNCH_TIMEOUT, $2 ); }
     | EQTOKEN_HINT_STATISTICS IATTR
         {
             EQWARN

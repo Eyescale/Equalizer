@@ -80,9 +80,45 @@ namespace net
         bool  isConnected() const 
             { return (_state == STATE_CONNECTED || _state == STATE_LISTENING); }
 
-        void setAutoLaunch( const bool autoLaunch ) { _autoLaunch = autoLaunch;}
-
         /** 
+         * Get a node by identifier.
+         * 
+         * @param id the node identifier.
+         * @return the node.
+         */
+        NodePtr getNode( const NodeID& id ) const;
+        //@}
+
+        /** @ Auto-launch parameters. */
+        //@{
+        /** 
+         * Set the command to spawn the process for this node.
+         *
+         * The default is '"ssh -n %h %c >& %h.%n.log"', with:
+         * 
+         * %h - hostname
+         * %c - command (work dir + program name)
+         * %n - unique node identifier
+         */
+        EQ_EXPORT void setLaunchCommand( const std::string& launchCommand );
+
+        /** @return the command to spawn the process for this node. */
+        EQ_EXPORT const std::string& getLaunchCommand() const;
+
+        /** Set the launch timeout in milliseconds. */
+        void setLaunchTimeout( const uint32_t time ) { _launchTimeout = time; }
+
+        /** @return the current launch timeout in milliseconds. */
+        uint32_t getLaunchTimeout() const { return _launchTimeout; }
+
+        /** Set the quote charactor for the launch command arguments */
+        void setLaunchCommandQuote( const char quote )
+            { _launchCommandQuote = quote; }
+
+        /* @return the quote charactor for the launch command arguments */
+        char getLaunchCommandQuote() const { return _launchCommandQuote; }
+
+        /**
          * Set the program name to start this node.
          * 
          * @param name the program name to start this node.
@@ -97,12 +133,12 @@ namespace net
         EQ_EXPORT void setWorkDir( const std::string& name );
 
         /** 
-         * Get a node by identifier.
-         * 
-         * @param id the node identifier.
-         * @return the node.
+         * Set if this node should be launched automatically.
+         *
+         * This determines if the launch command is used to start the node when
+         * it can not be reached using its connections. The default is false.
          */
-        NodePtr getNode( const NodeID& id ) const;
+        void setAutoLaunch( const bool autoLaunch ) { _autoLaunch = autoLaunch;}
         //@}
 
         /**
@@ -216,11 +252,13 @@ namespace net
          * is unchanged.
          *
          * @param node the remote node.
+         * @param timeout the timeout, in milliseconds, before the launch
+         *                process is considered to have failed.
          * @return <code>true</code> if this node is connected,
          *         <code>false</code> otherwise.
          * @sa initConnect
          */
-        EQ_EXPORT bool syncConnect( NodePtr node );
+        EQ_EXPORT bool syncConnect( NodePtr node, const uint32_t timeout );
 
         /** 
          * Create and connect a node given by an identifier.
@@ -517,9 +555,6 @@ namespace net
         base::RequestHandler _requestHandler;
 
     private:
-        /** Determines if the node should be launched automatically. */
-        bool _autoLaunch;
-
         /** Globally unique node identifier. */
         NodeID _id;
 
@@ -550,11 +585,23 @@ namespace net
         /** Needed for thread-safety during nodeID-based connect() */
         base::Lock _connectMutex;
 
+        /** Determines if the node should be launched automatically. */
+        bool _autoLaunch;
+
         /** The request id for the async launch operation. */
         uint32_t _launchID;
 
-        /** The remaining timeout for the launch operation. */
-        base::Clock _launchTimeout;
+        /** 
+         * The amount of time in milliseconds to wait before a node is
+         * considered unreachable during start.
+         */
+        int32_t _launchTimeout;
+
+        /** The character to quote the launch command arguments */
+        char _launchCommandQuote;
+
+        /** Command to launch node process. */
+        std::string _launchCommand; 
 
         /** Commands re-scheduled for dispatch. */
         CommandList  _pendingCommands;

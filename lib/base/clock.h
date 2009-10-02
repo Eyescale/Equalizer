@@ -66,37 +66,6 @@ namespace base
 #endif
             }
 
-        /** 
-         * Set an alarm.
-         *
-         * The clock will return negative, decreasing times when the alarm has
-         * not been reached.
-         * 
-         * @param time The time in milliseconds when the alarm happens.
-         */
-        void setAlarm( const float time )
-            {
-                reset();
-#ifdef Darwin
-                _start += static_cast<uint64_t>(
-                              time / _timebaseInfo.numer * _timebaseInfo.denom *
-                                     1000000.f );
-#elif defined (WIN32)
-                _start.QuadPart += static_cast<long long>( 0.001f * time * 
-                                                           _frequency.QuadPart);
-#else
-                const int sec   = static_cast<int>( time * 0.001f );
-                _start.tv_sec  += sec;
-                _start.tv_nsec += static_cast<int>(
-                    (time - sec * 1000) * 1000000 );
-                if( _start.tv_nsec > 1000000000 )
-                {
-                    _start.tv_sec  += 1;
-                    _start.tv_nsec -= 1000000000;
-                }
-#endif
-            }
-
         /** Set the current time of the clock. */
         void set( const int64_t time )
             {

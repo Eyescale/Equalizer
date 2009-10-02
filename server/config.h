@@ -453,7 +453,7 @@ namespace server
         bool _updateRunning();
         bool   _connectNodes();
         bool     _connectNode( Node* node );
-        bool     _syncConnectNode( Node* node );
+        bool     _syncConnectNode( Node* node, const base::Clock& clock );
         void   _startNodes();
         uint32_t _createConfig( Node* node );
         void   _stopNodes();

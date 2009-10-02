@@ -36,6 +36,19 @@ namespace eq
 {
 namespace server
 {
+#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
+
+std::string Node::_sAttributeStrings[SATTR_ALL] = {
+    MAKE_ATTR_STRING( SATTR_LAUNCH_COMMAND ),
+    MAKE_ATTR_STRING( SATTR_FILL1 ),
+    MAKE_ATTR_STRING( SATTR_FILL2 )
+};
+std::string Node::_cAttributeStrings[CATTR_ALL] = {
+    MAKE_ATTR_STRING( CATTR_LAUNCH_COMMAND_QUOTE ),
+    MAKE_ATTR_STRING( CATTR_FILL1 ),
+    MAKE_ATTR_STRING( CATTR_FILL2 )
+};
+
 typedef net::CommandFunc<Node> NodeFunc;
 
 void Node::_construct()
@@ -54,8 +67,12 @@ Node::Node()
     _construct();
 
     const Global* global = Global::instance();    
+    for( int i=0; i < Node::SATTR_ALL; ++i )
+        _sattributes[i] = global->getNodeSAttribute((Node::SAttribute)i);
+    for( int i=0; i < Node::CATTR_ALL; ++i )
+        _cattributes[i] = global->getNodeCAttribute((Node::CAttribute)i);
     for( int i=0; i < eq::Node::IATTR_ALL; ++i )
-        _iAttributes[i] =global->getNodeIAttribute((eq::Node::IAttribute)i);
+        _iAttributes[i] = global->getNodeIAttribute((eq::Node::IAttribute)i);
 }
 
 Node::Node( const Node& from, Config* config )
@@ -68,6 +85,9 @@ Node::Node( const Node& from, Config* config )
 
     config->addNode( this );
 
+    for( int i=0; i < Node::SATTR_ALL; ++i )
+        _sattributes[i] = from._sattributes[i];
+    memcpy( _cattributes, from._cattributes, Node::CATTR_ALL * sizeof( char ));
     memcpy( _iAttributes, from._iAttributes, 
             eq::Node::IATTR_ALL * sizeof( int32_t ));
 
@@ -605,6 +625,46 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
 
     bool attrPrinted   = false;
     
+    for( Node::SAttribute i = static_cast<Node::SAttribute>( 0 );
+         i<Node::SATTR_ALL; 
+         i = static_cast<Node::SAttribute>( static_cast<uint32_t>( i )+1))
+    {
+        const std::string& value = node->getSAttribute( i );
+        if( value == Global::instance()->getNodeSAttribute( i ))
+            continue;
+
+        if( !attrPrinted )
+        {
+            os << std::endl << "attributes" << std::endl;
+            os << "{" << std::endl << base::indent;
+            attrPrinted = true;
+        }
+        
+        os << ( i==Node::SATTR_LAUNCH_COMMAND ? "launch_command       " :
+                "ERROR" )
+           << "\"" << value << "\"" << std::endl;
+    }
+    
+    for( Node::CAttribute i = static_cast<Node::CAttribute>( 0 );
+         i<Node::CATTR_ALL; 
+         i = static_cast<Node::CAttribute>( static_cast<uint32_t>( i )+1))
+    {
+        const char value = node->getCAttribute( i );
+        if( value == Global::instance()->getNodeCAttribute( i ))
+            continue;
+
+        if( !attrPrinted )
+        {
+            os << std::endl << "attributes" << std::endl;
+            os << "{" << std::endl << base::indent;
+            attrPrinted = true;
+        }
+        
+        os << ( i==Node::CATTR_LAUNCH_COMMAND_QUOTE ? "launch_command_quote " :
+                "ERROR" )
+           << "'" << value << "'" << std::endl;
+    }
+    
     for( eq::Node::IAttribute i = static_cast<eq::Node::IAttribute>( 0 );
          i<eq::Node::IATTR_ALL; 
          i = static_cast<eq::Node::IAttribute>( static_cast<uint32_t>( i )+1))
@@ -620,8 +680,8 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
             attrPrinted = true;
         }
         
-        os << ( i==eq::Node::IATTR_THREAD_MODEL ?
-                    "thread_model       " :
+        os << ( i==eq::Node::IATTR_LAUNCH_TIMEOUT ? "launch_timeout       " :
+                i==eq::Node::IATTR_THREAD_MODEL   ? "thread_model         " :
                 "ERROR" )
            << static_cast<IAttrValue>( value ) << std::endl;
     }

@@ -51,28 +51,13 @@ void Global::_setupDefaults()
     // connection
     for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
         _connectionIAttributes[i] = eq::UNDEFINED;
-    for( uint32_t i=0; i<ConnectionDescription::CATTR_ALL; ++i )
-        _connectionCAttributes[i] = '\0';
 
     _connectionIAttributes[ConnectionDescription::IATTR_TYPE] = 
         net::CONNECTIONTYPE_TCPIP;
     _connectionIAttributes[ConnectionDescription::IATTR_PORT]     = 0;
     _connectionIAttributes[ConnectionDescription::IATTR_BANDWIDTH]= 0;
-    _connectionIAttributes[ConnectionDescription::IATTR_LAUNCH_TIMEOUT] = 
-        60000; // ms
     
     _connectionSAttributes[ConnectionDescription::SATTR_HOSTNAME] = "localhost";
-#ifdef WIN32
-    _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
-        "ssh -n %h %c";
-    _connectionCAttributes[ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE] =
-        '\"';
-#else
-    _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
-        "ssh -n %h %c >& %h.%n.log";
-    _connectionCAttributes[ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE] =
-        '\'';
-#endif
 
     // config
     for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
@@ -81,8 +66,19 @@ void Global::_setupDefaults()
     _configFAttributes[Config::FATTR_EYE_BASE]         = 0.05f;
 
     // node
+    for( uint32_t i=0; i < Node::CATTR_ALL; ++i )
+        _nodeCAttributes[i] = 0;
     for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
         _nodeIAttributes[i] = eq::UNDEFINED;
+
+    _nodeIAttributes[eq::Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
+#ifdef WIN32
+    _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c";
+    _nodeCAttributes[Node::CATTR_LAUNCH_COMMAND_QUOTE] = '\"';
+#else
+    _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c >& %h.%n.log";
+    _nodeCAttributes[Node::CATTR_LAUNCH_COMMAND_QUOTE] = '\'';
+#endif
 
     // pipe
     for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
@@ -136,15 +132,6 @@ void Global::_readEnvironment()
         if( envValue )
             _connectionSAttributes[i] = envValue;
     }
-    for( uint32_t i=0; i<ConnectionDescription::CATTR_ALL; ++i )
-    {
-        const std::string& name = ConnectionDescription::getCAttributeString(
-            (ConnectionDescription::CAttribute)i);
-        const char*   envValue = getenv( name.c_str( ));
-        
-        if( envValue )
-            _connectionCAttributes[i] = envValue[0];
-    }
     for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
     {
         const std::string& name = ConnectionDescription::getIAttributeString(
@@ -164,6 +151,24 @@ void Global::_readEnvironment()
             _configFAttributes[i] = atof( envValue );
     }
 
+    for( uint32_t i=0; i<Node::SATTR_ALL; ++i )
+    {
+        const std::string& name = Node::getSAttributeString(
+            (Node::SAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _nodeSAttributes[i] = envValue;
+    }
+    for( uint32_t i=0; i<Node::CATTR_ALL; ++i )
+    {
+        const std::string& name = Node::getCAttributeString(
+            (Node::CAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _nodeCAttributes[i] = envValue[0];
+    }
     for( uint32_t i=0; i<eq::Node::IATTR_ALL; ++i )
     {
         const std::string& name     = eq::Node::getIAttributeString(
@@ -237,13 +242,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         switch( i )
         { 
             case ConnectionDescription::IATTR_TYPE:
-                os << ( value == net::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
-                        value == net::CONNECTIONTYPE_SDP   ? "SDP" : 
-                        value == net::CONNECTIONTYPE_NAMEDPIPE   ? "PIPE" :
-                        "PIPE" );
-                break;
-            case ConnectionDescription::IATTR_LAUNCH_TIMEOUT:
-                os << value;// << " ms";
+                os << static_cast< net::ConnectionType >( value );
                 break;
             default:
                 os << value;
@@ -263,18 +262,6 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << "\"" << value << "\"" << std::endl;
     }
 
-    for( uint32_t i=0; i<ConnectionDescription::CATTR_ALL; ++i )
-    {
-        const char value = global->_connectionCAttributes[i];
-        if( value == reference._connectionCAttributes[i] )
-            continue;
-
-        const std::string& name = ConnectionDescription::getCAttributeString( 
-            static_cast<ConnectionDescription::CAttribute>( i ));
-        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << "'" << value << "'" << std::endl;
-    }
-
     for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
     {
         if( i == Config::FATTR_VERSION )
@@ -288,6 +275,30 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
             static_cast<Config::FAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << value << std::endl;
+    }
+
+    for( uint32_t i=0; i<Node::SATTR_ALL; ++i )
+    {
+        const std::string& value = global->_nodeSAttributes[i];
+        if( value == reference._nodeSAttributes[i] )
+            continue;
+
+        const std::string& name = Node::getSAttributeString( 
+            static_cast<Node::SAttribute>( i ));
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << "\"" << value << "\"" << std::endl;
+    }
+
+    for( uint32_t i=0; i<Node::CATTR_ALL; ++i )
+    {
+        const char value = global->_nodeCAttributes[i];
+        if( value == reference._nodeCAttributes[i] )
+            continue;
+
+        const std::string& name = Node::getCAttributeString( 
+            static_cast<Node::CAttribute>( i ));
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << "'" << value << "'" << std::endl;
     }
 
     for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )

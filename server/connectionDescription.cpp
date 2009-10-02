@@ -33,19 +33,12 @@ namespace server
 std::string ConnectionDescription::_sAttributeStrings[SATTR_ALL] = {
     MAKE_ATTR_STRING( SATTR_HOSTNAME ),
     MAKE_ATTR_STRING( SATTR_PIPE_FILENAME ),
-    MAKE_ATTR_STRING( SATTR_LAUNCH_COMMAND ),
     MAKE_ATTR_STRING( SATTR_FILL1 ),
     MAKE_ATTR_STRING( SATTR_FILL2 )
-};
-std::string ConnectionDescription::_cAttributeStrings[CATTR_ALL] = {
-    MAKE_ATTR_STRING( CATTR_LAUNCH_COMMAND_QUOTE ),
-    MAKE_ATTR_STRING( CATTR_FILL1 ),
-    MAKE_ATTR_STRING( CATTR_FILL2 )
 };
 std::string ConnectionDescription::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_TYPE ),
     MAKE_ATTR_STRING( IATTR_TCPIP_PORT ),
-    MAKE_ATTR_STRING( IATTR_LAUNCH_TIMEOUT ),
     MAKE_ATTR_STRING( IATTR_BANDWIDTH ),
     MAKE_ATTR_STRING( IATTR_FILL1 ),
     MAKE_ATTR_STRING( IATTR_FILL2 )
@@ -56,30 +49,13 @@ ConnectionDescription::ConnectionDescription()
     const Global* global = Global::instance();
 
     setHostname( global->getConnectionSAttribute( SATTR_HOSTNAME ));
-    setLaunchCommand( global->getConnectionSAttribute( SATTR_LAUNCH_COMMAND ));
-
-    launchCommandQuote = global->getConnectionCAttribute( 
-                             CATTR_LAUNCH_COMMAND_QUOTE );
-
-    launchTimeout  = global->getConnectionIAttribute( IATTR_LAUNCH_TIMEOUT );
-    type           = static_cast< net::ConnectionType >(
-                         global->getConnectionIAttribute( IATTR_TYPE ));
+    type = static_cast< net::ConnectionType >(
+        global->getConnectionIAttribute( IATTR_TYPE ));
 
     bandwidth = global->getConnectionIAttribute( IATTR_BANDWIDTH );
 
-    switch( type )
-    {
-        case net::CONNECTIONTYPE_TCPIP:
-        case net::CONNECTIONTYPE_SDP:
-        case net::CONNECTIONTYPE_IB:
-            port = global->getConnectionIAttribute( IATTR_PORT );
-            break;
-        case net::CONNECTIONTYPE_NAMEDPIPE:
-            setFilename( global->getConnectionSAttribute( SATTR_FILENAME));
-            break;
-        default:
-            break;
-    }
+    port = global->getConnectionIAttribute( IATTR_PORT );
+    setFilename( global->getConnectionSAttribute( SATTR_FILENAME));
 }
 
 std::ostream& operator << ( std::ostream& os, 
@@ -118,18 +94,6 @@ std::ostream& operator << ( std::ostream& os,
             ConnectionDescription::IATTR_BANDWIDTH ))
         os << "bandwidth     " << desc->bandwidth << endl;
 
-    if( desc->launchTimeout != global->getConnectionIAttribute( 
-            ConnectionDescription::IATTR_LAUNCH_TIMEOUT ))
-        os << "timeout       " << desc->launchTimeout << endl;
-
-    if( desc->getLaunchCommand() != global->getConnectionSAttribute( 
-            ConnectionDescription::SATTR_LAUNCH_COMMAND ))
-        os << "command       \"" << desc->getLaunchCommand() << "\"" << endl;
-    
-    if( desc->launchCommandQuote != global->getConnectionCAttribute( 
-            ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE ))
-        os << "command_quote '" << desc->launchCommandQuote << "'" << endl;
-    
     os << exdent << "}" << enableFlush << endl;
 
     return os;

@@ -122,6 +122,7 @@ namespace eq
         enum IAttribute
         {
             IATTR_THREAD_MODEL,           //!< Threading model
+            IATTR_LAUNCH_TIMEOUT,         //!< Launch timeout
             IATTR_FILL1,
             IATTR_FILL2,
             IATTR_ALL

@@ -39,8 +39,6 @@ namespace net
                 : type( CONNECTIONTYPE_TCPIP )
                 , bandwidth( 0 )
                 , port( 0 )
-                , launchTimeout( 10000 )
-                , launchCommandQuote( '\'' )
             {
             }
 
@@ -52,15 +50,6 @@ namespace net
 
         /** The listening port (TCPIP, SDP, IB, MCIP). */
         uint16_t port;
-
-        /** 
-         * The amount of time in milliseconds to wait before a node is
-         * considered unreachable during start.
-         */
-        int32_t launchTimeout;
-
-        /** The character to quote the launch command arguments */
-        char launchCommandQuote;
 
         /** @return this description as a string. */
         EQ_EXPORT std::string toString() const;
@@ -91,17 +80,6 @@ namespace net
         EQ_EXPORT void setHostname( const std::string& hostname );
         EQ_EXPORT const std::string& getHostname() const;
 
-        /** 
-         * Set the command to spawn a new process on a node.
-         *
-         * The default is '"ssh -n %h %c >& %h.%n.log"', with:
-         * 
-         * %h - hostname
-         * %c - command
-         * %n - unique node identifier
-         */
-        EQ_EXPORT void setLaunchCommand( const std::string& launchCommand );
-        EQ_EXPORT const std::string& getLaunchCommand() const;
         EQ_EXPORT void setFilename( const std::string& filename );
         EQ_EXPORT const std::string& getFilename() const;
         //@}
@@ -110,9 +88,6 @@ namespace net
         EQ_EXPORT virtual ~ConnectionDescription() {}
 
     private:
-        /** Command to launch render client on node. */
-        std::string _launchCommand; 
-
         /** The host name. */
         std::string _hostname;
 

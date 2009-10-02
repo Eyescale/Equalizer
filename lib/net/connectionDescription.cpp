@@ -65,9 +65,7 @@ string ConnectionDescription::toString() const
 
 void ConnectionDescription::serialize( std::ostream& os ) const
 {
-    os << type << SEPARATOR << bandwidth << SEPARATOR << _launchCommand 
-       << SEPARATOR << static_cast<int>( launchCommandQuote )
-       << SEPARATOR << launchTimeout << SEPARATOR << _hostname  << SEPARATOR
+    os << type << SEPARATOR << bandwidth << SEPARATOR << _hostname  << SEPARATOR
        << port << SEPARATOR << _filename << SEPARATOR;
 }
 
@@ -134,27 +132,6 @@ bool ConnectionDescription::fromString( std::string& data )
         nextPos = data.find( SEPARATOR );
         if( nextPos == string::npos )
             goto error;
-        _launchCommand = data.substr( 0, nextPos );
-        data           = data.substr( nextPos + 1 );
-
-        nextPos = data.find( SEPARATOR );
-        if( nextPos == string::npos )
-            goto error;
-        const string quoteStr = data.substr( 0, nextPos );
-        launchCommandQuote = static_cast< char >( atoi( quoteStr.c_str( )));
-        data               = data.substr( nextPos + 1 );
-
-        nextPos = data.find( SEPARATOR );
-        if( nextPos == string::npos )
-            goto error;
-
-        const string launchTimeoutStr = data.substr( 0, nextPos );
-        data                          = data.substr( nextPos + 1 );
-        launchTimeout = atoi( launchTimeoutStr.c_str( ));
-
-        nextPos = data.find( SEPARATOR );
-        if( nextPos == string::npos )
-            goto error;
 
         _hostname = data.substr( 0, nextPos );
         data      = data.substr( nextPos + 1 );
@@ -198,16 +175,6 @@ const std::string& ConnectionDescription::getFilename() const
 const string& ConnectionDescription::getHostname() const
 {
     return _hostname;
-}
-
-void ConnectionDescription::setLaunchCommand( const std::string& launchCommand )
-{
-    _launchCommand = launchCommand;
-}
-
-const string& ConnectionDescription::getLaunchCommand() const
-{
-    return _launchCommand;
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

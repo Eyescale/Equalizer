@@ -1,7 +1,14 @@
-Add missing file
+Launch parameter cleanup:
+- Launch parameters are per-node
+
+API and file format changes:
+- old CONNECTION_LAUNCH globals are still readable
+- connection { launch... } parameters are removed and replaced by:
+- new node { attributes { launch_ }} parameters
+- removed unused base::Clock::setAlarm
 
 [ ] May break build
-[ ] May break existing applications
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [ ] Cleanup

@@ -74,17 +74,25 @@ void yyerror( char *errmsg )
 ascii                            { return EQTOKEN_ASCII; }
 global                           { return EQTOKEN_GLOBAL; }
 EQ_CONNECTION_SATTR_HOSTNAME     { return EQTOKEN_CONNECTION_SATTR_HOSTNAME; }
-EQ_CONNECTION_SATTR_LAUNCH_COMMAND { return EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND; }
-EQ_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE; }
+  /* Deprecated */
+EQ_CONNECTION_SATTR_LAUNCH_COMMAND { return EQTOKEN_NODE_SATTR_LAUNCH_COMMAND; }
+  /* Deprecated */
+EQ_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE; }
+  /* Deprecated */
+EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT; }
 EQ_CONNECTION_IATTR_TYPE         { return EQTOKEN_CONNECTION_IATTR_TYPE; }
+  /* Deprecated */
 EQ_CONNECTION_IATTR_TCPIP_PORT   { return EQTOKEN_CONNECTION_IATTR_PORT; }
 EQ_CONNECTION_IATTR_PORT         { return EQTOKEN_CONNECTION_IATTR_PORT; }
+  /* Deprecated */
 EQ_CONNECTION_SATTR_PIPE_FILENAME { return EQTOKEN_CONNECTION_SATTR_FILENAME; }
 EQ_CONNECTION_SATTR_FILENAME     { return EQTOKEN_CONNECTION_SATTR_FILENAME; }
 EQ_CONNECTION_IATTR_BANDWIDTH    { return EQTOKEN_CONNECTION_IATTR_BANDWIDTH; }
-EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT; }
 EQ_CONFIG_FATTR_EYE_BASE         { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
+EQ_NODE_SATTR_LAUNCH_COMMAND     { return EQTOKEN_NODE_SATTR_LAUNCH_COMMAND; }
+EQ_NODE_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE; }
 EQ_NODE_IATTR_THREAD_MODEL       { return EQTOKEN_NODE_IATTR_THREAD_MODEL; }
+EQ_NODE_IATTR_LAUNCH_TIMEOUT     { return EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT; }
 EQ_NODE_IATTR_HINT_STATISTICS    { return EQTOKEN_NODE_IATTR_HINT_STATISTICS; }
 EQ_PIPE_IATTR_HINT_THREAD        { return EQTOKEN_PIPE_IATTR_HINT_THREAD; }
 EQ_WINDOW_IATTR_HINT_STEREO      { return EQTOKEN_WINDOW_IATTR_HINT_STEREO; }
@@ -177,11 +185,13 @@ memory                          { return EQTOKEN_MEMORY; }
 fixed                           { return EQTOKEN_FIXED; }
 HMD                             { return EQTOKEN_HMD; }
 hostname                        { return EQTOKEN_HOSTNAME; }
-command                         { return EQTOKEN_COMMAND; }
-command_quote                   { return EQTOKEN_COMMAND_QUOTE; }
-timeout                         { return EQTOKEN_TIMEOUT; }
+launch_command                  { return EQTOKEN_LAUNCH_COMMAND; }
+launch_command_quote            { return EQTOKEN_LAUNCH_COMMAND_QUOTE; }
+launch_timeout                  { return EQTOKEN_LAUNCH_TIMEOUT; }
+  /* Deprecated */
 TCPIP_port                      { return EQTOKEN_PORT; }
 port                            { return EQTOKEN_PORT; }
+  /* Deprecated */
 PIPE_filename                   { return EQTOKEN_FILENAME; }
 filename                        { return EQTOKEN_FILENAME; }
 task                            { return EQTOKEN_TASK; }
