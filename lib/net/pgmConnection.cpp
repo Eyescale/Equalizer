@@ -55,7 +55,8 @@ PGMConnection::PGMConnection()
 
     _description =  new ConnectionDescription;
     _description->type = CONNECTIONTYPE_MCIP_PGM;
-    _description->bandwidth = 102400;
+    if ( _description->bandwidth == 0)
+        _description->bandwidth = 50 * 1024; // 50MB/s
 
     EQVERB << "New PGMConnection @" << (void*)this << std::endl;
 }
@@ -182,7 +183,7 @@ void PGMConnection::acceptNB()
 
     EQASSERT( _overlappedAcceptData );
     EQASSERT( _overlappedSocket == INVALID_SOCKET );
-    _overlappedSocket = WSASocket( AF_INET, SOCK_RDM, IPPROTO_RM, 0,0, flags );
+    _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_RM, 0, 0, flags );
 
     if( _overlappedSocket == INVALID_SOCKET )
     {
@@ -239,7 +240,7 @@ ConnectionPtr PGMConnection::acceptSync()
     GetAcceptExSockaddrs( _overlappedAcceptData, 0, sizeof( sockaddr_in ) + 16,
                           sizeof( sockaddr_in ) + 16, (sockaddr**)&local, 
                           &localLen, (sockaddr**)&remote, &remoteLen );
-    _tuneSocket( _overlappedSocket );
+    _tuneSocket( true, _overlappedSocket );
 
     PGMConnection* newConnection = new PGMConnection;
     ConnectionPtr connection( newConnection ); // to keep ref-counting correct
@@ -314,7 +315,7 @@ void PGMConnection::readNB( void* buffer, const uint64_t bytes )
     if( _state == STATE_CLOSED )
         return;
 
-    WSABUF wsaBuffer = { EQ_MIN( bytes, 1048576 ),
+    WSABUF wsaBuffer = { EQ_MIN( bytes, 65535 ),
                          reinterpret_cast< char* >( buffer ) };
     DWORD  got   = 0;
     DWORD  flags = 0;
@@ -373,8 +374,7 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
 
     DWORD  wrote;
     WSABUF wsaBuffer = 
-        { 
-            EQ_MIN( bytes, 1048576 ),
+        {   EQ_MIN( bytes, 65535 ),
             const_cast<char*>( static_cast< const char* >( buffer )) 
         };
 
@@ -411,11 +411,12 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
 }
 #endif // WIN32
 
-SOCKET PGMConnection::_initSocket( sockaddr_in address )
+SOCKET PGMConnection::_initSocket( bool isRead, sockaddr_in address )
 {
 #ifdef WIN32
     const DWORD flags = WSA_FLAG_OVERLAPPED;
-    const SOCKET fd = WSASocket( AF_INET, SOCK_RDM, IPPROTO_RM, 0, 0, flags );
+    const SOCKET fd   = WSASocket( AF_INET, SOCK_STREAM, 
+                                   IPPROTO_RM, 0, 0, flags );
 #else
     const Socket fd = ::socket( AF_INET, TBD, TBD );
 #endif
@@ -425,8 +426,6 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
         EQERROR << "Could not create socket: " << base::sysError << std::endl;
         return INVALID_SOCKET;
     }
-
-    _tuneSocket( fd );
 
     const bool bound = (::bind( fd, (sockaddr*)&address, sizeof(address)) == 0);
 
@@ -440,27 +439,35 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
         close();
         return INVALID_SOCKET;
     }
-
+    _tuneSocket( isRead, fd );
     return fd;
 }
 
-void PGMConnection::_tuneSocket( const SOCKET fd )
+void PGMConnection::_tuneSocket( bool isRead, const SOCKET fd )
 {
-    const int on         = 1;
-//    setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, 
-//                reinterpret_cast<const char*>( &on ), sizeof( on ));
-    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
-                reinterpret_cast<const char*>( &on ), sizeof( on ));
-    setsockopt( fd, IPPROTO_RM, RM_HIGH_SPEED_INTRANET_OPT,
-                 reinterpret_cast<const char*>( &on ), sizeof( on ));
+    _enableHighSpeedLanOption( fd );
+    if( isRead )
+    {
+        const int on         = 1;
+        setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
+                    reinterpret_cast<const char*>( &on ), sizeof( on ));
+        
 
 #ifdef WIN32
-    const int size = 128768;
-    setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 
-                reinterpret_cast<const char*>( &size ), sizeof( size ));
-    setsockopt( fd, SOL_SOCKET, SO_SNDBUF,
-                reinterpret_cast<const char*>( &size ), sizeof( size ));
+        _setRecvBufferSize( fd, 65535 );
 #endif
+    }
+    else
+    {
+#ifdef WIN32
+        _setFecParameters( fd, 255, 4, true, 0);
+        uint64_t roundBandwith = _description->bandwidth  * 8 - 
+                                 (( _description->bandwidth * 8) % 100000 );
+        _setWindowSizeAndSendRate( fd, 200000000, roundBandwith );
+        _setSendBufferSize( fd, 65535 );
+#endif
+    }
+    
 }
 
 bool PGMConnection::_parseAddress( sockaddr_in& address )
@@ -494,6 +501,130 @@ bool PGMConnection::_parseAddress( sockaddr_in& address )
            << ":" << ntohs( address.sin_port ) << std::endl;
     return true;
 }
+
+
+bool PGMConnection::_setSendBufferSize( const SOCKET fd, const int newSize )
+{
+    EQASSERT(newSize >= 0);
+    
+    if ( ::setsockopt( fd, SOL_SOCKET, SO_SNDBUF, 
+         ( char* )&newSize, sizeof( int )) == SOCKET_ERROR ) 
+    {
+        EQWARN << "can't SetSendBufferSize, error: " 
+               <<  base::sysError << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool PGMConnection::_enableHighSpeedLanOption( const SOCKET fd )
+{
+    ULONG HighSpeedLanEnabled = 1;
+    
+    if ( ::setsockopt( fd, IPPROTO_RM, RM_HIGH_SPEED_INTRANET_OPT , 
+         (char*)&HighSpeedLanEnabled, sizeof( ULONG )) == SOCKET_ERROR ) 
+    {
+        EQWARN << "can't EnableHighSpeedLanOption, error: " 
+               <<  base::sysError << std::endl;
+        return false ;
+    }
+    
+    return true;
+}
+
+bool PGMConnection::_setRecvBufferSize( const SOCKET fd, int newSize )
+{
+    if ( ::setsockopt( fd, SOL_SOCKET, SO_RCVBUF,
+         (char*)&newSize, sizeof(int)) == SOCKET_ERROR ) 
+    {
+        EQWARN << "can't GetSendBufferSize, error: " 
+               <<  base::sysError << std::endl;
+        return false;
+    }
+    return true;
+}
+
+
+bool PGMConnection::_setWindowSizeAndSendRate( const SOCKET fd, 
+                                               const ULONG windowSize, 
+                                               const ULONG sendRate )
+{
+
+    //   Default values from the OS Header
+    //
+    //   SENDER_DEFAULT_RATE_KBITS_PER_SEC     56             // 56 Kbits/Sec
+    //   SENDER_DEFAULT_WINDOW_SIZE_BYTES      10 *1000*1000  // 10 Megs
+    //
+    //   SENDER_DEFAULT_WINDOW_ADV_PERCENTAGE  15             // 15%
+    //   MAX_WINDOW_INCREMENT_PERCENTAGE       25             // 25%
+    //
+    //   SENDER_DEFAULT_LATE_JOINER_PERCENTAGE  0             // 0%
+    //   SENDER_MAX_LATE_JOINER_PERCENTAGE     75             // 75%
+    //
+    //   E_WINDOW_ADVANCE_BY_TIME = 1,       // Default mode
+    //   E_WINDOW_USE_AS_DATA_CACHE
+
+    RM_SEND_WINDOW  multicastSendWindow;
+
+    multicastSendWindow.RateKbitsPerSec     = sendRate;
+    multicastSendWindow.WindowSizeInBytes   = windowSize;  
+    multicastSendWindow.WindowSizeInMSecs   = 0;
+
+    if ( ::setsockopt( fd, IPPROTO_RM, RM_RATE_WINDOW_SIZE, 
+         (char*)&multicastSendWindow, sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
+    {
+        EQWARN << "can't setWindowSizeAndSendRate, error: " 
+               <<  base::sysError << std::endl;
+        return false ;
+    }
+
+    return true;
+}
+
+/* Function: SetFecParamters
+   Description:
+      This routine sets the requested FEC parameters on a sender socket.
+      A client does not have to do anything special when the sender enables or 
+      disables FEC
+    blockSize 
+          Maximum number of packets that can be sent for any group, 
+          including original data and parity packets. 
+          Maximum and default value is 255.
+    groupSize 
+          Number of packets to be treated as one group for the purpose of 
+          computing parity packets. Group size must be a power of two. 
+          In lossy networks, keep the group size relatively small.
+    ondemand 
+          Specifies whether the sender is enabled for sending parity repair 
+          packets. When TRUE, receivers should only request parity repair 
+          packets.
+    proactive 
+          Number of packets to send proactively with each group. 
+          Use this option when the network is dispersed, 
+          and upstream NAK requests are expensive.
+*/
+bool PGMConnection::_setFecParameters( const SOCKET fd, 
+                                       const int blocksize, 
+                                       const int groupsize, 
+                                       const int ondemand, 
+                                       const int proactive )
+{
+    RM_FEC_INFO fec;
+    memset(&fec, 0, sizeof( fec ));
+    fec.FECBlockSize              = blocksize;
+    fec.FECProActivePackets       = proactive;
+    fec.FECGroupSize              = groupsize;
+    fec.fFECOnDemandParityEnabled = ondemand;
+    if ( ::setsockopt( fd, IPPROTO_RM, RM_USE_FEC, 
+        (char *)&fec, sizeof( RM_FEC_INFO )))
+    {
+        EQWARN << "can't SetFecParameters " << base::sysError << std::endl;
+        return false ;
+    }
+    return true;
+}
+
 //----------------------------------------------------------------------
 // listen
 //----------------------------------------------------------------------
@@ -517,7 +648,7 @@ bool PGMConnection::listen()
     }
 
     //-- create a 'listening' read socket
-    _readFD = _initSocket( address );
+    _readFD = _initSocket( true, address );
     if( _readFD == INVALID_SOCKET )
         return false;
     
@@ -558,7 +689,7 @@ bool PGMConnection::listen()
     address.sin_port        = htons( 0 );
     memset( &(address.sin_zero), 0, 8 ); // zero the rest
 
-    _writeFD = _initSocket( address );
+    _writeFD = _initSocket( false, address );
     if( _writeFD == INVALID_SOCKET )
     {
         close();

@@ -58,10 +58,26 @@ namespace net
         void _initAIORead();
         void _exitAIORead();
 
-        SOCKET _initSocket( sockaddr_in address );
-        void _tuneSocket( SOCKET socket );
+        SOCKET _initSocket( bool isRead, sockaddr_in address );
+        void _tuneSocket( bool isRead, SOCKET socket );
         bool _parseAddress( sockaddr_in& address );
         uint16_t _getPort() const;
+
+        bool  _setWindowSizeAndSendRate( const SOCKET fd, 
+                                         const ULONG WindowSize, 
+                                         const ULONG SendRate );
+
+        bool  _getWindowSizeAndSendRate( const SOCKET fd);
+
+        bool  _setSendBufferSize( const SOCKET fd,  const int newSize );
+        bool  _setRecvBufferSize( const SOCKET fd,  const int newSize );
+        bool  _setFecParameters( const SOCKET fd,
+                                 const int blocksize, 
+                                 const int groupsize, 
+                                 const int ondemand, 
+                                 const int proactive );
+
+        bool  _enableHighSpeedLanOption( const SOCKET fd );
 
         SOCKET _readFD;
         SOCKET _writeFD;
