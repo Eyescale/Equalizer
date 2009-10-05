@@ -38,7 +38,9 @@ namespace eVolve
 
         /** Run an eqPly instance. */
         int run();
-        
+
+        static const std::string& getHelp();
+
     protected:
         /** @sa eq::Client::clientLoop. */
         virtual bool clientLoop();

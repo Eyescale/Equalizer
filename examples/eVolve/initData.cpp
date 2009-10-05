@@ -32,7 +32,7 @@ namespace eVolve
 {
 
 InitData::InitData()
-        : _frameDataID(  EQ_UNDEFINED_UINT32 )
+        : _frameDataID(  EQ_ID_INVALID )
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
         , _precision( 2 )
         , _brightness( 1.0f )

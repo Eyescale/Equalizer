@@ -25,6 +25,7 @@
 
 #include "pipe.h"
 #include "node.h"
+#include "config.h"
 
 #include <eq/eq.h>
 
@@ -35,8 +36,8 @@ namespace eVolve
 {
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
-    const Node*            node     = static_cast< const Node* >( getNode( ));
-    const InitData&        initData = node->getInitData();
+    const Config*          config   = static_cast<const Config*>( getConfig( ));
+    const InitData&        initData = config->getInitData();
     const eq::WindowSystem ws       = initData.getWindowSystem();
 
     if( ws == eq::WINDOW_SYSTEM_NONE )
@@ -56,14 +57,12 @@ bool Pipe::configInit( const uint32_t initID )
     if( !eq::Pipe::configInit( initID ))
         return false;
 
-    const Node*     node        = static_cast<Node*>( getNode( ));
-    const InitData& initData    = node->getInitData();
+    Config*         config      = static_cast<Config*>( getConfig( ));
+    const InitData& initData    = config->getInitData();
     const uint32_t  frameDataID = initData.getFrameDataID();
-    eq::Config*     config      = getConfig();
 
     const bool mapped = config->mapObject( &_frameData, frameDataID );
     EQASSERT( mapped );
-
 
     const string&  filename  = initData.getFilename();
     const uint32_t precision = initData.getPrecision();
@@ -99,8 +98,8 @@ bool Pipe::configExit()
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
     eq::Pipe::frameStart( frameID, frameNumber );
-
     _frameData.sync( frameID );
-    _renderer->setOrtho( _frameData.data.ortho );
+
+    _renderer->setOrtho( _frameData.useOrtho( ));
 }
 }

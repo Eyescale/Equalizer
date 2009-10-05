@@ -29,7 +29,7 @@ namespace eVolve
     public:
         Pipe( eq::Node* parent ) : eq::Pipe( parent ) {}
 
-        const FrameData::Data& getFrameData() const { return _frameData.data; }
+        const FrameData& getFrameData() const { return _frameData; }
 
         Renderer*        getRenderer()        { return _renderer;  }
         const Renderer*  getRenderer() const  { return _renderer;  }

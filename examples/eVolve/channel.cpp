@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
-                 2007       Maxim Makhinya
+                 2007-2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -114,14 +114,16 @@ void Channel::frameDraw( const uint32_t frameID )
     // Setup frustum
     eq::Channel::frameDraw( frameID );
 
-    const FrameData::Data& frameData = _getFrameData();
-    eq::Matrix4f         invRotationM;
-    frameData.rotation.inverse( invRotationM );
+    const FrameData&    frameData   = _getFrameData();
+    const eq::Matrix4f& rotation    = frameData.getRotation();
+    const eq::Vector3f& translation = frameData.getTranslation();
+
+    eq::Matrix4f     invRotationM;
+    rotation.inverse( invRotationM );
     setLights( invRotationM );
 
-    glTranslatef(  frameData.translation.x(), frameData.translation.y(), 
-                   frameData.translation.z() );
-    glMultMatrixf( frameData.rotation.array );
+    glTranslatef(  translation.x(), translation.y(), translation.z() );
+    glMultMatrixf( rotation.array );
 
     Pipe*     pipe     = static_cast<Pipe*>( getPipe( ));
     Renderer* renderer = pipe->getRenderer();
@@ -143,7 +145,7 @@ void Channel::frameDraw( const uint32_t frameID )
 #endif
 }
 
-const FrameData::Data& Channel::_getFrameData() const
+const FrameData& Channel::_getFrameData() const
 {
     const Pipe* pipe = static_cast< const Pipe* >( getPipe( ));
     return pipe->getFrameData();
@@ -151,9 +153,9 @@ const FrameData::Data& Channel::_getFrameData() const
 
 void Channel::applyFrustum() const
 {
-    const FrameData::Data& frameData = _getFrameData();
+    const FrameData& frameData = _getFrameData();
 
-    if( frameData.ortho )
+    if( frameData.useOrtho( ))
         eq::Channel::applyOrtho();
     else
         eq::Channel::applyFrustum();
@@ -164,9 +166,9 @@ void Channel::_calcMVandITMV(
                             eq::Matrix4f& modelviewM,
                             eq::Matrix3f& modelviewITM ) const
 {
-    const FrameData::Data& frameData = _getFrameData();
-    const Pipe*            pipe      = static_cast< const Pipe* >( getPipe( ));
-    const Renderer*        renderer  = pipe->getRenderer();
+    const FrameData& frameData = _getFrameData();
+    const Pipe*      pipe      = static_cast< const Pipe* >( getPipe( ));
+    const Renderer*  renderer  = pipe->getRenderer();
 
     if( renderer )
     {
@@ -178,9 +180,9 @@ void Channel::_calcMVandITMV(
         scale.at(2,2) = volScaling.D;
         scale.at(3,3) = 1.f;
         
-        modelviewM = scale * frameData.rotation;
+        modelviewM = scale * frameData.getRotation();
     }
-    modelviewM.set_translation( frameData.translation );
+    modelviewM.set_translation( frameData.getTranslation( ));
 
     modelviewM = getHeadTransform() * modelviewM;
 
@@ -218,15 +220,15 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 
 void Channel::_orderFrames( eq::FrameVector& frames )
 {
-    eq::Matrix4f           modelviewM;   // modelview matrix
-    eq::Matrix3f           modelviewITM; // modelview inversed transposed matrix
-    const FrameData::Data& frameData = _getFrameData();
-    const eq::Matrix4f&    rotation  = frameData.rotation;
+    eq::Matrix4f        modelviewM;   // modelview matrix
+    eq::Matrix3f        modelviewITM; // modelview inversed transposed matrix
+    const FrameData&    frameData = _getFrameData();
+    const eq::Matrix4f& rotation  = frameData.getRotation();
 
-    if( !frameData.ortho )
+    if( !frameData.useOrtho( ))
         _calcMVandITMV( modelviewM, modelviewITM );
 
-    orderFrames( frames, modelviewM, modelviewITM, rotation, frameData.ortho );
+    orderFrames( frames, modelviewM, modelviewITM, rotation, frameData.useOrtho( ));
 }
 
 
@@ -329,6 +331,12 @@ void Channel::frameReadback( const uint32_t frameID )
 
 void Channel::frameViewFinish( const uint32_t frameID )
 {
+    _drawHelp();
+    _drawLogo();
+}
+
+void Channel::_drawLogo( )
+{
     // Draw the overlay logo
     const Window*  window      = static_cast<Window*>( getWindow( ));
     GLuint         texture;
@@ -374,5 +382,75 @@ void Channel::frameViewFinish( const uint32_t frameID )
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     glDisable( GL_BLEND );
 }
+
+void Channel::_drawHelp()
+{
+    const FrameData& frameData = _getFrameData();
+    std::string message = frameData.getMessage();
+
+    if( !frameData.showHelp() && message.empty( ))
+        return;
+
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
+    EQ_GL_CALL( setupAssemblyState( ));
+
+    glDisable( GL_LIGHTING );
+    glDisable( GL_DEPTH_TEST );
+
+    glColor3f( 1.f, 1.f, 1.f );
+
+    if( frameData.showHelp( ))
+    {
+        const eq::Window::Font* font = getWindow()->getSmallFont();
+        std::string help = EVolve::getHelp();
+        float y = 340.f;
+
+        for( size_t pos = help.find( '\n' ); pos != std::string::npos;
+             pos = help.find( '\n' ))
+        {
+            glRasterPos3f( 10.f, y, 0.99f );
+
+            font->draw( help.substr( 0, pos ));
+            help = help.substr( pos + 1 );
+            y -= 16.f;
+        }
+        // last line
+        glRasterPos3f( 10.f, y, 0.99f );
+        font->draw( help );
+    }
+
+    if( !message.empty( ))
+    {
+        const eq::Window::Font* font = getWindow()->getMediumFont();
+
+        const eq::Viewport& vp = getViewport();
+        const eq::PixelViewport& pvp = getPixelViewport();
+
+        const float width = pvp.w / vp.w;
+        const float xOffset = vp.x * width;
+
+        const float height = pvp.h / vp.h;
+        const float yOffset = vp.y * height;
+        const float yMiddle = 0.5f * height;
+        float y = yMiddle - yOffset;
+
+        for( size_t pos = message.find( '\n' ); pos != std::string::npos;
+             pos = message.find( '\n' ))
+        {
+            glRasterPos3f( 10.f - xOffset, y, 0.99f );
+            
+            font->draw( message.substr( 0, pos ));
+            message = message.substr( pos + 1 );
+            y -= 22.f;
+        }
+        // last line
+        glRasterPos3f( 10.f - xOffset, y, 0.99f );
+        font->draw( message );
+    }
+
+    EQ_GL_CALL( resetAssemblyState( ));
+}
+
 
 }

@@ -55,18 +55,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 #endif
         wsHelp += ")";
 
-        string desc = 
-            string( "eVolve - Equalizer volume rendering example\n" ) +
-            string( "\tRun-time commands:\n" ) +
-            string( "\t\tLeft Mouse Button:         Rotate model\n" ) +
-            string( "\t\tMiddle Mouse Button:       Move model in X, Y\n" ) +
-            string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
-            string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
-            string( "\t\t<Space>, r:                Reset camera\n" ) +
-            string( "\t\to:                         Toggle\
-                                                perspective/orthographic\n" );
-            string( "\t\ts:                         Toggle statistics overlay\
-                                                                        \n" );
+        string desc = EVolve::getHelp();
 
         TCLAP::CmdLine command( desc );
         

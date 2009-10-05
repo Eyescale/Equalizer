@@ -27,6 +27,27 @@ using namespace std;
 namespace eVolve
 {
 
+static const std::string _help(
+    string( "eVolve - Equalizer volume rendering example\n" ) +
+    string( "\tRun-time commands:\n" ) +
+    string( "\t\tLeft Mouse Button:         Rotate model\n" ) +
+    string( "\t\tMiddle Mouse Button:       Move model in X, Y\n" ) +
+    string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
+    string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
+    string( "\t\t<Space>, r:                Reset camera\n" ) +
+    string( "\t\to:                         Toggle " ) +
+    string( "perspective/orthographic\n" ) +
+    string( "\t\ts:                         Toggle statistics " ) +
+    string( "overlay\n" ) +
+    string( "\t\tl:                         Switch layout for active canvas\n")+
+    string( "\t\tF1, h:                     Toggle help overlay\n" )
+ );
+
+const std::string& EVolve::getHelp()
+{
+    return _help;
+}
+
 EVolve::EVolve( const LocalInitData& initData )
         : _initData( initData )
 {}

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2007-2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,46 +25,81 @@
 
 namespace eVolve
 {
-    class FrameData : public eq::net::Object
+    class FrameData : public eq::Object
     {
     public:
 
-        FrameData()
-            {
-                reset();
-                EQINFO << "New FrameData " << std::endl;
-            }
+        FrameData();
 
-        void reset()
-            {
-                data.translation   = eq::Vector3f::ZERO;
-                data.translation.z() = -2.f;
-                data.rotation = eq::Matrix4f::IDENTITY;
-                data.rotation.rotate_x( static_cast<float>( -M_PI_2 ));
-                data.rotation.rotate_y( static_cast<float>( -M_PI_2 ));
-            }
+        void reset();
 
-        struct Data
-        {
-            Data() : ortho( false ), statistics( false ) {}
+        /** @name Rendering flags. */
+        //*{
+        void setOrtho( const bool ortho );
 
-            eq::Matrix4f rotation;
-            eq::Vector3f translation;
-            bool           ortho;
-            bool           statistics;
-        } data;
-    
+        void toggleOrtho( );
+        void toggleHelp();
+        void toggleStatistics();
+
+        void spinCamera( const float x, const float y );
+        void moveCamera( const float x, const float y, const float z );
+
+        void setTranslation( const eq::Vector3f& translation );
+        void setRotation(    const eq::Vector3f& rotation    );
+
+        bool showHelp()      const { return _help;       }
+        bool useOrtho( )     const { return _ortho;      }
+        bool useStatistics() const { return _statistics; }
+
+        const eq::Vector3f& getTranslation() const { return _translation; }
+        const eq::Matrix4f& getRotation()    const { return _rotation;    }
+
+        //*}
+
+        /** @name View interface. */
+        //*{
+        void setCurrentViewID( const uint32_t id );
+
+        uint32_t getCurrentViewID() const { return _currentViewID; }
+        //*}
+
+        /** @name Message overlay. */
+        //*{
+        void setMessage( const std::string& message );
+        const std::string& getMessage() const { return _message; }
+        //*}
+
     protected:
-        virtual ChangeType getChangeType() const { return INSTANCE; }
+        /** @sa Object::serialize() */
+        virtual void serialize(         eq::net::DataOStream& os,
+                                  const uint64_t              dirtyBits );
 
-        virtual void getInstanceData( eq::net::DataOStream& os )
-            { os.writeOnce( &data, sizeof( data )); }
+        /** @sa Object::deserialize() */
+        virtual void deserialize(       eq::net::DataIStream& is,
+                                  const uint64_t              dirtyBits );
 
-        virtual void applyInstanceData( eq::net::DataIStream& is )
-            {
-                memcpy( &data, is.getRemainingBuffer(), sizeof( data ));
-                is.advanceBuffer( sizeof( data ));
-            }
+
+        virtual ChangeType getChangeType() const { return DELTA; }
+
+        /** The changed parts of the data since the last pack(). */
+        enum DirtyBits
+        {
+            DIRTY_CAMERA  = eq::Object::DIRTY_CUSTOM << 0,
+            DIRTY_FLAGS   = eq::Object::DIRTY_CUSTOM << 1,
+            DIRTY_VIEW    = eq::Object::DIRTY_CUSTOM << 2,
+            DIRTY_MESSAGE = eq::Object::DIRTY_CUSTOM << 3,
+        };
+
+    private:
+
+        eq::Matrix4f _rotation;
+        eq::Vector3f _translation;
+        bool         _ortho;
+        bool         _statistics;
+        bool         _help;
+
+        uint32_t     _currentViewID;
+        std::string  _message;
     };
 }
 

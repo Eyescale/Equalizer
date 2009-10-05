@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2007-2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -61,7 +62,10 @@ namespace eVolve
         void _calcMVandITMV( eq::Matrix4f& modelviewM, 
                              eq::Matrix3f& modelviewITM ) const;
 
-        const FrameData::Data& _getFrameData() const;
+        const FrameData& _getFrameData() const;
+
+        void _drawLogo();
+        void _drawHelp();
 
         eq::Vector3f _bgColor; //!< background color
         eq::Frame _frame;     //!< Readback buffer for DB compositing

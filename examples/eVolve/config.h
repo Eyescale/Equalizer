@@ -39,6 +39,10 @@ namespace eVolve
         virtual uint32_t startFrame();
 
         void setInitData( const LocalInitData& data ) { _initData = data; }
+        const InitData& getInitData() const { return _initData; }
+
+        /** Map per-config data to the local node process */
+        void mapData( const uint32_t initDataID );
 
     protected:
         virtual ~Config();
@@ -48,10 +52,20 @@ namespace eVolve
 
         int        _spinX, _spinY;
 
+        eq::Canvas* _currentCanvas;
+
         LocalInitData _initData;
         FrameData     _frameData;
 
+        uint64_t      _messageTime;
+
     private:
+        void _resetMessage();
+        void _setMessage( const std::string& message );
+
+        void _deregisterData();
+        bool _handleKeyEvent( const eq::KeyEvent& event );
+
         static void _applyRotation( float m[16], const float dx,
                                                  const float dy );
     };

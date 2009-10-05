@@ -17,6 +17,8 @@
 
 #include "node.h"
 
+#include "config.h"
+
 using namespace eq::base;
 using namespace std;
 
@@ -31,18 +33,14 @@ bool Node::configInit( const uint32_t initID )
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
         setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
 
-    eq::Config* config = getConfig();
-    EQCHECK( config->mapObject( &_initData, initID ));
-    
+    Config* config = static_cast< Config* >( getConfig( ));
+    config->mapData( initID );
+
     return true;
 }
 
 bool Node::configExit()
 {
-
-    eq::Config* config = getConfig();
-    config->unmapObject( &_initData );
-
     return eq::Node::configExit();
 }
 }

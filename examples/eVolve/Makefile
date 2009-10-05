@@ -4,16 +4,17 @@ include $(TOP)/make/system.mk
 PROGRAM = eVolve
 
 CXXFILES = \
-	localInitData.cpp \
 	channel.cpp \
 	config.cpp \
 	eVolve.cpp \
+	frameData.cpp \
+	framesOrderer.cpp \
+	glslShaders.cpp \
 	initData.cpp \
+	localInitData.cpp \
 	main.cpp \
 	node.cpp \
 	pipe.cpp \
-	glslShaders.cpp \
-	framesOrderer.cpp \
 	rawVolModel.cpp \
 	rawVolModelRenderer.cpp \
 	sliceClipping.cpp \
