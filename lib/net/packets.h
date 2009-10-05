@@ -174,6 +174,17 @@ namespace net
         EQ_ALIGN8( char nodeData[8] );
     };
 
+    struct NodeIDPacket : public NodePacket
+    {
+        NodeIDPacket() 
+            {
+                command     = CMD_NODE_ID;
+                size        = sizeof( NodeIDPacket ); 
+            }
+
+        NodeID   nodeID;
+    };
+
     struct NodeConnectReplyPacket : public NodePacket
     {
         NodeConnectReplyPacket( const NodeConnectPacket* request ) 

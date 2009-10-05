@@ -319,27 +319,13 @@ namespace net
          * 
          * @return the connection to this node. 
          */
-        ConnectionPtr getConnection() const { return _connection; }
+        ConnectionPtr getConnection() const { return _outgoing; }
         //@}
 
         /**
          * @name Messaging API
          */
         //@{
-        /** 
-         * Ensures the connectivity of this node.
-         *
-         * @return <code>true</code> if this node is connected,
-         *         <code>false</code> otherwise.
-         */
-        ConnectionPtr checkConnection()
-            {
-                ConnectionPtr connection = _connection;
-                if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
-                    return connection;
-                return 0;
-            }
-
         /** 
          * Sends a packet to this node.
          * 
@@ -348,7 +334,7 @@ namespace net
          */
         bool send( const Packet& packet )
             {
-                ConnectionPtr connection = checkConnection();
+                ConnectionPtr connection = _getConnection();
                 if( !connection )
                     return false;
                 return connection->send( packet );
@@ -371,7 +357,7 @@ namespace net
          */
         bool send( Packet& packet, const std::string& string )
             {
-                ConnectionPtr connection = checkConnection();
+                ConnectionPtr connection = _getConnection();
                 if( !connection )
                     return false;
                 return connection->send( packet, string );
@@ -393,7 +379,7 @@ namespace net
         template< class T >
         bool send( Packet& packet, const std::vector<T>& data )
             {
-                ConnectionPtr connection = checkConnection();
+                ConnectionPtr connection = _getConnection();
                 if( !connection )
                     return false;
                 return connection->send( packet, data );
@@ -417,10 +403,25 @@ namespace net
          */
         bool send( Packet& packet, const void* data, const uint64_t size )
             {
-                ConnectionPtr connection = checkConnection();
+                ConnectionPtr connection = _getConnection();
                 if( !connection )
                     return false;
                 return connection->send( packet, data, size );
+            }
+
+        /** 
+         * Multicasts a packet to the multicast group of this node.
+         * 
+         * @param packet the packet.
+         * @return the success status of the transaction.
+         */
+        bool multicast( const Packet& packet )
+            {
+                EQASSERT( !_multicast.empty( ));
+                ConnectionPtr connection = _multicast.front();
+                if( !connection )
+                    return false;
+                return connection->send( packet );
             }
 
         /**
@@ -564,16 +565,25 @@ namespace net
         /** The current mapped sessions of this node. */
         SessionHash _sessions;
 
-        /** The connection to this node, for remote nodes. */
-        ConnectionPtr _connection;
+        /** The connection to this node. */
+        ConnectionPtr _outgoing;
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _incoming;
-        friend eq::net::ConnectionPtr (::eqsStartLocalServer(const
-                                                             std::string& ));
+        friend net::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
+
+        /** 
+         * Multicast connections for this node.
+         * 
+         * Contains the vector of outgoing MC connections for a listening node,
+         * or the MC connection to a connected node.
+         */
+        ConnectionVector _multicast;
+
+        typedef base::UUIDHash< NodePtr > NodeHash;
 
         /** The connected nodes. */
-        base::UUIDHash< NodePtr > _nodes;
+        NodeHash _nodes;
 
         /** The node for each connection. */
         typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
@@ -651,6 +661,7 @@ namespace net
         bool _hasSendToken;
 
         bool _connectSelf();
+        void _connectMulticast( NodePtr node );
         EQ_EXPORT void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
         void _cleanup();
@@ -710,6 +721,15 @@ namespace net
 
         NodePtr _connect( const NodeID& nodeID, NodePtr server );
 
+        /** Ensures the connectivity of this node. */
+        ConnectionPtr _getConnection()
+            {
+                ConnectionPtr connection = _outgoing;
+                if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
+                    return connection;
+                return 0;
+            }
+
         void* _runReceiverThread();
         void    _handleConnect();
         void    _handleDisconnect();
@@ -728,6 +748,7 @@ namespace net
         CommandResult _cmdUnmapSessionReply( Command& command );
         CommandResult _cmdConnect( Command& command );
         CommandResult _cmdConnectReply( Command& command );
+        CommandResult _cmdID( Command& command );
         CommandResult _cmdDisconnect( Command& command );
         CommandResult _cmdGetNodeData( Command& command );
         CommandResult _cmdGetNodeDataReply( Command& command );

@@ -79,10 +79,10 @@ Node::Node()
     registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
                      NodeFunc( this, &Node::_cmdUnmapSessionReply ),
                      &_commandThreadQueue );
-    registerCommand( CMD_NODE_CONNECT, 
-                     NodeFunc( this, &Node::_cmdConnect ), 0 );
+    registerCommand( CMD_NODE_CONNECT, NodeFunc( this, &Node::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
                      NodeFunc( this, &Node::_cmdConnectReply ), 0 );
+    registerCommand( CMD_NODE_ID, NodeFunc( this, &Node::_cmdID ), 0 );
     registerCommand( CMD_NODE_DISCONNECT,
                      NodeFunc( this, &Node::_cmdDisconnect ), 0 );
     registerCommand( CMD_NODE_GET_NODE_DATA,
@@ -104,7 +104,7 @@ Node::Node()
 Node::~Node()
 {
     EQINFO << "Delete Node @" << (void*)this << " " << _id << std::endl;
-    EQASSERT( _connection == 0 );
+    EQASSERT( _outgoing == 0 );
     EQASSERT( _incoming.empty( ));
     EQASSERT( _connectionNodes.empty( ));
     EQASSERT( _pendingCommands.empty( ));
@@ -282,9 +282,12 @@ bool Node::listen()
 
         _connectionNodes[ connection ] = this;
         _incoming.addConnection( connection );
-        EQVERB << "Added node " << _id << " using " << connection << std::endl;
-        
+        if( description->type >= CONNECTIONTYPE_MULTICAST )
+            _multicast.push_back( connection );
+
         connection->acceptNB();
+
+        EQVERB << "Added node " << _id << " using " << connection << std::endl;
     }
 
     _state = STATE_LISTENING;
@@ -354,9 +357,10 @@ void Node::_cleanup()
     EQVERB << "Clean up stopped node" << std::endl;
     EQASSERTINFO( _state == STATE_STOPPED, _state );
 
-    _removeConnection( _connection );
-    _connectionNodes.erase( _connection );
-    _connection = 0;
+    _multicast.clear();
+    _removeConnection( _outgoing );
+    _connectionNodes.erase( _outgoing );
+    _outgoing = 0;
 
     const ConnectionVector& connections = _incoming.getConnections();
     while( !connections.empty( ))
@@ -364,11 +368,12 @@ void Node::_cleanup()
         ConnectionPtr connection = connections.back();
         NodePtr       node       = _connectionNodes[ connection ];
 
-        node->_state      = STATE_STOPPED;
-        node->_connection = 0;
+        node->_state    = STATE_STOPPED;
+        node->_multicast.clear();
+        node->_outgoing = 0;
+
         _connectionNodes.erase( connection );
         _nodes.erase( node->_id );
-
         _removeConnection( connection );
     }
 
@@ -382,7 +387,7 @@ void Node::_cleanup()
         NodePtr node = i->second;
         EQINFO << "    " << i->first << " : " << node << std::endl;
         EQINFO << "    Node ref count " << node->getRefCount() - 1 
-               << ' ' << node->_connection << ' ' << node->_state
+               << ' ' << node->_outgoing << ' ' << node->_state
                << ( node == this ? " self" : "" ) << std::endl;
     }
 #endif
@@ -399,7 +404,7 @@ void Node::_cleanup()
     {
         NodePtr node = i->second;
         EQINFO << "    " << node << " ref count " << node->getRefCount() - 1 
-               << ' ' << node->_connection << ' ' << node->_state
+               << ' ' << node->_outgoing << ' ' << node->_state
                << ( node == this ? " self" : "" ) << std::endl;
     }
 #endif
@@ -410,25 +415,25 @@ void Node::_cleanup()
 bool Node::_connectSelf()
 {
     // setup local connection to myself
-    _connection = new PipeConnection;
-    if( !_connection->connect())
+    _outgoing = new PipeConnection;
+    if( !_outgoing->connect())
     {
         EQERROR << "Could not create local connection to receiver thread."
                 << std::endl;
-        _connection = 0;
+        _outgoing = 0;
         return false;
     }
 
     // add to connection set
-    EQASSERT( _connection->getDescription().isValid( )); 
-    EQASSERT( _connectionNodes.find( _connection ) == _connectionNodes.end( ));
+    EQASSERT( _outgoing->getDescription().isValid( )); 
+    EQASSERT( _connectionNodes.find( _outgoing ) == _connectionNodes.end( ));
 
-    _connectionNodes[ _connection ] = this;
+    _connectionNodes[ _outgoing ] = this;
     _nodes[ _id ] = this;
 
-    _addConnection( _connection );
+    _addConnection( _outgoing );
 
-    EQVERB << "Added node " << _id << " using " << _connection << std::endl;
+    EQVERB << "Added node " << _id << " using " << _outgoing << std::endl;
     return true;
 }
 
@@ -461,8 +466,60 @@ bool Node::connect( NodePtr node, ConnectionPtr connection )
 
     EQASSERT( node->_id != NodeID::ZERO );
     EQASSERTINFO( node->_id != _id, _id );
+
+    _connectMulticast( node );
+
     EQINFO << node << " connected to " << this << std::endl;
     return true;
+}
+
+void Node::_connectMulticast( NodePtr node )
+{
+    for( ConnectionDescriptionVector::const_iterator i =
+             _connectionDescriptions.begin();
+         i != _connectionDescriptions.end(); ++i )
+    {
+        ConnectionDescriptionPtr description = *i;
+        if( description->type < CONNECTIONTYPE_MULTICAST )
+            continue;
+
+        const ConnectionDescriptionVector& fromDescs = 
+            node->getConnectionDescriptions();
+        for( ConnectionDescriptionVector::const_iterator j =
+                 _connectionDescriptions.begin();
+             j != _connectionDescriptions.end(); ++j )
+        {
+            ConnectionDescriptionPtr fromDescription = *j;
+            if( description->type != fromDescription->type ||
+                description->getHostname() != fromDescription->getHostname() ||
+                description->port != fromDescription->port )
+            {
+                continue;
+            }
+            
+            // else find multicast connection to node
+            for( ConnectionVector::const_iterator k = _multicast.begin();
+                 k != _multicast.end(); ++k )
+            {
+                ConnectionPtr connection = *k;
+                if( connection->getDescription() != description )
+                    continue;
+
+                EQASSERT( node->_multicast.empty( ));
+                node->_multicast.push_back( connection );
+
+                NodeIDPacket packet;
+                packet.nodeID = _id;
+                packet.nodeID.convertToNetwork();
+
+                node->multicast( packet );
+                return;
+            }
+            EQASSERTINFO( false,
+                          "Could not find multicast connection to node " << 
+                          node );
+        }
+    }
 }
 
 NodePtr Node::getNode( const NodeID& id ) const
@@ -730,769 +787,6 @@ void Node::releaseSendToken( NodePtr node )
 }
 
 //----------------------------------------------------------------------
-// receiver thread functions
-//----------------------------------------------------------------------
-void* Node::_runReceiverThread()
-{
-    EQINFO << "Entered receiver thread of " << typeid( *this ).name()
-           << std::endl;
-    _commandThread->start();
-
-    int nErrors = 0;
-    while( _state == STATE_LISTENING )
-    {
-        const ConnectionSet::Event result = _incoming.select();
-        switch( result )
-        {
-            case ConnectionSet::EVENT_CONNECT:
-                _handleConnect();
-                break;
-
-            case ConnectionSet::EVENT_DATA:      
-                _handleData();
-                break;
-
-            case ConnectionSet::EVENT_DISCONNECT:
-            case ConnectionSet::EVENT_INVALID_HANDLE:
-            {
-                _handleDisconnect();
-                EQVERB << &_incoming << std::endl;
-                break;
-            } 
-
-            case ConnectionSet::EVENT_TIMEOUT:   
-                EQINFO << "select timeout" << std::endl;
-                break;
-
-            case ConnectionSet::EVENT_ERROR:      
-                ++nErrors;
-                EQWARN << "Connection error during select" << std::endl;
-                if( nErrors > 100 )
-                {
-                    EQWARN << "Too many errors in a row, capping connection" 
-                           << std::endl;
-                    _handleDisconnect();
-                }
-                break;
-
-            case ConnectionSet::EVENT_SELECT_ERROR:      
-                EQWARN << "Error during select" << std::endl;
-                ++nErrors;
-                if( nErrors > 10 )
-                {
-                    EQWARN << "Too many errors in a row" << std::endl;
-                    EQUNIMPLEMENTED;
-                }
-                break;
-
-            case ConnectionSet::EVENT_INTERRUPT:
-                _redispatchCommands();
-                break;
-
-            default:
-                EQUNIMPLEMENTED;
-        }
-        if( result != ConnectionSet::EVENT_ERROR && 
-            result != ConnectionSet::EVENT_SELECT_ERROR )
-
-            nErrors = 0;
-    }
-
-    if( !_pendingCommands.empty( ))
-        EQWARN << _pendingCommands.size() 
-               << " commands pending while leaving command thread" << std::endl;
-
-    for( CommandList::const_iterator i = _pendingCommands.begin();
-         i != _pendingCommands.end(); ++i )
-    {
-        Command* command = *i;
-        command->release();
-    }
-
-    EQCHECK( _commandThread->join( ));
-    _pendingCommands.clear();
-    _commandCache.flush();
-
-    EQINFO << "Leaving receiver thread of " << typeid( *this ).name() 
-           << std::endl;
-    return EXIT_SUCCESS;
-}
-
-void Node::_handleConnect()
-{
-    ConnectionPtr connection = _incoming.getConnection();
-    ConnectionPtr newConn    = connection->acceptSync();
-    connection->acceptNB();
-
-    if( !newConn )
-    {
-        EQINFO << "Received connect event, but accept() failed" << std::endl;
-        return;
-    }
-
-    _addConnection( newConn );
-    // Node will be created when receiving NodeConnectPacket from other side
-}
-
-void Node::_handleDisconnect()
-{
-    while( _handleData( )) ; // read remaining data off connection
-
-    ConnectionPtr connection = _incoming.getConnection();
-    NodePtr node;
-    ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
-    if( i != _connectionNodes.end( ))
-        node = i->second;
-
-    if( node.isValid( ))
-    {
-        node->_state      = STATE_STOPPED;
-        node->_connection = 0;
-        _connectionNodes.erase( connection );
-        _nodes.erase( node->_id );
-    }
-
-    _removeConnection( connection );
-
-    EQINFO << node << " disconnected from " << this << " connection used " 
-           << connection->getRefCount() << std::endl;
-}
-
-bool Node::_handleData()
-{
-    ConnectionPtr connection = _incoming.getConnection();
-    EQASSERT( connection.isValid( ));
-
-    NodePtr node;
-    ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
-    if( i != _connectionNodes.end( ))
-        node = i->second;
-    EQASSERTINFO( !node || node->_connection == connection, 
-                  typeid( *node.get( )).name( ));
-
-    EQVERB << "Handle data from " << node << std::endl;
-
-    void* sizePtr( 0 );
-    uint64_t bytes( 0 );
-    const bool gotSize = connection->recvSync( &sizePtr, &bytes );
-
-    if( !gotSize ) // Some systems signal data on dead connections.
-    {
-        connection->recvNB( sizePtr, sizeof( uint64_t ));
-        return false;
-    }
-
-    EQASSERT( sizePtr );
-    const uint64_t size = *reinterpret_cast< uint64_t* >( sizePtr );
-    EQASSERT( size );
-    EQASSERT( bytes == sizeof( uint64_t ));
-    EQASSERT( size > sizeof( size ));
-
-    Command& command = _commandCache.alloc( node, this, size );
-    uint8_t* ptr = reinterpret_cast< uint8_t* >( command.getPacket()) +
-                                                 sizeof( uint64_t );
-
-    connection->recvNB( ptr, size - sizeof( uint64_t ));
-    const bool gotData = connection->recvSync( 0, 0 );    
-
-    EQASSERT( gotData );
-    EQASSERT( command.isValid( ));
-
-    // start next receive
-    connection->recvNB( sizePtr, sizeof( uint64_t ));
-
-    if( !gotData )
-    {
-        EQERROR << "Incomplete packet read: " << command << std::endl;
-        return false;
-    }
-
-    // This is one of the initial packets during the connection handshake, at
-    // this point the remote node is not yet available.
-    EQASSERTINFO( node.isValid() ||
-                 ( command->datatype == DATATYPE_EQNET_NODE &&
-                  ( command->command == CMD_NODE_CONNECT  || 
-                    command->command == CMD_NODE_CONNECT_REPLY)),
-                  command << " connection " << connection );
-
-    _dispatchCommand( command );
-    return true;
-}
-
-void Node::_dispatchCommand( Command& command )
-{
-    EQASSERT( command.isValid( ));
-
-    const bool dispatched = dispatchCommand( command );
- 
-    _redispatchCommands();
-  
-    if( !dispatched )
-    {
-        command.retain();
-        _pendingCommands.push_back( &command );
-    }
-}
-
-bool Node::dispatchCommand( Command& command )
-{
-    EQVERB << "dispatch " << command << " by " << _id << std::endl;
-    EQASSERT( command.isValid( ));
-
-    const uint32_t datatype = command->datatype;
-    switch( datatype )
-    {
-        case DATATYPE_EQNET_NODE:
-            return Dispatcher::dispatchCommand( command );
-
-        case DATATYPE_EQNET_SESSION:
-        case DATATYPE_EQNET_OBJECT:
-        {
-            const SessionPacket* sessionPacket = 
-                static_cast<SessionPacket*>( command.getPacket( ));
-            const uint32_t       id            = sessionPacket->sessionID;
-
-            EQASSERTINFO( _sessions.find( id ) != _sessions.end(), 
-                          "Can't find session for " << sessionPacket );
-            Session*             session       = _sessions[ id ];
-            EQASSERT( session );
-            
-            return session->dispatchCommand( command );
-        }
-
-        default:
-            EQABORT( "Unknown datatype " << datatype << " for " << command );
-            return true;
-    }
-}
-
-void Node::_redispatchCommands()
-{
-    bool changes = true;
-    while( changes && !_pendingCommands.empty( ))
-    {
-        changes = false;
-
-        for( CommandList::iterator i = _pendingCommands.begin();
-             i != _pendingCommands.end(); ++i )
-        {
-            Command* command = *i;
-            EQASSERT( command->isValid( ));
-
-            if( dispatchCommand( *command ))
-            {
-                _pendingCommands.erase( i );
-                command->release();
-                changes = true;
-                break;
-            }
-        }
-    }
-
-#ifndef NDEBUG
-    if( !_pendingCommands.empty( ))
-        EQVERB << _pendingCommands.size() << " undispatched commands" << std::endl;
-    EQASSERT( _pendingCommands.size() < 1000 );
-#endif
-}
-
-//----------------------------------------------------------------------
-// command thread functions
-//----------------------------------------------------------------------
-void* Node::_runCommandThread()
-{
-    EQINFO << "Entered command thread of " << typeid( *this ).name() << std::endl;
-
-    while( _state == STATE_LISTENING )
-    {
-        Command* command = _commandThreadQueue.pop();
-        EQASSERT( command->isValid( ));
-
-        const CommandResult result  = invokeCommand( *command );
-        switch( result )
-        {
-            case COMMAND_ERROR:
-                EQABORT( "Error handling " << *command );
-                break;
-
-            case COMMAND_HANDLED:
-            case COMMAND_DISCARD:
-                break;
-
-            default:
-                EQUNIMPLEMENTED;
-        }
-
-        command->release();
-    }
- 
-    _commandThreadQueue.flush();
-    EQINFO << "Leaving command thread of " << typeid( *this ).name() << std::endl;
-    return EXIT_SUCCESS;
-}
-
-CommandResult Node::invokeCommand( Command& command )
-{
-    EQVERB << "dispatch " << command << " by " << _id << std::endl;
-    EQASSERT( command.isValid( ));
-
-    const uint32_t datatype = command->datatype;
-    switch( datatype )
-    {
-        case DATATYPE_EQNET_NODE:
-            return Dispatcher::invokeCommand( command );
-
-        case DATATYPE_EQNET_SESSION:
-        case DATATYPE_EQNET_OBJECT:
-        {
-            const SessionPacket* sessionPacket = 
-                static_cast<SessionPacket*>( command.getPacket( ));
-            const uint32_t id = sessionPacket->sessionID;
-
-            EQASSERTINFO( _sessions.find( id ) != _sessions.end( ),
-                          "Can't find session for " << sessionPacket );
-
-            Session* session = _sessions[ id ];
-            if( !session )
-                return COMMAND_ERROR;
-
-            return session->invokeCommand( command );
-        }
-
-        default:
-            EQABORT( "Unknown datatype " << datatype << " for " << command );
-            return COMMAND_ERROR;
-    }
-}
-
-CommandResult Node::_cmdStop( Command& command )
-{
-    EQINFO << "Cmd stop " << this << std::endl;
-    EQASSERT( _state == STATE_LISTENING );
-
-    _state = STATE_STOPPED;
-    _incoming.interrupt();
-
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdRegisterSession( Command& command )
-{
-    EQASSERT( getState() == STATE_LISTENING );
-
-    const NodeRegisterSessionPacket* packet = 
-        command.getPacket<NodeRegisterSessionPacket>();
-    EQVERB << "Cmd register session: " << packet << std::endl;
-    CHECK_THREAD( _thread );
-    
-    Session* session = static_cast< Session* >( 
-        _requestHandler.getRequestData( packet->requestID ));
-
-    EQASSERTINFO( command.getNode() == this, 
-                  command.getNode() << " != " << this );
-    EQASSERT( session );
-
-    const uint32_t sessionID = _generateSessionID();
-    _addSession( session, this, sessionID );
-
-    NodeRegisterSessionReplyPacket reply( packet );
-    reply.sessionID = session->getID();
-    send( reply );
-        
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdRegisterSessionReply( Command& command)
-{
-    const NodeRegisterSessionReplyPacket* packet = 
-        command.getPacket<NodeRegisterSessionReplyPacket>();
-    EQVERB << "Cmd register session reply: " << packet << std::endl;
-    CHECK_THREAD( _thread );
-
-    EQASSERT( command.getNode() == this );
-
-    _requestHandler.serveRequest( packet->requestID, packet->sessionID );
-    return COMMAND_HANDLED;
-}
-
-
-CommandResult Node::_cmdMapSession( Command& command )
-{
-    EQASSERT( getState() == STATE_LISTENING );
-
-    const NodeMapSessionPacket* packet = 
-        command.getPacket<NodeMapSessionPacket>();
-    EQVERB << "Cmd map session: " << packet << std::endl;
-    CHECK_THREAD( _thread );
-    
-    NodePtr node = command.getNode();
-    NodeMapSessionReplyPacket reply( packet );
-
-    if( node == this )
-    {
-        EQASSERTINFO( node == this, 
-                      "Can't map a session using myself as server " );
-        reply.sessionID = EQ_ID_INVALID;
-    }
-    else
-    {
-        const uint32_t sessionID = packet->sessionID;
-        SessionHash::const_iterator i = _sessions.find( sessionID );
-        
-        if( i == _sessions.end( ))
-            reply.sessionID = EQ_ID_INVALID;
-    }
-
-    node->send( reply );
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdMapSessionReply( Command& command)
-{
-    const NodeMapSessionReplyPacket* packet = 
-        command.getPacket<NodeMapSessionReplyPacket>();
-    EQVERB << "Cmd map session reply: " << packet << std::endl;
-    CHECK_THREAD( _thread );
-
-    const uint32_t requestID = packet->requestID;
-    if( packet->sessionID != EQ_ID_INVALID )
-    {
-        NodePtr  node    = command.getNode(); 
-        Session* session = static_cast< Session* >( 
-            _requestHandler.getRequestData( requestID ));
-        EQASSERT( session );
-        EQASSERT( node != this );
-
-        _addSession( session, node, packet->sessionID );
-    }
-
-    _requestHandler.serveRequest( requestID, packet->sessionID );
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdUnmapSession( Command& command )
-{
-    const NodeUnmapSessionPacket* packet =
-        command.getPacket<NodeUnmapSessionPacket>();
-    EQVERB << "Cmd unmap session: " << packet << std::endl;
-    CHECK_THREAD( _thread );
-    
-    const uint32_t sessionID = packet->sessionID;
-    SessionHash::const_iterator i = _sessions.find( sessionID );
-    Session* session = (i == _sessions.end() ? 0 : i->second );
-
-    NodeUnmapSessionReplyPacket reply( packet );
-    reply.result = (session != 0);
-
-#if 0
-    if( session && session->_server == this )
-        ;// TODO: unmap all session slave instances.
-#endif
-
-    command.getNode()->send( reply );
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdUnmapSessionReply( Command& command)
-{
-    const NodeUnmapSessionReplyPacket* packet = 
-        command.getPacket<NodeUnmapSessionReplyPacket>();
-    EQVERB << "Cmd unmap session reply: " << packet << std::endl;
-    CHECK_THREAD( _thread );
-
-    const uint32_t requestID = packet->requestID;
-    Session* session = static_cast< Session* >(
-        _requestHandler.getRequestData( requestID ));
-    EQASSERT( session );
-
-    if( session )
-    {
-        _removeSession( session ); // TODO use session existence as return value
-        _requestHandler.serveRequest( requestID, true );
-    }
-    else
-        _requestHandler.serveRequest( requestID, false );
-
-    // packet->result is false if server-side session was already unmapped
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdConnect( Command& command )
-{
-    EQASSERT( !command.getNode().isValid( ));
-    EQASSERT( inReceiverThread( ));
-
-    const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
-    ConnectionPtr        connection = _incoming.getConnection();
-
-    NodeID nodeID = packet->nodeID;
-    nodeID.convertToHost();
-
-    EQINFO << "handle connect " << packet << std::endl;
-    EQASSERT( nodeID != _id );
-    EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
-
-    if( _nodes.find( nodeID ) != _nodes.end( ))
-    {   // Node exists, probably simultaneous connect from peer
-        EQASSERT( packet->launchID == EQ_ID_INVALID );
-        EQINFO << "Already got node " << nodeID << ", refusing connect"
-               << std::endl;
-
-        // refuse connection
-        NodeConnectReplyPacket reply( packet );
-        connection->send( reply, serialize( ));
-
-        // NOTE: There used to be no close() here. If deadlocks occur, it is
-        // likely that the reply packet above can't be received by the peer
-        // because the connection is closed by us. In that case, do not close
-        // the connection here. Take care to cancel the pending IO for the next
-        // packet size, and to delete the memory for the packet size.
-        _removeConnection( connection );
-        return COMMAND_HANDLED;
-    }
-
-    // create and add connected node
-    NodePtr remoteNode;
-    if( packet->launchID != EQ_ID_INVALID )
-    {
-        void* ptr = _requestHandler.getRequestData( packet->launchID );
-        EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
-        remoteNode = static_cast< Node* >( ptr );
-        remoteNode->_connectionDescriptions.clear(); //use actual data from peer
-    }
-    else
-        remoteNode = createNode( packet->type );
-
-    std::string data = packet->nodeData;
-    if( !remoteNode->deserialize( data ))
-        EQWARN << "Error during node initialization" << std::endl;
-    EQASSERTINFO( data.empty(), data);
-    EQASSERTINFO( remoteNode->_id == nodeID,
-                  remoteNode->_id << "!=" << nodeID );
-
-    remoteNode->_connection = connection;
-    remoteNode->_state      = STATE_CONNECTED;
-    
-    _connectionNodes[ connection ] = remoteNode;
-    _nodes[ remoteNode->_id ]      = remoteNode;
-    EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
-
-    // send our information as reply
-    NodeConnectReplyPacket reply( packet );
-    reply.nodeID    = _id;
-    reply.nodeID.convertToNetwork();
-
-    reply.type      = getType();
-
-    connection->send( reply, serialize( ));
-
-    if( packet->launchID != EQ_ID_INVALID )
-        _requestHandler.serveRequest( packet->launchID );
-    
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdConnectReply( Command& command )
-{
-    EQASSERT( !command.getNode( ));
-    EQASSERT( inReceiverThread( ));
-
-    const NodeConnectReplyPacket* packet = 
-        command.getPacket<NodeConnectReplyPacket>();
-    ConnectionPtr connection = _incoming.getConnection();
-
-    NodeID nodeID = packet->nodeID;
-    nodeID.convertToHost();
-
-    EQINFO << "handle connect reply " << packet << std::endl;
-    EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
-
-    if( nodeID == NodeID::ZERO ||               // connection refused
-        _nodes.find( nodeID ) != _nodes.end( )) // Node exists, probably
-                                                // simultaneous connect
-    {
-        EQINFO << "ignoring connect reply, node already connected" << std::endl;
-        _removeConnection( connection );
-        
-        if( packet->requestID != EQ_ID_INVALID )
-            _requestHandler.serveRequest( packet->requestID, false );
-        
-        return COMMAND_HANDLED;
-    }
-
-    // create and add node
-    NodePtr remoteNode;
-    if( packet->requestID != EQ_ID_INVALID )
-    {
-        void* ptr = _requestHandler.getRequestData( packet->requestID );
-        EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
-        remoteNode = static_cast< Node* >( ptr );
-        remoteNode->_connectionDescriptions.clear(); //get actual data from peer
-    }
-
-    if( !remoteNode )
-        remoteNode = createNode( packet->type );
-
-    EQASSERT( remoteNode->getType() == packet->type );
-    EQASSERT( remoteNode->getState() == STATE_STOPPED );
-
-    std::string data = packet->nodeData;
-    if( !remoteNode->deserialize( data ))
-        EQWARN << "Error during node initialization" << std::endl;
-    EQASSERT( data.empty( ));
-    EQASSERT( remoteNode->_id == nodeID );
-
-    remoteNode->_connection = connection;
-    remoteNode->_state      = STATE_CONNECTED;
-    
-    _connectionNodes[ connection ] = remoteNode;
-    _nodes[ remoteNode->_id ]      = remoteNode;
-    EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
-
-    if( packet->requestID != EQ_ID_INVALID )
-        _requestHandler.serveRequest( packet->requestID, true );
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdDisconnect( Command& command )
-{
-    EQASSERT( inReceiverThread( ));
-
-    const NodeDisconnectPacket* packet =
-        command.getPacket<NodeDisconnectPacket>();
-
-    NodePtr node = static_cast<Node*>( 
-        _requestHandler.getRequestData( packet->requestID ));
-    EQASSERT( node.isValid( ));
-
-    ConnectionPtr connection = node->_connection;
-    if( connection.isValid( ))
-    {
-        node->_state      = STATE_STOPPED;
-        node->_connection = 0;
-
-        _removeConnection( connection );
-        EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
-
-        _connectionNodes.erase( connection );
-        _nodes.erase( node->_id );
-
-        EQINFO << node << " disconnected from " << this << " connection used " 
-               << connection->getRefCount() << std::endl;
-    }
-
-    EQASSERT( node->_state == STATE_STOPPED );
-    _requestHandler.serveRequest( packet->requestID );
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdGetNodeData( Command& command)
-{
-    const NodeGetNodeDataPacket* packet = 
-        command.getPacket<NodeGetNodeDataPacket>();
-    EQINFO << "cmd get node data: " << packet << std::endl;
-
-    NodeID nodeID = packet->nodeID;
-    nodeID.convertToHost();
-
-    NodePtr descNode = getNode( nodeID );
-    
-    NodeGetNodeDataReplyPacket reply( packet );
-
-    std::string nodeData;
-    if( descNode.isValid( ))
-    {
-        reply.type = descNode->getType();
-        nodeData   = descNode->serialize();
-    }
-    else
-    {
-        EQINFO << "Node " << nodeID << " unknown" << std::endl;
-        reply.type = TYPE_EQNET_INVALID;
-    }
-
-    NodePtr node = command.getNode();
-    node->send( reply, nodeData );
-    EQINFO << "Sent node data " << nodeData << " to " << node << std::endl;
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdGetNodeDataReply( Command& command )
-{
-    NodeGetNodeDataReplyPacket* packet = 
-        command.getPacket<NodeGetNodeDataReplyPacket>();
-    EQINFO << "cmd get node data reply: " << packet << std::endl;
-
-    const uint32_t requestID = packet->requestID;
-
-    NodeID nodeID = packet->nodeID;
-    nodeID.convertToHost();
-
-    if( _nodes.find( nodeID ) != _nodes.end( ))
-    {   
-        // Requested node connected to us in the meantime
-        NodePtr node = _nodes[ nodeID ];
-        EQASSERT( node->isConnected( ));
-
-        node.ref();
-        _requestHandler.serveRequest( requestID, node.get( ));
-        return COMMAND_HANDLED;
-    }
-
-    if( packet->type == TYPE_EQNET_INVALID )
-    {
-        _requestHandler.serveRequest( requestID, (void*)0 );
-        return COMMAND_HANDLED;
-    }
-        
-    NodePtr node = createNode( packet->type );
-    EQASSERT( node.isValid( ));
-
-    std::string data = packet->nodeData;
-    if( !node->deserialize( data ))
-        EQWARN << "Failed to initialize node data" << std::endl;
-    EQASSERT( data.empty( ));
-
-    node->setAutoLaunch( false );
-    node.ref();
-    _requestHandler.serveRequest( requestID, node.get( ));
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdAcquireSendToken( Command& command )
-{
-    NodeAcquireSendTokenPacket* packet = 
-        command.getPacket<NodeAcquireSendTokenPacket>();
-
-    if( !_hasSendToken ) // no token available
-        // HACK: returning not COMMAND_HANDLED causes redispatch, see base.cpp
-        return COMMAND_ERROR;
-
-    _hasSendToken = false;
-
-    NodeAcquireSendTokenReplyPacket reply( packet );
-    command.getNode()->send( reply );
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdAcquireSendTokenReply( Command& command )
-{
-    NodeAcquireSendTokenReplyPacket* packet = 
-        command.getPacket<NodeAcquireSendTokenReplyPacket>();
-
-    _requestHandler.serveRequest( packet->requestID );
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdReleaseSendToken( Command& command )
-{
-    EQASSERT( !_hasSendToken );
-    _hasSendToken = true;
-    flushCommands(); // redispatch pending commands
-    return COMMAND_HANDLED;
-}
-
-//----------------------------------------------------------------------
 // Connecting and launching a node
 //----------------------------------------------------------------------
 bool Node::connect( NodePtr node )
@@ -1532,6 +826,9 @@ bool Node::initConnect( NodePtr node )
         i != cds.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
+        if( description->type >= CONNECTIONTYPE_MULTICAST )
+            continue; // Don't use multicast for primary connections
+
         ConnectionPtr connection = Connection::create( description );
 
         if( !connection->connect( ))
@@ -1885,6 +1182,800 @@ bool Node::runClient( const std::string& clientArgs )
     return clientLoop();
 }
 
+//----------------------------------------------------------------------
+// receiver thread functions
+//----------------------------------------------------------------------
+void* Node::_runReceiverThread()
+{
+    EQINFO << "Entered receiver thread of " << typeid( *this ).name()
+           << std::endl;
+    _commandThread->start();
+
+    int nErrors = 0;
+    while( _state == STATE_LISTENING )
+    {
+        const ConnectionSet::Event result = _incoming.select();
+        switch( result )
+        {
+            case ConnectionSet::EVENT_CONNECT:
+                _handleConnect();
+                break;
+
+            case ConnectionSet::EVENT_DATA:      
+                _handleData();
+                break;
+
+            case ConnectionSet::EVENT_DISCONNECT:
+            case ConnectionSet::EVENT_INVALID_HANDLE:
+                _handleDisconnect();
+                break;
+
+            case ConnectionSet::EVENT_TIMEOUT:   
+                EQINFO << "select timeout" << std::endl;
+                break;
+
+            case ConnectionSet::EVENT_ERROR:      
+                ++nErrors;
+                EQWARN << "Connection error during select" << std::endl;
+                if( nErrors > 100 )
+                {
+                    EQWARN << "Too many errors in a row, capping connection" 
+                           << std::endl;
+                    _handleDisconnect();
+                }
+                break;
+
+            case ConnectionSet::EVENT_SELECT_ERROR:      
+                EQWARN << "Error during select" << std::endl;
+                ++nErrors;
+                if( nErrors > 10 )
+                {
+                    EQWARN << "Too many errors in a row" << std::endl;
+                    EQUNIMPLEMENTED;
+                }
+                break;
+
+            case ConnectionSet::EVENT_INTERRUPT:
+                _redispatchCommands();
+                break;
+
+            default:
+                EQUNIMPLEMENTED;
+        }
+        if( result != ConnectionSet::EVENT_ERROR && 
+            result != ConnectionSet::EVENT_SELECT_ERROR )
+
+            nErrors = 0;
+    }
+
+    if( !_pendingCommands.empty( ))
+        EQWARN << _pendingCommands.size() 
+               << " commands pending while leaving command thread" << std::endl;
+
+    for( CommandList::const_iterator i = _pendingCommands.begin();
+         i != _pendingCommands.end(); ++i )
+    {
+        Command* command = *i;
+        command->release();
+    }
+
+    EQCHECK( _commandThread->join( ));
+    _pendingCommands.clear();
+    _commandCache.flush();
+
+    EQINFO << "Leaving receiver thread of " << typeid( *this ).name() 
+           << std::endl;
+    return EXIT_SUCCESS;
+}
+
+void Node::_handleConnect()
+{
+    ConnectionPtr connection = _incoming.getConnection();
+    ConnectionPtr newConn    = connection->acceptSync();
+    connection->acceptNB();
+
+    if( !newConn )
+    {
+        EQINFO << "Received connect event, but accept() failed" << std::endl;
+        return;
+    }
+    _addConnection( newConn );
+}
+
+void Node::_handleDisconnect()
+{
+    while( _handleData( )) ; // read remaining data off connection
+
+    ConnectionPtr connection = _incoming.getConnection();
+    NodePtr node;
+    ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
+    if( i != _connectionNodes.end( ))
+        node = i->second;
+
+    if( node.isValid( ))
+    {
+        node->_state    = STATE_STOPPED;
+        node->_outgoing = 0;
+        _connectionNodes.erase( connection );
+        _nodes.erase( node->_id );
+    }
+
+    _removeConnection( connection );
+
+    EQINFO << node << " disconnected from " << this << " connection used " 
+           << connection->getRefCount() << std::endl;
+}
+
+bool Node::_handleData()
+{
+    ConnectionPtr connection = _incoming.getConnection();
+    EQASSERT( connection.isValid( ));
+
+    NodePtr node;
+    ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
+    if( i != _connectionNodes.end( ))
+        node = i->second;
+    EQASSERTINFO( !node || node->_outgoing == connection, 
+                  typeid( *node.get( )).name( ));
+
+    EQVERB << "Handle data from " << node << std::endl;
+
+    void* sizePtr( 0 );
+    uint64_t bytes( 0 );
+    const bool gotSize = connection->recvSync( &sizePtr, &bytes );
+
+    if( !gotSize ) // Some systems signal data on dead connections.
+    {
+        connection->recvNB( sizePtr, sizeof( uint64_t ));
+        return false;
+    }
+
+    EQASSERT( sizePtr );
+    const uint64_t size = *reinterpret_cast< uint64_t* >( sizePtr );
+    EQASSERT( size );
+    EQASSERT( bytes == sizeof( uint64_t ));
+    EQASSERT( size > sizeof( size ));
+
+    Command& command = _commandCache.alloc( node, this, size );
+    uint8_t* ptr = reinterpret_cast< uint8_t* >( command.getPacket()) +
+                                                 sizeof( uint64_t );
+
+    connection->recvNB( ptr, size - sizeof( uint64_t ));
+    const bool gotData = connection->recvSync( 0, 0 );    
+
+    EQASSERT( gotData );
+    EQASSERT( command.isValid( ));
+
+    // start next receive
+    connection->recvNB( sizePtr, sizeof( uint64_t ));
+
+    if( !gotData )
+    {
+        EQERROR << "Incomplete packet read: " << command << std::endl;
+        return false;
+    }
+
+    // This is one of the initial packets during the connection handshake, at
+    // this point the remote node is not yet available.
+    EQASSERTINFO( node.isValid() ||
+                 ( command->datatype == DATATYPE_EQNET_NODE &&
+                  ( command->command == CMD_NODE_CONNECT  || 
+                    command->command == CMD_NODE_CONNECT_REPLY ||
+                    command->command == CMD_NODE_ID )),
+                  command << " connection " << connection );
+
+    _dispatchCommand( command );
+    return true;
+}
+
+void Node::_dispatchCommand( Command& command )
+{
+    EQASSERT( command.isValid( ));
+
+    const bool dispatched = dispatchCommand( command );
+ 
+    _redispatchCommands();
+  
+    if( !dispatched )
+    {
+        command.retain();
+        _pendingCommands.push_back( &command );
+    }
+}
+
+bool Node::dispatchCommand( Command& command )
+{
+    EQVERB << "dispatch " << command << " by " << _id << std::endl;
+    EQASSERT( command.isValid( ));
+
+    const uint32_t datatype = command->datatype;
+    switch( datatype )
+    {
+        case DATATYPE_EQNET_NODE:
+            return Dispatcher::dispatchCommand( command );
+
+        case DATATYPE_EQNET_SESSION:
+        case DATATYPE_EQNET_OBJECT:
+        {
+            const SessionPacket* sessionPacket = 
+                static_cast<SessionPacket*>( command.getPacket( ));
+            const uint32_t       id            = sessionPacket->sessionID;
+
+            EQASSERTINFO( _sessions.find( id ) != _sessions.end(), 
+                          "Can't find session for " << sessionPacket );
+            Session*             session       = _sessions[ id ];
+            EQASSERT( session );
+            
+            return session->dispatchCommand( command );
+        }
+
+        default:
+            EQABORT( "Unknown datatype " << datatype << " for " << command );
+            return true;
+    }
+}
+
+void Node::_redispatchCommands()
+{
+    bool changes = true;
+    while( changes && !_pendingCommands.empty( ))
+    {
+        changes = false;
+
+        for( CommandList::iterator i = _pendingCommands.begin();
+             i != _pendingCommands.end(); ++i )
+        {
+            Command* command = *i;
+            EQASSERT( command->isValid( ));
+
+            if( dispatchCommand( *command ))
+            {
+                _pendingCommands.erase( i );
+                command->release();
+                changes = true;
+                break;
+            }
+        }
+    }
+
+#ifndef NDEBUG
+    if( !_pendingCommands.empty( ))
+        EQVERB << _pendingCommands.size() << " undispatched commands" << std::endl;
+    EQASSERT( _pendingCommands.size() < 1000 );
+#endif
+}
+
+//----------------------------------------------------------------------
+// command thread functions
+//----------------------------------------------------------------------
+void* Node::_runCommandThread()
+{
+    EQINFO << "Entered command thread of " << typeid( *this ).name() << std::endl;
+
+    while( _state == STATE_LISTENING )
+    {
+        Command* command = _commandThreadQueue.pop();
+        EQASSERT( command->isValid( ));
+
+        const CommandResult result  = invokeCommand( *command );
+        switch( result )
+        {
+            case COMMAND_ERROR:
+                EQABORT( "Error handling " << *command );
+                break;
+
+            case COMMAND_HANDLED:
+            case COMMAND_DISCARD:
+                break;
+
+            default:
+                EQUNIMPLEMENTED;
+        }
+
+        command->release();
+    }
+ 
+    _commandThreadQueue.flush();
+    EQINFO << "Leaving command thread of " << typeid( *this ).name()
+           << std::endl;
+    return EXIT_SUCCESS;
+}
+
+CommandResult Node::invokeCommand( Command& command )
+{
+    EQVERB << "dispatch " << command << " by " << _id << std::endl;
+    EQASSERT( command.isValid( ));
+
+    const uint32_t datatype = command->datatype;
+    switch( datatype )
+    {
+        case DATATYPE_EQNET_NODE:
+            return Dispatcher::invokeCommand( command );
+
+        case DATATYPE_EQNET_SESSION:
+        case DATATYPE_EQNET_OBJECT:
+        {
+            const SessionPacket* sessionPacket = 
+                static_cast<SessionPacket*>( command.getPacket( ));
+            const uint32_t id = sessionPacket->sessionID;
+
+            EQASSERTINFO( _sessions.find( id ) != _sessions.end( ),
+                          "Can't find session for " << sessionPacket );
+
+            Session* session = _sessions[ id ];
+            if( !session )
+                return COMMAND_ERROR;
+
+            return session->invokeCommand( command );
+        }
+
+        default:
+            EQABORT( "Unknown datatype " << datatype << " for " << command );
+            return COMMAND_ERROR;
+    }
+}
+
+CommandResult Node::_cmdStop( Command& command )
+{
+    EQINFO << "Cmd stop " << this << std::endl;
+    EQASSERT( _state == STATE_LISTENING );
+
+    _state = STATE_STOPPED;
+    _incoming.interrupt();
+
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdRegisterSession( Command& command )
+{
+    EQASSERT( getState() == STATE_LISTENING );
+
+    const NodeRegisterSessionPacket* packet = 
+        command.getPacket<NodeRegisterSessionPacket>();
+    EQVERB << "Cmd register session: " << packet << std::endl;
+    CHECK_THREAD( _thread );
+    
+    Session* session = static_cast< Session* >( 
+        _requestHandler.getRequestData( packet->requestID ));
+
+    EQASSERTINFO( command.getNode() == this, 
+                  command.getNode() << " != " << this );
+    EQASSERT( session );
+
+    const uint32_t sessionID = _generateSessionID();
+    _addSession( session, this, sessionID );
+
+    NodeRegisterSessionReplyPacket reply( packet );
+    reply.sessionID = session->getID();
+    send( reply );
+        
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdRegisterSessionReply( Command& command)
+{
+    const NodeRegisterSessionReplyPacket* packet = 
+        command.getPacket<NodeRegisterSessionReplyPacket>();
+    EQVERB << "Cmd register session reply: " << packet << std::endl;
+    CHECK_THREAD( _thread );
+
+    EQASSERT( command.getNode() == this );
+
+    _requestHandler.serveRequest( packet->requestID, packet->sessionID );
+    return COMMAND_HANDLED;
+}
+
+
+CommandResult Node::_cmdMapSession( Command& command )
+{
+    EQASSERT( getState() == STATE_LISTENING );
+
+    const NodeMapSessionPacket* packet = 
+        command.getPacket<NodeMapSessionPacket>();
+    EQVERB << "Cmd map session: " << packet << std::endl;
+    CHECK_THREAD( _thread );
+    
+    NodePtr node = command.getNode();
+    NodeMapSessionReplyPacket reply( packet );
+
+    if( node == this )
+    {
+        EQASSERTINFO( node == this, 
+                      "Can't map a session using myself as server " );
+        reply.sessionID = EQ_ID_INVALID;
+    }
+    else
+    {
+        const uint32_t sessionID = packet->sessionID;
+        SessionHash::const_iterator i = _sessions.find( sessionID );
+        
+        if( i == _sessions.end( ))
+            reply.sessionID = EQ_ID_INVALID;
+    }
+
+    node->send( reply );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdMapSessionReply( Command& command)
+{
+    const NodeMapSessionReplyPacket* packet = 
+        command.getPacket<NodeMapSessionReplyPacket>();
+    EQVERB << "Cmd map session reply: " << packet << std::endl;
+    CHECK_THREAD( _thread );
+
+    const uint32_t requestID = packet->requestID;
+    if( packet->sessionID != EQ_ID_INVALID )
+    {
+        NodePtr  node    = command.getNode(); 
+        Session* session = static_cast< Session* >( 
+            _requestHandler.getRequestData( requestID ));
+        EQASSERT( session );
+        EQASSERT( node != this );
+
+        _addSession( session, node, packet->sessionID );
+    }
+
+    _requestHandler.serveRequest( requestID, packet->sessionID );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdUnmapSession( Command& command )
+{
+    const NodeUnmapSessionPacket* packet =
+        command.getPacket<NodeUnmapSessionPacket>();
+    EQVERB << "Cmd unmap session: " << packet << std::endl;
+    CHECK_THREAD( _thread );
+    
+    const uint32_t sessionID = packet->sessionID;
+    SessionHash::const_iterator i = _sessions.find( sessionID );
+    Session* session = (i == _sessions.end() ? 0 : i->second );
+
+    NodeUnmapSessionReplyPacket reply( packet );
+    reply.result = (session != 0);
+
+#if 0
+    if( session && session->_server == this )
+        ;// TODO: unmap all session slave instances.
+#endif
+
+    command.getNode()->send( reply );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdUnmapSessionReply( Command& command)
+{
+    const NodeUnmapSessionReplyPacket* packet = 
+        command.getPacket<NodeUnmapSessionReplyPacket>();
+    EQVERB << "Cmd unmap session reply: " << packet << std::endl;
+    CHECK_THREAD( _thread );
+
+    const uint32_t requestID = packet->requestID;
+    Session* session = static_cast< Session* >(
+        _requestHandler.getRequestData( requestID ));
+    EQASSERT( session );
+
+    if( session )
+    {
+        _removeSession( session ); // TODO use session existence as return value
+        _requestHandler.serveRequest( requestID, true );
+    }
+    else
+        _requestHandler.serveRequest( requestID, false );
+
+    // packet->result is false if server-side session was already unmapped
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdConnect( Command& command )
+{
+    EQASSERT( !command.getNode().isValid( ));
+    EQASSERT( inReceiverThread( ));
+
+    const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
+    ConnectionPtr        connection = _incoming.getConnection();
+
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+
+    EQINFO << "handle connect " << packet << std::endl;
+    EQASSERT( nodeID != _id );
+    EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
+
+    if( _nodes.find( nodeID ) != _nodes.end( ))
+    {   // Node exists, probably simultaneous connect from peer
+        EQASSERT( packet->launchID == EQ_ID_INVALID );
+        EQINFO << "Already got node " << nodeID << ", refusing connect"
+               << std::endl;
+
+        // refuse connection
+        NodeConnectReplyPacket reply( packet );
+        connection->send( reply, serialize( ));
+
+        // NOTE: There used to be no close() here. If deadlocks occur, it is
+        // likely that the reply packet above can't be received by the peer
+        // because the connection is closed by us. In that case, do not close
+        // the connection here. Take care to cancel the pending IO for the next
+        // packet size, and to delete the memory for the packet size.
+        _removeConnection( connection );
+        return COMMAND_HANDLED;
+    }
+
+    // create and add connected node
+    NodePtr remoteNode;
+    if( packet->launchID != EQ_ID_INVALID )
+    {
+        void* ptr = _requestHandler.getRequestData( packet->launchID );
+        EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
+        remoteNode = static_cast< Node* >( ptr );
+        remoteNode->_connectionDescriptions.clear(); //use actual data from peer
+    }
+    else
+        remoteNode = createNode( packet->type );
+
+    std::string data = packet->nodeData;
+    if( !remoteNode->deserialize( data ))
+        EQWARN << "Error during node initialization" << std::endl;
+    EQASSERTINFO( data.empty(), data);
+    EQASSERTINFO( remoteNode->_id == nodeID,
+                  remoteNode->_id << "!=" << nodeID );
+
+    remoteNode->_outgoing = connection;
+    remoteNode->_state    = STATE_CONNECTED;
+    
+    _connectionNodes[ connection ] = remoteNode;
+    _nodes[ remoteNode->_id ]      = remoteNode;
+    EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
+
+    // send our information as reply
+    NodeConnectReplyPacket reply( packet );
+    reply.nodeID    = _id;
+    reply.nodeID.convertToNetwork();
+
+    reply.type      = getType();
+
+    connection->send( reply, serialize( ));
+
+    if( packet->launchID != EQ_ID_INVALID )
+        _requestHandler.serveRequest( packet->launchID );
+    
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdConnectReply( Command& command )
+{
+    EQASSERT( !command.getNode( ));
+    EQASSERT( inReceiverThread( ));
+
+    const NodeConnectReplyPacket* packet = 
+        command.getPacket<NodeConnectReplyPacket>();
+    ConnectionPtr connection = _incoming.getConnection();
+
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+
+    EQINFO << "handle connect reply " << packet << std::endl;
+    EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
+
+    if( nodeID == NodeID::ZERO ||               // connection refused
+        _nodes.find( nodeID ) != _nodes.end( )) // Node exists, probably
+                                                // simultaneous connect
+    {
+        EQINFO << "ignoring connect reply, node already connected" << std::endl;
+        _removeConnection( connection );
+        
+        if( packet->requestID != EQ_ID_INVALID )
+            _requestHandler.serveRequest( packet->requestID, false );
+        
+        return COMMAND_HANDLED;
+    }
+
+    // create and add node
+    NodePtr remoteNode;
+    if( packet->requestID != EQ_ID_INVALID )
+    {
+        void* ptr = _requestHandler.getRequestData( packet->requestID );
+        EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
+        remoteNode = static_cast< Node* >( ptr );
+        remoteNode->_connectionDescriptions.clear(); //get actual data from peer
+    }
+
+    if( !remoteNode )
+        remoteNode = createNode( packet->type );
+
+    EQASSERT( remoteNode->getType() == packet->type );
+    EQASSERT( remoteNode->getState() == STATE_STOPPED );
+
+    std::string data = packet->nodeData;
+    if( !remoteNode->deserialize( data ))
+        EQWARN << "Error during node initialization" << std::endl;
+    EQASSERT( data.empty( ));
+    EQASSERT( remoteNode->_id == nodeID );
+
+    remoteNode->_outgoing = connection;
+    remoteNode->_state    = STATE_CONNECTED;
+    
+    _connectionNodes[ connection ] = remoteNode;
+    _nodes[ remoteNode->_id ]      = remoteNode;
+    EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
+
+    if( packet->requestID != EQ_ID_INVALID )
+        _requestHandler.serveRequest( packet->requestID, true );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdID( Command& command )
+{
+    EQASSERT( !command.getNode().isValid( ));
+    EQASSERT( inReceiverThread( ));
+
+    const NodeIDPacket* packet = command.getPacket< NodeIDPacket >();
+    ConnectionPtr   connection = _incoming.getConnection();
+    EQASSERT( connection->getDescription()->type == CONNECTIONTYPE_MULTICAST );
+
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+
+    EQINFO << "handle ID " << packet << std::endl;
+    EQASSERT( nodeID != _id );
+    EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
+
+    NodeHash::const_iterator i = _nodes.find( nodeID );
+
+    EQASSERT( i != _nodes.end( ));
+    if( i == _nodes.end( ))
+        return COMMAND_ERROR;
+
+    NodePtr node = i->second;
+    EQASSERT( node->isConnected( ));
+    EQASSERT( node->_multicast.empty( ));
+
+    node->_multicast.push_back( connection );    
+    _connectionNodes[ connection ] = node;
+
+    EQINFO << "Added multicast connection " << connection << " from node " 
+           << nodeID << std::endl;
+    
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdDisconnect( Command& command )
+{
+    EQASSERT( inReceiverThread( ));
+
+    const NodeDisconnectPacket* packet =
+        command.getPacket<NodeDisconnectPacket>();
+
+    NodePtr node = static_cast<Node*>( 
+        _requestHandler.getRequestData( packet->requestID ));
+    EQASSERT( node.isValid( ));
+
+    ConnectionPtr connection = node->_outgoing;
+    if( connection.isValid( ))
+    {
+        node->_state    = STATE_STOPPED;
+        node->_outgoing = 0;
+
+        _removeConnection( connection );
+        EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
+
+        _connectionNodes.erase( connection );
+        _nodes.erase( node->_id );
+
+        EQINFO << node << " disconnected from " << this << " connection used " 
+               << connection->getRefCount() << std::endl;
+    }
+
+    EQASSERT( node->_state == STATE_STOPPED );
+    _requestHandler.serveRequest( packet->requestID );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdGetNodeData( Command& command)
+{
+    const NodeGetNodeDataPacket* packet = 
+        command.getPacket<NodeGetNodeDataPacket>();
+    EQINFO << "cmd get node data: " << packet << std::endl;
+
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+
+    NodePtr descNode = getNode( nodeID );
+    
+    NodeGetNodeDataReplyPacket reply( packet );
+
+    std::string nodeData;
+    if( descNode.isValid( ))
+    {
+        reply.type = descNode->getType();
+        nodeData   = descNode->serialize();
+    }
+    else
+    {
+        EQINFO << "Node " << nodeID << " unknown" << std::endl;
+        reply.type = TYPE_EQNET_INVALID;
+    }
+
+    NodePtr node = command.getNode();
+    node->send( reply, nodeData );
+    EQINFO << "Sent node data " << nodeData << " to " << node << std::endl;
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdGetNodeDataReply( Command& command )
+{
+    NodeGetNodeDataReplyPacket* packet = 
+        command.getPacket<NodeGetNodeDataReplyPacket>();
+    EQINFO << "cmd get node data reply: " << packet << std::endl;
+
+    const uint32_t requestID = packet->requestID;
+
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+
+    if( _nodes.find( nodeID ) != _nodes.end( ))
+    {   
+        // Requested node connected to us in the meantime
+        NodePtr node = _nodes[ nodeID ];
+        EQASSERT( node->isConnected( ));
+
+        node.ref();
+        _requestHandler.serveRequest( requestID, node.get( ));
+        return COMMAND_HANDLED;
+    }
+
+    if( packet->type == TYPE_EQNET_INVALID )
+    {
+        _requestHandler.serveRequest( requestID, (void*)0 );
+        return COMMAND_HANDLED;
+    }
+        
+    NodePtr node = createNode( packet->type );
+    EQASSERT( node.isValid( ));
+
+    std::string data = packet->nodeData;
+    if( !node->deserialize( data ))
+        EQWARN << "Failed to initialize node data" << std::endl;
+    EQASSERT( data.empty( ));
+
+    node->setAutoLaunch( false );
+    node.ref();
+    _requestHandler.serveRequest( requestID, node.get( ));
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdAcquireSendToken( Command& command )
+{
+    NodeAcquireSendTokenPacket* packet = 
+        command.getPacket<NodeAcquireSendTokenPacket>();
+
+    if( !_hasSendToken ) // no token available
+        // HACK: returning not COMMAND_HANDLED causes redispatch, see base.cpp
+        return COMMAND_ERROR;
+
+    _hasSendToken = false;
+
+    NodeAcquireSendTokenReplyPacket reply( packet );
+    command.getNode()->send( reply );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdAcquireSendTokenReply( Command& command )
+{
+    NodeAcquireSendTokenReplyPacket* packet = 
+        command.getPacket<NodeAcquireSendTokenReplyPacket>();
+
+    _requestHandler.serveRequest( packet->requestID );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdReleaseSendToken( Command& command )
+{
+    EQASSERT( !_hasSendToken );
+    _hasSendToken = true;
+    flushCommands(); // redispatch pending commands
+    return COMMAND_HANDLED;
+}
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Node::State state)
 {
