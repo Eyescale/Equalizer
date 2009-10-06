@@ -46,11 +46,24 @@ DataOStream::~DataOStream()
 
 void DataOStream::enable( const NodeVector& receivers )
 {
+    ConnectionDescriptionVector mcSet;
+
     for( NodeVector::const_iterator i = receivers.begin(); 
          i != receivers.end(); ++i )
     {
         NodePtr       node       = *i;
-        ConnectionPtr connection = node->getConnection();
+        ConnectionPtr connection = node->getMulticast();
+        
+        if( connection.isValid( ))
+        {
+            ConnectionDescriptionPtr desc = connection->getDescription();
+            if( std::find( mcSet.begin(), mcSet.end(), desc ) != mcSet.end( ))
+                // already added by another node
+                continue;
+            mcSet.push_back( desc );
+        }
+        else
+            connection = node->getConnection();
         
         connection->lockSend();
         _connections.push_back( connection );
@@ -65,20 +78,6 @@ void DataOStream::enable( const NodePtr node )
         
     connection->lockSend();
     _connections.push_back( connection );
-    enable();
-}
-
-void DataOStream::enable( const ConnectionVector& receivers )
-{
-    for( ConnectionVector::const_iterator i = receivers.begin(); 
-         i != receivers.end(); ++i )
-    {
-        ConnectionPtr connection = *i;
-        
-        connection->lockSend();
-        _connections.push_back( connection );
-    }
-
     enable();
 }
 

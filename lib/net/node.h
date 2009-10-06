@@ -314,12 +314,11 @@ namespace net
         EQ_EXPORT const ConnectionDescriptionVector& getConnectionDescriptions()
                             const;
 
-        /** 
-         * Returns the connection to this node.
-         * 
-         * @return the connection to this node. 
-         */
+        /** @return the connection to this node. */
         ConnectionPtr getConnection() const { return _outgoing; }
+
+        /** @return the multicast connection to this node, or 0. */
+        ConnectionPtr getMulticast();
         //@}
 
         /**

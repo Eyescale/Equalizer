@@ -45,7 +45,6 @@ namespace net
 
         /** Enable output, locks the connections to the receivers */ 
         void enable( const NodeVector& receivers );
-        void enable( const ConnectionVector& receivers );
         void enable( const NodePtr node );
         void enable();
 

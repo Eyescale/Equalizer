@@ -248,13 +248,12 @@ ConnectionPtr PGMConnection::acceptSync()
     newConnection->_initAIORead();
     _overlappedSocket       = INVALID_SOCKET;
 
-    newConnection->_state                   = STATE_CONNECTED;
-    newConnection->_description->bandwidth  = _description->bandwidth;
-    newConnection->_description->port       = ntohs( remote->sin_port );
-    newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
+    newConnection->_state       = STATE_CONNECTED;
+    newConnection->_description = _description;
 
-    EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
-           << ":" << ntohs( remote->sin_port ) << std::endl;
+    EQINFO << "accepted connection " << (void*)newConnection << " from " 
+           << inet_ntoa( remote->sin_addr ) << ":" << ntohs( remote->sin_port )
+           << std::endl;
     return connection;
 }
 

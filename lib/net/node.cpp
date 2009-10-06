@@ -162,6 +162,17 @@ const ConnectionDescriptionVector& Node::getConnectionDescriptions() const
     return _connectionDescriptions;
 }
 
+ConnectionPtr Node::getMulticast()
+{
+    EQASSERT( isConnected( ));
+    EQASSERT( _multicast.size() <= 1 );
+
+    if( _multicast.empty() || !isConnected( ))
+        return 0;
+
+    return _multicast.front();
+}
+
 void Node::setLaunchCommand( const std::string& launchCommand )
 {
     _launchCommand = launchCommand;
@@ -297,6 +308,19 @@ bool Node::listen()
     _receiverThread->start();
 
     EQINFO << this << " listening." << std::endl;
+
+    // prime multicast connections
+    NodeIDPacket packet;
+    packet.nodeID = _id;
+    packet.nodeID.convertToNetwork();
+
+    for( ConnectionVector::const_iterator i = _multicast.begin();
+         i != _multicast.end(); ++i )
+    {
+        ConnectionPtr connection = *i;
+        connection->send( packet );
+    }
+
     return true;
 }
 
@@ -1316,7 +1340,14 @@ bool Node::_handleData()
     ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
     if( i != _connectionNodes.end( ))
         node = i->second;
-    EQASSERTINFO( !node || node->_outgoing == connection, 
+    EQASSERTINFO( !node || // unconnected node
+                  node->_outgoing == connection || // correct UC conn for node
+                  // connection MC connection for node
+                  std::find( node->_multicast.begin(), node->_multicast.end(), 
+                             connection ) != node->_multicast.end() ||
+                  // MC connection from self is not in _multicast
+                  ( connection->getDescription()->type >= 
+                        CONNECTIONTYPE_MULTICAST && node == this ),
                   typeid( *node.get( )).name( ));
 
     EQVERB << "Handle data from " << node << std::endl;
@@ -1817,28 +1848,32 @@ CommandResult Node::_cmdID( Command& command )
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
 
-    EQINFO << "handle ID " << packet << std::endl;
+    EQINFO << "handle ID " << packet << " node " << nodeID << std::endl;
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
     NodeHash::const_iterator i = _nodes.find( nodeID );
 
-    EQASSERT( i != _nodes.end( ));
-    if( i == _nodes.end( ))
-        return COMMAND_ERROR;
-
-    NodePtr node = i->second;
-
+    NodePtr node;
     if( nodeID == _id ) // 'self' multicast connection
     {
-        EQASSERT( node == this );
+        node = this;
     }
     else
     {
+        NodeHash::const_iterator i = _nodes.find( nodeID );
+
+        if( i == _nodes.end( ))
+            // unknown node: drop connection, we will get another chance when we
+            // connect the node
+            return COMMAND_HANDLED;
+
+        node = i->second;
         EQASSERT( node->isConnected( ));
         EQASSERT( node->_multicast.empty( ));
 
         node->_multicast.push_back( connection );
     }
+    EQASSERT( node.isValid( ));
 
     _connectionNodes[ connection ] = node;
 
