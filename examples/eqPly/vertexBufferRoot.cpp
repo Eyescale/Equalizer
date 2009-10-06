@@ -152,9 +152,15 @@ bool VertexBufferRoot::_constructFromPly( const std::string& filename )
     return true;
 }
 
-bool VertexBufferRoot::_readBinary( const std::string& filename )
+bool VertexBufferRoot::_readBinary( std::string filename )
 {
 #ifdef WIN32
+
+    // replace dir delimiters since '\' is often used as escape char
+    for( size_t i=0; i<filename.length(); ++i )
+        if( filename[i] == '\\' )
+            filename[i] = '/';
+
     // try to open binary file
     HANDLE file = CreateFile( filename.c_str(), GENERIC_READ, FILE_SHARE_READ,
                               0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0 );

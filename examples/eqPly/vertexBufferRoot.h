@@ -55,7 +55,7 @@ namespace mesh
         
     private:
         bool _constructFromPly( const std::string& filename );
-        bool _readBinary( const std::string& filename );
+        bool _readBinary( std::string filename );
         
         VertexBufferData _data;
         bool             _invertFaces;
