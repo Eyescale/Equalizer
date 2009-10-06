@@ -27,12 +27,10 @@
 #include <eq/net/init.h>
 #include <eq/net/packets.h>
 
-using namespace std;
-
 // Tests the functionality of the DataOStream and DataIStream
 
 #define CONTAINER_SIZE 4096
-static string _message( "So long, and thanks for all the fish" );
+static std::string _message( "So long, and thanks for all the fish" );
 
 struct HeaderPacket : public eq::net::Packet
 {
@@ -72,7 +70,7 @@ protected:
         {
             HeaderPacket packet;
             eq::net::Connection::send( _connections, packet, true/*isLocked*/ );
-            EQINFO << "Sent header" << endl;
+            EQINFO << "Sent header" << std::endl;
 
             sendBuffer( buffer, size );
         }
@@ -83,7 +81,7 @@ protected:
             packet.dataSize = size;
             eq::net::Connection::send( _connections, packet, buffer, size, 
                                      true /*isLocked*/ );
-            EQINFO << "Sent buffer of " << size << " bytes" << endl;
+            EQINFO << "Sent buffer of " << size << " bytes" << std::endl;
         }
 
     virtual void sendFooter( const void* buffer, const uint64_t size )
@@ -93,7 +91,7 @@ protected:
 
             FooterPacket packet;
             eq::net::Connection::send( _connections, packet, true/*isLocked*/ );
-            EQINFO << "Sent footer" << endl;
+            EQINFO << "Sent footer" << std::endl;
         }
 };
 
@@ -121,7 +119,7 @@ protected:
             
             *buffer = packet->data;
             *size   = packet->dataSize;
-            EQINFO << "Got buffer of " << *size << " bytes" << endl;
+            EQINFO << "Got buffer of " << *size << " bytes" << std::endl;
 
             command->release();
             return true;
@@ -131,7 +129,12 @@ private:
     eq::net::CommandQueue _commands;
 };
 
-
+namespace eq
+{
+namespace net
+{
+namespace DataStreamTest
+{
 class Sender : public eq::base::Thread
 {
 public:
@@ -144,18 +147,18 @@ public:
 protected:
     virtual void* run()
         {
-            DataOStream               stream;
-            eq::net::ConnectionVector connections;
+            ::DataOStream stream;
 
-            connections.push_back( _connection );
-            stream.enable( connections );
+            _connection->lockSend();
+            stream._connections.push_back( _connection );
+            stream.enable();
 
             int foo = 42;
             stream << foo;
             stream << 43.0f;
             stream << 44.0;
 
-            vector< double > doubles;
+            std::vector< double > doubles;
             for( size_t i=0; i<CONTAINER_SIZE; ++i )
                 doubles.push_back( static_cast< double >( i ));
             stream << doubles;
@@ -169,6 +172,9 @@ protected:
 private:
     eq::base::RefPtr< eq::net::Connection > _connection;
 };
+}
+}
+}
 
 int main( int argc, char **argv )
 {
@@ -178,7 +184,7 @@ int main( int argc, char **argv )
     eq::net::ConnectionPtr connection = eq::net::Connection::create( desc );
 
     TEST( connection->connect( ));
-    Sender sender( connection );
+    eq::net::DataStreamTest::Sender sender( connection );
     TEST( sender.start( ));
 
     DataIStream           stream;
@@ -231,12 +237,12 @@ int main( int argc, char **argv )
     stream >> dFoo;
     TEST( dFoo == 44.0 );
 
-    vector< double > doubles;
+    std::vector< double > doubles;
     stream >> doubles;
     for( size_t i=0; i<CONTAINER_SIZE; ++i )
         TEST( doubles[i] == static_cast< double >( i ));
 
-    string message;
+    std::string message;
     stream >> message;
     TEST( message.length() == _message.length() );
     TESTINFO( message == _message, 

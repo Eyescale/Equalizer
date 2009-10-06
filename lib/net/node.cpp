@@ -1851,8 +1851,6 @@ CommandResult Node::_cmdID( Command& command )
     EQINFO << "handle ID " << packet << " node " << nodeID << std::endl;
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
-    NodeHash::const_iterator i = _nodes.find( nodeID );
-
     NodePtr node;
     if( nodeID == _id ) // 'self' multicast connection
     {

@@ -28,6 +28,10 @@ namespace eq
 {
 namespace net
 {
+namespace DataStreamTest
+{
+    class Sender;
+}
     class Connection;
 
     /**
@@ -117,6 +121,7 @@ namespace net
 
         /** Locked connections to the receivers, if _enabled */
         ConnectionVector _connections;
+        friend class DataStreamTest::Sender;
 
     private:
         /** The buffer used for saving and buffering */
