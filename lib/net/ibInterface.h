@@ -24,6 +24,7 @@
 #include <iba/ib_types.h>
 #include <iba/ib_al.h>
 #include <eq/base/buffer.h>
+#include <vector>
 
 namespace eq
 {
@@ -32,11 +33,11 @@ namespace net
 
 struct IBDest 
 {
-    uint16_t	lid;   
-    uint32_t	qpn;
-    uint32_t	psn;
-    uint32_t	rkey;
-    uint64_t	vaddr;
+    uint16_t    lid;
+    uint32_t    qpn;
+    uint32_t    psn;
+    uint32_t    rkey;
+    uint64_t    vaddr;
 };
 
 class IBAdapter;
@@ -48,16 +49,19 @@ class IBInterface
 {
 public:
     IBInterface( );
+
     virtual ~IBInterface();
 
     // 1st stage of creating a connection
     bool create( IBAdapter* hca, 
-                 IBCompletionQueue* cq );
+                 IBCompletionQueue* cq,
+                 IBConnection* ibConnection );
     struct IBDest getMyDest( uint32_t index );
-    // record info need to complete connection
-    void setDestInfo( struct IBDest *dest ){ _dest = *dest; }
+    // record info which needed to complete connection
+    void setDestInfo( struct IBDest *dest, uint32_t index )
+            { _dests.getData()[index] = *dest; }
     // complete creation of connection
-    void modiyQueuePairAttribute( int myPsn );
+    void modiyQueuePairAttribute( );
     // destroy a connection
     void close();
     void readNB( void* buffer, const uint64_t bytes );
@@ -66,18 +70,21 @@ public:
     int64_t  postRdmaWrite(
                const void* buffer, uint32_t numBytes );
 
-    int64_t _waitPollCQ( uint32_t bytes );
+    int64_t _waitPollCQ( uint32_t numBuffer );
     // post cqes to record rdma writes completing on receiving host
     int64_t  readSync( void* buffer, uint32_t bytes);
 
     ib_qp_handle_t getQueuePair(){ return _queuePair; }
     int getSQpNum() { return _queuePairAttr.num; }
 
+    uint32_t getNumberBlockMemory();
+
 private:
 
     IBCompletionQueue*      _completionQueue;
-    IBMemBlock              _readBlock;
-    IBMemBlock              _writeBlock;
+    IBConnection*            _ibConnection;
+    std::vector< IBMemBlock *>  _readBlocks;
+    std::vector< IBMemBlock *>  _writeBlocks;
     uint32_t                _psn; 
     uint16_t                _dlid;
     ib_qp_handle_t          _queuePair;
@@ -85,15 +92,35 @@ private:
     uint64_t                _guid;
     ib_send_wr_t            _wr;
     ib_recv_wr_t            _rwr;
-    IBDest                  _dest;
-    ib_local_ds_t	        _list;
-    ib_local_ds_t	        _recvList;
-    uint32_t                _voidPos;
+    eq::base::Buffer< IBDest > _dests;
+    ib_local_ds_t           _list;
+    ib_local_ds_t           _recvList;
+    uint32_t                _posReadInBuffer;
     bool                    _firstTimeWrite;
-    
+    eq::base::Buffer< bool >     _writePoll;
+    eq::base::Buffer< int32_t >  _readPoll;
+    uint32_t                _numBufRead;
+    uint32_t                _numBufWrite;
+    uint32_t                _countWrite;
+    bool _ibPostRecv( uint32_t numBuffer );
     bool _createQueuePair( IBAdapter* adapter );
-    bool _modiyQueuePairRTR();
-    bool _modiyQueuePairRTS( int myPsn );
+    bool _setAttributeReadyToReceive();
+    bool _setAttributeReadyToSend( );
+
+private:
+
+    float _floatTimeReadNB;
+    float _floatTimeReadSync;
+    
+    float _timeTotalWaitPoll;
+    float _timeTotalWaitobj;
+
+    float _timeTotalWrite;
+    float _timeTotalWriteWait;
+
+    float _timeCopyBufferRead;
+    float _timeCopyBufferWrite;
+
 };
 }
 }

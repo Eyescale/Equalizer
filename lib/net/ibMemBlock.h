@@ -38,23 +38,22 @@ public:
 
     /* create an memory region associate with the given protection domain */
     bool create( ib_pd_handle_t  protectionDomain, 
-                 const uint32_t       bufferSize  );
+                 const uint32_t  bufferBlockSize   );
     
     // get the local access key associated with this registered 
     // memory region
-    uint32_t getLocalKey()  const { return _localKey; };
+    uint32_t getLocalKey( )  const { return _localKey; };
 
     // get key that may be used by a remote end-point when performing
     // RDMA or atomic operations to this registered memory region
-    uint32_t getRemoteKey() const { return _remoteKey; };
+    uint32_t getRemoteKey( ) const { return _remoteKey; }
 
-    ib_mr_handle_t getMemoryRegion()  const { return _memoryRegion; };
+    ib_mr_handle_t getMemoryRegion( )  const { return _memoryRegion; }
             
-    uintptr_t getVaddr() const 
-            { return ( uintptr_t ) buf.getData(); }
+    uintptr_t getVaddr( ) const 
+           { return ( uintptr_t ) buf.getData(); }
 
     eq::base::Buffer<void *> buf;
-    bool modifyBuffer( const void* buffer, uint32_t numBytes );
 
 private:
     // Collection of memory pages within the local HCA's memory

@@ -34,18 +34,15 @@ void IBAdapter::close()
 
     if ( _adapterAttr )
         free( _adapterAttr );
+    _adapterAttr = 0;
 
     if ( _adapter )
-    {
         ib_close_ca( _adapter, 0 );
-        _adapter = 0;
-    }
+    _adapter = 0;
 
     if ( _accessLayer )
-    {
         ib_close_al( _accessLayer );
-        _accessLayer = 0;
-    }  
+    _accessLayer = 0;
 }
 
 bool IBAdapter::open( )
@@ -64,7 +61,7 @@ bool IBAdapter::open( )
     // get a list of GUIDS for all channel adapter currently available in
     // the system
     // need to know the size
-    size_t 	guidCount;
+    size_t  guidCount;
     ibStatus = ib_get_ca_guids( _accessLayer, 0, &guidCount );
     if( ibStatus != IB_INSUFFICIENT_MEMORY )
     {
@@ -81,7 +78,7 @@ bool IBAdapter::open( )
 
     // get a list of GUIDS for all channel adapter currently available in
     // the system
-    ib_net64_t	*caGuidArray;
+    ib_net64_t  *caGuidArray;
     caGuidArray = ( ib_net64_t* )malloc( sizeof( ib_net64_t ) * guidCount );
     ibStatus = ib_get_ca_guids( _accessLayer, caGuidArray, &guidCount );
     if( ibStatus != IB_SUCCESS )
@@ -111,26 +108,26 @@ bool IBAdapter::open( )
     }
 
     // Queries the attributes of an opened channel adapter
-	_adapterAttr = ( ib_ca_attr_t * )malloc( bsize );
-	ibStatus = ib_query_ca( _adapter, _adapterAttr, &bsize );
-	if( ibStatus != IB_SUCCESS )
-	{
+    _adapterAttr = ( ib_ca_attr_t * )malloc( bsize );
+    ibStatus = ib_query_ca( _adapter, _adapterAttr, &bsize );
+    if( ibStatus != IB_SUCCESS )
+    {
         EQERROR << "Can't Query CA !!!" << std::endl;
-		return false;
-	}
+        return false;
+    }
 
-	// Allocates a protection domain on the specified channel adapter
+    // Allocates a protection domain on the specified channel adapter
     // IB_PDT_NORMAL : Protection domain for all non-aliased QPs.
     ibStatus = ib_alloc_pd( _adapter ,
-						    IB_PDT_NORMAL, 
+                            IB_PDT_NORMAL, 
                             0,
-						    &_protectionDomain  );
+                            &_protectionDomain  );
 
     if ( ibStatus != IB_SUCCESS ) 
     {
         EQERROR << "Can't Allocate Protection Domain !!!" << std::endl;
-		return false;
-	}
+        return false;
+    }
 
     return true;
 }

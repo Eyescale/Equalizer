@@ -51,13 +51,26 @@ public:
     virtual int64_t readSync(       void* buffer, const uint64_t bytes );
     virtual int64_t write   ( const void* buffer, const uint64_t bytes );
 
-    private:
+    void incReadInterface();
+    void incWriteInterface();
+    void addEvent();
+    void removeEvent();
 
+private:
+
+    eq::base::Lock   _mutex;
+    eq::base::mtLong  numRead;
+    eq::base::mtLong _comptEvent;
+    
     IBAdapter          _adapter;
-    IBCompletionQueue  _completionQueue;
-    IBInterface        _interface;
 
+    std::vector< IBCompletionQueue* >  _completionQueues;
+    std::vector< IBInterface* >        _interfaces;
+
+    HANDLE             _readEvent;
     ConnectionPtr _socketConnection; 
+    uint32_t numWrite;
+
 
     // store info connection
     void _setConnection( ConnectionPtr connection )
@@ -79,6 +92,7 @@ public:
 
     // exchange IB info between client and server on socket connection
     bool _establish( const bool isServer );
+    bool _establish( bool isServer, uint32_t index );
 
     // init my connection IB
     bool _preRegister();

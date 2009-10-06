@@ -19,39 +19,62 @@
 #include "ibConnection.h"
 
 #ifdef EQ_INFINIBAND
-
+#define EQ_NUMCONN_IB 32
 #pragma comment ( lib, "ibal.lib" )
 
 
 #include "Connection.h"
-#include <Mswsock.h>
 
 #define KEY_MSG_SIZE ( sizeof "0000:000000:000000:00000000:0000000000000000" )
 #define KEY_PRINT_FMT "%04x:%06x:%06x:%08x:%016I64x"
 #define KEY_SCAN_FMT "%x:%x:%x:%x:%x"
-
 namespace eq
 { 
 namespace net
 {
 
-IBConnection::IBConnection( ) 
+IBConnection::IBConnection( )
 { 
     _description = new ConnectionDescription;
     _description->type = CONNECTIONTYPE_IB;
     _description->bandwidth = 819200;
+
+    _completionQueues.resize( EQ_NUMCONN_IB );
+    _interfaces.resize( EQ_NUMCONN_IB );
+
+    for ( int i = 0; i < EQ_NUMCONN_IB; i++ )
+    {
+        _interfaces[i] = new IBInterface();
+        _completionQueues[i] = new IBCompletionQueue();
+    }
+
+    numWrite = 0;
+
 }
 
 IBConnection::~IBConnection()
-{ 
+{
+    
+    close();
+
+    for ( int i = 0; i < EQ_NUMCONN_IB; i++ )
+    {
+        if ( _interfaces[i] )
+            delete _interfaces[i];
+        _interfaces[i] = 0;
+        
+        if ( _completionQueues[i] )
+           delete _completionQueues[i];
+        _completionQueues[i] = 0;
+    }
 }
 
 eq::net::Connection::Notifier IBConnection::getNotifier() const 
 {
     if( isListening( ) )
         return _socketConnection->getNotifier();
-    else
-        return _completionQueue.getReadNotifier();
+
+    return _readEvent;
 }
 
 bool IBConnection::connect()
@@ -77,7 +100,7 @@ bool IBConnection::connect()
          !_preRegister() ||
          !_establish( false ))
     {
-        _socketConnection->close();     
+        _socketConnection->close();
         _socketConnection = 0;
         return false;
     }
@@ -95,8 +118,11 @@ void IBConnection::close()
         _socketConnection->close();
     _socketConnection = 0;
 
-    _interface.close();
-    _completionQueue.close();
+    for ( int i = 0; i < EQ_NUMCONN_IB; i++ )
+    {
+        _interfaces[i]->close();
+        _completionQueues[i]->close();
+    }
     _adapter.close();
  
     _state = STATE_CLOSED;
@@ -159,77 +185,91 @@ bool IBConnection::_preRegister( )
         close();
         return false;
     }
-    if( !_completionQueue.create( &_adapter )) 
+    _readEvent = CreateEvent( 0, true, false, 0 );
+
+    for ( int i = 0; i < EQ_NUMCONN_IB; i++ )
     {
-        EQWARN << "Can't create completion queue" << std::endl;
-        close();
-        return false;
-    }
-    
-    if( !_interface.create( &_adapter, &_completionQueue ))
-    {
-        EQWARN << "Can't create IB interface" << std::endl;
-        close();
-        return false;
+        if( !_completionQueues[i]->create( this, &_adapter, 
+             _interfaces[i]->getNumberBlockMemory() ))
+        {
+            EQWARN << "Can't create completion queue" << std::endl;
+            close();
+            return false;
+        }
+        
+        if( !_interfaces[i]->create( &_adapter, 
+                                     _completionQueues[i],
+                                     this ))
+        {
+            close();
+            return false;
+        }
     }
     
     return true;
 }
-
 bool IBConnection::_establish( bool isServer )
 {
-    struct IBDest myDest = _interface.getMyDest( 0 );
-
-    // Create connection between client and server.
-    // We do it by exchanging data over a TCP socket connection.
-    EQINFO << "local address:  LID " << myDest.lid 
-           << " QPN "                << myDest.qpn 
-           << " PSN "                << myDest.psn 
-           << " RKey "               << myDest.rkey
-           << " VAddr "              << myDest.vaddr 
-           << std::endl;
-
-    struct IBDest remDest;
-
-    bool rc;
-    rc = !isServer ? _clientExchDest( &myDest, &remDest):
-                     _serverExchDest( &myDest, &remDest);
-    if ( !rc )
-    {
-        EQWARN << "Can't exchange IB parameters with peer" << std::endl;
-        close();
-        return false;
-    }
-    EQINFO << "dest address:  LID " << remDest.lid 
-           << " QPN "               << remDest.qpn 
-           << " PSN "               << remDest.psn 
-           << " RKey "              << remDest.rkey
-           << " VAddr "             << remDest.vaddr 
-           << std::endl;
-
-    _interface.setDestInfo( &remDest );
-    _interface.modiyQueuePairAttribute( myDest.psn );
-    
-    // An additional handshake is required *after* moving qp to RTR.
-    // Arbitrarily reuse exch_dest for this purpose.
-    rc = !isServer ? _clientExchDest( &myDest, &remDest):
-                     _serverExchDest( &myDest, &remDest);
-
+    for ( int i = 0; i < EQ_NUMCONN_IB; i++ )
+        if ( !_establish( isServer, i ))
+        {
+            _socketConnection->close();
+            _socketConnection = 0;
+            return false;
+        }
     _socketConnection->close();
     _socketConnection = 0;
-
-    if ( !rc )
-    {
-        EQWARN << "Can't exchange IB parameters with peer" << std::endl;
-        close();
-        return false;
-    }
-
     _state = STATE_CONNECTED;
     _fireStateChanged();
 
     return true;
+}
+bool IBConnection::_establish( bool isServer, uint32_t index )
+{
 
+    uint32_t numberBlockMemory = 
+            _interfaces[index]->getNumberBlockMemory();
+    int psn;
+    for (int i = 0 ; i < numberBlockMemory ; i++)
+    {
+        struct IBDest myDest = _interfaces[index]->getMyDest( i );
+
+        // Create connection between client and server.
+        // We do it by exchanging data over a TCP socket connection.
+       /*
+        EQINFO << "local address:  LID " << myDest.lid 
+               << " QPN "                << myDest.qpn 
+               << " PSN "                << myDest.psn 
+               << " RKey "               << myDest.rkey
+               << " VAddr "              << myDest.vaddr 
+               << std::endl;
+        */
+        struct IBDest remDest;
+
+        bool rc;
+        rc = !isServer ? _clientExchDest( &myDest, &remDest):
+                         _serverExchDest( &myDest, &remDest);
+        if ( !rc )
+        {
+            close();
+            return false;
+        }
+    /*    EQINFO << "dest address:  LID " << remDest.lid 
+               << " QPN "               << remDest.qpn 
+               << " PSN "               << remDest.psn 
+               << " RKey "              << remDest.rkey
+               << " VAddr "             << remDest.vaddr 
+               << std::endl;
+     */
+        _interfaces[index]->setDestInfo( &remDest, i );
+        
+        // An additional handshake is required *after* moving qp to RTR.
+        // Arbitrarily reuse exch_dest for this purpose.
+        rc = !isServer ? _clientExchDest( &myDest, &remDest):
+                         _serverExchDest( &myDest, &remDest);
+    }
+    _interfaces[index]->modiyQueuePairAttribute( );
+    return true;
 }
 
 bool IBConnection::_writeKeys( const struct IBDest *myDest )
@@ -300,37 +340,63 @@ bool IBConnection::_clientExchDest( const struct IBDest *myDest,
     return _readKeys( remDest );
 }
 
+
+void IBConnection::addEvent()
+{
+    eq::base::ScopedMutex mutex( _mutex );
+    
+    _comptEvent++;
+
+    if( _comptEvent  > 0 ) 
+        SetEvent( _readEvent );
+}
+void IBConnection::removeEvent()
+{
+    eq::base::ScopedMutex mutex( _mutex );
+    _comptEvent--;
+    if( _comptEvent  < 1 ) 
+    {
+        ResetEvent( _readEvent );
+    }
+        
+}
+
+void IBConnection::incReadInterface()
+{
+    numRead = ( numRead + 1 ) % EQ_NUMCONN_IB;
+}
+
+void IBConnection::incWriteInterface()
+{
+    numWrite = ( numWrite + 1 ) % EQ_NUMCONN_IB;
+}
+
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
-void IBConnection::readNB( void* buffer, const uint64_t bytes )
-{
-    if( _state == STATE_CLOSED )
-        return;
-    _interface.readNB( buffer, bytes );
-}
+void IBConnection::readNB( void* buffer, const uint64_t bytes ){ /* NOB */ }
 
 int64_t IBConnection::readSync( void* buffer, const uint64_t bytes )
 {
-   CHECK_THREAD( _recvThread );
-    
-   int64_t nbRead = _interface.readSync( buffer, bytes );
-   return nbRead;
+    CHECK_THREAD( _recvThread );
+    int64_t result = _interfaces[ numRead ]->readSync( buffer, bytes );
+    if ( result < 0 ) 
+        close();
+    return result;
+
 }
 
 int64_t IBConnection::write( const void* buffer, const uint64_t bytes)
 {
     if( _state != STATE_CONNECTED )
         return -1;
-
-    int64_t numWrites = _interface.postRdmaWrite( buffer, bytes );
-
-    if ( numWrites > 0 )
-        return numWrites;
     
-    close();
-    
-    return -1;
+    int64_t result = _interfaces[ numWrite ]->postRdmaWrite( buffer, bytes );
+
+    if ( result < 0 ) 
+        close();
+
+    return result;
 }
 
 }

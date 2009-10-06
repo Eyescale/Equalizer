@@ -34,7 +34,7 @@ void IBMemBlock::close()
 {
     if ( _memoryRegion )
     {
-       ib_dereg_mr( _memoryRegion );
+       ib_api_status_t status = ib_dereg_mr( _memoryRegion );
        _memoryRegion = 0;
     }
     _localKey = 0;
@@ -42,18 +42,21 @@ void IBMemBlock::close()
 }
 
 bool IBMemBlock::create( ib_pd_handle_t  protectionDomain, 
-                         const uint32_t  bufferSize )
+                         const uint32_t  bufferBlockSize )
 {
+    _memoryRegion     = 0 ;
+    _localKey         = 0 ;
+    _remoteKey        = 0 ;
     _protectionDomain = protectionDomain;
-    
+    _maxBufferSize    = bufferBlockSize;
+
     // init buffer base
-    _maxBufferSize = bufferSize; 
     buf.resize( _maxBufferSize );
 
     /* Create and register a memory region */
     // Information describing the memory region to register
-    ib_mr_create_t	memoryRegionCreate;
-    memoryRegionCreate.length      = _maxBufferSize;	
+    ib_mr_create_t  memoryRegionCreate;
+    memoryRegionCreate.length      = _maxBufferSize;
     memoryRegionCreate.vaddr       = buf.getData();
     memoryRegionCreate.access_ctrl = IB_AC_RDMA_WRITE | 
                                      IB_AC_LOCAL_WRITE;
@@ -72,30 +75,6 @@ bool IBMemBlock::create( ib_pd_handle_t  protectionDomain,
     return true;
 }
 
-bool IBMemBlock::modifyBuffer( const void* buffer, uint32_t numBytes )
-{
-    // unregistre old buffer
-    ib_dereg_mr( _memoryRegion ); 
-
-    //Create and register a memory region with the new buffer
-    ib_mr_create_t	memoryRegionCreate;
-    memoryRegionCreate.length      = numBytes;	
-    memoryRegionCreate.vaddr       = const_cast<void*>(buffer);
-    memoryRegionCreate.access_ctrl = IB_AC_RDMA_WRITE | 
-                                     IB_AC_LOCAL_WRITE;
-        
-    ib_api_status_t     ibStatus ;   
-    // Registers a virtual memory region with a channel adapter.
-    ibStatus = ib_reg_mem( _protectionDomain, &memoryRegionCreate, 
-                           &_localKey, &_remoteKey, &_memoryRegion );
-
-    if ( ibStatus != IB_SUCCESS )
-    {
-        EQERROR << "Can't create memory region !!!" << std::endl;
-        return false;
-    }
-    return true;
-}
 }
 }
 #endif //EQ_INFINIBAND
