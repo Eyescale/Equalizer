@@ -257,6 +257,12 @@ namespace eq
 
         /** Create an unmapped WGL window. */
         HWND _createWGLWindow( int pixelFormat, const PixelViewport& pvp );
+
+        /** Use wglChoosePixelFormatARB */
+        int _chooseWGLPixelFormatARB( HDC pfDC );
+
+        /** Use ChoosePixelFormat */
+        int _chooseWGLPixelFormat( HDC pfDC );
     };
 }
 

@@ -548,6 +548,102 @@ HDC WGLWindow::createWGLDisplayDC()
 
 int WGLWindow::chooseWGLPixelFormat()
 {
+    HDC screenDC    = GetDC( 0 );
+    HDC pfDC        = _wglAffinityDC ? _wglAffinityDC : screenDC;
+
+    int pixelFormat = (WGLEW_ARB_pixel_format) ? 
+        _chooseWGLPixelFormatARB( pfDC ) : _chooseWGLPixelFormat( pfDC );
+
+    ReleaseDC( 0, screenDC );
+
+    if( pixelFormat == 0 )
+    {
+        std::ostringstream error;
+        error << "Can't find matching pixel format: " << base::sysError;
+        _window->setErrorMessage( error.str( ));
+        return 0;
+    }
+ 
+    if( _wglAffinityDC ) // set pixel format on given device context
+    {
+        PIXELFORMATDESCRIPTOR pfd = {0};
+        pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+        pfd.nVersion     = 1;
+
+        DescribePixelFormat( _wglAffinityDC, pixelFormat, sizeof(pfd), &pfd );
+        if( !SetPixelFormat( _wglAffinityDC, pixelFormat, &pfd ))
+        {
+            std::ostringstream error;
+            error << "Can't set device pixel format: " << base::sysError;
+            _window->setErrorMessage( error.str( ));
+            return 0;
+        }
+    }
+    
+    return pixelFormat;
+}
+
+int WGLWindow::_chooseWGLPixelFormat( HDC pfDC )
+{
+    PIXELFORMATDESCRIPTOR pfd = {0};
+    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion     = 1;
+    pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+    pfd.iPixelType   = PFD_TYPE_RGBA;
+
+    const int colorSize = _window->getIAttribute( Window::IATTR_PLANES_COLOR );
+    if( colorSize > 0 || colorSize == AUTO )
+        pfd.cColorBits = colorSize>0 ? colorSize : 1;
+
+    const int alphaSize = _window->getIAttribute( Window::IATTR_PLANES_ALPHA );
+    if( alphaSize > 0 || alphaSize == AUTO )
+        pfd.cAlphaBits = alphaSize>0 ? alphaSize : 1;
+
+    const int depthSize = _window->getIAttribute( Window::IATTR_PLANES_DEPTH );
+    if( depthSize > 0  || depthSize == AUTO )
+        pfd.cDepthBits = depthSize>0 ? depthSize : 1;
+
+    const int stencilSize = 
+        _window->getIAttribute( Window::IATTR_PLANES_STENCIL );
+    if( stencilSize >0 || stencilSize == AUTO )
+        pfd.cStencilBits = stencilSize>0 ? stencilSize : 1;
+
+    if( _window->getIAttribute( Window::IATTR_HINT_STEREO ) != OFF )
+        pfd.dwFlags |= PFD_STEREO;
+    if( _window->getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) != OFF )
+        pfd.dwFlags |= PFD_DOUBLEBUFFER;
+
+    int pf = ChoosePixelFormat( pfDC, &pfd );
+
+    if( pf == 0 && _window->getIAttribute( Window::IATTR_HINT_STEREO ) == AUTO )
+    {        
+        EQINFO << "Visual not available, trying mono visual" << std::endl;
+        pfd.dwFlags |= PFD_STEREO_DONTCARE;
+        pf = ChoosePixelFormat( pfDC, &pfd );
+    }
+
+    if( pf == 0 && stencilSize == AUTO )
+    {        
+        EQINFO << "Visual not available, trying non-stencil visual"
+               << std::endl;
+        pfd.cStencilBits = 0;
+        pf = ChoosePixelFormat( pfDC, &pfd );
+    }
+
+    if( pf == 0 &&
+        _window->getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+    {        
+        EQINFO << "Visual not available, trying single-buffered visual" 
+               << std::endl;
+        pfd.dwFlags |= PFD_DOUBLEBUFFER_DONTCARE;
+        pf = ChoosePixelFormat( pfDC, &pfd );
+    }
+
+    return pf;
+}
+
+int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
+{
     EQASSERT( WGLEW_ARB_pixel_format );
 
     std::vector< int > attributes;
@@ -576,7 +672,7 @@ int WGLWindow::chooseWGLPixelFormat()
         }
         attributes.push_back( WGL_PIXEL_TYPE_ARB );
         attributes.push_back( WGL_TYPE_RGBA_FLOAT_ARB );
-        
+
         attributes.push_back( WGL_COLOR_BITS_ARB );
         attributes.push_back( colorBits * 4);
     }
@@ -638,7 +734,7 @@ int WGLWindow::chooseWGLPixelFormat()
 
     if( getIAttribute( Window::IATTR_HINT_STEREO ) == ON ||
         ( getIAttribute( Window::IATTR_HINT_STEREO )   == AUTO && 
-          getIAttribute( Window::IATTR_HINT_DRAWABLE ) == WINDOW ))
+        getIAttribute( Window::IATTR_HINT_DRAWABLE ) == WINDOW ))
     {
         attributes.push_back( WGL_STEREO_ARB );
         attributes.push_back( 1 );
@@ -646,7 +742,7 @@ int WGLWindow::chooseWGLPixelFormat()
 
     if( getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) == ON ||
         ( getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO && 
-          getIAttribute( Window::IATTR_HINT_DRAWABLE )     == WINDOW ))
+        getIAttribute( Window::IATTR_HINT_DRAWABLE )     == WINDOW ))
     {
         attributes.push_back( WGL_DOUBLE_BUFFER_ARB );
         attributes.push_back( 1 );
@@ -680,15 +776,12 @@ int WGLWindow::chooseWGLPixelFormat()
     if( stencilSize == AUTO )
         backoffAttributes.push_back( WGL_STENCIL_BITS_ARB );
 
-    HDC screenDC    = GetDC( 0 );
-    HDC pfDC        = _wglAffinityDC ? _wglAffinityDC : screenDC;
-    int pixelFormat = 0;
-
     while( true )
     {
+        int pixelFormat = 0;
         UINT nFormats = 0;
-    if( !wglChoosePixelFormatARB( pfDC, &attributes[0], 0, 1,
-                                  &pixelFormat, &nFormats ))
+        if( !wglChoosePixelFormatARB( pfDC, &attributes[0], 0, 1,
+            &pixelFormat, &nFormats ))
         {
             EQWARN << "wglChoosePixelFormat failed: " 
                 << base::sysError << std::endl;
@@ -696,8 +789,9 @@ int WGLWindow::chooseWGLPixelFormat()
 
         if( (pixelFormat && nFormats > 0) ||  // found one or
             backoffAttributes.empty( ))       // nothing else to try
-
-            break;
+        {
+            return pixelFormat;
+        }
 
         // Gradually remove back off attributes
         const int attribute = backoffAttributes.back();
@@ -708,36 +802,9 @@ int WGLWindow::chooseWGLPixelFormat()
         EQASSERT( iter != attributes.end( ));
 
         attributes.erase( iter, iter+2 ); // remove two items (attr, value)
-
     }
 
-    ReleaseDC( 0, screenDC );
-
-    if( pixelFormat == 0 )
-    {
-        std::ostringstream error;
-        error << "Can't find matching pixel format: " << base::sysError;
-        _window->setErrorMessage( error.str( ));
-        return 0;
-    }
- 
-    if( _wglAffinityDC ) // set pixel format on given device context
-    {
-        PIXELFORMATDESCRIPTOR pfd = {0};
-        pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
-        pfd.nVersion     = 1;
-
-        DescribePixelFormat( _wglAffinityDC, pixelFormat, sizeof(pfd), &pfd );
-        if( !SetPixelFormat( _wglAffinityDC, pixelFormat, &pfd ))
-        {
-            std::ostringstream error;
-            error << "Can't set device pixel format: " << base::sysError;
-            _window->setErrorMessage( error.str( ));
-            return 0;
-        }
-    }
-    
-    return pixelFormat;
+    return 0;
 }
 
 HGLRC WGLWindow::createWGLContext()
