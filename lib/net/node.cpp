@@ -1818,7 +1818,6 @@ CommandResult Node::_cmdID( Command& command )
     nodeID.convertToHost();
 
     EQINFO << "handle ID " << packet << std::endl;
-    EQASSERT( nodeID != _id );
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
     NodeHash::const_iterator i = _nodes.find( nodeID );
@@ -1828,10 +1827,19 @@ CommandResult Node::_cmdID( Command& command )
         return COMMAND_ERROR;
 
     NodePtr node = i->second;
-    EQASSERT( node->isConnected( ));
-    EQASSERT( node->_multicast.empty( ));
 
-    node->_multicast.push_back( connection );    
+    if( nodeID == _id ) // 'self' multicast connection
+    {
+        EQASSERT( node == this );
+    }
+    else
+    {
+        EQASSERT( node->isConnected( ));
+        EQASSERT( node->_multicast.empty( ));
+
+        node->_multicast.push_back( connection );
+    }
+
     _connectionNodes[ connection ] = node;
 
     EQINFO << "Added multicast connection " << connection << " from node " 
