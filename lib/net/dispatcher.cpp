@@ -91,22 +91,17 @@ bool Dispatcher::dispatchCommand( Command& command )
 
     CommandQueue* queue = _qTable[which];
     if( queue )
-        queue->push( command );
-    else
     {
-#ifdef NDEBUG // OPT
-        _vTable[which]( command );
-#else
-        const CommandResult result = _vTable[which]( command );
-#  ifdef EQ_SEND_TOKEN
-        return( result == COMMAND_HANDLED );
-#  else
-        EQASSERTINFO( result == COMMAND_HANDLED, result );
-#  endif
-#endif
+        queue->push( command );
+        return true;
     }
+    // else
 
-    return true;
+    const CommandResult result = _vTable[which]( command );
+    EQASSERTINFO( result == COMMAND_HANDLED || 
+                  command->command == CMD_NODE_ACQUIRE_SEND_TOKEN,
+                  result << ", " << command );
+    return (result==COMMAND_HANDLED);
 }
 
 CommandResult Dispatcher::invokeCommand( Command& command )

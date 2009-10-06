@@ -1,4 +1,4 @@
-Fix bug in multicast build and Posix build.
+Fix send token implementation
 
 [ ] May break build
 [ ] May break existing applications

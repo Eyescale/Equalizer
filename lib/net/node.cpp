@@ -1959,7 +1959,7 @@ CommandResult Node::_cmdAcquireSendToken( Command& command )
         command.getPacket<NodeAcquireSendTokenPacket>();
 
     if( !_hasSendToken ) // no token available
-        // HACK: returning not COMMAND_HANDLED causes redispatch, see base.cpp
+        // HACK: returning not COMMAND_HANDLED causes redispatch, see dispatcher
         return COMMAND_ERROR;
 
     _hasSendToken = false;
