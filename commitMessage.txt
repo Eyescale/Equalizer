@@ -1,9 +1,9 @@
-Fix some Ubuntu warnings
+Add send token bugfix patch
 
 [ ] Will break Win32 build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
