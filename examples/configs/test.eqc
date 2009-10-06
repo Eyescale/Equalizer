@@ -1,15 +1,18 @@
 #Equalizer 1.0 ascii
 
-# 'Hello, World!' config: one window rendering from the application process.
+global
+{
+    EQ_CONNECTION_SATTR_LAUNCH_COMMAND "%c"
+}
+
 server
 {
-    connection { type TCPIP }
-    connection { type MCIP }
-
     config
     {
         node
         {
+            connection { hostname "157.26.73.87" type TCPIP port 1235 }
+            connection { type MCIP }
             pipe
             {
                 window

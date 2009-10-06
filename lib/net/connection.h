@@ -341,7 +341,7 @@ namespace net
         //@}
 
         /**
-         * The Notifier used by the ConnectionSet to dedect readyness of a
+         * The Notifier used by the ConnectionSet to detect readiness of a
          * Connection.
          */
 #ifdef WIN32
@@ -349,7 +349,7 @@ namespace net
 #else
         typedef int Notifier;
 #endif
-        /** @return the notifier signalling events on the connection. */
+        /** @return the notifier signaling events on the connection. */
         virtual Notifier getNotifier() const { return 0; }
 
     protected:

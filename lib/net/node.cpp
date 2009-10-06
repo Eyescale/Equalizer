@@ -1810,7 +1810,7 @@ CommandResult Node::_cmdID( Command& command )
 
     const NodeIDPacket* packet = command.getPacket< NodeIDPacket >();
     ConnectionPtr   connection = _incoming.getConnection();
-    EQASSERT( connection->getDescription()->type == CONNECTIONTYPE_MULTICAST );
+    EQASSERT( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST );
 
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
