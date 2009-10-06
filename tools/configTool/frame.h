@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Makhinya Maxim
+/* Copyright (c) 2009, Maxim Makhinya
  *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
