@@ -48,7 +48,6 @@ static const size_t _mtu = 1300;
 
 UDPConnection::UDPConnection()
 {
-    _description =  new ConnectionDescription;
     _description->type = CONNECTIONTYPE_UDP;
     _description->bandwidth = 102400;
 

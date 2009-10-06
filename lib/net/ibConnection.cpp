@@ -35,7 +35,6 @@ namespace net
 
 IBConnection::IBConnection( )
 { 
-    _description = new ConnectionDescription;
     _description->type = CONNECTIONTYPE_IB;
     _description->bandwidth = 819200;
 

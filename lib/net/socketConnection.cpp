@@ -60,10 +60,9 @@ SocketConnection::SocketConnection( const ConnectionType type )
 #endif
 
     EQASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
-    _description =  new ConnectionDescription;
     _description->type = type;
     _description->bandwidth = (type == CONNECTIONTYPE_TCPIP) ?
-                                  102400 : 819200;
+                                  102400 : 819200; // 100MB : 800 MB
 
     EQVERB << "New SocketConnection @" << (void*)this << std::endl;
 }

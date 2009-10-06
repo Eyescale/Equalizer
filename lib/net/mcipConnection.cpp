@@ -28,7 +28,6 @@ namespace net
 
 MCIPConnection::MCIPConnection()
 {
-    _description =  new ConnectionDescription;
     _description->type = CONNECTIONTYPE_MCIP;
     _description->bandwidth = 102400;
 }
@@ -44,6 +43,8 @@ bool MCIPConnection::connect()
 
     _impl = new PGMConnection();
     _impl->addListener( this );
+
+    // TODO: Bandwidth is set to 100MB/s, but PGM should use less
     _impl->setDescription( _description );
     if( _impl->connect( ))
         return true;

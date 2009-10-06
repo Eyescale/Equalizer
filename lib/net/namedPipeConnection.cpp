@@ -46,7 +46,6 @@ NamedPipeConnection::NamedPipeConnection()
     memset( &_read, 0, sizeof( _read ));
     memset( &_write, 0, sizeof( _write ));
     
-    _description =  new ConnectionDescription;
     _description->type = CONNECTIONTYPE_NAMEDPIPE;
     _description->bandwidth = 768000;
 }

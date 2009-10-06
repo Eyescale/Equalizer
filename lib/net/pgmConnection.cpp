@@ -53,10 +53,8 @@ PGMConnection::PGMConnection()
     memset( &_overlapped, 0, sizeof( _overlapped ));
 #endif
 
-    _description =  new ConnectionDescription;
     _description->type = CONNECTIONTYPE_MCIP_PGM;
-    if ( _description->bandwidth == 0)
-        _description->bandwidth = 50 * 1024; // 50MB/s
+    _description->bandwidth = 50 * 1024; // 50MB/s
 
     EQVERB << "New PGMConnection @" << (void*)this << std::endl;
 }

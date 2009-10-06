@@ -47,9 +47,11 @@ namespace net
 
 Connection::Connection()
         : _state( STATE_CLOSED )
+        , _description( new ConnectionDescription )
         , _aioBuffer( 0 )
         , _aioBytes( 0 )
 {
+    _description->type = CONNECTIONTYPE_NONE;
     EQVERB << "New Connection @" << (void*)this << endl;
 }
 

@@ -36,7 +36,6 @@ PipeConnection::PipeConnection()
           _dataPending( CreateEvent( 0, TRUE, FALSE, 0 ))
 #endif
 {
-    _description = new ConnectionDescription;
     _description->type = CONNECTIONTYPE_PIPE;
 }
 
