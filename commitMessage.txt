@@ -1,16 +1,9 @@
-Launch parameter cleanup:
-- Launch parameters are per-node
-
-API and file format changes:
-- old CONNECTION_LAUNCH globals are still readable
-- connection { launch... } parameters are removed and replaced by:
-- new node { attributes { launch_ }} parameters
-- removed unused base::Clock::setAlarm
+Fix bug in multicast build and Posix build.
 
 [ ] May break build
-[x] May break existing applications
-[ ] Bugfix
+[ ] May break existing applications
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

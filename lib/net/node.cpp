@@ -485,9 +485,8 @@ void Node::_connectMulticast( NodePtr node )
 
         const ConnectionDescriptionVector& fromDescs = 
             node->getConnectionDescriptions();
-        for( ConnectionDescriptionVector::const_iterator j =
-                 _connectionDescriptions.begin();
-             j != _connectionDescriptions.end(); ++j )
+        for( ConnectionDescriptionVector::const_iterator j = fromDescs.begin();
+             j != fromDescs.end(); ++j )
         {
             ConnectionDescriptionPtr fromDescription = *j;
             if( description->type != fromDescription->type ||
