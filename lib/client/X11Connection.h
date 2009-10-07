@@ -30,7 +30,10 @@ namespace eq
 {
 #ifdef GLX
     /**
-     * A X11 Display connection wrapper.
+     * An X11 Display connection wrapper.
+     *
+     * This class can be used to monitor multiple X11 display connections for
+     * events using a net::ConnectionSet
      */
     class X11Connection : public net::Connection
     {

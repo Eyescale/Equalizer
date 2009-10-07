@@ -4,7 +4,7 @@
 
 DSO_SUFFIX       = dylib
 DSO_LDFLAGS     += -dynamiclib
-WINDOW_SYSTEM   ?= AGL
+WINDOW_SYSTEM   ?= AGL GLX
 
 AR               = libtool
 ARFLAGS          = -static

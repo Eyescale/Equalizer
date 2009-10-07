@@ -1,9 +1,10 @@
-Optimize ObjectManager code
+Fix glew.h to agree with OS X 10.6 OpenGL X11 prototypes
+-- Please open a bug if this breaks the Linux or <10.6 build
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation
