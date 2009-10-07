@@ -194,10 +194,11 @@ void ObjectManager<T>::deleteAll()
 template< typename T >
 GLuint ObjectManager<T>::getList( const T& key )
 {
-    if( _data->lists.find( key ) == _data->lists.end( ))
+    typename ObjectHash::const_iterator i = _data->lists.find( key );
+    if( i == _data->lists.end( ))
         return INVALID;
 
-    const Object& object = _data->lists[ key ];
+    const Object& object = i->second;
     return object.id;
 }
 
@@ -236,12 +237,13 @@ GLuint ObjectManager<T>::obtainList( const T& key, const GLsizei num )
 template< typename T >
 void   ObjectManager<T>::deleteList( const T& key )
 {
-    if( _data->lists.find( key ) == _data->lists.end( ))
+    typename ObjectHash::const_iterator i = _data->lists.find( key );
+    if( i == _data->lists.end( ))
         return;
 
-    const Object& object = _data->lists[ key ];
+    const Object& object = i->second;
     glDeleteLists( object.id, object.num );
-    _data->lists.erase( key );
+    _data->lists.erase( i );
 }
 
 // texture object functions
@@ -249,10 +251,11 @@ void   ObjectManager<T>::deleteList( const T& key )
 template< typename T >
 GLuint ObjectManager<T>::getTexture( const T& key )
 {
-    if( _data->textures.find( key ) == _data->textures.end( ))
+    typename ObjectHash::const_iterator i = _data->textures.find( key );
+    if( i == _data->textures.end( ))
         return INVALID;
 
-    const Object& object = _data->textures[ key ];
+    const Object& object = i->second;
     return object.id;
 }
 
@@ -290,12 +293,13 @@ GLuint ObjectManager<T>::obtainTexture( const T& key )
 template< typename T >
 void   ObjectManager<T>::deleteTexture( const T& key )
 {
-    if( _data->textures.find( key ) == _data->textures.end( ))
+    typename ObjectHash::const_iterator i = _data->textures.find( key );
+    if( i == _data->textures.end( ))
         return;
 
-    const Object& object = _data->textures[ key ];
+    const Object& object = i->second;
     glDeleteTextures( 1, &object.id );
-    _data->textures.erase( key );
+    _data->textures.erase( i );
 }
 
 // buffer object functions
@@ -309,10 +313,11 @@ bool ObjectManager<T>::supportsBuffers() const
 template< typename T >
 GLuint ObjectManager<T>::getBuffer( const T& key )
 {
-    if( _data->buffers.find( key ) == _data->buffers.end() )
+    typename ObjectHash::const_iterator i = _data->buffers.find( key );
+    if( i == _data->buffers.end() )
         return INVALID;
 
-    const Object& object = _data->buffers[ key ];
+    const Object& object = i->second;
     return object.id;
 }
 
@@ -357,12 +362,13 @@ GLuint ObjectManager<T>::obtainBuffer( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteBuffer( const T& key )
 {
-    if( _data->buffers.find( key ) == _data->buffers.end() )
+    typename ObjectHash::const_iterator i = _data->buffers.find( key );
+    if( i == _data->buffers.end() )
         return;
 
-    const Object& object = _data->buffers[ key ];
+    const Object& object = i->second;
     glDeleteBuffers( 1, &object.id );
-    _data->buffers.erase( key );
+    _data->buffers.erase( i );
 }
 
 // program object functions
@@ -376,10 +382,11 @@ bool ObjectManager<T>::supportsPrograms() const
 template< typename T >
 GLuint ObjectManager<T>::getProgram( const T& key )
 {
-    if( _data->programs.find( key ) == _data->programs.end() )
+    typename ObjectHash::const_iterator i = _data->programs.find( key );
+    if( i == _data->programs.end() )
         return INVALID;
 
-    const Object& object = _data->programs[ key ];
+    const Object& object = i->second;
     return object.id;
 }
 
@@ -422,12 +429,13 @@ GLuint ObjectManager<T>::obtainProgram( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteProgram( const T& key )
 {
-    if( _data->programs.find( key ) == _data->programs.end() )
+    typename ObjectHash::const_iterator i = _data->programs.find( key );
+    if( i == _data->programs.end() )
         return;
 
-    const Object& object = _data->programs[ key ];
+    const Object& object = i->second;
     glDeleteProgram( object.id );
-    _data->programs.erase( key );
+    _data->programs.erase( i );
 }
 
 // shader object functions
@@ -441,10 +449,11 @@ bool ObjectManager<T>::supportsShaders() const
 template< typename T >
 GLuint ObjectManager<T>::getShader( const T& key )
 {
-    if( _data->shaders.find( key ) == _data->shaders.end() )
+    typename ObjectHash::const_iterator i = _data->shaders.find( key );
+    if( i == _data->shaders.end() )
         return INVALID;
 
-    const Object& object = _data->shaders[ key ];
+    const Object& object = i->second;
     return object.id;
 }
 
@@ -488,12 +497,13 @@ GLuint ObjectManager<T>::obtainShader( const T& key, const GLenum type )
 template< typename T >
 void ObjectManager<T>::deleteShader( const T& key )
 {
-    if( _data->shaders.find( key ) == _data->shaders.end() )
+    typename ObjectHash::const_iterator i = _data->shaders.find( key );
+    if( i == _data->shaders.end() )
         return;
 
-    const Object& object = _data->shaders[ key ];
+    const Object& object = i->second;
     glDeleteShader( object.id );
-    _data->shaders.erase( key );
+    _data->shaders.erase( i );
 }
 
 // eq::Texture object functions
@@ -506,10 +516,11 @@ bool ObjectManager<T>::supportsEqTexture() const
 template< typename T >
 Texture* ObjectManager<T>::getEqTexture( const T& key )
 {
-    if( _data->eqTextures.find( key ) == _data->eqTextures.end( ))
+    typename TextureHash::const_iterator i = _data->eqTextures.find( key );
+    if( i == _data->eqTextures.end( ))
         return 0;
 
-    return _data->eqTextures[ key ];
+    return i->second;
 }
 
 template< typename T >
@@ -538,11 +549,12 @@ Texture* ObjectManager<T>::obtainEqTexture( const T& key )
 template< typename T >
 void   ObjectManager<T>::deleteEqTexture( const T& key )
 {
-    if( _data->eqTextures.find( key ) == _data->eqTextures.end( ))
+    typename TextureHash::const_iterator i = _data->eqTextures.find( key );
+    if( i == _data->eqTextures.end( ))
         return;
 
-    Texture* texture = _data->eqTextures[ key ];
-    _data->eqTextures.erase( key );
+    Texture* texture = i->second;
+    _data->eqTextures.erase( i );
 
     texture->flush();
     delete texture;
@@ -552,10 +564,11 @@ void   ObjectManager<T>::deleteEqTexture( const T& key )
 template< typename T >
 util::BitmapFont< T >* ObjectManager<T>::getEqBitmapFont( const T& key )
 {
-    if( _data->eqFonts.find( key ) == _data->eqFonts.end( ))
+    typename FontHash::const_iterator i = _data->eqFonts.find( key );
+    if( i == _data->eqFonts.end( ))
         return 0;
 
-    return _data->eqFonts[ key ];
+    return i->second;
 }
 
 template< typename T >
@@ -584,11 +597,12 @@ util::BitmapFont< T >* ObjectManager<T>::obtainEqBitmapFont( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteEqBitmapFont( const T& key )
 {
-    if( _data->eqFonts.find( key ) == _data->eqFonts.end( ))
+    typename FontHash::const_iterator i = _data->eqFonts.find( key );
+    if( i == _data->eqFonts.end( ))
         return;
 
-    util::BitmapFont< T >* font = _data->eqFonts[ key ];
-    _data->eqFonts.erase( key );
+    util::BitmapFont< T >* font = i->second;
+    _data->eqFonts.erase( i );
 
     font->exit();
     delete font;
@@ -604,11 +618,11 @@ bool ObjectManager<T>::supportsEqFrameBufferObject() const
 template< typename T >
 FrameBufferObject* ObjectManager<T>::getEqFrameBufferObject( const T& key )
 {
-    if( _data->eqFrameBufferObjects.find( key ) ==
-        _data->eqFrameBufferObjects.end( ))
+    typename FBOHash::const_iterator i = _data->eqFrameBufferObjects.find(key);
+    if( i == _data->eqFrameBufferObjects.end( ))
         return 0;
 
-    return _data->eqFrameBufferObjects[ key ];
+    return i->second;
 }
 
 template< typename T >
@@ -639,12 +653,12 @@ FrameBufferObject* ObjectManager<T>::obtainEqFrameBufferObject( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteEqFrameBufferObject( const T& key )
 {
-    if( _data->eqFrameBufferObjects.find( key ) ==
-        _data->eqFrameBufferObjects.end( ))
+    typename FBOHash::const_iterator i = _data->eqFrameBufferObjects.find(key);
+    if( i == _data->eqFrameBufferObjects.end( ))
         return;
 
-    FrameBufferObject* frameBufferObject = _data->eqFrameBufferObjects[ key ];
-    _data->eqFrameBufferObjects.erase( key );
+    FrameBufferObject* frameBufferObject = i->second;
+    _data->eqFrameBufferObjects.erase( i );
 
     frameBufferObject->exit();
     delete frameBufferObject;
