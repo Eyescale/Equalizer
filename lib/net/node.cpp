@@ -167,11 +167,10 @@ const ConnectionDescriptionVector& Node::getConnectionDescriptions() const
 ConnectionPtr Node::getMulticast()
 {
     EQASSERT( isConnected( ));
-    EQASSERT( _multicast.size() <= 1 );
 
     if( _multicast.empty() || !isConnected( ))
         return 0;
-
+    // else
     return _multicast.front();
 }
 
@@ -1863,12 +1862,10 @@ CommandResult Node::_cmdID( Command& command )
     if( command.getNode().isValid( ))
     {
         EQASSERT( nodeID == _id );
-        EQASSERT( command.getNode()->getMulticast() == 
-                  _incoming.getConnection( ));
         return COMMAND_HANDLED;
     }
 
-    ConnectionPtr   connection = _incoming.getConnection();
+    ConnectionPtr connection = _incoming.getConnection();
     EQASSERT( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST );
 
     EQINFO << "handle ID " << packet << " node " << nodeID << std::endl;
@@ -1894,8 +1891,6 @@ CommandResult Node::_cmdID( Command& command )
 
         node = i->second;
         EQASSERT( node->isConnected( ));
-        EQASSERT( node->_multicast.empty( ));
-
         node->_multicast.push_back( connection );
     }
     EQASSERT( node.isValid( ));
