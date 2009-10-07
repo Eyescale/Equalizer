@@ -58,20 +58,9 @@ void AGLWindow::configExit( )
     AGLPbuffer pbuffer = getAGLPBuffer();
     setAGLPBuffer( 0 );
     
-    if( window )
-    {
-        Global::enterCarbon();
-        DisposeWindow( window );
-        Global::leaveCarbon();
-    }
-    if( pbuffer )
-        aglDestroyPBuffer( pbuffer );
-
-    configExitFBO();
-    exitGLEW();
-    
     AGLContext context = getAGLContext();
-    if( context )
+
+    if( window )
     {
         Global::enterCarbon();
         if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) != ON )
@@ -82,7 +71,18 @@ void AGLWindow::configExit( )
             aglSetDrawable( context, 0 );
 #endif
         }
+        DisposeWindow( window );
+        Global::leaveCarbon();
+    }
+    if( pbuffer )
+        aglDestroyPBuffer( pbuffer );
 
+    configExitFBO();
+    exitGLEW();
+    
+    if( context )
+    {
+        Global::enterCarbon();
         aglSetCurrentContext( 0 );
         aglDestroyContext( context );
         Global::leaveCarbon();
