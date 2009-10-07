@@ -37,6 +37,7 @@ namespace net
         CMD_NODE_SESSION,
         CMD_NODE_CONNECT,
         CMD_NODE_CONNECT_REPLY,
+        CMD_NODE_CONNECT_ACK,
         CMD_NODE_ID,
         CMD_NODE_DISCONNECT,
         CMD_NODE_GET_NODE_DATA,

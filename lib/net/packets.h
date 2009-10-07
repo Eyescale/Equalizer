@@ -174,17 +174,6 @@ namespace net
         EQ_ALIGN8( char nodeData[8] );
     };
 
-    struct NodeIDPacket : public NodePacket
-    {
-        NodeIDPacket() 
-            {
-                command     = CMD_NODE_ID;
-                size        = sizeof( NodeIDPacket ); 
-            }
-
-        NodeID   nodeID;
-    };
-
     struct NodeConnectReplyPacket : public NodePacket
     {
         NodeConnectReplyPacket( const NodeConnectPacket* request ) 
@@ -199,6 +188,26 @@ namespace net
         uint32_t requestID;
         uint32_t type;
         EQ_ALIGN8( char nodeData[8] );
+    };
+
+    struct NodeConnectAckPacket : public NodePacket
+    {
+        NodeConnectAckPacket() 
+            {
+                command     = CMD_NODE_CONNECT_ACK;
+                size        = sizeof( NodeConnectAckPacket ); 
+            }
+    };
+
+    struct NodeIDPacket : public NodePacket
+    {
+        NodeIDPacket() 
+            {
+                command     = CMD_NODE_ID;
+                size        = sizeof( NodeIDPacket ); 
+            }
+
+        NodeID   nodeID;
     };
 
     struct NodeDisconnectPacket : public NodePacket

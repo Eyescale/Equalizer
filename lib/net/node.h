@@ -747,6 +747,7 @@ namespace net
         CommandResult _cmdUnmapSessionReply( Command& command );
         CommandResult _cmdConnect( Command& command );
         CommandResult _cmdConnectReply( Command& command );
+        CommandResult _cmdConnectAck( Command& command );
         CommandResult _cmdID( Command& command );
         CommandResult _cmdDisconnect( Command& command );
         CommandResult _cmdGetNodeData( Command& command );

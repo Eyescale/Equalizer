@@ -491,14 +491,13 @@ bool Node::connect( NodePtr node, ConnectionPtr connection )
     EQASSERT( node->_id != NodeID::ZERO );
     EQASSERTINFO( node->_id != _id, _id );
 
-    _connectMulticast( node );
-
     EQINFO << node << " connected to " << this << std::endl;
     return true;
 }
 
 void Node::_connectMulticast( NodePtr node )
 {
+    EQASSERT( inReceiverThread( ));
     for( ConnectionDescriptionVector::const_iterator i =
              _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
@@ -1472,7 +1471,8 @@ void Node::_redispatchCommands()
 
 #ifndef NDEBUG
     if( !_pendingCommands.empty( ))
-        EQVERB << _pendingCommands.size() << " undispatched commands" << std::endl;
+        EQVERB << _pendingCommands.size() << " undispatched commands" 
+               << std::endl;
     EQASSERT( _pendingCommands.size() < 1000 );
 #endif
 }
@@ -1724,11 +1724,8 @@ CommandResult Node::_cmdConnect( Command& command )
         NodeConnectReplyPacket reply( packet );
         connection->send( reply, serialize( ));
 
-        // NOTE: There used to be no close() here. If deadlocks occur, it is
-        // likely that the reply packet above can't be received by the peer
-        // because the connection is closed by us. In that case, do not close
-        // the connection here. Take care to cancel the pending IO for the next
-        // packet size, and to delete the memory for the packet size.
+        // NOTE: There is no close() here. The reply packet above has to be
+        // received by the peer first, before closing the connection.
         _removeConnection( connection );
         return COMMAND_HANDLED;
     }
@@ -1833,8 +1830,25 @@ CommandResult Node::_cmdConnectReply( Command& command )
 
     if( packet->requestID != EQ_ID_INVALID )
         _requestHandler.serveRequest( packet->requestID, true );
+
+    NodeConnectAckPacket ack;
+    remoteNode->send( ack );
+
+    _connectMulticast( remoteNode );
     return COMMAND_HANDLED;
 }
+
+CommandResult Node::_cmdConnectAck( Command& command )
+{
+    NodePtr node = command.getNode();
+    EQASSERT( node.isValid( ));
+    EQASSERT( inReceiverThread( ));
+    EQINFO << "handle connect ack" << std::endl;
+    
+    _connectMulticast( node );
+    return COMMAND_HANDLED;
+}
+
 
 CommandResult Node::_cmdID( Command& command )
 {
@@ -1861,9 +1875,13 @@ CommandResult Node::_cmdID( Command& command )
         NodeHash::const_iterator i = _nodes.find( nodeID );
 
         if( i == _nodes.end( ))
+        {
             // unknown node: drop connection, we will get another chance when we
             // connect the node
+            _removeConnection( connection );
+            connection->close();
             return COMMAND_HANDLED;
+        }
 
         node = i->second;
         EQASSERT( node->isConnected( ));
