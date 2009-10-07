@@ -1,4 +1,4 @@
-Fix Posix build
+Fix 2873353: Usage of ext/hash_map and -Werror causes compiler error
 
 [ ] May break build
 [ ] May break existing applications

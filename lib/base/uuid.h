@@ -195,13 +195,13 @@ namespace base
         friend size_t stde::hash_compare< eq::base::UUID >::operator() 
             ( const eq::base::UUID& key ) const;
 #else
-        friend struct stde::hash< const eq::base::UUID >;
+        friend struct stde::hash< eq::base::UUID >;
 #endif
     };
 
     /** A hash for UUID keys. */
     template<class T> class UUIDHash 
-        : public stde::hash_map< const UUID, T >
+        : public stde::hash_map< UUID, T >
     {};
 
     /** UUID& ostream operator. */
@@ -242,7 +242,7 @@ inline size_t stde::hash_value( const eq::base::UUID& key )
 namespace __gnu_cxx
 {
     template<> 
-    struct hash< const eq::base::UUID >
+    struct hash< eq::base::UUID >
     {
         size_t operator()( const eq::base::UUID& key ) const
         {
@@ -254,19 +254,26 @@ namespace __gnu_cxx
 #else // POSIX
 
 #  ifdef __GNUC__              // GCC 3.1 and later
+#    ifdef EQ_GCC_4_2_OR_LATER
+namespace std { namespace tr1
+#    else
 namespace __gnu_cxx
+#    endif
 #  else //  other compilers
 namespace std
 #  endif
 {
     template<> 
-    struct hash< const eq::base::UUID >
+    struct hash< eq::base::UUID >
     {
         size_t operator()( const eq::base::UUID& key ) const
         {
             return (size_t)(*key._id);
         }
     };
+#ifdef EQ_GCC_4_2_OR_LATER
+}
+#endif
 }
 
 #endif // WIN32_VC

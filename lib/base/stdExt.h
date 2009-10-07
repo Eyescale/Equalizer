@@ -29,10 +29,17 @@
 
 //----- Common extensions of the STL
 #ifdef __GNUC__              // GCC 3.1 and later
-#  include <ext/hash_map>
-#  include <ext/hash_set>
+#  ifdef EQ_GCC_4_2_OR_LATER
+#    include <tr1/unordered_map>
+#    include <tr1/unordered_set>
+/* Alias stde namespace to uniformly access stl extensions. */
+namespace stde = std::tr1;
+#  else
+#    include <ext/hash_map>
+#    include <ext/hash_set>
 /* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = __gnu_cxx; 
+#  endif
 #else                        //  other compilers
 #  include <hash_map>
 #  include <hash_set>
@@ -48,7 +55,11 @@ namespace stde = std;
 
 //----- Our extensions of the STL 
 #ifdef __GNUC__              // GCC 3.1 and later
+#  ifdef EQ_GCC_4_2_OR_LATER
+namespace std { namespace tr1
+#  else
 namespace __gnu_cxx
+#  endif
 #elif defined (WIN32)
 namespace stdext
 #else //  other compilers
@@ -56,7 +67,14 @@ namespace std
 #endif
 {
 #  ifdef __GNUC__
-#    ifndef EQ_HAVE_STRING_HASH
+#    ifdef EQ_GCC_4_2_OR_LATER
+    template<class K, class T, class H = hash< K >, 
+             class P = std::equal_to< K >, class A = std::allocator< K > >
+    class hash_map : public unordered_map< K, T, H, P, A >
+    {
+    };
+#    else
+#      ifndef EQ_HAVE_STRING_HASH
     /** std::string hash function. */
     template<> 
     struct hash< std::string >
@@ -66,6 +84,7 @@ namespace std
             return hash< const char* >()( str.c_str() );
         }
     };
+#      endif
 #    endif
 
 #    ifndef EQ_HAVE_VOID_PTR_HASH
@@ -111,6 +130,9 @@ namespace std
         std::sort( c.begin(), c.end( ));
         c.erase( std::unique( c.begin(), c.end( )), c.end( ));
     }
+#ifdef EQ_GCC_4_2_OR_LATER
+}
+#endif
 }
 
 #endif // EQBASE_STDEXT_H
