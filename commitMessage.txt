@@ -1,4 +1,4 @@
-Fix multi-window exit on Snow Leopard
+Fix 2874164: Missing header
 
 [ ] May break build
 [ ] May break existing applications
