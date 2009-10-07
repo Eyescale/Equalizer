@@ -82,6 +82,8 @@ Node::Node()
     registerCommand( CMD_NODE_CONNECT, NodeFunc( this, &Node::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
                      NodeFunc( this, &Node::_cmdConnectReply ), 0 );
+    registerCommand( CMD_NODE_CONNECT_ACK, 
+                     NodeFunc( this, &Node::_cmdConnectAck ), 0 );
     registerCommand( CMD_NODE_ID, NodeFunc( this, &Node::_cmdID ), 0 );
     registerCommand( CMD_NODE_DISCONNECT,
                      NodeFunc( this, &Node::_cmdDisconnect ), 0 );
