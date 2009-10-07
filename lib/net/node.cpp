@@ -1854,15 +1854,22 @@ CommandResult Node::_cmdConnectAck( Command& command )
 
 CommandResult Node::_cmdID( Command& command )
 {
-    EQASSERT( !command.getNode().isValid( ));
     EQASSERT( inReceiverThread( ));
 
     const NodeIDPacket* packet = command.getPacket< NodeIDPacket >();
-    ConnectionPtr   connection = _incoming.getConnection();
-    EQASSERT( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST );
-
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
+
+    if( command.getNode().isValid( ))
+    {
+        EQASSERT( nodeID == _id );
+        EQASSERT( command.getNode()->getMulticast() == 
+                  _incoming.getConnection( ));
+        return COMMAND_HANDLED;
+    }
+
+    ConnectionPtr   connection = _incoming.getConnection();
+    EQASSERT( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST );
 
     EQINFO << "handle ID " << packet << " node " << nodeID << std::endl;
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
