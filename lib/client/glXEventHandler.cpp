@@ -161,8 +161,8 @@ void GLXEventHandler::dispatchAll()
 
 void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
 {
-    Display*         display = connection->getDisplay();
     GLXPipe*         glXPipe = connection->pipe;
+    Display*         display = glXPipe->getXDisplay();
     Pipe*            pipe    = glXPipe->getPipe();
     GLXEventHandler* handler = glXPipe->getGLXEventHandler();
     EQASSERT( handler );

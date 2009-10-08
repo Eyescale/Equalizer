@@ -24,11 +24,14 @@
 
 namespace eq
 {
-    /** Equalizer default implementation of an AGL pipe */
+    /** Equalizer default implementation to handle an AGL GPU. */
     class EQ_EXPORT AGLPipe : public OSPipe
     {
     public:
+        /** Create a new AGL pipe for the given eq::Pipe. */
         AGLPipe( Pipe* parent );
+
+        /** Destroy the AGL pipe. */
         virtual ~AGLPipe( );
 
         /** @name AGL initialization */
@@ -41,7 +44,7 @@ namespace eq
         virtual bool configInit( );
 
         /** 
-         * Deinitialize this pipe for the AGL window system.
+         * De-initialize this pipe for the AGL window system.
          * 
          * @return true if the deinitialization was successful, false otherwise.
          */

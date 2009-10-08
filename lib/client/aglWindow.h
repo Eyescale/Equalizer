@@ -30,7 +30,10 @@ namespace eq
     class EQ_EXPORT AGLWindowIF : public OSWindow
     {
     public:
+        /** Create a new AGL window for the given eq::Window. */
         AGLWindowIF( Window* parent ) : OSWindow( parent ) {}
+
+        /** Destruct the AGL window. */
         virtual ~AGLWindowIF() {}
 
         /** @return the AGL rendering context. */
@@ -52,7 +55,10 @@ namespace eq
     class EQ_EXPORT AGLWindow : public AGLWindowIF
     {
     public:
+        /** Create a new AGL window for the given eq::Window. */
         AGLWindow( Window* parent );
+
+        /** Destruct the AGL window. */
         virtual ~AGLWindow( );
 
         virtual void configExit( );
@@ -76,8 +82,7 @@ namespace eq
          * Set the AGL rendering context for this window.
          * 
          * This function should only be called from configInit() or
-         * configExit().
-         * The context has to be set to 0 before it is destroyed.
+         * configExit(). The context has to be set to 0 before it is destroyed.
          *
          * @param context the AGL rendering context.
          */
@@ -91,7 +96,7 @@ namespace eq
         virtual void setCarbonWindow( WindowRef window );
         
         /** 
-         * Set the AGL PBUffer object to be used with the current AGL context.
+         * Set the AGL PBuffer object to be used with the current AGL context.
          * 
          * @param pbuffer the PBuffer.
          */
@@ -105,7 +110,7 @@ namespace eq
          *
          * This method first call chooseAGLPixelFormat(), then
          * createAGLContext() with the chosen pixel format, destroys the pixel
-         * format using destroyAGLPixelFormat and finally creates a drawable
+         * format using destroyAGLPixelFormat() and finally creates a drawable
          * using configInitAGLDrawable().
          * 
          * @return true if the initialization was successful, false otherwise.
@@ -191,8 +196,11 @@ namespace eq
          * @return true if the PBuffer was created, false otherwise.
          */
         virtual bool configInitAGLPBuffer(); 
-
+        
+        /** Set up an AGLEventHandler, called by setCarbonWindow(). */
         virtual void initEventHandler();
+
+        /** Destroy the AGLEventHandler, called by setCarbonWindow(). */
         virtual void exitEventHandler();
        //@}
 

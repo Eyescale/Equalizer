@@ -53,6 +53,7 @@ void CommandQueue::setWindowSystem( const WindowSystem windowSystem )
                   << windowSystem );
     EQASSERT( !_windowSystem );
 
+    delete _messagePump;
     _windowSystem = windowSystem;
 
     switch( windowSystem )

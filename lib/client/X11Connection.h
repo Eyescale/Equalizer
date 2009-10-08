@@ -32,8 +32,9 @@ namespace eq
     /**
      * An X11 Display connection wrapper.
      *
-     * This class can be used to monitor multiple X11 display connections for
-     * events using a net::ConnectionSet
+     * This class is used to monitor multiple GLXPipe X11 display connections
+     * for events using a net::ConnectionSet.
+     * @internal
      */
     class X11Connection : public net::Connection
     {
@@ -42,9 +43,8 @@ namespace eq
                 : pipe( pipe_ )
             {
                 EQASSERT( pipe_ );
-                _display = pipe_->getXDisplay();
+                EQASSERT( pipe_->getXDisplay( ));
 
-                EQASSERT( _display );
                 _state = STATE_CONNECTED;
                 EQINFO << "New X11 Connection @" << (void*)this << std::endl;
             }
@@ -52,9 +52,11 @@ namespace eq
         virtual ~X11Connection() 
             { EQINFO << "Delete X11 connection @" << (void*)this << std::endl; }
 
-        Display* getDisplay() const   { return _display; }
         virtual Notifier getNotifier() const
-            { return ConnectionNumber( _display ); }
+            {
+                Display* const display = pipe->getXDisplay();
+                return display ? ConnectionNumber( display ) : -1;
+            }
 
         GLXPipe* const pipe;
 
@@ -67,7 +69,6 @@ namespace eq
             { EQDONTCALL; return -1; }
 
     private:
-        Display* _display;
     };
 #else
     class X11Connection : public eq::net::Connection {};

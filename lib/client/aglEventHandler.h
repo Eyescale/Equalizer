@@ -25,10 +25,13 @@ namespace eq
 {
     class AGLWindowIF;
     class Node;
-    class X11Connection;
 
-    /**
-     * The event handler for agl windows.
+    /** 
+     * The event handler for AGL windows.
+     *
+     * Any implementation of the AGLWindowIF can instantiate this event handler,
+     * which translates each received Carbon event to an AGLWindowEvent and
+     * dispatches it to the correct AGLWindowIF::processEvent.
      */
     class AGLEventHandler : public EventHandler
     {
@@ -36,10 +39,21 @@ namespace eq
         /** Construct a new AGL event handler for the given AGL window. */
         AGLEventHandler( AGLWindowIF* window );
         
-        /** @sa EventHandler::deregisterWindow. */
+        /** Destruct the AGL event handler. */
         virtual ~AGLEventHandler();
 
+        /**
+         * Initialize space mouse event handling for this process.
+         *
+         * Received space mouse events are directly send to the application.
+         * @sa Node::configInit, Config::sendEvent
+         */
         static void initMagellan( Node* node );
+
+        /**
+         * De-initialize space mouse event handling for this process.
+         * @sa Node::configInit
+         */
         static void exitMagellan( Node* node );
 
     private:

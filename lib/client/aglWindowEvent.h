@@ -22,11 +22,11 @@
 
 namespace eq
 {
-    /** A window-system event for an AGLWindowIF */
+    /** A window-system event with the native Carbon event, used for AGL. */
     class EQ_EXPORT AGLWindowEvent : public Event
     {
     public:
-        // Native event
+        /** The native event */
         EventRef carbonEventRef;
     };
 }

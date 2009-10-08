@@ -34,14 +34,14 @@ namespace server
     class CanvasVisitor;
 
     /**
-     * The canvas.
+     * A canvas represents a logical 2D projection surface.
      *
-     * The canvas is a logical 2D projection surface. The server has a list of
-     * segments on the canvas, which are mapped to physical output
-     * channels. Segments are not visible to the application. The canvas uses a
-     * Layout to define the set of logical views used to render on the
-     * canvas. The layout can be switched at runtime. A canvas without a layout
-     * does not render anything.
+     * The server has a list of segments on the canvas, which are mapped to
+     * physical output channels. Segments are not visible to the
+     * application. The canvas has an active Layout, defining the set of logical
+     * views used to render on the canvas. The layout can be switched at
+     * runtime. A canvas with a NULL layout does not render anything, i.e., it
+     * is not active.
      */
     class Canvas : public Frustum
     {

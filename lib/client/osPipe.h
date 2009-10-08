@@ -27,16 +27,20 @@ namespace eq
     class Pipe;
 
     /**
-     * The interface definition for OS-specific pipe code.
+     * The interface definition for OS-specific GPU handling.
      *
-     * The OSPipe abstracts all pipe system specific code and facilitates
-     * porting to new windowing systems. Each Pipe uses one OSPipe, which
-     * is initialized in Pipe::configInitOSPipe.
+     * The OSPipe abstracts all OS-system specific code for handling a GPU,
+     * which facilitates porting to new windowing systems. Each Pipe uses one
+     * OSPipe, which is initialized in Pipe::configInit. The OSPipe has to set
+     * the pipe's PixelViewport if it is invalid during configInit().
      */
     class EQ_EXPORT OSPipe
     {
     public:
+        /** Create a new OSPipe for the given eq::Pipe.*/
         OSPipe( Pipe* parent );
+
+        /** Destroy the OSPipe. */
         virtual ~OSPipe( );
 
         /** @name Methods forwarded from eq::Pipe */
@@ -48,7 +52,7 @@ namespace eq
         virtual void configExit( ) = 0;
         //@}
 
-        /** @return the reason of the last error. */
+        /** @return the reason of the last failed operation. */
         const std::string & getErrorMessage() const { return _error; }
 
         /** @return the parent Pipe. */
@@ -77,6 +81,7 @@ namespace eq
         /** The reason for the last error. */
         std::string _error;
 
+    private:
         union // placeholder for binary-compatible changes
         {
             char dummy[64];

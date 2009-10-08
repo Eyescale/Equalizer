@@ -34,7 +34,6 @@ namespace base
         /** Construct a new lock. */
         EQ_EXPORT Lock();
 
-
         /** Destruct the lock. */
         EQ_EXPORT ~Lock();
 

@@ -32,12 +32,15 @@ namespace eq
      *
      * The OSWindow abstracts all window system specific code and facilitates
      * porting to new windowing systems. Each Windows uses one OSWindow, which
-     * is initialized in Window::configInitOSWindow.
+     * is created and initialized in Window::configInitOSWindow.
      */
     class EQ_EXPORT OSWindow
     {
     public:
+        /** Create a new OSWindow for the given eq::Window. */
         OSWindow( Window* parent );
+
+        /** Destroy the OSWindow. */
         virtual ~OSWindow( );
         
         /** @name Methods forwarded from eq::Window */
@@ -57,7 +60,8 @@ namespace eq
          * De-initialize this OS window.
          * 
          * This function might be called on partially or uninitialized OS
-         * windows, and has therefore be tolerant enough to handle this.
+         * windows, and the implemenation has therefore be tolerant enough to
+         * handle this case.
          */
         virtual void configExit( ) = 0;
 
