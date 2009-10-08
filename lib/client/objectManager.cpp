@@ -237,7 +237,7 @@ GLuint ObjectManager<T>::obtainList( const T& key, const GLsizei num )
 template< typename T >
 void   ObjectManager<T>::deleteList( const T& key )
 {
-    typename ObjectHash::const_iterator i = _data->lists.find( key );
+    typename ObjectHash::iterator i = _data->lists.find( key );
     if( i == _data->lists.end( ))
         return;
 
@@ -293,7 +293,7 @@ GLuint ObjectManager<T>::obtainTexture( const T& key )
 template< typename T >
 void   ObjectManager<T>::deleteTexture( const T& key )
 {
-    typename ObjectHash::const_iterator i = _data->textures.find( key );
+    typename ObjectHash::iterator i = _data->textures.find( key );
     if( i == _data->textures.end( ))
         return;
 
@@ -362,7 +362,7 @@ GLuint ObjectManager<T>::obtainBuffer( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteBuffer( const T& key )
 {
-    typename ObjectHash::const_iterator i = _data->buffers.find( key );
+    typename ObjectHash::iterator i = _data->buffers.find( key );
     if( i == _data->buffers.end() )
         return;
 
@@ -429,7 +429,7 @@ GLuint ObjectManager<T>::obtainProgram( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteProgram( const T& key )
 {
-    typename ObjectHash::const_iterator i = _data->programs.find( key );
+    typename ObjectHash::iterator i = _data->programs.find( key );
     if( i == _data->programs.end() )
         return;
 
@@ -497,7 +497,7 @@ GLuint ObjectManager<T>::obtainShader( const T& key, const GLenum type )
 template< typename T >
 void ObjectManager<T>::deleteShader( const T& key )
 {
-    typename ObjectHash::const_iterator i = _data->shaders.find( key );
+    typename ObjectHash::iterator i = _data->shaders.find( key );
     if( i == _data->shaders.end() )
         return;
 
@@ -549,7 +549,7 @@ Texture* ObjectManager<T>::obtainEqTexture( const T& key )
 template< typename T >
 void   ObjectManager<T>::deleteEqTexture( const T& key )
 {
-    typename TextureHash::const_iterator i = _data->eqTextures.find( key );
+    typename TextureHash::iterator i = _data->eqTextures.find( key );
     if( i == _data->eqTextures.end( ))
         return;
 
@@ -597,7 +597,7 @@ util::BitmapFont< T >* ObjectManager<T>::obtainEqBitmapFont( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteEqBitmapFont( const T& key )
 {
-    typename FontHash::const_iterator i = _data->eqFonts.find( key );
+    typename FontHash::iterator i = _data->eqFonts.find( key );
     if( i == _data->eqFonts.end( ))
         return;
 
@@ -653,7 +653,7 @@ FrameBufferObject* ObjectManager<T>::obtainEqFrameBufferObject( const T& key )
 template< typename T >
 void ObjectManager<T>::deleteEqFrameBufferObject( const T& key )
 {
-    typename FBOHash::const_iterator i = _data->eqFrameBufferObjects.find(key);
+    typename FBOHash::iterator i = _data->eqFrameBufferObjects.find(key);
     if( i == _data->eqFrameBufferObjects.end( ))
         return;
 
