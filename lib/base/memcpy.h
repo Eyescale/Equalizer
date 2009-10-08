@@ -26,7 +26,7 @@ namespace base
 {
 inline void fastCopy( void *dst, const void *src, uint32_t nbytes )
 {
-#ifdef WIN64
+#ifdef _WIN64
     ::memcpy(dst,src,nbytes);
 #elif  WIN32 
     static const int BLOCK_SIZE = 64;
