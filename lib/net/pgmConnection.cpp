@@ -458,13 +458,14 @@ void PGMConnection::_tuneSocket( bool isRead, const SOCKET fd )
     {
 #ifdef WIN32
         _setFecParameters( fd, 255, 4, true, 0);
-        uint64_t roundBandwith = _description->bandwidth  * 8 - 
+        // round to nearest 100.000 value
+        uint64_t roundBandwidth = (_description->bandwidth  * 8 + 50000)- 
                                  (( _description->bandwidth * 8) % 100000 );
-        _setWindowSizeAndSendRate( fd, 200000000, roundBandwith );
+        roundBandwidth = EQ_MAX( roundBandwidth, 100000 );
+        _setWindowSizeAndSendRate( fd, 200000000, roundBandwidth );
         _setSendBufferSize( fd, 65535 );
 #endif
     }
-    
 }
 
 bool PGMConnection::_parseAddress( sockaddr_in& address )
@@ -576,6 +577,7 @@ bool PGMConnection::_setWindowSizeAndSendRate( const SOCKET fd,
         return false ;
     }
 
+    EQINFO << "Set PGM send rate to " << sendRate << "Kbit/s" << std::endl;
     return true;
 }
 

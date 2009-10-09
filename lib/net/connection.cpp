@@ -96,23 +96,21 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
 
         case CONNECTIONTYPE_MCIP:
             connection = new MCIPConnection;
-            if ( description->bandwidth == 0 )
-                 description->bandwidth = 50 * 1024; // 50MB/s
             break;
 
 #ifdef EQ_PGM
         case CONNECTIONTYPE_MCIP_PGM:
             connection = new PGMConnection;
-            if ( description->bandwidth == 0 )
-                 description->bandwidth = 50 * 1024; // 50MB/s
             break;
-
 #endif
 
         default:
             EQWARN << "Connection type not implemented" << endl;
             return connection;
     }
+
+    if( description->bandwidth == 0 )
+        description->bandwidth = connection->getDescription()->bandwidth;
 
     connection->setDescription( description );
     return connection;
@@ -377,24 +375,7 @@ void Connection::setDescription( ConnectionDescriptionPtr description )
     EQASSERTINFO( _description->type == description->type,
                   "Wrong connection type in description" );
     _description = description;
-
-    if( _description->bandwidth > 0 )
-        return;
-
-    switch( description->type )
-    {
-        case CONNECTIONTYPE_NAMEDPIPE:
-            _description->bandwidth = 768000;
-            break;
-        case CONNECTIONTYPE_IB:
-        case CONNECTIONTYPE_SDP:
-            _description->bandwidth = 819200;
-            break;
-        case CONNECTIONTYPE_TCPIP:
-        default:
-            _description->bandwidth = 102400;
-            break;
-    }
+    EQASSERT( description->bandwidth > 0 );
 }
 
 std::ostream& operator << ( std::ostream& os, const Connection* connection )
