@@ -22,6 +22,7 @@
 
 #include <test.h>
 #include <eq/base/monitor.h>
+#include <eq/base/rng.h>
 #include <eq/base/sleep.h>
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
@@ -37,7 +38,6 @@
 #include <iostream>
 
 using namespace eq::net;
-using eq::base::Clock;
 using namespace std;
 
 namespace
@@ -51,7 +51,6 @@ namespace
         Receiver( const size_t packetSize, ConnectionPtr connection )
                 : _connection( connection )
                 , _mBytesSec( packetSize / 1024.f / 1024.f * 1000.f )
-                , _time( 0.f )
                 , _nSamples( 0 )
             { 
                 _buffer.resize( packetSize );
@@ -62,23 +61,25 @@ namespace
 
         bool readPacket()
         {
-            _clock.reset();
             if( !_connection->recvSync( 0, 0 ))
                 return false;
 
             _connection->recvNB( _buffer.getData(), _buffer.getSize() );
-            _time += _clock.getTimef();
+            const float time = _clock.getTimef();
             ++_nSamples;
 
-            if( _time < 1000.f )
+            const size_t probe = (_rng.get< size_t >() % _buffer.getSize( ));
+            TEST( _buffer[probe] == static_cast< uint8_t >( probe ));
+
+            if( time < 1000.f )
                 return true;
 
-           eq::net::ConnectionDescriptionPtr desc = 
+            _clock.reset();
+            eq::net::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
-            cerr << "Recv perf: " << _mBytesSec / _time * _nSamples 
-                 << "MB/s (" << _nSamples / _time * 1000.f  << "pps) from "
+            cerr << "Recv perf: " << _mBytesSec / time * _nSamples 
+                 << "MB/s (" << _nSamples / time * 1000.f  << "pps) from "
                  << desc.get() << endl;
-            _time = 0.f;
             _nSamples = 0;
             return true;
         }
@@ -117,13 +118,13 @@ namespace
         }
 
     private:
-        Clock _clock;
+        eq::base::Clock _clock;
+        eq::base::RNG _rng;
 
         eq::base::Bufferb _buffer;
         eq::base::Monitor< bool > _hasConnection;
         ConnectionPtr             _connection;
         const float _mBytesSec;
-        float       _time;
         size_t      _nSamples;
     };
 }
@@ -210,9 +211,11 @@ int main( int argc, char **argv )
 
         eq::base::Buffer< uint8_t > buffer;
         buffer.resize( packetSize );
+        for( size_t i = 0; i<packetSize; ++i )
+            buffer[i] = static_cast< uint8_t >( i );
 
         const float mBytesSec = buffer.getSize() / 1024.0f / 1024.0f * 1000.0f;
-        Clock       clock;
+        eq::base::Clock clock;
         size_t      lastOutput = nPackets;
 
         clock.reset();

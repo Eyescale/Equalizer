@@ -34,6 +34,8 @@ static ConnectionType _getConnectionType( const std::string& string )
 {
     if( string == "TCPIP" )
         return CONNECTIONTYPE_TCPIP;
+    if( string == "TCP" )
+        return CONNECTIONTYPE_TCPIP;
     if( string == "SDP" )
         return CONNECTIONTYPE_SDP;
     if( string == "ANON_PIPE" )
