@@ -37,6 +37,7 @@ PipeConnection::PipeConnection()
 #endif
 {
     _description->type = CONNECTIONTYPE_PIPE;
+    _description->bandwidth = 1024000;
 }
 
 PipeConnection::~PipeConnection()
