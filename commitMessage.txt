@@ -1,9 +1,9 @@
-Disable combined AGL/GLX build, crashes on startup
+Doxygen improvements
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

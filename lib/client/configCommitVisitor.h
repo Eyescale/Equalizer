@@ -38,7 +38,7 @@ namespace eq
             }
         virtual VisitorResult visitPre( Canvas* canvas )
             {
-                if( canvas->getDirty() & Canvas::DIRTY_LAYOUT )
+                if( canvas->hasDirtyLayout( ))
                     _needFinish = true;
 
                 _commit( canvas );

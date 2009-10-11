@@ -34,23 +34,20 @@ namespace server
     class SegmentVisitor;
 
     /**
-     * A Segment covers a sub-area of a canvas. It has a frustum, and defines
-     * one output channel of the whole frustum, typically a projector or screen.
+     * A segment covers a sub-area of a Canvas. It has a Frustum, and defines
+     * one output Channel of the whole projection area, typically a projector or
+     * screen.
      */
     class Segment : public eq::Frustum
     {
     public:
-        /** 
-         * Constructs a new Segment.
-         */
+        /** Construct a new Segment. */
         EQ_EXPORT Segment();
 
         /** Destruct this segment. */
         EQ_EXPORT virtual ~Segment();
 
-        /**
-         * @name Data Access
-         */
+        /** @name Data Access */
         //@{
         /** @return the config of this view. */
         EQ_EXPORT Config* getConfig();
@@ -62,7 +59,7 @@ namespace server
         const eq::Viewport& getViewport() const { return _vp; }
         //@}
         
-        /** Operations */
+        /** @name Operations */
         //@{
         /** 
          * Traverse this segment using a segment visitor.

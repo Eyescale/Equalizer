@@ -37,11 +37,11 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
     
     // Clean up - should never be necessary
     EQASSERT( _config->_canvases.empty( ));
-    for( CanvasVector::const_iterator i = _config->_canvases.begin();
+     for( CanvasVector::const_iterator i = _config->_canvases.begin();
          i != _config->_canvases.end(); ++i )
     {
         Canvas* canvas = *i;
-        canvas->deregister();
+        //canvas->_deregister();
         nodeFactory->releaseCanvas( canvas );
     }
     _config->_canvases.clear();
@@ -51,7 +51,7 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
          i != _config->_layouts.end(); ++i )
     {
         Layout* layout = *i;
-        layout->deregister();
+        //layout->_deregister();
         nodeFactory->releaseLayout( layout );
     }
     _config->_layouts.clear();

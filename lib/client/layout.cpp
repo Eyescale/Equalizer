@@ -77,7 +77,7 @@ void Layout::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     }
 }
 
-void Layout::deregister()
+void Layout::_deregister()
 {
     EQASSERT( _config );
     EQASSERT( !isMaster( ));

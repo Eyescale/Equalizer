@@ -34,34 +34,36 @@ namespace server
     class LayoutVisitor;
 
     /**
-     * A Layout groups one or more View which logically belong together. A
-     * layout is applied to a Canvas. If no layout is applied to a canvas,
-     * nothing is rendered on this canvas, i.e, the canvas is inactive. The
-     * layout assignment can be changed at run-time by the application. The
-     * intersection between views and segments defines which output
-     * (sub-)channels are available. These channels are typically used as
-     * destination channels in a compound. They are automatically created during
-     * configuration load.
+     * A layout groups one or more View which logically belong together.
+     *
+     * A layout belongs to Canvases. The layout assignment can be changed at
+     * run-time by the application, out of a pre-defined set of layouts for each
+     * Canvas. 
+     * 
+     * The intersection between views and segments defines which output
+     * (sub-)channels are available. Neither the views nor the segments have to
+     * cover the full layout or canvas, respectively. These channels are
+     * typically used as a destination Channel in a compound. They are
+     * automatically created when the configuration is loaded.
      */
     class Layout : public Object
     {
     public:
-        /** 
-         * Constructs a new Layout.
-         */
+        /** Construct a new layout. */
         EQ_EXPORT Layout();
 
         /** Destruct this layout. */
         EQ_EXPORT virtual ~Layout();
 
-        /**
-         * @name Data Access
-         */
+        /** @name Data Access */
         //@{
         /** Get the list of views. */
         const ViewVector& getViews() const { return _views; }
 
+        /** @return the current Config. */
         Config* getConfig() { return _config; }
+
+        /** @return the current Config. */
         const Config* getConfig() const { return _config; }
         //@}
 
@@ -76,9 +78,6 @@ namespace server
          * @return the result of the visitor traversal.
          */
         EQ_EXPORT VisitorResult accept( LayoutVisitor& visitor );
-
-        /** Deregister this layout, and all children, from its net::Session.*/
-        EQ_EXPORT virtual void deregister();
         //@}
         
     protected:
@@ -108,6 +107,8 @@ namespace server
             char dummy[64];
         };
 
+
+        void _deregister();
         void _addView( View* view );
         bool _removeView( View* view );
     };

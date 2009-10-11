@@ -89,7 +89,7 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     }
 }
 
-void Canvas::deregister()
+void Canvas::_deregister()
 {
     EQASSERT( _config );
     EQASSERT( isMaster( ));

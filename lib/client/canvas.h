@@ -36,27 +36,33 @@ namespace server
     /**
      * A canvas represents a logical 2D projection surface.
      *
-     * The server has a list of segments on the canvas, which are mapped to
-     * physical output channels. Segments are not visible to the
-     * application. The canvas has an active Layout, defining the set of logical
-     * views used to render on the canvas. The layout can be switched at
-     * runtime. A canvas with a NULL layout does not render anything, i.e., it
-     * is not active.
+     * A canvas consists of one or more Segment, which represent the physical
+     * output channels. Segments have a viewport, which defines which part of
+     * the logical 2D projection surface they occupy. Segments overlap each
+     * other when edge-blending is used, and have gaps for display
+     * walls. Passive stereo systems use one segment for each eye pass, so that
+     * two segments have the same viewport. Application windows typically use
+     * one canvas per Window.
+     *
+     * A canvas has a Frustum, which is used to compute a sub-frustum for
+     * segments which have no frustum specified. This is useful for planar
+     * projection systems.
+     *
+     * A canvas has one ore more layouts, of which one Layout
+     * is the active layout, defining the set of logical views currently used to
+     * render on the canvas. The layout can be switched at runtime. A canvas
+     * with a NULL layout does not render anything, i.e., it is not active.
      */
     class Canvas : public Frustum
     {
     public:
-        /** 
-         * Constructs a new Canvas.
-         */
+        /** Construct a new Canvas. */
         EQ_EXPORT Canvas();
 
         /** Destruct this canvas. */
         EQ_EXPORT virtual ~Canvas();
 
-        /**
-         * @name Data Access
-         */
+        /** @name Data Access */
         //@{
         /** @return the parent config. */
         Config*       getConfig()       { return _config; }
@@ -72,13 +78,11 @@ namespace server
         /** @return the vector of child segments. */
         const SegmentVector& getSegments() const { return _segments; }        
 
-        /** @return the vector of allowed layouts. */
+        /** @return the vector of possible layouts. */
         const LayoutVector& getLayouts() const { return _layouts; }        
         //@}
 
-        /**
-         * @name Operations
-         */
+        /** @name Operations */
         //@{
         /** Activate the given layout on this canvas. */
         EQ_EXPORT virtual void useLayout( const uint32_t index );
@@ -91,18 +95,9 @@ namespace server
          */
         EQ_EXPORT VisitorResult accept( CanvasVisitor& visitor );
 
-        /** Deregister this canvas, and all children, from its net::Session.*/
-        EQ_EXPORT virtual void deregister();
+        /** @return true if the layout has changed. @internal */
+        bool hasDirtyLayout() const { return getDirty() & DIRTY_LAYOUT; }
         //@}
-
-        enum DirtyBits
-        {
-            DIRTY_LAYOUT     = Frustum::DIRTY_CUSTOM << 0,
-            DIRTY_CHILDREN   = Frustum::DIRTY_CUSTOM << 1,
-            DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 2,
-            DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 3,
-            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4
-        };
 
     protected:
         /** @sa Frustum::serialize */
@@ -112,10 +107,20 @@ namespace server
         /** @sa Frustum::deserialize */
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
+        enum DirtyBits
+        {
+            DIRTY_LAYOUT     = Frustum::DIRTY_CUSTOM << 0,
+            DIRTY_CHILDREN   = Frustum::DIRTY_CUSTOM << 1,
+            DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 2,
+            DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 3,
+            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4
+        };
+
     private:
         /** The parent config. */
         Config* _config;
         friend class Config;
+        friend class server::Canvas;
 
         /** The currently active layout on this canvas. */
         uint32_t _activeLayout;
@@ -130,6 +135,9 @@ namespace server
         {
             char dummy[64];
         };
+
+        /** Deregister this canvas, and all children, from its net::Session.*/
+        void _deregister();
     };
 }
 #endif // EQ_CANVAS_H

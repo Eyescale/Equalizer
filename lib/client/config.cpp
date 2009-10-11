@@ -857,7 +857,7 @@ net::CommandResult Config::_cmdUnmap( net::Command& command )
          i != _canvases.end(); ++i )
     {
         Canvas* canvas = *i;
-        canvas->deregister();
+        canvas->_deregister();
         canvas->_config = 0;
         nodeFactory->releaseCanvas( canvas );
     }
@@ -867,7 +867,7 @@ net::CommandResult Config::_cmdUnmap( net::Command& command )
          i != _layouts.end(); ++i )
     {
         Layout* layout = *i;
-        layout->deregister();
+        layout->_deregister();
         layout->_config = 0;
         nodeFactory->releaseLayout( layout );
     }
