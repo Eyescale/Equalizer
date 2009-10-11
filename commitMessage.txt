@@ -1,4 +1,4 @@
-Fix Posix build
+Disable combined AGL/GLX build, crashes on startup
 
 [ ] May break build
 [ ] May break existing applications
