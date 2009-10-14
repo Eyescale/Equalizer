@@ -1,3 +1,16 @@
+Index: lib/net/connection.cpp
+===================================================================
+--- lib/net/connection.cpp	(revision 3320)
++++ lib/net/connection.cpp	(working copy)
+@@ -192,6 +192,8 @@
+ bool Connection::send( const void* buffer, const uint64_t bytes, 
+                        const bool isLocked )
+ {
++    EQASSERT( bytes > 0 );
++
+     if( _state != STATE_CONNECTED )
+         return false;
+ 
 Index: lib/compressor/compressorRLE.ipp
 ===================================================================
 --- lib/compressor/compressorRLE.ipp	(revision 3320)
@@ -18,3 +31,18 @@ Index: lib/compressor/compressorRLE.ipp
      const PixelType* pixel = reinterpret_cast< const PixelType* >( input );
  
      ComponentType* oneOut(   reinterpret_cast< ComponentType* >( 
+Index: lib/client/frameData.cpp
+===================================================================
+--- lib/client/frameData.cpp	(revision 3320)
++++ lib/client/frameData.cpp	(working copy)
+@@ -414,7 +414,9 @@
+                 {
+                     const uint64_t dataSize = data->compressedSize[k];
+                     connection->send( &dataSize, sizeof( dataSize ), true );
+-                    connection->send( data->compressedData[k], dataSize, true );
++                    if( dataSize > 0 )
++                        connection->send( data->compressedData[k], 
++                                          dataSize, true );
+ #ifndef NDEBUG
+                     sentBytes += sizeof( dataSize ) + dataSize;
+ #endif
