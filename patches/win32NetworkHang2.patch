@@ -1,0 +1,183 @@
+Index: lib/net/connection.cpp
+===================================================================
+--- lib/net/connection.cpp	(revision 3320)
++++ lib/net/connection.cpp	(working copy)
+@@ -363,6 +363,27 @@
+     }
+ }
+ 
++bool Connection::hasData() const
++{
++    const int fd = getReadFD();
++    if( fd <= 0 )
++        return false;
++
++    fd_set set;
++    FD_ZERO( &set );
++    FD_SET( fd, &set );
++
++    timeval timeout;
++    timeout.tv_sec = 0;
++    timeout.tv_usec = 0;
++
++    const int result = select( fd+1, &set, 0, 0, &timeout );
++    if( result < 0 )
++        EQWARN << "Error during select" << std::endl;
++
++    return ( result > 0 );
++}
++
+ std::ostream& operator << ( std::ostream& os, const Connection* connection )
+ {
+     if( !connection )
+Index: lib/net/node.cpp
+===================================================================
+--- lib/net/node.cpp	(revision 3320)
++++ lib/net/node.cpp	(working copy)
+@@ -825,6 +825,9 @@
+         node = i->second;
+     EQASSERTINFO( !node || node->_connection == connection, 
+                   typeid( *node.get( )).name( ));
++    
++    if( !connection->hasData( ))
++        return false;
+ 
+     EQVERB << "Handle data from " << node << endl;
+ 
+Index: lib/net/socketConnection.h
+===================================================================
+--- lib/net/socketConnection.h	(revision 3320)
++++ lib/net/socketConnection.h	(working copy)
+@@ -60,6 +60,7 @@
+ #ifdef WIN32
+         /** @sa Connection::getNotifier */
+         virtual Notifier getNotifier() const { return _overlapped.hEvent; }
++        virtual int getReadFD() const { return _readFD; }
+ #endif
+ 
+     protected:
+Index: lib/net/pipeConnection.h
+===================================================================
+--- lib/net/pipeConnection.h	(revision 3320)
++++ lib/net/pipeConnection.h	(working copy)
+@@ -55,7 +55,7 @@
+ 
+ #ifdef WIN32
+         virtual Notifier getNotifier() const { return _dataPending; }
+-        bool hasData() const 
++        virtual bool hasData() const 
+             { return WaitForSingleObject( _dataPending, 0 ) == WAIT_OBJECT_0; }
+ #endif
+ 
+Index: lib/net/fdConnection.h
+===================================================================
+--- lib/net/fdConnection.h	(revision 3320)
++++ lib/net/fdConnection.h	(working copy)
+@@ -34,6 +34,7 @@
+     public:
+ #ifndef WIN32
+         virtual Notifier getNotifier() const { return _readFD; }
++        virtual int getReadFD() const { return _readFD; }
+ #endif
+ 
+         bool hasData() const;
+Index: lib/net/pairConnection.h
+===================================================================
+--- lib/net/pairConnection.h	(revision 3320)
++++ lib/net/pairConnection.h	(working copy)
+@@ -41,6 +41,7 @@
+ 
+         virtual Notifier getNotifier() const
+             { return _readConnection->getNotifier(); }
++        virtual int getReadFD() const { return _readConnection->getReadFD(); }
+ 
+     protected:
+         EQ_EXPORT virtual ~PairConnection();
+Index: lib/net/namedPipeConnection.h
+===================================================================
+--- lib/net/namedPipeConnection.h	(revision 3320)
++++ lib/net/namedPipeConnection.h	(working copy)
+@@ -58,6 +58,8 @@
+ #ifdef WIN32
+         virtual Notifier getNotifier() const {
+             return _read.hEvent; }
++        virtual bool hasData() const 
++            { return WaitForSingleObject( _read.hEvent, 0 ) == WAIT_OBJECT_0; }
+ #endif
+ 
+     protected:
+Index: lib/net/connection.h
+===================================================================
+--- lib/net/connection.h	(revision 3320)
++++ lib/net/connection.h	(working copy)
+@@ -348,6 +348,9 @@
+         /** @return the notifier signalling events on the connection. */
+         virtual Notifier getNotifier() const { return 0; }
+ 
++        virtual int getReadFD() const { return 0; }
++        virtual bool hasData() const;
++
+     protected:
+         Connection();
+         virtual ~Connection();
+Index: lib/net/socketConnectionWin32.cpp
+===================================================================
+--- lib/net/socketConnectionWin32.cpp	(revision 3320)
++++ lib/net/socketConnectionWin32.cpp	(working copy)
+@@ -257,7 +257,6 @@
+     DWORD  got   = 0;
+     DWORD  flags = 0;
+ 
+-    ResetEvent( _overlapped.hEvent );
+     if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 0 ) != 0 &&
+         GetLastError() != WSA_IO_PENDING )
+     {
+@@ -277,6 +276,9 @@
+         return -1;
+     }
+ 
++    EQASSERT( _overlapped.hEvent );
++    ResetEvent( _overlapped.hEvent );
++
+     DWORD got   = 0;
+     DWORD flags = 0;
+     if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
+Index: make/Darwin.mk
+===================================================================
+--- make/Darwin.mk	(revision 3320)
++++ make/Darwin.mk	(working copy)
+@@ -4,7 +4,7 @@
+ 
+ DSO_SUFFIX       = dylib
+ DSO_LDFLAGS     += -dynamiclib
+-WINDOW_SYSTEM   ?= GLX AGL
++WINDOW_SYSTEM   ?= AGL
+ 
+ AR               = libtool
+ ARFLAGS          = -static
+@@ -14,7 +14,6 @@
+   CXXFLAGS        += -Wextra
+ endif
+ 
+-ifeq ($(findstring 9., $(RELARCH)),9.)
+   LEOPARD       = 1
+   CXXFLAGS     += -DLEOPARD
+   AGL_OR_64BIT  = AGL
+@@ -27,7 +26,6 @@
+   ARCHFLAGS     ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
+   WINDOW_SYSTEM  = GLX
+ endif # 64BIT
+-endif # LEOPARD
+ 
+ ifeq ($(findstring i386, $(SUBARCH)), i386)
+   ARCHFLAGS ?= -arch i386 -arch ppc
+Index: commitMessage.txt
+===================================================================
+--- commitMessage.txt	(revision 3428)
++++ commitMessage.txt	(working copy)
+@@ -1,4 +1,4 @@
+-Add send token bugfix patch
++fix win32networkhand patch
+ 
+ [ ] Will break Win32 build
+ [ ] May break existing applications
