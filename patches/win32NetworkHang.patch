@@ -1,7 +1,7 @@
-diff --git a/src/lib/client/X11Connection.h b/src/lib/client/X11Connection.h
+diff --git lib/client/X11Connection.h lib/client/X11Connection.h
 index 4c57446..70645b4 100644
---- a/src/lib/client/X11Connection.h
-+++ b/src/lib/client/X11Connection.h
+--- lib/client/X11Connection.h
++++ lib/client/X11Connection.h
 @@ -58,7 +58,8 @@ namespace eq
      protected:
          virtual void readNB( void* buffer, const uint64_t bytes )
@@ -12,10 +12,10 @@ index 4c57446..70645b4 100644
              { EQDONTCALL; return -1; }
          virtual int64_t write( const void* buffer, const uint64_t bytes )
              { EQDONTCALL; return -1; }
-diff --git a/src/lib/net/bufferConnection.h b/src/lib/net/bufferConnection.h
+diff --git lib/net/bufferConnection.h lib/net/bufferConnection.h
 index 60d4725..62aed9a 100644
---- a/src/lib/net/bufferConnection.h
-+++ b/src/lib/net/bufferConnection.h
+--- lib/net/bufferConnection.h
++++ lib/net/bufferConnection.h
 @@ -41,7 +41,8 @@ namespace net
      protected:
          virtual void readNB( void* buffer, const uint64_t bytes )
@@ -26,10 +26,10 @@ index 60d4725..62aed9a 100644
              { EQDONTCALL; return -1; }
          EQ_EXPORT virtual int64_t write( const void* buffer,
                                           const uint64_t bytes );
-diff --git a/src/lib/net/connection.cpp b/src/lib/net/connection.cpp
+diff --git lib/net/connection.cpp lib/net/connection.cpp
 index 60c94a4..6ec8df7 100644
---- a/src/lib/net/connection.cpp
-+++ b/src/lib/net/connection.cpp
+--- lib/net/connection.cpp
++++ lib/net/connection.cpp
 @@ -120,7 +120,8 @@ void Connection::recvNB( void* buffer, const uint64_t bytes )
      readNB( buffer, bytes );
  }
@@ -70,10 +70,10 @@ index 60c94a4..6ec8df7 100644
              }
              EQVERB << "Zero bytes read" << endl;
          }
-diff --git a/src/lib/net/connection.h b/src/lib/net/connection.h
+diff --git lib/net/connection.h lib/net/connection.h
 index 85d308e..75ca866 100644
---- a/src/lib/net/connection.h
-+++ b/src/lib/net/connection.h
+--- lib/net/connection.h
++++ lib/net/connection.h
 @@ -200,11 +200,15 @@ namespace net
           * and bytes return value pointers can be 0. This method uses readNB()
           * and readSync() to fill a buffer, potentially by using multiple reads.
@@ -102,10 +102,10 @@ index 85d308e..75ca866 100644
          //@}
  
          /** @name Synchronous write to the connection */
-diff --git a/src/lib/net/fdConnection.cpp b/src/lib/net/fdConnection.cpp
+diff --git lib/net/fdConnection.cpp lib/net/fdConnection.cpp
 index 1f15e9a..aa24156 100644
---- a/src/lib/net/fdConnection.cpp
-+++ b/src/lib/net/fdConnection.cpp
+--- lib/net/fdConnection.cpp
++++ lib/net/fdConnection.cpp
 @@ -43,7 +43,8 @@ FDConnection::FDConnection()
  //----------------------------------------------------------------------
  void FDConnection::readNB( void* buffer, const uint64_t bytes ) { /* NOP */ }
@@ -116,10 +116,10 @@ index 1f15e9a..aa24156 100644
  {
      if( _readFD < 1 )
          return -1;
-diff --git a/src/lib/net/fdConnection.h b/src/lib/net/fdConnection.h
+diff --git lib/net/fdConnection.h lib/net/fdConnection.h
 index 7866568..f4ed222 100644
---- a/src/lib/net/fdConnection.h
-+++ b/src/lib/net/fdConnection.h
+--- lib/net/fdConnection.h
++++ lib/net/fdConnection.h
 @@ -42,7 +42,8 @@ namespace net
          FDConnection();
  
@@ -130,10 +130,10 @@ index 7866568..f4ed222 100644
          virtual int64_t write( const void* buffer, const uint64_t bytes );
  
          int   _readFD;     //!< The read file descriptor.
-diff --git a/src/lib/net/namedPipeConnection.h b/src/lib/net/namedPipeConnection.h
+diff --git lib/net/namedPipeConnection.h lib/net/namedPipeConnection.h
 index 4108863..d9a63fc 100644
---- a/src/lib/net/namedPipeConnection.h
-+++ b/src/lib/net/namedPipeConnection.h
+--- lib/net/namedPipeConnection.h
++++ lib/net/namedPipeConnection.h
 @@ -70,7 +70,8 @@ namespace net
  
  #ifdef WIN32
@@ -144,10 +144,10 @@ index 4108863..d9a63fc 100644
          virtual int64_t write( const void* buffer, const uint64_t bytes );
  #else
  
-diff --git a/src/lib/net/namedPipeConnectionWin32.cpp b/src/lib/net/namedPipeConnectionWin32.cpp
+diff --git lib/net/namedPipeConnectionWin32.cpp lib/net/namedPipeConnectionWin32.cpp
 index 8bf4cb0..8343bc3 100644
---- a/src/lib/net/namedPipeConnectionWin32.cpp
-+++ b/src/lib/net/namedPipeConnectionWin32.cpp
+--- lib/net/namedPipeConnectionWin32.cpp
++++ lib/net/namedPipeConnectionWin32.cpp
 @@ -308,7 +308,8 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
      }
  }
@@ -158,10 +158,10 @@ index 8bf4cb0..8343bc3 100644
  {
      CHECK_THREAD( _recvThread );
  
-diff --git a/src/lib/net/node.cpp b/src/lib/net/node.cpp
+diff --git lib/net/node.cpp lib/net/node.cpp
 index acf8b78..19f6efc 100644
---- a/src/lib/net/node.cpp
-+++ b/src/lib/net/node.cpp
+--- lib/net/node.cpp
++++ lib/net/node.cpp
 @@ -830,13 +830,15 @@ bool Node::_handleData()
  
      void* sizePtr( 0 );
@@ -181,10 +181,10 @@ index acf8b78..19f6efc 100644
  
      EQASSERT( sizePtr );
      const uint64_t size = *reinterpret_cast< uint64_t* >( sizePtr );
-diff --git a/src/lib/net/pairConnection.h b/src/lib/net/pairConnection.h
+diff --git lib/net/pairConnection.h lib/net/pairConnection.h
 index 1ada533..5ed83e5 100644
---- a/src/lib/net/pairConnection.h
-+++ b/src/lib/net/pairConnection.h
+--- lib/net/pairConnection.h
++++ lib/net/pairConnection.h
 @@ -47,8 +47,9 @@ namespace net
  
          virtual void readNB( void* buffer, const uint64_t bytes )
@@ -197,10 +197,10 @@ index 1ada533..5ed83e5 100644
          virtual int64_t write( const void* buffer, const uint64_t bytes )
              { return _writeConnection->write( buffer, bytes ); }
  
-diff --git a/src/lib/net/pipeConnection.h b/src/lib/net/pipeConnection.h
+diff --git lib/net/pipeConnection.h lib/net/pipeConnection.h
 index 83a2152..28acb94 100644
---- a/src/lib/net/pipeConnection.h
-+++ b/src/lib/net/pipeConnection.h
+--- lib/net/pipeConnection.h
++++ lib/net/pipeConnection.h
 @@ -62,7 +62,8 @@ namespace net
      protected:
  #ifdef WIN32
@@ -211,10 +211,10 @@ index 83a2152..28acb94 100644
          virtual int64_t write( const void* buffer, const uint64_t bytes );
  #endif
  
-diff --git a/src/lib/net/pipeConnectionWin32.cpp b/src/lib/net/pipeConnectionWin32.cpp
+diff --git lib/net/pipeConnectionWin32.cpp lib/net/pipeConnectionWin32.cpp
 index fff3da3..fc87470 100644
---- a/src/lib/net/pipeConnectionWin32.cpp
-+++ b/src/lib/net/pipeConnectionWin32.cpp
+--- lib/net/pipeConnectionWin32.cpp
++++ lib/net/pipeConnectionWin32.cpp
 @@ -102,7 +102,9 @@ void PipeConnection::close()
      _fireStateChanged();
  }
@@ -226,10 +226,10 @@ index fff3da3..fc87470 100644
  {
      if( !_readHandle )
          return -1;
-diff --git a/src/lib/net/socketConnection.h b/src/lib/net/socketConnection.h
+diff --git lib/net/socketConnection.h lib/net/socketConnection.h
 index 3b934a4..38b5f6d 100644
---- a/src/lib/net/socketConnection.h
-+++ b/src/lib/net/socketConnection.h
+--- lib/net/socketConnection.h
++++ lib/net/socketConnection.h
 @@ -67,7 +67,8 @@ namespace net
  
  #ifdef WIN32
@@ -240,10 +240,10 @@ index 3b934a4..38b5f6d 100644
          virtual int64_t write( const void* buffer, const uint64_t bytes );
  
          typedef SOCKET Socket;
-diff --git a/src/lib/net/socketConnectionWin32.cpp b/src/lib/net/socketConnectionWin32.cpp
+diff --git lib/net/socketConnectionWin32.cpp lib/net/socketConnectionWin32.cpp
 index e51d431..28d302a 100644
---- a/src/lib/net/socketConnectionWin32.cpp
-+++ b/src/lib/net/socketConnectionWin32.cpp
+--- lib/net/socketConnectionWin32.cpp
++++ lib/net/socketConnectionWin32.cpp
 @@ -267,7 +267,8 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
      }
  }
@@ -270,10 +270,10 @@ index e51d431..28d302a 100644
  
          EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
                 << ", closing connection" << std::endl;
-diff --git a/src/tools/netproxy/netproxy.cpp b/src/tools/netproxy/netproxy.cpp
+diff --git tools/netproxy/netproxy.cpp tools/netproxy/netproxy.cpp
 index 697b793..7ae2f71 100644
---- a/src/tools/netproxy/netproxy.cpp
-+++ b/src/tools/netproxy/netproxy.cpp
+--- tools/netproxy/netproxy.cpp
++++ tools/netproxy/netproxy.cpp
 @@ -100,7 +100,8 @@ int main( int argc, char **argv )
                  connection = connections.getConnection();
                  const bool isInput = (connection == input);
