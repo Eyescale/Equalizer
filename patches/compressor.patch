@@ -1,0 +1,20 @@
+Index: lib/compressor/compressorRLE.ipp
+===================================================================
+--- lib/compressor/compressorRLE.ipp	(revision 3320)
++++ lib/compressor/compressorRLE.ipp	(working copy)
+@@ -83,6 +83,15 @@
+ static inline void _compress( const void* const input, const uint64_t nPixels,
+                               eq::plugin::Compressor::Result** results )
+ {
++    if( nPixels == 0 )
++    {
++        results[0]->setSize( 0 );
++        results[1]->setSize( 0 );
++        results[2]->setSize( 0 );
++        results[3]->setSize( 0 );
++        return;
++    }
++
+     const PixelType* pixel = reinterpret_cast< const PixelType* >( input );
+ 
+     ComponentType* oneOut(   reinterpret_cast< ComponentType* >( 
