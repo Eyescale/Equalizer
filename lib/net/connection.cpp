@@ -226,6 +226,10 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes )
 bool Connection::send( const void* buffer, const uint64_t bytes, 
                        const bool isLocked )
 {
+    EQASSERT( bytes > 0 );
+    if( bytes == 0 )
+        return true;
+
     // possible OPT: We need to lock here to guarantee an atomic transmission of
     // the buffer. Possible improvements are:
     // 1) Disassemble buffer into 'small enough' pieces and use a header to

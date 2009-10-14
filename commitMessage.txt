@@ -1,4 +1,4 @@
-Fix compression assertion with small output frames
+Catch potential 0-byte network writes
 
 [ ] May break build
 [ ] May break existing applications

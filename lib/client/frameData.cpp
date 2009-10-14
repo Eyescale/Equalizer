@@ -414,7 +414,9 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber )
                 {
                     const uint64_t dataSize = data->compressedSize[k];
                     connection->send( &dataSize, sizeof( dataSize ), true );
-                    connection->send( data->compressedData[k], dataSize, true );
+                    if( dataSize > 0 )
+                        connection->send( data->compressedData[k], 
+                                          dataSize, true );
 #ifndef NDEBUG
                     sentBytes += sizeof( dataSize ) + dataSize;
 #endif
