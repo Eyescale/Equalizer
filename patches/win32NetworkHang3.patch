@@ -1,0 +1,577 @@
+Index: lib/net/connection.cpp
+===================================================================
+--- lib/net/connection.cpp	(revision 3320)
++++ lib/net/connection.cpp	(working copy)
+@@ -192,6 +192,10 @@
+ bool Connection::send( const void* buffer, const uint64_t bytes, 
+                        const bool isLocked )
+ {
++    EQASSERT( bytes > 0 );
++    if( bytes == 0 )
++        return true;
++
+     if( _state != STATE_CONNECTED )
+         return false;
+ 
+Index: lib/net/node.cpp
+===================================================================
+--- lib/net/node.cpp	(revision 3320)
++++ lib/net/node.cpp	(working copy)
+@@ -318,28 +318,8 @@
+ 
+ void Node::_addConnection( ConnectionPtr connection )
+ {
+-    _connectionSet.addConnection( connection );
+-    connection->recvNB( new uint64_t, sizeof( uint64_t ));
+-}
+-
+-void Node::_removeConnection( ConnectionPtr connection )
+-{
+-    EQASSERT( connection.isValid( ));
+-
+-    _connectionSet.removeConnection( connection );
+-
+-    void* buffer( 0 );
+-    if( !connection->isListening( ))
+-    {
+-        uint64_t bytes( 0 );
+-        connection->getRecvData( &buffer, &bytes );
+-        EQASSERT( buffer );
+-        EQASSERT( bytes == sizeof( uint64_t ));
+-    }
+-
+-    if( !connection->isClosed( ))
+-        connection->close(); // cancels pending IO's
+-    delete reinterpret_cast< uint64_t* >( buffer );
++    ReadThread* reader = new ReadThread( this, connection );
++    reader->start();
+ }
+ 
+ void Node::_cleanup()
+@@ -347,7 +327,7 @@
+     EQVERB << "Clean up stopped node" << endl;
+     EQASSERTINFO( _state == STATE_STOPPED, _state );
+ 
+-    _removeConnection( _connection );
++    _connection->close();
+     _connectionNodes.erase( _connection );
+     _connection = 0;
+ 
+@@ -356,13 +336,17 @@
+     {
+         ConnectionPtr connection = connections.back();
+         NodePtr       node       = _connectionNodes[ connection ];
++        
++        if( node.isValid( ))
++        {
++            node->_state      = STATE_STOPPED;
++            node->_connection = 0;
++            _nodes.erase( node->_id );
++        }
+ 
+-        node->_state      = STATE_STOPPED;
+-        node->_connection = 0;
+         _connectionNodes.erase( connection );
+-        _nodes.erase( node->_id );
+-
+-        _removeConnection( connection );
++        connection->close();
++        _connectionSet.removeConnection( connection );
+     }
+ 
+     if( !_connectionNodes.empty( ))
+@@ -385,16 +369,29 @@
+     if( !_nodes.empty( ))
+         EQINFO << _nodes.size() << " nodes connected during cleanup" << endl;
+ 
+-#ifndef NDEBUG
+     for( base::UUIDHash< NodePtr >::const_iterator i = _nodes.begin();
+          i != _nodes.end(); ++i )
+     {
+         NodePtr node = i->second;
++        EQASSERT( node.isValid( ));
++
++        if( node.isValid( ))
++        {
++            node->_state      = STATE_STOPPED;
++            if( node->_connection.isValid( ))
++            {
++                _connectionNodes.erase( node->_connection );
++                node->_connection->close();
++            }
++            node->_connection = 0;
++        }
++
++#ifndef NDEBUG
+         EQINFO << "    " << node << " ref count " << node->getRefCount() - 1 
+                << ' ' << node->_connection << ' ' << node->_state
+                << ( node == this ? " self" : "" ) << endl;
+-    }
+ #endif
++    }
+ 
+     _nodes.clear();
+ }
+@@ -706,16 +703,10 @@
+                 break;
+ 
+             case ConnectionSet::EVENT_DATA:      
+-                _handleData();
+-                break;
+-
+             case ConnectionSet::EVENT_DISCONNECT:
+             case ConnectionSet::EVENT_INVALID_HANDLE:
+-            {
+-                _handleDisconnect();
+-                EQVERB << &_connectionSet << endl;
++                EQUNREACHABLE;
+                 break;
+-            } 
+ 
+             case ConnectionSet::EVENT_TIMEOUT:   
+                 EQINFO << "select timeout" << endl;
+@@ -728,7 +719,7 @@
+                 {
+                     EQWARN << "Too many errors in a row, capping connection" 
+                            << endl;
+-                    _handleDisconnect();
++                    _handleDisconnect( _connectionSet.getConnection( ));
+                 }
+                 break;
+ 
+@@ -743,6 +734,7 @@
+                 break;
+ 
+             case ConnectionSet::EVENT_INTERRUPT:
++                _handleData();
+                 _redispatchCommands();
+                 break;
+ 
+@@ -790,11 +782,12 @@
+     // Node will be created when receiving NodeConnectPacket from other side
+ }
+ 
+-void Node::_handleDisconnect()
++void Node::_handleDisconnect( ConnectionPtr connection )
+ {
+-    while( _handleData( )) ; // read remaining data off connection
++    EQASSERT( connection.isValid( ));
++    if( !connection )
++        return;
+ 
+-    ConnectionPtr connection = _connectionSet.getConnection();
+     NodePtr node;
+     ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
+     if( i != _connectionNodes.end( ))
+@@ -808,70 +801,67 @@
+         _nodes.erase( node->_id );
+     }
+ 
+-    _removeConnection( connection );
+-
++    connection->close();
+     EQINFO << node << " disconnected from " << this << " connection used " 
+            << connection->getRefCount() << endl;
+ }
+ 
+ bool Node::_handleData()
+ {
+-    ConnectionPtr connection = _connectionSet.getConnection();
+-    EQASSERT( connection.isValid( ));
+-
+-    NodePtr node;
+-    ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
+-    if( i != _connectionNodes.end( ))
+-        node = i->second;
+-    EQASSERTINFO( !node || node->_connection == connection, 
+-                  typeid( *node.get( )).name( ));
+-
+-    EQVERB << "Handle data from " << node << endl;
+-
+-    void* sizePtr( 0 );
+-    uint64_t bytes( 0 );
+-    const bool gotSize = connection->recvSync( &sizePtr, &bytes );
+-
+-    if( !gotSize ) // Some systems signal data on dead connections.
++    for( ReadThread::Request* request = _requests.tryPop();
++         request; request = _requests.tryPop( ))
+     {
+-        connection->recvNB( sizePtr, sizeof( uint64_t ));
+-        return false;
+-    }
++        const uint64_t size = request->size;
++        ConnectionPtr connection = request->connection;
++        EQASSERT( connection.isValid( ));
+ 
+-    EQASSERT( sizePtr );
+-    const uint64_t size = *reinterpret_cast< uint64_t* >( sizePtr );
+-    EQASSERT( size );
+-    EQASSERT( bytes == sizeof( uint64_t ));
+-    EQASSERT( size > sizeof( size ));
+-
+-    Command& command = _commandCache.alloc( node, this, size );
+-    uint8_t* ptr = reinterpret_cast< uint8_t* >( command.getPacket()) +
+-                                                 sizeof( uint64_t );
++        if( size == 0 )
++        {
++            _handleDisconnect( connection );
++            request->handled = true;
++            continue;
++        }
++        // else
+ 
+-    connection->recvNB( ptr, size - sizeof( uint64_t ));
+-    const bool gotData = connection->recvSync( 0, 0 );    
++        NodePtr node;
++        ConnectionNodeHash::const_iterator i = 
++            _connectionNodes.find( connection );
++        if( i != _connectionNodes.end( ))
++            node = i->second;
++
++        EQASSERT( size > sizeof( size ));
++        EQASSERTINFO( !node || node->_connection == connection, 
++                      typeid( *node.get( )).name( ));
++
++        Command& command = _commandCache.alloc( connection, node, this, size );
++        uint8_t* ptr = reinterpret_cast< uint8_t* >( command.getPacket()) +
++                                                     sizeof( uint64_t );
+ 
+-    EQASSERT( gotData );
+-    EQASSERT( command.isValid( ));
++        connection->recvNB( ptr, size - sizeof( uint64_t ));
++        const bool gotData = connection->recvSync( 0, 0 );    
+ 
+-    // start next receive
+-    connection->recvNB( sizePtr, sizeof( uint64_t ));
++        EQASSERT( gotData );
++        EQASSERT( command.isValid( ));
+ 
+-    if( !gotData )
+-    {
+-        EQERROR << "Incomplete packet read: " << command << std::endl;
+-        return false;
+-    }
++        // start next receive
++        request->handled = true;
++        
++        if( !gotData )
++        {
++            EQERROR << "Incomplete packet read: " << command << std::endl;
++            return false;
++        }
+ 
+-    // This is one of the initial packets during the connection handshake, at
+-    // this point the remote node is not yet available.
+-    EQASSERTINFO( node.isValid() ||
+-                 ( command->datatype == DATATYPE_EQNET_NODE &&
+-                  ( command->command == CMD_NODE_CONNECT  || 
+-                    command->command == CMD_NODE_CONNECT_REPLY)),
+-                  command << " connection " << connection );
++        // This is one of the initial packets during the connection handshake,
++        // at this point the remote node is not yet available.
++        EQASSERTINFO( node.isValid() ||
++                      ( command->datatype == DATATYPE_EQNET_NODE &&
++                        ( command->command == CMD_NODE_CONNECT  || 
++                          command->command == CMD_NODE_CONNECT_REPLY)),
++                      command << " connection " << connection );
+ 
+-    _dispatchCommand( command );
++        _dispatchCommand( command );
++    }
+     return true;
+ }
+ 
+@@ -1179,7 +1169,7 @@
+     EQASSERT( inReceiverThread( ));
+ 
+     const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
+-    ConnectionPtr        connection = _connectionSet.getConnection();
++    ConnectionPtr        connection = command.getConnection();
+ 
+     NodeID nodeID = packet->nodeID;
+     nodeID.convertToHost();
+@@ -1194,16 +1184,9 @@
+         EQINFO << "Already got node " << nodeID << ", refusing connect"
+                << endl;
+ 
+-        // refuse connection
++        // refuse connection - remote node closes
+         NodeConnectReplyPacket reply( packet );
+         connection->send( reply, serialize( ));
+-
+-        // NOTE: There used to be no close() here. If deadlocks occur, it is
+-        // likely that the reply packet above can't be received by the peer
+-        // because the connection is closed by us. In that case, do not close
+-        // the connection here. Take care to cancel the pending IO for the next
+-        // packet size, and to delete the memory for the packet size.
+-        _removeConnection( connection );
+         return COMMAND_HANDLED;
+     }
+ 
+@@ -1255,7 +1238,7 @@
+ 
+     const NodeConnectReplyPacket* packet = 
+         command.getPacket<NodeConnectReplyPacket>();
+-    ConnectionPtr connection = _connectionSet.getConnection();
++    ConnectionPtr connection = command.getConnection();
+ 
+     NodeID nodeID = packet->nodeID;
+     nodeID.convertToHost();
+@@ -1268,8 +1251,8 @@
+                                                 // simultaneous connect
+     {
+         EQINFO << "ignoring connect reply, node already connected" << endl;
+-        _removeConnection( connection );
+-        
++        connection->close();
++
+         if( packet->requestID != EQ_ID_INVALID )
+             _requestHandler.serveRequest( packet->requestID, false );
+         
+@@ -1327,7 +1310,7 @@
+         node->_state      = STATE_STOPPED;
+         node->_connection = 0;
+ 
+-        _removeConnection( connection );
++        connection->close();
+         EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
+ 
+         _connectionNodes.erase( connection );
+@@ -1449,6 +1432,37 @@
+ }
+ 
+ //----------------------------------------------------------------------
++// read thread functions
++//----------------------------------------------------------------------
++void* Node::_runReadThread( ConnectionPtr connection )
++{
++    ReadThread::Request request;
++    request.connection = connection;
++
++    while( connection->isConnected( ))
++    {
++        connection->recvNB( &request.size, sizeof( request.size ));
++
++        if( connection->recvSync( 0, 0 ))
++        {
++            request.handled = false;
++            _requests.push( &request );
++            _connectionSet.interrupt();
++            request.handled.waitEQ( true );
++        }    
++    }
++
++    request.size = 0;
++    request.handled = false;
++    _requests.push( &request );
++    _connectionSet.interrupt();
++    request.handled.waitEQ( true );
++    
++    request.connection = 0;
++    return EXIT_SUCCESS;
++}
++
++//----------------------------------------------------------------------
+ // Connecting and launching a node
+ //----------------------------------------------------------------------
+ bool Node::connect( NodePtr node )
+Index: lib/net/commandCache.cpp
+===================================================================
+--- lib/net/commandCache.cpp	(revision 3320)
++++ lib/net/commandCache.cpp	(working copy)
+@@ -78,8 +78,8 @@
+ }
+ #endif
+ 
+-Command& CommandCache::alloc( NodePtr node, NodePtr localNode, 
+-                              const uint64_t size )
++Command& CommandCache::alloc( ConnectionPtr connection, NodePtr node,
++                              NodePtr localNode, const uint64_t size )
+ {
+     CHECK_THREAD( _thread );
+ 
+@@ -167,7 +167,7 @@
+                        << std::endl;
+             }
+ #endif
+-            command->alloc( node, localNode, size );
++            command->alloc( connection, node, localNode, size );
+             return *command;
+         }
+     }
+@@ -181,7 +181,7 @@
+         cache.push_back( new Command );
+ 
+     Command* command = cache.back();
+-    command->alloc( node, localNode, size );
++    command->alloc( connection, node, localNode, size );
+     return *command;
+ }
+ 
+Index: lib/net/commandCache.h
+===================================================================
+--- lib/net/commandCache.h	(revision 3320)
++++ lib/net/commandCache.h	(working copy)
+@@ -44,7 +44,8 @@
+         ~CommandCache();
+ 
+         /** @return a new command. */
+-        Command& alloc( NodePtr node, NodePtr localNode, const uint64_t size );
++        Command& alloc( ConnectionPtr connection, NodePtr node,
++                        NodePtr localNode, const uint64_t size );
+ 
+         /** Flush all allocated commands. */
+         void flush();
+Index: lib/net/command.cpp
+===================================================================
+--- lib/net/command.cpp	(revision 3320)
++++ lib/net/command.cpp	(working copy)
+@@ -39,7 +39,8 @@
+     _free(); 
+ }
+ 
+-void Command::alloc( NodePtr node, NodePtr localNode, const uint64_t size )
++void Command::alloc( ConnectionPtr connection, NodePtr node, NodePtr localNode,
++                     const uint64_t size )
+ {
+     if( !_packet )
+     {
+@@ -53,6 +54,7 @@
+         _packet = static_cast<Packet*>( malloc( _packetAllocSize ));
+     }
+ 
++    _connection   = connection;
+     _node         = node;
+     _localNode    = localNode;
+     _packet->size = size;
+Index: lib/net/command.h
+===================================================================
+--- lib/net/command.h	(revision 3320)
++++ lib/net/command.h	(working copy)
+@@ -49,6 +49,7 @@
+         template< class P > const P* getPacket() const
+             { EQASSERT( _packet ); return reinterpret_cast<P*>( _packet ); }
+ 
++        ConnectionPtr getConnection() const { return _connection; }
+         NodePtr getNode()      const { return _node; }
+         NodePtr getLocalNode() const { return _localNode; }
+ 
+@@ -72,6 +73,7 @@
+                     // Unref nodes in command to keep node ref counts easier for
+                     // debugging.  Release builds will unref the nodes at
+                     // receiver thread exit.
++                    _connection = 0;
+                     _node = 0;
+                     _localNode = 0;
+                 }
+@@ -85,7 +87,8 @@
+     private:
+         Command();
+         ~Command();
+-        void alloc( NodePtr node, NodePtr localNode, const uint64_t size );
++        void alloc( ConnectionPtr connection, NodePtr node, NodePtr localNode,
++                    const uint64_t size );
+         friend class CommandCache;
+ 
+         Command& operator = ( Command& rhs ); // disable assignment
+@@ -93,6 +96,7 @@
+ 
+         void _free();
+ 
++        ConnectionPtr _connection;
+         NodePtr  _node;
+         NodePtr  _localNode;
+         Packet*  _packet;
+Index: lib/net/node.h
+===================================================================
+--- lib/net/node.h	(revision 3320)
++++ lib/net/node.h	(working copy)
+@@ -26,6 +26,7 @@
+ #include <eq/net/types.h>
+ 
+ #include <eq/base/base.h>
++#include <eq/base/monitor.h>
+ #include <eq/base/perThread.h>
+ #include <eq/base/requestHandler.h>
+ #include <eq/base/thread.h>
+@@ -528,6 +529,31 @@
+         friend eq::net::ConnectionPtr (::eqsStartLocalServer(const
+                                                              std::string& ));
+ 
++        /** One reader thread. */
++        class ReadThread : public base::Thread
++        {
++        public:
++            ReadThread( Node* node, ConnectionPtr connection ) 
++                    : _node( node ), _connection( connection )
++                {}
++            
++            virtual void* run(){ return _node->_runReadThread( _connection ); }
++
++            struct Request
++            {
++                uint64_t size;
++                ConnectionPtr connection;
++                base::Monitorb handled;
++            };
++            
++        private:
++            Node* _node;
++            ConnectionPtr _connection;
++        };
++
++        typedef base::MTQueue< ReadThread::Request* > RequestQueue;
++        RequestQueue _requests;
++        
+         /** The connected nodes. */
+         base::UUIDHash< NodePtr > _nodes;
+ 
+@@ -596,7 +622,6 @@
+ 
+         bool _connectSelf();
+         EQ_EXPORT void _addConnection( ConnectionPtr connection );
+-        void _removeConnection( ConnectionPtr connection );
+         void _cleanup();
+ 
+         void _dispatchCommand( Command& command );
+@@ -656,12 +681,14 @@
+ 
+         void* _runReceiverThread();
+         void    _handleConnect();
+-        void    _handleDisconnect();
++        void    _handleDisconnect( ConnectionPtr connection );
+         bool    _handleData();
+ 
+         void* _runCommandThread();
+         void    _redispatchCommands();
+ 
++        void * _runReadThread( ConnectionPtr connection );
++
+         /** The command functions. */
+         CommandResult _cmdStop( Command& command );
+         CommandResult _cmdRegisterSession( Command& command );
+Index: tests/dataStream/test.cpp
+===================================================================
+--- tests/dataStream/test.cpp	(revision 3320)
++++ tests/dataStream/test.cpp	(working copy)
+@@ -192,7 +192,7 @@
+         TEST( connection->recvSync( 0, 0 ));
+         TEST( size );
+ 
+-        eq::net::Command& command = commandCache.alloc( 0, 0, size );
++        eq::net::Command& command = commandCache.alloc( connection, 0, 0, size);
+         size -= sizeof( size );
+ 
+         char*      ptr     = reinterpret_cast< char* >( command.getPacket( )) +
+Index: tests/client/configVisitor.cpp
+===================================================================
+--- tests/client/configVisitor.cpp	(revision 3320)
++++ tests/client/configVisitor.cpp	(working copy)
+@@ -121,6 +121,7 @@
+     TESTINFO( visitor.nChannels == 36, visitor.nChannels );
+ 
+     // teardown
++    TEST( client->disconnectServer( server ));
+     TEST( client->exitLocal( ));
+     return EXIT_SUCCESS;
+ }
