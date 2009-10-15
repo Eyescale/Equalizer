@@ -73,15 +73,16 @@ Index: lib/net/node.cpp
  }
  
  void Node::_cleanup()
-@@ -347,7 +327,7 @@
+@@ -347,8 +327,8 @@
      EQVERB << "Clean up stopped node" << endl;
      EQASSERTINFO( _state == STATE_STOPPED, _state );
  
 -    _removeConnection( _connection );
-+    _connection->close();
      _connectionNodes.erase( _connection );
++    _connection->close();
      _connection = 0;
  
+     const ConnectionVector& connections = _connectionSet.getConnections();
 @@ -356,13 +336,17 @@
      {
          ConnectionPtr connection = connections.back();
@@ -469,6 +470,32 @@ Index: lib/net/command.cpp
      _node         = node;
      _localNode    = localNode;
      _packet->size = size;
+Index: lib/net/pipeConnectionWin32.cpp
+===================================================================
+--- lib/net/pipeConnectionWin32.cpp	(revision 3455)
++++ lib/net/pipeConnectionWin32.cpp	(working copy)
+@@ -88,16 +88,16 @@
+ 
+ void PipeConnection::close()
+ {
+-    if( _readHandle )
+-    {
+-        CloseHandle( _readHandle );
+-        _readHandle = 0;
+-    }
+     if( _writeHandle )
+     {
+         CloseHandle( _writeHandle );
+         _writeHandle = 0;
+     }
++    if( _readHandle )
++    {
++        CloseHandle( _readHandle );
++        _readHandle = 0;
++    }
+     _state = STATE_CLOSED;
+     _fireStateChanged();
+ }
 Index: lib/net/command.h
 ===================================================================
 --- lib/net/command.h	(revision 3455)
