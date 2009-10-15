@@ -1,6 +1,31 @@
+Index: tests/dataStream/test.cpp
+===================================================================
+--- tests/dataStream/test.cpp	(revision 3455)
++++ tests/dataStream/test.cpp	(working copy)
+@@ -192,7 +192,7 @@
+         TEST( connection->recvSync( 0, 0 ));
+         TEST( size );
+ 
+-        eq::net::Command& command = commandCache.alloc( 0, 0, size );
++        eq::net::Command& command = commandCache.alloc( connection, 0, 0, size);
+         size -= sizeof( size );
+ 
+         char*      ptr     = reinterpret_cast< char* >( command.getPacket( )) +
+Index: tests/client/configVisitor.cpp
+===================================================================
+--- tests/client/configVisitor.cpp	(revision 3455)
++++ tests/client/configVisitor.cpp	(working copy)
+@@ -121,6 +121,7 @@
+     TESTINFO( visitor.nChannels == 36, visitor.nChannels );
+ 
+     // teardown
++    TEST( client->disconnectServer( server ));
+     TEST( client->exitLocal( ));
+     return EXIT_SUCCESS;
+ }
 Index: lib/net/connection.cpp
 ===================================================================
---- lib/net/connection.cpp	(revision 3320)
+--- lib/net/connection.cpp	(revision 3455)
 +++ lib/net/connection.cpp	(working copy)
 @@ -192,6 +192,10 @@
  bool Connection::send( const void* buffer, const uint64_t bytes, 
@@ -15,7 +40,7 @@ Index: lib/net/connection.cpp
  
 Index: lib/net/node.cpp
 ===================================================================
---- lib/net/node.cpp	(revision 3320)
+--- lib/net/node.cpp	(revision 3455)
 +++ lib/net/node.cpp	(working copy)
 @@ -318,28 +318,8 @@
  
@@ -377,7 +402,7 @@ Index: lib/net/node.cpp
  bool Node::connect( NodePtr node )
 Index: lib/net/commandCache.cpp
 ===================================================================
---- lib/net/commandCache.cpp	(revision 3320)
+--- lib/net/commandCache.cpp	(revision 3455)
 +++ lib/net/commandCache.cpp	(working copy)
 @@ -78,8 +78,8 @@
  }
@@ -410,7 +435,7 @@ Index: lib/net/commandCache.cpp
  
 Index: lib/net/commandCache.h
 ===================================================================
---- lib/net/commandCache.h	(revision 3320)
+--- lib/net/commandCache.h	(revision 3455)
 +++ lib/net/commandCache.h	(working copy)
 @@ -44,7 +44,8 @@
          ~CommandCache();
@@ -424,7 +449,7 @@ Index: lib/net/commandCache.h
          void flush();
 Index: lib/net/command.cpp
 ===================================================================
---- lib/net/command.cpp	(revision 3320)
+--- lib/net/command.cpp	(revision 3455)
 +++ lib/net/command.cpp	(working copy)
 @@ -39,7 +39,8 @@
      _free(); 
@@ -446,7 +471,7 @@ Index: lib/net/command.cpp
      _packet->size = size;
 Index: lib/net/command.h
 ===================================================================
---- lib/net/command.h	(revision 3320)
+--- lib/net/command.h	(revision 3455)
 +++ lib/net/command.h	(working copy)
 @@ -49,6 +49,7 @@
          template< class P > const P* getPacket() const
@@ -484,9 +509,22 @@ Index: lib/net/command.h
          Packet*  _packet;
 Index: lib/net/node.h
 ===================================================================
---- lib/net/node.h	(revision 3320)
+--- lib/net/node.h	(revision 3455)
 +++ lib/net/node.h	(working copy)
-@@ -26,6 +26,7 @@
+@@ -18,6 +18,12 @@
+ #ifndef EQNET_NODE_H
+ #define EQNET_NODE_H
+ 
++#ifdef EQUALIZER_EXPORTS
++// We need to instantiate a Monitor< State > when compiling the library,
++// but we don't want to have <pthread.h> for a normal build, hence this hack
++#  include <pthread.h>
++#endif
++
+ #include <eq/net/dispatcher.h>               // base class
+ #include <eq/net/commandCache.h>             // member
+ #include <eq/net/commandQueue.h>             // member
+@@ -26,6 +32,7 @@
  #include <eq/net/types.h>
  
  #include <eq/base/base.h>
@@ -494,7 +532,7 @@ Index: lib/net/node.h
  #include <eq/base/perThread.h>
  #include <eq/base/requestHandler.h>
  #include <eq/base/thread.h>
-@@ -528,6 +529,31 @@
+@@ -528,6 +535,31 @@
          friend eq::net::ConnectionPtr (::eqsStartLocalServer(const
                                                               std::string& ));
  
@@ -526,7 +564,7 @@ Index: lib/net/node.h
          /** The connected nodes. */
          base::UUIDHash< NodePtr > _nodes;
  
-@@ -596,7 +622,6 @@
+@@ -596,7 +628,6 @@
  
          bool _connectSelf();
          EQ_EXPORT void _addConnection( ConnectionPtr connection );
@@ -534,7 +572,7 @@ Index: lib/net/node.h
          void _cleanup();
  
          void _dispatchCommand( Command& command );
-@@ -656,12 +681,14 @@
+@@ -656,12 +687,14 @@
  
          void* _runReceiverThread();
          void    _handleConnect();
@@ -550,28 +588,3 @@ Index: lib/net/node.h
          /** The command functions. */
          CommandResult _cmdStop( Command& command );
          CommandResult _cmdRegisterSession( Command& command );
-Index: tests/dataStream/test.cpp
-===================================================================
---- tests/dataStream/test.cpp	(revision 3320)
-+++ tests/dataStream/test.cpp	(working copy)
-@@ -192,7 +192,7 @@
-         TEST( connection->recvSync( 0, 0 ));
-         TEST( size );
- 
--        eq::net::Command& command = commandCache.alloc( 0, 0, size );
-+        eq::net::Command& command = commandCache.alloc( connection, 0, 0, size);
-         size -= sizeof( size );
- 
-         char*      ptr     = reinterpret_cast< char* >( command.getPacket( )) +
-Index: tests/client/configVisitor.cpp
-===================================================================
---- tests/client/configVisitor.cpp	(revision 3320)
-+++ tests/client/configVisitor.cpp	(working copy)
-@@ -121,6 +121,7 @@
-     TESTINFO( visitor.nChannels == 36, visitor.nChannels );
- 
-     // teardown
-+    TEST( client->disconnectServer( server ));
-     TEST( client->exitLocal( ));
-     return EXIT_SUCCESS;
- }
