@@ -97,7 +97,7 @@ void CompressorRLE4BU::compress( const void* const inData,
     const uint64_t size = nPixels * sizeof( uint32_t );
     EQASSERT( size > 0 );
 
-    _setupResults( 1, size, _results );
+    _nResults = _setupResults( 1, size, _results );
 
     const uint64_t nElems  = (size%8) ? (size>>3)+1 : (size>>3);
     const ssize_t nResults = _results.size();

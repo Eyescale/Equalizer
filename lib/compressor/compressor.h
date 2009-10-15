@@ -63,8 +63,6 @@ namespace plugin
 
         virtual ~Compressor();
 
-        /** @name compress */
-        /*@{*/
         /**
          * compress Data.
          *
@@ -80,15 +78,15 @@ namespace plugin
         typedef eq::base::Bufferb Result;
         typedef std::vector< Result* > ResultVector;
 
-        /** @name getResults */
-        /*@{*/
-        /**
-         * get the number results that compression use to save data
-         */
+        /** @return the vector containing the result data. */
         const ResultVector& getResults() const { return _results; }
+
+        /** @return the number of result items produced. */
+        unsigned getNResults() const { return _nResults; }
 
     protected: 
         ResultVector _results;  //!< The compressed data
+        unsigned _nResults;     //!< Number of elements used in _results
     }; 
 }
 }

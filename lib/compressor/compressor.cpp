@@ -64,6 +64,7 @@ namespace
 }
 
 Compressor::Compressor()
+        : _nResults( 0 )
 {}
 
 Compressor::~Compressor()
@@ -136,7 +137,7 @@ unsigned EqCompressorGetNumResults( void* const ptr,
 {
     eq::plugin::Compressor* compressor = 
         reinterpret_cast< eq::plugin::Compressor* >( ptr );
-    return compressor->getResults().size();
+    return compressor->getNResults();
 }
 
 void EqCompressorGetResult( void* const ptr, const unsigned name,

@@ -80,11 +80,11 @@ void CompressorRLE4HF::compress( const void* const inData,
 {
     assert( !swizzle );
     if( useAlpha )
-        _compress< uint64_t, uint16_t, NoSwizzle, UseAlpha >(
-            inData, nPixels, useAlpha, swizzle, _results );
+        _nResults = _compress< uint64_t, uint16_t, NoSwizzle, UseAlpha >(
+                        inData, nPixels, useAlpha, swizzle, _results );
     else
-        _compress< uint64_t, uint16_t, NoSwizzle, NoAlpha >(
-            inData, nPixels, useAlpha, swizzle, _results );
+        _nResults = _compress< uint64_t, uint16_t, NoSwizzle, NoAlpha >(
+                        inData, nPixels, useAlpha, swizzle, _results );
 }
 
 void CompressorRLE4HF::decompress( const void* const* inData, 

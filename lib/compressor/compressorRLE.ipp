@@ -242,12 +242,15 @@ static inline void _decompress( const void* const* inData,
     }
 }
 
-static void _setupResults( const uint32_t nChannels, const eq_uint64_t inSize,
-                           eq::plugin::Compressor::ResultVector& results )
+static size_t _setupResults( const uint32_t nChannels, const eq_uint64_t inSize,
+                             eq::plugin::Compressor::ResultVector& results )
 {
     // determine number of chunks and set up output data structure
 #ifdef EQ_USE_OPENMP
-    const size_t nChunks = nChannels * eq::base::OMP::getNThreads() * 4;
+    const size_t cpuChunks = nChannels * eq::base::OMP::getNThreads() * 4;
+    const size_t sizeChunks = inSize / 4096 * nChannels;
+    const size_t minChunks = nChannels > sizeChunks ? nChannels : sizeChunks;
+    const size_t nChunks = minChunks < cpuChunks ? minChunks : cpuChunks;
 #else
     const size_t nChunks = nChannels;
 #endif
@@ -260,22 +263,25 @@ static void _setupResults( const uint32_t nChannels, const eq_uint64_t inSize,
     const eq_uint64_t maxChunkSize = (inSize/nChunks + 1) * 2;
     for( size_t i = 0; i < nChunks; ++i )
         results[i]->resize( maxChunkSize );
+
+    EQVERB << "Compressing " << inSize << " bytes in " << nChunks << " chunks"
+           << std::endl;
+    return nChunks;
 }
 
 template< typename PixelType, typename ComponentType,
           typename swizzleFunc, typename alphaFunc >
-static inline void _compress( const void* const inData, 
-                              const eq_uint64_t nPixels, const bool useAlpha,
-                              const bool swizzle, 
-                              eq::plugin::Compressor::ResultVector& results )
+static inline size_t _compress( const void* const inData, 
+                                const eq_uint64_t nPixels, const bool useAlpha,
+                                const bool swizzle, 
+                                eq::plugin::Compressor::ResultVector& results )
 {
     const uint64_t size = nPixels * sizeof( PixelType );
-    _setupResults( 4, size, results );
+    const size_t nChunks = _setupResults( 4, size, results );
 
     const uint64_t nElems = nPixels * 4;
-    const uint64_t nResults = results.size();
     const float width = static_cast< float >( nElems ) /  
-                        static_cast< float >( nResults );
+                        static_cast< float >( nChunks );
 
     const ComponentType* const data = 
         reinterpret_cast< const ComponentType* >( inData );
@@ -283,7 +289,7 @@ static inline void _compress( const void* const inData,
 #ifdef EQ_USE_OPENMP
 #pragma omp parallel for
 #endif
-    for( ssize_t i = 0; i < static_cast< ssize_t >( nResults ) ; i += 4 )
+    for( ssize_t i = 0; i < static_cast< ssize_t >( nChunks ) ; i += 4 )
     {
         const uint64_t startIndex = static_cast< uint64_t >( i/4 * width ) * 4;
         const uint64_t nextIndex = 
@@ -293,6 +299,8 @@ static inline void _compress( const void* const inData,
         _compress< PixelType, ComponentType, swizzleFunc, alphaFunc >(
             &data[ startIndex ], chunkSize, &results[i] );
     }
+
+    return nChunks;
 }
 
 }
