@@ -615,3 +615,57 @@ Index: lib/net/node.h
          /** The command functions. */
          CommandResult _cmdStop( Command& command );
          CommandResult _cmdRegisterSession( Command& command );
+Index: lib/net/socketConnectionWin32.cpp
+===================================================================
+--- lib/net/socketConnectionWin32.cpp	(revision 3455)
++++ lib/net/socketConnectionWin32.cpp	(working copy)
+@@ -277,28 +277,31 @@
+         return -1;
+     }
+ 
+-    DWORD got   = 0;
+-    DWORD flags = 0;
+-    if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
++    while( true )
+     {
+-        if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
+-            return 0;
++        DWORD got   = 0;
++        DWORD flags = 0;
++        if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
++        {
++            if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
++                continue;
+ 
+-        EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
+-               << ", closing connection" << std::endl;
+-        close();
+-        return -1;
+-    }
++            EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
++                   << ", closing connection" << std::endl;
++            close();
++            return -1;
++        }
+ 
+-    if( got == 0 )
+-    {
+-        EQWARN << "Read operation returned with nothing read"
+-               << ", closing connection." << std::endl;
+-        close();
+-        return -1;
+-    }
++        if( got == 0 )
++        {
++            EQWARN << "Read operation returned with nothing read"
++                   << ", closing connection." << std::endl;
++            close();
++            return -1;
++        }
+ 
+-    return got;
++        return got;
++    }
+ }
+ 
+ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
