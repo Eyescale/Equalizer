@@ -87,15 +87,15 @@ bool PipeConnection::_createPipe()
 
 void PipeConnection::close()
 {
-    if( _readHandle )
-    {
-        CloseHandle( _readHandle );
-        _readHandle = 0;
-    }
     if( _writeHandle )
     {
         CloseHandle( _writeHandle );
         _writeHandle = 0;
+    }
+    if( _readHandle )
+    {
+        CloseHandle( _readHandle );
+        _readHandle = 0;
     }
     _state = STATE_CLOSED;
     _fireStateChanged();
@@ -213,16 +213,15 @@ bool PipeConnection::_createPipe()
 
 void PipeConnection::close()
 {
-    if( _readFD > 0 )
-    {
-        ::close(_readFD);
-        _readFD  = 0;
-    }
-
     if( _writeFD > 0 )
     {
         ::close(_writeFD);
         _writeFD = 0;
+    }
+    if( _readFD > 0 )
+    {
+        ::close(_readFD);
+        _readFD  = 0;
     }
 
     _state = STATE_CLOSED;

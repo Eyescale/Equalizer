@@ -1,10 +1,9 @@
-Change number of compression chunks dynamically to ensure minimal data
-size per chunk
+Avoid potential deadlock by closing the write end of a pipe first
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation
