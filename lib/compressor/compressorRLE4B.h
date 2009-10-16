@@ -115,11 +115,7 @@ public:
     
     /** @name getFunctions */
     /*@{*/
-    /**
-     * get the pointer functions for work with.
-     *
-     * @param info about this compressor.
-     */
+    /** @return the function pointer list for this compressor. */
     static Functions getFunctions()
     {
         Functions functions;

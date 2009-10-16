@@ -238,8 +238,7 @@ void Pipe::_setupCommandQueue()
     if( !useMessagePump( ))
         return;
 
-	EQASSERT( _windowSystem != WINDOW_SYSTEM_NONE );
-	
+    EQASSERT( _windowSystem != WINDOW_SYSTEM_NONE );
     EQINFO << "Pipe message pump set up for " << _windowSystem << std::endl;
 
     // Switch the node thread message pumps for non-threaded pipes

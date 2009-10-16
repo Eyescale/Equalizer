@@ -30,7 +30,7 @@ namespace eq
 GLWindow::GLWindow( Window* parent )
     : OSWindow( parent )
     , _glewInitialized( false )
-	, _glewContext( new GLEWContext )
+    , _glewContext( new GLEWContext )
     , _fbo( 0 )
 {
 }
@@ -38,16 +38,16 @@ GLWindow::GLWindow( Window* parent )
 GLWindow::~GLWindow()
 {
     _glewInitialized = false;
-	delete _glewContext;
+    delete _glewContext;
     _glewContext = 0;
 }
 
 void GLWindow::makeCurrent() const 
 {
-	bindFrameBuffer();
-	getPipe()->setCurrent( _window );
+    bindFrameBuffer();
+    getPipe()->setCurrent( _window );
 }
-	
+    
 void GLWindow::initGLEW()
 {
     if( _glewInitialized )
@@ -116,34 +116,34 @@ void GLWindow::bindFrameBuffer() const
 
 void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
 {
-	// GL version
-	const char* glVersion = (const char*)glGetString( GL_VERSION );
-	if( !glVersion ) // most likely no context - fail
-	{
-		EQWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
+    // GL version
+    const char* glVersion = (const char*)glGetString( GL_VERSION );
+    if( !glVersion ) // most likely no context - fail
+    {
+        EQWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
                << endl;
-		drawableConfig.glVersion = 1.1f;
-	}
-	else
-		drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
-		
-	// Framebuffer capabilities
-	GLboolean result;
-	glGetBooleanv( GL_STEREO,       &result );
-	drawableConfig.stereo = result;
-		
-	glGetBooleanv( GL_DOUBLEBUFFER, &result );
-	drawableConfig.doublebuffered = result;
-		
-	GLint stencilBits;
-	glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
-	drawableConfig.stencilBits = stencilBits;
-		
-	GLint alphaBits;
-	glGetIntegerv( GL_ALPHA_BITS, &alphaBits );
-	drawableConfig.alphaBits = alphaBits;
-		
-	EQINFO << "Window drawable config: " << drawableConfig << endl;
+        drawableConfig.glVersion = 1.1f;
+    }
+    else
+        drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
+        
+    // Framebuffer capabilities
+    GLboolean result;
+    glGetBooleanv( GL_STEREO,       &result );
+    drawableConfig.stereo = result;
+        
+    glGetBooleanv( GL_DOUBLEBUFFER, &result );
+    drawableConfig.doublebuffered = result;
+        
+    GLint stencilBits;
+    glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
+    drawableConfig.stencilBits = stencilBits;
+        
+    GLint alphaBits;
+    glGetIntegerv( GL_ALPHA_BITS, &alphaBits );
+    drawableConfig.alphaBits = alphaBits;
+        
+    EQINFO << "Window drawable config: " << drawableConfig << endl;
 }
-	
+    
 }
