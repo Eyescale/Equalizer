@@ -114,10 +114,8 @@ void GLWindow::bindFrameBuffer() const
        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
 }
 
-void GLWindow::queryDrawableConfig()
+void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
 {
-	DrawableConfig& drawableConfig = const_cast< DrawableConfig& >( _window->getDrawableConfig() );
-	
 	// GL version
 	const char* glVersion = (const char*)glGetString( GL_VERSION );
 	if( !glVersion ) // most likely no context - fail

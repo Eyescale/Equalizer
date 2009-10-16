@@ -123,7 +123,7 @@ namespace eq
         //@}
 		
 		/** Set up _drawableConfig by querying the current context. */
-		virtual void queryDrawableConfig() = 0;
+		virtual void queryDrawableConfig( DrawableConfig& drawableConfig ) = 0;
 
         /**
          * Get the GLEW context for this window.

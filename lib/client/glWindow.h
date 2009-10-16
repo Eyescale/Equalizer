@@ -78,7 +78,7 @@ namespace eq
 		const GLEWContext* glewGetContext() const { return _glewContext; }
 
 		/** Set up _drawableConfig by querying the current context. */
-		virtual void queryDrawableConfig();
+		virtual void queryDrawableConfig( DrawableConfig& drawableConfig );
 
     private:
         bool _glewInitialized ;
