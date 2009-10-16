@@ -1,8 +1,19 @@
 Index: lib/net/connection.cpp
 ===================================================================
---- lib/net/connection.cpp	(revision 3320)
+--- lib/net/connection.cpp	(revision 3455)
 +++ lib/net/connection.cpp	(working copy)
-@@ -363,6 +363,27 @@
+@@ -192,6 +192,10 @@
+ bool Connection::send( const void* buffer, const uint64_t bytes, 
+                        const bool isLocked )
+ {
++    EQASSERT( bytes > 0 );
++    if( bytes == 0 )
++        return true;
++
+     if( _state != STATE_CONNECTED )
+         return false;
+ 
+@@ -363,6 +367,27 @@
      }
  }
  
@@ -32,9 +43,9 @@ Index: lib/net/connection.cpp
      if( !connection )
 Index: lib/net/node.cpp
 ===================================================================
---- lib/net/node.cpp	(revision 3320)
+--- lib/net/node.cpp	(revision 3455)
 +++ lib/net/node.cpp	(working copy)
-@@ -825,6 +825,9 @@
+@@ -825,21 +825,26 @@
          node = i->second;
      EQASSERTINFO( !node || node->_connection == connection, 
                    typeid( *node.get( )).name( ));
@@ -44,9 +55,38 @@ Index: lib/net/node.cpp
  
      EQVERB << "Handle data from " << node << endl;
  
+-    void* sizePtr( 0 );
++    uint64_t* sizePtr( 0 );
+     uint64_t bytes( 0 );
+-    const bool gotSize = connection->recvSync( &sizePtr, &bytes );
++    const bool gotSize =
++        connection->recvSync( reinterpret_cast< void ** >( &sizePtr ), &bytes );
++    EQASSERT( sizePtr );
+ 
+     if( !gotSize ) // Some systems signal data on dead connections.
+     {
++        *sizePtr = 0;
+         connection->recvNB( sizePtr, sizeof( uint64_t ));
+         return false;
+     }
+ 
+-    EQASSERT( sizePtr );
+-    const uint64_t size = *reinterpret_cast< uint64_t* >( sizePtr );
++    const uint64_t size = *sizePtr;
+     EQASSERT( size );
+     EQASSERT( bytes == sizeof( uint64_t ));
+     EQASSERT( size > sizeof( size ));
+@@ -855,6 +860,7 @@
+     EQASSERT( command.isValid( ));
+ 
+     // start next receive
++    *sizePtr = 0;
+     connection->recvNB( sizePtr, sizeof( uint64_t ));
+ 
+     if( !gotData )
 Index: lib/net/socketConnection.h
 ===================================================================
---- lib/net/socketConnection.h	(revision 3320)
+--- lib/net/socketConnection.h	(revision 3455)
 +++ lib/net/socketConnection.h	(working copy)
 @@ -60,6 +60,7 @@
  #ifdef WIN32
@@ -58,7 +98,7 @@ Index: lib/net/socketConnection.h
      protected:
 Index: lib/net/pipeConnection.h
 ===================================================================
---- lib/net/pipeConnection.h	(revision 3320)
+--- lib/net/pipeConnection.h	(revision 3455)
 +++ lib/net/pipeConnection.h	(working copy)
 @@ -55,7 +55,7 @@
  
@@ -71,7 +111,7 @@ Index: lib/net/pipeConnection.h
  
 Index: lib/net/fdConnection.h
 ===================================================================
---- lib/net/fdConnection.h	(revision 3320)
+--- lib/net/fdConnection.h	(revision 3455)
 +++ lib/net/fdConnection.h	(working copy)
 @@ -34,6 +34,7 @@
      public:
@@ -83,19 +123,20 @@ Index: lib/net/fdConnection.h
          bool hasData() const;
 Index: lib/net/pairConnection.h
 ===================================================================
---- lib/net/pairConnection.h	(revision 3320)
+--- lib/net/pairConnection.h	(revision 3455)
 +++ lib/net/pairConnection.h	(working copy)
-@@ -41,6 +41,7 @@
+@@ -41,6 +41,8 @@
  
          virtual Notifier getNotifier() const
              { return _readConnection->getNotifier(); }
 +        virtual int getReadFD() const { return _readConnection->getReadFD(); }
++        virtual bool hasData() const { return _readConnection->hasData(); }
  
      protected:
          EQ_EXPORT virtual ~PairConnection();
 Index: lib/net/namedPipeConnection.h
 ===================================================================
---- lib/net/namedPipeConnection.h	(revision 3320)
+--- lib/net/namedPipeConnection.h	(revision 3455)
 +++ lib/net/namedPipeConnection.h	(working copy)
 @@ -58,6 +58,8 @@
  #ifdef WIN32
@@ -108,7 +149,7 @@ Index: lib/net/namedPipeConnection.h
      protected:
 Index: lib/net/connection.h
 ===================================================================
---- lib/net/connection.h	(revision 3320)
+--- lib/net/connection.h	(revision 3455)
 +++ lib/net/connection.h	(working copy)
 @@ -348,6 +348,9 @@
          /** @return the notifier signalling events on the connection. */
@@ -122,7 +163,7 @@ Index: lib/net/connection.h
          virtual ~Connection();
 Index: lib/net/socketConnectionWin32.cpp
 ===================================================================
---- lib/net/socketConnectionWin32.cpp	(revision 3320)
+--- lib/net/socketConnectionWin32.cpp	(revision 3455)
 +++ lib/net/socketConnectionWin32.cpp	(working copy)
 @@ -257,7 +257,6 @@
      DWORD  got   = 0;
@@ -132,52 +173,61 @@ Index: lib/net/socketConnectionWin32.cpp
      if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 0 ) != 0 &&
          GetLastError() != WSA_IO_PENDING )
      {
-@@ -277,6 +276,9 @@
+@@ -277,28 +276,38 @@
          return -1;
      }
  
+-    DWORD got   = 0;
+-    DWORD flags = 0;
+-    if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
+-    {
+-        if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
+-            return 0;
+-
+-        EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
+-               << ", closing connection" << std::endl;
+-        close();
+-        return -1;
+-    }
 +    EQASSERT( _overlapped.hEvent );
 +    ResetEvent( _overlapped.hEvent );
+ 
+-    if( got == 0 )
++    while( true )
+     {
+-        EQWARN << "Read operation returned with nothing read"
+-               << ", closing connection." << std::endl;
+-        close();
+-        return -1;
+-    }
++        DWORD got   = 0;
++        DWORD flags = 0;
++        if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags))
++        {
++            if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
++            {
++                EQWARN << "Got WSASYSCALLFAILURE, buffer has "
++                       << reinterpret_cast< uint64_t* >(buffer)[0] << std::endl;
++                continue;
++            }
 +
-     DWORD got   = 0;
-     DWORD flags = 0;
-     if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
-Index: make/Darwin.mk
-===================================================================
---- make/Darwin.mk	(revision 3320)
-+++ make/Darwin.mk	(working copy)
-@@ -4,7 +4,7 @@
++            EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
++                   << ", closing connection" << std::endl;
++            close();
++            return -1;
++        }
++        
++        if( got == 0 )
++        {
++            EQWARN << "Read operation returned with nothing read"
++                   << ", closing connection." << std::endl;
++            close();
++            return -1;
++        }
  
- DSO_SUFFIX       = dylib
- DSO_LDFLAGS     += -dynamiclib
--WINDOW_SYSTEM   ?= GLX AGL
-+WINDOW_SYSTEM   ?= AGL
+-    return got;
++        return got;
++    }
+ }
  
- AR               = libtool
- ARFLAGS          = -static
-@@ -14,7 +14,6 @@
-   CXXFLAGS        += -Wextra
- endif
- 
--ifeq ($(findstring 9., $(RELARCH)),9.)
-   LEOPARD       = 1
-   CXXFLAGS     += -DLEOPARD
-   AGL_OR_64BIT  = AGL
-@@ -27,7 +26,6 @@
-   ARCHFLAGS     ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
-   WINDOW_SYSTEM  = GLX
- endif # 64BIT
--endif # LEOPARD
- 
- ifeq ($(findstring i386, $(SUBARCH)), i386)
-   ARCHFLAGS ?= -arch i386 -arch ppc
-Index: commitMessage.txt
-===================================================================
---- commitMessage.txt	(revision 3428)
-+++ commitMessage.txt	(working copy)
-@@ -1,4 +1,4 @@
--Add send token bugfix patch
-+fix win32networkhand patch
- 
- [ ] Will break Win32 build
- [ ] May break existing applications
+ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
