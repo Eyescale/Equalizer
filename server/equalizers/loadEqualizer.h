@@ -38,7 +38,7 @@ namespace server
     class LoadEqualizer : public Equalizer, protected ChannelListener
     {
     public:
-        LoadEqualizer();
+        EQSERVER_EXPORT LoadEqualizer();
         LoadEqualizer( const LoadEqualizer& from );
         virtual ~LoadEqualizer();
         virtual Equalizer* clone() const { return new LoadEqualizer( *this ); }

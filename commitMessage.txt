@@ -1,4 +1,4 @@
-Minor doxygen cleanup, some untabify
+Minor server export changes.
 
 [ ] May break build
 [ ] May break existing applications
@@ -6,4 +6,4 @@ Minor doxygen cleanup, some untabify
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

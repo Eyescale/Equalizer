@@ -248,7 +248,7 @@ namespace server
          * @param view the view.
          * @return the channel for updating the view/segment intersection.
          */
-        Channel* findChannel( const Segment* segment, const View* view );
+        EQSERVER_EXPORT Channel* findChannel( const Segment* segment, const View* view );
 
         /** 
          * Traverse this config and all children using a config visitor.
@@ -256,7 +256,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        VisitorResult accept( ConfigVisitor& visitor );
+        EQSERVER_EXPORT VisitorResult accept( ConfigVisitor& visitor );
         VisitorResult accept( ConstConfigVisitor& visitor ) const;
         //@}
 
