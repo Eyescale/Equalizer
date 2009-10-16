@@ -235,10 +235,11 @@ WindowSystem Pipe::selectWindowSystem() const
 
 void Pipe::_setupCommandQueue()
 {
-    EQASSERT( _windowSystem != WINDOW_SYSTEM_NONE );
     if( !useMessagePump( ))
         return;
 
+	EQASSERT( _windowSystem != WINDOW_SYSTEM_NONE );
+	
     EQINFO << "Pipe message pump set up for " << _windowSystem << std::endl;
 
     // Switch the node thread message pumps for non-threaded pipes

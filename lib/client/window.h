@@ -188,10 +188,10 @@ namespace eq
         const ObjectManager* getObjectManager() const { return _objectManager; }
 
         /** @return the small bitmap font used for overlays. */
-        EQ_EXPORT const Font* getSmallFont() const;
+        EQ_EXPORT const Font* getSmallFont();
 
         /** @return the medium bitmap font used for overlays. */
-        EQ_EXPORT const Font* getMediumFont() const;
+        EQ_EXPORT const Font* getMediumFont();
 
         /** 
          * Get the GLEW context for this window.
@@ -300,7 +300,7 @@ namespace eq
         EQ_EXPORT virtual void swapBuffers();
 
         /** Render the current framerate as on overlay on the window. */
-        EQ_EXPORT virtual void drawFPS() const;
+        EQ_EXPORT virtual void drawFPS();
         //@}
 
         /**  @name OSWindow interface */
@@ -560,9 +560,6 @@ namespace eq
         void _setupObjectManager();
         /** Release object manager. */
         void _releaseObjectManager();
-
-        /** Set up _drawableConfig by querying the current context. */
-        void _queryDrawableConfig();
 
         /** Calculates per-window frame rate */
         void _updateFPS();

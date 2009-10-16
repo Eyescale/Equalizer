@@ -194,7 +194,7 @@ void Window::_updateFPS()
 }
 
 
-void Window::drawFPS() const
+void Window::drawFPS()
 {
     ostringstream fpsText;
     fpsText << setprecision(3) << getFPS() << " FPS";
@@ -441,9 +441,6 @@ uint32_t Window::getColorType()
 
 void Window::setOSWindow( OSWindow* window )
 {
-    if( _osWindow )
-        _osWindow->exitGLEW();
-
     _osWindow = window;
 
     if( !window )
@@ -451,8 +448,7 @@ void Window::setOSWindow( OSWindow* window )
 
     // Initialize context-specific data
     makeCurrent();
-    _osWindow->initGLEW();
-    _queryDrawableConfig();
+    _osWindow->queryDrawableConfig();
     _setupObjectManager();
 }
 
@@ -541,38 +537,6 @@ bool Window::configInitOSWindow( const uint32_t initID )
     return true;
 }
 
-void Window::_queryDrawableConfig()
-{
-    // GL version
-    const char* glVersion = (const char*)glGetString( GL_VERSION );
-    if( !glVersion ) // most likely no context - fail
-    {
-        EQWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
-            << endl;
-        _drawableConfig.glVersion = 1.1f;
-    }
-    else
-        _drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
-
-    // Framebuffer capabilities
-    GLboolean result;
-    glGetBooleanv( GL_STEREO,       &result );
-    _drawableConfig.stereo = result;
-
-    glGetBooleanv( GL_DOUBLEBUFFER, &result );
-    _drawableConfig.doublebuffered = result;
-
-    GLint stencilBits;
-    glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
-    _drawableConfig.stencilBits = stencilBits;
-
-    GLint alphaBits;
-    glGetIntegerv( GL_ALPHA_BITS, &alphaBits );
-    _drawableConfig.alphaBits = alphaBits;
-
-    EQINFO << "Window drawable config: " << _drawableConfig << endl;
-}
-
 void Window::_setupObjectManager()
 {
     _releaseObjectManager();
@@ -583,15 +547,7 @@ void Window::_setupObjectManager()
     if( sharedOM )
         _objectManager = new ObjectManager( glewGetContext(), sharedOM );
     else
-    {
         _objectManager = new ObjectManager( glewGetContext( ));
-
-        Font* font = _objectManager->newEqBitmapFont( _smallFontKey );
-        font->init( this, "" );
-
-        font = _objectManager->newEqBitmapFont( _mediumFontKey );
-        font->init( this, "", 20 );
-    }
 }
 
 void Window::_releaseObjectManager()
@@ -607,23 +563,36 @@ void Window::_releaseObjectManager()
     _objectManager = 0;
 }
 
-const Window::Font* Window::getSmallFont() const
+const Window::Font* Window::getSmallFont()
 {
     EQASSERT( _objectManager );
-    if( _objectManager )
+    if( !_objectManager )
+        return 0;
+
+    Window::Font* font = _objectManager->getEqBitmapFont( _smallFontKey );
+    if( !font )
     {
-        EQASSERT( _objectManager->getEqBitmapFont( _smallFontKey ));
-        return _objectManager->getEqBitmapFont( _smallFontKey );
+        font = _objectManager->newEqBitmapFont( _smallFontKey );
+        font->init( this, "" );
     }
-    return 0;
+
+    EQASSERT( _objectManager->getEqBitmapFont( _smallFontKey ));
+    return _objectManager->getEqBitmapFont( _smallFontKey );
 }
 
-const Window::Font* Window::getMediumFont() const
+const Window::Font* Window::getMediumFont()
 {
     EQASSERT( _objectManager );
-    if( _objectManager )
-        return _objectManager->getEqBitmapFont( _mediumFontKey );
-    return 0;
+    if( !_objectManager )
+        return 0;
+
+    Window::Font* font = _objectManager->getEqBitmapFont( _mediumFontKey );
+    if( !font )
+    {
+        font = _objectManager->newEqBitmapFont( _mediumFontKey );
+        font->init( this, "", 20 );
+    }
+    return _objectManager->getEqBitmapFont( _mediumFontKey );
 }
 
 bool Window::configInitGL( const uint32_t initID )
@@ -868,7 +837,7 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
     {
         if( _pipe->isRunning( ) && _osWindow )
         {
-            EQ_GL_CALL( makeCurrent( ));
+            makeCurrent();
             _pipe->flushFrames();
         }
         // else emergency exit, no context available.
@@ -898,7 +867,7 @@ net::CommandResult Window::_cmdFrameStart( net::Command& command )
         _renderContexts[FRONT].swap( _renderContexts[BACK] );
     _renderContexts[BACK].clear();
 
-    EQ_GL_CALL( makeCurrent( ));
+    makeCurrent();
 
     frameStart( packet->frameID, packet->frameNumber );
     return net::COMMAND_HANDLED;
@@ -910,14 +879,14 @@ net::CommandResult Window::_cmdFrameFinish( net::Command& command )
         command.getPacket<WindowFrameFinishPacket>();
     EQVERB << "handle window frame sync " << packet << endl;
 
-    EQ_GL_CALL( makeCurrent( ));
+    makeCurrent();
     frameFinish( packet->frameID, packet->frameNumber );
     return net::COMMAND_HANDLED;
 }
 
 net::CommandResult Window::_cmdFinish(net::Command& command ) 
 {
-    EQ_GL_CALL( makeCurrent( ));
+    makeCurrent();
 
     WindowStatistics stat( Statistic::WINDOW_FINISH, this );
     finish();
@@ -980,7 +949,7 @@ net::CommandResult Window::_cmdSwap( net::Command& command )
     {
         // swap
         WindowStatistics stat( Statistic::WINDOW_SWAP, this );
-        EQ_GL_CALL( makeCurrent( ));
+        makeCurrent();
         swapBuffers();
     }
     return net::COMMAND_HANDLED;

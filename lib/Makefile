@@ -94,6 +94,7 @@ HEADER_SRC = \
 	client/frameData.h \
 	client/frustum.h \
 	client/global.h \
+	client/glWindow.h \
 	client/image.h \
 	client/init.h \
 	client/layout.h \
@@ -214,6 +215,7 @@ CXXFILES = \
 	client/frameBufferObject.cpp \
 	client/frustum.cpp \
 	client/global.cpp \
+	client/glWindow.cpp \
 	client/pixel.cpp \
 	client/image.cpp \
 	client/init.cpp \

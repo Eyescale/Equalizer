@@ -263,7 +263,7 @@ bool WGLWindow::configInit()
     }
 
     setWGLContext( context );
-    makeCurrent();
+    EQ_GL_CALL( makeCurrent( ));
     initGLEW();
 
     if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )

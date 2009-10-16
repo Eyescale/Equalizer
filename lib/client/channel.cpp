@@ -803,7 +803,7 @@ void Channel::drawStatistics()
 
     glDisable( GL_LIGHTING );
     glEnable( GL_DEPTH_TEST );
-
+    
     const Window::Font* font = _window->getSmallFont();
 
     int64_t       xStart = 0;

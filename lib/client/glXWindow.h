@@ -19,16 +19,16 @@
 #ifndef EQ_OS_WINDOW_GLX_H
 #define EQ_OS_WINDOW_GLX_H
 
-#include <eq/client/osWindow.h>       // base class
+#include <eq/client/glWindow.h>       // base class
 #include <eq/client/glXWindowEvent.h> // used in inline method
 
 namespace eq
 {
     /** The interface defining the minimum functionality for a GLX window. */
-    class EQ_EXPORT GLXWindowIF : public OSWindow
+    class EQ_EXPORT GLXWindowIF : public GLWindow
     {
     public:
-        GLXWindowIF( Window* parent ) : OSWindow( parent ) {}
+        GLXWindowIF( Window* parent ) : GLWindow( parent ) {}
         virtual ~GLXWindowIF() {}
 
         /** @return the GLX rendering context. */

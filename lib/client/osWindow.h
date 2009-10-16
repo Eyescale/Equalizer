@@ -72,10 +72,10 @@ namespace eq
          * function is not called, Pipe::setCurrent() has to be called
          * appropriately.
          */
-        virtual void makeCurrent() const;
+        virtual void makeCurrent() const = 0;
 
         /** Bind the window's FBO, if it uses an FBO drawable. */
-        virtual void bindFrameBuffer() const;
+        virtual void bindFrameBuffer() const = 0;
 
         /** Swap the front and back buffer, for doublebuffered drawables. */
         virtual void swapBuffers() = 0;
@@ -90,7 +90,7 @@ namespace eq
          * @param barrier the swap barrier name.
          */
         virtual void joinNVSwapBarrier( const uint32_t group,
-                                        const uint32_t barrier ) = 0;
+									    const uint32_t barrier ) = 0;
         //@}
 
         /** @name Frame Buffer Object support. */
@@ -102,7 +102,7 @@ namespace eq
         void configExitFBO();
 
         /** @return the FBO of this window, or 0 if no FBO is used. */
-        const FrameBufferObject* getFrameBufferObject() const { return _fbo; }
+        virtual const FrameBufferObject* getFrameBufferObject() { return 0; }
         //@}
 
         /** @name Convenience interface to eq::Window methods */
@@ -121,42 +121,31 @@ namespace eq
 
         int32_t getIAttribute( const Window::IAttribute attr ) const;
         //@}
-     
-        /** Initialize the GLEW context for this window. */
-        void initGLEW(); 
-        
-        /** De-initialize the GLEW context. */
-        void exitGLEW() { _glewInitialized = false; }
+		
+		/** Set up _drawableConfig by querying the current context. */
+		virtual void queryDrawableConfig() = 0;
 
-        /** 
+        /**
          * Get the GLEW context for this window.
-         * 
+         *
          * The glew context is initialized during window initialization, and
          * provides access to OpenGL extensions. This function does not follow
          * the Equalizer naming conventions, since GLEW uses a function of this
          * name to automatically resolve OpenGL function entry
          * points. Therefore, any supported GL function can be called directly
          * from an initialized OSWindow.
-         * 
+         *
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        GLEWContext* glewGetContext() { return _glewContext; }
-        const GLEWContext* glewGetContext() const { return _glewContext; }
+        virtual GLEWContext* glewGetContext() { return 0; }
+        virtual const GLEWContext* glewGetContext() const { return 0; }
 
     protected:
         /** The parent eq::Window. */
         Window* const _window;
         
     private:
-        /** Extended OpenGL function entries when window has a context. */
-        GLEWContext*   _glewContext; 
-        
-        bool _glewInitialized ;
-        
-        /** Frame buffer object for FBO drawables. */
-        FrameBufferObject* _fbo; 
-
         union // placeholder for binary-compatible changes
         {
             char dummy[64];

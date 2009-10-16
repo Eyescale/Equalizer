@@ -19,7 +19,7 @@
 #ifndef EQ_OS_WINDOW_AGL_H
 #define EQ_OS_WINDOW_AGL_H
 
-#include <eq/client/osWindow.h>       // base class
+#include <eq/client/glWindow.h>       // base class
 
 namespace eq
 {
@@ -27,11 +27,11 @@ namespace eq
     class AGLWindowEvent;
 
     /** The interface defining the minimum functionality for an AGL window. */
-    class EQ_EXPORT AGLWindowIF : public OSWindow
+    class EQ_EXPORT AGLWindowIF : public GLWindow
     {
     public:
         /** Create a new AGL window for the given eq::Window. */
-        AGLWindowIF( Window* parent ) : OSWindow( parent ) {}
+        AGLWindowIF( Window* parent ) : GLWindow( parent ) {}
 
         /** Destruct the AGL window. */
         virtual ~AGLWindowIF() {}

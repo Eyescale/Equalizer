@@ -139,7 +139,7 @@ bool AGLWindow::configInit( )
     if( !context )
         return false;
 
-    makeCurrent();
+    EQ_GL_CALL( makeCurrent( ));
     initGLEW();
     return configInitAGLDrawable();
 }

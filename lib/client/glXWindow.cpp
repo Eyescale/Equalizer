@@ -71,7 +71,7 @@ bool GLXWindow::configInit( )
         return false;
     }
 
-    makeCurrent();
+    EQ_GL_CALL( makeCurrent( ));
     initGLEW();
 
     if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
