@@ -6,9 +6,6 @@
 #ifndef Darwin
 #  define Darwin
 #endif
-#ifndef EQ_CHECK_THREADSAFETY
-#  define EQ_CHECK_THREADSAFETY
-#endif
 #ifndef GLEW_MX
 #  define GLEW_MX
 #endif

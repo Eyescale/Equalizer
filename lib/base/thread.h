@@ -204,6 +204,10 @@ namespace base
 // development may cause false positives, e.g., when threadsafety is ensured
 // outside of the objects by the application.
 
+#ifndef NDEBUG
+#  define EQ_CHECK_THREADSAFETY
+#endif
+
 /** Declare a thread id variable to be used for thread-safety checks. */
 #define CHECK_THREAD_DECLARE( NAME )                        \
     struct NAME ## Struct                                   \

@@ -1,4 +1,4 @@
-Avoid potential deadlock by closing the write end of a pipe first
+Couple thread-safety check to debug build
 
 [ ] May break build
 [ ] May break existing applications

@@ -25,9 +25,6 @@
 #ifndef EQ_PGM
 #  define EQ_PGM
 #endif
-#ifndef EQ_CHECK_THREADSAFETY
-#  define EQ_CHECK_THREADSAFETY
-#endif
 #ifndef LITTLE_ENDIAN
 #  define LITTLE_ENDIAN
 #endif
