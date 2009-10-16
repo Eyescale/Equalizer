@@ -18,7 +18,7 @@
 #ifndef EQ_OS_WINDOW_WGL_H
 #define EQ_OS_WINDOW_WGL_H
 
-#include <eq/client/osWindow.h>       // base class
+#include <eq/client/glWindow.h>       // base class
 #include <eq/client/wglWindowEvent.h> // used in inline method
 
 namespace eq
@@ -26,10 +26,10 @@ namespace eq
     class WGLEventHandler;
 
     /** The interface defining the minimum functionality for a WGL window. */
-    class EQ_EXPORT WGLWindowIF : public OSWindow
+    class EQ_EXPORT WGLWindowIF : public GLWindow
     {
     public:
-        WGLWindowIF( Window* parent ) : OSWindow( parent ) {}
+        WGLWindowIF( Window* parent ) : GLWindow( parent ) {}
         virtual ~WGLWindowIF() {}
 
         /** @return the WGL rendering context. */
