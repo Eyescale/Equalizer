@@ -1,6 +1,6 @@
 Index: lib/net/connection.cpp
 ===================================================================
---- lib/net/connection.cpp	(revision 3462)
+--- lib/net/connection.cpp	(revision 3468)
 +++ lib/net/connection.cpp	(working copy)
 @@ -192,6 +192,10 @@
  bool Connection::send( const void* buffer, const uint64_t bytes, 
@@ -15,7 +15,7 @@ Index: lib/net/connection.cpp
  
 Index: lib/net/connectionSet.cpp
 ===================================================================
---- lib/net/connectionSet.cpp	(revision 3462)
+--- lib/net/connectionSet.cpp	(revision 3468)
 +++ lib/net/connectionSet.cpp	(working copy)
 @@ -91,8 +91,11 @@
  
@@ -31,9 +31,27 @@ Index: lib/net/connectionSet.cpp
  }
  
  void ConnectionSet::addConnection( ConnectionPtr connection )
+@@ -191,7 +194,7 @@
+                     if( event == EVENT_NONE )
+                          break;
+ 
+-                    if( _connection == _selfConnection )
++                    if( _connection == _selfConnection.get( ))
+                     {
+                         EQASSERT( event == EVENT_DATA );
+                         event = _handleSelfCommand();
+@@ -267,7 +270,7 @@
+ 
+ ConnectionSet::Event ConnectionSet::_handleSelfCommand()
+ {
+-    EQASSERT( _connection == _selfConnection );
++    EQASSERT( _connection == _selfConnection.get( ));
+     _connection = 0;
+     
+     _selfConnection->recvSync( 0, 0 );
 Index: lib/net/node.cpp
 ===================================================================
---- lib/net/node.cpp	(revision 3462)
+--- lib/net/node.cpp	(revision 3468)
 +++ lib/net/node.cpp	(working copy)
 @@ -318,28 +318,8 @@
  
@@ -396,7 +414,7 @@ Index: lib/net/node.cpp
  bool Node::connect( NodePtr node )
 Index: lib/net/commandCache.cpp
 ===================================================================
---- lib/net/commandCache.cpp	(revision 3462)
+--- lib/net/commandCache.cpp	(revision 3468)
 +++ lib/net/commandCache.cpp	(working copy)
 @@ -78,8 +78,8 @@
  }
@@ -429,7 +447,7 @@ Index: lib/net/commandCache.cpp
  
 Index: lib/net/commandCache.h
 ===================================================================
---- lib/net/commandCache.h	(revision 3462)
+--- lib/net/commandCache.h	(revision 3468)
 +++ lib/net/commandCache.h	(working copy)
 @@ -44,7 +44,8 @@
          ~CommandCache();
@@ -443,7 +461,7 @@ Index: lib/net/commandCache.h
          void flush();
 Index: lib/net/command.cpp
 ===================================================================
---- lib/net/command.cpp	(revision 3462)
+--- lib/net/command.cpp	(revision 3468)
 +++ lib/net/command.cpp	(working copy)
 @@ -39,7 +39,8 @@
      _free(); 
@@ -465,7 +483,7 @@ Index: lib/net/command.cpp
      _packet->size = size;
 Index: lib/net/pipeConnectionWin32.cpp
 ===================================================================
---- lib/net/pipeConnectionWin32.cpp	(revision 3462)
+--- lib/net/pipeConnectionWin32.cpp	(revision 3468)
 +++ lib/net/pipeConnectionWin32.cpp	(working copy)
 @@ -88,16 +88,16 @@
  
@@ -489,9 +507,30 @@ Index: lib/net/pipeConnectionWin32.cpp
      _state = STATE_CLOSED;
      _fireStateChanged();
  }
+Index: lib/net/connectionSet.h
+===================================================================
+--- lib/net/connectionSet.h	(revision 3468)
++++ lib/net/connectionSet.h	(working copy)
+@@ -35,6 +35,7 @@
+ {
+     class Message;
+     class Network;
++    class PipeConnection;
+ 
+     /**
+      * A set of connections. 
+@@ -106,7 +107,7 @@
+         base::Buffer< Connection* > _fdSetConnections;
+ 
+         /** The connection to reset a running select, see constructor. */
+-        ConnectionPtr _selfConnection;
++        base::RefPtr< PipeConnection > _selfConnection;
+         /** The buffer to receive commands from _selfConnection. */
+         uint8_t _selfCommand;
+ 
 Index: lib/net/command.h
 ===================================================================
---- lib/net/command.h	(revision 3462)
+--- lib/net/command.h	(revision 3468)
 +++ lib/net/command.h	(working copy)
 @@ -49,6 +49,7 @@
          template< class P > const P* getPacket() const
@@ -529,7 +568,7 @@ Index: lib/net/command.h
          Packet*  _packet;
 Index: lib/net/node.h
 ===================================================================
---- lib/net/node.h	(revision 3462)
+--- lib/net/node.h	(revision 3468)
 +++ lib/net/node.h	(working copy)
 @@ -18,6 +18,12 @@
  #ifndef EQNET_NODE_H
@@ -610,7 +649,7 @@ Index: lib/net/node.h
          CommandResult _cmdRegisterSession( Command& command );
 Index: lib/net/socketConnectionWin32.cpp
 ===================================================================
---- lib/net/socketConnectionWin32.cpp	(revision 3462)
+--- lib/net/socketConnectionWin32.cpp	(revision 3468)
 +++ lib/net/socketConnectionWin32.cpp	(working copy)
 @@ -269,36 +269,37 @@
  
@@ -672,7 +711,7 @@ Index: lib/net/socketConnectionWin32.cpp
  int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
 Index: tests/dataStream/test.cpp
 ===================================================================
---- tests/dataStream/test.cpp	(revision 3462)
+--- tests/dataStream/test.cpp	(revision 3468)
 +++ tests/dataStream/test.cpp	(working copy)
 @@ -192,7 +192,7 @@
          TEST( connection->recvSync( 0, 0 ));
@@ -685,7 +724,7 @@ Index: tests/dataStream/test.cpp
          char*      ptr     = reinterpret_cast< char* >( command.getPacket( )) +
 Index: tests/client/configVisitor.cpp
 ===================================================================
---- tests/client/configVisitor.cpp	(revision 3462)
+--- tests/client/configVisitor.cpp	(revision 3468)
 +++ tests/client/configVisitor.cpp	(working copy)
 @@ -121,6 +121,7 @@
      TESTINFO( visitor.nChannels == 36, visitor.nChannels );
