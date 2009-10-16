@@ -1,31 +1,6 @@
-Index: tests/dataStream/test.cpp
-===================================================================
---- tests/dataStream/test.cpp	(revision 3455)
-+++ tests/dataStream/test.cpp	(working copy)
-@@ -192,7 +192,7 @@
-         TEST( connection->recvSync( 0, 0 ));
-         TEST( size );
- 
--        eq::net::Command& command = commandCache.alloc( 0, 0, size );
-+        eq::net::Command& command = commandCache.alloc( connection, 0, 0, size);
-         size -= sizeof( size );
- 
-         char*      ptr     = reinterpret_cast< char* >( command.getPacket( )) +
-Index: tests/client/configVisitor.cpp
-===================================================================
---- tests/client/configVisitor.cpp	(revision 3455)
-+++ tests/client/configVisitor.cpp	(working copy)
-@@ -121,6 +121,7 @@
-     TESTINFO( visitor.nChannels == 36, visitor.nChannels );
- 
-     // teardown
-+    TEST( client->disconnectServer( server ));
-     TEST( client->exitLocal( ));
-     return EXIT_SUCCESS;
- }
 Index: lib/net/connection.cpp
 ===================================================================
---- lib/net/connection.cpp	(revision 3455)
+--- lib/net/connection.cpp	(revision 3462)
 +++ lib/net/connection.cpp	(working copy)
 @@ -192,6 +192,10 @@
  bool Connection::send( const void* buffer, const uint64_t bytes, 
@@ -38,9 +13,27 @@ Index: lib/net/connection.cpp
      if( _state != STATE_CONNECTED )
          return false;
  
+Index: lib/net/connectionSet.cpp
+===================================================================
+--- lib/net/connectionSet.cpp	(revision 3462)
++++ lib/net/connectionSet.cpp	(working copy)
+@@ -91,8 +91,11 @@
+ 
+ void ConnectionSet::interrupt()
+ {
+-    const char c = SELF_INTERRUPT;
+-    _selfConnection->send( &c, 1, true );
++    if( !_selfConnection->hasData( ))
++    {
++        const char c = SELF_INTERRUPT;
++        _selfConnection->send( &c, 1, true );
++    }
+ }
+ 
+ void ConnectionSet::addConnection( ConnectionPtr connection )
 Index: lib/net/node.cpp
 ===================================================================
---- lib/net/node.cpp	(revision 3455)
+--- lib/net/node.cpp	(revision 3462)
 +++ lib/net/node.cpp	(working copy)
 @@ -318,28 +318,8 @@
  
@@ -403,7 +396,7 @@ Index: lib/net/node.cpp
  bool Node::connect( NodePtr node )
 Index: lib/net/commandCache.cpp
 ===================================================================
---- lib/net/commandCache.cpp	(revision 3455)
+--- lib/net/commandCache.cpp	(revision 3462)
 +++ lib/net/commandCache.cpp	(working copy)
 @@ -78,8 +78,8 @@
  }
@@ -436,7 +429,7 @@ Index: lib/net/commandCache.cpp
  
 Index: lib/net/commandCache.h
 ===================================================================
---- lib/net/commandCache.h	(revision 3455)
+--- lib/net/commandCache.h	(revision 3462)
 +++ lib/net/commandCache.h	(working copy)
 @@ -44,7 +44,8 @@
          ~CommandCache();
@@ -450,7 +443,7 @@ Index: lib/net/commandCache.h
          void flush();
 Index: lib/net/command.cpp
 ===================================================================
---- lib/net/command.cpp	(revision 3455)
+--- lib/net/command.cpp	(revision 3462)
 +++ lib/net/command.cpp	(working copy)
 @@ -39,7 +39,8 @@
      _free(); 
@@ -472,7 +465,7 @@ Index: lib/net/command.cpp
      _packet->size = size;
 Index: lib/net/pipeConnectionWin32.cpp
 ===================================================================
---- lib/net/pipeConnectionWin32.cpp	(revision 3455)
+--- lib/net/pipeConnectionWin32.cpp	(revision 3462)
 +++ lib/net/pipeConnectionWin32.cpp	(working copy)
 @@ -88,16 +88,16 @@
  
@@ -498,7 +491,7 @@ Index: lib/net/pipeConnectionWin32.cpp
  }
 Index: lib/net/command.h
 ===================================================================
---- lib/net/command.h	(revision 3455)
+--- lib/net/command.h	(revision 3462)
 +++ lib/net/command.h	(working copy)
 @@ -49,6 +49,7 @@
          template< class P > const P* getPacket() const
@@ -536,7 +529,7 @@ Index: lib/net/command.h
          Packet*  _packet;
 Index: lib/net/node.h
 ===================================================================
---- lib/net/node.h	(revision 3455)
+--- lib/net/node.h	(revision 3462)
 +++ lib/net/node.h	(working copy)
 @@ -18,6 +18,12 @@
  #ifndef EQNET_NODE_H
@@ -617,9 +610,17 @@ Index: lib/net/node.h
          CommandResult _cmdRegisterSession( Command& command );
 Index: lib/net/socketConnectionWin32.cpp
 ===================================================================
---- lib/net/socketConnectionWin32.cpp	(revision 3455)
+--- lib/net/socketConnectionWin32.cpp	(revision 3462)
 +++ lib/net/socketConnectionWin32.cpp	(working copy)
-@@ -277,28 +277,31 @@
+@@ -269,36 +269,37 @@
+ 
+ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
+ {
+-    CHECK_THREAD( _recvThread );
+-
+     if( _readFD == INVALID_SOCKET )
+     {
+         EQERROR << "Invalid read handle" << std::endl;
          return -1;
      }
  
@@ -669,3 +670,28 @@ Index: lib/net/socketConnectionWin32.cpp
  }
  
  int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
+Index: tests/dataStream/test.cpp
+===================================================================
+--- tests/dataStream/test.cpp	(revision 3462)
++++ tests/dataStream/test.cpp	(working copy)
+@@ -192,7 +192,7 @@
+         TEST( connection->recvSync( 0, 0 ));
+         TEST( size );
+ 
+-        eq::net::Command& command = commandCache.alloc( 0, 0, size );
++        eq::net::Command& command = commandCache.alloc( connection, 0, 0, size);
+         size -= sizeof( size );
+ 
+         char*      ptr     = reinterpret_cast< char* >( command.getPacket( )) +
+Index: tests/client/configVisitor.cpp
+===================================================================
+--- tests/client/configVisitor.cpp	(revision 3462)
++++ tests/client/configVisitor.cpp	(working copy)
+@@ -121,6 +121,7 @@
+     TESTINFO( visitor.nChannels == 36, visitor.nChannels );
+ 
+     // teardown
++    TEST( client->disconnectServer( server ));
+     TEST( client->exitLocal( ));
+     return EXIT_SUCCESS;
+ }
