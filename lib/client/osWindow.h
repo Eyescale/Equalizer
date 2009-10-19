@@ -138,8 +138,8 @@ namespace eq
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        virtual GLEWContext* glewGetContext() { return 0; }
-        virtual const GLEWContext* glewGetContext() const { return 0; }
+        EQ_EXPORT virtual GLEWContext* glewGetContext() { return 0; }
+        EQ_EXPORT virtual const GLEWContext* glewGetContext() const { return 0;}
 
     protected:
         /** The parent eq::Window. */
