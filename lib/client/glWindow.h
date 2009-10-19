@@ -32,63 +32,65 @@ namespace eq
      * porting to new windowing systems. Each Windows uses one OSWindow, which
      * is initialized in Window::configInitOSWindow.
      */
-    class EQ_EXPORT GLWindow : public OSWindow
+    class GLWindow : public OSWindow
     {
     public:
-        GLWindow( Window* parent );
-        virtual ~GLWindow( );
-		
-		virtual void makeCurrent() const;
+        EQ_EXPORT GLWindow( Window* parent );
+        EQ_EXPORT virtual ~GLWindow();
+        
+        EQ_EXPORT virtual void makeCurrent() const;
 
         /** Bind the window's FBO, if it uses an FBO drawable. */
-        virtual void bindFrameBuffer() const;
+        EQ_EXPORT virtual void bindFrameBuffer() const;
 
         /** @name Frame Buffer Object support. */
         //@{
         /** Build and initialize the FBO. */
-		virtual bool configInitFBO();
+        EQ_EXPORT virtual bool configInitFBO();
 
         /** Destroy FBO. */
-		virtual void configExitFBO();
+        EQ_EXPORT virtual void configExitFBO();
 
         /** @return the FBO of this window, or 0 if no FBO is used. */
-		virtual const FrameBufferObject* getFrameBufferObject() const { return _fbo; }
+        EQ_EXPORT virtual const FrameBufferObject* getFrameBufferObject() const
+            { return _fbo; }
         //@}
      
         /** Initialize the GLEW context for this window. */
-		virtual void initGLEW();
+        EQ_EXPORT virtual void initGLEW();
         
         /** De-initialize the GLEW context. */
-		virtual void exitGLEW() { _glewInitialized = false; }
-		
-		/**
-		 * Get the GLEW context for this window.
-		 *
-		 * The glew context is initialized during window initialization, and
-		 * provides access to OpenGL extensions. This function does not follow
-		 * the Equalizer naming conventions, since GLEW uses a function of this
-		 * name to automatically resolve OpenGL function entry
-		 * points. Therefore, any supported GL function can be called directly
-		 * from an initialized OSWindow.
-		 *
-		 * @return the extended OpenGL function table for the window's OpenGL
-		 *         context.
-		 */
-		EQ_EXPORT virtual GLEWContext* glewGetContext()
+        EQ_EXPORT virtual void exitGLEW() { _glewInitialized = false; }
+        
+        /**
+         * Get the GLEW context for this window.
+         *
+         * The glew context is initialized during window initialization, and
+         * provides access to OpenGL extensions. This function does not follow
+         * the Equalizer naming conventions, since GLEW uses a function of this
+         * name to automatically resolve OpenGL function entry
+         * points. Therefore, any supported GL function can be called directly
+         * from an initialized OSWindow.
+         *
+         * @return the extended OpenGL function table for the window's OpenGL
+         *         context.
+         */
+        EQ_EXPORT virtual GLEWContext* glewGetContext()
             { return _glewContext; }
-		EQ_EXPORT virtual const GLEWContext* glewGetContext() const
+        EQ_EXPORT virtual const GLEWContext* glewGetContext() const
             { return _glewContext;}
 
-		/** Set up _drawableConfig by querying the current context. */
-		virtual void queryDrawableConfig( DrawableConfig& drawableConfig );
+        /** Set up _drawableConfig by querying the current context. */
+        EQ_EXPORT virtual void queryDrawableConfig(
+            DrawableConfig& drawableConfig );
 
     private:
         bool _glewInitialized ;
         
-		/** Extended OpenGL function entries when window has a context. */
+        /** Extended OpenGL function entries when window has a context. */
         GLEWContext*   _glewContext;
 
-        /** Frame buffer object for FBO drawables. */		
+        /** Frame buffer object for FBO drawables. */       
         FrameBufferObject* _fbo;
 
         union // placeholder for binary-compatible changes

@@ -1,4 +1,4 @@
-Potential fix for EQ_IGNORE_GLEW
+Fix EQ_EXPORTS for OSWindow/GLWindow to be per-method.
 
 [ ] May break build
 [ ] May break existing applications
