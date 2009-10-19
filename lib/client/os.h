@@ -31,8 +31,8 @@
  */
 
 #ifdef EQ_IGNORE_GLEW
-#  define GLEWContext void
-#  define WGLEWContext void
+struct GLEWContext;
+struct WGLEWContext;
 #else
 #  include <GL/glew.h>
 #  ifdef WGL
@@ -115,7 +115,7 @@ typedef void* HDC;
 typedef void* HWND;
 typedef void* HPBUFFERARB;
 typedef void* HGLRC;
-typedef void* WGLEWContext;
+struct WGLEWContext;
 #  define PFNWGLDELETEDCNVPROC void*
 typedef bool  BOOL;
 #  define WINAPI

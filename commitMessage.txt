@@ -1,4 +1,4 @@
-Fix eqPly model movement (broke with Revision 3733)
+Potential fix for EQ_IGNORE_GLEW
 
 [ ] May break build
 [ ] May break existing applications

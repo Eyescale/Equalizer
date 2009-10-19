@@ -74,8 +74,8 @@ namespace eq
 		 * @return the extended OpenGL function table for the window's OpenGL
 		 *         context.
 		 */
-		GLEWContext* glewGetContext() { return _glewContext; }
-		const GLEWContext* glewGetContext() const { return _glewContext; }
+		virtual GLEWContext* glewGetContext() { return _glewContext; }
+		virtual const GLEWContext* glewGetContext() const{ return _glewContext;}
 
 		/** Set up _drawableConfig by querying the current context. */
 		virtual void queryDrawableConfig( DrawableConfig& drawableConfig );
