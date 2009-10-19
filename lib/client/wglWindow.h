@@ -26,59 +26,59 @@ namespace eq
     class WGLEventHandler;
 
     /** The interface defining the minimum functionality for a WGL window. */
-    class EQ_EXPORT WGLWindowIF : public GLWindow
+    class WGLWindowIF : public GLWindow
     {
     public:
-        WGLWindowIF( Window* parent ) : GLWindow( parent ) {}
-        virtual ~WGLWindowIF() {}
+        EQ_EXPORT WGLWindowIF( Window* parent ) : GLWindow( parent ) {}
+        EQ_EXPORT virtual ~WGLWindowIF() {}
 
         /** @return the WGL rendering context. */
-        virtual HGLRC getWGLContext() const = 0;
+        EQ_EXPORT virtual HGLRC getWGLContext() const = 0;
 
         /** @return the Win32 window handle. */
-        virtual HWND getWGLWindowHandle() const = 0;
+        EQ_EXPORT virtual HWND getWGLWindowHandle() const = 0;
 
         /** @return the Win32 off screen PBuffer handle. */
-        virtual HPBUFFERARB getWGLPBufferHandle() const = 0;
+        EQ_EXPORT virtual HPBUFFERARB getWGLPBufferHandle() const = 0;
 
         /** @return the Win32 device context used for the current drawable. */
-        virtual HDC getWGLDC() const = 0;
+        EQ_EXPORT virtual HDC getWGLDC() const = 0;
 
         /** @return the Win32 affinity device context, if used. */
-        virtual HDC getWGLAffinityDC() { return 0; }
+        EQ_EXPORT virtual HDC getWGLAffinityDC() { return 0; }
 
         /** @return the generic WGL function table for the window's pipe. */
-        WGLEWContext* wglewGetContext();
+        EQ_EXPORT WGLEWContext* wglewGetContext();
 
         /** Process an event received from WGL. */
-        virtual bool processEvent( const WGLWindowEvent& event )
+        EQ_EXPORT virtual bool processEvent( const WGLWindowEvent& event )
             { return _window->processEvent( event ); }
     };
 
     /** Equalizer default implementation of a WGL window */
-    class EQ_EXPORT WGLWindow : public WGLWindowIF
+    class WGLWindow : public WGLWindowIF
     {
     public:
-        WGLWindow( Window* parent );
-        virtual ~WGLWindow( );
+        EQ_EXPORT WGLWindow( Window* parent );
+        EQ_EXPORT virtual ~WGLWindow( );
 
-        virtual void configExit( );
-        virtual void makeCurrent() const;
-        virtual void swapBuffers();
-        virtual void joinNVSwapBarrier( const uint32_t group,
-                                        const uint32_t barrier );
+        EQ_EXPORT virtual void configExit( );
+        EQ_EXPORT virtual void makeCurrent() const;
+        EQ_EXPORT virtual void swapBuffers();
+        EQ_EXPORT virtual void joinNVSwapBarrier( const uint32_t group,
+                                                  const uint32_t barrier );
 
         /** @return the Win32 window handle. */
-        virtual HWND getWGLWindowHandle() const { return _wglWindow; }
+        EQ_EXPORT virtual HWND getWGLWindowHandle() const { return _wglWindow; }
 
         /** @return the Win32 off screen PBuffer handle. */
-        virtual HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
+        EQ_EXPORT virtual HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
 
         /** @return the Win32 device context used for the current drawable. */
-        virtual HDC getWGLDC() const { return _wglDC; }
+        EQ_EXPORT virtual HDC getWGLDC() const { return _wglDC; }
 
         /** @return the WGL rendering context. */
-        virtual HGLRC getWGLContext() const { return _wglContext; }
+        EQ_EXPORT virtual HGLRC getWGLContext() const { return _wglContext; }
 
         /** @return the WGL event handler. */
         const WGLEventHandler* getWGLEventHandler() const 
@@ -94,7 +94,7 @@ namespace eq
          *
          * @param handle the window handle.
          */
-        virtual void setWGLWindowHandle( HWND handle );
+        EQ_EXPORT virtual void setWGLWindowHandle( HWND handle );
         
         /** 
          * Set the Win32 off screen pbuffer handle for this window.
@@ -104,7 +104,7 @@ namespace eq
          *
          * @param handle the pbuffer handle.
          */
-        virtual void setWGLPBufferHandle( HPBUFFERARB handle );
+        EQ_EXPORT virtual void setWGLPBufferHandle( HPBUFFERARB handle );
 
         /** 
          * Set the WGL rendering context for this window.
@@ -115,7 +115,7 @@ namespace eq
          *
          * @param context the WGL rendering context.
          */
-        virtual void setWGLContext( HGLRC context );
+        EQ_EXPORT virtual void setWGLContext( HGLRC context );
         //@}
 
         /** @name WGL/Win32 initialization */
@@ -130,20 +130,20 @@ namespace eq
          * 
          * @return true if the initialization was successful, false otherwise.
          */
-        virtual bool configInit();
+        EQ_EXPORT virtual bool configInit();
 
         /** 
          * Create, if needed, an affinity device context for this window.
          *
          * @return false on error, true otherwise
          */
-        virtual bool initWGLAffinityDC();
+        EQ_EXPORT virtual bool initWGLAffinityDC();
 
         /** Destroy the affinity device context. */
-        virtual void exitWGLAffinityDC();
+        EQ_EXPORT virtual void exitWGLAffinityDC();
 
         /** @return the affinity device context. */
-        virtual HDC getWGLAffinityDC();
+        EQ_EXPORT virtual HDC getWGLAffinityDC();
 
         /**
          * Create a device context for the display device of the window.
@@ -153,7 +153,7 @@ namespace eq
          *
          * @return the DC, or 0 upon error.
          */
-        virtual HDC createWGLDisplayDC();
+        EQ_EXPORT virtual HDC createWGLDisplayDC();
 
         /** 
          * Choose a pixel format based on the window's attributes.
@@ -163,7 +163,7 @@ namespace eq
          *
          * @return a pixel format, or 0 if no pixel format was found.
          */
-        virtual int chooseWGLPixelFormat();
+        EQ_EXPORT virtual int chooseWGLPixelFormat();
 
         /** 
          * Initialize the window's drawable (pbuffer or window) and
@@ -174,7 +174,7 @@ namespace eq
          * @param pixelFormat the window's target pixel format.
          * @return true if the drawable was created, false otherwise.
          */
-        virtual bool configInitWGLDrawable( int pixelFormat );
+        EQ_EXPORT virtual bool configInitWGLDrawable( int pixelFormat );
 
         /** 
          * Initialize the window with an on-screen Win32 window.
@@ -184,7 +184,7 @@ namespace eq
          * @param pixelFormat the window's target pixel format.
          * @return true if the drawable was created, false otherwise.
          */
-        virtual bool configInitWGLWindow( int pixelFormat );
+        EQ_EXPORT virtual bool configInitWGLWindow( int pixelFormat );
 
         /** 
          * Initialize the window with an off-screen WGL PBuffer.
@@ -194,10 +194,10 @@ namespace eq
          * @param pixelFormat the window's target pixel format.
          * @return true if the drawable was created, false otherwise.
          */
-        virtual bool configInitWGLPBuffer( int pixelFormat );
+        EQ_EXPORT virtual bool configInitWGLPBuffer( int pixelFormat );
 
         /** Initialize the window for an off-screen FBO */
-        virtual bool configInitWGLFBO( int pixelFormat );
+        EQ_EXPORT virtual bool configInitWGLFBO( int pixelFormat );
 
         /** 
          * Create a WGL context.
@@ -206,11 +206,11 @@ namespace eq
          *
          * @return the context, or 0 if context creation failed.
          */
-        virtual HGLRC createWGLContext();
+        EQ_EXPORT virtual HGLRC createWGLContext();
 
-        virtual void initEventHandler();
-        virtual void exitEventHandler();
-        virtual bool processEvent( const WGLWindowEvent& event );
+        EQ_EXPORT virtual void initEventHandler();
+        EQ_EXPORT virtual void exitEventHandler();
+        EQ_EXPORT virtual bool processEvent( const WGLWindowEvent& event );
         //@}
 
     protected:

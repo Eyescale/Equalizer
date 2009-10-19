@@ -144,7 +144,7 @@ namespace eq
 
     protected:
         /** The parent eq::Window. */
-        EQ_EXPORT Window* const _window;
+        Window* const _window;
         
     private:
         union // placeholder for binary-compatible changes
