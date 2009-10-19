@@ -60,6 +60,16 @@ void GLWindow::initGLEW()
         _glewInitialized = true;
 }
     
+GLEWContext* GLWindow::glewGetContext()
+{
+    return _glewContext;
+}
+
+const GLEWContext* GLWindow::glewGetContext() const
+{
+    return _glewContext;
+}
+
 bool GLWindow::configInitFBO()
 {
     if( !_glewInitialized ||

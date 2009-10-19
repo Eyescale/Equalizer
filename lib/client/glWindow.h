@@ -75,10 +75,9 @@ namespace eq
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        EQ_EXPORT virtual GLEWContext* glewGetContext()
-            { return _glewContext; }
-        EQ_EXPORT virtual const GLEWContext* glewGetContext() const
-            { return _glewContext;}
+        EQ_EXPORT virtual GLEWContext* glewGetContext();
+        /** Const-version of glewGetContext. */
+        EQ_EXPORT virtual const GLEWContext* glewGetContext() const;
 
         /** Set up _drawableConfig by querying the current context. */
         EQ_EXPORT virtual void queryDrawableConfig(
