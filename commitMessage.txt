@@ -1,4 +1,4 @@
-Potential fix for EQ_IGNORE_GLEW
+Fix potential bug in win32 socket connection
 
 [ ] May break build
 [ ] May break existing applications

@@ -53,6 +53,7 @@ SocketConnection::SocketConnection( const ConnectionType type )
 #ifdef WIN32
         : _overlappedAcceptData( 0 )
         , _overlappedSocket( INVALID_SOCKET )
+        , _overlappedDone( 0 )
 #endif
 {
 #ifdef WIN32
@@ -348,12 +349,19 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
 
     WSABUF wsaBuffer = { EQ_MIN( bytes, 1048576 ),
                          reinterpret_cast< char* >( buffer ) };
-    DWORD  got   = 0;
     DWORD  flags = 0;
 
     ResetEvent( _overlapped.hEvent );
-    if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 0 ) != 0 &&
-        GetLastError() != WSA_IO_PENDING )
+    _overlappedDone = 0;
+
+    const int result = WSARecv( _readFD, &wsaBuffer, 1, &_overlappedDone,
+                                &flags, &_overlapped, 0 );
+    if( result == 0 ) // got data already
+    {
+        EQASSERT( _overlappedDone > 0 );
+        SetEvent( _overlapped.hEvent );
+    }
+    else if( GetLastError() != WSA_IO_PENDING )
     {
         EQWARN << "Could not start overlapped receive: " << base::sysError
                << ", closing connection" << std::endl;
@@ -370,6 +378,9 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
         EQERROR << "Invalid read handle" << std::endl;
         return -1;
     }
+
+    if( _overlappedDone > 0 )
+        return _overlappedDone;
 
     DWORD got   = 0;
     DWORD flags = 0;

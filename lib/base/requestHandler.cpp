@@ -64,7 +64,7 @@ uint32_t RequestHandler::registerRequest( void* data )
 
     request->data = data;
     _requestID = ( _requestID + 1 ) % IDPool::MAX_CAPACITY;
-    _requests[_requestID] = request;
+    _requests[ _requestID ] = request;
     
     return _requestID;
 }

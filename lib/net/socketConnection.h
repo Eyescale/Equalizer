@@ -103,6 +103,7 @@ namespace net
         OVERLAPPED _overlapped;
         void*      _overlappedAcceptData;
         SOCKET     _overlappedSocket;
+        DWORD      _overlappedDone;
 
         CHECK_THREAD_DECLARE( _recvThread );
 #endif
