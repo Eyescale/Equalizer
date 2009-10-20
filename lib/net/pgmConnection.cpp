@@ -460,9 +460,9 @@ void PGMConnection::_tuneSocket( bool isRead, const SOCKET fd )
         _setFecParameters( fd, 255, 4, true, 0);
         // round to nearest 100.000 value
         uint64_t roundBandwidth = (_description->bandwidth  * 8 + 50000)- 
-                                 (( _description->bandwidth * 8) % 100000 );
+                              (( _description->bandwidth * 8+ 50000) % 100000 );
         roundBandwidth = EQ_MAX( roundBandwidth, 100000 );
-        _setWindowSizeAndSendRate( fd, 200000000, roundBandwidth );
+        _setSendRate( fd, roundBandwidth );
         _setSendBufferSize( fd, 65535 );
 #endif
     }
@@ -544,36 +544,20 @@ bool PGMConnection::_setRecvBufferSize( const SOCKET fd, int newSize )
 }
 
 
-bool PGMConnection::_setWindowSizeAndSendRate( const SOCKET fd, 
-                                               const ULONG windowSize, 
-                                               const ULONG sendRate )
+bool PGMConnection::_setSendRate( const SOCKET fd, const ULONG sendRate )
 {
+    RM_SEND_WINDOW  sendWindow;
 
-    //   Default values from the OS Header
-    //
-    //   SENDER_DEFAULT_RATE_KBITS_PER_SEC     56             // 56 Kbits/Sec
-    //   SENDER_DEFAULT_WINDOW_SIZE_BYTES      10 *1000*1000  // 10 Megs
-    //
-    //   SENDER_DEFAULT_WINDOW_ADV_PERCENTAGE  15             // 15%
-    //   MAX_WINDOW_INCREMENT_PERCENTAGE       25             // 25%
-    //
-    //   SENDER_DEFAULT_LATE_JOINER_PERCENTAGE  0             // 0%
-    //   SENDER_MAX_LATE_JOINER_PERCENTAGE     75             // 75%
-    //
-    //   E_WINDOW_ADVANCE_BY_TIME = 1,       // Default mode
-    //   E_WINDOW_USE_AS_DATA_CACHE
+    sendWindow.RateKbitsPerSec     = sendRate;
+    sendWindow.WindowSizeInBytes   = 0;
+    sendWindow.WindowSizeInMSecs   = 100;
 
-    RM_SEND_WINDOW  multicastSendWindow;
-
-    multicastSendWindow.RateKbitsPerSec     = sendRate;
-    multicastSendWindow.WindowSizeInBytes   = windowSize;  
-    multicastSendWindow.WindowSizeInMSecs   = 0;
-
+    EQINFO << "Setting PGM send rate to " << sendRate << " kBit/s" << std::endl;
     if ( ::setsockopt( fd, IPPROTO_RM, RM_RATE_WINDOW_SIZE, 
-         (char*)&multicastSendWindow, sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
+         (char*)&sendWindow, sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
     {
-        EQWARN << "can't setWindowSizeAndSendRate, error: " 
-               <<  base::sysError << std::endl;
+        EQWARN << "can't set send rate, error: " <<  base::sysError
+               << std::endl;
         return false ;
     }
 

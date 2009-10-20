@@ -63,9 +63,7 @@ namespace net
         bool _parseAddress( sockaddr_in& address );
         uint16_t _getPort() const;
 
-        bool  _setWindowSizeAndSendRate( const SOCKET fd, 
-                                         const ULONG WindowSize, 
-                                         const ULONG SendRate );
+        bool _setSendRate( const SOCKET fd, const ULONG sendRate );
 
         bool  _getWindowSizeAndSendRate( const SOCKET fd);
 
