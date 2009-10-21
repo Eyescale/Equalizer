@@ -560,8 +560,6 @@ bool PGMConnection::_setSendRate( const SOCKET fd, const ULONG sendRate )
                << std::endl;
         return false ;
     }
-
-    EQINFO << "Set PGM send rate to " << sendRate << "Kbit/s" << std::endl;
     return true;
 }
 
