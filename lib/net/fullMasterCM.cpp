@@ -25,9 +25,6 @@
 #include "packets.h"
 #include "session.h"
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace net
@@ -165,19 +162,19 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
                                  getOldestVersion() : inVersion;
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID() 
-                         << " with v" << version << endl;
+                         << " with v" << version << std::endl;
 
     EQASSERT( _object->getChangeType() == Object::INSTANCE );
     EQASSERT( version >= getOldestVersion( ));
 
-    deque< DeltaData* >::reverse_iterator i = _deltaDatas.rbegin();
+    std::deque< DeltaData* >::reverse_iterator i = _deltaDatas.rbegin();
     while( (*i)->os.getVersion() < version && i != _deltaDatas.rend( ))
         ++i;
 
     const DeltaData* data = (i == _deltaDatas.rend()) ? _deltaDatas.back() : *i;
          
     // first packet has to be an instance packet, to be applied immediately
-    const Bufferb&       buffer     = data->os.getSaveBuffer();
+    const base::Bufferb& buffer     = data->os.getSaveBuffer();
     ObjectInstancePacket instPacket;
     instPacket.instanceID = instanceID;
     instPacket.dataSize   = buffer.getSize();
@@ -279,7 +276,8 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
 {
     CHECK_THREAD( _thread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
+    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
+                         << std::endl;
 
     EQASSERT( _version != Object::VERSION_NONE );
 
@@ -301,7 +299,7 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     
         _deltaDatas.push_front( deltaData );
         EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
-                             << _object->getID() << endl;
+                             << _object->getID() << std::endl;
     }
     else
         _deltaDataCache.push_back( deltaData );
