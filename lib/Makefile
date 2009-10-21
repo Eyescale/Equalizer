@@ -68,8 +68,10 @@ HEADER_SRC = \
 	net/objectVersion.h \
 	net/packets.h \
 	net/pairConnection.h \
+	net/rspConnection.h \
 	net/session.h \
 	net/types.h \
+	net/udpConnection.h \
 	client/canvas.h \
 	client/canvasVisitor.h \
 	client/channel.h \
@@ -187,6 +189,7 @@ CXXFILES = \
 	net/packets.cpp \
 	net/pairConnection.cpp \
 	net/pipeConnection.cpp \
+	net/rspConnection.cpp \
 	net/session.cpp \
 	net/socketConnection.cpp \
 	net/staticMasterCM.cpp \

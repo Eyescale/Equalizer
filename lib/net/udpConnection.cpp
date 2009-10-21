@@ -29,7 +29,10 @@
 
 #ifdef WIN32
 #  include <Mswsock.h>
+#  include <Ws2tcpip.h>
+#  include <Winsock2.h>
 #else
+#  include <netinet/in.h>
 #  include <arpa/inet.h>
 #  include <netdb.h>
 #  include <netinet/tcp.h>
@@ -43,7 +46,12 @@ namespace net
 {
 namespace
 {
-static const size_t _mtu = 1300;
+#ifdef WIN32
+	static const size_t _mtu = 65000 ;
+#else
+	static const size_t _mtu = 1470 ;
+#endif
+
 }
 
 UDPConnection::UDPConnection()
@@ -76,7 +84,7 @@ bool UDPConnection::connect()
         return false;
     }
 
-    _writeFD = _createSocket();
+    _writeFD = socket( AF_INET, SOCK_DGRAM, 0 );
     if( _writeFD == INVALID_SOCKET )
         return false;
 
@@ -98,17 +106,37 @@ bool UDPConnection::connect()
     }
 
     ip_mreq mreq;
-    mreq.imr_multiaddr.s_addr = _readAddress.sin_addr.s_addr;
+    mreq.imr_multiaddr.s_addr = _writeAddress.sin_addr.s_addr;
     mreq.imr_interface.s_addr = htonl( INADDR_ANY );
 
     if( setsockopt( _readFD, IPPROTO_IP, IP_ADD_MEMBERSHIP, 
-                    &mreq, sizeof( mreq )) < 0 )
+                    (char*)&mreq, sizeof( mreq )) < 0 )
     {
         EQWARN << "Can't join multicast group: " << base::sysError << std::endl;
         close();
         return false;
     }
     
+    int rc = ::connect( _writeFD, (sockaddr*)&_writeAddress, 
+                  sizeof( _writeAddress ));
+    _setSendBufferSize( _writeFD,  8 * 1024 );
+    _setRecvBufferSize( _writeFD,  8 * 1024 );
+
+    _setSendBufferSize( _readFD,  8 * 1024 );
+    _setRecvBufferSize( _readFD,  8 * 1024 );
+    uint64_t ttl = 1;
+    if( setsockopt(_writeFD, IPPROTO_IP, IP_MULTICAST_TTL, 
+               reinterpret_cast<char *>(&ttl), sizeof(ttl)))
+    {
+        EQWARN << "Can't set TTL: " << base::sysError << std::endl;
+        close();
+        return false;
+    }
+
+    int nodelay = 1;
+    int len = sizeof(nodelay);
+    rc = setsockopt( _writeFD, IPPROTO_TCP, TCP_NODELAY,
+                     (char*) &nodelay, len );
     _initAIORead();
     _state = STATE_CONNECTED;
     _fireStateChanged();
@@ -152,6 +180,7 @@ void UDPConnection::close()
     _fireStateChanged();
 }
 
+uint32_t UDPConnection::getMTU(){ return _mtu; }
 //----------------------------------------------------------------------
 // Async IO handles
 //----------------------------------------------------------------------
@@ -222,6 +251,7 @@ void UDPConnection::readNB( void* buffer, const uint64_t bytes )
     int size = sizeof( _readAddress );
 
     ResetEvent( _overlapped.hEvent );
+
     if( WSARecvFrom( _readFD, &wsaBuffer, 1, &got, &flags, 
                      (sockaddr*)&_readAddress, &size, &_overlapped, 0 ) != 0 &&
         GetLastError() != WSA_IO_PENDING )
@@ -306,7 +336,6 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes)
     DWORD  wrote;
     WSABUF wsaBuffer = { EQ_MIN( bytes, _mtu ),
                          const_cast<char*>( static_cast<const char*>(buffer)) };
-
     while( true )
     {
         if( WSASendTo( _writeFD, &wsaBuffer, 1, &wrote, 0,
@@ -342,10 +371,13 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes)
 
 #else // !WIN32
 
-    const size_t use = EQ_MIN( _mtu, bytes );
-    const ssize_t wrote = ::sendto( _writeFD, buffer, use, 0,
-                                    (sockaddr*)&_writeAddress,
-                                    sizeof( _writeAddress ));
+    int flags = 0;
+
+    int wrote = ::send( _writeFD, const_cast<char*>( static_cast<const char*>(buffer)), EQ_MIN( bytes, _mtu ), flags );
+
+    // use for control congestion
+    uint64_t delay = 10000 * 8 / 50000;
+    for ( uint64_t i = 0 ; i < delay ; i++ ) ;
 
     if( wrote == -1 ) // error
     {
@@ -360,6 +392,31 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes)
 #endif
 }
 
+bool UDPConnection::_setSendBufferSize( const Socket fd, const int newSize )
+{
+    EQASSERT(newSize >= 0);
+    
+    if ( ::setsockopt( fd, SOL_SOCKET, SO_SNDBUF, 
+         ( char* )&newSize, sizeof( int )) == -1 ) 
+    {
+        EQWARN << "can't SetSendBufferSize, error: " 
+               <<  base::sysError << std::endl;
+        return false;
+    }
+
+    return true;
+}
+bool UDPConnection::_setRecvBufferSize( const Socket fd, int newSize )
+{
+    if ( ::setsockopt( fd, SOL_SOCKET, SO_RCVBUF,
+         (char*)&newSize, sizeof(int)) == -1 ) 
+    {
+        EQWARN << "can't GetSendBufferSize, error: " 
+               <<  base::sysError << std::endl;
+        return false;
+    }
+    return true;
+}
 UDPConnection::Socket UDPConnection::_createSocket()
 {
 #ifdef WIN32
@@ -391,7 +448,7 @@ bool UDPConnection::_parseAddress( sockaddr_in& address )
     if( _description->port == 0 )
         _description->port = EQ_DEFAULT_PORT;
     if( _description->getHostname().empty( ))
-        _description->setHostname( "239.255.42.42" );
+        _description->setHostname( "224.0.67.67" );
 
     address.sin_family      = AF_INET;
     address.sin_addr.s_addr = htonl( INADDR_ANY );
@@ -423,12 +480,14 @@ bool UDPConnection::listen()
     return connect();
 }
 
+
+
 uint16_t UDPConnection::_getPort() const
 {
     sockaddr_in address;
     socklen_t used = sizeof( address );
-    getsockname( _readFD, (sockaddr *) &address, &used ); 
-    return ntohs(address.sin_port);
+    getsockname( _readFD, ( sockaddr * ) &address, &used ); 
+    return ntohs( address.sin_port );
 }
 
 }

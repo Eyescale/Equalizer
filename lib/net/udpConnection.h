@@ -22,6 +22,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h> // member
+#include <eq/base/thread.h> // member
 
 #ifndef WIN32
 #  include <netinet/in.h>
@@ -50,8 +51,10 @@ namespace net
         virtual void acceptNB();           
         virtual ConnectionPtr acceptSync();
         virtual void close();              
-
-
+        uint32_t getMTU();
+        virtual void readNB( void* buffer, const uint64_t bytes );
+        virtual int64_t readSync( void* buffer, const uint64_t bytes );
+        virtual int64_t write( const void* buffer, const uint64_t bytes );
 #ifdef WIN32
         /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const { return _overlapped.hEvent; }
@@ -59,10 +62,10 @@ namespace net
 
     protected:
         virtual ~UDPConnection();
+        
 
-        virtual void readNB( void* buffer, const uint64_t bytes );
-        virtual int64_t readSync( void* buffer, const uint64_t bytes );
-        virtual int64_t write( const void* buffer, const uint64_t bytes );
+
+
 
 #ifdef WIN32
         typedef SOCKET Socket;
@@ -93,10 +96,15 @@ namespace net
         Socket _readFD;
         Socket _writeFD;
 
+        bool  _setSendBufferSize( const Socket fd,  const int newSize );
+        bool  _setRecvBufferSize( const Socket fd,  const int newSize );
+        bool  _setMulticastLoop ( const Socket fd,  const int loop );
 #ifdef WIN32
         // overlapped data structures
         OVERLAPPED _overlapped;
+        OVERLAPPED _write;
 #endif
+        CHECK_THREAD_DECLARE( _recvThread );
     };
 }
 }
