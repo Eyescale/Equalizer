@@ -35,7 +35,7 @@ server
         layout { view { }}
         canvas
         {
-        layout 0
+            layout 0
             wall
             {
                 bottom_left  [ -.64 -.20 -.75 ]
@@ -43,21 +43,21 @@ server
                 top_left     [ -.64  .20 -.75 ]
             }
 
-        segment { viewport [ 0  0 .5 1 ] channel "channel1" }
-        segment { viewport [ .5 0 .5 1 ] channel "channel2" }
-    }
+            segment { viewport [ 0  0 .5 1 ] channel "channel1" }
+            segment { viewport [ .5 0 .5 1 ] channel "channel2" }
+        }
 
         compound
         {
             compound 
-        {
-            channel ( view 0 segment 0 )
-        swapbarrier { NV_group 1 NV_barrier 0 }
+            {
+                channel ( view 0 segment 0 )
+                swapbarrier { NV_group 1 NV_barrier 0 }
             }
             compound 
-        {
-            channel ( view 0 segment 1 )
-        swapbarrier { NV_group 1 NV_barrier 0 }
+            {
+                channel ( view 0 segment 1 )
+                swapbarrier { NV_group 1 NV_barrier 0 }
             }
         }
     }    
