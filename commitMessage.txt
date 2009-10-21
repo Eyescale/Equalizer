@@ -1,4 +1,4 @@
-Fix potential bug in win32 socket connection
+Fix glx swap barrier compilation
 
 [ ] May break build
 [ ] May break existing applications

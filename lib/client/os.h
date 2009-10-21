@@ -37,6 +37,9 @@ typedef struct GLEWContextStruct GLEWContext;
 typedef struct WGLEWContextStruct WGLEWContext;
 #else
 #  include <GL/glew.h>
+#  ifdef GLX
+#    include <GL/glxew.h>
+#  endif
 #  ifdef WGL
 #    include <GL/wglew.h>
 #  endif
@@ -119,7 +122,9 @@ typedef void* HPBUFFERARB;
 typedef void* HGLRC;
 struct WGLEWContext;
 #  define PFNWGLDELETEDCNVPROC void*
+#  ifndef GLX
 typedef bool  BOOL;
+#  endif
 #  define WINAPI
 #endif
 
