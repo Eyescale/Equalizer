@@ -37,6 +37,14 @@ using namespace std;
 namespace mesh
 {
 
+
+/*  Determine number of bits used by the current architecture.  */
+size_t getArchitectureBits();
+/*  Determine whether the current architecture is little endian or not.  */
+bool isArchitectureLittleEndian();
+/*  Construct architecture dependent file name.  */
+string getArchitectureFilename( const std::string& filename );
+
 /*  Begin kd-tree setup, go through full range starting with x axis.  */
 void VertexBufferRoot::setupTree( VertexData& data )
 {

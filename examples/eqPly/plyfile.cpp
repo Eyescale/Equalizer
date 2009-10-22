@@ -63,6 +63,62 @@ int ply_type_size[] = {
 #define OTHER_PROP       0
 #define NAMED_PROP       1
 
+/* Byte-swapping macros */
+void swap2Bytes( void* ptr );
+void swap4Bytes( void* ptr );
+void swap8Bytes( void* ptr );
+
+#ifdef LITTLE_ENDIAN
+void swap2LE( void* );
+void swap2LE( short* );
+void swap2LE( unsigned short* );
+void swap4LE( void* );
+void swap4LE( int* );
+void swap4LE( unsigned int* );
+void swap4LE( float* );
+void swap8LE( void* );
+void swap8LE( long long* );
+void swap8LE( unsigned long long* );
+void swap8LE( double* );
+
+void swap2BE( void* ptr );
+void swap2BE( short* ptr );
+void swap2BE( unsigned short* ptr );
+void swap4BE( void* ptr );
+void swap4BE( int* ptr );
+void swap4BE( unsigned int* ptr );
+void swap4BE( float* ptr );
+void swap8BE( long long* ptr );
+void swap8BE( void* ptr );
+void swap8BE( unsigned long long* ptr );
+void swap8BE( double* ptr );
+#else // LITTLE_ENDIAN
+
+void swap2LE( void* ptr );
+void swap2LE( short* ptr );
+void swap2LE( unsigned short* ptr );
+void swap4LE( void* ptr );
+void swap4LE( int* ptr );
+void swap4LE( unsigned int* ptr );
+void swap4LE( float* ptr );
+void swap8LE( long long* ptr );
+void swap8LE( void* ptr );
+void swap8LE( unsigned long long* ptr );
+void swap8LE( double* ptr );
+
+void swap2BE( void* );
+void swap2BE( short* );
+void swap2BE( unsigned short* );
+void swap4BE( void* );
+void swap4BE( int* );
+void swap4BE( unsigned int* );
+void swap4BE( float* );
+void swap8BE( void* );
+void swap8BE( long long* );
+void swap8BE( unsigned long long* );
+void swap8BE( double* );
+
+#endif // LITTLE_ENDIAN
 
 /* returns 1 if strings are equal, 0 if not */
 int equal_strings(const char *, const char *);
@@ -111,6 +167,46 @@ void binary_get_element(PlyFile *, char *);
 
 /* memory allocation */
 char *my_alloc(int, int, const char *);
+
+
+PlyFile *ply_write(
+                   FILE *fp,
+                   int nelems,
+                   const char **elem_names,
+                   int file_type
+                   );
+
+
+PlyFile *ply_open_for_writing(
+                              char *filename,
+                              int nelems,
+                              const char **elem_names,
+                              int file_type,
+                              float *version
+                             );
+                   
+void ply_describe_element(
+                          PlyFile *plyfile,
+                          const char *elem_name,
+                          int nelems,
+                          int nprops,
+                          PlyProperty *prop_list
+                          );
+
+void ply_describe_other_properties(
+                          PlyFile *plyfile,
+                          PlyOtherProp *other,
+                          int offset
+                          );
+void setup_other_props(PlyFile *, PlyElement *elem);
+
+int get_prop_type(char *type_name);
+
+void ply_describe_property(
+                           PlyFile *plyfile,
+                           const char *elem_name,
+                           PlyProperty *prop
+                           );
 
 /************************/
 /* Byte-swapping macros */
