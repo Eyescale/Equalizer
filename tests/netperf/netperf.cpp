@@ -199,15 +199,7 @@ int main( int argc, char **argv )
     if( isClient )
     {
         ConnectionPtr readConnection = connection;
-
-        if( description->type >= eq::net::CONNECTIONTYPE_MULTICAST )
-        {
-            TEST( connection->listen( ));
-        }
-        else
-        {
-            TEST( connection->connect( ));
-        }
+        TEST( connection->connect( ));
 
         eq::base::Buffer< uint8_t > buffer;
         buffer.resize( packetSize );
@@ -248,13 +240,25 @@ int main( int argc, char **argv )
 
         _connectionSet.addConnection( connection );
 
-        // Get first client
-        const ConnectionSet::Event event = _connectionSet.select();
-        TEST( event == ConnectionSet::EVENT_CONNECT );
+        ConnectionPtr resultConn;
+        ConnectionPtr newConn;
+        if ( description->type == CONNECTIONTYPE_MCIP_RSP )
+        {
+            ConnectionPtr resultConn;
+            ConnectionPtr newConn;            
+            resultConn = connection;
+            newConn = connection;
+        }
+        else
+        {
+                        // Get first client
+            const ConnectionSet::Event event = _connectionSet.select();
+            TEST( event == ConnectionSet::EVENT_CONNECT );
 
-        ConnectionPtr resultConn = _connectionSet.getConnection();
-        ConnectionPtr newConn    = resultConn->acceptSync();
-        resultConn->acceptNB();
+            resultConn = _connectionSet.getConnection();
+            newConn    = resultConn->acceptSync();
+            resultConn->acceptNB();
+        }
 
         TEST( resultConn == connection );
         TEST( newConn.isValid( ));
@@ -267,7 +271,8 @@ int main( int argc, char **argv )
         if( useThreads )
             receivers.back().first->start();
 
-        _connectionSet.addConnection( newConn );
+        if ( description->type != CONNECTIONTYPE_MCIP_RSP )
+            _connectionSet.addConnection( newConn );
 
         // Until all client have disconnected...
         _nClients = 1;
