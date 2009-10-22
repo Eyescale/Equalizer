@@ -1,4 +1,4 @@
-Fix Apple GLX Makefile build
+Fix Apple non-GLX Makefile build :-/
 
 [ ] May break build
 [ ] May break existing applications

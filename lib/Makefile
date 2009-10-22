@@ -279,6 +279,7 @@ ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
 	client/glXMessagePump.cpp \
 	client/glXWindow.cpp \
 	client/glXPipe.cpp
+  CFLAGS += -DGLEW_APPLE_GLX
 endif
 
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
@@ -320,7 +321,7 @@ endif
 
 
 CXXFLAGS += $(WINDOW_SYSTEM_INCS) -DEQUALIZER_EXPORTS
-CFLAGS   += -DGLEW_BUILD -DGLEW_APPLE_GLX -DEQ_DEFINES_H
+CFLAGS   += -DGLEW_BUILD -DEQ_DEFINES_H
 LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
 
 TARGETS = $(SHADERS) $(HEADERS) $(DYNAMIC_LIB) subdirs

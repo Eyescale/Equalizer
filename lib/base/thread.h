@@ -253,9 +253,9 @@ namespace base
         }                                                               \
     }
 #else
-#  define CHECK_THREAD_RESET( NAME )
-#  define CHECK_THREAD( NAME )
-#  define CHECK_NOT_THREAD( NAME )
+#  define CHECK_THREAD_RESET( NAME ) {}
+#  define CHECK_THREAD( NAME ) {}
+#  define CHECK_NOT_THREAD( NAME ) {}
 #endif
 
 }
