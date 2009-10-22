@@ -163,6 +163,7 @@ CXXFILES = \
 	base/uuid.cpp \
 	net/barrier.cpp \
 	net/bufferConnection.cpp \
+	net/cache.cpp \
 	net/command.cpp \
 	net/commandCache.cpp \
 	net/commandQueue.cpp \

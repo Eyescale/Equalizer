@@ -19,6 +19,7 @@
 #define EQNET_OBJECTVERSION_H
 
 #include <eq/base/base.h>
+#include <eq/base/stdExt.h>
 
 #include <iostream>
 
@@ -35,6 +36,8 @@ namespace net
         EQ_EXPORT ObjectVersion( const uint32_t id, const uint32_t version );
         EQ_EXPORT ObjectVersion( const Object* object );
         EQ_EXPORT ObjectVersion& operator = ( const Object* object );
+        bool operator == ( const ObjectVersion& value ) const
+            { return ( id == value.id && version == value.version ); }
         
         uint32_t id;
         uint32_t version;
@@ -48,7 +51,34 @@ namespace net
         os << " id " << ov.id << " v" << ov.version;
         return os;
     }
+
 }
 }
+
+#ifdef __GNUC__              // GCC 3.1 and later
+#  ifdef EQ_GCC_4_2_OR_LATER
+namespace std { namespace tr1
+#  else
+namespace __gnu_cxx
+#  endif
+#elif defined (WIN32)
+namespace stdext
+#else //  other compilers
+namespace std
+#endif
+{
+    /** ObjectVersion hash function. */
+    template<> struct hash< eq::net::ObjectVersion >
+    {
+        template< typename P > size_t operator()( const P& key ) const
+        {
+            return hash< uint64_t >()(
+                (static_cast< uint64_t >( key.id ) << 32) + key.version );
+        }
+    };
+}
+#ifdef EQ_GCC_4_2_OR_LATER
+}
+#endif
 
 #endif // EQNET_OBJECT_H

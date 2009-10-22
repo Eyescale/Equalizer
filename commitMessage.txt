@@ -1,9 +1,9 @@
-First version of a cache and unit test, to be used for Object instance data.
+Instantiate ObjectVersion cache, code cleanups
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

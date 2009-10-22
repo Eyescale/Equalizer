@@ -18,6 +18,7 @@
 #include "cache.h"
 
 #include "command.h"
+#include "objectVersion.h"
 
 #include <eq/base/debug.h>
 
@@ -239,6 +240,8 @@ std::ostream& operator << ( std::ostream& os, const Cache< K >& cache )
         ;
     return os;
 }
+
+template class Cache< ObjectVersion >;
 
 }
 }

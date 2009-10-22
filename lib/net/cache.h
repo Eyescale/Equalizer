@@ -97,7 +97,7 @@ namespace net
             unsigned used;
             unsigned pinned;
         };
-            
+
         typedef stde::hash_map< K, Item > Data;
 
         Data _data;
