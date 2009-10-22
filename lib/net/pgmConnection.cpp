@@ -68,15 +68,7 @@ PGMConnection::~PGMConnection()
 //----------------------------------------------------------------------
 bool PGMConnection::connect()
 {
-    EQASSERTINFO( false,
-                  base::disableFlush <<
-                  "Multicast connections are not connected." << std::endl <<
-                  "Each member listens on the group address." << std::endl <<
-                  "The send operation triggers the accept on each member," <<
-                  std::endl << 
-                  "which creates a connected connection for the sender." <<
-                  std::endl << base::enableFlush );
-    return false;
+    return listen();
 }
 
 void PGMConnection::close()
