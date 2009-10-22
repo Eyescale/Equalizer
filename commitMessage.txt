@@ -1,4 +1,4 @@
-Minor cleanup
+Fix const-ness of getFrameBufferObject
 
 [ ] May break build
 [ ] May break existing applications
