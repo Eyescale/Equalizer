@@ -47,14 +47,17 @@ namespace net
 namespace
 {
 #ifdef WIN32
-	static const size_t _mtu = 65000 ;
+    static const size_t _mtu = 1470 ;
 #else
-	static const size_t _mtu = 1470 ;
+    static const size_t _mtu = 1470 ;
 #endif
 
 }
 
 UDPConnection::UDPConnection()
+#ifdef WIN32
+    : _overlappedDone( 0 )
+#endif
 {
     _description->type = CONNECTIONTYPE_UDP;
     _description->bandwidth = 102400;
@@ -246,15 +249,18 @@ void UDPConnection::readNB( void* buffer, const uint64_t bytes )
 #ifdef WIN32
     WSABUF wsaBuffer = { EQ_MIN( _mtu, bytes ),
                          reinterpret_cast< char* >( buffer ) };
-    DWORD  got   = 0;
     DWORD  flags = 0;
     int size = sizeof( _readAddress );
 
     ResetEvent( _overlapped.hEvent );
 
-    if( WSARecvFrom( _readFD, &wsaBuffer, 1, &got, &flags, 
-                     (sockaddr*)&_readAddress, &size, &_overlapped, 0 ) != 0 &&
-        GetLastError() != WSA_IO_PENDING )
+    if( WSARecvFrom( _readFD, &wsaBuffer, 1, &_overlappedDone, &flags, 
+                     (sockaddr*)&_readAddress, &size, &_overlapped, 0 ) == 0 )
+    {
+        EQASSERT( _overlappedDone > 0 );
+        SetEvent( _overlapped.hEvent );
+    }
+    else if ( GetLastError() != WSA_IO_PENDING )
     {
         EQWARN << "Could not start overlapped receive: " << base::sysError
                << ", closing connection" << std::endl;
@@ -275,6 +281,9 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
         EQERROR << "Invalid read handle" << std::endl;
         return -1;
     }
+
+    if( _overlappedDone > 0 )
+        return _overlappedDone;
 
     DWORD got   = 0;
     DWORD flags = 0;

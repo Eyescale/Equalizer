@@ -102,6 +102,7 @@ namespace net
 #ifdef WIN32
         // overlapped data structures
         OVERLAPPED _overlapped;
+        DWORD      _overlappedDone;
         OVERLAPPED _write;
 #endif
         CHECK_THREAD_DECLARE( _recvThread );

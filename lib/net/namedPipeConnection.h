@@ -86,6 +86,7 @@ namespace net
 
         // overlapped data structures
         OVERLAPPED _read;
+        DWORD      _readDone;
         OVERLAPPED _write;
 
         CHECK_THREAD_DECLARE( _recvThread );

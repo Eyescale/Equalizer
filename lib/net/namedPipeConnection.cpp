@@ -42,6 +42,7 @@ namespace net
 {
 
 NamedPipeConnection::NamedPipeConnection()
+    : _readDone( 0 )
 {
     memset( &_read, 0, sizeof( _read ));
     memset( &_write, 0, sizeof( _write ));
@@ -330,9 +331,14 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
 
     ResetEvent( _read.hEvent );
     DWORD use = EQ_MIN( bytes, EQ_READ_BUFFER_SIZE );
+    
 
-    if( !ReadFile( _fd, buffer, use, 0, &_read ) &&
-         GetLastError() != ERROR_IO_PENDING )
+    if( ReadFile( _fd, buffer, use, &_readDone, &_read ) )
+    {
+        EQASSERT( _readDone > 0 );
+        SetEvent( _read.hEvent );
+    }
+    else if( GetLastError() != ERROR_IO_PENDING )
     {
         EQWARN << "Could not start overlapped receive: " << base::sysError
                << ", closing connection" << std::endl;
@@ -349,6 +355,9 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes )
         EQERROR << "Invalid read handle" << std::endl;
         return -1;
     }
+    
+    if( _readDone > 0 )
+        return _readDone;
 
     DWORD got   = 0;
     if( !GetOverlappedResult( _fd, &_read, &got, true ))
@@ -377,8 +386,11 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
     DWORD use = EQ_MIN( bytes, EQ_WRITE_BUFFER_SIZE );
 
     ResetEvent( _write.hEvent );
-    if( !WriteFile( _fd, buffer, use, &wrote, &_write ) &&
-        GetLastError() != ERROR_IO_PENDING )
+    if( WriteFile( _fd, buffer, use, &wrote, &_write ) )
+    {
+        return wrote;
+    }
+    else if( GetLastError() != ERROR_IO_PENDING )
     {
         EQWARN << "Could not start write: " << base::sysError
             << ", closing connection" << std::endl;
