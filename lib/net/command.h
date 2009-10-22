@@ -30,13 +30,10 @@ namespace net
     struct Packet;
 
     /**
-     * A class managing commands and the ownership of packets.
+     * A class managing command packets.
      *
      * A RefPtr<Packet> can't be used, since Packets are plain C structs send
-     * over the network. The Command manages the ownership of packet by
-     * claiming them so that only one can hold a given packet at a time.
-     * A packet passed to a holder is owned by it and will be deleted
-     * automatically when necessary.
+     * over the network.
      */
     class Command 
     {

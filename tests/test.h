@@ -24,7 +24,7 @@
 
 #define TEST( x )                                                       \
     {                                                                   \
-        EQINFO << "Test " << #x << std::endl;                           \
+        EQVERB << "Test " << #x << std::endl;                           \
         if( !(x) )                                                      \
         {                                                               \
             OUTPUT << #x << " failed (l." << __LINE__ << ')' << std::endl; \
@@ -34,7 +34,7 @@
 
 #define TESTINFO( x, info )                                           \
     {                                                                 \
-        EQINFO << "Test " << #x << ": " << info << std::endl;         \
+        EQVERB << "Test " << #x << ": " << info << std::endl;         \
         if( !(x) )                                                    \
         {                                                             \
             OUTPUT << #x << " failed (l." << __LINE__ << "): " << info  \

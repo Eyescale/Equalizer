@@ -43,6 +43,7 @@ HEADER_SRC = \
 	net/barrier.h \
 	net/dispatcher.h \
 	net/bufferConnection.h \
+	net/cache.h \
 	net/command.h \
 	net/commandCache.h \
 	net/commandFunc.h \

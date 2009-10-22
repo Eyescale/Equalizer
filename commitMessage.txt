@@ -1,9 +1,9 @@
-Fix Apple non-GLX Makefile build :-/
+First version of a cache and unit test, to be used for Object instance data.
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
