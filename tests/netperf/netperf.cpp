@@ -240,26 +240,14 @@ int main( int argc, char **argv )
 
         _connectionSet.addConnection( connection );
 
-        ConnectionPtr resultConn;
-        ConnectionPtr newConn;
-        if ( description->type == CONNECTIONTYPE_MCIP_RSP )
-        {
-            ConnectionPtr resultConn;
-            ConnectionPtr newConn;            
-            resultConn = connection;
-            newConn = connection;
-        }
-        else
-        {
-                        // Get first client
-            const ConnectionSet::Event event = _connectionSet.select();
-            TEST( event == ConnectionSet::EVENT_CONNECT );
+        // Get first client
+        const ConnectionSet::Event event = _connectionSet.select();
+        TEST( event == ConnectionSet::EVENT_CONNECT );
 
-            resultConn = _connectionSet.getConnection();
-            newConn    = resultConn->acceptSync();
-            resultConn->acceptNB();
-        }
-
+        ConnectionPtr resultConn = _connectionSet.getConnection();
+        ConnectionPtr newConn    = resultConn->acceptSync();
+        resultConn->acceptNB();
+        
         TEST( resultConn == connection );
         TEST( newConn.isValid( ));
 
@@ -271,8 +259,7 @@ int main( int argc, char **argv )
         if( useThreads )
             receivers.back().first->start();
 
-        if ( description->type != CONNECTIONTYPE_MCIP_RSP )
-            _connectionSet.addConnection( newConn );
+        _connectionSet.addConnection( newConn );
 
         // Until all client have disconnected...
         _nClients = 1;
@@ -372,3 +359,4 @@ int main( int argc, char **argv )
     connection->close();
     return EXIT_SUCCESS;
 }
+
