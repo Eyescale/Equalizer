@@ -217,6 +217,7 @@ namespace base
             {}                                              \
         mutable size_t id;                                  \
         bool extMutex;                                      \
+        bool inRegion;                                      \
     } NAME;                                                 \
 
 #ifdef EQ_CHECK_THREADSAFETY
@@ -252,10 +253,27 @@ namespace base
             }                                                           \
         }                                                               \
     }
+
+# define CHECK_THREAD_LOCK_BEGIN( NAME )                                \
+    {                                                                   \
+        EQASSERTINFO( !NAME.inRegion,                                   \
+                      "Another thread already in critical region" );    \
+        NAME.inRegion = true;                                           \
+    }
+
+# define CHECK_THREAD_LOCK_END( NAME )                                  \
+    {                                                                   \
+        EQASSERTINFO( NAME.inRegion,                                    \
+                      "Another thread was in critical region" );        \
+        NAME.inRegion = false;                                          \
+    }
+
 #else
 #  define CHECK_THREAD_RESET( NAME ) {}
 #  define CHECK_THREAD( NAME ) {}
 #  define CHECK_NOT_THREAD( NAME ) {}
+#  define CHECK_THREAD_LOCK_BEGIN( NAME ) {}
+#  define CHECK_THREAD_LOCK_END( NAME ) {}
 #endif
 
 }
