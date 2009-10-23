@@ -39,6 +39,12 @@ namespace net
         bool operator == ( const ObjectVersion& value ) const
             { return ( id == value.id && version == value.version ); }
         
+        bool operator < ( const ObjectVersion& rhs ) const
+            { return id < rhs.id || ( id == rhs.id && version < rhs.version ); }
+
+        bool operator > ( const ObjectVersion& rhs ) const
+            { return id > rhs.id || ( id == rhs.id && version > rhs.version ); }
+
         uint32_t id;
         uint32_t version;
 
@@ -67,6 +73,16 @@ namespace stdext
 namespace std
 #endif
 {
+#ifdef WIN32
+    /** ObjectVersion hash function. */
+    template<>
+    inline size_t hash_compare< eq::net::ObjectVersion >::operator()
+        ( const eq::net::ObjectVersion& key ) const
+    {
+        return hash_value(
+            (static_cast< uint64_t >( key.id ) << 32) + key.version );
+    }
+#else
     /** ObjectVersion hash function. */
     template<> struct hash< eq::net::ObjectVersion >
     {
@@ -76,6 +92,7 @@ namespace std
                 (static_cast< uint64_t >( key.id ) << 32) + key.version );
         }
     };
+#endif
 }
 #ifdef EQ_GCC_4_2_OR_LATER
 }

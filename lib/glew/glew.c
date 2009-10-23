@@ -36,7 +36,9 @@
 #  undef DEPRECATED_ATTRIBUTE
 #  define DEPRECATED_ATTRIBUTE
 #endif
-#include <eq/base/defines.h>
+#ifdef EQUALIZER_EXPORTS
+#  include <eq/base/defines.h>
+#endif
 
 #include <GL/glew.h>
 #if defined(_WIN32)
