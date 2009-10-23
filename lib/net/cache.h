@@ -47,7 +47,7 @@ namespace net
          * Add a new item to the cache.
          *
          * @param key The key to find the item.
-         * @param item The command to cache.
+         * @param command The command to cache.
          * @param pin true if the item has to be added and pinned in the cache.
          * @return true if the item was entered, false if not.
          */

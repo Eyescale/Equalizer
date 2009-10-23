@@ -1,4 +1,4 @@
-Makefile cleanups
+Minor doxygen cleanup
 
 [ ] May break build
 [ ] May break existing applications
