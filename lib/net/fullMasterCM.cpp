@@ -38,23 +38,23 @@ FullMasterCM::FullMasterCM( Object* object )
           _nVersions( 0 ),
           _obsoleteFlags( Object::AUTO_OBSOLETE_COUNT_VERSIONS )
 {
-    DeltaData* data = _newDeltaData();
+    InstanceData* data = _newInstanceData();
     data->os.setVersion( 1 );
 
     data->os.enable();
     _object->getInstanceData( data->os );
     data->os.disable();
         
-    _deltaDatas.push_front( data );
+    _instanceDatas.push_front( data );
     ++_version;
     ++_commitCount;
 
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &FullMasterCM::_cmdCommit ), 0 );
-    // sync commands are send to any instance, even the master gets the command
-    registerCommand( CMD_OBJECT_DELTA_DATA,
+    // sync commands are send to all instances, even the master gets it
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
                      CmdFunc( this, &FullMasterCM::_cmdDiscard ), 0 );
-    registerCommand( CMD_OBJECT_DELTA,
+    registerCommand( CMD_OBJECT_INSTANCE,
                      CmdFunc( this, &FullMasterCM::_cmdDiscard ), 0 );
 }
 
@@ -66,19 +66,19 @@ FullMasterCM::~FullMasterCM()
                << typeid( *_object ).name() << std::endl;
     _slaves.clear();
 
-    for( std::deque< DeltaData* >::const_iterator i = _deltaDatas.begin();
-         i != _deltaDatas.end(); ++i )
-
+    for( InstanceDataDeque::const_iterator i = _instanceDatas.begin();
+         i != _instanceDatas.end(); ++i )
+    {
         delete *i;
+    }
+    _instanceDatas.clear();
 
-    _deltaDatas.clear();
-
-    for(std::vector<DeltaData*>::const_iterator i=_deltaDataCache.begin();
-         i != _deltaDataCache.end(); ++i )
-
+    for( InstanceDataVector::const_iterator i = _instanceDataCache.begin();
+         i != _instanceDataCache.end(); ++i )
+    {
         delete *i;
-    
-    _deltaDataCache.clear();
+    }
+    _instanceDataCache.clear();
 }
 
 uint32_t FullMasterCM::commitNB()
@@ -107,21 +107,21 @@ void FullMasterCM::_obsolete()
 {
     if( _obsoleteFlags & Object::AUTO_OBSOLETE_COUNT_COMMITS )
     {
-        DeltaData* lastDeltaData = _deltaDatas.back();
-        if( lastDeltaData->commitCount < (_commitCount - _nVersions) &&
-            _deltaDatas.size() > 1 )
+        InstanceData* lastInstanceData = _instanceDatas.back();
+        if( lastInstanceData->commitCount < (_commitCount - _nVersions) &&
+            _instanceDatas.size() > 1 )
         {
-            _deltaDataCache.push_back( lastDeltaData );
-            _deltaDatas.pop_back();
+            _instanceDataCache.push_back( lastInstanceData );
+            _instanceDatas.pop_back();
         }
         _checkConsistency();
         return;
     }
     // else count versions
-    while( _deltaDatas.size() > (_nVersions+1) )
+    while( _instanceDatas.size() > (_nVersions+1) )
     {
-        _deltaDataCache.push_back( _deltaDatas.back( ));
-        _deltaDatas.pop_back();
+        _instanceDataCache.push_back( _instanceDatas.back( ));
+        _instanceDatas.pop_back();
         _checkConsistency();
     }
 }
@@ -131,7 +131,7 @@ uint32_t FullMasterCM::getOldestVersion() const
     if( _version == Object::VERSION_NONE )
         return Object::VERSION_NONE;
 
-    return _deltaDatas.back()->os.getVersion();
+    return _instanceDatas.back()->os.getVersion();
 }
 
 void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
@@ -158,43 +158,42 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
         return;
     }
 
+    const uint32_t oldest  = getOldestVersion();
     const uint32_t version = (inVersion == Object::VERSION_OLDEST) ?
-                                 getOldestVersion() : inVersion;
+                                 oldest : inVersion;
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID() 
                          << " with v" << version << std::endl;
 
     EQASSERT( _object->getChangeType() == Object::INSTANCE );
-    EQASSERT( version >= getOldestVersion( ));
+    EQASSERT( version >= oldest );
 
-    std::deque< DeltaData* >::reverse_iterator i = _deltaDatas.rbegin();
-    while( (*i)->os.getVersion() < version && i != _deltaDatas.rend( ))
-        ++i;
-
-    const DeltaData* data = (i == _deltaDatas.rend()) ? _deltaDatas.back() : *i;
-         
-    // first packet has to be an instance packet, to be applied immediately
-    const base::Bufferb& buffer     = data->os.getSaveBuffer();
-    ObjectInstancePacket instPacket;
-    instPacket.instanceID = instanceID;
-    instPacket.dataSize   = buffer.getSize();
-    instPacket.version    = data->os.getVersion();
-    instPacket.sequence   = 0;
-
-    _object->send( node, instPacket, buffer.getData(), buffer.getSize() );
-
-    if( i == _deltaDatas.rend( ))
-        return;
-
-    // versions oldest-1..newest are delta packets
-    for( ++i; i != _deltaDatas.rend(); ++i )
+    // send all instance datas, starting at initial version
+    InstanceDataDeque::reverse_iterator i = _instanceDatas.rbegin();
+    while( (*i)->os.getVersion() < version && i != _instanceDatas.rend( ))
     {
-        DeltaData* deltaData = *i;
-        deltaData->os.setInstanceID( instanceID );
-        deltaData->os.resend( node );
-        EQASSERT( ++instPacket.version == deltaData->os.getVersion( ));
+        ++i;
     }
-    EQASSERT( instPacket.version == _version );
+
+    if( i == _instanceDatas.rend( ))
+    {
+        InstanceData* data = _instanceDatas.back();
+        EQASSERT( data );
+        EQASSERT( data->os.getVersion() <= version );
+
+        data->os.setInstanceID( instanceID );
+        data->os.resend( node );
+    }
+    else for( ; i != _instanceDatas.rend(); ++i )
+    {
+        InstanceData* data = *i;
+        EQASSERT( data );
+        EQASSERTINFO( data->os.getVersion() >= version, 
+                      data->os.getVersion() << " < " << version );
+
+        data->os.setInstanceID( instanceID );
+        data->os.resend( node );
+    }
 }
 
 void FullMasterCM::removeSlave( NodePtr node )
@@ -240,10 +239,14 @@ void FullMasterCM::_checkConsistency() const
     if( _version == Object::VERSION_NONE )
         return;
 
-    if( !( _obsoleteFlags & Object::AUTO_OBSOLETE_COUNT_COMMITS ))
-    {   // count versions
-        if( _version <= _nVersions )
-            EQASSERT( _deltaDatas.size() == _version );
+    uint32_t version = _version;
+    for( InstanceDataDeque::const_iterator i = _instanceDatas.begin();
+         i != _instanceDatas.end(); ++i )
+    {
+        const InstanceData* data = *i;
+        EQASSERT( data->os.getVersion() == version );
+        EQASSERT( data->os.getVersion() > 0 );
+        --version;
     }
 #endif
 }
@@ -251,22 +254,22 @@ void FullMasterCM::_checkConsistency() const
 //---------------------------------------------------------------------------
 // cache handling
 //---------------------------------------------------------------------------
-FullMasterCM::DeltaData* FullMasterCM::_newDeltaData()
+FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
 {
-    DeltaData* deltaData;
+    InstanceData* instanceData;
 
-    if( _deltaDataCache.empty( ))
-        deltaData = new DeltaData( _object );
+    if( _instanceDataCache.empty( ))
+        instanceData = new InstanceData( _object );
     else
     {
-        deltaData = _deltaDataCache.back();
-        _deltaDataCache.pop_back();
+        instanceData = _instanceDataCache.back();
+        _instanceDataCache.pop_back();
     }
 
-    deltaData->os.enableSave();
-    deltaData->os.enableBuffering();
-    deltaData->os.setInstanceID( EQ_ID_ANY );
-    return deltaData;
+    instanceData->os.enableSave();
+    instanceData->os.enableBuffering();
+    instanceData->os.setInstanceID( EQ_ID_ANY );
+    return instanceData;
 }
 
 //---------------------------------------------------------------------------
@@ -283,26 +286,25 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
 
     ++_commitCount;
 
-    DeltaData* deltaData = _newDeltaData();
+    InstanceData* instanceData = _newInstanceData();
+    instanceData->commitCount = _commitCount;
+    instanceData->os.setVersion( _version + 1 );
 
-    deltaData->commitCount = _commitCount;
-    deltaData->os.setVersion( _version + 1 );
+    instanceData->os.enable( _slaves );
+    _object->getInstanceData( instanceData->os );
+    instanceData->os.disable();
 
-    deltaData->os.enable( _slaves );
-    _object->pack( deltaData->os );
-    deltaData->os.disable();
-
-    if( deltaData->os.hasSentData( ))
+    if( instanceData->os.hasSentData( ))
     {
         ++_version;
         EQASSERT( _version );
     
-        _deltaDatas.push_front( deltaData );
+        _instanceDatas.push_front( instanceData );
         EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
                              << _object->getID() << std::endl;
     }
     else
-        _deltaDataCache.push_back( deltaData );
+        _instanceDataCache.push_back( instanceData );
 
     _obsolete();
     _checkConsistency();

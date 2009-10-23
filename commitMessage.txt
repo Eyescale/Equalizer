@@ -1,4 +1,4 @@
-Instantiate ObjectVersion cache, code cleanups
+Cleanup master change manager for INSTANCE objects
 
 [ ] May break build
 [ ] May break existing applications

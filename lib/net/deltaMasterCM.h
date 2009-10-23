@@ -112,9 +112,12 @@ namespace net
             uint32_t commitCount;
         };
         
+        typedef std::deque< InstanceData* > InstanceDataDeque;
+        typedef std::vector< InstanceData* > InstanceDataVector;
+
         /** The list of full instance datas, head version first. */
-        std::deque< InstanceData* > _instanceDatas;
-        std::vector< InstanceData* > _instanceDataCache;
+        InstanceDataDeque _instanceDatas;
+        InstanceDataVector _instanceDataCache;
 
         InstanceData*   _newInstanceData();
 

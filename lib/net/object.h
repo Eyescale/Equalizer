@@ -61,7 +61,7 @@ namespace net
             VERSION_HEAD    = 0xffffffffu
         };
 
-        /** Object change handling characteristics */
+        /** Object change handling characteristics, see Programming Guide */
         enum ChangeType
         {
             STATIC,            //!< non-versioned, static object.

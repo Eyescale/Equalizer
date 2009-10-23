@@ -18,7 +18,7 @@
 #ifndef EQNET_FULLMASTERCM_H
 #define EQNET_FULLMASTERCM_H
 
-#include "objectDeltaDataOStream.h" // member
+#include "objectInstanceDataOStream.h" // member
 
 #include <eq/net/objectCM.h> // base class
 #include <eq/net/types.h>    // for NodeVector
@@ -102,20 +102,23 @@ namespace net
         /** Registers request packets waiting for a return value. */
         base::RequestHandler _requestHandler;
 
-        struct DeltaData
+        struct InstanceData
         {
-            DeltaData( const Object* object ) 
+            InstanceData( const Object* object ) 
                     : os( object ), commitCount(0) {}
 
-            ObjectDeltaDataOStream os;
+            ObjectInstanceDataOStream os;
             uint32_t commitCount;
         };
         
-        /** The list of full delta datas, head version first. */
-        std::deque< DeltaData* >  _deltaDatas;
-        std::vector< DeltaData* > _deltaDataCache;
+        typedef std::deque< InstanceData* > InstanceDataDeque;
+        typedef std::vector< InstanceData* > InstanceDataVector;
 
-        DeltaData* _newDeltaData();
+        /** The list of full instance datas, head version first. */
+        InstanceDataDeque _instanceDatas;
+        InstanceDataVector _instanceDataCache;
+
+        InstanceData* _newInstanceData();
 
         void _obsolete();
         void _checkConsistency() const;

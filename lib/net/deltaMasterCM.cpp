@@ -26,15 +26,13 @@
 #include "packets.h"
 #include "session.h"
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace net
 {
 
 typedef ObjectDeltaDataOStream DeltaData;
+typedef CommandFunc<DeltaMasterCM> CmdFunc;
         
 DeltaMasterCM::DeltaMasterCM( Object* object )
         : _object( object ),
@@ -45,7 +43,6 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
 {
     InstanceData* data = _newInstanceData();
     data->os.setVersion( 1 );
-    data->os.enableSave();
 
     data->os.enable();
     _object->getInstanceData( data->os );
@@ -56,36 +53,34 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
     ++_commitCount;
 
     registerCommand( CMD_OBJECT_COMMIT, 
-                 CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdCommit ),
-                     0 );
+                     CmdFunc( this, &DeltaMasterCM::_cmdCommit ), 0 );
     // sync commands are send to all instances, even the master gets it
     registerCommand( CMD_OBJECT_DELTA_DATA, 
-                CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ),
-                     0 );
+                     CmdFunc( this, &DeltaMasterCM::_cmdDiscard ), 0 );
     registerCommand( CMD_OBJECT_DELTA, 
-                CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ),
-                     0 );
+                     CmdFunc( this, &DeltaMasterCM::_cmdDiscard ), 0 );
 }
 
 DeltaMasterCM::~DeltaMasterCM()
 {
     if( !_slaves.empty( ))
         EQWARN << _slaves.size() 
-               << " slave nodes subscribed during deregisterObject" << endl;
+               << " slave nodes subscribed during deregisterObject of "
+               << typeid( *_object ).name() << std::endl;
     _slaves.clear();
 
-    for( std::deque< InstanceData* >::const_iterator i = _instanceDatas.begin();
+    for( InstanceDataDeque::const_iterator i = _instanceDatas.begin();
          i != _instanceDatas.end(); ++i )
-
+    {
         delete *i;
-
+    }
     _instanceDatas.clear();
 
-    for(std::vector<InstanceData*>::const_iterator i=_instanceDataCache.begin();
+    for( InstanceDataVector::const_iterator i = _instanceDataCache.begin();
          i != _instanceDataCache.end(); ++i )
-
+    {
         delete *i;
-    
+    }
     _instanceDataCache.clear();
 }
 
@@ -171,12 +166,12 @@ void DeltaMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
                                  oldest : inVersion;
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID() 
-                         << " with v" << version << endl;
+                         << " with v" << version << std::endl;
 
     EQASSERT( version >= oldest );
 
     // send all instance datas, starting at initial version
-    deque< InstanceData* >::reverse_iterator i = _instanceDatas.rbegin();
+    InstanceDataDeque::reverse_iterator i = _instanceDatas.rbegin();
     while( (*i)->os.getVersion() < version && i != _instanceDatas.rend( ))
     {
         ++i;
@@ -246,7 +241,7 @@ void DeltaMasterCM::_checkConsistency() const
         return;
 
     uint32_t version = _version;
-    for( deque< InstanceData* >::const_iterator i = _instanceDatas.begin();
+    for( InstanceDataDeque::const_iterator i = _instanceDatas.begin();
          i != _instanceDatas.end(); ++i )
     {
         const InstanceData* data = *i;
@@ -272,7 +267,7 @@ DeltaMasterCM::InstanceData* DeltaMasterCM::_newInstanceData()
         _instanceDataCache.pop_back();
     }
 
-    instanceData->os.disableSave();
+    instanceData->os.enableSave();
     instanceData->os.enableBuffering();
     instanceData->os.setInstanceID( EQ_ID_ANY );
     return instanceData;
@@ -285,7 +280,8 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
 {
     CHECK_THREAD( _thread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
+    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
+                         << std::endl;
 
     EQASSERT( _version != Object::VERSION_NONE );
 
@@ -307,26 +303,25 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
         return COMMAND_HANDLED;
     }
 
-    ++_version;
-    EQASSERT( _version );
-    
     // save instance data
     InstanceData* instanceData = _newInstanceData();
-    instanceData->os.enableSave();
-    instanceData->os.setVersion( _version );
+    instanceData->commitCount = _commitCount;
+    instanceData->os.setVersion( _version + 1 );
 
     instanceData->os.enable();
     _object->getInstanceData( instanceData->os );
     instanceData->os.disable();
 
-    instanceData->commitCount = _commitCount;
+    ++_version;
+    EQASSERT( _version );
+    
     _instanceDatas.push_front( instanceData );
     
     _obsolete();
     _checkConsistency();
 
     EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
-                         << _object->getID() << endl;
+                         << _object->getID() << std::endl;
     _requestHandler.serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
 }
