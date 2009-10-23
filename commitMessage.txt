@@ -1,4 +1,4 @@
-Cleanup master change manager for INSTANCE objects
+Remove redundant code from DeltaMasterCM by changing inheritance
 
 [ ] May break build
 [ ] May break existing applications

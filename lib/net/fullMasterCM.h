@@ -77,7 +77,7 @@ namespace net
 
         virtual void applyMapData() { EQDONTCALL; }
 
-    private:
+    protected:
         /** The managed object. */
         Object* _object;
 

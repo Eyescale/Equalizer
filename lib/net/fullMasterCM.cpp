@@ -83,9 +83,6 @@ FullMasterCM::~FullMasterCM()
 
 uint32_t FullMasterCM::commitNB()
 {
-    EQASSERTINFO( _object->getChangeType() == Object::INSTANCE,
-                  "Object type " << typeid(*this).name( ));
-
     ObjectCommitPacket packet;
     packet.instanceID = _object->_instanceID;
     packet.requestID  = _requestHandler.registerRequest();
@@ -165,7 +162,6 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
                          << ", instantiate on " << node->getNodeID() 
                          << " with v" << version << std::endl;
 
-    EQASSERT( _object->getChangeType() == Object::INSTANCE );
     EQASSERT( version >= oldest );
 
     // send all instance datas, starting at initial version
@@ -234,7 +230,6 @@ void FullMasterCM::_checkConsistency() const
 {
 #ifndef NDEBUG
     EQASSERT( _object->_id != EQ_ID_INVALID );
-    EQASSERT( _object->getChangeType() == Object::INSTANCE );
 
     if( _version == Object::VERSION_NONE )
         return;
