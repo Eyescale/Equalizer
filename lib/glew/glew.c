@@ -36,6 +36,7 @@
 #  undef DEPRECATED_ATTRIBUTE
 #  define DEPRECATED_ATTRIBUTE
 #endif
+#include <eq/base/defines.h>
 
 #include <GL/glew.h>
 #if defined(_WIN32)
