@@ -1,4 +1,4 @@
-Remove redundant code from DeltaMasterCM by changing inheritance
+Makefile cleanups
 
 [ ] May break build
 [ ] May break existing applications

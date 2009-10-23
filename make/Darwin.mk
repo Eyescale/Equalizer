@@ -52,6 +52,7 @@ endif # LEOPARD
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
   WINDOW_SYSTEM_INCS += -I/usr/X11R6/include
+  CFLAGS += -DGLEW_APPLE_GLX
 ifdef LEOPARD
     # war to broken libGL in Leopard
     WINDOW_SYSTEM_LIBS += -dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib

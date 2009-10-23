@@ -2,13 +2,18 @@
 
 include make/system.mk
 
+
+OPTIONAL = \
+	$(wildcard auxilary)
+
 SUBDIRS = \
 	externals \
 	lib \
 	server \
 	tools \
 	examples \
-	tests
+	tests \
+	$(OPTIONAL)
 
 .PHONY: docs
 
@@ -25,6 +30,7 @@ tests: lib server
 examples: lib
 server: lib
 tools: server
+auxilary: lib
 
 postcompile: subdirs
 	@echo

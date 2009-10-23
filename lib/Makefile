@@ -281,7 +281,6 @@ ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
 	client/glXMessagePump.cpp \
 	client/glXWindow.cpp \
 	client/glXPipe.cpp
-  CFLAGS += -DGLEW_APPLE_GLX
 endif
 
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
