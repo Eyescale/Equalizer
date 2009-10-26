@@ -185,6 +185,7 @@ memory                          { return EQTOKEN_MEMORY; }
 fixed                           { return EQTOKEN_FIXED; }
 HMD                             { return EQTOKEN_HMD; }
 hostname                        { return EQTOKEN_HOSTNAME; }
+interface                       { return EQTOKEN_INTERFACE; }
 launch_command                  { return EQTOKEN_LAUNCH_COMMAND; }
 launch_command_quote            { return EQTOKEN_LAUNCH_COMMAND_QUOTE; }
 launch_timeout                  { return EQTOKEN_LAUNCH_TIMEOUT; }

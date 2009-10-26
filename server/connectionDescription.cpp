@@ -82,6 +82,9 @@ std::ostream& operator << ( std::ostream& os,
             ConnectionDescription::SATTR_HOSTNAME ))
         os << "hostname      \"" << desc->getHostname() << "\"" << endl;
 
+    if( !desc->getInterface().empty( ))
+        os << "interface     \"" << desc->getInterface() << "\"" << endl;
+
     if( desc->port != global->getConnectionIAttribute( 
             ConnectionDescription::IATTR_PORT ))
         os << "port          " << desc->port << endl;

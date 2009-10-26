@@ -80,6 +80,9 @@ namespace net
         EQ_EXPORT void setHostname( const std::string& hostname );
         EQ_EXPORT const std::string& getHostname() const;
 
+        EQ_EXPORT void setInterface( const std::string& interface );
+        EQ_EXPORT const std::string& getInterface() const;
+
         EQ_EXPORT void setFilename( const std::string& filename );
         EQ_EXPORT const std::string& getFilename() const;
         //@}
@@ -90,6 +93,9 @@ namespace net
     private:
         /** The host name. */
         std::string _hostname;
+
+        /** The host name of the interface (multicast). */
+        std::string _interface;
 
         /** The name file using for a pipe. */
         std::string _filename;

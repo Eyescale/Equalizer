@@ -68,7 +68,8 @@ string ConnectionDescription::toString() const
 void ConnectionDescription::serialize( std::ostream& os ) const
 {
     os << type << SEPARATOR << bandwidth << SEPARATOR << _hostname  << SEPARATOR
-       << port << SEPARATOR << _filename << SEPARATOR;
+       << _interface << SEPARATOR << port << SEPARATOR << _filename
+       << SEPARATOR;
 }
 
 bool ConnectionDescription::fromString( std::string& data )
@@ -141,6 +142,13 @@ bool ConnectionDescription::fromString( std::string& data )
         nextPos = data.find( SEPARATOR );
         if( nextPos == string::npos )
             goto error;
+
+        _interface = data.substr( 0, nextPos );
+        data       = data.substr( nextPos + 1 );
+
+        nextPos = data.find( SEPARATOR );
+        if( nextPos == string::npos )
+            goto error;
         
         const string portStr = data.substr( 0, nextPos );
         data                 = data.substr( nextPos + 1 );
@@ -165,6 +173,11 @@ void ConnectionDescription::setHostname( const std::string& hostname )
     _hostname = hostname;
 }
 
+void ConnectionDescription::setInterface( const std::string& interface )
+{
+    _interface = interface;
+}
+
 void ConnectionDescription::setFilename( const std::string& filename )
 {
     _filename = filename;
@@ -174,9 +187,15 @@ const std::string& ConnectionDescription::getFilename() const
 {
     return _filename;
 }
+
 const string& ConnectionDescription::getHostname() const
 {
     return _hostname;
+}
+
+const string& ConnectionDescription::getInterface() const
+{
+    return _interface;
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

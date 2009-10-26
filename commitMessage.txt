@@ -1,9 +1,10 @@
-Rename cache->instance cache
+Add interface connection description parameter, to be used for multicast
+connections
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

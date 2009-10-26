@@ -187,6 +187,7 @@
 %token EQTOKEN_FIXED
 %token EQTOKEN_HMD
 %token EQTOKEN_HOSTNAME
+%token EQTOKEN_INTERFACE
 %token EQTOKEN_LAUNCH_COMMAND
 %token EQTOKEN_LAUNCH_COMMAND_QUOTE
 %token EQTOKEN_LAUNCH_TIMEOUT
@@ -551,6 +552,7 @@ connectionFields: /*null*/ | connectionFields connectionField
 connectionField:
     EQTOKEN_TYPE connectionType   { connectionDescription->type = $2; }
     | EQTOKEN_HOSTNAME  STRING    { connectionDescription->setHostname($2); }
+    | EQTOKEN_INTERFACE STRING    { connectionDescription->setInterface($2); }
     | EQTOKEN_PORT UNSIGNED       { connectionDescription->port = $2; }
     | EQTOKEN_BANDWIDTH UNSIGNED  { connectionDescription->bandwidth = $2; }
     | EQTOKEN_FILENAME STRING     { connectionDescription->setFilename($2); }
