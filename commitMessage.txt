@@ -1,5 +1,4 @@
-Add interface connection description parameter, to be used for multicast
-connections
+Add missing files
 
 [ ] May break build
 [ ] May break existing applications
