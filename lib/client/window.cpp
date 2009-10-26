@@ -487,7 +487,6 @@ bool Window::configInit( const uint32_t initID )
     if( !configInitOSWindow( initID )) return false;
     if( !configInitGL( initID ))       return false;
 
-    EQ_GL_ERROR( "after Window::configInitGL" );
     return true;
 }
 
@@ -539,6 +538,9 @@ bool Window::configInitOSWindow( const uint32_t initID )
 
 void Window::_setupObjectManager()
 {
+    if( !glewGetContext( ))
+        return;
+
     _releaseObjectManager();
 
     Window*    sharedWindow = getSharedContextWindow();
