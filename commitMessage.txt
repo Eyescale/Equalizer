@@ -1,4 +1,4 @@
-Minor doxygen cleanup
+Rename cache->instance cache
 
 [ ] May break build
 [ ] May break existing applications

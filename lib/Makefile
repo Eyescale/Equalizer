@@ -41,9 +41,7 @@ HEADER_SRC = \
 	base/types.h \
 	base/uuid.h \
 	net/barrier.h \
-	net/dispatcher.h \
 	net/bufferConnection.h \
-	net/cache.h \
 	net/command.h \
 	net/commandCache.h \
 	net/commandFunc.h \
@@ -58,8 +56,10 @@ HEADER_SRC = \
 	net/connectionType.h \
 	net/dataIStream.h \
 	net/dataOStream.h \
+	net/dispatcher.h \
 	net/global.h \
 	net/init.h \
+	net/instanceCache.h \
 	net/log.h \
 	net/net.h \
 	net/node.h \
@@ -163,7 +163,6 @@ CXXFILES = \
 	base/uuid.cpp \
 	net/barrier.cpp \
 	net/bufferConnection.cpp \
-	net/cache.cpp \
 	net/command.cpp \
 	net/commandCache.cpp \
 	net/commandQueue.cpp \
@@ -178,6 +177,7 @@ CXXFILES = \
 	net/fullMasterCM.cpp \
 	net/global.cpp \
 	net/init.cpp \
+	net/instanceCache.cpp \
 	net/mcipConnection.cpp \
 	net/node.cpp \
 	net/object.cpp \

@@ -18,8 +18,8 @@
 #ifndef EQNET_SESSION_H
 #define EQNET_SESSION_H
 
-#include <eq/net/cache.h>         // member
 #include <eq/net/dispatcher.h>    // base class
+#include <eq/net/instanceCache.h> // member
 #include <eq/net/object.h>        // Object::VERSION_NONE enum
 #include <eq/net/objectVersion.h> // member
 
@@ -388,7 +388,7 @@ namespace net
         ObjectVectorHash _objects;
         base::Lock       _objectsMutex;
 
-        typedef Cache< ObjectVersion > InstanceDataCache;
+        typedef InstanceCache< ObjectVersion > InstanceDataCache;
         //InstanceDataCache _instanceDataCache; //!< cached mapping data
 
         const NodeID& _pollIDMaster( const uint32_t id ) const;

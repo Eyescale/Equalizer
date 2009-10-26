@@ -19,9 +19,9 @@
 
 #define EQ_INSTRUMENT_CACHE
 
-#include <eq/net/cache.h>
+#include <eq/net/instanceCache.h>
 #include <eq/net/init.h>
-#include "../../lib/net/cache.cpp"
+#include "../../lib/net/instanceCache.cpp"
 
 #include <eq/base/thread.h>
 #include <eq/net/command.h>
@@ -37,7 +37,7 @@ eq::base::Clock _clock;
 class Reader : public eq::base::Thread
 {
 public:
-    Reader( eq::net::Cache< uint16_t >& cache )
+    Reader( eq::net::InstanceCache< uint16_t >& cache )
             : Thread(),
               _cache( cache )
         {}
@@ -66,7 +66,7 @@ protected:
         }
 
 private:
-    eq::net::Cache< uint16_t >& _cache;
+    eq::net::InstanceCache< uint16_t >& _cache;
     eq::base::RNG _rng;
 };
 
@@ -79,7 +79,7 @@ int main( int argc, char **argv )
     Reader** readers = static_cast< Reader** >( 
         alloca( N_READER * sizeof( Reader* )));
 
-    eq::net::Cache< uint16_t > cache;
+    eq::net::InstanceCache< uint16_t > cache;
     eq::base::RNG rng;
 
     size_t hits = 0;
