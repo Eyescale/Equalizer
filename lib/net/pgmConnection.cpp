@@ -173,7 +173,8 @@ void PGMConnection::acceptNB()
 
     EQASSERT( _overlappedAcceptData );
     EQASSERT( _overlappedSocket == INVALID_SOCKET );
-    _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_RM, 0, 0, flags );
+    _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_RM, 0, 0,
+                                   flags );
 
     if( _overlappedSocket == INVALID_SOCKET )
     {
@@ -230,12 +231,13 @@ ConnectionPtr PGMConnection::acceptSync()
     GetAcceptExSockaddrs( _overlappedAcceptData, 0, sizeof( sockaddr_in ) + 16,
                           sizeof( sockaddr_in ) + 16, (sockaddr**)&local, 
                           &localLen, (sockaddr**)&remote, &remoteLen );
-    _tuneSocket( true, _overlappedSocket );
 
     PGMConnection* newConnection = new PGMConnection;
     ConnectionPtr connection( newConnection ); // to keep ref-counting correct
 
     newConnection->_readFD  = _overlappedSocket;
+    newConnection->_setupReadSocket();
+
     newConnection->_writeFD = _writeFD;
     newConnection->_initAIORead();
     _overlappedSocket       = INVALID_SOCKET;
@@ -400,7 +402,7 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
 }
 #endif // WIN32
 
-SOCKET PGMConnection::_initSocket( bool isRead, sockaddr_in address )
+SOCKET PGMConnection::_initSocket( sockaddr_in address )
 {
 #ifdef WIN32
     const DWORD flags = WSA_FLAG_OVERLAPPED;
@@ -428,37 +430,34 @@ SOCKET PGMConnection::_initSocket( bool isRead, sockaddr_in address )
         close();
         return INVALID_SOCKET;
     }
-    _tuneSocket( isRead, fd );
+
+
+    const int on = 1;
+    setsockopt( _readFD, SOL_SOCKET, SO_REUSEADDR, 
+                reinterpret_cast<const char*>( &on ), sizeof( on ));
     return fd;
 }
 
-void PGMConnection::_tuneSocket( bool isRead, const SOCKET fd )
+bool PGMConnection::_setupReadSocket()
 {
-    _enableHighSpeedLanOption( fd );
-    if( isRead )
-    {
-        const int on         = 1;
-        setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
-                    reinterpret_cast<const char*>( &on ), sizeof( on ));
-        
-
-#ifdef WIN32
-        _setRecvBufferSize( fd, 65535 );
-#endif
-    }
-    else
-    {
-#ifdef WIN32
-        _setFecParameters( fd, 255, 4, true, 0);
-        // round to nearest 100.000 value
-        uint64_t roundBandwidth = (_description->bandwidth  * 8 + 50000)- 
-                              (( _description->bandwidth * 8+ 50000) % 100000 );
-        roundBandwidth = EQ_MAX( roundBandwidth, 100000 );
-        _setSendRate( fd, roundBandwidth );
-        _setSendBufferSize( fd, 65535 );
-#endif
-    }
+    return( _enableHighSpeedRead() &&
+            _setReadBufferSize( 65535 ) &&
+            _setReadInterface( ));
 }
+
+bool PGMConnection::_setupSendSocket()
+{
+    // round to nearest 100.000 value
+    uint64_t roundBandwidth = (_description->bandwidth  * 8 + 50000)- 
+        (( _description->bandwidth * 8+ 50000) % 100000 );
+    roundBandwidth = EQ_MAX( roundBandwidth, 100000 );
+
+    return( _setFecParameters( _writeFD, 255, 4, true, 0 ) &&
+            _setSendRate( roundBandwidth ) &&
+            _setSendBufferSize( 65535 ) &&
+            _setSendInterface( ));
+}
+
 
 bool PGMConnection::_parseAddress( sockaddr_in& address )
 {
@@ -470,35 +469,41 @@ bool PGMConnection::_parseAddress( sockaddr_in& address )
     EQASSERT( _description->port != 0 );
 
     address.sin_family      = AF_INET;
-    address.sin_addr.s_addr = htonl( INADDR_ANY );
     address.sin_port        = htons( _description->port );
     memset( &(address.sin_zero), 0, 8 ); // zero the rest
 
-    const std::string& hostname = _description->getHostname();
-    if( !hostname.empty( ))
-    {
-        hostent *hptr = gethostbyname( hostname.c_str( ));
-        if( hptr )
-            memcpy( &address.sin_addr.s_addr, hptr->h_addr, hptr->h_length );
-        else
-        {
-            EQWARN << "Can't resolve host " << hostname << std::endl;
-            return false;
-        }
-    }
+    if( !_parseHostname( _description->getHostname(), address.sin_addr.s_addr ))
+        return false;
 
     EQINFO << "Address " << inet_ntoa( address.sin_addr )
            << ":" << ntohs( address.sin_port ) << std::endl;
     return true;
 }
 
+bool PGMConnection::_parseHostname( const std::string& hostname,
+                                    unsigned long& address )
+{
+    address = htonl( INADDR_ANY );
+    if( hostname.empty( ))
+        return true;
 
-bool PGMConnection::_setSendBufferSize( const SOCKET fd, const int newSize )
+    hostent *hptr = gethostbyname( hostname.c_str( ));
+    if( !hptr )
+    {
+        EQWARN << "Can't resolve host " << hostname << std::endl;
+        return false;
+    }
+
+    memcpy( &address, hptr->h_addr, hptr->h_length );
+    return true;
+}
+
+bool PGMConnection::_setSendBufferSize( const int newSize )
 {
     EQASSERT(newSize >= 0);
     
-    if ( ::setsockopt( fd, SOL_SOCKET, SO_SNDBUF, 
-         ( char* )&newSize, sizeof( int )) == SOCKET_ERROR ) 
+    if ( ::setsockopt( _writeFD, SOL_SOCKET, SO_SNDBUF, 
+                       ( char* )&newSize, sizeof( int )) == SOCKET_ERROR ) 
     {
         EQWARN << "can't SetSendBufferSize, error: " 
                <<  base::sysError << std::endl;
@@ -508,35 +513,7 @@ bool PGMConnection::_setSendBufferSize( const SOCKET fd, const int newSize )
     return true;
 }
 
-bool PGMConnection::_enableHighSpeedLanOption( const SOCKET fd )
-{
-    ULONG HighSpeedLanEnabled = 1;
-    
-    if ( ::setsockopt( fd, IPPROTO_RM, RM_HIGH_SPEED_INTRANET_OPT , 
-         (char*)&HighSpeedLanEnabled, sizeof( ULONG )) == SOCKET_ERROR ) 
-    {
-        EQWARN << "can't EnableHighSpeedLanOption, error: " 
-               <<  base::sysError << std::endl;
-        return false ;
-    }
-    
-    return true;
-}
-
-bool PGMConnection::_setRecvBufferSize( const SOCKET fd, int newSize )
-{
-    if ( ::setsockopt( fd, SOL_SOCKET, SO_RCVBUF,
-         (char*)&newSize, sizeof(int)) == SOCKET_ERROR ) 
-    {
-        EQWARN << "can't GetSendBufferSize, error: " 
-               <<  base::sysError << std::endl;
-        return false;
-    }
-    return true;
-}
-
-
-bool PGMConnection::_setSendRate( const SOCKET fd, const ULONG sendRate )
+bool PGMConnection::_setSendRate( const ULONG sendRate )
 {
     RM_SEND_WINDOW  sendWindow;
 
@@ -545,12 +522,29 @@ bool PGMConnection::_setSendRate( const SOCKET fd, const ULONG sendRate )
     sendWindow.WindowSizeInMSecs   = 100;
 
     EQINFO << "Setting PGM send rate to " << sendRate << " kBit/s" << std::endl;
-    if ( ::setsockopt( fd, IPPROTO_RM, RM_RATE_WINDOW_SIZE, 
-         (char*)&sendWindow, sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
+    if ( ::setsockopt( _writeFD, IPPROTO_RM, RM_RATE_WINDOW_SIZE, 
+                   (char*)&sendWindow, sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
     {
         EQWARN << "can't set send rate, error: " <<  base::sysError
                << std::endl;
         return false ;
+    }
+    return true;
+}
+
+bool PGMConnection::_setSendInterface()
+{
+    const std::string& iName = _description->getInterface();
+    if( iName.empty( ))
+        return true;
+
+    unsigned long interface;
+    if( !_parseHostname( iName, interface ) ||
+        ::setsockopt( _writeFD, IPPROTO_RM, RM_SET_SEND_IF,
+                     (char*)&interface, sizeof(uint32_t)) == SOCKET_ERROR )
+    {
+        EQWARN << "can't set send interface " <<  base::sysError << std::endl;
+        return false;
     }
     return true;
 }
@@ -590,11 +584,56 @@ bool PGMConnection::_setFecParameters( const SOCKET fd,
     fec.FECGroupSize              = groupsize;
     fec.fFECOnDemandParityEnabled = ondemand;
     if ( ::setsockopt( fd, IPPROTO_RM, RM_USE_FEC, 
-        (char *)&fec, sizeof( RM_FEC_INFO )))
+                      (char *)&fec, sizeof( RM_FEC_INFO )))
     {
-        EQWARN << "can't SetFecParameters " << base::sysError << std::endl;
+        EQWARN << "can't set error correction parameters " << base::sysError
+               << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool PGMConnection::_setReadBufferSize( int newSize )
+{
+    if ( ::setsockopt( _readFD, SOL_SOCKET, SO_RCVBUF,
+                      (char*)&newSize, sizeof(int)) == SOCKET_ERROR ) 
+    {
+        EQWARN << "can't set receive buffer size, error: " 
+               <<  base::sysError << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool PGMConnection::_setReadInterface()
+{
+    const std::string& iName = _description->getInterface();
+    if( iName.empty( ))
+        return true;
+
+    unsigned long interface;
+    if( !_parseHostname( iName, interface ) ||
+        ::setsockopt( _readFD, IPPROTO_RM, RM_ADD_RECEIVE_IF,
+                     (char*)&interface, sizeof(uint32_t)) == SOCKET_ERROR )
+    {
+        EQWARN << "can't add recv interface " <<  base::sysError << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool PGMConnection::_enableHighSpeedRead()
+{
+    ULONG HighSpeedLanEnabled = 1;
+
+    if ( ::setsockopt( _readFD, IPPROTO_RM, RM_HIGH_SPEED_INTRANET_OPT , 
+                 (char*)&HighSpeedLanEnabled, sizeof( ULONG )) == SOCKET_ERROR )
+    {
+        EQWARN << "can't EnableHighSpeedLanOption, error: " 
+               <<  base::sysError << std::endl;
         return false ;
     }
+
     return true;
 }
 
@@ -621,15 +660,19 @@ bool PGMConnection::listen()
     }
 
     //-- create a 'listening' read socket
-    _readFD = _initSocket( true, address );
-    if( _readFD == INVALID_SOCKET )
-        return false;
+    _readFD = _initSocket( address );
     
+    if( _readFD == INVALID_SOCKET || !_setupReadSocket( ))
+    {
+        close();
+        return false;
+    }
+
     const bool listening = (::listen( _readFD, 10 ) == 0);
         
     if( !listening )
     {
-        EQWARN << "Could not listen on socket: "<< base::sysError << std::endl;
+        EQWARN << "Could not listen on socket: " << base::sysError << std::endl;
         close();
         return false;
     }
@@ -662,8 +705,9 @@ bool PGMConnection::listen()
     address.sin_port        = htons( 0 );
     memset( &(address.sin_zero), 0, 8 ); // zero the rest
 
-    _writeFD = _initSocket( false, address );
-    if( _writeFD == INVALID_SOCKET )
+    _writeFD = _initSocket( address );
+
+    if( _writeFD == INVALID_SOCKET || !_setupSendSocket( ))
     {
         close();
         return false;

@@ -38,6 +38,7 @@ namespace net
 
         virtual bool connect();            
         virtual bool listen();             
+
         virtual void acceptNB();           
         virtual ConnectionPtr acceptSync();
         virtual void close();              
@@ -58,24 +59,28 @@ namespace net
         void _initAIORead();
         void _exitAIORead();
 
-        SOCKET _initSocket( bool isRead, sockaddr_in address );
-        void _tuneSocket( bool isRead, SOCKET socket );
+        SOCKET _initSocket( sockaddr_in address );
         bool _parseAddress( sockaddr_in& address );
+        bool _parseHostname( const std::string& hostname,
+                             unsigned long& address );
         uint16_t _getPort() const;
 
-        bool _setSendRate( const SOCKET fd, const ULONG sendRate );
+        bool _setupSendSocket();
+        bool  _setSendInterface();
+        bool  _setSendRate( const ULONG sendRate );
+        bool  _setSendBufferSize( const int newSize );
 
-        bool  _getWindowSizeAndSendRate( const SOCKET fd);
+        bool _setupReadSocket();
+        bool  _setReadInterface();
+        bool  _setReadBufferSize( const int newSize );
 
-        bool  _setSendBufferSize( const SOCKET fd,  const int newSize );
-        bool  _setRecvBufferSize( const SOCKET fd,  const int newSize );
         bool  _setFecParameters( const SOCKET fd,
                                  const int blocksize, 
                                  const int groupsize, 
                                  const int ondemand, 
                                  const int proactive );
 
-        bool  _enableHighSpeedLanOption( const SOCKET fd );
+        bool _enableHighSpeedRead();
 
         SOCKET _readFD;
         SOCKET _writeFD;
