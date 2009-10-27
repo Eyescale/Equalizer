@@ -449,7 +449,7 @@ void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
     Attachment& attachment = _getAttachment( buffer );
     attachment.memory.isCompressed = false;
 
-    if ( _type == Frame::TYPE_TEXTURE )
+    if( _type == Frame::TYPE_TEXTURE )
     {
         EQASSERTINFO( zoom == Zoom::NONE, "Texture readback zoom not "
                       << "implemented, zoom happens during compositing" );

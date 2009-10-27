@@ -48,7 +48,8 @@ namespace net
          *
          * @param key The key to find the item.
          * @param command The command to add.
-         * @param pin true if the item has to be added and pinned in the instance cache.
+         * @param pin true if the item has to be added and pinned in the 
+         *            instance cache.
          * @return true if the item was entered, false if not.
          */
         bool add( const K& key, Command* const command, const bool pin );
@@ -57,7 +58,8 @@ namespace net
          * Direct access to the element with the given key.
          *
          * The returned element is automatically pinned, and has to be unpinned
-         * by the caller. If the element is not in the instance cache, 0 is returned.
+         * by the caller. If the element is not in the instance cache, 0 is
+         * returned.
          */
         Command* operator[]( const K& key );
 
