@@ -86,7 +86,7 @@ int main( int argc, char **argv )
     size_t ops = 0;
 
     for( size_t key = 0; key < 65536; ++key ) // Fill cache
-        if( !cache.add( key, &command, false ))
+        if( !cache.add( key, command, false ))
             break;
 
     _clock.reset();
@@ -103,12 +103,12 @@ int main( int argc, char **argv )
         {
             if( cache.erase( key ))
             {
-                TEST( cache.add( key, &command, false ));
+                TEST( cache.add( key, command, false ));
                 ++ops;
                 hits += 2;
             }
         }
-        else if( cache.add( key, &command, false ))
+        else if( cache.add( key, command, false ))
             ++hits;
         ++ops;
     }
