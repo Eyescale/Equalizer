@@ -108,9 +108,12 @@ bool UDPConnection::connect()
         return false;
     }
 
+    unsigned long interface;
     ip_mreq mreq;
+
+    _parseHostname( _description->getInterface(), interface );
     mreq.imr_multiaddr.s_addr = _writeAddress.sin_addr.s_addr;
-    mreq.imr_interface.s_addr = htonl( INADDR_ANY );
+    mreq.imr_interface.s_addr = interface;
 
     if( setsockopt( _readFD, IPPROTO_IP, IP_ADD_MEMBERSHIP, 
                     (char*)&mreq, sizeof( mreq )) < 0 )
@@ -119,30 +122,37 @@ bool UDPConnection::connect()
         close();
         return false;
     }
-    
+
+    if( !_setSendInterface( ))
+    {
+        close();
+        return false; 
+    }
+
     int rc = ::connect( _writeFD, (sockaddr*)&_writeAddress, 
-                  sizeof( _writeAddress ));
+                        sizeof( _writeAddress ));
     _setSendBufferSize( _writeFD,  8 * 1024 );
     _setRecvBufferSize( _writeFD,  8 * 1024 );
 
     _setSendBufferSize( _readFD,  8 * 1024 );
     _setRecvBufferSize( _readFD,  8 * 1024 );
+
     uint64_t ttl = 1;
-    if( setsockopt(_writeFD, IPPROTO_IP, IP_MULTICAST_TTL, 
-               reinterpret_cast<char *>(&ttl), sizeof(ttl)))
+    if( setsockopt( _writeFD, IPPROTO_IP, IP_MULTICAST_TTL, 
+                    reinterpret_cast< char * >( &ttl ), sizeof( ttl )))
     {
         EQWARN << "Can't set TTL: " << base::sysError << std::endl;
         close();
         return false;
     }
 
-    int nodelay = 1;
-    int len = sizeof(nodelay);
-    rc = setsockopt( _writeFD, IPPROTO_TCP, TCP_NODELAY,
-                     (char*) &nodelay, len );
     _initAIORead();
     _state = STATE_CONNECTED;
     _fireStateChanged();
+
+    EQINFO << "Connected on " << _description->getHostname() << "["
+           << inet_ntoa( _writeAddress.sin_addr ) << "]:" << _description->port
+           << " (" << _description->toString() << ")" << std::endl;
     return true;
 }
 
@@ -184,6 +194,45 @@ void UDPConnection::close()
 }
 
 uint32_t UDPConnection::getMTU(){ return _mtu; }
+
+bool UDPConnection::_setSendInterface()
+{
+    const std::string& iName = _description->getInterface();
+    if( iName.empty( ))
+        return true;
+
+    unsigned long interface;
+    if( !_parseHostname( iName, interface ) ||
+        setsockopt( _writeFD, IPPROTO_IP, IP_MULTICAST_IF,
+                    (char*)&interface, sizeof( uint32_t )))
+    {
+        EQWARN << "can't set multicast interface " <<  base::sysError
+               << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool UDPConnection::_parseHostname( const std::string& hostname,
+                                    unsigned long& address )
+{
+    address = htonl( INADDR_ANY );
+    if( hostname.empty( ))
+        return true;
+
+    hostent *hptr = gethostbyname( hostname.c_str( ));
+    if( !hptr )
+    {
+        EQWARN << "Can't resolve host " << hostname << std::endl;
+        return false;
+    }
+
+    memcpy( &address, hptr->h_addr, hptr->h_length );
+    return true;
+}
+
+
+
 //----------------------------------------------------------------------
 // Async IO handles
 //----------------------------------------------------------------------
@@ -460,22 +509,11 @@ bool UDPConnection::_parseAddress( sockaddr_in& address )
         _description->setHostname( "224.0.67.67" );
 
     address.sin_family      = AF_INET;
-    address.sin_addr.s_addr = htonl( INADDR_ANY );
     address.sin_port        = htons( _description->port );
     memset( &(address.sin_zero), 0, 8 ); // zero the rest
 
-    const std::string& hostname = _description->getHostname();
-    if( !hostname.empty( ))
-    {
-        hostent *hptr = gethostbyname( hostname.c_str( ));
-        if( hptr )
-            memcpy( &address.sin_addr.s_addr, hptr->h_addr, hptr->h_length );
-        else
-        {
-            EQWARN << "Can't resolve host " << hostname << std::endl;
-            return false;
-        }
-    }
+    if( !_parseHostname( _description->getHostname(), address.sin_addr.s_addr ))
+        return false;
 
     EQINFO << "Address " << inet_ntoa( address.sin_addr )
            << ":" << ntohs( address.sin_port ) << std::endl;

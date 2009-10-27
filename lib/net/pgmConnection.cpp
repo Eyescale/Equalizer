@@ -71,6 +71,110 @@ bool PGMConnection::connect()
     return listen();
 }
 
+//----------------------------------------------------------------------
+// listen
+//----------------------------------------------------------------------
+bool PGMConnection::listen()
+{
+    EQASSERT( _description->type == CONNECTIONTYPE_MCIP_PGM );
+
+    if( _state != STATE_CLOSED )
+        return false;
+
+    _state = STATE_CONNECTING;
+    _fireStateChanged();
+
+    sockaddr_in address;
+    const size_t size = sizeof( sockaddr_in ); 
+
+    if( !_parseAddress( address ))
+    {
+        EQWARN << "Can't parse connection parameters" << std::endl;
+        return false;
+    }
+
+    //-- create a 'listening' read socket
+    _readFD = _initSocket( address );
+    
+    if( _readFD == INVALID_SOCKET || !_setupReadSocket( ))
+    {
+        close();
+        return false;
+    }
+
+    const bool listening = (::listen( _readFD, 10 ) == 0);
+        
+    if( !listening )
+    {
+        EQWARN << "Could not listen on socket: " << base::sysError << std::endl;
+        close();
+        return false;
+    }
+
+    // get listening socket parameters
+    socklen_t used = size;
+    getsockname( _readFD, (struct sockaddr *)&address, &used ); 
+
+    _description->port = ntohs( address.sin_port );
+
+    const std::string& hostname = _description->getHostname();
+    if( hostname.empty( ))
+    {
+        if( address.sin_addr.s_addr == INADDR_ANY )
+        {
+            char cHostname[256];
+            gethostname( cHostname, 256 );
+            _description->setHostname( cHostname );
+        }
+        else
+            _description->setHostname( inet_ntoa( address.sin_addr ));
+    }
+    
+    _initAIOAccept();
+
+    
+    //-- create a connected 'write' socket
+    address.sin_family      = AF_INET;
+    address.sin_addr.s_addr = htonl( INADDR_ANY );
+    address.sin_port        = htons( 0 );
+    memset( &(address.sin_zero), 0, 8 ); // zero the rest
+
+    _writeFD = _initSocket( address );
+
+    if( _writeFD == INVALID_SOCKET || !_setupSendSocket( ))
+    {
+        close();
+        return false;
+    }
+
+    _parseAddress( address );
+    
+#ifdef WIN32
+    const bool connected = WSAConnect( _writeFD, (sockaddr*)&address, 
+                                       size, 0, 0, 0, 0 ) == 0;
+#else
+    const bool connected = (::connect( _readFD, (sockaddr*)&address, 
+                                       size ) == 0);
+#endif
+
+    if( !connected )
+    {
+        EQWARN << "Could not connect to '" << _description->getHostname() << ":"
+               << _description->port << "': " << base::sysError << std::endl;
+        close();
+        return false;
+    }
+
+    _state = STATE_LISTENING;
+    _fireStateChanged();
+
+    EQINFO << "Listening on " << _description->getHostname() << "["
+           << inet_ntoa( address.sin_addr ) << "]:" << _description->port
+           << " (" << _description->toString() << ")" << std::endl;
+    
+    return true;
+}
+
 void PGMConnection::close()
 {
     if( _state == STATE_CLOSED )
@@ -447,13 +551,8 @@ bool PGMConnection::_setupReadSocket()
 
 bool PGMConnection::_setupSendSocket()
 {
-    // round to nearest 100.000 value
-    uint64_t roundBandwidth = (_description->bandwidth  * 8 + 50000)- 
-        (( _description->bandwidth * 8+ 50000) % 100000 );
-    roundBandwidth = EQ_MAX( roundBandwidth, 100000 );
-
     return( _setFecParameters( _writeFD, 255, 4, true, 0 ) &&
-            _setSendRate( roundBandwidth ) &&
+            _setSendRate() &&
             _setSendBufferSize( 65535 ) &&
             _setSendInterface( ));
 }
@@ -513,15 +612,19 @@ bool PGMConnection::_setSendBufferSize( const int newSize )
     return true;
 }
 
-bool PGMConnection::_setSendRate( const ULONG sendRate )
+bool PGMConnection::_setSendRate()
 {
+    if( _description->bandwidth == 0 )
+        return true;
+
     RM_SEND_WINDOW  sendWindow;
-
-    sendWindow.RateKbitsPerSec     = sendRate;
+    sendWindow.RateKbitsPerSec     = _description->bandwidth * 8;
     sendWindow.WindowSizeInBytes   = 0;
-    sendWindow.WindowSizeInMSecs   = 100;
+    sendWindow.WindowSizeInMSecs   = 1000;
 
-    EQINFO << "Setting PGM send rate to " << sendRate << " kBit/s" << std::endl;
+    EQINFO << "Setting PGM send rate to " << sendWindow.RateKbitsPerSec
+           << " kBit/s" << std::endl;
+
     if ( ::setsockopt( _writeFD, IPPROTO_RM, RM_RATE_WINDOW_SIZE, 
                    (char*)&sendWindow, sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
     {
@@ -637,108 +740,22 @@ bool PGMConnection::_enableHighSpeedRead()
     return true;
 }
 
-//----------------------------------------------------------------------
-// listen
-//----------------------------------------------------------------------
-bool PGMConnection::listen()
+void PGMConnection::_printReadStatistics()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_MCIP_PGM );
+    RM_RECEIVER_STATS stats;
+    socklen_t len = sizeof( stats );
 
-    if( _state != STATE_CLOSED )
-        return false;
-
-    _state = STATE_CONNECTING;
-    _fireStateChanged();
-
-    sockaddr_in address;
-    const size_t size = sizeof( sockaddr_in ); 
-
-    if( !_parseAddress( address ))
+    if( getsockopt( _readFD, IPPROTO_RM, RM_RECEIVER_STATISTICS, 
+                   (char*)&stats, &len ) != 0 )
     {
-        EQWARN << "Can't parse connection parameters" << std::endl;
-        return false;
+        return;
     }
 
-    //-- create a 'listening' read socket
-    _readFD = _initSocket( address );
-    
-    if( _readFD == INVALID_SOCKET || !_setupReadSocket( ))
-    {
-        close();
-        return false;
-    }
-
-    const bool listening = (::listen( _readFD, 10 ) == 0);
-        
-    if( !listening )
-    {
-        EQWARN << "Could not listen on socket: " << base::sysError << std::endl;
-        close();
-        return false;
-    }
-
-    // get listening socket parameters
-    socklen_t used = size;
-    getsockname( _readFD, (struct sockaddr *)&address, &used ); 
-
-    _description->port = ntohs( address.sin_port );
-
-    const std::string& hostname = _description->getHostname();
-    if( hostname.empty( ))
-    {
-        if( address.sin_addr.s_addr == INADDR_ANY )
-        {
-            char cHostname[256];
-            gethostname( cHostname, 256 );
-            _description->setHostname( cHostname );
-        }
-        else
-            _description->setHostname( inet_ntoa( address.sin_addr ));
-    }
-    
-    _initAIOAccept();
-
-    
-    //-- create a connected 'write' socket
-    address.sin_family      = AF_INET;
-    address.sin_addr.s_addr = htonl( INADDR_ANY );
-    address.sin_port        = htons( 0 );
-    memset( &(address.sin_zero), 0, 8 ); // zero the rest
-
-    _writeFD = _initSocket( address );
-
-    if( _writeFD == INVALID_SOCKET || !_setupSendSocket( ))
-    {
-        close();
-        return false;
-    }
-
-    _parseAddress( address );
-    
-#ifdef WIN32
-    const bool connected = WSAConnect( _writeFD, (sockaddr*)&address, 
-                                       size, 0, 0, 0, 0 ) == 0;
-#else
-    const bool connected = (::connect( _readFD, (sockaddr*)&address, 
-                                       size ) == 0);
-#endif
-
-    if( !connected )
-    {
-        EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->port << "': " << base::sysError << std::endl;
-        close();
-        return false;
-    }
-
-    _state = STATE_LISTENING;
-    _fireStateChanged();
-
-    EQINFO << "Listening on " << _description->getHostname() << "["
-           << inet_ntoa( address.sin_addr ) << "]:" << _description->port
-           << " (" << _description->toString() << ")" << std::endl;
-    
-    return true;
+    EQWARN << stats.NumDuplicateDataPackets << " dups, " 
+           << stats.NumRDataPacketsReceived << " retransmits in "
+           << stats.NumODataPacketsReceived << ", "
+           << stats.NumDataPacketsBuffered << " not yet read, "
+           << ", " << stats.RateKBitsPerSecLast / 8192 << "MB/s" << std::endl;
 }
 
 }

@@ -66,8 +66,9 @@ namespace net
         uint16_t _getPort() const;
 
         bool _setupSendSocket();
+        bool  _enableHighSpeedRead();
         bool  _setSendInterface();
-        bool  _setSendRate( const ULONG sendRate );
+        bool  _setSendRate();
         bool  _setSendBufferSize( const int newSize );
 
         bool _setupReadSocket();
@@ -80,7 +81,7 @@ namespace net
                                  const int ondemand, 
                                  const int proactive );
 
-        bool _enableHighSpeedRead();
+        void _printReadStatistics();
 
         SOCKET _readFD;
         SOCKET _writeFD;

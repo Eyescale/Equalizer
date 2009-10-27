@@ -48,12 +48,11 @@ bool RSPConnection::connect()
     _fireStateChanged();
 
     _connection = new UDPConnection();
-    _description->type = CONNECTIONTYPE_UDP;
     ConnectionDescription* description = 
         new ConnectionDescription( *_description );
+    description->type = CONNECTIONTYPE_UDP;
     _connection->setDescription( description );
     _description->type = CONNECTIONTYPE_MCIP_RSP;
-    
 
     if ( !_connection->connect() )
     {
@@ -64,12 +63,12 @@ bool RSPConnection::connect()
     _thread = new Thread( this );
 
 #ifdef WIN32
-       _hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-       _writeEndEvent = CreateEvent( 0, FALSE, FALSE, 0 );
+    _hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
+    _writeEndEvent = CreateEvent( 0, FALSE, FALSE, 0 );
 #else
 
 #endif
-       _countNbAckInWrite =  0;
+     _countNbAckInWrite =  0;
 
 #ifndef WIN32
     //_eventUDP.events  = POLLIN; 
@@ -93,14 +92,12 @@ void RSPConnection::readNB( void* buffer, const uint64_t bytes )
     _updateEvent();
 }
 
-
 int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
 {
     uint64_t sizeRead = 0;
-    uint32_t size =   EQ_MIN( bytes, _maxBuffer );
+    uint32_t size = EQ_MIN( bytes, _maxBuffer );
     while ( sizeRead != size )
     {
-        
         sizeRead = _readSync( buffer, size );
         _updateEvent();
         if ( sizeRead != size )
@@ -524,7 +521,7 @@ void RSPConnection::_addNewConnection( uint64_t id )
     clientrsp->dataBuffer.resize( _maxBuffer );
 
     clientsRSP.push_back( clientrsp );
-    EQWARN << "new Connection " << id << std::endl;
+    EQWARN << "New connection " << id << std::endl;
 }
 
 int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
