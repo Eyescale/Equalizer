@@ -547,6 +547,8 @@ CommandResult Session::_invokeObjectCommand( Command& command )
     EQASSERT( command.isValid( ));
     const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
     const uint32_t      id        = objPacket->objectID;
+    const bool ignoreInstance = ( objPacket->instanceID == EQ_ID_ANY ||
+                                  objPacket->instanceID == EQ_ID_NONE );
 
     _objectsMutex.set();
 
@@ -563,10 +565,8 @@ CommandResult Session::_invokeObjectCommand( Command& command )
          i != objects.end(); ++ i )
     {
         Object* object = *i;
-        const bool isInstance = 
-            ( objPacket->instanceID == object->getInstanceID( ));
-
-        if( objPacket->instanceID == EQ_ID_ANY || isInstance )
+        const bool isInstance = objPacket->instanceID ==object->getInstanceID();
+        if( ignoreInstance || isInstance )
         {
             EQASSERT( command.isValid( ))
 
@@ -592,7 +592,7 @@ CommandResult Session::_invokeObjectCommand( Command& command )
             }
         }
     }
-    if( objPacket->instanceID == EQ_ID_ANY )
+    if( ignoreInstance )
         return COMMAND_HANDLED;
 
     EQWARN << "instance not found for " << objPacket << std::endl;
