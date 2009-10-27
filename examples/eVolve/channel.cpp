@@ -112,8 +112,18 @@ static void setLights( eq::Matrix4f& invRotationM )
 void Channel::frameDraw( const uint32_t frameID )
 {
     // Setup frustum
-    eq::Channel::frameDraw( frameID );
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
+    
+    EQ_GL_CALL( glMatrixMode( GL_PROJECTION ));
+    EQ_GL_CALL( glLoadIdentity( ));
+    EQ_GL_CALL( applyFrustum( ));
 
+    EQ_GL_CALL( glMatrixMode( GL_MODELVIEW ));
+    EQ_GL_CALL( glLoadIdentity( ));
+
+    // Setup lights before applying head transform, so the light will be
+    // consistent in the cave
     const FrameData&    frameData   = _getFrameData();
     const eq::Matrix4f& rotation    = frameData.getRotation();
     const eq::Vector3f& translation = frameData.getTranslation();
@@ -121,6 +131,8 @@ void Channel::frameDraw( const uint32_t frameID )
     eq::Matrix4f     invRotationM;
     rotation.inverse( invRotationM );
     setLights( invRotationM );
+
+    EQ_GL_CALL( applyHeadTransform( ));
 
     glTranslatef(  translation.x(), translation.y(), translation.z() );
     glMultMatrixf( rotation.array );
