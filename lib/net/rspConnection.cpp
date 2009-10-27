@@ -267,7 +267,7 @@ void RSPConnection::readNB( void* buffer, const uint64_t bytes )
             SetEvent( _hEvent );
 #else
             const char c = SELF_INTERRUPT;
-            _selfPipeHEvent->send( &c, 1, true );		
+            _selfPipeHEvent->send( &c, 1, true );
 #endif
             return;
         }
@@ -335,7 +335,7 @@ void RSPConnection::_run()
         {
         case SELECT_TIMEOUT:
         {
-            doReadNb = true;
+            doReadNb = false;
             for ( std::vector< RSPConnection* >::iterator i = 
                    _childrensConnection.begin() ;
                   i != _childrensConnection.end(); ++i )
@@ -423,7 +423,7 @@ void RSPConnection::_read( )
 
         if ( _myID == datagram->idwriter )
             return;
-        RSPConnection* connection;
+        RSPConnection* connection = 0;
         // find connection destination
         for ( uint32_t i = 0 ; i < _childrensConnection.size(); i++ )
         {
