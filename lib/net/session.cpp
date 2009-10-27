@@ -504,11 +504,10 @@ bool Session::dispatchCommand( Command& command )
 
 
             if( _objects.find( id ) == _objects.end( ))
-            {
-                EQVERB << "no objects to dispatch command, redispatching " 
-                       << objPacket << std::endl;
-                return false;
-            }
+                // When the instance ID is set to none, we only care about the
+                // packet when we have an object of the given ID (multicast)
+                return ( objPacket->instanceID == EQ_ID_NONE ? true : false );
+
             EQASSERTINFO( !_objects[id].empty(), id );
 
             Object* object = _objects[id][0];

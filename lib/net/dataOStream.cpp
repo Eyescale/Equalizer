@@ -46,13 +46,14 @@ DataOStream::~DataOStream()
 
 void DataOStream::enable( const NodeVector& receivers )
 {
+    const bool useMulticast = receivers.size() > 1;
     ConnectionDescriptionVector mcSet;
 
     for( NodeVector::const_iterator i = receivers.begin(); 
          i != receivers.end(); ++i )
     {
         NodePtr       node       = *i;
-        ConnectionPtr connection = node->getMulticast();
+        ConnectionPtr connection = useMulticast ? node->getMulticast() : 0;
         
         if( connection.isValid( ))
         {

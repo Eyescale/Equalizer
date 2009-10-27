@@ -1479,7 +1479,7 @@ void Node::_redispatchCommands()
     if( !_pendingCommands.empty( ))
         EQVERB << _pendingCommands.size() << " undispatched commands" 
                << std::endl;
-    EQASSERT( _pendingCommands.size() < 1000 );
+    EQASSERT( _pendingCommands.size() < 100 );
 #endif
 }
 
@@ -1488,7 +1488,8 @@ void Node::_redispatchCommands()
 //----------------------------------------------------------------------
 void* Node::_runCommandThread()
 {
-    EQINFO << "Entered command thread of " << typeid( *this ).name() << std::endl;
+    EQINFO << "Entered command thread of " << typeid( *this ).name() 
+           << std::endl;
 
     while( _state == STATE_LISTENING )
     {
