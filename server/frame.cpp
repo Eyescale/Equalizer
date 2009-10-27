@@ -192,7 +192,7 @@ std::ostream& operator << ( std::ostream& os, const Frame* frame )
     if( !frame )
         return os;
     
-    os << disableFlush << "Frame" << endl;
+    os << disableFlush << "frame" << endl;
     os << "{" << endl << indent;
       
     const std::string& name = frame->getName();

@@ -179,7 +179,7 @@ namespace base
         static EQ_EXPORT void setOutput( std::ostream& stream );
 
         /** Get the current output stream. @internal */
-        static std::ostream& getOutput ();
+        static EQ_EXPORT std::ostream& getOutput ();
 
         /**
          * Set the reference clock.

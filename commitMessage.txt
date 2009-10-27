@@ -1,4 +1,4 @@
-Fix Posix build, dos2unix
+Fix input/output frame output, add missing dll export
 
 [ ] May break build
 [ ] May break existing applications
