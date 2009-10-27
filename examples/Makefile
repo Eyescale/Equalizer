@@ -5,6 +5,7 @@ SUBDIRS = \
 	configs \
 	eqHello \
 	eqPly \
+	eVolve \
 	eqPixelBench \
 	$(OPTIONAL)
 
