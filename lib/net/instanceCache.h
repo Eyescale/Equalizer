@@ -30,6 +30,8 @@ namespace eq
 namespace net
 {
     class Command;
+    class DataIStream;
+    class ObjectDataIStream;
 
     /**
      * A thread-safe cache for object instance data. @internal
@@ -52,7 +54,7 @@ namespace net
          *            instance cache.
          * @return true if the item was entered, false if not.
          */
-        bool add( const K& key, Command* const command, const bool pin );
+        bool add( const K& key, Command& command, const bool pin );
 
         /**
          * Direct access to the element with the given key.
@@ -61,7 +63,7 @@ namespace net
          * by the caller. If the element is not in the instance cache, 0 is
          * returned.
          */
-        Command* operator[]( const K& key );
+        DataIStream* operator[]( const K& key );
 
         /** 
          * Lock the element of the given key in the instance cache, if it exist.
@@ -95,7 +97,8 @@ namespace net
         struct Item
         {
             Item();
-            Command* command;
+            size_t size;
+            ObjectDataIStream* stream;
             unsigned used;
             unsigned pinned;
         };

@@ -18,6 +18,7 @@
 #include "instanceCache.h"
 
 #include "command.h"
+#include "objectInstanceDataIStream.h"
 #include "objectVersion.h"
 
 #include <eq/base/debug.h>
@@ -46,10 +47,10 @@ template< typename K > InstanceCache< K >::~InstanceCache()
     for( typename Data::iterator i = _data.begin(); i != _data.end(); ++i )
     {
         Item& item = i->second;
-        EQASSERT( item.command );
+        EQASSERT( item.stream );
 
-        item.command->release();
-        item.command = 0;
+        delete item.stream;
+        item.stream = 0;
     }
 
     _data.clear();
@@ -57,13 +58,14 @@ template< typename K > InstanceCache< K >::~InstanceCache()
 }
 
 template< typename K > InstanceCache< K >::Item::Item()
-        : command( 0 )
+        : size( 0 )
+        , stream( 0 )
         , used( 0 )
         , pinned( 0 )
 {}
 
 template< typename K > 
-bool InstanceCache< K >::add( const K& key, Command* const command, 
+bool InstanceCache< K >::add( const K& key, Command& command, 
                               const bool fixed )
 {
 #ifdef EQ_INSTRUMENT_CACHE
@@ -72,21 +74,22 @@ bool InstanceCache< K >::add( const K& key, Command* const command,
 
     base::ScopedMutex mutex( _mutex );
     typename Data::iterator i = _data.find( key );
-    if( i != _data.end( ))
+    if( i == _data.end( ))
     {
-        EQASSERTINFO( !fixed, "Failed to add a pinned item to the instance " <<
-                      "cache, key already exists" );
-        return false;
+        Item& item = _data[ key ] ;
+        item.stream = new ObjectInstanceDataIStream;
+        item.pinned = fixed ? 1 : 0;
+        i = _data.find( key );
     }
 
-    command->retain();
-    _size += command->getPacket()->size;
+    Item& item = i->second;;
 
-    Item item;
-    item.command = command;
-    item.pinned = fixed ? 1 : 0;
+    item.size += command.getPacket()->size;
+    _size += command.getPacket()->size;
+    item.stream->addDataPacket( command );
+    if( fixed )
+        item.pinned = 1;
 
-    _data[ key ] = item;
     _releaseItems();
 
 #ifdef EQ_INSTRUMENT_CACHE
@@ -98,7 +101,7 @@ bool InstanceCache< K >::add( const K& key, Command* const command,
 
 
 template< typename K > 
-Command* InstanceCache< K >::operator[]( const K& key )
+DataIStream* InstanceCache< K >::operator[]( const K& key )
 {
 #ifdef EQ_INSTRUMENT_CACHE
     ++nRead;
@@ -110,13 +113,13 @@ Command* InstanceCache< K >::operator[]( const K& key )
         return 0;
 
     Item& item = i->second;
-    EQASSERT( item.command );
+    EQASSERT( item.stream );
     ++item.pinned;
 
 #ifdef EQ_INSTRUMENT_CACHE
     ++nReadHit;
 #endif
-    return item.command;
+    return item.stream;
 }
 
 template< typename K > 
@@ -135,7 +138,7 @@ bool InstanceCache< K >::unpin( const K& key )
         return false;
 
     Item& item = i->second;
-    EQASSERT( item.command );
+    EQASSERT( item.stream );
     EQASSERT( item.pinned );
 
     --item.pinned;
@@ -158,9 +161,10 @@ bool InstanceCache< K >::erase( const K& key )
         return false;
     }
 
-    EQASSERT( item.command );
-    _size -= item.command->getPacket()->size;
-    item.command->release();
+    EQASSERT( item.stream );
+    _size -= item.size;
+    delete item.stream;
+    item.stream = 0;
 
     _data.erase( i );
     return true;
@@ -184,11 +188,10 @@ void InstanceCache< K >::_releaseItems()
         Item& item = i->second;
         if( item.pinned == 0 && item.used > 0 )
         {
-            EQASSERT( item.command );
-
-            _size -= item.command->getPacket()->size;
-            item.command->release();
-            item.command = 0;
+            EQASSERT( item.stream );
+            _size -= item.size;
+            delete item.stream;
+            item.stream = 0;
 
             releasedKeys.push_back( i->first );
         }
@@ -208,11 +211,10 @@ void InstanceCache< K >::_releaseItems()
         Item& item = i->second;
         if( item.pinned == 0 )
         {
-            EQASSERT( item.command );
-
-            _size -= item.command->getPacket()->size;
-            item.command->release();
-            item.command = 0;
+            EQASSERT( item.stream );
+            _size -= item.size;
+            delete item.stream;
+            item.stream = 0;
 
             releasedKeys.push_back( i->first );
         }
