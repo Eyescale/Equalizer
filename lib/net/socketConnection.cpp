@@ -88,6 +88,9 @@ bool SocketConnection::connect()
     _state = STATE_CONNECTING;
     _fireStateChanged();
 
+    if( _description->getHostname().empty( ))
+        _description->setHostname( "localhost" );
+
     sockaddr_in address;
     if( !_parseAddress( address ))
     {

@@ -88,7 +88,7 @@ bool IBConnection::connect()
 
     _socketConnection = new SocketConnection();
 
-    ConnectionDescription* description = 
+    ConnectionDescriptionPtr description = 
                                      new ConnectionDescription( *_description );
     description->type = CONNECTIONTYPE_TCPIP;
 

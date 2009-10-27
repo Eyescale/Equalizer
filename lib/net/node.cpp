@@ -1042,9 +1042,14 @@ std::string Node::_createLaunchCommand( NodePtr node,
                 break;
             }
             case 'h':
-                replacement << description->getHostname();
+            {
+                const std::string& hostname = description->getHostname();
+                if( hostname.empty( ))
+                    replacement << "localhost";
+                else
+                    replacement << hostname;
                 break;
-
+            }
             case 'n':
                 replacement << node->getNodeID();
                 break;

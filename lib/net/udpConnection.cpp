@@ -506,7 +506,7 @@ bool UDPConnection::_parseAddress( sockaddr_in& address )
     if( _description->port == 0 )
         _description->port = EQ_DEFAULT_PORT;
     if( _description->getHostname().empty( ))
-        _description->setHostname( "224.0.67.67" );
+        _description->setHostname( "239.255.42.43" );
 
     address.sin_family      = AF_INET;
     address.sin_port        = htons( _description->port );

@@ -57,8 +57,6 @@ void Global::_setupDefaults()
     _connectionIAttributes[ConnectionDescription::IATTR_PORT]     = 0;
     _connectionIAttributes[ConnectionDescription::IATTR_BANDWIDTH]= 0;
     
-    _connectionSAttributes[ConnectionDescription::SATTR_HOSTNAME] = "localhost";
-
     // config
     for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
         _configFAttributes[i] = 0.f;
