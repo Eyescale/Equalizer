@@ -100,8 +100,8 @@ namespace net
         bool  _setRecvBufferSize( const Socket fd,  const int newSize );
         bool  _setMulticastLoop ( const Socket fd,  const int loop );
         bool _setSendInterface();
-        bool _parseHostname( const std::string& hostname,
-                             unsigned long& address );
+        template< typename A > bool _parseHostname( const std::string& hostname,
+                                                    A& address );
 #ifdef WIN32
         // overlapped data structures
         OVERLAPPED _overlapped;

@@ -129,8 +129,15 @@ bool UDPConnection::connect()
         return false; 
     }
 
-    int rc = ::connect( _writeFD, (sockaddr*)&_writeAddress, 
-                        sizeof( _writeAddress ));
+    if( ::connect( _writeFD, (sockaddr*)&_writeAddress,
+                   sizeof( _writeAddress )) != 0 )
+    {
+        EQWARN << "Could not connect to '" << _description->getHostname() << ":"
+               << _description->port << "': " << base::sysError << std::endl;
+        close();
+        return false;
+    }
+
     _setSendBufferSize( _writeFD,  8 * 1024 );
     _setRecvBufferSize( _writeFD,  8 * 1024 );
 
@@ -213,8 +220,9 @@ bool UDPConnection::_setSendInterface()
     return true;
 }
 
+template< typename A >
 bool UDPConnection::_parseHostname( const std::string& hostname,
-                                    unsigned long& address )
+                                    A& address )
 {
     address = htonl( INADDR_ANY );
     if( hostname.empty( ))
