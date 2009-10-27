@@ -2,30 +2,53 @@
 
 global
 {
-    EQ_CONNECTION_SATTR_LAUNCH_COMMAND "%c"
+    EQ_CONNECTION_SATTR_LAUNCH_COMMAND "rexec %h %c"
 }
 
 server
 {
+    connection { hostname "10.10.50.45" }
     config
     {
-        node
+        appNode
         {
-            connection { hostname "157.26.73.87" type TCPIP port 1235 }
-            connection { type MCIP }
             pipe
             {
                 window
                 {
                     viewport [ 0.25 0.25 0.5 0.5 ]
                     
-                    channel { name "channel" }
+                    channel { name "channel1" }
+                }
+            }
+        }
+        node
+        {
+            connection { hostname "10.10.50.51" type TCPIP port 1235 }
+            connection { interface "10.10.50.51" bandwidth 10000 type MCIP }
+            pipe
+            {
+                window
+                {
+                    viewport [ 0.25 0.25 0.5 0.5 ]
+                    
+                    channel { name "channel2" }
                 }
             }
         }
         compound
         { 
-            channel "channel"
+            channel "channel1"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+        }
+        compound
+        { 
+            channel "channel2"
             wall
             {
                 bottom_left  [ -.32 -.20 -.75 ]
