@@ -1,9 +1,9 @@
-Fix Posix build
+Add new unit test to load all example configs
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
