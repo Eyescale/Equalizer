@@ -47,7 +47,7 @@ namespace net
 namespace
 {
 #ifdef WIN32
-    static const size_t _mtu = 1470 ;
+    static const size_t _mtu = 65000 ;
 #else
     static const size_t _mtu = 1470 ;
 #endif
@@ -311,11 +311,11 @@ void UDPConnection::readNB( void* buffer, const uint64_t bytes )
 
     ResetEvent( _overlapped.hEvent );
 
-    if( WSARecvFrom( _readFD, &wsaBuffer, 1, &_overlappedDone, &flags, 
+    if( WSARecvFrom( _readFD, &wsaBuffer, 1, 0, &flags, 
                      (sockaddr*)&_readAddress, &size, &_overlapped, 0 ) == 0 )
     {
-        EQASSERT( _overlappedDone > 0 );
-        SetEvent( _overlapped.hEvent );
+        //EQASSERT( _overlappedDone > 0 );
+        //SetEvent( _overlapped.hEvent );
     }
     else if ( GetLastError() != WSA_IO_PENDING )
     {
@@ -339,8 +339,8 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
         return -1;
     }
 
-    if( _overlappedDone > 0 )
-        return _overlappedDone;
+    /*if( _overlappedDone > 0 )
+        return _overlappedDone;*/
 
     DWORD got   = 0;
     DWORD flags = 0;
@@ -397,7 +397,7 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes)
 {
     if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
-
+    base::ScopedMutex mutex( _mutexWrite );
 #ifdef WIN32
     DWORD  wrote;
     WSABUF wsaBuffer = { EQ_MIN( bytes, _mtu ),

@@ -61,6 +61,7 @@ namespace
 
         bool readPacket()
         {
+            _clock.reset();
             if( !_connection->recvSync( 0, 0 ))
                 return false;
 
@@ -74,7 +75,7 @@ namespace
             if( time < 1000.f )
                 return true;
 
-            _clock.reset();
+            
             eq::net::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
             cerr << "Recv perf: " << _mBytesSec / time * _nSamples 

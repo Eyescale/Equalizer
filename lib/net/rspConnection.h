@@ -27,6 +27,7 @@
 #include "fdConnection.h"
 #ifndef WIN32
 #  include <poll.h>
+#  include "pipeConnection.h"
 #endif
 namespace eq
 {
@@ -49,7 +50,7 @@ namespace net
         RSPConnection();
         virtual ~RSPConnection();
 
-        virtual bool listen() { return connect(); }
+        virtual bool listen();
         enum DatagramType 
         { 
             DATA,      // the datagram contains data
@@ -110,26 +111,21 @@ namespace net
             uint16_t    idData;
             uint32_t    idSequence;
         };
-
-        struct ClientRSP
-        {
-            uint32_t writerId;
-            uint64_t posRead;
-            uint64_t totalSize;
-            uint32_t idSequence;
-            uint32_t lastidSequenceAck;
-            uint8_t  countTimeOut;
-            bool ackSend;
-            bool allRead;
-            bool ackReceive;  // using by a writer to know which 
-                              // reader has make an ack
-            // for know exactly which datagram has not been receive
-            eq::base::Buffer< bool >   boolBuffer;
-            eq::base::Bufferb dataBuffer;
-
-            // maybe time last read for detect timeout
-        };
         
+        struct DataReceive
+        {
+            // for know exactly which datagram has not been receive
+            uint32_t _idSequence;
+            bool _ackSend;
+            bool _allRead;
+            
+            uint64_t _posRead;
+            uint64_t _totalSize;
+            
+            eq::base::Buffer< bool > _boolBuffer;
+            eq::base::Bufferb        _dataBuffer;
+
+        };
         struct WriteDatagramData
         {
             DatagramData    header;
@@ -139,7 +135,8 @@ namespace net
         
         void close();
         bool connect();
-        virtual void acceptNB() { } 
+        virtual void acceptNB();
+        virtual ConnectionPtr acceptSync();
         void readNB( void* buffer, const uint64_t bytes );
         int64_t readSync( void* buffer, const uint64_t bytes );
         int64_t write( const void* buffer, const uint64_t bytes );
@@ -148,7 +145,7 @@ namespace net
         virtual Notifier getNotifier() const 
                    { return _hEvent; }
 #endif
-
+    
     private:
 
         class Thread : public eq::base::Thread
@@ -162,36 +159,69 @@ namespace net
               virtual void* run();
         private:
             RSPConnection* _connection;
-        };           
-        std::vector< ClientRSP* > clientsRSP;
+        };
 
         uint32_t _getID(){ return _myID; }
-        uint32_t _getCountConnection(){ return clientsRSP.size(); }
-        int64_t _readSync( void* buffer, const uint64_t bytes );
-        void _updateEvent();
+        uint32_t _getCountConnection(){ return _childrensConnection.size(); }
+        int64_t _readSync( DataReceive* receive, 
+                           void* buffer, 
+                           const uint64_t bytes  );
+        DataReceive* _findReceiverRead();
         void _sendDatagram( const uint64_t idDatagram );
+        void _sendAckRequest();
         void _read( );
         void _run();
         void _addNewConnection( uint64_t id );
+        
+        void _initAIOAccept();
+        void _exitAIOAccept();
+        void _initAIORead();
+        void _exitAIORead();
+
+        // for read one datagram from udp Connection
         eq::base::Bufferb _bufRead;
-        eq::base::Buffer< WriteDatagramData > _datagramsData;
-        eq::base::Buffer< uint32_t > _lengthsData;
+        
+        std::vector< RSPConnection* > _childrensConnection;
+        std::vector< DataReceive* >_buffer;
+        uint8_t _countAcceptChildren;
+        
+        eq::base::Bufferb sendBuffer;
         int _indexRead;
+        DataReceive* _currentReadSync;
         uint32_t      _myID;
         uint32_t      _idSequenceWrite;
         eq::base::RNG _rng;
+
+        uint32_t _writerId;        
+        uint8_t  _countTimeOut;
+        bool _ackReceive;
 #ifdef WIN32
         HANDLE _hEvent;
         HANDLE _writeEndEvent;
 #else
         pollfd _hEvent;
         pollfd _writeEndEvent;
+        pollfd _udpEvent;
+        PipeConnection* _selfPipeWriteEventEnd;
+        PipeConnection* _selfPipeHEvent;
+
+        /** The buffer to receive commands from Event. */
+        uint8_t _selfCommand;
 #endif
         uint32_t _countNbAckInWrite;
         Thread* _thread;
         UDPConnection* _connection;
         base::Lock _mutexConnection;
-
+        RSPConnection* _parentConnection;
+        uint64_t _maxLengthDatagramData;
+        
+        DataReceive* bufferReceive;
+        const char* _dataSend;
+        uint64_t _lengthDataSend;
+        uint32_t _numberDatagram;
+        uint64_t _timeEvent;
+        CHECK_THREAD_DECLARE( _recvThread );
+ 
     };
 }
 }

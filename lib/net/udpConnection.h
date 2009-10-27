@@ -51,7 +51,7 @@ namespace net
         virtual void acceptNB();           
         virtual ConnectionPtr acceptSync();
         virtual void close();              
-        uint32_t getMTU();
+        static uint32_t getMTU();
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
@@ -95,6 +95,10 @@ namespace net
 
         Socket _readFD;
         Socket _writeFD;
+
+        // protect write function because write data operation and 
+        // write from protocole rsp can be use in the same time
+        base::Lock _mutexWrite;
 
         bool  _setSendBufferSize( const Socket fd,  const int newSize );
         bool  _setRecvBufferSize( const Socket fd,  const int newSize );
