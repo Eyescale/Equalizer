@@ -1,4 +1,4 @@
-Fix gcc 4.0 build on Snow Leopard
+Fix Posix build
 
 [ ] May break build
 [ ] May break existing applications

@@ -1,4 +1,4 @@
-#include "RSPConnection.h"
+#include "rspConnection.h"
 
 #include "connection.h"
 #include "connectionDescription.h"
@@ -28,11 +28,11 @@ static const size_t _numberBuffer = 2;
 RSPConnection::RSPConnection()
         : _countAcceptChildren( 0 )
         , _indexRead( -1 )
+        , _currentReadSync( 0 )
         , _thread ( 0 )
         , _connection( 0 )
         , _parentConnection( 0 )
         , _maxLengthDatagramData( 0 )
-        , _currentReadSync( 0 )
         , _timeEvent( 999999999 )
 {
     for ( uint8_t i = 0; i < _numberBuffer; i++ )
