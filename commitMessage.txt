@@ -1,9 +1,9 @@
-Update AUTHORS
+Fix gcc 4.0 build on Snow Leopard
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

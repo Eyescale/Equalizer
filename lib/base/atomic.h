@@ -18,6 +18,8 @@
 #include <eq/base/nonCopyable.h>    // base class
 #include <eq/base/compareAndSwap.h> // used in inline methods
 
+#include <string> // _Atomic_word
+
 namespace eq
 {
 namespace base

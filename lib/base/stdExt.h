@@ -76,8 +76,7 @@ namespace std
 #    else
 #      ifndef EQ_HAVE_STRING_HASH
     /** std::string hash function. */
-    template<> 
-    struct hash< std::string >
+    template<> struct hash< std::string >
     {
         size_t operator()( const std::string& str ) const
         {
@@ -85,12 +84,23 @@ namespace std
         }
     };
 #      endif
+
+    /** uint64_t hash function. */
+    template<> struct hash< uint64_t >
+    {
+        size_t operator()( const uint64_t& val ) const
+        {
+            // OPT: tr1 does the same, however it seems suboptimal on 32 bits,
+            // if the lower 32 bits never change, e.g., for ObjectVersion
+            return static_cast< size_t >( val );
+        }
+    };
+
 #    endif
 
 #    ifndef EQ_HAVE_VOID_PTR_HASH
     /** void* hash functions. */
-    template<> 
-    struct hash< void* >
+    template<> struct hash< void* >
     {
         template< typename P >
         size_t operator()( const P& key ) const
@@ -98,8 +108,8 @@ namespace std
             return reinterpret_cast<size_t>(key);
         }
     };
-    template<> 
-    struct hash< const void* >
+
+    template<> struct hash< const void* >
     {
         template< typename P >
         size_t operator()( const P& key ) const
@@ -107,14 +117,13 @@ namespace std
             return reinterpret_cast<size_t>(key);
         }
     };
-#    endif
+#    endif // EQ_HAVE_VOID_PTR_HASH
 
 #  else // WIN32
 #    ifndef EQ_HAVE_STRING_HASH
 
     /** std::string hash function. */
-    template<>
-    inline size_t hash_compare< std::string >::operator()
+    template<> inline size_t hash_compare< std::string >::operator()
         ( const std::string& key ) const
     {
         return hash_value( key.c_str( ));
@@ -124,8 +133,7 @@ namespace std
 #  endif
 
     /** Uniquely sorts and eliminates duplicates in a STL container. */
-    template< typename C >
-    void usort( C& c )
+    template< typename C > void usort( C& c )
     {
         std::sort( c.begin(), c.end( ));
         c.erase( std::unique( c.begin(), c.end( )), c.end( ));

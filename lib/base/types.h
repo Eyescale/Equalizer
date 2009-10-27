@@ -24,6 +24,8 @@
 #ifndef EQBASE_TYPES_H
 #define EQBASE_TYPES_H
 
+#include <string>
+#include <vector>
 #include <sys/types.h>
 
 #ifdef sgi
@@ -99,5 +101,15 @@ typedef SSIZE_T    ssize_t;
 #define EQ_1MB   (1048576)
 #define EQ_10MB  (10485760)
 #define EQ_100MB (104857600)
+
+namespace eq
+{
+namespace base
+{
+/** A vector of std::string */
+typedef std::vector< std::string >   StringVector;
+
+}
+}
 
 #endif //EQBASE_TYPES_H

@@ -18,6 +18,9 @@
 #ifndef EQBASE_FILESEARCH_H
 #define EQBASE_FILESEARCH_H
 
+#include <eq/base/debug.h> // EQASSERTINFO macro
+#include <eq/base/types.h>
+
 #ifndef WIN32_VC
 #  include <dirent.h>
 #endif
