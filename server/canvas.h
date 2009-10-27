@@ -78,7 +78,7 @@ namespace server
         Segment* getSegment( const SegmentPath& path );
 
         /** Add a new allowed layout to this canvas, can be 0. */
-        void addLayout( Layout* layout );
+        EQSERVER_EXPORT void addLayout( Layout* layout );
 
         /** Get the vector of allowed layouts for this canvas. */
         const LayoutVector& getLayouts() const { return _layouts; }

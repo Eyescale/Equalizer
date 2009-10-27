@@ -44,7 +44,7 @@ EQ_EXPORT void checkHeap()
 {
 #ifdef WIN32_VC
     static mtLong count( 0 );
-    if( ( ++count % 1000 ) == 0 && _heapchk() != _HEAPOK )
+    if( ( ++count % 10000 ) == 0 && _heapchk() != _HEAPOK )
     {
         EQERROR << disableFlush << "Abort: heap corruption detected"<< std::endl
                 << "    Set breakpoint in " << __FILE__ << ':' << __LINE__ + 1 
