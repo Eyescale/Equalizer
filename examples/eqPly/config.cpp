@@ -144,10 +144,10 @@ void Config::_loadModels()
         {
             const std::string filename = filenames.back();
             filenames.pop_back();
-            EQINFO << "Loading " << filename << std::endl;
      
             if( _isPlyfile( filename ))
             {
+                EQINFO << "Loading " << filename << std::endl;
                 Model* model = new Model;
 
                 if( _initData.useInvertedFaces() )
@@ -171,6 +171,8 @@ void Config::_loadModels()
                 const eq::StringVector subFiles = 
                     eq::base::fileSearch( filename, "*" );
 
+                if( !subFiles.empty( ))
+                    EQINFO << "Searching " << filename << std::endl;
                 for( eq::StringVector::const_iterator i = subFiles.begin();
                      i != subFiles.end(); ++i )
                 {
