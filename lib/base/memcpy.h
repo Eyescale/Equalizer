@@ -28,13 +28,13 @@ inline void fastCopy( void *dst, const void *src, uint32_t nbytes )
 {
 #ifdef _WIN64
     ::memcpy(dst,src,nbytes);
-#elif  WIN32 
+#elif defined WIN32 
     static const int BLOCK_SIZE = 64;
     
     long bytesDiff;
     if (nbytes < BLOCK_SIZE )
     {
-        memcpy(dst,src,nbytes);
+        ::memcpy(dst,src,nbytes);
         return;
     }
     /* each iteration copy 64 bytes */
@@ -83,7 +83,7 @@ inline void fastCopy( void *dst, const void *src, uint32_t nbytes )
     {
         const char* src8 = reinterpret_cast<const char*>( src );
         char* dst8       = reinterpret_cast<char*>( dst );
-        memcpy( dst8 + bytesDiff, src8 + bytesDiff, nbytes - bytesDiff );
+        ::memcpy( dst8 + bytesDiff, src8 + bytesDiff, nbytes - bytesDiff );
     }
 #else // !WIN32
 

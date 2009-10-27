@@ -26,6 +26,9 @@
 #include <eq/base/defines.h>
 
 #ifdef WIN32
+#  ifndef WIN32_VC
+#    define USE_SYS_TYPES_FD_SET
+#  endif
 #  define _USE_MATH_DEFINES
 #  define _WIN32_WINNT 0x500
 #  define WIN32_LEAN_AND_MEAN

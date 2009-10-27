@@ -35,6 +35,9 @@ RSPConnection::RSPConnection()
         , _maxLengthDatagramData( 0 )
         , _timeEvent( 999999999 )
 {
+    _description->type = CONNECTIONTYPE_MCIP_RSP;
+    _description->bandwidth = 102400;
+
     for ( uint8_t i = 0; i < _numberBuffer; i++ )
     {
         DataReceive* receive = new DataReceive();
@@ -55,10 +58,6 @@ RSPConnection::RSPConnection()
         _buffer.push_back( receive );
     }
     bufferReceive = _buffer[0];
-    _description =  new ConnectionDescription;
-    _description->type = CONNECTIONTYPE_MCIP_RSP;
-    _description->bandwidth = 102400;
-
 }
 
 void RSPConnection::close()

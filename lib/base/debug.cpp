@@ -42,7 +42,7 @@ EQ_EXPORT void abort()
 
 EQ_EXPORT void checkHeap()
 {
-#ifdef WIN32
+#ifdef WIN32_VC
     static mtLong count( 0 );
     if( ( ++count % 1000 ) == 0 && _heapchk() != _HEAPOK )
     {
