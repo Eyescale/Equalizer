@@ -110,6 +110,7 @@ namespace net
             uint32_t    idwriter;
             uint16_t    idData;
             uint32_t    idSequence;
+            uint16_t    length;
         };
         
         struct DataReceive
@@ -189,10 +190,10 @@ namespace net
         int _indexRead;
         DataReceive* _currentReadSync;
         uint32_t      _myID;
-        uint32_t      _idSequenceWrite;
+        
         eq::base::RNG _rng;
 
-        uint32_t _writerId;        
+        uint32_t _writerId;
         uint8_t  _countTimeOut;
         bool _ackReceive;
 #ifdef WIN32
@@ -212,14 +213,21 @@ namespace net
         Thread* _thread;
         UDPConnection* _connection;
         base::Lock _mutexConnection;
+        base::Lock _mutexRead;
         RSPConnection* _parentConnection;
         uint64_t _maxLengthDatagramData;
         
+        // buffer for read from udp Connection
         DataReceive* bufferReceive;
+        
+        int64_t     _lastidSequenceAck;
+        // write property part
         const char* _dataSend;
-        uint64_t _lengthDataSend;
-        uint32_t _numberDatagram;
-        uint64_t _timeEvent;
+        uint64_t    _lengthDataSend;
+        uint32_t    _numberDatagram;
+        uint64_t    _timeEvent;
+        uint32_t    _idSequenceWrite;
+
         CHECK_THREAD_DECLARE( _recvThread );
  
     };

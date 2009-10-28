@@ -47,7 +47,7 @@ namespace net
 namespace
 {
 #ifdef WIN32
-    static const size_t _mtu = 65000 ;
+    static const size_t _mtu = 1470 ;
 #else
     static const size_t _mtu = 1470 ;
 #endif
@@ -311,11 +311,11 @@ void UDPConnection::readNB( void* buffer, const uint64_t bytes )
 
     ResetEvent( _overlapped.hEvent );
 
-    if( WSARecvFrom( _readFD, &wsaBuffer, 1, 0, &flags, 
+    if( WSARecvFrom( _readFD, &wsaBuffer, 1, &_overlappedDone, &flags, 
                      (sockaddr*)&_readAddress, &size, &_overlapped, 0 ) == 0 )
     {
-        //EQASSERT( _overlappedDone > 0 );
-        //SetEvent( _overlapped.hEvent );
+        EQASSERT( _overlappedDone > 0 );
+        SetEvent( _overlapped.hEvent );
     }
     else if ( GetLastError() != WSA_IO_PENDING )
     {
@@ -339,8 +339,8 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
         return -1;
     }
 
-    /*if( _overlappedDone > 0 )
-        return _overlappedDone;*/
+    if( _overlappedDone == EQ_MIN( _mtu, bytes ))
+        return _overlappedDone;
 
     DWORD got   = 0;
     DWORD flags = 0;
@@ -397,6 +397,11 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes)
 {
     if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
+
+    // use for control congestion
+    uint64_t delay = 0;
+    for ( uint64_t i = 0 ; i < delay ; i++ ) ;
+
     base::ScopedMutex mutex( _mutexWrite );
 #ifdef WIN32
     DWORD  wrote;
@@ -440,10 +445,6 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes)
     int flags = 0;
 
     int wrote = ::send( _writeFD, const_cast<char*>( static_cast<const char*>(buffer)), EQ_MIN( bytes, _mtu ), flags );
-
-    // use for control congestion
-    uint64_t delay = 10000 * 8 / 50000;
-    for ( uint64_t i = 0 ; i < delay ; i++ ) ;
 
     if( wrote == -1 ) // error
     {

@@ -22,7 +22,7 @@ namespace net
 namespace
 {
 static const size_t _maxBuffer = 1454*1000;
-static const size_t _numberBuffer = 2;
+static const size_t _numberBuffer = 4;
 }
 
 RSPConnection::RSPConnection()
@@ -33,6 +33,7 @@ RSPConnection::RSPConnection()
         , _connection( 0 )
         , _parentConnection( 0 )
         , _maxLengthDatagramData( 0 )
+        , _lastidSequenceAck( -1 )
         , _timeEvent( 999999999 )
 {
     _description->type = CONNECTIONTYPE_MCIP_RSP;
@@ -151,7 +152,7 @@ bool RSPConnection::listen()
     _thread = new Thread( this );
 
 #ifdef WIN32
-    _hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
+    _initAIOAccept();
     _writeEndEvent = CreateEvent( 0, FALSE, FALSE, 0 );
 #else
     _selfPipeWriteEventEnd = new PipeConnection;
@@ -160,7 +161,7 @@ bool RSPConnection::listen()
         EQERROR << "Could not create connection" << std::endl;
         return false;
     }
-    _selfPipeWriteEventEnd->recvNB( &_selfCommand, sizeof( _selfCommand ));
+    
 
     _countNbAckInWrite =  0;
     _writeEndEvent.events = POLLIN;
@@ -173,15 +174,13 @@ bool RSPConnection::listen()
         EQERROR << "Could not create connection" << std::endl;
         return false;
     }
-    _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
 
     _hEvent.events = POLLIN;
     _hEvent.fd = _selfPipeHEvent->getNotifier();
+    _readFD = _hEvent.fd;
     _hEvent.revents = 0;
 
     _udpEvent.events = POLLIN; // | POLLPRI;
-
-    // add self 'connection'
     _udpEvent.fd = _connection->getNotifier();
     EQASSERT( _udpEvent.fd > 0 );
     _udpEvent.revents = 0;
@@ -193,8 +192,8 @@ bool RSPConnection::listen()
     _bufRead.resize( _connection->getMTU() );
     
     _thread->start();
-    const DatagramNode newnode ={ NEWNODE, _getID() };
-    _connection->write( &newnode, sizeof( DatagramNode ) );
+     const DatagramNode newnode ={ NEWNODE, _getID() };
+     _connection->write( &newnode, sizeof( DatagramNode ) );
 
     _state = STATE_LISTENING;
     _fireStateChanged();
@@ -213,8 +212,13 @@ void RSPConnection::acceptNB()
         ResetEvent( _hEvent );
 #else
     {
+        _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
         const char c = SELF_INTERRUPT;
         _selfPipeHEvent->send( &c, 1, true );
+    }
+    else 
+    {
+        _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));	
     }
 
 #endif
@@ -231,7 +235,7 @@ ConnectionPtr RSPConnection::acceptSync()
         WaitForSingleObject( getNotifier(), INFINITE );
 #else
         poll( &_hEvent, 1, -1 );
-#endif;
+#endif
     EQASSERT ( _countAcceptChildren < _childrensConnection.size() )
     RSPConnection* newConnection = 
                         _childrensConnection[ _countAcceptChildren ];
@@ -243,6 +247,23 @@ ConnectionPtr RSPConnection::acceptSync()
     newConnection->_connection = _connection;
     newConnection->_state       = STATE_CONNECTED;
     newConnection->_description = _description;
+
+#ifndef WIN32
+    _selfPipeHEvent->recvSync( 0, 0 );
+
+    newConnection->_selfPipeHEvent = new PipeConnection;
+    if( !newConnection->_selfPipeHEvent->connect( ))
+    {
+        EQERROR << "Could not create connection" << std::endl;
+        return false;
+    }
+    
+    newConnection->_hEvent.events = POLLIN;
+    newConnection->_hEvent.fd = newConnection->_selfPipeHEvent->getNotifier();
+    newConnection->_readFD = newConnection->_hEvent.fd;
+    newConnection->_hEvent.revents = 0;
+
+#endif     
     _countAcceptChildren++;
 
     const DatagramCountConnection countNode = 
@@ -257,6 +278,10 @@ ConnectionPtr RSPConnection::acceptSync()
 
 void RSPConnection::readNB( void* buffer, const uint64_t bytes )
 {
+    EQASSERT( _state == STATE_CONNECTED );
+
+    base::ScopedMutex mutex( _mutexRead );
+    
     for ( std::vector< DataReceive* >::iterator i = _buffer.begin();
               i != _buffer.end(); ++i )
     {
@@ -274,6 +299,8 @@ void RSPConnection::readNB( void* buffer, const uint64_t bytes )
 
 #ifdef WIN32
     ResetEvent( _hEvent );
+#else
+    _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
 #endif
 
 }
@@ -281,7 +308,7 @@ void RSPConnection::readNB( void* buffer, const uint64_t bytes )
 eq::net::RSPConnection::DataReceive* RSPConnection::_findReceiverRead()
 {
     DataReceive* receiver = _currentReadSync;
-
+    base::ScopedMutex mutex( _mutexRead );
     if ( !receiver )
     {
         for ( std::vector< DataReceive* >::iterator i = _buffer.begin();
@@ -313,7 +340,9 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
         poll( &_hEvent, 1, -1 );
 #endif
     }
-    
+#ifndef WIN32
+    _selfPipeHEvent->recvSync( 0, 0 );
+#endif
     return _readSync( receiver, buffer, size );
    
 }
@@ -328,7 +357,7 @@ void RSPConnection::_run()
 #ifdef WIN32
         WORD ret = WaitForSingleObject( _connection->getNotifier(), _timeEvent );
 #else
-        int ret = poll( &_udpEvent, 1, -1 );
+        int ret = poll( &_udpEvent, 1, _timeEvent );
 #endif
         switch ( ret )
         {
@@ -345,7 +374,7 @@ void RSPConnection::_run()
                     connection->_countTimeOut++;
                     // send a ack request
                     if ( connection->_countTimeOut % 5 == 0)
-                    {                    
+                    {   
                         // send a datagram Ack Request    
                         _sendAckRequest();
                         EQWARN << "send ACK Requ : " << _idSequenceWrite << std::endl;
@@ -392,7 +421,7 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
     // if all data in the buffer has been taken
     if ( receive->_posRead == receive->_totalSize )
     {
-
+        base::ScopedMutex mutex( _mutexRead );
         memset( receive->_boolBuffer.getData(), 
                 false, receive->_boolBuffer.getSize() * sizeof( bool ));
         receive->_allRead = true;
@@ -407,9 +436,12 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
 
 void RSPConnection::_read( )
 {
+    base::ScopedMutex mutex( _mutexRead );
     // read datagram 
-    const int32_t readSize = _connection->readSync( _bufRead.getData(), 
-                                                    _connection->getMTU() );
+    if ( _connection->readSync( _bufRead.getData(), 
+                                _connection->getMTU() ) == -1 )
+        return;
+                                
     
     // read datagram type
     const uint8_t* type = reinterpret_cast<uint8_t*>( _bufRead.getData() ); 
@@ -474,36 +506,45 @@ void RSPConnection::_read( )
         if ( !connection->bufferReceive )
             return;
         
-        const uint64_t sizeToRead = readSize - sizeof( DatagramData );
+        DataReceive* receive = connection->bufferReceive;
+
                 
         // if it's the first datagram 
-        if ( connection->bufferReceive->_ackSend )
+        if ( receive->_ackSend )
         {
-            if ( datagram->idSequence == connection->bufferReceive->_idSequence )
+
+            if ( datagram->idSequence == receive->_idSequence )
                 return;
 
-            connection->bufferReceive->_idSequence    = datagram->idSequence;
-            connection->bufferReceive->_posRead   = 0;
-            connection->bufferReceive->_totalSize = 0;
-            connection->bufferReceive->_ackSend   = false;
+            // if it's a datagram repetition for an other connection, we have
+            // to ignore it
+            if ( ( connection->_lastidSequenceAck == datagram->idSequence ) &&
+                    connection->_lastidSequenceAck != -1 )
+                return;
+
+            receive->_idSequence    = datagram->idSequence;
+            receive->_posRead   = 0;
+            receive->_totalSize = 0;
+            receive->_ackSend   = false;
         }
 
         uint64_t index = datagram->idData;
 
         // if it's a repetition and we have the data then we ignore it
-        if ( !connection->bufferReceive->_boolBuffer.getData()[ index ] )
+        if ( !receive->_boolBuffer.getData()[ index ] )
         {
+            uint16_t length = datagram->length; 
             datagram++;
             const uint8_t* data = reinterpret_cast< const uint8_t* >
                                                          ( datagram );
-            connection->bufferReceive->_boolBuffer.getData()[ index ] = true;
-            connection->bufferReceive->_totalSize += sizeToRead;
+            receive->_boolBuffer.getData()[ index ] = true;
+            receive->_totalSize += length;
             const uint64_t pos = ( index ) * ( _connection->getMTU() - 
                                          sizeof( DatagramData ) );
-            memcpy( connection->bufferReceive->_dataBuffer.getData() + pos,
-                    data, sizeToRead );
+            memcpy( receive->_dataBuffer.getData() + pos,
+                    data, length );
+            return;
         }
-        
         break;
     }
     case ACK: 
@@ -664,7 +705,9 @@ void RSPConnection::_read( )
                                           receive->_idSequence};
                     _connection->write( &datagramNack, 
                                 sizeof( DatagramNack ) );
-                    EQWARN << "repeat : " << i << " to " << j-1 << std::endl;
+                    EQWARN << "repeat : " << i << " to " << j-1 
+                           << " sequence : " << receive->_idSequence
+                           << std::endl;
                     return;
                 }
                 const DatagramNack datagramNack = { NACK, _myID, 
@@ -673,7 +716,10 @@ void RSPConnection::_read( )
                                     receive->_idSequence };
                 _connection->write( &datagramNack, 
                                     sizeof( DatagramNack ) );
-                EQWARN << "repeat : " << i << " to " << receive->_boolBuffer.getSize()-1 << std::endl;
+                EQWARN << "repeat : " << i << " to "
+                       << receive->_boolBuffer.getSize()-1 
+                       << " sequence : " << receive->_idSequence
+                       << std::endl;
                 return;
             }
             
@@ -698,6 +744,7 @@ void RSPConnection::_read( )
             DatagramAck ack = { ACK, _myID, connection->_writerId, 
                                 receive->_idSequence };
             _connection->write( &ack, sizeof( ack ) );
+            connection->_lastidSequenceAck = receive->_idSequence;
 #ifdef WIN32
             SetEvent( connection->_hEvent );
 #else
@@ -711,7 +758,7 @@ void RSPConnection::_read( )
     case NEWNODE:
     {
         
-        base::ScopedMutex mutex( _mutexConnection );
+        base::ScopedMutex mutexConn( _mutexConnection );
         const DatagramNode* node = reinterpret_cast< const DatagramNode* >
                                                        (  _bufRead.getData()  );
 
@@ -725,13 +772,13 @@ void RSPConnection::_read( )
                     return;
             }
             _addNewConnection( node->idConnection );
-        }
 #ifdef WIN32
-        SetEvent( _hEvent );
+            SetEvent( _hEvent );
 #else
-        const char c = SELF_INTERRUPT;
-        _selfPipeHEvent->send( &c, 1, true );
+            const char c = SELF_INTERRUPT;
+            _selfPipeHEvent->send( &c, 1, true );
 #endif
+        }
         break;
     }
     case EXITNODE:
@@ -767,7 +814,7 @@ void RSPConnection::_read( )
     }
     case COUNTNODE:
     {
-        base::ScopedMutex mutex( _mutexConnection );
+        base::ScopedMutex mutexConn( _mutexConnection );
         const DatagramCountConnection* countConn = 
                 reinterpret_cast< const DatagramCountConnection* >
                                                          ( _bufRead.getData() );
@@ -824,7 +871,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 #ifdef WIN32
     ResetEvent( _writeEndEvent );
 #else
-    //* NOP */
+    _selfPipeWriteEventEnd->recvNB( &_selfCommand, sizeof( _selfCommand ));
 #endif
     _idSequenceWrite ++;
     _dataSend = reinterpret_cast< const char* >( buffer );
@@ -852,13 +899,13 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     if ( _childrensConnection.size() == 0 )
         return size;
 
-
     // wait ack from all connection
     _timeEvent = 100;
 #ifdef WIN32
     WaitForSingleObject( _writeEndEvent, INFINITE );
 #else
     poll( &_writeEndEvent, 1, 9999999 );
+    _selfPipeWriteEventEnd->recvSync( 0, 0);
 #endif
         
     return size;
@@ -867,7 +914,6 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 void RSPConnection::_sendDatagram( const uint64_t idDatagram )
 {
     
-
     uint32_t posInData = _maxLengthDatagramData * idDatagram;
     uint32_t lengthData;
     if ( _lengthDataSend - posInData >= _maxLengthDatagramData )
@@ -882,7 +928,8 @@ void RSPConnection::_sendDatagram( const uint64_t idDatagram )
     // set the header
     DatagramData* header = reinterpret_cast< DatagramData* >
                                                 ( sendBuffer.getData() );
-    DatagramData headerInit = { DATA, _myID, idDatagram, _idSequenceWrite };
+    DatagramData headerInit = { DATA, _myID, idDatagram, 
+                                _idSequenceWrite, lengthData };
     *header = headerInit;
     header++;
 

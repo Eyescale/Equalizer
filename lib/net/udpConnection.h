@@ -26,6 +26,7 @@
 
 #ifndef WIN32
 #  include <netinet/in.h>
+#  include "fdConnection.h"
 #endif
 
 namespace eq
@@ -33,7 +34,13 @@ namespace eq
 namespace net
 {
     /** A udp connection (Attn: only multicast usage implemented). */
-    class UDPConnection : public Connection
+    class UDPConnection
+#ifdef WIN32
+     : public Connection
+#else
+     : public FDConnection
+#endif
+
     {
     public:
         /** Create a new udp-based connection. */
@@ -92,10 +99,10 @@ namespace net
 
         sockaddr_in _writeAddress;
         sockaddr_in _readAddress;
-
-        Socket _readFD;
-        Socket _writeFD;
-
+#ifdef WIN32
+        SOCKET _readFD;
+        SOCKET _writeFD;
+#endif
         // protect write function because write data operation and 
         // write from protocole rsp can be use in the same time
         base::Lock _mutexWrite;
