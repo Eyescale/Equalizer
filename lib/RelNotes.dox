@@ -29,13 +29,17 @@
 <h2>1. Introduction</h2>
 <p>
   Welcome to Equalizer, the standard middleware to create and deploy parallel,
-  scalable OpenGL applications. Equalizer 0.9 delivers major new features, most
-  notably major new scalability features and a plugin API for image compression.
+  scalable OpenGL applications. Equalizer 0.9.1 enables the development
+  Equalizer-based applications which do not use OpenGL for rendering.
 </p>
 <p>
-  Equalizer 0.9 can be retrieved by downloading the
-  <a href="http://www.equalizergraphics.com/downloads/Equalizer-0.9.tar.gz">source
-    code</a>.
+<p>
+  Equalizer 0.9.1 is a developer release, representing a stable snapshot of the
+  development tree after the 0.9 release. Equalizer 0.9.1 can be retrieved by
+  updating the subversion trunk to revision TBD (<code>svn up -r TBD</code>)
+  or by using:<br>
+  <code>svn co https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.1</code>
+</p>
 </p>
 
 
@@ -65,113 +69,38 @@
 <a name="new"></a>
 <h2>2. New in this release</h2>
 <p>
-  Equalizer 0.9 contains the following features, enhancements, bug fixes and
+  Equalizer 0.9.1 contains the following features, enhancements, bug fixes and
   documentation changes:
 </p>
 
 <a name="newFeatures"></a>
 <h3>2.1. New Features</h3>
 <ul>
-  <li>Automatic 
-    <a href="http://www.equalizergraphics.com/scalability/viewEqualizer.html">cross-segment
-    load-balancing</a> for multi-display installations</li>
-  <li><a href="http://www.equalizergraphics.com/scalability/dfrEqualizer.html">Dynamic
-      Frame Resolution (DFR)</a> for constant framerate rendering</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/compression.html">Compression
-      Plugin API</a> for runtime-loadable image compression engines</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/view.html">Canvas
-      and Layout API</a> for runtime-switchable layouts and resource
-    configurations</li>
-  <ul>
-    <li>Simple configuration of physical projection system</li>
-    <li>Logical view layouts on multi-segment projection surfaces</li>
-    <li>Simple 2D operations on multi-segment projection surfaces</li>
-    <li>Run-time (de-)activation of nodes, pipes, windows and channels</li>
-  </ul>
-  <li>Support for
-    <a href="http://www.equalizergraphics.com/documents/design/immersive.html#observers">multiple
-      observers</a> in a single configuration</li>
-  <li>Support for 
-    <a href="http://www.equalizergraphics.com/documents/design/immersive.html#HMD">Head-Mounted Displays (HMD)</a></li>
-  <li><a
-  href="http://www.equalizergraphics.com/scalability/monitorEqualizer.html">Monitor
-      Equalizer</a> for the observation of other views</li>
-  <li>Up- and down-scaling for source channel pixel viewports, including zoom
-    support for compositing</li>
-  <li>Support for
-    <a href="http://www.equalizergraphics.com/documents/design/swapBarrier.html#gsync">hardware
-    swapbuffer synchronization</a> with nVidia G-Sync</li>
-  <li>Support for Framebuffer Objects (FBO)</li>
-  <li>Support for half_float and float PBuffers and FBOs</li>
-  <li>Spacemouse support (AGL only)</li>
-  <li>New helper
-    <a href="http://www.equalizergraphics.com/documents/Developer/API-0.9/classeq_1_1base_1_1DSO.html">class to handle dynamic libraries</a></li>
-  <li>New helper 
-    <a href="http://www.equalizergraphics.com/documents/Developer/API-0.9/classeq_1_1base_1_1MemoryMap.html">class for memory-mapped files</a></li>
+  <li></li>
 </ul>
 
 <a name="enhancements"></a>
 <h3>2.2. Enhancements</h3>
 <ul>
-  <li>Improved 
-    <a href="http://www.equalizergraphics.com/documents/design/statisticsOverlay.html">statistics
-    overlay</a> (added legend, FPS counter, image compression ratio, pipe idle
-    ratio, framerate throttle statistic)</li>
-  <li>New helper class 
-    <a href="http://www.equalizergraphics.com/documents/Developer/API-0.9/classeq_1_1Object.html">eq::Object</a>
-for easier data distribution of dynamic, versioned objects</li>
-  <li>Texture-based frames for optimal compositing on a single GPU</li>
-  <li>Upgraded to <a href="http://vmmlib.sourceforge.net/">VMMlib 1.0</a></li>
-  <li>Abstraction for window-system specific code through 
-    <a href="http://www.equalizergraphics.com/documents/Developer/API-0.9/classeq_1_1OSPipe.html">OSPipe interface</a></li>
-  <li>AGL event handling follows same threading model as GLX and WGL</li>
-  <li>Config file versioning</li>
-  <li>Synchronize clock used for logging across all nodes</li>
-  <li>Improved handling for event-driven applications</li>
+  <li></li>
 </ul>
 
 <a name="optimizations"></a>
 <h3>2.3. Optimizations</h3>
 <ul>
-  <li>Lock-free network packet cache for low-latency, high-performance packet
-    dispatch</li>
-  <li>Network layer uses asynchronous IO semantics and has better performance on
-    Windows</li>
-  <li>Per-component and differential RLE image compressor</li>
-  <li>Use GL_UNSIGNED_INT depth buffer instead of GL_FLOAT for better
-    performance and compression</li>
-  <li>DPlex framerate equalizer optimizations</li>
-  <li>Faster serialization of std::vectors in distributed objects</li>
-  <li>Named pipe connection for fast local communication on Windows</li>
+  <li></li>
 </ul>
 
 <a name="examples"></a>
 <h3>2.4. Examples</h3>
 <ul>
-  <li>eqOSG: new OpenSceneGraph-based example</li>
-  <li>eqNBody: new, preliminary example showing integration with CUDA</li>
-  <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: added wireframe mode</li>
-  <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: added multi-model support</li>
-  <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: full support of the new layout API</li>
-  <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: added help overlay on 'F1'</li>
-  <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: optimized kD-tree layout</li>
-  <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: added walk-through mode</li>
-  <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: added loadable camera paths</li>
-  <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: added Spacemouse support (AGL only)</li>
-  <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: added command-line option to disable overlay logo</li>
-  <li><a href="http://www.equalizergraphics.com/applications/eqPly.html">eqPly</a>: unified coloring to demonstrate decomposition</li>
+  <li></li>
 </ul>
 
 <a name="tools"></a>
 <h3>2.5. Tools</h3>
 <ul>
-  <li>
-    <a href="http://www.equalizergraphics.com/downloads/tools.html">affinityCheck</a>:
-    new command-line tool to list available affinity GPUs (WGL
-    only)</li>
-  <li><a href="http://www.equalizergraphics.com/documents/user/configTool.html">configTool</a>: added support for having an async compositing GPU for DB</li>
-  <li><a href="http://www.equalizergraphics.com/documents/user/configTool.html">configTool</a>: added support for setting the destination window
-    resolution</li>
+  <li></li>
 </ul>
 
 <a name="changes"></a>
@@ -181,32 +110,7 @@ for easier data distribution of dynamic, versioned objects</li>
   were made:
 </p>
 <ul>
-  <li><a href="http://vmmlib.sourceforge.net/">VMMlib</a>, the vector and matrix
-    library used by Equalizer, was upgraded to version 1.0. The API of this
-    library changed, and all type definitions used by Equalizer now reside in
-    the <code>eq</code> namespace instead of
-    the <code>vmml</code> namespace.</li>
-  <li>The View API introduced in 0.6 has been replaced by the more powerful
-    <a href="http://www.equalizergraphics.com/documents/design/view.html">Layout/Canvas/Observer</a>
-    API</li>
-  <li>All window system specific calls have been moved
-    from <code>eq::Pipe</code> to the corresponding <code>eq::OSPipe</code>
-    implementation.</li>
-  <li><code>Config::setHeadMatrix</code> and <code>Config::setEyeBase</code>
-    have been deprecated. Use <code>Config::getObservers</code>,
-    <code>Observer::setHeadMatrix</code> and <code>Observer::setEyeBase</code>
-    instead.</li>
-  <li>The <code>ChannelVisitor::Result</code> type has been renamed to the
-  generic <code>VisitorResult</code> type used by all visitors.</li>
-  <li>The access to pixel data in <code>eq::Image</code> has been slightly
-    changed by the introduction of compression plugins.</li>
-  <li>The enum <code>Node::IATTR_HINT_STATISTICS</code> has been removed since
-    it is not used anymore.</li>
-  <li>Reference counting of OpenGL objects allocated
-    by <code>eq::ObjectManager</code> has been removed. This functionality proved
-    unnecessary and complicated the API.</li>
-  <li>The enum value <code>Event::EXPOSE</code> has been renamed
-    to <code>Event::WINDOW_EXPOSE</code>.</li>
+  <li></li>
 </ul>
 
 <a name="documentation"></a>
@@ -217,23 +121,7 @@ for easier data distribution of dynamic, versioned objects</li>
 </p>
 <ul>
   <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
-      User Guide</a> has been extended to 86 pages and 52 figures.</li>
-  <li><a href="http://www.equalizergraphics.com/documents/EqualizerGuide.pdf">Quickstart
-      and Demo Guide</a></li>
-  <li><a href="http://doi.ieeecomputersociety.org/10.1109/TVCG.2008.104">Equalizer:
-      A Scalable Parallel Rendering Framework</a>, IEEE Transactions on
-    Visualization and Computer Graphics, vol. 15, no. 3, pp. 436-452, May/June
-    2009.</li>
-  <li><a href="http://www.equalizergraphics.com/documents/Developer/API-0.9/index.html">API Documentation</a></li>
-  <li><a href="http://www.equalizergraphics.com/downloads/tools.html">GPU
-      Affinity Checker</a>
-  <li><a href="http://www.equalizergraphics.com/documents/design/swapBarrier.html#gsync">Hardware
-      swapbarrier</a> for synchronization of multipipe displays</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/compression.html">Compression Plugin API</a> is
-    the official interface to create binary plugins for data compression.</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/view.html">Layout API</a> provides a way to
-    configure physical projection surfaces with logical layouts and multiple
-    observers.</li>
+      User Guide</a> has been extended to TBD pages and TBD figures.</li>
 </ul>
 
 <a name="bugfixes"></a>
@@ -244,19 +132,6 @@ for easier data distribution of dynamic, versioned objects</li>
 </p>
 <ul>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2822348&group_id=170962&atid=856209">2822348</a>: No latency when event-driven
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2803528&group_id=170962&atid=856209">2803528</a>: assertion with zero area pvps
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2797391&group_id=170962&atid=856209">2797391</a>: Error state in parser not reset
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2788964&group_id=170962&atid=856209">2788964</a>: Suspicious compiler warning
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2782038&group_id=170962&atid=856209">2782038</a>: Mapping of multiple Objects of type DELTA creates assertions
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2778587&group_id=170962&atid=856209">2778587</a>: eqServer crashes when running without an appNode
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2688797&group_id=170962&atid=856209">2688797</a>: Configs with no appNode crash
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2592240&group_id=170962&atid=856209">2592240</a>: DPlex LB breaks swapbarrier
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2556921&group_id=170962&atid=856209">2556921</a>: AGL context updates broken
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2545209&group_id=170962&atid=856209">2545209</a>: crashes on specific configs
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2458583&group_id=170962&atid=856209">2458583</a>: Mouse buttons are numbered differently between AGL and GLX
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2268547&group_id=170962&atid=856209">2268547</a>: fullscreen windows not always active on Win32</li>
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1997583&group_id=170962&atid=856209">1997583</a>: eqPly: ortho frustum culling broken</li>
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1816670&group_id=170962&atid=856209">1816670</a>: eVolve: binary swap configs don't work</li>
 </ul>
 
 <a name="knownbugs"></a>
