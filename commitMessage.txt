@@ -1,15 +1,4 @@
-Apply RFE 2885490: GLEW update
-
-- removed from original patch due to missing prototypes:
-
-PFNGLXBINDVIDEOCAPTUREDEVICENVPROC __glewXBindVideoCaptureDeviceNV;
-PFNGLXENUMERATEVIDEOCAPTUREDEVICESNVPROC __glewXEnumerateVideoCaptureDevicesNV;
-PFNGLXLOCKVIDEOCAPTUREDEVICENVPROC __glewXLockVideoCaptureDeviceNV;
-PFNGLXQUERYVIDEOCAPTUREDEVICENVPROC __glewXQueryVideoCaptureDeviceNV;
-PFNGLXRELEASEVIDEOCAPTUREDEVICENVPROC __glewXReleaseVideoCaptureDeviceNV;
-
-PFNGLPARAMETERSPROC __glewparameters;
-
+eq::Channel API documentation and related cleanups
 
 [ ] May break build
 [ ] May break existing applications

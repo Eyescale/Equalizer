@@ -221,11 +221,11 @@ int main( int argc, char **argv )
                 cerr << "Send perf: " << mBytesSec / time * nSamples 
                      << "MB/s (" << nSamples / time * 1000.f  << "pps)" << endl;
 
-                if( waitTime > 0 )
-                    eq::base::sleep( waitTime );
                 lastOutput = nPackets;
                 clock.reset();
             }
+            if( waitTime > 0 )
+                eq::base::sleep( waitTime );
         }
         const float time = clock.getTimef();
         const size_t nSamples = lastOutput - nPackets;

@@ -39,9 +39,11 @@ namespace eq
     /**
      * A channel represents a two-dimensional viewport within a Window.
      *
-     * The channel is the basic rendering entity. It executes all
-     * rendering-relevant tasks, such as clear, draw, assemble and readback. It
-     * is a child of a Window.
+     * The channel is the basic rendering entity. It represents a 2D rendering
+     * area within a Window. It executes all rendering-relevant tasks, such as
+     * clear, draw, assemble and readback. Each rendering task is using its own
+     * RenderContext, which is computed by the server based on the rendering
+     * description of the current configuration.
      */
     class Channel : public net::Object
     {
@@ -49,41 +51,57 @@ namespace eq
     
         /** 
          * The drawable format defining the components used as an alternate
-         * drawable for this cannel.
+         * drawable for this cannel. If an alternate drawable is configured, the
+         * channel uses the appropriate targets in place of the window's frame
+         * buffer.
          */
         enum Drawable
         {
-            FBO_NONE      = EQ_BIT_NONE,
+            FBO_NONE      = EQ_BIT_NONE, //!< Use the window's frame buffer
             FBO_COLOR     = EQ_BIT1,  //!< Use FBO color attachment
             FBO_DEPTH     = EQ_BIT2,  //!< Use FBO depth attachment
             FBO_STENCIL   = EQ_BIT3   //!< Use FBO stencil attachment
         };
         
-        /** Constructs a new channel. */
+        /** Construct a new channel. */
         EQ_EXPORT Channel( Window* parent );
 
-        /** Destructs the channel. */
+        /** Destruct the channel. */
         EQ_EXPORT virtual ~Channel();
 
         /**
          * @name Data Access
          */
         //@{
+        /** @return the parent window. */
         Window*       getWindow()       { return _window; }
+
+        /** @return the parent window. */
         const Window* getWindow() const { return _window; }
 
+        /** @return the parent pipe. */
         EQ_EXPORT Pipe*       getPipe();
+
+        /** @return the parent pipe. */
         EQ_EXPORT const Pipe* getPipe() const;
 
+        /** @return the parent node. */
         EQ_EXPORT Node*       getNode();
+
+        /** @return the parent node. */
         EQ_EXPORT const Node* getNode() const;
 
+        /** @return the parent config. */
         EQ_EXPORT Config*       getConfig();
+
+        /** @return the parent config. */
         EQ_EXPORT const Config* getConfig() const;
 
+        /** @return the parent server. */
         EQ_EXPORT ServerPtr getServer();
 
-        EQ_EXPORT Window::ObjectManager* getObjectManager();
+        /** @return the name of the window. */
+        const std::string& getName() const { return _name; }
 
         /** 
          * Get the GLEW context for this channel.
@@ -99,10 +117,12 @@ namespace eq
          *         context.
          */
         EQ_EXPORT GLEWContext*       glewGetContext();
+
+        /** Const-version for glewGetContext() */
         EQ_EXPORT const GLEWContext* glewGetContext() const;
-        
-        /** @return the name of the window. */
-        const std::string& getName() const { return _name; }
+
+        /** @return the window's object manager instance. */
+        EQ_EXPORT Window::ObjectManager* getObjectManager();
 
         /** 
          * Return the set of tasks this channel might execute in the worst case.
@@ -111,11 +131,12 @@ namespace eq
          * during rendering.
          * 
          * @return the tasks.
+         * @warning unstable API
          */
         uint32_t getTasks() const { return _tasks; }
 
         /** 
-         * Traverse this channel and all children using a channel visitor.
+         * Traverse this channel using a channel visitor.
          * 
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
@@ -125,7 +146,7 @@ namespace eq
         /** 
          * Set the near and far planes for this channel.
          * 
-         * The near and far planes are set during initialisation and are
+         * The near and far planes are set during initialization and are
          * inherited by source channels contributing to the rendering of this
          * channel. Dynamic near and far planes can be applied using
          * applyNearFar.
@@ -135,29 +156,29 @@ namespace eq
          */
         EQ_EXPORT void setNearFar( const float nearPlane, const float farPlane);
 
-        /** Return a stable, unique color for this channel. */
+        /** Return a fixed unique color for this channel. */
         const Vector3ub& getUniqueColor() const { return _color; }
 
-        /** 
-         * Get the channel's view.
-         * 
-         * A channel has a View if a Wall or Projection description is
-         * configured for it. This is typically the case for destination
-         * channels, source channels do not have a native view. During rendering
-         * operations, the view of the current destination channel, i.e., the
-         * channel this channel is rendering for, is returned.
-         * 
-         * @return the channel's view, or 0 if it does not have a view.
-         */
-        EQ_EXPORT const View* getView();
-
         /**
-         * @return the channel's native view, or 0 if it is not an output
-         *         channel.
+         * Get the channel's native view.
+         *
+         * This function always returns the channel's native view, no matter in
+         * which context it is called. Only destination channels have a native
+         * view.
+         *
+         * @return the channel's native view, or 0 if it does not have one.
+         * @sa getView()
          */
         EQ_EXPORT const View* getNativeView();
 
-        /** Add a new statistics event for the current frame. */
+        /** @return the channel's native pixel viewport. */
+        const PixelViewport& getNativePixelViewPort() const
+            { return _nativeContext.pvp; }
+
+        /** @return the FBO used as an alternate frame buffer. */
+        EQ_EXPORT FrameBufferObject* getFrameBufferObject();
+
+        /** Add a new statistics event for the current frame. @internal */
         EQ_EXPORT void addStatistic( Event& event );
         //@}
 
@@ -166,37 +187,38 @@ namespace eq
          * 
          * The data returned by these methods depends on the context (callback)
          * they are called from, typically the data for the current rendering
-         * task.
+         * task. If they are called outside of a frameFoo task method, they
+         * return the channel's native parameter, e.g., a placeholder value for
+         * the task decomposition parameters.
          */
         //@{
-        /** @return the channel's current draw buffer. */
+        /** @return the current draw buffer for glDrawBuffer. */
         EQ_EXPORT uint32_t getDrawBuffer() const;
 
-        /** @return the channel's current read buffer. */
+        /** @return the current read buffer for glReadBuffer. */
         EQ_EXPORT uint32_t getReadBuffer() const;
 
-        /** @return the channel's current color mask for drawing. */
+        /** @return the current color mask for glColorMask. */
         EQ_EXPORT const ColorMask& getDrawBufferMask() const;
 
-        /** @return the channel's current pixel viewport. */
+        /** @return the current pixel viewport for glViewport and glScissor. */
         EQ_EXPORT const PixelViewport& getPixelViewport() const;
 
-        /**
-         * Get the channel's current position wrt the destination channel.
-         *
-         * Note that computing this value from the current viewport and pixel
-         * viewport is inaccurate because it neglects rounding of the pixel
-         * viewport done by the server.
-         *
-         * @return the channel's current position wrt the destination channel.
-         */
-        EQ_EXPORT const Vector2i& getPixelOffset() const;
-
-        /** @return the perspective frustum for the current rendering task. */
+        /** @return the current perspective frustum for glFrustum. */
         EQ_EXPORT const Frustumf& getFrustum() const;
 
-        /** @return the orthographic frustum for the current rendering task. */
+        /** @return the current orthographic frustum for glOrtho. */
         EQ_EXPORT const Frustumf& getOrtho() const;
+
+        /**
+         * Return the view matrix.
+         *
+         * The view matrix is part of the GL_MODEL*VIEW* matrix, and is
+         * typically applied first to the GL_MODELVIEW matrix.
+         * 
+         * @return the head transformation matrix
+         */
+        EQ_EXPORT const Matrix4f& getHeadTransform() const;
 
         /** @return the fractional viewport wrt the destination view. */
         EQ_EXPORT const Viewport& getViewport() const;
@@ -210,20 +232,39 @@ namespace eq
         /** @return the up/downscale factor for the current rendering task. */
         EQ_EXPORT const Zoom& getZoom() const;
 
+        /**
+         * Get the channel's current position wrt the destination channel.
+         *
+         * Note that computing this value from the current viewport and pixel
+         * viewport is inaccurate because it neglects rounding errors of the
+         * pixel viewport done by the server.
+         *
+         * @return the channel's current position wrt the destination channel.
+         */
+        EQ_EXPORT const Vector2i& getPixelOffset() const;
+
         /** @return the currently rendered eye pass. */
         EQ_EXPORT Eye getEye() const;
-
-        /**
-         * @return the view transformation to position and orient the view
-         *         frustum.
-         */
-        EQ_EXPORT const Matrix4f& getHeadTransform() const;
 
         /** @return the list of input frames, used from frameAssemble(). */
         const FrameVector& getInputFrames() { return _inputFrames; }
 
         /** @return the list of output frames, used from frameReadback(). */
         const FrameVector& getOutputFrames() { return _outputFrames; }
+
+        /** 
+         * Get the channel's View.
+         * 
+         * During a frame task method, i.e., in one of the frameFoo functions,
+         * the view is set to the view of the destination channel, that is, the
+         * channel for which this channel is executing the rendering
+         * task. Outside of a frame task method the native view of the channel
+         * is returned.
+         * 
+         * @return the channel's view, or 0 if it does not have a view.
+         * @sa getNativeView()
+         */
+        EQ_EXPORT const View* getView();
 
         /** 
          * Returns an orthographic frustum for 2D operations on the view.
@@ -235,12 +276,6 @@ namespace eq
          */
         EQ_EXPORT Frustumf getScreenFrustum() const;
 
-        /** 
-         * get the channel's native (drawable) pixel viewport.
-         */
-        const PixelViewport& getNativePixelViewPort() const
-            { return _nativeContext.pvp; }
-
         /** @internal  Undocumented - may not be supported in the future */
         EQ_EXPORT const Vector4i& getOverdraw() const;
 
@@ -249,43 +284,43 @@ namespace eq
 
         /** @internal  Undocumented - may not be supported in the future */
         EQ_EXPORT uint32_t getTaskID() const;
-
-        /** 
-         * get the FBO used as an alternate frame buffer.
-         */
-        EQ_EXPORT FrameBufferObject* getFrameBufferObject();
         //@}
 
         /**
          * @name Operations
          *
-         * Operations are only meaningfull from within certain callbacks. They
+         * Operations are only meaningful from within certain callbacks. They
          * are just convenience wrappers applying context-specific data to the
-         * OpenGL state.
+         * OpenGL state using the context-specific data access above.
          */
         //@{
         /** 
          * Apply the current rendering buffer, including the color mask.
+         * @sa getReadBuffer() , getDrawBuffer(), getDrawBufferMask()
          */
         EQ_EXPORT virtual void applyBuffer();
 
         /** 
          * Apply the current color mask.
+         * @sa applyBuffer(), getDrawBufferMask()
          */
         EQ_EXPORT virtual void applyColorMask() const;
 
         /** 
          * Apply the OpenGL viewport for the current rendering task.
+         * @sa getViewport()
          */
         EQ_EXPORT virtual void applyViewport() const;
 
         /**
          * Apply the perspective frustum matrix for the current rendering task.
+         * @sa getFrustum()
          */
         EQ_EXPORT virtual void applyFrustum() const;
 
         /**
          * Apply the orthographic frustum matrix for the current rendering task.
+         * @sa getOrtho()
          */
         EQ_EXPORT virtual void applyOrtho() const;
 
@@ -307,7 +342,13 @@ namespace eq
          * Apply the current alternate frame buffer.
          */
         EQ_EXPORT virtual void applyFrameBufferObject();
-        
+
+        /** 
+         * Rebind the current alternate FBO of the channel or window.
+         */
+        EQ_EXPORT void bindFrameBuffer();        
+        //@}
+
         /** 
          * Process a received event.
          *
@@ -323,7 +364,7 @@ namespace eq
         /** Draw a statistics overlay. */
         EQ_EXPORT virtual void drawStatistics();
 
-        /** Outlines the current pixel viewport. */
+        /** Outline the current pixel viewport. */
         EQ_EXPORT virtual void outlineViewport();
 
         /**
@@ -331,33 +372,25 @@ namespace eq
          */
         //@{
         // Note: also update string array initialization in channel.cpp
+        /** Integer attributes for a channel */
         enum IAttribute
         {
-            IATTR_HINT_STATISTICS,
-            IATTR_HINT_SENDTOKEN,
+            IATTR_HINT_STATISTICS, //!< Statistics gathering mode
+            IATTR_HINT_SENDTOKEN,  //!< Use a send token for output frames
             IATTR_FILL1,
             IATTR_FILL2,
             IATTR_ALL
         };
         
+        /** @return the value of an integer attribute. */
         EQ_EXPORT int32_t getIAttribute( const IAttribute attr ) const;
+        /** @return the name of an integer attribute. */
         EQ_EXPORT static const std::string& getIAttributeString(
                                                         const IAttribute attr );
         //@}
-#if 0
-        /** @name Scene Object Access. */
-        //@{
-        SceneObject* getNextSceneObject();
-        SceneObject* checkNextSceneObject();
-        //void putSceneObject( SceneObject* object );
-        void passSceneObject( SceneObject* object );
-        void flushSceneObjects();
-        //@}
-#endif
 
     protected:
-        friend class Window;
-
+        /** @internal */
         EQ_EXPORT void attachToSession( const uint32_t id, 
                                         const uint32_t instanceID, 
                                         net::Session* session );
@@ -384,13 +417,28 @@ namespace eq
          * @param frameNumber the frame to release.
          */
         void releaseFrameLocal( const uint32_t frameNumber ) { /* nop */ }
+
+        /**
+         * Setup the OpenGL state for a readback or assemble operation.
+         *
+         * The default implementation is very conservative and saves any state
+         * which is potentially changed by the assembly routines.
+         */
+        EQ_EXPORT virtual void setupAssemblyState();
+
+        /**
+         * Reset the OpenGL state after an assembly operation.
+         */
+        EQ_EXPORT virtual void resetAssemblyState();
         //@}
 
         /**
-         * @name Callbacks
+         * @name Task Methods
          *
-         * The callbacks are called by Equalizer during rendering to execute
-         * various actions.
+         * The task methods (callbacks) are called by Equalizer during rendering
+         * to execute various rendering tasks. Each task method has a useful
+         * default implementation, but at least frameDraw() is implemented by an
+         * application.
          */
         //@{
         /** 
@@ -400,16 +448,9 @@ namespace eq
          */
         EQ_EXPORT virtual bool configInit( const uint32_t initID );
 
-        /** 
-         * Exit this channel.
-         */
+        /** Exit this channel. */
         EQ_EXPORT virtual bool configExit();
 
-        /** 
-         * Rebind the current alternate rendering buffer.
-         */
-        EQ_EXPORT void bindFrameBuffer();
-        
         /**
          * Start rendering a frame.
          *
@@ -418,7 +459,7 @@ namespace eq
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to start.
-         * @sa Config::beginFrame()
+         * @sa Config::startFrame()
          */
         virtual void frameStart( const uint32_t frameID, 
                                  const uint32_t frameNumber ) 
@@ -452,6 +493,8 @@ namespace eq
 
         /** 
          * Clear the frame buffer.
+         *
+         * Called 0 to n times during one frame.
          * 
          * @param frameID the per-frame identifier.
          */
@@ -460,12 +503,16 @@ namespace eq
         /** 
          * Draw the scene.
          * 
+         * Called 0 to n times during one frame.
+         * 
          * @param frameID the per-frame identifier.
          */
         EQ_EXPORT virtual void frameDraw( const uint32_t frameID );
 
         /** 
          * Assemble input frames.
+         * 
+         * Called 0 to n times during one frame.
          * 
          * @param frameID the per-frame identifier.
          * @sa getInputFrames
@@ -475,6 +522,8 @@ namespace eq
         /** 
          * Read back the rendered scene.
          * 
+         * Called 0 to n times during one frame.
+         * 
          * @param frameID the per-frame identifier.
          * @sa getOutputFrames
          */
@@ -483,8 +532,9 @@ namespace eq
         /** 
          * Start updating a destination channel.
          *
-         * Called on each destination channel, e.g., channels which are defined
-         * by a view/segment intersection, updating a part of a display.
+         * Called once on each destination channel after frameStart, e.g.,
+         * channels which are defined by a view/segment intersection, updating a
+         * part of a display.
          * 
          * @param frameID the per-frame identifier.
          */
@@ -493,25 +543,16 @@ namespace eq
         /** 
          * Finish updating a destination channel.
          *
+         * Called once on each destination channel before frameFinish, e.g.,
+         * channels which are defined by a view/segment intersection, updating a
+         * part of a display.
+         * 
          * This is typically used to do operations on the output channel after
          * it has been fully updated, e.g., to draw a 2D overlay.
          *
          * @param frameID the per-frame identifier.
          */
         virtual void frameViewFinish( const uint32_t frameID ) { /* nop */ }
-
-        /**
-         * Setup the OpenGL state for a readback or assemble operation.
-         *
-         * The default implementation is very conservative and saves any state
-         * which is potentially changed by the assembly routines.
-         */
-        EQ_EXPORT virtual void setupAssemblyState();
-
-        /**
-         * Reset the OpenGL state after an assembly operation.
-         */
-        EQ_EXPORT virtual void resetAssemblyState();
         //@}
 
         /** @name Error information. */
@@ -531,6 +572,7 @@ namespace eq
         //-------------------- Members --------------------
         /** The parent window. */
         Window* const _window;
+        friend class Window;
 
         /** The native render context parameters of this channel. */
         RenderContext _nativeContext;

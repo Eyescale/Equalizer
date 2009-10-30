@@ -25,6 +25,8 @@
 using namespace eq::base;
 using namespace std;
 
+namespace eqHello
+{
 class Channel : public eq::Channel
 {
 public:
@@ -40,11 +42,12 @@ public:
     virtual eq::Channel* createChannel( eq::Window* parent )
         { return new Channel( parent ); }
 };
+}
 
 int main( const int argc, char** argv )
 {
     // 1. Equalizer initialization
-    NodeFactory nodeFactory;
+    eqHello::NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         EQERROR << "Equalizer init failed" << endl;
@@ -92,7 +95,7 @@ int main( const int argc, char** argv )
 }
 
 /** The rendering routine, a.k.a., glutDisplayFunc() */
-void Channel::frameDraw( const uint32_t spin )
+void eqHello::Channel::frameDraw( const uint32_t spin )
 {
     // setup OpenGL State
     eq::Channel::frameDraw( spin );

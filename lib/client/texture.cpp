@@ -87,6 +87,7 @@ void Texture::setFormat( const GLuint format )
             _format = GL_RGBA;
             _type   = GL_HALF_FLOAT;
             break;
+
         case GL_RGBA32F:
             _format = GL_RGBA;
             _type   = GL_FLOAT;
@@ -98,8 +99,13 @@ void Texture::setFormat( const GLuint format )
             break;
 
         case GL_RGBA32UI:
-            _format = GL_RGBA_INTEGER_EXT;
-            _type   = GL_UNSIGNED_INT;
+            if( GLEW_EXT_texture_integer )
+            {
+                _format = GL_RGBA_INTEGER_EXT;
+                _type   = GL_UNSIGNED_INT;
+            }
+            else
+                EQUNIMPLEMENTED;
             break;
 
         default:
