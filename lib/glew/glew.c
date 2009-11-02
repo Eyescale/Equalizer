@@ -81,6 +81,7 @@
 #include <string.h>
 #include <AvailabilityMacros.h>
 
+void* NSGLGetProcAddress (const GLubyte *name);
 #ifdef MAC_OS_X_VERSION_10_3
 
 #include <dlfcn.h>
