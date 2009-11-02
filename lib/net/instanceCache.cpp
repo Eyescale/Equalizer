@@ -179,7 +179,8 @@ void InstanceCache< K >::_releaseItems()
     CHECK_THREAD_LOCK_BEGIN( _thread );
 
     std::vector< K > releasedKeys;
-    const long target = _maxSize * 0.8f;
+    const long target = static_cast< long >(
+                   static_cast< float >( _maxSize ) * 0.8f );
 
     // Release used items
     for( typename Data::iterator i = _data.begin(); 
