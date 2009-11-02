@@ -95,8 +95,10 @@ void AGLWindow::configExit( )
 void AGLWindow::makeCurrent() const
 {
     aglSetCurrentContext( _aglContext );
-
     AGLWindowIF::makeCurrent();
+    
+    if( _aglContext )
+        EQ_GL_ERROR( "After aglSetCurrentContext" );
 }
 
 void AGLWindow::swapBuffers()
@@ -139,7 +141,7 @@ bool AGLWindow::configInit( )
     if( !context )
         return false;
 
-    EQ_GL_CALL( makeCurrent( ));
+    makeCurrent();
     initGLEW();
     return configInitAGLDrawable();
 }

@@ -72,7 +72,7 @@ bool GLXWindow::configInit( )
         return false;
     }
 
-    EQ_GL_CALL( makeCurrent( ));
+    makeCurrent();
     initGLEW();
 
     if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
@@ -609,6 +609,8 @@ void GLXWindow::makeCurrent() const
 
     glXMakeCurrent( display, _xDrawable, _glXContext );
     GLXWindowIF::makeCurrent();
+    if( _glXContext )
+        EQ_GL_ERROR( "After glXMakeCurrent" );
 }
 
 void GLXWindow::swapBuffers()

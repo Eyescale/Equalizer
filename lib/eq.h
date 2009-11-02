@@ -50,16 +50,19 @@
 #include <eq/client/windowSystem.h>
 
 #ifdef AGL
-#  include <eq/client/aglWindow.h>
 #  include <eq/client/aglEventHandler.h>
+#  include <eq/client/aglPipe.h>
+#  include <eq/client/aglWindow.h>
 #endif
 #ifdef GLX
-#  include <eq/client/glXWindow.h>
 #  include <eq/client/glXEventHandler.h>
+#  include <eq/client/glXPipe.h>
+#  include <eq/client/glXWindow.h>
 #endif
 #ifdef WGL
-#  include <eq/client/wglWindow.h>
 #  include <eq/client/wglEventHandler.h>
+#  include <eq/client/wglPipe.h>
+#  include <eq/client/wglWindow.h>
 #endif
 
 #include <eq/base/fileSearch.h>

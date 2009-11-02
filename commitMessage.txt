@@ -1,9 +1,9 @@
-eq::Channel API documentation and related cleanups
+Avoid calling glError without GL context.
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[x] Bugfix
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

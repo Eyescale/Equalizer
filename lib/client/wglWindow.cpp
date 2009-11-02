@@ -106,6 +106,8 @@ void WGLWindow::makeCurrent() const
 {
     EQCHECK( wglMakeCurrent( _wglDC, _wglContext ));
     WGLWindowIF::makeCurrent();
+    if( _wglContext )
+        EQ_GL_ERROR( "After wglMakeCurrent" );
 }
 
 void WGLWindow::swapBuffers()
@@ -263,7 +265,7 @@ bool WGLWindow::configInit()
     }
 
     setWGLContext( context );
-    EQ_GL_CALL( makeCurrent( ));
+    makeCurrent();
     initGLEW();
 
     if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
