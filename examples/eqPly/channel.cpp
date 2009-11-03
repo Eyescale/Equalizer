@@ -223,6 +223,11 @@ void Channel::frameViewFinish( const uint32_t frameID )
 
     if( frameData.isIdle( ))
     {
+        /**
+         * This is the only working implementation on MacOS found at the moment.
+         * The use of FBO with floating point texture renders some artifacts and
+         * the glAccum function seems to be implemented differently.
+         */
 #ifdef Darwin
         EQ_GL_ERROR( "before glAccum" );
 
