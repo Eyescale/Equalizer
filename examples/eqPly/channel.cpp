@@ -107,7 +107,9 @@ bool Channel::configExit()
     delete _accumBuffer;
     _accumBuffer = 0;
 
-    _backBufferTex->flush();
+    if( _backBufferTex )
+        _backBufferTex->flush();
+
     delete _backBufferTex;
     _backBufferTex = 0;
 
