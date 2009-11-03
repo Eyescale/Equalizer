@@ -1,9 +1,9 @@
-Avoid calling glError without GL context.
+Fix EQ_IGNORE_GLEW build..again
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

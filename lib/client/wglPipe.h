@@ -71,7 +71,7 @@ namespace eq
         HDC createWGLDisplayDC();
 
         /** @return the generic WGL function table for the pipe. */
-        WGLEWContext* wglewGetContext() { return &_wglewContext; }
+        WGLEWContext* wglewGetContext() { return _wglewContext; }
 
     private:
 
@@ -80,7 +80,7 @@ namespace eq
         bool _getGPUHandle( HGPUNV& handle );
 
         /** Extended WGL function entries. */
-        WGLEWContext   _wglewContext;
+        WGLEWContext* _wglewContext;
 
         union // placeholder for binary-compatible changes
         {

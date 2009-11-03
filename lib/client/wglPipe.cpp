@@ -27,11 +27,14 @@ namespace eq
 
 WGLPipe::WGLPipe( Pipe* parent )
     : OSPipe( parent )
+    , _wglewContext( new WGLEWContext )
 {
 }
 
 WGLPipe::~WGLPipe( )
 {
+    delete _wglewContext;
+    _wglewContext = 0;
 }
 
 using namespace std;
