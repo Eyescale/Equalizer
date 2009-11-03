@@ -158,6 +158,10 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     GLint alphaBits;
     glGetIntegerv( GL_ALPHA_BITS, &alphaBits );
     drawableConfig.alphaBits = alphaBits;
+
+    GLint accumBits;
+    glGetIntegerv( GL_ACCUM_RED_BITS, &accumBits );
+    drawableConfig.accumBits = accumBits * 4;
         
     EQINFO << "Window drawable config: " << drawableConfig << endl;
 }

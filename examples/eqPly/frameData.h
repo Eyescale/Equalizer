@@ -48,6 +48,7 @@ namespace eqPly
 
         void setColorMode( const ColorMode color );
         void setRenderMode( const mesh::RenderMode mode );
+        void setIdle( const bool idleMode );
 
         void setTranslation(   const eq::Vector3f& translation );
         void setRotation(      const eq::Vector3f& rotation    );
@@ -68,6 +69,7 @@ namespace eqPly
         bool showHelp() const { return _help; }
         bool useWireframe() const { return _wireframe; }
         bool usePilotMode() const { return _pilotMode; }
+        bool isIdle() const { return _idleMode; }
         mesh::RenderMode getRenderMode() const { return _renderMode; }
         //*}
 
@@ -131,6 +133,7 @@ namespace eqPly
         bool             _help;
         bool             _wireframe;
         bool             _pilotMode;
+        bool             _idleMode;
 
         uint32_t _currentViewID;
         std::string _message;

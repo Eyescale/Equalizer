@@ -29,6 +29,7 @@ namespace eq
     {
         int32_t stencilBits;    //!< No of stencil bits
         int32_t alphaBits;      //!< No of alpha bits
+        int32_t accumBits;      //!< No of accum bits
         float   glVersion;      //!< OpenGL version
         bool    stereo;         //!< Active stereo supported
         bool    doublebuffered; //!< Doublebuffering supported
@@ -46,6 +47,8 @@ namespace eq
             os << "|st" << config.stencilBits;
         if( config.alphaBits )
             os << "|a" << config.alphaBits;
+        if( config.accumBits )
+            os << "|acc" << config.accumBits;
         return os;
     }
 

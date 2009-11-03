@@ -30,6 +30,7 @@
 #include <eq/client/configVisitor.h>
 #include <eq/client/event.h>
 #include <eq/client/frame.h>
+#include <eq/client/frameBufferObject.h>
 #include <eq/client/frameData.h>
 #include <eq/client/global.h>
 #include <eq/client/image.h>

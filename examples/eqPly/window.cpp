@@ -31,6 +31,37 @@ using namespace std;
 namespace eqPly
 {
 
+bool Window::configInitOSWindow( const uint32_t initID )
+{
+#ifndef Darwin
+    bool initSuccess = eq::Window::configInitOSWindow( initID );
+
+    // OpenGL version is less than 2.0.
+    if( !GLEW_EXT_framebuffer_object)
+    {
+        if( getDrawableConfig().accumBits )
+            return true;
+
+        configExitOSWindow();
+#endif
+
+        // try with 64bits accum buffer
+        setIAttribute( IATTR_PLANES_ACCUM, 16 );
+        if( eq::Window::configInitOSWindow( initID ))
+            return true;
+
+        // no anti-aliasing possible
+        setIAttribute( IATTR_PLANES_ACCUM, eq::AUTO );
+
+       return eq::Window::configInitOSWindow( initID );
+
+#ifndef Darwin
+    }
+
+    return initSuccess;
+#endif
+}
+
 bool Window::configInitGL( const uint32_t initID )
 {
     if( !eq::Window::configInitGL( initID ))

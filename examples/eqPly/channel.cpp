@@ -20,6 +20,7 @@
 
 #include "initData.h"
 #include "config.h"
+#include "configEvent.h"
 #include "pipe.h"
 #include "view.h"
 #include "window.h"
@@ -43,6 +44,18 @@ static GLint  materialShininess   = 64;
 
 namespace eqPly
 {
+
+Channel::Channel( eq::Window* parent )
+             : eq::Channel( parent )
+             , _model(0)
+             , _modelID( EQ_ID_INVALID )
+             , _accumBuffer( 0 )
+             , _backBufferTex( 0 )
+             , _numSteps( 0 )
+             , _jitterStep( 0 )
+{
+}
+
 bool Channel::configInit( const uint32_t initID )
 {
     if( !eq::Channel::configInit( initID ))
@@ -51,6 +64,53 @@ bool Channel::configInit( const uint32_t initID )
     setNearFar( 0.1f, 10.0f );
     _model = 0;
     _modelID = EQ_ID_INVALID;
+
+    const uint32_t gridSize = _getSampleSize() * _getSampleSize();
+    _numSteps = gridSize / 1; //getSubPixel().size;
+
+    /* first channel has one step more if the number of channels
+     * is not a multiple of the number of samples.*/
+    if( gridSize % 1 /*getSubPixel().size*/ != 0 /*&& getSubPixel().index == 0*/ )
+        ++_numSteps;
+
+    _jitterStep = _numSteps;
+
+#ifndef Darwin
+    if( GLEW_EXT_framebuffer_object )
+    {
+        _backBufferTex = new eq::Texture( glewGetContext( ));
+        _configInitAccumBuffer();
+    }
+#endif
+
+    return true;
+}
+
+bool Channel::_configInitAccumBuffer()
+{
+    _accumBuffer = new eq::FrameBufferObject( glewGetContext( ));
+    _accumBuffer->setColorFormat( GL_RGBA32F );
+
+    const eq::PixelViewport& pvp = getNativePixelViewPort();
+
+    if( _accumBuffer->init( pvp.w, pvp.h, 0, 0 ))
+        return true;
+
+    setErrorMessage( "Accumulate Buffer initialization failed: " + _accumBuffer->getErrorMessage( ));
+    delete _accumBuffer;
+    _accumBuffer = 0;
+    return false;
+}
+
+bool Channel::configExit()
+{
+    delete _accumBuffer;
+    _accumBuffer = 0;
+
+    _backBufferTex->flush();
+    delete _backBufferTex;
+    _backBufferTex = 0;
+
     return true;
 }
 
@@ -144,20 +204,246 @@ void Channel::frameReadback( const uint32_t frameID )
     eq::Channel::frameReadback( frameID );
 }
 
+void Channel::frameViewStart( const uint32_t frameID )
+{
+    const FrameData& frameData = _getFrameData();
+
+    // ready for the next FSAA
+    if( !frameData.isIdle( ))
+        _jitterStep = _numSteps;
+
+    eq::Channel::frameViewStart( frameID );
+}
+
+void Channel::frameViewFinish( const uint32_t frameID )
+{
+    const FrameData& frameData = _getFrameData();
+
+    if( frameData.isIdle( ))
+    {
+#ifdef Darwin
+        EQ_GL_ERROR( "before glAccum" );
+
+        if( _jitterStep > 0 )
+        {
+            if( _getJitterStepDone() == 0 )
+            {
+                glClear( GL_ACCUM_BUFFER_BIT );
+                glAccum( GL_LOAD, 1.0f/_numSteps );
+            }
+            else
+                glAccum( GL_ACCUM, 1.0f/_numSteps );
+
+            --_jitterStep;
+        }
+        else
+            glAccum( GL_RETURN, 1.0f );
+
+        EQ_GL_ERROR( "after glAccum" );
+#else
+        if( GLEW_EXT_framebuffer_object )
+        {
+            setupAssemblyState();
+            glDisable( GL_DEPTH_TEST );
+
+            if( _jitterStep > 0 )
+            {
+                const eq::PixelViewport& pvp = getPixelViewport();
+
+                _backBufferTex->setFormat( getWindow()->getColorType( ));
+                _backBufferTex->copyFromFrameBuffer( pvp );
+                _accumBuffer->bind();
+
+                glEnable( GL_BLEND );
+
+                if( _getJitterStepDone() == 0 )
+                    glBlendFunc( GL_ONE, GL_ZERO );
+                else
+                    glBlendFunc( GL_ONE, GL_ONE );
+
+                // draw the frame into the accumulation buffer
+                _drawQuadWithTexture( _backBufferTex, 1 );
+
+                // reset blending state
+                glBlendFunc( GL_ONE, GL_ZERO );
+                glDisable( GL_BLEND );
+
+                _accumBuffer->unbind();
+
+                // draw result into the back buffer
+                _drawQuadWithTexture( _accumBuffer->getColorTextures()[0], _getJitterStepDone() + 1 );
+                _backBufferTex->copyFromFrameBuffer( pvp );
+
+                --_jitterStep;
+            }
+            else
+                _drawQuadWithTexture( _accumBuffer->getColorTextures()[0], _getJitterStepDone( ));
+
+            glEnable( GL_DEPTH_TEST );
+            resetAssemblyState();
+        }
+        else
+        {
+            EQ_GL_ERROR( "before glAccum" );
+
+            if( _jitterStep > 0 )
+            {
+                if( _getJitterStepDone() == 0 )
+                {
+                    glClear( GL_ACCUM_BUFFER_BIT );
+                    glAccum( GL_LOAD, 1.0f );
+                }
+                else
+                    glAccum( GL_ACCUM, 1.0f );
+
+                glAccum( GL_RETURN, 1.0f/( _getJitterStepDone() + 1 ));
+
+                --_jitterStep;
+            }
+            else
+                glAccum( GL_RETURN, 1.0f/( _getJitterStepDone( )));
+
+            EQ_GL_ERROR( "after glAccum" );
+        }
+#endif
+    }
+
+    ConfigEvent event;
+    event.data.type = ConfigEvent::IDLE_AA;
+    event.jitter = _jitterStep;
+
+    /* if _jitterStep == 0 and no more frames are requested,
+     * the app will exit FSAA idle mode.
+     */
+    eq::Config* config = const_cast< eq::Config* >( getConfig( ));
+    config->sendEvent( event );
+
+    _drawOverlay();
+    _drawHelp();
+}
+
+void Channel::_drawQuadWithTexture( eq::Texture* texture, uint32_t nbPasses )
+{
+    texture->bind();
+
+    glDepthMask( false );
+    glDisable( GL_LIGHTING );
+    glEnable( GL_TEXTURE_RECTANGLE_ARB );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S,
+                     GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
+                     GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
+                     GL_NEAREST );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
+                     GL_NEAREST );
+
+    glColor3f( 1.0f/nbPasses, 1.0f/nbPasses, 1.0f/nbPasses );
+
+    const eq::PixelViewport& pvp = getPixelViewport();
+
+    const float startX = pvp.x;
+    const float endX   = pvp.x + pvp.w;
+    const float startY = pvp.y;
+    const float endY   = pvp.y + pvp.h;
+
+    glBegin( GL_QUADS );
+        glTexCoord2f( 0.0f, 0.0f );
+        glVertex3f( startX, startY, 0.0f );
+
+        glTexCoord2f( static_cast< float >( pvp.w ), 0.0f );
+        glVertex3f( endX, startY, 0.0f );
+
+        glTexCoord2f( static_cast<float>( pvp.w ), static_cast<float>( pvp.h ));
+        glVertex3f( endX, endY, 0.0f );
+
+        glTexCoord2f( 0.0f, static_cast< float >( pvp.h ));
+        glVertex3f( startX, endY, 0.0f );
+    glEnd();
+
+    // restore state
+    glDisable( GL_TEXTURE_RECTANGLE_ARB );
+    glDepthMask( true );
+}
+
+void Channel::applyFrustum() const
+{
+    const FrameData& frameData = _getFrameData();
+    eq::Vector2f jitter( eq::Vector2f::ZERO );
+
+    // Compute the jitter for the frustum
+    if( frameData.isIdle() && _jitterStep > 0 )
+        jitter = _getJitterVector();
+
+    if( frameData.useOrtho( ))
+    {
+        eq::Frustumf ortho = getOrtho();
+        ortho.apply_jitter( jitter );
+
+        glOrtho( ortho.left(), ortho.right(),
+                 ortho.bottom(), ortho.top(),
+                 ortho.near_plane(), ortho.far_plane( ));
+    }
+    else
+    {
+        eq::Frustumf frustum = getFrustum();
+        frustum.apply_jitter( jitter );
+
+        glOrtho( frustum.left(), frustum.right(),
+                 frustum.bottom(), frustum.top(),
+                 frustum.near_plane(), frustum.far_plane( ));
+    }
+}
+
 const FrameData& Channel::_getFrameData() const
 {
     const Pipe* pipe = static_cast<const Pipe*>( getPipe( ));
     return pipe->getFrameData();
 }
 
-void Channel::applyFrustum() const
+eq::Vector2f Channel::_getJitterVector() const
 {
-    const FrameData& frameData = _getFrameData();
+    float pvp_w = static_cast<float>( getPixelViewport().w );
+    float pvp_h = static_cast<float>( getPixelViewport().h );
+    float frustum_w = static_cast<float>(( getFrustum().right() - getFrustum().left( )));
+    float frustum_h = static_cast<float>(( getFrustum().top() - getFrustum().bottom( )));
 
-    if( frameData.useOrtho( ))
-        eq::Channel::applyOrtho();
-    else
-        eq::Channel::applyFrustum();
+    float pixel_w = frustum_w / pvp_w;
+    float pixel_h = frustum_h / pvp_h;
+
+    uint32_t sampleSize = _getSampleSize();
+    float subpixel_w = pixel_w / static_cast<float>( sampleSize );
+    float subpixel_h = pixel_h / static_cast<float>( sampleSize );
+
+    eq::Vector2i jitterStep = _getJitterStep();
+
+    // Sample values in the middle of the current subpixel
+    float value_i = /*_generateFloatRand( 0.f, 1.f )*/0.5f * subpixel_w + static_cast<float>( jitterStep.x( )) * subpixel_w;
+    float value_j = /*_generateFloatRand( 0.f, 1.f )*/0.5f * subpixel_h + static_cast<float>( jitterStep.y( )) * subpixel_h;
+
+    return eq::Vector2f( value_i, value_j );
+}
+
+const float Channel::_generateFloatRand( const float begin, const float end ) const
+{
+    eq::base::RNG rng;
+    return (( end - begin )*( rng.get<uint32_t>() / std::numeric_limits<uint32_t>::max( ))) + begin;
+}
+
+eq::Vector2i Channel::_getJitterStep() const
+{
+    uint32_t channelID  = 0/*getSubPixel().index*/;
+
+    uint32_t primeNumber = primeNumberTable[ channelID ];
+    uint32_t idx = ( _jitterStep * primeNumber ) % _numSteps;
+
+    idx = ( channelID * _numSteps ) + idx;
+
+    uint32_t sampleSize = _getSampleSize();
+    const int dx = idx % sampleSize;
+    const int dy = idx / sampleSize;
+
+    return eq::Vector2i( dx, dy );
 }
 
 const Model* Channel::_getModel()
@@ -285,12 +571,6 @@ void Channel::_drawModel( const Model* model )
         << "% of model, overlap <= " << verticesOverlap * 100 / verticesTotal
         << "%" << std::endl;
 #endif    
-}
-
-void Channel::frameViewFinish( const uint32_t frameID )
-{
-    _drawOverlay();
-    _drawHelp();
 }
 
 void Channel::_drawOverlay()

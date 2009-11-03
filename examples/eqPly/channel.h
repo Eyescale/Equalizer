@@ -30,22 +30,36 @@ namespace eqPly
     class FrameData;
     class InitData;
 
+    static const uint32_t primeNumberTable[100] = {
+                    739, 743, 751, 757, 761, 769, 773, 787, 797, 809,
+                    811, 821, 823, 827, 829, 839, 853, 857, 859, 863,
+                    877, 881, 883, 887, 907, 911, 919, 929, 937, 941,
+                    947, 953, 967, 971, 977, 983, 991, 997, 1009, 1013,
+                    1019, 1021, 1031, 1033, 1039, 1049, 1051, 1061, 1063, 1069,
+                    1087, 1091, 1093, 1097, 1103, 1109, 1117, 1123, 1129, 1151,
+                    1153, 1163, 1171, 1181, 1187, 1193, 1201, 1213, 1217, 1223,
+                    1229, 1231, 1237, 1249, 1259, 1277, 1279, 1283, 1289, 1291,
+                    1297, 1301, 1303, 1307, 1319, 1321, 1327, 1361, 1367, 1373,
+                    1381, 1399, 1409, 1423, 1427, 1429, 1433, 1439, 1447, 1451
+                    };
+
     /**
      * The rendering entity, updating a part of a Window.
      */
     class Channel : public eq::Channel
     {
     public:
-        Channel( eq::Window* parent ) 
-                : eq::Channel( parent ), _model(0), _modelID( EQ_ID_INVALID ) {}
+        Channel( eq::Window* parent );
 
     protected:
         virtual ~Channel() {}
 
         virtual bool configInit( const uint32_t initID );
+        virtual bool configExit();
         virtual void frameClear( const uint32_t frameID );
         virtual void frameDraw( const uint32_t frameID );
         virtual void frameReadback( const uint32_t frameID );
+        virtual void frameViewStart( const uint32_t frameID );
         virtual void frameViewFinish( const uint32_t frameID );
 
         /** Applies the perspective or orthographic frustum. */
@@ -59,11 +73,31 @@ namespace eqPly
         void _initFrustum( eq::FrustumCullerf& frustum, 
                            const mesh::BoundingSphere& boundingSphere );
 
+        bool _configInitAccumBuffer();
+        void _drawQuadWithTexture( eq::Texture* texture, uint32_t nbPasses );
+
+        const int32_t _getSampleSize() const
+            { return ( getWindow()->getDrawableConfig().accumBits >= 64 ) ? 16 : 0; }
+
+        /** the subpixel for this step. */
+        eq::Vector2i _getJitterStep() const;
+        eq::Vector2f _getJitterVector() const;
+
+        const float _generateFloatRand( const float begin, const float end ) const;
+
+        uint32_t _getJitterStepDone() const { return _numSteps - _jitterStep; }
+
         const FrameData& _getFrameData() const;
         const Model*     _getModel();
 
         const Model* _model;
         uint32_t     _modelID;
+
+        eq::FrameBufferObject* _accumBuffer;
+        eq::Texture*           _backBufferTex;
+
+        uint32_t _numSteps;
+        uint32_t _jitterStep;
     };
 }
 

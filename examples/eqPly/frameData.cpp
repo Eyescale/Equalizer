@@ -29,6 +29,7 @@ FrameData::FrameData()
         , _help( false )
         , _wireframe( false )
         , _pilotMode( false )
+        , _idleMode( false )
         , _currentViewID( EQ_ID_INVALID )
 {
     reset();
@@ -42,7 +43,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
         os << _translation << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         os << _modelID << _renderMode << _colorMode << _ortho << _statistics
-           << _help << _wireframe << _pilotMode;
+           << _help << _wireframe << _pilotMode << _idleMode;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -57,7 +58,7 @@ void FrameData::deserialize( eq::net::DataIStream& is,
         is >> _translation >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         is >> _modelID >> _renderMode >> _colorMode >> _ortho >> _statistics
-           >> _help >> _wireframe >> _pilotMode;
+           >> _help >> _wireframe >> _pilotMode >> _idleMode;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -79,6 +80,12 @@ void FrameData::setColorMode( const ColorMode mode )
 void FrameData::setRenderMode( const mesh::RenderMode mode )
 {
     _renderMode = mode;
+    setDirty( DIRTY_FLAGS );
+}
+
+void FrameData::setIdle( const bool idleMode )
+{
+    _idleMode = idleMode;
     setDirty( DIRTY_FLAGS );
 }
 

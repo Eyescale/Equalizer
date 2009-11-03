@@ -66,8 +66,14 @@ namespace eqPly
         /** @sa eq::Config::handleEvent */
         virtual bool handleEvent( const eq::ConfigEvent* event );
 
+        /** @return true if the application is idling. */
+        bool isIdleAA();
+
         /** @return true if an event required a redraw. */
         bool needsRedraw();
+
+        /** @return true if an user event required a redraw. */
+        bool isUserEvent();
 
     protected:
         virtual ~Config();
@@ -100,6 +106,8 @@ namespace eqPly
         void _setHeadMatrix( const eq::Matrix4f& matrix );
         const eq::Matrix4f& _getHeadMatrix() const;
         void _setMessage( const std::string& message );
+
+        uint32_t _nbFramesAA;
     };
 }
 

@@ -7,6 +7,7 @@ CXXFILES = \
 	cameraAnimation.cpp \
 	channel.cpp \
 	config.cpp \
+	configEvent.cpp \
 	eqPly.cpp \
 	frameData.cpp \
 	initData.cpp \

@@ -16,6 +16,7 @@
  */
 
 #include "config.h"
+#include "configEvent.h"
 
 #include "view.h"
 #include "modelAssigner.h"
@@ -32,6 +33,7 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
         , _messageTime( 0 )
         , _redraw( true )
         , _freeze( false )
+        , _nbFramesAA( 0 )
 {
 }
 
@@ -288,7 +290,6 @@ const Model* Config::getModel( const uint32_t modelID )
     return model;
 }
 
-
 uint32_t Config::startFrame()
 {
     // update head position
@@ -318,14 +319,37 @@ uint32_t Config::startFrame()
 
         _frameData.moveCamera( 0.0f, 0.0f, 0.001f*_advance );
     }
+
+    // idle mode
+    if( isIdleAA( ))
+    {
+    	EQASSERT( _nbFramesAA > 0 );
+        --_nbFramesAA;
+        _frameData.setIdle( true );
+    }
+    else
+    {
+        _nbFramesAA = 0;
+        _frameData.setIdle( false );
+    }
+
     const uint32_t version = _frameData.commit();
 
     _redraw = false;
     return eq::Config::startFrame( version );
 }
 
+bool Config::isIdleAA()
+{
+    return ( !isUserEvent() && _nbFramesAA > 0 );
+}
 
 bool Config::needsRedraw()
+{
+    return( isUserEvent() || _nbFramesAA > 0 );
+}
+
+bool Config::isUserEvent()
 {
     if( _messageTime > 0 )
     {
@@ -462,6 +486,13 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         case eq::Event::VIEW_RESIZE:
             _redraw = true;
             break;
+
+        case ConfigEvent::IDLE_AA:
+        {
+            const ConfigEvent* idleEvent = static_cast< const ConfigEvent* >( event );
+            _nbFramesAA = MAX( _nbFramesAA, idleEvent->jitter );
+            return true;
+        }
 
         default:
             break;
