@@ -489,8 +489,9 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case ConfigEvent::IDLE_AA:
         {
-            const ConfigEvent* idleEvent = static_cast< const ConfigEvent* >( event );
-            _nbFramesAA = MAX( _nbFramesAA, idleEvent->jitter );
+            const ConfigEvent* idleEvent = 
+                static_cast< const ConfigEvent* >( event );
+            _nbFramesAA = EQ_MAX( _nbFramesAA, idleEvent->jitter );
             return true;
         }
 

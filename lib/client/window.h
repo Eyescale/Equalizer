@@ -216,7 +216,7 @@ namespace eq
          * @return the OpenGL texture type corresponding to the window's color
          *         drawable configuration
          */
-        uint32_t getColorType();
+        EQ_EXPORT uint32_t getColorType();
         //@}
 
         /**
