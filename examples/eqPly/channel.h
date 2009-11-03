@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -59,6 +59,10 @@ namespace eqPly
         virtual void frameClear( const uint32_t frameID );
         virtual void frameDraw( const uint32_t frameID );
         virtual void frameReadback( const uint32_t frameID );
+        virtual void frameStart( const uint32_t frameID,
+                                 const uint32_t frameNumber );
+        virtual void frameFinish( const uint32_t frameID,
+                                  const uint32_t frameNumber );
         virtual void frameViewStart( const uint32_t frameID );
         virtual void frameViewFinish( const uint32_t frameID );
 

@@ -206,7 +206,8 @@ void Channel::frameReadback( const uint32_t frameID )
     eq::Channel::frameReadback( frameID );
 }
 
-void Channel::frameViewStart( const uint32_t frameID )
+void Channel::frameStart( const uint32_t frameID,
+                          const uint32_t frameNumber )
 {
     const FrameData& frameData = _getFrameData();
 
@@ -214,7 +215,33 @@ void Channel::frameViewStart( const uint32_t frameID )
     if( !frameData.isIdle( ))
         _jitterStep = _numSteps;
 
+    eq::Channel::frameStart( frameID, frameNumber );
+}
+
+void Channel::frameViewStart( const uint32_t frameID )
+{
     eq::Channel::frameViewStart( frameID );
+}
+
+void Channel::frameFinish( const uint32_t frameID,
+                           const uint32_t frameNumber )
+{
+    const FrameData& frameData = _getFrameData();
+
+    if( frameData.isIdle() && _jitterStep > 0 )
+        --_jitterStep;
+
+    ConfigEvent event;
+    event.data.type = ConfigEvent::IDLE_AA;
+    event.jitter = _jitterStep;
+
+    /* if _jitterStep == 0 and no more frames are requested,
+     * the app will exit FSAA idle mode.
+     */
+    eq::Config* config = const_cast< eq::Config* >( getConfig( ));
+    config->sendEvent( event );
+
+    eq::Channel::frameFinish( frameID, frameNumber );
 }
 
 void Channel::frameViewFinish( const uint32_t frameID )
@@ -240,8 +267,6 @@ void Channel::frameViewFinish( const uint32_t frameID )
             }
             else
                 glAccum( GL_ACCUM, 1.0f/_numSteps );
-
-            --_jitterStep;
         }
         else
             glAccum( GL_RETURN, 1.0f );
@@ -280,8 +305,6 @@ void Channel::frameViewFinish( const uint32_t frameID )
                 // draw result into the back buffer
                 _drawQuadWithTexture( _accumBuffer->getColorTextures()[0], _getJitterStepDone() + 1 );
                 _backBufferTex->copyFromFrameBuffer( pvp );
-
-                --_jitterStep;
             }
             else
                 _drawQuadWithTexture( _accumBuffer->getColorTextures()[0], _getJitterStepDone( ));
@@ -304,8 +327,6 @@ void Channel::frameViewFinish( const uint32_t frameID )
                     glAccum( GL_ACCUM, 1.0f );
 
                 glAccum( GL_RETURN, 1.0f/( _getJitterStepDone() + 1 ));
-
-                --_jitterStep;
             }
             else
                 glAccum( GL_RETURN, 1.0f/( _getJitterStepDone( )));
@@ -314,16 +335,6 @@ void Channel::frameViewFinish( const uint32_t frameID )
         }
 #endif
     }
-
-    ConfigEvent event;
-    event.data.type = ConfigEvent::IDLE_AA;
-    event.jitter = _jitterStep;
-
-    /* if _jitterStep == 0 and no more frames are requested,
-     * the app will exit FSAA idle mode.
-     */
-    eq::Config* config = const_cast< eq::Config* >( getConfig( ));
-    config->sendEvent( event );
 
     _drawOverlay();
     _drawHelp();
@@ -425,8 +436,11 @@ eq::Vector2f Channel::_getJitterVector() const
     eq::Vector2i jitterStep = _getJitterStep();
 
     // Sample values in the middle of the current subpixel
-    float value_i = /*_generateFloatRand( 0.f, 1.f )*/0.5f * subpixel_w + static_cast<float>( jitterStep.x( )) * subpixel_w;
-    float value_j = /*_generateFloatRand( 0.f, 1.f )*/0.5f * subpixel_h + static_cast<float>( jitterStep.y( )) * subpixel_h;
+    float value_i = _generateFloatRand( 0.f, 1.f ) * subpixel_w
+                    + static_cast<float>( jitterStep.x( )) * subpixel_w;
+
+    float value_j = _generateFloatRand( 0.f, 1.f ) * subpixel_h
+                    + static_cast<float>( jitterStep.y( )) * subpixel_h;
 
     return eq::Vector2f( value_i, value_j );
 }
@@ -434,7 +448,8 @@ eq::Vector2f Channel::_getJitterVector() const
 const float Channel::_generateFloatRand( const float begin, const float end ) const
 {
     eq::base::RNG rng;
-    return (( end - begin )*( rng.get<uint32_t>() / std::numeric_limits<uint32_t>::max( ))) + begin;
+    float max_limits = static_cast<float>( std::numeric_limits<uint32_t>::max( ));
+    return ( end - begin ) * ( rng.get<uint32_t>() / max_limits) + begin;
 }
 
 eq::Vector2i Channel::_getJitterStep() const
