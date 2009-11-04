@@ -1,22 +1,9 @@
-Untested version of multicast mapping for versioned objects:
-- Refactor Object::VERSION_ to standalone enum
-- New method MTQueue::front()
-- Copy-ctor for ObjectInstanceDataIStream (retains packets)
-- Rewrite instance cache, once more
-- Implement cache logics:
-  o instance data is send via multicast
-  o instance data packet is forwarded to object(s) on requestor node
-  o slave: announce from..to cached version during mapping
-  o master: send missing versions, announce start cached version
-  o slave: copy missing versions from cache
+Minor code cleanup in eqPly::Channel
 
-Possible application breakage: replace eq::net::Object::VERSION_foo with
-eq::net::VERSION_foo
-
-[x] May break build
-[x] May break existing applications
+[ ] May break build
+[ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

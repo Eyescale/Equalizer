@@ -423,8 +423,8 @@ eq::Vector2f Channel::_getJitterVector() const
 {
     float pvp_w = static_cast<float>( getPixelViewport().w );
     float pvp_h = static_cast<float>( getPixelViewport().h );
-    float frustum_w = static_cast<float>(( getFrustum().right() - getFrustum().left( )));
-    float frustum_h = static_cast<float>(( getFrustum().top() - getFrustum().bottom( )));
+    float frustum_w = static_cast<float>(( getFrustum().get_width( )));
+    float frustum_h = static_cast<float>(( getFrustum().get_height( )));
 
     float pixel_w = frustum_w / pvp_w;
     float pixel_h = frustum_h / pvp_h;
