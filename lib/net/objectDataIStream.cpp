@@ -75,6 +75,19 @@ void ObjectDataIStream::addDataPacket( Command& command )
     _commands.push_back( &command );
 }
 
+uint32_t ObjectDataIStream::getPendingVersion() const
+{
+    if( _commands.empty( ))
+        return Object::VERSION_INVALID;
+
+    Command* command = _commands.back();
+    if( !command )
+        return Object::VERSION_INVALID;
+    
+    const ObjectDataPacket* packet = command->getPacket< ObjectDataPacket >();
+    return packet->version;
+}
+
 const Command* ObjectDataIStream::getNextCommand()
 {
     if( _commands.empty( ))

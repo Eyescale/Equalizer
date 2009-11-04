@@ -41,8 +41,10 @@ namespace net
 
         void addDataPacket( Command& command );
 
-        void setVersion( const uint32_t version ) { _version = version; }
-        virtual uint32_t getVersion() const       { return _version.get(); }
+        virtual uint32_t getVersion() const { return _version.get(); }
+        uint32_t getPendingVersion() const;
+
+        void setReady() { _version = getPendingVersion(); }
         void waitReady() const { _version.waitNE( Object::VERSION_INVALID ); }
 
         virtual size_t nRemainingBuffers() const  { return _commands.size(); }

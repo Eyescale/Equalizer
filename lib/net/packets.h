@@ -509,6 +509,7 @@ namespace net
             }
         uint32_t objectID;
         uint32_t instanceID;
+        // pad to multiple-of-eight
     };
 
 /** @cond IGNORE */
@@ -528,6 +529,7 @@ namespace net
         uint64_t dataSize;
         uint32_t version;
         uint32_t sequence;
+        // pad to multiple-of-eight
     };
 
     struct ObjectInstanceDataPacket : public ObjectDataPacket

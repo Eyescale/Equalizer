@@ -105,6 +105,7 @@ public:
         }
 
     virtual size_t nRemainingBuffers() const { return _commands.getSize(); }
+    virtual uint32_t getVersion() const { return eq::net::Object::VERSION_NONE;}
 
 protected:
     virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size )

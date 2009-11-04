@@ -26,9 +26,6 @@
 
 #include <eq/base/scopedMutex.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace net
@@ -65,13 +62,10 @@ CommandResult StaticSlaveCM::_cmdInstance( Command& command )
 {
     EQASSERT( _currentIStream );
     _currentIStream->addDataPacket( command );
- 
-    const ObjectInstancePacket* packet = 
-        command.getPacket<ObjectInstancePacket>();
-    _currentIStream->setVersion( packet->version );
+    _currentIStream->setReady();
 
     EQLOG( LOG_OBJECTS ) << "id " << _object->getID() << "." 
-                         << _object->getInstanceID() << " ready" << endl;
+                         << _object->getInstanceID() << " ready" << std::endl;
     return eq::net::COMMAND_HANDLED;
 }
 
@@ -86,7 +80,8 @@ void StaticSlaveCM::applyMapData()
     _currentIStream = 0;
 
     EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
-                         << "." << _object->getInstanceID() << " ready" << endl;
+                         << "." << _object->getInstanceID() << " ready" 
+                         << std::endl;
 }
 
 }

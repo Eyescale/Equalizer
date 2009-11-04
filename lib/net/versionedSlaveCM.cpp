@@ -28,9 +28,6 @@
 
 #include <eq/base/scopedMutex.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace net
@@ -75,21 +72,21 @@ void VersionedSlaveCM::makeThreadSafe()
     if( _mutex ) 
         return;
 
-    _mutex = new Lock;
+    _mutex = new base::Lock;
 }
 
 uint32_t VersionedSlaveCM::sync( const uint32_t version )
 {
     EQLOG( LOG_OBJECTS ) << "sync to v" << version << ", id " 
                          << _object->getID() << "." << _object->getInstanceID()
-                         << endl;
+                         << std::endl;
     if( _version == version )
         return _version;
 
     if( !_mutex )
         CHECK_THREAD( _thread );
 
-    ScopedMutex mutex( _mutex );
+    base::ScopedMutex mutex( _mutex );
 
     if( version == Object::VERSION_HEAD )
     {
@@ -156,13 +153,15 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
     }
 
     _version = is->getVersion();
+    EQASSERT( _version != Object::VERSION_INVALID );
+    EQASSERT( _version != Object::VERSION_NONE );
     EQLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
                          << _object->getID() << "." << _object->getInstanceID()
-                         << endl;
+                         << std::endl;
 
     if( is->getRemainingBufferSize() > 0 || is->nRemainingBuffers() > 0 )
         EQWARN << "Object " << typeid( *_object ).name() 
-            << " did not unpack all data" << endl;
+            << " did not unpack all data" << std::endl;
 }
 
 
@@ -175,10 +174,11 @@ void VersionedSlaveCM::applyMapData()
 
     _object->applyInstanceData( *is );
     _version = is->getVersion();
+    EQASSERT( _version != Object::VERSION_INVALID );
 
     if( is->getRemainingBufferSize() > 0 || is->nRemainingBuffers() > 0 )
         EQWARN << "Object " << typeid( *_object ).name() 
-            << " did not unpack all data" << endl;
+            << " did not unpack all data" << std::endl;
 
     delete is;
     EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
@@ -201,22 +201,20 @@ CommandResult VersionedSlaveCM::_cmdInstanceData( Command& command )
 
 CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
 {
+    EQLOG( LOG_OBJECTS ) << "cmd instance " << command << std::endl;
+
     if( !_currentIStream )
         _currentIStream = new ObjectInstanceDataIStream;
 
-    const ObjectInstancePacket* packet = 
-        command.getPacket<ObjectInstancePacket>();
-    EQLOG( LOG_OBJECTS ) << "cmd instance " << command << endl;
-
     _currentIStream->addDataPacket( command );
-    _currentIStream->setVersion( packet->version );
-    
-    EQLOG( LOG_OBJECTS ) << "v" << packet->version << ", id "
-                         << _object->getID() << "." << _object->getInstanceID()
-                         << " ready" << endl;
+    _currentIStream->setReady();
+
+    const uint32_t version = _currentIStream->getVersion();
+    EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID() << "."
+                         << _object->getInstanceID() << " ready" << std::endl;
 
     _queuedVersions.push( _currentIStream );
-    _object->notifyNewHeadVersion( packet->version );
+    _object->notifyNewHeadVersion( version );
     _currentIStream = 0;
 
     return COMMAND_HANDLED;
@@ -233,21 +231,20 @@ CommandResult VersionedSlaveCM::_cmdDeltaData( Command& command )
 
 CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
 {
+    EQLOG( LOG_OBJECTS ) << "cmd delta " << command << std::endl;
+
     if( !_currentIStream )
         _currentIStream = new ObjectDeltaDataIStream;
 
-    const ObjectDeltaPacket* packet = command.getPacket<ObjectDeltaPacket>();
-    EQLOG( LOG_OBJECTS ) << "cmd delta " << command << endl;
-
     _currentIStream->addDataPacket( command );
-    _currentIStream->setVersion( packet->version );
+    _currentIStream->setReady();
     
-    EQLOG( LOG_OBJECTS ) << "v" << packet->version << ", id "
-                         << _object->getID() << "." << _object->getInstanceID()
-                         << " ready" << endl;
+    const uint32_t version = _currentIStream->getVersion();
+    EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID() << "."
+                         << _object->getInstanceID() << " ready" << std::endl;
 
     _queuedVersions.push( _currentIStream );
-    _object->notifyNewHeadVersion( packet->version );
+    _object->notifyNewHeadVersion( version );
     _currentIStream = 0;
 
     return COMMAND_HANDLED;
@@ -258,6 +255,7 @@ CommandResult VersionedSlaveCM::_cmdVersion( Command& command )
     const ObjectVersionPacket* packet = 
         command.getPacket< ObjectVersionPacket >();
     _version = packet->version;
+    EQASSERT( _version != Object::VERSION_INVALID );
     return COMMAND_HANDLED;
 }
 
