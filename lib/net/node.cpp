@@ -1479,7 +1479,7 @@ void Node::_redispatchCommands()
     if( !_pendingCommands.empty( ))
         EQVERB << _pendingCommands.size() << " undispatched commands" 
                << std::endl;
-    EQASSERT( _pendingCommands.size() < 100 );
+    EQASSERT( _pendingCommands.size() < 200 );
 #endif
 }
 

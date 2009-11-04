@@ -277,8 +277,11 @@ void Session::_attachObject( Object* object, const uint32_t id,
     _objectsMutex.unset();
 
     getLocalNode()->flushCommands(); // redispatch pending commands
-    EQLOG( LOG_OBJECTS ) << "Attached " << typeid( *object ).name()
-                         << " to id " << id << std::endl;
+
+    EQLOG( LOG_OBJECTS ) << "attached " << typeid( *object ).name() << " id "
+                         << object->getID() << '.' << object->getInstanceID()
+                         << " cm " << typeid( *(object->_cm)).name() << " @" 
+                         << static_cast< void* >( object ) << std::endl;
 }
 
 void Session::detachObject( Object* object )
@@ -874,12 +877,6 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
         packet->masterInstanceID );
 
     _attachObject( object, packet->objectID, packet->instanceID );
-
-    EQLOG( LOG_OBJECTS ) << "attached object id " << object->getID() << '.'
-                         << object->getInstanceID() << " cm " 
-                         << typeid( *(object->_cm)).name() << " @" 
-                         << static_cast< void* >( object ) << " is "
-                         << typeid(*object).name() << std::endl;
     return COMMAND_HANDLED;
 }
 
@@ -895,7 +892,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
 
     if( packet->result )
     {
-        if( packet->version != VERSION_INVALID )
+        if( packet->cachedVersion != VERSION_INVALID )
         {
             Object* object = static_cast<Object*>( 
                 _requestHandler.getRequestData( packet->requestID ));    

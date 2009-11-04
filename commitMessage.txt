@@ -1,9 +1,11 @@
-eqPly:
-- do incremental idle aa on Darwin
-- fix perspective frustum
+Fix obvious multicast mapping bugs.
 
-[ ] May break build
-[ ] May break existing applications
+Attn: The current state is still unstable and might have some new
+bugs. Basic testing on Windows will follow soon, extensive testing in
+the next couple of days.
+
+[x] May break build
+[x] May break existing applications
 [x] Bugfix
 [ ] New Feature
 [x] Cleanup

@@ -47,7 +47,9 @@ ObjectDataIStream::ObjectDataIStream( const ObjectDataIStream& from )
     for( CommandDeque::const_iterator i = _commands.begin();
          i != _commands.end(); ++i )
     {
-        (*i)->retain();
+        Command* command = *i;
+        if( command )
+            command->retain();
     }
 }
 
