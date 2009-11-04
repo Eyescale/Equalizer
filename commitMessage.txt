@@ -1,5 +1,4 @@
-Move instance IDs down to instance data ostream, other ostreams are sent
-to EQ_ID_NONE always
+Code simplification in ObjectDataIStream
 
 [ ] May break build
 [ ] May break existing applications

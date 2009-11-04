@@ -29,9 +29,9 @@ namespace eq
 namespace net
 {
 ObjectDataIStream::ObjectDataIStream()
-        : _lastCommand( 0 )
-        , _version( Object::VERSION_INVALID )
+        : _version( Object::VERSION_INVALID )
 {
+    _commands.push_back( 0 ); // see getNextCommand()
 }
 
 ObjectDataIStream::~ObjectDataIStream()
@@ -43,13 +43,11 @@ void ObjectDataIStream::reset()
 {
     DataIStream::reset();
 
-    if( _lastCommand )
-        _lastCommand->release();
-    _lastCommand = 0;
-
     while( !_commands.empty( ))
     {
-        _commands.front()->release();
+        Command* command = _commands.front();
+        if( command )
+            command->release();
         _commands.pop_front();
     }
 
@@ -64,16 +62,17 @@ void ObjectDataIStream::addDataPacket( Command& command )
 
 const Command* ObjectDataIStream::getNextCommand()
 {
-    if( _lastCommand )
-        _lastCommand->release();
-    _lastCommand = 0;
+    // release last command
+    Command* command = _commands.front();
+    if( command )
+        command->release();
+    _commands.pop_front();
 
     if( _commands.empty( ))
         return 0;
     
-    _lastCommand = _commands.front();
-    _commands.pop_front();
-    return _lastCommand; 
+    return _commands.front();
 }
+
 }
 }

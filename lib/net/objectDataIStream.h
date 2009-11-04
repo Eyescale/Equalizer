@@ -61,10 +61,7 @@ namespace net
 
     private:
         /** All data command packets for this istream. */
-        std::deque< Command* >      _commands;
-
-        /** The last returned, to be released command. */
-        Command*                    _lastCommand;
+        std::deque< Command* >    _commands;
 
         /** The object version associated with this input stream. */
         base::Monitor< uint32_t > _version;
