@@ -1,11 +1,9 @@
-Re-introduce data packet sequencing and add version checks for object
-delta and instance data, will be needed to ensure integrity during
-multicast implemenation
+Fix latest check-in
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -58,7 +58,7 @@ void ObjectDataIStream::addDataPacket( Command& command )
 {
 #ifndef NDEBUG
     const ObjectDataPacket* packet = command.getPacket< ObjectDataPacket >();
-    if( _commands.empty( ))
+    if( _commands.size() < 2 )
     {
         EQASSERT( packet->sequence == 0 );
     }
@@ -77,6 +77,9 @@ void ObjectDataIStream::addDataPacket( Command& command )
 
 const Command* ObjectDataIStream::getNextCommand()
 {
+    if( _commands.empty( ))
+        return 0;
+
     // release last command
     Command* command = _commands.front();
     if( command )
