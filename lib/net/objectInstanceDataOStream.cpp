@@ -32,6 +32,7 @@ namespace net
 {
 ObjectInstanceDataOStream::ObjectInstanceDataOStream( const Object* object)
         : ObjectDataOStream( object )
+        , _instanceID( EQ_ID_ANY )
 {}
 
 ObjectInstanceDataOStream::~ObjectInstanceDataOStream()

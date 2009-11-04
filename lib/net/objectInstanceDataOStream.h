@@ -35,6 +35,10 @@ namespace net
         ObjectInstanceDataOStream( const Object* object );
         virtual ~ObjectInstanceDataOStream();
  
+        void setInstanceID( const uint32_t instanceID )
+            { _instanceID = instanceID; }
+        uint32_t getInstanceID() const { return _instanceID; }
+
     protected:
         virtual void sendHeader( const void* buffer, const uint64_t size )
             { sendBuffer( buffer, size ); }
@@ -42,6 +46,9 @@ namespace net
         virtual void sendFooter( const void* buffer, const uint64_t size );
         virtual void sendSingle( const void* buffer, const uint64_t size )
             { sendFooter( buffer, size ); }
+
+    private:
+        uint32_t      _instanceID;
     };
 }
 }

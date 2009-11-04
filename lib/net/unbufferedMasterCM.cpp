@@ -160,9 +160,8 @@ CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
     }
 
     ObjectDeltaDataOStream os( _object );
-    os.setVersion( _version + 1 );
-    os.setInstanceID( EQ_ID_NONE );
 
+    os.setVersion( _version + 1 );
     os.enable( _slaves );
     _object->pack( os );
     os.disable();

@@ -567,6 +567,7 @@ namespace net
             {
                 command        = CMD_OBJECT_DELTA_DATA;
                 size           = sizeof( ObjectDeltaDataPacket ); 
+                instanceID     = EQ_ID_NONE; // multicasted
                 delta[0]       = '\0';
             }
         
@@ -580,6 +581,7 @@ namespace net
             {
                 command        = CMD_OBJECT_DELTA;
                 size           = sizeof( ObjectDeltaPacket ); 
+                instanceID     = EQ_ID_NONE; // multicasted
                 delta[0]       = '\0';
             }
         

@@ -67,8 +67,6 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
     DeltaData deltaData( _object );
 
     deltaData.setVersion( _version + 1 );
-    deltaData.setInstanceID( EQ_ID_NONE );
-
     deltaData.enable( _slaves );
     _object->pack( deltaData );
     deltaData.disable();

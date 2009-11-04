@@ -44,7 +44,6 @@ void ObjectDeltaDataOStream::sendBuffer( const void* buffer,
     deltaPacket.deltaSize  = size;
     deltaPacket.sessionID  = _object->getSession()->getID();
     deltaPacket.objectID   = _object->getID();
-    deltaPacket.instanceID = _instanceID;
 
     EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << " to " 
                          << _connections.size() << " receivers " << endl;
@@ -59,7 +58,6 @@ void ObjectDeltaDataOStream::sendFooter( const void* buffer,
     deltaPacket.deltaSize  = size;
     deltaPacket.sessionID  = _object->getSession()->getID();
     deltaPacket.objectID   = _object->getID();
-    deltaPacket.instanceID = _instanceID;
 
     EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << " to " 
                          << _connections.size() << " receivers " << endl;
