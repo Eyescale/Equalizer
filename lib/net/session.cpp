@@ -839,7 +839,8 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
         }
         else
         {
-            EQWARN << "Version " << version << " no longer available" << std::endl;
+            EQWARN << "Version " << version << " no longer available"
+                   << std::endl;
             reply.result = false;
         }
     }
