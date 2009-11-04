@@ -267,6 +267,9 @@ void Channel::frameViewFinish( const uint32_t frameID )
             }
             else
                 glAccum( GL_ACCUM, 1.0f/_numSteps );
+            const float factor = static_cast< float >( _numSteps ) /
+                               static_cast< float >( _getJitterStepDone() + 1 );
+            glAccum( GL_RETURN, factor );
         }
         else
             glAccum( GL_RETURN, 1.0f );
@@ -407,9 +410,9 @@ void Channel::applyFrustum() const
         eq::Frustumf frustum = getFrustum();
         frustum.apply_jitter( jitter );
 
-        glOrtho( frustum.left(), frustum.right(),
-                 frustum.bottom(), frustum.top(),
-                 frustum.near_plane(), frustum.far_plane( ));
+        glFrustum( frustum.left(), frustum.right(),
+                   frustum.bottom(), frustum.top(),
+                   frustum.near_plane(), frustum.far_plane( ));
     }
 }
 

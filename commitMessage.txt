@@ -1,8 +1,10 @@
-Minor code cleanup in eqPly::Channel
+eqPly:
+- do incremental idle aa on Darwin
+- fix perspective frustum
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
