@@ -57,6 +57,22 @@ void VertexBufferRoot::setupTree( VertexData& data )
                                  axis, 0, _data );
     VertexBufferNode::updateBoundingSphere();
     VertexBufferNode::updateRange();
+
+#if 0
+    // re-test all points to be in the bounding sphere
+    Vertex center( _boundingSphere.array );
+    float  radius        = _boundingSphere.w();
+    float  radiusSquared =  radius * radius;
+    for( size_t offset = 0; offset < _data.vertices.size(); ++offset )
+    {
+        const Vertex& vertex = _data.vertices[ offset ];
+        
+        const Vertex centerToPoint   = vertex - center;
+        const float  distanceSquared = centerToPoint.squared_length();
+        EQASSERTINFO( distanceSquared <= radiusSquared,
+                      distanceSquared << " > " << radiusSquared );
+    }
+#endif
 }
 
 

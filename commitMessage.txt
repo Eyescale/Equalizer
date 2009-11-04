@@ -1,12 +1,8 @@
-Fix obvious multicast mapping bugs.
+eqPly code cleanups
 
-Attn: The current state is still unstable and might have some new
-bugs. Basic testing on Windows will follow soon, extensive testing in
-the next couple of days.
-
-[x] May break build
-[x] May break existing applications
-[x] Bugfix
+[ ] May break build
+[ ] May break existing applications
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

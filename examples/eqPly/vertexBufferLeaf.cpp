@@ -118,17 +118,14 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     }
     
     // 1b) get inner sphere of bounding box as an initial estimate
-    _boundingSphere.x() = 
-                             ( boundingBox[0].x() + boundingBox[1].x() ) * 0.5f;
-    _boundingSphere.y() = 
-                             ( boundingBox[0].y() + boundingBox[1].y() ) * 0.5f;
-    _boundingSphere.z() = 
-                             ( boundingBox[0].z() + boundingBox[1].z() ) * 0.5f;
+    _boundingSphere.x() = ( boundingBox[0].x() + boundingBox[1].x() ) * 0.5f;
+    _boundingSphere.y() = ( boundingBox[0].y() + boundingBox[1].y() ) * 0.5f;
+    _boundingSphere.z() = ( boundingBox[0].z() + boundingBox[1].z() ) * 0.5f;
 
     _boundingSphere.w()  = EQ_MAX( boundingBox[1].x() - boundingBox[0].x(),
-                                      boundingBox[1].y() - boundingBox[0].y() );
+                                   boundingBox[1].y() - boundingBox[0].y() );
     _boundingSphere.w()  = EQ_MAX( boundingBox[1].z() - boundingBox[0].z(),
-                                      _boundingSphere.w() );
+                                   _boundingSphere.w() );
     _boundingSphere.w() *= .5f;
 
     float  radius        = _boundingSphere.w();
@@ -162,6 +159,21 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
                       vertex << " c " << center << " r " << radius << " (" 
                              << Vertex( vertex-center ).length() << ")" );
     }
+
+#ifndef NDEBUG
+    // 2a) re-test all points to be in the estimated bounding sphere
+    for( Index offset = 0; offset < _indexLength; ++offset )
+    {
+        const Vertex& vertex = 
+            _globalData.vertices[ _vertexStart + 
+                                  _globalData.indices[_indexStart + offset] ];
+        
+        const Vertex centerToPoint   = vertex - center;
+        const float  distanceSquared = centerToPoint.squared_length();
+        EQASSERTINFO( distanceSquared <= radiusSquared,
+                      distanceSquared << " > " << radiusSquared );
+    }
+#endif
 
     // store optimal bounding sphere 
     _boundingSphere.x() = center.x();
