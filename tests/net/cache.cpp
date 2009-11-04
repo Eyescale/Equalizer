@@ -76,6 +76,11 @@ int main( int argc, char **argv )
     eq::net::CommandCache commandCache;
 
     eq::net::Command& command = commandCache.alloc( 0, 0, PACKET_SIZE );
+    eq::net::ObjectInstancePacket* packet = 
+        command.getPacket< eq::net::ObjectInstancePacket >();
+    *packet = eq::net::ObjectInstancePacket();
+    packet->dataSize = PACKET_SIZE;
+    
     Reader** readers = static_cast< Reader** >( 
         alloca( N_READER * sizeof( Reader* )));
 

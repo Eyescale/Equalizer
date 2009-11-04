@@ -34,6 +34,8 @@ base::mtLong nRead;
 base::mtLong nReadHit;
 base::mtLong nWrite;
 base::mtLong nWriteHit;
+base::mtLong nUsedRelease;
+base::mtLong nUnusedRelease;
 }
 #endif
 
@@ -58,8 +60,7 @@ template< typename K > InstanceCache< K >::~InstanceCache()
 }
 
 template< typename K > InstanceCache< K >::Item::Item()
-        : size( 0 )
-        , stream( 0 )
+        : stream( 0 )
         , used( 0 )
         , pinned( 0 )
 {}
@@ -73,23 +74,20 @@ bool InstanceCache< K >::add( const K& key, Command& command,
 #endif
 
     base::ScopedMutex mutex( _mutex );
-    typename Data::iterator i = _data.find( key );
-    if( i == _data.end( ))
+    typename Data::const_iterator i = _data.find( key );
+    if( i != _data.end( ))
     {
-        Item& item = _data[ key ] ;
-        item.stream = new ObjectInstanceDataIStream;
-        item.pinned = fixed ? 1 : 0;
-        i = _data.find( key );
+        EQASSERT( !fixed );
+        return false;
     }
 
-    Item& item = i->second;;
+    Item& item = _data[ key ] ;
+    item.stream = new ObjectInstanceDataIStream;
+    item.pinned = fixed ? 1 : 0;
 
-    item.size += command.getPacket()->size;
-    _size += command.getPacket()->size;
     item.stream->addDataPacket( command );
-    if( fixed )
-        item.pinned = 1;
-
+    EQASSERT( item.stream->getRemainingBufferSize() > 0 );
+    _size += item.stream->getRemainingBufferSize();
     _releaseItems();
 
 #ifdef EQ_INSTRUMENT_CACHE
@@ -162,7 +160,7 @@ bool InstanceCache< K >::erase( const K& key )
     }
 
     EQASSERT( item.stream );
-    _size -= item.size;
+    _size -= item.stream->getRemainingBufferSize();
     delete item.stream;
     item.stream = 0;
 
@@ -190,11 +188,14 @@ void InstanceCache< K >::_releaseItems()
         if( item.pinned == 0 && item.used > 0 )
         {
             EQASSERT( item.stream );
-            _size -= item.size;
+            _size -= item.stream->getRemainingBufferSize();
             delete item.stream;
             item.stream = 0;
 
             releasedKeys.push_back( i->first );
+#ifdef EQ_INSTRUMENT_CACHE
+            ++nUsedRelease;
+#endif
         }
     }
 
@@ -213,11 +214,15 @@ void InstanceCache< K >::_releaseItems()
         if( item.pinned == 0 )
         {
             EQASSERT( item.stream );
-            _size -= item.size;
+            EQASSERT( item.stream->getRemainingBufferSize() > 0 );
+            _size -= item.stream->getRemainingBufferSize();
             delete item.stream;
             item.stream = 0;
 
             releasedKeys.push_back( i->first );
+#ifdef EQ_INSTRUMENT_CACHE
+            ++nUnusedRelease;
+#endif
         }
     }
 
@@ -228,7 +233,13 @@ void InstanceCache< K >::_releaseItems()
     }
 
     if( _size > target )
-        EQWARN << "Overfull instance cache, too many pinned items" << std::endl;
+        EQWARN << "Overfull instance cache, too many pinned items, size "
+               << _size << " target " << target << " max " << _maxSize
+               << " " << _data.size() << " entries"
+#ifdef EQ_INSTRUMENT_CACHE
+               << ": " << *this
+#endif
+               << std::endl;
 
     CHECK_THREAD_LOCK_END( _thread );
 }
@@ -237,10 +248,11 @@ template< typename K >
 std::ostream& operator << ( std::ostream& os,
                             const InstanceCache< K >& instanceCache )
 {
-    os << "InstanceCache " << instanceCache.getSize() << " bytes" 
+    os << "InstanceCache " << instanceCache.getSize() << " bytes"
 #ifdef EQ_INSTRUMENT_CACHE
        << ", " << nReadHit << " of " << nRead << " reads, " << nWriteHit
-       << " of " << nWrite << " writes"
+       << " of " << nWrite << " writes, " << nUsedRelease << " used and " 
+       << nUnusedRelease << " unused releases";
 #endif
         ;
     return os;

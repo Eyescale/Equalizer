@@ -97,7 +97,6 @@ namespace net
         struct Item
         {
             Item();
-            size_t size;
             ObjectDataIStream* stream;
             unsigned used;
             unsigned pinned;
