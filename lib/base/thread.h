@@ -213,7 +213,7 @@ namespace base
     struct NAME ## Struct                                   \
     {                                                       \
         NAME ## Struct ()                                   \
-            : id( 0 ), extMutex( false )                    \
+            : id( 0 ), extMutex( false ), inRegion( false ) \
             {}                                              \
         mutable size_t id;                                  \
         bool extMutex;                                      \
@@ -227,7 +227,7 @@ namespace base
     {                                                                   \
         if( NAME.id == 0 )                                              \
         {                                                               \
-            NAME.id = eq::base::Thread::getSelfThreadID();                \
+            NAME.id = eq::base::Thread::getSelfThreadID();              \
             EQVERB << "Functions for " << #NAME                         \
                    << " locked to this thread" << std::endl;            \
         }                                                               \
