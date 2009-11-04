@@ -378,17 +378,6 @@ namespace net
         uint32_t id;
     };
 
-    struct SessionGetObjectPacket : public SessionPacket
-    {
-        SessionGetObjectPacket()
-            {
-                command = CMD_SESSION_GET_OBJECT;
-                size    = sizeof( SessionGetObjectPacket ); 
-            }
-        
-        uint32_t requestID;
-    };
-
     struct SessionAttachObjectPacket : public SessionPacket
     {
         SessionAttachObjectPacket()

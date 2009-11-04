@@ -145,12 +145,11 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
 
     if( inVersion == Object::VERSION_NONE ) // no data to send
     {
-        ObjectInstancePacket instPacket;
-        instPacket.instanceID = instanceID;
-        instPacket.dataSize   = 0;
-        instPacket.version    = _version;
-
-        _object->send( node, instPacket );
+        ObjectInstanceDataOStream stream( _object );
+        stream.setInstanceID( instanceID );
+        stream.setVersion( _version );
+        
+        stream.resend( node );
         return;
     }
 
