@@ -1,9 +1,9 @@
-Simplify ObjectDataIStream handling by moving versioning to it.
+Re-add accidently deleted files
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
