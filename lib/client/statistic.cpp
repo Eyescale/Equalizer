@@ -39,6 +39,7 @@ static std::string _statisticNames[Statistic::ALL] =
     "assemble",
     "wait frame",
     "readback",
+    "view finish",
     "finish",
     "throttle",
     "barrier",
@@ -61,6 +62,7 @@ static Vector3f _statisticColors[Statistic::ALL] =
     Vector3f( 1.0f, 1.0f, 0.f ),  // assemble
     Vector3f( 1.0f, 0.f, 0.f ), // wait frame
     Vector3f( 1.0f, .5f, .5f ), // readback
+    Vector3f( 0.f, 0.f, 1.0f ), // view finish
     Vector3f( 1.0f, 1.0f, 0.f ), // finish
     Vector3f( 1.0f, 0.f, 1.f ), // throttle
     Vector3f( 1.0f, 0.f, 0.f ), // swap barrier

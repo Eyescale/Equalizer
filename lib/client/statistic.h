@@ -37,6 +37,7 @@ namespace eq
             CHANNEL_ASSEMBLE,
             CHANNEL_WAIT_FRAME,
             CHANNEL_READBACK,
+            CHANNEL_VIEW_FINISH,
             WINDOW_FINISH,
             WINDOW_THROTTLE_FRAMERATE,
             WINDOW_SWAP_BARRIER,

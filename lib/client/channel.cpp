@@ -1377,6 +1377,8 @@ net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
                                       <<  " " << packet << endl;
 
     _setRenderContext( packet->context );
+    ChannelStatistics event( Statistic::CHANNEL_VIEW_FINISH, this );
+
     // TBD ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
     frameViewFinish( packet->context.frameID );
     _context = &_nativeContext;
