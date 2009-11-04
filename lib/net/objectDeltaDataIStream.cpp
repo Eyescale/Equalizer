@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -50,7 +50,7 @@ bool ObjectDeltaDataIStream::getNextBuffer( const uint8_t** buffer,
             const ObjectDeltaDataPacket* packet =
                 command->getPacket< ObjectDeltaDataPacket >();
             *buffer = packet->delta;
-            *size   = packet->deltaSize;
+            *size   = packet->dataSize;
             return true;
         }
 
@@ -59,7 +59,7 @@ bool ObjectDeltaDataIStream::getNextBuffer( const uint8_t** buffer,
             const ObjectDeltaPacket* packet =
                 command->getPacket< ObjectDeltaPacket >();
             *buffer = packet->delta;
-            *size   = packet->deltaSize;
+            *size   = packet->dataSize;
             return true;
         }
         

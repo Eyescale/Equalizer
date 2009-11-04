@@ -56,6 +56,21 @@ void ObjectDataIStream::reset()
 
 void ObjectDataIStream::addDataPacket( Command& command )
 {
+#ifndef NDEBUG
+    const ObjectDataPacket* packet = command.getPacket< ObjectDataPacket >();
+    if( _commands.empty( ))
+    {
+        EQASSERT( packet->sequence == 0 );
+    }
+    else
+    {
+        const ObjectDataPacket* previous = 
+            _commands.back()->getPacket< ObjectDataPacket >();
+        EQASSERT( packet->sequence == previous->sequence+1 );
+        EQASSERT( packet->version == previous->version );
+    }
+#endif
+
     command.retain();
     _commands.push_back( &command );
 }

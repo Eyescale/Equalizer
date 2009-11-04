@@ -34,8 +34,8 @@ namespace net
     {
     public:
         ObjectDataOStream( const Object* object )
-            : _object( object ), _version( Object::VERSION_NONE )
-        {}
+                : _object( object ), _version( Object::VERSION_NONE )
+                , _sequence( 0 ) {}
 
         virtual ~ObjectDataOStream(){}
  
@@ -45,6 +45,7 @@ namespace net
     protected:
         const Object* _object;
         uint32_t      _version;
+        uint32_t      _sequence;
     };
 }
 }

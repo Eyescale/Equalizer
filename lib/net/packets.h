@@ -512,33 +512,6 @@ namespace net
     };
 
 /** @cond IGNORE */
-    struct ObjectInstanceDataPacket : public ObjectPacket
-    {
-        ObjectInstanceDataPacket()
-            {
-                command = CMD_OBJECT_INSTANCE_DATA;
-                size    = sizeof( ObjectInstanceDataPacket ); 
-                data[0] = '\0';
-            }
-
-        uint64_t dataSize;
-        EQ_ALIGN8( uint8_t data[8] );
-    };
-
-    struct ObjectInstancePacket : public ObjectPacket
-    {
-        ObjectInstancePacket()
-            {
-                command = CMD_OBJECT_INSTANCE;
-                size    = sizeof( ObjectInstancePacket ); 
-                data[0] = '\0';
-            }
-
-        uint64_t dataSize;
-        uint32_t version;
-        EQ_ALIGN8( uint8_t data[8] );
-    };
-
     struct ObjectCommitPacket : public ObjectPacket
     {
         ObjectCommitPacket()
@@ -550,7 +523,38 @@ namespace net
         uint32_t requestID;
     };
 
-    struct ObjectDeltaDataPacket : public ObjectPacket
+    struct ObjectDataPacket : public ObjectPacket
+    {
+        uint64_t dataSize;
+        uint32_t version;
+        uint32_t sequence;
+    };
+
+    struct ObjectInstanceDataPacket : public ObjectDataPacket
+    {
+        ObjectInstanceDataPacket()
+            {
+                command = CMD_OBJECT_INSTANCE_DATA;
+                size    = sizeof( ObjectInstanceDataPacket ); 
+                data[0] = '\0';
+            }
+
+        EQ_ALIGN8( uint8_t data[8] );
+    };
+
+    struct ObjectInstancePacket : public ObjectDataPacket
+    {
+        ObjectInstancePacket()
+            {
+                command = CMD_OBJECT_INSTANCE;
+                size    = sizeof( ObjectInstancePacket ); 
+                data[0] = '\0';
+            }
+
+        EQ_ALIGN8( uint8_t data[8] );
+    };
+
+    struct ObjectDeltaDataPacket : public ObjectDataPacket
     {
         ObjectDeltaDataPacket()
             {
@@ -560,11 +564,10 @@ namespace net
                 delta[0]       = '\0';
             }
         
-        uint64_t deltaSize;
         EQ_ALIGN8( uint8_t     delta[8] );
     };
 
-    struct ObjectDeltaPacket : public ObjectPacket
+    struct ObjectDeltaPacket : public ObjectDataPacket
     {
         ObjectDeltaPacket()
             {
@@ -574,8 +577,6 @@ namespace net
                 delta[0]       = '\0';
             }
         
-        uint64_t deltaSize;
-        uint32_t version;
         EQ_ALIGN8( uint8_t     delta[8] );
     };
 
@@ -747,7 +748,7 @@ namespace net
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ObjectDeltaDataPacket* packet )
     {
-        os << (ObjectPacket*)packet << " size " << packet->deltaSize;
+        os << (ObjectPacket*)packet << " size " << packet->dataSize;
         return os;
     }
 
@@ -755,7 +756,7 @@ namespace net
                                        const ObjectDeltaPacket* packet )
     {
         os << (ObjectPacket*)packet << " v" << packet->version
-           << " size " << packet->deltaSize;
+           << " size " << packet->dataSize;
         return os;
     }
 

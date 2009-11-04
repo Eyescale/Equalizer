@@ -24,8 +24,6 @@
 
 #include <eq/base/idPool.h>
 
-using namespace std;
-
 namespace eq
 {
 namespace net
@@ -40,28 +38,33 @@ ObjectDeltaDataOStream::~ObjectDeltaDataOStream()
 void ObjectDeltaDataOStream::sendBuffer( const void* buffer,
                                          const uint64_t size )
 {
-    ObjectDeltaDataPacket deltaPacket;
-    deltaPacket.deltaSize  = size;
-    deltaPacket.sessionID  = _object->getSession()->getID();
-    deltaPacket.objectID   = _object->getID();
+    ObjectDeltaDataPacket packet;
+    packet.version   = _version;
+    packet.sequence  = _sequence++;
+    packet.dataSize  = size;
+    packet.sessionID = _object->getSession()->getID();
+    packet.objectID  = _object->getID();
 
-    EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << " to " 
-                         << _connections.size() << " receivers " << endl;
-    Connection::send( _connections, deltaPacket, buffer, size, true );
+    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
+                         << " receivers " << std::endl;
+    Connection::send( _connections, packet, buffer, size, true );
 }
 
 void ObjectDeltaDataOStream::sendFooter( const void* buffer, 
                                          const uint64_t size )
 {
-    ObjectDeltaPacket deltaPacket;
-    deltaPacket.version    = _version;
-    deltaPacket.deltaSize  = size;
-    deltaPacket.sessionID  = _object->getSession()->getID();
-    deltaPacket.objectID   = _object->getID();
+    ObjectDeltaPacket packet;
+    packet.version   = _version;
+    packet.sequence  = _sequence++;
+    packet.dataSize  = size;
+    packet.sessionID = _object->getSession()->getID();
+    packet.objectID  = _object->getID();
 
-    EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << " to " 
-                         << _connections.size() << " receivers " << endl;
-    Connection::send( _connections, deltaPacket, buffer, size, true );
+    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
+                         << " receivers " << std::endl;
+    Connection::send( _connections, packet, buffer, size, true );
+    _sequence = 0;
 }
+
 }
 }

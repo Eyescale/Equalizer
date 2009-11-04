@@ -1,4 +1,6 @@
-Code simplification in ObjectDataIStream
+Re-introduce data packet sequencing and add version checks for object
+delta and instance data, will be needed to ensure integrity during
+multicast implemenation
 
 [ ] May break build
 [ ] May break existing applications

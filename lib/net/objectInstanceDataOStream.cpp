@@ -24,8 +24,6 @@
 
 #include <eq/base/idPool.h>
 
-using namespace std;
-
 namespace eq
 {
 namespace net
@@ -41,30 +39,34 @@ ObjectInstanceDataOStream::~ObjectInstanceDataOStream()
 void ObjectInstanceDataOStream::sendBuffer( const void* buffer,
                                             const uint64_t size )
 {
-    ObjectInstanceDataPacket dataPacket;
-    dataPacket.dataSize   = size;
-    dataPacket.sessionID  = _object->getSession()->getID();
-    dataPacket.objectID   = _object->getID();
-    dataPacket.instanceID = _instanceID;
+    ObjectInstanceDataPacket packet;
+    packet.version    = _version;
+    packet.sequence   = _sequence++;
+    packet.dataSize   = size;
+    packet.sessionID  = _object->getSession()->getID();
+    packet.objectID   = _object->getID();
+    packet.instanceID = _instanceID;
 
-    EQLOG( LOG_OBJECTS ) << "send " << &dataPacket << " to " 
-                         << _connections.size() << " receivers " << endl;
-    Connection::send( _connections, dataPacket, buffer, size, true );
+    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
+                         << " receivers " << std::endl;
+    Connection::send( _connections, packet, buffer, size, true );
 }
 
 void ObjectInstanceDataOStream::sendFooter( const void* buffer, 
                                             const uint64_t size )
 {
-    ObjectInstancePacket instancePacket;
-    instancePacket.version    = _version;
-    instancePacket.dataSize   = size;
-    instancePacket.sessionID  = _object->getSession()->getID();
-    instancePacket.objectID   = _object->getID();
-    instancePacket.instanceID = _instanceID;
+    ObjectInstancePacket packet;
+    packet.version    = _version;
+    packet.sequence   = _sequence++;
+    packet.dataSize   = size;
+    packet.sessionID  = _object->getSession()->getID();
+    packet.objectID   = _object->getID();
+    packet.instanceID = _instanceID;
 
-    EQLOG( LOG_OBJECTS ) << "send " << &instancePacket << " to " 
-                         << _connections.size() << " receivers " << endl;
-    Connection::send( _connections, instancePacket, buffer, size, true );
+    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
+                         << " receivers " << std::endl;
+    Connection::send( _connections, packet, buffer, size, true );
+    _sequence = 0;
 }
 }
 }
