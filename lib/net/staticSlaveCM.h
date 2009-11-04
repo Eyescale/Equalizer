@@ -20,7 +20,7 @@
 
 #include <eq/net/objectCM.h>     // base class
 #include <eq/net/command.h>      // member
-#include <eq/net/object.h>       // nested enum (Object::Version)
+#include <eq/net/version.h>      // enum
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
 #include <eq/base/monitor.h>     // member
 
@@ -49,7 +49,7 @@ namespace net
         //@{
         virtual uint32_t commitNB() { EQDONTCALL; return EQ_ID_INVALID; }
         virtual uint32_t commitSync( const uint32_t commitID )
-            { EQDONTCALL; return Object::VERSION_NONE; }
+            { EQDONTCALL; return VERSION_NONE; }
 
         virtual void obsolete( const uint32_t version ) { EQDONTCALL; }
 
@@ -59,18 +59,18 @@ namespace net
             { EQDONTCALL; return 0; }
 
         virtual uint32_t sync( const uint32_t version )
-            { EQDONTCALL; return Object::VERSION_NONE; }
+            { EQDONTCALL; return VERSION_NONE; }
 
-        virtual uint32_t getHeadVersion() const { return Object::VERSION_NONE; }
-        virtual uint32_t getVersion() const     { return Object::VERSION_NONE; }
-        virtual uint32_t getOldestVersion() const {return Object::VERSION_NONE;}
+        virtual uint32_t getHeadVersion() const { return VERSION_NONE; }
+        virtual uint32_t getVersion() const     { return VERSION_NONE; }
+        virtual uint32_t getOldestVersion() const { return VERSION_NONE; }
         //@}
 
         virtual bool isMaster() const { return false; }
         virtual uint32_t getMasterInstanceID() const { return EQ_ID_INVALID; }
 
-        virtual void addSlave( NodePtr slave, const uint32_t instanceID,
-                               const uint32_t version ) { EQDONTCALL; }
+        virtual uint32_t addSlave( Command& command )
+            { EQDONTCALL; return VERSION_INVALID; }
         virtual void removeSlave( NodePtr node ) { EQDONTCALL; }
         virtual void addOldMaster( NodePtr node, const uint32_t instanceID )
             { EQDONTCALL }

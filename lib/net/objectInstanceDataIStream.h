@@ -35,6 +35,7 @@ namespace net
     {
     public:
         ObjectInstanceDataIStream();
+        ObjectInstanceDataIStream( const ObjectInstanceDataIStream& from );
         virtual ~ObjectInstanceDataIStream();
 
         virtual Type getType() const { return TYPE_INSTANCE; }

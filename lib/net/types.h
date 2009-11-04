@@ -22,6 +22,7 @@
 #include <eq/base/refPtr.h>
 #include <eq/base/uuid.h>
 
+#include <deque>
 #include <list>
 #include <vector>
 
@@ -37,6 +38,7 @@ class Barrier;
 class Command;
 class Connection;
 class ConnectionDescription;
+class ObjectInstanceDataIStream;
 
 /** A unique identifier for nodes. */
 typedef base::UUID NodeID;
@@ -61,9 +63,12 @@ typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptionVector;
 
 /** @cond IGNORE */
 typedef std::vector< Command* > CommandVector;
+typedef std::deque< Command* > CommandDeque;
 typedef stde::hash_map< uint32_t, Session* >     SessionHash;
 typedef stde::hash_map< uint32_t, ObjectVector > ObjectVectorHash;
 typedef std::list< Command* >   CommandList;
+typedef std::deque< ObjectInstanceDataIStream* > InstanceDataDeque;
+typedef std::vector< ObjectInstanceDataIStream* > InstanceDataVector;
 /** @endcond */
 }
 }

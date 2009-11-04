@@ -22,6 +22,8 @@
 
 #include <eq/net/objectCM.h> // base class
 #include <eq/net/types.h>    // for NodeVector
+#include <eq/base/idPool.h>            // ID_ enum
+#include <eq/base/requestHandler.h>    // member
 
 #include <deque>
 
@@ -70,8 +72,7 @@ namespace net
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_ID_INVALID; }
-        virtual void addSlave( NodePtr node, const uint32_t instanceID,
-                               const uint32_t version );
+        virtual uint32_t addSlave( Command& command );
         virtual void removeSlave( NodePtr node );
         virtual void addOldMaster( NodePtr node, const uint32_t instanceID );
 

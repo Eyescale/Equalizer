@@ -32,6 +32,11 @@ ObjectInstanceDataIStream::ObjectInstanceDataIStream()
 {
 }
 
+ObjectInstanceDataIStream::ObjectInstanceDataIStream( 
+    const ObjectInstanceDataIStream& from )
+        : ObjectDataIStream( from )
+{}
+
 ObjectInstanceDataIStream::~ObjectInstanceDataIStream()
 {
 }

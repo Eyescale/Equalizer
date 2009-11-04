@@ -60,7 +60,7 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
 
-    EQASSERT( _version != Object::VERSION_NONE );
+    EQASSERT( _version != VERSION_NONE );
 
     ++_commitCount;
 

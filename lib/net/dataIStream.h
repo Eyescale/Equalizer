@@ -18,7 +18,6 @@
 #ifndef EQNET_DATAISTREAM_H
 #define EQNET_DATAISTREAM_H
 
-#include <eq/net/object.h>  // nested VERSION_NONE enum
 #include <eq/net/types.h>
 #include <eq/base/buffer.h> // member
 
@@ -36,6 +35,7 @@ namespace net
         /** @name Internal */
         //@{ 
         DataIStream();
+        DataIStream( const DataIStream& from );
         virtual ~DataIStream();
 
         /** Get the number of remaining buffers. */

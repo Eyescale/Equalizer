@@ -21,6 +21,7 @@
 #include <eq/net/dispatcher.h>    // base class
 #include <eq/net/node.h>          // used in RefPtr
 #include <eq/net/types.h>         // for NodeVector
+#include <eq/net/version.h>       // used as default parameter
 
 namespace eq
 {
@@ -50,15 +51,6 @@ namespace net
         {
             AUTO_OBSOLETE_COUNT_VERSIONS = 0,
             AUTO_OBSOLETE_COUNT_COMMITS  = 1
-        };
-
-        /** Special version enums */
-        enum Version
-        {
-            VERSION_NONE    = 0,
-            VERSION_INVALID = 0xfffffffeu,
-            VERSION_OLDEST  = VERSION_INVALID,
-            VERSION_HEAD    = 0xffffffffu
         };
 
         /** Object change handling characteristics, see Programming Guide */
@@ -329,16 +321,6 @@ namespace net
 
         /** @return the master object instance identifier. */
         EQ_EXPORT uint32_t getMasterInstanceID() const;
-
-        /** 
-         * Add a slave subscriber.
-         * 
-         * @param node the slave node.
-         * @param instanceID the object instance identifier on the slave node.
-         * @param version the initial version.
-         */
-        EQ_EXPORT void addSlave( NodePtr node, const uint32_t instanceID, 
-                                 const uint32_t version );
 
         /** 
          * Remove a subscribed slave.

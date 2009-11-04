@@ -20,6 +20,7 @@
 
 #include <eq/net/commands.h> // used for CMD_ enums
 #include <eq/net/types.h>
+#include <eq/net/version.h>  // enum
 
 #include <eq/base/idPool.h> // for EQ_ID_*
 
@@ -412,14 +413,20 @@ namespace net
                 command = CMD_SESSION_SUBSCRIBE_OBJECT;
                 size    = sizeof( SessionSubscribeObjectPacket );
                 requestID  = mapPacket->requestID;
-                version    = mapPacket->version;
+                requestedVersion = mapPacket->version;
                 objectID   = mapPacket->objectID;
+                minCachedVersion = VERSION_HEAD;
+                maxCachedVersion = 0;
+                useCache   = false;
             }
         
         uint32_t requestID;
         uint32_t objectID;
-        uint32_t version;
         uint32_t instanceID;
+        uint32_t requestedVersion;
+        uint32_t minCachedVersion;
+        uint32_t maxCachedVersion;
+        bool     useCache;
     };
 
     struct SessionSubscribeObjectSuccessPacket : public SessionPacket
@@ -450,13 +457,17 @@ namespace net
                 size      = sizeof( SessionSubscribeObjectReplyPacket ); 
                 requestID = request->requestID;
                 objectID  = request->objectID;
-                version   = request->version;
+                version   = request->requestedVersion;
+                cachedVersion = VERSION_INVALID;
+                useCache  = request->useCache;
             }
         
         uint32_t requestID;
         uint32_t objectID;
         uint32_t version;
+        uint32_t cachedVersion;
         bool     result;
+        bool     useCache;
     };
 
     struct SessionUnsubscribeObjectPacket : public SessionPacket
@@ -553,6 +564,7 @@ namespace net
                 data[0] = '\0';
             }
 
+        NodeID nodeID;
         EQ_ALIGN8( uint8_t data[8] );
     };
 
@@ -712,14 +724,36 @@ namespace net
     inline std::ostream& operator << ( std::ostream& os, 
                                    const SessionGetIDMasterReplyPacket* packet )
     {
-        os << (SessionPacket*)packet << " ID " << packet->id << " master "
+        os << (SessionPacket*)packet << " id " << packet->id << " master "
            << packet->masterID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                 const SessionMapObjectPacket* packet )
+                                       const SessionMapObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " requestID " << packet->requestID;
+        os << (SessionPacket*)packet << " id " << packet->objectID << " req "
+           << packet->requestID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                    const SessionSubscribeObjectPacket* packet )
+    {
+        os << (SessionPacket*)packet << " id " << packet->objectID << "." 
+           << packet->instanceID << " req " << packet->requestID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                             const SessionSubscribeObjectSuccessPacket* packet )
+    {
+        os << (SessionPacket*)packet << " id " << packet->objectID << "." 
+           << packet->instanceID << " req " << packet->requestID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                               const SessionSubscribeObjectReplyPacket* packet )
+    {
+        os << (SessionPacket*)packet << " id " << packet->objectID << " req "
+           << packet->requestID;
         return os;
     }
 

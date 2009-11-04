@@ -73,6 +73,7 @@ HEADER_SRC = \
 	net/session.h \
 	net/types.h \
 	net/udpConnection.h \
+	net/version.h \
 	client/canvas.h \
 	client/canvasVisitor.h \
 	client/channel.h \

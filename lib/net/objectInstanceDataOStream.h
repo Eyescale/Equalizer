@@ -39,6 +39,10 @@ namespace net
             { _instanceID = instanceID; }
         uint32_t getInstanceID() const { return _instanceID; }
 
+        void setNodeID( const NodeID& nodeID )
+            { _nodeID = nodeID; }
+        const NodeID& getNodeID() const { return _nodeID; }
+
     protected:
         virtual void sendHeader( const void* buffer, const uint64_t size )
             { sendBuffer( buffer, size ); }
@@ -48,6 +52,7 @@ namespace net
             { sendFooter( buffer, size ); }
 
     private:
+        NodeID        _nodeID;
         uint32_t      _instanceID;
     };
 }

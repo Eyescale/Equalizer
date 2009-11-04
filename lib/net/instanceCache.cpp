@@ -39,200 +39,252 @@ base::mtLong nUnusedRelease;
 }
 #endif
 
-template< typename K > InstanceCache< K >::InstanceCache( const long maxSize )
+InstanceCache::InstanceCache( const long maxSize )
         : _maxSize( maxSize )
         , _size( 0 )
 {}
 
-template< typename K > InstanceCache< K >::~InstanceCache()
+InstanceCache::~InstanceCache()
 {
-    for( typename Data::iterator i = _data.begin(); i != _data.end(); ++i )
+    for( Data::iterator i = _data.begin(); i != _data.end(); ++i )
     {
         Item& item = i->second;
-        EQASSERT( item.stream );
-
-        delete item.stream;
-        item.stream = 0;
+        _releaseStreams( item );
     }
 
     _data.clear();
     _size = 0;
 }
 
-template< typename K > InstanceCache< K >::Item::Item()
-        : stream( 0 )
-        , used( 0 )
-        , pinned( 0 )
+InstanceCache::Item::Item()
+        : used( 0 )
+        , access( 0 )
 {}
 
-template< typename K > 
-bool InstanceCache< K >::add( const K& key, Command& command, 
-                              const bool fixed )
+bool InstanceCache::add( const ObjectVersion& rev, Command& command, 
+                         const uint32_t usage )
 {
 #ifdef EQ_INSTRUMENT_CACHE
     ++nWrite;
 #endif
 
     base::ScopedMutex mutex( _mutex );
-    typename Data::const_iterator i = _data.find( key );
-    if( i != _data.end( ))
+    Item& item = _data[ rev.id ] ;
+    item.used = EQ_MAX( item.used, usage );
+
+    if( item.streams.empty( ))
     {
-        EQASSERT( !fixed );
-        return false;
+        item.streams.push_back( new ObjectInstanceDataIStream ); 
+    }
+    else if( item.streams.back()->getPendingVersion() == rev.version )
+    {
+        if( item.streams.back()->isReady( ))
+            return false; // Already have stream
+        // else append data to stream
+    }
+    else
+    {
+        EQASSERT( item.streams.back()->isReady( ));
+
+        const ObjectDataIStream* previous = item.streams.back();
+        const uint32_t previousVersion = previous->getPendingVersion();
+
+        if( previousVersion > rev.version )
+            return false;
+
+        if( previousVersion + 1 != rev.version ) // hole
+        {
+            EQASSERT( previousVersion < rev.version );
+
+            if( item.access != 0 ) // are accessed - don't add
+                return false;
+
+            _releaseStreams( item );
+        }
+        else
+            EQASSERT( previous->isReady( ));
+
+        item.streams.push_back( new ObjectInstanceDataIStream ); 
     }
 
-    Item& item = _data[ key ] ;
-    item.stream = new ObjectInstanceDataIStream;
-    item.pinned = fixed ? 1 : 0;
+    EQASSERT( !item.streams.empty( ));
+    ObjectDataIStream* stream = item.streams.back();
 
-    item.stream->addDataPacket( command );
-    EQASSERT( item.stream->getRemainingBufferSize() > 0 );
-    _size += item.stream->getRemainingBufferSize();
-    _releaseItems();
+    stream->addDataPacket( command );
+    
+#if 0
+    todo stream sets ready self;
+#else
+    EQASSERT( command->command == CMD_OBJECT_INSTANCE );
+    stream->setReady();
+#endif
+
+    if( stream->isReady( ))
+    {
+        EQASSERT( stream->getDataSize() > 0 );
+        _size += stream->getDataSize();
+    }
+
+    _releaseItems( 1 );
+    _releaseItems( 0 );
 
 #ifdef EQ_INSTRUMENT_CACHE
-    if( _data.find( key ) != _data.end( ))
+    if( _data.find( rev.id ) != _data.end( ))
         ++nWriteHit;
 #endif
     return true;
 }
 
 
-template< typename K > 
-DataIStream* InstanceCache< K >::operator[]( const K& key )
+const InstanceDataDeque* InstanceCache::operator[]( const uint32_t id )
 {
 #ifdef EQ_INSTRUMENT_CACHE
     ++nRead;
 #endif
 
     base::ScopedMutex mutex( _mutex );
-    typename Data::iterator i = _data.find( key );
+    Data::iterator i = _data.find( id );
     if( i == _data.end( ))
         return 0;
 
     Item& item = i->second;
-    EQASSERT( item.stream );
-    ++item.pinned;
+    EQASSERT( !item.streams.empty( ));
+    ++item.access;
+    ++item.used;
 
 #ifdef EQ_INSTRUMENT_CACHE
     ++nReadHit;
 #endif
-    return item.stream;
-}
-
-template< typename K > 
-bool InstanceCache< K >::pin( const K& key )
-{
-    return ( (*this)[ key ] != 0 );
+    return &item.streams;
 }
 
 
-template< typename K > 
-bool InstanceCache< K >::unpin( const K& key )
+bool InstanceCache::release( const uint32_t id, const uint32_t count )
 {
     base::ScopedMutex mutex( _mutex );
-    typename Data::iterator i = _data.find( key );
+    Data::iterator i = _data.find( id );
     if( i == _data.end( ))
         return false;
 
     Item& item = i->second;
-    EQASSERT( item.stream );
-    EQASSERT( item.pinned );
+    EQASSERT( !item.streams.empty( ));
+    EQASSERT( item.access >= count );
 
-    --item.pinned;
-    ++item.used;
+    item.access -= count;
+    _releaseItems( 1 );
     return true;
 }
 
-template< typename K > 
-bool InstanceCache< K >::erase( const K& key )
+bool InstanceCache::erase( const uint32_t id )
 {
     base::ScopedMutex mutex( _mutex );
-    typename Data::iterator i = _data.find( key );
+    Data::iterator i = _data.find( id );
     if( i == _data.end( ))
         return false;
 
     Item& item = i->second;
-    if( item.pinned != 0 )
-    {
-        EQINFO << "Refusing to erase pinned item" << std::endl;
+    if( item.access != 0 )
         return false;
-    }
 
-    EQASSERT( item.stream );
-    _size -= item.stream->getRemainingBufferSize();
-    delete item.stream;
-    item.stream = 0;
-
+    _releaseStreams( item );
     _data.erase( i );
     return true;
 }
 
-template< typename K > 
-void InstanceCache< K >::_releaseItems()
+void InstanceCache::_releaseStreams( InstanceCache::Item& item )
+{
+    EQASSERT( !item.streams.empty( ));
+
+    while( !item.streams.empty( ))
+    {
+        const ObjectDataIStream* stream = item.streams.back();
+        item.streams.pop_back();
+
+        EQASSERT( stream->isReady( ));
+        _size -= stream->getDataSize();
+        delete stream;
+    }
+}            
+
+void InstanceCache::_releaseFirstStream( InstanceCache::Item& item )
+{
+    EQASSERT( !item.streams.empty( ));
+
+    if( item.streams.empty( ))
+        return;
+
+    const ObjectDataIStream* stream = item.streams.front();
+    item.streams.pop_front();
+
+    EQASSERT( stream->isReady( ));
+    _size -= stream->getDataSize();
+    delete stream;
+}            
+
+void InstanceCache::_releaseItems( const uint32_t minUsage )
 {
     if( _size <= _maxSize )
         return;
 
     CHECK_THREAD_LOCK_BEGIN( _thread );
 
-    std::vector< K > releasedKeys;
+    std::vector< uint32_t > keys;
     const long target = static_cast< long >(
                    static_cast< float >( _maxSize ) * 0.8f );
 
-    // Release used items
-    for( typename Data::iterator i = _data.begin(); 
+    // Release used items (first stream)
+    bool streamsLeft = false;
+    for( Data::iterator i = _data.begin();
          i != _data.end() && _size > target; ++i )
     {
         Item& item = i->second;
-        if( item.pinned == 0 && item.used > 0 )
-        {
-            EQASSERT( item.stream );
-            _size -= item.stream->getRemainingBufferSize();
-            delete item.stream;
-            item.stream = 0;
+        EQASSERT( !item.streams.empty( ));
 
-            releasedKeys.push_back( i->first );
+        if( item.access == 0 && item.used >= minUsage )
+        {
+            _releaseFirstStream( item );
+            if( !item.streams.empty( ))
+                streamsLeft = true;
+
+            keys.push_back( i->first );
 #ifdef EQ_INSTRUMENT_CACHE
             ++nUsedRelease;
 #endif
         }
     }
 
-    for( typename std::vector< K >::const_iterator i = releasedKeys.begin();
-         i != releasedKeys.end(); ++i )
+    // release used items (second..n streams)
+    while( streamsLeft && _size > target )
     {
-        _data.erase( *i );
-    }
-    releasedKeys.clear();
+        streamsLeft = false;
 
-    // Release unpinned items
-    for( typename Data::iterator i = _data.begin(); 
-         i != _data.end() && _size > target; ++i )
-    {
-        Item& item = i->second;
-        if( item.pinned == 0 )
+        for( std::vector< uint32_t >::const_iterator i = keys.begin();
+             i != keys.end() && _size > target; ++i )
         {
-            EQASSERT( item.stream );
-            EQASSERT( item.stream->getRemainingBufferSize() > 0 );
-            _size -= item.stream->getRemainingBufferSize();
-            delete item.stream;
-            item.stream = 0;
+            Item& item = _data[ *i ];
 
-            releasedKeys.push_back( i->first );
+            if( !item.streams.empty() && item.access == 0 && 
+                item.used >= minUsage )
+            {
+                _releaseFirstStream( item );
+                if( !item.streams.empty( ))
+                    streamsLeft = true;
 #ifdef EQ_INSTRUMENT_CACHE
-            ++nUnusedRelease;
+                ++nUsedRelease;
 #endif
+            }
         }
     }
 
-    for( typename std::vector< K >::const_iterator i = releasedKeys.begin();
-         i != releasedKeys.end(); ++i )
+    for( std::vector< uint32_t >::const_iterator i = keys.begin();
+         i != keys.end(); ++i )
     {
-        _data.erase( *i );
+        Item& item = _data[ *i ];
+        if( item.streams.empty( ))
+            _data.erase( *i );
     }
 
-    if( _size > target )
+    if( _size > target && minUsage == 0 )
         EQWARN << "Overfull instance cache, too many pinned items, size "
                << _size << " target " << target << " max " << _maxSize
                << " " << _data.size() << " entries"
@@ -244,9 +296,8 @@ void InstanceCache< K >::_releaseItems()
     CHECK_THREAD_LOCK_END( _thread );
 }
 
-template< typename K >
 std::ostream& operator << ( std::ostream& os,
-                            const InstanceCache< K >& instanceCache )
+                            const InstanceCache& instanceCache )
 {
     os << "InstanceCache " << instanceCache.getSize() << " bytes"
 #ifdef EQ_INSTRUMENT_CACHE
@@ -257,8 +308,6 @@ std::ostream& operator << ( std::ostream& os,
         ;
     return os;
 }
-
-template class InstanceCache< ObjectVersion >;
 
 }
 }

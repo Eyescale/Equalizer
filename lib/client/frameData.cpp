@@ -251,8 +251,7 @@ void FrameData::setReady()
 
 void FrameData::_setReady( const uint32_t version )
 {
-    EQASSERTINFO( getVersion() == net::Object::VERSION_NONE || 
-                  _readyVersion <= version,
+    EQASSERTINFO( getVersion() == net::VERSION_NONE || _readyVersion <= version,
                   "v" << getVersion() << " ready " << _readyVersion << " new "
                       << version );
 

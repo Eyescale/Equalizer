@@ -20,7 +20,7 @@
 
 #include <eq/net/objectCM.h>     // base class
 #include <eq/net/commandQueue.h> // member
-#include <eq/net/object.h>       // nested enum (Object::Version)
+#include <eq/net/version.h>      // enum
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
 
 namespace eq
@@ -48,7 +48,7 @@ namespace net
         //@{
         virtual uint32_t commitNB() { EQDONTCALL; return EQ_ID_INVALID; }
         virtual uint32_t commitSync( const uint32_t commitID )
-            { EQDONTCALL; return Object::VERSION_NONE; }
+            { EQDONTCALL; return VERSION_NONE; }
 
         virtual void obsolete( const uint32_t version ) { EQDONTCALL; }
 
@@ -67,13 +67,15 @@ namespace net
         virtual bool isMaster() const { return false; }
         virtual uint32_t getMasterInstanceID() const {return _masterInstanceID;}
 
-        virtual void addSlave( NodePtr slave, const uint32_t instanceID,
-                               const uint32_t version ) { EQDONTCALL; }
+        virtual uint32_t addSlave( Command& command )
+            { EQDONTCALL; return VERSION_INVALID; }
         virtual void removeSlave( NodePtr node ) { EQDONTCALL; }
         virtual void addOldMaster( NodePtr node, const uint32_t instanceID )
             { EQDONTCALL }
 
         virtual void applyMapData();
+        virtual void addInstanceDatas( const InstanceDataDeque* cache, 
+                                       const uint32_t startVersion );
 
     private:
         /** The managed object. */
@@ -107,6 +109,7 @@ namespace net
         CommandResult _cmdVersion( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
+        CHECK_THREAD_DECLARE( _cmdThread );
     };
 }
 }

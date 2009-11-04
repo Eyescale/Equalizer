@@ -23,6 +23,7 @@
 #include "connectionDescription.h"
 #include "log.h"
 #include "objectCM.h"
+#include "objectInstanceDataIStream.h"
 #include "packets.h"
 #include "session.h"
 
@@ -35,6 +36,8 @@ namespace eq
 namespace net
 {
 #define MIN_ID_RANGE 1024
+
+typedef CommandFunc<Session> CmdFunc;
 
 Session::Session()
         : _requestHandler( true /* threadSafe */ )
@@ -109,42 +112,34 @@ void Session::notifyMapped( NodePtr node )
     CommandQueue* queue = node->getCommandThreadQueue();
 
     registerCommand( CMD_SESSION_ACK_REQUEST, 
-                     CommandFunc<Session>( this, &Session::_cmdAckRequest ), 0);
+                     CmdFunc( this, &Session::_cmdAckRequest ), 0 );
     registerCommand( CMD_SESSION_GEN_IDS, 
-                     CommandFunc<Session>( this, &Session::_cmdGenIDs ),
-                     queue );
+                     CmdFunc( this, &Session::_cmdGenIDs ), queue );
     registerCommand( CMD_SESSION_GEN_IDS_REPLY,
-                     CommandFunc<Session>( this, &Session::_cmdGenIDsReply ),
-                     queue );
+                     CmdFunc( this, &Session::_cmdGenIDsReply ), queue );
     registerCommand( CMD_SESSION_SET_ID_MASTER,
-                     CommandFunc<Session>( this, &Session::_cmdSetIDMaster ),
-                     queue );
+                     CmdFunc( this, &Session::_cmdSetIDMaster ), queue );
     registerCommand( CMD_SESSION_GET_ID_MASTER, 
-                     CommandFunc<Session>( this, &Session::_cmdGetIDMaster ),
-                     queue );
+                     CmdFunc( this, &Session::_cmdGetIDMaster ), queue );
     registerCommand( CMD_SESSION_GET_ID_MASTER_REPLY,
-                  CommandFunc<Session>( this, &Session::_cmdGetIDMasterReply ),
-                     queue );
+                     CmdFunc( this, &Session::_cmdGetIDMasterReply ), queue );
     registerCommand( CMD_SESSION_ATTACH_OBJECT,
-                     CommandFunc<Session>( this, &Session::_cmdAttachObject ),
-                     0 );
+                     CmdFunc( this, &Session::_cmdAttachObject ), 0 );
     registerCommand( CMD_SESSION_DETACH_OBJECT,
-                     CommandFunc<Session>( this, &Session::_cmdDetachObject ),
-                     0 );
+                     CmdFunc( this, &Session::_cmdDetachObject ), 0 );
     registerCommand( CMD_SESSION_MAP_OBJECT,
-                     CommandFunc<Session>( this, &Session::_cmdMapObject ), 0 );
+                     CmdFunc( this, &Session::_cmdMapObject ), 0 );
     registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT,
-                   CommandFunc<Session>( this, &Session::_cmdSubscribeObject ),
-                     queue );
+                     CmdFunc( this, &Session::_cmdSubscribeObject ), queue );
     registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS,
-            CommandFunc<Session>( this, &Session::_cmdSubscribeObjectSuccess ),
-                     0 );
+                     CmdFunc( this, &Session::_cmdSubscribeObjectSuccess ), 0 );
     registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_REPLY,
-              CommandFunc<Session>( this, &Session::_cmdSubscribeObjectReply ),
+                     CmdFunc( this, &Session::_cmdSubscribeObjectReply ),
                      queue );
     registerCommand( CMD_SESSION_UNSUBSCRIBE_OBJECT,
-                  CommandFunc<Session>( this, &Session::_cmdUnsubscribeObject ),
-                     queue );
+                     CmdFunc( this, &Session::_cmdUnsubscribeObject ), queue );
+    registerCommand( CMD_SESSION_INSTANCE,
+                     CmdFunc( this, &Session::_cmdInstance ), queue );
 }
 
 //---------------------------------------------------------------------------
@@ -388,18 +383,15 @@ bool Session::mapObjectSync( const uint32_t requestID )
 
     Object* object = EQSAFECAST( Object*, data );
 
-    uint32_t version = Object::VERSION_NONE;
+    uint32_t version = VERSION_NONE;
     _requestHandler.waitRequest( requestID, version );
 
     const bool mapped = ( object->getID() != EQ_ID_INVALID );
     if( mapped && !object->isMaster( ))
     {
         object->_cm->applyMapData(); // apply instance data on slave instances
-        if( version != Object::VERSION_OLDEST && 
-            version != Object::VERSION_NONE )
-        {
+        if( version != VERSION_OLDEST && version != VERSION_NONE )
             object->sync( version );
-        }
     }
 
     EQLOG( LOG_OBJECTS ) << "Mapped " << typeid( *object ).name() << " to id " 
@@ -776,6 +768,19 @@ CommandResult Session::_cmdMapObject( Command& command )
         SessionSubscribeObjectPacket subscribePacket( packet );
         subscribePacket.instanceID = _instanceIDs;
 
+        const InstanceDataDeque* cached = _instanceDataCache[ id ];
+        if( cached )
+        {
+            EQASSERT( !cached->empty( ));
+            subscribePacket.useCache = true;
+            subscribePacket.minCachedVersion = cached->front()->getVersion();
+            subscribePacket.maxCachedVersion = cached->back()->getVersion();
+            EQLOG( LOG_OBJECTS ) << "Object " << id << " have v"
+                                 << subscribePacket.minCachedVersion << ".."
+                                 << subscribePacket.maxCachedVersion 
+                                 << std::endl;
+        }
+
         send( master, subscribePacket );
         return COMMAND_HANDLED;
     }
@@ -825,16 +830,15 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     if( master )
     {
         // Check requested version
-        const uint32_t version = packet->version;
-        if( version == Object::VERSION_OLDEST || 
-            version >= master->getOldestVersion( ))
+        const uint32_t version = packet->requestedVersion;
+        if( version == VERSION_OLDEST || version >= master->getOldestVersion( ))
         {
             SessionSubscribeObjectSuccessPacket successPacket( packet );
             successPacket.changeType       = master->getChangeType();
             successPacket.masterInstanceID = master->getInstanceID();
             send( node, successPacket );
         
-            master->addSlave( node, packet->instanceID, version );
+            reply.cachedVersion = master->_cm->addSlave( command );
             reply.result = true;
         }
         else
@@ -859,7 +863,6 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     CHECK_THREAD( _receiverThread );
     const SessionSubscribeObjectSuccessPacket* packet = 
         command.getPacket<SessionSubscribeObjectSuccessPacket>();
-    EQLOG( LOG_OBJECTS ) << "Cmd object subscribe success " << packet << std::endl;
 
     Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
                                                packet->requestID ));    
@@ -872,7 +875,7 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
 
     _attachObject( object, packet->objectID, packet->instanceID );
 
-    EQLOG( LOG_OBJECTS ) << "subscribed object id " << object->getID() << '.'
+    EQLOG( LOG_OBJECTS ) << "attached object id " << object->getID() << '.'
                          << object->getInstanceID() << " cm " 
                          << typeid( *(object->_cm)).name() << " @" 
                          << static_cast< void* >( object ) << " is "
@@ -885,12 +888,43 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
     CHECK_THREAD( _commandThread );
     const SessionSubscribeObjectReplyPacket* packet = 
         command.getPacket<SessionSubscribeObjectReplyPacket>();
-    EQLOG( LOG_OBJECTS ) << "Cmd object subscribe reply " << packet << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd object subscribe reply " << packet
+                         << std::endl;
 
     EQASSERT( _requestHandler.getRequestData( packet->requestID ));
 
-    if( !packet->requestID )
-        EQWARN << "Could not subscribe object " << packet->objectID << std::endl;
+    if( packet->result )
+    {
+        if( packet->version != VERSION_INVALID )
+        {
+            Object* object = static_cast<Object*>( 
+                _requestHandler.getRequestData( packet->requestID ));    
+            EQASSERT( object );
+            EQASSERT( !object->isMaster( ));
+
+            if( packet->useCache )
+            {
+                const uint32_t id = packet->objectID;
+                const uint32_t start = packet->cachedVersion;
+                if( start != VERSION_INVALID )
+                {
+                    const InstanceDataDeque* cached = _instanceDataCache[ id ];
+                    EQASSERT( cached );
+                    EQASSERT( !cached->empty( ));
+                
+                    object->_cm->addInstanceDatas( cached, start );
+                    EQCHECK( _instanceDataCache.release( id, 2 ));
+                }
+                else
+                {
+                    EQCHECK( _instanceDataCache.release( id ));
+                }
+            }
+        }
+    }
+    else
+        EQWARN << "Could not subscribe object " << packet->objectID
+               << std::endl;
 
     _requestHandler.serveRequest( packet->requestID, packet->version );
     return COMMAND_HANDLED;
@@ -928,6 +962,36 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
     SessionDetachObjectPacket detachPacket( packet );
     send( node, detachPacket );
     return COMMAND_HANDLED;
+}
+
+CommandResult Session::_cmdInstance( Command& command )
+{
+    ObjectInstancePacket* packet = command.getPacket< ObjectInstancePacket >();
+    EQLOG( LOG_OBJECTS ) << "Cmd instance  " << packet << std::endl;
+
+    CHECK_THREAD( _commandThread );
+    EQASSERT( _localNode.isValid( ));
+
+    packet->datatype = DATATYPE_EQNET_OBJECT;
+    packet->command = CMD_OBJECT_INSTANCE;
+    packet->nodeID.convertToHost();
+
+    uint32_t usage = 0;
+    CommandResult result = COMMAND_HANDLED;
+
+    if( packet->nodeID == _localNode->getNodeID( ))
+    {
+        usage = 1; // TODO correct usage count
+        result = _invokeObjectCommand( command );
+    }
+
+    if( packet->dataSize > 0 )
+    {
+        const ObjectVersion key( packet->objectID, packet->version ); 
+        _instanceDataCache.add( key, command, usage );
+    }
+
+    return result;
 }
 
 std::ostream& operator << ( std::ostream& os, Session* session )

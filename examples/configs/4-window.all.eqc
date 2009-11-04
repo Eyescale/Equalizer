@@ -539,7 +539,7 @@ server
             compound
             {
                 pixel [ 0 0 4 1 ]
-                outputframe {}
+                outputframe { type texture }
             }
             compound
             { 

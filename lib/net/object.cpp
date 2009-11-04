@@ -326,12 +326,6 @@ uint32_t Object::getMasterInstanceID() const
     return _cm->getMasterInstanceID();
 }
 
-void Object::addSlave( NodePtr node, const uint32_t instanceID, 
-                       const uint32_t version )
-{
-    _cm->addSlave( node, instanceID, version );
-}
-
 void Object::removeSlave( NodePtr node )
 {
     _cm->removeSlave( node );

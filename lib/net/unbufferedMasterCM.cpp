@@ -35,7 +35,7 @@ namespace net
 {
 UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
         : _object( object )
-        , _version( Object::VERSION_NONE )
+        , _version( VERSION_NONE )
 {
     registerCommand( CMD_OBJECT_COMMIT, 
        CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdCommit ),
@@ -73,17 +73,24 @@ uint32_t UnbufferedMasterCM::commitNB()
 
 uint32_t UnbufferedMasterCM::commitSync( const uint32_t commitID )
 {
-    uint32_t version = Object::VERSION_NONE;
+    uint32_t version = VERSION_NONE;
     _requestHandler.waitRequest( commitID, version );
     return version;
 }
 
-void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
-                                   const uint32_t version )
+uint32_t UnbufferedMasterCM::addSlave( Command& command )
 {
     CHECK_THREAD( _thread );
-    EQASSERT( version == Object::VERSION_OLDEST ||
-              version == Object::VERSION_NONE   ||
+    EQASSERT( command->datatype == DATATYPE_EQNET_SESSION );
+    EQASSERT( command->command == CMD_SESSION_SUBSCRIBE_OBJECT );
+
+    NodePtr node = command.getNode();
+    SessionSubscribeObjectPacket* packet =
+        command.getPacket<SessionSubscribeObjectPacket>();
+    const uint32_t version = packet->requestedVersion;
+    const uint32_t instanceID = packet->instanceID;
+
+    EQASSERT( version == VERSION_OLDEST || version == VERSION_NONE ||
               version == _version );
 
     // add to subscribers
@@ -98,8 +105,9 @@ void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
     ObjectInstanceDataOStream os( _object );
     os.setVersion( _version );
     os.setInstanceID( instanceID );
-    
-    if( version != Object::VERSION_NONE ) // send current data
+    // TODO: multiple commands are send!? os.setNodeID( node->getNodeID( ));
+
+    if( version != VERSION_NONE ) // send current data
     {
         os.enable( node );
         _object->getInstanceData( os );
@@ -112,6 +120,8 @@ void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
         os.writeOnce( 0, 0 );
         os.disable();
     }
+
+    return VERSION_INVALID; // see TODO above
 }
 
 void UnbufferedMasterCM::removeSlave( NodePtr node )

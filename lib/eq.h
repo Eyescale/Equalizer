@@ -67,6 +67,7 @@
 #endif
 
 #include <eq/base/fileSearch.h>
+#include <eq/base/rng.h>
 #include <eq/base/sleep.h>
 #include <eq/net/net.h>
 #include <eq/util/util.h>

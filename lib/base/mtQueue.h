@@ -70,6 +70,12 @@ namespace base
         T tryPop();
 
         /** 
+         * @return the first element of the queue, or NONE if the queue is
+         *         empty.
+         */
+        T front() const;
+
+        /** 
          * @return the last element of the queue, or NONE if the queue is
          *         empty.
          */
@@ -201,6 +207,21 @@ T MTQueue<T>::tryPop()
     pthread_mutex_unlock( &_data->mutex );
     return element;
 }   
+
+template< typename T >
+T MTQueue<T>::front() const
+{
+    pthread_mutex_lock( &_data->mutex );
+    if( _queue.empty( ))
+    {
+        pthread_mutex_unlock( &_data->mutex );
+        return NONE;
+    }
+    // else
+    T element = _queue.front();
+    pthread_mutex_unlock( &_data->mutex );
+    return element;
+}
 
 template< typename T >
 T MTQueue<T>::back() const

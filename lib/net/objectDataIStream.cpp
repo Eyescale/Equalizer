@@ -29,7 +29,7 @@ namespace eq
 namespace net
 {
 ObjectDataIStream::ObjectDataIStream()
-        : _version( Object::VERSION_INVALID )
+        : _version( VERSION_INVALID )
 {
     _commands.push_back( 0 ); // see getNextCommand()
 }
@@ -37,6 +37,18 @@ ObjectDataIStream::ObjectDataIStream()
 ObjectDataIStream::~ObjectDataIStream()
 {
     reset();
+}
+
+ObjectDataIStream::ObjectDataIStream( const ObjectDataIStream& from )
+        : DataIStream( from )
+        , _commands( from._commands )
+        , _version( from._version.get( ))
+{
+    for( CommandDeque::const_iterator i = _commands.begin();
+         i != _commands.end(); ++i )
+    {
+        (*i)->retain();
+    }
 }
 
 void ObjectDataIStream::reset()
@@ -51,7 +63,7 @@ void ObjectDataIStream::reset()
         _commands.pop_front();
     }
 
-    _version = Object::VERSION_INVALID;
+    _version = VERSION_INVALID;
 }
 
 void ObjectDataIStream::addDataPacket( Command& command )
@@ -66,7 +78,8 @@ void ObjectDataIStream::addDataPacket( Command& command )
     {
         const ObjectDataPacket* previous = 
             _commands.back()->getPacket< ObjectDataPacket >();
-        EQASSERT( packet->sequence == previous->sequence+1 );
+        EQASSERTINFO( packet->sequence == previous->sequence+1, 
+                      packet->sequence << ", " << previous->sequence );
         EQASSERT( packet->version == previous->version );
     }
 #endif
@@ -75,14 +88,31 @@ void ObjectDataIStream::addDataPacket( Command& command )
     _commands.push_back( &command );
 }
 
+size_t ObjectDataIStream::getDataSize() const
+{
+    size_t size = 0;
+    for( CommandDeque::const_iterator i = _commands.begin(); 
+         i != _commands.end(); ++i )
+    {
+        const Command* command = *i;
+        if( !command )
+            continue;
+
+        const ObjectDataPacket* packet = 
+            command->getPacket< ObjectDataPacket >();
+        size += packet->dataSize;
+    }
+    return size;
+}
+
 uint32_t ObjectDataIStream::getPendingVersion() const
 {
     if( _commands.empty( ))
-        return Object::VERSION_INVALID;
+        return VERSION_INVALID;
 
     Command* command = _commands.back();
     if( !command )
-        return Object::VERSION_INVALID;
+        return VERSION_INVALID;
     
     const ObjectDataPacket* packet = command->getPacket< ObjectDataPacket >();
     return packet->version;

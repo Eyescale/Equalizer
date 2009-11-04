@@ -34,6 +34,12 @@ DataIStream::DataIStream()
         , _position( 0 )
 {}
 
+DataIStream::DataIStream( const DataIStream& from )
+        : _input( 0 )
+        , _inputSize( 0 )
+        , _position( 0 )
+{}
+
 DataIStream::~DataIStream()
 {
     reset();

@@ -19,7 +19,7 @@
 #define EQNET_OBJECTDATAISTREAM_H
 
 #include <eq/net/dataIStream.h>   // base class
-#include <eq/net/object.h>        // nested enum
+#include <eq/net/version.h>       // enum
 #include <eq/base/monitor.h>      // member
 
 #include <deque>
@@ -37,15 +37,18 @@ namespace net
     {
     public:
         ObjectDataIStream();
+        ObjectDataIStream( const ObjectDataIStream& from );
         virtual ~ObjectDataIStream();
 
         void addDataPacket( Command& command );
+        size_t getDataSize() const;
 
         virtual uint32_t getVersion() const { return _version.get(); }
         uint32_t getPendingVersion() const;
 
         void setReady() { _version = getPendingVersion(); }
-        void waitReady() const { _version.waitNE( Object::VERSION_INVALID ); }
+        void waitReady() const { _version.waitNE( VERSION_INVALID ); }
+        bool isReady() const { return _version != VERSION_INVALID; }
 
         virtual size_t nRemainingBuffers() const  { return _commands.size(); }
 
@@ -63,7 +66,7 @@ namespace net
 
     private:
         /** All data command packets for this istream. */
-        std::deque< Command* >    _commands;
+        CommandDeque _commands;
 
         /** The object version associated with this input stream. */
         base::Monitor< uint32_t > _version;

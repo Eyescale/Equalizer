@@ -39,16 +39,26 @@ StaticMasterCM::StaticMasterCM( Object* object )
 StaticMasterCM::~StaticMasterCM()
 {}
 
-void StaticMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
-                               const uint32_t version )
+uint32_t StaticMasterCM::addSlave( Command& command )
 {
-    EQASSERT( version == Object::VERSION_OLDEST ); // VERSION_NONE is useless
+    EQASSERT( command->datatype == DATATYPE_EQNET_SESSION );
+    EQASSERT( command->command == CMD_SESSION_SUBSCRIBE_OBJECT );
+
+    NodePtr node = command.getNode();
+    SessionSubscribeObjectPacket* packet =
+        command.getPacket<SessionSubscribeObjectPacket>();
+    const uint32_t instanceID = packet->instanceID;
+    EQASSERT( packet->requestedVersion == VERSION_OLDEST );
+
     ObjectInstanceDataOStream os( _object );
     os.setInstanceID( instanceID );
-
+    // TODO: multiple commands are send!? os.setNodeID( node->getNodeID( ));
     os.enable( node );
+
     _object->getInstanceData( os );
     os.disable();
+    return VERSION_INVALID; // see TODO above
 }
+
 }
 }

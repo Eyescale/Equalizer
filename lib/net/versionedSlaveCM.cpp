@@ -36,7 +36,7 @@ typedef CommandFunc<VersionedSlaveCM> CmdFunc;
 
 VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
         : _object( object )
-        , _version( Object::VERSION_NONE )
+        , _version( VERSION_NONE )
         , _mutex( 0 )
         , _currentIStream( 0 )
         , _masterInstanceID( masterInstanceID )
@@ -64,7 +64,7 @@ VersionedSlaveCM::~VersionedSlaveCM()
     delete _currentIStream;
     _currentIStream = 0;
 
-    _version = Object::VERSION_NONE;
+    _version = VERSION_NONE;
 }
 
 void VersionedSlaveCM::makeThreadSafe()
@@ -88,7 +88,7 @@ uint32_t VersionedSlaveCM::sync( const uint32_t version )
 
     base::ScopedMutex mutex( _mutex );
 
-    if( version == Object::VERSION_HEAD )
+    if( version == VERSION_HEAD )
     {
         _syncToHead();
         return _version;
@@ -153,8 +153,8 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
     }
 
     _version = is->getVersion();
-    EQASSERT( _version != Object::VERSION_INVALID );
-    EQASSERT( _version != Object::VERSION_NONE );
+    EQASSERT( _version != VERSION_INVALID );
+    EQASSERT( _version != VERSION_NONE );
     EQLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
@@ -174,7 +174,7 @@ void VersionedSlaveCM::applyMapData()
 
     _object->applyInstanceData( *is );
     _version = is->getVersion();
-    EQASSERT( _version != Object::VERSION_INVALID );
+    EQASSERT( _version != VERSION_INVALID );
 
     if( is->getRemainingBufferSize() > 0 || is->nRemainingBuffers() > 0 )
         EQWARN << "Object " << typeid( *_object ).name() 
@@ -192,6 +192,7 @@ void VersionedSlaveCM::applyMapData()
 
 CommandResult VersionedSlaveCM::_cmdInstanceData( Command& command )
 {
+    CHECK_THREAD( _cmdThread );
     if( !_currentIStream )
         _currentIStream = new ObjectInstanceDataIStream;
 
@@ -201,6 +202,7 @@ CommandResult VersionedSlaveCM::_cmdInstanceData( Command& command )
 
 CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
 {
+    CHECK_THREAD( _cmdThread );
     EQLOG( LOG_OBJECTS ) << "cmd instance " << command << std::endl;
 
     if( !_currentIStream )
@@ -222,6 +224,7 @@ CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
 
 CommandResult VersionedSlaveCM::_cmdDeltaData( Command& command )
 {
+    CHECK_THREAD( _cmdThread );
     if( !_currentIStream )
         _currentIStream = new ObjectDeltaDataIStream;
 
@@ -231,6 +234,7 @@ CommandResult VersionedSlaveCM::_cmdDeltaData( Command& command )
 
 CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
 {
+    CHECK_THREAD( _cmdThread );
     EQLOG( LOG_OBJECTS ) << "cmd delta " << command << std::endl;
 
     if( !_currentIStream )
@@ -250,12 +254,73 @@ CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
     return COMMAND_HANDLED;
 }
 
+void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque* cache, 
+                                         const uint32_t startVersion )
+{
+    CHECK_THREAD( _cmdThread );
+    EQLOG( LOG_OBJECTS ) << base::disableFlush << "Adding data front ";
+
+    uint32_t oldest = VERSION_NONE;
+    uint32_t newest = 0;
+    if( !_queuedVersions.isEmpty( ))
+    {
+        oldest = _queuedVersions.front()->getVersion();
+        newest = _queuedVersions.back()->getVersion();
+    }
+
+    InstanceDataDeque  head;
+    InstanceDataVector tail;
+
+    for( InstanceDataDeque::const_iterator i = cache->begin();
+         i != cache->end(); ++i )
+    {
+        ObjectInstanceDataIStream* stream = *i;
+        const uint32_t version = stream->getVersion();
+        if( version < startVersion )
+            continue;
+        
+        EQASSERT( stream->isReady( ));
+        if( !stream->isReady( ))
+            break;
+
+        if( version < oldest )
+            head.push_front( stream );
+        else if( version > newest )
+            tail.push_back( stream );
+    }
+
+    for( InstanceDataDeque::const_iterator i = head.begin();
+         i != head.end(); ++i )
+    {
+        const ObjectInstanceDataIStream* stream = *i;
+        EQASSERT( _queuedVersions.isEmpty() ||
+            stream->getVersion() + 1 == _queuedVersions.front()->getVersion( ));
+
+        _queuedVersions.pushFront( new ObjectInstanceDataIStream( *stream ));
+        EQLOG( LOG_OBJECTS ) << stream->getVersion();
+    }
+
+    EQLOG( LOG_OBJECTS ) << ", back ";
+    for( InstanceDataVector::const_iterator i = tail.begin();
+         i != tail.end(); ++i )
+    {
+        const ObjectInstanceDataIStream* stream = *i;
+        EQASSERT( _queuedVersions.isEmpty() ||
+             stream->getVersion() == _queuedVersions.back()->getVersion() + 1 );
+
+        _queuedVersions.push( new ObjectInstanceDataIStream( *stream ));
+        EQLOG( LOG_OBJECTS ) << stream->getVersion();
+    }
+
+    EQLOG( LOG_OBJECTS ) << std::endl << base::enableFlush;
+}
+
 CommandResult VersionedSlaveCM::_cmdVersion( Command& command )
 {
     const ObjectVersionPacket* packet = 
         command.getPacket< ObjectVersionPacket >();
     _version = packet->version;
-    EQASSERT( _version != Object::VERSION_INVALID );
+    EQASSERT( _version != VERSION_INVALID );
     return COMMAND_HANDLED;
 }
 

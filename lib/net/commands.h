@@ -68,7 +68,7 @@ namespace net
         CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS,
         CMD_SESSION_SUBSCRIBE_OBJECT_REPLY,
         CMD_SESSION_UNSUBSCRIBE_OBJECT,
-        CMD_SESSION_GET_OBJECT,
+        CMD_SESSION_INSTANCE,
         CMD_SESSION_FILL1, // some buffer for binary-compatible patches
         CMD_SESSION_FILL2,
         CMD_SESSION_FILL3,

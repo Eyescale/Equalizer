@@ -33,7 +33,7 @@ typedef CommandFunc<FullMasterCM> CmdFunc;
 
 FullMasterCM::FullMasterCM( Object* object )
         : _object( object ),
-          _version( Object::VERSION_NONE ),
+          _version( VERSION_NONE ),
           _commitCount( 0 ),
           _nVersions( 0 ),
           _obsoleteFlags( Object::AUTO_OBSOLETE_COUNT_VERSIONS )
@@ -93,7 +93,7 @@ uint32_t FullMasterCM::commitNB()
 
 uint32_t FullMasterCM::commitSync( const uint32_t commitID )
 {
-    uint32_t version = Object::VERSION_NONE;
+    uint32_t version = VERSION_NONE;
     _requestHandler.waitRequest( commitID, version );
     return version;
 }
@@ -125,17 +125,25 @@ void FullMasterCM::_obsolete()
 
 uint32_t FullMasterCM::getOldestVersion() const
 {
-    if( _version == Object::VERSION_NONE )
-        return Object::VERSION_NONE;
+    if( _version == VERSION_NONE )
+        return VERSION_NONE;
 
     return _instanceDatas.front()->os.getVersion();
 }
 
-void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
-                             const uint32_t inVersion )
+uint32_t FullMasterCM::addSlave( Command& command )
 {
     CHECK_THREAD( _thread );
-    EQASSERT( _version != Object::VERSION_NONE );
+    EQASSERT( command->datatype == DATATYPE_EQNET_SESSION );
+    EQASSERT( command->command == CMD_SESSION_SUBSCRIBE_OBJECT );
+
+    NodePtr node = command.getNode();
+    SessionSubscribeObjectPacket* packet =
+        command.getPacket<SessionSubscribeObjectPacket>();
+    const uint32_t requested = packet->requestedVersion;
+    const uint32_t instanceID = packet->instanceID;
+
+    EQASSERT( _version != VERSION_NONE );
     _checkConsistency();
 
     // add to subscribers
@@ -143,49 +151,59 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
     _slaves.push_back( node );
     stde::usort( _slaves );
 
-    if( inVersion == Object::VERSION_NONE ) // no data to send
+    if( requested == VERSION_NONE ) // no data to send
     {
         ObjectInstanceDataOStream stream( _object );
         stream.setInstanceID( instanceID );
         stream.setVersion( _version );
+        stream.setNodeID( node->getNodeID( ));
         
         stream.resend( node );
-        return;
+        return VERSION_INVALID;
     }
 
     const uint32_t oldest  = getOldestVersion();
-    const uint32_t version = (inVersion == Object::VERSION_OLDEST) ?
-                                 oldest : inVersion;
-    EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
+    uint32_t start = (requested == VERSION_OLDEST) ? oldest : requested;
+    uint32_t end   = _version;
+    const uint32_t result = start;
+
+    if( packet->useCache )
+    {
+        if( packet->minCachedVersion <= start && 
+            packet->maxCachedVersion >= start )
+        {
+            start = packet->maxCachedVersion + 1;
+        }
+        else if( packet->maxCachedVersion == end )
+        {
+            end = EQ_MAX( start, packet->minCachedVersion - 1 );
+        }
+        // TODO else cached block in the middle, send head and tail elements
+    }
+
+    EQLOG( LOG_OBJECTS ) << "Object " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID() 
-                         << " with v" << version << std::endl;
+                         << " with v" << result << " sending v" << start
+                         << ".." << end << std::endl;
 
-    EQASSERT( version >= oldest );
+    EQASSERT( start >= oldest );
 
-    // send all instance datas, starting at initial version
+    // send all instance datas from start..end
     InstanceDataDeque::iterator i = _instanceDatas.begin();
-    while( (*i)->os.getVersion() < version && i != _instanceDatas.end( ))
+    while( i != _instanceDatas.end() && (*i)->os.getVersion() < start )
         ++i;
 
-    if( i == _instanceDatas.end( ))
-    {
-        InstanceData* data = _instanceDatas.front();
-        EQASSERT( data );
-        EQASSERT( data->os.getVersion() <= version );
-
-        data->os.setInstanceID( instanceID );
-        data->os.resend( node );
-    }
-    else for( ; i != _instanceDatas.end(); ++i )
+    for( ; i != _instanceDatas.end() && (*i)->os.getVersion() <= end; ++i )
     {
         InstanceData* data = *i;
         EQASSERT( data );
-        EQASSERTINFO( data->os.getVersion() >= version, 
-                      data->os.getVersion() << " < " << version );
 
         data->os.setInstanceID( instanceID );
+        data->os.setNodeID( node->getNodeID( ));
         data->os.resend( node );
     }
+
+    return result;
 }
 
 void FullMasterCM::removeSlave( NodePtr node )
@@ -209,7 +227,7 @@ void FullMasterCM::removeSlave( NodePtr node )
 
 void FullMasterCM::addOldMaster( NodePtr node, const uint32_t instanceID )
 {
-    EQASSERT( _version != Object::VERSION_NONE );
+    EQASSERT( _version != VERSION_NONE );
 
     // add to subscribers
     ++_slavesCount[ node->getNodeID() ];
@@ -227,7 +245,7 @@ void FullMasterCM::_checkConsistency() const
 #ifndef NDEBUG
     EQASSERT( _object->_id != EQ_ID_INVALID );
 
-    if( _version == Object::VERSION_NONE )
+    if( _version == VERSION_NONE )
         return;
 
     uint32_t version = _version;
@@ -260,6 +278,7 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
     instanceData->os.enableSave();
     instanceData->os.enableBuffering();
     instanceData->os.setInstanceID( EQ_ID_NONE );
+    instanceData->os.setNodeID( NodeID::ZERO );
     return instanceData;
 }
 
@@ -273,7 +292,7 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
 
-    EQASSERT( _version != Object::VERSION_NONE );
+    EQASSERT( _version != VERSION_NONE );
 
     ++_commitCount;
 

@@ -18,8 +18,8 @@
 #ifndef EQNET_INSTANCECACHE_H
 #define EQNET_INSTANCECACHE_H
 
-#include <eq/base/atomic.h>    // member
-#include <eq/base/rng.h>       // member
+#include <eq/net/types.h>
+
 #include <eq/base/stdExt.h>    // member
 #include <eq/base/thread.h>    // member
 
@@ -32,11 +32,12 @@ namespace net
     class Command;
     class DataIStream;
     class ObjectDataIStream;
+    struct ObjectVersion;
 
     /**
      * A thread-safe cache for object instance data. @internal
      */
-    template< typename K > class InstanceCache
+    class InstanceCache
     {
     public:
         /** Construct a new instance cache. */
@@ -46,49 +47,47 @@ namespace net
         ~InstanceCache();
 
         /** 
-         * Add a new item to the instance cache.
+         * Add a new command to the instance cache.
          *
-         * @param key The key to find the item.
+         * @param rev the object identifier and version.
          * @param command The command to add.
-         * @param pin true if the item has to be added and pinned in the 
-         *            instance cache.
-         * @return true if the item was entered, false if not.
+         * @param usage pre-set usage count.
+         * @return true if the command was entered, false if not.
          */
-        bool add( const K& key, Command& command, const bool pin );
+        bool add( const ObjectVersion& rev, Command& command, 
+                  const uint32_t usage = 0 );
 
         /**
-         * Direct access to the element with the given key.
+         * Direct access to the cached instance data for the given object id.
          *
-         * The returned element is automatically pinned, and has to be unpinned
-         * by the caller. If the element is not in the instance cache, 0 is
-         * returned.
+         * The instance data for the given object has to be released by the
+         * caller, unless 0 has been returned. Not all returned data stream
+         * might be ready.
+         *
+         * @param id the identifier of the object to look up.
+         * @return the list of cached instance datas, or 0 if no data is cached
+         *         for this object.
          */
-        DataIStream* operator[]( const K& key );
+        const InstanceDataDeque* operator[]( const uint32_t id );
 
         /** 
-         * Lock the element of the given key in the instance cache, if it exist.
-         * 
-         * @param key The key of the element to pin.
-         * @return true if the element was pinned, false if it is not in the
-         *         instance cache. 
-         */
-        bool pin( const K& key );
-
-        /** 
-         * Unlock the element of the given key.
+         * Release the retrieved instance data of the given object.
+         *
+         * @param count the number of access operations to release
          * @return true if the element was unpinned, false if it is not in the
          *         instance cache.
          */
-        bool unpin( const K& key );
+        bool release( const uint32_t id, const uint32_t count = 1 );
 
         /** 
-         * Erase the element of the given key.
+         * Erase all the data for the given object.
          *
-         * The element has to be unpinned.
+         * The data does not have to be accessed, i.e., release has been called
+         * for each previous access.
          *
          * @return true if the element was erased, false otherwise.
          */
-        bool erase( const K& key );
+        bool erase( const uint32_t id );
 
         /** @return the number of bytes used by the instance cache. */
         long getSize() const { return _size; }
@@ -97,26 +96,27 @@ namespace net
         struct Item
         {
             Item();
-            ObjectDataIStream* stream;
+            InstanceDataDeque streams;
             unsigned used;
-            unsigned pinned;
+            unsigned access;
         };
 
-        typedef stde::hash_map< K, Item > Data;
+        typedef stde::hash_map< uint32_t, Item > Data;
 
         Data _data;
         base::Lock _mutex;
 
-        const long   _maxSize; //!< high-water mark to start releasing commands
-        base::mtLong _size;    //!< Current number of bytes stored
+        const long _maxSize; //!< high-water mark to start releasing commands
+        long _size;          //!< Current number of bytes stored
 
-        void _releaseItems();
+        void _releaseItems( const uint32_t minUsage );
+        void _releaseStreams( InstanceCache::Item& item );
+        void _releaseFirstStream( InstanceCache::Item& item );
+
         CHECK_THREAD_DECLARE( _thread );
     };
 
-    template< typename K >
-    std::ostream& operator << ( std::ostream& os,
-                                const InstanceCache< K >& instanceCache );
+    std::ostream& operator << ( std::ostream&, const InstanceCache& );
 }
 }
 #endif //EQNET_INSTANCECACHE_H

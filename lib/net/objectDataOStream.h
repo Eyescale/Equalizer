@@ -19,7 +19,7 @@
 #define EQNET_OBJECTDATAOSTREAM_H
 
 #include <eq/net/dataOStream.h>   // base class
-#include <eq/net/object.h>        // used in inline constructor
+#include <eq/net/version.h>       // enum
 
 namespace eq
 {
@@ -34,7 +34,7 @@ namespace net
     {
     public:
         ObjectDataOStream( const Object* object )
-                : _object( object ), _version( Object::VERSION_NONE )
+                : _object( object ), _version( VERSION_NONE )
                 , _sequence( 0 ) {}
 
         virtual ~ObjectDataOStream(){}

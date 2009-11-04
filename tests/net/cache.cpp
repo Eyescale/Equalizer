@@ -23,6 +23,7 @@
 #include <eq/net/init.h>
 #include "../../lib/net/instanceCache.cpp"
 
+#include <eq/base/rng.h>
 #include <eq/base/thread.h>
 #include <eq/net/command.h>
 
@@ -37,7 +38,7 @@ eq::base::Clock _clock;
 class Reader : public eq::base::Thread
 {
 public:
-    Reader( eq::net::InstanceCache< uint16_t >& cache )
+    Reader( eq::net::InstanceCache& cache )
             : Thread(),
               _cache( cache )
         {}
@@ -50,11 +51,11 @@ protected:
             size_t ops = 0;
             while( _clock.getTime64() < RUNTIME )
             {
-                const uint16_t key = _rng.get< uint16_t >();
-                if( _cache.pin( key ))
+                const uint32_t key = _rng.get< uint16_t >();
+                if( _cache[ key ])
                 {
                     ++hits;
-                    _cache.unpin( key );
+                    _cache.release( key );
                 }
                 ++ops;
             }
@@ -66,7 +67,7 @@ protected:
         }
 
 private:
-    eq::net::InstanceCache< uint16_t >& _cache;
+    eq::net::InstanceCache& _cache;
     eq::base::RNG _rng;
 };
 
@@ -80,18 +81,20 @@ int main( int argc, char **argv )
         command.getPacket< eq::net::ObjectInstancePacket >();
     *packet = eq::net::ObjectInstancePacket();
     packet->dataSize = PACKET_SIZE;
-    
+    packet->version = 1;
+    packet->sequence = 0;
+
     Reader** readers = static_cast< Reader** >( 
         alloca( N_READER * sizeof( Reader* )));
 
-    eq::net::InstanceCache< uint16_t > cache;
+    eq::net::InstanceCache cache;
     eq::base::RNG rng;
 
     size_t hits = 0;
     size_t ops = 0;
 
-    for( size_t key = 0; key < 65536; ++key ) // Fill cache
-        if( !cache.add( key, command, false ))
+    for( uint32_t key = 0; key < 65536; ++key ) // Fill cache
+        if( !cache.add( eq::net::ObjectVersion( key, 1 ), command ))
             break;
 
     _clock.reset();
@@ -103,17 +106,19 @@ int main( int argc, char **argv )
 
     while( _clock.getTime64() < RUNTIME )
     {
-        const uint16_t key = rng.get< uint16_t >();
-        if( (ops % 10 ) == 0 )
+        const eq::net::ObjectVersion key( rng.get< uint16_t >(), 1 );
+        if( cache[ key.id ] )
         {
-            if( cache.erase( key ))
+            TEST( cache.release( key.id ));
+            ++ops;
+            if( cache.erase( key.id ))
             {
-                TEST( cache.add( key, command, false ));
-                ++ops;
+                TEST( cache.add( key, command ));
+                ops += 2;
                 hits += 2;
             }
         }
-        else if( cache.add( key, command, false ))
+        else if( cache.add( key, command ))
             ++hits;
         ++ops;
     }
@@ -130,12 +135,18 @@ int main( int argc, char **argv )
 
     EQINFO << cache << std::endl;
 
-    for( size_t key = 0; key < 65536; ++key )
-        cache.erase( key );
-
-    for( size_t key = 0; key < 65536; ++key )
+    for( uint32_t key = 0; key < 65536; ++key )
     {
-        TEST( !cache.pin( key ));
+        if( cache[ key ] )
+        {
+            TEST( cache.release( key ));
+            TEST( cache.erase( key ));
+        }
+    }
+
+    for( uint32_t key = 0; key < 65536; ++key )
+    {
+        TEST( !cache[ key ]);
     }
 
     EQINFO << cache << std::endl;
