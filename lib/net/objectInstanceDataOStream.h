@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,14 +37,11 @@ namespace net
  
     protected:
         virtual void sendHeader( const void* buffer, const uint64_t size )
-            { _sequence = 0; sendBuffer( buffer, size ); }
+            { sendBuffer( buffer, size ); }
         virtual void sendBuffer( const void* buffer, const uint64_t size );
         virtual void sendFooter( const void* buffer, const uint64_t size );
         virtual void sendSingle( const void* buffer, const uint64_t size )
-            { _sequence = 0; sendFooter( buffer, size ); }
-
-    private:
-        uint32_t _sequence;
+            { sendFooter( buffer, size ); }
     };
 }
 }

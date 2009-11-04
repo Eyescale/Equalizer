@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,7 +32,6 @@ namespace net
 {
 ObjectInstanceDataOStream::ObjectInstanceDataOStream( const Object* object)
         : ObjectDataOStream( object )
-        , _sequence( 0 )
 {}
 
 ObjectInstanceDataOStream::~ObjectInstanceDataOStream()
@@ -46,7 +45,6 @@ void ObjectInstanceDataOStream::sendBuffer( const void* buffer,
     dataPacket.sessionID  = _object->getSession()->getID();
     dataPacket.objectID   = _object->getID();
     dataPacket.instanceID = _instanceID;
-    dataPacket.sequence   = _sequence++;
 
     EQLOG( LOG_OBJECTS ) << "send " << &dataPacket << " to " 
                          << _connections.size() << " receivers " << endl;
@@ -62,7 +60,6 @@ void ObjectInstanceDataOStream::sendFooter( const void* buffer,
     instancePacket.sessionID  = _object->getSession()->getID();
     instancePacket.objectID   = _object->getID();
     instancePacket.instanceID = _instanceID;
-    instancePacket.sequence   = _sequence++;
 
     EQLOG( LOG_OBJECTS ) << "send " << &instancePacket << " to " 
                          << _connections.size() << " receivers " << endl;

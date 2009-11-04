@@ -149,7 +149,6 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
         instPacket.instanceID = instanceID;
         instPacket.dataSize   = 0;
         instPacket.version    = _version;
-        instPacket.sequence   = 0;
 
         _object->send( node, instPacket );
         return;
