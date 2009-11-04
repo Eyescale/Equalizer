@@ -114,7 +114,7 @@ namespace net
         typedef std::deque< InstanceData* > InstanceDataDeque;
         typedef std::vector< InstanceData* > InstanceDataVector;
 
-        /** The list of full instance datas, head version first. */
+        /** The list of full instance datas, head version last. */
         InstanceDataDeque _instanceDatas;
         InstanceDataVector _instanceDataCache;
 

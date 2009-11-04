@@ -1,9 +1,9 @@
-Re-add accidently deleted files
+Simplify logics for versioned master change managers
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

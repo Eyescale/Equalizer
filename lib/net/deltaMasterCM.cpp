@@ -92,7 +92,7 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
     ++_version;
     EQASSERT( _version );
     
-    _instanceDatas.push_front( instanceData );
+    _instanceDatas.push_back( instanceData );
     
     _obsolete();
     _checkConsistency();

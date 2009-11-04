@@ -45,7 +45,7 @@ FullMasterCM::FullMasterCM( Object* object )
     _object->getInstanceData( data->os );
     data->os.disable();
         
-    _instanceDatas.push_front( data );
+    _instanceDatas.push_back( data );
     ++_version;
     ++_commitCount;
 
@@ -104,12 +104,12 @@ void FullMasterCM::_obsolete()
 {
     if( _obsoleteFlags & Object::AUTO_OBSOLETE_COUNT_COMMITS )
     {
-        InstanceData* lastInstanceData = _instanceDatas.back();
+        InstanceData* lastInstanceData = _instanceDatas.front();
         if( lastInstanceData->commitCount < (_commitCount - _nVersions) &&
             _instanceDatas.size() > 1 )
         {
             _instanceDataCache.push_back( lastInstanceData );
-            _instanceDatas.pop_back();
+            _instanceDatas.pop_front();
         }
         _checkConsistency();
         return;
@@ -117,8 +117,8 @@ void FullMasterCM::_obsolete()
     // else count versions
     while( _instanceDatas.size() > (_nVersions+1) )
     {
-        _instanceDataCache.push_back( _instanceDatas.back( ));
-        _instanceDatas.pop_back();
+        _instanceDataCache.push_back( _instanceDatas.front( ));
+        _instanceDatas.pop_front();
         _checkConsistency();
     }
 }
@@ -128,7 +128,7 @@ uint32_t FullMasterCM::getOldestVersion() const
     if( _version == Object::VERSION_NONE )
         return Object::VERSION_NONE;
 
-    return _instanceDatas.back()->os.getVersion();
+    return _instanceDatas.front()->os.getVersion();
 }
 
 void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID, 
@@ -163,22 +163,20 @@ void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID,
     EQASSERT( version >= oldest );
 
     // send all instance datas, starting at initial version
-    InstanceDataDeque::reverse_iterator i = _instanceDatas.rbegin();
-    while( (*i)->os.getVersion() < version && i != _instanceDatas.rend( ))
-    {
+    InstanceDataDeque::iterator i = _instanceDatas.begin();
+    while( (*i)->os.getVersion() < version && i != _instanceDatas.end( ))
         ++i;
-    }
 
-    if( i == _instanceDatas.rend( ))
+    if( i == _instanceDatas.end( ))
     {
-        InstanceData* data = _instanceDatas.back();
+        InstanceData* data = _instanceDatas.front();
         EQASSERT( data );
         EQASSERT( data->os.getVersion() <= version );
 
         data->os.setInstanceID( instanceID );
         data->os.resend( node );
     }
-    else for( ; i != _instanceDatas.rend(); ++i )
+    else for( ; i != _instanceDatas.end(); ++i )
     {
         InstanceData* data = *i;
         EQASSERT( data );
@@ -233,8 +231,8 @@ void FullMasterCM::_checkConsistency() const
         return;
 
     uint32_t version = _version;
-    for( InstanceDataDeque::const_iterator i = _instanceDatas.begin();
-         i != _instanceDatas.end(); ++i )
+    for( InstanceDataDeque::const_reverse_iterator i = _instanceDatas.rbegin();
+         i != _instanceDatas.rend(); ++i )
     {
         const InstanceData* data = *i;
         EQASSERT( data->os.getVersion() == version );
@@ -292,7 +290,7 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
         ++_version;
         EQASSERT( _version );
     
-        _instanceDatas.push_front( instanceData );
+        _instanceDatas.push_back( instanceData );
         EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
                              << _object->getID() << std::endl;
     }
