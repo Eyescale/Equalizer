@@ -65,8 +65,8 @@ void DataIStream::read( void* data, uint64_t size )
     
     if( _position + size > _inputSize )
     {
-        EQUNREACHABLE;
         EQERROR << "Not enough data in input buffer" << endl;
+        EQUNREACHABLE;
         // TODO: Allow reads which are asymmetric to writes by reading from
         // multiple blocks here?
         return;

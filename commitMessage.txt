@@ -1,11 +1,9 @@
-Load-balancer fixes:
-- Activate all compounds of one destination channel (not just first)
-- Relax assertions caused by rounding errors
+Minor code cleanup
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
