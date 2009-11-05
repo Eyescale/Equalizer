@@ -273,19 +273,10 @@ public:
                     continue;
 
                 compound->activate();
-                _channels.erase( i );
                 break;
             }
 
             return TRAVERSE_PRUNE;
-        }
-
-    virtual VisitorResult visitPost( Config* config )
-        { 
-            if( !_channels.empty( ))
-                EQWARN << _channels.size() << " unused destination channels"
-                       << std::endl;
-            return TRAVERSE_CONTINUE;
         }
 
 private:
@@ -313,19 +304,10 @@ public:
                     continue;
 
                 compound->deactivate();
-                _channels.erase( i );
                 break;
             }
 
             return TRAVERSE_PRUNE;
-        }
-
-    virtual VisitorResult visitPost( Config* config )
-        { 
-            if( !_channels.empty( ))
-                EQWARN << _channels.size() << " unused destination channels"
-                       << std::endl;
-            return TRAVERSE_CONTINUE;
         }
 
 private:

@@ -1,9 +1,11 @@
-Loader support for connection types RSP and PGM, in addition to generic MCIP
+Load-balancer fixes:
+- Activate all compounds of one destination channel (not just first)
+- Relax assertions caused by rounding errors
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
