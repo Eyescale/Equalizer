@@ -39,7 +39,7 @@ MCIPConnection::~MCIPConnection()
 bool MCIPConnection::connect()
 {
 #ifdef EQ_PGM
-    _description->type = CONNECTIONTYPE_MCIP_PGM;
+    _description->type = CONNECTIONTYPE_PGM;
 
     _impl = new PGMConnection();
     _impl->addListener( this );
@@ -62,7 +62,7 @@ bool MCIPConnection::connect()
 bool MCIPConnection::listen()
 {
 #ifdef EQ_PGM
-    _description->type = CONNECTIONTYPE_MCIP_PGM;
+    _description->type = CONNECTIONTYPE_PGM;
 
     _impl = new PGMConnection();
     _impl->addListener( this );

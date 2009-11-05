@@ -56,7 +56,7 @@ RSPConnection::RSPConnection()
         , _lastSequenceIDAck( -1 )
         , _timeEvent( 999999999 )
 {
-    _description->type = CONNECTIONTYPE_MCIP_RSP;
+    _description->type = CONNECTIONTYPE_RSP;
     _description->bandwidth = 102400;
 
     for ( uint8_t i = 0; i < _numberBuffer; i++ )
@@ -139,7 +139,7 @@ bool RSPConnection::connect()
 
 bool RSPConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_MCIP_RSP );
+    EQASSERT( _description->type == CONNECTIONTYPE_RSP );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -153,7 +153,7 @@ bool RSPConnection::listen()
         new ConnectionDescription( *_description );
     description->type = CONNECTIONTYPE_UDP;
     _connection->setDescription( description );
-    _description->type = CONNECTIONTYPE_MCIP_RSP;
+    _description->type = CONNECTIONTYPE_RSP;
     _maxLengthDatagramData = _connection->getMTU() - 
                          sizeof( DatagramData );
 

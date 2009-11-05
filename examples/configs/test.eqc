@@ -1,43 +1,38 @@
 #Equalizer 1.0 ascii
 
+# two-to-one sort-first config for cluster at unizh
 global
 {
-    EQ_CONNECTION_SATTR_LAUNCH_COMMAND "rexec %h %c"
+#    EQ_WINDOW_IATTR_HINT_DRAWABLE pbuffer
 }
 
 server
 {
-    connection { hostname "10.10.50.45" }
+    connection { hostname "157.26.73.104" }
     config
     {
         appNode
         {
-            pipe
+            connection { hostname "157.26.73.104" }
+            connection { hostname "239.255.42.44" type RSP port 4242 }
+            pipe 
             {
                 window
                 {
-                    viewport [ 0.25 0.25 0.5 0.5 ]
-                    
+                    viewport [ .25 .25 .5 .5 ]
+                    attributes{ hint_drawable window }
                     channel { name "channel1" }
                 }
             }
         }
         node
         {
-            connection { hostname "10.10.50.51" type TCPIP port 1235 }
-            connection { interface "10.10.50.51" bandwidth 10000 type MCIP }
-            pipe
-            {
-                window
-                {
-                    viewport [ 0.25 0.25 0.5 0.5 ]
-                    
-                    channel { name "channel2" }
-                }
-            }
+            connection { hostname "157.26.73.115" port 1234 }
+            connection { hostname "239.255.42.44" type RSP port 4242 }
+            pipe { window { channel { name "channel2" }}}
         }
         compound
-        { 
+        {
             channel "channel1"
             wall
             {
@@ -45,16 +40,18 @@ server
                 bottom_right [  .32 -.20 -.75 ]
                 top_left     [ -.32  .20 -.75 ]
             }
-        }
-        compound
-        { 
-            channel "channel2"
-            wall
+
+            compound
             {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
+                viewport [ 0 0 1 .5 ]
             }
+            compound
+            {
+                channel "channel2"
+                viewport [ 0 .5 1 .5 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
         }
     }    
 }

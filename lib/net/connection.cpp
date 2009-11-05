@@ -102,14 +102,14 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             break;
 
 #ifdef EQ_PGM
-        case CONNECTIONTYPE_MCIP_PGM:
+        case CONNECTIONTYPE_PGM:
             connection = new PGMConnection;
             if ( description->bandwidth == 0 )
                  description->bandwidth = 50 * 1024; // 50MB/s
             break;
 
 #endif
-        case CONNECTIONTYPE_MCIP_RSP:
+        case CONNECTIONTYPE_RSP:
             connection = new RSPConnection;
             if ( description->bandwidth == 0 )
                  description->bandwidth = 50 * 1024; // 50MB/s

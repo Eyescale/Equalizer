@@ -393,12 +393,16 @@ void Node::_cleanup()
         ConnectionPtr connection = connections.back();
         NodePtr       node       = _connectionNodes[ connection ];
 
-        node->_state    = STATE_STOPPED;
-        node->_multicast.clear();
-        node->_outgoing = 0;
+        if( node.isValid( ))
+        {
+            node->_state    = STATE_STOPPED;
+            node->_multicast.clear();
+            node->_outgoing = 0;
+        }
 
         _connectionNodes.erase( connection );
-        _nodes.erase( node->_id );
+        if( node.isValid( ))
+            _nodes.erase( node->_id );
         _removeConnection( connection );
     }
 

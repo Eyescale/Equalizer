@@ -53,7 +53,7 @@ PGMConnection::PGMConnection()
     memset( &_overlapped, 0, sizeof( _overlapped ));
 #endif
 
-    _description->type = CONNECTIONTYPE_MCIP_PGM;
+    _description->type = CONNECTIONTYPE_PGM;
     _description->bandwidth = 50 * 1024; // 50MB/s
 
     EQVERB << "New PGMConnection @" << (void*)this << std::endl;
@@ -76,7 +76,7 @@ bool PGMConnection::connect()
 //----------------------------------------------------------------------
 bool PGMConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_MCIP_PGM );
+    EQASSERT( _description->type == CONNECTIONTYPE_PGM );
 
     if( _state != STATE_CLOSED )
         return false;

@@ -49,9 +49,9 @@ static ConnectionType _getConnectionType( const std::string& string )
     if( string == "MCIP" )
         return CONNECTIONTYPE_MCIP;
     if( string == "PGM" )
-        return CONNECTIONTYPE_MCIP_PGM;
+        return CONNECTIONTYPE_PGM;
     if( string == "RSP" )
-        return CONNECTIONTYPE_MCIP_RSP;
+        return CONNECTIONTYPE_RSP;
     
     EQASSERTINFO( false, "Not implemented" );
     return CONNECTIONTYPE_NONE;

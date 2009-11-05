@@ -1,9 +1,9 @@
-Fix 2849878: Interoperability between Windows and Linux is bugged
+Loader support for connection types RSP and PGM, in addition to generic MCIP
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -63,8 +63,8 @@ namespace net
          * human-readable version has the format
          * <code>hostname[:port][:type]</code> or
          * <code>filename:PIPE</code>. The <code>type</code> parameter can be
-         * TCPIP, SDP, IB, MCIP or PGM. The machine-readable format contains all
-         * connection description parameters and is not documented.
+         * TCPIP, SDP, IB, MCIP, PGM or RSP. The machine-readable format
+         * contains all connection description parameters and is not documented.
          *
          * @param data the string containing the connection description.
          * @return <code>true</code> if the information was read correctly, 

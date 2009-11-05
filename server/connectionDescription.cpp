@@ -73,9 +73,10 @@ std::ostream& operator << ( std::ostream& os,
                 desc->type == net::CONNECTIONTYPE_SDP   ? "SDP" : 
                 desc->type == net::CONNECTIONTYPE_PIPE  ? "ANON_PIPE" :
                 desc->type == net::CONNECTIONTYPE_NAMEDPIPE  ? "PIPE" :
-                desc->type == net::CONNECTIONTYPE_IB  ? "IB" :
+                desc->type == net::CONNECTIONTYPE_IB    ? "IB" :
                 desc->type == net::CONNECTIONTYPE_MCIP  ? "MCIP" :
-                desc->type == net::CONNECTIONTYPE_MCIP_PGM  ? "MCIP" :
+                desc->type == net::CONNECTIONTYPE_PGM   ? "PGM" :
+                desc->type == net::CONNECTIONTYPE_RSP   ? "RSP" :
                 "ERROR" ) << endl;
     
     if( desc->getHostname() != global->getConnectionSAttribute( 

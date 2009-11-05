@@ -182,6 +182,8 @@
 %token EQTOKEN_SDP
 %token EQTOKEN_IB
 %token EQTOKEN_MCIP
+%token EQTOKEN_PGM
+%token EQTOKEN_RSP
 %token EQTOKEN_TEXTURE
 %token EQTOKEN_MEMORY
 %token EQTOKEN_FIXED
@@ -469,6 +471,8 @@ connectionType:
     | EQTOKEN_IB   { $$ = eq::net::CONNECTIONTYPE_IB; }
     | EQTOKEN_PIPE { $$ = eq::net::CONNECTIONTYPE_NAMEDPIPE; }
     | EQTOKEN_MCIP { $$ = eq::net::CONNECTIONTYPE_MCIP; }
+    | EQTOKEN_PGM  { $$ = eq::net::CONNECTIONTYPE_PGM; }
+    | EQTOKEN_RSP  { $$ = eq::net::CONNECTIONTYPE_RSP; }
 
 server: EQTOKEN_SERVER '{' { server = new eq::server::Server(); }
         serverConnections

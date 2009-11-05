@@ -37,8 +37,8 @@ namespace net
         CONNECTIONTYPE_UDP,       //!< Unreliable UDP connection
         CONNECTIONTYPE_MULTICAST = 0x100,
         CONNECTIONTYPE_MCIP = CONNECTIONTYPE_MULTICAST, //!< IP-based multicast
-        CONNECTIONTYPE_MCIP_PGM,  //!< IP-based multicast connection (PGM)
-        CONNECTIONTYPE_MCIP_RSP   //!< UDP-based reliable stream protocol
+        CONNECTIONTYPE_PGM,       //!< IP-based multicast connection (PGM)
+        CONNECTIONTYPE_RSP        //!< UDP-based reliable stream protocol
     };
 
     inline std::ostream& operator << ( std::ostream& os,
@@ -74,11 +74,11 @@ namespace net
                 os << "MCIP";
                 break;
 
-            case CONNECTIONTYPE_MCIP_PGM:
+            case CONNECTIONTYPE_PGM:
                 os << "PGM";
                 break;
 
-            case CONNECTIONTYPE_MCIP_RSP:
+            case CONNECTIONTYPE_RSP:
                 os << "RSP";
                 break;
                 
