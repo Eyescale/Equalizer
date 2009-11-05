@@ -102,6 +102,12 @@
 #  define EQ_ALIGN16( var ) var __attribute__ ((aligned (16)));
 #endif
 
+#define VMMLIB_CUSTOM_CONFIG
+#ifndef NDEBUG
+#  define VMMLIB_SAFE_ACCESSORS
+#endif
+#define VMMLIB_ALIGN( var ) var
+
 #ifdef __GNUC__
 #  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 0)) )
 #    define EQ_GCC_4_0_OR_LATER

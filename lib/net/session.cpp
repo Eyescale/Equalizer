@@ -675,6 +675,7 @@ CommandResult Session::_cmdGetIDMaster( Command& command )
 
     SessionGetIDMasterReplyPacket reply( packet );
     reply.masterID = _pollIDMaster( packet->id );
+    reply.masterID.convertToNetwork();
 
     send( command.getNode(), reply );
     return COMMAND_HANDLED;
@@ -693,7 +694,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
     if( nodeID != NodeID::ZERO )
     {
         base::ScopedMutex mutex( _idMasterMutex );
-        _idMasters[ packet->id ] = packet->masterID;
+        _idMasters[ packet->id ] = nodeID;
     }
     // else not found
 

@@ -41,26 +41,27 @@ namespace eq
     public: 
         EQ_EXPORT RenderContext();
 
-        uint32_t       frameID;        //<! identifier from Config::beginFrame
-
-        uint32_t       buffer;         //<! buffer as passed to glDrawBuffer() 
-        ColorMask      bufferMask;     //<! color mask for anaglyph stereo
-        PixelViewport  pvp;            //<! pixel viewport of channel wrt window
-        Frustumf       frustum;        //<! frustum for projection matrix
-        Frustumf       ortho;          //<! ortho frustum for projection matrix
         Matrix4f       headTransform;  //<! frustum transform for modelview
 
-        Viewport       vp;             //<! fractional viewport wrt dest channel
-        Range          range;          //<! database-range wrt to dest channel
+        PixelViewport  pvp;            //<! pixel viewport of channel wrt window
         Pixel          pixel;          //<! pixel decomposition wrt to dest
-        Zoom           zoom;           //<! up/downsampling wrt to dest
+        Vector4i       overdraw;       //<! @internal for pw pp filters
+        Viewport       vp;             //<! fractional viewport wrt dest channel
+
         Vector2i       offset;         //<! absolute position wrt dest channel
-
-        Eye            eye;            //<! current eye pass
         net::ObjectVersion view;       //<! destination view id and version
+        Range          range;          //<! database-range wrt to dest channel
+        Zoom           zoom;           //<! up/downsampling wrt to dest
 
-        Vector4i overdraw;
-        uint32_t       taskID;
+        uint32_t       frameID;        //<! identifier from Config::beginFrame
+        uint32_t       buffer;         //<! buffer as passed to glDrawBuffer() 
+        uint32_t       taskID;         //<! @internal per-channel task counter
+        Eye            eye;            //<! current eye pass
+
+        Frustumf       frustum;        //<! frustum for projection matrix
+        Frustumf       ortho;          //<! ortho frustum for projection matrix
+
+        ColorMask      bufferMask;     //<! color mask for anaglyph stereo
 
         union // placeholder for binary-compatible changes
         {
