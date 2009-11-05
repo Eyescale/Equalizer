@@ -74,6 +74,7 @@ HEADER_SRC = \
 	net/types.h \
 	net/udpConnection.h \
 	net/version.h \
+	client/accumBufferObject.h \
 	client/canvas.h \
 	client/canvasVisitor.h \
 	client/channel.h \
@@ -129,6 +130,7 @@ HEADER_SRC = \
 	client/server.h \
 	client/statistic.h \
 	client/statisticSampler.h \
+	client/subPixel.h \
 	client/task.h \
 	client/texture.h \
 	client/types.h \
@@ -200,6 +202,7 @@ CXXFILES = \
 	net/udpConnection.cpp \
 	net/unbufferedMasterCM.cpp \
 	net/versionedSlaveCM.cpp \
+	client/accumBufferObject.cpp \
 	client/canvas.cpp \
 	client/channel.cpp \
 	client/channelStatistics.cpp \
@@ -247,6 +250,7 @@ CXXFILES = \
 	client/segment.cpp \
 	client/server.cpp \
 	client/statistic.cpp \
+	client/subPixel.cpp \
 	client/texture.cpp \
 	client/version.cpp \
 	client/view.cpp \
