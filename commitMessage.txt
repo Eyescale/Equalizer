@@ -1,4 +1,4 @@
-eqPly code cleanups
+code cleanups in UDPConnection
 
 [ ] May break build
 [ ] May break existing applications

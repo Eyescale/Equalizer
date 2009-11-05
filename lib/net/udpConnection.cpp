@@ -87,12 +87,9 @@ bool UDPConnection::connect()
         return false;
     }
 
-    _writeFD = socket( AF_INET, SOCK_DGRAM, 0 );
-    if( _writeFD == INVALID_SOCKET )
-        return false;
-
-    _readFD = _createSocket();
-    if( _readFD == INVALID_SOCKET )
+    _writeFD = _createSocket();
+    _readFD  = _createSocket();
+    if( _writeFD == INVALID_SOCKET || _readFD == INVALID_SOCKET )
     {
         close();
         return false;
@@ -103,7 +100,8 @@ bool UDPConnection::connect()
 
     if( ::bind( _readFD, (sockaddr*)&_readAddress, sizeof( _readAddress )) < 0 )
     {
-        EQWARN << "Can't bind read socket: " << base::sysError << std::endl;
+        EQWARN << "Can't bind read socket to port " << _readAddress.sin_port 
+               << ": " << base::sysError << std::endl;
         close();
         return false;
     }
