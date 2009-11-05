@@ -24,15 +24,15 @@ using namespace eq::base;
 namespace eq
 {
 RenderContext::RenderContext()
-        : frameID( 0 )
+        : headTransform( Matrix4f::IDENTITY )
+        , overdraw( Vector4i::ZERO )
+        , offset( Vector2i::ZERO )
+        , frameID( 0 )
         , buffer( GL_BACK ) 
+        , taskID( 0 )
+        , eye( EYE_CYCLOP )
         , frustum( Frustumf::DEFAULT )
         , ortho( Frustumf::DEFAULT )
-        , headTransform( Matrix4f::IDENTITY )
-        , offset( Vector2i::ZERO )
-        , eye( EYE_CYCLOP )
-        , overdraw( Vector4i::ZERO )
-        , taskID( 0 )
 {
 }
 
