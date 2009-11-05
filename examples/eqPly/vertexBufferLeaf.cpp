@@ -170,8 +170,10 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
         
         const Vertex centerToPoint   = vertex - center;
         const float  distanceSquared = centerToPoint.squared_length();
-        EQASSERTINFO( distanceSquared <= radiusSquared,
-                      distanceSquared << " > " << radiusSquared );
+        EQASSERTINFO( distanceSquared <= 
+                      ( radiusSquared + 2.f* numeric_limits<float>::epsilon( )),
+                      vertex << " c " << center << " r " << radius << " (" 
+                             << Vertex( vertex-center ).length() << ")" );
     }
 #endif
 
