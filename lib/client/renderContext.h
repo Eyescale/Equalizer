@@ -62,11 +62,7 @@ namespace eq
         Frustumf       ortho;          //<! ortho frustum for projection matrix
 
         ColorMask      bufferMask;     //<! color mask for anaglyph stereo
-
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[16];
-        };
+        bool           alignDummy[29]; //<! @internal padding
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

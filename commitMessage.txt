@@ -1,9 +1,9 @@
-code cleanups in UDPConnection
+Fix 2849878: Interoperability between Windows and Linux is bugged
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

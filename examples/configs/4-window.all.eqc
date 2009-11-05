@@ -565,7 +565,7 @@ server
             inputframe { name "frame.channel4" }
         }            
 
-        # 2D compound
+        # DPlex compound
         compound
         {
             channel ( segment 0 layout "DPlex" view 0 )
