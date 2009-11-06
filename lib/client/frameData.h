@@ -73,7 +73,8 @@ namespace server
         void setPixelViewport( const PixelViewport& pvp ) { _data.pvp = pvp; }
 
         /* Set color buffer type to read */
-        void setColorType( const GLuint colorType ) { _colorType = colorType; }
+        void setColorFormat( const GLuint colorFormat )
+            { _colorFormat = colorFormat; }
         
         /** Enable/disable alpha usage for newly allocated images. */
         void setAlphaUsage( const bool useAlpha ) { _useAlpha = useAlpha; }
@@ -199,7 +200,7 @@ namespace server
         ImageVector  _imageCache;
         base::Lock   _imageCacheLock;
 
-        GLuint     _colorType; 
+        GLuint     _colorFormat; 
         ROIFinder* _roiFinder;
 
         struct ImageVersion

@@ -24,7 +24,10 @@
 
 namespace eq
 {
-    /** A C++ class to abstract OpenGL accumulation buffer objects */
+    /** 
+     * A class to emulate OpenGL accumulation buffer using an FBO. 
+     * @sa glAccum()
+     */
     class AccumBufferObject : public FrameBufferObject
     {
     public: 
@@ -39,40 +42,43 @@ namespace eq
          * 
          * @param width the initial width of the rendering buffer.
          * @param height the initial height of the rendering buffer.
-         * @param textureFormat the texture format.
+         * @param format the texture format corresponding to the source color
+         *               read buffer.
          * @return true on success, false otherwise
+         * @sa Window::getColorFormat(), glReadBuffer()
          */
         EQ_EXPORT bool init( const int width, const int height,
-                             GLuint textureFormat );
+                             GLuint format );
 
         /** De-initialize the Accumulation Buffer Object. */
         EQ_EXPORT void exit();
 
         /**
          * Load the current read buffer into the accumulation buffer.
-         * The read buffer texture overwriting the current component.
+         * The values of the current read buffer are multiplied with value and
+         * copied into the accumulation buffer.
          *
-         * @param value a floating-point value used for accumulation buffer
-         * operation.
+         * @param value a floating-point value multiplying the source values
+         *              during the load operation.
          */
         EQ_EXPORT void load( GLfloat value );
 
         /**
          * Accumulate the current read buffer into the accumulation buffer.
-         * The read buffer texture is multiplied by value and added to
-         * the current component.
+         * The read buffer is multiplied by value and added to the accumulation
+         * buffer.
          *
-         * @param value a floating-point value used for accumulation buffer
-         * operation.
+         * @param value a floating-point value multiplying the source values
+         *              during the accum operation.
          */
         EQ_EXPORT void accum( GLfloat value );
 
         /**
          * Transfers accumulation buffer values to the write buffer.
-         * Each component is multiplied by value.
+         * Each accumulation buffer is multiplied by value during the transfer.
          *
-         * @param value a floating-point value used for accumulation buffer
-         * operation.
+         * @param value a floating-point value multiplying the accumulation
+         *              values during the operation.
          */
         EQ_EXPORT void returnResult( GLfloat value );
 

@@ -429,7 +429,7 @@ const std::string&  Window::getIAttributeString( const IAttribute attr )
     return _iAttributeStrings[attr];
 }
 
-uint32_t Window::getColorType()
+uint32_t Window::getColorFormat()
 {
     switch( getIAttribute( Window::IATTR_PLANES_COLOR ))
     {

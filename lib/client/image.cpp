@@ -82,6 +82,8 @@ uint8_t Image::getNumChannels( const Frame::Buffer buffer ) const
 {
     switch( getFormat( buffer ) )
     {
+        case GL_RGBA32F:
+        case GL_RGBA16F:
         case GL_RGBA:
         case GL_RGBA8:
         case GL_BGRA:
@@ -321,8 +323,8 @@ bool Image::hasAlpha() const
 {
     switch( getFormat( Frame::BUFFER_COLOR ))
     {
-        case GL_RGBA16F:
         case GL_RGBA32F:
+        case GL_RGBA16F:
         case GL_RGBA:
         case GL_RGBA8:
         case GL_BGRA:

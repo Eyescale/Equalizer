@@ -201,7 +201,7 @@ bool Channel::_configInitFBO()
         
     // needs glew initialized (see above)
     _fbo = new FrameBufferObject( glewGetContext( ));
-    _fbo->setColorFormat( _window->getColorType( ));
+    _fbo->setColorFormat( _window->getColorFormat( ));
         
     int depthSize = 0;
     if( _drawable & FBO_DEPTH )
@@ -433,7 +433,7 @@ void Channel::frameReadback( const uint32_t frameID )
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         Frame* frame = *i;
-        frame->setColorType( _window->getColorType( ));
+        frame->setColorFormat( _window->getColorFormat( ));
         frame->startReadback( glObjects );
     }
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)

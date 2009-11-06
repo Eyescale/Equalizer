@@ -82,7 +82,7 @@ bool GLWindow::configInitFBO()
     
     // needs glew initialized (see above)
     _fbo = new FrameBufferObject( _glewContext );
-    _fbo->setColorFormat( _window->getColorType());
+    _fbo->setColorFormat( _window->getColorFormat( ));
     
     const PixelViewport& pvp = _window->getPixelViewport();
     

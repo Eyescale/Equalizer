@@ -40,7 +40,7 @@ using eq::net::CommandFunc;
 namespace eq
 {
 FrameData::FrameData() 
-        : _colorType( GL_RGBA )
+        : _colorFormat( GL_RGBA )
         , _useAlpha( true )
         , _useSendToken( false )
 {
@@ -168,7 +168,7 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
     else
         image->setFormat( Frame::BUFFER_COLOR, GL_BGRA );
 
-    switch( _colorType )
+    switch( _colorFormat )
     {
         case GL_RGBA16F:  
             image->setType( Frame::BUFFER_COLOR, GL_HALF_FLOAT );

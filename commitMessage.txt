@@ -1,7 +1,9 @@
-Clean up network-related unit tests
+Doxygen and related API cleanups
+
+Window::getColorType has been changed to getColorFormat for consistency
 
 [ ] May break build
-[ ] May break existing applications
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup

@@ -105,10 +105,10 @@ void Frame::flush()
         _frameData->flush();
 }
 
-void Frame::setColorType( const GLuint colorType )
+void Frame::setColorFormat( const GLuint colorFormat )
 {
     if( _frameData )
-        _frameData->setColorType( colorType );
+        _frameData->setColorFormat( colorFormat );
 }
 
 void Frame::setAlphaUsage( const bool useAlpha )
