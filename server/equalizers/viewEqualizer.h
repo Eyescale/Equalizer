@@ -41,7 +41,7 @@ namespace server
     class ViewEqualizer : public Equalizer
     {
     public:            
-        ViewEqualizer();
+        EQSERVER_EXPORT ViewEqualizer();
         ViewEqualizer( const ViewEqualizer& from );
         virtual ~ViewEqualizer();
         virtual Equalizer* clone() const { return new ViewEqualizer(*this); }
