@@ -140,6 +140,9 @@ namespace base
         /** @name Data Access. */
         //@{
         /** @return the current value. */
+        const T& operator->() const { return _value; }
+
+        /** @return the current value. */
         const T& get() const { return _value; }
 
         /** @return the current plus given value. */

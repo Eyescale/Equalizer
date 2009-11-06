@@ -29,7 +29,8 @@ using namespace eq::base;
 using namespace eq::net;
 using namespace std;
 
-uint32_t barrierID = EQ_ID_INVALID;
+Monitor< Barrier* > barrier( 0 );
+uint32_t sessionID;
 
 class NodeThread : public Thread
 {
@@ -39,59 +40,49 @@ public:
     virtual void* run()
         {
             ConnectionDescriptionPtr description = new ConnectionDescription;
-            description->type       = CONNECTIONTYPE_TCPIP;
-            description->TCPIP.port = _master ? 4242 : 4243;
+            description->type = CONNECTIONTYPE_TCPIP;
+            description->port = _master ? 4242 : 4243;
 
-            ConnectionPtr connection = Connection::create( description );
-
-            TEST( connection->listen( ))
-            
-            RefPtr<Node> node = new Node();
-            TEST( node->listen( connection ));
+            NodePtr node = new Node();
+            node->addConnectionDescription( description );
+            TEST( node->listen( ));
 
             if( _master )
             {
                 Session session;
-                TEST( node->mapSession( node, &session, "foo" ));
-                
-                Barrier barrier( node, 2 );
-                session.registerObject( &barrier );
-                TEST( barrier.getID() != EQ_ID_INVALID );
-                
-                barrierID = barrier.getID();
+                TEST( node->registerSession( &session ));
+                sessionID = session.getID();
+
+                barrier = new Barrier( node, 2 );
+                session.registerObject( barrier.get( ));
+                TEST( barrier->getID() != EQ_ID_INVALID );
 
                 cerr << "Master enter" << endl;
-                barrier.enter();
+                barrier->enter();
                 cerr << "Master left" << endl;
 
-                //session.deregisterObject( &barrier );
-                //node->unmapSession( &session );
+                session.deregisterObject( barrier.get( ));
+                node->deregisterSession( &session );
             }
             else
             {
-                while( barrierID == EQ_ID_INVALID );
+                barrier.waitNE( 0 );
 
                 RefPtr<Node>                  server     = new Node;
                 RefPtr<ConnectionDescription> serverDesc = 
                     new ConnectionDescription;
-                serverDesc->TCPIP.port = 4242;
+                serverDesc->port = 4242;
                 server->addConnectionDescription( serverDesc );
+                TEST( node->connect( server ));
 
                 Session session;
-                TEST( node->mapSession( server, &session, "foo" ));
+                TEST( node->mapSession( server, &session, sessionID ));
                 
-                RefPtr<eq::net::Object> object = session.getObject( barrierID);
-                TEST( dynamic_cast<eq::net::Barrier*>(object.get()) );
-                
-                eq::net::Barrier* barrier = (eq::net::Barrier*)object.get();
-                TEST( barrier );
-
                 cerr << "Slave enter" << endl;
                 barrier->enter();
                 cerr << "Slave left" << endl;
 
-                //session.deregisterObject( barrier );
-                //node->unmapSession( &session );
+                node->unmapSession( &session );
             }
 
             node->stopListening();

@@ -7,15 +7,12 @@ SUBDIRS = \
 	client \
 	compositor \
 	connection \
-	dataStream \
 	image \
 	loader \
 	net \
 	netperf \
 	node \
 	openmp \
-	pipeperf \
-	session \
 	frustum
 
 TARGETS = subdirs
