@@ -539,8 +539,8 @@ void Node::_connectMulticast( NodePtr node )
                 packet.nodeID = _id;
                 packet.nodeID.convertToNetwork();
 
-                EQINFO << "Announcing my id " << _id << " to multicast group"
-                       << std::endl;
+                EQINFO << "Announcing my id " << _id << " to multicast group "
+                       << description << std::endl;
                 node->multicast( packet );
                 return;
             }

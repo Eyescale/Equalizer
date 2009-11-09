@@ -82,6 +82,7 @@ namespace net
                                  const int proactive );
 
         void _printReadStatistics();
+        void _printSendStatistics();
 
         SOCKET _readFD;
         SOCKET _writeFD;

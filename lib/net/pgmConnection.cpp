@@ -39,6 +39,8 @@
 #  include <sys/PGM.h>
 #endif
 
+//#define PRINT_STATS
+
 namespace eq
 {
 namespace net
@@ -179,6 +181,9 @@ void PGMConnection::close()
 {
     if( _state == STATE_CLOSED )
         return;
+
+    _printReadStatistics();
+    _printSendStatistics();
 
     if( isListening( ))
         _exitAIOAccept();
@@ -467,6 +472,10 @@ int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes )
         close();
         return -1;
     }
+#ifdef PRINT_STATS
+    if( got == bytes )
+        _printReadStatistics();
+#endif
 
     return got;
 }
@@ -488,7 +497,13 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
     while( true )
     {
         if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // ok
+        {
+#ifdef PRINT_STATS
+            if( wrote == bytes )
+                _printSendStatistics();
+#endif
             return wrote;
+        }
 
         // error
         if( GetLastError( ) != WSAEWOULDBLOCK )
@@ -638,7 +653,8 @@ bool PGMConnection::_setSendRate()
            << " kBit/s" << std::endl;
 
     if ( ::setsockopt( _writeFD, IPPROTO_RM, RM_RATE_WINDOW_SIZE, 
-                   (char*)&sendWindow, sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
+                       (char*)&sendWindow, 
+                       sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
     {
         EQWARN << "can't set send rate, error: " <<  base::sysError
                << std::endl;
@@ -764,10 +780,28 @@ void PGMConnection::_printReadStatistics()
     }
 
     EQWARN << stats.NumDuplicateDataPackets << " dups, " 
-           << stats.NumRDataPacketsReceived << " retransmits in "
-           << stats.NumODataPacketsReceived << ", "
+           << stats.NumRDataPacketsReceived << " retransmits of "
+           << stats.NumODataPacketsReceived << " packets, "
            << stats.NumDataPacketsBuffered << " not yet read, "
-           << ", " << stats.RateKBitsPerSecLast / 8192 << "MB/s" << std::endl;
+           << stats.RateKBitsPerSecLast / 8192 << "MB/s" << std::endl;
+}
+
+void PGMConnection::_printSendStatistics()
+{
+    RM_SENDER_STATS stats;
+    socklen_t len = sizeof( stats );
+
+    if( getsockopt( _writeFD, IPPROTO_RM, RM_SENDER_STATISTICS, 
+        (char*)&stats, &len ) != 0 )
+    {
+        return;
+    }
+
+    EQWARN << stats.NaksReceived << " NAKs, " 
+           << stats.NaksReceivedTooLate << " late NAKs "
+           << stats.RepairPacketsSent << " repair packets, "
+           << stats.TotalODataPacketsSent << " data packets, "
+           << stats.TotalODataPacketsSent / 8192 << "MB/s" << std::endl;
 }
 
 }
