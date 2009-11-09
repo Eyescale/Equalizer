@@ -41,7 +41,7 @@ namespace net
 namespace
 {
 static const size_t _maxBuffer = (UDPConnection::getMTU() - 
-                                sizeof( RSPConnection::DatagramData )) * 100;
+                                sizeof( RSPConnection::DatagramData )) * 50;
 static const size_t _numberBuffer = 4;
 static const size_t _maxDatagram = _maxBuffer /  ( UDPConnection::getMTU() - 
                                      sizeof( RSPConnection::DatagramData ) )+1;
@@ -713,7 +713,8 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
     const uint16_t length = datagram->dataIDlength & 0xFFFF ; 
     const uint8_t* data = reinterpret_cast< const uint8_t* >( ++datagram );
     receive->boolBuffer.getData()[ index ] = true;
-    receive->dataBuffer.resize( index * _maxLengthDatagramData + length );
+    if ( ( index * _maxLengthDatagramData + length ) > receive->dataBuffer.getSize() )
+        receive->dataBuffer.resize( index * _maxLengthDatagramData + length );
     const uint64_t pos = ( index ) * ( _connection->getMTU() - 
                                        sizeof( DatagramData ) );
     
@@ -783,6 +784,10 @@ bool RSPConnection::_handleNackDatagram( const DatagramNack* nack )
     RSPConnectionPtr connection = 
                               _findConnectionWithWriterID( nack->readerID );
 
+    
+    if ( connection->_ackReceive )
+        return true;
+
     // it's not a nack for my write sequence. it's for an other writer 
     if ( nack->sequenceID != _sequenceIDWrite && 
          nack->writerID != _getID() )
@@ -809,7 +814,7 @@ bool RSPConnection::_handleNackDatagram( const DatagramNack* nack )
         const uint32_t start = ( *repeatID & 0xFFFF0000) >> 16;
         uint32_t end   = ( *repeatID & 0xFFFF );
 
-        uint64_t writSeqID = _myIDShift | _sequenceIDWrite;
+        uint32_t writSeqID = _myIDShift | _sequenceIDWrite;
 
         // repeat datagram data
         for ( uint16_t i = start; i <= end; i++ )
@@ -828,6 +833,7 @@ bool RSPConnection::_handleNackDatagram( const DatagramNack* nack )
 bool RSPConnection::_handleAckRequDatagram( 
                       const DatagramAckRequest* ackRequest )
 {
+
     RSPConnectionPtr connection = 
                             _findConnectionWithWriterID( ackRequest->writerID );
 
@@ -1051,8 +1057,9 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 {
     if( _state != STATE_CONNECTED && _state != STATE_LISTENING )
         return -1;
-
+    const uint32_t size =   EQ_MIN( bytes, _maxBuffer );
     const base::ScopedMutex mutex( _mutexConnection );
+
     _writing = true;
     _countNbAckInWrite = 0;
 
@@ -1062,7 +1069,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     if ( _getCountConnection() == 0 )
         return bytes;
     
-    const uint32_t size =   EQ_MIN( bytes, _maxBuffer );
+    
 
     _sequenceIDWrite ++;
     _dataSend = reinterpret_cast< const char* >( buffer );
@@ -1129,10 +1136,12 @@ void RSPConnection::_sendDatagram( const uint32_t writSeqID,
                                    const uint16_t idDatagram )
 {
     const uint32_t posInData = _maxLengthDatagramData * idDatagram;
-    uint16_t lengthData = _lengthDataSend - posInData;
+    uint16_t lengthData;
     
-    if ( lengthData >= _maxLengthDatagramData )
+    if ( _lengthDataSend - posInData >= _maxLengthDatagramData )
         lengthData = _maxLengthDatagramData;
+    else
+        lengthData = _lengthDataSend - posInData;
     
     const char* data = _dataSend + posInData;
 

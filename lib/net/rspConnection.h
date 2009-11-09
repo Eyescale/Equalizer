@@ -124,7 +124,6 @@ namespace net
             eq::base::Monitor< bool >  ackSend;
             eq::base::Monitor< bool >  allRead;
             uint64_t    posRead;
-            // ?? uint64_t    totalSize;
             base::Buffer< bool > boolBuffer;
             base::Bufferb dataBuffer;
         };
