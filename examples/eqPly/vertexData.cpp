@@ -375,6 +375,7 @@ void VertexData::scale( const float baseSize )
 }
 
 
+/** @cond IGNORE */
 /*  Helper structure to sort Triangles with standard library sort function.  */
 struct _TriangleSort
 {
@@ -412,7 +413,7 @@ struct _TriangleSort
     const VertexData&   _data;
     const Axis          _axis;
 };
-
+/** @endcond */
 
 /*  Sort the index data from start to start + length along the given axis.  */
 void VertexData::sort( const Index start, const Index length, const Axis axis )

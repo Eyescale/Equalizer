@@ -73,6 +73,7 @@ namespace net
         /** 
          * Release the retrieved instance data of the given object.
          *
+         * @param id the identifier of the object to release.
          * @param count the number of access operations to release
          * @return true if the element was unpinned, false if it is not in the
          *         instance cache.

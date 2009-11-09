@@ -1,4 +1,4 @@
-Doxygen and related API cleanups
+Minor Doxygen cleanups
 
 Window::getColorType has been changed to getColorFormat for consistency
 

@@ -30,6 +30,7 @@
  * definitions.
  */
 
+/** @cond IGNORE */
 #ifdef EQ_IGNORE_GLEW
 struct GLEWContextStruct;
 struct WGLEWContextStruct;
@@ -127,6 +128,7 @@ typedef bool  BOOL;
 #  endif
 #  define WINAPI
 #endif
+/** @endcond */
 
 
 // Error-check macros
