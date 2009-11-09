@@ -893,30 +893,27 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
 
     if( packet->result )
     {
-        if( packet->cachedVersion != VERSION_INVALID )
+        if( packet->useCache && packet->cachedVersion != VERSION_INVALID )
         {
             Object* object = static_cast<Object*>( 
                 _requestHandler.getRequestData( packet->requestID ));    
             EQASSERT( object );
             EQASSERT( !object->isMaster( ));
 
-            if( packet->useCache )
+            const uint32_t id = packet->objectID;
+            const uint32_t start = packet->cachedVersion;
+            if( start != VERSION_INVALID )
             {
-                const uint32_t id = packet->objectID;
-                const uint32_t start = packet->cachedVersion;
-                if( start != VERSION_INVALID )
-                {
-                    const InstanceDataDeque* cached = _instanceDataCache[ id ];
-                    EQASSERT( cached );
-                    EQASSERT( !cached->empty( ));
-                
-                    object->_cm->addInstanceDatas( cached, start );
-                    EQCHECK( _instanceDataCache.release( id, 2 ));
-                }
-                else
-                {
-                    EQCHECK( _instanceDataCache.release( id ));
-                }
+                const InstanceDataDeque* cached = _instanceDataCache[ id ];
+                EQASSERT( cached );
+                EQASSERT( !cached->empty( ));
+            
+                object->_cm->addInstanceDatas( cached, start );
+                EQCHECK( _instanceDataCache.release( id, 2 ));
+            }
+            else
+            {
+                EQCHECK( _instanceDataCache.release( id ));
             }
         }
     }
