@@ -45,4 +45,6 @@ int main( int argc, char **argv )
         TESTINFO( global->getConfigFAttribute( attr ) == 1.f,
                   global->getConfigFAttribute( attr ));
     }
+
+    return EXIT_SUCCESS;
 }

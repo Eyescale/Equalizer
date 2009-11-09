@@ -147,7 +147,7 @@ PROGRAM_EXE  = $(BIN_DIR)/$(PROGRAM)
 PROGRAM_APP  = $(BIN_DIR)/$(PROGRAM).app/Contents/MacOS/$(PROGRAM)
 
 SIMPLE_PROGRAMS  = $(SIMPLE_CXXFILES:%.cpp=$(BIN_DIR)/%)
-TESTS           ?= $(SIMPLE_PROGRAMS:%=%.testOk)
+TESTS           ?= $(SIMPLE_PROGRAMS:%=%.testOK)
 
 # install variables
 INSTALL_CMD     = $(TOP)/install.sh

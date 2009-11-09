@@ -94,12 +94,12 @@ $(BIN_DIR)/%: %.cpp
 	$(CXX) $< $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) -o $@ 
 endif # PROGRAMS
 
-%.testOk: %
+%.testOK: %
 	env EQ_LOG_LEVEL=WARN \
 		LD_LIBRARY_PATH="$(LD_PATH):$(LD_LIBRARY_PATH)" \
 		DYLD_LIBRARY_PATH="$(LD_PATH):$(DYLD_LIBRARY_PATH)" \
 		PATH="$(PATH):$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib" \
-		./$< && touch $@ || rm -f $@
+		./$<
 
 # cleaning targets
 clean:

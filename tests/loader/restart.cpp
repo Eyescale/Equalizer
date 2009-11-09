@@ -26,4 +26,5 @@ int main( int argc, char **argv )
     eq::server::Loader loader;
     TEST( !loader.loadFile( argv[0] ));
     TEST( loader.loadFile( "../../examples/configs/config.eqc" ).isValid( ))
+    return EXIT_SUCCESS;
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,4 +43,6 @@ int main( int argc, char **argv )
 
     const Viewport vp2 = pvp.getSubVP( PixelViewport(-1000, 1000, 1000, 1000));
     TESTINFO( vp == vp2, vp2 );
+    
+    return EXIT_SUCCESS;
 }

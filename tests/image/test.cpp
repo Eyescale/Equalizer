@@ -295,5 +295,7 @@ int main( int argc, char **argv )
 
     image.flush();
     eq::exit();
+
+    return EXIT_SUCCESS;
 }
 

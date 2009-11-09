@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,7 @@
 #define EQTEST_TEST_H
 
 #include <eq/base/log.h>
+#include <fstream>
 
 #define OUTPUT eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
@@ -42,6 +43,28 @@
             ::exit( EXIT_FAILURE );                                     \
         }                                                               \
     }
+
+int testMain( int argc, char **argv );
+
+int main( int argc, char **argv )
+{
+    const int result = testMain( argc, argv );
+    if( result != EXIT_SUCCESS )
+        return result;
+
+    const std::string filename( argv[ 0 ] + std::string( ".testOK" ));
+
+    std::ofstream file( filename.c_str(), std::ios::out | std::ios::binary );
+    if( file.is_open( ))
+    {
+        file.write( filename.c_str(), filename.length( ));
+        file.close();
+    }
+
+    return EXIT_SUCCESS;
+}
+
+#  define main testMain
 
 #endif // EQTEST_TEST_H
 

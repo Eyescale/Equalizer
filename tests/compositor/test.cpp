@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -182,4 +182,6 @@ int main( int argc, char **argv )
          << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
     
     TEST( eq::exit( ));
+
+    return EXIT_SUCCESS;
 }

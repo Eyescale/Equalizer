@@ -111,4 +111,6 @@ int main( int argc, char **argv )
     wall2 = projection; 
     TESTINFO( wall == wall2, wall << projection << wall2 );
 #endif
+
+    return EXIT_SUCCESS;
 }
