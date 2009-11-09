@@ -19,9 +19,8 @@
 
 #include "connectionDescription.h"
 
-#include <eq/base/base.h>
 #include <eq/base/log.h>
-
+#include <eq/base/sleep.h>
 #include <limits>
 #include <sstream>
 #include <string.h>
@@ -47,7 +46,7 @@ namespace net
 namespace
 {
 #ifdef WIN32
-    static const size_t _mtu = 1470 ;
+    static const size_t _mtu = 65000 ;
 #else
     static const size_t _mtu = 1470 ;
 #endif
@@ -56,17 +55,21 @@ namespace
 
 UDPConnection::UDPConnection()
 #ifdef WIN32
-    : _overlappedDone( 0 )
+    : _allowedData( 0 )
+    , _overlappedDone( 0 )
 #endif
 {
+    _sibling = this;
     _description->type = CONNECTIONTYPE_UDP;
     _description->bandwidth = 102400;
-
+    _clock.reset();
     EQVERB << "New UDPConnection @" << (void*)this << std::endl;
 }
 
 UDPConnection::~UDPConnection()
 {
+    close();
+    _sibling = 0;
 }
 
 //----------------------------------------------------------------------
@@ -150,7 +153,7 @@ bool UDPConnection::connect()
         close();
         return false;
     }
-
+    setMulticastLoop( false );
     _initAIORead();
     _state = STATE_CONNECTED;
     _fireStateChanged();
@@ -184,6 +187,19 @@ void UDPConnection::close()
 
     if( _readFD > 0 )
     {
+        unsigned long interface;
+        ip_mreq mreq;
+
+        _parseHostname( _description->getInterface(), interface );
+        mreq.imr_multiaddr.s_addr = _writeAddress.sin_addr.s_addr;
+        mreq.imr_interface.s_addr = interface;
+
+        if( setsockopt( _readFD, IPPROTO_IP, IP_DROP_MEMBERSHIP, 
+                        (char*)&mreq, sizeof( mreq )) < 0 )
+        {
+            EQWARN << "Can't drop multicast group: " 
+                   << base::sysError << std::endl;
+        }
 #ifdef WIN32
         const bool closed = ( ::closesocket( _readFD ) == 0 );
 #else
@@ -391,19 +407,37 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
 #endif
 }
 
-int64_t UDPConnection::write( const void* buffer, const uint64_t bytes)
+
+ConnectionPtr UDPConnection::getSibling()
+{
+    return _sibling.get();
+}
+
+int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
 {
     if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
 
-    // use for control congestion
-    uint64_t delay = 0;
-    for ( uint64_t i = 0 ; i < delay ; i++ ) ;
-
+   //_description->bandwidth = 5120;
+    const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
+    
+    _allowedData += _clock.getTimef() / 1000.0f * _description->bandwidth * 1024.0f;
+    _allowedData = EQ_MIN( _allowedData, 65000 );
+    _clock.reset();
+    while( _allowedData < sizeToSend )
+    {
+        eq::base::sleep( 1 );
+        _allowedData += _clock.getTimef() / 1000.0f * _description->bandwidth * 1024.0f, 
+        _allowedData = EQ_MIN( _allowedData, 65000 );
+                            
+        _clock.reset();
+    }
+    _allowedData -=  sizeToSend;
     base::ScopedMutex mutex( _mutexWrite );
+
 #ifdef WIN32
     DWORD  wrote;
-    WSABUF wsaBuffer = { EQ_MIN( bytes, _mtu ),
+    WSABUF wsaBuffer = { sizeToSend,
                          const_cast<char*>( static_cast<const char*>(buffer)) };
     while( true )
     {
@@ -442,7 +476,9 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes)
 
     int flags = 0;
 
-    int wrote = ::send( _writeFD, const_cast<char*>( static_cast<const char*>(buffer)), EQ_MIN( bytes, _mtu ), flags );
+    int wrote = ::send( _writeFD, 
+                        const_cast<char*>( static_cast<const char*>(buffer)), 
+                        sizeToSend, flags );
 
     if( wrote == -1 ) // error
     {
@@ -452,7 +488,6 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes)
         EQWARN << "Error during write: " << strerror( errno ) << std::endl;
         return -1;
     }
-
     return wrote;
 #endif
 }
@@ -468,9 +503,9 @@ bool UDPConnection::_setSendBufferSize( const Socket fd, const int newSize )
                <<  base::sysError << std::endl;
         return false;
     }
-
     return true;
 }
+
 bool UDPConnection::_setRecvBufferSize( const Socket fd, int newSize )
 {
     if ( ::setsockopt( fd, SOL_SOCKET, SO_RCVBUF,
@@ -482,6 +517,7 @@ bool UDPConnection::_setRecvBufferSize( const Socket fd, int newSize )
     }
     return true;
 }
+
 UDPConnection::Socket UDPConnection::_createSocket()
 {
 #ifdef WIN32
@@ -499,6 +535,27 @@ UDPConnection::Socket UDPConnection::_createSocket()
 
     _tuneSocket( fd );
     return fd;
+}
+
+bool UDPConnection::setMulticastLoop( bool activate )
+{
+    int r;
+    char loop = activate ? 1 : 0; /* 0 = disable, 1 = enable */
+    
+    r = setsockopt( _writeFD, IPPROTO_IP, IP_MULTICAST_LOOP, 
+                    &loop , sizeof(loop)); 
+    if (r == -1) 
+    {
+        EQERROR << "setsockopt: IP_MULTICAST_LOOP" << std::endl;
+    }
+    r = setsockopt( _readFD, IPPROTO_IP, IP_MULTICAST_LOOP, 
+                    &loop , sizeof(loop)); 
+    if (r == -1) 
+    {
+        EQERROR << "setsockopt: IP_MULTICAST_LOOP" << std::endl;
+    }
+    return true;
+
 }
 
 void UDPConnection::_tuneSocket( const Socket fd )

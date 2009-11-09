@@ -21,6 +21,7 @@
 #include <eq/net/connection.h> // base class
 
 #include <eq/base/base.h>
+#include <eq/base/clock.h>
 #include <eq/base/buffer.h> // member
 #include <eq/base/thread.h> // member
 
@@ -66,14 +67,11 @@ namespace net
         /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const { return _overlapped.hEvent; }
 #endif
-
+        ConnectionPtr getSibling();
+        bool setMulticastLoop( bool activate );
     protected:
         virtual ~UDPConnection();
         
-
-
-
-
 #ifdef WIN32
         typedef SOCKET Socket;
 #else
@@ -110,15 +108,20 @@ namespace net
         bool  _setSendBufferSize( const Socket fd,  const int newSize );
         bool  _setRecvBufferSize( const Socket fd,  const int newSize );
         bool  _setMulticastLoop ( const Socket fd,  const int loop );
-        bool _setSendInterface();
+        bool  _setSendInterface();
         template< typename A > bool _parseHostname( const std::string& hostname,
                                                     A& address );
+
+        eq::base::Clock _clock;
+        float _allowedData;
 #ifdef WIN32
         // overlapped data structures
         OVERLAPPED _overlapped;
         DWORD      _overlappedDone;
         OVERLAPPED _write;
 #endif
+        ConnectionPtr _sibling;
+
         CHECK_THREAD_DECLARE( _recvThread );
     };
 }
