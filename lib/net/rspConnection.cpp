@@ -257,6 +257,10 @@ bool RSPConnection::listen()
     _state = STATE_LISTENING;
     _fireStateChanged();
 
+
+    EQINFO << "Connected on " << _description->getHostname() 
+           << _description->port << " (" << _description->toString() << ")"
+           << std::endl;
     return true;
 }
 

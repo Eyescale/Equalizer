@@ -69,7 +69,8 @@ namespace
             ++_nSamples;
 
             const size_t probe = (_rng.get< size_t >() % _buffer.getSize( ));
-            TEST( _buffer[probe] == static_cast< uint8_t >( probe ));
+            TESTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
+                      (int)_buffer[probe] << " != " << (probe&0xff) );
 
             if( time < 1000.f )
                 return true;
