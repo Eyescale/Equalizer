@@ -191,15 +191,15 @@ void PGMConnection::close()
     if( _readFD > 0 )
     {
         const std::string& iName = _description->getInterface();
-        if( iName.empty( ))
+        if( !iName.empty( ))
         {
             unsigned long interface;
             if( !_parseHostname( iName, interface ) ||
                 ::setsockopt( _readFD, IPPROTO_RM, RM_DEL_RECEIVE_IF,
                      (char*)&interface, sizeof(uint32_t)) == SOCKET_ERROR )
             {
-                EQWARN << "can't del recv interface " 
-                       <<  base::sysError << std::endl;
+                EQWARN << "can't delete recv interface " <<  base::sysError
+                       << std::endl;
             }
         }
 #ifdef WIN32
