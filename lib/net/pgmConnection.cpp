@@ -190,6 +190,18 @@ void PGMConnection::close()
 
     if( _readFD > 0 )
     {
+        const std::string& iName = _description->getInterface();
+        if( iName.empty( ))
+        {
+            unsigned long interface;
+            if( !_parseHostname( iName, interface ) ||
+                ::setsockopt( _readFD, IPPROTO_RM, RM_DEL_RECEIVE_IF,
+                     (char*)&interface, sizeof(uint32_t)) == SOCKET_ERROR )
+            {
+                EQWARN << "can't del recv interface " 
+                       <<  base::sysError << std::endl;
+            }
+        }
 #ifdef WIN32
         const bool closed = ( ::closesocket( _readFD ) == 0 );
 #else
@@ -544,8 +556,8 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
 
 bool PGMConnection::_setupReadSocket()
 {
-    return( _enableHighSpeedRead() &&
-            _setReadBufferSize( 65535 ) &&
+	_enableHighSpeedRead();
+	return( _setReadBufferSize( 65535 ) &&
             _setReadInterface( ));
 }
 
@@ -734,7 +746,7 @@ bool PGMConnection::_enableHighSpeedRead()
     {
         EQWARN << "can't EnableHighSpeedLanOption, error: " 
                <<  base::sysError << std::endl;
-        return false ;
+        return false;
     }
 
     return true;
