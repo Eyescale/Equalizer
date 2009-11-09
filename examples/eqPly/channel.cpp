@@ -285,7 +285,7 @@ void Channel::frameViewFinish( const uint32_t frameID )
             {
                 const eq::PixelViewport& pvp = getPixelViewport();
 
-                _backBufferTex->setFormat( getWindow()->getColorType( ));
+                _backBufferTex->setFormat( getWindow()->getColorFormat( ));
                 _backBufferTex->copyFromFrameBuffer( pvp );
                 _accumBuffer->bind();
 
