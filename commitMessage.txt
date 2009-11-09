@@ -1,4 +1,4 @@
-Simplify unit test infrastructure
+Update patch for >60 client on Windows (untested)
 
 [ ] May break build
 [ ] May break existing applications
