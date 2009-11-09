@@ -35,6 +35,7 @@ namespace net
 {
     class Message;
     class Network;
+    class PipeConnection;
 
     /**
      * A set of connections. 
@@ -106,7 +107,7 @@ namespace net
         base::Buffer< Connection* > _fdSetConnections;
 
         /** The connection to reset a running select, see constructor. */
-        ConnectionPtr _selfConnection;
+        base::RefPtr< PipeConnection > _selfConnection;
         /** The buffer to receive commands from _selfConnection. */
         uint8_t _selfCommand;
 

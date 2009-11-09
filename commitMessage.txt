@@ -1,11 +1,9 @@
-Minor Doxygen cleanups
-
-Window::getColorType has been changed to getColorFormat for consistency
+Fix potential deadlock in ConnectionSet::interrupt()
 
 [ ] May break build
-[x] May break existing applications
-[ ] Bugfix
+[ ] May break existing applications
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

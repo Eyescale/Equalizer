@@ -83,8 +83,11 @@ void ConnectionSet::_dirtyFDSet()
 
 void ConnectionSet::interrupt()
 {
-    const char c = SELF_INTERRUPT;
-    _selfConnection->send( &c, 1, true );
+    if( !_selfConnection->hasData( ))
+    {
+        const char c = SELF_INTERRUPT;
+        _selfConnection->send( &c, 1, true );
+    }
 }
 
 void ConnectionSet::addConnection( ConnectionPtr connection )
@@ -184,7 +187,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     if( event == EVENT_NONE )
                          break;
 
-                    if( _connection == _selfConnection )
+                    if( _connection == _selfConnection.get( ))
                     {
                         EQASSERT( event == EVENT_DATA );
                         event = _handleSelfCommand();
@@ -260,7 +263,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 
 ConnectionSet::Event ConnectionSet::_handleSelfCommand()
 {
-    EQASSERT( _connection == _selfConnection );
+    EQASSERT( _connection == _selfConnection.get( ));
     _connection = 0;
     
     _selfConnection->recvSync( 0, 0 );
