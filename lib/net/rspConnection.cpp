@@ -242,6 +242,7 @@ bool RSPConnection::listen()
     _hEvent.fd = _selfPipeHEvent->getNotifier();
     _readFD = _hEvent.fd;
     _hEvent.revents = 0;
+    _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
 #endif
     _countNbAckInWrite = 0;
 
@@ -303,8 +304,7 @@ ConnectionPtr RSPConnection::acceptSync()
     newConnection->_description = _description;
 
 #ifndef WIN32
-    _selfPipeHEvent->recvSync( 0, 0 );
-
+    
     newConnection->_selfPipeHEvent = new PipeConnection;
     if( !newConnection->_selfPipeHEvent->connect( ))
     {
@@ -316,6 +316,7 @@ ConnectionPtr RSPConnection::acceptSync()
     newConnection->_hEvent.fd = newConnection->_selfPipeHEvent->getNotifier();
     newConnection->_readFD = newConnection->_hEvent.fd;
     newConnection->_hEvent.revents = 0;
+    newConnection->_selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
 
 #endif     
     _countAcceptChildren++;
@@ -331,7 +332,11 @@ ConnectionPtr RSPConnection::acceptSync()
 #ifdef WIN32
         ResetEvent( _hEvent );
 #else
-        _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
+    {
+        _selfPipeHEvent->recvSync( 0, 0 );
+        _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));    
+    }
+    
 #endif
     return connection;
 }
@@ -538,6 +543,7 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
 #ifdef WIN32
                 ResetEvent( _hEvent );
 #else
+                _selfPipeHEvent->recvSync( 0, 0 );
                 _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
 #endif
             }
