@@ -168,10 +168,31 @@ ConnectionPtr Node::getMulticast()
 {
     EQASSERT( isConnected( ));
 
-    if( _multicast.empty() || !isConnected( ))
+    if( !isConnected( ))
         return 0;
-    // else
-    return _multicast.front();
+    if( _outMulticast.isValid() && !_outMulticast->isClosed( ))
+        return _outMulticast;
+
+    _connectMutex.set();
+    if( _multicasts.empty( ))
+        return 0;
+
+    ConnectionPtr connection = _multicasts.back();
+    _multicasts.pop_back();
+
+    // prime multicast connections on peers
+    EQINFO << "Announcing my id " << _id << " to multicast group "
+           << connection->getDescription() << std::endl;
+
+    NodeIDPacket packet;
+    packet.nodeID = _id;
+    packet.nodeID.convertToNetwork();
+    connection->send( packet );
+    
+    _outMulticast = connection;
+    _connectMutex.unset();
+
+    return _outMulticast;
 }
 
 void Node::setLaunchCommand( const std::string& launchCommand )
@@ -295,7 +316,7 @@ bool Node::listen()
         _connectionNodes[ connection ] = this;
         _incoming.addConnection( connection );
         if( description->type >= CONNECTIONTYPE_MULTICAST )
-            _multicast.push_back( connection );
+            _multicasts.push_back( connection );
 
         connection->acceptNB();
 
@@ -309,19 +330,6 @@ bool Node::listen()
     _receiverThread->start();
 
     EQINFO << this << " listening." << std::endl;
-
-    // prime multicast connections
-    NodeIDPacket packet;
-    packet.nodeID = _id;
-    packet.nodeID.convertToNetwork();
-
-    for( ConnectionVector::const_iterator i = _multicast.begin();
-         i != _multicast.end(); ++i )
-    {
-        ConnectionPtr connection = *i;
-        connection->send( packet );
-    }
-
     return true;
 }
 
@@ -382,9 +390,10 @@ void Node::_cleanup()
     EQVERB << "Clean up stopped node" << std::endl;
     EQASSERTINFO( _state == STATE_STOPPED, _state );
 
-    _multicast.clear();
+    _multicasts.clear();
     _removeConnection( _outgoing );
     _connectionNodes.erase( _outgoing );
+    _outMulticast = 0;
     _outgoing = 0;
 
     const ConnectionVector& connections = _incoming.getConnections();
@@ -396,8 +405,9 @@ void Node::_cleanup()
         if( node.isValid( ))
         {
             node->_state    = STATE_STOPPED;
-            node->_multicast.clear();
+            node->_outMulticast = 0;
             node->_outgoing = 0;
+            node->_multicasts.clear();
         }
 
         _connectionNodes.erase( connection );
@@ -524,24 +534,25 @@ void Node::_connectMulticast( NodePtr node )
                 continue;
             }
             
-            // else find multicast connection to node
-            for( ConnectionVector::const_iterator k = _multicast.begin();
-                 k != _multicast.end(); ++k )
+            EQASSERT( !node->_outMulticast );
+            EQASSERT( node->_multicasts.empty( ));
+
+            if( _outMulticast.isValid() && 
+                _outMulticast->getDescription() == description )
+            {
+                node->_outMulticast = _outMulticast;
+                return;
+            }
+
+            // else find unused multicast connection to node
+            for( ConnectionVector::const_iterator k = _multicasts.begin();
+                 k != _multicasts.end(); ++k )
             {
                 ConnectionPtr connection = *k;
                 if( connection->getDescription() != description )
                     continue;
 
-                EQASSERT( node->_multicast.empty( ));
-                node->_multicast.push_back( connection );
-
-                NodeIDPacket packet;
-                packet.nodeID = _id;
-                packet.nodeID.convertToNetwork();
-
-                EQINFO << "Announcing my id " << _id << " to multicast group "
-                       << description << std::endl;
-                node->multicast( packet );
+                node->_multicasts.push_back( connection );
                 return;
             }
             EQASSERTINFO( false,
@@ -1350,12 +1361,10 @@ bool Node::_handleData()
         node = i->second;
     EQASSERTINFO( !node || // unconnected node
                   node->_outgoing == connection || // correct UC conn for node
-                  // connection MC connection for node
-                  std::find( node->_multicast.begin(), node->_multicast.end(), 
-                             connection ) != node->_multicast.end() ||
-                  // MC connection from self is not in _multicast
-                  ( connection->getDescription()->type >= 
-                        CONNECTIONTYPE_MULTICAST && node == this ),
+                  node->_outMulticast == connection || // correct MC conn
+                  // unused MC connection for node
+                  std::find( node->_multicasts.begin(), node->_multicasts.end(),
+                             connection ) != node->_multicasts.end(),
                   typeid( *node.get( )).name( ));
 
     EQVERB << "Handle data from " << node << std::endl;
@@ -1889,6 +1898,7 @@ CommandResult Node::_cmdID( Command& command )
     {
         NodeHash::const_iterator i = _nodes.find( nodeID );
 
+        EQASSERT( i != _nodes.end( ));
         if( i == _nodes.end( ))
         {
             // unknown node: drop connection, we will get another chance when we
@@ -1900,15 +1910,39 @@ CommandResult Node::_cmdID( Command& command )
 
         node = i->second;
         EQASSERT( node->isConnected( ));
-        node->_multicast.push_back( connection );
     }
     EQASSERT( node.isValid( ));
+
+    node->_connectMutex.set();
+    ConnectionVector::iterator i = std::find( node->_multicasts.begin(),
+                                              node->_multicasts.end(),
+                                              connection );
+    if( node->_outMulticast.isValid( ))
+    {
+        if( node->_outMulticast == connection )
+        {
+            // nop
+            EQASSERT( i == node->_multicasts.end( ));
+        }
+        else
+        {
+            if( i == node->_multicasts.end( ))
+                node->_multicasts.push_back( connection );
+            // else nop
+        }
+    }
+    else
+    {
+        node->_outMulticast = connection;
+        if( i != node->_multicasts.end( ))
+            node->_multicasts.erase( i );
+    }
+    node->_connectMutex.unset();
 
     _connectionNodes[ connection ] = node;
 
     EQINFO << "Added multicast connection " << connection << " from node " 
            << nodeID << std::endl;
-    
     return COMMAND_HANDLED;
 }
 

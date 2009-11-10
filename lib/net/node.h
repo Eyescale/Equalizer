@@ -416,8 +416,7 @@ namespace net
          */
         bool multicast( const Packet& packet )
             {
-                EQASSERT( !_multicast.empty( ));
-                ConnectionPtr connection = _multicast.front();
+                ConnectionPtr connection = getMulticast();
                 if( !connection )
                     return false;
                 return connection->send( packet );
@@ -567,17 +566,21 @@ namespace net
         /** The connection to this node. */
         ConnectionPtr _outgoing;
 
+        /** The multicast connection to this node, can be 0. */
+        ConnectionPtr _outMulticast;
+
         /** The connection set of all connections from/to this node. */
         ConnectionSet _incoming;
         friend net::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
 
         /** 
-         * Multicast connections for this node.
-         * 
-         * Contains the vector of outgoing MC connections for a listening node,
-         * or the MC connection to a connected node.
+         * Unused multicast connections for this node.
+         *
+         * On the first multicast send usage, the connection is 'primed' by
+         * sending our node identifier to the MC group, removed from this vector
+         * and set as _outMulticast.
          */
-        ConnectionVector _multicast;
+        ConnectionVector _multicasts;
 
         typedef base::UUIDHash< NodePtr > NodeHash;
 
