@@ -229,6 +229,8 @@ bool UDPConnection::_setSendInterface()
                << std::endl;
         return false;
     }
+
+    EQINFO << "Set outgoing interface to " << iName << std::endl;
     return true;
 }
 

@@ -219,7 +219,7 @@ bool RSPConnection::listen()
     }
 
     _description = new ConnectionDescription( *description.get( ));
-    description->type = CONNECTIONTYPE_RSP;
+    _description->type = CONNECTIONTYPE_RSP;
 
     _connectionSet.addConnection( _connection.get( ));
 
@@ -248,9 +248,8 @@ bool RSPConnection::listen()
     _buildNewID();
     
     _bufRead.resize( _connection->getMTU( ));
-    // wait until protcol RSP establish connection to the multicast network
-    
-    // start the working protocol RSP 
+
+    // waits until RSP protocol establishes connection to the multicast network
     if( !_thread->start( ))
     {
         close();
@@ -259,7 +258,6 @@ bool RSPConnection::listen()
 
     _state = STATE_LISTENING;
     _fireStateChanged();
-
 
     EQINFO << "Connected on " << _description->getHostname() << ":"
            << _description->port << " (" << _description->toString() << ")"
