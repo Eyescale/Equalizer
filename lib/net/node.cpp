@@ -1881,7 +1881,7 @@ CommandResult Node::_cmdID( Command& command )
 
     if( command.getNode().isValid( ))
     {
-        EQASSERT( nodeID == _id );
+        EQASSERT( nodeID == command.getNode()->getNodeID( ));
         return COMMAND_HANDLED;
     }
 
