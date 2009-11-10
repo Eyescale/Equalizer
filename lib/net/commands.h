@@ -79,9 +79,7 @@ namespace net
 
     enum ObjectCommand
     {
-        CMD_OBJECT_INSTANCE_DATA,
         CMD_OBJECT_INSTANCE,
-        CMD_OBJECT_DELTA_DATA,
         CMD_OBJECT_DELTA,
         CMD_OBJECT_COMMIT,
         CMD_OBJECT_NEW_MASTER,

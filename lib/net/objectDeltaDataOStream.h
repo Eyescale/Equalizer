@@ -25,6 +25,7 @@ namespace eq
 namespace net
 {
     class Object;
+    struct ObjectDeltaPacket;
 
     /**
      * The DataOStream for object delta version data.
@@ -42,6 +43,11 @@ namespace net
         virtual void sendFooter( const void* buffer, const uint64_t size );
         virtual void sendSingle( const void* buffer, const uint64_t size )
             { sendFooter( buffer, size ); }
+
+    private:
+        void _sendPacket( ObjectDeltaPacket& packet,
+                          const void* buffer, const uint64_t size );
+
     };
 }
 }

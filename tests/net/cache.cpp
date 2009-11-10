@@ -80,6 +80,7 @@ int main( int argc, char **argv )
     eq::net::ObjectInstancePacket* packet = 
         command.getPacket< eq::net::ObjectInstancePacket >();
     *packet = eq::net::ObjectInstancePacket();
+    packet->last = true;
     packet->dataSize = PACKET_SIZE;
     packet->version = 1;
     packet->sequence = 0;

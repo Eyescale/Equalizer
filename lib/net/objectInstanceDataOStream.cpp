@@ -36,29 +36,10 @@ ObjectInstanceDataOStream::ObjectInstanceDataOStream( const Object* object)
 ObjectInstanceDataOStream::~ObjectInstanceDataOStream()
 {}
 
-void ObjectInstanceDataOStream::sendBuffer( const void* buffer,
-                                            const uint64_t size )
+void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
+                                             const void* buffer,
+                                             const uint64_t size )
 {
-    EQASSERT( _instanceID = EQ_ID_NONE );
-    EQASSERT( _nodeID == NodeID::ZERO );
-
-    ObjectInstanceDataPacket packet;
-    packet.version    = _version;
-    packet.sequence   = _sequence++;
-    packet.dataSize   = size;
-    packet.sessionID  = _object->getSession()->getID();
-    packet.objectID   = _object->getID();
-    packet.instanceID = _instanceID;
-
-    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
-                         << " receivers " << std::endl;
-    Connection::send( _connections, packet, buffer, size, true );
-}
-
-void ObjectInstanceDataOStream::sendFooter( const void* buffer, 
-                                            const uint64_t size )
-{
-    ObjectInstancePacket packet;
     packet.version    = _version;
     packet.sequence   = _sequence++;
     packet.dataSize   = size;
@@ -86,6 +67,21 @@ void ObjectInstanceDataOStream::sendFooter( const void* buffer,
 
     packet.nodeID.convertToNetwork();
     Connection::send( _connections, packet, buffer, size, true );
+}
+
+void ObjectInstanceDataOStream::sendBuffer( const void* buffer,
+                                            const uint64_t size )
+{
+    ObjectInstancePacket packet;
+    _sendPacket( packet, buffer, size );
+}
+
+void ObjectInstanceDataOStream::sendFooter( const void* buffer, 
+                                            const uint64_t size )
+{
+    ObjectInstancePacket packet;
+    packet.last = true;
+    _sendPacket( packet, buffer, size );
     _sequence = 0;
 }
 }

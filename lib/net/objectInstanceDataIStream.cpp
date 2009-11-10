@@ -50,15 +50,6 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
 
     switch( (*command)->command )
     {
-        case CMD_OBJECT_INSTANCE_DATA:
-        {
-            const ObjectInstanceDataPacket* packet = 
-                command->getPacket< ObjectInstanceDataPacket >();
-            *buffer = packet->data;
-            *size   = packet->dataSize;
-            return true;
-        }
-
         case CMD_OBJECT_INSTANCE:
         {
             const ObjectInstancePacket* packet =

@@ -70,8 +70,8 @@ void ObjectDataIStream::reset()
 
 void ObjectDataIStream::addDataPacket( Command& command )
 {
-#ifndef NDEBUG
     const ObjectDataPacket* packet = command.getPacket< ObjectDataPacket >();
+#ifndef NDEBUG
     if( _commands.size() < 2 )
     {
         EQASSERT( packet->sequence == 0 );
@@ -88,6 +88,8 @@ void ObjectDataIStream::addDataPacket( Command& command )
 
     command.retain();
     _commands.push_back( &command );
+    if( packet->last )
+        _setReady();
 }
 
 size_t ObjectDataIStream::getDataSize() const

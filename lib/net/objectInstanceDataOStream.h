@@ -25,6 +25,7 @@ namespace eq
 namespace net
 {
     class Object;
+    struct ObjectInstancePacket;
 
     /**
      * The DataOStream for object instance data.
@@ -54,6 +55,9 @@ namespace net
     private:
         NodeID        _nodeID;
         uint32_t      _instanceID;
+
+        void _sendPacket( ObjectInstancePacket& packet,
+                          const void* buffer, const uint64_t size );
     };
 }
 }

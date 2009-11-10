@@ -36,8 +36,6 @@ StaticSlaveCM::StaticSlaveCM( Object* object )
         : _object( object )
         , _currentIStream( new ObjectInstanceDataIStream )
 {
-    registerCommand( CMD_OBJECT_INSTANCE_DATA,
-                     CmdFunc( this, &StaticSlaveCM::_cmdInstanceData ), 0 );
     registerCommand( CMD_OBJECT_INSTANCE,
                      CmdFunc( this, &StaticSlaveCM::_cmdInstance ), 0 );
 }
@@ -51,21 +49,16 @@ StaticSlaveCM::~StaticSlaveCM()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-CommandResult StaticSlaveCM::_cmdInstanceData( Command& command )
-{
-    EQASSERT( _currentIStream );
-    _currentIStream->addDataPacket( command );
-    return eq::net::COMMAND_HANDLED;
-}
-
 CommandResult StaticSlaveCM::_cmdInstance( Command& command )
 {
     EQASSERT( _currentIStream );
     _currentIStream->addDataPacket( command );
-    _currentIStream->setReady();
 
-    EQLOG( LOG_OBJECTS ) << "id " << _object->getID() << "." 
-                         << _object->getInstanceID() << " ready" << std::endl;
+    if( _currentIStream->isReady( ))
+        EQLOG( LOG_OBJECTS ) << "id " << _object->getID() << "." 
+                             << _object->getInstanceID() << " ready" 
+                             << std::endl;
+
     return eq::net::COMMAND_HANDLED;
 }
 

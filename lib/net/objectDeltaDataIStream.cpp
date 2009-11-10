@@ -45,15 +45,6 @@ bool ObjectDeltaDataIStream::getNextBuffer( const uint8_t** buffer,
 
     switch( (*command)->command )
     {
-        case CMD_OBJECT_DELTA_DATA:
-        {
-            const ObjectDeltaDataPacket* packet =
-                command->getPacket< ObjectDeltaDataPacket >();
-            *buffer = packet->delta;
-            *size   = packet->dataSize;
-            return true;
-        }
-
         case CMD_OBJECT_DELTA:
         {
             const ObjectDeltaPacket* packet =

@@ -41,12 +41,8 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
         , _currentIStream( 0 )
         , _masterInstanceID( masterInstanceID )
 {
-    registerCommand( CMD_OBJECT_INSTANCE_DATA,
-                     CmdFunc( this, &VersionedSlaveCM::_cmdInstanceData ), 0 );
     registerCommand( CMD_OBJECT_INSTANCE,
                      CmdFunc( this, &VersionedSlaveCM::_cmdInstance ), 0 );
-    registerCommand( CMD_OBJECT_DELTA_DATA,
-                     CmdFunc( this, &VersionedSlaveCM::_cmdDeltaData ), 0 );
     registerCommand( CMD_OBJECT_DELTA,
                      CmdFunc( this, &VersionedSlaveCM::_cmdDelta ), 0 );
     registerCommand( CMD_OBJECT_VERSION,
@@ -190,67 +186,47 @@ void VersionedSlaveCM::applyMapData()
 // command handlers
 //---------------------------------------------------------------------------
 
-CommandResult VersionedSlaveCM::_cmdInstanceData( Command& command )
-{
-    CHECK_THREAD( _cmdThread );
-    if( !_currentIStream )
-        _currentIStream = new ObjectInstanceDataIStream;
-
-    _currentIStream->addDataPacket( command );
-    return COMMAND_HANDLED;
-}
-
 CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
 {
     CHECK_THREAD( _cmdThread );
-    EQLOG( LOG_OBJECTS ) << "cmd instance " << command << std::endl;
-
     if( !_currentIStream )
         _currentIStream = new ObjectInstanceDataIStream;
 
     _currentIStream->addDataPacket( command );
-    _currentIStream->setReady();
 
-    const uint32_t version = _currentIStream->getVersion();
-    EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID() << "."
-                         << _object->getInstanceID() << " ready" << std::endl;
+    if( _currentIStream->isReady( ))
+    {
+        const uint32_t version = _currentIStream->getVersion();
+        EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
+                             << "." << _object->getInstanceID() << " ready"
+                             << std::endl;
 
-    _queuedVersions.push( _currentIStream );
-    _object->notifyNewHeadVersion( version );
-    _currentIStream = 0;
-
-    return COMMAND_HANDLED;
-}
-
-CommandResult VersionedSlaveCM::_cmdDeltaData( Command& command )
-{
-    CHECK_THREAD( _cmdThread );
-    if( !_currentIStream )
-        _currentIStream = new ObjectDeltaDataIStream;
-
-    _currentIStream->addDataPacket( command );
+        _queuedVersions.push( _currentIStream );
+        _object->notifyNewHeadVersion( version );
+        _currentIStream = 0;
+    }
     return COMMAND_HANDLED;
 }
 
 CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
 {
     CHECK_THREAD( _cmdThread );
-    EQLOG( LOG_OBJECTS ) << "cmd delta " << command << std::endl;
-
     if( !_currentIStream )
         _currentIStream = new ObjectDeltaDataIStream;
 
     _currentIStream->addDataPacket( command );
-    _currentIStream->setReady();
-    
-    const uint32_t version = _currentIStream->getVersion();
-    EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID() << "."
-                         << _object->getInstanceID() << " ready" << std::endl;
 
-    _queuedVersions.push( _currentIStream );
-    _object->notifyNewHeadVersion( version );
-    _currentIStream = 0;
+    if( _currentIStream->isReady( ))
+    {
+        const uint32_t version = _currentIStream->getVersion();
+        EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
+                             << "." << _object->getInstanceID() << " ready"
+                             << std::endl;
 
+        _queuedVersions.push( _currentIStream );
+        _object->notifyNewHeadVersion( version );
+        _currentIStream = 0;
+    }
     return COMMAND_HANDLED;
 }
 

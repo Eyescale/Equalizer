@@ -35,10 +35,10 @@ ObjectDeltaDataOStream::ObjectDeltaDataOStream( const Object* object)
 ObjectDeltaDataOStream::~ObjectDeltaDataOStream()
 {}
 
-void ObjectDeltaDataOStream::sendBuffer( const void* buffer,
-                                         const uint64_t size )
+void ObjectDeltaDataOStream::_sendPacket( ObjectDeltaPacket& packet,
+                                          const void* buffer,
+                                          const uint64_t size )
 {
-    ObjectDeltaDataPacket packet;
     packet.version   = _version;
     packet.sequence  = _sequence++;
     packet.dataSize  = size;
@@ -50,19 +50,19 @@ void ObjectDeltaDataOStream::sendBuffer( const void* buffer,
     Connection::send( _connections, packet, buffer, size, true );
 }
 
+void ObjectDeltaDataOStream::sendBuffer( const void* buffer,
+                                         const uint64_t size )
+{
+    ObjectDeltaPacket packet;
+    _sendPacket( packet, buffer, size );
+}
+
 void ObjectDeltaDataOStream::sendFooter( const void* buffer, 
                                          const uint64_t size )
 {
     ObjectDeltaPacket packet;
-    packet.version   = _version;
-    packet.sequence  = _sequence++;
-    packet.dataSize  = size;
-    packet.sessionID = _object->getSession()->getID();
-    packet.objectID  = _object->getID();
-
-    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
-                         << " receivers " << std::endl;
-    Connection::send( _connections, packet, buffer, size, true );
+    packet.last = true;
+    _sendPacket( packet, buffer, size );
     _sequence = 0;
 }
 

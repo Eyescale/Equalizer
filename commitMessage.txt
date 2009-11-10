@@ -1,9 +1,12 @@
-Tweak stress.eqc to run with weird DNS setups
+Object data stream cleanup:
+- istreams set ready self
+- reduce commands/packet types for sending data
+- allow instance cache to cache 'chunked' streams [untested]
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

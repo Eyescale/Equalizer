@@ -86,7 +86,6 @@ namespace net
 
     private:
         /* The command handlers. */
-        CommandResult _cmdInstanceData( Command& command );
         CommandResult _cmdInstance( Command& command );
     };
 }

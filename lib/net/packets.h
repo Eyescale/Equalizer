@@ -540,19 +540,8 @@ namespace net
         uint64_t dataSize;
         uint32_t version;
         uint32_t sequence;
-        // pad to multiple-of-eight
-    };
-
-    struct ObjectInstanceDataPacket : public ObjectDataPacket
-    {
-        ObjectInstanceDataPacket()
-            {
-                command = CMD_OBJECT_INSTANCE_DATA;
-                size    = sizeof( ObjectInstanceDataPacket ); 
-                data[0] = '\0';
-            }
-
-        EQ_ALIGN8( uint8_t data[8] );
+        bool last;
+        bool pad[7]; // pad to multiple-of-eight
     };
 
     struct ObjectInstancePacket : public ObjectDataPacket
@@ -561,37 +550,24 @@ namespace net
             {
                 command = CMD_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket ); 
-                data[0] = '\0';
+                last    = false;
             }
 
         NodeID nodeID;
         EQ_ALIGN8( uint8_t data[8] );
     };
 
-    struct ObjectDeltaDataPacket : public ObjectDataPacket
-    {
-        ObjectDeltaDataPacket()
-            {
-                command        = CMD_OBJECT_DELTA_DATA;
-                size           = sizeof( ObjectDeltaDataPacket ); 
-                instanceID     = EQ_ID_NONE; // multicasted
-                delta[0]       = '\0';
-            }
-        
-        EQ_ALIGN8( uint8_t     delta[8] );
-    };
-
     struct ObjectDeltaPacket : public ObjectDataPacket
     {
         ObjectDeltaPacket()
             {
-                command        = CMD_OBJECT_DELTA;
-                size           = sizeof( ObjectDeltaPacket ); 
-                instanceID     = EQ_ID_NONE; // multicasted
-                delta[0]       = '\0';
+                command    = CMD_OBJECT_DELTA;
+                size       = sizeof( ObjectDeltaPacket ); 
+                instanceID = EQ_ID_NONE; // multicasted
+                last       = true;
             }
         
-        EQ_ALIGN8( uint8_t     delta[8] );
+        EQ_ALIGN8( uint8_t delta[8] );
     };
 
     struct ObjectNewMasterPacket : public ObjectPacket
@@ -767,29 +743,7 @@ namespace net
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const ObjectInstanceDataPacket* packet )
-    {
-        os << (ObjectPacket*)packet << " size " << packet->dataSize;
-        return os;
-    }
-
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const ObjectInstancePacket* packet )
-    {
-        os << (ObjectPacket*)packet << " v" << packet->version
-           << " size " << packet->dataSize;
-        return os;
-    }
-
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const ObjectDeltaDataPacket* packet )
-    {
-        os << (ObjectPacket*)packet << " size " << packet->dataSize;
-        return os;
-    }
-
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const ObjectDeltaPacket* packet )
+                                       const ObjectDataPacket* packet )
     {
         os << (ObjectPacket*)packet << " v" << packet->version
            << " size " << packet->dataSize;

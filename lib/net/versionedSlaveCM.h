@@ -102,9 +102,7 @@ namespace net
         virtual void _unpackOneVersion( ObjectDataIStream* is );
 
         /* The command handlers. */
-        CommandResult _cmdInstanceData( Command& command );
         CommandResult _cmdInstance( Command& command );
-        CommandResult _cmdDeltaData( Command& command );
         CommandResult _cmdDelta( Command& command );
         CommandResult _cmdVersion( Command& command );
 

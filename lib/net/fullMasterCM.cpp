@@ -52,8 +52,6 @@ FullMasterCM::FullMasterCM( Object* object )
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &FullMasterCM::_cmdCommit ), 0 );
     // sync commands are send to all instances, even the master gets it
-    registerCommand( CMD_OBJECT_INSTANCE_DATA,
-                     CmdFunc( this, &FullMasterCM::_cmdDiscard ), 0 );
     registerCommand( CMD_OBJECT_INSTANCE,
                      CmdFunc( this, &FullMasterCM::_cmdDiscard ), 0 );
 }

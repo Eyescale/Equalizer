@@ -112,13 +112,6 @@ bool InstanceCache::add( const ObjectVersion& rev, Command& command,
 
     stream->addDataPacket( command );
     
-#if 0
-    todo stream sets ready self;
-#else
-    EQASSERT( command->command == CMD_OBJECT_INSTANCE );
-    stream->setReady();
-#endif
-
     if( stream->isReady( ))
     {
         EQASSERT( stream->getDataSize() > 0 );

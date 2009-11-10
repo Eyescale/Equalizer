@@ -46,7 +46,6 @@ namespace net
         virtual uint32_t getVersion() const { return _version.get(); }
         uint32_t getPendingVersion() const;
 
-        void setReady() { _version = getPendingVersion(); }
         void waitReady() const { _version.waitNE( VERSION_INVALID ); }
         bool isReady() const { return _version != VERSION_INVALID; }
 
@@ -70,6 +69,8 @@ namespace net
 
         /** The object version associated with this input stream. */
         base::Monitor< uint32_t > _version;
+
+        void _setReady() { _version = getPendingVersion(); }
     };
 }
 }

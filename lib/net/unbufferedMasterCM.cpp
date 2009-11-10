@@ -33,20 +33,17 @@ namespace eq
 {
 namespace net
 {
+typedef CommandFunc<UnbufferedMasterCM> CmdFunc;
+
 UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
         : _object( object )
         , _version( VERSION_NONE )
 {
     registerCommand( CMD_OBJECT_COMMIT, 
-       CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdCommit ),
-                     0 );
+                     CmdFunc( this, &UnbufferedMasterCM::_cmdCommit ), 0 );
     // sync commands are send to any instance, even the master gets the command
-    registerCommand( CMD_OBJECT_DELTA_DATA, 
-      CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdDiscard ),
-                     0 );
     registerCommand( CMD_OBJECT_DELTA, 
-      CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdDiscard ),
-                     0 );
+                     CmdFunc( this, &UnbufferedMasterCM::_cmdDiscard ), 0 );
 }
 
 UnbufferedMasterCM::~UnbufferedMasterCM()
