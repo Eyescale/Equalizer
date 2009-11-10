@@ -181,7 +181,7 @@ ConnectionPtr Node::getMulticast()
     _multicasts.pop_back();
 
     // prime multicast connections on peers
-    EQINFO << "Announcing my id " << _id << " to multicast group "
+    EQINFO << "Announcing id " << data.serverID << " to multicast group "
            << data.connection->getDescription() << std::endl;
 
     NodeIDPacket packet;
