@@ -634,6 +634,7 @@ namespace net
                     : _node( node )
                 {}
             
+            virtual bool init(){ return _node->_commandThread->start(); }
             virtual void* run(){ return _node->_runReceiverThread(); }
 
         private:

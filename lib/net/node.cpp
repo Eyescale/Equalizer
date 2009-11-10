@@ -1223,7 +1223,6 @@ void* Node::_runReceiverThread()
 {
     EQINFO << "Entered receiver thread of " << typeid( *this ).name()
            << std::endl;
-    _commandThread->start();
 
     int nErrors = 0;
     while( _state == STATE_LISTENING )
