@@ -173,7 +173,7 @@ ConnectionPtr Node::getMulticast()
     if( _outMulticast.isValid() && !_outMulticast->isClosed( ))
         return _outMulticast;
 
-    _connectMutex.set();
+    base::ScopedMutex mutex( _connectMutex );
     if( _multicasts.empty( ))
         return 0;
 
@@ -190,9 +190,7 @@ ConnectionPtr Node::getMulticast()
     data.connection->send( packet );
     
     _outMulticast = data.connection;
-    _connectMutex.unset();
-
-    return _outMulticast;
+    return data.connection;
 }
 
 void Node::setLaunchCommand( const std::string& launchCommand )
@@ -1915,7 +1913,7 @@ CommandResult Node::_cmdID( Command& command )
     }
     EQASSERT( node.isValid( ));
 
-    node->_connectMutex.set();
+    base::ScopedMutex mutex( _connectMutex );
     MCDatas::iterator i = node->_multicasts.begin();
     for( ; i != node->_multicasts.end(); ++i )
     {
@@ -1949,7 +1947,6 @@ CommandResult Node::_cmdID( Command& command )
         if( i != node->_multicasts.end( ))
             node->_multicasts.erase( i );
     }
-    node->_connectMutex.unset();
 
     _connectionNodes[ connection ] = node;
 
