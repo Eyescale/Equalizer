@@ -218,7 +218,10 @@ bool RSPConnection::listen()
         return false;
     }
 
-    _connectionSet.addConnection( _connection->getSibling() );
+    _description = new ConnectionDescription( *description.get( ));
+    description->type = CONNECTIONTYPE_RSP;
+
+    _connectionSet.addConnection( _connection.get( ));
 
     // init a thread for manage the communication protocol 
     _thread = new Thread( this );
@@ -258,7 +261,7 @@ bool RSPConnection::listen()
     _fireStateChanged();
 
 
-    EQINFO << "Connected on " << _description->getHostname() 
+    EQINFO << "Connected on " << _description->getHostname() << ":"
            << _description->port << " (" << _description->toString() << ")"
            << std::endl;
     return true;

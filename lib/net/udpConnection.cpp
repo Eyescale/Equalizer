@@ -59,7 +59,6 @@ UDPConnection::UDPConnection()
     , _overlappedDone( 0 )
 #endif
 {
-    _sibling = this;
     _description->type = CONNECTIONTYPE_UDP;
     _description->bandwidth = 102400;
     _clock.reset();
@@ -69,7 +68,6 @@ UDPConnection::UDPConnection()
 UDPConnection::~UDPConnection()
 {
     close();
-    _sibling = 0;
 }
 
 //----------------------------------------------------------------------
@@ -405,12 +403,6 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
 
     return bytesRead;
 #endif
-}
-
-
-ConnectionPtr UDPConnection::getSibling()
-{
-    return _sibling.get();
 }
 
 int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )

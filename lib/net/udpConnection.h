@@ -67,8 +67,8 @@ namespace net
         /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const { return _overlapped.hEvent; }
 #endif
-        ConnectionPtr getSibling();
         bool setMulticastLoop( bool activate );
+
     protected:
         virtual ~UDPConnection();
         
