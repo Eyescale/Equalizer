@@ -181,7 +181,8 @@ uint32_t FullMasterCM::addSlave( Command& command )
         // TODO else cached block in the middle, send head and tail elements
     }
 
-    EQLOG( LOG_OBJECTS ) << "Object " << _object->_id << " v" << _version
+    EQLOG( LOG_OBJECTS ) << "Object " << _object->_id << " (" 
+                         << typeid( *_object).name() << ") v" << _version
                          << ", instantiate on " << node->getNodeID() 
                          << " with v" << result << " sending v" << start
                          << ".." << end << std::endl;
