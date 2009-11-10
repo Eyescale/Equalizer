@@ -306,11 +306,13 @@ void Channel::frameViewFinish( const uint32_t frameID )
                 _accumBuffer->unbind();
 
                 // draw result into the back buffer
-                _drawQuadWithTexture( _accumBuffer->getColorTextures()[0], _getJitterStepDone() + 1 );
+                _drawQuadWithTexture( _accumBuffer->getColorTextures()[0],
+                                      _getJitterStepDone() + 1 );
                 _backBufferTex->copyFromFrameBuffer( pvp );
             }
             else
-                _drawQuadWithTexture( _accumBuffer->getColorTextures()[0], _getJitterStepDone( ));
+                _drawQuadWithTexture( _accumBuffer->getColorTextures()[0], 
+                                      _getJitterStepDone( ));
 
             glEnable( GL_DEPTH_TEST );
             resetAssemblyState();
