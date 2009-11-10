@@ -10,6 +10,7 @@ server
         latency 10
         node
         {
+            connection { hostname "127.0.0.1" }
             pipe
             {
                 window
@@ -21,6 +22,7 @@ server
         }
         node
         {
+            connection { hostname "127.0.0.1" }
             pipe
             {
                 window
@@ -32,6 +34,7 @@ server
         }
         appNode
         {
+            connection { hostname "127.0.0.1" }
             pipe
             {
                 attributes{ hint_thread OFF }
@@ -60,6 +63,7 @@ server
         }
         node
         {
+            connection { hostname "127.0.0.1" }
             pipe
             {
                 attributes{ hint_thread OFF }
@@ -72,6 +76,7 @@ server
         }
         node
         {
+            connection { hostname "127.0.0.1" }
             pipe
             {
                 window

@@ -1,4 +1,4 @@
-Fix object locking deadlock introduced with multicast changes.
+Tweak stress.eqc to run with weird DNS setups
 
 [ ] May break build
 [ ] May break existing applications
