@@ -462,6 +462,9 @@ int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes )
         EQWARN << "Read complete failed: " << base::sysError 
                << ", closing connection" << std::endl;
         close();
+#ifndef NDEBUG
+        __debugbreak();
+#endif
         return -1;
     }
 
