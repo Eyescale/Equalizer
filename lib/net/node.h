@@ -573,6 +573,13 @@ namespace net
         ConnectionSet _incoming;
         friend net::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
 
+        struct MCData
+        {
+            ConnectionPtr connection;
+            NodeID        serverID;
+        };
+        typedef std::vector< MCData > MCDatas;
+
         /** 
          * Unused multicast connections for this node.
          *
@@ -580,7 +587,7 @@ namespace net
          * sending our node identifier to the MC group, removed from this vector
          * and set as _outMulticast.
          */
-        ConnectionVector _multicasts;
+        MCDatas _multicasts;
 
         typedef base::UUIDHash< NodePtr > NodeHash;
 
