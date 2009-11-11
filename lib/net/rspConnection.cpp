@@ -814,7 +814,7 @@ bool RSPConnection::_handleNackDatagram( const DatagramNack* nack )
         EQASSERT( start >= 0);
 
         uint32_t end   = ( *repeatID & 0xFFFF );
-        EQASSERT( end <= _countNbAckInWrite);
+        EQASSERT( end <= _numberDatagram );
         EQASSERT( start <= end);
 
         uint32_t writSeqID = _myIDShift | _sequenceIDWrite;

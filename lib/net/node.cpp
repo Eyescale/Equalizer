@@ -1257,11 +1257,11 @@ void* Node::_runReceiverThread()
                 _handleDisconnect();
                 break;
 
-            case ConnectionSet::EVENT_TIMEOUT:   
+            case ConnectionSet::EVENT_TIMEOUT:
                 EQINFO << "select timeout" << std::endl;
                 break;
 
-            case ConnectionSet::EVENT_ERROR:      
+            case ConnectionSet::EVENT_ERROR:
                 ++nErrors;
                 EQWARN << "Connection error during select" << std::endl;
                 if( nErrors > 100 )
@@ -1272,7 +1272,7 @@ void* Node::_runReceiverThread()
                 }
                 break;
 
-            case ConnectionSet::EVENT_SELECT_ERROR:      
+            case ConnectionSet::EVENT_SELECT_ERROR:
                 EQWARN << "Error during select" << std::endl;
                 ++nErrors;
                 if( nErrors > 10 )
