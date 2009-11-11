@@ -98,11 +98,18 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID() << endl;
 
+    if( packet->minCachedVersion <= _version && 
+        packet->maxCachedVersion >= _version )
+    {
+        return ( version == VERSION_OLDEST ) ? 
+            packet->minCachedVersion : _version;
+    }
+
     // send instance data
     ObjectInstanceDataOStream os( _object );
     os.setVersion( _version );
     os.setInstanceID( instanceID );
-    // TODO: multiple commands are send!? os.setNodeID( node->getNodeID( ));
+    os.setNodeID( node->getNodeID( ));
 
     if( version != VERSION_NONE ) // send current data
     {
@@ -118,7 +125,7 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
         os.disable();
     }
 
-    return VERSION_INVALID; // see TODO above
+    return VERSION_INVALID; // no data was in cache
 }
 
 void UnbufferedMasterCM::removeSlave( NodePtr node )

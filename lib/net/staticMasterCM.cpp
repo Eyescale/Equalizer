@@ -50,14 +50,21 @@ uint32_t StaticMasterCM::addSlave( Command& command )
     const uint32_t instanceID = packet->instanceID;
     EQASSERT( packet->requestedVersion == VERSION_OLDEST );
 
+    if( packet->minCachedVersion == VERSION_NONE && 
+        packet->maxCachedVersion == VERSION_NONE )
+    {
+        return VERSION_NONE;
+    }
+
     ObjectInstanceDataOStream os( _object );
     os.setInstanceID( instanceID );
-    // TODO: multiple commands are send!? os.setNodeID( node->getNodeID( ));
+    os.setNodeID( node->getNodeID( ));
     os.enable( node );
 
     _object->getInstanceData( os );
     os.disable();
-    return VERSION_INVALID; // see TODO above
+
+    return VERSION_INVALID; // no data was in cache
 }
 
 }
