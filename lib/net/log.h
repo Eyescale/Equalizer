@@ -28,10 +28,9 @@ namespace net
     {
         LOG_OBJECTS = base::LOG_CUSTOM << 0,  // 16
         LOG_BARRIER = base::LOG_CUSTOM << 1,  // 32
-        LOG_FILL1   = base::LOG_CUSTOM << 2,  // 64
-        LOG_FILL2   = base::LOG_CUSTOM << 3,  // 128
-        LOG_RSP     = base::LOG_CUSTOM << 4,  // 256
-        LOG_CUSTOM  = base::LOG_CUSTOM << 5   // 512
+        LOG_RSP     = base::LOG_CUSTOM << 2,  // 64
+        LOG_FILL1   = base::LOG_CUSTOM << 3,  // 128
+        LOG_CUSTOM  = base::LOG_CUSTOM << 4   // 256
     };
 }
 }

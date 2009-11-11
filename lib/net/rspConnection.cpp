@@ -813,7 +813,6 @@ bool RSPConnection::_handleNackDatagram( const DatagramNack* nack )
     for ( uint8_t j = 0; j < countRepeatID; j++ )
     {
         const uint32_t start = ( *repeatID & 0xFFFF0000) >> 16;
-        EQASSERT( start >= 0);
 
         uint32_t end   = ( *repeatID & 0xFFFF );
         EQASSERT( end <= _numberDatagram );

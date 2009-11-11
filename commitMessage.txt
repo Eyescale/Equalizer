@@ -1,10 +1,9 @@
-Improve netperf to work with multicast connections where the sender
-also receives its own data (Cedric + cleanups)
+Fix Posix build, change net/log.h to not re-assign existing topics
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
