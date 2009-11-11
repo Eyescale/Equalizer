@@ -1,9 +1,9 @@
-Fix Posix build, change net/log.h to not re-assign existing topics
+Fix Posix build
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

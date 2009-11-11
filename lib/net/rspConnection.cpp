@@ -55,13 +55,12 @@ static const  size_t _maxLengthDatagramData = UDPConnection::getMTU() -
 
 RSPConnection::RSPConnection()
         : _countAcceptChildren( 0 )
+        , _id( _rng.get<IDConnectionType>( ))
         , _writing( false )
         , _thread ( 0 )
         , _lastSequenceIDAck( -1 )
         , _countReadReceiver ( 0 )
         , _countWriteReceiver ( 0 )
-        , _id( _rng.get<IDConnectionType>( ))
-
 {
     _description->type = CONNECTIONTYPE_RSP;
     _description->bandwidth = 102400;
