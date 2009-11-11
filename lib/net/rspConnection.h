@@ -63,16 +63,16 @@ namespace net
             ID_HELLO, // a new node is connected.
             ID_DENY,
             ID_CONFIRM,
-            ID_EXIT,  // a node is deconnected
+            ID_EXIT,  // a node is disconnected
             COUNTNODE  // send to other the number node which I have found
         };
         
-        typedef uint16_t IDConnectionType;
+        typedef uint16_t ID;
         typedef uint16_t IDSequenceType;
         struct DatagramAckRequest
         {
             uint8_t    type;
-            IDConnectionType   writerID;
+            ID   writerID;
             uint16_t           lastDatagramID;
             IDSequenceType     sequenceID;
         };
@@ -80,13 +80,13 @@ namespace net
         struct DatagramNode
         {
             uint8_t            type;
-            IDConnectionType   connectionID;
+            ID   connectionID;
         };
 
         struct DatagramCountConnection
         {
             uint8_t             type;
-            IDConnectionType    clientID;
+            ID    clientID;
             uint16_t             nbClient;
         };
 
@@ -94,8 +94,8 @@ namespace net
         {
         
             uint8_t     type;
-            IDConnectionType    readerID;    // ID of the connection reader
-            IDConnectionType    writerID;    // ID of the connection writer
+            ID    readerID;    // ID of the connection reader
+            ID    writerID;    // ID of the connection writer
             IDSequenceType      sequenceID;  // last datagram in write sequence
             uint8_t             countRepeatID; // number of delta repeat
         };
@@ -103,8 +103,8 @@ namespace net
         struct DatagramAck
         {
             uint8_t             type;
-            IDConnectionType    readerID;
-            IDConnectionType    writerID;
+            ID    readerID;
+            ID    writerID;
             IDSequenceType      sequenceID;
         };
 
@@ -164,7 +164,7 @@ namespace net
             Thread( RSPConnectionPtr connection )
                 : _connection( connection ){}
             virtual ~Thread(){ _connection = 0; }
-            virtual bool init(){ return _connection->_init(); }
+            virtual bool init(){ return _connection->_initReadThread(); }
         protected:
             
             virtual void* run();
@@ -172,9 +172,7 @@ namespace net
             RSPConnectionPtr _connection;
         };
 
-        IDConnectionType _buildNewID();
-        /* get the number valid connection in the multicast network */
-        uint32_t _getCountConnection() { return _childs.size(); }
+        ID _buildNewID();
         
         int64_t _readSync( DataReceive* receive, 
                            void* buffer, 
@@ -184,16 +182,17 @@ namespace net
         /* using directly by the thread to manage RSP */
         bool _handleData( );
         bool _handleDataDatagram( const DatagramData* datagram );
-        bool _handleAckDatagram( const DatagramAck* ack );
-        bool _handleNackDatagram( const DatagramNack* nack );
-        bool _handleAckRequDatagram( const DatagramAckRequest* ackRequest );
-        /* using directly by the thread to wait on event from udp connection */
-        void _run();
-        /* using directly by the thread to init and discover connection 
-           in the multicast Network */
-        bool _init();
+        bool _handleAck( const DatagramAck* ack );
+        bool _handleNack( const DatagramNack* nack );
+        bool _handleAckRequest( const DatagramAckRequest* ackRequest );
+
+        /** Initialize the reader thread */
+        bool _initReadThread();
+
+        /* Run the reader thread */
+        void _runReadThread();
+
         bool _handleInitData();
- 
         
         void _initAIOAccept(){ _initAIORead(); }
         void _exitAIOAccept(){ _exitAIORead(); }
@@ -204,7 +203,7 @@ namespace net
         eq::base::Bufferb _bufRead;
 
         // a link for all connection in the multicast network 
-        std::vector< RSPConnectionPtr > _childs;
+        std::vector< RSPConnectionPtr > _children;
         // The buffer used by the read function in udp socket 
         std::vector< DataReceive* >_buffer;
         // number connection accepted by server RSP 
@@ -216,10 +215,10 @@ namespace net
         //int _indexRead;
 
         eq::base::RNG         _rng;
-        IDConnectionType      _id;
-        uint32_t              _shiftedID;
+        ID _id; //!< The identifier used to demultiplex multipe writers
+        uint32_t _shiftedID; //!< Shifted _id for easier packaging
 
-        IDConnectionType _writerID;
+        ID _writerID;
         
         uint8_t  _countTimeOut;
         bool     _ackReceive;
@@ -243,7 +242,7 @@ namespace net
         RSPConnectionPtr _parent;
         
         // buffer for read from udp Connection
-        DataReceive* _bufferReceive;
+        DataReceive* _recvBuffer;
         int64_t     _lastSequenceIDAck;
 
         // write property part
@@ -253,8 +252,8 @@ namespace net
         IDSequenceType    _sequenceIDWrite;
 
         // we add 1 each read or write operation
-        uint8_t _countReadReceiver;
-        uint8_t _countWriteReceiver;
+        uint8_t _readBufferIndex;
+        uint8_t _recvBufferIndex;
 
         ConnectionPtr _sibling;
         
@@ -263,28 +262,28 @@ namespace net
         DataReceive* _findReceiverWithSequenceID( 
                                     const IDSequenceType sequenceID ) const;
         RSPConnectionPtr _findConnectionWithWriterID( 
-                                    const IDConnectionType writerID );
+                                    const ID writerID );
         bool _isCurrentSequenceWrite( const IDSequenceType sequenceID, 
-                                      const IDConnectionType writer );
+                                      const ID writer );
         void _sendDatagramCountNode();
         void _sendDatagram( const uint32_t writSeqID,
                             const IDSequenceType datagramID );
 
         void _sendAckRequest( );
-        void _sendAck( const IDConnectionType writerID,
+        void _sendAck( const ID writerID,
                        const IDSequenceType sequenceID);
 
-        void _sendNackDatagram ( const IDConnectionType  toWriterID,
+        void _sendNackDatagram ( const ID  toWriterID,
                                  const IDSequenceType  sequenceID,
                                  const uint8_t   countNack,
                                  const uint32_t* repeatID   );
         
-        bool _acceptNewIDConnection( const IDConnectionType id );
+        bool _acceptNewIDConnection( const ID id );
 
         /* add a new connection detected in the network multicast */
-        bool _addNewConnection( const IDConnectionType id );
+        bool _addNewConnection( const ID id );
 
-        bool _acceptRemoveConnection( const IDConnectionType id );
+        bool _acceptRemoveConnection( const ID id );
         CHECK_THREAD_DECLARE( _recvThread );
  
     };

@@ -43,7 +43,7 @@ namespace
 {
 static const size_t _maxBuffer = (UDPConnection::getMTU() - 
                                 sizeof( RSPConnection::DatagramData )) * 50;
-static const size_t _numberBuffer = 4;
+static const size_t _nBuffers = 4;
 static const size_t _maxDatagram = _maxBuffer /  ( UDPConnection::getMTU() - 
                                      sizeof( RSPConnection::DatagramData ) )+1;
 static const size_t _maxNack = ( UDPConnection::getMTU() - 
@@ -55,20 +55,20 @@ static const  size_t _maxLengthDatagramData = UDPConnection::getMTU() -
 
 RSPConnection::RSPConnection()
         : _countAcceptChildren( 0 )
-        , _id( _rng.get<IDConnectionType>( ))
+        , _id( _rng.get<ID>( ))
         , _writing( false )
         , _thread ( 0 )
         , _lastSequenceIDAck( -1 )
-        , _countReadReceiver ( 0 )
-        , _countWriteReceiver ( 0 )
+        , _readBufferIndex ( 0 )
+        , _recvBufferIndex ( 0 )
 {
     _description->type = CONNECTIONTYPE_RSP;
     _description->bandwidth = 102400;
 
-    for( size_t i = 0; i < _numberBuffer; i++ )
+    for( size_t i = 0; i < _nBuffers; i++ )
         _buffer.push_back( new DataReceive() );
 
-    _bufferReceive = _buffer[ _countWriteReceiver ];
+    _recvBuffer = _buffer[ _recvBufferIndex ];
     _sibling = this;
     EQLOG( net::LOG_RSP ) 
               << "Build new RSP Connection"  << std::endl
@@ -106,8 +106,8 @@ void RSPConnection::close()
         _thread->join();
     }
 
-    for ( std::vector< RSPConnectionPtr >::iterator i = _childs.begin();
-        i != _childs.end(); i++ )
+    for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin();
+        i != _children.end(); i++ )
     {
         RSPConnectionPtr connection = *i;
         connection = 0;
@@ -127,7 +127,7 @@ void RSPConnection::close()
         buffer->reset();
     }
 
-    _bufferReceive = _buffer[0];
+    _recvBuffer = _buffer[0];
     _fireStateChanged();
 }
 
@@ -136,7 +136,7 @@ RSPConnection::~RSPConnection()
     close();
 
     _sibling = 0;
-    _bufferReceive = 0;
+    _recvBuffer = 0;
 
     for( std::vector< DataReceive* >::iterator i = _buffer.begin(); 
          i < _buffer.end(); i++ )
@@ -176,11 +176,11 @@ void RSPConnection::_exitAIORead(){ /* NOP */ }
 #endif
 
 
-RSPConnection::IDConnectionType RSPConnection::_buildNewID()
+RSPConnection::ID RSPConnection::_buildNewID()
 {
-    _id = _rng.get<IDConnectionType>();
-    _shiftedID = static_cast< IDConnectionType >( _id ) << 
-                                             ( sizeof( IDConnectionType ) * 8 );
+    _id = _rng.get<ID>();
+    _shiftedID = static_cast< ID >( _id ) << 
+                                             ( sizeof( ID ) * 8 );
     return _id;
 }
 
@@ -264,17 +264,16 @@ ConnectionPtr RSPConnection::acceptSync()
         return 0;
     {
         const base::ScopedMutex mutexConn( _mutexConnection );
-        if ( _countAcceptChildren == _childs.size() )
+        if ( _countAcceptChildren == _children.size() )
 #ifdef WIN32
             WaitForSingleObject( _hEvent, INFINITE );
 #else
             poll( &_hEvent, 1, INFINITE );
 #endif
     }
-    EQASSERT ( _countAcceptChildren < _childs.size() )
+    EQASSERT ( _countAcceptChildren < _children.size() )
     
-    RSPConnectionPtr newConnection = 
-                        _childs[ _countAcceptChildren ];
+    RSPConnectionPtr newConnection = _children[ _countAcceptChildren ];
     
     ConnectionPtr  connection = newConnection->getSibling(); 
 
@@ -303,13 +302,13 @@ ConnectionPtr RSPConnection::acceptSync()
     _countAcceptChildren++;
 
     const DatagramCountConnection countNode = 
-                        { COUNTNODE, _id, _childs.size() };
+                        { COUNTNODE, _id, _children.size() };
     _connection->write( &countNode, sizeof( DatagramCountConnection ) );
     
     EQINFO << "accepted connection " << (void*)newConnection.get()
            << std::endl;
     const base::ScopedMutex mutexConn( _mutexConnection );
-    if ( _childs.size() >= _countAcceptChildren )
+    if ( _children.size() >= _countAcceptChildren )
 #ifdef WIN32
         ResetEvent( _hEvent );
 #else
@@ -322,7 +321,7 @@ ConnectionPtr RSPConnection::acceptSync()
 int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
 {
     const uint32_t size =   EQ_MIN( bytes, _maxBuffer );
-    DataReceive* receiver = _buffer[ _countReadReceiver ];
+    DataReceive* receiver = _buffer[ _readBufferIndex ];
     
     receiver->ackSend.waitEQ( true );
     receiver->allRead.waitEQ( false );
@@ -330,7 +329,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
     return _readSync( receiver, buffer, size );
 }
 
-bool RSPConnection::_init()
+bool RSPConnection::_initReadThread()
 {
     _connection->readNB( _bufRead.getData(), _connection->getMTU() );
 
@@ -424,12 +423,12 @@ bool RSPConnection::_handleInitData()
 
 void* RSPConnection::Thread::run()
 {
-    _connection->_run();
+    _connection->_runReadThread();
     _connection = 0;
     return 0;
 }
 
-void RSPConnection::_run()
+void RSPConnection::_runReadThread()
 {
     while ( true )
     {
@@ -439,8 +438,8 @@ void RSPConnection::_run()
         {
         case ConnectionSet::EVENT_TIMEOUT:
         {
-            for ( std::vector< RSPConnectionPtr >::iterator i = _childs.begin() ;
-                  i != _childs.end(); ++i )
+            for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin() ;
+                  i != _children.end(); ++i )
             {
                 RSPConnectionPtr connection = *i;
                 if ( connection->_ackReceive )
@@ -507,12 +506,12 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
         memset( receive->boolBuffer.getData(), 
                 false, receive->boolBuffer.getSize() * sizeof( bool ));
         
-        _countReadReceiver = ( _countReadReceiver + 1 ) % _numberBuffer;
+        _readBufferIndex = ( _readBufferIndex + 1 ) % _nBuffers;
         
         {
             const base::ScopedMutex mutexEvent( _mutexEvent );
-            if ( !( _buffer[ _countReadReceiver ]->ackSend.get() && 
-                  !_buffer[ _countReadReceiver ]->allRead.get()) )
+            if ( !( _buffer[ _readBufferIndex ]->ackSend.get() && 
+                  !_buffer[ _readBufferIndex ]->allRead.get()) )
             {
 #ifdef WIN32
                 ResetEvent( _hEvent );
@@ -549,17 +548,17 @@ bool RSPConnection::_handleData( )
     
     case ACK:
 
-        return _handleAckDatagram( 
+        return _handleAck( 
                   reinterpret_cast< const DatagramAck* >( type )) ;
     
     case NACK:
 
-        return _handleNackDatagram( reinterpret_cast< const DatagramNack* >
+        return _handleNack( reinterpret_cast< const DatagramNack* >
                                                         ( _bufRead.getData() ));
     
     case ACKREQ: // The writer ask for a ack data
         
-        return _handleAckRequDatagram(
+        return _handleAckRequest(
                 reinterpret_cast< const DatagramAckRequest* >( type ));
     
     case ID_HELLO:
@@ -596,8 +595,8 @@ bool RSPConnection::_handleData( )
                 reinterpret_cast< const DatagramCountConnection* >
                                                          ( _bufRead.getData() );
         
-        // we know all connection
-        if ( _childs.size() == countConn->nbClient )
+        // we know all connections
+        if ( _children.size() == countConn->nbClient )
             return true;
 
         RSPConnectionPtr connection = 
@@ -615,7 +614,7 @@ bool RSPConnection::_handleData( )
 bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
 {
     uint32_t datagramWriterID   = datagram->writeSeqID >> 
-                                       ( sizeof( IDConnectionType ) * 8 );
+                                       ( sizeof( ID ) * 8 );
     
     uint32_t datagramSequenceID = datagram->writeSeqID  & 0xFFFF ;
 
@@ -637,20 +636,20 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
     // why we haven't a receiver here:
     // 1: it's a reception data for another connection
     // 2: all buffer was not ready during last ack data
-    if ( !connection->_bufferReceive )
+    if ( !connection->_recvBuffer )
     {
         EQLOG( net::LOG_RSP ) << "buffer not select, search a free buffer" 
                               << std::endl;
 
-        connection->_bufferReceive = 
+        connection->_recvBuffer = 
             connection->_findReceiverWithSequenceID( datagramSequenceID );
         // if needed set the vector length
-        if ( connection->_bufferReceive )
+        if ( connection->_recvBuffer )
         {
             if ( connection->_buffer[ 
-                          connection->_countWriteReceiver ]->allRead.get() )
-                connection->_bufferReceive = 
-                     connection->_buffer[ connection->_countWriteReceiver ];
+                          connection->_recvBufferIndex ]->allRead.get() )
+                connection->_recvBuffer = 
+                     connection->_buffer[ connection->_recvBufferIndex ];
         }
         else
         {
@@ -664,7 +663,7 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
         }
     }
 
-    DataReceive* receive = connection->_bufferReceive;
+    DataReceive* receive = connection->_recvBuffer;
 
     // if it's the first datagram 
     if( receive->ackSend.get() )
@@ -726,7 +725,7 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
     return true;
 }
 
-bool RSPConnection::_handleAckDatagram( const DatagramAck* ack )
+bool RSPConnection::_handleAck( const DatagramAck* ack )
 {
     EQLOG( net::LOG_RSP ) << "Receive Ack from " << ack->writerID << std::endl
                           << " for sequence ID " << ack->sequenceID << std::endl
@@ -757,7 +756,7 @@ bool RSPConnection::_handleAckDatagram( const DatagramAck* ack )
     connection->_ackReceive = true;
     _countNbAckInWrite++;
 
-    if ( _countNbAckInWrite != _childs.size() )
+    if ( _countNbAckInWrite != _children.size() )
         return true;
 
     EQLOG( net::LOG_RSP ) << "unlock write function " << _sequenceIDWrite 
@@ -771,7 +770,7 @@ bool RSPConnection::_handleAckDatagram( const DatagramAck* ack )
     return true;
 }
 
-bool RSPConnection::_handleNackDatagram( const DatagramNack* nack )
+bool RSPConnection::_handleNack( const DatagramNack* nack )
 {
     RSPConnectionPtr connection = _findConnectionWithWriterID( nack->readerID );
 
@@ -833,7 +832,7 @@ bool RSPConnection::_handleNackDatagram( const DatagramNack* nack )
     return true;
 }
 
-bool RSPConnection::_handleAckRequDatagram( 
+bool RSPConnection::_handleAckRequest( 
                       const DatagramAckRequest* ackRequest )
 {
     EQLOG( net::LOG_RSP ) << "receive an AckRequest from " 
@@ -923,7 +922,7 @@ bool RSPConnection::_handleAckRequDatagram(
     
     // no repeat needed, we send an ack and we prepare the next buffer 
     // receive.
-    connection->_bufferReceive = 0;
+    connection->_recvBuffer = 0;
     
     // Found a free buffer for the next receive
     EQLOG( net::LOG_RSP ) << "receiver send Ack to writerID  " 
@@ -931,14 +930,14 @@ bool RSPConnection::_handleAckRequDatagram(
                           << "sequenceID " << ackRequest->sequenceID
                           << std::endl;
 
-    connection->_countWriteReceiver = 
-                    ( connection->_countWriteReceiver + 1 ) % _numberBuffer;
+    connection->_recvBufferIndex = 
+                    ( connection->_recvBufferIndex + 1 ) % _nBuffers;
 
-    if ( connection->_buffer[ connection->_countWriteReceiver ]->allRead.get() )
+    if ( connection->_buffer[ connection->_recvBufferIndex ]->allRead.get() )
     {
         EQLOG( net::LOG_RSP ) << "set next buffer  " << std::endl;
-        connection->_bufferReceive = 
-                 connection->_buffer[ connection->_countWriteReceiver ];
+        connection->_recvBuffer = 
+                 connection->_buffer[ connection->_recvBufferIndex ];
     }
     else
     {
@@ -971,7 +970,7 @@ bool RSPConnection::_handleAckRequDatagram(
     return true;
 }
 
-bool RSPConnection::_acceptNewIDConnection( IDConnectionType id )
+bool RSPConnection::_acceptNewIDConnection( ID id )
 {
     // the ID is same as mine 
     // how to detect if its my own send ?
@@ -1009,18 +1008,18 @@ RSPConnection::DataReceive* RSPConnection::_findReceiverWithSequenceID(
 }
 
 RSPConnection::RSPConnectionPtr RSPConnection::_findConnectionWithWriterID( 
-                                    const IDConnectionType writerID )
+                                    const ID writerID )
 {
-    for ( uint32_t i = 0 ; i < _childs.size(); i++ )
+    for ( uint32_t i = 0 ; i < _children.size(); i++ )
     {
-        if ( _childs[i]->_writerID == writerID )
-            return _childs[i];
+        if ( _children[i]->_writerID == writerID )
+            return _children[i];
     }
     return 0;
 }
 
 
-bool RSPConnection::_addNewConnection( IDConnectionType id )
+bool RSPConnection::_addNewConnection( ID id )
 {
     if ( _findConnectionWithWriterID( id ).isValid() )
     {
@@ -1036,7 +1035,7 @@ bool RSPConnection::_addNewConnection( IDConnectionType id )
     // in acceptSync
     {
         const base::ScopedMutex mutexConn( _mutexConnection );
-        _childs.push_back( connection );
+        _children.push_back( connection );
         EQWARN << "New connection " << id << std::endl;
 
 #ifdef WIN32
@@ -1050,7 +1049,7 @@ bool RSPConnection::_addNewConnection( IDConnectionType id )
     return true;
 }
 
-bool RSPConnection::_acceptRemoveConnection( const IDConnectionType id )
+bool RSPConnection::_acceptRemoveConnection( const ID id )
 {
     EQWARN << "remove Connection " << id << std::endl;
     if ( id != _id )
@@ -1059,14 +1058,14 @@ bool RSPConnection::_acceptRemoveConnection( const IDConnectionType id )
         return true;
     }
 
-    for ( std::vector< RSPConnectionPtr >::iterator i = _childs.begin(); 
-          i != _childs.end(); i++ )
+    for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin(); 
+          i != _children.end(); i++ )
     {
         RSPConnectionPtr child = *i;
         if ( child->_writerID == id )
         {
             child->close();
-            _childs.erase( i );
+            _children.erase( i );
         }
     }
 
@@ -1114,8 +1113,8 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
         _sendDatagram( writSeqID, i );
 
     // init all ack receive flag
-    for ( std::vector< RSPConnectionPtr >::iterator i = _childs.begin();
-              i != _childs.end(); ++i )
+    for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin();
+              i != _children.end(); ++i )
     {
         (*i)->_countTimeOut = 0;
         (*i)->_ackReceive = false;
@@ -1139,18 +1138,18 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 void RSPConnection::_sendDatagramCountNode()
 {
     const DatagramCountConnection countNode = 
-                       { COUNTNODE, _id, _childs.size() };
+                       { COUNTNODE, _id, _children.size() };
     _connection->write( &countNode, sizeof( DatagramCountConnection ) );
 }
 
-void RSPConnection::_sendAck( const IDConnectionType writerID,
+void RSPConnection::_sendAck( const ID writerID,
                               const IDSequenceType sequenceID)
 {
     const DatagramAck ack = { ACK, _id, writerID, sequenceID };
     _connection->write( &ack, sizeof( ack ) );
 }
 
-void RSPConnection::_sendNackDatagram ( const IDConnectionType  toWriterID,
+void RSPConnection::_sendNackDatagram ( const ID  toWriterID,
                                        const IDSequenceType  sequenceID,
                                        const uint8_t   countNack,
                                        const uint32_t* repeatID   )
