@@ -382,7 +382,7 @@ bool RSPConnection::_init()
                     const DatagramNode confirmNode ={ CONFIRMNODE, _getID() };
                     _connection->write( &confirmNode, sizeof( DatagramNode ) );
                     _addNewConnection( _getID() );
-                    //_connection->setMulticastLoop( true );
+                    _connection->setMulticastLoop( true );
                     return true;
                 }
                 break;
@@ -460,7 +460,6 @@ void* RSPConnection::Thread::run()
 void RSPConnection::_run()
 {
 
-    //_connection->readNB( _bufRead.getData(), _connection->getMTU() );
     while ( true )
     {
         const int timeOut = _writing == true ? 100 : -1;
@@ -686,8 +685,8 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
         // we'll drop the data and will send a full NAK packet upon the 
         // Ack request, causing retransmission even though we'll drop it
         // again
-            EQWARN << "Reader to slow, dropping data" << std::endl;
-            return false;
+            //EQWARN << "Reader to slow, dropping data" << std::endl;
+            return true;
         }
     }
 
@@ -774,7 +773,7 @@ bool RSPConnection::_handleAckDatagram( const DatagramAck* ack )
     connection->_ackReceive = true;
     _countNbAckInWrite++;
 
-    if ( _countNbAckInWrite != _childs.size()-1 )
+    if ( _countNbAckInWrite != _childs.size() )
         return true;
 
     // unblock write function if all ack have been received
@@ -991,9 +990,6 @@ RSPConnection::DataReceive* RSPConnection::_findReceiverWithSequenceID(
 RSPConnection::RSPConnectionPtr RSPConnection::_findConnectionWithWriterID( 
                                     const IDConnectionType writerID )
 {
-    //if ( writerID == _getID() )
-    //    return this;
-
     for ( uint32_t i = 0 ; i < _childs.size(); i++ )
     {
         if ( _childs[i]->_writerID == writerID )
@@ -1073,9 +1069,6 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     if ( _parent.isValid() )
         return _parent->write( buffer, bytes );
 
-    if ( _getCountConnection() == 0 )
-        return bytes;
-    
     
 
     _sequenceIDWrite ++;
@@ -1114,7 +1107,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 void RSPConnection::_sendDatagramCountNode()
 {
     const DatagramCountConnection countNode = 
-                       { COUNTNODE, _getID(), _childs.size() -1 };
+                       { COUNTNODE, _getID(), _childs.size() };
     _connection->write( &countNode, sizeof( DatagramCountConnection ) );
 }
 

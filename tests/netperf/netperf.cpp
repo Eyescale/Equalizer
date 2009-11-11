@@ -42,24 +42,24 @@ using namespace std;
 
 namespace
 {
-    ConnectionSet    _connectionSet;
-    eq::base::mtLong _nClients;
+ConnectionSet    _connectionSet;
+eq::base::mtLong _nClients;
 
-    class Receiver : public eq::base::Thread
-    {
-    public:
-        Receiver( const size_t packetSize, ConnectionPtr connection )
-                : _connection( connection )
-                , _mBytesSec( packetSize / 1024.f / 1024.f * 1000.f )
-                , _nSamples( 0 )
-            { 
-                _buffer.resize( packetSize );
-                connection->recvNB( _buffer.getData(), _buffer.getSize() );
-            }
+class Receiver : public eq::base::Thread
+{
+public:
+    Receiver( const size_t packetSize, ConnectionPtr connection )
+            : _connection( connection )
+            , _mBytesSec( packetSize / 1024.f / 1024.f * 1000.f )
+            , _nSamples( 0 )
+        { 
+            _buffer.resize( packetSize );
+            connection->recvNB( _buffer.getData(), _buffer.getSize() );
+        }
 
-        virtual ~Receiver() {}
+    virtual ~Receiver() {}
 
-        bool readPacket()
+    bool readPacket()
         {
             if( !_connection->recvSync( 0, 0 ))
                 return false;
@@ -85,20 +85,20 @@ namespace
             return true;
         }
 
-        void executeReceive()
+    void executeReceive()
         {
             TEST( _hasConnection == false );
             _hasConnection = true;
         }
 
-        void stop()
+    void stop()
         {
             TEST( _hasConnection == false );
             _connection = 0;
             _hasConnection = true;
         }
 
-        virtual void* run()
+    virtual void* run()
         {
             _hasConnection.waitEQ( true );
             while( _connection.isValid( ))
@@ -118,17 +118,166 @@ namespace
             return EXIT_SUCCESS;
         }
 
-    private:
-        eq::base::Clock _clock;
-        eq::base::RNG _rng;
+private:
+    eq::base::Clock _clock;
+    eq::base::RNG _rng;
 
-        eq::base::Bufferb _buffer;
-        eq::base::Monitor< bool > _hasConnection;
-        ConnectionPtr             _connection;
-        const float _mBytesSec;
-        size_t      _nSamples;
-    };
+    eq::base::Bufferb _buffer;
+    eq::base::Monitor< bool > _hasConnection;
+    ConnectionPtr             _connection;
+    const float _mBytesSec;
+    size_t      _nSamples;
+    size_t      _packetSize;
+};
+
+
+
+class Selector : public eq::base::Thread
+{
+public:
+    Selector( ConnectionPtr connection, const size_t packetSize,
+              const bool useThreads )
+            : _connection( connection )
+            , _packetSize( packetSize )
+            , _useThreads( useThreads )
+        {
+        }
+
+    virtual bool init()
+        {
+            TEST( _connection->listen( ));
+            _connection->acceptNB();
+
+            _connectionSet.addConnection( _connection );
+
+            // Get first client
+            const ConnectionSet::Event event = _connectionSet.select();
+            TEST( event == ConnectionSet::EVENT_CONNECT );
+
+            ConnectionPtr resultConn = _connectionSet.getConnection();
+            ConnectionPtr newConn    = resultConn->acceptSync();
+            resultConn->acceptNB();
+        
+            TEST( resultConn == _connection );
+            TEST( newConn.isValid( ));
+
+            _receivers.push_back( RecvConn( new Receiver( _packetSize, newConn),
+                                            newConn ));
+            if( _useThreads )
+                _receivers.back().first->start();
+
+            _connectionSet.addConnection( newConn );
+            // Until all client have disconnected...
+            _nClients = 1;
+            return true;
+        }
+    virtual void* run()
+        {
+            ConnectionPtr resultConn;
+            ConnectionPtr newConn;
+            while( _nClients > 0 )
+            {
+                switch( _connectionSet.select( )) // ...get next request
+                {
+                    case ConnectionSet::EVENT_CONNECT: // new client
+                    
+                        resultConn = _connectionSet.getConnection();
+                        newConn = resultConn->acceptSync();
+                        resultConn->acceptNB();
+
+                        TEST( newConn.isValid( ));
+
+                        _receivers.push_back( 
+                            RecvConn( new Receiver( _packetSize, newConn ),
+                                      newConn ));
+                        if( _useThreads )
+                            _receivers.back().first->start();
+
+                        _connectionSet.addConnection( newConn );
+                        cerr << ++_nClients << " clients" << endl;
+                        break;
+
+                    case ConnectionSet::EVENT_DATA:  // new data
+                    {
+                        resultConn = _connectionSet.getConnection();
+
+                        Receiver* receiver = 0;
+                        vector< RecvConn >::iterator i;
+                        for( i = _receivers.begin(); i != _receivers.end(); ++i)
+                        {
+                            const RecvConn& candidate = *i;
+                            if( candidate.second == resultConn )
+                            {
+                                receiver = candidate.first;
+                                break;
+                            }
+                        }
+                        TEST( receiver );
+
+                        if( _useThreads )
+                        {
+                            _connectionSet.removeConnection( resultConn );
+                            receiver->executeReceive();
+                        }
+                        else if( !receiver->readPacket())
+                        {
+                            // Connection dead?
+                            _connectionSet.removeConnection( resultConn );
+                            delete receiver;
+                            _receivers.erase( i );
+                            cerr << --_nClients << " clients" << endl;
+                        }
+                        break;
+                    }
+                    case ConnectionSet::EVENT_DISCONNECT:
+                    case ConnectionSet::EVENT_INVALID_HANDLE:  // client done
+                        resultConn = _connectionSet.getConnection();
+                        _connectionSet.removeConnection( resultConn );
+
+                        for( vector< RecvConn >::iterator i =_receivers.begin();
+                             i != _receivers.end(); ++i )
+                        {
+                            const RecvConn& candidate = *i;
+                            if( candidate.second == resultConn )
+                            {
+                                Receiver* receiver = candidate.first;
+                                _receivers.erase( i );
+                                if( _useThreads )
+                                {
+                                    receiver->stop();
+                                    receiver->join();
+                                }
+                                delete receiver;
+                                break;
+                            }
+                        }
+
+                        cerr << --_nClients << " clients" << endl;
+                        break;
+
+                    case ConnectionSet::EVENT_INTERRUPT:
+                        break;
+
+                    default:
+                        TESTINFO( false, "Not reachable" );
+                }
+            }
+            TESTINFO( _receivers.empty(), _receivers.size() );
+            TESTINFO( _connectionSet.size() == 1, _connectionSet.size() );
+            _connectionSet.clear();
+            return EXIT_SUCCESS;
+        }
+private:
+    typedef std::pair< Receiver*, ConnectionPtr > RecvConn;
+    ConnectionPtr    _connection;
+    vector< RecvConn > _receivers;
+    size_t _packetSize;
+    bool _useThreads;
+    eq::base::Bufferb _buffer;
+};
+
 }
+
 
 int main( int argc, char **argv )
 {
@@ -152,7 +301,7 @@ int main( int argc, char **argv )
         TCLAP::ValueArg<string> serverArg( "s", "server", "run as server", 
                                            true, "", "IP[:port]" );
         TCLAP::SwitchArg threadedArg( "t", "threaded", 
-                         "Run each receive in a separate thread (server only)", 
+                          "Run each receive in a separate thread (server only)",
                                       command, false );
         TCLAP::ValueArg<size_t> sizeArg( "p", "packetSize", "packet size", 
                                          false, packetSize, "unsigned", 
@@ -162,7 +311,7 @@ int main( int argc, char **argv )
                                             false, nPackets, "unsigned",
                                             command );
         TCLAP::ValueArg<size_t> waitArg( "w", "wait", 
-                                  "wait time (ms) between sends (client only)", 
+                                   "wait time (ms) between sends (client only)",
                                          false, 0, "unsigned", command );
 
         command.xorAdd( clientArg, serverArg );
@@ -188,7 +337,7 @@ int main( int argc, char **argv )
     catch( TCLAP::ArgException& exception )
     {
         EQERROR << "Command line parse error: " << exception.error() 
-            << " for argument " << exception.argId() << endl;
+                << " for argument " << exception.argId() << endl;
 
         eq::net::exit();
         return EXIT_FAILURE;
@@ -196,11 +345,16 @@ int main( int argc, char **argv )
 
     // run
     ConnectionPtr connection = Connection::create( description );
-
+    Selector* selector = 0;
     if( isClient )
     {
-        ConnectionPtr readConnection = connection;
-        TEST( connection->connect( ));
+        if( description->type >= CONNECTIONTYPE_MULTICAST )
+        {
+            selector = new Selector( connection, packetSize, useThreads );
+            selector->start();
+        }
+        else
+            TEST( connection->connect( ));
 
         eq::base::Buffer< uint8_t > buffer;
         buffer.resize( packetSize );
@@ -236,125 +390,13 @@ int main( int argc, char **argv )
     }
     else
     {
-        TEST( connection->listen( ));
-        connection->acceptNB();
-
-        _connectionSet.addConnection( connection );
-
-        // Get first client
-        const ConnectionSet::Event event = _connectionSet.select();
-        TEST( event == ConnectionSet::EVENT_CONNECT );
-
-        ConnectionPtr resultConn = _connectionSet.getConnection();
-        ConnectionPtr newConn    = resultConn->acceptSync();
-        resultConn->acceptNB();
-        
-        TEST( resultConn == connection );
-        TEST( newConn.isValid( ));
-
-        typedef std::pair< Receiver*, ConnectionPtr > RecvConn;
-        vector< RecvConn > receivers;
-
-        receivers.push_back( RecvConn( new Receiver( packetSize, newConn ),
-                                       newConn ));
-        if( useThreads )
-            receivers.back().first->start();
-
-        _connectionSet.addConnection( newConn );
-
-        // Until all client have disconnected...
-        _nClients = 1;
-        while( _nClients > 0 )
-        {
-            switch( _connectionSet.select( )) // ...get next request
-            {
-                case ConnectionSet::EVENT_CONNECT: // new client
-                    resultConn = _connectionSet.getConnection();
-                    TEST( resultConn == connection );
-
-                    newConn = resultConn->acceptSync();
-                    resultConn->acceptNB();
-                    TEST( newConn.isValid( ));
-
-                    receivers.push_back( 
-                        RecvConn( new Receiver(packetSize, newConn), newConn ));
-                    if( useThreads )
-                        receivers.back().first->start();
-
-                    _connectionSet.addConnection( newConn );
-                    cerr << ++_nClients << " clients" << endl;
-                    break;
-
-                case ConnectionSet::EVENT_DATA:  // new data
-                {
-                    resultConn = _connectionSet.getConnection();
-
-                    Receiver* receiver = 0;
-                    vector< RecvConn >::iterator i;
-                    for( i = receivers.begin(); i != receivers.end(); ++i )
-                    {
-                        const RecvConn& candidate = *i;
-                        if( candidate.second == resultConn )
-                        {
-                            receiver = candidate.first;
-                            break;
-                        }
-                    }
-                    TEST( receiver );
-
-                    if( useThreads )
-                    {
-                        _connectionSet.removeConnection( resultConn );
-                        receiver->executeReceive();
-                    }
-                    else if( !receiver->readPacket())
-                    {
-                        // Connection dead?
-                        _connectionSet.removeConnection( resultConn );
-                        delete receiver;
-                        receivers.erase( i );
-                        cerr << --_nClients << " clients" << endl;
-                    }
-                    break;
-                }
-                case ConnectionSet::EVENT_DISCONNECT:
-                case ConnectionSet::EVENT_INVALID_HANDLE:  // client done
-                    resultConn = _connectionSet.getConnection();
-                    _connectionSet.removeConnection( resultConn );
-
-                    for( vector< RecvConn >::iterator i = receivers.begin();
-                         i != receivers.end(); ++i )
-                    {
-                        const RecvConn& candidate = *i;
-                        if( candidate.second == resultConn )
-                        {
-                            Receiver* receiver = candidate.first;
-                            receivers.erase( i );
-                            if( useThreads )
-                            {
-                                receiver->stop();
-                                receiver->join();
-                            }
-                            delete receiver;
-                            break;
-                        }
-                    }
-
-                    cerr << --_nClients << " clients" << endl;
-                    break;
-
-                case ConnectionSet::EVENT_INTERRUPT:
-                    break;
-
-                default:
-                    TESTINFO( false, "Not reachable" );
-            }
-        }
-
-        TESTINFO( receivers.empty(), receivers.size() );
-        TESTINFO( _connectionSet.size() == 1, _connectionSet.size() );
-        _connectionSet.clear();
+        selector = new Selector( connection, packetSize, useThreads );
+        selector->start();
     }
+
+    if ( selector )
+        selector->join();
+    delete selector;
 
     TESTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
     connection->close();

@@ -1,7 +1,5 @@
-Object data stream cleanup:
-- istreams set ready self
-- reduce commands/packet types for sending data
-- allow instance cache to cache 'chunked' streams [untested]
+Improve netperf to work with multicast connections where the sender
+also receives its own data (Cedric + cleanups)
 
 [ ] May break build
 [ ] May break existing applications
