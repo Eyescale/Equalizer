@@ -60,6 +60,8 @@ RSPConnection::RSPConnection()
         , _lastSequenceIDAck( -1 )
         , _countReadReceiver ( 0 )
         , _countWriteReceiver ( 0 )
+        , _id( _rng.get<IDConnectionType>( ))
+
 {
     _description->type = CONNECTIONTYPE_RSP;
     _description->bandwidth = 102400;
@@ -99,7 +101,7 @@ void RSPConnection::close()
 
     if( _thread )
     {
-        const DatagramNode exitNode ={ EXITNODE, _getID() };
+        const DatagramNode exitNode ={ ID_EXIT, _id };
         _connection->write( &exitNode, sizeof( DatagramNode ) );
         _connectionSet.interrupt();
         _thread->join();
@@ -177,10 +179,10 @@ void RSPConnection::_exitAIORead(){ /* NOP */ }
 
 RSPConnection::IDConnectionType RSPConnection::_buildNewID()
 {
-    _myID = _rng.get<IDConnectionType>();
-    _myIDShift = static_cast< IDConnectionType >( _myID ) << 
+    _id = _rng.get<IDConnectionType>();
+    _shiftedID = static_cast< IDConnectionType >( _id ) << 
                                              ( sizeof( IDConnectionType ) * 8 );
-    return _myID;
+    return _id;
 }
 
 bool RSPConnection::listen()
@@ -302,7 +304,7 @@ ConnectionPtr RSPConnection::acceptSync()
     _countAcceptChildren++;
 
     const DatagramCountConnection countNode = 
-                        { COUNTNODE, _getID(), _childs.size() };
+                        { COUNTNODE, _id, _childs.size() };
     _connection->write( &countNode, sizeof( DatagramCountConnection ) );
     
     EQINFO << "accepted connection " << (void*)newConnection.get()
@@ -334,7 +336,7 @@ bool RSPConnection::_init()
     _connection->readNB( _bufRead.getData(), _connection->getMTU() );
 
     // send a first datgram for annunce me and discover other connection 
-    const DatagramNode newnode ={ ACKREQNEWNODE, _getID() };
+    const DatagramNode newnode ={ ID_HELLO, _id };
     _connection->write( &newnode, sizeof( DatagramNode ) );
     uint8_t countTimeOut = 0;
     while ( true )
@@ -345,14 +347,14 @@ bool RSPConnection::_init()
                 if ( countTimeOut < 10 )
                 {
                     countTimeOut++;
-                    const DatagramNode ackNode ={ ACKREQNEWNODE, _getID() };
+                    const DatagramNode ackNode ={ ID_HELLO, _id };
                     _connection->write( &ackNode, sizeof( DatagramNode ) );
                 }
                 else
                 {
-                    const DatagramNode confirmNode ={ CONFIRMNODE, _getID() };
+                    const DatagramNode confirmNode ={ ID_CONFIRM, _id };
                     _connection->write( &confirmNode, sizeof( DatagramNode ) );
-                    _addNewConnection( _getID() );
+                    _addNewConnection( _id );
                     _connection->setMulticastLoop( true );
                     return true;
                 }
@@ -397,22 +399,22 @@ bool RSPConnection::_handleInitData()
                                                        (  _bufRead.getData()  );
     switch ( *type )
     {
-    case ACKREQNEWNODE:
+    case ID_HELLO:
         return _acceptNewIDConnection( node->connectionID ) ;
 
-    case NACKNEWNODE:
+    case ID_DENY:
         // a connection refused my ID, ask for another ID
-        if ( node->connectionID == _myID )
+        if ( node->connectionID == _id )
         {
-             const DatagramNode newnode ={ ACKREQNEWNODE, _buildNewID() };
+             const DatagramNode newnode ={ ID_HELLO, _buildNewID() };
              _connection->write( &newnode, sizeof( DatagramNode ) );
         }
         return true;
 
-    case CONFIRMNODE:
+    case ID_CONFIRM:
         return _addNewConnection( node->connectionID );
 
-    case EXITNODE:
+    case ID_EXIT:
         return _acceptRemoveConnection( node->connectionID );
     default: break;
     
@@ -561,19 +563,19 @@ bool RSPConnection::_handleData( )
         return _handleAckRequDatagram(
                 reinterpret_cast< const DatagramAckRequest* >( type ));
     
-    case ACKREQNEWNODE:
+    case ID_HELLO:
     {
         const DatagramNode* node = reinterpret_cast< const DatagramNode* >
                                                        (  _bufRead.getData() );
         return _acceptNewIDConnection( node->connectionID );
     }
-    case CONFIRMNODE:
+    case ID_CONFIRM:
     {
         const DatagramNode* node = reinterpret_cast< const DatagramNode* >
                                                        (  _bufRead.getData() );
         return _addNewConnection( node->connectionID );
     }
-    case EXITNODE:
+    case ID_EXIT:
     {
         const DatagramNode* node = reinterpret_cast< const DatagramNode* >
                                                        (  _bufRead.getData()  );
@@ -817,7 +819,7 @@ bool RSPConnection::_handleNackDatagram( const DatagramNack* nack )
         EQASSERT( end <= _numberDatagram );
         EQASSERT( start <= end);
 
-        uint32_t writSeqID = _myIDShift | _sequenceIDWrite;
+        uint32_t writSeqID = _shiftedID | _sequenceIDWrite;
 
         // repeat datagram data
         for ( uint16_t i = start; i <= end; i++ )
@@ -976,9 +978,9 @@ bool RSPConnection::_acceptNewIDConnection( IDConnectionType id )
     // the ID is same as mine 
     // how to detect if its my own send ?
     //   set ip_multicast_loop to false during connection period
-    if ( id == _myID )
+    if ( id == _id )
     {
-        DatagramNode nodeSend = { NACKNEWNODE, _myID };
+        DatagramNode nodeSend = { ID_DENY, _id };
         _connection->write( &nodeSend, sizeof( DatagramNode ) );
         return true;
     }
@@ -988,7 +990,7 @@ bool RSPConnection::_acceptNewIDConnection( IDConnectionType id )
     
     if ( child.isValid() )
     {
-        DatagramNode nodeSend = { NACKNEWNODE, id };
+        DatagramNode nodeSend = { ID_DENY, id };
         _connection->write( &nodeSend, sizeof( DatagramNode ) );
     }
     
@@ -1053,7 +1055,7 @@ bool RSPConnection::_addNewConnection( IDConnectionType id )
 bool RSPConnection::_acceptRemoveConnection( const IDConnectionType id )
 {
     EQWARN << "remove Connection " << id << std::endl;
-    if ( id != _myID )
+    if ( id != _id )
     {
         _sendDatagramCountNode();
         return true;
@@ -1077,7 +1079,7 @@ bool RSPConnection::_isCurrentSequenceWrite( uint16_t sequenceID,
                                              uint16_t writer )
 {
     return  !(( sequenceID != _sequenceIDWrite ) || 
-              ( writer != _getID() ));
+              ( writer != _id ));
 }
 
 int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
@@ -1103,7 +1105,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     if ( _numberDatagram * _maxLengthDatagramData != size )
         _numberDatagram++;
 
-    uint32_t writSeqID = _myIDShift | _sequenceIDWrite;
+    uint32_t writSeqID = _shiftedID | _sequenceIDWrite;
 
     EQLOG( net::LOG_RSP ) << "write sequence ID : " 
                           << _sequenceIDWrite << std::endl
@@ -1139,14 +1141,14 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 void RSPConnection::_sendDatagramCountNode()
 {
     const DatagramCountConnection countNode = 
-                       { COUNTNODE, _getID(), _childs.size() };
+                       { COUNTNODE, _id, _childs.size() };
     _connection->write( &countNode, sizeof( DatagramCountConnection ) );
 }
 
 void RSPConnection::_sendAck( const IDConnectionType writerID,
                               const IDSequenceType sequenceID)
 {
-    const DatagramAck ack = { ACK, _myID, writerID, sequenceID };
+    const DatagramAck ack = { ACK, _id, writerID, sequenceID };
     _connection->write( &ack, sizeof( ack ) );
 }
 
@@ -1161,7 +1163,7 @@ void RSPConnection::_sendNackDatagram ( const IDConnectionType  toWriterID,
     // set the header
     DatagramNack* header = reinterpret_cast< DatagramNack* >
                                                 ( sendBuffer.getData() );
-    const DatagramNack headerInit = { NACK, _myID, toWriterID, 
+    const DatagramNack headerInit = { NACK, _id, toWriterID, 
                                 sequenceID, countNack };
     *header = headerInit;
 
@@ -1202,7 +1204,7 @@ void RSPConnection::_sendDatagram( const uint32_t writSeqID,
 
 void RSPConnection::_sendAckRequest()
 {
-    const DatagramAckRequest ackRequest = { ACKREQ, _myID, _numberDatagram -1, 
+    const DatagramAckRequest ackRequest = { ACKREQ, _id, _numberDatagram -1, 
                                             _sequenceIDWrite };
     _connection->write( &ackRequest, sizeof( DatagramAckRequest ) );
 }

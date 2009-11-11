@@ -57,14 +57,13 @@ namespace net
         { 
             // exchange datagram during data send
             DATA,      // the datagram contains data
-            ACK,       // ack all data
-            NACK,      // annouce new data 
-            ACKREQ,    // ask for receive Ack from all reader
-                       // exchange datagram during connection
-            ACKREQNEWNODE,   // a new node is connected.
-            NACKNEWNODE,
-            CONFIRMNODE,
-            EXITNODE,  // a node is deconnected
+            ACKREQ,    // ask for ack from all readers
+            NACK,      // negative ack, request missing packets
+            ACK,       // positive ack all data
+            ID_HELLO, // a new node is connected.
+            ID_DENY,
+            ID_CONFIRM,
+            ID_EXIT,  // a node is deconnected
             COUNTNODE  // send to other the number node which I have found
         };
         
@@ -174,7 +173,6 @@ namespace net
         };
 
         IDConnectionType _buildNewID();
-        IDConnectionType _getID() const { return _myID; } 
         /* get the number valid connection in the multicast network */
         uint32_t _getCountConnection() { return _childs.size(); }
         
@@ -217,9 +215,9 @@ namespace net
 
         //int _indexRead;
 
-        IDConnectionType      _myID;
-        uint32_t              _myIDShift;
         eq::base::RNG         _rng;
+        IDConnectionType      _id;
+        uint32_t              _shiftedID;
 
         IDConnectionType _writerID;
         
