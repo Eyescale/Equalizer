@@ -118,7 +118,7 @@ namespace net
         
         struct DataReceive
         {
-            DataReceive();
+            DataReceive(){ reset(); }
             void reset();
             uint32_t    sequenceID;
             eq::base::Monitor< bool >  ackSend;
@@ -138,12 +138,13 @@ namespace net
         void close();
         bool connect(){ return listen(); }
 
-        virtual void acceptNB();
+        virtual void acceptNB(){ EQASSERT( _state == STATE_LISTENING ); }
+
         virtual ConnectionPtr acceptSync();
         void readNB( void* buffer, const uint64_t bytes ){/* NOP */}
         int64_t readSync( void* buffer, const uint64_t bytes );
         int64_t write( const void* buffer, const uint64_t bytes );
-        ConnectionPtr getSibling();
+        ConnectionPtr getSibling(){ return _sibling.get(); }
 
         
 #ifdef WIN32
@@ -163,8 +164,8 @@ namespace net
         public:
             Thread( RSPConnectionPtr connection )
                 : _connection( connection ){}
-            virtual ~Thread(){}
-            virtual bool init();
+            virtual ~Thread(){ _connection = 0; }
+            virtual bool init(){ return _connection->_init(); }
         protected:
             
             virtual void* run();
@@ -181,9 +182,6 @@ namespace net
                            void* buffer, 
                            const uint64_t bytes  );
         
-        void _sendDatagram( const uint32_t writSeqID,
-                            const uint16_t datagramID );
-        void _sendAckRequest( );
 
         /* using directly by the thread to manage RSP */
         bool _handleData( );
@@ -199,8 +197,8 @@ namespace net
         bool _handleInitData();
  
         
-        void _initAIOAccept();
-        void _exitAIOAccept();
+        void _initAIOAccept(){ _initAIORead(); }
+        void _exitAIOAccept(){ _exitAIORead(); }
         void _initAIORead();
         void _exitAIORead();
 
@@ -268,18 +266,25 @@ namespace net
                                     const IDSequenceType sequenceID ) const;
         RSPConnectionPtr _findConnectionWithWriterID( 
                                     const IDConnectionType writerID );
-        
+        bool _isCurrentSequenceWrite( const IDSequenceType sequenceID, 
+                                      const IDConnectionType writer );
         void _sendDatagramCountNode();
+        void _sendDatagram( const uint32_t writSeqID,
+                            const IDSequenceType datagramID );
 
-        void sendNackDatagram ( const IDConnectionType  toWriterID,
-                                const IDSequenceType  sequenceID,
-                                const uint8_t   countNack,
-                                const uint32_t* repeatID   );
+        void _sendAckRequest( );
+        void _sendAck( const IDConnectionType writerID,
+                       const IDSequenceType sequenceID);
+
+        void _sendNackDatagram ( const IDConnectionType  toWriterID,
+                                 const IDSequenceType  sequenceID,
+                                 const uint8_t   countNack,
+                                 const uint32_t* repeatID   );
         
         bool _acceptNewIDConnection( const IDConnectionType id );
 
         /* add a new connection detected in the network multicast */
-        bool _addNewConnection( IDConnectionType id );
+        bool _addNewConnection( const IDConnectionType id );
 
         bool _acceptRemoveConnection( const IDConnectionType id );
         CHECK_THREAD_DECLARE( _recvThread );
