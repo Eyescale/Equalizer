@@ -275,10 +275,7 @@ void Session::_attachObject( Object* object, const uint32_t id,
 
     uint32_t instanceID = inInstanceID;
     if( inInstanceID == EQ_ID_INVALID )
-    {
         instanceID = _genNextID( _instanceIDs );
-    }
-    EQASSERT( instanceID <= _instanceIDs );
 
     object->attachToSession( id, instanceID, this );
 
