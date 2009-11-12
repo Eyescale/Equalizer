@@ -592,7 +592,7 @@ namespace net
         typedef base::UUIDHash< NodePtr > NodeHash;
 
         /** The connected nodes. */
-        NodeHash _nodes;
+        NodeHash _nodes; // read: all, write: recv only
 
         /** The node for each connection. */
         typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;

@@ -31,6 +31,8 @@
 #  include <alloca.h>
 #endif
 
+#include <limits>
+
 namespace eq
 {
 namespace net
@@ -44,7 +46,7 @@ Session::Session()
         , _id(EQ_ID_INVALID)
         , _isMaster(false)
         , _idPool( 0 ) // Master pool is filled in Node::registerSession
-        , _instanceIDs( 0 ) 
+        , _instanceIDs( std::numeric_limits< long >::min( )) 
 {
     EQINFO << "New Session @" << (void*)this << std::endl;
 }
@@ -128,7 +130,7 @@ void Session::notifyMapped( NodePtr node )
     registerCommand( CMD_SESSION_DETACH_OBJECT,
                      CmdFunc( this, &Session::_cmdDetachObject ), 0 );
     registerCommand( CMD_SESSION_MAP_OBJECT,
-                     CmdFunc( this, &Session::_cmdMapObject ), 0 );
+                     CmdFunc( this, &Session::_cmdMapObject ), queue );
     registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT,
                      CmdFunc( this, &Session::_cmdSubscribeObject ), queue );
     registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS,
@@ -255,6 +257,16 @@ void Session::attachObject( Object* object, const uint32_t id,
     _requestHandler.waitRequest( packet.requestID );
 }
 
+namespace
+{
+uint32_t _genNextID( base::mtLong& val )
+{
+    const long id = ++val;
+    return static_cast< uint32_t >(
+        static_cast< int64_t >( id ) + 0x7FFFFFFFu );
+}
+}
+
 void Session::_attachObject( Object* object, const uint32_t id, 
                              const uint32_t inInstanceID )
 {
@@ -264,8 +276,7 @@ void Session::_attachObject( Object* object, const uint32_t id,
     uint32_t instanceID = inInstanceID;
     if( inInstanceID == EQ_ID_INVALID )
     {
-        _instanceIDs = ( _instanceIDs + 1 ) % base::IDPool::MAX_CAPACITY;
-        instanceID = _instanceIDs;
+        instanceID = _genNextID( _instanceIDs );
     }
     EQASSERT( instanceID <= _instanceIDs );
 
@@ -337,6 +348,7 @@ bool Session::mapObject( Object* object, const uint32_t id,
 uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
                                const uint32_t version )
 {
+    CHECK_NOT_THREAD( _commandThread );
     EQASSERT( object );
     EQLOG( LOG_OBJECTS ) << "Mapping " << typeid( *object ).name() << " to id "
                          << id << " version " << version << std::endl;
@@ -748,13 +760,13 @@ CommandResult Session::_cmdDetachObject( Command& command )
 
 CommandResult Session::_cmdMapObject( Command& command )
 {
-    CHECK_THREAD( _receiverThread );
+    CHECK_THREAD( _commandThread );
     const SessionMapObjectPacket* packet = 
         command.getPacket< SessionMapObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
 
-    Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
-                                               packet->requestID ));    
+    Object* object = static_cast<Object*>(
+        _requestHandler.getRequestData( packet->requestID ));    
     EQASSERT( object );
     const uint32_t id = packet->objectID;
 
@@ -766,11 +778,9 @@ CommandResult Session::_cmdMapObject( Command& command )
         EQASSERTINFO( master.isValid(), "Master node for object id " << id
                       << " not connected" );
 
-        _instanceIDs = ( _instanceIDs + 1 ) % base::IDPool::MAX_CAPACITY;
-
         // slave instantiation - subscribe first
         SessionSubscribeObjectPacket subscribePacket( packet );
-        subscribePacket.instanceID = _instanceIDs;
+        subscribePacket.instanceID = _genNextID( _instanceIDs );
 
         const InstanceDataDeque* cached = _instanceDataCache[ id ];
         if( cached )
@@ -789,7 +799,7 @@ CommandResult Session::_cmdMapObject( Command& command )
         return COMMAND_HANDLED;
     }
 
-    _attachObject( object, id, EQ_ID_INVALID );
+    attachObject( object, id, EQ_ID_INVALID );
 
     EQLOG( LOG_OBJECTS ) << "mapped object id " << object->getID() << " @" 
                          << (void*)object << " is " << typeid(*object).name()

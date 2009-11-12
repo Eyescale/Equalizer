@@ -441,8 +441,7 @@ void Node::_cleanup()
                << std::endl;
 
 #ifndef NDEBUG
-    for( base::UUIDHash< NodePtr >::const_iterator i = _nodes.begin();
-         i != _nodes.end(); ++i )
+    for( NodeHash::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         NodePtr node = i->second;
         EQINFO << "    " << node << " ref count " << node->getRefCount() - 1 
@@ -567,10 +566,10 @@ void Node::_connectMulticast( NodePtr node )
 
 NodePtr Node::getNode( const NodeID& id ) const
 { 
-    base::UUIDHash< NodePtr >::const_iterator iter = _nodes.find( id );
-    if( iter == _nodes.end( ))
+    NodeHash::const_iterator i = _nodes.find( id );
+    if( i == _nodes.end( ))
         return 0;
-    return iter->second;
+    return i->second;
 }
 
 bool Node::disconnect( NodePtr node )
@@ -905,8 +904,7 @@ bool Node::syncConnect( NodePtr node, const uint32_t timeout )
     if( node->_launchID == EQ_ID_INVALID )
         return ( node->getState() == STATE_CONNECTED );
 
-    void*          ret;
-
+    void* ret;
     if( _requestHandler.waitRequest( node->_launchID, ret, timeout ))
     {
         EQASSERT( node->getState() == STATE_CONNECTED );
@@ -923,11 +921,10 @@ bool Node::syncConnect( NodePtr node, const uint32_t timeout )
 NodePtr Node::connect( const NodeID& nodeID )
 {
     EQASSERT( nodeID != NodeID::ZERO );
-    
+
     // Extract all node pointers - _nodes hash might be modified later
     NodeVector nodes;
-    for( base::UUIDHash< NodePtr >::const_iterator i = _nodes.begin();
-         i != _nodes.end(); ++i )
+    for( NodeHash::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         NodePtr node = i->second;
 
@@ -951,9 +948,9 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
 {
     EQASSERT( nodeID != NodeID::ZERO );
 
-    base::UUIDHash< NodePtr >::const_iterator iter = _nodes.find( nodeID );
-    if( iter != _nodes.end( ))
-        return iter->second;
+    NodeHash::const_iterator i = _nodes.find( nodeID );
+    if( i != _nodes.end( ))
+        return i->second;
 
     // Make sure that only one connection request based on the node identifier
     // is pending at a given time. Otherwise a node with the same id might be
@@ -964,9 +961,9 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     base::ScopedMutex mutex( _connectMutex );
     EQINFO << "Connecting node " << nodeID << std::endl;
 
-    iter = _nodes.find( nodeID );
-    if( iter != _nodes.end( ))
-        return iter->second;
+    i = _nodes.find( nodeID );
+    if( i != _nodes.end( ))
+        return i->second;
  
     EQASSERT( _id != nodeID );
     NodeGetNodeDataPacket packet;
@@ -995,10 +992,10 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     if( !connect( node ))
     {
         // connect failed - maybe simultaneous connect from peer?
-        iter = _nodes.find( nodeID );
-        if( iter != _nodes.end( ))
+        i = _nodes.find( nodeID );
+        if( i != _nodes.end( ))
         {
-            node = iter->second;
+            node = i->second;
             EQASSERT( node->isConnected( ));
             return node;
         }
@@ -1734,7 +1731,8 @@ CommandResult Node::_cmdConnect( Command& command )
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
     if( _nodes.find( nodeID ) != _nodes.end( ))
-    {   // Node exists, probably simultaneous connect from peer
+    {
+        // Node exists, probably simultaneous connect from peer
         EQASSERT( packet->launchID == EQ_ID_INVALID );
         EQINFO << "Already got node " << nodeID << ", refusing connect"
                << std::endl;
@@ -2025,11 +2023,12 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
 
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
-
-    if( _nodes.find( nodeID ) != _nodes.end( ))
+    
+    NodeHash::const_iterator i = _nodes.find( nodeID );
+    if( i != _nodes.end( ))
     {   
         // Requested node connected to us in the meantime
-        NodePtr node = _nodes[ nodeID ];
+        NodePtr node = i->second;
         EQASSERT( node->isConnected( ));
 
         node.ref();
