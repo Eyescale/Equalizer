@@ -382,11 +382,25 @@ index e6f4167..1731170 100644
      _mutex.unset();
      _fdSetCopy = _fdSet;
 diff --git lib/net/connectionSet.h lib/net/connectionSet.h
-index 941820b..4811636 100644
+index 941820b..0609198 100644
 --- lib/net/connectionSet.h
 +++ lib/net/connectionSet.h
-@@ -25,7 +25,9 @@
+@@ -18,14 +18,23 @@
+ #ifndef EQNET_CONNECTION_SET_H
+ #define EQNET_CONNECTION_SET_H
+ 
++#ifdef EQUALIZER_EXPORTS
++   // We need to instantiate a Monitor< Event > when compiling the library,
++   // but we don't want to have <pthread.h> for a normal build, hence this hack
++#  include <pthread.h>
++#endif
++
+ #include <eq/net/connectionListener.h> // base class
+ 
+ #include <eq/base/base.h>
+ #include <eq/base/buffer.h>
  #include <eq/base/hash.h>
++#include <eq/base/monitor.h>
  #include <eq/base/refPtr.h>
  
 -#ifndef WIN32
@@ -396,7 +410,7 @@ index 941820b..4811636 100644
  #  include <poll.h>
  #endif
  
-@@ -65,10 +67,10 @@ namespace net
+@@ -65,10 +74,10 @@ namespace net
          EQ_EXPORT void addConnection( ConnectionPtr connection );
          EQ_EXPORT bool removeConnection( ConnectionPtr connection );
          EQ_EXPORT void clear();
@@ -410,7 +424,7 @@ index 941820b..4811636 100644
  
          /** 
           * Selects a Connection which is ready for I/O.
-@@ -91,9 +93,53 @@ namespace net
+@@ -91,9 +100,53 @@ namespace net
          ConnectionPtr getConnection(){ return _connection; }
  
      private:
@@ -464,7 +478,7 @@ index 941820b..4811636 100644
          /** The connections to handle */
          ConnectionVector _connections;
  
-@@ -104,7 +150,7 @@ namespace net
+@@ -104,7 +157,7 @@ namespace net
          base::Buffer< pollfd > _fdSetCopy; // 'const' set
          base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
  #endif
@@ -474,7 +488,7 @@ index 941820b..4811636 100644
          /** The connection to reset a running select, see constructor. */
          base::RefPtr< PipeConnection > _selfConnection;
 diff --git lib/net/node.cpp lib/net/node.cpp
-index 479c020..f2b4c23 100644
+index 0a80f56..f467f19 100644
 --- lib/net/node.cpp
 +++ lib/net/node.cpp
 @@ -107,7 +107,7 @@ Node::~Node()
@@ -486,7 +500,7 @@ index 479c020..f2b4c23 100644
      EQASSERT( _connectionNodes.empty( ));
      EQASSERT( _pendingCommands.empty( ));
      EQASSERT( _nodes.empty( ));
-@@ -336,7 +336,7 @@ bool Node::stopListening()
+@@ -347,7 +347,7 @@ bool Node::stopListening()
      EQCHECK( _receiverThread->join( ));
      _cleanup();
  
@@ -521,15 +535,15 @@ index 2bdc345..f420bcb 100644
                  nConnects = 0;
                  clock.reset();
 diff --git tests/netperf/netperf.cpp tests/netperf/netperf.cpp
-index d2476fd..4e0e0c7 100644
+index f459176..4a52850 100644
 --- tests/netperf/netperf.cpp
 +++ tests/netperf/netperf.cpp
-@@ -351,7 +351,7 @@ int main( int argc, char **argv )
+@@ -263,7 +263,7 @@ public:
+                 }
+             }
+             TESTINFO( _receivers.empty(), _receivers.size() );
+-            TESTINFO( _connectionSet.size() == 1, _connectionSet.size() );
++            TESTINFO( _connectionSet.getSize() == 1, _connectionSet.getSize( ));
+             _connectionSet.clear();
+             return EXIT_SUCCESS;
          }
- 
-         TESTINFO( receivers.empty(), receivers.size() );
--        TESTINFO( _connectionSet.size() == 1, _connectionSet.size() );
-+        TESTINFO( _connectionSet.getSize() == 1, _connectionSet.getSize( ));
-         _connectionSet.clear();
-     }
- 
