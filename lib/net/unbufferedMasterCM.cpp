@@ -113,14 +113,14 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
 
     if( version != VERSION_NONE ) // send current data
     {
-        os.enable( node );
+        os.enable( node, true );
         _object->getInstanceData( os );
         os.disable();
     }
 
     if( !os.hasSentData( )) // if no data, send empty packet to set version
     {
-        os.enable( node );
+        os.enable( node, true );
         os.writeOnce( 0, 0 );
         os.disable();
     }

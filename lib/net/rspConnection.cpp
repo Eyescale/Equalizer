@@ -336,7 +336,7 @@ bool RSPConnection::_initReadThread()
     // send a first datgram for annunce me and discover other connection 
     const DatagramNode newnode ={ ID_HELLO, _id };
     _connection->write( &newnode, sizeof( DatagramNode ) );
-    uint8_t countTimeOut = 0;
+    size_t countTimeOut = 0;
     while ( true )
     {
         switch ( _connectionSet.select( 100 ) )
@@ -613,13 +613,10 @@ bool RSPConnection::_handleData( )
 
 bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
 {
-    uint32_t datagramWriterID   = datagram->writeSeqID >> 
-                                       ( sizeof( ID ) * 8 );
-    
-    uint32_t datagramSequenceID = datagram->writeSeqID  & 0xFFFF ;
+    const uint32_t writerID = datagram->writeSeqID >> ( sizeof( ID ) * 8 );
+    const uint32_t sequenceID = datagram->writeSeqID  & 0xFFFF;
 
-    RSPConnectionPtr connection = 
-                            _findConnectionWithWriterID( datagramWriterID );
+    RSPConnectionPtr connection = _findConnectionWithWriterID( writerID );
     
     // it's an unknown connection or when we run netperf client before
     // server netperf
@@ -632,7 +629,7 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
 
     // if the buffer hasn't been found during previous read or last
     // ack data sequence.
-    // find the data correspondig buffer 
+    // find the data corresponding buffer 
     // why we haven't a receiver here:
     // 1: it's a reception data for another connection
     // 2: all buffer was not ready during last ack data
@@ -642,7 +639,7 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
                               << std::endl;
 
         connection->_recvBuffer = 
-            connection->_findReceiverWithSequenceID( datagramSequenceID );
+            connection->_findReceiverWithSequenceID( sequenceID );
         // if needed set the vector length
         if ( connection->_recvBuffer )
         {
@@ -668,18 +665,18 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
     // if it's the first datagram 
     if( receive->ackSend.get() )
     {
-        if ( datagramSequenceID == receive->sequenceID )
+        if ( sequenceID == receive->sequenceID )
             return true;
 
         // if it's a datagram repetition for an other connection, we have
         // to ignore it
-        if ( ( connection->_lastSequenceIDAck == datagramSequenceID ) &&
+        if ( ( connection->_lastSequenceIDAck == sequenceID ) &&
              connection->_lastSequenceIDAck != -1 )
             return true;
 
-        EQLOG( net::LOG_RSP ) << "receive data from " << datagramWriterID 
-        << " sequenceID " << datagramSequenceID << std::endl;
-        receive->sequenceID = datagramSequenceID;
+        EQLOG( net::LOG_RSP ) << "receive data from " << writerID 
+        << " sequenceID " << sequenceID << std::endl;
+        receive->sequenceID = sequenceID;
         receive->posRead   = 0;
         receive->dataBuffer.setSize( 0 );
         receive->ackSend   = false;
@@ -721,7 +718,7 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
     }
     const uint32_t repeatID = indexMax | ( indexMin << 16 ) ; 
     
-    _sendNackDatagram ( connection->_writerID, datagramSequenceID, 1, &repeatID);
+    _sendNackDatagram ( connection->_writerID, sequenceID, 1, &repeatID);
     return true;
 }
 

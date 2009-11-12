@@ -1889,11 +1889,10 @@ CommandResult Node::_cmdID( Command& command )
     EQINFO << "handle ID " << packet << " node " << nodeID << std::endl;
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
+    base::ScopedMutex mutex( _connectMutex );
     NodePtr node;
     if( nodeID == _id ) // 'self' multicast connection
-    {
         node = this;
-    }
     else
     {
         NodeHash::const_iterator i = _nodes.find( nodeID );
@@ -1913,7 +1912,6 @@ CommandResult Node::_cmdID( Command& command )
     }
     EQASSERT( node.isValid( ));
 
-    base::ScopedMutex mutex( _connectMutex );
     MCDatas::iterator i = node->_multicasts.begin();
     for( ; i != node->_multicasts.end(); ++i )
     {
@@ -1997,7 +1995,6 @@ CommandResult Node::_cmdGetNodeData( Command& command)
     nodeID.convertToHost();
 
     NodePtr descNode = getNode( nodeID );
-    
     NodeGetNodeDataReplyPacket reply( packet );
 
     std::string nodeData;

@@ -62,9 +62,6 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
         packet.nodeID = _nodeID;
     }
 
-    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
-                         << " receivers " << std::endl;
-
     packet.nodeID.convertToNetwork();
     Connection::send( _connections, packet, buffer, size, true );
 }

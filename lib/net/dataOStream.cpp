@@ -18,6 +18,7 @@
 #include "dataOStream.h"
 
 #include "node.h"
+#include "log.h"
 #include "types.h"
 
 using namespace eq::base;
@@ -70,12 +71,18 @@ void DataOStream::enable( const NodeVector& receivers )
         _connections.push_back( connection );
     }
 
+    EQLOG( LOG_OBJECTS )
+        << "Enabled " << typeid( *this ).name() << " with " << mcSet.size()
+        << "/" << _connections.size() << " multicast connections" << std::endl;
     enable();
 }
 
-void DataOStream::enable( const NodePtr node )
+void DataOStream::enable( NodePtr node, const bool useMulticast )
 {
-    ConnectionPtr connection = node->getConnection();
+    ConnectionPtr connection = 
+        useMulticast ? node->getMulticast() : node->getConnection();
+    if( !connection )
+        connection = node->getConnection();
         
     connection->lockSend();
     _connections.push_back( connection );
