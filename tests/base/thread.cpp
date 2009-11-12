@@ -46,6 +46,17 @@ public:
     bool initLeft;
 };
 
+class FailThread : public InitThread
+{
+public:
+    virtual ~FailThread() {}
+
+    virtual bool init()
+        {
+            return false;
+        }
+};
+
 int main( int argc, char **argv )
 {
     LoadThread loadThreads[NTHREADS];
@@ -60,6 +71,9 @@ int main( int argc, char **argv )
     std::cout << "Spawned and joined " << NTHREADS << " loadThreads in "
               << time << " ms (" << (NTHREADS/time) << " threads/ms)" 
               << std::endl;
+
+    for( size_t i=0; i<NTHREADS; ++i )
+        TEST( loadThreads[i].isStopped( ));
     
     InitThread initThreads[NTHREADS];
 
@@ -73,7 +87,12 @@ int main( int argc, char **argv )
 
     for( size_t i=0; i<NTHREADS; ++i )
         TEST( initThreads[i].join( ));
-    
+
+    FailThread failThread;
+    TEST( !failThread.start( ));
+    TEST( !failThread.isRunning( ));
+    TEST( failThread.isStopped( ));
+
     return EXIT_SUCCESS;
 }
 

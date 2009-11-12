@@ -97,7 +97,6 @@ Thread::Thread()
 #endif
 {
     memset( &_data->threadID, 0, sizeof( pthread_t ));
-    _syncChild.set();
 }
 
 Thread::~Thread()
@@ -115,26 +114,20 @@ void* Thread::runChild( void* arg )
 
 void Thread::_runChild()
 {
-#ifdef EQ_WIN32_SDP_JOIN_WAR
-    _running = true;
-#endif
     pinCurrentThread();
-
     _data->threadID = pthread_self(); // XXX remove, set during create already?
 
     if( !init( ))
     {
         EQWARN << "Thread failed to initialize" << endl;
         _state = STATE_STOPPED;
-        _syncChild.unset();
         pthread_exit( 0 );
     }
 
-    _state    = STATE_RUNNING;
+    _state = STATE_RUNNING;
     EQINFO << "Thread successfully initialized" << endl;
     pthread_setspecific( _cleanupKey, this ); // install cleanup handler
     _notifyStarted();
-    _syncChild.unset(); // sync w/ parent
 
     void* result = run();
     EQINFO << "Thread finished with result " << result << endl;
@@ -154,8 +147,9 @@ void Thread::_notifyStarted()
            << endl;
     for( vector<ExecutionListener*>::const_iterator i = listeners.begin();
          i != listeners.end(); ++i )
-        
+    {
         (*i)->notifyExecutionStarted();
+    }
 }
 
 void _notifyStopping( void* )
@@ -175,8 +169,9 @@ void Thread::_notifyStopping()
     // Call them in reverse order so that symmetry is kept
     for( vector< ExecutionListener* >::reverse_iterator i = listeners.rbegin();
          i != listeners.rend(); ++i )
-        
+    {   
         (*i)->notifyExecutionStopping();
+    }
 }
 
 bool Thread::start()
@@ -209,9 +204,8 @@ bool Thread::start()
         }
     }
 
-    _syncChild.set(); // sync with child's entry func
-    _state = STATE_RUNNING;
-    return true;
+    _state.waitNE( STATE_STARTING );
+    return (_state != STATE_STOPPED);
 }
 
 void Thread::exit( void* retVal )
@@ -219,13 +213,12 @@ void Thread::exit( void* retVal )
     EQASSERTINFO( isCurrent(), "Thread::exit not called from child thread" );
 
     EQINFO << "Exiting thread" << endl;
-    _state = STATE_STOPPING;
 
 #ifdef EQ_WIN32_SDP_JOIN_WAR
-    _running = false;
     _retVal  = retVal;
 #endif
 
+    _state = STATE_STOPPING;
     pthread_exit( (void*)retVal );
     EQUNREACHABLE;
 }
@@ -250,7 +243,7 @@ bool Thread::join( void** retVal )
 
     EQVERB << "Joining thread" << endl;
 #ifdef EQ_WIN32_SDP_JOIN_WAR
-    _running.waitEQ( false );
+    _state.waitNE( STATE_RUNNING );
 #else
     void *_retVal;
     const int error = pthread_join( _data->threadID, &_retVal);

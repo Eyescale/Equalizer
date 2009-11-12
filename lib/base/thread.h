@@ -18,12 +18,15 @@
 #ifndef EQBASE_THREAD_H
 #define EQBASE_THREAD_H
 
+#ifdef EQUALIZER_EXPORTS
+   // We need to instantiate a Monitor< State > when compiling the library,
+   // but we don't want to have <pthread.h> for a normal build, hence this hack
+#  include <pthread.h>
+#endif
+
 #include <eq/base/base.h>     // EQ_EXPORT definition
 #include <eq/base/lock.h>     // member
-
-#ifdef EQ_WIN32_SDP_JOIN_WAR
-#  include <eq/base/monitor.h> // member
-#endif
+#include <eq/base/monitor.h> // member
 
 #include <vector>
 #include <typeinfo>
@@ -56,8 +59,8 @@ namespace base
          * All thread state listeners will be notified from the running thread,
          * after the thread was initialized successfully.
          * 
-         * @return <code>true</code> if the thread was launched,
-         *         <code>false</code> otherwise.
+         * @return <code>true</code> if the thread was launched and initialized
+         *         successfully, <code>false</code> otherwise.
          * @sa init(), run(), addListener()
          */
         EQ_EXPORT bool start();
@@ -175,12 +178,10 @@ namespace base
             STATE_STOPPING  // child no longer active, join() not yet called
         };
 
-        State _state;
-        Lock  _syncChild;
+        Monitor< State > _state;
 
 #ifdef EQ_WIN32_SDP_JOIN_WAR
-        Monitor<bool> _running;
-        void*         _retVal;
+        void* _retVal;
 #endif
 
         static void* runChild( void* arg );

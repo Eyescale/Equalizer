@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,6 +24,7 @@
 #define NTHREADS 4
 #define LOOPSIZE 100000
 
+#include "test.h"
 #include <pthread.h>
 
 #ifdef EQ_USE_OPENMP
@@ -60,4 +61,5 @@ int main( int argc, char **argv )
 
     for( int i = 0; i < NTHREADS; ++i )
         pthread_join( threadIDs[i], 0 );
+    return EXIT_SUCCESS;
 }
