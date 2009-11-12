@@ -16,33 +16,64 @@
  */
 
 #include <test.h>
+#include <eq/base/sleep.h>
 #include <eq/base/thread.h>
 #include <iostream>
 
-using namespace eq::base;
-using namespace std;
-
 #define NTHREADS 256
 
-class TestThread : public Thread
+class LoadThread : public eq::base::Thread
 {
 public:
+    virtual ~LoadThread() {}
     virtual void* run()
+        { return EXIT_SUCCESS; }
+};
+
+class InitThread : public LoadThread
+{
+public:
+    InitThread() : initLeft( false ) {}
+    virtual ~InitThread() {}
+
+    virtual bool init()
         {
-            return EXIT_SUCCESS;
+            eq::base::sleep( 10 );
+            initLeft = true;
+            return true;
         }
+    
+    bool initLeft;
 };
 
 int main( int argc, char **argv )
 {
-    TestThread threads[NTHREADS];
+    LoadThread loadThreads[NTHREADS];
+    eq::base::Clock clock;
 
     for( size_t i=0; i<NTHREADS; ++i )
-        TEST( threads[i].start( ));
+        TEST( loadThreads[i].start( ));
 
     for( size_t i=0; i<NTHREADS; ++i )
-        TEST( threads[i].join( ));
+        TEST( loadThreads[i].join( ));
+    const float time = clock.getTimef();
+    std::cout << "Spawned and joined " << NTHREADS << " loadThreads in "
+              << time << " ms (" << (NTHREADS/time) << " threads/ms)" 
+              << std::endl;
+    
+    InitThread initThreads[NTHREADS];
 
+    clock.reset();
+    for( size_t i=0; i<NTHREADS; ++i )
+    {
+        TEST( initThreads[i].start( ));
+        TEST( initThreads[i].initLeft == true );
+    }
+    TESTINFO( clock.getTimef() > NTHREADS * 10, clock.getTimef( ));
+
+    for( size_t i=0; i<NTHREADS; ++i )
+        TEST( initThreads[i].join( ));
+    
     return EXIT_SUCCESS;
 }
 
