@@ -845,14 +845,14 @@ void Channel::drawStatistics()
     }
     uint32_t scale = 1;
     const Viewport& vp = getViewport();
-    const uint32_t width = getPixelViewport().w / vp.w;
+    const uint32_t width = static_cast< uint32_t >( getPixelViewport().w/vp.w );
     while( (xMax - xMin) / scale > width )
         scale *= 10;
 
     xMax  /= scale;
     int64_t xStart = xMax - width + SPACE;
 
-    const uint32_t height = getPixelViewport().h / vp.h;
+    const uint32_t height = static_cast< uint32_t >( getPixelViewport().h/vp.h);
     uint32_t nextY = height - SPACE;
 
     std::map< uint32_t, EntityData > entities;
