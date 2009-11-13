@@ -21,6 +21,7 @@ HEADER_SRC = \
 	base/init.h \
 	base/launcher.h \
 	base/lock.h \
+	base/lockable.h \
 	base/log.h \
 	base/memoryMap.h \
 	base/monitor.h \

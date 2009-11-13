@@ -29,7 +29,7 @@ using namespace eq::base;
 using namespace eq::net;
 using namespace std;
 
-Monitor< Barrier* > barrier( 0 );
+Monitor< Barrier* > _barrier( 0 );
 uint32_t sessionID;
 
 class NodeThread : public Thread
@@ -53,20 +53,20 @@ public:
                 TEST( node->registerSession( &session ));
                 sessionID = session.getID();
 
-                barrier = new Barrier( node, 2 );
-                session.registerObject( barrier.get( ));
-                TEST( barrier->getID() != EQ_ID_INVALID );
+                Barrier barrier( node, 2 );
+                session.registerObject( &barrier );
+                TEST( barrier.getID() != EQ_ID_INVALID );
 
-                cerr << "Master enter" << endl;
-                barrier->enter();
-                cerr << "Master left" << endl;
+                _barrier = &barrier;
+                barrier.enter();
 
-                session.deregisterObject( barrier.get( ));
+                _barrier.waitEQ( 0 ); // wait for slave to unmap session
+                session.deregisterObject( &barrier );
                 node->deregisterSession( &session );
             }
             else
             {
-                barrier.waitNE( 0 );
+                _barrier.waitNE( 0 );
 
                 RefPtr<Node>                  server     = new Node;
                 RefPtr<ConnectionDescription> serverDesc = 
@@ -79,10 +79,11 @@ public:
                 TEST( node->mapSession( server, &session, sessionID ));
                 
                 cerr << "Slave enter" << endl;
-                barrier->enter();
+                _barrier->enter();
                 cerr << "Slave left" << endl;
 
                 node->unmapSession( &session );
+                _barrier = 0;
             }
 
             node->stopListening();

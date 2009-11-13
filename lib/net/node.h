@@ -26,6 +26,7 @@
 #include <eq/net/types.h>
 
 #include <eq/base/base.h>
+#include <eq/base/lockable.h>
 #include <eq/base/perThread.h>
 #include <eq/base/requestHandler.h>
 #include <eq/base/thread.h>
@@ -592,7 +593,7 @@ namespace net
         typedef base::UUIDHash< NodePtr > NodeHash;
 
         /** The connected nodes. */
-        NodeHash _nodes; // read: all, write: recv only
+        base::Lockable< NodeHash > _nodes; // read: all, write: recv only
 
         /** The node for each connection. */
         typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;

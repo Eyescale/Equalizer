@@ -18,8 +18,10 @@
 #ifndef EQBASE_SCOPEDMUTEX_H
 #define EQBASE_SCOPEDMUTEX_H
 
-#include <eq/base/lock.h>
-#include <eq/base/nonCopyable.h>
+#include <eq/base/lock.h>        // used in inline method
+#include <eq/base/lockable.h>    // used in inline method
+#include <eq/base/nonCopyable.h> // base class
+
 
 namespace eq
 {
@@ -36,7 +38,7 @@ namespace base
     {
     public:
         /** 
-         * Constructs a new scoped mutex using the given lock.
+         * Construct a new scoped mutex using the given lock.
          * 
          * @param lock the mutex to set and unset, or 0.
          */
@@ -47,12 +49,16 @@ namespace base
         explicit ScopedMutex( Lock& lock ) : _lock( &lock )
             { lock.set(); }
 
+        /** Constructs a new scoped mutex for the given Lockable structure. */
+        template< typename L > ScopedMutex( L& lockable )
+                : _lock( &lockable.lock ) { _lock->set(); }
+
         /** Destructs the scoped mutex and unsets the mutex. */
         ~ScopedMutex() { if( _lock ) _lock->unset(); }
 
     private:
-        ScopedMutex(){}
-        Lock* _lock;
+        ScopedMutex() : _lock( 0 ) {}
+        Lock* const _lock;
     };
 }
 }

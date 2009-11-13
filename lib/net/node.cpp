@@ -59,26 +59,20 @@ Node::Node()
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );
 
-    registerCommand( CMD_NODE_STOP, NodeFunc( this, &Node::_cmdStop ),
-                     &_commandThreadQueue );
+    CommandQueue* queue = &_commandThreadQueue;
+    registerCommand( CMD_NODE_STOP, NodeFunc( this, &Node::_cmdStop ), queue );
     registerCommand( CMD_NODE_REGISTER_SESSION,
-                     NodeFunc( this, &Node::_cmdRegisterSession ),
-                     &_commandThreadQueue );
+                     NodeFunc( this, &Node::_cmdRegisterSession ), queue );
     registerCommand( CMD_NODE_REGISTER_SESSION_REPLY,
-                     NodeFunc( this, &Node::_cmdRegisterSessionReply ),
-                     &_commandThreadQueue );
+                     NodeFunc( this, &Node::_cmdRegisterSessionReply ), queue );
     registerCommand( CMD_NODE_MAP_SESSION,
-                     NodeFunc( this, &Node::_cmdMapSession ),
-                     &_commandThreadQueue );
+                     NodeFunc( this, &Node::_cmdMapSession ), queue );
     registerCommand( CMD_NODE_MAP_SESSION_REPLY,
-                     NodeFunc( this, &Node::_cmdMapSessionReply ),
-                     &_commandThreadQueue );
+                     NodeFunc( this, &Node::_cmdMapSessionReply ), queue );
     registerCommand( CMD_NODE_UNMAP_SESSION, 
-                     NodeFunc( this, &Node::_cmdUnmapSession ),
-                     &_commandThreadQueue );
+                     NodeFunc( this, &Node::_cmdUnmapSession ), queue );
     registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
-                     NodeFunc( this, &Node::_cmdUnmapSessionReply ),
-                     &_commandThreadQueue );
+                     NodeFunc( this, &Node::_cmdUnmapSessionReply ), queue );
     registerCommand( CMD_NODE_CONNECT, NodeFunc( this, &Node::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
                      NodeFunc( this, &Node::_cmdConnectReply ), 0 );
@@ -88,11 +82,9 @@ Node::Node()
     registerCommand( CMD_NODE_DISCONNECT,
                      NodeFunc( this, &Node::_cmdDisconnect ), 0 );
     registerCommand( CMD_NODE_GET_NODE_DATA,
-                     NodeFunc( this, &Node::_cmdGetNodeData),
-                     &_commandThreadQueue );
+                     NodeFunc( this, &Node::_cmdGetNodeData), queue );
     registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
-                     NodeFunc( this, &Node::_cmdGetNodeDataReply ),
-                     &_commandThreadQueue );
+                     NodeFunc( this, &Node::_cmdGetNodeDataReply ), queue );
     registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
                      NodeFunc( this, &Node::_cmdAcquireSendToken ), 0 );
     registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
@@ -110,7 +102,7 @@ Node::~Node()
     EQASSERT( _incoming.empty( ));
     EQASSERT( _connectionNodes.empty( ));
     EQASSERT( _pendingCommands.empty( ));
-    EQASSERT( _nodes.empty( ));
+    EQASSERT( _nodes->empty( ));
     EQASSERT( _requestHandler.isEmpty( ));
 
 #ifndef NDEBUG
@@ -415,7 +407,7 @@ void Node::_cleanup()
 
         _connectionNodes.erase( connection );
         if( node.isValid( ))
-            _nodes.erase( node->_id );
+            _nodes->erase( node->_id );
         _removeConnection( connection );
     }
 
@@ -436,12 +428,12 @@ void Node::_cleanup()
 
     _connectionNodes.clear();
 
-    if( !_nodes.empty( ))
-        EQINFO << _nodes.size() << " nodes connected during cleanup"
+    if( !_nodes->empty( ))
+        EQINFO << _nodes->size() << " nodes connected during cleanup"
                << std::endl;
 
 #ifndef NDEBUG
-    for( NodeHash::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    for( NodeHash::const_iterator i = _nodes->begin(); i != _nodes->end(); ++i )
     {
         NodePtr node = i->second;
         EQINFO << "    " << node << " ref count " << node->getRefCount() - 1 
@@ -450,7 +442,7 @@ void Node::_cleanup()
     }
 #endif
 
-    _nodes.clear();
+    _nodes->clear();
 }
 
 bool Node::_connectSelf()
@@ -470,7 +462,7 @@ bool Node::_connectSelf()
     EQASSERT( _connectionNodes.find( _outgoing ) == _connectionNodes.end( ));
 
     _connectionNodes[ _outgoing ] = this;
-    _nodes[ _id ] = this;
+    _nodes.data[ _id ] = this;
 
     _addConnection( _outgoing );
 
@@ -566,8 +558,9 @@ void Node::_connectMulticast( NodePtr node )
 
 NodePtr Node::getNode( const NodeID& id ) const
 { 
-    NodeHash::const_iterator i = _nodes.find( id );
-    if( i == _nodes.end( ))
+    base::ScopedMutex mutex( _nodes );
+    NodeHash::const_iterator i = _nodes->find( id );
+    if( i == _nodes->end( ))
         return 0;
     return i->second;
 }
@@ -924,14 +917,18 @@ NodePtr Node::connect( const NodeID& nodeID )
 
     // Extract all node pointers - _nodes hash might be modified later
     NodeVector nodes;
-    for( NodeHash::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        NodePtr node = i->second;
+        base::ScopedMutex mutex( _nodes );
+        for( NodeHash::const_iterator i = _nodes->begin();
+             i != _nodes->end(); ++i )
+        {
+            NodePtr node = i->second;
+            
+            if( node->getNodeID() == nodeID ) // early out
+                return node;
 
-        if( node->getNodeID() == nodeID ) // early out
-            return node;
-
-        nodes.push_back( node );
+            nodes.push_back( node );
+        }
     }
 
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
@@ -948,10 +945,6 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
 {
     EQASSERT( nodeID != NodeID::ZERO );
 
-    NodeHash::const_iterator i = _nodes.find( nodeID );
-    if( i != _nodes.end( ))
-        return i->second;
-
     // Make sure that only one connection request based on the node identifier
     // is pending at a given time. Otherwise a node with the same id might be
     // instantiated twice in _cmdGetNodeDataReply(). The alternative to this
@@ -959,13 +952,18 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     // all cases correctly, which is far more complex. Node connections only
     // happen a lot during initialization, and are therefore not time-critical.
     base::ScopedMutex mutex( _connectMutex );
-    EQINFO << "Connecting node " << nodeID << std::endl;
 
-    i = _nodes.find( nodeID );
-    if( i != _nodes.end( ))
-        return i->second;
- 
+    NodeHash::const_iterator i;
+    {
+        base::ScopedMutex mutexNodes( _nodes );
+        i = _nodes->find( nodeID );
+        if( i != _nodes->end( ))
+            return i->second;
+    }
+
+    EQINFO << "Connecting node " << nodeID << std::endl;
     EQASSERT( _id != nodeID );
+
     NodeGetNodeDataPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.nodeID    = nodeID;
@@ -991,9 +989,10 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
 
     if( !connect( node ))
     {
+        base::ScopedMutex mutexNodes( _nodes );
         // connect failed - maybe simultaneous connect from peer?
-        i = _nodes.find( nodeID );
-        if( i != _nodes.end( ))
+        i = _nodes->find( nodeID );
+        if( i != _nodes->end( ))
         {
             node = i->second;
             EQASSERT( node->isConnected( ));
@@ -1341,7 +1340,9 @@ void Node::_handleDisconnect()
         node->_state    = STATE_STOPPED;
         node->_outgoing = 0;
         _connectionNodes.erase( connection );
-        _nodes.erase( node->_id );
+
+        base::ScopedMutex mutex( _nodes );
+        _nodes->erase( node->_id );
     }
 
     _removeConnection( connection );
@@ -1730,7 +1731,8 @@ CommandResult Node::_cmdConnect( Command& command )
     EQASSERT( nodeID != _id );
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
-    if( _nodes.find( nodeID ) != _nodes.end( ))
+    // No locking needed, only recv thread modifies
+    if( _nodes->find( nodeID ) != _nodes->end( ))
     {
         // Node exists, probably simultaneous connect from peer
         EQASSERT( packet->launchID == EQ_ID_INVALID );
@@ -1770,7 +1772,10 @@ CommandResult Node::_cmdConnect( Command& command )
     remoteNode->_state    = STATE_CONNECTED;
     
     _connectionNodes[ connection ] = remoteNode;
-    _nodes[ remoteNode->_id ]      = remoteNode;
+    {
+        base::ScopedMutex mutex( _nodes );
+        _nodes.data[ remoteNode->_id ]      = remoteNode;
+    }
     EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
 
     // send our information as reply
@@ -1803,9 +1808,10 @@ CommandResult Node::_cmdConnectReply( Command& command )
     EQINFO << "handle connect reply " << packet << std::endl;
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
-    if( nodeID == NodeID::ZERO ||               // connection refused
-        _nodes.find( nodeID ) != _nodes.end( )) // Node exists, probably
-                                                // simultaneous connect
+    if( nodeID == NodeID::ZERO ||                 // connection refused
+        // No locking needed, only recv thread writes
+        _nodes->find( nodeID ) != _nodes->end( )) // Node exists, probably
+                                                  // simultaneous connect
     {
         EQINFO << "ignoring connect reply, node already connected" << std::endl;
         _removeConnection( connection );
@@ -1842,7 +1848,10 @@ CommandResult Node::_cmdConnectReply( Command& command )
     remoteNode->_state    = STATE_CONNECTED;
     
     _connectionNodes[ connection ] = remoteNode;
-    _nodes[ remoteNode->_id ]      = remoteNode;
+    {
+        base::ScopedMutex mutex( _nodes );
+        _nodes.data[ remoteNode->_id ] = remoteNode;
+    }
     EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
 
     if( packet->requestID != EQ_ID_INVALID )
@@ -1893,10 +1902,11 @@ CommandResult Node::_cmdID( Command& command )
         node = this;
     else
     {
-        NodeHash::const_iterator i = _nodes.find( nodeID );
+        // No locking needed, only recv thread writes
+        NodeHash::const_iterator i = _nodes->find( nodeID );
 
-        EQASSERT( i != _nodes.end( ));
-        if( i == _nodes.end( ))
+        EQASSERT( i != _nodes->end( ));
+        if( i == _nodes->end( ))
         {
             // unknown node: drop connection, we will get another chance when we
             // connect the node
@@ -1972,7 +1982,10 @@ CommandResult Node::_cmdDisconnect( Command& command )
         EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
 
         _connectionNodes.erase( connection );
-        _nodes.erase( node->_id );
+        {
+            base::ScopedMutex mutex( _nodes );
+            _nodes->erase( node->_id );
+        }
 
         EQINFO << node << " disconnected from " << this << " connection used " 
                << connection->getRefCount() << std::endl;
@@ -2023,17 +2036,20 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
 
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
-    
-    NodeHash::const_iterator i = _nodes.find( nodeID );
-    if( i != _nodes.end( ))
-    {   
-        // Requested node connected to us in the meantime
-        NodePtr node = i->second;
-        EQASSERT( node->isConnected( ));
 
-        node.ref();
-        _requestHandler.serveRequest( requestID, node.get( ));
-        return COMMAND_HANDLED;
+    {    
+        base::ScopedMutex mutex( _nodes );
+        NodeHash::const_iterator i = _nodes->find( nodeID );
+        if( i != _nodes->end( ))
+        {
+            // Requested node connected to us in the meantime
+            NodePtr node = i->second;
+            EQASSERT( node->isConnected( ));
+
+            node.ref();
+            _requestHandler.serveRequest( requestID, node.get( ));
+            return COMMAND_HANDLED;
+        }
     }
 
     if( packet->type == TYPE_EQNET_INVALID )

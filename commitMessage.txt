@@ -1,9 +1,9 @@
-- rename Channel::FBO_NONE to FB_WINDOW
-- Improve Channel::drawStatistics to be view-specific
+Fix potential race condition in node connection code.
+Fix race condition in barrier test
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
