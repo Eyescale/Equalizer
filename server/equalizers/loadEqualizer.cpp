@@ -400,8 +400,9 @@ void LoadEqualizer::_assignLeftoverTime( Node* node, const float time )
         if( node->usage > 0.0f )
             node->time += time;
         else
+        {
             EQASSERTINFO( time < 0.0001f, time );
-
+        }
         EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " usage " 
                         << compound->getUsage() << " target " << node->time
                         << std::endl;

@@ -102,8 +102,9 @@ bool InstanceCache::add( const ObjectVersion& rev, Command& command,
             _releaseStreams( item );
         }
         else
+        {
             EQASSERT( previous->isReady( ));
-
+        }
         item.streams.push_back( new ObjectInstanceDataIStream ); 
     }
 

@@ -98,7 +98,9 @@ void AGLWindow::makeCurrent() const
     AGLWindowIF::makeCurrent();
     
     if( _aglContext )
+    {
         EQ_GL_ERROR( "After aglSetCurrentContext" );
+    }
 }
 
 void AGLWindow::swapBuffers()

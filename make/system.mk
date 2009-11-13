@@ -55,6 +55,7 @@ ifeq ($(findstring -O, $(CXXFLAGS)),-O) # assume release build...
 ifeq ($(findstring -g, $(CXXFLAGS)),-g) # ... unless -g was specified
     CXXFLAGS       += -Werror
 else
+    CXXFLAGS       += -Werror -Wuninitialized
     DEFFLAGS       += -DNDEBUG
 endif # -g
 else  # debug build
@@ -81,7 +82,7 @@ endif # icc
 # GCC settings
 ifeq ($(findstring g++, $(CXX)),g++)
     CXXFLAGS += -Wall \
-                -Wnon-virtual-dtor -Wsign-promo -Wshadow \
+                -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self \
                 -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings
 ifdef USE_OPENMP
     DEFFLAGS += -DEQ_USE_OPENMP
