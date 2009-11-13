@@ -57,10 +57,10 @@ namespace eq
          */
         enum Drawable
         {
-            FBO_NONE      = EQ_BIT_NONE, //!< Use the window's frame buffer
-            FBO_COLOR     = EQ_BIT1,  //!< Use FBO color attachment
-            FBO_DEPTH     = EQ_BIT2,  //!< Use FBO depth attachment
-            FBO_STENCIL   = EQ_BIT3   //!< Use FBO stencil attachment
+            FB_WINDOW   = EQ_BIT_NONE, //!< Use the window's frame buffer
+            FBO_COLOR   = EQ_BIT1,     //!< Use an FBO for color values
+            FBO_DEPTH   = EQ_BIT2,     //!< Use an FBO for depth values
+            FBO_STENCIL = EQ_BIT3      //!< Use an FBO for stencil values
         };
         
         /** Construct a new channel. */
@@ -146,10 +146,9 @@ namespace eq
         /** 
          * Set the near and far planes for this channel.
          * 
-         * The near and far planes are set during initialization and are
-         * inherited by source channels contributing to the rendering of this
-         * channel. Dynamic near and far planes can be applied using
-         * applyNearFar.
+         * The given near and far planes update the current perspective and
+         * orthographics frustum accordingly. Furthermore, they will be used in
+         * the future by the server to compute the frusta.
          *
          * @param nearPlane the near plane.
          * @param farPlane the far plane.
@@ -327,8 +326,8 @@ namespace eq
         /** 
          * Apply a orthographic frustum for pixel-based 2D operations. 
          *
-         * One unit in the frustum corresponds to one pixel on the screen. The
-         * frustum is position wrt the canvas.
+         * One unit of the frustum covers one pixel on screen. The frustum is
+         * positioned relative to the view.
          */
         EQ_EXPORT void applyScreenFrustum() const;
 
@@ -375,8 +374,10 @@ namespace eq
         /** Integer attributes for a channel */
         enum IAttribute
         {
-            IATTR_HINT_STATISTICS, //!< Statistics gathering mode
-            IATTR_HINT_SENDTOKEN,  //!< Use a send token for output frames
+            /** Statistics gathering mode (OFF, FASTEST [ON], NICEST) */
+            IATTR_HINT_STATISTICS,
+            /** Use a send token for output frames (OFF, ON) */
+            IATTR_HINT_SENDTOKEN,
             IATTR_FILL1,
             IATTR_FILL2,
             IATTR_ALL

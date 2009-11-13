@@ -213,13 +213,6 @@ void Window::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 
 void Window::swapBuffers()
 {
-    const Pipe*              pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData&         frameData = pipe->getFrameData();
-    const eq::ChannelVector& channels  = getChannels();
-
-    if( frameData.useStatistics() && !channels.empty( ))
-        EQ_GL_CALL( channels.back()->drawStatistics( ));
-
     eq::Window::swapBuffers();
 }
 }

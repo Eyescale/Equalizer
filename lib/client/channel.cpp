@@ -188,7 +188,7 @@ bool Channel::configInit( const uint32_t initID )
 
 bool Channel::_configInitFBO()
 {   
-    if ( _drawable == FBO_NONE )
+    if ( _drawable == FB_WINDOW )
         return true;
     
     if  (  !_window->getOSWindow()  ||
@@ -786,6 +786,11 @@ struct IdleData
 
 void Channel::drawStatistics()
 {
+    const PixelViewport& pvp = getPixelViewport();
+    EQASSERT( pvp.hasArea( ));
+    if( !pvp.hasArea( ))
+        return;
+
     Config* config = getConfig();
     EQASSERT( config );
 
@@ -796,20 +801,20 @@ void Channel::drawStatistics()
         return;
 
     EQ_GL_CALL( applyBuffer( ));
-    EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
+    EQ_GL_CALL( applyViewport( ));
 
-    glClear( GL_DEPTH_BUFFER_BIT );
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    applyScreenFrustum();
+
+    glMatrixMode( GL_MODELVIEW );
 
     glDisable( GL_LIGHTING );
+    glClear( GL_DEPTH_BUFFER_BIT );
     glEnable( GL_DEPTH_TEST );
     
     const Window::Font* font = _window->getSmallFont();
-
-    int64_t       xStart = 0;
-    PixelViewport pvp    = _window->getPixelViewport();
-    pvp.x = 0;
-    pvp.y = 0;
 
     // find min/max time
     int64_t                 xMax      = 0;
@@ -839,12 +844,16 @@ void Channel::drawStatistics()
         }
     }
     uint32_t scale = 1;
-    while( (xMax - xMin) / scale > pvp.w )
+    const Viewport& vp = getViewport();
+    const uint32_t width = getPixelViewport().w / vp.w;
+    while( (xMax - xMin) / scale > width )
         scale *= 10;
 
     xMax  /= scale;
-    xStart = xMax - pvp.getXEnd() + SPACE;
-    uint32_t nextY = pvp.getYEnd() - SPACE;
+    int64_t xStart = xMax - width + SPACE;
+
+    const uint32_t height = getPixelViewport().h / vp.h;
+    uint32_t nextY = height - SPACE;
 
     std::map< uint32_t, EntityData > entities;
     std::map< uint32_t, IdleData >   idles;

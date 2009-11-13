@@ -677,7 +677,7 @@ channelField:
             else
                 channel->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3]));
         }
-    | EQTOKEN_DRAWABLE '[' { flags = eq::Channel::FBO_NONE; }
+    | EQTOKEN_DRAWABLE '[' { flags = eq::Channel::FB_WINDOW; }
          drawables ']' { channel->setDrawable( flags ); flags = 0; }
 channelAttributes: /*null*/ | channelAttributes channelAttribute
 channelAttribute:

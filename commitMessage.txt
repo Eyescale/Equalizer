@@ -1,4 +1,5 @@
-Tighten release-build warnings and fix results.
+- rename Channel::FBO_NONE to FB_WINDOW
+- Improve Channel::drawStatistics to be view-specific
 
 [ ] May break build
 [ ] May break existing applications

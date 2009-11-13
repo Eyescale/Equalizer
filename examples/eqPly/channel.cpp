@@ -343,6 +343,9 @@ void Channel::frameViewFinish( const uint32_t frameID )
 
     _drawOverlay();
     _drawHelp();
+
+    if( frameData.useStatistics())
+        EQ_GL_CALL( drawStatistics( ));
 }
 
 void Channel::_drawQuadWithTexture( eq::Texture* texture, uint32_t nbPasses )

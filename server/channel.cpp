@@ -672,7 +672,7 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
 
 
     const uint32_t drawable = channel->getDrawable();
-    if (drawable !=  eq::Channel::FBO_NONE)
+    if( drawable !=  eq::Channel::FB_WINDOW )
     {
         os << "drawable [";
         
