@@ -1,7 +1,45 @@
-diff --git lib/net/connectionSet.cpp lib/net/connectionSet.cpp
-index e6f4167..1731170 100644
---- lib/net/connectionSet.cpp
-+++ lib/net/connectionSet.cpp
+Index: tests/accept/accept.cpp
+===================================================================
+--- tests/accept/accept.cpp	(revision 3640)
++++ tests/accept/accept.cpp	(working copy)
+@@ -163,8 +163,9 @@
+                     break;
+ 
+                 case ConnectionSet::EVENT_SELECT_ERROR:
+-                    OUTPUT << "Error during select, " << connectionSet.size() 
+-                        << " connections open" << std::endl;
++                    OUTPUT << "Error during select, " 
++                           << connectionSet.getSize() << " connections open"
++                           << std::endl;
+                     break;
+ 
+                 case ConnectionSet::EVENT_DATA:
+@@ -190,7 +191,7 @@
+             if( time > 1000.0f )
+             {
+                 OUTPUT << nConnects / time * 1000.f << " accepts/s, "
+-                       << connectionSet.size() << " connections open"
++                       << connectionSet.getSize() << " connections open"
+                        << std::endl;
+                 nConnects = 0;
+                 clock.reset();
+Index: tests/netperf/netperf.cpp
+===================================================================
+--- tests/netperf/netperf.cpp	(revision 3640)
++++ tests/netperf/netperf.cpp	(working copy)
+@@ -263,7 +263,7 @@
+                 }
+             }
+             TESTINFO( _receivers.empty(), _receivers.size() );
+-            TESTINFO( _connectionSet.size() == 1, _connectionSet.size() );
++            TESTINFO( _connectionSet.getSize() == 1, _connectionSet.getSize( ));
+             _connectionSet.clear();
+             return EXIT_SUCCESS;
+         }
+Index: lib/net/connectionSet.cpp
+===================================================================
+--- lib/net/connectionSet.cpp	(revision 3640)
++++ lib/net/connectionSet.cpp	(working copy)
 @@ -33,9 +33,12 @@
  #ifdef WIN32
  #  define SELECT_TIMEOUT WAIT_TIMEOUT
@@ -15,7 +53,7 @@ index e6f4167..1731170 100644
  #endif
  
  namespace eq
-@@ -44,7 +47,13 @@ namespace net
+@@ -44,7 +47,13 @@
  {
  
  ConnectionSet::ConnectionSet()
@@ -30,7 +68,7 @@ index e6f4167..1731170 100644
          , _error( 0 )
          , _dirty( true )
  {
-@@ -52,10 +61,10 @@ ConnectionSet::ConnectionSet()
+@@ -52,10 +61,10 @@
      // connection set is waiting in a select, the select is interrupted by
      // sending a character through this connection. select() will recognize
      // this and restart with the modified fd set.
@@ -43,7 +81,7 @@ index e6f4167..1731170 100644
          return;
      }
      _selfConnection->recvNB( &_selfCommand, sizeof( _selfCommand ));
-@@ -63,6 +72,8 @@ ConnectionSet::ConnectionSet()
+@@ -63,6 +72,8 @@
  
  ConnectionSet::~ConnectionSet()
  {
@@ -52,7 +90,7 @@ index e6f4167..1731170 100644
      _connection = 0;
  
      _selfConnection->close();
-@@ -75,9 +86,8 @@ void ConnectionSet::_dirtyFDSet()
+@@ -75,9 +86,8 @@
      if( _dirty )
          return;
  
@@ -63,7 +101,7 @@ index e6f4167..1731170 100644
      interrupt();
  }
  
-@@ -93,13 +103,48 @@ void ConnectionSet::interrupt()
+@@ -93,13 +103,48 @@
  void ConnectionSet::addConnection( ConnectionPtr connection )
  {
      EQASSERT( connection->isConnected() || connection->isListening( ));
@@ -89,17 +127,17 @@ index e6f4167..1731170 100644
 +                 i != _threads.end(); ++i )
 +            {
 +                Thread* thread = *i;
-+                if( thread->getSize() > MAX_CONNECTIONS )
++                if( thread->set->getSize() > MAX_CONNECTIONS )
 +                    continue;
 +
-+                thread->connectionSet.addConnection( connection );
++                thread->set->addConnection( connection );
 +                return;
 +            }
 +
 +            // add to new thread
-+            Thread* thread = new Thread;
-+            thread->connectionSet->addConnection( connection );
-+            thread->connectionSet->addConnection( _connections.back( ));
++            Thread* thread = new Thread( this );
++            thread->set->addConnection( connection );
++            thread->set->addConnection( _connections.back( ));
 +            _connections.pop_back();
 +
 +            _threads.push_back( thread );
@@ -115,7 +153,7 @@ index e6f4167..1731170 100644
      _dirtyFDSet();
  }
  
-@@ -107,17 +152,48 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
+@@ -107,17 +152,48 @@
  {
      {
          base::ScopedMutex mutex( _mutex );
@@ -144,10 +182,10 @@ index e6f4167..1731170 100644
 +            for( ; k != _threads.end(); ++k )
 +            {
 +                Thread* thread = *k;
-+                if( thread->set.removeConnection( connection ))
++                if( thread->set->removeConnection( connection ))
 +                {
-+                    if( !thread->set.isEmpty( ))
-+                        return;
++                    if( !thread->set->isEmpty( ))
++                        return true;
 +
 +                    thread->join();
 +                    delete thread;
@@ -172,7 +210,7 @@ index e6f4167..1731170 100644
  
      _dirtyFDSet();
      return true;
-@@ -126,23 +202,76 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
+@@ -126,23 +202,78 @@
  void ConnectionSet::clear()
  {
      _connection = 0;
@@ -181,7 +219,7 @@ index e6f4167..1731170 100644
 +    for( ThreadVector::iterator i = _threads.begin(); i != _threads.end(); ++i )
 +    {
 +        Thread* thread = *i;
-+        thread->connectionSet->clear();
++        thread->set->clear();
 +        thread->join();
 +        delete thread;
 +    }
@@ -206,7 +244,8 @@ index e6f4167..1731170 100644
 +
 +#ifdef BIG_CLUSTER_SUPPORT
 +ConnectionSet::Thread::Thread( ConnectionSet* parent )
-+        : notifier( CreateEvent( 0, false, false, 0 ))
++        : set( new ConnectionSet )
++        , notifier( CreateEvent( 0, false, false, 0 ))
 +        , event( EVENT_NONE )
 +        , _parent( parent )
 +{
@@ -215,21 +254,22 @@ index e6f4167..1731170 100644
 +
 +ConnectionSet::Thread::~Thread()
 +{
-+    delete connectionSet;
++    delete set;
++    set = 0;
 +}
 +
 +
 +void* ConnectionSet::Thread::run()
 +{
-+    while ( !set.isEmpty( ))
++    while ( !set->isEmpty( ))
 +    {
 +        event.waitEQ( EVENT_NONE );
 +      again:
-+        event = set.select( INFINITE );
++        event = set->select( INFINITE );
 +        if( event == EVENT_INTERRUPT || event == EVENT_NONE )
-+            goto again:
++            goto again;
 +
-+        SetEvent( event );
++        SetEvent( notifier );
 +    }
 +
 +    return EXIT_SUCCESS;
@@ -245,14 +285,14 @@ index e6f4167..1731170 100644
 +#ifdef BIG_CLUSTER_SUPPORT
 +        if( _thread )
 +        {
-+            _thread->event = Thread::EVENT_NONE; // unblock previous thread
++            _thread->event = EVENT_NONE; // unblock previous thread
 +            _thread = 0;
 +        }
 +#endif
  
          if( !_setupFDSet( ))
              return EVENT_INVALID_HANDLE;
-@@ -163,7 +292,11 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
+@@ -163,7 +294,11 @@
  
              case SELECT_ERROR:
  #ifdef WIN32
@@ -265,7 +305,7 @@ index e6f4167..1731170 100644
                  if( _error == WSA_INVALID_HANDLE )
                  {
                      _dirty = true;
-@@ -200,8 +333,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
+@@ -200,8 +335,7 @@
                          event = EVENT_CONNECT;
  
                      EQVERB << "selected connection " << _connection << " of "
@@ -275,7 +315,7 @@ index e6f4167..1731170 100644
                      return event;
                  }
          }
-@@ -212,10 +344,23 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
+@@ -212,10 +346,23 @@
  {
  #ifdef WIN32
      const uint32_t i = index - WAIT_OBJECT_0;
@@ -283,26 +323,26 @@ index e6f4167..1731170 100644
 -        return EVENT_INTERRUPT;
 +    EQASSERT( i < MAXIMUM_WAIT_OBJECTS );
 +    EQASSERT( i < _fdSetResult.getSize( ));
- 
--    _connection = _fdSetConnections[i];
++
 +    if( i >= _connections.size( ))
 +    {
 +        Thread* thread = _fdSetResult[i].thread;
-+        EQASSERT( thread->state == Thread::RESULT );
++        EQASSERT( thread->event == EVENT_NONE );
 +        EQASSERT( _fdSet[ i ] == thread->notifier );
 +        
 +        ResetEvent( _thread->notifier ); 
-+        _connection = thread->set.getConnection();
-+        _error = thread->set.getError();
-+        return thread->event;
++        _connection = thread->set->getConnection();
++        _error = thread->set->getError();
++        return thread->event.get();
 +    }
 +    // else locally handled connection
-+
+ 
+-    _connection = _fdSetConnections[i];
 +    _connection = _fdSetResult[i].connection;
      EQASSERT( _fdSet[i] == _connection->getNotifier( ));
  
      return EVENT_DATA;
-@@ -229,7 +374,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
+@@ -229,7 +376,7 @@
          const int pollEvents = pollFD.revents;
          EQASSERT( pollFD.fd > 0 );
  
@@ -311,7 +351,7 @@ index e6f4167..1731170 100644
          EQASSERT( _connection.isValid( ));
  
          EQVERB << "Got event on connection @" << (void*)_connection.get()
-@@ -295,15 +440,17 @@ bool ConnectionSet::_setupFDSet()
+@@ -295,15 +442,17 @@
  
      _dirty = false;
      _fdSet.setSize( 0 );
@@ -332,7 +372,7 @@ index e6f4167..1731170 100644
  
      // add regular connections
      _mutex.set();
-@@ -323,7 +470,22 @@ bool ConnectionSet::_setupFDSet()
+@@ -323,7 +472,22 @@
          }
          
          _fdSet.append( readHandle );
@@ -356,7 +396,7 @@ index e6f4167..1731170 100644
      }
      _mutex.unset();
  #else
-@@ -334,9 +496,11 @@ bool ConnectionSet::_setupFDSet()
+@@ -334,9 +498,11 @@
      fd.fd      = _selfConnection->getNotifier();
      EQASSERT( fd.fd > 0 );
      fd.revents = 0;
@@ -370,7 +410,7 @@ index e6f4167..1731170 100644
  
      // add regular connections
      _mutex.set();
-@@ -361,7 +525,9 @@ bool ConnectionSet::_setupFDSet()
+@@ -361,7 +527,9 @@
          fd.revents = 0;
  
          _fdSet.append( fd );
@@ -381,10 +421,32 @@ index e6f4167..1731170 100644
      }
      _mutex.unset();
      _fdSetCopy = _fdSet;
-diff --git lib/net/connectionSet.h lib/net/connectionSet.h
-index 941820b..0609198 100644
---- lib/net/connectionSet.h
-+++ lib/net/connectionSet.h
+Index: lib/net/node.cpp
+===================================================================
+--- lib/net/node.cpp	(revision 3640)
++++ lib/net/node.cpp	(working copy)
+@@ -107,7 +107,7 @@
+ {
+     EQINFO << "Delete Node @" << (void*)this << " " << _id << std::endl;
+     EQASSERT( _outgoing == 0 );
+-    EQASSERT( _incoming.empty( ));
++    EQASSERT( _incoming.isEmpty( ));
+     EQASSERT( _connectionNodes.empty( ));
+     EQASSERT( _pendingCommands.empty( ));
+     EQASSERT( _nodes.empty( ));
+@@ -347,7 +347,7 @@
+     EQCHECK( _receiverThread->join( ));
+     _cleanup();
+ 
+-    EQINFO << _incoming.size() << " connections open after stopListening"
++    EQINFO << _incoming.getSize() << " connections open after stopListening"
+            << std::endl;
+ #ifndef NDEBUG
+     const ConnectionVector& connections = _incoming.getConnections();
+Index: lib/net/connectionSet.h
+===================================================================
+--- lib/net/connectionSet.h	(revision 3640)
++++ lib/net/connectionSet.h	(working copy)
 @@ -18,14 +18,23 @@
  #ifndef EQNET_CONNECTION_SET_H
  #define EQNET_CONNECTION_SET_H
@@ -410,7 +472,7 @@ index 941820b..0609198 100644
  #  include <poll.h>
  #endif
  
-@@ -65,10 +74,10 @@ namespace net
+@@ -65,10 +74,10 @@
          EQ_EXPORT void addConnection( ConnectionPtr connection );
          EQ_EXPORT bool removeConnection( ConnectionPtr connection );
          EQ_EXPORT void clear();
@@ -424,17 +486,12 @@ index 941820b..0609198 100644
  
          /** 
           * Selects a Connection which is ready for I/O.
-@@ -91,9 +100,53 @@ namespace net
+@@ -91,9 +100,54 @@
          ConnectionPtr getConnection(){ return _connection; }
  
      private:
 + 
 +#ifdef WIN32
-+        union Result
-+        {
-+            Connection* connection;
-+        };
-+
 +        /** Handles connections exceeding MAXIMUM_WAIT_OBJECTS */
 +        class Thread : public eq::base::Thread
 +        {
@@ -461,11 +518,17 @@ index 941820b..0609198 100644
 +
 +        /** Result thread. */
 +        Thread* _thread;
++
++        union Result
++        {
++            Connection* connection;
++            Thread* thread;
++        };
++
 +#else
 +        union Result
 +        {
 +            Connection* connection;
-+            void* thread;
 +        };
 +#endif
 +
@@ -478,7 +541,7 @@ index 941820b..0609198 100644
          /** The connections to handle */
          ConnectionVector _connections;
  
-@@ -104,7 +157,7 @@ namespace net
+@@ -104,7 +158,7 @@
          base::Buffer< pollfd > _fdSetCopy; // 'const' set
          base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
  #endif
@@ -487,63 +550,3 @@ index 941820b..0609198 100644
  
          /** The connection to reset a running select, see constructor. */
          base::RefPtr< PipeConnection > _selfConnection;
-diff --git lib/net/node.cpp lib/net/node.cpp
-index 0a80f56..f467f19 100644
---- lib/net/node.cpp
-+++ lib/net/node.cpp
-@@ -107,7 +107,7 @@ Node::~Node()
- {
-     EQINFO << "Delete Node @" << (void*)this << " " << _id << std::endl;
-     EQASSERT( _outgoing == 0 );
--    EQASSERT( _incoming.empty( ));
-+    EQASSERT( _incoming.isEmpty( ));
-     EQASSERT( _connectionNodes.empty( ));
-     EQASSERT( _pendingCommands.empty( ));
-     EQASSERT( _nodes.empty( ));
-@@ -347,7 +347,7 @@ bool Node::stopListening()
-     EQCHECK( _receiverThread->join( ));
-     _cleanup();
- 
--    EQINFO << _incoming.size() << " connections open after stopListening"
-+    EQINFO << _incoming.getSize() << " connections open after stopListening"
-            << std::endl;
- #ifndef NDEBUG
-     const ConnectionVector& connections = _incoming.getConnections();
-diff --git tests/accept/accept.cpp tests/accept/accept.cpp
-index 2bdc345..f420bcb 100644
---- tests/accept/accept.cpp
-+++ tests/accept/accept.cpp
-@@ -163,8 +163,9 @@ int main( int argc, char **argv )
-                     break;
- 
-                 case ConnectionSet::EVENT_SELECT_ERROR:
--                    OUTPUT << "Error during select, " << connectionSet.size() 
--                        << " connections open" << std::endl;
-+                    OUTPUT << "Error during select, " 
-+                           << connectionSet.getSize() << " connections open"
-+                           << std::endl;
-                     break;
- 
-                 case ConnectionSet::EVENT_DATA:
-@@ -190,7 +191,7 @@ int main( int argc, char **argv )
-             if( time > 1000.0f )
-             {
-                 OUTPUT << nConnects / time * 1000.f << " accepts/s, "
--                       << connectionSet.size() << " connections open"
-+                       << connectionSet.getSize() << " connections open"
-                        << std::endl;
-                 nConnects = 0;
-                 clock.reset();
-diff --git tests/netperf/netperf.cpp tests/netperf/netperf.cpp
-index f459176..4a52850 100644
---- tests/netperf/netperf.cpp
-+++ tests/netperf/netperf.cpp
-@@ -263,7 +263,7 @@ public:
-                 }
-             }
-             TESTINFO( _receivers.empty(), _receivers.size() );
--            TESTINFO( _connectionSet.size() == 1, _connectionSet.size() );
-+            TESTINFO( _connectionSet.getSize() == 1, _connectionSet.getSize( ));
-             _connectionSet.clear();
-             return EXIT_SUCCESS;
-         }
