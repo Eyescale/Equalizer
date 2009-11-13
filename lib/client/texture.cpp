@@ -239,4 +239,33 @@ void Texture::resize( const int width, const int height )
     _defined = true;
 }
 
+void Texture::writeTexture( const std::string& filename, const Frame::Buffer buffer,
+                            const PixelViewport& pvp ) const
+{
+    eq::Image* image = new eq::Image();
+
+    GLuint type;
+    switch( getFormat( ))
+    {
+        case GL_RGBA32F:
+            type = GL_FLOAT;
+        case GL_RGBA16F:
+            type = GL_HALF_FLOAT;
+        default:
+            type = GL_UNSIGNED_BYTE;
+    }
+
+    image->setType( buffer, type );
+    image->setFormat( buffer, getFormat() );
+
+    image->setPixelViewport( pvp );
+    image->validatePixelData( buffer );
+
+    download( image->getPixelPointer( buffer ), getFormat(), type );
+
+    image->writeImage( filename + ".rgb", buffer );
+
+    delete image;
+}
+
 }

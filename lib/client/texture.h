@@ -83,6 +83,11 @@ namespace eq
         /** @return true if the texture can be bound. */
         EQ_EXPORT bool isValid() const;
 
+        /** Writes the texture data as a rgb image file. */
+        EQ_EXPORT void writeTexture( const std::string& filename,
+                                     const eq::Frame::Buffer buffer,
+                                     const PixelViewport& pvp ) const;
+
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
 
