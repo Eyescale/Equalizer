@@ -449,7 +449,7 @@ bool Node::_connectSelf()
 {
     // setup local connection to myself
     _outgoing = new PipeConnection;
-    if( !_outgoing->connect())
+    if( !_outgoing->connect( ))
     {
         EQERROR << "Could not create local connection to receiver thread."
                 << std::endl;
@@ -470,7 +470,7 @@ bool Node::_connectSelf()
     return true;
 }
 
-bool Node::connect( NodePtr node, ConnectionPtr connection )
+bool Node::_connect( NodePtr node, ConnectionPtr connection )
 {
     EQASSERT( connection.isValid( ));
 
@@ -499,7 +499,6 @@ bool Node::connect( NodePtr node, ConnectionPtr connection )
 
     EQASSERT( node->_id != NodeID::ZERO );
     EQASSERTINFO( node->_id != _id, _id );
-
     EQINFO << node << " connected to " << this << std::endl;
     return true;
 }
@@ -869,10 +868,7 @@ bool Node::initConnect( NodePtr node )
         if( !connection->connect( ))
             continue;
 
-        if( !connect( node, connection ))
-            return false;
-
-        return true;
+        return _connect( node, connection );
     }
 
     EQINFO << "Node could not be connected." << std::endl;
@@ -953,10 +949,9 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     // happen a lot during initialization, and are therefore not time-critical.
     base::ScopedMutex mutex( _connectMutex );
 
-    NodeHash::const_iterator i;
     {
-        base::ScopedMutex mutexNodes( _nodes );
-        i = _nodes->find( nodeID );
+        base::ScopedMutex mutexNodes( _nodes ); 
+        NodeHash::const_iterator i = _nodes->find( nodeID );
         if( i != _nodes->end( ))
             return i->second;
     }
@@ -991,7 +986,7 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     {
         base::ScopedMutex mutexNodes( _nodes );
         // connect failed - maybe simultaneous connect from peer?
-        i = _nodes->find( nodeID );
+        NodeHash::const_iterator i = _nodes->find( nodeID );
         if( i != _nodes->end( ))
         {
             node = i->second;
@@ -1774,7 +1769,7 @@ CommandResult Node::_cmdConnect( Command& command )
     _connectionNodes[ connection ] = remoteNode;
     {
         base::ScopedMutex mutex( _nodes );
-        _nodes.data[ remoteNode->_id ]      = remoteNode;
+        _nodes.data[ remoteNode->_id ] = remoteNode;
     }
     EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
 
@@ -1782,7 +1777,6 @@ CommandResult Node::_cmdConnect( Command& command )
     NodeConnectReplyPacket reply( packet );
     reply.nodeID    = _id;
     reply.nodeID.convertToNetwork();
-
     reply.type      = getType();
 
     connection->send( reply, serialize( ));
@@ -1874,7 +1868,6 @@ CommandResult Node::_cmdConnectAck( Command& command )
     _connectMulticast( node );
     return COMMAND_HANDLED;
 }
-
 
 CommandResult Node::_cmdID( Command& command )
 {

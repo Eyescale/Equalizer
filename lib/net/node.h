@@ -205,20 +205,6 @@ namespace net
         EQ_EXPORT virtual bool stopListening();
 
         /** 
-         * Connect a node proxy to this node.
-         *
-         * This node has to be in the listening state. The node proxy will be
-         * put in the connected state upon success. The connection has to be
-         * connected.
-         *
-         * @param node the remote node.
-         * @param connection the connection to the remote node.
-         * @return <code>true</code> if the node was connected correctly,
-         *         <code>false</code> otherwise.
-         */
-        bool connect( NodePtr node, ConnectionPtr connection );
-
-        /** 
          * Connect and potentially launch a node to this listening node, using
          * the connection descriptions of the node.
          *
@@ -513,6 +499,20 @@ namespace net
     protected:
         /** Destructs this node. */
         EQ_EXPORT virtual ~Node();
+
+        /** 
+         * Connect a node proxy to this node.
+         *
+         * This node has to be in the listening state. The node proxy will be
+         * put in the connected state upon success. The connection has to be
+         * connected.
+         *
+         * @param node the remote node.
+         * @param connection the connection to the remote node.
+         * @return <code>true</code> if the node was connected correctly,
+         *         <code>false</code> otherwise.
+         */
+        bool _connect( NodePtr node, ConnectionPtr connection );
 
         /** 
          * Dispatches a packet to the registered command queue.

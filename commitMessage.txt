@@ -1,9 +1,8 @@
-Fix potential race condition in node connection code.
-Fix race condition in barrier test
+Connect-related code cleanups
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

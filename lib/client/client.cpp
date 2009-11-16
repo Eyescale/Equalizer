@@ -132,15 +132,13 @@ bool Client::connectServer( ServerPtr server )
     if( !connection )
         return false;
 
-    if( connect( server.get(), connection ))
-    {
-        server->setClient( this );
-        server->_localServer = true;
-        return true;
-    }
+    if( !_connect( server.get(), connection ))
+        // giving up
+        return false;
 
-    // giving up
-    return false;
+    server->setClient( this );
+    server->_localServer = true;
+    return true;
 }
 
 /** @cond IGNORE */
