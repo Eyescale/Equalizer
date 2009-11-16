@@ -67,6 +67,10 @@ namespace server
         void setPixel( const eq::Pixel& pixel )
             { _data.pixel = pixel; }
         
+        /** Set the source pixel decomposition wrt dest channel. */
+        void setSubPixel( const eq::SubPixel& subpixel )
+            { _data.subpixel = subpixel; }
+
         /** Set the output frame zoom factor. */
         void setZoom( const eq::Zoom& zoom ) { _zoom = zoom; }
         const eq::Zoom& getZoom() const      { return _zoom; }

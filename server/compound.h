@@ -29,6 +29,7 @@
 #include <eq/client/projection.h>
 #include <eq/client/range.h>
 #include <eq/client/renderContext.h>
+#include <eq/client/subPixel.h>
 #include <eq/client/task.h>
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
@@ -249,6 +250,9 @@ namespace server
         void setPixel( const eq::Pixel& pixel )    { _data.pixel = pixel; }
         const eq::Pixel& getPixel() const          { return _data.pixel; }
 
+        void setSubPixel( const eq::SubPixel& subpixel ) { _data.subpixel = subpixel; }
+        const eq::SubPixel& getSubPixel() const      { return _data.subpixel; }
+
         void setZoom( const eq::Zoom& zoom )       { _data.zoom = zoom; }
         const eq::Zoom& getZoom() const            { return _data.zoom; }
 
@@ -315,6 +319,7 @@ namespace server
         const eq::Viewport& getInheritViewport() const { return _inherit.vp; }
         const eq::Range& getInheritRange()   const { return _inherit.range; }
         const eq::Pixel& getInheritPixel()   const { return _inherit.pixel; }
+        const eq::SubPixel& getInheritSubPixel() const { return _inherit.subpixel; }
         const eq::Zoom& getInheritZoom()     const { return _inherit.zoom; }
         uint32_t getInheritPeriod()          const { return _inherit.period; }
         float getInheritMaxFPS()             const { return _inherit.maxFPS; }
@@ -506,6 +511,7 @@ namespace server
             Vector4i          overdraw;
             eq::Range         range;
             eq::Pixel         pixel;
+            eq::SubPixel      subpixel;
             FrustumData       frustumData;
             eq::Zoom          zoom;
             uint32_t          buffers;

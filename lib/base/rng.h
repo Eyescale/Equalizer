@@ -22,6 +22,8 @@
 #include <eq/base/nonCopyable.h>
 
 #include <fcntl.h>
+#include <limits>
+#include <stdio.h>
 
 namespace eq
 {
@@ -69,7 +71,12 @@ namespace base
 #endif
         }
 
-        /** @return a random number. */
+        /**
+          * Generate a random number.
+          * 
+          * The returned number is between min..max for integer types, and 
+          * between 0..1 for floating-point types.
+          * @return a random number. */
         template< typename T >
         T get()
         {
@@ -103,6 +110,18 @@ namespace base
         int _fd;
 #endif
     };
+
+	template< > inline float RNG::get()
+    {
+ 	    const float max_limits = static_cast< float >( std::numeric_limits< uint32_t >::max( ));
+        return ( get< uint32_t >() / max_limits);
+    }
+    
+    template< > inline double RNG::get()
+    {
+		const double max_limits = static_cast< double >( std::numeric_limits< uint64_t >::max( ));
+        return ( get< uint64_t >() / max_limits);
+    }
 }
 }
 #endif  // EQBASE_RNG_H

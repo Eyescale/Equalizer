@@ -34,6 +34,7 @@ namespace util
 }
     class FrameBufferObject;
     class Texture;
+    class Accum;
 
     /**
      * A facility class to managed OpenGL objects across shared contexts
@@ -99,6 +100,11 @@ namespace util
         EQ_EXPORT GLuint obtainShader( const T& key, const GLenum type );
         EQ_EXPORT void   deleteShader( const T& key );
 
+        EQ_EXPORT Accum* getEqAccum( const T& key );
+        EQ_EXPORT Accum* newEqAccum( const T& key );
+        EQ_EXPORT Accum* obtainEqAccum( const T& key );
+        EQ_EXPORT void deleteEqAccum( const T& key );
+
         EQ_EXPORT bool     supportsEqTexture() const;
         EQ_EXPORT Texture* getEqTexture( const T& key );
         EQ_EXPORT Texture* newEqTexture( const T& key );
@@ -132,6 +138,7 @@ namespace util
         typedef stde::hash_map< T, Texture* >   TextureHash;
         typedef stde::hash_map< T, FrameBufferObject* > FBOHash;
         typedef stde::hash_map< T, util::BitmapFont< T >* > FontHash;
+        typedef stde::hash_map< T, Accum* > AccumHash;
 
         struct SharedData : public base::Referenced
         {
@@ -142,6 +149,7 @@ namespace util
             ObjectHash buffers;
             ObjectHash programs;
             ObjectHash shaders;
+            AccumHash accums;
             TextureHash eqTextures;
             FBOHash eqFrameBufferObjects;
             FontHash eqFonts;

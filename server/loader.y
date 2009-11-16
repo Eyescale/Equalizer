@@ -221,6 +221,7 @@
 %token EQTOKEN_PERIOD
 %token EQTOKEN_PHASE
 %token EQTOKEN_PIXEL
+%token EQTOKEN_SUBPIXEL
 %token EQTOKEN_BANDWIDTH
 %token EQTOKEN_DEVICE
 %token EQTOKEN_WALL
@@ -860,6 +861,8 @@ compoundField:
         { eqCompound->setZoom( eq::Zoom( $3, $4 )); }
     | EQTOKEN_PIXEL '[' UNSIGNED UNSIGNED UNSIGNED UNSIGNED ']'
         { eqCompound->setPixel( eq::Pixel( $3, $4, $5, $6 )); }
+    | EQTOKEN_SUBPIXEL '[' UNSIGNED UNSIGNED ']'
+    	{ eqCompound->setSubPixel( eq::SubPixel( $3, $4 )); }
     | wall { eqCompound->setWall( wall ); }
     | projection { eqCompound->setProjection( projection ); }
     | loadBalancer

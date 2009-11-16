@@ -69,6 +69,12 @@ const Pixel& Frame::getPixel() const
     return _frameData->getPixel();
 }
 
+const SubPixel& Frame::getSubPixel() const
+{
+    EQASSERT( _frameData );
+    return _frameData->getSubPixel();
+}
+
 const Range& Frame::getRange() const
 {
     EQASSERT( _frameData );

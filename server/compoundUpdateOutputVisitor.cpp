@@ -123,6 +123,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         // 4) (source) render context
         frameData->setRange( compound->getInheritRange( ));
         frameData->setPixel( compound->getInheritPixel( ));
+        frameData->setSubPixel( compound->getInheritSubPixel( ));
 
         //----- Set frame parameters:
         // 1) offset is position wrt window, i.e., the channel position

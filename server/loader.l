@@ -219,6 +219,7 @@ range                           { return EQTOKEN_RANGE; }
 period                          { return EQTOKEN_PERIOD; }
 phase                           { return EQTOKEN_PHASE; }
 pixel                           { return EQTOKEN_PIXEL; }
+subpixel						{ return EQTOKEN_SUBPIXEL; }
 bandwidth                       { return EQTOKEN_BANDWIDTH; }
 device                          { return EQTOKEN_DEVICE; }
 wall                            { return EQTOKEN_WALL; }

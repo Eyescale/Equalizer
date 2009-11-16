@@ -20,6 +20,7 @@
 
 #include <eq/base/defines.h>
 
+#include <eq/client/accum.h>
 #include <eq/client/accumBufferObject.h>
 #include <eq/client/canvas.h>
 #include <eq/client/channelStatistics.h>

@@ -21,6 +21,7 @@
 #include <eq/client/colorMask.h>        // member
 #include <eq/client/eye.h>              // member
 #include <eq/client/pixel.h>            // member
+#include <eq/client/subPixel.h>            // member
 #include <eq/client/pixelViewport.h>    // member
 #include <eq/client/range.h>            // member
 #include <eq/client/types.h>
@@ -51,6 +52,7 @@ namespace eq
         Vector2i       offset;         //<! absolute position wrt dest channel
         net::ObjectVersion view;       //<! destination view id and version
         Range          range;          //<! database-range wrt to dest channel
+        SubPixel       subpixel;       //<! subpixel decomposition wrt to dest
         Zoom           zoom;           //<! up/downsampling wrt to dest
 
         uint32_t       frameID;        //<! identifier from Config::beginFrame

@@ -19,11 +19,11 @@
 #ifndef EQ_ACCUMBUFFEROBJECT_H
 #define EQ_ACCUMBUFFEROBJECT_H
 
-#include "frameBufferObject.h"
-#include "texture.h"
+#include <eq/client/frameBufferObject.h> // base class
 
 namespace eq
 {
+    class Texture;
     /** 
      * A class to emulate OpenGL accumulation buffer using an FBO. 
      * @sa glAccum()
@@ -80,9 +80,15 @@ namespace eq
          * @param value a floating-point value multiplying the accumulation
          *              values during the operation.
          */
-        EQ_EXPORT void returnResult( GLfloat value );
+        EQ_EXPORT void display( GLfloat value );
 
     private:
+        /**
+         * Draw a textured quad.
+         *
+         * @param texture a texture object.
+         * @param value the brightness factor of the result.
+         */
         void _drawQuadWithTexture( Texture* texture, GLfloat value );
 
         Texture* _texture;

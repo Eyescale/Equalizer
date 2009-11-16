@@ -58,6 +58,7 @@ namespace eqPly
         virtual bool configExit();
         virtual void frameClear( const uint32_t frameID );
         virtual void frameDraw( const uint32_t frameID );
+        virtual void frameAssemble( const uint32_t frameID );
         virtual void frameReadback( const uint32_t frameID );
         virtual void frameStart( const uint32_t frameID,
                                  const uint32_t frameNumber );
@@ -78,7 +79,6 @@ namespace eqPly
                            const mesh::BoundingSphere& boundingSphere );
 
         bool _configInitAccumBuffer();
-        void _drawQuadWithTexture( eq::Texture* texture, uint32_t nbPasses );
 
         const int32_t _getSampleSize() const
             { return ( getWindow()->getDrawableConfig().accumBits >= 64 ) ? 16 : 0; }
@@ -87,21 +87,20 @@ namespace eqPly
         eq::Vector2i _getJitterStep() const;
         eq::Vector2f _getJitterVector() const;
 
-        const float _generateFloatRand( const float begin, const float end ) const;
-
-        uint32_t _getJitterStepDone() const { return _numSteps - _jitterStep; }
-
         const FrameData& _getFrameData() const;
         const Model*     _getModel();
 
         const Model* _model;
         uint32_t     _modelID;
 
-        eq::FrameBufferObject* _accumBuffer;
-        eq::Texture*           _backBufferTex;
+        eq::Accum* _accum;
 
-        uint32_t _numSteps;
         uint32_t _jitterStep;
+        uint32_t _totalSteps;
+        uint32_t _subpixelStep;
+        bool _needsTransfer;
+
+        eq::PixelViewport _currentPVP;
     };
 }
 

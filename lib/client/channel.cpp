@@ -25,7 +25,9 @@
 #include "config.h"
 #include "configEvent.h"
 #include "frame.h"
+#include "frameBufferObject.h"
 #include "global.h"
+#include "jitter.h"
 #include "log.h"
 #include "node.h"
 #include "nodeFactory.h"
@@ -37,8 +39,8 @@
 #include "server.h"
 #include "task.h"
 #include "view.h"
-#include "frameBufferObject.h"
 
+#include <eq/base/rng.h>
 #include <eq/net/command.h>
 
 using namespace eq::base;
@@ -416,7 +418,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
-    Compositor::assembleFrames( getInputFrames(), this );
+    Compositor::assembleFrames( getInputFrames(), this, 0 );
 
     EQ_GL_CALL( resetAssemblyState( ));
 }
@@ -568,6 +570,11 @@ const Pixel& Channel::getPixel() const
     return _context->pixel;
 }
 
+const SubPixel& Channel::getSubPixel() const
+{
+    return _context->subpixel;
+}
+
 const Zoom& Channel::getZoom() const
 {
     return _context->zoom;
@@ -693,18 +700,24 @@ void Channel::applyViewport() const
 
 void Channel::applyFrustum() const
 {
-    const Frustumf& frustum = getFrustum();
-    EQ_GL_CALL( glFrustum( frustum.left(), frustum.right(),             \
-                           frustum.bottom(), frustum.top(),             \
+    Frustumf frustum = getFrustum();
+    const Vector2f jitter = getJitterVector();
+
+    frustum.apply_jitter( jitter );
+    EQ_GL_CALL( glFrustum( frustum.left(), frustum.right(),
+                           frustum.bottom(), frustum.top(),
                            frustum.near_plane(), frustum.far_plane() )); 
     EQVERB << "Perspective " << frustum << endl;
 }
 
 void Channel::applyOrtho() const
 {
-    const Frustumf& ortho = getOrtho();
-    EQ_GL_CALL( glOrtho( ortho.left(), ortho.right(),               \
-                         ortho.bottom(), ortho.top(),               \
+    Frustumf ortho = getOrtho();
+    const Vector2f jitter = getJitterVector();
+
+    ortho.apply_jitter( jitter );
+    EQ_GL_CALL( glOrtho( ortho.left(), ortho.right(),
+                         ortho.bottom(), ortho.top(),
                          ortho.near_plane(), ortho.far_plane() )); 
     EQVERB << "Orthographic " << ortho << endl;
 }
@@ -712,8 +725,8 @@ void Channel::applyOrtho() const
 void Channel::applyScreenFrustum() const
 {
     const Frustumf frustum = getScreenFrustum();
-    EQ_GL_CALL( glOrtho( frustum.left(), frustum.right(),               \
-                         frustum.bottom(), frustum.top(),               \
+    EQ_GL_CALL( glOrtho( frustum.left(), frustum.right(),
+                         frustum.bottom(), frustum.top(),
                          frustum.near_plane(), frustum.far_plane() ));
     EQVERB << "Apply " << frustum << endl;
 }
@@ -723,6 +736,64 @@ void Channel::applyHeadTransform() const
     const Matrix4f& xfm = getHeadTransform();
     EQ_GL_CALL( glMultMatrixf( xfm.array ));
     EQVERB << "Apply head transform: " << xfm << endl;
+}
+
+Vector2f Channel::getJitterVector() const
+{
+    const SubPixel& subpixel = getSubPixel();
+    if( subpixel == SubPixel::ALL )
+        return Vector2f::ZERO;
+        
+    // Compute a pixel size
+    const PixelViewport& pvp = getPixelViewport();
+    const float pvp_w = static_cast<const float>( pvp.w );
+    const float pvp_h = static_cast<const float>( pvp.h );
+
+    const Frustumf& frustum = getFrustum();
+    const float frustum_w = frustum.get_width();
+    const float frustum_h = frustum.get_height();
+
+    const float pixel_w = frustum_w / pvp_w;
+    const float pixel_h = frustum_h / pvp_h;
+
+    Vector2f pixelSize( pixel_w, pixel_h );
+    Vector2f jitter;
+
+    Vector2f* table = _lookupJitterTable( subpixel.size );
+    base::RNG rng;
+    if( !table )
+    {
+        jitter.x() = rng.get< float >();
+        jitter.y() = rng.get< float >();
+    }
+    else
+        jitter = table[ subpixel.index ];
+
+    return jitter * pixelSize;
+}
+
+Vector2f* Channel::_lookupJitterTable( const uint32_t size ) const
+{
+    switch( size )
+    {
+        case 2:
+            return j2;
+        case 3:
+            return j3;
+        case 4:
+            return j4;
+        case 8:
+            return j8;
+        case 15:
+            return j15;
+        case 24:
+            return j24;
+        case 66:
+            return j66;
+        default:
+            break;
+    }
+    return 0;
 }
 
 bool Channel::processEvent( const Event& event )

@@ -816,6 +816,7 @@ void Compound::update( const uint32_t frameNumber )
 void Compound::updateInheritData( const uint32_t frameNumber )
 {
     _data.pixel.validate();
+    _data.subpixel.validate();
     _data.zoom.validate();
 
     if( !_parent )
@@ -866,6 +867,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
         _inherit.range.apply( _data.range );
         _inherit.pixel.apply( _data.pixel );
+        _inherit.subpixel.apply( _data.subpixel );
 
         if( _data.eyes != EYE_UNDEFINED )
             _inherit.eyes = _data.eyes;
@@ -1127,6 +1129,10 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     const eq::Pixel& pixel = compound->getPixel();
     if( pixel.isValid() && pixel != eq::Pixel::ALL )
         os << pixel << endl;
+
+    const eq::SubPixel& subpixel = compound->getSubPixel();
+    if( subpixel.isValid() && subpixel != eq::SubPixel::ALL )
+            os << subpixel << endl;
 
     const eq::Zoom& zoom = compound->getZoom();
     if( zoom.isValid() && zoom != eq::Zoom::NONE )

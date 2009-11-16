@@ -29,6 +29,7 @@ namespace eq
 {
     class Channel;
     class Image;
+    class Accum;
 
     /** A facility class for image assembly operations */
     class EQ_EXPORT Compositor
@@ -47,6 +48,8 @@ namespace eq
             Zoom           zoom;    //!< The zoom factor
         };
 
+        static Accum* initAccum( Channel* channel );
+
         /** @name Frame-based operations. */
         //@{
         /** 
@@ -57,7 +60,7 @@ namespace eq
          * @param channel the destination channel.
          */
         static void assembleFrames( const FrameVector& frames,
-                                    Channel* channel );
+                                    Channel* channel, Accum* accum );
 
         /** 
          * Assemble all frames in the given order using the default algorithm
@@ -82,7 +85,7 @@ namespace eq
          * @param channel the destination channel.
          */
         static void assembleFramesUnsorted( const FrameVector& frames,
-                                              Channel* channel );
+                                              Channel* channel, Accum* accum );
 
         /** 
          * Assemble all frames in arbitrary order in a memory buffer using the
@@ -177,6 +180,9 @@ namespace eq
                                 
       private:
         typedef std::pair< const Frame*, const Image* > FrameImage;
+
+        static bool _isSubPixelDecomposition( const FrameVector& frames );
+        static bool _hasSubPixel( const FrameVector& frames );
 
         static bool _collectOutputData( const FrameVector& frames,
                                         PixelViewport& destPVP, 

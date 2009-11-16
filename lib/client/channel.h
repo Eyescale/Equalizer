@@ -228,6 +228,9 @@ namespace eq
         /** @return the pixel decomposition for the current rendering task. */
         EQ_EXPORT const Pixel& getPixel() const;
 
+        /** @return the subpixel decomposition for the current rendering task. */
+        EQ_EXPORT const SubPixel& getSubPixel() const;
+
         /** @return the up/downscale factor for the current rendering task. */
         EQ_EXPORT const Zoom& getZoom() const;
 
@@ -569,6 +572,8 @@ namespace eq
         EQ_EXPORT void setErrorMessage( const std::string& message );
         //@}
 
+        Vector2f getJitterVector() const;
+
     private:
         //-------------------- Members --------------------
         /** The parent window. */
@@ -636,6 +641,8 @@ namespace eq
         {
             char dummy[64];
         };
+
+        Vector2f* _lookupJitterTable( const uint32_t size ) const;
 
         /** Initialize the FBO */
         bool _configInitFBO();

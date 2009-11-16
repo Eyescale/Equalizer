@@ -66,6 +66,9 @@ namespace server
         /** The pixel decomposition relative to the destination channel. */
         const Pixel& getPixel() const { return _data.pixel; }
         
+        /** The subpixel decomposition relative to the destination channel. */
+        const SubPixel& getSubPixel() const { return _data.subpixel; }
+
         /** The images of this frame data holder */
         const ImageVector& getImages() const { return _images; }
 
@@ -192,6 +195,7 @@ namespace server
             Frame::Type   frameType;
             Range         range;     //<! database-range of src wrt to dest
             Pixel         pixel;     //<! pixel decomposition of source
+            SubPixel      subpixel;  //<! subpixel decomposition of source
         } _data;
 
         friend class eq::server::FrameData;

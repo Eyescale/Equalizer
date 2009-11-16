@@ -16,32 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_PLY_CONFIGEVENT_H
-#define EQ_PLY_CONFIGEVENT_H
+#include "subPixel.h"
 
-#include <eq/eq.h>
-
-namespace eqPly
-{
-
-struct ConfigEvent : public eq::ConfigEvent
-{
-public:
-    enum Type
-    {
-        IDLE_AA = eq::Event::USER
-    };
-
-    ConfigEvent()
-    {
-        size = sizeof( ConfigEvent );
-    }
-
-    uint32_t jitter;
-};
-
-std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
-}
-
-#endif // EQ_PLY_CONFIGEVENT_H
-
+EQ_EXPORT const eq::SubPixel eq::SubPixel::ALL;

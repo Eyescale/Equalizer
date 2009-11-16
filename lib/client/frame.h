@@ -88,6 +88,9 @@ namespace server
         /** @return the pixel parameters relative to the destination channel. */
         EQ_EXPORT const Pixel& getPixel() const;
 
+        /** @return the subpixel parameters relative to the destination channel. */
+        EQ_EXPORT const SubPixel& getSubPixel() const;
+
         /** @return the zoom factor for readback or assemble. */
         const Zoom& getZoom() const { return _data.zoom; }
 

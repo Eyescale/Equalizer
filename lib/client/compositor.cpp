@@ -18,11 +18,11 @@
 #include <pthread.h>
 #include <eq/base/perThread.h>
 
-#include "compositor.h"
-
+#include "accum.h"
 #include "channel.h"
-#include "client.h"
 #include "channelStatistics.h"
+#include "client.h"
+#include "compositor.h"
 #include "image.h"
 #include "log.h"
 #include "server.h"
@@ -172,7 +172,7 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
 }
 
 void Compositor::assembleFrames( const FrameVector& frames,
-                                 Channel* channel )
+                                 Channel* channel, Accum* accum )
 {
     if( frames.empty( ))
         return;
@@ -180,7 +180,37 @@ void Compositor::assembleFrames( const FrameVector& frames,
     if( _useCPUAssembly( frames, channel ))
         assembleFramesCPU( frames, channel );
     else
-        assembleFramesUnsorted( frames, channel );
+    {
+	    if( _hasSubPixel( frames ) && !accum )
+        {
+            accum = initAccum( channel );
+            accum->clear();
+        }
+
+        assembleFramesUnsorted( frames, channel, accum );
+    }
+}
+
+Accum* Compositor::initAccum( Channel* channel )
+{
+    const PixelViewport& pvp = channel->getPixelViewport();
+
+    EQASSERT( pvp.isValid( ));
+
+    Window::ObjectManager* objects = channel->getObjectManager();
+    Accum* accum = objects->getEqAccum( channel );
+    if( !accum )
+    {
+        accum = objects->newEqAccum( channel );
+        if( !accum->init( pvp, channel->getWindow()->getColorFormat( )))
+        {
+            EQERROR << "Accumulation initialization failed." << std::endl;
+        }
+    }
+    else
+        accum->resize( pvp.w, pvp.h );
+
+    return accum;
 }
 
 void Compositor::assembleFramesSorted( const FrameVector& frames,
@@ -217,11 +247,85 @@ void Compositor::assembleFramesSorted( const FrameVector& frames,
         glDisable( GL_BLEND );
 }
 
+bool Compositor::_hasSubPixel( const FrameVector& frames )
+{
+    FrameVector::const_iterator i = frames.begin();
+    Frame* startFrame = *i;
+    ++i;
+
+    if( startFrame->getSubPixel() != SubPixel::ALL )
+        return true;
+
+    while( i != frames.end( ))
+    {
+        Frame* nextFrame = *i;
+        if( nextFrame->getSubPixel() != SubPixel::ALL )
+            return true;
+        ++i;
+    }
+
+    return false;
+}
+
+bool Compositor::_isSubPixelDecomposition( const FrameVector& frames )
+{
+    if( frames.empty( ))
+        return false;
+        
+    FrameVector::const_iterator i = frames.begin();
+    Frame* frame = *i;
+    const SubPixel& subpixel = frame->getSubPixel();
+    
+    for( ++i; i != frames.end(); ++i)
+    {
+        frame = *i;
+        if( subpixel != frame->getSubPixel( ))
+            return false;
+    }
+
+    return true;
+}
+
 void Compositor::assembleFramesUnsorted( const FrameVector& frames, 
-                                         Channel* channel )
+                                         Channel* channel, Accum* accum )
 {
     if( frames.empty( ))
         return;
+
+    bool isSimilarFrames = _isSubPixelDecomposition( frames );
+
+    if( !isSimilarFrames )
+    {
+	    EQASSERT( accum );
+    	FrameVector framesLeft = frames;
+
+    	while( !framesLeft.empty( ))
+    	{
+    	    const SubPixel& subpixel = framesLeft.back()->getSubPixel();
+    	    FrameVector current;
+    	    current.push_back( framesLeft.back( ));
+    	    framesLeft.pop_back();
+
+    	    again:
+    	    for( FrameVector::iterator i = framesLeft.begin();
+    	                i != framesLeft.end(); ++i )
+    	    {
+    	        Frame* frame = *i;
+
+    	        if( frame->getSubPixel() == subpixel )
+    	        {
+    	            current.push_back( frame );
+    	            framesLeft.erase( i );
+    	            goto again;
+    	        }
+    	    }
+
+    	    assembleFramesUnsorted( current, channel, accum );
+    	    accum->accum();
+    	    accum->display();
+    	}
+        return;
+    }
 
     EQVERB << "Unsorted GPU assembly" << endl;
     // This is an optimized assembly version. The frames are not assembled in

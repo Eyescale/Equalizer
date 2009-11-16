@@ -60,8 +60,8 @@ int main( int argc, char **argv )
     TESTLOOP( int32_t, -1<<5,      1<<5 );
     TESTLOOP( int64_t, -1<<10,     1<<10 );
 
-    TESTLOOP( float,  -1.0f, 1.0f );
-    TESTLOOP( double, -1.0,  1.0 );
+    TESTLOOP( float,  0.1f, 0.9f );
+    TESTLOOP( double, 0.1,  0.9 );
 
     return EXIT_SUCCESS;
 }

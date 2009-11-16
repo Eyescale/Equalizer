@@ -49,10 +49,11 @@ Channel::Channel( eq::Window* parent )
              : eq::Channel( parent )
              , _model(0)
              , _modelID( EQ_ID_INVALID )
-             , _accumBuffer( 0 )
-             , _backBufferTex( 0 )
-             , _numSteps( 0 )
+             , _accum ( 0 )
              , _jitterStep( 0 )
+             , _totalSteps( 0 )
+             , _subpixelStep( 0 )
+             , _needsTransfer( false )
 {
 }
 
@@ -65,53 +66,41 @@ bool Channel::configInit( const uint32_t initID )
     _model = 0;
     _modelID = EQ_ID_INVALID;
 
-    const uint32_t gridSize = _getSampleSize() * _getSampleSize();
-    _numSteps = gridSize / 1; //getSubPixel().size;
-
-    /* first channel has one step more if the number of channels
-     * is not a multiple of the number of samples.*/
-    if( gridSize % 1 /*getSubPixel().size*/ != 0 /*&& getSubPixel().index == 0*/ )
-        ++_numSteps;
-
-    _jitterStep = _numSteps;
-
-#ifndef Darwin
-    if( GLEW_EXT_framebuffer_object )
+    if( _configInitAccumBuffer( ))
     {
-        _backBufferTex = new eq::Texture( glewGetContext( ));
-        _configInitAccumBuffer();
-    }
-#endif
+        _totalSteps = _accum->getMaxSteps();
+        _jitterStep = _totalSteps;
 
-    return true;
+        return true;
+    }
+
+    return false;
 }
 
 bool Channel::_configInitAccumBuffer()
 {
-    _accumBuffer = new eq::FrameBufferObject( glewGetContext( ));
-    _accumBuffer->setColorFormat( GL_RGBA32F );
-
-    const eq::PixelViewport& pvp = getNativePixelViewPort();
-
-    if( _accumBuffer->init( pvp.w, pvp.h, 0, 0 ))
+    _accum = eq::Compositor::initAccum( this );
+    
+    if( _accum )
+    {
+#ifdef Darwin
+        if( !_accum->usesFBO( ))
+            _accum->setTotalSteps( _totalSteps );
+#endif
         return true;
+    }
 
-    setErrorMessage( "Accumulate Buffer initialization failed: " + _accumBuffer->getErrorMessage( ));
-    delete _accumBuffer;
-    _accumBuffer = 0;
+    EQWARN << "Accumulation init failed." << std::endl;
+
+    delete _accum;
+    _accum = 0;
     return false;
 }
 
 bool Channel::configExit()
 {
-    delete _accumBuffer;
-    _accumBuffer = 0;
-
-    if( _backBufferTex )
-        _backBufferTex->flush();
-
-    delete _backBufferTex;
-    _backBufferTex = 0;
+    delete _accum;
+    _accum = 0;
 
     return true;
 }
@@ -191,6 +180,49 @@ void Channel::frameDraw( const uint32_t frameID )
         glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
     }
+
+    _subpixelStep = EQ_MAX( _subpixelStep, getSubPixel().size );
+    _needsTransfer = true;
+}
+
+void Channel::frameAssemble( const uint32_t frameID )
+{
+    if( getPixelViewport() != _currentPVP )
+    {
+        _needsTransfer = true;
+
+        if( !_accum->usesFBO( ))
+        {
+            EQWARN << "Current viewport different from view viewport, ";
+            EQWARN << "idle anti-aliasing not implemented." << std::endl;
+            _jitterStep = 0;
+        }
+
+        eq::Channel::frameAssemble( frameID );
+        return;
+    }
+    // else
+    
+    bool subPixelALL = true;
+    const eq::FrameVector& frames = getInputFrames();
+
+    for( eq::FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i )
+    {
+        eq::Frame* frame = *i;
+        const eq::SubPixel& curSubPixel = frame->getSubPixel();
+
+        if( curSubPixel != eq::SubPixel::ALL )
+            subPixelALL = false;
+
+        _subpixelStep = EQ_MAX( _subpixelStep, frame->getSubPixel().size );
+    }
+
+    if( subPixelALL )
+        _needsTransfer = true;
+    else
+        _needsTransfer = false;
+
+    eq::Channel::frameAssemble( frameID );
 }
 
 void Channel::frameReadback( const uint32_t frameID )
@@ -213,13 +245,19 @@ void Channel::frameStart( const uint32_t frameID,
 
     // ready for the next FSAA
     if( !frameData.isIdle( ))
-        _jitterStep = _numSteps;
+    {
+        _accum->clear();
+
+        _jitterStep = _totalSteps;
+        _subpixelStep = 0;
+    }
 
     eq::Channel::frameStart( frameID, frameNumber );
 }
 
 void Channel::frameViewStart( const uint32_t frameID )
 {
+    _currentPVP = getPixelViewport();
     eq::Channel::frameViewStart( frameID );
 }
 
@@ -229,7 +267,12 @@ void Channel::frameFinish( const uint32_t frameID,
     const FrameData& frameData = _getFrameData();
 
     if( frameData.isIdle() && _jitterStep > 0 )
-        --_jitterStep;
+    {
+        if( _subpixelStep > _jitterStep )
+            _jitterStep = 0;
+        else
+            _jitterStep -= _subpixelStep;
+    }
 
     ConfigEvent event;
     event.data.type = ConfigEvent::IDLE_AA;
@@ -248,97 +291,26 @@ void Channel::frameViewFinish( const uint32_t frameID )
 {
     const FrameData& frameData = _getFrameData();
 
-    if( frameData.isIdle( ))
+    const eq::PixelViewport& pvp = getPixelViewport();
+    bool isResized = _accum->resize( pvp.w, pvp.h );
+
+    if( isResized )
     {
-        /**
-         * This is the only working implementation on MacOS found at the moment.
-         * The use of FBO with floating point texture renders some artifacts and
-         * the glAccum function seems to be implemented differently.
-         */
-#ifdef Darwin
-        EQ_GL_ERROR( "before glAccum" );
+        _accum->clear();
+        _jitterStep = _totalSteps;
+        _subpixelStep = 0;
+        return;
+    }
+    //else
 
-        if( _jitterStep > 0 )
-        {
-            if( _getJitterStepDone() == 0 )
-            {
-                glClear( GL_ACCUM_BUFFER_BIT );
-                glAccum( GL_LOAD, 1.0f/_numSteps );
-            }
-            else
-                glAccum( GL_ACCUM, 1.0f/_numSteps );
-            const float factor = static_cast< float >( _numSteps ) /
-                               static_cast< float >( _getJitterStepDone() + 1 );
-            glAccum( GL_RETURN, factor );
-        }
-        else
-            glAccum( GL_RETURN, 1.0f );
+    if( frameData.isIdle() && _needsTransfer )
+    {
+        setupAssemblyState();
 
-        EQ_GL_ERROR( "after glAccum" );
-#else
-        if( GLEW_EXT_framebuffer_object )
-        {
-            setupAssemblyState();
-            glDisable( GL_DEPTH_TEST );
+        _accum->accum();
+        _accum->display();
 
-            if( _jitterStep > 0 )
-            {
-                const eq::PixelViewport& pvp = getPixelViewport();
-
-                _backBufferTex->setFormat( getWindow()->getColorFormat( ));
-                _backBufferTex->copyFromFrameBuffer( pvp );
-                _accumBuffer->bind();
-
-                glEnable( GL_BLEND );
-
-                if( _getJitterStepDone() == 0 )
-                    glBlendFunc( GL_ONE, GL_ZERO );
-                else
-                    glBlendFunc( GL_ONE, GL_ONE );
-
-                // draw the frame into the accumulation buffer
-                _drawQuadWithTexture( _backBufferTex, 1 );
-
-                // reset blending state
-                glBlendFunc( GL_ONE, GL_ZERO );
-                glDisable( GL_BLEND );
-
-                _accumBuffer->unbind();
-
-                // draw result into the back buffer
-                _drawQuadWithTexture( _accumBuffer->getColorTextures()[0],
-                                      _getJitterStepDone() + 1 );
-                _backBufferTex->copyFromFrameBuffer( pvp );
-            }
-            else
-                _drawQuadWithTexture( _accumBuffer->getColorTextures()[0], 
-                                      _getJitterStepDone( ));
-
-            glEnable( GL_DEPTH_TEST );
-            resetAssemblyState();
-        }
-        else
-        {
-            EQ_GL_ERROR( "before glAccum" );
-
-            if( _jitterStep > 0 )
-            {
-                if( _getJitterStepDone() == 0 )
-                {
-                    glClear( GL_ACCUM_BUFFER_BIT );
-                    glAccum( GL_LOAD, 1.0f );
-                }
-                else
-                    glAccum( GL_ACCUM, 1.0f );
-
-                glAccum( GL_RETURN, 1.0f/( _getJitterStepDone() + 1 ));
-            }
-            else
-                glAccum( GL_RETURN, 1.0f/( _getJitterStepDone( )));
-
-            EQ_GL_ERROR( "after glAccum" );
-        }
-#endif
+        resetAssemblyState();
     }
 
     _drawOverlay();
@@ -348,77 +320,37 @@ void Channel::frameViewFinish( const uint32_t frameID )
         EQ_GL_CALL( drawStatistics( ));
 }
 
-void Channel::_drawQuadWithTexture( eq::Texture* texture, uint32_t nbPasses )
-{
-    texture->bind();
-
-    glDepthMask( false );
-    glDisable( GL_LIGHTING );
-    glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S,
-                     GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
-                     GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                     GL_NEAREST );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
-                     GL_NEAREST );
-
-    glColor3f( 1.0f/nbPasses, 1.0f/nbPasses, 1.0f/nbPasses );
-
-    const eq::PixelViewport& pvp = getPixelViewport();
-
-    const float startX = pvp.x;
-    const float endX   = pvp.x + pvp.w;
-    const float startY = pvp.y;
-    const float endY   = pvp.y + pvp.h;
-
-    glBegin( GL_QUADS );
-        glTexCoord2f( 0.0f, 0.0f );
-        glVertex3f( startX, startY, 0.0f );
-
-        glTexCoord2f( static_cast< float >( pvp.w ), 0.0f );
-        glVertex3f( endX, startY, 0.0f );
-
-        glTexCoord2f( static_cast<float>( pvp.w ), static_cast<float>( pvp.h ));
-        glVertex3f( endX, endY, 0.0f );
-
-        glTexCoord2f( 0.0f, static_cast< float >( pvp.h ));
-        glVertex3f( startX, endY, 0.0f );
-    glEnd();
-
-    // restore state
-    glDisable( GL_TEXTURE_RECTANGLE_ARB );
-    glDepthMask( true );
-}
-
 void Channel::applyFrustum() const
 {
     const FrameData& frameData = _getFrameData();
-    eq::Vector2f jitter( eq::Vector2f::ZERO );
 
-    // Compute the jitter for the frustum
     if( frameData.isIdle() && _jitterStep > 0 )
-        jitter = _getJitterVector();
-
-    if( frameData.useOrtho( ))
     {
-        eq::Frustumf ortho = getOrtho();
-        ortho.apply_jitter( jitter );
+        eq::Vector2f jitter = _getJitterVector();
 
-        glOrtho( ortho.left(), ortho.right(),
-                 ortho.bottom(), ortho.top(),
-                 ortho.near_plane(), ortho.far_plane( ));
-    }
-    else
-    {
-        eq::Frustumf frustum = getFrustum();
-        frustum.apply_jitter( jitter );
+        if( frameData.useOrtho( ))
+        {
+            eq::Frustumf ortho = getOrtho();
+            ortho.apply_jitter( jitter );
 
-        glFrustum( frustum.left(), frustum.right(),
-                   frustum.bottom(), frustum.top(),
-                   frustum.near_plane(), frustum.far_plane( ));
+            glOrtho( ortho.left(), ortho.right(),
+                     ortho.bottom(), ortho.top(),
+                     ortho.near_plane(), ortho.far_plane( ));
+        }
+        else
+        {
+            eq::Frustumf frustum = getFrustum();
+            frustum.apply_jitter( jitter );
+
+            glFrustum( frustum.left(), frustum.right(),
+                       frustum.bottom(), frustum.top(),
+                       frustum.near_plane(), frustum.far_plane( ));
+        }
+        return;
     }
+    //else
+    
+    eq::Channel::applyFrustum();
 }
 
 const FrameData& Channel::_getFrameData() const
@@ -429,8 +361,9 @@ const FrameData& Channel::_getFrameData() const
 
 eq::Vector2f Channel::_getJitterVector() const
 {
-    float pvp_w = static_cast<float>( getPixelViewport().w );
-    float pvp_h = static_cast<float>( getPixelViewport().h );
+    const eq::PixelViewport& pvp = getPixelViewport();
+    float pvp_w = static_cast<float>( pvp.w );
+    float pvp_h = static_cast<float>( pvp.h );
     float frustum_w = static_cast<float>(( getFrustum().get_width( )));
     float frustum_h = static_cast<float>(( getFrustum().get_height( )));
 
@@ -444,30 +377,24 @@ eq::Vector2f Channel::_getJitterVector() const
     eq::Vector2i jitterStep = _getJitterStep();
 
     // Sample values in the middle of the current subpixel
-    float value_i = _generateFloatRand( 0.f, 1.f ) * subpixel_w
+    eq::base::RNG rng;
+    float value_i = rng.get< float >() * subpixel_w
                     + static_cast<float>( jitterStep.x( )) * subpixel_w;
 
-    float value_j = _generateFloatRand( 0.f, 1.f ) * subpixel_h
+    float value_j = rng.get< float >() * subpixel_h
                     + static_cast<float>( jitterStep.y( )) * subpixel_h;
 
     return eq::Vector2f( value_i, value_j );
 }
 
-const float Channel::_generateFloatRand( const float begin, const float end ) const
-{
-    eq::base::RNG rng;
-    float max_limits = static_cast<float>( std::numeric_limits<uint32_t>::max( ));
-    return ( end - begin ) * ( rng.get<uint32_t>() / max_limits) + begin;
-}
-
 eq::Vector2i Channel::_getJitterStep() const
 {
-    uint32_t channelID  = 0/*getSubPixel().index*/;
+    uint32_t channelID  = getSubPixel().index;
 
     uint32_t primeNumber = primeNumberTable[ channelID ];
-    uint32_t idx = ( _jitterStep * primeNumber ) % _numSteps;
+    uint32_t idx = ( _jitterStep * primeNumber ) % _totalSteps;
 
-    idx = ( channelID * _numSteps ) + idx;
+    idx = ( channelID * _totalSteps ) + idx;
 
     uint32_t sampleSize = _getSampleSize();
     const int dx = idx % sampleSize;

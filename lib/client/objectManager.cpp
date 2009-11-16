@@ -19,6 +19,7 @@
 
 #include "frameBufferObject.h"
 #include "texture.h"
+#include "accum.h"
 
 #include <eq/util/bitmapFont.h>
 
@@ -504,6 +505,53 @@ void ObjectManager<T>::deleteShader( const T& key )
     const Object& object = i->second;
     glDeleteShader( object.id );
     _data->shaders.erase( i );
+}
+
+template< typename T >
+Accum* ObjectManager<T>::getEqAccum( const T& key )
+{
+    typename AccumHash::const_iterator i = _data->accums.find( key );
+    if( i == _data->accums.end( ))
+        return 0;
+
+    return i->second;
+}
+
+template< typename T >
+Accum* ObjectManager<T>::newEqAccum( const T& key )
+{
+    if( _data->accums.find( key ) != _data->accums.end( ))
+    {
+        EQWARN << "Requested new Accumulation for existing key" << endl;
+        return 0;
+    }
+
+    Accum* accum = new Accum( _glewContext );
+    _data->accums[ key ] = accum;
+    return accum;
+}
+
+template< typename T >
+Accum* ObjectManager<T>::obtainEqAccum( const T& key )
+{
+    Accum* accum = getEqAccum( key );
+    if( accum )
+        return accum;
+    return newEqAccum( key );
+}
+
+template< typename T >
+void ObjectManager<T>::deleteEqAccum( const T& key )
+{
+    typename AccumHash::iterator i = _data->accums.find( key );
+    if( i == _data->accums.end( ))
+        return;
+
+    Accum* accum = i->second;
+    _data->accums.erase( i );
+
+    accum->exit();
+    delete accum;
 }
 
 // eq::Texture object functions

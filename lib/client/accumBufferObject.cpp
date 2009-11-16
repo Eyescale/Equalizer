@@ -64,11 +64,13 @@ void AccumBufferObject::load( GLfloat value )
     bind();
     glEnable( GL_BLEND );
 
+    glClear(GL_COLOR_BUFFER_BIT);
     _drawQuadWithTexture( _texture, value );
 
     glDisable( GL_BLEND );
     unbind();
 }
+
 void AccumBufferObject::accum( GLfloat value )
 {
     _texture->copyFromFrameBuffer( getPixelViewport( ));
@@ -84,7 +86,7 @@ void AccumBufferObject::accum( GLfloat value )
     unbind();
 }
 
-void AccumBufferObject::returnResult( GLfloat value )
+void AccumBufferObject::display( GLfloat value )
 {
     _drawQuadWithTexture( getColorTextures()[0], value );
 }
