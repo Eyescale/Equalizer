@@ -87,7 +87,11 @@ bool Accum::resize( const int width, const int height )
     }
     
     if( width != _width || height != _height )
+    {
+        _width = width;
+        _height = height;
         return true;
+    }
 
     return false;
 }
