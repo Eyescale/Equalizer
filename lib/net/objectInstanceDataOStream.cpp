@@ -54,7 +54,7 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
     else
     {
         EQASSERT( _instanceID != EQ_ID_NONE );
-        EQASSERTINFO( _connections.size() == 1, 
+        EQASSERTINFO( _connections.size() == 1,
                       "Expected multicast to one group" );
 
         packet.datatype = DATATYPE_EQNET_SESSION;

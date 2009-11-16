@@ -209,6 +209,9 @@ namespace eq
         /** @return the current orthographic frustum for glOrtho. */
         EQ_EXPORT const Frustumf& getOrtho() const;
 
+        /** @return the jitter vector for the current subpixel decomposition. */
+        EQ_EXPORT Vector2f getJitter() const;
+
         /**
          * Return the view matrix.
          *
@@ -316,13 +319,13 @@ namespace eq
 
         /**
          * Apply the perspective frustum matrix for the current rendering task.
-         * @sa getFrustum()
+         * @sa getFrustum(), getJitter()
          */
         EQ_EXPORT virtual void applyFrustum() const;
 
         /**
          * Apply the orthographic frustum matrix for the current rendering task.
-         * @sa getOrtho()
+         * @sa getOrtho(), getJitter()
          */
         EQ_EXPORT virtual void applyOrtho() const;
 
@@ -572,8 +575,6 @@ namespace eq
         EQ_EXPORT void setErrorMessage( const std::string& message );
         //@}
 
-        Vector2f getJitterVector() const;
-
     private:
         //-------------------- Members --------------------
         /** The parent window. */
@@ -642,11 +643,6 @@ namespace eq
             char dummy[64];
         };
 
-        Vector2f* _lookupJitterTable( const uint32_t size ) const;
-
-        /** Initialize the FBO */
-        bool _configInitFBO();
-        
         //-------------------- Methods --------------------
         /** 
          * Set the channel's fractional viewport wrt its parent pipe.
@@ -671,6 +667,9 @@ namespace eq
 
         /** Setup the current rendering context. */
         void _setRenderContext( RenderContext& context );
+
+        /** Initialize the FBO */
+        bool _configInitFBO();
 
         virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
         virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }

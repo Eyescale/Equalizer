@@ -180,18 +180,10 @@ void Compositor::assembleFrames( const FrameVector& frames,
     if( _useCPUAssembly( frames, channel ))
         assembleFramesCPU( frames, channel );
     else
-    {
-	    if( _hasSubPixel( frames ) && !accum )
-        {
-            accum = initAccum( channel );
-            accum->clear();
-        }
-
         assembleFramesUnsorted( frames, channel, accum );
-    }
 }
 
-Accum* Compositor::initAccum( Channel* channel )
+Accum* Compositor::obtainAccum( Channel* channel )
 {
     const PixelViewport& pvp = channel->getPixelViewport();
 
@@ -247,26 +239,6 @@ void Compositor::assembleFramesSorted( const FrameVector& frames,
         glDisable( GL_BLEND );
 }
 
-bool Compositor::_hasSubPixel( const FrameVector& frames )
-{
-    FrameVector::const_iterator i = frames.begin();
-    Frame* startFrame = *i;
-    ++i;
-
-    if( startFrame->getSubPixel() != SubPixel::ALL )
-        return true;
-
-    while( i != frames.end( ))
-    {
-        Frame* nextFrame = *i;
-        if( nextFrame->getSubPixel() != SubPixel::ALL )
-            return true;
-        ++i;
-    }
-
-    return false;
-}
-
 bool Compositor::_isSubPixelDecomposition( const FrameVector& frames )
 {
     if( frames.empty( ))
@@ -280,10 +252,10 @@ bool Compositor::_isSubPixelDecomposition( const FrameVector& frames )
     {
         frame = *i;
         if( subpixel != frame->getSubPixel( ))
-            return false;
+            return true;
     }
 
-    return true;
+    return false;
 }
 
 void Compositor::assembleFramesUnsorted( const FrameVector& frames, 
@@ -292,38 +264,40 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
     if( frames.empty( ))
         return;
 
-    bool isSimilarFrames = _isSubPixelDecomposition( frames );
-
-    if( !isSimilarFrames )
+    if( _isSubPixelDecomposition( frames ))
     {
-	    EQASSERT( accum );
-    	FrameVector framesLeft = frames;
+        if( !accum )
+        {
+            accum = obtainAccum( channel );
+            accum->clear();
+        }
 
-    	while( !framesLeft.empty( ))
-    	{
-    	    const SubPixel& subpixel = framesLeft.back()->getSubPixel();
-    	    FrameVector current;
-    	    current.push_back( framesLeft.back( ));
-    	    framesLeft.pop_back();
+        FrameVector framesLeft = frames;
+        while( !framesLeft.empty( ))
+        {
+            const SubPixel& subpixel = framesLeft.back()->getSubPixel();
+            FrameVector current;
+            current.push_back( framesLeft.back( ));
+            framesLeft.pop_back();
 
-    	    again:
-    	    for( FrameVector::iterator i = framesLeft.begin();
-    	                i != framesLeft.end(); ++i )
-    	    {
-    	        Frame* frame = *i;
+            again:
+            for( FrameVector::iterator i = framesLeft.begin();
+                        i != framesLeft.end(); ++i )
+            {
+                Frame* frame = *i;
 
-    	        if( frame->getSubPixel() == subpixel )
-    	        {
-    	            current.push_back( frame );
-    	            framesLeft.erase( i );
-    	            goto again;
-    	        }
-    	    }
+                if( frame->getSubPixel() == subpixel )
+                {
+                    current.push_back( frame );
+                    framesLeft.erase( i );
+                    goto again;
+                }
+            }
 
-    	    assembleFramesUnsorted( current, channel, accum );
-    	    accum->accum();
-    	    accum->display();
-    	}
+            assembleFramesUnsorted( current, channel, accum );
+            accum->accum();
+            accum->display();
+        }
         return;
     }
 

@@ -48,7 +48,8 @@ namespace eq
             Zoom           zoom;    //!< The zoom factor
         };
 
-        static Accum* initAccum( Channel* channel );
+        /** @return the accumulation buffer used for subpixel compositing. */
+        static Accum* obtainAccum( Channel* channel );
 
         /** @name Frame-based operations. */
         //@{
@@ -182,7 +183,6 @@ namespace eq
         typedef std::pair< const Frame*, const Image* > FrameImage;
 
         static bool _isSubPixelDecomposition( const FrameVector& frames );
-        static bool _hasSubPixel( const FrameVector& frames );
 
         static bool _collectOutputData( const FrameVector& frames,
                                         PixelViewport& destPVP, 

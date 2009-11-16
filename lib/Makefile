@@ -104,7 +104,6 @@ HEADER_SRC = \
 	client/glWindow.h \
 	client/image.h \
 	client/init.h \
-	client/jitter.h \
 	client/layout.h \
 	client/layoutVisitor.h \
 	client/log.h \

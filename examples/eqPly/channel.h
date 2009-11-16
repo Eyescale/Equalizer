@@ -85,7 +85,7 @@ namespace eqPly
 
         /** the subpixel for this step. */
         eq::Vector2i _getJitterStep() const;
-        eq::Vector2f _getJitterVector() const;
+        eq::Vector2f _getJitter() const;
 
         const FrameData& _getFrameData() const;
         const Model*     _getModel();

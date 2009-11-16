@@ -1,9 +1,8 @@
-Fix assertion in serialization sequencing code [untested]
-Node::connect-related code cleanups
+FSAA-related cleanups
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

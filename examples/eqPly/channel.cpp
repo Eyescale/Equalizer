@@ -79,7 +79,7 @@ bool Channel::configInit( const uint32_t initID )
 
 bool Channel::_configInitAccumBuffer()
 {
-    _accum = eq::Compositor::initAccum( this );
+    _accum = eq::Compositor::obtainAccum( this );
     
     if( _accum )
     {
@@ -326,7 +326,7 @@ void Channel::applyFrustum() const
 
     if( frameData.isIdle() && _jitterStep > 0 )
     {
-        eq::Vector2f jitter = _getJitterVector();
+        eq::Vector2f jitter = _getJitter();
 
         if( frameData.useOrtho( ))
         {
@@ -359,7 +359,7 @@ const FrameData& Channel::_getFrameData() const
     return pipe->getFrameData();
 }
 
-eq::Vector2f Channel::_getJitterVector() const
+eq::Vector2f Channel::_getJitter() const
 {
     const eq::PixelViewport& pvp = getPixelViewport();
     float pvp_w = static_cast<float>( pvp.w );

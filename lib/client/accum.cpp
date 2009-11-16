@@ -79,7 +79,7 @@ bool Accum::resize( const int width, const int height )
 {
     if( usesFBO( ))
     {
-		PixelViewport pvp = _abo->getPixelViewport();
+        const PixelViewport& pvp = _abo->getPixelViewport();
         if( pvp.w == width && pvp.h == height )
             return false;
 
@@ -113,13 +113,13 @@ void Accum::accum()
     {
         if( _numSteps == 0 )
 #ifdef Darwin
-			glAccum( GL_LOAD, 1.0f/_totalSteps );
+            glAccum( GL_LOAD, 1.0f/_totalSteps );
 #else
             glAccum( GL_LOAD, 1.0f );
 #endif
         else
 #ifdef Darwin
-			glAccum( GL_ACCUM, 1.0f/_totalSteps );
+            glAccum( GL_ACCUM, 1.0f/_totalSteps );
 #else
             glAccum( GL_ACCUM, 1.0f );
 #endif
@@ -135,13 +135,13 @@ void Accum::display()
     if( _abo )
         _abo->display( factor );
     else
-	{
+    {
 #ifdef Darwin
-		glAccum( GL_RETURN, static_cast<float>( _totalSteps )/_numSteps );
+        glAccum( GL_RETURN, static_cast<float>( _totalSteps )/_numSteps );
 #else
-		glAccum( GL_RETURN, factor );
+        glAccum( GL_RETURN, factor );
 #endif
-	}
+    }
 }
 
 uint32_t Accum::getMaxSteps() const
@@ -154,6 +154,6 @@ uint32_t Accum::getMaxSteps() const
 
     return accumBits >= 16 ? 256 : 0;
 }
-		
+        
 }
 

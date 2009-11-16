@@ -701,7 +701,7 @@ void Channel::applyViewport() const
 void Channel::applyFrustum() const
 {
     Frustumf frustum = getFrustum();
-    const Vector2f jitter = getJitterVector();
+    const Vector2f jitter = getJitter();
 
     frustum.apply_jitter( jitter );
     EQ_GL_CALL( glFrustum( frustum.left(), frustum.right(),
@@ -713,7 +713,7 @@ void Channel::applyFrustum() const
 void Channel::applyOrtho() const
 {
     Frustumf ortho = getOrtho();
-    const Vector2f jitter = getJitterVector();
+    const Vector2f jitter = getJitter();
 
     ortho.apply_jitter( jitter );
     EQ_GL_CALL( glOrtho( ortho.left(), ortho.right(),
@@ -738,41 +738,9 @@ void Channel::applyHeadTransform() const
     EQVERB << "Apply head transform: " << xfm << endl;
 }
 
-Vector2f Channel::getJitterVector() const
+namespace
 {
-    const SubPixel& subpixel = getSubPixel();
-    if( subpixel == SubPixel::ALL )
-        return Vector2f::ZERO;
-        
-    // Compute a pixel size
-    const PixelViewport& pvp = getPixelViewport();
-    const float pvp_w = static_cast<const float>( pvp.w );
-    const float pvp_h = static_cast<const float>( pvp.h );
-
-    const Frustumf& frustum = getFrustum();
-    const float frustum_w = frustum.get_width();
-    const float frustum_h = frustum.get_height();
-
-    const float pixel_w = frustum_w / pvp_w;
-    const float pixel_h = frustum_h / pvp_h;
-
-    Vector2f pixelSize( pixel_w, pixel_h );
-    Vector2f jitter;
-
-    Vector2f* table = _lookupJitterTable( subpixel.size );
-    base::RNG rng;
-    if( !table )
-    {
-        jitter.x() = rng.get< float >();
-        jitter.y() = rng.get< float >();
-    }
-    else
-        jitter = table[ subpixel.index ];
-
-    return jitter * pixelSize;
-}
-
-Vector2f* Channel::_lookupJitterTable( const uint32_t size ) const
+static Vector2f* _lookupJitterTable( const uint32_t size )
 {
     switch( size )
     {
@@ -794,6 +762,41 @@ Vector2f* Channel::_lookupJitterTable( const uint32_t size ) const
             break;
     }
     return 0;
+}
+}
+
+Vector2f Channel::getJitter() const
+{
+    const SubPixel& subpixel = getSubPixel();
+    if( subpixel == SubPixel::ALL )
+        return Vector2f::ZERO;
+        
+    // Compute a pixel size
+    const PixelViewport& pvp = getPixelViewport();
+    const float pvp_w = static_cast<const float>( pvp.w );
+    const float pvp_h = static_cast<const float>( pvp.h );
+
+    const Frustumf& frustum = getFrustum();
+    const float frustum_w = frustum.get_width();
+    const float frustum_h = frustum.get_height();
+
+    const float pixel_w = frustum_w / pvp_w;
+    const float pixel_h = frustum_h / pvp_h;
+
+    const Vector2f pixelSize( pixel_w, pixel_h );
+
+    Vector2f* table = _lookupJitterTable( subpixel.size );
+    Vector2f jitter;
+    if( !table )
+    {
+        base::RNG rng;
+        jitter.x() = rng.get< float >();
+        jitter.y() = rng.get< float >();
+    }
+    else
+        jitter = table[ subpixel.index ];
+
+    return jitter * pixelSize;
 }
 
 bool Channel::processEvent( const Event& event )

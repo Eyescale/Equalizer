@@ -473,6 +473,7 @@ bool Node::_connectSelf()
 void Node::_connectMulticast( NodePtr node )
 {
     EQASSERT( inReceiverThread( ));
+    // Search if the connected node is in the same multicast group as we are
     for( ConnectionDescriptionVector::const_iterator i =
              _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
@@ -501,6 +502,8 @@ void Node::_connectMulticast( NodePtr node )
                 _outMulticast->getDescription() == description )
             {
                 node->_outMulticast = _outMulticast;
+                EQINFO << "Using " << description << " as multicast group for "
+                       << node->getNodeID() << std::endl;
                 return;
             }
 
@@ -509,15 +512,20 @@ void Node::_connectMulticast( NodePtr node )
                  k != _multicasts.end(); ++k )
             {
                 const MCData& data = *k;
-                if( data.connection->getDescription() != description )
+                ConnectionDescriptionPtr dataDesc = 
+                    data.connection->getDescription();
+                if( description->type != dataDesc->type ||
+                    description->getHostname() != dataDesc->getHostname() ||
+                    description->port != dataDesc->port )
+                {
                     continue;
+                }
 
                 node->_multicasts.push_back( data );
+                EQINFO << "Using " << dataDesc << " as multicast group for "
+                       << node->getNodeID() << std::endl;
                 return;
             }
-            EQASSERTINFO( false,
-                          "Could not find multicast connection to node " << 
-                          node );
         }
     }
 }
@@ -981,23 +989,21 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     if( node->isConnected( ))
         return node;
 
-    if( !connect( node ))
-    {
-        base::ScopedMutex mutexNodes( _nodes );
-        // connect failed - maybe simultaneous connect from peer?
-        NodeHash::const_iterator i = _nodes->find( nodeID );
-        if( i != _nodes->end( ))
-        {
-            node = i->second;
-            EQASSERT( node->isConnected( ));
-            return node;
-        }
-        
-        EQWARN << "Node connection failed" << std::endl;
-        return 0;
-    }
+    if( connect( node ))
+        return node;
 
-    return node;
+    base::ScopedMutex mutexNodes( _nodes );
+    // connect failed - maybe simultaneous connect from peer?
+    NodeHash::const_iterator i = _nodes->find( nodeID );
+    if( i != _nodes->end( ))
+    {
+        node = i->second;
+        EQASSERT( node->isConnected( ));
+        return node;
+    }
+        
+    EQWARN << "Node connection failed" << std::endl;
+    return 0;
 }
 
 bool Node::_launch( NodePtr node,
@@ -1323,15 +1329,15 @@ void Node::_handleDisconnect()
 
     ConnectionPtr connection = _incoming.getConnection();
     NodePtr node;
-    ConnectionNodeHash::const_iterator i = _connectionNodes.find( connection );
+    ConnectionNodeHash::iterator i = _connectionNodes.find( connection );
     if( i != _connectionNodes.end( ))
         node = i->second;
 
+    _connectionNodes.erase( i );
     if( node.isValid( ))
     {
         node->_state    = STATE_STOPPED;
         node->_outgoing = 0;
-        _connectionNodes.erase( connection );
 
         base::ScopedMutex mutex( _nodes );
         _nodes->erase( node->_id );
@@ -1877,6 +1883,7 @@ CommandResult Node::_cmdID( Command& command )
     if( command.getNode().isValid( ))
     {
         EQASSERT( nodeID == command.getNode()->getNodeID( ));
+        EQASSERT( command.getNode()->_outMulticast.isValid( ));
         return COMMAND_HANDLED;
     }
 
@@ -1919,12 +1926,12 @@ CommandResult Node::_cmdID( Command& command )
 
     if( node->_outMulticast.isValid( ))
     {
-        if( node->_outMulticast == connection )
+        if( node->_outMulticast == connection ) // conn already used
         {
             // nop
             EQASSERT( i == node->_multicasts.end( ));
         }
-        else
+        else // another connection is used as multicast connection, save this
         {
             if( i == node->_multicasts.end( ))
             {
@@ -1934,7 +1941,7 @@ CommandResult Node::_cmdID( Command& command )
                 data.serverID = _id;
                 node->_multicasts.push_back( data );
             }
-            // else nop
+            // else nop, already know connection
         }
     }
     else
