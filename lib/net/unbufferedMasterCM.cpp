@@ -42,7 +42,7 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &UnbufferedMasterCM::_cmdCommit ), 0 );
     // sync commands are send to any instance, even the master gets the command
-    registerCommand( CMD_OBJECT_DELTA, 
+    registerCommand( CMD_OBJECT_DELTA,
                      CmdFunc( this, &UnbufferedMasterCM::_cmdDiscard ), 0 );
 }
 

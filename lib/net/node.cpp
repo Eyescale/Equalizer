@@ -470,39 +470,6 @@ bool Node::_connectSelf()
     return true;
 }
 
-bool Node::_connect( NodePtr node, ConnectionPtr connection )
-{
-    EQASSERT( connection.isValid( ));
-
-    if( !node.isValid() || _state != STATE_LISTENING ||
-        !connection->isConnected() || node->_state != STATE_STOPPED )
-    {
-        return false;
-    }
-
-    _addConnection( connection );
-
-    // send connect packet to peer
-    NodeConnectPacket packet;
-    packet.requestID = _requestHandler.registerRequest( node.get( ));
-    packet.nodeID    = _id;
-    packet.nodeID.convertToNetwork();
-    packet.type      = getType();
-    packet.launchID  = node->_launchID;
-    node->_launchID  = EQ_ID_INVALID;
-    connection->send( packet, serialize( ));
-
-    bool connected = false;
-    _requestHandler.waitRequest( packet.requestID, connected );
-    if( !connected )
-        return false;
-
-    EQASSERT( node->_id != NodeID::ZERO );
-    EQASSERTINFO( node->_id != _id, _id );
-    EQINFO << node << " connected to " << this << std::endl;
-    return true;
-}
-
 void Node::_connectMulticast( NodePtr node )
 {
     EQASSERT( inReceiverThread( ));
@@ -837,7 +804,7 @@ bool Node::connect( NodePtr node )
         return false;
     }
 
-    return syncConnect( node, _launchTimeout );
+    return syncConnect( node, node->_launchTimeout );
 }
 
 bool Node::initConnect( NodePtr node )
@@ -851,7 +818,7 @@ bool Node::initConnect( NodePtr node )
 
     EQASSERT( node->getState() == STATE_STOPPED );
 
-    // try connecting first
+    // try connecting using the given descriptions
     const ConnectionDescriptionVector& cds = node->getConnectionDescriptions();
     EQASSERTINFO( !cds.empty(),
                   "Can't connect to a node without connection descriptions" );
@@ -886,6 +853,39 @@ bool Node::initConnect( NodePtr node )
     }
 
     return false;
+}
+
+bool Node::_connect( NodePtr node, ConnectionPtr connection )
+{
+    EQASSERT( connection.isValid( ));
+
+    if( !node.isValid() || _state != STATE_LISTENING ||
+        !connection->isConnected() || node->_state != STATE_STOPPED )
+    {
+        return false;
+    }
+
+    _addConnection( connection );
+
+    // send connect packet to peer
+    NodeConnectPacket packet;
+    packet.requestID = _requestHandler.registerRequest( node.get( ));
+    packet.nodeID    = _id;
+    packet.nodeID.convertToNetwork();
+    packet.type      = getType();
+    packet.launchID  = node->_launchID;
+    node->_launchID  = EQ_ID_INVALID;
+    connection->send( packet, serialize( ));
+
+    bool connected = false;
+    _requestHandler.waitRequest( packet.requestID, connected );
+    if( !connected )
+        return false;
+
+    EQASSERT( node->_id != NodeID::ZERO );
+    EQASSERTINFO( node->_id != _id, _id );
+    EQINFO << node << " connected to " << this << std::endl;
+    return true;
 }
 
 bool Node::syncConnect( NodePtr node, const uint32_t timeout )
@@ -948,7 +948,6 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     // all cases correctly, which is far more complex. Node connections only
     // happen a lot during initialization, and are therefore not time-critical.
     base::ScopedMutex mutex( _connectMutex );
-
     {
         base::ScopedMutex mutexNodes( _nodes ); 
         NodeHash::const_iterator i = _nodes->find( nodeID );
@@ -1004,9 +1003,7 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
 bool Node::_launch( NodePtr node,
                     ConnectionDescriptionPtr description )
 {
-    if( !node->_autoLaunch )
-        return false;
-
+    EQASSERT( node->_autoLaunch );
     EQASSERT( node->getState() == STATE_STOPPED );
 
     node->_launchID = _requestHandler.registerRequest( node.get() );
@@ -1998,14 +1995,14 @@ CommandResult Node::_cmdGetNodeData( Command& command)
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
 
-    NodePtr descNode = getNode( nodeID );
+    NodePtr node = getNode( nodeID );
     NodeGetNodeDataReplyPacket reply( packet );
 
     std::string nodeData;
-    if( descNode.isValid( ))
+    if( node.isValid( ))
     {
-        reply.type = descNode->getType();
-        nodeData   = descNode->serialize();
+        reply.type = node->getType();
+        nodeData   = node->serialize();
     }
     else
     {
@@ -2013,9 +2010,9 @@ CommandResult Node::_cmdGetNodeData( Command& command)
         reply.type = TYPE_EQNET_INVALID;
     }
 
-    NodePtr node = command.getNode();
-    node->send( reply, nodeData );
-    EQINFO << "Sent node data " << nodeData << " to " << node << std::endl;
+    NodePtr toNode = command.getNode();
+    toNode->send( reply, nodeData );
+    EQINFO << "Sent node data " << nodeData << " to " << toNode << std::endl;
     return COMMAND_HANDLED;
 }
 
@@ -2026,11 +2023,9 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
     EQINFO << "cmd get node data reply: " << packet << std::endl;
 
     const uint32_t requestID = packet->requestID;
-
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
-
-    {    
+    {
         base::ScopedMutex mutex( _nodes );
         NodeHash::const_iterator i = _nodes->find( nodeID );
         if( i != _nodes->end( ))

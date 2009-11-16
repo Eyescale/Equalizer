@@ -138,7 +138,7 @@ void DataOStream::disable()
         _dataSent = true;
     }
 
-    _resetStart();
+    reset();
     _enabled = false;
     _unlockConnections();
 }
@@ -210,7 +210,7 @@ void DataOStream::writeOnce( const void* data, uint64_t size )
     if( !_connections.empty( ))
         sendSingle( data, size );
 
-    _resetStart();
+    reset();
     _enabled = false;
     _dataSent = true;
     _unlockConnections();
@@ -221,10 +221,10 @@ void DataOStream::flush()
     EQASSERT( _enabled );
     _sendBuffer( _buffer.getData() + _bufferStart, 
                  _buffer.getSize() - _bufferStart );
-    _resetStart();
+    reset();
 }
 
-void DataOStream::_resetStart()
+void DataOStream::reset()
 {
     if( _save )
         _bufferStart = _buffer.getSize();

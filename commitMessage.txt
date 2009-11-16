@@ -1,8 +1,9 @@
-Connect-related code cleanups
+Fix assertion in serialization sequencing code [untested]
+Node::connect-related code cleanups
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

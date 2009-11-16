@@ -205,22 +205,30 @@ namespace net
         EQ_EXPORT virtual bool stopListening();
 
         /** 
-         * Connect and potentially launch a node to this listening node, using
-         * the connection descriptions of the node.
+         * Connect a proxy node to this listening node.
+         *
+         * The connection descriptions of the node are used to connect the
+         * node. If this fails, and auto launch is true, the node is started
+         * using the launch command.
          *
          * On success, the node is in the connected state, otherwise its state
          * is unchanged.
          *
+         * This method is one-sided, that is, the node to be connected should
+         * not initiate a connection to this node at the same time.
+         *
          * @param node the remote node.
-         * @return <code>true</code> if this node was connected,
-         *         <code>false</code> otherwise.
+         * @return true if this node was connected, false otherwise.
          * @sa initConnect, syncConnect
          */
         EQ_EXPORT bool connect( NodePtr node );
 
         /** 
-         * Start connecting and potentially launching a node using the
-         * available connection descriptions.
+         * Start connecting a node using the available connection descriptions.
+         *
+         * The connection descriptions of the node are used to connect the
+         * node. If this fails, and auto launch is true, the node is started
+         * using the launch command.
          *
          * On success, the node is in the launched or connected state, otherwise
          * its state is unchanged.
@@ -249,6 +257,10 @@ namespace net
 
         /** 
          * Create and connect a node given by an identifier.
+         *
+         * This method is two-sided and thread-safe, that is, it can be called
+         * by mulltiple threads on the same node with the same nodeID, or
+         * concurrently on two nodes with each others' nodeID.
          * 
          * @param nodeID the identifier of the node to connect.
          * @return the connected node, or an invalid RefPtr if the node could
@@ -511,6 +523,7 @@ namespace net
          * @param connection the connection to the remote node.
          * @return <code>true</code> if the node was connected correctly,
          *         <code>false</code> otherwise.
+         * @internal
          */
         bool _connect( NodePtr node, ConnectionPtr connection );
 
@@ -597,7 +610,7 @@ namespace net
 
         /** The node for each connection. */
         typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
-        ConnectionNodeHash _connectionNodes;
+        ConnectionNodeHash _connectionNodes; // read and write: recv only
 
         /** The receiver->command command queue. */
         CommandQueue _commandThreadQueue;
