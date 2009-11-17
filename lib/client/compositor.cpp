@@ -286,9 +286,8 @@ const FrameVector Compositor::_extractOneSubPixel( FrameVector& frames )
     current.push_back( frames.back( ));
     frames.pop_back();
 
-    again:
     for( FrameVector::iterator i = frames.begin();
-                i != frames.end(); ++i )
+                i != frames.end(); )
     {
         Frame* frame = *i;
 
@@ -296,8 +295,9 @@ const FrameVector Compositor::_extractOneSubPixel( FrameVector& frames )
         {
             current.push_back( frame );
             frames.erase( i );
-            goto again;
         }
+        else
+            ++i;
     }
 
     return current;
@@ -320,6 +320,7 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
         FrameVector framesLeft = frames;
     	while( !framesLeft.empty( ))
     	{
+    	    // get the frames with the same subpixel compound
     	    FrameVector current = _extractOneSubPixel( framesLeft );
             assembleFramesUnsorted( current, channel, accum );
             accum->accum();

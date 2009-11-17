@@ -376,7 +376,7 @@ eq::Vector2f Channel::_getJitter() const
 
     eq::Vector2i jitterStep = _getJitterStep();
 
-    // Sample values in the middle of the current subpixel
+    // Sample value randomly computed within the subpixel
     eq::base::RNG rng;
     float value_i = rng.get< float >() * subpixel_w
                     + static_cast<float>( jitterStep.x( )) * subpixel_w;
