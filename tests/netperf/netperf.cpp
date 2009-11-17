@@ -348,7 +348,7 @@ int main( int argc, char **argv )
     Selector* selector = 0;
     if( isClient )
     {
-        if( description->type >= CONNECTIONTYPE_MULTICAST )
+        if( description->type == CONNECTIONTYPE_RSP)
         {
             selector = new Selector( connection, packetSize, useThreads );
             selector->start();
