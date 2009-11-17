@@ -390,11 +390,8 @@ eq::Vector2f Channel::_getJitter() const
 eq::Vector2i Channel::_getJitterStep() const
 {
     uint32_t channelID  = getSubPixel().index;
-
-    uint32_t primeNumber = primeNumberTable[ channelID ];
-    uint32_t idx = ( _jitterStep * primeNumber ) % _totalSteps;
-
-    idx = ( channelID * _totalSteps ) + idx;
+    uint32_t idx = ( channelID * _totalSteps );
+    idx += ( _jitterStep * primeNumberTable[ channelID ] ) % _totalSteps;
 
     uint32_t sampleSize = _getSampleSize();
     const int dx = idx % sampleSize;
