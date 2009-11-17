@@ -111,10 +111,10 @@ void AccumBufferObject::_drawQuadWithTexture( Texture* texture, GLfloat value )
 
     PixelViewport pvp = getPixelViewport();
 
-    const float startX = pvp.x;
-    const float endX   = pvp.x + pvp.w;
-    const float startY = pvp.y;
-    const float endY   = pvp.y + pvp.h;
+    const float startX = static_cast< const float >( pvp.x );
+    const float endX   = static_cast< const float >( pvp.x + pvp.w );
+    const float startY = static_cast< const float >( pvp.y );
+    const float endY   = static_cast< const float >( pvp.y + pvp.h );
 
     glBegin( GL_QUADS );
         glTexCoord2f( 0.0f, 0.0f );
