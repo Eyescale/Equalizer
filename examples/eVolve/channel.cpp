@@ -314,7 +314,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     }
 
     // blend DB frames in order
-    eq::Compositor::assembleFramesSorted( dbFrames, this, true /*blendAlpha*/ );
+    eq::Compositor::assembleFramesSorted( dbFrames, this, 0, true /*blendAlpha*/ );
     resetAssemblyState();
 
     // Update range

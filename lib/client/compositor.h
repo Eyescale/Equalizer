@@ -75,7 +75,7 @@ namespace eq
          *                   channel
          */
         static void assembleFramesSorted( const FrameVector& frames,
-                                          Channel* channel,
+                                          Channel* channel, Accum* accum,
                                           const bool blendAlpha = false );
 
         /** 
@@ -183,6 +183,7 @@ namespace eq
         typedef std::pair< const Frame*, const Image* > FrameImage;
 
         static bool _isSubPixelDecomposition( const FrameVector& frames );
+        static const FrameVector _extractOneSubPixel( FrameVector& frames );
 
         static bool _collectOutputData( const FrameVector& frames,
                                         PixelViewport& destPVP, 

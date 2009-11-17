@@ -206,10 +206,30 @@ Accum* Compositor::obtainAccum( Channel* channel )
 }
 
 void Compositor::assembleFramesSorted( const FrameVector& frames,
-                                       Channel* channel, const bool blendAlpha )
+                                       Channel* channel, Accum* accum,
+                                       const bool blendAlpha )
 {
     if( frames.empty( ))
         return;
+
+    if( _isSubPixelDecomposition( frames ))
+    {
+        if( !accum )
+        {
+            accum = obtainAccum( channel );
+            accum->clear();
+        }
+
+        FrameVector framesLeft = frames;
+        while( !framesLeft.empty( ))
+        {
+            FrameVector current = _extractOneSubPixel( framesLeft );
+            assembleFramesSorted( current, channel, accum );
+            accum->accum();
+            accum->display();
+        }
+        return;
+    }
 
     if( blendAlpha )
     {
@@ -258,6 +278,31 @@ bool Compositor::_isSubPixelDecomposition( const FrameVector& frames )
     return false;
 }
 
+const FrameVector Compositor::_extractOneSubPixel( FrameVector& frames )
+{
+    FrameVector current;
+
+    const SubPixel& subpixel = frames.back()->getSubPixel();
+    current.push_back( frames.back( ));
+    frames.pop_back();
+
+    again:
+    for( FrameVector::iterator i = frames.begin();
+                i != frames.end(); ++i )
+    {
+        Frame* frame = *i;
+
+        if( frame->getSubPixel() == subpixel )
+        {
+            current.push_back( frame );
+            frames.erase( i );
+            goto again;
+        }
+    }
+
+    return current;
+}
+
 void Compositor::assembleFramesUnsorted( const FrameVector& frames, 
                                          Channel* channel, Accum* accum )
 {
@@ -273,27 +318,9 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
         }
 
         FrameVector framesLeft = frames;
-        while( !framesLeft.empty( ))
-        {
-            const SubPixel& subpixel = framesLeft.back()->getSubPixel();
-            FrameVector current;
-            current.push_back( framesLeft.back( ));
-            framesLeft.pop_back();
-
-            again:
-            for( FrameVector::iterator i = framesLeft.begin();
-                        i != framesLeft.end(); ++i )
-            {
-                Frame* frame = *i;
-
-                if( frame->getSubPixel() == subpixel )
-                {
-                    current.push_back( frame );
-                    framesLeft.erase( i );
-                    goto again;
-                }
-            }
-
+    	while( !framesLeft.empty( ))
+    	{
+    	    FrameVector current = _extractOneSubPixel( framesLeft );
             assembleFramesUnsorted( current, channel, accum );
             accum->accum();
             accum->display();
