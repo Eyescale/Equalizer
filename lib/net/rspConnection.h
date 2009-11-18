@@ -136,6 +136,22 @@ namespace net
 
         struct RepeatRequest
         {
+            RepeatRequest( )
+              : start( 0 )
+              , end( 0 ) {}
+            
+            RepeatRequest( int value )
+              : start( value )
+              , end( value ) {}
+              
+            RepeatRequest( uint8_t istart, uint8_t iend )
+            : start( istart )
+            , end( iend ) {}
+              
+            RepeatRequest( const RepeatRequest& value )
+              : start( value.start )
+              , end( value.end ) {}
+            
             uint32_t start;
             uint32_t end;
         };
@@ -219,7 +235,7 @@ namespace net
         // The buffer used by the write function in udp socket
         eq::base::Bufferb _sendBuffer;
 
-        eq::base::MTQueue< const RepeatRequest > _repeatQueue;
+        eq::base::MTQueue< RepeatRequest > _repeatQueue;
 
         eq::base::RNG         _rng;
         ID _id; //!< The identifier used to demultiplex multipe writers

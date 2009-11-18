@@ -581,7 +581,7 @@ bool UDPConnection::_parseAddress( sockaddr_in& address )
 
 void UDPConnection::adaptRate( int percent )
 {
-    _currentRate += _currentRate * percent / 100.f;
+    _currentRate += _currentRate * percent / 100;
     _currentRate = EQ_MAX( 50, _currentRate );
     _currentRate = EQ_MIN( _currentRate, _description->bandwidth );
     EQLOG( net::LOG_RSP ) << "new send rate " << _currentRate << std::endl;

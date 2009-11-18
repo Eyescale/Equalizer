@@ -258,6 +258,7 @@ bool RSPConnection::listen()
     _hEvent.fd = _selfPipeHEvent->getNotifier();
     _readFD = _hEvent.fd;
     _hEvent.revents = 0;
+    _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
 #endif
     _countNbAckInWrite = 0;
     
@@ -293,6 +294,7 @@ ConnectionPtr RSPConnection::acceptSync()
 #ifdef WIN32
             WaitForSingleObject( _hEvent, INFINITE );
 #else
+
             poll( &_hEvent, 1, INFINITE );
 #endif
     }
@@ -567,6 +569,7 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
                 ResetEvent( _hEvent );
 #else
                 _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
+                _selfPipeHEvent->recvSync( 0, 0);
 #endif
             }
             receive->dataBuffer.setSize( 0 );
@@ -841,7 +844,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     EQLOG( net::LOG_RSP ) << "unlock write function " << _sequenceIDWrite 
                           << std::endl;
     // unblock write function if all ack have been received
-    const RepeatRequest repeat = { 1, 0 };
+    const RepeatRequest repeat( 1, 0 );
     _repeatQueue.push( repeat );
 
     // reset counter timeout
