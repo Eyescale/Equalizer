@@ -434,7 +434,7 @@ void Session::unmapObject( Object* object )
             NodePtr localNode = _localNode;
             NodePtr master    = localNode.isValid() ? 
                                     localNode->getNode( masterNodeID ) : 0;
-            if( master.isValid( ))
+            if( master.isValid() && master->isConnected( ))
             {
                 SessionUnsubscribeObjectPacket packet;
                 packet.requestID = _requestHandler.registerRequest();
@@ -772,8 +772,8 @@ CommandResult Session::_cmdMapObject( Command& command )
         EQASSERT( packet->masterNodeID != NodeID::ZERO );
         NodePtr master = _localNode->getNode( packet->masterNodeID );
 
-        EQASSERTINFO( master.isValid(), "Master node for object id " << id
-                      << " not connected" );
+        EQASSERTINFO( master.isValid() && master->isConnected(),
+                      "Master node for object id " << id << " not connected" );
 
         // slave instantiation - subscribe first
         SessionSubscribeObjectPacket subscribePacket( packet );

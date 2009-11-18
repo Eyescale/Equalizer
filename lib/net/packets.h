@@ -206,9 +206,12 @@ namespace net
             {
                 command     = CMD_NODE_ID;
                 size        = sizeof( NodeIDPacket ); 
+                data[0] = '\0';
             }
 
-        NodeID   nodeID;
+        NodeID   id;
+        uint32_t type;
+        EQ_ALIGN8( char data[8] );
     };
 
     struct NodeDisconnectPacket : public NodePacket

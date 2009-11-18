@@ -1,10 +1,10 @@
-Implement missing net::Node::removeConnectionDescription
-Minor code cleanups
+Refactor Node connection handling to allow early node creation caused by
+multicast mappings [UNTESTED]
 
 [ ] May break build
-[ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] May break existing applications
+[x] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

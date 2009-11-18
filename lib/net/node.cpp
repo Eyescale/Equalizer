@@ -177,10 +177,11 @@ ConnectionPtr Node::getMulticast()
            << data.connection->getDescription() << std::endl;
 
     NodeIDPacket packet;
-    packet.nodeID = data.serverID;
-    packet.nodeID.convertToNetwork();
-    data.connection->send( packet );
-    
+    packet.id = data.serverID;
+    packet.id.convertToNetwork();
+    packet.type = getType();
+
+    data.connection->send( packet, serialize( ));
     _outMulticast = data.connection;
     return data.connection;
 }
@@ -929,8 +930,8 @@ NodePtr Node::connect( const NodeID& nodeID )
              i != _nodes->end(); ++i )
         {
             NodePtr node = i->second;
-            
-            if( node->getNodeID() == nodeID ) // early out
+
+            if( node->getNodeID() == nodeID && node->isConnected( )) //early out
                 return node;
 
             nodes.push_back( node );
@@ -939,17 +940,20 @@ NodePtr Node::connect( const NodeID& nodeID )
 
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        NodePtr result = _connect( nodeID, *i );
-        if( result.isValid( ))
-            return result;
+        NodePtr node = _connect( nodeID, *i );
+        if( node.isValid( ))
+            return node;
     }
-
+        
+    EQWARN << "Node connection failed" << std::endl;
     return 0;
 }
 
 NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
 {
     EQASSERT( nodeID != NodeID::ZERO );
+
+    NodePtr node;
 
     // Make sure that only one connection request based on the node identifier
     // is pending at a given time. Otherwise a node with the same id might be
@@ -962,7 +966,14 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
         base::ScopedMutex mutexNodes( _nodes ); 
         NodeHash::const_iterator i = _nodes->find( nodeID );
         if( i != _nodes->end( ))
-            return i->second;
+            node = i->second;
+    }
+
+    if( node.isValid( ))
+    {
+        if( !node->isConnected( ))
+            connect( node );
+        return node->isConnected() ? node : 0;        
     }
 
     EQINFO << "Connecting node " << nodeID << std::endl;
@@ -985,7 +996,7 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     }
 
     EQASSERT( dynamic_cast< Node* >( (Dispatcher*)result ));
-    NodePtr node = static_cast< Node* >( result );
+    node = static_cast< Node* >( result );
     node.unref(); // ref'd before serveRequest()
     
     if( node->isConnected( ))
@@ -994,18 +1005,20 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     if( connect( node ))
         return node;
 
-    base::ScopedMutex mutexNodes( _nodes );
-    // connect failed - maybe simultaneous connect from peer?
-    NodeHash::const_iterator i = _nodes->find( nodeID );
-    if( i != _nodes->end( ))
     {
-        node = i->second;
-        EQASSERT( node->isConnected( ));
-        return node;
+        base::ScopedMutex mutexNodes( _nodes );
+        // connect failed - maybe simultaneous connect from peer?
+        NodeHash::const_iterator i = _nodes->find( nodeID );
+        if( i != _nodes->end( ))
+        {
+            node = i->second;
+            if( node->isConnected( ))
+                return node;
+        }
     }
-        
-    EQWARN << "Node connection failed" << std::endl;
-    return 0;
+
+    connect( node );
+    return node->isConnected() ? node : 0;
 }
 
 bool Node::_launch( NodePtr node,
@@ -1731,35 +1744,48 @@ CommandResult Node::_cmdConnect( Command& command )
     EQASSERT( nodeID != _id );
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
+    NodePtr remoteNode;
+
     // No locking needed, only recv thread modifies
-    if( _nodes->find( nodeID ) != _nodes->end( ))
+    NodeHash::const_iterator i = _nodes->find( nodeID );
+    if( i != _nodes->end( ))
     {
-        // Node exists, probably simultaneous connect from peer
-        EQASSERT( packet->launchID == EQ_ID_INVALID );
-        EQINFO << "Already got node " << nodeID << ", refusing connect"
-               << std::endl;
+        remoteNode = i->second;
+        if( remoteNode->isConnected( ))
+        {
+            // Node exists, probably simultaneous connect from peer
+            EQASSERT( packet->launchID == EQ_ID_INVALID );
+            EQINFO << "Already got node " << nodeID << ", refusing connect"
+                   << std::endl;
 
-        // refuse connection
-        NodeConnectReplyPacket reply( packet );
-        connection->send( reply, serialize( ));
+            // refuse connection
+            NodeConnectReplyPacket reply( packet );
+            connection->send( reply, serialize( ));
 
-        // NOTE: There is no close() here. The reply packet above has to be
-        // received by the peer first, before closing the connection.
-        _removeConnection( connection );
-        return COMMAND_HANDLED;
+            // NOTE: There is no close() here. The reply packet above has to be
+            // received by the peer first, before closing the connection.
+            _removeConnection( connection );
+            return COMMAND_HANDLED;
+        }
     }
 
-    // create and add connected node
-    NodePtr remoteNode;
-    if( packet->launchID != EQ_ID_INVALID )
+    if( !remoteNode )
     {
-        void* ptr = _requestHandler.getRequestData( packet->launchID );
-        EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
-        remoteNode = static_cast< Node* >( ptr );
-        remoteNode->_connectionDescriptions.clear(); //use actual data from peer
+        // create and add connected node
+        if( packet->launchID != EQ_ID_INVALID )
+        {
+            void* ptr = _requestHandler.getRequestData( packet->launchID );
+            EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
+            remoteNode = static_cast< Node* >( ptr );
+        }
+        else
+            remoteNode = createNode( packet->type );
     }
     else
-        remoteNode = createNode( packet->type );
+    {
+        EQASSERT( packet->launchID == EQ_ID_INVALID );
+    }
+    remoteNode->_connectionDescriptions.clear(); //use data from peer
 
     std::string data = packet->nodeData;
     if( !remoteNode->deserialize( data ))
@@ -1807,10 +1833,16 @@ CommandResult Node::_cmdConnectReply( Command& command )
     EQINFO << "handle connect reply " << packet << std::endl;
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
-    if( nodeID == NodeID::ZERO ||                 // connection refused
-        // No locking needed, only recv thread writes
-        _nodes->find( nodeID ) != _nodes->end( )) // Node exists, probably
-                                                  // simultaneous connect
+    NodePtr remoteNode;
+
+    // No locking needed, only recv thread modifies
+    NodeHash::const_iterator i = _nodes->find( nodeID );
+    if( i != _nodes->end( ))
+        remoteNode = i->second;
+
+    if( nodeID == NodeID::ZERO || // connection refused
+        // Node exists, probably simultaneous connect
+        ( remoteNode.isValid() && remoteNode->isConnected( )))
     {
         EQINFO << "ignoring connect reply, node already connected" << std::endl;
         _removeConnection( connection );
@@ -1822,17 +1854,22 @@ CommandResult Node::_cmdConnectReply( Command& command )
     }
 
     // create and add node
-    NodePtr remoteNode;
-    if( packet->requestID != EQ_ID_INVALID )
-    {
-        void* ptr = _requestHandler.getRequestData( packet->requestID );
-        EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
-        remoteNode = static_cast< Node* >( ptr );
-        remoteNode->_connectionDescriptions.clear(); //get actual data from peer
-    }
-
     if( !remoteNode )
-        remoteNode = createNode( packet->type );
+    {
+        if( packet->requestID != EQ_ID_INVALID )
+        {
+            void* ptr = _requestHandler.getRequestData( packet->requestID );
+            EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
+            remoteNode = static_cast< Node* >( ptr );
+        }
+        else
+            remoteNode = createNode( packet->type );
+    }
+    else
+    {
+        EQASSERT( packet->requestID == EQ_ID_INVALID );
+    }
+    remoteNode->_connectionDescriptions.clear(); //use data from peer
 
     EQASSERT( remoteNode->getType() == packet->type );
     EQASSERT( remoteNode->getState() == STATE_STOPPED );
@@ -1879,7 +1916,7 @@ CommandResult Node::_cmdID( Command& command )
     EQASSERT( inReceiverThread( ));
 
     const NodeIDPacket* packet = command.getPacket< NodeIDPacket >();
-    NodeID nodeID = packet->nodeID;
+    NodeID nodeID = packet->id;
     nodeID.convertToHost();
 
     if( command.getNode().isValid( ))
@@ -1889,10 +1926,10 @@ CommandResult Node::_cmdID( Command& command )
         return COMMAND_HANDLED;
     }
 
+    EQINFO << "handle ID " << packet << " node " << nodeID << std::endl;
+
     ConnectionPtr connection = _incoming.getConnection();
     EQASSERT( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST );
-
-    EQINFO << "handle ID " << packet << " node " << nodeID << std::endl;
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
     base::ScopedMutex mutex( _connectMutex );
@@ -1907,17 +1944,29 @@ CommandResult Node::_cmdID( Command& command )
         EQASSERT( i != _nodes->end( ));
         if( i == _nodes->end( ))
         {
-            // unknown node: drop connection, we will get another chance when we
-            // connect the node
-            _removeConnection( connection );
-            connection->close();
-            return COMMAND_HANDLED;
-        }
+            // unknown node: create and add unconnected node
+            node = createNode( packet->type );
+            std::string data = packet->data;
 
-        node = i->second;
-        EQASSERT( node->isConnected( ));
+            if( !node->deserialize( data ))
+                EQWARN << "Error during node initialization" << std::endl;
+            EQASSERTINFO( data.empty(), data );
+
+            {
+                base::ScopedMutex nodesMutex( _nodes );
+                _nodes.data[ nodeID ] = node;
+            }
+            EQVERB << "Added node " << nodeID << " with multicast "
+                   << connection << std::endl;
+        }
+        else
+        {
+            node = i->second;
+            EQASSERT( node->isConnected( ));
+        }
     }
     EQASSERT( node.isValid( ));
+    EQASSERTINFO( node->_id == nodeID, node->_id << "!=" << nodeID );
 
     MCDatas::iterator i = node->_multicasts.begin();
     for( ; i != node->_multicasts.end(); ++i )
@@ -1928,7 +1977,7 @@ CommandResult Node::_cmdID( Command& command )
 
     if( node->_outMulticast.isValid( ))
     {
-        if( node->_outMulticast == connection ) // conn already used
+        if( node->_outMulticast == connection ) // connection already used
         {
             // nop
             EQASSERT( i == node->_multicasts.end( ));
@@ -2041,7 +2090,6 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
         {
             // Requested node connected to us in the meantime
             NodePtr node = i->second;
-            EQASSERT( node->isConnected( ));
 
             node.ref();
             _requestHandler.serveRequest( requestID, node.get( ));

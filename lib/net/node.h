@@ -83,7 +83,9 @@ namespace net
 
         /** 
          * Get a node by identifier.
-         * 
+         *
+         * The node might not be connected.
+         *
          * @param id the node identifier.
          * @return the node.
          */
