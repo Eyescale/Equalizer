@@ -55,7 +55,7 @@ namespace net
          * state.
          * @sa Connection::listen
          */
-        virtual bool listen();             
+        virtual bool listen(){ return connect(); }           
         virtual void acceptNB();           
         virtual ConnectionPtr acceptSync();
         virtual void close();              
@@ -63,6 +63,7 @@ namespace net
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
+        void adaptRate( int percent );
 #ifdef WIN32
         /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const { return _overlapped.hEvent; }
@@ -120,8 +121,7 @@ namespace net
         DWORD      _overlappedDone;
         OVERLAPPED _write;
 #endif
-        ConnectionPtr _sibling;
-
+        int64_t _currentRate;
         CHECK_THREAD_DECLARE( _recvThread );
     };
 }

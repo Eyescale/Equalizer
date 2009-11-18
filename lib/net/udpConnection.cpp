@@ -19,7 +19,7 @@
 
 #include "connectionDescription.h"
 
-#include <eq/base/log.h>
+#include <eq/net/log.h>
 #include <eq/base/sleep.h>
 #include <limits>
 #include <sstream>
@@ -61,6 +61,7 @@ UDPConnection::UDPConnection()
 {
     _description->type = CONNECTIONTYPE_UDP;
     _description->bandwidth = 102400;
+    _currentRate = 102400;
     _clock.reset();
     EQVERB << "New UDPConnection @" << (void*)this << std::endl;
 }
@@ -155,7 +156,7 @@ bool UDPConnection::connect()
     _initAIORead();
     _state = STATE_CONNECTED;
     _fireStateChanged();
-
+    _currentRate = _description->bandwidth;
     EQINFO << "Connected on " << _description->getHostname() << "["
            << inet_ntoa( _writeAddress.sin_addr ) << "]:" << _description->port
            << " (" << _description->toString() << ")" << std::endl;
@@ -409,21 +410,20 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
 
 int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
 {
+
     if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
 
-   //_description->bandwidth = 5120;
-    const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
+     const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
     
-    _allowedData += _clock.getTimef() / 1000.0f * _description->bandwidth * 1024.0f;
-    _allowedData = EQ_MIN( _allowedData, 65000 );
+    _allowedData += _clock.getTimef() / 1000.0f * _currentRate * 1024.0f;
+    _allowedData = EQ_MIN( _allowedData, _mtu );
     _clock.reset();
     while( _allowedData < sizeToSend )
     {
         eq::base::sleep( 1 );
-        _allowedData += _clock.getTimef() / 1000.0f * _description->bandwidth * 1024.0f, 
-        _allowedData = EQ_MIN( _allowedData, 65000 );
-                            
+        _allowedData += _clock.getTimef() / 1000.0f * _currentRate * 1024.0f, 
+        _allowedData = EQ_MIN( _allowedData, _mtu );
         _clock.reset();
     }
     _allowedData -=  sizeToSend;
@@ -577,15 +577,15 @@ bool UDPConnection::_parseAddress( sockaddr_in& address )
            << ":" << ntohs( address.sin_port ) << std::endl;
     return true;
 }
-//----------------------------------------------------------------------
-// listen
-//----------------------------------------------------------------------
-bool UDPConnection::listen()
+
+
+void UDPConnection::adaptRate( int percent )
 {
-    return connect();
+    _currentRate += _currentRate * percent / 100.f;
+    _currentRate = EQ_MAX( 50, _currentRate );
+    _currentRate = EQ_MIN( _currentRate, _description->bandwidth );
+    EQLOG( net::LOG_RSP ) << "new send rate " << _currentRate << std::endl;
 }
-
-
 
 uint16_t UDPConnection::_getPort() const
 {

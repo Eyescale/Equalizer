@@ -17,13 +17,14 @@
 
 #ifndef EQNET_RSPCONNECTION_H
 #define EQNET_RSPCONNECTION_H
-
+#include <pthread.h>
 #include <eq/base/base.h>
-#include <eq/net/types.h>
 #include <eq/base/buffer.h> // member
-#include <eq/base/monitor.h>
-#include <eq/net/connectionType.h>
+#include <eq/base/mtQueue.h>
 #include <eq/base/rng.h>
+#include <eq/net/types.h>
+#include <eq/net/connectionType.h>
+
 #include "connectionSet.h"
 #include "udpConnection.h"
 #include "fdConnection.h"
@@ -133,6 +134,11 @@ namespace net
             const void*     data;
         };
 
+        struct RepeatRequest
+        {
+            uint32_t start;
+            uint32_t end;
+        };
         
         void close();
         bool connect(){ return listen(); }
@@ -144,7 +150,7 @@ namespace net
         int64_t readSync( void* buffer, const uint64_t bytes );
         int64_t write( const void* buffer, const uint64_t bytes );
         ConnectionPtr getSibling(){ return _sibling.get(); }
-
+        uint32_t getID() const { return _id;}
         
 #ifdef WIN32
         /** @sa Connection::getNotifier */
@@ -191,7 +197,7 @@ namespace net
 
         /* Run the reader thread */
         void _runReadThread();
-
+        
         bool _handleInitData();
         
         void _initAIOAccept(){ _initAIORead(); }
@@ -201,6 +207,7 @@ namespace net
 
         // for read one datagram from udp Connection
         eq::base::Bufferb _bufRead;
+        eq::base::Bufferb _bufReadNack;
 
         // a link for all connection in the multicast network 
         std::vector< RSPConnectionPtr > _children;
@@ -212,7 +219,7 @@ namespace net
         // The buffer used by the write function in udp socket
         eq::base::Bufferb _sendBuffer;
 
-        //int _indexRead;
+        eq::base::MTQueue< const RepeatRequest > _repeatQueue;
 
         eq::base::RNG         _rng;
         ID _id; //!< The identifier used to demultiplex multipe writers
@@ -232,8 +239,8 @@ namespace net
         /** The buffer to receive commands from Event. */
         uint8_t _selfCommand;
 #endif
-        ConnectionSet _connectionSet;
-        eq::base::Monitor< bool > _writing;
+        ConnectionSet    _connectionSet;
+        base::mtLong     _writing;
         uint32_t         _countNbAckInWrite;
         Thread*          _thread;
         UDPConnectionPtr _connection;
@@ -245,34 +252,50 @@ namespace net
         DataReceive* _recvBuffer;
         int64_t     _lastSequenceIDAck;
 
+        uint64_t _errorFound;
+
         // write property part
-        const char* _dataSend;
-        uint64_t    _lengthDataSend;
-        uint32_t    _numberDatagram;
+        const char*       _dataSend;
+        uint64_t          _lengthDataSend;
+        uint32_t          _numberDatagram;
         IDSequenceType    _sequenceIDWrite;
 
         // we add 1 each read or write operation
         uint8_t _readBufferIndex;
         uint8_t _recvBufferIndex;
-
+        
+        //uint64_t _latency;
         ConnectionPtr _sibling;
-        
-        DataReceive* _findReceiverRead();
-        
+        bool _repeatData;
+        /** find the receiver corresponding to the sequenceID */
         DataReceive* _findReceiverWithSequenceID( 
                                     const IDSequenceType sequenceID ) const;
+        
+        /** find the connection corresponding to the writeID */
         RSPConnectionPtr _findConnectionWithWriterID( 
                                     const ID writerID );
+        /** determine if the sequenceID and writerID correspond to 
+            the current sequence which will being write*/
         bool _isCurrentSequenceWrite( const IDSequenceType sequenceID, 
                                       const ID writer );
+        
+        /** Analyze current error and adapt the rate */
+        void _adaptSpeed();
+
+        /** format and send a datagram count node */
         void _sendDatagramCountNode();
+
+        /** format and send a datagram data*/
         void _sendDatagram( const uint32_t writSeqID,
                             const IDSequenceType datagramID );
-
+        void _repeatDatagram( );
+        void _addRepeat( const uint32_t* repeatIDs, uint32_t size );
+        /** format and send datagram ackrequest*/
         void _sendAckRequest( );
         void _sendAck( const ID writerID,
                        const IDSequenceType sequenceID);
-
+        
+        /** format and send datagram nack*/ 
         void _sendNackDatagram ( const ID  toWriterID,
                                  const IDSequenceType  sequenceID,
                                  const uint8_t   countNack,
@@ -287,6 +310,8 @@ namespace net
         CHECK_THREAD_DECLARE( _recvThread );
  
     };
+
+    std::ostream& operator << ( std::ostream&, const RSPConnection& );
 }
 }
 
