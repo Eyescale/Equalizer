@@ -552,6 +552,18 @@ void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
     _connectionDescriptions.push_back( cd ); 
 }
 
+bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
+{
+    ConnectionDescriptionVector::iterator i = 
+        std::find( _connectionDescriptions.begin(),
+                   _connectionDescriptions.end(), cd );
+    if( i == _connectionDescriptions.end( ))
+        return false;
+
+    _connectionDescriptions.erase( i );
+    return true;
+}
+
 //----------------------------------------------------------------------
 // Node functionality
 //----------------------------------------------------------------------

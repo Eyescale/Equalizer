@@ -746,7 +746,7 @@ namespace net
                                        const ObjectDataPacket* packet )
     {
         os << (ObjectPacket*)packet << " v" << packet->version
-           << " size " << packet->dataSize;
+           << " size " << packet->dataSize << " s" << packet->sequence;
         return os;
     }
 

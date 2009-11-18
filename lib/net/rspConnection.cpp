@@ -179,8 +179,7 @@ void RSPConnection::_exitAIORead(){ /* NOP */ }
 RSPConnection::ID RSPConnection::_buildNewID()
 {
     _id = _rng.get<ID>();
-    _shiftedID = static_cast< ID >( _id ) << 
-                                             ( sizeof( ID ) * 8 );
+    _shiftedID = static_cast< ID >( _id ) << ( sizeof( ID ) * 8 );
     return _id;
 }
 

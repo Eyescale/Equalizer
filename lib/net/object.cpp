@@ -188,6 +188,7 @@ void Object::becomeMaster()
     NodePtr localNode = session->getLocalNode();
     NodePtr master    = localNode->getNode( masterNodeID );
     EQASSERT( master.isValid( ));
+    EQASSERT( master->isConnected( ));
 
     const uint32_t masterID = _id;
     const uint32_t masterInstanceID = getMasterInstanceID();

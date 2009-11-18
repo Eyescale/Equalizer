@@ -301,9 +301,11 @@ namespace net
         /** 
          * Removes a connection description.
          * 
-         * @param index the index of the connection description.
+         * @param cd the connection description.
+         * @return true if the connection description was removed, false
+         *         otherwise.
          */
-        void removeConnectionDescription( const uint32_t index );
+        EQ_EXPORT bool removeConnectionDescription(ConnectionDescriptionPtr cd);
 
         /** 
          * Returns the number of stored connection descriptions. 

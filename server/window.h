@@ -96,8 +96,7 @@ namespace server
          * Removes a channel from this window.
          * 
          * @param channel the channel
-         * @return <code>true</code> if the channel was removed,
-         *         <code>false</code> otherwise.
+         * @return true if the channel was removed, false otherwise.
          */
         bool removeChannel( Channel* channel );
 

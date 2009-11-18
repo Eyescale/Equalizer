@@ -1,10 +1,10 @@
-multicast-related cleanups
-reorder layouts in all config
+Implement missing net::Node::removeConnectionDescription
+Minor code cleanups
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
