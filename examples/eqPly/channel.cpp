@@ -222,7 +222,13 @@ void Channel::frameAssemble( const uint32_t frameID )
     else
         _needsTransfer = false;
 
-    eq::Channel::frameAssemble( frameID );
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
+    EQ_GL_CALL( setupAssemblyState( ));
+
+	eq::Compositor::assembleFrames( getInputFrames(), this, _accum );
+
+    EQ_GL_CALL( resetAssemblyState( ));
 }
 
 void Channel::frameReadback( const uint32_t frameID )
