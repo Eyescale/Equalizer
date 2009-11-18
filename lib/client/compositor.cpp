@@ -294,7 +294,7 @@ const FrameVector Compositor::_extractOneSubPixel( FrameVector& frames )
         if( frame->getSubPixel() == subpixel )
         {
             current.push_back( frame );
-            frames.erase( i );
+            i = frames.erase( i );
         }
         else
             ++i;
