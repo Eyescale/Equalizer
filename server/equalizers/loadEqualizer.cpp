@@ -94,9 +94,10 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const CompoundVector& compounds)
 {
     Node* node = new Node;
 
-    if( compounds.size() == 1 )
+    const size_t size = compounds.size();
+    if( size == 1 )
     {
-        Compound*                compound = compounds[0];
+        Compound* compound = compounds.front();
 
         node->compound  = compound;
         node->splitMode = ( _mode == MODE_2D ) ? MODE_VERTICAL : _mode;
@@ -107,14 +108,14 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const CompoundVector& compounds)
         return node;
     }
 
-    const size_t middle = compounds.size() / 2;
+    const size_t middle = size / 2;
 
     CompoundVector left;
     for( size_t i = 0; i < middle; ++i )
         left.push_back( compounds[i] );
 
     CompoundVector right;
-    for( size_t i = middle; i < compounds.size(); ++i )
+    for( size_t i = middle; i < size; ++i )
         right.push_back( compounds[i] );
 
     node->left  = _buildTree( left );
@@ -617,8 +618,8 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 #ifdef MIN_PIXELS
             else
             {
-                const float     epsilon = static_cast< float >( MIN_PIXELS ) /
-                                              root->getInheritPixelViewport().w;
+                const float epsilon = static_cast< float >( MIN_PIXELS ) /
+                                          root->getInheritPixelViewport().w;
 
                 if( (splitPos - vp.x) < epsilon )
                     splitPos = vp.x + epsilon;

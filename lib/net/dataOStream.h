@@ -102,9 +102,6 @@ namespace DataStreamTest
 
         /** Write one block of data into the stream and close it immediately. */
         EQ_EXPORT void writeOnce( const void* data, uint64_t size );
-
-        /** Reset after sending a buffer. */
-        virtual void reset();
         //@}
 
  
@@ -121,6 +118,9 @@ namespace DataStreamTest
         virtual void sendSingle( const void* buffer, const uint64_t size )
             { sendHeader( buffer, size ); sendFooter( 0, 0 ); }
         //@}
+
+        /** Reset the whole stream. */
+        virtual void reset();
 
         /** Locked connections to the receivers, if _enabled */
         ConnectionVector _connections;
@@ -146,6 +146,9 @@ namespace DataStreamTest
         /** Helper function calling sendHeader and sendBuffer as needed. */
         void _sendBuffer( const void* data, const uint64_t size );
         
+        /** Reset after sending a buffer. */
+        void _resetBuffer();
+
         /** Unlock all connections during disable. */
         void _unlockConnections();
 

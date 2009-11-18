@@ -221,10 +221,15 @@ void DataOStream::flush()
     EQASSERT( _enabled );
     _sendBuffer( _buffer.getData() + _bufferStart, 
                  _buffer.getSize() - _bufferStart );
-    reset();
+    _resetBuffer();
 }
 
 void DataOStream::reset()
+{
+    _resetBuffer();
+}
+
+void DataOStream::_resetBuffer()
 {
     if( _save )
         _bufferStart = _buffer.getSize();
