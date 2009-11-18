@@ -255,7 +255,7 @@ namespace server
         void flushSendBuffer();
 
         /** 
-         * Adds a new description how this node can be reached.
+         * Add a new description how this node can be reached.
          * 
          * @param desc the connection description.
          */
@@ -263,11 +263,14 @@ namespace server
             { _connectionDescriptions.push_back( desc ); }
         
         /** 
-         * Removes a connection description.
+         * Remove a connection description.
          * 
-         * @param index the index of the connection description.
+         * @param cd the connection description.
+         * @return true if the connection description was removed, false
+         *         otherwise.
          */
-        void removeConnectionDescription( const uint32_t index );
+        EQSERVER_EXPORT bool removeConnectionDescription(
+            ConnectionDescriptionPtr cd );
 
         /** @return the vector of connection descriptions. */
         const ConnectionDescriptionVector& getConnectionDescriptions()

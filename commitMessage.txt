@@ -1,10 +1,9 @@
-Refactor Node connection handling to allow early node creation caused by
-multicast mappings [UNTESTED]
+Implement missing server::Node::removeConnectionDescription
 
 [ ] May break build
-[x] May break existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] May break existing applications
+[ ] Bugfix
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

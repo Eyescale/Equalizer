@@ -552,6 +552,18 @@ void Node::_flushBarriers()
     _barriers.clear();
 }
 
+bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
+{
+    ConnectionDescriptionVector::iterator i = 
+        std::find( _connectionDescriptions.begin(),
+                   _connectionDescriptions.end(), cd );
+    if( i == _connectionDescriptions.end( ))
+        return false;
+
+    _connectionDescriptions.erase( i );
+    return true;
+}
+
 void Node::flushSendBuffer()
 {
     _bufferedTasks.sendBuffer( _node->getConnection( ));
