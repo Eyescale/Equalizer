@@ -1,4 +1,5 @@
-FSAA-related cleanups
+multicast-related cleanups
+reorder layouts in all config
 
 [ ] May break build
 [ ] May break existing applications

@@ -198,6 +198,12 @@ const string& ConnectionDescription::getInterface() const
     return _interface;
 }
 
+bool ConnectionDescription::isSameMulticastGroup( ConnectionDescriptionPtr rhs )
+{
+    return( type == rhs->type && _hostname == rhs->_hostname &&
+            port == rhs->port );
+}
+
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                       const ConnectionDescription* desc)
 {

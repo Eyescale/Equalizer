@@ -18,7 +18,8 @@
 #ifndef EQNET_CONNECTIONDESCRIPTION_H
 #define EQNET_CONNECTIONDESCRIPTION_H
 
-#include <eq/net/connectionType.h>
+#include <eq/net/connectionType.h> // member
+#include <eq/net/types.h>
 
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>
@@ -85,6 +86,8 @@ namespace net
 
         EQ_EXPORT void setFilename( const std::string& filename );
         EQ_EXPORT const std::string& getFilename() const;
+
+        EQ_EXPORT bool isSameMulticastGroup( ConnectionDescriptionPtr rhs );
         //@}
 
     protected:

@@ -473,6 +473,7 @@ bool Node::_connectSelf()
 void Node::_connectMulticast( NodePtr node )
 {
     EQASSERT( inReceiverThread( ));
+
     // Search if the connected node is in the same multicast group as we are
     for( ConnectionDescriptionVector::const_iterator i =
              _connectionDescriptions.begin();
@@ -488,12 +489,8 @@ void Node::_connectMulticast( NodePtr node )
              j != fromDescs.end(); ++j )
         {
             ConnectionDescriptionPtr fromDescription = *j;
-            if( description->type != fromDescription->type ||
-                description->getHostname() != fromDescription->getHostname() ||
-                description->port != fromDescription->port )
-            {
+            if( !description->isSameMulticastGroup( fromDescription ))
                 continue;
-            }
             
             EQASSERT( !node->_outMulticast );
             EQASSERT( node->_multicasts.empty( ));
@@ -504,27 +501,20 @@ void Node::_connectMulticast( NodePtr node )
                 node->_outMulticast = _outMulticast;
                 EQINFO << "Using " << description << " as multicast group for "
                        << node->getNodeID() << std::endl;
-                return;
             }
-
-            // else find unused multicast connection to node
-            for( MCDatas::const_iterator k = _multicasts.begin();
-                 k != _multicasts.end(); ++k )
+            // find unused multicast connection to node
+            else for( MCDatas::const_iterator k = _multicasts.begin();
+                      k != _multicasts.end(); ++k )
             {
                 const MCData& data = *k;
                 ConnectionDescriptionPtr dataDesc = 
                     data.connection->getDescription();
-                if( description->type != dataDesc->type ||
-                    description->getHostname() != dataDesc->getHostname() ||
-                    description->port != dataDesc->port )
-                {
+                if( !description->isSameMulticastGroup( dataDesc ))
                     continue;
-                }
 
                 node->_multicasts.push_back( data );
-                EQINFO << "Using " << dataDesc << " as multicast group for "
+                EQINFO << "Adding " << dataDesc << " as multicast group for "
                        << node->getNodeID() << std::endl;
-                return;
             }
         }
     }
@@ -919,7 +909,7 @@ NodePtr Node::connect( const NodeID& nodeID )
 {
     EQASSERT( nodeID != NodeID::ZERO );
 
-    // Extract all node pointers - _nodes hash might be modified later
+    // Extract all node pointers, the _nodes hash will be modified later
     NodeVector nodes;
     {
         base::ScopedMutex mutex( _nodes );

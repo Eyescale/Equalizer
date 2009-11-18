@@ -241,19 +241,21 @@ server
         canvas
         {
             layout "Wall"
-            layout "Stereo"
-            layout "HMD"
             layout "MultiView"
+            layout "Stereo"
+
             layout "2D"
-            layout "WallLB"
             layout "DB"
-            layout "DB_Stream"
-            layout "DirectSend"
-            layout "BinarySwap"
             layout "Eye"
             layout "DPlex"
             layout "Pixel"
+
+            layout "WallLB"
+            layout "DB_Stream"
+            layout "DirectSend"
+            layout "BinarySwap"
             layout "MultiLevel"
+            layout "HMD"
 
             wall
             {
