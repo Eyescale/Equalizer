@@ -297,7 +297,7 @@ std::ostream& operator << ( std::ostream& os,
 #ifdef EQ_INSTRUMENT_CACHE
        << ", " << nReadHit << " of " << nRead << " reads, " << nWriteHit
        << " of " << nWrite << " writes, " << nUsedRelease << " used and " 
-       << nUnusedRelease << " unused releases";
+       << nUnusedRelease << " unused releases"
 #endif
         ;
     return os;
