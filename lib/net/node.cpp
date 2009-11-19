@@ -1943,7 +1943,6 @@ CommandResult Node::_cmdID( Command& command )
         // No locking needed, only recv thread writes
         NodeHash::const_iterator i = _nodes->find( nodeID );
 
-        EQASSERT( i != _nodes->end( ));
         if( i == _nodes->end( ))
         {
             // unknown node: create and add unconnected node
