@@ -33,7 +33,7 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
         , _messageTime( 0 )
         , _redraw( true )
         , _freeze( false )
-        , _nbFramesAA( 0 )
+        , _numFramesAA( 0 )
 {
 }
 
@@ -323,15 +323,13 @@ uint32_t Config::startFrame()
     // idle mode
     if( isIdleAA( ))
     {
-    	EQASSERT( _nbFramesAA > 0 );
-        --_nbFramesAA;
+    	EQASSERT( _numFramesAA > 0 );
         _frameData.setIdle( true );
     }
     else
-    {
-        _nbFramesAA = 0;
         _frameData.setIdle( false );
-    }
+
+    _numFramesAA = 0;
 
     const uint32_t version = _frameData.commit();
 
@@ -341,12 +339,12 @@ uint32_t Config::startFrame()
 
 bool Config::isIdleAA()
 {
-    return ( !isUserEvent() && _nbFramesAA > 0 );
+    return ( !isUserEvent() && _numFramesAA > 0 );
 }
 
 bool Config::needsRedraw()
 {
-    return( isUserEvent() || _nbFramesAA > 0 );
+    return( isUserEvent() || _numFramesAA > 0 );
 }
 
 bool Config::isUserEvent()
@@ -491,7 +489,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         {
             const ConfigEvent* idleEvent = 
                 static_cast< const ConfigEvent* >( event );
-            _nbFramesAA = EQ_MAX( _nbFramesAA, idleEvent->jitter );
+            _numFramesAA = EQ_MAX( _numFramesAA, idleEvent->jitter );
             return true;
         }
 

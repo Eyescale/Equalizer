@@ -114,6 +114,14 @@ namespace eq
          */
         EQ_EXPORT bool usesFBO() const;
 
+		/**
+		 * Tests if the number of accumulated frames is not valid to
+		 * prevent latency.
+		 * 
+		 * @return true if _numSteps is greater than _totalSteps.
+		 */
+        EQ_EXPORT bool isInvalidNumSteps() const;
+
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
 

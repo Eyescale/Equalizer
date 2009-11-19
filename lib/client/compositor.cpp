@@ -220,6 +220,11 @@ void Compositor::assembleFramesSorted( const FrameVector& frames,
     {
         if( !accum )
             accum = _obtainAccum( channel );
+            accum->clear();
+
+            const SubPixel& subpixel = frames.back()->getSubPixel();
+            accum->setTotalSteps( subpixel.size );
+        }
 
         FrameVector framesLeft = frames;
         while( !framesLeft.empty( ))
@@ -314,6 +319,11 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
     {
         if( !accum )
             accum = _obtainAccum( channel );
+            accum->clear();
+
+            const SubPixel& subpixel = frames.back()->getSubPixel();
+            accum->setTotalSteps( subpixel.size );
+        }
 
         FrameVector framesLeft = frames;
     	while( !framesLeft.empty( ))
@@ -323,7 +333,7 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
             assembleFramesUnsorted( current, channel, accum );
             accum->accum();
         }
-        accum->display();
+    	accum->display();
         return;
     }
 

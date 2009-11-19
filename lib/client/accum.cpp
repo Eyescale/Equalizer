@@ -165,6 +165,11 @@ bool Accum::usesFBO() const
            ( GLEW_VERSION_3_0 || GLEW_ARB_texture_float ));
 #endif
 }
-        
+
+bool Accum::isInvalidNumSteps() const
+{
+    return _numSteps > _totalSteps;
+}
+
 }
 

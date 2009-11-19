@@ -107,7 +107,7 @@ namespace eqPly
         const eq::Matrix4f& _getHeadMatrix() const;
         void _setMessage( const std::string& message );
 
-        uint32_t _nbFramesAA;
+        uint32_t _numFramesAA;
     };
 }
 
