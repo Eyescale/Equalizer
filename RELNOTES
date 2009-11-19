@@ -57,7 +57,10 @@
 
   2.1. New Features
 
-     * 2.2. Enhancements
+     * Subpixel Compound for full-scene anti-aliasing (FSAA) or
+       depth-of-field (DOF).
+
+  2.2. Enhancements
 
      * 2.3. Optimizations
 

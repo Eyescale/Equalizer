@@ -1,9 +1,9 @@
-Implement missing server::Node::removeConnectionDescription
+Simplify eqPly accum init
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

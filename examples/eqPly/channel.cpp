@@ -66,35 +66,22 @@ bool Channel::configInit( const uint32_t initID )
     _model = 0;
     _modelID = EQ_ID_INVALID;
 
-    if( _configInitAccumBuffer( ))
-    {
-        _totalSteps = _accum->getMaxSteps();
-        _jitterStep = _totalSteps;
-
-        return true;
-    }
-
-    return false;
+    return _configInitAccumBuffer();
 }
 
 bool Channel::_configInitAccumBuffer()
 {
     _accum = eq::Compositor::obtainAccum( this );
     
-    if( _accum )
+    if( !_accum )
     {
-#ifdef Darwin
-        if( !_accum->usesFBO( ))
-            _accum->setTotalSteps( _totalSteps );
-#endif
-        return true;
+        EQWARN << "Accumulation init failed." << std::endl;
+        return false;
     }
 
-    EQWARN << "Accumulation init failed." << std::endl;
-
-    delete _accum;
-    _accum = 0;
-    return false;
+    _totalSteps = _accum->getMaxSteps();
+    _jitterStep = _totalSteps;
+    return true;
 }
 
 bool Channel::configExit()
