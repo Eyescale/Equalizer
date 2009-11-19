@@ -193,7 +193,7 @@ net::CommandResult Server::_cmdCreateConfig( net::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
-    EQINFO << "Handle create config " << packet << ", name " << packet->name 
+    EQVERB << "Handle create config " << packet << ", name " << packet->name 
            << endl;
     
     NodePtr localNode = command.getLocalNode();
@@ -221,7 +221,7 @@ net::CommandResult Server::_cmdDestroyConfig( net::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.getPacket<ServerDestroyConfigPacket>();
-    EQINFO << "Handle destroy config " << packet << endl;
+    EQVERB << "Handle destroy config " << packet << endl;
     
     NodePtr       localNode  = command.getLocalNode();
     net::Session* session    = localNode->getSession( packet->configID );
@@ -239,7 +239,7 @@ net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
         command.getPacket<ServerChooseConfigReplyPacket>();
-    EQINFO << "Handle choose config reply " << packet << endl;
+    EQVERB << "Handle choose config reply " << packet << endl;
 
     if( packet->configID == EQ_ID_INVALID )
     {

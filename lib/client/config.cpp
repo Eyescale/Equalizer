@@ -39,9 +39,6 @@
 
 #include "configCommitVisitor.h"
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 /** @cond IGNORE */
@@ -59,11 +56,12 @@ Config::Config( ServerPtr server )
         , _running( false )
 {
     base::Log::setClock( &_clock );
+    EQINFO << "New config @" << (void*)this << std::endl;
 }
 
 Config::~Config()
 {
-    EQINFO << "Delete config @" << (void*)this << endl;
+    EQINFO << "Delete config @" << (void*)this << std::endl;
     EQASSERT( _observers.empty( ));
     EQASSERT( _layouts.empty( ));
     EQASSERT( _canvases.empty( ));
@@ -291,14 +289,14 @@ void Config::_addNode( Node* node )
 
 void Config::_removeNode( Node* node )
 {
-    vector<Node*>::iterator i = find( _nodes.begin(), _nodes.end(), node );
+    NodeVector::iterator i = find( _nodes.begin(), _nodes.end(), node );
     EQASSERT( i != _nodes.end( ));
     _nodes.erase( i );
 }
 
 Node* Config::_findNode( const uint32_t id )
 {
-    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end(); 
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); 
          ++i )
     {
         Node* node = *i;
@@ -362,7 +360,7 @@ bool Config::init( const uint32_t initID )
 
     send( packet );
     
-    RefPtr< Client > client = getClient();
+    ClientPtr client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
         client->processCommand();
 
@@ -380,7 +378,7 @@ bool Config::exit()
     packet.requestID = _requestHandler.registerRequest();
     send( packet );
 
-    RefPtr< Client > client = getClient();
+    ClientPtr client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
         client->processCommand();
 
@@ -418,7 +416,8 @@ uint32_t Config::startFrame( const uint32_t frameID )
     send( packet, changes );
     ++_currentFrame;
 
-    EQLOG( LOG_ANY ) << "---- Started Frame ---- " << _currentFrame << endl;
+    EQLOG( base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
+                           << std::endl;
     stat.event.data.statistic.frameNumber = _currentFrame;
     return _currentFrame;
 }
@@ -427,7 +426,7 @@ uint32_t Config::finishFrame()
 {
     ConfigStatistics        stat( Statistic::CONFIG_FINISH_FRAME, this );
 
-    RefPtr< Client > client        = getClient();
+    ClientPtr client        = getClient();
     const uint32_t   frameToFinish = (_currentFrame >= _latency) ? 
                                       _currentFrame - _latency : 0;
     const bool needsLocalSync = _needsLocalSync();
@@ -470,8 +469,8 @@ uint32_t Config::finishFrame()
 
     _updateStatistics( frameToFinish );
 
-    EQLOG( LOG_ANY ) << "---- Finished Frame --- " << frameToFinish << " ("
-                     << _currentFrame << ')' << endl;
+    EQLOG( base::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
+                           << " (" << _currentFrame << ')' << std::endl;
     return frameToFinish;
 }
 
@@ -480,16 +479,16 @@ uint32_t Config::finishAllFrames()
     if( _finishedFrame == _currentFrame )
         return _currentFrame;
 
-    EQLOG( LOG_ANY ) << "-- Finish All Frames --" << endl;
+    EQLOG( base::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
     ConfigFinishAllFramesPacket packet;
     send( packet );
 
-    RefPtr< Client > client = getClient();
+    ClientPtr client = getClient();
     while( _finishedFrame < _currentFrame )
         client->processCommand();
 
     handleEvents();
-    EQLOG( LOG_ANY ) << "-- Finished All Frames --" << endl;
+    EQLOG( base::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
     return _currentFrame;
 }
 
@@ -507,7 +506,7 @@ void Config::sendEvent( ConfigEvent& event )
     EQASSERT( _appNode );
 
     event.sessionID = getID();
-    EQLOG( LOG_EVENTS ) << "send event " << &event << endl;
+    EQLOG( LOG_EVENTS ) << "send event " << &event << std::endl;
     _appNode->send( event );
 }
 
@@ -537,7 +536,7 @@ void Config::handleEvents()
          event = tryNextEvent( ))
     {
         if( !handleEvent( event ))
-            EQVERB << "Unhandled " << event << endl;
+            EQVERB << "Unhandled " << event << std::endl;
     }
 }
 
@@ -569,7 +568,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::STATISTIC:
         {
-            EQLOG( LOG_STATS ) << event->data << endl;
+            EQLOG( LOG_STATS ) << event->data << std::endl;
 
             const uint32_t originator = event->data.originator;
             EQASSERT( originator != EQ_ID_INVALID );
@@ -586,9 +585,9 @@ bool Config::handleEvent( const ConfigEvent* event )
                 return false;
             }
 
-            ScopedMutex mutex( _statisticsMutex );
+            base::ScopedMutex mutex( _statisticsMutex );
 
-            for( deque< FrameStatistics >::iterator i = _statistics.begin();
+            for( std::deque< FrameStatistics >::iterator i =_statistics.begin();
                  i != _statistics.end(); ++i )
             {
                 FrameStatistics& frameStats = *i;
@@ -683,21 +682,21 @@ void Config::getStatistics( std::vector< FrameStatistics >& statistics )
 void Config::setWindowSystem( const WindowSystem windowSystem )
 {
     // called from pipe threads - but only during init
-    static Lock _lock;
-    ScopedMutex mutex( _lock );
+    static base::Lock _lock;
+    base::ScopedMutex mutex( _lock );
 
     if( _eventQueue.getWindowSystem() == WINDOW_SYSTEM_NONE )
     {
         _eventQueue.setWindowSystem( windowSystem );
-        EQINFO << "Client event message pump set up for " << windowSystem
-               << endl;
+        EQVERB << "Client event message pump set up for " << windowSystem
+               << std::endl;
     }
     else if( _eventQueue.getWindowSystem() != windowSystem )
         EQWARN << "Can't switch to window system " << windowSystem 
                << ", already using " <<  _eventQueue.getWindowSystem()
-               << endl;
+               << std::endl;
 
-    RefPtr< Client > client = getClient();
+    ClientPtr client = getClient();
     client->setWindowSystem( windowSystem );    
 }
 
@@ -758,7 +757,7 @@ net::CommandResult Config::_cmdCreateNode( net::Command& command )
 {
     const ConfigCreateNodePacket* packet = 
         command.getPacket<ConfigCreateNodePacket>();
-    EQINFO << "Handle create node " << packet << endl;
+    EQVERB << "Handle create node " << packet << std::endl;
     EQASSERT( packet->nodeID != EQ_ID_INVALID );
 
     Node* node = Global::getNodeFactory()->createNode( this );
@@ -771,7 +770,7 @@ net::CommandResult Config::_cmdDestroyNode( net::Command& command )
 {
     const ConfigDestroyNodePacket* packet =
         command.getPacket<ConfigDestroyNodePacket>();
-    EQINFO << "Handle destroy node " << packet << endl;
+    EQVERB << "Handle destroy node " << packet << std::endl;
 
     Node* node = _findNode( packet->nodeID );
     if( !node )
@@ -787,7 +786,7 @@ net::CommandResult Config::_cmdInitReply( net::Command& command )
 {
     const ConfigInitReplyPacket* packet = 
         command.getPacket<ConfigInitReplyPacket>();
-    EQINFO << "handle init reply " << packet << endl;
+    EQVERB << "handle init reply " << packet << std::endl;
 
     if( !packet->result )
         _error = packet->error;
@@ -800,7 +799,7 @@ net::CommandResult Config::_cmdExitReply( net::Command& command )
 {
     const ConfigExitReplyPacket* packet = 
         command.getPacket<ConfigExitReplyPacket>();
-    EQINFO << "handle exit reply " << packet << endl;
+    EQVERB << "handle exit reply " << packet << std::endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return net::COMMAND_HANDLED;
@@ -819,14 +818,14 @@ net::CommandResult Config::_cmdFrameFinish( net::Command& command )
 {
     const ConfigFrameFinishPacket* packet = 
         command.getPacket<ConfigFrameFinishPacket>();
-    EQLOG( LOG_TASKS ) << "frame finish " << packet << endl;
+    EQLOG( LOG_TASKS ) << "frame finish " << packet << std::endl;
 
     _finishedFrame = packet->frameNumber;
 
     if( _unlockedFrame < _finishedFrame.get( ))
     {
         EQWARN << "Finished frame " << _unlockedFrame 
-               << " was not locally unlocked, enforcing unlock" << endl;
+               << " was not locally unlocked, enforcing unlock" << std::endl;
         _unlockedFrame = _finishedFrame.get();
     }
 
@@ -849,7 +848,7 @@ net::CommandResult Config::_cmdSyncClock( net::Command& command )
 net::CommandResult Config::_cmdUnmap( net::Command& command )
 {
     const ConfigUnmapPacket* packet = command.getPacket< ConfigUnmapPacket >();
-    EQVERB << "Handle unmap " << packet << endl;
+    EQVERB << "Handle unmap " << packet << std::endl;
 
     NodeFactory* nodeFactory = Global::getNodeFactory();
 

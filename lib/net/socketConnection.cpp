@@ -523,8 +523,8 @@ bool SocketConnection::_parseAddress( sockaddr_in& address )
         }
     }
 
-    EQINFO << "Address " << inet_ntoa( address.sin_addr )
-           << ":" << ntohs( address.sin_port ) << std::endl;
+    EQVERB << "Address " << inet_ntoa( address.sin_addr ) << ":" 
+           << ntohs( address.sin_port ) << std::endl;
     return true;
 }
 //----------------------------------------------------------------------

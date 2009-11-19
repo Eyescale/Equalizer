@@ -1,4 +1,4 @@
-Minor code cleanup
+Denoise debug build, code cleanups
 
 [ ] May break build
 [ ] May break existing applications

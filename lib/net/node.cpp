@@ -201,10 +201,10 @@ const std::string& Node::getLaunchCommand() const
 bool Node::initLocal( const int argc, char** argv )
 {
 #ifndef NDEBUG
-    EQINFO << base::disableFlush << "args: ";
+    EQVERB << base::disableFlush << "args: ";
     for( int i=0; i<argc; i++ )
-         EQINFO << argv[i] << ", ";
-    EQINFO << std::endl << base::enableFlush;
+         EQVERB << argv[i] << ", ";
+    EQVERB << std::endl << base::enableFlush;
 #endif
 
     // We do not use getopt_long because it really does not work due to the
@@ -261,7 +261,7 @@ bool Node::initLocal( const int argc, char** argv )
         addConnectionDescription( connDesc );
     }
 
-    EQINFO << "Listener data: " << serialize() << std::endl;
+    EQVERB << "Listener data: " << serialize() << std::endl;
 
     if( !listen( ))
     {
@@ -271,7 +271,7 @@ bool Node::initLocal( const int argc, char** argv )
     
     if( isClient )
     {
-        EQINFO << "Client node started from command line with option " 
+        EQVERB << "Client node started from command line with option " 
                << clientOpts << std::endl;
 
         bool ret = (isResident ? clientLoop() : runClient( clientOpts ));
@@ -700,7 +700,7 @@ bool Node::deserialize( std::string& data )
 {
     EQASSERT( getState() == STATE_STOPPED || getState() == STATE_LAUNCHED );
 
-    EQINFO << "Node data: " << data << std::endl;
+    EQVERB << "Node data: " << data << std::endl;
     if( !_connectionDescriptions.empty( ))
         EQWARN << "Node already holds data while deserializing it" << std::endl;
 
@@ -1101,7 +1101,7 @@ std::string Node::_createLaunchCommand( NodePtr node,
     if( !commandFound )
         result += " " + _createRemoteCommand( node, quote );
 
-    EQINFO << "Launch command: " << result << std::endl;
+    EQVERB << "Launch command: " << result << std::endl;
     return result;
 }
 
@@ -1196,7 +1196,7 @@ bool Node::runClient( const std::string& clientArgs )
         EQWARN << "Can't change working directory to " << workDir << ": "
                << strerror( errno ) << std::endl;
     
-    EQINFO << "Launching node with launch ID=" << launchID << ", cwd="
+    EQVERB << "Launching node with launch ID=" << launchID << ", cwd="
            << workDir << std::endl;
 
     nextPos = description.find( SEPARATOR );
@@ -1743,7 +1743,7 @@ CommandResult Node::_cmdConnect( Command& command )
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
 
-    EQINFO << "handle connect " << packet << std::endl;
+    EQVERB << "handle connect " << packet << std::endl;
     EQASSERT( nodeID != _id );
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
@@ -1833,7 +1833,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
 
-    EQINFO << "handle connect reply " << packet << std::endl;
+    EQVERB << "handle connect reply " << packet << std::endl;
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
     NodePtr remoteNode;
@@ -1908,7 +1908,7 @@ CommandResult Node::_cmdConnectAck( Command& command )
     NodePtr node = command.getNode();
     EQASSERT( node.isValid( ));
     EQASSERT( inReceiverThread( ));
-    EQINFO << "handle connect ack" << std::endl;
+    EQVERB << "handle connect ack" << std::endl;
     
     _connectMulticast( node );
     return COMMAND_HANDLED;
@@ -2050,7 +2050,7 @@ CommandResult Node::_cmdGetNodeData( Command& command)
 {
     const NodeGetNodeDataPacket* packet = 
         command.getPacket<NodeGetNodeDataPacket>();
-    EQINFO << "cmd get node data: " << packet << std::endl;
+    EQVERB << "cmd get node data: " << packet << std::endl;
 
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
@@ -2066,7 +2066,7 @@ CommandResult Node::_cmdGetNodeData( Command& command)
     }
     else
     {
-        EQINFO << "Node " << nodeID << " unknown" << std::endl;
+        EQVERB << "Node " << nodeID << " unknown" << std::endl;
         reply.type = TYPE_EQNET_INVALID;
     }
 
@@ -2080,7 +2080,7 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
 {
     NodeGetNodeDataReplyPacket* packet = 
         command.getPacket<NodeGetNodeDataReplyPacket>();
-    EQINFO << "cmd get node data reply: " << packet << std::endl;
+    EQVERB << "cmd get node data reply: " << packet << std::endl;
 
     const uint32_t requestID = packet->requestID;
     NodeID nodeID = packet->nodeID;

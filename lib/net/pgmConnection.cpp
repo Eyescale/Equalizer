@@ -601,8 +601,8 @@ bool PGMConnection::_parseAddress( sockaddr_in& address )
     if( !_parseHostname( _description->getHostname(), address.sin_addr.s_addr ))
         return false;
 
-    EQINFO << "Address " << inet_ntoa( address.sin_addr )
-           << ":" << ntohs( address.sin_port ) << std::endl;
+    EQVERB << "Address " << inet_ntoa( address.sin_addr ) << ":" 
+           << ntohs( address.sin_port ) << std::endl;
     return true;
 }
 
