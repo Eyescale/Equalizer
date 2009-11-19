@@ -161,7 +161,8 @@ bool Accum::usesFBO() const
 #ifdef Darwin
     return false;
 #else
-    return GLEW_EXT_framebuffer_object;
+    return ( GLEW_EXT_framebuffer_object &&
+           ( GLEW_VERSION_3_0 || GLEW_ARB_texture_float ));
 #endif
 }
         

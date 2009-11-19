@@ -466,7 +466,6 @@ bool Node::_connectSelf()
 
     _connectionNodes[ _outgoing ] = this;
     _nodes.data[ _id ] = this;
-
     _addConnection( _outgoing );
 
     EQVERB << "Added node " << _id << " using " << _outgoing << std::endl;
@@ -924,6 +923,7 @@ bool Node::syncConnect( NodePtr node, const uint32_t timeout )
 NodePtr Node::connect( const NodeID& nodeID )
 {
     EQASSERT( nodeID != NodeID::ZERO );
+    EQASSERT( _state == STATE_LISTENING );
 
     // Extract all node pointers, the _nodes hash will be modified later
     NodeVector nodes;

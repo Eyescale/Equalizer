@@ -78,6 +78,7 @@ bool Channel::_configInitAccumBuffer()
 
     if( !_accum->init( pvp, getWindow()->getColorFormat( )))
     {
+        setErrorMessage( "Accumulation buffer initialization failed." );
         EQERROR << "Accumulation buffer initialization failed." << std::endl;
         delete _accum;
         _accum = 0;
