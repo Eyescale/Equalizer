@@ -42,7 +42,9 @@
 #endif
 
 #ifdef BIG_CLUSTER_SUPPORT
-#  error "BIG_CLUSTER_SUPPORT only needed and implemented on Windows"
+#  ifndef WIN32
+#    error "BIG_CLUSTER_SUPPORT only needed and implemented on Windows"
+#  endif
 #endif
 
 namespace eq
