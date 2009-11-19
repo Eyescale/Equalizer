@@ -248,7 +248,6 @@ void Channel::frameStart( const uint32_t frameID,
     if( !frameData.isIdle( ))
     {
         _accum->clear();
-
         _jitterStep = _totalSteps;
         _subpixelStep = 0;
     }

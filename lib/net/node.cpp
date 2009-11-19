@@ -2006,8 +2006,8 @@ CommandResult Node::_cmdID( Command& command )
 
     _connectionNodes[ connection ] = node;
 
-    EQINFO << "Added multicast connection " << connection << " from node " 
-           << nodeID << std::endl;
+    EQINFO << "Added multicast connection " << connection << " from " << nodeID
+           << " to " << _id<< std::endl;
     return COMMAND_HANDLED;
 }
 
