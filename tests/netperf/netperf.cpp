@@ -21,6 +21,7 @@
 #include <pthread.h> // must come first!
 
 #include <test.h>
+#include <eq/base/scopedMutex.h>
 #include <eq/base/monitor.h>
 #include <eq/base/rng.h>
 #include <eq/base/sleep.h>
@@ -44,7 +45,7 @@ namespace
 {
 ConnectionSet    _connectionSet;
 eq::base::mtLong _nClients;
-
+eq::base::Lock   _mutexPrint;
 class Receiver : public eq::base::Thread
 {
 public:
@@ -63,12 +64,12 @@ public:
         {
             if( !_connection->recvSync( 0, 0 ))
                 return false;
-
+            uint32_t num = _buffer.getData()[0];
             _connection->recvNB( _buffer.getData(), _buffer.getSize() );
             const float time = _clock.getTimef();
             ++_nSamples;
 
-            const size_t probe = (_rng.get< size_t >() % _buffer.getSize( ));
+            const size_t probe = 1 + (_rng.get< size_t >() % (_buffer.getSize( )-1));
             TESTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
                       (int)_buffer[probe] << " != " << (probe&0xff) );
 
@@ -78,7 +79,8 @@ public:
             _clock.reset();
             eq::net::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
-            cerr << "Recv perf: " << _mBytesSec / time * _nSamples 
+            const eq::base::ScopedMutex mutex( _mutexPrint );
+            cerr << num << " Recv perf: " << _mBytesSec / time * _nSamples 
                  << "MB/s (" << _nSamples / time * 1000.f  << "pps) from "
                  << desc.get() << endl;
             _nSamples = 0;
@@ -368,12 +370,15 @@ int main( int argc, char **argv )
         clock.reset();
         while( nPackets-- )
         {
+            buffer.getData()[0] = nPackets;
             TEST( connection->send( buffer.getData(), buffer.getSize() ));
             const float time = clock.getTimef();
             if( time > 1000.f )
             {
+                const eq::base::ScopedMutex mutex( _mutexPrint );
                 const size_t nSamples = lastOutput - nPackets;
-                cerr << "Send perf: " << mBytesSec / time * nSamples 
+                cerr << static_cast<uint32_t>( nPackets ) 
+                     << " Send perf: " << mBytesSec / time * nSamples 
                      << "MB/s (" << nSamples / time * 1000.f  << "pps)" << endl;
 
                 lastOutput = nPackets;
@@ -385,8 +390,11 @@ int main( int argc, char **argv )
         const float time = clock.getTimef();
         const size_t nSamples = lastOutput - nPackets;
         if( nSamples != 0 )
+        {
+            const eq::base::ScopedMutex mutex( _mutexPrint );
             cerr << "Send perf: " << mBytesSec / time * nSamples 
                  << "MB/s (" << nSamples / time * 1000.f  << "pps)" << endl;
+        }
     }
     else
     {
