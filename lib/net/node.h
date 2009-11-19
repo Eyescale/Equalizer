@@ -585,7 +585,7 @@ namespace net
         ConnectionPtr _outgoing;
 
         /** The multicast connection to this node, can be 0. */
-        ConnectionPtr _outMulticast;
+        base::Lockable< ConnectionPtr > _outMulticast;
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _incoming;

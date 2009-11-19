@@ -162,10 +162,12 @@ ConnectionPtr Node::getMulticast()
 
     if( !isConnected( ))
         return 0;
-    if( _outMulticast.isValid() && !_outMulticast->isClosed( ))
-        return _outMulticast;
+    
+    ConnectionPtr connection = _outMulticast.data;
+    if( connection.isValid() && !connection->isClosed( ))
+        return connection;
 
-    base::ScopedMutex mutex( _connectMutex );
+    base::ScopedMutex mutex( _outMulticast );
     if( _multicasts.empty( ))
         return 0;
 
@@ -182,7 +184,7 @@ ConnectionPtr Node::getMulticast()
     packet.type = getType();
 
     data.connection->send( packet, serialize( ));
-    _outMulticast = data.connection;
+    _outMulticast.data = data.connection;
     return data.connection;
 }
 
@@ -389,7 +391,7 @@ void Node::_cleanup()
     _multicasts.clear();
     _removeConnection( _outgoing );
     _connectionNodes.erase( _outgoing );
-    _outMulticast = 0;
+    _outMulticast.data = 0;
     _outgoing = 0;
 
     const ConnectionVector& connections = _incoming.getConnections();
@@ -400,8 +402,8 @@ void Node::_cleanup()
 
         if( node.isValid( ))
         {
-            node->_state    = STATE_STOPPED;
-            node->_outMulticast = 0;
+            node->_state = STATE_STOPPED;
+            node->_outMulticast.data = 0;
             node->_outgoing = 0;
             node->_multicasts.clear();
         }
@@ -474,6 +476,7 @@ bool Node::_connectSelf()
 void Node::_connectMulticast( NodePtr node )
 {
     EQASSERT( inReceiverThread( ));
+    base::ScopedMutex mutex( _outMulticast );
 
     // Search if the connected node is in the same multicast group as we are
     for( ConnectionDescriptionVector::const_iterator i =
@@ -493,13 +496,13 @@ void Node::_connectMulticast( NodePtr node )
             if( !description->isSameMulticastGroup( fromDescription ))
                 continue;
             
-            EQASSERT( !node->_outMulticast );
+            EQASSERT( !node->_outMulticast.data );
             EQASSERT( node->_multicasts.empty( ));
 
-            if( _outMulticast.isValid() && 
-                _outMulticast->getDescription() == description )
+            if( _outMulticast->isValid() && 
+                _outMulticast.data->getDescription() == description )
             {
-                node->_outMulticast = _outMulticast;
+                node->_outMulticast.data = _outMulticast.data;
                 EQINFO << "Using " << description << " as multicast group for "
                        << node->getNodeID() << std::endl;
             }
@@ -1922,7 +1925,7 @@ CommandResult Node::_cmdID( Command& command )
     if( command.getNode().isValid( ))
     {
         EQASSERT( nodeID == command.getNode()->getNodeID( ));
-        EQASSERT( command.getNode()->_outMulticast.isValid( ));
+        EQASSERT( command.getNode()->_outMulticast->isValid( ));
         return COMMAND_HANDLED;
     }
 
@@ -1932,7 +1935,6 @@ CommandResult Node::_cmdID( Command& command )
     EQASSERT( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST );
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
-    base::ScopedMutex mutex( _connectMutex );
     NodePtr node;
     if( nodeID == _id ) // 'self' multicast connection
         node = this;
@@ -1968,6 +1970,7 @@ CommandResult Node::_cmdID( Command& command )
     EQASSERT( node.isValid( ));
     EQASSERTINFO( node->_id == nodeID, node->_id << "!=" << nodeID );
 
+    base::ScopedMutex mutex( _outMulticast );
     MCDatas::iterator i = node->_multicasts.begin();
     for( ; i != node->_multicasts.end(); ++i )
     {
@@ -1975,9 +1978,9 @@ CommandResult Node::_cmdID( Command& command )
             break;
     }
 
-    if( node->_outMulticast.isValid( ))
+    if( node->_outMulticast->isValid( ))
     {
-        if( node->_outMulticast == connection ) // connection already used
+        if( node->_outMulticast.data == connection ) // connection already used
         {
             // nop
             EQASSERT( i == node->_multicasts.end( ));
@@ -1997,7 +2000,7 @@ CommandResult Node::_cmdID( Command& command )
     }
     else
     {
-        node->_outMulticast = connection;
+        node->_outMulticast.data = connection;
         if( i != node->_multicasts.end( ))
             node->_multicasts.erase( i );
     }
