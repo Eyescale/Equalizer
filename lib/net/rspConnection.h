@@ -262,6 +262,7 @@ namespace net
         UDPConnectionPtr _connection;
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
+        base::Lock       _mutexWrite;
         RSPConnectionPtr _parent;
         
         // buffer for read from udp Connection

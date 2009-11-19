@@ -213,7 +213,7 @@ RSPConnection::ID RSPConnection::_buildNewID()
 bool RSPConnection::listen()
 {
     EQASSERT( _description->type == CONNECTIONTYPE_RSP );
-
+    const base::ScopedMutex mutex( _mutexWrite );
     if( _state != STATE_CLOSED )
         return false;
     
@@ -236,7 +236,7 @@ bool RSPConnection::listen()
 
     _description = new ConnectionDescription( *description.get( ));
     _description->type = CONNECTIONTYPE_RSP;
-
+    
     _connectionSet.addConnection( _connection.get( ));
 
     // init a thread for manage the communication protocol 
@@ -389,7 +389,9 @@ bool RSPConnection::_initReadThread()
                     const DatagramNode confirmNode ={ ID_CONFIRM, _id };
                     _connection->write( &confirmNode, sizeof( DatagramNode ) );
                     _addNewConnection( _id );
+                    _connectionSet.removeConnection( _connection.get() );
                     _connection->setMulticastLoop( true );
+                    _connectionSet.addConnection( _connection.get() );
                     return true;
                 }
                 break;
@@ -406,9 +408,6 @@ bool RSPConnection::_initReadThread()
                                          _connection->getMTU());
                 break;
             case ConnectionSet::EVENT_INTERRUPT:
-                
-                _connection->close();
-                _connection = 0;
                 return false;
 
             default: break;
@@ -466,7 +465,7 @@ void* RSPConnection::Thread::run()
 
 void RSPConnection::_runReadThread()
 {
-    while ( true )
+    while ( _state != STATE_CLOSED )
     {
         const int timeOut = _writing == 1 ? /*_latency + */100 : -1;
 
@@ -489,8 +488,6 @@ void RSPConnection::_runReadThread()
                 // a lot of more time out
                  if ( connection->_countTimeOut >= 250 )
                 {
-                   // EQWARN << "Several timeouts from RSP communication " 
-                   //         << std::endl;
                     _connection = 0;
                     return;
                 }
@@ -516,11 +513,7 @@ void RSPConnection::_runReadThread()
             clock.reset();
 #endif            
             if ( !_handleData() )
-            {
-              //  EQWARN << " Error during Read UDP Connection" 
-              //          << std::endl;
-               _connectionSet.interrupt();
-            }
+               return;
             else
                _connection->readNB( _bufRead.getData(), _connection->getMTU());
 #ifdef EQ_INSTRUMENT_RSP
@@ -529,13 +522,9 @@ void RSPConnection::_runReadThread()
             break;
         }
         case ConnectionSet::EVENT_INTERRUPT:
-            if (_writing == 0)
-            {
-                _connection = 0;
-                return;
-            }
             break;
-        default: return;
+        default: 
+            return;
         }
     }
 }
@@ -1191,7 +1180,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     
     const uint32_t size =   EQ_MIN( bytes, _maxBuffer );
     const base::ScopedMutex mutex( _mutexConnection );
-
+    const base::ScopedMutex mutexWrite( _mutexWrite );
     _writing = 1;
     _countNbAckInWrite = 0;
 
