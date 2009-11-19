@@ -205,6 +205,7 @@ Accum* Compositor::_obtainAccum( Channel* channel )
     else
         accum->resize( pvp.w, pvp.h );
 
+    accum->clear();
     return accum;
 }
 
@@ -218,10 +219,7 @@ void Compositor::assembleFramesSorted( const FrameVector& frames,
     if( _isSubPixelDecomposition( frames ))
     {
         if( !accum )
-        {
             accum = _obtainAccum( channel );
-            accum->clear();
-        }
 
         FrameVector framesLeft = frames;
         while( !framesLeft.empty( ))
@@ -229,8 +227,8 @@ void Compositor::assembleFramesSorted( const FrameVector& frames,
             FrameVector current = _extractOneSubPixel( framesLeft );
             assembleFramesSorted( current, channel, accum );
             accum->accum();
-            accum->display();
         }
+        accum->display();
         return;
     }
 
@@ -315,10 +313,7 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
     if( _isSubPixelDecomposition( frames ))
     {
         if( !accum )
-        {
             accum = _obtainAccum( channel );
-            accum->clear();
-        }
 
         FrameVector framesLeft = frames;
     	while( !framesLeft.empty( ))
@@ -327,8 +322,8 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
     	    FrameVector current = _extractOneSubPixel( framesLeft );
             assembleFramesUnsorted( current, channel, accum );
             accum->accum();
-            accum->display();
         }
+        accum->display();
         return;
     }
 

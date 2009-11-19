@@ -1,4 +1,4 @@
-Denoise debug build
+Compositor cleanup
 
 [ ] May break build
 [ ] May break existing applications
