@@ -1330,7 +1330,7 @@ void* Node::_runReceiverThread()
 void Node::_handleConnect()
 {
     ConnectionPtr connection = _incoming.getConnection();
-    ConnectionPtr newConn    = connection->acceptSync();
+    ConnectionPtr newConn = connection->acceptSync();
     connection->acceptNB();
 
     if( !newConn )

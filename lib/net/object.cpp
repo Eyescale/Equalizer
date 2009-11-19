@@ -99,8 +99,9 @@ void Object::attachToSession( const uint32_t id, const uint32_t instanceID,
     registerCommand( CMD_OBJECT_VERSION, 
                      CmdFunc( this, &Object::_cmdForward ), queue );
 
-    EQINFO << _id << '.' << _instanceID << ": " << typeid( *this ).name()
-           << (isMaster() ? " master" : " slave") << std::endl;
+    EQLOG( LOG_OBJECTS ) << _id << '.' << _instanceID << ": " 
+                         << typeid( *this ).name()
+                         << (isMaster() ? " master" : " slave") << std::endl;
 }
 
 void Object::detachFromSession()
