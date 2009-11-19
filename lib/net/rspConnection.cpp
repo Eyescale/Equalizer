@@ -529,7 +529,10 @@ void RSPConnection::_runReadThread()
         }
         case ConnectionSet::EVENT_INTERRUPT:
             if (_writing == 0)
+            {
                 _connection = 0;
+                return;
+            }
             break;
         default: return;
         }
@@ -1158,6 +1161,7 @@ bool RSPConnection::_acceptRemoveConnection( const ID id )
         {
             child->close();
             _children.erase( i );
+            break;
         }
     }
 
