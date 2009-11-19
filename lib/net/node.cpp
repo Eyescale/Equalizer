@@ -99,7 +99,7 @@ Node::~Node()
 {
     EQINFO << "Delete Node @" << (void*)this << " " << _id << std::endl;
     EQASSERT( _outgoing == 0 );
-    EQASSERT( _incoming.empty( ));
+    EQASSERT( _incoming.isEmpty( ));
     EQASSERT( _connectionNodes.empty( ));
     EQASSERT( _pendingCommands.empty( ));
     EQASSERT( _nodes->empty( ));
@@ -342,7 +342,7 @@ bool Node::stopListening()
     EQCHECK( _receiverThread->join( ));
     _cleanup();
 
-    EQINFO << _incoming.size() << " connections open after stopListening"
+    EQINFO << _incoming.getSize() << " connections open after stopListening"
            << std::endl;
 #ifndef NDEBUG
     const ConnectionVector& connections = _incoming.getConnections();

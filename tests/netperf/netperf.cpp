@@ -263,7 +263,7 @@ public:
                 }
             }
             TESTINFO( _receivers.empty(), _receivers.size() );
-            TESTINFO( _connectionSet.size() == 1, _connectionSet.size() );
+            TESTINFO( _connectionSet.getSize() == 1, _connectionSet.getSize( ));
             _connectionSet.clear();
             return EXIT_SUCCESS;
         }

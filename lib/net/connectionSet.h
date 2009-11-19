@@ -18,14 +18,23 @@
 #ifndef EQNET_CONNECTION_SET_H
 #define EQNET_CONNECTION_SET_H
 
+#ifdef EQUALIZER_EXPORTS
+   // We need to instantiate a Monitor< Event > when compiling the library,
+   // but we don't want to have <pthread.h> for a normal build, hence this hack
+#  include <pthread.h>
+#endif
+
 #include <eq/net/connectionListener.h> // base class
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>
 #include <eq/base/hash.h>
+#include <eq/base/monitor.h>
 #include <eq/base/refPtr.h>
 
-#ifndef WIN32
+#ifdef WIN32
+#  include <eq/base/thread.h>
+#else
 #  include <poll.h>
 #endif
 
@@ -65,10 +74,10 @@ namespace net
         EQ_EXPORT void addConnection( ConnectionPtr connection );
         EQ_EXPORT bool removeConnection( ConnectionPtr connection );
         EQ_EXPORT void clear();
-        size_t size()  const { return _connections.size(); }
-        bool   empty() const { return _connections.empty(); }
+        size_t getSize()  const { return _connections.size(); }
+        bool   isEmpty() const { return _connections.empty(); }
 
-        const ConnectionVector& getConnections() const { return _connections; }
+        const ConnectionVector& getConnections() const{ return _allConnections;}
 
         /** 
          * Selects a Connection which is ready for I/O.
@@ -91,8 +100,53 @@ namespace net
         ConnectionPtr getConnection(){ return _connection; }
 
     private:
+ 
+#ifdef WIN32
+        /** Handles connections exceeding MAXIMUM_WAIT_OBJECTS */
+        class Thread : public eq::base::Thread
+        {
+        public:
+            Thread( ConnectionSet* parent );
+            virtual ~Thread();
+
+            ConnectionSet* set;
+            HANDLE         notifier;
+            
+            base::Monitor< Event > event;
+
+        protected:
+            virtual void* run();
+
+        private:
+            ConnectionSet* const _parent;
+        };
+
+
+        typedef std::vector< Thread* > ThreadVector;
+        /** Threads used to handle more than MAXIMUM_WAIT_OBJECTS connections */
+        ThreadVector _threads;
+
+        /** Result thread. */
+        Thread* _thread;
+
+        union Result
+        {
+            Connection* connection;
+            Thread* thread;
+        };
+
+#else
+        union Result
+        {
+            Connection* connection;
+        };
+#endif
+
         /** Mutex protecting changes to the set. */
         base::Lock _mutex;
+
+        /** The connections of this set */
+        ConnectionVector _allConnections;
 
         /** The connections to handle */
         ConnectionVector _connections;
@@ -104,7 +158,7 @@ namespace net
         base::Buffer< pollfd > _fdSetCopy; // 'const' set
         base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
 #endif
-        base::Buffer< Connection* > _fdSetConnections;
+        base::Buffer< Result > _fdSetResult;
 
         /** The connection to reset a running select, see constructor. */
         base::RefPtr< PipeConnection > _selfConnection;

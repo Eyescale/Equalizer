@@ -163,8 +163,9 @@ int main( int argc, char **argv )
                     break;
 
                 case ConnectionSet::EVENT_SELECT_ERROR:
-                    OUTPUT << "Error during select, " << connectionSet.size() 
-                        << " connections open" << std::endl;
+                    OUTPUT << "Error during select, " 
+                           << connectionSet.getSize() << " connections open"
+                           << std::endl;
                     break;
 
                 case ConnectionSet::EVENT_DATA:
@@ -190,7 +191,7 @@ int main( int argc, char **argv )
             if( time > 1000.0f )
             {
                 OUTPUT << nConnects / time * 1000.f << " accepts/s, "
-                       << connectionSet.size() << " connections open"
+                       << connectionSet.getSize() << " connections open"
                        << std::endl;
                 nConnects = 0;
                 clock.reset();

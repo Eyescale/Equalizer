@@ -33,9 +33,16 @@
 #ifdef WIN32
 #  define SELECT_TIMEOUT WAIT_TIMEOUT
 #  define SELECT_ERROR   WAIT_FAILED
+#  define BIG_CLUSTER_SUPPORT
+#  define MAX_CONNECTIONS (MAXIMUM_WAIT_OBJECTS - 1)
 #else
 #  define SELECT_TIMEOUT  0
 #  define SELECT_ERROR   -1
+#  define MAX_CONNECTIONS EQ_100KB  // Arbitrary
+#endif
+
+#ifdef BIG_CLUSTER_SUPPORT
+#  error "BIG_CLUSTER_SUPPORT only needed and implemented on Windows"
 #endif
 
 namespace eq
@@ -44,7 +51,13 @@ namespace net
 {
 
 ConnectionSet::ConnectionSet()
-        : _selfCommand( 0 )
+#ifdef WIN32
+        : _thread( 0 ),
+#else
+        :
+#endif
+          _selfConnection( new PipeConnection )
+        , _selfCommand( 0 )
         , _error( 0 )
         , _dirty( true )
 {
@@ -52,10 +65,10 @@ ConnectionSet::ConnectionSet()
     // connection set is waiting in a select, the select is interrupted by
     // sending a character through this connection. select() will recognize
     // this and restart with the modified fd set.
-    _selfConnection = new PipeConnection;
+    // OPT: On Win32, we could just use an event handle
     if( !_selfConnection->connect( ))
     {
-        EQERROR << "Could not create connection" << std::endl;
+        EQERROR << "Could not create self connection" << std::endl;
         return;
     }
     _selfConnection->recvNB( &_selfCommand, sizeof( _selfCommand ));
@@ -63,6 +76,8 @@ ConnectionSet::ConnectionSet()
 
 ConnectionSet::~ConnectionSet()
 {
+    clear();
+
     _connection = 0;
 
     _selfConnection->close();
@@ -75,9 +90,8 @@ void ConnectionSet::_dirtyFDSet()
     if( _dirty )
         return;
 
-    EQINFO << "FD set modified, restarting select" << std::endl;
+    EQVERB << "FD set modified, restarting select" << std::endl;
     _dirty = true;
-
     interrupt();
 }
 
@@ -93,13 +107,49 @@ void ConnectionSet::interrupt()
 void ConnectionSet::addConnection( ConnectionPtr connection )
 {
     EQASSERT( connection->isConnected() || connection->isListening( ));
-    {
+
+    { 
         base::ScopedMutex mutex( _mutex );
-        EQASSERTINFO( _connections.size() < 63,
-            "Connection set can't handle more than 63 connections" );
+        _allConnections.push_back( connection );
+
+#ifdef BIG_CLUSTER_SUPPORT
+        EQASSERT( _allConnections.size() < MAX_CONNECTIONS * MAX_CONNECTIONS );
+        if( _connections.size() < MAX_CONNECTIONS - _threads.size( ))
+        {   // can handle it ourself
+            _connections.push_back( connection );
+            connection->addListener( this );
+        }
+        else
+        {
+            // add to existing thread
+            for( ThreadVector::const_iterator i = _threads.begin();
+                 i != _threads.end(); ++i )
+            {
+                Thread* thread = *i;
+                if( thread->set->getSize() > MAX_CONNECTIONS )
+                    continue;
+
+                thread->set->addConnection( connection );
+                return;
+            }
+
+            // add to new thread
+            Thread* thread = new Thread( this );
+            thread->set->addConnection( connection );
+            thread->set->addConnection( _connections.back( ));
+            _connections.pop_back();
+
+            _threads.push_back( thread );
+            thread->start();
+        }
+#else
         _connections.push_back( connection );
         connection->addListener( this );
+
+        EQASSERT( _connections.size() < MAX_CONNECTIONS );
+#endif
     }
+
     _dirtyFDSet();
 }
 
@@ -107,17 +157,52 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
 {
     {
         base::ScopedMutex mutex( _mutex );
-        ConnectionVector::iterator i = find( _connections.begin(),
-                                             _connections.end(), connection );
-        if( i == _connections.end( ))
+        ConnectionVector::iterator i = find( _allConnections.begin(),
+                                             _allConnections.end(), connection);
+        if( i == _allConnections.end( ))
             return false;
 
-        connection->removeListener( this );
-        _connections.erase( i );
-    }
+        if( _connection == connection )
+            _connection = 0;
 
-    if( _connection == connection )
-        _connection = 0;
+        ConnectionVector::iterator j = find( _connections.begin(),
+                                             _connections.end(), connection );
+        if( j == _connections.end( ))
+        {
+#ifdef BIG_CLUSTER_SUPPORT
+            ThreadVector::iterator k = _threads.begin();
+            for( ; k != _threads.end(); ++k )
+            {
+                Thread* thread = *k;
+                if( thread->set->removeConnection( connection ))
+                {
+                    if( !thread->set->isEmpty( ))
+                        return true;
+
+                    if( thread == _thread )
+                        _thread = 0;
+
+                    thread->event = EVENT_NONE;
+                    thread->join();
+                    delete thread;
+                    break;
+                }
+            }
+
+            EQASSERT( k != _threads.end( ));
+            _threads.erase( k );
+#else
+            EQUNREACHABLE;
+#endif
+        }
+        else
+        {
+            _connections.erase( j );
+            connection->removeListener( this );
+        }
+
+        _allConnections.erase( i );
+    }
 
     _dirtyFDSet();
     return true;
@@ -126,23 +211,78 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
 void ConnectionSet::clear()
 {
     _connection = 0;
+
+#ifdef BIG_CLUSTER_SUPPORT
+    for( ThreadVector::iterator i = _threads.begin(); i != _threads.end(); ++i )
+    {
+        Thread* thread = *i;
+        thread->set->clear();
+        thread->event = EVENT_NONE;
+        thread->join();
+        delete thread;
+    }
+    _threads.clear();
+#endif;
+
     for( ConnectionVector::iterator i = _connections.begin(); 
          i != _connections.end(); ++i )
-
+    {
         (*i)->removeListener( this );
+    }
 
+    _allConnections.clear();
     _connections.clear();
     _dirtyFDSet();
     _fdSet.clear();
-    _fdSetConnections.clear();
+    _fdSetResult.clear();
 }
-        
+
+#ifdef BIG_CLUSTER_SUPPORT
+ConnectionSet::Thread::Thread( ConnectionSet* parent )
+        : set( new ConnectionSet )
+        , notifier( CreateEvent( 0, false, false, 0 ))
+        , event( EVENT_NONE )
+        , _parent( parent )
+{
+   
+}
+
+ConnectionSet::Thread::~Thread()
+{
+    delete set;
+    set = 0;
+}
+
+
+void* ConnectionSet::Thread::run()
+{
+    while ( !set->isEmpty( ))
+    {
+        event = set->select( INFINITE );
+        if( event != EVENT_INTERRUPT && event != EVENT_NONE )
+        {
+            SetEvent( notifier );
+            event.waitEQ( EVENT_NONE );
+        }
+    }
+
+    return EXIT_SUCCESS;
+}
+#endif
+
 ConnectionSet::Event ConnectionSet::select( const int timeout )
 {
     while( true )
     {
         _connection = 0;
         _error      = 0;
+#ifdef BIG_CLUSTER_SUPPORT
+        if( _thread )
+        {
+            _thread->event = EVENT_NONE; // unblock previous thread
+            _thread = 0;
+        }
+#endif
 
         if( !_setupFDSet( ))
             return EVENT_INVALID_HANDLE;
@@ -163,7 +303,11 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
             case SELECT_ERROR:
 #ifdef WIN32
-                _error = GetLastError();
+#  ifdef BIG_CLUSTER_SUPPORT
+                if( !_thread )
+#  endif
+                    _error = GetLastError();
+
                 if( _error == WSA_INVALID_HANDLE )
                 {
                     _dirty = true;
@@ -200,8 +344,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                         event = EVENT_CONNECT;
 
                     EQVERB << "selected connection " << _connection << " of "
-                           << _fdSetConnections.getSize() << ", event " << event
-                           << std::endl;
+                           << getSize() << ", event " << event << std::endl;
                     return event;
                 }
         }
@@ -212,10 +355,23 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 {
 #ifdef WIN32
     const uint32_t i = index - WAIT_OBJECT_0;
-    if( i >= MAXIMUM_WAIT_OBJECTS )
-        return EVENT_INTERRUPT;
+    EQASSERT( i < MAXIMUM_WAIT_OBJECTS );
+    EQASSERT( i < _fdSetResult.getSize( ));
 
-    _connection = _fdSetConnections[i];
+    if( i > _connections.size( ))
+    {
+        _thread = _fdSetResult[i].thread;
+        EQASSERT( _thread->event != EVENT_NONE );
+        EQASSERT( _fdSet[ i ] == _thread->notifier );
+        
+        ResetEvent( _thread->notifier ); 
+        _connection = _thread->set->getConnection();
+        _error = _thread->set->getError();
+        return _thread->event.get();
+    }
+    // else locally handled connection
+
+    _connection = _fdSetResult[i].connection;
     EQASSERT( _fdSet[i] == _connection->getNotifier( ));
 
     return EVENT_DATA;
@@ -229,7 +385,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
         const int pollEvents = pollFD.revents;
         EQASSERT( pollFD.fd > 0 );
 
-        _connection = _fdSetConnections[i];
+        _connection = _fdSetResult[i].connection;
         EQASSERT( _connection.isValid( ));
 
         EQVERB << "Got event on connection @" << (void*)_connection.get()
@@ -295,15 +451,17 @@ bool ConnectionSet::_setupFDSet()
 
     _dirty = false;
     _fdSet.setSize( 0 );
-    _fdSetConnections.setSize( 0 );
+    _fdSetResult.setSize( 0 );
 
 #ifdef WIN32
     // add self connection
     HANDLE readHandle = _selfConnection->getNotifier();
     EQASSERT( readHandle );
-
     _fdSet.append( readHandle );
-    _fdSetConnections.append( _selfConnection.get( ));
+
+    Result result;
+    result.connection = _selfConnection.get();;
+    _fdSetResult.append( result );
 
     // add regular connections
     _mutex.set();
@@ -323,7 +481,22 @@ bool ConnectionSet::_setupFDSet()
         }
         
         _fdSet.append( readHandle );
-        _fdSetConnections.append( connection.get( ));
+
+        Result result;
+        result.connection = connection.get();;
+        _fdSetResult.append( result );
+    }
+    for( ThreadVector::const_iterator i = _threads.begin();
+         i != _threads.end(); ++i )
+    {
+        Thread* thread = *i;
+        readHandle = thread->notifier;
+        EQASSERT( readHandle );
+        _fdSet.append( readHandle );
+
+        Result result;
+        result.thread = thread;
+        _fdSetResult.append( result );
     }
     _mutex.unset();
 #else
@@ -334,9 +507,11 @@ bool ConnectionSet::_setupFDSet()
     fd.fd      = _selfConnection->getNotifier();
     EQASSERT( fd.fd > 0 );
     fd.revents = 0;
-
     _fdSet.append( fd );
-    _fdSetConnections.append( _selfConnection.get( ));
+
+    Result result;
+    result.connection = _selfConnection.get();
+    _fdSetResult.append( result );
 
     // add regular connections
     _mutex.set();
@@ -361,7 +536,9 @@ bool ConnectionSet::_setupFDSet()
         fd.revents = 0;
 
         _fdSet.append( fd );
-        _fdSetConnections.append( connection.get( ));
+
+        result.connection = connection.get();
+        _fdSetResult.append( result );
     }
     _mutex.unset();
     _fdSetCopy = _fdSet;
