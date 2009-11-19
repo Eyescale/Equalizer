@@ -219,6 +219,7 @@ void Compositor::assembleFramesSorted( const FrameVector& frames,
     if( _isSubPixelDecomposition( frames ))
     {
         if( !accum )
+        {
             accum = _obtainAccum( channel );
             accum->clear();
 
@@ -318,6 +319,7 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
     if( _isSubPixelDecomposition( frames ))
     {
         if( !accum )
+        {
             accum = _obtainAccum( channel );
             accum->clear();
 
