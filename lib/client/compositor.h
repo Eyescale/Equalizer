@@ -48,9 +48,6 @@ namespace eq
             Zoom           zoom;    //!< The zoom factor
         };
 
-        /** @return the accumulation buffer used for subpixel compositing. */
-        static Accum* obtainAccum( Channel* channel );
-
         /** @name Frame-based operations. */
         //@{
         /** 
@@ -222,6 +219,8 @@ namespace eq
         static void _drawPixels( const Image* image, const ImageOp& op,
                                  const Frame::Buffer which );
 
+        /** @return the accumulation buffer used for subpixel compositing. */
+        static Accum* _obtainAccum( Channel* channel );
     };
 }
 

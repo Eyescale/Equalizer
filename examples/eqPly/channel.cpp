@@ -71,13 +71,19 @@ bool Channel::configInit( const uint32_t initID )
 
 bool Channel::_configInitAccumBuffer()
 {
-    _accum = eq::Compositor::obtainAccum( this );
-    
-    if( !_accum )
+    // TODO OPT: Only alloc accum buffer for dest channels.
+    const eq::PixelViewport& pvp = getPixelViewport();
+    _accum = new eq::Accum( glewGetContext( ));
+    EQASSERT( pvp.isValid( ));
+
+    if( !_accum->init( pvp, getWindow()->getColorFormat( )))
     {
-        EQWARN << "Accumulation init failed." << std::endl;
+        EQERROR << "Accumulation buffer initialization failed." << std::endl;
+        delete _accum;
+        _accum = 0;
         return false;
     }
+    // else
 
     _totalSteps = _accum->getMaxSteps();
     _jitterStep = _totalSteps;
@@ -193,7 +199,8 @@ void Channel::frameAssemble( const uint32_t frameID )
     bool subPixelALL = true;
     const eq::FrameVector& frames = getInputFrames();
 
-    for( eq::FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i )
+    for( eq::FrameVector::const_iterator i = frames.begin();
+         i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
         const eq::SubPixel& curSubPixel = frame->getSubPixel();

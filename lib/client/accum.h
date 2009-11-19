@@ -31,13 +31,13 @@ namespace eq
      * Depending on the OpenGL version, an FBO or glAccum()
      * is used.
      *
-     * Remark: MacOS systems seem to have a different implementation of glAccum().
-     **/
+     * Remark: MacOS systems seem to have a buggy implementation of glAccum().
+     */
     class Accum
     {
     public: 
         /** Construct a new accumulation buffer */
-        EQ_EXPORT Accum( GLEWContext* const glewContext = 0 );
+        EQ_EXPORT Accum( GLEWContext* const glewContext );
 
         /** Destruct the accumulation buffer */
         EQ_EXPORT ~Accum();
@@ -95,20 +95,24 @@ namespace eq
         EQ_EXPORT uint32_t getNumSteps() const { return _numSteps; }
 
         /**
-         * Set the total steps that will be done during the accumulation operation.
-         * Attn: only for Darwin systems because of the specific glAccum() workaround.
+         * Set the total steps that will be used.
+         *
+         * This is needed only for Darwin systems because of the specific
+         * glAccum() workaround.
          *
          * @param totalSteps the total number of steps to do.
          */
-        EQ_EXPORT void setTotalSteps( uint32_t totalSteps ) { _totalSteps = totalSteps; }
+        EQ_EXPORT void setTotalSteps( uint32_t totalSteps )
+            { _totalSteps = totalSteps; }
         EQ_EXPORT uint32_t getTotalSteps() { return _totalSteps; }
 
         /**
-         * Tests if the accumulation uses the FBO or the glAccum() implementation.
+         * Tests if the accumulation uses the FBO implementation.
          *
-         * @return true if the accumulation uses an FBO, false if it uses glAccum().
+         * @return true if the accumulation uses an FBO, false if it uses
+         *         glAccum().
          */
-        EQ_EXPORT bool usesFBO() const { return GLEW_EXT_framebuffer_object; }
+        EQ_EXPORT bool usesFBO() const;
 
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }

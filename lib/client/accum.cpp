@@ -30,6 +30,7 @@ Accum::Accum( GLEWContext* const glewContext )
     , _numSteps( 0 )
     , _totalSteps( 0 )
 {
+    EQASSERT( glewContext );
 }
 
 Accum::~Accum()
@@ -42,12 +43,12 @@ bool Accum::init( const PixelViewport& pvp, GLuint textureFormat )
     if( usesFBO( ))
     {
         _abo = new AccumBufferObject( _glewContext );
-        if( _abo->init( pvp.w, pvp.h, textureFormat ))
-            return true;
-            
-        delete _abo;
-        _abo = 0;
-        return false;
+        if( !_abo->init( pvp.w, pvp.h, textureFormat ))
+        {
+            delete _abo;
+            _abo = 0;
+            return false;
+        }
     }
 
     if( _totalSteps == 0 )
@@ -56,7 +57,7 @@ bool Accum::init( const PixelViewport& pvp, GLuint textureFormat )
     _width = pvp.w;
     _height = pvp.h;
 
-    return true;
+    return ( _totalSteps > 0 );
 }
 
 void Accum::exit()
@@ -153,6 +154,15 @@ uint32_t Accum::getMaxSteps() const
     glGetIntegerv( GL_ACCUM_RED_BITS, &accumBits );
 
     return accumBits >= 16 ? 256 : 0;
+}
+
+bool Accum::usesFBO() const
+{
+#ifdef Darwin
+    return false;
+#else
+    return GLEW_EXT_framebuffer_object;
+#endif
 }
         
 }

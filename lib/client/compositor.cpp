@@ -90,8 +90,11 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
          i != frames.end(); ++i )
     {
         const Frame* frame = *i;
-        if( frame->getPixel() != Pixel::ALL ) // Not supported yet on the CPU
+        if( frame->getPixel() != Pixel::ALL ||
+            frame->getSubPixel() != SubPixel::ALL ) // Not yet supported
+        {
             return false;
+        }
 
         if( frame->getBuffers() == desiredBuffers )
             ++nFrames;
@@ -183,7 +186,7 @@ void Compositor::assembleFrames( const FrameVector& frames,
         assembleFramesUnsorted( frames, channel, accum );
 }
 
-Accum* Compositor::obtainAccum( Channel* channel )
+Accum* Compositor::_obtainAccum( Channel* channel )
 {
     const PixelViewport& pvp = channel->getPixelViewport();
 
@@ -216,7 +219,7 @@ void Compositor::assembleFramesSorted( const FrameVector& frames,
     {
         if( !accum )
         {
-            accum = obtainAccum( channel );
+            accum = _obtainAccum( channel );
             accum->clear();
         }
 
@@ -313,7 +316,7 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
     {
         if( !accum )
         {
-            accum = obtainAccum( channel );
+            accum = _obtainAccum( channel );
             accum->clear();
         }
 

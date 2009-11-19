@@ -1,9 +1,15 @@
-Simplify eqPly accum init
+Move Accum::usesFBO implementation to fix EQ_IGNORE_GLEW build
+Add Subpixel mode to all config
+Fix Accum::init when using FBO
+Use separate accum buffer (from compositor) in eqPly:
+- Simplifies API
+- In eqPly, the compositor will never alloc its own accum
+- Temporarily use glAccum on Darwin
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[ ] New Feature
+[x] Bugfix
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

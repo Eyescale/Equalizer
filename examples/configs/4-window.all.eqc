@@ -171,6 +171,20 @@ server
         }
         layout
         {
+            name "Subpixel"
+            view
+            {
+                viewport [ 0 .5 .5 .5 ]
+                wall
+                {
+                    bottom_left  [ -.5 -.5 -1 ]
+                    bottom_right [  .5 -.5 -1 ]
+                    top_left     [ -.5  .5 -1 ]
+                }
+            }
+        }
+        layout
+        {
             name "DPlex"
             view
             {
@@ -249,6 +263,7 @@ server
             layout "Eye"
             layout "DPlex"
             layout "Pixel"
+            layout "Subpixel"
 
             layout "WallLB"
             layout "DB_Stream"
@@ -559,6 +574,40 @@ server
             { 
                 channel "channel4"
                 pixel [ 3 0 4 1 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel1" }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
+        }            
+
+        # Subpixel compound
+        compound
+        {
+            channel ( segment 0 layout "Subpixel" view 0 )
+
+            compound
+            {
+                subpixel [ 0 4 ]
+                outputframe { type texture }
+            }
+            compound
+            { 
+                channel "channel2"
+                subpixel [ 1 4 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel3"
+                subpixel [ 2 4 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel4"
+                subpixel [ 3 4 ]
                 outputframe {}
             }
             inputframe { name "frame.channel1" }
