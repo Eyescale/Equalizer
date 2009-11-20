@@ -99,10 +99,12 @@ bool Accum::resize( const int width, const int height )
 
 void Accum::accum()
 {
-/**
- * This is the only working implementation on MacOS found at the moment.
- * The glAccum function seems to be implemented differently.
- */
+    //EQASSERT( _numSteps < _totalSteps );
+
+    /**
+     * This is the only working implementation on MacOS found at the moment.
+     * The glAccum function seems to be implemented differently.
+     */
     if( _abo )
     {
         if( _numSteps == 0 )
@@ -166,9 +168,9 @@ bool Accum::usesFBO() const
 #endif
 }
 
-bool Accum::isInvalidNumSteps() const
+bool Accum::isFull() const
 {
-    return _numSteps > _totalSteps;
+    return _numSteps >= _totalSteps;
 }
 
 }

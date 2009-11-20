@@ -87,7 +87,7 @@ bool Channel::_configInitAccumBuffer()
     // else
 
     _totalSteps = _accum->getMaxSteps();
-    _jitterStep = _totalSteps - 1;
+    _jitterStep = _totalSteps;
     return true;
 }
 
@@ -101,7 +101,7 @@ bool Channel::configExit()
 
 void Channel::frameClear( const uint32_t frameID )
 {
-    if( _accum->isInvalidNumSteps( ))
+    if( _accum->isFull( ))
         return;
 
     EQ_GL_CALL( applyBuffer( ));
@@ -128,7 +128,7 @@ void Channel::frameClear( const uint32_t frameID )
 
 void Channel::frameDraw( const uint32_t frameID )
 {
-    if( _accum->isInvalidNumSteps( ))
+    if( _accum->isFull( ))
         return;
 
     const Model* model = _getModel();
@@ -187,7 +187,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
-    if( _accum->isInvalidNumSteps( ))
+    if( _accum->isFull( ))
         return;
 
     if( getPixelViewport() != _currentPVP )
@@ -237,7 +237,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 
 void Channel::frameReadback( const uint32_t frameID )
 {
-    if( _accum->isInvalidNumSteps( ))
+    if( _accum->isFull( ))
         return;
 
     // OPT: Drop alpha channel from all frames during network transport
@@ -260,7 +260,7 @@ void Channel::frameStart( const uint32_t frameID,
     if( !frameData.isIdle( ))
     {
         _accum->clear();
-        _jitterStep = _totalSteps - 1;
+        _jitterStep = _totalSteps;
         _subpixelStep = 0;
     }
 
@@ -309,7 +309,7 @@ void Channel::frameViewFinish( const uint32_t frameID )
     if( isResized )
     {
         _accum->clear();
-        _jitterStep = _totalSteps - 1;
+        _jitterStep = _totalSteps;
         _subpixelStep = 0;
         return;
     }
@@ -319,7 +319,7 @@ void Channel::frameViewFinish( const uint32_t frameID )
     {
         setupAssemblyState();
 
-        if( !_accum->isInvalidNumSteps( ))
+        if( !_accum->isFull( ))
             _accum->accum();
         _accum->display();
 

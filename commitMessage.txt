@@ -1,13 +1,9 @@
-Apply tested >60 client windows patch:
-- ConnectionSet uses dynamic list of threads for >63 connections
-- The main thread handles up to 63 threads
-- Each thread handles up to 63 connections
-- remove previous patch
+minor code cleanups
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[x] New Feature
+[ ] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
