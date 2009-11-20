@@ -72,8 +72,9 @@ namespace eq
          * @param accum the accumulation buffer.
          * @param blendAlpha blend color-only images if they have an alpha
          *                   channel
+         * @return the number of assembled frames.
          */
-        static void assembleFramesSorted( const FrameVector& frames,
+        static uint32_t assembleFramesSorted( const FrameVector& frames,
                                           Channel* channel, Accum* accum,
                                           const bool blendAlpha = false );
 
@@ -84,8 +85,9 @@ namespace eq
          * @param frames the frames to assemble.
          * @param channel the destination channel.
          * @param accum the accumulation buffer.
+         * @return the number of asssembled frames.
          */
-        static void assembleFramesUnsorted( const FrameVector& frames,
+        static uint32_t assembleFramesUnsorted( const FrameVector& frames,
                                               Channel* channel, Accum* accum );
 
         /** 

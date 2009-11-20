@@ -209,12 +209,13 @@ Accum* Compositor::_obtainAccum( Channel* channel )
     return accum;
 }
 
-void Compositor::assembleFramesSorted( const FrameVector& frames,
+uint32_t Compositor::assembleFramesSorted( const FrameVector& frames,
                                        Channel* channel, Accum* accum,
                                        const bool blendAlpha )
 {
+    uint32_t count = 0;
     if( frames.empty( ))
-        return;
+        return count;
 
     if( _isSubPixelDecomposition( frames ))
     {
@@ -231,11 +232,13 @@ void Compositor::assembleFramesSorted( const FrameVector& frames,
         while( !framesLeft.empty( ))
         {
             FrameVector current = _extractOneSubPixel( framesLeft );
-            assembleFramesSorted( current, channel, accum );
-            accum->accum();
+            count = assembleFramesSorted( current, channel, accum );
+            if( count > 0 )
+                accum->accum();
         }
-        accum->display();
-        return;
+        if( count > 0 )
+            accum->display();
+        return count;
     }
 
     if( blendAlpha )
@@ -258,12 +261,19 @@ void Compositor::assembleFramesSorted( const FrameVector& frames,
                                          channel );
                 frame->waitReady( );
             }
-            assembleFrame( frame, channel );
+
+            if( !frame->getImages().empty( ))
+            {
+                ++count;
+                assembleFrame( frame, channel );
+            }
         }
     }
 
     if( blendAlpha )
         glDisable( GL_BLEND );
+
+    return count;
 }
 
 bool Compositor::_isSubPixelDecomposition( const FrameVector& frames )
@@ -310,11 +320,13 @@ const FrameVector Compositor::_extractOneSubPixel( FrameVector& frames )
     return current;
 }
 
-void Compositor::assembleFramesUnsorted( const FrameVector& frames, 
+uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
                                          Channel* channel, Accum* accum )
 {
+    uint32_t count = 0;
+
     if( frames.empty( ))
-        return;
+        return count;
 
     if( _isSubPixelDecomposition( frames ))
     {
@@ -332,11 +344,13 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
     	{
     	    // get the frames with the same subpixel compound
     	    FrameVector current = _extractOneSubPixel( framesLeft );
-            assembleFramesUnsorted( current, channel, accum );
-            accum->accum();
+    	    count = assembleFramesUnsorted( current, channel, accum );
+    	    if( count > 0 )
+    	        accum->accum();
         }
-    	accum->display();
-        return;
+    	if( count > 0 )
+    	    accum->display();
+        return count;
     }
 
     EQVERB << "Unsorted GPU assembly" << endl;
@@ -375,7 +389,12 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
             if( !frame->isReady( ))
                 continue;
 
-            assembleFrame( frame, channel );
+			if( !frame->getImages().empty( ))
+			{
+			    ++count;
+	            assembleFrame( frame, channel );
+			}
+    
             unusedFrames.erase( i );
             break;
         }
@@ -389,6 +408,8 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
         // syncAssembleFrame( frame );
         frame->removeListener( monitor );
     }
+
+    return count;
 }
 
 void Compositor::assembleFramesCPU( const FrameVector& frames,
