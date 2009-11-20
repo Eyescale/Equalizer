@@ -213,7 +213,7 @@ RSPConnection::ID RSPConnection::_buildNewID()
 bool RSPConnection::listen()
 {
     EQASSERT( _description->type == CONNECTIONTYPE_RSP );
-    const base::ScopedMutex mutex( _mutexWrite );
+
     if( _state != STATE_CLOSED )
         return false;
     
@@ -372,19 +372,20 @@ bool RSPConnection::_initReadThread()
     // send a first datgram for annunce me and discover other connection 
     const DatagramNode newnode ={ ID_HELLO, _id };
     _connection->write( &newnode, sizeof( DatagramNode ) );
-    size_t countTimeOut = 0;
+    _countTimeOut = 0;
     while ( true )
     {
         switch ( _connectionSet.select( 100 ) )
         {
             case ConnectionSet::EVENT_TIMEOUT:
-                if ( countTimeOut < 10 )
+                _countTimeOut++;
+                if ( _countTimeOut < 10 )
                 {
-                    countTimeOut++;
+                    
                     const DatagramNode ackNode ={ ID_HELLO, _id };
                     _connection->write( &ackNode, sizeof( DatagramNode ) );
                 }
-                else
+                else if ( _countTimeOut == 10 )
                 {
                     const DatagramNode confirmNode ={ ID_CONFIRM, _id };
                     _connection->write( &confirmNode, sizeof( DatagramNode ) );
@@ -392,11 +393,13 @@ bool RSPConnection::_initReadThread()
                     _connectionSet.removeConnection( _connection.get() );
                     _connection->setMulticastLoop( true );
                     _connectionSet.addConnection( _connection.get() );
-                    return true;
                 }
+                else if ( _countTimeOut >= 40 )
+                    return true;
+
                 break;
             case ConnectionSet::EVENT_DATA:
-                countTimeOut = 0;
+                _countTimeOut = 0;
                 if ( !_handleInitData() )
                 {
                     EQERROR << " Error during Read UDP Connection" 
@@ -408,7 +411,7 @@ bool RSPConnection::_initReadThread()
                                          _connection->getMTU());
                 break;
             case ConnectionSet::EVENT_INTERRUPT:
-                return false;
+                break;
 
             default: break;
 
@@ -446,9 +449,37 @@ bool RSPConnection::_handleInitData()
 
     case ID_CONFIRM:
         return _addNewConnection( node->connectionID );
+    case COUNTNODE:
+    {
 
+        /* datagram CONFIRMNODE 
+           if it's my ID 
+               NOP
+           else
+               build data structure DataReceive
+               setEvent for accept waiting
+               send a datagram CountNode
+        */
+        _countTimeOut = 11;
+        const DatagramCountConnection* countConn = 
+                reinterpret_cast< const DatagramCountConnection* >
+                                                         ( _bufRead.getData() );
+        
+        // we know all connections
+        if ( _children.size() == countConn->nbClient )
+            return true;
+
+        RSPConnectionPtr connection = 
+                            _findConnectionWithWriterID( countConn->clientID );
+
+        if ( !connection.isValid() )
+            _addNewConnection( countConn->clientID );
+        break;
+    }
+    
     case ID_EXIT:
         return _acceptRemoveConnection( node->connectionID );
+
     default: break;
     
     }//END switch
@@ -467,7 +498,7 @@ void RSPConnection::_runReadThread()
 {
     while ( _state != STATE_CLOSED )
     {
-        const int timeOut = _writing == 1 ? /*_latency + */100 : -1;
+        const int timeOut = _writing == 1 ? 100 : -1;
 
         switch ( _connectionSet.select( timeOut ) )
         {
@@ -570,7 +601,7 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
         }
     }
 
-    return bytes;
+    return size;
 }
 
 bool RSPConnection::_handleData( )
@@ -1180,7 +1211,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     
     const uint32_t size =   EQ_MIN( bytes, _maxBuffer );
     const base::ScopedMutex mutex( _mutexConnection );
-    const base::ScopedMutex mutexWrite( _mutexWrite );
+
     _writing = 1;
     _countNbAckInWrite = 0;
 

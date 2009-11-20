@@ -262,7 +262,6 @@ namespace net
         UDPConnectionPtr _connection;
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
-        base::Lock       _mutexWrite;
         RSPConnectionPtr _parent;
         
         // buffer for read from udp Connection
@@ -280,7 +279,6 @@ namespace net
         // we add 1 each read or write operation
         uint8_t _readBufferIndex;
         uint8_t _recvBufferIndex;
-        
         //uint64_t _latency;
         ConnectionPtr _sibling;
         bool _repeatData;
