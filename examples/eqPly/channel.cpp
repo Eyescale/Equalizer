@@ -389,6 +389,9 @@ eq::Vector2f Channel::_getJitter() const
 
     eq::Vector2i jitterStep = _getJitterStep();
 
+    if( jitterStep == eq::Vector2i::ZERO )
+        return eq::Vector2f::ZERO;
+
     // Sample value randomly computed within the subpixel
     eq::base::RNG rng;
     float value_i = rng.get< float >() * subpixel_w
@@ -407,6 +410,10 @@ eq::Vector2i Channel::_getJitterStep() const
     idx += ( _jitterStep * primeNumberTable[ channelID ] ) % _totalSteps;
 
     uint32_t sampleSize = _getSampleSize();
+
+    if( sampleSize == 0 )
+        return eq::Vector2i::ZERO;
+
     const int dx = idx % sampleSize;
     const int dy = idx / sampleSize;
 
