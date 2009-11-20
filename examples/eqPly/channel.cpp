@@ -406,11 +406,12 @@ eq::Vector2f Channel::_getJitter() const
 eq::Vector2i Channel::_getJitterStep() const
 {
     uint32_t channelID  = getSubPixel().index;
-    uint32_t idx = ( channelID * _totalSteps );
-    idx += ( _jitterStep * primeNumberTable[ channelID ] ) % _totalSteps;
+    uint32_t subset = _totalSteps / getSubPixel().size;
+
+    uint32_t idx = ( _jitterStep * primeNumberTable[ channelID ] ) % subset;
+    idx += ( channelID * subset );
 
     uint32_t sampleSize = _getSampleSize();
-
     if( sampleSize == 0 )
         return eq::Vector2i::ZERO;
 
