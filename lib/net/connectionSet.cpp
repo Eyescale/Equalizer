@@ -224,7 +224,7 @@ void ConnectionSet::clear()
         delete thread;
     }
     _threads.clear();
-#endif;
+#endif
 
     for( ConnectionVector::iterator i = _connections.begin(); 
          i != _connections.end(); ++i )
