@@ -84,7 +84,7 @@ GLXEventSetPtr GLXEventHandler::getEventSet()
 
 void GLXEventHandler::clearEventSet()
 {
-    EQASSERTINFO( !_pipeConnections || _pipeConnections->empty(),
+    EQASSERTINFO( !_pipeConnections || _pipeConnections->isEmpty(),
                   _pipeConnections->getConnections().size( ));
 #if 0 // Asserts with more than one non-threaded pipe
     EQASSERTINFO( !_pipeConnections || _pipeConnections->getRefCount() == 1,
