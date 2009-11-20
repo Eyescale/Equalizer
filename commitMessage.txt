@@ -1,4 +1,4 @@
-minor code cleanups
+minor compositor code cleanups
 
 [ ] May break build
 [ ] May break existing applications

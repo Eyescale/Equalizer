@@ -174,16 +174,17 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
 }
 }
 
-void Compositor::assembleFrames( const FrameVector& frames,
+uint32_t Compositor::assembleFrames( const FrameVector& frames,
                                  Channel* channel, Accum* accum )
 {
     if( frames.empty( ))
-        return;
+        return 0;
 
     if( _useCPUAssembly( frames, channel ))
-        assembleFramesCPU( frames, channel );
-    else
-        assembleFramesUnsorted( frames, channel, accum );
+        return assembleFramesCPU( frames, channel );
+
+    // else
+    return assembleFramesUnsorted( frames, channel, accum );
 }
 
 Accum* Compositor::_obtainAccum( Channel* channel )
@@ -210,15 +211,15 @@ Accum* Compositor::_obtainAccum( Channel* channel )
 }
 
 uint32_t Compositor::assembleFramesSorted( const FrameVector& frames,
-                                       Channel* channel, Accum* accum,
-                                       const bool blendAlpha )
+                                           Channel* channel, Accum* accum,
+                                           const bool blendAlpha )
 {
-    uint32_t count = 0;
     if( frames.empty( ))
-        return count;
+        return 0;
 
     if( _isSubPixelDecomposition( frames ))
     {
+        uint32_t count = 0;
         if( !accum )
         {
             accum = _obtainAccum( channel );
@@ -232,15 +233,20 @@ uint32_t Compositor::assembleFramesSorted( const FrameVector& frames,
         while( !framesLeft.empty( ))
         {
             FrameVector current = _extractOneSubPixel( framesLeft );
-            count = assembleFramesSorted( current, channel, accum );
-            if( count > 0 )
+            const uint32_t subCount = assembleFramesSorted( current, channel,
+                                                            accum );
+            EQASSERT( subCount < 2 );
+
+            if( subCount > 0 )
                 accum->accum();
+            count += subCount;
         }
         if( count > 0 )
             accum->display();
         return count;
     }
 
+    uint32_t count = 0;
     if( blendAlpha )
     {
         glEnable( GL_BLEND );
@@ -249,7 +255,7 @@ uint32_t Compositor::assembleFramesSorted( const FrameVector& frames,
     }
 
     if( _useCPUAssembly( frames, channel, blendAlpha ))
-        assembleFramesCPU( frames, channel, blendAlpha );
+        count |= assembleFramesCPU( frames, channel, blendAlpha );
     else
     {
         for( FrameVector::const_iterator i = frames.begin();
@@ -264,7 +270,7 @@ uint32_t Compositor::assembleFramesSorted( const FrameVector& frames,
 
             if( !frame->getImages().empty( ))
             {
-                ++count;
+                count = 1;
                 assembleFrame( frame, channel );
             }
         }
@@ -321,15 +327,16 @@ const FrameVector Compositor::_extractOneSubPixel( FrameVector& frames )
 }
 
 uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
-                                         Channel* channel, Accum* accum )
+                                             Channel* channel, Accum* accum )
 {
-    uint32_t count = 0;
-
     if( frames.empty( ))
-        return count;
+        return 0;
 
+    EQVERB << "Unsorted GPU assembly" << endl;
     if( _isSubPixelDecomposition( frames ))
     {
+        uint32_t count = 0;
+
         if( !accum )
         {
             accum = _obtainAccum( channel );
@@ -344,16 +351,19 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
     	{
     	    // get the frames with the same subpixel compound
     	    FrameVector current = _extractOneSubPixel( framesLeft );
-    	    count = assembleFramesUnsorted( current, channel, accum );
-    	    if( count > 0 )
+
+            // use assembleFrames to potentially benefit from CPU assembly
+    	    const uint32_t subCount = assembleFrames( current, channel, accum );
+            EQASSERT( subCount < 2 )
+    	    if( subCount > 0 )
     	        accum->accum();
+            count += subCount;
         }
     	if( count > 0 )
     	    accum->display();
         return count;
     }
 
-    EQVERB << "Unsorted GPU assembly" << endl;
     // This is an optimized assembly version. The frames are not assembled in
     // the saved order, but in the order they become available, which is faster
     // because less time is spent waiting on frame availability.
@@ -374,6 +384,7 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
     uint32_t    nUsedFrames  = 0;
     FrameVector unusedFrames = frames;
 
+    uint32_t count = 0;
     // wait and assemble frames
     while( !unusedFrames.empty( ))
     {
@@ -391,7 +402,7 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
 
 			if( !frame->getImages().empty( ))
 			{
-			    ++count;
+			    count = 1;
 	            assembleFrame( frame, channel );
 			}
     
@@ -412,11 +423,12 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
     return count;
 }
 
-void Compositor::assembleFramesCPU( const FrameVector& frames,
-                                    Channel* channel, const bool blendAlpha )
+uint32_t Compositor::assembleFramesCPU( const FrameVector& frames,
+                                        Channel* channel,
+                                        const bool blendAlpha )
 {
     if( frames.empty( ))
-        return;
+        return 0;
 
     EQVERB << "Sorted CPU assembly" << endl;
     // Assembles images from DB and 2D compounds using the CPU and then
@@ -425,7 +437,7 @@ void Compositor::assembleFramesCPU( const FrameVector& frames,
 
     const Image* result = mergeFramesCPU( frames, blendAlpha );
     if( !result )
-        return;
+        return 0;
 
     // assemble result on dest channel
     ImageOp operation;
@@ -439,6 +451,8 @@ void Compositor::assembleFramesCPU( const FrameVector& frames,
     stringstream << "Image_" << ++counter;
     result->writeImages( stringstream.str( ));
 #endif
+
+    return 1;
 }
 
 const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
@@ -505,8 +519,9 @@ bool Compositor::_collectOutputData( const FrameVector& frames,
         Frame* frame = *i;
         frame->waitReady();
 
-        EQASSERTINFO( frame->getPixel() == Pixel::ALL,
-                      "CPU-based pixel recomposition not implemented" );
+        EQASSERTINFO( frame->getPixel() == Pixel::ALL || 
+                      frame->getSubPixel() == SubPixel::ALL,
+                      "CPU-based (sub)pixel recomposition not implemented" );
         if( frame->getPixel() != Pixel::ALL )
             return false;
 

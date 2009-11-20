@@ -41,11 +41,11 @@ namespace eq
             ImageOp() : channel( 0 ), buffers( 0 )
                       , offset( Vector2i::ZERO ) {}
 
-            Channel*       channel; //!< The destination channel
-            uint32_t       buffers; //!< The Frame buffer attachments to use
+            Channel* channel; //!< The destination channel
+            uint32_t buffers; //!< The Frame buffer attachments to use
             Vector2i offset;  //!< The offset wrt destination window
-            Pixel          pixel;   //!< The pixel decomposition parameters
-            Zoom           zoom;    //!< The zoom factor
+            Pixel pixel;      //!< The pixel decomposition parameters
+            Zoom zoom;        //!< The zoom factor
         };
 
         /** @name Frame-based operations. */
@@ -57,9 +57,10 @@ namespace eq
          * @param frames the frames to assemble.
          * @param channel the destination channel.
          * @param accum the accumulation buffer.
+         * @return the number of different subpixel steps assembled.
          */
-        static void assembleFrames( const FrameVector& frames,
-                                    Channel* channel, Accum* accum );
+        static uint32_t assembleFrames( const FrameVector& frames,
+                                        Channel* channel, Accum* accum );
 
         /** 
          * Assemble all frames in the given order using the default algorithm
@@ -72,11 +73,11 @@ namespace eq
          * @param accum the accumulation buffer.
          * @param blendAlpha blend color-only images if they have an alpha
          *                   channel
-         * @return the number of assembled frames.
+         * @return the number of different subpixel steps assembled.
          */
         static uint32_t assembleFramesSorted( const FrameVector& frames,
-                                          Channel* channel, Accum* accum,
-                                          const bool blendAlpha = false );
+                                              Channel* channel, Accum* accum,
+                                              const bool blendAlpha = false );
 
         /** 
          * Assemble all frames in the order they become available directly on
@@ -85,7 +86,7 @@ namespace eq
          * @param frames the frames to assemble.
          * @param channel the destination channel.
          * @param accum the accumulation buffer.
-         * @return the number of asssembled frames.
+         * @return the number of different subpixel steps assembled.
          */
         static uint32_t assembleFramesUnsorted( const FrameVector& frames,
                                               Channel* channel, Accum* accum );
@@ -105,10 +106,11 @@ namespace eq
          * @param channel the destination channel.
          * @param blendAlpha blend color-only images if they have an alpha
          *                   channel
+         * @return the number of different subpixel steps assembled (0 or 1).
          */
-        static void assembleFramesCPU( const FrameVector& frames,
-                                       Channel* channel,
-                                       const bool blendAlpha = false );
+        static uint32_t assembleFramesCPU( const FrameVector& frames,
+                                           Channel* channel,
+                                           const bool blendAlpha = false );
 
         /** Merge the provided frames into one image in main memory. */
         static const Image* mergeFramesCPU( const FrameVector& frames,
