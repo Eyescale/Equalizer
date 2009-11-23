@@ -74,18 +74,19 @@ namespace server
                                      const uint32_t nStatistics,
                                      const eq::Statistic* statistics );
                                      
-        /** Set the boundary integer range value.  */
-        void LoadEqualizer::setBoundary( const Vector2i& boundary )
+        /** Set a boundary for 2D tiles. */
+        void setBoundary( const Vector2i& boundary )
             { _boundary2i = boundary; }
-        /** Set the boundary float value.  */
-        void LoadEqualizer::setBoundary( const float boundary )
+
+        /** Set a boundary for DB ranges. */
+        void setBoundary( const float boundary )
             { _boundaryf = boundary; }
 
-        /** @return the boundary integer range value. */
-        const Vector2i& LoadEqualizer::getBoundary2i() const
-            { return _boundary2i; }
-        /** @return the boundary float value. */
-        float LoadEqualizer::getBoundaryf() const { return _boundaryf; }
+        /** @return the boundary for 2D tiles. */
+        const Vector2i& getBoundary2i() const { return _boundary2i; }
+
+        /** @return the boundary for DB ranges. */
+        float getBoundaryf() const { return _boundaryf; }
 
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )

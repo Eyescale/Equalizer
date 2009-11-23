@@ -1,9 +1,9 @@
-Minor opt in eqPly::FrameData serialization
+Fix POSIX build, dos2unix
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[ ] Cleanup
-[x] Optimization
+[x] Cleanup
+[ ] Optimization
 [ ] Documentation
