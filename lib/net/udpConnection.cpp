@@ -346,7 +346,7 @@ void UDPConnection::readNB( void* buffer, const uint64_t bytes )
 int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
 {
 #ifdef WIN32
-    CHECK_THREAD( _recvThread );
+    //CHECK_THREAD( _recvThread );
 
     if( _readFD == INVALID_SOCKET )
     {

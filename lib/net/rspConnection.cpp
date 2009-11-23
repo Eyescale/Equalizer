@@ -92,7 +92,7 @@ RSPConnection::RSPConnection()
     _description->type = CONNECTIONTYPE_RSP;
     _description->bandwidth = 102400;
 
-    for( size_t i = 0; i < _nBuffers; i++ )
+    for( size_t i = 0; i < _nBuffers; ++i )
         _buffer.push_back( new DataReceive() );
     
     _recvBuffer = _buffer[ _recvBufferIndex ];
@@ -132,7 +132,7 @@ void RSPConnection::close()
     }
 
     for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin();
-        i != _children.end(); i++ )
+        i != _children.end(); ++i )
     {
         RSPConnectionPtr connection = *i;
         connection = 0;
@@ -146,7 +146,7 @@ void RSPConnection::close()
     _connection = 0;
 
     for( std::vector< DataReceive* >::iterator i = _buffer.begin(); 
-         i < _buffer.end(); i++ )
+         i < _buffer.end(); ++i )
     {
         DataReceive* buffer = *i;
         buffer->reset();
@@ -164,7 +164,7 @@ RSPConnection::~RSPConnection()
     _recvBuffer = 0;
 
     for( std::vector< DataReceive* >::iterator i = _buffer.begin(); 
-         i < _buffer.end(); i++ )
+         i < _buffer.end(); ++i )
     {
         DataReceive* buffer = *i;
         delete buffer;
@@ -264,12 +264,12 @@ bool RSPConnection::listen()
     _bufReadNack.resize( _connection->getMTU( ));
 
     // waits until RSP protocol establishes connection to the multicast network
-    if( !_thread->start( ))
+    if( !_initReadThread())
     {
         close();
         return false;
     }
-
+    _thread->start( );
     _state = STATE_LISTENING;
     _fireStateChanged();
 
@@ -326,7 +326,7 @@ ConnectionPtr RSPConnection::acceptSync()
 
 #endif     
 
-    _countAcceptChildren++;
+    ++_countAcceptChildren;
 
     const DatagramCountConnection countNode = 
                         { COUNTNODE, _id, _children.size() };
@@ -376,7 +376,7 @@ bool RSPConnection::_initReadThread()
         switch ( _connectionSet.select( 100 ) )
         {
             case ConnectionSet::EVENT_TIMEOUT:
-                _countTimeOut++;
+                ++_countTimeOut;
                 if ( _countTimeOut < 10 )
                 {
                     
@@ -388,9 +388,6 @@ bool RSPConnection::_initReadThread()
                     const DatagramNode confirmNode ={ ID_CONFIRM, _id };
                     _connection->write( &confirmNode, sizeof( DatagramNode ) );
                     _addNewConnection( _id );
-                    _connectionSet.removeConnection( _connection.get() );
-                    _connection->setMulticastLoop( true );
-                    _connectionSet.addConnection( _connection.get() );
                 }
                 else if ( _countTimeOut >= 40 )
                     return true;
@@ -502,7 +499,7 @@ void RSPConnection::_runReadThread()
         case ConnectionSet::EVENT_TIMEOUT:
         {
 #ifdef EQ_INSTRUMENT_RSP
-            nTimeOut++;
+            ++nTimeOut;
 #endif
 
             for ( std::vector< RSPConnectionPtr >::iterator i = 
@@ -512,7 +509,7 @@ void RSPConnection::_runReadThread()
                 if ( connection->_ackReceive )
                     continue;
 
-                connection->_countTimeOut++;
+                ++connection->_countTimeOut;
                 // a lot of more time out
                  if ( connection->_countTimeOut >= 250 )
                 {
@@ -524,7 +521,7 @@ void RSPConnection::_runReadThread()
                 if ( connection->_countTimeOut % 40 == 0)
                 {
 #ifdef EQ_INSTRUMENT_RSP
-                     nTimeOutRepeat++;
+                     ++nTimeOutRepeat;
 #endif
                      _sendAckRequest();
 
@@ -696,7 +693,7 @@ bool RSPConnection::_handleData( )
 bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
 {
 #ifdef EQ_INSTRUMENT_RSP
-    nReadData++;
+    ++nReadData;
 #endif
     const uint32_t writerID = datagram->writeSeqID >> ( sizeof( ID ) * 8 );
     const uint32_t sequenceID = datagram->writeSeqID  & 0xFFFF;
@@ -780,14 +777,15 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
         return true;
 
 #ifdef EQ_INSTRUMENT_RSP
-    nReadDataAccepted++;
+    ++nReadDataAccepted;
 #endif
     
     const uint16_t length = datagram->dataIDlength & 0xFFFF ; 
     const uint8_t* data = reinterpret_cast< const uint8_t* >( ++datagram );
     receive->got[ index ] = true;
     const uint64_t pos = ( index ) * ( _mtu - sizeof( DatagramData ));
-    
+    if ( ( index * _payloadSize + length ) > receive->data.getSize() )
+        receive->data.resize( index * _payloadSize + length );
     EQASSERT( ( index * _payloadSize + length ) <= receive->data.getSize( ));
     memcpy( receive->data.getData() + pos, data, length );
 
@@ -821,7 +819,7 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
 bool RSPConnection::_handleAck( const DatagramAck* ack )
 {
 #ifdef EQ_INSTRUMENT_RSP
-    nReceiveAck++;
+    ++nReceiveAck;
 #endif
     EQLOG( net::LOG_RSP ) << "Receive Ack from " << ack->writerID << std::endl
                           << " for sequence ID " << ack->sequenceID << std::endl
@@ -850,10 +848,10 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     if ( connection->_ackReceive )
         return true;
 #ifdef EQ_INSTRUMENT_RSP
-    nAcceptedAck++;
+    ++nAcceptedAck;
 #endif
     connection->_ackReceive = true;
-    _countNbAckInWrite++;
+    ++_countNbAckInWrite;
 
     if ( _countNbAckInWrite != _children.size() )
         return true;
@@ -914,7 +912,7 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
 #endif
 
     EQLOG( net::LOG_RSP ) << "repeat datagram data" << std::endl;
-    
+
     const uint16_t count = nack->count;
     ++nack;
 
@@ -984,7 +982,8 @@ bool RSPConnection::_handleAckRequest(
     // find all lost datagrams
     EQASSERT( ackRequest->lastDatagramID < receive->got.getSize( ));
     eq::base::Buffer< uint32_t > bufferRepeatID;
-    for ( uint32_t i = 0; i < receive->got.getSize(); i++)
+
+    for ( uint32_t i = 0; i < ackRequest->lastDatagramID; i++)
     {
         // size max datagram = mtu
         if ( _maxNAck <= bufferRepeatID.getSize() )
@@ -997,8 +996,8 @@ bool RSPConnection::_handleAckRequest(
         
         const uint32_t start = i << 16;
         
-        uint32_t end = receive->got.getSize()-1;
-
+        uint32_t end = ackRequest->lastDatagramID;
+        
         // OPT: Send all NACK packets at once
         for( ; i < receive->got.getSize(); i++ )
         {
@@ -1054,7 +1053,7 @@ bool RSPConnection::_handleAckRequest(
     _sendAck( connection->_writerID, receive->sequenceID );
 
 #ifdef EQ_INSTRUMENT_RSP
-    nSendAck++;
+    ++nSendAck;
 #endif
 
     connection->_lastSequenceIDAck = receive->sequenceID;
@@ -1116,7 +1115,7 @@ RSPConnection::DataReceive* RSPConnection::_findReceiverWithSequenceID(
 RSPConnection::RSPConnectionPtr RSPConnection::_findConnectionWithWriterID( 
                                     const ID writerID )
 {
-    for ( uint32_t i = 0 ; i < _children.size(); i++ )
+    for ( uint32_t i = 0 ; i < _children.size(); ++i )
     {
         if ( _children[i]->_writerID == writerID )
             return _children[i];
@@ -1165,7 +1164,7 @@ bool RSPConnection::_acceptRemoveConnection( const ID id )
     }
 
     for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin(); 
-          i != _children.end(); i++ )
+          i != _children.end(); ++i )
     {
         RSPConnectionPtr child = *i;
         if ( child->_writerID == id )
@@ -1206,7 +1205,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     _countNbAckInWrite = 0;
 
     _errorFound = 0;
-    _sequenceIDWrite ++;
+    ++_sequenceIDWrite;
     _dataSend = reinterpret_cast< const char* >( buffer );
     _lengthDataSend = size;
     _numberDatagram = size  / _payloadSize;
@@ -1246,7 +1245,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     _sendAckRequest();
 
 #ifdef EQ_INSTRUMENT_RSP
-    nSendAckRequest++;
+    ++nSendAckRequest;
     base::Clock clockAck;
     clockAck.reset();
 #endif
@@ -1348,7 +1347,13 @@ void RSPConnection::_sendNackDatagram ( const ID  toWriterID,
          return ;
     }
 
-    uint8_t buffer[ _mtu ];
+#ifdef WIN32
+    uint8_t buffer[ 65000 ];
+#else
+    uint8_t buffer[ 1470 ];
+#endif
+
+    
 
     // set the header
     DatagramNack* header = reinterpret_cast< DatagramNack* >( buffer );
@@ -1372,7 +1377,7 @@ void RSPConnection::_sendDatagram( const uint32_t writeSeqID,
 {
 
 #ifdef EQ_INSTRUMENT_RSP
-    nWriteTotal++;
+    ++nWriteTotal;
 #endif
     const uint32_t posInData = _payloadSize * idDatagram;
     uint16_t lengthData;
@@ -1398,19 +1403,25 @@ void RSPConnection::_sendDatagram( const uint32_t writeSeqID,
     memcpy( ++header, data, lengthData );
 
     // send Data
+    _handleDataDatagram( 
+           reinterpret_cast< DatagramData* >(_sendBuffer.getData() ));
     _connection->write ( _sendBuffer.getData(), _sendBuffer.getSize() );
+    
+
 }
 
 void RSPConnection::_sendAckRequest()
 {
 
 #ifdef EQ_INSTRUMENT_RSP
-    nSendAckRequestTotal++;
+    ++nSendAckRequestTotal;
 #endif
     
      const DatagramAckRequest ackRequest = { ACKREQ, _id, _numberDatagram -1, 
                                             _sequenceIDWrite };
     _connection->write( &ackRequest, sizeof( DatagramAckRequest ) );
+    _handleAckRequest( &ackRequest );
+
 }
 
 std::ostream& operator << ( std::ostream& os,
@@ -1446,4 +1457,3 @@ std::ostream& operator << ( std::ostream& os,
 
 }
 }
-

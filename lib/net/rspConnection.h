@@ -182,11 +182,11 @@ namespace net
         /* managing RSP protocole directly on the udp connection */
         class Thread : public eq::base::Thread
         {
-        public:
+        public: 
             Thread( RSPConnectionPtr connection )
                 : _connection( connection ){}
             virtual ~Thread(){ _connection = 0; }
-            virtual bool init(){ return _connection->_initReadThread(); }
+        //    virtual bool init(){ return _connection->_initReadThread(); }
         protected:
             
             virtual void* run();
