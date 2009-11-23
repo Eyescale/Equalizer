@@ -406,6 +406,10 @@ eq::Vector2f Channel::_getJitter() const
     float value_j = rng.get< float >() * subpixel_h
                     + static_cast<float>( jitterStep.y( )) * subpixel_h;
 
+    const eq::Pixel& pixel = getPixel();
+    value_i /= static_cast<float>( pixel.w );
+    value_j /= static_cast<float>( pixel.h );
+
     return eq::Vector2f( value_i, value_j );
 }
 
