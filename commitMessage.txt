@@ -1,9 +1,9 @@
-Compressor code cleanup
+Add packet sequencing test in netperf
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

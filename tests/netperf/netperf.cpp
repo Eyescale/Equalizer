@@ -39,7 +39,6 @@
 #include <iostream>
 
 using namespace eq::net;
-using namespace std;
 
 namespace
 {
@@ -53,6 +52,7 @@ public:
             : _connection( connection )
             , _mBytesSec( packetSize / 1024.f / 1024.f * 1000.f )
             , _nSamples( 0 )
+            , _lastPacket( 0 )
         { 
             _buffer.resize( packetSize );
             connection->recvNB( _buffer.getData(), _buffer.getSize() );
@@ -64,12 +64,17 @@ public:
         {
             if( !_connection->recvSync( 0, 0 ))
                 return false;
-            uint32_t num = _buffer.getData()[0];
+
+            const uint8_t packet = _buffer.getData()[0];
+            TEST( _lastPacket == 0 || _lastPacket - 1 == packet );
+            _lastPacket = packet;
+
             _connection->recvNB( _buffer.getData(), _buffer.getSize() );
             const float time = _clock.getTimef();
             ++_nSamples;
 
-            const size_t probe = 1 + (_rng.get< size_t >() % (_buffer.getSize( )-1));
+            const size_t probe = (_rng.get< size_t >() % (_buffer.getSize( )-1))
+                                  + 1;
             TESTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
                       (int)_buffer[probe] << " != " << (probe&0xff) );
 
@@ -80,9 +85,9 @@ public:
             eq::net::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
             const eq::base::ScopedMutex mutex( _mutexPrint );
-            cerr << num << " Recv perf: " << _mBytesSec / time * _nSamples 
-                 << "MB/s (" << _nSamples / time * 1000.f  << "pps) from "
-                 << desc.get() << endl;
+            std::cerr << "Recv perf: " << _mBytesSec / time * _nSamples
+                      << "MB/s (" << _nSamples / time * 1000.f  << "pps) from "
+                      << desc.get() << std::endl;
             _nSamples = 0;
             return true;
         }
@@ -107,7 +112,7 @@ public:
             {
                 if( !readPacket( )) // dead connection
                 {
-                    cerr << --_nClients << " clients" << endl;
+                    std::cerr << --_nClients << " clients" << std::endl;
                     _connectionSet.interrupt();
                     _connection = 0;
                     return EXIT_SUCCESS;
@@ -130,6 +135,7 @@ private:
     const float _mBytesSec;
     size_t      _nSamples;
     size_t      _packetSize;
+    uint8_t    _lastPacket;
 };
 
 
@@ -196,7 +202,7 @@ public:
                             _receivers.back().first->start();
 
                         _connectionSet.addConnection( newConn );
-                        cerr << ++_nClients << " clients" << endl;
+                        std::cerr << ++_nClients << " clients" << std::endl;
                         break;
 
                     case ConnectionSet::EVENT_DATA:  // new data
@@ -204,7 +210,7 @@ public:
                         resultConn = _connectionSet.getConnection();
 
                         Receiver* receiver = 0;
-                        vector< RecvConn >::iterator i;
+                        std::vector< RecvConn >::iterator i;
                         for( i = _receivers.begin(); i != _receivers.end(); ++i)
                         {
                             const RecvConn& candidate = *i;
@@ -227,7 +233,7 @@ public:
                             _connectionSet.removeConnection( resultConn );
                             delete receiver;
                             _receivers.erase( i );
-                            cerr << --_nClients << " clients" << endl;
+                            std::cerr << --_nClients << " clients" << std::endl;
                         }
                         break;
                     }
@@ -236,8 +242,8 @@ public:
                         resultConn = _connectionSet.getConnection();
                         _connectionSet.removeConnection( resultConn );
 
-                        for( vector< RecvConn >::iterator i =_receivers.begin();
-                             i != _receivers.end(); ++i )
+                        for( std::vector< RecvConn >::iterator i =
+                                 _receivers.begin(); i !=_receivers.end(); ++i )
                         {
                             const RecvConn& candidate = *i;
                             if( candidate.second == resultConn )
@@ -254,7 +260,7 @@ public:
                             }
                         }
 
-                        cerr << --_nClients << " clients" << endl;
+                        std::cerr << --_nClients << " clients" << std::endl;
                         break;
 
                     case ConnectionSet::EVENT_INTERRUPT:
@@ -269,10 +275,11 @@ public:
             _connectionSet.clear();
             return EXIT_SUCCESS;
         }
+
 private:
     typedef std::pair< Receiver*, ConnectionPtr > RecvConn;
     ConnectionPtr    _connection;
-    vector< RecvConn > _receivers;
+    std::vector< RecvConn > _receivers;
     size_t _packetSize;
     bool _useThreads;
     eq::base::Bufferb _buffer;
@@ -298,10 +305,12 @@ int main( int argc, char **argv )
     try // command line parsing
     {
         TCLAP::CmdLine command( "netPerf - Equalizer network benchmark tool\n");
-        TCLAP::ValueArg<string> clientArg( "c", "client", "run as client", 
-                                           true, "", "IP[:port]" );
-        TCLAP::ValueArg<string> serverArg( "s", "server", "run as server", 
-                                           true, "", "IP[:port]" );
+        TCLAP::ValueArg< std::string > clientArg( "c", "client",
+                                                  "run as client", true, "",
+                                                  "IP[:port][:protocol]" );
+        TCLAP::ValueArg< std::string > serverArg( "s", "server",
+                                                  "run as server", true, "",
+                                                  "IP[:port][:protocol]" );
         TCLAP::SwitchArg threadedArg( "t", "threaded", 
                           "Run each receive in a separate thread (server only)",
                                       command, false );
@@ -339,7 +348,7 @@ int main( int argc, char **argv )
     catch( TCLAP::ArgException& exception )
     {
         EQERROR << "Command line parse error: " << exception.error() 
-                << " for argument " << exception.argId() << endl;
+                << " for argument " << exception.argId() << std::endl;
 
         eq::net::exit();
         return EXIT_FAILURE;
@@ -377,9 +386,9 @@ int main( int argc, char **argv )
             {
                 const eq::base::ScopedMutex mutex( _mutexPrint );
                 const size_t nSamples = lastOutput - nPackets;
-                cerr << static_cast<uint32_t>( nPackets ) 
-                     << " Send perf: " << mBytesSec / time * nSamples 
-                     << "MB/s (" << nSamples / time * 1000.f  << "pps)" << endl;
+                std::cerr << "Send perf: " << mBytesSec / time * nSamples 
+                          << "MB/s (" << nSamples / time * 1000.f  << "pps)"
+                          << std::endl;
 
                 lastOutput = nPackets;
                 clock.reset();
@@ -392,8 +401,9 @@ int main( int argc, char **argv )
         if( nSamples != 0 )
         {
             const eq::base::ScopedMutex mutex( _mutexPrint );
-            cerr << "Send perf: " << mBytesSec / time * nSamples 
-                 << "MB/s (" << nSamples / time * 1000.f  << "pps)" << endl;
+            std::cerr << "Send perf: " << mBytesSec / time * nSamples 
+                      << "MB/s (" << nSamples / time * 1000.f  << "pps)"
+                      << std::endl;
         }
     }
     else
