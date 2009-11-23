@@ -359,7 +359,7 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
     	        accum->accum();
             count += subCount;
         }
-    	if( count > 0 )
+    	if( count > 1 )
     	    accum->display();
         return count;
     }
@@ -1004,6 +1004,8 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
     else
         EQWARN << "Don't know how to assemble using buffers " 
                << operation.buffers << endl;
+
+    clearStencilBuffer( operation );
 }
 
 void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
@@ -1024,7 +1026,7 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     glDepthMask( false );
     glColorMask( false, false, false, false );
     
-    const PixelViewport& pvp    = image->getPixelViewport();
+    const PixelViewport& pvp = image->getPixelViewport();
 
     glPixelZoom( static_cast< float >( op.pixel.w ),
                  static_cast< float >( op.pixel.h ));
@@ -1085,6 +1087,15 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     const ColorMask& colorMask = op.channel->getDrawBufferMask();
     glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
     glDepthMask( true );
+}
+
+void Compositor::clearStencilBuffer( const ImageOp& op )
+{
+    if( op.pixel == Pixel::ALL )
+        return;
+
+    glPixelZoom( 1.f, 1.f );
+    glDisable( GL_STENCIL_TEST );
 }
 
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )

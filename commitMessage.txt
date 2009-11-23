@@ -1,9 +1,9 @@
-Fix POSIX build, dos2unix
+Fix Pixel+Subpixel compositing
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

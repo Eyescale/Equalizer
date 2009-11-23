@@ -164,6 +164,13 @@ namespace eq
         static void setupStencilBuffer( const Image* image, 
                                         const ImageOp& operation );
 
+        /** 
+         * Clear the stencil buffer after a pixel compound recomposition.
+         * 
+         * @param operation the assembly parameters.
+         */
+        static void clearStencilBuffer( const ImageOp& operation );
+
         /** Start a tile-based assembly of the image color attachment. */
         static void assembleImage2D( const Image* image, const ImageOp& op );
         /** Start a Z-based assembly of the image color and depth attachment. */
