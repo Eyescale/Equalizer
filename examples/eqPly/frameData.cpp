@@ -67,6 +67,9 @@ void FrameData::deserialize( eq::net::DataIStream& is,
 
 void FrameData::setModelID( const uint32_t id )
 {
+    if( _modelID == id )
+        return;
+
     _modelID = id;
     setDirty( DIRTY_FLAGS );
 }
@@ -85,6 +88,9 @@ void FrameData::setRenderMode( const mesh::RenderMode mode )
 
 void FrameData::setIdle( const bool idleMode )
 {
+    if( _idleMode == idleMode )
+        return;
+
     _idleMode = idleMode;
     setDirty( DIRTY_FLAGS );
 }

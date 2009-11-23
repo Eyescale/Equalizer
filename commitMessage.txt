@@ -1,13 +1,9 @@
-RSP Cleanups [untested]:
-- Restructure static config variables (fixes potential array bounds write)
-- use byte buffer: simplifies code, avoids potential ABW
-- use 16bit counter for nacks (potential ABW)
-- replaced unnecessary buffer resizes with asserts
+Minor opt in eqPly::FrameData serialization
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[x] Cleanup
-[ ] Optimization
+[ ] Cleanup
+[x] Optimization
 [ ] Documentation
