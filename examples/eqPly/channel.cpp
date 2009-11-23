@@ -101,7 +101,7 @@ bool Channel::configExit()
 
 void Channel::frameClear( const uint32_t frameID )
 {
-    if( _hasFinishFrames( ))
+    if( _isDone( ))
         return;
 
     EQ_GL_CALL( applyBuffer( ));
@@ -128,7 +128,7 @@ void Channel::frameClear( const uint32_t frameID )
 
 void Channel::frameDraw( const uint32_t frameID )
 {
-    if( _hasFinishFrames( ))
+    if( _isDone( ))
         return;
 
     const Model* model = _getModel();
@@ -187,7 +187,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
-    if( _hasFinishFrames( ))
+    if( _isDone( ))
         return;
 
     if( getPixelViewport() != _currentPVP )
@@ -237,7 +237,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 
 void Channel::frameReadback( const uint32_t frameID )
 {
-    if( _hasFinishFrames( ))
+    if( _isDone( ))
         return;
 
     // OPT: Drop alpha channel from all frames during network transport
@@ -319,7 +319,7 @@ void Channel::frameViewFinish( const uint32_t frameID )
     {
         setupAssemblyState();
 
-        if( !_hasFinishFrames( ))
+        if( !_isDone( ))
             _accum->accum();
         _accum->display();
 
@@ -372,8 +372,12 @@ const FrameData& Channel::_getFrameData() const
     return pipe->getFrameData();
 }
 
-bool Channel::_hasFinishFrames() const
+bool Channel::_isDone() const
 {
+    const FrameData& frameData = _getFrameData();
+    if( !frameData.isIdle( ))
+        return false;
+
     const eq::SubPixel& subpixel = getSubPixel();
     return subpixel.index >= _jitterStep;
 }

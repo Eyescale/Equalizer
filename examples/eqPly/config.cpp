@@ -84,7 +84,7 @@ bool Config::init()
     if( !_initData.getTrackerPort().empty( ))
     {
         if( !_tracker.init( _initData.getTrackerPort() ))
-            EQWARN << "Failed to initialise tracker" << std::endl;
+            EQWARN << "Failed to initialize tracker" << std::endl;
         else
         {
             // Set up position of tracking system wrt world space
