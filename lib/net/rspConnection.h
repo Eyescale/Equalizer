@@ -221,9 +221,11 @@ namespace net
         void _initAIORead();
         void _exitAIORead();
 
-        // for read one datagram from udp Connection
-        eq::base::Bufferb _bufRead;
-        eq::base::Bufferb _bufReadNack;
+        // Buffer for one datagram from our UDP connection
+        eq::base::Bufferb _readBuffer;
+
+        // Buffer to send one NACK packet.
+        eq::base::Bufferb _nackBuffer;
 
         // a link for all connection in the multicast network 
         std::vector< RSPConnectionPtr > _children;
