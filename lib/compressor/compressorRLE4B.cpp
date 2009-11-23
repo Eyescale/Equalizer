@@ -158,17 +158,17 @@ void CompressorRLE4B::compress( const void* const inData,
     if( useAlpha )
         if( swizzle )
             _nResults = _compress< uint32_t, uint8_t, SwizzleUInt32, UseAlpha >(
-                            inData, nPixels, useAlpha, swizzle, _results );
+                            inData, nPixels, _results );
         else
             _nResults = _compress< uint32_t, uint8_t, NoSwizzle, UseAlpha >(
-                            inData, nPixels, useAlpha, swizzle, _results );
+                            inData, nPixels, _results );
     else
         if( swizzle )
             _nResults = _compress< uint32_t, uint8_t, SwizzleUInt24, NoAlpha >(
-                            inData, nPixels, useAlpha, swizzle, _results );
+                            inData, nPixels, _results );
         else
             _nResults = _compress< uint32_t, uint8_t, NoSwizzle, NoAlpha >(
-                            inData, nPixels, useAlpha, swizzle, _results );
+                            inData, nPixels, _results );
 }
 
 void CompressorRLE4B::decompress( const void* const* inData, 

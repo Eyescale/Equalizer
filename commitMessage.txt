@@ -1,9 +1,9 @@
-Make object serialization buffer size configurable and raise default to 64k.
+Compressor code cleanup
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

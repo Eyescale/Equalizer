@@ -271,9 +271,8 @@ static size_t _setupResults( const uint32_t nChannels, const eq_uint64_t inSize,
 
 template< typename PixelType, typename ComponentType,
           typename swizzleFunc, typename alphaFunc >
-static inline size_t _compress( const void* const inData, 
-                                const eq_uint64_t nPixels, const bool useAlpha,
-                                const bool swizzle, 
+static inline size_t _compress( const void* const inData,
+                                const eq_uint64_t nPixels,
                                 eq::plugin::Compressor::ResultVector& results )
 {
     const uint64_t size = nPixels * sizeof( PixelType );
