@@ -101,7 +101,7 @@ bool Channel::configExit()
 
 void Channel::frameClear( const uint32_t frameID )
 {
-    if( _accum->isFull( ))
+    if( _hasFinishFrames( ))
         return;
 
     EQ_GL_CALL( applyBuffer( ));
@@ -128,7 +128,7 @@ void Channel::frameClear( const uint32_t frameID )
 
 void Channel::frameDraw( const uint32_t frameID )
 {
-    if( _accum->isFull( ))
+    if( _hasFinishFrames( ))
         return;
 
     const Model* model = _getModel();
@@ -187,7 +187,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
-    if( _accum->isFull( ))
+    if( _hasFinishFrames( ))
         return;
 
     if( getPixelViewport() != _currentPVP )
@@ -237,7 +237,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 
 void Channel::frameReadback( const uint32_t frameID )
 {
-    if( _accum->isFull( ))
+    if( _hasFinishFrames( ))
         return;
 
     // OPT: Drop alpha channel from all frames during network transport
@@ -257,7 +257,7 @@ void Channel::frameStart( const uint32_t frameID,
     const FrameData& frameData = _getFrameData();
 
     // ready for the next FSAA
-    if( !frameData.isIdle( ))
+    if( !frameData.isIdle() || _jitterStep == _totalSteps )
     {
         _accum->clear();
         _jitterStep = _totalSteps;
@@ -319,7 +319,7 @@ void Channel::frameViewFinish( const uint32_t frameID )
     {
         setupAssemblyState();
 
-        if( !_accum->isFull( ))
+        if( !_hasFinishFrames( ))
             _accum->accum();
         _accum->display();
 
@@ -370,6 +370,12 @@ const FrameData& Channel::_getFrameData() const
 {
     const Pipe* pipe = static_cast<const Pipe*>( getPipe( ));
     return pipe->getFrameData();
+}
+
+bool Channel::_hasFinishFrames() const
+{
+    const eq::SubPixel& subpixel = getSubPixel();
+    return subpixel.index >= _jitterStep;
 }
 
 eq::Vector2f Channel::_getJitter() const

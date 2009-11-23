@@ -114,13 +114,6 @@ namespace eq
          */
         EQ_EXPORT bool usesFBO() const;
 
-        /**
-         * Tests if the accum buffer has received all contributions.
-         * 
-         * @return true if NumSteps is greater or equal than TotalSteps.
-         */
-        EQ_EXPORT bool isFull() const;
-
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
 

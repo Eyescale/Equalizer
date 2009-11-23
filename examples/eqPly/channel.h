@@ -79,6 +79,7 @@ namespace eqPly
                            const mesh::BoundingSphere& boundingSphere );
 
         bool _configInitAccumBuffer();
+        bool _hasFinishFrames() const;
 
         const int32_t _getSampleSize() const
             { return ( getWindow()->getDrawableConfig().accumBits >= 64 ) ? 16 : 0; }

@@ -99,7 +99,7 @@ bool Accum::resize( const int width, const int height )
 
 void Accum::accum()
 {
-    //EQASSERT( _numSteps < _totalSteps );
+    EQASSERT( _numSteps <= _totalSteps );
 
     /**
      * This is the only working implementation on MacOS found at the moment.
@@ -133,6 +133,8 @@ void Accum::accum()
 
 void Accum::display()
 {
+    EQASSERT( _numSteps <= _totalSteps );
+
     const float factor = 1.0f/_numSteps;
 
     if( _abo )
@@ -166,11 +168,6 @@ bool Accum::usesFBO() const
     return ( GLEW_EXT_framebuffer_object &&
            ( GLEW_VERSION_3_0 || GLEW_ARB_texture_float ));
 #endif
-}
-
-bool Accum::isFull() const
-{
-    return _numSteps >= _totalSteps;
 }
 
 }
