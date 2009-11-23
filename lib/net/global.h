@@ -65,9 +65,25 @@ namespace net
         /** @return the default listening port. */
         static uint16_t getDefaultPort() { return _defaultPort; }
 
+        /** 
+         * Set the minimum buffer size for Object serialization.
+         *
+         * The buffer size is used during serialization. When a DataOStream has
+         * buffered at least size bytes, the data is send to the slave
+         * nodes. The default is 64 kilobytes.
+         *
+         * @param size the treshold before the DataOStream sends a buffer.
+         */
+        static void setObjectBufferSize( const uint32_t size )
+            { _objectBufferSize = size; }
+
+        /** @return the minimum buffer size for Object serialization. */
+        static uint32_t getObjectBufferSize() { return  _objectBufferSize; }
+
     private:
         static std::string _programName;
         static std::string _workDir;
+        static uint32_t    _objectBufferSize;
         static uint16_t    _defaultPort;
     };
 }

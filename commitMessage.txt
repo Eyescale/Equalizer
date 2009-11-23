@@ -1,9 +1,9 @@
-minor compositor code cleanups
+Make object serialization buffer size configurable and raise default to 64k.
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

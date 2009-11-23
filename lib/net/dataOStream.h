@@ -131,8 +131,6 @@ namespace DataStreamTest
         base::Bufferb  _buffer;
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
-        /** The threshold for the buffer to flush */
-        static uint64_t _highWaterMark;
         
         /** The output stream is enabled for writing */
         bool _enabled;

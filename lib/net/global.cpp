@@ -22,9 +22,29 @@ namespace eq
 namespace net
 {
 
+namespace
+{
+static uint32_t _getObjectBufferSize()
+{
+    const char* env = getenv( "EQ_NET_OBJECT_BUFFER_SIZE" );
+    if( !env )
+        return EQ_64KB;
+
+    const int64_t size = atoi( env );
+    if( size > 0 )
+        return size;
+
+    return EQ_64KB;
+}
+
+}
+
+
 std::string Global::_programName;
 std::string Global::_workDir;
 uint16_t    Global::_defaultPort = 0;
+uint32_t    Global::_objectBufferSize = _getObjectBufferSize();
+
 
 void Global::setProgramName( const std::string& programName )
 {

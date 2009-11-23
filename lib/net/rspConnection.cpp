@@ -449,6 +449,7 @@ bool RSPConnection::_handleInitData()
 
     case ID_CONFIRM:
         return _addNewConnection( node->connectionID );
+
     case COUNTNODE:
     {
 
@@ -1209,7 +1210,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     nWriteByte += bytes;
 #endif
     
-    const uint32_t size =   EQ_MIN( bytes, _maxBuffer );
+    const uint32_t size = EQ_MIN( bytes, _maxBuffer );
     const base::ScopedMutex mutex( _mutexConnection );
 
     _writing = 1;
@@ -1232,10 +1233,10 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
                           << "number datagram " << _numberDatagram << std::endl;
 
     // send each datagram
-    for ( uint16_t i = 0; i < _numberDatagram; i++ )
+    for ( uint16_t i = 0; i < _numberDatagram; ++i )
     {
 #ifdef EQ_INSTRUMENT_RSP
-         nWrite++;
+        ++nWrite;
 #endif
         _sendDatagram( writSeqID, i );
     }
@@ -1287,7 +1288,7 @@ void RSPConnection::_repeatDatagram( )
 
         if( repeat.start <= repeat.end )
         {
-            for ( uint8_t j = repeat.start; j <= repeat.end; j++ )
+            for ( uint8_t j = repeat.start; j <= repeat.end; ++j )
                 _sendDatagram( writeSeqID, j );
 
             if ( _repeatQueue.isEmpty() )
@@ -1375,7 +1376,7 @@ void RSPConnection::_sendNackDatagram ( const ID  toWriterID,
                          sizeof( DatagramNack ) );
 }
 
-void RSPConnection::_sendDatagram( const uint32_t writSeqID, 
+void RSPConnection::_sendDatagram( const uint32_t writeSeqID, 
                                    const uint16_t idDatagram )
 {
 
@@ -1399,8 +1400,9 @@ void RSPConnection::_sendDatagram( const uint32_t writSeqID,
     // set the header
     DatagramData* header = reinterpret_cast< DatagramData* >
                                                 ( _sendBuffer.getData() );
-    DatagramData headerInit = { DATA, writSeqID, dataIDlength };
-    *header = headerInit;
+    header->type = DATA;
+    header->writeSeqID = writeSeqID;
+    header->dataIDlength = dataIDlength;
 
     memcpy( ++header, data, lengthData );
 

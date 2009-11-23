@@ -17,8 +17,9 @@
 
 #include "dataOStream.h"
 
-#include "node.h"
+#include "global.h"
 #include "log.h"
+#include "node.h"
 #include "types.h"
 
 using namespace eq::base;
@@ -27,8 +28,6 @@ namespace eq
 {
 namespace net
 {
-
-uint64_t DataOStream::_highWaterMark = 4096;
 
 DataOStream::DataOStream()
         : _bufferStart( 0 )
@@ -194,7 +193,7 @@ void DataOStream::write( const void* data, uint64_t size )
         return;
     }
 
-    if( _buffer.getSize() - _bufferStart > _highWaterMark )
+    if( _buffer.getSize() - _bufferStart > Global::getObjectBufferSize( ))
         flush();
 }
 
