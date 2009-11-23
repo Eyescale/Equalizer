@@ -44,6 +44,9 @@ LoadEqualizer::LoadEqualizer()
         : _mode( MODE_2D )
         , _damping( .5f )
         , _tree( 0 )
+        , _boundary2i( 1, 1 )
+        , _boundaryf( std::numeric_limits<float>::epsilon() )
+
 {
     EQINFO << "New LoadEqualizer @" << (void*)this << endl;
 }

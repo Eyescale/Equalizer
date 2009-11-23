@@ -73,6 +73,19 @@ namespace server
                                      const uint32_t frameNumber, 
                                      const uint32_t nStatistics,
                                      const eq::Statistic* statistics );
+                                     
+        /** Set the boundary integer range value.  */
+        void LoadEqualizer::setBoundary( const Vector2i& boundary )
+            { _boundary2i = boundary; }
+        /** Set the boundary float value.  */
+        void LoadEqualizer::setBoundary( const float boundary )
+            { _boundaryf = boundary; }
+
+        /** @return the boundary integer range value. */
+        const Vector2i& LoadEqualizer::getBoundary2i() const
+            { return _boundary2i; }
+        /** @return the boundary float value. */
+        float LoadEqualizer::getBoundaryf() const { return _boundaryf; }
 
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )
@@ -118,6 +131,10 @@ namespace server
         typedef std::pair< uint32_t,  LBDataVector > LBFrameData;
         
         std::deque< LBFrameData > _history;
+
+        Vector2i _boundary2i;  // default: 1 1
+        float    _boundaryf;   // default: numeric_limits<float>::epsilon
+
         
         //-------------------- Methods --------------------
         /** @return true if we have a valid LB tree */
