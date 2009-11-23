@@ -98,7 +98,7 @@ namespace net
             ID    readerID;    // ID of the connection reader
             ID    writerID;    // ID of the connection writer
             IDSequenceType      sequenceID;  // last datagram in write sequence
-            uint8_t             countRepeatID; // number of delta repeat
+            uint16_t            count; // number of NACK requests
         };
 
         struct DatagramAck
@@ -124,8 +124,8 @@ namespace net
             eq::base::Monitor< bool >  ackSend;
             eq::base::Monitor< bool >  allRead;
             uint64_t    posRead;
-            base::Buffer< bool > boolBuffer;
-            base::Bufferb dataBuffer;
+            base::Bufferb got;
+            base::Bufferb data;
         };
 
         struct WriteDatagramData

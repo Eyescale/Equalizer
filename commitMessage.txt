@@ -1,9 +1,13 @@
-Add packet sequencing test in netperf
+RSP Cleanups [untested]:
+- Restructure static config variables (fixes potential array bounds write)
+- use byte buffer: simplifies code, avoids potential ABW
+- use 16bit counter for nacks (potential ABW)
+- replaced unnecessary buffer resizes with asserts
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
