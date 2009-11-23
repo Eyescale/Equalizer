@@ -796,6 +796,10 @@ Vector2f Channel::getJitter() const
     else
         jitter = table[ subpixel.index ];
 
+    const Pixel& pixel = getPixel();
+    jitter.x() /= static_cast<float>( pixel.w );
+    jitter.y() /= static_cast<float>( pixel.h );
+
     return jitter * pixelSize;
 }
 
