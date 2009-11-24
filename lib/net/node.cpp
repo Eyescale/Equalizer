@@ -1959,10 +1959,7 @@ CommandResult Node::_cmdID( Command& command )
                    << connection << std::endl;
         }
         else
-        {
             node = i->second;
-            EQASSERT( node->isConnected( ));
-        }
     }
     EQASSERT( node.isValid( ));
     EQASSERTINFO( node->_id == nodeID, node->_id << "!=" << nodeID );
