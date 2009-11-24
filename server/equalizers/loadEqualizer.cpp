@@ -24,9 +24,6 @@
 #include <eq/client/server.h>
 #include <eq/base/debug.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace server
@@ -45,10 +42,10 @@ LoadEqualizer::LoadEqualizer()
         , _damping( .5f )
         , _tree( 0 )
         , _boundary2i( 1, 1 )
-        , _boundaryf( numeric_limits<float>::epsilon() )
+        , _boundaryf( std::numeric_limits<float>::epsilon() )
 
 {
-    EQINFO << "New LoadEqualizer @" << (void*)this << endl;
+    EQINFO << "New LoadEqualizer @" << (void*)this << std::endl;
 }
 
 LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
@@ -159,7 +156,7 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                                     const uint32_t nStatistics,
                                     const eq::Statistic* statistics )
 {
-    for( deque< LBFrameData >::iterator i = _history.begin();
+    for( std::deque< LBFrameData >::iterator i = _history.begin();
          i != _history.end(); ++i )
     {
         LBFrameData& frameData = *i;
@@ -182,7 +179,7 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                 return;
 
             // gather relevant load data
-            int64_t startTime = numeric_limits< int64_t >::max();
+            int64_t startTime = std::numeric_limits< int64_t >::max();
             int64_t endTime   = 0;
             bool    loadSet   = false;
 
@@ -212,7 +209,7 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                 }
             }
     
-            if( startTime == numeric_limits< int64_t >::max( ))
+            if( startTime == std::numeric_limits< int64_t >::max( ))
                 return;
     
             data.time = endTime - startTime;
@@ -336,7 +333,7 @@ void LoadEqualizer::_computeSplit()
     const float timeLeft = static_cast< float >( totalTime ) /
                            static_cast< float >( nResources );
     EQLOG( LOG_LB2 ) << "Render time " << totalTime << ", per resource "
-                    << timeLeft << ", " << nResources << " resources" << endl;
+                    << timeLeft << ", " << nResources << " resources" << std::endl;
 
     const float leftover = _assignTargetTimes( _tree, 
                                                static_cast<float>( totalTime ),
@@ -394,7 +391,7 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
     node->usage = node->left->usage + node->right->usage;
     
     EQLOG( LOG_LB2 ) << "Node time " << node->time << ", left " << timeLeft
-                    << endl;
+                    << std::endl;
     return timeLeft;
 }
 
@@ -463,7 +460,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 {
     const float time = node->time;
     EQLOG( LOG_LB2 ) << "_computeSplit " << vp << ", " << range << " time "
-                    << time << endl;
+                    << time << std::endl;
     EQASSERTINFO( vp.isValid(), vp );
     EQASSERTINFO( range.isValid(), range );
     EQASSERTINFO( node->usage > 0.f || !vp.hasArea() || !range.hasData(),
@@ -480,7 +477,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
         compound->setRange( range );
 
         EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " set "
-                        << vp << ", " << range << endl;
+                        << vp << ", " << range << std::endl;
 
         // save data for later use
         Data data;
@@ -517,7 +514,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                    splitPos < end && !workingSet.empty())
             {
                 EQLOG( LOG_LB2 ) << timeLeft << "ms left for "
-                                << workingSet.size() << " tiles" << endl;
+                                << workingSet.size() << " tiles" << std::endl;
 
                 // remove all irrelevant items from working set
                 //   Is there a more clever way? Erasing invalidates iter, even
@@ -548,7 +545,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
                 // accumulate normalized load in splitPos...currentPos
                 EQLOG( LOG_LB2 ) << "Computing load in X " << splitPos << "..."
-                                << currentPos << endl;
+                                << currentPos << std::endl;
                 float currentLoad = 0.f;
                 for( LBDataVector::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
@@ -584,7 +581,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                                         << ( data.load * percentage )
                                         << " vp.y " << vp.y << " dataEnd " 
                                         << dataEnd << " vpEnd " << vpEnd
-                                        << endl;
+                                        << std::endl;
 
                         currentLoad += ( data.load * percentage );
                     }
@@ -596,7 +593,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                     
                 EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos 
                                 << ": t=" << currentTime << " of " 
-                                << timeLeft << endl;
+                                << timeLeft << std::endl;
 
                 if( currentTime >= timeLeft ) // found last region
                 {
@@ -610,7 +607,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 }
             }
 
-            EQLOG( LOG_LB2 ) << "Should split at X " << splitPos << endl;
+            EQLOG( LOG_LB2 ) << "Should split at X " << splitPos << std::endl;
             // There might be more time left due to MIN_PIXEL rounding by parent
             // EQASSERTINFO( timeLeft <= .001f, timeLeft );
 
@@ -641,7 +638,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
             splitPos = EQ_MAX( splitPos, vp.x );
             splitPos = EQ_MIN( splitPos, end);
 
-            EQLOG( LOG_LB2 ) << "Split " << vp << " at X " << splitPos << endl;
+            EQLOG( LOG_LB2 ) << "Split " << vp << " at X " << splitPos << std::endl;
 
             // balance children
             eq::Viewport childVP = vp;
@@ -666,7 +663,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                    splitPos < end && !workingSet.empty( ))
             {
                 EQLOG( LOG_LB2 ) << timeLeft << "ms left for "
-                                << workingSet.size() << " tiles" << endl;
+                                << workingSet.size() << " tiles" << std::endl;
 
                 // remove all unrelevant items from working set
                 //   Is there a more clever way? Erasing invalidates iter, even
@@ -697,7 +694,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
                 // accumulate normalized load in splitPos...currentPos
                 EQLOG( LOG_LB2 ) << "Computing load in Y " << splitPos << "..."
-                                << currentPos << endl;
+                                << currentPos << std::endl;
                 float currentLoad = 0.f;
                 for( LBDataVector::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
@@ -727,7 +724,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                                         << ( data.load * percentage )
                                         << " vp.x " << vp.x << " dataEnd " 
                                         << dataEnd << " vpEnd " << vpEnd
-                                        << endl;
+                                        << std::endl;
 
                         currentLoad += ( data.load * percentage );
                     }
@@ -739,7 +736,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                     
                 EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos 
                                 << ": t=" << currentTime << " of " 
-                                << timeLeft << endl;
+                                << timeLeft << std::endl;
 
                 if( currentTime >= timeLeft ) // found last region
                 {
@@ -753,7 +750,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 }
             }
 
-            EQLOG( LOG_LB2 ) << "Should split at Y " << splitPos << endl;
+            EQLOG( LOG_LB2 ) << "Should split at Y " << splitPos << std::endl;
             // There might be more time left due to MIN_PIXEL rounding by parent
             // EQASSERTINFO( timeLeft <= .001f, timeLeft );
 
@@ -783,7 +780,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
             splitPos = EQ_MAX( splitPos, vp.y );
             splitPos = EQ_MIN( splitPos, end );
 
-            EQLOG( LOG_LB2 ) << "Split " << vp << " at Y " << splitPos << endl;
+            EQLOG( LOG_LB2 ) << "Split " << vp << " at Y " << splitPos << std::endl;
 
             eq::Viewport childVP = vp;
             childVP.h = (splitPos - vp.y);
@@ -807,7 +804,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                    splitPos < end && !workingSet.empty( ))
             {
                 EQLOG( LOG_LB2 ) << timeLeft << "ms left for "
-                                << workingSet.size() << " tiles" << endl;
+                                << workingSet.size() << " tiles" << std::endl;
 
                 // remove all irrelevant items from working set
                 //   Is there a more clever way? Erasing invalidates iter, even
@@ -838,7 +835,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
                 // accumulate normalized load in splitPos...currentPos
                 EQLOG( LOG_LB2 ) << "Computing load in range " << splitPos
-                                << "..." << currentPos << endl;
+                                << "..." << currentPos << std::endl;
                 float currentLoad = 0.f;
                 for( LBDataVector::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
@@ -859,7 +856,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
                 EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos 
                                 << ": t=" << currentLoad << " of " 
-                                << timeLeft << endl;
+                                << timeLeft << std::endl;
 
                 if( currentLoad >= timeLeft ) // found last region
                 {
@@ -888,7 +885,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 splitPos = end;
 
             EQLOG( LOG_LB2 ) << "Split " << range << " at pos " << splitPos
-                            << endl;
+                            << std::endl;
 
             eq::Range childRange = range;
             childRange.end       = splitPos;
@@ -905,21 +902,22 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
     }
 }
 
-ostream& operator << ( ostream& os, const LoadEqualizer::Node* node )
+std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* node )
 {
     if( !node )
         return os;
 
-    os << disableFlush;
+    os << base::disableFlush;
 
     if( node->compound )
         os << node->compound->getChannel()->getName() << " target time " 
-           << node->time << endl;
+           << node->time << std::endl;
     else
         os << "split " << node->splitMode << " target time " << node->time
-           << endl << indent << node->left << node->right << exdent;
+           << std::endl
+           << base::indent << node->left << node->right << base::exdent;
 
-    os << enableFlush;
+    os << base::enableFlush;
     return os;
 }
 
@@ -938,22 +936,22 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer* lb )
     if( !lb )
         return os;
 
-    os << disableFlush
-       << "load_equalizer" << endl
-       << '{' << endl
-       << "    mode    " << lb->getMode() << endl;
+    os << base::disableFlush
+       << "load_equalizer" << std::endl
+       << '{' << std::endl
+       << "    mode    " << lb->getMode() << std::endl;
   
     if( lb->getDamping() != 0.5f )
-        os << "    damping " << lb->getDamping() << endl;
+        os << "    damping " << lb->getDamping() << std::endl;
 
     if( lb->getBoundary2i() != Vector2i( 1, 1 ) )
         os << "    boundary [ " << lb->getBoundary2i().x() << ", " 
-           << lb->getBoundary2i().y() << " ]" << endl;
+           << lb->getBoundary2i().y() << " ]" << std::endl;
 
     if( lb->getBoundaryf() != std::numeric_limits<float>::epsilon() )
-        os << "    boundary " << lb->getBoundaryf() << endl;
+        os << "    boundary " << lb->getBoundaryf() << std::endl;
 
-    os << '}' << endl << enableFlush;
+    os << '}' << std::endl << base::enableFlush;
     return os;
 }
 
