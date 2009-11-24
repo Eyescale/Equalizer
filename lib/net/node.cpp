@@ -84,7 +84,7 @@ Node::Node()
     registerCommand( CMD_NODE_GET_NODE_DATA,
                      NodeFunc( this, &Node::_cmdGetNodeData), queue );
     registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
-                     NodeFunc( this, &Node::_cmdGetNodeDataReply ), queue );
+                     NodeFunc( this, &Node::_cmdGetNodeDataReply ), 0 );
     registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
                      NodeFunc( this, &Node::_cmdAcquireSendToken ), 0 );
     registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
@@ -1869,11 +1869,8 @@ CommandResult Node::_cmdConnectReply( Command& command )
         else
             remoteNode = createNode( packet->type );
     }
-    else
-    {
-        EQASSERT( packet->requestID == EQ_ID_INVALID );
-    }
-    remoteNode->_connectionDescriptions.clear(); //use data from peer
+
+    remoteNode->_connectionDescriptions.clear(); // use data from peer
 
     EQASSERT( remoteNode->getType() == packet->type );
     EQASSERT( remoteNode->getState() == STATE_STOPPED );
@@ -2079,6 +2076,8 @@ CommandResult Node::_cmdGetNodeData( Command& command)
 
 CommandResult Node::_cmdGetNodeDataReply( Command& command )
 {
+    EQASSERT( inReceiverThread( ));
+
     NodeGetNodeDataReplyPacket* packet = 
         command.getPacket<NodeGetNodeDataReplyPacket>();
     EQVERB << "cmd get node data reply: " << packet << std::endl;
@@ -2086,18 +2085,17 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
     const uint32_t requestID = packet->requestID;
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
-    {
-        base::ScopedMutex mutex( _nodes );
-        NodeHash::const_iterator i = _nodes->find( nodeID );
-        if( i != _nodes->end( ))
-        {
-            // Requested node connected to us in the meantime
-            NodePtr node = i->second;
 
-            node.ref();
-            _requestHandler.serveRequest( requestID, node.get( ));
-            return COMMAND_HANDLED;
-        }
+    // No locking needed, only recv thread writes
+    NodeHash::const_iterator i = _nodes->find( nodeID );
+    if( i != _nodes->end( ))
+    {
+        // Requested node connected to us in the meantime
+        NodePtr node = i->second;
+        
+        node.ref();
+        _requestHandler.serveRequest( requestID, node.get( ));
+        return COMMAND_HANDLED;
     }
 
     if( packet->type == TYPE_EQNET_INVALID )
@@ -2105,7 +2103,8 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
         _requestHandler.serveRequest( requestID, (void*)0 );
         return COMMAND_HANDLED;
     }
-        
+
+    // new node: create and add unconnected node        
     NodePtr node = createNode( packet->type );
     EQASSERT( node.isValid( ));
 
@@ -2113,6 +2112,12 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
     if( !node->deserialize( data ))
         EQWARN << "Failed to initialize node data" << std::endl;
     EQASSERT( data.empty( ));
+
+    {
+        base::ScopedMutex nodesMutex( _nodes );
+        _nodes.data[ nodeID ] = node;
+    }
+    EQVERB << "Added node " << nodeID << " without connection" << std::endl;
 
     node->setAutoLaunch( false );
     node.ref();

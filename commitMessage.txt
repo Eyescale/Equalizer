@@ -1,8 +1,8 @@
-Minor code cleanup
+Fix race condition between Node::connect( id ) and multicast init
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
