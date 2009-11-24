@@ -154,7 +154,7 @@ void LoadEqualizer::_clearTree( Node* node )
 void LoadEqualizer::notifyLoadData( Channel* channel,
                                     const uint32_t frameNumber,
                                     const uint32_t nStatistics,
-                                    const eq::Statistic* statistics )
+                                    const Statistic* statistics )
 {
     for( std::deque< LBFrameData >::iterator i = _history.begin();
          i != _history.end(); ++i )
@@ -185,22 +185,22 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
 
             for( uint32_t k = 0; k < nStatistics && !loadSet; ++k )
             {
-                const eq::Statistic& stat = statistics[k];
+                const Statistic& stat = statistics[k];
                 if( stat.task != taskID ) // from different compound
                     continue;
 
                 switch( stat.type )
                 {
-                    case eq::Statistic::CHANNEL_CLEAR:
-                    case eq::Statistic::CHANNEL_DRAW:
-                    case eq::Statistic::CHANNEL_READBACK:
+                    case Statistic::CHANNEL_CLEAR:
+                    case Statistic::CHANNEL_DRAW:
+                    case Statistic::CHANNEL_READBACK:
                         startTime = EQ_MIN( startTime, stat.startTime );
                         endTime   = EQ_MAX( endTime, stat.endTime );
                         break;
                 
                     // assemble blocks on input frames, stop using subsequent
                     // data
-                    case eq::Statistic::CHANNEL_ASSEMBLE:
+                    case Statistic::CHANNEL_ASSEMBLE:
                         loadSet = true;
                         break;
                 
@@ -339,7 +339,7 @@ void LoadEqualizer::_computeSplit()
                                                static_cast<float>( totalTime ),
                                                timeLeft );
     _assignLeftoverTime( _tree, leftover );
-    _computeSplit( _tree, sortedData, eq::Viewport(), eq::Range() );
+    _computeSplit( _tree, sortedData, Viewport(), Range() );
 }
 
 float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime, 
@@ -455,8 +455,8 @@ void LoadEqualizer::_removeEmpty( LBDataVector& items )
 }
 
 void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
-                                   const eq::Viewport& vp,
-                                   const eq::Range& range )
+                                   const Viewport& vp,
+                                   const Range& range )
 {
     const float time = node->time;
     EQLOG( LOG_LB2 ) << "_computeSplit " << vp << ", " << range << " time "
@@ -469,7 +469,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
     Compound* compound = node->compound;
     if( compound )
     {
-        EQASSERTINFO( vp == eq::Viewport::FULL || range == eq::Range::ALL,
+        EQASSERTINFO( vp == Viewport::FULL || range == Range::ALL,
                       "Mixed 2D/DB load-balancing not implemented" );
 
         // TODO: check that time == vp * load
@@ -503,7 +503,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
     {
         case MODE_VERTICAL:
         {
-            EQASSERT( range == eq::Range::ALL );
+            EQASSERT( range == Range::ALL );
 
             float          timeLeft = node->left->time;
             float          splitPos = vp.x;
@@ -641,7 +641,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
             EQLOG( LOG_LB2 ) << "Split " << vp << " at X " << splitPos << std::endl;
 
             // balance children
-            eq::Viewport childVP = vp;
+            Viewport childVP = vp;
             childVP.w = (splitPos - vp.x);
             _computeSplit( node->left, sortedData, childVP, range );
 
@@ -653,7 +653,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
         case MODE_HORIZONTAL:
         {
-            EQASSERT( range == eq::Range::ALL );
+            EQASSERT( range == Range::ALL );
             float        timeLeft = node->left->time;
             float        splitPos = vp.y;
             const float  end      = vp.getYEnd();
@@ -782,7 +782,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
             EQLOG( LOG_LB2 ) << "Split " << vp << " at Y " << splitPos << std::endl;
 
-            eq::Viewport childVP = vp;
+            Viewport childVP = vp;
             childVP.h = (splitPos - vp.y);
             _computeSplit( node->left, sortedData, childVP, range );
 
@@ -794,7 +794,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
         case MODE_DB:
         {
-            EQASSERT( vp == eq::Viewport::FULL );
+            EQASSERT( vp == Viewport::FULL );
             float          timeLeft = node->left->time;
             float          splitPos = range.start;
             const float    end      = range.end;
@@ -887,8 +887,8 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
             EQLOG( LOG_LB2 ) << "Split " << range << " at pos " << splitPos
                             << std::endl;
 
-            eq::Range childRange = range;
-            childRange.end       = splitPos;
+            Range childRange = range;
+            childRange.end = splitPos;
             _computeSplit( node->left, sortedData, vp, childRange );
 
             childRange.start = childRange.end;
