@@ -21,6 +21,7 @@
 #include <eq/net/dataIStream.h>   // base class
 #include <eq/net/version.h>       // enum
 #include <eq/base/monitor.h>      // member
+#include <eq/base/thread.h>       // member
 
 #include <deque>
 
@@ -71,6 +72,8 @@ namespace net
         base::Monitor< uint32_t > _version;
 
         void _setReady() { _version = getPendingVersion(); }
+
+        CHECK_THREAD_DECLARE( _thread );
     };
 }
 }

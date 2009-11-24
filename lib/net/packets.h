@@ -439,11 +439,13 @@ namespace net
             {
                 command    = CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS;
                 size       = sizeof( SessionSubscribeObjectSuccessPacket ); 
+                sessionID  = request->sessionID;
                 requestID  = request->requestID;
                 objectID   = request->objectID;
                 instanceID = request->instanceID;
             }
         
+        NodeID nodeID;
         uint32_t requestID;
         uint32_t objectID;
         uint32_t instanceID;
@@ -458,6 +460,7 @@ namespace net
             {
                 command   = CMD_SESSION_SUBSCRIBE_OBJECT_REPLY;
                 size      = sizeof( SessionSubscribeObjectReplyPacket ); 
+                sessionID = request->sessionID;
                 requestID = request->requestID;
                 objectID  = request->objectID;
                 version   = request->requestedVersion;
@@ -465,6 +468,7 @@ namespace net
                 useCache  = request->useCache;
             }
         
+        NodeID nodeID;
         uint32_t requestID;
         uint32_t objectID;
         uint32_t version;

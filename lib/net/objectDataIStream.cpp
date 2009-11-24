@@ -70,6 +70,8 @@ void ObjectDataIStream::reset()
 
 void ObjectDataIStream::addDataPacket( Command& command )
 {
+    CHECK_THREAD( _thread );
+
     const ObjectDataPacket* packet = command.getPacket< ObjectDataPacket >();
 #ifndef NDEBUG
     if( _commands.size() < 2 )

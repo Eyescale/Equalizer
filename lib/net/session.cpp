@@ -837,6 +837,8 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     _objectsMutex.unset();
     
     SessionSubscribeObjectReplyPacket reply( packet );
+    reply.nodeID = node->getNodeID();
+    reply.nodeID.convertToNetwork();
 
     if( master )
     {
@@ -847,7 +849,14 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
             SessionSubscribeObjectSuccessPacket successPacket( packet );
             successPacket.changeType       = master->getChangeType();
             successPacket.masterInstanceID = master->getInstanceID();
-            send( node, successPacket );
+            successPacket.nodeID = node->getNodeID();
+            successPacket.nodeID.convertToNetwork();
+
+            // Prefer multicast connection, since this will be used by the CM as
+            // well. If we send the packet on another connection, it might
+            // arrive after the packets below
+            if( !node->multicast( successPacket ))
+                node->send( successPacket );
         
             reply.cachedVersion = master->_cm->addSlave( command );
             reply.result = true;
@@ -865,7 +874,8 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
         reply.result = false;
     }
 
-    send( node, reply );
+    if( !node->multicast( reply ))
+        node->send( reply );
     return COMMAND_HANDLED;
 }
 
@@ -875,6 +885,17 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     const SessionSubscribeObjectSuccessPacket* packet = 
         command.getPacket<SessionSubscribeObjectSuccessPacket>();
 
+    // Subscribe success packets are potentially multicasted (see above)
+    // verify that we are the intended receiver
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+    if( nodeID != _localNode->getNodeID( ))
+        return COMMAND_HANDLED;
+
+    EQLOG( LOG_OBJECTS ) << "Cmd subscribe object success " << packet
+                         << std::endl;
+
+    // set up change manager and attach object to dispatch table
     Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
                                                packet->requestID ));    
     EQASSERT( object );
@@ -895,6 +916,13 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
         command.getPacket<SessionSubscribeObjectReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd object subscribe reply " << packet
                          << std::endl;
+
+    // Subscribe reply packets are potentially multicasted (see above)
+    // verify that we are the intended receiver
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+    if( nodeID != _localNode->getNodeID( ))
+        return COMMAND_HANDLED;
 
     EQASSERT( _requestHandler.getRequestData( packet->requestID ));
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -70,7 +70,7 @@ namespace net
          *
          * The buffer size is used during serialization. When a DataOStream has
          * buffered at least size bytes, the data is send to the slave
-         * nodes. The default is 64 kilobytes.
+         * nodes. The default is 60.000 bytes.
          *
          * @param size the treshold before the DataOStream sends a buffer.
          */

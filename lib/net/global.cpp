@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,13 +28,13 @@ static uint32_t _getObjectBufferSize()
 {
     const char* env = getenv( "EQ_NET_OBJECT_BUFFER_SIZE" );
     if( !env )
-        return EQ_64KB;
+        return 60000;
 
     const int64_t size = atoi( env );
     if( size > 0 )
         return size;
 
-    return EQ_64KB;
+    return 60000;
 }
 
 }

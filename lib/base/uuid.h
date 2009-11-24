@@ -53,7 +53,7 @@ namespace base
         UUID( const bool generate = false )
             { generate ? UuidCreate( &_id ) : UuidCreateNil( &_id ); }
         UUID( const UUID& from ) { _id = from._id; }
-        UUID( const Data& from )   { _id = from; }
+        UUID( const Data& from ) { _id = from; }
 
         void getData( Data& data ) const { data = _id; }
 
@@ -116,7 +116,7 @@ namespace base
 
     private:
         ::UUID _id;
-#else // WIN32
+#else // !WIN32
     public:
         /** Opaque data type, used for network transport. */
         struct Data
