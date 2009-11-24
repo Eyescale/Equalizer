@@ -59,7 +59,7 @@ uint32_t StaticMasterCM::addSlave( Command& command )
     ObjectInstanceDataOStream os( _object );
     os.setInstanceID( instanceID );
     os.setNodeID( node->getNodeID( ));
-    os.enable( node, true );
+    os.enable( node );
 
     _object->getInstanceData( os );
     os.disable();

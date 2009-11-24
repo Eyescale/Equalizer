@@ -49,11 +49,11 @@ namespace DataStreamTest
 
         /** Enable output, locks the connections to the receivers */ 
         void enable( const NodeVector& receivers );
-        void enable( NodePtr node, const bool useMulticast );
+        void enable( NodePtr node );
         void enable();
 
         /** Resend the saved buffer. */
-        void resend( const NodePtr node );
+        void resend( NodePtr node );
 
         /** Disable, flush and unlock the output to the current receivers. */
         void disable();

@@ -76,10 +76,9 @@ void DataOStream::enable( const NodeVector& receivers )
     enable();
 }
 
-void DataOStream::enable( NodePtr node, const bool useMulticast )
+void DataOStream::enable( NodePtr node )
 {
-    ConnectionPtr connection = 
-        useMulticast ? node->getMulticast() : node->getConnection();
+    ConnectionPtr connection = node->getMulticast();
     if( !connection )
         connection = node->getConnection();
         
@@ -99,13 +98,16 @@ void DataOStream::enable()
     _enabled  = true;
 }
 
-void DataOStream::resend( const NodePtr node )
+void DataOStream::resend( NodePtr node )
 {
     EQASSERT( !_enabled );
     EQASSERT( _connections.empty( ));
     EQASSERT( _save );
     
-    ConnectionPtr connection = node->getConnection();        
+    ConnectionPtr connection = node->getMulticast();
+    if( !connection )
+        connection = node->getConnection();
+        
     connection->lockSend();
     _connections.push_back( connection );
 
