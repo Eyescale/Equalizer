@@ -1,9 +1,9 @@
-Fix race condition between Node::connect( id ) and multicast init
+multicast debugging
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

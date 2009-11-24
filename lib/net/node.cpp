@@ -478,6 +478,10 @@ void Node::_connectMulticast( NodePtr node )
     EQASSERT( inReceiverThread( ));
     base::ScopedMutex mutex( _outMulticast );
 
+    if( node->_outMulticast.data.isValid( ))
+        // multicast already connected by previous _cmdID
+        return;
+
     // Search if the connected node is in the same multicast group as we are
     for( ConnectionDescriptionVector::const_iterator i =
              _connectionDescriptions.begin();
