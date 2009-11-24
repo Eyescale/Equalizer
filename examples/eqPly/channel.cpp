@@ -304,7 +304,7 @@ void Channel::frameViewFinish( const uint32_t frameID )
     const FrameData& frameData = _getFrameData();
 
     const eq::PixelViewport& pvp = getPixelViewport();
-    bool isResized = _accum->resize( pvp.w, pvp.h );
+    const bool isResized = _accum->resize( pvp.w, pvp.h );
 
     if( isResized )
     {

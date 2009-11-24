@@ -1,12 +1,9 @@
-Various minor tweaks:
-- lower data stream bucket size a bit to fall under connection send size
-- added thread-safety check in ObjectDataOStream
-- Fix: transmit all mapping packets on the same connection to avoid races
+Minor code cleanups
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation

@@ -656,10 +656,10 @@ bool Config::_needsLocalSync() const
 
 void Config::_updateStatistics( const uint32_t finishedFrame )
 {
-    // keep statistics for five frames
+    // keep statistics for three frames
     _statisticsMutex.set();
     while( !_statistics.empty() &&
-           finishedFrame - _statistics.front().first > 5 )
+           finishedFrame - _statistics.front().first > 2 )
     {
         _statistics.pop_front();
     }
