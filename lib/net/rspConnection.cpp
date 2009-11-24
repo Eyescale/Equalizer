@@ -44,7 +44,7 @@ namespace
 {
 static const size_t _mtu = UDPConnection::getMTU();
 static const size_t _payloadSize = _mtu - sizeof( RSPConnection::DatagramData );
-static const size_t _ackFreq = 64;
+static const size_t _ackFreq = 128;
 static const size_t _bufferSize = _payloadSize * _ackFreq;
 static const size_t _nBuffers = 4;
 static const size_t _maxNAck = _mtu - sizeof( RSPConnection::DatagramNack ) / 
@@ -286,7 +286,7 @@ ConnectionPtr RSPConnection::acceptSync()
     if( _state != STATE_LISTENING )
         return 0;
 
-    EQASSERT ( _countAcceptChildren < _children.size() )
+    EQASSERT ( _countAcceptChildren < static_cast< int >( _children.size()) )
     
     RSPConnectionPtr newConnection = _children[ _countAcceptChildren ];
     
@@ -324,7 +324,7 @@ ConnectionPtr RSPConnection::acceptSync()
     EQINFO << "accepted connection " << (void*)newConnection.get()
            << std::endl;
     const base::ScopedMutex mutexConn( _mutexConnection );
-    if ( _children.size() <= _countAcceptChildren )
+    if ( static_cast< int >( _children.size()) <= _countAcceptChildren )
 #ifdef WIN32
         ResetEvent( _hEvent );
     else 
