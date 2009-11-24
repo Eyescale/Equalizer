@@ -251,6 +251,7 @@
 %token EQTOKEN_MODE
 %token EQTOKEN_2D
 %token EQTOKEN_DB
+%token EQTOKEN_BOUNDARY
 %token EQTOKEN_ZOOM
 %token EQTOKEN_STRING
 %token EQTOKEN_CHARACTER
@@ -995,6 +996,9 @@ loadBalancerField:
             dfrEqualizer->setDamping( $2 );
     }
     | EQTOKEN_FRAMERATE FLOAT     { dfrEqualizer->setFrameRate( $2 ) }
+    | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']' 
+                  { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )) }
+    | EQTOKEN_BOUNDARY FLOAT  { loadEqualizer->setBoundary( $2 ) }
 
 loadBalancerMode:
     EQTOKEN_2D
@@ -1073,6 +1077,9 @@ dfrEqualizerField:
 loadEqualizerFields: /* null */ | loadEqualizerFields loadEqualizerField
 loadEqualizerField:
     EQTOKEN_DAMPING FLOAT            { loadEqualizer->setDamping( $2 ); }
+    | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']' 
+                  { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )) }
+    | EQTOKEN_BOUNDARY FLOAT  { loadEqualizer->setBoundary( $2 ) }
     | EQTOKEN_MODE loadEqualizerMode { loadEqualizer->setMode( $2 ); }
 
 loadEqualizerMode: 

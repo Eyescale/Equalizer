@@ -45,7 +45,7 @@ LoadEqualizer::LoadEqualizer()
         , _damping( .5f )
         , _tree( 0 )
         , _boundary2i( 1, 1 )
-        , _boundaryf( std::numeric_limits<float>::epsilon() )
+        , _boundaryf( numeric_limits<float>::epsilon() )
 
 {
     EQINFO << "New LoadEqualizer @" << (void*)this << endl;
@@ -57,6 +57,8 @@ LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
         , _mode( from._mode )
         , _damping( from._damping )
         , _tree( 0 )
+        , _boundary2i( from._boundary2i )
+        , _boundaryf( from._boundaryf )
 {}
 
 LoadEqualizer::~LoadEqualizer()
@@ -943,6 +945,13 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer* lb )
   
     if( lb->getDamping() != 0.5f )
         os << "    damping " << lb->getDamping() << endl;
+
+    if( lb->getBoundary2i() != Vector2i( 1, 1 ) )
+        os << "    boundary [ " << lb->getBoundary2i().x() << ", " 
+           << lb->getBoundary2i().y() << " ]" << endl;
+
+    if( lb->getBoundaryf() != std::numeric_limits<float>::epsilon() )
+        os << "    boundary " << lb->getBoundaryf() << endl;
 
     os << '}' << endl << enableFlush;
     return os;

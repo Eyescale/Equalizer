@@ -219,7 +219,7 @@ range                           { return EQTOKEN_RANGE; }
 period                          { return EQTOKEN_PERIOD; }
 phase                           { return EQTOKEN_PHASE; }
 pixel                           { return EQTOKEN_PIXEL; }
-subpixel						{ return EQTOKEN_SUBPIXEL; }
+subpixel                        { return EQTOKEN_SUBPIXEL; }
 bandwidth                       { return EQTOKEN_BANDWIDTH; }
 device                          { return EQTOKEN_DEVICE; }
 wall                            { return EQTOKEN_WALL; }
@@ -254,6 +254,7 @@ draw_sync                       { return EQTOKEN_DRAW_SYNC; }
 LOCAL_SYNC                      { return EQTOKEN_LOCAL_SYNC; }
 local_sync                      { return EQTOKEN_LOCAL_SYNC; }
 mode                            { return EQTOKEN_MODE; }
+boundary                        { return EQTOKEN_BOUNDARY; }
 2D                              { return EQTOKEN_2D; }
 DB                              { return EQTOKEN_DB; }
 zoom                            { return EQTOKEN_ZOOM; }
