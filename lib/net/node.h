@@ -594,7 +594,7 @@ namespace net
         struct MCData
         {
             ConnectionPtr connection;
-            NodeID        serverID;
+            NodePtr       node;
         };
         typedef std::vector< MCData > MCDatas;
 

@@ -173,17 +173,18 @@ ConnectionPtr Node::getMulticast()
 
     MCData data = _multicasts.back();
     _multicasts.pop_back();
+    NodePtr node = data.node;
 
     // prime multicast connections on peers
-    EQINFO << "Announcing id " << data.serverID << " to multicast group "
+    EQINFO << "Announcing id " << node->getNodeID() << " to multicast group "
            << data.connection->getDescription() << std::endl;
 
     NodeIDPacket packet;
-    packet.id = data.serverID;
+    packet.id = node->getNodeID();
     packet.id.convertToNetwork();
     packet.type = getType();
 
-    data.connection->send( packet, serialize( ));
+    data.connection->send( packet, node->serialize( ));
     _outMulticast.data = data.connection;
     return data.connection;
 }
@@ -312,7 +313,7 @@ bool Node::listen()
         {
             MCData data;
             data.connection = connection;
-            data.serverID = _id;
+            data.node = this;
             _multicasts.push_back( data );
         }
 
@@ -1991,7 +1992,7 @@ CommandResult Node::_cmdID( Command& command )
                 EQASSERT( _state == STATE_LISTENING );
                 MCData data;
                 data.connection = connection;
-                data.serverID = _id;
+                data.node = this;
                 node->_multicasts.push_back( data );
             }
             // else nop, already know connection
