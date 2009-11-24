@@ -285,16 +285,7 @@ ConnectionPtr RSPConnection::acceptSync()
     CHECK_THREAD( _recvThread );
     if( _state != STATE_LISTENING )
         return 0;
-    {
-        const base::ScopedMutex mutexConn( _mutexConnection );
-        if ( _countAcceptChildren == _children.size() )
-#ifdef WIN32
-            WaitForSingleObject( _hEvent, INFINITE );
-#else
 
-            poll( &_hEvent, 1, INFINITE );
-#endif
-    }
     EQASSERT ( _countAcceptChildren < _children.size() )
     
     RSPConnectionPtr newConnection = _children[ _countAcceptChildren ];
@@ -322,7 +313,7 @@ ConnectionPtr RSPConnection::acceptSync()
     newConnection->_readFD = newConnection->_hEvent.fd;
     newConnection->_hEvent.revents = 0;
 
-#endif     
+#endif
 
     ++_countAcceptChildren;
 
@@ -333,9 +324,11 @@ ConnectionPtr RSPConnection::acceptSync()
     EQINFO << "accepted connection " << (void*)newConnection.get()
            << std::endl;
     const base::ScopedMutex mutexConn( _mutexConnection );
-    if ( _children.size() >= _countAcceptChildren )
+    if ( _children.size() <= _countAcceptChildren )
 #ifdef WIN32
         ResetEvent( _hEvent );
+    else 
+        SetEvent( _hEvent );
 #else
         _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
 #endif
@@ -387,12 +380,16 @@ bool RSPConnection::_initReadThread()
                     _connection->write( &confirmNode, sizeof( DatagramNode ) );
                     _addNewConnection( _id );
                 }
-                else if ( _countTimeOut >= 40 )
+                else if ( _countTimeOut >= 20 )
                     return true;
-
+                else
+                {
+                    const DatagramNode confirmNode ={ ID_CONFIRM, _id };
+                    _connection->write( &confirmNode, sizeof( DatagramNode ) );
+                }
                 break;
             case ConnectionSet::EVENT_DATA:
-                _countTimeOut = 0;
+                
                 if ( !_handleInitData() )
                 {
                     EQERROR << " Error during Read UDP Connection" 
@@ -431,10 +428,16 @@ bool RSPConnection::_handleInitData()
 
     case ID_DENY:
         // a connection refused my ID, ask for another ID
-        if ( node->connectionID == _id )
+        if ( ( node->connectionID == _id ) &&
+             ( _countTimeOut < 10 ))
         {
+            _countTimeOut = 0;
              const DatagramNode newnode ={ ID_HELLO, _buildNewID() };
              _connection->write( &newnode, sizeof( DatagramNode ) );
+        }
+        else
+        {
+             _sendDatagramCountNode();
         }
         return true;
 
@@ -443,29 +446,24 @@ bool RSPConnection::_handleInitData()
 
     case COUNTNODE:
     {
-
-        /* datagram CONFIRMNODE 
-           if it's my ID 
-               NOP
-           else
-               build data structure DataReceive
-               setEvent for accept waiting
-               send a datagram CountNode
-        */
-        _countTimeOut = 11;
         const DatagramCountConnection* countConn = 
                 reinterpret_cast< const DatagramCountConnection* >
                                                          ( _readBuffer.getData() );
         
         // we know all connections
         if ( _children.size() == countConn->nbClient )
+        {
+            _countTimeOut = 20;
             return true;
-
+        }
         RSPConnectionPtr connection = 
                             _findConnectionWithWriterID( countConn->clientID );
 
         if ( !connection.isValid() )
+        {
             _addNewConnection( countConn->clientID );
+            _countTimeOut = 11;
+        }
         break;
     }
     
@@ -659,15 +657,6 @@ bool RSPConnection::_handleData( )
     case COUNTNODE:
     {
 
-        /* datagram CONFIRMNODE 
-           if it's my ID 
-               NOP
-           else
-               build data structure DataReceive
-               setEvent for accept waiting
-               send a datagram CountNode
-        */
-        
         const DatagramCountConnection* countConn = 
                 reinterpret_cast< const DatagramCountConnection* >
                                                          ( _readBuffer.getData() );
@@ -1125,10 +1114,7 @@ RSPConnection::RSPConnectionPtr RSPConnection::_findConnectionWithWriterID(
 bool RSPConnection::_addNewConnection( ID id )
 {
     if ( _findConnectionWithWriterID( id ).isValid() )
-    {
-        EQUNREACHABLE;
-        return false;
-    }
+        return true;
 
     RSPConnection* connection  = new RSPConnection();
     connection->_connection    = 0;
@@ -1186,7 +1172,7 @@ bool RSPConnection::_isCurrentSequenceWrite( uint16_t sequenceID,
 int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 {
     if( _state != STATE_CONNECTED && _state != STATE_LISTENING )
-        return -1;    
+        return -1;
     
     if ( _parent.isValid() )
         return _parent->write( buffer, bytes );

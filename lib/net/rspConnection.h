@@ -145,8 +145,8 @@ namespace net
               , end( value ) {}
               
             RepeatRequest( uint8_t istart, uint8_t iend )
-            : start( istart )
-            , end( iend ) {}
+              : start( istart )
+              , end( iend ) {}
               
             RepeatRequest( const RepeatRequest& value )
               : start( value.start )
@@ -231,8 +231,9 @@ namespace net
         std::vector< RSPConnectionPtr > _children;
         // The buffer used by the read function in udp socket 
         std::vector< DataReceive* >_buffer;
+        
         // number connection accepted by server RSP 
-        uint8_t _countAcceptChildren;
+        base::mtLong _countAcceptChildren;
         
         // The buffer used by the write function in udp socket
         eq::base::Bufferb _sendBuffer;
