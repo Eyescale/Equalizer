@@ -66,7 +66,9 @@ public:
                 return false;
 
             const uint8_t packet = _buffer.getData()[0];
-            TEST( _lastPacket == 0 || _lastPacket - 1 == packet );
+            TESTINFO( _lastPacket == 0 || _lastPacket - 1 == packet,
+                      static_cast< int >( _lastPacket ) << ", " <<
+                      static_cast< int >( packet ));
             _lastPacket = packet;
 
             _connection->recvNB( _buffer.getData(), _buffer.getSize() );
