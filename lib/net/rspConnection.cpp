@@ -44,7 +44,11 @@ namespace
 {
 static const size_t _mtu = UDPConnection::getMTU();
 static const size_t _payloadSize = _mtu - sizeof( RSPConnection::DatagramData );
-static const size_t _ackFreq = 128;
+#ifdef WIN32
+    static const size_t _ackFreq = 16;
+#else
+    static const size_t _ackFreq = 128;
+#endif
 static const size_t _bufferSize = _payloadSize * _ackFreq;
 static const size_t _nBuffers = 4;
 static const size_t _maxNAck = _mtu - sizeof( RSPConnection::DatagramNack ) / 
@@ -235,7 +239,7 @@ bool RSPConnection::listen()
     _description->type = CONNECTIONTYPE_RSP;
     
     _connectionSet.addConnection( _connection.get( ));
-    EQWARN << "listen connection " << _id << std::endl;
+
     // init a thread for manage the communication protocol 
     _thread = new Thread( this );
 
