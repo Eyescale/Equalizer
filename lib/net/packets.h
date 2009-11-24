@@ -544,6 +544,8 @@ namespace net
 
     struct ObjectDataPacket : public ObjectPacket
     {
+        ObjectDataPacket() : last( false ) {}
+
         uint64_t dataSize;
         uint32_t version;
         uint32_t sequence;
@@ -557,7 +559,6 @@ namespace net
             {
                 command = CMD_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket ); 
-                last    = false;
             }
 
         NodeID nodeID;
@@ -571,7 +572,6 @@ namespace net
                 command    = CMD_OBJECT_DELTA;
                 size       = sizeof( ObjectDeltaPacket ); 
                 instanceID = EQ_ID_NONE; // multicasted
-                last       = true;
             }
         
         EQ_ALIGN8( uint8_t delta[8] );
