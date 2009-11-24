@@ -235,7 +235,7 @@ bool RSPConnection::listen()
     _description->type = CONNECTIONTYPE_RSP;
     
     _connectionSet.addConnection( _connection.get( ));
-
+    EQWARN << "listen connection " << _id << std::endl;
     // init a thread for manage the communication protocol 
     _thread = new Thread( this );
 
@@ -451,7 +451,8 @@ bool RSPConnection::_handleInitData()
                                                          ( _readBuffer.getData() );
         
         // we know all connections
-        if ( _children.size() == countConn->nbClient )
+        if (( _children.size() == countConn->nbClient ) &&
+            ( _children.size() > 1 )) 
         {
             _countTimeOut = 20;
             return true;
