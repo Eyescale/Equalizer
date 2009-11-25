@@ -409,6 +409,17 @@ namespace net
         uint32_t version;
     };
 
+    struct SessionUnmapObjectPacket : public SessionPacket
+    {
+        SessionUnmapObjectPacket()
+            {
+                command = CMD_SESSION_UNMAP_OBJECT;
+                size    = sizeof( SessionUnmapObjectPacket ); 
+            }
+        
+        uint32_t objectID;
+    };
+
     struct SessionSubscribeObjectPacket : public SessionPacket
     {
         SessionSubscribeObjectPacket( const SessionMapObjectPacket* mapPacket )

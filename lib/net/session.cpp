@@ -62,13 +62,13 @@ Session::~Session()
     _server    = 0;
     
 #ifndef NDEBUG
-    if( !_objects.empty( ))
+    if( !_objects->empty( ))
     {
-        EQWARN << _objects.size() << " attached objects in destructor"
+        EQWARN << _objects->size() << " attached objects in destructor"
                << std::endl;
         
-        for( ObjectVectorHash::const_iterator i = _objects.begin();
-             i != _objects.end(); ++i )
+        for( ObjectVectorHash::const_iterator i = _objects->begin();
+             i != _objects->end(); ++i )
         {
             const ObjectVector& objects = i->second;
             EQWARN << "  " << objects.size() << " objects with id " 
@@ -84,7 +84,7 @@ Session::~Session()
         }
     }
 #endif
-    _objects.clear();
+    _objects->clear();
 }
 
 void Session::_setLocalNode( NodePtr node )
@@ -131,6 +131,8 @@ void Session::notifyMapped( NodePtr node )
                      CmdFunc( this, &Session::_cmdDetachObject ), 0 );
     registerCommand( CMD_SESSION_MAP_OBJECT,
                      CmdFunc( this, &Session::_cmdMapObject ), queue );
+    registerCommand( CMD_SESSION_UNMAP_OBJECT,
+                     CmdFunc( this, &Session::_cmdUnmapObject ), 0 );
     registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT,
                      CmdFunc( this, &Session::_cmdSubscribeObject ), queue );
     registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS,
@@ -279,10 +281,11 @@ void Session::_attachObject( Object* object, const uint32_t id,
 
     object->attachToSession( id, instanceID, this );
 
-    _objectsMutex.set();
-    ObjectVector& objects = _objects[ id ];
-    objects.push_back( object );
-    _objectsMutex.unset();
+    {
+        base::ScopedMutex mutex( _objects );
+        ObjectVector& objects = _objects.data[ id ];
+        objects.push_back( object );
+    }
 
     getLocalNode()->flushCommands(); // redispatch pending commands
 
@@ -308,29 +311,29 @@ void Session::detachObject( Object* object )
 
 void Session::_detachObject( Object* object )
 {
+    // check also _cmdUnmapObject when modifying!
     EQASSERT( object );
     CHECK_THREAD( _receiverThread );
 
     const uint32_t id = object->getID();
     EQASSERT( id != EQ_ID_INVALID );
-    EQASSERT( _objects.find( id ) != _objects.end( ));
+    EQASSERT( _objects->find( id ) != _objects->end( ));
 
     EQLOG( LOG_OBJECTS ) << "Detach " << typeid( *object ).name() 
                          << " from id " << id << std::endl;
 
-    ObjectVector&          objects = _objects[ id ];
-    ObjectVector::iterator iter = find( objects.begin(),objects.end(), object );
-    EQASSERT( iter != objects.end( ));
+    ObjectVector& objects = _objects.data[ id ];
+    ObjectVector::iterator i = find( objects.begin(),objects.end(), object );
+    EQASSERT( i != objects.end( ));
 
-    _objectsMutex.set();
+    {
+        base::ScopedMutex mutex( _objects );
+        objects.erase( i );
+        if( objects.empty( ))
+            _objects->erase( id );
+    }
 
-    objects.erase( iter );
-    if( objects.empty( ))
-        _objects.erase( id );
-
-    _objectsMutex.unset();
     EQASSERT( object->getInstanceID() != EQ_ID_INVALID );
-
     object->detachFromSession();
     return;
 }
@@ -481,6 +484,47 @@ void Session::deregisterObject( Object* object )
     EQLOG( LOG_OBJECTS ) << "Deregister " << typeid( *object ).name() 
                          << " from id " << id << std::endl;
 
+    // unmap slaves
+    const NodeVector* slaves = object->_getSlaveNodes();
+    if( slaves && !slaves->empty( ))
+    {
+        ConnectionVector mcSet;
+        SessionUnmapObjectPacket packet;
+        packet.sessionID = _id;
+        packet.objectID = id;
+
+        for( NodeVector::const_iterator i = slaves->begin();
+             i != slaves->end(); ++i )
+        {
+            NodePtr       node       = *i;
+            ConnectionPtr connection = node->getMulticast();
+
+            if( connection.isValid( ))
+            {
+                ConnectionDescriptionPtr desc = connection->getDescription();
+                bool used = false;
+                for( ConnectionVector::const_iterator j = mcSet.begin();
+                     j != mcSet.end() && !used; ++j )
+                {
+                    if( (*j)->getDescription() == desc )
+                        used = true;
+                }
+                if( !used )
+                    mcSet.push_back( connection );
+            }
+
+            node->send( packet );
+        }
+
+        // send out again on all multicast connections to avoid races
+        for( ConnectionVector::const_iterator j = mcSet.begin();
+             j != mcSet.end(); ++j )
+        {
+            ConnectionPtr connection = *j;
+            connection->send( packet );
+        }
+    }
+
     // TODO unsetIDMaster ?
     unmapObject( object );
     freeIDs( id, 1 );
@@ -507,14 +551,14 @@ bool Session::dispatchCommand( Command& command )
             const uint32_t      id        = objPacket->objectID;
 
 
-            if( _objects.find( id ) == _objects.end( ))
+            if( _objects->find( id ) == _objects->end( ))
                 // When the instance ID is set to none, we only care about the
                 // packet when we have an object of the given ID (multicast)
                 return ( objPacket->instanceID == EQ_ID_NONE ? true : false );
 
-            EQASSERTINFO( !_objects[id].empty(), id );
+            EQASSERTINFO( !_objects.data[id].empty(), id );
 
-            Object* object = _objects[id][0];
+            Object* object = _objects.data[id].front();
             EQASSERT( object );
 
             return object->dispatchCommand( command );
@@ -554,16 +598,16 @@ CommandResult Session::_invokeObjectCommand( Command& command )
     const bool ignoreInstance = ( objPacket->instanceID == EQ_ID_ANY ||
                                   objPacket->instanceID == EQ_ID_NONE );
 
-    _objectsMutex.set();
+    _objects.lock.set();
 
-    EQASSERTINFO( _objects.find( id ) != _objects.end(), 
+    EQASSERTINFO( _objects->find( id ) != _objects->end(), 
                   "No objects to handle command " << objPacket );
 
     // create copy of objects vector for thread-safety
-    ObjectVector objects = _objects[id];
+    ObjectVector objects = _objects.data[id];
     EQASSERTINFO( !objects.empty(), objPacket );
 
-    _objectsMutex.unset();
+    _objects.lock.unset();
 
     for( ObjectVector::const_iterator i = objects.begin();
          i != objects.end(); ++ i )
@@ -733,14 +777,15 @@ CommandResult Session::_cmdDetachObject( Command& command )
     EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << std::endl;
 
     const uint32_t id = packet->objectID;
-    if( _objects.find( id ) != _objects.end( ))
+    ObjectVectorHash::const_iterator i = _objects->find( id );
+    if( i != _objects->end( ))
     {
-        ObjectVector& objects = _objects[id];
+        const ObjectVector& objects = i->second;
 
-        for( ObjectVector::const_iterator i = objects.begin();
-            i != objects.end(); ++i )
+        for( ObjectVector::const_iterator j = objects.begin();
+            j != objects.end(); ++j )
         {
-            Object* object = *i;
+            Object* object = *j;
             if( object->getInstanceID() == packet->objectInstanceID )
             {
                 _detachObject( object );
@@ -818,23 +863,25 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
 
     Object* master = 0;
 
-    _objectsMutex.set();
-    if( _objects.find( id ) != _objects.end( ))
     {
-        ObjectVector& objects = _objects[id];
-
-        for( ObjectVector::const_iterator i = objects.begin();
-             i != objects.end(); ++i )
+        base::ScopedMutex mutex( _objects );
+        ObjectVectorHash::const_iterator i = _objects->find( id );
+        if( i != _objects->end( ))
         {
-            Object* object = *i;
-            if( object->isMaster( ))
+            const ObjectVector& objects = i->second;
+
+            for( ObjectVector::const_iterator j = objects.begin();
+                 j != objects.end(); ++j )
             {
-                master = object;
-                break;
+                Object* object = *j;
+                if( object->isMaster( ))
+                {
+                    master = object;
+                    break;
+                }
             }
         }
     }
-    _objectsMutex.unset();
     
     SessionSubscribeObjectReplyPacket reply( packet );
     reply.nodeID = node->getNodeID();
@@ -970,27 +1017,59 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
     NodePtr        node = command.getNode();
     const uint32_t id   = packet->objectID;
 
-    _objectsMutex.set();
-    if( _objects.find( id ) != _objects.end( ))
     {
-        ObjectVector& objects = _objects[id];
-
-        for( ObjectVector::const_iterator i = objects.begin();
-             i != objects.end(); ++ i )
+        base::ScopedMutex mutex( _objects );
+        ObjectVectorHash::const_iterator i = _objects->find( id );
+        if( i != _objects->end( ))
         {
-            Object* object = *i;
-            if( object->isMaster() && 
-                object->getInstanceID() == packet->masterInstanceID )
+            const ObjectVector& objects = i->second;
+
+            for( ObjectVector::const_iterator j = objects.begin();
+                 j != objects.end(); ++j )
             {
-                object->removeSlave( node );
-                break;
-            }
-        }   
+                Object* object = *j;
+                if( object->isMaster() && 
+                    object->getInstanceID() == packet->masterInstanceID )
+                {
+                    object->removeSlave( node );
+                    break;
+                }
+            }   
+        }
     }
-    _objectsMutex.unset();
 
     SessionDetachObjectPacket detachPacket( packet );
     send( node, detachPacket );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Session::_cmdUnmapObject( Command& command )
+{
+    CHECK_THREAD( _receiverThread );
+    const SessionUnmapObjectPacket* packet = 
+        command.getPacket< SessionUnmapObjectPacket >();
+
+    EQLOG( LOG_OBJECTS ) << "Cmd unmap object " << packet << std::endl;
+
+    _instanceDataCache.erase( packet->objectID );
+
+    ObjectVectorHash::const_iterator i = _objects->find( packet->objectID );
+    if( i == _objects->end( )) // nothing to do
+        return COMMAND_HANDLED;
+
+    const ObjectVector objects = i->second;
+    {
+        base::ScopedMutex mutex( _objects );
+        _objects->erase( i );
+    }
+
+    for( ObjectVector::const_iterator j = objects.begin();
+         j != objects.end(); ++j )
+    {
+        Object* object = *j;
+        object->detachFromSession();
+    }
+
     return COMMAND_HANDLED;
 }
 

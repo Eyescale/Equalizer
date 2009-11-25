@@ -42,9 +42,9 @@ namespace net
         const Packet* getPacket() const        { return _packet; }
 
         template< class P > P* getPacket()
-            { EQASSERT( _packet ); return reinterpret_cast<P*>( _packet ); }
+            { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
         template< class P > const P* getPacket() const
-            { EQASSERT( _packet ); return reinterpret_cast<P*>( _packet ); }
+            { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
 
         NodePtr getNode()      const { return _node; }
         NodePtr getLocalNode() const { return _localNode; }

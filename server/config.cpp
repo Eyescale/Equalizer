@@ -1119,6 +1119,7 @@ void Config::unmap()
     eq::ConfigUnmapPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     send( _appNetNode, packet );
+    _requestHandler.waitRequest( packet.requestID );
 
     if( _serializer ) // Config::init never happened
     {
@@ -1129,8 +1130,6 @@ void Config::unmap()
 
     UnmapVisitor unmapper;
     accept( unmapper );
-
-    _requestHandler.waitRequest( packet.requestID );
 }
 
 bool Config::_startFrame( const uint32_t frameID )

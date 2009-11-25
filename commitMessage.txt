@@ -1,9 +1,15 @@
-Multicast debugging
+Fix serialization issues when re-using IDs:
+- unmap remaining slave instances on deregisterObject
+- clear instance caches on deregisterObject
+
+Cleanups:
+- Tweak stress.2D to run without DNS
+- replace unneeded reinterpret_cast in command
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

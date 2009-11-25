@@ -114,7 +114,7 @@ void IDPool::freeIDs( const uint32_t start, const uint32_t range )
     block->range = range;
     _freeIDs.push_front( block );
 
-    _compressCounter++;
+    ++_compressCounter;
     if( ( _compressCounter % COMPRESS_INTERVAL) == 0 )
         _compressIDs();
 }

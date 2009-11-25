@@ -77,6 +77,7 @@ namespace net
 
         virtual uint32_t addSlave( Command& command );
         virtual void removeSlave( NodePtr node );
+        virtual const NodeVector* getSlaveNodes() const { return &_slaves; }
         virtual void addOldMaster( NodePtr node, const uint32_t instanceID );
 
         virtual void applyMapData() { EQDONTCALL; }

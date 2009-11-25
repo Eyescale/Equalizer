@@ -133,6 +133,9 @@ namespace net
          */
         virtual void removeSlave( NodePtr node ) = 0;
 
+        /** @return the vector of current slave nodes. */
+        virtual const NodeVector* getSlaveNodes() const { return 0; }
+
         /** Apply the initial data after mapping. */
         virtual void applyMapData() = 0;
 

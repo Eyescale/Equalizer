@@ -387,8 +387,7 @@ namespace net
         base::Lock _idMasterMutex;
         
         /** All registered and mapped objects. */
-        ObjectVectorHash _objects;
-        base::Lock       _objectsMutex;
+        base::Lockable< ObjectVectorHash > _objects;
 
         InstanceCache _instanceDataCache; //!< cached mapping data
 
@@ -423,6 +422,7 @@ namespace net
         CommandResult _cmdAttachObject( Command& command );
         CommandResult _cmdDetachObject( Command& command );
         CommandResult _cmdMapObject( Command& command );
+        CommandResult _cmdUnmapObject( Command& command );
         CommandResult _cmdSubscribeObject( Command& command );
         CommandResult _cmdSubscribeObjectSuccess( Command& command );
         CommandResult _cmdSubscribeObjectReply( Command& command );

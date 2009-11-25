@@ -61,7 +61,8 @@ public:
 private:
     void _unmap( net::Object* object )
         {
-            EQASSERT( object->getID() != EQ_ID_INVALID );
+            if( object->getID() == EQ_ID_INVALID )
+                return;
 
             net::Session* session = object->getSession();
             EQASSERT( session );

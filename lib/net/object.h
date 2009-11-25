@@ -368,6 +368,7 @@ namespace net
         bool _threadSafe;
 
         void _setChangeManager( ObjectCM* cm );
+        const NodeVector* _getSlaveNodes() const;
 
         /* The command handlers. */
         CommandResult _cmdForward( Command& command );

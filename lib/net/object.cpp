@@ -134,6 +134,11 @@ void Object::_setChangeManager( ObjectCM* cm )
                          << " for " << typeid( *this ).name() << endl;
 }
 
+const NodeVector* Object::_getSlaveNodes() const
+{
+    return _cm->getSlaveNodes();
+}
+
 void Object::makeThreadSafe()
 {
     EQASSERT( _id == EQ_ID_INVALID );
