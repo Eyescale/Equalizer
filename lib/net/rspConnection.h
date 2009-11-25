@@ -276,7 +276,7 @@ namespace net
         // write property part
         const char*       _dataSend;
         uint64_t          _lengthDataSend;
-        uint32_t          _numberDatagram;
+        uint32_t          _nDatagrams;
         IDSequenceType    _sequenceIDWrite;
 
         // we add 1 each read or write operation

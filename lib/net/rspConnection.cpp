@@ -35,6 +35,8 @@
 #  define INFINITE -1
 #endif
 
+//#define EQ_INSTRUMENT_RSP
+
 namespace eq
 {
 namespace net
@@ -57,17 +59,16 @@ static const size_t _maxNAck = _mtu - sizeof( RSPConnection::DatagramNack ) /
 #ifdef EQ_INSTRUMENT_RSP
 base::mtLong nReadDataAccepted;
 base::mtLong nReadData;
-base::mtLong nWriteByte;
-base::mtLong nWrite;
-base::mtLong nWriteTotal;
-base::mtLong nSendAckRequest;
-base::mtLong nSendAckRequestTotal;
-base::mtLong nAcceptedAckRequest;
-base::mtLong nRefusedAckRequest;
-base::mtLong nSendAck;
+base::mtLong bytesWritten;
+base::mtLong nDatagrams;
+base::mtLong nTotalDatagrams;
+base::mtLong nAckRequests;
+base::mtLong nTotalAckRequests;
+base::mtLong nAcksSend;
+base::mtLong nAcksSendTotal;
 base::mtLong nReceiveAck;
 base::mtLong nAcceptedAck;
-base::mtLong nSendNack;
+base::mtLong nNAcksSend;
 base::mtLong nReceiveNack;
 base::mtLong nReceiveNackTotal;
 base::mtLong nTimeOut;
@@ -922,7 +923,7 @@ void RSPConnection::_addRepeat( const uint32_t* repeatIDs, uint32_t size )
         repeat.end   = ( repeatIDs[j] & 0xFFFF );
         _repeatQueue.push( repeat );
 
-        EQASSERT( repeat.end <= _numberDatagram );
+        EQASSERT( repeat.end <= _nDatagrams );
         EQASSERT( repeat.start <= repeat.end);
         _errorFound += repeat.end - repeat.start + 1;
     }
@@ -1045,7 +1046,7 @@ bool RSPConnection::_handleAckRequest(
     _sendAck( connection->_writerID, receive->sequenceID );
 
 #ifdef EQ_INSTRUMENT_RSP
-    ++nSendAck;
+    ++nAcksSend;
 #endif
 
     connection->_lastSequenceIDAck = receive->sequenceID;
@@ -1184,7 +1185,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 #ifdef EQ_INSTRUMENT_RSP
     base::Clock clock;
     clock.reset();
-    nWriteByte += bytes;
+    bytesWritten += bytes;
 #endif
     
     const uint32_t size = EQ_MIN( bytes, _bufferSize );
@@ -1197,26 +1198,25 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     ++_sequenceIDWrite;
     _dataSend = reinterpret_cast< const char* >( buffer );
     _lengthDataSend = size;
-    _numberDatagram = size  / _payloadSize;
+    _nDatagrams = size  / _payloadSize;
     
     // compute number of datagram
-    if ( _numberDatagram * _payloadSize != size )
-        _numberDatagram++;
+    if ( _nDatagrams * _payloadSize != size )
+        _nDatagrams++;
 
     uint32_t writSeqID = _shiftedID | _sequenceIDWrite;
 
     EQLOG( net::LOG_RSP ) << "write sequence ID : " 
                           << _sequenceIDWrite << std::endl
-                          << "number datagram " << _numberDatagram << std::endl;
+                          << "number datagram " << _nDatagrams << std::endl;
 
     // send each datagram
-    for ( uint16_t i = 0; i < _numberDatagram; ++i )
-    {
-#ifdef EQ_INSTRUMENT_RSP
-        ++nWrite;
-#endif
+    for ( uint16_t i = 0; i < _nDatagrams; ++i )
         _sendDatagram( writSeqID, i );
-    }
+#ifdef EQ_INSTRUMENT_RSP
+    nDatagrams += _nDatagrams;
+#endif
+
     // init all ack receive flag
     for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin();
               i != _children.end(); ++i )
@@ -1234,7 +1234,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     _sendAckRequest();
 
 #ifdef EQ_INSTRUMENT_RSP
-    ++nSendAckRequest;
+    ++nAckRequests;
     base::Clock clockAck;
     clockAck.reset();
 #endif
@@ -1282,7 +1282,7 @@ void RSPConnection::_repeatDatagram( )
 void RSPConnection::_adaptSpeed()
 {
     float percentError = ( 100.0 / 
-                  static_cast< float >( _numberDatagram )*
+                  static_cast< float >( _nDatagrams )*
                               static_cast< float >( _errorFound ));
 
     if ( percentError <= 1.0f )
@@ -1312,7 +1312,7 @@ void RSPConnection::_sendAck( const ID writerID,
                               const IDSequenceType sequenceID)
 {
 #ifdef EQ_INSTRUMENT_RSP
-    base::mtLong nSendAckTotal;
+    ++nAcksSendTotal;
 #endif
     const DatagramAck ack = { ACK, _id, writerID, sequenceID };
     if ( _id == writerID )
@@ -1327,7 +1327,7 @@ void RSPConnection::_sendNackDatagram ( const ID  toWriterID,
                                         const uint32_t* repeatID   )
 {
 #ifdef EQ_INSTRUMENT_RSP
-    ++nSendNack;
+    ++nNAcksSend;
 #endif
     /* optimization : we use the direct access to the reader. */
     if ( toWriterID == _id )
@@ -1362,7 +1362,7 @@ void RSPConnection::_sendDatagram( const uint32_t writeSeqID,
 {
 
 #ifdef EQ_INSTRUMENT_RSP
-    ++nWriteTotal;
+    ++nTotalDatagrams;
 #endif
     const uint32_t posInData = _payloadSize * idDatagram;
     uint16_t lengthData;
@@ -1399,10 +1399,10 @@ void RSPConnection::_sendAckRequest()
 {
 
 #ifdef EQ_INSTRUMENT_RSP
-    ++nSendAckRequestTotal;
+    ++nTotalAckRequests;
 #endif
     
-     const DatagramAckRequest ackRequest = { ACKREQ, _id, _numberDatagram -1, 
+     const DatagramAckRequest ackRequest = { ACKREQ, _id, _nDatagrams -1, 
                                             _sequenceIDWrite };
     _connection->write( &ackRequest, sizeof( DatagramAckRequest ) );
     _handleAckRequest( &ackRequest );
@@ -1412,21 +1412,23 @@ void RSPConnection::_sendAckRequest()
 std::ostream& operator << ( std::ostream& os,
                             const RSPConnection& connection )
 {
-    os << "RSPConnection Write Statistic id:" << connection.getID()  
+    os << base::disableFlush << "RSPConnection id " << connection.getID()  
         
 #ifdef EQ_INSTRUMENT_RSP
-       << ", bytes Write " << nWriteByte 
-       << " times " << nTimeInWrite 
-       << " wait Ack  " << nTimeInWriteWaitAck
-       << " nWrite " << nWrite
-       << " nWriteTotal " << nWriteTotal 
-       << " nSendAckRequest " << nSendAckRequest  
-       << " nSendAckRequestTotal " << nSendAckRequestTotal 
-       << " nAcceptedAckRequest "  << nAcceptedAckRequest 
-       << " nSendAck " << nSendAck 
+       << ": " 
+       << bytesWritten << " bytes using " << nDatagrams << " dgrams send "
+       << nTotalDatagrams - nDatagrams << " repeated, "
+       << std::endl
+       << nAckRequests << " ack requests " 
+       << nTotalAckRequests - nAckRequests << " repeated, "
+
+       << nAcksSend << " acks " << nAcksSendTotal - nAcksSend << " repeated, "
+       << nNAcksSend << " negative acks "
+       << std::endl
+       << " time in write " << nTimeInWrite 
+       << " wait time for ack  " << nTimeInWriteWaitAck
        << " nReceiveAck " << nReceiveAck 
        << " nAcceptedAck " << nAcceptedAck 
-       << " nSendNack " << nSendNack 
        << " nReceiveNack " << nReceiveNack 
        << " nReceiveNackTotal " << nReceiveNackTotal 
        << " nTimeOut " << nTimeOut 
@@ -1436,7 +1438,8 @@ std::ostream& operator << ( std::ostream& os,
        << " nTimeInReadData " << nTimeInReadData
        << " nTimeInHandleData " << nTimeInHandleData
 #endif
-        ;
+       << base::enableFlush;
+
     return os;
 }
 
