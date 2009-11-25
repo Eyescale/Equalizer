@@ -53,8 +53,8 @@ IDPool::~IDPool()
     }
     while( !_blockCache.empty( ))
     {
-        Block* block = _blockCache.front();
-        _blockCache.pop_front();
+        Block* block = _blockCache.back();
+        _blockCache.pop_back();
         delete block;
     }
 }
@@ -87,7 +87,7 @@ uint32_t IDPool::_genIDs( const uint32_t range )
             if( block->range == 0 )
             {
                 _freeIDs.erase( i );
-                _blockCache.push_front( block );
+                _blockCache.push_back( block );
             }
 
             return start;
@@ -106,13 +106,22 @@ void IDPool::freeIDs( const uint32_t start, const uint32_t range )
         block = new Block;
     else
     {
-        block = _blockCache.front();
-        _blockCache.pop_front();
+        block = _blockCache.back();
+        _blockCache.pop_back();
     }
 
     block->start = start;
     block->range = range;
+
+    // In debug builds we reuse IDs as early as possible to detect potential
+    // errors with ID reusage throughout the framework and applications. In
+    // release build we reuse them as late as possible to be as robust as
+    // possible with any error which might have slipped though.
+#ifdef NDEBUG
+    _freeIDs.push_back( block );
+#else
     _freeIDs.push_front( block );
+#endif
 
     ++_compressCounter;
     if( ( _compressCounter % COMPRESS_INTERVAL) == 0 )
@@ -146,7 +155,7 @@ void IDPool::_compressIDs()
                     block->range += block2->range;
                     _freeIDs.erase( currentIter );
 
-                    _blockCache.push_front( block2 );
+                    _blockCache.push_back( block2 );
                     compress = true;
                 }
                 else if( block->start == ( block2->start + block2->range ))
@@ -155,7 +164,7 @@ void IDPool::_compressIDs()
                     block->range += block2->range;
                     _freeIDs.erase( currentIter );
 
-                    _blockCache.push_front( block2 );
+                    _blockCache.push_back( block2 );
                     compress = true;
                 }
              }

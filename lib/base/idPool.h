@@ -87,7 +87,7 @@ namespace base
         };
 
         std::list<Block*> _freeIDs;
-        std::list<Block*> _blockCache;
+        std::vector<Block*> _blockCache;
 
         Lock _lock;
 
