@@ -1053,7 +1053,7 @@ CommandResult Session::_cmdUnmapObject( Command& command )
 
     _instanceDataCache.erase( packet->objectID );
 
-    ObjectVectorHash::const_iterator i = _objects->find( packet->objectID );
+    ObjectVectorHash::iterator i = _objects->find( packet->objectID );
     if( i == _objects->end( )) // nothing to do
         return COMMAND_HANDLED;
 
