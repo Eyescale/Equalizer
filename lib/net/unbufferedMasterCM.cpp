@@ -98,7 +98,10 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID() << endl;
 
-    if( packet->minCachedVersion <= _version && 
+    const bool useCache = packet->masterInstanceID == _object->getInstanceID();
+
+    if( useCache && 
+        packet->minCachedVersion <= _version && 
         packet->maxCachedVersion >= _version )
     {
         return ( version == VERSION_OLDEST ) ? 

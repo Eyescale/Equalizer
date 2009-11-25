@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,8 +21,6 @@
 #include <eq/base/debug.h>
 
 #include <string.h>
-
-using namespace std;
 
 namespace eq
 {
@@ -57,7 +55,7 @@ void DataIStream::read( void* data, uint64_t size )
     if( !_checkBuffer( ))
     {
         EQUNREACHABLE;
-        EQERROR << "No more input data" << endl;
+        EQERROR << "No more input data" << std::endl;
         return;
     }
 
@@ -65,7 +63,8 @@ void DataIStream::read( void* data, uint64_t size )
     
     if( _position + size > _inputSize )
     {
-        EQERROR << "Not enough data in input buffer" << endl;
+        EQERROR << "Not enough data in input buffer: need " << size 
+                << " bytes, " << _inputSize - _position << " left "<< std::endl;
         EQUNREACHABLE;
         // TODO: Allow reads which are asymmetric to writes by reading from
         // multiple blocks here?

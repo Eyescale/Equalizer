@@ -50,7 +50,10 @@ uint32_t StaticMasterCM::addSlave( Command& command )
     const uint32_t instanceID = packet->instanceID;
     EQASSERT( packet->requestedVersion == VERSION_OLDEST );
 
-    if( packet->minCachedVersion == VERSION_NONE && 
+    const bool useCache = packet->masterInstanceID == _object->getInstanceID();
+
+    if( useCache &&
+        packet->minCachedVersion == VERSION_NONE && 
         packet->maxCachedVersion == VERSION_NONE )
     {
         return VERSION_NONE;

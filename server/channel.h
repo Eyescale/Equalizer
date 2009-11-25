@@ -148,6 +148,9 @@ namespace server
         /** @return the channel's segment. */
         const Segment* getSegment() const { return _segment; }
 
+        /** @return the channel's segment. */
+        Segment* getSegment() { return _segment; }
+
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 

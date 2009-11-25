@@ -437,6 +437,7 @@ namespace net
         uint32_t requestID;
         uint32_t objectID;
         uint32_t instanceID;
+        uint32_t masterInstanceID;
         uint32_t requestedVersion;
         uint32_t minCachedVersion;
         uint32_t maxCachedVersion;
@@ -573,6 +574,7 @@ namespace net
             }
 
         NodeID nodeID;
+        uint32_t masterInstanceID;
         EQ_ALIGN8( uint8_t data[8] );
     };
 
@@ -767,6 +769,15 @@ namespace net
            << " size " << packet->dataSize << " s" << packet->sequence;
         return os;
     }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ObjectInstancePacket* packet )
+    {
+        os << (ObjectDataPacket*)packet << " master " 
+           << packet->masterInstanceID;
+        return os;
+    }
+
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const BarrierEnterPacket* packet )

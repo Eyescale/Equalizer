@@ -1,10 +1,7 @@
 Fix serialization issues when re-using IDs:
-- unmap remaining slave instances on deregisterObject
-- clear instance caches on deregisterObject
-
-Cleanups:
-- Tweak stress.2D to run without DNS
-- replace unneeded reinterpret_cast in command
+- Augment instance cache with master instance ID to detect ID re-usage
+- Check instance ID when adding slaves
+- Fix a potential bug in the instance ID generation
 
 [ ] May break build
 [ ] May break existing applications

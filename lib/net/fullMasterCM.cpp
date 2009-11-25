@@ -163,9 +163,10 @@ uint32_t FullMasterCM::addSlave( Command& command )
     const uint32_t oldest  = getOldestVersion();
     uint32_t start = (requested == VERSION_OLDEST) ? oldest : requested;
     uint32_t end   = _version;
-    const uint32_t result = start;
+    const bool useCache = packet->masterInstanceID == _object->getInstanceID();
+    const uint32_t result = useCache ? start : VERSION_INVALID;
 
-    if( packet->useCache )
+    if( packet->useCache && useCache )
     {
         if( packet->minCachedVersion <= start && 
             packet->maxCachedVersion >= start )
@@ -182,8 +183,9 @@ uint32_t FullMasterCM::addSlave( Command& command )
     EQLOG( LOG_OBJECTS ) << "Object " << _object->_id << " (" 
                          << typeid( *_object).name() << ") v" << _version
                          << ", instantiate on " << node->getNodeID() 
-                         << " with v" << result << " sending v" << start
-                         << ".." << end << std::endl;
+                         << " with v" 
+                         << ((requested == VERSION_OLDEST) ? oldest : requested)
+                         << " sending v" << start << ".." << end << std::endl;
 
     EQASSERT( start >= oldest );
 

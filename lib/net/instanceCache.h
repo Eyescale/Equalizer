@@ -20,6 +20,7 @@
 
 #include <eq/net/types.h>
 
+#include <eq/base/lockable.h>  // member
 #include <eq/base/stdExt.h>    // member
 #include <eq/base/thread.h>    // member
 
@@ -54,8 +55,20 @@ namespace net
          * @param usage pre-set usage count.
          * @return true if the command was entered, false if not.
          */
-        bool add( const ObjectVersion& rev, Command& command, 
-                  const uint32_t usage = 0 );
+        bool add( const ObjectVersion& rev, const uint32_t instanceID, 
+                  Command& command, const uint32_t usage = 0 );
+
+        /** One cache entry */
+        struct Data
+        {
+            Data();
+            bool operator != ( const Data& rhs ) const;
+            bool operator == ( const Data& rhs ) const;
+
+            uint32_t masterInstanceID; //!< The instance ID of the master object
+            InstanceDataDeque versions; //!< all cached data for the given entry
+            static const Data NONE; //!< '0' return value 
+        };
 
         /**
          * Direct access to the cached instance data for the given object id.
@@ -65,10 +78,10 @@ namespace net
          * might be ready.
          *
          * @param id the identifier of the object to look up.
-         * @return the list of cached instance datas, or 0 if no data is cached
-         *         for this object.
+         * @return the list of cached instance datas, or Data::NONE if no data
+         *         is cached for this object.
          */
-        const InstanceDataDeque* operator[]( const uint32_t id );
+        const Data& operator[]( const uint32_t id );
 
         /** 
          * Release the retrieved instance data of the given object.
@@ -97,15 +110,14 @@ namespace net
         struct Item
         {
             Item();
-            InstanceDataDeque streams;
+            Data data;
             unsigned used;
             unsigned access;
         };
 
-        typedef stde::hash_map< uint32_t, Item > Data;
+        typedef stde::hash_map< uint32_t, Item > ItemHash;
 
-        Data _data;
-        base::Lock _mutex;
+        base::Lockable< ItemHash > _items;
 
         const long _maxSize; //!< high-water mark to start releasing commands
         long _size;          //!< Current number of bytes stored

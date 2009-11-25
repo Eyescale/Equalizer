@@ -140,7 +140,7 @@ namespace net
         virtual void applyMapData() = 0;
 
         /** Add existing instance data to the object (from session cache) */
-        virtual void addInstanceDatas( const InstanceDataDeque* cache, 
+        virtual void addInstanceDatas( const InstanceDataDeque& cache, 
                                        const uint32_t startVersion )
             { EQDONTCALL; }
 

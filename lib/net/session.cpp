@@ -263,9 +263,16 @@ namespace
 {
 uint32_t _genNextID( base::mtLong& val )
 {
-    const long id = ++val;
-    return static_cast< uint32_t >(
-        static_cast< int64_t >( id ) + 0x7FFFFFFFu );
+    uint32_t result;
+    do
+    {
+        const long id = ++val;
+        result = static_cast< uint32_t >(
+            static_cast< int64_t >( id ) + 0x7FFFFFFFu );
+    }
+    while( result > EQ_ID_MAX );
+
+    return result;
 }
 }
 
@@ -316,9 +323,10 @@ void Session::_detachObject( Object* object )
     CHECK_THREAD( _receiverThread );
 
     const uint32_t id = object->getID();
-    EQASSERT( id != EQ_ID_INVALID );
-    EQASSERT( _objects->find( id ) != _objects->end( ));
+    if( id == EQ_ID_INVALID )
+        return;
 
+    EQASSERT( _objects->find( id ) != _objects->end( ));
     EQLOG( LOG_OBJECTS ) << "Detach " << typeid( *object ).name() 
                          << " from id " << id << std::endl;
 
@@ -488,7 +496,6 @@ void Session::deregisterObject( Object* object )
     const NodeVector* slaves = object->_getSlaveNodes();
     if( slaves && !slaves->empty( ))
     {
-        ConnectionVector mcSet;
         SessionUnmapObjectPacket packet;
         packet.sessionID = _id;
         packet.objectID = id;
@@ -496,32 +503,8 @@ void Session::deregisterObject( Object* object )
         for( NodeVector::const_iterator i = slaves->begin();
              i != slaves->end(); ++i )
         {
-            NodePtr       node       = *i;
-            ConnectionPtr connection = node->getMulticast();
-
-            if( connection.isValid( ))
-            {
-                ConnectionDescriptionPtr desc = connection->getDescription();
-                bool used = false;
-                for( ConnectionVector::const_iterator j = mcSet.begin();
-                     j != mcSet.end() && !used; ++j )
-                {
-                    if( (*j)->getDescription() == desc )
-                        used = true;
-                }
-                if( !used )
-                    mcSet.push_back( connection );
-            }
-
+            NodePtr node = *i;
             node->send( packet );
-        }
-
-        // send out again on all multicast connections to avoid races
-        for( ConnectionVector::const_iterator j = mcSet.begin();
-             j != mcSet.end(); ++j )
-        {
-            ConnectionPtr connection = *j;
-            connection->send( packet );
         }
     }
 
@@ -824,13 +807,15 @@ CommandResult Session::_cmdMapObject( Command& command )
         SessionSubscribeObjectPacket subscribePacket( packet );
         subscribePacket.instanceID = _genNextID( _instanceIDs );
 
-        const InstanceDataDeque* cached = _instanceDataCache[ id ];
-        if( cached )
+        const InstanceCache::Data& cached = _instanceDataCache[ id ];
+        if( cached != InstanceCache::Data::NONE )
         {
-            EQASSERT( !cached->empty( ));
+            const InstanceDataDeque& versions = cached.versions;
+            EQASSERT( !cached.versions.empty( ));
             subscribePacket.useCache = true;
-            subscribePacket.minCachedVersion = cached->front()->getVersion();
-            subscribePacket.maxCachedVersion = cached->back()->getVersion();
+            subscribePacket.masterInstanceID = cached.masterInstanceID;
+            subscribePacket.minCachedVersion = versions.front()->getVersion();
+            subscribePacket.maxCachedVersion = versions.back()->getVersion();
             EQLOG( LOG_OBJECTS ) << "Object " << id << " have v"
                                  << subscribePacket.minCachedVersion << ".."
                                  << subscribePacket.maxCachedVersion 
@@ -975,7 +960,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
 
     if( packet->result )
     {
-        if( packet->useCache && packet->cachedVersion != VERSION_INVALID )
+        if( packet->useCache )
         {
             Object* object = static_cast<Object*>( 
                 _requestHandler.getRequestData( packet->requestID ));    
@@ -986,11 +971,11 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
             const uint32_t start = packet->cachedVersion;
             if( start != VERSION_INVALID )
             {
-                const InstanceDataDeque* cached = _instanceDataCache[ id ];
-                EQASSERT( cached );
-                EQASSERT( !cached->empty( ));
+                const InstanceCache::Data& cached = _instanceDataCache[ id ];
+                EQASSERT( cached != InstanceCache::Data::NONE );
+                EQASSERT( !cached.versions.empty( ));
             
-                object->_cm->addInstanceDatas( cached, start );
+                object->_cm->addInstanceDatas( cached.versions, start );
                 EQCHECK( _instanceDataCache.release( id, 2 ));
             }
             else
@@ -1097,7 +1082,7 @@ CommandResult Session::_cmdInstance( Command& command )
     if( packet->dataSize > 0 )
     {
         const ObjectVersion key( packet->objectID, packet->version ); 
-        _instanceDataCache.add( key, command, usage );
+        _instanceDataCache.add( key, packet->masterInstanceID, command, usage );
     }
 
     return result;

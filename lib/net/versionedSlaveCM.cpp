@@ -230,7 +230,7 @@ CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
     return COMMAND_HANDLED;
 }
 
-void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque* cache, 
+void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache, 
                                          const uint32_t startVersion )
 {
     CHECK_THREAD( _cmdThread );
@@ -247,8 +247,8 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque* cache,
     InstanceDataDeque  head;
     InstanceDataVector tail;
 
-    for( InstanceDataDeque::const_iterator i = cache->begin();
-         i != cache->end(); ++i )
+    for( InstanceDataDeque::const_iterator i = cache.begin();
+         i != cache.end(); ++i )
     {
         ObjectInstanceDataIStream* stream = *i;
         const uint32_t version = stream->getVersion();

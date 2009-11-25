@@ -28,6 +28,7 @@ namespace eq
 {
 namespace base
 {
+#   define EQ_ID_MAX     0xfffffff0u //!< The biggest identifier possible
 #   define EQ_ID_NONE    0xfffffffdu //!< None/NULL identifier
 #   define EQ_ID_INVALID 0xfffffffeu //!< Invalid/unset identifier
 #   define EQ_ID_ANY     0xffffffffu //!< Any/all identifiers
@@ -44,7 +45,7 @@ namespace base
     public:
         enum MaxCapacity
         {
-            MAX_CAPACITY =  0xfffffff0u
+            MAX_CAPACITY = EQ_ID_MAX
         };
 
         /** 

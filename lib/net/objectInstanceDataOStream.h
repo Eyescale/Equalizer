@@ -38,7 +38,6 @@ namespace net
  
         void setInstanceID( const uint32_t instanceID )
             { _instanceID = instanceID; }
-        uint32_t getInstanceID() const { return _instanceID; }
 
         void setNodeID( const NodeID& nodeID )
             { _nodeID = nodeID; }

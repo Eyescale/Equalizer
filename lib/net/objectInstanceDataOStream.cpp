@@ -46,6 +46,7 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
     packet.sessionID  = _object->getSession()->getID();
     packet.objectID   = _object->getID();
     packet.instanceID = _instanceID;
+    packet.masterInstanceID = _object->getInstanceID();
 
     if( _nodeID == NodeID::ZERO )
     {

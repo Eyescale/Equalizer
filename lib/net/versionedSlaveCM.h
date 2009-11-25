@@ -74,7 +74,7 @@ namespace net
             { EQDONTCALL }
 
         virtual void applyMapData();
-        virtual void addInstanceDatas( const InstanceDataDeque* cache, 
+        virtual void addInstanceDatas( const InstanceDataDeque& cache, 
                                        const uint32_t startVersion );
 
     private:

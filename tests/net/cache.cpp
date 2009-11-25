@@ -52,7 +52,7 @@ protected:
             while( _clock.getTime64() < RUNTIME )
             {
                 const uint32_t key = _rng.get< uint16_t >();
-                if( _cache[ key ])
+                if( _cache[ key ] != eq::net::InstanceCache::Data::NONE )
                 {
                     ++hits;
                     _cache.release( key );
@@ -95,7 +95,7 @@ int main( int argc, char **argv )
     size_t ops = 0;
 
     for( uint32_t key = 0; key < 65536; ++key ) // Fill cache
-        if( !cache.add( eq::net::ObjectVersion( key, 1 ), command ))
+        if( !cache.add( eq::net::ObjectVersion( key, 1 ), 1, command ))
             break;
 
     _clock.reset();
@@ -108,18 +108,18 @@ int main( int argc, char **argv )
     while( _clock.getTime64() < RUNTIME )
     {
         const eq::net::ObjectVersion key( rng.get< uint16_t >(), 1 );
-        if( cache[ key.id ] )
+        if( cache[ key.id ] != eq::net::InstanceCache::Data::NONE )
         {
             TEST( cache.release( key.id ));
             ++ops;
             if( cache.erase( key.id ))
             {
-                TEST( cache.add( key, command ));
+                TEST( cache.add( key, 1, command ));
                 ops += 2;
                 hits += 2;
             }
         }
-        else if( cache.add( key, command ))
+        else if( cache.add( key, 1, command ))
             ++hits;
         ++ops;
     }
@@ -138,7 +138,7 @@ int main( int argc, char **argv )
 
     for( uint32_t key = 0; key < 65536; ++key )
     {
-        if( cache[ key ] )
+        if( cache[ key ] != eq::net::InstanceCache::Data::NONE )
         {
             TEST( cache.release( key ));
             TEST( cache.erase( key ));
@@ -147,7 +147,7 @@ int main( int argc, char **argv )
 
     for( uint32_t key = 0; key < 65536; ++key )
     {
-        TEST( !cache[ key ]);
+        TEST( cache[ key ] == eq::net::InstanceCache::Data::NONE );
     }
 
     EQINFO << cache << std::endl;
