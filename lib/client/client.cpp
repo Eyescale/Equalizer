@@ -65,21 +65,6 @@ bool Client::listen()
     return net::Node::listen();
 }
 
-void Client::setWindowSystem( const WindowSystem windowSystem )
-{
-    // access already locked by Config::setWindowSystem (caller)
-    if( _nodeThreadQueue->getWindowSystem() == WINDOW_SYSTEM_NONE )
-    {
-        _nodeThreadQueue->setWindowSystem( windowSystem );
-        EQINFO << "Client command message pump set up for " << windowSystem
-               << std::endl;
-    }
-    else if( _nodeThreadQueue->getWindowSystem() != windowSystem )
-        EQWARN << "Can't switch to window system " << windowSystem 
-               << ", already using " <<  _nodeThreadQueue->getWindowSystem()
-               << std::endl;
-}
-
 bool Client::stopListening()
 {
     if( !net::Node::stopListening( ))

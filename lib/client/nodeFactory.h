@@ -35,7 +35,7 @@ namespace eq
     {
     public:
         /** 
-         * Creates a new config.
+         * Create a new config.
          * 
          * @return the config.
          */
@@ -45,7 +45,7 @@ namespace eq
         virtual void releaseConfig( Config* config );
 
         /** 
-         * Creates a new node.
+         * Create a new node.
          * 
          * @return the node.
          */
@@ -55,7 +55,7 @@ namespace eq
         virtual void releaseNode( Node* node );
 
         /** 
-         * Creates a new observer.
+         * Create a new observer.
          * 
          * @return the observer.
          */
@@ -65,7 +65,7 @@ namespace eq
         virtual void releaseObserver( Observer* observer );
 
         /** 
-         * Creates a new layout.
+         * Create a new layout.
          * 
          * @return the layout.
          */
@@ -75,7 +75,7 @@ namespace eq
         virtual void releaseLayout( Layout* layout );
 
         /** 
-         * Creates a new view.
+         * Create a new view.
          * 
          * @return the view.
          */
@@ -85,7 +85,7 @@ namespace eq
         virtual void releaseView( View* view );
 
         /** 
-         * Creates a new canvas.
+         * Create a new canvas.
          * 
          * @return the canvas.
          */
@@ -95,7 +95,7 @@ namespace eq
         virtual void releaseCanvas( Canvas* canvas );
 
         /** 
-         * Creates a new segment.
+         * Create a new segment.
          * 
          * @return the segment.
          */
@@ -105,7 +105,7 @@ namespace eq
         virtual void releaseSegment( Segment* segment );
 
         /** 
-         * Creates a new pipe.
+         * Create a new pipe.
          * 
          * @return the pipe.
          */
@@ -115,7 +115,7 @@ namespace eq
         virtual void releasePipe( Pipe* pipe );
 
         /** 
-         * Creates a new window.
+         * Create a new window.
          * 
          * @return the window.
          */
@@ -125,7 +125,7 @@ namespace eq
         virtual void releaseWindow( Window* window );
 
         /** 
-         * Creates a new channel.
+         * Create a new channel.
          * 
          * @return the channel.
          */
@@ -133,7 +133,7 @@ namespace eq
 
         /** Release a channel. */
         virtual void releaseChannel( Channel* channel );
-        
+
         virtual ~NodeFactory(){}
     };
 }

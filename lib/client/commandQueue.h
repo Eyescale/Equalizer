@@ -54,12 +54,11 @@ namespace eq
         /** @sa net::CommandQueue::flush(). */
         virtual void flush();
 
-        void         setWindowSystem( const WindowSystem windowSystem );
-        WindowSystem getWindowSystem() const { return _windowSystem; }
-        
+        void setMessagePump( MessagePump* pump ) { _messagePump = pump; }
+        MessagePump* getMessagePump() { return _messagePump; }
+
     private:
         MessagePump* _messagePump;
-        WindowSystem _windowSystem;
     };
 }
 

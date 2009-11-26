@@ -267,11 +267,11 @@ namespace eq
         EQ_EXPORT void freezeLoadBalancing( const bool onOff );
 
         /** 
-         * Set the window system for the config's message pump, used by
-         * non-threaded pipes.
+         * Set up the config's message pump for the given pipe.
+         * Used by non-threaded and AGL pipes.
          * @internal
          */
-        void setWindowSystem( const WindowSystem windowSystem );
+        void setupMessagePump( Pipe* pipe );
 
     protected:
 
@@ -374,6 +374,9 @@ namespace eq
 
         /** Init the application node instance */
         void _initAppNode( const uint32_t distributorID );
+
+        /** Exit the current message pump */
+        void _exitMessagePump();
 
         /** The command functions. */
         net::CommandResult _cmdSyncClock( net::Command& command );

@@ -76,13 +76,6 @@ namespace eq
         /** @sa net::Node::stopListening() */
         EQ_EXPORT virtual bool stopListening();
 
-        /** 
-         * Set the window system for the client's message pump, used by
-         * non-threaded pipes.
-         * @internal
-         */
-        EQ_EXPORT void setWindowSystem( const WindowSystem windowSystem );
-
         /** Return the command queue to the main node thread. */
         CommandQueue* getNodeThreadQueue() { return _nodeThreadQueue; }
 

@@ -34,12 +34,15 @@
 #include "window.h"
 
 #ifdef GLX
+#  include "glXMessagePump.h"
 #  include "glXPipe.h"
 #endif
 #ifdef WGL
+#  include "wglMessagePump.h"
 #  include "wglPipe.h"
 #endif
 #ifdef AGL
+#  include "aglMessagePump.h"
 #  include "aglPipe.h"
 #endif
 
@@ -235,30 +238,63 @@ WindowSystem Pipe::selectWindowSystem() const
 
 void Pipe::_setupCommandQueue()
 {
+#ifdef EQ_USE_DEPRECATED
     if( !useMessagePump( ))
         return;
+#endif
 
     EQASSERT( _windowSystem != WINDOW_SYSTEM_NONE );
-    EQINFO << "Pipe message pump set up for " << _windowSystem << std::endl;
+    EQINFO << "Set up pipe message pump for " << _windowSystem << std::endl;
 
-    // Switch the node thread message pumps for non-threaded pipes
+    Config* config = getConfig();
+    config->setupMessagePump( this );
+
+    // Non-threaded pipes have no pipe thread message pump
     if( !_thread )
-    {
-        Config* config = getConfig();
-        config->setWindowSystem( _windowSystem );
         return;
-    }
-
-    if( _windowSystem == WINDOW_SYSTEM_AGL ) //AGL needs dispatch from node
-    {
-        Config* config = getConfig();
-        config->setWindowSystem( _windowSystem );
-    }
     
     EQASSERT( _pipeThreadQueue );
-    _pipeThreadQueue->setWindowSystem( _windowSystem );
+    EQASSERT( !_pipeThreadQueue->getMessagePump( ));
+
+    _pipeThreadQueue->setMessagePump( createMessagePump( ));
 }
 
+void Pipe::_exitCommandQueue()
+{
+    // Non-threaded pipes have no pipe thread message pump
+    if( !_thread )
+        return;
+    
+    EQASSERT( _pipeThreadQueue );
+
+    MessagePump* pump = _pipeThreadQueue->getMessagePump();
+
+    _pipeThreadQueue->setMessagePump( 0 );
+    delete pump;
+}
+
+MessagePump* Pipe::createMessagePump()
+{
+    switch( _windowSystem )
+    {
+#ifdef GLX
+        case WINDOW_SYSTEM_GLX:
+            return new GLXMessagePump();
+#endif
+#ifdef WGL
+        case WINDOW_SYSTEM_WGL:
+            return new WGLMessagePump();
+#endif
+#ifdef AGL
+        case WINDOW_SYSTEM_AGL:
+            return new AGLMessagePump();
+#endif
+
+        default:
+            EQUNREACHABLE;
+            return 0;
+    }
+}
 
 void* Pipe::_runThread()
 {
@@ -765,7 +801,8 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
         // cleanup
         command.release();
         _pipeThreadQueue->flush();
-        
+        _exitCommandQueue();
+
         EQINFO << "Leaving pipe thread" << std::endl;
         _thread->exit( EXIT_SUCCESS );
         EQUNREACHABLE;

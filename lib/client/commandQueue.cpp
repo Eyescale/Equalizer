@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,68 +17,20 @@
 
 #include "commandQueue.h"
 
-#ifdef GLX
-#  include "glXMessagePump.h"
-#endif
-#ifdef WGL
-#  include "wglMessagePump.h"
-#endif
-#ifdef AGL
-#  include "aglMessagePump.h"
-#endif
-
-using namespace std;
+#include "messagePump.h"
 
 namespace eq
 {
 CommandQueue::CommandQueue()
         : _messagePump( 0 )
-        , _windowSystem( WINDOW_SYSTEM_NONE )
 {
 }
 
 CommandQueue::~CommandQueue()
 {
+    EQASSERT( !_messagePump );
     delete _messagePump;
     _messagePump = 0;
-}
-
-void CommandQueue::setWindowSystem( const WindowSystem windowSystem )
-{
-    if( _windowSystem == windowSystem )
-        return;
-
-    EQASSERTINFO( _windowSystem == WINDOW_SYSTEM_NONE, 
-                  "Can't switch window system from " << _windowSystem << " to "
-                  << windowSystem );
-    EQASSERT( !_windowSystem );
-
-    delete _messagePump;
-    _windowSystem = windowSystem;
-
-    switch( windowSystem )
-    {
-#ifdef GLX
-        case WINDOW_SYSTEM_GLX:
-            _messagePump = new GLXMessagePump();
-            break;
-#endif
-
-#ifdef WGL
-        case WINDOW_SYSTEM_WGL:
-            _messagePump = new WGLMessagePump();
-            break;
-#endif
-
-#ifdef AGL
-        case WINDOW_SYSTEM_AGL:
-            _messagePump = new AGLMessagePump();
-            break;
-#endif
-
-        default:
-            EQUNREACHABLE;
-    }
 }
 
 void CommandQueue::push(net::Command& inCommand)

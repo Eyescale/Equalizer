@@ -27,9 +27,11 @@
 #include "global.h"
 #include "layout.h"
 #include "log.h"
+#include "messagePump.h"
 #include "node.h"
 #include "nodeFactory.h"
 #include "packets.h"
+#include "pipe.h"
 #include "server.h"
 #include "task.h"
 #include "view.h"
@@ -680,25 +682,47 @@ void Config::getStatistics( std::vector< FrameStatistics >& statistics )
     _statisticsMutex.unset();
 }
 
-void Config::setWindowSystem( const WindowSystem windowSystem )
+void Config::setupMessagePump( Pipe* pipe )
 {
+    const bool isThreaded = pipe->isThreaded();
+    const WindowSystem windowSystem = pipe->getWindowSystem();
+
+    if( isThreaded && windowSystem != WINDOW_SYSTEM_AGL )
+        return;
+
     // called from pipe threads - but only during init
     static base::Lock _lock;
     base::ScopedMutex mutex( _lock );
 
-    if( _eventQueue.getWindowSystem() == WINDOW_SYSTEM_NONE )
-    {
-        _eventQueue.setWindowSystem( windowSystem );
-        EQVERB << "Client event message pump set up for " << windowSystem
-               << std::endl;
-    }
-    else if( _eventQueue.getWindowSystem() != windowSystem )
-        EQWARN << "Can't switch to window system " << windowSystem 
-               << ", already using " <<  _eventQueue.getWindowSystem()
-               << std::endl;
+    if( _eventQueue.getMessagePump( ))
+        // Already done
+        return;
+
+    MessagePump* pump = pipe->createMessagePump();
+
+    _eventQueue.setMessagePump( pump );
 
     ClientPtr client = getClient();
-    client->setWindowSystem( windowSystem );    
+    CommandQueue* queue = client->getNodeThreadQueue();
+    EQASSERT( queue );
+    EQASSERT( !queue->getMessagePump( ));
+
+    queue->setMessagePump( pump );
+}
+
+void Config::_exitMessagePump()
+{
+    MessagePump* pump = _eventQueue.getMessagePump();
+
+    _eventQueue.setMessagePump( 0 );
+
+    ClientPtr client = getClient();
+    CommandQueue* queue = client->getNodeThreadQueue();
+    EQASSERT( queue );
+    EQASSERT( queue->getMessagePump() == pump );
+
+    queue->setMessagePump( 0 );
+    delete pump;
 }
 
 #ifdef EQ_USE_DEPRECATED
@@ -802,6 +826,7 @@ net::CommandResult Config::_cmdExitReply( net::Command& command )
         command.getPacket<ConfigExitReplyPacket>();
     EQVERB << "handle exit reply " << packet << std::endl;
 
+    _exitMessagePump();
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return net::COMMAND_HANDLED;
 }

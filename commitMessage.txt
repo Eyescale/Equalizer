@@ -1,9 +1,14 @@
-Minor code cleanup
+Implement configurable message pump:
+- move message pump creation from command queue to pipe
+- add Pipe::createMessagePump
+- deprecate Pipe::useMessagePump
+- export WGL message pump methods
+- install AGL, WGL, GLX message pump headers
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

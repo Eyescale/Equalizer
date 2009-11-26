@@ -280,6 +280,7 @@ CFILES += \
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   HEADER_SRC += \
 	client/glXEventHandler.h \
+	client/glXMessagePump.h \
 	client/glXWindow.h \
 	client/glXWindowEvent.h \
 	client/glXPipe.h
@@ -294,6 +295,7 @@ endif
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
   HEADER_SRC += \
 	client/aglEventHandler.h \
+	client/aglMessagePump.h \
 	client/aglWindow.h \
 	client/aglWindowEvent.h \
 	client/aglPipe.h
@@ -308,6 +310,7 @@ endif
 ifeq ($(findstring WGL, $(WINDOW_SYSTEM)),WGL)
   HEADER_SRC += \
 	client/wglEventHandler.h \
+	client/wglMessagePump.h \
 	client/wglWindow.h \
 	client/wglWindowEvent.h \
 	client/wglPipe.h

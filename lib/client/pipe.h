@@ -42,6 +42,7 @@
 namespace eq
 {
     class CommandQueue;
+    class MessagePump;
     class OSPipe;
     class PipeVisitor;
 
@@ -240,6 +241,34 @@ namespace eq
         void setErrorMessage( const std::string& message ) { _error = message; }
         //@}
 
+        /** @name Configuration. */
+        //@{
+#ifdef EQ_USE_DEPRECATED
+        /** 
+         * Enable or disable automatic or external OS event dispatch for the
+         * pipe thread.
+         *
+         * @return true if Equalizer shall dispatch OS events, false if the
+         *         application dispatches OS events.
+         * @sa Event handling documentation on website.
+         */
+        virtual bool useMessagePump() { return true; }
+#endif
+
+        /** 
+         * Create a new MessagePump for this pipe.
+         *
+         * At most one message pump per execution thread is created. Each pipe
+         * render thread creates one message pump for its window system, and the
+         * process main thread creates a message pump for AGL pipes or if
+         * non-threaded pipes are used. Applications which do their own message
+         * pumping outside of Equalizer should return 0 here.
+         *
+         * @return the message pump, or 0.
+         */
+        EQ_EXPORT virtual MessagePump* createMessagePump();
+        //@}
+
     protected:
         friend class Node;
 
@@ -302,7 +331,7 @@ namespace eq
         EQ_EXPORT virtual WindowSystem selectWindowSystem() const;
 
         /** 
-         * Initialises this pipe.
+         * Initialize this pipe.
          * 
          * @param initID the init identifier.
          */
@@ -359,19 +388,6 @@ namespace eq
          */
         EQ_EXPORT virtual void frameDrawFinish( const uint32_t frameID, 
                                                 const uint32_t frameNumber );
-
-        /** @name Configuration. */
-        //@{
-        /** 
-         * Enable or disable automatic or external OS event dispatch for the
-         * pipe thread.
-         *
-         * @return true if Equalizer shall dispatch OS events, false if the
-         *         application dispatches OS events.
-         * @sa Event handling documentation on website.
-         */
-        virtual bool useMessagePump() { return true; }
-        //@}
 
         /** @sa net::Object::attachToSession. */
         EQ_EXPORT virtual void attachToSession( const uint32_t id, 
@@ -475,6 +491,7 @@ namespace eq
         //-------------------- Methods --------------------
         void* _runThread();
         void _setupCommandQueue();
+        void _exitCommandQueue();
 
         friend class Window;
         void _addWindow( Window* window );

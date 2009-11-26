@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,16 +28,16 @@ namespace eq
     class WGLMessagePump : public MessagePump
     {
     public:
-        WGLMessagePump();
+        EQ_EXPORT WGLMessagePump();
 
         /** Wake up dispatchOneEvent(). */
-        virtual void postWakeup();
+        EQ_EXPORT virtual void postWakeup();
 
         /** Get and dispatch all pending system events, non-blocking. */
-        virtual void dispatchAll();
+        EQ_EXPORT virtual void dispatchAll();
 
         /** Get and dispatch at least one pending system event, blocking. */
-        virtual void dispatchOne();
+        EQ_EXPORT virtual void dispatchOne();
 
         virtual ~WGLMessagePump() {}
 
