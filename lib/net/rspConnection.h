@@ -186,7 +186,7 @@ namespace net
             Thread( RSPConnectionPtr connection )
                 : _connection( connection ){}
             virtual ~Thread(){ _connection = 0; }
-        //    virtual bool init(){ return _connection->_initReadThread(); }
+            //virtual bool init(){ return !_acceptID() || !_initReadThread(); }
         protected:
             
             virtual void* run();

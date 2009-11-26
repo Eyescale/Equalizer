@@ -327,7 +327,7 @@ ConnectionPtr RSPConnection::acceptSync()
     
     EQINFO << "accepted connection " << (void*)newConnection.get()
            << std::endl;
-    const base::ScopedMutex mutexConn( _mutexConnection );
+    base::ScopedMutex mutexConn( _mutexConnection );
     if ( static_cast< int >( _children.size()) <= _countAcceptChildren )
 #ifdef WIN32
         ResetEvent( _hEvent );
@@ -384,6 +384,7 @@ bool RSPConnection::_acceptID()
                     _addNewConnection( _id );
                     return true;
                 }
+                break;
             case ConnectionSet::EVENT_DATA:
                 if ( !_handleAcceptID() )
                 {
@@ -470,7 +471,6 @@ bool RSPConnection::_initReadThread()
                 break;
 
             default: break;
-
         }
     }
 }
@@ -574,7 +574,6 @@ void RSPConnection::_runReadThread()
                      ++nTimeOutRepeat;
 #endif
                      _sendAckRequest();
-
                 }
                 break;
                 
@@ -626,9 +625,8 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
         memset( receive->got.getData(), false, receive->got.getSize( ));
         
         _readBufferIndex = ( _readBufferIndex + 1 ) % _nBuffers;
-        
         {
-            const base::ScopedMutex mutexEvent( _mutexEvent );
+            base::ScopedMutex mutexEvent( _mutexEvent );
             if ( !( _buffer[ _readBufferIndex ]->ackSend.get() && 
                   !_buffer[ _readBufferIndex ]->allRead.get()) )
             {
@@ -1099,7 +1097,7 @@ bool RSPConnection::_handleAckRequest(
 
     connection->_lastSequenceIDAck = receive->sequenceID;
     {
-        const base::ScopedMutex mutexEvent( _mutexEvent );
+        base::ScopedMutex mutexEvent( _mutexEvent );
         EQLOG( net::LOG_RSP ) << "data ready set Event for sequence" 
                               << receive->sequenceID << std::endl;
 #ifdef WIN32
@@ -1177,7 +1175,7 @@ bool RSPConnection::_addNewConnection( ID id )
     // protect the event and child size which can be use at the same time 
     // in acceptSync
     {
-        const base::ScopedMutex mutexConn( _mutexConnection );
+        base::ScopedMutex mutexConn( _mutexConnection );
         _children.push_back( connection );
         EQWARN << "New connection " << id << std::endl;
 
@@ -1237,7 +1235,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 #endif
     
     const uint32_t size = EQ_MIN( bytes, _bufferSize );
-    const base::ScopedMutex mutex( _mutexConnection );
+    base::ScopedMutex mutex( _mutexConnection );
 
     _writing = 1;
     _countNbAckInWrite = 0;
