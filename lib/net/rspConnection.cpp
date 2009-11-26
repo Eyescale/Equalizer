@@ -184,7 +184,7 @@ RSPConnection::~RSPConnection()
 #ifdef WIN32
 void RSPConnection::_initAIORead()
 {
-    _hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
+    _hEvent = CreateEvent( 0, TRUE, FALSE, 0 );
     EQASSERT( _hEvent );
 
     if( !_hEvent )
@@ -625,6 +625,11 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
             {
 #ifdef WIN32
                 ResetEvent( _hEvent );
+			}
+			else
+			{
+				SetEvent( _hEvent );
+
 #else
                 _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
                 _selfPipeHEvent->recvSync( 0, 0);
