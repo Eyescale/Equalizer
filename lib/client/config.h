@@ -217,51 +217,11 @@ namespace eq
         EQ_EXPORT virtual bool handleEvent( const ConfigEvent* event );
         //@}
         
-#ifdef EQ_USE_DEPRECATED
-        /** @name Observer Interface. */
-        //@{
-        /** 
-         * Set the head matrix.
-         *
-         * The head matrix specifies the transformation origin->observer.
-         * Together with the eye separation, this determines the eye positions.
-         * The eye position and wall or projection description define the shape
-         * of the frustum and the channel's head transformation during
-         * rendering.
-         *
-         * @param matrix the matrix
-         */
-        EQ_EXPORT void setHeadMatrix( const vmml::Matrix4f& matrix );
-
-        /** @return the current head matrix. */
-        EQ_EXPORT const vmml::Matrix4f& getHeadMatrix() const;
-
-        /** Set the eye separation, i.e., the distance between the eyes. */
-        EQ_EXPORT void setEyeBase( const float eyeBase );
-
-        /** @return the current eye separation. */
-        EQ_EXPORT float getEyeBase() const;
-        //@}
-#endif
-
         /** @name Error Information. */
         //@{
         /** @return the error message from the last operation. */
         const std::string& getErrorMessage() const { return _error; }
         //@}
-
-#ifdef EQ_TRANSMISSION_API
-        /** @name Data Transmission. */
-        //@{
-        /** 
-         * Send data to all active render client nodes.
-         * 
-         * @param data the pointer to the data.
-         * @param size the data size.
-         */
-        void broadcastData( const void* data, uint64_t size );
-        //@}
-#endif
 
         /** Undocumented */
         EQ_EXPORT void freezeLoadBalancing( const bool onOff );
@@ -288,14 +248,6 @@ namespace eq
 
         /** The node running the application thread. */
         net::NodePtr _appNode;
-
-#ifdef EQ_TRANSMISSION_API
-        /** The list of the running client node identifiers. */
-        std::vector<net::NodeID> _clientNodeIDs;
-
-        /** The running client nodes, is cleared when _clientNodeIDs changes. */
-        net::NodeVector _clientNodes;
-#endif
 
         /** Locally-instantiated nodes of this config. */
         NodeVector _nodes;
@@ -367,11 +319,6 @@ namespace eq
          */
         void _updateStatistics( const uint32_t finishedFrame );
 
-#ifdef EQ_TRANSMISSION_API
-        /** Connect client nodes of this config. */
-        bool _connectClientNodes();
-#endif
-
         /** Init the application node instance */
         void _initAppNode( const uint32_t distributorID );
 
@@ -387,9 +334,6 @@ namespace eq
         net::CommandResult _cmdStartFrameReply( net::Command& command );
         net::CommandResult _cmdReleaseFrameLocal( net::Command& command );
         net::CommandResult _cmdFrameFinish( net::Command& command );
-#ifdef EQ_TRANSMISSION_API
-        net::CommandResult _cmdData( net::Command& command );
-#endif
         net::CommandResult _cmdUnmap( net::Command& command );
     };
 }

@@ -725,42 +725,6 @@ void Config::_exitMessagePump()
     delete pump;
 }
 
-#ifdef EQ_USE_DEPRECATED
-void Config::setHeadMatrix( const eq::Matrix4f& matrix )
-{
-    for( ObserverVector::const_iterator i = _observers.begin();
-         i != _observers.end(); ++i )
-    {
-        (*i)->setHeadMatrix( matrix );
-    }
-}
-
-const eq::Matrix4f& Config::getHeadMatrix() const
-{
-    if( _observers.empty( ))
-        return eq::Matrix4f::IDENTITY;
-
-    return _observers[0]->getHeadMatrix();
-}
-
-void Config::setEyeBase( const float eyeBase )
-{
-    for( ObserverVector::const_iterator i = _observers.begin();
-         i != _observers.end(); ++i )
-    {
-        (*i)->setEyeBase( eyeBase );
-    }
-}
-
-float Config::getEyeBase() const
-{
-    if( _observers.empty( ))
-        return _eyeBase;
-
-    return _observers[0]->getEyeBase();
-}
-#endif
-
 void Config::freezeLoadBalancing( const bool onOff )
 {
     ConfigFreezeLoadBalancingPacket packet;

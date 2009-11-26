@@ -1,14 +1,9 @@
-Implement configurable message pump:
-- move message pump creation from command queue to pipe
-- add Pipe::createMessagePump
-- deprecate Pipe::useMessagePump
-- export WGL message pump methods
-- install AGL, WGL, GLX message pump headers
+Remove deprecated config observer API and some dead code
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
