@@ -72,7 +72,7 @@ namespace net
         typedef uint16_t IDSequenceType;
         struct DatagramAckRequest
         {
-            uint8_t    type;
+            uint16_t    type;
             ID   writerID;
             uint16_t           lastDatagramID;
             IDSequenceType     sequenceID;
@@ -80,13 +80,13 @@ namespace net
         
         struct DatagramNode
         {
-            uint8_t            type;
+            uint16_t            type;
             ID   connectionID;
         };
 
         struct DatagramCountConnection
         {
-            uint8_t             type;
+            uint16_t             type;
             ID    clientID;
             uint16_t             nbClient;
         };
@@ -94,7 +94,7 @@ namespace net
         struct DatagramNack
         {
         
-            uint8_t     type;
+            uint16_t     type;
             ID    readerID;    // ID of the connection reader
             ID    writerID;    // ID of the connection writer
             IDSequenceType      sequenceID;  // last datagram in write sequence
@@ -103,7 +103,7 @@ namespace net
 
         struct DatagramAck
         {
-            uint8_t             type;
+            uint16_t             type;
             ID    readerID;
             ID    writerID;
             IDSequenceType      sequenceID;
@@ -111,7 +111,7 @@ namespace net
 
         struct DatagramData
         {
-            uint8_t     type;
+            uint16_t     type;
             uint32_t    writeSeqID;
             uint32_t    dataIDlength;
         };
@@ -199,8 +199,8 @@ namespace net
         int64_t _readSync( DataReceive* receive, 
                            void* buffer, 
                            const uint64_t bytes  );
-        
-
+        bool _acceptID();
+        bool _handleAcceptID();
         /* using directly by the thread to manage RSP */
         bool _handleData( );
         bool _handleDataDatagram( const DatagramData* datagram );

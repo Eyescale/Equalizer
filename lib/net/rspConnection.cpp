@@ -86,9 +86,11 @@ base::mtLong nTimeInHandleData;
 
 RSPConnection::RSPConnection()
         : _countAcceptChildren( 0 )
+        , _id( 0 )
         , _writing( 0 )
         , _thread ( 0 )
         , _lastSequenceIDAck( -1 )
+        , _sequenceIDWrite( 0 )
         , _readBufferIndex ( 0 )
         , _recvBufferIndex ( 0 )
         , _repeatData( false )
@@ -267,7 +269,7 @@ bool RSPConnection::listen()
     _readBuffer.resize( _connection->getMTU( ));
 
     // waits until RSP protocol establishes connection to the multicast network
-    if( !_initReadThread())
+    if( !_acceptID() || !_initReadThread())
     {
         close();
         return false;
@@ -321,10 +323,7 @@ ConnectionPtr RSPConnection::acceptSync()
 #endif
 
     ++_countAcceptChildren;
-
-    const DatagramCountConnection countNode = 
-                        { COUNTNODE, _id, _children.size() };
-    _connection->write( &countNode, sizeof( DatagramCountConnection ) );
+    _sendDatagramCountNode();
     
     EQINFO << "accepted connection " << (void*)newConnection.get()
            << std::endl;
@@ -359,7 +358,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
     return sizeRead;
 }
 
-bool RSPConnection::_initReadThread()
+bool RSPConnection::_acceptID()
 {
     _connection->readNB( _readBuffer.getData(), _mtu );
 
@@ -375,23 +374,86 @@ bool RSPConnection::_initReadThread()
                 ++_countTimeOut;
                 if ( _countTimeOut < 10 )
                 {
-                    
-                    const DatagramNode ackNode ={ ID_HELLO, _id };
-                    _connection->write( &ackNode, sizeof( DatagramNode ) );
+                   const DatagramNode ackNode ={ ID_HELLO, _id };
+                   _connection->write( &ackNode, sizeof( DatagramNode ) );
                 }
-                else if ( _countTimeOut == 10 )
+                else 
                 {
                     const DatagramNode confirmNode ={ ID_CONFIRM, _id };
                     _connection->write( &confirmNode, sizeof( DatagramNode ) );
                     _addNewConnection( _id );
-                }
-                else if ( _countTimeOut >= 20 )
                     return true;
-                else
-                {
-                    const DatagramNode confirmNode ={ ID_CONFIRM, _id };
-                    _connection->write( &confirmNode, sizeof( DatagramNode ) );
                 }
+            case ConnectionSet::EVENT_DATA:
+                if ( !_handleAcceptID() )
+                {
+                    EQERROR << " Error during Read UDP Connection" 
+                            << std::endl;
+                    return false;
+                }
+                else
+                    _connection->readNB( _readBuffer.getData(), _mtu );
+                break;
+                case ConnectionSet::EVENT_INTERRUPT:
+                    break;
+
+            default: break;
+        }
+    }
+}
+
+bool RSPConnection::_handleAcceptID()
+{
+    // read datagram 
+    if( _connection->readSync( _readBuffer.getData(), _mtu ) == -1 )
+    {
+        EQERROR << "Error read on Connection UDP" << std::endl;
+        return false;
+    }
+
+    // read datagram type
+    const uint16_t* type = reinterpret_cast<uint16_t*>( _readBuffer.getData() );
+    const DatagramNode* node = reinterpret_cast< const DatagramNode* >
+                                                      ( _readBuffer.getData( ));
+    switch ( *type )
+    {
+    case ID_HELLO:
+        return _acceptNewIDConnection( node->connectionID ) ;
+    case ID_DENY:
+        // a connection refused my ID, ask for another ID
+        if  ( node->connectionID == _id ) 
+        {
+            _countTimeOut = 0;
+             const DatagramNode newnode ={ ID_HELLO, _buildNewID() };
+             _connection->write( &newnode, sizeof( DatagramNode ) );
+        }
+        return true;
+    case ID_EXIT:
+        return _acceptRemoveConnection( node->connectionID );
+
+    default: break;
+    
+    }//END switch
+    return true;
+}
+
+bool RSPConnection::_initReadThread()
+{
+    // send a first datgram for annunce me and discover other connection 
+    _sendDatagramCountNode();
+    _countTimeOut = 0;
+    while ( true )
+    {
+        switch ( _connectionSet.select( 100 ) )
+        {
+            case ConnectionSet::EVENT_TIMEOUT:
+                ++_countTimeOut;
+                if ( _countTimeOut < 10 )
+                {
+                    _sendDatagramCountNode();
+                }
+                else
+                    return true;
                 break;
             case ConnectionSet::EVENT_DATA:
                 
@@ -423,32 +485,18 @@ bool RSPConnection::_handleInitData()
     }
 
     // read datagram type
-    const uint8_t* type = reinterpret_cast<uint8_t*>( _readBuffer.getData() );
+    const uint16_t* type = reinterpret_cast<uint16_t*>( _readBuffer.getData() );
     const DatagramNode* node = reinterpret_cast< const DatagramNode* >
                                                       ( _readBuffer.getData( ));
     switch ( *type )
     {
     case ID_HELLO:
+        _countTimeOut = 0;
         return _acceptNewIDConnection( node->connectionID ) ;
 
-    case ID_DENY:
-        // a connection refused my ID, ask for another ID
-        if ( ( node->connectionID == _id ) &&
-             ( _countTimeOut < 10 ))
-        {
-            _countTimeOut = 0;
-             const DatagramNode newnode ={ ID_HELLO, _buildNewID() };
-             _connection->write( &newnode, sizeof( DatagramNode ) );
-        }
-        else
-        {
-             _sendDatagramCountNode();
-        }
-        return true;
-
     case ID_CONFIRM:
+        _countTimeOut = 0;
         return _addNewConnection( node->connectionID );
-
     case COUNTNODE:
     {
         const DatagramCountConnection* countConn = 
@@ -467,8 +515,8 @@ bool RSPConnection::_handleInitData()
 
         if ( !connection.isValid() )
         {
+            _countTimeOut = 0;
             _addNewConnection( countConn->clientID );
-            _countTimeOut = 11;
         }
         break;
     }
@@ -609,7 +657,7 @@ bool RSPConnection::_handleData( )
     }
 
     // read datagram type
-    const uint8_t* type = reinterpret_cast<uint8_t*>( _readBuffer.getData() ); 
+    const uint16_t* type = reinterpret_cast<uint16_t*>( _readBuffer.getData() ); 
     switch ( *type )
     {
     case DATA:
@@ -1303,6 +1351,8 @@ void RSPConnection::_adaptSpeed()
 
 void RSPConnection::_sendDatagramCountNode()
 {
+    if ( !_findConnectionWithWriterID( _id ) )
+        return;
     const DatagramCountConnection countNode = 
                        { COUNTNODE, _id, _children.size() };
     _connection->write( &countNode, sizeof( DatagramCountConnection ) );
@@ -1391,8 +1441,6 @@ void RSPConnection::_sendDatagram( const uint32_t writeSeqID,
     _handleDataDatagram( 
            reinterpret_cast< DatagramData* >(_sendBuffer.getData() ));
     _connection->write ( _sendBuffer.getData(), _sendBuffer.getSize() );
-    
-
 }
 
 void RSPConnection::_sendAckRequest()
