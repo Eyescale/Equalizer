@@ -59,24 +59,23 @@ static const size_t _maxNAck = _mtu - sizeof( RSPConnection::DatagramNack ) /
 #ifdef EQ_INSTRUMENT_RSP
 base::mtLong nReadDataAccepted;
 base::mtLong nReadData;
-base::mtLong bytesWritten;
+base::mtLong nBytesRead;
+base::mtLong nBytesWritten;
 base::mtLong nDatagrams;
 base::mtLong nTotalDatagrams;
 base::mtLong nAckRequests;
 base::mtLong nTotalAckRequests;
 base::mtLong nAcksSend;
 base::mtLong nAcksSendTotal;
-base::mtLong nReceiveAck;
-base::mtLong nAcceptedAck;
+base::mtLong nAcksRead;
+base::mtLong nAcksAccepted;
 base::mtLong nNAcksSend;
-base::mtLong nReceiveNack;
-base::mtLong nReceiveNackTotal;
+base::mtLong nNAcksAnswered;
+base::mtLong nNAcksRead;
 base::mtLong nTimeOut;
-base::mtLong nTimeOutRepeat;
 base::mtLong nTimeInWrite;
 base::mtLong nTimeInWriteWaitAck;
 base::mtLong nTimeInReadSync;
-base::mtLong nInReadSync;
 base::mtLong nTimeInReadData;
 base::mtLong nTimeInHandleData;
 #endif
@@ -353,7 +352,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
     int64_t sizeRead = _readSync( receiver, buffer, size );
 #ifdef EQ_INSTRUMENT_RSP
     nTimeInReadSync += clock.getTime64();
-    nInReadSync += sizeRead;
+    nBytesRead += sizeRead;
 #endif
     return sizeRead;
 }
@@ -365,14 +364,14 @@ bool RSPConnection::_acceptID()
     // send a first datgram for annunce me and discover other connection 
     const DatagramNode newnode ={ ID_HELLO, _id };
     _connection->write( &newnode, sizeof( DatagramNode ) );
-    _countTimeOut = 0;
+    _timeouts = 0;
     while ( true )
     {
         switch ( _connectionSet.select( 100 ) )
         {
             case ConnectionSet::EVENT_TIMEOUT:
-                ++_countTimeOut;
-                if ( _countTimeOut < 10 )
+                ++_timeouts;
+                if ( _timeouts < 10 )
                 {
                    const DatagramNode ackNode ={ ID_HELLO, _id };
                    _connection->write( &ackNode, sizeof( DatagramNode ) );
@@ -424,7 +423,7 @@ bool RSPConnection::_handleAcceptID()
         // a connection refused my ID, ask for another ID
         if  ( node->connectionID == _id ) 
         {
-            _countTimeOut = 0;
+            _timeouts = 0;
              const DatagramNode newnode ={ ID_HELLO, _buildNewID() };
              _connection->write( &newnode, sizeof( DatagramNode ) );
         }
@@ -440,16 +439,16 @@ bool RSPConnection::_handleAcceptID()
 
 bool RSPConnection::_initReadThread()
 {
-    // send a first datgram for annunce me and discover other connection 
+    // send a first datagram to announce me and discover other connections 
     _sendDatagramCountNode();
-    _countTimeOut = 0;
+    _timeouts = 0;
     while ( true )
     {
         switch ( _connectionSet.select( 100 ) )
         {
             case ConnectionSet::EVENT_TIMEOUT:
-                ++_countTimeOut;
-                if ( _countTimeOut < 10 )
+                ++_timeouts;
+                if ( _timeouts < 10 )
                 {
                     _sendDatagramCountNode();
                 }
@@ -491,11 +490,11 @@ bool RSPConnection::_handleInitData()
     switch ( *type )
     {
     case ID_HELLO:
-        _countTimeOut = 0;
+        _timeouts = 0;
         return _acceptNewIDConnection( node->connectionID ) ;
 
     case ID_CONFIRM:
-        _countTimeOut = 0;
+        _timeouts = 0;
         return _addNewConnection( node->connectionID );
     case COUNTNODE:
     {
@@ -507,7 +506,7 @@ bool RSPConnection::_handleInitData()
         if (( _children.size() == countConn->nbClient ) &&
             ( _children.size() > 1 )) 
         {
-            _countTimeOut = 20;
+            _timeouts = 20;
             return true;
         }
         RSPConnectionPtr connection = 
@@ -515,7 +514,7 @@ bool RSPConnection::_handleInitData()
 
         if ( !connection.isValid() )
         {
-            _countTimeOut = 0;
+            _timeouts = 0;
             _addNewConnection( countConn->clientID );
         }
         break;
@@ -559,22 +558,16 @@ void RSPConnection::_runReadThread()
                 if ( connection->_ackReceive )
                     continue;
 
-                ++connection->_countTimeOut;
+                ++connection->_timeouts;
                 // a lot of more time out
-                 if ( connection->_countTimeOut >= 250 )
+                 if ( connection->_timeouts >= 250 )
                 {
                     _connection = 0;
                     return;
                 }
 
                 // send a datagram Ack Request 
-                if ( connection->_countTimeOut % 40 == 0)
-                {
-#ifdef EQ_INSTRUMENT_RSP
-                     ++nTimeOutRepeat;
-#endif
-                     _sendAckRequest();
-                }
+                _sendAckRequest();
                 break;
                 
             }
@@ -858,7 +851,7 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
 bool RSPConnection::_handleAck( const DatagramAck* ack )
 {
 #ifdef EQ_INSTRUMENT_RSP
-    ++nReceiveAck;
+    ++nAcksRead;
 #endif
     EQLOG( net::LOG_RSP ) << "Receive Ack from " << ack->writerID << std::endl
                           << " for sequence ID " << ack->sequenceID << std::endl
@@ -887,7 +880,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     if ( connection->_ackReceive )
         return true;
 #ifdef EQ_INSTRUMENT_RSP
-    ++nAcceptedAck;
+    ++nAcksAccepted;
 #endif
     connection->_ackReceive = true;
     ++_countNbAckInWrite;
@@ -902,7 +895,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     _repeatQueue.push( repeat );
 
     // reset counter timeout
-    connection->_countTimeOut = 0;
+    connection->_timeouts = 0;
 
     return true;
 }
@@ -910,7 +903,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
 bool RSPConnection::_handleNack( const DatagramNack* nack )
 {
 #ifdef EQ_INSTRUMENT_RSP
-    ++nReceiveNackTotal;
+    ++nNAcksRead;
 #endif
 
     RSPConnectionPtr connection = _findConnectionWithWriterID( nack->readerID );
@@ -933,7 +926,7 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
     }
     
     if ( connection.isValid() )
-        connection->_countTimeOut = 0;
+        connection->_timeouts = 0;
     else
     {
         EQUNREACHABLE;
@@ -942,12 +935,12 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
         // TO DO add this connection?
     }
 
-    // if some repeatition we ignore the NACK
+    // if repetition we ignore the NACK
     if( !_repeatQueue.isEmpty() )
         return true;
 
 #ifdef EQ_INSTRUMENT_RSP
-    ++nReceiveNack;
+    ++nNAcksAnswered;
 #endif
 
     EQLOG( net::LOG_RSP ) << "repeat datagram data" << std::endl;
@@ -1231,7 +1224,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 #ifdef EQ_INSTRUMENT_RSP
     base::Clock clock;
     clock.reset();
-    bytesWritten += bytes;
+    nBytesWritten += bytes;
 #endif
     
     const uint32_t size = EQ_MIN( bytes, _bufferSize );
@@ -1267,7 +1260,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin();
               i != _children.end(); ++i )
     {
-        (*i)->_countTimeOut = 0;
+        (*i)->_timeouts = 0;
         (*i)->_ackReceive = false;
     }
 
@@ -1461,26 +1454,23 @@ std::ostream& operator << ( std::ostream& os,
     os << base::disableFlush << "RSPConnection id " << connection.getID()  
         
 #ifdef EQ_INSTRUMENT_RSP
-       << ": " 
-       << bytesWritten << " bytes using " << nDatagrams << " dgrams send "
+       << ": read " << nBytesRead << " bytes, wrote " 
+       << nBytesWritten << " bytes using " << nDatagrams << " dgrams "
        << nTotalDatagrams - nDatagrams << " repeated, "
+       << nTimeOut << " write timeouts, "
        << std::endl
        << nAckRequests << " ack requests " 
        << nTotalAckRequests - nAckRequests << " repeated, "
-
+       << nAcksAccepted << "/" << nAcksRead << " acks used, "
+       << nNAcksAnswered << "/" << nNAcksRead << " nacks answered, "
+       << std::endl
        << nAcksSend << " acks " << nAcksSendTotal - nAcksSend << " repeated, "
        << nNAcksSend << " negative acks "
+
        << std::endl
        << " time in write " << nTimeInWrite 
-       << " wait time for ack  " << nTimeInWriteWaitAck
-       << " nReceiveAck " << nReceiveAck 
-       << " nAcceptedAck " << nAcceptedAck 
-       << " nReceiveNack " << nReceiveNack 
-       << " nReceiveNackTotal " << nReceiveNackTotal 
-       << " nTimeOut " << nTimeOut 
-       << " nTimeOutRepeat " << nTimeOutRepeat
+       << " ack wait time  " << nTimeInWriteWaitAck
        << " nTimeInReadSync " << nTimeInReadSync
-       << " nInReadSync " << nInReadSync
        << " nTimeInReadData " << nTimeInReadData
        << " nTimeInHandleData " << nTimeInHandleData
 #endif

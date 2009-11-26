@@ -246,7 +246,7 @@ namespace net
 
         ID _writerID;
         
-        uint8_t  _countTimeOut;
+        uint8_t  _timeouts;
         bool     _ackReceive;
 
 #ifdef WIN32
