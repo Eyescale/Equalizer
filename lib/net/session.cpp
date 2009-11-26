@@ -807,7 +807,7 @@ CommandResult Session::_cmdMapObject( Command& command )
         SessionSubscribeObjectPacket subscribePacket( packet );
         subscribePacket.instanceID = _genNextID( _instanceIDs );
 
-        const InstanceCache::Data& cached = _instanceDataCache[ id ];
+        const InstanceCache::Data& cached = _instanceCache[ id ];
         if( cached != InstanceCache::Data::NONE )
         {
             const InstanceDataDeque& versions = cached.versions;
@@ -971,16 +971,16 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
             const uint32_t start = packet->cachedVersion;
             if( start != VERSION_INVALID )
             {
-                const InstanceCache::Data& cached = _instanceDataCache[ id ];
+                const InstanceCache::Data& cached = _instanceCache[ id ];
                 EQASSERT( cached != InstanceCache::Data::NONE );
                 EQASSERT( !cached.versions.empty( ));
             
                 object->_cm->addInstanceDatas( cached.versions, start );
-                EQCHECK( _instanceDataCache.release( id, 2 ));
+                EQCHECK( _instanceCache.release( id, 2 ));
             }
             else
             {
-                EQCHECK( _instanceDataCache.release( id ));
+                EQCHECK( _instanceCache.release( id ));
             }
         }
     }
@@ -1036,7 +1036,7 @@ CommandResult Session::_cmdUnmapObject( Command& command )
 
     EQLOG( LOG_OBJECTS ) << "Cmd unmap object " << packet << std::endl;
 
-    _instanceDataCache.erase( packet->objectID );
+    _instanceCache.erase( packet->objectID );
 
     ObjectVectorHash::iterator i = _objects->find( packet->objectID );
     if( i == _objects->end( )) // nothing to do
@@ -1082,7 +1082,7 @@ CommandResult Session::_cmdInstance( Command& command )
     if( packet->dataSize > 0 )
     {
         const ObjectVersion key( packet->objectID, packet->version ); 
-        _instanceDataCache.add( key, packet->masterInstanceID, command, usage );
+        _instanceCache.add( key, packet->masterInstanceID, command, usage );
     }
 
     return result;

@@ -389,7 +389,7 @@ namespace net
         /** All registered and mapped objects. */
         base::Lockable< ObjectVectorHash > _objects;
 
-        InstanceCache _instanceDataCache; //!< cached mapping data
+        InstanceCache _instanceCache; //!< cached object mapping data
 
         const NodeID& _pollIDMaster( const uint32_t id ) const;
         NodePtr _pollIDMasterNode( const uint32_t id ) const;

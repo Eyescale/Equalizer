@@ -1,16 +1,9 @@
-Cleanup and optimize IDPool
-
-In debug builds we reuse IDs as early as possible to detect potential
-errors with ID reusage throughout the framework and applications. In
-release build we reuse them as late as possible to be as robust as
-possible with any error which might have slipped though.
-
-Replace cache list with vector.
+Minor code cleanup
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation
