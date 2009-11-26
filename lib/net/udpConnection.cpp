@@ -54,8 +54,8 @@ namespace
 }
 
 UDPConnection::UDPConnection()
-#ifdef WIN32
     : _allowedData( 0 )
+#ifdef WIN32    
     , _overlappedDone( 0 )
 #endif
 {
