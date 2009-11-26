@@ -625,10 +625,10 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
             {
 #ifdef WIN32
                 ResetEvent( _hEvent );
-			}
-			else
-			{
-				SetEvent( _hEvent );
+            }
+            else
+            {
+                SetEvent( _hEvent );
 
 #else
                 _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
@@ -1020,7 +1020,7 @@ bool RSPConnection::_handleAckRequest(
     EQASSERT( ackRequest->lastDatagramID < receive->got.getSize( ));
     eq::base::Buffer< uint32_t > bufferRepeatID;
 
-    for ( uint32_t i = 0; i < ackRequest->lastDatagramID; i++)
+    for ( uint32_t i = 0; i <= ackRequest->lastDatagramID; i++)
     {
         // size max datagram = mtu
         if ( _maxNAck <= bufferRepeatID.getSize() )
