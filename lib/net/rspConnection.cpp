@@ -305,8 +305,6 @@ ConnectionPtr RSPConnection::acceptSync()
     newConnection->_description = _description;
 
 #ifndef WIN32
-    _selfPipeHEvent->recvSync( 0, 0 );
-
     newConnection->_selfPipeHEvent = new PipeConnection;
     if( !newConnection->_selfPipeHEvent->connect( ))
     {
@@ -327,13 +325,14 @@ ConnectionPtr RSPConnection::acceptSync()
     EQINFO << "accepted connection " << (void*)newConnection.get()
            << std::endl;
     base::ScopedMutex mutexConn( _mutexConnection );
-    if ( static_cast< int >( _children.size()) <= _countAcceptChildren )
 #ifdef WIN32
+    if ( static_cast< int >( _children.size() ) <= _countAcceptChildren )
         ResetEvent( _hEvent );
     else 
         SetEvent( _hEvent );
 #else
-        _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
+    _selfPipeHEvent->recvSync( 0, 0 );
+    _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
 #endif
     return connection;
 }
