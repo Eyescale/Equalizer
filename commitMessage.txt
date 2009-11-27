@@ -1,13 +1,8 @@
-Fix exit assertion with multi-node configs
-API cleanups:
-- doxygen improvements
-- Rename net::Node::stopListening() to net::Node::close and
-  net::Node::disconnect( NodePtr ) to net::Node::close( NodePtr ) for
-  consistency with Connection API.
+doxygen improvements
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

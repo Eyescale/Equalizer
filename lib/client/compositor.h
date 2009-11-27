@@ -31,7 +31,17 @@ namespace eq
     class Image;
     class Accum;
 
-    /** A facility class for image assembly operations */
+    /** 
+     * A set of functions performing compositing for a set of input frames.
+     *
+     * The following diagram depicts the call flow within the
+     * compositor. Typically, an application uses one of the entry functions
+     * assembleFrames() or assembleFramesUnsorted(), but the various lower-level
+     * functions are still useful for advanced tasks, e.g., mergeFramesCPU() to
+     * perform compositing on the CPU into a main memory buffer.
+     * 
+     * <img src="http://www.equalizergraphics.com/documents/design/images/compositor.png">
+     */
     class EQ_EXPORT Compositor
     {
     public:
@@ -51,8 +61,8 @@ namespace eq
         /** @name Frame-based operations. */
         //@{
         /** 
-         * Assemble all frames in an arbitrary order using the best algorithm
-         * on the given channel
+         * Assemble all frames in an arbitrary order using the fastest
+         * implemented algorithm on the given channel.
          *
          * @param frames the frames to assemble.
          * @param channel the destination channel.
@@ -63,8 +73,8 @@ namespace eq
                                         Channel* channel, Accum* accum );
 
         /** 
-         * Assemble all frames in the given order using the default algorithm
-         * on the given channel.
+         * Assemble all frames in the given order using the fastest implemented
+         * algorithm on the given channel.
          *
          * For alpha-blending see comment for assembleFramesCPU().
          *
@@ -92,7 +102,7 @@ namespace eq
                                               Channel* channel, Accum* accum );
 
         /** 
-         * Assemble all frames in arbitrary order in a memory buffer using the
+         * Assemble all frames in the given order in a memory buffer using the
          * CPU before assembling the result on the given channel.
          *
          * If alpha-blending is enabled, the images are blended into the
@@ -119,7 +129,7 @@ namespace eq
         /** 
          * Merge the provided frames into one main memory buffer.
          *
-         * The called has to allocate and clear (if needed) the output buffers
+         * The callee has to allocate and clear (if needed) the output buffers
          * to hold the necessary data. All input images have to use the same
          * format and type, which will also be the output format. The depth
          * buffer and depth buffer size may be 0, if the images contain no depth
@@ -147,7 +157,7 @@ namespace eq
         /** @name Image-based operations. */
         //@{
         /** 
-         * Start assembling an image.
+         * Assemble an image.
          * 
          * @param image the input image.
          * @param operation an ImageOp struct describing the operation.

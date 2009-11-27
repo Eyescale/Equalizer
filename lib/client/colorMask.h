@@ -25,6 +25,8 @@ namespace eq
 {
     /**
      * Defines which parts of the color buffer are to be written.
+     *
+     * Used to configure anaglyphic stereo rendering.
      */
     class EQ_EXPORT ColorMask
     {

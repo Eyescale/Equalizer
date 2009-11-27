@@ -31,7 +31,8 @@
 namespace eq
 {
     /**
-     * The mirror class for use easily all function of a dso compressor.
+     * A class holding all functions and information for one compressor DSO.
+     * @internal
      */
     class Compressor
     {
