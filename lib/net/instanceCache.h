@@ -51,6 +51,7 @@ namespace net
          * Add a new command to the instance cache.
          *
          * @param rev the object identifier and version.
+         * @param instanceID the master instance ID.
          * @param command The command to add.
          * @param usage pre-set usage count.
          * @return true if the command was entered, false if not.

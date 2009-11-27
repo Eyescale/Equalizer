@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2009       Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,7 +24,7 @@
 namespace eq
 {
     /**
-     * Finds largest empty regions.
+     * Finds largest empty regions. @internal
      */
     class ROIEmptySpaceFinder
     {
@@ -69,7 +70,7 @@ namespace eq
         int16_t _limAbs;
         float   _limRel;
 
-        UShortVector _data;
+        Vectorus _data;
         const uint8_t* _mask;
     };
 }

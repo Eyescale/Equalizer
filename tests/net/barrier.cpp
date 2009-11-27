@@ -86,7 +86,7 @@ public:
                 _barrier = 0;
             }
 
-            node->stopListening();
+            node->close();
             return EXIT_SUCCESS;
         }
             

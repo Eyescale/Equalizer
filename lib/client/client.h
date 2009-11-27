@@ -30,24 +30,25 @@ namespace eq
     class Server;
 
     /** 
-     * The client represents a network node in the cluster.
+     * The client represents a network node of the application in the cluster.
+     *
+     * The methods initLocal() and exitLocal() should be used to set up and exit
+     * the listening node instance for each application process.
      */
     class Client : public net::Node
     {
     public:
-        /** 
-         * Constructs a new client.
-         */
+        /** Construct a new client. */
         EQ_EXPORT Client();
 
-        /**
-         * Destructs the client.
-         */
+        /** Destruct the client. */
         EQ_EXPORT virtual ~Client();
 
         /** 
          * Open and connect an Equalizer server to the local client.
-         * 
+         *
+         * The client has to be in the listening state, see initLocal().
+         *
          * @param server the server.
          * @return true if the server was connected, false if not.
          */
@@ -66,24 +67,39 @@ namespace eq
         EQ_EXPORT bool hasCommands();
 
         /** 
-         * Get and process one command from the node command queue. Used
-         * internally to run node commands.
+         * Get and process one pending command from the node command queue.
+         *
+         * Used internally to run node commands.
          */
         EQ_EXPORT void processCommand();
 
-        /** @sa net::Node::listen() */
-        EQ_EXPORT virtual bool listen();
-        /** @sa net::Node::stopListening() */
-        EQ_EXPORT virtual bool stopListening();
-
-        /** Return the command queue to the main node thread. */
+        /** @return the command queue to the main node thread. @internal */
         CommandQueue* getNodeThreadQueue() { return _nodeThreadQueue; }
 
     protected:
-        /** @sa net::Node::clientLoop */
+        /**
+         * Implements the processing loop for render clients. 
+         *
+         * As long as the node is running, that is, between initLocal() and an
+         * exit send from the server, this method executes received commands
+         * using processCommand() and triggers the message pump between
+         * commands.
+         *
+         * @sa net::Node::clientLoop(), Pipe::createMessagePump()
+         */
         EQ_EXPORT virtual bool clientLoop();
-        /** @sa net::Node::exitClient(). */
+
+        /**
+         * Reimplemented to also call eq::exit() on render clients.
+         * @sa net::Node::exitClient().
+         */
         EQ_EXPORT virtual bool exitClient();
+
+        /** @sa net::Node::listen() */
+        EQ_EXPORT virtual bool listen();
+
+        /** @sa net::Node::close() */
+        EQ_EXPORT virtual bool close();
 
     private:
         /** The command->node command queue. */

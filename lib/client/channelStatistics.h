@@ -25,13 +25,16 @@ namespace eq
     class Channel;
 
     /**
-     * Holds one statistics event, used for profiling.
+     * Holds one channel statistics event, used for profiling.
      */
     class ChannelStatistics : public StatisticSampler< Channel >
     {
     public:
+        /** Construct a statistics sampler and sample the start time. */
         EQ_EXPORT ChannelStatistics( const Statistic::Type type, 
                                      Channel* channel );
+
+        /** Destruct the sampler, sample the end time and send the event. */
         virtual EQ_EXPORT ~ChannelStatistics();
     };
 }

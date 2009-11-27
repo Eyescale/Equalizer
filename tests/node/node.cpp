@@ -127,15 +127,15 @@ int main( int argc, char **argv )
 
     lock.set();
 
-    TEST( client->disconnect( serverProxy ));
+    TEST( client->close( serverProxy ));
     TESTINFO( serverProxy->getRefCount() == 1, serverProxy->getRefCount( ));
     serverProxy = 0;
 
-    TEST( client->stopListening( ));
+    TEST( client->close( ));
     TESTINFO( client->getRefCount() == 1, client->getRefCount( ));
     client      = 0;
 
-    TEST( server->stopListening( ));
+    TEST( server->close( ));
     TESTINFO( server->getRefCount() == 1, server->getRefCount( ));
     server      = 0;
 

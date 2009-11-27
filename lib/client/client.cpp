@@ -51,7 +51,7 @@ Client::Client()
 Client::~Client()
 {
     EQINFO << "Delete client at " << (void*)this << std::endl;
-    stopListening();
+    close();
 }
 
 bool Client::listen()
@@ -65,9 +65,9 @@ bool Client::listen()
     return net::Node::listen();
 }
 
-bool Client::stopListening()
+bool Client::close()
 {
-    if( !net::Node::stopListening( ))
+    if( !net::Node::close( ))
         return false;
 
     delete _nodeThreadQueue;
@@ -198,7 +198,7 @@ bool Client::disconnectServer( ServerPtr server )
     server->setClient( 0 );
     server->_localServer = false;
 
-    const int success = disconnect( server.get( ));
+    const int success = net::Node::close( server.get( ));
     if( !success )
         EQWARN << "Server disconnect failed" << std::endl;
 
@@ -319,7 +319,7 @@ net::CommandResult Client::_cmdExit( net::Command& command )
 {
     _running = false;
     // Close connection here, this is the last packet we'll get on it
-    command.getLocalNode()->disconnect( command.getNode( ));
+    command.getLocalNode()->close( command.getNode( ));
     return net::COMMAND_HANDLED;
 }
 }

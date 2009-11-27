@@ -181,7 +181,7 @@ bool Server::shutdown()
     _requestHandler.waitRequest( packet.requestID, result );
 
     if( result )
-        _client->disconnect( this );
+        static_cast< net::Node* >( _client.get( ))->close( this );
 
     return result;
 }
@@ -229,6 +229,7 @@ net::CommandResult Server::_cmdDestroyConfig( net::Command& command )
     EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
     Config* config = static_cast<Config*>( session );
 
+    config->_exitMessagePump();
     EQCHECK( localNode->unmapSession( config ));
     Global::getNodeFactory()->releaseConfig( config );
 

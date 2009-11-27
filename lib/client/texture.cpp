@@ -239,7 +239,8 @@ void Texture::resize( const int width, const int height )
     _defined = true;
 }
 
-void Texture::writeTexture( const std::string& filename, const Frame::Buffer buffer,
+void Texture::writeTexture( const std::string& filename, 
+                            const Frame::Buffer buffer,
                             const PixelViewport& pvp ) const
 {
     eq::Image* image = new eq::Image();

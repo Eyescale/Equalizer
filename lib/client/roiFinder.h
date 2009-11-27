@@ -30,6 +30,7 @@ namespace eq
 {
     /**
      * Processes current rendering target and selects areas for read back.
+     * @internal
      */
     class ROIFinder
     {
@@ -140,8 +141,8 @@ namespace eq
         int32_t _hb;    //!< _h + 1 (only 1 block currently is used as border)
         int32_t _wbhb;  //!< _wb * _wh (total number of blocks in _mask)
 
-        UByteVector _tmpMask; //!< used only to dump found areas in _dumpDebug
-        UByteVector _mask;    //!< mask of occupied blocks (main data)
+        Vectorub _tmpMask; //!< used only to dump found areas in _dumpDebug
+        Vectorub _mask;    //!< mask of occupied blocks (main data)
 
         std::vector<float> _perBlockInfo; //!< buffer for data from GPU
 

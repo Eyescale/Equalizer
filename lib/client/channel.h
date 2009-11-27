@@ -231,7 +231,7 @@ namespace eq
         /** @return the pixel decomposition for the current rendering task. */
         EQ_EXPORT const Pixel& getPixel() const;
 
-        /** @return the subpixel decomposition for the current rendering task. */
+        /** @return the subpixel decomposition for the current rendering task.*/
         EQ_EXPORT const SubPixel& getSubPixel() const;
 
         /** @return the up/downscale factor for the current rendering task. */
@@ -319,12 +319,22 @@ namespace eq
 
         /**
          * Apply the perspective frustum matrix for the current rendering task.
-         * @sa getFrustum(), getJitter()
+         *
+         * If a sub-pixel decomposition is defined, the frustum is jittered by
+         * the amount given by getJitter() to implement software
+         * anti-aliasing. Applications which want to implement a different
+         * multi-sampling algorithm, e.g., depth-of-field, have to re-implement
+         * applyFrustum() accordingly.
+         *
+         * @sa getFrustum(), getJitter(), getSubPixel()
          */
         EQ_EXPORT virtual void applyFrustum() const;
 
         /**
          * Apply the orthographic frustum matrix for the current rendering task.
+         *
+         * The same jitter as in applyFrustum() is applied.
+         *
          * @sa getOrtho(), getJitter()
          */
         EQ_EXPORT virtual void applyOrtho() const;
@@ -429,7 +439,9 @@ namespace eq
          * Setup the OpenGL state for a readback or assemble operation.
          *
          * The default implementation is very conservative and saves any state
-         * which is potentially changed by the assembly routines.
+         * which is potentially changed by the assembly routines. Applications
+         * may overwrite this and resetAssemblyState() to optimize performance
+         * in accordance with their rendering code.
          */
         EQ_EXPORT virtual void setupAssemblyState();
 

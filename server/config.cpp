@@ -992,7 +992,7 @@ void Config::_stopNodes()
 
             EQWARN << "Forcefully disconnecting exited render client node"
                    << std::endl;
-            localNode->disconnect( netNode );
+            localNode->close( netNode );
         }
 
         EQLOG( LOG_INIT ) << "Disconnected node" << std::endl;

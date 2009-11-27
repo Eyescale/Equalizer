@@ -55,7 +55,7 @@ protected:
             const bool ret = _server->run();
             EQASSERT( ret );
 
-            _server->stopListening();
+            _server->close();
 
             EQINFO << "Server thread done, ref count " 
                    << _server->getRefCount() - 1 << endl;

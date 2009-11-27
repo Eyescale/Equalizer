@@ -789,7 +789,7 @@ Vector2f Channel::getJitter() const
     Vector2f jitter;
     if( !table )
     {
-        base::RNG rng;
+        static base::RNG rng;
         jitter.x() = rng.get< float >();
         jitter.y() = rng.get< float >();
     }

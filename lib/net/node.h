@@ -176,7 +176,7 @@ namespace net
         EQ_EXPORT virtual bool initLocal( const int argc, char** argv );
 
         /** Exit a local, listening node. */
-        virtual bool exitLocal() { return stopListening(); }
+        virtual bool exitLocal() { return close(); }
 
         /** Exit a client node. */
         virtual bool exitClient() { return exitLocal(); }
@@ -184,10 +184,10 @@ namespace net
         /** 
          * Open all connections and put this node into the listening state.
          *
-         * The node will spawn a thread locally and listen on all connections
-         * described for incoming commands. The node will be in the listening
-         * state if the method completed successfully. A listening node can
-         * connect to other nodes.
+         * The node will spawn a receiver and command thread, and listen on all
+         * connections described for incoming commands. The node will be in the
+         * listening state if the method completed successfully. A listening
+         * node can connect other nodes.
          * 
          * @return <code>true</code> if the node could be initialized,
          *         <code>false</code> if not.
@@ -196,15 +196,15 @@ namespace net
         EQ_EXPORT virtual bool listen();
 
         /** 
-         * Stop this node.
+         * Close a listening node.
          * 
-         * If this node is listening, the node will stop listening and terminate
-         * its receiver thread.
+         * Disconnects all connected node proxies, closes the listening
+         * connections and terminates all threads created in listen().
          * 
          * @return <code>true</code> if the node was stopped, <code>false</code>
          *         if it was not stopped.
          */
-        EQ_EXPORT virtual bool stopListening();
+        EQ_EXPORT virtual bool close();
 
         /** 
          * Connect a proxy node to this listening node.
@@ -277,7 +277,7 @@ namespace net
          * @return <code>true</code> if the node was disconnected correctly,
          *         <code>false</code> otherwise.
          */
-        EQ_EXPORT bool disconnect( NodePtr node );
+        EQ_EXPORT bool close( NodePtr node );
         //@}
 
 

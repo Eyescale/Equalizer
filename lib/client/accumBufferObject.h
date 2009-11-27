@@ -24,8 +24,9 @@
 namespace eq
 {
     class Texture;
+
     /** 
-     * A class to emulate OpenGL accumulation buffer using an FBO. 
+     * A class to emulate an OpenGL accumulation buffer using an FBO. 
      * @sa glAccum()
      */
     class AccumBufferObject : public FrameBufferObject

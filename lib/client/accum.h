@@ -28,10 +28,11 @@ namespace eq
 
     /**
      * A C++ class to abstract an accumulation buffer.
-     * Depending on the OpenGL version, an FBO or glAccum()
-     * is used.
      *
-     * Remark: MacOS systems seem to have a buggy implementation of glAccum().
+     * Depending on the OpenGL version, an FBO or glAccum() is used.
+     *
+     * Remark: MacOS systems seem to have a buggy implementation of glAccum(),
+     * and use a workaround which needs setTotalSteps().
      */
     class Accum
     {

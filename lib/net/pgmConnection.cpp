@@ -662,9 +662,9 @@ bool PGMConnection::_setSendRate()
     EQINFO << "Setting PGM send rate to " << sendWindow.RateKbitsPerSec
            << " kBit/s" << std::endl;
 
-    if ( ::setsockopt( _writeFD, IPPROTO_RM, RM_RATE_WINDOW_SIZE, 
-                       (char*)&sendWindow, 
-                       sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
+    if( ::setsockopt( _writeFD, IPPROTO_RM, RM_RATE_WINDOW_SIZE, 
+                      (char*)&sendWindow, 
+                      sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
     {
         EQWARN << "can't set send rate, error: " <<  base::sysError
                << std::endl;

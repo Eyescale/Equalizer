@@ -1,8 +1,13 @@
-Remove deprecated config observer API and some dead code
+Fix exit assertion with multi-node configs
+API cleanups:
+- doxygen improvements
+- Rename net::Node::stopListening() to net::Node::close and
+  net::Node::disconnect( NodePtr ) to net::Node::close( NodePtr ) for
+  consistency with Connection API.
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

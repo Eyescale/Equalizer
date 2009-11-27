@@ -109,9 +109,9 @@ typedef vmml::frustum_culler< float >  FrustumCullerf;
 /** A vector of std::string */
 typedef std::vector< std::string >   StringVector;
 /** A vector of bytes */
-typedef std::vector<uint8_t>    UByteVector;
+typedef std::vector<uint8_t>    Vectorub;
 /** A vector of unsigned shorts */
-typedef std::vector<uint16_t>   UShortVector;
+typedef std::vector<uint16_t>   Vectorus;
 
 
 /** @cond IGNORE */

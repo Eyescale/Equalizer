@@ -332,7 +332,7 @@ bool Node::listen()
     return true;
 }
 
-bool Node::stopListening()
+bool Node::close()
 {
     if( _state != STATE_LISTENING )
         return false;
@@ -343,7 +343,7 @@ bool Node::stopListening()
     EQCHECK( _receiverThread->join( ));
     _cleanup();
 
-    EQINFO << _incoming.getSize() << " connections open after stopListening"
+    EQINFO << _incoming.getSize() << " connections open after close"
            << std::endl;
 #ifndef NDEBUG
     const ConnectionVector& connections = _incoming.getConnections();
@@ -537,7 +537,7 @@ NodePtr Node::getNode( const NodeID& id ) const
     return i->second;
 }
 
-bool Node::disconnect( NodePtr node )
+bool Node::close( NodePtr node )
 {
     if( !node || _state != STATE_LISTENING )
         return false;
