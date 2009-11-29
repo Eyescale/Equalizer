@@ -31,8 +31,9 @@ namespace base
     class MTQueuePrivate;
 
     /**
-     * A queue with a blocking read access, typically used between two execution
-     * threads.
+     * A thread-safe queue with a blocking read access.
+     *
+     * Typically used to communicate between two execution threads.
      *
      * To instantiate the template code for this class, applications have to
      * include pthread.h before this file. pthread.h is not automatically
@@ -42,52 +43,61 @@ namespace base
     template< typename T > class MTQueue
     {
     public:
-        /** Construct a new queue. */
+        /** Construct a new queue. @version 1.0 */
         MTQueue();
 
-        /** Construct a copy of a queue. */
+        /** Construct a copy of a queue. @version 1.0 */
         MTQueue( const MTQueue< T >& from );
 
-        /** Destruct this Queue. */
+        /** Destruct this Queue. @version 1.0 */
         ~MTQueue();
 
-        /** Assign the values of another queue */
+        /** Assign the values of another queue. @version 1.0 */
         MTQueue< T >& operator = ( const MTQueue< T >& from ); 
 
-        /** @return true if the queue is empty, false otherwise. */
+        /** @return true if the queue is empty, false otherwise. @version 1.0 */
         bool isEmpty() const { return _queue.empty(); }
 
-        /** @return the number of items currently in the queue. */
+        /** @return the number of items currently in the queue. @version 1.0 */
         size_t getSize() const { return _queue.size(); }
 
-        /** Retrieve and pop the front element from the queue, may block. */
+        /** 
+         * Retrieve and pop the front element from the queue, may block.
+         * @version 1.0
+         */
         T pop();
 
         /** 
          * @return the first element of the queue, or NONE if the queue is
          *         empty.
+         * @version 1.0
          */
         T tryPop();
 
         /** 
          * @return the first element of the queue, or NONE if the queue is
          *         empty.
+         * @version 1.0
          */
         T front() const;
 
         /** 
          * @return the last element of the queue, or NONE if the queue is
          *         empty.
+         * @version 1.0
          */
         T back() const;
 
-        /** Push a new element to the back of the queue. */
+        /** Push a new element to the back of the queue. @version 1.0 */
         void push( const T& element );
 
-        /** Push a new element to the front of the queue. */
+        /** Push a new element to the front of the queue. @version 1.0 */
         void pushFront( const T& element );
 
-        /** None element, returned by tryPop() and back(). */
+        /** 
+         * '0' element, potentially returned by tryPop() and back().
+         * @version 1.0
+         */
         static const T NONE;
 
     private:

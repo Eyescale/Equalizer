@@ -39,29 +39,26 @@ namespace base
     class ExecutionListener;
     class ThreadPrivate;
 
-    /**
-     * An abstraction for an execution thread.
-     */
+    /** An utility class to execute code in a separate execution thread. */
     class Thread 
     {
     public:
-        /** 
-         * Constructs a new thread.
-         */
+        /** Construct a new thread. @version 1.0 */
         EQ_EXPORT Thread();
 
-        /** Destructs the thread. */
+        /** Destruct the thread. @version 1.0 */
         EQ_EXPORT virtual ~Thread();
 
         /** 
-         * Starts the thread.
+         * Start the thread.
          *
-         * All thread state listeners will be notified from the running thread,
+         * All thread state listeners will be notified from the new thread,
          * after the thread was initialized successfully.
          * 
          * @return <code>true</code> if the thread was launched and initialized
          *         successfully, <code>false</code> otherwise.
          * @sa init(), run(), addListener()
+         * @version 1.0
          */
         EQ_EXPORT bool start();
 
@@ -70,10 +67,11 @@ namespace base
          *
          * The parent thread will not be unlocked before this function has been
          * executed. If the thread initialization fails, that is, this method
-         * did return false, the thread will be stopped and the start() method
+         * does return false, the thread will be stopped and the start() method
          * will return false.
          * 
          * @return the success value of the thread initialization.
+         * @version 1.0
          */
         virtual bool init(){ return true; }
 
@@ -84,6 +82,7 @@ namespace base
          * and is called after a successful init().
          * 
          * @return the return value of the child thread.
+         * @version 1.0
          */
         virtual void* run() = 0;
 
@@ -94,6 +93,7 @@ namespace base
          * thread. The thread listeners will be notified.
          *
          * @param retVal the return value of the thread.
+         * @version 1.0
          */
         EQ_EXPORT virtual void exit( void* retVal = 0 );
 
@@ -101,6 +101,7 @@ namespace base
          * Cancel (stop) the child thread.
          *
          * This function is not to be called from the child thread.
+         * @version 1.0
          */
         EQ_EXPORT void cancel();
 
@@ -109,8 +110,8 @@ namespace base
          *
          * @param retVal output value for the return value of the child, can be
          *               <code>0</code>.
-         * @return <code>true</code> if the thread was joined,
-         *         <code>false</code> otherwise.
+         * @return true if the thread was joined, false otherwise.
+         * @version 1.0
          */
         EQ_EXPORT bool join( void** retVal=0 );
 
@@ -120,8 +121,8 @@ namespace base
          * Note that the thread may be neither running nor stopped if it is
          * currently starting or stopping.
          *
-         * @return <code>true</code> if the thread is stopped,
-         * <code>false</code> if not.
+         * @return true if the thread is stopped, false if not.
+         * @version 1.0
          */
         bool isStopped() const { return ( _state == STATE_STOPPED ); }
 
@@ -131,16 +132,17 @@ namespace base
          * Note that the thread may be neither running nor stopped if it is
          * currently starting or stopping.
          *
-         * @return <code>true</code> if the thread is running,
-         * <code>false</code> if not.
+         * @return true if the thread is running, false if not.
+         * @version 1.0
          */
         bool isRunning() const { return ( _state == STATE_RUNNING ); }
 
         /** 
          * Returns if this thread object is the current (calling) thread.
          * 
-         * @return <code>true</code> if the current thread has is the same
-         *         thread as this thread, <code>false</code> if not.
+         * @return true if the current thread has is the same thread as this
+         *         thread, false if not.
+         * @version 1.0
          */
         EQ_EXPORT bool isCurrent() const;
 
@@ -148,6 +150,7 @@ namespace base
          * Add a new thread state listener.
          * 
          * @param listener the listener.
+         * @version 1.0
          */
         EQ_EXPORT static void addListener( ExecutionListener* listener );
 
@@ -155,13 +158,14 @@ namespace base
          * Remove a thread state listener.
          * 
          * @param listener the listener.
+         * @version 1.0
          */
         EQ_EXPORT static bool removeListener( ExecutionListener* listener );
 
-        /** Remove all registered listeners, used at exit. */
+        /** Remove all registered listeners, used at exit. @version 1.0 */
         EQ_EXPORT static void removeAllListeners();
 
-        /** @return a unique identifier for the calling thread. */
+        /** @return a unique identifier for the calling thread. @version 1.0 */
         EQ_EXPORT static size_t getSelfThreadID();
 
         /** @internal */
@@ -169,6 +173,7 @@ namespace base
 
     private:
         ThreadPrivate* _data;
+
         /** The current state of this thread. */
         enum State
         {

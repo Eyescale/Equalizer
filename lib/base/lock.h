@@ -27,27 +27,33 @@ namespace base
 {
     class LockPrivate;
 
-    /** A lock (mutex) primitive. */
+    /** 
+     * A lock (mutex) primitive.
+     * @sa ScopedMutex
+     */
     class Lock : public NonCopyable
     {
     public:
-        /** Construct a new lock. */
+        /** Construct a new lock. @version 1.0 */
         EQ_EXPORT Lock();
 
-        /** Destruct the lock. */
+        /** Destruct the lock. @version 1.0 */
         EQ_EXPORT ~Lock();
 
-        /** Acquire the lock. */
+        /** Acquire the lock. @version 1.0 */
         EQ_EXPORT void set();
 
-        /** Release the lock. */
+        /** Release the lock. @version 1.0 */
         EQ_EXPORT void unset();
 
         /** 
          * Attempt to acquire the lock.
-         * 
+         *
+         * This method implements an atomic test-and-set operation.
+         *
          * @return <code>true</code> if the lock was set, <code>false</code> if
          *         it was not set.
+         * @version 1.0
          */
         EQ_EXPORT bool trySet();
 
@@ -56,8 +62,9 @@ namespace base
          * 
          * @return <code>true</code> if the lock is set, <code>false</code> if
          *         it is not set.
+         * @version 1.0
          */
-        EQ_EXPORT bool test(); 
+        EQ_EXPORT bool isSet(); 
 
     private:
         LockPrivate* _data;

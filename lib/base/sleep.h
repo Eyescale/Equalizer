@@ -24,7 +24,7 @@ namespace eq
 {
 namespace base
 {
-    /** Sleep the current thread for a number of milliseconds. */
+    /** Sleep the current thread for a number of milliseconds. @version 1.0 */
     inline void sleep( const uint32_t milliSeconds )
     {
 #ifdef WIN32_VC

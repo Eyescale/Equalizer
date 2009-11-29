@@ -37,19 +37,19 @@ namespace base
     template<class T> class RefPtr 
     {
     public:
-        /** Construct a new, empty reference pointer. */
+        /** Construct a new, empty reference pointer. @version 1.0 */
         RefPtr()                     : _ptr( 0 )         {}
-        /** Construct a reference pointer from a C pointer. */
+        /** Construct a reference pointer from a C pointer. @version 1.0 */
         RefPtr( T* const ptr )       : _ptr( ptr )       { ref(); }
-        /** Construct a copy of a reference pointer. */
+        /** Construct a copy of a reference pointer. @version 1.0 */
         RefPtr( const RefPtr& from ) : _ptr( from._ptr ) { ref(); }
-        /** Destruct this reference pointer. */
+        /** Destruct this reference pointer. @version 1.0 */
         ~RefPtr() { unref(); _ptr = 0; }
 
-        /** Artificially reference the held object. */
+        /** Artificially reference the held object. @version 1.0 */
         void ref()   { if(_ptr) _ptr->ref(); }
 
-        /** Artificially dereference the held object. */
+        /** Artificially dereference the held object. @version 1.0 */
         void unref() 
         {
             if(_ptr)
@@ -65,7 +65,7 @@ namespace base
             }
         }
 
-        /** Assign another reference pointer to this reference pointer. */
+        /** Assign another RefPtr to this reference pointer. @version 1.0 */
         RefPtr& operator = ( const RefPtr& rhs )
             {
                 if( _ptr == rhs._ptr )
@@ -78,7 +78,7 @@ namespace base
                 return *this;
             }
 
-        /** Assign a C pointer to this reference pointer. */
+        /** Assign a C pointer to this reference pointer. @version 1.0 */
         RefPtr& operator = ( T* ptr )
             {
                 if( _ptr == ptr )
@@ -91,45 +91,68 @@ namespace base
                 return *this;
             }
 
-        /** @return true if both reference pointers hold the same C pointer */
+        /**
+         * @return true if both reference pointers hold the same C pointer.
+         * @version 1.0
+         */
         bool operator == ( const RefPtr& rhs ) const 
             { return ( _ptr==rhs._ptr ); }
-        /** @return true if both reference pointer hold different C pointer */
+
+        /**
+         * @return true if both reference pointer hold different C pointer.
+         * @version 1.0
+         */
         bool operator != ( const RefPtr& rhs ) const
             { return ( _ptr!=rhs._ptr ); }
-        /** @return true if the left RefPtr is smaller then the right. */
+
+        /**
+         * @return true if the left RefPtr is smaller then the right.
+         * @version 1.0
+         */
         bool operator <  ( const RefPtr& rhs ) const
             { return ( _ptr < rhs._ptr ); }
-        /** @return true if the right RefPtr is smaller then the left. */
+
+        /**
+         * @return true if the right RefPtr is smaller then the left.
+         * @version 1.0
+         */
         bool operator >  ( const RefPtr& rhs ) const
             { return ( _ptr > rhs._ptr ); }
-        /** @return true if the RefPtr is empty. */
+
+        /** @return true if the RefPtr is empty. @version 1.0 */
         bool operator ! () const               { return ( _ptr==0 ); }
 
-        /** @return true if the reference pointers holds the C pointer */
+        /**
+         * @return true if the reference pointers holds the C pointer.
+         * @version 1.0
+         */
         bool operator == ( const T* ptr ) const { return ( _ptr==ptr ); }
-        /** @return true if the reference pointers does not hold the C pointer*/
+
+        /**
+         * @return true if the reference pointers does not hold the C pointer
+         * @version 1.0
+         */
         bool operator != ( const T* ptr ) const { return ( _ptr!=ptr ); }
 
-        /** Access the held object. */
+        /** Access the held object. @version 1.0 */
         T*       operator->()       
             { EQASSERTINFO( _ptr, typeid(*this).name( )); return _ptr; }
-        /** Access the held object. */
+        /** Access the held object. @version 1.0 */
         const T* operator->() const
             { EQASSERTINFO( _ptr, typeid(*this).name( )); return _ptr; }
-        /** Access the held object. */
+        /** Access the held object. @version 1.0 */
         T&       operator*()        
             { EQASSERTINFO( _ptr, typeid(*this).name( )); return *_ptr; }
-        /** Access the held object. */
+        /** Access the held object. @version 1.0 */
         const T& operator*() const  
             { EQASSERTINFO( _ptr, typeid(*this).name( )); return *_ptr; }
 
-        /** @return the C pointer. */
+        /** @return the C pointer. @version 1.0 */
         T*       get()                { return _ptr; }
-        /** @return the C pointer. */
+        /** @return the C pointer. @version 1.0 */
         const T* get() const          { return _ptr; }
 
-        /** @return true if the RefPtr holds a non-NULL pointer. */
+        /** @return true if the RefPtr holds a non-0 pointer. @version 1.0 */
         bool isValid() const { return ( _ptr != 0 ); }
         
     private:

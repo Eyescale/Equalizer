@@ -30,12 +30,12 @@ namespace net
 #ifdef EQ_INSTRUMENT_CACHE
 namespace
 {
-base::mtLong nRead;
-base::mtLong nReadHit;
-base::mtLong nWrite;
-base::mtLong nWriteHit;
-base::mtLong nUsedRelease;
-base::mtLong nUnusedRelease;
+base::a_int32_t nRead;
+base::a_int32_t nReadHit;
+base::a_int32_t nWrite;
+base::a_int32_t nWriteHit;
+base::a_int32_t nUsedRelease;
+base::a_int32_t nUnusedRelease;
 }
 #endif
 

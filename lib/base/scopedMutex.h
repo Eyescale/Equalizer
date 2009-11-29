@@ -38,22 +38,29 @@ namespace base
     {
     public:
         /** 
-         * Construct a new scoped mutex using the given lock.
-         * 
+         * Construct a new scoped mutex and set the given lock.
+         *
+         * Providing no Lock (0) is allowed, in which case the scoped mutex does
+         * nothing.
+         *
          * @param lock the mutex to set and unset, or 0.
+         * @version 1.0
          */
         explicit ScopedMutex( Lock* lock ) : _lock( lock )
             { if( lock ) lock->set(); }
 
-        /** Constructs a new scoped mutex using the given lock. */
+        /** Construct a new scoped mutex and set the given lock. @version 1.0 */
         explicit ScopedMutex( Lock& lock ) : _lock( &lock )
             { lock.set(); }
 
-        /** Constructs a new scoped mutex for the given Lockable structure. */
+        /**
+         * Construct a new scoped mutex for the given Lockable data structure.
+         * @version 1.0
+         */
         template< typename L > ScopedMutex( L& lockable )
                 : _lock( &lockable.lock ) { _lock->set(); }
 
-        /** Destructs the scoped mutex and unsets the mutex. */
+        /** Destruct the scoped mutex and unset the mutex. @version 1.0 */
         ~ScopedMutex() { if( _lock ) _lock->unset(); }
 
     private:

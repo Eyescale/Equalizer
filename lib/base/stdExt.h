@@ -75,7 +75,7 @@ namespace std
     };
 #    else
 #      ifndef EQ_HAVE_STRING_HASH
-    /** std::string hash function. */
+    /** std::string hash function. @version 1.0 */
     template<> struct hash< std::string >
     {
         size_t operator()( const std::string& str ) const
@@ -85,12 +85,12 @@ namespace std
     };
 #      endif
 
-    /** uint64_t hash function. */
+    /** uint64_t hash function. @version 1.0 */
     template<> struct hash< uint64_t >
     {
         size_t operator()( const uint64_t& val ) const
         {
-            // OPT: tr1 does the same, however it seems suboptimal on 32 bits,
+            // OPT: tr1 does the same, however it seems suboptimal on 32 bits
             // if the lower 32 bits never change, e.g., for ObjectVersion
             return static_cast< size_t >( val );
         }
@@ -99,7 +99,7 @@ namespace std
 #    endif
 
 #    ifndef EQ_HAVE_VOID_PTR_HASH
-    /** void* hash functions. */
+    /** void* hash functions. @version 1.0 */
     template<> struct hash< void* >
     {
         template< typename P >
@@ -122,7 +122,7 @@ namespace std
 #  else // WIN32
 #    ifndef EQ_HAVE_STRING_HASH
 
-    /** std::string hash function. */
+    /** std::string hash function. @version 1.0 */
     template<> inline size_t hash_compare< std::string >::operator()
         ( const std::string& key ) const
     {
@@ -132,7 +132,10 @@ namespace std
 #    endif
 #  endif
 
-    /** Uniquely sorts and eliminates duplicates in a STL container. */
+    /**
+     * Uniquely sorts and eliminates duplicates in a STL container.
+     * @version 1.0
+     */
     template< typename C > void usort( C& c )
     {
         std::sort( c.begin(), c.end( ));

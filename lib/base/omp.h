@@ -28,11 +28,14 @@ namespace eq
 {
 namespace base
 {
-    /** Base class abstracting OpenMP */
+    /** Base class for OpenMP functionality */
     class OMP 
     {
     public:
-        /** Return the number of threads used in a parallel region. */
+        /** 
+         * @return the number of threads used in a parallel region.
+         * @version 1.0
+         */
         EQ_EXPORT static int getNThreads() { return _nThreads; }
 
     private:

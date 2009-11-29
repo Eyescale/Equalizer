@@ -39,7 +39,7 @@ namespace base
     class Referenced 
     {
     public:
-        /** Increase the reference count. */
+        /** Increase the reference count. @version 1.0 .*/
         void ref()   
         {
 #ifndef NDEBUG
@@ -49,8 +49,10 @@ namespace base
         }
 
         /** 
-         * Decrease the reference count and delete this object when the
-         * reference count reaches 0.
+         * Decrease the reference count.
+         *
+         * The object is deleted when the reference count reaches 0.
+         * @version 1.0
          */
         void unref() 
             { 
@@ -63,11 +65,11 @@ namespace base
                     deleteReferenced( this );
             }
 
-        /** @return the current reference count. */
+        /** @return the current reference count. @version 1.0 */
         int  getRefCount() const { return _refCount; }
 
     protected:
-        /** Construct a new reference-counted object. */
+        /** Construct a new reference-counted object. @version 1.0 */
         Referenced()
             : _refCount(0)
 #ifndef NDEBUG
@@ -75,7 +77,7 @@ namespace base
 #endif
             {}
 
-        /** Construct a new copy of a reference-counted object. */
+        /** Construct a new copy of a reference-counted object. @version 1.0 */
         Referenced( const Referenced& ) 
             : _refCount(0)
 #ifndef NDEBUG
@@ -83,7 +85,7 @@ namespace base
 #endif
             {}
 
-        /** Destruct a reference-counted object. */
+        /** Destruct a reference-counted object. @version 1.0 */
         virtual ~Referenced() 
             {
 #ifndef NDEBUG
@@ -98,7 +100,7 @@ namespace base
         EQ_EXPORT void deleteReferenced( Referenced* object );
 
     private:
-        mtLong _refCount;
+        a_int32_t _refCount;
         bool _hasBeenDeleted;
     };
 }

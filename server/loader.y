@@ -39,7 +39,7 @@
 #include "window.h"
 
 #include <eq/base/base.h>
-#include <eq/base/fileSearch.h>
+#include <eq/base/file.h>
 #include <string>
 
     namespace eq

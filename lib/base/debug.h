@@ -28,15 +28,23 @@ namespace eq
 {
 namespace base
 {
-/** Used to trap into an infinite loop to allow debugging of assertions */
+/**
+ * Used to trap into an infinite loop to allow debugging of assertions
+ * @internal
+ */
 EQ_EXPORT void abort();
 
-/** Check the consistency of the heap and abort on error (Win32 only). */
+/**
+ * Check the consistency of the heap and abort on error (Win32 only).
+ * @internal
+ */
 EQ_EXPORT void checkHeap();
 
 /** 
- * Print a textual description of the current system error, e.g., errno or
- * GetLastError(). 
+ * Print a textual description of the current system error.
+ *
+ * The current system error is OS-specific, e.g., errno or GetLastError().
+ * @version 1.0
  */
 EQ_EXPORT std::ostream& sysError( std::ostream& os );
 

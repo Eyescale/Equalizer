@@ -57,27 +57,27 @@ static const size_t _maxNAck = _mtu - sizeof( RSPConnection::DatagramNack ) /
                                    sizeof( uint32_t );
 
 #ifdef EQ_INSTRUMENT_RSP
-base::mtLong nReadDataAccepted;
-base::mtLong nReadData;
-base::mtLong nBytesRead;
-base::mtLong nBytesWritten;
-base::mtLong nDatagrams;
-base::mtLong nTotalDatagrams;
-base::mtLong nAckRequests;
-base::mtLong nTotalAckRequests;
-base::mtLong nAcksSend;
-base::mtLong nAcksSendTotal;
-base::mtLong nAcksRead;
-base::mtLong nAcksAccepted;
-base::mtLong nNAcksSend;
-base::mtLong nNAcksAnswered;
-base::mtLong nNAcksRead;
-base::mtLong nTimeOut;
-base::mtLong nTimeInWrite;
-base::mtLong nTimeInWriteWaitAck;
-base::mtLong nTimeInReadSync;
-base::mtLong nTimeInReadData;
-base::mtLong nTimeInHandleData;
+base::a_int32_t nReadDataAccepted;
+base::a_int32_t nReadData;
+base::a_int32_t nBytesRead;
+base::a_int32_t nBytesWritten;
+base::a_int32_t nDatagrams;
+base::a_int32_t nTotalDatagrams;
+base::a_int32_t nAckRequests;
+base::a_int32_t nTotalAckRequests;
+base::a_int32_t nAcksSend;
+base::a_int32_t nAcksSendTotal;
+base::a_int32_t nAcksRead;
+base::a_int32_t nAcksAccepted;
+base::a_int32_t nNAcksSend;
+base::a_int32_t nNAcksAnswered;
+base::a_int32_t nNAcksRead;
+base::a_int32_t nTimeOut;
+base::a_int32_t nTimeInWrite;
+base::a_int32_t nTimeInWriteWaitAck;
+base::a_int32_t nTimeInReadSync;
+base::a_int32_t nTimeInReadData;
+base::a_int32_t nTimeInHandleData;
 #endif
 }
 

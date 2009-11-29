@@ -30,7 +30,7 @@ namespace base
     class Launcher
     {
     public:
-        /** Execute the given command in a new process. */
+        /** Execute the given command in a new process. @version 1.0 */
         static bool run( const std::string& command );
 
     private:

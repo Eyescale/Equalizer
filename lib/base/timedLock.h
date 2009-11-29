@@ -27,16 +27,14 @@ namespace base
 {
     class TimedLockPrivate;
 
-    /**
-     * A mutex with timeout capabilities.
-     */
+    /** A mutex with timeout capabilities. */
     class TimedLock : public NonCopyable
     {
     public:
-        /** Constructs a new timed lock. */
+        /** Construct a new timed lock. @version 1.0 */
         EQ_EXPORT TimedLock();
 
-        /** Destructs the lock. */
+        /** Destruct the lock. @version 1.0 */
         EQ_EXPORT ~TimedLock();
 
         /** 
@@ -45,31 +43,29 @@ namespace base
          * @param timeout the timeout in milliseconds to wait for the lock,
          *                or <code>EQ_TIMEOUT_INDEFINITE</code> to wait
          *                indefinitely.
-         * @return <code>true</code> if the lock was acquired,
-         *         <code>false</code> if not.
+         * @return true if the lock was acquired, false if not.
+         * @version 1.0
          */
         EQ_EXPORT bool set( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
-        /** 
-         * Releases the lock.
-         */
+        /** Release the lock. @version 1.0 */
         EQ_EXPORT void unset();
 
         /** 
-         * Attempts to set the lock.
+         * Attempt to set the lock.
          * 
-         * @return <code>true</code> if the lock was acquired,
-         *         <code>false</code> if not.
+         * @return true if the lock was acquired, false if not.
+         * @version 1.0
          */
         EQ_EXPORT bool trySet();
 
         /** 
-         * Tests if the lock is set.
+         * Test if the lock is set.
          * 
-         * @return <code>true</code> if the lock is set,
-         *         <code>false</code> if it is not set.
+         * @return true if the lock is set, false if it is not set.
+         * @version 1.0
          */
-        EQ_EXPORT bool test(); 
+        EQ_EXPORT bool isSet(); 
 
     private:
         TimedLockPrivate* _data;

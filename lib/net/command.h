@@ -93,7 +93,7 @@ namespace net
         NodePtr  _node;
         NodePtr  _localNode;
         Packet*  _packet;
-        base::mtLong _refCount;
+        base::a_int32_t _refCount;
         uint64_t _packetAllocSize;
     };
 

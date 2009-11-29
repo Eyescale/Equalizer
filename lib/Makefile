@@ -15,7 +15,7 @@ HEADER_SRC = \
 	base/defines.h \
 	base/dso.h \
 	base/executionListener.h \
-	base/fileSearch.h \
+	base/file.h \
 	base/hash.h \
 	base/idPool.h \
 	base/init.h \

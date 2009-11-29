@@ -1,7 +1,13 @@
-doxygen improvements
+Doxygen improvements:
+- Mark 1.0 API in eq::base
+- Rename:
+  o base::fileSearch -> base::searchDirectory
+  o (Timed)Lock::test -> (Timed)Lock::isSet
+  o Clock::getMSf -> Clock::getMilliSecondsf
+  o base::mtLong -> base:a_int32_t
 
 [ ] May break build
-[ ] May break existing applications
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup

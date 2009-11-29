@@ -26,7 +26,7 @@
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
 #include <eq/base/clock.h>
-#include <eq/base/fileSearch.h>
+#include <eq/base/file.h>
 
 
 #include <eq/client/frame.h>    // enum Eye
@@ -69,7 +69,7 @@ int main( int argc, char **argv )
     TEST( eq::init( argc, argv, &nodeFactory ));
 
     eq::StringVector images;
-    eq::StringVector candidates = eq::base::fileSearch( "images", "*.rgb" );
+    eq::StringVector candidates = eq::base::searchDirectory( "images", "*.rgb");
     for( eq::StringVector::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
@@ -79,7 +79,7 @@ int main( int argc, char **argv )
             images.push_back( "images/" + filename );
     }
 
-    candidates = eq::base::fileSearch( "../compositor", "Result*.rgb" );
+    candidates = eq::base::searchDirectory( "../compositor", "Result*.rgb" );
     for( eq::StringVector::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {

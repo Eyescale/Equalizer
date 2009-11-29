@@ -97,7 +97,7 @@ bool Lock::trySet()
 }
 
 
-bool Lock::test()
+bool Lock::isSet()
 {
     if( trySet( ))
     {

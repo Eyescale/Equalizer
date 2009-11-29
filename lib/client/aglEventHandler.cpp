@@ -27,7 +27,7 @@
 #include "window.h"
 
 #include <eq/net/global.h>
-#include <eq/base/fileSearch.h>
+#include <eq/base/file.h>
 
 #ifdef EQ_USE_MAGELLAN
 #  include <3DconnexionClient/ConnexionClientAPI.h>

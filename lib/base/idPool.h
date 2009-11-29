@@ -34,7 +34,7 @@ namespace base
 #   define EQ_ID_ANY     0xffffffffu //!< Any/all identifiers
 
     /**
-     * A identifier pool.
+     * An identifier pool.
      * 
      * Manages re-usable, unique identifiers. Can allocate up to MAX_CAPACITY
      * identifiers. Used in Equalizer for session-unique object
@@ -45,7 +45,7 @@ namespace base
     public:
         enum MaxCapacity
         {
-            MAX_CAPACITY = EQ_ID_MAX
+            MAX_CAPACITY = EQ_ID_MAX //!< The maximum capacity of the pool.
         };
 
         /** 
@@ -54,6 +54,7 @@ namespace base
          * @param initialCapacity the initial capacity of the pool, the
          *                        identifiers from initialCapacity to
          *                        MAX_CAPACITY are considered as allocated.
+         * @version 1.0
          */
         IDPool( const uint32_t initialCapacity );
 
@@ -64,9 +65,9 @@ namespace base
          * Generate a new, consecutive block of identifiers. 
          * 
          * @param range The number of identifiers to allocate
-         * 
          * @return the first identifier of the block, or EQ_ID_INVALID if no
-         *         block of size range is available.
+         *         block of the range is available.
+         * @version 1.0
          */
         uint32_t genIDs( const uint32_t range );
 
@@ -75,6 +76,7 @@ namespace base
          * 
          * @param start the first identifier of the block.
          * @param range the number of consecutive identifiers.
+         * @version 1.0
          */
         void freeIDs( const uint32_t start, const uint32_t range );
 

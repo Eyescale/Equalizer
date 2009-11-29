@@ -82,7 +82,7 @@
 #include <eq/base/types.h>
 
 // defines
-/** A 'NULL' value for an uint32, typically used for identifiers an versions. */
+/** A 'NULL' value for an uint32, typically used for identifiers and versions.*/
 #define EQ_UNDEFINED_UINT32   (0xffffffffu)
 //#define EQ_UNDEFINED_FLOAT    (std::numeric_limits<float>::quiet_NaN( ))
 //#define EQ_UNDEFINED_INT32    (0x7fffffffu)

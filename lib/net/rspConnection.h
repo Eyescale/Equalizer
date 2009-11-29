@@ -233,7 +233,7 @@ namespace net
         std::vector< DataReceive* >_buffer;
         
         // number connection accepted by server RSP 
-        base::mtLong _countAcceptChildren;
+        base::a_int32_t _countAcceptChildren;
         
         // The buffer used by the write function in udp socket
         eq::base::Bufferb _sendBuffer;
@@ -259,7 +259,7 @@ namespace net
         uint8_t _selfCommand;
 #endif
         ConnectionSet    _connectionSet;
-        base::mtLong     _writing;
+        base::a_int32_t  _writing;
         uint32_t         _countNbAckInWrite;
         Thread*          _thread;
         UDPConnectionPtr _connection;

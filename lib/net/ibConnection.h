@@ -59,8 +59,8 @@ public:
 private:
 
     eq::base::Lock   _mutex;
-    eq::base::mtLong  numRead;
-    eq::base::mtLong _comptEvent;
+    eq::base::a_int32_t  numRead;
+    eq::base::a_int32_t _comptEvent;
     
     IBAdapter          _adapter;
 

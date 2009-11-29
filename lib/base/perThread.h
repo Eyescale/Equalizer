@@ -45,31 +45,42 @@ namespace base
                                            public NonCopyable
     {
     public:
-        /** Construct a new per-thread variable. */
+        /** Construct a new per-thread variable. @version 1.0 */
         PerThread();
-        /** Destruct the per-thread variable. */
+        /** Destruct the per-thread variable. @version 1.0 */
         ~PerThread();
 
-        /** Assign an object to the thread-local storage. */        
+        /** Assign an object to the thread-local storage. @version 1.0 */ 
         PerThread<T>& operator = ( const T* data );
-        /** Assign an object from another thread-local storage. */
+        /** Assign an object from another thread-local storage. @version 1.0 */
         PerThread<T>& operator = ( const PerThread<T>& rhs );
 
-        /** @return the held object pointer. */
+        /** @return the held object pointer. @version 1.0 */
         T* get();
-        /** @return the held object pointer. */
+        /** @return the held object pointer. @version 1.0 */
         const T* get() const;
-        /** Access the thread-local object. */
+        /** Access the thread-local object. @version 1.0 */
         T* operator->();
-        /** Access the thread-local object. */
+        /** Access the thread-local object. @version 1.0 */
         const T* operator->() const;
 
-        /** @return true if the thread-local variables hold the same object. */
+        /**
+         * @return true if the thread-local variables hold the same object.
+         * @version 1.0
+         */
         bool operator == ( const PerThread& rhs ) const 
             { return ( get() == rhs.get( )); }
-        /** @return true if the thread-local variable holds the same object. */
+
+        /**
+         * @return true if the thread-local variable holds the same object.
+         * @version 1.0
+         */
         bool operator == ( const T* rhs ) const { return ( get()==rhs ); }
-        /** @return true if the thread-local variable holds another object. */
+
+        /**
+         * @return true if the thread-local variable holds another object.
+         * @version 1.0
+         */
         bool operator != ( const T* rhs ) const { return ( get()!=rhs ); }
 
     protected:

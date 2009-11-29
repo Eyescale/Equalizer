@@ -261,7 +261,7 @@ void Session::attachObject( Object* object, const uint32_t id,
 
 namespace
 {
-uint32_t _genNextID( base::mtLong& val )
+uint32_t _genNextID( base::a_int32_t& val )
 {
     uint32_t result;
     do

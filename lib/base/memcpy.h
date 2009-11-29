@@ -24,6 +24,7 @@ namespace eq
 {
 namespace base
 {
+/** @internal */
 inline void fastCopy( void *dst, const void *src, uint32_t nbytes )
 {
 #ifdef _WIN64

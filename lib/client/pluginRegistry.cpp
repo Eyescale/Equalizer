@@ -19,7 +19,7 @@
 #include "global.h"
 
 
-#include <eq/base/fileSearch.h> 
+#include <eq/base/file.h> 
 #include <eq/base/dso.h> 
 #include <vector>
 
@@ -47,16 +47,16 @@ void PluginRegistry::init()
 
         // search the number of files in the director
 #ifdef WIN32
-        StringVector files = base::fileSearch( directory, 
-                                                "EqualizerCompressor*.dll" );
+        StringVector files = base::searchDirectory( directory, 
+                                                    "EqualizerCompressor*.dll");
         const char DIRSEP = '\\';
 #elif defined (Darwin)
-        StringVector files = base::fileSearch( directory, 
-                                                "libeqCompressor*dylib" );
+        StringVector files = base::searchDirectory( directory, 
+                                                    "libeqCompressor*dylib" );
         const char DIRSEP = '/';
 #else
-        StringVector files = base::fileSearch( directory,
-                                                "libeqCompressor*so" );
+        StringVector files = base::searchDirectory( directory,
+                                                    "libeqCompressor*so" );
         const char DIRSEP = '/';
 #endif
         

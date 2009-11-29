@@ -19,7 +19,7 @@
 #include "nodeFactory.h"
 #include "pluginRegistry.h"
 
-#include <eq/base/fileSearch.h>
+#include <eq/base/file.h>
 #include <eq/net/global.h>
 
 #include <algorithm>

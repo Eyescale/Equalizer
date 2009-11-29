@@ -26,7 +26,7 @@ namespace eq
 {
 namespace base
 {
-    /** A hash for pointer keys. */
+    /** A hash for pointer keys. @version 1.0 */
     template<class K, class T> class PtrHash 
 #ifdef WIN32_VC
         : public stde::hash_map< K, T, stde::hash_compare< const void* > >
@@ -35,7 +35,7 @@ namespace base
 #endif
     {};
 
-    /** A hash function for RefPtr keys. */
+    /** A hash function for RefPtr keys. @version 1.0 */
 #ifdef WIN32_VC
     template< typename T >
     class hashRefPtr : public stde::hash_compare< RefPtr< T > >
@@ -67,7 +67,7 @@ namespace base
         }
     };
 
-    /** A hash for RefPtr keys. */
+    /** A hash for RefPtr keys. @version 1.0 */
     template< class K, class T > class RefPtrHash 
         : public stde::hash_map< RefPtr< K >, T, hashRefPtr< K > >
     {};

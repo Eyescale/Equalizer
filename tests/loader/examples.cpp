@@ -21,7 +21,7 @@
 #include "../../server/loader.h"
 #include "../../server/server.h"
 
-#include <eq/base/fileSearch.h>
+#include <eq/base/file.h>
 
 // Tests loading of all examples/configs/*.eqc files
 
@@ -29,7 +29,7 @@ int main( int argc, char **argv )
 {
     eq::server::Loader loader;
     eq::base::StringVector candidates = 
-        eq::base::fileSearch( "../../examples/configs", "*.eqc" );
+        eq::base::searchDirectory( "../../examples/configs", "*.eqc" );
     for( eq::base::StringVector::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {

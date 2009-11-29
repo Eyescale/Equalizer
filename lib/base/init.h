@@ -36,6 +36,7 @@ namespace base
      * 
      * @return <code>true</code> if the library was successfully initialised,
      *         <code>false</code> otherwise.
+     * @version 1.0
      */
     EQ_EXPORT bool init();
 
@@ -44,6 +45,7 @@ namespace base
      *
      * @return <code>true</code> if the library was successfully de-initialised,
      *         <code>false</code> otherwise.
+     * @version 1.0
      */
     EQ_EXPORT bool exit();
 }

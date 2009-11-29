@@ -210,7 +210,7 @@ bool RequestHandler::isServed( const uint32_t requestID ) const
         return false;
 
     Request* request = iter->second;
-    if( !request->lock.test( ))
+    if( !request->lock.isSet( ))
         return true;
 
     return false;

@@ -35,7 +35,7 @@ namespace base
      * A request handler.
      * 
      * Different execution threads can synchronize using a request handler. One
-     * thread registers a request, and later wait for the request to be
+     * thread registers a request, and later waits for the request to be
      * served. Another thread can serve the request, providing a result value.
      *
      * A note on thread-safety: Unless threadSafe is set in the constructor, the
@@ -46,7 +46,6 @@ namespace base
      */
     class RequestHandler : public NonCopyable
     {
-
     public:
         /** 
          * Construct a new request handler.
@@ -54,6 +53,7 @@ namespace base
          * @param threadSafe if <code>true</code>, all public functions are
          *                   thread-safe and can be called from multiple
          *                   threads.
+         * @version 1.0
          */
         EQ_EXPORT RequestHandler( const bool threadSafe = false );
 
@@ -66,6 +66,7 @@ namespace base
          * @param data a pointer to user-specific data for the request, can be
          *             0.
          * @return the request identifier.
+         * @version 1.0
          */
         EQ_EXPORT uint32_t registerRequest( void* data = 0 );
 
@@ -77,6 +78,7 @@ namespace base
          * out and the request will no longer be used.
          * 
          * @param requestID the request identifier.
+         * @version 1.0
          */
         EQ_EXPORT void unregisterRequest( const uint32_t requestID );
 
@@ -92,17 +94,18 @@ namespace base
          *                or <code>EQ_TIMEOUT_INDEFINITE</code> to wait
          *                indefinitely.
          * @return true if the request was served, false if not.
+         * @version 1.0
          */
         EQ_EXPORT bool waitRequest( const uint32_t requestID, void*& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
-        /** Wait for a request with a uint32_t result. */
+        /** Wait for a request with a uint32_t result. @version 1.0 */
         EQ_EXPORT bool waitRequest( const uint32_t requestID, uint32_t& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
-        /** Wait for a request with a bool result. */
+        /** Wait for a request with a bool result. @version 1.0 */
         EQ_EXPORT bool waitRequest( const uint32_t requestID, bool& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
-        /** Wait for a request without a result. */
+        /** Wait for a request without a result. @version 1.0 */
         EQ_EXPORT bool waitRequest( const uint32_t requestID );
 
         /** 
@@ -112,6 +115,7 @@ namespace base
          * 
          * @param requestID the request identifier.
          * @return true if the request has been served, false if it is pending.
+         * @version 1.0
          */
         EQ_EXPORT bool isServed( const uint32_t requestID ) const;
 
@@ -120,6 +124,7 @@ namespace base
          * 
          * @param requestID the request identifier.
          * @return the user-specific data for the request.
+         * @version 1.0
          */
         EQ_EXPORT void* getRequestData( const uint32_t requestID );
 
@@ -128,16 +133,24 @@ namespace base
          * 
          * @param requestID the request identifier.
          * @param result the result of the request.
+         * @version 1.0
          */
         EQ_EXPORT void serveRequest( const uint32_t requestID, void* result=0 );
-        /** Serve a request with a uint32_t result. */
+        /** Serve a request with a uint32_t result. @version 1.0 */
         EQ_EXPORT void serveRequest( const uint32_t requestID, uint32_t result);
-        /** Serve a request with a bool result. */
+        /** Serve a request with a bool result. @version 1.0 */
         EQ_EXPORT void serveRequest( const uint32_t requestID, bool result );
 
-        /** @return true if this request handler was created thread-safe. */
+        /**
+         * @return true if this request handler was created thread-safe.
+         * @version 1.0
+         */
         bool isThreadSafe() const { return ( _mutex != 0 ); }
-        /** @return true if this request handler has no pending requests. */
+
+        /**
+         * @return true if this request handler has no pending requests.
+         * @version 1.0
+         */
         bool isEmpty()      const { return _requests.empty( ); }
 
     private:

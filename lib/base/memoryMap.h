@@ -31,7 +31,7 @@ namespace base
     class MemoryMap : public NonCopyable
     {
     public:
-        /** Construct a new memory map. */
+        /** Construct a new memory map. @version 1.0 */
         EQ_EXPORT MemoryMap();
 
         /** 
@@ -39,6 +39,7 @@ namespace base
          *
          * Unmaps the file, if it is still mapped.
          * @sa unmap()
+         * @version 1.0
          */
         EQ_EXPORT ~MemoryMap();
 
@@ -50,16 +51,17 @@ namespace base
          *
          * @param fileName The filename of the file to map.
          * @return the pointer to the mapped file, or 0 upon error.
+         * @version 1.0
          */
         EQ_EXPORT const void* map( const std::string& fileName );
 
-        /** Unmap the file. */
+        /** Unmap the file. @version 1.0 */
         EQ_EXPORT void unmap();
 
-        /** @return the pointer to the memory map. */
+        /** @return the pointer to the memory map. @version 1.0 */
         const void* getAddress() const { return _ptr; }
 
-        /** @return the size of the memory map. */
+        /** @return the size of the memory map. @version 1.0 */
         size_t getSize() const { return _size; }
 
     private:

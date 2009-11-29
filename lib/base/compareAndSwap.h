@@ -62,6 +62,7 @@ inline void memoryBarrier()
 /** 
  * Atomically replace the value at addr and return true if the value at addr
  * matched old.
+ * @version 1.0
  */
 template <class C, class D>
 inline bool compareAndSwap(volatile C * addr, D old, D nw)

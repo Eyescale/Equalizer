@@ -25,60 +25,69 @@ namespace eq
 namespace base
 {
 #ifdef EQ_GCC_4_1_OR_LATER
-/** An variable with atomic operations. */
+
+/**
+ * An variable with atomic operations.
+ *
+ * Atomic variables can be modified safely from multiple threads
+ * concurrently. They are useful to implement lock-free algorithms.
+ *
+ * For implementation reasons, only signed atomic variables are supported, of
+ * which only int32_t is implemented right now.
+ */
 template <typename T>
 class Atomic: public NonCopyable
 {
 public:
-    /** Construct a new atomic variable with an initial value. */
+    /** Construct a new atomic variable with an initial value. @version 1.0 */
     explicit Atomic( T v = 0 )
             : _value(v)
     {}
 
-    /** @return the current value */
+    /** @return the current value @version 1.0 */
     operator T(void) const
     {
         return __sync_fetch_and_add(&_value, 0);
     }
 
-    /** Assign a new value */
+    /** Assign a new value @version 1.0 */
     void operator =(T v)
     {
         _value = v;
         __sync_synchronize();
     }
 
-    /** Atomically add a value and return the new value. */
+    /** Atomically add a value and return the new value. @version 1.0 */
     T operator +=(T v)
     {
         return __sync_add_and_fetch(&_value, v);
     }
 
-    /** Atomically substract a value and return the new value. */
+    /** Atomically substract a value and return the new value. @version 1.0 */
     T operator -=(T v)
     {
         return __sync_sub_and_fetch(&_value, v);
     }
 
-    /** Atomically increment by one and return the new value. */
+    /** Atomically increment by one and return the new value. @version 1.0 */
     T operator ++(void)
     {
         return __sync_add_and_fetch(&_value, 1);
     }
 
-    /** Atomically decrement by one and return the new value. */
+    /** Atomically decrement by one and return the new value. @version 1.0 */
     T operator --(void)
     {
         return __sync_sub_and_fetch(&_value, 1);
     }
 
-    /** Atomically increment by one and return the old value. */
+    /** Atomically increment by one and return the old value. @version 1.0 */
     T operator ++(int)
     {
         return __sync_fetch_and_add(&_value, 1);
     }
 
-    /** Atomically decrement by one and return the old value. */
+    /** Atomically decrement by one and return the old value. @version 1.0 */
     T operator --(int)
     {
         return __sync_fetch_and_sub(&_value, 1);
@@ -314,7 +323,7 @@ private:
 };
 #endif
 
-typedef Atomic< long > mtLong;
+typedef Atomic< long > a_int32_t;
 }
 
 }

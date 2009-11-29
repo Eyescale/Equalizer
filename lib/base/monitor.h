@@ -25,7 +25,6 @@
 #include <iostream>
 #include <typeinfo>
 
-
 #ifdef PTHREAD_MUTEX_INITIALIZER // Crude test if pthread.h was included
 #  ifndef HAVE_PTHREAD_H
 #    define HAVE_PTHREAD_H
@@ -48,7 +47,8 @@ namespace base
      * A monitor primitive.
      *
      * A monitor has a value, which can be monitored to reach a certain
-     * state. The caller is blocked until the condition is fulfilled.
+     * state. The caller is blocked until the condition is fulfilled. The
+     * concept is similar to a pthread condition, with more usage convenience.
      *
      * Template instantiations for uint32_t and bool are at the end of
      * monitor.cpp. Monitors for other types can be created by including 
@@ -58,30 +58,30 @@ namespace base
     template< typename T > class Monitor : public NonCopyable
     {
     public:
-        /** Constructs a new monitor with a default value of 0. */
+        /** Constructs a new monitor with a default value of 0. @version 1.0 */
         Monitor() : _value( static_cast<T>( 0 )) { _construct(); }
 
-        /** Constructs a new monitor with a given default value. */
+        /** Constructs a new monitor with a given default value. @version 1.0 */
         Monitor( const T& value ) : _value( value ) { _construct(); }
         
-        /** Destructs the monitor. */
+        /** Destructs the monitor. @version 1.0 */
         EQ_PT_EXPORT ~Monitor();
 
         /** @name Changing the monitored value. */
         //@{
-        /** Increment the monitored value, prefix only */
+        /** Increment the monitored value, prefix only. @version 1.0 */
         EQ_PT_EXPORT Monitor& operator++ ();
-        /** Decrement the monitored value, prefix only */
+        /** Decrement the monitored value, prefix only. @version 1.0 */
         EQ_PT_EXPORT Monitor& operator-- ();
 
-        /** Assign a new value. */
+        /** Assign a new value. @version 1.0 */
         Monitor& operator = ( const T& value )
             {
                 set( value );
                 return *this;
             }
 
-        /** Set a new value. */
+        /** Set a new value. @version 1.0 */
         EQ_PT_EXPORT void set( const T& value );
         //@}
 
@@ -90,12 +90,14 @@ namespace base
         /**
          * Block until the monitor has the given value.
          * @return the value when reaching the condition.
+         * @version 1.0
          */
         EQ_PT_EXPORT const T& waitEQ( const T& value ) const;
 
         /**
          * Block until the monitor has not the given value.
          * @return the value when reaching the condition.
+         * @version 1.0
          */
         EQ_PT_EXPORT const T& waitNE( const T& value ) const;
 
@@ -103,6 +105,7 @@ namespace base
          * Block until the monitor has a value greater or equal to the given
          * value.
          * @return the value when reaching the condition.
+         * @version 1.0
          */
         EQ_PT_EXPORT const T& waitGE( const T& value ) const;
 
@@ -110,11 +113,12 @@ namespace base
          * Block until the monitor has a value less or equal to the given
          * value.
          * @return the value when reaching the condition.
+         * @version 1.0
          */
         EQ_PT_EXPORT const T& waitLE( const T& value ) const;
         //@}
 
-        /** @name Comparison Operators. */
+        /** @name Comparison Operators. @version 1.0 */
         //@{
         bool operator == ( const T& value ) const { return _value == value; }
         bool operator != ( const T& value ) const { return _value != value; }
@@ -139,13 +143,13 @@ namespace base
 
         /** @name Data Access. */
         //@{
-        /** @return the current value. */
+        /** @return the current value. @version 1.0 */
         const T& operator->() const { return _value; }
 
-        /** @return the current value. */
+        /** @return the current value. @version 1.0 */
         const T& get() const { return _value; }
 
-        /** @return the current plus given value. */
+        /** @return the current plus the given value. @version 1.0 */
         T operator + ( const T& value ) const { return _value + value; }
         //@}
 
@@ -159,7 +163,7 @@ namespace base
 typedef Monitor< bool >     Monitorb;
 typedef Monitor< uint32_t > Monitoru;
 
-/** Print the monitor to the given output stream. */
+/** Print the monitor to the given output stream. @version 1.0 */
 template< typename T >
 inline std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor )
 {

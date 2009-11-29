@@ -138,7 +138,7 @@ bool TimedLock::trySet()
 }
 
 
-bool TimedLock::test()
+bool TimedLock::isSet()
 {
     return _locked;
 }

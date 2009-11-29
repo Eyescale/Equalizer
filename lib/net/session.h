@@ -379,7 +379,7 @@ namespace net
         base::IDPool _idPool;
 
         /** The identifiers for node-local instance identifiers. */
-        base::mtLong _instanceIDs;
+        base::a_int32_t _instanceIDs;
 
         typedef stde::hash_map< uint32_t, NodeID > NodeIDHash;
         /** The id->master mapping table. */

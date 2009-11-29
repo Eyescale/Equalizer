@@ -31,13 +31,13 @@ namespace base
     class EQ_EXPORT ExecutionListener
     {
     public:
-        /** Destruct the execution listener. */
+        /** Destruct the execution listener. @version 1.0 */
         virtual ~ExecutionListener() {}
 
-        /** Notify that a new execution unit started. */
+        /** Notify that a new execution unit started. @version 1.0 */
         virtual void notifyExecutionStarted() {}
 
-        /** Notify that the execution unit is about to stop. */
+        /** Notify that the execution unit is about to stop. @version 1.0 */
         virtual void notifyExecutionStopping() {}
     };
 }

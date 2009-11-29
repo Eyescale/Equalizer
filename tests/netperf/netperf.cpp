@@ -42,9 +42,9 @@ using namespace eq::net;
 
 namespace
 {
-ConnectionSet    _connectionSet;
-eq::base::mtLong _nClients;
-eq::base::Lock   _mutexPrint;
+ConnectionSet       _connectionSet;
+eq::base::a_int32_t _nClients;
+eq::base::Lock      _mutexPrint;
 class Receiver : public eq::base::Thread
 {
 public:

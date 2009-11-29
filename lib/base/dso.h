@@ -33,7 +33,7 @@ namespace base
     class DSO : public NonCopyable
     {
     public:
-        /** Construct a new dynamic shared object. */
+        /** Construct a new dynamic shared object. @version 1.0 */
         EQ_EXPORT DSO() : _dso( 0 ) {}
 
         /** 
@@ -41,14 +41,21 @@ namespace base
          * 
          * @param fileName The file name of the DSO.
          * @return true if the DSO was opened, false upon error.
+         * @version 1.0
          */
         EQ_EXPORT bool open( const std::string& fileName );
 
-        /** Close the DSO, which invalidates retrieved function pointers */
+        /** 
+         *Close the DSO, invalidates retrieved function pointers.
+         * @version 1.0
+         */
         EQ_EXPORT void close();
     
-        /** @return a function pointer in the DSO, or 0 if the function is not
-         *         exported by the DSO. */
+        /**
+         * @return a function pointer in the DSO, or 0 if the function is not
+         *         exported by the DSO.
+         * @version 1.0
+         */
         EQ_EXPORT void* getFunctionPointer( const std::string& functionName );
 
     private:

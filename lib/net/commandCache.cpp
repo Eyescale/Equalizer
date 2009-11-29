@@ -72,9 +72,9 @@ void CommandCache::flush()
 #ifdef PROFILE
 namespace
 {
-static base::mtLong _hits;
-static base::mtLong _misses;
-static base::mtLong _lookups;
+static base::a_int32_t _hits;
+static base::a_int32_t _misses;
+static base::a_int32_t _lookups;
 }
 #endif
 

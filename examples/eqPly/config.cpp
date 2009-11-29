@@ -171,7 +171,7 @@ void Config::_loadModels()
 
                 // recursively search directories
                 const eq::StringVector subFiles = 
-                    eq::base::fileSearch( filename, "*" );
+                    eq::base::searchDirectory( filename, "*" );
 
                 if( !subFiles.empty( ))
                     EQINFO << "Searching " << filename << std::endl;

@@ -45,7 +45,7 @@ namespace eq
 {
 namespace base
 {
-    /** The logging levels. */
+    /** The logging levels. @version 1.0 */
     enum LogLevel
     {
         LOG_ERROR = 1, //!< Output critical errors
@@ -59,6 +59,7 @@ namespace base
      * The logging topics.
      * 
      * @sa net/log.h, client/log.h
+     * @version 1.0
      */
     enum LogTopic
     {
@@ -207,21 +208,22 @@ namespace base
     /** 
      * Increases the indentation level of the Log stream, causing subsequent
      * lines to be intended by four characters.
+     * @version 1.0
      */
     EQ_EXPORT std::ostream& indent( std::ostream& os );
-    /** Decrease the indent of the Log stream. */
+    /** Decrease the indent of the Log stream. @version 1.0 */
     EQ_EXPORT std::ostream& exdent( std::ostream& os );
 
-    /** Disable flushing of the Log stream. */
+    /** Disable flushing of the Log stream. @version 1.0 */
     EQ_EXPORT std::ostream& disableFlush( std::ostream& os );
-    /** Re-enable flushing of the Log stream. */
+    /** Re-enable flushing of the Log stream. @version 1.0 */
     EQ_EXPORT std::ostream& enableFlush( std::ostream& os );
-    /** Flush the Log stream regardless of the auto-flush state. */
+    /** Flush the Log stream regardless of the auto-flush state. @version 1.0 */
     EQ_EXPORT std::ostream& forceFlush( std::ostream& os );
 
-    /** Disable printing of the Log header for subsequent lines. */
+    /** Disable printing of the Log header for subsequent lines. @version 1.0 */
     EQ_EXPORT std::ostream& disableHeader( std::ostream& os );
-    /** Re-enable printing of the Log header for subsequent lines. */
+    /** Re-enable printing of the Log header. @version 1.0 */
     EQ_EXPORT std::ostream& enableHeader( std::ostream& os );
 
 }
@@ -231,20 +233,23 @@ namespace base
 #  define SUBDIR ""
 #endif
 
-/** Output an error message to the per-thread Log stream. */
+/** Output an error message to the per-thread Log stream. @version 1.0 */
 #define EQERROR (eq::base::Log::level >= eq::base::LOG_ERROR) &&    \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
-/** Output a warning message to the per-thread Log stream. */
+/** Output a warning message to the per-thread Log stream. @version 1.0 */
 #define EQWARN  (eq::base::Log::level >= eq::base::LOG_WARN)  &&    \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
-/** Output an informational message to the per-thread Log stream. */
+/** Output an informational message to the per-thread Log. @version 1.0 */
 #define EQINFO  (eq::base::Log::level >= eq::base::LOG_INFO)  &&    \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
-/** Output a verbatim message to the per-thread Log stream. */
+/** Output a verbatim message to the per-thread Log stream. @version 1.0 */
 #define EQVERB  (eq::base::Log::level >= eq::base::LOG_VERB)  &&    \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
-/** Output a message pertaining to a topic to the per-thread Log stream. */
+/**
+ * Output a message pertaining to a topic to the per-thread Log stream.
+ * @version 1.0
+ */
 #define EQLOG(topic)  (eq::base::Log::topics & (topic))  &&  \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 

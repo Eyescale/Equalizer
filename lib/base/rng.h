@@ -38,7 +38,7 @@ namespace base
     class RNG : public NonCopyable
     {
     public:
-        /** Construct a new random number generator. */
+        /** Construct a new random number generator. @version 1.0 */
         RNG()
         {
 #ifdef Linux
@@ -48,7 +48,7 @@ namespace base
             reseed();
         }
 
-        /** Destruct the random number generator. */
+        /** Destruct the random number generator. @version 1.0 */
         ~RNG()
         {
 #ifdef Linux
@@ -57,7 +57,7 @@ namespace base
 #endif
         }
 
-        /** Re-initialize the seed value for pseudo RNG's. */
+        /** Re-initialize the seed value for pseudo RNG's. @version 1.0 */
         void reseed()
         {
 #ifdef Linux
@@ -76,7 +76,9 @@ namespace base
           * 
           * The returned number is between min..max for integer types, and 
           * between 0..1 for floating-point types.
-          * @return a random number. */
+          * @return a random number.
+          * @version 1.0 
+          */
         template< typename T >
         T get()
         {

@@ -33,18 +33,19 @@ namespace base
     template< typename D > class Lockable : public NonCopyable
     {
     public:
-        /** Construct a new data structure. */
+        /** Construct a new lockable data structure. @version 1.0 */
         explicit Lockable() {}
 
-        /** Construct and initialize a new data structure. */
+        /** Construct and initialize a new data structure. @version 1.0 */
         explicit Lockable( const D& value ) : data( value ) {}
 
-        /** Access the held data. */
+        /** Access the held data. @version 1.0 */
         D* operator->() { return &data; }
-        /** Access the held data. */
+
+        /** Access the held data. @version 1.0 */
         const D* operator->() const { return &data; }
 
-        D    data;
+        D data;
         mutable Lock lock;
     };
 }

@@ -118,7 +118,7 @@ namespace base
         ::UUID _id;
 #else // !WIN32
     public:
-        /** Opaque data type, used for network transport. */
+        /** Opaque data type, used for network transport. @version 1.0 */
         struct Data
         {
             uuid_t id;
@@ -133,52 +133,64 @@ namespace base
         UUID( const bool generate = false )
             { generate ? uuid_generate( _id ) : uuid_clear( _id ); }
 
-        /** Create a copy of a universally unique identifier. */
+        /** Create a copy of a universally unique identifier. @version 1.0 */
         UUID( const UUID& from ) { uuid_copy( _id, from._id ); }
 
-        /** Create a copy of a universally unique identifier. */
+        /** Create a copy of a universally unique identifier. @version 1.0 */
         UUID( const Data& from )   { uuid_copy( _id, from.id ); }
 
-        /** Get the raw data for network transport. */
+        /** Get the raw data for network transport. @version 1.0 */
         void getData( Data& data ) const { uuid_copy( data.id, _id ); }
 
-        /** Assign another universally unique identifier. */
+        /** Assign another universally unique identifier. @version 1.0 */
         UUID& operator = ( const UUID& from )
             {
                 uuid_copy( _id, from._id );
                 return *this;
             }
 
-        /** Assign another UUID from a string representation. */
+        /** Assign another UUID from a string representation. @version 1.0 */
         UUID& operator = ( const std::string& from )
             {
                 uuid_parse( from.c_str(), _id );
                 return *this;
             }
         
-        /** @return true if the UUIDs are equal, false otherwise. */
+        /** @return true if the UUIDs are equal, false if not. @version 1.0 */
         bool operator == ( const UUID& rhs ) const
             { return uuid_compare( _id, rhs._id ) == 0; }
 
-        /** @return true if the UUIDs are different, false otherwise. */
+        /**
+         * @return true if the UUIDs are different, false otherwise.
+         * @version 1.0
+         */
         bool operator != ( const UUID& rhs ) const
             { return uuid_compare( _id, rhs._id ) != 0; }
 
-        /** @return true if this UUID is smaller than the RHS UUID. */
+        /**
+         * @return true if this UUID is smaller than the RHS UUID.
+         * @version 1.0
+         */
         bool operator <  ( const UUID& rhs ) const
             { return uuid_compare( _id, rhs._id ) < 0; }
 
-        /** @return true if this UUID is bigger than the RHS UUID. */
+        /**
+         * @return true if this UUID is bigger than the rhs UUID.
+         * @version 1.0
+         */
         bool operator >  ( const UUID& rhs ) const
             { return uuid_compare( _id, rhs._id ) > 0; }
 
-        /** @return true if this UUID is set, i.e., it is not UUID::ZERO. */
+        /**
+         * @return true if this UUID is set, i.e., it is not UUID::ZERO.
+         * @version 1.0
+         */
         bool operator ! () const { return uuid_is_null( _id ); }
 
-        /** Convert this UUID for network transport. */
+        /** Convert this UUID for network transport. @version 1.0 */
         void convertToNetwork() {}
 
-        /** Convert this UUID from network transport. */
+        /** Convert this UUID from network transport. @version 1.0 */
         void convertToHost() {}
 
     private:

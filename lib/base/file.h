@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
  *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
@@ -30,9 +31,16 @@ namespace eq
 namespace base
 {
 
-/* @return all file names matching the given pattern in the given directory*/
-inline StringVector fileSearch( const std::string directory,  
-                                const std::string pattern )
+/**
+ * Retrieve a list of files in a directory matching a pattern.
+ *
+ * Only foo*bar pattern are implemented currently.
+ *
+ * @return all file names matching the given pattern in the given directory.
+ * @version 1.0
+ */
+inline StringVector searchDirectory( const std::string directory,  
+                                     const std::string pattern )
 {
     StringVector files;
    
@@ -56,9 +64,9 @@ inline StringVector fileSearch( const std::string directory,
         files.push_back( file.cFileName );    
     
     FindClose( hSearch );
+
 #else
 
-    // only foo*bar pattern are implemented
     const size_t findPos = pattern.find( '*' );
     if( findPos == std::string::npos )
     {
@@ -99,7 +107,7 @@ inline StringVector fileSearch( const std::string directory,
     return files;
 }
 
-/** @return the file name part of a path */
+/** @return the file name part of a path. @version 1.0 */
 inline std::string getFilename( const std::string& filename )
 {
     size_t lastSeparator = 0;
@@ -112,7 +120,7 @@ inline std::string getFilename( const std::string& filename )
     return filename.substr( lastSeparator, length );
 }
 
-/** @return the directory name part of a path */
+/** @return the directory name part of a path. @version 1.0 */
 inline std::string getDirname( const std::string& filename )
 {
     size_t lastSeparator = 0;

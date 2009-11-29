@@ -68,7 +68,7 @@
 #  include <eq/client/wglWindow.h>
 #endif
 
-#include <eq/base/fileSearch.h>
+#include <eq/base/file.h>
 #include <eq/base/rng.h>
 #include <eq/base/sleep.h>
 #include <eq/net/net.h>
@@ -82,7 +82,7 @@ namespace eqNet  = ::eq::net;
 #endif
 
 /** \mainpage Equalizer API Documentation
-\htmlinclude "RelNotes.dox"
+    \htmlinclude "RelNotes.dox"
 */
 
 #endif // EQ_H

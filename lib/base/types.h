@@ -108,7 +108,7 @@ namespace eq
 {
 namespace base
 {
-/** A vector of std::string */
+/** A vector of std::string @version 1.0 */
 typedef std::vector< std::string >   StringVector;
 
 }
