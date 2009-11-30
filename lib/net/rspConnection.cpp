@@ -611,7 +611,7 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
     receive->posRead += size;
     
     // if all data in the buffer has been taken
-    if ( receive->posRead == receive->data.getSize() )
+    if( receive->posRead == receive->data.getSize( ))
     {
         EQLOG( net::LOG_RSP ) << "reset receiver" << std::endl;
         memset( receive->got.getData(), false, receive->got.getSize( ));
@@ -639,6 +639,10 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
         }
     }
 
+#ifdef EQ_INSTRUMENT_RSP
+    if( bytes <= size )
+        EQWARN << *this << std::endl;
+#endif
     return size;
 }
 
