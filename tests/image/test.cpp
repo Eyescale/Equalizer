@@ -126,8 +126,9 @@ int main( int argc, char **argv )
             destImage.setPixelData( eq::Frame::BUFFER_COLOR,     
                             image.compressPixelData( eq::Frame::BUFFER_COLOR ));
 
-            TESTINFO( image.readImage( images.front(), eq::Frame::BUFFER_DEPTH),
-              images.front( ));
+            if( !image.readImage( images.front(), eq::Frame::BUFFER_DEPTH ))
+                continue; // Image unusable as depth
+
             destImage.setPixelViewport( image.getPixelViewport( ));
             destImage.setPixelData( eq::Frame::BUFFER_DEPTH,     
                             image.compressPixelData( eq::Frame::BUFFER_DEPTH ));

@@ -42,9 +42,8 @@ int main( int argc, char **argv )
     projection.origin[1] = 0;
     projection.origin[2] = 0;
 
-    
     wall = projection;
-    TESTINFO( wall.getWidth() == wall.getHeight(),
+    TESTINFO( fabs( wall.getWidth() - wall.getHeight( )) <= 0.00001f,
               wall.getWidth() << " != " << wall.getHeight( ));
 
     projection2.distance = projection.distance;

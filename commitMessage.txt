@@ -1,10 +1,9 @@
-API cleanup, move the following classes to the eq::util namespace:
-- Accum, AccumBufferObject, FrameBufferObject, ObjectManager, Texture
+Fix unit test runs on Ubuntu
 
 [ ] May break build
-[x] May break existing applications
-[ ] Bugfix
+[ ] May break existing applications
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
