@@ -21,6 +21,8 @@
 
 namespace eq
 {
+namespace util
+{
 
 Accum::Accum( GLEWContext* const glewContext )
     : _glewContext( glewContext )
@@ -170,5 +172,6 @@ bool Accum::usesFBO() const
 #endif
 }
 
+}
 }
 

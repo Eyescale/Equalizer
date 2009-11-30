@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,24 +15,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQUTIL_H
-#define EQUTIL_H
+#ifndef EQUTIL_TYPES_H
+#define EQUTIL_TYPES_H
 
-#include <eq/util/accum.h>
-#include <eq/util/accumBufferObject.h>
-#include <eq/util/bitmapFont.h>
-#include <eq/util/frameBufferObject.h>
-#include <eq/util/objectManager.h>
+namespace eq
+{
+namespace util
+{
 
-/** 
- * @namespace eq::util
- * @brief Equalizer utility classes
- *
- * The eq::util namespace groups common utility classes, which mostly facilitate
- * the usage of OpenGL functions. Most of the classes in this namespace are used
- * by the core client classes, but are implemented without a depency to the core
- * classes.
- */
+class Texture;
 
-#endif // EQUTIL_H
+/** A vector of pointers to eq::util::Texture */
+typedef std::vector< Texture* >  TextureVector;
 
+}
+}
+#endif // EQUTIL_TYPES_H

@@ -16,15 +16,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_FRAMEBUFFEROBJECT_H 
-#define EQ_FRAMEBUFFEROBJECT_H 
+#ifndef EQUTIL_FRAMEBUFFEROBJECT_H 
+#define EQUTIL_FRAMEBUFFEROBJECT_H 
 
-#include <eq/client/windowSystem.h> // for GL types
-#include <eq/client/texture.h>      // member
+#include <eq/util/texture.h> // member
+#include <eq/util/types.h>
+
+#include <eq/client/os.h>    // for GLEW
 
 #include <vector>
 
 namespace eq
+{
+namespace util
 {
     /** A C++ class to abstract OpenGL frame buffer objects */
     class FrameBufferObject 
@@ -142,6 +146,6 @@ namespace eq
         bool _checkFBOStatus();
     };
 }
+}
 
-
-#endif //EQ_FRAMEBUFFEROBJECT_H 
+#endif // EQUTIL_FRAMEBUFFEROBJECT_H 

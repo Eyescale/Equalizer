@@ -29,8 +29,9 @@
 #include "roiFragmentShaderRGB_glsl.h"
 #endif
 
-#include "frameBufferObject.h"
 #include "log.h"
+
+#include <eq/util/frameBufferObject.h>
 
 #include <eq/base/base.h>
 
@@ -549,7 +550,7 @@ void ROIFinder::_readbackInfo( )
 
     // copy frame buffer to texture
     const void* bufferKey = _getInfoKey( );
-    Texture*    texture   = _glObjects->obtainEqTexture( bufferKey );
+    util::Texture*    texture   = _glObjects->obtainEqTexture( bufferKey );
 
 #ifdef EQ_ROI_USE_DEPTH_TEXTURE
     texture->setFormat( GL_DEPTH_COMPONENT );
@@ -561,7 +562,7 @@ void ROIFinder::_readbackInfo( )
 
     // draw zoomed quad into FBO
     const void*     fboKey = _getInfoKey( );
-    FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( fboKey );
+    util::FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( fboKey );
 
     if( fbo )
     {

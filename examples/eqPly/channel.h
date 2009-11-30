@@ -94,7 +94,7 @@ namespace eqPly
         const Model* _model;
         uint32_t     _modelID;
 
-        eq::Accum* _accum;
+        eq::util::Accum* _accum;
 
         uint32_t _jitterStep;
         uint32_t _totalSteps;

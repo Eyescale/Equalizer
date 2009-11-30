@@ -25,7 +25,6 @@
 #include "config.h"
 #include "configEvent.h"
 #include "frame.h"
-#include "frameBufferObject.h"
 #include "global.h"
 #include "jitter.h"
 #include "log.h"
@@ -40,8 +39,9 @@
 #include "task.h"
 #include "view.h"
 
-#include <eq/base/rng.h>
+#include <eq/util/frameBufferObject.h>
 #include <eq/net/command.h>
+#include <eq/base/rng.h>
 
 using namespace eq::base;
 using namespace std;
@@ -202,7 +202,7 @@ bool Channel::_configInitFBO()
     }
         
     // needs glew initialized (see above)
-    _fbo = new FrameBufferObject( glewGetContext( ));
+    _fbo = new util::FrameBufferObject( glewGetContext( ));
     _fbo->setColorFormat( _window->getColorFormat( ));
         
     int depthSize = 0;
@@ -623,7 +623,7 @@ uint32_t Channel::getTaskID() const
     return _context->taskID;
 }
 
-FrameBufferObject* Channel::getFrameBufferObject()
+util::FrameBufferObject* Channel::getFrameBufferObject()
 {
     return _fbo;
 }

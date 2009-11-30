@@ -29,11 +29,14 @@
 
 namespace eq
 {
+namespace util
+{
+    class FrameBufferObject;
+}
     class ChannelVisitor;
     class Pixel;
     class Range;
     class SceneObject;
-    class FrameBufferObject;
     struct RenderContext;
 
     /**
@@ -175,7 +178,7 @@ namespace eq
             { return _nativeContext.pvp; }
 
         /** @return the FBO used as an alternate frame buffer. */
-        EQ_EXPORT FrameBufferObject* getFrameBufferObject();
+        EQ_EXPORT util::FrameBufferObject* getFrameBufferObject();
 
         /** Add a new statistics event for the current frame. @internal */
         EQ_EXPORT void addStatistic( Event& event );
@@ -636,7 +639,7 @@ namespace eq
         bool _fixedPVP;
 
         /** Used as an alternate drawable. */       
-        FrameBufferObject* _fbo; 
+        util::FrameBufferObject* _fbo; 
         
         /** Alternate drawable definition. */
         uint32_t _drawable;

@@ -17,11 +17,10 @@
 
 #include "objectManager.h"
 
+#include "accum.h"
+#include "bitmapFont.h"
 #include "frameBufferObject.h"
 #include "texture.h"
-#include "accum.h"
-
-#include <eq/util/bitmapFont.h>
 
 #include <string.h>
 
@@ -31,6 +30,8 @@ using namespace stde;
 // instantiate desired key types -- see end of file
 
 namespace eq
+{
+namespace util
 {
 template< typename T >
 ObjectManager< T >::ObjectManager( GLEWContext* const glewContext )
@@ -715,4 +716,4 @@ void ObjectManager<T>::deleteEqFrameBufferObject( const T& key )
 // instantiate desired key types
 template class ObjectManager< const void* >;
 }
-
+}

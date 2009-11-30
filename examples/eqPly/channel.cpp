@@ -73,7 +73,7 @@ bool Channel::_configInitAccumBuffer()
 {
     // TODO OPT: Only alloc accum buffer for dest channels.
     const eq::PixelViewport& pvp = getPixelViewport();
-    _accum = new eq::Accum( glewGetContext( ));
+    _accum = new eq::util::Accum( glewGetContext( ));
     EQASSERT( pvp.isValid( ));
 
     if( !_accum->init( pvp, getWindow()->getColorFormat( )))

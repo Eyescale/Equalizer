@@ -27,9 +27,12 @@
 
 namespace eq
 {
+namespace util
+{
+    class Accum;
+}
     class Channel;
     class Image;
-    class Accum;
 
     /** 
      * A set of functions performing compositing for a set of input frames.
@@ -70,7 +73,7 @@ namespace eq
          * @return the number of different subpixel steps assembled.
          */
         static uint32_t assembleFrames( const FrameVector& frames,
-                                        Channel* channel, Accum* accum );
+                                        Channel* channel, util::Accum* accum );
 
         /** 
          * Assemble all frames in the given order using the fastest implemented
@@ -86,7 +89,8 @@ namespace eq
          * @return the number of different subpixel steps assembled.
          */
         static uint32_t assembleFramesSorted( const FrameVector& frames,
-                                              Channel* channel, Accum* accum,
+                                              Channel* channel, 
+                                              util::Accum* accum,
                                               const bool blendAlpha = false );
 
         /** 
@@ -99,7 +103,8 @@ namespace eq
          * @return the number of different subpixel steps assembled.
          */
         static uint32_t assembleFramesUnsorted( const FrameVector& frames,
-                                              Channel* channel, Accum* accum );
+                                                Channel* channel,
+                                                util::Accum* accum );
 
         /** 
          * Assemble all frames in the given order in a memory buffer using the
@@ -241,7 +246,7 @@ namespace eq
                                  const Frame::Buffer which );
 
         /** @return the accumulation buffer used for subpixel compositing. */
-        static Accum* _obtainAccum( Channel* channel );
+        static util::Accum* _obtainAccum( Channel* channel );
     };
 }
 

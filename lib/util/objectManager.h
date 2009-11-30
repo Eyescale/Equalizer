@@ -15,10 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_OBJECTMANAGER_H
-#define EQ_OBJECTMANAGER_H
+#ifndef EQUTIL_OBJECTMANAGER_H
+#define EQUTIL_OBJECTMANAGER_H
 
-#include <eq/client/os.h>             // OpenGL types
+#include <eq/client/os.h>             // OpenGL/GLEW types
 
 #include <eq/base/base.h>             // EQ_EXPORT definition
 #include <eq/base/debug.h>            // EQASSERT definition
@@ -31,10 +31,9 @@ namespace eq
 namespace util
 {
     template< typename T > class BitmapFont;
-}
+    class Accum;
     class FrameBufferObject;
     class Texture;
-    class Accum;
 
     /**
      * A facility class to managed OpenGL objects across shared contexts
@@ -170,6 +169,7 @@ namespace util
 
     };
 }
+}
 
-#endif // EQ_OBJECTMANAGER_H
+#endif // EQUTIL_OBJECTMANAGER_H
 

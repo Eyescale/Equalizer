@@ -18,11 +18,8 @@
 
 #include "osWindow.h"
 
-#include "frameBufferObject.h"
 #include "global.h"
 #include "pipe.h"
-
-using namespace std;
 
 namespace eq
 {

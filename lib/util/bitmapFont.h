@@ -26,20 +26,11 @@
 
 namespace eq
 {
-class Window;
-template< typename T > class ObjectManager;
-
-/** 
- * @namespace eq::util
- * @brief Equalizer utility classes
- *
- * The eq::util namespace groups common utility classes, which mostly facilitate
- * the usage of OpenGL functions. Most of the classes in this namespace are used
- * by the core client classes, but are implemented without a depency to the core
- * classes.
- */
+    class Window;
 namespace util
 {
+    template< typename T > class ObjectManager;
+
     /** A wrapper around AGL, WGL and GLX bitmap fonts. */
     template< typename OMT > class BitmapFont
     {

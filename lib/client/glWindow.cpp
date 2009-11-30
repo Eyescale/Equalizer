@@ -18,11 +18,10 @@
 
 #include "glWindow.h"
 
-#include "frameBufferObject.h"
 #include "global.h"
 #include "pipe.h"
 
-using namespace std;
+#include <eq/util/frameBufferObject.h>
 
 namespace eq
 {
@@ -81,7 +80,7 @@ bool GLWindow::configInitFBO()
     }
     
     // needs glew initialized (see above)
-    _fbo = new FrameBufferObject( _glewContext );
+    _fbo = new util::FrameBufferObject( _glewContext );
     _fbo->setColorFormat( _window->getColorFormat( ));
     
     const PixelViewport& pvp = _window->getPixelViewport();
@@ -137,7 +136,7 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     if( !glVersion ) // most likely no context - fail
     {
         EQWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
-               << endl;
+               << std::endl;
         drawableConfig.glVersion = 1.1f;
     }
     else
@@ -163,7 +162,7 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     glGetIntegerv( GL_ACCUM_RED_BITS, &accumBits );
     drawableConfig.accumBits = accumBits * 4;
         
-    EQINFO << "Window drawable config: " << drawableConfig << endl;
+    EQINFO << "Window drawable config: " << drawableConfig << std::endl;
 }
     
 }

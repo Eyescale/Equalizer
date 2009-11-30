@@ -16,12 +16,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_ACCUMBUFFEROBJECT_H
-#define EQ_ACCUMBUFFEROBJECT_H
+#ifndef EQUTIL_ACCUMBUFFEROBJECT_H
+#define EQUTIL_ACCUMBUFFEROBJECT_H
 
-#include <eq/client/frameBufferObject.h> // base class
+#include <eq/util/frameBufferObject.h> // base class
 
 namespace eq
+{
+namespace util
 {
     class Texture;
 
@@ -95,6 +97,6 @@ namespace eq
         Texture* _texture;
     };
 }
+}
 
-
-#endif //EQ_ACCUMBUFFEROBJECT_H
+#endif // EQUTIL_ACCUMBUFFEROBJECT_H

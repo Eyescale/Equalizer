@@ -20,8 +20,6 @@
 
 #include <eq/base/defines.h>
 
-#include <eq/client/accum.h>
-#include <eq/client/accumBufferObject.h>
 #include <eq/client/canvas.h>
 #include <eq/client/channelStatistics.h>
 #include <eq/client/client.h>
@@ -32,7 +30,6 @@
 #include <eq/client/configVisitor.h>
 #include <eq/client/event.h>
 #include <eq/client/frame.h>
-#include <eq/client/frameBufferObject.h>
 #include <eq/client/frameData.h>
 #include <eq/client/global.h>
 #include <eq/client/image.h>
@@ -41,7 +38,6 @@
 #include <eq/client/log.h>
 #include <eq/client/node.h>
 #include <eq/client/nodeFactory.h>
-#include <eq/client/objectManager.h>
 #include <eq/client/observer.h>
 #include <eq/client/packets.h>
 #include <eq/client/pipe.h>

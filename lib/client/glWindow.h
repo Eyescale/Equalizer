@@ -23,7 +23,6 @@
 
 namespace eq
 {
-    class FrameBufferObject;
 
     /**
      * The interface definition for OS-specific windowing code.
@@ -52,8 +51,8 @@ namespace eq
         EQ_EXPORT virtual void configExitFBO();
 
         /** @return the FBO of this window, or 0 if no FBO is used. */
-        EQ_EXPORT virtual const FrameBufferObject* getFrameBufferObject() const
-            { return _fbo; }
+        EQ_EXPORT virtual const util::FrameBufferObject* getFrameBufferObject()
+            const { return _fbo; }
         //@}
      
         /** Initialize the GLEW context for this window. */
@@ -90,7 +89,7 @@ namespace eq
         GLEWContext*   _glewContext;
 
         /** Frame buffer object for FBO drawables. */       
-        FrameBufferObject* _fbo;
+        util::FrameBufferObject* _fbo;
 
         union // placeholder for binary-compatible changes
         {

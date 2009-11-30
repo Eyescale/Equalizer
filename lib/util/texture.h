@@ -15,10 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_TEXTURE_H
-#define EQ_TEXTURE_H
+#ifndef EQUTIL_TEXTURE_H
+#define EQUTIL_TEXTURE_H
 
-#include <eq/client/windowSystem.h> // GL types
+#include <eq/client/os.h>           // GLEW
 #include <eq/client/frame.h>        // Frame::Buffer enum
 
 #include <eq/base/thread.h>         // thread debug macro
@@ -29,6 +29,8 @@ namespace eq
     class Image;
     class PixelViewport;
 
+namespace util
+{
     /** 
      * A wrapper around GL textures.
      * 
@@ -128,5 +130,7 @@ namespace eq
 
         CHECK_THREAD_DECLARE( _thread );
     };
-};
-#endif // EQ_TEXTURE_H
+}
+}
+
+#endif // EQUTIL_TEXTURE_H

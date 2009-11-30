@@ -19,7 +19,6 @@
 
 #include "compressor.h"
 #include "frame.h"
-#include "frameBufferObject.h"
 #include "frameData.h"
 #include "global.h"
 #include "pixel.h"
@@ -27,9 +26,12 @@
 #include "log.h"
 #include "windowSystem.h"
 
+#include <eq/util/frameBufferObject.h>
+
+#include <eq/net/node.h>
+
 #include <eq/base/memoryMap.h>
 #include <eq/base/omp.h>
-#include <eq/net/node.h>
 
 #include <fstream>
 
@@ -369,7 +371,7 @@ bool Image::hasTextureData( const Frame::Buffer buffer ) const
     return getTexture( buffer ).isValid(); 
 }
 
-const Texture& Image::getTexture( const Frame::Buffer buffer ) const
+const util::Texture& Image::getTexture( const Frame::Buffer buffer ) const
 {
     return _getAttachment( buffer ).texture;
 }
@@ -455,7 +457,7 @@ void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
     {
         EQASSERTINFO( zoom == Zoom::NONE, "Texture readback zoom not "
                       << "implemented, zoom happens during compositing" );
-        Texture& texture = _getAttachment( buffer ).texture;
+        util::Texture& texture = _getAttachment( buffer ).texture;
         texture.copyFromFrameBuffer( _pvp );
         return;
     }
@@ -521,7 +523,7 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     
     // copy frame buffer to texture
     const void* bufferKey = _getBufferKey( buffer );
-    Texture*    texture   = _glObjects->obtainEqTexture( bufferKey );
+    util::Texture* texture = _glObjects->obtainEqTexture( bufferKey );
 
     texture->setFormat( getInternalTextureFormat( buffer ));
     texture->copyFromFrameBuffer( _pvp );
@@ -529,7 +531,7 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     // draw zoomed quad into FBO
     //  uses the same FBO for color and depth, with masking.
     const void*     fboKey = _getBufferKey( Frame::BUFFER_COLOR );
-    FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( fboKey );
+    util::FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( fboKey );
 
     if( fbo )
     {
@@ -643,7 +645,8 @@ void Image::_syncReadbackZoom( const Frame::Buffer buffer )
     memory.resize( size );
 
     const void*  bufferKey = _getBufferKey( buffer );
-    FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( bufferKey );
+    util::FrameBufferObject* fbo =
+        _glObjects->getEqFrameBufferObject( bufferKey );
     EQASSERT( fbo != 0 );
     
     switch( buffer )

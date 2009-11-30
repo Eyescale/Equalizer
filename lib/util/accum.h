@@ -16,15 +16,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_ACCUM_H
-#define EQ_ACCUM_H
+#ifndef EQUTIL_ACCUM_H
+#define EQUTIL_ACCUM_H
 
 #include <eq/client/os.h>  // for GLEW
 
 namespace eq
 {
-    class AccumBufferObject;
     class PixelViewport;
+
+namespace util
+{
+    class AccumBufferObject;
 
     /**
      * A C++ class to abstract an accumulation buffer.
@@ -129,6 +132,6 @@ namespace eq
         uint32_t _totalSteps;
     };
 }
+}
 
-
-#endif //EQ_ACCUMULATION_H
+#endif //EQUTIL_ACCUMULATION_H

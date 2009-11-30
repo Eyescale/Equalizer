@@ -25,7 +25,10 @@
 
 namespace eq
 {
+namespace util
+{
     class FrameBufferObject;
+}
 
     /**
      * The interface definition for OS-specific windowing code.
@@ -102,8 +105,8 @@ namespace eq
         EQ_EXPORT void configExitFBO();
 
         /** @return the FBO of this window, or 0 if no FBO is used. */
-        EQ_EXPORT virtual const FrameBufferObject* getFrameBufferObject() const
-            { return 0; }
+        EQ_EXPORT virtual const util::FrameBufferObject* getFrameBufferObject()
+            const { return 0; }
         //@}
 
         /** @name Convenience interface to eq::Window methods */

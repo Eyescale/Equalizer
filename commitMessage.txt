@@ -1,7 +1,5 @@
-Decouple BitmapFont implementation from core entities:
-- Introduce eq::XGet/SetCurrentDisplay to allow decoupling
-- BitmapFont can now be used with custom OSPipe implementations, as long
-  as the correct context is current.
+API cleanup, move the following classes to the eq::util namespace:
+- Accum, AccumBufferObject, FrameBufferObject, ObjectManager, Texture
 
 [ ] May break build
 [x] May break existing applications

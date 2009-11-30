@@ -20,6 +20,8 @@
 
 namespace eq
 {
+namespace util
+{
 
 AccumBufferObject::AccumBufferObject( GLEWContext* glewContext )
     : FrameBufferObject( glewContext )
@@ -135,5 +137,6 @@ void AccumBufferObject::_drawQuadWithTexture( Texture* texture, GLfloat value )
     glDepthMask( true );
 }
 
+}
 }
 

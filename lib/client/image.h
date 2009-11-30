@@ -20,9 +20,10 @@
 
 #include <eq/client/frame.h>         // for Frame::Buffer enum
 #include <eq/client/pixelViewport.h> // member
-#include <eq/client/texture.h>       // member
 #include <eq/client/viewport.h>      // member
 #include <eq/client/windowSystem.h>  // for OpenGL types
+
+#include <eq/util/texture.h>         // member
 
 namespace eq
 {
@@ -214,7 +215,8 @@ namespace eq
         /** @name Texture access */
         //@{
         /** Get the texture of this image. */
-        EQ_EXPORT const Texture& getTexture( const Frame::Buffer buffer ) const;
+        EQ_EXPORT const util::Texture& getTexture( const Frame::Buffer buffer )
+            const;
 
         /**
          * @return true if the image has texture data for the buffer, false if
@@ -359,7 +361,7 @@ namespace eq
                 compressor;
 
             /** The texture name for this image component (texture images). */
-            Texture texture;
+            util::Texture texture;
 
             /** Current pixel data (memory images). */
             Memory memory;

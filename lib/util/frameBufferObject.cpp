@@ -24,6 +24,8 @@
 
 namespace eq
 {
+namespace util
+{
 
 FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
     : _fboID( 0 )
@@ -214,4 +216,4 @@ PixelViewport FrameBufferObject::getPixelViewport() const
 }
 
 }
-
+}

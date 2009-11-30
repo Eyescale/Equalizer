@@ -75,8 +75,6 @@ HEADER_SRC = \
 	net/types.h \
 	net/udpConnection.h \
 	net/version.h \
-	client/accum.h \
-	client/accumBufferObject.h \
 	client/canvas.h \
 	client/canvasVisitor.h \
 	client/channel.h \
@@ -97,7 +95,6 @@ HEADER_SRC = \
 	client/eventHandler.h \
 	client/eye.h \
 	client/frame.h \
-	client/frameBufferObject.h \
 	client/frameData.h \
 	client/frustum.h \
 	client/global.h \
@@ -113,7 +110,6 @@ HEADER_SRC = \
 	client/nodeType.h \
 	client/nodeVisitor.h \
 	client/object.h \
-	client/objectManager.h \
 	client/observer.h \
 	client/observerVisitor.h \
 	client/os.h \
@@ -134,7 +130,6 @@ HEADER_SRC = \
 	client/statisticSampler.h \
 	client/subPixel.h \
 	client/task.h \
-	client/texture.h \
 	client/types.h \
 	client/version.h \
 	client/view.h \
@@ -147,7 +142,13 @@ HEADER_SRC = \
 	client/windowSystem.h \
 	client/windowVisitor.h \
 	client/zoom.h \
+	util/accum.h \
+	util/accumBufferObject.h \
 	util/bitmapFont.h \
+	util/frameBufferObject.h \
+	util/objectManager.h \
+	util/texture.h \
+	util/types.h \
 	util/util.h
 
 CXXFILES = \
@@ -204,8 +205,6 @@ CXXFILES = \
 	net/udpConnection.cpp \
 	net/unbufferedMasterCM.cpp \
 	net/versionedSlaveCM.cpp \
-	client/accum.cpp \
-	client/accumBufferObject.cpp \
 	client/canvas.cpp \
 	client/channel.cpp \
 	client/channelStatistics.cpp \
@@ -224,7 +223,6 @@ CXXFILES = \
 	client/eye.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
-	client/frameBufferObject.cpp \
 	client/frustum.cpp \
 	client/global.cpp \
 	client/glWindow.cpp \
@@ -236,7 +234,6 @@ CXXFILES = \
 	client/nodeFactory.cpp \
 	client/frameDataStatistics.cpp \
 	client/object.cpp \
-	client/objectManager.cpp \
 	client/observer.cpp \
 	client/os.cpp \
 	client/osPipe.cpp \
@@ -254,7 +251,6 @@ CXXFILES = \
 	client/server.cpp \
 	client/statistic.cpp \
 	client/subPixel.cpp \
-	client/texture.cpp \
 	client/version.cpp \
 	client/view.cpp \
 	client/viewport.cpp \
@@ -263,7 +259,12 @@ CXXFILES = \
 	client/windowStatistics.cpp \
 	client/windowSystem.cpp \
 	client/zoom.cpp \
+	util/accum.cpp \
+	util/accumBufferObject.cpp \
 	util/bitmapFont.cpp \
+	util/frameBufferObject.cpp \
+	util/objectManager.cpp \
+	util/texture.cpp \
 	compressor/compressor.cpp \
 	compressor/compressorRLE4B.cpp \
 	compressor/compressorRLE4BU.cpp \

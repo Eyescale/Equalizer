@@ -29,7 +29,7 @@
 #include <map>
 
 #ifdef EQUALIZER
-#   include <eq/client/objectManager.h>
+#   include <eq/eq.h>
 #endif // EQUALIZER
 
 

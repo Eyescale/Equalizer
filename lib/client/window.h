@@ -19,13 +19,13 @@
 #define EQ_WINDOW_H
 
 #include <eq/client/drawableConfig.h> // member
-#include <eq/client/objectManager.h>  // member
 #include <eq/client/pixelViewport.h>  // member
 #include <eq/client/renderContext.h>  // member
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h> // enum
 
 #include <eq/util/bitmapFont.h>      // member
+#include <eq/util/objectManager.h>   // member
 #include <eq/net/object.h>           // base class
 
 namespace eq
@@ -64,7 +64,7 @@ namespace eq
     {
     public:
         /** The per-window object manager. */
-        typedef eq::ObjectManager< const void* > ObjectManager;
+        typedef util::ObjectManager< const void* > ObjectManager;
 
         /** Fonts used for overlays. */
         typedef util::BitmapFont< const void* > Font;

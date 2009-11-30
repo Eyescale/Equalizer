@@ -17,10 +17,11 @@
 
 #include "texture.h"
 
-#include "image.h"
-#include "window.h"
+#include <eq/client/image.h>
 
 namespace eq
+{
+namespace util
 {
 Texture::Texture( GLEWContext* const glewContext )
         : _id( 0 )
@@ -269,4 +270,5 @@ void Texture::writeTexture( const std::string& filename,
     delete image;
 }
 
+}
 }

@@ -44,7 +44,6 @@ class Pipe;
 class PixelViewport;
 class Segment;
 class Server;
-class Texture;
 class View;
 class Viewport;
 class Window;
@@ -64,8 +63,6 @@ typedef std::vector< Channel* >  ChannelVector;
 typedef std::vector< Frame* >    FrameVector;
 /** A vector of pointers to eq::Image */
 typedef std::vector< Image* >    ImageVector;
-/** A vector of pointers to eq::Texture */
-typedef std::vector< Texture* >  TextureVector;
 /** A vector of pointers to eq::Observer */
 typedef std::vector< Observer* > ObserverVector;
 /** A vector of pointers to eq::Canvas */
