@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,8 +29,6 @@ namespace eq
 {
 namespace server
 {
-
-#define MIN_PIXELS 8
 
 std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* );
 
@@ -373,6 +372,8 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
             }
         }
 
+        node->boundaryf = _boundaryf;
+        node->boundary2i = _boundary2i;
         node->time  = EQ_MIN( time, totalTime );
         node->usage = usage;
         EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " usage " 
@@ -390,6 +391,33 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
     node->time  = node->left->time + node->right->time;
     node->usage = node->left->usage + node->right->usage;
     
+    switch( node->splitMode )
+    {
+        case MODE_VERTICAL:
+            node->boundary2i.x() = node->left->boundary2i.x() +
+                                   node->right->boundary2i.x();
+            node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
+                                           node->right->boundary2i.y() );
+            node->boundaryf = EQ_MAX( node->left->boundaryf, node->right->boundaryf );
+            break;
+        case MODE_HORIZONTAL:
+            node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
+                                           node->right->boundary2i.x() );
+            node->boundary2i.y() = node->left->boundary2i.y() +
+                                   node->right->boundary2i.y();
+            node->boundaryf = EQ_MAX( node->left->boundaryf, node->right->boundaryf );
+            break;
+        case MODE_DB:
+            node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
+                                           node->right->boundary2i.x() );
+            node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
+                                           node->right->boundary2i.y() );
+            node->boundaryf = node->left->boundaryf + node->right->boundaryf;
+            break;
+        default:
+            EQUNIMPLEMENTED;
+    }
+
     EQLOG( LOG_LB2 ) << "Node time " << node->time << ", left " << timeLeft
                     << std::endl;
     return timeLeft;
@@ -613,32 +641,30 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
             // Ensure minimum size
             const Compound* root = getCompound();
+            const float boundary = static_cast< float >
+                                             ( node->boundary2i.x() ) /
+                                          root->getInheritPixelViewport().w;
             if( node->left->usage == 0.f )
                 splitPos = vp.x;
             else if( node->right->usage == 0.f )
                 splitPos = end;
-#ifdef MIN_PIXELS
-            else
+            else if( boundary > 0 )
             {
-                const float epsilon = static_cast< float >( MIN_PIXELS ) /
-                                          root->getInheritPixelViewport().w;
-
-                if( (splitPos - vp.x) < epsilon )
-                    splitPos = vp.x + epsilon;
-                if( (end - splitPos) < epsilon )
-                    splitPos = end - epsilon;
+                if( (splitPos - vp.x) < boundary )
+                    splitPos = vp.x + boundary;
+                if( (end - splitPos) < boundary )
+                    splitPos = end - boundary;
+                
+                const uint32_t ratio = 
+                           static_cast< uint32_t >( splitPos / boundary + .5f );
+                splitPos = ratio * boundary;
             }
-#endif
-            const float epsilon = 1.0f / root->getInheritPixelViewport().w;
-            if( (splitPos - vp.x) < epsilon )
-                splitPos = vp.x;
-            if( (end - splitPos) < epsilon )
-                splitPos = end;
 
             splitPos = EQ_MAX( splitPos, vp.x );
             splitPos = EQ_MIN( splitPos, end);
 
-            EQLOG( LOG_LB2 ) << "Split " << vp << " at X " << splitPos << std::endl;
+            EQLOG( LOG_LB2 ) << "Split " << vp << " at X " 
+                             << splitPos << std::endl;
 
             // balance children
             Viewport childVP = vp;
@@ -755,27 +781,26 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
             // EQASSERTINFO( timeLeft <= .001f, timeLeft );
 
             const Compound* root = getCompound();
+            
+            const float boundary = static_cast< float >( 
+                                                   node->boundary2i.y() ) /
+                                              root->getInheritPixelViewport().h;
+            
             if( node->left->usage == 0.f )
                 splitPos = vp.y;
             else if( node->right->usage == 0.f )
                 splitPos = end;
-#ifdef MIN_PIXELS
-            else
+            else if ( boundary > 0 )
             {
-                const float     epsilon = static_cast< float >( MIN_PIXELS ) /
-                                              root->getInheritPixelViewport().h;
-
-                if( (splitPos - vp.y) < epsilon )
-                    splitPos = vp.y + epsilon;
-                if( (end - splitPos) < epsilon )
-                    splitPos = end - epsilon;
+                if( (splitPos - vp.y) < boundary )
+                    splitPos = vp.y + boundary;
+                if( (end - splitPos) < boundary )
+                    splitPos = end - boundary;
+                
+                const uint32_t ratio = 
+                           static_cast< uint32_t >( splitPos / boundary + .5f );
+                splitPos = ratio * boundary;
             }
-#endif
-            const float epsilon = 1.0f / root->getInheritPixelViewport().h;
-            if( (splitPos - vp.y) < epsilon )
-                splitPos = vp.y;
-            if( (end - splitPos) < epsilon )
-                splitPos = end;
 
             splitPos = EQ_MAX( splitPos, vp.y );
             splitPos = EQ_MIN( splitPos, end );
@@ -872,16 +897,18 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
             }
             // There might be more time left due to MIN_PIXEL rounding by parent
             // EQASSERTINFO( timeLeft <= .001f, timeLeft );
-
+            const float boundary( node->boundaryf );
             if( node->left->usage == 0.f )
                 splitPos = range.start;
             else if( node->right->usage == 0.f )
                 splitPos = end;
 
-            const float epsilon( 0.001f );
-            if( (splitPos - range.start) < epsilon )
+            const uint32_t ratio = static_cast< uint32_t >
+                      ( splitPos / boundary + .5f );
+            splitPos = ratio * boundary;
+            if( (splitPos - range.start) < boundary )
                 splitPos = range.start;
-            if( (end - splitPos) < epsilon )
+            if( (end - splitPos) < boundary )
                 splitPos = end;
 
             EQLOG( LOG_LB2 ) << "Split " << range << " at pos " << splitPos
@@ -945,7 +972,7 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer* lb )
         os << "    damping " << lb->getDamping() << std::endl;
 
     if( lb->getBoundary2i() != Vector2i( 1, 1 ) )
-        os << "    boundary [ " << lb->getBoundary2i().x() << ", " 
+        os << "    boundary [ " << lb->getBoundary2i().x() << " " 
            << lb->getBoundary2i().y() << " ]" << std::endl;
 
     if( lb->getBoundaryf() != std::numeric_limits<float>::epsilon() )

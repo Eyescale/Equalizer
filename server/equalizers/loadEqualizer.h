@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -110,6 +111,8 @@ namespace server
             LoadEqualizer::Mode splitMode; //<! What to adapt
             float     time;      //<! target render time for next frame
             float     usage;     //<! total usage of subtree
+            float     boundaryf;
+            Vector2i  boundary2i;
         };
         friend std::ostream& operator << ( std::ostream& os, const Node* node );
         typedef std::vector< Node* > LBNodeVector;
