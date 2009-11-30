@@ -1294,8 +1294,10 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 
 #ifdef EQ_INSTRUMENT_RSP
     nTimeInWrite += clock.getTime64();
-#endif
 
+    if( bytes <= _bufferSize )
+        EQWARN << *this << std::endl;
+#endif
     return size;
 }
 

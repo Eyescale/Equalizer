@@ -1,4 +1,4 @@
-Minor tweak in windows copy build script
+Minor RSP connection tweak
 
 [ ] May break build
 [ ] May break existing applications
