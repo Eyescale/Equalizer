@@ -353,6 +353,11 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
     nTimeInReadSync += clock.getTime64();
     nBytesRead += sizeRead;
 #endif
+
+#ifdef EQ_INSTRUMENT_RSP
+    if( bytes <= _bufferSize )
+        EQWARN << *this << std::endl;
+#endif
     return sizeRead;
 }
 
@@ -639,10 +644,6 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
         }
     }
 
-#ifdef EQ_INSTRUMENT_RSP
-    if( bytes <= size )
-        EQWARN << *this << std::endl;
-#endif
     return size;
 }
 
