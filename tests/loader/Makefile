@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS += -I..
+CXXFLAGS += -I.. $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += -lpthread -leq -leqserver
 BIN_DIR   = $(ARCH)
 
