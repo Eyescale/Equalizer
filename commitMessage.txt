@@ -1,9 +1,9 @@
-Fix unit test runs on Ubuntu
+Minor tweak in windows copy build script
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
