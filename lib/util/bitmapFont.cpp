@@ -38,8 +38,6 @@
 #  include <eq/client/glXPipe.h>
 #endif
 
-using namespace std;
-
 namespace eq
 {
 namespace util
@@ -61,18 +59,17 @@ BitmapFont< OMT >::~BitmapFont()
 }
 
 template< typename OMT >
-bool BitmapFont< OMT >::init( Window* window, const std::string& name,
-                         const uint32_t size )
+bool BitmapFont< OMT >::init( const WindowSystem ws, const std::string& name,
+                              const uint32_t size )
 {
-    const Pipe* pipe = window->getPipe();
-    switch( pipe->getWindowSystem( ))
+    switch( ws )
     {
         case WINDOW_SYSTEM_GLX:
-            return _initGLX( window, name, size );
+            return _initGLX( name, size );
         case WINDOW_SYSTEM_WGL:
-            return _initWGL( window, name, size );
+            return _initWGL( name, size );
         case WINDOW_SYSTEM_AGL:
-            return _initAGL( window, name, size );
+            return _initAGL( name, size );
         default:
             return false;
     }
@@ -88,21 +85,20 @@ void BitmapFont< OMT >::exit()
 }
 
 template< typename OMT >
-bool BitmapFont< OMT >::_initGLX( Window* window, const std::string& name,
-                             const uint32_t size )
+bool BitmapFont< OMT >::_initGLX( const std::string& name, const uint32_t size )
 {
 #ifdef GLX
-    Pipe* pipe = window->getPipe();
-    EQASSERT( pipe );
-    EQASSERT( pipe->getOSPipe( ));
-    EQASSERT( dynamic_cast< const GLXPipe* >( pipe->getOSPipe( )));
-    const GLXPipe* osPipe = static_cast< const GLXPipe* >( pipe->getOSPipe( ));
-
-    Display* display = osPipe->getXDisplay();
+    Display* display = XGetCurrentDisplay();
     EQASSERT( display );
+    if( !display )
+    {
+        EQWARN << "No current X11 display, see eq::XSetCurrentDisplay()"
+               << std::endl;
+        return false;
+    }
 
     // see xfontsel
-    stringstream font;
+    std::stringstream font;
     font << "-*-";
 
     if( name.empty( ))
@@ -114,7 +110,8 @@ bool BitmapFont< OMT >::_initGLX( Window* window, const std::string& name,
     XFontStruct* fontStruct = XLoadQueryFont( display, font.str().c_str( )); 
     if( !fontStruct )
     {
-        EQWARN << "Can't load font " << font.str() << ", using fixed" << endl;
+        EQWARN << "Can't load font " << font.str() << ", using fixed"
+               << std::endl;
         fontStruct = XLoadQueryFont( display, "fixed" ); 
     }
 
@@ -131,23 +128,13 @@ bool BitmapFont< OMT >::_initGLX( Window* window, const std::string& name,
 }
 
 template< typename OMT >
-bool BitmapFont< OMT >::_initWGL( Window* window, const std::string& name,
-                             const uint32_t size )
+bool BitmapFont< OMT >::_initWGL( const std::string& name, const uint32_t size )
 {
 #ifdef WGL
-    const OSWindow*    osWindow  = window->getOSWindow();
-    const WGLWindowIF* wglWindow = dynamic_cast< const WGLWindowIF* >(osWindow);
-
-    if( !wglWindow )
-    {
-        EQWARN << "Window does not use a WGL window" << endl;
-        return false;
-    }
-
-    HDC dc = wglWindow->getWGLDC();
+    HDC dc = wglGetCurrentDC();
     if( !dc )
     {
-        EQWARN << "WGL window does not have a device context" << endl;
+        EQWARN << "No WGL device context current" << std::endl;
         return false;
     }
 
@@ -172,7 +159,7 @@ bool BitmapFont< OMT >::_initWGL( Window* window, const std::string& name,
     if( !newFont )
     {
         EQWARN << "Can't load font " << name << ", using Times New Roman" 
-               << endl;
+               << std::endl;
 
         strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
         newFont = CreateFontIndirect( &font );
@@ -197,21 +184,16 @@ bool BitmapFont< OMT >::_initWGL( Window* window, const std::string& name,
 }
 
 template< typename OMT >
-bool BitmapFont< OMT >::_initAGL( Window* window, const std::string& name,
-                             const uint32_t size )
+bool BitmapFont< OMT >::_initAGL( const std::string& name, const uint32_t size )
 {
 #ifdef AGL
-    const OSWindow*    osWindow  = window->getOSWindow();
-    const AGLWindowIF* aglWindow = dynamic_cast< const AGLWindowIF* >(osWindow);
-
-    if( !aglWindow )
+    AGLContext context = aglGetCurrentContext();
+    EQASSERT( context );
+    if( !context )
     {
-        EQWARN << "Window does not use an AGL window" << endl;
+        EQWARN << "No AGL context current" << std::endl;
         return false;
     }
-
-    AGLContext context = aglWindow->getAGLContext();
-    EQASSERT( context );
 
     CFStringRef cfFontName;
     if( name.empty( ))
@@ -228,7 +210,7 @@ bool BitmapFont< OMT >::_initAGL( Window* window, const std::string& name,
 
     if( font == 0 )
     {
-        EQWARN << "Can't load font " << name << ", using Georgia" << endl;
+        EQWARN << "Can't load font " << name << ", using Georgia" << std::endl;
         cfFontName = 
             CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
                                        kCFStringEncodingMacRoman );

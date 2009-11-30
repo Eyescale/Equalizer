@@ -144,6 +144,25 @@ namespace eq
 /** Output an error OpenGL in a human-readable form to EQWARN */
 EQ_EXPORT void debugGLError( const std::string& when, const GLenum error, 
                              const char* file, const int line );
+
+
+#ifdef GLX
+/** 
+ * Set the current X display connection.
+ *
+ * This function stores a per-thread display connection, similar to the current
+ * WGL/AGL context. It is used by the eq::util classes to retrieve the display
+ * without having to know the eq::Pipe. The GLXPipe sets it
+ * automatically. Applications using the GLX window system with a custom OSPipe
+ * have to set it using this function.
+ * 
+ * @param display the current display connection to use.
+ */
+void XSetCurrentDisplay( Display* display );
+
+/** @return the current display connection for the calling thread. */
+Display* XGetCurrentDisplay();
+#endif
 }
 
 #  define EQ_GL_ERROR( when )                                           \

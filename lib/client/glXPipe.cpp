@@ -118,6 +118,7 @@ void GLXPipe::_setXDisplay( Display* display )
     if( _xDisplay )
         exitEventHandler();
     _xDisplay = display; 
+    XSetCurrentDisplay( display );
 
     if( display )
     {

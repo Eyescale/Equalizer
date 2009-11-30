@@ -83,6 +83,18 @@ namespace base
          */
         bool operator != ( const T* rhs ) const { return ( get()!=rhs ); }
 
+        /**
+         * @return true if the thread-local storage holds a 0 pointer.
+         * @version 1.0
+         */
+        bool operator ! () const;
+
+        /**
+         * @return true if the thread-local storage holds a non-0 pointer.
+         * @version 1.0
+         */
+        bool isValid() const;
+
     protected:
         virtual void notifyExecutionStopping();
 
@@ -193,6 +205,19 @@ const T* PerThread<T>::operator->() const
 { 
     return static_cast< const T* >( pthread_getspecific( _data->key )); 
 }
+
+template< typename T >
+bool PerThread<T>::operator ! () const
+{
+    return pthread_getspecific( _data->key ) == 0;
+}
+
+template< typename T >
+bool PerThread<T>::isValid() const
+{
+    return pthread_getspecific( _data->key ) != 0;
+}
+
 
 }
 }

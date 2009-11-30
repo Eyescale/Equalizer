@@ -1,10 +1,7 @@
-Doxygen improvements:
-- Mark 1.0 API in eq::base
-- Rename:
-  o base::fileSearch -> base::searchDirectory
-  o (Timed)Lock::test -> (Timed)Lock::isSet
-  o Clock::getMSf -> Clock::getMilliSecondsf
-  o base::mtLong -> base:a_int32_t
+Decouple BitmapFont implementation from core entities:
+- Introduce eq::XGet/SetCurrentDisplay to allow decoupling
+- BitmapFont can now be used with custom OSPipe implementations, as long
+  as the correct context is current.
 
 [ ] May break build
 [x] May break existing applications

@@ -575,7 +575,7 @@ const Window::Font* Window::getSmallFont()
     if( !font )
     {
         font = _objectManager->newEqBitmapFont( _smallFontKey );
-        font->init( this, "" );
+        font->init( _pipe->getWindowSystem(), "" );
     }
 
     EQASSERT( _objectManager->getEqBitmapFont( _smallFontKey ));
@@ -592,7 +592,7 @@ const Window::Font* Window::getMediumFont()
     if( !font )
     {
         font = _objectManager->newEqBitmapFont( _mediumFontKey );
-        font->init( this, "", 20 );
+        font->init( _pipe->getWindowSystem(), "", 20 );
     }
     return _objectManager->getEqBitmapFont( _mediumFontKey );
 }

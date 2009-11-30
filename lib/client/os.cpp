@@ -15,9 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// We need to instantiate a PerThread< DisplayPtr >
+#include <pthread.h>
+
 #include "os.h"
 
 #include <eq/base/debug.h>
+#include <eq/base/perThread.h>
 
 namespace eq
 {
@@ -47,5 +51,38 @@ EQ_EXPORT void debugGLError( const std::string& when, const GLenum error,
            << "    Set breakpoint in " << __FILE__ << ':' << __LINE__ + 1 
            << " to debug" << std::endl << base::enableFlush;
 }                                 
-                        
+
+#ifdef GLX
+namespace
+{
+class DisplayPtr
+{
+public:
+    DisplayPtr() : display( 0 ) {}
+    void notifyPerThreadDelete() { delete this; }
+
+    Display* display;
+};
+
+static base::PerThread< DisplayPtr > _currentDisplay;
+}
+
+void XSetCurrentDisplay( Display* display )
+{
+    if( !_currentDisplay )
+        _currentDisplay = new DisplayPtr;
+
+    _currentDisplay->display = display;
+}
+
+Display* XGetCurrentDisplay()
+{
+    if( !_currentDisplay )
+        return 0;
+
+    return _currentDisplay->display;
+}
+
+#endif // GLX
+              
 }

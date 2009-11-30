@@ -69,6 +69,7 @@ namespace eq
          * configExit(). Updates the pixel viewport.
          *
          * @param display the X display connection for this pipe.
+         * @sa XSetCurrentDisplay()
          */
         void _setXDisplay( Display* display );
 
