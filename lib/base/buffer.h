@@ -18,7 +18,6 @@
 #ifndef EQBASE_BUFFER_H
 #define EQBASE_BUFFER_H
 
-#include <eq/base/nonCopyable.h> // base class
 #include <eq/base/debug.h>       // EQASSERT macro
 
 namespace eq
