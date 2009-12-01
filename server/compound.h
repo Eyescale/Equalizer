@@ -124,7 +124,7 @@ namespace server
          * @return <code>true</code> if the child was removed, 
          *         <code>false</code> otherwise.
          */
-        bool removeChild( Compound* child );
+        EQSERVER_EXPORT bool removeChild( Compound* child );
 
         /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }
