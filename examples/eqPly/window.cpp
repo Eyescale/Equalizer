@@ -211,8 +211,4 @@ void Window::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     eq::Window::frameStart( frameID, frameNumber );
 }
 
-void Window::swapBuffers()
-{
-    eq::Window::swapBuffers();
-}
 }

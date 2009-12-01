@@ -1502,10 +1502,10 @@ std::ostream& operator << ( std::ostream& os,
                             const RSPConnection& connection )
 {
     os << base::disableFlush << base::disableHeader << "RSPConnection id "
-       << connection.getID() << " send rate " << connection.getSendRate()
+       << connection.getID() << " send rate " << connection.getSendRate();
 
 #ifdef EQ_INSTRUMENT_RSP
-       << ": read " << nBytesRead << " bytes, wrote " 
+    os << ": read " << nBytesRead << " bytes, wrote " 
        << nBytesWritten << " bytes using " << nDatagrams << " dgrams "
        << nTotalDatagrams - nDatagrams << " repeated, "
        << nTimeOut << " write timeouts, "

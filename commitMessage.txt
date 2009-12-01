@@ -1,9 +1,9 @@
-RSP: clean up send rate adaptation and statistics
+Fix build, code cleanups
 
 [ ] May break build
 [ ] Breaks existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation
