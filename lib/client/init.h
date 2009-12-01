@@ -76,8 +76,7 @@
  * for images and links the input with the output frames. An Image represents a
  * 2D framebuffer area, containing color and/or depth information.
  *
- * The ObjectManager, Texture and FrameBufferObject are helper classes for
- * OpenGL functionality.
+ * <img src="http://www.equalizergraphics.com/documents/design/images/clientUML.png">
  */
 namespace eq
 {

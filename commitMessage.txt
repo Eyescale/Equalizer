@@ -1,9 +1,9 @@
-Minor RSP connection tweak
+Add UML Diagram for eq client namespace
 
 [ ] May break build
-[ ] May break existing applications
+[ ] Breaks existing applications
 [ ] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
