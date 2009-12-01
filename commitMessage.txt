@@ -1,9 +1,9 @@
-RSP: merge received NAcks
+RSP: clean up send rate adaptation and statistics
 
 [ ] May break build
 [ ] Breaks existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

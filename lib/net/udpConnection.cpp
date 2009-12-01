@@ -61,7 +61,7 @@ UDPConnection::UDPConnection()
 {
     _description->type = CONNECTIONTYPE_UDP;
     _description->bandwidth = 102400;
-    _currentRate = 102400;
+    _sendRate = _description->bandwidth;
     _clock.reset();
     EQVERB << "New UDPConnection @" << (void*)this << std::endl;
 }
@@ -156,7 +156,7 @@ bool UDPConnection::connect()
     _initAIORead();
     _state = STATE_CONNECTED;
     _fireStateChanged();
-    _currentRate = _description->bandwidth;
+    _sendRate = _description->bandwidth;
     EQINFO << "Connected on " << _description->getHostname() << "["
            << inet_ntoa( _writeAddress.sin_addr ) << "]:" << _description->port
            << " (" << _description->toString() << ")" << std::endl;
@@ -416,13 +416,13 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
 
      const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
     
-    _allowedData += _clock.getTimef() / 1000.0f * _currentRate * 1024.0f;
+    _allowedData += _clock.getTimef() / 1000.0f * _sendRate * 1024.0f;
     _allowedData = EQ_MIN( _allowedData, _mtu );
     _clock.reset();
     while( _allowedData < sizeToSend )
     {
         eq::base::sleep( 1 );
-        _allowedData += _clock.getTimef() / 1000.0f * _currentRate * 1024.0f, 
+        _allowedData += _clock.getTimef() / 1000.0f * _sendRate * 1024.0f, 
         _allowedData = EQ_MIN( _allowedData, _mtu );
         _clock.reset();
     }
@@ -579,12 +579,12 @@ bool UDPConnection::_parseAddress( sockaddr_in& address )
 }
 
 
-void UDPConnection::adaptRate( int percent )
+void UDPConnection::adaptSendRate( int percent )
 {
-    _currentRate += _currentRate * percent / 100;
-    _currentRate = EQ_MAX( 50, _currentRate );
-    _currentRate = EQ_MIN( _currentRate, _description->bandwidth );
-    EQLOG( net::LOG_RSP ) << "new send rate " << _currentRate << std::endl;
+    _sendRate += _sendRate * percent / 100;
+    _sendRate = EQ_MAX( 50, _sendRate );
+    _sendRate = EQ_MIN( _sendRate, _description->bandwidth );
+    EQLOG( LOG_RSP ) << "new send rate " << _sendRate << std::endl;
 }
 
 uint16_t UDPConnection::_getPort() const

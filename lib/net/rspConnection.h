@@ -165,7 +165,8 @@ namespace net
         void readNB( void* buffer, const uint64_t bytes ){/* NOP */}
         int64_t readSync( void* buffer, const uint64_t bytes );
         int64_t write( const void* buffer, const uint64_t bytes );
-        ConnectionPtr getSibling(){ return _sibling.get(); }
+
+	int64_t getSendRate() const { return _connection->getSendRate(); }
         uint32_t getID() const { return _id;}
         
 #ifdef WIN32
@@ -271,8 +272,6 @@ namespace net
         DataReceive* _recvBuffer;
         int64_t     _lastSequenceIDAck;
 
-        uint64_t _errorFound;
-
         // write property part
         const char*       _dataSend;
         uint64_t          _lengthDataSend;
@@ -282,8 +281,6 @@ namespace net
         // we add 1 each read or write operation
         uint8_t _readBufferIndex;
         uint8_t _recvBufferIndex;
-        //uint64_t _latency;
-        ConnectionPtr _sibling;
         bool _repeatData;
         /** find the receiver corresponding to the sequenceID */
         DataReceive* _findReceiverWithSequenceID( 
@@ -297,8 +294,8 @@ namespace net
         bool _isCurrentSequenceWrite( const IDSequenceType sequenceID, 
                                       const ID writer );
         
-        /** Analyze current error and adapt the rate */
-        void _adaptSpeed();
+        /** Analyze the current error and adapt the send rate */
+        void _adaptSendRate( const uint64_t errors );
 
         /** format and send a datagram count node */
         void _sendDatagramCountNode();
@@ -306,7 +303,7 @@ namespace net
         /** format and send a datagram data*/
         void _sendDatagram( const uint32_t writSeqID,
                             const IDSequenceType datagramID );
-        void _repeatDatagram( );
+        int64_t _repeatDatagram( );
         void _addRepeat( const uint32_t* repeatIDs, uint32_t size );
         /** format and send datagram ackrequest*/
         void _sendAckRequest( );

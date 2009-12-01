@@ -63,7 +63,10 @@ namespace net
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
-        void adaptRate( int percent );
+
+        void adaptSendRate( int32_t percent );
+	int64_t getSendRate() const { return _sendRate; }
+
 #ifdef WIN32
         /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const { return _overlapped.hEvent; }
@@ -121,7 +124,7 @@ namespace net
         DWORD      _overlappedDone;
         OVERLAPPED _write;
 #endif
-        int64_t _currentRate;
+        int64_t _sendRate;
         CHECK_THREAD_DECLARE( _recvThread );
     };
 }
