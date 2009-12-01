@@ -76,18 +76,19 @@ bool Channel::_configInitAccumBuffer()
     _accum = new eq::util::Accum( glewGetContext( ));
     EQASSERT( pvp.isValid( ));
 
-    if( !_accum->init( pvp, getWindow()->getColorFormat( )))
+    if( _accum->init( pvp, getWindow()->getColorFormat( )))
     {
-        setErrorMessage( "Accumulation buffer initialization failed." );
-        EQERROR << "Accumulation buffer initialization failed." << std::endl;
-        delete _accum;
-        _accum = 0;
-        return false;
+        _totalSteps = _accum->getMaxSteps();
+        _jitterStep = _totalSteps;
+        return true;
     }
-    // else
 
-    _totalSteps = _accum->getMaxSteps();
-    _jitterStep = _totalSteps;
+    EQWARN <<"Accumulation buffer initialization failed, idle AA not available."
+           << std::endl;
+    _totalSteps = 0;
+    _jitterStep = 0;
+    delete _accum;
+    _accum = 0;
     return true;
 }
 
@@ -194,7 +195,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     {
         _needsTransfer = true;
 
-        if( !_accum->usesFBO( ))
+        if( _accum && !_accum->usesFBO( ))
         {
             EQWARN << "Current viewport different from view viewport, ";
             EQWARN << "idle anti-aliasing not implemented." << std::endl;
@@ -257,7 +258,7 @@ void Channel::frameStart( const uint32_t frameID,
     const FrameData& frameData = _getFrameData();
 
     // ready for the next FSAA
-    if( !frameData.isIdle() || _jitterStep == _totalSteps )
+    if( _accum && ( !frameData.isIdle() || _jitterStep == _totalSteps ))
     {
         _accum->clear();
         _jitterStep = _totalSteps;
@@ -303,27 +304,27 @@ void Channel::frameViewFinish( const uint32_t frameID )
 {
     const FrameData& frameData = _getFrameData();
 
-    const eq::PixelViewport& pvp = getPixelViewport();
-    const bool isResized = _accum->resize( pvp.w, pvp.h );
-
-    if( isResized )
+    if( _accum )
     {
-        _accum->clear();
-        _jitterStep = _totalSteps;
-        _subpixelStep = 0;
-        return;
-    }
-    //else
+        const eq::PixelViewport& pvp = getPixelViewport();
+        const bool isResized = _accum->resize( pvp.w, pvp.h );
 
-    if( frameData.isIdle() && _needsTransfer )
-    {
-        setupAssemblyState();
+        if( isResized )
+        {
+            _accum->clear();
+            _jitterStep = _totalSteps;
+            _subpixelStep = 0;
+        }
+        else if( frameData.isIdle() && _needsTransfer )
+        {
+            setupAssemblyState();
 
-        if( !_isDone( ))
-            _accum->accum();
-        _accum->display();
+            if( !_isDone( ))
+                _accum->accum();
+            _accum->display();
 
-        resetAssemblyState();
+            resetAssemblyState();
+        }
     }
 
     _drawOverlay();
