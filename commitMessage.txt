@@ -1,9 +1,9 @@
-Add UML Diagram for eq client namespace
+RSP: merge received NAcks
 
 [ ] May break build
 [ ] Breaks existing applications
 [ ] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

@@ -70,7 +70,6 @@ base::a_int32_t nAcksSendTotal;
 base::a_int32_t nAcksRead;
 base::a_int32_t nAcksAccepted;
 base::a_int32_t nNAcksSend;
-base::a_int32_t nNAcksAnswered;
 base::a_int32_t nNAcksRead;
 base::a_int32_t nTimeOut;
 base::a_int32_t nTimeInWrite;
@@ -944,14 +943,6 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
         // TO DO add this connection?
     }
 
-    // if repetition we ignore the NACK
-    if( !_repeatQueue.isEmpty() )
-        return true;
-
-#ifdef EQ_INSTRUMENT_RSP
-    ++nNAcksAnswered;
-#endif
-
     EQLOG( net::LOG_RSP ) << "repeat datagram data" << std::endl;
 
     const uint16_t count = nack->count;
@@ -1311,21 +1302,56 @@ void RSPConnection::_repeatDatagram( )
     const uint32_t writeSeqID = _shiftedID | _sequenceIDWrite;
     while ( true )
     {
-        const RepeatRequest repeat = _repeatQueue.pop();
-
-        if( repeat.start <= repeat.end )
-        {
-            for ( uint8_t j = repeat.start; j <= repeat.end; ++j )
-                _sendDatagram( writeSeqID, j );
-
-            if ( _repeatQueue.isEmpty() )
-                _sendAckRequest( );
-        }
-        else
+        const RepeatRequest& request = _repeatQueue.pop();
+        std::vector< RepeatRequest > requests;
+        if( request.start > request.end )
         {
             _writing = 0;
             return;
         }
+
+        // merge nack requests
+        requests.push_back( request );
+        while( !_repeatQueue.isEmpty() )
+        {
+            const RepeatRequest& candidate = _repeatQueue.pop();
+            if( candidate.start > candidate.end )
+            {
+                _writing = 0;
+                return;
+            }
+
+            bool merged = false;
+            for( std::vector< RepeatRequest >::iterator i = requests.begin();
+                 i != requests.end() && !merged; ++i )
+            {
+                RepeatRequest& old = *i;
+                if( old.start <= candidate.end && old.end >= candidate.start )
+                {
+                    old.start = EQ_MIN( old.start, candidate.start );
+                    old.end = EQ_MAX( old.end, candidate.end );
+                    merged = true;
+                }
+            }
+            if( !merged )
+                requests.push_back( candidate );
+        }
+
+        // send merged requests
+        for( std::vector< RepeatRequest >::iterator i = requests.begin();
+             i != requests.end(); ++i )
+        {
+            RepeatRequest& repeat = *i;        
+            EQASSERT( repeat.start <= repeat.end );
+
+            for ( uint8_t j = repeat.start; j <= repeat.end; ++j )
+                _sendDatagram( writeSeqID, j );
+
+        }
+
+        // request ack
+        if ( _repeatQueue.isEmpty() )
+            _sendAckRequest( );
     }
 }
 
@@ -1472,9 +1498,8 @@ std::ostream& operator << ( std::ostream& os,
        << std::endl
        << nAckRequests << " ack requests " 
        << nTotalAckRequests - nAckRequests << " repeated, "
-       << nAcksAccepted << "/" << nAcksRead << " acks used, "
-       << nNAcksAnswered << "/" << nNAcksRead << " nacks answered, "
-       << std::endl
+       << nAcksAccepted << "/" << nAcksRead << " acks read, "
+       << nNAcksRead << " nacks received, " << std::endl
        << nAcksSend << " acks " << nAcksSendTotal - nAcksSend << " repeated, "
        << nNAcksSend << " negative acks "
 
