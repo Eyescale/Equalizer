@@ -1098,6 +1098,63 @@ void Compositor::clearStencilBuffer( const ImageOp& op )
     glDisable( GL_STENCIL_TEST );
 }
 
+void Compositor::setupAssemblyState( const PixelViewport& pvp )
+{
+    EQ_GL_ERROR( "before setupAssemblyState" );
+    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT | 
+                  GL_SCISSOR_BIT | GL_LINE_BIT | GL_PIXEL_MODE_BIT | 
+                  GL_POLYGON_BIT );
+
+    glDisable( GL_DEPTH_TEST );
+    glDisable( GL_BLEND );
+    glDisable( GL_ALPHA_TEST );
+    glDisable( GL_STENCIL_TEST );
+    glDisable( GL_TEXTURE_1D );
+    glDisable( GL_TEXTURE_2D );
+    glDisable( GL_TEXTURE_3D );
+    glDisable( GL_FOG );
+    glDisable( GL_CLIP_PLANE0 );
+    glDisable( GL_CLIP_PLANE1 );
+    glDisable( GL_CLIP_PLANE2 );
+    glDisable( GL_CLIP_PLANE3 );
+    glDisable( GL_CLIP_PLANE4 );
+    glDisable( GL_CLIP_PLANE5 );
+    
+    glPolygonMode( GL_FRONT, GL_FILL );
+
+    if( pvp.hasArea( ))
+    {
+        glViewport( 0, 0, pvp.w, pvp.h );
+        glScissor( 0, 0, pvp.w, pvp.h );
+    }
+    else
+        EQERROR << "Can't apply viewport " << pvp << std::endl;
+
+    glMatrixMode( GL_PROJECTION );
+    glPushMatrix();
+    glLoadIdentity();
+    if( pvp.hasArea( ))
+        glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
+
+    glMatrixMode( GL_MODELVIEW );
+    glPushMatrix();
+    glLoadIdentity();
+    EQ_GL_ERROR( "after  setupAssemblyState" );
+}
+
+void Compositor::resetAssemblyState()
+{
+    EQ_GL_ERROR( "before resetAssemblyState" );
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
+
+    glPopAttrib();
+    EQ_GL_ERROR( "after  resetAssemblyState" );
+}
+
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
     EQASSERT( image->hasData( Frame::BUFFER_COLOR ));

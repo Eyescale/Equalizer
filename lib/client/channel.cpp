@@ -449,64 +449,17 @@ void Channel::frameReadback( const uint32_t frameID )
 
 void Channel::setupAssemblyState()
 {
-    EQ_GL_ERROR( "before setupAssemblyState" );
-    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT | 
-                  GL_SCISSOR_BIT | GL_LINE_BIT | GL_PIXEL_MODE_BIT | 
-                  GL_POLYGON_BIT );
-
-    glDisable( GL_DEPTH_TEST );
-    glDisable( GL_BLEND );
-    glDisable( GL_ALPHA_TEST );
-    glDisable( GL_STENCIL_TEST );
-    glDisable( GL_TEXTURE_1D );
-    glDisable( GL_TEXTURE_2D );
-    glDisable( GL_TEXTURE_3D );
-    glDisable( GL_FOG );
-    glDisable( GL_CLIP_PLANE0 );
-    glDisable( GL_CLIP_PLANE1 );
-    glDisable( GL_CLIP_PLANE2 );
-    glDisable( GL_CLIP_PLANE3 );
-    glDisable( GL_CLIP_PLANE4 );
-    glDisable( GL_CLIP_PLANE5 );
-    
-    glPolygonMode( GL_FRONT, GL_FILL );
-
-    EQASSERT( _window );    
+    EQASSERT( _window );
     // copy to be thread-safe when pvp changes
     const PixelViewport pvp(
         _fbo ? _fbo->getPixelViewport() : _window->getPixelViewport( ));
 
-    if( pvp.hasArea( ))
-    {
-        glViewport( 0, 0, pvp.w, pvp.h );
-        glScissor( 0, 0, pvp.w, pvp.h );
-    }
-    else
-        EQERROR << "Can't apply viewport " << pvp << endl;
-
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
-    if( pvp.hasArea( ))
-        glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
-
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
-    glLoadIdentity();
-    EQ_GL_ERROR( "after  setupAssemblyState" );
+    Compositor::setupAssemblyState( pvp );
 }
 
 void Channel::resetAssemblyState()
 {
-    EQ_GL_ERROR( "before resetAssemblyState" );
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
-
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-
-    glPopAttrib();
-    EQ_GL_ERROR( "after  resetAssemblyState" );
+    Compositor::resetAssemblyState();
 }
 
 void Channel::setErrorMessage( const std::string& message )

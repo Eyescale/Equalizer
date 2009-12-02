@@ -186,6 +186,17 @@ namespace util
          */
         static void clearStencilBuffer( const ImageOp& operation );
 
+        /**
+         * Setup the OpenGL state.
+         * @param pvp the current pixel viewport.
+         */
+        static void setupAssemblyState( const PixelViewport& pvp );
+        
+        /**
+         * Reset the OpenGL state.
+         */
+        static void resetAssemblyState();
+
         /** Start a tile-based assembly of the image color attachment. */
         static void assembleImage2D( const Image* image, const ImageOp& op );
         /** Start a Z-based assembly of the image color and depth attachment. */
