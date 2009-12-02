@@ -47,6 +47,12 @@ namespace util
         /** Clear the texture, including the GL texture name. */
         EQ_EXPORT void flush();
 
+        /** Set the target of the texture. */
+        EQ_EXPORT void setTarget( const GLenum target );
+
+        /** @return the target of the texture. */
+        GLenum getTarget() const { return _target; }
+
         /** Set the internal format of the texture. */
         EQ_EXPORT void setFormat( const GLuint format );
 
@@ -61,6 +67,9 @@ namespace util
 
         /** Copy the specified image buffer to the texture at 0,0. */
         EQ_EXPORT void upload( const Image* image, const Frame::Buffer which );
+
+        /** Copy the specified buffer to the texture at 0,0. */
+        EQ_EXPORT void upload( const int width, const int height, void* ptr );
 
         /** Copy the texture data to the given memory address. */
         EQ_EXPORT void download( void* buffer, const uint32_t format, 
@@ -99,6 +108,9 @@ namespace util
 
         /** The GL internal texture format. */
         GLuint _internalFormat;
+
+        /** the target of the texture. */
+        GLenum _target;
 
         /** texture format, complementary to internal texture format */
         GLuint _format;
