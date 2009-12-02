@@ -266,7 +266,7 @@ bool RSPConnection::listen()
     _readBuffer.resize( _connection->getMTU( ));
 
     // waits until RSP protocol establishes connection to the multicast network
-    if( !_acceptID() || !_initReadThread())
+    if( !_thread->start( ) )
     {
         close();
         return false;
@@ -537,18 +537,19 @@ void* RSPConnection::Thread::run()
 
 void RSPConnection::_runReadThread()
 {
+    EQINFO << " Start thread RSP protocole" << std::endl;
     while ( _state != STATE_CLOSED )
     {
 #if 1
         const int timeOut = _writing ? 10 : -1;
 #else
-	int timeOut = -1;
-	if( _writing )
+        int timeOut = -1;
+        if( _writing )
         {
             const int64_t sendRate = _connection->getSendRate();
             timeout = 102400 / sendRate;
             timeout = EQ_MIN
-	}
+        }
 #endif
 
         switch ( _connectionSet.select( timeOut ) )
@@ -563,13 +564,20 @@ void RSPConnection::_runReadThread()
                    _children.begin(); i != _children.end(); ++i )
             {
                RSPConnectionPtr connection = *i;
-                if ( connection->_ackReceive )
+               
+               if ( connection->_writerID == _id )
+                   continue;
+               
+
+               if ( connection->_ackReceive ) 
                     continue;
 
                 ++connection->_timeouts;
                 // a lot of more time out
                  if ( connection->_timeouts >= 250 )
                 {
+                    EQERROR << " Error during Read UDP Connection" 
+                            << std::endl;
                     _connection = 0;
                     return;
                 }
@@ -609,8 +617,7 @@ int64_t RSPConnection::_readSync( DataReceive* receive,
                                   const uint64_t bytes )
 {
     
-    EQLOG( net::LOG_RSP ) << "readSync for sequence : " << receive->sequenceID
-                          << std::endl;
+    EQLOG( net::LOG_RSP ) << "start thread RSP " << std::endl;
 
     const uint64_t size = EQ_MIN( bytes, receive->data.getSize() - 
                                          receive->posRead );
@@ -974,6 +981,7 @@ void RSPConnection::_addRepeat( const uint32_t* repeatIDs, uint32_t size )
 bool RSPConnection::_handleAckRequest( 
                       const DatagramAckRequest* ackRequest )
 {
+    base::ScopedMutex mutexEvent( _mutexHandleAckRequ );
     EQLOG( net::LOG_RSP ) << "receive an AckRequest from " 
                           << ackRequest->writerID << std::endl;
     RSPConnectionPtr connection = 
@@ -1229,6 +1237,9 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     clock.reset();
     nBytesWritten += bytes;
 #endif
+
+    while ( static_cast< int >( _children.size() ) > _countAcceptChildren )
+        Sleep(1000);
     
     const uint32_t size = EQ_MIN( bytes, _bufferSize );
     base::ScopedMutex mutex( _mutexConnection );

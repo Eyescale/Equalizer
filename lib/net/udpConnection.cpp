@@ -414,20 +414,21 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
     if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
 
-     const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
-    
-    _allowedData += _clock.getTimef() / 1000.0f * _sendRate * 1024.0f;
-    _allowedData = EQ_MIN( _allowedData, _mtu );
-    _clock.reset();
-    while( _allowedData < sizeToSend )
+    const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
     {
-        eq::base::sleep( 1 );
-        _allowedData += _clock.getTimef() / 1000.0f * _sendRate * 1024.0f, 
+        base::ScopedMutex mutex( _mutexWrite );
+        _allowedData += _clock.getTimef() / 1000.0f * _sendRate * 1024.0f;
         _allowedData = EQ_MIN( _allowedData, _mtu );
         _clock.reset();
-    }
+        while( _allowedData < sizeToSend )
+        {
+            eq::base::sleep( 1 );
+            _allowedData += _clock.getTimef() / 1000.0f * _sendRate * 1024.0f, 
+            _allowedData = EQ_MIN( _allowedData, _mtu );
+            _clock.reset();
+        }
     _allowedData -=  sizeToSend;
-    base::ScopedMutex mutex( _mutexWrite );
+    }
 
 #ifdef WIN32
     DWORD  wrote;

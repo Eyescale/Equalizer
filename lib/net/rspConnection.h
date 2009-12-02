@@ -187,7 +187,8 @@ namespace net
             Thread( RSPConnectionPtr connection )
                 : _connection( connection ){}
             virtual ~Thread(){ _connection = 0; }
-            //virtual bool init(){ return !_acceptID() || !_initReadThread(); }
+            virtual bool init(){ return _connection->_acceptID() && 
+                                        _connection->_initReadThread(); }
         protected:
             
             virtual void* run();
@@ -266,6 +267,7 @@ namespace net
         UDPConnectionPtr _connection;
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
+        base::Lock       _mutexHandleAckRequ;
         RSPConnectionPtr _parent;
         
         // buffer for read from udp Connection
