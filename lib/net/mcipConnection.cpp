@@ -17,6 +17,8 @@
 
 #include "mcipConnection.h"
 
+#include "rspConnection.h"
+
 #ifdef EQ_PGM
 #  include "pgmConnection.h"
 #endif
@@ -50,11 +52,20 @@ bool MCIPConnection::connect()
         return true;
     // else
 
+    _impl->removeListener( this );
+#endif
+
+    _description->type = CONNECTIONTYPE_RSP;
+    _impl = new RSPConnection();
+    _impl->addListener( this );
+
+    _impl->setDescription( _description );
+    if( _impl->connect( ))
+        return true;
+
     _description->type = CONNECTIONTYPE_MCIP;    
     _impl->removeListener( this );
     _impl = 0;
-#endif
-    // TODO: implement and try UDP-based reliable multicast
 
     return false;
 }
@@ -71,11 +82,21 @@ bool MCIPConnection::listen()
         return true;
     // else
 
+    _impl->removeListener( this );
+#endif
+
+    _description->type = CONNECTIONTYPE_RSP;    
+    _impl = new RSPConnection();
+    _impl->addListener( this );
+    _impl->setDescription( _description );
+    if( _impl->listen( ))
+        return true;
+    // else
+
     _description->type = CONNECTIONTYPE_MCIP;    
     _impl->removeListener( this );
     _impl = 0;
-#endif
-    // TODO: implement and try UDP-based reliable multicast
+
     return false;
 }
 

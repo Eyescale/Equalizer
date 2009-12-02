@@ -1,9 +1,9 @@
-Fix build, code cleanups
+Multicast: implement RSP fallback for MCIPConnection
 
 [ ] May break build
-[ ] Breaks existing applications
-[x] Bugfix
-[ ] New Feature
-[x] Cleanup
+[ ] May break existing applications
+[ ] Bugfix
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
