@@ -106,11 +106,11 @@ namespace util
         /** The GL texture name. */
         GLuint _id;
 
-        /** The GL internal texture format. */
-        GLuint _internalFormat;
-
         /** the target of the texture. */
         GLenum _target;
+
+        /** The GL internal texture format. */
+        GLuint _internalFormat;
 
         /** texture format, complementary to internal texture format */
         GLuint _format;

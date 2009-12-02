@@ -25,6 +25,7 @@ namespace util
 {
 Texture::Texture( GLEWContext* const glewContext )
         : _id( 0 )
+        , _target( GL_TEXTURE_RECTANGLE_ARB )
         , _internalFormat( 0 )
         , _format( 0 )
         , _type( 0 )
@@ -33,7 +34,6 @@ Texture::Texture( GLEWContext* const glewContext )
         , _defined( false ) 
         , _glewContext( glewContext )
 {
-    _target = GL_TEXTURE_RECTANGLE_ARB;
 }
 
 Texture::~Texture()
@@ -69,7 +69,7 @@ void Texture::setTarget( const GLenum target )
         return;
     }
     
-    if( !glewGetExtension( "GL_ARB_texture_non_power_of_two" ))
+    if( !GLEW_ARB_texture_non_power_of_two )
         return;
                 
     _target = GL_TEXTURE_2D;
