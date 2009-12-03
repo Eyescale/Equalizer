@@ -166,7 +166,7 @@ namespace net
         int64_t readSync( void* buffer, const uint64_t bytes );
         int64_t write( const void* buffer, const uint64_t bytes );
 
-	int64_t getSendRate() const { return _connection->getSendRate(); }
+        int64_t getSendRate() const { return _connection->getSendRate(); }
         uint32_t getID() const { return _id;}
         
 #ifdef WIN32
@@ -261,7 +261,7 @@ namespace net
         uint8_t _selfCommand;
 #endif
         ConnectionSet    _connectionSet;
-        base::a_int32_t  _writing;
+        bool             _writing;
         uint32_t         _countNbAckInWrite;
         Thread*          _thread;
         UDPConnectionPtr _connection;
@@ -307,6 +307,7 @@ namespace net
                             const IDSequenceType datagramID );
         int64_t _repeatDatagram( );
         void _addRepeat( const uint32_t* repeatIDs, uint32_t size );
+
         /** format and send datagram ackrequest*/
         void _sendAckRequest( );
         void _sendAck( const ID writerID,

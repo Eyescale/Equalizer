@@ -88,7 +88,7 @@ base::a_int32_t nTimeInHandleData;
 RSPConnection::RSPConnection()
         : _countAcceptChildren( 0 )
         , _id( 0 )
-        , _writing( 0 )
+        , _writing( false )
         , _thread ( 0 )
         , _lastSequenceIDAck( -1 )
         , _sequenceIDWrite( 0 )
@@ -449,9 +449,7 @@ bool RSPConnection::_initReadThread()
             case ConnectionSet::EVENT_TIMEOUT:
                 ++_timeouts;
                 if ( _timeouts < 10 )
-                {
                     _sendDatagramCountNode();
-                }
                 else
                     return true;
                 break;
@@ -681,7 +679,7 @@ bool RSPConnection::_handleData( )
             clock.reset();
 #endif
             bool resultRead = RSPConnection::_handleDataDatagram( 
-                reinterpret_cast< const DatagramData* >( _readBuffer.getData() ) );
+              reinterpret_cast< const DatagramData* >( _readBuffer.getData() ));
 
 #ifdef EQ_INSTRUMENT_RSP
             nTimeInReadData += clock.getTime64();
@@ -694,7 +692,7 @@ bool RSPConnection::_handleData( )
     
     case NACK:
         return _handleNack( reinterpret_cast< const DatagramNack* >
-                                                        ( _readBuffer.getData() ));
+                                                     ( _readBuffer.getData() ));
     
     case ACKREQ: // The writer ask for a ack data
         return _handleAckRequest(
@@ -703,30 +701,29 @@ bool RSPConnection::_handleData( )
     case ID_HELLO:
     {
         const DatagramNode* node = reinterpret_cast< const DatagramNode* >
-                                                       (  _readBuffer.getData() );
+                                                     (  _readBuffer.getData() );
         return _acceptNewIDConnection( node->connectionID );
     }
 
     case ID_CONFIRM:
     {
         const DatagramNode* node = reinterpret_cast< const DatagramNode* >
-                                                       (  _readBuffer.getData() );
+                                                     (  _readBuffer.getData() );
         return _addNewConnection( node->connectionID );
     }
 
     case ID_EXIT:
     {
         const DatagramNode* node = reinterpret_cast< const DatagramNode* >
-                                                       (  _readBuffer.getData()  );
+                                                    (  _readBuffer.getData()  );
         return _acceptRemoveConnection( node->connectionID );
     }
 
     case COUNTNODE:
     {
-
         const DatagramCountConnection* countConn = 
                 reinterpret_cast< const DatagramCountConnection* >
-                                                         ( _readBuffer.getData() );
+                                                      ( _readBuffer.getData() );
         
         // we know all connections
         if ( _children.size() == countConn->nbClient )
@@ -749,7 +746,7 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
 #ifdef EQ_INSTRUMENT_RSP
     ++nReadData;
 #endif
-    const uint32_t writerID = datagram->writeSeqID >> ( sizeof( ID ) * 8 );
+    const uint32_t writerID   = datagram->writeSeqID >> ( sizeof( ID ) * 8 );
     const uint32_t sequenceID = datagram->writeSeqID  & 0xFFFF;
 
     RSPConnectionPtr connection = _findConnectionWithWriterID( writerID );
@@ -1246,7 +1243,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     const uint32_t size = EQ_MIN( bytes, _bufferSize );
     base::ScopedMutex mutex( _mutexConnection );
 
-    _writing = 1;
+    _writing = true;
     _countNbAckInWrite = 0;
 
     ++_sequenceIDWrite;
@@ -1320,7 +1317,7 @@ int64_t RSPConnection::_repeatDatagram( )
         std::vector< RepeatRequest > requests;
         if( request.start > request.end )
         {
-            _writing = 0;
+            _writing = false;
             return nRepeats;
         }
 
@@ -1331,7 +1328,7 @@ int64_t RSPConnection::_repeatDatagram( )
             const RepeatRequest& candidate = _repeatQueue.pop();
             if( candidate.start > candidate.end )
             {
-                _writing = 0;
+                _writing = false;
                 return nRepeats;
             }
 
@@ -1503,8 +1500,8 @@ void RSPConnection::_sendAckRequest()
 #ifdef EQ_INSTRUMENT_RSP
     ++nTotalAckRequests;
 #endif
-    
-     const DatagramAckRequest ackRequest = { ACKREQ, _id, _nDatagrams -1, 
+    EQASSERT ( _nDatagrams -1 > 0 );
+    const DatagramAckRequest ackRequest = { ACKREQ, _id, _nDatagrams -1, 
                                             _sequenceIDWrite };
     _connection->write( &ackRequest, sizeof( DatagramAckRequest ) );
     _handleAckRequest( &ackRequest );
