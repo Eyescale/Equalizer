@@ -150,9 +150,11 @@ namespace eqNbody
 		switch(mode) {
 			case WINDOW_CUDA_GL:
 			case WINDOW_CUDA:
+			{
 				bool sysready = _controller.init(initData, fd.getPos(), usePBO);
 				EQASSERT( sysready );
 				break;
+			}
 			case WINDOW_GL:
 				EQINFO << "GL window - no CUDA controller initialisation!" << std::endl;
 				break;
