@@ -471,9 +471,7 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
 
     int flags = 0;
 
-    int wrote = ::send( _writeFD, 
-                        const_cast<char*>( static_cast<const char*>(buffer)), 
-                        sizeToSend, flags );
+    int wrote = ::send( _writeFD, buffer, sizeToSend, flags );
 
     if( wrote == -1 ) // error
     {

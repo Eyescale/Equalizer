@@ -20,6 +20,8 @@
 #include "connection.h"
 #include "connectionDescription.h"
 
+#include <eq/base/sleep.h>
+
 //#define EQ_INSTRUMENT_RSP
 #define SELF_INTERRUPT 42
 
@@ -981,7 +983,7 @@ void RSPConnection::_addRepeat( const uint32_t* repeatIDs, uint32_t size )
 bool RSPConnection::_handleAckRequest( 
                       const DatagramAckRequest* ackRequest )
 {
-    base::ScopedMutex mutexEvent( _mutexHandleAckRequ );
+    base::ScopedMutex mutex( _mutexHandleAckRequ );
     EQLOG( net::LOG_RSP ) << "receive an AckRequest from " 
                           << ackRequest->writerID << std::endl;
     RSPConnectionPtr connection = 
@@ -1239,7 +1241,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 #endif
 
     while ( static_cast< int >( _children.size() ) > _countAcceptChildren )
-        Sleep(1000);
+        base::sleep( 1000 );
     
     const uint32_t size = EQ_MIN( bytes, _bufferSize );
     base::ScopedMutex mutex( _mutexConnection );
