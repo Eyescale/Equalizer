@@ -1,9 +1,10 @@
-Multicast: implement RSP fallback for MCIPConnection
+Improve thread-safety check for unlocked regions, use it in
+ConnectionSet::select
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [x] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

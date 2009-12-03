@@ -260,26 +260,35 @@ namespace base
         }                                                               \
     }
 
-# define CHECK_THREAD_LOCK_BEGIN( NAME )                                \
-    {                                                                   \
-        EQASSERTINFO( !NAME.inRegion,                                   \
-                      "Another thread already in critical region" );    \
-        NAME.inRegion = true;                                           \
-    }
+    /** @internal */
+    template< typename T > class ScopedThreadCheck : public NonCopyable
+    {
+    public:
+        explicit ScopedThreadCheck( T& data )
+                : _data( data )
+            {
+                EQASSERTINFO( !data.inRegion,
+                              "Another thread already in critical region" );
+                data.inRegion = true;
+            }
+        ~ScopedThreadCheck() 
+            {
+                EQASSERTINFO( _data.inRegion,
+                              "Another thread was in critical region" );
+                _data.inRegion = false;
+            }
+    private:
+        T& _data;
+    };
 
-# define CHECK_THREAD_LOCK_END( NAME )                                  \
-    {                                                                   \
-        EQASSERTINFO( NAME.inRegion,                                    \
-                      "Another thread was in critical region" );        \
-        NAME.inRegion = false;                                          \
-    }
+# define CHECK_THREAD_SCOPED( NAME ) \
+    eq::base::ScopedThreadCheck< NAME ## Struct > scoped ## NAME ## Check(NAME);
 
 #else
 #  define CHECK_THREAD_RESET( NAME ) {}
 #  define CHECK_THREAD( NAME ) {}
 #  define CHECK_NOT_THREAD( NAME ) {}
-#  define CHECK_THREAD_LOCK_BEGIN( NAME ) {}
-#  define CHECK_THREAD_LOCK_END( NAME ) {}
+#  define CHECK_THREAD_SCOPED( NAME ) {}
 #endif
 
 }

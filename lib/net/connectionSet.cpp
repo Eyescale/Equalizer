@@ -274,6 +274,7 @@ void* ConnectionSet::Thread::run()
 
 ConnectionSet::Event ConnectionSet::select( const int timeout )
 {
+    CHECK_THREAD_SCOPED( _thread );
     while( true )
     {
         _connection = 0;

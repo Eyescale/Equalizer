@@ -179,6 +179,7 @@ namespace net
 
         Event _handleSelfCommand();
         Event _getSelectResult( const uint32_t index );
+        CHECK_THREAD_DECLARE( _thread );
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

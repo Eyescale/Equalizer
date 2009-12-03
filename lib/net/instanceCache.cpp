@@ -253,7 +253,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     if( _size <= _maxSize )
         return;
 
-    CHECK_THREAD_LOCK_BEGIN( _thread );
+    CHECK_THREAD_SCOPED( _thread );
 
     std::vector< uint32_t > keys;
     const long target = static_cast< long >(
@@ -319,8 +319,6 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
                << ": " << *this
 #endif
                << std::endl;
-
-    CHECK_THREAD_LOCK_END( _thread );
 }
 
 std::ostream& operator << ( std::ostream& os,
