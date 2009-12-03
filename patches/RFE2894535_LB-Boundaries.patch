@@ -1,0 +1,706 @@
+Index: server/loader.l
+===================================================================
+--- server/loader.l	(revision 3653)
++++ server/loader.l	(working copy)
+@@ -237,6 +237,7 @@
+ LOCAL_SYNC                      { return EQTOKEN_LOCAL_SYNC; }
+ local_sync                      { return EQTOKEN_LOCAL_SYNC; }
+ mode                            { return EQTOKEN_MODE; }
++boundary                        { return EQTOKEN_BOUNDARY; }
+ 2D                              { return EQTOKEN_2D; }
+ DB                              { return EQTOKEN_DB; }
+ zoom                            { return EQTOKEN_ZOOM; }
+Index: server/loader.y
+===================================================================
+--- server/loader.y	(revision 3653)
++++ server/loader.y	(working copy)
+@@ -248,6 +248,7 @@
+ %token EQTOKEN_MODE
+ %token EQTOKEN_2D
+ %token EQTOKEN_DB
++%token EQTOKEN_BOUNDARY
+ %token EQTOKEN_ZOOM
+ %token EQTOKEN_STRING
+ %token EQTOKEN_CHARACTER
+@@ -988,6 +989,9 @@
+             dfrEqualizer->setDamping( $2 );
+     }
+     | EQTOKEN_FRAMERATE FLOAT     { dfrEqualizer->setFrameRate( $2 ) }
++    | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']' 
++                  { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )) }
++    | EQTOKEN_BOUNDARY FLOAT  { loadEqualizer->setBoundary( $2 ) }
+ 
+ loadBalancerMode:
+     EQTOKEN_2D
+@@ -1066,6 +1070,9 @@
+ loadEqualizerFields: /* null */ | loadEqualizerFields loadEqualizerField
+ loadEqualizerField:
+     EQTOKEN_DAMPING FLOAT            { loadEqualizer->setDamping( $2 ); }
++    | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']' 
++                  { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )) }
++    | EQTOKEN_BOUNDARY FLOAT  { loadEqualizer->setBoundary( $2 ) }
+     | EQTOKEN_MODE loadEqualizerMode { loadEqualizer->setMode( $2 ); }
+ 
+ loadEqualizerMode: 
+Index: server/equalizers/loadEqualizer.cpp
+===================================================================
+--- server/equalizers/loadEqualizer.cpp	(revision 3653)
++++ server/equalizers/loadEqualizer.cpp	(working copy)
+@@ -1,5 +1,6 @@
+ 
+-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
++/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
++ *                          Cedric Stalder <cedric.stalder@gmail.com>
+  *
+  * This library is free software; you can redistribute it and/or modify it under
+  * the terms of the GNU Lesser General Public License version 2.1 as published
+@@ -24,16 +25,11 @@
+ #include <eq/client/server.h>
+ #include <eq/base/debug.h>
+ 
+-using namespace eq::base;
+-using namespace std;
+-
+ namespace eq
+ {
+ namespace server
+ {
+ 
+-#define MIN_PIXELS 8
+-
+ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* );
+ 
+ // The tree load balancer organizes the children in a binary tree. At each
+@@ -44,8 +40,11 @@
+         : _mode( MODE_2D )
+         , _damping( .5f )
+         , _tree( 0 )
++        , _boundary2i( 1, 1 )
++        , _boundaryf( std::numeric_limits<float>::epsilon() )
++
+ {
+-    EQINFO << "New LoadEqualizer @" << (void*)this << endl;
++    EQINFO << "New LoadEqualizer @" << (void*)this << std::endl;
+ }
+ 
+ LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
+@@ -54,6 +53,8 @@
+         , _mode( from._mode )
+         , _damping( from._damping )
+         , _tree( 0 )
++        , _boundary2i( from._boundary2i )
++        , _boundaryf( from._boundaryf )
+ {}
+ 
+ LoadEqualizer::~LoadEqualizer()
+@@ -94,9 +95,10 @@
+ {
+     Node* node = new Node;
+ 
+-    if( compounds.size() == 1 )
++    const size_t size = compounds.size();
++    if( size == 1 )
+     {
+-        Compound*                compound = compounds[0];
++        Compound* compound = compounds.front();
+ 
+         node->compound  = compound;
+         node->splitMode = ( _mode == MODE_2D ) ? MODE_VERTICAL : _mode;
+@@ -107,14 +109,14 @@
+         return node;
+     }
+ 
+-    const size_t middle = compounds.size() / 2;
++    const size_t middle = size / 2;
+ 
+     CompoundVector left;
+     for( size_t i = 0; i < middle; ++i )
+         left.push_back( compounds[i] );
+ 
+     CompoundVector right;
+-    for( size_t i = middle; i < compounds.size(); ++i )
++    for( size_t i = middle; i < size; ++i )
+         right.push_back( compounds[i] );
+ 
+     node->left  = _buildTree( left );
+@@ -151,9 +153,9 @@
+ void LoadEqualizer::notifyLoadData( Channel* channel,
+                                     const uint32_t frameNumber,
+                                     const uint32_t nStatistics,
+-                                    const eq::Statistic* statistics )
++                                    const Statistic* statistics )
+ {
+-    for( deque< LBFrameData >::iterator i = _history.begin();
++    for( std::deque< LBFrameData >::iterator i = _history.begin();
+          i != _history.end(); ++i )
+     {
+         LBFrameData& frameData = *i;
+@@ -176,28 +178,28 @@
+                 return;
+ 
+             // gather relevant load data
+-            int64_t startTime = numeric_limits< int64_t >::max();
++            int64_t startTime = std::numeric_limits< int64_t >::max();
+             int64_t endTime   = 0;
+             bool    loadSet   = false;
+ 
+             for( uint32_t k = 0; k < nStatistics && !loadSet; ++k )
+             {
+-                const eq::Statistic& stat = statistics[k];
++                const Statistic& stat = statistics[k];
+                 if( stat.task != taskID ) // from different compound
+                     continue;
+ 
+                 switch( stat.type )
+                 {
+-                    case eq::Statistic::CHANNEL_CLEAR:
+-                    case eq::Statistic::CHANNEL_DRAW:
+-                    case eq::Statistic::CHANNEL_READBACK:
++                    case Statistic::CHANNEL_CLEAR:
++                    case Statistic::CHANNEL_DRAW:
++                    case Statistic::CHANNEL_READBACK:
+                         startTime = EQ_MIN( startTime, stat.startTime );
+                         endTime   = EQ_MAX( endTime, stat.endTime );
+                         break;
+                 
+                     // assemble blocks on input frames, stop using subsequent
+                     // data
+-                    case eq::Statistic::CHANNEL_ASSEMBLE:
++                    case Statistic::CHANNEL_ASSEMBLE:
+                         loadSet = true;
+                         break;
+                 
+@@ -206,13 +208,13 @@
+                 }
+             }
+     
+-            if( startTime == numeric_limits< int64_t >::max( ))
++            if( startTime == std::numeric_limits< int64_t >::max( ))
+                 return;
+     
+             data.time = endTime - startTime;
+             data.time = EQ_MAX( data.time, 1 );
+             data.load = static_cast< float >( data.time ) / data.vp.getArea();
+-            EQLOG( LOG_LB2 ) << "Added load " << data.load << " (t=" << data.time
++            EQLOG( LOG_LB2 ) << "Added load "<< data.load << " (t=" << data.time
+                             << ") for " << channel->getName() << " " << data.vp
+                             << ", " << data.range << " @ " << frameNumber
+                             << std::endl;
+@@ -330,13 +332,13 @@
+     const float timeLeft = static_cast< float >( totalTime ) /
+                            static_cast< float >( nResources );
+     EQLOG( LOG_LB2 ) << "Render time " << totalTime << ", per resource "
+-                    << timeLeft << ", " << nResources << " resources" << endl;
++                    << timeLeft << ", " << nResources << " resources" << std::endl;
+ 
+     const float leftover = _assignTargetTimes( _tree, 
+                                                static_cast<float>( totalTime ),
+                                                timeLeft );
+     _assignLeftoverTime( _tree, leftover );
+-    _computeSplit( _tree, sortedData, eq::Viewport(), eq::Range() );
++    _computeSplit( _tree, sortedData, Viewport(), Range() );
+ }
+ 
+ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime, 
+@@ -370,6 +372,8 @@
+             }
+         }
+ 
++        node->boundaryf = _boundaryf;
++        node->boundary2i = _boundary2i;
+         node->time  = EQ_MIN( time, totalTime );
+         node->usage = usage;
+         EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " usage " 
+@@ -387,8 +391,35 @@
+     node->time  = node->left->time + node->right->time;
+     node->usage = node->left->usage + node->right->usage;
+     
++    switch( node->splitMode )
++    {
++        case MODE_VERTICAL:
++            node->boundary2i.x() = node->left->boundary2i.x() +
++                                   node->right->boundary2i.x();
++            node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
++                                           node->right->boundary2i.y() );
++            node->boundaryf = EQ_MAX( node->left->boundaryf, node->right->boundaryf );
++            break;
++        case MODE_HORIZONTAL:
++            node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
++                                           node->right->boundary2i.x() );
++            node->boundary2i.y() = node->left->boundary2i.y() +
++                                   node->right->boundary2i.y();
++            node->boundaryf = EQ_MAX( node->left->boundaryf, node->right->boundaryf );
++            break;
++        case MODE_DB:
++            node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
++                                           node->right->boundary2i.x() );
++            node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
++                                           node->right->boundary2i.y() );
++            node->boundaryf = node->left->boundaryf + node->right->boundaryf;
++            break;
++        default:
++            EQUNIMPLEMENTED;
++    }
++
+     EQLOG( LOG_LB2 ) << "Node time " << node->time << ", left " << timeLeft
+-                    << endl;
++                    << std::endl;
+     return timeLeft;
+ }
+ 
+@@ -397,12 +428,15 @@
+     const Compound* compound = node->compound;
+     if( compound )
+     {
+-        node->time += time;
++        if( node->usage > 0.0f )
++            node->time += time;
++        else
++        {
++            EQASSERTINFO( time < 0.0001f, time );
++        }
+         EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " usage " 
+                         << compound->getUsage() << " target " << node->time
+                         << std::endl;
+-        EQASSERTINFO( node->usage > 0.0f || node->time <= 0.f,
+-                      node->usage << ", " << node->time );
+     }
+     else
+     {
+@@ -430,8 +464,7 @@
+         }
+         else
+         {
+-            EQASSERTINFO( time <= 10.f * std::numeric_limits<float>::epsilon(),
+-                          time );
++            EQASSERTINFO( time <= 0.0001f, time );
+         }
+     }
+ }
+@@ -450,12 +483,12 @@
+ }
+ 
+ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
+-                                   const eq::Viewport& vp,
+-                                   const eq::Range& range )
++                                   const Viewport& vp,
++                                   const Range& range )
+ {
+     const float time = node->time;
+     EQLOG( LOG_LB2 ) << "_computeSplit " << vp << ", " << range << " time "
+-                    << time << endl;
++                    << time << std::endl;
+     EQASSERTINFO( vp.isValid(), vp );
+     EQASSERTINFO( range.isValid(), range );
+     EQASSERTINFO( node->usage > 0.f || !vp.hasArea() || !range.hasData(),
+@@ -464,7 +497,7 @@
+     Compound* compound = node->compound;
+     if( compound )
+     {
+-        EQASSERTINFO( vp == eq::Viewport::FULL || range == eq::Range::ALL,
++        EQASSERTINFO( vp == Viewport::FULL || range == Range::ALL,
+                       "Mixed 2D/DB load-balancing not implemented" );
+ 
+         // TODO: check that time == vp * load
+@@ -472,7 +505,7 @@
+         compound->setRange( range );
+ 
+         EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " set "
+-                        << vp << ", " << range << endl;
++                        << vp << ", " << range << std::endl;
+ 
+         // save data for later use
+         Data data;
+@@ -498,7 +531,7 @@
+     {
+         case MODE_VERTICAL:
+         {
+-            EQASSERT( range == eq::Range::ALL );
++            EQASSERT( range == Range::ALL );
+ 
+             float          timeLeft = node->left->time;
+             float          splitPos = vp.x;
+@@ -509,7 +542,7 @@
+                    splitPos < end && !workingSet.empty())
+             {
+                 EQLOG( LOG_LB2 ) << timeLeft << "ms left for "
+-                                << workingSet.size() << " tiles" << endl;
++                                << workingSet.size() << " tiles" << std::endl;
+ 
+                 // remove all irrelevant items from working set
+                 //   Is there a more clever way? Erasing invalidates iter, even
+@@ -540,7 +573,7 @@
+ 
+                 // accumulate normalized load in splitPos...currentPos
+                 EQLOG( LOG_LB2 ) << "Computing load in X " << splitPos << "..."
+-                                << currentPos << endl;
++                                << currentPos << std::endl;
+                 float currentLoad = 0.f;
+                 for( LBDataVector::const_iterator i = workingSet.begin();
+                      i != workingSet.end(); ++i )
+@@ -576,7 +609,7 @@
+                                         << ( data.load * percentage )
+                                         << " vp.y " << vp.y << " dataEnd " 
+                                         << dataEnd << " vpEnd " << vpEnd
+-                                        << endl;
++                                        << std::endl;
+ 
+                         currentLoad += ( data.load * percentage );
+                     }
+@@ -588,7 +621,7 @@
+                     
+                 EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos 
+                                 << ": t=" << currentTime << " of " 
+-                                << timeLeft << endl;
++                                << timeLeft << std::endl;
+ 
+                 if( currentTime >= timeLeft ) // found last region
+                 {
+@@ -602,41 +635,39 @@
+                 }
+             }
+ 
+-            EQLOG( LOG_LB2 ) << "Should split at X " << splitPos << endl;
++            EQLOG( LOG_LB2 ) << "Should split at X " << splitPos << std::endl;
+             // There might be more time left due to MIN_PIXEL rounding by parent
+             // EQASSERTINFO( timeLeft <= .001f, timeLeft );
+ 
+             // Ensure minimum size
+             const Compound* root = getCompound();
++            const float boundary = static_cast< float >
++                                             ( node->boundary2i.x() ) /
++                                          root->getInheritPixelViewport().w;
+             if( node->left->usage == 0.f )
+                 splitPos = vp.x;
+             else if( node->right->usage == 0.f )
+                 splitPos = end;
+-#ifdef MIN_PIXELS
+-            else
++            else if( boundary > 0 )
+             {
+-                const float     epsilon = static_cast< float >( MIN_PIXELS ) /
+-                                              root->getInheritPixelViewport().w;
+-
+-                if( (splitPos - vp.x) < epsilon )
+-                    splitPos = vp.x + epsilon;
+-                if( (end - splitPos) < epsilon )
+-                    splitPos = end - epsilon;
++                if( (splitPos - vp.x) < boundary )
++                    splitPos = vp.x + boundary;
++                if( (end - splitPos) < boundary )
++                    splitPos = end - boundary;
++                
++                const uint32_t ratio = 
++                           static_cast< uint32_t >( splitPos / boundary + .5f );
++                splitPos = ratio * boundary;
+             }
+-#endif
+-            const float epsilon = 1.0f / root->getInheritPixelViewport().w;
+-            if( (splitPos - vp.x) < epsilon )
+-                splitPos = vp.x;
+-            if( (end - splitPos) < epsilon )
+-                splitPos = end;
+ 
+             splitPos = EQ_MAX( splitPos, vp.x );
+             splitPos = EQ_MIN( splitPos, end);
+ 
+-            EQLOG( LOG_LB2 ) << "Split " << vp << " at X " << splitPos << endl;
++            EQLOG( LOG_LB2 ) << "Split " << vp << " at X " 
++                             << splitPos << std::endl;
+ 
+             // balance children
+-            eq::Viewport childVP = vp;
++            Viewport childVP = vp;
+             childVP.w = (splitPos - vp.x);
+             _computeSplit( node->left, sortedData, childVP, range );
+ 
+@@ -648,7 +679,7 @@
+ 
+         case MODE_HORIZONTAL:
+         {
+-            EQASSERT( range == eq::Range::ALL );
++            EQASSERT( range == Range::ALL );
+             float        timeLeft = node->left->time;
+             float        splitPos = vp.y;
+             const float  end      = vp.getYEnd();
+@@ -658,7 +689,7 @@
+                    splitPos < end && !workingSet.empty( ))
+             {
+                 EQLOG( LOG_LB2 ) << timeLeft << "ms left for "
+-                                << workingSet.size() << " tiles" << endl;
++                                << workingSet.size() << " tiles" << std::endl;
+ 
+                 // remove all unrelevant items from working set
+                 //   Is there a more clever way? Erasing invalidates iter, even
+@@ -689,7 +720,7 @@
+ 
+                 // accumulate normalized load in splitPos...currentPos
+                 EQLOG( LOG_LB2 ) << "Computing load in Y " << splitPos << "..."
+-                                << currentPos << endl;
++                                << currentPos << std::endl;
+                 float currentLoad = 0.f;
+                 for( LBDataVector::const_iterator i = workingSet.begin();
+                      i != workingSet.end(); ++i )
+@@ -719,7 +750,7 @@
+                                         << ( data.load * percentage )
+                                         << " vp.x " << vp.x << " dataEnd " 
+                                         << dataEnd << " vpEnd " << vpEnd
+-                                        << endl;
++                                        << std::endl;
+ 
+                         currentLoad += ( data.load * percentage );
+                     }
+@@ -731,7 +762,7 @@
+                     
+                 EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos 
+                                 << ": t=" << currentTime << " of " 
+-                                << timeLeft << endl;
++                                << timeLeft << std::endl;
+ 
+                 if( currentTime >= timeLeft ) // found last region
+                 {
+@@ -745,39 +776,38 @@
+                 }
+             }
+ 
+-            EQLOG( LOG_LB2 ) << "Should split at Y " << splitPos << endl;
++            EQLOG( LOG_LB2 ) << "Should split at Y " << splitPos << std::endl;
+             // There might be more time left due to MIN_PIXEL rounding by parent
+             // EQASSERTINFO( timeLeft <= .001f, timeLeft );
+ 
+             const Compound* root = getCompound();
++            
++            const float boundary = static_cast< float >( 
++                                                   node->boundary2i.y() ) /
++                                              root->getInheritPixelViewport().h;
++            
+             if( node->left->usage == 0.f )
+                 splitPos = vp.y;
+             else if( node->right->usage == 0.f )
+                 splitPos = end;
+-#ifdef MIN_PIXELS
+-            else
++            else if ( boundary > 0 )
+             {
+-                const float     epsilon = static_cast< float >( MIN_PIXELS ) /
+-                                              root->getInheritPixelViewport().h;
+-
+-                if( (splitPos - vp.y) < epsilon )
+-                    splitPos = vp.y + epsilon;
+-                if( (end - splitPos) < epsilon )
+-                    splitPos = end - epsilon;
++                if( (splitPos - vp.y) < boundary )
++                    splitPos = vp.y + boundary;
++                if( (end - splitPos) < boundary )
++                    splitPos = end - boundary;
++                
++                const uint32_t ratio = 
++                           static_cast< uint32_t >( splitPos / boundary + .5f );
++                splitPos = ratio * boundary;
+             }
+-#endif
+-            const float epsilon = 1.0f / root->getInheritPixelViewport().h;
+-            if( (splitPos - vp.y) < epsilon )
+-                splitPos = vp.y;
+-            if( (end - splitPos) < epsilon )
+-                splitPos = end;
+ 
+             splitPos = EQ_MAX( splitPos, vp.y );
+             splitPos = EQ_MIN( splitPos, end );
+ 
+-            EQLOG( LOG_LB2 ) << "Split " << vp << " at Y " << splitPos << endl;
++            EQLOG( LOG_LB2 ) << "Split " << vp << " at Y " << splitPos << std::endl;
+ 
+-            eq::Viewport childVP = vp;
++            Viewport childVP = vp;
+             childVP.h = (splitPos - vp.y);
+             _computeSplit( node->left, sortedData, childVP, range );
+ 
+@@ -789,7 +819,7 @@
+ 
+         case MODE_DB:
+         {
+-            EQASSERT( vp == eq::Viewport::FULL );
++            EQASSERT( vp == Viewport::FULL );
+             float          timeLeft = node->left->time;
+             float          splitPos = range.start;
+             const float    end      = range.end;
+@@ -799,7 +829,7 @@
+                    splitPos < end && !workingSet.empty( ))
+             {
+                 EQLOG( LOG_LB2 ) << timeLeft << "ms left for "
+-                                << workingSet.size() << " tiles" << endl;
++                                << workingSet.size() << " tiles" << std::endl;
+ 
+                 // remove all irrelevant items from working set
+                 //   Is there a more clever way? Erasing invalidates iter, even
+@@ -830,7 +860,7 @@
+ 
+                 // accumulate normalized load in splitPos...currentPos
+                 EQLOG( LOG_LB2 ) << "Computing load in range " << splitPos
+-                                << "..." << currentPos << endl;
++                                << "..." << currentPos << std::endl;
+                 float currentLoad = 0.f;
+                 for( LBDataVector::const_iterator i = workingSet.begin();
+                      i != workingSet.end(); ++i )
+@@ -851,7 +881,7 @@
+ 
+                 EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos 
+                                 << ": t=" << currentLoad << " of " 
+-                                << timeLeft << endl;
++                                << timeLeft << std::endl;
+ 
+                 if( currentLoad >= timeLeft ) // found last region
+                 {
+@@ -867,23 +897,25 @@
+             }
+             // There might be more time left due to MIN_PIXEL rounding by parent
+             // EQASSERTINFO( timeLeft <= .001f, timeLeft );
+-
++            const float boundary( node->boundaryf );
+             if( node->left->usage == 0.f )
+                 splitPos = range.start;
+             else if( node->right->usage == 0.f )
+                 splitPos = end;
+ 
+-            const float epsilon( 0.001f );
+-            if( (splitPos - range.start) < epsilon )
++            const uint32_t ratio = static_cast< uint32_t >
++                      ( splitPos / boundary + .5f );
++            splitPos = ratio * boundary;
++            if( (splitPos - range.start) < boundary )
+                 splitPos = range.start;
+-            if( (end - splitPos) < epsilon )
++            if( (end - splitPos) < boundary )
+                 splitPos = end;
+ 
+             EQLOG( LOG_LB2 ) << "Split " << range << " at pos " << splitPos
+-                            << endl;
++                            << std::endl;
+ 
+-            eq::Range childRange = range;
+-            childRange.end       = splitPos;
++            Range childRange = range;
++            childRange.end = splitPos;
+             _computeSplit( node->left, sortedData, vp, childRange );
+ 
+             childRange.start = childRange.end;
+@@ -897,21 +929,22 @@
+     }
+ }
+ 
+-ostream& operator << ( ostream& os, const LoadEqualizer::Node* node )
++std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* node )
+ {
+     if( !node )
+         return os;
+ 
+-    os << disableFlush;
++    os << base::disableFlush;
+ 
+     if( node->compound )
+         os << node->compound->getChannel()->getName() << " target time " 
+-           << node->time << endl;
++           << node->time << std::endl;
+     else
+         os << "split " << node->splitMode << " target time " << node->time
+-           << endl << indent << node->left << node->right << exdent;
++           << std::endl
++           << base::indent << node->left << node->right << base::exdent;
+ 
+-    os << enableFlush;
++    os << base::enableFlush;
+     return os;
+ }
+ 
+@@ -930,15 +963,22 @@
+     if( !lb )
+         return os;
+ 
+-    os << disableFlush
+-       << "load_equalizer" << endl
+-       << '{' << endl
+-       << "    mode    " << lb->getMode() << endl;
++    os << base::disableFlush
++       << "load_equalizer" << std::endl
++       << '{' << std::endl
++       << "    mode    " << lb->getMode() << std::endl;
+   
+     if( lb->getDamping() != 0.5f )
+-        os << "    damping " << lb->getDamping() << endl;
++        os << "    damping " << lb->getDamping() << std::endl;
++
++    if( lb->getBoundary2i() != Vector2i( 1, 1 ) )
++        os << "    boundary [ " << lb->getBoundary2i().x() << " " 
++           << lb->getBoundary2i().y() << " ]" << std::endl;
++
++    if( lb->getBoundaryf() != std::numeric_limits<float>::epsilon() )
++        os << "    boundary " << lb->getBoundaryf() << std::endl;
+ 
+-    os << '}' << endl << enableFlush;
++    os << '}' << std::endl << base::enableFlush;
+     return os;
+ }
+ 
+Index: server/equalizers/loadEqualizer.h
+===================================================================
+--- server/equalizers/loadEqualizer.h	(revision 3653)
++++ server/equalizers/loadEqualizer.h	(working copy)
+@@ -1,5 +1,6 @@
+ 
+-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
++/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
++ *                          Cedric Stalder <cedric.stalder@gmail.com>
+  *
+  * This library is free software; you can redistribute it and/or modify it under
+  * the terms of the GNU Lesser General Public License version 2.1 as published
+@@ -38,7 +39,7 @@
+     class LoadEqualizer : public Equalizer, protected ChannelListener
+     {
+     public:
+-        LoadEqualizer();
++        EQSERVER_EXPORT LoadEqualizer();
+         LoadEqualizer( const LoadEqualizer& from );
+         virtual ~LoadEqualizer();
+         virtual Equalizer* clone() const { return new LoadEqualizer( *this ); }
+@@ -73,6 +74,20 @@
+                                      const uint32_t frameNumber, 
+                                      const uint32_t nStatistics,
+                                      const eq::Statistic* statistics );
++                                     
++        /** Set a boundary for 2D tiles. */
++        void setBoundary( const Vector2i& boundary )
++            { _boundary2i = boundary; }
++
++        /** Set a boundary for DB ranges. */
++        void setBoundary( const float boundary )
++            { _boundaryf = boundary; }
++
++        /** @return the boundary for 2D tiles. */
++        const Vector2i& getBoundary2i() const { return _boundary2i; }
++
++        /** @return the boundary for DB ranges. */
++        float getBoundaryf() const { return _boundaryf; }
+ 
+     protected:
+         virtual void notifyChildAdded( Compound* compound, Compound* child )
+@@ -96,6 +111,8 @@
+             LoadEqualizer::Mode splitMode; //<! What to adapt
+             float     time;      //<! target render time for next frame
+             float     usage;     //<! total usage of subtree
++            float     boundaryf;
++            Vector2i  boundary2i;
+         };
+         friend std::ostream& operator << ( std::ostream& os, const Node* node );
+         typedef std::vector< Node* > LBNodeVector;
+@@ -118,6 +135,10 @@
+         typedef std::pair< uint32_t,  LBDataVector > LBFrameData;
+         
+         std::deque< LBFrameData > _history;
++
++        Vector2i _boundary2i;  // default: 1 1
++        float    _boundaryf;   // default: numeric_limits<float>::epsilon
++
+         
+         //-------------------- Methods --------------------
+         /** @return true if we have a valid LB tree */
