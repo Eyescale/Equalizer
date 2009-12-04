@@ -146,8 +146,10 @@ void RSPConnection::close()
     }
 
     _parent = 0;
+
     if( _connection.isValid( ))
         _connection->close();
+
     _connection = 0;
 
     for( std::vector< DataReceive* >::iterator i = _buffer.begin(); 
@@ -1237,11 +1239,8 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     nBytesWritten += bytes;
 #endif
 
-    while ( static_cast< int >( _children.size() ) > _countAcceptChildren )
-        base::sleep( 1000 );
     
     const uint32_t size = EQ_MIN( bytes, _bufferSize );
-    base::ScopedMutex mutex( _mutexConnection );
 
     _writing = true;
     _countNbAckInWrite = 0;
