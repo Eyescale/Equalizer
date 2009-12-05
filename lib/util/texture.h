@@ -137,6 +137,9 @@ namespace util
         /** Generate, if needed, a GL texture name. */
         void _generate();
 
+        /** Check if the texture dimensions are power of two numbers. */
+        bool _isDimPOT( const uint32_t width, const uint32_t height );
+
         /** Set the size of the texture, updating the _defined flag. */
         void _resize( const int32_t width, const int32_t height );
 

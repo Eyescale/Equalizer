@@ -62,17 +62,8 @@ void Texture::flush()
 }
 
 void Texture::setTarget( const GLenum target )
-{
-    if( target != GL_ARB_texture_non_power_of_two )
-    {
-        _target = target;
-        return;
-    }
-    
-    if( !GLEW_ARB_texture_non_power_of_two )
-        return;
-                
-    _target = GL_TEXTURE_2D;
+{               
+    _target = target;
 }
 
 void Texture::setFormat( const GLuint format )
@@ -138,6 +129,13 @@ void Texture::_generate()
 
     _defined = false;
     glGenTextures( 1, &_id );
+}
+
+bool Texture::_isDimPOT( const uint32_t width, const uint32_t height )
+{
+    return ( width > 0 && height > 0 &&
+             ( width & ( width - 1 )) == 0 &&
+             ( height & ( height - 1 )) == 0 );
 }
 
 void Texture::_resize( const int32_t width, const int32_t height )
@@ -250,6 +248,9 @@ void Texture::resize( const int width, const int height )
 
     if( _width == width && _height == height && _defined )
         return;
+
+    if( !_isDimPOT( width, height ))
+        EQASSERT( GLEW_ARB_texture_non_power_of_two );
 
     glBindTexture( _target, _id );
     glTexImage2D( _target, 0, _internalFormat, width, height,
