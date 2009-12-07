@@ -77,11 +77,17 @@ namespace server
                                      
         /** Set a boundary for 2D tiles. */
         void setBoundary( const Vector2i& boundary )
-            { _boundary2i = boundary; }
+        {
+            EQASSERT( boundary.x() > 0 && boundary.y() > 0 );
+            _boundary2i = boundary; 
+        }
 
         /** Set a boundary for DB ranges. */
         void setBoundary( const float boundary )
-            { _boundaryf = boundary; }
+        { 
+            EQASSERT( boundary > 0.0f );
+            _boundaryf = boundary; 
+        }
 
         /** @return the boundary for 2D tiles. */
         const Vector2i& getBoundary2i() const { return _boundary2i; }
