@@ -101,6 +101,7 @@ namespace util
 
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
+        void setGLEWContext( GLEWContext* context ) { _glewContext = context; }
 
     private:
         /** The GL texture name. */
@@ -127,7 +128,7 @@ namespace util
         /** false if the texture needs to be defined, true if not. */
         bool _defined;
 
-        GLEWContext* const _glewContext;
+        GLEWContext* _glewContext;
 
         union // placeholder for binary-compatible changes
         {
@@ -136,9 +137,6 @@ namespace util
 
         /** Generate, if needed, a GL texture name. */
         void _generate();
-
-        /** Check if the texture dimensions are power of two numbers. */
-        bool _isDimPOT( const uint32_t width, const uint32_t height );
 
         /** Set the size of the texture, updating the _defined flag. */
         void _resize( const int32_t width, const int32_t height );

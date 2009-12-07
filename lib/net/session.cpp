@@ -576,6 +576,8 @@ CommandResult Session::invokeCommand( Command& command )
 CommandResult Session::_invokeObjectCommand( Command& command )
 {
     EQASSERT( command.isValid( ));
+    EQASSERT( command->datatype == DATATYPE_EQNET_OBJECT );
+
     const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
     const uint32_t      id        = objPacket->objectID;
     const bool ignoreInstance = ( objPacket->instanceID == EQ_ID_ANY ||
@@ -626,6 +628,7 @@ CommandResult Session::_invokeObjectCommand( Command& command )
     if( ignoreInstance )
         return COMMAND_HANDLED;
 
+    EQUNREACHABLE;
     EQWARN << "instance not found for " << objPacket << std::endl;
     return COMMAND_ERROR;
 }

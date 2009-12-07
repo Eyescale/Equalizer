@@ -42,13 +42,8 @@
 #  include <alloca.h>
 #endif
 
-
-using namespace std;
-
 namespace eq
 {
-
-
 Image::Image()
         : _glObjects( 0 )
         , _type( Frame::TYPE_MEMORY )
@@ -101,7 +96,7 @@ uint8_t Image::getNumChannels( const Frame::Buffer buffer ) const
 
         default :
             EQWARN << "Unknown number of components for format "
-                   << getFormat( buffer ) << " of buffer " << buffer << endl;
+                   << getFormat( buffer ) << " of buffer " << buffer << std::endl;
             EQUNIMPLEMENTED;
     } 
     return 0;
@@ -148,7 +143,7 @@ uint32_t Image::getInternalTextureFormat( const Frame::Buffer which ) const
 
         default :
             EQWARN << "Unknown format " << getFormat( which ) << " of buffer "
-                   << which << endl;
+                   << which << std::endl;
             EQUNIMPLEMENTED;
             return GL_RGBA;
     }
@@ -400,7 +395,7 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     EQASSERT( glObjects );
     EQASSERTINFO( !_glObjects, "Another readback in progress?" );
     EQLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers
-                          << endl;
+                          << std::endl;
 
     _glObjects = glObjects;
     _pvp       = pvp;
@@ -458,7 +453,9 @@ void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
         EQASSERTINFO( zoom == Zoom::NONE, "Texture readback zoom not "
                       << "implemented, zoom happens during compositing" );
         util::Texture& texture = _getAttachment( buffer ).texture;
+        texture.setGLEWContext( _glObjects->glewGetContext( ));
         texture.copyFromFrameBuffer( _pvp );
+        texture.setGLEWContext( 0 );
         return;
     }
 
@@ -1066,10 +1063,10 @@ void Image::writeImage( const std::string& filename,
     if( nPixels == 0 || memory.state != Memory::VALID )
         return;
 
-    ofstream image( filename.c_str(), ios::out | ios::binary );
+    std::ofstream image( filename.c_str(), std::ios::out | std::ios::binary );
     if( !image.is_open( ))
     {
-        EQERROR << "Can't open " << filename << " for writing" << endl;
+        EQERROR << "Can't open " << filename << " for writing" << std::endl;
         return;
     }
 
@@ -1153,14 +1150,14 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     if( !addr )
     {
-        EQERROR << "Can't open " << filename << " for reading" << endl;
+        EQERROR << "Can't open " << filename << " for reading" << std::endl;
         return false;
     }
 
     const size_t size = image.getSize();
     if( size < sizeof( RGBHeader ))
     {
-        EQERROR << "Image " << filename << " too small" << endl;
+        EQERROR << "Image " << filename << " too small" << std::endl;
         return false;
     }
 
@@ -1172,17 +1169,17 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     if( header.magic != 474)
     {
-        EQERROR << "Bad magic number " << filename << endl;
+        EQERROR << "Bad magic number " << filename << std::endl;
         return false;
     }
     if( header.width == 0 || header.height == 0 )
     {
-        EQERROR << "Zero-sized image " << filename << endl;
+        EQERROR << "Zero-sized image " << filename << std::endl;
         return false;
     }
     if( header.compression != 0)
     {
-        EQERROR << "Unsupported compression " << filename << endl;
+        EQERROR << "Unsupported compression " << filename << std::endl;
         return false;
     }
 
@@ -1195,7 +1192,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         ( buffer == Frame::BUFFER_COLOR && nChannels != 3 && nChannels != 4 ) ||
         ( buffer == Frame::BUFFER_DEPTH && nChannels != 4 ))
     {
-        EQERROR << "Unsupported image type " << filename << endl;
+        EQERROR << "Unsupported image type " << filename << std::endl;
         return false;
     }
 
@@ -1206,7 +1203,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     if( size < sizeof( RGBHeader ) + nBytes )
     {
-        EQERROR << "Image " << filename << " too small" << endl;
+        EQERROR << "Image " << filename << " too small" << std::endl;
         return false;
     }
     EQASSERT( size == sizeof( RGBHeader ) + nBytes );
@@ -1217,7 +1214,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
             if( header.bytesPerChannel != 1 )
             {
                 EQERROR << "Unsupported channel depth " 
-                        << static_cast< int >( header.bytesPerChannel ) << endl;
+                        << static_cast< int >( header.bytesPerChannel ) << std::endl;
                         return false;
             }
 

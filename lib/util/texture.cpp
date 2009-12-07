@@ -106,6 +106,7 @@ void Texture::setFormat( const GLuint format )
             break;
 
         case GL_RGBA32UI:
+            EQASSERT( _glewContext );
             if( GLEW_EXT_texture_integer )
             {
                 _format = GL_RGBA_INTEGER_EXT;
@@ -131,11 +132,15 @@ void Texture::_generate()
     glGenTextures( 1, &_id );
 }
 
-bool Texture::_isDimPOT( const uint32_t width, const uint32_t height )
+namespace
+{
+/* Check if the texture dimensions are power of two. */
+static bool _isPOT( const uint32_t width, const uint32_t height )
 {
     return ( width > 0 && height > 0 &&
-             ( width & ( width - 1 )) == 0 &&
-             ( height & ( height - 1 )) == 0 );
+           ( width & ( width - 1 )) == 0 &&
+           ( height & ( height - 1 )) == 0 );
+}
 }
 
 void Texture::_resize( const int32_t width, const int32_t height )
@@ -249,8 +254,11 @@ void Texture::resize( const int width, const int height )
     if( _width == width && _height == height && _defined )
         return;
 
-    if( !_isDimPOT( width, height ))
+    if( _target == GL_TEXTURE_2D && !_isPOT( width, height ))
+    {
+        EQASSERT( _glewContext );
         EQASSERT( GLEW_ARB_texture_non_power_of_two );
+    }
 
     glBindTexture( _target, _id );
     glTexImage2D( _target, 0, _internalFormat, width, height,
