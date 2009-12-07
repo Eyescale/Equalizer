@@ -37,7 +37,7 @@ typedef CommandFunc<UnbufferedMasterCM> CmdFunc;
 
 UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
         : _object( object )
-        , _version( VERSION_NONE )
+        , _version( 1 )
 {
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &UnbufferedMasterCM::_cmdCommit ), 0 );

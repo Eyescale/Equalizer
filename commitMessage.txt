@@ -1,9 +1,10 @@
-Fix posix build, cleanups
+MC fix: don't send 0-versioned data from unbufferedMasterCM, which
+caused a deadlock during mapping.
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
