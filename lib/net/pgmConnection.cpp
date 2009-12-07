@@ -578,6 +578,10 @@ bool PGMConnection::_setupReadSocket()
 
 bool PGMConnection::_setupSendSocket()
 {
+    // has to be set on both sender and receiver
+    // the receiver only comment on MSDN is an error
+	_enableHighSpeedRead();
+
     return( _setFecParameters( _writeFD, 255, 4, true, 0 ) &&
             _setSendRate() &&
             _setSendBufferSize( 65535 ) &&
