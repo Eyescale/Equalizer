@@ -1,5 +1,4 @@
-MC fix: don't send 0-versioned data from unbufferedMasterCM, which
-caused a deadlock during mapping.
+Fix Posix build
 
 [ ] May break build
 [ ] May break existing applications

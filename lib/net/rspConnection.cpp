@@ -1499,7 +1499,6 @@ void RSPConnection::_sendAckRequest()
 #ifdef EQ_INSTRUMENT_RSP
     ++nTotalAckRequests;
 #endif
-    EQASSERT ( _nDatagrams -1 >= 0 );
     const DatagramAckRequest ackRequest = { ACKREQ, _id, _nDatagrams -1, 
                                             _sequenceIDWrite };
     _connection->write( &ackRequest, sizeof( DatagramAckRequest ) );
