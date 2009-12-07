@@ -48,11 +48,7 @@ namespace
 {
 static const size_t _mtu = UDPConnection::getMTU();
 static const size_t _payloadSize = _mtu - sizeof( RSPConnection::DatagramData );
-#ifdef WIN32
-    static const size_t _ackFreq = 16;
-#else
-    static const size_t _ackFreq = 128;
-#endif
+static const size_t _ackFreq = _mtu > 1500 ? 16 : 128;
 static const size_t _bufferSize = _payloadSize * _ackFreq;
 static const size_t _nBuffers = 4;
 static const size_t _maxNAck = _mtu - sizeof( RSPConnection::DatagramNack ) / 
@@ -842,7 +838,7 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
     EQASSERT( ( index * _payloadSize + length ) <= receive->data.getSize( ));
     memcpy( receive->data.getData() + pos, data, length );
 
-    // control if the previous datagrams have been received
+    // control if the previous datagrams has been received
     if ( index <= 0 ) 
         return true;
     
