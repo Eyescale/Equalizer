@@ -20,8 +20,6 @@
 
 #include "objectDataIStream.h"   // base class
 
-#include <deque>
-
 namespace eq
 {
 namespace net
