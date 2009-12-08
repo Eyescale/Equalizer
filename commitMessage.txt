@@ -1,9 +1,12 @@
-Minor code cleanup
+RSP Tuning:
+- Make udp send rate bucket big enough to allow for higher speeds
+- fix posix build
+- cleanup ack frequency setting
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

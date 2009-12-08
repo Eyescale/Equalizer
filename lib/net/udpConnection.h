@@ -59,10 +59,12 @@ namespace net
         virtual void acceptNB();           
         virtual ConnectionPtr acceptSync();
         virtual void close();              
-        static uint32_t getMTU();
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
+
+        static size_t getMTU();
+        static size_t getPacketRate();
 
         void waitWritable( const uint64_t bytes );
         void adaptSendRate( int32_t percent );
@@ -114,7 +116,7 @@ namespace net
                                                     A& address );
 
         eq::base::Clock _clock;
-        int64_t _allowedData;
+        uint64_t _allowedData;
 
 #ifdef WIN32
         // overlapped data structures

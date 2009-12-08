@@ -47,8 +47,8 @@ namespace net
 namespace
 {
 static const size_t _mtu = UDPConnection::getMTU();
+static const size_t _ackFreq = UDPConnection::getPacketRate();
 static const size_t _payloadSize = _mtu - sizeof( RSPConnection::DatagramData );
-static const size_t _ackFreq = _mtu > 1500 ? 16 : 128;
 static const size_t _bufferSize = _payloadSize * _ackFreq;
 static const size_t _nBuffers = 4;
 static const size_t _maxNAck = _mtu - sizeof( RSPConnection::DatagramNack ) / 

@@ -46,11 +46,18 @@ namespace net
 namespace
 {
 #ifdef WIN32
-    static const size_t _mtu = 65000 ;
-#else
-    static const size_t _mtu = 1470 ;
+#  define BIG_SEND
 #endif
 
+#ifdef BIG_SEND
+    static const size_t _mtu = 65000 ;
+    static const size_t _packetRate = 16;
+#else
+    static const size_t _mtu = 1470 ;
+    static const size_t _packetRate = 128;
+#endif
+
+    static const size_t _maxAllowedData = _mtu * _packetRate;
 }
 
 UDPConnection::UDPConnection()
@@ -213,7 +220,8 @@ void UDPConnection::close()
     _fireStateChanged();
 }
 
-uint32_t UDPConnection::getMTU(){ return _mtu; }
+size_t UDPConnection::getMTU(){ return _mtu; }
+size_t UDPConnection::getPacketRate(){ return _packetRate; }
 
 bool UDPConnection::_setSendInterface()
 {
@@ -414,7 +422,7 @@ void UDPConnection::waitWritable( const uint64_t bytes )
 
     _allowedData += static_cast< int64_t >( _clock.getTimef() * _sendRate );
                                                          // opt: * 1024 / 1000;
-    _allowedData = EQ_MIN( _allowedData, _mtu * 5 );
+    _allowedData = EQ_MIN( _allowedData, _maxAllowedData );
     _clock.reset();
 
     const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
@@ -422,7 +430,7 @@ void UDPConnection::waitWritable( const uint64_t bytes )
     {
         eq::base::sleep( 1 );
         _allowedData += static_cast< int64_t >( _clock.getTimef() * _sendRate );
-        _allowedData = EQ_MIN( _allowedData, _mtu * 5 );
+        _allowedData = EQ_MIN( _allowedData, _maxAllowedData );
         _clock.reset();
     }
     _allowedData -= sizeToSend;
