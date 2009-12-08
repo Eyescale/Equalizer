@@ -36,7 +36,6 @@
 #include <eq/client/zoom.h>
 #include <eq/net/barrier.h>
 #include <eq/base/thread.h>
-#include <vmmlib/vector.hpp>
 #include <iostream>
 #include <vector>
 

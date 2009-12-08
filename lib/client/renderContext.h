@@ -21,7 +21,7 @@
 #include <eq/client/colorMask.h>        // member
 #include <eq/client/eye.h>              // member
 #include <eq/client/pixel.h>            // member
-#include <eq/client/subPixel.h>            // member
+#include <eq/client/subPixel.h>         // member
 #include <eq/client/pixelViewport.h>    // member
 #include <eq/client/range.h>            // member
 #include <eq/client/types.h>

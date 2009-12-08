@@ -18,7 +18,7 @@
 #ifndef EQ_H
 #define EQ_H
 
-#include <eq/base/defines.h>
+#include <eq/base/base.h>
 
 #include <eq/client/canvas.h>
 #include <eq/client/channelStatistics.h>
