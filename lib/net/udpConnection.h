@@ -64,8 +64,9 @@ namespace net
         virtual int64_t readSync( void* buffer, const uint64_t bytes );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
+        void waitWritable( const uint64_t bytes );
         void adaptSendRate( int32_t percent );
-	int64_t getSendRate() const { return _sendRate; }
+        int64_t getSendRate() const { return _sendRate; }
 
 #ifdef WIN32
         /** @sa Connection::getNotifier */
@@ -105,10 +106,6 @@ namespace net
         SOCKET _readFD;
         SOCKET _writeFD;
 #endif
-        // protect write function because write data operation and 
-        // write from protocole rsp can be use in the same time
-        base::Lock _mutexWrite;
-
         bool  _setSendBufferSize( const Socket fd,  const int newSize );
         bool  _setRecvBufferSize( const Socket fd,  const int newSize );
         bool  _setMulticastLoop ( const Socket fd,  const int loop );
@@ -117,7 +114,8 @@ namespace net
                                                     A& address );
 
         eq::base::Clock _clock;
-        float _allowedData;
+        int64_t _allowedData;
+
 #ifdef WIN32
         // overlapped data structures
         OVERLAPPED _overlapped;
@@ -126,6 +124,7 @@ namespace net
 #endif
         int64_t _sendRate;
         CHECK_THREAD_DECLARE( _recvThread );
+        CHECK_THREAD_DECLARE( _sendThread );
     };
 }
 }

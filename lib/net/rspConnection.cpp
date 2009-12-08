@@ -1140,7 +1140,7 @@ bool RSPConnection::_acceptNewIDConnection( ID id )
 }
 
 RSPConnection::DataReceive* RSPConnection::_findReceiverWithSequenceID( 
-                         const IDSequenceType sequenceID ) const
+                                         const IDSequenceType sequenceID ) const
 {
     // find the correspondig buffer
     for ( std::vector< DataReceive* >::const_iterator k = _buffer.begin(); 
@@ -1229,15 +1229,14 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     
     if ( _parent.isValid() )
         return _parent->write( buffer, bytes );
+
+    const uint32_t size = EQ_MIN( bytes, _bufferSize );
+
 #ifdef EQ_INSTRUMENT_RSP
     base::Clock clock;
     clock.reset();
-    nBytesWritten += bytes;
+    nBytesWritten += size;
 #endif
-
-    
-    const uint32_t size = EQ_MIN( bytes, _bufferSize );
-
     _writing = true;
     _countNbAckInWrite = 0;
 
@@ -1297,7 +1296,6 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 
     EQLOG( net::LOG_RSP ) << "release write sequence ID " 
                           << _sequenceIDWrite << std::endl;
-    
     return size;
 }
 
@@ -1456,7 +1454,6 @@ void RSPConnection::_sendNackDatagram ( const ID  toWriterID,
 void RSPConnection::_sendDatagram( const uint32_t writeSeqID, 
                                    const uint16_t idDatagram )
 {
-
 #ifdef EQ_INSTRUMENT_RSP
     ++nTotalDatagrams;
 #endif
@@ -1486,6 +1483,7 @@ void RSPConnection::_sendDatagram( const uint32_t writeSeqID,
     // send Data
     _handleDataDatagram( 
            reinterpret_cast< DatagramData* >(_sendBuffer.getData() ));
+    _connection->waitWritable( _sendBuffer.getSize( ));
     _connection->write ( _sendBuffer.getData(), _sendBuffer.getSize() );
 }
 

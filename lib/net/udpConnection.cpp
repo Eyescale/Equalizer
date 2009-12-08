@@ -408,28 +408,32 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
 #endif
 }
 
+void UDPConnection::waitWritable( const uint64_t bytes )
+{
+    CHECK_THREAD_SCOPED( _sendThread );
+
+    _allowedData += static_cast< int64_t >( _clock.getTimef() * _sendRate );
+                                                         // opt: * 1024 / 1000;
+    _allowedData = EQ_MIN( _allowedData, _mtu * 5 );
+    _clock.reset();
+
+    const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
+    while( _allowedData < sizeToSend )
+    {
+        eq::base::sleep( 1 );
+        _allowedData += static_cast< int64_t >( _clock.getTimef() * _sendRate );
+        _allowedData = EQ_MIN( _allowedData, _mtu * 5 );
+        _clock.reset();
+    }
+    _allowedData -= sizeToSend;
+}
+
 int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
 {
-
     if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
 
     const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
-    {
-        base::ScopedMutex mutex( _mutexWrite );
-        _allowedData += _clock.getTimef() / 1000.0f * _sendRate * 1024.0f;
-        _allowedData = EQ_MIN( _allowedData, _mtu );
-        _clock.reset();
-        while( _allowedData < sizeToSend )
-        {
-            eq::base::sleep( 1 );
-            _allowedData += _clock.getTimef() / 1000.0f * _sendRate * 1024.0f, 
-            _allowedData = EQ_MIN( _allowedData, _mtu );
-            _clock.reset();
-        }
-    _allowedData -=  sizeToSend;
-    }
-
 #ifdef WIN32
     DWORD  wrote;
     WSABUF wsaBuffer = { sizeToSend,
