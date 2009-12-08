@@ -975,8 +975,7 @@ void RSPConnection::_addRepeat( const uint32_t* repeatIDs, uint32_t size )
     }
 }
 
-bool RSPConnection::_handleAckRequest( 
-                      const DatagramAckRequest* ackRequest )
+bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
 {
     base::ScopedMutex mutex( _mutexHandleAckRequ );
     EQLOG( net::LOG_RSP ) << "receive an AckRequest from " 
