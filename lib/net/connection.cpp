@@ -97,22 +97,16 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
 
         case CONNECTIONTYPE_MCIP:
             connection = new MCIPConnection;
-            if ( description->bandwidth == 0 )
-                 description->bandwidth = 50 * 1024; // 50MB/s
             break;
 
 #ifdef EQ_PGM
         case CONNECTIONTYPE_PGM:
             connection = new PGMConnection;
-            if ( description->bandwidth == 0 )
-                 description->bandwidth = 50 * 1024; // 50MB/s
             break;
 
 #endif
         case CONNECTIONTYPE_RSP:
             connection = new RSPConnection;
-            if ( description->bandwidth == 0 )
-                 description->bandwidth = 50 * 1024; // 50MB/s
             break;
         default:
             EQWARN << "Connection type not implemented" << endl;
