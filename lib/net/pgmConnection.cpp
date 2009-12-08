@@ -571,17 +571,14 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
 
 bool PGMConnection::_setupReadSocket()
 {
-	_enableHighSpeedRead();
-	return( _setReadBufferSize( 65535 ) &&
+    _enableHighSpeed( _readFD );
+    return( _setReadBufferSize( 65535 ) &&
             _setReadInterface( ));
 }
 
 bool PGMConnection::_setupSendSocket()
 {
-    // has to be set on both sender and receiver
-    // the receiver only comment on MSDN is an error
-	_enableHighSpeedRead();
-
+    _enableHighSpeed( _writeFD );
     return( _setFecParameters( _writeFD, 255, 4, true, 0 ) &&
             _setSendRate() &&
             _setSendBufferSize( 65535 ) &&
@@ -767,11 +764,11 @@ bool PGMConnection::_setReadInterface()
     return true;
 }
 
-bool PGMConnection::_enableHighSpeedRead()
+bool PGMConnection::_enableHighSpeed(  SOCKET fd )
 {
     ULONG HighSpeedLanEnabled = 1;
 
-    if ( ::setsockopt( _readFD, IPPROTO_RM, RM_HIGH_SPEED_INTRANET_OPT , 
+    if ( ::setsockopt( fd, IPPROTO_RM, RM_HIGH_SPEED_INTRANET_OPT , 
                  (char*)&HighSpeedLanEnabled, sizeof( ULONG )) == SOCKET_ERROR )
     {
         EQWARN << "can't EnableHighSpeedLanOption, error: " 

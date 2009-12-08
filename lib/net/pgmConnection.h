@@ -66,7 +66,7 @@ namespace net
         uint16_t _getPort() const;
 
         bool _setupSendSocket();
-        bool  _enableHighSpeedRead();
+        bool  _enableHighSpeed( SOCKET fd );
         bool  _setSendInterface();
         bool  _setSendRate();
         bool  _setSendBufferSize( const int newSize );
