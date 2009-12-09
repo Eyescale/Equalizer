@@ -1494,7 +1494,14 @@ void RSPConnection::_sendAckRequest()
 #endif
     const DatagramAckRequest ackRequest = { ACKREQ, _id, _nDatagrams -1, 
                                             _sequenceIDWrite };
+    
     _connection->write( &ackRequest, sizeof( DatagramAckRequest ) );
+
+    EQASSERT( ackRequest.type == ACKREQ && 
+              ackRequest.writerID == _id &&
+              ackRequest.lastDatagramID == _nDatagrams -1 &&
+              ackRequest.sequenceID == _sequenceIDWrite );
+    
     _handleAckRequest( &ackRequest );
 
 }
