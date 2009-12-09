@@ -46,7 +46,12 @@ DataOStream::~DataOStream()
 
 void DataOStream::enable( const NodeVector& receivers )
 {
+#ifdef NDEBUG
     const bool useMulticast = receivers.size() > 1;
+#else
+    const bool useMulticast = true;
+#endif
+
     ConnectionDescriptionVector mcSet;
 
     for( NodeVector::const_iterator i = receivers.begin(); 

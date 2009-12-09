@@ -252,7 +252,7 @@ void NamedPipeConnection::acceptNB()
     InitializeSecurityDescriptor( sa.lpSecurityDescriptor, 
                                   SECURITY_DESCRIPTOR_REVISION );
     // ACL is set as NULL in order to allow all access to the object.
-    SetSecurityDescriptorDacl(sa.lpSecurityDescriptor, true, 0, false);
+    SetSecurityDescriptorDacl( sa.lpSecurityDescriptor, true, 0, false );
     sa.nLength = sizeof(sa);
     sa.bInheritHandle = TRUE;
 #endif
