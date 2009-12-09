@@ -496,7 +496,7 @@ bool RSPConnection::_handleInitData()
     {
         const DatagramCountConnection* countConn = 
                 reinterpret_cast< const DatagramCountConnection* >
-                                                         ( _readBuffer.getData() );
+                                                      ( _readBuffer.getData( ));
         
         // we know all connections
         if (( _children.size() == countConn->nbClient ) &&
@@ -535,7 +535,7 @@ void* RSPConnection::Thread::run()
 
 void RSPConnection::_runReadThread()
 {
-    EQINFO << " Start thread RSP protocole" << std::endl;
+    EQINFO << "Started RSP read thread" << std::endl;
     while ( _state != STATE_CLOSED )
     {
 #if 1

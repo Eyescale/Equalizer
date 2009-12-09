@@ -557,6 +557,9 @@ bool Node::close( NodePtr node )
 
 void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
 {
+    if( cd->type >= CONNECTIONTYPE_MULTICAST && cd->port == 0 )
+        cd->port = EQ_DEFAULT_PORT;
+
     _connectionDescriptions.push_back( cd ); 
 }
 
