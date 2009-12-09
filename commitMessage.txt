@@ -1,9 +1,10 @@
-MC fix: set up default port if no port is set
+Fix BitmapFont::exit which accessed a dangling ObjectManager reference.
+Make OM getters const
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

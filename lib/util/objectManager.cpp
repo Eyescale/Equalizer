@@ -194,7 +194,7 @@ void ObjectManager<T>::deleteAll()
 // display list functions
 
 template< typename T >
-GLuint ObjectManager<T>::getList( const T& key )
+GLuint ObjectManager<T>::getList( const T& key ) const
 {
     typename ObjectHash::const_iterator i = _data->lists.find( key );
     if( i == _data->lists.end( ))
@@ -251,7 +251,7 @@ void   ObjectManager<T>::deleteList( const T& key )
 // texture object functions
 
 template< typename T >
-GLuint ObjectManager<T>::getTexture( const T& key )
+GLuint ObjectManager<T>::getTexture( const T& key ) const
 {
     typename ObjectHash::const_iterator i = _data->textures.find( key );
     if( i == _data->textures.end( ))
@@ -313,7 +313,7 @@ bool ObjectManager<T>::supportsBuffers() const
 }
 
 template< typename T >
-GLuint ObjectManager<T>::getBuffer( const T& key )
+GLuint ObjectManager<T>::getBuffer( const T& key ) const
 {
     typename ObjectHash::const_iterator i = _data->buffers.find( key );
     if( i == _data->buffers.end() )
@@ -382,7 +382,7 @@ bool ObjectManager<T>::supportsPrograms() const
 }
 
 template< typename T >
-GLuint ObjectManager<T>::getProgram( const T& key )
+GLuint ObjectManager<T>::getProgram( const T& key ) const
 {
     typename ObjectHash::const_iterator i = _data->programs.find( key );
     if( i == _data->programs.end() )
@@ -449,7 +449,7 @@ bool ObjectManager<T>::supportsShaders() const
 }
 
 template< typename T >
-GLuint ObjectManager<T>::getShader( const T& key )
+GLuint ObjectManager<T>::getShader( const T& key ) const
 {
     typename ObjectHash::const_iterator i = _data->shaders.find( key );
     if( i == _data->shaders.end() )
@@ -509,7 +509,7 @@ void ObjectManager<T>::deleteShader( const T& key )
 }
 
 template< typename T >
-Accum* ObjectManager<T>::getEqAccum( const T& key )
+Accum* ObjectManager<T>::getEqAccum( const T& key ) const
 {
     typename AccumHash::const_iterator i = _data->accums.find( key );
     if( i == _data->accums.end( ))
@@ -563,7 +563,7 @@ bool ObjectManager<T>::supportsEqTexture() const
 }
 
 template< typename T >
-Texture* ObjectManager<T>::getEqTexture( const T& key )
+Texture* ObjectManager<T>::getEqTexture( const T& key ) const
 {
     typename TextureHash::const_iterator i = _data->eqTextures.find( key );
     if( i == _data->eqTextures.end( ))
@@ -611,7 +611,7 @@ void   ObjectManager<T>::deleteEqTexture( const T& key )
 
 // eq::util::BitmapFont object functions
 template< typename T >
-util::BitmapFont< T >* ObjectManager<T>::getEqBitmapFont( const T& key )
+util::BitmapFont< T >* ObjectManager<T>::getEqBitmapFont( const T& key ) const
 {
     typename FontHash::const_iterator i = _data->eqFonts.find( key );
     if( i == _data->eqFonts.end( ))
@@ -666,6 +666,7 @@ bool ObjectManager<T>::supportsEqFrameBufferObject() const
 
 template< typename T >
 FrameBufferObject* ObjectManager<T>::getEqFrameBufferObject( const T& key )
+    const
 {
     typename FBOHash::const_iterator i = _data->eqFrameBufferObjects.find(key);
     if( i == _data->eqFrameBufferObjects.end( ))

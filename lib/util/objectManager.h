@@ -71,58 +71,58 @@ namespace util
 
         EQ_EXPORT void deleteAll();
 
-        EQ_EXPORT GLuint getList( const T& key );
+        EQ_EXPORT GLuint getList( const T& key ) const;
         EQ_EXPORT GLuint newList( const T& key, const GLsizei num = 1 );
         EQ_EXPORT GLuint obtainList( const T& key, const GLsizei num = 1 );
         EQ_EXPORT void   deleteList( const T& key );
 
-        EQ_EXPORT GLuint getTexture( const T& key );
+        EQ_EXPORT GLuint getTexture( const T& key ) const;
         EQ_EXPORT GLuint newTexture( const T& key );
         EQ_EXPORT GLuint obtainTexture( const T& key );
         EQ_EXPORT void   deleteTexture( const T& key );
 
         EQ_EXPORT bool   supportsBuffers() const;
-        EQ_EXPORT GLuint getBuffer( const T& key );
+        EQ_EXPORT GLuint getBuffer( const T& key ) const;
         EQ_EXPORT GLuint newBuffer( const T& key );
         EQ_EXPORT GLuint obtainBuffer( const T& key );
         EQ_EXPORT void   deleteBuffer( const T& key );
 
         EQ_EXPORT bool   supportsPrograms() const;
-        EQ_EXPORT GLuint getProgram( const T& key );
+        EQ_EXPORT GLuint getProgram( const T& key ) const;
         EQ_EXPORT GLuint newProgram( const T& key );
         EQ_EXPORT GLuint obtainProgram( const T& key );
         EQ_EXPORT void   deleteProgram( const T& key );
 
         EQ_EXPORT bool   supportsShaders() const;
-        EQ_EXPORT GLuint getShader( const T& key );
+        EQ_EXPORT GLuint getShader( const T& key ) const;
         EQ_EXPORT GLuint newShader( const T& key, const GLenum type );
         EQ_EXPORT GLuint obtainShader( const T& key, const GLenum type );
         EQ_EXPORT void   deleteShader( const T& key );
 
-        EQ_EXPORT Accum* getEqAccum( const T& key );
+        EQ_EXPORT Accum* getEqAccum( const T& key ) const;
         EQ_EXPORT Accum* newEqAccum( const T& key );
         EQ_EXPORT Accum* obtainEqAccum( const T& key );
         EQ_EXPORT void deleteEqAccum( const T& key );
 
         EQ_EXPORT bool     supportsEqTexture() const;
-        EQ_EXPORT Texture* getEqTexture( const T& key );
+        EQ_EXPORT Texture* getEqTexture( const T& key ) const;
         EQ_EXPORT Texture* newEqTexture( const T& key );
         EQ_EXPORT Texture* obtainEqTexture( const T& key );
         EQ_EXPORT void     deleteEqTexture( const T& key );
 
         EQ_EXPORT bool               supportsEqFrameBufferObject() const;
-        EQ_EXPORT FrameBufferObject* getEqFrameBufferObject( const T& key );
+        EQ_EXPORT FrameBufferObject* getEqFrameBufferObject(const T& key) const;
         EQ_EXPORT FrameBufferObject* newEqFrameBufferObject( const T& key );
         EQ_EXPORT FrameBufferObject* obtainEqFrameBufferObject( const T& key );
         EQ_EXPORT void               deleteEqFrameBufferObject( const T& key );
 
-        const GLEWContext* glewGetContext() const { return _glewContext; }
-        GLEWContext* glewGetContext()             { return _glewContext; }
-
-        EQ_EXPORT util::BitmapFont< T >* getEqBitmapFont( const T& key );
+        EQ_EXPORT util::BitmapFont< T >* getEqBitmapFont( const T& key ) const;
         EQ_EXPORT util::BitmapFont< T >* newEqBitmapFont( const T& key );
         EQ_EXPORT util::BitmapFont< T >* obtainEqBitmapFont( const T& key );
         EQ_EXPORT void                   deleteEqBitmapFont( const T& key );
+
+        const GLEWContext* glewGetContext() const { return _glewContext; }
+        GLEWContext* glewGetContext()             { return _glewContext; }
 
     private:
         GLEWContext* const _glewContext;

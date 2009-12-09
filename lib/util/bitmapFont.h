@@ -46,8 +46,8 @@ namespace util
         EQ_EXPORT void draw( const std::string& text ) const;
 
     private:
-        ObjectManager< OMT >& _gl;
-        const OMT             _key;
+        ObjectManager< OMT > _gl;
+        const OMT            _key;
 
         bool _initGLX( const std::string& name, const uint32_t size );
         bool _initWGL( const std::string& name, const uint32_t size );
