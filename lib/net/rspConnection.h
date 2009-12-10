@@ -248,8 +248,8 @@ namespace net
 
         ID _writerID;
         
-        uint8_t  _timeouts;
-        bool     _ackReceive;
+        size_t   _timeouts;
+        bool     _ackReceived;
 
 #ifdef WIN32
         HANDLE _hEvent;
@@ -275,7 +275,6 @@ namespace net
         int64_t     _lastSequenceIDAck;
 
         // write property part
-        const char*       _dataSend;
         uint64_t          _lengthDataSend;
         uint32_t          _nDatagrams;
         IDSequenceType    _sequenceIDWrite;
@@ -302,18 +301,21 @@ namespace net
         /** format and send a datagram count node */
         void _sendDatagramCountNode();
 
-        /** format and send a datagram data*/
-        void _sendDatagram( const uint32_t writSeqID,
-                            const IDSequenceType datagramID );
-        int64_t _repeatDatagram( );
+        int64_t _handleRepeat( const uint8_t* data );
         void _addRepeat( const uint32_t* repeatIDs, uint32_t size );
 
-        /** format and send datagram ackrequest*/
+        /** format and send a data packet*/
+        void _sendDatagram( const uint8_t* data, const uint32_t writSeqID,
+            const IDSequenceType datagramID );
+
+        /** format and send an ack request*/
         void _sendAckRequest( );
+
+        /** format and send a positive ack */
         void _sendAck( const ID writerID,
                        const IDSequenceType sequenceID);
         
-        /** format and send datagram nack*/ 
+        /** format and send a negative ack*/ 
         void _sendNackDatagram ( const ID  toWriterID,
                                  const IDSequenceType  sequenceID,
                                  const uint8_t   countNack,

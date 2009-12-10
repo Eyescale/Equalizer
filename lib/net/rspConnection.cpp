@@ -70,7 +70,7 @@ base::a_int32_t nAcksAccepted;
 base::a_int32_t nNAcksSend;
 base::a_int32_t nNAcksRead;
 base::a_int32_t nNAcksResend;
-base::a_int32_t nTimeOut;
+base::a_int32_t nTimeOuts;
 base::a_int32_t nTimeInWrite;
 base::a_int32_t nTimeInWriteWaitAck;
 base::a_int32_t nTimeInReadSync;
@@ -87,7 +87,7 @@ RSPConnection::RSPConnection()
         , _shiftedID( 0 )
         , _writerID( 0 )
         , _timeouts( 0 )
-        , _ackReceive( false )
+        , _ackReceived( false )
 #ifdef WIN32
         , _hEvent( 0 )
 #endif
@@ -97,7 +97,6 @@ RSPConnection::RSPConnection()
         , _connection( 0 )
         , _parent( 0 )
         , _lastSequenceIDAck( -1 )
-        , _dataSend( 0 )
         , _lengthDataSend( 0 )
         , _nDatagrams( 0 )
         , _sequenceIDWrite( 0 )
@@ -435,8 +434,8 @@ bool RSPConnection::_handleAcceptID()
         if  ( node->connectionID == _id ) 
         {
             _timeouts = 0;
-             const DatagramNode newnode ={ ID_HELLO, _buildNewID() };
-             _connection->write( &newnode, sizeof( DatagramNode ) );
+            const DatagramNode newnode ={ ID_HELLO, _buildNewID() };
+            _connection->write( &newnode, sizeof( DatagramNode ) );
         }
         return true;
     case ID_EXIT:
@@ -505,6 +504,7 @@ bool RSPConnection::_handleInitData()
     case ID_CONFIRM:
         _timeouts = 0;
         return _addNewConnection( node->connectionID );
+
     case COUNTNODE:
     {
         const DatagramCountConnection* countConn = 
@@ -562,42 +562,23 @@ void RSPConnection::_runReadThread()
             timeout = EQ_MIN
         }
 #endif
-
         switch ( _connectionSet.select( timeOut ) )
         {
         case ConnectionSet::EVENT_TIMEOUT:
         {
 #ifdef EQ_INSTRUMENT_RSP
-            ++nTimeOut;
+            ++nTimeOuts;
 #endif
-
-            for ( std::vector< RSPConnectionPtr >::iterator i = 
-                   _children.begin(); i != _children.end(); ++i )
+            ++_timeouts;
+            if( _timeouts >= 1000 )
             {
-               RSPConnectionPtr connection = *i;
-               
-               if ( connection->_writerID == _id )
-                   continue;
-               
-
-               if ( connection->_ackReceive ) 
-                    continue;
-
-                ++connection->_timeouts;
-                // a lot of more time out
-                 if ( connection->_timeouts >= 250 )
-                {
-                    EQERROR << " Error during Read UDP Connection" 
-                            << std::endl;
-                    _connection = 0;
-                    return;
-                }
-
-                // send a datagram Ack Request 
-                _sendAckRequest();
-                break;
-                
+                EQERROR << "Error during send, too many timeouts" << std::endl;
+                _connection = 0;
+                return;
             }
+            
+            // repeat ack request
+            _sendAckRequest();
             break;
         }
         case ConnectionSet::EVENT_DATA:
@@ -905,15 +886,17 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
         return false;
     }
 
-
-    // if I have receive ack previously from the reader
-    if ( connection->_ackReceive )
+    // if I have received an ack previously from the reader
+    if ( connection->_ackReceived )
         return true;
 #ifdef EQ_INSTRUMENT_RSP
     ++nAcksAccepted;
 #endif
-    connection->_ackReceive = true;
+    connection->_ackReceived = true;
     ++_countNbAckInWrite;
+
+    // reset timeout counter
+    _timeouts = 0;
 
     if ( _countNbAckInWrite != _children.size() )
         return true;
@@ -923,9 +906,6 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     // unblock write function if all ack have been received
     const RepeatRequest repeat( 1, 0 );
     _repeatQueue.push( repeat );
-
-    // reset counter timeout
-    connection->_timeouts = 0;
 
     return true;
 }
@@ -942,7 +922,7 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
                           << connection->_writerID << " for sequence "
                           << nack->sequenceID << std::endl;
 
-    if ( connection->_ackReceive )
+    if ( connection->_ackReceived )
     {
         EQLOG( net::LOG_RSP ) << "ignore Nack, we have receive an ack before" 
                               << std::endl;
@@ -955,9 +935,7 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
         return true;
     }
     
-    if ( connection.isValid() )
-        connection->_timeouts = 0;
-    else
+    if ( !connection )
     {
         EQUNREACHABLE;
         return false;
@@ -965,7 +943,9 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
         // TO DO add this connection?
     }
 
-    EQLOG( net::LOG_RSP ) << "repeat datagram data" << std::endl;
+    _timeouts = 0;
+
+    EQLOG( net::LOG_RSP ) << "Repeat data" << std::endl;
 
     const uint16_t count = nack->count;
     ++nack;
@@ -1249,11 +1229,10 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     clock.reset();
     nBytesWritten += size;
 #endif
-    _writing = true;
+    _timeouts = 0;
     _countNbAckInWrite = 0;
 
     ++_sequenceIDWrite;
-    _dataSend = reinterpret_cast< const char* >( buffer );
     _lengthDataSend = size;
     _nDatagrams = size  / _payloadSize;
     
@@ -1268,8 +1247,9 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
                           << "number datagram " << _nDatagrams << std::endl;
 
     // send each datagram
+    const uint8_t* data = reinterpret_cast< const uint8_t* >( buffer );
     for ( uint16_t i = 0; i < _nDatagrams; ++i )
-        _sendDatagram( writSeqID, i );
+        _sendDatagram( data, writSeqID, i );
 #ifdef EQ_INSTRUMENT_RSP
     nDatagrams += _nDatagrams;
 #endif
@@ -1278,25 +1258,23 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin();
               i != _children.end(); ++i )
     {
-        (*i)->_timeouts = 0;
-        (*i)->_ackReceive = false;
+        (*i)->_ackReceived = false;
     }
 
     EQLOG( net::LOG_RSP ) << "write send Ack Request for " 
                           << _sequenceIDWrite << std::endl;
-    
+
+    _writing = true;
     _connectionSet.interrupt();
-    
-    // send a datagram Ack Request    
-    _sendAckRequest();
 
 #ifdef EQ_INSTRUMENT_RSP
     ++nAckRequests;
     base::Clock clockAck;
     clockAck.reset();
 #endif
-    // handle repeast requests and wait for all acks
-    _adaptSendRate( _repeatDatagram( ));
+
+    _sendAckRequest();
+    _adaptSendRate( _handleRepeat( data ));
 
 #ifdef EQ_INSTRUMENT_RSP
     nTimeInWriteWaitAck  += clockAck.getTime64();
@@ -1311,7 +1289,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
     return size;
 }
 
-int64_t RSPConnection::_repeatDatagram( )
+int64_t RSPConnection::_handleRepeat( const uint8_t* data )
 {
     const uint32_t writeSeqID = _shiftedID | _sequenceIDWrite;
     int64_t nRepeats = 0;
@@ -1375,7 +1353,7 @@ int64_t RSPConnection::_repeatDatagram( )
             EQASSERT( repeat.start <= repeat.end );
 
             for ( uint8_t j = repeat.start; j <= repeat.end; ++j )
-                _sendDatagram( writeSeqID, j );
+                _sendDatagram( data, writeSeqID, j );
 
         }
 
@@ -1409,6 +1387,7 @@ void RSPConnection::_sendDatagramCountNode()
 {
     if ( !_findConnectionWithWriterID( _id ) )
         return;
+
     const DatagramCountConnection countNode = 
                        { COUNTNODE, _id, _children.size() };
     _connection->write( &countNode, sizeof( DatagramCountConnection ) );
@@ -1463,7 +1442,8 @@ void RSPConnection::_sendNackDatagram ( const ID  toWriterID,
     _connection->write( _nackBuffer.getData(), size );
 }
 
-void RSPConnection::_sendDatagram( const uint32_t writeSeqID, 
+void RSPConnection::_sendDatagram( const uint8_t* data,
+                                   const uint32_t writeSeqID, 
                                    const uint16_t idDatagram )
 {
 #ifdef EQ_INSTRUMENT_RSP
@@ -1477,8 +1457,7 @@ void RSPConnection::_sendDatagram( const uint32_t writeSeqID,
     else
         lengthData = _lengthDataSend - posInData;
     
-    const char* data = _dataSend + posInData;
-
+    const uint8_t* ptr = data + posInData;
     _sendBuffer.resize( lengthData + sizeof( DatagramData ) );
     
     uint32_t dataIDlength = ( idDatagram << 16 ) | lengthData;
@@ -1490,11 +1469,11 @@ void RSPConnection::_sendDatagram( const uint32_t writeSeqID,
     header->writeSeqID = writeSeqID;
     header->dataIDlength = dataIDlength;
 
-    memcpy( ++header, data, lengthData );
+    memcpy( ++header, ptr, lengthData );
 
     // send Data
     _handleDataDatagram( 
-           reinterpret_cast< DatagramData* >(_sendBuffer.getData() ));
+           reinterpret_cast< DatagramData* >( _sendBuffer.getData( )));
     _connection->waitWritable( _sendBuffer.getSize( ));
     _connection->write ( _sendBuffer.getData(), _sendBuffer.getSize() );
 }
@@ -1507,14 +1486,13 @@ void RSPConnection::_sendAckRequest()
 #endif
     const DatagramAckRequest ackRequest = { ACKREQ, _id, _nDatagrams -1, 
                                             _sequenceIDWrite };
-    
     _handleAckRequest( &ackRequest );
     _connection->write( &ackRequest, sizeof( DatagramAckRequest ) );
 
     EQASSERT( ackRequest.type == ACKREQ && 
-              ackRequest.writerID == _id &&
-              ackRequest.lastDatagramID == _nDatagrams -1 &&
-              ackRequest.sequenceID == _sequenceIDWrite );
+        ackRequest.writerID == _id &&
+        ackRequest.lastDatagramID == _nDatagrams -1 &&
+        ackRequest.sequenceID == _sequenceIDWrite );
 }
 
 std::ostream& operator << ( std::ostream& os,
@@ -1527,7 +1505,7 @@ std::ostream& operator << ( std::ostream& os,
     os << ": read " << nBytesRead << " bytes, wrote " 
        << nBytesWritten << " bytes using " << nDatagrams << " dgrams "
        << nTotalDatagrams - nDatagrams << " repeated, "
-       << nTimeOut << " write timeouts, "
+       << nTimeOuts << " write timeouts, "
        << std::endl
        << nAckRequests << " ack requests " 
        << nTotalAckRequests - nAckRequests << " repeated, "
@@ -1559,7 +1537,7 @@ std::ostream& operator << ( std::ostream& os,
     nNAcksSend = 0;
     nNAcksRead = 0;
     nNAcksResend = 0;
-    nTimeOut = 0;
+    nTimeOuts = 0;
     nTimeInWrite = 0;
     nTimeInWriteWaitAck = 0;
     nTimeInReadSync = 0;
