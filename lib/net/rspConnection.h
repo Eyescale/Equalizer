@@ -136,22 +136,19 @@ namespace net
 
         struct RepeatRequest
         {
-            RepeatRequest( )
-              : start( 0 )
-              , end( 0 ) {}
+            enum Type
+            {
+                DONE,
+                ACKREQ,
+                NACK
+            };
+
+            RepeatRequest() : type( NACK ), start( 0 ), end( 0 ) {}
             
-            RepeatRequest( int value )
-              : start( value )
-              , end( value ) {}
-              
-            RepeatRequest( uint8_t istart, uint8_t iend )
-              : start( istart )
-              , end( iend ) {}
-              
-            RepeatRequest( const RepeatRequest& value )
-              : start( value.start )
-              , end( value.end ) {}
-            
+            RepeatRequest( const Type& type ) 
+                : type( type ), start( 0 ), end( 0 ) {}
+
+            Type type;
             uint32_t start;
             uint32_t end;
         };
@@ -262,7 +259,7 @@ namespace net
 #endif
         ConnectionSet    _connectionSet;
         bool             _writing;
-        uint32_t         _countNbAckInWrite;
+        uint32_t         _numWriteAcks;
         Thread*          _thread;
         UDPConnectionPtr _connection;
         base::Lock       _mutexConnection;
@@ -321,7 +318,7 @@ namespace net
                                  const uint8_t   countNack,
                                  const uint32_t* repeatID   );
         
-        bool _acceptNewIDConnection( const ID id );
+        void _checkNewID( const ID id );
 
         /* add a new connection detected in the network multicast */
         bool _addNewConnection( const ID id );

@@ -46,7 +46,7 @@ namespace net
 namespace
 {
 #ifdef WIN32
-#  define BIG_SEND
+//#  define BIG_SEND
 #endif
 
 #ifdef BIG_SEND
@@ -441,10 +441,10 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
     if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
 
-    const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
+    EQASSERT( bytes <= _mtu );
 #ifdef WIN32
     DWORD  wrote;
-    WSABUF wsaBuffer = { sizeToSend,
+    WSABUF wsaBuffer = { bytes,
                          const_cast<char*>( static_cast<const char*>(buffer)) };
     while( true )
     {
@@ -593,7 +593,7 @@ bool UDPConnection::_parseAddress( sockaddr_in& address )
 void UDPConnection::adaptSendRate( int percent )
 {
     _sendRate += _sendRate * percent / 100;
-    _sendRate = EQ_MAX( 50, _sendRate );
+    _sendRate = EQ_MAX( _description->bandwidth/50, _sendRate );
     _sendRate = EQ_MIN( _sendRate, _description->bandwidth );
     EQLOG( LOG_RSP ) << "new send rate " << _sendRate << std::endl;
 }
