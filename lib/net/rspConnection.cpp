@@ -87,8 +87,10 @@ RSPConnection::RSPConnection()
         , _shiftedID( 0 )
         , _writerID( 0 )
         , _timeouts( 0 )
-        , _hEvent( 0 )
         , _ackReceive( false )
+#ifdef WIN32
+        , _hEvent( 0 )
+#endif
         , _writing( false )
         , _countNbAckInWrite( 0 )
         , _thread ( 0 )
