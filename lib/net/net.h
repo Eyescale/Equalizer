@@ -24,6 +24,7 @@
 #include <eq/net/connectionType.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
+#include <eq/net/global.h>
 #include <eq/net/init.h>
 #include <eq/net/object.h>
 

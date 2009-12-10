@@ -128,12 +128,18 @@ namespace net
          */
         EQ_EXPORT void setProgramName( const std::string& name );
 
+        /** @return the program name to start the node. */
+        const std::string& getProgramName() const { return _programName; }
+
         /** 
          * Set the working directory to start this node.
          * 
          * @param name the working directory to start this node.
          */
         EQ_EXPORT void setWorkDir( const std::string& name );
+
+        /** @return the working directory to start the node. */
+        const std::string& getWorkDir() const { return _workDir; }
 
         /** 
          * Set if this node should be launched automatically.
