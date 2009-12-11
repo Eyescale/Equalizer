@@ -145,8 +145,8 @@ namespace net
 
             RepeatRequest() : type( NACK ), start( 0 ), end( 0 ) {}
             
-            RepeatRequest( const Type& type ) 
-                : type( type ), start( 0 ), end( 0 ) {}
+            RepeatRequest( const Type& t ) 
+                : type( t ), start( 0 ), end( 0 ) {}
 
             Type type;
             uint32_t start;

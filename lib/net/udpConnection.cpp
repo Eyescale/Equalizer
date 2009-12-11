@@ -440,8 +440,8 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
 {
     if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
-
     EQASSERT( bytes <= _mtu );
+
 #ifdef WIN32
     DWORD  wrote;
     WSABUF wsaBuffer = { bytes,
@@ -483,7 +483,7 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
 
     int flags = 0;
 
-    int wrote = ::send( _writeFD, buffer, sizeToSend, flags );
+    int wrote = ::send( _writeFD, buffer, bytes, flags );
 
     if( wrote == -1 ) // error
     {
