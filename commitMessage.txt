@@ -1,9 +1,11 @@
-RSP Optimizations
+Document eq::Config
+
+Clean up global clock by moving it to eq::server::Server from eq::server::Config
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
-[x] Optimization
-[ ] Documentation
+[x] Cleanup
+[ ] Optimization
+[x] Documentation

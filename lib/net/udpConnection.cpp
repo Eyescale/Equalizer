@@ -590,7 +590,7 @@ bool UDPConnection::_parseAddress( sockaddr_in& address )
 }
 
 
-void UDPConnection::adaptSendRate( int percent )
+void UDPConnection::adaptSendRate( int32_t percent )
 {
     _sendRate += _sendRate * percent / 100;
     _sendRate = EQ_MAX( _description->bandwidth/50, _sendRate );

@@ -121,7 +121,8 @@ namespace eq
         /** Node attributes. */
         enum IAttribute
         {
-            IATTR_THREAD_MODEL,           //!< Threading model
+            /** <a href="http://www.equalizergraphics.com/documents/design/threads.html#sync">Threading model</a> */
+            IATTR_THREAD_MODEL,
             IATTR_LAUNCH_TIMEOUT,         //!< Launch timeout
             IATTR_FILL1,
             IATTR_FILL2,

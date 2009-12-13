@@ -134,7 +134,7 @@ namespace util
          * during rendering.
          * 
          * @return the tasks.
-         * @warning unstable API
+         * @warning Experimental - may not be supported in the future
          */
         uint32_t getTasks() const { return _tasks; }
 

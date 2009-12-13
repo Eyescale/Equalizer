@@ -45,6 +45,8 @@ typedef net::CommandFunc<Server> ServerFunc;
 Server::Server()
         : _configID(0)
 {
+    base::Log::setClock( &_clock );
+
     registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG,
                      ServerFunc( this, &Server::_cmdChooseConfig ),
                      &_serverThreadQueue );
@@ -72,6 +74,7 @@ Server::~Server()
     }
 
     _configs.clear();
+    base::Log::setClock( 0 );
 }
 
 namespace

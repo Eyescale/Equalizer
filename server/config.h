@@ -436,8 +436,6 @@ namespace server
 
         ConfigSerializer* _serializer;
 
-        /** The global clock. */
-        base::Clock _clock;
         union // placeholder for binary-compatible changes
         {
             char dummy[64];

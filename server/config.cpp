@@ -73,7 +73,6 @@ void Config::_construct()
     _state         = STATE_STOPPED;
     _appNode       = 0;
     _serializer    = 0;
-    base::Log::setClock( &_clock );
 
     EQINFO << "New config @" << (void*)this << endl;
 }
@@ -190,8 +189,6 @@ Config::~Config()
         delete node;
     }
     _nodes.clear();
-
-    base::Log::setClock( 0 );
 }
 
 void Config::notifyMapped( net::NodePtr node )
@@ -1022,7 +1019,7 @@ uint32_t Config::_createConfig( Node* node )
 void Config::_syncClock()
 {
     eq::ConfigSyncClockPacket packet;
-    packet.time = _clock.getTime64();
+    packet.time = _server->getTime();
 
     send( _appNetNode, packet );
 

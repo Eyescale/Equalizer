@@ -96,6 +96,9 @@ namespace server
         EQSERVER_EXPORT VisitorResult accept( ServerVisitor& visitor );
         EQSERVER_EXPORT VisitorResult accept( ConstServerVisitor& ) const;
 
+        /** @return the global time in milliseconds. */
+        int64_t getTime() const { return _clock.getTime64(); }
+
     protected:
         virtual ~Server();
 
@@ -118,6 +121,9 @@ namespace server
 
         /** The receiver->main command queue. */
         net::CommandQueue    _serverThreadQueue;
+
+        /** The global clock. */
+        base::Clock _clock;
 
         /** The current state. */
         bool _running;
