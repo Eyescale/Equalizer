@@ -228,8 +228,9 @@ namespace net
 
         // a link for all connection in the multicast network 
         std::vector< RSPConnectionPtr > _children;
+
         // The buffer used by the read function in udp socket 
-        std::vector< DataReceive* >_buffer;
+        std::vector< DataReceive* > _buffer;
         
         // number connection accepted by server RSP 
         base::a_int32_t _countAcceptChildren;

@@ -72,7 +72,7 @@ namespace base
         /** 
          * Ensure that the buffer contains at least newSize elements.
          *
-         * Existing data is retained.
+         * Existing data is retained. The size is set.
          * @version 1.0
          */
         void resize( const uint64_t newSize )
@@ -88,6 +88,18 @@ namespace base
                     _data = static_cast< T* >( malloc( nBytes ));
                 
                 _maxSize = newSize;
+            }
+
+        /** 
+         * Ensure that the buffer contains at least newSize elements.
+         *
+         * Existing data is retained. The size is increased, if necessary.
+         * @version 1.0
+         */
+        void grow( const uint64_t newSize )
+            { 
+                if( newSize > _size )
+                    resize( newSize );
             }
 
         /** 
