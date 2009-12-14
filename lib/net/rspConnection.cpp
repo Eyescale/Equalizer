@@ -147,7 +147,14 @@ void RSPConnection::close()
         _connectionSet.interrupt();
         _thread->join();
     }
+
+#ifdef WIN32
     SetEvent( _hEvent );
+#else
+    const char c = SELF_INTERRUPT;
+    _selfPipeHEvent->send( &c, 1, true );
+#endif
+
     for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin();
         i != _children.end(); ++i )
     {
