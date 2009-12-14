@@ -144,8 +144,8 @@ void RSPConnection::close()
         _connectionSet.interrupt();
         _thread->join();
     }
-
-    for( std::vector< RSPConnectionPtr >::iterator i = _children.begin();
+    SetEvent( _hEvent );
+    for ( std::vector< RSPConnectionPtr >::iterator i = _children.begin();
         i != _children.end(); ++i )
     {
         RSPConnectionPtr connection = *i;
@@ -288,8 +288,7 @@ bool RSPConnection::listen()
 
     EQINFO << "Listening on " << _description->getHostname() << ":"
            << _description->port << " (" << _description->toString() << " @"
-           << (void*)this << ")"
-           << std::endl;
+           << (void*)this << ")" << std::endl;
     return true;
 }
 
@@ -554,6 +553,7 @@ void* RSPConnection::Thread::run()
 void RSPConnection::_runReadThread()
 {
     EQINFO << "Started RSP read thread" << std::endl;
+    EQINFO << "Started RSP read thread" << std::endl;
     while ( _state != STATE_CLOSED )
     {
 #if 1
@@ -579,6 +579,12 @@ void RSPConnection::_runReadThread()
             if( _timeouts >= 1000 )
             {
                 EQERROR << "Error during send, too many timeouts" << std::endl;
+                // unblock write function if all ack 
+                // have been received
+                _repeatQueue.push( RepeatRequest( RepeatRequest::DONE ));
+                
+                while( _writing )
+                    eq::base::sleep( 100 );
                 _connection = 0;
                 return;
             }
@@ -838,6 +844,9 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
     memcpy( receive->data.getData() + pos, data, length );
 
     // control if the previous datagrams has been received
+    if ( index <= 0 ) 
+        return true;
+    
     if( index <= 0 || receive->got[ index - 1 ] )
         return true;
 
@@ -1183,11 +1192,11 @@ bool RSPConnection::_addNewConnection( ID id )
 bool RSPConnection::_acceptRemoveConnection( const ID id )
 {
     EQWARN << "remove Connection " << id << std::endl;
-    if ( id != _id )
+   /* if ( id != _id )
     {
         _sendDatagramCountNode();
         return true;
-    }
+    }*/
 
     for( std::vector< RSPConnectionPtr >::iterator i = _children.begin(); 
           i != _children.end(); ++i )
@@ -1195,6 +1204,7 @@ bool RSPConnection::_acceptRemoveConnection( const ID id )
         RSPConnectionPtr child = *i;
         if ( child->_writerID == id )
         {
+            _countAcceptChildren--;
             child->close();
             _children.erase( i );
             break;
@@ -1220,6 +1230,9 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
         return _parent->write( buffer, bytes );
 
     const uint32_t size = EQ_MIN( bytes, _bufferSize );
+
+    if ( !_connection.isValid() )
+        return -1;
 
 #ifdef EQ_INSTRUMENT_RSP
     base::Clock clock;

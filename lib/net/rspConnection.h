@@ -133,25 +133,24 @@ namespace net
 
         struct DatagramNack
         {
-        
-            uint16_t     type;
-            ID    readerID;    // ID of the connection reader
-            ID    writerID;    // ID of the connection writer
-            IDSequenceType      sequenceID;  // last datagram in write sequence
-            uint16_t            count; // number of NACK requests
+            uint16_t       type;
+            ID             readerID;    // ID of the connection reader
+            ID             writerID;    // ID of the connection writer
+            IDSequenceType sequenceID;  // last datagram in write sequence
+            uint16_t       count; // number of NACK requests
         };
 
         struct DatagramAck
         {
-            uint16_t             type;
-            ID    readerID;
-            ID    writerID;
-            IDSequenceType      sequenceID;
+            uint16_t        type;
+            ID              readerID;
+            ID              writerID;
+            IDSequenceType  sequenceID;
         };
 
         struct DatagramData
         {
-            uint16_t     type;
+            uint16_t    type;
             uint32_t    writeSeqID;
             uint32_t    dataIDlength;
         };
