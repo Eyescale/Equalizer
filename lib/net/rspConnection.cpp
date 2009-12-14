@@ -15,10 +15,12 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#include "log.h"
 #include "rspConnection.h"
+
 #include "connection.h"
 #include "connectionDescription.h"
+#include "global.h"
+#include "log.h"
 
 #include <eq/base/sleep.h>
 
@@ -111,6 +113,7 @@ RSPConnection::RSPConnection()
         _buffer.push_back( new DataReceive() );
     
     _recvBuffer = _buffer[ _recvBufferIndex ];
+    _nackBuffer.reserve( _mtu );
     EQLOG( net::LOG_RSP ) 
               << "Build new RSP Connection"  << std::endl
               << "rsp max buffer :" << _bufferSize << std::endl
@@ -167,7 +170,6 @@ void RSPConnection::close()
     }
 
     _recvBuffer = _buffer[0];
-    _nackBuffer.clear();
     _fireStateChanged();
 }
 
@@ -556,17 +558,9 @@ void RSPConnection::_runReadThread()
     EQINFO << "Started RSP read thread" << std::endl;
     while ( _state != STATE_CLOSED )
     {
-#if 1
-        const int timeOut = ( _writing && _repeatQueue.isEmpty( )) ? 10 : -1;
-#else
-        int timeOut = -1;
-        if( _writing )
-        {
-            const int64_t sendRate = _connection->getSendRate();
-            timeout = 102400 / sendRate;
-            timeout = EQ_MIN
-        }
-#endif
+        const int32_t timeOut = ( _writing && _repeatQueue.isEmpty( )) ? 
+            Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT ) : -1;
+
         const ConnectionSet::Event event = _connectionSet.select( timeOut );
         switch( event )
         {
@@ -576,15 +570,19 @@ void RSPConnection::_runReadThread()
             ++nTimeOuts;
 #endif
             ++_timeouts;
-            if( _timeouts >= 1000 )
+            if( _timeouts >= 
+                Global::getIAttribute( Global::IATTR_RSP_MAX_TIMEOUTS ))
             {
-                EQERROR << "Error during send, too many timeouts" << std::endl;
-                // unblock write function if all ack 
-                // have been received
+                EQERROR << "Error during send, too many timeouts " << _timeouts
+                        << "/" 
+                        << Global::getIAttribute(Global::IATTR_RSP_MAX_TIMEOUTS)
+                        << std::endl;
+
+                // unblock and terminate write function
                 _repeatQueue.push( RepeatRequest( RepeatRequest::DONE ));
-                
                 while( _writing )
-                    eq::base::sleep( 100 );
+                    eq::base::sleep( 1 );
+
                 _connection = 0;
                 return;
             }
@@ -1323,8 +1321,14 @@ int64_t RSPConnection::_handleRepeat( const uint8_t* data )
                     break;
 
                 case RepeatRequest::NACK:
+                {
                     requests.push_back( request );
+                    const int32_t time = 
+                        Global::getIAttribute( Global::IATTR_RSP_NACK_DELAY );
+                    if( time > 0 )
+                        base::sleep( time );
                     break;
+                }
 
                 default:
                     EQUNIMPLEMENTED;
@@ -1445,10 +1449,10 @@ void RSPConnection::_sendAck( const ID writerID,
         _connection->write( &ack, sizeof( ack ) );
 }
 
-void RSPConnection::_sendNackDatagram ( const ID  toWriterID,
-                                        const IDSequenceType  sequenceID,
-                                        const uint8_t   count,
-                                        const uint32_t* repeatID   )
+void RSPConnection::_sendNackDatagram( const ID  toWriterID,
+                                       const IDSequenceType  sequenceID,
+                                       const uint8_t   count,
+                                       const uint32_t* repeatID   )
 {
 #ifdef EQ_INSTRUMENT_RSP
     ++nNAcksSend;
@@ -1457,13 +1461,11 @@ void RSPConnection::_sendNackDatagram ( const ID  toWriterID,
     if ( toWriterID == _id )
     {
          _addRepeat( repeatID, count );
-         return ;
+         return;
     }
 
     const size_t size = count * sizeof( uint32_t ) + sizeof( DatagramNack );    
     EQASSERT( size <= _mtu );
-
-    _nackBuffer.reserve( size );
 
     // set the header
     DatagramNack* header = 
@@ -1475,10 +1477,8 @@ void RSPConnection::_sendNackDatagram ( const ID  toWriterID,
     header->sequenceID = sequenceID;
     header->count = count;
 
-    ++header;
-
-    memcpy( header, repeatID, size - sizeof( DatagramNack ));
-    _connection->write( _nackBuffer.getData(), size );
+    memcpy( header+1, repeatID, size - sizeof( DatagramNack ));
+    _connection->write( header, size );
 }
 
 void RSPConnection::_sendDatagram( const uint8_t* data,
@@ -1489,8 +1489,8 @@ void RSPConnection::_sendDatagram( const uint8_t* data,
     ++nTotalDatagrams;
 #endif
     const uint32_t posInData = _payloadSize * idDatagram;
-    uint16_t lengthData;
     
+    uint16_t lengthData;
     if ( _lengthDataSend - posInData >= _payloadSize )
         lengthData = _payloadSize;
     else
@@ -1508,18 +1508,16 @@ void RSPConnection::_sendDatagram( const uint8_t* data,
     header->writeSeqID = writeSeqID;
     header->dataIDlength = dataIDlength;
 
-    memcpy( ++header, ptr, lengthData );
+    memcpy( header+1, ptr, lengthData );
 
     // send Data
-    _handleDataDatagram( 
-           reinterpret_cast< DatagramData* >( _sendBuffer.getData( )));
+    _handleDataDatagram( header );
     _connection->waitWritable( _sendBuffer.getSize( ));
-    _connection->write ( _sendBuffer.getData(), _sendBuffer.getSize() );
+    _connection->write ( header, _sendBuffer.getSize() );
 }
 
 void RSPConnection::_sendAckRequest()
 {
-
 #ifdef EQ_INSTRUMENT_RSP
     ++nTotalAckRequests;
 #endif

@@ -44,6 +44,12 @@ std::string Global::_programName;
 std::string Global::_workDir;
 uint16_t    Global::_defaultPort = 0;
 uint32_t    Global::_objectBufferSize = _getObjectBufferSize();
+int32_t     Global::_iAttributes[IATTR_ALL] =
+{
+    10,   // RSP_TIMEOUT
+    1000, // RSP_MAX_TIMEOUTS
+    0     // RSP_NACK_DELAY
+};
 
 
 void Global::setProgramName( const std::string& programName )

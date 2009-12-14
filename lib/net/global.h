@@ -80,11 +80,35 @@ namespace net
         /** @return the minimum buffer size for Object serialization. */
         static uint32_t getObjectBufferSize() { return  _objectBufferSize; }
 
+        /** @name Attributes */
+        //@{
+        // Note: also update string array initialization in global.cpp
+        /** Global integer attributes. */
+        enum IAttribute
+        {
+            IATTR_RSP_ACK_TIMEOUT,       //!< @internal time out for ack req
+            IATTR_RSP_MAX_TIMEOUTS,      //!< @internal timeouts before close
+            IATTR_RSP_NACK_DELAY,        //!< @internal sleep before nack merge
+            IATTR_ALL
+        };
+
+        /** Set an integer attribute. */
+        static void setIAttribute( const IAttribute attr, const int32_t value )
+            { _iAttributes[ attr ] = value; }
+
+        /** @return the value of an integer attribute. */
+        static int32_t getIAttribute( const IAttribute attr )
+            { return _iAttributes[ attr ]; }
+        //@}
+
     private:
         static std::string _programName;
         static std::string _workDir;
         static uint32_t    _objectBufferSize;
         static uint16_t    _defaultPort;
+
+        /** Integer attributes. */
+        static int32_t _iAttributes[IATTR_ALL];
     };
 }
 }

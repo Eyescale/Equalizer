@@ -218,7 +218,7 @@ namespace net
 
         ID _writerID;
         
-        size_t   _timeouts;
+        int32_t  _timeouts;
         bool     _ackReceived;
 
 #ifdef WIN32
@@ -242,7 +242,7 @@ namespace net
         
         // buffer for read from udp Connection
         DataReceive* _recvBuffer;
-        int64_t     _lastSequenceIDAck;
+        int64_t      _lastSequenceIDAck;
 
         // write property part
         uint64_t          _lengthDataSend;

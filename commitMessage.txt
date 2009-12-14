@@ -1,4 +1,4 @@
-RSP cleanup: make internals private
+Make some RSP parameters configurable
 
 [ ] May break build
 [ ] May break existing applications
