@@ -54,6 +54,48 @@ namespace net
         virtual ~RSPConnection();
 
         virtual bool listen();
+        typedef uint16_t ID;
+        typedef uint16_t IDSequenceType;
+        void close();
+        bool connect(){ return listen(); }
+
+        virtual void acceptNB(){ EQASSERT( _state == STATE_LISTENING ); }
+
+        virtual ConnectionPtr acceptSync();
+        void readNB( void* buffer, const uint64_t bytes ){/* NOP */}
+        int64_t readSync( void* buffer, const uint64_t bytes );
+        int64_t write( const void* buffer, const uint64_t bytes );
+
+        int64_t getSendRate() const { return _connection->getSendRate(); }
+        uint32_t getID() const { return _id;}
+        
+#ifdef WIN32
+        /** @sa Connection::getNotifier */
+        virtual Notifier getNotifier() const 
+                   { return _hEvent; }
+#endif
+    
+    private:
+
+        typedef base::RefPtr< UDPConnection > UDPConnectionPtr;
+        typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
+        
+        /* managing RSP protocole directly on the udp connection */
+        class Thread : public eq::base::Thread
+        {
+        public: 
+            Thread( RSPConnectionPtr connection )
+                : _connection( connection ){}
+            virtual ~Thread(){ _connection = 0; }
+            virtual bool init(){ return _connection->_acceptID() && 
+                                        _connection->_initReadThread(); }
+        protected:
+            
+            virtual void* run();
+        private:
+            RSPConnectionPtr _connection;
+        };
+
         enum DatagramType 
         { 
             // exchange datagram during data send
@@ -68,8 +110,6 @@ namespace net
             COUNTNODE  // send to other the number node which I have found
         };
         
-        typedef uint16_t ID;
-        typedef uint16_t IDSequenceType;
         struct DatagramAckRequest
         {
             uint16_t    type;
@@ -153,73 +193,6 @@ namespace net
             uint32_t end;
         };
         
-        void close();
-        bool connect(){ return listen(); }
-
-        virtual void acceptNB(){ EQASSERT( _state == STATE_LISTENING ); }
-
-        virtual ConnectionPtr acceptSync();
-        void readNB( void* buffer, const uint64_t bytes ){/* NOP */}
-        int64_t readSync( void* buffer, const uint64_t bytes );
-        int64_t write( const void* buffer, const uint64_t bytes );
-
-        int64_t getSendRate() const { return _connection->getSendRate(); }
-        uint32_t getID() const { return _id;}
-        
-#ifdef WIN32
-        /** @sa Connection::getNotifier */
-        virtual Notifier getNotifier() const 
-                   { return _hEvent; }
-#endif
-    
-    private:
-
-        typedef base::RefPtr< UDPConnection > UDPConnectionPtr;
-        typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
-        
-        /* managing RSP protocole directly on the udp connection */
-        class Thread : public eq::base::Thread
-        {
-        public: 
-            Thread( RSPConnectionPtr connection )
-                : _connection( connection ){}
-            virtual ~Thread(){ _connection = 0; }
-            virtual bool init(){ return _connection->_acceptID() && 
-                                        _connection->_initReadThread(); }
-        protected:
-            
-            virtual void* run();
-        private:
-            RSPConnectionPtr _connection;
-        };
-
-        ID _buildNewID();
-        
-        int64_t _readSync( DataReceive* receive, 
-                           void* buffer, 
-                           const uint64_t bytes  );
-        bool _acceptID();
-        bool _handleAcceptID();
-        /* using directly by the thread to manage RSP */
-        bool _handleData( );
-        bool _handleDataDatagram( const DatagramData* datagram );
-        bool _handleAck( const DatagramAck* ack );
-        bool _handleNack( const DatagramNack* nack );
-        bool _handleAckRequest( const DatagramAckRequest* ackRequest );
-
-        /** Initialize the reader thread */
-        bool _initReadThread();
-
-        /* Run the reader thread */
-        void _runReadThread();
-        
-        bool _handleInitData();
-        
-        void _initAIOAccept(){ _initAIORead(); }
-        void _exitAIOAccept(){ _exitAIORead(); }
-        void _initAIORead();
-        void _exitAIORead();
-
         // Buffer for one datagram from our UDP connection
         eq::base::Bufferb _readBuffer;
 
@@ -281,6 +254,38 @@ namespace net
         uint8_t _readBufferIndex;
         uint8_t _recvBufferIndex;
         bool _repeatData;
+
+        static const size_t _payloadSize;
+        static const size_t _bufferSize;
+        static const size_t _maxNAck;
+
+        ID _buildNewID();
+        
+        int64_t _readSync( DataReceive* receive, 
+                           void* buffer, 
+                           const uint64_t bytes  );
+        bool _acceptID();
+        bool _handleAcceptID();
+        /* using directly by the thread to manage RSP */
+        bool _handleData( );
+        bool _handleDataDatagram( const DatagramData* datagram );
+        bool _handleAck( const DatagramAck* ack );
+        bool _handleNack( const DatagramNack* nack );
+        bool _handleAckRequest( const DatagramAckRequest* ackRequest );
+
+        /** Initialize the reader thread */
+        bool _initReadThread();
+
+        /* Run the reader thread */
+        void _runReadThread();
+        
+        bool _handleInitData();
+        
+        void _initAIOAccept(){ _initAIORead(); }
+        void _exitAIOAccept(){ _exitAIORead(); }
+        void _initAIORead();
+        void _exitAIORead();
+
         /** find the receiver corresponding to the sequenceID */
         DataReceive* _findReceiverWithSequenceID( 
                                     const IDSequenceType sequenceID ) const;

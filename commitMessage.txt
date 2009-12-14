@@ -1,6 +1,4 @@
-Document eq::Config
-
-Clean up global clock by moving it to eq::server::Server from eq::server::Config
+RSP cleanup: make internals private
 
 [ ] May break build
 [ ] May break existing applications
@@ -8,4 +6,4 @@ Clean up global clock by moving it to eq::server::Server from eq::server::Config
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

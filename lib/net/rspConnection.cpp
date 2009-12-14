@@ -42,16 +42,17 @@ namespace eq
 namespace net
 {
 
-namespace
-{
 static const size_t _mtu = UDPConnection::getMTU();
 static const size_t _ackFreq = UDPConnection::getPacketRate();
-static const size_t _payloadSize = _mtu - sizeof( RSPConnection::DatagramData );
-static const size_t _bufferSize = _payloadSize * _ackFreq;
+const size_t RSPConnection::_payloadSize =
+    _mtu - sizeof( RSPConnection::DatagramData );
+const size_t RSPConnection::_bufferSize = _payloadSize * _ackFreq;
 static const size_t _nBuffers = 4;
-static const size_t _maxNAck = _mtu - sizeof( RSPConnection::DatagramNack ) / 
-                                   sizeof( uint32_t );
+const size_t RSPConnection::_maxNAck =
+    _mtu - sizeof( RSPConnection::DatagramNack ) / sizeof( uint32_t );
 
+namespace
+{
 #ifdef EQ_INSTRUMENT_RSP
 base::a_int32_t nReadDataAccepted;
 base::a_int32_t nReadData;
