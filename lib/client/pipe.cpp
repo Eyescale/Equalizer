@@ -707,15 +707,16 @@ net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
         
         if( candidate == window )
             continue; // ignore
-        if( !newSharedWindow && candidate->getSharedContextWindow() == window )
+
+        if( candidate->getSharedContextWindow() == window )
         {
-            newSharedWindow = candidate;
-            newSharedWindow->setSharedContextWindow( 0 );
-        }
-        else if( newSharedWindow && 
-                 candidate->getSharedContextWindow() == window )
-        {
-            candidate->setSharedContextWindow( newSharedWindow );
+            if( newSharedWindow )
+                candidate->setSharedContextWindow( newSharedWindow );
+            else
+            {
+                newSharedWindow = candidate;
+                newSharedWindow->setSharedContextWindow( candidate );
+            }
         }
 
         EQASSERT( candidate->getSharedContextWindow() != window );

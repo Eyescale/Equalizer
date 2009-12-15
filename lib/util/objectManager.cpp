@@ -43,10 +43,11 @@ ObjectManager< T >::ObjectManager( GLEWContext* const glewContext )
 
 template< typename T >
 ObjectManager< T >::ObjectManager( GLEWContext* const glewContext, 
-                              ObjectManager* shared )
+                                   ObjectManager* shared )
         : _glewContext( glewContext )
         , _data( shared->_data )
 {
+    EQASSERT( shared );
     EQASSERT( glewContext );
 }
 

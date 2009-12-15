@@ -97,7 +97,9 @@ Window::Window( Pipe* parent )
         , _lastSwapTime( 0 )
 {
     const WindowVector& windows = parent->getWindows();
-    if( !windows.empty( ))
+    if( windows.empty( ))
+        setSharedContextWindow( this );
+    else
         setSharedContextWindow( windows.front( ));
 
     parent->_addWindow( this );
