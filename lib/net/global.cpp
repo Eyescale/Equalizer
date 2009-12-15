@@ -48,7 +48,11 @@ int32_t     Global::_iAttributes[IATTR_ALL] =
 {
     10,   // RSP_TIMEOUT
     1000, // RSP_MAX_TIMEOUTS
-    0     // RSP_NACK_DELAY
+    0,    // RSP_NACK_DELAY
+    5,    // RSP_ERROR_BASE_RATE
+    5,    // RSP_ERROR_DOWNSCALE
+    5,    // RSP_ERROR_UPSCALE
+    20,   // RSP_ERROR_MAX
 };
 
 

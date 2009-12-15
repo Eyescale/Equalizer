@@ -1415,22 +1415,28 @@ int64_t RSPConnection::_handleRepeat( const uint8_t* data )
 
 void RSPConnection::_adaptSendRate( const uint64_t errors )
 {
-    const float error = ( 100.0 / 
-                  static_cast< float >( _nDatagrams )*
-                              static_cast< float >( errors ));
+    const float error = ( static_cast< float >( errors ) /
+                          static_cast< float >( _nDatagrams ) * 100.f ) - 
+        Global::getIAttribute( Global::IATTR_RSP_ERROR_BASE_RATE );
 
-    if ( error <= 1.0f )
-        _connection->adaptSendRate( 10 );
-    else if ( error <= 2.0f )
-        _connection->adaptSendRate( 1 );
-    else if ( error <= 3.0f )
-        _connection->adaptSendRate( -1 );
-    else if ( error <= 5.0f )
-        _connection->adaptSendRate( -5 ); 
-    else if ( error <= 20.0f )
-        _connection->adaptSendRate( -10 );
+    if ( error < 0.f )
+    {
+        float delta = error *
+                      Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE );
+        delta = EQ_MIN( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAX ),
+                        delta );
+
+        _connection->adaptSendRate( -delta );
+    }
     else
-        _connection->adaptSendRate( -20 );
+    {
+        float delta = error /
+                     Global::getIAttribute( Global::IATTR_RSP_ERROR_DOWNSCALE );
+        delta = EQ_MIN( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAX ),
+                        delta );
+
+        _connection->adaptSendRate( -delta );
+    }
 }
 
 void RSPConnection::_sendDatagramCountNode()
@@ -1444,7 +1450,7 @@ void RSPConnection::_sendDatagramCountNode()
 }
 
 void RSPConnection::_sendAck( const ID writerID,
-                              const IDSequenceType sequenceID)
+                              const IDSequenceType sequenceID )
 {
 #ifdef EQ_INSTRUMENT_RSP
     ++nAcksSendTotal;

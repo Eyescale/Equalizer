@@ -89,6 +89,10 @@ namespace net
             IATTR_RSP_ACK_TIMEOUT,       //!< @internal time out for ack req
             IATTR_RSP_MAX_TIMEOUTS,      //!< @internal timeouts before close
             IATTR_RSP_NACK_DELAY,        //!< @internal sleep before nack merge
+            IATTR_RSP_ERROR_BASE_RATE,   //!< @internal normal error percentage
+            IATTR_RSP_ERROR_DOWNSCALE,   //!< @internal send rate down scale (/)
+            IATTR_RSP_ERROR_UPSCALE,     //!< @internal send rate up scale (*)
+            IATTR_RSP_ERROR_MAX,         //!< @internal max delta for send rate
             IATTR_ALL
         };
 

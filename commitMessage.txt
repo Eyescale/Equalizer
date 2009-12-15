@@ -1,9 +1,9 @@
-Fix posix build
+Make RSP send rate adaptation configurable
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
