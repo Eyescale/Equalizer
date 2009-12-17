@@ -53,7 +53,7 @@ uint32_t    Global::_objectBufferSize = _getObjectBufferSize();
 int32_t     Global::_iAttributes[IATTR_ALL] =
 {
     5,    // RSP_TIMEOUT
-    std::numeric_limits< int32_t >::max(), // RSP_MAX_TIMEOUTS
+    2000, // RSP_MAX_TIMEOUTS
     1,    // RSP_NACK_DELAY
     5,    // RSP_ERROR_BASE_RATE
     5,    // RSP_ERROR_DOWNSCALE

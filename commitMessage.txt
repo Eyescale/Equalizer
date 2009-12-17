@@ -1,14 +1,9 @@
-RSP improvements:
-- Make UDP packet size and rate configurable
-- Fix a race condition where the an ack was marked wrongly as received
-- Fix a deadlock due to full local notification connection (posix)
-- Remove unneeded locking 
-- Clean up data type usage
+Fix accidentally-checked in RSP debug setting
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[x] New Feature
+[ ] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
