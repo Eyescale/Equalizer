@@ -1405,8 +1405,8 @@ void RSPConnection::_adaptSendRate( const uint64_t errors )
 
     if ( error < 0.f )
     {
-        float delta = error *
-                      Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE );
+        int32_t delta = static_cast< int32_t >( error *
+                      Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE ));
         delta = EQ_MIN( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAX ),
                         delta );
 
@@ -1417,8 +1417,8 @@ void RSPConnection::_adaptSendRate( const uint64_t errors )
     }
     else
     {
-        float delta = error /
-                     Global::getIAttribute( Global::IATTR_RSP_ERROR_DOWNSCALE );
+        int32_t delta = static_cast< int32_t >( error /
+                    Global::getIAttribute( Global::IATTR_RSP_ERROR_DOWNSCALE ));
         delta = EQ_MIN( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAX ),
                         delta );
 
