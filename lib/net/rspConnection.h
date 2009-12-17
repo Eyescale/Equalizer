@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                     Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -55,7 +56,6 @@ namespace net
 
         virtual bool listen();
         typedef uint16_t ID;
-        typedef uint16_t IDSequenceType;
         void close();
         bool connect(){ return listen(); }
 
@@ -114,8 +114,8 @@ namespace net
         {
             uint16_t    type;
             ID   writerID;
-            uint16_t           lastDatagramID;
-            IDSequenceType     sequenceID;
+            uint16_t lastDatagramID;
+            uint16_t sequenceID;
         };
         
         struct DatagramNode
@@ -136,7 +136,7 @@ namespace net
             uint16_t       type;
             ID             readerID;    // ID of the connection reader
             ID             writerID;    // ID of the connection writer
-            IDSequenceType sequenceID;  // last datagram in write sequence
+            uint16_t       sequenceID;  // last datagram in write sequence
             uint16_t       count; // number of NACK requests
         };
 
@@ -145,7 +145,7 @@ namespace net
             uint16_t        type;
             ID              readerID;
             ID              writerID;
-            IDSequenceType  sequenceID;
+            uint16_t        sequenceID;
         };
 
         struct DatagramData
@@ -155,14 +155,14 @@ namespace net
             uint32_t    dataIDlength;
         };
         
-        struct DataReceive
+        struct InBuffer
         {
-            DataReceive(){ reset(); }
+            InBuffer() { reset(); }
             void reset();
             uint32_t    sequenceID;
             eq::base::Monitor< bool >  ackSend;
             eq::base::Monitor< bool >  allRead;
-            uint64_t    posRead;
+            uint64_t    readPos;
             base::Bufferb got;
             base::Bufferb data;
         };
@@ -201,9 +201,6 @@ namespace net
         // a link for all connection in the multicast network 
         std::vector< RSPConnectionPtr > _children;
 
-        // The buffer used by the read function in udp socket 
-        std::vector< DataReceive* > _buffer;
-        
         // number connection accepted by server RSP 
         base::a_int32_t _countAcceptChildren;
         
@@ -219,7 +216,7 @@ namespace net
         ID _writerID;
         
         int32_t  _timeouts;
-        bool     _ackReceived;
+        uint16_t _ackReceived; // sequence ID of last received ack for child
 
 #ifdef WIN32
         HANDLE _hEvent;
@@ -237,31 +234,28 @@ namespace net
         UDPConnectionPtr _connection;
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
-        base::Lock       _mutexHandleAckRequ;
         RSPConnectionPtr _parent;
+        int64_t    _lastSequenceIDAck;
         
-        // buffer for read from udp Connection
-        DataReceive* _recvBuffer;
-        int64_t      _lastSequenceIDAck;
+        // Current read buffer
+        std::vector< InBuffer* > _inBuffers;
+        
+        InBuffer*  _recvBuffer;
+        size_t     _recvBufferIndex; //!< current partial recv thread buffer
+
+        size_t _readBufferIndex; //!< current filled app read buffer
 
         // write property part
-        uint64_t          _lengthDataSend;
-        uint32_t          _nDatagrams;
-        IDSequenceType    _sequenceIDWrite;
+        uint32_t _nDatagrams;
+        uint16_t _sequenceID;
 
-        // we add 1 each read or write operation
-        uint8_t _readBufferIndex;
-        uint8_t _recvBufferIndex;
-        bool _repeatData;
-
-        static const size_t _payloadSize;
-        static const size_t _bufferSize;
-        static const size_t _maxNAck;
+        static uint32_t _payloadSize;
+        static size_t   _bufferSize;
+        static uint32_t _maxNAck;
 
         ID _buildNewID();
         
-        int64_t _readSync( DataReceive* receive, 
-                           void* buffer, 
+        int64_t _readSync( InBuffer* readBuffer, void* buffer, 
                            const uint64_t bytes  );
         bool _acceptID();
         bool _handleAcceptID();
@@ -286,16 +280,15 @@ namespace net
         void _exitAIORead();
 
         /** find the receiver corresponding to the sequenceID */
-        DataReceive* _findReceiverWithSequenceID( 
-                                    const IDSequenceType sequenceID ) const;
+        InBuffer* _findReceiverWithSequenceID(const uint16_t sequenceID )
+            const;
         
         /** find the connection corresponding to the writeID */
         RSPConnectionPtr _findConnectionWithWriterID( 
                                     const ID writerID );
         /** determine if the sequenceID and writerID correspond to 
             the current sequence which will being write*/
-        bool _isCurrentSequenceWrite( const IDSequenceType sequenceID, 
-                                      const ID writer );
+        bool _isCurrentSequence( const uint16_t sequenceID, const ID writer );
         
         /** Analyze the current error and adapt the send rate */
         void _adaptSendRate( const uint64_t errors );
@@ -303,32 +296,33 @@ namespace net
         /** format and send a datagram count node */
         void _sendDatagramCountNode();
 
-        int64_t _handleRepeat( const uint8_t* data );
+        int64_t _handleRepeat( const uint8_t* data, const uint64_t size );
         void _addRepeat( const uint32_t* repeatIDs, uint32_t size );
 
         /** format and send a data packet*/
-        void _sendDatagram( const uint8_t* data, const uint32_t writSeqID,
-            const IDSequenceType datagramID );
+        void _sendDatagram( const uint8_t* data, const uint64_t size,
+                            const uint32_t writSeqID, 
+                            const uint16_t datagramID );
 
         /** format and send an ack request*/
         void _sendAckRequest( );
 
         /** format and send a positive ack */
-        void _sendAck( const ID writerID,
-                       const IDSequenceType sequenceID);
+        void _sendAck( const ID writerID, const uint16_t sequenceID );
         
         /** format and send a negative ack*/ 
-        void _sendNackDatagram ( const ID  toWriterID,
-                                 const IDSequenceType  sequenceID,
-                                 const uint8_t   countNack,
-                                 const uint32_t* repeatID   );
+        void _sendNack( const ID  toWriterID, const uint16_t  sequenceID,
+                        const uint8_t countNack, const uint32_t* repeatID   );
         
         void _checkNewID( const ID id );
 
-        /* add a new connection detected in the network multicast */
+        /* add a new connection detected in the multicast network */
         bool _addNewConnection( const ID id );
-
         bool _acceptRemoveConnection( const ID id );
+
+        void _setEvent();
+        void _resetEvent();
+
         CHECK_THREAD_DECLARE( _recvThread );
  
     };

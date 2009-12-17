@@ -1,9 +1,14 @@
-Make RSP send rate adaptation configurable
+RSP improvements:
+- Make UDP packet size and rate configurable
+- Fix a race condition where the an ack was marked wrongly as received
+- Fix a deadlock due to full local notification connection (posix)
+- Remove unneeded locking 
+- Clean up data type usage
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [x] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

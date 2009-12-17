@@ -18,9 +18,11 @@
 #include "udpConnection.h"
 
 #include "connectionDescription.h"
+#include "global.h"
+#include "log.h"
 
-#include <eq/net/log.h>
 #include <eq/base/sleep.h>
+
 #include <limits>
 #include <sstream>
 #include <string.h>
@@ -45,19 +47,9 @@ namespace net
 {
 namespace
 {
-#ifdef WIN32
-//#  define BIG_SEND
-#endif
-
-#ifdef BIG_SEND
-    static const size_t _mtu = 65000 ;
-    static const size_t _packetRate = 16;
-#else
-    static const size_t _mtu = 1470 ;
-    static const size_t _packetRate = 128;
-#endif
-
-    static const size_t _maxAllowedData = _mtu * _packetRate;
+static int32_t _mtu = -1;
+static int32_t _packetRate = -1;
+static uint64_t _maxBucketSize = -1;
 }
 
 UDPConnection::UDPConnection()
@@ -69,7 +61,20 @@ UDPConnection::UDPConnection()
     _description->type = CONNECTIONTYPE_UDP;
     _description->bandwidth = 102400;
     _sendRate = _description->bandwidth;
-    _clock.reset();
+    
+    if( _mtu == -1 )
+    {
+        _mtu = Global::getIAttribute( Global::IATTR_UDP_MTU );
+        _packetRate = Global::getIAttribute( Global::IATTR_UDP_PACKET_RATE );
+        _maxBucketSize = (_mtu * _packetRate) >> 1;
+    }
+    else
+    {
+        EQASSERT( _mtu == Global::getIAttribute( Global::IATTR_UDP_MTU ));
+        EQASSERT( _packetRate ==
+                  Global::getIAttribute( Global::IATTR_UDP_PACKET_RATE ));
+    }
+
     EQVERB << "New UDPConnection @" << (void*)this << std::endl;
 }
 
@@ -220,8 +225,8 @@ void UDPConnection::close()
     _fireStateChanged();
 }
 
-size_t UDPConnection::getMTU(){ return _mtu; }
-size_t UDPConnection::getPacketRate(){ return _packetRate; }
+int32_t UDPConnection::getMTU(){ return _mtu; }
+int32_t UDPConnection::getPacketRate(){ return _packetRate; }
 
 bool UDPConnection::_setSendInterface()
 {
@@ -362,7 +367,7 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
         return -1;
     }
 
-    if( _overlappedDone == EQ_MIN( _mtu, bytes ))
+    if( _overlappedDone > 0 )
         return _overlappedDone;
 
     DWORD got   = 0;
@@ -391,7 +396,7 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
     if( _readFD < 1 )
         return -1;
 
-    const size_t use = EQ_MIN( _mtu, bytes );
+    const size_t use = EQ_MIN( static_cast< size_t >( _mtu ), bytes );
     socklen_t size = sizeof( _readAddress );
     const ssize_t bytesRead = ::recvfrom( _readFD, buffer, use, 0,
                                           (sockaddr*)&_readAddress, &size );
@@ -420,27 +425,27 @@ void UDPConnection::waitWritable( const uint64_t bytes )
 {
     CHECK_THREAD_SCOPED( _sendThread );
 
-    _allowedData += static_cast< int64_t >( _clock.getTimef() * _sendRate );
+    _allowedData += static_cast< uint64_t >( _clock.getTimef() * _sendRate );
                                                          // opt: * 1024 / 1000;
-    _allowedData = EQ_MIN( _allowedData, _maxAllowedData );
+    _allowedData = EQ_MIN( _allowedData, _maxBucketSize );
     _clock.reset();
 
-    const uint64_t sizeToSend = EQ_MIN( bytes, _mtu );
-    while( _allowedData < sizeToSend )
+    const uint64_t size = EQ_MIN( bytes, static_cast< uint64_t >( _mtu ));
+    while( _allowedData < size )
     {
         eq::base::sleep( 1 );
         _allowedData += static_cast< int64_t >( _clock.getTimef() * _sendRate );
-        _allowedData = EQ_MIN( _allowedData, _maxAllowedData );
+        _allowedData = EQ_MIN( _allowedData, _maxBucketSize );
         _clock.reset();
     }
-    _allowedData -= sizeToSend;
+    _allowedData -= size;
 }
 
 int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
 {
     if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
-    EQASSERT( bytes <= _mtu );
+    EQASSERT( bytes <= static_cast< uint64_t >( _mtu ));
 
 #ifdef WIN32
     DWORD  wrote;

@@ -63,8 +63,8 @@ namespace net
         virtual int64_t readSync( void* buffer, const uint64_t bytes );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
-        static size_t getMTU();
-        static size_t getPacketRate();
+        int32_t getMTU();
+        int32_t getPacketRate();
 
         void waitWritable( const uint64_t bytes );
         void adaptSendRate( int32_t percent );
@@ -116,7 +116,7 @@ namespace net
                                                     A& address );
 
         eq::base::Clock _clock;
-        uint64_t _allowedData;
+        size_t _allowedData;
 
 #ifdef WIN32
         // overlapped data structures

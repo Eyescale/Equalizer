@@ -40,19 +40,30 @@ static uint32_t _getObjectBufferSize()
 }
 
 
+#ifdef WIN32
+#  define BIG_SEND
+#endif
+
 std::string Global::_programName;
 std::string Global::_workDir;
 uint16_t    Global::_defaultPort = 0;
 uint32_t    Global::_objectBufferSize = _getObjectBufferSize();
 int32_t     Global::_iAttributes[IATTR_ALL] =
 {
-    10,   // RSP_TIMEOUT
-    1000, // RSP_MAX_TIMEOUTS
-    0,    // RSP_NACK_DELAY
+    5,    // RSP_TIMEOUT
+    std::numeric_limits< int32_t >::max(), // RSP_MAX_TIMEOUTS
+    1,    // RSP_NACK_DELAY
     5,    // RSP_ERROR_BASE_RATE
     5,    // RSP_ERROR_DOWNSCALE
     5,    // RSP_ERROR_UPSCALE
     20,   // RSP_ERROR_MAX
+#ifdef BIG_SEND
+    65000, // UDP_MTU
+    16,    // UDP_PACKET_RATE
+#else
+    1470,  // UDP_MTU
+    128,   // UDP_PACKET_RATE
+#endif
 };
 
 
