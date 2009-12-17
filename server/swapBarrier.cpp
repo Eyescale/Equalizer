@@ -41,7 +41,7 @@ ostream& operator << ( ostream& os, const SwapBarrier* swapBarrier )
     }
     else
     {
-        os << disableFlush << "swapBarrier { name \"" 
+        os << disableFlush << "swapbarrier { name \"" 
            << swapBarrier->getName() << "\" }" << enableFlush << endl;
     }
 
