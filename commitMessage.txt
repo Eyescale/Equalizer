@@ -1,4 +1,4 @@
-RSP: remove redundant _writerID
+RSP: improve logging
 
 [ ] May break build
 [ ] May break existing applications

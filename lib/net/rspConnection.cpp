@@ -403,6 +403,7 @@ bool RSPConnection::_acceptID()
     _connection->readNB( _readBuffer.getData(), _mtu );
 
     // send a first datagram for announce me and discover other connection 
+    EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
     const DatagramNode newnode ={ ID_HELLO, _id };
     _connection->write( &newnode, sizeof( DatagramNode ) );
     _timeouts = 0;
@@ -414,11 +415,13 @@ bool RSPConnection::_acceptID()
                 ++_timeouts;
                 if ( _timeouts < 10 )
                 {
-                   const DatagramNode ackNode ={ ID_HELLO, _id };
-                   _connection->write( &ackNode, sizeof( DatagramNode ) );
+                    EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
+                    const DatagramNode ackNode ={ ID_HELLO, _id };
+                    _connection->write( &ackNode, sizeof( DatagramNode ) );
                 }
                 else 
                 {
+                    EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
                     const DatagramNode confirmNode ={ ID_CONFIRM, _id };
                     _connection->write( &confirmNode, sizeof( DatagramNode ) );
                     _addNewConnection( _id );
@@ -469,6 +472,7 @@ bool RSPConnection::_handleAcceptID()
         {
             _timeouts = 0;
             const DatagramNode newnode = { ID_HELLO, _buildNewID() };
+            EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
             _connection->write( &newnode, sizeof( DatagramNode ));
         }
         return true;
@@ -1124,6 +1128,7 @@ void RSPConnection::_checkNewID( ID id )
 {
     if ( id == _id )
     {
+        EQLOG( LOG_RSP ) << "Deny " << id << std::endl;
         DatagramNode nodeSend = { ID_DENY, _id };
         _connection->write( &nodeSend, sizeof( DatagramNode ) );
         return;
@@ -1133,6 +1138,7 @@ void RSPConnection::_checkNewID( ID id )
     RSPConnectionPtr child = _findConnectionWithWriterID( id );
     if ( child.isValid() )
     {
+        EQLOG( LOG_RSP ) << "Deny " << id << std::endl;
         DatagramNode nodeSend = { ID_DENY, id };
         _connection->write( &nodeSend, sizeof( DatagramNode ) );
     }
