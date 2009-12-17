@@ -1,4 +1,4 @@
-Fix accidentally-checked in RSP debug setting
+RSP: remove redundant _writerID
 
 [ ] May break build
 [ ] May break existing applications

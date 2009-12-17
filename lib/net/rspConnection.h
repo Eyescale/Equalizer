@@ -212,8 +212,6 @@ namespace net
         eq::base::RNG         _rng;
         ID _id; //!< The identifier used to demultiplex multipe writers
         uint32_t _shiftedID; //!< Shifted _id for easier packaging
-
-        ID _writerID;
         
         int32_t  _timeouts;
         uint16_t _ackReceived; // sequence ID of last received ack for child
