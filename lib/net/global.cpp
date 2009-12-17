@@ -17,6 +17,8 @@
 
 #include "global.h"
 
+#include <limits>
+
 namespace eq
 {
 namespace net
