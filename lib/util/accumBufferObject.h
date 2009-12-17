@@ -50,7 +50,7 @@ namespace util
          * @return true on success, false otherwise
          * @sa Window::getColorFormat(), glReadBuffer()
          */
-        EQ_EXPORT bool init( const int width, const int height,
+        EQ_EXPORT bool init( const PixelViewport& pvp,
                              GLuint format );
 
         /** De-initialize the Accumulation Buffer Object. */
@@ -92,9 +92,10 @@ namespace util
          * @param texture a texture object.
          * @param value the brightness factor of the result.
          */
-        void _drawQuadWithTexture( Texture* texture, GLfloat value );
+        void _drawQuadWithTexture( Texture* texture, const PixelViewport& pvp, GLfloat value );
 
         Texture* _texture;
+        PixelViewport _pvp;
     };
 }
 }

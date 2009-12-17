@@ -1124,8 +1124,8 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp )
 
     if( pvp.hasArea( ))
     {
-        glViewport( 0, 0, pvp.w, pvp.h );
-        glScissor( 0, 0, pvp.w, pvp.h );
+        glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
+        glScissor( pvp.x, pvp.y, pvp.w, pvp.h );
     }
     else
         EQERROR << "Can't apply viewport " << pvp << std::endl;
@@ -1134,7 +1134,7 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp )
     glPushMatrix();
     glLoadIdentity();
     if( pvp.hasArea( ))
-        glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
+        glOrtho( pvp.x, pvp.x + pvp.w, pvp.y, pvp.y + pvp.h, -1.0f, 1.0f );
 
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();

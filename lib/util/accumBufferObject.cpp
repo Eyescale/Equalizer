@@ -26,6 +26,7 @@ namespace util
 AccumBufferObject::AccumBufferObject( GLEWContext* glewContext )
     : FrameBufferObject( glewContext )
     , _texture( 0 )
+    , _pvp( 0, 0, 0, 0 )
 {
 }
 
@@ -34,14 +35,15 @@ AccumBufferObject::~AccumBufferObject()
     exit();
 }
 
-bool AccumBufferObject::init( const int width, const int height,
+bool AccumBufferObject::init( const PixelViewport& pvp,
                               GLuint textureFormat )
 {
     _texture = new Texture( glewGetContext( ));
     _texture->setFormat( textureFormat );
+    _pvp = pvp;
 
     setColorFormat( GL_RGBA32F );
-    if( FrameBufferObject::init( width, height, 0, 0 ))
+    if( FrameBufferObject::init( pvp.w, pvp.h, 0, 0 ))
         return true;
 
     exit();
@@ -61,13 +63,13 @@ void AccumBufferObject::exit()
 
 void AccumBufferObject::load( GLfloat value )
 {
-    _texture->copyFromFrameBuffer( getPixelViewport( ));
+    _texture->copyFromFrameBuffer( _pvp );
 
     bind();
     glEnable( GL_BLEND );
 
     glClear(GL_COLOR_BUFFER_BIT);
-    _drawQuadWithTexture( _texture, value );
+    _drawQuadWithTexture( _texture, getPixelViewport(), value );
 
     glDisable( GL_BLEND );
     unbind();
@@ -75,13 +77,13 @@ void AccumBufferObject::load( GLfloat value )
 
 void AccumBufferObject::accum( GLfloat value )
 {
-    _texture->copyFromFrameBuffer( getPixelViewport( ));
+    _texture->copyFromFrameBuffer( _pvp );
 
     bind();
     glEnable( GL_BLEND );
     glBlendFunc( GL_ONE, GL_ONE );
 
-    _drawQuadWithTexture( _texture, value );
+    _drawQuadWithTexture( _texture, getPixelViewport(), value );
 
     glBlendFunc( GL_ONE, GL_ZERO );
     glDisable( GL_BLEND );
@@ -90,10 +92,12 @@ void AccumBufferObject::accum( GLfloat value )
 
 void AccumBufferObject::display( GLfloat value )
 {
-    _drawQuadWithTexture( getColorTextures()[0], value );
+    _drawQuadWithTexture( getColorTextures()[0], _pvp, value );
 }
 
-void AccumBufferObject::_drawQuadWithTexture( Texture* texture, GLfloat value )
+void AccumBufferObject::_drawQuadWithTexture( Texture* texture, 
+                                              const PixelViewport& pvp, 
+                                              GLfloat value )
 {
     texture->bind();
 
@@ -110,8 +114,6 @@ void AccumBufferObject::_drawQuadWithTexture( Texture* texture, GLfloat value )
                      GL_NEAREST );
 
     glColor3f( value, value, value );
-
-    PixelViewport pvp = getPixelViewport();
 
     const float startX = static_cast< const float >( pvp.x );
     const float endX   = static_cast< const float >( pvp.x + pvp.w );

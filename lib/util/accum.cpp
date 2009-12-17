@@ -45,7 +45,7 @@ bool Accum::init( const PixelViewport& pvp, GLuint textureFormat )
     if( usesFBO( ))
     {
         _abo = new AccumBufferObject( _glewContext );
-        if( !_abo->init( pvp.w, pvp.h, textureFormat ))
+        if( !_abo->init( pvp, textureFormat ))
         {
             delete _abo;
             _abo = 0;
@@ -54,7 +54,7 @@ bool Accum::init( const PixelViewport& pvp, GLuint textureFormat )
     }
 
     if( _totalSteps == 0 )
-       _totalSteps = getMaxSteps();
+        _totalSteps = getMaxSteps();
 
     _width = pvp.w;
     _height = pvp.h;

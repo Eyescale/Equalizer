@@ -102,14 +102,14 @@ bool Channel::configExit()
 
 void Channel::frameClear( const uint32_t frameID )
 {
-    if( _isDone( ))
-        return;
+    const FrameData& frameData = _getFrameData();
+    if( _isDone() && frameData.isIdle() && !_needsTransfer )
+      return;
 
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
 
     const eq::View*  view      = getView();
-    const FrameData& frameData = _getFrameData();
     if( view && frameData.getCurrentViewID() == view->getID( ))
         glClearColor( .4f, .4f, .4f, 1.0f );
 #ifndef NDEBUG
@@ -231,7 +231,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
-	eq::Compositor::assembleFrames( getInputFrames(), this, _accum );
+    eq::Compositor::assembleFrames( getInputFrames(), this, _accum );
 
     EQ_GL_CALL( resetAssemblyState( ));
 }
@@ -286,7 +286,7 @@ void Channel::frameFinish( const uint32_t frameID,
         else
             _jitterStep -= _subpixelStep;
     }
-
+    
     ConfigEvent event;
     event.data.type = ConfigEvent::IDLE_AA;
     event.jitter = _jitterStep;
@@ -315,11 +315,11 @@ void Channel::frameViewFinish( const uint32_t frameID )
             _jitterStep = _totalSteps;
             _subpixelStep = 0;
         }
-        else if( frameData.isIdle() && _needsTransfer )
+        else if( frameData.isIdle( ))
         {
             setupAssemblyState();
 
-            if( !_isDone( ))
+            if( !_isDone() && _needsTransfer )
                 _accum->accum();
             _accum->display();
 

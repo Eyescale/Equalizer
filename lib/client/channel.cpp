@@ -451,8 +451,16 @@ void Channel::setupAssemblyState()
 {
     EQASSERT( _window );
     // copy to be thread-safe when pvp changes
-    const PixelViewport pvp(
-        _fbo ? _fbo->getPixelViewport() : _window->getPixelViewport( ));
+    PixelViewport pvp(
+      _fbo ? _fbo->getPixelViewport() : _window->getPixelViewport( ));
+    
+    pvp.x = 0;
+    pvp.y = 0;
+
+    //TODO: temporary workaround
+    if( !( GLEW_EXT_framebuffer_object &&
+	 ( GLEW_VERSION_3_0 || GLEW_ARB_texture_float )))
+	 pvp = getPixelViewport();
 
     Compositor::setupAssemblyState( pvp );
 }
