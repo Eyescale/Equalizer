@@ -590,7 +590,6 @@ void* RSPConnection::Thread::run()
 void RSPConnection::_runReadThread()
 {
     EQINFO << "Started RSP read thread" << std::endl;
-    EQINFO << "Started RSP read thread" << std::endl;
     while ( _state != STATE_CLOSED )
     {
         const int32_t timeOut = ( _writing && _repeatQueue.isEmpty( )) ? 

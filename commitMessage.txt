@@ -1,4 +1,4 @@
-RSP: improve logging
+Minor cleanup
 
 [ ] May break build
 [ ] May break existing applications
