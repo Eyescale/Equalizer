@@ -52,6 +52,7 @@ uint16_t    Global::_defaultPort = 0;
 uint32_t    Global::_objectBufferSize = _getObjectBufferSize();
 int32_t     Global::_iAttributes[IATTR_ALL] =
 {
+    100,  // INSTANCE_CACHE_SIZE
     5,    // RSP_TIMEOUT
     2000, // RSP_MAX_TIMEOUTS
     1,    // RSP_NACK_DELAY

@@ -21,6 +21,7 @@
 #include "command.h"
 #include "connection.h"
 #include "connectionDescription.h"
+#include "global.h"
 #include "log.h"
 #include "objectCM.h"
 #include "objectInstanceDataIStream.h"
@@ -47,6 +48,8 @@ Session::Session()
         , _isMaster(false)
         , _idPool( 0 ) // Master pool is filled in Node::registerSession
         , _instanceIDs( std::numeric_limits< long >::min( )) 
+        , _instanceCache( Global::getIAttribute( 
+                              Global::IATTR_INSTANCE_CACHE_SIZE ) * EQ_1MB )
 {
     EQINFO << "New Session @" << (void*)this << std::endl;
 }

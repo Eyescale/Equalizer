@@ -86,6 +86,7 @@ namespace net
         /** Global integer attributes. */
         enum IAttribute
         {
+            IATTR_INSTANCE_CACHE_SIZE,   //!< @internal max size in MB 
             IATTR_RSP_ACK_TIMEOUT,       //!< @internal time out for ack req
             IATTR_RSP_MAX_TIMEOUTS,      //!< @internal timeouts before close
             IATTR_RSP_NACK_DELAY,        //!< @internal sleep before nack merge

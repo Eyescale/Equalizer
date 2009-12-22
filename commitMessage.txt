@@ -1,4 +1,4 @@
-Instrument data transmission mc caching.
+Make instance data cache size configurable
 
 [ ] May break build
 [ ] May break existing applications
