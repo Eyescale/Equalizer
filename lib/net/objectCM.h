@@ -21,6 +21,11 @@
 #include <eq/net/dispatcher.h>   // base class
 #include <eq/net/types.h>
 
+#define EQ_INSTRUMENT_MULTICAST
+#ifdef EQ_INSTRUMENT_MULTICAST
+#  include <eq/base/atomic.h>
+#endif
+
 namespace eq
 {
 namespace net
@@ -149,6 +154,12 @@ namespace net
 
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
+
+    protected:
+#ifdef EQ_INSTRUMENT_MULTICAST
+        static base::a_int32_t _hit;
+        static base::a_int32_t _miss;
+#endif        
     };
 }
 }

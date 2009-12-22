@@ -171,11 +171,17 @@ uint32_t FullMasterCM::addSlave( Command& command )
         if( packet->minCachedVersion <= start && 
             packet->maxCachedVersion >= start )
         {
+#ifdef EQ_INSTRUMENT_MULTICAST
+            _hit += packet->maxCachedVersion - start;
+#endif
             start = packet->maxCachedVersion + 1;
         }
         else if( packet->maxCachedVersion == end )
         {
             end = EQ_MAX( start, packet->minCachedVersion - 1 );
+#ifdef EQ_INSTRUMENT_MULTICAST
+            _hit += _version - end;
+#endif
         }
         // TODO else cached block in the middle, send head and tail elements
     }
@@ -202,8 +208,16 @@ uint32_t FullMasterCM::addSlave( Command& command )
         data->os.setInstanceID( instanceID );
         data->os.setNodeID( node->getNodeID( ));
         data->os.resend( node );
+#ifdef EQ_INSTRUMENT_MULTICAST
+        ++_miss;
+#endif
     }
 
+#ifdef EQ_INSTRUMENT_MULTICAST
+    if( _miss % 100 == 0 )
+        EQINFO << "Cached " << _hit << "/" << _hit + _miss
+               << " instance data transmissions" << std::endl;
+#endif
     return result;
 }
 

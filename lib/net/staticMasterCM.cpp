@@ -56,6 +56,9 @@ uint32_t StaticMasterCM::addSlave( Command& command )
         packet->minCachedVersion == VERSION_NONE && 
         packet->maxCachedVersion == VERSION_NONE )
     {
+#ifdef EQ_INSTRUMENT_MULTICAST
+        ++_hit;
+#endif
         return VERSION_NONE;
     }
 
@@ -66,6 +69,9 @@ uint32_t StaticMasterCM::addSlave( Command& command )
 
     _object->getInstanceData( os );
     os.disable();
+#ifdef EQ_INSTRUMENT_MULTICAST
+    ++_miss;
+#endif
 
     return VERSION_INVALID; // no data was in cache
 }

@@ -104,6 +104,9 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
         packet->minCachedVersion <= _version && 
         packet->maxCachedVersion >= _version )
     {
+#ifdef EQ_INSTRUMENT_MULTICAST
+        ++_hit;
+#endif
         return ( version == VERSION_OLDEST ) ? 
             packet->minCachedVersion : _version;
     }
@@ -128,6 +131,9 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
         os.disable();
     }
 
+#ifdef EQ_INSTRUMENT_MULTICAST
+    ++_miss;
+#endif
     return VERSION_INVALID; // no data was in cache
 }
 

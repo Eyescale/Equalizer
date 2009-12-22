@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,3 +21,8 @@
 #include "node.h"
 
 eq::net::ObjectCM* eq::net::ObjectCM::ZERO = new eq::net::NullCM;
+
+#ifdef EQ_INSTRUMENT_MULTICAST
+eq::base::a_int32_t eq::net::ObjectCM::_hit( 0 );
+eq::base::a_int32_t eq::net::ObjectCM::_miss( 0 );
+#endif
