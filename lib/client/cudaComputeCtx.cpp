@@ -134,6 +134,7 @@ namespace eq
 		}
 		return max_gflops_device;
 # endif
+#else
         return 0;
 #endif
 	}
