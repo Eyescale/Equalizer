@@ -17,6 +17,7 @@ CUDA_INCLUDE_PATH ?= /usr/local/cuda/include
 # Check presence of CUDA
 ifeq ($(wildcard $(CUDA_LIBRARY_PATH)/libcuda.dylib), $(CUDA_LIBRARY_PATH)/libcuda.dylib)
     DEFFLAGS += -DEQ_USE_CUDA
+    CUDA      = 1
 endif
 
 ifeq (0,${MAKELEVEL})
@@ -44,9 +45,17 @@ endif
 
 ifeq ($(findstring i386, $(SUBARCH)), i386)
 ifdef AGL_32BIT_ONLY
+ifdef CUDA
+  ARCHFLAGS ?= -arch i386
+else
   ARCHFLAGS ?= -arch i386 -arch ppc
+endif
+else
+ifdef CUDA
+  ARCHFLAGS ?= -arch i386 -arch x86_64 
 else
   ARCHFLAGS ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
+endif
 endif # 64BIT
 else
 ifdef AGL_32BIT_ONLY
