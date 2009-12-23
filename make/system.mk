@@ -17,6 +17,9 @@ FLEX            ?= flex
 BISON           ?= bison
 PC_LIBRARY_PATH ?= /opt/paracomp/lib64
 
+CUDA_LIBRARY_PATH ?= /usr/local/cuda/lib
+CUDA_INCLUDE_PATH ?= /usr/local/cuda/include
+
 # What to pass down to sub-makes
 export CFLAGS
 export CXXFLAGS
@@ -24,6 +27,8 @@ export LDFLAGS
 export LD
 export LD_PATH
 export PC_LIBRARY_PATH
+export CUDA_LIBRARY_PATH
+export CUDA_INCLUDE_PATH
 
 # helper variables for directory-dependent stuff
 SUBDIR    ?= "."
@@ -90,6 +95,12 @@ ifdef USE_OPENMP
     LDFLAGS  += -lgomp
 endif
 endif # g++
+
+# CUDA settings
+ifeq ($(findstring -DEQ_USE_CUDA, $(DEFFLAGS)), -DEQ_USE_CUDA)
+    CXXFLAGS += -I$(CUDA_INCLUDE_PATH)
+    LDFLAGS  += -L$(CUDA_LIBRARY_PATH) -lcuda -lcudart
+endif
 
 # Paracomp settings
 ifeq ($(findstring x86_64, $(SUBARCH)), x86_64)

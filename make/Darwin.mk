@@ -4,11 +4,20 @@
 
 DSO_SUFFIX       = dylib
 DSO_LDFLAGS     += -dynamiclib
-WINDOW_SYSTEM   ?= AGL
+WINDOW_SYSTEM   ?= AGL 
 
 AR               = libtool
 ARFLAGS          = -static
-PC_LIBRARY_PATH ?= /opt/paracomp/lib
+
+PC_LIBRARY_PATH   ?= /opt/paracomp/lib
+
+CUDA_LIBRARY_PATH ?= /usr/local/cuda/lib
+CUDA_INCLUDE_PATH ?= /usr/local/cuda/include
+
+# Check presence of CUDA
+ifeq ($(wildcard $(CUDA_LIBRARY_PATH)/libcuda.dylib), $(CUDA_LIBRARY_PATH)/libcuda.dylib)
+    DEFFLAGS += -DEQ_USE_CUDA
+endif
 
 ifeq (0,${MAKELEVEL})
   CXXFLAGS        += -Wextra

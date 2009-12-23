@@ -6,10 +6,17 @@ ifdef BUILD_32BIT
   CFLAGS   += -m32 -fPIC
   LDFLAGS  += -m32
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
+  CUDA_LIBRARY_PATH  ?= /usr/local/cuda/lib
 else
   CXXFLAGS += -m64 -fPIC
   CFLAGS   += -m64 -fPIC
   LDFLAGS  += -m64
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib64 -lX11 -lGL
+  CUDA_LIBRARY_PATH  ?= /usr/local/cuda/lib64
+endif
+
+# Check presence of CUDA
+ifeq ($(wildcard $(CUDA_LIBRARY_PATH)/libcuda.so), $(CUDA_LIBRARY_PATH)/libcuda.so)
+    DEFFLAGS += -DEQ_USE_CUDA
 endif
 
