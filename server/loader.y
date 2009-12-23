@@ -99,6 +99,7 @@
 %token EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_NODE_IATTR_HINT_STATISTICS
 %token EQTOKEN_PIPE_IATTR_HINT_THREAD
+%token EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP
 %token EQTOKEN_WINDOW_IATTR_HINT_STEREO
 %token EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER
 %token EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN
@@ -137,6 +138,7 @@
 %token EQTOKEN_HINT_SWAPSYNC
 %token EQTOKEN_HINT_DRAWABLE
 %token EQTOKEN_HINT_THREAD
+%token EQTOKEN_HINT_CUDA_GL_INTEROP
 %token EQTOKEN_HINT_SCREENSAVER
 %token EQTOKEN_PLANES_COLOR
 %token EQTOKEN_PLANES_ALPHA
@@ -356,7 +358,12 @@ global:
          eq::server::Global::instance()->setPipeIAttribute(
              eq::server::Pipe::IATTR_HINT_THREAD, $2 );
      }
-     | EQTOKEN_WINDOW_IATTR_HINT_STEREO IATTR
+     | EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP IATTR
+     {
+         eq::server::Global::instance()->setPipeIAttribute(
+             eq::server::Pipe::IATTR_HINT_CUDA_GL_INTEROP, $2 );
+	 }
+	 | EQTOKEN_WINDOW_IATTR_HINT_STEREO IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINT_STEREO, $2 );
@@ -605,6 +612,8 @@ pipeAttributes: /*null*/ | pipeAttributes pipeAttribute
 pipeAttribute:
     EQTOKEN_HINT_THREAD IATTR
         { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_THREAD, $2 ); }
+    | EQTOKEN_HINT_CUDA_GL_INTEROP IATTR
+        { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_CUDA_GL_INTEROP, $2 ); }
 
 window: EQTOKEN_WINDOW '{' 
             {

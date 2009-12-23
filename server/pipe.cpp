@@ -44,6 +44,7 @@ typedef net::CommandFunc<Pipe> PipeFunc;
 std::string Pipe::_iAttributeStrings[IATTR_ALL] = 
 {
     MAKE_ATTR_STRING( IATTR_HINT_THREAD ),
+    MAKE_ATTR_STRING( IATTR_HINT_CUDA_GL_INTEROP ),
     MAKE_ATTR_STRING( IATTR_FILL1 ),
     MAKE_ATTR_STRING( IATTR_FILL2 )
 };
@@ -389,6 +390,7 @@ void Pipe::_configInit( const uint32_t initID, const uint32_t frameNumber )
     packet.tasks  = _tasks;
     packet.pvp    = _pvp;
     packet.frameNumber = frameNumber;
+    packet.cudaGLInterop = getIAttribute( IATTR_HINT_CUDA_GL_INTEROP );
     _send( packet, _name );
 }
 
@@ -572,12 +574,15 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
             attrPrinted = true;
         }
         
-        os << ( i==Pipe::IATTR_HINT_THREAD ? "hint_thread       " : "ERROR" )
-           << static_cast<eq::IAttrValue>( value ) << endl;
+		os << ( i==Pipe::IATTR_HINT_THREAD ?
+			   "hint_thread          " :
+			   i==Pipe::IATTR_HINT_CUDA_GL_INTEROP ?
+			   "hint_cuda_GL_interop " : "ERROR" )
+		<< static_cast<eq::IAttrValue>( value ) << endl;		
     }
     
     if( attrPrinted )
-        os << exdent << "}" << endl << endl;
+        os << exdent << "}" << endl;
 
     os << endl;
 

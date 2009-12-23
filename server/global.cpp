@@ -83,6 +83,7 @@ void Global::_setupDefaults()
         _pipeIAttributes[i] = eq::UNDEFINED;
 
     _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = eq::ON;
+    _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = eq::OFF;
 
     // window
     for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )

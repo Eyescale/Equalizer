@@ -189,6 +189,7 @@ namespace server
         enum IAttribute
         {
             IATTR_HINT_THREAD,
+            IATTR_HINT_CUDA_GL_INTEROP,
             IATTR_FILL1,
             IATTR_FILL2,
             IATTR_ALL
