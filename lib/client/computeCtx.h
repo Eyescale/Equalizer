@@ -22,38 +22,38 @@
 
 namespace eq
 {
-	class Pipe;
+    class Pipe;
 
-	/**
+    /**
      * The interface definition for API-specific GPGPU handling.
      *
      * The ComputeCtx abstracts all GPGPU API-system specific code for handling 
-	 * a GPU for computing purposes. Each Pipe uses one ComputeCtx, which is 
-	 * initialized in Pipe::configInit. 
+     * a GPU for computing purposes. Each Pipe uses one ComputeCtx, which is 
+     * initialized in Pipe::configInit. 
      */
     class EQ_EXPORT ComputeCtx
     {
     public:
-		/** Create a new ComputeCtx for the given accelerator (here eq::Pipe).*/
+        /** Create a new ComputeCtx for the given accelerator (here eq::Pipe).*/
         ComputeCtx( Pipe* parent );
-		
+
         /** Destroy the ComputeCtx. */
         virtual ~ComputeCtx( );
-		
-		/** @name Methods forwarded from eq::Pipe */
+
+        /** @name Methods forwarded from eq::Pipe */
         //@{
         /** Initialize the ComputeCtx. */
         virtual bool configInit( ) = 0;
-		
+
         /** De-initialize the ComputeCtx. */
         virtual void configExit( ) = 0;
         //@}
-				
-		/** @return the reason of the last failed operation. */
+
+        /** @return the reason of the last failed operation. */
         const std::string & getErrorMessage() const { return _error; }
 
-	protected:
-		/** @name Error information. */
+    protected:
+        /** @name Error information. */
         //@{
         /** 
          * Set a message why the last operation failed.
@@ -65,19 +65,19 @@ namespace eq
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
         //@}
-		
+
         /** The eq::Pipe used by the context. */
         Pipe* const _pipe;
-		
+
         /** The reason for the last error. */
         std::string _error;
 
-	private:
-		union // placeholder for binary-compatible changes
+    private:
+        union // placeholder for binary-compatible changes
         {
             char dummy[64];
         };
-		
+
     };		
 }
 

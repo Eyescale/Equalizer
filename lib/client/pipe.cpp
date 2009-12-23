@@ -46,6 +46,7 @@
 #  include "aglPipe.h"
 #endif
 
+#include "computeCtx.h"
 #ifdef EQ_USE_CUDA
 #  include "cudaComputeCtx.h"
 #endif
@@ -566,28 +567,31 @@ bool Pipe::configInit( const uint32_t initID )
 
     setOSPipe( osPipe );
 	
-	// -------------------------------------------------------------------------
-	EQASSERT(!_computeCtx);
+    // -------------------------------------------------------------------------
+    EQASSERT(!_computeCtx);
+
+    // for now we only support CUDA, this may change soon, though
+#ifdef EQ_USE_CUDA
     ComputeCtx* computeCtx = 0;
 
-	// for now we only support CUDA, this may change soon, though
-	if ( _cudaGLInterop == true ) {
-		EQINFO << "Using CUDAComputeCtx" << std::endl;
-		computeCtx = new CUDAComputeCtx( this );
+    if ( _cudaGLInterop == true ) {
+        EQINFO << "Using CUDAComputeCtx" << std::endl;
+        computeCtx = new CUDAComputeCtx( this );
 		
-		if( !computeCtx->configInit() )
-		{
-			setErrorMessage( "GPU Computing context initialization failed: " + 
-							computeCtx->getErrorMessage( ));
-			EQERROR << _error << std::endl;
-			delete computeCtx;
-			return false;
-		}	
-		setComputeCtx( computeCtx );
-	}
-	else {
-		EQINFO << "No CUDA context initialized " << std::endl;
-	}
+        if( !computeCtx->configInit() )
+        {
+            setErrorMessage( "GPU Computing context initialization failed: " + 
+                computeCtx->getErrorMessage( ));
+            EQERROR << _error << std::endl;
+            delete computeCtx;
+            return false;
+        }	
+        setComputeCtx( computeCtx );
+    }
+    else {
+        EQINFO << "No CUDA context initialized " << std::endl;
+    }
+#endif
 
     return true;
 }
@@ -596,7 +600,7 @@ bool Pipe::configExit()
 {
     CHECK_THREAD( _pipeThread );
 
-	if( _computeCtx )
+    if( _computeCtx )
     {
         _computeCtx->configExit();
         delete _computeCtx;

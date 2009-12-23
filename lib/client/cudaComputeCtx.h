@@ -25,30 +25,30 @@ namespace eq
     class EQ_EXPORT CUDAComputeCtx : public ComputeCtx
     {
     public:
-		/** Create a new CUDAComputeCtx.*/
+        /** Create a new CUDAComputeCtx.*/
         CUDAComputeCtx( Pipe* parent );
-		
+
         /** Destroy the ComputeCtx. */
         virtual ~CUDAComputeCtx( );
-		
-		/** @name Methods forwarded from eq::Pipe */
+
+        /** @name Methods forwarded from eq::Pipe */
         //@{
         /** Initialize the ComputeCtx. */
         virtual bool configInit( );
-		
+
         /** De-initialize the ComputeCtx. */
         virtual void configExit( );
         //@}
-				
-	private:
-		
-		int _getMaxGflopsDeviceId();
-		
-		union // placeholder for binary-compatible changes
+
+    private:
+
+        int _getMaxGflopsDeviceId();
+
+        union // placeholder for binary-compatible changes
         {
             char dummy[64];
         };
-		
+
     };		
 }
 

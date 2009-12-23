@@ -45,8 +45,8 @@ namespace eq
     class MessagePump;
     class OSPipe;
     class PipeVisitor;
-	class ComputeCtx;
-	
+    class ComputeCtx;
+
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
