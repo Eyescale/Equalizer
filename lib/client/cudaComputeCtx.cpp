@@ -105,9 +105,10 @@ namespace eq
 	//--------------------------------------------------------------------------
 	int CUDAComputeCtx::_getMaxGflopsDeviceId()
 	{		
-#if __DEVICE_EMULATION__
+#ifdef EQ_USE_CUDA
+# if __DEVICE_EMULATION__
 		return 0;
-#else		
+# else		
         int device_count = 0;
 		cudaGetDeviceCount( &device_count );
         
@@ -132,6 +133,7 @@ namespace eq
 			++current_device;
 		}
 		return max_gflops_device;
+# endif
 #endif
 	}
 	
