@@ -85,11 +85,13 @@ HEADER_SRC = \
 	client/commandQueue.h \
 	client/commands.h \
 	client/compositor.h \
+	client/computeCtx.h \
 	client/config.h \
 	client/configEvent.h \
 	client/configParams.h \
 	client/configStatistics.h \
 	client/configVisitor.h \
+	client/cudaComputeCtx.h \
 	client/drawableConfig.h \
 	client/event.h \
 	client/eventHandler.h \
@@ -213,11 +215,13 @@ CXXFILES = \
 	client/commandQueue.cpp \
 	client/compositor.cpp \
 	client/compressor.cpp \
+	client/computeCtx.cpp \
 	client/config.cpp \
 	client/configDeserializer.cpp \
 	client/configEvent.cpp \
 	client/configParams.cpp \
 	client/configStatistics.cpp \
+	client/cudaComputeCtx.cpp \
 	client/event.cpp \
 	client/eventHandler.cpp \
 	client/eye.cpp \
