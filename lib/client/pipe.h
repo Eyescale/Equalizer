@@ -45,7 +45,8 @@ namespace eq
     class MessagePump;
     class OSPipe;
     class PipeVisitor;
-
+	class ComputeCtx;
+	
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
@@ -228,6 +229,21 @@ namespace eq
 
         //@}
 
+		/** 
+         * @name Interface to and from the ComputeCtx
+         */
+        //@{
+        /**
+         * Set the compute-specific context.
+         * 
+         */
+        void setComputeCtx( ComputeCtx* ctx )  { _computeCtx = ctx; }
+		
+        const ComputeCtx* getComputeCtx() const { return _computeCtx; }
+		ComputeCtx* getComputeCtx()	{ return _computeCtx; }
+		
+        //@}
+		
         /** @name Error information. */
         //@{
         /** 
@@ -416,6 +432,9 @@ namespace eq
 
         /** The size (and location) of the pipe. */
         PixelViewport _pvp;
+		
+        /** CUDA GL interop mode. */
+		bool _cudaGLInterop;
 
         /** Worst-case set of tasks. */
         uint32_t _tasks;
@@ -483,6 +502,9 @@ namespace eq
         /** The last window made current. */
         const mutable Window* _currentWindow;
 
+		/** GPU Computing context */
+        ComputeCtx *_computeCtx;
+				
         union // placeholder for binary-compatible changes
         {
             char dummy[64];

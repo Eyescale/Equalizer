@@ -440,6 +440,8 @@ uint32_t Config::finishFrame()
             while( _unlockedFrame < _currentFrame )
                 client->processCommand();
 
+		handleEvents();
+
         // local node  finish (frame-latency) sync
         if( !_nodes.empty( ))
         {
@@ -448,6 +450,8 @@ uint32_t Config::finishFrame()
 
             while( node->getFinishedFrame() < frameToFinish )
                 client->processCommand();
+
+			handleEvents();
         }
 
         // global sync

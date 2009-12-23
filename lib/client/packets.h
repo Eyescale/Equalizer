@@ -540,6 +540,7 @@ namespace eq
         uint32_t      device;
         uint32_t      frameNumber;
         int32_t       tasks;
+        bool          cudaGLInterop;
         PixelViewport pvp;
         EQ_ALIGN8( char name[8] );
     };
@@ -1120,7 +1121,8 @@ namespace eq
     {
         os << (net::ObjectPacket*)packet << " init id " << packet->initID
            << " port " << packet->port << " device " << packet->device
-           << " tasks " << packet->tasks << " frame " << packet->frameNumber;
+           << " tasks " << packet->tasks << " frame " << packet->frameNumber
+		   << " cuda GL interop " << packet->cudaGLInterop;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

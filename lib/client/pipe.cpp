@@ -46,6 +46,10 @@
 #  include "aglPipe.h"
 #endif
 
+#ifdef EQ_USE_CUDA
+#  include "cudaComputeCtx.h"
+#endif
+
 #include <eq/net/command.h>
 #include <sstream>
 
@@ -74,6 +78,7 @@ Pipe::Pipe( Node* parent )
         , _thread( 0 )
         , _pipeThreadQueue( 0 )
         , _currentWindow( 0 )
+		, _computeCtx( 0 )
 {
     parent->_addPipe( this );
     EQINFO << " New eq::Pipe @" << (void*)this << std::endl;
@@ -560,6 +565,30 @@ bool Pipe::configInit( const uint32_t initID )
     }
 
     setOSPipe( osPipe );
+	
+	// -------------------------------------------------------------------------
+	EQASSERT(!_computeCtx);
+    ComputeCtx* computeCtx = 0;
+
+	// for now we only support CUDA, this may change soon, though
+	if ( _cudaGLInterop == true ) {
+		EQINFO << "Using CUDAComputeCtx" << std::endl;
+		computeCtx = new CUDAComputeCtx( this );
+		
+		if( !computeCtx->configInit() )
+		{
+			setErrorMessage( "GPU Computing context initialization failed: " + 
+							computeCtx->getErrorMessage( ));
+			EQERROR << _error << std::endl;
+			delete computeCtx;
+			return false;
+		}	
+		setComputeCtx( computeCtx );
+	}
+	else {
+		EQINFO << "No CUDA context initialized " << std::endl;
+	}
+
     return true;
 }
 
@@ -567,6 +596,13 @@ bool Pipe::configExit()
 {
     CHECK_THREAD( _pipeThread );
 
+	if( _computeCtx )
+    {
+        _computeCtx->configExit();
+        delete _computeCtx;
+        _computeCtx = 0;
+    }	
+	
     if( _osPipe )
     {
         _osPipe->configExit( );
@@ -743,12 +779,13 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
 
     if( _node->isRunning( ))
     {
-        _name   = packet->name;
-        _port   = packet->port;
-        _device = packet->device;
-        _tasks  = packet->tasks;
-        _pvp    = packet->pvp;
-        
+        _name          = packet->name;
+        _port          = packet->port;
+        _device        = packet->device;
+        _tasks         = packet->tasks;
+        _pvp           = packet->pvp;
+		_cudaGLInterop = packet->cudaGLInterop;
+ 
         _currentFrame  = packet->frameNumber;
         _finishedFrame = packet->frameNumber;
         _unlockedFrame = packet->frameNumber;
