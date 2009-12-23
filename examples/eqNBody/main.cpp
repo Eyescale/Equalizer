@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,7 +40,7 @@ public:
 
 int main( const int argc, char** argv )
 {
-    eqNbody::LocalInitData ld;
+    eqNbody::InitData id;
     NodeFactory nodeFactory;
 	
     if( !eq::init( argc, argv, &nodeFactory ))
@@ -49,7 +49,7 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
     
-    RefPtr< eqNbody::Client > client = new eqNbody::Client( ld );
+    RefPtr< eqNbody::Client > client = new eqNbody::Client( id );
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << endl;

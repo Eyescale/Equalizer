@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,15 +18,17 @@
 #include "frameData.h"
 #include "nbody.h"
 
-#include <vector_types.h>
 #include <cuda.h>
-#include <cuda_runtime_api.h>
 
 #ifdef CUDART_VERSION >= 2020
 # define ENABLE_HOSTALLOC
 #endif
 
 extern "C" {
+	struct float3 {
+		float x,y,z;
+	};
+	
 	float v3_normalize(float3& vector)
 	{
 		float dist = sqrtf(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z);

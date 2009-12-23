@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,7 +21,6 @@
 #include <driver_types.h>
 
 #include "render_particles.h"
-#include "frameData.h"
 #include "dataProxy.h"
 
 namespace eqNbody
@@ -42,15 +41,13 @@ namespace eqNbody
 		bool init(const InitData& initData, float* hPos = NULL, bool usePBO=true);
 		bool exit();
 		
-		void compute(const unsigned int frameID, const FrameData& fd, const eq::Range& range);
-		void draw(const FrameData& fd);
+		void compute(const unsigned int frameID, const float timeStep, const eq::Range& range);
+		void draw(float* pos, float* col);
 
 		void setSoftening(float softening);
 		
-		void getArray(BodyArray array, DataProxy& proxy);
-		void setArray(BodyArray array, const FrameData& fd);
-
-		void synchronizeGPUThreads() const;
+		void getArray(BodyArray array, SharedDataProxy& proxy);
+		void setArray(BodyArray array, const float* pos, unsigned int numBytes);
 		
     private:
 		ParticleRenderer _renderer;

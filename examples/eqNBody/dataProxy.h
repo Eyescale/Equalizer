@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,11 +22,11 @@
 
 namespace eqNbody
 {
-    class DataProxy : public eq::Object
+    class SharedDataProxy : public eq::Object
     {
     public:
 
-        DataProxy();
+        SharedDataProxy();
 
 		void init(const unsigned int offset, const unsigned int numBytes, float *pos, float *vel, float *col);
 		void init(float *pos, float *vel, float *col);

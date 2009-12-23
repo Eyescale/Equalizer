@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,18 +21,17 @@
 #include <eq/eq.h>
 
 #define NUM_BODIES	16384
-#define MAX_NGPUS	16
+#define MAX_NGPUS	32
 
 namespace eqNbody
 {
-    class LocalInitData;
+    class InitData;
 	class Config;
 	
     class Client : public eq::Client
     {
     public:
-        Client( const LocalInitData& initData );
-        virtual ~Client() {}
+        Client( const InitData& initData );
 
         int init();
         int exit();
@@ -40,13 +39,13 @@ namespace eqNbody
         void run();
 
     protected:
-
+        virtual ~Client() {}
         virtual bool clientLoop();
         
     private:
-        const LocalInitData& _initData;
-		Config* config;
-		eq::ServerPtr server;
+        const InitData&	_initData;
+		Config*			_config;
+		eq::ServerPtr	_server;
     };
 }
 

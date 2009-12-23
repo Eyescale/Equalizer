@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,40 +20,16 @@
 
 #include <eq/eq.h>
 
-#include "configEvent.h"
-#include "controller.h"
-#include "dataProxy.h"
-#include "client.h" // MAX_NGPUS
-
 namespace eqNbody
-{
-	enum Mode
-	{
-		WINDOW_GL,
-		WINDOW_CUDA,
-		WINDOW_CUDA_GL,
-	};
-	
+{	
     class Window : public eq::Window
     {
     public:
-        Window( eq::Pipe* parent ) : eq::Window( parent ), _device(0) {}
-		
-		unsigned int getCUDADeviceID() { return _device; }
-		unsigned int getMode() { return _mode; }
-		
+        Window( eq::Pipe* parent ) : eq::Window( parent ) {}
+				
     protected:
         virtual ~Window() {}
-
-		virtual bool configInit( const uint32_t initID );		
-		virtual bool configInitCUDA();		
         virtual void swapBuffers();		
-		
-    private:
-		int	_getMaxGflopsDeviceId();
-
-		int		_device;
-		Mode	_mode;
     };
 }
 

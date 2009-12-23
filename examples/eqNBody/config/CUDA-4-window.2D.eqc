@@ -14,9 +14,9 @@ server
             pipe
             {
 				device 0
+				attributes { hint_cuda_GL_interop ON }
                 window
                 {
-                    name "CUDA_GL:0"
                     viewport [ .05 .55 .4 .3 ]
                     channel
                     {
@@ -26,10 +26,10 @@ server
             }
             pipe
             {
-				device 0
+				device 1
+				attributes { hint_cuda_GL_interop ON }
                 window
                 {
-                    name "CUDA_GL:1"
                     viewport [ .05 .05 .4 .3 ]
                     channel
                     {
@@ -44,9 +44,9 @@ server
 			pipe
             {
 				device 0
+				attributes { hint_cuda_GL_interop ON }
                 window
                 {
-                    name "CUDA_GL:2"
                     viewport [ .55 .55 .4 .3 ]
                     channel
                     {
@@ -56,10 +56,10 @@ server
             }
             pipe
             {
-				device 0
+				device 1
+				attributes { hint_cuda_GL_interop ON }
                 window
                 {
-                    name "CUDA_GL:3"
                     viewport [ .55 .05 .4 .3 ]
                     channel
                     {

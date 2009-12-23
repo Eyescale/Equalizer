@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,17 +19,16 @@
 #define EQNBODY_PIPE_H
 
 #include <eq/eq.h>
-
-#include "frameData.h"
+#include "SharedData.h"
 
 namespace eqNbody
-{
+{	
     class Pipe : public eq::Pipe
     {
     public:
-        Pipe( eq::Node* parent ) : eq::Pipe( parent ) {}
+        Pipe( eq::Node* parent );
 
-        const FrameData& getFrameData() const { return _frameData; }
+        SharedData& getSharedData() { return *_data; }
 		
     protected:
         virtual ~Pipe() {}
@@ -40,7 +39,7 @@ namespace eqNbody
         virtual void frameStart( const uint32_t frameID, const uint32_t frameNumber );
 
     private:
-        FrameData		_frameData;
+		SharedData *_data;
     };
 }
 

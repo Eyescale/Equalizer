@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,42 +20,26 @@
 
 #include <eq/eq.h>
 
-#include "configEvent.h"
-#include "controller.h"
-#include "dataProxy.h"
-#include "frameData.h"
-
 namespace eqNbody
 {
-    class FrameData;
-    class InitData;
+	class Controller;
 
     class Channel : public eq::Channel
     {
     public:
-        Channel( eq::Window* parent ) : eq::Channel( parent ) {}
+        Channel( eq::Window* parent );
 
     protected:
-        virtual ~Channel() {}
+        virtual ~Channel();
 
-        virtual void frameClear( const uint32_t frameID );
+		bool configInit( const uint32_t initID );
         virtual void frameDraw( const uint32_t frameID );
-		
-	private:
-		void _compute(const uint32_t frameID, const FrameData& fd);
-		void _draw(const uint32_t frameID, const FrameData& fd);
-		void _assemble(const uint32_t frameID, const FrameData& fd);
+						
+	private:		
+		Controller*     _controller;	
 
-        void _initLocalProxy();
-        void _initCUDAController();
-
-		void _initDataProxies(const FrameData& frameData);
-		void _syncDataProxies(const FrameData& frameData);
-		void _sendEvent(ConfigEvent::Type type, unsigned int version, unsigned int pid, const eq::Range& range);
-		
-		Controller		_controller;		
-		DataProxy		_dataProxy[MAX_NGPUS];	
-		unsigned int	_offset;
+		bool			_registerMem;
+		bool			_mapMem;
     };
 }
 

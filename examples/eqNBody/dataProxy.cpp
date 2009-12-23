@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,14 +21,14 @@
 namespace eqNbody
 {
 	
-	DataProxy::DataProxy() : _offset(0), _numBytes(0)
+	SharedDataProxy::SharedDataProxy() : _offset(0), _numBytes(0)
 	{			
 		_hPos = NULL;
 		_hVel = NULL;
 		_hCol = NULL;		
 	}
 		
-	void DataProxy::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
+	void SharedDataProxy::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
 	{
 		eq::Object::serialize( os, dirtyBits );
 		
@@ -44,7 +44,7 @@ namespace eqNbody
 		}		
 	}
 	
-	void DataProxy::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
+	void SharedDataProxy::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
 	{
 		eq::Object::deserialize( is, dirtyBits );
 
@@ -60,7 +60,7 @@ namespace eqNbody
 		}		
 	}
 		
-	void DataProxy::init(const unsigned int offset, const unsigned int numBytes, float *pos, float *vel, float *col)
+	void SharedDataProxy::init(const unsigned int offset, const unsigned int numBytes, float *pos, float *vel, float *col)
 	{
 		_offset		= offset;
 		_numBytes	= numBytes;
@@ -72,7 +72,7 @@ namespace eqNbody
 		setDirty( DIRTY_DATA );
 	}
 
-	void DataProxy::init(float *pos, float *vel, float *col)
+	void SharedDataProxy::init(float *pos, float *vel, float *col)
 	{
 		_hPos		= pos;
 		_hVel		= vel;
@@ -81,7 +81,7 @@ namespace eqNbody
 		setDirty( DIRTY_DATA );
 	}
 	
-	void DataProxy::exit()
+	void SharedDataProxy::exit()
 	{
 		_offset		= 0;
 		_numBytes	= 0;
@@ -91,7 +91,7 @@ namespace eqNbody
 		_hCol		= NULL;				
 	}
 	
-	void DataProxy::markDirty()
+	void SharedDataProxy::markDirty()
 	{
 		setDirty( DIRTY_DATA );
 	}

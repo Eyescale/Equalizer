@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,7 +20,7 @@
 
 #include <eq/eq.h>
 
-#include "localInitData.h"
+#include "initData.h"
 #include "frameData.h"
 #include "configEvent.h"
 
@@ -30,15 +30,13 @@ namespace eqNbody
     {
     public:
         Config( eq::base::RefPtr< eq::Server > parent );
-		
-		const FrameData& getFrameData() const { return _frameData; }
-		
+				
         virtual bool init();
         virtual bool exit();
 		
         virtual uint32_t startFrame();
 		
-        void setInitData( const LocalInitData& data ) { _initData = data; }
+        void setInitData( const InitData& data ) { _initData = data; }
         const InitData& getInitData() const { return _initData; }
 		
         void mapData( const uint32_t initDataID );		
@@ -50,11 +48,11 @@ namespace eqNbody
     protected:
         virtual ~Config() {}
 		
-        LocalInitData	_initData;
-        FrameData		_frameData;
-        bool			_redraw;
-				
     private:
+        InitData	_initData;
+        FrameData	_frameData;
+        bool		_redraw;
+				
 		bool _readyToCommit();
 		bool _handleKeyEvent( const eq::KeyEvent& event );
 

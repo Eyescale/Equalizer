@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,7 @@
 #include "client.h"
 
 #include "config.h"
-#include "localInitData.h"
+#include "initData.h"
 
 #include <stdlib.h>
 
@@ -27,18 +27,17 @@ using namespace std;
 namespace eqNbody
 {
 	
-	Client::Client( const LocalInitData& initData ) : _initData( initData )
+	Client::Client( const InitData& initData ) : _initData( initData ), _config(NULL)
 	{
-		config = NULL;
 	}
 	
 	int Client::init()
 	{
-		EQASSERT(config == NULL);
+		EQASSERT(_config == NULL);
 		
 		// 1. connect to server
-		server = new eq::Server;
-		if( !connectServer( server ))
+		_server = new eq::Server;
+		if( !connectServer( _server ))
 		{
 			EQERROR << "Can't open server" << endl;
 			return EXIT_FAILURE;
@@ -46,22 +45,22 @@ namespace eqNbody
 		
 		// 2. choose config
 		eq::ConfigParams configParams;
-		config = static_cast<Config*>(server->chooseConfig( configParams ));
+		_config = static_cast<Config*>(_server->chooseConfig( configParams ));
 		
-		if( !config )
+		if( !_config )
 		{
 			EQERROR << "No matching config on server" << endl;
-			disconnectServer( server );
+			disconnectServer( _server );
 			return EXIT_FAILURE;
 		}
 		
 		// 3. init config
-		config->setInitData( _initData );
-		if( !config->init() )
+		_config->setInitData( _initData );
+		if( !_config->init() )
 		{
-			EQERROR << "Config initialization failed: " << config->getErrorMessage() << endl;
-			server->releaseConfig( config );
-			disconnectServer( server );
+			EQERROR << "Config initialization failed: " << _config->getErrorMessage() << endl;
+			_server->releaseConfig( _config );
+			disconnectServer( _server );
 			return EXIT_FAILURE;
 		}
 
@@ -70,35 +69,35 @@ namespace eqNbody
 	
 	int Client::exit()
 	{
-		EQASSERT(config != NULL);
+		EQASSERT(_config != NULL);
 
 		// Exit config
-		config->exit();
+		_config->exit();
 		
 		// Cleanup
-		server->releaseConfig( config );
-		if( !disconnectServer( server )) {
+		_server->releaseConfig( _config );
+		if( !disconnectServer( _server )) {
 			EQERROR << "Client::disconnectServer failed" << endl;
 			return EXIT_FAILURE;
 		}
 		
-		server = 0;
+		_server = 0;
 		return EXIT_SUCCESS;
 	}
 
 	void Client::run()
 	{		
 		// Run main loop
-		while( config->isRunning( ) )
+		while( _config->isRunning( ) )
 		{
-			config->startFrame();
-			config->finishFrame();
+			_config->startFrame();
+			_config->finishFrame();
 			
-			if( !config->needsRedraw()) {
-				config->finishAllFrames();
+			if( !_config->needsRedraw()) {
+				_config->finishAllFrames();
 			}
 			
-			config->handleEvents(); // process all pending events
+			_config->handleEvents(); // process all pending events
 		}				
 	}
 	

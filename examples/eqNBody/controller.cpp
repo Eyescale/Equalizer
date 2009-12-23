@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <probert@eyescale.ch> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,7 +22,6 @@
 #include <GL/glew.h>
 
 #include <cuda.h>
-#include <cuda_runtime_api.h>
 #include <cuda_gl_interop.h>
 
 #include <eq/base/log.h>
@@ -31,17 +30,6 @@ using namespace std;
 
 namespace eqNbody
 {
-	
-	void checkCUDAError(const char *msg)
-	{
-		cudaError_t err = cudaGetLastError();
-		if( cudaSuccess != err) 
-		{
-			EQERROR << "CUDA error: " << msg << ": " << cudaGetErrorString( err) << std::endl;
-			exit(EXIT_FAILURE);
-		}                         
-	}
-	
 	Controller::Controller() : _numBodies(0), _p(0), _q(0), _usePBO(true)
 	{
 		_dPos[0] = _dPos[1] = 0;
@@ -98,8 +86,6 @@ namespace eqNbody
 		}
 		
 		allocateNBodyArrays(_dVel, _numBodies * sizeof( float) * 4);
-
-		checkCUDAError("Controller::init");
 		
 		setSoftening(0.00125f);
 		_renderer.init();
@@ -125,7 +111,7 @@ namespace eqNbody
 		return true;
 	}
 						
-	void Controller::compute(const unsigned int frameID, const FrameData& fd, const eq::Range& range)
+	void Controller::compute(const unsigned int frameID, const float timeStep, const eq::Range& range)
 	{
 		int offset	= range.start * _numBodies;
 		int length	= ((range.end - range.start) * _numBodies) / _p;
@@ -133,25 +119,25 @@ namespace eqNbody
 		integrateNbodySystem(_dPos[_currentWrite], _dVel[_currentWrite], 
 							 _dPos[_currentRead], _dVel[_currentRead],
 							 _pbo[_currentWrite], _pbo[_currentRead],
-							 fd.getTimeStep(), _damping, _numBodies, offset, length, _p, _q, 
-							 (_usePBO ? 1 : 0));		
-		
-		checkCUDAError("Controller::run");
+							 timeStep, _damping, _numBodies, offset, length, _p, _q, 
+							 (_usePBO ? 1 : 0));				
 	}
 	
-	void Controller::draw(const FrameData& fd)
+	void Controller::draw(float* pos, float* col)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
-
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glTranslatef( 0.0f, 0.0f, -50.0f );		
+		
 		if(_usePBO) {
 			_renderer.setPBO(_pbo[_currentRead], _numBodies);
 		}
 		else {
-			_renderer.setPositions(fd.getPos(), _numBodies);
+			_renderer.setPositions(pos, _numBodies);
 			_renderer.setPBO(0, _numBodies);
 		}
 		
-		_renderer.setColors(fd.getCol(), _numBodies); // do this only on init
+		_renderer.setColors(col, _numBodies); // do this only on init
         _renderer.setSpriteSize(_pointSize);
 		_renderer.draw(PARTICLE_SPRITES_COLOR);
 
@@ -163,7 +149,7 @@ namespace eqNbody
 		setDeviceSoftening(softening);
 	}
 		
-	void Controller::getArray(BodyArray array, DataProxy& proxy)
+	void Controller::getArray(BodyArray array, SharedDataProxy& proxy)
 	{
 		float* ddata = 0;		
 		float* hdata = 0;
@@ -192,10 +178,8 @@ namespace eqNbody
 		proxy.markDirty();
 	}
 	
-	void Controller::setArray(BodyArray array, const FrameData& fd)
-	{
-		unsigned int numBytes = fd.getNumBytes();
-		
+	void Controller::setArray(BodyArray array, const float* pos, unsigned int numBytes)
+	{		
 		switch (array)
 		{
 			default:
@@ -205,7 +189,7 @@ namespace eqNbody
 				{
 					unregisterGLBufferObject(_pbo[_currentRead]);
 					glBindBuffer(GL_ARRAY_BUFFER, _pbo[_currentRead]);
-					glBufferData(GL_ARRAY_BUFFER, numBytes, fd.getPos(), GL_DYNAMIC_DRAW);
+					glBufferData(GL_ARRAY_BUFFER, numBytes, pos, GL_DYNAMIC_DRAW);
 					
 					int size = 0;
 					glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, (GLint*)&size); 
@@ -217,20 +201,15 @@ namespace eqNbody
 				}
 				else
 				{
-					copyArrayToDevice(_dPos[_currentRead], fd.getPos(), numBytes);
+					copyArrayToDevice(_dPos[_currentRead], pos, numBytes);
 				}
 			}
 				break;
 
 			case BODYSYSTEM_VELOCITY:
-				copyArrayToDevice(_dVel[_currentRead], fd.getVel(), numBytes);
+				copyArrayToDevice(_dVel[_currentRead], pos, numBytes);
 				break;
 		}       
 	}
-		
-	void Controller::synchronizeGPUThreads() const
-	{
-		threadSync();
-	}
-		
+				
 }

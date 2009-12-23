@@ -1,4 +1,3 @@
-# 2-window sort-first config running on a single pipe.
 global
 {
 }
@@ -14,9 +13,9 @@ server
             pipe
             {
 				device 0
+				attributes { hint_cuda_GL_interop ON }
                 window
                 {
-                    name "CUDA_GL:0"
                     viewport [ .05 .3 .4 .3 ]
                     channel
                     {
@@ -31,9 +30,9 @@ server
             pipe
             {
 				device 0
+				attributes { hint_cuda_GL_interop ON }
                 window
                 {
-                    name "CUDA_GL:1"
                     viewport [ .55 .3 .4 .3 ]
                     channel
                     {

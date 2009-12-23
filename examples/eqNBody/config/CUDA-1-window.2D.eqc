@@ -1,4 +1,3 @@
-# Simple config executing the rendering from the application thread
 global
 {
 }
@@ -12,11 +11,10 @@ server
             pipe
             {
 				device 0
+				attributes { hint_cuda_GL_interop ON }
                 window
                 {
-                    name "CUDA_GL:0"
-                    viewport [ 0.25 0.25 0.5 0.5 ]
-                    
+                    viewport [ 0.25 0.25 0.5 0.5 ]                    
                     channel { name "channel1" }
                 }
             }

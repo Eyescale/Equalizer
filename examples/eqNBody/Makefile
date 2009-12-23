@@ -15,11 +15,11 @@ CXXFILES = \
 	dataProxy.cpp \
 	frameData.cpp \
 	initData.cpp \
-	localInitData.cpp \
 	main.cpp \
 	node.cpp \
 	pipe.cpp \
 	render_particles.cpp \
+	sharedData.cpp \
 	window.cpp
 
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS) -I/usr/local/cuda/include
