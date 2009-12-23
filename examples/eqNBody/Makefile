@@ -12,7 +12,6 @@ CXXFILES = \
 	config.cpp \
 	configEvent.cpp \
 	controller.cpp \
-	dataProxy.cpp \
 	frameData.cpp \
 	initData.cpp \
 	main.cpp \
@@ -20,6 +19,7 @@ CXXFILES = \
 	pipe.cpp \
 	render_particles.cpp \
 	sharedData.cpp \
+	sharedDataProxy.cpp \
 	window.cpp
 
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS) -I/usr/local/cuda/include

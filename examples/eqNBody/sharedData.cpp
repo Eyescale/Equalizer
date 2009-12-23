@@ -16,7 +16,7 @@
  */
 
 #include "sharedData.h"
-#include "dataProxy.h"
+#include "sharedDataProxy.h"
 #include "pipe.h"
 #include "config.h"
 #include "controller.h"

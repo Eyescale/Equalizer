@@ -21,7 +21,7 @@
 #include <driver_types.h>
 
 #include "render_particles.h"
-#include "dataProxy.h"
+#include "sharedDataProxy.h"
 
 namespace eqNbody
 {
