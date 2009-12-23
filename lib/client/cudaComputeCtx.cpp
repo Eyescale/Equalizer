@@ -18,12 +18,16 @@
 #include "cudaComputeCtx.h"
 #include "pipe.h"
 
-#pragma GCC diagnostic ignored "-Wshadow"
 #ifdef EQ_USE_CUDA
+# if defined __GNUC__
+#  pragma GCC diagnostic ignored "-Wshadow"
+# endif
 # include <cuda_runtime_api.h>
 # include <cuda_gl_interop.h>
+# if defined __GNUC__
+#  pragma GCC diagnostic warning "-Wshadow"
+# endif
 #endif
-#pragma GCC diagnostic warning "-Wshadow"
 
 using namespace eq::base;
 using namespace std;
