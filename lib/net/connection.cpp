@@ -371,6 +371,38 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
     return true;
 }
 
+bool Connection::send( const ConnectionVector& connections, Packet& packet,
+                       void** data, uint64_t* dataSize, 
+                       const size_t nData, const uint64_t allDataSize,
+                       const bool isLocked )
+{
+    if( connections.empty( ))
+        return true;
+
+    const uint64_t headerSize  = packet.size - 8;
+    packet.size = headerSize + allDataSize;
+
+    for( ConnectionVector::const_iterator i= connections.begin(); 
+         i<connections.end(); ++i )
+    {        
+        ConnectionPtr connection = *i;
+
+        if( !isLocked )
+            connection->lockSend();
+            
+        bool ok = connection->send( &packet, headerSize, true );
+
+        for ( size_t j = 0; j < nData ; j++ )
+            ok = ok && connection->send( data[j], dataSize[j], true );
+
+        if( !isLocked )
+            connection->unlockSend();
+
+        if( !ok )
+            return false;
+    }
+    return true;
+}
 
 ConnectionDescriptionPtr Connection::getDescription() const
 {

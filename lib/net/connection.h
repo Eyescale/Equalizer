@@ -329,6 +329,22 @@ namespace net
         static bool send( const ConnectionVector& connections, Packet& packet,
                           const void* data, const uint64_t size,
                           const bool isLocked = false );
+        /** 
+         * Sends a packaged message including additional multiple data to multiple
+         * connections.
+         *
+         * @param connections The connections.
+         * @param packet the message packet.
+         * @param data the multiple buffer data.
+         * @param size the datas size for each buffer in bytes.
+         * @param allDataSize the total data size in bytes.
+         * @param isLocked true if the connection is locked externally.
+         * @return true if the packet was sent successfully to all receivers.
+         */
+        static bool send( const ConnectionVector& connections, Packet& packet,
+                          void** data, uint64_t* dataSize, 
+                          const size_t nData, const uint64_t allDataSize,
+                          const bool isLocked );
 
         /** 
          * Write data to the connection.
