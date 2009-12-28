@@ -407,19 +407,21 @@ int main( int argc, char **argv )
                       << "MB/s (" << nSamples / time * 1000.f  << "pps)"
                       << std::endl;
         }
+        connection->close();
     }
     else
     {
         selector = new Selector( connection, packetSize, useThreads );
         selector->start();
+        
+        TESTINFO( connection->getRefCount() >= 1, connection->getRefCount( ));
+    
+        if ( selector )
+            selector->join();
     }
 
-    if ( selector )
-        selector->join();
+    
     delete selector;
-
-    TESTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
-    connection->close();
     return EXIT_SUCCESS;
 }
 

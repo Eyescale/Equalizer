@@ -288,11 +288,10 @@ bool RSPConnection::listen()
     // init a thread for manage the communication protocol 
     _thread = new Thread( this );
 
+	_numWriteAcks =  0;
 #ifdef WIN32
     _initAIOAccept();
 #else
-    _numWriteAcks =  0;
-
     _selfPipeHEvent = new PipeConnection;
     if( !_selfPipeHEvent->connect( ))
     {
@@ -306,8 +305,6 @@ bool RSPConnection::listen()
     _hEvent.revents = 0;
     _selfPipeHEvent->recvNB( &_selfCommand, sizeof( _selfCommand ));
 #endif
-    _numWriteAcks = 0;
-    
     _readBuffer.resize( _connection->getMTU( ));
 
     // waits until RSP protocol establishes connection to the multicast network
@@ -590,7 +587,7 @@ void* RSPConnection::Thread::run()
 void RSPConnection::_runReadThread()
 {
     EQINFO << "Started RSP read thread" << std::endl;
-    while ( _state != STATE_CLOSED )
+    while ( _state != STATE_CLOSED && _countAcceptChildren )
     {
         const int32_t timeOut = ( _writing && _repeatQueue.isEmpty( )) ? 
             Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT ) : -1;
@@ -1208,9 +1205,17 @@ bool RSPConnection::_acceptRemoveConnection( const ID id )
             break;
         }
     }
-
+	
     _sendDatagramCountNode();
-    return true;
+
+    if ( _children.size() == 1 )
+	{
+		_countAcceptChildren--;
+		_children[0]->close();
+		_children.erase( _children.begin() );
+	}
+
+	return true;
 }
 bool RSPConnection::_isCurrentSequence( uint16_t sequenceID, uint16_t writer )
 {
@@ -1337,25 +1342,24 @@ int64_t RSPConnection::_handleRepeat( const uint8_t* data, const uint64_t size )
                     break; // ignore, will send one below anyway
 
                 case RepeatRequest::NACK:
+                {
+                    bool merged = false;
+                    for( std::vector< RepeatRequest >::iterator i = 
+                         requests.begin(); i != requests.end() && !merged; ++i )
                     {
-                        bool merged = false;
-                        for( std::vector< RepeatRequest >::iterator i = 
-                                requests.begin();
-                             i != requests.end() && !merged; ++i )
+                        RepeatRequest& old = *i;
+                        if( old.start <= candidate.end &&
+                            old.end   >= candidate.start )
                         {
-                            RepeatRequest& old = *i;
-                            if( old.start <= candidate.end &&
-                                old.end >= candidate.start )
-                            {
-                                old.start = EQ_MIN( old.start, candidate.start);
-                                old.end = EQ_MAX( old.end, candidate.end );
-                                merged = true;
-                            }
+                            old.start = EQ_MIN( old.start, candidate.start);
+                            old.end   = EQ_MAX( old.end, candidate.end );
+                            merged    = true;
                         }
-
-                        if( !merged )
-                            requests.push_back( candidate );
                     }
+
+                    if( !merged )
+                        requests.push_back( candidate );
+                }
             }
         }
 
@@ -1506,7 +1510,7 @@ void RSPConnection::_sendDatagram( const uint8_t* data, const uint64_t size,
     header->writeSeqID = writeSeqID;
     header->dataIDlength = dataIDlength;
 
-    memcpy( header+1, ptr, packetSize );
+    memcpy( header + 1, ptr, packetSize );
 
     // send Data
     _handleDataDatagram( header );
