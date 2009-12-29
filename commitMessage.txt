@@ -1,9 +1,9 @@
-Make instance data cache size configurable
+Fix master cm caching statistics
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

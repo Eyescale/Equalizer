@@ -160,7 +160,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
         return VERSION_INVALID;
     }
 
-    const uint32_t oldest  = getOldestVersion();
+    const uint32_t oldest = getOldestVersion();
     uint32_t start = (requested == VERSION_OLDEST) ? oldest : requested;
     uint32_t end   = _version;
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
@@ -172,7 +172,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
             packet->maxCachedVersion >= start )
         {
 #ifdef EQ_INSTRUMENT_MULTICAST
-            _hit += packet->maxCachedVersion - start;
+            _hit += packet->maxCachedVersion + 1 - start;
 #endif
             start = packet->maxCachedVersion + 1;
         }
