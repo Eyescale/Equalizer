@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -75,7 +75,8 @@ bool InstanceCache::Data::operator == ( const InstanceCache::Data& rhs ) const
 }
 
 InstanceCache::Item::Item()
-        : used( 0 )
+        : time( 0 )
+        , used( 0 )
         , access( 0 )
 {}
 
@@ -140,6 +141,8 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
         }
         item.data.versions.push_back( new ObjectInstanceDataIStream ); 
     }
+
+    item.time = _clock.getTime64();
 
     EQASSERT( !item.data.versions.empty( ));
     ObjectDataIStream* stream = item.data.versions.back();
@@ -216,6 +219,42 @@ bool InstanceCache::erase( const uint32_t id )
     _releaseStreams( item );
     _items->erase( i );
     return true;
+}
+
+void InstanceCache::expire( const int64_t timeout )
+{
+    const int64_t time = _clock.getTime64() - timeout;
+    if( time <= 0 )
+        return;
+
+    std::vector< uint32_t > keys;
+
+    base::ScopedMutex mutex( _items );
+    for( ItemHash::iterator i = _items->begin(); i != _items->end(); ++i )
+    {
+        Item& item = i->second;
+        EQASSERT( !item.data.versions.empty( ));
+
+        if( item.time < time )
+        {
+            if( item.access == 0 )
+            {
+                _releaseStreams( item );
+                keys.push_back( i->first );
+            }
+            else
+                EQWARN << "Expired item " << item.key << " still accessed"
+                       << std::endl;
+        }
+    }
+
+    for( std::vector< uint32_t >::const_iterator i = keys.begin();
+         i != keys.end(); ++i )
+    {
+        Item& item = _items.data[ *i ];
+        if( item.data.versions.empty( ))
+            _items->erase( *i );
+    }
 }
 
 void InstanceCache::_releaseStreams( InstanceCache::Item& item )

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -107,11 +107,15 @@ namespace net
         /** @return the number of bytes used by the instance cache. */
         long getSize() const { return _size; }
 
+        /** Remove all items which are older than the given time. */
+        void expire( const int64_t age );
+
     private:
         struct Item
         {
             Item();
             Data data;
+            int64_t time;
             unsigned used;
             unsigned access;
         };
@@ -122,6 +126,8 @@ namespace net
 
         const long _maxSize; //!< high-water mark to start releasing commands
         long _size;          //!< Current number of bytes stored
+
+        const base::Clock _clock;  //!< Clock for item expiration
 
         void _releaseItems( const uint32_t minUsage );
         void _releaseStreams( InstanceCache::Item& item );

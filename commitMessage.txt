@@ -1,9 +1,9 @@
-Minor code cleanup
+Implement instance cache expiration
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

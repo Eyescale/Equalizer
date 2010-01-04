@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -407,6 +407,8 @@ namespace eq
         /** The global clock. */
         base::Clock _clock;
 
+        std::deque< int64_t > _frameTimes; //!< Start time of last frames
+
         /** true while the config is initialized and no window has exited. */
         bool _running;
 
@@ -419,6 +421,7 @@ namespace eq
         void _addNode( Node* node );
         void _removeNode( Node* node );
         Node* _findNode( const uint32_t id );
+        void _frameStart();
 
         friend class ConfigDeserializer;
         void _addObserver( Observer* observer );

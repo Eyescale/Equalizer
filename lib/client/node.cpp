@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -589,6 +589,7 @@ net::CommandResult Node::_cmdFrameStart( net::Command& command )
 
     EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber << endl;
 
+    _config->_frameStart();
     frameStart( packet->frameID, frameNumber );
     EQASSERTINFO( _currentFrame >= frameNumber, 
                   "Node::frameStart() did not start frame " << frameNumber );

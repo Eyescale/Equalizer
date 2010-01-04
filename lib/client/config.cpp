@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -424,6 +424,17 @@ uint32_t Config::startFrame( const uint32_t frameID )
     return _currentFrame;
 }
 
+void Config::_frameStart()
+{
+    _frameTimes.push_back( _clock.getTime64( ));
+    while( _frameTimes.size() > _latency )
+    {
+        const int64_t age = _frameTimes.back() - _frameTimes.front();
+        expireInstanceData( age );
+        _frameTimes.pop_front();
+    }
+}
+
 uint32_t Config::finishFrame()
 {
     ConfigStatistics        stat( Statistic::CONFIG_FINISH_FRAME, this );
@@ -442,7 +453,7 @@ uint32_t Config::finishFrame()
 
 		handleEvents();
 
-        // local node  finish (frame-latency) sync
+        // local node finish (frame-latency) sync
         if( !_nodes.empty( ))
         {
             EQASSERT( _nodes.size() == 1 );
@@ -804,6 +815,7 @@ net::CommandResult Config::_cmdReleaseFrameLocal( net::Command& command )
     const ConfigReleaseFrameLocalPacket* packet =
         command.getPacket< ConfigReleaseFrameLocalPacket >();
 
+    _frameStart(); // never happened from node
     releaseFrameLocal( packet->frameNumber );
     return net::COMMAND_HANDLED;
 }

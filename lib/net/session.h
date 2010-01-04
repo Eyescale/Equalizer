@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -357,6 +357,10 @@ namespace net
         /** Registers request for packets awaiting a return value. */
         base::RequestHandler _requestHandler;
         //@}
+
+        /** @internal */
+        void expireInstanceData( const int64_t age )
+            { _instanceCache.expire( age ); }
 
     private:
         /** Set the local node to which this session is mapped */
