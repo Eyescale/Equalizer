@@ -53,7 +53,6 @@ namespace net
         /** @return the working directory of the program. */
         static const std::string& getWorkDir() { return _workDir; }
 
-
         /** 
          * Sets the default listening port.
          * 

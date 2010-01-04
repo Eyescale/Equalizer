@@ -1087,8 +1087,8 @@ CommandResult Session::_cmdInstance( Command& command )
 
     if( packet->dataSize > 0 )
     {
-        const ObjectVersion key( packet->objectID, packet->version ); 
-        _instanceCache.add( key, packet->masterInstanceID, command, usage );
+        const ObjectVersion rev( packet->objectID, packet->version ); 
+        _instanceCache.add( rev, packet->masterInstanceID, command, usage );
     }
 
     return result;
@@ -1102,7 +1102,7 @@ std::ostream& operator << ( std::ostream& os, Session* session )
         return os;
     }
     
-    os << "session " << session->getID() << "(" << (void*)session
+    os << "session " << session->getID() << " (" << (void*)session
        << ")";
 
     return os;
