@@ -1018,21 +1018,17 @@ void Channel::drawStatistics()
 
         float x = static_cast< float >( frameMin );
         const float y1 = static_cast< float >( nextY );
-        const float y2 = static_cast< float >( pvp.getYEnd( ));
+        const float y2 = static_cast< float >( height );
 
-        glBegin( GL_QUADS );
+        glBegin( GL_LINES );
         glColor3f( .5f-dim, 1.0f-dim, .5f-dim );
-        glVertex3f( x+1.0f, y2, 0.3f );
-        glVertex3f( x,      y2, 0.3f );
-        glVertex3f( x,      y1, 0.3f );
-        glVertex3f( x+1.0f, y1, 0.3f );
+        glVertex3f( x, y1, 0.3f );
+        glVertex3f( x, y2, 0.3f );
 
         x = static_cast< float >( frameMax );
         glColor3f( .5f-dim, .5f-dim, .5f-dim );
-        glVertex3f( x+1.0f, y2, 0.3f );
-        glVertex3f( x,      y2, 0.3f );
-        glVertex3f( x,      y1, 0.3f );
-        glVertex3f( x+1.0f, y1, 0.3f );
+        glVertex3f( x, y1, 0.3f );
+        glVertex3f( x, y2, 0.3f );
         glEnd();
 
         dim += .1f;
