@@ -18,6 +18,9 @@
 #ifndef EQ_H
 #define EQ_H
 
+#pragma warning(push)
+#pragma warning(disable : 4244) //conversion from .. to ..,possible loss of data
+
 #include <eq/base/base.h>
 
 #include <eq/client/canvas.h>
@@ -81,4 +84,5 @@ namespace eqNet  = ::eq::net;
     \htmlinclude "RelNotes.dox"
 */
 
+#pragma warning(pop)
 #endif // EQ_H
