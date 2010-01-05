@@ -44,8 +44,8 @@ typedef CommandFunc<Session> CmdFunc;
 
 Session::Session()
         : _requestHandler( true /* threadSafe */ )
-        , _id(EQ_ID_INVALID)
-        , _isMaster(false)
+        , _id( EQ_ID_INVALID )
+        , _isMaster( false )
         , _idPool( 0 ) // Master pool is filled in Node::registerSession
         , _instanceIDs( std::numeric_limits< long >::min( )) 
         , _instanceCache( Global::getIAttribute( 
@@ -366,27 +366,24 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
                          << id << " version " << version << std::endl;
 
     EQASSERT( object->getID() == EQ_ID_INVALID );
+    EQASSERT( !object->isMaster( ));
     EQASSERT( id != EQ_ID_INVALID );
     EQASSERT( !_localNode->inCommandThread( ));
         
-    NodeID masterNodeID;
-    if( !object->isMaster( ))
+    // Connect master node, can't do that from the command thread!
+    NodeID masterNodeID = getIDMaster( id );
+    if( masterNodeID == NodeID::ZERO )
     {
-        // Connect master node, can't do that from the command thread!
-        masterNodeID = getIDMaster( id );
-        if( masterNodeID == NodeID::ZERO )
-        {
-            EQWARN << "Can't find master node for object id " << id <<std::endl;
-            return EQ_ID_INVALID;
-        }
+        EQWARN << "Can't find master node for object id " << id <<std::endl;
+        return EQ_ID_INVALID;
+    }
 
-        NodePtr master = _localNode->connect( masterNodeID );
-        if( !master || master->getState() == Node::STATE_STOPPED )
-        {
-            EQWARN << "Can't connect master node with id " << masterNodeID
-                   << " for object id " << id << std::endl;
-            return EQ_ID_INVALID;
-        }
+    NodePtr master = _localNode->connect( masterNodeID );
+    if( !master || master->getState() == Node::STATE_STOPPED )
+    {
+        EQWARN << "Can't connect master node with id " << masterNodeID
+               << " for object id " << id << std::endl;
+        return EQ_ID_INVALID;
     }
 
     SessionMapObjectPacket packet;
@@ -414,7 +411,7 @@ bool Session::mapObjectSync( const uint32_t requestID )
     _requestHandler.waitRequest( requestID, version );
 
     const bool mapped = ( object->getID() != EQ_ID_INVALID );
-    if( mapped && !object->isMaster( ))
+    if( mapped )
     {
         object->_cm->applyMapData(); // apply instance data on slave instances
         if( version != VERSION_OLDEST && version != VERSION_NONE )
@@ -435,43 +432,43 @@ void Session::unmapObject( Object* object )
     EQLOG( LOG_OBJECTS ) << "Unmap " << typeid( *object ).name() << " from id "
         << object->getID() << std::endl;
 
-    // Slave: send unsubscribe to master. Master will send detach packet.
-    if( !object->isMaster( ))
+    // send unsubscribe to master, master will send detach packet.
+    EQASSERT( !object->isMaster( ));
+    CHECK_NOT_THREAD( _commandThread );
+    
+    const uint32_t masterInstanceID = object->getMasterInstanceID();
+    if( masterInstanceID != EQ_ID_INVALID )
     {
-        CHECK_NOT_THREAD( _commandThread );
-        const uint32_t masterInstanceID = object->getMasterInstanceID();
-        if( masterInstanceID != EQ_ID_INVALID )
+        _idMasterMutex.set();
+        const NodeID& masterNodeID = _pollIDMaster( id );
+        _idMasterMutex.unset();
+
+        NodePtr localNode = _localNode;
+        NodePtr master    = localNode.isValid() ? 
+                                localNode->getNode( masterNodeID ) : 0;
+        if( master.isValid() && master->isConnected( ))
         {
-            _idMasterMutex.set();
-            const NodeID& masterNodeID = _pollIDMaster( id );
-            _idMasterMutex.unset();
+            SessionUnsubscribeObjectPacket packet;
+            packet.requestID = _requestHandler.registerRequest();
+            packet.objectID  = id;
+            packet.masterInstanceID = masterInstanceID;
+            packet.slaveInstanceID  = object->getInstanceID();
+            send( master, packet );
 
-            NodePtr localNode = _localNode;
-            NodePtr master    = localNode.isValid() ? 
-                                    localNode->getNode( masterNodeID ) : 0;
-            if( master.isValid() && master->isConnected( ))
-            {
-                SessionUnsubscribeObjectPacket packet;
-                packet.requestID = _requestHandler.registerRequest();
-                packet.objectID  = id;
-                packet.masterInstanceID = masterInstanceID;
-                packet.slaveInstanceID  = object->getInstanceID();
-                send( master, packet );
-
-                _requestHandler.waitRequest( packet.requestID );
-                return;
-            }
-            EQERROR << "Master node for object id " << id << " not connected"
-                    << std::endl;
+            _requestHandler.waitRequest( packet.requestID );
+            return;
         }
+        EQERROR << "Master node for object id " << id << " not connected"
+                << std::endl;
     }
 
-    // Master (or no unsubscribe sent): Detach directly
+    // no unsubscribe sent: Detach directly
     detachObject( object );
 }
 
 bool Session::registerObject( Object* object )
 {
+    EQASSERT( object );
     EQASSERT( object->getID() == EQ_ID_INVALID );
 
     const uint32_t id = genIDs( 1 );
@@ -481,8 +478,8 @@ bool Session::registerObject( Object* object )
 
     const uint32_t requestID = _setIDMasterNB( id, _localNode->getNodeID( ));
     object->setupChangeManager( object->getChangeType(), true );
+    attachObject( object, id, EQ_ID_INVALID );
 
-    EQCHECK( mapObject( object, id ));
     _setIDMasterSync( requestID ); // sync, master knows our ID now
     EQLOG( LOG_OBJECTS ) << "Registered " << typeid( *object ).name()
                          << " to id " << id << std::endl;
@@ -491,10 +488,14 @@ bool Session::registerObject( Object* object )
 
 void Session::deregisterObject( Object* object )
 {
+    EQASSERT( object )
     const uint32_t id = object->getID();
+    if( id == EQ_ID_INVALID ) // not registered
+        return;
 
     EQLOG( LOG_OBJECTS ) << "Deregister " << typeid( *object ).name() 
                          << " from id " << id << std::endl;
+    EQASSERT( object->isMaster( ));
 
     // unmap slaves
     const NodeVector* slaves = object->_getSlaveNodes();
@@ -512,8 +513,10 @@ void Session::deregisterObject( Object* object )
         }
     }
 
+    detachObject( object );
+    object->_setChangeManager( ObjectCM::ZERO );
+
     // TODO unsetIDMaster ?
-    unmapObject( object );
     freeIDs( id, 1 );
 }
 
@@ -783,9 +786,7 @@ CommandResult Session::_cmdDetachObject( Command& command )
         }
     }
 
-    if( packet->requestID != EQ_ID_INVALID )
-        _requestHandler.serveRequest( packet->requestID );
-
+    _requestHandler.serveRequest( packet->requestID );    
     return COMMAND_HANDLED;
 }
 
@@ -798,47 +799,36 @@ CommandResult Session::_cmdMapObject( Command& command )
 
     Object* object = static_cast<Object*>(
         _requestHandler.getRequestData( packet->requestID ));    
+
     EQASSERT( object );
+    EQASSERT( !object->isMaster( ));
+    EQASSERT( packet->masterNodeID != NodeID::ZERO );
+
     const uint32_t id = packet->objectID;
+    NodePtr master = _localNode->getNode( packet->masterNodeID );
 
-    if( !object->isMaster( ))
-    { 
-        EQASSERT( packet->masterNodeID != NodeID::ZERO );
-        NodePtr master = _localNode->getNode( packet->masterNodeID );
+    EQASSERTINFO( master.isValid() && master->isConnected(),
+                  "Master node for object id " << id << " not connected" );
 
-        EQASSERTINFO( master.isValid() && master->isConnected(),
-                      "Master node for object id " << id << " not connected" );
+    // slave instantiation - subscribe first
+    SessionSubscribeObjectPacket subscribePacket( packet );
+    subscribePacket.instanceID = _genNextID( _instanceIDs );
 
-        // slave instantiation - subscribe first
-        SessionSubscribeObjectPacket subscribePacket( packet );
-        subscribePacket.instanceID = _genNextID( _instanceIDs );
-
-        const InstanceCache::Data& cached = _instanceCache[ id ];
-        if( cached != InstanceCache::Data::NONE )
-        {
-            const InstanceDataDeque& versions = cached.versions;
-            EQASSERT( !cached.versions.empty( ));
-            subscribePacket.useCache = true;
-            subscribePacket.masterInstanceID = cached.masterInstanceID;
-            subscribePacket.minCachedVersion = versions.front()->getVersion();
-            subscribePacket.maxCachedVersion = versions.back()->getVersion();
-            EQLOG( LOG_OBJECTS ) << "Object " << id << " have v"
-                                 << subscribePacket.minCachedVersion << ".."
-                                 << subscribePacket.maxCachedVersion 
-                                 << std::endl;
-        }
-
-        send( master, subscribePacket );
-        return COMMAND_HANDLED;
+    const InstanceCache::Data& cached = _instanceCache[ id ];
+    if( cached != InstanceCache::Data::NONE )
+    {
+        const InstanceDataDeque& versions = cached.versions;
+        EQASSERT( !cached.versions.empty( ));
+        subscribePacket.useCache = true;
+        subscribePacket.masterInstanceID = cached.masterInstanceID;
+        subscribePacket.minCachedVersion = versions.front()->getVersion();
+        subscribePacket.maxCachedVersion = versions.back()->getVersion();
+        EQLOG( LOG_OBJECTS ) << "Object " << id << " have v"
+                             << subscribePacket.minCachedVersion << ".."
+                             << subscribePacket.maxCachedVersion << std::endl;
     }
 
-    attachObject( object, id, EQ_ID_INVALID );
-
-    EQLOG( LOG_OBJECTS ) << "mapped object id " << object->getID() << " @" 
-                         << (void*)object << " is " << typeid(*object).name()
-                         << std::endl;
-
-    _requestHandler.serveRequest( packet->requestID, packet->version );
+    send( master, subscribePacket );
     return COMMAND_HANDLED;
 }
 
@@ -853,7 +843,6 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     const uint32_t id   = packet->objectID;
 
     Object* master = 0;
-
     {
         base::ScopedMutex mutex( _objects );
         ObjectVectorHash::const_iterator i = _objects->find( id );

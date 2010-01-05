@@ -1,8 +1,10 @@
-Simplify config statistics sampling and other minor cleanups
+Clean up object mapping and registration code
+Fix false deregister for client segments
 
 [ ] May break build
 [ ] May break existing applications
 [ ] New Feature
+[x] Bugfix
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

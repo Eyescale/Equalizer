@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -102,7 +102,7 @@ void Canvas::_deregister()
         EQASSERT( segment->getID() != EQ_ID_INVALID );
         EQASSERT( !segment->isMaster( ));
 
-        _config->deregisterObject( segment );
+        _config->unmapObject( segment );
         segment->_canvas = 0;
         nodeFactory->releaseSegment( segment );
     }

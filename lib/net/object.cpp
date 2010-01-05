@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -106,10 +106,6 @@ void Object::attachToSession( const uint32_t id, const uint32_t instanceID,
 
 void Object::detachFromSession()
 {
-    // Slave objects keep their cm to be able to sync queued versions
-    if( isMaster( )) 
-        _setChangeManager( ObjectCM::ZERO );
-
     _id         = EQ_ID_INVALID;
     _instanceID = EQ_ID_INVALID;
     _session    = 0;
