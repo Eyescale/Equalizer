@@ -1,9 +1,8 @@
-Implement instance cache expiration
+Simplify config statistics sampling and other minor cleanups
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

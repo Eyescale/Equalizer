@@ -30,7 +30,6 @@ namespace eq
 ConfigStatistics::ConfigStatistics( const Statistic::Type type, 
                                     Config* config )
         : StatisticSampler< Config >( type, config, config->getCurrentFrame( ))
-        , ignore( false )
 {
     const std::string& name = config->getName();
     if( name.empty( ))
@@ -44,9 +43,6 @@ ConfigStatistics::ConfigStatistics( const Statistic::Type type,
 
 ConfigStatistics::~ConfigStatistics()
 {
-    if( ignore )
-        return;
-
     event.data.statistic.endTime = _owner->getTime();
     _owner->sendEvent( event );
 }

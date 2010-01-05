@@ -438,21 +438,21 @@ void Config::_frameStart()
 
 uint32_t Config::finishFrame()
 {
-    ConfigStatistics        stat( Statistic::CONFIG_FINISH_FRAME, this );
-
-    ClientPtr client        = getClient();
-    const uint32_t   frameToFinish = (_currentFrame >= _latency) ? 
+    ClientPtr client = getClient();
+    const uint32_t frameToFinish = (_currentFrame >= _latency) ? 
                                       _currentFrame - _latency : 0;
-    const bool needsLocalSync = _needsLocalSync();
+
+    ConfigStatistics stat( Statistic::CONFIG_FINISH_FRAME, this );
+    stat.event.data.statistic.frameNumber = frameToFinish;
+
     {
         ConfigStatistics waitStat( Statistic::CONFIG_WAIT_FINISH_FRAME, this );
+        waitStat.event.data.statistic.frameNumber = frameToFinish;
         
         // local draw sync
-        if( needsLocalSync )
+        if( _needsLocalSync( ))
             while( _unlockedFrame < _currentFrame )
                 client->processCommand();
-
-		handleEvents();
 
         // local node finish (frame-latency) sync
         if( !_nodes.empty( ))
@@ -462,29 +462,13 @@ uint32_t Config::finishFrame()
 
             while( node->getFinishedFrame() < frameToFinish )
                 client->processCommand();
-
-			handleEvents();
         }
 
         // global sync
         _finishedFrame.waitGE( frameToFinish );
-
-        // handle directly, it would not be processed in time using the normal
-        // event flow
-        waitStat.event.data.statistic.frameNumber = frameToFinish;
-        waitStat.event.data.statistic.endTime     = getTime();
-        handleEvent( &waitStat.event );
-        waitStat.ignore = true; // don't send again
     }
 
     handleEvents();
-    
-    // handle directly - see above
-    stat.event.data.statistic.frameNumber = frameToFinish;
-    stat.event.data.statistic.endTime     = getTime();
-    handleEvent( &stat.event );
-    stat.ignore = true; // don't send again
-
     _updateStatistics( frameToFinish );
 
     EQLOG( base::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish

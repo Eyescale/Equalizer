@@ -32,8 +32,6 @@ namespace eq
     public:
         ConfigStatistics( const Statistic::Type type, Config* config );
         virtual ~ConfigStatistics();
-
-        bool        ignore;
     };
 }
 

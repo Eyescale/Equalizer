@@ -1212,7 +1212,7 @@ bool RSPConnection::_acceptRemoveConnection( const ID id )
 	{
 		_countAcceptChildren--;
 		_children[0]->close();
-		_children.erase( _children.begin() );
+		_children.clear();
 	}
 
 	return true;

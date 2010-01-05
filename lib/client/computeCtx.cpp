@@ -21,14 +21,15 @@
 
 namespace eq
 {
-	
-	ComputeCtx::ComputeCtx( Pipe* parent ): _pipe( parent )
-	{
-		EQASSERT( _pipe ); 
-	}
-	
-	ComputeCtx::~ComputeCtx()
-	{
-	}
+
+ComputeCtx::ComputeCtx( Pipe* parent )
+        : _pipe( parent )
+{
+    EQASSERT( _pipe ); 
+}
+
+ComputeCtx::~ComputeCtx()
+{
+}
 	
 }

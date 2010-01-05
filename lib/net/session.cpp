@@ -154,6 +154,8 @@ void Session::notifyMapped( NodePtr node )
 //---------------------------------------------------------------------------
 uint32_t Session::genIDs( const uint32_t range )
 {
+    // TODO: retrieve ID's from non-master nodes?
+
     uint32_t id = _idPool.genIDs( range );
     if( id != EQ_ID_INVALID || _isMaster )
     {
@@ -178,7 +180,6 @@ uint32_t Session::genIDs( const uint32_t range )
 void Session::freeIDs( const uint32_t start, const uint32_t range )
 {
     _idPool.freeIDs( start, range );
-    // TODO: could return IDs to master sometimes ?
 }
 
 //---------------------------------------------------------------------------
@@ -408,8 +409,8 @@ bool Session::mapObjectSync( const uint32_t requestID )
         return false;
 
     Object* object = EQSAFECAST( Object*, data );
-
     uint32_t version = VERSION_NONE;
+
     _requestHandler.waitRequest( requestID, version );
 
     const bool mapped = ( object->getID() != EQ_ID_INVALID );
@@ -535,7 +536,6 @@ bool Session::dispatchCommand( Command& command )
             EQASSERT( command.isValid( ));
             const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
             const uint32_t      id        = objPacket->objectID;
-
 
             if( _objects->find( id ) == _objects->end( ))
                 // When the instance ID is set to none, we only care about the
