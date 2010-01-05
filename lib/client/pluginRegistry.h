@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,7 +37,7 @@ namespace eq
         EQ_EXPORT const CompressorVector& getCompressors() const;
 
         /* @return the compressor with the given name, or 0. */
-        Compressor* findCompressor( const uint32_t name );
+        EQ_EXPORT Compressor* findCompressor( const uint32_t name );
 
     private:
         CompressorVector _compressors;
