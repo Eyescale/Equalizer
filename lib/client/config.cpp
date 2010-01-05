@@ -355,6 +355,7 @@ bool Config::init( const uint32_t initID )
     _currentFrame = 0;
     _unlockedFrame = 0;
     _finishedFrame = 0;
+    _frameTimes.clear();
 
     ConfigInitPacket packet;
     packet.requestID  = _requestHandler.registerRequest();

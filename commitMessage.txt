@@ -2,8 +2,8 @@ Implement instance cache expiration
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
-[x] Optimization
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation

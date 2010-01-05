@@ -243,7 +243,7 @@ void InstanceCache::expire( const int64_t timeout )
                 keys.push_back( i->first );
             }
             else
-                EQWARN << "Expired item " << item.key << " still accessed"
+                EQWARN << "Expired item " << i->first << " still accessed"
                        << std::endl;
         }
     }
