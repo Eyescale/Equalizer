@@ -545,10 +545,11 @@ bool RSPConnection::_handleInitData()
 
     case COUNTNODE:
     {
-            if( _handleCountNode( ))
+        if( _handleCountNode( ))
             _timeouts = 20;
-            else
+        else
             _timeouts = 0;
+        break;
     }
     
     case ID_EXIT:
