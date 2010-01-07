@@ -1357,9 +1357,11 @@ void Node::_handleDisconnect()
     NodePtr node;
     ConnectionNodeHash::iterator i = _connectionNodes.find( connection );
     if( i != _connectionNodes.end( ))
+    {
         node = i->second;
+        _connectionNodes.erase( i );
+    }
 
-    _connectionNodes.erase( i );
     if( node.isValid( ))
     {
         node->_state    = STATE_STOPPED;

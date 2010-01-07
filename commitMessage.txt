@@ -1,10 +1,9 @@
-RSP cleanups: refactor connection count in initialization, decrease time
-to initialize.
+Fix bug during node disconnect
 
 [ ] May break build
 [ ] May break existing applications
 [ ] New Feature
-[ ] Bugfix
-[x] Cleanup
-[x] Optimization
+[x] Bugfix
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation
