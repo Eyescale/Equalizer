@@ -1,9 +1,10 @@
-Disable some MSVC-specific warnings (Andreas Kirsch)
+RSP cleanups: refactor connection count in initialization, decrease time
+to initialize.
 
 [ ] May break build
 [ ] May break existing applications
 [ ] New Feature
 [ ] Bugfix
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

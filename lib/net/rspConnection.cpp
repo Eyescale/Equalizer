@@ -121,8 +121,8 @@ RSPConnection::RSPConnection()
     _recvBuffer = _inBuffers[ _recvBufferIndex ];
     _nackBuffer.reserve( _mtu );
 
-    EQLOG( net::LOG_RSP ) << "New RSP Connection, buffer size: " << _bufferSize
-                          << ", packet size:" << _mtu << std::endl;
+    EQLOG( net::LOG_RSP ) << "New RSP Connection, buffer size " << _bufferSize
+                          << ", packet size " << _mtu << std::endl;
 }
 RSPConnection::~RSPConnection()
 {
@@ -406,11 +406,11 @@ bool RSPConnection::_acceptID()
     _timeouts = 0;
     while ( true )
     {
-        switch ( _connectionSet.select( 100 ) )
+        switch( _connectionSet.select( 10 ))
         {
             case ConnectionSet::EVENT_TIMEOUT:
                 ++_timeouts;
-                if ( _timeouts < 10 )
+                if ( _timeouts < 20 )
                 {
                     EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
                     const DatagramNode ackNode ={ ID_HELLO, _id };
@@ -491,14 +491,14 @@ bool RSPConnection::_initReadThread()
     _timeouts = 0;
     while ( true )
     {
-        switch ( _connectionSet.select( 100 ) )
+        switch( _connectionSet.select( 10 ) )
         {
             case ConnectionSet::EVENT_TIMEOUT:
                 ++_timeouts;
-                if( _timeouts < 10 )
-                    _sendDatagramCountNode();
-                else
+                if( _timeouts >= 20 )
                     return true;
+
+                _sendDatagramCountNode();
                 break;
 
             case ConnectionSet::EVENT_DATA:
@@ -545,36 +545,21 @@ bool RSPConnection::_handleInitData()
 
     case COUNTNODE:
     {
-        const DatagramCountConnection* countConn = 
-                reinterpret_cast< const DatagramCountConnection* >
-                                                      ( _readBuffer.getData( ));
-        
-        // we know all connections
-        if (( _children.size() == countConn->nbClient ) &&
-            ( _children.size() > 1 )) 
-        {
+            if( _handleCountNode( ))
             _timeouts = 20;
-            return true;
-        }
-        RSPConnectionPtr connection = 
-                            _findConnectionWithWriterID( countConn->clientID );
-
-        if ( !connection.isValid() )
-        {
+            else
             _timeouts = 0;
-            _addNewConnection( countConn->clientID );
-        }
-        break;
     }
     
     case ID_EXIT:
         return _acceptRemoveConnection( node->connectionID );
 
-    default: break;
+        default:
+            EQUNIMPLEMENTED;
+            break;
+    }
     
-    }//END switch
     return true;
-
 }
 
 void* RSPConnection::Thread::run()
@@ -604,15 +589,13 @@ void RSPConnection::_runReadThread()
             if( _timeouts >= 
                 Global::getIAttribute( Global::IATTR_RSP_MAX_TIMEOUTS ))
             {
-                EQERROR << "Error during send, too many timeouts " << _timeouts
-                        << "/" 
-                        << Global::getIAttribute(Global::IATTR_RSP_MAX_TIMEOUTS)
-                        << std::endl;
+                    EQERROR << "Error during send, too many timeouts "
+                            << _timeouts << std::endl;
 
                 // unblock and terminate write function
                 _repeatQueue.push( RepeatRequest( RepeatRequest::DONE ));
                 while( _writing )
-                    eq::base::sleep( 1 );
+                        base::sleep( 1 );
 
                 _connection = 0;
                 return;
@@ -622,11 +605,11 @@ void RSPConnection::_runReadThread()
             _repeatQueue.push( RepeatRequest( RepeatRequest::ACKREQ ));
             break;
         }
+
         case ConnectionSet::EVENT_DATA:
         {
 #ifdef EQ_INSTRUMENT_RSP
             base::Clock clock;
-            clock.reset();
 #endif            
             if ( !_handleData() )
                return;
@@ -637,6 +620,7 @@ void RSPConnection::_runReadThread()
 #endif
             break;
         }
+
         case ConnectionSet::EVENT_INTERRUPT:
             break;
         default: 
@@ -743,24 +727,13 @@ bool RSPConnection::_handleData( )
     }
 
     case COUNTNODE:
-    {
-        const DatagramCountConnection* countConn = 
-                reinterpret_cast< const DatagramCountConnection* >
-                                                      ( _readBuffer.getData() );
-        
-        // we know all connections
-        if ( _children.size() == countConn->nbClient )
+        _handleCountNode();
             return true;
 
-        RSPConnectionPtr connection = 
-                            _findConnectionWithWriterID( countConn->clientID );
-
-        if ( !connection.isValid() )
-            _addNewConnection( countConn->clientID );
-        break;
+    default: 
+        EQUNIMPLEMENTED;
     }
-    default: break;
-    }//END switch
+
     return true;
 }
 
@@ -1120,6 +1093,25 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     return true;
 }
 
+bool RSPConnection::_handleCountNode()
+{
+    const DatagramCountConnection* countConn = 
+    reinterpret_cast< const DatagramCountConnection* >( _readBuffer.getData( ));
+
+    EQLOG( LOG_RSP ) << "Got " << countConn->nbClient << " from " 
+                     << countConn->clientID << std::endl;
+    // we know all connections
+    if( _children.size() == countConn->nbClient ) 
+        return true;
+
+    RSPConnectionPtr connection = 
+        _findConnectionWithWriterID( countConn->clientID );
+
+    if( !connection.isValid() )
+        _addNewConnection( countConn->clientID );
+    return false;
+}
+
 void RSPConnection::_checkNewID( ID id )
 {
     if ( id == _id )
@@ -1437,6 +1429,7 @@ void RSPConnection::_sendDatagramCountNode()
     if ( !_findConnectionWithWriterID( _id ) )
         return;
 
+    EQLOG( LOG_RSP ) << _children.size() << " nodes" << std::endl;
     const DatagramCountConnection count = { COUNTNODE, _id, _children.size() };
     _connection->write( &count, sizeof( count ));
 }
