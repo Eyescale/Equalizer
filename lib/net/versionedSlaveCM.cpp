@@ -103,7 +103,10 @@ uint32_t VersionedSlaveCM::sync( const uint32_t version )
         delete is;
     }
 
-    _object->getLocalNode()->flushCommands();
+    NodePtr node = _object->getLocalNode();
+    if( node.isValid( ))
+        node->flushCommands();
+
     return _version;
 }
 
@@ -121,7 +124,9 @@ void VersionedSlaveCM::_syncToHead()
         delete is;
     }
 
-    _object->getLocalNode()->flushCommands();
+    NodePtr node = _object->getLocalNode();
+    if( node.isValid( ))
+        node->flushCommands();
 }
 
 
