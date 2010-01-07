@@ -622,8 +622,9 @@ void Compound::_updateOverdraw( Wall& wall )
     if( channelOverdraw.z() > 0 )
     {
         const PixelViewport& pvp = channel->getPixelViewport();
-        const float ratio = static_cast<float>( pvp.w + channelOverdraw.z( )) /
-                            static_cast<float>( pvp.w );
+        const float ratio = static_cast<float>( pvp.w + channelOverdraw.x( ) + 
+                                                channelOverdraw.z( )) /
+                            static_cast<float>( pvp.w + channelOverdraw.x( ));
         wall.resizeRight( ratio );
     }
 
@@ -638,8 +639,9 @@ void Compound::_updateOverdraw( Wall& wall )
     if( channelOverdraw.w() > 0 )
     {
         const PixelViewport& pvp = channel->getPixelViewport();
-        const float ratio = static_cast<float>( pvp.h + channelOverdraw.w( )) /
-                            static_cast<float>( pvp.h );
+        const float ratio = static_cast<float>( pvp.h + + channelOverdraw.y( ) +
+                                                channelOverdraw.w( )) /
+                            static_cast<float>( pvp.h + channelOverdraw.y( ));
         wall.resizeTop( ratio );
     }
 
