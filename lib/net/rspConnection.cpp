@@ -288,7 +288,7 @@ bool RSPConnection::listen()
     // init a thread for manage the communication protocol 
     _thread = new Thread( this );
 
-	_numWriteAcks =  0;
+    _numWriteAcks =  0;
 #ifdef WIN32
     _initAIOAccept();
 #else
@@ -361,8 +361,7 @@ ConnectionPtr RSPConnection::acceptSync()
     ++_countAcceptChildren;
     _sendDatagramCountNode();
     
-    EQINFO << "accepted connection " << (void*)newConnection.get()
-           << std::endl;
+    EQINFO << "accepted RSP connection " << newConnection->_id << std::endl;
     base::ScopedMutex mutexConn( _mutexConnection );
 
     if ( static_cast< int >( _children.size() ) > _countAcceptChildren )
@@ -419,6 +418,7 @@ bool RSPConnection::_acceptID()
                 else 
                 {
                     EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
+                    EQINFO << "opened RSP connection " << _id << std::endl;
                     const DatagramNode confirmNode ={ ID_CONFIRM, _id };
                     _connection->write( &confirmNode, sizeof( DatagramNode ) );
                     _addNewConnection( _id );
@@ -1173,8 +1173,7 @@ bool RSPConnection::_addNewConnection( ID id )
     {
         base::ScopedMutex mutexConn( _mutexConnection );
         _children.push_back( connection );
-        EQWARN << "New connection " << id << std::endl;
-
+        EQWARN << "new rsp connection " << id << std::endl;
         _setEvent();
     }
     _sendDatagramCountNode();
@@ -1191,23 +1190,23 @@ bool RSPConnection::_acceptRemoveConnection( const ID id )
         RSPConnectionPtr child = *i;
         if( child->_id == id )
         {
-            _countAcceptChildren--;
+            --_countAcceptChildren;
             child->close();
             _children.erase( i );
             break;
         }
     }
-	
+    
     _sendDatagramCountNode();
 
     if ( _children.size() == 1 )
-	{
-		_countAcceptChildren--;
-		_children[0]->close();
-		_children.clear();
-	}
+    {
+        --_countAcceptChildren;
+        _children[0]->close();
+        _children.clear();
+    }
 
-	return true;
+    return true;
 }
 bool RSPConnection::_isCurrentSequence( uint16_t sequenceID, uint16_t writer )
 {
