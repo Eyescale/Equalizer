@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -359,7 +359,12 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 #ifdef WIN32
     const uint32_t i = index - WAIT_OBJECT_0;
     EQASSERT( i < MAXIMUM_WAIT_OBJECTS );
-    EQASSERT( i < _fdSetResult.getSize( ));
+
+    // Bug: WaitForMultipleObjects returns occasionally 16 with _fdSet size 2,
+    //   when used by the RSPConnection
+    // WAR: Catch this and ignore the result, this seems to have no side-effects
+    if( i >= _fdSetResult.getSize( ))
+        return EVENT_NONE;
 
     if( i > _connections.size( ))
     {
