@@ -41,13 +41,11 @@ namespace net
  
         void setVersion( const uint32_t version ) { _version = version; }
         uint32_t getVersion() const { return _version; }
-
+        virtual void reset() { DataOStream::reset(); _sequence = 0; }
     protected:
         const Object* const _object;
         uint32_t _version;
         uint32_t _sequence;
-
-        virtual void reset() { DataOStream::reset(); _sequence = 0; }
     };
 }
 }

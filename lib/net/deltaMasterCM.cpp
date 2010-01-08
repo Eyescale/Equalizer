@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,7 +23,6 @@
 #include "log.h"
 #include "node.h"
 #include "object.h"
-#include "objectDeltaDataOStream.h"
 #include "packets.h"
 #include "session.h"
 
@@ -31,15 +31,15 @@ namespace eq
 namespace net
 {
 
-typedef ObjectDeltaDataOStream DeltaData;
 typedef CommandFunc<DeltaMasterCM> CmdFunc;
         
 DeltaMasterCM::DeltaMasterCM( Object* object )
         : FullMasterCM( object )
+        , _deltaData( object )
 {
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &DeltaMasterCM::_cmdCommit ), 0 );
-    // sync commands are send to all instances, even the master gets it
+
     registerCommand( CMD_OBJECT_DELTA, 
                      CmdFunc( this, &DeltaMasterCM::_cmdDiscard ), 0 );
 }
@@ -62,14 +62,13 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
 
     ++_commitCount;
 
-    DeltaData deltaData( _object );
+    _deltaData.reset();
+    _deltaData.setVersion( _version + 1 );
+    _deltaData.enable( _slaves );
+    _object->pack( _deltaData );
+    _deltaData.disable();
 
-    deltaData.setVersion( _version + 1 );
-    deltaData.enable( _slaves );
-    _object->pack( deltaData );
-    deltaData.disable();
-
-    if( !deltaData.hasSentData( ))
+    if( !_deltaData.hasSentData( ))
     {
         _obsolete();
         _checkConsistency();

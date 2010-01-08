@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,6 +22,7 @@
 #include <eq/net/objectCM.h> // base class
 #include <eq/net/version.h>  // enum
 #include <eq/base/idPool.h>  // for EQ_ID_INVALID
+#include "objectInstanceDataOStream.h"
 
 #include <deque>
 
@@ -79,6 +81,7 @@ namespace net
     private:
         /** The managed object. */
         Object* _object;
+        ObjectInstanceDataOStream _os;
     };
 }
 }

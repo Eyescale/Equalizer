@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,7 +24,6 @@
 #include "node.h"
 #include "object.h"
 #include "packets.h"
-#include "objectInstanceDataOStream.h"
 
 using namespace eq::base;
 using namespace std;
@@ -32,8 +32,9 @@ namespace eq
 {
 namespace net
 {
-StaticMasterCM::StaticMasterCM( Object* object )
+StaticMasterCM::StaticMasterCM( Object* object ) 
         : _object( object )
+        , _os( object )
 {}
 
 StaticMasterCM::~StaticMasterCM()
@@ -62,13 +63,13 @@ uint32_t StaticMasterCM::addSlave( Command& command )
         return VERSION_NONE;
     }
 
-    ObjectInstanceDataOStream os( _object );
-    os.setInstanceID( instanceID );
-    os.setNodeID( node->getNodeID( ));
-    os.enable( node );
+    _os.reset();
+    _os.setInstanceID( instanceID );
+    _os.setNodeID( node->getNodeID( ));
+    _os.enable( node );
 
-    _object->getInstanceData( os );
-    os.disable();
+    _object->getInstanceData( _os );
+    _os.disable();
 #ifdef EQ_INSTRUMENT_MULTICAST
     ++_miss;
 #endif

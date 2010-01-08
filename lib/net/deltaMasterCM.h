@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,13 +20,13 @@
 #define EQNET_DELTAMASTERCM_H
 
 #include "fullMasterCM.h"              // base class
-
+#include "objectDeltaDataOStream.h"
 namespace eq
 {
 namespace net
 {
+    typedef ObjectDeltaDataOStream DeltaData;
     class Node;
-    class ObjectDeltaDataOStream;
 
     /** 
      * An object change manager handling full versions and deltas for the master
@@ -41,6 +42,8 @@ namespace net
     private:
         /* The command handlers. */
         CommandResult _cmdCommit( Command& pkg );
+
+        DeltaData _deltaData;        
     };
 }
 }
