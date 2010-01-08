@@ -534,26 +534,24 @@ bool RSPConnection::_handleInitData()
                                                       ( _readBuffer.getData( ));
     switch ( *type )
     {
-    case ID_HELLO:
-        _timeouts = 0;
-        _checkNewID( node->connectionID ) ;
-        return true;
-
-    case ID_CONFIRM:
-        _timeouts = 0;
-        return _addNewConnection( node->connectionID );
-
-    case COUNTNODE:
-    {
-        if( _handleCountNode( ))
-            _timeouts = 20;
-        else
+        case ID_HELLO:
             _timeouts = 0;
-        break;
-    }
+            _checkNewID( node->connectionID ) ;
+            return true;
+
+        case ID_CONFIRM:
+            _timeouts = 0;
+            return _addNewConnection( node->connectionID );
+
+        case COUNTNODE:
+            if( _handleCountNode( ))
+                _timeouts = 20;
+            else
+                _timeouts = 0;
+            break;
     
-    case ID_EXIT:
-        return _acceptRemoveConnection( node->connectionID );
+        case ID_EXIT:
+            return _acceptRemoveConnection( node->connectionID );
 
         default:
             EQUNIMPLEMENTED;
@@ -729,7 +727,7 @@ bool RSPConnection::_handleData( )
 
     case COUNTNODE:
         _handleCountNode();
-            return true;
+        return true;
 
     default: 
         EQUNIMPLEMENTED;

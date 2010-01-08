@@ -1,4 +1,4 @@
-Fix bug during node disconnect
+Minor code cleanup
 
 [ ] May break build
 [ ] May break existing applications
