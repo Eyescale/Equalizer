@@ -19,6 +19,7 @@
 #include "compressor.h"
 
 #include "compressorRLE4B.h"
+#include "compressorRLEB.h"
 #include "compressorRLE4HF.h"
 #include "compressorRLE4BU.h"
 #include "compressorRLEU.h"
@@ -36,8 +37,8 @@ namespace
         eq::plugin::CompressorRLE4HF::getFunctions(),
         eq::plugin::CompressorRLE4BU::getFunctions(),
         eq::plugin::CompressorRLEU::getFunctions(),
+        eq::plugin::CompressorRLEB::getFunctions(),
 #if 0
-        eq::plugin::CompressorRLEByte::getFunctions(),
         eq::plugin::CompressorRLE3B::getFunctions(),
         eq::plugin::CompressorRLE4F::getFunctions(),
 #endif

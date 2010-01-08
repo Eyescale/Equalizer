@@ -6,6 +6,7 @@ MODULE = eqCompressorRLE
 CXXFILES = \
 	compressor.cpp \
 	compressorRLE.cpp \
+	compressorRLEB.cpp \
 	compressorRLE4B.cpp \
 	compressorRLE4U.cpp \
 	compressorRLE4HF.cpp
