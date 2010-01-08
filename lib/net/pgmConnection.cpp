@@ -646,19 +646,9 @@ bool PGMConnection::_setSendRate()
         return true;
 
     RM_SEND_WINDOW  sendWindow;
-    sendWindow.RateKbitsPerSec     = _description->bandwidth * 8;
-
-    // Set window size to max( 10s, 500MB )
-    if( _description->bandwidth * 10 < 500 * 1024 )
-    {
-        sendWindow.WindowSizeInBytes   = 0;
-        sendWindow.WindowSizeInMSecs   = 10000;
-    }
-    else
-    {
-        sendWindow.WindowSizeInBytes   = 5 * EQ_100MB;
-        sendWindow.WindowSizeInMSecs   = 0;
-    }
+    sendWindow.RateKbitsPerSec   = _description->bandwidth * 8;
+    sendWindow.WindowSizeInBytes = 0;
+    sendWindow.WindowSizeInMSecs = 10000; // Set window size to 10s
 
     EQINFO << "Setting PGM send rate to " << sendWindow.RateKbitsPerSec
            << " kBit/s" << std::endl;
