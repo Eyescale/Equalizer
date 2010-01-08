@@ -98,22 +98,21 @@ namespace net
 
         enum DatagramType 
         { 
-            // exchange datagram during data send
             DATA,      // the datagram contains data
             ACKREQ,    // ask for ack from all readers
             NACK,      // negative ack, request missing packets
             ACK,       // positive ack all data
-            ID_HELLO, // a new node is connected.
-            ID_DENY,
-            ID_CONFIRM,
-            ID_EXIT,  // a node is disconnected
-            COUNTNODE  // send to other the number node which I have found
+            ID_HELLO,  // announce a new id
+            ID_DENY,   // deny the id, already used
+            ID_CONFIRM,// a new node is connected
+            ID_EXIT,   // a node is disconnected
+            COUNTNODE  // send to other the number of nodes which I have found
         };
         
         struct DatagramAckRequest
         {
-            uint16_t    type;
-            ID   writerID;
+            uint16_t type;
+            ID       writerID;
             uint16_t lastDatagramID;
             uint16_t sequenceID;
         };
@@ -159,9 +158,9 @@ namespace net
         {
             InBuffer() { reset(); }
             void reset();
-            uint32_t    sequenceID;
-            eq::base::Monitor< bool >  ackSend;
-            eq::base::Monitor< bool >  allRead;
+            int32_t sequenceID;
+            eq::base::Monitor< bool > ready;
+            bool empty;
             uint64_t    readPos;
             base::Bufferb got;
             base::Bufferb data;
@@ -209,7 +208,6 @@ namespace net
 
         eq::base::MTQueue< RepeatRequest > _repeatQueue;
 
-        eq::base::RNG         _rng;
         ID _id; //!< The identifier used to demultiplex multipe writers
         uint32_t _shiftedID; //!< Shifted _id for easier packaging
         
@@ -233,7 +231,7 @@ namespace net
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
         RSPConnectionPtr _parent;
-        int64_t    _lastSequenceIDAck;
+        int32_t _lastSequenceIDAck;
         
         // Current read buffer
         std::vector< InBuffer* > _inBuffers;
@@ -288,7 +286,7 @@ namespace net
         RSPConnectionPtr _findConnectionWithWriterID( 
                                     const ID writerID );
         /** determine if the sequenceID and writerID correspond to 
-            the current sequence which will being write*/
+            the current sequence which will written */
         bool _isCurrentSequence( const uint16_t sequenceID, const ID writer );
         
         /** Analyze the current error and adapt the send rate */

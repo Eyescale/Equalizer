@@ -183,9 +183,9 @@ void RSPConnection::close()
 
 void RSPConnection::InBuffer::reset() 
 {
-    sequenceID = 0;
-    ackSend    = true;
-    allRead    = true;
+    sequenceID = -1;
+    ready      = false;
+    empty      = true;
     readPos    = 0;
 
     got.resize( _ackFreq );
@@ -248,7 +248,8 @@ void RSPConnection::_resetEvent()
 
 RSPConnection::ID RSPConnection::_buildNewID()
 {
-    _id = _rng.get<ID>();
+    eq::base::RNG rng;
+    _id = rng.get<ID>();
     _shiftedID = static_cast< ID >( _id ) << ( sizeof( ID ) * 8 );
     return _id;
 }
@@ -382,8 +383,8 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
     const uint32_t size = EQ_MIN( bytes, _bufferSize );
     InBuffer* readBuffer = _inBuffers[ _readBufferIndex ];
     
-    readBuffer->ackSend.waitEQ( true );
-    readBuffer->allRead.waitEQ( false );
+    readBuffer->ready.waitEQ( true );
+    EQASSERT( !readBuffer->empty );
 
     const int64_t sizeRead = _readSync( readBuffer, buffer, size );
 #ifdef EQ_INSTRUMENT_RSP
@@ -641,23 +642,27 @@ int64_t RSPConnection::_readSync( InBuffer* readBuffer, void* buffer,
     // if all data in the buffer has been taken
     if( readBuffer->readPos == readBuffer->data.getSize( ))
     {
-        EQLOG( net::LOG_RSP ) << "reset read buffer" << std::endl;
-        memset( readBuffer->got.getData(), 0, readBuffer->got.getSize( ));
-        
-        _readBufferIndex = ( _readBufferIndex + 1 ) % _nBuffers;
-        {
-            base::ScopedMutex mutexEvent( _mutexEvent );
-            if( _inBuffers[ _readBufferIndex ]->ackSend == true && 
-                _inBuffers[ _readBufferIndex ]->allRead == false )
-            {
-                _setEvent();
-            }
-            else
-                _resetEvent();
+        EQLOG( net::LOG_RSP ) << "reset read buffer of sequence "
+                              << readBuffer->sequenceID << std::endl;
 
-            readBuffer->data.setSize( 0 );
-            readBuffer->allRead = true;
+        memset( readBuffer->got.getData(), 0, readBuffer->got.getSize( ));
+        readBuffer->data.setSize( 0 );
+        readBuffer->sequenceID = -1;
+        readBuffer->readPos = 0;
+        readBuffer->ready = false;
+        readBuffer->empty = true;
+
+        // set next buffer
+        _readBufferIndex = ( _readBufferIndex + 1 ) % _nBuffers;
+
+        base::ScopedMutex mutex( _mutexEvent );
+        if( _inBuffers[ _readBufferIndex ]->ready == true )
+        {
+            EQASSERT( !_inBuffers[ _readBufferIndex ]->empty );
+            _setEvent();
         }
+        else
+            _resetEvent();
     }
 
     return size;
@@ -758,19 +763,20 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
     // ack data sequence.
     // find the data corresponding buffer 
     // why we haven't a receiver here:
-    // 1: it's a reception data for another connection
+    // 1: it's data for another connection
     // 2: all buffer was not ready during last ack data
-    const uint32_t sequenceID = datagram->writeSeqID  & 0xFFFF;
+    const int32_t sequenceID = datagram->writeSeqID  & 0xFFFF;
+
+    // ignore it if it's a datagram repetition for an other receiver
+    if( connection->_lastSequenceIDAck == sequenceID )
+        return true;
+
     if ( !connection->_recvBuffer )
     {
         EQLOG( net::LOG_RSP ) << "No receive buffer available, searching one" 
                               << std::endl;
 
-        connection->_recvBuffer =
-            connection->_findReceiverWithSequenceID( sequenceID );
-
-        if( connection->_inBuffers[ connection->_recvBufferIndex ]->allRead ==
-            true )
+        if( connection->_inBuffers[ connection->_recvBufferIndex ]->empty )
         {
             connection->_recvBuffer =
                 connection->_inBuffers[ connection->_recvBufferIndex ];
@@ -779,10 +785,10 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
         {
             // we do not have a free buffer, which means that the receiver is
             // slower then our read thread. This should not happen, because now
-            // we'll drop the data and will send a full NACK packet upon the 
-            // ack request, causing retransmission even though we'll drop it
-            // again
-            //EQWARN << "Reader to slow, dropping data" << std::endl;
+            // we'll drop the data and will send a full NACK packet upon the ack
+            // request, causing retransmission even though we'll probably drop
+            // it again
+            EQLOG( LOG_RSP ) << "Reader to slow, dropping data" << std::endl;
             return true;
         }
     }
@@ -790,26 +796,18 @@ bool RSPConnection::_handleDataDatagram( const DatagramData* datagram )
     InBuffer* receive = connection->_recvBuffer;
 
     // if it's the first datagram 
-    if( receive->ackSend == true )
+    if( receive->sequenceID < 0 )
     {
-        if ( sequenceID == receive->sequenceID )
-            return true;
-
-        // if it's a datagram repetition for an other connection, we have
-        // to ignore it
-        if ( ( connection->_lastSequenceIDAck == sequenceID ) &&
-             connection->_lastSequenceIDAck != -1 )
-        {
-            return true;
-        }
-
         EQLOG( net::LOG_RSP ) << "receive data from " << writerID 
                               << " sequenceID " << sequenceID << std::endl;
+        EQASSERT( receive->readPos == 0 );
+        EQASSERT( receive->ready == false );
+
         receive->sequenceID = sequenceID;
-        receive->readPos   = 0;
         receive->data.setSize( 0 );
-        receive->ackSend   = false;
     }
+
+    EQASSERT( receive->ready == false );
 
     const uint64_t index = datagram->dataIDlength >> 16;
 
@@ -866,7 +864,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
                      << " current " << _sequenceID << std::endl;
 
     // ignore sequenceID which is different from my write sequence id
-    //  Reason : - repeated, late ack or an ack for an other writer
+    //  Reason : - repeated, late ack or an ack for another writer
     if( !_isCurrentSequence( ack->sequenceID, ack->writerID ) )
     {
         EQLOG( net::LOG_RSP ) << "ignore Ack, it's not for me" << std::endl;
@@ -966,50 +964,53 @@ void RSPConnection::_addRepeat( const uint32_t* repeatIDs, uint32_t size )
 
 bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
 {
-    EQLOG( net::LOG_RSP ) << "received an ack request from " 
-                          << ackRequest->writerID << std::endl;
-    RSPConnectionPtr connection = 
-                            _findConnectionWithWriterID( ackRequest->writerID );
+    const ID writerID = ackRequest->writerID;
+    const uint16_t sequenceID = ackRequest->sequenceID;
+    EQLOG( net::LOG_RSP ) << "received an ack request from " << writerID
+                          << " for sequence " << sequenceID << std::endl;
 
-    if ( !connection.isValid() )
+    RSPConnectionPtr connection = _findConnectionWithWriterID( writerID );
+    if ( !connection )
     {
         EQUNREACHABLE;
         return false;
     }
+
+    // Repeat ack
+    if( connection->_lastSequenceIDAck == sequenceID )
+    {
+        EQLOG( net::LOG_RSP ) << "repeat Ack for sequence " << sequenceID
+                              << std::endl;
+        _sendAck( writerID, sequenceID );
+        return true;
+    }
+    
     // find the corresponding buffer
-    InBuffer* receive = connection->_findReceiverWithSequenceID( 
-                                               ackRequest->sequenceID );
+    InBuffer* receive = connection->_findReceiverWithSequenceID( sequenceID );
     
     // Why no receiver found ?
-    // 1 : all datagram data has not been received ( timeout )
+    // 1 : no datagram data has been received ( timeout )
     // 2 : all receivers are full and not ready to receive data
     //    We ask for resend of all datagrams
-    if ( !receive )
+    if( !receive )
     {
         EQLOG( net::LOG_RSP )
-            << "receiver not found, ask to repeat all datagrams" << std::endl;
+            << "Buffer not found for sequence " << sequenceID 
+            << ", ask to repeat all datagrams, last ack "
+            << connection->_lastSequenceIDAck << std::endl;
 
         const uint32_t repeatID = ackRequest->lastDatagramID; 
-        _sendNack( connection->_id, ackRequest->sequenceID, 1, &repeatID );
+        _sendNack( connection->_id, sequenceID, 1, &repeatID );
         return true;
     }
     
     EQLOG( net::LOG_RSP ) << "receiver found " << std::endl;
 
-    // Repeat ack
-    if ( receive->ackSend.get() )
-    {
-        EQLOG( net::LOG_RSP ) << "Repeat Ack for sequence: " 
-                              << ackRequest->sequenceID << std::endl;
-        _sendAck( ackRequest->writerID, ackRequest->sequenceID );
-        return true;
-    }
-    
-    // find all lost datagrams
+    // find all missing datagrams
     EQASSERT( ackRequest->lastDatagramID < receive->got.getSize( ));
     eq::base::Buffer< uint32_t > bufferRepeatID;
 
-    for( size_t i = 0; i <= ackRequest->lastDatagramID; i++)
+    for( size_t i = 0; i <= ackRequest->lastDatagramID; ++i )
     {
         // size max datagram = mtu
         if( _maxNAck <= bufferRepeatID.getSize() )
@@ -1040,9 +1041,9 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     if( bufferRepeatID.getSize() > 0 )
     {
         EQLOG( net::LOG_RSP ) << "receiver send Nack to connection "
-                              << connection->_id << ", sequence " 
-                              << ackRequest->sequenceID << std::endl;
-        _sendNack( connection->_id, ackRequest->sequenceID,
+                              << connection->_id << ", sequence " << sequenceID
+                              << std::endl;
+        _sendNack( connection->_id, sequenceID, 
                    bufferRepeatID.getSize(), bufferRepeatID.getData( ));
         return true;
     }
@@ -1055,7 +1056,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     connection->_recvBufferIndex = 
                     ( connection->_recvBufferIndex + 1 ) % _nBuffers;
 
-    if( connection->_inBuffers[ connection->_recvBufferIndex ]->allRead == true)
+    if( connection->_inBuffers[ connection->_recvBufferIndex ]->empty )
     {
         EQLOG( net::LOG_RSP ) << "set next buffer  " << std::endl;
         connection->_recvBuffer = 
@@ -1066,29 +1067,26 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
         EQLOG( net::LOG_RSP ) << "can't set next buffer  " << std::endl;
     }
 
-    EQLOG( net::LOG_RSP ) << "receiver send Ack to connection " 
-                          << connection->_id << ", sequenceID "
-                          << ackRequest->sequenceID << std::endl;
+    EQLOG( net::LOG_RSP ) << "send ack to connection " << connection->_id
+                          << " for sequence " << sequenceID << std::endl;
 
-    _sendAck( connection->_id, receive->sequenceID );
+    _sendAck( connection->_id, sequenceID );
 
 #ifdef EQ_INSTRUMENT_RSP
     ++nAcksSend;
 #endif
 
-    connection->_lastSequenceIDAck = receive->sequenceID;
-    {
-        base::ScopedMutex mutexEvent( _mutexEvent );
-        EQLOG( net::LOG_RSP ) << "data ready, set event for sequence " 
-                              << receive->sequenceID << std::endl;
+    connection->_lastSequenceIDAck = sequenceID;
 
-        // the receiver is ready and can be read by ReadSync
-        receive->ackSend = true;
-        receive->allRead = false;
+    base::ScopedMutex mutexEvent( _mutexEvent );
+    EQLOG( net::LOG_RSP ) << "data ready, set event for sequence " << sequenceID
+                          << std::endl;
 
-        connection->_setEvent();
-    }
+    // the receive buffer is ready and can be read
+    receive->empty = false;
+    receive->ready = true;
 
+    connection->_setEvent();
     return true;
 }
 
@@ -1167,7 +1165,7 @@ bool RSPConnection::_addNewConnection( ID id )
     connection->_connection    = 0;
     connection->_id            = id;
 
-    // protect the event and child size which can be use at the same time 
+    // protect the event and child size which can be used at the same time 
     // in acceptSync
     {
         base::ScopedMutex mutexConn( _mutexConnection );
@@ -1209,7 +1207,7 @@ bool RSPConnection::_acceptRemoveConnection( const ID id )
 }
 bool RSPConnection::_isCurrentSequence( uint16_t sequenceID, uint16_t writer )
 {
-    return (( sequenceID == _sequenceID ) && ( writer == _id ));
+    return ( sequenceID == _sequenceID && writer == _id );
 }
 
 int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
@@ -1242,7 +1240,7 @@ int64_t RSPConnection::write( const void* buffer, const uint64_t bytes )
 
     uint32_t writSeqID = _shiftedID | _sequenceID;
 
-    EQLOG( net::LOG_RSP ) << "write sequence: " << _sequenceID << ", "
+    EQLOG( net::LOG_RSP ) << "write sequence " << _sequenceID << ", "
                           << _nDatagrams << " datagrams" << std::endl;
 
     // send each datagram

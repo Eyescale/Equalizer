@@ -1,9 +1,9 @@
-Minor code cleanup
+RSP cleanup, replace one monitor with non-blocking access -- needs more testing
 
 [ ] May break build
 [ ] May break existing applications
 [ ] New Feature
-[x] Bugfix
-[ ] Cleanup
-[ ] Optimization
+[ ] Bugfix
+[x] Cleanup
+[x] Optimization
 [ ] Documentation

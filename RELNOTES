@@ -58,60 +58,63 @@
   2.1. New Features
 
      * Subpixel Compound for full-scene anti-aliasing (FSAA) or
-       depth-of-field (DOF)
-     * Initial support for using CUDA in Equalizer application
-     * Multicast RSP connection and improvement of netperf to work with it
-     * Configurable message pump and new AGL, WGL, GLX message pump headers
-     * Tile and range boundaries in loadEqualizer
-     * Object serialization buffer size is configurable
-     * Write a texture as a RGB image file
-     * Support for RSP and PGM connection types
-     * New class for an accumulation buffer using a FBO
-     * New Infiniband Communication IBAL
-     * Multiple windows on the same pipe can join the same software swap barrier
-     * Simple RLE compressor
+       depth-of-field (DOF).
+     * Initial support for using CUDA in Equalizer applications.
+     * Multicast RSP connection and adaptation of netperf.
+     * Configurable message pump and new AGL, WGL, GLX message pump headers.
+     * Tile and range boundaries in loadEqualizer.
+     * Object serialization buffer size is configurable.
+     * Textures can be written as RGB image files.
+     * Support for RSP and PGM connection types.
+     * New class for an accumulation buffer using an FBO.
+     * New Infiniband Communication IBAL.
+     * Multiple windows on the same pipe can join the same software swap
+       barrier.
+     * Simple RLE compressor.
 
   2.2. Enhancements
-     
+
      * Separation of the OpenGL calls from the generic window class OSWindow
        to implement window systems which use a different renderer.
 
   2.3. Optimizations
 
-    * Check if textures are power of two or if non power of two textures are supported
-    * IDPool has a different behaviour for detecting the errors in the debug build
-      and being as robust as possible in the release build
-    * Change number of compression chunks dynamically
-    * Improve speed in PGM connection
-    * DELTA objects behaviour optimization
+     * Check if textures are power of two or if non power of two textures are
+       supported.
+     * IDPool has a different behaviour for detecting the errors in the debug
+       build and for being as robust as possible in the release build.
+     * The number of compression chunks change dynamically.
+     * Improve the speed in PGM connection.
+     * Optimization of the DELTA objects behaviour.
 
   2.4. Examples
 
      * EqPly: added anti-aliasing when the application is idling.
-     * EqPly: add new config showing all features through layout switch.
+     * EqPly: add a new config showing all features through a layout switch.
      * EqPly: recursively search directories for models.
      * EqPly: switch to faster VBO rendering on OSX.
-   
+
   2.5. Tools
 
-  2.6. API Changes
+     * 2.6. API Changes
 
-   The following changes breaking compatibility with Equalizer 0.9 source
+   The following changes breaking compatibility with Equalizer 0.6 source
    code were made:
 
-  2.7. Documentation
+     * 2.7. Documentation
 
    The following documentation has been added or substantially improved since
    the last release:
 
      * The Programming and User Guide has been extended to TBD pages and TBD
        figures.
-     * Accumulation Buffer Object.
-     * Subpixel compound API provides a compound for anti-aliasing.
+     * The Accumulation Buffer Object API has been added to the Programming
+       Guide.
+     * The Subpixel compound API provides a compound for anti-aliasing.
      * Update of the net::Object documentation.
      * API and file format changes for the launch parameters.
-     * GPU computing in Equalizer.
-     * Multicast.
+     * GPU computing.
+     * Multicast Data Transfer.
      * Infiniband Communication IBAL.
 
   2.8. Bug Fixes
@@ -133,7 +136,7 @@
      * 2874164: Missing header
      * 2873353: Usage of ext/hash_map and -Werror causes compiler error
      * 2834063: eqPly and eVolve freezes on Mac with glx
-     * 2828296: eVolve depth compositing is broken
+     * 2828269: eVolve depth compositing is broken
      * 2827694: Optimization for delta objects
      * 2822348: No latency when event-driven
 
@@ -145,7 +148,7 @@
      * 2912051: RSP timeout handling
      * 2911293: RSP crash
      * 2910791: RSP clean exit
-     * 2908701: EqPly anti-aliasing broken with eye compound
+     * 2908701: EqPly idle AA broken with eye compound
      * 2882248: Spurious deadlocks on Win32
      * 2874188: Lockup at shutdown
      * 2843849: 64-bit bug in eVolveConverter
