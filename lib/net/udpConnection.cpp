@@ -49,7 +49,7 @@ namespace
 {
 static int32_t _mtu = -1;
 static int32_t _packetRate = -1;
-static uint64_t _maxBucketSize = -1;
+static uint64_t _maxBucketSize = 0;
 }
 
 UDPConnection::UDPConnection()

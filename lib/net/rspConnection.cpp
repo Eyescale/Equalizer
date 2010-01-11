@@ -48,9 +48,9 @@ static const size_t _nBuffers = 4;
 
 static int32_t _mtu = -1;
 static int32_t _ackFreq = -1;
-uint32_t RSPConnection::_payloadSize = -1;
-size_t   RSPConnection::_bufferSize = -1;
-uint32_t RSPConnection::_maxNAck = -1;
+uint32_t RSPConnection::_payloadSize = 0;
+size_t   RSPConnection::_bufferSize = 0;
+uint32_t RSPConnection::_maxNAck = 0;
 
 namespace
 {
