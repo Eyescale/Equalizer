@@ -49,7 +49,7 @@ PGMConnection::PGMConnection()
         : _readFD( INVALID_SOCKET )
         , _writeFD( INVALID_SOCKET )
 #ifdef WIN32
-        : _overlappedAcceptData( 0 )
+        , _overlappedAcceptData( 0 )
         , _overlappedSocket( INVALID_SOCKET )
 #endif
 {
