@@ -1,23 +1,9 @@
-New features:
-- Single-reader, single-writer, non-blocking queue
-- Make number of RSP read buffers configurable
-- Unit tests for MTQueue & LFQueue
+Potential fix for EQ_IGNORE_GLEW compile problem
 
-Optimizations:
-- get-and-reset time function in Clock
-- RSP read buffer handling [needs more testing]:
-  o blocking reader->app queue for filled buffers
-  o non-blocking app->reader return queue for free buffers
-
-Cleanups:
-- RSP read buffer handling (see above)
-- RSP connection never inherits from FDConnection
-
-
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
-[x] New Feature
-[ ] Bugfix
-[x] Cleanup
-[x] Optimization
+[ ] New Feature
+[x] Bugfix
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation
