@@ -16,12 +16,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_COMPRESSOR_H
-#define EQ_COMPRESSOR_H
+#ifndef EQBASE_COMPRESSOR_H
+#define EQBASE_COMPRESSOR_H
 
 #include <eq/plugins/compressor.h> // member
-#include <eq/client/types.h>
-#include <eq/base/dso.h>           // member
+#include "base.h"
+#include "dso.h"           // member
 
 /**
  * @file client/compressor.h
@@ -30,13 +30,19 @@
  */
 namespace eq
 {
+namespace base
+{
     /**
      * A class holding all functions and information for one compressor DSO.
      * @internal
      */
+    class Compressor;
+    typedef std::vector< EqCompressorInfo >  CompressorInfoVector;
+    typedef std::vector< Compressor* >   CompressorVector;
     class Compressor
     {
     public:
+        
         typedef size_t ( *GetNumCompressors_t ) ();
         typedef void   ( *GetInfo_t ) ( const size_t, EqCompressorInfo* const );
         typedef void*  ( *NewCompressor_t ) ( const unsigned );
@@ -105,6 +111,7 @@ namespace eq
 
     EQ_EXPORT std::ostream& operator << ( std::ostream&, 
                                           const EqCompressorInfo& );
+}
 }
 
 #endif //EQ_COMPRESSOR_H

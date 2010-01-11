@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,7 +18,6 @@
 
 #include "global.h"
 #include "nodeFactory.h"
-#include "pluginRegistry.h"
 
 #include <eq/base/file.h>
 #include <eq/net/global.h>
@@ -36,14 +36,12 @@
 namespace eq
 {
 NodeFactory* Global::_nodeFactory = 0;
-PluginRegistry Global::_pluginRegistry;
 std::string Global::_server;
 #ifdef WIN32
 std::string Global::_configFile = "../examples/configs/4-window.all.eqc";
 #else
 std::string Global::_configFile = "examples/configs/4-window.all.eqc";
 #endif
-StringVector Global::_pluginDirectories = _initPluginDirectories();
 
 #ifdef AGL
 static base::Lock _carbonLock;
@@ -82,89 +80,6 @@ void Global::leaveCarbon()
 #ifdef AGL
     _carbonLock.unset();
 #endif
-}
-
-// initialized by EQ_PLUGIN_PATH:
-EQ_EXPORT const StringVector& Global::getPluginDirectories()
-{
-    return _pluginDirectories;
-}
-
-void  Global::addPluginDirectory( const std::string& path )
-{
-    _pluginDirectories.push_back( path );
-}
-
-void  Global::removePluginDirectory( const std::string& path )
-{
-
-    StringVector::iterator i = find( _pluginDirectories.begin(),
-                                     _pluginDirectories.end(), path );
-
-    if( i != _pluginDirectories.end( ))
-        _pluginDirectories.erase( i );
-}
-
-
-StringVector Global::_initPluginDirectories()
-{
-    StringVector pluginDirectories;
-
-    char* env = getenv("EQ_PLUGIN_PATH") ;
-    std::string envString( env ? env : "" );
-
-    if( envString.empty( ))
-    {
-        pluginDirectories.push_back( "/usr/local/share/Equalizer/plugins" );
-        pluginDirectories.push_back( ".eqPlugins" );
-
-        char cwd[MAXPATHLEN];
-        pluginDirectories.push_back( getcwd( cwd, MAXPATHLEN ));
-
-#ifdef WIN32
-        if( GetModuleFileName( 0, cwd, MAXPATHLEN ) > 0 )
-        {
-            pluginDirectories.push_back( base::getDirname( cwd ));
-        }
-#endif
-
-#ifdef Darwin
-        env = getenv( "DYLD_LIBRARY_PATH" );
-#else
-        env = getenv( "LD_LIBRARY_PATH" );
-#endif
-        if( env )
-            envString = env;
-    }
-
-#ifdef WIN32
-    const char separator = ';';
-#else
-    const char separator = ':';
-#endif
-        
-    while( !envString.empty( ))
-    {
-        size_t nextPos = envString.find( separator );
-        if ( nextPos == std::string::npos )
-            nextPos = envString.size();
-
-        std::string path = envString.substr( 0, nextPos );
-        if ( nextPos == envString.size())
-            envString = "";
-        else
-            envString = envString.substr( nextPos + 1, envString.size() );
-
-        if( !path.empty( ))
-            pluginDirectories.push_back( path );
-    }
-
-    return pluginDirectories;
-}
-
-PluginRegistry& Global::getPluginRegistry()
-{
-    return _pluginRegistry;
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

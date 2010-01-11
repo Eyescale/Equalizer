@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,7 +25,6 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "os.h"
-#include "pluginRegistry.h"
 #include "server.h"
 #include "version.h"
 
@@ -83,10 +83,6 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
     EQASSERT( nodeFactory );
     Global::_nodeFactory = nodeFactory;
 
-    // init all available plugins
-    PluginRegistry& pluginRegistry = Global::getPluginRegistry();
-    pluginRegistry.init(); 
-
     return net::init( argc, argv );
 }
 
@@ -95,10 +91,6 @@ EQ_EXPORT bool exit()
 #ifdef EQ_USE_PARACOMP
     pcSystemFinalize();
 #endif
-
-    // de-initialize registered plugins
-    PluginRegistry& pluginRegistry = Global::getPluginRegistry();
-    pluginRegistry.exit(); 
 
     Global::_nodeFactory = 0;
     return net::exit();

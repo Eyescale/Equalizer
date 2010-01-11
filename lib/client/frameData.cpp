@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +19,6 @@
 #include "frameData.h"
 
 #include "commands.h"
-#include "compressor.h"
 #include "frameDataStatistics.h"
 #include "image.h"
 #include "log.h"
@@ -30,6 +30,7 @@
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 #include <eq/net/session.h>
+#include <eq/base/compressor.h>
 #include <eq/base/monitor.h>
 #include <algorithm>
 

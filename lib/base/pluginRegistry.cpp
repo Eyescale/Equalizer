@@ -14,18 +14,18 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#include "pluginRegistry.h"
-#include "compressor.h" 
+
+#include "dso.h"
+#include "file.h"
 #include "global.h"
+#include "pluginRegistry.h"
 
-
-#include <eq/base/file.h> 
-#include <eq/base/dso.h> 
 #include <vector>
 
 namespace eq
 {
-
+namespace base
+{
 
 void PluginRegistry::init()
 {
@@ -47,16 +47,16 @@ void PluginRegistry::init()
 
         // search the number of files in the director
 #ifdef WIN32
-        StringVector files = base::searchDirectory( directory, 
-                                                    "EqualizerCompressor*.dll");
+        StringVector files = searchDirectory( directory, 
+                                              "EqualizerCompressor*.dll");
         const char DIRSEP = '\\';
 #elif defined (Darwin)
-        StringVector files = base::searchDirectory( directory, 
-                                                    "libeqCompressor*dylib" );
+        StringVector files = searchDirectory( directory, 
+                                              "libeqCompressor*dylib" );
         const char DIRSEP = '/';
 #else
-        StringVector files = base::searchDirectory( directory,
-                                                    "libeqCompressor*so" );
+        StringVector files = searchDirectory( directory,
+                                              "libeqCompressor*so" );
         const char DIRSEP = '/';
 #endif
         
@@ -133,5 +133,5 @@ const CompressorVector& PluginRegistry::getCompressors() const
     return _compressors;
 }
 
-
+}
 }

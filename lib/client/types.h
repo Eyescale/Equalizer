@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,8 +26,6 @@
 #include <map>
 #include <vector>
 
-struct EqCompressorInfo;
-
 namespace eq
 {
 
@@ -34,7 +33,6 @@ class Canvas;
 class Channel;
 class Client;
 class Config;
-class Compressor;
 class Frame;
 class Image;
 class Layout;
@@ -113,9 +111,7 @@ typedef std::vector<uint16_t>   Vectorus;
 
 /** @cond IGNORE */
 typedef base::RefPtr< X11Connection > X11ConnectionPtr;
-typedef std::vector< EqCompressorInfo >  CompressorInfoVector;
-typedef std::vector< Compressor* >   CompressorVector;
-
+    
 // originator id -> statistics
 typedef std::map< uint32_t, Statistics >        SortedStatistics;
 

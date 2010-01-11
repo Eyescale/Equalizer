@@ -15,12 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_PLUGINREGISTRY_H
-#define EQ_PLUGINREGISTRY_H
+#ifndef EQBASE_PLUGINREGISTRY_H
+#define EQBASE_PLUGINREGISTRY_H
 
-#include <eq/client/types.h>
-
+#include "base.h"
+#include "compressor.h"
 namespace eq 
+{
+namespace base
 {
     /** The registry for all loaded Equalizer plugins. */
     class PluginRegistry
@@ -46,4 +48,5 @@ namespace eq
         void _initCompressor( const std::string& filename );
     };
 }
-#endif // EQ_PLUGINREGISTRY_H
+}
+#endif // EQBASE_PLUGINREGISTRY_H

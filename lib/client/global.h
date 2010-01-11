@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,12 +27,7 @@
 namespace eq
 {
     class NodeFactory;
-    class PluginRegistry;
-
-    /** @cond IGNORE */
-    bool testInitPluginDirectories();
-    /** @endcond */
-
+    
     /** Possible values for integer attributes */
     enum IAttrValue
     {
@@ -100,36 +96,16 @@ namespace eq
         static void enterCarbon();
         /** Global unlock for all non-thread-safe Carbon API calls */
         static void leaveCarbon();
-
-        /**
-          * @return all directories to search for compressor DSOs during
-          *         eq::init().
-          */
-        EQ_EXPORT static const StringVector& getPluginDirectories();
-
-        /** add a new directory to search for compressor DSOs. */
-        EQ_EXPORT static void  addPluginDirectory( const std::string& path );
-
-        /** remove a plugin directory */
-        EQ_EXPORT static void  removePluginDirectory( const std::string& path );
-
-        /** @return the plugin registry. */
-        EQ_EXPORT static PluginRegistry& getPluginRegistry();
-
+        
     private:
         EQ_EXPORT friend bool init( const int argc, char** argv, 
                                     NodeFactory* nodeFactory );
         EQ_EXPORT friend bool exit();
-
-        static StringVector _initPluginDirectories();
-        friend bool testInitPluginDirectories();
-
+        
         static NodeFactory* _nodeFactory;
 
         static std::string  _server;
         static std::string  _configFile;
-        static PluginRegistry _pluginRegistry;
-        static StringVector _pluginDirectories;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

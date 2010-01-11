@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,18 +18,15 @@
 
 #include <test.h>
 
-#include "../../lib/client/pluginRegistry.h"
-#include "../../lib/client/compressor.h"
+#include <eq/base/clock.h>
+#include <eq/base/compressor.h>
+#include <eq/base/file.h>
+#include <eq/base/global.h>
+#include <eq/base/pluginRegistry.h>
 
-#include <eq/plugins/compressor.h>
-#include <eq/client/global.h>
 #include <eq/client/image.h>
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
-#include <eq/base/clock.h>
-#include <eq/base/file.h>
-
-
 #include <eq/client/frame.h>    // enum Eye
 
 #include <numeric>
@@ -44,15 +42,15 @@ namespace
 {
 static std::vector< uint32_t > _getCompressorNames()
 {
-    const eq::PluginRegistry& registry = eq::Global::getPluginRegistry();
-    const eq::CompressorVector& plugins = registry.getCompressors();
+  const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
+  const eq::base::CompressorVector& plugins = registry.getCompressors();
 
     std::vector< uint32_t > names;
-    for( eq::CompressorVector::const_iterator i = plugins.begin();
+    for( eq::base::CompressorVector::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const eq::CompressorInfoVector& infos = (*i)->getInfos();
-        for( eq::CompressorInfoVector::const_iterator j = infos.begin();
+        const eq::base::CompressorInfoVector& infos = (*i)->getInfos();
+        for( eq::base::CompressorInfoVector::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             names.push_back( (*j).name );

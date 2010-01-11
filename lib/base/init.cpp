@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +20,8 @@
 
 #include "log.h"
 #include "thread.h"
+#include "global.h"
+#include "pluginRegistry.h"
 
 namespace eq
 {
@@ -27,12 +30,19 @@ namespace base
 
 EQ_EXPORT bool init()
 {
+    
+    // init all available plugins
+    PluginRegistry& pluginRegistry = Global::getPluginRegistry();
+    pluginRegistry.init(); 
     Thread::pinCurrentThread();
     return true;
 }
 
 EQ_EXPORT bool exit()
 {
+    // de-initialize registered plugins
+    PluginRegistry& pluginRegistry = Global::getPluginRegistry();
+    pluginRegistry.exit(); 
     eq::base::Thread::removeAllListeners();
     eq::base::Log::exit();
     return true;

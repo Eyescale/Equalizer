@@ -17,10 +17,12 @@
  */
 
 #include "compressor.h"
+#include "debug.h"
 
 namespace eq
 {
-
+namespace base
+{
 bool Compressor::init( const std::string& libraryName )
 {
     if( !_dso.open( libraryName ))
@@ -113,4 +115,5 @@ std::ostream& operator << ( std::ostream& os, const EqCompressorInfo& info )
     return os;
 }
 
+}
 }

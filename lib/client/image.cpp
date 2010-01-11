@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,12 +18,9 @@
 
 #include "image.h"
 
-#include "compressor.h"
 #include "frame.h"
 #include "frameData.h"
-#include "global.h"
 #include "pixel.h"
-#include "pluginRegistry.h"
 #include "log.h"
 #include "windowSystem.h"
 
@@ -30,8 +28,10 @@
 
 #include <eq/net/node.h>
 
+#include <eq/base/global.h>
 #include <eq/base/memoryMap.h>
 #include <eq/base/omp.h>
+#include <eq/base/pluginRegistry.h>
 
 #include <fstream>
 
@@ -248,19 +248,19 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const uint32_t tokenType = _getCompressorTokenType( buffer );
     EQINFO << "Searching compressors for token type " << tokenType << std::endl;
 
-    const PluginRegistry& registry = Global::getPluginRegistry();
-    const CompressorVector& compressors = registry.getCompressors();
+    const base::PluginRegistry& registry = base::Global::getPluginRegistry();
+    const base::CompressorVector& compressors = registry.getCompressors();
     std::vector< uint32_t > names;
 
-    for( CompressorVector::const_iterator i = compressors.begin();
+    for( base::CompressorVector::const_iterator i = compressors.begin();
          i != compressors.end(); ++i )
     {
-        const Compressor* compressor = *i;
+        const base::Compressor* compressor = *i;
         EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
 
-        const CompressorInfoVector& infos = compressor->getInfos();
+        const base::CompressorInfoVector& infos = compressor->getInfos();
         
-        for( CompressorInfoVector::const_iterator j = infos.begin();
+        for( base::CompressorInfoVector::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;
@@ -280,17 +280,17 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
 
     EQINFO << "Searching compressor for token type " << tokenType << std::endl;
 
-    const PluginRegistry& registry = Global::getPluginRegistry();
-    const CompressorVector& compressors = registry.getCompressors();
-    for( CompressorVector::const_iterator i = compressors.begin();
+    const base::PluginRegistry& registry = base::Global::getPluginRegistry();
+    const base::CompressorVector& compressors = registry.getCompressors();
+    for( base::CompressorVector::const_iterator i = compressors.begin();
          i != compressors.end(); ++i )
     {
-        const Compressor* compressor = *i;
-        const CompressorInfoVector& infos = compressor->getInfos();
+        const base::Compressor* compressor = *i;
+        const base::CompressorInfoVector& infos = compressor->getInfos();
 
         EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
         
-        for( CompressorInfoVector::const_iterator j = infos.begin();
+        for( base::CompressorInfoVector::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;
@@ -866,7 +866,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
         EQASSERT( std::find( names.begin(), names.end(), name) != names.end( ));
 #endif
 
-        PluginRegistry& registry = Global::getPluginRegistry();
+        base::PluginRegistry& registry = base::Global::getPluginRegistry();
         attachment.compressor.plugin = registry.findCompressor( name );
         if( !attachment.compressor.plugin )
             return false;
@@ -888,7 +888,7 @@ bool Image::_allocDecompressor( Attachment& attachment, uint32_t name )
         attachment.compressor.name = name;
         attachment.compressor.isCompressor = false;
 
-        PluginRegistry& registry = Global::getPluginRegistry();
+        base::PluginRegistry& registry = base::Global::getPluginRegistry();
         attachment.compressor.plugin = registry.findCompressor( name );
         if( !attachment.compressor.plugin )
             return false;

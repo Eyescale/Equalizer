@@ -9,6 +9,7 @@ HEADER_SRC = \
 	base/atomic.h \
 	base/base.h \
 	base/buffer.h \
+	base/compressor.h \
 	base/clock.h \
 	base/compareAndSwap.h \
 	base/debug.h \
@@ -16,6 +17,7 @@ HEADER_SRC = \
 	base/dso.h \
 	base/executionListener.h \
 	base/file.h \
+	base/global.h \
 	base/hash.h \
 	base/idPool.h \
 	base/init.h \
@@ -31,6 +33,7 @@ HEADER_SRC = \
 	base/omp.h \
 	base/perThread.h \
 	base/perThreadRef.h \
+	base/pluginRegistry.h \
 	base/refPtr.h \
 	base/referenced.h \
 	base/requestHandler.h \
@@ -155,8 +158,10 @@ HEADER_SRC = \
 	util/util.h
 
 CXXFILES = \
+	base/compressor.cpp \
 	base/debug.cpp \
 	base/dso.cpp \
+	base/global.cpp \
 	base/idPool.cpp \
 	base/init.cpp \
 	base/launcher.cpp \
@@ -165,6 +170,7 @@ CXXFILES = \
 	base/memoryMap.cpp \
 	base/monitor.cpp \
 	base/omp.cpp \
+	base/pluginRegistry.cpp \
 	base/referenced.cpp \
 	base/requestHandler.cpp \
 	base/thread.cpp \
@@ -215,7 +221,6 @@ CXXFILES = \
 	client/colorMask.cpp \
 	client/commandQueue.cpp \
 	client/compositor.cpp \
-	client/compressor.cpp \
 	client/computeCtx.cpp \
 	client/config.cpp \
 	client/configDeserializer.cpp \
@@ -245,7 +250,6 @@ CXXFILES = \
 	client/osWindow.cpp \
 	client/pipe.cpp \
 	client/pipeStatistics.cpp \
-	client/pluginRegistry.cpp \
 	client/projection.cpp \
 	client/range.cpp \
 	client/roiFinder.cpp \
