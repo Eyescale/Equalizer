@@ -20,6 +20,7 @@ HEADER_SRC = \
 	base/idPool.h \
 	base/init.h \
 	base/launcher.h \
+	base/lfQueue.h \
 	base/lock.h \
 	base/lockable.h \
 	base/log.h \

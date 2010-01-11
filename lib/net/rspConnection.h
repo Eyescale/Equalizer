@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *                     Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,20 +19,19 @@
 #ifndef EQNET_RSPCONNECTION_H
 #define EQNET_RSPCONNECTION_H
 #include <pthread.h>
-#include <eq/base/base.h>
-#include <eq/base/buffer.h> // member
-#include <eq/base/mtQueue.h>
-#include <eq/base/rng.h>
-#include <eq/net/types.h>
-#include <eq/net/connectionType.h>
 
-#include "connectionSet.h"
+#include <eq/net/connectionSet.h> // member
+#include <eq/net/types.h>
+#include <eq/base/base.h>
+#include <eq/base/buffer.h>  // member
+#include <eq/base/lfQueue.h> // member
+#include <eq/base/mtQueue.h> // member
+
 #include "udpConnection.h"
-#include "fdConnection.h"
 #ifndef WIN32
-#  include <poll.h>
 #  include "pipeConnection.h"
 #endif
+
 namespace eq
 {
 namespace net
@@ -41,12 +40,7 @@ namespace net
     class ConnectionDescription;
     class RSPConnection;
     /** A rsp connection (Attn: only multicast usage implemented). */
-    class RSPConnection
-#ifdef WIN32
-        : public Connection
-#else
-        : public FDConnection
-#endif
+    class RSPConnection : public Connection
     {
 
     public:
@@ -67,16 +61,17 @@ namespace net
         int64_t write( const void* buffer, const uint64_t bytes );
 
         int64_t getSendRate() const { return _connection->getSendRate(); }
-        uint32_t getID() const { return _id;}
+        uint32_t getID() const { return _id; }
         
-#ifdef WIN32
         /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const 
-                   { return _hEvent; }
+#ifdef WIN32
+            { return _hEvent; }
+#else
+            { return _selfPipeHEvent->getNotifier(); }
 #endif
     
     private:
-
         typedef base::RefPtr< UDPConnection > UDPConnectionPtr;
         typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
         
@@ -156,12 +151,10 @@ namespace net
         
         struct InBuffer
         {
-            InBuffer() { reset(); }
-            void reset();
+            InBuffer() : sequenceID( -1 ){}
+            InBuffer( const InBuffer& from ) : sequenceID( -1 ) {}
+
             int32_t sequenceID;
-            eq::base::Monitor< bool > ready;
-            bool empty;
-            uint64_t    readPos;
             base::Bufferb got;
             base::Bufferb data;
         };
@@ -182,7 +175,6 @@ namespace net
             };
 
             RepeatRequest() : type( NACK ), start( 0 ), end( 0 ) {}
-            
             RepeatRequest( const Type& t ) 
                 : type( t ), start( 0 ), end( 0 ) {}
 
@@ -192,7 +184,7 @@ namespace net
         };
         
         // Buffer for one datagram from our UDP connection
-        eq::base::Bufferb _readBuffer;
+        eq::base::Bufferb _udpBuffer;
 
         // Buffer to send one NACK packet.
         eq::base::Bufferb _nackBuffer;
@@ -217,12 +209,13 @@ namespace net
 #ifdef WIN32
         HANDLE _hEvent;
 #else
-        pollfd _hEvent;
-        PipeConnection* _selfPipeHEvent;
+        typedef base::RefPtr< PipeConnection > PipeConnectionPtr;
+        PipeConnectionPtr _selfPipeHEvent;
 
         /** The buffer to receive commands from Event. */
         uint8_t _selfCommand;
 #endif
+
         ConnectionSet    _connectionSet;
         bool             _writing;
         uint32_t         _numWriteAcks;
@@ -233,13 +226,13 @@ namespace net
         RSPConnectionPtr _parent;
         int32_t _lastSequenceIDAck;
         
-        // Current read buffer
-        std::vector< InBuffer* > _inBuffers;
-        
-        InBuffer*  _recvBuffer;
-        size_t     _recvBufferIndex; //!< current partial recv thread buffer
-
-        size_t _readBufferIndex; //!< current filled app read buffer
+        typedef std::vector< InBuffer > InBufferVector;
+        InBufferVector _inBuffers;                 //!< Data buffers
+        base::LFQueue< InBuffer* > _freeBuffers;   //!< Unused data buffers
+        base::MTQueue< InBuffer* > _readBuffers;   //!< Ready data buffers
+        InBuffer* _recvBuffer;                     //!< Receive (thread) buffer
+        InBuffer* _readBuffer;                     //!< Read (app) buffer
+        uint64_t _readBufferPos;                   //!< Current read index
 
         // write property part
         uint32_t _nDatagrams;
@@ -251,8 +244,6 @@ namespace net
 
         ID _buildNewID();
         
-        int64_t _readSync( InBuffer* readBuffer, void* buffer, 
-                           const uint64_t bytes  );
         bool _acceptID();
         bool _handleAcceptID();
         /* using directly by the thread to manage RSP */
@@ -278,10 +269,6 @@ namespace net
         void _initAIORead();
         void _exitAIORead();
 
-        /** find the receiver corresponding to the sequenceID */
-        InBuffer* _findReceiverWithSequenceID(const uint16_t sequenceID )
-            const;
-        
         /** find the connection corresponding to the writeID */
         RSPConnectionPtr _findConnectionWithWriterID( 
                                     const ID writerID );
@@ -317,7 +304,7 @@ namespace net
 
         /* add a new connection detected in the multicast network */
         bool _addNewConnection( const ID id );
-        bool _acceptRemoveConnection( const ID id );
+        bool _removeConnection( const ID id );
 
         void _setEvent();
         void _resetEvent();

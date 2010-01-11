@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -60,6 +60,7 @@ int32_t     Global::_iAttributes[IATTR_ALL] =
     5,    // RSP_ERROR_DOWNSCALE
     5,    // RSP_ERROR_UPSCALE
     20,   // RSP_ERROR_MAX
+    4,    // RSP_NUM_BUFFERS
 #ifdef BIG_SEND
     65000, // UDP_MTU
     16,    // UDP_PACKET_RATE

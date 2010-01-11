@@ -1,8 +1,22 @@
-RSP cleanup, replace one monitor with non-blocking access -- needs more testing
+New features:
+- Single-reader, single-writer, non-blocking queue
+- Make number of RSP read buffers configurable
+- Unit tests for MTQueue & LFQueue
 
-[ ] May break build
+Optimizations:
+- get-and-reset time function in Clock
+- RSP read buffer handling [needs more testing]:
+  o blocking reader->app queue for filled buffers
+  o non-blocking app->reader return queue for free buffers
+
+Cleanups:
+- RSP read buffer handling (see above)
+- RSP connection never inherits from FDConnection
+
+
+[x] May break build
 [ ] May break existing applications
-[ ] New Feature
+[x] New Feature
 [ ] Bugfix
 [x] Cleanup
 [x] Optimization

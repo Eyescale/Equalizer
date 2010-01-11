@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -45,6 +45,8 @@ namespace net
             { EQDONTCALL; return -1; }
         EQ_EXPORT virtual int64_t write( const void* buffer,
                                          const uint64_t bytes );
+
+        virtual Notifier getNotifier() const { EQDONTCALL; return 0; }
 
     private:
         mutable base::Bufferb _buffer;

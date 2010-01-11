@@ -425,18 +425,17 @@ void UDPConnection::waitWritable( const uint64_t bytes )
 {
     CHECK_THREAD_SCOPED( _sendThread );
 
-    _allowedData += static_cast< uint64_t >( _clock.getTimef() * _sendRate );
-                                                         // opt: * 1024 / 1000;
+    _allowedData += static_cast< uint64_t >( _clock.getResetTimef() *
+                                             _sendRate ); // opt: * 1024 / 1000;
     _allowedData = EQ_MIN( _allowedData, _maxBucketSize );
-    _clock.reset();
 
     const uint64_t size = EQ_MIN( bytes, static_cast< uint64_t >( _mtu ));
     while( _allowedData < size )
     {
         eq::base::sleep( 1 );
-        _allowedData += static_cast< int64_t >( _clock.getTimef() * _sendRate );
+        _allowedData += static_cast< int64_t >( _clock.getResetTimef() *
+                                                _sendRate );
         _allowedData = EQ_MIN( _allowedData, _maxBucketSize );
-        _clock.reset();
     }
     _allowedData -= size;
 }

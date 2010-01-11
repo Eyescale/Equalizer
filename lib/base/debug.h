@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -68,7 +68,7 @@ EQ_EXPORT std::ostream& sysError( std::ostream& os );
                     << std::endl << eq::base::forceFlush;               \
         eq::base::checkHeap();                                          \
     }
-#    define EQCHECK(x) { const bool eqResult = x; EQASSERTINFO( eqResult, #x ) }
+#    define EQCHECK(x) { const bool eqOk = x; EQASSERTINFO( eqOk, #x ) }
 #  else
 #    define EQASSERT(x)
 #    define EQASSERTINFO(x, info)
@@ -121,7 +121,7 @@ EQ_EXPORT std::ostream& sysError( std::ostream& os );
               << typeid(*this).name() << std::endl << eq::base::forceFlush; \
         eq::base::abort(); }
 
-#  define EQCHECK(x) { const bool eqResult = x; EQASSERTINFO( eqResult, #x ) }
+#  define EQCHECK(x) { const bool eqOk = x; EQASSERTINFO( eqOk, #x ) }
 #  define EQABORT( info ) {                                             \
         EQERROR << "Abort: " << info << std::endl << eq::base::forceFlush; \
         eq::base::abort(); }

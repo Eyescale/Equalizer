@@ -117,6 +117,36 @@ namespace base
             }
 
         /** 
+         * @return the elapsed time in milliseconds since the last clock reset
+         *         and atomically reset the clock.
+         * @version 1.0
+         */
+        float getResetTimef()
+            {
+#ifdef Darwin
+                const uint64_t now = mach_absolute_time();
+                const int64_t elapsed = now - _start;
+                _start = now;
+                return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
+                         1000000.f );
+#elif defined (WIN32)
+                LARGE_INTEGER now;
+                QueryPerformanceCounter( &now );
+                const float time = 1000.0f * (now.QuadPart - _start.QuadPart) / 
+                                   _frequency.QuadPart;
+                _start = now;
+                return time;
+#else
+                struct timespec now;
+                clock_gettime( CLOCK_REALTIME, &now );
+                const float time = ( 1000.0f * (now.tv_sec - _start.tv_sec) +
+                                    0.000001f * (now.tv_nsec - _start.tv_nsec));
+                _start = now;
+                return time;
+#endif
+            }
+
+        /** 
          * @return the elapsed time in milliseconds since the last clock reset.
          * @version 1.0
          */

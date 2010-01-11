@@ -93,6 +93,7 @@ namespace net
             IATTR_RSP_ERROR_DOWNSCALE,   //!< @internal send rate down scale (/)
             IATTR_RSP_ERROR_UPSCALE,     //!< @internal send rate up scale (*)
             IATTR_RSP_ERROR_MAX,         //!< @internal max delta for send rate
+            IATTR_RSP_NUM_BUFFERS,       //!< @internal data buffers
             IATTR_UDP_MTU,               //!< @internal max send size on UDP
             IATTR_UDP_PACKET_RATE,       //!< @internal ack frequency
             IATTR_ALL
