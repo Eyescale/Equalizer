@@ -1,4 +1,4 @@
-Potential fix for EQ_IGNORE_GLEW compile problem
+Fix uninitialized variables in PGMConnection
 
 [ ] May break build
 [ ] May break existing applications
