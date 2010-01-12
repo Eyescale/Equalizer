@@ -23,6 +23,7 @@
 #include "compressorRLE4HF.h"
 #include "compressorRLE4BU.h"
 #include "compressorRLEU.h"
+#include "compressorRLE565.h"
 
 namespace eq
 {
@@ -37,6 +38,7 @@ namespace
         eq::plugin::CompressorRLE4HF::getFunctions(),
         eq::plugin::CompressorRLE4BU::getFunctions(),
         eq::plugin::CompressorRLEU::getFunctions(),
+        eq::plugin::CompressorDiffRLE565::getFunctions(),
         eq::plugin::CompressorRLEB::getFunctions(),
 #if 0
         eq::plugin::CompressorRLE3B::getFunctions(),
@@ -65,7 +67,6 @@ namespace
 }
 
 Compressor::Compressor()
-        : _nResults( 0 )
 {}
 
 Compressor::~Compressor()
@@ -138,7 +139,7 @@ unsigned EqCompressorGetNumResults( void* const ptr,
 {
     eq::plugin::Compressor* compressor = 
         reinterpret_cast< eq::plugin::Compressor* >( ptr );
-    return compressor->getNResults();
+    return compressor->getResults().size();
 }
 
 void EqCompressorGetResult( void* const ptr, const unsigned name,

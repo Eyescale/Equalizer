@@ -44,6 +44,8 @@ FrameData::FrameData()
         : _colorFormat( GL_RGBA )
         , _useAlpha( true )
         , _useSendToken( false )
+        , _colorQuality( 1.f )
+        , _depthQuality( 1.f )
 {
     _roiFinder = new ROIFinder();
     EQINFO << "New FrameData @" << (void*)this << endl;
@@ -64,6 +66,18 @@ FrameData::~FrameData()
 
     delete _roiFinder;
     _roiFinder = 0;
+}
+
+void FrameData::setQuality( Frame::Buffer buffer, float quality )
+{
+    if( buffer != Frame::BUFFER_COLOR )
+    {
+        EQASSERT( buffer == Frame::BUFFER_DEPTH );
+        _depthQuality = quality;
+        return;
+    }
+
+    _colorQuality = quality;
 }
 
 void FrameData::getInstanceData( net::DataOStream& os )
@@ -162,6 +176,8 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
     }
 
     image->setStorageType( type );
+    image->setQuality( Frame::BUFFER_COLOR, _colorQuality );
+    image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
     _useAlpha ? image->enableAlphaUsage() : image->disableAlphaUsage();
 
     if( type == Frame::TYPE_TEXTURE )

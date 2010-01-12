@@ -198,6 +198,10 @@ namespace server
         /** Enable/disable alpha usage for newly allocated images. */
         EQ_EXPORT void setAlphaUsage( const bool useAlpha );
 
+        /** Set the compressor quality value. */
+        EQ_EXPORT void setQuality( const Frame::Buffer buffer, 
+                                   const float quality );
+
         /** @internal */
         void useSendToken( const bool use );
 

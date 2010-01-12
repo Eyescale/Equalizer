@@ -8,6 +8,7 @@ CXXFILES = \
 	compressorRLE.cpp \
 	compressorRLEB.cpp \
 	compressorRLE4B.cpp \
+	compressorRLE565.cpp \
 	compressorRLE4U.cpp \
 	compressorRLE4HF.cpp
 

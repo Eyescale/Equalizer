@@ -81,6 +81,9 @@ namespace server
         
         /** Enable/disable alpha usage for newly allocated images. */
         void setAlphaUsage( const bool useAlpha ) { _useAlpha = useAlpha; }
+
+        /** Set the compressor quality value. */
+        void setQuality( const Frame::Buffer buffer, const float quality );
         //@}
 
         /**
@@ -227,6 +230,8 @@ namespace server
 
         bool _useAlpha;
         bool _useSendToken;
+        float _colorQuality;
+        float _depthQuality;
         
         union // placeholder for binary-compatible changes
         {

@@ -123,6 +123,12 @@ void Frame::setAlphaUsage( const bool useAlpha )
         _frameData->setAlphaUsage( useAlpha );
 }
 
+void Frame::setQuality( const Frame::Buffer buffer, const float quality )
+{
+    if( _frameData )
+        _frameData->setQuality( buffer, quality );
+}
+
 void Frame::startReadback( Window::ObjectManager* glObjects ) 
 {
     EQASSERT( _frameData );
@@ -170,7 +176,6 @@ void Frame::useSendToken( const bool use )
     EQASSERT( _frameData );
     _frameData->useSendToken( use );
 }
-
 
 void Frame::addListener( base::Monitor<uint32_t>& listener )
 {

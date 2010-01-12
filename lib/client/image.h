@@ -207,10 +207,13 @@ namespace eq
         /** Disable compression and transport of alpha data. */
         EQ_EXPORT void disableAlphaUsage();
 
+        /** Set the compressor quality. */
+        EQ_EXPORT void setQuality( const Frame::Buffer buffer,
+                                   const float quality );
+
         /** @return true if alpha data can be ignored. */
         bool ignoreAlpha() const { return _ignoreAlpha; }
         //@}
-
 
         /** @name Texture access */
         //@{
@@ -347,7 +350,8 @@ namespace eq
         /** The individual parameters for a buffer. */
         class Attachment
         {
-        public:  
+        public:
+            Attachment() : compressor( &fullCompressor ) {}  
             struct CompressorData
             {
                 CompressorData();
@@ -357,15 +361,19 @@ namespace eq
                 void* instance;     //!< the instance of the (de)compressor
                 base::Compressor* plugin; //!< Plugin handling the allocation
                 bool isCompressor;  //!< compressor (true), decompressor (false)
-            }
-            compressor;
+            } *compressor;
+
+            float quality;
+
+            CompressorData fullCompressor;
+            CompressorData lossyCompressor;
 
             /** The texture name for this image component (texture images). */
             util::Texture texture;
 
             /** Current pixel data (memory images). */
             Memory memory;
-        }; 
+        };
         
         Attachment _color;
         Attachment _depth;

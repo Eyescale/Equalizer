@@ -1,4 +1,5 @@
 
+
 include $(TOP)/make/system.mk
 
 MODULE = eq
@@ -278,6 +279,7 @@ CXXFILES = \
 	compressor/compressorRLEB.cpp \
 	compressor/compressorRLE4B.cpp \
 	compressor/compressorRLE4BU.cpp \
+	compressor/compressorRLE565.cpp \
 	compressor/compressorRLE4HF.cpp
 
 SHADERS = \

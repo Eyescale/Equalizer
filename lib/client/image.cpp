@@ -274,9 +274,14 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
 
 uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
 {
+    const Attachment& attachment = _getAttachment( buffer );
+    if( !attachment.memory.format )
+        return EQ_COMPRESSOR_NONE;
+
     const uint32_t tokenType = _getCompressorTokenType( buffer );
     uint32_t name = EQ_COMPRESSOR_NONE;
     float ratio = 1.0f;
+    float minDiffQuality = 1.0f;
 
     EQINFO << "Searching compressor for token type " << tokenType << std::endl;
 
@@ -303,9 +308,12 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
             {
                 infoRatio *= .75f;
             }
-
-            if( ratio > infoRatio ) // TODO: be smarter
+            
+            float diffQuality = info.quality - attachment.quality;
+            if( ratio > infoRatio && diffQuality >= 0.f &&
+                diffQuality < minDiffQuality ) // TODO: be smarter
             {
+                minDiffQuality = diffQuality;
                 name = info.name;
                 ratio = infoRatio;
             }
@@ -359,7 +367,29 @@ void Image::disableAlphaUsage()
     _ignoreAlpha = true;
     _color.memory.isCompressed = false;
     _depth.memory.isCompressed = false;
-}    
+}
+
+void Image::setQuality( const Frame::Buffer buffer, const float quality )
+{
+    Attachment& attachment = _getAttachment( buffer );
+
+    if( attachment.quality == quality )
+        return;
+    
+    attachment.quality = quality;
+    
+    if( quality == 1.f )
+    {
+        attachment.compressor = &attachment.fullCompressor;
+        return;
+    }
+   
+    uint32_t name = _getCompressorName( buffer );
+    if( name == EQ_COMPRESSOR_NONE || name != attachment.lossyCompressor.name )
+        attachment.lossyCompressor.flush();
+    
+    attachment.compressor = &attachment.lossyCompressor;
+}
 
 bool Image::hasTextureData( const Frame::Buffer buffer ) const
 {
@@ -778,15 +808,15 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     if( _canIgnoreAlpha( buffer ))
         flags |= EQ_COMPRESSOR_IGNORE_MSE;
 
-    EQASSERT( attachment.compressor.plugin != 0 );
-    EQASSERT( !attachment.compressor.isCompressor );
+    EQASSERT( attachment.compressor->plugin != 0 );
+    EQASSERT( !attachment.compressor->isCompressor );
 
-    attachment.compressor.plugin->decompress( attachment.compressor.instance,
-                                              attachment.compressor.name,
-                                              &pixels.compressedData.front(),
-                                              &pixels.compressedSize.front(),
-                                              nBlocks, outData, 
-                                              outDim, flags );
+    attachment.compressor->plugin->decompress( attachment.compressor->instance,
+                                               attachment.compressor->name,
+                                               &pixels.compressedData.front(),
+                                               &pixels.compressedSize.front(),
+                                               nBlocks, outData, 
+                                               outDim, flags );
     memory.state = Memory::VALID;
 }
 
@@ -847,18 +877,18 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
     Attachment& attachment = _getAttachment( buffer );
     if( name <= EQ_COMPRESSOR_NONE )
     {
-        attachment.compressor.flush();
-        attachment.compressor.name = name;
-        attachment.compressor.isCompressor = true;
+        attachment.compressor->flush();
+        attachment.compressor->name = name;
+        attachment.compressor->isCompressor = true;
         attachment.memory.isCompressed = false;
         return true;
     }
         
-    if( !attachment.compressor.plugin || attachment.compressor.name != name )
+    if( !attachment.compressor->plugin || attachment.compressor->name != name )
     {
-        attachment.compressor.flush();
-        attachment.compressor.name = name;
-        attachment.compressor.isCompressor = true;
+        attachment.compressor->flush();
+        attachment.compressor->name = name;
+        attachment.compressor->isCompressor = true;
         attachment.memory.isCompressed = false;
 
 #ifndef NDEBUG
@@ -867,34 +897,34 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
 #endif
 
         base::PluginRegistry& registry = base::Global::getPluginRegistry();
-        attachment.compressor.plugin = registry.findCompressor( name );
-        if( !attachment.compressor.plugin )
+        attachment.compressor->plugin = registry.findCompressor( name );
+        if( !attachment.compressor->plugin )
             return false;
 
-        attachment.compressor.instance =
-            attachment.compressor.plugin->newCompressor( name );
-        EQASSERT( attachment.compressor.instance );
+        attachment.compressor->instance =
+            attachment.compressor->plugin->newCompressor( name );
+        EQASSERT( attachment.compressor->instance );
         EQINFO << "Instantiated compressor of type " << name << std::endl;
     }
-    return ( attachment.compressor.instance != 0 );
+    return ( attachment.compressor->instance != 0 );
 }
 
 /** Find and activate a decompression engine */
 bool Image::_allocDecompressor( Attachment& attachment, uint32_t name )
 {
-    if( !attachment.compressor.plugin || attachment.compressor.name != name )
+    if( !attachment.compressor->plugin || attachment.compressor->name != name )
     {
-        attachment.compressor.flush();
-        attachment.compressor.name = name;
-        attachment.compressor.isCompressor = false;
+        attachment.compressor->flush();
+        attachment.compressor->name = name;
+        attachment.compressor->isCompressor = false;
 
         base::PluginRegistry& registry = base::Global::getPluginRegistry();
-        attachment.compressor.plugin = registry.findCompressor( name );
-        if( !attachment.compressor.plugin )
+        attachment.compressor->plugin = registry.findCompressor( name );
+        if( !attachment.compressor->plugin )
             return false;
 
-        attachment.compressor.instance = 
-            attachment.compressor.plugin->newDecompressor( name );
+        attachment.compressor->instance = 
+            attachment.compressor->plugin->newDecompressor( name );
     }
     return true;
 }
@@ -939,46 +969,49 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     if( memory.isCompressed )
         return memory;
 
-    if( attachment.compressor.name == 0 )
+    if( attachment.compressor->name == 0 )
         memory.compressorName = _getCompressorName( buffer );
     else
-        memory.compressorName = attachment.compressor.name;
+        memory.compressorName = attachment.compressor->name;
 
     EQASSERT( memory.compressorName != 0 );
 
-    if( !allocCompressor( buffer, memory.compressorName ) || 
-        memory.compressorName == EQ_COMPRESSOR_NONE )
+    if( !attachment.compressor->instance )
     {
-        EQWARN << "No compressor found for token type " 
-               << _getCompressorTokenType( buffer ) << std::endl;
-        return memory;
+        if( !allocCompressor( buffer, memory.compressorName ) || 
+            memory.compressorName == EQ_COMPRESSOR_NONE )
+        {
+            EQWARN << "No compressor found for token type " 
+                   << _getCompressorTokenType( buffer ) << std::endl;
+            return memory;
+        }
     }
 
     const uint64_t inDims[4]  = { _pvp.x, _pvp.w, _pvp.y, _pvp.h}; 
     
-    EQASSERT( attachment.compressor.plugin != 0 );
+    EQASSERT( attachment.compressor->plugin != 0 );
     uint64_t flags = EQ_COMPRESSOR_DATA_2D;
     if( _canIgnoreAlpha( buffer ))
         flags |= EQ_COMPRESSOR_IGNORE_MSE;
 
-    attachment.compressor.plugin->compress( attachment.compressor.instance,
-                                            attachment.compressor.name,
-                                            memory.pixels.getData(),
-                                            inDims, flags );
+    attachment.compressor->plugin->compress( attachment.compressor->instance,
+                                             attachment.compressor->name,
+                                             memory.pixels.getData(),
+                                             inDims, flags );
 
-    const size_t numResults = attachment.compressor.plugin->getNumResults( 
-        attachment.compressor.instance, attachment.compressor.name );
+    const size_t numResults = attachment.compressor->plugin->getNumResults( 
+        attachment.compressor->instance, attachment.compressor->name );
     
     memory.compressedSize.resize( numResults );
     memory.compressedData.resize( numResults );
 
     for( size_t i = 0; i < numResults ; i++ )
     {
-        attachment.compressor.plugin->getResult( attachment.compressor.instance,
-                                                 attachment.compressor.name,
-                                                 i, 
-                                                 &memory.compressedData[i], 
-                                                 &memory.compressedSize[i] );
+        attachment.compressor->plugin->getResult( attachment.compressor->instance,
+                                                  attachment.compressor->name,
+                                                  i, 
+                                                  &memory.compressedData[i], 
+                                                  &memory.compressedSize[i] );
     }
 
     memory.isCompressed = true;
