@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,7 +44,11 @@ bool DSO::open( const std::string& fileName )
     if( fileName.empty( ))
     {
 #ifdef WIN32_VC
-        _dso = GetModuleHandle( "Equalizer.dll" );
+#  ifndef NDEBUG
+        _dso = GetModuleHandle( "Equalizer_d.dll" );
+#  endif
+        if( !_dso )
+            _dso = GetModuleHandle( "Equalizer.dll" );
         EQASSERT( _dso );
 #else
         _dso = RTLD_DEFAULT;

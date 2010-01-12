@@ -1,9 +1,9 @@
-Fix uninitialized variables in PGMConnection
+Minor code cleanups, allow for naming Equalizer_d.dll on Windows.
 
 [ ] May break build
 [ ] May break existing applications
 [ ] New Feature
-[x] Bugfix
-[ ] Cleanup
+[ ] Bugfix
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

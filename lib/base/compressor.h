@@ -24,7 +24,7 @@
 #include "dso.h"           // member
 
 /**
- * @file client/compressor.h
+ * @file base/compressor.h
  * 
  * Helper class for storing the function pointers of one compressor plugin.
  */

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -359,12 +359,11 @@ ConnectionPtr PGMConnection::acceptSync()
     ConnectionPtr connection( newConnection ); // to keep ref-counting correct
 
     newConnection->_readFD  = _overlappedSocket;
-    newConnection->_setupReadSocket();
-
-    newConnection->_writeFD = _writeFD;
-    newConnection->_initAIORead();
     _overlappedSocket       = INVALID_SOCKET;
 
+    newConnection->_setupReadSocket();
+    newConnection->_writeFD = _writeFD;
+    newConnection->_initAIORead();
     newConnection->_state       = STATE_CONNECTED;
     newConnection->_description = _description;
 
@@ -426,7 +425,7 @@ ConnectionPtr PGMConnection::acceptSync()
 //----------------------------------------------------------------------
 void PGMConnection::readNB( void* buffer, const uint64_t bytes )
 {
-    if( _state == STATE_CLOSED )
+    if( _state == STATE_CLOSED || _readFD == INVALID_SOCKET )
         return;
 
     WSABUF wsaBuffer = { EQ_MIN( bytes, 65535 ),

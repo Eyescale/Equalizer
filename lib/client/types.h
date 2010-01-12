@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -92,8 +92,8 @@ typedef vmml::vector< 3, int > Vector3i; //!< A three-component integer vector
 typedef vmml::vector< 4, int > Vector4i; //!< A four-component integer vector
 typedef vmml::vector< 3, double >Vector3d; //!< A three-component double vector
 typedef vmml::vector< 4, double >Vector4d; //!< A four-component double vector
-typedef vmml::vector< 2, float > Vector2f; //!< A four-component float vector
-typedef vmml::vector< 3, float > Vector3f; //!< A four-component float vector
+typedef vmml::vector< 2, float > Vector2f; //!< A two-component float vector
+typedef vmml::vector< 3, float > Vector3f; //!< A three-component float vector
 typedef vmml::vector< 4, float > Vector4f; //!< A four-component float vector
 /** A three-component byte vector */
 typedef vmml::vector< 3, unsigned char > Vector3ub;
