@@ -242,11 +242,17 @@ void Channel::frameReadback( const uint32_t frameID )
         return;
 
     // OPT: Drop alpha channel from all frames during network transport
+    const FrameData& frameData = _getFrameData();
     const eq::FrameVector& frames = getOutputFrames();
     for( eq::FrameVector::const_iterator i = frames.begin(); 
          i != frames.end(); ++i )
     {
         (*i)->setAlphaUsage( false );
+        
+        if( frameData.isIdle( ))
+	    (*i)->setQuality( eq::Frame::BUFFER_COLOR, 1.f );
+        else
+	    (*i)->setQuality( eq::Frame::BUFFER_COLOR, 0.7f );
     }
 
     eq::Channel::frameReadback( frameID );
