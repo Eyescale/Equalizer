@@ -276,11 +276,7 @@ int main( int argc, char **argv )
                     const uint8_t channelSize = 
                             image.getChannelSize( buffer );
 
-                    if( quality < 1.f && channelSize == 2 )
-		    {
-		        EQ_INFO << EQUNIMPLEMENTED << std::endl;
-			break;
-		    }
+                    TEST( !( quality < 1.f && channelSize == 2 ) );
 
                     if( image.ignoreAlpha() && 
                         buffer == eq::Frame::BUFFER_COLOR )
