@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -46,9 +46,9 @@
 #  include "aglPipe.h"
 #endif
 
-#include "computeCtx.h"
+#include "computeContext.h"
 #ifdef EQ_USE_CUDA
-#  include "cudaComputeCtx.h"
+#  include "cudaContext.h"
 #endif
 
 #include <eq/net/command.h>
@@ -79,7 +79,7 @@ Pipe::Pipe( Node* parent )
         , _thread( 0 )
         , _pipeThreadQueue( 0 )
         , _currentWindow( 0 )
-		, _computeCtx( 0 )
+		, _computeContext( 0 )
 {
     parent->_addPipe( this );
     EQINFO << " New eq::Pipe @" << (void*)this << std::endl;
@@ -568,15 +568,14 @@ bool Pipe::configInit( const uint32_t initID )
     setOSPipe( osPipe );
 	
     // -------------------------------------------------------------------------
-    EQASSERT(!_computeCtx);
+    EQASSERT(!_computeContext);
 
-    // for now we only support CUDA, this may change soon, though
+    // for now we only support CUDA
 #ifdef EQ_USE_CUDA
-    ComputeCtx* computeCtx = 0;
-
-    if ( _cudaGLInterop == true ) {
-        EQINFO << "Using CUDAComputeCtx" << std::endl;
-        computeCtx = new CUDAComputeCtx( this );
+    if( _cudaGLInterop )
+    {
+        EQINFO << "Initializing CUDAContext" << std::endl;
+        ComputeContext* computeCtx = new CUDAContext( this );
 		
         if( !computeCtx->configInit() )
         {
@@ -586,7 +585,7 @@ bool Pipe::configInit( const uint32_t initID )
             delete computeCtx;
             return false;
         }	
-        setComputeCtx( computeCtx );
+        setComputeContext( computeCtx );
     }
     else {
         EQINFO << "No CUDA context initialized " << std::endl;
@@ -600,11 +599,11 @@ bool Pipe::configExit()
 {
     CHECK_THREAD( _pipeThread );
 
-    if( _computeCtx )
+    if( _computeContext )
     {
-        _computeCtx->configExit();
-        delete _computeCtx;
-        _computeCtx = 0;
+        _computeContext->configExit();
+        delete _computeContext;
+        _computeContext = 0;
     }	
 	
     if( _osPipe )

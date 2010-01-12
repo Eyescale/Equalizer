@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,25 +28,25 @@ namespace eq
     /**
      * The interface definition for API-specific GPGPU handling.
      *
-     * The ComputeCtx abstracts all GPGPU API-system specific code for handling 
-     * a GPU for computing purposes. Each Pipe uses one ComputeCtx, which is 
-     * initialized in Pipe::configInit. 
+     * The ComputeContext abstracts all GPGPU API-system specific code for
+     * handling a GPU for computing purposes. Each Pipe uses one ComputeContext,
+     * which is initialized in Pipe::configInit.
      */
-    class EQ_EXPORT ComputeCtx
+    class EQ_EXPORT ComputeContext
     {
     public:
-        /** Create a new ComputeCtx for the given accelerator (here eq::Pipe).*/
-        ComputeCtx( Pipe* parent );
+        /** Create a new ComputeContext for the given accelerator.*/
+        ComputeContext( Pipe* parent );
 
-        /** Destroy the ComputeCtx. */
-        virtual ~ComputeCtx( );
+        /** Destroy the ComputeContext. */
+        virtual ~ComputeContext( );
 
         /** @name Methods forwarded from eq::Pipe */
         //@{
-        /** Initialize the ComputeCtx. */
+        /** Initialize the ComputeContext. */
         virtual bool configInit( ) = 0;
 
-        /** De-initialize the ComputeCtx. */
+        /** De-initialize the ComputeContext. */
         virtual void configExit( ) = 0;
         //@}
 

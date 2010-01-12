@@ -1,4 +1,4 @@
-Minor code cleanups, allow for naming Equalizer_d.dll on Windows.
+Code cleanups (compute-context related)
 
 [ ] May break build
 [ ] May break existing applications

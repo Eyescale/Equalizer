@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -45,7 +45,7 @@ namespace eq
     class MessagePump;
     class OSPipe;
     class PipeVisitor;
-    class ComputeCtx;
+    class ComputeContext;
 
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
@@ -230,18 +230,18 @@ namespace eq
         //@}
 
 		/** 
-         * @name Interface to and from the ComputeCtx
+         * @name Interface to and from the ComputeContext
          */
         //@{
-        /**
-         * Set the compute-specific context.
-         * 
-         */
-        void setComputeCtx( ComputeCtx* ctx )  { _computeCtx = ctx; }
-		
-        const ComputeCtx* getComputeCtx() const { return _computeCtx; }
-		ComputeCtx* getComputeCtx()	{ return _computeCtx; }
-		
+        /** Set the compute-specific context. */
+        void setComputeContext( ComputeContext* ctx ) { _computeContext = ctx; }
+
+        /** @return the compute context. */
+        const ComputeContext* getComputeContext() const
+            { return _computeContext; }
+
+        /** @return the compute context. */
+		ComputeContext* getComputeContext() { return _computeContext; }		
         //@}
 		
         /** @name Error information. */
@@ -503,7 +503,7 @@ namespace eq
         const mutable Window* _currentWindow;
 
 		/** GPU Computing context */
-        ComputeCtx *_computeCtx;
+        ComputeContext *_computeContext;
 				
         union // placeholder for binary-compatible changes
         {

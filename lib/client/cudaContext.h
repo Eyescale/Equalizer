@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,21 +16,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_CUDA_COMPUTE_CONTEXT_H
-#define EQ_CUDA_COMPUTE_CONTEXT_H
+#ifndef EQ_CUDACONTEXT_H
+#define EQ_CUDACONTEXT_H
 
-#include <eq/client/computeCtx.h> // base class
+#include <eq/client/computeContext.h> // base class
 
 namespace eq
 {
-    class EQ_EXPORT CUDAComputeCtx : public ComputeCtx
+    class EQ_EXPORT CUDAContext : public ComputeContext
     {
     public:
-        /** Create a new CUDAComputeCtx.*/
-        CUDAComputeCtx( Pipe* parent );
+        /** Create a new CUDA compute context. */
+        CUDAContext( Pipe* parent );
 
-        /** Destroy the ComputeCtx. */
-        virtual ~CUDAComputeCtx( );
+        /** Destroy the context. */
+        virtual ~CUDAContext( );
 
         /** @name Methods forwarded from eq::Pipe */
         //@{
@@ -41,7 +42,6 @@ namespace eq
         //@}
 
     private:
-
         int _getMaxGflopsDeviceId();
 
         union // placeholder for binary-compatible changes

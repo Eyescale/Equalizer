@@ -55,6 +55,9 @@ endif
 ifeq ($(findstring EQ_USE_PARACOMP, $(DEFFLAGS)),EQ_USE_PARACOMP)
 	@echo "    Paracomp (http://paracomp.sourceforge.net/)"
 endif
+ifeq ($(findstring EQ_USE_CUDA, $(DEFFLAGS)),EQ_USE_CUDA)
+	@echo "    CUDA (http://www.nvidia.com/object/cuda_home.html)"
+endif
 	@echo
 ifeq (Darwin,$(ARCH))
 	@echo "Set DYLD_LIBRARY_PATH to $(LD_PATH) :"

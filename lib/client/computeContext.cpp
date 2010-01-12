@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,20 +16,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "computeCtx.h"
+#include "computeContext.h"
 
 #include <eq/base/debug.h>
 
 namespace eq
 {
 
-ComputeCtx::ComputeCtx( Pipe* parent )
+ComputeContext::ComputeContext( Pipe* parent )
         : _pipe( parent )
 {
     EQASSERT( _pipe ); 
 }
 
-ComputeCtx::~ComputeCtx()
+ComputeContext::~ComputeContext()
 {
 }
 	

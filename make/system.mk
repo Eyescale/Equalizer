@@ -99,7 +99,8 @@ endif # g++
 # CUDA settings
 ifeq ($(findstring -DEQ_USE_CUDA, $(DEFFLAGS)), -DEQ_USE_CUDA)
     CXXFLAGS += -I$(CUDA_INCLUDE_PATH)
-    LDFLAGS  += -L$(CUDA_LIBRARY_PATH) -lcuda -lcudart
+    LDFLAGS  += -L$(CUDA_LIBRARY_PATH) -lcuda -lcudart	
+    LD_PATH  := "$(LD_PATH):$(CUDA_LIBRARY_PATH)"
 endif
 
 # Paracomp settings

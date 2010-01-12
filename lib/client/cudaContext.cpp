@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "cudaComputeCtx.h"
+#include "cudaContext.h"
 #include "pipe.h"
 
 #ifdef EQ_USE_CUDA
@@ -29,24 +30,21 @@
 # endif
 #endif
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 
-    CUDAComputeCtx::CUDAComputeCtx( Pipe* parent ): ComputeCtx( parent )
+    CUDAContext::CUDAContext( Pipe* parent ): ComputeContext( parent )
     {
     }
 
-    CUDAComputeCtx::~CUDAComputeCtx()
+    CUDAContext::~CUDAContext()
     {
     }
 
     //--------------------------------------------------------------------------
     // CUDA init
     //--------------------------------------------------------------------------
-    bool CUDAComputeCtx::configInit( )
+    bool CUDAContext::configInit( )
     {
 #ifdef EQ_USE_CUDA
         cudaDeviceProp props;
@@ -54,9 +52,11 @@ namespace eq
         int device_count = 0;
 				
         // Setup the CUDA device
-        if( (uint32_t)device == EQ_UNDEFINED_UINT32 ) {
+        if( (uint32_t)device == EQ_UNDEFINED_UINT32 )
+        {
             device = _getMaxGflopsDeviceId();
-            EQWARN << "No CUDA device, using the fastest device: " << device << std::endl;
+            EQWARN << "No CUDA device, using the fastest device: " << device
+                   << std::endl;
         }
 		
         cudaGetDeviceCount( &device_count );
@@ -79,8 +79,8 @@ namespace eq
         cudaError_t err = cudaGetLastError();
         if( cudaSuccess != err) 
         {
-            ostringstream msg;
-            msg << "CUDA initialization error: " << cudaGetErrorString( err) << std::endl;
+            std::ostringstream msg;
+            msg << "CUDA initialization error: " << cudaGetErrorString( err );
             setErrorMessage( msg.str( ));				
             return false;
         }                         
@@ -96,7 +96,7 @@ namespace eq
     //--------------------------------------------------------------------------
     // CUDA exit
     //--------------------------------------------------------------------------
-    void CUDAComputeCtx::configExit()
+    void CUDAContext::configExit()
     {
 #ifdef EQ_USE_CUDA
         // Clean up all runtime-related resources associated with this thread.
@@ -109,28 +109,29 @@ namespace eq
     //--------------------------------------------------------------------------
     // CUDA exit
     //--------------------------------------------------------------------------
-    int CUDAComputeCtx::_getMaxGflopsDeviceId()
+    int CUDAContext::_getMaxGflopsDeviceId()
     {		
 #ifdef EQ_USE_CUDA
 # if __DEVICE_EMULATION__
-    return 0;
+        return 0;
 # else		
         int device_count = 0;
         cudaGetDeviceCount( &device_count );
         
         cudaDeviceProp device_properties;
         int max_gflops_device = 0;
-        int max_gflops = 0;
 		
         int current_device = 0;
         cudaGetDeviceProperties( &device_properties, current_device );
-        max_gflops = device_properties.multiProcessorCount * device_properties.clockRate;
+        int max_gflops = device_properties.multiProcessorCount * 
+                         device_properties.clockRate;
 
         ++current_device;
         while( current_device < device_count )
         {
             cudaGetDeviceProperties( &device_properties, current_device );
-            int gflops = device_properties.multiProcessorCount * device_properties.clockRate;
+            const int gflops = device_properties.multiProcessorCount * 
+                               device_properties.clockRate;
             if( gflops > max_gflops )
             {
                 max_gflops        = gflops;
