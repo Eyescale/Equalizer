@@ -43,8 +43,7 @@ namespace util
         /**
          * Initialize the Accumulation Buffer Object.
          * 
-         * @param width the initial width of the rendering buffer.
-         * @param height the initial height of the rendering buffer.
+         * @param pvp the initial pixel viewport of the rendering buffer.
          * @param format the texture format corresponding to the source color
          *               read buffer.
          * @return true on success, false otherwise

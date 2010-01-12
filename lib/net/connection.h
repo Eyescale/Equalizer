@@ -336,7 +336,8 @@ namespace net
          * @param connections The connections.
          * @param packet the message packet.
          * @param data the multiple buffer data.
-         * @param size the datas size for each buffer in bytes.
+         * @param dataSize the datas size for each buffer in bytes.
+         * @param nData the number of data elements.
          * @param allDataSize the total data size in bytes.
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all receivers.
