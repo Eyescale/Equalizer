@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,7 +24,10 @@ namespace eq
 {
     class Config;
 
-    /** Commits all dirty config object at the beginning of each frame. */
+    /** 
+     * Commits all dirty config object at the beginning of each frame.
+     * @internal
+     */
     class ConfigCommitVisitor : public ConfigVisitor
     {
     public:

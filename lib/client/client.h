@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -38,10 +38,10 @@ namespace eq
     class Client : public net::Node
     {
     public:
-        /** Construct a new client. */
+        /** Construct a new client. @version 1.0 */
         EQ_EXPORT Client();
 
-        /** Destruct the client. */
+        /** Destruct the client. @version 1.0 */
         EQ_EXPORT virtual ~Client();
 
         /** 
@@ -51,25 +51,29 @@ namespace eq
          *
          * @param server the server.
          * @return true if the server was connected, false if not.
+         * @version 1.0 
          */
         EQ_EXPORT bool connectServer( ServerPtr server );
 
         /** 
-         * Disconnect and close the connection of an Equalizer server to the
-         * local client.
+         * Disconnect and close the connection to an Equalizer server.
          * 
          * @param server the server.
          * @return true if the server was disconnected, false if not.
+         * @version 1.0 
          */
         EQ_EXPORT bool disconnectServer( ServerPtr server );
 
-        /** @return true if the client has commands pending, false otherwise. */
+        /**
+         * @return true if the client has commands pending, false otherwise.
+         * @version 1.0 
+         */
         EQ_EXPORT bool hasCommands();
 
         /** 
          * Get and process one pending command from the node command queue.
          *
-         * Used internally to run node commands.
+         * @version 1.0 
          */
         EQ_EXPORT void processCommand();
 
@@ -86,13 +90,11 @@ namespace eq
          * commands.
          *
          * @sa net::Node::clientLoop(), Pipe::createMessagePump()
+         * @version 1.0 
          */
         EQ_EXPORT virtual bool clientLoop();
 
-        /**
-         * Reimplemented to also call eq::exit() on render clients.
-         * @sa net::Node::exitClient().
-         */
+        /** Reimplemented to also call eq::exit() on render clients. */
         EQ_EXPORT virtual bool exitClient();
 
         /** @sa net::Node::listen() */

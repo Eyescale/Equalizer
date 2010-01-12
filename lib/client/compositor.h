@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -71,6 +71,7 @@ namespace util
          * @param channel the destination channel.
          * @param accum the accumulation buffer.
          * @return the number of different subpixel steps assembled.
+         * @version 1.0
          */
         static uint32_t assembleFrames( const FrameVector& frames,
                                         Channel* channel, util::Accum* accum );
@@ -87,6 +88,7 @@ namespace util
          * @param blendAlpha blend color-only images if they have an alpha
          *                   channel
          * @return the number of different subpixel steps assembled.
+         * @version 1.0
          */
         static uint32_t assembleFramesSorted( const FrameVector& frames,
                                               Channel* channel, 
@@ -101,6 +103,7 @@ namespace util
          * @param channel the destination channel.
          * @param accum the accumulation buffer.
          * @return the number of different subpixel steps assembled.
+         * @version 1.0
          */
         static uint32_t assembleFramesUnsorted( const FrameVector& frames,
                                                 Channel* channel,
@@ -122,12 +125,22 @@ namespace util
          * @param blendAlpha blend color-only images if they have an alpha
          *                   channel
          * @return the number of different subpixel steps assembled (0 or 1).
+         * @version 1.0
          */
         static uint32_t assembleFramesCPU( const FrameVector& frames,
                                            Channel* channel,
                                            const bool blendAlpha = false );
 
-        /** Merge the provided frames into one image in main memory. */
+        /**
+         * Merge the provided frames in the given order into one image in main
+         * memory.
+         *
+         * The returned image does not have to be freed. The compositor
+         * maintains one image per thread, that is, the returned image is valid
+         * until the next usage of the compositor in the current thread.
+         *
+         * @version 1.0
+         */
         static const Image* mergeFramesCPU( const FrameVector& frames,
                                             const bool blendAlpha = false );
 
@@ -145,6 +158,7 @@ namespace util
          *
          * @return true if the compositing was successful, false otherwise,
          *         e.g., a buffer is too small.
+         * @version 1.0
          */
         static bool mergeFramesCPU( const FrameVector& frames,
                                     const bool blendAlpha,
@@ -154,7 +168,10 @@ namespace util
                                     const uint32_t depthBufferSize,
                                     PixelViewport& outPVP );
 
-        /** Assemble a frame using the default algorithm. */
+        /**
+         * Assemble a frame into the frame buffer using the default algorithm.
+         * @version 1.0
+         */
         static void assembleFrame( const Frame* frame, Channel* channel );
         //@}
 
@@ -162,7 +179,7 @@ namespace util
         /** @name Image-based operations. */
         //@{
         /** 
-         * Assemble an image.
+         * Assemble an image into the frame buffer.
          * 
          * @param image the input image.
          * @param operation an ImageOp struct describing the operation.

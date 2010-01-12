@@ -587,9 +587,8 @@ bool Pipe::configInit( const uint32_t initID )
         }	
         setComputeContext( computeCtx );
     }
-    else {
+    else
         EQINFO << "No CUDA context initialized " << std::endl;
-    }
 #endif
 
     return true;

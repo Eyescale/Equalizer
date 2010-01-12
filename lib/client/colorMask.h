@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,7 +28,7 @@ namespace eq
      *
      * Used to configure anaglyphic stereo rendering.
      */
-    class EQ_EXPORT ColorMask
+    class ColorMask
     {
     public:
         ColorMask() : red( true ), green( true ), blue( true ) {}
@@ -39,18 +39,18 @@ namespace eq
         bool green;
         bool blue;
 
-        static const ColorMask ALL;
+        EQ_EXPORT static const ColorMask ALL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const ColorMask& mask )
     {
         os << "[ ";
         if( mask.red ) 
-            os << "red ";
+            os << "RED ";
         if( mask.green ) 
-            os << "green ";
+            os << "GREEN ";
         if( mask.blue ) 
-            os << "blue ";
+            os << "BLUE ";
         os << "]";
 
         return os;

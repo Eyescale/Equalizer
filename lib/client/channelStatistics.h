@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,17 +24,21 @@ namespace eq
 {
     class Channel;
 
-    /**
-     * Holds one channel statistics event, used for profiling.
-     */
+    /** Holds one channel statistics event. */
     class ChannelStatistics : public StatisticSampler< Channel >
     {
     public:
-        /** Construct a statistics sampler and sample the start time. */
+        /**
+         * Construct a statistics sampler and sample the start time.
+         * @version 1.0
+         */
         EQ_EXPORT ChannelStatistics( const Statistic::Type type, 
                                      Channel* channel );
 
-        /** Destruct the sampler, sample the end time and send the event. */
+        /**
+         * Destruct the sampler, sample the end time and send the event.
+         * @version 1.0
+         */
         virtual EQ_EXPORT ~ChannelStatistics();
     };
 }

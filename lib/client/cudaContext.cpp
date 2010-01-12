@@ -48,33 +48,43 @@ namespace eq
     {
 #ifdef EQ_USE_CUDA
         cudaDeviceProp props;
-        int device = (int)_pipe->getDevice();		
-        int device_count = 0;
+        uint32_t device = getPipe()->getDevice();
 				
         // Setup the CUDA device
-        if( (uint32_t)device == EQ_UNDEFINED_UINT32 )
+        if( device == EQ_UNDEFINED_UINT32 )
         {
-            device = _getMaxGflopsDeviceId();
+            device = _getFastestDeviceID();
             EQWARN << "No CUDA device, using the fastest device: " << device
                    << std::endl;
         }
 		
+        int device_count = 0;
         cudaGetDeviceCount( &device_count );
         EQINFO << "CUDA devices found: " << device_count << std::endl;
-        EQASSERT( device_count > device );
+        EQASSERT( static_cast< uint32_t >( device_count ) > device );
+        if( static_cast< uint32_t >( device_count ) <= device )
+        {
+            std::ostringstream stream;
+            stream << "Not enough cuda devices, requested device " << device
+                   << " of " << device_count;
+            setErrorMessage( stream.str( ));
+            return false;
+        }
 
         // We assume GL interop here, otherwise use cudaSetDevice( device );
         // Attention: this call requires a valid GL context!
-        cudaGLSetGLDevice(device);
+        cudaGLSetGLDevice( device );
 		
+        int usedDevice = static_cast< int >( device );
 #ifdef WIN32
         // retrieve the CUDA device associated to the handle returned by 
         // WGL_NV_gpu_affinity().
-        cudaWGLGetDevice(&device);
+        cudaWGLGetDevice( &usedDevice );
 #else
-        cudaGetDevice(&device);
+        cudaGetDevice( &usedDevice );
 #endif
-        cudaGetDeviceProperties(&props, device);
+        EQASSERT( device == static_cast< uint32_t >( device ));
+        cudaGetDeviceProperties( &props, usedDevice );
 		
         cudaError_t err = cudaGetLastError();
         if( cudaSuccess != err) 
@@ -109,7 +119,7 @@ namespace eq
     //--------------------------------------------------------------------------
     // CUDA exit
     //--------------------------------------------------------------------------
-    int CUDAContext::_getMaxGflopsDeviceId()
+    int CUDAContext::_getFastestDeviceID()
     {		
 #ifdef EQ_USE_CUDA
 # if __DEVICE_EMULATION__

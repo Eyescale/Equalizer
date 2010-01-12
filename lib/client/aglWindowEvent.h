@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,10 +23,10 @@
 namespace eq
 {
     /** A window-system event with the native Carbon event, used for AGL. */
-    class EQ_EXPORT AGLWindowEvent : public Event
+    class AGLWindowEvent : public Event
     {
     public:
-        /** The native event */
+        /** The native event. @version 1.0 */
         EventRef carbonEventRef;
     };
 }

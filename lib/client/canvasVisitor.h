@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,23 +24,21 @@ namespace eq
 {
     class Canvas;
 
-    /**
-     * A visitor to traverse non-const canvases and children.
-     */
+    /** A visitor to traverse non-const canvases and children. */
     class CanvasVisitor : public SegmentVisitor
     {
     public:
-        /** Constructs a new CanvasVisitor. */
+        /** Constructs a new CanvasVisitor. @version 1.0 */
         CanvasVisitor(){}
         
-        /** Destruct the CanvasVisitor */
+        /** Destruct the CanvasVisitor @version 1.0 */
         virtual ~CanvasVisitor(){}
 
-        /** Visit a canvas on the down traversal. */
+        /** Visit a canvas on the down traversal. @version 1.0 */
         virtual VisitorResult visitPre( Canvas* canvas )
             { return TRAVERSE_CONTINUE; }
 
-        /** Visit a canvas on the up traversal. */
+        /** Visit a canvas on the up traversal. @version 1.0 */
         virtual VisitorResult visitPost( Canvas* canvas )
             { return TRAVERSE_CONTINUE; }
     };

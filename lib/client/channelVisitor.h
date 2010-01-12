@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,19 +26,17 @@ namespace eq
 {
     class Channel;
 
-    /**
-     * A visitor to traverse a non-const channels
-     */
+    /** A visitor to traverse non-const channels. */
     class ChannelVisitor
     {
     public:
-        /** Constructs a new ChannelVisitor. */
+        /** Constructs a new ChannelVisitor. @version 1.0 */
         ChannelVisitor(){}
         
-        /** Destruct the ChannelVisitor */
+        /** Destruct the ChannelVisitor @version 1.0 */
         virtual ~ChannelVisitor(){}
 
-        /** Visit a channel. */
+        /** Visit a channel. @version 1.0 */
         virtual VisitorResult visit( Channel* channel )
             { return TRAVERSE_CONTINUE; }
     };

@@ -1,4 +1,4 @@
-Code cleanups (compute-context related)
+Doxygen cleanups
 
 [ ] May break build
 [ ] May break existing applications

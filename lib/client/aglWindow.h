@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
                           , Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -27,53 +27,53 @@ namespace eq
     class AGLWindowEvent;
 
     /** The interface defining the minimum functionality for an AGL window. */
-    class EQ_EXPORT AGLWindowIF : public GLWindow
+    class AGLWindowIF : public GLWindow
     {
     public:
-        /** Create a new AGL window for the given eq::Window. */
+        /** Create a new AGL window for the given eq::Window. @version 1.0 */
         AGLWindowIF( Window* parent ) : GLWindow( parent ) {}
 
-        /** Destruct the AGL window. */
+        /** Destruct the AGL window. @version 1.0 */
         virtual ~AGLWindowIF() {}
 
-        /** @return the AGL rendering context. */
-        virtual AGLContext getAGLContext() const = 0;
+        /** @return the AGL rendering context. @version 1.0 */
+        EQ_EXPORT virtual AGLContext getAGLContext() const = 0;
 
-        /** @return the carbon window reference. */
-        virtual WindowRef getCarbonWindow() const = 0;
+        /** @return the carbon window reference. @version 1.0 */
+        EQ_EXPORT virtual WindowRef getCarbonWindow() const = 0;
 
-        /** @return the AGL PBuffer object. */
-        virtual AGLPbuffer getAGLPBuffer() const = 0;
+        /** @return the AGL PBuffer object. @version 1.0 */
+        EQ_EXPORT virtual AGLPbuffer getAGLPBuffer() const = 0;
 
-        /** Process an event. */
-        virtual bool processEvent( const AGLWindowEvent& event );
+        /** Process an event. @version 1.0 */
+        EQ_EXPORT virtual bool processEvent( const AGLWindowEvent& event );
 
     private:
     };
 
-    /** Equalizer default implementation of an AGL window */
-    class EQ_EXPORT AGLWindow : public AGLWindowIF
+    /** Equalizer default implementation of an AGL window interface. */
+    class AGLWindow : public AGLWindowIF
     {
     public:
-        /** Create a new AGL window for the given eq::Window. */
-        AGLWindow( Window* parent );
+        /** Create a new AGL window for the given eq::Window. @version 1.0 */
+        EQ_EXPORT AGLWindow( Window* parent );
 
-        /** Destruct the AGL window. */
-        virtual ~AGLWindow( );
+        /** Destruct the AGL window. @version 1.0 */
+        EQ_EXPORT virtual ~AGLWindow();
 
-        virtual void configExit( );
-        virtual void makeCurrent() const;
-        virtual void swapBuffers();
-        virtual void joinNVSwapBarrier( const uint32_t group,
-                                        const uint32_t barrier );
+        EQ_EXPORT virtual void configExit( );
+        EQ_EXPORT virtual void makeCurrent() const;
+        EQ_EXPORT virtual void swapBuffers();
+        EQ_EXPORT virtual void joinNVSwapBarrier( const uint32_t group,
+                                                  const uint32_t barrier );
 
-        /** @return the AGL rendering context. */
+        /** @return the AGL rendering context. @version 1.0 */
         virtual AGLContext getAGLContext() const { return _aglContext; }
 
-        /** @return the carbon window reference. */
+        /** @return the carbon window reference. @version 1.0 */
         virtual WindowRef getCarbonWindow() const { return _carbonWindow; }
 
-        /** @return the AGL PBuffer object. */
+        /** @return the AGL PBuffer object. @version 1.0 */
         virtual AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
 
         /** @name Data Access */
@@ -85,22 +85,25 @@ namespace eq
          * configExit(). The context has to be set to 0 before it is destroyed.
          *
          * @param context the AGL rendering context.
+         * @version 1.0
          */
-        virtual void setAGLContext( AGLContext context );
+        EQ_EXPORT virtual void setAGLContext( AGLContext context );
 
         /** 
          * Set the carbon window to be used with the current AGL context.
          * 
          * @param window the window reference.
+         * @version 1.0
          */
-        virtual void setCarbonWindow( WindowRef window );
+        EQ_EXPORT virtual void setCarbonWindow( WindowRef window );
         
         /** 
          * Set the AGL PBuffer object to be used with the current AGL context.
          * 
          * @param pbuffer the PBuffer.
+         * @version 1.0
          */
-        virtual void setAGLPBuffer( AGLPbuffer pbuffer );
+        EQ_EXPORT virtual void setAGLPBuffer( AGLPbuffer pbuffer );
         //@}
 
         /** @name AGL/Carbon initialization */
@@ -114,8 +117,9 @@ namespace eq
          * using configInitAGLDrawable().
          * 
          * @return true if the initialization was successful, false otherwise.
+         * @version 1.0
          */
-        virtual bool configInit();
+        EQ_EXPORT virtual bool configInit();
 
         /** 
          * Choose a pixel format based on the window's attributes.
@@ -127,8 +131,9 @@ namespace eq
          * protect the calls to AGL/Carbon.
          *  
          * @return a pixel format, or 0 if no pixel format was found.
+         * @version 1.0
          */
-        virtual AGLPixelFormat chooseAGLPixelFormat();
+        EQ_EXPORT virtual AGLPixelFormat chooseAGLPixelFormat();
 
         /** 
          * Destroy a pixel format obtained with chooseAGLPixelFormat().
@@ -136,9 +141,10 @@ namespace eq
          * This method uses Global::enterCarbon() and Global::leaveCarbon() to
          * protect the calls to AGL/Carbon.
          *
-         * @param pixelFormat a pixel format.
+         * @param format a pixel format.
+         * @version 1.0
          */
-        virtual void destroyAGLPixelFormat( AGLPixelFormat pixelFormat );
+        EQ_EXPORT virtual void destroyAGLPixelFormat( AGLPixelFormat format );
 
         /** 
          * Create an AGL context.
@@ -148,10 +154,11 @@ namespace eq
          * This method uses Global::enterCarbon() and Global::leaveCarbon() to
          * protect the calls to AGL/Carbon.
          *
-         * @param pixelFormat the pixel format for the context.
+         * @param format the pixel format for the context.
          * @return the context, or 0 if context creation failed.
+         * @version 1.0
          */
-        virtual AGLContext createAGLContext( AGLPixelFormat pixelFormat );
+        EQ_EXPORT virtual AGLContext createAGLContext( AGLPixelFormat format );
 
         /** 
          * Initialize the window's drawable (fullscreen, pbuffer or window) and
@@ -161,8 +168,9 @@ namespace eq
          * configInitAGLFullscreen() or configInitAGLWindow().
          * 
          * @return true if the drawable was created, false otherwise.
+         * @version 1.0
          */
-        virtual bool configInitAGLDrawable();
+        EQ_EXPORT virtual bool configInitAGLDrawable();
 
         /** 
          * Initialize the window with a fullscreen Carbon window.
@@ -173,8 +181,9 @@ namespace eq
          * protect the calls to AGL/Carbon.
          *
          * @return true if the window was created, false otherwise.
+         * @version 1.0
          */
-        virtual bool configInitAGLFullscreen();
+        EQ_EXPORT virtual bool configInitAGLFullscreen();
 
         /** 
          * Initialize the window with a normal Carbon window.
@@ -185,8 +194,9 @@ namespace eq
          * protect the calls to AGL/Carbon.
          *
          * @return true if the window was created, false otherwise.
+         * @version 1.0
          */
-        virtual bool configInitAGLWindow();
+        EQ_EXPORT virtual bool configInitAGLWindow();
 
         /** 
          * Initialize the window with an offscreen AGL PBuffer.
@@ -194,17 +204,24 @@ namespace eq
          * Sets the window's AGL PBuffer on success.
          *
          * @return true if the PBuffer was created, false otherwise.
+         * @version 1.0
          */
-        virtual bool configInitAGLPBuffer(); 
+        EQ_EXPORT virtual bool configInitAGLPBuffer(); 
         
-        /** Set up an AGLEventHandler, called by setCarbonWindow(). */
-        virtual void initEventHandler();
+        /**
+         * Set up an AGLEventHandler, called by setCarbonWindow().
+         * @version 1.0
+         */
+        EQ_EXPORT virtual void initEventHandler();
 
-        /** Destroy the AGLEventHandler, called by setCarbonWindow(). */
-        virtual void exitEventHandler();
+        /**
+         * Destroy the AGLEventHandler, called by setCarbonWindow().
+         * @version 1.0
+         */
+        EQ_EXPORT virtual void exitEventHandler();
        //@}
 
-        virtual bool processEvent( const AGLWindowEvent& event );
+        EQ_EXPORT virtual bool processEvent( const AGLWindowEvent& event );
 
     private:
         /** The AGL context. */

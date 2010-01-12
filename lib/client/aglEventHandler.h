@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,10 +36,13 @@ namespace eq
     class AGLEventHandler : public EventHandler
     {
     public:
-        /** Construct a new AGL event handler for the given AGL window. */
+        /**
+         * Construct a new AGL event handler for the given AGL window.
+         * @version 1.0
+         */
         AGLEventHandler( AGLWindowIF* window );
         
-        /** Destruct the AGL event handler. */
+        /** Destruct the AGL event handler. @version 1.0 */
         virtual ~AGLEventHandler();
 
         /**
@@ -47,12 +50,14 @@ namespace eq
          *
          * Received space mouse events are directly send to the application.
          * @sa Node::configInit, Config::sendEvent
+         * @version 1.0
          */
         static void initMagellan( Node* node );
 
         /**
          * De-initialize space mouse event handling for this process.
          * @sa Node::configInit
+         * @version 1.0
          */
         static void exitMagellan( Node* node );
 

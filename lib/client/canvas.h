@@ -56,35 +56,35 @@ namespace server
     class Canvas : public Frustum
     {
     public:
-        /** Construct a new Canvas. */
+        /** Construct a new Canvas. @version 1.0 */
         EQ_EXPORT Canvas();
 
-        /** Destruct this canvas. */
+        /** Destruct this canvas. @version 1.0 */
         EQ_EXPORT virtual ~Canvas();
 
         /** @name Data Access */
         //@{
-        /** @return the parent config. */
+        /** @return the parent config. @version 1.0 */
         Config*       getConfig()       { return _config; }
-        /** @return the parent config. */
+        /** @return the parent config. @version 1.0 */
         const Config* getConfig() const { return _config; }
 
-        /** @return the index of the active layout. */
+        /** @return the index of the active layout. @version 1.0 */
         uint32_t getActiveLayoutIndex() const { return _activeLayout; }
 
-        /** @return the active layout. */
+        /** @return the active layout. @version 1.0 */
         EQ_EXPORT const Layout* getActiveLayout() const;
 
-        /** @return the vector of child segments. */
+        /** @return the vector of child segments. @version 1.0 */
         const SegmentVector& getSegments() const { return _segments; }        
 
-        /** @return the vector of possible layouts. */
+        /** @return the vector of possible layouts. @version 1.0 */
         const LayoutVector& getLayouts() const { return _layouts; }        
         //@}
 
         /** @name Operations */
         //@{
-        /** Activate the given layout on this canvas. */
+        /** Activate the given layout on this canvas. @version 1.0 */
         EQ_EXPORT virtual void useLayout( const uint32_t index );
 
         /** 
@@ -92,6 +92,7 @@ namespace server
          * 
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
+         * @version 1.0
          */
         EQ_EXPORT VisitorResult accept( CanvasVisitor& visitor );
 
@@ -100,11 +101,11 @@ namespace server
         //@}
 
     protected:
-        /** @sa Frustum::serialize */
+        /** @sa Frustum::serialize. @version 1.0 */
         EQ_EXPORT void serialize( net::DataOStream& os, 
                                   const uint64_t dirtyBits );
 
-        /** @sa Frustum::deserialize */
+        /** @sa Frustum::deserialize. @version 1.0 */
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
         enum DirtyBits

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
-                     , Maxim Makhinya
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+                          , Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,10 +28,10 @@ namespace eq
     class EQ_EXPORT AGLPipe : public OSPipe
     {
     public:
-        /** Create a new AGL pipe for the given eq::Pipe. */
+        /** Create a new AGL pipe for the given eq::Pipe. @version 1.0 */
         AGLPipe( Pipe* parent );
 
-        /** Destroy the AGL pipe. */
+        /** Destroy the AGL pipe. @version 1.0 */
         virtual ~AGLPipe( );
 
         /** @name AGL initialization */
@@ -40,6 +40,7 @@ namespace eq
          * Initialize this pipe for the AGL window system.
          * 
          * @return true if the initialization was successful, false otherwise.
+         * @version 1.0
          */
         virtual bool configInit( );
 
@@ -47,11 +48,12 @@ namespace eq
          * De-initialize this pipe for the AGL window system.
          * 
          * @return true if the deinitialization was successful, false otherwise.
+         * @version 1.0
          */
         virtual void configExit( );
         //@}
 
-        /** @return the CG display ID for this pipe. */
+        /** @return the CG display ID for this pipe. @version 1.0 */
         CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
 
     private:

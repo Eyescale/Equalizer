@@ -23,6 +23,7 @@
 
 namespace eq
 {
+    /** @warning  Experimental - may not be supported in the future. */
     class EQ_EXPORT CUDAContext : public ComputeContext
     {
     public:
@@ -42,7 +43,7 @@ namespace eq
         //@}
 
     private:
-        int _getMaxGflopsDeviceId();
+        int _getFastestDeviceID();
 
         union // placeholder for binary-compatible changes
         {

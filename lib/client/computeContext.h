@@ -31,23 +31,35 @@ namespace eq
      * The ComputeContext abstracts all GPGPU API-system specific code for
      * handling a GPU for computing purposes. Each Pipe uses one ComputeContext,
      * which is initialized in Pipe::configInit.
+     * @warning Experimental - may not be supported in the future.
      */
     class EQ_EXPORT ComputeContext
     {
     public:
-        /** Create a new ComputeContext for the given accelerator.*/
-        ComputeContext( Pipe* parent );
+        /**
+         * Create a new ComputeContext for the given accelerator.
+         */
+        EQ_EXPORT ComputeContext( Pipe* parent );
 
         /** Destroy the ComputeContext. */
-        virtual ~ComputeContext( );
+        EQ_EXPORT virtual ~ComputeContext( );
 
-        /** @name Methods forwarded from eq::Pipe */
+        /** @name Data Access */
+        //@{
+        /** @return the parent pipe. */
+        Pipe* getPipe() { return _pipe; }
+
+        /** @return the parent pipe. */
+        const Pipe* getPipe() const { return _pipe; }
+        //@}
+
+        /** @name Methods forwarded from Pipe */
         //@{
         /** Initialize the ComputeContext. */
-        virtual bool configInit( ) = 0;
+        EQ_EXPORT virtual bool configInit( ) = 0;
 
         /** De-initialize the ComputeContext. */
-        virtual void configExit( ) = 0;
+        EQ_EXPORT virtual void configExit( ) = 0;
         //@}
 
         /** @return the reason of the last failed operation. */
@@ -63,17 +75,18 @@ namespace eq
          * example to Config::init when set from within the configInit method.
          *
          * @param message the error message.
+         * @version 1.0
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
         //@}
 
+    private:
         /** The eq::Pipe used by the context. */
         Pipe* const _pipe;
 
         /** The reason for the last error. */
         std::string _error;
 
-    private:
         union // placeholder for binary-compatible changes
         {
             char dummy[64];
