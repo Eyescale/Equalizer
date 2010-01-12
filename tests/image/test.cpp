@@ -1,6 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,15 +17,18 @@
 
 #include <test.h>
 
-#include <eq/base/clock.h>
-#include <eq/base/compressor.h>
-#include <eq/base/file.h>
-#include <eq/base/global.h>
-#include <eq/base/pluginRegistry.h>
+#include "../../lib/base/pluginRegistry.h"
+#include "../../lib/base/compressor.h"
 
+#include <eq/plugins/compressor.h>
+#include <eq/base/global.h>
 #include <eq/client/image.h>
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
+#include <eq/base/clock.h>
+#include <eq/base/file.h>
+
+
 #include <eq/client/frame.h>    // enum Eye
 
 #include <numeric>
@@ -42,8 +44,8 @@ namespace
 {
 static std::vector< uint32_t > _getCompressorNames()
 {
-  const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
-  const eq::base::CompressorVector& plugins = registry.getCompressors();
+    const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
+    const eq::base::CompressorVector& plugins = registry.getCompressors();
 
     std::vector< uint32_t > names;
     for( eq::base::CompressorVector::const_iterator i = plugins.begin();
@@ -58,6 +60,30 @@ static std::vector< uint32_t > _getCompressorNames()
     }
     
     return names;
+}
+
+static float _getCompressorQuality( uint32_t name )
+{
+    const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
+    const eq::base::CompressorVector& plugins = registry.getCompressors();
+
+    float quality = 1.0f;
+    for( eq::base::CompressorVector::const_iterator i = plugins.begin();
+         i != plugins.end(); ++i )
+    {
+        const eq::base::CompressorInfoVector& infos = (*i)->getInfos();
+        for( eq::base::CompressorInfoVector::const_iterator j = infos.begin();
+             j != infos.end(); ++j )
+        {
+	    if( name != (*j).name )
+	        continue;
+
+            quality = (*j).quality;
+            break;
+        }
+    }
+    
+    return quality;
 }
 }
 
@@ -103,6 +129,7 @@ int main( int argc, char **argv )
          i != names.end(); ++i )
     {
         const uint32_t name = *i;
+	std::cout << "compressor = " << name << std::endl;
 
         // Touch memory once: find suitable image
         for( eq::StringVector::const_iterator j = images.begin();
@@ -241,14 +268,23 @@ int main( int argc, char **argv )
 
 #ifdef COMPARE_RESULT
                 const uint8_t* destData = destImage.getPixelPointer( buffer );
+                const float quality = _getCompressorQuality( name );
+		std::cout << "quality = " << quality << std::endl;
                 // last 7 pixels can be unitialized
                 for( uint32_t k = 0; k < size-7; ++k )
                 {
+                    const uint8_t channelSize = 
+                            image.getChannelSize( buffer );
+
+                    if( quality < 1.f && channelSize == 2 )
+		    {
+		        EQ_INFO << EQUNIMPLEMENTED << std::endl;
+			break;
+		    }
+
                     if( image.ignoreAlpha() && 
                         buffer == eq::Frame::BUFFER_COLOR )
                     {
-                        const uint8_t channelSize = 
-                            image.getChannelSize( buffer );
                         EQASSERT( channelSize == 1 || channelSize == 2 ||
                                   channelSize == 4 );
 
@@ -261,10 +297,24 @@ int main( int argc, char **argv )
                         }
                     }
                         
-                    TESTINFO( data[k] == destData[k],
-                              "got " << (int)destData[k] << " expected " <<
-                              (int)data[k] << " at " << k );
-                }
+                    if( quality < 1.f )
+                    {
+		        float max = 1.f - quality;
+                        if( channelSize == 1 )
+			    max *= 256.f;         
+                            
+                        if( channelSize == 4 )
+			    max *= std::numeric_limits<float>::max();
+
+                        TESTINFO( abs( data[k] - destData[k] ) <= max,
+			          "the error difference after a compression with loss"
+				  << " comparing to the quality is too big." );
+		    }
+                    else
+                        TESTINFO( data[k] == destData[k],
+                                  "got " << (int)destData[k] << " expected " <<
+                                  (int)data[k] << " at " << k );
+		}
 #endif
             }
 
