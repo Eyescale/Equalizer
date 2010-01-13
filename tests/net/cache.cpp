@@ -17,15 +17,13 @@
 
 #include <test.h>
 
-#define EQ_INSTRUMENT_CACHE
-
-#include <eq/net/instanceCache.h>
+#include <eq/net/command.h>
 #include <eq/net/init.h>
-#include "../../lib/net/instanceCache.cpp"
+#include <eq/net/instanceCache.h>
+#include <eq/net/objectVersion.h>
 
 #include <eq/base/rng.h>
 #include <eq/base/thread.h>
-#include <eq/net/command.h>
 
 // Tests the functionality of the network packet cache
 

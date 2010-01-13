@@ -128,15 +128,15 @@ int main( int argc, char **argv )
     lock.set();
 
     TEST( client->close( serverProxy ));
-    TESTINFO( serverProxy->getRefCount() == 1, serverProxy->getRefCount( ));
-    serverProxy = 0;
-
     TEST( client->close( ));
-    TESTINFO( client->getRefCount() == 1, client->getRefCount( ));
-    client      = 0;
-
     TEST( server->close( ));
+
+    TESTINFO( serverProxy->getRefCount() == 1, serverProxy->getRefCount( ));
+    TESTINFO( client->getRefCount() == 1, client->getRefCount( ));
     TESTINFO( server->getRefCount() == 1, server->getRefCount( ));
+
+    serverProxy = 0;
+    client      = 0;
     server      = 0;
 
     return EXIT_SUCCESS;
