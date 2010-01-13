@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -1247,8 +1247,9 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
             if( header.bytesPerChannel != 1 )
             {
                 EQERROR << "Unsupported channel depth " 
-                        << static_cast< int >( header.bytesPerChannel ) << std::endl;
-                        return false;
+                        << static_cast< int >( header.bytesPerChannel )
+                        << std::endl;
+                return false;
             }
 
             setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );

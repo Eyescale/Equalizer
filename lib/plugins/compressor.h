@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,22 +22,27 @@
  * The API to create runtime-loadable compression plugins.
  *
  * To implement a compression plugin, the following steps are to be taken:
- * <ul>
- *   <li>Create a new shared library named EqualizerCompressorNAME.dll (Win32),
- *       libeqCompressorNAME.dylib (Mac OS X) or libeqCompressorNAME.so
- *       (Linux).</li>
- *   <li>Define EQ_PLUGIN_API and then include eq/plugins/compressor.h (this
- *       header file).</li>
- *   <li>Implement all C functions from this header file. You can use the
- *       default Equalizer compressors in src/lib/compressor as a template.</li>
- *   <li>Put the library in the plugin search path (see
- *       eq::Global::getPluginDirectories(), defaults to EQ_PLUGIN_PATH or
- *       "/usr/local/share/Equalizer/plugins;.eqPlugins;$LD_LIBRARY_PATH".</li>
- *   <li>Run the image unit test (tests/image) to verify your plugin.</li>
- *   <li>Set the compression ratio and speed according to the output of the
- *       image unit test. Use the Equalizer RLE compressor as baseline.</li>
- *   <li>Request official names for your compressors.</li>
- * </ul>
+ *  - Create a new shared library named EqualizerCompressorNAME.dll (Win32),
+ *    libeqCompressorNAME.dylib (Mac OS X) or libeqCompressorNAME.so
+ *    (Linux).
+ *  - Define EQ_PLUGIN_API and then include eq/plugins/compressor.h (this
+ *    header file).
+ *  - Implement all C functions from this header file. You can use the
+ *    default Equalizer compressors in src/lib/compressor as a template.
+ *  - Put the library in the plugin search path (see
+ *    eq::Global::getPluginDirectories(), defaults to EQ_PLUGIN_PATH or
+ *    "/usr/local/share/Equalizer/plugins;.eqPlugins;$LD_LIBRARY_PATH".
+ *  - Run the image unit test (tests/image) to verify your plugin.
+ *  - Set the compression ratio and speed according to the output of the
+ *    image unit test. Use the Equalizer RLE compressor as baseline.
+ *  - Request official names for your compressors.
+ *
+ * <h2>Changes</h2>
+ * Version 1.1
+ *  - Added EQ_COMPRESSOR_DIFF_RLE_565 to type name registry
+ *
+ * Version 1
+ *  - Initial Release
  */
 
 #ifndef EQ_PLUGINS_COMPRESSOR
@@ -68,9 +73,11 @@ extern "C"
     /** @name Compressor Plugin API Versioning */
     /*@{*/
     /** The version of the Compressor API described by this header. */
-    #define EQ_COMPRESSOR_VERSION 1
+    #define EQ_COMPRESSOR_VERSION 1.1
     /** At least version 1 of the Compressor API is described by this header. */
     #define EQ_COMPRESSOR_VERSION_1 1
+    /**At least version 1.1 of the Compressor API is described by this header.*/
+    #define EQ_COMPRESSOR_VERSION_1_1 1
     /*@}*/
 
     /**
@@ -97,12 +104,12 @@ extern "C"
     #define EQ_COMPRESSOR_RLE_4_HALF_FLOAT 0x7u
     /** Differential RLE Compression of three 1-byte tokens. */
     #define EQ_COMPRESSOR_DIFF_RLE_3_BYTE  0x8u
-    /** Differential RLE Compression of three 1-byte tokens. */
+    /** Differential RLE Compression of four 1-byte tokens. */
     #define EQ_COMPRESSOR_DIFF_RLE_4_BYTE  0x9u
     /** RLE Compression of one 4-byte token. */
     #define EQ_COMPRESSOR_RLE_4_BYTE_UNSIGNED  0xau
-    /** Differential RLE Compression with loss of three 1-byte tokens. */
-    #define EQ_COMPRESSOR_DIFF_RLE_565 0xbu
+    /** Lossy Differential RLE Compression. */
+    #define EQ_COMPRESSOR_DIFF_RLE_565     0xbu
 
     /**
      * Private types -FOR DEVELOPMENT ONLY-.

@@ -797,12 +797,14 @@ CommandResult Session::_cmdMapObject( Command& command )
         command.getPacket< SessionMapObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
 
+#ifndef NDEBUG
     Object* object = static_cast<Object*>(
         _requestHandler.getRequestData( packet->requestID ));    
 
     EQASSERT( object );
     EQASSERT( !object->isMaster( ));
     EQASSERT( packet->masterNodeID != NodeID::ZERO );
+#endif
 
     const uint32_t id = packet->objectID;
     NodePtr master = _localNode->getNode( packet->masterNodeID );
