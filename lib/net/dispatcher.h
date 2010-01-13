@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -54,8 +54,7 @@ namespace net
          * Dispatch a command from the receiver thread to the registered queue.
          * 
          * @param command the command.
-         * @return true if the command was dispatch, false if not (command will
-         *         be dispatched again later)
+         * @return true if the command was dispatched, false if not.
          * @sa registerCommand
          */
         EQ_EXPORT virtual bool dispatchCommand( Command& command );

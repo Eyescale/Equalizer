@@ -532,7 +532,8 @@ bool Session::dispatchCommand( Command& command )
     switch( command->datatype )
     {
         case DATATYPE_EQNET_SESSION:
-            return Dispatcher::dispatchCommand( command );
+            EQCHECK( Dispatcher::dispatchCommand( command ));
+            return true;
 
         case DATATYPE_EQNET_OBJECT:
         {
@@ -550,7 +551,8 @@ bool Session::dispatchCommand( Command& command )
             Object* object = _objects.data[id].front();
             EQASSERT( object );
 
-            return object->dispatchCommand( command );
+            EQCHECK( object->dispatchCommand( command ));
+            return true;
         }
 
         default:

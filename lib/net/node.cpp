@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -86,11 +86,11 @@ Node::Node()
     registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
                      NodeFunc( this, &Node::_cmdGetNodeDataReply ), 0 );
     registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
-                     NodeFunc( this, &Node::_cmdAcquireSendToken ), 0 );
+                     NodeFunc( this, &Node::_cmdAcquireSendToken ), queue );
     registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
                      NodeFunc( this, &Node::_cmdAcquireSendTokenReply ) , 0 );
     registerCommand( CMD_NODE_RELEASE_SEND_TOKEN,
-                     NodeFunc( this, &Node::_cmdReleaseSendToken ), 0 );
+                     NodeFunc( this, &Node::_cmdReleaseSendToken ), queue );
 
     EQINFO << "New Node @" << (void*)this << " " << _id << std::endl;
 }
@@ -796,6 +796,9 @@ NodePtr Node::createNode( const uint32_t type )
 
 void Node::acquireSendToken( NodePtr node )
 {
+    EQASSERT( !inCommandThread( ));
+    EQASSERT( !inReceiverThread( ));
+
     NodeAcquireSendTokenPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     node->send( packet );
@@ -804,6 +807,8 @@ void Node::acquireSendToken( NodePtr node )
 
 void Node::releaseSendToken( NodePtr node )
 {
+    EQASSERT( !inReceiverThread( ));
+
     NodeReleaseSendTokenPacket packet;
     node->send( packet );
 }
@@ -1465,7 +1470,8 @@ bool Node::dispatchCommand( Command& command )
     switch( datatype )
     {
         case DATATYPE_EQNET_NODE:
-            return Dispatcher::dispatchCommand( command );
+            EQCHECK( Dispatcher::dispatchCommand( command ));
+            return true;
 
         case DATATYPE_EQNET_SESSION:
         case DATATYPE_EQNET_OBJECT:
@@ -2133,15 +2139,18 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
 
 CommandResult Node::_cmdAcquireSendToken( Command& command )
 {
-    NodeAcquireSendTokenPacket* packet = 
-        command.getPacket<NodeAcquireSendTokenPacket>();
-
+    EQASSERT( inCommandThread( ));
     if( !_hasSendToken ) // no token available
-        // HACK: returning not COMMAND_HANDLED causes redispatch, see dispatcher
-        return COMMAND_ERROR;
+    {
+        command.retain();
+        _sendTokenQueue.push_back( &command );
+        return COMMAND_HANDLED;
+    }
 
     _hasSendToken = false;
 
+    NodeAcquireSendTokenPacket* packet = 
+        command.getPacket<NodeAcquireSendTokenPacket>();
     NodeAcquireSendTokenReplyPacket reply( packet );
     command.getNode()->send( reply );
     return COMMAND_HANDLED;
@@ -2158,9 +2167,24 @@ CommandResult Node::_cmdAcquireSendTokenReply( Command& command )
 
 CommandResult Node::_cmdReleaseSendToken( Command& command )
 {
+    EQASSERT( inCommandThread( ));
     EQASSERT( !_hasSendToken );
-    _hasSendToken = true;
-    flushCommands(); // redispatch pending commands
+
+    if( _sendTokenQueue.empty( ))
+    {
+        _hasSendToken = true;
+        return COMMAND_HANDLED;
+    }
+
+    Command* request = _sendTokenQueue.front();
+    _sendTokenQueue.pop_front();
+
+    NodeAcquireSendTokenPacket* packet = 
+        request->getPacket<NodeAcquireSendTokenPacket>();
+    NodeAcquireSendTokenReplyPacket reply( packet );
+
+    request->getNode()->send( reply );
+    request->release();
     return COMMAND_HANDLED;
 }
 

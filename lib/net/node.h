@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -693,6 +693,7 @@ namespace net
 
         /** true if the send token can be granted, false otherwise. */
         bool _hasSendToken;
+        std::deque< Command* > _sendTokenQueue;
 
         bool _connectSelf();
         void _connectMulticast( NodePtr node );

@@ -1,8 +1,8 @@
-Fix some valgrind warnings.
+Fix send-token related deadlock
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
