@@ -17,17 +17,16 @@
 
 #include <test.h>
 
-#include "../../lib/base/pluginRegistry.h"
-#include "../../lib/base/compressor.h"
-
 #include <eq/plugins/compressor.h>
-#include <eq/base/global.h>
+
 #include <eq/client/image.h>
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
 #include <eq/base/clock.h>
+#include <eq/base/compressor.h>
 #include <eq/base/file.h>
-
+#include <eq/base/global.h>
+#include <eq/base/pluginRegistry.h>
 
 #include <eq/client/frame.h>    // enum Eye
 
@@ -75,8 +74,8 @@ static float _getCompressorQuality( uint32_t name )
         for( eq::base::CompressorInfoVector::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
-	    if( name != (*j).name )
-	        continue;
+        if( name != (*j).name )
+            continue;
 
             quality = (*j).quality;
             break;
@@ -129,7 +128,7 @@ int main( int argc, char **argv )
          i != names.end(); ++i )
     {
         const uint32_t name = *i;
-	std::cout << "compressor = " << name << std::endl;
+        std::cout << "compressor = " << name << std::endl;
 
         // Touch memory once: find suitable image
         for( eq::StringVector::const_iterator j = images.begin();
@@ -269,7 +268,7 @@ int main( int argc, char **argv )
 #ifdef COMPARE_RESULT
                 const uint8_t* destData = destImage.getPixelPointer( buffer );
                 const float quality = _getCompressorQuality( name );
-		std::cout << "quality = " << quality << std::endl;
+                std::cout << "quality = " << quality << std::endl;
                 // last 7 pixels can be unitialized
                 for( uint32_t k = 0; k < size-7; ++k )
                 {
@@ -295,22 +294,22 @@ int main( int argc, char **argv )
                         
                     if( quality < 1.f )
                     {
-		        float max = 1.f - quality;
+                        float max = 1.f - quality;
                         if( channelSize == 1 )
-			    max *= 256.f;         
+                            max *= 256.f;         
                             
                         if( channelSize == 4 )
-			    max *= std::numeric_limits<float>::max();
+                            max *= std::numeric_limits<float>::max();
 
                         TESTINFO( abs( data[k] - destData[k] ) <= max,
-			          "the error difference after a compression with loss"
-				  << " comparing to the quality is too big." );
-		    }
+                           "the error difference after a compression with loss"
+                            << " comparing to the quality is too big." );
+                    }
                     else
                         TESTINFO( data[k] == destData[k],
                                   "got " << (int)destData[k] << " expected " <<
                                   (int)data[k] << " at " << k );
-		}
+                }
 #endif
             }
 
