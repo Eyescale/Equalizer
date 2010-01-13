@@ -1,9 +1,9 @@
-Doxygen cleanups
+Fix some valgrind warnings.
 
 [ ] May break build
 [ ] May break existing applications
-[ ] New Feature
 [ ] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

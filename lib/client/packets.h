@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -69,6 +69,7 @@ namespace eq
     struct ServerChooseConfigPacket : public ServerPacket
     {
         ServerChooseConfigPacket()
+                : fill ( 0 )
             {
                 command = CMD_SERVER_CHOOSE_CONFIG;
                 size    = sizeof( ServerChooseConfigPacket );
@@ -76,6 +77,7 @@ namespace eq
             }
 
         uint32_t requestID;
+        uint32_t fill;
         EQ_ALIGN8( char rendererInfo[8] );
     };
 
@@ -95,18 +97,20 @@ namespace eq
     struct ServerCreateConfigPacket : public ServerPacket
     {
         ServerCreateConfigPacket()
+                : requestID( EQ_ID_INVALID )
+                , objectID( EQ_ID_INVALID ) 
+                , fill( 0 )
             {
                 command   = CMD_SERVER_CREATE_CONFIG;
                 size      = sizeof( ServerCreateConfigPacket );
-                requestID = EQ_ID_INVALID;
-                objectID  = EQ_ID_INVALID;                
                 name[0]   = '\0';
             }
 
+        net::NodeID appNodeID;
         uint32_t    configID;
         uint32_t    requestID;
         uint32_t    objectID;
-        net::NodeID appNodeID;
+        uint32_t    fill;
         EQ_ALIGN8( char name[8] );
     };
 

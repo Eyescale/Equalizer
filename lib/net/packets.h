@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -159,12 +159,13 @@ namespace net
 
     struct NodeConnectPacket : public NodePacket
     {
-        NodeConnectPacket() 
+        NodeConnectPacket()
+                : requestID( EQ_ID_INVALID )
+                , launchID( EQ_ID_INVALID )
+                , fill( 0 )
             {
                 command     = CMD_NODE_CONNECT;
                 size        = sizeof( NodeConnectPacket ); 
-                requestID   = EQ_ID_INVALID;
-                launchID    = EQ_ID_INVALID;
                 nodeData[0] = '\0';
             }
 
@@ -172,6 +173,7 @@ namespace net
         uint32_t requestID;
         uint32_t type;
         uint32_t launchID;
+        uint32_t fill;
         EQ_ALIGN8( char nodeData[8] );
     };
 
@@ -295,9 +297,10 @@ namespace net
     //------------------------------------------------------------
     struct SessionPacket : public NodePacket
     {
-        SessionPacket() { datatype = DATATYPE_EQNET_SESSION; }
+        SessionPacket() : paddingSession( 0 )
+            { datatype = DATATYPE_EQNET_SESSION; }
         uint32_t sessionID;
-        uint32_t paddingSessionPacket; // pad to multiple-of-8
+        uint32_t paddingSession; // pad to multiple-of-8
     };
 
 /** @cond IGNORE */
@@ -568,6 +571,7 @@ namespace net
     struct ObjectInstancePacket : public ObjectDataPacket
     {
         ObjectInstancePacket()
+                : fill( 0 )
             {
                 command = CMD_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket ); 
@@ -575,6 +579,7 @@ namespace net
 
         NodeID nodeID;
         uint32_t masterInstanceID;
+        uint32_t fill;
         EQ_ALIGN8( uint8_t data[8] );
     };
 

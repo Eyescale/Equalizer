@@ -69,6 +69,15 @@ static base::PerThread< DisplayPtr > _currentDisplay;
 
 void XSetCurrentDisplay( Display* display )
 {
+    if( !display )
+    {
+        DisplayPtr* ptr = _currentDisplay.get();
+	_currentDisplay = 0;
+	delete ptr;
+
+	return;
+    }
+
     if( !_currentDisplay )
         _currentDisplay = new DisplayPtr;
 
