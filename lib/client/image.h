@@ -351,7 +351,10 @@ namespace eq
         class Attachment
         {
         public:
-            Attachment() : compressor( &fullCompressor ) {}  
+            Attachment() : compressor( &fullCompressor )
+                         , quality( 1.f )
+                         {}
+  
             struct CompressorData
             {
                 CompressorData();
