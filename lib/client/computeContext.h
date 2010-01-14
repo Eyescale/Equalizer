@@ -39,10 +39,10 @@ namespace eq
         /**
          * Create a new ComputeContext for the given accelerator.
          */
-        EQ_EXPORT ComputeContext( Pipe* parent );
+        ComputeContext( Pipe* parent ); 
 
         /** Destroy the ComputeContext. */
-        EQ_EXPORT virtual ~ComputeContext( );
+        virtual ~ComputeContext( );
 
         /** @name Data Access */
         //@{
@@ -56,10 +56,10 @@ namespace eq
         /** @name Methods forwarded from Pipe */
         //@{
         /** Initialize the ComputeContext. */
-        EQ_EXPORT virtual bool configInit( ) = 0;
+        virtual bool configInit( ) = 0;
 
         /** De-initialize the ComputeContext. */
-        EQ_EXPORT virtual void configExit( ) = 0;
+        virtual void configExit( ) = 0;
         //@}
 
         /** @return the reason of the last failed operation. */
