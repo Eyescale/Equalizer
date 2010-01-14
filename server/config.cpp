@@ -895,11 +895,17 @@ bool Config::_syncConnectNode( Node* node, const base::Clock& clock )
 
     if( !localNode->syncConnect( netNode, timeOut ))
     {
-        stringstream nodeString;
-        nodeString << netNode->serialize();
+        std::ostringstream data;
+        const net::ConnectionDescriptionVector& descs = netNode->getConnectionDescriptions();
 
-        _error += "Connection of node failed, node did not start (" +
-            nodeString.str() + ") ";
+        for( net::ConnectionDescriptionVector::const_iterator i = descs.begin(); 
+            i != descs.end(); ++i )
+        {
+            net::ConnectionDescriptionPtr desc = *i;
+            data << desc->getHostname() << ' ';
+        }
+        _error += "Connection of node failed, node did not start ( " +
+            data.str() + ") ";
         EQERROR << _error << std::endl;
 
         node->setNode( 0 );
