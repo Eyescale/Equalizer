@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -81,7 +81,8 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
     }
     _checkHistory();
 
-    if( isFrozen( )) // execute code above to not leak memory
+    // execute code above to not leak memory
+    if( isFrozen() || !compound->isActive( ))
         return;
 
     // compute new data

@@ -1,9 +1,10 @@
-Fix send-token related deadlock
+Fix constant memory allocations in inactive equalizers.
+Add DFR layout to all config.
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -75,7 +75,7 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
 {
     EQASSERT( compound == getCompound( ));
 
-    if( isFrozen( ))
+    if( isFrozen() || !compound->isActive( ))
     {
         compound->setZoom( Zoom::NONE );  
         return;    
@@ -108,10 +108,10 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
                                   static_cast< float >( channelPVP.h ) /
                                   static_cast< float >( pvp.h ));
    
-   newZoom.x() = EQ_MAX( newZoom.x(), minZoom ); 
-   newZoom.x() = EQ_MIN( newZoom.x(), maxZoom );
-   newZoom.y() = newZoom.x(); 
-   
+    newZoom.x() = EQ_MAX( newZoom.x(), minZoom ); 
+    newZoom.x() = EQ_MIN( newZoom.x(), maxZoom );
+    newZoom.y() = newZoom.x(); 
+
     compound->setZoom( newZoom );
 }
 

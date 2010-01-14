@@ -250,6 +250,20 @@ server
                 }
             }
         }
+        layout
+        {
+            name "DFR"
+            view
+            {
+                viewport [ 0 .5 .5 .5 ]
+                wall
+                {
+                    bottom_left  [ -.5 -.5 -1 ]
+                    bottom_right [  .5 -.5 -1 ]
+                    top_left     [ -.5  .5 -1 ]
+                }
+            }
+        }
 
         # Canvas using all layouts
         canvas
@@ -271,6 +285,8 @@ server
             layout "BinarySwap"
             layout "MultiLevel"
             layout "HMD"
+            
+            layout "DFR"
 
             wall
             {
@@ -925,5 +941,28 @@ server
             inputframe{ name "frame.channel3" }
             inputframe{ name "frame.channel4" }
         }
+
+        # Dynamic Frame Resolution compound
+        compound
+        {
+            channel ( segment 0 layout "DFR" view 0 )
+            
+            compound 
+            {
+                load_equalizer{}
+                compound {}
+                compound { channel "channel2" outputframe{} }
+                compound { channel "channel3" outputframe{} }
+                compound { channel "channel4" outputframe{} }
+                inputframe { name "frame.channel2" }
+                inputframe { name "frame.channel3" }
+                inputframe { name "frame.channel4" }
+
+                DFR_equalizer { framerate 15 }
+                outputframe{ name "frame.scale" type texture }
+            }
+
+            inputframe{ name "frame.scale" }
+        }            
     }
 }
