@@ -337,6 +337,9 @@ namespace eq
          * @param message the error message.
          */
         EQ_EXPORT void setErrorMessage( const std::string& message );
+
+        /** @return the current error message. */
+        EQ_EXPORT const std::string& getErrorMessage() const;
         //@}
 
         /**

@@ -67,8 +67,9 @@ bool GLXWindow::configInit( )
 
     if( !success || !_xDrawable )
     {
-        _window->setErrorMessage( 
-            "configInitGLXDrawable did not set a X11 drawable");
+        _window->setErrorMessage(
+            "configInitGLXDrawable did not set a X11 drawable: " +
+            _window->getErrorMessage( ));
         return false;
     }
 

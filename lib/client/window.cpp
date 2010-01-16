@@ -688,6 +688,11 @@ void Window::setErrorMessage( const std::string& message )
     _error = message;
 }
 
+const std::string& Window::getErrorMessage() const
+{
+    return _error;
+}
+
 //======================================================================
 // event-handler methods
 //======================================================================
