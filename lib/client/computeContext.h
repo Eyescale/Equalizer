@@ -33,16 +33,16 @@ namespace eq
      * which is initialized in Pipe::configInit.
      * @warning Experimental - may not be supported in the future.
      */
-    class EQ_EXPORT ComputeContext
+    class ComputeContext
     {
     public:
         /**
          * Create a new ComputeContext for the given accelerator.
          */
-        ComputeContext( Pipe* parent ); 
+        EQ_EXPORT ComputeContext( Pipe* parent ); 
 
         /** Destroy the ComputeContext. */
-        virtual ~ComputeContext( );
+        EQ_EXPORT virtual ~ComputeContext();
 
         /** @name Data Access */
         //@{
@@ -56,10 +56,10 @@ namespace eq
         /** @name Methods forwarded from Pipe */
         //@{
         /** Initialize the ComputeContext. */
-        virtual bool configInit( ) = 0;
+        EQ_EXPORT virtual bool configInit( ) = 0;
 
         /** De-initialize the ComputeContext. */
-        virtual void configExit( ) = 0;
+        EQ_EXPORT virtual void configExit( ) = 0;
         //@}
 
         /** @return the reason of the last failed operation. */

@@ -24,22 +24,22 @@
 namespace eq
 {
     /** @warning  Experimental - may not be supported in the future. */
-    class EQ_EXPORT CUDAContext : public ComputeContext
+    class CUDAContext : public ComputeContext
     {
     public:
         /** Create a new CUDA compute context. */
-        CUDAContext( Pipe* parent );
+        EQ_EXPORT CUDAContext( Pipe* parent );
 
         /** Destroy the context. */
-        virtual ~CUDAContext( );
+        EQ_EXPORT virtual ~CUDAContext( );
 
         /** @name Methods forwarded from eq::Pipe */
         //@{
         /** Initialize the ComputeCtx. */
-        virtual bool configInit( );
+        EQ_EXPORT virtual bool configInit();
 
         /** De-initialize the ComputeCtx. */
-        virtual void configExit( );
+        EQ_EXPORT virtual void configExit();
         //@}
 
     private:

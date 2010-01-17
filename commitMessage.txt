@@ -1,15 +1,9 @@
-Support for applications using Objective-C++ (Stephen Furlani):
-- rename id -> identifier|objectID since id is a keyword in obj-c
-- create a unit test compiling a minimal obj-c++ example
-- Add EQ_IGNORE_GLEW in configVisitor test to test this as well
+Make compute context exports per-method (untested)
 
-Breaks existing applications using ObjectVersion: 
-- rename ObjectVersion.id to ObjectVersion.identifier
-
-[x] May break build
-[x] May break existing applications
+[ ] May break build
+[ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation
