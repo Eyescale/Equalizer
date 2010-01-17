@@ -1,9 +1,9 @@
-Make RNG creation cheaper on Linux
+Add UUID unit test
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
-[x] Optimization
+[x] Cleanup
+[ ] Optimization
 [ ] Documentation
