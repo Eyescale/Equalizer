@@ -579,7 +579,7 @@ bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 // Node functionality
 //----------------------------------------------------------------------
 void Node::_addSession( Session* session, NodePtr server,
-                       const uint32_t sessionID )
+                        const uint32_t sessionID )
 {
     CHECK_THREAD( _thread );
 
@@ -1804,7 +1804,7 @@ CommandResult Node::_cmdConnect( Command& command )
     {
         EQASSERT( packet->launchID == EQ_ID_INVALID );
     }
-    remoteNode->_connectionDescriptions.clear(); //use data from peer
+    remoteNode->_connectionDescriptions.clear(); // use data from peer
 
     std::string data = packet->nodeData;
     if( !remoteNode->deserialize( data ))

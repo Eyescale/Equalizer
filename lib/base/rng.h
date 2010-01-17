@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,23 +39,10 @@ namespace base
     {
     public:
         /** Construct a new random number generator. @version 1.0 */
-        RNG()
-        {
-#ifdef Linux
-            _fd = ::open( "/dev/urandom", O_RDONLY );
-            EQASSERT( _fd != -1 );
-#endif
-            reseed();
-        }
+        RNG() { reseed(); }
 
         /** Destruct the random number generator. @version 1.0 */
-        ~RNG()
-        {
-#ifdef Linux
-            if( _fd > 0 )
-                close( _fd );
-#endif
-        }
+        ~RNG() {}
 
         /** Re-initialize the seed value for pseudo RNG's. @version 1.0 */
         void reseed()
@@ -79,10 +66,9 @@ namespace base
           * @return a random number.
           * @version 1.0 
           */
-        template< typename T >
-        T get()
+        template< typename T > T get()
         {
-            T              value;
+            T value;
 #ifdef Linux
             int read = ::read( _fd, &value, sizeof( T ));
             EQASSERT( read == sizeof( T ));
@@ -98,19 +84,23 @@ namespace base
 
             uint8_t* bytes = reinterpret_cast< uint8_t* >( &value );
             for( size_t i=0; i<sizeof( T ); ++i )
-                bytes[i] = ( rand() & 255 );
+                bytes[i] = ( rand() & 0xff );
 #else // Darwin
             uint8_t* bytes = reinterpret_cast< uint8_t* >( &value );
             for( size_t i=0; i<sizeof( T ); ++i )
-                bytes[i] = ( random() & 255 );
+                bytes[i] = ( random() & 0xff );
 #endif
             return value;
         }
 
     private:
 #ifdef Linux
-        int _fd;
+        static int _fd;
 #endif
+        static bool _init();
+        static bool _exit();
+        friend bool eq::base::init();
+        friend bool eq::base::exit();
     };
 
     template< > inline float RNG::get()

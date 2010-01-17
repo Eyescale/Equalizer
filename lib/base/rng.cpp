@@ -1,6 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,45 +15,44 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "init.h"
-
-#include "global.h"
-#include "log.h"
-#include "pluginRegistry.h"
 #include "rng.h"
-#include "thread.h"
 
 namespace eq
 {
 namespace base
 {
 
-EQ_EXPORT bool init()
+#ifdef Linux
+int RNG::_fd = -1;
+#endif
+
+bool RNG::_init()
 {
-    if( !RNG::_init( ))
+#ifdef Linux
+    EQASSERT( _fd == -1 );
+    _fd = ::open( "/dev/urandom", O_RDONLY );
+    if( _fd < 0 )
     {
-        EQERROR << "Failed to initialize random number generator" << std::endl;
+        EQERROR << "Failed to open /dev/urandom :" << sysError << std::endl;
         return false;
     }
+#endif
 
-    // init all available plugins
-    PluginRegistry& pluginRegistry = Global::getPluginRegistry();
-    pluginRegistry.init(); 
-    Thread::pinCurrentThread();
     return true;
 }
 
-EQ_EXPORT bool exit()
+bool RNG::_exit()
 {
-    // de-initialize registered plugins
-    PluginRegistry& pluginRegistry = Global::getPluginRegistry();
-    pluginRegistry.exit(); 
-    eq::base::Thread::removeAllListeners();
-    eq::base::Log::exit();
+#ifdef Linux
+    if( _fd > 0 )
+    {
+        ::close( _fd );
+        _fd = -1;
+    }
+#endif
 
-    return RNG::_exit();
+    return true;
 }
 
 }
 }
-

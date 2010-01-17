@@ -1,10 +1,9 @@
-Fix constant memory allocations in inactive equalizers.
-Add DFR layout to all config.
+Make RNG creation cheaper on Linux
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[x] New Feature
-[x] Cleanup
-[ ] Optimization
+[ ] Bugfix
+[ ] New Feature
+[ ] Cleanup
+[x] Optimization
 [ ] Documentation

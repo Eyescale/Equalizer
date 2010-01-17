@@ -174,6 +174,7 @@ CXXFILES = \
 	base/pluginRegistry.cpp \
 	base/referenced.cpp \
 	base/requestHandler.cpp \
+	base/rng.cpp \
 	base/thread.cpp \
 	base/timedLock.cpp \
 	base/uuid.cpp \
