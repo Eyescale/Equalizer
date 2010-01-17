@@ -776,7 +776,7 @@ bool Channel::processEvent( const Event& event )
 
         case Event::CHANNEL_RESIZE:
         {
-            const uint32_t viewID = _nativeContext.view.id;
+            const uint32_t viewID = _nativeContext.view.identifier;
             if( viewID == EQ_ID_INVALID )
                 return true;
 

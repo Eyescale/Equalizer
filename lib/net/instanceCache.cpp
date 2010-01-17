@@ -88,14 +88,14 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
 #endif
 
     base::ScopedMutex mutex( _items );
-    ItemHash::const_iterator i = _items->find( rev.id );
+    ItemHash::const_iterator i = _items->find( rev.identifier );
     if( i == _items->end( ))
     {
-        Item& item = _items.data[ rev.id ];
+        Item& item = _items.data[ rev.identifier ];
         item.data.masterInstanceID = instanceID;
     }
 
-    Item& item = _items.data[ rev.id ] ;
+    Item& item = _items.data[ rev.identifier ] ;
     if( item.data.masterInstanceID != instanceID )
     {
         // trash data from different master mapping
@@ -159,7 +159,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     _releaseItems( 0 );
 
 #ifdef EQ_INSTRUMENT_CACHE
-    if( _items->find( rev.id ) != _items->end( ))
+    if( _items->find( rev.identifier ) != _items->end( ))
         ++nWriteHit;
 #endif
     return true;

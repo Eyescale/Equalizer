@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -106,11 +106,11 @@ int main( int argc, char **argv )
     while( _clock.getTime64() < RUNTIME )
     {
         const eq::net::ObjectVersion key( rng.get< uint16_t >(), 1 );
-        if( cache[ key.id ] != eq::net::InstanceCache::Data::NONE )
+        if( cache[ key.identifier ] != eq::net::InstanceCache::Data::NONE )
         {
-            TEST( cache.release( key.id ));
+            TEST( cache.release( key.identifier ));
             ++ops;
-            if( cache.erase( key.id ))
+            if( cache.erase( key.identifier ))
             {
                 TEST( cache.add( key, 1, command ));
                 ops += 2;

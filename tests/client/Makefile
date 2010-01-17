@@ -9,8 +9,17 @@ ifeq "${ARCH}" "Linux"
 LDFLAGS += -lrt -luuid
 endif
 
+# test with obj-c++ compiler
+ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
+SIMPLE_PROGRAMS += $(BIN_DIR)/configVisitor_objc
+endif
+
+
 TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)
 
 include $(TOP)/make/rules.mk
 
 $(SIMPLE_PROGRAMS): $(wildcard $(TOP)/lib/client/*)
+
+configVisitor_objc.mm: configVisitor.cpp
+	@cp $< $@

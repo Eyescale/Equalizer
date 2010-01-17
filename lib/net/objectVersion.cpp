@@ -27,15 +27,15 @@ namespace net
 ObjectVersion NONE;
 
 ObjectVersion::ObjectVersion()
-        : id( EQ_ID_INVALID ), version( VERSION_NONE )
+        : identifier( EQ_ID_INVALID ), version( VERSION_NONE )
 {}
 
 ObjectVersion::ObjectVersion( const uint32_t id_, const uint32_t version_ )
-        : id( id_ ), version( version_ )
+        : identifier( id_ ), version( version_ )
 {}
 
 ObjectVersion::ObjectVersion( const Object* object )
-        : id( object->getID( )), 
+        : identifier( object->getID( )), 
           version( object->getVersion( )) 
 {
 }
@@ -44,12 +44,12 @@ ObjectVersion& ObjectVersion::operator = ( const Object* object )
 {
     if( object )
     {
-        id = object->getID();
+        identifier = object->getID();
         version = object->getVersion();
     }
     else
     {
-        id = EQ_ID_INVALID;
+        identifier = EQ_ID_INVALID;
         version = VERSION_NONE;
     }
 

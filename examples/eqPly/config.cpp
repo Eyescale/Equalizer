@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -377,7 +377,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::POINTER_BUTTON_PRESS:
         {
-            const uint32_t viewID = event->data.context.view.id;
+            const uint32_t viewID = event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
             if( viewID == EQ_ID_INVALID )
             {

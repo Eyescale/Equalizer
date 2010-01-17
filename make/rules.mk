@@ -92,7 +92,12 @@ $(BIN_DIR)/%: %.cpp
 	@mkdir -p $(@D)
 	@$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -MT $@
 	$(CXX) $< $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) -o $@ 
-endif # PROGRAMS
+
+$(BIN_DIR)/%: %.mm
+	@mkdir -p $(@D)
+	@$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -MT $@
+	$(CXX) $< $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) -o $@ 
+endif # PROGRAM
 
 %.testOK: %
 	env EQ_LOG_LEVEL=WARN \

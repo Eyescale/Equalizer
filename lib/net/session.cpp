@@ -191,12 +191,13 @@ void Session::setIDMaster( const uint32_t id, const NodeID& master )
     _setIDMasterSync( _setIDMasterNB( id, master ));
 }
 
-uint32_t Session::_setIDMasterNB( const uint32_t id, const NodeID& master )
+uint32_t Session::_setIDMasterNB( const uint32_t identifier,
+                                  const NodeID& master )
 {
     CHECK_NOT_THREAD( _commandThread );
 
     SessionSetIDMasterPacket packet;
-    packet.id       = id;
+    packet.identifier = identifier;
     packet.masterID = master;
     
     if( !_isMaster )
@@ -221,10 +222,10 @@ const NodeID& Session::_pollIDMaster( const uint32_t id ) const
     return i->second;
 }
 
-const NodeID& Session::getIDMaster( const uint32_t id )
+const NodeID& Session::getIDMaster( const uint32_t identifier )
 {
     _idMasterMutex.set();
-    const NodeID& master = _pollIDMaster( id );
+    const NodeID& master = _pollIDMaster( identifier );
     _idMasterMutex.unset();
         
     if( master != NodeID::ZERO || _isMaster )
@@ -233,15 +234,15 @@ const NodeID& Session::getIDMaster( const uint32_t id )
     // ask session master instance
     SessionGetIDMasterPacket packet;
     packet.requestID = _requestHandler.registerRequest();
-    packet.id        = id;
+    packet.identifier = identifier;
 
     send( packet );
     _requestHandler.waitRequest( packet.requestID );
 
     base::ScopedMutex mutex( _idMasterMutex );
-    EQLOG( LOG_OBJECTS ) << "Master node for id " << id << ": " 
-        << _pollIDMaster( id ) << std::endl;
-    return _pollIDMaster( id );
+    EQLOG( LOG_OBJECTS ) << "Master node for id " << identifier << ": " 
+        << _pollIDMaster( identifier ) << std::endl;
+    return _pollIDMaster( identifier );
 }
 
 //---------------------------------------------------------------------------
@@ -660,7 +661,7 @@ CommandResult Session::_cmdGenIDs( Command& command )
     SessionGenIDsReplyPacket reply( packet );
     const uint32_t range = EQ_MAX( packet->range, MIN_ID_RANGE );
 
-    reply.id = _idPool.genIDs( range );
+    reply.firstID = _idPool.genIDs( range );
     reply.allocated = range;
     send( command.getNode(), reply );
     return COMMAND_HANDLED;
@@ -673,12 +674,12 @@ CommandResult Session::_cmdGenIDsReply( Command& command )
         command.getPacket<SessionGenIDsReplyPacket>();
     EQVERB << "Cmd gen IDs reply: " << packet << std::endl;
 
-    _requestHandler.serveRequest( packet->requestID, packet->id );
+    _requestHandler.serveRequest( packet->requestID, packet->firstID );
 
     const size_t additional = packet->allocated - packet->requested;
-    if( packet->id != EQ_ID_INVALID && additional > 0 )
+    if( packet->firstID != EQ_ID_INVALID && additional > 0 )
         // Merge additional identifiers into local pool
-        _idPool.freeIDs( packet->id + packet->requested, additional );
+        _idPool.freeIDs( packet->firstID + packet->requested, additional );
 
     return COMMAND_HANDLED;
 }
@@ -694,7 +695,7 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
     EQASSERT( nodeID != NodeID::ZERO );
 
     base::ScopedMutex mutex( _idMasterMutex );
-    _idMasters[ packet->id ] = nodeID;
+    _idMasters[ packet->identifier ] = nodeID;
 
     if( packet->requestID != EQ_ID_INVALID ) // need to ack set operation
     {
@@ -719,7 +720,7 @@ CommandResult Session::_cmdGetIDMaster( Command& command )
     EQLOG( LOG_OBJECTS ) << "handle get idMaster " << packet << std::endl;
 
     SessionGetIDMasterReplyPacket reply( packet );
-    reply.masterID = _pollIDMaster( packet->id );
+    reply.masterID = _pollIDMaster( packet->identifier );
     send( command.getNode(), reply );
 
     return COMMAND_HANDLED;
@@ -737,7 +738,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
     if( nodeID != NodeID::ZERO )
     {
         base::ScopedMutex mutex( _idMasterMutex );
-        _idMasters[ packet->id ] = nodeID;
+        _idMasters[ packet->identifier ] = nodeID;
     }
     // else not found
 

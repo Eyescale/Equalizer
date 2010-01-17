@@ -339,7 +339,7 @@ namespace net
             }
 
         uint32_t requestID;
-        uint32_t id;
+        uint32_t firstID;
         uint32_t requested;
         uint32_t allocated;
     };
@@ -354,7 +354,7 @@ namespace net
             }
 
         NodeID   masterID;
-        uint32_t id;
+        uint32_t identifier;
         uint32_t requestID;
     };
 
@@ -367,7 +367,7 @@ namespace net
             }
 
         uint32_t requestID;
-        uint32_t id;
+        uint32_t identifier;
     };
 
     struct SessionGetIDMasterReplyPacket : public SessionPacket
@@ -377,12 +377,12 @@ namespace net
                 command   = CMD_SESSION_GET_ID_MASTER_REPLY;
                 size      = sizeof( SessionGetIDMasterReplyPacket );
                 requestID = request->requestID;
-                id        = request->id;
+                identifier = request->identifier;
             }
 
         NodeID   masterID;
         uint32_t requestID;
-        uint32_t id;
+        uint32_t identifier;
     };
 
     struct SessionAttachObjectPacket : public SessionPacket
@@ -713,20 +713,20 @@ namespace net
     inline std::ostream& operator << ( std::ostream& os, 
                                        const SessionGenIDsReplyPacket* packet )
     {
-        os << (SessionPacket*)packet << " id start " << packet->id;
+        os << (SessionPacket*)packet << " id start " << packet->firstID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                   const SessionGetIDMasterPacket* packet )
+                                       const SessionGetIDMasterPacket* packet )
     {
-        os << (SessionPacket*)packet << " id " << packet->id;
+        os << (SessionPacket*)packet << " id " << packet->identifier;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                    const SessionGetIDMasterReplyPacket* packet )
     {
-        os << (SessionPacket*)packet << " id " << packet->id << " master "
-           << packet->masterID;
+        os << (SessionPacket*)packet << " id " << packet->identifier
+           << " master " << packet->masterID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

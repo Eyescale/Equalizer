@@ -2,12 +2,12 @@
 include $(TOP)/make/system.mk
 
 SUBDIRS = \
+	image \
 	accept \
 	base \
 	client \
 	compositor \
 	connection \
-	image \
 	loader \
 	net \
 	netperf \

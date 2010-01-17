@@ -25,9 +25,12 @@
 /**
  * @file client/os.h
  * 
- * Includes operating system header for OpenGL and the window system
+ * Includes operating system headers for OpenGL and the used window system(s)
  * correctly. Include this file first if you have problems with OpenGL
  * definitions.
+ *
+ * Define EQ_IGNORE_GLEW before including any Equalizer header if you have
+ * trouble with your system-installed OpenGL header and do not need GLEW.
  */
 
 /** @cond IGNORE */
@@ -125,11 +128,7 @@ typedef void* HDC;
 typedef void* HWND;
 typedef void* HPBUFFERARB;
 typedef void* HGLRC;
-struct WGLEWContext;
 #  define PFNWGLDELETEDCNVPROC void*
-#  ifndef GLX
-typedef bool  BOOL;
-#  endif
 #  define WINAPI
 #endif
 /** @endcond */

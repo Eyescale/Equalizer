@@ -348,21 +348,21 @@ net::CommandQueue* Pipe::getPipeThreadQueue()
 
 Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
 {
-    Frame* frame = _frames[ frameVersion.id ];
+    Frame* frame = _frames[ frameVersion.identifier ];
 
     if( !frame )
     {
         net::Session* session = getSession();
         frame = new Frame();
         
-        EQCHECK( session->mapObject( frame, frameVersion.id ));
-        _frames[ frameVersion.id ] = frame;
+        EQCHECK( session->mapObject( frame, frameVersion.identifier ));
+        _frames[ frameVersion.identifier ] = frame;
     }
     
     frame->sync( frameVersion.version );
 
     const net::ObjectVersion& data = frame->getDataVersion( eye );
-    EQASSERT( data.id != EQ_ID_INVALID );
+    EQASSERT( data.identifier != EQ_ID_INVALID );
     FrameData* frameData = getNode()->getFrameData( data ); 
     EQASSERT( frameData );
 
@@ -388,10 +388,10 @@ void Pipe::flushFrames()
 View* Pipe::getView( const net::ObjectVersion& viewVersion )
 {
     CHECK_THREAD( _pipeThread );
-    if( viewVersion.id == EQ_ID_INVALID )
+    if( viewVersion.identifier == EQ_ID_INVALID )
         return 0;
 
-    View* view = _views[ viewVersion.id ];
+    View* view = _views[ viewVersion.identifier ];
 
     if( !view )
     {
@@ -400,9 +400,9 @@ View* Pipe::getView( const net::ObjectVersion& viewVersion )
         view->_pipe = this;
 
         net::Session* session = getSession();
-        EQCHECK( session->mapObject( view, viewVersion.id ));
+        EQCHECK( session->mapObject( view, viewVersion.identifier ));
 
-        _views[ viewVersion.id ] = view;
+        _views[ viewVersion.identifier ] = view;
     }
     
     view->sync( viewVersion.version );

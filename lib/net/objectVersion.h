@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,19 +33,29 @@ namespace net
     struct ObjectVersion
     {
         EQ_EXPORT ObjectVersion();
-        EQ_EXPORT ObjectVersion( const uint32_t id, const uint32_t version );
+        EQ_EXPORT ObjectVersion( const uint32_t identifier,
+                                 const uint32_t version );
         EQ_EXPORT ObjectVersion( const Object* object );
         EQ_EXPORT ObjectVersion& operator = ( const Object* object );
         bool operator == ( const ObjectVersion& value ) const
-            { return ( id == value.id && version == value.version ); }
+            {
+                return ( identifier == value.identifier &&
+                         version == value.version );
+            }
         
         bool operator < ( const ObjectVersion& rhs ) const
-            { return id < rhs.id || ( id == rhs.id && version < rhs.version ); }
+            { 
+                return identifier < rhs.identifier ||
+                    ( identifier == rhs.identifier && version < rhs.version );
+            }
 
         bool operator > ( const ObjectVersion& rhs ) const
-            { return id > rhs.id || ( id == rhs.id && version > rhs.version ); }
+            {
+                return identifier > rhs.identifier || 
+                    ( identifier == rhs.identifier && version > rhs.version );
+            }
 
-        uint32_t id;
+        uint32_t identifier;
         uint32_t version;
 
         /** An unset object version. */
@@ -54,7 +64,7 @@ namespace net
 
     inline std::ostream& operator << (std::ostream& os, const ObjectVersion& ov)
     {
-        os << " id " << ov.id << " v" << ov.version;
+        os << " id " << ov.identifier << " v" << ov.version;
         return os;
     }
 
@@ -80,7 +90,7 @@ namespace std
         ( const eq::net::ObjectVersion& key ) const
     {
         return hash_value(
-            (static_cast< uint64_t >( key.id ) << 32) + key.version );
+            (static_cast< uint64_t >( key.identifier ) << 32) + key.version );
     }
 #else
     /** ObjectVersion hash function. */
@@ -89,7 +99,7 @@ namespace std
         template< typename P > size_t operator()( const P& key ) const
         {
             return hash< uint64_t >()(
-                (static_cast< uint64_t >( key.id ) << 32) + key.version );
+                (static_cast< uint64_t >( key.identifier ) << 32) + key.version );
         }
     };
 #endif

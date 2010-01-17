@@ -128,7 +128,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::POINTER_BUTTON_PRESS:
         {
-            const uint32_t viewID = event->data.context.view.id;
+            const uint32_t viewID = event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
             if( viewID == EQ_ID_INVALID )
             {

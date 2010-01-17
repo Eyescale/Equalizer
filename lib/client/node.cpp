@@ -190,7 +190,7 @@ Pipe* Node::_findPipe( const uint32_t id )
 net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
 {
     _barriersMutex.set();
-    net::Barrier* netBarrier = _barriers[ barrier.id ];
+    net::Barrier* netBarrier = _barriers[ barrier.identifier ];
 
     if( !netBarrier )
     {
@@ -198,9 +198,9 @@ net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
 
         netBarrier = new net::Barrier;
         netBarrier->makeThreadSafe();
-        EQCHECK( session->mapObject( netBarrier, barrier.id ));
+        EQCHECK( session->mapObject( netBarrier, barrier.identifier ));
 
-        _barriers[ barrier.id ] = netBarrier;
+        _barriers[ barrier.identifier ] = netBarrier;
     }
     _barriersMutex.unset();
 
@@ -211,7 +211,7 @@ net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
 FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
 {
     _frameDatasMutex.set();
-    FrameData* frameData = _frameDatas[ dataVersion.id ];
+    FrameData* frameData = _frameDatas[ dataVersion.identifier ];
 
     if( !frameData )
     {
@@ -219,9 +219,9 @@ FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
         
         frameData = new FrameData;
         frameData->makeThreadSafe();
-        EQCHECK( session->mapObject( frameData, dataVersion.id ));
+        EQCHECK( session->mapObject( frameData, dataVersion.identifier ));
 
-        _frameDatas[ dataVersion.id ] = frameData;
+        _frameDatas[ dataVersion.identifier ] = frameData;
     }
     _frameDatasMutex.unset();
 

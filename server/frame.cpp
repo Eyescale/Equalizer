@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -119,11 +119,11 @@ uint32_t Frame::commit()
     {
         if( _frameData[i] )
         {
-            _inherit.frameData[i].id      = _frameData[i]->getID();
+            _inherit.frameData[i].identifier = _frameData[i]->getID();
             _inherit.frameData[i].version = _frameData[i]->getVersion();
         }
         else
-            _inherit.frameData[i].id = EQ_ID_INVALID;
+            _inherit.frameData[i].identifier = EQ_ID_INVALID;
     }
 
     return net::Object::commit();

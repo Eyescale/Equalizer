@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -61,7 +61,7 @@ namespace server
                 EQASSERT( _current < _nChanges );
                 const net::ObjectVersion& change = _changes[ _current ];
 
-                if( change.id != object->getID( ))
+                if( change.identifier != object->getID( ))
                     return TRAVERSE_CONTINUE;
 
                 object->sync( change.version );
