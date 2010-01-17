@@ -198,7 +198,6 @@ uint32_t Session::_setIDMasterNB( const uint32_t id, const NodeID& master )
     SessionSetIDMasterPacket packet;
     packet.id       = id;
     packet.masterID = master;
-    packet.masterID.convertToNetwork();
     
     if( !_isMaster )
         _sendLocal( packet ); // set on our slave instance (fire&forget)
@@ -691,8 +690,7 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
         command.getPacket<SessionSetIDMasterPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd set ID master: " << packet << std::endl;
 
-    NodeID nodeID = packet->masterID;
-    nodeID.convertToHost();
+    const NodeID& nodeID = packet->masterID;
     EQASSERT( nodeID != NodeID::ZERO );
 
     base::ScopedMutex mutex( _idMasterMutex );
@@ -722,9 +720,8 @@ CommandResult Session::_cmdGetIDMaster( Command& command )
 
     SessionGetIDMasterReplyPacket reply( packet );
     reply.masterID = _pollIDMaster( packet->id );
-    reply.masterID.convertToNetwork();
-
     send( command.getNode(), reply );
+
     return COMMAND_HANDLED;
 }
 
@@ -735,8 +732,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
         command.getPacket<SessionGetIDMasterReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "handle get idMaster reply " << packet << std::endl;
 
-    NodeID nodeID = packet->masterID;
-    nodeID.convertToHost();
+    const NodeID& nodeID = packet->masterID;
 
     if( nodeID != NodeID::ZERO )
     {
@@ -869,7 +865,6 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     
     SessionSubscribeObjectReplyPacket reply( packet );
     reply.nodeID = node->getNodeID();
-    reply.nodeID.convertToNetwork();
 
     if( master )
     {
@@ -881,7 +876,6 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
             successPacket.changeType       = master->getChangeType();
             successPacket.masterInstanceID = master->getInstanceID();
             successPacket.nodeID = node->getNodeID();
-            successPacket.nodeID.convertToNetwork();
 
             // Prefer multicast connection, since this will be used by the CM as
             // well. If we send the packet on another connection, it might
@@ -918,8 +912,7 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
 
     // Subscribe success packets are potentially multicasted (see above)
     // verify that we are the intended receiver
-    NodeID nodeID = packet->nodeID;
-    nodeID.convertToHost();
+    const NodeID& nodeID = packet->nodeID;
     if( nodeID != _localNode->getNodeID( ))
         return COMMAND_HANDLED;
 
@@ -950,8 +943,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
 
     // Subscribe reply packets are potentially multicasted (see above)
     // verify that we are the intended receiver
-    NodeID nodeID = packet->nodeID;
-    nodeID.convertToHost();
+    const NodeID& nodeID = packet->nodeID;
     if( nodeID != _localNode->getNodeID( ))
         return COMMAND_HANDLED;
 
@@ -1067,7 +1059,6 @@ CommandResult Session::_cmdInstance( Command& command )
 
     packet->datatype = DATATYPE_EQNET_OBJECT;
     packet->command = CMD_OBJECT_INSTANCE;
-    packet->nodeID.convertToHost();
 
     uint32_t usage = 0;
     CommandResult result = COMMAND_HANDLED;

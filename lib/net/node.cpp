@@ -181,7 +181,6 @@ ConnectionPtr Node::getMulticast()
 
     NodeIDPacket packet;
     packet.id = node->getNodeID();
-    packet.id.convertToNetwork();
     packet.type = getType();
 
     data.connection->send( packet, node->serialize( ));
@@ -897,7 +896,6 @@ bool Node::_connect( NodePtr node, ConnectionPtr connection )
     NodeConnectPacket packet;
     packet.requestID = _requestHandler.registerRequest( node.get( ));
     packet.nodeID    = _id;
-    packet.nodeID.convertToNetwork();
     packet.type      = getType();
     packet.launchID  = node->_launchID;
     node->_launchID  = EQ_ID_INVALID;
@@ -998,8 +996,6 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     NodeGetNodeDataPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.nodeID    = nodeID;
-    packet.nodeID.convertToNetwork();
-
     server->send( packet );
 
     void* result = 0;
@@ -1756,8 +1752,7 @@ CommandResult Node::_cmdConnect( Command& command )
     const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
     ConnectionPtr        connection = _incoming.getConnection();
 
-    NodeID nodeID = packet->nodeID;
-    nodeID.convertToHost();
+    const NodeID& nodeID = packet->nodeID;
 
     EQVERB << "handle connect " << packet << std::endl;
     EQASSERT( nodeID != _id );
@@ -1826,7 +1821,6 @@ CommandResult Node::_cmdConnect( Command& command )
     // send our information as reply
     NodeConnectReplyPacket reply( packet );
     reply.nodeID    = _id;
-    reply.nodeID.convertToNetwork();
     reply.type      = getType();
 
     connection->send( reply, serialize( ));
@@ -1846,8 +1840,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
         command.getPacket<NodeConnectReplyPacket>();
     ConnectionPtr connection = _incoming.getConnection();
 
-    NodeID nodeID = packet->nodeID;
-    nodeID.convertToHost();
+    const NodeID& nodeID = packet->nodeID;
 
     EQVERB << "handle connect reply " << packet << std::endl;
     EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
@@ -1933,7 +1926,6 @@ CommandResult Node::_cmdID( Command& command )
 
     const NodeIDPacket* packet = command.getPacket< NodeIDPacket >();
     NodeID nodeID = packet->id;
-    nodeID.convertToHost();
 
     if( command.getNode().isValid( ))
     {
@@ -2062,9 +2054,7 @@ CommandResult Node::_cmdGetNodeData( Command& command)
         command.getPacket<NodeGetNodeDataPacket>();
     EQVERB << "cmd get node data: " << packet << std::endl;
 
-    NodeID nodeID = packet->nodeID;
-    nodeID.convertToHost();
-
+    const NodeID& nodeID = packet->nodeID;
     NodePtr node = getNode( nodeID );
     NodeGetNodeDataReplyPacket reply( packet );
 
@@ -2095,8 +2085,7 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
     EQVERB << "cmd get node data reply: " << packet << std::endl;
 
     const uint32_t requestID = packet->requestID;
-    NodeID nodeID = packet->nodeID;
-    nodeID.convertToHost();
+    const NodeID& nodeID = packet->nodeID;
 
     // No locking needed, only recv thread writes
     NodeHash::const_iterator i = _nodes->find( nodeID );

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -143,15 +143,6 @@ namespace net
             advanceBuffer( nElems );
         }
         return *this; 
-    }
-
-    /** Read a base::UUID */
-    template<>
-    inline DataIStream& DataIStream::operator >> ( base::UUID& id )
-    { 
-        read( &id, sizeof( id ));
-        id.convertToHost();
-        return *this;
     }
 
     /** Optimized specialization to read a std::vector of uint8_t. */

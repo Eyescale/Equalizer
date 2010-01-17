@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,19 +20,7 @@
 
 #include <eq/base/hash.h>
 #include <eq/base/log.h>
-
-#ifdef WIN32
-#  include <rpc.h>
-#  ifdef __CYGWIN__
-#    include <byteswap.h>
-#    define _byteswap_ushort bswap_16
-#    define _byteswap_ulong  bswap_32
-#  endif
-#elif defined (NetBSD) || defined (FreeBSD)
-#  include <uuid.h>
-#else
-#  include <uuid/uuid.h>
-#endif
+#include <eq/base/rng.h>
 
 namespace eq
 {
@@ -45,164 +33,94 @@ namespace base
      */
     class EQ_EXPORT UUID
     {
-#ifdef WIN32
     public:
-        /** Data type, used for network transport. */
-        typedef ::UUID Data;
-
-        UUID( const bool generate = false )
-            { generate ? UuidCreate( &_id ) : UuidCreateNil( &_id ); }
-        UUID( const UUID& from ) { _id = from._id; }
-        UUID( const Data& from ) { _id = from; }
-
-        void getData( Data& data ) const { data = _id; }
-
-        UUID& operator = ( const UUID& from )
-            {
-                _id = from._id;
-                return *this;
-            }
-        
-        UUID& operator = ( const std::string& from )
-            {
-                UuidFromString( (unsigned char*)from.c_str(), &_id );
-                return *this;
-            }
-        
-        bool operator == ( const UUID& rhs ) const
-            { 
-                RPC_STATUS status; 
-                return ( UuidEqual( const_cast< ::UUID* >( &_id ), 
-                                    const_cast< ::UUID* >( &rhs._id ),
-                                    &status ) == TRUE );
-            }
-        bool operator != ( const UUID& rhs ) const
-            { 
-                RPC_STATUS status; 
-                return ( UuidEqual( const_cast< ::UUID* >( &_id ), 
-                                    const_cast< ::UUID* >( &rhs._id ),
-                                    &status ) == FALSE );
-            }
-
-        bool operator <  ( const UUID& rhs ) const
-            { 
-                RPC_STATUS status; 
-                return UuidCompare( const_cast< ::UUID* >( &_id ), 
-                                    const_cast< ::UUID* >( &rhs._id ),
-                                    &status ) < 0;
-            }
-        bool operator >  ( const UUID& rhs ) const
-            { 
-                RPC_STATUS status; 
-                return UuidCompare( const_cast< ::UUID* >( &_id ), 
-                                    const_cast< ::UUID* >( &rhs._id ),
-                                    &status ) > 0;
-            }
-
-        bool operator ! () const 
-            {
-                RPC_STATUS status; 
-                return ( UuidIsNil( const_cast< ::UUID* >( &_id ),
-                                    &status) == TRUE );
-            }
-
-        void convertToNetwork()
-            { 
-                _id.Data1 = _byteswap_ulong( _id.Data1 ); 
-                _id.Data2 = _byteswap_ushort( _id.Data2 );
-                _id.Data3 = _byteswap_ushort( _id.Data3 );
-            }
-        void convertToHost() { convertToNetwork(); }
-
-    private:
-        ::UUID _id;
-#else // !WIN32
-    public:
-        /** Opaque data type, used for network transport. @version 1.0 */
-        struct Data
-        {
-            uuid_t id;
-        };
-
         /** 
          * Construct a new universally unique identifier.
          *
          * If generate is set to true, a new UUID is allocated. Otherwise the
          * UUID is cleared, i.e., it is equal to UUID::ZERO.
+         * @version 1.0
          */
-        UUID( const bool generate = false )
-            { generate ? uuid_generate( _id ) : uuid_clear( _id ); }
+        UUID( const bool generate = false ) : _high( 0 ), _low( 0 )
+            { 
+                if( generate )
+                {         
+                    RNG rng;
+                    _high = rng.get< uint64_t >();
+                    _low = rng.get< uint64_t >();
+                }
+            }
 
         /** Create a copy of a universally unique identifier. @version 1.0 */
-        UUID( const UUID& from ) { uuid_copy( _id, from._id ); }
-
-        /** Create a copy of a universally unique identifier. @version 1.0 */
-        UUID( const Data& from )   { uuid_copy( _id, from.id ); }
-
-        /** Get the raw data for network transport. @version 1.0 */
-        void getData( Data& data ) const { uuid_copy( data.id, _id ); }
+        UUID( const UUID& from ) : _high( from._high ), _low( from._low ) {}
 
         /** Assign another universally unique identifier. @version 1.0 */
         UUID& operator = ( const UUID& from )
             {
-                uuid_copy( _id, from._id );
+                _high = from._high;
+                _low = from._low;
                 return *this;
             }
 
         /** Assign another UUID from a string representation. @version 1.0 */
         UUID& operator = ( const std::string& from )
             {
-                uuid_parse( from.c_str(), _id );
+                char* next = 0;
+                _high = ::strtoull( from.c_str(), &next, 16 );
+                EQASSERT( next != from.c_str( ));
+                EQASSERTINFO( *next == ':', from << ", " << next );
+
+                ++next;
+                _low = ::strtoull( next, 0, 16 );
                 return *this;
             }
-        
+
         /** @return true if the UUIDs are equal, false if not. @version 1.0 */
         bool operator == ( const UUID& rhs ) const
-            { return uuid_compare( _id, rhs._id ) == 0; }
+            { return _high == rhs._high && _low == rhs._low; }
 
         /**
          * @return true if the UUIDs are different, false otherwise.
          * @version 1.0
          */
         bool operator != ( const UUID& rhs ) const
-            { return uuid_compare( _id, rhs._id ) != 0; }
+            { return _high != rhs._high || _low != rhs._low; }
 
         /**
          * @return true if this UUID is smaller than the RHS UUID.
          * @version 1.0
          */
-        bool operator <  ( const UUID& rhs ) const
-            { return uuid_compare( _id, rhs._id ) < 0; }
+        bool operator < ( const UUID& rhs ) const
+            { 
+                if( _high < rhs._high )
+                    return true;
+                if( _high > rhs._high )
+                    return false;
+                return _low < rhs._low; 
+            }
 
         /**
          * @return true if this UUID is bigger than the rhs UUID.
          * @version 1.0
          */
-        bool operator >  ( const UUID& rhs ) const
-            { return uuid_compare( _id, rhs._id ) > 0; }
+        bool operator > ( const UUID& rhs ) const
+            { 
+                if( _high > rhs._high )
+                    return true;
+                if( _high < rhs._high )
+                    return false;
+                return _low > rhs._low; 
+            }
 
-        /**
-         * @return true if this UUID is set, i.e., it is not UUID::ZERO.
-         * @version 1.0
-         */
-        bool operator ! () const { return uuid_is_null( _id ); }
-
-        /** Convert this UUID for network transport. @version 1.0 */
-        void convertToNetwork() {}
-
-        /** Convert this UUID from network transport. @version 1.0 */
-        void convertToHost() {}
-
-    private:
-        uuid_t _id;
-#endif // WIN32
-
-    public:
-        /** The NULL UUID. */
+        /** The NULL UUID. @version 1.0 */
         static const UUID ZERO;
 
     private:
+        uint64_t _high;
+        uint64_t _low;
+
         friend std::ostream& operator << ( std::ostream& os, const UUID& id );
+
 #ifdef WIN32_VC
         friend size_t stde::hash_compare< eq::base::UUID >::operator() 
             ( const eq::base::UUID& key ) const;
@@ -211,54 +129,39 @@ namespace base
 #endif
     };
 
-    /** A hash for UUID keys. */
-    template<class T> class UUIDHash 
-        : public stde::hash_map< UUID, T >
-    {};
+    /** A hash for UUID keys. @version 1.0 */
+    template<class T> class UUIDHash : public stde::hash_map< UUID, T > {};
 
     /** UUID& ostream operator. */
     inline std::ostream& operator << ( std::ostream& os, const UUID& id )
     {
-#ifdef WIN32
-        unsigned char* uuid;
-        UuidToString( const_cast< ::UUID* >( &id._id ), &uuid );
-        os << uuid;
-        RpcStringFree( &uuid );
-#else
-        char string[40];
-        uuid_unparse( id._id, string );
-        os << string;
-#endif
+        os << std::hex << id._high << ':' << id._low << std::dec;
         return os;
     }
 }
 }
 
 #ifdef WIN32_VC
-template<>
-inline size_t stde::hash_compare< eq::base::UUID >::operator() 
+template<> inline size_t stde::hash_compare< eq::base::UUID >::operator() 
     ( const eq::base::UUID& key ) const
 {
-    return key._id.Data1;
+    return key._low;
 }
 
-template<>
-inline size_t stde::hash_value( const eq::base::UUID& key )
+template<> inline size_t stde::hash_value( const eq::base::UUID& key )
 {
-    stde::hash_compare< eq::base::UUID > hash;
-    return hash( key );
+    return key._low;
 }
 
 #elif defined (WIN32)
 
 namespace __gnu_cxx
 {
-    template<> 
-    struct hash< eq::base::UUID >
+    template<> struct hash< eq::base::UUID >
     {
         size_t operator()( const eq::base::UUID& key ) const
         {
-            return key._id.Data1;
+            return key._low;
         }
     };
 }
@@ -275,12 +178,11 @@ namespace __gnu_cxx
 namespace std
 #  endif
 {
-    template<> 
-    struct hash< eq::base::UUID >
+    template<> struct hash< eq::base::UUID >
     {
         size_t operator()( const eq::base::UUID& key ) const
         {
-            return (size_t)(*key._id);
+            return key._low;
         }
     };
 #ifdef EQ_GCC_4_2_OR_LATER

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -1012,7 +1012,6 @@ uint32_t Config::_createConfig( Node* node )
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = getID();
     createConfigPacket.appNodeID = _appNetNode->getNodeID();
-    createConfigPacket.appNodeID.convertToNetwork();
     createConfigPacket.requestID = _requestHandler.registerRequest();
 
     const string&   name = getName();

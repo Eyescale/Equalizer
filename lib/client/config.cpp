@@ -498,7 +498,7 @@ void Config::sendEvent( ConfigEvent& event )
 {
     EQASSERT( event.data.type != Event::STATISTIC ||
               event.data.statistic.type != Statistic::NONE );
-    EQASSERT( _appNodeID );
+    EQASSERT( _appNodeID != base::UUID::ZERO );
 
     if( !_appNode )
     {

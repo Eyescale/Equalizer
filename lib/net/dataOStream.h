@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -180,16 +180,6 @@ namespace net
         if ( nElems > 0 )
             write( str.c_str(), nElems );
 
-        return *this;
-    }
-
-    /** Write a base::UUID. */
-    template<>
-    inline DataOStream& DataOStream::operator << ( const base::UUID& id )
-    { 
-        base::UUID out( id );
-        out.convertToNetwork();
-        write( &out, sizeof( out ));
         return *this;
     }
 

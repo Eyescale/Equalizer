@@ -1,9 +1,14 @@
-Add UUID unit test
+Replace UUID implementation with custom code:
+- Uses RNG for UUID generation
+- removes need for network conversion
+- merge existing NodeID unit test with new UUID test
+
+needs 'make clean'
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

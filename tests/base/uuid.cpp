@@ -47,6 +47,34 @@ public:
 
 int main( int argc, char **argv )
 {
+    // basic tests
+    eq::base::UUID id1( true );
+    eq::base::UUID id2( true );
+
+    TEST( id1 != eq::base::UUID::ZERO );
+    TEST( id1 != id2 );
+
+    id1 = id2;
+    TEST( id1 == id2 );
+    
+    eq::base::UUID* id3 = new eq::base::UUID( id1 );
+    eq::base::UUID* id4 = new eq::base::UUID( true );
+
+    TEST( id1 == *id3 );
+    TEST( *id4 != *id3 );
+    
+    *id4 = *id3;
+    TEST( *id4 == *id3 );
+    
+    delete id3;
+    delete id4;
+
+    eq::base::UUID id5, id6;
+    TEST( id5 == eq::base::UUID::ZERO );
+    TEST( id5 == id6 );
+    
+
+    // Load tests
     Thread threads[ N_THREADS ];
 
     eq::base::Clock clock;
@@ -66,8 +94,17 @@ int main( int argc, char **argv )
         for( eq::base::UUIDHash< bool >::const_iterator j = current.begin();
              j != current.end(); ++j )
         {
-            TEST( first.find( j->first ) == first.end( ));
-            first[ j->first ] = true;
+            eq::base::UUID uuid = j->first;
+            TEST( uuid == j->first );
+
+            std::ostringstream stream;
+            stream << uuid;
+            uuid = stream.str();
+            TESTINFO( uuid == j->first,
+                      j->first << " -> " << stream.str() << " -> " << uuid );
+
+            TEST( first.find( uuid ) == first.end( ));
+            first[ uuid ] = true;
         }
     }
 
