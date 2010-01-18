@@ -76,7 +76,7 @@ namespace base
 
                 ++next;
 #ifdef WIN32_VC
-                _high = ::_strtoui64( next, 0, 16 );
+                _low = ::_strtoui64( next, 0, 16 );
 #else
                 _low = ::strtoull( next, 0, 16 );
 #endif
