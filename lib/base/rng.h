@@ -19,6 +19,7 @@
 #define EQBASE_RNG_H
 
 #include <eq/base/debug.h> // for EQASSERT
+#include <eq/base/init.h>  // friend functions
 #include <eq/base/nonCopyable.h>
 
 #include <fcntl.h>

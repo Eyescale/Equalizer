@@ -66,12 +66,20 @@ namespace base
         UUID& operator = ( const std::string& from )
             {
                 char* next = 0;
+#ifdef WIN32_VC
+                _high = ::_strtoui64( from.c_str(), &next, 16 );
+#else
                 _high = ::strtoull( from.c_str(), &next, 16 );
+#endif
                 EQASSERT( next != from.c_str( ));
                 EQASSERTINFO( *next == ':', from << ", " << next );
 
                 ++next;
+#ifdef WIN32_VC
+                _high = ::_strtoui64( next, 0, 16 );
+#else
                 _low = ::strtoull( next, 0, 16 );
+#endif
                 return *this;
             }
 
@@ -124,6 +132,7 @@ namespace base
 #ifdef WIN32_VC
         friend size_t stde::hash_compare< eq::base::UUID >::operator() 
             ( const eq::base::UUID& key ) const;
+        friend size_t stde::hash_value( const eq::base::UUID& key );
 #else
         friend struct stde::hash< eq::base::UUID >;
 #endif
