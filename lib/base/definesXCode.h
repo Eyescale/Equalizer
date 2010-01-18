@@ -9,6 +9,9 @@
 #ifndef GLEW_MX
 #  define GLEW_MX
 #endif
+#ifndef GLX
+#  define GLX
+#endif
 #ifndef LEOPARD
 #  define LEOPARD
 #endif
