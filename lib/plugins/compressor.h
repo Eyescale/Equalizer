@@ -38,7 +38,7 @@
  *  - Request official names for your compressors.
  *
  * <h2>Changes</h2>
- * Version 1.1
+ * Version 2
  *  - Added EQ_COMPRESSOR_DIFF_RLE_565 to type name registry
  *
  * Version 1
@@ -73,11 +73,11 @@ extern "C"
     /** @name Compressor Plugin API Versioning */
     /*@{*/
     /** The version of the Compressor API described by this header. */
-    #define EQ_COMPRESSOR_VERSION 1.1
+    #define EQ_COMPRESSOR_VERSION 2
     /** At least version 1 of the Compressor API is described by this header. */
     #define EQ_COMPRESSOR_VERSION_1 1
-    /**At least version 1.1 of the Compressor API is described by this header.*/
-    #define EQ_COMPRESSOR_VERSION_1_1 1
+    /**At least version 2 of the Compressor API is described by this header.*/
+    #define EQ_COMPRESSOR_VERSION_2 1
     /*@}*/
 
     /**
