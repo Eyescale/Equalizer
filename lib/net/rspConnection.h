@@ -49,7 +49,6 @@ namespace net
         virtual ~RSPConnection();
 
         virtual bool listen();
-        typedef uint16_t ID;
         void close();
         bool connect(){ return listen(); }
 
@@ -107,46 +106,46 @@ namespace net
         struct DatagramAckRequest
         {
             uint16_t type;
-            ID       writerID;
-            uint16_t lastDatagramID;
+            uint16_t writerID;
             uint16_t sequenceID;
         };
         
         struct DatagramNode
         {
-            uint16_t            type;
-            ID   connectionID;
+            uint16_t type;
+            uint16_t connectionID;
         };
 
         struct DatagramCountConnection
         {
-            uint16_t             type;
-            ID    clientID;
-            uint16_t             nbClient;
+            uint16_t type;
+            uint16_t clientID;
+            uint16_t nbClient;
         };
 
         struct DatagramNack
         {
             uint16_t       type;
-            ID             readerID;    // ID of the connection reader
-            ID             writerID;    // ID of the connection writer
+            uint16_t       readerID;    // ID of the connection reader
+            uint16_t       writerID;    // ID of the connection writer
             uint16_t       sequenceID;  // last datagram in write sequence
-            uint16_t       count; // number of NACK requests
+            uint16_t       count;       // number of NACK requests
         };
 
         struct DatagramAck
         {
             uint16_t        type;
-            ID              readerID;
-            ID              writerID;
+            uint16_t        readerID;
+            uint16_t        writerID;
             uint16_t        sequenceID;
         };
 
         struct DatagramData
         {
             uint16_t    type;
-            uint32_t    writeSeqID;
-            uint32_t    dataIDlength;
+            uint16_t    size;
+            uint16_t    writerID;
+            uint16_t    sequenceID;
         };
         
         struct InBuffer
@@ -183,11 +182,14 @@ namespace net
             uint32_t end;
         };
         
-        // Buffer for one datagram from our UDP connection
+        // Read buffer for one datagram from our UDP connection
         eq::base::Bufferb _udpBuffer;
 
         // Buffer to send one NACK packet.
         eq::base::Bufferb _nackBuffer;
+
+        // The buffer used by the write function in udp socket
+        eq::base::Bufferb _sendBuffer;
 
         // a link for all connection in the multicast network 
         std::vector< RSPConnectionPtr > _children;
@@ -195,13 +197,9 @@ namespace net
         // number connection accepted by server RSP 
         base::a_int32_t _countAcceptChildren;
         
-        // The buffer used by the write function in udp socket
-        eq::base::Bufferb _sendBuffer;
-
         eq::base::MTQueue< RepeatRequest > _repeatQueue;
 
-        ID _id; //!< The identifier used to demultiplex multipe writers
-        uint32_t _shiftedID; //!< Shifted _id for easier packaging
+        uint16_t _id; //!< The identifier used to demultiplex multipe writers
         
         int32_t  _timeouts;
         uint16_t _ackReceived; // sequence ID of last received ack for child
@@ -224,7 +222,7 @@ namespace net
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
         RSPConnectionPtr _parent;
-        int32_t _lastSequenceIDAck;
+        int32_t _lastAck;
         
         typedef std::vector< InBuffer > InBufferVector;
         InBufferVector _inBuffers;                 //!< Data buffers
@@ -242,7 +240,7 @@ namespace net
         static size_t   _bufferSize;
         static uint32_t _maxNAck;
 
-        ID _buildNewID();
+        uint16_t _buildNewID();
         
         bool _acceptID();
         bool _handleAcceptID();
@@ -269,42 +267,41 @@ namespace net
         void _initAIORead();
         void _exitAIORead();
 
-        /** find the connection corresponding to the writeID */
-        RSPConnectionPtr _findConnectionWithWriterID( 
-                                    const ID writerID );
+        /** find the connection corresponding to the identifier */
+        RSPConnectionPtr _findConnection( const uint16_t id );
         /** determine if the sequenceID and writerID correspond to 
             the current sequence which will written */
-        bool _isCurrentSequence( const uint16_t sequenceID, const ID writer );
+        bool _isCurrentSequence( const uint16_t sequenceID, 
+                                 const uint16_t writer );
         
         /** Analyze the current error and adapt the send rate */
-        void _adaptSendRate( const uint64_t errors );
+        void _adaptSendRate( const size_t nPackets, const size_t errors );
 
         /** format and send a datagram count node */
         void _sendDatagramCountNode();
 
-        int64_t _handleRepeat( const uint8_t* data, const uint64_t size );
+        void _handleRepeat( const uint8_t* data, const uint64_t size );
         void _addRepeat( const uint32_t* repeatIDs, uint32_t size );
 
         /** format and send a data packet*/
         void _sendDatagram( const uint8_t* data, const uint64_t size,
-                            const uint32_t writSeqID, 
-                            const uint16_t datagramID );
+                            const uint16_t which );
 
         /** format and send an ack request*/
-        void _sendAckRequest( );
+        void _sendAckRequest( const uint16_t sequenceID );
 
         /** format and send a positive ack */
-        void _sendAck( const ID writerID, const uint16_t sequenceID );
+        void _sendAck( const uint16_t writerID, const uint16_t sequenceID );
         
         /** format and send a negative ack*/ 
-        void _sendNack( const ID  toWriterID, const uint16_t  sequenceID,
+        void _sendNack( const uint16_t toWriterID, const uint16_t sequenceID,
                         const uint8_t countNack, const uint32_t* repeatID   );
         
-        void _checkNewID( const ID id );
+        void _checkNewID( const uint16_t id );
 
         /* add a new connection detected in the multicast network */
-        bool _addNewConnection( const ID id );
-        bool _removeConnection( const ID id );
+        bool _addNewConnection( const uint16_t id );
+        bool _removeConnection( const uint16_t id );
 
         void _setEvent();
         void _resetEvent();

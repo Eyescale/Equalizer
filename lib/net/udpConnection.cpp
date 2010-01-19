@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -68,12 +68,11 @@ UDPConnection::UDPConnection()
         _packetRate = Global::getIAttribute( Global::IATTR_UDP_PACKET_RATE );
         _maxBucketSize = (_mtu * _packetRate) >> 1;
     }
-    else
-    {
-        EQASSERT( _mtu == Global::getIAttribute( Global::IATTR_UDP_MTU ));
-        EQASSERT( _packetRate ==
-                  Global::getIAttribute( Global::IATTR_UDP_PACKET_RATE ));
-    }
+    EQASSERT( _mtu == Global::getIAttribute( Global::IATTR_UDP_MTU ));
+    EQASSERT( _mtu < std::numeric_limits< uint16_t >::max( ));
+    EQASSERT( _packetRate ==
+              Global::getIAttribute( Global::IATTR_UDP_PACKET_RATE ));
+    EQASSERT( _packetRate < 16384 ); // see RSPConnection::_handleDataDatagram
 
     EQVERB << "New UDPConnection @" << (void*)this << std::endl;
 }
@@ -266,8 +265,6 @@ bool UDPConnection::_parseHostname( const std::string& hostname,
     memcpy( &address, hptr->h_addr, hptr->h_length );
     return true;
 }
-
-
 
 //----------------------------------------------------------------------
 // Async IO handles
