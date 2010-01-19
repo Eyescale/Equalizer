@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>.
+ *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,33 +37,59 @@ ObjectDeltaDataOStream::~ObjectDeltaDataOStream()
 {}
 
 void ObjectDeltaDataOStream::_sendPacket( ObjectDeltaPacket& packet,
-                                          const void* buffer,
-                                          const uint64_t size )
+                                          const void* const* buffers,
+                                          const uint64_t* sizes,
+                                          const uint64_t sizeUncompressed )
 {
     packet.version   = _version;
     packet.sequence  = _sequence++;
-    packet.dataSize  = size;
+    packet.dataSize  = sizeUncompressed;
     packet.sessionID = _object->getSession()->getID();
     packet.objectID  = _object->getID();
 
-    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
+    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " 
+                         << _connections.size()
                          << " receivers " << std::endl;
-    Connection::send( _connections, packet, buffer, size, true );
+
+    if( packet.compressorName != EQ_COMPRESSOR_NONE )
+    {
+        uint64_t dataSendSize  = 0;
+        for( uint32_t i = 0; i < packet.nChunks; i++ )
+        {
+            dataSendSize  += sizes[i];
+        }
+        
+        Connection::send( _connections, packet, buffers, 
+                          sizes, packet.nChunks, dataSendSize, true );
+        return;
+    }
+
+    Connection::send( _connections, packet, buffers[0], sizeUncompressed, true );
 }
 
-void ObjectDeltaDataOStream::sendBuffer( const void* buffer,
-                                         const uint64_t size )
+void ObjectDeltaDataOStream::sendBuffer( const uint32_t name, 
+                                         const uint32_t nChunks,
+                                         const void* const* buffers,
+                                         const uint64_t* sizes,
+                                         const uint64_t sizeUncompressed )
 {
     ObjectDeltaPacket packet;
-    _sendPacket( packet, buffer, size );
+    packet.compressorName = name;
+    packet.nChunks        = nChunks;
+    _sendPacket( packet, buffers, sizes, sizeUncompressed );
 }
 
-void ObjectDeltaDataOStream::sendFooter( const void* buffer, 
-                                         const uint64_t size )
+void ObjectDeltaDataOStream::sendFooter( const uint32_t name, 
+                                         const uint32_t nChunks,
+                                         const void* const* buffers, 
+                                         const uint64_t* sizes,
+                                         const uint64_t sizeUncompressed )
 {
     ObjectDeltaPacket packet;
-    packet.last = true;
-    _sendPacket( packet, buffer, size );
+    packet.last           = true;
+    packet.compressorName = name;
+    packet.nChunks        = nChunks;
+    _sendPacket( packet, buffers, sizes, sizeUncompressed );
     _sequence = 0;
 }
 

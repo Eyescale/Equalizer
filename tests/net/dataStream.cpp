@@ -72,22 +72,31 @@ protected:
             eq::net::Connection::send( _connections, packet, true/*isLocked*/ );
             EQINFO << "Sent header" << std::endl;
 
-            sendBuffer( buffer, size );
+            sendBuffer( 0, 0, &buffer, &size, size );
         }
 
-    virtual void sendBuffer( const void* buffer, const uint64_t size )
+    virtual void sendBuffer( const uint32_t name, 
+                             const uint32_t nChunks,
+                             const void* const* buffer, 
+                             const uint64_t* size,
+                             const uint64_t sizeUncompressed  )
         {
             DataPacket packet;
-            packet.dataSize = size;
-            eq::net::Connection::send( _connections, packet, buffer, size, 
-                                     true /*isLocked*/ );
-            EQINFO << "Sent buffer of " << size << " bytes" << std::endl;
+            packet.dataSize = sizeUncompressed;
+            eq::net::Connection::send( _connections, packet, buffer[0], 
+                                       sizeUncompressed, 
+                                       true /*isLocked*/ );
+            EQINFO << "Sent buffer of " << sizeUncompressed << " bytes" << std::endl;
         }
 
-    virtual void sendFooter( const void* buffer, const uint64_t size )
+    virtual void sendFooter( const uint32_t name, 
+                             const uint32_t nChunks,
+                             const void* const* buffer, 
+                             const uint64_t* size,
+                             const uint64_t sizeUncompressed  )
         {
-            if( size > 0 )
-                sendBuffer( buffer, size );
+            if( sizeUncompressed > 0 )
+	      sendBuffer( name, nChunks, buffer, size, sizeUncompressed );
 
             FooterPacket packet;
             eq::net::Connection::send( _connections, packet, true/*isLocked*/ );

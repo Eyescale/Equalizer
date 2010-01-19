@@ -60,6 +60,7 @@ HEADER_SRC = \
 	net/connectionListener.h \
 	net/connectionSet.h \
 	net/connectionType.h \
+	net/dataStream.h \
 	net/dataIStream.h \
 	net/dataOStream.h \
 	net/dispatcher.h \

@@ -372,7 +372,7 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
 }
 
 bool Connection::send( const ConnectionVector& connections, Packet& packet,
-                       void** data, uint64_t* dataSize, 
+                       const void* const* data, const uint64_t* dataSize, 
                        const size_t nData, const uint64_t allDataSize,
                        const bool isLocked )
 {
@@ -380,7 +380,7 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
         return true;
 
     const uint64_t headerSize  = packet.size - 8;
-    packet.size = headerSize + allDataSize;
+    packet.size = headerSize + allDataSize + sizeof( uint64_t ) * nData;
 
     for( ConnectionVector::const_iterator i= connections.begin(); 
          i<connections.end(); ++i )
@@ -393,7 +393,8 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
         bool ok = connection->send( &packet, headerSize, true );
 
         for ( size_t j = 0; j < nData ; j++ )
-            ok = ok && connection->send( data[j], dataSize[j], true );
+            ok = ok && connection->send( &dataSize[j], sizeof(uint64_t), true )
+                    && connection->send( data[j], dataSize[j], true );
 
         if( !isLocked )
             connection->unlockSend();

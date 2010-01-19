@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,19 +45,26 @@ namespace net
         const NodeID& getNodeID() const { return _nodeID; }
 
     protected:
-        virtual void sendHeader( const void* buffer, const uint64_t size )
-            { sendBuffer( buffer, size ); }
-        virtual void sendBuffer( const void* buffer, const uint64_t size );
-        virtual void sendFooter( const void* buffer, const uint64_t size );
-        virtual void sendSingle( const void* buffer, const uint64_t size )
-            { sendFooter( buffer, size ); }
+        virtual void sendBuffer( const uint32_t name, 
+                                 const uint32_t nChunks,
+                                 const void* const* buffers, 
+                                 const uint64_t* size,
+                                 const uint64_t sizeUncompressed );
+
+        virtual void sendFooter( const uint32_t name, 
+                                 const uint32_t nChunks,
+                                 const void* const* buffers, 
+                                 const uint64_t* size,
+                                 const uint64_t sizeUncompressed );
 
     private:
         NodeID        _nodeID;
         uint32_t      _instanceID;
 
         void _sendPacket( ObjectInstancePacket& packet,
-                          const void* buffer, const uint64_t size );
+                          const void* const* buffers, 
+                          const uint64_t* sizes,
+                          const uint64_t sizeUncompressed );
     };
 }
 }

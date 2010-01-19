@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder  <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -54,8 +55,20 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
         {
             const ObjectInstancePacket* packet =
                 command->getPacket< ObjectInstancePacket >();
-            *buffer = packet->data;
+
             *size   = packet->dataSize;
+
+            if ( packet->compressorName != EQ_COMPRESSOR_NONE )
+            {
+                uint8_t* dataCompressed = const_cast<uint8_t*>( 
+                                  static_cast<const uint8_t*>( packet->data ));
+                _decompress( dataCompressed, buffer, packet->compressorName,
+                             packet->nChunks, packet->dataSize );
+                
+                return true;
+            }
+
+            *buffer = packet->data;
             return true;
         }
         

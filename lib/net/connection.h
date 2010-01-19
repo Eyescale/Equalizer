@@ -343,7 +343,7 @@ namespace net
          * @return true if the packet was sent successfully to all receivers.
          */
         static bool send( const ConnectionVector& connections, Packet& packet,
-                          void** data, uint64_t* dataSize, 
+                          const void* const* data, const uint64_t* dataSize, 
                           const size_t nData, const uint64_t allDataSize,
                           const bool isLocked );
 

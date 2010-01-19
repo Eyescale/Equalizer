@@ -38,4 +38,10 @@
 #  endif
 #endif
 
+#if 0
+#  ifndef EQ_COMPRESS_STREAM
+#    define EQ_COMPRESS_STREAM
+#  endif
+#endif
+
 #endif // EQ_DEFINES_H

@@ -18,8 +18,10 @@
 #ifndef EQNET_DATAOSTREAM_H
 #define EQNET_DATAOSTREAM_H
 
-#include <eq/base/buffer.h> // member
 #include <eq/net/types.h>   // ConnectionVector member
+#include "dataStream.h"     // base class
+
+#include <eq/base/buffer.h> // member
 
 #include <iostream>
 #include <vector>
@@ -39,12 +41,13 @@ namespace DataStreamTest
      *
      * Derived classes send the data using the appropriate command packets.
      */
-    class DataOStream
+    class DataOStream : public DataStream
     {
     public:
         /** @name Internal */
         //@{
         DataOStream();
+        DataOStream( const DataOStream& from ) : DataStream( from ){}
         virtual ~DataOStream();
 
         /** Enable output, locks the connections to the receivers */ 
@@ -78,9 +81,6 @@ namespace DataStreamTest
 
         /** @name Data output */
         //@{
-        /** Flush remaining data in the buffer. */
-        void flush();
-
         /** Write a plain data item by copying it to the stream. */
         template< typename T >
         DataOStream& operator << ( const T& value )
@@ -106,18 +106,27 @@ namespace DataStreamTest
 
  
     protected:
+
+        /** Flush remaining data in the buffer. */
+        void _flush();
+
         /** @name Packet sending, implemented by the subclasses */
         //@{
-        /** Send the leading data (packet) to the receivers */
-        virtual void sendHeader( const void* buffer, const uint64_t size ) = 0;
         /** Send a data buffer (packet) to the receivers. */
-        virtual void sendBuffer( const void* buffer, const uint64_t size ) = 0;
+        virtual void sendBuffer( const uint32_t name, 
+                                 const uint32_t nChunks,
+                                 const void* const* buffer, 
+                                 const uint64_t* size,
+                                 const uint64_t sizeUncompressed ) = 0;
+                                 
         /** Send the trailing data (packet) to the receivers */
-        virtual void sendFooter( const void* buffer, const uint64_t size ) = 0;
-        /** Send only one data item (packet) to the receivers */
-        virtual void sendSingle( const void* buffer, const uint64_t size )
-            { sendHeader( buffer, size ); sendFooter( 0, 0 ); }
+        virtual void sendFooter( const uint32_t name, 
+                                 const uint32_t nChunks,
+                                 const void* const* buffer, 
+                                 const uint64_t* size,
+                                 const uint64_t sizeUncompressed ) = 0;
         //@}
+
 
         /** Reset the whole stream. */
         virtual void reset();
@@ -125,8 +134,19 @@ namespace DataStreamTest
         /** Locked connections to the receivers, if _enabled */
         ConnectionVector _connections;
         friend class DataStreamTest::Sender;
+        
 
     private:
+        void*  _compressor;   //!< the instance of the compressor
+        
+        enum BufferType
+        {
+            BUFFER_NONE = 0,
+            BUFFER_PARTIAL,
+            BUFFER_ALL
+        };
+        BufferType _bufferType;
+        
         /** The buffer used for saving and buffering */
         base::Bufferb  _buffer;
         /** The start position of the buffering, always 0 if !_save */
@@ -160,7 +180,27 @@ namespace DataStreamTest
                 write( &value.front(), nElems * sizeof( T ));
             return *this;
         }
+        /** Send the trailing data (packet) to the receivers */
+        void _sendFooter( const void* buffer, const uint64_t size );
+
+        /** intanciate compressor */
+        void _initCompressor( );
+
+        /** find the better compressor for the given token type */
+        uint32_t _chooseCompressor( const uint32_t tokenType );
+      
+        /** take data in compressor and send it */
+        bool _getCompressedData( uint64_t sizeUncompressed, 
+                                 void** chunks, 
+                                 uint64_t* chunkSizes );
+
+        /** compress data, if compressor found */
+        void _compress( const void* src, const uint64_t  sizeSrc );
+
     };
+
+    std::ostream& operator << ( std::ostream& os,
+                                const DataOStream& dataOStream );
 
 }
 }

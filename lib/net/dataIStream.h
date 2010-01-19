@@ -20,7 +20,7 @@
 
 #include <eq/net/types.h>
 #include <eq/base/buffer.h> // member
-
+#include "dataStream.h"     // Base Class
 #include <iostream>
 #include <vector>
 
@@ -28,8 +28,9 @@ namespace eq
 {
 namespace net
 {
+    
     /** A std::istream-like input data stream for binary data. */
-    class DataIStream
+    class DataIStream : public DataStream
     {
     public:
         /** @name Internal */
@@ -92,6 +93,12 @@ namespace net
     protected:
         virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size ) =0;
 
+        void _decompress( void* src, 
+                          const uint8_t** dst, 
+                          const uint32_t name,
+                          const uint32_t nChunks,
+                          const uint64_t dataSize );
+
     private:
         /** The current input buffer */
         const uint8_t* _input;
@@ -100,6 +107,10 @@ namespace net
         /** The current read position in the buffer */
         uint64_t  _position;
 
+        void* _decompressor;   //!< the instance of the decompressor
+        eq::base::Bufferb _datas; //!< a buffer for decompress datas
+
+        void _initDecompressor( const uint32_t name );
         /**
          * Check that the current buffer has data left, get the next buffer is
          * necessary, return false if no data is left. 
