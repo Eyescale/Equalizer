@@ -60,11 +60,11 @@ ifeq ($(findstring EQ_USE_CUDA, $(DEFFLAGS)),EQ_USE_CUDA)
 endif
 	@echo
 ifeq (Darwin,$(ARCH))
-	@echo "Set DYLD_LIBRARY_PATH to $(LD_PATH) :"
+	@echo "Set DYLD_LIBRARY_PATH to $(LD_PATH)"
 	@echo "  bash: 'export DYLD_LIBRARY_PATH=$(LD_PATH)'"
 	@echo "  *csh: 'setenv DYLD_LIBRARY_PATH $(LD_PATH)'"
 else
-	@echo "Set LD_LIBRARY_PATH to $(LD_PATH) :"
+	@echo "Set LD_LIBRARY_PATH to $(LD_PATH)"
 	@echo "  bash: 'export LD_LIBRARY_PATH=$(LD_PATH)'"
 	@echo "  *csh: 'setenv LD_LIBRARY_PATH $(LD_PATH)'"
 endif

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,7 +44,7 @@ namespace net
 {
     class Message;
     class Network;
-    class PipeConnection;
+    class EventConnection;
 
     /**
      * A set of connections. 
@@ -161,9 +161,7 @@ namespace net
         base::Buffer< Result > _fdSetResult;
 
         /** The connection to reset a running select, see constructor. */
-        base::RefPtr< PipeConnection > _selfConnection;
-        /** The buffer to receive commands from _selfConnection. */
-        uint8_t _selfCommand;
+        base::RefPtr< EventConnection > _selfConnection;
 
         // result values
         ConnectionPtr _connection;
@@ -177,7 +175,6 @@ namespace net
         bool _buildFDSet();
         virtual void notifyStateChanged( Connection* ) { _dirty = true; }
 
-        Event _handleSelfCommand();
         Event _getSelectResult( const uint32_t index );
         CHECK_THREAD_DECLARE( _selectThread );
     };

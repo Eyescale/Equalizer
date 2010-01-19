@@ -574,7 +574,8 @@ namespace net
                 : fill( 0 )
             {
                 command = CMD_OBJECT_INSTANCE;
-                size    = sizeof( ObjectInstancePacket ); 
+                size    = sizeof( ObjectInstancePacket );
+                data[0] = '\0';
             }
 
         NodeID nodeID;

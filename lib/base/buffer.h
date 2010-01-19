@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,12 +34,15 @@ namespace base
      * data, e.g., in eq::Image. The implementation works like a pool, that is,
      * data is only released when the buffer is deleted or clear() is called.
      */
-    template< typename T >
-    class Buffer
+    template< typename T > class Buffer
     {
     public:
         /** Construct a new, empty buffer. @version 1.0 */
         Buffer() : _data(0), _size(0), _maxSize(0) {}
+
+        /** Construct a new buffer of the given size. @version 1.0 */
+        Buffer( const uint64_t size ) : _data(0), _size(0), _maxSize(0) 
+            { resize( size ); }
 
         /** Destruct the buffer. @version 1.0 */
         ~Buffer() { clear(); }
@@ -63,10 +66,11 @@ namespace base
             }
 
         /** Direct access to the element at the given index. @version 1.0 */
-        T&       operator[]( const size_t position )
+        T&       operator[]( const uint64_t position )
             { EQASSERT( _size > position ); return _data[ position ]; }
+
         /** Direct const access to an element. @version 1.0 */
-        const T& operator[]( const size_t position) const
+        const T& operator[]( const uint64_t position ) const
             { EQASSERT( _size > position ); return _data[ position ]; }
 
         /** 
@@ -81,7 +85,7 @@ namespace base
                 if( newSize <= _maxSize )
                     return;
                 
-                const size_t nBytes = newSize * sizeof( T );
+                const uint64_t nBytes = newSize * sizeof( T );
                 if( _data )
                     _data = static_cast< T* >( realloc( _data, nBytes ));
                 else

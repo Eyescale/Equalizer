@@ -97,8 +97,12 @@ bool Dispatcher::dispatchCommand( Command& command )
     }
     // else
 
+#ifdef NDEBUG
+    _vTable[which]( command );
+#else
     const CommandResult result = _vTable[which]( command );
     EQASSERTINFO( result == COMMAND_HANDLED, result );
+#endif
     return true;
 }
 

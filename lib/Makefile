@@ -190,6 +190,7 @@ CXXFILES = \
 	net/dataOStream.cpp \
 	net/deltaMasterCM.cpp \
 	net/dispatcher.cpp \
+	net/eventConnection.cpp \
 	net/fdConnection.cpp \
 	net/fullMasterCM.cpp \
 	net/global.cpp \

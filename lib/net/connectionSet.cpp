@@ -19,7 +19,7 @@
 
 #include "connection.h"
 #include "node.h"
-#include "pipeConnection.h"
+#include "eventConnection.h"
 
 #include <eq/base/base.h>
 #include <eq/base/stdExt.h>
@@ -27,8 +27,6 @@
 
 #include <algorithm>
 #include <errno.h>
-
-#define SELF_INTERRUPT 42
 
 #ifdef WIN32
 #  define SELECT_TIMEOUT WAIT_TIMEOUT
@@ -58,22 +56,14 @@ ConnectionSet::ConnectionSet()
 #else
         :
 #endif
-          _selfConnection( new PipeConnection )
-        , _selfCommand( 0 )
+          _selfConnection( new EventConnection )
         , _error( 0 )
         , _dirty( true )
 {
     // Whenever another threads modifies the connection list while the
-    // connection set is waiting in a select, the select is interrupted by
-    // sending a character through this connection. select() will recognize
-    // this and restart with the modified fd set.
-    // OPT: On Win32, we could just use an event handle
-    if( !_selfConnection->connect( ))
-    {
-        EQERROR << "Could not create self connection" << std::endl;
-        return;
-    }
-    _selfConnection->recvNB( &_selfCommand, sizeof( _selfCommand ));
+    // connection set is waiting in a select, the select is interrupted using
+    // this connection.
+    EQCHECK( _selfConnection->connect( ));
 }
 
 ConnectionSet::~ConnectionSet()
@@ -99,11 +89,7 @@ void ConnectionSet::_dirtyFDSet()
 
 void ConnectionSet::interrupt()
 {
-    if( !_selfConnection->hasData( ))
-    {
-        const char c = SELF_INTERRUPT;
-        _selfConnection->send( &c, 1, true );
-    }
+    _selfConnection->set();
 }
 
 void ConnectionSet::addConnection( ConnectionPtr connection )
@@ -336,11 +322,9 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
                     if( _connection == _selfConnection.get( ))
                     {
-                        EQASSERT( event == EVENT_DATA );
-                        event = _handleSelfCommand();
-                        if( event == EVENT_NONE )
-                            break;
-                        return event;
+                        _connection = 0;
+                        _selfConnection->reset();
+                        return EVENT_INTERRUPT;
                     }
                     
                     if( event == EVENT_DATA && _connection->isListening( ))
@@ -423,26 +407,6 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
     }
     return EVENT_NONE;
 #endif
-}
-
-ConnectionSet::Event ConnectionSet::_handleSelfCommand()
-{
-    EQASSERT( _connection == _selfConnection.get( ));
-    _connection = 0;
-    
-    _selfConnection->recvSync( 0, 0 );
-    const uint8_t command( _selfCommand );
-    _selfConnection->recvNB( &_selfCommand, sizeof( _selfCommand ));
-
-    switch( command ) 
-    {
-        case SELF_INTERRUPT:
-            return EVENT_INTERRUPT;
-
-        default:
-            EQUNIMPLEMENTED;
-            return EVENT_NONE;
-    }
 }
 
 bool ConnectionSet::_setupFDSet()
