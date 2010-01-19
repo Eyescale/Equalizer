@@ -61,7 +61,7 @@ static std::vector< uint32_t > _getCompressorNames()
     return names;
 }
 
-static float _getCompressorQuality( uint32_t name )
+static const float _getCompressorQuality( const uint32_t name )
 {
     const eq::base::PluginRegistry& registry = 
         eq::base::Global::getPluginRegistry();
@@ -84,6 +84,33 @@ static float _getCompressorQuality( uint32_t name )
     }
     
     return quality;
+}
+
+template< typename T >
+static void _compare( const void* data, const void* destData,
+                      const eq::Frame::Buffer buffer, bool ignoreAlpha,
+                      const size_t nElem, const uint8_t channelSize,
+                      const float quality )
+{
+    for( size_t k = 0; k < nElem; ++k )
+    { 
+        const T* destValue = reinterpret_cast< const T* >( destData );
+        const T* value = reinterpret_cast< const T* >( data );
+
+        if( ignoreAlpha && buffer == eq::Frame::BUFFER_COLOR )
+        {
+            EQASSERT( channelSize == 1 || channelSize == 2 ||
+                      channelSize == 4 );
+
+            // Don't test alpha if alpha is ignored
+            if( k % 4 == 3 )
+                continue;
+	}
+
+        float max = ( 1.f - quality ) * std::numeric_limits< T >::max();
+        TESTINFO( abs( value[k] - destValue[k] ) <= max,
+                  "comparison of initial data and destination data has failed" );
+    }
 }
 }
 
@@ -269,51 +296,30 @@ int main( int argc, char **argv )
                 const uint8_t* destData = destImage.getPixelPointer( buffer );
                 const float quality = _getCompressorQuality( name );
 
-                // last 7 pixels can be unitialized
-                for( uint32_t k = 0; k < size-7; ++k )
+                const uint8_t channelSize = image.getChannelSize( buffer );
+                const size_t nElem = size / channelSize;
+                
+                switch( channelSize )
                 {
-                    const uint8_t channelSize = 
-                            image.getChannelSize( buffer );
-
-                    if( quality < 1.f && channelSize == 2 )
-                    {
-                        EQASSERTINFO( 0, "Not implemented" );
-                        break;
-                    }
-
-                    if( image.ignoreAlpha() && 
-                        buffer == eq::Frame::BUFFER_COLOR )
-                    {
-                        EQASSERT( channelSize == 1 || channelSize == 2 ||
-                                  channelSize == 4 );
-
-                        // Don't test alpha if alpha is ignored
-                        if( ( channelSize == 1 && (k%4)==3 ) ||
-                            ( channelSize == 2 && (k%8)>=6 ) ||
-                            ( channelSize == 4 && (k%16)>=12 ))
-                        {
-                            continue;
-                        }
-                    }
-                        
-                    if( quality < 1.f )
-                    {
-                        float max = 1.f - quality;
-                        if( channelSize == 1 )
-                            max *= 256.f; 
-                            
-                        if( channelSize == 4 )
-                            max *= std::numeric_limits<float>::max();
-
-                        TESTINFO( abs( data[k] - destData[k] ) <= max,
-                                  "the error difference after a compression with loss"
-                                  << " comparing to the quality is too big." );
-                    }
-                    else
-                        TESTINFO( data[k] == destData[k],
-                                  "got " << (int)destData[k] << " expected " <<
-                                  (int)data[k] << " at " << k );
-                }
+                case 1:
+                    _compare< uint8_t >( data, destData, buffer,
+                                         image.ignoreAlpha(), nElem,
+                                         channelSize, quality );
+                    break;
+                case 2:
+		    EQASSERTINFO( quality == 1.f, "Half float test not implemented" );
+                    _compare< uint16_t >( data, destData, buffer,
+                                          image.ignoreAlpha(), nElem,
+                                          channelSize, quality );
+                    break;
+                case 4:
+		    _compare< float >( data, destData, buffer,
+                                       image.ignoreAlpha(), nElem,
+                                       channelSize, quality );
+                    break;
+                default:
+		    break;
+		}
 #endif
             }
 
