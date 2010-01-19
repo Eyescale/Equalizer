@@ -89,19 +89,15 @@ static const float _getCompressorQuality( const uint32_t name )
 template< typename T >
 static void _compare( const void* data, const void* destData,
                       const eq::Frame::Buffer buffer, bool ignoreAlpha,
-                      const size_t nElem, const uint8_t channelSize,
-                      const float quality )
+                      const size_t nElem, const float quality )
 {
+    const T* destValue = reinterpret_cast< const T* >( destData );
+    const T* value = reinterpret_cast< const T* >( data );
+
     for( size_t k = 0; k < nElem; ++k )
     { 
-        const T* destValue = reinterpret_cast< const T* >( destData );
-        const T* value = reinterpret_cast< const T* >( data );
-
         if( ignoreAlpha && buffer == eq::Frame::BUFFER_COLOR )
         {
-            EQASSERT( channelSize == 1 || channelSize == 2 ||
-                      channelSize == 4 );
-
             // Don't test alpha if alpha is ignored
             if( k % 4 == 3 )
                 continue;
@@ -304,18 +300,18 @@ int main( int argc, char **argv )
                 case 1:
                     _compare< uint8_t >( data, destData, buffer,
                                          image.ignoreAlpha(), nElem,
-                                         channelSize, quality );
+                                         quality );
                     break;
                 case 2:
 		    EQASSERTINFO( quality == 1.f, "Half float test not implemented" );
                     _compare< uint16_t >( data, destData, buffer,
                                           image.ignoreAlpha(), nElem,
-                                          channelSize, quality );
+                                          quality );
                     break;
                 case 4:
 		    _compare< float >( data, destData, buffer,
                                        image.ignoreAlpha(), nElem,
-                                       channelSize, quality );
+                                       quality );
                     break;
                 default:
 		    break;
