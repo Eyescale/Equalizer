@@ -58,13 +58,14 @@ int32_t     Global::_iAttributes[IATTR_ALL] =
     1,    // RSP_NACK_DELAY
     5,    // RSP_ERROR_BASE_RATE
     5,    // RSP_ERROR_DOWNSCALE
-    5,    // RSP_ERROR_UPSCALE
+    3,    // RSP_ERROR_UPSCALE
     20,   // RSP_ERROR_MAX
-    4,    // RSP_NUM_BUFFERS
 #ifdef BIG_SEND
+    64,    // RSP_NUM_BUFFERS (4 * UDP_PACKET_RATE)
     65000, // UDP_MTU
     16,    // UDP_PACKET_RATE
 #else
+    512,   // RSP_NUM_BUFFERS (4 * UDP_PACKET_RATE)
     1470,  // UDP_MTU
     128,   // UDP_PACKET_RATE
 #endif

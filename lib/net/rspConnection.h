@@ -22,15 +22,14 @@
 
 #include <eq/net/connectionSet.h> // member
 #include <eq/net/types.h>
+
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>  // member
 #include <eq/base/lfQueue.h> // member
 #include <eq/base/mtQueue.h> // member
 
-#include "udpConnection.h"
-#ifndef WIN32
-#  include "pipeConnection.h"
-#endif
+#include "eventConnection.h" // member
+#include "udpConnection.h"   // member
 
 namespace eq
 {
@@ -63,12 +62,7 @@ namespace net
         uint32_t getID() const { return _id; }
         
         /** @sa Connection::getNotifier */
-        virtual Notifier getNotifier() const 
-#ifdef WIN32
-            { return _hEvent; }
-#else
-            { return _selfPipeHEvent->getNotifier(); }
-#endif
+        virtual Notifier getNotifier() const { return _event->getNotifier(); }
     
     private:
         typedef base::RefPtr< UDPConnection > UDPConnectionPtr;
@@ -148,16 +142,6 @@ namespace net
             uint16_t    sequenceID;
         };
         
-        struct InBuffer
-        {
-            InBuffer() : sequenceID( -1 ){}
-            InBuffer( const InBuffer& from ) : sequenceID( -1 ) {}
-
-            int32_t sequenceID;
-            base::Bufferb got;
-            base::Bufferb data;
-        };
-
         struct WriteDatagramData
         {
             DatagramData    header;
@@ -182,9 +166,6 @@ namespace net
             uint32_t end;
         };
         
-        // Read buffer for one datagram from our UDP connection
-        eq::base::Bufferb _udpBuffer;
-
         // Buffer to send one NACK packet.
         eq::base::Bufferb _nackBuffer;
 
@@ -204,15 +185,8 @@ namespace net
         int32_t  _timeouts;
         uint16_t _ackReceived; // sequence ID of last received ack for child
 
-#ifdef WIN32
-        HANDLE _hEvent;
-#else
-        typedef base::RefPtr< PipeConnection > PipeConnectionPtr;
-        PipeConnectionPtr _selfPipeHEvent;
-
-        /** The buffer to receive commands from Event. */
-        uint8_t _selfCommand;
-#endif
+        typedef base::RefPtr< EventConnection > EventConnectionPtr;
+        EventConnectionPtr _event;
 
         ConnectionSet    _connectionSet;
         bool             _writing;
@@ -224,21 +198,22 @@ namespace net
         RSPConnectionPtr _parent;
         int32_t _lastAck;
         
-        typedef std::vector< InBuffer > InBufferVector;
-        InBufferVector _inBuffers;                 //!< Data buffers
-        base::LFQueue< InBuffer* > _freeBuffers;   //!< Unused data buffers
-        base::MTQueue< InBuffer* > _readBuffers;   //!< Ready data buffers
-        InBuffer* _recvBuffer;                     //!< Receive (thread) buffer
-        InBuffer* _readBuffer;                     //!< Read (app) buffer
-        uint64_t _readBufferPos;                   //!< Current read index
+        typedef base::Bufferb Buffer;
+        typedef std::vector< Buffer* > BufferVector;
 
+        BufferVector _inBuffers;                 //!< Data buffers
+        base::LFQueue< Buffer* > _freeBuffers;   //!< Unused data buffers
+        base::MTQueue< Buffer* > _readBuffers;   //!< Ready data buffers
+        Buffer _recvBuffer;                      //!< Receive (thread) buffer
+        std::deque< Buffer* > _recvBuffers;      //!< out-of-order buffers
+        Buffer* _readBuffer;                     //!< Read (app) buffer
+        uint64_t _readBufferPos;                 //!< Current read index
         // write property part
-        uint32_t _nDatagrams;
-        uint16_t _sequenceID;
+        uint16_t _sequenceID; //!< the next usable (write) or expected (read)
 
         static uint32_t _payloadSize;
         static size_t   _bufferSize;
-        static uint32_t _maxNAck;
+        static int32_t  _maxNAck;
 
         uint16_t _buildNewID();
         
@@ -246,13 +221,15 @@ namespace net
         bool _handleAcceptID();
         /* using directly by the thread to manage RSP */
         bool _handleData( );
-        bool _handleDataDatagram( const DatagramData* datagram );
+        bool _handleDataDatagram( Buffer& buffer );
         bool _handleAck( const DatagramAck* ack );
         bool _handleNack( const DatagramNack* nack );
         bool _handleAckRequest( const DatagramAckRequest* ackRequest );
 
         /** @return true if we knew the correct number of connections. */
         bool _handleCountNode();
+
+        Buffer* _newDataBuffer( Buffer& inBuffer );
 
         /** Initialize the reader thread */
         bool _initReadThread();
@@ -281,7 +258,7 @@ namespace net
         void _sendDatagramCountNode();
 
         void _handleRepeat( const uint8_t* data, const uint64_t size );
-        void _addRepeat( const uint32_t* repeatIDs, uint32_t size );
+        void _addRepeat( const uint16_t* repeatIDs, uint16_t size );
 
         /** format and send a data packet*/
         void _sendDatagram( const uint8_t* data, const uint64_t size,
@@ -295,16 +272,13 @@ namespace net
         
         /** format and send a negative ack*/ 
         void _sendNack( const uint16_t toWriterID, const uint16_t sequenceID,
-                        const uint8_t countNack, const uint32_t* repeatID   );
+                        const uint16_t countNack, const uint16_t* nacks );
         
         void _checkNewID( const uint16_t id );
 
         /* add a new connection detected in the multicast network */
         bool _addNewConnection( const uint16_t id );
         bool _removeConnection( const uint16_t id );
-
-        void _setEvent();
-        void _resetEvent();
 
         CHECK_THREAD_DECLARE( _recvThread );
  

@@ -1,9 +1,20 @@
-Add missing files
+RSP:
+- use new event connection for signalling
+- remove intermediate read packet buffers
+  o directly dispatch received datagrams to app thread 
+  o increase number of packet buffers
+- rework acks and sequence id handling
+  o in-order packets directly increase connection->_sequenceID
+  o out-of-order packets are temporarly stored
+  o ack request handling used _sequenceID and current ooo store
+
+Issue: Due to high packet rate on Posix (~70k @ 100MB/s) we are now
+limited by the performance of the reader->app queue.
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
