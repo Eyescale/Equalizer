@@ -955,7 +955,8 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     EQASSERTINFO( static_cast<uint64_t>( nDatagrams ) <= buffer->got.getSize(),
                   nDatagrams << " > " << buffer->got.getSize( ));
 
-    uint32_t repeats[ _ackFreq ];
+    uint32_t* repeats = static_cast< uint32_t* >( 
+                                    alloca( _ackFreq * sizeof( uint32_t )));
     size_t num = 0;
 
     for( int32_t i = 0; i < nDatagrams; ++i )
