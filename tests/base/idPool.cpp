@@ -18,6 +18,7 @@
 #include <test.h>
 #include <eq/base/idPool.h>
 #include <eq/base/rng.h>
+#include <eq/base/init.h>
 
 #include <stdlib.h>
 #include <iostream>
@@ -25,6 +26,8 @@
 #define NLOOPS 10000
 int main( int argc, char **argv )
 {
+    TEST( eq::base::init( ));
+
     eq::base::IDPool pool( eq::base::IDPool::MAX_CAPACITY );
     size_t nLoops = NLOOPS;
     eq::base::RNG rng;
@@ -42,6 +45,8 @@ int main( int argc, char **argv )
         pool.freeIDs( id, range );
     }
     EQINFO << NLOOPS / clock.getTimef() << " ops/ms" << std::endl;
+
+    TEST( eq::base::exit( ));
     return EXIT_SUCCESS;
 }
 

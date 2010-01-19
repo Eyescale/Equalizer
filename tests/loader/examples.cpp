@@ -22,11 +22,14 @@
 #include "../../server/server.h"
 
 #include <eq/base/file.h>
+#include <eq/base/init.h>
 
 // Tests loading of all examples/configs/*.eqc files
 
 int main( int argc, char **argv )
 {
+    TEST( eq::base::init( ));
+
     eq::server::Loader loader;
     eq::base::StringVector candidates = 
         eq::base::searchDirectory( "../../examples/configs", "*.eqc" );
@@ -46,5 +49,6 @@ int main( int argc, char **argv )
                   global->getConfigFAttribute( attr ));
     }
 
+    TEST( eq::base::exit( ));
     return EXIT_SUCCESS;
 }

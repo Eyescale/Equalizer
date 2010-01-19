@@ -20,6 +20,7 @@
 #include <test.h>
 #include <eq/base/thread.h>
 #include <eq/base/uuid.h>
+#include <eq/base/init.h>
 
 #define N_UUIDS 10000
 #define N_THREADS 10
@@ -47,6 +48,8 @@ public:
 
 int main( int argc, char **argv )
 {
+    TEST( eq::base::init( ));
+
     // basic tests
     eq::base::UUID id1( true );
     eq::base::UUID id2( true );
@@ -108,5 +111,6 @@ int main( int argc, char **argv )
         }
     }
 
+    TEST( eq::base::exit( ));
     return EXIT_SUCCESS;
 }

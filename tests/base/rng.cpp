@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,7 @@
 // Tests the functionality of the random number generator
 
 #include <test.h>
+#include <eq/base/init.h>
 #include <eq/base/rng.h>
 
 using namespace eq::base;
@@ -47,6 +48,8 @@ using namespace eq::base;
 
 int main( int argc, char **argv )
 {
+    TEST( eq::base::init( ));
+
     RNG rng;
 
     unsigned i;
@@ -63,5 +66,6 @@ int main( int argc, char **argv )
     TESTLOOP( float,  0.1f, 0.9f );
     TESTLOOP( double, 0.1,  0.9 );
 
+    TEST( eq::base::exit( ));
     return EXIT_SUCCESS;
 }
