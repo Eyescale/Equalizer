@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -222,6 +223,17 @@ namespace eq
             }
 
         uint32_t nodeID;
+    };
+
+    struct ConfigChangeLatency : public ConfigPacket
+    {
+        ConfigChangeLatency()
+            {
+                command = CMD_CONFIG_CHANGE_LATENCY;
+                size    = sizeof( ConfigChangeLatency );
+            }
+
+        uint32_t latency;
     };
 
     struct ConfigDestroyNodePacket : public ConfigPacket

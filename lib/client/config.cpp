@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -492,6 +493,41 @@ uint32_t Config::finishAllFrames()
     handleEvents();
     EQLOG( base::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
     return _currentFrame;
+}
+
+namespace
+{
+class ChangeLatencyVisitor : public ConfigVisitor
+{
+public:
+    ChangeLatencyVisitor( const uint32_t latency ) : _latency( latency ){}
+    virtual ~ChangeLatencyVisitor() {}
+
+    VisitorResult visit( eq::View* view )
+    {
+        view->setAutoObsolete( _latency );
+        return TRAVERSE_CONTINUE;    
+    }
+
+private:
+    const uint32_t _latency; 
+};
+}
+
+void Config::changeLatency( const uint32_t latency )
+{
+    finishAllFrames();
+    _latency = latency;
+    
+
+    // send latency to the server
+    ConfigChangeLatency packet;
+    packet.latency = latency;
+    send( packet );
+
+    // update views
+    ChangeLatencyVisitor changeLatency( latency );
+    accept( changeLatency );
 }
 
 void Config::sendEvent( ConfigEvent& event )

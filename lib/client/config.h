@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -90,6 +91,7 @@ namespace eq
          */
         uint32_t getLatency() const { return _latency; }
 
+        EQ_EXPORT void changeLatency( const uint32_t latency );
         /**
          * @return the vector of nodes instantiated on this process.
          * @version 1.0
@@ -349,6 +351,9 @@ namespace eq
 
     protected:
 
+        /** The maximum number of outstanding frames. */
+        uint32_t _latency;
+        
         /** @internal */
         //@{
         /** @internal */
@@ -393,9 +398,6 @@ namespace eq
         /** Global statistics events, index per frame and channel. */
         std::deque< FrameStatistics > _statistics;
         base::Lock                    _statisticsMutex;
-
-        /** The maximum number of outstanding frames. */
-        uint32_t _latency;
 
         /** The last started frame. */
         uint32_t _currentFrame;

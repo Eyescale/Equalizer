@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -399,7 +400,7 @@ namespace server
         CompoundVector _compounds;
 
         /** The reason for the last error. */
-        std::string            _error;
+        std::string _error;
 
         /** The name of the application. */
         std::string _appName;
@@ -471,6 +472,7 @@ namespace server
         net::CommandResult _cmdCreateReply( net::Command& command );
         net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
         net::CommandResult _cmdUnmapReply( net::Command& command );
+        net::CommandResult _cmdChangeLatency( net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Config* config );

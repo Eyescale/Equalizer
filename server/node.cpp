@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>    
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -533,6 +534,17 @@ net::Barrier* Node::getBarrier()
     _barriers.pop_back();
     barrier->setHeight(0);
     return barrier;
+}
+
+void Node::changeLatency( const uint32_t latency )
+{
+    for( std::vector< net::Barrier* >::const_iterator i =_barriers.begin(); 
+         i != _barriers.end(); ++ i )
+    {
+        net::Barrier* barrier = *i;
+        barrier->setAutoObsolete( latency + 1, 
+                                  Object::AUTO_OBSOLETE_COUNT_VERSIONS );
+    }
 }
 
 void Node::releaseBarrier( net::Barrier* barrier )

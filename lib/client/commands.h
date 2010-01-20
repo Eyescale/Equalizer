@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder  <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -75,6 +76,7 @@ namespace eq
         CMD_CONFIG_SYNC_CLOCK,
         CMD_CONFIG_UNMAP,
         CMD_CONFIG_UNMAP_REPLY,
+        CMD_CONFIG_CHANGE_LATENCY,
         CMD_CONFIG_FILL1, // some buffer for binary-compatible patches
         CMD_CONFIG_FILL2,
         CMD_CONFIG_FILL3,

@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +20,7 @@
 #include "config.h"
 
 #include "canvas.h"
+#include "changeLatencyVisitor.h"
 #include "compound.h"
 #include "compoundVisitor.h"
 #include "configUpdateDataVisitor.h"
@@ -216,6 +218,9 @@ void Config::notifyMapped( net::NodePtr node )
     registerCommand( eq::CMD_CONFIG_UNMAP_REPLY,
                      ConfigFunc( this, &Config::_cmdUnmapReply ), 
                      commandQueue );
+    registerCommand( eq::CMD_CONFIG_CHANGE_LATENCY, 
+                     ConfigFunc( this, &Config::_cmdChangeLatency ), 
+                     serverQueue );
 }
 
 void Config::addNode( Node* node )
@@ -1344,6 +1349,20 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
 
     FreezeVisitor visitor( packet->freeze );
     accept( visitor );
+
+    return net::COMMAND_HANDLED;
+}
+
+net::CommandResult Config::_cmdChangeLatency( net::Command& command )
+{
+    const eq::ConfigChangeLatency* packet = 
+        command.getPacket<eq::ConfigChangeLatency>();
+
+    _latency = packet->latency;
+
+    // update latency on all frame and barrier
+    ChangeLatencyVisitor changeLatency( _latency );
+    accept( changeLatency );
 
     return net::COMMAND_HANDLED;
 }
