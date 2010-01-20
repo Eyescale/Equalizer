@@ -224,7 +224,7 @@ namespace net
         uint16_t _buildNewID();
         
         bool _acceptID();
-        bool _handleAcceptID();
+        void _handleAcceptID();
 
         int32_t _handleWrite(); //!< @return time to call again
         void _finishWriteQueue();
@@ -245,7 +245,7 @@ namespace net
         /* Run the reader thread */
         void _runThread();
         
-        bool _handleInitData();
+        void _handleInitData();
         
         void _initAIOAccept(){ _initAIORead(); }
         void _exitAIOAccept(){ _exitAIORead(); }
@@ -277,8 +277,8 @@ namespace net
         void _checkNewID( const uint16_t id );
 
         /* add a new connection detected in the multicast network */
-        bool _addNewConnection( const uint16_t id );
-        bool _removeConnection( const uint16_t id );
+        void _addNewConnection( const uint16_t id );
+        void _removeConnection( const uint16_t id );
 
         CHECK_THREAD_DECLARE( _recvThread );
  

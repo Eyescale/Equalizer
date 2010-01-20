@@ -272,9 +272,6 @@ ConnectionPtr RSPConnection::acceptSync()
 int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
 {
     EQASSERT( _state == STATE_CONNECTED );
-#ifdef EQ_INSTRUMENT_RSP
-    base::Clock clock;
-#endif
 
     uint64_t bytesLeft = bytes;
     uint8_t* ptr = reinterpret_cast< uint8_t* >( buffer );
@@ -363,13 +360,13 @@ bool RSPConnection::_acceptID()
                 break;
 
             case ConnectionSet::EVENT_DATA:
-                if( !_handleAcceptID() )
+                if( _connection->readSync( _recvBuffer.getData(), _mtu ) == -1 )
                 {
-                    EQERROR << " Error during Read UDP Connection" 
-                            << std::endl;
+                    EQERROR << "Error read on Connection UDP" << std::endl;
                     return false;
                 }
 
+                _handleAcceptID();
                 _connection->readNB( _recvBuffer.getData(), _mtu );
                 break;
 
@@ -380,24 +377,16 @@ bool RSPConnection::_acceptID()
     }
 }
 
-bool RSPConnection::_handleAcceptID()
+void RSPConnection::_handleAcceptID()
 {
-    // read datagram 
     void* data = _recvBuffer.getData();
-    if( _connection->readSync( data, _mtu ) == -1 )
-    {
-        EQERROR << "Error read on Connection UDP" << std::endl;
-        return false;
-    }
-
-    // read datagram type
     const uint16_t type = *reinterpret_cast< uint16_t* >( data );
     const DatagramNode* node = reinterpret_cast< const DatagramNode* >( data );
     switch( type )
     {
         case ID_HELLO:
             _checkNewID( node->connectionID );
-            return true;
+            return;
 
         case ID_DENY:
             // a connection refused my ID, try another ID
@@ -408,15 +397,14 @@ bool RSPConnection::_handleAcceptID()
                 EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
                 _connection->write( &newnode, sizeof( DatagramNode ));
             }
-            return true;
+            return;
 
         case ID_EXIT:
-            return _removeConnection( node->connectionID );
+            _removeConnection( node->connectionID );
+            return;
 
         default: break;    
     }
-
-    return true;
 }
 
 bool RSPConnection::_initThread()
@@ -437,13 +425,13 @@ bool RSPConnection::_initThread()
                 break;
 
             case ConnectionSet::EVENT_DATA:
-                if ( !_handleInitData() )
+                if( _connection->readSync( _recvBuffer.getData(), _mtu ) == -1 )
                 {
-                    EQERROR << " Error during Read UDP Connection" 
-                            << std::endl;
+                    EQERROR << "Read error" << std::endl;
                     return false;
                 }
 
+                _handleInitData();
                 _connection->readNB( _recvBuffer.getData(), _mtu );
                 break;
 
@@ -454,17 +442,9 @@ bool RSPConnection::_initThread()
     }
 }
 
-bool RSPConnection::_handleInitData()
+void RSPConnection::_handleInitData()
 {
-    // read datagram 
     void* data = _recvBuffer.getData();
-    if( _connection->readSync( data, _mtu ) == -1 )
-    {
-        EQERROR << "Read error" << std::endl;
-        return false;
-    }
-
-    // read datagram type
     const uint16_t type = *reinterpret_cast< uint16_t* >( data );
     const DatagramNode* node = reinterpret_cast< const DatagramNode* >( data );
     switch( type )
@@ -472,11 +452,12 @@ bool RSPConnection::_handleInitData()
         case ID_HELLO:
             _timeouts = 0;
             _checkNewID( node->connectionID ) ;
-            return true;
+            return;
 
         case ID_CONFIRM:
             _timeouts = 0;
-            return _addNewConnection( node->connectionID );
+            _addNewConnection( node->connectionID );
+            return;
 
         case COUNTNODE:
             if( _handleCountNode( ))
@@ -486,14 +467,13 @@ bool RSPConnection::_handleInitData()
             break;
     
         case ID_EXIT:
-            return _removeConnection( node->connectionID );
+            _removeConnection( node->connectionID );
+            return;
 
         default:
             EQUNIMPLEMENTED;
             break;
     }
-    
-    return true;
 }
 
 void* RSPConnection::Thread::run()
@@ -543,10 +523,13 @@ void RSPConnection::_runThread()
 
             case ConnectionSet::EVENT_DATA:
             {
-#ifdef EQ_INSTRUMENT_RSP
-                base::Clock clock;
-#endif            
-                if ( !_handleData() )
+                if( _connection->readSync( _recvBuffer.getData(), _mtu ) == -1 )
+                {
+                    EQERROR << "UDP read error" << std::endl;
+                    return;
+                }
+
+                if( !_handleData() )
                     return;
 
                 _connection->readNB( _recvBuffer.getData(), _mtu );
@@ -593,10 +576,10 @@ int32_t RSPConnection::_handleWrite()
     _connection->write ( header, size );
     // Note: the data to myself will be 'written' in _finishWriteQueue once
     // we've got all other acks
+
 #ifdef EQ_INSTRUMENT_RSP
     ++nTotalDatagrams;
 #endif
-
 
     // save datagram for repeats
     _writeBuffers.push_back( buffer );
@@ -693,7 +676,7 @@ void RSPConnection::_finishWriteQueue()
             reinterpret_cast< const DatagramData* >( buffer->getData( ));
         EQASSERT( datagram->writerID == _id );;
         EQASSERT( datagram->sequenceID == connection->_sequenceID );
-        EQLOG( LOG_RSP ) << "receive data from " << _id << " sequence "
+        EQLOG( LOG_RSP ) << "receive data from self, sequence "
                          << datagram->sequenceID << std::endl;
 
 #endif
@@ -736,27 +719,14 @@ void RSPConnection::_finishWriteQueue()
 }
 
 
-bool RSPConnection::_handleData( )
+bool RSPConnection::_handleData()
 {
-    // read datagram 
     void* data = _recvBuffer.getData();
-    if( _connection->readSync( data, _mtu ) == -1 )
-    {
-        EQERROR << "Error reading from on UDP connection" << std::endl;
-        return false;
-    }
-
-    // read datagram type
     const uint16_t type = *reinterpret_cast< uint16_t* >( data );
     switch( type )
     {
         case DATA:
-        {
-#ifdef EQ_INSTRUMENT_RSP
-            base::Clock clock;
-#endif
             return _handleDataDatagram( _recvBuffer );
-        }
 
         case ACK:
             return _handleAck( reinterpret_cast< const DatagramAck* >( data )) ;
@@ -773,26 +743,28 @@ bool RSPConnection::_handleData( )
             const DatagramNode* node =
                 reinterpret_cast< const DatagramNode* >( data );
             _checkNewID( node->connectionID );
-            return true;
+            break;
         }
 
         case ID_CONFIRM:
         {
             const DatagramNode* node =
                 reinterpret_cast< const DatagramNode* >( data );
-            return _addNewConnection( node->connectionID );
+            _addNewConnection( node->connectionID );
+            break;
         }
 
         case ID_EXIT:
         {
             const DatagramNode* node = 
                 reinterpret_cast< const DatagramNode* >( data );
-            return _removeConnection( node->connectionID );
+            _removeConnection( node->connectionID );
+            break;
         }
 
         case COUNTNODE:
             _handleCountNode();
-            return true;
+            break;;
 
         default: 
             EQUNIMPLEMENTED;
@@ -838,6 +810,7 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
 
     EQLOG( LOG_RSP ) << "receive data from " << writerID << " sequence "
                      << sequenceID << std::endl;
+    EQASSERT( writerID != connection->_id );
 
     if( connection->_sequenceID == sequenceID ) // standard case
     {
@@ -852,7 +825,7 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
         ++connection->_sequenceID;
         connection->_appBuffers.push( newBuffer );
 
-        while( !connection->_recvBuffers.empty( )) // queue ready pending data
+        while( !connection->_recvBuffers.empty( )) // enqueue ready pending data
         {
             newBuffer = connection->_recvBuffers.front();
             if( !newBuffer )
@@ -990,6 +963,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     }
 
     EQLOG( LOG_RSP ) << "Got all remote acks " << _sequenceID << std::endl;
+    _repeatQueue.clear();
     _finishWriteQueue();
     return true;
 }
@@ -1023,7 +997,9 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
     {
         EQASSERT( connection->_ackReceived >= nack->sequenceID ||
                   connection->_ackReceived < _ackFreq );
-        EQLOG( LOG_RSP ) << "ignore nack, already got an ack" << std::endl;
+        EQLOG( LOG_RSP ) << "ignore nack for sequence " << nack->sequenceID
+                         << ", already got ack" << connection->_ackReceived
+                         << std::endl;
         return true;
     }
 
@@ -1231,10 +1207,10 @@ RSPConnection::RSPConnectionPtr RSPConnection::_findConnection(
 }
 
 
-bool RSPConnection::_addNewConnection( const uint16_t id )
+void RSPConnection::_addNewConnection( const uint16_t id )
 {
     if( _findConnection( id ).isValid() )
-        return true;
+        return;
 
     RSPConnection* connection = new RSPConnection();
     connection->_connection   = 0;
@@ -1250,10 +1226,9 @@ bool RSPConnection::_addNewConnection( const uint16_t id )
     }
 
     _sendDatagramCountNode();
-    return true;
 }
 
-bool RSPConnection::_removeConnection( const uint16_t id )
+void RSPConnection::_removeConnection( const uint16_t id )
 {
     EQWARN << "remove connection " << id << std::endl;
 
@@ -1278,8 +1253,6 @@ bool RSPConnection::_removeConnection( const uint16_t id )
         _children[0]->close();
         _children.clear();
     }
-
-    return true;
 }
 
 int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
@@ -1296,7 +1269,6 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
         return -1;
 
 #ifdef EQ_INSTRUMENT_RSP
-    base::Clock clock;
     nBytesWritten += bytes;
 #endif
     // compute number of datagrams

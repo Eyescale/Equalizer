@@ -395,26 +395,29 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
 
     const size_t use = EQ_MIN( static_cast< size_t >( _mtu ), bytes );
     socklen_t size = sizeof( _readAddress );
-    const ssize_t bytesRead = ::recvfrom( _readFD, buffer, use, 0,
-                                          (sockaddr*)&_readAddress, &size );
-    if( bytesRead == 0 ) // EOF
+    while( true )
     {
-        EQINFO << "Got EOF, closing connection" << std::endl;
-        close();
-        return -1;
+        const ssize_t bytesRead = ::recvfrom( _readFD, buffer, use, 0,
+                                              (sockaddr*)&_readAddress, &size );
+        if( bytesRead == 0 ) // EOF
+        {
+            EQINFO << "Got EOF, closing connection" << std::endl;
+            close();
+            return -1;
+        }
+
+        if( bytesRead == -1 ) // error
+        {
+            if( errno == EINTR ) // if interrupted, try again
+                continue;
+
+            EQWARN << "Error during read: " << strerror( errno ) << ", " 
+                   << bytes << "b on fd " << _readFD << std::endl;
+            return -1;
+        }
+
+        return bytesRead;
     }
-
-    if( bytesRead == -1 ) // error
-    {
-        if( errno == EINTR ) // if interrupted, try again
-            return 0;
-
-        EQWARN << "Error during read: " << strerror( errno ) << ", " 
-               << bytes << "b on fd " << _readFD << std::endl;
-        return -1;
-    }
-
-    return bytesRead;
 #endif
 }
 
