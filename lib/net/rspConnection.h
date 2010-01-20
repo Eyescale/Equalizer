@@ -254,10 +254,6 @@ namespace net
 
         /** find the connection corresponding to the identifier */
         RSPConnectionPtr _findConnection( const uint16_t id );
-        /** determine if the sequenceID and writerID correspond to 
-            the current sequence which will written */
-        bool _isCurrentSequence( const uint16_t sequenceID, 
-                                 const uint16_t writer );
         
         /** Analyze the current error and adapt the send rate */
         void _adaptSendRate( const size_t nPackets, const size_t errors );

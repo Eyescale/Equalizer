@@ -639,7 +639,9 @@ void RSPConnection::_handleRepeat()
     RepeatRequest& request = _repeatQueue.front(); 
     EQASSERT( request.start <= request.end );
     EQASSERT( request.end < _sequenceID );
-    EQASSERT( request.start <= _sequenceID - _writeBuffers.size( ));
+    EQASSERTINFO( request.start >= _sequenceID - _writeBuffers.size(),
+                  request.start << ", " << _sequenceID << ", " <<
+                  _writeBuffers.size( ));
 
     EQLOG( LOG_RSP ) << "Repeat datagram " << request.start << std::endl;
 
@@ -966,7 +968,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
 
     // ignore sequenceID which is different from my write sequence id
     //  Reason : - repeated, late ack or an ack for another writer
-    if( !_isCurrentSequence( ack->sequenceID, ack->writerID ) )
+    if( _id != ack->writerID || _sequenceID - 1 != ack->sequenceID )
     {
         EQLOG( LOG_RSP ) << "ignore ack " << ack->sequenceID << " for "
                          << ack->writerID << ", it's not for me (" 
@@ -1002,7 +1004,7 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
                      << nack->writerID << " sequence " << nack->sequenceID
                      << std::endl;
 
-    if( !_isCurrentSequence( nack->sequenceID, nack->writerID ) )
+    if( _id != nack->writerID )
     {
         EQLOG( LOG_RSP ) << "ignore nack, it's not for me" << std::endl;
         return true;
@@ -1016,15 +1018,16 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
         // it's an unknown connection, TODO add this connection?
     }
 
-    if( connection->_ackReceived == nack->sequenceID )
+    if( connection->_ackReceived >= nack->sequenceID ||
+        nack->sequenceID - connection->_ackReceived > 16384 )
     {
+        EQASSERT( connection->_ackReceived >= nack->sequenceID ||
+                  connection->_ackReceived < _ackFreq );
         EQLOG( LOG_RSP ) << "ignore nack, already got an ack" << std::endl;
         return true;
     }
 
     _timeouts = 0;
-
-    EQLOG( LOG_RSP ) << "Queue data repeat request" << std::endl;
     _addRepeat( reinterpret_cast< const uint16_t* >( nack + 1 ), nack->count );
     return true;
 }
@@ -1032,12 +1035,15 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
 void RSPConnection::_addRepeat( const uint16_t* nacks, uint16_t num )
 {
     size_t nErrors = 0;
+    EQLOG( LOG_RSP ) << base::disableFlush << "Queue repeat requests ";
 
     for( size_t i = 0; i < num; ++i )
     {
         RepeatRequest request;
         request.start = nacks[ i * 2 ];
         request.end   = nacks[ i * 2 + 1 ];
+        EQLOG( LOG_RSP ) << request.start << ".." << request.end << " ";
+
         EQASSERT( request.start <= request.end );
         EQASSERT( request.end - request.start + 1 <= _writeBuffers.size( ));
 
@@ -1059,6 +1065,7 @@ void RSPConnection::_addRepeat( const uint16_t* nacks, uint16_t num )
         if( !merged )
             _repeatQueue.push_back( request );
     }
+    EQLOG( LOG_RSP ) << std::endl << base::enableFlush;
 
     _adaptSendRate( _writeBuffers.size(), nErrors );
 }
@@ -1273,24 +1280,6 @@ bool RSPConnection::_removeConnection( const uint16_t id )
     }
 
     return true;
-}
-
-bool RSPConnection::_isCurrentSequence( uint16_t sequenceID, uint16_t writer )
-{
-    if( writer != _id )
-        return false;
-
-    if( _sequenceID <= sequenceID )
-        return ( (sequenceID - _sequenceID) < 16384 ); // no reset?
-
-    if( sequenceID < 16384 ) // reset during current write
-    {
-        EQASSERTINFO( _sequenceID > 16384, _sequenceID );
-        return true;
-    }
-
-    EQUNREACHABLE;
-    return false;
 }
 
 int64_t RSPConnection::write( const void* inData, const uint64_t bytes )

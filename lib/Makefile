@@ -284,6 +284,7 @@ CXXFILES = \
 	compressor/compressorRLE4B.cpp \
 	compressor/compressorRLE4BU.cpp \
 	compressor/compressorRLE565.cpp \
+	compressor/compressorRLE10A2.cpp \
 	compressor/compressorRLE4HF.cpp
 
 SHADERS = \

@@ -1,21 +1,9 @@
-RSP: Move writing to protocol thread, i.e., buffered writes
-- Datagram packets are prepared in app thread
-  o Data is copied here into packet
-  o Blocking happens on 'empty buffer' queue
-- Protocol thread writes one packet at a time
-  o combines multiple writes (up to _ackFreq)
-  o posts empty buffer back to app
-- buffers are moved to _appBuffers in listen, to _threadBuffers in accept
-  o Listening connections communicate writes from app->thread
-  o Connected connections communicate reads from thread->app
-- Remove unused timing stats
+RSP: fix most glaring bugs with two nodes.
 
-Needs testing
-
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
-[x] Optimization
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation
