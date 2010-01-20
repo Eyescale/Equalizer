@@ -68,7 +68,7 @@ namespace net
         typedef base::RefPtr< UDPConnection > UDPConnectionPtr;
         typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
         
-        /* managing RSP protocole directly on the udp connection */
+        /* manages RSP protocol directly using the udp connection */
         class Thread : public eq::base::Thread
         {
         public: 
@@ -76,10 +76,10 @@ namespace net
                 : _connection( connection ){}
             virtual ~Thread(){ _connection = 0; }
             virtual bool init(){ return _connection->_acceptID() && 
-                                        _connection->_initReadThread(); }
+                                        _connection->_initThread(); }
         protected:
-            
             virtual void* run();
+            
         private:
             RSPConnectionPtr _connection;
         };
@@ -178,38 +178,44 @@ namespace net
         // number connection accepted by server RSP 
         base::a_int32_t _countAcceptChildren;
         
-        eq::base::MTQueue< RepeatRequest > _repeatQueue;
-
         uint16_t _id; //!< The identifier used to demultiplex multipe writers
         
-        int32_t  _timeouts;
-        uint16_t _ackReceived; // sequence ID of last received ack for child
+        int32_t _timeouts;
 
         typedef base::RefPtr< EventConnection > EventConnectionPtr;
         EventConnectionPtr _event;
 
         ConnectionSet    _connectionSet;
-        bool             _writing;
         uint32_t         _numWriteAcks;
         Thread*          _thread;
         UDPConnectionPtr _connection;
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
         RSPConnectionPtr _parent;
-        int32_t _lastAck;
-        
+
+        int32_t _ackReceived;  // sequence ID of last received/send ack
+        int32_t _lastAck; // sequence ID of last confirmed ack
+        bool _ackSend;    // ack exchange in progress
+
         typedef base::Bufferb Buffer;
         typedef std::vector< Buffer* > BufferVector;
 
-        BufferVector _inBuffers;                 //!< Data buffers
-        base::LFQueue< Buffer* > _freeBuffers;   //!< Unused data buffers
-        base::MTQueue< Buffer* > _readBuffers;   //!< Ready data buffers
+        BufferVector _buffers;                   //!< Data buffers
+        /** Empty read buffers (connected) or write buffers (listening) */
+        base::LFQueue< Buffer* > _threadBuffers;
+        /** Ready data buffers (connected) or empty write buffers (listening) */
+        base::MTQueue< Buffer* > _appBuffers;
+
         Buffer _recvBuffer;                      //!< Receive (thread) buffer
         std::deque< Buffer* > _recvBuffers;      //!< out-of-order buffers
+
         Buffer* _readBuffer;                     //!< Read (app) buffer
         uint64_t _readBufferPos;                 //!< Current read index
+
         // write property part
         uint16_t _sequenceID; //!< the next usable (write) or expected (read)
+        BufferVector _writeBuffers;   //!< Write buffers in flight
+        std::deque< RepeatRequest > _repeatQueue; //!< nacks to repeat
 
         static uint32_t _payloadSize;
         static size_t   _bufferSize;
@@ -219,7 +225,9 @@ namespace net
         
         bool _acceptID();
         bool _handleAcceptID();
-        /* using directly by the thread to manage RSP */
+
+        int32_t _handleWrite(); //!< @return time to call again
+        void _finishWriteQueue();
         bool _handleData( );
         bool _handleDataDatagram( Buffer& buffer );
         bool _handleAck( const DatagramAck* ack );
@@ -232,10 +240,10 @@ namespace net
         Buffer* _newDataBuffer( Buffer& inBuffer );
 
         /** Initialize the reader thread */
-        bool _initReadThread();
+        bool _initThread();
 
         /* Run the reader thread */
-        void _runReadThread();
+        void _runThread();
         
         bool _handleInitData();
         
@@ -257,12 +265,8 @@ namespace net
         /** format and send a datagram count node */
         void _sendDatagramCountNode();
 
-        void _handleRepeat( const uint8_t* data, const uint64_t size );
+        void _handleRepeat();
         void _addRepeat( const uint16_t* repeatIDs, uint16_t size );
-
-        /** format and send a data packet*/
-        void _sendDatagram( const uint8_t* data, const uint64_t size,
-                            const uint16_t which );
 
         /** format and send an ack request*/
         void _sendAckRequest( const uint16_t sequenceID );
