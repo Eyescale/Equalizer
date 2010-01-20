@@ -80,7 +80,7 @@
 #define __glew_h__
 #define __GLEW_H__
 
-#if defined(__gl_h_) || defined(__GL_H__)
+#if defined(__gl_h_) || defined(__GL_H__) || defined(__X_GL_H)
 #error gl.h included before glew.h
 #endif
 #if defined(__glext_h_) || defined(__GLEXT_H_)
@@ -92,6 +92,7 @@
 
 #define __gl_h_
 #define __GL_H__
+#define __X_GL_H
 #define __glext_h_
 #define __GLEXT_H_
 #define __gl_ATI_h_
@@ -5095,6 +5096,19 @@ typedef void (GLAPIENTRY * PFNGLSTENCILOPSEPARATEATIPROC) (GLenum face, GLenum s
 
 #endif /* GL_ATI_texture_compression_3dc */
 
+/* ---------------------- GL_ATI_texture_env_combine3 ---------------------- */
+
+#ifndef GL_ATI_texture_env_combine3
+#define GL_ATI_texture_env_combine3 1
+
+#define GL_MODULATE_ADD_ATI 0x8744
+#define GL_MODULATE_SIGNED_ADD_ATI 0x8745
+#define GL_MODULATE_SUBTRACT_ATI 0x8746
+
+#define GLEW_ATI_texture_env_combine3 GLEW_GET_VAR(__GLEW_ATI_texture_env_combine3)
+
+#endif /* GL_ATI_texture_env_combine3 */
+
 /* -------------------------- GL_ATI_texture_float ------------------------- */
 
 #ifndef GL_ATI_texture_float
@@ -6085,7 +6099,6 @@ typedef void (GLAPIENTRY * PFNGLVERTEXARRAYVERTEXOFFSETEXTPROC) (GLuint vaobj, G
 #define glVertexArrayVertexAttribIOffsetEXT GLEW_GET_FUN(__glewVertexArrayVertexAttribIOffsetEXT)
 #define glVertexArrayVertexAttribOffsetEXT GLEW_GET_FUN(__glewVertexArrayVertexAttribOffsetEXT)
 #define glVertexArrayVertexOffsetEXT GLEW_GET_FUN(__glewVertexArrayVertexOffsetEXT)
-#define glparameters GLEW_GET_FUN(__glewparameters)
 
 #define GLEW_EXT_direct_state_access GLEW_GET_VAR(__GLEW_EXT_direct_state_access)
 
@@ -6673,7 +6686,7 @@ typedef void (GLAPIENTRY * PFNGLTEXTUREMATERIALEXTPROC) (GLenum face, GLenum mod
 #ifndef GL_EXT_multi_draw_arrays
 #define GL_EXT_multi_draw_arrays 1
 
-typedef void (GLAPIENTRY * PFNGLMULTIDRAWARRAYSEXTPROC) (GLenum mode, const GLint* first, const GLsizei *count, GLsizei primcount);
+typedef void (GLAPIENTRY * PFNGLMULTIDRAWARRAYSEXTPROC) (GLenum mode, GLint* first, GLsizei *count, GLsizei primcount);
 typedef void (GLAPIENTRY * PFNGLMULTIDRAWELEMENTSEXTPROC) (GLenum mode, GLsizei* count, GLenum type, const GLvoid **indices, GLsizei primcount);
 
 #define glMultiDrawArraysEXT GLEW_GET_FUN(__glewMultiDrawArraysEXT)
@@ -13029,6 +13042,7 @@ GLEW_VAR_EXPORT GLboolean __GLEW_ATI_separate_stencil;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_shader_texture_lod;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_text_fragment_shader;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_texture_compression_3dc;
+GLEW_VAR_EXPORT GLboolean __GLEW_ATI_texture_env_combine3;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_texture_float;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_texture_mirror_once;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_vertex_array_object;

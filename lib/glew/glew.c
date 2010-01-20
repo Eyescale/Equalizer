@@ -2135,6 +2135,7 @@ GLboolean __GLEW_ATI_separate_stencil = GL_FALSE;
 GLboolean __GLEW_ATI_shader_texture_lod = GL_FALSE;
 GLboolean __GLEW_ATI_text_fragment_shader = GL_FALSE;
 GLboolean __GLEW_ATI_texture_compression_3dc = GL_FALSE;
+GLboolean __GLEW_ATI_texture_env_combine3 = GL_FALSE;
 GLboolean __GLEW_ATI_texture_float = GL_FALSE;
 GLboolean __GLEW_ATI_texture_mirror_once = GL_FALSE;
 GLboolean __GLEW_ATI_vertex_array_object = GL_FALSE;
@@ -3968,6 +3969,10 @@ static GLboolean _glewInit_GL_ATI_separate_stencil (GLEW_CONTEXT_ARG_DEF_INIT)
 #ifdef GL_ATI_texture_compression_3dc
 
 #endif /* GL_ATI_texture_compression_3dc */
+
+#ifdef GL_ATI_texture_env_combine3
+
+#endif /* GL_ATI_texture_env_combine3 */
 
 #ifdef GL_ATI_texture_float
 
@@ -7246,6 +7251,9 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 #ifdef GL_ATI_texture_compression_3dc
   CONST_CAST(GLEW_ATI_texture_compression_3dc) = glewGetExtension("GL_ATI_texture_compression_3dc");
 #endif /* GL_ATI_texture_compression_3dc */
+#ifdef GL_ATI_texture_env_combine3
+  CONST_CAST(GLEW_ATI_texture_env_combine3) = glewGetExtension("GL_ATI_texture_env_combine3");
+#endif /* GL_ATI_texture_env_combine3 */
 #ifdef GL_ATI_texture_float
   CONST_CAST(GLEW_ATI_texture_float) = glewGetExtension("GL_ATI_texture_float");
 #endif /* GL_ATI_texture_float */
@@ -8125,6 +8133,8 @@ PFNWGLDELETEBUFFERREGIONARBPROC __wglewDeleteBufferRegionARB = NULL;
 PFNWGLRESTOREBUFFERREGIONARBPROC __wglewRestoreBufferRegionARB = NULL;
 PFNWGLSAVEBUFFERREGIONARBPROC __wglewSaveBufferRegionARB = NULL;
 
+PFNWGLCREATECONTEXTATTRIBSARBPROC __wglewCreateContextAttribsARB = NULL;
+
 PFNWGLGETEXTENSIONSSTRINGARBPROC __wglewGetExtensionsStringARB = NULL;
 
 PFNWGLGETCURRENTREADDCARBPROC __wglewGetCurrentReadDCARB = NULL;
@@ -8203,6 +8213,8 @@ PFNWGLENDFRAMETRACKINGI3DPROC __wglewEndFrameTrackingI3D = NULL;
 PFNWGLGETFRAMEUSAGEI3DPROC __wglewGetFrameUsageI3D = NULL;
 PFNWGLQUERYFRAMETRACKINGI3DPROC __wglewQueryFrameTrackingI3D = NULL;
 
+PFNWGLCOPYIMAGESUBDATANVPROC __wglewCopyImageSubDataNV = NULL;
+
 PFNWGLCREATEAFFINITYDCNVPROC __wglewCreateAffinityDCNV = NULL;
 PFNWGLDELETEDCNVPROC __wglewDeleteDCNV = NULL;
 PFNWGLENUMGPUDEVICESNVPROC __wglewEnumGpuDevicesNV = NULL;
@@ -8222,12 +8234,6 @@ PFNWGLRESETFRAMECOUNTNVPROC __wglewResetFrameCountNV = NULL;
 
 PFNWGLALLOCATEMEMORYNVPROC __wglewAllocateMemoryNV = NULL;
 PFNWGLFREEMEMORYNVPROC __wglewFreeMemoryNV = NULL;
-
-PFNWGLBINDVIDEOCAPTUREDEVICENVPROC __wglewBindVideoCaptureDeviceNV = NULL;
-PFNWGLENUMERATEVIDEOCAPTUREDEVICESNVPROC __wglewEnumerateVideoCaptureDevicesNV = NULL;
-PFNWGLLOCKVIDEOCAPTUREDEVICENVPROC __wglewLockVideoCaptureDeviceNV = NULL;
-PFNWGLQUERYVIDEOCAPTUREDEVICENVPROC __wglewQueryVideoCaptureDeviceNV = NULL;
-PFNWGLRELEASEVIDEOCAPTUREDEVICENVPROC __wglewReleaseVideoCaptureDeviceNV = NULL;
 
 PFNWGLBINDVIDEOIMAGENVPROC __wglewBindVideoImageNV = NULL;
 PFNWGLGETVIDEODEVICENVPROC __wglewGetVideoDeviceNV = NULL;
@@ -8342,6 +8348,15 @@ static GLboolean _glewInit_WGL_ARB_buffer_region (WGLEW_CONTEXT_ARG_DEF_INIT)
 #endif /* WGL_ARB_buffer_region */
 
 #ifdef WGL_ARB_create_context
+
+static GLboolean _glewInit_WGL_ARB_create_context (WGLEW_CONTEXT_ARG_DEF_INIT)
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)glewGetProcAddress((const GLubyte*)"wglCreateContextAttribsARB")) == NULL) || r;
+
+  return r;
+}
 
 #endif /* WGL_ARB_create_context */
 
@@ -8652,6 +8667,15 @@ static GLboolean _glewInit_WGL_I3D_swap_frame_usage (WGLEW_CONTEXT_ARG_DEF_INIT)
 
 #ifdef WGL_NV_copy_image
 
+static GLboolean _glewInit_WGL_NV_copy_image (WGLEW_CONTEXT_ARG_DEF_INIT)
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((wglCopyImageSubDataNV = (PFNWGLCOPYIMAGESUBDATANVPROC)glewGetProcAddress((const GLubyte*)"wglCopyImageSubDataNV")) == NULL) || r;
+
+  return r;
+}
+
 #endif /* WGL_NV_copy_image */
 
 #ifdef WGL_NV_float_buffer
@@ -8819,6 +8843,7 @@ GLenum wglewContextInit (WGLEW_CONTEXT_ARG_DEF_LIST)
 #endif /* WGL_ARB_buffer_region */
 #ifdef WGL_ARB_create_context
   CONST_CAST(WGLEW_ARB_create_context) = wglewGetExtension("WGL_ARB_create_context");
+  if (glewExperimental || WGLEW_ARB_create_context|| crippled) CONST_CAST(WGLEW_ARB_create_context)= !_glewInit_WGL_ARB_create_context(GLEW_CONTEXT_ARG_VAR_INIT);
 #endif /* WGL_ARB_create_context */
 #ifdef WGL_ARB_create_context_profile
   CONST_CAST(WGLEW_ARB_create_context_profile) = wglewGetExtension("WGL_ARB_create_context_profile");
@@ -8920,6 +8945,7 @@ GLenum wglewContextInit (WGLEW_CONTEXT_ARG_DEF_LIST)
 #endif /* WGL_I3D_swap_frame_usage */
 #ifdef WGL_NV_copy_image
   CONST_CAST(WGLEW_NV_copy_image) = wglewGetExtension("WGL_NV_copy_image");
+  if (glewExperimental || WGLEW_NV_copy_image|| crippled) CONST_CAST(WGLEW_NV_copy_image)= !_glewInit_WGL_NV_copy_image(GLEW_CONTEXT_ARG_VAR_INIT);
 #endif /* WGL_NV_copy_image */
 #ifdef WGL_NV_float_buffer
   CONST_CAST(WGLEW_NV_float_buffer) = wglewGetExtension("WGL_NV_float_buffer");
@@ -8980,6 +9006,8 @@ PFNGLXQUERYCONTEXTPROC __glewXQueryContext = NULL;
 PFNGLXQUERYDRAWABLEPROC __glewXQueryDrawable = NULL;
 PFNGLXSELECTEVENTPROC __glewXSelectEvent = NULL;
 
+PFNGLXCREATECONTEXTATTRIBSARBPROC __glewXCreateContextAttribsARB = NULL;
+
 PFNGLXBINDTEXIMAGEATIPROC __glewXBindTexImageATI = NULL;
 PFNGLXDRAWABLEATTRIBATIPROC __glewXDrawableAttribATI = NULL;
 PFNGLXRELEASETEXIMAGEATIPROC __glewXReleaseTexImageATI = NULL;
@@ -9003,6 +9031,8 @@ PFNGLXCREATEGLXPIXMAPMESAPROC __glewXCreateGLXPixmapMESA = NULL;
 PFNGLXRELEASEBUFFERSMESAPROC __glewXReleaseBuffersMESA = NULL;
 
 PFNGLXSET3DFXMODEMESAPROC __glewXSet3DfxModeMESA = NULL;
+
+PFNGLXCOPYIMAGESUBDATANVPROC __glewXCopyImageSubDataNV = NULL;
 
 PFNGLXBINDVIDEODEVICENVPROC __glewXBindVideoDeviceNV = NULL;
 PFNGLXENUMERATEVIDEODEVICESNVPROC __glewXEnumerateVideoDevicesNV = NULL;
@@ -9191,6 +9221,15 @@ static GLboolean _glewInit_GLX_VERSION_1_3 (GLXEW_CONTEXT_ARG_DEF_INIT)
 
 #ifdef GLX_ARB_create_context
 
+static GLboolean _glewInit_GLX_ARB_create_context (GLXEW_CONTEXT_ARG_DEF_INIT)
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC)glewGetProcAddress((const GLubyte*)"glXCreateContextAttribsARB")) == NULL) || r;
+
+  return r;
+}
+
 #endif /* GLX_ARB_create_context */
 
 #ifdef GLX_ARB_create_context_profile
@@ -9361,6 +9400,15 @@ static GLboolean _glewInit_GLX_MESA_set_3dfx_mode (GLXEW_CONTEXT_ARG_DEF_INIT)
 #endif /* GLX_MESA_set_3dfx_mode */
 
 #ifdef GLX_NV_copy_image
+
+static GLboolean _glewInit_GLX_NV_copy_image (GLXEW_CONTEXT_ARG_DEF_INIT)
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((glXCopyImageSubDataNV = (PFNGLXCOPYIMAGESUBDATANVPROC)glewGetProcAddress((const GLubyte*)"glXCopyImageSubDataNV")) == NULL) || r;
+
+  return r;
+}
 
 #endif /* GLX_NV_copy_image */
 
@@ -9714,6 +9762,7 @@ GLenum glxewContextInit (GLXEW_CONTEXT_ARG_DEF_LIST)
 #endif /* GLX_3DFX_multisample */
 #ifdef GLX_ARB_create_context
   CONST_CAST(GLXEW_ARB_create_context) = glxewGetExtension("GLX_ARB_create_context");
+  if (glewExperimental || GLXEW_ARB_create_context) CONST_CAST(GLXEW_ARB_create_context) = !_glewInit_GLX_ARB_create_context(GLEW_CONTEXT_ARG_VAR_INIT);
 #endif /* GLX_ARB_create_context */
 #ifdef GLX_ARB_create_context_profile
   CONST_CAST(GLXEW_ARB_create_context_profile) = glxewGetExtension("GLX_ARB_create_context_profile");
@@ -9786,6 +9835,7 @@ GLenum glxewContextInit (GLXEW_CONTEXT_ARG_DEF_LIST)
 #endif /* GLX_MESA_set_3dfx_mode */
 #ifdef GLX_NV_copy_image
   CONST_CAST(GLXEW_NV_copy_image) = glxewGetExtension("GLX_NV_copy_image");
+  if (glewExperimental || GLXEW_NV_copy_image) CONST_CAST(GLXEW_NV_copy_image) = !_glewInit_GLX_NV_copy_image(GLEW_CONTEXT_ARG_VAR_INIT);
 #endif /* GLX_NV_copy_image */
 #ifdef GLX_NV_float_buffer
   CONST_CAST(GLXEW_NV_float_buffer) = glxewGetExtension("GLX_NV_float_buffer");
@@ -9904,10 +9954,10 @@ const GLubyte* glewGetString (GLenum name)
   static const GLubyte* _glewString[] =
   {
     (const GLubyte*)NULL,
-    (const GLubyte*)"1.5.1",
+    (const GLubyte*)"1.5.2",
     (const GLubyte*)"1",
     (const GLubyte*)"5",
-    (const GLubyte*)"1"
+    (const GLubyte*)"2"
   };
   const int max_string = sizeof(_glewString)/sizeof(*_glewString) - 1;
   return _glewString[(int)name > max_string ? 0 : (int)name];
@@ -10760,6 +10810,13 @@ GLboolean glewIsSupported (const char* name)
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"texture_compression_3dc", 23))
         {
           ret = GLEW_ATI_texture_compression_3dc;
+          continue;
+        }
+#endif
+#ifdef GL_ATI_texture_env_combine3
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"texture_env_combine3", 20))
+        {
+          ret = GLEW_ATI_texture_env_combine3;
           continue;
         }
 #endif
