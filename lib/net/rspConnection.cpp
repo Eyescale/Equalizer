@@ -802,15 +802,8 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
                      << ack->writerID << " sequence " << ack->sequenceID
                      << " current " << _sequenceID << std::endl;
 
-    // ignore sequenceID which is different from my write sequence id
-    //  Reason : - repeated, late ack or an ack for another writer
-    if( !_isCurrentSequence( ack->sequenceID, ack->writerID ) )
-    {
-        EQLOG( LOG_RSP ) << "ignore ack " << ack->sequenceID << " for "
-                         << ack->writerID << ", it's not for me (" 
-                         << _sequenceID << ", " << _id << ")" << std::endl;
+    if ( ack->writerID != _id )
         return true;
-    }
 
     // find connection destination and if we have not received an ack from it,
     // we update the ack data.
@@ -825,6 +818,16 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     if( connection->_ackReceived == ack->sequenceID )
         return true;
 
+    // ignore sequenceID which is different from my write sequence id
+    //  Reason : - repeated, late ack or an ack for another writer
+    if( !_isCurrentSequence( ack->sequenceID, ack->writerID ) )
+    {
+        EQLOG( LOG_RSP ) << "ignore ack " << ack->sequenceID << " for "
+                         << ack->writerID << ", it's not for me (" 
+                         << _sequenceID << ", " << _id << ")" << std::endl;
+        return true;
+    }
+    
 #ifdef EQ_INSTRUMENT_RSP
     ++nAcksAccepted;
 #endif
