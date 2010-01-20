@@ -1323,9 +1323,11 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
         size_t packetSize = end - data;
         packetSize = EQ_MIN( packetSize, _payloadSize );
 
-        if( (i % _ackFreq) == static_cast< uint32_t >( _ackFreq >> 1 ))
+        if( (i % _ackFreq) == static_cast< uint32_t >( _ackFreq >> 1 ) ||
+            _appBuffers.isEmpty( ))
+        {
             _connectionSet.interrupt(); // trigger processing
-
+        }
         Buffer* buffer = _appBuffers.pop();
         if( !buffer ) // thread terminated
             return -1;
