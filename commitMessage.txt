@@ -1,4 +1,4 @@
-RSP: fix most glaring bugs with two nodes.
+Fix Makefile
 
 [ ] May break build
 [ ] May break existing applications
