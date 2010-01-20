@@ -279,6 +279,7 @@ CXXFILES = \
 	util/objectManager.cpp \
 	util/texture.cpp \
 	compressor/compressor.cpp \
+	compressor/compressorRLE10A2.cpp \
 	compressor/compressorRLEB.cpp \
 	compressor/compressorRLE4B.cpp \
 	compressor/compressorRLE4BU.cpp \
