@@ -84,6 +84,7 @@ uint8_t Image::getNumChannels( const Frame::Buffer buffer ) const
         case GL_RGBA:
         case GL_RGBA8:
         case GL_BGRA:
+        case GL_RGB10_A2:
             return 4;
 
         case GL_RGB:
@@ -108,6 +109,7 @@ uint8_t Image::getChannelSize( const Frame::Buffer buffer ) const
     {
         case GL_UNSIGNED_BYTE:
         case GL_UNSIGNED_INT_8_8_8_8_REV:
+        case GL_UNSIGNED_INT_10_10_10_2:
             return 1;
 
         case GL_HALF_FLOAT: 
@@ -128,6 +130,7 @@ uint32_t Image::getInternalTextureFormat( const Frame::Buffer which ) const
 {
     switch( getFormat( which ))
     {
+        case GL_RGB10_A2:
         case GL_RGBA:
         case GL_RGBA8:
         case GL_BGRA:
@@ -200,6 +203,8 @@ uint32_t Image::_getCompressorTokenType( const Frame::Buffer buffer ) const
                     return EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT;
                 case GL_FLOAT:
                     return EQ_COMPRESSOR_DATATYPE_4_FLOAT;
+                case GL_UNSIGNED_INT_10_10_10_2:
+                    return EQ_COMPRESSOR_DATATYPE_RGB10_A2;
                 default:
                     EQUNIMPLEMENTED;
             }
@@ -333,6 +338,7 @@ bool Image::hasAlpha() const
         case GL_RGBA:
         case GL_RGBA8:
         case GL_BGRA:
+        case GL_RGB10_A2:
             return true;
 
         default:

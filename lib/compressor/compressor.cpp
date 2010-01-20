@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@
 #include "compressorRLE4BU.h"
 #include "compressorRLEU.h"
 #include "compressorRLE565.h"
+#include "compressorRLE10A2.h"
 
 namespace eq
 {
@@ -40,6 +41,7 @@ namespace
         eq::plugin::CompressorRLEU::getFunctions(),
         eq::plugin::CompressorDiffRLE565::getFunctions(),
         eq::plugin::CompressorRLEB::getFunctions(),
+        eq::plugin::CompressorDiffRLE10A2::getFunctions(),
 #if 0
         eq::plugin::CompressorRLE3B::getFunctions(),
         eq::plugin::CompressorRLE4F::getFunctions(),

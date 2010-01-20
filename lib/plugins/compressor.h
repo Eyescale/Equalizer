@@ -40,6 +40,8 @@
  * <h2>Changes</h2>
  * Version 2
  *  - Added EQ_COMPRESSOR_DIFF_RLE_565 to type name registry
+ *  - Added EQ_COMPRESSOR_DIFF_RLE_10A2 to type name registry
+ *  - Added EQ_COMPRESSOR_DATATYPE_RGB10_A2 to token list
  *
  * Version 1
  *  - Initial Release
@@ -110,6 +112,8 @@ extern "C"
     #define EQ_COMPRESSOR_RLE_4_BYTE_UNSIGNED  0xau
     /** Lossy Differential RLE Compression. */
     #define EQ_COMPRESSOR_DIFF_RLE_565     0xbu
+    /** RLE Compression of three token of 10-bits and one toke of 2-bits */
+    #define EQ_COMPRESSOR_DIFF_RLE_10A2    0xcu
 
     /**
      * Private types -FOR DEVELOPMENT ONLY-.
@@ -153,6 +157,11 @@ extern "C"
     #define EQ_COMPRESSOR_DATATYPE_4_FLOAT      1029
     /**Data is processed in two interleaved streams, one 24 bit and one 8 bit.*/
     #define EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE  2048
+    /**
+    * Data is processed in three 10-bit color tokens and one 2-bit alpha
+    * token.
+    */
+    #define EQ_COMPRESSOR_DATATYPE_RGB10_A2     2049
     /*@}*/
 
     /**

@@ -683,7 +683,7 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     if( alphaSize > 0 || alphaSize == AUTO )
     {
         attributes.push_back( WGL_ALPHA_BITS_ARB );
-        attributes.push_back( alphaSize>0 ? alphaSize : 8 );
+        attributes.push_back( alphaSize>0 ? alphaSize : 10 );
     }
 
     const int depthSize = getIAttribute( Window::IATTR_PLANES_DEPTH );
