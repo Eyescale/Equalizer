@@ -50,9 +50,9 @@ typedef net::CommandFunc<Config> ConfigFunc;
 
 Config::Config( ServerPtr server )
         : net::Session()
+        , _latency( 0 )
         , _eyeBase( 0.f )
         , _lastEvent( 0 )
-        , _latency( 0 )
         , _currentFrame( 0 )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
@@ -526,8 +526,8 @@ void Config::changeLatency( const uint32_t latency )
     send( packet );
 
     // update views
-    ChangeLatencyVisitor changeLatency( latency );
-    accept( changeLatency );
+    ChangeLatencyVisitor changeLatencyVisitor( latency );
+    accept( changeLatencyVisitor );
 }
 
 void Config::sendEvent( ConfigEvent& event )
