@@ -992,14 +992,14 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
         // it's an unknown connection, TODO add this connection?
     }
 
-    if( connection->_ackReceived >= nack->sequenceID ||
-        nack->sequenceID - connection->_ackReceived > 16384 )
+    const int32_t acked = connection->_ackReceived;
+    const int32_t current = nack->sequenceID;
+
+    if(( acked >= current && acked - current < 16384 ) ||
+       ( current - acked > 16384 && current < _ackFreq ))
     {
-        EQASSERT( connection->_ackReceived >= nack->sequenceID ||
-                  connection->_ackReceived < _ackFreq );
-        EQLOG( LOG_RSP ) << "ignore nack for sequence " << nack->sequenceID
-                         << ", already got ack" << connection->_ackReceived
-                         << std::endl;
+        EQLOG( LOG_RSP ) << "ignore nack for sequence " << current
+                         << ", already got ack " << acked << std::endl;
         return true;
     }
 

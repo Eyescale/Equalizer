@@ -1,13 +1,9 @@
-RSP fixes:
-- avoid 0-byte udp packet reads
-- group readSync/readNB together
-- clear pending repeats when all acks have been received
-
+RSP: fix timeout due to falsely ignored nack
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
