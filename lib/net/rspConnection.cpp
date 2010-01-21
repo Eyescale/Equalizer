@@ -160,9 +160,6 @@ void RSPConnection::close()
 //----------------------------------------------------------------------
 // Async IO handles
 //----------------------------------------------------------------------
-void RSPConnection::_initAIORead(){ /* NOP */ }
-void RSPConnection::_exitAIORead(){ /* NOP */ }
-
 uint16_t RSPConnection::_buildNewID()
 {
     eq::base::RNG rng;
@@ -240,23 +237,9 @@ ConnectionPtr RSPConnection::acceptSync()
 
     RSPConnectionPtr newConnection = _children[ _countAcceptChildren ];
 
-    newConnection->_initAIORead();
-    newConnection->_parent      = this;
-    newConnection->_connection  = 0;
-    newConnection->_state       = STATE_CONNECTED;
-    newConnection->_description = _description;
-
     ++_countAcceptChildren;
     _sendDatagramCountNode();
 
-    // Make all buffers available for reading
-    for( BufferVector::iterator i = newConnection->_buffers.begin();
-         i != newConnection->_buffers.end(); ++i )
-    {
-        Buffer* buffer = *i;
-        EQCHECK( newConnection->_threadBuffers.push( buffer ));
-    }
-    
     EQINFO << "accepted RSP connection " << newConnection->_id << std::endl;
     base::ScopedMutex mutexConn( _mutexConnection );
 
@@ -1239,7 +1222,19 @@ void RSPConnection::_addNewConnection( const uint16_t id )
     RSPConnection* connection = new RSPConnection();
     connection->_connection   = 0;
     connection->_id           = id;
+    connection->_parent      = this;
+    connection->_connection  = 0;
+    connection->_state       = STATE_CONNECTED;
+    connection->_description = _description;
 
+    // Make all buffers available for reading
+    for( BufferVector::iterator i = connection->_buffers.begin();
+         i != connection->_buffers.end(); ++i )
+    {
+        Buffer* buffer = *i;
+        EQCHECK( connection->_threadBuffers.push( buffer ));
+    }
+    
     // protect the event and child size which can be used at the same time 
     // in acceptSync
     {
@@ -1354,7 +1349,7 @@ void RSPConnection::_adaptSendRate( const size_t nPackets, const size_t nErrors)
                         delta );
 
         EQLOG( LOG_RSP ) << nErrors << "/" << nPackets
-                         << " nErrors, change send rate by " << -delta << "%"
+                         << " errors, change send rate by " << -delta << "%"
                          << std::endl;
         _connection->adaptSendRate( -delta );
     }
@@ -1366,7 +1361,7 @@ void RSPConnection::_adaptSendRate( const size_t nPackets, const size_t nErrors)
                         delta );
 
         EQLOG( LOG_RSP ) << nErrors << "/" << nPackets
-                         << " nErrors, change send rate by " << -delta << "%"
+                         << " errors, change send rate by " << -delta << "%"
                          << std::endl;
         _connection->adaptSendRate( -delta );
     }

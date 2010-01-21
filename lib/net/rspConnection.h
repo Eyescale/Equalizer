@@ -247,11 +247,6 @@ namespace net
         
         void _handleInitData();
         
-        void _initAIOAccept(){ _initAIORead(); }
-        void _exitAIOAccept(){ _exitAIORead(); }
-        void _initAIORead();
-        void _exitAIORead();
-
         /** find the connection corresponding to the identifier */
         RSPConnectionPtr _findConnection( const uint16_t id );
         
