@@ -576,6 +576,7 @@ int32_t RSPConnection::_handleWrite()
     EQASSERT( !_children.empty( ));
 
     // Send ack request when needed
+    EQASSERT( !_ackSend );
     _ackSend = true;
     _timeouts = 0;
     _numWriteAcks = 1; // self ack request - will handle in _finishWriteQueue
@@ -629,10 +630,13 @@ void RSPConnection::_handleRepeat()
         _repeatQueue.pop_front();    // done with request
         if( _repeatQueue.empty( )) // re-request ack
         {
-            _sendAckRequest( _sequenceID - 1 );
+            if( _ackSend )
+            {
+                _sendAckRequest( _sequenceID - 1 );
 #ifdef EQ_INSTRUMENT_RSP
-            ++nNAcksResend;
+                ++nNAcksResend;
 #endif
+            }
         }
     }
     else
@@ -956,6 +960,8 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
         return true;
     }
     
+    EQASSERT( _ackSend );
+    EQASSERT( _numWriteAcks > 0 ); // self must be there
 #ifdef EQ_INSTRUMENT_RSP
     ++nAcksAccepted;
 #endif
@@ -1423,6 +1429,7 @@ void RSPConnection::_sendNack( const uint16_t writerID,
 
 void RSPConnection::_sendAckRequest( const uint16_t sequenceID )
 {
+    EQASSERT( _ackSend );
 #ifdef EQ_INSTRUMENT_RSP
     ++nTotalAckRequests;
 #endif

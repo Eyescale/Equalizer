@@ -1,4 +1,4 @@
-RSP: Fix netperf-related startup race condition
+RSP: Fix ack bug
 
 [ ] May break build
 [ ] May break existing applications

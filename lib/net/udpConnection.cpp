@@ -416,6 +416,9 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
             return -1;
         }
 
+        EQVERB << "Got " << bytesRead << " from " 
+               << inet_ntoa( _readAddress.sin_addr ) << ":" 
+               << ntohs( _readAddress.sin_port ) << std::endl;
         return bytesRead;
     }
 #endif
