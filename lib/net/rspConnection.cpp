@@ -810,7 +810,7 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
 
     EQLOG( LOG_RSP ) << "receive data from " << writerID << " sequence "
                      << sequenceID << std::endl;
-    EQASSERT( writerID != connection->_id );
+    EQASSERT( writerID != _id );
 
     if( connection->_sequenceID == sequenceID ) // standard case
     {
