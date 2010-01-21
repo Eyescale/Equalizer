@@ -666,6 +666,10 @@ void RSPConnection::_finishWriteQueue()
     EQASSERT( connection.isValid( ));
     EQASSERT( connection->_recvBuffers.empty( ));
 
+    // Bundle pushing the buffers to the app to avoid excessive lock ops
+    BufferVector readBuffers;
+    BufferVector freeBuffers;
+
     for( BufferVector::const_iterator i = _writeBuffers.begin();
          i != _writeBuffers.end(); ++i )
     {
@@ -675,27 +679,47 @@ void RSPConnection::_finishWriteQueue()
         const DatagramData* datagram = 
             reinterpret_cast< const DatagramData* >( buffer->getData( ));
         EQASSERT( datagram->writerID == _id );;
-        EQASSERT( datagram->sequenceID == connection->_sequenceID );
+        EQASSERT( datagram->sequenceID == 
+                  connection->_sequenceID + readBuffers.size( ));
         EQLOG( LOG_RSP ) << "receive data from self, sequence "
                          << datagram->sequenceID << std::endl;
 
 #endif
 
         Buffer* newBuffer = connection->_newDataBuffer( *buffer );
-        while( !newBuffer ) // no more data buffers, wait for app to drain
+        if( !newBuffer && !readBuffers.empty( )) // push prepared app buffers
         {
-            base::sleep( 1 );
-            newBuffer = connection->_newDataBuffer( *buffer );
+            base::ScopedMutex mutex( connection->_mutexEvent );
+            EQLOG( LOG_RSP ) << "post " << readBuffers.size()
+                             << " buffers starting with sequence "
+                             << connection->_sequenceID << std::endl;
+
+            connection->_appBuffers.push( readBuffers );
+            connection->_sequenceID += readBuffers.size();
+            readBuffers.clear();
+            connection->_event->set();
         }
 
-        _appBuffers.push( buffer );
+        while( !newBuffer ) // no more data buffers, wait for app to drain
+        {
+            newBuffer = connection->_newDataBuffer( *buffer );
+            base::sleep( 1 );
+        }
 
+        freeBuffers.push_back( buffer );
+        readBuffers.push_back( newBuffer );
+    }
+
+    _appBuffers.push( freeBuffers );
+    if( !readBuffers.empty( ))
+    {
         base::ScopedMutex mutex( connection->_mutexEvent );
-        EQLOG( LOG_RSP ) << "post buffer with sequence "
+        EQLOG( LOG_RSP ) << "post " << readBuffers.size()
+                         << " buffers starting with sequence "
                          << connection->_sequenceID << std::endl;
 
-        ++connection->_sequenceID;
-        connection->_appBuffers.push( newBuffer );
+        connection->_appBuffers.push( readBuffers );
+        connection->_sequenceID += readBuffers.size();
         connection->_event->set();
     }
 

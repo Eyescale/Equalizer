@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -90,6 +90,9 @@ namespace base
 
         /** Push a new element to the back of the queue. @version 1.0 */
         void push( const T& element );
+
+        /** Push a vector of elements to the back of the queue. @version 1.0 */
+        void push( const std::vector< T >& elements );
 
         /** Push a new element to the front of the queue. @version 1.0 */
         void pushFront( const T& element );
@@ -253,6 +256,15 @@ void MTQueue<T>::push( const T& element )
 {
     pthread_mutex_lock( &_data->mutex );
     _queue.push_back( element );
+    pthread_cond_signal( &_data->cond );
+    pthread_mutex_unlock( &_data->mutex );
+}
+
+template< typename T >
+void MTQueue<T>::push( const std::vector< T >& elements )
+{
+    pthread_mutex_lock( &_data->mutex );
+    _queue.insert( _queue.end(), elements.begin(), elements.end( ));
     pthread_cond_signal( &_data->cond );
     pthread_mutex_unlock( &_data->mutex );
 }
