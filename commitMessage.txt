@@ -1,4 +1,4 @@
-RSP: Fix ack bug
+RSP: War multicast issue on Darwin with local switch
 
 [ ] May break build
 [ ] May break existing applications

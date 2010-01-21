@@ -792,6 +792,15 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
     const DatagramData* datagram = 
         reinterpret_cast< const DatagramData* >( buffer.getData( ));
     const uint16_t writerID = datagram->writerID;
+#ifdef Darwin
+    // There is occasionally a packet from ourselves, even though multicast loop
+    // is not set?!
+    if( writerID == _id )
+        return true;
+#else
+    EQASSERT( writerID != _id );
+#endif
+
     RSPConnectionPtr connection = _findConnection( writerID );
     EQASSERT( connection->_id == writerID );
 
@@ -821,7 +830,6 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
 
     EQLOG( LOG_RSP ) << "receive data from " << writerID << " sequence "
                      << sequenceID << std::endl;
-    EQASSERT( writerID != _id );
 
     if( connection->_sequenceID == sequenceID ) // standard case
     {
@@ -1062,6 +1070,15 @@ void RSPConnection::_addRepeat( const uint16_t* nacks, uint16_t num )
 bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
 {
     const uint16_t writerID = ackRequest->writerID;
+#ifdef Darwin
+    // There is occasionally a packet from ourselves, even though multicast loop
+    // is not set?!
+    if( writerID == _id )
+        return true;
+#else
+    EQASSERT( writerID != _id );
+#endif
+
     const int32_t sequenceID = ackRequest->sequenceID;
     EQLOG( LOG_RSP ) << "got ack request "  << sequenceID << " from "
                      << writerID << std::endl;
