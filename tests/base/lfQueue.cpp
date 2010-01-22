@@ -38,20 +38,19 @@ public:
             eq::base::Clock clock;
             while( clock.getTime64() < RUNTIME )
             {
-                while( queue.pop( item ))
+                if( queue.getFront( item ))
                 {
-#ifndef NDEBUG
                     TEST( item == nOps );
-#endif
+                    uint64_t item2 = -1;
+                    TEST( queue.pop( item2 ));
+                    TEST( item2 == item );
                     ++nOps;
                 }
-#ifndef NDEBUG
                 TEST( item + 1 == nOps );
-#endif
                 ++nEmpty;
             }
             const float time = clock.getTimef();
-            EQINFO << nOps/time << " reads/ms, " << nEmpty/time << " empty/ms"
+            EQINFO << 2*nOps/time << " reads/ms, " << nEmpty/time << " empty/ms"
                    << std::endl;
             return EXIT_SUCCESS;
         }

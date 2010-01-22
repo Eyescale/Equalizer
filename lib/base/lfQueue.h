@@ -76,6 +76,24 @@ namespace base
                 return true;
             }
 
+        /** 
+         * Retrieve the front element from the queue.
+         *
+         * @param result the front value or unmodified
+         * @return true if an element was placed in result, false if the queue
+         *         is empty.
+         * @version 1.0
+         */
+        bool getFront( T& result )
+            {
+                CHECK_THREAD_SCOPED( _reader );
+                if( _readPos == _writePos )
+                    return false;
+                
+                result = _data[ _readPos ];
+                return true;
+            }
+
         /**
          * Push a new element to the back of the queue.
          *

@@ -27,6 +27,7 @@
 #include <eq/base/sleep.h>
 
 //#define EQ_INSTRUMENT_RSP
+#define EQ_RSP_MERGE_WRITES
 
 using std::distance;
 
@@ -49,6 +50,7 @@ base::a_int32_t nBytesRead;
 base::a_int32_t nBytesWritten;
 base::a_int32_t nDataPackets;
 base::a_int32_t nTotalDatagrams;
+base::a_int32_t nMergedDatagrams;
 base::a_int32_t nAckRequests;
 base::a_int32_t nTotalAckRequests;
 base::a_int32_t nAcksSend;
@@ -292,6 +294,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
             _readBuffer = 0;
             _readBufferPos = 0;
         }
+        EQASSERT( _readBufferPos < header->size );
     }
 
     if( !_appBuffers.isEmpty( ))
@@ -550,6 +553,32 @@ int32_t RSPConnection::_handleWrite()
     // write buffer
     DatagramData* header = reinterpret_cast<DatagramData*>( buffer->getData( ));
     header->sequenceID = _sequenceID++;
+#ifdef EQ_RSP_MERGE_WRITES
+    BufferVector appBuffers;
+    while( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
+    {
+        Buffer* buffer2 = 0;
+        EQCHECK( _threadBuffers.getFront( buffer2 ));
+        EQASSERT( buffer2 );
+        DatagramData* header2 = 
+            reinterpret_cast<DatagramData*>( buffer2->getData( ));
+        
+        if( header->size + header2->size > _payloadSize )
+            break;
+
+        memcpy( reinterpret_cast< uint8_t* >( header + 1 ) + header->size,
+                header2 + 1, header2->size );
+        header->size += header2->size;
+        EQCHECK( _threadBuffers.pop( buffer2 ));
+        appBuffers.push_back( buffer2 );
+#ifdef EQ_INSTRUMENT_RSP
+        ++nMergedDatagrams;
+#endif
+    }
+
+    if( !appBuffers.empty( ))
+        _appBuffers.push( appBuffers );
+#endif
     const uint32_t size = header->size + sizeof( DatagramData );
 
     // send data
@@ -562,6 +591,8 @@ int32_t RSPConnection::_handleWrite()
 
 #ifdef EQ_INSTRUMENT_RSP
     ++nTotalDatagrams;
+    ++nDataPackets;
+    nBytesWritten += header->size;
 #endif
 
     // save datagram for repeats
@@ -668,9 +699,9 @@ void RSPConnection::_finishWriteQueue()
         EQASSERT( datagram->writerID == _id );;
         EQASSERT( datagram->sequenceID == 
                   connection->_sequenceID + readBuffers.size( ));
-        EQLOG( LOG_RSP ) << "receive data from self, sequence "
+        EQLOG( LOG_RSP ) << "receive " << datagram->size
+                         << " bytes from self, sequence "
                          << datagram->sequenceID << std::endl;
-
 #endif
 
         Buffer* newBuffer = connection->_newDataBuffer( *buffer );
@@ -828,8 +859,8 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
         connection->_sequenceID = 0;
     }
 
-    EQLOG( LOG_RSP ) << "receive data from " << writerID << " sequence "
-                     << sequenceID << std::endl;
+    EQLOG( LOG_RSP ) << "receive " << datagram->size << " bytes from "
+                     << writerID << ", sequence " << sequenceID << std::endl;
 
     if( connection->_sequenceID == sequenceID ) // standard case
     {
@@ -1310,9 +1341,6 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
     if ( !_connection.isValid() )
         return -1;
 
-#ifdef EQ_INSTRUMENT_RSP
-    nBytesWritten += bytes;
-#endif
     // compute number of datagrams
     uint64_t nDatagrams = bytes  / _payloadSize;    
     if ( nDatagrams * _payloadSize != bytes )
@@ -1348,10 +1376,6 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
         EQCHECK( _threadBuffers.push( buffer ));
     }
     _connectionSet.interrupt();
-
-#ifdef EQ_INSTRUMENT_RSP
-    nDataPackets += nDatagrams;
-#endif
 
     EQLOG( LOG_RSP ) << "queued " << nDatagrams << " datagrams" << std::endl;
     return bytes;
@@ -1463,8 +1487,8 @@ std::ostream& operator << ( std::ostream& os,
 #ifdef EQ_INSTRUMENT_RSP
     os << ": read " << nBytesRead << " bytes, wrote " 
        << nBytesWritten << " bytes using " << nDataPackets << " dgrams "
-       << nTotalDatagrams - nDataPackets << " repeated, "
-       << nTimeOuts << " write timeouts, "
+       << nMergedDatagrams << " merged " << nTotalDatagrams - nDataPackets
+       << " repeated, " << nTimeOuts << " write timeouts, "
        << std::endl
        << nAckRequests << " ack requests " 
        << nTotalAckRequests - nAckRequests << " repeated, "
@@ -1479,6 +1503,7 @@ std::ostream& operator << ( std::ostream& os,
     nBytesWritten = 0;
     nDataPackets = 0;
     nTotalDatagrams = 0;
+    nMergedDatagrams = 0;
     nAckRequests = 0;
     nTotalAckRequests = 0;
     nAcksSend = 0;

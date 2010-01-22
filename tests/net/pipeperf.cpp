@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,7 +32,7 @@ using namespace eq::net;
 using namespace eq::base;
 using namespace std;
 
-#define MAXPACKETSIZE (256 * 1048576)
+#define MAXPACKETSIZE (32 * 1048576)
 
 class Sender : public Thread
 {

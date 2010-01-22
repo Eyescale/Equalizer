@@ -1,9 +1,9 @@
-RSP: War multicast issue on Darwin with local switch
+RSP OPT: Merge small writes when possible, fix instrumentation
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation
