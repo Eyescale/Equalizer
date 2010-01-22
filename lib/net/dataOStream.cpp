@@ -25,7 +25,7 @@
 
 #include <eq/base/compressor.h>
 
-#define EQ_INSTRUMENT_DATAOSTREAM
+//#define EQ_INSTRUMENT_DATAOSTREAM
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
 #   include <eq/base/clock.h>
 #endif
@@ -415,6 +415,7 @@ bool DataOStream::_getCompressedData( uint64_t sizeUncompressed,
                                       void** chunks, 
                                       uint64_t* chunkSizes )
 {    
+    EQASSERT( _bufferType != BUFFER_NONE );
     const uint32_t nChunks = getPlugin()->getNumResults( _compressor, 
                                                      getCompressorName() );
     EQASSERT( nChunks > 0 );
