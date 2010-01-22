@@ -259,6 +259,10 @@ typedef XID GLXWindow;
 typedef XID GLXPbuffer;
 typedef struct __GLXFBConfigRec *GLXFBConfig;
 
+#ifdef EQ_NEED_GLXEVENT
+// nvidia-glx-185-dev defines this one again - but not protected with GLX_VERSION_1_3
+// Unless explicitely requested by EQ_NEED_GLXEVENT, we'll simply omit the definition
+// for compatibility reasons.
 typedef struct {
   int event_type; 
   int draw_type; 
@@ -276,6 +280,8 @@ typedef union __GLXEvent {
   GLXPbufferClobberEvent glxpbufferclobber; 
   long pad[24]; 
 } GLXEvent;
+#endif
+
 
 typedef GLXFBConfig* ( * PFNGLXCHOOSEFBCONFIGPROC) (Display *dpy, int screen, const int *attrib_list, int *nelements);
 typedef GLXContext ( * PFNGLXCREATENEWCONTEXTPROC) (Display *dpy, GLXFBConfig config, int render_type, GLXContext share_list, Bool direct);
