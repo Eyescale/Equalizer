@@ -34,7 +34,8 @@ namespace eqPly
 bool Window::configInitOSWindow( const uint32_t initID )
 {
 #ifndef Darwin
-    bool initSuccess = eq::Window::configInitOSWindow( initID );
+    if( !eq::Window::configInitOSWindow( initID ))
+        return false;
 
     // OpenGL version is less than 2.0.
     if( !GLEW_EXT_framebuffer_object)
@@ -53,12 +54,12 @@ bool Window::configInitOSWindow( const uint32_t initID )
         // no anti-aliasing possible
         setIAttribute( IATTR_PLANES_ACCUM, eq::AUTO );
 
-       return eq::Window::configInitOSWindow( initID );
+        return eq::Window::configInitOSWindow( initID );
 
 #ifndef Darwin
     }
 
-    return initSuccess;
+    return true;
 #endif
 }
 
