@@ -1,9 +1,9 @@
-RSP OPT: Merge small writes when possible, fix instrumentation
+Fix build with EQ_RELEASE_ASSERT
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation

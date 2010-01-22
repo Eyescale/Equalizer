@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,6 +39,7 @@ EQ_EXPORT void abort()
 
     ::abort();
 }
+#endif // DEBUG
 
 EQ_EXPORT void checkHeap()
 {
@@ -53,7 +54,6 @@ EQ_EXPORT void checkHeap()
 #else
 #endif
 }
-#endif // DEBUG
 
 EQ_EXPORT std::ostream& sysError( std::ostream& os )
 {
