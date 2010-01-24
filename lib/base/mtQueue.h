@@ -20,9 +20,10 @@
 
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
-#include <queue>
 
+#include <queue>
 #include <string.h>
+#include <sys/timeb.h>
 
 namespace eq
 {
@@ -66,6 +67,16 @@ namespace base
          * @version 1.0
          */
         T pop();
+
+        /** 
+         * Retrieve and pop the front element from the queue with a timeout.
+         *
+         * @param timeout the timeout in milliseconds
+         * @return the first element of the queue, or NONE if a timeout has
+         *         occured.
+         * @version 1.0
+         */
+        T pop( const uint32_t timeout );
 
         /** 
          * @return the first element of the queue, or NONE if the queue is
@@ -196,6 +207,35 @@ T MTQueue<T>::pop()
         pthread_cond_wait( &_data->cond, &_data->mutex );
                 
     EQASSERT( !_queue.empty( ));
+    T element = _queue.front();
+    _queue.pop_front();
+    pthread_mutex_unlock( &_data->mutex );
+    return element;
+}
+
+template< typename T >
+T MTQueue<T>::pop( const uint32_t timeout )
+{
+#ifdef WIN32_API
+    _timeb tb;
+    _ftime( &tb );
+#else
+    timeb tb;
+    ftime( &tb );
+#endif
+    const timespec ts = 
+        { static_cast<int>( timeout / 1000 ) + tb.time,
+          (timeout - ts.tv_sec*1000) * 1000000 + tb.millitm * 1000000 };
+
+    pthread_mutex_lock( &_data->mutex );
+    pthread_cond_timedwait( &_data->cond, &_data->mutex, &ts );
+    
+    if( _queue.empty( ))
+    {
+        pthread_mutex_unlock( &_data->mutex );
+        return NONE;
+    }
+
     T element = _queue.front();
     _queue.pop_front();
     pthread_mutex_unlock( &_data->mutex );

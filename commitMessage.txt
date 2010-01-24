@@ -1,4 +1,4 @@
-RSP: Fix build
+RSP: fix close deadlock [untested]
 
 [ ] May break build
 [ ] May break existing applications

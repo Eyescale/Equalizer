@@ -113,6 +113,7 @@ RSPConnection::RSPConnection()
     EQLOG( LOG_RSP ) << "New RSP Connection, buffer size " << _bufferSize
                      << ", packet size " << _mtu << std::endl;
 }
+
 RSPConnection::~RSPConnection()
 {
     close();
@@ -129,14 +130,13 @@ void RSPConnection::close()
     if( _state == STATE_CLOSED )
         return;
 
-    _state = STATE_CLOSED;
-
     if( _thread )
     {
         const DatagramNode exitNode = { ID_EXIT, _id };
         _connection->write( &exitNode, sizeof( DatagramNode ) );
         _connectionSet.interrupt();
-        _thread->join();
+        if( !_thread->isCurrent( ))
+            _thread->join();
     }
 
     _event->set();
@@ -156,6 +156,8 @@ void RSPConnection::close()
 
     _readBuffer = 0;
     _readBufferPos = 0;
+
+    _state = STATE_CLOSED;
     _fireStateChanged();
 }
 
@@ -264,9 +266,11 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
     while( bytesLeft ) // this is somewhat redundant (done by higher-level
                        // function already), but saves quiet a few lock ops
     {
-        if( !_readBuffer )
+        while( !_readBuffer )
         {
-            _readBuffer = _appBuffers.pop();
+            _readBuffer = _appBuffers.pop( 100 );
+            if( _state != STATE_CONNECTED )
+                return (bytes == bytesLeft) ? -1 : bytes - bytesLeft;
             EQASSERT( _readBufferPos == 0 );
         }
         EQASSERT( _readBuffer );
@@ -495,9 +499,8 @@ void RSPConnection::_runThread()
                     EQERROR << "Too many timeouts during send " << _timeouts
                             << std::endl;
 
-                    // unblock and terminate write function
-                    _appBuffers.pushFront( 0 );
-                    _connection = 0;
+                    // terminate write function
+                    close();
                     return;
                 }
             
@@ -1360,9 +1363,13 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
         {
             _connectionSet.interrupt(); // trigger processing
         }
-        Buffer* buffer = _appBuffers.pop();
-        if( !buffer ) // thread terminated
-            return -1;
+        Buffer* buffer = 0;
+        while( !buffer )
+        {
+            buffer = _appBuffers.pop( 100 );
+            if( _state != STATE_LISTENING )
+                return -1;
+        }
 
         // prepare packet header (sequenceID is done by thread)
         DatagramData* header =
