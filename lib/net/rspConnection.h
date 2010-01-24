@@ -198,7 +198,7 @@ namespace net
         bool _ackSend;    // ack exchange in progress
 
         typedef base::Bufferb Buffer;
-        typedef std::vector< Buffer* > BufferVector;
+        typedef base::Buffer< Buffer* > BufferVector;
 
         BufferVector _buffers;                   //!< Data buffers
         /** Empty read buffers (connected) or write buffers (listening) */

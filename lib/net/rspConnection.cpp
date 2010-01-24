@@ -473,7 +473,7 @@ void RSPConnection::_runThread()
 {
     EQINFO << "Started RSP protocol thread" << std::endl;
 
-    while ( _state != STATE_CLOSED && !_children.empty( ))
+    while( _state != STATE_CLOSED && !_children.empty( ))
     {
         const int32_t timeOut = _handleWrite();
         const ConnectionSet::Event event = _connectionSet.select( timeOut );
@@ -540,7 +540,7 @@ int32_t RSPConnection::_handleWrite()
 
     if( _ackSend ) // wait for all acks
     {
-        EQASSERT( !_writeBuffers.empty( ));
+        EQASSERT( !_writeBuffers.isEmpty( ));
         return Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT );
     }
 
@@ -554,7 +554,9 @@ int32_t RSPConnection::_handleWrite()
     DatagramData* header = reinterpret_cast<DatagramData*>( buffer->getData( ));
     header->sequenceID = _sequenceID++;
 #ifdef EQ_RSP_MERGE_WRITES
-    BufferVector appBuffers;
+    std::vector< Buffer* > appBuffers;
+    appBuffers.reserve( Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS ));
+
     while( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
     {
         Buffer* buffer2 = 0;
@@ -596,9 +598,9 @@ int32_t RSPConnection::_handleWrite()
 #endif
 
     // save datagram for repeats
-    _writeBuffers.push_back( buffer );
+    _writeBuffers.append( buffer );
 
-    if( _writeBuffers.size() < static_cast< size_t >( _ackFreq ) &&
+    if( _writeBuffers.getSize() < static_cast< size_t >( _ackFreq ) &&
         !_threadBuffers.isEmpty( ))
     {
         return 0; // call again
@@ -616,12 +618,12 @@ int32_t RSPConnection::_handleWrite()
     {
         EQASSERT( _children.front()->_id == _id );
         _finishWriteQueue();
-        return _writeBuffers.empty() ? -1 : 0;
+        return _writeBuffers.isEmpty() ? -1 : 0;
     }
     // else
 
     EQLOG( LOG_RSP ) << "Send ack request for sequence " 
-                     << _sequenceID - _writeBuffers.size() << ".."
+                     << _sequenceID - _writeBuffers.getSize() << ".."
                      << _sequenceID - 1 << std::endl;
 
 #ifdef EQ_INSTRUMENT_RSP
@@ -637,13 +639,13 @@ void RSPConnection::_handleRepeat()
     RepeatRequest& request = _repeatQueue.front(); 
     EQASSERT( request.start <= request.end );
     EQASSERT( request.end < _sequenceID );
-    EQASSERTINFO( request.start >= _sequenceID - _writeBuffers.size(),
+    EQASSERTINFO( request.start >= _sequenceID - _writeBuffers.getSize(),
                   request.start << ", " << _sequenceID << ", " <<
-                  _writeBuffers.size( ));
+                  _writeBuffers.getSize( ));
 
     EQLOG( LOG_RSP ) << "Repeat datagram " << request.start << std::endl;
 
-    const size_t i = _writeBuffers.size() - ( _sequenceID - request.start );
+    const size_t i = _writeBuffers.getSize() - ( _sequenceID - request.start );
     Buffer* buffer = _writeBuffers[i];
     DatagramData* header = reinterpret_cast<DatagramData*>( buffer->getData( ));
     const uint32_t size = header->size + sizeof( DatagramData );
@@ -676,7 +678,7 @@ void RSPConnection::_handleRepeat()
 
 void RSPConnection::_finishWriteQueue()
 {
-    EQASSERT( !_writeBuffers.empty( ));
+    EQASSERT( !_writeBuffers.isEmpty( ));
     EQASSERT( _ackSend );
     EQASSERT( _numWriteAcks == _children.size( ));
 
@@ -688,10 +690,9 @@ void RSPConnection::_finishWriteQueue()
     BufferVector readBuffers;
     BufferVector freeBuffers;
 
-    for( BufferVector::const_iterator i = _writeBuffers.begin();
-         i != _writeBuffers.end(); ++i )
+    for( size_t i = 0; i < _writeBuffers.getSize(); ++ i)
     {
-        Buffer* buffer = *i;
+        Buffer* buffer = _writeBuffers[i];
 
 #ifndef NDEBUG
         const DatagramData* datagram = 
@@ -741,7 +742,7 @@ void RSPConnection::_finishWriteQueue()
         connection->_event->set();
     }
 
-    _writeBuffers.clear();
+    _writeBuffers.resize( 0 );
     connection->_lastAck = connection->_sequenceID - 1;
 
     if( _sequenceID > 32768 ) // reset regularly
@@ -1073,7 +1074,7 @@ void RSPConnection::_addRepeat( const uint16_t* nacks, uint16_t num )
         EQLOG( LOG_RSP ) << request.start << ".." << request.end << " ";
 
         EQASSERT( request.start <= request.end );
-        EQASSERT( request.end - request.start + 1 <= _writeBuffers.size( ));
+        EQASSERT( request.end - request.start + 1 <= _writeBuffers.getSize( ));
 
         nErrors += request.end - request.start + 1;
 
@@ -1095,7 +1096,7 @@ void RSPConnection::_addRepeat( const uint16_t* nacks, uint16_t num )
     }
     EQLOG( LOG_RSP ) << std::endl << base::enableFlush;
 
-    _adaptSendRate( _writeBuffers.size(), nErrors );
+    _adaptSendRate( _writeBuffers.getSize(), nErrors );
 }
 
 bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )

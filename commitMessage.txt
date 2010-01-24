@@ -1,9 +1,9 @@
-Fix build with EQ_RELEASE_ASSERT
+RSP: Minor optimization
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation
