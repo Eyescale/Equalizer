@@ -198,7 +198,7 @@ namespace net
         bool _ackSend;    // ack exchange in progress
 
         typedef base::Bufferb Buffer;
-        typedef base::Buffer< Buffer* > BufferVector;
+        typedef std::vector< Buffer* > BufferVector;
 
         BufferVector _buffers;                   //!< Data buffers
         /** Empty read buffers (connected) or write buffers (listening) */
@@ -214,7 +214,7 @@ namespace net
 
         // write property part
         uint16_t _sequenceID; //!< the next usable (write) or expected (read)
-        BufferVector _writeBuffers;   //!< Write buffers in flight
+        base::Buffer< Buffer* > _writeBuffers;    //!< Write buffers in flight
         std::deque< RepeatRequest > _repeatQueue; //!< nacks to repeat
 
         static uint32_t _payloadSize;
