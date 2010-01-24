@@ -476,7 +476,7 @@ bool ConnectionSet::_setupFDSet()
     fd.events = POLLIN; // | POLLPRI;
 
     // add self 'connection'
-    fd.fd      = _selfConnection->getNotifier();
+    fd.fd = _selfConnection->getNotifier();
     EQASSERT( fd.fd > 0 );
     fd.revents = 0;
     _fdSet.append( fd );

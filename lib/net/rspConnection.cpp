@@ -262,7 +262,8 @@ ConnectionPtr RSPConnection::acceptSync()
 
 int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
 {
-    EQASSERT( _state == STATE_CONNECTED );
+    if( _state != STATE_CONNECTED )
+        return -1;
 
     uint64_t bytesLeft = bytes;
     uint8_t* ptr = reinterpret_cast< uint8_t* >( buffer );
@@ -643,7 +644,8 @@ int32_t RSPConnection::_handleWrite()
 #ifdef EQ_INSTRUMENT_RSP
     ++nAckRequests;
 #endif
-    _sendAckRequest( _sequenceID - 1 );
+    if( !_repeatQueue.empty( ))
+        _sendAckRequest( _sequenceID - 1 );
     return Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT );
 }
 
@@ -1080,7 +1082,6 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
 
 void RSPConnection::_addRepeat( const uint16_t* nacks, uint16_t num )
 {
-    size_t nErrors = 0;
     EQLOG( LOG_RSP ) << base::disableFlush << "Queue repeat requests ";
 
     for( size_t i = 0; i < num; ++i )
@@ -1092,8 +1093,6 @@ void RSPConnection::_addRepeat( const uint16_t* nacks, uint16_t num )
 
         EQASSERT( request.start <= request.end );
         EQASSERT( request.end - request.start + 1 <= _writeBuffers.getSize( ));
-
-        nErrors += request.end - request.start + 1;
 
         bool merged = false;
         for( std::deque< RepeatRequest >::iterator j = _repeatQueue.begin();
@@ -1113,6 +1112,13 @@ void RSPConnection::_addRepeat( const uint16_t* nacks, uint16_t num )
     }
     EQLOG( LOG_RSP ) << std::endl << base::enableFlush;
 
+    size_t nErrors = 0;
+    for( std::deque< RepeatRequest >::const_iterator i = _repeatQueue.begin();
+         i != _repeatQueue.end(); ++i )
+    {
+        const RepeatRequest& request = *i;
+        nErrors += request.end - request.start + 1;
+    }
     _adaptSendRate( _writeBuffers.getSize(), nErrors );
 }
 
