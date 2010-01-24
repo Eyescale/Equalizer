@@ -1,9 +1,10 @@
-RSP: fix close deadlock [untested]
+Create connection unit test, fix some findings
+Create watchdog for unit tests to kill deadlocked tests
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[ ] New Feature
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

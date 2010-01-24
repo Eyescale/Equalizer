@@ -2,7 +2,7 @@
 include $(TOP)/make/system.mk
 
 CXXFLAGS += -I..
-LDFLAGS  += -lpthread
+LDFLAGS  += -lpthread -leq
 BIN_DIR   = $(ARCH)
 
 TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)

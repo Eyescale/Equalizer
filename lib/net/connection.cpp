@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -436,7 +436,8 @@ std::ostream& operator << ( std::ostream& os, const Connection* connection )
             state == Connection::STATE_CONNECTING ? "connecting" :
             state == Connection::STATE_CONNECTED  ? "connected" :
             state == Connection::STATE_LISTENING  ? "listening" :
-            "unknown state" );
+            state == Connection::STATE_CLOSING    ? "closing" :
+            "UNKNOWN" );
     if( desc.isValid( ))
         os << " description " << desc->toString();
     

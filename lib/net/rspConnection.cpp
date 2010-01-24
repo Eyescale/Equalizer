@@ -39,7 +39,6 @@ namespace net
 static int32_t _mtu = -1;
 static int32_t _ackFreq = -1;
 uint32_t RSPConnection::_payloadSize = 0;
-size_t   RSPConnection::_bufferSize = 0;
 int32_t RSPConnection::_maxNAck = 0;
 
 namespace
@@ -96,7 +95,6 @@ RSPConnection::RSPConnection()
         _mtu = Global::getIAttribute( Global::IATTR_UDP_MTU );
         _ackFreq = Global::getIAttribute( Global::IATTR_UDP_PACKET_RATE );
         _payloadSize = _mtu - sizeof( DatagramData );
-        _bufferSize = _payloadSize * _ackFreq;
         _maxNAck = (_mtu - sizeof( DatagramNack )) / sizeof( uint32_t );
         _maxNAck = EQ_MIN( _maxNAck, _ackFreq );
         EQASSERT( _maxNAck < std::numeric_limits< uint16_t >::max( ));
@@ -110,8 +108,8 @@ RSPConnection::RSPConnection()
     }
 
     _nackBuffer.reserve( _mtu );
-    EQLOG( LOG_RSP ) << "New RSP Connection, buffer size " << _bufferSize
-                     << ", packet size " << _mtu << std::endl;
+    EQLOG( LOG_RSP ) << "New RSP Connection, " << _buffers.size() 
+                     << " packet buffer of size " << _mtu << std::endl;
 }
 
 RSPConnection::~RSPConnection()
@@ -213,7 +211,6 @@ bool RSPConnection::listen()
 
     // init a thread to manage the communication protocol 
     _thread = new Thread( this );
-
     _numWriteAcks =  0;
 
     // waits until RSP protocol establishes connection to the multicast network
@@ -230,7 +227,6 @@ bool RSPConnection::listen()
         _appBuffers.push( buffer );
     }
 
-    _state = STATE_LISTENING;
     _fireStateChanged();
 
     EQINFO << "Listening on " << _description->getHostname() << ":"
@@ -417,7 +413,10 @@ bool RSPConnection::_initThread()
             case ConnectionSet::EVENT_TIMEOUT:
                 ++_timeouts;
                 if( _timeouts >= 20 )
+                {
+                    _state = STATE_LISTENING;
                     return true;
+                }
 
                 _sendDatagramCountNode();
                 break;
@@ -478,6 +477,7 @@ void* RSPConnection::Thread::run()
 {
     _connection->_runThread();
     _connection = 0;
+    EQINFO << "Left RSP protocol thread" << std::endl;
     return 0;
 }
 
@@ -485,8 +485,9 @@ void RSPConnection::_runThread()
 {
     EQINFO << "Started RSP protocol thread" << std::endl;
 
-    while( _state != STATE_CLOSED && !_children.empty( ))
+    while( _state == STATE_LISTENING )
     {
+        EQASSERT( !_children.empty( ));
         const int32_t timeOut = _handleWrite();
         const ConnectionSet::Event event = _connectionSet.select( timeOut );
 
@@ -618,6 +619,8 @@ int32_t RSPConnection::_handleWrite()
     }
 
     EQASSERT( !_children.empty( ));
+    EQLOG( LOG_RSP ) << "wrote sequence of " << _writeBuffers.getSize() 
+                     << " datagrams" << std::endl;
 
     // Send ack request when needed
     EQASSERT( !_ackSend );
@@ -1306,7 +1309,7 @@ void RSPConnection::_addNewConnection( const uint16_t id )
     {
         base::ScopedMutex mutexConn( _mutexConnection );
         _children.push_back( connection );
-        EQWARN << "new rsp connection " << id << std::endl;
+        EQINFO << "new rsp connection " << id << std::endl;
         _event->set();
     }
 
@@ -1337,6 +1340,7 @@ void RSPConnection::_removeConnection( const uint16_t id )
         --_countAcceptChildren;
         _children[0]->close();
         _children.clear();
+        close();
     }
 }
 
@@ -1391,9 +1395,10 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
 
         EQCHECK( _threadBuffers.push( buffer ));
     }
-    _connectionSet.interrupt();
 
-    EQLOG( LOG_RSP ) << "queued " << nDatagrams << " datagrams" << std::endl;
+    _connectionSet.interrupt();
+    EQLOG( LOG_RSP ) << "queued " << nDatagrams << " datagrams, " 
+                     << bytes << " bytes" << std::endl;
     return bytes;
 }
 

@@ -219,7 +219,6 @@ namespace net
         std::deque< RepeatRequest > _repeatQueue; //!< nacks to repeat
 
         static uint32_t _payloadSize;
-        static size_t   _bufferSize;
         static int32_t  _maxNAck;
 
         uint16_t _buildNewID();

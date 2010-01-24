@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,8 @@
 #define EQTEST_TEST_H
 
 #include <eq/base/log.h>
+#include <eq/base/sleep.h>
+#include <eq/base/thread.h>
 #include <fstream>
 
 #define OUTPUT eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
@@ -46,8 +48,33 @@
 
 int testMain( int argc, char **argv );
 
+namespace
+{
+class Watchdog : public eq::base::Thread
+{
+    virtual void* run()
+        {
+#ifdef EQ_TEST_RUNTIME
+            eq::base::sleep( EQ_TEST_RUNTIME * 1000 );
+            TESTINFO( false, 
+                      "Watchdog triggered - test did not terminate within " <<
+                      EQ_TEST_RUNTIME << "s" );
+#else
+            eq::base::sleep( 10000 );
+            TESTINFO( false, 
+                      "Watchdog triggered - test did not terminate within 10s");
+#endif
+            return EXIT_SUCCESS;
+        }
+};
+
+}
+
 int main( int argc, char **argv )
 {
+    Watchdog watchdog;
+    watchdog.start();
+
     const int result = testMain( argc, argv );
     if( result != EXIT_SUCCESS )
         return result;
