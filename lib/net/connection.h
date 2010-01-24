@@ -70,7 +70,8 @@ namespace net
             STATE_CLOSED,     //!< Closed, initial state
             STATE_CONNECTING, //!< A connect() or listen() is in progress
             STATE_CONNECTED,  //!< The connection has been connected and is open
-            STATE_LISTENING   //!< The connection is listening for connects
+            STATE_LISTENING,  //!< The connection is listening for connects
+            STATE_CLOSING     //!< A close() is in progress
         };
 
         /** 

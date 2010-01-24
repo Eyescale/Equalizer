@@ -172,8 +172,9 @@ namespace net
         // The buffer used by the write function in udp socket
         eq::base::Bufferb _sendBuffer;
 
+        typedef std::vector< RSPConnectionPtr > RSPConnectionVector;
         // a link for all connection in the multicast network 
-        std::vector< RSPConnectionPtr > _children;
+        RSPConnectionVector _children;
 
         // number connection accepted by server RSP 
         base::a_int32_t _countAcceptChildren;

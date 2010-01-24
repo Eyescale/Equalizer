@@ -129,6 +129,7 @@ void RSPConnection::close()
 {
     if( _state == STATE_CLOSED )
         return;
+    _state = STATE_CLOSING;
 
     if( _thread )
     {
@@ -140,6 +141,13 @@ void RSPConnection::close()
     }
 
     _event->set();
+    for( RSPConnectionVector::iterator i = _children.begin();
+         i != _children.end(); ++i )
+    {
+        RSPConnectionPtr child = *i;
+        child->close();
+    }
+
     _children.clear();
     _parent = 0;
 
