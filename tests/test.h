@@ -72,8 +72,10 @@ class Watchdog : public eq::base::Thread
 
 int main( int argc, char **argv )
 {
+#ifndef EQ_TEST_NO_WATCHDOG
     Watchdog watchdog;
     watchdog.start();
+#endif
 
     const int result = testMain( argc, argv );
     if( result != EXIT_SUCCESS )

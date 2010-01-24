@@ -1,10 +1,9 @@
-Create connection unit test, fix some findings
-Create watchdog for unit tests to kill deadlocked tests
+Disable test watchdog for netperf
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[x] New Feature
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

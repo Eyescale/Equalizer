@@ -20,6 +20,7 @@
 
 #include <pthread.h> // must come first!
 
+#define EQ_TEST_NO_WATCHDOG
 #include <test.h>
 #include <eq/base/scopedMutex.h>
 #include <eq/base/monitor.h>
