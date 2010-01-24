@@ -1,9 +1,9 @@
-RSP: change error calculation & send rate adaptation
+Fix Posix build
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation

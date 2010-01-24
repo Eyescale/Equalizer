@@ -920,7 +920,7 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
     EQASSERT( sequenceID > connection->_sequenceID );
     const size_t size = sequenceID - connection->_sequenceID;
     ssize_t i = size - 1;
-    EQASSERT( size < _ackFreq );
+    EQASSERT( size < static_cast< size_t >( _ackFreq ));
 
     if( connection->_recvBuffers.size() >= size && 
         connection->_recvBuffers[ i ] ) // repetition
