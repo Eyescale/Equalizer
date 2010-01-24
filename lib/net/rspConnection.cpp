@@ -917,9 +917,11 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
 
     EQASSERT( sequenceID > connection->_sequenceID );
     const size_t size = sequenceID - connection->_sequenceID;
+    ssize_t i = size - 1;
+    EQASSERT( size < _ackFreq );
 
     if( connection->_recvBuffers.size() >= size && 
-        connection->_recvBuffers[ size - 1 ] ) // repetition
+        connection->_recvBuffers[ i ] ) // repetition
     {
         return true;
     }
@@ -931,26 +933,27 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
     if( connection->_recvBuffers.size() < size )
         connection->_recvBuffers.resize( size, 0 );
 
-    EQASSERT( !connection->_recvBuffers[ size - 1 ] );
-    connection->_recvBuffers[ size - 1 ] = newBuffer;
+    EQASSERT( !connection->_recvBuffers[ i ] );
+    connection->_recvBuffers[ i ] = newBuffer;
 
     // early nack: request missing packets before current
-    uint16_t nacks[2] = { sequenceID - 1, sequenceID - 1 };
-    size_t i = size - 1;
+    --i;
+    uint16_t nacks[2] = { connection->_sequenceID, sequenceID - 1 };
     if( i > 0 )
     {
-        --i;
         if( connection->_recvBuffers[i] ) // got previous packet
             return true;
 
-        while( i > 0 && !connection->_recvBuffers[i] )
-        {
-            --nacks[0];
+        while( i >= 0 && !connection->_recvBuffers[i] )
             --i;
-        }
 
-        if( i==0 )
-            --nacks[0];           
+        const Buffer* lastBuffer = i>=0 ? connection->_recvBuffers[i] : 0;
+        if( lastBuffer )
+        {
+            const DatagramData* last = 
+                reinterpret_cast<const DatagramData*>( lastBuffer->getData( ));            
+            nacks[0] = last->sequenceID + 1;
+        }
     }
 
     EQLOG( LOG_RSP ) << "send early nack " << nacks[0] << ".." << nacks[1]
@@ -1200,7 +1203,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
       
             if( i != connection->_recvBuffers.end( ))
             {
-                nacks[ num++ ] = connection->_sequenceID + distance( first, i );
+                nacks[ num++ ] = connection->_sequenceID+distance( first, i )+1;
                 EQLOG( LOG_RSP ) << nacks[num-1] << "..";
             }
             else
