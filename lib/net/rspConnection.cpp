@@ -572,32 +572,36 @@ int32_t RSPConnection::_handleWrite()
     DatagramData* header = reinterpret_cast<DatagramData*>( buffer->getData( ));
     header->sequenceID = _sequenceID++;
 #ifdef EQ_RSP_MERGE_WRITES
-    std::vector< Buffer* > appBuffers;
-    appBuffers.reserve( Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS ));
-
-    while( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
+    if( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
     {
-        Buffer* buffer2 = 0;
-        EQCHECK( _threadBuffers.getFront( buffer2 ));
-        EQASSERT( buffer2 );
-        DatagramData* header2 = 
-            reinterpret_cast<DatagramData*>( buffer2->getData( ));
-        
-        if( header->size + header2->size > _payloadSize )
-            break;
+        std::vector< Buffer* > appBuffers;
+        appBuffers.reserve( 
+            Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS ));
 
-        memcpy( reinterpret_cast< uint8_t* >( header + 1 ) + header->size,
-                header2 + 1, header2->size );
-        header->size += header2->size;
-        EQCHECK( _threadBuffers.pop( buffer2 ));
-        appBuffers.push_back( buffer2 );
+        while( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
+        {
+            Buffer* buffer2 = 0;
+            EQCHECK( _threadBuffers.getFront( buffer2 ));
+            EQASSERT( buffer2 );
+            DatagramData* header2 = 
+                reinterpret_cast<DatagramData*>( buffer2->getData( ));
+            
+            if( header->size + header2->size > _payloadSize )
+                break;
+
+            memcpy( reinterpret_cast< uint8_t* >( header + 1 ) + header->size,
+                    header2 + 1, header2->size );
+            header->size += header2->size;
+            EQCHECK( _threadBuffers.pop( buffer2 ));
+            appBuffers.push_back( buffer2 );
 #ifdef EQ_INSTRUMENT_RSP
-        ++nMergedDatagrams;
+            ++nMergedDatagrams;
 #endif
-    }
+        }
 
-    if( !appBuffers.empty( ))
-        _appBuffers.push( appBuffers );
+        if( !appBuffers.empty( ))
+            _appBuffers.push( appBuffers );
+    }
 #endif
     const uint32_t size = header->size + sizeof( DatagramData );
 
@@ -880,6 +884,8 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
         EQASSERT( sequenceID < 16384 );
         connection->_sequenceID = 0;
     }
+    else if( sequenceID - connection->_sequenceID >= _ackFreq )
+        return true;
 
     EQLOG( LOG_RSP ) << "receive " << datagram->size << " bytes from "
                      << writerID << ", sequence " << sequenceID << std::endl;
@@ -1312,13 +1318,13 @@ void RSPConnection::_addNewConnection( const uint16_t id )
     connection->_appBuffers.clear();
 
     // Make all buffers available for reading
-    for( BufferVector::iterator i = connection->_buffers.begin();
-         i != connection->_buffers.end(); ++i )
+    //  When using an iterator here, I got stack corruptions with VS2005!?
+    for( size_t i = 0; i < connection->_buffers.size(); ++i )
     {
-        Buffer* buffer = *i;
+        Buffer* buffer = connection->_buffers[ i ];
         EQCHECK( connection->_threadBuffers.push( buffer ));
     }
-    
+
     // protect the event and child size which can be used at the same time 
     // in acceptSync
     {
