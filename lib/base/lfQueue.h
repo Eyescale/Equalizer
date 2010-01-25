@@ -57,6 +57,14 @@ namespace base
         /** @return true if the queue is empty, false otherwise. @version 1.0 */
         bool isEmpty() const { return _readPos == _writePos; }
 
+        /** Reset (empty) the queue. @version 1.0 */
+        void clear()
+            {
+                CHECK_THREAD_SCOPED( _reader );
+                _readPos = 0;
+                _writePos = 0;
+            }
+
         /** 
          * Retrieve and pop the front element from the queue.
          *

@@ -1,15 +1,9 @@
-Implement RSP closing differently:
-- pthread_cond_timedwait seems to use polling on Darwin
-- post '0' buffers to unlock read/write
-- move closing to app thread
-- Clean up MTQueue API
-
-Needs testing
+Potentially fix RSP closing
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

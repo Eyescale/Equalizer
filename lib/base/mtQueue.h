@@ -62,6 +62,9 @@ namespace base
         /** @return the number of items currently in the queue. @version 1.0 */
         size_t getSize() const { return _queue.size(); }
 
+        /** Reset (empty) the queue. @version 1.0 */
+        void clear();
+
         /** 
          * Retrieve and pop the front element from the queue, may block.
          * @version 1.0
@@ -184,6 +187,14 @@ MTQueue<T>::~MTQueue()
     pthread_cond_destroy( &_data->cond );
     delete _data;
     _data = 0;
+}
+
+template< typename T >
+void MTQueue<T>::clear()
+{
+    pthread_mutex_lock( &_data->mutex );
+    _queue.clear();
+    pthread_mutex_unlock( &_data->mutex );
 }
 
 template< typename T >

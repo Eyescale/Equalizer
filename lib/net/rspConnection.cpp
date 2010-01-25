@@ -154,11 +154,9 @@ void RSPConnection::close()
 
     _connection = 0;
 
-    Buffer* dummy;
-    while( _threadBuffers.pop( dummy ))
-        /* nop */;
-    while( _appBuffers.tryPop( dummy ))
-        /* nop */;
+    _threadBuffers.clear();
+    _appBuffers.clear();
+    _appBuffers.push( 0 ); // unlock any other read/write threads
 
     _readBuffer = 0;
     _readBufferPos = 0;
@@ -221,6 +219,7 @@ bool RSPConnection::listen()
     }
 
     // Make all buffers available for writing
+    _appBuffers.clear();
     _appBuffers.push( _buffers );
 
     _fireStateChanged();
@@ -1310,6 +1309,7 @@ void RSPConnection::_addNewConnection( const uint16_t id )
     connection->_connection  = 0;
     connection->_state       = STATE_CONNECTED;
     connection->_description = _description;
+    connection->_appBuffers.clear();
 
     // Make all buffers available for reading
     for( BufferVector::iterator i = connection->_buffers.begin();
