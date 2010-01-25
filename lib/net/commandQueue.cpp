@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,7 +43,7 @@ void CommandQueue::flush()
         EQWARN << "Flushing non-empty command queue" << endl;
 
     Command* command( 0 );
-    while( (command = _commands.tryPop( )) )
+    while( _commands.tryPop( command ))
     {
         EQWARN << *command << endl;
         EQASSERT( command );
@@ -76,13 +76,11 @@ Command* CommandQueue::pop()
 Command* CommandQueue::tryPop()
 {
     CHECK_THREAD( _thread );
-    return _commands.tryPop();
+    Command* command = 0;
+    _commands.tryPop( command );
+    return command;
 }
 
-Command* CommandQueue::back() const
-{
-    return _commands.back();
-}
 }
 }
 

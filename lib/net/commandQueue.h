@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -68,13 +68,6 @@ namespace net
          * @return the next command in the queue, or 0 if no command is queued.
          */
         EQ_EXPORT virtual Command* tryPop();
-
-        /** 
-         * Peek the command at the end of the queue.
-         *
-         * @return the last command in the queue, or 0 if no command is queued.
-         */
-        EQ_EXPORT Command* back() const;
 
         /** 
          * @return <code>true</code> if the command queue is empty,

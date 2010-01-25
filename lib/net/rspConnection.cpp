@@ -131,11 +131,11 @@ void RSPConnection::close()
 
     if( _thread )
     {
+        EQASSERT( !_thread->isCurrent( ));
         const DatagramNode exitNode = { ID_EXIT, _id };
         _connection->write( &exitNode, sizeof( DatagramNode ) );
         _connectionSet.interrupt();
-        if( !_thread->isCurrent( ))
-            _thread->join();
+        _thread->join();
     }
 
     _event->set();
@@ -157,7 +157,7 @@ void RSPConnection::close()
     Buffer* dummy;
     while( _threadBuffers.pop( dummy ))
         /* nop */;
-    while( _appBuffers.tryPop( ))
+    while( _appBuffers.tryPop( dummy ))
         /* nop */;
 
     _readBuffer = 0;
@@ -221,11 +221,7 @@ bool RSPConnection::listen()
     }
 
     // Make all buffers available for writing
-    for( BufferVector::iterator i = _buffers.begin(); i != _buffers.end(); ++i )
-    {
-        Buffer* buffer = *i;
-        _appBuffers.push( buffer );
-    }
+    _appBuffers.push( _buffers );
 
     _fireStateChanged();
 
@@ -271,12 +267,15 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
     while( bytesLeft ) // this is somewhat redundant (done by higher-level
                        // function already), but saves quiet a few lock ops
     {
-        while( !_readBuffer )
+        if( !_readBuffer )
         {
-            _readBuffer = _appBuffers.pop( 100 );
-            if( _state != STATE_CONNECTED )
-                return (bytes == bytesLeft) ? -1 : bytes - bytesLeft;
             EQASSERT( _readBufferPos == 0 );
+            _readBuffer = _appBuffers.pop();
+            if( !_readBuffer )
+            {
+                EQASSERT( _state != STATE_CONNECTED );
+                return (bytes == bytesLeft) ? -1 : bytes - bytesLeft;
+            }
         }
         EQASSERT( _readBuffer );
 
@@ -509,8 +508,15 @@ void RSPConnection::_runThread()
                     EQERROR << "Too many timeouts during send " << _timeouts
                             << std::endl;
 
-                    // terminate write function
-                    close();
+                    _state = STATE_CLOSING;
+                    _appBuffers.pushFront( 0 ); // unlock write function
+                    for( RSPConnectionVector::iterator i = _children.begin();
+                         i != _children.end(); ++i )
+                    {
+                        RSPConnectionPtr child = *i;
+                        child->_state = STATE_CLOSING;
+                        child->_appBuffers.pushFront( 0 ); // unlock read func
+                    }
                     return;
                 }
             
@@ -1336,7 +1342,8 @@ void RSPConnection::_removeConnection( const uint16_t id )
         if( child->_id == id )
         {
             --_countAcceptChildren;
-            child->close();
+            child->_state = STATE_CLOSING;
+            child->_appBuffers.pushFront( 0 );
             _children.erase( i );
             break;
         }
@@ -1347,9 +1354,12 @@ void RSPConnection::_removeConnection( const uint16_t id )
     if( _children.size() == 1 )
     {
         --_countAcceptChildren;
-        _children[0]->close();
+        _children[0]->_state = STATE_CLOSING;
+        _children[0]->_appBuffers.pushFront( 0 );
         _children.clear();
-        close();
+
+        _state = STATE_CLOSING;
+        _appBuffers.pushFront( 0 );
     }
 }
 
@@ -1385,11 +1395,14 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
             _connectionSet.interrupt(); // trigger processing
         }
         Buffer* buffer = 0;
-        while( !buffer )
+        if( !buffer )
         {
-            buffer = _appBuffers.pop( 100 );
-            if( _state != STATE_LISTENING )
+            buffer = _appBuffers.pop();
+            if( !buffer )
+            {
+                EQASSERT( _state != STATE_LISTENING );
                 return -1;
+            }
         }
 
         // prepare packet header (sequenceID is done by thread)

@@ -69,35 +69,30 @@ namespace base
         T pop();
 
         /** 
-         * Retrieve and pop the front element from the queue with a timeout.
+         * Retrieve and pop the front element from the queue, may block.
          *
-         * @param timeout the timeout in milliseconds
-         * @return the first element of the queue, or NONE if a timeout has
-         *         occured.
+         * @param result the front value or unmodified.
+         * @return true if an element was placed in result, false if the queue
+         *         is empty.
          * @version 1.0
          */
-        T pop( const uint32_t timeout );
+        bool tryPop( T& result );
 
         /** 
-         * @return the first element of the queue, or NONE if the queue is
-         *         empty.
+         * @param result the front value or unmodified.
+         * @return true if an element was placed in result, false if the queue
+         *         is empty.
          * @version 1.0
          */
-        T tryPop();
+        bool getFront( T& result ) const;
 
         /** 
-         * @return the first element of the queue, or NONE if the queue is
-         *         empty.
+         * @param result the lasr value or unmodified.
+         * @return true if an element was placed in result, false if the queue
+         *         is empty.
          * @version 1.0
          */
-        T front() const;
-
-        /** 
-         * @return the last element of the queue, or NONE if the queue is
-         *         empty.
-         * @version 1.0
-         */
-        T back() const;
+        bool getBack( T& result ) const;
 
         /** Push a new element to the back of the queue. @version 1.0 */
         void push( const T& element );
@@ -107,12 +102,6 @@ namespace base
 
         /** Push a new element to the front of the queue. @version 1.0 */
         void pushFront( const T& element );
-
-        /** 
-         * '0' element, potentially returned by tryPop() and back().
-         * @version 1.0
-         */
-        static const T NONE;
 
     private:
         std::deque< T > _queue;
@@ -140,8 +129,6 @@ public:
     pthread_mutex_t mutex;
     pthread_cond_t  cond;
 };
-
-template< typename T > const T MTQueue<T>::NONE = 0;
 
 template< typename T >
 MTQueue<T>::MTQueue()
@@ -214,81 +201,52 @@ T MTQueue<T>::pop()
 }
 
 template< typename T >
-T MTQueue<T>::pop( const uint32_t timeout )
-{
-#ifdef WIN32_API
-    _timeb tb;
-    _ftime( &tb );
-#else
-    timeb tb;
-    ftime( &tb );
-#endif
-    const timespec ts = 
-        { static_cast<int>( timeout / 1000 ) + tb.time,
-          (timeout - ts.tv_sec*1000) * 1000000 + tb.millitm * 1000000 };
-
-    pthread_mutex_lock( &_data->mutex );
-    pthread_cond_timedwait( &_data->cond, &_data->mutex, &ts );
-    
-    if( _queue.empty( ))
-    {
-        pthread_mutex_unlock( &_data->mutex );
-        return NONE;
-    }
-
-    T element = _queue.front();
-    _queue.pop_front();
-    pthread_mutex_unlock( &_data->mutex );
-    return element;
-}
-
-template< typename T >
-T MTQueue<T>::tryPop()
+bool MTQueue<T>::tryPop( T& result )
 {
     if( _queue.empty( ))
-        return NONE;
+        return false;
     
     pthread_mutex_lock( &_data->mutex );
     if( _queue.empty( ))
     {
         pthread_mutex_unlock( &_data->mutex );
-        return NONE;
+        return false;
     }
     
-    T element = _queue.front();
+    result = _queue.front();
     _queue.pop_front();
     pthread_mutex_unlock( &_data->mutex );
-    return element;
+    return true;
 }   
 
 template< typename T >
-T MTQueue<T>::front() const
+bool MTQueue<T>::getFront( T& result ) const
 {
     pthread_mutex_lock( &_data->mutex );
     if( _queue.empty( ))
     {
         pthread_mutex_unlock( &_data->mutex );
-        return NONE;
+        return false;
     }
     // else
-    T element = _queue.front();
+    result = _queue.front();
     pthread_mutex_unlock( &_data->mutex );
-    return element;
+    return true;
 }
 
 template< typename T >
-T MTQueue<T>::back() const
+bool MTQueue<T>::getBack( T& result ) const
 {
     pthread_mutex_lock( &_data->mutex );
     if( _queue.empty( ))
     {
         pthread_mutex_unlock( &_data->mutex );
-        return NONE;
+        return false;
     }
     // else
-    T element = _queue.back();
+    result = _queue.back();
     pthread_mutex_unlock( &_data->mutex );
-    return element;
+    return true;
 }
 
 template< typename T >

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -115,9 +115,10 @@ void VersionedSlaveCM::_syncToHead()
     if( _queuedVersions.isEmpty( ))
         return;
 
-    for( ObjectDataIStream* is = _queuedVersions.tryPop(); 
-         is; is = _queuedVersions.tryPop( ))
+    ObjectDataIStream* is = 0;
+    while( _queuedVersions.tryPop( is ))
     {
+        EQASSERT( is );
         _unpackOneVersion( is );
         EQASSERTINFO( _version == is->getVersion(), "Have version " 
                       << _version << " instead of " << is->getVersion( ));
@@ -132,10 +133,12 @@ void VersionedSlaveCM::_syncToHead()
 
 uint32_t VersionedSlaveCM::getHeadVersion() const
 {
-    ObjectDataIStream* is = _queuedVersions.back();
-    if( is )
+    ObjectDataIStream* is = 0;
+    if( _queuedVersions.getBack( is ))
+    {
+        EQASSERT( is );
         return is->getVersion();
-
+    }
     return _version;    
 }
 
@@ -245,8 +248,13 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
     uint32_t newest = 0;
     if( !_queuedVersions.isEmpty( ))
     {
-        oldest = _queuedVersions.front()->getVersion();
-        newest = _queuedVersions.back()->getVersion();
+        ObjectDataIStream* is = 0;
+
+        EQCHECK( _queuedVersions.getFront( is ));
+        oldest = is->getVersion();
+
+        EQCHECK( _queuedVersions.getBack( is ));
+        newest = is->getVersion();
     }
 
     InstanceDataDeque  head;
@@ -274,9 +282,6 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
          i != head.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;
-        EQASSERT( _queuedVersions.isEmpty() ||
-            stream->getVersion() + 1 == _queuedVersions.front()->getVersion( ));
-
         _queuedVersions.pushFront( new ObjectInstanceDataIStream( *stream ));
         EQLOG( LOG_OBJECTS ) << stream->getVersion();
     }
@@ -286,12 +291,21 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
          i != tail.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;
-        EQASSERT( _queuedVersions.isEmpty() ||
-             stream->getVersion() == _queuedVersions.back()->getVersion() + 1 );
-
         _queuedVersions.push( new ObjectInstanceDataIStream( *stream ));
         EQLOG( LOG_OBJECTS ) << stream->getVersion();
     }
+
+#ifndef NDEBUG // consistency check
+    uint32_t version = std::numeric_limits< uint32_t >::max();
+    for( InstanceDataVector::const_iterator i = tail.begin();
+         i != tail.end(); ++i )
+    {
+        const ObjectInstanceDataIStream* stream = *i;
+        if( version != std::numeric_limits< uint32_t >::max( ))
+            EQASSERT( version + 1 == stream->getVersion( ));
+        version = stream->getVersion();
+    }
+#endif
 
     EQLOG( LOG_OBJECTS ) << std::endl << base::enableFlush;
 }

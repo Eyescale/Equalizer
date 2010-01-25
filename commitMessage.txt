@@ -1,9 +1,15 @@
-Fix Posix build
+Implement RSP closing differently:
+- pthread_cond_timedwait seems to use polling on Darwin
+- post '0' buffers to unlock read/write
+- move closing to app thread
+- Clean up MTQueue API
+
+Needs testing
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
