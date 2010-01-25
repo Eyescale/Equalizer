@@ -27,6 +27,7 @@
 #include "session.h"
 
 #include <eq/base/scopedMutex.h>
+#include <limits>
 
 namespace eq
 {
