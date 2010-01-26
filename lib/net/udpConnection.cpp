@@ -452,14 +452,16 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
 
 #ifdef WIN32
     DWORD  wrote;
-    WSABUF wsaBuffer = { bytes,
-                         const_cast<char*>( static_cast<const char*>(buffer)) };
     while( true )
     {
+        WSABUF wsaBuffer = { bytes,
+            const_cast<char*>( static_cast<const char*>(buffer)) };
+
         if( WSASendTo( _writeFD, &wsaBuffer, 1, &wrote, 0,
                        (sockaddr*)&_writeAddress, sizeof( _writeAddress ),
                        0, 0 ) ==  0 )
         {   // ok
+            EQASSERT( wrote == bytes );
             return wrote;
         }
         // error

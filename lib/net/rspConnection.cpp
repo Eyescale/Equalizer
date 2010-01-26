@@ -1046,7 +1046,8 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
         return true;
     }
 
-    EQLOG( LOG_RSP ) << "Got all remote acks " << _sequenceID << std::endl;
+    EQLOG( LOG_RSP ) << "Got all remote acks for " << _sequenceID - 1
+                     << std::endl;
     _repeatQueue.clear();
     _finishWriteQueue();
     return true;
