@@ -577,9 +577,6 @@ int32_t RSPConnection::_handleWrite()
     if( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
     {
         std::vector< Buffer* > appBuffers;
-        appBuffers.reserve( 
-            Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS ));
-
         while( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
         {
             Buffer* buffer2 = 0;

@@ -156,7 +156,7 @@ public:
 
     void removeAllReceiver()
     {
-        for( uint32_t i = 0; i < _receivers.size(); )
+        for( size_t i = 0; i < _receivers.size(); )
         {
             const RecvConn& candidate = _receivers[0];
             Receiver* receiver = candidate.first;
