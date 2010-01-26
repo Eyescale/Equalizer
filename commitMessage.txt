@@ -1,8 +1,8 @@
-Minor code cleanups
+Cygwin compile fixes (Cedric)
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

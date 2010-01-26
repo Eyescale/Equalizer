@@ -36,6 +36,9 @@
 #  include <Winsock2.h>
 #  include <Windows.h>
 #  include <windef.h>
+#endif
+
+#ifdef WIN32_VC
 #  define EQ_DLLEXPORT __declspec(dllexport) 
 #  define EQ_DLLIMPORT __declspec(dllimport)
 #  ifdef EQUALIZER_EXPORTS

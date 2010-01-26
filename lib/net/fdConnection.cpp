@@ -15,9 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifdef WIN32
-# error not used on Win32 builds
-#endif
+#ifndef WIN32
 
 #include "fdConnection.h"
 #include "log.h"
@@ -105,3 +103,4 @@ bool FDConnection::hasData() const
 
 }
 }
+#endif

@@ -329,7 +329,7 @@ void UDPConnection::readNB( void* buffer, const uint64_t bytes )
         return;
 
 #ifdef WIN32
-    WSABUF wsaBuffer = { EQ_MIN( _mtu, bytes ),
+    WSABUF wsaBuffer = { EQ_MIN( _mtu, static_cast<int64_t>(bytes) ),
                          reinterpret_cast< char* >( buffer ) };
     DWORD  flags = 0;
     int size = sizeof( _readAddress );

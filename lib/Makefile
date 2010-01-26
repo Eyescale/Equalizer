@@ -198,6 +198,7 @@ CXXFILES = \
 	net/init.cpp \
 	net/instanceCache.cpp \
 	net/mcipConnection.cpp \
+	net/namedPipeConnection.cpp \
 	net/node.cpp \
 	net/object.cpp \
 	net/objectCM.cpp \

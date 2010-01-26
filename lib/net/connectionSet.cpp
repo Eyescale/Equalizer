@@ -431,9 +431,9 @@ bool ConnectionSet::_setupFDSet()
     EQASSERT( readHandle );
     _fdSet.append( readHandle );
 
-    Result result;
-    result.connection = _selfConnection.get();;
-    _fdSetResult.append( result );
+    Result res;
+    res.connection = _selfConnection.get();
+    _fdSetResult.append( res );
 
     // add regular connections
     _mutex.set();

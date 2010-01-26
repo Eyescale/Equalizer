@@ -15,6 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifdef WIN32
+
 #include <limits>
 
 #include "namedPipeConnection.h"
@@ -29,8 +31,6 @@
 #include <sstream>
 #include <string.h>
 #include <sys/types.h>
-
-#ifdef WIN32
 
 #define EQ_PIPE_BUFFER_SIZE 515072
 #define EQ_READ_BUFFER_SIZE 257536
@@ -291,7 +291,6 @@ ConnectionPtr NamedPipeConnection::acceptSync()
 
     // complete accept
     DWORD got   = 0;
-    DWORD flags = 0;
     if( !GetOverlappedResult( _fd, &_read, &got, TRUE ))
     {
         if (GetLastError() == ERROR_PIPE_CONNECTED) 
@@ -416,6 +415,4 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
 }
 }
 
-#else // !WIN32
-#  error Named pipe not implemented on non-Win32 systems
 #endif
