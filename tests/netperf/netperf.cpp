@@ -127,6 +127,8 @@ public:
             }
             return EXIT_SUCCESS;
         }
+        
+    ConnectionPtr getConnection() const{ return _connection;}
 
 private:
     eq::base::Clock _clock;
@@ -150,10 +152,26 @@ public:
               const bool useThreads )
             : _connection( connection )
             , _packetSize( packetSize )
-            , _useThreads( useThreads )
-        {
-        }
+            , _useThreads( useThreads ) {}
 
+    void removeAllReceiver()
+    {
+        for( int i = 0; i < _receivers.size(); )
+        {
+            const RecvConn& candidate = _receivers[0];
+            Receiver* receiver = candidate.first;
+            const ConnectionPtr connection = receiver->getConnection();
+            _connectionSet.removeConnection( connection );
+            _receivers.erase( _receivers.begin() );
+            if( _useThreads )
+            {
+                receiver->stop();
+                receiver->join();
+            }
+            delete receiver;
+        }
+    }
+    
     virtual bool init()
         {
             TEST( _connection->listen( ));
@@ -237,6 +255,13 @@ public:
                             delete receiver;
                             _receivers.erase( i );
                             std::cerr << --_nClients << " clients" << std::endl;
+                            if ( _nClients == 1 &&  
+                                resultConn->getDescription()->type == 
+                                  CONNECTIONTYPE_RSP )
+                            {
+                                removeAllReceiver();
+                                _nClients = 0;
+                            }
                         }
                         break;
                     }
@@ -362,7 +387,7 @@ int main( int argc, char **argv )
     Selector* selector = 0;
     if( isClient )
     {
-        if( description->type == CONNECTIONTYPE_RSP)
+        if( description->type == CONNECTIONTYPE_RSP )
         {
             selector = new Selector( connection, packetSize, useThreads );
             selector->start();
