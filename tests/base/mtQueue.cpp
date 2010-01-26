@@ -15,14 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <pthread.h>
 #include <test.h>
 #include <eq/base/clock.h>
 #include <eq/base/mtQueue.h>
 #include <eq/base/thread.h>
 #include <iostream>
 
-#define RUNTIME 1000 /*ms*/
-#define INTERVAL 1000
+#define NOPS 1000000
 
 eq::base::MTQueue< uint64_t > queue;
 
@@ -32,23 +32,20 @@ public:
     virtual ~ReadThread() {}
     virtual void* run()
         {
-            uint64_t nOps = 0;
             uint64_t item = -1;
 
             eq::base::Clock clock;
-            while( clock.getTime64() < RUNTIME )
+            for( size_t i = 0 ; i < NOPS; ++i )
             {
-                for( size_t i = 0 ; i < INTERVAL; ++i )
-                {
-                    item = queue.pop();
+                item = queue.pop();
 #ifndef NDEBUG
-                    TEST( item == i + nOps );
+                TEST( item == i );
 #endif
-                }
-                nOps += INTERVAL;
             }
             const float time = clock.getTimef();
-            EQINFO << nOps/time << " reads/ms" << std::endl;
+
+            TEST( queue.isEmpty( ));
+            EQINFO << NOPS/time << " reads/ms" << std::endl;
             return EXIT_SUCCESS;
         }
 };
@@ -61,18 +58,14 @@ int main( int argc, char **argv )
     TEST( reader.start( ));
 
     eq::base::Clock clock;
-    while( clock.getTime64() < RUNTIME )
+    for( size_t i = 0 ; i < NOPS; ++i )
     {
-        for( size_t i = 0 ; i < INTERVAL; ++i )
-        {
-            queue.push( nOps );
-            ++nOps;
-        }
+        queue.push( i );
     }
     const float time = clock.getTimef();
 
     TEST( reader.join( ));
-    EQINFO << nOps/time << " writes/ms" << std::endl;
+    EQINFO << NOPS/time << " writes/ms" << std::endl;
     return EXIT_SUCCESS;
 }
 
