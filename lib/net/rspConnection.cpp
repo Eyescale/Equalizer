@@ -274,7 +274,8 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
             if( !_readBuffer )
             {
                 EQASSERT( _state != STATE_CONNECTED );
-                return (bytes == bytesLeft) ? -1 : bytes - bytesLeft;
+                return (bytes == bytesLeft) ? 
+                    -1 : static_cast< int64_t >( bytes - bytesLeft );
             }
         }
         EQASSERT( _readBuffer );
