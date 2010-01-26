@@ -257,6 +257,7 @@ ConnectionPtr RSPConnection::acceptSync()
 
 int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
 {
+    EQASSERT( bytes > 0 );
     if( _state != STATE_CONNECTED )
         return -1;
 
@@ -301,10 +302,11 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
             _readBuffer = 0;
             _readBufferPos = 0;
         }
-        EQASSERT( _readBufferPos < header->size );
+        else
+            EQASSERT( _readBufferPos < header->size );
     }
 
-    if( !_appBuffers.isEmpty( ))
+    if( _readBuffer || !_appBuffers.isEmpty( ))
         _event->set();
     else
     {

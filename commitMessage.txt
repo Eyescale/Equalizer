@@ -1,11 +1,9 @@
-RSP:
-- Remove ack reqs during retransmission
-- Fix wrong nack on lost transmmission when wrapping _sequenceID
+RSP: Fix partial buffer reads
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation
