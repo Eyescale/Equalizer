@@ -1310,7 +1310,7 @@ void RSPConnection::_addNewConnection( const uint16_t id )
     if( _findConnection( id ).isValid() )
         return;
 
-    RSPConnection* connection = new RSPConnection();
+    RSPConnectionPtr connection = new RSPConnection();
     connection->_connection   = 0;
     connection->_id           = id;
     connection->_parent      = this;

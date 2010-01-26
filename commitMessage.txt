@@ -1,8 +1,8 @@
-Cygwin compile fixes (Cedric)
+Minor RSP cleanup
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
