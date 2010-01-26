@@ -685,15 +685,15 @@ void RSPConnection::_handleRepeat()
 
     if( request.start == request.end )
     {
+#ifdef EQ_INSTRUMENT_RSP
+        ++nNAcksResend;
+#endif
         _repeatQueue.pop_front();    // done with request
         if( _repeatQueue.empty( )) // re-request ack
         {
             if( _ackSend )
             {
                 _sendAckRequest( _sequenceID - 1 );
-#ifdef EQ_INSTRUMENT_RSP
-                ++nNAcksResend;
-#endif
             }
         }
     }
@@ -782,7 +782,8 @@ void RSPConnection::_finishWriteQueue()
     _timeouts = 0;
 
 #ifdef EQ_INSTRUMENT_RSP
-    EQWARN << *this << std::endl;
+    if( nBytesWritten > 10000000 )
+        EQWARN << *this << std::endl;
 #endif
 }
 
