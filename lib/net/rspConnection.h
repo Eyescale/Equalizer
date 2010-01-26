@@ -141,12 +141,6 @@ namespace net
             uint16_t    writerID;
             uint16_t    sequenceID;
         };
-        
-        struct WriteDatagramData
-        {
-            DatagramData    header;
-            const void*     data;
-        };
 
         struct RepeatRequest
         {

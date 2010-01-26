@@ -393,6 +393,7 @@ int64_t UDPConnection::readSync( void* buffer, const uint64_t bytes )
     if( _readFD < 1 )
         return -1;
 
+    EQASSERT( bytes <= static_cast< uint64_t >( _mtu ));
     const size_t use = EQ_MIN( static_cast< size_t >( _mtu ), bytes );
     socklen_t size = sizeof( _readAddress );
     while( true )

@@ -494,7 +494,7 @@ void RSPConnection::_runThread()
         {
             case ConnectionSet::EVENT_TIMEOUT:
             {
-                if( !_ackSend )
+                if( !_ackSend || !_repeatQueue.empty( ))
                     break;
 
 #ifdef EQ_INSTRUMENT_RSP
@@ -834,8 +834,9 @@ bool RSPConnection::_handleData()
             _handleCountNode();
             break;;
 
-        default: 
-            EQUNIMPLEMENTED;
+        default:
+            EQASSERTINFO( false, "Don't know how to handle packet of type " <<
+                          type );
     }
 
     return true;
@@ -1186,10 +1187,10 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
         EQASSERTINFO( connection->_sequenceID - sequenceID > 16384,
                       connection->_sequenceID << ", " << sequenceID );
 
-        EQLOG( LOG_RSP ) << "nack all datagrams (" << connection->_lastAck + 1
-                         << ".." << sequenceID << ")" << std::endl;
+        EQLOG( LOG_RSP ) << "nack all datagrams ( 0.." << sequenceID << ")" 
+                         << std::endl;
 
-        const uint16_t nacks[2] = { connection->_lastAck + 1, sequenceID };
+        const uint16_t nacks[2] = { 0, sequenceID };
         _sendNack( connection->_id, sequenceID, 1, nacks ); // full nack
         return true;
     }

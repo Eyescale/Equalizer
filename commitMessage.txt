@@ -1,9 +1,11 @@
-Potentially fix RSP closing
+RSP:
+- Remove ack reqs during retransmission
+- Fix wrong nack on lost transmmission when wrapping _sequenceID
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation
