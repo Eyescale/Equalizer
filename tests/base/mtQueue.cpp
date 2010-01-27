@@ -53,7 +53,6 @@ public:
 int main( int argc, char **argv )
 {
     ReadThread reader;
-    uint64_t nOps = 0;
     
     TEST( reader.start( ));
 

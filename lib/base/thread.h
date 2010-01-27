@@ -25,6 +25,7 @@
 #endif
 
 #include <eq/base/base.h>     // EQ_EXPORT definition
+#include <eq/base/debug.h>     // member
 #include <eq/base/lock.h>     // member
 #include <eq/base/monitor.h> // member
 
