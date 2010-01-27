@@ -23,7 +23,7 @@
 
 using namespace std;
 
-#ifdef WIN32_VC
+#ifdef _MSC_VER
 #  define atoll _atoi64
 #endif
 

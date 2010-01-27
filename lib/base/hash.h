@@ -28,7 +28,7 @@ namespace base
 {
     /** A hash for pointer keys. @version 1.0 */
     template<class K, class T> class PtrHash 
-#ifdef WIN32_VC
+#ifdef _MSC_VER
         : public stde::hash_map< K, T, stde::hash_compare< const void* > >
 #else
         : public stde::hash_map< K, T, stde::hash< const void* > >
@@ -36,7 +36,7 @@ namespace base
     {};
 
     /** A hash function for RefPtr keys. @version 1.0 */
-#ifdef WIN32_VC
+#ifdef _MSC_VER
     template< typename T >
     class hashRefPtr : public stde::hash_compare< RefPtr< T > >
     {

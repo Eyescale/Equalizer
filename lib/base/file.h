@@ -22,7 +22,7 @@
 #include <eq/base/debug.h> // EQASSERTINFO macro
 #include <eq/base/types.h>
 
-#ifndef WIN32_VC
+#ifndef _MSC_VER
 #  include <dirent.h>
 #endif
 
@@ -44,7 +44,7 @@ inline StringVector searchDirectory( const std::string directory,
 {
     StringVector files;
    
-#ifdef WIN32_VC
+#ifdef _MSC_VER
 
     WIN32_FIND_DATA file;
     const std::string search = 

@@ -7,9 +7,6 @@
 #ifndef WIN32
 #  define WIN32
 #endif
-#ifndef WIN32_VC
-#  define WIN32_VC
-#endif
 #ifndef WIN32_API
 #  define WIN32_API
 #endif

@@ -170,7 +170,6 @@ ConnectionPtr IBConnection::acceptSync()
     {
         newConnection = 0;
         return 0;
-        ;
     }
 
     return newConnection;
@@ -381,8 +380,8 @@ int64_t IBConnection::readSync( void* buffer, const uint64_t bytes )
     int64_t result = _interfaces[ numRead ]->readSync( buffer, bytes );
     if ( result < 0 ) 
         close();
-    return result;
 
+    return result;
 }
 
 int64_t IBConnection::write( const void* buffer, const uint64_t bytes)

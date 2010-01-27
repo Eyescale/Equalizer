@@ -42,7 +42,7 @@ typedef int socklen_t;
 #ifdef WIN32
 typedef int        socklen_t;
 
-#  ifdef WIN32_VC
+#  ifdef _MSC_VER
 typedef UINT64     uint64_t;
 typedef INT64      int64_t;
 typedef UINT32     uint32_t;

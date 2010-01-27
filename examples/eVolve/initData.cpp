@@ -37,7 +37,7 @@ InitData::InitData()
         , _precision( 2 )
         , _brightness( 1.0f )
         , _alpha( 1.0f )
-#ifdef WIN32_VC
+#ifdef _MSC_VER
         , _filename( "../examples/eVolve/Bucky32x32x32_d.raw" )
 #else
         , _filename( "../share/data/Bucky32x32x32_d.raw" )

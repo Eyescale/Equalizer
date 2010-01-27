@@ -26,7 +26,7 @@
 #include <eq/base/defines.h>
 
 #ifdef WIN32
-#  ifndef WIN32_VC
+#  ifndef _MSC_VER
 #    define USE_SYS_TYPES_FD_SET
 #  endif
 #  define _USE_MATH_DEFINES
@@ -38,7 +38,7 @@
 #  include <windef.h>
 #endif
 
-#ifdef WIN32_VC
+#ifdef _MSC_VER
 #  define EQ_DLLEXPORT __declspec(dllexport) 
 #  define EQ_DLLIMPORT __declspec(dllimport)
 #  ifdef EQUALIZER_EXPORTS
@@ -77,7 +77,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#ifndef WIN32_VC
+#ifndef _MSC_VER
 #  include <stdint.h>
 #  include <sys/param.h>  // for MIN/MAX
 #endif
@@ -93,7 +93,7 @@
 /** Constant defining 'wait forever' in methods with wait parameters. */
 #define EQ_TIMEOUT_INDEFINITE 0
 
-#ifdef WIN32_VC
+#ifdef _MSC_VER
 /** Declare and align a variable to a 8-byte boundary. */
 #  define EQ_ALIGN8( var )  __declspec (align (8)) var;
 /** Declare and align a variable to a 16-byte boundary. */

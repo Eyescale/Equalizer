@@ -135,7 +135,7 @@ base::DSO _libeqserver;
 net::ConnectionPtr _startLocalServer()
 {
     if( !_libeqserver.open(
-#ifdef WIN32_VC
+#ifdef _MSC_VER
          "EqualizerServer.dll"
 #elif defined (WIN32)
         "libeqserver.dll"

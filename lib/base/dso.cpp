@@ -21,7 +21,7 @@
 #include "debug.h"
 #include "log.h"
 
-#ifdef WIN32_VC
+#ifdef _MSC_VER
 #  define EQ_DL_ERROR sysError
 #else
 #  include <dlfcn.h>
@@ -43,7 +43,7 @@ bool DSO::open( const std::string& fileName )
 
     if( fileName.empty( ))
     {
-#ifdef WIN32_VC
+#ifdef _MSC_VER
 #  ifndef NDEBUG
         _dso = GetModuleHandle( "Equalizer_d.dll" );
 #  endif
@@ -56,7 +56,7 @@ bool DSO::open( const std::string& fileName )
     }
     else
     {
-#ifdef WIN32_VC
+#ifdef _MSC_VER
         _dso = LoadLibrary( fileName.c_str() );
 #elif defined( RTLD_LOCAL )
         _dso = dlopen( fileName.c_str(), RTLD_LAZY | RTLD_LOCAL );
@@ -78,7 +78,7 @@ void DSO::close()
     if( !_dso )
         return;
 
-#ifdef WIN32_VC
+#ifdef _MSC_VER
     if( _dso != GetModuleHandle( 0 ))
         FreeLibrary( _dso ) ;
 #else
@@ -91,7 +91,7 @@ void DSO::close()
 
 void* DSO::getFunctionPointer( const std::string& name )
 {
-#ifdef WIN32_VC
+#ifdef _MSC_VER
     return GetProcAddress( _dso, name.c_str() );
 #else
     return dlsym( _dso, name.c_str() );

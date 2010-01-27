@@ -62,7 +62,7 @@ namespace eq
 namespace
 {
 class HandlerMap
-#ifdef WIN32_VC
+#ifdef _MSC_VER
     : public hash_map< HWND, WGLEventHandler* >
 #else // Cygwin does not want to instantiate a hash with key=HWND
     : public hash_map< void*, WGLEventHandler* >

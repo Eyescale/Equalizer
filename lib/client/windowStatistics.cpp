@@ -22,7 +22,7 @@
 #include "pipe.h"
 #include "window.h"
 
-#ifdef WIN32_VC
+#ifdef _MSC_VER
 #  define snprintf _snprintf
 #endif
 
