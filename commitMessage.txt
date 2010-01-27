@@ -1,8 +1,10 @@
-Minor RSP cleanup
+RSP:
+- Fix RSP_TIMEOUT on each write (doh!)
+- Minor code cleanup
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

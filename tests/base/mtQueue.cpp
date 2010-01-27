@@ -53,7 +53,6 @@ public:
 int main( int argc, char **argv )
 {
     ReadThread reader;
-    
     TEST( reader.start( ));
 
     eq::base::Clock clock;

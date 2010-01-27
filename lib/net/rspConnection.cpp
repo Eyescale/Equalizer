@@ -653,7 +653,7 @@ int32_t RSPConnection::_handleWrite()
 #ifdef EQ_INSTRUMENT_RSP
     ++nAckRequests;
 #endif
-    if( !_repeatQueue.empty( ))
+    if( _repeatQueue.empty( ))
         _sendAckRequest( _sequenceID - 1 );
     return Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT );
 }
@@ -892,7 +892,7 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
     EQLOG( LOG_RSP ) << "receive " << datagram->size << " bytes from "
                      << writerID << ", sequence " << sequenceID << std::endl;
 
-    if( connection->_sequenceID == sequenceID ) // standard case
+    if( connection->_sequenceID == sequenceID ) // in-order packet
     {
         Buffer* newBuffer = connection->_newDataBuffer( buffer );
         if( !newBuffer ) // no more data buffers, drop packet
@@ -1403,15 +1403,11 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
         {
             _connectionSet.interrupt(); // trigger processing
         }
-        Buffer* buffer = 0;
+        Buffer* buffer = _appBuffers.pop();
         if( !buffer )
         {
-            buffer = _appBuffers.pop();
-            if( !buffer )
-            {
-                EQASSERT( _state != STATE_LISTENING );
-                return -1;
-            }
+            EQASSERT( _state != STATE_LISTENING );
+            return -1;
         }
 
         // prepare packet header (sequenceID is done by thread)

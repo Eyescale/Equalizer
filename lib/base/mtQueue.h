@@ -23,7 +23,6 @@
 
 #include <queue>
 #include <string.h>
-#include <sys/timeb.h>
 
 namespace eq
 {
@@ -72,7 +71,7 @@ namespace base
         T pop();
 
         /** 
-         * Retrieve and pop the front element from the queue, may block.
+         * Retrieve and pop the front element from the queue if it is not empty.
          *
          * @param result the front value or unmodified.
          * @return true if an element was placed in result, false if the queue
@@ -90,7 +89,7 @@ namespace base
         bool getFront( T& result ) const;
 
         /** 
-         * @param result the lasr value or unmodified.
+         * @param result the last value or unmodified.
          * @return true if an element was placed in result, false if the queue
          *         is empty.
          * @version 1.0
