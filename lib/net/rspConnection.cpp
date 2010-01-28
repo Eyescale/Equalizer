@@ -132,8 +132,9 @@ void RSPConnection::close()
     if( _thread )
     {
         EQASSERT( !_thread->isCurrent( ));
-        const DatagramNode exitNode = { ID_EXIT, _id };
-        _connection->write( &exitNode, sizeof( DatagramNode ) );
+        _node.type =ID_EXIT;
+        _node.connectionID = _id;
+        _connection->write( &_node, sizeof( _node ));
         _connectionSet.interrupt();
         _thread->join();
     }
@@ -328,8 +329,9 @@ bool RSPConnection::_acceptID()
 
     // send a first datagram for announce me and discover other connection 
     EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
-    const DatagramNode newnode = { ID_HELLO, _id };
-    _connection->write( &newnode, sizeof( DatagramNode ) );
+    _node.type = ID_HELLO;
+    _node.connectionID = _id;
+    _connection->write( &_node, sizeof( _node ));
 
     _timeouts = 0;
     while ( true )
@@ -341,15 +343,17 @@ bool RSPConnection::_acceptID()
                 if ( _timeouts < 20 )
                 {
                     EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
-                    const DatagramNode ackNode ={ ID_HELLO, _id };
-                    _connection->write( &ackNode, sizeof( DatagramNode ) );
+                    _node.type = ID_HELLO;
+                    _node.connectionID =_id;
+                    _connection->write( &_node, sizeof( _node ) );
                 }
                 else 
                 {
                     EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
                     EQINFO << "opened RSP connection " << _id << std::endl;
-                    const DatagramNode confirmNode ={ ID_CONFIRM, _id };
-                    _connection->write( &confirmNode, sizeof( DatagramNode ) );
+                    _node.type = ID_CONFIRM;
+                    _node.connectionID = _id;
+                    _connection->write( &_node, sizeof( _node ));
                     _addNewConnection( _id );
                     return true;
                 }
@@ -389,9 +393,10 @@ void RSPConnection::_handleAcceptID()
             if( node->connectionID == _id ) 
             {
                 _timeouts = 0;
-                const DatagramNode newnode = { ID_HELLO, _buildNewID() };
+                _node.type = ID_HELLO;
+                _node.connectionID = _buildNewID();
                 EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
-                _connection->write( &newnode, sizeof( DatagramNode ));
+                _connection->write( &_node, sizeof( _node ));
             }
             return;
 
@@ -606,8 +611,8 @@ int32_t RSPConnection::_handleWrite()
     const uint32_t size = header->size + sizeof( DatagramData );
 
     // send data
-    //  Note: We could optimize the send away if we're all alone, but since this
-    //        is not a use case, so we don't care.
+    //  Note: We could optimize the send away if we're all alone, but this
+    //        is not a use case for RSP, so we don't care.
     _connection->waitWritable( size ); // OPT: process incoming in between
     _connection->write ( header, size );
     // Note: the data to myself will be 'written' in _finishWriteQueue once
@@ -653,8 +658,7 @@ int32_t RSPConnection::_handleWrite()
 #ifdef EQ_INSTRUMENT_RSP
     ++nAckRequests;
 #endif
-    if( _repeatQueue.empty( ))
-        _sendAckRequest( _sequenceID - 1 );
+    _sendAckRequest( _sequenceID - 1 );
     return Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT );
 }
 
@@ -1255,13 +1259,13 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
 
 bool RSPConnection::_handleCountNode()
 {
-    const DatagramCountConnection* countConn = 
-    reinterpret_cast< const DatagramCountConnection* >( _recvBuffer.getData( ));
+    const DatagramCount* countConn = 
+    reinterpret_cast< const DatagramCount* >( _recvBuffer.getData( ));
 
-    EQLOG( LOG_RSP ) << "Got " << countConn->nbClient << " from " 
+    EQLOG( LOG_RSP ) << "Got " << countConn->numConnections << " from " 
                      << countConn->clientID << std::endl;
     // we know all connections
-    if( _children.size() == countConn->nbClient ) 
+    if( _children.size() == countConn->numConnections ) 
         return true;
 
     RSPConnectionPtr connection = _findConnection( countConn->clientID );
@@ -1276,8 +1280,9 @@ void RSPConnection::_checkNewID( uint16_t id )
     if( id == _id )
     {
         EQLOG( LOG_RSP ) << "Deny " << id << std::endl;
-        DatagramNode nodeSend = { ID_DENY, _id };
-        _connection->write( &nodeSend, sizeof( DatagramNode ) );
+        _node.type = ID_DENY;
+        _node.connectionID = id;
+        _connection->write( &_node, sizeof( _node ) );
         return;
     }
     
@@ -1286,8 +1291,9 @@ void RSPConnection::_checkNewID( uint16_t id )
     if( child.isValid() )
     {
         EQLOG( LOG_RSP ) << "Deny " << id << std::endl;
-        DatagramNode nodeSend = { ID_DENY, id };
-        _connection->write( &nodeSend, sizeof( DatagramNode ) );
+        _node.type = ID_DENY;
+        _node.connectionID = id;
+        _connection->write( &_node, sizeof( _node ) );
     }
     
     return;
@@ -1321,10 +1327,10 @@ void RSPConnection::_addNewConnection( const uint16_t id )
     connection->_appBuffers.clear();
 
     // Make all buffers available for reading
-    //  When using an iterator here, I got stack corruptions with VS2005!?
-    for( size_t i = 0; i < connection->_buffers.size(); ++i )
+    for( BufferVector::iterator i = connection->_buffers.begin();
+        i != connection->_buffers.end(); ++i )
     {
-        Buffer* buffer = connection->_buffers[ i ];
+        Buffer* buffer = *i;
         EQCHECK( connection->_threadBuffers.push( buffer ));
     }
 
@@ -1468,21 +1474,25 @@ void RSPConnection::_sendDatagramCountNode()
         return;
 
     EQLOG( LOG_RSP ) << _children.size() << " nodes" << std::endl;
-    const DatagramCountConnection count = { COUNTNODE, _id, _children.size() };
-    _connection->write( &count, sizeof( count ));
+    _countNode.type = COUNTNODE;
+    _countNode.clientID = _id;
+    _countNode.numConnections = _children.size();
+    _connection->write( &_countNode, sizeof( _countNode ));
 }
 
 void RSPConnection::_sendAck( const uint16_t writerID, 
                               const uint16_t sequenceID )
 {
+    EQASSERT( _id != writerID );
+
 #ifdef EQ_INSTRUMENT_RSP
     ++nAcksSendTotal;
 #endif
-    const DatagramAck ack = { ACK, _id, writerID, sequenceID };
-    if ( _id == writerID )
-        _handleAck( &ack );
-    else
-        _connection->write( &ack, sizeof( ack ) );
+    _ack.type = ACK;
+    _ack.readerID = _id;
+    _ack.writerID = writerID;
+    _ack.sequenceID = sequenceID;
+    _connection->write( &_ack, sizeof( _ack ));
 }
 
 void RSPConnection::_sendNack( const uint16_t writerID, 
@@ -1522,8 +1532,10 @@ void RSPConnection::_sendAckRequest( const uint16_t sequenceID )
 #ifdef EQ_INSTRUMENT_RSP
     ++nTotalAckRequests;
 #endif
-    const DatagramAckRequest ackRequest = { ACKREQ, _id, sequenceID };
-    _connection->write( &ackRequest, sizeof( DatagramAckRequest ) );
+    _ackRequest.type = ACKREQ;
+    _ackRequest.writerID = _id;
+    _ackRequest.sequenceID = sequenceID;
+    _connection->write( &_ackRequest, sizeof( _ackRequest ));
 }
 
 std::ostream& operator << ( std::ostream& os,

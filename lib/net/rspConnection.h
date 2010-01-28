@@ -97,26 +97,29 @@ namespace net
             COUNTNODE  // send to other the number of nodes which I have found
         };
         
+        struct DatagramNode
+        {
+            uint16_t type;
+            uint16_t connectionID;
+        }
+            _node;
+
+        struct DatagramCount
+        {
+            uint16_t type;
+            uint16_t clientID;
+            uint16_t numConnections;
+        }
+            _countNode;
+
         struct DatagramAckRequest
         {
             uint16_t type;
             uint16_t writerID;
             uint16_t sequenceID;
-        };
+        }
+            _ackRequest;
         
-        struct DatagramNode
-        {
-            uint16_t type;
-            uint16_t connectionID;
-        };
-
-        struct DatagramCountConnection
-        {
-            uint16_t type;
-            uint16_t clientID;
-            uint16_t nbClient;
-        };
-
         struct DatagramNack
         {
             uint16_t       type;
@@ -132,7 +135,8 @@ namespace net
             uint16_t        readerID;
             uint16_t        writerID;
             uint16_t        sequenceID;
-        };
+        }
+            _ack;
 
         struct DatagramData
         {

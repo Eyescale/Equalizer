@@ -123,6 +123,7 @@ namespace net
         OVERLAPPED _overlapped;
         DWORD      _overlappedDone;
         OVERLAPPED _write;
+        WSABUF     _writeBuffer;
 #endif
         int64_t _sendRate;
         CHECK_THREAD_DECLARE( _recvThread );

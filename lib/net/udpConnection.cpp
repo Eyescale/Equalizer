@@ -454,12 +454,10 @@ int64_t UDPConnection::write( const void* buffer, const uint64_t bytes )
     DWORD  wrote;
     while( true )
     {
-        WSABUF wsaBuffer = { bytes,
-            const_cast<char*>( static_cast<const char*>(buffer)) };
+        _writeBuffer.buf = const_cast<char*>( static_cast<const char*>(buffer));
+        _writeBuffer.len = bytes;
 
-        if( WSASendTo( _writeFD, &wsaBuffer, 1, &wrote, 0,
-                       (sockaddr*)&_writeAddress, sizeof( _writeAddress ),
-                       0, 0 ) ==  0 )
+        if( WSASend( _writeFD, &_writeBuffer, 1, &wrote, 0, 0, 0 ) ==  0 )
         {   // ok
             EQASSERT( wrote == bytes );
             return wrote;
