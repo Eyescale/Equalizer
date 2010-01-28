@@ -1355,27 +1355,46 @@ void Node::_handleDisconnect()
     while( _handleData( )) ; // read remaining data off connection
 
     ConnectionPtr connection = _incoming.getConnection();
-    NodePtr node;
     ConnectionNodeHash::iterator i = _connectionNodes.find( connection );
+
     if( i != _connectionNodes.end( ))
     {
-        node = i->second;
-        _connectionNodes.erase( i );
-    }
+        NodePtr node = i->second;
+        if( node->_outgoing == connection )
+        {
+            _connectionNodes.erase( i );
+            node->_state    = STATE_STOPPED;
+            node->_outgoing = 0;
 
-    if( node.isValid( ))
-    {
-        node->_state    = STATE_STOPPED;
-        node->_outgoing = 0;
+            EQINFO << node << " disconnected from " << this << std::endl;
+            base::ScopedMutex mutex( _nodes );
+            _nodes->erase( node->_id );
+        }
+        else
+        {
+            EQASSERT( connection->getDescription()->type >= 
+                      CONNECTIONTYPE_MULTICAST );
 
-        base::ScopedMutex mutex( _nodes );
-        _nodes->erase( node->_id );
+            base::ScopedMutex mutex( _outMulticast );
+            if( node->_outMulticast == connection )
+                node->_outMulticast = 0;
+            else
+            {
+                for( MCDatas::iterator j = node->_multicasts.begin();
+                     j != node->_multicasts.end(); ++j )
+                {
+                    if( (*j).connection != connection )
+                        continue;
+
+                    node->_multicasts.erase( j );
+                    break;
+                }
+            }
+        }
     }
 
     _removeConnection( connection );
-
-    EQINFO << node << " disconnected from " << this << " connection used " 
-           << connection->getRefCount() << std::endl;
+    EQINFO << "connection used " << connection->getRefCount() << std::endl;
 }
 
 bool Node::_handleData()

@@ -1,8 +1,8 @@
-Minor code cleanup
+Fix closing with multicast connections (untested)
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

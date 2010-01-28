@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,6 +44,12 @@ namespace base
 
         /** Access the held data. @version 1.0 */
         const D* operator->() const { return &data; }
+
+        /** @return true if the data is equal to the rhs object. @version 1.0*/ 
+        bool operator == ( const D& rhs ) const { return ( data == rhs ); }
+
+        /** Assign another value to the data. @version 1.0 */
+        Lockable& operator = ( const D& rhs ) { data = rhs; return *this; }
 
         D data;
         mutable Lock lock;
