@@ -124,6 +124,15 @@ RSPConnection::~RSPConnection()
 }
 
 void RSPConnection::close()
+{   
+    while ( !_threadBuffers.isEmpty() || !_appBuffers.isEmpty() )
+    {
+        base::sleep(10);
+    }
+    _close();
+}
+
+void RSPConnection::_close()
 {
     if( _state == STATE_CLOSED )
         return;
@@ -1358,8 +1367,7 @@ void RSPConnection::_removeConnection( const uint16_t id )
         if( child->_id == id )
         {
             --_countAcceptChildren;
-            child->_state = STATE_CLOSING;
-            child->_appBuffers.pushFront( 0 );
+            child->close();
             _children.erase( i );
             break;
         }

@@ -219,6 +219,7 @@ namespace net
         static uint32_t _payloadSize;
         static int32_t  _maxNAck;
 
+        void _close();
         uint16_t _buildNewID();
         
         bool _acceptID();

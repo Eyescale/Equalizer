@@ -433,7 +433,11 @@ int main( int argc, char **argv )
                       << "MB/s (" << nSamples / time * 1000.f  << "pps)"
                       << std::endl;
         }
-        connection->close();
+        if ( selector )
+        {
+            connection->close();
+            selector->join();
+        }
     }
     else
     {
