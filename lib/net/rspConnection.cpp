@@ -865,7 +865,6 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
 #endif
 
     RSPConnectionPtr connection = _findConnection( writerID );
-    EQASSERT( connection->_id == writerID );
 
     // it's an unknown connection or when we run netperf client before
     // server netperf
@@ -875,6 +874,8 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
         EQASSERTINFO( false, "Can't find connection with id " << writerID );
         return false;
     }
+    EQASSERT( connection->_id == writerID );
+
 
     // ignore it if it's a datagram repetition for another receiver
     const int32_t sequenceID = datagram->sequenceID;

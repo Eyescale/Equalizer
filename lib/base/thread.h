@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,9 +25,9 @@
 #endif
 
 #include <eq/base/base.h>     // EQ_EXPORT definition
-#include <eq/base/debug.h>     // member
+#include <eq/base/debug.h>    // debug macros in thread-safety checks
 #include <eq/base/lock.h>     // member
-#include <eq/base/monitor.h> // member
+#include <eq/base/monitor.h>  // member
 
 #include <vector>
 #include <typeinfo>
