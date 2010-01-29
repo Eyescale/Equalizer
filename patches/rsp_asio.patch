@@ -1,0 +1,1267 @@
+Index: lib/net/global.cpp
+===================================================================
+--- lib/net/global.cpp	(revision 4048)
++++ lib/net/global.cpp	(working copy)
+@@ -43,7 +43,7 @@
+ 
+ 
+ #ifdef WIN32
+-#  define BIG_SEND
++//#  define BIG_SEND
+ #endif
+ 
+ std::string Global::_programName;
+Index: lib/net/rspConnection.cpp
+===================================================================
+--- lib/net/rspConnection.cpp	(revision 4048)
++++ lib/net/rspConnection.cpp	(working copy)
+@@ -30,6 +30,7 @@
+ #define EQ_RSP_MERGE_WRITES
+ 
+ using std::distance;
++using namespace boost::asio;
+ 
+ namespace eq
+ {
+@@ -38,6 +39,8 @@
+ 
+ static int32_t _mtu = -1;
+ static int32_t _ackFreq = -1;
++static uint64_t _maxBucketSize = 0;
++
+ uint32_t RSPConnection::_payloadSize = 0;
+ int32_t RSPConnection::_maxNAck = 0;
+ 
+@@ -64,13 +67,14 @@
+ }
+ 
+ 
+-
+ RSPConnection::RSPConnection()
+         : _sendBuffer( Global::getIAttribute( Global::IATTR_UDP_MTU ))
+         , _countAcceptChildren( 0 )
+         , _id( 0 )
+         , _timeouts( 0 )
+         , _event( new EventConnection )
++        , _timer( _ioService )
++        , _allowedData( 0 )
+         , _numWriteAcks( 0 )
+         , _thread ( 0 )
+         , _connection( 0 )
+@@ -98,6 +102,8 @@
+         _maxNAck = (_mtu - sizeof( DatagramNack )) / sizeof( uint32_t );
+         _maxNAck = EQ_MIN( _maxNAck, _ackFreq );
+         EQASSERT( _maxNAck < std::numeric_limits< uint16_t >::max( ));
++
++        _maxBucketSize = (_mtu * _ackFreq) >> 1;
+     }
+ 
+     _buffers.reserve( Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS ));
+@@ -132,10 +138,12 @@
+     if( _thread )
+     {
+         EQASSERT( !_thread->isCurrent( ));
+-        _node.type =ID_EXIT;
+-        _node.connectionID = _id;
+-        _connection->write( &_node, sizeof( _node ));
+-        _connectionSet.interrupt();
++        const DatagramNode exitNode = { ID_EXIT, _id };
++        _connection->send_to(
++            boost::asio::buffer( &exitNode, sizeof( DatagramNode )),
++            _writeAddr );
++
++        _ioService.stop();
+         _thread->join();
+     }
+ 
+@@ -150,7 +158,7 @@
+     _children.clear();
+     _parent = 0;
+ 
+-    if( _connection.isValid( ))
++    if( _connection )
+         _connection->close();
+ 
+     _connection = 0;
+@@ -187,33 +195,52 @@
+     _fireStateChanged();
+ 
+     // init udp connection
+-    _connection = new UDPConnection();
+-    ConnectionDescriptionPtr description = 
+-        new ConnectionDescription( *_description.get( ));
+-    description->type = CONNECTIONTYPE_UDP;
+-    _connection->setDescription( description );
++    if( _description->port == 0 )
++        _description->port = EQ_DEFAULT_PORT;
++    if( _description->getHostname().empty( ))
++        _description->setHostname( "239.255.42.43" );
++    if( _description->getInterface().empty( ))
++        _description->setInterface( "0.0.0.0" );
+ 
+-    // connect UDP multicast connection
+-    if( !_connection->connect() )
++    try
+     {
+-        EQWARN << "can't setup underlying UDP connection " << std::endl;
++        _connection = new ip::udp::socket( _ioService );
++
++        const ip::address listenAddress( 
++            ip::address::from_string( _description->getInterface( )));
++        ip::udp::endpoint endpoint( listenAddress, _description->port );
++
++        _connection->open( endpoint.protocol( ));
++        _connection->set_option( ip::udp::socket::reuse_address( true ));
++        _connection->set_option( ip::multicast::enable_loopback( false ));
++        _connection->bind( endpoint );
++
++        const ip::address multicastAddress(
++            ip::address::from_string( _description->getHostname( )));
++        _connection->set_option(
++            ip::multicast::join_group( multicastAddress ));
++    }
++    catch( boost::system::system_error& error )
++    {
++        EQWARN << "can't setup underlying UDP connection " << error.what()
++               << std::endl;
++        delete _connection;
++        _connection = 0;
+         return false;
+     }
+ 
+-    EQASSERT( _mtu == _connection->getMTU( ));
+-    EQASSERT( _ackFreq =  _connection->getPacketRate( ));
+-
+-    _description = new ConnectionDescription( *description.get( ));
+-    _description->type = CONNECTIONTYPE_RSP;
+-    
+-    _connectionSet.addConnection( _connection.get( ));
+-
+     // init a thread to manage the communication protocol 
+     _thread = new Thread( this );
+     _numWriteAcks =  0;
++    _rspState = RSP_ID;
++    _allowedData = 0;
++    _sendRate = _description->bandwidth;
+ 
+     // waits until RSP protocol establishes connection to the multicast network
+-    if( !_thread->start( ))
++    EQCHECK( _thread->start( ));
++    _rspState.waitGE( RSP_RUNNING );
++
++    if( _rspState == RSP_ERROR )
+     {
+         close();
+         return false;
+@@ -323,129 +350,6 @@
+     return bytes;
+ }
+ 
+-bool RSPConnection::_acceptID()
+-{
+-    _connection->readNB( _recvBuffer.getData(), _mtu );
+-
+-    // send a first datagram for announce me and discover other connection 
+-    EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
+-    _node.type = ID_HELLO;
+-    _node.connectionID = _id;
+-    _connection->write( &_node, sizeof( _node ));
+-
+-    _timeouts = 0;
+-    while ( true )
+-    {
+-        switch( _connectionSet.select( 10 ))
+-        {
+-            case ConnectionSet::EVENT_TIMEOUT:
+-                ++_timeouts;
+-                if ( _timeouts < 20 )
+-                {
+-                    EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
+-                    _node.type = ID_HELLO;
+-                    _node.connectionID =_id;
+-                    _connection->write( &_node, sizeof( _node ) );
+-                }
+-                else 
+-                {
+-                    EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
+-                    EQINFO << "opened RSP connection " << _id << std::endl;
+-                    _node.type = ID_CONFIRM;
+-                    _node.connectionID = _id;
+-                    _connection->write( &_node, sizeof( _node ));
+-                    _addNewConnection( _id );
+-                    return true;
+-                }
+-                break;
+-
+-            case ConnectionSet::EVENT_DATA:
+-                if( _connection->readSync( _recvBuffer.getData(), _mtu ) == -1 )
+-                {
+-                    EQERROR << "Error read on Connection UDP" << std::endl;
+-                    return false;
+-                }
+-
+-                _handleAcceptID();
+-                _connection->readNB( _recvBuffer.getData(), _mtu );
+-                break;
+-
+-            case ConnectionSet::EVENT_INTERRUPT:
+-            default:
+-                break;
+-        }
+-    }
+-}
+-
+-void RSPConnection::_handleAcceptID()
+-{
+-    void* data = _recvBuffer.getData();
+-    const uint16_t type = *reinterpret_cast< uint16_t* >( data );
+-    const DatagramNode* node = reinterpret_cast< const DatagramNode* >( data );
+-    switch( type )
+-    {
+-        case ID_HELLO:
+-            _checkNewID( node->connectionID );
+-            return;
+-
+-        case ID_DENY:
+-            // a connection refused my ID, try another ID
+-            if( node->connectionID == _id ) 
+-            {
+-                _timeouts = 0;
+-                _node.type = ID_HELLO;
+-                _node.connectionID = _buildNewID();
+-                EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
+-                _connection->write( &_node, sizeof( _node ));
+-            }
+-            return;
+-
+-        case ID_EXIT:
+-            _removeConnection( node->connectionID );
+-            return;
+-
+-        default: break;    
+-    }
+-}
+-
+-bool RSPConnection::_initThread()
+-{
+-    // send a first datagram to announce me and discover all other connections 
+-    _sendDatagramCountNode();
+-    _timeouts = 0;
+-    while ( true )
+-    {
+-        switch( _connectionSet.select( 10 ) )
+-        {
+-            case ConnectionSet::EVENT_TIMEOUT:
+-                ++_timeouts;
+-                if( _timeouts >= 20 )
+-                {
+-                    _state = STATE_LISTENING;
+-                    return true;
+-                }
+-
+-                _sendDatagramCountNode();
+-                break;
+-
+-            case ConnectionSet::EVENT_DATA:
+-                if( _connection->readSync( _recvBuffer.getData(), _mtu ) == -1 )
+-                {
+-                    EQERROR << "Read error" << std::endl;
+-                    return false;
+-                }
+-
+-                _handleInitData();
+-                _connection->readNB( _recvBuffer.getData(), _mtu );
+-                break;
+-
+-            case ConnectionSet::EVENT_INTERRUPT:
+-            default:
+-                break;
+-        }
+-    }
+-}
+-
+ void RSPConnection::_handleInitData()
+ {
+     void* data = _recvBuffer.getData();
+@@ -465,9 +369,10 @@
+ 
+         case COUNTNODE:
+             if( _handleCountNode( ))
+-                _timeouts = 20;
+-            else
+-                _timeouts = 0;
++            {
++                _state = STATE_LISTENING;
++                _rspState = RSP_RUNNING;
++            }
+             break;
+     
+         case ID_EXIT:
+@@ -488,23 +393,65 @@
+     return 0;
+ }
+ 
+-void RSPConnection::_runThread()
++void RSPConnection::_handleTimeout( const boost::system::error_code& error )
+ {
+-    EQINFO << "Started RSP protocol thread" << std::endl;
++    if( error == boost::asio::error::operation_aborted )
++        return;
+ 
+-    while( _state == STATE_LISTENING )
++    switch( _rspState.get( ))
+     {
+-        EQASSERT( !_children.empty( ));
+-        const int32_t timeOut = _handleWrite();
+-        const ConnectionSet::Event event = _connectionSet.select( timeOut );
++        case RSP_ID:
++            ++_timeouts;
++            if ( _timeouts < 20 )
++            {
++                EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
++                const DatagramNode ackNode ={ ID_HELLO, _id };
++                _connection->send_to( boost::asio::buffer( &ackNode,
++                                                           sizeof( ackNode )),
++                                     _writeAddr );
++            }
++            else 
++            {
++                EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
++                EQINFO << "opened RSP connection " << _id << std::endl;
++                const DatagramNode confirmNode ={ ID_CONFIRM, _id };
++                _connection->send_to( boost::asio::buffer( &confirmNode,
++                                                         sizeof( confirmNode )),
++                                     _writeAddr );
++                _addNewConnection( _id );
++                _rspState = RSP_DISCOVER;
++                _timeouts = 0;
++                // send a first datagram to announce me and discover all other
++                // connections
++                _sendDatagramCountNode();
++            }
++            _timer.expires_from_now( boost::posix_time::milliseconds( 10 ));
++            _timer.async_wait(
++                boost::bind( &RSPConnection::_handleTimeout, this,
++                             placeholders::error ));
++            break;
++            
++        case RSP_DISCOVER:
++            ++_timeouts;
++            if( _timeouts < 20 )
++                _sendDatagramCountNode();
++            else
++            {
++                _state = STATE_LISTENING;
++                _rspState = RSP_RUNNING;
++                _timeouts = 0;
++            }
+ 
+-        switch( event )
++            _timer.expires_from_now( boost::posix_time::milliseconds( 10 ));
++            _timer.async_wait( 
++                boost::bind( &RSPConnection::_handleTimeout, this,
++                             placeholders::error ));
++            break;
++
++        case RSP_RUNNING:
+         {
+-            case ConnectionSet::EVENT_TIMEOUT:
++            if( _ackSend && _repeatQueue.empty( ))
+             {
+-                if( !_ackSend || !_repeatQueue.empty( ))
+-                    break;
+-
+ #ifdef EQ_INSTRUMENT_RSP
+                 ++nTimeOuts;
+ #endif
+@@ -512,7 +459,7 @@
+                 if( _timeouts >= 
+                     Global::getIAttribute( Global::IATTR_RSP_MAX_TIMEOUTS ))
+                 {
+-                    EQERROR << "Too many timeouts during send " << _timeouts
++                    EQERROR << "Too many timeouts during send: " << _timeouts
+                             << std::endl;
+ 
+                     _state = STATE_CLOSING;
+@@ -524,38 +471,70 @@
+                         child->_state = STATE_CLOSING;
+                         child->_appBuffers.pushFront( 0 ); // unlock read func
+                     }
++                    _ioService.stop();
+                     return;
+                 }
+-            
++                
+                 // repeat ack request
+                 EQASSERT( _sequenceID > 0 );
+                 _sendAckRequest( _sequenceID - 1 );
+-                break;
+             }
++            else
++                _timeouts = 0;
+ 
+-            case ConnectionSet::EVENT_DATA:
++            if( _state == STATE_LISTENING )
+             {
+-                if( _connection->readSync( _recvBuffer.getData(), _mtu ) == -1 )
++                const int32_t timeout = _handleWrite();
++                if( timeout >= 0 )
+                 {
+-                    EQERROR << "UDP read error" << std::endl;
+-                    return;
++                    EQLOG( LOG_RSP ) << "_handleTimeout timeout " << timeout << std::endl;
++                    _timer.expires_from_now( 
++                        boost::posix_time::milliseconds( timeout ));
++                    _timer.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
++                                                    placeholders::error ));
+                 }
+-
+-                if( !_handleData() )
+-                    return;
+-
+-                _connection->readNB( _recvBuffer.getData(), _mtu );
+-                break;
++                else
++                    _timer.cancel();
+             }
++            else
++                _ioService.stop();
++            break;
++        }
+ 
+-            default:
+-                EQUNIMPLEMENTED;
+-            case ConnectionSet::EVENT_INTERRUPT:
+-                break;
+-        }
++        default:
++            EQUNIMPLEMENTED;
+     }
+ }
+ 
++void RSPConnection::_runThread()
++{
++    //__debugbreak();
++    EQINFO << "Started RSP protocol thread" << std::endl;
++    _timeouts = 0;
++
++    const ip::address listenAddress( 
++        ip::address::from_string( _description->getHostname( )));
++    _writeAddr = ip::udp::endpoint( listenAddress, _description->port );
++ 
++   // send a first datagram for announce me and discover other connection 
++    EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
++    const DatagramNode newnode = { ID_HELLO, _id };
++    _connection->send_to( boost::asio::buffer( &newnode, sizeof( DatagramNode )),
++                         _writeAddr );
++
++    _timer.expires_from_now( boost::posix_time::milliseconds( 10 ));
++    _timer.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
++                                    placeholders::error ));
++
++    _connection->async_receive_from(
++        boost::asio::buffer( _recvBuffer.getData(), _mtu ), _readAddr,
++        boost::bind( &RSPConnection::_handleData, this,
++                     boost::asio::placeholders::error,
++                     boost::asio::placeholders::bytes_transferred ));
++
++    _ioService.run();
++}
++
+ int32_t RSPConnection::_handleWrite()
+ {
+     if( !_repeatQueue.empty( ))
+@@ -570,6 +549,7 @@
+         return Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT );
+     }
+ 
++    _timeouts = 0;
+     Buffer* buffer = 0;
+     if( !_threadBuffers.pop( buffer )) // nothing to write (and to repeat)
+         return -1;
+@@ -613,8 +593,9 @@
+     // send data
+     //  Note: We could optimize the send away if we're all alone, but this
+     //        is not a use case for RSP, so we don't care.
+-    _connection->waitWritable( size ); // OPT: process incoming in between
+-    _connection->write ( header, size );
++    _waitWritable( size ); // OPT: process incoming in between
++    _connection->send_to( boost::asio::buffer( header, size ),
++                         _writeAddr );
+     // Note: the data to myself will be 'written' in _finishWriteQueue once
+     // we've got all other acks
+ 
+@@ -662,9 +643,27 @@
+     return Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT );
+ }
+ 
++void RSPConnection::_waitWritable( const uint64_t bytes )
++{
++    _allowedData += static_cast< uint64_t >( _clock.getResetTimef() *
++                                             _sendRate ); // opt: * 1024 / 1000;
++    _allowedData = EQ_MIN( _allowedData, _maxBucketSize );
++
++    const uint64_t size = EQ_MIN( bytes, static_cast< uint64_t >( _mtu ));
++    while( _allowedData < size )
++    {
++        eq::base::sleep( 1 );
++        _allowedData += static_cast< int64_t >( _clock.getResetTimef() *
++                                                _sendRate );
++        _allowedData = EQ_MIN( _allowedData, _maxBucketSize );
++    }
++    _allowedData -= size;
++}
++
+ void RSPConnection::_handleRepeat()
+ {
+     EQASSERT( !_repeatQueue.empty( ));
++    _timeouts = 0;
+     RepeatRequest& request = _repeatQueue.front(); 
+     EQASSERT( request.start <= request.end );
+     EQASSERT( request.end < _sequenceID );
+@@ -681,8 +680,9 @@
+     EQASSERT( header->sequenceID == request.start );
+ 
+     // send data
+-    _connection->waitWritable( size ); // OPT: process incoming in between
+-    _connection->write ( header, size );
++    _waitWritable( size ); // OPT: process incoming in between
++    _connection->send_to( boost::asio::buffer( header, size ),
++                         _writeAddr );
+ #ifdef EQ_INSTRUMENT_RSP
+     ++nTotalDatagrams;
+ #endif
+@@ -792,61 +792,142 @@
+ }
+ 
+ 
+-bool RSPConnection::_handleData()
++void RSPConnection::_handleData( const boost::system::error_code& error,
++                                 const size_t bytes )
+ {
+-    void* data = _recvBuffer.getData();
+-    const uint16_t type = *reinterpret_cast< uint16_t* >( data );
+-    switch( type )
++    int32_t timeout = 10;
++    switch( _rspState.get( ))
+     {
+-        case DATA:
+-            return _handleDataDatagram( _recvBuffer );
+-
+-        case ACK:
+-            return _handleAck( reinterpret_cast< const DatagramAck* >( data )) ;
+-    
+-        case NACK:
+-            return _handleNack( reinterpret_cast< const DatagramNack* >( data));
+-    
+-        case ACKREQ: // The writer asks for an ack/nack
+-            return _handleAckRequest(
+-                reinterpret_cast< const DatagramAckRequest* >( data ));
+-    
+-        case ID_HELLO:
++        case RSP_ID:
+         {
+-            const DatagramNode* node =
++            void* data = _recvBuffer.getData();
++            const uint16_t type = *reinterpret_cast< uint16_t* >( data );
++            const DatagramNode* node = 
+                 reinterpret_cast< const DatagramNode* >( data );
+-            _checkNewID( node->connectionID );
++            switch( type )
++            {
++                case ID_HELLO:
++                    _checkNewID( node->connectionID );
++                    break;
++
++                case ID_DENY:
++                    // a connection refused my ID, try another ID
++                    if( node->connectionID == _id ) 
++                    {
++                        _timeouts = 0;
++                        const DatagramNode newnode = { ID_HELLO, _buildNewID()};
++                        EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
++                        _connection->send_to( 
++                            boost::asio::buffer( &newnode, sizeof( newnode )),
++                                     _writeAddr );
++                    }
++                    break;
++
++                case ID_EXIT:
++                    _removeConnection( node->connectionID );
++                    break;
++
++                default:
++                    break;    
++            }
+             break;
+         }
+ 
+-        case ID_CONFIRM:
+-        {
+-            const DatagramNode* node =
+-                reinterpret_cast< const DatagramNode* >( data );
+-            _addNewConnection( node->connectionID );
++        case RSP_DISCOVER:
++            _handleInitData();
+             break;
+-        }
+ 
+-        case ID_EXIT:
++        case RSP_RUNNING:
+         {
+-            const DatagramNode* node = 
+-                reinterpret_cast< const DatagramNode* >( data );
+-            _removeConnection( node->connectionID );
++            void* data = _recvBuffer.getData();
++            const uint16_t type = *reinterpret_cast< uint16_t* >( data );
++            switch( type )
++            {
++                case DATA:
++                    EQCHECK( _handleDataDatagram( _recvBuffer ));
++                    break;
++
++                case ACK:
++                    EQCHECK( _handleAck( 
++                              reinterpret_cast< const DatagramAck* >( data )));
++                    break;
++
++                case NACK:
++                    EQCHECK( _handleNack(
++                              reinterpret_cast< const DatagramNack* >( data )));
++                    break;
++
++                case ACKREQ: // The writer asks for an ack/nack
++                    EQCHECK( _handleAckRequest(
++                        reinterpret_cast< const DatagramAckRequest* >( data )));
++                    break;
++    
++                case ID_HELLO:
++                {
++                    const DatagramNode* node =
++                        reinterpret_cast< const DatagramNode* >( data );
++                    _checkNewID( node->connectionID );
++                    break;
++                }
++
++                case ID_CONFIRM:
++                {
++                    const DatagramNode* node =
++                        reinterpret_cast< const DatagramNode* >( data );
++                    _addNewConnection( node->connectionID );
++                    break;
++                }
++
++                case ID_EXIT:
++                {
++                    const DatagramNode* node = 
++                        reinterpret_cast< const DatagramNode* >( data );
++                    _removeConnection( node->connectionID );
++                    break;
++                }
++
++                case COUNTNODE:
++                    _handleCountNode();
++                    break;
++
++                default:
++                    EQASSERTINFO( false, 
++                                  "Don't know how to handle packet of type " <<
++                                  type );
++            }
++
++            if( _state == STATE_LISTENING )
++                timeout = _handleWrite();
++            else
++            {
++                _ioService.stop();
++                return;
++            }
+             break;
+         }
+ 
+-        case COUNTNODE:
+-            _handleCountNode();
+-            break;;
+-
+         default:
+-            EQASSERTINFO( false, "Don't know how to handle packet of type " <<
+-                          type );
++            EQUNIMPLEMENTED;
+     }
+ 
+-    return true;
++    EQLOG( LOG_RSP ) << "_handleData timeout " << timeout << std::endl;
++    _connection->async_receive_from(
++        boost::asio::buffer( _recvBuffer.getData(), _mtu ), _readAddr,
++        boost::bind( &RSPConnection::_handleData, this,
++                     boost::asio::placeholders::error,
++                     boost::asio::placeholders::bytes_transferred ));
++    if( timeout >= 0 )
++    {
++        _timer.expires_from_now( boost::posix_time::milliseconds( timeout ));
++        _timer.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
++                                        placeholders::error ));
++    }
++    else
++        _timer.cancel();
+ }
+ 
++
++
+ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
+ {
+ #ifdef EQ_INSTRUMENT_RSP
+@@ -971,7 +1052,7 @@
+         if( lastBuffer )
+         {
+             const DatagramData* last = 
+-                reinterpret_cast<const DatagramData*>( lastBuffer->getData( ));            
++                reinterpret_cast<const DatagramData*>( lastBuffer->getData( ));
+             nacks[0] = last->sequenceID + 1;
+         }
+     }
+@@ -1281,9 +1362,10 @@
+     if( id == _id )
+     {
+         EQLOG( LOG_RSP ) << "Deny " << id << std::endl;
+-        _node.type = ID_DENY;
+-        _node.connectionID = id;
+-        _connection->write( &_node, sizeof( _node ) );
++        DatagramNode nodeSend = { ID_DENY, _id };
++        _connection->send_to( 
++            boost::asio::buffer( &nodeSend, sizeof( DatagramNode )),
++           _writeAddr );
+         return;
+     }
+     
+@@ -1292,9 +1374,10 @@
+     if( child.isValid() )
+     {
+         EQLOG( LOG_RSP ) << "Deny " << id << std::endl;
+-        _node.type = ID_DENY;
+-        _node.connectionID = id;
+-        _connection->write( &_node, sizeof( _node ) );
++        DatagramNode nodeSend = { ID_DENY, id };
++        _connection->send_to(
++            boost::asio::buffer( &nodeSend, sizeof( DatagramNode )),
++            _writeAddr );
+     }
+     
+     return;
+@@ -1389,7 +1472,7 @@
+ 
+     EQASSERT( _state == STATE_LISTENING );
+ 
+-    if ( !_connection.isValid() )
++    if ( !_connection )
+         return -1;
+ 
+     // compute number of datagrams
+@@ -1408,7 +1491,10 @@
+         if( (i % _ackFreq) == static_cast< uint32_t >( _ackFreq >> 1 ) ||
+             _appBuffers.isEmpty( ))
+         {
+-            _connectionSet.interrupt(); // trigger processing
++            // trigger processing
++            _timer.expires_from_now( boost::posix_time::milliseconds( 0 ));
++            _timer.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
++                placeholders::error ));
+         }
+         Buffer* buffer = _appBuffers.pop();
+         if( !buffer )
+@@ -1430,7 +1516,9 @@
+         EQCHECK( _threadBuffers.push( buffer ));
+     }
+ 
+-    _connectionSet.interrupt();
++    _timer.expires_from_now( boost::posix_time::milliseconds( 0 ));
++    _timer.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
++        placeholders::error ));
+     EQLOG( LOG_RSP ) << "queued " << nDatagrams << " datagrams, " 
+                      << bytes << " bytes" << std::endl;
+     return bytes;
+@@ -1443,9 +1531,10 @@
+                           static_cast< float >( nPackets ) * 100.f ) - 
+         Global::getIAttribute( Global::IATTR_RSP_ERROR_BASE_RATE );
+ 
++    int32_t delta = 0;
+     if ( error < 0.f )
+     {
+-        int32_t delta = static_cast< int32_t >( error *
++        delta = static_cast< int32_t >( error *
+                       Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE ));
+         delta = EQ_MIN( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAX ),
+                         delta );
+@@ -1453,11 +1542,10 @@
+         EQLOG( LOG_RSP ) << nErrors << "/" << nPackets
+                          << " errors, change send rate by " << -delta << "%"
+                          << std::endl;
+-        _connection->adaptSendRate( -delta );
+     }
+     else
+     {
+-        int32_t delta = static_cast< int32_t >( error /
++        delta = static_cast< int32_t >( error /
+                     Global::getIAttribute( Global::IATTR_RSP_ERROR_DOWNSCALE ));
+         delta = EQ_MIN( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAX ),
+                         delta );
+@@ -1465,20 +1553,24 @@
+         EQLOG( LOG_RSP ) << nErrors << "/" << nPackets
+                          << " errors, change send rate by " << -delta << "%"
+                          << std::endl;
+-        _connection->adaptSendRate( -delta );
+     }
++
++    _sendRate += _sendRate * (-delta) / 100;
++    _sendRate = EQ_MAX( _description->bandwidth/50, _sendRate );
++    _sendRate = EQ_MIN( _sendRate, _description->bandwidth );
++    EQLOG( LOG_RSP ) << "new send rate " << _sendRate << std::endl;
+ }
+ 
++
+ void RSPConnection::_sendDatagramCountNode()
+ {
+     if ( !_findConnection( _id ) )
+         return;
+ 
+     EQLOG( LOG_RSP ) << _children.size() << " nodes" << std::endl;
+-    _countNode.type = COUNTNODE;
+-    _countNode.clientID = _id;
+-    _countNode.numConnections = _children.size();
+-    _connection->write( &_countNode, sizeof( _countNode ));
++    const DatagramCount count = { COUNTNODE, _id, _children.size() };
++    _connection->send_to( boost::asio::buffer( &count, sizeof( count )),
++                         _writeAddr );
+ }
+ 
+ void RSPConnection::_sendAck( const uint16_t writerID, 
+@@ -1489,11 +1581,9 @@
+ #ifdef EQ_INSTRUMENT_RSP
+     ++nAcksSendTotal;
+ #endif
+-    _ack.type = ACK;
+-    _ack.readerID = _id;
+-    _ack.writerID = writerID;
+-    _ack.sequenceID = sequenceID;
+-    _connection->write( &_ack, sizeof( _ack ));
++    const DatagramAck ack = { ACK, _id, writerID, sequenceID };
++    _connection->send_to( boost::asio::buffer( &ack, sizeof( ack )),
++                          _writeAddr );
+ }
+ 
+ void RSPConnection::_sendNack( const uint16_t writerID, 
+@@ -1524,7 +1614,7 @@
+     header->count = count;
+ 
+     memcpy( header + 1, repeats, size - sizeof( DatagramNack ));
+-    _connection->write( header, size );
++    _connection->send_to( boost::asio::buffer( header, size ), _writeAddr );
+ }
+ 
+ void RSPConnection::_sendAckRequest( const uint16_t sequenceID )
+@@ -1533,10 +1623,11 @@
+ #ifdef EQ_INSTRUMENT_RSP
+     ++nTotalAckRequests;
+ #endif
+-    _ackRequest.type = ACKREQ;
+-    _ackRequest.writerID = _id;
+-    _ackRequest.sequenceID = sequenceID;
+-    _connection->write( &_ackRequest, sizeof( _ackRequest ));
++    EQLOG( LOG_RSP ) << "send ack request for " << sequenceID << std::endl;
++    const DatagramAckRequest ackRequest = { ACKREQ, _id, sequenceID };
++    _connection->send_to(
++        boost::asio::buffer( &ackRequest, sizeof( DatagramAckRequest )),
++        _writeAddr );
+ }
+ 
+ std::ostream& operator << ( std::ostream& os,
+Index: lib/net/rspConnection.h
+===================================================================
+--- lib/net/rspConnection.h	(revision 4048)
++++ lib/net/rspConnection.h	(working copy)
+@@ -18,8 +18,13 @@
+ 
+ #ifndef EQNET_RSPCONNECTION_H
+ #define EQNET_RSPCONNECTION_H
+-#include <pthread.h>
+ 
++#ifdef EQUALIZER_EXPORTS
++   // We need to instantiate a Monitor< State > when compiling the library,
++   // but we don't want to have <pthread.h> for a normal build, hence this hack
++#  include <pthread.h>
++#endif
++
+ #include <eq/net/connectionSet.h> // member
+ #include <eq/net/types.h>
+ 
+@@ -31,11 +36,15 @@
+ #include "eventConnection.h" // member
+ #include "udpConnection.h"   // member
+ 
++#include <boost/bind.hpp>
++#include <boost/shared_ptr.hpp>
++//#include <boost/enable_shared_from_this.hpp>
++#include <boost/asio.hpp>
++
+ namespace eq
+ {
+ namespace net
+ {
+-
+     class ConnectionDescription;
+     class RSPConnection;
+     /** A rsp connection (Attn: only multicast usage implemented). */
+@@ -58,16 +67,25 @@
+         int64_t readSync( void* buffer, const uint64_t bytes );
+         int64_t write( const void* buffer, const uint64_t bytes );
+ 
+-        int64_t getSendRate() const { return _connection->getSendRate(); }
++        int64_t getSendRate() const { return _sendRate; }
+         uint32_t getID() const { return _id; }
+         
+         /** @sa Connection::getNotifier */
+         virtual Notifier getNotifier() const { return _event->getNotifier(); }
+     
+     private:
+-        typedef base::RefPtr< UDPConnection > UDPConnectionPtr;
+         typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
+-        
++
++        enum RSPState
++        {
++            RSP_STOPPED,
++            RSP_ID,
++            RSP_DISCOVER,
++            RSP_RUNNING,
++            RSP_ERROR
++        };
++        base::Monitor< RSPState > _rspState;
++
+         /* manages RSP protocol directly using the udp connection */
+         class Thread : public eq::base::Thread
+         {
+@@ -75,8 +93,6 @@
+             Thread( RSPConnectionPtr connection )
+                 : _connection( connection ){}
+             virtual ~Thread(){ _connection = 0; }
+-            virtual bool init(){ return _connection->_acceptID() && 
+-                                        _connection->_initThread(); }
+         protected:
+             virtual void* run();
+             
+@@ -101,24 +117,21 @@
+         {
+             uint16_t type;
+             uint16_t connectionID;
+-        }
+-            _node;
++        };
+ 
+         struct DatagramCount
+         {
+             uint16_t type;
+             uint16_t clientID;
+             uint16_t numConnections;
+-        }
+-            _countNode;
++        };
+ 
+         struct DatagramAckRequest
+         {
+             uint16_t type;
+             uint16_t writerID;
+             uint16_t sequenceID;
+-        }
+-            _ackRequest;
++        };
+         
+         struct DatagramNack
+         {
+@@ -135,8 +148,7 @@
+             uint16_t        readerID;
+             uint16_t        writerID;
+             uint16_t        sequenceID;
+-        }
+-            _ack;
++        };
+ 
+         struct DatagramData
+         {
+@@ -184,10 +196,17 @@
+         typedef base::RefPtr< EventConnection > EventConnectionPtr;
+         EventConnectionPtr _event;
+ 
+-        ConnectionSet    _connectionSet;
++        boost::asio::io_service _ioService;
++        boost::asio::ip::udp::socket* _connection;
++        boost::asio::ip::udp::endpoint _writeAddr;
++        boost::asio::ip::udp::endpoint _readAddr;
++        boost::asio::deadline_timer _timer;
++        eq::base::Clock _clock;
++        size_t _allowedData;
++        int64_t _sendRate;
++
+         uint32_t         _numWriteAcks;
+         Thread*          _thread;
+-        UDPConnectionPtr _connection;
+         base::Lock       _mutexConnection;
+         base::Lock       _mutexEvent;
+         RSPConnectionPtr _parent;
+@@ -221,12 +240,11 @@
+ 
+         uint16_t _buildNewID();
+         
+-        bool _acceptID();
+-        void _handleAcceptID();
+-
+         int32_t _handleWrite(); //!< @return time to call again
+         void _finishWriteQueue();
+-        bool _handleData( );
++        void _handleTimeout( const boost::system::error_code& error );
++        void _handleData( const boost::system::error_code& error,
++                          const size_t bytes );
+         bool _handleDataDatagram( Buffer& buffer );
+         bool _handleAck( const DatagramAck* ack );
+         bool _handleNack( const DatagramNack* nack );
+@@ -237,9 +255,6 @@
+ 
+         Buffer* _newDataBuffer( Buffer& inBuffer );
+ 
+-        /** Initialize the reader thread */
+-        bool _initThread();
+-
+         /* Run the reader thread */
+         void _runThread();
+         
+@@ -250,6 +265,7 @@
+         
+         /** Analyze the current error and adapt the send rate */
+         void _adaptSendRate( const size_t nPackets, const size_t errors );
++        void _waitWritable( const uint64_t bytes );
+ 
+         /** format and send a datagram count node */
+         void _sendDatagramCountNode();
+Index: VS2005/Equalizer.vcproj
+===================================================================
+--- VS2005/Equalizer.vcproj	(revision 4048)
++++ VS2005/Equalizer.vcproj	(working copy)
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="Windows-1252"?>
+ <VisualStudioProject
+ 	ProjectType="Visual C++"
+-	Version="8.00"
++	Version="8,00"
+ 	Name="Equalizer Client Library"
+ 	ProjectGUID="{21B10D06-2D20-4095-846C-C5F9EDADB6BD}"
+ 	RootNamespace="Equalizer Client Library"
+@@ -44,7 +44,7 @@
+ 			<Tool
+ 				Name="VCCLCompilerTool"
+ 				Optimization="0"
+-				AdditionalIncludeDirectories="&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(TargetDir)Headers&quot;"
++				AdditionalIncludeDirectories="&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;..\boost_1_41_0&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EQUALIZER_EXPORTS;EQ_PLUGIN_BUILD;_CRT_SECURE_NO_DEPRECATE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+@@ -70,7 +70,7 @@
+ 				AdditionalDependencies="pthreadVC2.lib rpcrt4.lib ws2_32.lib opengl32.lib mswsock.lib"
+ 				OutputFile="$(OutDir)/Equalizer.dll"
+ 				LinkIncremental="2"
+-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(MLNX_WINOF)\SDK\lib\user\objfre_wnet_x86\i386&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_x86\i386&quot;"
++				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(MLNX_WINOF)\SDK\lib\user\objfre_wnet_x86\i386&quot;;&quot;..\boost_1_41_0\stage\lib&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_x86\i386&quot;"
+ 				GenerateDebugInformation="true"
+ 				ProgramDatabaseFile="$(OutDir)/Equalizer.pdb"
+ 				SubSystem="0"
+@@ -130,7 +130,7 @@
+ 			<Tool
+ 				Name="VCCLCompilerTool"
+ 				Optimization="0"
+-				AdditionalIncludeDirectories="&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(TargetDir)Headers&quot;"
++				AdditionalIncludeDirectories="&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;..\boost_1_41_0&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EQUALIZER_EXPORTS;EQ_PLUGIN_BUILD;_CRT_SECURE_NO_DEPRECATE"
+ 				MinimalRebuild="true"
+ 				BasicRuntimeChecks="3"
+@@ -156,7 +156,7 @@
+ 				AdditionalDependencies="pthreadVC2.lib rpcrt4.lib ws2_32.lib opengl32.lib mswsock.lib"
+ 				OutputFile="$(OutDir)/Equalizer.dll"
+ 				LinkIncremental="2"
+-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_amd64\amd64&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_amd64\amd64&quot;"
++				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_amd64\amd64&quot;;&quot;..\boost_1_41_0\stage\lib&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_amd64\amd64&quot;"
+ 				GenerateDebugInformation="true"
+ 				ProgramDatabaseFile="$(OutDir)/Equalizer.pdb"
+ 				SubSystem="0"
+@@ -215,7 +215,7 @@
+ 			/>
+ 			<Tool
+ 				Name="VCCLCompilerTool"
+-				AdditionalIncludeDirectories="&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(TargetDir)Headers&quot;"
++				AdditionalIncludeDirectories="&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;..\boost_1_41_0&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EQUALIZER_EXPORTS;EQ_PLUGIN_BUILD;_CRT_SECURE_NO_DEPRECATE"
+ 				RuntimeLibrary="2"
+ 				RuntimeTypeInfo="true"
+@@ -239,7 +239,7 @@
+ 				AdditionalDependencies="pthreadVC2.lib rpcrt4.lib ws2_32.lib opengl32.lib mswsock.lib"
+ 				OutputFile="$(OutDir)/Equalizer.dll"
+ 				LinkIncremental="1"
+-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_x86\i386&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_x86\i386&quot;"
++				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_x86\i386&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_x86\i386&quot;;&quot;..\boost_1_41_0\stage\lib&quot;"
+ 				GenerateDebugInformation="true"
+ 				SubSystem="0"
+ 				LargeAddressAware="2"
+@@ -301,7 +301,7 @@
+ 			/>
+ 			<Tool
+ 				Name="VCCLCompilerTool"
+-				AdditionalIncludeDirectories="&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(TargetDir)Headers&quot;"
++				AdditionalIncludeDirectories="&quot;$(InputDir)../../Windows/pthreads/include&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc\user&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\inc&quot;;&quot;..\boost_1_41_0&quot;;&quot;$(TargetDir)Headers&quot;"
+ 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EQUALIZER_EXPORTS;EQ_PLUGIN_BUILD;_CRT_SECURE_NO_DEPRECATE"
+ 				RuntimeLibrary="2"
+ 				RuntimeTypeInfo="true"
+@@ -325,7 +325,7 @@
+ 				AdditionalDependencies="pthreadVC2.lib rpcrt4.lib ws2_32.lib opengl32.lib mswsock.lib"
+ 				OutputFile="$(OutDir)/Equalizer.dll"
+ 				LinkIncremental="1"
+-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_amd64\amd64&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_amd64\amd64&quot;"
++				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_amd64\amd64&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_amd64\amd64&quot;;&quot;..\boost_1_41_0\stage\lib&quot;"
+ 				GenerateDebugInformation="true"
+ 				SubSystem="0"
+ 				OptimizeReferences="2"
+@@ -3274,7 +3274,7 @@
+ 					<Tool
+ 						Name="VCCustomBuildTool"
+ 						Description="Copying $(InputFileName)"
+-						CommandLine="If not EXIST &quot;$(TargetDir)Headers/eq/net&quot;  mkdir &quot;$(TargetDir)Headers/eq/net&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;"
++						CommandLine="If not EXIST &quot;$(TargetDir)Headers/eq/net&quot;  mkdir &quot;$(TargetDir)Headers/eq/net&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;&#x0D;&#x0A;"
+ 						Outputs="&quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;"
+ 					/>
+ 				</FileConfiguration>
+@@ -3284,7 +3284,7 @@
+ 					<Tool
+ 						Name="VCCustomBuildTool"
+ 						Description="Copying $(InputFileName)"
+-						CommandLine="If not EXIST &quot;$(TargetDir)Headers/eq/net&quot;  mkdir &quot;$(TargetDir)Headers/eq/net&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;"
++						CommandLine="If not EXIST &quot;$(TargetDir)Headers/eq/net&quot;  mkdir &quot;$(TargetDir)Headers/eq/net&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;&#x0D;&#x0A;"
+ 						Outputs="&quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;"
+ 					/>
+ 				</FileConfiguration>
+@@ -3294,7 +3294,7 @@
+ 					<Tool
+ 						Name="VCCustomBuildTool"
+ 						Description="Copying $(InputFileName)"
+-						CommandLine="If not EXIST &quot;$(TargetDir)Headers/eq/net&quot;  mkdir &quot;$(TargetDir)Headers/eq/net&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;"
++						CommandLine="If not EXIST &quot;$(TargetDir)Headers/eq/net&quot;  mkdir &quot;$(TargetDir)Headers/eq/net&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;&#x0D;&#x0A;"
+ 						Outputs="&quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;"
+ 					/>
+ 				</FileConfiguration>
+@@ -3304,7 +3304,7 @@
+ 					<Tool
+ 						Name="VCCustomBuildTool"
+ 						Description="Copying $(InputFileName)"
+-						CommandLine="If not EXIST &quot;$(TargetDir)Headers/eq/net&quot;  mkdir &quot;$(TargetDir)Headers/eq/net&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;"
++						CommandLine="If not EXIST &quot;$(TargetDir)Headers/eq/net&quot;  mkdir &quot;$(TargetDir)Headers/eq/net&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;&#x0D;&#x0A;"
+ 						Outputs="&quot;$(TargetDir)Headers/eq/net/$(InputFileName)&quot;"
+ 					/>
+ 				</FileConfiguration>
+@@ -9527,46 +9527,6 @@
+ 			Filter="dll;lib"
+ 			>
+ 			<File
+-				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.dll"
+-				>
+-				<FileConfiguration
+-					Name="Debug|Win32"
+-					ExcludedFromBuild="true"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-					/>
+-				</FileConfiguration>
+-				<FileConfiguration
+-					Name="Debug|x64"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-						Description="copying library (x64)"
+-						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
+-						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
+-					/>
+-				</FileConfiguration>
+-				<FileConfiguration
+-					Name="Release|Win32"
+-					ExcludedFromBuild="true"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-					/>
+-				</FileConfiguration>
+-				<FileConfiguration
+-					Name="Release|x64"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-						Description="copying library (x64)"
+-						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
+-						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
+-					/>
+-				</FileConfiguration>
+-			</File>
+-			<File
+ 				RelativePath="..\Windows\pthreads\lib\pthreadVC2.dll"
+ 				>
+ 				<FileConfiguration
+@@ -9613,7 +9573,7 @@
+ 				</FileConfiguration>
+ 			</File>
+ 			<File
+-				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.lib"
++				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.dll"
+ 				>
+ 				<FileConfiguration
+ 					Name="Debug|Win32"
+@@ -9698,6 +9658,46 @@
+ 					/>
+ 				</FileConfiguration>
+ 			</File>
++			<File
++				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.lib"
++				>
++				<FileConfiguration
++					Name="Debug|Win32"
++					ExcludedFromBuild="true"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++					/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug|x64"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++						Description="copying library (x64)"
++						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
++						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
++					/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Release|Win32"
++					ExcludedFromBuild="true"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++					/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Release|x64"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++						Description="copying library (x64)"
++						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
++						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
++					/>
++				</FileConfiguration>
++			</File>
+ 		</Filter>
+ 		<File
+ 			RelativePath="..\AUTHORS"
