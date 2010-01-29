@@ -172,6 +172,9 @@ namespace base
         /** @internal */
         static void pinCurrentThread();
 
+        /** @internal */
+        EQ_EXPORT static void setDebugName( const std::string& name );
+
     private:
         ThreadPrivate* _data;
 

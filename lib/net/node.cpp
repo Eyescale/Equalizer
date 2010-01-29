@@ -1258,6 +1258,8 @@ void* Node::_runReceiverThread()
 {
     EQINFO << "Entered receiver thread of " << typeid( *this ).name()
            << std::endl;
+    base::Thread::setDebugName( std::string( "Rcv " ) +
+                                typeid( *this ).name( ));
 
     int nErrors = 0;
     while( _state == STATE_LISTENING )
@@ -1547,6 +1549,8 @@ void* Node::_runCommandThread()
 {
     EQINFO << "Entered command thread of " << typeid( *this ).name() 
            << std::endl;
+    base::Thread::setDebugName( std::string( "Cmd " ) +
+                                typeid( *this ).name( ));
 
     while( _state == STATE_LISTENING )
     {

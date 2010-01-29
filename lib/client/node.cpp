@@ -466,6 +466,7 @@ void Node::TransmitThread::send( FrameData* data, net::NodePtr node,
 
 void* Node::TransmitThread::run()
 {
+    base::Thread::setDebugName( std::string( "Trm " ) + typeid( *_node ).name());
     while( true )
     {
         const Task task = _tasks.pop();

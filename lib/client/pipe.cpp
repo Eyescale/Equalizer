@@ -305,6 +305,7 @@ MessagePump* Pipe::createMessagePump()
 void* Pipe::_runThread()
 {
     EQINFO << "Entered pipe thread" << std::endl;
+    base::Thread::setDebugName( typeid( *this ).name( ));
     CHECK_THREAD( _pipeThread );
 
     Config* config = getConfig();
