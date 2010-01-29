@@ -656,7 +656,7 @@ int32_t RSPConnection::_handleWrite()
     {
         EQASSERT( _children.front()->_id == _id );
         _finishWriteQueue();
-        return _writeBuffers.isEmpty() ? -1 : 0;
+        return _threadBuffers.isEmpty() ? -1 : 0;
     }
     // else
 
