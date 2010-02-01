@@ -105,7 +105,6 @@ void CompressorDiffRLE10A2::decompress( const void* const* inData,
                                       const eq_uint64_t nPixels,
                                       const bool useAlpha )
 {
-
     _decompress< uint32_t, uint8_t, SwizzleUInt32, UseAlpha >(
         inData, inSizes, numInputs, outData, nPixels );
 }

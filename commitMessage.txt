@@ -1,4 +1,4 @@
-Add connection unit test
+Release notes update, minor code cleanups
 
 [ ] May break build
 [ ] May break existing applications
@@ -6,4 +6,4 @@ Add connection unit test
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

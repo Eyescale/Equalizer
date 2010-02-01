@@ -77,41 +77,39 @@
 <h3>2.1. New Features</h3>
 <ul>
   <li><a href="http://www.equalizergraphics.com/documents/design/subpixelCompound.html">
-  	  Subpixel Compound</a> for full-scene anti-aliasing (FSAA) or depth-of-field (DOF).</li>
-  <li>Initial support for using CUDA in Equalizer applications.</li>
-  <li>Multicast RSP connection and adaptation of netperf.</li>
-  <li>Configurable message pump and new AGL, WGL, GLX message pump headers. </li>
-  <li>Tile and range boundaries in loadEqualizer.</li>
-  <li>Object serialization buffer size is configurable.</li>
-  <li>Textures can be written as RGB image files.</li>
-  <li>Support for RSP and PGM connection types.</li>
-  <li>New class for an accumulation buffer using an FBO.</li>
-  <li>New Infiniband Communication IBAL.</li>
-  <li>Multiple windows on the same pipe can join the same software swap barrier.</li>
-  <li>Simple RLE compressor.</li>
+      Subpixel Compound</a> for full-scene anti-aliasing (FSAA) or
+    depth-of-field (DOF) decomposition.</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/multicast.html">Data distribution and data updates using reliable UDP multicast</a>.</li>
+  <li>Support for writing applications which are not using OpenGL.</li>
+  <li>Support for Mac OS X 10.6 Snow Leopard</li>
 </ul>
 
 <a name="enhancements"></a>
 <h3>2.2. Enhancements</h3>
 <ul>
-  <li>Separation of the OpenGL calls from the generic window class OSWindow to implement window systems which use a different renderer.</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/loadBalancing.html#boundaries">Tile and range boundaries</a> for the load equalizer.</li>
+  <li>New 
+    <a href="http://www.equalizergraphics.com/documents/Developer/API/classeq_1_1util_1_1Accum.html">eq::util::Accum</a>
+    class for accumulation operations using an FBO or the OpenGL accumulation
+    buffer.</li>
+  <li>Multiple windows on the same pipe can join the same software swap
+    barrier.</li>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2902505&group_id=170962&atid=856212">Configurable message pump</a>.</li>
+
 </ul>
 
 <a name="optimizations"></a>
 <h3>2.3. Optimizations</h3>
 <ul>
-  <li>Check if textures are power of two or if non power of two textures are supported.</li>
-  <li>IDPool has a different behaviour for detecting the errors in the debug build and for being as robust as possible in the release build.</li>
-  <li>The number of compression chunks change dynamically.</li>
-  <li>Improve the speed in PGM connection.</li>
-  <li>Optimization of the DELTA objects behaviour.</li>
+  <li>Configurable object serialization buffer size.</li>
+  <li>Performance optimization for image compression.</li>
+  <li>Reduce memory footprint for eq::net::Objects with change type DELTA.</li>
 </ul>
 
 <a name="examples"></a>
 <h3>2.4. Examples</h3>
 <ul>
-  <li>EqPly: added anti-aliasing when the application is idling.</li>
-  <li>EqPly: add a new config showing all features through a layout switch.</li>
+  <li>EqPly: added anti-aliasing when the application is idle.</li>
   <li>EqPly: recursively search directories for models.</li>
   <li>EqPly: switch to faster VBO rendering on OSX.</li>
 </ul>
@@ -119,7 +117,7 @@
 <a name="tools"></a>
 <h3>2.5. Tools</h3>
 <ul>
-  <li></li>
+  <li>No Changes</li>
 </ul>
 
 <a name="changes"></a>
@@ -129,7 +127,13 @@
   were made:
 </p>
 <ul>
-  <li></li>
+  <li>The utility classes <code>Accum</code>, <code>AccumBufferObject</code>,
+    <code>FrameBufferObject</code> and <code>Texture</code> where moved from
+    the <code>eq</code> to the <code>eq::util</code> namespace.</li>
+  <li><code>eq::Window::getColorType</code> has been changed
+    to <code>getColorFormat</code> for consistency.</li>
+  <li>The font handling provided by <code>eq::Window</code> has been refactored
+    for non-OpenGL rendering support.</li>
 </ul>
 
 <a name="documentation"></a>
@@ -143,11 +147,7 @@
       User Guide</a> has been extended to TBD pages and TBD figures.</li>
   <li>The Accumulation Buffer Object API has been added to the Programming Guide.</li>
   <li><a href="http://www.equalizergraphics.com/documents/design/subpixelCompound.html">The Subpixel compound API</a> provides a compound for anti-aliasing.</li>
-  <li>Update of the net::Object documentation.</li>
-  <li>API and file format changes for the launch parameters.</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/computeExtensions.html">GPU computing</a>.</li>
   <li><a href="http://www.equalizergraphics.com/documents/design/multicast.html">Multicast Data Transfer</a>.</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/infiniBand.html">Infiniband Communication IBAL</a>.</li>
 </ul>
 
 <a name="bugfixes"></a>
@@ -157,23 +157,10 @@
   the following:
 </p>
 <ul>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2903212&group_id=170962&atid=856209">2903212</a>: Netperf packet sequence test fail with RSP</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2903210&group_id=170962&atid=856209">2903210</a>: Launching two netperf RSP servers simultaneously fails</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2901081&group_id=170962&atid=856209">2901081</a>: Idle AA jitter needs to account for pixel decomposition</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2901080&group_id=170962&atid=856209">2901080</a>: Idle AA with subpixel compound too blurry</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2900350&group_id=170962&atid=856209">2900350</a>: EqPly idle AA broken with 3-channel.curved.eqc</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2894646&group_id=170962&atid=856209">2894646</a>: Wrong init of _numSteps if FBO is used for accumulation</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2894627&group_id=170962&atid=856209">2894627</a>: _accumBuffer in eqPly::Channel is not resized</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2894570&group_id=170962&atid=856209">2894570</a>: netperf fails with RSPConnection</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2886975&group_id=170962&atid=856209">2886975</a>: RSPConnection connect fails</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2882382&group_id=170962&atid=856209">2882382</a>: FBO windows broken in recent revisions</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2874597&group_id=170962&atid=856209">2874597</a>: Windows XP 64bit build fails in memcpy.h</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2874164&group_id=170962&atid=856209">2874164</a>: Missing header</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2873353&group_id=170962&atid=856209">2873353</a>: Usage of ext/hash_map and -Werror causes compiler error</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2834063&group_id=170962&atid=856209">2834063</a>: eqPly and eVolve freezes on Mac with glx</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2828296&group_id=170962&atid=856209">2828269</a>: eVolve depth compositing is broken</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2827694&group_id=170962&atid=856209">2827694</a>: Optimization for delta objects</li>
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2822348&group_id=170962&atid=856209">2822348</a>: No latency when event-driven</li>
+  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2642034&group_id=170962&atid=856209">2642034</a>: Win32: max 64 connections possible</li>
 </ul>
 
 <a name="knownbugs"></a>
@@ -183,15 +170,11 @@
   Report</a> if you find any other issue with this release.
 </p>
 <ul>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2912051&group_id=170962&atid=856209">2912051</a>: RSP timeout handling</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2911293&group_id=170962&atid=856209">2911293</a>: RSP crash</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2910791&group_id=170962&atid=856209">2910791</a>: RSP clean exit</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2908701&group_id=170962&atid=856209">2908701</a>: EqPly idle AA broken with eye compound</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2882248&group_id=170962&atid=856209">2882248</a>: Spurious deadlocks on Win32</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2874188&group_id=170962&atid=856209">2874188</a>: Lockup at shutdown</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2843849&group_id=170962&atid=856209">2843849</a>: 64-bit bug in eVolveConverter</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2796444&group_id=170962&atid=856209">2796444</a>: Race during simultaneous node connect</li>
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2642034&group_id=170962&atid=856209">2642034</a>: Win32: max 64 connections possible</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2609161&group_id=170962&atid=856209">2609161</a>: zoom: depth readback does not work</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2556940&group_id=170962&atid=856209">2556940</a>: zoom: FBO usage</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2003195&group_id=170962&atid=856209">2003195</a>: Ortho frustra ignores eye offset</li>
@@ -210,16 +193,16 @@
 </p>
 <p>
   Equalizer requires at least <a href="http://www.opengl.org">OpenGL 1.1</a>,
-  but uses newer OpenGL features when available. Version 0.9 has been tested
+  but uses newer OpenGL features when available. Version 0.9.1 has been tested
   on:
 </p>
 
 <a name="os"></a>
 <h3>3.1. Operating System Support</h3>
 <ul>
-  <li><b>Linux:</b> Ubuntu 8.04, 9.04 (i386)</li>
+  <li><b>Linux:</b> Ubuntu 9.04, 9.10 (i386, x64)</li>
   <li><b>Windows:</b> XP with Visual Studio 2005 (i386, x64)</li>
-  <li><b>Mac OS X:</b> 10.5 (PowerPC, i386)</li>
+  <li><b>Mac OS X:</b> 10.5, 10.6 (i386)</li>
 </ul>
 
 <a name="ws"></a>

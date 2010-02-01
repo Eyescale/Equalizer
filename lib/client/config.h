@@ -91,7 +91,14 @@ namespace eq
          */
         uint32_t getLatency() const { return _latency; }
 
+        /**
+         * Change the latency of the configuration.
+         *
+         * The config has to be running. Pending rendering frames are finished
+         * by this method, making it relatively expensive.
+         */
         EQ_EXPORT void changeLatency( const uint32_t latency );
+
         /**
          * @return the vector of nodes instantiated on this process.
          * @version 1.0
@@ -351,9 +358,6 @@ namespace eq
 
     protected:
 
-        /** The maximum number of outstanding frames. */
-        uint32_t _latency;
-        
         /** @internal */
         //@{
         /** @internal */
@@ -399,6 +403,9 @@ namespace eq
         std::deque< FrameStatistics > _statistics;
         base::Lock                    _statisticsMutex;
 
+        /** The maximum number of outstanding frames. */
+        uint32_t _latency;
+        
         /** The last started frame. */
         uint32_t _currentFrame;
         /** The last locally released frame. */
