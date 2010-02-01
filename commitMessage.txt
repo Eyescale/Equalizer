@@ -1,4 +1,4 @@
-Minor code cleanup
+Add connection unit test
 
 [ ] May break build
 [ ] May break existing applications
