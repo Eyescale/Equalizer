@@ -247,12 +247,13 @@ void Channel::frameReadback( const uint32_t frameID )
     for( eq::FrameVector::const_iterator i = frames.begin(); 
          i != frames.end(); ++i )
     {
-        (*i)->setAlphaUsage( false );
+        Frame* frame = *i;
+        frame->setAlphaUsage( false );
         
         if( frameData.isIdle( ))
-	    (*i)->setQuality( eq::Frame::BUFFER_COLOR, 1.f );
+            frame->setQuality( eq::Frame::BUFFER_COLOR, 1.f );
         else
-	    (*i)->setQuality( eq::Frame::BUFFER_COLOR, 0.7f );
+            frame->setQuality( eq::Frame::BUFFER_COLOR, 0.7f );
     }
 
     eq::Channel::frameReadback( frameID );
