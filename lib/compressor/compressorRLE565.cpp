@@ -71,15 +71,15 @@ public:
     static inline void swizzle( const uint32_t input, uint8_t& one,
                                 uint8_t& two, uint8_t& three, uint8_t& four ) 
     {
-         return NoSwizzle::swizzle(
-                ((( input & ( EQ_BIT6  | EQ_BIT5  | EQ_BIT4 )) >> 3 )           |
-                 (( input & ( EQ_BIT14 | EQ_BIT13 | EQ_BIT12 )) >> 8 )          |
-                 (( input & ( EQ_BIT8  | EQ_BIT7 )) << 5 )                      |
-                 (( input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT22 | 
-                              EQ_BIT21 | EQ_BIT20 )) >> 13 )                    |
-                 (( input & ( EQ_BIT16 | EQ_BIT15 )) >> 1 )                     |
-                 (( input &   EQ_BIT32 ) >> 16 )),
-                    one, two, three, four );
+         NoSwizzle::swizzle(
+           ((( input & ( EQ_BIT6  | EQ_BIT5  | EQ_BIT4 )) >> 3 )           |
+            (( input & ( EQ_BIT14 | EQ_BIT13 | EQ_BIT12 )) >> 8 )          |
+            (( input & ( EQ_BIT8  | EQ_BIT7 )) << 5 )                      |
+            (( input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT22 | 
+                         EQ_BIT21 | EQ_BIT20 )) >> 13 )                    |
+            (( input & ( EQ_BIT16 | EQ_BIT15 )) >> 1 )                     |
+            (( input &   EQ_BIT32 ) >> 16 )),
+                 one, two, three, four );
     }
 
     static inline void swizzle( const uint32_t input, uint8_t& one,
@@ -116,7 +116,7 @@ public:
     static inline void swizzle( const uint32_t input, uint8_t& one,
                                 uint8_t& two, uint8_t& three ) 
     {
-        return NoSwizzle::swizzle(
+        NoSwizzle::swizzle(
 	       ((( input & ( EQ_BIT6  | EQ_BIT5  | EQ_BIT4 )) >> 3 )           |
                 (( input & ( EQ_BIT13 | EQ_BIT12 | EQ_BIT11 )) >> 7 )          |
                 (( input & ( EQ_BIT8  | EQ_BIT7 )) << 5 )                      |

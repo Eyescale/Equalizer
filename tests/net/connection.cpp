@@ -32,8 +32,8 @@ static eq::net::ConnectionType types[] =
 {
     eq::net::CONNECTIONTYPE_TCPIP,
     eq::net::CONNECTIONTYPE_PIPE,
-//    eq::net::CONNECTIONTYPE_MCIP,
-//    eq::net::CONNECTIONTYPE_RSP,
+    eq::net::CONNECTIONTYPE_MCIP,
+    eq::net::CONNECTIONTYPE_RSP,
 #ifdef WIN32
     eq::net::CONNECTIONTYPE_NAMEDPIPE,
 #endif
