@@ -228,7 +228,7 @@ namespace net
         int32_t _handleWrite(); //!< @return time to call again
         void _finishWriteQueue();
         bool _handleData( );
-        bool _handleDataDatagram( Buffer& buffer );
+        bool _handleDataDatagram( base::Bufferb& buffer );
         bool _handleAck( const DatagramAck* ack );
         bool _handleNack( const DatagramNack* nack );
         bool _handleAckRequest( const DatagramAckRequest* ackRequest );
@@ -236,7 +236,7 @@ namespace net
         /** @return true if we knew the correct number of connections. */
         bool _handleCountNode();
 
-        Buffer* _newDataBuffer( Buffer& inBuffer );
+        Buffer* _newDataBuffer( base::Bufferb& inBuffer );
 
         /** Initialize the reader thread */
         bool _initThread();
