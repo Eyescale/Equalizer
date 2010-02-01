@@ -52,20 +52,27 @@ namespace
 {
 class Watchdog : public eq::base::Thread
 {
+public:
+    Watchdog( const std::string& name ) : _name( name ) {}
+
     virtual void* run()
         {
 #ifdef EQ_TEST_RUNTIME
             eq::base::sleep( EQ_TEST_RUNTIME * 1000 );
             TESTINFO( false, 
-                      "Watchdog triggered - test did not terminate within " <<
-                      EQ_TEST_RUNTIME << "s" );
+                      "Watchdog triggered - " << _name <<
+                      " did not terminate within " << EQ_TEST_RUNTIME << "s" );
 #else
             eq::base::sleep( 10000 );
             TESTINFO( false, 
-                      "Watchdog triggered - test did not terminate within 10s");
+                      "Watchdog triggered - " << _name <<
+                      " did not terminate within 10s" );
 #endif
             return EXIT_SUCCESS;
         }
+
+private:
+    const std::string _name;
 };
 
 }
@@ -73,7 +80,7 @@ class Watchdog : public eq::base::Thread
 int main( int argc, char **argv )
 {
 #ifndef EQ_TEST_NO_WATCHDOG
-    Watchdog watchdog;
+    Watchdog watchdog( argv[0] );
     watchdog.start();
 #endif
 

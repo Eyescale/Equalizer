@@ -247,7 +247,7 @@ void Channel::frameReadback( const uint32_t frameID )
     for( eq::FrameVector::const_iterator i = frames.begin(); 
          i != frames.end(); ++i )
     {
-        Frame* frame = *i;
+        eq::Frame* frame = *i;
         frame->setAlphaUsage( false );
         
         if( frameData.isIdle( ))
