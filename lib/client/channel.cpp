@@ -463,11 +463,9 @@ void Channel::setupAssemblyState()
     pvp.y = 0;
 
     //TODO: temporary workaround
-    if( !( GLEW_EXT_framebuffer_object && 
-           ( GLEW_VERSION_3_0 || GLEW_ARB_texture_float )))
-    {
+    if( !util::Accum::usesFBO( glewGetContext( )))
         pvp = getPixelViewport();
-    }
+
     Compositor::setupAssemblyState( pvp );
 }
 
