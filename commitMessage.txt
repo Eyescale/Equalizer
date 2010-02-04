@@ -1,11 +1,9 @@
-Const visitor and accept for client entity classes
-Minor code cleanups
-Minor release preparations
+Tweak curved demo config with cross-segment load-balancing
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [x] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

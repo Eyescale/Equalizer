@@ -1,0 +1,156 @@
+#Equalizer 1.0 ascii
+
+# single-window config simulating a 3-projector curved projection system
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 50 50 400 300 ]
+                    channel 
+                    {
+                        name "channel-left"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 450 50 400 300 ]
+                    channel 
+                    {
+                        name "channel-middle"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 850 50 400 300 ]
+                    channel 
+                    {
+                        name "channel-right"
+                    }
+                }
+            }
+        }
+        layout
+        {
+            name "Static"
+            view {}
+        }
+        layout
+        {
+            name "Dynamic"
+            view {}
+        }
+        canvas
+        {
+            layout "Static"
+            layout "Dynamic"
+
+            segment
+            {
+                viewport [ 0 0 .333333 1 ]
+                channel "channel-left"
+                projection
+                {
+                    origin       [ 0 0 0 ]
+                    distance     3
+                    fov          [ 54 40 ]
+                    hpr          [ 50 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .333333 0 .333334 1 ]
+                channel "channel-middle"
+                projection
+                {
+                    origin       [ 0 0 0 ]
+                    distance     3
+                    fov          [ 54 40 ]
+                    hpr          [ 0 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .666667 0 .333333 1 ]
+                channel "channel-right"
+                projection
+                {
+                    origin       [ 0 0 0 ]
+                    distance     3
+                    fov          [ 54 40 ]
+                    hpr          [ -50 0 0 ]
+                }
+            }
+        }
+
+        compound
+        {
+            compound
+            {
+                channel ( segment 0 layout "Static" view 0 )
+                swapbarrier{}
+            }
+            compound
+            {
+                channel ( segment 1 layout "Static" view 0 )
+            }
+            compound
+            {
+                channel ( segment 2 layout "Static" view 0 )
+                swapbarrier{}
+            }
+        }
+
+        compound
+        {
+            view_equalizer {}
+            compound
+            {
+                channel ( segment 0 layout "Dynamic" view 0 )
+                load_equalizer {}
+
+                compound{ }
+                compound{ channel "channel-middle" outputframe{ name "v1c2" }}
+                compound{ channel "channel-right" outputframe{ name "v1c3" }}
+                inputframe { name "v1c2" }
+                inputframe { name "v1c3" }
+                swapbarrier{}
+            }
+            compound
+            {
+                channel ( segment 1 layout "Dynamic" view 0 )
+                load_equalizer {}
+
+                compound{ }
+                compound{ channel "channel-left" outputframe{ name "v2c1" }}
+                compound{ channel "channel-right" outputframe{ name "v2c3" }}
+                inputframe { name "v2c1" }
+                inputframe { name "v2c3" }
+                swapbarrier{}
+            }
+            compound
+            {
+                channel ( segment 2 layout "Dynamic" view 0 )
+                load_equalizer {}
+
+                compound{ }
+                compound{ channel "channel-left" outputframe{ name "v3c1" }}
+                compound{ channel "channel-middle" outputframe{ name "v3c2" }}
+                inputframe { name "v3c1" }
+                inputframe { name "v3c2" }
+                swapbarrier{}
+            }
+        }
+    }    
+}
