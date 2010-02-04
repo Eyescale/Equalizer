@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -115,7 +115,7 @@ namespace server
          */
         VisitorResult accept( SegmentVisitor& visitor )
             { return visitor.visit( this ); }
-        VisitorResult accept( ConstSegmentVisitor& visitor ) const
+        VisitorResult accept( SegmentVisitor& visitor ) const
             { return visitor.visit( this ); }
         //@}
 

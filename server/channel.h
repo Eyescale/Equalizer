@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -46,7 +46,6 @@ namespace server
 {
     class ChannelListener;
     class ChannelVisitor;
-    class ConstChannelVisitor;
     struct ChannelPath;
 
     /**
@@ -116,7 +115,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         EQSERVER_EXPORT VisitorResult accept( ChannelVisitor& visitor );
-        EQSERVER_EXPORT VisitorResult accept( ConstChannelVisitor& ) const;
+        EQSERVER_EXPORT VisitorResult accept( ChannelVisitor& visitor ) const;
 
         /** Increase channel activition count. */
         void activate();

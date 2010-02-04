@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,7 +27,6 @@
 #include "compoundUpdateInputVisitor.h"
 #include "compoundUpdateOutputVisitor.h"
 #include "config.h"
-#include "constCompoundVisitor.h"
 #include "equalizers/equalizer.h"
 #include "frame.h"
 #include "frameData.h"
@@ -653,7 +652,8 @@ void Compound::_updateOverdraw( Wall& wall )
 //---------------------------------------------------------------------------
 namespace
 {
-template< class C, class V > VisitorResult _accept( C* compound, V& visitor )
+template< class C > 
+VisitorResult _accept( C* compound, CompoundVisitor& visitor )
 {
     if( compound->isLeaf( )) 
         return visitor.visitLeaf( compound );
@@ -751,7 +751,7 @@ VisitorResult Compound::accept( CompoundVisitor& visitor )
     return _accept( this, visitor );
 }
 
-VisitorResult Compound::accept( ConstCompoundVisitor& visitor ) const
+VisitorResult Compound::accept( CompoundVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

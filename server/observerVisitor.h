@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,9 +26,7 @@ namespace server
 {
     class Observer;
 
-    /**
-     * A visitor to traverse non-const observers.
-     */
+    /** A visitor to traverse observers. */
     class ObserverVisitor
     {
     public:
@@ -38,24 +36,11 @@ namespace server
         /** Destruct the ObserverVisitor */
         virtual ~ObserverVisitor(){}
 
-        /** Visit a observer. */
+        /** Visit an observer. */
         virtual VisitorResult visit( Observer* observer )
-            { return TRAVERSE_CONTINUE; }
-    };
+            { return visit( static_cast< const Observer* >( observer )); }
 
-    /**
-     * A visitor to traverse const observers.
-     */
-    class ConstObserverVisitor
-    {
-    public:
-        /** Constructs a new ObserverVisitor. */
-        ConstObserverVisitor(){}
-        
-        /** Destruct the ObserverVisitor */
-        virtual ~ConstObserverVisitor(){}
-
-        /** Visit a observer. */
+        /** Visit an observer. */
         virtual VisitorResult visit( const Observer* observer )
             { return TRAVERSE_CONTINUE; }
     };

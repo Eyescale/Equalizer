@@ -20,7 +20,6 @@
 #include "../compound.h"
 #include "../compoundVisitor.h"
 #include "../config.h"
-#include "../constCompoundVisitor.h"
 #include "../log.h"
 #include "../pipe.h"
 
@@ -461,7 +460,7 @@ void ViewEqualizer::_updateListeners()
 
 namespace
 {
-class PipeCounter : public ConstCompoundVisitor
+class PipeCounter : public CompoundVisitor
 {
 public:
     virtual VisitorResult visitPre( const Compound* compound )

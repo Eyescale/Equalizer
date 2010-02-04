@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,6 @@
 #define EQSERVER_CONFIGVISITOR_H
 
 #include "canvasVisitor.h"        // base class
-#include "constCompoundVisitor.h" // base class
 #include "compoundVisitor.h"      // base class
 #include "layoutVisitor.h"        // base class
 #include "nodeVisitor.h"          // base class
@@ -31,9 +30,7 @@ namespace server
 {
     class Config;
 
-    /**
-     * A visitor to traverse non-const configs and children.
-     */
+    /** A visitor to traverse configs and children. */
     class ConfigVisitor : public NodeVisitor, 
                           public CompoundVisitor,
                           public ObserverVisitor,
@@ -49,28 +46,11 @@ namespace server
 
         /** Visit a config on the down traversal. */
         virtual VisitorResult visitPre( Config* config )
-            { return TRAVERSE_CONTINUE; }
+            { return visitPre( static_cast< const Config* >( config )); }
 
         /** Visit a config on the up traversal. */
         virtual VisitorResult visitPost( Config* config )
-            { return TRAVERSE_CONTINUE; }
-    };
-
-    /**
-     * A visitor to traverse const configs and children.
-     */
-    class ConstConfigVisitor : public ConstNodeVisitor, 
-                               public ConstCompoundVisitor,
-                               public ConstObserverVisitor,
-                               public ConstLayoutVisitor,
-                               public ConstCanvasVisitor
-    {
-    public:
-        /** Constructs a new ConfigVisitor. */
-        ConstConfigVisitor(){}
-        
-        /** Destruct the ConfigVisitor */
-        virtual ~ConstConfigVisitor(){}
+            { return visitPost( static_cast< const Config* >( config )); }
 
         /** Visit a config on the down traversal. */
         virtual VisitorResult visitPre( const Config* config )

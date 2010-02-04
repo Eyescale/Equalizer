@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,7 @@
 #ifndef EQSERVER_CHANNELUPDATEVISITOR_H
 #define EQSERVER_CHANNELUPDATEVISITOR_H
 
-#include "constCompoundVisitor.h" // base class
+#include "compoundVisitor.h" // base class
 
 #include <eq/client/colorMask.h>
 #include <eq/client/eye.h>
@@ -32,10 +32,8 @@ namespace server
     class Channel;
     class FrustumData;
     
-    /**
-     * The compound visitor generating the draw tasks for a channel.
-     */
-    class ChannelUpdateVisitor : public ConstCompoundVisitor
+    /** The compound visitor generating the draw tasks for a channel. */
+    class ChannelUpdateVisitor : public CompoundVisitor
     {
     public:
         ChannelUpdateVisitor( Channel* channel, const uint32_t frameID, 

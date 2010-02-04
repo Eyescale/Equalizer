@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,7 +43,6 @@ namespace eq
 {
 namespace server
 {
-    class ConstCompoundVisitor;
     class CompoundListener;
     class CompoundVisitor;
     class Frame;
@@ -408,8 +407,7 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        EQSERVER_EXPORT VisitorResult accept( ConstCompoundVisitor& visitor )
-                                          const;
+        EQSERVER_EXPORT VisitorResult accept( CompoundVisitor& visitor ) const;
         /** Non-const version of accept(). */
         EQSERVER_EXPORT VisitorResult accept( CompoundVisitor& visitor );
 

@@ -127,7 +127,7 @@ VisitorResult Server::accept( ServerVisitor& visitor )
     return _accept( this, visitor );
 }
 
-VisitorResult Server::accept( ConstServerVisitor& visitor ) const
+VisitorResult Server::accept( ServerVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,7 +29,6 @@ namespace eq
 namespace server
 {
     class LayoutVisitor;
-    class ConstLayoutVisitor;
     struct LayoutPath;
     struct ViewPath;
 
@@ -93,7 +92,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( LayoutVisitor& visitor );
-        VisitorResult accept( ConstLayoutVisitor& visitor ) const;
+        VisitorResult accept( LayoutVisitor& visitor ) const;
 
         /** Unmap this layout and all its children. */
         void unmap();

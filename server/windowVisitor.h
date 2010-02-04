@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,9 +26,7 @@ namespace server
 {
     class Window;
 
-    /**
-     * A visitor to traverse non-const windows and children.
-     */
+    /** A visitor to traverse windows and children. */
     class WindowVisitor : public ChannelVisitor
     {
     public:
@@ -40,24 +38,11 @@ namespace server
 
         /** Visit a window on the down traversal. */
         virtual VisitorResult visitPre( Window* window )
-            { return TRAVERSE_CONTINUE; }
+            { return visitPre( static_cast< const Window* >( window )); }
 
         /** Visit a window on the up traversal. */
         virtual VisitorResult visitPost( Window* window )
-            { return TRAVERSE_CONTINUE; }
-    };
-
-    /**
-     * A visitor to traverse const windows and children.
-     */
-    class ConstWindowVisitor : public ConstChannelVisitor
-    {
-    public:
-        /** Constructs a new WindowVisitor. */
-        ConstWindowVisitor(){}
-        
-        /** Destruct the WindowVisitor */
-        virtual ~ConstWindowVisitor(){}
+            { return visitPost( static_cast< const Window* >( window )); }
 
         /** Visit a window on the down traversal. */
         virtual VisitorResult visitPre( const Window* window )

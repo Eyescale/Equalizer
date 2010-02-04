@@ -19,7 +19,7 @@
 
 #include "../compound.h"
 #include "../config.h"
-#include "../constCompoundVisitor.h"
+#include "../compoundVisitor.h"
 #include "../log.h"
 #include "../frame.h"
 #include "../view.h"
@@ -40,7 +40,7 @@ namespace server
 
 namespace
 {
-class OutputFrameFinder : public ConstCompoundVisitor
+class OutputFrameFinder : public CompoundVisitor
 {
 public:
     OutputFrameFinder( const std::string& name  )

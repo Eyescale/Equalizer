@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,9 +26,7 @@ namespace server
 {
     class Layout;
 
-    /**
-     * A visitor to traverse non-const layouts and children.
-     */
+    /** A visitor to traverse layouts and children. */
     class LayoutVisitor : public ViewVisitor
     {
     public:
@@ -40,24 +38,11 @@ namespace server
 
         /** Visit a layout on the down traversal. */
         virtual VisitorResult visitPre( Layout* layout )
-            { return TRAVERSE_CONTINUE; }
+            { return visitPre( static_cast< const Layout* >( layout )); }
 
         /** Visit a layout on the up traversal. */
         virtual VisitorResult visitPost( Layout* layout )
-            { return TRAVERSE_CONTINUE; }
-    };
-
-    /**
-     * A visitor to traverse const layouts and children.
-     */
-    class ConstLayoutVisitor : public ConstViewVisitor
-    {
-    public:
-        /** Constructs a new LayoutVisitor. */
-        ConstLayoutVisitor(){}
-        
-        /** Destruct the LayoutVisitor */
-        virtual ~ConstLayoutVisitor(){}
+            { return visitPost( static_cast< const Layout* >( layout )); }
 
         /** Visit a layout on the down traversal. */
         virtual VisitorResult visitPre( const Layout* layout )

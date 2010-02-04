@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,7 +41,6 @@ namespace eq
 namespace server
 {
     class WindowVisitor;
-    class ConstWindowVisitor;
     struct ChannelPath;
     struct WindowPath;
 
@@ -133,7 +132,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         EQSERVER_EXPORT VisitorResult accept( WindowVisitor& visitor );
-        EQSERVER_EXPORT VisitorResult accept( ConstWindowVisitor& ) const;
+        EQSERVER_EXPORT VisitorResult accept( WindowVisitor& visitor ) const;
 
         /** Increase window activition count. */
         void activate();

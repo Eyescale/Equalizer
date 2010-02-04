@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,7 +27,7 @@ namespace server
     class Canvas;
 
     /**
-     * A visitor to traverse non-const canvases and children.
+     * A visitor to traverse canvases and children.
      */
     class CanvasVisitor : public SegmentVisitor
     {
@@ -40,24 +40,11 @@ namespace server
 
         /** Visit a canvas on the down traversal. */
         virtual VisitorResult visitPre( Canvas* canvas )
-            { return TRAVERSE_CONTINUE; }
+            { return visitPre( static_cast< const Canvas* >( canvas )); }
 
         /** Visit a canvas on the up traversal. */
         virtual VisitorResult visitPost( Canvas* canvas )
-            { return TRAVERSE_CONTINUE; }
-    };
-
-    /**
-     * A visitor to traverse const canvases and children.
-     */
-    class ConstCanvasVisitor : public ConstSegmentVisitor
-    {
-    public:
-        /** Constructs a new CanvasVisitor. */
-        ConstCanvasVisitor(){}
-        
-        /** Destruct the CanvasVisitor */
-        virtual ~ConstCanvasVisitor(){}
+            { return visitPost( static_cast< const Canvas* >( canvas )); }
 
         /** Visit a canvas on the down traversal. */
         virtual VisitorResult visitPre( const Canvas* canvas )

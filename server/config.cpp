@@ -25,7 +25,6 @@
 #include "compoundVisitor.h"
 #include "configUpdateDataVisitor.h"
 #include "configSerializer.h"
-#include "constCompoundVisitor.h"
 #include "equalizers/equalizer.h"
 #include "global.h"
 #include "idFinder.h"
@@ -607,8 +606,8 @@ View* Config::getView( const ViewPath& path )
 
 namespace
 {
-template< class C, class V >
-VisitorResult _accept( C* config, V& visitor )
+template< class C >
+VisitorResult _accept( C* config, ConfigVisitor& visitor )
 { 
     VisitorResult result = visitor.visitPre( config );
     if( result != TRAVERSE_CONTINUE )
@@ -731,7 +730,7 @@ VisitorResult Config::accept( ConfigVisitor& visitor )
     return _accept( this, visitor );
 }
 
-VisitorResult Config::accept( ConstConfigVisitor& visitor ) const
+VisitorResult Config::accept( ConfigVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

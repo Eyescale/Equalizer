@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,7 +33,6 @@ namespace eq
 {
 namespace server
 {
-    class ConstNodeVisitor;
     class NodeVisitor;
     struct ChannelPath;
     struct NodePath;
@@ -119,7 +118,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( NodeVisitor& visitor );
-        VisitorResult accept( ConstNodeVisitor& visitor ) const;
+        VisitorResult accept( NodeVisitor& visitor ) const;
 
         /** Increase node activition count. */
         void activate();

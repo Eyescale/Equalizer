@@ -219,8 +219,8 @@ Channel* Window::getChannel( const ChannelPath& path )
 
 namespace
 {
-template< class C, class V >
-VisitorResult _accept( C* window, V& visitor )
+template< class C >
+VisitorResult _accept( C* window, WindowVisitor& visitor )
 { 
     VisitorResult result = visitor.visitPre( window );
     if( result != TRAVERSE_CONTINUE )
@@ -267,7 +267,7 @@ VisitorResult Window::accept( WindowVisitor& visitor )
     return _accept( this, visitor );
 }
 
-VisitorResult Window::accept( ConstWindowVisitor& visitor ) const
+VisitorResult Window::accept( WindowVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -369,8 +369,8 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
 
 namespace
 {
-template< class C, class V >
-VisitorResult _accept( C* canvas, V& visitor )
+template< class C >
+VisitorResult _accept( C* canvas, CanvasVisitor& visitor )
 {
     VisitorResult result = visitor.visitPre( canvas );
     if( result != TRAVERSE_CONTINUE )
@@ -417,7 +417,7 @@ VisitorResult Canvas::accept( CanvasVisitor& visitor )
     return _accept( this, visitor );
 }
 
-VisitorResult Canvas::accept( ConstCanvasVisitor& visitor ) const
+VisitorResult Canvas::accept( CanvasVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

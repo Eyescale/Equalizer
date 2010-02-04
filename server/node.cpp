@@ -186,8 +186,8 @@ Channel* Node::getChannel( const ChannelPath& path )
 
 namespace
 {
-template< class C, class V >
-VisitorResult _accept( C* node, V& visitor )
+template< class C >
+VisitorResult _accept( C* node, NodeVisitor& visitor )
 { 
     VisitorResult result = visitor.visitPre( node );
     if( result != TRAVERSE_CONTINUE )
@@ -233,7 +233,7 @@ VisitorResult Node::accept( NodeVisitor& visitor )
     return _accept( this, visitor );
 }
 
-VisitorResult Node::accept( ConstNodeVisitor& visitor ) const
+VisitorResult Node::accept( NodeVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

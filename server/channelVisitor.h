@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,22 +40,9 @@ namespace server
 
         /** Visit a channel. */
         virtual VisitorResult visit( Channel* channel )
-            { return TRAVERSE_CONTINUE; }
-    };
+            { return visit( static_cast< const Channel* >( channel )); }
 
-    /**
-     * A visitor to traverse a const channels.
-     */
-    class ConstChannelVisitor
-    {
-    public:
-        /** Constructs a new ChannelVisitor. */
-        ConstChannelVisitor(){}
-        
-        /** Destruct the ChannelVisitor */
-        virtual ~ConstChannelVisitor(){}
-
-        /** Visit a channel. */
+        /** Visit a channel during a const traversal. */
         virtual VisitorResult visit( const Channel* channel )
             { return TRAVERSE_CONTINUE; }
     };

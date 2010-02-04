@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -82,7 +82,7 @@ namespace server
          */
         VisitorResult accept( ObserverVisitor& visitor )
             { return visitor.visit( this ); }
-        VisitorResult accept( ConstObserverVisitor& visitor ) const
+        VisitorResult accept( ObserverVisitor& visitor ) const
             { return visitor.visit( this ); }
 
         /** Unmap this observer and all its children. */

@@ -61,6 +61,7 @@
        depth-of-field (DOF) decomposition.
      * Data distribution and data updates using reliable UDP multicast.
      * Support for writing applications which are not using OpenGL.
+     * Support for Mac OS X 10.6 Snow Leopard
 
   2.2. Enhancements
 
@@ -80,7 +81,6 @@
   2.4. Examples
 
      * EqPly: added anti-aliasing when the application is idle.
-     * EqPly: add a new config showing all features through a layout switch.
      * EqPly: recursively search directories for models.
      * EqPly: switch to faster VBO rendering on OSX.
 
@@ -93,8 +93,12 @@
    The following changes breaking compatibility with Equalizer 0.6 source
    code were made:
 
-     * Variables named id where renamed to identifier for compatibility with
-       Objective-C
+     * The utility classes Accum, AccumBufferObject, FrameBufferObject and
+       Texture where moved from the eq to the eq::util namespace.
+     * eq::Window::getColorType has been changed to getColorFormat for
+       consistency.
+     * The font handling provided by eq::Window has been refactored for
+       non-OpenGL rendering support.
 
   2.7. Documentation
 
@@ -106,49 +110,28 @@
      * The Accumulation Buffer Object API has been added to the Programming
        Guide.
      * The Subpixel compound API provides a compound for anti-aliasing.
-     * Update of the net::Object documentation.
-     * API and file format changes for the launch parameters.
-     * GPU computing.
      * Multicast Data Transfer.
-     * Infiniband Communication IBAL.
 
   2.8. Bug Fixes
 
    Equalizer 0.9.1 includes various bugfixes over the 0.9 release, including
    the following:
 
-     * 2903212: Netperf packet sequence test fail with RSP
-     * 2903210: Launching two netperf RSP servers simultaneously fails
-     * 2901081: Idle AA jitter needs to account for pixel decomposition
-     * 2901080: Idle AA with subpixel compound too blurry
-     * 2900350: EqPly idle AA broken with 3-channel.curved.eqc
-     * 2894646: Wrong init of _numSteps if FBO is used for accumulation
-     * 2894627: _accumBuffer in eqPly::Channel is not resized
-     * 2894570: netperf fails with RSPConnection
-     * 2886975: RSPConnection connect fails
-     * 2882382: FBO windows broken in recent revisions
-     * 2874597: Windows XP 64bit build fails in memcpy.h
-     * 2874164: Missing header
      * 2873353: Usage of ext/hash_map and -Werror causes compiler error
      * 2834063: eqPly and eVolve freezes on Mac with glx
      * 2828269: eVolve depth compositing is broken
-     * 2827694: Optimization for delta objects
-     * 2822348: No latency when event-driven
+     * 2642034: Win32: max 64 connections possible
 
   2.9. Known Bugs
 
    The following bugs were known at release time. Please file a Bug Report if
    you find any other issue with this release.
 
-     * 2912051: RSP timeout handling
-     * 2911293: RSP crash
-     * 2910791: RSP clean exit
      * 2908701: EqPly idle AA broken with eye compound
      * 2882248: Spurious deadlocks on Win32
      * 2874188: Lockup at shutdown
      * 2843849: 64-bit bug in eVolveConverter
      * 2796444: Race during simultaneous node connect
-     * 2642034: Win32: max 64 connections possible
      * 2609161: zoom: depth readback does not work
      * 2556940: zoom: FBO usage
      * 2003195: Ortho frustra ignores eye offset
@@ -162,13 +145,13 @@
    system. A compatibility matrix can be found on the Equalizer website.
 
    Equalizer requires at least OpenGL 1.1, but uses newer OpenGL features
-   when available. Version 0.9 has been tested on:
+   when available. Version 0.9.1 has been tested on:
 
   3.1. Operating System Support
 
-     * Linux: Ubuntu 8.04, 9.04 (i386)
+     * Linux: Ubuntu 9.04, 9.10 (i386, x64)
      * Windows: XP with Visual Studio 2005 (i386, x64)
-     * Mac OS X: 10.5 (PowerPC, i386)
+     * Mac OS X: 10.5, 10.6 (i386)
 
   3.2. Window System Support
 

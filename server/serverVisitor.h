@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,9 +26,7 @@ namespace server
 {
     class Server;
 
-    /**
-     * A visitor to traverse non-const servers and children.
-     */
+    /** A visitor to traverse servers and children. */
     class ServerVisitor : public ConfigVisitor
     {
     public:
@@ -40,24 +38,11 @@ namespace server
 
         /** Visit a server on the down traversal. */
         virtual VisitorResult visitPre( Server* server )
-            { return TRAVERSE_CONTINUE; }
+            { return visitPre( static_cast< const Server* >( server )); }
 
         /** Visit a server on the up traversal. */
         virtual VisitorResult visitPost( Server* server )
-            { return TRAVERSE_CONTINUE; }
-    };
-
-    /**
-     * A visitor to traverse const servers and children.
-     */
-    class ConstServerVisitor : public ConstConfigVisitor
-    {
-    public:
-        /** Constructs a new ServerVisitor. */
-        ConstServerVisitor(){}
-        
-        /** Destruct the ServerVisitor */
-        virtual ~ConstServerVisitor(){}
+            { return visitPost( static_cast< const Server* >( server )); }
 
         /** Visit a server on the down traversal. */
         virtual VisitorResult visitPre( const Server* server )

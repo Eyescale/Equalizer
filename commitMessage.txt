@@ -1,4 +1,4 @@
-Release notes update, minor code cleanups
+Clean up server-side visitors
 
 [ ] May break build
 [ ] May break existing applications
@@ -6,4 +6,4 @@ Release notes update, minor code cleanups
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

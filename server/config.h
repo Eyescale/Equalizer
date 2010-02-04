@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -35,7 +35,6 @@ namespace server
 {
     class ConfigSerializer;
     class ConfigVisitor;
-    class ConstConfigVisitor;
     struct CanvasPath;
     struct ChannelPath;
     struct LayoutPath;
@@ -258,7 +257,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         EQSERVER_EXPORT VisitorResult accept( ConfigVisitor& visitor );
-        VisitorResult accept( ConstConfigVisitor& visitor ) const;
+        VisitorResult accept( ConfigVisitor& visitor ) const;
         //@}
 
         /** 

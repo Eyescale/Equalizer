@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,9 +26,7 @@ namespace server
 {
     class Pipe;
 
-    /**
-     * A visitor to traverse non-const pipes and children.
-     */
+    /** A visitor to traverse pipes and children. */
     class PipeVisitor : public WindowVisitor
     {
     public:
@@ -40,24 +38,11 @@ namespace server
 
         /** Visit a pipe on the down traversal. */
         virtual VisitorResult visitPre( Pipe* pipe )
-            { return TRAVERSE_CONTINUE; }
+            { return visitPre( static_cast< const Pipe* >( pipe )); }
 
         /** Visit a pipe on the up traversal. */
         virtual VisitorResult visitPost( Pipe* pipe )
-            { return TRAVERSE_CONTINUE; }
-    };
-
-    /**
-     * A visitor to traverse const pipes and children.
-     */
-    class ConstPipeVisitor : public ConstWindowVisitor
-    {
-    public:
-        /** Constructs a new PipeVisitor. */
-        ConstPipeVisitor(){}
-        
-        /** Destruct the PipeVisitor */
-        virtual ~ConstPipeVisitor(){}
+            { return visitPost( static_cast< const Pipe* >( pipe )); }
 
         /** Visit a pipe on the down traversal. */
         virtual VisitorResult visitPre( const Pipe* pipe )

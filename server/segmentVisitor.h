@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,9 +26,7 @@ namespace server
 {
     class Segment;
 
-    /**
-     * A visitor to traverse non-const segments.
-     */
+    /** A visitor to traverse segments. */
     class SegmentVisitor
     {
     public:
@@ -40,20 +38,7 @@ namespace server
 
         /** Visit a segment. */
         virtual VisitorResult visit( Segment* segment )
-            { return TRAVERSE_CONTINUE; }
-    };
-
-    /**
-     * A visitor to traverse const segments.
-     */
-    class ConstSegmentVisitor
-    {
-    public:
-        /** Constructs a new SegmentVisitor. */
-        ConstSegmentVisitor(){}
-        
-        /** Destruct the SegmentVisitor */
-        virtual ~ConstSegmentVisitor(){}
+            { return visit( static_cast< const Segment* >( segment )); }
 
         /** Visit a segment. */
         virtual VisitorResult visit( const Segment* segment )

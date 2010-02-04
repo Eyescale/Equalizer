@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -117,8 +117,8 @@ LayoutPath Layout::getPath() const
 
 namespace
 {
-template< class C, class V >
-VisitorResult _accept( C* layout, V& visitor )
+template< class C >
+VisitorResult _accept( C* layout, LayoutVisitor& visitor )
 { 
     VisitorResult result = visitor.visitPre( layout );
     if( result != TRAVERSE_CONTINUE )
@@ -163,7 +163,7 @@ VisitorResult Layout::accept( LayoutVisitor& visitor )
 {
     return _accept( this, visitor );
 }
-VisitorResult Layout::accept( ConstLayoutVisitor& visitor ) const
+VisitorResult Layout::accept( LayoutVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

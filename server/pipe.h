@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,7 +34,6 @@ namespace eq
 namespace server
 {
     class PipeVisitor;
-    class ConstPipeVisitor;
     struct ChannelPath;
     struct PipePath;
 
@@ -112,7 +111,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         VisitorResult accept( PipeVisitor& visitor );
-        VisitorResult accept( ConstPipeVisitor& visitor ) const;
+        VisitorResult accept( PipeVisitor& visitor ) const;
 
         /** Increase pipe activition count. */
         void activate();

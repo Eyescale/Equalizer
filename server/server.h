@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,7 +40,6 @@ namespace eq
  */
 namespace server
 {
-    class ConstServerVisitor;
     class ServerVisitor;
 
     /**
@@ -94,7 +93,7 @@ namespace server
          * @return the result of the visitor traversal.
          */
         EQSERVER_EXPORT VisitorResult accept( ServerVisitor& visitor );
-        EQSERVER_EXPORT VisitorResult accept( ConstServerVisitor& ) const;
+        EQSERVER_EXPORT VisitorResult accept( ServerVisitor& visitor ) const;
 
         /** @return the global time in milliseconds. */
         int64_t getTime() const { return _clock.getTime64(); }

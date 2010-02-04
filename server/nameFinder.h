@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,7 +26,7 @@ namespace eq
 namespace server
 {
 
-template< typename P, typename T > class NameFinder : public P
+template< typename T > class NameFinder : public ConfigVisitor
 {
 public:
     NameFinder( const std::string& name ) 
@@ -51,23 +51,23 @@ private:
     T*                _result;
 };
 
-typedef NameFinder< ConfigVisitor, Observer > ObserverFinder;
-typedef NameFinder< ConstConfigVisitor, const Observer > ConstObserverFinder;
+typedef NameFinder< Observer > ObserverFinder;
+typedef NameFinder< const Observer > ConstObserverFinder;
 
-typedef NameFinder< ConfigVisitor, Layout > LayoutFinder;
-typedef NameFinder< ConstConfigVisitor, const Layout > ConstLayoutFinder;
+typedef NameFinder< Layout > LayoutFinder;
+typedef NameFinder< const Layout > ConstLayoutFinder;
 
-typedef NameFinder< ConfigVisitor, View > ViewFinder;
-typedef NameFinder< ConstConfigVisitor, const View > ConstViewFinder;
+typedef NameFinder< View > ViewFinder;
+typedef NameFinder< const View > ConstViewFinder;
 
-typedef NameFinder< ConfigVisitor, Canvas > CanvasFinder;
-typedef NameFinder< ConstConfigVisitor, const Canvas > ConstCanvasFinder;
+typedef NameFinder< Canvas > CanvasFinder;
+typedef NameFinder< const Canvas > ConstCanvasFinder;
 
-typedef NameFinder< ConfigVisitor, Segment > SegmentFinder;
-typedef NameFinder< ConstConfigVisitor, const Segment > ConstSegmentFinder;
+typedef NameFinder< Segment > SegmentFinder;
+typedef NameFinder< const Segment > ConstSegmentFinder;
 
-typedef NameFinder< ConfigVisitor, Channel > ChannelFinder;
-typedef NameFinder< ConstConfigVisitor, const Channel > ConstChannelFinder;
+typedef NameFinder< Channel > ChannelFinder;
+typedef NameFinder< const Channel > ConstChannelFinder;
 
 }
 }

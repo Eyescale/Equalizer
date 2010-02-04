@@ -207,8 +207,8 @@ Channel* Pipe::getChannel( const ChannelPath& path )
 
 namespace
 {
-template< class C, class V >
-VisitorResult _accept( C* pipe, V& visitor )
+template< class C >
+VisitorResult _accept( C* pipe, PipeVisitor& visitor )
 { 
     VisitorResult result = visitor.visitPre( pipe );
     if( result != TRAVERSE_CONTINUE )
@@ -255,7 +255,7 @@ VisitorResult Pipe::accept( PipeVisitor& visitor )
     return _accept( this, visitor );
 }
 
-VisitorResult Pipe::accept( ConstPipeVisitor& visitor ) const
+VisitorResult Pipe::accept( PipeVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }
