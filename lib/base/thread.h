@@ -82,10 +82,9 @@ namespace base
          * This method should contain the main execution routine for the thread
          * and is called after a successful init().
          * 
-         * @return the return value of the child thread.
          * @version 1.0
          */
-        virtual void* run() = 0;
+        virtual void run() = 0;
 
         /** 
          * Exit the child thread immediately.
@@ -93,10 +92,9 @@ namespace base
          * This function does not return. It is only to be called from the child
          * thread. The thread listeners will be notified.
          *
-         * @param retVal the return value of the thread.
          * @version 1.0
          */
-        EQ_EXPORT virtual void exit( void* retVal = 0 );
+        EQ_EXPORT virtual void exit();
 
         /** 
          * Cancel (stop) the child thread.
@@ -109,12 +107,10 @@ namespace base
         /** 
          * Wait for the exit of the child thread.
          *
-         * @param retVal output value for the return value of the child, can be
-         *               <code>0</code>.
          * @return true if the thread was joined, false otherwise.
          * @version 1.0
          */
-        EQ_EXPORT bool join( void** retVal=0 );
+        EQ_EXPORT bool join();
 
         /** 
          * Return if the thread is stopped.
@@ -188,10 +184,6 @@ namespace base
         };
 
         Monitor< State > _state;
-
-#ifdef EQ_WIN32_SDP_JOIN_WAR
-        void* _retVal;
-#endif
 
         static void* runChild( void* arg );
         void        _runChild();

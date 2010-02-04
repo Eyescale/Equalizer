@@ -30,7 +30,7 @@ class ReadThread : public eq::base::Thread
 {
 public:
     virtual ~ReadThread() {}
-    virtual void* run()
+    virtual void run()
         {
             uint64_t item = -1;
 
@@ -46,7 +46,6 @@ public:
 
             TEST( queue.isEmpty( ));
             EQINFO << NOPS/time << " reads/ms" << std::endl;
-            return EXIT_SUCCESS;
         }
 };
 

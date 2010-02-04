@@ -28,7 +28,7 @@
 class Thread : public eq::base::Thread
 {
 public:
-    virtual void* run()
+    virtual void run()
         {
             size_t i = N_UUIDS;
 
@@ -40,7 +40,6 @@ public:
                           "Iteration " << N_UUIDS - i );
                 hash[ uuid ] = true;
             }
-            return EXIT_SUCCESS;
         }
 
     eq::base::UUIDHash< bool > hash;

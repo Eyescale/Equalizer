@@ -316,7 +316,7 @@ MessagePump* Pipe::createMessagePump()
     }
 }
 
-void* Pipe::_runThread()
+void Pipe::_runThread()
 {
     EQINFO << "Entered pipe thread" << std::endl;
     base::Thread::setDebugName( typeid( *this ).name( ));
@@ -350,7 +350,6 @@ void* Pipe::_runThread()
     }
 
     EQUNREACHABLE; // since we are exited from _cmdConfigExit
-    return EXIT_SUCCESS;
 }
 
 net::CommandQueue* Pipe::getPipeThreadQueue()
@@ -859,7 +858,7 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
         _exitCommandQueue();
 
         EQINFO << "Leaving pipe thread" << std::endl;
-        _thread->exit( EXIT_SUCCESS );
+        _thread->exit();
         EQUNREACHABLE;
     }
 

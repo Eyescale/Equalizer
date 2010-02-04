@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,7 +37,7 @@ class NodeThread : public Thread
 public:
     NodeThread( const bool master ) : _master(master) {}
 
-    virtual void* run()
+    virtual void run()
         {
             ConnectionDescriptionPtr description = new ConnectionDescription;
             description->type = CONNECTIONTYPE_TCPIP;
@@ -87,7 +87,6 @@ public:
             }
 
             node->close();
-            return EXIT_SUCCESS;
         }
             
 private:

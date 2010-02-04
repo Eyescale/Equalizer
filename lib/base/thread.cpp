@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,15 +32,6 @@
 #include <pthread.h>
 #include <algorithm>
 
-using namespace std;
-
-/* 
- * EQ_WIN32_SDP_JOIN_WAR: When using SDP connections on Win32, the join() of the
- * receiver thread blocks indefinitely, even after the thread has exited. This
- * workaround uses a monitor to implement the join functionality independently
- * of pthreads.
- */
-
 // Experimental Win32 thread pinning
 #ifdef WIN32
 //#  define EQ_WIN32_THREAD_AFFINITY
@@ -58,9 +49,11 @@ static Lock& _listenerLock()
     return lock;
 }
 
-static std::vector<ExecutionListener*>& _listeners()
+typedef std::vector< ExecutionListener* >  ExecutionListenerVector;
+
+static ExecutionListenerVector& _listeners()
 {
-    static std::vector<ExecutionListener*> listeners;
+    static ExecutionListenerVector listeners;
     return listeners;
 }
 }
@@ -92,9 +85,6 @@ public:
 Thread::Thread()
         : _data( new ThreadPrivate )
         , _state( STATE_STOPPED )
-#ifdef EQ_WIN32_SDP_JOIN_WAR
-        , _retVal( 0 )
-#endif
 {
     memset( &_data->threadID, 0, sizeof( pthread_t ));
 }
@@ -119,19 +109,22 @@ void Thread::_runChild()
 
     if( !init( ))
     {
-        EQWARN << "Thread failed to initialize" << endl;
+        EQWARN << "Thread " << typeid( *this ).name() << " failed to initialize"
+               << std::endl;
         _state = STATE_STOPPED;
         pthread_exit( 0 );
+        EQUNREACHABLE;
     }
 
     _state = STATE_RUNNING;
-    EQINFO << "Thread successfully initialized" << endl;
+    EQINFO << "Thread " << typeid( *this ).name() << " successfully initialized"
+           << std::endl;
     pthread_setspecific( _cleanupKey, this ); // install cleanup handler
     _notifyStarted();
 
-    void* result = run();
-    EQINFO << "Thread finished with result " << result << endl;
-    this->exit( result );
+    run();
+    EQINFO << "Thread " << typeid( *this ).name() << " finished" << std::endl;
+    this->exit();
 
     EQUNREACHABLE;
 }
@@ -140,12 +133,12 @@ void Thread::_notifyStarted()
 {
     // make copy of vector so that listeners can add/remove listeners.
     _listenerLock().set();
-    const std::vector<ExecutionListener*> listeners = _listeners();
+    const ExecutionListenerVector listeners = _listeners();
     _listenerLock().unset();
 
     EQVERB << "Calling " << listeners.size() << " thread started listeners"
-           << endl;
-    for( vector<ExecutionListener*>::const_iterator i = listeners.begin();
+           << std::endl;
+    for( ExecutionListenerVector::const_iterator i = listeners.begin();
          i != listeners.end(); ++i )
     {
         (*i)->notifyExecutionStarted();
@@ -163,11 +156,11 @@ void Thread::_notifyStopping()
 
     // make copy of vector so that listeners can add/remove listeners.
     _listenerLock().set();
-    std::vector< ExecutionListener* > listeners = _listeners();
+    ExecutionListenerVector listeners = _listeners();
     _listenerLock().unset();
 
     // Call them in reverse order so that symmetry is kept
-    for( vector< ExecutionListener* >::reverse_iterator i = listeners.rbegin();
+    for( ExecutionListenerVector::reverse_iterator i = listeners.rbegin();
          i != listeners.rend(); ++i )
     {   
         (*i)->notifyExecutionStopping();
@@ -193,13 +186,13 @@ bool Thread::start()
 
         if( error == 0 ) // succeeded
         {
-            EQVERB << "Created pthread " << this << endl;
+            EQVERB << "Created pthread " << this << std::endl;
             break;
         }
         if( error != EAGAIN || nTries==0 )
         {
             EQWARN << "Could not create thread: " << strerror( error )
-                   << endl;
+                   << std::endl;
             return false;
         }
     }
@@ -208,18 +201,14 @@ bool Thread::start()
     return (_state != STATE_STOPPED);
 }
 
-void Thread::exit( void* retVal )
+void Thread::exit()
 {
     EQASSERTINFO( isCurrent(), "Thread::exit not called from child thread" );
 
-    EQINFO << "Exiting thread" << endl;
-
-#ifdef EQ_WIN32_SDP_JOIN_WAR
-    _retVal  = retVal;
-#endif
+    EQINFO << "Exiting thread" << std::endl;
 
     _state = STATE_STOPPING;
-    pthread_exit( (void*)retVal );
+    pthread_exit( 0 );
     EQUNREACHABLE;
 }
 
@@ -227,36 +216,25 @@ void Thread::cancel()
 {
     EQASSERTINFO( !isCurrent(), "Thread::cancel called from child thread" );
 
-    EQINFO << "Cancelling thread" << endl;
+    EQINFO << "Cancelling thread" << std::endl;
     _state = STATE_STOPPING;
 
     pthread_cancel( _data->threadID );
     EQUNREACHABLE;
 }
 
-bool Thread::join( void** retVal )
+bool Thread::join()
 {
     if( _state == STATE_STOPPED )
         return false;
     if( isCurrent( )) // can't join self
         return false;
 
-    EQVERB << "Joining thread" << endl;
-#ifdef EQ_WIN32_SDP_JOIN_WAR
-    _state.waitNE( STATE_RUNNING );
-#else
-    void *_retVal;
-    const int error = pthread_join( _data->threadID, &_retVal);
-    if( error != 0 )
-    {
-        EQWARN << "Error joining thread: " << strerror(error) << endl;
-        return false;
-    }
-#endif
+    EQVERB << "Joining thread" << std::endl;
 
+    _state.waitNE( STATE_RUNNING );
     _state = STATE_STOPPED;
-    if( retVal )
-        *retVal = _retVal;
+
     return true;
 }
 
@@ -284,7 +262,7 @@ bool Thread::removeListener( ExecutionListener* listener )
 {
     ScopedMutex mutex( _listenerLock() );
 
-    vector< ExecutionListener* >::iterator i = find( _listeners().begin(),
+    ExecutionListenerVector::iterator i = find( _listeners().begin(),
                                                      _listeners().end(),
                                                      listener );
     if( i == _listeners().end( ))
@@ -298,11 +276,11 @@ void Thread::removeAllListeners()
 {
     _listenerLock().set();
 
-    EQINFO << _listeners().size() << " thread listeners active" << endl;
-    for( vector<ExecutionListener*>::const_iterator i = _listeners().begin();
+    EQINFO << _listeners().size() << " thread listeners active" << std::endl;
+    for( ExecutionListenerVector::const_iterator i = _listeners().begin();
          i != _listeners().end(); ++i )
 
-        EQINFO << "    " << typeid( **i ).name() << endl;
+        EQINFO << "    " << typeid( **i ).name() << std::endl;
 
     _listenerLock().unset();
     
@@ -329,7 +307,7 @@ void Thread::pinCurrentThread()
         if( GetProcessAffinityMask( GetCurrentProcess(), &processMask, 
             &systemMask ) == 0 )
         {
-            EQWARN << "Can't get usable processor mask" << endl;
+            EQWARN << "Can't get usable processor mask" << std::endl;
             return;
         }
         EQINFO << "Available processors 0x" << hex << processMask << dec <<endl;
@@ -342,11 +320,11 @@ void Thread::pinCurrentThread()
             if( processMask & i )
                 ++nProcessors;
         }
-        EQINFO << nProcessors << " available processors" << endl;
+        EQINFO << nProcessors << " available processors" << std::endl;
 
         unsigned chance = RNG().get< unsigned >();
         processor = 1 << (chance % nProcessors);
-        EQINFO << "Starting with processor " << processor << endl;
+        EQINFO << "Starting with processor " << processor << std::endl;
     }
     EQASSERT( processMask != 0 );
 
@@ -359,9 +337,9 @@ void Thread::pinCurrentThread()
         if( processor & processMask ) // processor is available
         {
             if( SetThreadAffinityMask( GetCurrentThread(), processor ) == 0 )
-                EQWARN << "Can't set thread processor" << endl;
+                EQWARN << "Can't set thread processor" << std::endl;
             EQINFO << "Pinned thread to processor 0x" << hex << processor << dec
-                   << endl;
+                   << std::endl;
             return;
         }
     }

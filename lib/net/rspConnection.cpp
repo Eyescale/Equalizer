@@ -489,12 +489,11 @@ void RSPConnection::_handleInitData()
     }
 }
 
-void* RSPConnection::Thread::run()
+void RSPConnection::Thread::run()
 {
     _connection->_runThread();
     _connection = 0;
     EQINFO << "Left RSP protocol thread" << std::endl;
-    return 0;
 }
 
 void RSPConnection::_runThread()

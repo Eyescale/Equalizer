@@ -492,7 +492,7 @@ namespace eq
                     : _pipe( pipe )
                 {}
             
-            virtual void* run(){ return _pipe->_runThread(); }
+            virtual void run(){ _pipe->_runThread(); }
 
         private:
             Pipe* _pipe;
@@ -514,7 +514,7 @@ namespace eq
         };
 
         //-------------------- Methods --------------------
-        void* _runThread();
+        void _runThread();
         void _setupCommandQueue();
         void _exitCommandQueue();
 

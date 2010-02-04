@@ -29,7 +29,7 @@ class ReadThread : public eq::base::Thread
 {
 public:
     virtual ~ReadThread() {}
-    virtual void* run()
+    virtual void run()
         {
             uint64_t nOps = 0;
             uint64_t nEmpty = 0;
@@ -52,7 +52,6 @@ public:
             const float time = clock.getTimef();
             EQINFO << 2*nOps/time << " reads/ms, " << nEmpty/time << " empty/ms"
                    << std::endl;
-            return EXIT_SUCCESS;
         }
 };
 

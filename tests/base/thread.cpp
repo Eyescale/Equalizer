@@ -26,8 +26,7 @@ class LoadThread : public eq::base::Thread
 {
 public:
     virtual ~LoadThread() {}
-    virtual void* run()
-        { return EXIT_SUCCESS; }
+    virtual void run() {}
 };
 
 class InitThread : public LoadThread

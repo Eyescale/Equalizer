@@ -1254,7 +1254,7 @@ bool Node::runClient( const std::string& clientArgs )
 //----------------------------------------------------------------------
 // receiver thread functions
 //----------------------------------------------------------------------
-void* Node::_runReceiverThread()
+void Node::_runReceiverThread()
 {
     EQINFO << "Entered receiver thread of " << typeid( *this ).name()
            << std::endl;
@@ -1335,7 +1335,6 @@ void* Node::_runReceiverThread()
 
     EQINFO << "Leaving receiver thread of " << typeid( *this ).name() 
            << std::endl;
-    return EXIT_SUCCESS;
 }
 
 void Node::_handleConnect()
@@ -1545,7 +1544,7 @@ void Node::_redispatchCommands()
 //----------------------------------------------------------------------
 // command thread functions
 //----------------------------------------------------------------------
-void* Node::_runCommandThread()
+void Node::_runCommandThread()
 {
     EQINFO << "Entered command thread of " << typeid( *this ).name() 
            << std::endl;
@@ -1578,7 +1577,6 @@ void* Node::_runCommandThread()
     _commandThreadQueue.flush();
     EQINFO << "Leaving command thread of " << typeid( *this ).name()
            << std::endl;
-    return EXIT_SUCCESS;
 }
 
 CommandResult Node::invokeCommand( Command& command )

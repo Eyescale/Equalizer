@@ -30,9 +30,6 @@
 #  ifndef EQ_INFINIBAND
 #    define EQ_INFINIBAND
 #  endif
-#  ifndef EQ_WIN32_SDP_JOIN_WAR // see thread.cpp
-#    define EQ_WIN32_SDP_JOIN_WAR
-#  endif
 #endif
 
 #if 0

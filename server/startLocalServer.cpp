@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,10 +23,6 @@
 #include <eq/net/node.h>
 #include <eq/net/pairConnection.h>
 
-using namespace eq::server;
-using namespace eq::base;
-using namespace std;
-
 #define CONFIG "server{ config{ appNode{ pipe {                            \
     window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}}    \
     compound { channel \"channel\" wall { bottom_left  [ -.8 -.5 -1 ]      \
@@ -41,7 +37,7 @@ public:
     ServerThread() {}
     virtual ~ServerThread() {}
 
-    bool start( ServerPtr server )
+    bool start( eq::server::ServerPtr server )
         {
             EQASSERT( !_server );
             _server = server;
@@ -50,26 +46,22 @@ public:
     
 protected:
 
-    virtual void* run()
+    virtual void run()
         {
-            const bool ret = _server->run();
-            EQASSERT( ret );
+            EQCHECK( _server->run( ));
 
             _server->close();
 
             EQINFO << "Server thread done, ref count " 
-                   << _server->getRefCount() - 1 << endl;
+                   << _server->getRefCount() - 1 << std::endl;
             EQASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
 
             _server = 0;
-            Global::clear();
-
-            return reinterpret_cast< void* >( static_cast< size_t >(
-                ret ? EXIT_SUCCESS : EXIT_FAILURE ));
+            eq::server::Global::clear();
         }
 
 private:
-    ServerPtr _server;    
+    eq::server::ServerPtr _server;    
 };
 
 static ServerThread _serverThread;
@@ -80,12 +72,12 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
 {
     if( _serverThread.isRunning( ))
     {
-        EQWARN << "Only one app-local per process server allowed" << endl;
+        EQWARN << "Only one app-local per process server allowed" << std::endl;
         return 0;
     }
 
-    Loader    loader;
-    ServerPtr server;
+    eq::server::Loader    loader;
+    eq::server::ServerPtr server;
 
     if( !file.empty( ))
         server = loader.loadFile( file );
@@ -93,21 +85,22 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
         server = loader.parseServer( CONFIG );
     if( !server )
     {
-        EQERROR << "Failed to load configuration" << endl;
+        EQERROR << "Failed to load configuration" << std::endl;
         return 0;
     }
 
     if( !server->listen( ))
     {
-        EQERROR << "Failed to setup server listener" << endl;
+        EQERROR << "Failed to setup server listener" << std::endl;
         return 0;
     }
 
-    Loader::addOutputCompounds( server );
-    Loader::addDestinationViews( server );
-    Loader::addDefaultObserver( server );
+    eq::server::Loader::addOutputCompounds( server );
+    eq::server::Loader::addDestinationViews( server );
+    eq::server::Loader::addDefaultObserver( server );
 
-    eq::net::ConnectionDescriptionPtr desc = new ConnectionDescription;
+    eq::net::ConnectionDescriptionPtr desc = 
+        new eq::server::ConnectionDescription;
     desc->type = eq::net::CONNECTIONTYPE_PIPE;
 
     // Do not use RefPtr for easier handling
@@ -120,7 +113,7 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
 
     if( !connection->connect( ))
     {
-        EQERROR << "Failed to connect server connection" << endl;
+        EQERROR << "Failed to connect server connection" << std::endl;
         return 0;
     }
 
@@ -129,7 +122,7 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
 
     if( !_serverThread.start( server ))
     {
-        EQERROR << "Failed to start server thread" << endl;
+        EQERROR << "Failed to start server thread" << std::endl;
         return 0;
     }
 

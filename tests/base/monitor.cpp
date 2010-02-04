@@ -29,7 +29,7 @@ class Thread : public eq::base::Thread
 {
 public:
     virtual ~Thread() {}
-    virtual void* run()
+    virtual void run()
         {
             int64_t nOps = NLOOPS;
 
@@ -42,7 +42,6 @@ public:
 
             const float time = clock.getTimef();
             EQINFO << 2*NLOOPS/time << " ops/ms" << std::endl;
-            return EXIT_SUCCESS;
         }
 };
 

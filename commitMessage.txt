@@ -1,9 +1,15 @@
-Implement simple workaround for 2874188: Lockup at shutdown
+Clean up Thread::join:
+- Remove now-unneeded SDP join war code
+- Retire return value of thread and Thread::run
+
+Applications using eq::base::Thread directly need to change the return
+value of run(). In case the return value was used previously, it has to
+be stored as a member variable of the thread now.
 
 [ ] May break build
-[ ] May break existing applications
+[x] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

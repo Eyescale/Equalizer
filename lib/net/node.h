@@ -669,7 +669,7 @@ namespace net
                 {}
             
             virtual bool init(){ return _node->_commandThread->start(); }
-            virtual void* run(){ return _node->_runReceiverThread(); }
+            virtual void run(){ _node->_runReceiverThread(); }
 
         private:
             Node* _node;
@@ -684,7 +684,7 @@ namespace net
                     : _node( node )
                 {}
             
-            virtual void* run(){ return _node->_runCommandThread(); }
+            virtual void run(){ _node->_runCommandThread(); }
 
         private:
             Node* _node;
@@ -765,13 +765,13 @@ namespace net
                 return 0;
             }
 
-        void* _runReceiverThread();
-        void    _handleConnect();
-        void    _handleDisconnect();
-        bool    _handleData();
+        void _runReceiverThread();
+        void   _handleConnect();
+        void   _handleDisconnect();
+        bool   _handleData();
 
-        void* _runCommandThread();
-        void    _redispatchCommands();
+        void _runCommandThread();
+        void   _redispatchCommands();
 
         /** The command functions. */
         CommandResult _cmdStop( Command& command );

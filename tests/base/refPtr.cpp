@@ -41,7 +41,7 @@ FooPtr foo;
 class TestThread : public Thread
 {
 public:
-    virtual void* run()
+    virtual void run()
         {
             FooPtr myFoo;
             for( size_t i = 0; i<NREFS; ++i )
@@ -50,8 +50,6 @@ public:
                 foo   = myFoo;
                 myFoo = 0;
             }
-
-            return EXIT_SUCCESS;
         }
 };
 

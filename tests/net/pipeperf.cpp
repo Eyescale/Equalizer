@@ -44,7 +44,7 @@ public:
     virtual ~Sender(){}
 
 protected:
-    virtual void* run()
+    virtual void run()
         {
             void* buffer = calloc( 1, MAXPACKETSIZE );
             Clock    clock;
@@ -63,7 +63,6 @@ protected:
             }
 
             free( buffer );
-            return EXIT_SUCCESS;
         }
 
 private:

@@ -69,7 +69,7 @@ namespace net
         typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
         
         /* manages RSP protocol directly using the udp connection */
-        class Thread : public eq::base::Thread
+        class Thread : public base::Thread
         {
         public: 
             Thread( RSPConnectionPtr connection )
@@ -78,7 +78,7 @@ namespace net
             virtual bool init(){ return _connection->_acceptID() && 
                                         _connection->_initThread(); }
         protected:
-            virtual void* run();
+            virtual void run();
             
         private:
             RSPConnectionPtr _connection;

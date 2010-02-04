@@ -55,7 +55,7 @@ class Watchdog : public eq::base::Thread
 public:
     Watchdog( const std::string& name ) : _name( name ) {}
 
-    virtual void* run()
+    virtual void run()
         {
 #ifdef EQ_TEST_RUNTIME
             eq::base::sleep( EQ_TEST_RUNTIME * 1000 );
@@ -68,7 +68,6 @@ public:
                       "Watchdog triggered - " << _name <<
                       " did not terminate within 10s" );
 #endif
-            return EXIT_SUCCESS;
         }
 
 private:

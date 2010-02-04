@@ -108,7 +108,7 @@ public:
             _hasConnection = true;
         }
 
-    virtual void* run()
+    virtual void run()
         {
             _hasConnection.waitEQ( true );
             while( _connection.isValid( ))
@@ -118,14 +118,13 @@ public:
                     std::cerr << --_nClients << " clients" << std::endl;
                     _connectionSet.interrupt();
                     _connection = 0;
-                    return EXIT_SUCCESS;
+                    return;
                 }
 
                 _hasConnection = false;
                 _connectionSet.addConnection( _connection );
                 _hasConnection.waitEQ( true );
             }
-            return EXIT_SUCCESS;
         }
         
     ConnectionPtr getConnection() const{ return _connection;}
@@ -200,7 +199,8 @@ public:
             _nClients = 1;
             return true;
         }
-    virtual void* run()
+
+    virtual void run()
         {
             ConnectionPtr resultConn;
             ConnectionPtr newConn;
@@ -301,7 +301,6 @@ public:
             TESTINFO( _receivers.empty(), _receivers.size() );
             TESTINFO( _connectionSet.getSize() == 1, _connectionSet.getSize( ));
             _connectionSet.clear();
-            return EXIT_SUCCESS;
         }
 
 private:

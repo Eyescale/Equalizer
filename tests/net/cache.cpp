@@ -43,7 +43,7 @@ public:
     virtual ~Reader(){}
 
 protected:
-    virtual void* run()
+    virtual void run()
         {
             size_t hits = 0;
             size_t ops = 0;
@@ -60,8 +60,6 @@ protected:
             const uint64_t time = _clock.getTime64();
             EQINFO << hits << " read hits in " << ops << " operations, "
                    << ops / time << " ops/ms" << std::endl;
-
-            return EXIT_SUCCESS;
         }
 
 private:

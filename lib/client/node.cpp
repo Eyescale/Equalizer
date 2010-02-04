@@ -477,20 +477,19 @@ void Node::TransmitThread::send( FrameData* data, net::NodePtr node,
     _tasks.push( Task( data, node, frameNumber ));
 }
 
-void* Node::TransmitThread::run()
+void Node::TransmitThread::run()
 {
-    base::Thread::setDebugName( std::string( "Trm " ) + typeid( *_node ).name());
+    base::Thread::setDebugName( std::string( "Trm " ) + typeid( *_node).name());
     while( true )
     {
         const Task task = _tasks.pop();
         if( _tasks.isEmpty() && !task.node )
-            return 0; // exit thread
+            return; // exit thread
         
         EQLOG( LOG_ASSEMBLY ) << "node transmit " << task.data->getID()
                               << " to " << task.node->getNodeID() << endl;
         task.data->transmit( task.node, task.frameNumber );
     }
-    return 0;
 }
 
 //---------------------------------------------------------------------------

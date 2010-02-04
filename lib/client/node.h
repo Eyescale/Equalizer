@@ -149,7 +149,7 @@ namespace eq
                        const uint32_t frameNumber );
             
         protected:
-            virtual void* run();
+            virtual void run();
 
         private:
             struct Task
