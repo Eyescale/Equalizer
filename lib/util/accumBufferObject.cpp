@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                   , Sarah Amsellem <sarah.amsellem@gmail.com>
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -42,9 +42,12 @@ bool AccumBufferObject::init( const PixelViewport& pvp,
     _texture->setFormat( textureFormat );
     _pvp = pvp;
 
-    setColorFormat( GL_RGBA32F );
+    setColorFormat( GL_RGBA16F );
     if( FrameBufferObject::init( pvp.w, pvp.h, 0, 0 ))
+    {
+        unbind();
         return true;
+    }
 
     exit();
     return false;
@@ -63,16 +66,13 @@ void AccumBufferObject::exit()
 
 void AccumBufferObject::load( GLfloat value )
 {
+    EQ_GL_ERROR( "before AccumBufferObject::load" );
     _texture->copyFromFrameBuffer( _pvp );
 
     bind();
-    glEnable( GL_BLEND );
-
-    glClear(GL_COLOR_BUFFER_BIT);
     _drawQuadWithTexture( _texture, getPixelViewport(), value );
-
-    glDisable( GL_BLEND );
     unbind();
+    EQ_GL_ERROR( "after AccumBufferObject::load" );
 }
 
 void AccumBufferObject::accum( GLfloat value )

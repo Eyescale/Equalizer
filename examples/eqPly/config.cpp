@@ -485,14 +485,27 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             _redraw = true;
             break;
 
-        case ConfigEvent::IDLE_AA:
+        case ConfigEvent::IDLE_AA_TOTAL:
         {
             const ConfigEvent* idleEvent = 
                 static_cast< const ConfigEvent* >( event );
-            _numFramesAA = EQ_MAX( _numFramesAA, idleEvent->jitter );
+            View* view = static_cast< View* >( 
+                findView( idleEvent->data.originator ));
+            EQASSERT( view );
+            view->setIdleSteps( idleEvent->steps );
             return true;
         }
 
+        case ConfigEvent::IDLE_AA_LEFT:
+        {
+            const ConfigEvent* idleEvent = 
+                static_cast< const ConfigEvent* >( event );
+            _numFramesAA = EQ_MAX( _numFramesAA, idleEvent->steps );
+            if( idleEvent->steps )
+                EQINFO << "Got " << idleEvent->steps << " from "
+                       << idleEvent->data.originator << std::endl;
+            return true;
+        }
         default:
             break;
     }

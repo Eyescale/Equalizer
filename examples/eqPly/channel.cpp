@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -46,68 +46,44 @@ namespace eqPly
 {
 
 Channel::Channel( eq::Window* parent )
-             : eq::Channel( parent )
-             , _model(0)
-             , _modelID( EQ_ID_INVALID )
-             , _accum ( 0 )
-             , _jitterStep( 0 )
-             , _totalSteps( 0 )
-             , _subpixelStep( 0 )
-             , _needsTransfer( false )
+        : eq::Channel( parent )
+        , _model(0)
+        , _modelID( EQ_ID_INVALID )
 {
 }
 
 bool Channel::configInit( const uint32_t initID )
 {
+    EQINFO << getID() << ": " << getName() << std::endl;
     if( !eq::Channel::configInit( initID ))
         return false;
 
     setNearFar( 0.1f, 10.0f );
     _model = 0;
     _modelID = EQ_ID_INVALID;
-
-    return _configInitAccumBuffer();
-}
-
-bool Channel::_configInitAccumBuffer()
-{
-    // TODO OPT: Only alloc accum buffer for dest channels.
-    const eq::PixelViewport& pvp = getPixelViewport();
-    _accum = new eq::util::Accum( glewGetContext( ));
-    EQASSERT( pvp.isValid( ));
-
-    if( _accum->init( pvp, getWindow()->getColorFormat( )))
-    {
-        _totalSteps = _accum->getMaxSteps();
-        _jitterStep = _totalSteps;
-        return true;
-    }
-
-    EQWARN <<"Accumulation buffer initialization failed, idle AA not available."
-           << std::endl;
-    _totalSteps = 0;
-    _jitterStep = 0;
-    delete _accum;
-    _accum = 0;
     return true;
 }
 
 bool Channel::configExit()
 {
-    delete _accum;
-    _accum = 0;
+    for( size_t i = 0; i < eq::EYE_ALL; ++i )
+    {
+        delete _accum[ i ].buffer;
+        _accum[ i ].buffer = 0;
+    }
 
     return true;
 }
 
 void Channel::frameClear( const uint32_t frameID )
 {
+    _initJitter();
     const FrameData& frameData = _getFrameData();
-    if( _isDone() && frameData.isIdle() && !_needsTransfer )
-      return;
+    if( _isDone() && !_accum[ getEye() ].transfer )
+        return;
 
-    EQ_GL_CALL( applyBuffer( ));
-    EQ_GL_CALL( applyViewport( ));
+    applyBuffer();
+    applyViewport();
 
     const eq::View*  view      = getView();
     if( view && frameData.getCurrentViewID() == view->getID( ))
@@ -124,11 +100,12 @@ void Channel::frameClear( const uint32_t frameID )
     else
         glClearColor( 0.f, 0.f, 0.f, 1.0f );
 
-    EQ_GL_CALL( glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ));
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
 void Channel::frameDraw( const uint32_t frameID )
 {
+    _initJitter();
     if( _isDone( ))
         return;
 
@@ -182,8 +159,10 @@ void Channel::frameDraw( const uint32_t frameID )
         glEnd();
     }
 
-    _subpixelStep = EQ_MAX( _subpixelStep, getSubPixel().size );
-    _needsTransfer = true;
+    Accum& accum = _accum[ getEye() ];
+    accum.stepsDone = EQ_MAX( accum.stepsDone, 
+                              getSubPixel().size * getPeriod( ));
+    accum.transfer = true;
 }
 
 void Channel::frameAssemble( const uint32_t frameID )
@@ -191,15 +170,17 @@ void Channel::frameAssemble( const uint32_t frameID )
     if( _isDone( ))
         return;
 
+    Accum& accum = _accum[ getEye() ];
+
     if( getPixelViewport() != _currentPVP )
     {
-        _needsTransfer = true;
+        accum.transfer = true;
 
-        if( _accum && !_accum->usesFBO( ))
+        if( accum.buffer && !accum.buffer->usesFBO( ))
         {
             EQWARN << "Current viewport different from view viewport, ";
             EQWARN << "idle anti-aliasing not implemented." << std::endl;
-            _jitterStep = 0;
+            accum.step = 0;
         }
 
         eq::Channel::frameAssemble( frameID );
@@ -219,21 +200,19 @@ void Channel::frameAssemble( const uint32_t frameID )
         if( curSubPixel != eq::SubPixel::ALL )
             subPixelALL = false;
 
-        _subpixelStep = EQ_MAX( _subpixelStep, frame->getSubPixel().size );
+        accum.stepsDone = EQ_MAX( accum.stepsDone, 
+                                  frame->getSubPixel().size*frame->getPeriod());
     }
 
-    if( subPixelALL )
-        _needsTransfer = true;
-    else
-        _needsTransfer = false;
+    accum.transfer = subPixelALL;
 
-    EQ_GL_CALL( applyBuffer( ));
-    EQ_GL_CALL( applyViewport( ));
-    EQ_GL_CALL( setupAssemblyState( ));
+    applyBuffer();
+    applyViewport();
+    setupAssemblyState();
 
-    eq::Compositor::assembleFrames( getInputFrames(), this, _accum );
+    eq::Compositor::assembleFrames( getInputFrames(), this, accum.buffer );
 
-    EQ_GL_CALL( resetAssemblyState( ));
+    resetAssemblyState();
 }
 
 void Channel::frameReadback( const uint32_t frameID )
@@ -259,18 +238,10 @@ void Channel::frameReadback( const uint32_t frameID )
     eq::Channel::frameReadback( frameID );
 }
 
-void Channel::frameStart( const uint32_t frameID,
-                          const uint32_t frameNumber )
+void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
-    const FrameData& frameData = _getFrameData();
-
-    // ready for the next FSAA
-    if( _accum && ( !frameData.isIdle() || _jitterStep == _totalSteps ))
-    {
-        _accum->clear();
-        _jitterStep = _totalSteps;
-        _subpixelStep = 0;
-    }
+    for( size_t i = 0; i < eq::EYE_ALL; ++i )
+        _accum[ i ].stepsDone = 0;
 
     eq::Channel::frameStart( frameID, frameNumber );
 }
@@ -278,100 +249,118 @@ void Channel::frameStart( const uint32_t frameID,
 void Channel::frameViewStart( const uint32_t frameID )
 {
     _currentPVP = getPixelViewport();
+    _initJitter();
     eq::Channel::frameViewStart( frameID );
 }
 
 void Channel::frameFinish( const uint32_t frameID,
                            const uint32_t frameNumber )
 {
-    const FrameData& frameData = _getFrameData();
-
-    if( frameData.isIdle() && _jitterStep > 0 )
+    for( size_t i = 0; i < eq::EYE_ALL; ++i )
     {
-        if( _subpixelStep > _jitterStep )
-            _jitterStep = 0;
-        else
-            _jitterStep -= _subpixelStep;
+        Accum& accum = _accum[ i ];
+        if( accum.step > 0 )
+        {
+            if( static_cast< int32_t >( accum.stepsDone ) > accum.step )
+                accum.step = 0;
+            else
+                accum.step -= accum.stepsDone;
+        }
     }
-    
-    ConfigEvent event;
-    event.data.type = ConfigEvent::IDLE_AA;
-    event.jitter = _jitterStep;
-
-    /* if _jitterStep == 0 and no more frames are requested,
-     * the app will exit FSAA idle mode.
-     */
-    eq::Config* config = const_cast< eq::Config* >( getConfig( ));
-    config->sendEvent( event );
 
     eq::Channel::frameFinish( frameID, frameNumber );
 }
 
 void Channel::frameViewFinish( const uint32_t frameID )
 {
-    const FrameData& frameData = _getFrameData();
+    applyBuffer();
 
-    if( _accum )
+    const FrameData& frameData = _getFrameData();
+    Accum& accum = _accum[ getEye() ];
+
+    if( accum.buffer )
     {
         const eq::PixelViewport& pvp = getPixelViewport();
-        const bool isResized = _accum->resize( pvp.w, pvp.h );
+        const bool isResized = accum.buffer->resize( pvp.w, pvp.h );
 
         if( isResized )
         {
-            _accum->clear();
-            _jitterStep = _totalSteps;
-            _subpixelStep = 0;
+            const View* view = static_cast< const View* >( getView( ));
+            accum.buffer->clear();
+            accum.step = view->getIdleSteps();
+            accum.stepsDone = 0;
         }
         else if( frameData.isIdle( ))
         {
             setupAssemblyState();
 
-            if( !_isDone() && _needsTransfer )
-                _accum->accum();
-            _accum->display();
+            if( !_isDone() && accum.transfer )
+                accum.buffer->accum();
+            accum.buffer->display();
 
             resetAssemblyState();
         }
     }
 
+    applyViewport();
     _drawOverlay();
     _drawHelp();
 
     if( frameData.useStatistics())
-        EQ_GL_CALL( drawStatistics( ));
+        drawStatistics();
+
+    ConfigEvent event;
+    event.data.originator = getID();
+    event.data.type = ConfigEvent::IDLE_AA_LEFT;
+
+    const bool isIdle = frameData.isIdle();
+
+    if( isIdle )
+    {
+        int32_t maxSteps = 0;
+        for( size_t i = 0; i < eq::EYE_ALL; ++i )
+            maxSteps = EQ_MAX( maxSteps, _accum[i].step );
+
+        event.steps = maxSteps;
+    }
+    else
+    {
+        const View* view = static_cast< const View* >( getView( ));
+        if( view )
+            event.steps = view->getIdleSteps();
+        else
+            event.steps = 0;
+    }
+
+    // if _jitterStep == 0 and no user redraw event happened, the app will exit
+    // FSAA idle mode and block on the next redraw event.
+    eq::Config* config = getConfig();
+    config->sendEvent( event );
 }
 
 void Channel::applyFrustum() const
 {
     const FrameData& frameData = _getFrameData();
+    const eq::Vector2f jitter = _getJitter();
 
-    if( frameData.isIdle() && _jitterStep > 0 )
+    if( frameData.useOrtho( ))
     {
-        eq::Vector2f jitter = _getJitter();
+        eq::Frustumf ortho = getOrtho();
+        ortho.apply_jitter( jitter );
 
-        if( frameData.useOrtho( ))
-        {
-            eq::Frustumf ortho = getOrtho();
-            ortho.apply_jitter( jitter );
-
-            glOrtho( ortho.left(), ortho.right(),
-                     ortho.bottom(), ortho.top(),
-                     ortho.near_plane(), ortho.far_plane( ));
-        }
-        else
-        {
-            eq::Frustumf frustum = getFrustum();
-            frustum.apply_jitter( jitter );
-
-            glFrustum( frustum.left(), frustum.right(),
-                       frustum.bottom(), frustum.top(),
-                       frustum.near_plane(), frustum.far_plane( ));
-        }
-        return;
+        glOrtho( ortho.left(), ortho.right(),
+                 ortho.bottom(), ortho.top(),
+                 ortho.near_plane(), ortho.far_plane( ));
     }
-    //else
-    
-    eq::Channel::applyFrustum();
+    else
+    {
+        eq::Frustumf frustum = getFrustum();
+        frustum.apply_jitter( jitter );
+
+        glFrustum( frustum.left(), frustum.right(),
+                   frustum.bottom(), frustum.top(),
+                   frustum.near_plane(), frustum.far_plane( ));
+    }
 }
 
 const FrameData& Channel::_getFrameData() const
@@ -387,28 +376,136 @@ bool Channel::_isDone() const
         return false;
 
     const eq::SubPixel& subpixel = getSubPixel();
-    return subpixel.index >= _jitterStep;
+    const Accum& accum = _accum[ getEye() ];
+    return static_cast< int32_t >( subpixel.index ) >= accum.step;
+}
+
+void Channel::_initJitter()
+{
+    if( !_initAccum( ))
+        return;
+
+    const FrameData& frameData = _getFrameData();
+    if( frameData.isIdle( ))
+        return;
+
+    const View* view = static_cast< const View* >( getView( ));
+    const uint32_t totalSteps = view->getIdleSteps();
+
+    if( totalSteps == 0 )
+        return;
+
+    // ready for the next FSAA
+    Accum& accum = _accum[ getEye() ];
+
+    if( accum.buffer )
+        accum.buffer->clear();
+    accum.step = totalSteps;
+}
+
+bool Channel::_initAccum()
+{
+    if( !getNativeView( )) // Only alloc accum for dest
+        return true;
+
+    const eq::Eye eye = getEye();
+    Accum& accum = _accum[ eye ];
+
+    if( accum.buffer ) // already done
+        return true;
+
+    if( accum.step == -1 ) // accum init failed last time
+        return false;
+
+    // Check unsupported cases
+    if( !eq::util::Accum::usesFBO( glewGetContext( )))
+    {
+        for( size_t i = 0; i < eq::EYE_ALL; ++i )
+        {
+            if( _accum[ i ].buffer )
+            {
+                EQWARN << "glAccum-based accumulation does not support "
+                       << "stereo, disabling idle anti-aliasing."
+                       << std::endl;
+                for( size_t j = 0; j < eq::EYE_ALL; ++j )
+                {
+                    delete _accum[ j ].buffer;
+                    _accum[ j ].buffer = 0;
+                    _accum[ j ].step = -1;
+                }
+
+                ConfigEvent event;
+                event.data.type = ConfigEvent::IDLE_AA_TOTAL;
+                event.data.originator = getNativeView()->getID();
+                event.steps = 0;
+
+                eq::Config* config = getConfig();
+                config->sendEvent( event );
+                return false;
+            }
+        }
+    }
+
+    // set up accumulation buffer
+    accum.buffer = new eq::util::Accum( glewGetContext( ));
+    const eq::PixelViewport& pvp = getPixelViewport();
+    EQASSERT( pvp.isValid( ));
+
+    if( !accum.buffer->init( pvp, getWindow()->getColorFormat( )) ||
+        accum.buffer->getMaxSteps() < 256 )
+    {
+        EQWARN <<"Accumulation buffer initialization failed, "
+               << "idle AA not available." << std::endl;
+        delete accum.buffer;
+        accum.buffer = 0;
+        accum.step = -1;
+        return false;
+    }
+
+    // else
+    EQINFO << "Initialized "
+           << (accum.buffer->usesFBO() ? "FBO accum" : "glAccum")
+           << " buffer for " << getName() << " " << getEye() 
+           << std::endl;
+
+    ConfigEvent event;
+    event.data.type = ConfigEvent::IDLE_AA_TOTAL;
+    event.data.originator = getNativeView()->getID();
+    event.steps = accum.buffer ? 256 : 0;
+
+    eq::Config* config = getConfig();
+    config->sendEvent( event );
+    return true;
 }
 
 eq::Vector2f Channel::_getJitter() const
 {
-    const eq::PixelViewport& pvp = getPixelViewport();
-    float pvp_w = static_cast<float>( pvp.w );
-    float pvp_h = static_cast<float>( pvp.h );
-    float frustum_w = static_cast<float>(( getFrustum().get_width( )));
-    float frustum_h = static_cast<float>(( getFrustum().get_height( )));
+    const FrameData& frameData = _getFrameData();
+    const Accum& accum = _accum[ getEye() ];
 
-    float pixel_w = frustum_w / pvp_w;
-    float pixel_h = frustum_h / pvp_h;
+    if( !frameData.isIdle() || accum.step <= 0 )
+        return eq::Channel::getJitter();
 
-    uint32_t sampleSize = _getSampleSize();
-    float subpixel_w = pixel_w / static_cast<float>( sampleSize );
-    float subpixel_h = pixel_h / static_cast<float>( sampleSize );
+    const View* view = static_cast< const View* >( getView( ));
+    if( !view || view->getIdleSteps() != 256 )
+        return eq::Vector2f::ZERO;
 
     eq::Vector2i jitterStep = _getJitterStep();
-
     if( jitterStep == eq::Vector2i::ZERO )
         return eq::Vector2f::ZERO;
+
+    const eq::PixelViewport& pvp = getPixelViewport();
+    const float pvp_w = static_cast<float>( pvp.w );
+    const float pvp_h = static_cast<float>( pvp.h );
+    const float frustum_w = static_cast<float>(( getFrustum().get_width( )));
+    const float frustum_h = static_cast<float>(( getFrustum().get_height( )));
+
+    const float pixel_w = frustum_w / pvp_w;
+    const float pixel_h = frustum_h / pvp_h;
+
+    const float sampleSize = 16.f; // sqrt( 256 )
+    const float subpixel_w = pixel_w / sampleSize;
+    const float subpixel_h = pixel_h / sampleSize;
 
     // Sample value randomly computed within the subpixel
     eq::base::RNG rng;
@@ -427,16 +524,23 @@ eq::Vector2f Channel::_getJitter() const
 
 eq::Vector2i Channel::_getJitterStep() const
 {
-    uint32_t channelID  = getSubPixel().index;
-    uint32_t subset = _totalSteps / getSubPixel().size;
-
-    uint32_t idx = ( _jitterStep * primeNumberTable[ channelID ] ) % subset;
-    idx += ( channelID * subset );
-
-    uint32_t sampleSize = _getSampleSize();
-    if( sampleSize == 0 )
+    const eq::SubPixel& subPixel = getSubPixel();
+    uint32_t channelID = subPixel.index;
+    const View* view = static_cast< const View* >( getView( ));
+    if( !view )
         return eq::Vector2i::ZERO;
 
+    const uint32_t totalSteps = view->getIdleSteps();
+    if( totalSteps != 256 )
+        return eq::Vector2i::ZERO;
+
+    const Accum& accum = _accum[ getEye() ];
+    const uint32_t subset = totalSteps / getSubPixel().size;
+    const uint32_t idx = 
+        ( accum.step * primeNumberTable[ channelID ] ) % subset +
+        ( channelID * subset );
+
+    const uint32_t sampleSize = 16;
     const int dx = idx % sampleSize;
     const int dy = idx / sampleSize;
 
@@ -573,8 +677,8 @@ void Channel::_drawModel( const Model* model )
 void Channel::_drawOverlay()
 {
     // Draw the overlay logo
-    const Window* window      = static_cast<Window*>( getWindow( ));
-    GLuint        texture;
+    const Window* window = static_cast<Window*>( getWindow( ));
+    GLuint texture;
     eq::Vector2i  size;
         
     window->getLogoTexture( texture, size );
@@ -649,9 +753,9 @@ void Channel::_drawHelp()
     if( !frameData.showHelp() && message.empty( ))
         return;
 
-    EQ_GL_CALL( applyBuffer( ));
-    EQ_GL_CALL( applyViewport( ));
-    EQ_GL_CALL( setupAssemblyState( ));
+    applyBuffer();
+    applyViewport();
+    setupAssemblyState();
 
     glDisable( GL_LIGHTING );
     glDisable( GL_DEPTH_TEST );
@@ -707,7 +811,7 @@ void Channel::_drawHelp()
         font->draw( message );
     }
 
-    EQ_GL_CALL( resetAssemblyState( ));
+    resetAssemblyState();
 }
 
 void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )

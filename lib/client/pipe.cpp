@@ -400,7 +400,7 @@ void Pipe::flushFrames()
     _frames.clear();
 }
 
-View* Pipe::getView( const net::ObjectVersion& viewVersion )
+const View* Pipe::getView( const net::ObjectVersion& viewVersion ) const
 {
     CHECK_THREAD( _pipeThread );
     if( viewVersion.identifier == EQ_ID_INVALID )
@@ -414,7 +414,7 @@ View* Pipe::getView( const net::ObjectVersion& viewVersion )
         view = nodeFactory->createView();
         view->_pipe = this;
 
-        net::Session* session = getSession();
+        net::Session* session = const_cast< net::Session* >( getSession( ));
         EQCHECK( session->mapObject( view, viewVersion.identifier ));
 
         _views[ viewVersion.identifier ] = view;

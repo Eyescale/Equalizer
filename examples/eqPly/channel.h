@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -78,11 +78,10 @@ namespace eqPly
         void _initFrustum( eq::FrustumCullerf& frustum, 
                            const mesh::BoundingSphere& boundingSphere );
 
-        bool _configInitAccumBuffer();
         bool _isDone() const;
 
-        const int32_t _getSampleSize() const
-            { return ( getWindow()->getDrawableConfig().accumBits >= 64 ) ? 16 : 0; }
+        void _initJitter();
+        bool _initAccum();
 
         /** the subpixel for this step. */
         eq::Vector2i _getJitterStep() const;
@@ -94,12 +93,17 @@ namespace eqPly
         const Model* _model;
         uint32_t     _modelID;
 
-        eq::util::Accum* _accum;
+        struct Accum
+        {
+            Accum() : buffer( 0 ), step( 0 ), stepsDone( 0 ), transfer( false )
+                {}
 
-        uint32_t _jitterStep;
-        uint32_t _totalSteps;
-        uint32_t _subpixelStep;
-        bool _needsTransfer;
+            eq::util::Accum* buffer;
+            int32_t step;
+            uint32_t stepsDone;
+            bool transfer;
+        }
+            _accum[ eq::EYE_ALL ];
 
         eq::PixelViewport _currentPVP;
     };

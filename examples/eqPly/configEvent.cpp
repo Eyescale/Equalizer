@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                   , Sarah Amsellem <sarah.amsellem@gmail.com>
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,8 +24,12 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
 {
     switch( event->data.type )
     {
-        case ConfigEvent::IDLE_AA:
-            os  << "anti-aliasing";
+        case ConfigEvent::IDLE_AA_TOTAL:
+            os  << event->steps << " FSAA steps total";
+            break;
+
+        case ConfigEvent::IDLE_AA_LEFT:
+            os  << event->steps << " FSAA steps to do";
             break;
 
         default:

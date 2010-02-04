@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,6 +34,9 @@ namespace eqPly
         void setModelID( const uint32_t id );
         uint32_t getModelID() const { return _modelID; }
 
+        void setIdleSteps( const uint32_t steps );
+        uint32_t getIdleSteps() const { return _idleSteps; }
+
     protected:
         /** @sa eq::View::serialize() */
         virtual void serialize( eq::net::DataOStream& os,
@@ -46,10 +49,12 @@ namespace eqPly
         enum DirtyBits
         {
             DIRTY_MODEL       = eq::View::DIRTY_CUSTOM << 0,
+            DIRTY_IDLE        = eq::View::DIRTY_CUSTOM << 1
         };
 
     private:
         uint32_t _modelID;
+        uint32_t _idleSteps;
     };
 }
 

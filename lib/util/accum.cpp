@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                   , Sarah Amsellem <sarah.amsellem@gmail.com>
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -101,12 +101,8 @@ bool Accum::resize( const int width, const int height )
 
 void Accum::accum()
 {
-    EQASSERT( _numSteps <= _totalSteps );
+    EQASSERT( _numSteps < _totalSteps );
 
-    /**
-     * This is the only working implementation on MacOS found at the moment.
-     * The glAccum function seems to be implemented differently.
-     */
     if( _abo )
     {
         if( _numSteps == 0 )
@@ -116,15 +112,17 @@ void Accum::accum()
     }
     else
     {
+        // This is the only working implementation on MacOS found at the moment.
+        // glAccum function seems to be implemented differently.
         if( _numSteps == 0 )
 #ifdef Darwin
-            glAccum( GL_LOAD, 1.0f/_totalSteps );
+            glAccum( GL_LOAD, 1.0f / _totalSteps );
 #else
             glAccum( GL_LOAD, 1.0f );
 #endif
         else
 #ifdef Darwin
-            glAccum( GL_ACCUM, 1.0f/_totalSteps );
+            glAccum( GL_ACCUM, 1.0f / _totalSteps );
 #else
             glAccum( GL_ACCUM, 1.0f );
 #endif
@@ -137,17 +135,20 @@ void Accum::display()
 {
     EQASSERT( _numSteps <= _totalSteps );
 
-    const float factor = 1.0f/_numSteps;
 
     if( _abo )
+    {
+        const float factor = 1.0f / _numSteps;
         _abo->display( factor );
+    }
     else
     {
 #ifdef Darwin
-        glAccum( GL_RETURN, static_cast<float>( _totalSteps )/_numSteps );
+        const float factor = static_cast<float>( _totalSteps ) / _numSteps;
 #else
-        glAccum( GL_RETURN, factor );
+        const float factor = 1.0f / _numSteps;
 #endif
+        glAccum( GL_RETURN, factor );
     }
 }
 
@@ -164,6 +165,13 @@ uint32_t Accum::getMaxSteps() const
 
 bool Accum::usesFBO() const
 {
+    return usesFBO( glewGetContext( ));
+}
+
+#define glewGetContext() glewContext
+
+bool Accum::usesFBO( const GLEWContext* glewContext )
+{
 #ifdef Darwin
     return false;
 #else
@@ -171,6 +179,8 @@ bool Accum::usesFBO() const
            ( GLEW_VERSION_3_0 || GLEW_ARB_texture_float ));
 #endif
 }
+
+#undef glewGetContext
 
 }
 }

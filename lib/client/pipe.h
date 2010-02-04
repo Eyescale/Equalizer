@@ -185,7 +185,7 @@ namespace eq
         void setCurrent( const Window* window ) const;
 
         /** @internal @return the view for the given identifier and version. */
-        View* getView( const net::ObjectVersion& viewVersion );
+        const View* getView( const net::ObjectVersion& viewVersion ) const;
         //@}
 
         /** Wait for the pipe to be exited. */
@@ -482,7 +482,7 @@ namespace eq
 
         typedef stde::hash_map< uint32_t, View* > ViewHash;
         /** All views used by the pipe's channels during rendering. */
-        ViewHash _views;
+        mutable ViewHash _views; // 'const' view mapping
 
         /** The pipe thread. */
         class PipeThread : public base::Thread

@@ -68,9 +68,13 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
             _observer = 0;
         else
         {
-            Config* config = getConfig();
+            const Config* config = getConfig();
+            // WAR: don't want to have non-const getter on client-side views
+            if( !config && _pipe )
+                config = _pipe->getConfig();
+
             EQASSERT( config );
-            _observer = config->findObserver( id );
+            _observer = const_cast< Observer* >( config->findObserver( id ));
         }
     }
     if( dirtyBits & DIRTY_OVERDRAW )
@@ -88,12 +92,6 @@ Config* View::getConfig()
     {
         EQASSERT( !_pipe );
         return _layout->getConfig();
-    }
-
-    if( _pipe )
-    {
-        EQASSERT( !_layout );
-        return _pipe->getConfig();
     }
 
     return 0;

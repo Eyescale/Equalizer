@@ -130,7 +130,7 @@ namespace server
         friend class Layout;
 
         /** Parent pipe (render-client-side). */
-        Pipe* _pipe;
+        const Pipe* _pipe;
         friend class Pipe;
 
         friend class server::View;

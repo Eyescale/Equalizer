@@ -179,7 +179,7 @@ namespace util
          * @sa getView()
          * @version 1.0
          */
-        EQ_EXPORT const View* getNativeView();
+        EQ_EXPORT const View* getNativeView() const;
 
         /** @return the channel's native pixel viewport. @version 1.0 */
         const PixelViewport& getNativePixelViewPort() const
@@ -328,7 +328,7 @@ namespace util
          * @sa getNativeView()
          * @version 1.0
          */
-        EQ_EXPORT const View* getView();
+        EQ_EXPORT const View* getView() const;
 
         /** 
          * Returns an orthographic frustum for 2D operations on the view.

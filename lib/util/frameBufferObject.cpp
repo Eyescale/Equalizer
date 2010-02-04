@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2008-2009, Cedric Stalder <cedric.stalder@gmail.com>
-                 2009, Stefan Eilemann <eile@equalizergraphics.com>
+                 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -178,12 +178,12 @@ void FrameBufferObject::bind()
 {
     CHECK_THREAD( _thread );
     EQASSERT( _fboID );
-    glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID );
+    EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID ));
 }
 
 void FrameBufferObject::unbind()
 {
-    glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 ); 
+    EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 ));
 }
 
 bool FrameBufferObject::resize( const int width, const int height )

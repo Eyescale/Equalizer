@@ -463,10 +463,11 @@ void Channel::setupAssemblyState()
     pvp.y = 0;
 
     //TODO: temporary workaround
-    if( !( GLEW_EXT_framebuffer_object &&
-	 ( GLEW_VERSION_3_0 || GLEW_ARB_texture_float )))
-	 pvp = getPixelViewport();
-
+    if( !( GLEW_EXT_framebuffer_object && 
+           ( GLEW_VERSION_3_0 || GLEW_ARB_texture_float )))
+    {
+        pvp = getPixelViewport();
+    }
     Compositor::setupAssemblyState( pvp );
 }
 
@@ -604,15 +605,15 @@ util::FrameBufferObject* Channel::getFrameBufferObject()
     return _fbo;
 }
 
-const View* Channel::getView()
+const View* Channel::getView() const
 {
-    Pipe* pipe = getPipe();
+    const Pipe* pipe = getPipe();
     return pipe->getView( _context->view );
 }
 
-const View* Channel::getNativeView()
+const View* Channel::getNativeView() const
 {
-    Pipe* pipe = getPipe();
+    const Pipe* pipe = getPipe();
     return pipe->getView( _nativeContext.view );
 }
 

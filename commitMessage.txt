@@ -1,9 +1,22 @@
-Implement period/phase access in render context and frames
+eqPly idle AA cleanup:
+- Use on (FBO) Accum per eye pass
+- Disable glAccum idle AA with more than one eye pass
+- Alloc accum buffers lazily
+- Fix idle AA count-down with view equalizer
+- Store idle steps per-view
+- make Channel::getView const
+- Fix bound FBO after accum init
 
-[ ] May break build
+Open issues (Darwin)
+- DFR
+- multi-channel per window
+
+Needs testing on Win/Linux 
+
+[x] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[x] Bugfix
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -29,7 +29,8 @@ struct ConfigEvent : public eq::ConfigEvent
 public:
     enum Type
     {
-        IDLE_AA = eq::Event::USER
+        IDLE_AA_TOTAL = eq::Event::USER,
+        IDLE_AA_LEFT
     };
 
     ConfigEvent()
@@ -37,7 +38,7 @@ public:
         size = sizeof( ConfigEvent );
     }
 
-    uint32_t jitter;
+    uint32_t steps;
 };
 
 std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );

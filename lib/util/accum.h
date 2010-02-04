@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                   , Sarah Amsellem <sarah.amsellem@gmail.com>
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -111,12 +111,20 @@ namespace util
         EQ_EXPORT uint32_t getTotalSteps() { return _totalSteps; }
 
         /**
-         * Tests if the accumulation uses the FBO implementation.
+         * Test if the accumulation uses the FBO implementation.
          *
          * @return true if the accumulation uses an FBO, false if it uses
          *         glAccum().
          */
         EQ_EXPORT bool usesFBO() const;
+
+        /**
+         * Test if the accumulation would use the FBO implementation.
+         *
+         * @return true if the accumulation uses an FBO, false if it uses
+         *         glAccum().
+         */
+        EQ_EXPORT static bool usesFBO( const GLEWContext* glewContext );
 
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }

@@ -493,7 +493,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
     EQASSERTINFO( vp.isValid(), vp );
     EQASSERTINFO( range.isValid(), range );
     EQASSERTINFO( node->usage > 0.f || !vp.hasArea() || !range.hasData(),
-                  "Assigning work to unused compound" );
+                  "Assigning work to unused compound: " << vp << ", " << range);
 
     Compound* compound = node->compound;
     if( compound )

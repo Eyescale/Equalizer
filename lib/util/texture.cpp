@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -83,8 +83,12 @@ void Texture::setFormat( const GLuint format )
             break;
 
         // color formats
-        case GL_RGBA8:
         case GL_RGBA16:
+            _format = GL_BGRA;
+            _type   = GL_UNSIGNED_SHORT;
+            break;
+
+        case GL_RGBA8:
         case GL_BGRA:
             _format = GL_BGRA;
             _type   = GL_UNSIGNED_BYTE;
@@ -160,6 +164,7 @@ void Texture::_resize( const int32_t width, const int32_t height )
 
 void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
 {
+    EQ_GL_ERROR( "before Texture::copyFromFrameBuffer" );
     CHECK_THREAD( _thread );
     EQASSERT( _internalFormat != 0 );
 
@@ -173,6 +178,7 @@ void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
     EQ_GL_CALL( glCopyTexSubImage2D( _target, 0, 0, 0,
                                      pvp.x, pvp.y, pvp.w, pvp.h ));
     glFinish();
+    EQ_GL_ERROR( "after Texture::copyFromFrameBuffer" );
 }
 
 void Texture::upload( const Image* image, const Frame::Buffer which )
@@ -275,24 +281,13 @@ void Texture::writeTexture( const std::string& filename,
 {
     eq::Image* image = new eq::Image();
 
-    GLuint type;
-    switch( getFormat( ))
-    {
-        case GL_RGBA32F:
-            type = GL_FLOAT;
-        case GL_RGBA16F:
-            type = GL_HALF_FLOAT;
-        default:
-            type = GL_UNSIGNED_BYTE;
-    }
-
-    image->setType( buffer, type );
-    image->setFormat( buffer, getFormat() );
+    image->setType( buffer, _type );
+    image->setFormat( buffer, getFormat( ));
 
     image->setPixelViewport( pvp );
     image->validatePixelData( buffer );
 
-    download( image->getPixelPointer( buffer ), getFormat(), type );
+    download( image->getPixelPointer( buffer ), getFormat(), _type );
 
     image->writeImage( filename + ".rgb", buffer );
 
