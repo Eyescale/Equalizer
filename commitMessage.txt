@@ -1,22 +1,9 @@
-eqPly idle AA cleanup:
-- Use on (FBO) Accum per eye pass
-- Disable glAccum idle AA with more than one eye pass
-- Alloc accum buffers lazily
-- Fix idle AA count-down with view equalizer
-- Store idle steps per-view
-- make Channel::getView const
-- Fix bound FBO after accum init
+Fix eqPly idle AA with multiple channels per window
 
-Open issues (Darwin)
-- DFR
-- multi-channel per window
-
-Needs testing on Win/Linux 
-
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

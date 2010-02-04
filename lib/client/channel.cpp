@@ -39,6 +39,7 @@
 #include "task.h"
 #include "view.h"
 
+#include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
 #include <eq/net/command.h>
 #include <eq/base/rng.h>
