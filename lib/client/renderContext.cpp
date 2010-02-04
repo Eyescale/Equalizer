@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,6 +30,8 @@ RenderContext::RenderContext()
         , frameID( 0 )
         , buffer( GL_BACK ) 
         , taskID( 0 )
+        , period( 1 )
+        , phase( 0 )
         , eye( EYE_CYCLOP )
         , frustum( Frustumf::DEFAULT )
         , ortho( Frustumf::DEFAULT )

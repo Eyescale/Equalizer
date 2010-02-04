@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -124,6 +124,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         frameData->setRange( compound->getInheritRange( ));
         frameData->setPixel( compound->getInheritPixel( ));
         frameData->setSubPixel( compound->getInheritSubPixel( ));
+        frameData->setPeriod( compound->getInheritPeriod( ));
+        frameData->setPhase( compound->getInheritPhase( ));
 
         //----- Set frame parameters:
         // 1) offset is position wrt window, i.e., the channel position

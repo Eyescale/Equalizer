@@ -1,4 +1,4 @@
-Tweak curved demo config with cross-segment load-balancing
+Implement period/phase access in render context and frames
 
 [ ] May break build
 [ ] May break existing applications

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -70,6 +70,12 @@ namespace server
         /** Set the source pixel decomposition wrt dest channel. */
         void setSubPixel( const eq::SubPixel& subpixel )
             { _data.subpixel = subpixel; }
+
+        /** Set the source DPlex period wrt dest channel. */
+        void setPeriod( const uint32_t period ) { _data.period = period; }
+
+        /** Set the source DPlex phase wrt dest channel. */
+        void setPhase( const uint32_t phase ) { _data.phase = phase; }
 
         /** Set the output frame zoom factor. */
         void setZoom( const eq::Zoom& zoom ) { _zoom = zoom; }

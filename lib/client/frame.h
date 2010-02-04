@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -88,8 +88,14 @@ namespace server
         /** @return the pixel parameters relative to the destination channel. */
         EQ_EXPORT const Pixel& getPixel() const;
 
-        /** @return the subpixel parameters relative to the destination channel. */
+        /** @return the subpixel parameters wrt the destination channel. */
         EQ_EXPORT const SubPixel& getSubPixel() const;
+
+        /** @return the DPlex period relative to the destination channel. */
+        EQ_EXPORT uint32_t getPeriod() const;
+
+        /** @return the DPlex phase relative to the destination channel. */
+        EQ_EXPORT uint32_t getPhase() const;
 
         /** @return the zoom factor for readback or assemble. */
         const Zoom& getZoom() const { return _data.zoom; }

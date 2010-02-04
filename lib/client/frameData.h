@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -55,19 +55,25 @@ namespace server
          * @name Data Access
          */
         //@{
-        /** The enabled frame buffer attachments. */
+        /** @return the enabled frame buffer attachments. */
         uint32_t getBuffers() const { return _data.buffers; }
         void     setBuffers( const uint32_t buffers ){ _data.buffers = buffers;}
 
-        /** The database-range relative to the destination channel. */
+        /** @return the database-range relative to the destination channel. */
         const Range& getRange() const { return _data.range; }
         void setRange( const Range& range ) { _data.range = range; }
         
-        /** The pixel decomposition relative to the destination channel. */
+        /** @return the pixel decomposition wrt the destination channel. */
         const Pixel& getPixel() const { return _data.pixel; }
         
-        /** The subpixel decomposition relative to the destination channel. */
+        /** @return the subpixel decomposition wrt the destination channel. */
         const SubPixel& getSubPixel() const { return _data.subpixel; }
+
+        /** @return the DPlex period relative to the destination channel. */
+        uint32_t getPeriod() const { return _data.period; }
+
+        /** @return the DPlex phase relative to the destination channel. */
+        uint32_t getPhase() const { return _data.phase; }
 
         /** The images of this frame data holder */
         const ImageVector& getImages() const { return _images; }
@@ -188,13 +194,16 @@ namespace server
         struct Data
         {
             Data() : offset( Vector2i::ZERO ), buffers( 0 ), format( 0 )
-                   , type( 0 ), frameType( Frame::TYPE_MEMORY ){}
+                   , type( 0 ), period( 1 ), phase( 0 )
+                   , frameType( Frame::TYPE_MEMORY ) {}
 
             PixelViewport pvp;
             Vector2i      offset;
             uint32_t      buffers;
             uint32_t      format;
             uint32_t      type;
+            uint32_t      period;
+            uint32_t      phase;
             Frame::Type   frameType;
             Range         range;     //<! database-range of src wrt to dest
             Pixel         pixel;     //<! pixel decomposition of source

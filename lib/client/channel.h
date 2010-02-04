@@ -277,6 +277,18 @@ namespace util
         EQ_EXPORT const Zoom& getZoom() const;
 
         /**
+         * @return the DPlex period for the current rendering task.
+         * @version 1.0
+         */
+        EQ_EXPORT uint32_t getPeriod() const;
+
+        /**
+         * @return the DPlex phase for the current rendering task.
+         * @version 1.0
+         */
+        EQ_EXPORT uint32_t getPhase() const;
+
+        /**
          * Get the channel's current position wrt the destination channel.
          *
          * Note that computing this value from the current viewport and pixel

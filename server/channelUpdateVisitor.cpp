@@ -162,6 +162,8 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.pixel         = compound->getInheritPixel();
     context.subpixel      = compound->getInheritSubPixel();
     context.zoom          = compound->getInheritZoom();
+    context.period        = compound->getInheritPeriod();
+    context.phase         = compound->getInheritPhase();
     context.offset.x()    = context.pvp.x;
     context.offset.y()    = context.pvp.y;
     context.eye           = _eye;

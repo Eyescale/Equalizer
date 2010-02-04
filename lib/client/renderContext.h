@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -58,6 +58,8 @@ namespace eq
         uint32_t       frameID;        //<! identifier from Config::beginFrame
         uint32_t       buffer;         //<! buffer as passed to glDrawBuffer() 
         uint32_t       taskID;         //<! @internal per-channel task counter
+        uint32_t       period;         //<! DPlex period
+        uint32_t       phase;          //<! DPlex phase
         Eye            eye;            //<! current eye pass
 
         Frustumf       frustum;        //<! frustum for projection matrix

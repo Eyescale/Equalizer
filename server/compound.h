@@ -317,9 +317,11 @@ namespace server
         const eq::Viewport& getInheritViewport() const { return _inherit.vp; }
         const eq::Range& getInheritRange()   const { return _inherit.range; }
         const eq::Pixel& getInheritPixel()   const { return _inherit.pixel; }
-        const eq::SubPixel& getInheritSubPixel() const { return _inherit.subpixel; }
+        const eq::SubPixel& getInheritSubPixel() const 
+            { return _inherit.subpixel; }
         const eq::Zoom& getInheritZoom()     const { return _inherit.zoom; }
         uint32_t getInheritPeriod()          const { return _inherit.period; }
+        uint32_t getInheritPhase()           const { return _inherit.phase; }
         float getInheritMaxFPS()             const { return _inherit.maxFPS; }
         int32_t  getInheritIAttribute( const IAttribute attr ) const
             { return _inherit.iAttributes[attr]; }

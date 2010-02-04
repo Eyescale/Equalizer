@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -79,6 +79,18 @@ const Range& Frame::getRange() const
 {
     EQASSERT( _frameData );
     return _frameData->getRange();
+}
+
+uint32_t Frame::getPeriod() const
+{
+    EQASSERT( _frameData );
+    return _frameData->getPeriod();
+}
+
+uint32_t Frame::getPhase() const
+{
+    EQASSERT( _frameData );
+    return _frameData->getPhase();
 }
 
 void Frame::setRange( const Range& range )

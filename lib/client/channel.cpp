@@ -546,6 +546,16 @@ const Zoom& Channel::getZoom() const
     return _context->zoom;
 }
 
+uint32_t Channel::getPeriod() const
+{
+    return _context->period;
+}
+
+uint32_t Channel::getPhase() const
+{
+    return _context->phase;
+}
+
 Eye Channel::getEye() const
 {
     return _context->eye;
