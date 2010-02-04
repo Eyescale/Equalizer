@@ -490,7 +490,8 @@ void ViewEqualizer::_updateResources()
         return;
 
     PipeCounter counter;
-    getCompound()->accept( counter );
+    const Compound* compound = getCompound();
+    compound->accept( counter );
     _nPipes = counter.getNPipes();
 }
 

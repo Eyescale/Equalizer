@@ -484,7 +484,7 @@ bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
     for( CompoundVector::const_iterator i = compounds.begin(); 
          i != compounds.end(); ++i )
     {
-        Compound* compound = *i;
+        const Compound* compound = *i;
         ChannelUpdateVisitor visitor( this, frameID, frameNumber );
 
         visitor.setEye( eq::EYE_CYCLOP );

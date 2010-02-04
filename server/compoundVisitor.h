@@ -40,10 +40,10 @@ namespace server
 
         /** Visit a non-leaf compound on the down traversal. */
         virtual VisitorResult visitPre( Compound* compound )
-            { return visitPre( static_cast< const Compound* >( compound )); }
+            { return visit( compound ); }
         /** Visit a leaf compound. */
         virtual VisitorResult visitLeaf( Compound* compound )
-            { return visitLeaf( static_cast< const Compound* >( compound )); }
+            { return visit( compound ); }
         /** Visit a non-leaf compound on the up traversal. */
         virtual VisitorResult visitPost( Compound* compound )
             { return visitPost( static_cast< const Compound* >( compound )); }
