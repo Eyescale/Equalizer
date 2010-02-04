@@ -81,6 +81,9 @@ namespace eq
          */
         EQ_EXPORT VisitorResult accept( NodeVisitor& visitor );
 
+        /** Const-version of accept(). */
+        EQ_EXPORT VisitorResult accept( NodeVisitor& visitor ) const;
+
         /** 
          * Get a network barrier. 
          * 

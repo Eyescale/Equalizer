@@ -144,7 +144,7 @@
 </p>
 <ul>
   <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
-      User Guide</a> has been extended to TBD pages and TBD figures.</li>
+      User Guide</a> has been extended to 91 pages and 53 figures.</li>
   <li>The Accumulation Buffer Object API has been added to the Programming Guide.</li>
   <li><a href="http://www.equalizergraphics.com/documents/design/subpixelCompound.html">The Subpixel compound API</a> provides a compound for anti-aliasing.</li>
   <li><a href="http://www.equalizergraphics.com/documents/design/multicast.html">Multicast Data Transfer</a>.</li>
@@ -224,7 +224,7 @@
 <p>
   As with any open source project, the available source code, in particular the
   shipped
-  <a href="http://www.equalizergraphics.com/cgi-bin/viewvc.cgi/tags/release-0.9/examples/">examples</a>
+  <a href="http://www.equalizergraphics.com/cgi-bin/viewvc.cgi/tags/release-0.9.1/examples/">examples</a>
   provide a reference for developing or porting applications. The
   <a href="http://www.equalizergraphics.com/doc_developer.html">Developer Documentation</a> on the website
   provides further design documents for specific features.

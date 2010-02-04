@@ -72,4 +72,9 @@ VisitorResult Segment::accept( SegmentVisitor& visitor )
     return visitor.visit( this );
 }
 
+VisitorResult Segment::accept( SegmentVisitor& visitor ) const
+{
+    return visitor.visit( this );
+}
+
 }

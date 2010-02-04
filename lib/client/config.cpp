@@ -150,6 +150,13 @@ Observer* Config::findObserver( const uint32_t id )
     return finder.getResult();
 }
 
+const Observer* Config::findObserver( const uint32_t id ) const
+{
+    ObserverIDFinder finder( id );
+    accept( finder );
+    return finder.getResult();
+}
+
 Layout* Config::findLayout( const uint32_t id )
 {
     LayoutIDFinder finder( id );
@@ -166,8 +173,8 @@ View* Config::findView( const uint32_t id )
 
 namespace
 {
-template< class C, class V >
-VisitorResult _accept( C* config, V& visitor )
+template< class C >
+VisitorResult _accept( C* config, ConfigVisitor& visitor )
 { 
     VisitorResult result = visitor.visitPre( config );
     if( result != TRAVERSE_CONTINUE )
@@ -267,6 +274,11 @@ VisitorResult _accept( C* config, V& visitor )
 }
 
 VisitorResult Config::accept( ConfigVisitor& visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Config::accept( ConfigVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

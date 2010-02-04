@@ -65,6 +65,11 @@ VisitorResult Observer::accept( ObserverVisitor& visitor )
     return visitor.visit( this );
 }
 
+VisitorResult Observer::accept( ObserverVisitor& visitor ) const
+{
+    return visitor.visit( this );
+}
+
 void Observer::deregister()
 {
     EQASSERT( _config );

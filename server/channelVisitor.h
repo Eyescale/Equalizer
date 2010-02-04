@@ -26,9 +26,7 @@ namespace server
 {
     class Channel;
 
-    /**
-     * A visitor to traverse a non-const channels.
-     */
+    /** A visitor to traverse channels. */
     class ChannelVisitor
     {
     public:

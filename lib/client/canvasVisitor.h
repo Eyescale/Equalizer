@@ -24,7 +24,9 @@ namespace eq
 {
     class Canvas;
 
-    /** A visitor to traverse non-const canvases and children. */
+    /**
+     * A visitor to traverse canvases and children.
+     */
     class CanvasVisitor : public SegmentVisitor
     {
     public:
@@ -36,12 +38,19 @@ namespace eq
 
         /** Visit a canvas on the down traversal. @version 1.0 */
         virtual VisitorResult visitPre( Canvas* canvas )
+            { return visitPre( static_cast< const Canvas* >( canvas )); }
+
+        /** Visit a canvas on the up traversal. */
+        virtual VisitorResult visitPost( Canvas* canvas )
+            { return visitPost( static_cast< const Canvas* >( canvas )); }
+
+        /** Visit a canvas on the down traversal. */
+        virtual VisitorResult visitPre( const Canvas* canvas )
             { return TRAVERSE_CONTINUE; }
 
-        /** Visit a canvas on the up traversal. @version 1.0 */
-        virtual VisitorResult visitPost( Canvas* canvas )
+        /** Visit a canvas on the up traversal. */
+        virtual VisitorResult visitPost( const Canvas* canvas )
             { return TRAVERSE_CONTINUE; }
     };
-
 }
 #endif // EQ_CANVASVISITOR_H

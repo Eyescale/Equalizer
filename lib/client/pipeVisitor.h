@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,9 +24,7 @@ namespace eq
 {
     class Pipe;
 
-    /**
-     * A visitor to traverse non-const pipes and children.
-     */
+    /** A visitor to traverse pipes and children. */
     class PipeVisitor : public WindowVisitor
     {
     public:
@@ -38,10 +36,18 @@ namespace eq
 
         /** Visit a pipe on the down traversal. */
         virtual VisitorResult visitPre( Pipe* pipe )
-            { return TRAVERSE_CONTINUE; }
+            { return visitPre( static_cast< const Pipe* >( pipe )); }
 
         /** Visit a pipe on the up traversal. */
         virtual VisitorResult visitPost( Pipe* pipe )
+            { return visitPost( static_cast< const Pipe* >( pipe )); }
+
+        /** Visit a pipe on the down traversal. */
+        virtual VisitorResult visitPre( const Pipe* pipe )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a pipe on the up traversal. */
+        virtual VisitorResult visitPost( const Pipe* pipe )
             { return TRAVERSE_CONTINUE; }
     };
 }

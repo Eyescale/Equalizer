@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -276,17 +276,20 @@ ServerPtr Window::getServer()
     return ( _pipe ? _pipe->getServer() : 0 );
 }
 
-VisitorResult Window::accept( WindowVisitor& visitor )
+namespace
+{
+template< class C >
+VisitorResult _accept( C* window, WindowVisitor& visitor )
 { 
-    VisitorResult result = visitor.visitPre( this );
+    VisitorResult result = visitor.visitPre( window );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( ChannelVector::const_iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
+    const ChannelVector& channels = window->getChannels();
+    for( ChannelVector::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
     {
-        Channel* channel = *i;
-        switch( channel->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -301,7 +304,7 @@ VisitorResult Window::accept( WindowVisitor& visitor )
         }
     }
 
-    switch( visitor.visitPost( this ))
+    switch( visitor.visitPost( window ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -316,7 +319,17 @@ VisitorResult Window::accept( WindowVisitor& visitor )
 
     return result;
 }
+}
 
+VisitorResult Window::accept( WindowVisitor& visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Window::accept( WindowVisitor& visitor ) const
+{
+    return _accept( this, visitor );
+}
 
 //======================================================================
 // pipe-thread methods

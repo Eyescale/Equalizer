@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -99,17 +99,19 @@ void Layout::_deregister()
     _config->unmapObject( this );
 }
 
-VisitorResult Layout::accept( LayoutVisitor& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( this );
+namespace
+{
+template< class C >
+VisitorResult _accept( C* layout, LayoutVisitor& visitor )
+{
+    VisitorResult result = visitor.visitPre( layout );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( ViewVector::const_iterator i = _views.begin(); 
-         i != _views.end(); ++i )
+    const ViewVector& views = layout->getViews();
+    for( ViewVector::const_iterator i = views.begin(); i != views.end(); ++i )
     {
-        View* view = *i;
-        switch( view->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -124,7 +126,7 @@ VisitorResult Layout::accept( LayoutVisitor& visitor )
         }
     }
 
-    switch( visitor.visitPost( this ))
+    switch( visitor.visitPost( layout ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -138,6 +140,17 @@ VisitorResult Layout::accept( LayoutVisitor& visitor )
     }
 
     return result;
+}
+}
+
+VisitorResult Layout::accept( LayoutVisitor& visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Layout::accept( LayoutVisitor& visitor ) const
+{
+    return _accept( this, visitor );
 }
 
 void Layout::_addView( View* view )
@@ -157,7 +170,6 @@ bool Layout::_removeView( View* view )
     view->_layout = 0;
     return true;
 }
-
 
 std::ostream& operator << ( std::ostream& os, const Layout* layout )
 {

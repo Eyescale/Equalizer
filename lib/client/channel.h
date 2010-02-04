@@ -149,6 +149,9 @@ namespace util
          */
         EQ_EXPORT VisitorResult accept( ChannelVisitor& visitor );
 
+        /** Const-version of accept(). */
+        EQ_EXPORT VisitorResult accept( ChannelVisitor& visitor ) const;
+
         /** 
          * Set the near and far planes for this channel.
          * 

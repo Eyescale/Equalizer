@@ -111,6 +111,9 @@ namespace eq
         /** @return the observer of the given identifier, or 0. @version 1.0 */
         Observer* findObserver( const uint32_t id );
 
+        /** @return the observer of the given identifier, or 0. @version 1.0 */
+        const Observer* findObserver( const uint32_t id ) const;
+
         /** @return the vector of layouts, app-node only. @version 1.0 */
         const LayoutVector& getLayouts() const { return _layouts; }
 
@@ -131,6 +134,9 @@ namespace eq
          * @version 1.0
          */
         EQ_EXPORT VisitorResult accept( ConfigVisitor& visitor );
+
+        /** Const-version of accept(). */
+        EQ_EXPORT VisitorResult accept( ConfigVisitor& visitor ) const;
 
         /** Get all received statistics. @internal */
         EQ_EXPORT void getStatistics( std::vector< FrameStatistics >& stats );

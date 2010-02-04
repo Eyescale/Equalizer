@@ -104,6 +104,9 @@ namespace eq
          */
         EQ_EXPORT VisitorResult accept( PipeVisitor& visitor );
 
+        /** Const-version of accept(). */
+        EQ_EXPORT VisitorResult accept( PipeVisitor& visitor ) const;
+
         /**
          * Set the pipes's pixel viewport.
          *

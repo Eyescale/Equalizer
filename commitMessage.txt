@@ -1,9 +1,11 @@
-Fix bugs with last change
+Const visitor and accept for client entity classes
+Minor code cleanups
+Minor release preparations
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

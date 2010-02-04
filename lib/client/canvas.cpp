@@ -128,8 +128,8 @@ void Canvas::useLayout( const uint32_t index )
 
 namespace
 {
-template< class C, class V >
-VisitorResult _accept( C* canvas, V& visitor )
+template< class C >
+VisitorResult _accept( C* canvas, CanvasVisitor& visitor )
 {
     VisitorResult result = visitor.visitPre( canvas );
     if( result != TRAVERSE_CONTINUE )
@@ -172,6 +172,11 @@ VisitorResult _accept( C* canvas, V& visitor )
 }
 
 VisitorResult Canvas::accept( CanvasVisitor& visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Canvas::accept( CanvasVisitor& visitor ) const
 {
     return _accept( this, visitor );
 }

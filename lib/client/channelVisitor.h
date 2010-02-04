@@ -20,13 +20,11 @@
 
 #include <eq/client/visitorResult.h>  // enum
 
-#include <iostream>
-
 namespace eq
 {
     class Channel;
 
-    /** A visitor to traverse non-const channels. */
+    /** A visitor to traverse channels. */
     class ChannelVisitor
     {
     public:
@@ -38,8 +36,11 @@ namespace eq
 
         /** Visit a channel. @version 1.0 */
         virtual VisitorResult visit( Channel* channel )
+            { return visit( static_cast< const Channel* >( channel )); }
+
+        /** Visit a channel during a const traversal. */
+        virtual VisitorResult visit( const Channel* channel )
             { return TRAVERSE_CONTINUE; }
     };
-
 }
 #endif // EQ_CHANNELVISITOR_H

@@ -120,17 +120,20 @@ int64_t Pipe::getFrameTime() const
     return getConfig()->getTime() - _frameTime;
 }
 
-VisitorResult Pipe::accept( PipeVisitor& visitor )
+namespace
+{
+template< class C >
+VisitorResult _accept( C* pipe, PipeVisitor& visitor )
 { 
-    VisitorResult result = visitor.visitPre( this );
+    VisitorResult result = visitor.visitPre( pipe );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( WindowVector::const_iterator i = _windows.begin(); 
-         i != _windows.end(); ++i )
+    const WindowVector& windows = pipe->getWindows();
+    for( WindowVector::const_iterator i = windows.begin(); 
+         i != windows.end(); ++i )
     {
-        Window* window = *i;
-        switch( window->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -145,7 +148,7 @@ VisitorResult Pipe::accept( PipeVisitor& visitor )
         }
     }
 
-    switch( visitor.visitPost( this ))
+    switch( visitor.visitPost( pipe ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -159,6 +162,17 @@ VisitorResult Pipe::accept( PipeVisitor& visitor )
     }
 
     return result;
+}
+}
+
+VisitorResult Pipe::accept( PipeVisitor& visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Pipe::accept( PipeVisitor& visitor ) const
+{
+    return _accept( this, visitor );
 }
 
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 

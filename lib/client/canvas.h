@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -95,6 +95,9 @@ namespace server
          * @version 1.0
          */
         EQ_EXPORT VisitorResult accept( CanvasVisitor& visitor );
+
+        /** Const-version of accept(). */
+        EQ_EXPORT VisitorResult accept( CanvasVisitor& visitor ) const;
 
         /** @return true if the layout has changed. @internal */
         bool hasDirtyLayout() const { return getDirty() & DIRTY_LAYOUT; }

@@ -120,17 +120,19 @@ CommandQueue* Node::getNodeThreadQueue()
     return getClient()->getNodeThreadQueue();
 }
 
-VisitorResult Node::accept( NodeVisitor& visitor )
+namespace
+{
+template< class C >
+VisitorResult _accept( C* node, NodeVisitor& visitor )
 { 
-    VisitorResult result = visitor.visitPre( this );
+    VisitorResult result = visitor.visitPre( node );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    for( PipeVector::const_iterator i = _pipes.begin(); 
-         i != _pipes.end(); ++i )
+    const PipeVector& pipes = node->getPipes();
+    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
-        Pipe* pipe = *i;
-        switch( pipe->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -145,7 +147,7 @@ VisitorResult Node::accept( NodeVisitor& visitor )
         }
     }
 
-    switch( visitor.visitPost( this ))
+    switch( visitor.visitPost( node ))
     {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
@@ -159,6 +161,17 @@ VisitorResult Node::accept( NodeVisitor& visitor )
     }
 
     return result;
+}
+}
+
+VisitorResult Node::accept( NodeVisitor& visitor )
+{
+    return _accept( this, visitor );
+}
+
+VisitorResult Node::accept( NodeVisitor& visitor ) const
+{
+    return _accept( this, visitor );
 }
 
 void Node::_addPipe( Pipe* pipe )

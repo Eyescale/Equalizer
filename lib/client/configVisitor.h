@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,9 +27,7 @@ namespace eq
 {
     class Config;
 
-    /**
-     * A visitor to traverse non-const configs and children.
-     */
+    /** A visitor to traverse configs and children. */
     class ConfigVisitor : public NodeVisitor, 
                           public ObserverVisitor,
                           public LayoutVisitor,
@@ -44,10 +42,18 @@ namespace eq
 
         /** Visit a config on the down traversal. */
         virtual VisitorResult visitPre( Config* config )
-            { return TRAVERSE_CONTINUE; }
+            { return visitPre( static_cast< const Config* >( config )); }
 
         /** Visit a config on the up traversal. */
         virtual VisitorResult visitPost( Config* config )
+            { return visitPost( static_cast< const Config* >( config )); }
+
+        /** Visit a config on the down traversal. */
+        virtual VisitorResult visitPre( const Config* config )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a config on the up traversal. */
+        virtual VisitorResult visitPost( const Config* config )
             { return TRAVERSE_CONTINUE; }
     };
 }

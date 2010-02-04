@@ -177,6 +177,11 @@ VisitorResult Channel::accept( ChannelVisitor& visitor )
     return visitor.visit( this );
 }
 
+VisitorResult Channel::accept( ChannelVisitor& visitor ) const
+{
+    return visitor.visit( this );
+}
+
 bool Channel::configExit()
 {
     delete _fbo;

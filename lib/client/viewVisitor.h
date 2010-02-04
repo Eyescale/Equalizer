@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,9 +24,7 @@ namespace eq
 {
     class View;
 
-    /**
-     * A visitor to traverse non-const views.
-     */
+    /** A visitor to traverse views. */
     class ViewVisitor
     {
     public:
@@ -38,6 +36,10 @@ namespace eq
 
         /** Visit a view. */
         virtual VisitorResult visit( View* view )
+            { return visit( static_cast< const View* >( view )); }
+
+        /** Visit a view. */
+        virtual VisitorResult visit( const View* view )
             { return TRAVERSE_CONTINUE; }
     };
 }

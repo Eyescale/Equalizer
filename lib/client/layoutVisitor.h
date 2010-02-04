@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,9 +24,7 @@ namespace eq
 {
     class Layout;
 
-    /**
-     * A visitor to traverse non-const layouts and children.
-     */
+    /** A visitor to traverse layouts and children. */
     class LayoutVisitor : public ViewVisitor
     {
     public:
@@ -38,10 +36,18 @@ namespace eq
 
         /** Visit a layout on the down traversal. */
         virtual VisitorResult visitPre( Layout* layout )
-            { return TRAVERSE_CONTINUE; }
+            { return visitPre( static_cast< const Layout* >( layout )); }
 
         /** Visit a layout on the up traversal. */
         virtual VisitorResult visitPost( Layout* layout )
+            { return visitPost( static_cast< const Layout* >( layout )); }
+
+        /** Visit a layout on the down traversal. */
+        virtual VisitorResult visitPre( const Layout* layout )
+            { return TRAVERSE_CONTINUE; }
+
+        /** Visit a layout on the up traversal. */
+        virtual VisitorResult visitPost( const Layout* layout )
             { return TRAVERSE_CONTINUE; }
     };
 }
