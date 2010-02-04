@@ -1,4 +1,4 @@
-Fix eqPly idle AA with multiple channels per window
+Implement simple workaround for 2874188: Lockup at shutdown
 
 [ ] May break build
 [ ] May break existing applications

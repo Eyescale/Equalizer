@@ -28,6 +28,7 @@
 #include "window.h"
 
 #include <eq/base/refPtr.h>
+#include <eq/base/sleep.h>
 #include <eq/net/command.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
@@ -383,6 +384,12 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
 
     net::NodePtr node = command.getNode();
     node->send( reply );
+
+#ifndef WIN32
+    // WAR for 2874188: Lockup at shutdown
+    base::sleep( 100 );
+#endif
+
     return net::COMMAND_HANDLED;
 }
 
