@@ -29,8 +29,9 @@
 <h2>1. Introduction</h2>
 <p>
   Welcome to Equalizer, the standard middleware to create and deploy parallel,
-  scalable OpenGL applications. Equalizer 0.9.1 enables the development
-  Equalizer-based applications which do not use OpenGL for rendering.
+  scalable OpenGL applications. Equalizer 0.9.1 introduces reliable multicast
+  data distribution and subpixel compounds for full-scene anti-aliasing and
+  depth-of-field decomposition.
 </p>
 <p>
 <p>
@@ -38,10 +39,10 @@
   development tree after the 0.9 release. Equalizer 0.9.1 can be retrieved by
   updating the subversion trunk to revision TBD (<code>svn up -r TBD</code>)
   or by using:<br>
-  <code>svn co https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.1</code>
+  <code>svn co
+    https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.1</code>
 </p>
 </p>
-
 
 <a name="features"></a>
 <h3>1.1. Features</h3>
@@ -77,41 +78,40 @@
 <h3>2.1. New Features</h3>
 <ul>
   <li><a href="http://www.equalizergraphics.com/documents/design/subpixelCompound.html">
-      Subpixel Compound</a> for full-scene anti-aliasing (FSAA) or
-    depth-of-field (DOF) decomposition.</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/multicast.html">Data distribution and data updates using reliable UDP multicast</a>.</li>
-  <li>Support for writing applications which are not using OpenGL.</li>
-  <li>Support for Mac OS X 10.6 Snow Leopard</li>
+      Subpixel compounds</a> for full-scene anti-aliasing (FSAA) or
+    depth-of-field (DOF) decomposition</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/multicast.html">Data distribution and data updates using reliable UDP multicast</a></li>
+  <li>Support for writing applications which are not using OpenGL</li>
 </ul>
 
 <a name="enhancements"></a>
 <h3>2.2. Enhancements</h3>
 <ul>
-  <li><a href="http://www.equalizergraphics.com/documents/design/loadBalancing.html#boundaries">Tile and range boundaries</a> for the load equalizer.</li>
+  <li>Support for Mac OS X 10.6 Snow Leopard</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/loadBalancing.html#boundaries">Tile and range boundaries</a> for the load equalizer</li>
   <li>New 
     <a href="http://www.equalizergraphics.com/documents/Developer/API/classeq_1_1util_1_1Accum.html">eq::util::Accum</a>
     class for accumulation operations using an FBO or the OpenGL accumulation
-    buffer.</li>
+    buffer</li>
   <li>Multiple windows on the same pipe can join the same software swap
-    barrier.</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2902505&group_id=170962&atid=856212">Configurable message pump</a>.</li>
-
+    barrier</li>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2902505&group_id=170962&atid=856212">Configurable message pump</a></li>
 </ul>
 
 <a name="optimizations"></a>
 <h3>2.3. Optimizations</h3>
 <ul>
-  <li>Configurable object serialization buffer size.</li>
-  <li>Performance optimization for image compression.</li>
-  <li>Reduce memory footprint for eq::net::Objects with change type DELTA.</li>
+  <li>Configurable object serialization buffer size</li>
+  <li>Performance optimization for image compression</li>
+  <li>Reduce memory footprint for eq::net::Objects with change type DELTA</li>
 </ul>
 
 <a name="examples"></a>
 <h3>2.4. Examples</h3>
 <ul>
-  <li>EqPly: added anti-aliasing when the application is idle.</li>
-  <li>EqPly: recursively search directories for models.</li>
-  <li>EqPly: switch to faster VBO rendering on OSX.</li>
+  <li>EqPly: added anti-aliasing when the application is idle</li>
+  <li>EqPly: recursively search directories for models</li>
+  <li>EqPly: switch to faster VBO rendering on OSX</li>
 </ul>
 
 <a name="tools"></a>
@@ -146,8 +146,9 @@
   <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
       User Guide</a> has been extended to 91 pages and 53 figures.</li>
   <li>The Accumulation Buffer Object API has been added to the Programming Guide.</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/subpixelCompound.html">The Subpixel compound API</a> provides a compound for anti-aliasing.</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/multicast.html">Multicast Data Transfer</a>.</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/subpixelCompound.html">The
+  Subpixel compound</a> provides FSAA and DOF decomposition</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/multicast.html">Multicast Data Transfer</a></li>
 </ul>
 
 <a name="bugfixes"></a>
@@ -158,7 +159,7 @@
 </p>
 <ul>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2873353&group_id=170962&atid=856209">2873353</a>: Usage of ext/hash_map and -Werror causes compiler error</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2834063&group_id=170962&atid=856209">2834063</a>: eqPly and eVolve freezes on Mac with glx</li>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2834063&group_id=170962&atid=856209">2834063</a>: eqPly and eVolve freezes on Mac with glX</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2828296&group_id=170962&atid=856209">2828269</a>: eVolve depth compositing is broken</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2642034&group_id=170962&atid=856209">2642034</a>: Win32: max 64 connections possible</li>
 </ul>
@@ -170,15 +171,14 @@
   Report</a> if you find any other issue with this release.
 </p>
 <ul>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2908701&group_id=170962&atid=856209">2908701</a>: EqPly idle AA broken with eye compound</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2882248&group_id=170962&atid=856209">2882248</a>: Spurious deadlocks on Win32</li>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2934387group_id=170962&atid=856209">2934387</a>: Ubuntu: GLX problem with PBuffer</li>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2931913&group_id=170962&atid=856209">2931913</a> eqPly: DFR + 2D + Idle AA does not work</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2874188&group_id=170962&atid=856209">2874188</a>: Lockup at shutdown</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2843849&group_id=170962&atid=856209">2843849</a>: 64-bit bug in eVolveConverter</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2796444&group_id=170962&atid=856209">2796444</a>: Race during simultaneous node connect</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2609161&group_id=170962&atid=856209">2609161</a>: zoom: depth readback does not work</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2556940&group_id=170962&atid=856209">2556940</a>: zoom: FBO usage</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2003195&group_id=170962&atid=856209">2003195</a>: Ortho frustra ignores eye offset</li>
-  <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1854948&group_id=170962&atid=856209">1854948</a>: eVolve: lighting ignores head transformation</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1854929&group_id=170962&atid=856209">1854929</a>: eqPly GLSL shader has artefacts</li>
 </ul>
 
