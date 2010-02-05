@@ -1,15 +1,8 @@
-Ubuntu bugfixes:
-- release build warnings and errors
-- framerate equalizer assert with too-fast rendering
-- eqPly idle aa precision issue
-
-Applications using eq::base::Thread directly need to change the return
-value of run(). In case the return value was used previously, it has to
-be stored as a member variable of the thread now.
+dos2unix
 
 [ ] May break build
-[x] May break existing applications
-[x] Bugfix
+[ ] May break existing applications
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

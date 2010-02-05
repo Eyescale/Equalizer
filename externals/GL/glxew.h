@@ -363,10 +363,6 @@ extern void ( * glXGetProcAddress (const GLubyte *procName)) (void);
 #define GLX_CONTEXT_FLAGS_ARB 0x2094
 #define GLX_CONTEXT_PROFILE_MASK_ARB 0x9126
 
-typedef GLXContext ( * PFNGLXCREATECONTEXTATTRIBSARBPROC) (Display* dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
-
-#define glXCreateContextAttribsARB GLXEW_GET_FUN(__glewXCreateContextAttribsARB)
-
 #define GLXEW_ARB_create_context GLXEW_GET_VAR(__GLXEW_ARB_create_context)
 
 #endif /* GLX_ARB_create_context */
@@ -730,10 +726,6 @@ typedef GLboolean ( * PFNGLXSET3DFXMODEMESAPROC) (GLint mode);
 
 #ifndef GLX_NV_copy_image
 #define GLX_NV_copy_image 1
-
-typedef void ( * PFNGLXCOPYIMAGESUBDATANVPROC) (Display *dpy, GLXContext srcCtx, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLXContext dstCtx, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth);
-
-#define glXCopyImageSubDataNV GLXEW_GET_FUN(__glewXCopyImageSubDataNV)
 
 #define GLXEW_NV_copy_image GLXEW_GET_VAR(__GLXEW_NV_copy_image)
 
@@ -1262,8 +1254,6 @@ extern PFNGLXQUERYCONTEXTPROC __glewXQueryContext;
 extern PFNGLXQUERYDRAWABLEPROC __glewXQueryDrawable;
 extern PFNGLXSELECTEVENTPROC __glewXSelectEvent;
 
-extern PFNGLXCREATECONTEXTATTRIBSARBPROC __glewXCreateContextAttribsARB;
-
 extern PFNGLXBINDTEXIMAGEATIPROC __glewXBindTexImageATI;
 extern PFNGLXDRAWABLEATTRIBATIPROC __glewXDrawableAttribATI;
 extern PFNGLXRELEASETEXIMAGEATIPROC __glewXReleaseTexImageATI;
@@ -1287,8 +1277,6 @@ extern PFNGLXCREATEGLXPIXMAPMESAPROC __glewXCreateGLXPixmapMESA;
 extern PFNGLXRELEASEBUFFERSMESAPROC __glewXReleaseBuffersMESA;
 
 extern PFNGLXSET3DFXMODEMESAPROC __glewXSet3DfxModeMESA;
-
-extern PFNGLXCOPYIMAGESUBDATANVPROC __glewXCopyImageSubDataNV;
 
 extern PFNGLXBINDVIDEODEVICENVPROC __glewXBindVideoDeviceNV;
 extern PFNGLXENUMERATEVIDEODEVICESNVPROC __glewXEnumerateVideoDevicesNV;
