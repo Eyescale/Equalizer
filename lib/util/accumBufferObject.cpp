@@ -42,7 +42,7 @@ bool AccumBufferObject::init( const PixelViewport& pvp,
     _texture->setFormat( textureFormat );
     _pvp = pvp;
 
-    setColorFormat( GL_RGBA16F );
+    setColorFormat( GL_RGBA32F );
     if( FrameBufferObject::init( pvp.w, pvp.h, 0, 0 ))
     {
         unbind();

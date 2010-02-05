@@ -147,8 +147,26 @@ namespace eq
 /** Output an error OpenGL in a human-readable form to EQWARN */
 EQ_EXPORT void debugGLError( const std::string& when, const GLenum error, 
                              const char* file, const int line );
+}
 
+#  define EQ_GL_ERROR( when )                                           \
+    {                                                                   \
+        const GLenum eqGlError = glGetError();                          \
+        if( eqGlError )                                                 \
+            eq::debugGLError( when, eqGlError, __FILE__, __LINE__ );    \
+    }
 
+#  define EQ_GL_CALL( code )                              \
+    {                                                     \
+        EQ_GL_ERROR( std::string( "before " ) + #code );  \
+        code;                                             \
+        EQ_GL_ERROR( std::string( "after " ) + #code );   \
+    }
+
+#endif // NDEBUG
+
+namespace eq
+{
 #ifdef GLX
 /** 
  * Set the current X display connection.
@@ -167,22 +185,6 @@ void XSetCurrentDisplay( Display* display );
 Display* XGetCurrentDisplay();
 #endif
 }
-
-#  define EQ_GL_ERROR( when )                                           \
-    {                                                                   \
-        const GLenum eqGlError = glGetError();                          \
-        if( eqGlError )                                                 \
-            eq::debugGLError( when, eqGlError, __FILE__, __LINE__ );    \
-    }
-
-#  define EQ_GL_CALL( code )                              \
-    {                                                     \
-        EQ_GL_ERROR( std::string( "before " ) + #code );  \
-        code;                                             \
-        EQ_GL_ERROR( std::string( "after " ) + #code );   \
-    }
-
-#endif // NDEBUG
 
 #endif // EQ_OS_H
 

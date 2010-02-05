@@ -43,7 +43,7 @@ namespace util
         /**
          * Initialize the Accumulation Buffer Object.
          *
-         * The ABO uses a 16-bit float texture.
+         * The ABO uses a 32-bit float texture.
          * 
          * @param pvp the initial pixel viewport of the rendering buffer.
          * @param format the texture format corresponding to the source color

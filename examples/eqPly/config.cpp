@@ -501,9 +501,6 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             const ConfigEvent* idleEvent = 
                 static_cast< const ConfigEvent* >( event );
             _numFramesAA = EQ_MAX( _numFramesAA, idleEvent->steps );
-            if( idleEvent->steps )
-                EQINFO << "Got " << idleEvent->steps << " from "
-                       << idleEvent->data.originator << std::endl;
             return true;
         }
         default:

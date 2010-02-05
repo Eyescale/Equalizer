@@ -138,8 +138,8 @@ size_t getArchitectureBits()
 bool isArchitectureLittleEndian()
 {
     unsigned char test[2] = { 1, 0 };
-    short x = *( reinterpret_cast< short* >( test ) );
-    return ( x == 1 );
+    short* x = reinterpret_cast< short* >( test );
+    return ( *x == 1 );
 }
 
 

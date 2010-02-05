@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -245,8 +245,8 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
                             const eq::Statistic* statistics  )
 {
     // gather required load data
-    float startTime = std::numeric_limits< float >::max();
-    float endTime   = 0.0f;
+    int64_t startTime = std::numeric_limits< int64_t >::max();
+    int64_t endTime   = 0;
     for( uint32_t i = 0; i < nStatistics; ++i )
     {
         const eq::Statistic& data = statistics[i];
@@ -265,9 +265,12 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
         }
     }
     
-    if( startTime == std::numeric_limits< float >::max( ))
+    if( startTime == std::numeric_limits< int64_t >::max( ))
         return;
     
+    if( startTime == endTime ) // very fast draws might report 0 times
+        ++endTime;
+
     for( std::deque< FrameTime >::iterator i = parent->_times.begin();
          i != parent->_times.end(); ++i )
     {
@@ -275,7 +278,7 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
         if( frameTime.first != frameNumber )
             continue;
 
-        const float time = (endTime - startTime) / period;
+        const float time = static_cast< float >( endTime - startTime ) / period;
         frameTime.second = EQ_MAX( frameTime.second, time );
         EQLOG( LOG_LB2 ) << "Frame " << frameNumber << " channel " 
                         << channel->getName() << " time " << time

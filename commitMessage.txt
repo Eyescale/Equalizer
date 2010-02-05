@@ -1,6 +1,7 @@
-Clean up Thread::join:
-- Remove now-unneeded SDP join war code
-- Retire return value of thread and Thread::run
+Ubuntu bugfixes:
+- release build warnings and errors
+- framerate equalizer assert with too-fast rendering
+- eqPly idle aa precision issue
 
 Applications using eq::base::Thread directly need to change the return
 value of run(). In case the return value was used previously, it has to

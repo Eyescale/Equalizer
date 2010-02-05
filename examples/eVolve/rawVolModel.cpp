@@ -302,16 +302,20 @@ static bool readDimensionsAndScaling
     VolumeScaling& volScaling 
 )
 {
-        fscanf( file, "w=%u\n", &w );
-        fscanf( file, "h=%u\n", &h );
+    if( fscanf( file, "w=%u\n", &w ) == EOF )
+        return false;
+    if( fscanf( file, "h=%u\n", &h ) == EOF )
+        return false;
     if( fscanf( file, "d=%u\n", &d ) != 1 )
     {
         EQERROR << "Can't read dimensions from header file" << std::endl;
         return false;
     }
 
-        fscanf( file, "wScale=%g\n", &volScaling.W );
-        fscanf( file, "hScale=%g\n", &volScaling.H );
+    if( fscanf( file, "wScale=%g\n", &volScaling.W ) == EOF )
+        return false;
+    if( fscanf( file, "hScale=%g\n", &volScaling.H ) == EOF )
+        return false;
     if( fscanf( file, "dScale=%g\n", &volScaling.D ) != 1 )
     {
         EQERROR << "Can't read scaling from header file: " << std::endl;
@@ -346,7 +350,8 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
     }
 
     uint32_t TFSize;
-    fscanf( file, "size=%u\n", &TFSize );
+    if( fscanf( file, "size=%u\n", &TFSize ) == EOF )
+        return false;
 
     if( TFSize!=256  )
         EQWARN << "Wrong size of transfer function, should be 256" << std::endl;
@@ -357,9 +362,15 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
     int tmp;
     for( uint32_t i=0; i<TFSize; i++ )
     {
-            fscanf( file, "r=%d\n", &tmp ); TF[4*i  ] = tmp;
-            fscanf( file, "g=%d\n", &tmp ); TF[4*i+1] = tmp;
-            fscanf( file, "b=%d\n", &tmp ); TF[4*i+2] = tmp;
+        if( fscanf( file, "r=%d\n", &tmp ) == EOF )
+            return false;
+        TF[4*i  ] = tmp;
+        if( fscanf( file, "g=%d\n", &tmp ) == EOF )
+            return false;
+        TF[4*i+1] = tmp;
+        if( fscanf( file, "b=%d\n", &tmp ) == EOF )
+            return false;
+        TF[4*i+2] = tmp;
         if( fscanf( file, "a=%d\n", &tmp ) != 1 )
         {
             EQERROR << "Failed to read entity #" << i 

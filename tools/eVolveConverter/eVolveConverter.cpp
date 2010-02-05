@@ -189,8 +189,10 @@ static int readDimensionsFromSav( FILE*     file,
                                   unsigned& h, 
                                   unsigned& d     )
 {
-        fscanf( file, "w=%u\n", &w );
-        fscanf( file, "h=%u\n", &h );
+    if( fscanf( file, "w=%u\n", &w ) == EOF )
+        ::exit( EXIT_FAILURE );
+    if( fscanf( file, "h=%u\n", &h ) == EOF )
+        ::exit( EXIT_FAILURE );
     if( fscanf( file, "d=%u\n", &d ) != 1 )
         return 1;
     
@@ -217,8 +219,10 @@ int readScalesFormSav( FILE* file,
                        float& hScale,
                        float& dScale  )
 {
-        fscanf( file, "wScale=%g\n", &wScale );
-        fscanf( file, "hScale=%g\n", &hScale );
+    if( fscanf( file, "wScale=%g\n", &wScale ) == EOF )
+        ::exit( EXIT_FAILURE );
+    if( fscanf( file, "hScale=%g\n", &hScale ) == EOF )
+        ::exit( EXIT_FAILURE );
     if( fscanf( file, "dScale=%g\n", &dScale ) != 1 )
         return 1;
 
@@ -242,11 +246,12 @@ int writeScalesToSav(       FILE* file,
 
 int readTrasferFunction( FILE* file,  vector<unsigned char>& TF )
 {
-    if( fscanf(file,"TF:\n") !=0 ) 
+    if( fscanf(file,"TF:\n") !=0 )
         return lFailed( "Error in header file", 0 );
 
     unsigned TFSize;
-    fscanf( file, "size=%u\n", &TFSize );
+    if( fscanf( file, "size=%u\n", &TFSize ) == EOF )
+        ::exit( EXIT_FAILURE );
 
     if( TFSize!=256  )
         EQWARN << "Wrong size of transfer function, should be 256" << endl;
@@ -256,9 +261,15 @@ int readTrasferFunction( FILE* file,  vector<unsigned char>& TF )
     int tmp;
     for( unsigned i=0; i<TFSize; i++ )
     {
-            fscanf( file, "r=%d\n", &tmp ); TF[4*i  ] = tmp;
-            fscanf( file, "g=%d\n", &tmp ); TF[4*i+1] = tmp;
-            fscanf( file, "b=%d\n", &tmp ); TF[4*i+2] = tmp;
+        if( fscanf( file, "r=%d\n", &tmp ) == EOF )
+            ::exit( EXIT_FAILURE );
+        TF[4*i  ] = tmp;
+        if( fscanf( file, "g=%d\n", &tmp ) == EOF )
+            ::exit( EXIT_FAILURE );
+        TF[4*i+1] = tmp;
+        if( fscanf( file, "b=%d\n", &tmp ) == EOF )
+            ::exit( EXIT_FAILURE );
+        TF[4*i+2] = tmp;
         if( fscanf( file, "a=%d\n", &tmp ) != 1 )
         {
             EQERROR << "Failed to read entity #" << i 
@@ -522,22 +533,38 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
             float tra;
             float tga;
             float tba;
-            fscanf( file, "2DTF:\n"          );
-            fscanf( file, "num=%d\n"    , &ti);
-            fscanf( file, "mode=%d\n"   , &ti);
-            fscanf( file, "rescale=%f\n", &t );
-            fscanf( file, "gescale=%f\n", &t );
-            fscanf( file, "bescale=%f\n", &t );
-            fscanf( file, "rascale=%f\n", &t );
-            fscanf( file, "gascale=%f\n", &t );
-            fscanf( file, "bascale=%f\n", &t );
-            fscanf( file, "TF:\n"            );
-            fscanf( file, "res=%d\n",&TFSize );
-            fscanf( file, "rescale=%f\n", &t );
-            fscanf( file, "gescale=%f\n", &t );
-            fscanf( file, "bescale=%f\n", &t );
-            fscanf( file, "rascale=%f\n", &t );
-            fscanf( file, "gascale=%f\n", &t );
+            if( fscanf( file, "2DTF:\n"          ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "num=%d\n"    , &ti) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "mode=%d\n"   , &ti) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "rescale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "gescale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "bescale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "rascale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "gascale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "bascale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "TF:\n"            ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "res=%d\n",&TFSize ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "rescale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "gescale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "bescale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "rascale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
+            if( fscanf( file, "gascale=%f\n", &t ) == EOF )
+                ::exit( EXIT_FAILURE );
             if( fscanf( file, "bascale=%f\n", &t ) != 1)
                 return lFailed( "failed to read header of sav file" );
 
@@ -548,17 +575,22 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
 
             for( int i=0; i<TFSize; i++ )
             {
-                fscanf( file, "re=%f\n", &t   );
+                if( fscanf( file, "re=%f\n", &t   ) == EOF )
+                    ::exit( EXIT_FAILURE );
                 TF[4*i  ] = clip( static_cast<int>( t*255.0 ), 0, 255 );
 
-                fscanf( file, "ge=%f\n", &t   );
+                if( fscanf( file, "ge=%f\n", &t   ) == EOF )
+                    ::exit( EXIT_FAILURE );
                 TF[4*i+1] = clip( static_cast<int>( t*255.0 ), 0, 255 );
 
-                fscanf( file, "be=%f\n", &t   ); 
+                if( fscanf( file, "be=%f\n", &t   ) == EOF )
+                    ::exit( EXIT_FAILURE ); 
                 TF[4*i+2] = clip( static_cast<int>( t*255.0 ), 0, 255 );
 
-                fscanf( file, "ra=%f\n", &tra );    
-                fscanf( file, "ga=%f\n", &tba );
+                if( fscanf( file, "ra=%f\n", &tra ) == EOF )
+                    ::exit( EXIT_FAILURE );    
+                if( fscanf( file, "ga=%f\n", &tba ) == EOF )
+                    ::exit( EXIT_FAILURE );
                 if( fscanf( file, "ba=%f\n", &tga ) !=1 )
                 {
                     EQERROR << "Failed to read entity #" 
@@ -614,7 +646,9 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
             return lFailed( "'components' should be equal to '1', \
                              only 8 bit volumes supported so far" );
 
-        fscanf( file, "and edge length %g/%g/%g\n", &wScale, &hScale, &dScale );
+        if( fscanf( file, "and edge length %g/%g/%g\n",
+                    &wScale, &hScale, &dScale ) == EOF )
+            ::exit( EXIT_FAILURE );
     }
     //Write Vhf file
     {
