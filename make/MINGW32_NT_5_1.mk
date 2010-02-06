@@ -1,7 +1,7 @@
 
 CXXFLAGS           += -DWIN32 -DWIN32_API -I$(TOP)/Windows/pthreads/include
 CFLAGS             += -DWIN32 -D_WIN32
-DSO_LDFLAGS        += -shared -luuid
+DSO_LDFLAGS        += -shared
 DSO_SUFFIX          = dll
 WINDOW_SYSTEM      ?= WGL
 

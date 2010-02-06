@@ -27,9 +27,6 @@ LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)  nbody.o -L/usr/local/cuda/lib 
 
 ifeq "${ARCH}" "Linux"
   LDFLAGS += -lrt
-ifeq "${SUBARCH}" "ia64"
-    LDFLAGS += -luuid
-endif
 endif
 
 TARGETS = cuda $(PROGRAMS)

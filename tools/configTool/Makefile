@@ -12,9 +12,6 @@ LDFLAGS  += $(WINDOW_SYSTEM_LIBS) -leq -leqserver
 
 ifeq "${ARCH}" "Linux"
   LDFLAGS += -lrt
-ifeq "${SUBARCH}" "ia64"
-    LDFLAGS += -luuid
-endif
 endif
 
 TARGETS = $(PROGRAMS)

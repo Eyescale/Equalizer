@@ -7,9 +7,6 @@ BIN_DIR   = $(ARCH)
 
 ifeq "${ARCH}" "Linux"
   LDFLAGS += -lrt
-ifeq "${SUBARCH}" "ia64"
-    LDFLAGS += -luuid
-endif
 endif
 
 TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)

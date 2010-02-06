@@ -6,7 +6,7 @@ LDFLAGS  += -lpthread -leq
 BIN_DIR   = $(ARCH)
 
 ifeq "${ARCH}" "Linux"
-LDFLAGS += -lrt -luuid
+LDFLAGS += -lrt
 endif
 
 TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)

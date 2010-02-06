@@ -62,9 +62,6 @@ SA_LDFLAGS  += -leqserver
 
 ifeq "${ARCH}" "Linux"
   SA_LDFLAGS += -lrt
-ifeq "${SUBARCH}" "ia64"
-    SA_LDFLAGS += -luuid
-endif
 endif
 
 TARGETS = $(DYNAMIC_LIB) $(SIMPLE_PROGRAMS)

@@ -5,7 +5,7 @@ CXXFLAGS += -I.. -I$(TOP)/examples/include
 LDFLAGS  += -leq -lpthread
 
 ifeq "${ARCH}" "Linux"
-LDFLAGS += -lrt -luuid
+LDFLAGS += -lrt
 endif
 
 TARGETS = $(SIMPLE_PROGRAMS)

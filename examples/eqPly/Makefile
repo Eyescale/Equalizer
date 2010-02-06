@@ -39,9 +39,6 @@ LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
 
 ifeq "${ARCH}" "Linux"
   LDFLAGS += -lrt
-ifeq "${SUBARCH}" "ia64"
-    LDFLAGS += -luuid
-endif
 endif
 
 TARGETS = $(SHADERS) $(PROGRAMS) $(PLYFILES)

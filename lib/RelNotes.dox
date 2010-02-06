@@ -23,6 +23,7 @@
     <li><a href="#documentation">3.3. Documentation</a></li>
     <li><a href="#support">3.4. Support</a></li>
   </ul>
+  <li><a href="#errata">4. Errata</a></li>
 </ul>
 
 <a name="introduction"></a>
@@ -37,7 +38,10 @@
 <p>
   Equalizer 0.9.1 is a developer release, representing a stable snapshot of the
   development tree after the 0.9 release. Equalizer 0.9.1 can be retrieved by
-  updating the subversion trunk to revision TBD (<code>svn up -r TBD</code>)
+  downloading the
+  <a href="http://www.equalizergraphics.com/downloads/Equalizer-0.9.1.tar.gz">source
+    code</a>.
+  , updating the subversion trunk to revision 4082 (<code>svn up -r 4082</code>)
   or by using:<br>
   <code>svn co
     https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.1</code>
@@ -162,6 +166,7 @@
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2834063&group_id=170962&atid=856209">2834063</a>: eqPly and eVolve freezes on Mac with glX</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2828296&group_id=170962&atid=856209">2828269</a>: eVolve depth compositing is broken</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2642034&group_id=170962&atid=856209">2642034</a>: Win32: max 64 connections possible</li>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2874188&group_id=170962&atid=856209">2874188</a>: Lockup at shutdown</li>
 </ul>
 
 <a name="knownbugs"></a>
@@ -173,7 +178,6 @@
 <ul>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2934387group_id=170962&atid=856209">2934387</a>: Ubuntu: GLX problem with PBuffer</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2931913&group_id=170962&atid=856209">2931913</a> eqPly: DFR + 2D + Idle AA does not work</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2874188&group_id=170962&atid=856209">2874188</a>: Lockup at shutdown</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2843849&group_id=170962&atid=856209">2843849</a>: 64-bit bug in eVolveConverter</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2796444&group_id=170962&atid=856209">2796444</a>: Race during simultaneous node connect</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2609161&group_id=170962&atid=856209">2609161</a>: zoom: depth readback does not work</li>
@@ -245,3 +249,11 @@
   <a href="mailto:info@eyescale.ch?subject=Equalizer%20support">info@eyescale.ch</a>
   for further information.
 </p>
+
+<a name="errata"></a>
+<h2>4. Errata</h2>
+<ul>
+  <li><a href="http://equalizer.svn.sourceforge.net/viewvc/equalizer/tags/release-0.9.1/patches/wgl_no_glew.patch?view=markup">Patch</a>
+    to fix occasional compilation errors on Windows when using
+    EQ_IGNORE_GLEW.</li>
+</ul>

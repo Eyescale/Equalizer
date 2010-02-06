@@ -2,7 +2,7 @@
 # common Linux settings
 
 USE_OPENMP          = 1
-DSO_LDFLAGS        += -shared -luuid
+DSO_LDFLAGS        += -shared
 DSO_SUFFIX          = so
 WINDOW_SYSTEM      ?= GLX
 WINDOW_SYSTEM_INCS += -I/usr/X11R6/include

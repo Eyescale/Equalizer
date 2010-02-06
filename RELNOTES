@@ -19,9 +19,9 @@
 1. Introduction
 
    Welcome to Equalizer, the standard middleware to create and deploy
-   parallel, scalable OpenGL applications. Equalizer 0.9.1 enables the
-   development Equalizer-based applications which do not use OpenGL for
-   rendering.
+   parallel, scalable OpenGL applications. Equalizer 0.9.1 introduces
+   reliable multicast data distribution and subpixel compounds for full-scene
+   anti-aliasing and depth-of-field decomposition.
 
    Equalizer 0.9.1 is a developer release, representing a stable snapshot of
    the development tree after the 0.9 release. Equalizer 0.9.1 can be
@@ -57,32 +57,32 @@
 
   2.1. New Features
 
-     * Subpixel Compound for full-scene anti-aliasing (FSAA) or
-       depth-of-field (DOF) decomposition.
-     * Data distribution and data updates using reliable UDP multicast.
-     * Support for writing applications which are not using OpenGL.
-     * Support for Mac OS X 10.6 Snow Leopard
+     * Subpixel compounds for full-scene anti-aliasing (FSAA) or
+       depth-of-field (DOF) decomposition
+     * Data distribution and data updates using reliable UDP multicast
+     * Support for writing applications which are not using OpenGL
 
   2.2. Enhancements
 
-     * Tile and range boundaries for the load equalizer.
+     * Support for Mac OS X 10.6 Snow Leopard
+     * Tile and range boundaries for the load equalizer
      * New eq::util::Accum class for accumulation operations using an FBO or
-       the OpenGL accumulation buffer.
+       the OpenGL accumulation buffer
      * Multiple windows on the same pipe can join the same software swap
-       barrier.
-     * Configurable message pump.
+       barrier
+     * Configurable message pump
 
   2.3. Optimizations
 
-     * Configurable object serialization buffer size.
-     * Performance optimization for image compression.
-     * Reduce memory footprint for eq::net::Objects with change type DELTA.
+     * Configurable object serialization buffer size
+     * Performance optimization for image compression
+     * Reduce memory footprint for eq::net::Objects with change type DELTA
 
   2.4. Examples
 
-     * EqPly: added anti-aliasing when the application is idle.
-     * EqPly: recursively search directories for models.
-     * EqPly: switch to faster VBO rendering on OSX.
+     * EqPly: added anti-aliasing when the application is idle
+     * EqPly: recursively search directories for models
+     * EqPly: switch to faster VBO rendering on OSX
 
   2.5. Tools
 
@@ -109,8 +109,8 @@
        figures.
      * The Accumulation Buffer Object API has been added to the Programming
        Guide.
-     * The Subpixel compound API provides a compound for anti-aliasing.
-     * Multicast Data Transfer.
+     * The Subpixel compound provides FSAA and DOF decomposition
+     * Multicast Data Transfer
 
   2.8. Bug Fixes
 
@@ -118,7 +118,7 @@
    the following:
 
      * 2873353: Usage of ext/hash_map and -Werror causes compiler error
-     * 2834063: eqPly and eVolve freezes on Mac with glx
+     * 2834063: eqPly and eVolve freezes on Mac with glX
      * 2828269: eVolve depth compositing is broken
      * 2642034: Win32: max 64 connections possible
 
@@ -127,15 +127,14 @@
    The following bugs were known at release time. Please file a Bug Report if
    you find any other issue with this release.
 
-     * 2908701: EqPly idle AA broken with eye compound
-     * 2882248: Spurious deadlocks on Win32
+     * 2934387: Ubuntu: GLX problem with PBuffer
+     * 2931913 eqPly: DFR + 2D + Idle AA does not work
      * 2874188: Lockup at shutdown
      * 2843849: 64-bit bug in eVolveConverter
      * 2796444: Race during simultaneous node connect
      * 2609161: zoom: depth readback does not work
      * 2556940: zoom: FBO usage
      * 2003195: Ortho frustra ignores eye offset
-     * 1854948: eVolve: lighting ignores head transformation
      * 1854929: eqPly GLSL shader has artefacts
 
 3. About
