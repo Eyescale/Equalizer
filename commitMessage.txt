@@ -1,9 +1,9 @@
-Merge latest eqOSG changes, integrate eqOSG into Eq build system
+Fix glxew compile errors on Ubuntu
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
