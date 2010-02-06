@@ -15,6 +15,7 @@
           * 3.2. Window System Support
           * 3.3. Documentation
           * 3.4. Support
+     * 4. Errata
 
 1. Introduction
 
@@ -25,8 +26,8 @@
 
    Equalizer 0.9.1 is a developer release, representing a stable snapshot of
    the development tree after the 0.9 release. Equalizer 0.9.1 can be
-   retrieved by updating the subversion trunk to revision TBD (svn up -r TBD)
-   or by using:
+   retrieved by downloading the source code. , updating the subversion trunk
+   to revision 4082 (svn up -r 4082) or by using:
    svn co
    https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.1
 
@@ -121,6 +122,7 @@
      * 2834063: eqPly and eVolve freezes on Mac with glX
      * 2828269: eVolve depth compositing is broken
      * 2642034: Win32: max 64 connections possible
+     * 2874188: Lockup at shutdown
 
   2.9. Known Bugs
 
@@ -129,7 +131,6 @@
 
      * 2934387: Ubuntu: GLX problem with PBuffer
      * 2931913 eqPly: DFR + 2D + Idle AA does not work
-     * 2874188: Lockup at shutdown
      * 2843849: 64-bit bug in eVolveConverter
      * 2796444: Race during simultaneous node connect
      * 2609161: zoom: depth readback does not work
@@ -176,3 +177,8 @@
    Commercial support, custom software development and porting services are
    available from Eyescale. Please contact info@eyescale.ch for further
    information.
+
+4. Errata
+
+     * Patch to fix occasional compilation errors on Windows when using
+       EQ_IGNORE_GLEW.

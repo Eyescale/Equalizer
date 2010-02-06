@@ -11,6 +11,7 @@ SUBDIRS = \
 	server \
 	tools \
 	examples \
+	contrib \
 	tests \
 	$(OPTIONAL)
 
@@ -27,6 +28,7 @@ docs:
 lib: precompile externals
 tests: lib server
 examples: lib
+contrib: lib
 server: lib
 tools: server
 auxilary: lib

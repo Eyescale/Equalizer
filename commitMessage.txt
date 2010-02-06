@@ -1,9 +1,9 @@
-Remove now-unneeded '-luuid' from Makefiles
+Merge latest eqOSG changes, integrate eqOSG into Eq build system
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
