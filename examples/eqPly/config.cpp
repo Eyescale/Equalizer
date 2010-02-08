@@ -562,6 +562,14 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _frameData.toggleColorMode();
             return true;
 
+        case 'q':
+            _frameData.adjustQuality( -.1f );
+            return true;
+
+        case 'Q':
+            _frameData.adjustQuality( .1f );
+            return true;
+
         case 'c':
         case 'C':
         {

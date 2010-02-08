@@ -314,7 +314,9 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
             _readBufferPos = 0;
         }
         else
+        {
             EQASSERT( _readBufferPos < header->size );
+        }
     }
 
     if( _readBuffer || !_appBuffers.isEmpty( ))

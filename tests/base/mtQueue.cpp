@@ -22,7 +22,7 @@
 #include <eq/base/thread.h>
 #include <iostream>
 
-#define NOPS 1000000
+#define NOPS 100000
 
 eq::base::MTQueue< uint64_t > queue;
 

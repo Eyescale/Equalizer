@@ -232,7 +232,7 @@ void Channel::frameReadback( const uint32_t frameID )
         if( frameData.isIdle( ))
             frame->setQuality( eq::Frame::BUFFER_COLOR, 1.f );
         else
-            frame->setQuality( eq::Frame::BUFFER_COLOR, 0.7f );
+            frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());
     }
 
     eq::Channel::frameReadback( frameID );

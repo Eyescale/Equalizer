@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,6 +24,7 @@ FrameData::FrameData()
         : _modelID( EQ_ID_INVALID )
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _colorMode( COLOR_MODEL )
+        , _quality( 1.0f )
         , _ortho( false )
         , _statistics( false )
         , _help( false )
@@ -42,8 +43,8 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_CAMERA )
         os << _translation << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
-        os << _modelID << _renderMode << _colorMode << _ortho << _statistics
-           << _help << _wireframe << _pilotMode << _idleMode;
+        os << _modelID << _renderMode << _colorMode << _quality << _ortho
+           << _statistics << _help << _wireframe << _pilotMode << _idleMode;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -57,8 +58,8 @@ void FrameData::deserialize( eq::net::DataIStream& is,
     if( dirtyBits & DIRTY_CAMERA )
         is >> _translation >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
-        is >> _modelID >> _renderMode >> _colorMode >> _ortho >> _statistics
-           >> _help >> _wireframe >> _pilotMode >> _idleMode;
+        is >> _modelID >> _renderMode >> _colorMode >> _quality >> _ortho
+           >> _statistics >> _help >> _wireframe >> _pilotMode >> _idleMode;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -123,6 +124,15 @@ void FrameData::toggleColorMode()
 {
     _colorMode = static_cast< ColorMode >(( _colorMode + 1) % COLOR_ALL );
     setDirty( DIRTY_FLAGS );
+}
+
+void FrameData::adjustQuality( const float delta )
+{
+    _quality += delta;
+    _quality = EQ_MAX( _quality, 0.1f );
+    _quality = EQ_MIN( _quality, 1.0f );
+    setDirty( DIRTY_FLAGS );
+    EQINFO << "Set non-idle image quality to " << _quality << std::endl;
 }
 
 void FrameData::togglePilotMode()

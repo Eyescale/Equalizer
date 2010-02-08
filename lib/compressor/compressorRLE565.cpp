@@ -89,16 +89,16 @@ public:
     static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
                                       const uint8_t three, const uint8_t four )
     {
-        const uint32_t input = one + ( two << 8 ) + ( three << 16 ) + ( four << 24 );
+        const uint32_t input = one + ( two << 8 ) + ( three << 16 ) +
+                               ( four << 24 );
         return (((( input & ( EQ_BIT3 | EQ_BIT2 | EQ_BIT1 )) << 3 )           |
                  (( input & ( EQ_BIT6 | EQ_BIT5 | EQ_BIT4 )) << 8 )           |
                  (( input & ( EQ_BIT13 | EQ_BIT12 )) >> 5 )                   |
                  (( input & ( EQ_BIT11 | EQ_BIT10 | EQ_BIT9 |
                               EQ_BIT8 | EQ_BIT7 )) << 13 )                    |
                  (( input & ( EQ_BIT15 | EQ_BIT14 )) << 1 )                   |
-                 (( input &   EQ_BIT16 ) << 16 ))
-                          & 0x80f8f8f8 )
-                          | 0x3f030303;
+                 (( input &   EQ_BIT16 ) << 16 )))
+                          | 0x3f040404;
     }
 
     static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
@@ -141,7 +141,7 @@ public:
                               EQ_BIT8  | EQ_BIT7 )) << 13 )                   |
                   ( input & ( EQ_BIT16 | EQ_BIT15 | EQ_BIT14 ))) 
                           & 0xf8fcf8 )
-                          | 0x030103;
+                          | 0x020202;
     }
 };  
 

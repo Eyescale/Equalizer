@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -47,6 +47,7 @@ static const std::string _help(
     string( "\t\ts:                         Toggle statistics overlay\n" ) +
     string( "\t\tw:                         Toggle wireframe mode\n" ) +
     string( "\t\td:                         Toggle color demo mode\n" ) +
+    string( "\t\tq, Q:                      Adjust non-idle image quality\n" ) +
     string( "\t\tp:                         Toggle navigation mode (trackball,\
                                                                 walk)\n" ) +
     string( "\t\tr:                         Switch rendering mode (display\

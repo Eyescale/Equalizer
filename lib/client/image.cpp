@@ -261,10 +261,9 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
          i != compressors.end(); ++i )
     {
         const base::Compressor* compressor = *i;
-        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
-
         const base::CompressorInfoVector& infos = compressor->getInfos();
-        
+
+        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;        
         for( base::CompressorInfoVector::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
@@ -288,7 +287,8 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
     float ratio = 1.0f;
     float minDiffQuality = 1.0f;
 
-    EQINFO << "Searching compressor for token type " << tokenType << std::endl;
+    EQINFO << "Searching compressor for token type " << tokenType << " quality "
+           << attachment.quality << std::endl;
 
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::CompressorVector& compressors = registry.getCompressors();
@@ -314,9 +314,9 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
                 infoRatio *= .75f;
             }
             
-            float diffQuality = info.quality - attachment.quality;
-            if( ratio > infoRatio && diffQuality >= 0.f &&
-                diffQuality < minDiffQuality ) // TODO: be smarter
+            const float diffQuality = info.quality - attachment.quality;
+            if( ratio > infoRatio && diffQuality < minDiffQuality &&
+                info.quality >= attachment.quality ) // TODO: be smarter
             {
                 minDiffQuality = diffQuality;
                 name = info.name;
@@ -378,7 +378,6 @@ void Image::disableAlphaUsage()
 void Image::setQuality( const Frame::Buffer buffer, const float quality )
 {
     Attachment& attachment = _getAttachment( buffer );
-
     if( attachment.quality == quality )
         return;
     
@@ -390,10 +389,11 @@ void Image::setQuality( const Frame::Buffer buffer, const float quality )
         return;
     }
    
-    uint32_t name = _getCompressorName( buffer );
+    const uint32_t name = _getCompressorName( buffer );
     if( name == EQ_COMPRESSOR_NONE || name != attachment.lossyCompressor.name )
         attachment.lossyCompressor.flush();
     
+    attachment.lossyCompressor.name = name;
     attachment.compressor = &attachment.lossyCompressor;
 }
 

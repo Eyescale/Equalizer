@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -59,11 +59,13 @@ namespace eqPly
         void toggleHelp();
         void toggleWireframe();
         void toggleColorMode();
+        void adjustQuality( const float delta );
         void togglePilotMode();
         void toggleRenderMode();
 
         uint32_t getModelID() const { return _modelID; }
         ColorMode getColorMode() const { return _colorMode; }
+        float getQuality() const { return _quality; }
         bool useOrtho() const { return _ortho; }
         bool useStatistics() const { return _statistics; }
         bool showHelp() const { return _help; }
@@ -128,6 +130,7 @@ namespace eqPly
         uint32_t         _modelID;
         mesh::RenderMode _renderMode;
         ColorMode        _colorMode;
+        float            _quality;
         bool             _ortho;
         bool             _statistics;
         bool             _help;

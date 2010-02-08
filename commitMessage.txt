@@ -1,9 +1,12 @@
-Make session id an UUID to avoid issues later in multi-session clusters.
+eqPly: make image quality run-time configurable
+Make 16-bit compressor more color-neutral
+Fix compressor reallocation upon quality change
+Fix release build warnings
 
 [ ] May break build
-[x] May break existing applications
+[ ] May break existing applications
 [x] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
