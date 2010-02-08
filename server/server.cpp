@@ -237,7 +237,7 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
 
     if( !config )
     {
-        reply.configID = EQ_ID_INVALID;
+        reply.configID = net::SessionID::ZERO;
         node->send( reply );
         return net::COMMAND_HANDLED;
     }
@@ -296,7 +296,7 @@ net::CommandResult Server::_cmdUseConfig( net::Command& command )
     if( !config )
     {
         EQWARN << "Use config parsing failed " << std::endl;
-        reply.configID = EQ_ID_INVALID;
+        reply.configID = net::SessionID::ZERO;
         node->send( reply );
         return net::COMMAND_HANDLED;
     }
