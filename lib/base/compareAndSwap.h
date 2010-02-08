@@ -67,7 +67,6 @@ inline void memoryBarrier()
 template <class C, class D>
 inline bool compareAndSwap(volatile C * addr, D old, D nw)
 {
-    EQASSERT( sizeof( D ) == 4 );
 #if defined(__GNUC__) && \
     ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )
     return __sync_bool_compare_and_swap(addr, old, nw);
