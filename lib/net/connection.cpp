@@ -239,7 +239,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     // 1) Disassemble buffer into 'small enough' pieces and use a header to
     //    reassemble correctly on the other side (aka reliable UDP)
     // 2) Introduce a send thread with a thread-safe task queue
-    ScopedMutex mutex( isLocked ? 0 : &_sendLock );
+    ScopedMutex<> mutex( isLocked ? 0 : &_sendLock );
 
     const uint8_t* ptr = static_cast< const uint8_t* >( buffer );
     uint64_t bytesLeft = bytes;

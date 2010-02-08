@@ -254,13 +254,13 @@ size_t Thread::getSelfThreadID()
 
 void Thread::addListener( ExecutionListener* listener )
 {
-    ScopedMutex mutex( _listenerLock() );
+    ScopedMutex<> mutex( _listenerLock() );
     _listeners().push_back( listener );
 }
 
 bool Thread::removeListener( ExecutionListener* listener )
 {
-    ScopedMutex mutex( _listenerLock() );
+    ScopedMutex<> mutex( _listenerLock() );
 
     ExecutionListenerVector::iterator i = find( _listeners().begin(),
                                                      _listeners().end(),
@@ -306,7 +306,7 @@ void Thread::pinCurrentThread()
 {
 #ifdef EQ_WIN32_THREAD_AFFINITY
     static Lock lock;
-    ScopedMutex mutex( lock );
+    ScopedMutex<> mutex( lock );
 
     static DWORD_PTR processMask = 0;
     static DWORD_PTR processor   = 0;

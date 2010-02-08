@@ -635,7 +635,7 @@ bool Config::handleEvent( const ConfigEvent* event )
                 return false;
             }
 
-            base::ScopedMutex mutex( _statisticsMutex );
+            base::ScopedMutex<> mutex( _statisticsMutex );
 
             for( std::deque< FrameStatistics >::iterator i =_statistics.begin();
                  i != _statistics.end(); ++i )
@@ -740,7 +740,7 @@ void Config::setupMessagePump( Pipe* pipe )
 
     // called from pipe threads - but only during init
     static base::Lock _lock;
-    base::ScopedMutex mutex( _lock );
+    base::ScopedMutex<> mutex( _lock );
 
     if( _eventQueue.getMessagePump( ))
         // Already done

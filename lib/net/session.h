@@ -28,6 +28,7 @@
 #include <eq/base/base.h>
 #include <eq/base/idPool.h>
 #include <eq/base/requestHandler.h>
+#include <eq/base/spinLock.h>
 
 namespace eq
 {
@@ -391,7 +392,7 @@ namespace net
         base::Lock _idMasterMutex;
         
         /** All registered and mapped objects. */
-        base::Lockable< ObjectVectorHash > _objects;
+        base::Lockable< ObjectVectorHash, base::SpinLock > _objects;
 
         InstanceCache _instanceCache; //!< cached object mapping data
 

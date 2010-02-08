@@ -78,7 +78,7 @@ void EventConnection::set()
 #ifdef WIN32
     SetEvent( _event );
 #else
-    base::ScopedMutex mutex( _lock );
+    base::ScopedMutex<> mutex( _lock );
     if( _set )
         return;
     
@@ -92,7 +92,7 @@ void EventConnection::reset()
 #ifdef WIN32
     ResetEvent( _event );
 #else
-    base::ScopedMutex mutex( _lock );
+    base::ScopedMutex<> mutex( _lock );
     if( !_set )
         return;
     

@@ -30,7 +30,7 @@ namespace base
      * 
      * Locking the data still has to be done manually, e.g, using a ScopedMutex.
      */
-    template< typename D > class Lockable : public NonCopyable
+    template< typename D, class L = Lock > class Lockable : public NonCopyable
     {
     public:
         /** Construct a new lockable data structure. @version 1.0 */
@@ -52,7 +52,7 @@ namespace base
         Lockable& operator = ( const D& rhs ) { data = rhs; return *this; }
 
         D data;
-        mutable Lock lock;
+        mutable L lock;
     };
 }
 }

@@ -1,9 +1,10 @@
-Reintroduce base::SpinLock class, improve lock/spinlock unit tests
+Use SpinLock class for session object dispatch table, slightly alter
+ScopedMutex interface to accomodate for Lock/SpinLock usage.
 
 [ ] May break build
-[ ] May break existing applications
+[x] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [ ] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

@@ -156,7 +156,7 @@ void RSPConnection::_close()
          i != _children.end(); ++i )
     {
         RSPConnectionPtr child = *i;
-        base::ScopedMutex mutex( child->_mutexEvent );
+        base::ScopedMutex<> mutex( child->_mutexEvent );
         child->_appBuffers.push( 0 );
         child->_event->set();
     }
@@ -254,7 +254,7 @@ ConnectionPtr RSPConnection::acceptSync()
     _sendDatagramCountNode();
 
     EQINFO << "accepted RSP connection " << newConnection->_id << std::endl;
-    base::ScopedMutex mutexConn( _mutexConnection );
+    base::ScopedMutex<> mutexConn( _mutexConnection );
 
     if ( static_cast< int >( _children.size() ) > _countAcceptChildren )
         _event->set();
@@ -321,7 +321,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
         _event->set();
     else
     {
-        base::ScopedMutex mutex( _mutexEvent );
+        base::ScopedMutex<> mutex( _mutexEvent );
         if( _appBuffers.isEmpty( ))
             _event->reset();
     }
@@ -747,7 +747,7 @@ void RSPConnection::_finishWriteQueue()
         Buffer* newBuffer = connection->_newDataBuffer( *buffer );
         if( !newBuffer && !readBuffers.empty( )) // push prepared app buffers
         {
-            base::ScopedMutex mutex( connection->_mutexEvent );
+            base::ScopedMutex<> mutex( connection->_mutexEvent );
             EQLOG( LOG_RSP ) << "post " << readBuffers.size()
                              << " buffers starting with sequence "
                              << connection->_sequenceID << std::endl;
@@ -771,7 +771,7 @@ void RSPConnection::_finishWriteQueue()
     _appBuffers.push( freeBuffers );
     if( !readBuffers.empty( ))
     {
-        base::ScopedMutex mutex( connection->_mutexEvent );
+        base::ScopedMutex<> mutex( connection->_mutexEvent );
         EQLOG( LOG_RSP ) << "post " << readBuffers.size()
                          << " buffers starting with sequence "
                          << connection->_sequenceID << std::endl;
@@ -913,7 +913,7 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
         if( !newBuffer ) // no more data buffers, drop packet
             return true;
 
-        base::ScopedMutex mutex( connection->_mutexEvent );
+        base::ScopedMutex<> mutex( connection->_mutexEvent );
         EQLOG( LOG_RSP ) << "post buffer with sequence " << sequenceID
                          << std::endl;
 
@@ -1348,7 +1348,7 @@ void RSPConnection::_addNewConnection( const uint16_t id )
     // protect the event and child size which can be used at the same time 
     // in acceptSync
     {
-        base::ScopedMutex mutexConn( _mutexConnection );
+        base::ScopedMutex<> mutexConn( _mutexConnection );
         _children.push_back( connection );
         EQINFO << "new rsp connection " << id << std::endl;
         _event->set();
@@ -1369,7 +1369,7 @@ void RSPConnection::_removeConnection( const uint16_t id )
         {
             --_countAcceptChildren;
             _children.erase( i );
-            base::ScopedMutex mutex( _mutexEvent );
+            base::ScopedMutex<> mutex( _mutexEvent );
             child->_appBuffers.push( 0 );
             child->_event->set();
             break;

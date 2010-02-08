@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -272,7 +272,7 @@ void FrameData::_setReady( const uint32_t version )
                   "v" << getVersion() << " ready " << _readyVersion << " new "
                       << version );
 
-    base::ScopedMutex mutex( _listenersMutex );
+    base::ScopedMutex<> mutex( _listenersMutex );
 #ifndef NDEBUG
     for( list<ImageVersion>::iterator i = _pendingImages.begin();
          i != _pendingImages.end(); ++i )

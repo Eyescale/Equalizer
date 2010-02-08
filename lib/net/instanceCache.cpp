@@ -87,7 +87,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     ++nWrite;
 #endif
 
-    base::ScopedMutex mutex( _items );
+    base::ScopedMutex<> mutex( _items );
     ItemHash::const_iterator i = _items->find( rev.identifier );
     if( i == _items->end( ))
     {
@@ -172,7 +172,7 @@ const InstanceCache::Data& InstanceCache::operator[]( const uint32_t id )
     ++nRead;
 #endif
 
-    base::ScopedMutex mutex( _items );
+    base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return Data::NONE;
@@ -191,7 +191,7 @@ const InstanceCache::Data& InstanceCache::operator[]( const uint32_t id )
 
 bool InstanceCache::release( const uint32_t id, const uint32_t count )
 {
-    base::ScopedMutex mutex( _items );
+    base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return false;
@@ -207,7 +207,7 @@ bool InstanceCache::release( const uint32_t id, const uint32_t count )
 
 bool InstanceCache::erase( const uint32_t id )
 {
-    base::ScopedMutex mutex( _items );
+    base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return false;
@@ -229,7 +229,7 @@ void InstanceCache::expire( const int64_t timeout )
 
     std::vector< uint32_t > keys;
 
-    base::ScopedMutex mutex( _items );
+    base::ScopedMutex<> mutex( _items );
     for( ItemHash::iterator i = _items->begin(); i != _items->end(); ++i )
     {
         Item& item = i->second;

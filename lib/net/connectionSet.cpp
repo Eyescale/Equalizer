@@ -97,7 +97,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
     EQASSERT( connection->isConnected() || connection->isListening( ));
 
     { 
-        base::ScopedMutex mutex( _mutex );
+        base::ScopedMutex<> mutex( _mutex );
         _allConnections.push_back( connection );
 
 #ifdef BIG_CLUSTER_SUPPORT
@@ -144,7 +144,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
 bool ConnectionSet::removeConnection( ConnectionPtr connection )
 {
     {
-        base::ScopedMutex mutex( _mutex );
+        base::ScopedMutex<> mutex( _mutex );
         ConnectionVector::iterator i = find( _allConnections.begin(),
                                              _allConnections.end(), connection);
         if( i == _allConnections.end( ))

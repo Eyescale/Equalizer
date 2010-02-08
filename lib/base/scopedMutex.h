@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,7 +34,7 @@ namespace base
      * scoped mutex is destroyed, e.g., when the scope is left. The scoped mutex
      * does nothing if a 0 pointer for the lock is passed.
      */
-    class ScopedMutex : public NonCopyable
+    template< class L = Lock > class ScopedMutex : public NonCopyable
     {
     public:
         /** 
@@ -46,18 +46,18 @@ namespace base
          * @param lock the mutex to set and unset, or 0.
          * @version 1.0
          */
-        explicit ScopedMutex( Lock* lock ) : _lock( lock )
+        explicit ScopedMutex( L* lock ) : _lock( lock )
             { if( lock ) lock->set(); }
 
         /** Construct a new scoped mutex and set the given lock. @version 1.0 */
-        explicit ScopedMutex( Lock& lock ) : _lock( &lock )
+        explicit ScopedMutex( L& lock ) : _lock( &lock )
             { lock.set(); }
 
         /**
          * Construct a new scoped mutex for the given Lockable data structure.
          * @version 1.0
          */
-        template< typename L > ScopedMutex( L& lockable )
+        template< typename LB > ScopedMutex( LB& lockable )
                 : _lock( &lockable.lock ) { _lock->set(); }
 
         /** Destruct the scoped mutex and unset the mutex. @version 1.0 */
@@ -65,7 +65,7 @@ namespace base
 
     private:
         ScopedMutex() : _lock( 0 ) {}
-        Lock* const _lock;
+        L* const _lock;
     };
 }
 }

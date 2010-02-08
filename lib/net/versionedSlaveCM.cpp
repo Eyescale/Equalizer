@@ -83,7 +83,7 @@ uint32_t VersionedSlaveCM::sync( const uint32_t version )
     if( !_mutex )
         CHECK_THREAD( _thread );
 
-    base::ScopedMutex mutex( _mutex );
+    base::ScopedMutex<> mutex( _mutex );
 
     if( version == VERSION_HEAD )
     {

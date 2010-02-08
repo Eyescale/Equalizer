@@ -239,7 +239,7 @@ const NodeID& Session::getIDMaster( const uint32_t identifier )
     send( packet );
     _requestHandler.waitRequest( packet.requestID );
 
-    base::ScopedMutex mutex( _idMasterMutex );
+    base::ScopedMutex<> mutex( _idMasterMutex );
     EQLOG( LOG_OBJECTS ) << "Master node for id " << identifier << ": " 
         << _pollIDMaster( identifier ) << std::endl;
     return _pollIDMaster( identifier );
@@ -293,7 +293,7 @@ void Session::_attachObject( Object* object, const uint32_t id,
     object->attachToSession( id, instanceID, this );
 
     {
-        base::ScopedMutex mutex( _objects );
+        base::ScopedMutex< base::SpinLock > mutex( _objects );
         ObjectVector& objects = _objects.data[ id ];
         objects.push_back( object );
     }
@@ -339,7 +339,7 @@ void Session::_detachObject( Object* object )
     EQASSERT( i != objects.end( ));
 
     {
-        base::ScopedMutex mutex( _objects );
+        base::ScopedMutex< base::SpinLock > mutex( _objects );
         objects.erase( i );
         if( objects.empty( ))
             _objects->erase( id );
@@ -694,7 +694,7 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
     const NodeID& nodeID = packet->masterID;
     EQASSERT( nodeID != NodeID::ZERO );
 
-    base::ScopedMutex mutex( _idMasterMutex );
+    base::ScopedMutex<> mutex( _idMasterMutex );
     _idMasters[ packet->identifier ] = nodeID;
 
     if( packet->requestID != EQ_ID_INVALID ) // need to ack set operation
@@ -737,7 +737,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
 
     if( nodeID != NodeID::ZERO )
     {
-        base::ScopedMutex mutex( _idMasterMutex );
+        base::ScopedMutex<> mutex( _idMasterMutex );
         _idMasters[ packet->identifier ] = nodeID;
     }
     // else not found
@@ -845,7 +845,7 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
 
     Object* master = 0;
     {
-        base::ScopedMutex mutex( _objects );
+        base::ScopedMutex< base::SpinLock > mutex( _objects );
         ObjectVectorHash::const_iterator i = _objects->find( id );
         if( i != _objects->end( ))
         {
@@ -995,7 +995,7 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
     const uint32_t id   = packet->objectID;
 
     {
-        base::ScopedMutex mutex( _objects );
+        base::ScopedMutex< base::SpinLock > mutex( _objects );
         ObjectVectorHash::const_iterator i = _objects->find( id );
         if( i != _objects->end( ))
         {
@@ -1036,7 +1036,7 @@ CommandResult Session::_cmdUnmapObject( Command& command )
 
     const ObjectVector objects = i->second;
     {
-        base::ScopedMutex mutex( _objects );
+        base::ScopedMutex< base::SpinLock > mutex( _objects );
         _objects->erase( i );
     }
 

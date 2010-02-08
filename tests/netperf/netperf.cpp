@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -87,7 +87,7 @@ public:
             _clock.reset();
             eq::net::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
-            const eq::base::ScopedMutex mutex( _mutexPrint );
+            const eq::base::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Recv perf: " << _mBytesSec / time * _nSamples
                       << "MB/s (" << _nSamples / time * 1000.f  << "pps) from "
                       << desc.get() << std::endl;
@@ -411,7 +411,7 @@ int main( int argc, char **argv )
             const float time = clock.getTimef();
             if( time > 1000.f )
             {
-                const eq::base::ScopedMutex mutex( _mutexPrint );
+                const eq::base::ScopedMutex<> mutex( _mutexPrint );
                 const size_t nSamples = lastOutput - nPackets;
                 std::cerr << "Send perf: " << mBytesSec / time * nSamples 
                           << "MB/s (" << nSamples / time * 1000.f  << "pps)"
@@ -427,7 +427,7 @@ int main( int argc, char **argv )
         const size_t nSamples = lastOutput - nPackets;
         if( nSamples != 0 )
         {
-            const eq::base::ScopedMutex mutex( _mutexPrint );
+            const eq::base::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Send perf: " << mBytesSec / time * nSamples 
                       << "MB/s (" << nSamples / time * 1000.f  << "pps)"
                       << std::endl;

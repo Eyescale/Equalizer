@@ -270,7 +270,7 @@ const Model* Config::getModel( const uint32_t modelID )
         return 0;
 
     // Accessed concurrently from pipe threads
-    eq::base::ScopedMutex _mutex( _modelLock );
+    eq::base::ScopedMutex<> _mutex( _modelLock );
 
     const size_t nModels = _models.size();
     EQASSERT( _modelDist.size() == nModels );

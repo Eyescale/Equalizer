@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -61,7 +61,7 @@ IDPool::~IDPool()
 
 uint32_t IDPool::genIDs( const uint32_t range )
 {
-    ScopedMutex mutex( _lock );
+    ScopedMutex<> mutex( _lock );
 
     const uint32_t id = _genIDs( range );
     if( id )
@@ -98,7 +98,7 @@ uint32_t IDPool::_genIDs( const uint32_t range )
 
 void IDPool::freeIDs( const uint32_t start, const uint32_t range )
 {
-    ScopedMutex mutex( _lock );
+    ScopedMutex<> mutex( _lock );
 
     Block* block;
 
