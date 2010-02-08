@@ -1,9 +1,9 @@
-README updates
+eqOSG: Code cleanups, fix init race condition
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
