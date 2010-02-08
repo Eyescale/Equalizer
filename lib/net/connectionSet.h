@@ -115,7 +115,7 @@ namespace net
             base::Monitor< Event > event;
 
         protected:
-            virtual void* run();
+            virtual void run();
 
         private:
             ConnectionSet* const _parent;

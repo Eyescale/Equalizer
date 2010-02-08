@@ -86,7 +86,7 @@ namespace base
         bool isSet() { memoryBarrier(); return ( _set == 1 ); }
 
     private:
-        int32_t _set;
+        long _set;
     };
 }
 

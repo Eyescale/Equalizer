@@ -632,7 +632,7 @@ void Node::registerSession( Session* session )
 bool Node::mapSession( NodePtr server, Session* session, const SessionID& id )
 {
     EQASSERT( isLocal( ));
-    EQASSERT( id != EQ_ID_INVALID );
+    EQASSERT( id != SessionID::ZERO );
     EQASSERT( server != this );
 
     NodeMapSessionPacket packet;
@@ -1652,7 +1652,7 @@ CommandResult Node::_cmdMapSession( Command& command )
     {
         EQASSERTINFO( node == this, 
                       "Can't map a session using myself as server " );
-        reply.sessionID = EQ_ID_INVALID;
+        reply.sessionID = SessionID::ZERO;
     }
     else
     {
@@ -1661,7 +1661,7 @@ CommandResult Node::_cmdMapSession( Command& command )
         SessionHash::const_iterator i = _sessions->find( sessionID );
         
         if( i == _sessions->end( ))
-            reply.sessionID = EQ_ID_INVALID;
+            reply.sessionID = SessionID::ZERO;
     }
 
     node->send( reply );
@@ -1676,7 +1676,7 @@ CommandResult Node::_cmdMapSessionReply( Command& command)
     EQVERB << "Cmd map session reply: " << packet << std::endl;
 
     const uint32_t requestID = packet->requestID;
-    if( packet->sessionID != EQ_ID_INVALID )
+    if( packet->sessionID != SessionID::ZERO )
     {
         NodePtr  node    = command.getNode(); 
         Session* session = static_cast< Session* >( 

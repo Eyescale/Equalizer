@@ -242,7 +242,7 @@ ConnectionSet::Thread::~Thread()
 }
 
 
-void* ConnectionSet::Thread::run()
+void ConnectionSet::Thread::run()
 {
     while ( !set->isEmpty( ))
     {
@@ -253,8 +253,6 @@ void* ConnectionSet::Thread::run()
             event.waitEQ( EVENT_NONE );
         }
     }
-
-    return EXIT_SUCCESS;
 }
 #endif
 

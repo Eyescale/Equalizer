@@ -93,7 +93,7 @@ void PluginRegistry::_initCompressor( const std::string& filename )
     if( add )
     {
         _compressors.push_back( compressor );
-        EQINFO << "Found compressor " << filename << " @" << (void*)compressor
+        EQINFO << "Found compressor '" << filename << "' @" << (void*)compressor
                << " providing " << compressor->getInfos().size() << " engines"
                << std::endl;
     }

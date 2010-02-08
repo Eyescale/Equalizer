@@ -241,7 +241,7 @@ net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
         command.getPacket<ServerChooseConfigReplyPacket>();
     EQVERB << "Handle choose config reply " << packet << endl;
 
-    if( packet->configID == EQ_ID_INVALID )
+    if( packet->configID == net::SessionID::ZERO )
     {
         _requestHandler.serveRequest( packet->requestID, (void*)0 );
         return net::COMMAND_HANDLED;

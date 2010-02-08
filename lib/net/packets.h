@@ -125,7 +125,7 @@ namespace net
             {
                 command   = CMD_NODE_UNMAP_SESSION;
                 size      = sizeof(NodeUnmapSessionPacket);
-                sessionID = EQ_ID_INVALID;
+                sessionID = SessionID::ZERO;
             }
 
         uint32_t requestID;
