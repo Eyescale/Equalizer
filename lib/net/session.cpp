@@ -44,7 +44,7 @@ typedef CommandFunc<Session> CmdFunc;
 
 Session::Session()
         : _requestHandler( true /* threadSafe */ )
-        , _id( EQ_ID_INVALID )
+        , _id( SessionID::ZERO )
         , _isMaster( false )
         , _idPool( 0 ) // Master pool is filled in Node::registerSession
         , _instanceIDs( std::numeric_limits< long >::min( )) 
@@ -57,9 +57,10 @@ Session::Session()
 Session::~Session()
 {
     EQINFO << "Delete Session @" << (void*)this << std::endl;
-    EQASSERTINFO( _id == EQ_ID_INVALID, "Session still mapped during deletion");
+    EQASSERTINFO( _id == SessionID::ZERO,
+                  "Session still mapped during deletion");
 
-    _id        = EQ_ID_INVALID;
+    _id        = SessionID::ZERO;
     _isMaster  = false;
     _localNode = 0;
     _server    = 0;

@@ -167,7 +167,7 @@ void Server::registerConfig( Config* config )
         config->setName( stringStream.str( ));
     }
 
-    EQCHECK( registerSession( config ));
+    registerSession( config );
 }
 
 //===========================================================================
@@ -253,7 +253,7 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     const std::string workDir      = rendererInfo.substr( 0, colonPos );
     const std::string renderClient = rendererInfo.substr( colonPos + 1 );
  
-    const uint32_t configID = appConfig->getID();
+    const net::SessionID& configID = appConfig->getID();
     appConfig->setWorkDir( workDir );
     appConfig->setRenderClient( renderClient );
     _appConfigs[configID] = appConfig;
@@ -307,7 +307,7 @@ net::CommandResult Server::_cmdUseConfig( net::Command& command )
     config->_server = this;
     registerConfig( config );
 
-    const uint32_t configID = config->getID();
+    const net::SessionID& configID = config->getID();
     config->setWorkDir( workDir );
     config->setRenderClient( renderClient );
     _appConfigs[configID] = config;
@@ -332,8 +332,8 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
     EQINFO << "Handle release config " << packet << std::endl;
 
     eq::ServerReleaseConfigReplyPacket reply( packet );
-    Config*                            config = _appConfigs[packet->configID];
-    net::NodePtr                node   = command.getNode();
+    Config* config = _appConfigs[packet->configID];
+    net::NodePtr node = command.getNode();
 
     if( !config )
     {

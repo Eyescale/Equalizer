@@ -102,7 +102,7 @@ namespace net
             }
 
         uint32_t requestID;
-        uint32_t sessionID;
+        SessionID sessionID;
     };
 
     struct NodeMapSessionReplyPacket : public NodePacket
@@ -116,7 +116,7 @@ namespace net
             }
             
         uint32_t requestID;
-        uint32_t sessionID;
+        SessionID sessionID;
     };
 
     struct NodeUnmapSessionPacket : public NodePacket
@@ -129,7 +129,7 @@ namespace net
             }
 
         uint32_t requestID;
-        uint32_t sessionID;
+        SessionID sessionID;
     };
 
     struct NodeUnmapSessionReplyPacket : public NodePacket
@@ -285,10 +285,8 @@ namespace net
     //------------------------------------------------------------
     struct SessionPacket : public NodePacket
     {
-        SessionPacket() : paddingSession( 0 )
-            { datatype = DATATYPE_EQNET_SESSION; }
-        uint32_t sessionID;
-        uint32_t paddingSession; // pad to multiple-of-8
+        SessionPacket() { datatype = DATATYPE_EQNET_SESSION; }
+        base::UUID sessionID;
     };
 
 /** @cond IGNORE */

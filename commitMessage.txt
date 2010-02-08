@@ -1,7 +1,7 @@
-Make session registration and mapping thread-safe.
+Make session id an UUID to avoid issues later in multi-session clusters.
 
 [ ] May break build
-[ ] May break existing applications
+[x] May break existing applications
 [x] Bugfix
 [ ] New Feature
 [x] Cleanup

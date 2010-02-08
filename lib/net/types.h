@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,6 +43,9 @@ class ObjectInstanceDataIStream;
 /** A unique identifier for nodes. */
 typedef base::UUID NodeID;
 
+/** A unique identifier for sessions. */
+typedef base::UUID SessionID;
+
 /** A reference pointer for Node pointers. */
 typedef base::RefPtr< Node >                  NodePtr;
 /** A reference pointer for Connection pointers. */
@@ -64,7 +67,6 @@ typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptionVector;
 /** @cond IGNORE */
 typedef std::vector< Command* > CommandVector;
 typedef std::deque< Command* > CommandDeque;
-typedef stde::hash_map< uint32_t, Session* >     SessionHash;
 typedef stde::hash_map< uint32_t, ObjectVector > ObjectVectorHash;
 typedef std::list< Command* >   CommandList;
 typedef std::deque< ObjectInstanceDataIStream* > InstanceDataDeque;

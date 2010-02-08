@@ -25,35 +25,32 @@
 
 #include <iostream>
 
-using namespace eq::base;
-using namespace eq::net;
-using namespace std;
+eq::base::Monitor< eq::net::Barrier* > _barrier( 0 );
+eq::net::SessionID sessionID;
 
-Monitor< Barrier* > _barrier( 0 );
-uint32_t sessionID;
-
-class NodeThread : public Thread
+class NodeThread : public eq::base::Thread
 {
 public:
     NodeThread( const bool master ) : _master(master) {}
 
     virtual void run()
         {
-            ConnectionDescriptionPtr description = new ConnectionDescription;
-            description->type = CONNECTIONTYPE_TCPIP;
+            eq::net::ConnectionDescriptionPtr description = 
+                new eq::net::ConnectionDescription;
+            description->type = eq::net::CONNECTIONTYPE_TCPIP;
             description->port = _master ? 4242 : 4243;
 
-            NodePtr node = new Node();
+            eq::net::NodePtr node = new eq::net::Node;
             node->addConnectionDescription( description );
             TEST( node->listen( ));
 
             if( _master )
             {
-                Session session;
-                TEST( node->registerSession( &session ));
+                eq::net::Session session;
+                node->registerSession( &session );
                 sessionID = session.getID();
 
-                Barrier barrier( node, 2 );
+                eq::net::Barrier barrier( node, 2 );
                 session.registerObject( &barrier );
                 TEST( barrier.getID() != EQ_ID_INVALID );
 
@@ -68,19 +65,19 @@ public:
             {
                 _barrier.waitNE( 0 );
 
-                RefPtr<Node>                  server     = new Node;
-                RefPtr<ConnectionDescription> serverDesc = 
-                    new ConnectionDescription;
+                eq::net::NodePtr server = new eq::net::Node;
+                eq::net::ConnectionDescriptionPtr serverDesc = 
+                    new eq::net::ConnectionDescription;
                 serverDesc->port = 4242;
                 server->addConnectionDescription( serverDesc );
                 TEST( node->connect( server ));
 
-                Session session;
+                eq::net::Session session;
                 TEST( node->mapSession( server, &session, sessionID ));
                 
-                cerr << "Slave enter" << endl;
+                std::cerr << "Slave enter" << std::endl;
                 _barrier->enter();
-                cerr << "Slave left" << endl;
+                std::cerr << "Slave left" << std::endl;
 
                 node->unmapSession( &session );
                 _barrier = 0;
@@ -95,7 +92,7 @@ private:
 
 int main( int argc, char **argv )
 {
-    eq::net::init( argc, argv );
+    TEST( eq::net::init( argc, argv ));
 
     NodeThread server( true );
     NodeThread node( false );
@@ -105,6 +102,7 @@ int main( int argc, char **argv )
     server.join();
     node.join();
 
+    eq::net::exit();
     return EXIT_SUCCESS;
 }
 

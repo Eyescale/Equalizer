@@ -114,7 +114,7 @@ namespace server
         /** The list of configurations. */
         ConfigVector _configs;
 
-        typedef stde::hash_map< uint32_t, Config* > ConfigHash;
+        typedef base::UUIDHash< Config* > ConfigHash;
         /** The application-allocated configurations, mapped by identifier. */
         ConfigHash _appConfigs;
 

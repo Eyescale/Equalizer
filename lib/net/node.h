@@ -454,10 +454,8 @@ namespace net
          * This method assigns the session identifier. The node has to be local.
          *
          * @param session the session.
-         * @return <code>true</code> if the session was mapped,
-         *         <code>false</code> if not.
          */
-        EQ_EXPORT bool registerSession( Session* session );
+        EQ_EXPORT void registerSession( Session* session );
 
         /** Deregister a (master) session. */
         bool deregisterSession( Session* session )
@@ -476,7 +474,7 @@ namespace net
          *         <code>false</code> if not.
          */
         bool mapSession( NodePtr server, Session* session, 
-                         const uint32_t id );
+                         const SessionID& id );
 
         /** 
          * Unmaps a mapped session.
@@ -488,7 +486,7 @@ namespace net
         EQ_EXPORT bool unmapSession( Session* session );
 
         /** @return the mapped session with the given identifier, or 0. */
-        Session* getSession( const uint32_t id );
+        Session* getSession( const SessionID& id );
 
         bool hasSessions() const { return !_sessions->empty(); }
         //@}
@@ -585,6 +583,7 @@ namespace net
         /** The current state of this node. */
         State _state;
 
+        typedef base::UUIDHash< Session* > SessionHash;
         /** The current mapped sessions of this node. */
         base::Lockable< SessionHash, base::SpinLock > _sessions;
 
@@ -743,7 +742,7 @@ namespace net
          * @param sessionID the identifier of the session.
          */
         void _addSession( Session* session, NodePtr server,
-                          const uint32_t sessionID );
+                          const SessionID& sessionID );
 
         /** 
          * Removes an unmapped session from this node.
@@ -751,9 +750,6 @@ namespace net
          * @param session the session.
          */
         void _removeSession( Session* session );
-
-        /** Generates a new, unique session identifier. */
-        uint32_t _generateSessionID();
 
         NodePtr _connect( const NodeID& nodeID, NodePtr server );
 

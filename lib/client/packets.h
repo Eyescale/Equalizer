@@ -108,7 +108,7 @@ namespace eq
             }
 
         net::NodeID appNodeID;
-        uint32_t    configID;
+        net::SessionID configID;
         uint32_t    requestID;
         uint32_t    objectID;
         uint32_t    fill;
@@ -123,7 +123,7 @@ namespace eq
                 size    = sizeof( ServerDestroyConfigPacket );
             }
 
-        uint32_t      configID;
+        net::SessionID configID;
     };
 
     struct ServerChooseConfigReplyPacket : public ServerPacket
@@ -143,8 +143,8 @@ namespace eq
                 requestID = requestPacket->requestID;
             }
 
+        net::SessionID configID;
         uint32_t requestID;
-        uint32_t configID;
     };
 
     struct ServerReleaseConfigPacket : public ServerPacket
@@ -155,7 +155,7 @@ namespace eq
                 size    = sizeof( ServerReleaseConfigPacket );
             }
 
-        uint32_t configID;
+        net::SessionID configID;
         uint32_t requestID;
     };
 

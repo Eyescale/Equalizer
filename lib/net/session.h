@@ -57,7 +57,7 @@ namespace net
         /** @name Data Access */
         //@{
         /** @return the identifier of this session. */
-        uint32_t getID() const { return _id; }
+        const SessionID& getID() const { return _id; }
 
         /**
          * @return the local node to which this session is mapped, or 0 if the
@@ -375,7 +375,7 @@ namespace net
         NodePtr _server;
 
         /** The session's identifier. */
-        uint32_t _id;
+        SessionID _id;
 
         /** The state (master/client) of this session instance. */
         bool _isMaster;

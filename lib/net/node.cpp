@@ -576,7 +576,7 @@ bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 // Node functionality
 //----------------------------------------------------------------------
 void Node::_addSession( Session* session, NodePtr server,
-                        const uint32_t sessionID )
+                        const SessionID& sessionID )
 {
     CHECK_THREAD( _recvThread );
 
@@ -613,25 +613,23 @@ void Node::_removeSession( Session* session )
 
     session->_setLocalNode( 0 );
     session->_server    = 0;
-    session->_id        = EQ_ID_INVALID;
+    session->_id        = SessionID::ZERO;
     session->_isMaster  = false;
 }
 
-bool Node::registerSession( Session* session )
+void Node::registerSession( Session* session )
 {
     EQASSERT( isLocal( ));
     EQASSERT( !inCommandThread( ));
 
     NodeRegisterSessionPacket packet;
-    packet.requestID  = _requestHandler.registerRequest( session );
+    packet.requestID = _requestHandler.registerRequest( session );
     send( packet );
 
-    uint32_t sessionID = EQ_ID_INVALID;
-    _requestHandler.waitRequest( packet.requestID, sessionID );
-    return (sessionID == session->getID( ));
+    _requestHandler.waitRequest( packet.requestID );
 }
 
-bool Node::mapSession( NodePtr server, Session* session, const uint32_t id )
+bool Node::mapSession( NodePtr server, Session* session, const SessionID& id )
 {
     EQASSERT( isLocal( ));
     EQASSERT( id != EQ_ID_INVALID );
@@ -642,9 +640,8 @@ bool Node::mapSession( NodePtr server, Session* session, const uint32_t id )
     packet.sessionID = id;
     server->send( packet );
 
-    uint32_t sessionID = EQ_ID_INVALID;
-    _requestHandler.waitRequest( packet.requestID, sessionID );
-    return (sessionID == session->getID( ));
+    _requestHandler.waitRequest( packet.requestID );
+    return ( session->getID() != SessionID::ZERO );
 }
 
 bool Node::unmapSession( Session* session )
@@ -661,7 +658,7 @@ bool Node::unmapSession( Session* session )
     return ret;
 }
 
-Session* Node::getSession( const uint32_t id )
+Session* Node::getSession( const SessionID& id )
 {
     base::ScopedMutex< base::SpinLock > mutex( _sessions );
     SessionHash::const_iterator i = _sessions->find( id );
@@ -671,18 +668,6 @@ Session* Node::getSession( const uint32_t id )
         return 0;
 
     return i->second;
-}
-
-uint32_t Node::_generateSessionID()
-{
-    CHECK_THREAD( _recvThread );
-    base::RNG rng;
-    uint32_t  id  = rng.get<uint32_t>();
-
-    while( id == EQ_ID_INVALID || _sessions->find( id ) != _sessions->end( ))
-        id = rng.get<uint32_t>();
-
-    return id;  
 }
 
 #define SEPARATOR '#'
@@ -1497,7 +1482,7 @@ bool Node::dispatchCommand( Command& command )
         {
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
-            const uint32_t       id            = sessionPacket->sessionID;
+            const SessionID& id = sessionPacket->sessionID;
             SessionHash::const_iterator i = _sessions->find( id );
             EQASSERTINFO( i != _sessions->end(),
                           "Can't find session for " << sessionPacket );
@@ -1597,7 +1582,7 @@ CommandResult Node::invokeCommand( Command& command )
         {
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
-            const uint32_t id = sessionPacket->sessionID;
+            const SessionID& id = sessionPacket->sessionID;
             Session* session = 0;            
             {
                 base::ScopedMutex< base::SpinLock > mutex( _sessions );
@@ -1645,9 +1630,8 @@ CommandResult Node::_cmdRegisterSession( Command& command )
         _requestHandler.getRequestData( packet->requestID ));
     EQASSERT( session );
 
-    const uint32_t sessionID = _generateSessionID();
-    _addSession( session, this, sessionID );
-    _requestHandler.serveRequest( packet->requestID, sessionID );
+    _addSession( session, this, SessionID( true /* generate */ ));
+    _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -1672,7 +1656,7 @@ CommandResult Node::_cmdMapSession( Command& command )
     }
     else
     {
-        const uint32_t sessionID = packet->sessionID;
+        const SessionID& sessionID = packet->sessionID;
         base::ScopedMutex< base::SpinLock > mutex( _sessions );
         SessionHash::const_iterator i = _sessions->find( sessionID );
         
@@ -1703,7 +1687,7 @@ CommandResult Node::_cmdMapSessionReply( Command& command)
         _addSession( session, node, packet->sessionID );
     }
 
-    _requestHandler.serveRequest( requestID, packet->sessionID );
+    _requestHandler.serveRequest( requestID );
     return COMMAND_HANDLED;
 }
 
@@ -1714,7 +1698,7 @@ CommandResult Node::_cmdUnmapSession( Command& command )
         command.getPacket<NodeUnmapSessionPacket>();
     EQVERB << "Cmd unmap session: " << packet << std::endl;
     
-    const uint32_t sessionID = packet->sessionID;
+    const SessionID& sessionID = packet->sessionID;
     NodeUnmapSessionReplyPacket reply( packet );
     {
         base::ScopedMutex< base::SpinLock > mutex( _sessions );
