@@ -93,19 +93,6 @@ namespace net
         uint32_t requestID;
     };
 
-    struct NodeRegisterSessionReplyPacket : public NodePacket
-    {
-        NodeRegisterSessionReplyPacket(const NodeRegisterSessionPacket* request)
-            {
-                command   = CMD_NODE_REGISTER_SESSION_REPLY;
-                size      = sizeof( NodeRegisterSessionReplyPacket );
-                requestID = request->requestID;
-            }
-            
-        uint32_t requestID;
-        uint32_t sessionID;
-    };
-
     struct NodeMapSessionPacket : public NodePacket
     {
         NodeMapSessionPacket()

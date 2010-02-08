@@ -62,17 +62,15 @@ Node::Node()
     CommandQueue* queue = &_commandThreadQueue;
     registerCommand( CMD_NODE_STOP, NodeFunc( this, &Node::_cmdStop ), queue );
     registerCommand( CMD_NODE_REGISTER_SESSION,
-                     NodeFunc( this, &Node::_cmdRegisterSession ), queue );
-    registerCommand( CMD_NODE_REGISTER_SESSION_REPLY,
-                     NodeFunc( this, &Node::_cmdRegisterSessionReply ), queue );
+                     NodeFunc( this, &Node::_cmdRegisterSession ), 0 );
     registerCommand( CMD_NODE_MAP_SESSION,
                      NodeFunc( this, &Node::_cmdMapSession ), queue );
     registerCommand( CMD_NODE_MAP_SESSION_REPLY,
-                     NodeFunc( this, &Node::_cmdMapSessionReply ), queue );
+                     NodeFunc( this, &Node::_cmdMapSessionReply ), 0 );
     registerCommand( CMD_NODE_UNMAP_SESSION, 
                      NodeFunc( this, &Node::_cmdUnmapSession ), queue );
     registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
-                     NodeFunc( this, &Node::_cmdUnmapSessionReply ), queue );
+                     NodeFunc( this, &Node::_cmdUnmapSessionReply ), 0 );
     registerCommand( CMD_NODE_CONNECT, NodeFunc( this, &Node::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
                      NodeFunc( this, &Node::_cmdConnectReply ), 0 );
@@ -106,12 +104,12 @@ Node::~Node()
     EQASSERT( _requestHandler.isEmpty( ));
 
 #ifndef NDEBUG
-    if( !_sessions.empty( ))
+    if( !_sessions->empty( ))
     {
-        EQINFO << _sessions.size() << " mapped sessions" << std::endl;
+        EQINFO << _sessions->size() << " mapped sessions" << std::endl;
         
-        for( SessionHash::const_iterator i = _sessions.begin();
-             i != _sessions.end(); ++i )
+        for( SessionHash::const_iterator i = _sessions->begin();
+             i != _sessions->end(); ++i )
         {
             const Session* session = i->second;
             EQINFO << "    Session " << session->getID() << std::endl;
@@ -119,7 +117,7 @@ Node::~Node()
     }
 #endif
 
-    EQASSERT( _sessions.empty( ));
+    EQASSERT( _sessions->empty( ));
 
     EQASSERT( !_commandThread->isRunning( ));
     delete _commandThread;
@@ -580,7 +578,7 @@ bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 void Node::_addSession( Session* session, NodePtr server,
                         const uint32_t sessionID )
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _recvThread );
 
     session->_server    = server;
     session->_id        = sessionID;
@@ -589,11 +587,12 @@ void Node::_addSession( Session* session, NodePtr server,
     if( session->_isMaster )
         session->_idPool.freeIDs( 1, base::IDPool::MAX_CAPACITY );
 
-    EQASSERTINFO( _sessions.find( sessionID ) == _sessions.end(),
+    base::ScopedMutex< base::SpinLock > mutex( _sessions );
+    EQASSERTINFO( _sessions->find( sessionID ) == _sessions->end(),
                   "Session " << sessionID << " @" << (void*)session
                   << " already mapped on " << this << " @"
-                  <<  (void*)_sessions[ sessionID ] );
-    _sessions[ sessionID ] = session;
+                  <<  (void*)_sessions.data[ sessionID ] );
+    _sessions.data[ sessionID ] = session;
 
     EQINFO << (session->_isMaster ? "master" : "client") << " session, id "
            << sessionID << ", served by " << server.get() << ", mapped on "
@@ -602,12 +601,15 @@ void Node::_addSession( Session* session, NodePtr server,
 
 void Node::_removeSession( Session* session )
 {
-    CHECK_THREAD( _thread );
-    EQASSERT( _sessions.find( session->getID( )) != _sessions.end( ));
+    CHECK_THREAD( _recvThread );
+    {
+        base::ScopedMutex< base::SpinLock > mutex( _sessions );
+        EQASSERT( _sessions->find( session->getID( )) != _sessions->end( ));
 
-    _sessions.erase( session->getID( ));
-    EQINFO << "Erased session " << session->getID() << ", " << _sessions.size()
-           << " left" << std::endl;
+        _sessions->erase( session->getID( ));
+        EQINFO << "Erased session " << session->getID() << ", " 
+               << _sessions->size() << " left" << std::endl;
+    }
 
     session->_setLocalNode( 0 );
     session->_server    = 0;
@@ -661,10 +663,11 @@ bool Node::unmapSession( Session* session )
 
 Session* Node::getSession( const uint32_t id )
 {
-    SessionHash::const_iterator i = _sessions.find( id );
+    base::ScopedMutex< base::SpinLock > mutex( _sessions );
+    SessionHash::const_iterator i = _sessions->find( id );
     
-    EQASSERT( i != _sessions.end( ));
-    if( i == _sessions.end( ))
+    EQASSERT( i != _sessions->end( ));
+    if( i == _sessions->end( ))
         return 0;
 
     return i->second;
@@ -672,11 +675,11 @@ Session* Node::getSession( const uint32_t id )
 
 uint32_t Node::_generateSessionID()
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _recvThread );
     base::RNG rng;
     uint32_t  id  = rng.get<uint32_t>();
 
-    while( id == EQ_ID_INVALID || _sessions.find( id ) != _sessions.end( ))
+    while( id == EQ_ID_INVALID || _sessions->find( id ) != _sessions->end( ))
         id = rng.get<uint32_t>();
 
     return id;  
@@ -1495,8 +1498,8 @@ bool Node::dispatchCommand( Command& command )
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
             const uint32_t       id            = sessionPacket->sessionID;
-            SessionHash::const_iterator i = _sessions.find( id );
-            EQASSERTINFO( i != _sessions.end(),
+            SessionHash::const_iterator i = _sessions->find( id );
+            EQASSERTINFO( i != _sessions->end(),
                           "Can't find session for " << sessionPacket );
 
             Session* session = i->second;            
@@ -1595,11 +1598,15 @@ CommandResult Node::invokeCommand( Command& command )
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
             const uint32_t id = sessionPacket->sessionID;
-            SessionHash::const_iterator i = _sessions.find( id );
-            EQASSERTINFO( i != _sessions.end(),
-                          "Can't find session for " << sessionPacket );
+            Session* session = 0;            
+            {
+                base::ScopedMutex< base::SpinLock > mutex( _sessions );
+                SessionHash::const_iterator i = _sessions->find( id );
+                EQASSERTINFO( i != _sessions->end(),
+                              "Can't find session for " << sessionPacket );
 
-            Session* session = i->second;            
+                session = i->second;
+            } 
             if( !session )
                 return COMMAND_ERROR;
 
@@ -1625,52 +1632,34 @@ CommandResult Node::_cmdStop( Command& command )
 
 CommandResult Node::_cmdRegisterSession( Command& command )
 {
+    CHECK_THREAD( _recvThread );
     EQASSERT( getState() == STATE_LISTENING );
+    EQASSERTINFO( command.getNode() == this, 
+                  command.getNode() << " != " << this );
 
     const NodeRegisterSessionPacket* packet = 
         command.getPacket<NodeRegisterSessionPacket>();
     EQVERB << "Cmd register session: " << packet << std::endl;
-    CHECK_THREAD( _thread );
     
     Session* session = static_cast< Session* >( 
         _requestHandler.getRequestData( packet->requestID ));
-
-    EQASSERTINFO( command.getNode() == this, 
-                  command.getNode() << " != " << this );
     EQASSERT( session );
 
     const uint32_t sessionID = _generateSessionID();
     _addSession( session, this, sessionID );
-
-    NodeRegisterSessionReplyPacket reply( packet );
-    reply.sessionID = session->getID();
-    send( reply );
-        
-    return COMMAND_HANDLED;
-}
-
-CommandResult Node::_cmdRegisterSessionReply( Command& command)
-{
-    const NodeRegisterSessionReplyPacket* packet = 
-        command.getPacket<NodeRegisterSessionReplyPacket>();
-    EQVERB << "Cmd register session reply: " << packet << std::endl;
-    CHECK_THREAD( _thread );
-
-    EQASSERT( command.getNode() == this );
-
-    _requestHandler.serveRequest( packet->requestID, packet->sessionID );
+    _requestHandler.serveRequest( packet->requestID, sessionID );
     return COMMAND_HANDLED;
 }
 
 
 CommandResult Node::_cmdMapSession( Command& command )
 {
+    CHECK_THREAD( _cmdThread );
     EQASSERT( getState() == STATE_LISTENING );
 
     const NodeMapSessionPacket* packet = 
         command.getPacket<NodeMapSessionPacket>();
     EQVERB << "Cmd map session: " << packet << std::endl;
-    CHECK_THREAD( _thread );
     
     NodePtr node = command.getNode();
     NodeMapSessionReplyPacket reply( packet );
@@ -1684,9 +1673,10 @@ CommandResult Node::_cmdMapSession( Command& command )
     else
     {
         const uint32_t sessionID = packet->sessionID;
-        SessionHash::const_iterator i = _sessions.find( sessionID );
+        base::ScopedMutex< base::SpinLock > mutex( _sessions );
+        SessionHash::const_iterator i = _sessions->find( sessionID );
         
-        if( i == _sessions.end( ))
+        if( i == _sessions->end( ))
             reply.sessionID = EQ_ID_INVALID;
     }
 
@@ -1696,10 +1686,10 @@ CommandResult Node::_cmdMapSession( Command& command )
 
 CommandResult Node::_cmdMapSessionReply( Command& command)
 {
+    CHECK_THREAD( _recvThread );
     const NodeMapSessionReplyPacket* packet = 
         command.getPacket<NodeMapSessionReplyPacket>();
     EQVERB << "Cmd map session reply: " << packet << std::endl;
-    CHECK_THREAD( _thread );
 
     const uint32_t requestID = packet->requestID;
     if( packet->sessionID != EQ_ID_INVALID )
@@ -1719,17 +1709,18 @@ CommandResult Node::_cmdMapSessionReply( Command& command)
 
 CommandResult Node::_cmdUnmapSession( Command& command )
 {
+    CHECK_THREAD( _cmdThread );
     const NodeUnmapSessionPacket* packet =
         command.getPacket<NodeUnmapSessionPacket>();
     EQVERB << "Cmd unmap session: " << packet << std::endl;
-    CHECK_THREAD( _thread );
     
     const uint32_t sessionID = packet->sessionID;
-    SessionHash::const_iterator i = _sessions.find( sessionID );
-    Session* session = (i == _sessions.end() ? 0 : i->second );
-
     NodeUnmapSessionReplyPacket reply( packet );
-    reply.result = (session != 0);
+    {
+        base::ScopedMutex< base::SpinLock > mutex( _sessions );
+        SessionHash::const_iterator i = _sessions->find( sessionID );
+        reply.result = (i == _sessions->end() ? false : true );
+    }
 
 #if 0
     if( session && session->_server == this )
@@ -1742,10 +1733,10 @@ CommandResult Node::_cmdUnmapSession( Command& command )
 
 CommandResult Node::_cmdUnmapSessionReply( Command& command)
 {
+    CHECK_THREAD( _recvThread );
     const NodeUnmapSessionReplyPacket* packet = 
         command.getPacket<NodeUnmapSessionReplyPacket>();
     EQVERB << "Cmd unmap session reply: " << packet << std::endl;
-    CHECK_THREAD( _thread );
 
     const uint32_t requestID = packet->requestID;
     Session* session = static_cast< Session* >(

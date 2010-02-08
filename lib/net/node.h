@@ -29,6 +29,7 @@
 #include <eq/base/lockable.h>
 #include <eq/base/perThread.h>
 #include <eq/base/requestHandler.h>
+#include <eq/base/spinLock.h>
 #include <eq/base/thread.h>
 
 #include <list>
@@ -489,7 +490,7 @@ namespace net
         /** @return the mapped session with the given identifier, or 0. */
         Session* getSession( const uint32_t id );
 
-        bool hasSessions() const { return !_sessions.empty(); }
+        bool hasSessions() const { return !_sessions->empty(); }
         //@}
 
         /** 
@@ -585,7 +586,7 @@ namespace net
         State _state;
 
         /** The current mapped sessions of this node. */
-        SessionHash _sessions;
+        base::Lockable< SessionHash, base::SpinLock > _sessions;
 
         /** The connection to this node. */
         ConnectionPtr _outgoing;
@@ -792,7 +793,8 @@ namespace net
         CommandResult _cmdAcquireSendTokenReply( Command& command );
         CommandResult _cmdReleaseSendToken( Command& command );
 
-        CHECK_THREAD_DECLARE( _thread );
+        CHECK_THREAD_DECLARE( _cmdThread );
+        CHECK_THREAD_DECLARE( _recvThread );
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Node* node )
