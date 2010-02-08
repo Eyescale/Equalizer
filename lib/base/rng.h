@@ -100,8 +100,8 @@ namespace base
 #endif
         static bool _init();
         static bool _exit();
-        friend bool eq::base::init();
-        friend bool eq::base::exit();
+        friend bool init();
+        friend bool exit();
     };
 
     template< > inline float RNG::get()
