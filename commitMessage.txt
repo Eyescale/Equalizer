@@ -1,9 +1,9 @@
-eqOSG: Code cleanups, fix init race condition
+Reintroduce base::SpinLock class, improve lock/spinlock unit tests
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
-[x] Cleanup
+[ ] Bugfix
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

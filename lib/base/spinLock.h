@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,36 +15,50 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_LOCK_H
-#define EQBASE_LOCK_H
+#ifndef EQBASE_SPINLOCK_H
+#define EQBASE_SPINLOCK_H
 
-#include <eq/base/base.h>
-#include <eq/base/nonCopyable.h>
+#include <eq/base/atomic.h>         // member
+#include <eq/base/compareAndSwap.h> // used in inline method
+#include <eq/base/nonCopyable.h>    // base class
+#include <eq/base/thread.h>         // used in inline method
 
 namespace eq
 {
 namespace base
 {
-    class LockPrivate;
-
     /** 
-     * A lock (mutex) primitive.
+     * A fast lock for uncontended memory access.
+     *
+     * Be aware of possible priority inversion.
+     *
      * @sa ScopedMutex
      */
-    class Lock : public NonCopyable
+    class SpinLock : public NonCopyable
     {
     public:
         /** Construct a new lock. @version 1.0 */
-        EQ_EXPORT Lock();
+        SpinLock() : _set( 0 ) {}
 
         /** Destruct the lock. @version 1.0 */
-        EQ_EXPORT ~Lock();
+        ~SpinLock() { _set = 0; }
 
         /** Acquire the lock. @version 1.0 */
-        EQ_EXPORT void set();
+        void set()
+            {
+                while( true )
+                {
+                    for( unsigned i=0; i < 100; ++i )
+                    {
+                        if( compareAndSwap( &_set, 0, 1 ))
+                            return;
+                        Thread::yield();
+                    }
+                }
+            }
 
         /** Release the lock. @version 1.0 */
-        EQ_EXPORT void unset();
+        void unset() { _set = 0; memoryBarrier(); }
 
         /** 
          * Attempt to acquire the lock.
@@ -55,7 +69,12 @@ namespace base
          *         it was not set.
          * @version 1.0
          */
-        EQ_EXPORT bool trySet();
+        bool trySet()
+            {
+                if( compareAndSwap( &_set, 0, 1 ))
+                    return true;
+                return false;
+            }
 
         /** 
          * Test if the lock is set.
@@ -64,12 +83,12 @@ namespace base
          *         it is not set.
          * @version 1.0
          */
-        EQ_EXPORT bool isSet();
+        bool isSet() { memoryBarrier(); return ( _set == 1 ); }
 
     private:
-        LockPrivate* _data;
+        int32_t _set;
     };
 }
 
 }
-#endif //EQBASE_LOCK_H
+#endif //EQBASE_SPINLOCK_H

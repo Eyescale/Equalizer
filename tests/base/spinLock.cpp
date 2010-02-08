@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,15 +16,14 @@
  */
 
 #include "test.h"
-#include <eq/base/atomic.h>
-#include <eq/base/lock.h>
+#include <eq/base/spinLock.h>
 #include <iostream>
 
 #define MAXTHREADS 256
-#define NOPS       1000
+#define NOPS       100000
 
 volatile size_t nThreads;
-eq::base::Lock* lock;
+eq::base::SpinLock* lock;
 
 class Thread : public eq::base::Thread
 {
@@ -42,7 +41,7 @@ public:
 
 int main( int argc, char **argv )
 {
-    lock = new eq::base::Lock;
+    lock = new eq::base::SpinLock;
     lock->set();
 
     Thread threads[MAXTHREADS];
@@ -62,7 +61,8 @@ int main( int argc, char **argv )
 
         const float time = clock.getTimef();
         std::cout << 3 /*set, test, unset*/ * NOPS * nThreads / time
-                  << " lock ops/ms (" << nThreads << " threads)" << std::endl;
+                  << " spin lock ops/ms (" << nThreads << " threads)"
+                  << std::endl;
     }
 
     delete lock;

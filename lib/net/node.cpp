@@ -1495,12 +1495,11 @@ bool Node::dispatchCommand( Command& command )
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
             const uint32_t       id            = sessionPacket->sessionID;
-
-            EQASSERTINFO( _sessions.find( id ) != _sessions.end(), 
+            SessionHash::const_iterator i = _sessions.find( id );
+            EQASSERTINFO( i != _sessions.end(),
                           "Can't find session for " << sessionPacket );
-            Session*             session       = _sessions[ id ];
-            EQASSERT( session );
-            
+
+            Session* session = i->second;            
             return session->dispatchCommand( command );
         }
 
@@ -1596,11 +1595,11 @@ CommandResult Node::invokeCommand( Command& command )
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
             const uint32_t id = sessionPacket->sessionID;
-
-            EQASSERTINFO( _sessions.find( id ) != _sessions.end( ),
+            SessionHash::const_iterator i = _sessions.find( id );
+            EQASSERTINFO( i != _sessions.end(),
                           "Can't find session for " << sessionPacket );
 
-            Session* session = _sessions[ id ];
+            Session* session = i->second;            
             if( !session )
                 return COMMAND_ERROR;
 

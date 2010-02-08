@@ -291,6 +291,16 @@ void Thread::removeAllListeners()
     _listenerLock().unset();
 }
 
+void Thread::yield()
+{
+#ifdef _MSC_VER
+    ::Sleep( 0 );
+#elif defined (Darwin)
+    ::pthread_yield_np();
+#else
+    ::sched_yield();
+#endif
+}
 
 void Thread::pinCurrentThread()
 {
@@ -383,6 +393,8 @@ void Thread::setDebugName( const std::string& name )
     {
     }
 #  endif
+#elif defined (Darwin)
+    pthread_setname_np( name.c_str( ));
 #endif
 }
 

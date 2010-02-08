@@ -166,6 +166,9 @@ namespace base
         EQ_EXPORT static size_t getSelfThreadID();
 
         /** @internal */
+        static void yield();
+
+        /** @internal */
         static void pinCurrentThread();
 
         /** @internal */
