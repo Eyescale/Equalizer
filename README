@@ -2,19 +2,17 @@
                                Quickstart
 
  This directory is the top-level directory for the Equalizer sources.
- Executing 'make' should build all targets, if the platform is
- supported.  See also the FAQ in this directory.
- End-User and developer documentation can be found on the Equalizer
- website at http://www.equalizergraphics.com/
+ Executing 'make' should build all targets. See also the FAQ in this
+ directory. End-User and developer documentation can be found on the
+ Equalizer website at http://www.equalizergraphics.com/
 
                            Running Equalizer
 
  The main example is eqPly, a scalable rendering program for polygonal
  data. Furthermore, there is eqHello, a very simple Equalizer program,
  and eVolve, a scalable volume renderer. To run examples, first setup
- your library search path (LD_LIBRARY_PATH) to point to
- build/<os>/lib. Then start a server: 'build/<os>/bin/eqServer'. Once
- the server is running, start the example: 'build/<os>/bin/eqPly'.
+ your library search path as prompted at the end of the build
+ process. Now start the example: 'build/<os>/bin/eqPly'.
 
  The default launch mechanism for nodes uses ssh. If your configuration
  contains remote nodes, make sure a passwordless login using ssh is
@@ -31,14 +29,14 @@
  lib/client/  the client-side implementation of Equalizer
  server/    the server source code
  examples/  Equalizer example programs
- tests/     small programs testing certain functionality (to-be-unit-tests)
+ tests/     small programs testing certain functionality (unit tests)
  tools/     miscellanous tools
 
 
                            Build Environment
 
- The build environment is using GNU make. Furthermore, flex, bison and
- libuuid are needed during compilation. The directory make/ contains the
+ The build environment is using GNU make. Furthermore, flex and bison
+ are needed during compilation. The directory make/ contains the
  following files:
  
    system.mk: Generic Makefile included first by each Makefile. Sets
@@ -52,7 +50,7 @@
      included at the end of each Makefile.
 
    local.mk: Optional, non-versioned file containing local machine build
-     settings
+     settings.
 
   The build environment uses the following targets and variables:
 

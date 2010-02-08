@@ -4,22 +4,14 @@ A: Try to include first eq/eq.h, then your scene graph or OpenGL
    headers. If that doesn't help, and you don't need GLEW, define
    EQ_IGNORE_GLEW before including Equalizer.
 
-Q: Where do I find the include file uuid/uuid.h?
-A: Equalizer uses the libuuid to generate unique node identifiers.
-   Under Linux, this library is often part of the ext2fsprogs. Depending
-   on you distribution you have to install ext2fsprogs, libuuid,
-   libuuid-dev or uuid-dev.  Under other Unix operating systems, the
-   uuid library is either a separate package, or may be part of DCE,
-   from which it originates.
-
-Q: Debian/Ubuntu: As soon as I am using scalable rendering or a swap
-   barrier, one of my nodes crashes.
+Q: Linux: As soon as I am using scalable rendering or a swap barrier,
+   one of my nodes crashes.
 A: The node's hostname is mapped to a local IP address in /etc/hosts,
    rather than a public one. Using another name for the node in the
    configuration file, e.g., the fully qualified hostname or IP address,
    solves the problem.
 
-Q: OS X: I am using the GLX version , and I've configured a fullscreen
+Q: OS X: I am using the GLX version, and I've configured a fullscreen
    window, but still see the menu bar and dock. What's the problem?
 A: The application is responsible for hiding the menu bar and
    dock. Unfortunately that application is X11.app, not the actual X11

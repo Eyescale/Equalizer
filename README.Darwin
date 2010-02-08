@@ -2,17 +2,12 @@
                          Darwin-Specific Notes
 
  Equalizer is developed on the latest OS X version, at the time of
- writing 10.5.2. Other versions may work, but are not tested.
+ writing 10.6.2. Other versions may work, but are not tested.
 
-Prerequisites for Mac OS X 10.4 Tiger:
+Prerequisites:
 
  X11SDK: Equalizer uses X11. The X11SDK packages is shipped with Mac OS X,
    but not installed by default.
-
- New bison version: Equalizer uses bison to generate the configuration
-   file parser. The bison version shipped with Mac OS X 10.4 is too old,
-   therefore you need to install a newer bison version, e.g., by using
-   fink or DarwinPorts.
 
 Universal Binary Notes
 
