@@ -21,7 +21,7 @@
 #include <eq/base/thread.h>
 #include <iostream>
 
-#define RUNTIME 100 /*ms*/
+#define RUNTIME 1000 /*ms*/
 
 eq::base::LFQueue< uint64_t > queue(1024);
 
