@@ -32,7 +32,7 @@ public:
     virtual ~ReadThread() {}
     virtual void run()
         {
-            uint64_t item = -1;
+            uint64_t item = 0xffffffffffffffff;
 
             eq::base::Clock clock;
             for( size_t i = 0 ; i < NOPS; ++i )

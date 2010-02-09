@@ -33,7 +33,7 @@ public:
         {
             uint64_t nOps = 0;
             uint64_t nEmpty = 0;
-            uint64_t item = -1;
+            uint64_t item = 0xffffffffffffffff;
 
             eq::base::Clock clock;
             while( clock.getTime64() < RUNTIME )
@@ -41,7 +41,7 @@ public:
                 if( queue.getFront( item ))
                 {
                     TEST( item == nOps );
-                    uint64_t item2 = -1;
+                    uint64_t item2 = 0xffffffffffffffff;
                     TEST( queue.pop( item2 ));
                     TEST( item2 == item );
                     ++nOps;

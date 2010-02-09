@@ -51,18 +51,6 @@ public:
             two   = ( input & 0xff00 ) >> 8;
             three = ( input & 0xff0000 ) >> 16;
         }
-
-    static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
-                                      const uint8_t three, const uint8_t four )
-    {
-        return one + ( two << 8 ) + ( three << 16 ) + ( four << 24 );
-    }
-
-    static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
-                                      const uint8_t three )
-    {
-        return one + ( two << 8 ) + ( three << 16 );
-    }
 };
 
 class SwizzleUInt32

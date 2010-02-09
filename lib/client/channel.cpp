@@ -749,8 +749,8 @@ Vector2f Channel::getJitter() const
         
     // Compute a pixel size
     const PixelViewport& pvp = getPixelViewport();
-    const float pvp_w = static_cast<const float>( pvp.w );
-    const float pvp_h = static_cast<const float>( pvp.h );
+    const float pvp_w = static_cast<float>( pvp.w );
+    const float pvp_h = static_cast<float>( pvp.h );
 
     const Frustumf& frustum = getFrustum();
     const float frustum_w = frustum.get_width();
