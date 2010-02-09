@@ -62,7 +62,7 @@ static std::vector< uint32_t > _getCompressorNames()
     return names;
 }
 
-static const float _getCompressorQuality( const uint32_t name )
+static float _getCompressorQuality( const uint32_t name )
 {
     const eq::base::PluginRegistry& registry = 
         eq::base::Global::getPluginRegistry();
