@@ -393,7 +393,7 @@ void Thread::setDebugName( const std::string& name )
     {
     }
 #  endif
-#elif defined (Darwin)
+#elif __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
     pthread_setname_np( name.c_str( ));
 #endif
 }

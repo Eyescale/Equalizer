@@ -1,12 +1,9 @@
-eqPly: make image quality run-time configurable
-Make 16-bit compressor more color-neutral
-Fix compressor reallocation upon quality change
-Fix release build warnings
+Fix Mac OS X 10.5 compilation
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
