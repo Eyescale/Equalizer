@@ -315,7 +315,7 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
             }
             
             const float diffQuality = info.quality - attachment.quality;
-            if( ratio > infoRatio && diffQuality < minDiffQuality &&
+            if( ratio >= infoRatio && diffQuality <= minDiffQuality &&
                 info.quality >= attachment.quality ) // TODO: be smarter
             {
                 minDiffQuality = diffQuality;

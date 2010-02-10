@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
                           , Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -655,7 +655,7 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     attributes.push_back( WGL_FULL_ACCELERATION_ARB );
 
     const int colorSize = getIAttribute( Window::IATTR_PLANES_COLOR );
-    const int colorBits = colorSize>0 ? colorSize : 10;
+    const int colorBits = colorSize>0 ? colorSize : 8;
 
     if( colorSize > 0 || colorSize == AUTO ||
         getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
