@@ -190,8 +190,8 @@ void Texture::upload( const Image* image, const Frame::Buffer which )
 
     const eq::PixelViewport& pvp = image->getPixelViewport();
 
-    EQASSERT( _format == image->getFormat( which ));
-    EQASSERT( _type = image->getType( which ));
+    _format = image->getFormat( which );
+    _type = image->getType( which );
 
     upload( pvp.w, pvp.h, ( void* )image->getPixelPointer( which ));
 }
