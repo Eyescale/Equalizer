@@ -1,10 +1,9 @@
-Save 10-Bit images so they are detected as such upon reading
-Add test image to compression test
+Fix test run on slow machines.
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

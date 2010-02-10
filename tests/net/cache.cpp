@@ -15,6 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define EQ_TEST_RUNTIME 20
 #include <test.h>
 
 #include <eq/net/command.h>
