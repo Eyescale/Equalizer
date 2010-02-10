@@ -1117,6 +1117,9 @@ void Image::writeImage( const std::string& filename,
     header.bytesPerChannel = getChannelSize( buffer );
     header.depth = getNumChannels( buffer );
 
+    if( _type == GL_UNSIGNED_INT_10_10_10_2 )
+        header.maxValue = 1023;
+
     if( header.depth == 1 ) // depth
     {
         EQASSERT( (header.bytesPerChannel % 4) == 0 );
@@ -1226,12 +1229,19 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     if( header.nDimensions != 3 ||
         header.minValue != 0 ||
-        header.maxValue != 255 ||
+        ( header.maxValue != 255 && header.maxValue != 1023 ) ||
         header.colorMode != 0 ||
         ( buffer == Frame::BUFFER_COLOR && nChannels != 3 && nChannels != 4 ) ||
         ( buffer == Frame::BUFFER_DEPTH && nChannels != 4 ))
     {
         EQERROR << "Unsupported image type " << filename << std::endl;
+        return false;
+    }
+
+    if(( header.bytesPerChannel != 1 || nChannels == 1 ) &&
+         header.maxValue != 255 )
+    {
+        EQERROR << "Unsupported value range " << header.maxValue << std::endl;
         return false;
     }
 
@@ -1269,7 +1279,11 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
             switch( header.bytesPerChannel )
             {
                 case 1:
-                    setType( Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+                    if( header.maxValue == 1023 )
+                        setType( Frame::BUFFER_COLOR, 
+                                 GL_UNSIGNED_INT_10_10_10_2 );
+                    else
+                        setType( Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
                     break;
                 case 2:
                     setType( Frame::BUFFER_COLOR, GL_HALF_FLOAT );

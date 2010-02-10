@@ -1,9 +1,10 @@
-Fix Mac OS X 10.5 compilation
+Save 10-Bit images so they are detected as such upon reading
+Add test image to compression test
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
