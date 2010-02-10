@@ -29,7 +29,7 @@
 
 //----- Common extensions of the STL
 #ifdef __GNUC__              // GCC 3.1 and later
-#  ifdef EQ_GCC_4_2_OR_LATER
+#  if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
 #    include <tr1/unordered_map>
 #    include <tr1/unordered_set>
 /* Alias stde namespace to uniformly access stl extensions. */
@@ -55,7 +55,7 @@ namespace stde = std;
 
 //----- Our extensions of the STL 
 #ifdef __GNUC__              // GCC 3.1 and later
-#  ifdef EQ_GCC_4_2_OR_LATER
+#  if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
 namespace std { namespace tr1
 #  else
 namespace __gnu_cxx
@@ -67,7 +67,7 @@ namespace std
 #endif
 {
 #  ifdef __GNUC__
-#    ifdef EQ_GCC_4_2_OR_LATER
+#    if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
     template<class K, class T, class H = hash< K >, 
              class P = std::equal_to< K >, class A = std::allocator< K > >
     class hash_map : public unordered_map< K, T, H, P, A >
@@ -85,6 +85,7 @@ namespace std
     };
 #      endif
 
+#      if !defined __INTEL_COMPILER
     /** uint64_t hash function. @version 1.0 */
     template<> struct hash< uint64_t >
     {
@@ -95,6 +96,7 @@ namespace std
             return static_cast< size_t >( val );
         }
     };
+#      endif
 
 #    endif
 
@@ -141,7 +143,7 @@ namespace std
         std::sort( c.begin(), c.end( ));
         c.erase( std::unique( c.begin(), c.end( )), c.end( ));
     }
-#ifdef EQ_GCC_4_2_OR_LATER
+#if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
 }
 #endif
 }

@@ -72,7 +72,7 @@ namespace net
 }
 
 #ifdef __GNUC__              // GCC 3.1 and later
-#  ifdef EQ_GCC_4_2_OR_LATER
+#  if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
 namespace std { namespace tr1
 #  else
 namespace __gnu_cxx
@@ -104,7 +104,7 @@ namespace std
     };
 #endif
 }
-#ifdef EQ_GCC_4_2_OR_LATER
+#if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
 }
 #endif
 
