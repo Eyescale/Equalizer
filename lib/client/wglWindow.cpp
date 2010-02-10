@@ -655,13 +655,17 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     attributes.push_back( WGL_FULL_ACCELERATION_ARB );
 
     const int colorSize = getIAttribute( Window::IATTR_PLANES_COLOR );
-    const int colorBits = colorSize>0 ? colorSize : 8;
+    const int colorBits = colorSize>0 ? colorSize : 10;
 
     if( colorSize > 0 || colorSize == AUTO ||
         getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
     {
-        attributes.push_back( WGL_COLOR_BITS_ARB );
-        attributes.push_back( colorBits * 3 );
+        attributes.push_back( WGL_RED_BITS_ARB );
+        attributes.push_back( colorBits );
+        attributes.push_back( WGL_GREEN_BITS_ARB );
+        attributes.push_back( colorBits );
+        attributes.push_back( WGL_BLUE_BITS_ARB );
+        attributes.push_back( colorBits );
     }
     else if ( colorSize == RGBA16F || colorSize == RGBA32F )
     {
@@ -683,7 +687,7 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     if( alphaSize > 0 || alphaSize == AUTO )
     {
         attributes.push_back( WGL_ALPHA_BITS_ARB );
-        attributes.push_back( alphaSize>0 ? alphaSize : 10 );
+        attributes.push_back( alphaSize>0 ? alphaSize : 8 );
     }
 
     const int depthSize = getIAttribute( Window::IATTR_PLANES_DEPTH );

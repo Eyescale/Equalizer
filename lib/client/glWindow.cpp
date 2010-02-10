@@ -154,6 +154,10 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
     drawableConfig.stencilBits = stencilBits;
         
+    GLint colorBits;
+    glGetIntegerv( GL_RED_BITS, &colorBits );
+    drawableConfig.colorBits = colorBits;
+
     GLint alphaBits;
     glGetIntegerv( GL_ALPHA_BITS, &alphaBits );
     drawableConfig.alphaBits = alphaBits;

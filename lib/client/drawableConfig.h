@@ -28,6 +28,7 @@ namespace eq
     struct DrawableConfig
     {
         int32_t stencilBits;    //!< No of stencil bits
+        int32_t colorBits;      //!< No of bits per color component
         int32_t alphaBits;      //!< No of alpha bits
         int32_t accumBits;      //!< No of accum bits
         float   glVersion;      //!< OpenGL version
@@ -45,6 +46,7 @@ namespace eq
             os << "|DB";
         if( config.stencilBits )
             os << "|st" << config.stencilBits;
+        os << "|rgb" << config.colorBits;
         if( config.alphaBits )
             os << "|a" << config.alphaBits;
         if( config.accumBits )
