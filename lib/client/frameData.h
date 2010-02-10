@@ -80,10 +80,6 @@ namespace server
 
         /** The covered area. */
         void setPixelViewport( const PixelViewport& pvp ) { _data.pvp = pvp; }
-
-        /* Set color buffer type to read */
-        void setColorFormat( const GLuint colorFormat )
-            { _colorFormat = colorFormat; }
         
         /** Enable/disable alpha usage for newly allocated images. */
         void setAlphaUsage( const bool useAlpha ) { _useAlpha = useAlpha; }
@@ -105,7 +101,8 @@ namespace server
          * 
          * @return the image.
          */
-        EQ_EXPORT Image* newImage( const Frame::Type type = Frame::TYPE_MEMORY);
+        EQ_EXPORT Image* newImage( const Frame::Type type,
+                                   const DrawableConfig& config );
 
         /** Clear the frame by recycling the attached images. */
         EQ_EXPORT void clear();
@@ -118,9 +115,11 @@ namespace server
          *
          * @param frame the corresponding output frame holder.
          * @param glObjects the GL object manager for the current GL context.
+         * @param config the configuration of the source frame buffer.
          */
         void startReadback( const Frame& frame, 
-                            Window::ObjectManager* glObjects );
+                            Window::ObjectManager* glObjects,
+                            const DrawableConfig& config );
 
         /** Synchronize the last image readback. */
         void syncReadback();
@@ -216,7 +215,6 @@ namespace server
         ImageVector  _imageCache;
         base::Lock   _imageCacheLock;
 
-        GLuint     _colorFormat; 
         ROIFinder* _roiFinder;
 
         struct ImageVersion
@@ -233,7 +231,7 @@ namespace server
         /** Data ready monitor synchronization primitive. */
         base::Monitor<uint32_t> _readyVersion;
 
-        /** External monitors for readyness synchronization. */
+        /** External monitors for readiness synchronization. */
         std::vector< base::Monitor<uint32_t>* > _listeners;
         base::Lock                              _listenersMutex;
 
@@ -244,11 +242,12 @@ namespace server
         
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         /** Allocate or reuse an image. */
-        Image* _allocImage( const eq::Frame::Type type );
+        Image* _allocImage( const eq::Frame::Type type,
+                            const DrawableConfig& config );
 
         /** Apply all received images of the given version. */
         void _applyVersion( const uint32_t version );

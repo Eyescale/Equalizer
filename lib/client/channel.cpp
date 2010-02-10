@@ -161,6 +161,14 @@ Window::ObjectManager* Channel::getObjectManager()
     return _window->getObjectManager();
 }
 
+const DrawableConfig& Channel::getDrawableConfig() const
+{
+    EQASSERT( _window );
+    if( _fbo )
+        return _drawableConfig;
+
+    return _window->getDrawableConfig();
+}
 
 GLEWContext* Channel::glewGetContext()
 {
@@ -195,13 +203,12 @@ bool Channel::configInit( const uint32_t initID )
 }
 
 bool Channel::_configInitFBO()
-{   
-    if ( _drawable == FB_WINDOW )
+{
+    if( _drawable == FB_WINDOW )
         return true;
     
-    if  (  !_window->getOSWindow()  ||
-          !GLEW_ARB_texture_non_power_of_two ||
-          !GLEW_EXT_framebuffer_object )
+    if( !_window->getOSWindow()  ||
+        !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
     {
         setErrorMessage( "Can't use FBO due to missing GL extensions" );
         return false;
@@ -241,6 +248,35 @@ bool Channel::_configInitFBO()
     return false;
 }
 
+void Channel::_initDrawableConfig()
+{
+    _drawableConfig = _window->getDrawableConfig();
+    if( !_fbo )
+        return;
+
+    const util::TextureVector& colors = _fbo->getColorTextures();
+    if( !colors.empty( ))
+    {
+        switch( colors.front()->getType( ))
+        {
+            case GL_FLOAT:
+                _drawableConfig.colorBits = 32;
+                break;
+            case GL_HALF_FLOAT:
+                _drawableConfig.colorBits = 16;
+                break;
+            case GL_UNSIGNED_INT_10_10_10_2:
+                _drawableConfig.colorBits = 10;
+                break;
+
+            default:
+                EQUNIMPLEMENTED;
+            case GL_UNSIGNED_BYTE:
+                _drawableConfig.colorBits = 8;
+                break;
+        }
+    }
+}
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
@@ -436,13 +472,13 @@ void Channel::frameReadback( const uint32_t frameID )
     EQ_GL_CALL( setupAssemblyState( ));
 
     Window::ObjectManager* glObjects = getObjectManager();
+    const DrawableConfig& drawableConfig = getDrawableConfig();
 
     const FrameVector& frames = getOutputFrames();
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         Frame* frame = *i;
-        frame->setColorFormat( _window->getColorFormat( ));
-        frame->startReadback( glObjects );
+        frame->startReadback( glObjects, drawableConfig );
     }
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
@@ -1212,7 +1248,10 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
         reply.maxSize     = _maxSize;
 
         if( reply.result )
+        {
+            _initDrawableConfig();
             _state = STATE_RUNNING;
+        }
     }
     else
         reply.result = false;

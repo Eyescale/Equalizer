@@ -40,9 +40,9 @@ FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
 
     _colors.push_back( new Texture( glewContext ));
 
-    _colors[0]->setFormat( GL_RGBA );
-    _depth.setFormat( GL_DEPTH_COMPONENT );
-    _stencil.setFormat( GL_STENCIL_INDEX );
+    _colors[0]->setInternalFormat( GL_RGBA );
+    _depth.setInternalFormat( GL_DEPTH_COMPONENT );
+    _stencil.setInternalFormat( GL_STENCIL_INDEX );
 }
 
 FrameBufferObject::~FrameBufferObject()
@@ -58,7 +58,7 @@ FrameBufferObject::~FrameBufferObject()
 void FrameBufferObject::setColorFormat( const GLuint format )
 {
     for( size_t i = 0; i < _colors.size(); ++i )
-        _colors[ i ]->setFormat( format );
+        _colors[ i ]->setInternalFormat( format );
 }
 
 bool FrameBufferObject::addColorTexture( )
@@ -70,7 +70,7 @@ bool FrameBufferObject::addColorTexture( )
     }
 
     _colors.push_back( new Texture( _glewContext ));
-    _colors.back()->setFormat( _colors.front()->getFormat( ));
+    _colors.back()->setInternalFormat( _colors.front()->getInternalFormat( ));
 
     _valid = false;
     return true;

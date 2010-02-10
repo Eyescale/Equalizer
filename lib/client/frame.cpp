@@ -123,12 +123,6 @@ void Frame::flush()
         _frameData->flush();
 }
 
-void Frame::setColorFormat( const GLuint colorFormat )
-{
-    if( _frameData )
-        _frameData->setColorFormat( colorFormat );
-}
-
 void Frame::setAlphaUsage( const bool useAlpha )
 {
     if( _frameData )
@@ -141,10 +135,11 @@ void Frame::setQuality( const Frame::Buffer buffer, const float quality )
         _frameData->setQuality( buffer, quality );
 }
 
-void Frame::startReadback( Window::ObjectManager* glObjects ) 
+void Frame::startReadback( Window::ObjectManager* glObjects,
+                           const DrawableConfig& config ) 
 {
     EQASSERT( _frameData );
-    _frameData->startReadback( *this, glObjects );
+    _frameData->startReadback( *this, glObjects, config );
 }
 
 void Frame::syncReadback() 

@@ -39,7 +39,7 @@ bool AccumBufferObject::init( const PixelViewport& pvp,
                               GLuint textureFormat )
 {
     _texture = new Texture( glewGetContext( ));
-    _texture->setFormat( textureFormat );
+    _texture->setInternalFormat( textureFormat );
     _pvp = pvp;
 
     setColorFormat( GL_RGBA32F );

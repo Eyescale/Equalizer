@@ -44,11 +44,11 @@ int main( int argc, char **argv )
     TEST( eq::init( 0, 0, &nodeFactory ));
 
     // 1) 2D assembly test
-    Image* image = frameData->newImage();
+    Image* image = frameData->newImage( Frame::TYPE_MEMORY, DrawableConfig( ));
     TEST( image->readImage( "Image_1_color.rgb", Frame::BUFFER_COLOR ));
-    image = frameData->newImage();
+    image = frameData->newImage( Frame::TYPE_MEMORY, DrawableConfig( ));
     TEST( image->readImage( "Image_2_color.rgb", Frame::BUFFER_COLOR ));
-    image = frameData->newImage();
+    image = frameData->newImage( Frame::TYPE_MEMORY, DrawableConfig( ));
     TEST( image->readImage( "Image_3_color.rgb", Frame::BUFFER_COLOR ));
     
     FrameVector  frames;
@@ -142,11 +142,11 @@ int main( int argc, char **argv )
     frameData->clear();
     frameData->setBuffers( Frame::BUFFER_COLOR );
 
-    image = frameData->newImage();
+    image = frameData->newImage( Frame::TYPE_MEMORY, DrawableConfig( ));
     TEST( image->readImage( "Image_15_color.rgb", Frame::BUFFER_COLOR ));
-    image = frameData->newImage();
+    image = frameData->newImage( Frame::TYPE_MEMORY, DrawableConfig( ));
     TEST( image->readImage( "Image_14_color.rgb", Frame::BUFFER_COLOR ));
-    image = frameData->newImage();
+    image = frameData->newImage( Frame::TYPE_MEMORY, DrawableConfig( ));
     TEST( image->readImage( "Image_13_color.rgb", Frame::BUFFER_COLOR ));
     frames.clear();
     frames.push_back( &frame );

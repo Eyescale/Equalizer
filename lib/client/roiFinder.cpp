@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2009       Maxim Makhinya
+/* Copyright (c) 2009, Maxim Makhinya
+ *               2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -553,9 +554,9 @@ void ROIFinder::_readbackInfo( )
     util::Texture*    texture   = _glObjects->obtainEqTexture( bufferKey );
 
 #ifdef EQ_ROI_USE_DEPTH_TEXTURE
-    texture->setFormat( GL_DEPTH_COMPONENT );
+    texture->setInternalFormat( GL_DEPTH_COMPONENT );
 #else
-    texture->setFormat( GL_RGBA );
+    texture->setInternalFormat( GL_RGBA );
 #endif
 
     texture->copyFromFrameBuffer( pvp );

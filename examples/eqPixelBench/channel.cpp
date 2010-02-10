@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -48,18 +48,22 @@ static EnumMap _enums[] = {
     ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_BYTE ), // initial buffer resize
     ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_BYTE ),
     ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV ),
+    ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_INT_10_10_10_2 ),
     ENUM_MAP_ITEM( GL_RGBA, GL_HALF_FLOAT ),
     ENUM_MAP_ITEM( GL_RGBA, GL_FLOAT ),
     ENUM_MAP_ITEM( GL_BGRA, GL_UNSIGNED_BYTE ),
     ENUM_MAP_ITEM( GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV ),
+    ENUM_MAP_ITEM( GL_BGRA, GL_UNSIGNED_INT_10_10_10_2 ),
     ENUM_MAP_ITEM( GL_BGRA, GL_HALF_FLOAT ),
     ENUM_MAP_ITEM( GL_BGRA, GL_FLOAT ),
     ENUM_MAP_ITEM( GL_RGB,  GL_UNSIGNED_BYTE ),
     ENUM_MAP_ITEM( GL_RGB,  GL_UNSIGNED_INT_8_8_8_8_REV),
+    ENUM_MAP_ITEM( GL_RGB,  GL_UNSIGNED_INT_10_10_10_2 ),
     ENUM_MAP_ITEM( GL_RGB,  GL_HALF_FLOAT ),
     ENUM_MAP_ITEM( GL_RGB,  GL_FLOAT ),
     ENUM_MAP_ITEM( GL_BGR,  GL_UNSIGNED_BYTE ),
     ENUM_MAP_ITEM( GL_BGR,  GL_UNSIGNED_INT_8_8_8_8_REV ),
+    ENUM_MAP_ITEM( GL_BGR,  GL_UNSIGNED_INT_10_10_10_2 ),
     ENUM_MAP_ITEM( GL_BGR,  GL_HALF_FLOAT ),
     ENUM_MAP_ITEM( GL_BGR,  GL_FLOAT ),
     ENUM_MAP_ITEM( GL_DEPTH_COMPONENT, GL_FLOAT ),
@@ -77,7 +81,7 @@ Channel::Channel( eq::Window* parent )
     _frame.setData( frameData );
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
-        frameData->newImage();
+        frameData->newImage( eq::Frame::TYPE_MEMORY, getDrawableConfig( ));
 }
 
 void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
@@ -226,7 +230,7 @@ void Channel::_testFormats()
         op.offset  = offset;
 
         clock.reset();
-        eq::Compositor::assembleImage( image, op );
+            eq::Compositor::assembleImage( image, op );
         event.msec = clock.getTimef();
 
         error = glGetError();

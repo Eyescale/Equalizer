@@ -162,7 +162,7 @@ void Image::setFormat( const Frame::Buffer buffer, const uint32_t format )
     memory.state = Memory::INVALID;
     allocCompressor( buffer, 0 );
 
-    _getAttachment( buffer ).texture.setFormat( format );
+    _getAttachment( buffer ).texture.setInternalFormat( format );
 }
 
 void Image::setType( const Frame::Buffer buffer, const uint32_t type )
@@ -508,8 +508,8 @@ void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
         const size_t size = getPixelDataSize( buffer );
 
         memory.resize( size );
-        glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
-                      getType( buffer ), memory.pixels.getData() );
+        glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, memory.format,
+                      memory.type, memory.pixels.getData() );
         memory.state = Memory::VALID;
         return;
     }
@@ -558,7 +558,7 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     const void* bufferKey = _getBufferKey( buffer );
     util::Texture* texture = _glObjects->obtainEqTexture( bufferKey );
 
-    texture->setFormat( getInternalTextureFormat( buffer ));
+    texture->setInternalFormat( getInternalTextureFormat( buffer ));
     texture->copyFromFrameBuffer( _pvp );
 
     // draw zoomed quad into FBO

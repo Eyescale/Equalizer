@@ -129,6 +129,9 @@ namespace util
         /** @return the window's object manager instance. @version 1.0 */
         EQ_EXPORT Window::ObjectManager* getObjectManager();
 
+        /** @return the channel's drawable config. @version 1.0 */
+        EQ_EXPORT const DrawableConfig& getDrawableConfig() const;
+
         /** 
          * Return the set of tasks this channel might execute in the worst case.
          * 
@@ -676,15 +679,18 @@ namespace util
         Window* const _window;
         friend class Window;
 
+        /** The name. */
+        std::string    _name;
+
         /** The native render context parameters of this channel. */
         RenderContext _nativeContext;
 
         /** The rendering parameters for the current operation. */
         RenderContext* _context;
-            
-        /** The name. */
-        std::string    _name;
-        
+
+        /** The channel's drawable config (FBO). */
+        DrawableConfig _drawableConfig;
+
         /** A unique color assigned by the server during config init. */
         Vector3ub _color;
 
@@ -765,6 +771,9 @@ namespace util
 
         /** Initialize the FBO */
         bool _configInitFBO();
+
+        /** Initialize the channel's drawable config. */
+        void _initDrawableConfig();
 
         virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
         virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }

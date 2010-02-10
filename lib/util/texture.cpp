@@ -66,7 +66,7 @@ void Texture::setTarget( const GLenum target )
     _target = target;
 }
 
-void Texture::setFormat( const GLuint format )
+void Texture::setInternalFormat( const GLuint format )
 {
     if( _internalFormat == format )
         return;
@@ -185,13 +185,13 @@ void Texture::upload( const Image* image, const Frame::Buffer which )
 {
     CHECK_THREAD( _thread );
 
-    setFormat( image->getInternalTextureFormat( which ));
+    setInternalFormat( image->getInternalTextureFormat( which ));
     EQASSERT( _internalFormat != 0 );
 
     const eq::PixelViewport& pvp = image->getPixelViewport();
 
-    _format = image->getFormat( which );
-    _type = image->getType( which );
+    EQASSERT( _format == image->getFormat( which ));
+    EQASSERT( _type = image->getType( which ));
 
     upload( pvp.w, pvp.h, ( void* )image->getPixelPointer( which ));
 }
@@ -215,8 +215,7 @@ void Texture::download( void* buffer, const uint32_t format,
     CHECK_THREAD( _thread );
     EQASSERT( _defined );
     EQ_GL_CALL( glBindTexture( _target, _id ));
-    EQ_GL_CALL( glGetTexImage( _target, 0,
-                               format, type, buffer ));
+    EQ_GL_CALL( glGetTexImage( _target, 0, format, type, buffer ));
 }
 
 void Texture::download( void* buffer ) const
@@ -240,10 +239,9 @@ void Texture::bindToFBO( const GLenum target, const int width,
     _generate();
 
     glBindTexture( _target, _id );
-    glTexImage2D( _target, 0, _internalFormat, width, height,
-                  0, _format, _type, 0 );
-    glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, _target,
-                               _id, 0 );
+    glTexImage2D( _target, 0, _internalFormat, width, height, 0,
+                  _format, _type, 0 );
+    glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, _target, _id, 0 );
 
     _width = width;
     _height = height;
@@ -267,8 +265,8 @@ void Texture::resize( const int width, const int height )
     }
 
     glBindTexture( _target, _id );
-    glTexImage2D( _target, 0, _internalFormat, width, height,
-                  0, _format, _type, 0 );
+    glTexImage2D( _target, 0, _internalFormat, width, height, 0,
+                  _format, _type, 0 );
 
     _width  = width;
     _height = height;
@@ -281,13 +279,13 @@ void Texture::writeTexture( const std::string& filename,
 {
     eq::Image* image = new eq::Image();
 
+    image->setFormat( buffer, _format );
     image->setType( buffer, _type );
-    image->setFormat( buffer, getFormat( ));
 
     image->setPixelViewport( pvp );
     image->validatePixelData( buffer );
 
-    download( image->getPixelPointer( buffer ), getFormat(), _type );
+    download( image->getPixelPointer( buffer ));
 
     image->writeImage( filename + ".rgb", buffer );
 

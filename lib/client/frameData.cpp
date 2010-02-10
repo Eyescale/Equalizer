@@ -41,8 +41,7 @@ using eq::net::CommandFunc;
 namespace eq
 {
 FrameData::FrameData() 
-        : _colorFormat( GL_RGBA )
-        , _useAlpha( true )
+        : _useAlpha( true )
         , _useSendToken( false )
         , _colorQuality( 1.f )
         , _depthQuality( 1.f )
@@ -146,14 +145,16 @@ void FrameData::flush()
     _imageCache.clear();
 }
 
-Image* FrameData::newImage( const eq::Frame::Type type )
+Image* FrameData::newImage( const eq::Frame::Type type,
+                            const DrawableConfig& config )
 {
-    Image* image = _allocImage( type );
+    Image* image = _allocImage( type, config );
     _images.push_back( image );
     return image;
 }
 
-Image* FrameData::_allocImage( const eq::Frame::Type type )
+Image* FrameData::_allocImage( const eq::Frame::Type type,
+                               const DrawableConfig& config )
 {
     Image* image;
     _imageCacheLock.set();
@@ -162,9 +163,6 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
     {
         _imageCacheLock.unset();
         image = new Image;
-
-        image->setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
-        image->setType( Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
     }
     else
     {
@@ -175,23 +173,29 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
         image->reset();
     }
 
+    _useAlpha ? image->enableAlphaUsage() : image->disableAlphaUsage();
+
     image->setStorageType( type );
     image->setQuality( Frame::BUFFER_COLOR, _colorQuality );
     image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
-    _useAlpha ? image->enableAlphaUsage() : image->disableAlphaUsage();
+    image->setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
+    image->setType( Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
 
     if( type == Frame::TYPE_TEXTURE )
         image->setFormat( Frame::BUFFER_COLOR, GL_RGBA );
     else
         image->setFormat( Frame::BUFFER_COLOR, GL_BGRA );
 
-    switch( _colorFormat )
+    switch( config.colorBits )
     {
-        case GL_RGBA16F:  
+        case 16:  
             image->setType( Frame::BUFFER_COLOR, GL_HALF_FLOAT );
             break;
-        case GL_RGBA32F:  
+        case 32:  
             image->setType( Frame::BUFFER_COLOR, GL_FLOAT );
+            break;
+        case 10:
+            image->setType( Frame::BUFFER_COLOR, GL_UNSIGNED_INT_10_10_10_2 );
             break;
         default:
             image->setType( Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
@@ -202,7 +206,8 @@ Image* FrameData::_allocImage( const eq::Frame::Type type )
 
 
 void FrameData::startReadback( const Frame& frame,
-                               Window::ObjectManager* glObjects )
+                               Window::ObjectManager* glObjects,
+                               const DrawableConfig& config  )
 {
     if( _data.buffers == Frame::BUFFER_NONE )
         return;
@@ -233,7 +238,7 @@ void FrameData::startReadback( const Frame& frame,
         PixelViewport pvp = pvps[ i ];
         pvp.intersect( absPVP );
                 
-        Image* image = newImage( _data.frameType );
+        Image* image = newImage( _data.frameType, config );
         image->startReadback( _data.buffers, pvp, zoom, glObjects );
         image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
     }
@@ -506,7 +511,7 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
     FrameDataStatistics event( Statistic::FRAME_RECEIVE, this, 
                                packet->frameNumber );
 
-    Image*   image = _allocImage( Frame::TYPE_MEMORY );
+    Image*   image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig( ));
     // Note on the const_cast: since the PixelData structure stores non-const
     // pointers, we have to go non-const at some point, even though we do not
     // modify the data.

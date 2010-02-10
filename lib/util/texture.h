@@ -53,11 +53,17 @@ namespace util
         /** @return the target of the texture. */
         GLenum getTarget() const { return _target; }
 
-        /** Set the internal format of the texture. */
-        EQ_EXPORT void setFormat( const GLuint format );
+        /** Set the internal pixel format of the texture, e.g., GL_RGBA16F. */
+        EQ_EXPORT void setInternalFormat( const GLuint format );
 
-        /** @return the internal format of the texture. */
-        GLuint getFormat() const { return _internalFormat; }
+        /** @return the pixel format of the texture. */
+        GLuint getInternalFormat() const { return _internalFormat; }
+
+        /** @return the data format of the texture, e.g., GL_RGBA. */
+        GLuint getFormat() const { return _format; }
+
+        /** @return the data type of the texture, e.g., GL_HALF_FLOAT. */
+        GLuint getType() const { return _type; }
 
         /** 
          * Copy the specified area from the current read buffer to the
@@ -110,10 +116,10 @@ namespace util
         /** the target of the texture. */
         GLenum _target;
 
-        /** The GL internal texture format. */
+        /** The GL pixel format (format+type). */
         GLuint _internalFormat;
 
-        /** texture format, complementary to internal texture format */
+        /** texture data format, complementary to pixel texture format */
         GLuint _format;
 
         /** texture data type */

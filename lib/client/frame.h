@@ -135,8 +135,10 @@ namespace server
          * The images are added to the frame, existing images are retained.
          *
          * @param glObjects the GL object manager for the current GL context.
+         * @param config the configuration of the source frame buffer.
          */
-        EQ_EXPORT void startReadback( Window::ObjectManager* glObjects );
+        EQ_EXPORT void startReadback( Window::ObjectManager* glObjects,
+                                      const DrawableConfig& config );
         
         /** Synchronize the image readback. */
         EQ_EXPORT void syncReadback();
@@ -197,9 +199,6 @@ namespace server
          * @param buffer the buffer to disable.
          */
         EQ_EXPORT void disableBuffer( const Buffer buffer );
-
-        /** Set color buffer type to read */
-        EQ_EXPORT void setColorFormat( const GLuint colorFormat );
 
         /** Enable/disable alpha usage for newly allocated images. */
         EQ_EXPORT void setAlphaUsage( const bool useAlpha );
