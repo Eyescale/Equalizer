@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,6 +21,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/log.h>
+#include <eq/base/sleep.h>
 
 #include <limits>
 #include <sstream>
@@ -33,6 +34,7 @@
 #  ifndef WSA_FLAG_SDP
 #    define WSA_FLAG_SDP 0x40
 #  endif
+#  define EQTIMER_WSA_IO_PENDING 250
 #else
 #  include <arpa/inet.h>
 #  include <netdb.h>
@@ -387,26 +389,59 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
 
     DWORD got   = 0;
     DWORD flags = 0;
-    if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
+    DWORD startTime = 0;
+
+    while( true )
     {
-        if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
-            return 0;
+        if( WSAGetOverlappedResult(_readFD, &_overlapped, &got, TRUE, &flags ))
+            return got;
 
-        EQWARN << "Read complete failed: " << base::sysError 
-               << ", closing connection" << std::endl;
-        close();
-        return -1;
+        const int err = WSAGetLastError();
+        if( err != ERROR_SUCCESS )
+            EQWARN << "got " << got << " bytes, " << base::sysError
+                   << std::endl;
+
+        switch( err )
+        {
+            case WSASYSCALLFAILURE:  // happens sometimes!?
+                return got;
+
+            case WSA_IO_PENDING:
+                if( got > 0 ) // continue and ignore the pending message
+                    return got;
+
+                if( startTime == 0)
+                    startTime = GetTickCount();
+                else
+                {
+                    EQWARN << "WSAGetOverlappedResult loop WSA_IO_PENDING"
+                           << std::endl;
+                    base::sleep( 1 ); // one millisecond to recover
+                
+                    //timeout   
+                    if( GetTickCount() - startTime > EQTIMER_WSA_IO_PENDING )
+                    {
+                        EQWARN << "got timeout " << std::endl;
+                        return -1;
+                    }
+                }
+                break;
+
+            case ERROR_INVALID_HANDLE:
+                EQWARN << "Got " << base::sysError << ", closing connection"
+                       << std::endl;
+                close();
+                return -1;
+
+            case ERROR_SUCCESS:
+                return got;
+
+            default:
+                EQWARN << "unknown error " << base::sysError << std::endl;
+                close();
+                return -1;
+        }
     }
-
-    if( got == 0 )
-    {
-        EQWARN << "Read operation returned with nothing read"
-               << ", closing connection." << std::endl;
-        close();
-        return -1;
-    }
-
-    return got;
 }
 
 int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
