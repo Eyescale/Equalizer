@@ -22,7 +22,7 @@
 
  Start all render clients with the options: '-- --eq-client --eq-listen
  IP:port'. Add the following line to each node in your configuration:
- 'connection{ hostname "IP" port <port>'. Start the server, start the
+ 'connection{ hostname "<IP>" port <port>}'. Start the server, start the
  application. The server will try, hopefully successfully, to contact
  the already-running render clients on the configured IP and port.
 
@@ -41,9 +41,10 @@
 
                 3. Single-machine, multi-process configs
 
- You can use 'EQ_NODE_SATTR_LAUNCH_COMMAND "%c"' as your node launch
- string. This will directly launch the render client executable on the
- local machine, ignoring any eventually configured hostnames.
+ You can use 'EQ_NODE_SATTR_LAUNCH_COMMAND "%c"' in the config file
+ globals as your node launch string. This will directly launch the
+ render client executable on the local machine, ignoring any configured
+ hostnames.
 
 
                                Packaging
