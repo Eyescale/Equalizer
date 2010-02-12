@@ -30,13 +30,13 @@
                  2. Install a remote execution service
  
  Remote launching has been tested using ssh with the cygwin OpenSSH
- port. Depending on your auto-launch command, you need to adapt the
- launch command quotes of all nodes. The following caveats have been
- observed:
+ port. The following caveats have been observed:
 
  o You'll need to add <InstPath>/bin manually to your Path variable
  o Open Computer Management->Services->CYGWIN sshd->Properties->Log On and
    activate 'Allow service to interact with the desktop'
+ o Change the node's launch command, and potentially launch command
+   quote character, in your config file
 
 
                 3. Single-machine, multi-process configs
