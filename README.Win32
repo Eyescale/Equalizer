@@ -7,15 +7,43 @@
  The Visual Studio solution and project files are in the VS2005 directory.
 
 
-                            Remote Launching
+                       Multi-Node Configurations
 
+ Multi-node configurations are not straight-forward to set up under
+ Windows, due to the lack of a standard remote execution service. The
+ following options are possible:
+
+ 1) Pre-launching all render clients
+ 2) Installing a remote execution service
+ 3) Single-machine, multi-process configs
+
+
+                    1. Pre-launching render clients
+
+ Start all render clients with the options: '-- --eq-client --eq-listen
+ IP:port'. Add the following line to each node in your configuration:
+ 'connection{ hostname "IP" port <port>'. Start the server, start the
+ application. The server will try, hopefully successfully, to contact
+ the already-running render clients on the configured IP and port.
+
+
+                 2. Install a remote execution service
+ 
  Remote launching has been tested using ssh with the cygwin OpenSSH
  port. Depending on your auto-launch command, you need to adapt the
- launch command quotes. The following caveats have been observed:
+ launch command quotes of all nodes. The following caveats have been
+ observed:
 
  o You'll need to add <InstPath>/bin manually to your Path variable
  o Open Computer Management->Services->CYGWIN sshd->Properties->Log On and
    activate 'Allow service to interact with the desktop'
+
+
+                3. Single-machine, multi-process configs
+
+ You can use 'EQ_NODE_SATTR_LAUNCH_COMMAND "%c"' as your node launch
+ string. This will directly launch the render client executable on the
+ local machine, ignoring any eventually configured hostnames.
 
 
                                Packaging
