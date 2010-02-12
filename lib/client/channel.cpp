@@ -757,19 +757,19 @@ static Vector2f* _lookupJitterTable( const uint32_t size )
     switch( size )
     {
         case 2:
-            return j2;
+            return Jitter::j2;
         case 3:
-            return j3;
+            return Jitter::j3;
         case 4:
-            return j4;
+            return Jitter::j4;
         case 8:
-            return j8;
+            return Jitter::j8;
         case 15:
-            return j15;
+            return Jitter::j15;
         case 24:
-            return j24;
+            return Jitter::j24;
         case 66:
-            return j66;
+            return Jitter::j66;
         default:
             break;
     }

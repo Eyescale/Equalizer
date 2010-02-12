@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -13,9 +13,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- 
- 
-   Various event-related definitions.
 */
 
 #ifndef EQ_EVENT_H
@@ -95,26 +92,26 @@ namespace eq
         PTR_BUTTON5     = EQ_BIT5
     };
 
-    /** Event for a resized entitity (Window, Channel, View). */
+    /** Event for a size or position change on a Window, Channel or View. */
     struct ResizeEvent
     {
-        int32_t x; //<! relative to parent
-        int32_t y;
-        int32_t w;
-        int32_t h;
-        float dw;  //<! view only: relative to baseline
-        float dh;
+        int32_t x; //!< new X position, relative to parent
+        int32_t y; //!< new Y position, relative to parent
+        int32_t w; //!< new width
+        int32_t h; //!< new height
+        float dw;  //!< view only: new width relative to initial width
+        float dh;  //!< view only: new height relative to initial height
     };
 
-    /** Event for a pointer motion or click. */
+    /** Event for a pointer (mouse) motion or click. */
     struct PointerEvent
     {
-        int32_t x;             //<! relative to entity (window)
-        int32_t y;
-        int32_t dx;
-        int32_t dy;
-        uint32_t buttons;      //<! current state of all buttons
-        uint32_t button;       //<! fired button
+        int32_t x;             //!< X position relative to entity
+        int32_t y;             //!< Y position relative to entity
+        int32_t dx;            //!< X position change since last event
+        int32_t dy;            //!< Y position change since last event
+        uint32_t buttons;      //!< current state of all buttons
+        uint32_t button;       //!< fired button
     };
 
     /** Event for a key press. */

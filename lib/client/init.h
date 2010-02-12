@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -102,7 +102,7 @@ namespace eq
      * @param argv the command line argument values.
      * @param nodeFactory the factory for allocating Equalizer objects.
      *
-     * @return <code>true</code> if the library was successfully initialised,
+     * @return <code>true</code> if the library was successfully initialized,
      *         <code>false</code> otherwise.
      */
     EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory);
@@ -110,7 +110,7 @@ namespace eq
     /**
      * Deinitialize the Equalizer client library.
      *
-     * @return <code>true</code> if the library was successfully de-initialised,
+     * @return <code>true</code> if the library was successfully de-initialized,
      *         <code>false</code> otherwise.
      */
     EQ_EXPORT bool exit();
@@ -135,5 +135,5 @@ namespace eq
     EQ_EXPORT void releaseConfig( Config* config );
 }
 
-#endif // EQNET_INIT_H
+#endif // EQ_INIT_H
 

@@ -26,6 +26,7 @@ namespace eq
 
     /**
      * A visitor to traverse canvases and children.
+     * @sa Canvas::accept()
      */
     class CanvasVisitor : public SegmentVisitor
     {
@@ -40,15 +41,15 @@ namespace eq
         virtual VisitorResult visitPre( Canvas* canvas )
             { return visitPre( static_cast< const Canvas* >( canvas )); }
 
-        /** Visit a canvas on the up traversal. */
+        /** Visit a canvas on the up traversal. @version 1.0 */
         virtual VisitorResult visitPost( Canvas* canvas )
             { return visitPost( static_cast< const Canvas* >( canvas )); }
 
-        /** Visit a canvas on the down traversal. */
+        /** Visit a canvas on the down traversal. @version 1.0 */
         virtual VisitorResult visitPre( const Canvas* canvas )
             { return TRAVERSE_CONTINUE; }
 
-        /** Visit a canvas on the up traversal. */
+        /** Visit a canvas on the up traversal. @version 1.0 */
         virtual VisitorResult visitPost( const Canvas* canvas )
             { return TRAVERSE_CONTINUE; }
     };

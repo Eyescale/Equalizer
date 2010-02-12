@@ -245,6 +245,7 @@ CXXFILES = \
 	client/pixel.cpp \
 	client/image.cpp \
 	client/init.cpp \
+	client/jitter.cpp \
 	client/layout.cpp \
 	client/node.cpp \
 	client/nodeFactory.cpp \

@@ -117,6 +117,7 @@ namespace server
             DIRTY_CHILDREN   = Frustum::DIRTY_CUSTOM << 1,
             DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 2,
             DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 3,
+            /** First usable dirty bit for sub-classes of a canvas. */
             DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4
         };
 

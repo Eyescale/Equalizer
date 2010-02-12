@@ -61,9 +61,16 @@ namespace eq
         /** Destruct the AGL window. @version 1.0 */
         EQ_EXPORT virtual ~AGLWindow();
 
+        /** @version 1.0 */
         EQ_EXPORT virtual void configExit( );
+
+        /** @version 1.0 */
         EQ_EXPORT virtual void makeCurrent() const;
+
+        /** @version 1.0 */
         EQ_EXPORT virtual void swapBuffers();
+
+        /** Not implemented for AGL. @version 1.0 */
         EQ_EXPORT virtual void joinNVSwapBarrier( const uint32_t group,
                                                   const uint32_t barrier );
 
@@ -219,8 +226,9 @@ namespace eq
          * @version 1.0
          */
         EQ_EXPORT virtual void exitEventHandler();
-       //@}
+        //@}
 
+        /** @version 1.0 */
         EQ_EXPORT virtual bool processEvent( const AGLWindowEvent& event );
 
     private:

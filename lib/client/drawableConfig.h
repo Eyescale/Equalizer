@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,13 +24,13 @@
 
 namespace eq
 {
-    /** Stores characteristics of an OpenGL drawable. */
+    /** Stores the characteristics of a window's frame buffer configuration. */
     struct DrawableConfig
     {
-        int32_t stencilBits;    //!< No of stencil bits
-        int32_t colorBits;      //!< No of bits per color component
-        int32_t alphaBits;      //!< No of alpha bits
-        int32_t accumBits;      //!< No of accum bits
+        int32_t stencilBits;    //!< Number of stencil bits
+        int32_t colorBits;      //!< Number of bits per color component
+        int32_t alphaBits;      //!< Number of alpha bits
+        int32_t accumBits;      //!< Number of accumulation bits
         float   glVersion;      //!< OpenGL version
         bool    stereo;         //!< Active stereo supported
         bool    doublebuffered; //!< Doublebuffering supported

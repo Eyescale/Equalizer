@@ -94,13 +94,13 @@ namespace eq
          */
         EQ_EXPORT virtual bool clientLoop();
 
-        /** Reimplemented to also call eq::exit() on render clients. */
+        /** Reimplemented to also call eq::exit() on render clients. @internal*/
         EQ_EXPORT virtual bool exitClient();
 
-        /** @sa net::Node::listen() */
+        /** @internal */
         EQ_EXPORT virtual bool listen();
 
-        /** @sa net::Node::close() */
+        /** @internal */
         EQ_EXPORT virtual bool close();
 
     private:

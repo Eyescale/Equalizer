@@ -1,9 +1,9 @@
-Fix test run on slow machines.
+Doxygen improvements
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

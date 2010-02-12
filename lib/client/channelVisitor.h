@@ -24,7 +24,7 @@ namespace eq
 {
     class Channel;
 
-    /** A visitor to traverse channels. */
+    /** A visitor to traverse channels. @sa Channel::accept() */
     class ChannelVisitor
     {
     public:
@@ -38,7 +38,7 @@ namespace eq
         virtual VisitorResult visit( Channel* channel )
             { return visit( static_cast< const Channel* >( channel )); }
 
-        /** Visit a channel during a const traversal. */
+        /** Visit a channel during a const traversal. @version 1.0 */
         virtual VisitorResult visit( const Channel* channel )
             { return TRAVERSE_CONTINUE; }
     };

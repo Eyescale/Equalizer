@@ -24,7 +24,7 @@ namespace eq
 {
     class Channel;
 
-    /** Holds one channel statistics event. */
+    /** Samples one channel statistics event. */
     class ChannelStatistics : public StatisticSampler< Channel >
     {
     public:

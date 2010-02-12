@@ -30,8 +30,8 @@ namespace eq
      * The event handler for AGL windows.
      *
      * Any implementation of the AGLWindowIF can instantiate this event handler,
-     * which translates each received Carbon event to an AGLWindowEvent and
-     * dispatches it to the correct AGLWindowIF::processEvent.
+     * which registers for Carbon events, translates each received event to an
+     * AGLWindowEvent and dispatches it to AGLWindowIF::processEvent.
      */
     class AGLEventHandler : public EventHandler
     {

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,13 +24,20 @@ namespace eq
 {
     class Config;
 
-    /**
-     * Holds one statistics event, used for profiling.
-     */
+    /** Samples one Config statistics event. */
     class ConfigStatistics : public StatisticSampler< Config >
     {
     public:
+        /**
+         * Construct a statistics sampler and sample the start time.
+         * @version 1.0
+         */
         ConfigStatistics( const Statistic::Type type, Config* config );
+
+        /**
+         * Destruct the sampler, sample the end time and send the event.
+         * @version 1.0
+         */
         virtual ~ConfigStatistics();
     };
 }

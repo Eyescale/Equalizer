@@ -27,32 +27,32 @@ namespace eq
 {
     class Config;
 
-    /** A visitor to traverse configs and children. */
+    /** A visitor to traverse configs and all children. @sa Config::accept() */
     class ConfigVisitor : public NodeVisitor, 
                           public ObserverVisitor,
                           public LayoutVisitor,
                           public CanvasVisitor
     {
     public:
-        /** Constructs a new ConfigVisitor. */
+        /** Construct a new config visitor. @version 1.0 */
         ConfigVisitor(){}
         
-        /** Destruct the ConfigVisitor */
+        /** Destruct this config visitor. @version 1.0 */
         virtual ~ConfigVisitor(){}
 
-        /** Visit a config on the down traversal. */
+        /** Visit a config on the down traversal. @version 1.0 */
         virtual VisitorResult visitPre( Config* config )
             { return visitPre( static_cast< const Config* >( config )); }
 
-        /** Visit a config on the up traversal. */
+        /** Visit a config on the up traversal. @version 1.0 */
         virtual VisitorResult visitPost( Config* config )
             { return visitPost( static_cast< const Config* >( config )); }
 
-        /** Visit a config on the down traversal. */
+        /** Visit a config on the down traversal. @version 1.0 */
         virtual VisitorResult visitPre( const Config* config )
             { return TRAVERSE_CONTINUE; }
 
-        /** Visit a config on the up traversal. */
+        /** Visit a config on the up traversal. @version 1.0 */
         virtual VisitorResult visitPost( const Config* config )
             { return TRAVERSE_CONTINUE; }
     };

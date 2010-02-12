@@ -50,7 +50,7 @@ namespace eq
                 size    = sizeof( ConfigEvent );
             }
         
-        Event data; //!< the event data @version 1.0
+        Event data; //!< the Event @version 1.0
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

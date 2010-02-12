@@ -152,7 +152,7 @@ namespace util
          */
         EQ_EXPORT VisitorResult accept( ChannelVisitor& visitor );
 
-        /** Const-version of accept(). */
+        /** Const-version of accept(). @version 1.0 */
         EQ_EXPORT VisitorResult accept( ChannelVisitor& visitor ) const;
 
         /** 
@@ -200,7 +200,7 @@ namespace util
          * 
          * The data returned by these methods depends on the context (callback)
          * they are called from, typically the data for the current rendering
-         * task. If they are called outside of a frameFoo task method, they
+         * task. If they are called outside of a frame task method, they
          * return the channel's native parameter, e.g., a placeholder value for
          * the task decomposition parameters.
          */
@@ -610,7 +610,7 @@ namespace util
         EQ_EXPORT virtual void frameDraw( const uint32_t frameID );
 
         /** 
-         * Assemble input frames.
+         * Assemble all input frames.
          * 
          * Called 0 to n times during one frame.
          * 
@@ -621,7 +621,7 @@ namespace util
         EQ_EXPORT virtual void frameAssemble( const uint32_t frameID );
 
         /** 
-         * Read back the rendered frame buffer.
+         * Read back the rendered frame buffer into all output frames.
          * 
          * Called 0 to n times during one frame.
          * 
@@ -648,7 +648,7 @@ namespace util
          *
          * Called once on each destination channel, e.g., channels which are
          * defined by a view/segment intersection, before frameFinish to update
-         * a part of a display.
+         * a part of a view.
          * 
          * This is typically used to do operations on the output channel after
          * it has been fully updated, e.g., to draw a 2D overlay.

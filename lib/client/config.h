@@ -36,7 +36,7 @@ namespace eq
     struct ConfigEvent;
 
     /**
-     * A configuration is one visualization session driven by an application.
+     * A configuration is a visualization session driven by an application.
      *
      * The application Client can choose a configuration from a Server. The
      * Config will be instantiated though the NodeFactory. The Config groups all
@@ -96,6 +96,8 @@ namespace eq
          *
          * The config has to be running. Pending rendering frames are finished
          * by this method, making it relatively expensive.
+         *
+         * @warning Experimental - may not be supported in the future
          */
         EQ_EXPORT void changeLatency( const uint32_t latency );
 
@@ -135,7 +137,7 @@ namespace eq
          */
         EQ_EXPORT VisitorResult accept( ConfigVisitor& visitor );
 
-        /** Const-version of accept(). */
+        /** Const-version of accept(). @version 1.0 */
         EQ_EXPORT VisitorResult accept( ConfigVisitor& visitor ) const;
 
         /** Get all received statistics. @internal */
@@ -143,7 +145,7 @@ namespace eq
 
         /**
          * @return true while the config is initialized and no exit event
-         *         happened.
+         *         has happened.
          * @version 1.0
          */
         bool isRunning() const { return _running; }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,13 +23,14 @@
 
 namespace eq
 {
-    /** Parameters for choosing and running a configuration */
-    class EQ_EXPORT ConfigParams
+    /** Parameters for running a configuration. @sa Server::chooseConfig() */
+    class ConfigParams
     {
     public:
-        /** Constructor */
-        ConfigParams();
-        /** Destructor. */
+        /** Construct new configuration parameters. @version 1.0 */
+        EQ_EXPORT ConfigParams();
+
+        /** Destruct this configuration parameters. @version 1.0 */
         ~ConfigParams(){}
         
         /** @name Data Access. */
@@ -37,24 +38,29 @@ namespace eq
         /**
          * Set the name of the render client executable.
          *
-         * The default value is the program name, i.e., the filename part of
-         * argv[0].
+         * The default value is the program name retrieved from
+         * net::Global::getProgramName(), i.e., the filename part of argv[0].
+         * @version 1.0
          */
-        void setRenderClient( const std::string& renderClient );
+        EQ_EXPORT void setRenderClient( const std::string& renderClient );
 
-        /** @return the name of the render client executable. */
-        const std::string& getRenderClient() const;
+        /** @return the name of the render client executable. @version 1.0 */
+        EQ_EXPORT const std::string& getRenderClient() const;
 
         /**
          * Set the directory from which to launch the render client.
          *
-         * The default value is the program directory, i.e., the directory part
-         * of argv[0].
+         * The default value is the program directory retrieved from
+         * net::Global::getWorkDir(), i.e., the directory part of argv[0].
+         * @version 1.0
          */
-        void setWorkDir( const std::string& workDir );
+        EQ_EXPORT void setWorkDir( const std::string& workDir );
 
-        /** @return the directory from which to launch the render client. */
-        const std::string& getWorkDir() const;
+        /** 
+         * @return the directory from which to launch the render client.
+         * @version 1.0
+         */
+        EQ_EXPORT const std::string& getWorkDir() const;
         //@}
 
     private:
