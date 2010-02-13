@@ -114,34 +114,48 @@ namespace eq
         uint32_t button;       //!< fired button
     };
 
-    /** Event for a key press. */
+    /** Event for a key press or release. */
     struct KeyEvent
     {
-        uint32_t key; // KC_? for special keys, ascii code otherwise
+        uint32_t key; //!<  KeyCode for special keys, ascii code otherwise
         // TODO modifier state
     };
 
-    /** Event for a SpaceMouse movement or click. */
+    /** 
+     * Event for a SpaceMouse movement or click.
+     * @warning experimental - may not be supported in the future.
+     */
     struct MagellanEvent
     {
-        uint32_t button;       //<! fired button
-        uint32_t buttons;      //<! current state of all buttons
-        int16_t xAxis;
-        int16_t yAxis;
-        int16_t zAxis;
-        int16_t xRotation;
-        int16_t yRotation;
-        int16_t zRotation;
+        uint32_t button;       //!< fired button
+        uint32_t buttons;      //!< current state of all buttons
+        int16_t xAxis;         //!< X translation
+        int16_t yAxis;         //!< Y translation         
+        int16_t zAxis;         //!< Z translation
+        int16_t xRotation;     //!< X rotation
+        int16_t yRotation;     //!< Y rotation
+        int16_t zRotation;     //!< Z rotation
     };
 
 #   define EQ_USER_EVENT_SIZE 64
-    /** User-defined event. */
+    /**
+     * User-defined event.
+     *
+     * See the eqPixelBench example on how to use user-defined events.
+     */
     struct UserEvent
     {
-        char data[ EQ_USER_EVENT_SIZE ];
+        char data[ EQ_USER_EVENT_SIZE ]; //!< Application-specific data
     };
 
-    /** Event structure to report window system and internal events. */
+    /**
+     * Event structure to report window system and other events.
+     *
+     * Depending on the Event::Type, the corresponding specific event data is
+     * filled into the anonymous union. The originator typically contains the
+     * net::Object identifier of the entity emitting the event. The rendering
+     * context is only set for pointer events.
+     */
     struct Event
     {
         /** Construct a new event. */
@@ -169,7 +183,7 @@ namespace eq
             EXIT,                 //!< Exit request due to runtime error
             MAGELLAN_AXIS,        //!< SpaceMouse movement data in magellan
             MAGELLAN_BUTTON,      //!< SpaceMouse button data in magellan
-            UNKNOWN,
+            UNKNOWN,              //!< Event type not known by the event handler
             FILL1,  // some buffer for binary-compatible patches
             FILL2,
             FILL3,

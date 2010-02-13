@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,18 +26,16 @@ namespace eq
     class Pipe;
     class Window;
 
-    /**
-     * Base class for window system-specific event handlers
-     */
+    /** Base class for window system-specific event handlers */
     class EventHandler
     {
     public:
 
     protected:
-        /** Constructs a new event handler. */
+        /** Construct a new event handler. @version 1.0 */
         EQ_EXPORT EventHandler() : _lastEventWindow( 0 ) {}
 
-        /** Destructs the event handler. */
+        /** Destruct the event handler. */
         EQ_EXPORT virtual ~EventHandler(){}
 
         /** Compute the mouse move delta from the previous pointer event. */

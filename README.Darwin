@@ -4,10 +4,17 @@
  Equalizer is developed on the latest OS X version, at the time of
  writing 10.6.2. Other versions may work, but are not tested.
 
+
 Prerequisites:
 
  X11SDK: Equalizer uses X11. The X11SDK packages is shipped with Mac OS X,
    but not installed by default.
+
+ boost (optional, not yet needed): RSP, the protocol used for multicast data
+   distribution, requires boost::asio. The preferred way is to install
+   MaxPorts[1], add '+universal' to /opt/local/etc/macports/variants.conf
+   and to 'sudo port install boost'.
+
 
 Universal Binary Notes
 
@@ -21,3 +28,5 @@ Universal Binary Notes
  crash. Installing the latest X11.app from
  <http://trac.macosforge.org/projects/xquartz> solves this issue
  (the version tested was 2.3.2.1).
+
+[1] http://www.macports.org/

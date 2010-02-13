@@ -31,19 +31,19 @@
     <allmemberslink visible="yes"/>
     <memberdecl>
       <nestedclasses visible="yes" title=""/>
-      <publictypes title=""/>
       <publicslots title=""/>
       <signals title=""/>
       <publicmethods title=""/>
       <publicstaticmethods title=""/>
       <publicattributes title=""/>
       <publicstaticattributes title=""/>
-      <protectedtypes title=""/>
+      <publictypes title=""/>
       <protectedslots title=""/>
       <protectedmethods title=""/>
       <protectedstaticmethods title=""/>
       <protectedattributes title=""/>
       <protectedstaticattributes title=""/>
+      <protectedtypes title=""/>
       <packagetypes title=""/>
       <packagemethods title=""/>
       <packagestaticmethods title=""/>
@@ -51,12 +51,12 @@
       <packagestaticattributes title=""/>
       <properties title=""/>
       <events title=""/>
-      <privatetypes title=""/>
       <privateslots title=""/>
       <privatemethods title=""/>
       <privatestaticmethods title=""/>
       <privateattributes title=""/>
       <privatestaticattributes title=""/>
+      <privatetypes title=""/>
       <friends title=""/>
       <related title="" subtitle=""/>
       <membergroups visible="yes"/>
