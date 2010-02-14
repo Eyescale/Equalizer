@@ -114,6 +114,8 @@ extern "C"
     #define EQ_COMPRESSOR_DIFF_RLE_565     0xbu
     /** RLE Compression of three token of 10-bits and one toke of 2-bits */
     #define EQ_COMPRESSOR_DIFF_RLE_10A2    0xcu
+    /** RLE Compression of four float16 tokens. */
+    #define EQ_COMPRESSOR_DIFF_RLE_4_HALF_FLOAT 0xdu
 
     /**
      * Private types -FOR DEVELOPMENT ONLY-.

@@ -72,6 +72,49 @@ protected:
                    const bool useAlpha, const bool swizzle );
 };
 
+class CompressorDiffRLE4HF : public CompressorRLE4HF
+{
+public:
+    CompressorDiffRLE4HF() {}
+    virtual ~CompressorDiffRLE4HF() {}
+            
+    virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
+                              const bool useAlpha )
+        { compress( inData, nPixels, useAlpha, true ); }
+        
+    static void decompress( const void* const* inData, 
+                            const eq_uint64_t* const inSizes, 
+                            const unsigned nInputs, void* const outData, 
+                            const eq_uint64_t nPixels, const bool useAlpha );
+        
+        
+    static void* getNewCompressor( ){ return new eq::plugin::CompressorDiffRLE4HF; }
+    static void* getNewDecompressor( ){ return 0; }
+        
+    static void getInfo( EqCompressorInfo* const info )
+        {
+            info->version = EQ_COMPRESSOR_VERSION;
+            info->name = EQ_COMPRESSOR_DIFF_RLE_4_HALF_FLOAT;
+            info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D | 
+            EQ_COMPRESSOR_IGNORE_MSE;
+            info->tokenType = EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT;
+            info->quality = 1.f;
+            info->ratio = .95f;
+            info->speed = 1.f;
+        }
+        
+    static Functions getFunctions()
+        {
+            Functions functions;
+            functions.name               = EQ_COMPRESSOR_DIFF_RLE_4_HALF_FLOAT;
+            functions.getInfo            = getInfo;
+            functions.newCompressor      = getNewCompressor;       
+            functions.decompress         = decompress;
+            return functions;
+        }
+        
+};
+
 }
 }
 #endif // EQ_PLUGIN_COMPRESSORRLE4HF

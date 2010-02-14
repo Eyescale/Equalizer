@@ -37,6 +37,7 @@ namespace
         eq::plugin::CompressorRLE4B::getFunctions(),
         eq::plugin::CompressorDiffRLE4B::getFunctions(),
         eq::plugin::CompressorRLE4HF::getFunctions(),
+        eq::plugin::CompressorDiffRLE4HF::getFunctions(),
         eq::plugin::CompressorRLE4BU::getFunctions(),
         eq::plugin::CompressorRLEU::getFunctions(),
         eq::plugin::CompressorDiffRLE565::getFunctions(),
