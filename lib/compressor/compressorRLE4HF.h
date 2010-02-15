@@ -80,7 +80,7 @@ public:
             
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
                               const bool useAlpha )
-        { compress( inData, nPixels, useAlpha, true ); }
+        { CompressorRLE4HF::compress( inData, nPixels, useAlpha, true ); }
         
     static void decompress( const void* const* inData, 
                             const eq_uint64_t* const inSizes, 
