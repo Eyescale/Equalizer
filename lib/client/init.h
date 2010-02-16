@@ -83,7 +83,7 @@ namespace eq
     class Config;
     class NodeFactory;
 
-    /** 
+    /**
      * Initialize the Equalizer client library.
      *
      * The following command line options are recognized by this function:
@@ -108,7 +108,7 @@ namespace eq
     EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory);
     
     /**
-     * Deinitialize the Equalizer client library.
+     * De-initialize the Equalizer client library.
      *
      * @return <code>true</code> if the library was successfully de-initialized,
      *         <code>false</code> otherwise.

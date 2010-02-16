@@ -23,7 +23,6 @@
 namespace eq
 {
 /** 
- * @namespace eq::net
  * @brief Equalizer network layer.
  *
  * The Equalizer network layer provides basic functionality for network
@@ -34,7 +33,7 @@ namespace net
 {
     class Node;
 
-    /** 
+    /**
      * Initialize the Equalizer network classes.
      * 
      * @param argc the command line argument count.

@@ -1,9 +1,10 @@
-Doxygen updates
+eqOSG: enable statistic shortcut, let render clients exit, load model on
+render clients
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
