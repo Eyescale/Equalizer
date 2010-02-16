@@ -1,0 +1,67 @@
+#Equalizer 1.0 ascii
+
+# three-to-one pixel decomposition
+
+global
+{
+    EQ_WINDOW_IATTR_PLANES_STENCIL 1
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe 
+            {
+                window
+                {
+                    viewport [ 25 450 400 400 ]
+                    channel { name "channel1" }
+                }
+                window
+                {
+                    viewport [ 450 25 400 400 ]
+                    channel { name "channel2" }
+                }
+                window
+                {
+                    viewport [ 25 25 400 400 ]
+                    channel { name "channel3" }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel3"
+            wall
+            {
+                bottom_left  [ -.5 -.5 -1 ]
+                bottom_right [  .5 -.5 -1 ]
+                top_left     [ -.5  .5 -1 ]
+            }
+
+            compound
+            {
+                channel "channel1"
+                subpixel [ 0 3 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel2"
+                subpixel [ 1 3 ]
+                outputframe {}
+            }
+            compound
+            {
+                subpixel [ 2 3 ]
+                outputframe { type texture }
+            }
+            inputframe { name "frame.channel1" }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+        }
+    }    
+}

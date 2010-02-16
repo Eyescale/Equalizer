@@ -1,0 +1,98 @@
+#Equalizer 1.0 ascii
+
+# three-to-one DPlex demo configuration
+server
+{
+    config
+    {
+        latency 3
+        appNode
+        {
+            pipe
+            {
+                name "GPU 1"
+                window
+                {
+                    name     "window1"
+                    viewport [ 25 25 400 400 ]
+                    channel { name "channel1"  }
+                }
+            }
+            pipe
+            {
+                name "GPU 2"
+                window
+                {
+                    name     "window2"
+                    viewport [ 450 25 400 400 ]
+                    channel { name "channel2"  }
+                }
+            }
+            pipe
+            {
+                name "GPU 3"
+                window
+                {
+                    name     "window3"
+                    viewport [ 25 450 400 400 ]
+                    channel { name "channel3"  }
+                }
+            }
+            pipe
+            {
+                name "GPU 4"
+                window
+                {
+                    name     "window4"
+                    viewport [ 450 450 400 400 ]
+                    channel { name "channel4"  }
+                }
+            }
+        }
+
+        layout
+        {
+            name "DPlex"
+            view {}
+        }
+        canvas
+        {
+            layout "DPlex"
+
+            wall
+            {
+                bottom_left  [ -.5 -.5 -1 ]
+                bottom_right [  .5 -.5 -1 ]
+                top_left     [ -.5  .5 -1 ]
+            }
+
+            segment { channel "channel1" }
+        }
+
+        compound
+        {
+            channel ( segment 0 layout "DPlex" view 0 )
+            framerate_equalizer {}
+
+            compound
+            { 
+                channel "channel2"
+                phase 0 period 3
+                outputframe { name "DPlex" }
+            }
+            compound
+            { 
+                channel "channel3"
+                phase 1 period 3
+                outputframe { name "DPlex" }
+            }
+            compound
+            { 
+                channel "channel4"
+                phase 2 period 3
+                outputframe { name "DPlex" }
+            }
+            inputframe { name "DPlex" }
+        }            
+    }
+}

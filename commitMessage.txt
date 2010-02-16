@@ -1,13 +1,9 @@
-Fix 2825936: Cleanup in setupAssemblyState
-- all assembly operations now happen using the channel's pixel viewport,
-  as opposed to the window
-- setupAssemblyState expects the viewport and scissor box to be set
-- setupAssemblyState sets a corresponding ortho frustum
+Add some missing elementary configs
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
-[x] Cleanup
+[ ] Bugfix
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
