@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,8 +40,8 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
     if( !compound->isActive( ))
         return TRAVERSE_PRUNE;    
 
-    const std::vector< Frame* >& inputFrames = compound->getInputFrames();
-    const Channel*               channel     = compound->getChannel();
+    const FrameVector& inputFrames = compound->getInputFrames();
+    const Channel* channel = compound->getChannel();
 
     if( !compound->testInheritTask( eq::TASK_ASSEMBLE ) || !channel )
         return TRAVERSE_CONTINUE;
@@ -52,15 +52,17 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         return TRAVERSE_CONTINUE;
     }
 
-    for( vector<Frame*>::const_iterator i = inputFrames.begin(); 
+    for( FrameVector::const_iterator i = inputFrames.begin();
          i != inputFrames.end(); ++i )
     {
         //----- Find corresponding output frame
-        Frame*                             frame = *i;
-        const std::string&                 name = frame->getName();
-        Compound::FrameMap::const_iterator iter =_outputFrames.find( name );
+        Frame* frame = *i;
+        const std::string& name = frame->getName();
 
-        if( iter == _outputFrames.end())
+        stde::hash_map<std::string, Frame*>::const_iterator j =
+            _outputFrames.find( name );
+
+        if( j == _outputFrames.end( ))
         {
             EQVERB << "Can't find matching output frame, ignoring input frame "
                    << name << endl;
@@ -70,21 +72,26 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
 
         //----- Set frame parameters:
         // 1) Frame offset
-        Frame*                 outputFrame = iter->second;
-        const eq::Viewport&        frameVP = frame->getViewport();
-        const eq::PixelViewport& inheritPVP=compound->getInheritPixelViewport();
-        eq::PixelViewport         framePVP = inheritPVP.getSubPVP( frameVP );
-        Vector2i frameOffset = outputFrame->getMasterData()->getOffset();
+        Frame* outputFrame = j->second;
+        Vector2i frameOffset = outputFrame->getMasterData()->getOffset() +
+                               frame->getOffset();
 
-        frameOffset += frame->getOffset();
-         
         if( channel != compound->getInheritChannel() &&
             compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != eq::ON )
         {
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.
+            const eq::Viewport& frameVP = frame->getViewport();
+            const eq::PixelViewport& inheritPVP =
+                compound->getInheritPixelViewport();
+            const eq::PixelViewport& framePVP = inheritPVP.getSubPVP( frameVP );
             frameOffset.x() -= framePVP.x;
             frameOffset.y() -= framePVP.y;
+
+            const Channel* iChannel = compound->getInheritChannel();
+            const PixelViewport& iChannelPVP = iChannel->getPixelViewport();
+            frameOffset.x() -= iChannelPVP.x;
+            frameOffset.y() -= iChannelPVP.y;
         }
         frame->setInheritOffset( frameOffset );
 

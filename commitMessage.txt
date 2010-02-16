@@ -1,9 +1,12 @@
-Transform the warning about incomplete net::Object deserializations into
-an assertion.
+Fix 2825936: Cleanup in setupAssemblyState
+- all assembly operations now happen using the channel's pixel viewport,
+  as opposed to the window
+- setupAssemblyState expects the viewport and scissor box to be set
+- setupAssemblyState sets a corresponding ortho frustum
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

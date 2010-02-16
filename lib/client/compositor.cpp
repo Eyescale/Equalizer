@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -85,8 +85,7 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
     const uint32_t desiredBuffers = blendAlpha ? Frame::BUFFER_COLOR :
                                     Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH;
     size_t nFrames = 0;
-    for( FrameVector::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
+    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         const Frame* frame = *i;
         if( frame->getPixel() != Pixel::ALL ||
@@ -1101,9 +1100,8 @@ void Compositor::clearStencilBuffer( const ImageOp& op )
 void Compositor::setupAssemblyState( const PixelViewport& pvp )
 {
     EQ_GL_ERROR( "before setupAssemblyState" );
-    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT | 
-                  GL_SCISSOR_BIT | GL_LINE_BIT | GL_PIXEL_MODE_BIT | 
-                  GL_POLYGON_BIT );
+    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_LINE_BIT |
+                  GL_PIXEL_MODE_BIT | GL_POLYGON_BIT );
 
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_BLEND );
@@ -1121,14 +1119,6 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp )
     glDisable( GL_CLIP_PLANE5 );
     
     glPolygonMode( GL_FRONT, GL_FILL );
-
-    if( pvp.hasArea( ))
-    {
-        glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
-        glScissor( pvp.x, pvp.y, pvp.w, pvp.h );
-    }
-    else
-        EQERROR << "Can't apply viewport " << pvp << std::endl;
 
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();

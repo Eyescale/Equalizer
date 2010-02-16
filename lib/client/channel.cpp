@@ -491,18 +491,8 @@ void Channel::frameReadback( const uint32_t frameID )
 
 void Channel::setupAssemblyState()
 {
-    EQASSERT( _window );
     // copy to be thread-safe when pvp changes
-    PixelViewport pvp(
-      _fbo ? _fbo->getPixelViewport() : _window->getPixelViewport( ));
-    
-    pvp.x = 0;
-    pvp.y = 0;
-
-    //TODO: temporary workaround
-    if( !util::Accum::usesFBO( glewGetContext( )))
-        pvp = getPixelViewport();
-
+    const PixelViewport pvp( getPixelViewport( ));
     Compositor::setupAssemblyState( pvp );
 }
 
@@ -891,8 +881,8 @@ void Channel::drawStatistics()
         return;
 
     EQ_GL_CALL( applyBuffer( ));
-    EQ_GL_CALL( setupAssemblyState( ));
     EQ_GL_CALL( applyViewport( ));
+    EQ_GL_CALL( setupAssemblyState( ));
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();

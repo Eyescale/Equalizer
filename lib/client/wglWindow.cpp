@@ -723,7 +723,7 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
         attributes.push_back( accumAlpha );
     }
 
-    const int samplesSize  = getIAttribute( Window::IATTR_PLANES_SAMPLES );
+    const int samplesSize = getIAttribute( Window::IATTR_PLANES_SAMPLES );
     if( samplesSize >= 0 )
     {
         if( WGLEW_ARB_multisample )
