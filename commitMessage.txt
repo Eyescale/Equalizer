@@ -1,5 +1,4 @@
-eqOSG: enable statistic shortcut, let render clients exit, load model on
-render clients
+eqOSG: rename to examples/osgScaleViewer
 
 [ ] May break build
 [ ] May break existing applications

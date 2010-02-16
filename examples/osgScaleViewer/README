@@ -1,0 +1,29 @@
+This is eqOSG, a minimal example which combines Equalizer with OpenSceneGraph.
+
+It was initially developed by students of the Computer Graphics and Multimedia Systems Group,
+University of Siegen, Germany.
+eqOSG is loosly based on the eqPly example.
+
+eqOSG is licensed under the LGPL version 2.1 or later, see the LICENSE.LGPLv2.1 file.
+
+CMake is used as the build system, see the COMPILING file for building instructions.
+
+When running eqOSG, you can pass a model file as the first parameter, like this:
+ eqOSG --model=/home/tmg/cow.osg
+If you don't pass a model or the model can't be loaded, a quad will be rendered instead.
+
+Example data like cow.osg can be found at
+http://www.openscenegraph.org/projects/osg/browser/OpenSceneGraph-Data.
+
+This example has camera controls similar to a first person shooter. You can use the
+following keys to change the camera position:
+  Up Arrow: Move forward
+  Down Arrow: Move backward
+  Right Arrow: Move to the right
+  Left Arrow: Move to the left
+  Page Up: Move upwards
+  Page Down: Move downwards
+Additionally, you can change the camera viewing direction by clicking in the window and
+then moving the mouse cursor while holding the left mouse button down.
+
+Have a lot of fun!

@@ -7,7 +7,7 @@ SUBDIRS = \
 	eqPly \
 	eVolve \
 	eqPixelBench \
-	$(OPTIONAL)
+	osgScaleViewer
 
 TARGETS = subdirs
 
