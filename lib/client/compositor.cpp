@@ -1378,6 +1378,9 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         EQ_GL_CALL( glUseProgram( program ));
     }
 
+    if( op.pixel != Pixel::ALL )
+        glPixelZoom( 1.f, 1.f );
+
     // Enable & download color and depth textures
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
 
@@ -1449,6 +1452,9 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     glDisable( GL_DEPTH_TEST );
     EQ_GL_CALL( glUseProgram( 0 ));
+
+    if( op.pixel != Pixel::ALL )
+        glPixelZoom( op.pixel.w, op.pixel.h );
 }
 
 
