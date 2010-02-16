@@ -115,8 +115,6 @@ namespace eq
                 if( zoom == Zoom::NONE )
                     return;
 
-                x = static_cast< int32_t >( x * zoom.x() + .5f );
-                y = static_cast< int32_t >( y * zoom.y() + .5f );
                 w = static_cast< int32_t >( w * zoom.x() + .5f );
                 h = static_cast< int32_t >( h * zoom.y() + .5f );
             }

@@ -1230,13 +1230,13 @@ void Compositor::_drawPixels( const Image* image,
     glColor3f( 1.0f, 1.0f, 1.0f );
 
     const float startX = static_cast< float >
-         ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x ) * op.zoom.x();
+        ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x );
     const float endX   = static_cast< float >
-         (op.offset.x() + (pvp.x+pvp.w) * op.pixel.w + op.pixel.x) *op.zoom.x();
+        ( op.offset.x() + (pvp.x+pvp.w) * op.pixel.w*op.zoom.x() + op.pixel.x );
     const float startY = static_cast< float >
-         ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y ) * op.zoom.y();
+        ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y );
     const float endY   = static_cast< float >
-         (op.offset.y() + (pvp.y+pvp.h) * op.pixel.h + op.pixel.y) *op.zoom.y();
+        ( op.offset.y() + (pvp.y+pvp.h) * op.pixel.h*op.zoom.y() + op.pixel.y );
 
     glBegin( GL_QUADS );
         glTexCoord2f( 0.0f, 0.0f );

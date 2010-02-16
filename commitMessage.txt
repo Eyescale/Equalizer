@@ -1,9 +1,10 @@
-eqOSG: simplify sg setup, fix multi-channel configs.
+Fix image zoom/DFR for channels not positioned at 0,0
+Conincidentally fixes monitor equalizer up-scaling bug
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
