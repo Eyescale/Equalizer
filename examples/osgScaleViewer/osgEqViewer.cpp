@@ -30,12 +30,15 @@ OSGEqViewer::OSGEqViewer()
 {
     setThreadingModel( osgViewer::Viewer::ThreadPerContext );
     setUpThreading();
+
+    getCamera()->setClearMask( 0 ); // done by Channel::frameClear()
+    _context->setClearMask( 0 );
+
+    getCamera()->setGraphicsContext( _context.get( )); 
 }
 
 void OSGEqViewer::setViewport( eq::Channel* channel )
 {
-    getCamera()->setGraphicsContext( _context.get( )); 
-
     //Set the Frustum of the Channel
     const eq::Frustumf& channelfrustum = channel->getFrustum();
     getCamera()->setProjectionMatrixAsFrustum( 
@@ -44,7 +47,6 @@ void OSGEqViewer::setViewport( eq::Channel* channel )
                     channelfrustum.near_plane(), channelfrustum.far_plane( ));
 
     //Set absolute pixelvalues for Viewport
-    const eq::PixelViewport& channelviewport = channel->getPixelViewport();
-    getCamera()->setViewport( channelviewport.x,channelviewport.y,
-                              channelviewport.w,channelviewport.h );
+    const eq::PixelViewport& pvp = channel->getPixelViewport();
+    getCamera()->setViewport( pvp.x, pvp.y, pvp.w,pvp.h );
 }

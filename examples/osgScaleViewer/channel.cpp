@@ -42,6 +42,8 @@ bool Channel::configInit( const uint32_t initID )
     if( !eq::Channel::configInit( initID ))
         return false;
 
+    glEnable( GL_SCISSOR_TEST ); 
+
     Pipe *pipe = static_cast<Pipe*>( getPipe( ));
     osg::ref_ptr< OSGEqViewer > viewer = pipe->getViewer();
     
@@ -63,13 +65,12 @@ bool Channel::configInit( const uint32_t initID )
     osg::ref_ptr<osg::Image> image = _getImage();
     if( image.valid( ))
     {
-        viewer->setSceneData( correctCoordSys( 
-            createSceneGraph( image.get( )).get( )));    
+        viewer->setSceneData( createSceneGraph( image.get( )).get( )); 
         return true;
     }
 
     // set the scene to render
-    viewer->setSceneData( correctCoordSys( createSceneGraph().get( )));
+    viewer->setSceneData( createSceneGraph().get( ));
     std::cout << "set scene data draw quad" << std::endl;
 
     return true;
@@ -105,6 +106,12 @@ void Channel::frameStart( const uint32_t frameID,
 {
     updateSceneGraph();
     eq::Channel::frameStart( frameID, frameNumber );
+}
+
+void Channel::frameClear( const uint32_t frameID )
+{
+    glEnable( GL_SCISSOR_TEST );
+    eq::Channel::frameClear( frameID );
 }
 
 void Channel::frameDraw( const uint32_t frameID )
@@ -225,24 +232,6 @@ osg::ref_ptr<osg::Node> Channel::createSceneGraph(
 void Channel::updateSceneGraph()
 {
     // empty for now
-}
-
-osg::ref_ptr<osg::Node> Channel::correctCoordSys(
-            osg::ref_ptr<osg::Node> nodeToRotate )
-{
-    return nodeToRotate;
-    osg::Matrix matrixX;
-    osg::ref_ptr<osg::MatrixTransform> staticRotationNodeX =
-             new osg::MatrixTransform();
-
-    // -90 degree rotation around the X axis
-    matrixX.makeRotate( -osg::PI_2, osg::Vec3( 1., 0., 0. ));
-    staticRotationNodeX->setMatrix( matrixX );
-
-    staticRotationNodeX->addChild( nodeToRotate.get( ));
-    staticRotationNodeX->setDataVariance( osg::Object::STATIC );
-
-    return staticRotationNodeX.get();
 }
 
 const osg::ref_ptr<osg::Node> Channel::_getModel()

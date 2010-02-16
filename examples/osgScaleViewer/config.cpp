@@ -182,7 +182,7 @@ bool Config::mapData( const uint32_t initDataID )
 
 bool Config::handleEvent( const eq::ConfigEvent* event )
 {
-    const float moveSpeed = 1.f;
+    const float moveSpeed = .1f;
 
     switch( event->data.type )
     {

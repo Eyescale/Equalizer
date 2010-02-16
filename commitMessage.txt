@@ -1,4 +1,4 @@
-eqOSG: rename to examples/osgScaleViewer
+eqOSG: simplify sg setup, fix multi-channel configs.
 
 [ ] May break build
 [ ] May break existing applications
