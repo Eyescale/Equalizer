@@ -164,9 +164,9 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
 
-    if( is->getRemainingBufferSize() > 0 || is->nRemainingBuffers() > 0 )
-        EQWARN << "Object " << typeid( *_object ).name() 
-            << " did not unpack all data" << std::endl;
+    EQASSERTINFO( is->getRemainingBufferSize()==0 && is->nRemainingBuffers()==0,
+                  "Object " << typeid( *_object ).name() <<
+                  " did not unpack all data" );
 }
 
 
@@ -181,9 +181,9 @@ void VersionedSlaveCM::applyMapData()
     _version = is->getVersion();
     EQASSERT( _version != VERSION_INVALID );
 
-    if( is->getRemainingBufferSize() > 0 || is->nRemainingBuffers() > 0 )
-        EQWARN << "Object " << typeid( *_object ).name() 
-            << " did not unpack all data" << std::endl;
+    EQASSERTINFO( is->getRemainingBufferSize()==0 && is->nRemainingBuffers()==0,
+                  "Object " << typeid( *_object ).name() << 
+                  " did not unpack all data" );
 
     delete is;
     EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()

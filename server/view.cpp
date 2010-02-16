@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +25,7 @@
 #include "observer.h"
 #include "paths.h"
 
+#include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 
 using namespace eq::base;
@@ -119,6 +120,13 @@ private:
 void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     eq::View::deserialize( is, dirtyBits );
+
+    const uint64_t left = is.getRemainingBufferSize();
+    is.advanceBuffer( left );
+    EQASSERTINFO( is.getRemainingBufferSize() == 0,
+                  "The view object serializes a lot of data. This is not " <<
+                  "recommended for performance, since the server also " <<
+                  "receives the data" );
 
     if( dirtyBits & ( DIRTY_WALL | DIRTY_PROJECTION | DIRTY_OVERDRAW ))
     {

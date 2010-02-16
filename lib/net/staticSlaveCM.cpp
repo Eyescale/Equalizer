@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -68,6 +68,10 @@ void StaticSlaveCM::applyMapData()
     _currentIStream->waitReady();
 
     _object->applyInstanceData( *_currentIStream );
+    EQASSERTINFO( _currentIStream->getRemainingBufferSize() == 0 &&
+                  _currentIStream->nRemainingBuffers() == 0,
+                  "Object " << typeid( *_object ).name() <<
+                  " did not unpack all data" );
 
     delete _currentIStream;
     _currentIStream = 0;
