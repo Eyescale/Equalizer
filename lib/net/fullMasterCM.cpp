@@ -291,7 +291,6 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
     }
 
     instanceData->os.enableSave();
-    instanceData->os.enableBuffering();
     instanceData->os.setInstanceID( EQ_ID_NONE );
     instanceData->os.setNodeID( NodeID::ZERO );
     return instanceData;

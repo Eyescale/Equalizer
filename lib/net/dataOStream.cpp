@@ -53,7 +53,6 @@ DataOStream::DataOStream()
         , _bufferStart( 0 )
         , _enabled( false )
         , _dataSent( false )
-        , _buffered( true )
         , _save( false )
 {
 #ifdef EQ_COMPRESS_STREAM
@@ -132,7 +131,6 @@ void DataOStream::enable()
     _bufferType = BUFFER_NONE;
     _bufferStart = 0;
     _dataSent    = false;
-    _buffered    = true;
     _enabled     = true;
     _buffer.setSize( 0 );
 }
@@ -169,14 +167,15 @@ void DataOStream::disable()
     {
         if( !_connections.empty( ))
         {
+            const void* ptr = _buffer.getData() + _bufferStart;
+            const uint64_t size = _buffer.getSize() - _bufferStart;
             if( _bufferType != BUFFER_PARTIAL )
             {
                 _bufferType = BUFFER_PARTIAL;
-                _compress( _buffer.getData() + _bufferStart, 
-                           _buffer.getSize() - _bufferStart );
+                _compress( ptr, size );
+                           
             }
-            _sendFooter( _buffer.getData() + _bufferStart, 
-                         _buffer.getSize() - _bufferStart );
+            _sendFooter( ptr, size );
         }
         _dataSent = true;
     }
@@ -211,20 +210,6 @@ void DataOStream::_unlockConnections()
     _connections.clear();
 }
 
-void DataOStream::enableBuffering()
-{
-    _buffered = true;
-}
-
-void DataOStream::disableBuffering()
-{
-    if( !_buffered )
-        return;
-
-    _buffered = false;
-    _flush();
-}
-
 void DataOStream::enableSave()
 {
     EQASSERTINFO( !_enabled || ( !_dataSent && _buffer.getSize() == 0 ),
@@ -246,19 +231,8 @@ void DataOStream::write( const void* data, uint64_t size )
 #endif    
 
     EQASSERT( _enabled );
-    if( _buffered || _save )
-    {
-        _bufferType = BUFFER_NONE;
-        _buffer.append( static_cast< const uint8_t* >( data ), size );
-    }
-    
-    if( !_buffered )
-    {
-        _bufferType = BUFFER_PARTIAL;
-        _compress( data, size );   
-        _sendData( data, size );
-        return;
-    }
+    _bufferType = BUFFER_NONE;
+    _buffer.append( static_cast< const uint8_t* >( data ), size );
 
     if( _buffer.getSize() - _bufferStart > Global::getObjectBufferSize( ))
         _flush();
@@ -286,6 +260,7 @@ void DataOStream::writeOnce( const void* data, uint64_t size )
         _compress( data, size );
         _sendFooter( data, size );
     }
+
     reset();
     _enabled = false;
     _dataSent = true;
@@ -419,12 +394,12 @@ void DataOStream::_compress( const void* src, const uint64_t  sizeSrc )
 #endif
 }
 
-bool DataOStream::_getCompressedData( uint64_t sizeUncompressed, 
-                                      void** chunks, 
-                                      uint64_t* chunkSizes )
+bool DataOStream::_getCompressedData( const uint64_t sizeUncompressed, 
+                                      void** chunks,
+                                      uint64_t* chunkSizes ) const
 {    
     EQASSERT( _bufferType != BUFFER_NONE );
-    base::Compressor* plugin = _getCompressorPlugin();
+    const base::Compressor* plugin = _getCompressorPlugin();
     const uint32_t name = _getCompressorName();
     const uint32_t nChunks = plugin->getNumResults( _compressor, name );
     EQASSERT( nChunks > 0 );
@@ -440,7 +415,7 @@ bool DataOStream::_getCompressedData( uint64_t sizeUncompressed,
         return false;
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-    nBytesCompressedSend += sizeUncompressed;
+    nBytesCompressedSend += dataSize;
 #endif
 
     return true;

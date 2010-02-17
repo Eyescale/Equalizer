@@ -1,4 +1,5 @@
 Code cleanups in preparation of slave object commits
+- always buffer data
 
 [ ] May break build
 [ ] May break existing applications

@@ -61,11 +61,6 @@ namespace DataStreamTest
         /** Disable, flush and unlock the output to the current receivers. */
         void disable();
 
-        /** Enable aggregation/copy of data before sending it. */
-        void enableBuffering();
-        /** Disable aggregation/copy of data before sending it. */
-        void disableBuffering();
-        
         /** Enable copying of all data into a saved buffer. */
         void enableSave();
         /** Disable copying of all data into a saved buffer. */
@@ -156,12 +151,11 @@ namespace DataStreamTest
         bool _enabled;
         /** Some data has been sent since it was _enabled */
         bool _dataSent;
-        /** Use send buffering */
-        bool _buffered;
+
         /** Save all sent data */
         bool _save;
 
-        /** Helper function preparing data for sendBuffer as needed. */
+        /** Helper function preparing data for sendData() as needed. */
         void _sendData( const void* data, const uint64_t size );
         
         /** Reset after sending a buffer. */
@@ -188,11 +182,10 @@ namespace DataStreamTest
 
         /** take data in compressor and send it */
         bool _getCompressedData( uint64_t sizeUncompressed, 
-                                 void** chunks, 
-                                 uint64_t* chunkSizes );
+                                 void** chunks, uint64_t* chunkSizes ) const;
 
         /** compress data, if compressor found */
-        void _compress( const void* src, const uint64_t  sizeSrc );
+        void _compress( const void* src, const uint64_t size );
 
     };
 
