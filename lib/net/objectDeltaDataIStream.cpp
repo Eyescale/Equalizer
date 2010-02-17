@@ -63,7 +63,9 @@ bool ObjectDeltaDataIStream::getNextBuffer( const uint8_t** buffer,
                 return true;
             }
 
-            *buffer = packet->delta;
+            EQASSERT( *reinterpret_cast< const uint64_t* >( packet->delta ) == 
+                      packet->dataSize );
+            *buffer = packet->delta + 8;
             return true;
         }
 

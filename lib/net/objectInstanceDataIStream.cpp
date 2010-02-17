@@ -58,7 +58,7 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
 
             *size   = packet->dataSize;
 
-            if ( packet->compressorName != EQ_COMPRESSOR_NONE )
+            if( packet->compressorName != EQ_COMPRESSOR_NONE )
             {
                 uint8_t* dataCompressed = const_cast<uint8_t*>( 
                                   static_cast<const uint8_t*>( packet->data ));
@@ -68,7 +68,9 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
                 return true;
             }
 
-            *buffer = packet->data;
+            EQASSERT( *reinterpret_cast< const uint64_t* >( packet->data ) == 
+                      packet->dataSize );
+            *buffer = packet->data + 8;
             return true;
         }
         
