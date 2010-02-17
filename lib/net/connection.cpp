@@ -372,33 +372,30 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
 }
 
 bool Connection::send( const ConnectionVector& connections, Packet& packet,
-                       const void* const* data, const uint64_t* dataSize, 
-                       const size_t nData, const uint64_t allDataSize,
-                       const bool isLocked )
+                       const void* const* items, const uint64_t* itemSizes, 
+                       const size_t nItems )
 {
     if( connections.empty( ))
         return true;
 
     const uint64_t headerSize  = packet.size - 8;
-    packet.size = headerSize + allDataSize + sizeof( uint64_t ) * nData;
+    packet.size = headerSize;
+    for( size_t i = 0; i < nItems; ++i )
+        packet.size += itemSizes[ i ] + sizeof( uint64_t );
 
-    for( ConnectionVector::const_iterator i= connections.begin(); 
-         i<connections.end(); ++i )
+    for( ConnectionVector::const_iterator i = connections.begin(); 
+         i < connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;
-
-        if( !isLocked )
-            connection->lockSend();
+        connection->lockSend();
             
         bool ok = connection->send( &packet, headerSize, true );
 
-        for ( size_t j = 0; j < nData ; j++ )
-            ok = ok && connection->send( &dataSize[j], sizeof(uint64_t), true )
-                    && connection->send( data[j], dataSize[j], true );
+        for( size_t j = 0; j < nItems; ++j )
+            ok = ok && connection->send( &itemSizes[j], sizeof(uint64_t), true )
+                    && connection->send( items[j], itemSizes[j], true );
 
-        if( !isLocked )
-            connection->unlockSend();
-
+        connection->unlockSend();
         if( !ok )
             return false;
     }

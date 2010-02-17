@@ -39,18 +39,18 @@ namespace net
 
     protected:
         virtual void sendData( const uint32_t name, const uint32_t nChunks,
-                               const void* const* buffers,
-                               const uint64_t* sizes,
+                               const void* const* chunks,
+                               const uint64_t* chunkSizes,
                                const uint64_t sizeUncompressed );
 
         virtual void sendFooter( const uint32_t name, const uint32_t nChunks,
-                                 const void* const* buffers, 
-                                 const uint64_t* sizes,
+                                 const void* const* chunks, 
+                                 const uint64_t* chunkSizes,
                                  const uint64_t sizeUncompressed );
 
     private:
         void _sendPacket( ObjectDeltaPacket& packet,
-                          const void* const* buffers, const uint64_t* sizes,
+                          const void* const* chunks, const uint64_t* chunkSizes,
                           const uint64_t sizeUncompressed );
 
     };

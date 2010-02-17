@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -42,6 +42,7 @@ namespace net
         void setVersion( const uint32_t version ) { _version = version; }
         uint32_t getVersion() const { return _version; }
         virtual void reset() { DataOStream::reset(); _sequence = 0; }
+
     protected:
         const Object* const _object;
         uint32_t _version;

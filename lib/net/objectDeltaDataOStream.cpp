@@ -37,8 +37,8 @@ ObjectDeltaDataOStream::~ObjectDeltaDataOStream()
 {}
 
 void ObjectDeltaDataOStream::_sendPacket( ObjectDeltaPacket& packet,
-                                          const void* const* buffers,
-                                          const uint64_t* sizes,
+                                          const void* const* chunks,
+                                          const uint64_t* chunkSizes,
                                           const uint64_t sizeUncompressed )
 {
     packet.version   = _version;
@@ -51,20 +51,7 @@ void ObjectDeltaDataOStream::_sendPacket( ObjectDeltaPacket& packet,
                          << _connections.size()
                          << " receivers " << std::endl;
 
-    if( packet.compressorName != EQ_COMPRESSOR_NONE )
-    {
-        uint64_t dataSendSize  = 0;
-        for( uint32_t i = 0; i < packet.nChunks; i++ )
-        {
-            dataSendSize  += sizes[i];
-        }
-        
-        Connection::send( _connections, packet, buffers, 
-                          sizes, packet.nChunks, dataSendSize, true );
-        return;
-    }
-
-    Connection::send( _connections, packet, buffers[0], sizeUncompressed, true );
+    Connection::send( _connections, packet, chunks, chunkSizes, packet.nChunks);
 }
 
 void ObjectDeltaDataOStream::sendData( const uint32_t name,

@@ -104,7 +104,6 @@ void DataOStream::enable( const NodeVector& receivers )
         else
             connection = node->getConnection();
         
-        connection->lockSend();
         _connections.push_back( connection );
     }
 
@@ -120,7 +119,6 @@ void DataOStream::enable( NodePtr node )
     if( !connection )
         connection = node->getConnection();
         
-    connection->lockSend();
     _connections.push_back( connection );
     enable();
 }
@@ -145,7 +143,6 @@ void DataOStream::resend( NodePtr node )
     if( !connection )
         connection = node->getConnection();
         
-    connection->lockSend();
     _connections.push_back( connection );
     if ( _bufferType != BUFFER_ALL )
     {
@@ -155,7 +152,6 @@ void DataOStream::resend( NodePtr node )
     _sendFooter( _buffer.getData(), _buffer.getSize() );
 
     _connections.clear();
-    connection->unlockSend();
 }
 
 void DataOStream::disable()
@@ -196,17 +192,6 @@ void DataOStream::disable()
 
     reset();
     _enabled = false;
-    _unlockConnections();
-}
-
-void DataOStream::_unlockConnections()
-{
-    for( ConnectionVector::const_iterator i = _connections.begin(); 
-         i != _connections.end(); ++i )
-    {
-        ConnectionPtr connection = *i;
-        connection->unlockSend();
-    }
     _connections.clear();
 }
 
@@ -264,7 +249,7 @@ void DataOStream::writeOnce( const void* data, uint64_t size )
     reset();
     _enabled = false;
     _dataSent = true;
-    _unlockConnections();
+    _connections.clear();
 }
 
 void DataOStream::_flush()
@@ -319,8 +304,11 @@ void DataOStream::_sendData( const void* data, const uint64_t size )
             void** chunks = static_cast< void ** >( 
                                     alloca( nChunks * sizeof( void* )));
 
-            if( _getCompressedData( size, chunks, chunkSizes ))
+            if( _getCompressedData( chunks, chunkSizes ) < size )
             {
+#ifdef EQ_INSTRUMENT_DATAOSTREAM
+                nBytesCompressedSend += dataSize;
+#endif
                 sendData( name, nChunks, chunks, chunkSizes, size );
                 _dataSent = true;
                 return;
@@ -329,6 +317,7 @@ void DataOStream::_sendData( const void* data, const uint64_t size )
         
         sendData( EQ_COMPRESSOR_NONE, 1, &data, &size, size );
     }
+
     _dataSent = true;
 }
 
@@ -345,8 +334,11 @@ void DataOStream::_sendFooter( const void* buffer, const uint64_t size )
         void** chunks = static_cast< void ** >( 
                                 alloca( nChunks * sizeof( void* )));
 
-        if ( _getCompressedData( size, chunks, chunkSizes ) )
+        if( _getCompressedData( chunks, chunkSizes ) < size )
         {
+#ifdef EQ_INSTRUMENT_DATAOSTREAM
+            nBytesCompressedSend += dataSize;
+#endif
             sendFooter( name, nChunks, chunks, chunkSizes, size );
             return;
         }
@@ -394,9 +386,8 @@ void DataOStream::_compress( const void* src, const uint64_t  sizeSrc )
 #endif
 }
 
-bool DataOStream::_getCompressedData( const uint64_t sizeUncompressed, 
-                                      void** chunks,
-                                      uint64_t* chunkSizes ) const
+uint64_t DataOStream::_getCompressedData( void** chunks, uint64_t* chunkSizes )
+    const
 {    
     EQASSERT( _bufferType != BUFFER_NONE );
     const base::Compressor* plugin = _getCompressorPlugin();
@@ -411,14 +402,7 @@ bool DataOStream::_getCompressedData( const uint64_t sizeUncompressed,
         dataSize += chunkSizes[i];
     }
 
-    if( dataSize >= sizeUncompressed )
-        return false;
-
-#ifdef EQ_INSTRUMENT_DATAOSTREAM
-    nBytesCompressedSend += dataSize;
-#endif
-
-    return true;
+    return dataSize;
 }
 
 void DataOStream::_initCompressor()

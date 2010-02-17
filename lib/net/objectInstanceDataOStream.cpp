@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -36,8 +36,8 @@ ObjectInstanceDataOStream::~ObjectInstanceDataOStream()
 {}
 
 void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
-                                             const void* const* buffers,
-                                             const uint64_t* sizes,
+                                             const void* const* chunks,
+                                             const uint64_t* chunkSizes,
                                              const uint64_t sizeUncompressed )
 {
     packet.version    = _version;
@@ -63,45 +63,32 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
         packet.nodeID = _nodeID;
     }
     
-    if( packet.compressorName != EQ_COMPRESSOR_NONE )
-    {
-        uint64_t dataSendSize  = 0;
-        for( uint32_t i = 0; i < packet.nChunks; i++ )
-        {
-            dataSendSize  += sizes[i];
-        }
-
-        Connection::send( _connections, packet, buffers, 
-                           sizes, packet.nChunks, dataSendSize, true );
-        return;
-    }
-
-    Connection::send( _connections, packet, buffers[0], sizeUncompressed, true );
+    Connection::send( _connections, packet, chunks, chunkSizes, packet.nChunks);
 }
 
-void ObjectInstanceDataOStream::sendData( const uint32_t name, 
+void ObjectInstanceDataOStream::sendData( const uint32_t name,
                                           const uint32_t nChunks,
-                                          const void* const* buffers,
-                                          const uint64_t* sizes,
+                                          const void* const* chunks,
+                                          const uint64_t* chunkSizes,
                                           const uint64_t sizeUncompressed )
 {
     ObjectInstancePacket packet;
     packet.compressorName = name;
     packet.nChunks        = nChunks;
-    _sendPacket( packet, buffers, sizes, sizeUncompressed );
+    _sendPacket( packet, chunks, chunkSizes, sizeUncompressed );
 }
 
 void ObjectInstanceDataOStream::sendFooter( const uint32_t name, 
                                             const uint32_t nChunks,
-                                            const void* const* buffers,
-                                            const uint64_t* sizes,
+                                            const void* const* chunks,
+                                            const uint64_t* chunkSizes,
                                             const uint64_t sizeUncompressed )
 {
     ObjectInstancePacket packet;
     packet.compressorName = name;
     packet.nChunks        = nChunks;
     packet.last = true;
-    _sendPacket( packet, buffers, sizes, sizeUncompressed );
+    _sendPacket( packet, chunks, chunkSizes, sizeUncompressed );
     _sequence = 0;
 }
 }

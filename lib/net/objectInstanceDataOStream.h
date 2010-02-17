@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -46,14 +46,13 @@ namespace net
 
     protected:
         virtual void sendData( const uint32_t name, const uint32_t nChunks,
-                               const void* const* buffers, 
-                               const uint64_t* size,
+                               const void* const* chunks, 
+                               const uint64_t* chunkSizes,
                                const uint64_t sizeUncompressed );
 
-        virtual void sendFooter( const uint32_t name, 
-                                 const uint32_t nChunks,
-                                 const void* const* buffers, 
-                                 const uint64_t* size,
+        virtual void sendFooter( const uint32_t name, const uint32_t nChunks,
+                                 const void* const* chunks, 
+                                 const uint64_t* chunkSizes,
                                  const uint64_t sizeUncompressed );
 
     private:
@@ -61,8 +60,7 @@ namespace net
         uint32_t      _instanceID;
 
         void _sendPacket( ObjectInstancePacket& packet,
-                          const void* const* buffers, 
-                          const uint64_t* sizes,
+                          const void* const* chunks, const uint64_t* chunkSizes,
                           const uint64_t sizeUncompressed );
     };
 }

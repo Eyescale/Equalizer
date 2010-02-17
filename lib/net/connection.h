@@ -331,22 +331,22 @@ namespace net
                           const void* data, const uint64_t size,
                           const bool isLocked = false );
         /** 
-         * Sends a packaged message including additional multiple data to multiple
-         * connections.
+         * Sends a packaged message including additional, multiple data items to
+         * multiple connections.
+         *
+         * Automatically locks each individual connection during send. The last
+         * member of the packet has to by an 8-byte aligned 8-byte array.
          *
          * @param connections The connections.
          * @param packet the message packet.
-         * @param data the multiple buffer data.
-         * @param dataSize the datas size for each buffer in bytes.
-         * @param nData the number of data elements.
-         * @param allDataSize the total data size in bytes.
-         * @param isLocked true if the connection is locked externally.
+         * @param items a pointer array to the data items.
+         * @param itemSizes an array containing the size of each item.
+         * @param nItems the number of data elements.
          * @return true if the packet was sent successfully to all receivers.
          */
         static bool send( const ConnectionVector& connections, Packet& packet,
-                          const void* const* data, const uint64_t* dataSize, 
-                          const size_t nData, const uint64_t allDataSize,
-                          const bool isLocked );
+                          const void* const* items, const uint64_t* itemSizes, 
+                          const size_t nItems );
 
         /** 
          * Write data to the connection.

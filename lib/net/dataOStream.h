@@ -161,9 +161,6 @@ namespace DataStreamTest
         /** Reset after sending a buffer. */
         void _resetBuffer();
 
-        /** Unlock all connections during disable. */
-        void _unlockConnections();
-
         /** Write a vector of trivial data. */
         template< typename T > 
         DataOStream& _writeFlatVector( const std::vector< T >& value )
@@ -180,9 +177,11 @@ namespace DataStreamTest
         /** intanciate compressor */
         void _initCompressor( );
 
-        /** take data in compressor and send it */
-        bool _getCompressedData( uint64_t sizeUncompressed, 
-                                 void** chunks, uint64_t* chunkSizes ) const;
+        /**
+         * Collect compressed data.
+         * @return the total size of the compressed data.
+         */
+        uint64_t _getCompressedData( void** chunks, uint64_t* chunkSizes )const;
 
         /** compress data, if compressor found */
         void _compress( const void* src, const uint64_t size );
