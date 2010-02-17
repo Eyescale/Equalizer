@@ -108,7 +108,7 @@ endif # PROGRAM
 
 # cleaning targets
 clean:
-	rm -f *~ .*~ $(TARGETS) $(CLEAN_EXTRA) $(DEPENDENCIES) $(OBJECTS)
+	rm -rf *~ .*~ $(CLEAN_EXTRA) $(TARGETS) $(DEPENDENCIES) $(OBJECTS)
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \
 		echo "$(DEPTH) $$dir clean"; \

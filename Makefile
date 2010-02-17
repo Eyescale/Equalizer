@@ -18,7 +18,7 @@ SUBDIRS = \
 .PHONY: docs
 
 TARGETS     = precompile subdirs postcompile RELNOTES # docs
-CLEAN_EXTRA = $(INSTALL_FILES)
+CLEAN_EXTRA = obj build $(INSTALL_FILES)
 
 include make/rules.mk
 

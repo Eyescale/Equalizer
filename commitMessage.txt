@@ -1,7 +1,4 @@
-Code cleanups in preparation of slave object commits
-- Simplify sending n chunks to m connections
-- Lock connections on datastream send, as opposed on enable()
-- Unify variable naming
+Optimize 'make clean'
 
 [ ] May break build
 [ ] May break existing applications
