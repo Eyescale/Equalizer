@@ -1,9 +1,9 @@
-Add some missing elementary configs
+Trying to fix broken svn repo
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
