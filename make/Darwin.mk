@@ -10,7 +10,8 @@ AR               = libtool
 ARFLAGS          = -static
 
 PC_LIBRARY_PATH   ?= /opt/paracomp/lib
-
+BOOST_LIBRARY_PATH ?= /opt/local/lib
+BOOST_INCLUDE_PATH ?= /opt/local/include
 CUDA_LIBRARY_PATH ?= /usr/local/cuda/lib
 CUDA_INCLUDE_PATH ?= /usr/local/cuda/include
 
@@ -44,25 +45,25 @@ ifeq ($(findstring AGL, $(WINDOW_SYSTEM)), AGL)
 endif
 
 ifeq ($(findstring i386, $(SUBARCH)), i386)
-ifdef AGL_32BIT_ONLY
-ifdef CUDA
-  ARCHFLAGS ?= -arch i386
+  ifdef AGL_32BIT_ONLY
+    ifdef CUDA
+      ARCHFLAGS ?= -arch i386
+    else
+      ARCHFLAGS ?= -arch i386 -arch ppc
+    endif
+  else
+    ifdef CUDA
+      ARCHFLAGS ?= -arch i386 -arch x86_64 
+    else
+      ARCHFLAGS ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
+    endif
+  endif # 64BIT
 else
-  ARCHFLAGS ?= -arch i386 -arch ppc
-endif
-else
-ifdef CUDA
-  ARCHFLAGS ?= -arch i386 -arch x86_64 
-else
-  ARCHFLAGS ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
-endif
-endif # 64BIT
-else
-ifdef AGL_32BIT_ONLY
-  ARCHFLAGS ?= -arch ppc
-else
-  ARCHFLAGS ?= -arch ppc -arch ppc64
-endif
+  ifdef AGL_32BIT_ONLY
+    ARCHFLAGS ?= -arch ppc
+  else
+    ARCHFLAGS ?= -arch ppc -arch ppc64
+  endif
 endif
 
 endif # LEOPARD

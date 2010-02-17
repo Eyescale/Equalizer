@@ -26,6 +26,12 @@
 #  define LITTLE_ENDIAN
 #endif
 
+#if 0
+#  ifndef EQ_USE_BOOST
+#    define EQ_USE_BOOST
+#  endif
+#endif
+
 #if 0 // Enable for IB builds (needs WinOF 2.0 installed)
 #  ifndef EQ_INFINIBAND
 #    define EQ_INFINIBAND

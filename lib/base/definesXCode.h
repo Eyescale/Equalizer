@@ -6,6 +6,11 @@
 #ifndef Darwin
 #  define Darwin
 #endif
+#if 0
+#  ifndef EQ_USE_BOOST
+#    define EQ_USE_BOOST
+#  endif
+#endif
 #ifndef GLEW_MX
 #  define GLEW_MX
 #endif

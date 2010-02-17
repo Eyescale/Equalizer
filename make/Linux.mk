@@ -10,7 +10,7 @@ AR                  = ld
 ARFLAGS             = -r
 CXXFLAGS           += -Wno-deprecated
 CUDA_INCLUDE_PATH  ?= /usr/local/cuda/include
-
+BOOST_INCLUDE_PATH ?= /usr/include
 # SUBARCH-specific settings
 
 include $(TOP)/make/$(ARCH).$(SUBARCH).mk

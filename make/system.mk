@@ -29,6 +29,8 @@ export LD_PATH
 export PC_LIBRARY_PATH
 export CUDA_LIBRARY_PATH
 export CUDA_INCLUDE_PATH
+export BOOST_LIBRARY_PATH
+export BOOST_INCLUDE_PATH
 
 # helper variables for directory-dependent stuff
 SUBDIR    ?= "."
@@ -101,6 +103,16 @@ ifeq ($(findstring -DEQ_USE_CUDA, $(DEFFLAGS)), -DEQ_USE_CUDA)
     CXXFLAGS += -I$(CUDA_INCLUDE_PATH)
     LDFLAGS  += -L$(CUDA_LIBRARY_PATH) -lcuda -lcudart	
     LD_PATH  := "$(LD_PATH):$(CUDA_LIBRARY_PATH)"
+endif
+
+# BOOST settings
+# Check presence of BOOST
+ifeq ($(wildcard $(BOOST_INCLUDE_PATH)/boost/asio), $(BOOST_INCLUDE_PATH)/boost/asio)
+    DEFFLAGS += -DEQ_USE_BOOST
+
+    CXXFLAGS += -isystem $(BOOST_INCLUDE_PATH)
+    LDFLAGS  += -L$(BOOST_LIBRARY_PATH) -lboost_system
+    LD_PATH  := "$(LD_PATH):$(BOOST_LIBRARY_PATH)"
 endif
 
 # Paracomp settings
