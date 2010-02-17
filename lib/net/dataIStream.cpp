@@ -118,16 +118,12 @@ bool DataIStream::_checkBuffer()
     return true;
 }
 
-void DataIStream::_decompress( void* src, 
-                               const uint8_t** dst, 
-                               const uint32_t name,
-                               const uint32_t nChunks,
+void DataIStream::_decompress( const uint8_t* src, const uint8_t** dst, 
+                               const uint32_t name, const uint32_t nChunks,
                                const uint64_t dataSize )
 {
-    uint8_t* srcChar = reinterpret_cast< uint8_t* >( src );
-    
-    _datas.resize( dataSize );
-    *dst = _datas.getData();
+    _data.resize( dataSize );
+    *dst = _data.getData();
         
     EQASSERT( name != EQ_COMPRESSOR_NONE );
 
@@ -139,19 +135,21 @@ void DataIStream::_decompress( void* src,
     void** chunks = static_cast< void ** >( 
                                 alloca( nChunks * sizeof( void* )));
     
-    for ( size_t i = 0; i < nChunks; i++ )
+    for( size_t i = 0; i < nChunks; ++i )
     {
-        const uint64_t size = *reinterpret_cast< uint64_t* >( srcChar );
+        const uint64_t size = *reinterpret_cast< const uint64_t* >( src );
         chunkSizes[ i ] = size;
-        srcChar += sizeof( uint64_t );
-        chunks[ i ] = srcChar;
-        srcChar += size;
+        src += sizeof( uint64_t );
+
+        // The plugin API uses non-const source buffers for in-place operations
+        chunks[ i ] = const_cast< uint8_t* >( src );
+        src += size;
     }
 
     base::Compressor* plugin = _getCompressorPlugin();
     EQASSERT( plugin );
     plugin->decompress( _decompressor, name, chunks, chunkSizes, nChunks, 
-                        _datas.getData(), outDim, EQ_COMPRESSOR_DATA_1D );
+                        _data.getData(), outDim, EQ_COMPRESSOR_DATA_1D );
 
 }
 

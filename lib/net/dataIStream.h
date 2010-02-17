@@ -93,10 +93,8 @@ namespace net
     protected:
         virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size ) =0;
 
-        void _decompress( void* src, 
-                          const uint8_t** dst, 
-                          const uint32_t name,
-                          const uint32_t nChunks,
+        void _decompress( const uint8_t* src, const uint8_t** dst, 
+                          const uint32_t name, const uint32_t nChunks,
                           const uint64_t dataSize );
 
     private:
@@ -108,7 +106,7 @@ namespace net
         uint64_t  _position;
 
         void* _decompressor;   //!< the instance of the decompressor
-        eq::base::Bufferb _datas; //!< a buffer for decompress datas
+        eq::base::Bufferb _data; //!< decompress buffer
 
         void _initDecompressor( const uint32_t name );
         /**

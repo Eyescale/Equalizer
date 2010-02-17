@@ -56,13 +56,11 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
             const ObjectInstancePacket* packet =
                 command->getPacket< ObjectInstancePacket >();
 
-            *size   = packet->dataSize;
+            *size = packet->dataSize;
 
             if( packet->compressorName != EQ_COMPRESSOR_NONE )
             {
-                uint8_t* dataCompressed = const_cast<uint8_t*>( 
-                                  static_cast<const uint8_t*>( packet->data ));
-                _decompress( dataCompressed, buffer, packet->compressorName,
+                _decompress( packet->data, buffer, packet->compressorName,
                              packet->nChunks, packet->dataSize );
                 
                 return true;

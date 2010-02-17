@@ -55,9 +55,7 @@ bool ObjectDeltaDataIStream::getNextBuffer( const uint8_t** buffer,
 
             if ( packet->compressorName != EQ_COMPRESSOR_NONE )
             {
-                uint8_t* bufferTemp = const_cast<uint8_t*>( 
-                                  static_cast<const uint8_t*>( packet->delta ));
-                _decompress( bufferTemp, buffer, packet->compressorName,
+                _decompress( packet->delta, buffer, packet->compressorName,
                              packet->nChunks, packet->dataSize );
                 
                 return true;
