@@ -107,7 +107,7 @@ endif
 
 # BOOST settings
 # Check presence of BOOST
-ifeq ($(wildcard $(BOOST_INCLUDE_PATH)/boost/asio), $(BOOST_INCLUDE_PATH)/boost/asio)
+ifeq ($(wildcard $(BOOST_INCLUDE_PATH)/boost/asio.hpp), $(BOOST_INCLUDE_PATH)/boost/asio.hpp)
     DEFFLAGS += -DEQ_USE_BOOST
 
     CXXFLAGS += -isystem $(BOOST_INCLUDE_PATH)
