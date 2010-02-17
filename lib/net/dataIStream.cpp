@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -46,8 +46,9 @@ DataIStream::~DataIStream()
 {
     reset();
     
-    if ( getPlugin() && _decompressor )
-        getPlugin()->deleteDecompressor( _decompressor );
+    base::Compressor* plugin = _getCompressorPlugin();
+    if( plugin && _decompressor )
+        plugin->deleteDecompressor( _decompressor );
 }
 
 void DataIStream::reset()
@@ -146,24 +147,33 @@ void DataIStream::_decompress( void* src,
         chunks[ i ] = srcChar;
         srcChar += size;
     }
-    getPlugin()->decompress( _decompressor, name, chunks, chunkSizes, nChunks, 
-                             _datas.getData(), outDim, EQ_COMPRESSOR_DATA_1D );
+
+    base::Compressor* plugin = _getCompressorPlugin();
+    EQASSERT( plugin );
+    plugin->decompress( _decompressor, name, chunks, chunkSizes, nChunks, 
+                        _datas.getData(), outDim, EQ_COMPRESSOR_DATA_1D );
 
 }
 
 void DataIStream::_initDecompressor( const uint32_t name )
 {
-    if( getCompressorName() != name && _decompressor )
+    if( _getCompressorName() != name && _decompressor )
     {
-        getPlugin()->deleteDecompressor( _decompressor );
+        base::Compressor* plugin = _getCompressorPlugin();
+        EQASSERT( plugin );
+        plugin->deleteDecompressor( _decompressor );
         _decompressor = 0;
     }
 
-    _initPlugin( name );
+    base::Compressor* plugin = _initCompressorPlugin( name );
 
     if( !_decompressor )
-        _decompressor = getPlugin()->newDecompressor( name );
+    {
+        EQASSERT( plugin );
+        _decompressor = plugin->newDecompressor( name );
+    }
 }
+
 }
 }
 

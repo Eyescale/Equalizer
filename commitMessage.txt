@@ -1,9 +1,9 @@
-Trying to fix broken svn repo
+Code cleanups in preparation of slave object commits
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

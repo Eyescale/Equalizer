@@ -994,7 +994,7 @@ namespace eq
         
         net::ObjectVersion frame;
         uint32_t           nNodes;
-        EQ_ALIGN8( net::NodeID        nodes[1] );
+        EQ_ALIGN8( net::NodeID nodes[1] );
     };
 
     struct ChannelFrameViewStartPacket : public ChannelTaskPacket

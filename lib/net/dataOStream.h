@@ -113,17 +113,17 @@ namespace DataStreamTest
         /** @name Packet sending, implemented by the subclasses */
         //@{
         /** Send a data buffer (packet) to the receivers. */
-        virtual void sendBuffer( const uint32_t name, 
-                                 const uint32_t nChunks,
-                                 const void* const* buffer, 
-                                 const uint64_t* size,
-                                 const uint64_t sizeUncompressed ) = 0;
+        virtual void sendData( const uint32_t compressor,
+                               const uint32_t nChunks,
+                               const void* const* chunks,
+                               const uint64_t* chunkSizes,
+                               const uint64_t sizeUncompressed ) = 0;
                                  
         /** Send the trailing data (packet) to the receivers */
-        virtual void sendFooter( const uint32_t name, 
+        virtual void sendFooter( const uint32_t compressor,
                                  const uint32_t nChunks,
-                                 const void* const* buffer, 
-                                 const uint64_t* size,
+                                 const void* const* chunks, 
+                                 const uint64_t* chunkSizes,
                                  const uint64_t sizeUncompressed ) = 0;
         //@}
 
@@ -161,8 +161,8 @@ namespace DataStreamTest
         /** Save all sent data */
         bool _save;
 
-        /** Helper function calling sendHeader and sendBuffer as needed. */
-        void _sendBuffer( const void* data, const uint64_t size );
+        /** Helper function preparing data for sendBuffer as needed. */
+        void _sendData( const void* data, const uint64_t size );
         
         /** Reset after sending a buffer. */
         void _resetBuffer();
@@ -186,9 +186,6 @@ namespace DataStreamTest
         /** intanciate compressor */
         void _initCompressor( );
 
-        /** find the better compressor for the given token type */
-        uint32_t _chooseCompressor( const uint32_t tokenType );
-      
         /** take data in compressor and send it */
         bool _getCompressedData( uint64_t sizeUncompressed, 
                                  void** chunks, 

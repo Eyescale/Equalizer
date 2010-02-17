@@ -67,11 +67,11 @@ void ObjectDeltaDataOStream::_sendPacket( ObjectDeltaPacket& packet,
     Connection::send( _connections, packet, buffers[0], sizeUncompressed, true );
 }
 
-void ObjectDeltaDataOStream::sendBuffer( const uint32_t name, 
-                                         const uint32_t nChunks,
-                                         const void* const* buffers,
-                                         const uint64_t* sizes,
-                                         const uint64_t sizeUncompressed )
+void ObjectDeltaDataOStream::sendData( const uint32_t name,
+                                       const uint32_t nChunks,
+                                       const void* const* buffers,
+                                       const uint64_t* sizes,
+                                       const uint64_t sizeUncompressed )
 {
     ObjectDeltaPacket packet;
     packet.compressorName = name;

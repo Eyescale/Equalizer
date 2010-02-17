@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,22 +25,39 @@ namespace eq
 {
 namespace base
 {
-    /** The registry for all loaded Equalizer plugins. */
+    /** The registry for all loaded Equalizer plugins. @internal */
     class PluginRegistry
     {
     public:
 
-        /* Search all global plugin directories and register found DSOs */
+        /** Search all global plugin directories and register found DSOs */
         void init();
         
-        /* Exit all library and free all plugins */
+        /** Exit all library and free all plugins */
         void exit();
         
-        /* @return all registered compressors plugins */
+        /** @return all registered compressor plugins */
         EQ_EXPORT const CompressorVector& getCompressors() const;
 
-        /* @return the compressor with the given name, or 0. */
+        /** @return the plugin containing the given compressor, or 0. */
         EQ_EXPORT Compressor* findCompressor( const uint32_t name );
+
+        /**
+         * Find the best compressor in all plugins for the given parameters.
+         *
+         * This convenience method searches all compressors in all plugins to
+         * find the compressor which matches best the given parameters.
+         *
+         * @param tokenType the structure of the data to compress.
+         * @param minQuality minimal quality of the compressed data, with 0 = no
+         *                   quality and 1 = full quality, no loss.
+         * @param ignoreMSE the most-significant element of each token can be
+         *                  ignored, typically the alpha channel of an image.
+         */
+        EQ_EXPORT uint32_t chooseCompressor( const uint32_t tokenType, 
+                                             const float minQuality = 1.0f,
+                                             const bool ignoreMSE = false )
+            const;
 
     private:
         CompressorVector _compressors;

@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,7 +26,8 @@
 /**
  * @file base/compressor.h
  * 
- * Helper class for storing the function pointers of one compressor plugin.
+ * Helper class for storing the function pointers of one compressor plugin DSO.
+ * @internal
  */
 namespace eq
 {
@@ -37,12 +38,12 @@ namespace base
      * @internal
      */
     class Compressor;
-    typedef std::vector< EqCompressorInfo >  CompressorInfoVector;
-    typedef std::vector< Compressor* >   CompressorVector;
+    typedef std::vector< EqCompressorInfo > CompressorInfoVector;
+    typedef std::vector< Compressor* > CompressorVector;
+
     class Compressor
     {
     public:
-        
         typedef size_t ( *GetNumCompressors_t ) ();
         typedef void   ( *GetInfo_t ) ( const size_t, EqCompressorInfo* const );
         typedef void*  ( *NewCompressor_t ) ( const unsigned );

@@ -45,11 +45,10 @@ namespace net
         const NodeID& getNodeID() const { return _nodeID; }
 
     protected:
-        virtual void sendBuffer( const uint32_t name, 
-                                 const uint32_t nChunks,
-                                 const void* const* buffers, 
-                                 const uint64_t* size,
-                                 const uint64_t sizeUncompressed );
+        virtual void sendData( const uint32_t name, const uint32_t nChunks,
+                               const void* const* buffers, 
+                               const uint64_t* size,
+                               const uint64_t sizeUncompressed );
 
         virtual void sendFooter( const uint32_t name, 
                                  const uint32_t nChunks,

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -27,9 +27,8 @@
 
 //#define EQ_INSTRUMENT_DATAOSTREAM
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-#   include <eq/base/clock.h>
+#  include <eq/base/clock.h>
 #endif
-using namespace eq::base;
 
 namespace eq
 {
@@ -58,7 +57,9 @@ DataOStream::DataOStream()
         , _save( false )
 {
 #ifdef EQ_COMPRESS_STREAM
-    uint32_t name = _chooseCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
+    const base::PluginRegistry& registry = base::Global::getPluginRegistry();
+    const uint32_t name = 
+        registry.chooseCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
     _initPlugin( name );
     _initCompressor();
 #endif
@@ -70,8 +71,9 @@ DataOStream::~DataOStream()
     // Can't call disable() from destructor since it uses virtual functions
     EQASSERT( !_enabled );
 
-    if( getPlugin() && _compressor )
-        getPlugin()->deleteCompressor( _compressor );
+    base::Compressor* plugin = _getCompressorPlugin();
+    if( plugin && _compressor )
+        plugin->deleteCompressor( _compressor );
     
     _compressor = 0;
 }
@@ -254,7 +256,7 @@ void DataOStream::write( const void* data, uint64_t size )
     {
         _bufferType = BUFFER_PARTIAL;
         _compress( data, size );   
-        _sendBuffer( data, size );
+        _sendData( data, size );
         return;
     }
 
@@ -293,14 +295,16 @@ void DataOStream::writeOnce( const void* data, uint64_t size )
 void DataOStream::_flush()
 {
     EQASSERT( _enabled );
+    const void* ptr = _buffer.getData() + _bufferStart;
+    const uint64_t size = _buffer.getSize() - _bufferStart;
+
     if( _bufferType != BUFFER_PARTIAL )
     {
         _bufferType = BUFFER_PARTIAL;
-        _compress(  _buffer.getData() + _bufferStart, 
-                    _buffer.getSize() - _bufferStart  );
+        _compress( ptr, size );
     }
-    _sendBuffer( _buffer.getData() + _bufferStart, 
-                 _buffer.getSize() - _bufferStart );
+
+    _sendData( ptr, size );
     _resetBuffer();
 }
 
@@ -321,7 +325,7 @@ void DataOStream::_resetBuffer()
     }
 }
 
-void DataOStream::_sendBuffer( const void* data, const uint64_t size )
+void DataOStream::_sendData( const void* data, const uint64_t size )
 {
     EQASSERT( _enabled );
     if( size == 0 )
@@ -331,23 +335,24 @@ void DataOStream::_sendBuffer( const void* data, const uint64_t size )
     {
         if( _bufferType != BUFFER_NONE && _compressor )
         {
-            const uint32_t nChunks = getPlugin()->getNumResults( _compressor, 
-                                                          getCompressorName() );
+            base::Compressor* plugin = _getCompressorPlugin();
+            const uint32_t name = _getCompressorName();
+            const uint32_t nChunks = plugin->getNumResults( _compressor, name );
 
             uint64_t* chunkSizes = static_cast< uint64_t* >( 
                                     alloca( nChunks * sizeof( uint64_t )));
             void** chunks = static_cast< void ** >( 
                                     alloca( nChunks * sizeof( void* )));
-            if( _getCompressedData( size, chunks, chunkSizes ) )
+
+            if( _getCompressedData( size, chunks, chunkSizes ))
             {
-                sendBuffer( getCompressorName(), nChunks, 
-                            chunks, chunkSizes, size );
+                sendData( name, nChunks, chunks, chunkSizes, size );
                 _dataSent = true;
                 return;
             }
         }
         
-        sendBuffer( EQ_COMPRESSOR_NONE, 1, &data, &size, size );
+        sendData( EQ_COMPRESSOR_NONE, 1, &data, &size, size );
     }
     _dataSent = true;
 }
@@ -356,17 +361,18 @@ void DataOStream::_sendFooter( const void* buffer, const uint64_t size )
 {
     if( _bufferType != BUFFER_NONE && _compressor )
     {
-        const uint32_t nChunks = getPlugin()->getNumResults( _compressor, 
-                                                         getCompressorName() );
+        base::Compressor* plugin = _getCompressorPlugin();
+        const uint32_t name = _getCompressorName();
+        const uint32_t nChunks = plugin->getNumResults( _compressor, name );
 
         uint64_t* chunkSizes = static_cast< uint64_t* >( 
                                 alloca( nChunks * sizeof( uint64_t )));
         void** chunks = static_cast< void ** >( 
                                 alloca( nChunks * sizeof( void* )));
+
         if ( _getCompressedData( size, chunks, chunkSizes ) )
         {
-            sendFooter( getCompressorName(), nChunks, chunks, 
-                        chunkSizes, size );
+            sendFooter( name, nChunks, chunks, chunkSizes, size );
             return;
         }
     }
@@ -390,22 +396,24 @@ void DataOStream::_compress( const void* src, const uint64_t  sizeSrc )
     eq::base::Clock clock;
 #endif
     const uint64_t inDims[2] = { 0, sizeSrc };
-    getPlugin()->compress( _compressor, getCompressorName(), 
-                       const_cast<void*>( src ), 
-                       inDims, EQ_COMPRESSOR_DATA_1D );
+    base::Compressor* plugin = _getCompressorPlugin();
+    const uint32_t name = _getCompressorName();
+    EQASSERT( plugin );
+
+    plugin->compress( _compressor, name, const_cast< void* >( src ), inDims,
+                      EQ_COMPRESSOR_DATA_1D );
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     timeToCompress += clock.getTime64();
-    const uint32_t nChunks = getPlugin()->getNumResults( _compressor, 
-                                                     getCompressorName() );
+    const uint32_t nChunks = plugin->getNumResults( _compressor, name );
 
     EQASSERT( nChunks > 0 );
     for ( size_t i = 0; i < nChunks; i++ )
     {
         void* chunk;
         uint64_t chunkSize;
-        getPlugin()->getResult( _compressor, getCompressorName(), i, 
-                                &chunk, &chunkSize );
+
+        plugin->getResult( _compressor, name, i, &chunk, &chunkSize );
         nBytesCompressed += chunkSize;
     }
 #endif
@@ -416,15 +424,15 @@ bool DataOStream::_getCompressedData( uint64_t sizeUncompressed,
                                       uint64_t* chunkSizes )
 {    
     EQASSERT( _bufferType != BUFFER_NONE );
-    const uint32_t nChunks = getPlugin()->getNumResults( _compressor, 
-                                                     getCompressorName() );
+    base::Compressor* plugin = _getCompressorPlugin();
+    const uint32_t name = _getCompressorName();
+    const uint32_t nChunks = plugin->getNumResults( _compressor, name );
     EQASSERT( nChunks > 0 );
 
     uint64_t dataSize = 0;
     for ( uint32_t i = 0; i < nChunks; i++ )
     {
-        getPlugin()->getResult( _compressor, getCompressorName(), i,  
-                                &chunks[i], &chunkSizes[i] );
+        plugin->getResult( _compressor, name, i, &chunks[i], &chunkSizes[i] );
         dataSize += chunkSizes[i];
     }
 
@@ -438,50 +446,14 @@ bool DataOStream::_getCompressedData( uint64_t sizeUncompressed,
     return true;
 }
 
-uint32_t DataOStream::_chooseCompressor( const uint32_t tokenType )
-{
-    uint32_t name = EQ_COMPRESSOR_NONE;
-    float ratio = 1.0f;
-    
-    EQINFO << "Searching compressor for token type " << tokenType << std::endl;
-    
-    const PluginRegistry& registry = eq::base::Global::getPluginRegistry();
-    const CompressorVector& compressors = registry.getCompressors();
-
-    for( CompressorVector::const_iterator i = compressors.begin();
-        i != compressors.end(); ++i )
-    {
-        const Compressor* compressor = *i;
-        const CompressorInfoVector& infos = compressor->getInfos();
-        
-        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
-        
-        for( CompressorInfoVector::const_iterator j = infos.begin();
-            j != infos.end(); ++j )
-        {
-            const EqCompressorInfo& info = *j;
-            if( info.tokenType != tokenType )
-                continue;
-            
-            if( ratio > info.ratio ) // TODO: be smarter
-            {
-                name  = info.name;
-                ratio = info.ratio;
-            }
-        }
-    }
-
-    EQINFO << "Selected compressor " << name << std::endl;
-
-    return name;
-}
-
 void DataOStream::_initCompressor()
 {
-    if( getCompressorName() != EQ_COMPRESSOR_NONE )
+    const uint32_t name = _getCompressorName();
+    if( name != EQ_COMPRESSOR_NONE )
     {
         EQASSERT( !_compressor );
-        _compressor = getPlugin()->newCompressor( getCompressorName() );
+        base::Compressor* plugin = _getCompressorPlugin();
+        _compressor = plugin->newCompressor( name );
     }
 }
 

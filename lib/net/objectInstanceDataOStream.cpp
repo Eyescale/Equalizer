@@ -79,11 +79,11 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
     Connection::send( _connections, packet, buffers[0], sizeUncompressed, true );
 }
 
-void ObjectInstanceDataOStream::sendBuffer( const uint32_t name, 
-                                            const uint32_t nChunks,
-                                            const void* const* buffers,
-                                            const uint64_t* sizes,
-                                            const uint64_t sizeUncompressed )
+void ObjectInstanceDataOStream::sendData( const uint32_t name, 
+                                          const uint32_t nChunks,
+                                          const void* const* buffers,
+                                          const uint64_t* sizes,
+                                          const uint64_t sizeUncompressed )
 {
     ObjectInstancePacket packet;
     packet.compressorName = name;

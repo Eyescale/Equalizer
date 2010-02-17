@@ -66,27 +66,17 @@ struct FooterPacket : public eq::net::Packet
 class DataOStream : public eq::net::DataOStream
 {
 protected:
-    virtual void sendHeader( const void* buffer, const uint64_t size )
-        {
-            HeaderPacket packet;
-            eq::net::Connection::send( _connections, packet, true/*isLocked*/ );
-            EQINFO << "Sent header" << std::endl;
-
-            sendBuffer( 0, 0, &buffer, &size, size );
-        }
-
-    virtual void sendBuffer( const uint32_t name, 
-                             const uint32_t nChunks,
-                             const void* const* buffer, 
-                             const uint64_t* size,
-                             const uint64_t sizeUncompressed  )
+    virtual void sendData( const uint32_t name, const uint32_t nChunks,
+                           const void* const* buffer, const uint64_t* size,
+                           const uint64_t sizeUncompressed  )
         {
             DataPacket packet;
             packet.dataSize = sizeUncompressed;
             eq::net::Connection::send( _connections, packet, buffer[0], 
                                        sizeUncompressed, 
                                        true /*isLocked*/ );
-            EQINFO << "Sent buffer of " << sizeUncompressed << " bytes" << std::endl;
+            EQINFO << "Sent buffer of " << sizeUncompressed << " bytes"
+                   << std::endl;
         }
 
     virtual void sendFooter( const uint32_t name, 
@@ -96,7 +86,7 @@ protected:
                              const uint64_t sizeUncompressed  )
         {
             if( sizeUncompressed > 0 )
-	      sendBuffer( name, nChunks, buffer, size, sizeUncompressed );
+                sendData( name, nChunks, buffer, size, sizeUncompressed );
 
             FooterPacket packet;
             eq::net::Connection::send( _connections, packet, true/*isLocked*/ );

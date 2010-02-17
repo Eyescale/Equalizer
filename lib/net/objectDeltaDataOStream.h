@@ -38,14 +38,12 @@ namespace net
         virtual ~ObjectDeltaDataOStream();
 
     protected:
-        virtual void sendBuffer( const uint32_t name, 
-                                 const uint32_t nChunks,
-                                 const void* const* buffers, 
-                                 const uint64_t* sizes,
-                                 const uint64_t sizeUncompressed );
+        virtual void sendData( const uint32_t name, const uint32_t nChunks,
+                               const void* const* buffers,
+                               const uint64_t* sizes,
+                               const uint64_t sizeUncompressed );
 
-        virtual void sendFooter( const uint32_t name, 
-                                 const uint32_t nChunks,
+        virtual void sendFooter( const uint32_t name, const uint32_t nChunks,
                                  const void* const* buffers, 
                                  const uint64_t* sizes,
                                  const uint64_t sizeUncompressed );

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,11 +20,11 @@
 
 #include "objectCM.h"
 
+#include <eq/plugins/compressor.h>
+#include <eq/base/pluginRegistry.h>
+
 #include <iostream>
 #include <vector>
-#include <eq/plugins/compressor.h>
-#include <eq/base/global.h>
-#include <eq/base/pluginRegistry.h>
 
 namespace eq
 {
@@ -32,41 +33,21 @@ namespace net
     class DataStream
     {
     public:
-        DataStream( ) 
-            : _name( EQ_COMPRESSOR_NONE )
-            , _plugin( 0 ) {}
+        DataStream( ) : _name( EQ_COMPRESSOR_NONE ), _plugin( 0 ) {}
             
         DataStream( const DataStream& from )
-            : _name( from._name )
-            , _plugin( from._plugin ) {}
+                : _name( from._name ), _plugin( from._plugin ) {}
         
-        virtual ~DataStream() { _plugin = 0; }
+        virtual ~DataStream() { _name = EQ_COMPRESSOR_NONE; _plugin = 0; }
 
     protected:
-        uint32_t getCompressorName() const { return _name; }
-        eq::base::Compressor* getPlugin() const { return _plugin; }
-        eq::base::Compressor* _initPlugin( const uint32_t name )
-        {
-            if( _name == name )
-                return _plugin;
-
-            _plugin = 0;
-            _name = name;
-            
-            if ( name == EQ_COMPRESSOR_NONE )
-                return 0;
-            
-            eq::base::PluginRegistry& registry = 
-                                         eq::base::Global::getPluginRegistry();
-            _plugin = registry.findCompressor( name );
-            EQASSERT( _plugin );
-
-            return _plugin;
-        }
+        uint32_t _getCompressorName() const { return _name; }
+        base::Compressor* _getCompressorPlugin() const { return _plugin; }
+        base::Compressor* _initCompressorPlugin( const uint32_t name );
 
     private:
-        uint32_t    _name;             //!< the name of the (de) compressor 
-        eq::base::Compressor* _plugin; //!< Plugin handling the allocation
+        uint32_t _name;            //!< the name of the (de) compressor 
+        base::Compressor* _plugin; //!< plugin handling the allocation
     };
 }
 }

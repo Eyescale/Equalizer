@@ -282,51 +282,11 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
     if( !attachment.memory.format )
         return EQ_COMPRESSOR_NONE;
 
-    const uint32_t tokenType = _getCompressorTokenType( buffer );
-    uint32_t name = EQ_COMPRESSOR_NONE;
-    float ratio = 1.0f;
-    float minDiffQuality = 1.0f;
-
-    EQINFO << "Searching compressor for token type " << tokenType << " quality "
-           << attachment.quality << std::endl;
-
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::CompressorVector& compressors = registry.getCompressors();
-    for( base::CompressorVector::const_iterator i = compressors.begin();
-         i != compressors.end(); ++i )
-    {
-        const base::Compressor* compressor = *i;
-        const base::CompressorInfoVector& infos = compressor->getInfos();
+    const uint32_t tokenType = _getCompressorTokenType( buffer );
+    const bool noAlpha = _canIgnoreAlpha( buffer );
 
-        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
-        
-        for( base::CompressorInfoVector::const_iterator j = infos.begin();
-             j != infos.end(); ++j )
-        {
-            const EqCompressorInfo& info = *j;
-            if( info.tokenType != tokenType )
-                continue;
-
-            float infoRatio = info.ratio;
-            if( _canIgnoreAlpha( buffer ) && 
-                ( info.capabilities & EQ_COMPRESSOR_IGNORE_MSE ))
-            {
-                infoRatio *= .75f;
-            }
-            
-            const float diffQuality = info.quality - attachment.quality;
-            if( ratio >= infoRatio && diffQuality <= minDiffQuality &&
-                info.quality >= attachment.quality ) // TODO: be smarter
-            {
-                minDiffQuality = diffQuality;
-                name = info.name;
-                ratio = infoRatio;
-            }
-        }
-    }
-
-    EQINFO << "Selected compressor " << name << std::endl;
-    return name;
+    return registry.chooseCompressor( tokenType, attachment.quality, noAlpha );
 }
 
 bool Image::hasAlpha() const

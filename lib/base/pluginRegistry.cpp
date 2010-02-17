@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -131,6 +132,66 @@ Compressor* PluginRegistry::findCompressor( const uint32_t name )
 const CompressorVector& PluginRegistry::getCompressors() const
 {
     return _compressors;
+}
+
+uint32_t PluginRegistry::chooseCompressor( const uint32_t tokenType, 
+                                           const float minQuality,
+                                           const bool ignoreMSE ) const
+{
+    uint32_t name = EQ_COMPRESSOR_NONE;
+    float ratio = 1.0f;
+    float minDiffQuality = 1.0f;
+
+    EQINFO << "Searching compressor for token type " << tokenType << " quality "
+           << minQuality << std::endl;
+
+    for( CompressorVector::const_iterator i = _compressors.begin();
+         i != _compressors.end(); ++i )
+    {
+        const Compressor* compressor = *i;
+        const CompressorInfoVector& infos = compressor->getInfos();
+
+        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
+        
+        for( CompressorInfoVector::const_iterator j = infos.begin();
+             j != infos.end(); ++j )
+        {
+            const EqCompressorInfo& info = *j;
+            if( info.tokenType != tokenType )
+                continue;
+
+            float infoRatio = info.ratio;
+            if( ignoreMSE && ( info.capabilities & EQ_COMPRESSOR_IGNORE_MSE ))
+            {
+                switch( tokenType )
+                {
+                    default:
+                        EQUNIMPLEMENTED; // no break;
+                    case EQ_COMPRESSOR_DATATYPE_4_BYTE:
+                    case EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT:
+                    case EQ_COMPRESSOR_DATATYPE_4_FLOAT:
+                        infoRatio *= .75f;
+                        break;
+
+                    case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
+                        infoRatio *= .9375f; // 30/32
+                        break;
+                }
+            }
+            
+            const float diffQuality = info.quality - minQuality;
+            if( ratio >= infoRatio && diffQuality <= minDiffQuality &&
+                info.quality >= minQuality )
+            {
+                minDiffQuality = diffQuality;
+                name = info.name;
+                ratio = infoRatio;
+            }
+        }
+    }
+
+    EQINFO << "Selected compressor " << name << std::endl;
+    return name;
 }
 
 }

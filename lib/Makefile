@@ -188,6 +188,7 @@ CXXFILES = \
 	net/connection.cpp \
 	net/connectionDescription.cpp \
 	net/connectionSet.cpp \
+	net/dataStream.cpp \
 	net/dataIStream.cpp \
 	net/dataOStream.cpp \
 	net/deltaMasterCM.cpp \
