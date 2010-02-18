@@ -102,7 +102,7 @@ endif # g++
 ifeq ($(findstring -DEQ_USE_CUDA, $(DEFFLAGS)), -DEQ_USE_CUDA)
     CXXFLAGS += -I$(CUDA_INCLUDE_PATH)
     LDFLAGS  += -L$(CUDA_LIBRARY_PATH) -lcuda -lcudart	
-    LD_PATH  := "$(LD_PATH):$(CUDA_LIBRARY_PATH)"
+    LD_PATH  := $(LD_PATH):$(CUDA_LIBRARY_PATH)
 endif
 
 # BOOST settings
@@ -112,7 +112,9 @@ ifeq ($(wildcard $(BOOST_INCLUDE_PATH)/boost/asio.hpp), $(BOOST_INCLUDE_PATH)/bo
 
     CXXFLAGS += -isystem $(BOOST_INCLUDE_PATH)
     LDFLAGS  += -L$(BOOST_LIBRARY_PATH) -lboost_system
-    LD_PATH  := "$(LD_PATH):$(BOOST_LIBRARY_PATH)"
+  ifneq ($(BOOST_LIBRARY_PATH), /opt/local/lib)
+    LD_PATH  := $(LD_PATH):$(BOOST_LIBRARY_PATH)
+  endif
 endif
 
 # Paracomp settings
