@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,55 +29,13 @@ namespace eq
 {
 namespace net
 {
-ObjectInstanceDataIStream::ObjectInstanceDataIStream()
-{
-}
-
-ObjectInstanceDataIStream::ObjectInstanceDataIStream( 
-    const ObjectInstanceDataIStream& from )
-        : ObjectDataIStream( from )
-{}
-
-ObjectInstanceDataIStream::~ObjectInstanceDataIStream()
-{
-}
 
 bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer, 
                                                uint64_t* size )
 {
-    const Command* command = getNextCommand();
-    if( !command )
-        return false;
-
-    switch( (*command)->command )
-    {
-        case CMD_OBJECT_INSTANCE:
-        {
-            const ObjectInstancePacket* packet =
-                command->getPacket< ObjectInstancePacket >();
-
-            *size = packet->dataSize;
-
-            if( packet->compressorName != EQ_COMPRESSOR_NONE )
-            {
-                _decompress( packet->data, buffer, packet->compressorName,
-                             packet->nChunks, packet->dataSize );
-                
-                return true;
-            }
-
-            EQASSERT( *reinterpret_cast< const uint64_t* >( packet->data ) == 
-                      packet->dataSize );
-            *buffer = packet->data + 8;
-            return true;
-        }
-        
-        default: 
-            EQERROR << "Illegal command in command fifo: " << *command << endl;
-            EQUNREACHABLE;
-    }
-
-    return false;    
+    return _getNextBuffer< ObjectInstancePacket >( CMD_OBJECT_INSTANCE, 
+                                                   buffer, size );
 }
+
 }
 }

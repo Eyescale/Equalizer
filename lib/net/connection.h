@@ -334,8 +334,10 @@ namespace net
          * Sends a packaged message including additional, multiple data items to
          * multiple connections.
          *
-         * Automatically locks each individual connection during send. The last
-         * member of the packet has to by an 8-byte aligned 8-byte array.
+         * Automatically locks each individual connection during send. The data
+         * items are appended to the packet individually as a 8-byte size token
+         * followed by size bytes data. The packet.size is updated to the size
+         * of all data send (packet + sizes + items).
          *
          * @param connections The connections.
          * @param packet the message packet.

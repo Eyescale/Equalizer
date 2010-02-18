@@ -378,7 +378,7 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
     if( connections.empty( ))
         return true;
 
-    const uint64_t headerSize  = packet.size - 8;
+    const uint64_t headerSize = packet.size;
     packet.size = headerSize;
     for( size_t i = 0; i < nItems; ++i )
         packet.size += itemSizes[ i ] + sizeof( uint64_t );

@@ -1,9 +1,11 @@
-Fix bug introduced with latest cleanups
+DataStream code cleanups
+- refactor getNextBuffer into template function
+- remove data pointer for multi-chunk packets and simply append data
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

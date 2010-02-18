@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -140,6 +140,42 @@ const Command* ObjectDataIStream::getNextCommand()
     
     return _commands.front();
 }
+
+template< typename P > bool ObjectDataIStream::_getNextBuffer( 
+    const uint32_t cmd, const uint8_t** buffer, uint64_t* size )
+{
+    const Command* command = getNextCommand();
+    if( !command )
+        return false;
+
+    if( (*command)->command != cmd )
+    {
+        EQERROR << "Illegal command in command fifo: " << *command << endl;
+        EQUNREACHABLE;
+        return false;    
+    }
+
+    const P* packet = command->getPacket< P >();
+
+    *size = packet->dataSize;
+    const uint8_t* data = reinterpret_cast<const uint8_t*>( packet+1 );
+
+    if( packet->compressorName != EQ_COMPRESSOR_NONE )
+    {
+        _decompress( data, buffer, packet->compressorName, packet->nChunks,
+                     packet->dataSize );
+        return true;
+    }
+
+    *buffer = data + 8;
+    EQASSERT( *reinterpret_cast<const uint64_t*>( data ) == packet->dataSize );
+    return true;
+}
+
+template bool ObjectDataIStream::_getNextBuffer< ObjectDeltaPacket >(
+    const uint32_t, const uint8_t**, uint64_t* );
+template bool ObjectDataIStream::_getNextBuffer< ObjectInstancePacket >(
+    const uint32_t, const uint8_t**, uint64_t* );
 
 }
 }

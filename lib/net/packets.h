@@ -566,13 +566,11 @@ namespace net
             {
                 command = CMD_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket );
-                data[0] = '\0';
             }
 
         NodeID nodeID;
         uint32_t masterInstanceID;
         uint32_t fill;
-        EQ_ALIGN8( uint8_t data[8] );
     };
 
     struct ObjectDeltaPacket : public ObjectDataPacket
@@ -583,8 +581,6 @@ namespace net
                 size       = sizeof( ObjectDeltaPacket ); 
                 instanceID = EQ_ID_NONE; // multicasted
             }
-        
-        EQ_ALIGN8( uint8_t delta[8] );
     };
 
     struct ObjectNewMasterPacket : public ObjectPacket

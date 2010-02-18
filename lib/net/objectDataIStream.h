@@ -64,6 +64,10 @@ namespace net
     protected:
         const Command* getNextCommand();
 
+        template< typename P >
+        bool _getNextBuffer( const uint32_t cmd, const uint8_t** buffer,
+                             uint64_t* size );
+
     private:
         /** All data command packets for this istream. */
         CommandDeque _commands;

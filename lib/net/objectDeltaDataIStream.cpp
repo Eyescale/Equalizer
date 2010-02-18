@@ -40,39 +40,9 @@ ObjectDeltaDataIStream::~ObjectDeltaDataIStream()
 bool ObjectDeltaDataIStream::getNextBuffer( const uint8_t** buffer, 
                                             uint64_t* size )
 {
-    const Command* command = getNextCommand();
-    if( !command )
-        return false;
-
-    switch( (*command)->command )
-    {
-        case CMD_OBJECT_DELTA:
-        {
-            const ObjectDeltaPacket* packet =
-                command->getPacket< ObjectDeltaPacket >();
-
-            *size   = packet->dataSize;
-
-            if ( packet->compressorName != EQ_COMPRESSOR_NONE )
-            {
-                _decompress( packet->delta, buffer, packet->compressorName,
-                             packet->nChunks, packet->dataSize );
-                
-                return true;
-            }
-
-            EQASSERT( *reinterpret_cast< const uint64_t* >( packet->delta ) == 
-                      packet->dataSize );
-            *buffer = packet->delta + 8;
-            return true;
-        }
-
-        default: 
-            EQERROR << "Illegal command in command fifo: " << *command << endl;
-            EQUNREACHABLE;
-    }
-
-    return false;
+    return _getNextBuffer< ObjectDeltaPacket >( CMD_OBJECT_DELTA,
+                                                buffer, size );
 }
+
 }
 }
