@@ -283,6 +283,7 @@ int main( int argc, char **argv )
 #endif
 
 #ifdef COMPARE_RESULT
+                const uint8_t* data = image.getPixelPointer( buffer );
                 const uint8_t* destData = destImage.getPixelPointer( buffer );
                 const float quality = _getCompressorQuality( name );
 
