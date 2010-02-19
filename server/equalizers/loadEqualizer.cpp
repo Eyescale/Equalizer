@@ -372,7 +372,9 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
                 break;
             }
         }
-
+        const Channel* channel = compound->getChannel();
+        node->pvpMax.x() = channel->getPixelViewport().w; 
+        node->pvpMax.y() = channel->getPixelViewport().h; 
         node->boundaryf = _boundaryf;
         node->boundary2i = _boundary2i;
         node->time  = EQ_MIN( time, totalTime );
@@ -395,6 +397,9 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
     switch( node->splitMode )
     {
         case MODE_VERTICAL:
+            node->pvpMax.x() = node->left->pvpMax.x() + node->right->pvpMax.x();  
+            node->pvpMax.y() = EQ_MIN( node->left->pvpMax.y(), 
+                                       node->right->pvpMax.y() ); 
             node->boundary2i.x() = node->left->boundary2i.x() +
                                    node->right->boundary2i.x();
             node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
@@ -402,6 +407,9 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
             node->boundaryf = EQ_MAX( node->left->boundaryf, node->right->boundaryf );
             break;
         case MODE_HORIZONTAL:
+            node->pvpMax.x() = EQ_MIN( node->left->pvpMax.x(), 
+                                       node->right->pvpMax.x() );  
+            node->pvpMax.y() = node->left->pvpMax.y() + node->right->pvpMax.y(); 
             node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
                                            node->right->boundary2i.x() );
             node->boundary2i.y() = node->left->boundary2i.y() +
@@ -651,6 +659,18 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 splitPos = end;
             else if( boundary > 0 )
             {
+                const float lengthRight = 1.0f - splitPos;
+                const float pvpW = static_cast< float >( 
+                                            root->getInheritPixelViewport().w );
+                const float pvpMaxRightX =
+                                static_cast< float >( node->right->pvpMax.x( ));
+                const float pvpMaxLeftX =
+                                static_cast< float >( node->left->pvpMax.x( ));
+                if ( lengthRight > pvpMaxRightX / pvpW )
+                    splitPos = end - pvpMaxRightX / pvpW;
+                else if( splitPos > pvpMaxLeftX / pvpW )
+                    splitPos = vp.x + pvpMaxLeftX / pvpW;
+            
                 if( (splitPos - vp.x) < boundary )
                     splitPos = vp.x + boundary;
                 if( (end - splitPos) < boundary )
@@ -793,6 +813,18 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 splitPos = end;
             else if ( boundary > 0 )
             {
+                const float lengthUp = 1.0f - splitPos;
+                const float pvpH =
+                      static_cast< float >( root->getInheritPixelViewport().h );
+                const float pvpMaxRightY =
+                          static_cast< float >( node->right->pvpMax.y( ));
+                const float pvpMaxLeftY =
+                          static_cast< float >( node->left->pvpMax.y( ));
+                if ( lengthUp > pvpMaxRightY / pvpH  ) 
+                    splitPos = end - pvpMaxRightY / pvpH;  
+                else if( splitPos > pvpMaxLeftY / pvpH )
+                    splitPos = vp.y + pvpMaxRightY /pvpH;
+                
                 if( (splitPos - vp.y) < boundary )
                     splitPos = vp.y + boundary;
                 if( (end - splitPos) < boundary )
