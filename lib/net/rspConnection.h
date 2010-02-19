@@ -89,7 +89,7 @@ namespace net
         base::Monitor< RSPState > _rspState;
 
         /* manages RSP protocol directly using the udp connection */
-        class Thread : public eq::base::Thread
+        class Thread : public base::Thread
         {
         public: 
             Thread( RSPConnectionPtr connection )
@@ -188,8 +188,8 @@ namespace net
         // a link for all connection in the multicast network 
         RSPConnectionVector _children;
 
-        // number connection accepted by server RSP 
-        base::a_int32_t _countAcceptChildren;
+		// a link for all connection in the multicast network 
+        RSPConnectionVector _childrenConnecting;
         
         uint16_t _id; //!< The identifier used to demultiplex multipe writers
         
@@ -240,6 +240,7 @@ namespace net
         static uint32_t _payloadSize;
         static int32_t  _maxNAck;
 
+        void _close();
         uint16_t _buildNewID();
         
         int32_t _handleWrite(); //!< @return time to call again
@@ -290,6 +291,8 @@ namespace net
         /* add a new connection detected in the multicast network */
         void _addNewConnection( const uint16_t id );
         void _removeConnection( const uint16_t id );
+
+        void _resetTimeout( uint32_t timeOut );
 
         CHECK_THREAD_DECLARE( _recvThread );
  
