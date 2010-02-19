@@ -20,10 +20,6 @@
 #include "command.h"
 #include "commands.h"
 
-#include <eq/base/idPool.h>
-
-using namespace std;
-
 namespace eq
 {
 namespace net
@@ -150,7 +146,7 @@ template< typename P > bool ObjectDataIStream::_getNextBuffer(
 
     if( (*command)->command != cmd )
     {
-        EQERROR << "Illegal command in command fifo: " << *command << endl;
+        EQERROR << "Illegal command in command fifo: " << *command << std::endl;
         EQUNREACHABLE;
         return false;    
     }

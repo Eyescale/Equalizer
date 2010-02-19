@@ -21,10 +21,6 @@
 #include "command.h"
 #include "commands.h"
 
-#include <eq/base/idPool.h>
-
-using namespace std;
-
 namespace eq
 {
 namespace net

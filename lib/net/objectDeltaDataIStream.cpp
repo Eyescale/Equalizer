@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,22 +21,10 @@
 #include "command.h"
 #include "commands.h"
 
-#include <eq/base/idPool.h>
-
-using namespace std;
-
 namespace eq
 {
 namespace net
 {
-ObjectDeltaDataIStream::ObjectDeltaDataIStream()
-{
-}
-
-ObjectDeltaDataIStream::~ObjectDeltaDataIStream()
-{
-}
-
 bool ObjectDeltaDataIStream::getNextBuffer( const uint8_t** buffer, 
                                             uint64_t* size )
 {
