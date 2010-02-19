@@ -370,17 +370,18 @@ bool Config::init( const uint32_t initID )
     _finishedFrame = 0;
     _frameTimes.clear();
 
+    net::NodePtr localNode = getLocalNode();
     ConfigInitPacket packet;
-    packet.requestID  = _requestHandler.registerRequest();
+    packet.requestID  = localNode->registerRequest();
     packet.initID     = initID;
 
     send( packet );
     
     ClientPtr client = getClient();
-    while( !_requestHandler.isServed( packet.requestID ))
+    while( !localNode->isRequestServed( packet.requestID ))
         client->processCommand();
 
-    _requestHandler.waitRequest( packet.requestID, _running );
+    localNode->waitRequest( packet.requestID, _running );
 
     handleEvents();
     return _running;
@@ -390,16 +391,17 @@ bool Config::exit()
 {
     finishAllFrames();
 
+    net::NodePtr localNode = getLocalNode();
     ConfigExitPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
+    packet.requestID = localNode->registerRequest();
     send( packet );
 
     ClientPtr client = getClient();
-    while( !_requestHandler.isServed( packet.requestID ))
+    while( !localNode->isRequestServed( packet.requestID ))
         client->processCommand();
 
     bool ret = false;
-    _requestHandler.waitRequest( packet.requestID, ret );
+    localNode->waitRequest( packet.requestID, ret );
 
     while( tryNextEvent( )) /* flush all pending events */ ;
     if( _lastEvent )
@@ -828,7 +830,7 @@ net::CommandResult Config::_cmdInitReply( net::Command& command )
     if( !packet->result )
         _error = packet->error;
 
-    _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
+    getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
     return net::COMMAND_HANDLED;
 }
 
@@ -839,7 +841,7 @@ net::CommandResult Config::_cmdExitReply( net::Command& command )
     EQVERB << "handle exit reply " << packet << std::endl;
 
     _exitMessagePump();
-    _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
+    getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
     return net::COMMAND_HANDLED;
 }
 

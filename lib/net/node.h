@@ -58,7 +58,8 @@ namespace net
      * sessions, that is, one or more Session can be mapped to a Node, in which
      * case the node will dispatch packets to these sessions.
      */
-    class Node : public Dispatcher, public base::Referenced
+    class Node : public Dispatcher, public base::RequestHandler,
+                 public base::Referenced
     {
     public:
         /** The state of the node. */
@@ -572,9 +573,6 @@ namespace net
          * @sa getType()
          */
         EQ_EXPORT virtual NodePtr createNode( const uint32_t type );
-
-        /** Registers request packets waiting for a return value. */
-        base::RequestHandler _requestHandler;
 
     private:
         /** Globally unique node identifier. */

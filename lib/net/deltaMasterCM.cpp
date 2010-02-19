@@ -68,12 +68,13 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
     _object->pack( _deltaData );
     _deltaData.disable();
 
+    NodePtr localNode = _object->getLocalNode();
     if( !_deltaData.hasSentData( ))
     {
         _obsolete();
         _checkConsistency();
 
-        _requestHandler.serveRequest( packet->requestID, _version );
+        localNode->serveRequest( packet->requestID, _version );
         return COMMAND_HANDLED;
     }
 
@@ -96,7 +97,7 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
 
     EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
                          << _object->getID() << std::endl;
-    _requestHandler.serveRequest( packet->requestID, _version );
+    localNode->serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
 }
 }

@@ -287,9 +287,6 @@ namespace server
     protected:
         virtual ~Node();
 
-        /** Registers request packets waiting for a return value. */
-        base::RequestHandler _requestHandler;
-
         /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 

@@ -45,7 +45,7 @@ namespace net
 typedef CommandFunc<Node> NodeFunc;
 
 Node::Node()
-        : _requestHandler( true )
+        : base::RequestHandler( true )
         , _id( true )
         , _state( STATE_STOPPED )
         , _autoLaunch( false )
@@ -101,7 +101,7 @@ Node::~Node()
     EQASSERT( _connectionNodes.empty( ));
     EQASSERT( _pendingCommands.empty( ));
     EQASSERT( _nodes->empty( ));
-    EQASSERT( _requestHandler.isEmpty( ));
+    EQASSERT( !hasPendingRequests( ));
 
 #ifndef NDEBUG
     if( !_sessions->empty( ))
@@ -351,7 +351,7 @@ bool Node::close()
     }
 #endif
 
-    EQASSERT( _requestHandler.isEmpty( ));
+    EQASSERT( !hasPendingRequests( ));
     return true;
 }
 
@@ -545,10 +545,10 @@ bool Node::close( NodePtr node )
     EQASSERT( !inCommandThread( ));
 
     NodeDisconnectPacket packet;
-    packet.requestID = _requestHandler.registerRequest( node.get( ));
+    packet.requestID = registerRequest( node.get( ));
     send( packet );
 
-    _requestHandler.waitRequest( packet.requestID );
+    waitRequest( packet.requestID );
     return true;
 }
 
@@ -623,10 +623,10 @@ void Node::registerSession( Session* session )
     EQASSERT( !inCommandThread( ));
 
     NodeRegisterSessionPacket packet;
-    packet.requestID = _requestHandler.registerRequest( session );
+    packet.requestID = registerRequest( session );
     send( packet );
 
-    _requestHandler.waitRequest( packet.requestID );
+    waitRequest( packet.requestID );
 }
 
 bool Node::mapSession( NodePtr server, Session* session, const SessionID& id )
@@ -636,11 +636,11 @@ bool Node::mapSession( NodePtr server, Session* session, const SessionID& id )
     EQASSERT( server != this );
 
     NodeMapSessionPacket packet;
-    packet.requestID = _requestHandler.registerRequest( session );
+    packet.requestID = registerRequest( session );
     packet.sessionID = id;
     server->send( packet );
 
-    _requestHandler.waitRequest( packet.requestID );
+    waitRequest( packet.requestID );
     return ( session->getID() != SessionID::ZERO );
 }
 
@@ -649,12 +649,12 @@ bool Node::unmapSession( Session* session )
     EQASSERT( isLocal( ));
 
     NodeUnmapSessionPacket packet;
-    packet.requestID = _requestHandler.registerRequest( session );
+    packet.requestID = registerRequest( session );
     packet.sessionID = session->getID();
     session->getServer()->send( packet );
 
     bool ret = false;
-    _requestHandler.waitRequest( packet.requestID, ret );
+    waitRequest( packet.requestID, ret );
     return ret;
 }
 
@@ -787,9 +787,9 @@ void Node::acquireSendToken( NodePtr node )
     EQASSERT( !inReceiverThread( ));
 
     NodeAcquireSendTokenPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
+    packet.requestID = registerRequest();
     node->send( packet );
-    _requestHandler.waitRequest( packet.requestID );
+    waitRequest( packet.requestID );
 }
 
 void Node::releaseSendToken( NodePtr node )
@@ -882,7 +882,7 @@ bool Node::_connect( NodePtr node, ConnectionPtr connection )
 
     // send connect packet to peer
     NodeConnectPacket packet;
-    packet.requestID = _requestHandler.registerRequest( node.get( ));
+    packet.requestID = registerRequest( node.get( ));
     packet.nodeID    = _id;
     packet.type      = getType();
     packet.launchID  = node->_launchID;
@@ -890,7 +890,7 @@ bool Node::_connect( NodePtr node, ConnectionPtr connection )
     connection->send( packet, serialize( ));
 
     bool connected = false;
-    _requestHandler.waitRequest( packet.requestID, connected );
+    waitRequest( packet.requestID, connected );
     if( !connected )
         return false;
 
@@ -906,7 +906,7 @@ bool Node::syncConnect( NodePtr node, const uint32_t timeout )
         return ( node->getState() == STATE_CONNECTED );
 
     void* ret;
-    if( _requestHandler.waitRequest( node->_launchID, ret, timeout ))
+    if( waitRequest( node->_launchID, ret, timeout ))
     {
         EQASSERT( node->getState() == STATE_CONNECTED );
         node->_launchID = EQ_ID_INVALID;
@@ -914,7 +914,7 @@ bool Node::syncConnect( NodePtr node, const uint32_t timeout )
     }
 
     node->_state = STATE_STOPPED;
-    _requestHandler.unregisterRequest( node->_launchID );
+    unregisterRequest( node->_launchID );
     node->_launchID = EQ_ID_INVALID;
     return false;
 }
@@ -982,12 +982,12 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     EQASSERT( _id != nodeID );
 
     NodeGetNodeDataPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
+    packet.requestID = registerRequest();
     packet.nodeID    = nodeID;
     server->send( packet );
 
     void* result = 0;
-    _requestHandler.waitRequest( packet.requestID, result );
+    waitRequest( packet.requestID, result );
 
     if( !result )
     {
@@ -1027,7 +1027,7 @@ bool Node::_launch( NodePtr node,
     EQASSERT( node->_autoLaunch );
     EQASSERT( node->getState() == STATE_STOPPED );
 
-    node->_launchID = _requestHandler.registerRequest( node.get() );
+    node->_launchID = registerRequest( node.get() );
 
     const std::string launchCommand = _createLaunchCommand( node, description );
 
@@ -1035,7 +1035,7 @@ bool Node::_launch( NodePtr node,
     {
         EQWARN << "Could not launch node using '" << launchCommand << "'" 
                << std::endl;
-        _requestHandler.unregisterRequest( node->_launchID );
+        unregisterRequest( node->_launchID );
         node->_launchID = EQ_ID_INVALID;
         return false;
     }
@@ -1627,11 +1627,11 @@ CommandResult Node::_cmdRegisterSession( Command& command )
     EQVERB << "Cmd register session: " << packet << std::endl;
     
     Session* session = static_cast< Session* >( 
-        _requestHandler.getRequestData( packet->requestID ));
+        getRequestData( packet->requestID ));
     EQASSERT( session );
 
     _addSession( session, this, SessionID( true /* generate */ ));
-    _requestHandler.serveRequest( packet->requestID );
+    serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -1680,14 +1680,14 @@ CommandResult Node::_cmdMapSessionReply( Command& command)
     {
         NodePtr  node    = command.getNode(); 
         Session* session = static_cast< Session* >( 
-            _requestHandler.getRequestData( requestID ));
+            getRequestData( requestID ));
         EQASSERT( session );
         EQASSERT( node != this );
 
         _addSession( session, node, packet->sessionID );
     }
 
-    _requestHandler.serveRequest( requestID );
+    serveRequest( requestID );
     return COMMAND_HANDLED;
 }
 
@@ -1724,16 +1724,16 @@ CommandResult Node::_cmdUnmapSessionReply( Command& command)
 
     const uint32_t requestID = packet->requestID;
     Session* session = static_cast< Session* >(
-        _requestHandler.getRequestData( requestID ));
+        getRequestData( requestID ));
     EQASSERT( session );
 
     if( session )
     {
         _removeSession( session ); // TODO use session existence as return value
-        _requestHandler.serveRequest( requestID, true );
+        serveRequest( requestID, true );
     }
     else
-        _requestHandler.serveRequest( requestID, false );
+        serveRequest( requestID, false );
 
     // packet->result is false if server-side session was already unmapped
     return COMMAND_HANDLED;
@@ -1783,7 +1783,7 @@ CommandResult Node::_cmdConnect( Command& command )
         // create and add connected node
         if( packet->launchID != EQ_ID_INVALID )
         {
-            void* ptr = _requestHandler.getRequestData( packet->launchID );
+            void* ptr = getRequestData( packet->launchID );
             EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
             remoteNode = static_cast< Node* >( ptr );
         }
@@ -1821,7 +1821,7 @@ CommandResult Node::_cmdConnect( Command& command )
     connection->send( reply, serialize( ));
 
     if( packet->launchID != EQ_ID_INVALID )
-        _requestHandler.serveRequest( packet->launchID );
+        serveRequest( packet->launchID );
     
     return COMMAND_HANDLED;
 }
@@ -1855,7 +1855,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
         _removeConnection( connection );
         
         if( packet->requestID != EQ_ID_INVALID )
-            _requestHandler.serveRequest( packet->requestID, false );
+            serveRequest( packet->requestID, false );
         
         return COMMAND_HANDLED;
     }
@@ -1865,7 +1865,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     {
         if( packet->requestID != EQ_ID_INVALID )
         {
-            void* ptr = _requestHandler.getRequestData( packet->requestID );
+            void* ptr = getRequestData( packet->requestID );
             EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
             remoteNode = static_cast< Node* >( ptr );
         }
@@ -1895,7 +1895,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
 
     if( packet->requestID != EQ_ID_INVALID )
-        _requestHandler.serveRequest( packet->requestID, true );
+        serveRequest( packet->requestID, true );
 
     NodeConnectAckPacket ack;
     remoteNode->send( ack );
@@ -2016,7 +2016,7 @@ CommandResult Node::_cmdDisconnect( Command& command )
         command.getPacket<NodeDisconnectPacket>();
 
     NodePtr node = static_cast<Node*>( 
-        _requestHandler.getRequestData( packet->requestID ));
+        getRequestData( packet->requestID ));
     EQASSERT( node.isValid( ));
 
     ConnectionPtr connection = node->_outgoing;
@@ -2039,7 +2039,7 @@ CommandResult Node::_cmdDisconnect( Command& command )
     }
 
     EQASSERT( node->_state == STATE_STOPPED );
-    _requestHandler.serveRequest( packet->requestID );
+    serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -2090,13 +2090,13 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
         NodePtr node = i->second;
         
         node.ref();
-        _requestHandler.serveRequest( requestID, node.get( ));
+        serveRequest( requestID, node.get( ));
         return COMMAND_HANDLED;
     }
 
     if( packet->type == TYPE_EQNET_INVALID )
     {
-        _requestHandler.serveRequest( requestID, (void*)0 );
+        serveRequest( requestID, (void*)0 );
         return COMMAND_HANDLED;
     }
 
@@ -2117,7 +2117,7 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
 
     node->setAutoLaunch( false );
     node.ref();
-    _requestHandler.serveRequest( requestID, node.get( ));
+    serveRequest( requestID, node.get( ));
     return COMMAND_HANDLED;
 }
 
@@ -2145,7 +2145,7 @@ CommandResult Node::_cmdAcquireSendTokenReply( Command& command )
     NodeAcquireSendTokenReplyPacket* packet = 
         command.getPacket<NodeAcquireSendTokenReplyPacket>();
 
-    _requestHandler.serveRequest( packet->requestID );
+    serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 

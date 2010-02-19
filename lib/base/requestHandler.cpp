@@ -202,7 +202,7 @@ void RequestHandler::serveRequest( const uint32_t requestID, bool result )
     request->lock.unset();
 }
     
-bool RequestHandler::isServed( const uint32_t requestID ) const
+bool RequestHandler::isRequestServed( const uint32_t requestID ) const
 {
     ScopedMutex<> mutex( _mutex );
     RequestHash::const_iterator iter = _requests.find( requestID );

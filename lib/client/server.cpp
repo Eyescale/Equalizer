@@ -98,7 +98,7 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     ServerChooseConfigPacket packet;
     const string& workDir = parameters.getWorkDir();
 
-    packet.requestID      = _requestHandler.registerRequest();
+    packet.requestID      = registerRequest();
     string rendererInfo   = workDir + '#' + renderClient;
 #ifdef WIN32 // replace dir delimiters since '\' is often used as escape char
     for( size_t i=0; i<rendererInfo.length(); ++i )
@@ -107,11 +107,11 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 #endif
     send( packet, rendererInfo );
 
-    while( !_requestHandler.isServed( packet.requestID ))
+    while( !isRequestServed( packet.requestID ))
         _client->processCommand();
 
     void* ptr = 0;
-    _requestHandler.waitRequest( packet.requestID, ptr );
+    waitRequest( packet.requestID, ptr );
     return static_cast<Config*>( ptr );
 }
 
@@ -131,7 +131,7 @@ Config* Server::useConfig( const ConfigParams& parameters,
     ServerUseConfigPacket packet;
     const string& workDir = parameters.getWorkDir();
 
-    packet.requestID  = _requestHandler.registerRequest();
+    packet.requestID  = registerRequest();
     string configInfo = workDir + '#' + renderClient;
 #ifdef WIN32 // replace dir delimiters since '\' is often used as escape char
     for( size_t i=0; i<configInfo.length(); ++i )
@@ -142,11 +142,11 @@ Config* Server::useConfig( const ConfigParams& parameters,
     configInfo += '#' + config;
     send( packet, configInfo );
 
-    while( !_requestHandler.isServed( packet.requestID ))
+    while( !isRequestServed( packet.requestID ))
         _client->processCommand();
 
     void* ptr = 0;
-    _requestHandler.waitRequest( packet.requestID, ptr );
+    waitRequest( packet.requestID, ptr );
     return static_cast<Config*>( ptr );
 }
 
@@ -155,14 +155,14 @@ void Server::releaseConfig( Config* config )
     EQASSERT( isConnected( ));
 
     ServerReleaseConfigPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
+    packet.requestID = registerRequest();
     packet.configID  = config->getID();
     send( packet );
 
-    while( !_requestHandler.isServed( packet.requestID ))
+    while( !isRequestServed( packet.requestID ))
         _client->processCommand();
 
-    _requestHandler.waitRequest( packet.requestID );
+    waitRequest( packet.requestID );
 }
 
 bool Server::shutdown()
@@ -171,14 +171,14 @@ bool Server::shutdown()
         return false;
 
     ServerShutdownPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
+    packet.requestID = registerRequest();
     send( packet );
 
-    while( !_requestHandler.isServed( packet.requestID ))
+    while( !isRequestServed( packet.requestID ))
         _client->processCommand();
 
     bool result = false;
-    _requestHandler.waitRequest( packet.requestID, result );
+    waitRequest( packet.requestID, result );
 
     if( result )
         static_cast< net::Node* >( _client.get( ))->close( this );
@@ -243,7 +243,7 @@ net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
 
     if( packet->configID == net::SessionID::ZERO )
     {
-        _requestHandler.serveRequest( packet->requestID, (void*)0 );
+        serveRequest( packet->requestID, (void*)0 );
         return net::COMMAND_HANDLED;
     }
 
@@ -253,7 +253,7 @@ net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
     EQASSERTINFO( dynamic_cast< Config* >( session ), 
                   "Session id " << packet->configID << " @" << (void*)session );
 
-    _requestHandler.serveRequest( packet->requestID, config );
+    serveRequest( packet->requestID, config );
     return net::COMMAND_HANDLED;
 }
 
@@ -262,7 +262,7 @@ net::CommandResult Server::_cmdReleaseConfigReply( net::Command& command )
     const ServerReleaseConfigReplyPacket* packet = 
         command.getPacket<ServerReleaseConfigReplyPacket>();
 
-    _requestHandler.serveRequest( packet->requestID );
+    serveRequest( packet->requestID );
     return net::COMMAND_HANDLED;
 }
 
@@ -272,7 +272,7 @@ net::CommandResult Server::_cmdShutdownReply( net::Command& command )
         command.getPacket<ServerShutdownReplyPacket>();
     EQINFO << "Handle shutdown reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, packet->result );
+    serveRequest( packet->requestID, packet->result );
     return net::COMMAND_HANDLED;
 }
 }

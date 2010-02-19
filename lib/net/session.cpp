@@ -43,8 +43,7 @@ namespace net
 typedef CommandFunc<Session> CmdFunc;
 
 Session::Session()
-        : _requestHandler( true /* threadSafe */ )
-        , _id( SessionID::ZERO )
+        : _id( SessionID::ZERO )
         , _isMaster( false )
         , _idPool( 0 ) // Master pool is filled in Node::registerSession
         , _instanceIDs( std::numeric_limits< long >::min( )) 
@@ -93,10 +92,8 @@ Session::~Session()
 
 void Session::_setLocalNode( NodePtr node )
 {
-    EQASSERT( _requestHandler.isEmpty( ));
-
     _localNode = node;
-    if( !_localNode.isValid( ))
+    if( !_localNode )
         return; // TODO deregister command functions?
 
     notifyMapped( node );
@@ -166,11 +163,11 @@ uint32_t Session::genIDs( const uint32_t range )
     }
 
     SessionGenIDsPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
+    packet.requestID = _localNode->registerRequest();
     packet.range     = range;
 
     send( packet );
-    _requestHandler.waitRequest( packet.requestID, id );
+    _localNode->waitRequest( packet.requestID, id );
     
     if( id == EQ_ID_INVALID )
         EQWARN << "Out of session identifiers" << std::endl;
@@ -204,14 +201,14 @@ uint32_t Session::_setIDMasterNB( const uint32_t identifier,
     if( !_isMaster )
         _sendLocal( packet ); // set on our slave instance (fire&forget)
 
-    packet.requestID = _requestHandler.registerRequest();
+    packet.requestID = _localNode->registerRequest();
     send( packet );       // set on master instance (need to wait for ack)
     return packet.requestID;
 }
 
 void Session::_setIDMasterSync( const uint32_t requestID )
 {
-    _requestHandler.waitRequest( requestID );
+    _localNode->waitRequest( requestID );
 }
 
 const NodeID& Session::_pollIDMaster( const uint32_t id ) const 
@@ -234,11 +231,11 @@ const NodeID& Session::getIDMaster( const uint32_t identifier )
 
     // ask session master instance
     SessionGetIDMasterPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
+    packet.requestID = _localNode->registerRequest();
     packet.identifier = identifier;
 
     send( packet );
-    _requestHandler.waitRequest( packet.requestID );
+    _localNode->waitRequest( packet.requestID );
 
     base::ScopedMutex<> mutex( _idMasterMutex );
     EQLOG( LOG_OBJECTS ) << "Master node for id " << identifier << ": " 
@@ -258,10 +255,10 @@ void Session::attachObject( Object* object, const uint32_t id,
     SessionAttachObjectPacket packet;
     packet.objectID = id;
     packet.objectInstanceID = instanceID;
-    packet.requestID = _requestHandler.registerRequest( object );
+    packet.requestID = _localNode->registerRequest( object );
 
     _sendLocal( packet );
-    _requestHandler.waitRequest( packet.requestID );
+    _localNode->waitRequest( packet.requestID );
 }
 
 namespace
@@ -313,12 +310,12 @@ void Session::detachObject( Object* object )
     CHECK_NOT_THREAD( _receiverThread );
 
     SessionDetachObjectPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
+    packet.requestID = _localNode->registerRequest();
     packet.objectID  = object->getID();
     packet.objectInstanceID  = object->getInstanceID();
 
     _sendLocal( packet );
-    _requestHandler.waitRequest( packet.requestID );
+    _localNode->waitRequest( packet.requestID );
 }
 
 void Session::_detachObject( Object* object )
@@ -388,7 +385,7 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
     }
 
     SessionMapObjectPacket packet;
-    packet.requestID    = _requestHandler.registerRequest( object );
+    packet.requestID    = _localNode->registerRequest( object );
     packet.objectID     = id;
     packet.version      = version;
     packet.masterNodeID = masterNodeID;
@@ -402,14 +399,14 @@ bool Session::mapObjectSync( const uint32_t requestID )
     if( requestID == EQ_ID_INVALID )
         return false;
 
-    void* data = _requestHandler.getRequestData( requestID );    
+    void* data = _localNode->getRequestData( requestID );    
     if( data == 0 )
         return false;
 
     Object* object = EQSAFECAST( Object*, data );
     uint32_t version = VERSION_NONE;
 
-    _requestHandler.waitRequest( requestID, version );
+    _localNode->waitRequest( requestID, version );
 
     const bool mapped = ( object->getID() != EQ_ID_INVALID );
     if( mapped )
@@ -450,13 +447,13 @@ void Session::unmapObject( Object* object )
         if( master.isValid() && master->isConnected( ))
         {
             SessionUnsubscribeObjectPacket packet;
-            packet.requestID = _requestHandler.registerRequest();
+            packet.requestID = _localNode->registerRequest();
             packet.objectID  = id;
             packet.masterInstanceID = masterInstanceID;
             packet.slaveInstanceID  = object->getInstanceID();
             send( master, packet );
 
-            _requestHandler.waitRequest( packet.requestID );
+            _localNode->waitRequest( packet.requestID );
             return;
         }
         EQERROR << "Master node for object id " << id << " not connected"
@@ -648,7 +645,7 @@ CommandResult Session::_cmdAckRequest( Command& command )
         command.getPacket<SessionAckRequestPacket>();
     EQASSERT( packet->requestID != EQ_ID_INVALID );
 
-    _requestHandler.serveRequest( packet->requestID );
+    _localNode->serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -675,7 +672,7 @@ CommandResult Session::_cmdGenIDsReply( Command& command )
         command.getPacket<SessionGenIDsReplyPacket>();
     EQVERB << "Cmd gen IDs reply: " << packet << std::endl;
 
-    _requestHandler.serveRequest( packet->requestID, packet->firstID );
+    _localNode->serveRequest( packet->requestID, packet->firstID );
 
     const size_t additional = packet->allocated - packet->requested;
     if( packet->firstID != EQ_ID_INVALID && additional > 0 )
@@ -703,7 +700,7 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
         NodePtr node = command.getNode();
 
         if( node == _localNode ) // OPT
-            _requestHandler.serveRequest( packet->requestID );
+            _localNode->serveRequest( packet->requestID );
         else
         {
             SessionAckRequestPacket reply( packet->requestID );
@@ -743,7 +740,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
     }
     // else not found
 
-    _requestHandler.serveRequest( packet->requestID );
+    _localNode->serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -754,10 +751,10 @@ CommandResult Session::_cmdAttachObject( Command& command )
         command.getPacket<SessionAttachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd attach object " << packet << std::endl;
 
-    Object* object =  static_cast<Object*>( _requestHandler.getRequestData( 
+    Object* object =  static_cast<Object*>( _localNode->getRequestData( 
                                                 packet->requestID ));
     _attachObject( object, packet->objectID, packet->objectInstanceID );
-    _requestHandler.serveRequest( packet->requestID );
+    _localNode->serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -786,7 +783,7 @@ CommandResult Session::_cmdDetachObject( Command& command )
         }
     }
 
-    _requestHandler.serveRequest( packet->requestID );    
+    _localNode->serveRequest( packet->requestID );    
     return COMMAND_HANDLED;
 }
 
@@ -799,7 +796,7 @@ CommandResult Session::_cmdMapObject( Command& command )
 
 #ifndef NDEBUG
     Object* object = static_cast<Object*>(
-        _requestHandler.getRequestData( packet->requestID ));    
+        _localNode->getRequestData( packet->requestID ));    
 
     EQASSERT( object );
     EQASSERT( !object->isMaster( ));
@@ -922,7 +919,7 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
                          << std::endl;
 
     // set up change manager and attach object to dispatch table
-    Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
+    Object* object = static_cast<Object*>( _localNode->getRequestData( 
                                                packet->requestID ));    
     EQASSERT( object );
     EQASSERT( !object->isMaster( ));
@@ -949,14 +946,14 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
     if( nodeID != _localNode->getNodeID( ))
         return COMMAND_HANDLED;
 
-    EQASSERT( _requestHandler.getRequestData( packet->requestID ));
+    EQASSERT( _localNode->getRequestData( packet->requestID ));
 
     if( packet->result )
     {
         if( packet->useCache )
         {
             Object* object = static_cast<Object*>( 
-                _requestHandler.getRequestData( packet->requestID ));    
+                _localNode->getRequestData( packet->requestID ));    
             EQASSERT( object );
             EQASSERT( !object->isMaster( ));
 
@@ -981,7 +978,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
         EQWARN << "Could not subscribe object " << packet->objectID
                << std::endl;
 
-    _requestHandler.serveRequest( packet->requestID, packet->version );
+    _localNode->serveRequest( packet->requestID, packet->version );
     return COMMAND_HANDLED;
 }
 

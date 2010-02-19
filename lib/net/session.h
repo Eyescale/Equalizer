@@ -354,9 +354,6 @@ namespace net
                 packet.sessionID = _id;
                 node->send( packet, data, size );
             }
-
-        /** Registers request for packets awaiting a return value. */
-        base::RequestHandler _requestHandler;
         //@}
 
         /** @internal */

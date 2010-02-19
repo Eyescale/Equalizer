@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -97,9 +97,6 @@ namespace net
 
         /** The flags for automatic version obsoletion. */
         uint32_t _obsoleteFlags;
-
-        /** Registers request packets waiting for a return value. */
-        base::RequestHandler _requestHandler;
 
         /* The command handlers. */
         CommandResult _cmdCommit( Command& pkg );

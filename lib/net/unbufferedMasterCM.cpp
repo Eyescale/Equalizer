@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -60,18 +60,20 @@ uint32_t UnbufferedMasterCM::commitNB()
     EQASSERTINFO( _object->getChangeType() == Object::UNBUFFERED,
                   "Object type " << typeid(*this).name( ));
 
+    NodePtr localNode = _object->getLocalNode();
     ObjectCommitPacket packet;
     packet.instanceID = _object->_instanceID;
-    packet.requestID  = _requestHandler.registerRequest();
+    packet.requestID  = localNode->registerRequest();
 
-    _object->send( _object->getLocalNode(), packet );
+    _object->send( localNode, packet );
     return packet.requestID;
 }
 
 uint32_t UnbufferedMasterCM::commitSync( const uint32_t commitID )
 {
+    NodePtr localNode = _object->getLocalNode();
     uint32_t version = VERSION_NONE;
-    _requestHandler.waitRequest( commitID, version );
+    localNode->waitRequest( commitID, version );
     return version;
 }
 
@@ -174,11 +176,13 @@ void UnbufferedMasterCM::addOldMaster( NodePtr node, const uint32_t instanceID )
 CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
 {
     CHECK_THREAD( _thread );
+    NodePtr localNode = _object->getLocalNode();
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
+
     if( _slaves.empty( ))
     {
-        _requestHandler.serveRequest( packet->requestID, _version );
+        localNode->serveRequest( packet->requestID, _version );
         return COMMAND_HANDLED;
     }
 
@@ -197,7 +201,7 @@ CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
                              << _object->getID() << endl;
     }
 
-    _requestHandler.serveRequest( packet->requestID, _version );
+    localNode->serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
 }
 }

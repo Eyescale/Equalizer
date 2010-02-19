@@ -47,8 +47,6 @@
 #include "configSyncVisitor.h"
 #include "configUnmapVisitor.h"
 
-using namespace eq::base;
-using namespace std;
 using eq::net::ConnectionDescriptionVector;
 
 namespace eq
@@ -57,7 +55,7 @@ namespace server
 {
 typedef net::CommandFunc<Config> ConfigFunc;
 
-#define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
+#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CONFIG_") + #attr )
 std::string Config::_fAttributeStrings[FATTR_ALL] = 
 {
     MAKE_ATTR_STRING( FATTR_EYE_BASE ),
@@ -75,7 +73,7 @@ void Config::_construct()
     _appNode       = 0;
     _serializer    = 0;
 
-    EQINFO << "New config @" << (void*)this << endl;
+    EQINFO << "New config @" << (void*)this << std::endl;
 }
 
 Config::Config()
@@ -138,7 +136,7 @@ Config::Config( const Config& from )
 
 Config::~Config()
 {
-    EQINFO << "Delete config @" << (void*)this << endl;
+    EQINFO << "Delete config @" << (void*)this << std::endl;
     _server     = 0;
     _appNode    = 0;
     _appNetNode = 0;
@@ -199,25 +197,25 @@ void Config::notifyMapped( net::NodePtr node )
     net::CommandQueue* serverQueue  = getServerThreadQueue();
     net::CommandQueue* commandQueue = getCommandThreadQueue();
 
-    registerCommand( eq::CMD_CONFIG_INIT,
+    registerCommand( CMD_CONFIG_INIT,
                      ConfigFunc( this, &Config::_cmdInit), serverQueue );
-    registerCommand( eq::CMD_CONFIG_EXIT,
+    registerCommand( CMD_CONFIG_EXIT,
                      ConfigFunc( this, &Config::_cmdExit ), serverQueue );
-    registerCommand( eq::CMD_CONFIG_CREATE_REPLY,
+    registerCommand( CMD_CONFIG_CREATE_REPLY,
                      ConfigFunc( this, &Config::_cmdCreateReply ),
                      commandQueue );
-    registerCommand( eq::CMD_CONFIG_START_FRAME, 
+    registerCommand( CMD_CONFIG_START_FRAME, 
                      ConfigFunc( this, &Config::_cmdStartFrame ), serverQueue );
-    registerCommand( eq::CMD_CONFIG_FINISH_ALL_FRAMES, 
+    registerCommand( CMD_CONFIG_FINISH_ALL_FRAMES, 
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ),
                      serverQueue );
-    registerCommand( eq::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
+    registerCommand( CMD_CONFIG_FREEZE_LOAD_BALANCING, 
                      ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ), 
                      serverQueue );
-    registerCommand( eq::CMD_CONFIG_UNMAP_REPLY,
+    registerCommand( CMD_CONFIG_UNMAP_REPLY,
                      ConfigFunc( this, &Config::_cmdUnmapReply ), 
                      commandQueue );
-    registerCommand( eq::CMD_CONFIG_CHANGE_LATENCY, 
+    registerCommand( CMD_CONFIG_CHANGE_LATENCY, 
                      ConfigFunc( this, &Config::_cmdChangeLatency ), 
                      serverQueue );
 }
@@ -249,8 +247,8 @@ void Config::addObserver( Observer* observer )
 
 bool Config::removeObserver( Observer* observer )
 {
-    vector<Observer*>::iterator i = find( _observers.begin(), _observers.end(),
-                                          observer );
+    ObserverVector::iterator i = find( _observers.begin(), _observers.end(),
+                                       observer );
     if( i == _observers.end( ))
         return false;
 
@@ -287,8 +285,7 @@ void Config::addLayout( Layout* layout )
 
 bool Config::removeLayout( Layout* layout )
 {
-    vector<Layout*>::iterator i = find( _layouts.begin(), _layouts.end(),
-                                          layout );
+    LayoutVector::iterator i = find( _layouts.begin(), _layouts.end(), layout );
     if( i == _layouts.end( ))
         return false;
 
@@ -451,8 +448,8 @@ void Config::addCanvas( Canvas* canvas )
 
 bool Config::removeCanvas( Canvas* canvas )
 {
-    vector<Canvas*>::iterator i = find( _canvases.begin(), _canvases.end(),
-                                        canvas );
+    CanvasVector::iterator i = find( _canvases.begin(), _canvases.end(),
+                                     canvas );
     if( i == _canvases.end( ))
         return false;
 
@@ -497,8 +494,8 @@ void Config::addCompound( Compound* compound )
 
 bool Config::removeCompound( Compound* compound )
 {
-    vector<Compound*>::iterator i = find( _compounds.begin(), _compounds.end(),
-                                          compound );
+    CompoundVector::iterator i = find( _compounds.begin(), _compounds.end(),
+                                       compound );
     if( i == _compounds.end( ))
         return false;
 
@@ -868,14 +865,13 @@ bool Config::_connectNode( Node* node )
     EQLOG( LOG_INIT ) << "Connecting node" << std::endl;
     if( !localNode->initConnect( netNode ))
     {
-        stringstream nodeString;
-        nodeString << node;
+        std::stringstream nodeString;
+        nodeString << "Connection to node failed, node does not run and launch "
+                   << "command failed: " << node;
         
-        _error += string( "Connection to node failed, node does not run " ) +
-            string( "and launch command failed:\n " ) + 
-            nodeString.str();
+        _error += nodeString.str();
         EQERROR << "Connection to " << netNode->getNodeID() << " failed." 
-                << endl;
+                << std::endl;
         return false;
     }
 
@@ -942,7 +938,7 @@ void Config::_startNodes()
     for( std::vector< uint32_t >::const_iterator i = requests.begin();
          i != requests.end(); ++i )
     {
-        _requestHandler.waitRequest( *i );
+        getLocalNode()->waitRequest( *i );
     }
 }
 
@@ -966,11 +962,11 @@ void Config::_stopNodes()
         EQASSERT( !node->isActive( ));
         EQASSERT( netNode.isValid( ));
 
-        eq::ServerDestroyConfigPacket destroyConfigPacket;
+        ServerDestroyConfigPacket destroyConfigPacket;
         destroyConfigPacket.configID = getID();
         netNode->send( destroyConfigPacket );
 
-        eq::ClientExitPacket clientExitPacket;
+        ClientExitPacket clientExitPacket;
         netNode->send( clientExitPacket );
     }
 
@@ -1013,12 +1009,12 @@ uint32_t Config::_createConfig( Node* node )
 
     // create config (session) on each non-app node
     //   app-node already has config from chooseConfig
-    eq::ServerCreateConfigPacket createConfigPacket;
+    ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = getID();
     createConfigPacket.appNodeID = _appNetNode->getNodeID();
-    createConfigPacket.requestID = _requestHandler.registerRequest();
+    createConfigPacket.requestID = getLocalNode()->registerRequest();
 
-    const string&   name = getName();
+    const std::string&   name = getName();
     net::NodePtr netNode = node->getNode();
     netNode->send( createConfigPacket, name );
 
@@ -1027,7 +1023,7 @@ uint32_t Config::_createConfig( Node* node )
 
 void Config::_syncClock()
 {
-    eq::ConfigSyncClockPacket packet;
+    ConfigSyncClockPacket packet;
     packet.time = _server->getTime();
 
     send( _appNetNode, packet );
@@ -1091,19 +1087,19 @@ bool Config::_init( const uint32_t initID )
 bool Config::exit()
 {
     if( _state != STATE_RUNNING )
-        EQWARN << "Exiting non-initialized config" << endl;
+        EQWARN << "Exiting non-initialized config" << std::endl;
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING );
     _state = STATE_EXITING;
 
-    for( vector< Compound* >::const_iterator i = _compounds.begin();
+    for( CompoundVector::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
         compound->exit();
     }
 
-    for( vector< Canvas* >::const_iterator i = _canvases.begin();
+    for( CanvasVector::const_iterator i = _canvases.begin();
          i != _canvases.end(); ++i )
     {
         Canvas* canvas = *i;
@@ -1112,8 +1108,8 @@ bool Config::exit()
 
     const bool success = _updateRunning();
 
-    eq::ConfigEvent exitEvent;
-    exitEvent.data.type = eq::Event::EXIT;
+    ConfigEvent exitEvent;
+    exitEvent.data.type = Event::EXIT;
     send( _appNetNode, exitEvent );
     
     _state         = STATE_STOPPED;
@@ -1122,10 +1118,11 @@ bool Config::exit()
 
 void Config::unmap()
 {
-    eq::ConfigUnmapPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
+    net::NodePtr localNode = getLocalNode();
+    ConfigUnmapPacket packet;
+    packet.requestID = localNode->registerRequest();
     send( _appNetNode, packet );
-    _requestHandler.waitRequest( packet.requestID );
+    localNode->waitRequest( packet.requestID );
 
     if( _serializer ) // Config::init never happened
     {
@@ -1147,7 +1144,8 @@ bool Config::_startFrame( const uint32_t frameID )
     }
 
     ++_currentFrame;
-    EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
+    EQLOG( base::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
+                           << std::endl;
 
     if( _state == STATE_STOPPED )
         return true;
@@ -1160,7 +1158,7 @@ bool Config::_startFrame( const uint32_t frameID )
         send( _appNetNode, packet );
     }
 
-    for( vector< Compound* >::const_iterator i = _compounds.begin(); 
+    for( CompoundVector::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
@@ -1170,8 +1168,7 @@ bool Config::_startFrame( const uint32_t frameID )
     ConfigUpdateDataVisitor configDataVisitor;
     accept( configDataVisitor );
 
-    for( vector< Node* >::const_iterator i = _nodes.begin(); 
-         i != _nodes.end(); ++i )
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive( ))
@@ -1196,13 +1193,13 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
 
     // All nodes have finished the frame. Notify the application's config that
     // the frame is finished
-    eq::ConfigFrameFinishPacket packet;
+    ConfigFrameFinishPacket packet;
     packet.frameNumber = frameNumber;
     packet.sessionID   = getID();
 
     // do not use send/_bufferedTasks, not thread-safe!
     _appNetNode->send( packet );
-    EQLOG( eq::LOG_TASKS ) << "TASK config frame finished  " << &packet
+    EQLOG( LOG_TASKS ) << "TASK config frame finished  " << &packet
                            << std::endl;
 }
 
@@ -1218,7 +1215,7 @@ void Config::_flushAllFrames()
             node->flushFrames( _currentFrame );
     }
 
-    EQLOG( LOG_ANY ) << "--- Flush All Frames -- " << endl;
+    EQLOG( base::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;
 }
 
 //---------------------------------------------------------------------------
@@ -1232,11 +1229,11 @@ net::CommandResult Config::_cmdInit( net::Command& command )
     delete _serializer;
     _serializer = 0;
 
-    const eq::ConfigInitPacket* packet =
-        command.getPacket<eq::ConfigInitPacket>();
-    EQVERB << "handle config start init " << packet << endl;
+    const ConfigInitPacket* packet =
+        command.getPacket<ConfigInitPacket>();
+    EQVERB << "handle config start init " << packet << std::endl;
 
-    eq::ConfigInitReplyPacket reply( packet );
+    ConfigInitReplyPacket reply( packet );
     reply.result = _init( packet->initID );
     std::string error = _error;
 
@@ -1244,7 +1241,7 @@ net::CommandResult Config::_cmdInit( net::Command& command )
         exit();
 
     EQINFO << "Config init " << (reply.result ? "successful": "failed: ") 
-           << error << endl;
+           << error << std::endl;
 
     send( command.getNode(), reply, error );
     return net::COMMAND_HANDLED;
@@ -1252,26 +1249,26 @@ net::CommandResult Config::_cmdInit( net::Command& command )
 
 net::CommandResult Config::_cmdExit( net::Command& command ) 
 {
-    const eq::ConfigExitPacket* packet = 
-        command.getPacket<eq::ConfigExitPacket>();
-    eq::ConfigExitReplyPacket   reply( packet );
-    EQVERB << "handle config exit " << packet << endl;
+    const ConfigExitPacket* packet = 
+        command.getPacket<ConfigExitPacket>();
+    ConfigExitReplyPacket   reply( packet );
+    EQVERB << "handle config exit " << packet << std::endl;
 
     if( _state == STATE_RUNNING )
         reply.result = exit();
     else
         reply.result = false;
 
-    EQINFO << "config exit result: " << reply.result << endl;
+    EQINFO << "config exit result: " << reply.result << std::endl;
     send( command.getNode(), reply );
     return net::COMMAND_HANDLED;
 }
 
 net::CommandResult Config::_cmdStartFrame( net::Command& command ) 
 {
-    const eq::ConfigStartFramePacket* packet = 
-        command.getPacket<eq::ConfigStartFramePacket>();
-    EQVERB << "handle config frame start " << packet << endl;
+    const ConfigStartFramePacket* packet = 
+        command.getPacket<ConfigStartFramePacket>();
+    EQVERB << "handle config frame start " << packet << std::endl;
 
     if( packet->nChanges > 0 )
     {
@@ -1288,7 +1285,7 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
     if( _state == STATE_STOPPED )
     {
         // unlock app
-        eq::ConfigFrameFinishPacket frameFinishPacket;
+        ConfigFrameFinishPacket frameFinishPacket;
         frameFinishPacket.frameNumber = _currentFrame;
         send( command.getNode(), frameFinishPacket );        
     }
@@ -1298,9 +1295,9 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
 
 net::CommandResult Config::_cmdFinishAllFrames( net::Command& command ) 
 {
-    const eq::ConfigFinishAllFramesPacket* packet = 
-        command.getPacket<eq::ConfigFinishAllFramesPacket>();
-    EQVERB << "handle config all frames finish " << packet << endl;
+    const ConfigFinishAllFramesPacket* packet = 
+        command.getPacket<ConfigFinishAllFramesPacket>();
+    EQVERB << "handle config all frames finish " << packet << std::endl;
 
     _flushAllFrames();
     return net::COMMAND_HANDLED;
@@ -1308,10 +1305,10 @@ net::CommandResult Config::_cmdFinishAllFrames( net::Command& command )
 
 net::CommandResult Config::_cmdCreateReply( net::Command& command ) 
 {
-    const eq::ConfigCreateReplyPacket* packet = 
-        command.getPacket<eq::ConfigCreateReplyPacket>();
+    const ConfigCreateReplyPacket* packet = 
+        command.getPacket<ConfigCreateReplyPacket>();
 
-    _requestHandler.serveRequest( packet->requestID );
+    getLocalNode()->serveRequest( packet->requestID );
     return net::COMMAND_HANDLED;
 }
 
@@ -1343,8 +1340,8 @@ private:
 
 net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command ) 
 {
-    const eq::ConfigFreezeLoadBalancingPacket* packet = 
-        command.getPacket<eq::ConfigFreezeLoadBalancingPacket>();
+    const ConfigFreezeLoadBalancingPacket* packet = 
+        command.getPacket<ConfigFreezeLoadBalancingPacket>();
 
     FreezeVisitor visitor( packet->freeze );
     accept( visitor );
@@ -1354,8 +1351,8 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
 
 net::CommandResult Config::_cmdChangeLatency( net::Command& command )
 {
-    const eq::ConfigChangeLatency* packet = 
-        command.getPacket<eq::ConfigChangeLatency>();
+    const ConfigChangeLatency* packet = 
+        command.getPacket<ConfigChangeLatency>();
 
     _latency = packet->latency;
 
@@ -1368,29 +1365,29 @@ net::CommandResult Config::_cmdChangeLatency( net::Command& command )
 
 net::CommandResult Config::_cmdUnmapReply( net::Command& command ) 
 {
-    const eq::ConfigUnmapReplyPacket* packet = 
-        command.getPacket< eq::ConfigUnmapReplyPacket >();
-    EQVERB << "Handle unmap reply " << packet << endl;
+    const ConfigUnmapReplyPacket* packet = 
+        command.getPacket< ConfigUnmapReplyPacket >();
+    EQVERB << "Handle unmap reply " << packet << std::endl;
 
-    _requestHandler.serveRequest( packet->requestID );
+    getLocalNode()->serveRequest( packet->requestID );
     return net::COMMAND_HANDLED;
 }
 
 
-ostream& operator << ( ostream& os, const Config* config )
+std::ostream& operator << ( std::ostream& os, const Config* config )
 {
     if( !config )
         return os;
 
-    os << disableFlush << disableHeader << "config " << endl;
-    os << "{" << endl << indent;
+    os << base::disableFlush << base::disableHeader << "config " << std::endl;
+    os << "{" << std::endl << base::indent;
 
     if( !config->getName().empty( ))
-        os << "name    \"" << config->getName() << '"' << endl;
+        os << "name    \"" << config->getName() << '"' << std::endl;
 
     if( config->getLatency() != 1 )
-        os << "latency " << config->getLatency() << endl;
-    os << endl;
+        os << "latency " << config->getLatency() << std::endl;
+    os << std::endl;
 
     EQASSERTINFO( config->getFAttribute( Config::FATTR_VERSION ) ==
                   Global::instance()->getConfigFAttribute(Config::FATTR_VERSION)
@@ -1400,9 +1397,9 @@ ostream& operator << ( ostream& os, const Config* config )
     if( value != 
         Global::instance()->getConfigFAttribute( Config::FATTR_EYE_BASE ))
     {
-        os << "attributes" << endl << "{" << endl << indent
-           << "eye_base     " << value << endl
-           << exdent << "}" << endl;
+        os << "attributes" << std::endl << "{" << std::endl << base::indent
+           << "eye_base     " << value << std::endl
+           << base::exdent << "}" << std::endl;
     }
 
     const NodeVector& nodes = config->getNodes();
@@ -1434,7 +1431,8 @@ ostream& operator << ( ostream& os, const Config* config )
     {
         os << *i;
     }
-    os << exdent << "}" << endl << enableHeader << enableFlush;
+    os << base::exdent << "}" << std::endl << base::enableHeader
+       << base::enableFlush;
 
     return os;
 }

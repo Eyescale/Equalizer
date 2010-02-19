@@ -117,7 +117,7 @@ namespace base
          * @return true if the request has been served, false if it is pending.
          * @version 1.0
          */
-        EQ_EXPORT bool isServed( const uint32_t requestID ) const;
+        EQ_EXPORT bool isRequestServed( const uint32_t requestID ) const;
 
         /** 
          * Retrieve the user-specific data for a request.
@@ -142,16 +142,10 @@ namespace base
         EQ_EXPORT void serveRequest( const uint32_t requestID, bool result );
 
         /**
-         * @return true if this request handler was created thread-safe.
+         * @return true if this request handler has pending requests.
          * @version 1.0
          */
-        bool isThreadSafe() const { return ( _mutex != 0 ); }
-
-        /**
-         * @return true if this request handler has no pending requests.
-         * @version 1.0
-         */
-        bool isEmpty()      const { return _requests.empty( ); }
+        bool hasPendingRequests() const { return !_requests.empty( ); }
 
     private:
         Lock*        _mutex;

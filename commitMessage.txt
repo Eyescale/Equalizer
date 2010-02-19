@@ -1,4 +1,4 @@
-DataStream code cleanups
+Reduce number of RequestHandlers used.
 
 [ ] May break build
 [ ] May break existing applications
