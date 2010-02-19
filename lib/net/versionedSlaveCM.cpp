@@ -41,11 +41,14 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
         , _mutex( 0 )
         , _currentIStream( 0 )
         , _masterInstanceID( masterInstanceID )
+        , _ostream( object )
 {
     registerCommand( CMD_OBJECT_INSTANCE,
                      CmdFunc( this, &VersionedSlaveCM::_cmdInstance ), 0 );
     registerCommand( CMD_OBJECT_DELTA,
                      CmdFunc( this, &VersionedSlaveCM::_cmdDelta ), 0 );
+    registerCommand( CMD_OBJECT_COMMIT, 
+                     CmdFunc( this, &VersionedSlaveCM::_cmdCommit ), 0 );
     registerCommand( CMD_OBJECT_VERSION,
                      CmdFunc( this, &VersionedSlaveCM::_cmdVersion ), 0 );
 }
@@ -62,6 +65,7 @@ VersionedSlaveCM::~VersionedSlaveCM()
     _currentIStream = 0;
 
     _version = VERSION_NONE;
+    _master = 0;
 }
 
 void VersionedSlaveCM::makeThreadSafe()
@@ -70,6 +74,25 @@ void VersionedSlaveCM::makeThreadSafe()
         return;
 
     _mutex = new base::Lock;
+}
+
+uint32_t VersionedSlaveCM::commitNB()
+{
+    NodePtr localNode = _object->getLocalNode();
+    ObjectCommitPacket packet;
+    packet.instanceID = _object->_instanceID;
+    packet.requestID  = localNode->registerRequest();
+
+    _object->send( _object->getLocalNode(), packet );
+    return packet.requestID;
+}
+
+uint32_t VersionedSlaveCM::commitSync( const uint32_t commitID )
+{
+    NodePtr localNode = _object->getLocalNode();
+    uint32_t version = VERSION_NONE;
+    localNode->waitRequest( commitID, version );
+    return version;
 }
 
 uint32_t VersionedSlaveCM::sync( const uint32_t version )
@@ -126,9 +149,9 @@ void VersionedSlaveCM::_syncToHead()
         delete is;
     }
 
-    NodePtr node = _object->getLocalNode();
-    if( node.isValid( ))
-        node->flushCommands();
+    NodePtr localNode = _object->getLocalNode();
+    if( localNode.isValid( ))
+        localNode->flushCommands();
 }
 
 
@@ -189,54 +212,6 @@ void VersionedSlaveCM::applyMapData()
     EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
                          << "." << _object->getInstanceID() << " v" << _version
                          << " ready" << std::endl;
-}
-
-//---------------------------------------------------------------------------
-// command handlers
-//---------------------------------------------------------------------------
-
-CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
-{
-    CHECK_THREAD( _cmdThread );
-    if( !_currentIStream )
-        _currentIStream = new ObjectInstanceDataIStream;
-
-    _currentIStream->addDataPacket( command );
-
-    if( _currentIStream->isReady( ))
-    {
-        const uint32_t version = _currentIStream->getVersion();
-        EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
-                             << "." << _object->getInstanceID() << " ready"
-                             << std::endl;
-
-        _queuedVersions.push( _currentIStream );
-        _object->notifyNewHeadVersion( version );
-        _currentIStream = 0;
-    }
-    return COMMAND_HANDLED;
-}
-
-CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
-{
-    CHECK_THREAD( _cmdThread );
-    if( !_currentIStream )
-        _currentIStream = new ObjectDeltaDataIStream;
-
-    _currentIStream->addDataPacket( command );
-
-    if( _currentIStream->isReady( ))
-    {
-        const uint32_t version = _currentIStream->getVersion();
-        EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
-                             << "." << _object->getInstanceID() << " ready"
-                             << std::endl;
-
-        _queuedVersions.push( _currentIStream );
-        _object->notifyNewHeadVersion( version );
-        _currentIStream = 0;
-    }
-    return COMMAND_HANDLED;
 }
 
 void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache, 
@@ -309,6 +284,79 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
 #endif
 
     EQLOG( LOG_OBJECTS ) << std::endl << base::enableFlush;
+}
+
+//---------------------------------------------------------------------------
+// command handlers
+//---------------------------------------------------------------------------
+
+CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
+{
+    CHECK_THREAD( _cmdThread );
+    EQASSERT( command.getNode().isValid( ));
+
+    if( !_currentIStream )
+        _currentIStream = new ObjectInstanceDataIStream;
+
+    _currentIStream->addDataPacket( command );
+
+    if( _currentIStream->isReady( ))
+    {
+        const uint32_t version = _currentIStream->getVersion();
+        EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
+                             << "." << _object->getInstanceID() << " ready"
+                             << std::endl;
+
+        _queuedVersions.push( _currentIStream );
+        _object->notifyNewHeadVersion( version );
+        _currentIStream = 0;
+    }
+    return COMMAND_HANDLED;
+}
+
+CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
+{
+    CHECK_THREAD( _cmdThread );
+    if( !_currentIStream )
+        _currentIStream = new ObjectDeltaDataIStream;
+
+    _currentIStream->addDataPacket( command );
+
+    if( _currentIStream->isReady( ))
+    {
+        const uint32_t version = _currentIStream->getVersion();
+        EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
+                             << "." << _object->getInstanceID() << " ready"
+                             << std::endl;
+
+        _queuedVersions.push( _currentIStream );
+        _object->notifyNewHeadVersion( version );
+        _currentIStream = 0;
+    }
+    return COMMAND_HANDLED;
+}
+
+CommandResult VersionedSlaveCM::_cmdCommit( Command& command )
+{
+    CHECK_THREAD( _cmdThread );
+    const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
+                         << std::endl;
+
+    NodePtr localNode = _object->getLocalNode();
+    if( !_master || !_master->isConnected( ))
+    {
+        EQASSERTINFO( false, "Master node not connected" );
+        localNode->serveRequest( packet->requestID, VERSION_NONE );
+        return COMMAND_HANDLED;
+    }
+
+    _ostream.enable( _master, false );
+    _object->pack( _ostream );
+    _ostream.disable();
+
+    localNode->serveRequest( packet->requestID, _object->getVersion( ));
+    return COMMAND_HANDLED;
 }
 
 CommandResult VersionedSlaveCM::_cmdVersion( Command& command )

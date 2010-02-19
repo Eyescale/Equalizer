@@ -583,6 +583,17 @@ namespace net
             }
     };
 
+    struct ObjectSlaveDeltaPacket : public ObjectDataPacket
+    {
+        ObjectSlaveDeltaPacket()
+            {
+                command    = CMD_OBJECT_SLAVE_DELTA;
+                size       = sizeof( ObjectSlaveDeltaPacket ); 
+            }
+
+        base::UUID commit;
+    };
+
     struct ObjectNewMasterPacket : public ObjectPacket
     {
         ObjectNewMasterPacket()

@@ -172,6 +172,8 @@ template bool ObjectDataIStream::_getNextBuffer< ObjectDeltaPacket >(
     const uint32_t, const uint8_t**, uint64_t* );
 template bool ObjectDataIStream::_getNextBuffer< ObjectInstancePacket >(
     const uint32_t, const uint8_t**, uint64_t* );
+template bool ObjectDataIStream::_getNextBuffer< ObjectSlaveDeltaPacket >(
+    const uint32_t, const uint8_t**, uint64_t* );
 
 }
 }

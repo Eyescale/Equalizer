@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,6 +22,8 @@
 #include <eq/net/commandQueue.h> // member
 #include <eq/net/version.h>      // enum
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
+
+#include "objectSlaveDataOStream.h" // member
 
 namespace eq
 {
@@ -46,9 +48,8 @@ namespace net
          * @name Versioning
          */
         //@{
-        virtual uint32_t commitNB() { EQDONTCALL; return EQ_ID_INVALID; }
-        virtual uint32_t commitSync( const uint32_t commitID )
-            { EQDONTCALL; return VERSION_NONE; }
+        virtual uint32_t commitNB();
+        virtual uint32_t commitSync( const uint32_t commitID );
 
         virtual void obsolete( const uint32_t version ) { EQDONTCALL; }
 
@@ -66,6 +67,7 @@ namespace net
 
         virtual bool isMaster() const { return false; }
         virtual uint32_t getMasterInstanceID() const {return _masterInstanceID;}
+        virtual void setMasterNode( NodePtr node ) { _master = node; }
 
         virtual uint32_t addSlave( Command& command )
             { EQDONTCALL; return VERSION_INVALID; }
@@ -79,7 +81,7 @@ namespace net
 
     private:
         /** The managed object. */
-        Object* _object;
+        Object* const _object;
 
         /** The current version. */
         uint32_t _version;
@@ -96,6 +98,12 @@ namespace net
         /** The instance identifier of the master object. */
         uint32_t _masterInstanceID;
 
+        /** The output stream for slave object commits. */
+        ObjectSlaveDataOStream _ostream;
+
+        /** The node holding the master object. */
+        NodePtr _master;
+
         void _syncToHead();
 
         /** Apply the data in the input stream to the object */
@@ -104,6 +112,7 @@ namespace net
         /* The command handlers. */
         CommandResult _cmdInstance( Command& command );
         CommandResult _cmdDelta( Command& command );
+        CommandResult _cmdCommit( Command& command );
         CommandResult _cmdVersion( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );

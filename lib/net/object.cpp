@@ -92,6 +92,8 @@ void Object::attachToSession( const uint32_t id, const uint32_t instanceID,
                      CmdFunc( this, &Object::_cmdForward ), queue );
     registerCommand( CMD_OBJECT_DELTA, 
                      CmdFunc( this, &Object::_cmdForward ), queue );
+    registerCommand( CMD_OBJECT_SLAVE_DELTA,
+                     CmdFunc( this, &Object::_cmdForward ), queue );
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &Object::_cmdForward ), queue );
     registerCommand( CMD_OBJECT_NEW_MASTER, 
@@ -221,9 +223,6 @@ void Object::becomeMaster()
 
 uint32_t Object::commit()
 {
-    if( !isDirty( ))
-        return getVersion();
-
     const uint32_t requestID = commitNB();
     return commitSync( requestID );
 }
@@ -277,11 +276,17 @@ bool Object::isMaster() const
 
 uint32_t Object::commitNB()
 {
+    if( !isDirty( ))
+        return EQ_ID_INVALID;
+
     return _cm->commitNB();
 }
 
 uint32_t Object::commitSync( const uint32_t commitID ) 
 {
+    if( commitID == EQ_ID_INVALID )
+        return getVersion();
+
     return _cm->commitSync( commitID );
 }
 

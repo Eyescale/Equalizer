@@ -950,13 +950,15 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
 
     if( packet->result )
     {
+        Object* object = static_cast<Object*>( 
+            _localNode->getRequestData( packet->requestID ));    
+        EQASSERT( object );
+        EQASSERT( !object->isMaster( ));
+
+        object->_cm->setMasterNode( command.getNode( ));
+
         if( packet->useCache )
         {
-            Object* object = static_cast<Object*>( 
-                _localNode->getRequestData( packet->requestID ));    
-            EQASSERT( object );
-            EQASSERT( !object->isMaster( ));
-
             const uint32_t id = packet->objectID;
             const uint32_t start = packet->cachedVersion;
             if( start != VERSION_INVALID )

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,8 +19,6 @@
 
 #include "node.h"
 #include "packets.h"
-
-using namespace std;
 
 namespace eq
 {
@@ -73,7 +71,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
 {
     if( command.isValid( ))
     {
-        os << base::disableFlush << "command< ";
+        os << "command< ";
         const Packet* packet = command.getPacket() ;
         switch( packet->datatype )
         {
@@ -89,7 +87,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
                 os << packet;
         }
 
-        os << ", " << command.getNode() << " >" << base::enableFlush;
+        os << ", " << command.getNode() << " >";
     }
     else
         os << "command< empty >";

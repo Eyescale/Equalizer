@@ -113,9 +113,9 @@ void DataOStream::enable( const NodeVector& receivers )
     enable();
 }
 
-void DataOStream::enable( NodePtr node )
+void DataOStream::enable( NodePtr node, const bool useMulticast )
 {
-    ConnectionPtr connection = node->getMulticast();
+    ConnectionPtr connection = useMulticast ? node->getMulticast() : 0;
     if( !connection )
         connection = node->getConnection();
         

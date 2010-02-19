@@ -22,6 +22,7 @@
 #include "log.h"
 #include "node.h"
 #include "object.h"
+#include "objectSlaveDataIStream.h"
 #include "packets.h"
 #include "session.h"
 
@@ -32,8 +33,7 @@ namespace net
 typedef CommandFunc<FullMasterCM> CmdFunc;
 
 FullMasterCM::FullMasterCM( Object* object )
-        : _object( object ),
-          _version( VERSION_NONE ),
+        : MasterCM( object ),
           _commitCount( 0 ),
           _nVersions( 0 ),
           _obsoleteFlags( Object::AUTO_OBSOLETE_COUNT_VERSIONS )
@@ -51,19 +51,10 @@ FullMasterCM::FullMasterCM( Object* object )
 
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &FullMasterCM::_cmdCommit ), 0 );
-    // sync commands are send to all instances, even the master gets it
-    registerCommand( CMD_OBJECT_INSTANCE,
-                     CmdFunc( this, &FullMasterCM::_cmdDiscard ), 0 );
 }
 
 FullMasterCM::~FullMasterCM()
 {
-    if( !_slaves.empty( ))
-        EQWARN << _slaves.size() 
-               << " slave nodes subscribed during deregisterObject of "
-               << typeid( *_object ).name() << std::endl;
-    _slaves.clear();
-
     for( InstanceDataDeque::const_iterator i = _instanceDatas.begin();
          i != _instanceDatas.end(); ++i )
     {
@@ -77,25 +68,6 @@ FullMasterCM::~FullMasterCM()
         delete *i;
     }
     _instanceDataCache.clear();
-}
-
-uint32_t FullMasterCM::commitNB()
-{
-    NodePtr localNode = _object->getLocalNode();
-    ObjectCommitPacket packet;
-    packet.instanceID = _object->_instanceID;
-    packet.requestID  = localNode->registerRequest();
-
-    _object->send( _object->getLocalNode(), packet );
-    return packet.requestID;
-}
-
-uint32_t FullMasterCM::commitSync( const uint32_t commitID )
-{
-    NodePtr localNode = _object->getLocalNode();
-    uint32_t version = VERSION_NONE;
-    localNode->waitRequest( commitID, version );
-    return version;
 }
 
 // Obsoletes old changes based on number of commits or number of versions,
@@ -133,7 +105,7 @@ uint32_t FullMasterCM::getOldestVersion() const
 
 uint32_t FullMasterCM::addSlave( Command& command )
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _cmdThread );
     EQASSERT( command->datatype == DATATYPE_EQNET_SESSION );
     EQASSERT( command->command == CMD_SESSION_SUBSCRIBE_OBJECT );
 
@@ -225,7 +197,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
 
 void FullMasterCM::removeSlave( NodePtr node )
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _cmdThread );
     _checkConsistency();
 
     // remove from subscribers
@@ -240,21 +212,6 @@ void FullMasterCM::removeSlave( NodePtr node )
         _slaves.erase( i );
         _slavesCount.erase( nodeID );
     }
-}
-
-void FullMasterCM::addOldMaster( NodePtr node, const uint32_t instanceID )
-{
-    EQASSERT( _version != VERSION_NONE );
-
-    // add to subscribers
-    ++_slavesCount[ node->getNodeID() ];
-    _slaves.push_back( node );
-    stde::usort( _slaves );
-
-    ObjectVersionPacket packet;
-    packet.instanceID = instanceID;
-    packet.version    = _version;
-    _object->send( node, packet );
 }
 
 void FullMasterCM::_checkConsistency() const
@@ -303,7 +260,7 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
 //---------------------------------------------------------------------------
 CommandResult FullMasterCM::_cmdCommit( Command& command )
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _cmdThread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;

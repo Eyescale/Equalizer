@@ -199,6 +199,7 @@ CXXFILES = \
 	net/global.cpp \
 	net/init.cpp \
 	net/instanceCache.cpp \
+	net/masterCM.cpp \
 	net/mcipConnection.cpp \
 	net/namedPipeConnection.cpp \
 	net/node.cpp \
@@ -209,6 +210,7 @@ CXXFILES = \
 	net/objectDeltaDataOStream.cpp \
 	net/objectInstanceDataIStream.cpp \
 	net/objectInstanceDataOStream.cpp \
+	net/objectSlaveDataOStream.cpp \
 	net/objectVersion.cpp \
 	net/packets.cpp \
 	net/pairConnection.cpp \

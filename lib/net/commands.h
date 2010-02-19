@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -81,6 +81,7 @@ namespace net
     {
         CMD_OBJECT_INSTANCE,
         CMD_OBJECT_DELTA,
+        CMD_OBJECT_SLAVE_DELTA,
         CMD_OBJECT_COMMIT,
         CMD_OBJECT_NEW_MASTER,
         CMD_OBJECT_VERSION,

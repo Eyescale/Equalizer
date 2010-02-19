@@ -18,12 +18,8 @@
 #ifndef EQNET_FULLMASTERCM_H
 #define EQNET_FULLMASTERCM_H
 
+#include "masterCM.h"        // base class
 #include "objectInstanceDataOStream.h" // member
-
-#include <eq/net/objectCM.h> // base class
-#include <eq/net/types.h>    // for NodeVector
-#include <eq/base/idPool.h>            // ID_ enum
-#include <eq/base/requestHandler.h>    // member
 
 #include <deque>
 
@@ -32,27 +28,23 @@ namespace eq
 namespace net
 {
     class Node;
+    class ObjectDataIStream;
 
     /** 
      * An object change manager handling only full versions for the master
      * instance.
      * @internal
      */
-    class FullMasterCM : public ObjectCM
+    class FullMasterCM : public MasterCM
     {
     public:
         FullMasterCM( Object* object );
         virtual ~FullMasterCM();
 
-        virtual void makeThreadSafe(){}
-
         /**
          * @name Versioning
          */
         //@{
-        virtual uint32_t commitNB();
-        virtual uint32_t commitSync( const uint32_t commitID );
-
         virtual void obsolete( const uint32_t version ) { EQUNIMPLEMENTED; }
 
         virtual void setAutoObsolete( const uint32_t count, 
@@ -60,38 +52,13 @@ namespace net
             { _nVersions = count; _obsoleteFlags = flags; }
         
         virtual uint32_t getAutoObsoleteCount() const { return _nVersions; }
-
-        virtual uint32_t sync( const uint32_t version )
-            { EQDONTCALL; return _version; }
-
-        virtual uint32_t getHeadVersion() const { return _version; }
-        virtual uint32_t getVersion() const     { return _version; }
         virtual uint32_t getOldestVersion() const;
         //@}
 
-        virtual bool isMaster() const { return true; }
-        virtual uint32_t getMasterInstanceID() const
-            { EQDONTCALL; return EQ_ID_INVALID; }
         virtual uint32_t addSlave( Command& command );
         virtual void removeSlave( NodePtr node );
-        virtual const NodeVector* getSlaveNodes() const { return &_slaves; }
-        virtual void addOldMaster( NodePtr node, const uint32_t instanceID );
-
-        virtual void applyMapData() { EQDONTCALL; }
 
     protected:
-        /** The managed object. */
-        Object* _object;
-
-        /** The list of subsribed slave nodes. */
-        NodeVector _slaves;
-
-        /** The number of object instances subscribed per slave node. */
-        base::UUIDHash< uint32_t > _slavesCount;
-
-        /** The current version. */
-        uint32_t _version;
-
         /** The number of commits, needed for auto-obsoletion. */
         uint32_t _commitCount;
 
@@ -123,10 +90,7 @@ namespace net
         void _checkConsistency() const;
 
         /* The command handlers. */
-        CommandResult _cmdCommit( Command& pkg );
-        CommandResult _cmdDiscard( Command& pkg ) { return COMMAND_HANDLED; }
-
-        CHECK_THREAD_DECLARE( _thread );
+        CommandResult _cmdCommit( Command& command );
     };
 }
 }

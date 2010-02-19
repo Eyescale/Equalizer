@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -114,6 +114,9 @@ namespace net
 
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
+
+        /** @return the master object instance identifier. @internal */
+        EQ_EXPORT uint32_t getMasterInstanceID() const;
 
         /** 
          * @return true if this instance is the master version, false otherwise.
@@ -249,6 +252,12 @@ namespace net
          */
         virtual void notifyNewHeadVersion( const uint32_t version )
             { EQASSERT( getVersion()==VERSION_NONE||version<getVersion()+100 );}
+
+        /** 
+         * Notification that a new version was received by a master object.
+         * @sa comment in notifyNewHeadVersion().
+         */
+        virtual void notifyNewVersion() {}
         //@}
 
         /** @name Methods used by session during mapping. */
@@ -319,9 +328,6 @@ namespace net
         virtual void unpack( DataIStream& is ) { applyInstanceData( is ); }
         //@}
 
-        /** @return the master object instance identifier. */
-        EQ_EXPORT uint32_t getMasterInstanceID() const;
-
         /** 
          * Remove a subscribed slave.
          * 
@@ -350,10 +356,11 @@ namespace net
 
         friend class DeltaMasterCM;
         friend class FullMasterCM;
-        friend class VersionedSlaveCM;
+        friend class MasterCM;
         friend class StaticMasterCM;
         friend class StaticSlaveCM;
         friend class UnbufferedMasterCM;
+        friend class VersionedSlaveCM;
 
         /** The session-unique object identifier. */
         uint32_t     _id;

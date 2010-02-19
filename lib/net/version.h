@@ -25,6 +25,7 @@ namespace net
     enum Version
     {
         VERSION_NONE    = 0,
+        VERSION_NEXT    = 0xfffffffdu,
         VERSION_INVALID = 0xfffffffeu,
         VERSION_OLDEST  = VERSION_INVALID,
         VERSION_HEAD    = 0xffffffffu

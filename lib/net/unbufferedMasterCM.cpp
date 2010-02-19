@@ -23,11 +23,9 @@
 #include "node.h"
 #include "object.h"
 #include "objectDeltaDataOStream.h"
+#include "objectInstanceDataOStream.h"
 #include "packets.h"
 #include "session.h"
-
-using namespace eq::base;
-using namespace std;
 
 namespace eq
 {
@@ -36,9 +34,9 @@ namespace net
 typedef CommandFunc<UnbufferedMasterCM> CmdFunc;
 
 UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
-        : _object( object )
-        , _version( 1 )
+        : MasterCM( object )
 {
+    _version = 1;
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &UnbufferedMasterCM::_cmdCommit ), 0 );
     // sync commands are send to any instance, even the master gets the command
@@ -47,39 +45,11 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
 }
 
 UnbufferedMasterCM::~UnbufferedMasterCM()
-{
-    if( !_slaves.empty( ))
-        EQWARN << _slaves.size() 
-               << " slave nodes subscribed during deregisterObject of "
-               << _object->getID() << '.' << _object->getInstanceID() << endl;
-    _slaves.clear();
-}
-
-uint32_t UnbufferedMasterCM::commitNB()
-{
-    EQASSERTINFO( _object->getChangeType() == Object::UNBUFFERED,
-                  "Object type " << typeid(*this).name( ));
-
-    NodePtr localNode = _object->getLocalNode();
-    ObjectCommitPacket packet;
-    packet.instanceID = _object->_instanceID;
-    packet.requestID  = localNode->registerRequest();
-
-    _object->send( localNode, packet );
-    return packet.requestID;
-}
-
-uint32_t UnbufferedMasterCM::commitSync( const uint32_t commitID )
-{
-    NodePtr localNode = _object->getLocalNode();
-    uint32_t version = VERSION_NONE;
-    localNode->waitRequest( commitID, version );
-    return version;
-}
+{}
 
 uint32_t UnbufferedMasterCM::addSlave( Command& command )
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _cmdThread );
     EQASSERT( command->datatype == DATATYPE_EQNET_SESSION );
     EQASSERT( command->command == CMD_SESSION_SUBSCRIBE_OBJECT );
 
@@ -98,7 +68,8 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
     stde::usort( _slaves );
 
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
-                         << ", instantiate on " << node->getNodeID() << endl;
+                         << ", instantiate on " << node->getNodeID()
+                         << std::endl;
 
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
 
@@ -121,14 +92,14 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
 
     if( version != VERSION_NONE ) // send current data
     {
-        os.enable( node );
+        os.enable( node, true );
         _object->getInstanceData( os );
         os.disable();
     }
 
     if( !os.hasSentData( )) // if no data, send empty packet to set version
     {
-        os.enable( node );
+        os.enable( node, true );
         os.writeOnce( 0, 0 );
         os.disable();
     }
@@ -141,7 +112,7 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
 
 void UnbufferedMasterCM::removeSlave( NodePtr node )
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _cmdThread );
     // remove from subscribers
     const NodeID& nodeID = node->getNodeID();
     EQASSERT( _slavesCount[ nodeID ] != 0 );
@@ -156,29 +127,16 @@ void UnbufferedMasterCM::removeSlave( NodePtr node )
     }
 }
 
-void UnbufferedMasterCM::addOldMaster( NodePtr node, const uint32_t instanceID )
-{
-    // add to subscribers
-    ++_slavesCount[ node->getNodeID() ];
-    _slaves.push_back( node );
-    stde::usort( _slaves );
-
-    ObjectVersionPacket packet;
-    packet.instanceID = instanceID;
-    packet.version    = _version;
-    _object->send( node, packet );
-}
-
-
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
 CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _cmdThread );
     NodePtr localNode = _object->getLocalNode();
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
+    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command
+                         << std::endl;
 
     if( _slaves.empty( ))
     {
@@ -198,11 +156,12 @@ CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
         ++_version;
         EQASSERT( _version );
         EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
-                             << _object->getID() << endl;
+                             << _object->getID() << std::endl;
     }
 
     localNode->serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
 }
+
 }
 }

@@ -66,9 +66,10 @@ uint32_t StaticMasterCM::addSlave( Command& command )
     _os.reset();
     _os.setInstanceID( instanceID );
     _os.setNodeID( node->getNodeID( ));
-    _os.enable( node );
+    _os.enable( node, true );
 
     _object->getInstanceData( _os );
+
     _os.disable();
 #ifdef EQ_INSTRUMENT_MULTICAST
     ++_miss;
