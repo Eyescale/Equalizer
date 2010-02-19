@@ -38,13 +38,17 @@
 // Tests the functionality and speed of the image compression.
 //#define WRITE_DECOMPRESSED
 //#define WRITE_COMPRESSED
-#define COMPARE_RESULT
+
+#ifndef NDEBUG
+#  define COMPARE_RESULT
+#endif
 
 namespace
 {
 static std::vector< uint32_t > _getCompressorNames()
 {
-    const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
+    const eq::base::PluginRegistry& registry = 
+        eq::base::Global::getPluginRegistry();
     const eq::base::CompressorVector& plugins = registry.getCompressors();
 
     std::vector< uint32_t > names;
@@ -62,6 +66,7 @@ static std::vector< uint32_t > _getCompressorNames()
     return names;
 }
 
+#ifdef COMPARE_RESULT
 static float _getCompressorQuality( const uint32_t name )
 {
     const eq::base::PluginRegistry& registry = 
@@ -86,27 +91,29 @@ static float _getCompressorQuality( const uint32_t name )
     
     return quality;
 }
+#endif
 
 template< typename T >
 static void _compare( const void* data, const void* destData,
                       const eq::Frame::Buffer buffer, bool ignoreAlpha,
-                      const size_t nElem, const float quality )
+                      const int64_t nElem, const float quality )
 {
     const T* destValue = reinterpret_cast< const T* >( destData );
     const T* value = reinterpret_cast< const T* >( data );
 
-    for( size_t k = 0; k < nElem; ++k )
+#pragma omp parallel for
+    for( int64_t k = 0; k < nElem; ++k )
     { 
         if( ignoreAlpha && buffer == eq::Frame::BUFFER_COLOR )
         {
             // Don't test alpha if alpha is ignored
             if( k % 4 == 3 )
                 continue;
-	}
+        }
 
-        float max = ( 1.f - quality ) * std::numeric_limits< T >::max();
+        const float max = ( 1.f - quality ) * std::numeric_limits< T >::max();
         TESTINFO( abs( value[k] - destValue[k] ) <= max,
-                  "comparison of initial data and destination data has failed" );
+                  "comparison of initial data and decompressed data failed" );
     }
 }
 }
@@ -154,36 +161,6 @@ int main( int argc, char **argv )
     {
         const uint32_t name = *i;
 
-        // Touch memory once: find suitable image
-        for( eq::StringVector::const_iterator j = images.begin();
-             j != images.end(); ++j )
-        {
-            const std::string& filename = *j;
-            TEST( image.readImage( filename, eq::Frame::BUFFER_COLOR ));
-
-            const std::vector< uint32_t > compressors(
-                image.findCompressors( eq::Frame::BUFFER_COLOR ));
-
-            if( std::find( compressors.begin(), compressors.end(), name ) ==
-                compressors.end( ))
-            {
-                continue; // Compressor not suitable for current image
-            }
-
-            destImage.setPixelViewport( image.getPixelViewport( ));
-            destImage.setPixelData( eq::Frame::BUFFER_COLOR,     
-                            image.compressPixelData( eq::Frame::BUFFER_COLOR ));
-
-            if( !image.readImage( images.front(), eq::Frame::BUFFER_DEPTH ))
-                continue; // Image unusable as depth
-
-            destImage.setPixelViewport( image.getPixelViewport( ));
-            destImage.setPixelData( eq::Frame::BUFFER_DEPTH,     
-                            image.compressPixelData( eq::Frame::BUFFER_DEPTH ));
-
-            break;
-        }
-
         // For alpha, ignore alpha...
         bool alpha = true;
         while( true )
@@ -222,9 +199,25 @@ int main( int argc, char **argv )
                 image.allocCompressor( buffer, name );
                 destImage.setPixelViewport( image.getPixelViewport( ));
             
-                const uint8_t* data = image.getPixelPointer( buffer );
                 const uint32_t size = image.getPixelDataSize( buffer );
                 
+#ifndef NDEBUG
+                // touch memory once
+                destImage.setPixelData( buffer,
+                                        image.compressPixelData( buffer ));
+                // force recompression
+                if( image.ignoreAlpha( ))
+                {
+                    image.enableAlphaUsage();
+                    image.disableAlphaUsage();
+                }
+                else
+                {
+                    image.disableAlphaUsage();
+                    image.enableAlphaUsage();
+                }
+#endif
+
                 // Compress
                 clock.reset();
                 const eq::Image::PixelData& compressedPixels =
@@ -294,7 +287,7 @@ int main( int argc, char **argv )
                 const float quality = _getCompressorQuality( name );
 
                 const uint8_t channelSize = image.getChannelSize( buffer );
-                const size_t nElem = size / channelSize;
+                const int64_t nElem = size / channelSize;
                 
                 switch( channelSize )
                 {
@@ -304,7 +297,8 @@ int main( int argc, char **argv )
                                          quality );
                     break;
                 case 2:
-		    EQASSERTINFO( quality == 1.f, "Half float test not implemented" );
+                    EQASSERTINFO( quality == 1.f,
+                                  "Half float test not implemented" );
                     _compare< uint16_t >( data, destData, buffer,
                                           image.ignoreAlpha(), nElem,
                                           quality );

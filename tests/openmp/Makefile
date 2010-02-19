@@ -12,5 +12,3 @@ endif
 TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)
 
 include $(TOP)/make/rules.mk
-
-$(SIMPLE_PROGRAMS): $(wildcard $(TOP)/lib/client/image.*)
