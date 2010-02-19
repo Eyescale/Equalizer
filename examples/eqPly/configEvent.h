@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                   , Sarah Amsellem <sarah.amsellem@gmail.com>
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,8 +29,7 @@ struct ConfigEvent : public eq::ConfigEvent
 public:
     enum Type
     {
-        IDLE_AA_TOTAL = eq::Event::USER,
-        IDLE_AA_LEFT
+        IDLE_AA_LEFT = eq::Event::USER
     };
 
     ConfigEvent()

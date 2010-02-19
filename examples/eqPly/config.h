@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -75,6 +75,10 @@ namespace eqPly
         /** @return true if an user event required a redraw. */
         bool isUserEvent();
 
+        /** Notify that a master object has received a slave delta. */
+        void notifyNewVersion( eq::Object* object )
+            { _dirtyObjects.push( object ); }
+
     protected:
         virtual ~Config();
 
@@ -106,8 +110,10 @@ namespace eqPly
         void _setHeadMatrix( const eq::Matrix4f& matrix );
         const eq::Matrix4f& _getHeadMatrix() const;
         void _setMessage( const std::string& message );
+        void _updateData();
 
         uint32_t _numFramesAA;
+        eq::base::MTQueue< eq::Object* > _dirtyObjects;
     };
 }
 

@@ -630,10 +630,22 @@ util::FrameBufferObject* Channel::getFrameBufferObject()
     return _fbo;
 }
 
+View* Channel::getView()
+{
+    Pipe* pipe = getPipe();
+    return pipe->getView( _context->view );
+}
+
 const View* Channel::getView() const
 {
     const Pipe* pipe = getPipe();
     return pipe->getView( _context->view );
+}
+
+View* Channel::getNativeView()
+{
+    Pipe* pipe = getPipe();
+    return pipe->getView( _nativeContext.view );
 }
 
 const View* Channel::getNativeView() const

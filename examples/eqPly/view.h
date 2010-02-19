@@ -45,6 +45,9 @@ namespace eqPly
         virtual void deserialize( eq::net::DataIStream& is, 
                                   const uint64_t dirtyBits );
 
+        /** @sa eq::net::Object::notifyNewVersion() */
+        virtual void notifyNewVersion();
+
         /** The changed parts of the view. */
         enum DirtyBits
         {

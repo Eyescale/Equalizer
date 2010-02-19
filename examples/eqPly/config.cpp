@@ -292,6 +292,17 @@ const Model* Config::getModel( const uint32_t modelID )
 
 uint32_t Config::startFrame()
 {
+    _updateData();
+    const uint32_t version = _frameData.commit();
+
+    _numFramesAA = 0;
+    _redraw = false;
+
+    return eq::Config::startFrame( version );
+}
+
+void Config::_updateData()
+{
     // update head position
     if( _tracker.isRunning() )
     {
@@ -329,12 +340,13 @@ uint32_t Config::startFrame()
     else
         _frameData.setIdle( false );
 
-    _numFramesAA = 0;
-
-    const uint32_t version = _frameData.commit();
-
-    _redraw = false;
-    return eq::Config::startFrame( version );
+    // changed objects
+    eq::Object* object = 0;
+    while( _dirtyObjects.tryPop( object ))
+    {
+        object->sync();
+        object->commit();
+    }
 }
 
 bool Config::isIdleAA()
@@ -484,17 +496,6 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         case eq::Event::VIEW_RESIZE:
             _redraw = true;
             break;
-
-        case ConfigEvent::IDLE_AA_TOTAL:
-        {
-            const ConfigEvent* idleEvent = 
-                static_cast< const ConfigEvent* >( event );
-            View* view = static_cast< View* >( 
-                findView( idleEvent->data.originator ));
-            EQASSERT( view );
-            view->setIdleSteps( idleEvent->steps );
-            return true;
-        }
 
         case ConfigEvent::IDLE_AA_LEFT:
         {

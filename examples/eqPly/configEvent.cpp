@@ -24,10 +24,6 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
 {
     switch( event->data.type )
     {
-        case ConfigEvent::IDLE_AA_TOTAL:
-            os  << event->steps << " FSAA steps total";
-            break;
-
         case ConfigEvent::IDLE_AA_LEFT:
             os  << event->steps << " FSAA steps to do";
             break;

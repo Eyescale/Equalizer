@@ -405,7 +405,8 @@ void Channel::_initJitter()
 
 bool Channel::_initAccum()
 {
-    if( !getNativeView( )) // Only alloc accum for dest
+    View* view = static_cast< View* >( getNativeView( ));
+    if( !view ) // Only alloc accum for dest
         return true;
 
     const eq::Eye eye = getEye();
@@ -434,13 +435,8 @@ bool Channel::_initAccum()
                     _accum[ j ].step = -1;
                 }
 
-                ConfigEvent event;
-                event.data.type = ConfigEvent::IDLE_AA_TOTAL;
-                event.data.originator = getNativeView()->getID();
-                event.steps = 0;
-
-                eq::Config* config = getConfig();
-                config->sendEvent( event );
+                view->setIdleSteps( 0 );
+                view->commit();
                 return false;
             }
         }
@@ -468,13 +464,8 @@ bool Channel::_initAccum()
            << " buffer for " << getName() << " " << getEye() 
            << std::endl;
 
-    ConfigEvent event;
-    event.data.type = ConfigEvent::IDLE_AA_TOTAL;
-    event.data.originator = getNativeView()->getID();
-    event.steps = accum.buffer ? 256 : 0;
-
-    eq::Config* config = getConfig();
-    config->sendEvent( event );
+    view->setIdleSteps( accum.buffer ? 256 : 0 );
+    view->commit();
     return true;
 }
 

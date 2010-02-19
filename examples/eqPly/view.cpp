@@ -16,6 +16,7 @@
  */
 
 #include "view.h"
+#include "config.h"
 
 namespace eqPly
 {
@@ -48,6 +49,15 @@ void View::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
         is >> _modelID;
     if( dirtyBits & DIRTY_IDLE )
         is >> _idleSteps;
+}
+
+void View::notifyNewVersion()
+{
+    EQASSERT( isMaster( ));
+    eq::View::notifyNewVersion();
+
+    Config* config = static_cast< Config* >( getSession( ));
+    config->notifyNewVersion( this );
 }
 
 void View::setModelID( const uint32_t id )

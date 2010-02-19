@@ -182,6 +182,9 @@ namespace util
          * @sa getView()
          * @version 1.0
          */
+        EQ_EXPORT View* getNativeView();
+
+        /** const-version of getNativeView() @version 1.0 */
         EQ_EXPORT const View* getNativeView() const;
 
         /** @return the channel's native pixel viewport. @version 1.0 */
@@ -331,6 +334,9 @@ namespace util
          * @sa getNativeView()
          * @version 1.0
          */
+        EQ_EXPORT View* getView();
+
+        /** Const version of getView(). @version 1.0 */
         EQ_EXPORT const View* getView() const;
 
         /** 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -52,8 +52,9 @@ void Object::applyInstanceData( net::DataIStream& is )
     if( is.getRemainingBufferSize() == 0 && is.nRemainingBuffers() == 0 )
         return;
     
-    is >> _dirty;
-    deserialize( is, _dirty );
+    uint64_t dirty;
+    is >> dirty;
+    deserialize( is, dirty );
 }
 
 void Object::serialize( net::DataOStream& os, const uint64_t dirtyBits )

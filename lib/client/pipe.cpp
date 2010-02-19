@@ -401,6 +401,13 @@ void Pipe::flushFrames()
 
 const View* Pipe::getView( const net::ObjectVersion& viewVersion ) const
 {
+    // Yie-ha: we want to have a const-interface to get a view on the render
+    //         clients, but view mapping is by definition non-const.
+    return const_cast< Pipe* >( this )->getView( viewVersion );
+}
+
+View* Pipe::getView( const net::ObjectVersion& viewVersion )
+{
     CHECK_THREAD( _pipeThread );
     if( viewVersion.identifier == EQ_ID_INVALID )
         return 0;
