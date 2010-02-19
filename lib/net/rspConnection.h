@@ -18,8 +18,15 @@
 
 #ifndef EQNET_RSPCONNECTION_H
 #define EQNET_RSPCONNECTION_H
-#include <pthread.h>
 
+#ifdef EQUALIZER_EXPORTS
+   // We need to instantiate a Monitor< State > when compiling the library,
+   // but we don't want to have <pthread.h> for a normal build, hence this hack
+#  include <pthread.h>
+#endif
+#include <eq/net/connection.h>
+
+#ifdef EQ_USE_BOOST
 #include <eq/net/connectionSet.h> // member
 #include <eq/net/types.h>
 
@@ -31,11 +38,15 @@
 #include "eventConnection.h" // member
 #include "udpConnection.h"   // member
 
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+//#include <boost/enable_shared_from_this.hpp>
+#include <boost/asio.hpp>
+
 namespace eq
 {
 namespace net
 {
-
     class ConnectionDescription;
     class RSPConnection;
     /** A rsp connection (Attn: only multicast usage implemented). */
@@ -58,25 +69,32 @@ namespace net
         int64_t readSync( void* buffer, const uint64_t bytes );
         int64_t write( const void* buffer, const uint64_t bytes );
 
-        int64_t getSendRate() const { return _connection->getSendRate(); }
+        int64_t getSendRate() const { return _sendRate; }
         uint32_t getID() const { return _id; }
         
         /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const { return _event->getNotifier(); }
     
     private:
-        typedef base::RefPtr< UDPConnection > UDPConnectionPtr;
         typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
-        
+
+        enum RSPState
+        {
+            RSP_STOPPED,
+            RSP_ID,
+            RSP_DISCOVER,
+            RSP_RUNNING,
+            RSP_ERROR
+        };
+        base::Monitor< RSPState > _rspState;
+
         /* manages RSP protocol directly using the udp connection */
-        class Thread : public base::Thread
+        class Thread : public eq::base::Thread
         {
         public: 
             Thread( RSPConnectionPtr connection )
                 : _connection( connection ){}
             virtual ~Thread(){ _connection = 0; }
-            virtual bool init(){ return _connection->_acceptID() && 
-                                        _connection->_initThread(); }
         protected:
             virtual void run();
             
@@ -101,24 +119,21 @@ namespace net
         {
             uint16_t type;
             uint16_t connectionID;
-        }
-            _node;
+        };
 
         struct DatagramCount
         {
             uint16_t type;
             uint16_t clientID;
             uint16_t numConnections;
-        }
-            _countNode;
+        };
 
         struct DatagramAckRequest
         {
             uint16_t type;
             uint16_t writerID;
             uint16_t sequenceID;
-        }
-            _ackRequest;
+        };
         
         struct DatagramNack
         {
@@ -135,8 +150,7 @@ namespace net
             uint16_t        readerID;
             uint16_t        writerID;
             uint16_t        sequenceID;
-        }
-            _ack;
+        };
 
         struct DatagramData
         {
@@ -184,10 +198,17 @@ namespace net
         typedef base::RefPtr< EventConnection > EventConnectionPtr;
         EventConnectionPtr _event;
 
-        ConnectionSet    _connectionSet;
+        boost::asio::io_service _ioService;
+        boost::asio::ip::udp::socket* _connection;
+        boost::asio::ip::udp::endpoint _writeAddr;
+        boost::asio::ip::udp::endpoint _readAddr;
+        boost::asio::deadline_timer _timer;
+        eq::base::Clock _clock;
+        size_t _allowedData;
+        int64_t _sendRate;
+
         uint32_t         _numWriteAcks;
         Thread*          _thread;
-        UDPConnectionPtr _connection;
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
         RSPConnectionPtr _parent;
@@ -219,16 +240,14 @@ namespace net
         static uint32_t _payloadSize;
         static int32_t  _maxNAck;
 
-        void _close();
         uint16_t _buildNewID();
         
-        bool _acceptID();
-        void _handleAcceptID();
-
         int32_t _handleWrite(); //!< @return time to call again
         void _finishWriteQueue();
-        bool _handleData( );
-        bool _handleDataDatagram( base::Bufferb& buffer );
+        void _handleTimeout( const boost::system::error_code& error );
+        void _handleData( const boost::system::error_code& error,
+                          const size_t bytes );
+        bool _handleDataDatagram( Buffer& buffer );
         bool _handleAck( const DatagramAck* ack );
         bool _handleNack( const DatagramNack* nack );
         bool _handleAckRequest( const DatagramAckRequest* ackRequest );
@@ -236,10 +255,7 @@ namespace net
         /** @return true if we knew the correct number of connections. */
         bool _handleCountNode();
 
-        Buffer* _newDataBuffer( base::Bufferb& inBuffer );
-
-        /** Initialize the reader thread */
-        bool _initThread();
+        Buffer* _newDataBuffer( Buffer& inBuffer );
 
         /* Run the reader thread */
         void _runThread();
@@ -251,6 +267,7 @@ namespace net
         
         /** Analyze the current error and adapt the send rate */
         void _adaptSendRate( const size_t nPackets, const size_t errors );
+        void _waitWritable( const uint64_t bytes );
 
         /** format and send a datagram count node */
         void _sendDatagramCountNode();
@@ -283,3 +300,4 @@ namespace net
 }
 
 #endif //EQNET_RSPCONNECTION_H
+#endif //EQ_USE_BOOST

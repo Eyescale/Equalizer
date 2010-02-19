@@ -105,9 +105,11 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             break;
 
 #endif
-        case CONNECTIONTYPE_RSP:
+#ifdef EQ_USE_BOOST
+		case CONNECTIONTYPE_RSP:
             connection = new RSPConnection;
             break;
+#endif
         default:
             EQWARN << "Connection type not implemented" << endl;
             return connection;

@@ -26,7 +26,7 @@
 #  define LITTLE_ENDIAN
 #endif
 
-#if 0
+#if 1
 #  ifndef EQ_USE_BOOST
 #    define EQ_USE_BOOST
 #  endif
