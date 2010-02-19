@@ -15,6 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <pthread.h> // needed for mtQueue template instantiation
 #include "view.h"
 #include "config.h"
 

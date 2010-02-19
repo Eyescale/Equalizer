@@ -18,6 +18,7 @@
 #ifndef EQ_PLY_CONFIG_H
 #define EQ_PLY_CONFIG_H
 
+#include <pthread.h> // needed for mtQueue template instantiation
 #include <eq/eq.h>
 
 // members

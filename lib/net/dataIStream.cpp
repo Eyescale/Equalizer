@@ -18,6 +18,8 @@
 #include "dataIStream.h"
 
 #include "log.h"
+#include "node.h"
+
 #include <eq/base/debug.h>
 #include <eq/base/compressor.h>
 

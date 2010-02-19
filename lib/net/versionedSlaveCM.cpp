@@ -347,7 +347,8 @@ CommandResult VersionedSlaveCM::_cmdCommit( Command& command )
     if( !_master || !_master->isConnected( ))
     {
         EQASSERTINFO( false, "Master node not connected" );
-        localNode->serveRequest( packet->requestID, VERSION_NONE );
+        localNode->serveRequest( packet->requestID,
+                                 static_cast< uint32_t >( VERSION_NONE ));
         return COMMAND_HANDLED;
     }
 
