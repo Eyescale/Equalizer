@@ -1,4 +1,4 @@
-Fix debug build
+Potential Win32 compile fix
 
 [ ] May break build
 [ ] May break existing applications
