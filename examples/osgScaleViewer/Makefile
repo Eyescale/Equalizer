@@ -14,7 +14,6 @@ CXXFILES = \
 	osgScaleViewer.cpp \
 	channel.cpp \
 	config.cpp \
-	osgEqViewer.cpp \
 	frameData.cpp \
 	initData.cpp \
 	node.cpp \

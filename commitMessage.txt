@@ -1,9 +1,9 @@
-Add remote launch doc for Win7 (Robert Hauck)
+osgScaleViewer: minor cleanups
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

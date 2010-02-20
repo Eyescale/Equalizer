@@ -27,7 +27,6 @@
 
 #include <eq/eq.h>
 
-#include "osgEqViewer.h"
 #include "frameData.h"
 
 #include <osg/MatrixTransform>

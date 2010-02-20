@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(eqOSG)
+PROJECT(osgScaleViewer)
 
 # Set the module path to find FindEqualizer.cmake and FindOSG.cmake
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
@@ -47,29 +47,30 @@ SET(CMAKE_BUILD_TYPE Debug)
 FILE(GLOB headers "${CMAKE_SOURCE_DIR}/*.h")
 
 # Create the executable
-ADD_EXECUTABLE(eqOSG
+ADD_EXECUTABLE(osgScaleViewer
   main.cpp
-  Application.cpp
-  Channel.cpp
-  Config.cpp
-  EqViewer.cpp
-  FrameData.cpp
-  InitData.cpp
-  Node.cpp
-  Pipe.cpp
-  SceneReader.cpp
-  Quad.cpp
+  osgScaleViewer.cpp
+  channel.cpp
+  config.cpp
+  frameData.cpp
+  initData.cpp
+  node.cpp
+  pipe.cpp
+  sceneReader.cpp
+  tracker.cpp
+  window.cpp
+  quad.cpp
 )
 
 # Link all needed libraries to the executable
-TARGET_LINK_LIBRARIES(eqOSG
+TARGET_LINK_LIBRARIES(osgScaleViewer
   ${Equalizer_LIBRARIES}
   ${OPENGL_LIBRARIES}
   ${OSG_LIBRARIES}
 )
 
 # Install our executable
-INSTALL(TARGETS eqOSG
+INSTALL(TARGETS osgScaleViewer
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
 )
