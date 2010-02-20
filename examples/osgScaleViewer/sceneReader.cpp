@@ -2,7 +2,7 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010, Stefan Eilemann <eile@eyescale.ch>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,6 +23,9 @@
 
 #include <osgDB/ReadFile>
 #include <osgUtil/Optimizer>
+
+namespace osgScaleViewer
+{
 
 SceneReader::SceneReader()
 {
@@ -50,4 +53,5 @@ osg::ref_ptr<osg::Image> SceneReader::readImage( const std::string& filename )
         EQERROR << "Failed to load image." << std::endl;
 
     return image;
+}
 }

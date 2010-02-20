@@ -2,7 +2,7 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010, Stefan Eilemann <eile@eyescale.ch>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,6 +24,8 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
+namespace osgScaleViewer
+{
 osg::ref_ptr<osg::Node> Quad::createQuad() const
 {
     osg::ref_ptr<osg::Geode> geode= new osg::Geode();
@@ -119,4 +121,6 @@ osg::ref_ptr<osg::Drawable> Quad::createDrawable() const
     geom->setNormalArray( normals.get( ));
 
     return geom.get();
+}
+
 }

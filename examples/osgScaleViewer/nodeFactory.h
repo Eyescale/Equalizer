@@ -19,8 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef NODEFACTORY_H
-#define NODEFACTORY_H
+#ifndef OSG_SV_NODEFACTORY_H
+#define OSG_SV_NODEFACTORY_H
 
 #include <eq/eq.h>
 
@@ -28,13 +28,14 @@
 #include "config.h"
 #include "node.h"
 #include "pipe.h"
+#include "window.h"
+
+namespace osgScaleViewer
+{
 
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Channel* createChannel( eq::Window* parent )
-        { return new Channel( parent ); }
-
     virtual eq::Config* createConfig( eq::ServerPtr parent )
         { return new Config( parent ); }
 
@@ -43,6 +44,13 @@ public:
 
     virtual eq::Pipe* createPipe( eq::Node* parent )
        { return new Pipe( parent ); }
+
+    virtual eq::Window* createWindow( eq::Pipe* parent )
+        { return new Window( parent ); }
+
+    virtual eq::Channel* createChannel( eq::Window* parent )
+        { return new Channel( parent ); }
 };
 
-#endif
+}
+#endif // OSG_SV_NODEFACTORY_H

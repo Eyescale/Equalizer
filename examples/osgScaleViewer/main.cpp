@@ -33,12 +33,12 @@
 int main( const int argc, char** argv )
 {
     // 1. parse arguments
-    InitData initData;
+    osgScaleViewer::InitData initData;
     if ( !initData.parseCommandLine( argv, argc ))
         return -1;
 
     // 2. Equalizer initialization
-    NodeFactory nodeFactory;
+    osgScaleViewer::NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         std::cout << "Equalizer init failed" << std::endl;
@@ -46,7 +46,8 @@ int main( const int argc, char** argv )
     }
 
     // 3. initialization of local client node
-    eq::base::RefPtr< OSGScaleViewer > client = new OSGScaleViewer( initData );
+    eq::base::RefPtr< osgScaleViewer::OSGScaleViewer > client =
+        new osgScaleViewer::OSGScaleViewer( initData );
     if( !client->initLocal( argc, argv ))
     {
         std::cout << "Can't init client" << std::endl;

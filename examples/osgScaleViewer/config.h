@@ -19,140 +19,112 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef OSGSV_CONFIG_H
+#define OSGSV_CONFIG_H
 
 #include "frameData.h"
 #include "initData.h"
 #include "tracker.h"
 
 #include <eq/eq.h>
-#include <osg/Node>
-#include <osg/Image>
 
-class Config : public eq::Config
+namespace osgScaleViewer
 {
-public:
+    class Config : public eq::Config
+    {
+    public:
 
-    Config( eq::ServerPtr parent );
+        Config( eq::ServerPtr parent );
 
-    /** Reimplemented */
-    virtual bool init();
+        /** Reimplemented */
+        virtual bool init();
 
-    /** Reimplemented */
-    virtual bool exit();
+        /** Reimplemented */
+        virtual bool exit();
 
-    /** Reimplemented */
-    virtual uint32_t startFrame();
+        /** Reimplemented */
+        virtual uint32_t startFrame();
 
-    /**
-     * Reimplemented for camera controls.
-     * If a keypress happens, this function updates _moveDirection,
-     * so that the new camera position can be calculated in updateFrameData().
-     * If a mouse move event happens, this function updates _pointerXDiff
-     * and mPointerYDiff, so that the new camera viewing direction can be
-     * calculated in updateFrameData().
-     */
-    virtual bool handleEvent( const eq::ConfigEvent* event );
+        /**
+         * Reimplemented for camera controls.
+         * If a keypress happens, this function updates _moveDirection, so
+         * that the new camera position can be calculated in updateFrameData().
+         * If a mouse move event happens, this function updates _pointerXDiff
+         * and mPointerYDiff, so that the new camera viewing direction can be
+         * calculated in updateFrameData().
+         */
+        virtual bool handleEvent( const eq::ConfigEvent* event );
 
-    /** 
-     * Sets the InitData object.
-     * @param data the init data.
-     */
-    void setInitData( const InitData& data );
+        /** 
+         * Sets the InitData object.
+         * @param data the init data.
+         */
+        void setInitData( const InitData& data );
 
-    /** 
-     * Gets the InitData object.
-     * @return the init data.
-     */
-    const InitData& getInitData() const;
+        /** 
+         * Gets the InitData object.
+         * @return the init data.
+         */
+        const InitData& getInitData() const;
 
-    /** Reimplemented */
-    bool mapData( const uint32_t initDataID );
+        /** Reimplemented */
+        bool mapData( const uint32_t initDataID );
 
-    /** 
-     * Sets the osg model.
-     * @param model the osg model loaded.
-     */
-    void setModel( osg::ref_ptr<osg::Node> model ) { _model = model; }
+    protected:
+        void updateFrameData( float elapsed );
 
-    /** 
-     * Sets the osg image.
-     * @param image the osg image loaded.
-     */
-    void setImage( osg::ref_ptr<osg::Image> image ) { _image = image; }
+    private:
+        /** 
+         * Sets the head matrix.
+         * @param matrix the head matrix.
+         */
+        void _setHeadMatrix( const eq::Matrix4f& matrix );
 
-    /** 
-     * Gets the osg model.
-     * @return the osg model loaded.
-     */
-    osg::ref_ptr<osg::Node> getModel() { return _model; }
+        /** 
+         * Gets the head matrix.
+         * @return the head matrix.
+         */
+        const eq::Matrix4f& _getHeadMatrix() const;
 
-    /** 
-     * Gets the osg image.
-     * @return the osg image loaded.
-     */
-    osg::ref_ptr<osg::Image> getImage() { return _image; }
+        /** 
+         * The vector of the camera movement in the current frame.
+         * This value is computed in handleEvent() and then later in
+         * updateFrameData(), the camera position is updated based on this.
+         */
+        eq::Vector3f _moveDirection;
 
-protected:
-    void updateFrameData( float elapsed );
+        /** 
+         * Same as the camera viewing direction, only that the y component
+         * is always zero. Used in handleEvent() to calculate mMoveDirection.
+         */
+        eq::Vector3f _cameraWalkingVector;
 
-private:
-    /** 
-     * Sets the head matrix.
-     * @param matrix the head matrix.
-     */
-    void _setHeadMatrix( const eq::Matrix4f& matrix );
+        /** 
+         * The differences of the mouse pointer position of this and
+         * the last frame, in pixels. Used to calculate the new viewing direction.
+         */
+        int32_t _pointerXDiff;
+        int32_t _pointerYDiff;
 
-    /** 
-     * Gets the head matrix.
-     * @return the head matrix.
-     */
-    const eq::Matrix4f& _getHeadMatrix() const;
+        /** 
+         * The current angles of the camera.
+         * The current camera viewing direction is calculated based on this.
+         */
+        float _cameraAngleHor;
+        float _cameraAngleVer;
 
-    /** 
-     * The vector of the camera movement in the current frame.
-     * This value is computed in handleEvent() and then later in
-     * updateFrameData(), the camera position is updated based on this.
-     */
-    eq::Vector3f _moveDirection;
+        /** Distributed objects. */
+        InitData _initData;
+        FrameData _frameData;
 
-    /** 
-     * Same as the camera viewing direction, only that the y component
-     * is always zero. Used in handleEvent() to calculate mMoveDirection.
-     */
-    eq::Vector3f _cameraWalkingVector;
+        /** Tracker. */
+        Tracker _tracker;
 
-    /** 
-     * The differences of the mouse pointer position of this and
-     * the last frame, in pixels. Used to calculate the new viewing direction.
-     */
-    int32_t _pointerXDiff;
-    int32_t _pointerYDiff;
-
-    /** 
-     * The current angles of the camera.
-     * The current camera viewing direction is calculated based on this.
-     */
-    float _cameraAngleHor;
-    float _cameraAngleVer;
-
-    /** OSG objects. */
-    osg::ref_ptr<osg::Node> _model;
-    osg::ref_ptr<osg::Image> _image;
-
-    /** Distributed objects. */
-    InitData _initData;
-    FrameData _frameData;
-
-    /** Tracker. */
-    Tracker _tracker;
-
-    /** 
-     * Clock used to measure the amount of time the last frame took,
-     * to make it possible to have a framerate-independent rotation.
-     */
-    eq::base::Clock _clock;
-};
-
+        /** 
+         * Clock used to measure the amount of time the last frame took,
+         * to make it possible to have a framerate-independent rotation.
+         */
+        eq::base::Clock _clock;
+    };
+}
 #endif

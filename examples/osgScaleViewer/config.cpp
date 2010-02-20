@@ -26,6 +26,8 @@
 
 #include <osg/Math>
 
+namespace osgScaleViewer
+{
 static const float maxVerticalAngle = osg::PI;
 static const float minVerticalAngle = 0.2;
 static const float mouseViewSpeed = 0.005f;
@@ -151,32 +153,6 @@ bool Config::mapData( const uint32_t initDataID )
     {
         EQASSERT( _initData.getID() == initDataID );
     }
-
-    // load model at first config run
-    SceneReader sceneReader;
-    if( !_model )
-    {
-        std::string modelFile = _initData.getModelFileName();    
-        if( modelFile.size() > 0 )
-        {
-            osg::ref_ptr<osg::Node> model = sceneReader.readModel( modelFile );
-            if( model.valid( ))
-                setModel( model );
-        }
-    }
-
-    // load image at first config run
-    if( !_image )
-    {
-        std::string imageFile = _initData.getImageFileName();
-        if( imageFile.size() > 0 )
-        {
-            osg::ref_ptr<osg::Image> image = sceneReader.readImage( imageFile );
-            if( image.valid( ))
-	        setImage( image );
-        }
-    }
-
     return true;
 }
 
@@ -269,4 +245,5 @@ const eq::Matrix4f& Config::_getHeadMatrix() const
         return eq::Matrix4f::IDENTITY;
 
     return observers[0]->getHeadMatrix();
+}
 }

@@ -2,7 +2,7 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010, Stefan Eilemann <eile@eyescale.ch>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,7 +23,8 @@
 
 #include "config.h"
 
-using namespace std;
+namespace osgScaleViewer
+{
 
 OSGScaleViewer::OSGScaleViewer( const InitData& initData )
     : _initData( initData )
@@ -36,7 +37,7 @@ int OSGScaleViewer::run()
     eq::ServerPtr server = new eq::Server();
     if( !connectServer( server ))
     {
-        std::cout << "Can't open server" << endl;
+        std::cout << "Can't open server" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -46,7 +47,7 @@ int OSGScaleViewer::run()
 
     if( !config )
     {
-        std::cout << "No matching config on server" << endl;
+        std::cout << "No matching config on server" << std::endl;
         disconnectServer( server );
         return EXIT_FAILURE;
     }
@@ -55,7 +56,7 @@ int OSGScaleViewer::run()
     if( !config->init( ))
     {
         std::cout << "Config initialization failed: "
-                  << config->getErrorMessage() << endl;
+                  << config->getErrorMessage() << std::endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;
@@ -75,9 +76,11 @@ int OSGScaleViewer::run()
     // 6. cleanup and exit
     server->releaseConfig( config );
     if( !disconnectServer( server ))
-        std::cout << "Client::disconnectServer failed" << endl;
+        std::cout << "Client::disconnectServer failed" << std::endl;
 
     server = 0;
 
     return EXIT_SUCCESS;
+}
+
 }

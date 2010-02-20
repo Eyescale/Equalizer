@@ -1,9 +1,5 @@
 
-/*
- * Copyright (c)
- *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@eyescale.ch>
- *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,29 +15,32 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef OSGSCALEVIEWER_H
-#define OSGSCALEVIEWER_H
+#ifndef OSG_SV_WINDOW_H
+#define OSG_SV_WINDOW_H
 
-#include "initData.h"
 #include <eq/eq.h>
+#include <osgUtil/SceneView>
 
 namespace osgScaleViewer
 {
-    class OSGScaleViewer : public eq::Client
+    /**
+     * A window represents an OpenGL drawable and context
+     */
+    class Window : public eq::Window
     {
     public:
-        /** 
-         * Create an OSG application.
-         * @param initData the init data object.
-         */
-        OSGScaleViewer( const InitData& initData );
+        Window( eq::Pipe* parent ) : eq::Window( parent ) {}
+        
+        osg::ref_ptr< osgUtil::SceneView > getSceneView() { return _sceneView; }
 
-        /** Run the application. */
-        int run();
+    protected:
+        virtual ~Window() {}
+        virtual bool configInitGL( const uint32_t initID );
+        virtual bool configExitGL();
 
     private:
-        const InitData& _initData;
+        osg::ref_ptr< osgUtil::SceneView > _sceneView;
     };
 }
-#endif
 
+#endif // OSG_SV_WINDOW_H

@@ -2,7 +2,7 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010, Stefan Eilemann <eile@eyescale.ch>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,25 +23,21 @@
 
 #include "config.h"
 
+namespace osgScaleViewer
+{
+
 Pipe::Pipe( eq::Node* parent )
     : eq::Pipe( parent )
-    , _viewer( new OSGEqViewer )
 {
 }
 
 Pipe::~Pipe()
 {
-    _viewer = 0;
 }
 
 const FrameData& Pipe::getFrameData() const
 {
     return _frameData;
-}
-
-osg::ref_ptr< OSGEqViewer > Pipe::getViewer() const
-{
-    return _viewer;
 }
 
 bool Pipe::configInit( const uint32_t initID )
@@ -61,14 +57,14 @@ bool Pipe::configInit( const uint32_t initID )
 bool Pipe::configExit()
 {
     getConfig()->unmapObject( &_frameData );
-    _viewer = 0;
-
     return eq::Pipe::configExit();
 }
 
 void Pipe::frameStart( const uint32_t frameID,
                        const uint32_t frameNumber )
 {
-    eq::Pipe::frameStart( frameID, frameNumber );
     _frameData.sync( frameID );
+    eq::Pipe::frameStart( frameID, frameNumber );
+}
+
 }

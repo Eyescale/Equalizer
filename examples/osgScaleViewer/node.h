@@ -24,24 +24,43 @@
 
 #include <eq/eq.h>
 
-namespace eq 
+#include <osg/Image>
+#include <osg/Light>
+#include <osg/LightSource>
+#include <osg/Node>
+
+namespace osgScaleViewer
 {
-    class Config;
+    class Node : public eq::Node
+    {
+    public:
+        /** 
+         * Creates a Node.
+         * @param parent the node's parent.
+         */
+        Node( eq::Config* parent );
+
+        int32_t getUniqueContextID() { return ++_contextID; }
+        osg::ref_ptr< osg::Node > getModel() { return _model; }
+        osg::ref_ptr< osg::FrameStamp > getFrameStamp() { return _frameStamp; }
+
+    protected:
+        virtual bool configInit( const uint32_t initID );
+        virtual bool configExit();
+        virtual void frameStart( const uint32_t frameID,
+                                 const uint32_t frameNumber );
+
+    private:
+        eq::base::a_int32_t _contextID;
+        osg::ref_ptr< osg::Node > _model;
+        osg::ref_ptr< osg::FrameStamp > _frameStamp;
+        osg::ref_ptr< osg::NodeVisitor > _updateVisitor;
+
+        osg::ref_ptr< osg::Node > _createSceneGraph();
+        osg::ref_ptr< osg::Node > _createSceneGraph( osg::ref_ptr<osg::Image> );
+        osg::ref_ptr< osg::Group > _initSceneGraph();
+        osg::ref_ptr< osg::LightSource > _createLightSource();
+    };
+
 }
-
-class Node : public eq::Node
-{
-
-public:
-    /** 
-     * Creates a Node.
-     * @param parent the node's parent.
-     */
-    Node( eq::Config* parent );
-
-protected:
-    /** @sa eq::Config::configInit */
-    virtual bool configInit( const uint32_t initID );
-};
-
 #endif

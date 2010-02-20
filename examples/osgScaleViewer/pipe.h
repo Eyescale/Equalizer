@@ -1,8 +1,7 @@
 
-/*
- * Copyright (c)
+/* Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010, Stefan Eilemann <eile@eyescale.ch>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -19,8 +18,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef PIPE_H
-#define PIPE_H
+#ifndef OSGSV_PIPE_H
+#define OSGSV_PIPE_H
 
 #ifdef WIN32
 #  define EQ_IGNORE_GLEW
@@ -37,57 +36,51 @@
 #include <osg/Node>
 #include <osg/Image>
 
-/**
- * The Pipe holds the viewer and the frame data.
- * Each frame, it updates the scene graph of the viewer with the
- * new data of the frame data. The frame data is synced with the server.
- */
-class Pipe : public eq::Pipe
+namespace osgScaleViewer
 {
-public:
-    /** 
-     * Creates a Pipe.
-     * @param parent the pipe's parent.
+    /**
+     * The Pipe holds the viewer and the frame data.
+     * Each frame, it updates the scene graph of the viewer with the
+     * new data of the frame data. The frame data is synced with the server.
      */
-    Pipe( eq::Node* parent );
+    class Pipe : public eq::Pipe
+    {
+    public:
+        /** 
+         * Creates a Pipe.
+         * @param parent the pipe's parent.
+         */
+        Pipe( eq::Node* parent );
    
-    /** 
-     * Gets the FrameData object.
-     * @return the frame data object.
-     */
-    const FrameData& getFrameData() const;
+        /** 
+         * Gets the FrameData object.
+         * @return the frame data object.
+         */
+        const FrameData& getFrameData() const;
 
-    /** 
-     * Gets the EqViewer object.
-     * @return the scenegraph viewer.
-     */
-    osg::ref_ptr< OSGEqViewer> getViewer() const;
+    protected:
+        virtual ~Pipe();
 
-protected:
-    virtual ~Pipe();
+        /**
+         * Creates the scene graph and registers the frame data, so it can be
+         * synced with the server later.
+         */
+        virtual bool configInit( const uint32_t initID );
 
-    /**
-     * Creates the scene graph and registers the frame data, so it can be
-     * synced with the server later.
-     */
-    virtual bool configInit( const uint32_t initID );
+        /**
+         * Deregisters the frame data.
+         */
+        virtual bool configExit();
 
-    /**
-     * Deregisters the frame data.
-     */
-    virtual bool configExit();
+        /**
+         * Syncs the frame data with the server and calls updateSceneGraph().
+         */
+        virtual void frameStart( const uint32_t frameID,
+                                 const uint32_t frameNumber );
 
-    /**
-     * Syncs the frame data with the server and calls updateSceneGraph().
-     */
-    virtual void frameStart( const uint32_t frameID,
-                             const uint32_t frameNumber );
-
-private:
-    FrameData _frameData;
-
-    /** The viewer. */
-    osg::ref_ptr< OSGEqViewer > _viewer;    
-};
+    private:
+        FrameData _frameData;
+    };
+}
 
 #endif

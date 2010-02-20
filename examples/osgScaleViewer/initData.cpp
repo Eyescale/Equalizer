@@ -1,8 +1,7 @@
 
-/*
- * Copyright (c)
+/* Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010, Stefan Eilemann <eile@eyescale.ch>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,6 +20,8 @@
 
 #include "initData.h"
 
+namespace osgScaleViewer
+{
 InitData::~InitData()
 {
     setFrameDataID( EQ_ID_INVALID );
@@ -102,4 +103,6 @@ std::string InitData::_parseCommandLinePrefix( char** argv, int argc,
     }
 
     return "";
+}
+
 }

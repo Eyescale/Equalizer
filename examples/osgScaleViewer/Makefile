@@ -22,6 +22,7 @@ CXXFILES = \
 	quad.cpp \
 	sceneReader.cpp \
 	tracker.cpp \
+	window.cpp \
 	main.cpp
 
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS) -I/usr/local/include
