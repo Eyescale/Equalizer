@@ -1,0 +1,36 @@
+
+                                Overview
+
+Windows 7 is not yet officially supported, but it has been reported to
+work. There are apparently still issues with GPU affinity on Windows 7.
+
+
+                 Multi-Node Configurations on Windows 7
+
+PsExec has been used to automatically launch render client
+processes. The following steps have to be taken:
+
+- use a user which has administrator rights to connect to the nodes
+- turn off User Account Control (UAC)
+- disable the Windows Firewall
+
+Otherwise, an access denied error can occur.
+
+Launching an Equalizer application, including all render clients, can be
+achieved by using a batch which does the following:
+
+for each client node:
+  start psexec \\NODEx -u NODEx\RemoteAdminUser -p password -i 1 C:\Data\EQApp.exe -- --eq-client --eq-listen :<port>
+
+for the eqServer:
+  start psexec \\SERVERNODE -u SERVERNODE\RemoteAdminUser -p password -i 1 C:\Data\eqServer.exe C:\Data\configs\Cave.eqc
+
+for the application:
+  start psexec \\APPNODE -u APPNODE\RemoteAdminUser -p password -i 1 C:\Data\EQApp.exe
+
+The Equalizer configuration file needs to use the correct IP addresses
+and port numbers. Take care that all clients are started before the
+eqServer gets started.
+
+
+[1] http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx

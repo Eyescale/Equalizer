@@ -1,9 +1,9 @@
-Fix POSIX build
+Add remote launch doc for Win7 (Robert Hauck)
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
