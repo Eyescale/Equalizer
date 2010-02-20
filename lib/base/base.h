@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,7 +30,9 @@
 #    define USE_SYS_TYPES_FD_SET
 #  endif
 #  define _USE_MATH_DEFINES
-#  define _WIN32_WINNT 0x500
+#  ifndef _WIN32_WINNT
+#    define _WIN32_WINNT 0x500
+#  endif
 #  define WIN32_LEAN_AND_MEAN
 #  define NOMINMAX
 #  include <Winsock2.h>

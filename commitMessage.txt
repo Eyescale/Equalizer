@@ -1,4 +1,4 @@
-osgScaleViewer: Fix model orientation, set default model names
+Allow modification of Win32 API used
 
 [ ] May break build
 [ ] May break existing applications
