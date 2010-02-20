@@ -55,10 +55,10 @@ osg::ref_ptr<osg::Drawable> Quad::createDrawable( int width, int height ) const
     float widthf =  heightf * width / static_cast<float>( height );
     
     osg::ref_ptr<osg::Vec3Array> data = new osg::Vec3Array();
-    data->push_back( osg::Vec3( -widthf/2.f, 0.f, -heightf/2.f ));
-    data->push_back( osg::Vec3( -widthf/2.f, 0.f,  heightf/2.f ));
-    data->push_back( osg::Vec3(  widthf/2.f, 0.f,  heightf/2.f ));
-    data->push_back( osg::Vec3(  widthf/2.f, 0.f, -heightf/2.f ));
+    data->push_back( osg::Vec3(  widthf/2.f, -heightf/2.f, 0.f ));
+    data->push_back( osg::Vec3(  widthf/2.f,  heightf/2.f, 0.f ));
+    data->push_back( osg::Vec3( -widthf/2.f,  heightf/2.f, 0.f ));
+    data->push_back( osg::Vec3( -widthf/2.f, -heightf/2.f, 0.f ));
 
     // color
     osg::ref_ptr<osg::Vec4Array> color = new osg::Vec4Array();
@@ -97,10 +97,10 @@ osg::ref_ptr<osg::Drawable> Quad::createDrawable() const
 
     // vertices
     osg::ref_ptr<osg::Vec3Array> data = new osg::Vec3Array();
-    data->push_back( osg::Vec3( -1.f, 0.f, -1.f ));
-    data->push_back( osg::Vec3( -1.f, 0.f,  1.f ));
-    data->push_back( osg::Vec3(  1.f, 0.f,  1.f ));
-    data->push_back( osg::Vec3(  1.f, 0.f, -1.f ));
+    data->push_back( osg::Vec3(  1.f, -1.f, 0.f ));
+    data->push_back( osg::Vec3(  1.f,  1.f, 0.f ));
+    data->push_back( osg::Vec3( -1.f,  1.f, 0.f ));
+    data->push_back( osg::Vec3( -1.f, -1.f, 0.f ));
 
     // color
     osg::ref_ptr<osg::Vec4Array> color = new osg::Vec4Array();

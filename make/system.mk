@@ -80,7 +80,8 @@ endif
 ifeq ($(findstring icc, $(CXX)),icc)
     ICC_DIR    ?= /opt/intel/Compiler/11.1/064/
     DEFFLAGS   += -DEQ_USE_OPENMP
-    CXXFLAGS   += -openmp -Wno-deprecated -Wno-overloaded-virtual -diag-disable 654
+    CXXFLAGS   += -openmp -Wno-deprecated -Wno-overloaded-virtual \
+                  -diag-disable 654
     LDFLAGS    += -L$(ICC_DIR)/lib/intel64 -lirc -lguide -limf -lsvml -lpthread
     LD_PATH    = $(PWD)/$(LIBRARY_DIR):$(ICC_DIR)/lib/intel64
     LD          = g++

@@ -59,6 +59,20 @@ bool Node::configInit( const uint32_t initID )
         {
             SceneReader sceneReader;
             _model = sceneReader.readModel( modelFile );
+
+            if( _model.valid( ))
+            {
+                osg::Matrix matrix;
+                matrix.makeRotate( -osg::PI_2, osg::Vec3( 1., 0., 0. ));
+
+                osg::ref_ptr<osg::MatrixTransform> transform =
+                    new osg::MatrixTransform();
+                transform->setMatrix( matrix );
+                transform->addChild( _model );
+                transform->setDataVariance( osg::Object::STATIC );
+
+                _model = transform;
+            }
         }
     }
 
@@ -129,8 +143,8 @@ osg::ref_ptr< osg::Node > Node::_createSceneGraph(
     
     // draw a textured quad
     Quad quad;
-    osg::ref_ptr<osg::Node> geometryChild = 
-            quad.createQuad( image->s(), image->t( ));
+    osg::ref_ptr<osg::Node> geometryChild = quad.createQuad( image->s(),
+                                                             image->t( ));
 
     osg::StateSet* stateOne = new osg::StateSet();
     stateOne->setTextureAttributeAndModes( 0, texture, osg::StateAttribute::ON);

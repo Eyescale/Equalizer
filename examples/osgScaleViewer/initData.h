@@ -35,7 +35,11 @@ namespace osgScaleViewer
     class InitData : public eq::net::Object
     {
     public:
-        ~InitData();
+        InitData() 
+                : _frameDataID( EQ_ID_INVALID )
+                , _modelFileName( "cow.osg" )
+                , _imageFileName( "tests/compositor/Result_Alpha_color.rgb" ) {}
+        virtual ~InitData();
 
         void setFrameDataID( const uint32_t id );
         uint32_t getFrameDataID() const;

@@ -1,9 +1,9 @@
-Minor cleanup
+osgScaleViewer: Fix model orientation, set default model names
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
