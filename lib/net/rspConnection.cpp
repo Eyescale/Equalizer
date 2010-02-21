@@ -278,7 +278,7 @@ ConnectionPtr RSPConnection::acceptSync()
     
     EQASSERT ( !_childrenConnecting.empty() );
 
-	RSPConnectionPtr newConnection = _childrenConnecting[0];
+	RSPConnectionPtr newConnection = _childrenConnecting.back();
     _childrenConnecting.pop_back();
 	_children.push_back( newConnection );
     _sendDatagramCountNode();
@@ -708,9 +708,7 @@ void RSPConnection::_handleRepeat()
         if( _repeatQueue.empty( )) // re-request ack
         {
             if( _ackSend )
-            {
                 _sendAckRequest( _sequenceID - 1 );
-            }
         }
     }
     else
@@ -1519,28 +1517,18 @@ void RSPConnection::_adaptSendRate( const size_t nPackets, const size_t nErrors)
 
     int32_t delta = 0;
     if ( error < 0.f )
-    {
         delta = static_cast< int32_t >( error *
                       Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE ));
-        delta = EQ_MIN( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAX ),
-                        delta );
-
-        EQLOG( LOG_RSP ) << nErrors << "/" << nPackets
-                         << " errors, change send rate by " << -delta << "%"
-                         << std::endl;
-    }
     else
-    {
         delta = static_cast< int32_t >( error /
-                    Global::getIAttribute( Global::IATTR_RSP_ERROR_DOWNSCALE ));
-        delta = EQ_MIN( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAX ),
+                    Global::getIAttribute( Global::IATTR_RSP_ERROR_DOWNSCALE ));        
+    
+    delta = EQ_MIN( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAX ),
                         delta );
-
-        EQLOG( LOG_RSP ) << nErrors << "/" << nPackets
+    EQLOG( LOG_RSP ) << nErrors << "/" << nPackets
                          << " errors, change send rate by " << -delta << "%"
                          << std::endl;
-    }
-
+    
     _sendRate += _sendRate * (-delta) / 100;
     _sendRate = EQ_MAX( _description->bandwidth/50, _sendRate );
     _sendRate = EQ_MIN( _sendRate, _description->bandwidth );
