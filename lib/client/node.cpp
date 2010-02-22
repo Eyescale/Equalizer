@@ -279,6 +279,8 @@ bool Node::configExit()
 #ifdef EQ_USE_MAGELLAN
 #  ifdef AGL
     AGLEventHandler::exitMagellan( this );
+#  elif defined WGL
+    WGLEventHandler::exitMagellan( this );
 #  else
     EQUNIMPLEMENTED;
 #  endif

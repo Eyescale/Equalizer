@@ -61,9 +61,9 @@ namespace
 {
 class HandlerMap
 #ifdef _MSC_VER
-    : public hash_map< HWND, WGLEventHandler* >
+    : public stde::hash_map< HWND, WGLEventHandler* >
 #else // Cygwin does not want to instantiate a hash with key=HWND
-    : public hash_map< void*, WGLEventHandler* >
+    : public stde::hash_map< void*, WGLEventHandler* >
 #endif
 {
 public:
@@ -74,14 +74,12 @@ public:
             if( !empty( ))
                 EQWARN << size() 
                        << " WGL event handlers registered during thread exit"
-                       << endl;
+                       << std::endl;
             delete this;
         }
 };
 
-static PerThread< HandlerMap > _handlers;
-
-
+static base::PerThread< HandlerMap > _handlers;
 
 static void registerHandler( HWND hWnd, WGLEventHandler* handler )
 {
@@ -121,7 +119,7 @@ WGLEventHandler::WGLEventHandler( WGLWindowIF* window )
 
     if( !_hWnd )
     {
-        EQWARN << "Window has no window handle" << endl;
+        EQWARN << "Window has no window handle" << std::endl;
         return;
     }
 
@@ -144,7 +142,7 @@ LRESULT CALLBACK WGLEventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     WGLEventHandler* handler = getEventHandler( hWnd );
     if( !handler )
     {
-        EQERROR << "Message arrived for unregistered window" << endl;
+        EQERROR << "Message arrived for unregistered window" << std::endl;
         return DefWindowProc( hWnd, uMsg, wParam, lParam );
     }
 
@@ -164,7 +162,7 @@ void WGLEventHandler::_syncButtonState( WPARAM wParam )
     if( _buttonState != buttons )
 
         EQWARN << "WM_MOUSEMOVE reports button state " << buttons
-               << ", but internal state is " << _buttonState << endl;
+               << ", but internal state is " << _buttonState << std::endl;
 #endif
 
     _buttonState = buttons;
@@ -393,8 +391,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                     // else no break; fall through
                 default:
                     event.type = Event::UNKNOWN;
-                    EQVERB << "Unhandled system command 0x" << hex << wParam 
-                           << dec << endl;
+                    EQVERB << "Unhandled system command 0x" << std::hex
+                           << wParam  << std::dec << std::endl;
                     break;
             }
             break;
@@ -405,13 +403,14 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         default:
             event.type = Event::UNKNOWN;
-            EQVERB << "Unhandled message 0x" << hex << uMsg << dec << endl;
+            EQVERB << "Unhandled message 0x" << std::hex << uMsg << std::dec
+                   << std::endl;
             break;
     }
 
     event.originator = window->getID();
 
-    EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
+    EQLOG( LOG_EVENTS ) << "received event: " << event << std::endl;
 
     if( _window->processEvent( event ))
         return result;
@@ -483,7 +482,7 @@ uint32_t WGLEventHandler::_getKey( LPARAM lParam, WPARAM wParam )
                 return wParam;
             break;
     }
-    EQWARN << "Unrecognized virtual key code " << wParam << endl;
+    EQWARN << "Unrecognized virtual key code " << wParam << std::endl;
     return KC_VOID;
 }
 
@@ -711,8 +710,6 @@ bool WGLEventHandler::initMagellan(Node* node)
 
     return true;
 #endif
-#endif
-
 }
 
 void WGLEventHandler::exitMagellan(eq::Node *node)
