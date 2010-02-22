@@ -32,8 +32,12 @@ static eq::net::ConnectionType types[] =
 {
     eq::net::CONNECTIONTYPE_TCPIP,
     eq::net::CONNECTIONTYPE_PIPE,
+#if defined(EQ_USE_BOOST) || defined(EQ_PGM)
     eq::net::CONNECTIONTYPE_MCIP,
+#endif
+#ifdef EQ_USE_BOOST
     eq::net::CONNECTIONTYPE_RSP,
+#endif
 #ifdef WIN32
     eq::net::CONNECTIONTYPE_NAMEDPIPE,
 #endif
@@ -43,6 +47,7 @@ static eq::net::ConnectionType types[] =
 #ifdef EQ_PGM
     eq::net::CONNECTIONTYPE_PGM,
 #endif
+
     eq::net::CONNECTIONTYPE_NONE // must be last
 };
 
