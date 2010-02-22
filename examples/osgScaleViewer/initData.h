@@ -48,7 +48,7 @@ namespace osgScaleViewer
          * Sets the model filename.
          * @param filename the model filename.
          */
-        void setModelFileName( const std::string& fileName );
+        void setModelFileName( const std::string& filename );
     
         /** 
          * Gets the model filename.
@@ -60,7 +60,7 @@ namespace osgScaleViewer
          * Sets the image filename.
          * @param filename the image filename.
          */
-        void setImageFileName( const std::string& fileName );
+        void setImageFileName( const std::string& filename );
 
         /** 
          * Gets the image filename.
