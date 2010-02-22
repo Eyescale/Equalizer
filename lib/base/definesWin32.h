@@ -19,6 +19,9 @@
 #ifdef _OPENMP
 #  define EQ_USE_OPENMP
 #endif
+#ifndef EQ_USE_MAGELLAN
+#  define EQ_USE_MAGELLAN
+#endif
 #ifndef EQ_PGM
 #  define EQ_PGM
 #endif

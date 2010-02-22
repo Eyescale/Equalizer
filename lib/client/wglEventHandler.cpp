@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,16 +25,14 @@
 #include "event.h"
 #include "window.h"
 #include "wglWindow.h"
+#include "config.h"
+#include "configEvent.h"
 
 #include <eq/base/debug.h>
 #include <eq/base/executionListener.h>
 
 #include <algorithm>
 #include <windowsx.h>
-
-using namespace eq::base;
-using namespace std;
-using namespace stde;
 
 namespace eq
 {
@@ -401,6 +399,10 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             }
             break;
 
+        case WM_INPUT:
+            _magellanEventHandler( lParam );
+            break;
+
         default:
             event.type = Event::UNKNOWN;
             EQVERB << "Unhandled message 0x" << hex << uMsg << dec << endl;
@@ -484,4 +486,244 @@ uint32_t WGLEventHandler::_getKey( LPARAM lParam, WPARAM wParam )
     EQWARN << "Unrecognized virtual key code " << wParam << endl;
     return KC_VOID;
 }
+
+
+#ifdef EQ_USE_MAGELLAN
+
+namespace
+{
+    static Node* _magellanNode = 0;
+
+    static bool _magellanGotTranslation = false, _magellanGotRotation = false;
+    static int _magellanDOFs[6] = {0};
+
+    // ----------------  RawInput ------------------
+    PRAWINPUTDEVICELIST _pRawInputDeviceList;
+    PRAWINPUTDEVICE     _rawInputDevices;
+    int                 _nRawInputDevices;
+}
+#endif
+
+void WGLEventHandler::_magellanEventHandler( LPARAM lParam )
+{
+#ifdef EQ_USE_MAGELLAN
+    RAWINPUTHEADER header;
+    const UINT size_rawinputheader = sizeof( RAWINPUTHEADER );
+    UINT size = sizeof(header);
+
+    if( GetRawInputData( (HRAWINPUT)lParam, RID_HEADER, &header, &size,
+                         size_rawinputheader ) == -1 )
+    {
+        EQINFO << "Error from GetRawInputData( RID_HEADER )" << std::endl;
+        return;
+    }
+
+    // Ask Windows for the size of the event, because it is different on 32-bit
+    // vs. 64-bit versions of the OS
+    if( GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, 0, &size, 
+                         size_rawinputheader ) == -1)
+    {
+        EQINFO << "Error from GetRawInputData(RID_INPUT)" << std::endl;
+        return;
+    }
+
+    // Set aside enough memory for the full event
+    LPRAWINPUT evt = (LPRAWINPUT)alloca( size );
+
+    if( GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, evt, &size, 
+                         size_rawinputheader ) == -1)
+    {
+        EQINFO << "Error from GetRawInputData(RID_INPUT)" << std::endl;
+        return;
+    }
+    // else
+
+    if (evt->header.dwType == RIM_TYPEHID)
+    {           
+        LPRAWHID pRawHid = &evt->data.hid;
+
+        // translation or rotation packet?  They come in two different packets.
+        if( pRawHid->bRawData[0] == 1) // Translation vector
+        {
+            _magellanDOFs[0] = (pRawHid->bRawData[1] & 0x000000ff) |
+                ((signed short)(pRawHid->bRawData[2]<<8) & 0xffffff00); 
+            _magellanDOFs[1] = (pRawHid->bRawData[3] & 0x000000ff) | 
+                ((signed short)(pRawHid->bRawData[4]<<8) & 0xffffff00); 
+            _magellanDOFs[2] = (pRawHid->bRawData[5] & 0x000000ff) |
+                ((signed short)(pRawHid->bRawData[6]<<8) & 0xffffff00);
+            _magellanGotTranslation = true;
+        }
+        else if (pRawHid->bRawData[0] == 2) // Rotation vector
+        {
+            _magellanDOFs[3] = (pRawHid->bRawData[1] & 0x000000ff) |
+                ((signed short)(pRawHid->bRawData[2]<<8) & 0xffffff00); 
+            _magellanDOFs[4] = (pRawHid->bRawData[3] & 0x000000ff) |
+                ((signed short)(pRawHid->bRawData[4]<<8) & 0xffffff00); 
+            _magellanDOFs[5] = (pRawHid->bRawData[5] & 0x000000ff) |
+                ((signed short)(pRawHid->bRawData[6]<<8) & 0xffffff00);
+            _magellanGotRotation = true;
+        }
+        else if (pRawHid->bRawData[0] == 3) // Buttons
+        {
+            ConfigEvent event;
+            event.data.originator = _magellanNode->getID();
+            event.data.type = Event::MAGELLAN_BUTTON;
+            event.data.magellan.button = 0;
+            event.data.magellan.buttons = 0;
+            // TODO: find fired button(s) since last buttons event
+            
+            if( pRawHid->bRawData[1] )
+                event.data.magellan.buttons = PTR_BUTTON1;
+            if( pRawHid->bRawData[2] )
+                event.data.magellan.buttons |= PTR_BUTTON2;
+            if( pRawHid->bRawData[3] )
+                event.data.magellan.buttons |= PTR_BUTTON3;
+            _magellanNode->getConfig()->sendEvent( event );
+        }
+        else
+        {
+            EQASSERTINFO( 0, "Unimplemented space mouse command " <<
+                          pRawHid->bRawData[0] );
+        }
+
+        if (_magellanGotTranslation && _magellanGotRotation)
+        {
+            ConfigEvent event;
+            event.data.originator = _magellanNode->getID();
+            event.data.type = Event::MAGELLAN_AXIS;
+            event.data.magellan.xAxis = _magellanDOFs[0];
+            event.data.magellan.yAxis = _magellanDOFs[1];
+            event.data.magellan.zAxis = _magellanDOFs[2];
+            event.data.magellan.xRotation = _magellanDOFs[3];
+            event.data.magellan.yRotation = _magellanDOFs[4];
+            event.data.magellan.zRotation = _magellanDOFs[5];
+
+            _magellanGotRotation = false;
+            _magellanGotTranslation = false;
+            _magellanNode->getConfig()->sendEvent( event );
+        }
+    }
+#endif
+}
+
+bool WGLEventHandler::initMagellan(Node* node)
+{
+#ifdef EQ_USE_MAGELLAN
+    _magellanGotRotation = false;
+    _magellanGotTranslation = false;
+    
+    // Find the Raw Devices
+    UINT nDevices;
+
+    // Get Number of devices attached
+    if( GetRawInputDeviceList( 0, &nDevices, sizeof( RAWINPUTDEVICELIST )) != 0)
+    { 
+        EQINFO << "No RawInput devices attached" << std::endl;
+        return false;
+    }
+    // Create list large enough to hold all RAWINPUTDEVICE structs
+    _pRawInputDeviceList = (PRAWINPUTDEVICELIST)malloc(
+        sizeof( RAWINPUTDEVICELIST ) * nDevices );
+    if( !_pRawInputDeviceList )
+    {
+        EQINFO << "Error mallocing RAWINPUTDEVICELIST" << std::endl;
+        return false;
+    }
+    // Now get the data on the attached devices
+    if( GetRawInputDeviceList( _pRawInputDeviceList, &nDevices, 
+                               sizeof( RAWINPUTDEVICELIST )) == -1) 
+    {
+        EQINFO << "Error from GetRawInputDeviceList" << std::endl;
+        return false;
+    }
+
+    _rawInputDevices = (PRAWINPUTDEVICE)alloca( nDevices *
+                                                sizeof( RAWINPUTDEVICE ));
+    _nRawInputDevices = 0;
+
+    // Look through device list for RIM_TYPEHID devices with UsagePage == 1,
+    // Usage == 8
+    for( UINT i=0; i<nDevices; ++i )
+    {
+        if( _pRawInputDeviceList[i].dwType == RIM_TYPEHID )
+        {
+            UINT nchars = 300;
+            TCHAR deviceName[300];
+            if( GetRawInputDeviceInfo( _pRawInputDeviceList[i].hDevice,
+                                       RIDI_DEVICENAME, deviceName, 
+                                       &nchars) >= 0)
+            {
+                EQINFO << "Device [" << i << "]: handle=" 
+                       << _pRawInputDeviceList[i].hDevice << " name = "
+                       << deviceName << std::endl;
+            }
+
+            RID_DEVICE_INFO dinfo;
+            UINT sizeofdinfo = sizeof(dinfo);
+            dinfo.cbSize = sizeofdinfo;
+            if( GetRawInputDeviceInfo( _pRawInputDeviceList[i].hDevice,
+                                       RIDI_DEVICEINFO, &dinfo,
+                                       &sizeofdinfo ) >= 0)
+            {
+                if (dinfo.dwType == RIM_TYPEHID)
+                {
+                    RID_DEVICE_INFO_HID *phidInfo = &dinfo.hid;
+                    EQINFO << "VID = " << phidInfo->dwVendorId << std::endl
+                           << "PID = " << phidInfo->dwProductId << std::endl
+                           << "Version = " << phidInfo->dwVersionNumber 
+                           << std::endl
+                           << "UsagePage = " << phidInfo->usUsagePage
+                           << std::endl
+                           << "Usage = " << phidInfo->usUsage << std::endl;
+
+                    // Add this one to the list of interesting devices?
+                    // Actually only have to do this once to get input from all
+                    // usage 1, usagePage 8 devices This just keeps out the
+                    // other usages.  You might want to put up a list for users
+                    // to select amongst the different devices.  In particular,
+                    // to assign separate functionality to the different
+                    // devices.
+                    if (phidInfo->usUsagePage == 1 && phidInfo->usUsage == 8)
+                    {
+                        _rawInputDevices[_nRawInputDevices].usUsagePage = 
+                            phidInfo->usUsagePage;
+                        _rawInputDevices[_nRawInputDevices].usUsage     = 
+                            phidInfo->usUsage;
+                        _rawInputDevices[_nRawInputDevices].dwFlags     = 0;
+                        _rawInputDevices[_nRawInputDevices].hwndTarget  = 0;
+                        ++_nRawInputDevices;
+                    }
+                }
+            }
+        }
+    }
+
+    // Register for input from the devices in the list
+    if( RegisterRawInputDevices( _rawInputDevices, _nRawInputDevices,
+                                 sizeof(RAWINPUTDEVICE) ) == FALSE )
+    {
+        EQINFO << "Error calling RegisterRawInputDevices" << std::endl;
+        return false;
+    }
+
+    EQINFO << "Found and connected." << std::endl;
+     _magellanNode = node;
+
+    return true;
+#endif
+#endif
+
+}
+
+void WGLEventHandler::exitMagellan(eq::Node *node)
+{
+#ifdef EQ_USE_MAGELLAN
+    if( _magellanNode == node )
+    {
+        free(_pRawInputDeviceList);
+        _magellanNode = 0;
+    }
+#endif
+}
+
 }

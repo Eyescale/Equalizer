@@ -34,6 +34,8 @@
 
 #ifdef AGL
 #  include "aglEventHandler.h"
+#elif defined WGL
+#  include "wglEventHandler.h"
 #endif
 
 #include <eq/base/scopedMutex.h>
@@ -263,6 +265,8 @@ bool Node::configInit( const uint32_t initID )
 #ifdef EQ_USE_MAGELLAN
 #  ifdef AGL
     AGLEventHandler::initMagellan( this );
+#  elif defined WGL
+    WGLEventHandler::initMagellan( this );
 #  else
     EQUNIMPLEMENTED;
 #  endif

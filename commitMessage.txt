@@ -1,9 +1,9 @@
-osgScaleViewer: minor cleanups
+WGL SpaceMouse code (Robert Hauck, untested)
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
-[x] Cleanup
+[ ] Bugfix
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
