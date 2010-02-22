@@ -30,14 +30,6 @@
 
 namespace eq
 {
-/** 
- * @namespace eq::server
- * @brief The Equalizer server library.
- *
- * This namespace implements the server-side functionality for the Equalizer
- * framework. The API is not stable and certain assumptions are not documented,
- * use it at your own risk!
- */
 namespace server
 {
     class ServerVisitor;

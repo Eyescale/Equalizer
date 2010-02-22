@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,16 +18,13 @@
 #include "server.h"
 
 #include "global.h"
+#include "init.h"
 #include "loader.h"
 
 #include <eq/net/global.h>
 #include <eq/net/init.h>
 
 #include <iostream>
-
-using namespace eq::server;
-using namespace eq::base;
-using namespace std;
 
 #define CONFIG "server{ config{ appNode{ pipe {                            \
     window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}}    \
@@ -37,47 +34,46 @@ using namespace std;
 
 int main( const int argc, char** argv )
 {
-    eq::net::init( argc, argv );
+    if( !eq::server::init( argc, argv ))
+        return EXIT_FAILURE;
+
     eq::net::Global::setDefaultPort( EQ_DEFAULT_PORT );
 
-    Loader loader;
-    RefPtr<Server> server;
+    eq::server::Loader loader;
+    eq::server::ServerPtr server;
 
     if( argc == 1 )
-    {
         server = loader.parseServer( CONFIG );
-    }
     else
-    {
         server = loader.loadFile( argv[1] );
-    }
 
     if( !server.isValid( ))
     {
-        EQERROR << "Server load failed" << endl;
+        EQERROR << "Server load failed" << std::endl;
         return EXIT_FAILURE;
     }
 
-    Loader::addOutputCompounds( server );
-    Loader::addDestinationViews( server );
-    Loader::addDefaultObserver( server );
+    eq::server::Loader::addOutputCompounds( server );
+    eq::server::Loader::addDestinationViews( server );
+    eq::server::Loader::addDefaultObserver( server );
 
     if( !server->initLocal( argc, argv ))
     {
         EQERROR << "Can't create listener for server, please consult log" 
-                << endl;
+                << std::endl;
         return EXIT_FAILURE;
     }
 
     if( !server->run( ))
     {
-        EQERROR << "Server did not run correctly, please consult log" << endl;
+        EQERROR << "Server did not run correctly, please consult log" 
+                << std::endl;
         return EXIT_FAILURE;
     }
 
     server->exitLocal();
+    EQINFO << "Server ref count: " << server->getRefCount() << std::endl;
 
-    EQINFO << "Server ref count: " << server->getRefCount() << endl;
-    return EXIT_SUCCESS;
+    return eq::server::exit() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 

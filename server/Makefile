@@ -26,6 +26,7 @@ CXXFILES = \
 	frustum.cpp \
 	frustumData.cpp \
 	global.cpp \
+	init.cpp \
 	layout.cpp \
 	loader.cpp \
 	node.cpp \
@@ -73,7 +74,7 @@ $(DYNAMIC_LIB): lexer.cpp parser.hpp
 
 lexer_cygwin.cpp: lexer.cpp
 
-# Compile lexer without warnings since it is auto-generated with warnings
+# Compile lexer without warnings-are-errors, it is auto-generated with warnings
 ifeq (Linux,${ARCH})
 $(OBJECT_DIR)/lexer.$(OBJECT_SUFFIX).o: lexer.cpp
 	@mkdir -p $(@D)

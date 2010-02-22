@@ -292,7 +292,7 @@ bool Connection::send( Packet& packet, const void* data,
     }
     // else
 
-    char*          buffer = (char*)alloca( size );
+    char* buffer = (char*)alloca( size );
 
     memcpy( buffer,              &packet, headerSize );
     memcpy( buffer + headerSize, data,    dataSize );

@@ -1,6 +1,7 @@
-WGL SpaceMouse code (Robert Hauck, untested)
+Start implementing common data synchronization fabric for eq, eq::server
+and eq::admin.
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [x] New Feature

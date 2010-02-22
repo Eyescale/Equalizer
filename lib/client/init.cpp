@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -28,20 +28,30 @@
 #include "server.h"
 #include "version.h"
 
-#include <eq/net/init.h>
+#include <eq/fabric/init.h>
 
 #ifdef EQ_USE_PARACOMP
 #  include <pcapi.h>
 #endif
 
-using namespace std;
-
 namespace eq
 {
+namespace
+{
+static bool _initialized = false;
+}
 
 EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
-    EQINFO << "Equalizer v" << Version::getString() << " initializing" << endl;
+    EQINFO << "Equalizer v" << Version::getString() << " initializing"
+           << std::endl;
+
+    if( _initialized )
+    {
+        EQERROR << "Equalizer client library already initialized" << std::endl;
+        return false;
+    }
+    _initialized = true;
 
 #ifdef AGL
     ProcessSerialNumber selfProcess = { 0, kCurrentProcess };
@@ -50,11 +60,11 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 #endif
 
 #ifdef EQ_USE_PARACOMP
-    EQINFO << "Initializing Paracomp library" << endl;
+    EQINFO << "Initializing Paracomp library" << std::endl;
     PCerr err = pcSystemInitialize( 0 );
     if( err != PC_NO_ERROR )
     {
-        EQERROR << "Paracomp initialization failed: " << err << endl;
+        EQERROR << "Paracomp initialization failed: " << err << std::endl;
         return false;
     }
 #endif
@@ -83,17 +93,24 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
     EQASSERT( nodeFactory );
     Global::_nodeFactory = nodeFactory;
 
-    return net::init( argc, argv );
+    return fabric::init( argc, argv );
 }
 
 EQ_EXPORT bool exit()
 {
+    if( !_initialized )
+    {
+        EQERROR << "Equalizer client library not initialized" << std::endl;
+        return false;
+    }
+    _initialized = false;
+
 #ifdef EQ_USE_PARACOMP
     pcSystemFinalize();
 #endif
 
     Global::_nodeFactory = 0;
-    return net::exit();
+    return fabric::exit();
 }
 
 EQ_EXPORT Config* getConfig( const int argc, char** argv )
@@ -112,19 +129,19 @@ EQ_EXPORT Config* getConfig( const int argc, char** argv )
             if( config )
                 return config;
 
-            EQERROR << "No matching config on server" << endl;
+            EQERROR << "No matching config on server" << std::endl;
 
             // -2. disconnect server
             client->disconnectServer( server );
         }
         else
-            EQERROR << "Can't open server" << endl;
+            EQERROR << "Can't open server" << std::endl;
         
         // -1. exit local client node
         client->exitLocal();
     }
     else
-        EQERROR << "Can't init local client node" << endl;
+        EQERROR << "Can't init local client node" << std::endl;
 
     return 0;
 }

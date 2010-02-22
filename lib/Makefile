@@ -82,6 +82,7 @@ HEADER_SRC = \
 	net/types.h \
 	net/udpConnection.h \
 	net/version.h \
+	fabric/init.h \
 	client/canvas.h \
 	client/canvasVisitor.h \
 	client/channel.h \
@@ -223,6 +224,7 @@ CXXFILES = \
 	net/udpConnection.cpp \
 	net/unbufferedMasterCM.cpp \
 	net/versionedSlaveCM.cpp \
+	fabric/init.cpp \
 	client/canvas.cpp \
 	client/channel.cpp \
 	client/channelStatistics.cpp \

@@ -49,7 +49,11 @@ void View::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_MODEL )
         is >> _modelID;
     if( dirtyBits & DIRTY_IDLE )
+    {
         is >> _idleSteps;
+        if( isMaster( ))
+            setDirty( DIRTY_IDLE ); // redistribute slave settings
+    }
 }
 
 void View::notifyNewVersion()
