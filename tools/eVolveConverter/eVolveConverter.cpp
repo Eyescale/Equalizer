@@ -179,9 +179,11 @@ static void getPredefinedHeaderParameters
 static void CreateTransferFunc( int t, unsigned char *transfer );
 
 
-static int calculateAndSaveDerivatives( const string& dst, 
+static int calculateAndSaveDerivatives( const string& dst,
                                         unsigned char *volume,
-                                        unsigned w, unsigned h, unsigned d  );
+                                        const unsigned w,
+                                        const unsigned h,
+                                        const unsigned d  );
 
 
 static int readDimensionsFromSav( FILE*     file,
@@ -869,7 +871,9 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
 
 static int calculateAndSaveDerivatives( const string& dst, 
                                         unsigned char *volume,
-                                        unsigned w, unsigned h, unsigned d  )
+                                        const unsigned w,
+                                        const unsigned h,
+                                        const unsigned d  )
 {
     EQWARN << "Calculating derivatives" << endl;
     ofstream file ( dst.c_str(),
@@ -878,19 +882,21 @@ static int calculateAndSaveDerivatives( const string& dst,
     if( !file.is_open() )
         return lFailed( "Can't open destination volume file" );
 
-    int wh = w*h;
+    const int wh = w*h;
+
+    const int ws = static_cast<int>( w );
 
     vector<unsigned char> GxGyGzA( wh*d*4, 0 );
 
     for( unsigned z=1; z<d-1; z++ )
     {
-        int zwh = z*wh;
+        const int zwh = z*wh;
 
         const unsigned char *curPz = &volume[0] + zwh;
 
         for( unsigned y=1; y<h-1; y++ )
         {
-            int zwh_y = zwh + y*w;
+            const int zwh_y = zwh + y*w;
             const unsigned char * curPy = curPz + y*w ;
             for( unsigned x=1; x<w-1; x++ )
             {
@@ -898,31 +904,31 @@ static int calculateAndSaveDerivatives( const string& dst,
                 const unsigned char * prvP = curP  - wh;
                 const unsigned char * nxtP = curP  + wh;
                 int32_t gx = 
-                      nxtP[  w+1 ]+ 3*curP[  w+1 ]+   prvP[  w+1 ]+
-                    3*nxtP[    1 ]+ 6*curP[    1 ]+ 3*prvP[    1 ]+
-                      nxtP[ -w+1 ]+ 3*curP[ -w+1 ]+   prvP[ -w+1 ]-
+                      nxtP[  ws+1 ]+ 3*curP[  ws+1 ]+   prvP[  ws+1 ]+
+                    3*nxtP[     1 ]+ 6*curP[     1 ]+ 3*prvP[     1 ]+
+                      nxtP[ -ws+1 ]+ 3*curP[ -ws+1 ]+   prvP[ -ws+1 ]-
 
-                      nxtP[  w-1 ]- 3*curP[  w-1 ]-   prvP[  w-1 ]-
-                    3*nxtP[   -1 ]- 6*curP[   -1 ]- 3*prvP[   -1 ]-
-                      nxtP[ -w-1 ]- 3*curP[ -w-1 ]-   prvP[ -w-1 ];
+                      nxtP[  ws-1 ]- 3*curP[  ws-1 ]-   prvP[  ws-1 ]-
+                    3*nxtP[    -1 ]- 6*curP[    -1 ]- 3*prvP[    -1 ]-
+                      nxtP[ -ws-1 ]- 3*curP[ -ws-1 ]-   prvP[ -ws-1 ];
 
                 int32_t gy = 
-                      nxtP[  w+1 ]+ 3*curP[  w+1 ]+   prvP[  w+1 ]+
-                    3*nxtP[  w   ]+ 6*curP[  w   ]+ 3*prvP[  w   ]+
-                      nxtP[  w-1 ]+ 3*curP[  w-1 ]+   prvP[  w-1 ]-
+                      nxtP[  ws+1 ]+ 3*curP[  ws+1 ]+   prvP[  ws+1 ]+
+                    3*nxtP[  ws   ]+ 6*curP[  ws   ]+ 3*prvP[  ws   ]+
+                      nxtP[  ws-1 ]+ 3*curP[  ws-1 ]+   prvP[  ws-1 ]-
 
-                      nxtP[ -w+1 ]- 3*curP[ -w+1 ]-   prvP[ -w+1 ]-
-                    3*nxtP[ -w   ]- 6*curP[ -w   ]- 3*prvP[ -w   ]-
-                      nxtP[ -w-1 ]- 3*curP[ -w-1 ]-   prvP[ -w-1 ];
+                      nxtP[ -ws+1 ]- 3*curP[ -ws+1 ]-   prvP[ -ws+1 ]-
+                    3*nxtP[ -ws   ]- 6*curP[ -ws   ]- 3*prvP[ -ws   ]-
+                      nxtP[ -ws-1 ]- 3*curP[ -ws-1 ]-   prvP[ -ws-1 ];
 
                 int32_t gz = 
-                      nxtP[  w+1 ]+ 3*nxtP[    1 ]+   nxtP[ -w+1 ]+
-                    3*nxtP[  w   ]+ 6*nxtP[    0 ]+ 3*nxtP[ -w   ]+
-                      nxtP[  w-1 ]+ 3*nxtP[   -1 ]+   nxtP[ -w-1 ]-
+                      nxtP[  ws+1 ]+ 3*nxtP[    1 ]+   nxtP[ -ws+1 ]+
+                    3*nxtP[  ws   ]+ 6*nxtP[    0 ]+ 3*nxtP[ -ws   ]+
+                      nxtP[  ws-1 ]+ 3*nxtP[   -1 ]+   nxtP[ -ws-1 ]-
 
-                      prvP[  w+1 ]- 3*prvP[    1 ]-   prvP[ -w+1 ]-
-                    3*prvP[  w   ]- 6*prvP[    0 ]- 3*prvP[ -w   ]-
-                      prvP[  w-1 ]- 3*prvP[   -1 ]-   prvP[ -w-1 ];
+                      prvP[  ws+1 ]- 3*prvP[    1 ]-   prvP[ -ws+1 ]-
+                    3*prvP[  ws   ]- 6*prvP[    0 ]- 3*prvP[ -ws   ]-
+                      prvP[  ws-1 ]- 3*prvP[   -1 ]-   prvP[ -ws-1 ];
 
 
                 int32_t length = static_cast<int32_t>(
