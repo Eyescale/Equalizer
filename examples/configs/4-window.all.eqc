@@ -285,7 +285,7 @@ server
             layout "BinarySwap"
             layout "MultiLevel"
             layout "HMD"
-            
+
             layout "DFR"
 
             wall
@@ -446,28 +446,36 @@ server
         compound
         {
             channel ( segment 0 layout "2D" view 0 )
-            load_equalizer { mode 2D }
 
-            compound {}
+            compound { task [ CLEAR ] channel "channel2" }
+            compound { task [ CLEAR ] channel "channel3" }
+            compound { task [ CLEAR ] channel "channel4" }
+
             compound
-            { 
-                channel "channel2"
-                outputframe {}
+            {
+                load_equalizer { mode 2D }
+                compound {}
+
+                compound
+                {
+                    channel "channel2"
+                    outputframe {}
+                }
+                compound
+                {
+                    channel "channel3"
+                    outputframe {}
+                }
+                compound
+                {
+                    channel "channel4"
+                    outputframe {}
+                }
+                inputframe { name "frame.channel2" }
+                inputframe { name "frame.channel3" }
+                inputframe { name "frame.channel4" }
             }
-            compound
-            { 
-                channel "channel3"
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel4"
-                outputframe {}
-            }
-            inputframe { name "frame.channel2" }
-            inputframe { name "frame.channel3" }
-            inputframe { name "frame.channel4" }
-        }            
+        }
 
         # DB compound
         compound
@@ -477,19 +485,19 @@ server
 
             compound { range [ 0 .25 ] }
             compound
-            { 
+            {
                 channel "channel2"
                 range [ .25 .5 ]
                 outputframe {}
             }
             compound
-            { 
+            {
                 channel "channel3"
                 range [ .5 .75 ]
                 outputframe {}
             }
             compound
-            { 
+            {
                 channel "channel4"
                 range [ .75 1 ]
                 outputframe {}
@@ -497,7 +505,7 @@ server
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
             inputframe { name "frame.channel4" }
-        }            
+        }
 
         # DB_Stream compound
         compound
@@ -506,20 +514,20 @@ server
             buffer [ COLOR DEPTH ]
 
             compound
-            { 
+            {
                 channel "channel4"
                 range [ 0 .25 ]
                 outputframe {}
             }
             compound
-            { 
+            {
                 channel "channel3"
                 range [ .25 .5 ]
                 inputframe { name "frame.channel4" }
                 outputframe {}
             }
             compound
-            { 
+            {
                 channel "channel2"
                 range [ .5 .75 ]
                 inputframe { name "frame.channel3" }
@@ -530,73 +538,88 @@ server
                 range [ .75 1 ]
                 inputframe { name "frame.channel2" }
             }
-        }            
+        }
 
         # Eye compound
         compound
         {
             channel ( segment 0 layout "Eye" view 0 )
-            eye [ LEFT RIGHT ]
+
+            compound { task [ CLEAR ] channel "channel2" }
+            compound { task [ CLEAR ] channel "channel3" }
+            compound { task [ CLEAR ] channel "channel4" }
 
             compound
             {
-                eye [ LEFT ]
-                channel "channel2"
-                outputframe {}
+                eye [ LEFT RIGHT ]
+
+                compound
+                {
+                    eye [ LEFT ]
+                    channel "channel2"
+                    outputframe {}
+                }
+                compound
+                {
+                    eye [ RIGHT ]
+                    channel "channel3"
+                    outputframe {}
+                }
+                compound
+                {
+                    task [ CLEAR ASSEMBLE ]
+                    eye [ LEFT ]
+                    inputframe { name "frame.channel2" }
+                }
+                compound
+                {
+                    task [ CLEAR ASSEMBLE ]
+                    eye [ RIGHT ]
+                    inputframe { name "frame.channel3" }
+                }
             }
-            compound
-            { 
-                eye [ RIGHT ]
-                channel "channel3"
-                outputframe {}
-            }
-            compound
-            {
-                task [ CLEAR ASSEMBLE ]
-                eye [ LEFT ]
-                inputframe { name "frame.channel2" }
-            }
-            compound
-            {
-                task [ CLEAR ASSEMBLE ]
-                eye [ RIGHT ]
-                inputframe { name "frame.channel3" }
-            }
-        } 
+        }
 
         # Pixel compound
         compound
         {
             channel ( segment 0 layout "Pixel" view 0 )
 
+            compound { task [ CLEAR ] channel "channel1" }
+            compound { task [ CLEAR ] channel "channel2" }
+            compound { task [ CLEAR ] channel "channel3" }
+            compound { task [ CLEAR ] channel "channel4" }
             compound
             {
-                pixel [ 0 0 4 1 ]
-                outputframe { type texture }
+                compound
+                {
+                    pixel [ 0 0 4 1 ]
+                    outputframe { type texture }
+                }
+                compound
+                {
+                    channel "channel2"
+                    pixel [ 1 0 4 1 ]
+                    outputframe {}
+                }
+                compound
+                {
+                    channel "channel3"
+                    pixel [ 2 0 4 1 ]
+                    outputframe {}
+                }
+                compound
+                {
+                    channel "channel4"
+                    pixel [ 3 0 4 1 ]
+                    outputframe {}
+                }
+                inputframe { name "frame.channel1" }
+                inputframe { name "frame.channel2" }
+                inputframe { name "frame.channel3" }
+                inputframe { name "frame.channel4" }
             }
-            compound
-            { 
-                channel "channel2"
-                pixel [ 1 0 4 1 ]
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel3"
-                pixel [ 2 0 4 1 ]
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel4"
-                pixel [ 3 0 4 1 ]
-                outputframe {}
-            }
-            inputframe { name "frame.channel1" }
-            inputframe { name "frame.channel2" }
-            inputframe { name "frame.channel3" }
-            inputframe { name "frame.channel4" }
-        }            
+        }
 
         # Subpixel compound
         compound
@@ -609,19 +632,19 @@ server
                 outputframe { type texture }
             }
             compound
-            { 
+            {
                 channel "channel2"
                 subpixel [ 1 4 ]
                 outputframe {}
             }
             compound
-            { 
+            {
                 channel "channel3"
                 subpixel [ 2 4 ]
                 outputframe {}
             }
             compound
-            { 
+            {
                 channel "channel4"
                 subpixel [ 3 4 ]
                 outputframe {}
@@ -630,7 +653,7 @@ server
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
             inputframe { name "frame.channel4" }
-        }            
+        }
 
         # DPlex compound
         compound
@@ -639,25 +662,25 @@ server
             framerate_equalizer {}
 
             compound
-            { 
+            {
                 channel "channel2"
                 phase 0 period 3
                 outputframe { name "DPlex" }
             }
             compound
-            { 
+            {
                 channel "channel3"
                 phase 1 period 3
                 outputframe { name "DPlex" }
             }
             compound
-            { 
+            {
                 channel "channel4"
                 phase 2 period 3
                 outputframe { name "DPlex" }
             }
             inputframe { name "DPlex" }
-        }            
+        }
 
         # Direct-send compound
         compound
@@ -682,7 +705,7 @@ server
             compound
             {
                 channel   "channel2"
-                
+
                 compound
                 {
                     range     [ 0.25 0.50 ]
@@ -751,12 +774,12 @@ server
 
             compound
             {
-                compound 
+                compound
                 {
                     range [ 0 .25 ]
                     outputframe { name "f1.c1" viewport [ 0 0 1 .5 ] }
                 }
-                compound 
+                compound
                 {
                     task [ ASSEMBLE READBACK ]
                     range     [ 0 0.5 ]
@@ -768,12 +791,12 @@ server
             {
                 channel "channel2"
 
-                compound 
+                compound
                 {
                     range [ .25 .5 ]
                     outputframe { name "f1.c2" viewport [ 0 .5 1 .5 ] }
                 }
-                compound 
+                compound
                 {
                     range [ 0 .5 ]
                     task [ ASSEMBLE READBACK ]
@@ -787,12 +810,12 @@ server
             {
                 channel "channel3"
 
-                compound 
+                compound
                 {
                     range [ .5 .75 ]
                     outputframe { name "f1.c3" viewport [ 0 0 1 .5 ] }
                 }
-                compound 
+                compound
                 {
                     range [ .5 1 ]
                     task [ ASSEMBLE READBACK ]
@@ -807,12 +830,12 @@ server
             {
                 channel "channel4"
 
-                compound 
+                compound
                 {
                     range [ .75 1 ]
                     outputframe { name "f1.c4" viewport [ 0 .5 1 .5 ] }
                 }
-                compound 
+                compound
                 {
                     range [ .5 1 ]
                     task [ ASSEMBLE READBACK ]
@@ -898,71 +921,83 @@ server
         compound
         {
             channel ( segment 0 layout "MultiLevel" view 0 )
-            task    [ CLEAR ASSEMBLE ] 
+            task    [ CLEAR ASSEMBLE ]
             buffer  [ COLOR DEPTH ]
 
+            compound { task [ CLEAR ] channel "channel2" }
+            compound { task [ CLEAR ] channel "channel3" }
+            compound { task [ CLEAR ] channel "channel4" }
             compound
             {
-                range   [ 0 .5 ]
-#                load_equalizer { mode 2D }
+                compound
+                {
+                    range   [ 0 .5 ]
+#                    load_equalizer { mode 2D }
 
-                compound
-                {
-                    channel  "channel4"
-                    viewport [ 0 0 1 .5 ]
-                    outputframe {}
+                    compound
+                    {
+                        channel  "channel4"
+                        viewport [ 0 0 1 .5 ]
+                        outputframe {}
+                    }
+                    compound
+                    {
+                        channel  "channel2"
+                        viewport [ 0 .5 1 .5 ]
+                        outputframe {}
+                    }
                 }
                 compound
                 {
-                    channel  "channel2"
-                    viewport [ 0 .5 1 .5 ]
-                    outputframe {}
+                    range   [ .5 1 ]
+#                   load_equalizer { mode 2D }
+
+                    compound
+                    {
+                        channel  "channel3"
+                        viewport [ 0 0 1 .5 ]
+                        outputframe {}
+                    }
+                    compound
+                    {
+                        task    [ DRAW READBACK ]
+                        viewport [ 0 .5 1 .5 ]
+                    }
                 }
+
+                inputframe{ name "frame.channel2" }
+                inputframe{ name "frame.channel3" }
+                inputframe{ name "frame.channel4" }
             }
-            compound
-            {
-                range   [ .5 1 ]
-#                load_equalizer { mode 2D }
-
-                compound
-                {
-                    channel  "channel3"
-                    viewport [ 0 0 1 .5 ]
-                    outputframe {}
-                }
-                compound
-                {
-                    task    [ DRAW READBACK ] 
-                    viewport [ 0 .5 1 .5 ]
-                }
-            }
-
-            inputframe{ name "frame.channel2" }
-            inputframe{ name "frame.channel3" }
-            inputframe{ name "frame.channel4" }
         }
 
         # Dynamic Frame Resolution compound
         compound
         {
             channel ( segment 0 layout "DFR" view 0 )
-            
-            compound 
+
+            compound { task [ CLEAR ] channel "channel2" }
+            compound { task [ CLEAR ] channel "channel3" }
+            compound { task [ CLEAR ] channel "channel4" }
+            compound
             {
-                load_equalizer{}
-                compound {}
-                compound { channel "channel2" outputframe{} }
-                compound { channel "channel3" outputframe{} }
-                compound { channel "channel4" outputframe{} }
-                inputframe { name "frame.channel2" }
-                inputframe { name "frame.channel3" }
-                inputframe { name "frame.channel4" }
+                compound
+                {
+                    load_equalizer{}
+                    compound {}
+                    compound { channel "channel2" outputframe{} }
+                    compound { channel "channel3" outputframe{} }
+                    compound { channel "channel4" outputframe{} }
+                    inputframe { name "frame.channel2" }
+                    inputframe { name "frame.channel3" }
+                    inputframe { name "frame.channel4" }
 
-                DFR_equalizer { framerate 15 }
-                outputframe{ name "frame.scale" type texture }
+                    DFR_equalizer { framerate 15 }
+                    outputframe{ name "frame.scale" type texture }
+                }
+
+                inputframe{ name "frame.scale" }
             }
-
-            inputframe{ name "frame.scale" }
-        }            
+        }
     }
 }
