@@ -96,15 +96,16 @@ Window::~Window()
     if( _pipe )
         _pipe->removeWindow( this );
     
-    for( ChannelVector::const_iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
+    ChannelVector channels = _channels; // copy - ~Channel modifies it
+    for( ChannelVector::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
     {
         Channel* channel = *i;
 
-        channel->_window = 0;
+        EQASSERT( channel->_window == this );
         delete channel;
     }
-    _channels.clear();
+    EQASSERT( _channels.empty( ));
 }
 
 void Window::attachToSession( const uint32_t id, const uint32_t instanceID, 
@@ -126,29 +127,16 @@ void Window::attachToSession( const uint32_t id, const uint32_t instanceID,
                          
 }
 
-void Window::addChannel( Channel* channel )
+void Window::_addChannel( Channel* channel )
 {
     EQASSERT( find( _channels.begin(), _channels.end(), channel ) == 
               _channels.end( ));
 
     _channels.push_back( channel ); 
-    channel->_window = this;
-    channel->notifyViewportChanged();
+    EQASSERT( channel->_window == this );
 }
 
-void Window::insertChannel( const Channel* position, Channel* channel )
-{
-    ChannelVector::iterator i = std::find( _channels.begin(), _channels.end(),
-                                           position );
-    if( i != _channels.end( ))
-        ++i;
-
-    _channels.insert( i, channel );
-    channel->_window = this;
-    channel->notifyViewportChanged();    
-}
-
-bool Window::removeChannel( Channel* channel )
+bool Window::_removeChannel( Channel* channel )
 {
     ChannelVector::iterator i = find( _channels.begin(), _channels.end(),
                                         channel );
@@ -156,7 +144,6 @@ bool Window::removeChannel( Channel* channel )
         return false;
 
     _channels.erase( i );
-    channel->_window = 0;
     return true;
 }
 

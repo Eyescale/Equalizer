@@ -81,15 +81,7 @@ namespace server
          * 
          * @param channel the channel.
          */
-        EQSERVER_EXPORT void addChannel( Channel* channel );
-
-        /** 
-         * Insert a new channel after the given channel.
-         * 
-         * @param position the channel after which to insert.
-         * @param channel the channel to insert.
-         */
-        void insertChannel( const Channel* position, Channel* channel );
+        EQSERVER_EXPORT void _addChannel( Channel* channel );
 
         /** 
          * Removes a channel from this window.
@@ -97,7 +89,7 @@ namespace server
          * @param channel the channel
          * @return true if the channel was removed, false otherwise.
          */
-        bool removeChannel( Channel* channel );
+        bool _removeChannel( Channel* channel );
 
         /** @return the vector of channels. */
         const ChannelVector& getChannels() const { return _channels; }

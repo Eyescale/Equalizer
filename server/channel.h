@@ -26,8 +26,8 @@
 #include <eq/base/monitor.h>
 
 #include "base.h"
+#include "channelVisitor.h" // template typedef
 #include "types.h"
-#include "visitorResult.h" // nested enum
 
 #include <eq/client/channel.h>
 #include <eq/client/commands.h>
@@ -45,13 +45,10 @@ namespace eq
 namespace server
 {
     class ChannelListener;
-    class ChannelVisitor;
+    class Window;
     struct ChannelPath;
 
-    /**
-     * The channel.
-     */
-    class Channel : public net::Object
+    class Channel : public fabric::Channel< Channel, Window >
     {
     public:
         enum State
@@ -66,14 +63,10 @@ namespace server
             STATE_EXIT_FAILED,  // next: STOPPED
         };
 
-        /** 
-         * Constructs a new Channel.
-         */
-        EQSERVER_EXPORT Channel();
+        /** Construct a new channel. */
+        EQSERVER_EXPORT Channel( Window* parent );
 
-        /** 
-         * Constructs a new deep copy of a channel.
-         */
+        /** Construct a new deep copy of a channel. */
         Channel( const Channel& from, Window* window );
 
         /** Destruct this channel. */
@@ -97,9 +90,6 @@ namespace server
         Pipe* getPipe();
         const Pipe* getPipe() const;
 
-        Window* getWindow()             { return _window; }
-        const Window* getWindow() const { return _window; }
-
         /** @return the index path to this channel. */
         ChannelPath getPath() const;
 
@@ -107,15 +97,6 @@ namespace server
 
         net::CommandQueue* getServerThreadQueue();
         net::CommandQueue* getCommandThreadQueue();
-
-        /** 
-         * Traverse this channel using a channel visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        EQSERVER_EXPORT VisitorResult accept( ChannelVisitor& visitor );
-        EQSERVER_EXPORT VisitorResult accept( ChannelVisitor& visitor ) const;
 
         /** Increase channel activition count. */
         void activate();
@@ -149,9 +130,6 @@ namespace server
 
         /** @return the channel's segment. */
         Segment* getSegment() { return _segment; }
-
-        void setName( const std::string& name ) { _name = name; }
-        const std::string& getName() const      { return _name; }
 
         /** 
          * Set the channel's pixel viewport wrt its parent window.
@@ -285,6 +263,8 @@ namespace server
                                       net::Session* session );
     private:
         //-------------------- Members --------------------
+        friend class Window;
+
         /** Number of activations for this channel. */
         uint32_t _active;
 
@@ -296,12 +276,6 @@ namespace server
 
         /** The reason for the last error. */
         std::string _error;
-
-        /** The parent window. */
-        Window* _window;
-        friend class Window;
-
-        std::string _name;
 
         /** Integer attributes. */
         int32_t _iAttributes[eq::Channel::IATTR_ALL];

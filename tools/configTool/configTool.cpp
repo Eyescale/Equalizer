@@ -302,9 +302,7 @@ void ConfigTool::_writeResources( Config* config ) const
             }
             window->setPixelViewport( viewport );
 
-            Channel* channel = new Channel;
-            window->addChannel( channel );
-
+            Channel* channel = new Channel( window );
             std::ostringstream channelName;
             channelName << "channel" << c;
             channel->setName( channelName.str( ));

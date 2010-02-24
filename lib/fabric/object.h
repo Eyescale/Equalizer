@@ -38,6 +38,9 @@ namespace fabric
         /** Construct a new Object. */
         EQ_EXPORT Object();
         
+        /** Construct an unmapped, unregistered copy of an object. */
+        EQ_EXPORT Object( const Object& from );
+        
         /** Destruct the object. */
         EQ_EXPORT virtual ~Object();
 

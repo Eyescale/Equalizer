@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,40 +18,20 @@
 #ifndef EQSERVER_VISITORRESULT_H
 #define EQSERVER_VISITORRESULT_H
 
-#include <iostream>
+#include <eq/fabric/visitorResult.h> // 'base' class
 
 namespace eq
 {
 namespace server
 {
-     /** The result code from any server visit operation. */
-    enum VisitorResult
-    {
-        TRAVERSE_CONTINUE,   //!< continue the traversal
-        TRAVERSE_TERMINATE,  //!< abort the traversal
-        TRAVERSE_PRUNE       //!< do not traverse current entity downwards
-    };
+     /** The result code from any visit operation. */
+    typedef fabric::VisitorResult VisitorResult;
 
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const VisitorResult result )
-    {
-        switch( result )
-        {
-            case TRAVERSE_CONTINUE:
-                os << "continue";
-                break;
-            case TRAVERSE_TERMINATE:
-                os << "terminate";
-                break;
-            case TRAVERSE_PRUNE:
-                os << "prune";
-                break;
-            default:
-                os << "ERROR";
-                break;
-        }
-        return os;
-    }
+    /** @cond IGNORE */
+    using fabric::TRAVERSE_CONTINUE;
+    using fabric::TRAVERSE_TERMINATE;
+    using fabric::TRAVERSE_PRUNE;
+    /** @endcond */
 }
 }
 #endif // EQSERVER_VISITORRESULT_H

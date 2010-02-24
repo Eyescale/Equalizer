@@ -669,10 +669,7 @@ windowAttribute:
         { window->setIAttribute( eq::Window::IATTR_PLANES_SAMPLES, $2 ); }
                      
 channel: EQTOKEN_CHANNEL '{' 
-            {
-                channel = new eq::server::Channel();
-                window->addChannel( channel );
-            }
+            { channel = new eq::server::Channel( window ); }
          channelFields
         '}' { channel = 0; }
 channelFields: /*null*/ | channelFields channelField

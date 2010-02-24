@@ -29,6 +29,12 @@ Object::Object()
         : _dirty( DIRTY_NONE )
 {}
 
+Object::Object( const Object& from )
+        : net::Object()
+        , _dirty ( DIRTY_NONE )
+        , _name( from._name )
+{}
+
 Object::~Object()
 {
 }

@@ -1,5 +1,5 @@
 common data synchronization fabric:
-- Template channel base class
+- Use channel base class for eq::server::Channel as well
 
 [x] May break build
 [ ] May break existing applications

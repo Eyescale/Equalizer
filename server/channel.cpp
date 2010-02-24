@@ -50,14 +50,13 @@ namespace eq
 {
 namespace server
 {
-typedef net::CommandFunc<Channel> ChannelFunc;
+typedef net::CommandFunc<Channel> CmdFunc;
 
 void Channel::_construct()
 {
     _active           = 0;
     _view             = 0;
     _segment          = 0;
-    _window           = 0;
     _fixedPVP         = false;
     _lastDrawCompound = 0;
     _near             = .1f;
@@ -70,33 +69,33 @@ void Channel::_construct()
     EQINFO << "New channel @" << (void*)this << endl;
 }
 
-Channel::Channel()
+Channel::Channel( Window* parent )
+        : fabric::Channel< Channel, Window >( parent )
 {
     _construct();
 
     const Global* global = Global::instance();
-    
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         _iAttributes[i] = global->getChannelIAttribute(
             static_cast<eq::Channel::IAttribute>( i ));
+    notifyViewportChanged();
 }
 
-Channel::Channel( const Channel& from, Window* window )
-        : net::Object()
+Channel::Channel( const Channel& from, Window* parent )
+        : fabric::Channel< Channel, Window >( parent )
 {
     _construct();
 
-    _name     = from._name;
     _vp       = from._vp;
     _pvp      = from._pvp;
     _fixedPVP = from._fixedPVP;
     _drawable = from._drawable;
     // Don't copy view and segment. Will be re-set by segment copy ctor
 
-    window->insertChannel( &from, this );
-
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
+
+    notifyViewportChanged();
 }
 
 void Channel::attachToSession( const uint32_t id, const uint32_t instanceID, 
@@ -104,30 +103,25 @@ void Channel::attachToSession( const uint32_t id, const uint32_t instanceID,
 {
     net::Object::attachToSession( id, instanceID, session );
     
-    net::CommandQueue* serverQueue  = getServerThreadQueue();
-    net::CommandQueue* commandQueue = getCommandThreadQueue();
+    net::CommandQueue* serverQ  = getServerThreadQueue();
+    net::CommandQueue* commandQ = getCommandThreadQueue();
 
     registerCommand( eq::CMD_CHANNEL_CONFIG_INIT_REPLY, 
-                     ChannelFunc( this, &Channel::_cmdConfigInitReply ),
-                     commandQueue );
+                     CmdFunc( this, &Channel::_cmdConfigInitReply ), commandQ );
     registerCommand( eq::CMD_CHANNEL_CONFIG_EXIT_REPLY,
-                     ChannelFunc( this, &Channel::_cmdConfigExitReply ),
-                     commandQueue );
+                     CmdFunc( this, &Channel::_cmdConfigExitReply ), commandQ );
     registerCommand( eq::CMD_CHANNEL_SET_NEARFAR,
-                     ChannelFunc( this, &Channel::_cmdSetNearFar ),
-                     commandQueue );
+                     CmdFunc( this, &Channel::_cmdSetNearFar ), commandQ );
     registerCommand( eq::CMD_CHANNEL_FRAME_FINISH_REPLY,
-                     ChannelFunc( this, &Channel::_cmdFrameFinishReply ),
-                     serverQueue );
+                     CmdFunc( this, &Channel::_cmdFrameFinishReply ), serverQ );
 }
 
 Channel::~Channel()
 {
     EQINFO << "Delete channel @" << (void*)this << endl;
-
-    if( _window )
-        _window->removeChannel( this );
+    _window->_removeChannel( this );
 }
+
 void Channel::setDrawable( const uint32_t drawable ) 
 { 
     _drawable = drawable; 
@@ -197,16 +191,6 @@ net::CommandQueue* Channel::getCommandThreadQueue()
 {
     EQASSERT( _window );
     return _window->getCommandThreadQueue(); 
-}
-
-VisitorResult Channel::accept( ChannelVisitor& visitor )
-{
-    return visitor.visit( this );
-}
-
-VisitorResult Channel::accept( ChannelVisitor& visitor ) const
-{
-    return visitor.visit( this );
 }
 
 void Channel::activate()
@@ -401,7 +385,7 @@ void Channel::_configInit( const uint32_t initID )
             eq::Channel::IATTR_ALL * sizeof( int32_t )); 
 
     EQLOG( LOG_INIT ) << "Init channel" << std::endl;
-    send( packet, _name );
+    send( packet, getName( ));
 }
 
 bool Channel::_syncConfigInit()
@@ -475,7 +459,7 @@ bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
     _setupRenderContext( frameID, startPacket.context );
 
     send( startPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK channel " << _name << " start frame  " 
+    EQLOG( eq::LOG_TASKS ) << "TASK channel " << getName() << " start frame  " 
                            << &startPacket << endl;
 
     bool updated = false;
@@ -504,7 +488,7 @@ bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
     finishPacket.context = startPacket.context;
 
     send( finishPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK channel " << _name << " finish frame  "
+    EQLOG( eq::LOG_TASKS ) << "TASK channel " << getName() << " finish frame  "
                            << &finishPacket << endl;
     _lastDrawCompound = 0;
 
@@ -726,3 +710,6 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
 
 }
 }
+
+#include "../lib/fabric/channel.cpp"
+template class eq::fabric::Channel< eq::server::Channel, eq::server::Window >;
