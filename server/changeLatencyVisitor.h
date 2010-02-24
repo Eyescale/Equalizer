@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,17 +20,17 @@
 #define EQSERVER_CHANGELATENCYVISITOR_H
 
 #include "compound.h"
-#include "configVisitor.h" // base class
+#include "configVisitor.h"
 #include "frame.h"
 #include "node.h"
+#include "view.h"
 
 namespace eq
 {
 namespace server
 {
 /**
- * The Change Latency visitor modify latency on all in/output
- * frame and on all barrier from each node.
+ * The Change Latency visitor modifies the latency on all relevant objects.
  */
 class ChangeLatencyVisitor : public ConfigVisitor
 {
@@ -60,6 +61,13 @@ public:
     {
         // change latency in barrier
         node->changeLatency( _latency );
+        return TRAVERSE_CONTINUE; 
+    }
+
+    virtual VisitorResult visitLeaf( View* view )
+    {
+        // change latency in barrier
+        view->setAutoObsolete( _latency );
         return TRAVERSE_CONTINUE; 
     }
 

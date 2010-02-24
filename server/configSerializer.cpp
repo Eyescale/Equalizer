@@ -63,8 +63,10 @@ public:
         }
 
     virtual VisitorResult visit( View* view )
-        { 
-            _registerObject( view->getConfig(), view );
+        {
+            Config* config = view->getConfig();
+            _registerObject( config, view );
+            view->setAutoObsolete( config->getLatency( ));
             return TRAVERSE_CONTINUE; 
         }
 
