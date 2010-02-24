@@ -1,10 +1,9 @@
-common data synchronization fabric:
-- Use channel base class for eq::server::Channel as well
+Partial Win32 build fix
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -43,7 +43,7 @@ namespace fabric
     {
     public:
         /** Construct a new channel. @version 1.0 */
-        EQ_EXPORT Channel( W* parent );
+        EQFABRIC_EXPORT Channel( W* parent );
 
         /** Destruct the channel. @version 1.0 */
         EQ_EXPORT virtual ~Channel();

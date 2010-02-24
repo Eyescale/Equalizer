@@ -49,20 +49,21 @@
 #  define EQ_DLLIMPORT __declspec(dllimport)
 #  ifdef EQUALIZER_EXPORTS
 #    define EQ_EXPORT EQ_DLLEXPORT
-#    define EQ_STLEXTERN 
 #    define GLEW_BUILD
+#    define EQFABRIC_EXPORT EQ_EXPORT
 #  else
 #    define EQ_EXPORT EQ_DLLIMPORT
-#    define EQ_STLEXTERN extern
 #  endif
    // Need to predefine server library exports for forward declaration of 
    // eqsStartLocalServer
 #  ifdef EQUALIZERSERVERLIBRARY_EXPORTS
 #    define EQSERVER_EXPORT EQ_DLLEXPORT
-#    define EQSERVER_STLEXTERN 
+#    define EQFABRIC_EXPORT EQSERVER_EXPORT
 #  else
 #    define EQSERVER_EXPORT EQ_DLLIMPORT
-#    define EQSERVER_STLEXTERN extern
+#  endif
+#  ifndef EQFABRIC_EXPORT
+#    define EQFABRIC_EXPORT EQ_DLLIMPORT
 #  endif
 #else // WIN32
 #  define EQ_DLLEXPORT //!< @internal
