@@ -34,10 +34,6 @@ namespace util
     class FrameBufferObject;
 }
     class ChannelVisitor;
-    class Pixel;
-    class Range;
-    class SceneObject;
-    struct RenderContext;
 
     /**
      * A channel represents a two-dimensional viewport within a Window.

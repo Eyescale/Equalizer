@@ -44,16 +44,13 @@
 #include <eq/net/command.h>
 #include <eq/base/rng.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 /** @cond IGNORE */
 typedef net::CommandFunc<Channel> ChannelFunc;
 /** @endcond */
 
-#define MAKE_ATTR_STRING( attr ) ( string("EQ_CHANNEL_") + #attr )
+#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CHANNEL_") + #attr )
 std::string Channel::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
     MAKE_ATTR_STRING( IATTR_HINT_SENDTOKEN ),
@@ -73,47 +70,50 @@ Channel::Channel( Window* parent )
         , _maxSize( Vector2i::ZERO )
 {
     parent->_addChannel( this );
-    EQINFO << " New eq::Channel @" << (void*)this << endl;
+    EQINFO << " New eq::Channel @" << (void*)this << std::endl;
 }
 
 Channel::~Channel()
 {  
-    EQINFO << " Delete eq::Channel @" << (void*)this << endl;
+    EQINFO << " Delete eq::Channel @" << (void*)this << std::endl;
     _window->_removeChannel( this );
 }
 
+/** @cond IGNORE */
+typedef net::CommandFunc<Channel> CmdFunc;
+/** @endcond */
+
 void Channel::attachToSession( const uint32_t id, 
-                              const uint32_t instanceID, 
-                              net::Session* session )
+                               const uint32_t instanceID, 
+                               net::Session* session )
 {
     net::Object::attachToSession( id, instanceID, session );
-
     net::CommandQueue* queue = _window->getPipeThreadQueue();
 
     registerCommand( CMD_CHANNEL_CONFIG_INIT, 
-                     ChannelFunc( this, &Channel::_cmdConfigInit ), queue );
+                     CmdFunc( this, &Channel::_cmdConfigInit ), queue );
     registerCommand( CMD_CHANNEL_CONFIG_EXIT, 
-                     ChannelFunc( this, &Channel::_cmdConfigExit ), queue );
+                     CmdFunc( this, &Channel::_cmdConfigExit ), queue );
     registerCommand( CMD_CHANNEL_FRAME_START,
-                     ChannelFunc( this, &Channel::_cmdFrameStart ), queue );
+                     CmdFunc( this, &Channel::_cmdFrameStart ), queue );
     registerCommand( CMD_CHANNEL_FRAME_FINISH,
-                     ChannelFunc( this, &Channel::_cmdFrameFinish ), queue );
+                     CmdFunc( this, &Channel::_cmdFrameFinish ), queue );
     registerCommand( CMD_CHANNEL_FRAME_CLEAR, 
-                     ChannelFunc( this, &Channel::_cmdFrameClear ), queue );
+                     CmdFunc( this, &Channel::_cmdFrameClear ), queue );
     registerCommand( CMD_CHANNEL_FRAME_DRAW, 
-                     ChannelFunc( this, &Channel::_cmdFrameDraw ), queue );
+                     CmdFunc( this, &Channel::_cmdFrameDraw ), queue );
     registerCommand( CMD_CHANNEL_FRAME_DRAW_FINISH, 
-                    ChannelFunc( this, &Channel::_cmdFrameDrawFinish ), queue );
+                    CmdFunc( this, &Channel::_cmdFrameDrawFinish ), queue );
     registerCommand( CMD_CHANNEL_FRAME_ASSEMBLE, 
-                     ChannelFunc( this, &Channel::_cmdFrameAssemble ), queue );
+                     CmdFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( CMD_CHANNEL_FRAME_READBACK, 
-                     ChannelFunc( this, &Channel::_cmdFrameReadback ), queue );
+                     CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
     registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
-                     ChannelFunc( this, &Channel::_cmdFrameTransmit ), queue );
+                     CmdFunc( this, &Channel::_cmdFrameTransmit ), queue );
     registerCommand( CMD_CHANNEL_FRAME_VIEW_START, 
-                     ChannelFunc( this, &Channel::_cmdFrameViewStart ), queue );
+                     CmdFunc( this, &Channel::_cmdFrameViewStart ), queue );
     registerCommand( CMD_CHANNEL_FRAME_VIEW_FINISH, 
-                     ChannelFunc( this, &Channel::_cmdFrameViewFinish ), queue);
+                     CmdFunc( this, &Channel::_cmdFrameViewFinish ), queue );
 }
 
 Pipe* Channel::getPipe()
@@ -704,7 +704,7 @@ void Channel::applyViewport() const
 
     if( !pvp.hasArea( ))
     { 
-        EQERROR << "Can't apply viewport " << pvp << endl;
+        EQERROR << "Can't apply viewport " << pvp << std::endl;
         return;
     }
 
@@ -721,7 +721,7 @@ void Channel::applyFrustum() const
     EQ_GL_CALL( glFrustum( frustum.left(), frustum.right(),
                            frustum.bottom(), frustum.top(),
                            frustum.near_plane(), frustum.far_plane() )); 
-    EQVERB << "Perspective " << frustum << endl;
+    EQVERB << "Perspective " << frustum << std::endl;
 }
 
 void Channel::applyOrtho() const
@@ -733,7 +733,7 @@ void Channel::applyOrtho() const
     EQ_GL_CALL( glOrtho( ortho.left(), ortho.right(),
                          ortho.bottom(), ortho.top(),
                          ortho.near_plane(), ortho.far_plane() )); 
-    EQVERB << "Orthographic " << ortho << endl;
+    EQVERB << "Orthographic " << ortho << std::endl;
 }
 
 void Channel::applyScreenFrustum() const
@@ -742,14 +742,14 @@ void Channel::applyScreenFrustum() const
     EQ_GL_CALL( glOrtho( frustum.left(), frustum.right(),
                          frustum.bottom(), frustum.top(),
                          frustum.near_plane(), frustum.far_plane() ));
-    EQVERB << "Apply " << frustum << endl;
+    EQVERB << "Apply " << frustum << std::endl;
 }
 
 void Channel::applyHeadTransform() const
 {
     const Matrix4f& xfm = getHeadTransform();
     EQ_GL_CALL( glMultMatrixf( xfm.array ));
-    EQVERB << "Apply head transform: " << xfm << endl;
+    EQVERB << "Apply head transform: " << xfm << std::endl;
 }
 
 namespace
@@ -845,7 +845,7 @@ bool Channel::processEvent( const Event& event )
 
         default:
             EQWARN << "Unhandled channel event of type " << event.type
-                   << endl;
+                   << std::endl;
             EQUNIMPLEMENTED;
     }
 
@@ -886,7 +886,7 @@ void Channel::drawStatistics()
     Config* config = getConfig();
     EQASSERT( config );
 
-    vector< FrameStatistics > statistics;
+    std::vector< FrameStatistics > statistics;
     config->getStatistics( statistics );
 
     if( statistics.empty( )) 
@@ -912,7 +912,7 @@ void Channel::drawStatistics()
     int64_t                 xMax      = 0;
     int64_t                 xMin      = std::numeric_limits< int64_t >::max();
 
-    for( vector< FrameStatistics >::const_iterator i = statistics.begin();
+    for( std::vector< FrameStatistics >::const_iterator i = statistics.begin();
          i != statistics.end(); ++i )
     {
         const FrameStatistics&  frameStats  = *i;
@@ -951,7 +951,7 @@ void Channel::drawStatistics()
     std::map< uint32_t, IdleData >   idles;
 
     float dim = 0.0f;
-    for( vector< FrameStatistics >::reverse_iterator i = statistics.rbegin();
+    for( std::vector< FrameStatistics >::reverse_iterator i=statistics.rbegin();
          i != statistics.rend(); ++i )
     {
         const FrameStatistics&  frameStats  = *i;
@@ -1026,7 +1026,7 @@ void Channel::drawStatistics()
                         z = 0.7f; 
                         
                         glColor3f( 0.f, 0.f, 0.f );
-                        stringstream text;
+                        std::stringstream text;
                         text << static_cast< unsigned >( 100.f * stat.ratio ) 
                              << '%';
                         glRasterPos3f( x1+1, y2, 0.99f );
@@ -1102,7 +1102,7 @@ void Channel::drawStatistics()
     glColor3f( 1.f, 1.f, 1.f );
     nextY -= (HEIGHT + SPACE);
     glRasterPos3f( 60.f, static_cast< float >( nextY ), 0.99f );
-    ostringstream text;
+    std::ostringstream text;
     text << scale << "ms/pixel";
 
     if( !idles.empty( ))
@@ -1220,7 +1220,7 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
 {
     const ChannelConfigInitPacket* packet = 
         command.getPacket<ChannelConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "TASK channel config init " << packet << endl;
+    EQLOG( LOG_INIT ) << "TASK channel config init " << packet << std::endl;
 
     ChannelConfigInitReplyPacket reply;
     _error.clear();
@@ -1258,7 +1258,7 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
     else
         reply.result = false;
 
-    EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply << endl;
+    EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply << std::endl;
     send( command.getNode(), reply, _error );
     return net::COMMAND_HANDLED;
 }
@@ -1267,7 +1267,7 @@ net::CommandResult Channel::_cmdConfigExit( net::Command& command )
 {
     const ChannelConfigExitPacket* packet =
         command.getPacket<ChannelConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "Exit channel " << packet << endl;
+    EQLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
 
     ChannelConfigExitReplyPacket reply;
     if( _state == STATE_STOPPED )
@@ -1284,7 +1284,7 @@ net::CommandResult Channel::_cmdFrameStart( net::Command& command )
 {
     ChannelFrameStartPacket* packet = 
         command.getPacket<ChannelFrameStartPacket>();
-    EQVERB << "handle channel frame start " << packet << endl;
+    EQVERB << "handle channel frame start " << packet << std::endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
     _nativeContext.view     = packet->context.view;
@@ -1303,7 +1303,7 @@ net::CommandResult Channel::_cmdFrameFinish( net::Command& command )
     ChannelFrameFinishPacket* packet =
         command.getPacket<ChannelFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
-                       << endl;
+                       << std::endl;
 
     _context = &packet->context;
     frameFinish( packet->context.frameID, packet->frameNumber );
@@ -1322,7 +1322,7 @@ net::CommandResult Channel::_cmdFrameClear( net::Command& command )
 {
     ChannelFrameClearPacket* packet = 
         command.getPacket<ChannelFrameClearPacket>();
-    EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet << std::endl;
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
@@ -1336,7 +1336,7 @@ net::CommandResult Channel::_cmdFrameDraw( net::Command& command )
 {
     ChannelFrameDrawPacket* packet = 
         command.getPacket<ChannelFrameDrawPacket>();
-    EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet << std::endl;
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
@@ -1351,7 +1351,7 @@ net::CommandResult Channel::_cmdFrameDrawFinish( net::Command& command )
     ChannelFrameDrawFinishPacket* packet = 
         command.getPacket< ChannelFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
-                       << endl;
+                       << std::endl;
 
     ChannelStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
     frameDrawFinish( packet->frameID, packet->frameNumber );
@@ -1364,7 +1364,7 @@ net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
     ChannelFrameAssemblePacket* packet = 
         command.getPacket<ChannelFrameAssemblePacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
-                                       << packet << endl;
+                                       << packet << std::endl;
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
@@ -1396,7 +1396,7 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
     ChannelFrameReadbackPacket* packet = 
         command.getPacket<ChannelFrameReadbackPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
-                                       << packet << endl;
+                                       << packet << std::endl;
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
@@ -1427,7 +1427,7 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
     const ChannelFrameTransmitPacket* packet = 
         command.getPacket<ChannelFrameTransmitPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
-                                      << packet << endl;
+                                      << packet << std::endl;
 
     net::Session* session   = getSession();
     net::NodePtr  localNode = session->getLocalNode();
@@ -1442,7 +1442,7 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
         net::NodePtr toNode = localNode->connect( nodeID );
         EQASSERT( toNode->isConnected( ));
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
-                              << frame << " to " << nodeID << endl;
+                              << frame << " to " << nodeID << std::endl;
 
         frame->useSendToken( getIAttribute( IATTR_HINT_SENDTOKEN ) == ON );
         getNode()->transmitter.send( frame->getData(), toNode, 
@@ -1457,7 +1457,7 @@ net::CommandResult Channel::_cmdFrameViewStart( net::Command& command )
     ChannelFrameViewStartPacket* packet = 
         command.getPacket<ChannelFrameViewStartPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view start " << getName() <<  " "
-                                       << packet << endl;
+                                       << packet << std::endl;
 
     _setRenderContext( packet->context );
     // TBD ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
@@ -1472,7 +1472,7 @@ net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
     ChannelFrameViewFinishPacket* packet = 
         command.getPacket<ChannelFrameViewFinishPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view finish " << getName()
-                                      <<  " " << packet << endl;
+                                      <<  " " << packet << std::endl;
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_VIEW_FINISH, this );

@@ -22,6 +22,8 @@
 
 namespace eq
 {
+namespace fabric
+{
 
 Object::Object()
         : _dirty( DIRTY_NONE )
@@ -92,5 +94,5 @@ const std::string& Object::getName() const
     return _name;
 }
 
-
+}
 }

@@ -1,5 +1,5 @@
-Start implementing common data synchronization fabric for eq, eq::server
-and eq::admin.
+common data synchronization fabric:
+- move eq::Object to eq::fabric
 
 [x] May break build
 [ ] May break existing applications
