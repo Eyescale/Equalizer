@@ -1,4 +1,4 @@
-Partial Win32 build fix
+Fix Posix build
 
 [ ] May break build
 [ ] May break existing applications

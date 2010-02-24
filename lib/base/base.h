@@ -66,14 +66,10 @@
 #    define EQFABRIC_EXPORT EQ_DLLIMPORT
 #  endif
 #else // WIN32
-#  define EQ_DLLEXPORT //!< @internal
-#  define EQ_DLLIMPORT //!< @internal
 /** Mark the following function as exported in the Equalizer DSO. @internal */
 #  define EQ_EXPORT
-#  define EQSERVER_DLLEXPORT //!< @internal
-#  define EQSERVER_DLLIMPORT //!< @internal
-/** Mark the following function as exported in the server DSO. @internal */
 #  define EQSERVER_EXPORT
+#  define EQFABRIC_EXPORT
 #endif
 
 // Defining our own min/max macros seems to be the only sane way to get this
