@@ -1444,7 +1444,8 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     EQ_GL_CALL( glUseProgram( 0 ));
 
     if( op.pixel != Pixel::ALL )
-        glPixelZoom( op.pixel.w, op.pixel.h );
+        glPixelZoom( static_cast< float >( op.pixel.w ),
+                     static_cast< float >( op.pixel.h ));
 }
 
 

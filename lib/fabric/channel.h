@@ -19,7 +19,6 @@
 #define EQFABRIC_CHANNEL_H
 
 #include <eq/fabric/object.h>        // base class
-
 #include <eq/fabric/visitorResult.h> // enum
 
 namespace eq
@@ -46,7 +45,7 @@ namespace fabric
         EQFABRIC_EXPORT Channel( W* parent );
 
         /** Destruct the channel. @version 1.0 */
-        EQ_EXPORT virtual ~Channel();
+        EQFABRIC_EXPORT virtual ~Channel();
 
         /**
          * @name Data Access
@@ -65,10 +64,10 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQ_EXPORT VisitorResult accept( LeafVisitor< T > & visitor );
+        EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< T > & visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQ_EXPORT VisitorResult accept( LeafVisitor< T >& visitor ) const;
+        EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< T >& visitor ) const;
 
     protected:
         /** The parent window. */
