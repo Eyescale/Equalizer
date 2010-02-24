@@ -28,6 +28,8 @@
 #include <eq/util/objectManager.h>   // member
 #include <eq/net/object.h>           // base class
 
+#include <eq/fabric/channel.h>       // friend
+
 namespace eq
 {
     class OSPipe;
@@ -551,7 +553,9 @@ namespace eq
             char dummy[64];
         };
 
+        friend class fabric::Channel< Channel, Window >;
         friend class Channel;
+
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );
         Channel* _findChannel( const uint32_t id );

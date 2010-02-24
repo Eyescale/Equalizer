@@ -18,14 +18,15 @@
 #ifndef EQ_CHANNEL_H
 #define EQ_CHANNEL_H
 
-#include <eq/client/event.h>         // member
-#include <eq/client/renderContext.h> // member
+#include <eq/client/channelVisitor.h> // template typedef
+#include <eq/client/event.h>          // member
+#include <eq/client/renderContext.h>  // member
 #include <eq/client/types.h>
-#include <eq/client/visitorResult.h> // enum
-#include <eq/client/windowSystem.h>  // GLEWContext
-#include <eq/client/window.h>
+#include <eq/client/visitorResult.h>  // enum
+#include <eq/client/windowSystem.h>   // GLEWContext
+#include <eq/client/window.h>         // nested Window::ObjectManager class
 
-#include <eq/net/object.h>           // base class
+#include <eq/fabric/channel.h>        // base class
 
 namespace eq
 {
@@ -33,8 +34,6 @@ namespace util
 {
     class FrameBufferObject;
 }
-    class ChannelVisitor;
-
     /**
      * A channel represents a two-dimensional viewport within a Window.
      *
@@ -44,7 +43,7 @@ namespace util
      * RenderContext, which is computed by the server based on the rendering
      * description of the current configuration.
      */
-    class Channel : public net::Object
+    class Channel : public fabric::Channel< Channel, Window >
     {
     public:
     
@@ -73,12 +72,6 @@ namespace util
          * @name Data Access
          */
         //@{
-        /** @return the parent window. @version 1.0 */
-        Window* getWindow() { return _window; }
-
-        /** @return the parent window. @version 1.0 */
-        const Window* getWindow() const { return _window; }
-
         /** @return the parent pipe. @version 1.0 */
         EQ_EXPORT Pipe* getPipe();
 
@@ -99,9 +92,6 @@ namespace util
 
         /** @return the parent server. @version 1.0 */
         EQ_EXPORT ServerPtr getServer();
-
-        /** @return the name of the window. @version 1.0 */
-        const std::string& getName() const { return _name; }
 
         /** 
          * Get the GLEW context for this channel.
@@ -138,18 +128,6 @@ namespace util
          * @warning Experimental - may not be supported in the future
          */
         uint32_t getTasks() const { return _tasks; }
-
-        /** 
-         * Traverse this channel using a channel visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         * @version 1.0
-         */
-        EQ_EXPORT VisitorResult accept( ChannelVisitor& visitor );
-
-        /** Const-version of accept(). @version 1.0 */
-        EQ_EXPORT VisitorResult accept( ChannelVisitor& visitor ) const;
 
         /** 
          * Set the near and far planes for this channel.
@@ -677,12 +655,7 @@ namespace util
 
     private:
         //-------------------- Members --------------------
-        /** The parent window. */
-        Window* const _window;
         friend class Window;
-
-        /** The name. */
-        std::string    _name;
 
         /** The native render context parameters of this channel. */
         RenderContext _nativeContext;
@@ -776,9 +749,6 @@ namespace util
 
         /** Initialize the channel's drawable config. */
         void _initDrawableConfig();
-
-        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
-        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
 
         /* The command handler functions. */
         net::CommandResult _cmdConfigInit( net::Command& command );

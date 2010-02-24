@@ -18,29 +18,13 @@
 #ifndef EQ_CHANNELVISITOR_H
 #define EQ_CHANNELVISITOR_H
 
-#include <eq/client/visitorResult.h>  // enum
+#include <eq/fabric/leafVisitor.h>  // 'base' class
 
 namespace eq
 {
     class Channel;
 
     /** A visitor to traverse channels. @sa Channel::accept() */
-    class ChannelVisitor
-    {
-    public:
-        /** Constructs a new ChannelVisitor. @version 1.0 */
-        ChannelVisitor(){}
-        
-        /** Destruct the ChannelVisitor @version 1.0 */
-        virtual ~ChannelVisitor(){}
-
-        /** Visit a channel. @version 1.0 */
-        virtual VisitorResult visit( Channel* channel )
-            { return visit( static_cast< const Channel* >( channel )); }
-
-        /** Visit a channel during a const traversal. @version 1.0 */
-        virtual VisitorResult visit( const Channel* channel )
-            { return TRAVERSE_CONTINUE; }
-    };
+    typedef fabric::LeafVisitor< Channel > ChannelVisitor;
 }
 #endif // EQ_CHANNELVISITOR_H

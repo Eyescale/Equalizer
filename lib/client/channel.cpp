@@ -46,10 +46,6 @@
 
 namespace eq
 {
-/** @cond IGNORE */
-typedef net::CommandFunc<Channel> ChannelFunc;
-/** @endcond */
-
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CHANNEL_") + #attr )
 std::string Channel::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
@@ -59,7 +55,7 @@ std::string Channel::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Channel::Channel( Window* parent )
-        : _window( parent )
+        : fabric::Channel< Channel, Window >( parent )
         , _context( &_nativeContext )
         , _tasks( TASK_NONE )
         , _state( STATE_STOPPED )
@@ -69,14 +65,12 @@ Channel::Channel( Window* parent )
         , _initialSize( Vector2i::ZERO )
         , _maxSize( Vector2i::ZERO )
 {
-    parent->_addChannel( this );
     EQINFO << " New eq::Channel @" << (void*)this << std::endl;
 }
 
 Channel::~Channel()
 {  
     EQINFO << " Delete eq::Channel @" << (void*)this << std::endl;
-    _window->_removeChannel( this );
 }
 
 /** @cond IGNORE */
@@ -179,16 +173,6 @@ const GLEWContext* Channel::glewGetContext() const
 {
     EQASSERT( _window );
     return _window->glewGetContext();
-}
-
-VisitorResult Channel::accept( ChannelVisitor& visitor )
-{
-    return visitor.visit( this );
-}
-
-VisitorResult Channel::accept( ChannelVisitor& visitor ) const
-{
-    return visitor.visit( this );
 }
 
 bool Channel::configExit()
@@ -1233,7 +1217,7 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
         else
             _setViewport( packet->vp );
         
-        _name     = packet->name;
+        setName( packet->name );
         _tasks    = packet->tasks;
         _color    = packet->color;
         _drawable = packet->drawable;
@@ -1485,3 +1469,8 @@ net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
 }
 
 }
+
+#include "../fabric/channel.cpp"
+template class eq::fabric::Channel< eq::Channel, eq::Window >;
+
+

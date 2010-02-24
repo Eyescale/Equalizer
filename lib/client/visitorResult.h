@@ -18,37 +18,17 @@
 #ifndef EQ_VISITORRESULT_H
 #define EQ_VISITORRESULT_H
 
-#include <iostream>
+#include <eq/fabric/visitorResult.h> // 'base' class
 
 namespace eq
 {
      /** The result code from any visit operation. */
-    enum VisitorResult
-    {
-        TRAVERSE_CONTINUE,   //!< continue the traversal
-        TRAVERSE_TERMINATE,  //!< abort the traversal
-        TRAVERSE_PRUNE       //!< do not traverse current entity downwards
-    };
+    typedef fabric::VisitorResult VisitorResult;
 
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const VisitorResult result )
-    {
-        switch( result )
-        {
-            case TRAVERSE_CONTINUE:
-                os << "continue";
-                break;
-            case TRAVERSE_TERMINATE:
-                os << "terminate";
-                break;
-            case TRAVERSE_PRUNE:
-                os << "prune";
-                break;
-            default:
-                os << "ERROR";
-                break;
-        }
-        return os;
-    }
+    /** @cond IGNORE */
+    using fabric::TRAVERSE_CONTINUE;
+    using fabric::TRAVERSE_TERMINATE;
+    using fabric::TRAVERSE_PRUNE;
+    /** @endcond */
 }
 #endif // EQ_VISITORRESULT_H

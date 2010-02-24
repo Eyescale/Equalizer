@@ -82,8 +82,11 @@ HEADER_SRC = \
 	net/types.h \
 	net/udpConnection.h \
 	net/version.h \
+	fabric/channel.h \
 	fabric/init.h \
+	fabric/leafVisitor.h \
 	fabric/object.h \
+	fabric/visitorResult.h \
 	client/canvas.h \
 	client/canvasVisitor.h \
 	client/channel.h \

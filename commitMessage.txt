@@ -1,5 +1,5 @@
 common data synchronization fabric:
-- move eq::Object to eq::fabric
+- Template channel base class
 
 [x] May break build
 [ ] May break existing applications
