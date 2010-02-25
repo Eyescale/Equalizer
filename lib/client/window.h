@@ -557,7 +557,7 @@ namespace eq
         friend class Channel;
 
         void _addChannel( Channel* channel );
-        void _removeChannel( Channel* channel );
+        EQ_EXPORT void _removeChannel( Channel* channel );
         Channel* _findChannel( const uint32_t id );
 
         /** Add a channel's rendering context to the current frame's list */

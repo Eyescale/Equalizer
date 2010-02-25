@@ -28,6 +28,7 @@
 #include "types.h"
 #include "visitorResult.h"  // enum
 #include "swapBarrier.h"
+
 #include <eq/client/pixelViewport.h>
 #include <eq/client/window.h>
 #include <eq/net/barrier.h>
