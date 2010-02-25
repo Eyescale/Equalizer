@@ -1,7 +1,6 @@
-Move pixel, pixel viewport, zoom, viewport to fabric namespace, add
-typedefs in eq.
+Really fix 2957249: EQ sometimes fails on layout switching
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature

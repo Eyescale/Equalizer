@@ -436,10 +436,10 @@ void Pipe::_releaseViews()
     for( bool changed = true; changed; )
     {
         changed = false;
-        for( ViewHash::iterator i = _views.begin(); 
-             i != _views.end(); ++i )
+        for( ViewHash::iterator i = _views.begin(); i != _views.end(); ++i )
         {
             View* view = i->second;
+            view->commit();
             if( view->getVersion() + 20 > view->getHeadVersion( ))
                 continue;
 

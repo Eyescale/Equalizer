@@ -112,6 +112,10 @@ bool Config::init()
 
 bool Config::exit()
 {
+    eq::Object* object = 0;
+    while( _dirtyObjects.tryPop( object ))
+        object->sync();
+
     const bool ret = eq::Config::exit();
     _deregisterData();
 
@@ -343,10 +347,7 @@ void Config::_updateData()
     // changed objects
     eq::Object* object = 0;
     while( _dirtyObjects.tryPop( object ))
-    {
-        object->sync();
-        object->commit();
-    }
+        object->sync(); // commit is done in eq::Config::startFrame
 }
 
 bool Config::isIdleAA()

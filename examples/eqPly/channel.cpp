@@ -436,7 +436,6 @@ bool Channel::_initAccum()
                 }
 
                 view->setIdleSteps( 0 );
-                view->commit();
                 return false;
             }
         }
@@ -465,7 +464,6 @@ bool Channel::_initAccum()
            << std::endl;
 
     view->setIdleSteps( accum.buffer ? 256 : 0 );
-    view->commit();
     return true;
 }
 

@@ -42,6 +42,9 @@ namespace server
      * on a model, in the sense used by the MVC pattern. It can be a scene,
      * viewing mode, viewing position, or any other representation of the
      * application's data.
+     *
+     * @warning Never commit a View. Equalizer does take care of this to
+     *          correctly associate view version with rendering frames.
      */
     class View : public Frustum
     {

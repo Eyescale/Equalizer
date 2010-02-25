@@ -41,7 +41,6 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
          i != _config->_canvases.end(); ++i )
     {
         Canvas* canvas = *i;
-        //canvas->_deregister();
         nodeFactory->releaseCanvas( canvas );
     }
     _config->_canvases.clear();

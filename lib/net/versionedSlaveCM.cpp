@@ -115,8 +115,8 @@ uint32_t VersionedSlaveCM::sync( const uint32_t version )
     }
 
     EQASSERTINFO( _version <= version,
-                  "can't sync to older version of object (" << _version << 
-                  ", " << version <<")");
+                  "can't sync to older version of object " << _object->getID()<<
+                  " (" << _version << ", " << version <<")");
 
     while( _version < version )
     {
@@ -259,16 +259,16 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
     {
         const ObjectInstanceDataIStream* stream = *i;
         _queuedVersions.pushFront( new ObjectInstanceDataIStream( *stream ));
-        EQLOG( LOG_OBJECTS ) << stream->getVersion();
+        EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
     }
 
-    EQLOG( LOG_OBJECTS ) << ", back ";
+    EQLOG( LOG_OBJECTS ) << " back ";
     for( InstanceDataVector::const_iterator i = tail.begin();
          i != tail.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;
         _queuedVersions.push( new ObjectInstanceDataIStream( *stream ));
-        EQLOG( LOG_OBJECTS ) << stream->getVersion();
+        EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
     }
 
 #ifndef NDEBUG // consistency check

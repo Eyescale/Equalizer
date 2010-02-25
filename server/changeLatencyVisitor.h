@@ -64,13 +64,6 @@ public:
         return TRAVERSE_CONTINUE; 
     }
 
-    virtual VisitorResult visitLeaf( View* view )
-    {
-        // change latency in barrier
-        view->setAutoObsolete( _latency );
-        return TRAVERSE_CONTINUE; 
-    }
-
 private:
     const uint32_t _latency;
 };

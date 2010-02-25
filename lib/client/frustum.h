@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -78,6 +78,12 @@ namespace eq
             DIRTY_FILL2      = Object::DIRTY_CUSTOM << 4,
             DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 5,
         };
+
+        // Disable - the application should never need to commit a Frustum
+        virtual uint32_t commit() { return Object::commit(); }
+        uint32_t commitNB() { return Object::commitNB(); }
+        uint32_t commitSync( const uint32_t commitID )
+            { return Object::commitSync( commitID ); }
 
     private:
         /** The frustum description as a wall. */
